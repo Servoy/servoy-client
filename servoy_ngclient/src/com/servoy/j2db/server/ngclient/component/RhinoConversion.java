@@ -52,6 +52,12 @@ import com.servoy.j2db.util.serialize.JSONConverter;
  */
 public class RhinoConversion
 {
+	/**
+	 * This is a hack to create a NativeArray that is not dense in order to call the put/delete methods when calling the splice method in native javascript.
+	 * The maximumInitialCapacity from NativeArray is 10000
+	 * If the length of the {@link NativeArray} is greater that 10000, the array will not be dense.
+	 */
+	private final static long MAX_NATIVE_ARRAY_LENGTH = 10001;
 
 	/**
 	 * Default conversion used to convert from Rhino property types that do not explicitly implement component <-> Rhino conversions. <BR/><BR/>
@@ -147,40 +153,74 @@ public class RhinoConversion
 			return new JSDataSet((IDataSet)webComponentValue);
 		}
 
-		if (webComponentValue instanceof List)
+		if (webComponentValue instanceof List && !(webComponentValue instanceof NativeArray))
 		{
 			List< ? > array = (List< ? >)webComponentValue;
 			Context cx = Context.enter();
 			Scriptable newObject = null;
 			try
 			{
-				newObject = cx.newObject(startScriptable, "Array");
-				if (newObject != null)
+				final boolean[] initializing = new boolean[] { true };
+				newObject = new NativeArray(MAX_NATIVE_ARRAY_LENGTH)
 				{
-					for (int i = 0; i < array.size(); i++)
+					@Override
+					public void put(int index, Scriptable start, Object value)
 					{
-						Object value = null;
-						try
+						super.put(index, start, value);
+						if (!initializing[0])
 						{
-							value = array.get(i);
+							value = defaultFromRhino(value, null);
+
+							if (index < ((List)webComponentValue).size())
+							{
+								if (!Utils.equalObjects(((List)webComponentValue).get(index), value))
+								{
+									((List)webComponentValue).set(index, value);
+									if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
+								}
+							}
+							else
+							{
+								((List)webComponentValue).add(index, value);
+								if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
+
+							}
 						}
-						catch (JSONException e)
-						{
-							Debug.error(e);
-						}
-						if (value != null)
-						{
-							value = defaultToRhino(value, pd, webObjectContext, startScriptable);
-						}
-						ScriptRuntime.setObjectIndex(newObject, i, value, cx);
 					}
-					return newObject;
-				}
-				else
+
+					@Override
+					public void delete(int index)
+					{
+						super.delete(index);
+						if (index < ((List)webComponentValue).size())
+						{
+							((List)webComponentValue).remove(index);
+						}
+						if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
+					}
+				};
+
+				ScriptableObject.putProperty(newObject, "length", array.size());
+				ScriptRuntime.setBuiltinProtoAndParent((NativeArray)newObject, startScriptable, TopLevel.Builtins.Array);
+				for (int i = 0; i < array.size(); i++)
 				{
-					Debug.error("Cannot create javascript array from jsonarray " + webComponentValue + "in property/method: " + pd != null ? pd.getName()
-						: "undefined");
+					Object value = null;
+					try
+					{
+						value = array.get(i);
+					}
+					catch (JSONException e)
+					{
+						Debug.error(e);
+					}
+					if (value != null)
+					{
+						value = defaultToRhino(value, pd, webObjectContext, startScriptable);
+					}
+					ScriptRuntime.setObjectIndex(newObject, i, value, cx);
 				}
+				initializing[0] = false;
+				return newObject;
 			}
 			finally
 			{
@@ -225,22 +265,14 @@ public class RhinoConversion
 				};
 
 				ScriptRuntime.setBuiltinProtoAndParent((NativeObject)newObject, startScriptable, TopLevel.Builtins.Object);
-				if (newObject != null)
+				for (Object key : ((Map)webComponentValue).keySet())
 				{
-					for (Object key : ((Map)webComponentValue).keySet())
-					{
-						((NativeObject)newObject).defineProperty(key.toString(),
-							defaultToRhino(((Map)webComponentValue).get(key), pd, webObjectContext, startScriptable),
-							ScriptableObject.EMPTY);
-					}
-					initializing[0] = false;
-					return newObject;
+					((NativeObject)newObject).defineProperty(key.toString(),
+						defaultToRhino(((Map)webComponentValue).get(key), pd, webObjectContext, startScriptable),
+						ScriptableObject.EMPTY);
 				}
-				else
-				{
-					Debug.error("Cannot create javascript object from jsonobject " + webComponentValue + "  in property/method: " + pd != null ? pd.getName()
-						: "undefined");
-				}
+				initializing[0] = false;
+				return newObject;
 			}
 			finally
 			{
@@ -268,7 +300,7 @@ public class RhinoConversion
 						{
 							try
 							{
-								value = converter.convertToJSON(value);
+								value = converter.convertToJSONObject(value);
 							}
 							catch (Exception e)
 							{
@@ -286,82 +318,104 @@ public class RhinoConversion
 					public void delete(String name)
 					{
 						super.delete(name);
-						json.put(name, (Object)null);
+						json.remove(name);
 						if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
 					}
 				};
 				ScriptRuntime.setBuiltinProtoAndParent((NativeObject)newObject, startScriptable,
 					TopLevel.Builtins.Object);
-				if (newObject != null)
+				Iterator<String> iterator = json.keys();
+				while (iterator.hasNext())
 				{
-					Iterator<String> iterator = json.keys();
-					while (iterator.hasNext())
+					String key = iterator.next();
+					Object value = null;
+					try
 					{
-						String key = iterator.next();
-						Object value = null;
-						try
-						{
-							value = ServoyJSONObject.jsonNullToNull(json.get(key));
-						}
-						catch (JSONException e)
-						{
-							Debug.error(e);
-						}
-						if (value != null)
-						{
-							value = defaultToRhino(value, pd, webObjectContext, startScriptable);
-						}
-						ScriptRuntime.setObjectElem(newObject, key, value, cx);
+						value = ServoyJSONObject.jsonNullToNull(json.get(key));
 					}
-					initializing[0] = false;
-					return newObject;
+					catch (JSONException e)
+					{
+						Debug.error(e);
+					}
+					if (value != null)
+					{
+						value = defaultToRhino(value, pd, webObjectContext, startScriptable);
+					}
+					ScriptRuntime.setObjectElem(newObject, key, value, cx);
 				}
-				else
-				{
-					Debug.error("Cannot create javascript object from jsonobject " + webComponentValue + "  in property/method: " + pd != null ? pd.getName()
-						: "undefined");
-				}
+				initializing[0] = false;
+				return newObject;
 			}
 			finally
 			{
 				Context.exit();
 			}
-			return webComponentValue;
 		}
 		if (webComponentValue instanceof JSONArray)
 		{
 			JSONArray array = (JSONArray)webComponentValue;
 			Context cx = Context.enter();
-			Scriptable newObject = null;
+			NativeArray newObject = null;
 			try
 			{
-				newObject = cx.newObject(startScriptable, "Array");
-				if (newObject != null)
+				final boolean[] initializing = new boolean[] { true };
+				newObject = new NativeArray(MAX_NATIVE_ARRAY_LENGTH)
 				{
-					for (int i = 0; i < array.length(); i++)
+					private final JSONConverter converter = new JSONConverter();
+
+					@Override
+					public void put(int index, Scriptable start, Object value)
 					{
-						Object value = null;
-						try
+						super.put(index, start, value);
+						if (!initializing[0])
 						{
-							value = array.get(i);
+							try
+							{
+								value = converter.convertToJSONObject(value);
+							}
+							catch (Exception e)
+							{
+								Debug.error(e);
+							}
+							if (!Utils.equalObjects(array.opt(index), value))
+							{
+								array.put(index, value);
+								if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
+							}
 						}
-						catch (JSONException e)
-						{
-							Debug.error(e);
-						}
-						if (value != null)
-						{
-							value = defaultToRhino(value, pd, webObjectContext, startScriptable);
-						}
-						ScriptRuntime.setObjectIndex(newObject, i, value, cx);
 					}
-					return newObject;
-				}
-				else
+
+					@Override
+					public void delete(int index)
+					{
+						super.delete(index);
+						array.remove(index);
+						if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
+					}
+				};
+
+				ScriptableObject.putProperty(newObject, "length", array.length());
+				ScriptRuntime.setBuiltinProtoAndParent(newObject, startScriptable,
+					TopLevel.Builtins.Array);
+				for (int i = 0; i < array.length(); i++)
 				{
-					Debug.error("Cannot create javascript array from jsonarray " + webComponentValue + "in property/method: " + pd != null ? pd.getName()
-						: "undefined");
+					Object value = null;
+					try
+					{
+						value = array.get(i);
+					}
+					catch (JSONException e)
+					{
+						Debug.error(e);
+					}
+					if (value != null)
+					{
+						value = defaultToRhino(value, pd, webObjectContext, startScriptable);
+					}
+					ScriptRuntime.setObjectIndex(newObject, i, value, cx);
 				}
+				initializing[0] = false;
+				return newObject;
 			}
 			finally
 			{

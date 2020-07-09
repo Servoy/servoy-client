@@ -381,7 +381,7 @@ public class RhinoDefaultConversionsTest
 	public void testMapWithArrayAndDateAndTestChanges()
 	{
 		Date date = new Date();
-		List array = Arrays.asList("Hello World", 4, 3.5, true, "Dis is a longe string", 35.983564, false, date);
+		List array = new ArrayList<Object>(Arrays.asList("Hello World", 4, 3.5, true, "Dis is a longe string", 35.983564, false, date));
 		Map<Object, Object> map = new HashMap<Object, Object>();
 		map.put("childArray", array);
 		map.put("childDate", date);
@@ -424,20 +424,20 @@ public class RhinoDefaultConversionsTest
 
 		// FIXME it seems that the NativeArray that we create for List sablo val. doesn't intercept the operations in it
 		// ok now change the date inside the array inside the object (rhino) and see if it is reflected in sablo
-//		rhinoContext.evaluateString(someRhinoScope, "a.childArray[7] = new Date(1990, 6, 15);", "dummy js file name from junit tests", 0, null);
-//		assertTrue("Check date from array change from Rhino", date.getTime() > ((Date)((List)map.get("childArray")).get(7)).getTime());
-//		assertTrue("We changed the date just now in the array; component should know it has changed", component.hasChanges());
-//		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
-//		assertFalse("Now it no longer has changes", component.hasChanges());
+		rhinoContext.evaluateString(someRhinoScope, "a.childArray[7] = new Date(1990, 6, 15);", "dummy js file name from junit tests", 0, null);
+		assertTrue("Check date from array change from Rhino", date.getTime() > ((Date)((List)map.get("childArray")).get(7)).getTime());
+		assertTrue("We changed the date just now in the array; component should know it has changed", component.hasChanges());
+		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
+		assertFalse("Now it no longer has changes", component.hasChanges());
 
 		// FIXME it seems that the NativeArray that we create for List sablo val. doesn't intercept the operations in it
 		// ok now add/remove (splice) from array inside the object (rhino) and see if it is reflected in sablo
-//		rhinoContext.evaluateString(someRhinoScope, "a.childArray.splice(2, 2, "aha")", "dummy js file name from junit tests", 0, null);
-//		assertEquals("Check childDate of array change from Rhino", "aha", ((List)map.get("childArray")).get(2));
-//		assertEquals("New length of array", 7, ((List)map.get("childArray")).size());
-//		assertTrue("We changed the date just now in the array; component should know it has changed", component.hasChanges());
-//		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
-//		assertFalse("Now it no longer has changes", component.hasChanges());
+		rhinoContext.evaluateString(someRhinoScope, "a.childArray.splice(2, 2, \"aha\")", "dummy js file name from junit tests", 0, null);
+		assertEquals("Check childDate of array change from Rhino", "aha", ((List)map.get("childArray")).get(2));
+		assertEquals("New length of array", 7, ((List)map.get("childArray")).size());
+		assertTrue("We changed the date just now in the array; component should know it has changed", component.hasChanges());
+		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
+		assertFalse("Now it no longer has changes", component.hasChanges());
 	}
 
 	@Test
@@ -480,11 +480,11 @@ public class RhinoDefaultConversionsTest
 
 		// FIXME it seems that this code from RhinoConversions: value = converter.convertToJSON(value); turns a number value into a String
 		// ok now change the date from rhino and see that we get notified and the sablo value gets updated
-//		rhinoContext.evaluateString(someRhinoScope, "a.childNumber = 543;", "dummy js file name from junit tests", 0, null);
-//		assertEquals("Check childNumber change from Rhino", 543, jsonObject.get("childNumber"));
-//		assertTrue("We changed the date just now in the map; component should know it has changed", component.hasChanges());
-//		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
-//		assertFalse("Now it no longer has changes", component.hasChanges());
+		rhinoContext.evaluateString(someRhinoScope, "a.childNumber = 543;", "dummy js file name from junit tests", 0, null);
+		assertEquals("Check childNumber change from Rhino", 543, jsonObject.get("childNumber"));
+		assertTrue("We changed the date just now in the map; component should know it has changed", component.hasChanges());
+		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
+		assertFalse("Now it no longer has changes", component.hasChanges());
 
 		// ok now delete the string from rhino obj. and see that we get notified and the sablo value gets updated
 		rhinoContext.evaluateString(someRhinoScope, "delete a.childString;", "dummy js file name from junit tests", 0, null);
@@ -496,20 +496,20 @@ public class RhinoDefaultConversionsTest
 
 		// FIXME it seems that the NativeArray that we create for JSONArray sablo val. doesn't intercept the operations in it
 		// ok now change something in the array and see that it does get updated and that it is marked as changed
-//		rhinoContext.evaluateString(someRhinoScope, "a.childArray[5] = 987;", "dummy js file name from junit tests", 0, null);
-//		assertEquals("Check childNumber of array change from Rhino", 987, ((JSONArray)jsonObject.get("childArray")).get(5));
-//		assertTrue("We changed the date just now in the map; component should know it has changed", component.hasChanges());
-//		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
-//		assertFalse("Now it no longer has changes", component.hasChanges());
+		rhinoContext.evaluateString(someRhinoScope, "a.childArray[5] = 987;", "dummy js file name from junit tests", 0, null);
+		assertEquals("Check childNumber of array change from Rhino", 987, ((JSONArray)jsonObject.get("childArray")).get(5));
+		assertTrue("We changed the date just now in the map; component should know it has changed", component.hasChanges());
+		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
+		assertFalse("Now it no longer has changes", component.hasChanges());
 
 		// FIXME it seems that the NativeArray that we create for JSONArray sablo val. doesn't intercept the operations in it
 		// ok now add/remove (splice) from array inside the object (rhino) and see if it is reflected in sablo
-//		rhinoContext.evaluateString(someRhinoScope, "a.childArray.splice(2, 2, "aha")", "dummy js file name from junit tests", 0, null);
-//		assertEquals("Check childDate of array change from Rhino", "aha", ((JSONArray)jsonObject.get("childArray")).get(2));
-//		assertEquals("New length of array", 6, ((JSONArray)jsonObject.get("childArray")).length());
-//		assertTrue("We changed the date just now in the array; component should know it has changed", component.hasChanges());
-//		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
-//		assertFalse("Now it no longer has changes", component.hasChanges());
+		rhinoContext.evaluateString(someRhinoScope, "a.childArray.splice(2, 2, \"aha\")", "dummy js file name from junit tests", 0, null);
+		assertEquals("Check childDate of array change from Rhino", "\"aha\"", ((JSONArray)jsonObject.get("childArray")).get(2));
+		assertEquals("New length of array", 6, ((JSONArray)jsonObject.get("childArray")).length());
+		assertTrue("We changed the date just now in the array; component should know it has changed", component.hasChanges());
+		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
+		assertFalse("Now it no longer has changes", component.hasChanges());
 	}
 
 	@Test
@@ -602,9 +602,9 @@ public class RhinoDefaultConversionsTest
 
 		// FIXME it seems that the NativeArray that we create for List sablo val. doesn't intercept the operations in it
 		// now the component should be aware that it's objectT/defaultConversionsSubProp has changes
-//		assertTrue("We changed the 'object' prop; component should know it has changed", component.hasChanges());
-//		assertTrue("Component should know 'object' prop changed", component.getAndClearChanges().content.containsKey("objectT")); // also clears changes
-//		assertFalse("Now it no longer has changes", component.hasChanges());
+		assertTrue("We changed the 'object' prop; component should know it has changed", component.hasChanges());
+		assertTrue("Component should know 'object' prop changed", component.getAndClearChanges().content.containsKey("objectT")); // also clears changes
+		assertFalse("Now it no longer has changes", component.hasChanges());
 	}
 
 	@Test
@@ -634,9 +634,9 @@ public class RhinoDefaultConversionsTest
 
 		// FIXME it seems that the NativeArray that we create for List sablo val. doesn't intercept the operations in it
 		// now the component should be aware that it's objectT/defaultConversionsSubProp has changes
-//		assertTrue("We changed something in the 'object' prop", component.hasChanges());
-//		assertTrue("Component should know 'object' prop changed", component.getAndClearChanges().content.containsKey("objectT")); // also clears changes
-//		assertFalse("Now it no longer has changes", component.hasChanges());
+		assertTrue("We changed something in the 'object' prop", component.hasChanges());
+		assertTrue("Component should know 'object' prop changed", component.getAndClearChanges().content.containsKey("objectT")); // also clears changes
+		assertFalse("Now it no longer has changes", component.hasChanges());
 	}
 
 	@Test
