@@ -300,7 +300,7 @@ public class RhinoConversion
 						{
 							try
 							{
-								value = converter.convertToJSONObject(value);
+								value = converter.convertToJSONValue(value);
 							}
 							catch (Exception e)
 							{
@@ -371,7 +371,7 @@ public class RhinoConversion
 						{
 							try
 							{
-								value = converter.convertToJSONObject(value);
+								value = converter.convertToJSONValue(value);
 							}
 							catch (Exception e)
 							{

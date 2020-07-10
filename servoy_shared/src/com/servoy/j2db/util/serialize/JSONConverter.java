@@ -70,7 +70,7 @@ public class JSONConverter
 	 * @return
 	 * @throws Exception
 	 */
-	public Object convertToJSONObject(Object value) throws Exception
+	public Object convertToJSONValue(Object value) throws Exception
 	{
 		if (value == null || value == Undefined.instance) return null;
 		if (value instanceof IFoundSet || value instanceof IRecord) throw new RuntimeException("value cant be a record or foundset"); //$NON-NLS-1$
