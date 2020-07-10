@@ -38,7 +38,6 @@ public interface IBaseColumn
 	static final int NON_IDENT_COLUMNS = ~IDENT_COLUMNS;
 
 	static final int[] allDefinedRowIdents = new int[] { NORMAL_COLUMN, PK_COLUMN, USER_ROWID_COLUMN };
-	static final int[] allDefinedOtherFlags = new int[] { UUID_COLUMN, EXCLUDED_COLUMN, TENANT_COLUMN };
 
 	int getDataProviderType();
 

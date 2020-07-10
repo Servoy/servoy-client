@@ -77,8 +77,6 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	private String databaseDefaultValue = null;
 	private boolean allowNull = true;
 	private ColumnInfo columnInfo;
-	private boolean isUUID = false;
-	private boolean isNativetype = false;
 
 /*
  * _____________________________________________________________ Declaration and definition of constructors
@@ -1205,7 +1203,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	 */
 	public boolean isUUID()
 	{
-		return isUUID;
+		return hasFlag(UUID_COLUMN);
 	}
 
 	/**
@@ -1215,7 +1213,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	 */
 	public void setUUIDFlag(boolean isUUID)
 	{
-		this.isUUID = isUUID;
+		setFlag(UUID_COLUMN, isUUID);
 	}
 
 	/**
@@ -1223,7 +1221,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	 */
 	public boolean isNativetype()
 	{
-		return isNativetype;
+		return hasFlag(NATIVE_COLUMN);
 	}
 
 	/**
@@ -1231,7 +1229,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	 */
 	public void setNativetypeFlag(boolean isNativetype)
 	{
-		this.isNativetype = isNativetype;
+		setFlag(NATIVE_COLUMN, isNativetype);
 	}
 
 	private transient String note;//used to show temp tooltip text when hovering over
@@ -1317,6 +1315,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		if ((flags & UUID_COLUMN) != 0) sb.append(" uuid"); //$NON-NLS-1$
 		if ((flags & EXCLUDED_COLUMN) != 0) sb.append(" excluded"); //$NON-NLS-1$
 		if ((flags & TENANT_COLUMN) != 0) sb.append(" tenant"); //$NON-NLS-1$
+		if ((flags & NATIVE_COLUMN) != 0) sb.append(" native"); //$NON-NLS-1$
 		return sb.toString().trim();
 	}
 
