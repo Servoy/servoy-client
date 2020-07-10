@@ -252,7 +252,7 @@ public class MediaResourcesServlet extends HttpServlet
 
 	private boolean sendDynamicData(HttpServletRequest request, HttpServletResponse response, String dynamicID, int clientnr) throws IOException
 	{
-		if (getClient(request, clientnr) != null && dynamicMediasMap.containsKey(dynamicID))
+		if (getSession(request, clientnr) != null && dynamicMediasMap.containsKey(dynamicID))
 		{
 			MediaInfo mediaInfo = dynamicMediasMap.get(dynamicID);
 			mediaInfo.touch();
