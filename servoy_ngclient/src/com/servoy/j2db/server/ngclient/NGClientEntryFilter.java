@@ -710,6 +710,13 @@ public class NGClientEntryFilter extends WebEntry
 		variableSubstitution.put("pathname", request.getRequestURI());
 		variableSubstitution.put("querystring", HTTPUtils.generateQueryString(request.getParameterMap(), request.getCharacterEncoding()));
 		variableSubstitution.put("nonce", HTTPUtils.getNonce(request));
+		String lang = "en";
+		String requestLanguage = request.getHeader("accept-language");
+		if (requestLanguage != null)
+		{
+			lang = request.getLocale().getLanguage();
+		}
+		variableSubstitution.put("lang", lang);
 		String titleText = fs.getSolution().getTitleText();
 		if (StringUtils.isBlank(titleText))
 		{
