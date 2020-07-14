@@ -216,4 +216,11 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public void removeFoundSet(FoundSet foundset);
 
 	public void refreshFoundsetsForTenantTables();
+
+	/**
+	 * @param record
+	 * @param state
+	 * @return
+	 */
+	public JSValidationObject validateRecord(IRecordInternal record, Object state);
 }

@@ -125,7 +125,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		{
 			public Class< ? >[] getAllReturnedTypes()
 			{
-				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, Record.class, FoundSet.class, JSTable.class, //
+				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, JSProblem.class, JSValidationObject.class, Record.class, FoundSet.class, JSTable.class, //
 					QBSelect.class, QBAggregate.class, QBColumn.class, QBColumns.class, QBCondition.class, //
 					QBFunction.class, QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBWhereCondition.class, QBResult.class, //
 					QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, QBFunctions.class, QUERY_COLUMN_TYPES.class, ViewFoundSet.class, ViewRecord.class };
@@ -2755,6 +2755,29 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		return true;
 	}
 
+	/**
+	 * @param record The record to validate.
+	 *
+	 * @throws ServoyException
+	 */
+	@JSFunction
+	public JSValidationObject validateRecord(IJSRecord record) throws ServoyException
+	{
+		return validateRecord(record, null);
+	}
+
+	/**
+	 * @param record The record to validate.
+	 * @param state The extra state that is passed on the the validation methods.
+	 *
+	 * @throws ServoyException
+	 */
+	@JSFunction
+	public JSValidationObject validateRecord(IJSRecord record, Object state) throws ServoyException
+	{
+		checkAuthorized();
+		return application.getFoundSetManager().validateRecord((IRecordInternal)record, state);
+	}
 
 	/**
 	 * Saves all outstanding (unsaved) data and exits the current record.

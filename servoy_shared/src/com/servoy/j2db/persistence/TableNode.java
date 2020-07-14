@@ -238,25 +238,56 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * A method that is executed before an insert operation. The method can block the insert operation by returning false.
 	 *
 	 * @templatedescription
+	 * Record validation method, will be called by databaseManager.validateRecord() and when databaseManager.saveData() is called.
+	 * Validate changes or state of the record.
+	 * All errors need toe be reported in teh validationObject that is then returned by databaseManager.validateRecord() and is also placed
+	 * on the record itself (record.validationObject)
+	 *
+	 * @templatename onValidate
+	 * @templateparam JSRecord<${dataSource}> record record that must be validated
+	 * @templateparam JSValidationObject validationObject the object where all the problems can be reported against.
+	 * @templateparam Object stateObject an object that a user can give to validateRecord for extra state (optional, can be null).
+	 * @templateaddtodo
+	 * @templatecode
+	 *
+	 * if (record.mynumber > 10) validationObject.report("mynumber must be greater then 10", "mynumber", LOGGINGLEVEL.ERROR);
+	 *
+	 */
+	public int getOnValidateMethodID()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONVALIDATEMETHODID).intValue();
+	}
+
+	public void setOnValidateMethodID(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONVALIDATEMETHODID, arg);
+	}
+
+	/**
+	 * A method that is executed before an insert operation. The method can block the insert operation by returning false.
+	 *
+	 * @templatedescription
 	 * Record pre-insert trigger
 	 * Validate the record to be inserted.
-	 * When false is returned the record will not be inserted in the database.
+	 * When false is returned or a validaton error is added to the validationObject the record will not be inserted in the database.
 	 * When an exception is thrown the record will also not be inserted in the database but it will be added to databaseManager.getFailedRecords(),
 	 * the thrown exception can be retrieved via record.exception.getValue().
 	 * @templatename onRecordInsert
 	 * @templatetype Boolean
 	 * @templateparam JSRecord<${dataSource}> record record that will be inserted
+	 * @templateparam JSValidationObject validationObject the object where all the problems can be reported against
+	 * @templateparam Object stateObject an object that a user can give to validateRecord for extra state (optional, can be null).
 	 * @templateaddtodo
 	 * @templatecode
 	 *
-	 * var not_valid = false;
-	 * // test if it is valid.
-	 *
-	 * // throw exception to pass info to handler, will be returned in record.exception.getValue() when record.exception is a DataException
-	 * if (not_valid) throw 'cannot insert'
+	 * var valid = true;
+	 * if (record.mynumber > 10) {
+	 *   validationObject.report("mynumber must be greater then 10", "mynumber",LOGGINGLEVEL.ERROR);
+	 *   valid = true; // keep the valid on true if you just report through the validationObject and want to also execute other oninsert methods.;
+	 * }
 	 *
 	 * // return boolean to indicate success
-	 * return true
+	 * return valid;
 	 */
 	public int getOnInsertMethodID()
 	{
@@ -274,23 +305,25 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templatedescription
 	 * Record pre-update trigger
 	 * Validate the record to be updated.
-	 * When false is returned the record will not be updated in the database.
+	 * When false is returned or a validaton error is added to the validationObject the record will not be updated in the database.
 	 * When an exception is thrown the record will also not be updated in the database but it will be added to databaseManager.getFailedRecords(),
 	 * the thrown exception can be retrieved via record.exception.getValue().
 	 * @templatename onRecordUpdate
 	 * @templatetype Boolean
 	 * @templateparam JSRecord<${dataSource}> record record that will be updated
+	 * @templateparam JSValidationObject validationObject the object where all the problems can be reported against
+	 * @templateparam Object stateObject an object that a user can give to validateRecord for extra state (optional, can be null).
 	 * @templateaddtodo
 	 * @templatecode
 	 *
-	 * var not_valid = false;
-	 * // test if it is valid.
-	 *
-	 * // throw exception to pass info to handler, will be returned in record.exception.getValue() when record.exception is a DataException
-	 * if (not_valid) throw 'cannot update'
+	 * var valid = true;
+	 * if (record.mynumber > 10) {
+	 *   validationObject.report("mynumber must be greater then 10", "mynumber", LOGGINGLEVEL.ERROR);
+	 *   valid = true; // keep the valid on true if you just report through the validationObject and want to also execute other oninsert methods.
+	 * }
 	 *
 	 * // return boolean to indicate success
-	 * return true
+	 * return valid;
 	 */
 	public int getOnUpdateMethodID()
 	{

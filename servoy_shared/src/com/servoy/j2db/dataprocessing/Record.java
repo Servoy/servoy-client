@@ -37,6 +37,8 @@ import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.WrappedException;
 import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.scripting.api.IJSDataSet;
 import com.servoy.base.scripting.api.IJSFoundSet;
@@ -210,6 +212,10 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		{
 			return parent.getDataProviderValue(dataProviderID);
 		}
+		if ("validationObject".equals(dataProviderID)) //$NON-NLS-1$
+		{
+			return validateObject;
+		}
 		if (ScopesUtils.isVariableScope(dataProviderID))
 		{
 			return Utils.mapToNullIfUnmanageble(parent.getDataProviderValue(dataProviderID));
@@ -291,7 +297,19 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		{
 			return parent.setDataProviderValue(dataProviderID, managebleValue);
 		}
-
+		if ("validationObject".equals(dataProviderID)) //$NON-NLS-1$
+		{
+			Object prev = validateObject;
+			if (value instanceof JSValidationObject)
+			{
+				validateObject = (JSValidationObject)value;
+			}
+			else
+			{
+				validateObject = null;
+			}
+			return prev;
+		}
 		if (ScopesUtils.isVariableScope(dataProviderID))
 		{
 			return parent.setDataProviderValue(dataProviderID, managebleValue);
@@ -508,6 +526,8 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	}
 
 	private Scriptable prototypeScope;
+
+	private JSValidationObject validateObject;
 
 	public Scriptable getPrototype()
 	{
@@ -1160,6 +1180,37 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	{
 		return getRawData() != null && getRawData().isChanged();
 	}
+
+	/**
+	 * Returns the validation object if there where validation failures for this record
+	 * Can be set to null again if you checked the problems, will also be set to null when a save was succesful.
+	 *
+	 * @sample
+	 * var validationObject = record.validationObject;
+	 *
+	 * @return The last validtion object if the record was not validated.
+	 */
+	@JSGetter
+	public JSValidationObject getValidationObject()
+	{
+		return validateObject;
+	}
+
+	/**
+	 * Returns the validation object if there where validation failures for this record
+	 * Can be set to null again if you checked the problems, will also be set to null when a save was succesful.
+	 *
+	 * @sample
+	 * var validationObject = record.validationObject;
+	 *
+	 * @return The last validtion object if the record was not validated.
+	 */
+	@JSSetter
+	public void setValidationObject(JSValidationObject object)
+	{
+		validateObject = object;
+	}
+
 
 	/**
 	 * Returns last occurred exception on this record (or null).

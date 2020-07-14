@@ -500,11 +500,15 @@ public class EditRecordList
 							editRecordsLock.unlock();
 							try
 							{
-								if (!((FoundSet)record.getParentFoundSet()).executeFoundsetTriggerBreakOnFalse(new Object[] { record },
-									record.existInDataSource() ? StaticContentSpecLoader.PROPERTY_ONUPDATEMETHODID
-										: StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID,
-									true)) // throws ServoyException when trigger method throws exception
+								JSValidationObject validateObject = fsm.validateRecord(record, null);
+								if (validateObject != null) // throws ServoyException when trigger method throws exception
 								{
+									Object[] genericExceptions = validateObject.getGenericExceptions();
+									if (genericExceptions.length > 0)
+									{
+										// compartible with old code, then those exceptions are catched below.
+										throw (Exception)genericExceptions[0];
+									}
 									// just directly return if one returns false.
 									return ISaveConstants.VALIDATION_FAILED;
 								}
