@@ -25,6 +25,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.specification.property.types.IntPropertyType;
+import org.sablo.specification.property.types.ObjectPropertyType;
 import org.sablo.specification.property.types.PointPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 
@@ -54,6 +55,9 @@ public class DefaultComponentPropertiesProvider implements IDefaultComponentProp
 		properties.put(IContentSpecConstants.PROPERTY_CSS_POSITION,
 			new PropertyDescriptionBuilder().withName(IContentSpecConstants.PROPERTY_CSS_POSITION).withType(
 				TypesRegistry.getType(CSSPositionPropertyType.TYPE_NAME)).build());
+		properties.put(IContentSpecConstants.PROPERTY_ATTRIBUTES,
+			new PropertyDescriptionBuilder().withName(IContentSpecConstants.PROPERTY_ATTRIBUTES).withType(
+				TypesRegistry.getType(ObjectPropertyType.TYPE_NAME)).build());
 		return properties;
 	}
 }

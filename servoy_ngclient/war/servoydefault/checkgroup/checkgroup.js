@@ -260,6 +260,8 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
 			for (var key in $scope.model) {
 				modelChangFunction(key, $scope.model[key]);
 			}
+			
+			$svyProperties.addAttributtes($element,$scope.model);
       },
       templateUrl: 'servoydefault/checkgroup/checkgroup.html'
     };

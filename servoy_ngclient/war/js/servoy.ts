@@ -537,6 +537,17 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				}
 				tooltip = newValue;
 			}
+		},
+		
+		addAttributtes: function(element, model : object)
+		{
+			if (element && model['attributes'])
+			{
+				for (var key in model['attributes'] )
+				{
+					$(element).attr(key,model['attributes'][key]);
+				}	
+			}	
 		}
 	}
 }).directive('ngOnChange', function($parse:angular.IParseService){

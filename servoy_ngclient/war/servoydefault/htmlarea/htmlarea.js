@@ -316,6 +316,8 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 				modelChangFunction(key, $scope.model[key]);
 			}
 			
+			$svyProperties.addAttributtes($element,$scope.model);
+			
 		},
 		templateUrl: 'servoydefault/htmlarea/htmlarea.html'
 	};
