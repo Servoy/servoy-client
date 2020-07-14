@@ -145,7 +145,7 @@ public class ThemeResourceLoader
 
 		public Version(String versionString)
 		{
-			String[] parts = versionString.split(".");
+			String[] parts = versionString.split("\\.");
 			if (parts.length > 2)
 			{
 				major = Utils.getAsInteger(parts[0], false);
