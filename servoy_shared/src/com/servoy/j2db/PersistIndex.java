@@ -193,28 +193,32 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 				{
 					ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist
 						.get(((TableNode)persist.getParent()).getDataSource());
-					addInDatasourceCache(dsMap.get(ScriptCalculation.class), persist);
+					addInDatasourceCache(dsMap.get(ScriptCalculation.class), persist, datasource);
 				}
 				else if (persist instanceof AggregateVariable)
 				{
 					ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist
 						.get(((TableNode)persist.getParent()).getDataSource());
-					addInDatasourceCache(dsMap.get(AggregateVariable.class), persist);
+					addInDatasourceCache(dsMap.get(AggregateVariable.class), persist, datasource);
 				}
 				else if (persist instanceof ScriptMethod && persist.getParent() instanceof TableNode)
 				{
 					ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist
 						.get(((TableNode)persist.getParent()).getDataSource());
-					addInDatasourceCache(dsMap.get(ScriptMethod.class), persist);
+					addInDatasourceCache(dsMap.get(ScriptMethod.class), persist, datasource);
 				}
 				return persist instanceof Solution ? IPersistVisitor.CONTINUE_TRAVERSAL : IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 			});
 		}
 	}
 
-	protected void addInDatasourceCache(ConcurrentMap<String, IPersist> cache, IPersist persist)
+	protected void addInDatasourceCache(ConcurrentMap<String, IPersist> cache, IPersist persist, String datasource)
 	{
-		cache.put(((ISupportName)persist).getName(), persist);
+		String name = ((ISupportName)persist).getName();
+		if (name != null)
+		{
+			cache.put(name, persist);
+		}
 	}
 
 	@Override
