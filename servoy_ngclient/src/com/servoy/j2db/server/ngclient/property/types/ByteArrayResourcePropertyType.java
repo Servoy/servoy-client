@@ -16,8 +16,6 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
-import java.awt.Dimension;
-
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
@@ -28,7 +26,9 @@ import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
+import com.servoy.j2db.util.Debug;
 
 /**
  * Property type that can generate from a byte[] value a resource URL to be used client side.
@@ -64,13 +64,17 @@ public class ByteArrayResourcePropertyType extends DefaultPropertyType<byte[]> i
 		{
 			writer.object();
 			MediaResourcesServlet.MediaInfo mediaInfo = MediaResourcesServlet.createMediaInfo(sabloValue);
-			String url = "resources/" + MediaResourcesServlet.DYNAMIC_DATA_ACCESS + "/" + mediaInfo.getName();//$NON-NLS-1$//$NON-NLS-2$
-			Dimension imageSize = mediaInfo.getMediaSize();
-			if (imageSize != null)
+			int clientnr = -1;
+			if (dataConverterContext != null && dataConverterContext.getWebObject() instanceof IContextProvider)
 			{
-				url += "?imageWidth=" + imageSize.width + "&imageHeight=" + imageSize.height;
+				clientnr = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication().getWebsocketSession()
+					.getSessionKey().getClientnr();
 			}
-			writer.key("url").value(url);
+			else
+			{
+				Debug.error("Cannot generate url for byte property due to missing application info: " + pd.getName());
+			}
+			writer.key("url").value(mediaInfo.getURL(clientnr, true));
 			writer.key("contentType").value(mediaInfo.getContentType()); //$NON-NLS-1$
 			writer.endObject();
 		}

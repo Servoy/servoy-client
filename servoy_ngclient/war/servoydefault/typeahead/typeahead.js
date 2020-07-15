@@ -322,6 +322,8 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 				modelChangFunction(key,$scope.model[key]);
 			}
 			
+			$svyProperties.addAttributtes($element,$scope.model);
+			
 		},
 		templateUrl: 'servoydefault/typeahead/typeahead.html',
 		replace: true

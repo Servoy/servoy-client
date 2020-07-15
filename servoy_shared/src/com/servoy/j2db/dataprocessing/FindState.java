@@ -656,9 +656,8 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 
 		List<Relation> searchRelations = getValidSearchRelations();
 		// find processable find states of related find states
-		for (int i = 0; i < searchRelations.size(); i++)
+		for (Relation relation : searchRelations)
 		{
-			Relation relation = searchRelations.get(i);
 			if (relation != null)
 			{
 				IFoundSetInternal set = relatedStates.get(relation.getName());
@@ -827,6 +826,17 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 		{
 			return primaryTable;
 		}
+	}
+
+	@Override
+	public void setValidationObject(JSValidationObject object)
+	{
+	}
+
+	@Override
+	public JSValidationObject getValidationObject()
+	{
+		return null;
 	}
 
 }

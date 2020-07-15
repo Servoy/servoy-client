@@ -137,6 +137,8 @@ angular.module('servoydefaultImagemedia', [ 'servoy' ]).directive(
 					for (var key in $scope.model) {
 						modelChangFunction(key, $scope.model[key]);
 					}
+					
+					$svyProperties.addAttributtes($element,$scope.model);
 				},
 				templateUrl : 'servoydefault/imagemedia/imagemedia.html'
 			};

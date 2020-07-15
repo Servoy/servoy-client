@@ -25,6 +25,7 @@ import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IModificationListener;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISaveConstants;
+import com.servoy.j2db.dataprocessing.JSValidationObject;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.dataprocessing.Row;
 import com.servoy.j2db.dataprocessing.SortColumn;
@@ -283,5 +284,16 @@ public class PageNumberState implements IRecordInternal
 
 	public void rowRemoved()
 	{
+	}
+
+	@Override
+	public void setValidationObject(JSValidationObject object)
+	{
+	}
+
+	@Override
+	public JSValidationObject getValidationObject()
+	{
+		return null;
 	}
 }

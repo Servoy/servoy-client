@@ -131,6 +131,8 @@ angular.module('servoydefaultCheck', [ 'servoy' ]).directive('servoydefaultCheck
 				modelChangFunction(key, $scope.model[key]);
 			}
 			
+			$svyProperties.addAttributtes($element,$scope.model);
+			
 			$scope.isInPortal = function() {
 				return ($element.closest('.svy-portal').length >0) && ($element.closest('.svy-listviewwrapper').length == 0);
 			}

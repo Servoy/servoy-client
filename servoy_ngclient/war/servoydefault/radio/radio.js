@@ -100,6 +100,8 @@ angular.module('servoydefaultRadio', [ 'servoy' ]).directive('servoydefaultRadio
 			for (var key in $scope.model) {
 				modelChangFunction(key, $scope.model[key]);
 			}
+			
+			$svyProperties.addAttributtes($element,$scope.model);
 
 		},
 		templateUrl : 'servoydefault/radio/radio.html'

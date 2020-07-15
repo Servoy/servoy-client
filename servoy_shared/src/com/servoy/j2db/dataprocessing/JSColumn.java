@@ -73,7 +73,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 *
 	 * @sampleas js_getRowIdentifierType()
 	 */
-	public static final int PK_COLUMN = Column.PK_COLUMN;
+	public static final int PK_COLUMN = IBaseColumn.PK_COLUMN;
 
 	/**
 	 * Constant used when setting or getting the row identifier type of columns.
@@ -81,7 +81,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 *
 	 * @sampleas js_getRowIdentifierType()
 	 */
-	public static final int ROWID_COLUMN = Column.USER_ROWID_COLUMN;
+	public static final int ROWID_COLUMN = IBaseColumn.USER_ROWID_COLUMN;
 
 	/**
 	 * Constant used when setting or getting the flags of columns.
@@ -89,7 +89,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 *
 	 * @sampleas js_hasFlag(int)
 	 */
-	public static final int UUID_COLUMN = Column.UUID_COLUMN;
+	public static final int UUID_COLUMN = IBaseColumn.UUID_COLUMN;
 
 	/**
 	 * Constant used when setting or getting the flags of columns.
@@ -97,7 +97,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 *
 	 * @sampleas js_hasFlag(int)
 	 */
-	public static final int EXCLUDED_COLUMN = Column.EXCLUDED_COLUMN;
+	public static final int EXCLUDED_COLUMN = IBaseColumn.EXCLUDED_COLUMN;
 
 	/**
 	 * Constant used when setting or getting the flags of columns.
@@ -105,7 +105,15 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 *
 	 * @sampleas js_hasFlag(int)
 	 */
-	public static final int TENANT_COLUMN = Column.TENANT_COLUMN;
+	public static final int TENANT_COLUMN = IBaseColumn.TENANT_COLUMN;
+
+	/**
+	 * Constant used when setting or getting the flags of columns.
+	 * This flag identifies columns that are marked as a native type column (for example uniqueidentifier).
+	 *
+	 * @sampleas js_hasFlag(int)
+	 */
+	public static final int NATIVE_COLUMN = IBaseColumn.NATIVE_COLUMN;
 
 	/**
 	 * Constant used when setting or getting the sequence type of columns.
@@ -330,6 +338,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 *  - JSColumn.UUID_COLUMN
 	 *  - JSColumn.EXCLUDED_COLUMN
 	 *  - JSColumn.TENANT_COLUMN
+	 *  - JSColumn.NATIVE_COLUMN
 	 *
 	 * @sample
 	 * var table = databaseManager.getTable('db:/example_data/orders')

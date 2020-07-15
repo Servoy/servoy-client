@@ -100,6 +100,8 @@ angular.module('servoydefaultPassword', [ 'servoy' ]).directive('servoydefaultPa
 			for (var key in $scope.model) {
 				modelChangFunction(key, $scope.model[key]);
 			}
+			
+			$svyProperties.addAttributtes($element,$scope.model);
 
 		},
 		templateUrl : 'servoydefault/password/password.html'

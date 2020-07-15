@@ -238,6 +238,16 @@ angular.module('ngclientutils', [ 'servoy' ])
 		{
 			var position = $("#"+ component).offset();
 			return {x: position.left, y: position.top};
+		},
+		
+		/**
+		 * Set lang attribute on html tag.
+		 * 
+		 * @param {boolean} showConfirmation boolean for whether to show confirmation message
+		 */
+		setLangAttribute: function(lang)
+		{
+			$("html").attr("lang",lang);
 		}
 	}
 }])

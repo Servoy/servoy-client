@@ -156,6 +156,9 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 				destroyListenerUnreg();
 				delete scope.model[$sabloConstants.modelChangeNotifier];
 			});
+			
+			$svyProperties.addAttributtes(element,scope.model);
+			
 			// data can already be here, if so call the modelChange function so that it is initialized correctly.
 			function pushValues() {
 				if (element.find("span.ui-select-toggle").length > 0) {

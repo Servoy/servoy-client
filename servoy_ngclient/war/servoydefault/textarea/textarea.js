@@ -195,7 +195,8 @@ angular.module('servoydefaultTextarea', [ 'servoy' ]).directive('servoydefaultTe
 			for (var key in $scope.model) {
 				modelChangFunction(key, $scope.model[key]);
 			}
-
+			
+			$svyProperties.addAttributtes($element,$scope.model);
 		},
 		templateUrl : 'servoydefault/textarea/textarea.html',
 		replace : true

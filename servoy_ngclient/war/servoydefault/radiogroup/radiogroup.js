@@ -192,6 +192,8 @@ angular.module('servoydefaultRadiogroup', [ 'servoy' ]).directive('servoydefault
 			for (var key in $scope.model) {
 				modelChangFunction(key, $scope.model[key]);
 			}
+			
+			$svyProperties.addAttributtes($element,$scope.model);
 		},
 		templateUrl : 'servoydefault/radiogroup/radiogroup.html'
 	};

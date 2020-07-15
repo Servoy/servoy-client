@@ -182,6 +182,8 @@ directive('servoydefaultListbox', [ '$parse', '$templateCache', '$http', '$compi
 				for (key in $scope.model) {
 					modelChangFunction(key, $scope.model[key]);
 				}
+				
+				$svyProperties.addAttributtes($element,$scope.model);
 			});
 		},
 		replace : true

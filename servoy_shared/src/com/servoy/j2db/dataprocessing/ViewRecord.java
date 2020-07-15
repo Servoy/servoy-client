@@ -31,6 +31,8 @@ import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.scripting.api.IJSDataSet;
 import com.servoy.base.scripting.api.IJSFoundSet;
@@ -377,6 +379,8 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	private Scriptable prototype;
 	private Scriptable parentScope;
 
+	private JSValidationObject validateObject;
+
 	@Override
 	public String getClassName()
 	{
@@ -588,5 +592,35 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	public boolean isNew()
 	{
 		return false;
+	}
+
+	/**
+	 * Returns the validation object if there where validation failures for this record
+	 * Can be set to null again if you checked the problems, will also be set to null when a save was succesful.
+	 *
+	 * @sample
+	 * var validationObject = record.validationObject;
+	 *
+	 * @return The last validtion object if the record was not validated.
+	 */
+	@JSGetter
+	public JSValidationObject getValidationObject()
+	{
+		return validateObject;
+	}
+
+	/**
+	 * Returns the validation object if there where validation failures for this record
+	 * Can be set to null again if you checked the problems, will also be set to null when a save was succesful.
+	 *
+	 * @sample
+	 * var validationObject = record.validationObject;
+	 *
+	 * @return The last validtion object if the record was not validated.
+	 */
+	@JSSetter
+	public void setValidationObject(JSValidationObject object)
+	{
+		validateObject = object;
 	}
 }

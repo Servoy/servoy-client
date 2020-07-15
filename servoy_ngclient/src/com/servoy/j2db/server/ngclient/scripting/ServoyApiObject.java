@@ -27,12 +27,12 @@ import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.ViewFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
+import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
@@ -48,9 +48,9 @@ import com.servoy.j2db.util.Utils;
 @ServoyClientSupport(sc = false, wc = false, ng = true)
 public class ServoyApiObject
 {
-	private final IApplication app;
+	private final INGApplication app;
 
-	public ServoyApiObject(IApplication app)
+	public ServoyApiObject(INGApplication app)
 	{
 		this.app = app;
 	}
@@ -113,7 +113,7 @@ public class ServoyApiObject
 				formName = form.getName();
 			}
 		}
-		IWebFormController formController = (IWebFormController)app.getFormManager().getForm(formName);
+		IWebFormController formController = app.getFormManager().getForm(formName);
 		if (formController != null)
 		{
 			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
@@ -221,7 +221,6 @@ public class ServoyApiObject
 	public String getMediaUrl(byte[] bytes)
 	{
 		MediaResourcesServlet.MediaInfo mediaInfo = MediaResourcesServlet.createMediaInfo(bytes);
-		String url = "resources/" + MediaResourcesServlet.DYNAMIC_DATA_ACCESS + "/" + mediaInfo.getName();//$NON-NLS-1$//$NON-NLS-2$
-		return url;
+		return mediaInfo.getURL(app.getWebsocketSession().getSessionKey().getClientnr());
 	}
 }

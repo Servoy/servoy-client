@@ -55,7 +55,7 @@ public class JSONConverter
 	/**
 	 * @param value
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public String convertToJSON(Object value) throws Exception
 	{
@@ -66,10 +66,23 @@ public class JSONConverter
 	}
 
 	/**
-	 * @param retval
-	 * @param args 
+	 * @param value
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
+	 */
+	public Object convertToJSONValue(Object value) throws Exception
+	{
+		if (value == null || value == Undefined.instance) return null;
+		if (value instanceof IFoundSet || value instanceof IRecord) throw new RuntimeException("value cant be a record or foundset"); //$NON-NLS-1$
+
+		return getJSONSerializer().toJSON(value);
+	}
+
+	/**
+	 * @param retval
+	 * @param args
+	 * @return
+	 * @throws Exception
 	 */
 	public Object convertFromJSON(Object retval) throws Exception
 	{
@@ -78,9 +91,9 @@ public class JSONConverter
 
 	/**
 	 * @param retval
-	 * @param args 
+	 * @param args
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public Object convertFromJSON(IDatabaseManager dbmgr, Object retval) throws Exception
 	{

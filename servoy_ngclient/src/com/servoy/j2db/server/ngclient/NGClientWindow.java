@@ -155,8 +155,9 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		{
 			if (!isAsyncApiCall(apiFunction) && !getEndpoint().isFormAttachedToDOM(form.getName()))
 			{
-				log.warn("You are doing a sync api call in form '" + form.getName() + "' before form is loaded, this should be avoided (Component : " +
-					receiver.getName() + " , api: " + apiFunction.getName() + " )");
+				log.warn("You are calling a component sync api method (to browser) in form '" + form.getName() +
+					"' before the form is available in browser's DOM. This should be avoided. (Component : " + receiver.getName() + " , api: " +
+					apiFunction.getName() + "). See: https://wiki.servoy.com/pages/viewpage.action?pageId=1869552#Specification(.specfile)-HiddenDivNote");
 			}
 			touchForm(form.getForm(), form.getName(), false, false);
 			pendingApiCallFormsOnNextResponse.add(formUI); // the form will be on client, make sure we send changes for it as well... if it would be delayed it might not even be present on client for a while, so we will send changes only when it is attached to dom and has delayed

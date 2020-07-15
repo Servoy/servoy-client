@@ -204,6 +204,7 @@ public class MediaResourcesServlet extends HttpServlet
 		String path = req.getPathInfo();
 		if (path.startsWith("/")) path = path.substring(1);
 		String[] paths = path.split("/");
+		String clientnr = req.getParameter("clientnr");
 
 		if (paths.length > 1)
 		{
@@ -213,7 +214,6 @@ public class MediaResourcesServlet extends HttpServlet
 				case FLATTENED_SOLUTION_ACCESS :
 					if (paths.length >= 3)
 					{
-						String clientnr = req.getParameter("clientnr");
 						StringBuffer mediaName = new StringBuffer();
 						for (int i = 2; i < paths.length - 1; i++)
 							mediaName.append(paths[i]).append('/');
@@ -225,7 +225,7 @@ public class MediaResourcesServlet extends HttpServlet
 					break;
 
 				case DYNAMIC_DATA_ACCESS :
-					if (paths.length == 2) found = sendDynamicData(req, resp, paths[1]);
+					if (paths.length == 2) found = sendDynamicData(req, resp, paths[1], Integer.parseInt(clientnr));
 					break;
 
 				default :
@@ -238,7 +238,6 @@ public class MediaResourcesServlet extends HttpServlet
 			try
 			{
 				String decrypt = SecuritySupport.decrypt(Settings.getInstance(), encrypted);
-				String clientnr = req.getParameter("clientnr");
 				found = clientnr != null && sendData(resp, MediaURLStreamHandler.getBlobLoaderMedia(getClient(req, Integer.parseInt(clientnr)), decrypt),
 					MediaURLStreamHandler.getBlobLoaderMimeType(decrypt), MediaURLStreamHandler.getBlobLoaderFileName(decrypt), null);
 			}
@@ -251,9 +250,9 @@ public class MediaResourcesServlet extends HttpServlet
 		if (!found) resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 	}
 
-	private boolean sendDynamicData(HttpServletRequest request, HttpServletResponse response, String dynamicID) throws IOException
+	private boolean sendDynamicData(HttpServletRequest request, HttpServletResponse response, String dynamicID, int clientnr) throws IOException
 	{
-		if (dynamicMediasMap.containsKey(dynamicID))
+		if (getSession(request, clientnr) != null && dynamicMediasMap.containsKey(dynamicID))
 		{
 			MediaInfo mediaInfo = dynamicMediasMap.get(dynamicID);
 			mediaInfo.touch();
@@ -737,6 +736,21 @@ public class MediaResourcesServlet extends HttpServlet
 			{
 				data = null;
 			}
+		}
+
+		public String getURL(int clientnr)
+		{
+			return getURL(clientnr, false);
+		}
+
+		public String getURL(int clientnr, boolean includeSize)
+		{
+			String url = "resources/" + MediaResourcesServlet.DYNAMIC_DATA_ACCESS + "/" + this.getName() + "?clientnr=" + clientnr;
+			if (includeSize && this.mediaSize != null)
+			{
+				url += "&imageWidth=" + this.mediaSize.width + "&imageHeight=" + this.mediaSize.height;
+			}
+			return url;
 		}
 	}
 

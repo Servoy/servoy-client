@@ -3357,6 +3357,65 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 	}
 
+	@Override
+	public JSValidationObject validateRecord(IRecordInternal record, Object state)
+	{
+		// always reset the validation object
+		record.setValidationObject(null);
+		// first check for a validation entity method
+		ITable table = record.getParentFoundSet().getTable();
+		JSValidationObject validationObject = new JSValidationObject(record);
+		Object[] args = new Object[] { record, validationObject, state };
+		try
+		{
+			executeFoundsetTriggerInternal(table, args, StaticContentSpecLoader.PROPERTY_ONVALIDATEMETHODID, false, true,
+				(Scriptable)record.getParentFoundSet());
+		}
+		catch (ServoyException e)
+		{
+			validationObject.addGenericException(e);
+		}
+
+		if (record.existInDataSource())
+		{
+			try
+			{
+				// if the first returns false it will stop the rest (inline with what we had)
+				if (!executeFoundsetTriggerInternal(table, args, StaticContentSpecLoader.PROPERTY_ONUPDATEMETHODID, true, true,
+					(Scriptable)record.getParentFoundSet()))
+				{
+					validationObject.setOnBeforeUpdateFailed();
+				}
+			}
+			catch (ServoyException e)
+			{
+				validationObject.addGenericException(e);
+			}
+		}
+		else
+		{
+			try
+			{
+				// if the first returns false it will stop the rest (inline with what we had)
+				if (!executeFoundsetTriggerInternal(table, args, StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID, true, true,
+					(Scriptable)record.getParentFoundSet()))
+				{
+					validationObject.setOnBeforeInsertFailed();
+				}
+			}
+			catch (ServoyException e)
+			{
+				validationObject.addGenericException(e);
+			}
+		}
+		if (validationObject.isInvalid())
+		{
+			record.setValidationObject(validationObject);
+			return validationObject;
+		}
+		return null;
+	}
+
 	public int saveData()
 	{
 		return editRecordList.stopEditing(false);

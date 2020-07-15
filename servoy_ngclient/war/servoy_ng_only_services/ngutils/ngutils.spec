@@ -67,6 +67,9 @@
 		"getAbsoluteLocation": {
 			"parameters": [{ "name": "component", "type": "runtimecomponent" }],
 			"returns": "point"
+		},
+		"setLangAttribute": {
+			"parameters": [{ "name": "lang", "type": "string" }]
 		}
 	},
 

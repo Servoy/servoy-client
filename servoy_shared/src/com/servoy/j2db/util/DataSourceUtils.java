@@ -240,7 +240,8 @@ public class DataSourceUtils extends DataSourceUtilsBase
 
 	public static boolean isDatasourceUri(String str)
 	{
-		return str != null && (str.startsWith(DB_DATASOURCE_SCHEME_COLON_SLASH) || str.startsWith(INMEM_DATASOURCE_SCHEME_COLON));
+		return str != null &&
+			(str.startsWith(DB_DATASOURCE_SCHEME_COLON_SLASH) || str.startsWith(INMEM_DATASOURCE_SCHEME_COLON) || str.startsWith(VIEW_DATASOURCE_SCHEME_COLON));
 	}
 
 	public static String getI18NDataSource(Solution solution, Properties settings)

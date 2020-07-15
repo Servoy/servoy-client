@@ -852,7 +852,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			{
 				if (scheduledExecutorService == null)
 				{
-					scheduledExecutorService = new ServoyScheduledExecutor(1, 4, 1)
+					scheduledExecutorService = new ServoyScheduledExecutor(4, 1)
 					{
 						private IServiceProvider prev;
 
@@ -1330,7 +1330,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	public String serveResource(String filename, byte[] bs, String mimetype, String contentDisposition)
 	{
 		MediaInfo mediaInfo = MediaResourcesServlet.createMediaInfo(bs, filename, mimetype, contentDisposition);
-		return "resources/" + MediaResourcesServlet.DYNAMIC_DATA_ACCESS + "/" + mediaInfo.getName();
+		return mediaInfo.getURL(getWebsocketSession().getSessionKey().getClientnr());
 	}
 
 	/*
