@@ -3360,16 +3360,18 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	@Override
 	public JSValidationObject validateRecord(IRecordInternal record, Object state)
 	{
+		if (record == null) return null;
 		// always reset the validation object
 		record.setValidationObject(null);
 		// first check for a validation entity method
 		ITable table = record.getParentFoundSet().getTable();
 		JSValidationObject validationObject = new JSValidationObject(record);
 		Object[] args = new Object[] { record, validationObject, state };
+		Scriptable scope = record.getParentFoundSet() instanceof Scriptable ? (Scriptable)record.getParentFoundSet() : null;
 		try
 		{
 			executeFoundsetTriggerInternal(table, args, StaticContentSpecLoader.PROPERTY_ONVALIDATEMETHODID, false, true,
-				(Scriptable)record.getParentFoundSet());
+				scope);
 		}
 		catch (ServoyException e)
 		{
@@ -3382,7 +3384,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				// if the first returns false it will stop the rest (inline with what we had)
 				if (!executeFoundsetTriggerInternal(table, args, StaticContentSpecLoader.PROPERTY_ONUPDATEMETHODID, true, true,
-					(Scriptable)record.getParentFoundSet()))
+					scope))
 				{
 					validationObject.setOnBeforeUpdateFailed();
 				}
@@ -3398,7 +3400,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				// if the first returns false it will stop the rest (inline with what we had)
 				if (!executeFoundsetTriggerInternal(table, args, StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID, true, true,
-					(Scriptable)record.getParentFoundSet()))
+					scope))
 				{
 					validationObject.setOnBeforeInsertFailed();
 				}
