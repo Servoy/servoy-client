@@ -2779,6 +2779,30 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		return application.getFoundSetManager().validateRecord((IRecordInternal)record, state);
 	}
 
+//	/**
+//	 * @param record The record to validate.
+//	 *
+//	 * @throws ServoyException
+//	 */
+//	@JSFunction
+//	public JSValidationObject validateRecord(ViewRecord record) throws ServoyException
+//	{
+//		return validateRecord(record, null);
+//	}
+//
+//	/**
+//	 * @param record The record to validate.
+//	 * @param state The extra state that is passed on the the validation methods.
+//	 *
+//	 * @throws ServoyException
+//	 */
+//	@JSFunction
+//	public JSValidationObject validateRecord(ViewRecord record, Object state) throws ServoyException
+//	{
+//		checkAuthorized();
+//		return application.getFoundSetManager().validateRecord(record, state);
+//	}
+
 	/**
 	 * Saves all outstanding (unsaved) data and exits the current record.
 	 * Optionally, by specifying a record or foundset, can save a single record or all records from foundset instead of all the data.
@@ -2871,6 +2895,26 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		}
 		return false;
 	}
+
+//	/**
+//	 * @clonedesc saveData()
+//	 *
+//	 * @sampleas saveData()
+//	 *
+//	 * @param record The JSRecord to save.
+//	 *
+//	 * @return true if the save was done without an error.
+//	 */
+//	@JSFunction
+//	public boolean saveData(ViewRecord record) throws ServoyException
+//	{
+//		checkAuthorized();
+//		if (record != null)
+//		{
+//			return ((ViewFoundSet)record.getParentFoundSet()).save(record) == ISaveConstants.STOPPED;
+//		}
+//		return false;
+//	}
 
 	/**
 	 * @clonedesc saveData()
