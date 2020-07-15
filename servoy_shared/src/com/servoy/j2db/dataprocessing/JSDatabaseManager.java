@@ -2761,9 +2761,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @throws ServoyException
 	 */
 	@JSFunction
-	public JSValidationObject validateRecord(IJSRecord record) throws ServoyException
+	public JSValidationObject validate(IJSRecord record) throws ServoyException
 	{
-		return validateRecord(record, null);
+		return validate(record, null);
 	}
 
 	/**
@@ -2773,7 +2773,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @throws ServoyException
 	 */
 	@JSFunction
-	public JSValidationObject validateRecord(IJSRecord record, Object state) throws ServoyException
+	public JSValidationObject validate(IJSRecord record, Object state) throws ServoyException
 	{
 		checkAuthorized();
 		return application.getFoundSetManager().validateRecord((IRecordInternal)record, state);
