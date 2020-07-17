@@ -389,8 +389,6 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 			for (var key in $scope.model) {
 				modelChangFunction(key, $scope.model[key]);
 			}
-			
-			$svyProperties.addAttributtes($element,$scope.model);
 		},
 		templateUrl : 'servoydefault/calendar/calendar.html'
 	};

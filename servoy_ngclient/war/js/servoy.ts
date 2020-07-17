@@ -537,17 +537,6 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				}
 				tooltip = newValue;
 			}
-		},
-		
-		addAttributtes: function(element, model : object)
-		{
-			if (element && model['attributes'])
-			{
-				for (var key in model['attributes'] )
-				{
-					$(element).attr(key,model['attributes'][key]);
-				}	
-			}	
 		}
 	}
 }).directive('ngOnChange', function($parse:angular.IParseService){
@@ -826,7 +815,20 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	}
 })
-
+.directive('svyAttributes',  function ($utils:servoy.IUtils,$parse:angular.IParseService) {
+	return {
+		restrict: 'A',
+		link: function (scope, element, attrs) {
+			var attributes= $parse(attrs['svyAttributes'])(scope);
+			if(attributes){ //only design time property, no watch
+				for (var key in attributes )
+				{
+					element.attr(key,attributes[key]);
+				}
+			}
+		}
+	}
+})
 .directive('svyTextrotation',  function ($utils:servoy.IUtils,$parse:angular.IParseService,$svyProperties:servoy.IServoyProperties) {
 	// DESIGN TIME ONLY
 	return {

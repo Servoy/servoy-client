@@ -305,7 +305,6 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 				modelChangFunction(key, $scope.model[key]);
 			}
 			
-			$svyProperties.addAttributtes($element,$scope.model);
 		},
 		templateUrl: 'servoydefault/splitpane/splitpane.html'
 	};

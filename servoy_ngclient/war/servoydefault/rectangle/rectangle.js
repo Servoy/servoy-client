@@ -79,8 +79,6 @@ angular.module('servoydefaultRectangle', [ 'servoy' ]).directive('servoydefaultR
 			for (var key in $scope.model) {
 				modelChangFunction(key, $scope.model[key]);
 			}
-			
-			$svyProperties.addAttributtes($element,$scope.model);
 		},
 		templateUrl : 'servoydefault/rectangle/rectangle.html'
 	};
