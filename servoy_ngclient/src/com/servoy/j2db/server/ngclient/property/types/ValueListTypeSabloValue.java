@@ -907,7 +907,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 					LookupValueList lookup = new LookupValueList(valueList.getValueList(), dataAdapterListToUse.getApplication(),
 						ComponentFactory.getFallbackValueList(dataAdapterListToUse.getApplication(), dataproviderID, format != null ? format.uiType : 0,
 							format != null ? format.parsedFormat : null, valueList.getValueList()),
-						format != null && format.parsedFormat != null ? format.parsedFormat.getDisplayFormat() : null);
+						format != null && format.parsedFormat != null ? format.parsedFormat.getDisplayFormat() : null, dataAdapterListToUse.getRecord());
 					if (lookup.realValueIndexOf(realValue) != -1)
 					{
 						displayValue = lookup.getElementAt(lookup.realValueIndexOf(realValue));
