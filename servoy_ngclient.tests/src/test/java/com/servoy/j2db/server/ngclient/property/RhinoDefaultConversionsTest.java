@@ -323,8 +323,8 @@ public class RhinoDefaultConversionsTest
 		assertEquals("Check length in java", 4, ((List)javaVal).size());
 
 		assertEquals("Check inexistent index in Rhino",
-			"are you ok?",
-			rhinoContext.evaluateString(someRhinoScope, "a[8] = \"are you ok?\"", "dummy js file name from junit tests", 0, null));
+			2589,
+			rhinoContext.evaluateString(someRhinoScope, "a[8] = \"are you ok?\"; a[15] = 2589; ", "dummy js file name from junit tests", 0, null));
 
 		// from for what was previously to
 		javaVal = RhinoConversion.defaultFromRhino(rhinoVal, array);
@@ -338,7 +338,14 @@ public class RhinoDefaultConversionsTest
 		assertEquals("Check index 6 in java", null, ((List)javaVal).get(6));
 		assertEquals("Check index 7 in java", null, ((List)javaVal).get(7));
 		assertEquals("Check index 8 in java", "are you ok?", ((List)javaVal).get(8));
-		assertEquals("Check length in java", 9, ((List)javaVal).size());
+		assertEquals("Check index 9 in java", null, ((List)javaVal).get(9));
+		assertEquals("Check index 10 in java", null, ((List)javaVal).get(10));
+		assertEquals("Check index 11 in java", null, ((List)javaVal).get(11));
+		assertEquals("Check index 12 in java", null, ((List)javaVal).get(12));
+		assertEquals("Check index 13 in java", null, ((List)javaVal).get(13));
+		assertEquals("Check index 14 in java", null, ((List)javaVal).get(14));
+		assertEquals("Check index 15 in java", 2589, ((List)javaVal).get(15));
+		assertEquals("Check length in java", 16, ((List)javaVal).size());
 	}
 
 
