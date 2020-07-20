@@ -306,25 +306,8 @@ public class RhinoDefaultConversionsTest
 		assertEquals("Check length in Rhino",
 			Double.valueOf(4),
 			rhinoContext.evaluateString(someRhinoScope, "a.length", "dummy js file name from junit tests", 0, null));
-		assertEquals("Check splice to delete one item in Rhino - make sure it's a correct Rhino array",
-			"[\"Just some text\",456,false]",
-			rhinoContext.evaluateString(someRhinoScope, "removed = a.splice(2, 1); JSON.stringify(a)", "dummy js file name from junit tests", 0, null));
-		rhinoContext.evaluateString(someRhinoScope, "a.splice(2, 0, removed[0])", "dummy js file name from junit tests", 0, null);
 
-		// from Rhino
-
-		// from for what was previously to
-		javaVal = RhinoConversion.defaultFromRhino(rhinoVal, array);
-		assertTrue("From rhino should be a List", javaVal instanceof List);
-		assertEquals("Check index 0 in java", "Just some text", ((List)javaVal).get(0));
-		assertEquals("Check index 1 in java", Integer.valueOf(456), ((List)javaVal).get(1));
-		assertEquals("Check index 2 in java", date, ((List)javaVal).get(2));
-		assertEquals("Check index 3 in java", false, ((List)javaVal).get(3));
-		assertEquals("Check length in java", 4, ((List)javaVal).size());
-
-		assertEquals("Check inexistent index in Rhino",
-			2589,
-			rhinoContext.evaluateString(someRhinoScope, "a[8] = \"are you ok?\"; a[15] = 2589; ", "dummy js file name from junit tests", 0, null));
+		rhinoContext.evaluateString(someRhinoScope, "a[8] = \"are you ok?\"; a[15] = 2589; ", "dummy js file name from junit tests", 0, null);
 
 		// from for what was previously to
 		javaVal = RhinoConversion.defaultFromRhino(rhinoVal, array);
