@@ -6,6 +6,7 @@
 		class='{{(model.styleClass ? model.styleClass : "")  + " svy-combobox"}}'
 		tabindex='-1'
 		sablo-tabseq='model.tabSeq'
+		svy-attributes='model.attributes'
 		on-select='onItemSelect($event)'>
  			<ui-select-match  placeholder="{{model.placeholderText}}" 
  				svy-rightclick='handlers.onRightClickMethodID($event)'

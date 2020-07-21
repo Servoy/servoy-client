@@ -5,6 +5,7 @@
 		svy-rightclick='handlers.onRightClickMethodID($event)'
 		svy-focusgained='handlers.onFocusGainedMethodID($event)'
 	   	svy-focuslost='handlers.onFocusLostMethodID($event)'
+	   	svy-attributes='model.attributes'
 		id="{{::model.svyMarkupId}}">
 		<option ng-selected="model.dataProviderID === value.realValue" ng-repeat="value in model.valuelistID" value="{{value.realValue}}">{{value.displayValue | formatFilter:model.format.display:model.format.type }}</option>		    
 </select>

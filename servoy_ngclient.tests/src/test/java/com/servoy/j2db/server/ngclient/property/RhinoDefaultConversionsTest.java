@@ -274,6 +274,65 @@ public class RhinoDefaultConversionsTest
 	}
 
 	@Test
+	public void testArrayAddValueNewValue()
+	{
+		Object rhinoVal, javaVal;
+
+		ArrayList<Object> array = new ArrayList<>(10);
+		array.add("Just some text");
+		array.add(456);
+		Date date = new Date();
+		array.add(date);
+		array.add(false);
+
+		rhinoVal = toRhinoPlusRhinoInternalThing(array);
+		someRhinoScope.put("a", someRhinoScope, rhinoVal);
+		assertTrue("List ends up as a native array in js", NativeArray.class.isAssignableFrom(rhinoVal.getClass()));
+		assertEquals("Check index 0 in Rhino",
+			"Just some text",
+			rhinoContext.evaluateString(someRhinoScope, "a[0]", "dummy js file name from junit tests", 0, null));
+		assertEquals("Check index 1 in Rhino",
+			Integer.valueOf(456),
+			rhinoContext.evaluateString(someRhinoScope, "a[1]", "dummy js file name from junit tests", 0, null));
+		assertEquals("Check index 2 in Rhino",
+			date,
+			rhinoContext.evaluateString(someRhinoScope, "a[2]", "dummy js file name from junit tests", 0, null));
+		assertEquals("Check index 3 in Rhino",
+			false,
+			rhinoContext.evaluateString(someRhinoScope, "a[3]", "dummy js file name from junit tests", 0, null));
+		assertEquals("Check inexistent index in Rhino",
+			Undefined.instance,
+			rhinoContext.evaluateString(someRhinoScope, "a[4]", "dummy js file name from junit tests", 0, null));
+		assertEquals("Check length in Rhino",
+			Double.valueOf(4),
+			rhinoContext.evaluateString(someRhinoScope, "a.length", "dummy js file name from junit tests", 0, null));
+
+		rhinoContext.evaluateString(someRhinoScope, "a[8] = \"are you ok?\"; a[15] = 2589; ", "dummy js file name from junit tests", 0, null);
+
+		// from for what was previously to
+		javaVal = RhinoConversion.defaultFromRhino(rhinoVal, array);
+		assertTrue("From rhino should be a List", javaVal instanceof List);
+		assertEquals("Check index 0 in java", "Just some text", ((List)javaVal).get(0));
+		assertEquals("Check index 1 in java", Integer.valueOf(456), ((List)javaVal).get(1));
+		assertEquals("Check index 2 in java", date, ((List)javaVal).get(2));
+		assertEquals("Check index 3 in java", false, ((List)javaVal).get(3));
+		assertEquals("Check index 4 in java", null, ((List)javaVal).get(4));
+		assertEquals("Check index 5 in java", null, ((List)javaVal).get(5));
+		assertEquals("Check index 6 in java", null, ((List)javaVal).get(6));
+		assertEquals("Check index 7 in java", null, ((List)javaVal).get(7));
+		assertEquals("Check index 8 in java", "are you ok?", ((List)javaVal).get(8));
+		assertEquals("Check index 9 in java", null, ((List)javaVal).get(9));
+		assertEquals("Check index 10 in java", null, ((List)javaVal).get(10));
+		assertEquals("Check index 11 in java", null, ((List)javaVal).get(11));
+		assertEquals("Check index 12 in java", null, ((List)javaVal).get(12));
+		assertEquals("Check index 13 in java", null, ((List)javaVal).get(13));
+		assertEquals("Check index 14 in java", null, ((List)javaVal).get(14));
+		assertEquals("Check index 15 in java", 2589, ((List)javaVal).get(15));
+		assertEquals("Check length in java", 16, ((List)javaVal).size());
+	}
+
+
+	@Test
 	public void testMapWithNumberKeys()
 	{
 		Object[] array = new Object[] { "Hello World", 4, 3.5, true, "Dis is a longe string", 35.983564, false };
@@ -376,6 +435,7 @@ public class RhinoDefaultConversionsTest
 		assertEquals("Check index 2 in java", false, ((List)javaVal).get(2));
 		assertEquals("Check length in java", 3, ((List)javaVal).size());
 	}
+
 
 	@Test
 	public void testMapWithArrayAndDateAndTestChanges()

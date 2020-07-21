@@ -1,4 +1,4 @@
-<div uib-accordion close-others="true" sablo-tabseq='model.tabSeq' sablo-tabseq-config="{container: true, reservedGap: 50}" ng-class='(model.styleClass ? model.styleClass : "")  + " svy-accordion"'>
+<div uib-accordion close-others="true" sablo-tabseq='model.tabSeq' sablo-tabseq-config="{container: true, reservedGap: 50}" ng-class='(model.styleClass ? model.styleClass : "")  + " svy-accordion"' svy-attributes='model.attributes'>
 	<div uib-accordion-group ng-repeat="tab in model.tabs" is-disabled="tab.isActive" is-open="tab.isActive">
 		<uib-accordion-heading>
 			<span ng-bind='tab.text' ng-click="select(tab)"></span>

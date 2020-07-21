@@ -181,6 +181,11 @@ public class RhinoConversion
 							}
 							else
 							{
+								for (int i = ((List)webComponentValue).size(); i < index; i++)
+								{
+
+									((List)webComponentValue).add(i, null);
+								}
 								((List)webComponentValue).add(index, value);
 								if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
 

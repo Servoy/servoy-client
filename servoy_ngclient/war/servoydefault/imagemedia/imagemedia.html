@@ -3,6 +3,7 @@
 	 class='svy-mediafield'
 	 svy-click='handlers.onActionMethodID($event)'
 	 svy-rightclick='handlers.onRightClickMethodID($event)'
+	 svy-attributes='model.attributes'
 	 id="{{::model.svyMarkupId}}">
 	<div ng-show="model.enabled == true && model.editable == true" class="glyphicon glyphicon-download-alt" style="top: 1px;left: 1px;position: absolute;cursor: pointer;z-index: 1;width: 16px; height: 16px;" title="Save media" ng-click="download()"/>
 	<div ng-show="model.enabled == true && model.editable == true" class="glyphicon glyphicon-cloud-upload" style="top: 1px;position: absolute;cursor: pointer;z-index: 1;left: 17px;width: 16px; height: 16px;" title="Load media" svy-fileupload="model.dataProviderID"/>

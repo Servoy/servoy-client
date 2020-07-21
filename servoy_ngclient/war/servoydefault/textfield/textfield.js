@@ -76,8 +76,6 @@ angular.module('servoydefaultTextfield',['servoy']).directive('servoydefaultText
 				modelChangFunction(key,$scope.model[key]);
 			}
 			
-			$svyProperties.addAttributtes($element,$scope.model);
-			
 			var storedTooltip = false;
 			// fill in the api defined in the spec file
 

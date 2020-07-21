@@ -170,7 +170,6 @@ angular.module('servoydefaultSpinner', [ 'servoy' ]).directive('servoydefaultSpi
 						modelChangFunction(key, $scope.model[key]);
 					}
 					
-					$svyProperties.addAttributtes($element,$scope.model);
 				},
 				templateUrl : 'servoydefault/spinner/spinner.html'
 			};

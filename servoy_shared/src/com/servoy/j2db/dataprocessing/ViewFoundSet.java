@@ -697,6 +697,29 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	/**
+	 * Validates this view record, wil call the onValidate of this ViewFoundset.
+	 *
+	 * @param record
+	 */
+	@JSFunction
+	public JSValidationObject validate(ViewRecord record)
+	{
+		return validate(record, null);
+	}
+
+	/**
+	 * Validates this view record, wil call the onValidate of this ViewFoundset.
+	 *
+	 * @param record The ViewRecord to validate
+	 * @param state The extra state to give to the validate method.
+	 */
+	@JSFunction
+	public JSValidationObject validate(ViewRecord record, Object state)
+	{
+		return manager.validateRecord(record, state);
+	}
+
+	/**
 	 * Saved a specific record of this foundset.
 	 * You can only save columns from a table if also the pk is selected of that table
 	 *

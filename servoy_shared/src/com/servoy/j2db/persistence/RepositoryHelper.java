@@ -473,7 +473,7 @@ public class RepositoryHelper
 			StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName().equals(name) ||
 			StaticContentSpecLoader.PROPERTY_CSS_POSITION.getPropertyName().equals(name))
 		{
-			if (persist.getParent() instanceof LayoutContainer && !CSSPositionUtils.isInAbsoluteLayoutMode(persist))
+			if (persist instanceof IFormElement && persist.getParent() instanceof LayoutContainer && !CSSPositionUtils.isInAbsoluteLayoutMode(persist))
 			{
 				return true;
 			}
