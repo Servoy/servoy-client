@@ -49,23 +49,12 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 	{
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.IPropertyType#getName()
-	 */
 	@Override
 	public String getName()
 	{
 		return TYPE_NAME;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.IPropertyConverter#fromJSON(java.lang.Object, java.lang.Object, org.sablo.specification.PropertyDescription,
-	 * java.lang.Object, org.sablo.util.ValueReference)
-	 */
 	@Override
 	public JSONObject fromJSON(Object newJSONValue, JSONObject previousSabloValue, PropertyDescription propertyDescription, IBrowserConverterContext context,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)

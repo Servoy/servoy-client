@@ -144,12 +144,11 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	}
 
 	@Override
-	public JSONString toJSONWithDynamicClientSideType(JSONWriter writer, String key, DataproviderTypeSabloValue sabloValue,
+	public JSONString toJSONWithDynamicClientSideType(JSONWriter writer, DataproviderTypeSabloValue sabloValue,
 		PropertyDescription propertyDescription, IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{
-			JSONUtils.addKeyIfPresent(writer, key);
 
 			IJSONStringWithClientSideType jsonValue = sabloValue.toJSON(dataConverterContext);
 
@@ -158,7 +157,6 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 		}
 		else
 		{
-			JSONUtils.addKeyIfPresent(writer, key);
 			writer.value(null);
 			return null;
 		}

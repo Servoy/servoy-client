@@ -128,6 +128,7 @@ public class NGClientEntryFilter extends WebEntry
 		"sablo/lib/reconnecting-websocket.js", //
 		"sablo/js/websocket.js", //
 		"sablo/js/sablo_app.js", //
+		"sablo/js/types_registry.js", //
 		"sablo/sabloService.js" };
 	public static final String[] INDEX_SERVOY_JS = { //
 		"js/servoy.js", //

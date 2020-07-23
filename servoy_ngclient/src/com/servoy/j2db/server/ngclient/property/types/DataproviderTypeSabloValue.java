@@ -679,7 +679,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 		else if (typeOfDP != null && !valuelistDisplayValue)
 		{
-			jsonValueRepresentation = JSONUtils.getConvertedValueWithClientType(uiValue, typeOfDP, dataConverterContext);
+			jsonValueRepresentation = JSONUtils.getFullConvertedValueWithClientType(uiValue, typeOfDP, dataConverterContext);
 
 			if (jsonValueRepresentation.toJSONString() == null || jsonValueRepresentation.toJSONString().trim().length() == 0)
 			{

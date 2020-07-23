@@ -86,11 +86,9 @@ public class MediaDataproviderPropertyType extends DefaultPropertyType<Object>
 	}
 
 	@Override
-	public JSONString toJSONWithDynamicClientSideType(JSONWriter writer, String key, Object sabloValue, PropertyDescription pd,
+	public JSONString toJSONWithDynamicClientSideType(JSONWriter writer, Object sabloValue, PropertyDescription pd,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		JSONUtils.addKeyIfPresent(writer, key);
-
 		IJSONStringWithClientSideType jsonValue = toJSONInternal(sabloValue, pd, dataConverterContext);
 
 		writer.value(jsonValue);
@@ -141,7 +139,7 @@ public class MediaDataproviderPropertyType extends DefaultPropertyType<Object>
 				jsonValueRepresentation = new JSONStringWithClientSideType(ejw.toJSONString(), null);
 			}
 
-			if (detectedPD != null) jsonValueRepresentation = JSONUtils.getConvertedValueWithClientType(valueForProp, detectedPD, dataConverterContext);
+			if (detectedPD != null) jsonValueRepresentation = JSONUtils.getFullConvertedValueWithClientType(valueForProp, detectedPD, dataConverterContext);
 
 		}
 		else

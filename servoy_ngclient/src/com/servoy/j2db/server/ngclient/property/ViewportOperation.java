@@ -79,7 +79,7 @@ public class ViewportOperation
 		w.key("startIndex").value(Integer.valueOf(startIndex)).key("endIndex").value(Integer.valueOf(endIndex)).key("type").value(Integer.valueOf(type));
 
 		// conversion info for websocket traffic (for example Date objects will turn into long or String to be usable in JSON)
-		if (clientSideTypesForViewport != null) clientSideTypesForViewport.writeClientSideTypes(w, JSONUtils.TYPES_KEY);
+		if (clientSideTypesForViewport != null) clientSideTypesForViewport.writeClientSideTypes(w, JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY);
 
 		w.endObject();
 

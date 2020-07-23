@@ -37,7 +37,6 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPushToServerSpecialType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
-import org.sablo.websocket.utils.JSONUtils.ChangesToJSONConverter;
 import org.sablo.websocket.utils.JSONUtils.IJSONStringWithClientSideType;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -495,11 +494,11 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		if (viewPortChangeMonitor == null)
 		{
 			// single value; not record dependent
-			IJSONStringWithClientSideType wrappedJSONValue = JSONUtils.getConvertedValueWithClientType(wrappedSabloValue, wrappedPropertyDescription,
+			IJSONStringWithClientSideType wrappedJSONValue = JSONUtils.getFullConvertedValueWithClientType(wrappedSabloValue, wrappedPropertyDescription,
 				dataConverterContext);
 
 			writer.key(FoundsetLinkedPropertyType.SINGLE_VALUE).value(wrappedJSONValue);
-			if (wrappedJSONValue.getClientSideType() != null) writer.key(JSONUtils.TYPES_KEY).value(wrappedJSONValue.getClientSideType());
+			if (wrappedJSONValue.getClientSideType() != null) writer.key(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value(wrappedJSONValue.getClientSideType());
 		}
 		else
 		{
@@ -525,7 +524,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			wrappedSabloValue);
 
 		// conversion info for websocket traffic (for example Date objects will turn into long or String to be usable in JSON)
-		if (clientSideTypesForViewport != null) clientSideTypesForViewport.writeClientSideTypes(destinationJSON, JSONUtils.TYPES_KEY);
+		if (clientSideTypesForViewport != null) clientSideTypesForViewport.writeClientSideTypes(destinationJSON, JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY);
 	}
 
 	public JSONWriter changesToJSON(JSONWriter writer, String key, PropertyDescription wrappedPropertyDescription,
@@ -548,11 +547,11 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 		if (viewPortChangeMonitor == null)
 		{
-			// single value; just send it's changes
-			// I think we can safely assume here that the client side type (if any) was not changed, so
-			// if there is a client side type for this value it was already sent previously and is available client side in the property's internal state
-			ChangesToJSONConverter.INSTANCE.toJSONValue(writer, FoundsetLinkedPropertyType.SINGLE_VALUE_UPDATE, wrappedSabloValue, wrappedPropertyDescription,
+			IJSONStringWithClientSideType wrappedJSONValue = JSONUtils.getChangesWithClientType(wrappedSabloValue, wrappedPropertyDescription,
 				dataConverterContext);
+
+			writer.key(FoundsetLinkedPropertyType.SINGLE_VALUE_UPDATE).value(wrappedJSONValue);
+			if (wrappedJSONValue.getClientSideType() != null) writer.key(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value(wrappedJSONValue.getClientSideType());
 		}
 		else
 		{

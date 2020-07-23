@@ -127,11 +127,13 @@ public class ViewportClientSideTypesTests
 		String jsonTypes = keeper.getClientSideTypes().toJSONString();
 
 		EmbeddableJSONWriter expected = new EmbeddableJSONWriter(true);
-		expected.object().key(ViewportClientSideTypes.MAIN_TYPE).value("date").key(ViewportClientSideTypes.COL_TYPES).object().key("b").object().key(
-			JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value(null).endObject().endObject().endObject();
+		expected.object().key(ViewportClientSideTypes.MAIN_TYPE).value(null).key(ViewportClientSideTypes.COL_TYPES).object().key("a").object().key(
+			JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value("date").endObject().endObject().endObject();
 
 		// {"mT":"date","cT":{"b":{"mT":null}}}
-		assertEquals("Main type and b column main type expected", expected.toJSONString(), jsonTypes);
+		JSONAssert.assertEquals(
+			"Main type and b or a column main type expected:\n" + expected.toJSONString() + "\nActual:\n" + jsonTypes + "\n\nJSONAssert explanation:\n",
+			expected.toJSONString(), jsonTypes, JSONCompareMode.NON_EXTENSIBLE);
 	}
 
 	private Pair<String, JSONString> p(String a, String b)
@@ -170,6 +172,7 @@ public class ViewportClientSideTypesTests
 			.endObject().endObject();
 		// @formatter:on
 
+		hmmAICIEOPROBLEMaCuCodulNouTrebuieVazutDacaMaxColoanaEsteMainSauAltcevaSiAtunciMaiAreSensMainTypePeViewportAsaCumEImplementatOare();
 		JSONAssert.assertEquals(
 			"Mixed types with first cell being main type. Expected:\n" + expected.toJSONString() + "\nActual:\n" + jsonTypes + "\n\nJSONAssert explanation:\n",
 			expected.toJSONString(), jsonTypes, JSONCompareMode.NON_EXTENSIBLE);
@@ -182,14 +185,14 @@ public class ViewportClientSideTypesTests
 		ViewportClientSideTypes keeper = new ViewportClientSideTypes(501, 510);
 		keeper.registerClientSideType(501, Arrays.asList(p("a", "date"), p("b", null), p("c", "xyz")));
 		keeper.registerClientSideType(502, Arrays.asList(p("a", "date"), p("b", null), p("c", "date")));
-		keeper.registerClientSideType(503, Arrays.asList(p("a", "date"), p("b", null), p("c", "date")));
+		keeper.registerClientSideType(503, Arrays.asList(p("a", "date"), p("b", null), p("c", "zyx")));
 		keeper.registerClientSideType(504, Arrays.asList(p("a", "date"), p("b", null), p("c", "date")));
 		keeper.registerClientSideType(505, Arrays.asList(p("a", "date"), p("b", null), p("c", null)));
 		keeper.registerClientSideType(506, Arrays.asList(p("a", "date"), p("b", null), p("c", "zyx")));
 		keeper.registerClientSideType(507, Arrays.asList(p("a", "date"), p("b", null), p("c", "date")));
-		keeper.registerClientSideType(508, Arrays.asList(p("a", "date"), p("b", null), p("c", "zyx")));
-		keeper.registerClientSideType(509, Arrays.asList(p("a", "date"), p("b", null), p("c", "zyx")));
-		keeper.registerClientSideType(510, Arrays.asList(p("a", "date"), p("b", null), p("c", null)));
+		keeper.registerClientSideType(508, Arrays.asList(p("a", "date"), p("b", null), p("c", "date")));
+		keeper.registerClientSideType(509, Arrays.asList(p("a", "date"), p("b", null), p("c", "date")));
+		keeper.registerClientSideType(510, Arrays.asList(p("a", "date"), p("b", null), p("c", "zyx")));
 
 		String jsonTypes = keeper.getClientSideTypes().toJSONString();
 
@@ -197,11 +200,10 @@ public class ViewportClientSideTypesTests
 		EmbeddableJSONWriter expected = new EmbeddableJSONWriter(true);
 		expected.object().key(ViewportClientSideTypes.MAIN_TYPE).value("date").key(ViewportClientSideTypes.COL_TYPES).object()
 			.key("b").object().key(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value(null).endObject()
-			.key("c").object().key(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value("xyz")
-			                  .key(ViewportClientSideTypes.CELL_TYPES).array()
-		                      .object().key(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value("date").key(ViewportClientSideTypes.FOR_ROW_IDXS).array().value(1).value(2).value(3).value(6).endArray().endObject()
-		                      .object().key(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value(null).key(ViewportClientSideTypes.FOR_ROW_IDXS).array().value(4).value(9).endArray().endObject()
-		                      .object().key(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value("zyx").key(ViewportClientSideTypes.FOR_ROW_IDXS).array().value(5).value(7).value(8).endArray().endObject()
+			.key("c").object().key(ViewportClientSideTypes.CELL_TYPES).array()
+		                      .object().key(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value("xyz").key(ViewportClientSideTypes.FOR_ROW_IDXS).array().value(0).endArray().endObject()
+		                      .object().key(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value(null).key(ViewportClientSideTypes.FOR_ROW_IDXS).array().value(4).endArray().endObject()
+		                      .object().key(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value("zyx").key(ViewportClientSideTypes.FOR_ROW_IDXS).array().value(2).value(5).value(9).endArray().endObject()
 			                  .endArray()
 			.endObject()
 			.endObject().endObject();
@@ -252,10 +254,11 @@ public class ViewportClientSideTypesTests
 
 		// @formatter:off
 		EmbeddableJSONWriter expected = new EmbeddableJSONWriter(true);
-		expected.object().key(ViewportClientSideTypes.MAIN_TYPE).value(null).key(ViewportClientSideTypes.COL_TYPES).object().key(ViewportClientSideTypes.CELL_TYPES).array()
-		                      .object().key(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value("date").key(ViewportClientSideTypes.FOR_ROW_IDXS).array().value(1).value(2).value(4).value(5).value(6).endArray().endObject()
-			                  .endArray()
-			.endObject().endObject();
+		expected.object().key(ViewportClientSideTypes.MAIN_TYPE).value("date")
+		                 .key(ViewportClientSideTypes.COL_TYPES).object().key(ViewportClientSideTypes.CELL_TYPES).array().object()
+		                 	.key(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value(null)
+		                 	.key(ViewportClientSideTypes.FOR_ROW_IDXS).array().value(0).value(3).endArray()
+                         .endObject().endArray().endObject().endObject();
 		// @formatter:on
 
 		JSONAssert.assertEquals(

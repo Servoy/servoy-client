@@ -73,6 +73,7 @@ public class ComponentPropertyType extends DefaultPropertyType<ComponentTypeSabl
 	II18NPropertyType<ComponentTypeSabloValue>, IPropertyWithClientSideConversions<ComponentTypeSabloValue>
 {
 
+
 	public static final ComponentPropertyType INSTANCE = new ComponentPropertyType();
 
 	public static final String TYPE_NAME = ChildWebComponent.COMPONENT_PROPERTY_TYPE_NAME;
@@ -94,6 +95,8 @@ public class ComponentPropertyType extends DefaultPropertyType<ComponentTypeSabl
 
 	public static final String PROPERTY_NAME_KEY = "pn";
 	public static final String VALUE_KEY = "v";
+
+	private static final String COMPONENT_SPEC_NAME = "componentDirectiveName";
 	// END keys and values used in JSON
 
 	protected long uniqueId = 1;
@@ -246,8 +249,7 @@ public class ComponentPropertyType extends DefaultPropertyType<ComponentTypeSabl
 		FormElement fe = componentFormElementContext.getFormElement();
 		if (forFoundsetPropertyType != null) writer.key(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME).value(forFoundsetPropertyType);
 
-		writer.key("componentDirectiveName").value(fe.getTypeName()); // this is currently the spec.getName() which can also be used client-side to identify the client-side-types for this component
-		writer.key("componentSpecName").value(fe.getTypeName());
+		writer.key(COMPONENT_SPEC_NAME).value(fe.getTypeName()); // this is currently the spec.getName() which can also be used client-side to identify the client-side-types for this component
 		writer.key("name").value(componentFormElementContext.getName());
 
 		if (fe.getPropertyValue("componentIndex") != null)

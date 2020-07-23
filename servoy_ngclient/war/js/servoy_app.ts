@@ -36,8 +36,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 }]).factory('$servoyInternal', function ($rootScope: angular.IRootScopeService, webStorage, $anchorConstants, $webSocket: sablo.IWebSocket, $q:angular.IQService,
 		$solutionSettings:servoy.SolutionSettings, $window: angular.IWindowService, $sabloConverters:sablo.ISabloConverters,
 		$sabloUtils:sablo.ISabloUtils, $sabloApplication: sablo.ISabloApplication, $utils,$foundsetTypeConstants,$log: angular.ILogService, clientdesign) {
-	function getComponentChanges(now, prev, beanConversionInfo, beanLayout, parentSize, property, beanModel,useAnchoring,formname) {
-		var changes = $sabloApplication.getComponentChanges(now, prev, beanConversionInfo, parentSize, property)
+	function getComponentChanges(now, prev, componentSpecName, beanLayout, parentSize, property, beanModel,useAnchoring,formname) {
+		var changes = $sabloApplication.getComponentChanges(now, prev, componentSpecName, parentSize, property)
 		// TODO: visibility must be based on properties of type visible, not on property name
 		if (changes.location || changes.size || changes.visible || changes.anchors) {
 			if (beanLayout) {
@@ -64,9 +64,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		})
 	}
 	
-	function applyBeanData(beanModel, beanLayout, beanData, containerSize, changeNotifierGenerator, beanConversionInfo, newConversionInfo, componentScope,useAnchoring,formname) {
-		$sabloApplication.applyBeanData(beanModel, beanData, containerSize, changeNotifierGenerator, beanConversionInfo, newConversionInfo, componentScope)
-		applyBeanLayout(beanModel, beanLayout, beanData, containerSize, true,useAnchoring,formname)
+	function applyBeanData(beanModel, beanLayout, beanData, containerSize, changeNotifierGenerator, componentSpecName: string, componentScope,useAnchoring,formname) {
+		$sabloApplication.applyBeanData(beanModel, beanData, containerSize, changeNotifierGenerator, componentSpecName, componentScope);
+		applyBeanLayout(beanModel, beanLayout, beanData, containerSize, true, useAnchoring, formname);
 	}
 
 	function applyBeanLayout(beanModel, beanLayout, beanData, containerSize, isApplyBeanData, useAnchoring, formname) {

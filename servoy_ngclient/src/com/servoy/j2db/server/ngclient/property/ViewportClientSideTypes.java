@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.property;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -52,8 +53,10 @@ public class ViewportClientSideTypes
 	private int nextFoundsetIndexToBeRegistered = -1;
 	private final int startIdxOfAreaToBeWritten, sizeOfAreaToBeWritten;
 
-	private JSONString mainType = null; // if all cells (from all rows/columns being written) have the same type or no type this will be it; otherwise it's just a fallback for "typesPerColumn"
-	private Map<String, Pair<JSONString, Map<String, List<Integer>>>> typesPerColumn = null; // if cells have different types we keep that for each columnName (which is the key of the map) - which could be a JSONString as a column-level type or column-level fallback type (if all in that column have the same type (in which case the map in the Pair is null) or a JSONString map (index -> JSONSTring) if they have different types within the same column (for example if MediaDataproviderPropertyType end up writing things for cells you might end up with multiple types in Pair.getRight())
+	private Map<String, Map<String, List<Integer>>> typesPerColumn = null; // if cells have different types we keep that for each columnName (which is the key of the map); value is a list
+	// of types-to-indexes inside that column (if all in that column have the same type the list will have only one item; if they have different types within the same column (for example
+	// if MediaDataproviderPropertyType ends up writing things for cells you might end up with multiple types in the list for one column);
+	// later we will see which type appears most often in the column and we optimize it when writing to JSON (as usually you will have only 1 or 2 types per column, like null and 'date' for example)
 
 	public ViewportClientSideTypes(int startIdxOfAreaToBeWritten, int endIdxOfAreaToBeWritten)
 	{
@@ -88,7 +91,7 @@ public class ViewportClientSideTypes
 
 	/**
 	 * We currently expect that ViewportRowDataProvider implementations call this method EXACTLY ONCE AND IN SEQUENCE FROM THE START OF INTERVAL for each row that they are asked to write to JSON (probably from "populateRowData").<br/>
-	 * Not calling this for a row of calling it in a different order will result in an IllegalArgumentException. This restriction is in place in order to simplify the implementation.
+	 * Not calling this for a row of calling it in a different order will result in an IllegalArgumentException. This restriction can be removed if needed but currently this is what viewports do... (in a previous impl this restriction simplified implementation but that is no longer the case)
 	 *
 	 * @param forRowIdx the row of the foundset the given clientSideTypes are for
 	 * @param clientSideTypesForRow an array of column names and client side type for that column in the given row "forRowIdx"; columnName can be null if that particular ViewportRowDataProvider doesn't use multiple columns; type can also be null if it does not have a client side type; the whole arg can be null if there is no type and no column name in the whole row
@@ -99,109 +102,55 @@ public class ViewportClientSideTypes
 	{
 		int relativeForRow = forRowIdx - startIdxOfAreaToBeWritten;
 
-		if (relativeForRow >= sizeOfAreaToBeWritten) throw new IllegalArgumentException("'registerClientSideType' was called for relative idx <" +
-			relativeForRow + "> which is greater then or equal to size <" + sizeOfAreaToBeWritten + "> (lastRegistered = " + lastRegistered + ").");
+		if (relativeForRow >= sizeOfAreaToBeWritten || relativeForRow < 0)
+			throw new IllegalArgumentException("'registerClientSideType' was called for relative idx <" +
+				relativeForRow + "> which is < 0 or greater then or equal to size <" + sizeOfAreaToBeWritten + "> (lastRegistered = " + lastRegistered +
+				"). Absolute start idx: " + startIdxOfAreaToBeWritten + "; absolute row idx: " + forRowIdx);
 		if (relativeForRow != lastRegistered + 1)
 			throw new IllegalArgumentException("Expected 'registerClientSideType' to be called in sequence for relative idx <" + (lastRegistered + 1) +
 				"> but it was called for <" + relativeForRow + ">.");
 		lastRegistered++;
 
-		boolean firstClientSideType = (lastRegistered == 0);
 		if (clientSideTypesForRow != null)
 		{
 			for (Pair<String, JSONString> clST : clientSideTypesForRow)
 			{
-				processOneClientSideType(firstClientSideType, clST.getLeft(), clST.getRight());
-				firstClientSideType = false;
+				processOneClientSideType(clST.getLeft(), clST.getRight());
 			}
 		}
 		else
 		{
-			processOneClientSideType(firstClientSideType, null, null);
+			processOneClientSideType(null, null);
 		}
 	}
 
-	private boolean checkJSONStringEquals(JSONString a, JSONString b)
+	private String toJSONString(JSONString type)
 	{
-		return Utils.safeEquals(a != null ? a.toJSONString() : null, b != null ? b.toJSONString() : null);
+		return type != null ? type.toJSONString() : null;
 	}
 
-	private void processOneClientSideType(boolean firstClientSideType, String columnName, JSONString type)
+	private void processOneClientSideType(String columnName, JSONString type)
 	{
-		if (firstClientSideType)
-		{
-			// so it is the first clientSideTypes we are looking at; we can safely store it in allHaveThisType as it's the only one for now
-			mainType = type;
-		}
-		else
-		{
-			boolean checkAtColumnLevel = false;
-			if (typesPerColumn == null)
-			{
-				if (!checkJSONStringEquals(mainType, type))
-				{
-					// so until now all were of "allHaveThisType" type
-					// we have more then one type - create then typesPerColumn
-					typesPerColumn = new HashMap<>();
-					checkAtColumnLevel = true;
-				}
-				else checkAtColumnLevel = false;// else it's still the same type; nothing to do
-			}
-			else checkAtColumnLevel = true;
+		if (typesPerColumn == null) typesPerColumn = new HashMap<>();
 
-			if (checkAtColumnLevel)
-			{
-				// so we already have multiple types; see how it fits in the existing column types
-				Pair<JSONString, Map<String, List<Integer>>> columnTypes = typesPerColumn.get(columnName);
-				boolean storeCellLevelType;
-				if (columnTypes == null)
-				{
-					if (!checkJSONStringEquals(mainType, type))
-					{
-						if (lastRegistered == 0)
-						{
-							// so it is the first row that is being registered for this column and it does not match the main type of the whole viewport
-							typesPerColumn.put(columnName, new Pair<>(type, null));
-							storeCellLevelType = false;
-						}
-						else
-						{
-							// this also means that lastRegistered > 0 - see if above (so all previous indexes in this column matched the main viewport type); now we have a difference; so main type is also the type of this column
-							columnTypes = new Pair<>(mainType, null);
-							typesPerColumn.put(columnName, columnTypes);
-							storeCellLevelType = true;
-						}
-					}
-					else storeCellLevelType = false; // else it's still the same type; nothing to do
-				}
-				else storeCellLevelType = !checkJSONStringEquals(columnTypes.getLeft(), type);
+		String stringifiedType = toJSONString(type);
 
-				if (storeCellLevelType)
-				{
-					String typeKey = (type != null ? type.toJSONString() : null);
-					if (columnTypes.getRight() == null)
-					{
-						// all cells in this column had the same type so far
-						Map<String, List<Integer>> typesOfCol = new HashMap<>();
-						List<Integer> l = new ArrayList<>();
-						l.add(Integer.valueOf(lastRegistered));
-						typesOfCol.put(typeKey, l);
-						columnTypes.setRight(typesOfCol);
-					}
-					else
-					{
-						// we already have different types for cells in this row
-						List<Integer> l = columnTypes.getRight().get(typeKey);
-						if (l == null)
-						{
-							l = new ArrayList<>();
-							columnTypes.getRight().put(typeKey, l);
-						}
-						l.add(Integer.valueOf(lastRegistered));
-					}
-				} // else it's still the same type; nothing to do
-			}
+		Map<String, List<Integer>> columnTypes = typesPerColumn.get(columnName);
+
+		if (columnTypes == null)
+		{
+			columnTypes = new HashMap<>();
+			typesPerColumn.put(columnName, columnTypes);
 		}
+
+		List<Integer> typeIndexesInsideColumn = columnTypes.get(stringifiedType);
+		if (typeIndexesInsideColumn == null)
+		{
+			typeIndexesInsideColumn = new ArrayList<>();
+			columnTypes.put(stringifiedType, typeIndexesInsideColumn);
+		}
+
+		typeIndexesInsideColumn.add(Integer.valueOf(lastRegistered));
 	}
 
 	public void writeClientSideTypes(JSONWriter w, String key)
@@ -215,69 +164,177 @@ public class ViewportClientSideTypes
 	}
 
 	/**
-	 * Generates a client side type(s) JSON value (which could be a simple type or a more advanced structure with types per column / cell) that is understood correctly by viewport.js...
+	 * IMPORTANT: If you update/change this you have to also update the comment/change the impl. in viewport.ts and in foundsetLinked.ts -> generateWholeViewportFromOneValue
+	 *
+	 * Generates a client side type(s) JSON value (which could be a simple type or a more advanced structure with types per column / cell) that is understood correctly by viewport.js...<br/>
+	 * The idea is that the most common type will be written only once per viewport (main type) then for each column that has other types a column main type (most common one left in column) can
+	 * be written where needed and then other cell types (that are not main type or column main type) say what indexes they have in each column.<br/><br/>
+	 *
+	 * Example output:
+	 * <pre>
+	 * {
+	 *  "mT": "date",
+	 *  "cT": {
+	 *     "b": { "_T": null},
+	 *     "c": {`
+	 *         "eT":
+	 *           [
+	 *             { "_T": null, "i": [4] },
+	 *             { "_T": "zyx", "i": [2,5,9] },
+	 *             {"_T": "xyz", "i": [0] }
+	 *           ]
+	 *       }
+	 *   }
+	 * }
+	 *
+	 * where
+	 *   JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY   == "_T"
+	 *   ViewportClientSideTypes.MAIN_TYPE       == "mT"
+	 *   ViewportClientSideTypes.COL_TYPES       == "cT"
+	 *   ViewportClientSideTypes.CELL_TYPES      == "eT"
+	 *   ViewportClientSideTypes.FOR_ROW_IDXS    == "i"
+	 * </pre>
 	 */
 	public JSONString getClientSideTypes()
 	{
 		if (lastRegistered != sizeOfAreaToBeWritten - 1)
 			throw new RuntimeException("getClientSideType called before all indexes in area to be written were registered...");
 
-		if (mainType == null && typesPerColumn == null) return null; // no types; nothing should be written to JSON as far as types go
+		if (typesPerColumn == null) return null; // no types; nothing should be written to JSON as far as types go
 
-		EmbeddableJSONWriter ejw = new EmbeddableJSONWriter(true);
-		ejw.object().key(MAIN_TYPE).value(mainType);
+		Map<String, Integer> colMainTypeCounter = new HashMap<>(typesPerColumn.size());
+		Map<String, Pair<String, JSONString>> colMainAndCellTypes = new HashMap<>(typesPerColumn.size());
 
-		if (typesPerColumn != null)
+		JSONStringWrapper t = new JSONStringWrapper();
+
+		// ok now see which is the main column type of each column and write for later any different types and the indexes they are at
+		for (Entry<String, Map<String, List<Integer>>> columnTypesEntry : typesPerColumn.entrySet())
 		{
-			ejw.key(COL_TYPES);
-			if (typesPerColumn.size() == 1 && typesPerColumn.keySet().iterator().next() == null)
+			EmbeddableJSONWriter cellTypesWriter = new EmbeddableJSONWriter(true);
+			if (columnTypesEntry.getValue().size() > 0)
 			{
-				// this means that there is only one column with no name - probably this is for a foundset-linked type so we write it directly then
-				writeColTypes(ejw, typesPerColumn.get(null));
-			}
-			else
-			{
-				ejw.object();
-				for (Entry<String, Pair<JSONString, Map<String, List<Integer>>>> e : typesPerColumn.entrySet())
+				Entry<String, List<Integer>> columnMainTypeWinnerEntry = null; // appeared most times in viewport cells
+				boolean cellTypesWritten = false;
+				for (Entry<String, List<Integer>> columnTypeEntry : columnTypesEntry.getValue().entrySet())
 				{
-					ejw.key(e.getKey());
-					writeColTypes(ejw, e.getValue());
+					Entry<String, List<Integer>> colTypeToWrite = null;
+					if (columnMainTypeWinnerEntry == null || (columnMainTypeWinnerEntry.getValue().size() < columnTypeEntry.getValue().size()))
+					{
+						// another entry has more indexes, that will be come the new columnMainTypeWinnerEntry but now we write to json the old/current columnMainTypeWinnerEntry indexes as cell types
+						colTypeToWrite = columnMainTypeWinnerEntry; // can be null on first iteration
+						columnMainTypeWinnerEntry = columnTypeEntry;
+					}
+					else colTypeToWrite = columnTypeEntry;
+
+					if (colTypeToWrite != null)
+					{
+						if (!cellTypesWritten)
+						{
+							cellTypesWriter.array(); // we make here an array of objects with type & indexes instead of a map of type -> indexes because type might not be the JSON representation of a String (could be an array see for example CustomJSONObjectType.writeClientSideTypeName(JSONWriter, String, PropertyDescription)
+							cellTypesWritten = true;
+						}
+
+						cellTypesWriter.object();
+
+						t.wrappedString = colTypeToWrite.getKey(); // the type of the cells in array below
+						cellTypesWriter.key(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value(t);
+
+						cellTypesWriter.key(FOR_ROW_IDXS).array();
+						colTypeToWrite.getValue().forEach((idx) -> cellTypesWriter.value(idx)); // cells that have this type (that is != main type and main column type)
+						cellTypesWriter.endArray();
+
+						cellTypesWriter.endObject();
+					}
 				}
-				ejw.endObject();
-			}
-		}
-		ejw.endObject();
-		return ejw;
-	}
+				if (cellTypesWritten) cellTypesWriter.endArray(); // for CELL_TYPES array
 
-	private void writeColTypes(EmbeddableJSONWriter ejw, Pair<JSONString, Map<String, List<Integer>>> columnTypes)
-	{
-		ejw.object();
-		if (mainType != columnTypes.getLeft())
-		{
-			ejw.key(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value(columnTypes.getLeft()); // main/fallback type of this column if different from main viewport fallback type
+				String mainColType = columnMainTypeWinnerEntry.getKey();
+				Integer counterOfColumnsWithThisMainType = colMainTypeCounter.get(mainColType);
+				colMainTypeCounter.put(mainColType,
+					Integer.valueOf(counterOfColumnsWithThisMainType != null ? counterOfColumnsWithThisMainType.intValue() + 1 : 0));
+				colMainAndCellTypes.put(columnTypesEntry.getKey(),
+					new Pair<>(mainColType, cellTypesWriter.toJSONString().length() == 0 ? null : cellTypesWriter));
+			}
+
+			columnTypesEntry.getValue().clear(); // just to help GC
 		}
-		Map<String, List<Integer>> columnCellTypes = columnTypes.getRight();
-		if (columnCellTypes != null)
+
+		// now we know column main types is any; see which one appears most often
+		Entry<String, Integer> mainTypeWinnerEntry = null; // appeared most times in column main types
+		for (Entry<String, Integer> typeCounterEntry : colMainTypeCounter.entrySet())
 		{
-			ejw.key(CELL_TYPES);
-			ejw.array(); // we make here an array of objects with type & indexes instead of a map of type -> indexes because type might not be the JSON representation of a String (could be an array see for example CustomJSONObjectType.writeClientSideTypeName(JSONWriter, String, PropertyDescription)
-			JSONStringWrapper t = new JSONStringWrapper();
-			for (Entry<String, List<Integer>> cctE : columnCellTypes.entrySet())
+			if (mainTypeWinnerEntry == null || (mainTypeWinnerEntry.getValue().intValue() < typeCounterEntry.getValue().intValue()))
+				mainTypeWinnerEntry = typeCounterEntry;
+		}
+
+		EmbeddableJSONWriter rootEjw = new EmbeddableJSONWriter(true);
+
+		boolean colTypesWritten = false;
+		boolean endObjNeededForAllCols = false;
+
+		rootEjw.object();
+
+		// now we know main type/col. main types and column cell types; write column types without redundant info (no col type is same with main type, no cell types if not needed etc.)
+		Iterator<Entry<String, Pair<String, JSONString>>> it = colMainAndCellTypes.entrySet().iterator();
+		while (it.hasNext())
+		{
+			boolean colKeyWritten = false;
+			Entry<String, Pair<String, JSONString>> columnTypesEntry = it.next();
+			if (columnTypesEntry.getValue().getRight() != null)
 			{
-				ejw.object();
-				t.wrappedString = cctE.getKey();
-				ejw.key(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value(t);
-
-				ejw.key(FOR_ROW_IDXS).array();
-				cctE.getValue().forEach((idx) -> ejw.value(idx));
-				ejw.endArray();
-
-				ejw.endObject();
+				// this col. wants to write cell types so it has more then 1 type in cells of this column
+				if (!colTypesWritten)
+				{
+					rootEjw.key(COL_TYPES);
+					if (typesPerColumn.size() > 1 || columnTypesEntry.getKey() != null)
+					{
+						rootEjw.object(); // multiple columns; not just one column with key null (which is what foundset linked type would produce and in which case we just write the types for that columns directly no need for an object with multiple columns)
+						endObjNeededForAllCols = true;
+					}
+					colTypesWritten = true;
+				}
+				if (columnTypesEntry.getKey() != null) rootEjw.key(columnTypesEntry.getKey());
+				colKeyWritten = true;
+				rootEjw.object().key(CELL_TYPES).value(columnTypesEntry.getValue().getRight());
 			}
-			ejw.endArray();
+
+			if (!Utils.safeEquals(mainTypeWinnerEntry.getKey(), columnTypesEntry.getValue().getLeft()))
+			{
+				// so main viewport type is not equal to main column type = then we have to write the column type
+				if (!colTypesWritten)
+				{
+					rootEjw.key(COL_TYPES);
+					if (typesPerColumn.size() > 1 || columnTypesEntry.getKey() != null)
+					{
+						rootEjw.object(); // multiple columns; not just one column with key null (which is what foundset linked type would produce and in which case we just write the types for that columns directly no need for an object with multiple columns)
+						endObjNeededForAllCols = true;
+					}
+					colTypesWritten = true;
+				}
+				if (!colKeyWritten)
+				{
+					if (columnTypesEntry.getKey() != null) rootEjw.key(columnTypesEntry.getKey());
+					rootEjw.object();
+					colKeyWritten = true;
+				}
+
+				t.wrappedString = columnTypesEntry.getValue().getLeft();
+				rootEjw.key(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value(t); // main column type
+			}
+			if (colKeyWritten) rootEjw.endObject(); // for this column's types
 		}
-		ejw.endObject();
+		if (endObjNeededForAllCols) rootEjw.endObject(); // for COL_TYPES obj if added
+
+		// write main type only if it's not-null or if there are already column main types or cell types already written; otherwise nothing in the viewport has types - we don't write anything
+		if (mainTypeWinnerEntry.getKey() == null && !colTypesWritten) return null;
+
+		t.wrappedString = mainTypeWinnerEntry.getKey();
+		rootEjw.key(MAIN_TYPE).value(t).endObject();
+
+		typesPerColumn.clear(); // just to help GC
+		typesPerColumn = null;
+
+		return rootEjw;
 	}
 
 }

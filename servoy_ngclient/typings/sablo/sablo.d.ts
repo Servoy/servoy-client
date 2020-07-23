@@ -1,14 +1,14 @@
 /// <reference path="../angularjs/angular.d.ts" />
 
 declare namespace sablo {
-
+	
 	interface ILogService extends angular.ILogService {
 		debugEnabled: boolean;
 		debugLevel: number;
 		DEBUG: number;
 		SPAM: number;
 	}
-
+	
 	interface FormState {
 		model:any;
 		api:any;
@@ -23,7 +23,7 @@ declare namespace sablo {
 		getScope?(): angular.IScope;
 		addWatches?():void			
 	}
-
+	
 	interface WSSession {
 		callService<T>(serviceName:string, methodName:string, argsObject, async:boolean):angular.IPromise<T>;
 		sendMessageObject:()=>void;
@@ -32,17 +32,17 @@ declare namespace sablo {
 		onclose:()=>void;
 		onMessageObject(handler:(msg, conversionInfo, scopesToDigest: ScopeSet)=>void): void; 
 	}
-
+	
 	interface Locale {
 		language:string;
 		country:string;
 		full: string;
 	}
-
+	
 	interface SabloConstants {
-		modelChangeNotifier:string	
+		modelChangeNotifier:string,
 	}
-
+	
 	interface ISabloApplication {
         connect(context, queryArgs, websocketUri): WSSession;
         contributeFormResolver(contributedFormResolver:{prepareUnresolvedFormForUse(form:string)}): void;
@@ -51,8 +51,8 @@ declare namespace sablo {
         getWindowName(): string;
         getWindownr(): string;
         getWindowUrl(name:string): string;
-        applyBeanData(beanModel, beanData, containerSize, changeNotifierGenerator, beanConversionInfo, newConversionInfo, componentScope:angular.IScope):void ;
-        getComponentChanges(now, prev, beanConversionInfo, parentSize, property): any;
+        applyBeanData(beanModel, beanData, containerSize, changeNotifierGenerator, componentSpecName: string, componentScope:angular.IScope): void;
+        getComponentChanges(now, prev, componentSpecName: string, parentSize, property): any;
         getChangeNotifierGenerator(formName:string, beanName:string):(property:string)=>void;
         getFormState(name:string): angular.IPromise<FormState>;
         getFormStateWithData(name:string): angular.IPromise<FormState>;
@@ -82,28 +82,42 @@ declare namespace sablo {
 	
 	interface ISabloConverters {
         INTERNAL_IMPL: string,
-        TYPES_KEY: string,
-        prepareInternalState(propertyValue, optionalInternalStateValue):void
-        convertFromServerToClient(serverSentData:any, conversionInfo:any, currentClientData:any, scope:angular.IScope, propertyContext:(propertyName: string)=>any): any,
-        convertFromClientToServer(newClientData:any, conversionInfo:any, oldClientData:any): any,
-        updateAngularScope(value, conversionInfo, scope:angular.IScope): void,
-        registerCustomPropertyHandler(propertyTypeID:string, customHandler:{
-			fromServerToClient(serverJSONValue, currentClientValue, componentScope:angular.IScope, propertyContext:(propertyName: string)=>any):void,
-			fromClientToServer(newClientData, oldClientData):void,
-			updateAngularScope(clientValue, componentScope:angular.IScope):void
-		},overwrite:boolean): void 
+//        TYPES_KEY: string,
+        CONVERSION_CL_SIDE_TYPE_KEY: string,
+        prepareInternalState(propertyValue, optionalInternalStateValue?):void
+        convertFromServerToClient(serverSentData: any, typeOfData: sablo.IType<any>, currentClientData: any, scope: angular.IScope, propertyContext: sablo.IPropertyContext): any,
+        convertFromClientToServer(newClientData: any, typeOfData: sablo.IType<any>, oldClientData: any): any,
+//        updateAngularScope(value, conversionInfo, scope:angular.IScope): void,
+//        registerCustomPropertyHandler(propertyTypeID:string, customHandler:{
+//			fromServerToClient(serverJSONValue, currentClientValue, componentScope:angular.IScope, propertyContext:(propertyName: string)=>any):void,
+//			fromClientToServer(newClientData, oldClientData):void,
+//			updateAngularScope(clientValue, componentScope:angular.IScope):void
+//		},overwrite:boolean): void
 	}
 	
 	interface ISabloUtils {
-			EVENT_LEVEL_SYNC_API_CALL: number,
-			setCurrentEventLevelForServer(eventLevelValue:number): void,
-			getCurrentEventLevelForServer():number,
-			isChanged(now, prev, conversionInfo):boolean,
-			getCombinedPropertyNames(now,prev): any,
-			convertClientObject(value):any,
-			getEventArgs(args,eventName:string):any,
-			getOrCreateInDepthProperty(formStatesConversionInfo, formname:string, beanname:string):any,
-			getInDepthProperty(formStatesConversionInfo, formname:string, beanname:string):any,
+		EVENT_LEVEL_SYNC_API_CALL: number,
+		DEFAULT_CONVERSION_TO_SERVER_FUNC: string,
+		setCurrentEventLevelForServer(eventLevelValue:number): void,
+		getCurrentEventLevelForServer():number,
+		isChanged(now, prev, clientSideType: IType<any>):boolean,
+		getCombinedPropertyNames(now,prev): any,
+//		convertClientObject(value):any,
+		getEventArgs(args,eventName:string):any,
+		
+		/**
+		 * Receives variable arguments. First is the object obj and the others (for example a, b, c) are used to
+		 * return obj[a][b][c] making sure that if any does not exist or is null (for example b) it will be set to {}.
+		 */
+		getOrCreateInDepthProperty(object: any, ...pathOfSubpropertyNames: string[]):any,
+		
+		/**
+		 * Receives variable arguments. First is the object obj and the others (for example a, b, c) are used to
+		 * return obj[a][b][c] making sure that if any does not exist or is null it will just return null/undefined instead of erroring out.
+		 */
+		getInDepthProperty(object: any, ...pathOfSubpropertyNames: string[]):any,
+		
+		cloneWithDifferentPrototype(obj:Object, newPrototype:Object):Object
 	}
 	
 	interface IWebSocket {
@@ -136,7 +150,7 @@ declare namespace sablo {
         setQueryString(queryString: string): void,
         getQueryString(): string
 	}
-
+	
 	interface ISabloDeferHelper {
 		initInternalStateForDeferring(internalState, timeoutRejectLogPrefix?: string): void
 		initInternalStateForDeferringFromOldInternalState(internalState, oldInternalState): void
@@ -170,6 +184,161 @@ declare namespace sablo {
 	/** A CustomHashSet that uses as hashCode for angular scopes their $id. */
 	class ScopeSet extends CustomHashSet<angular.IScope> {
 		constructor();		
+	}
+	
+	/**
+	 * The types registry holds information about all service client side types (for properties, api params/return value) and about all needed component client side types (for properties, apis, handlers).
+	 * Client side types are those types that require client side conversions to/from server.
+	 */
+	interface ITypesRegistry {
+		
+		getTypeFactoryRegistry(): ITypeFactoryRegistry;
+		registerGlobalType(typeName: string, theType: IType<any>): void;
+
+	}
+	
+	interface ITypesRegistryForTypeFactories extends ITypesRegistry {
+
+		/**
+		 * This method is to be used outside of the type registry only by ITypeFactory instances that need to get IType instances from ITypeFromServer
+		 * when the ITypeFactory.registerDetails(...) method is called.
+		 * All other code already has IType instances available (not ITypeFromServer) and does not need this.
+		 * 
+		 * @param typeFromServer the type as it was received from server.
+		 * @param webObjectSpecName the name of the component/service that it was received for.
+		 */
+		processTypeFromServer(typeFromServer: ITypeFromServer, webObjectSpecName: string): IType<any>;
+
+	}
+
+	interface ITypesRegistryForSabloConverters extends ITypesRegistry {
+
+		/**
+		 * This method returns only simple (non-factory) types that are already registered with the type registry. It should only be used from $sabloConverters.convertFromServerToClient(...) or
+		 * types that inside their impl. can send variable nested types (for instance 'object' type can have random 'date' values nested in it).
+		 * All other code already has IType instances available (not ITypeFromServer) and does not need this.
+		 * 
+		 * @param typeFromServer the type as it was received from server.
+		 */
+		getAlreadyRegisteredType(typeFromServer: ITypeFromServer): IType<any>;
+
+	}
+
+	/**
+	 * An IType is a type of data (properties/arguments/return values) that requires client side client-to-server and server-to-client conversions.
+	 * VT is the client side type of value for that property.
+	 */
+	interface IType<VT> {
+		
+		/**
+		 * Converts the JSON value received from server for this type of property into a client-side value specific for this type and returns that.
+		 * 
+		 * @param serverJSONValue can be any JSON valid value (primitive, object, ...)
+		 * @param currentClientValue the current value that this property had (if any) on client before the new value arrived; this is useful sometimes in case of component/service properties.
+		 *                           In all other cases (args, return values) it's null/undefined.
+		 * @param componentScope an angular scope (of the component/service) that this conversion should use if a scope is needed (for watches for example).
+		 *                       It can be null/undefined if conversion happens for service/component API call parameters for example.
+		 * @param propertyContext (useful for properties of components/services) a way for this property to access another property in the current property context (if in the root of the web
+		 *                        object then other root properties, if in a nested custom object - other properties in the same custom object with fallback to parent level property context).
+		 *                        It can be null/undefined if conversion happens for service/component API call parameters for example.
+		 *                        
+		 * @return the new or updated client side property value; if this returned value is interested in being able to triggering sending updates to server when something changes client side in it
+		 *         it must have these member functions in it's [$sabloConverters.INTERNAL_IMPL]: // TODO change all this to a typescript interface ISmartPropertyValue and define a type for changeNotifier maybe
+		 *	           setChangeNotifier: function(changeNotifier) - where changeNotifier is a function that can be called when
+		 *                                                         the value needs to send updates to the server; this method will
+		 *                                                         not be called when value is a call parameter for example, but will
+		 *                                                         be called when set into a component's/service's property/model
+		 *             isChanged: function() - should return true if the value needs to send updates to server
+		 */
+        fromServerToClient(serverJSONValue: any, currentClientValue: VT, componentScope: angular.IScope, propertyContext: IPropertyContext): VT;
+        
+        /**
+         * Converts a client side value to a corresponding JSON value that is to be sent to server.
+         * 
+         * @param newClientData the client data to be converted for sending to server. It's not typed VT in case of values that can be completely created clientside (for example arrays/objects and that can be set without yet being the correct instance).
+         * @param oldClientData (for properties) in case the value of this property has changed by reference - the old value of this property; it can be null/undefined if
+		 *                      conversion happens for service API call parameters for example...
+		 *                      
+		 * @return the JSON value to send to the server
+         */
+        fromClientToServer(newClientData: any, oldClientData: VT): any;
+        
+        /**
+         * (for properties) Because some forms might become invisible and then visible again keeping the same data in the model, all properties are notified via this method if the angular scope
+         * that they received in fromServerToClient is no longer available or if this property value should be linked to another(new) angular scope.
+         * 
+         * @param clientValue the client side value of this property.
+         * @param componentScope the new angular scope (can be null/undefined if form was hidden, in which case the property type should do any needed cleanup operations on previous scope).
+         */
+        updateAngularScope(clientValue: VT, componentScope: angular.IScope): void;
+		
+	}
+	
+	type IPropertyContext = (propertyName: string) => any;
+
+	/** The type definition with client side conversion types for a component or service.  */
+	interface IWebObjectSpecification {
+
+		getPropertyType(propertyName:string): IType<any>;
+		getHandler(handlerName:string): IWebObjectFunction;
+		getApiFunction(apiFunctionName:string): IWebObjectFunction;
+
+	}
+	
+	/** The type definition with client side conversion types for a handler or api function.  */
+	interface IWebObjectFunction {
+
+		readonly returnType?: IType<any>;
+		getArgumentType(argumentIdx:number): IType<any>;
+
+	}
+	
+	/**
+	 * This is what server sends for a type (either a simple global type or a tuple for factory types). This type is only to be used in type registry code or code
+	 * that processes server-side sent types such as ITypeFactory.registerDetails to get the client-side IType instances from that.
+	 */
+	export type ITypeFromServer = string | [string, string];
+	
+	/**
+	 * Factory types (custom objects for instance) are registered and used through this registry. For example a custom object type is not just a type,
+	 * it has a specific declaration for sub-property types based on each individual custom object type from spec. So a factory would create all these specific custom object types.
+	 */
+	interface ITypeFactoryRegistry {
+
+		getTypeFactory(typeFactoryName: string): ITypeFactory<any>;
+		contributeTypeFactory(typeFactoryName: string, typeFactory: ITypeFactory<any>);
+		
+	}
+	
+	/**
+	 * See ITypeFactoryRegistry description. Some types like custom objects need to create more specific types for actual usage. For example a
+	 * custom object is different based on how it is defined in it's .spec file.
+	 * 
+	 * VT is the client side type of value that specific types created by this factory will use.
+	 */
+	interface ITypeFactory<VT> {
+
+		/**
+		 * Asks the factory to get (if it has already created this specific (sub)type) or create a specific type with the given specificTypeInfo (could be a custom object type name from spec or
+		 * in case of arrays it could be the type name of elements). Some type factories will have to rely on previously registered details for that specificTypeInfo that can be received from
+		 * server via registerDetails(...).
+		 * 
+		 * IMPORTANT: It is the responsibility of this factory to cache any newly created specific types as needed.
+		 * 
+		 * @param specificTypeInfo the information that can make a specific type from this factory of types (could be for example a custom object type name from spec or in case of arrays it could be the type name of elements)
+		 * @param webObjectSpecName as types are/can be scoped inside a web object (component or service) .spec we also give the webObjectSpecName here.
+		 * 
+		 * @returns the specific type for the given arguments.
+		 */
+		getOrCreateSpecificType(specificTypeInfo: string, webObjectSpecName: string): IType<VT>;
+		
+		/**
+		 * Gives the factory details that are needed for it to be able to create needed specific (sub)types. 
+		 * @param details for example is case of a JSON_obj factory the details would be the types of it's child properties. (ICustomTypesFromServer)
+		 * @param webObjectSpecName the web object for which this details were sent from the server.
+		 */
+		registerDetails(details: any, webObjectSpecName: string): void;
+
 	}
 
 }

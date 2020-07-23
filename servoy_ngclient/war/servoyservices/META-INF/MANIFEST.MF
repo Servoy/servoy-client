@@ -20,9 +20,6 @@ Web-Service: True
 Name: foundset_linked_property/foundsetLinked.spec
 Web-Service: True
 
-Name: custom_json_array_property/array.spec
-Web-Service: True
-
 Name: foundset_manager/foundsetManager.spec
 Web-Service: True
 

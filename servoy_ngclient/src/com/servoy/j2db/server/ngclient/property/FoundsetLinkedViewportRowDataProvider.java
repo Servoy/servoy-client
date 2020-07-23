@@ -57,7 +57,7 @@ public class FoundsetLinkedViewportRowDataProvider<YF, YT> extends ViewportRowDa
 	{
 		// TODO we should change the order in which rows are populated for a foundset; the foundset itself should do dal.setRecordQuietly(record) then call all ViewportRowDataProvider to populate their data somehow
 		dal.setRecordQuietly(record);
-		IJSONStringWithClientSideType jsonValueRepresentationForWrappedValue = JSONUtils.getConvertedValueWithClientType(sabloValue.getWrappedValue(), pd,
+		IJSONStringWithClientSideType jsonValueRepresentationForWrappedValue = JSONUtils.getFullConvertedValueWithClientType(sabloValue.getWrappedValue(), pd,
 			browserConverterContext);
 
 		w.value(jsonValueRepresentationForWrappedValue);

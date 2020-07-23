@@ -596,7 +596,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				viewPort.getStartIndex() + viewPort.getSize() - 1, getFoundset(), destinationJSON);
 
 			// conversion info for websocket traffic (for example Date objects will turn into long or String to be usable in JSON and client-side needs to know about this)
-			if (clientSideTypesForViewport != null) clientSideTypesForViewport.writeClientSideTypes(destinationJSON, JSONUtils.TYPES_KEY);
+			if (clientSideTypesForViewport != null) clientSideTypesForViewport.writeClientSideTypes(destinationJSON, JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY);
 		}
 		else
 		{
@@ -824,7 +824,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				}
 
 				w.key(entry.getKey());
-				IJSONStringWithClientSideType jsonValueRepresentationForWrappedValue = JSONUtils.getConvertedValueWithClientType(value, pd,
+				IJSONStringWithClientSideType jsonValueRepresentationForWrappedValue = JSONUtils.getFullConvertedValueWithClientType(value, pd,
 					browserConverterContext);
 
 				w.value(jsonValueRepresentationForWrappedValue);
