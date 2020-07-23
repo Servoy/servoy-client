@@ -104,7 +104,6 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 				var ngModel = element.children().controller("ngModel");
 				var stringValue = (typeof returnval === 'string' || returnval instanceof String);
 				if (returnval === false || stringValue) {
-					element[0].focus();
 					ngModel.$setValidity("", false);
 					if (stringValue) {
 						if (storedTooltip === false) { 
