@@ -430,7 +430,7 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 				else
 				{
 					// hack for now to map it to the types that we know are there, so that we can test responsive without really already having to have bootstrap components.
-					writer.value(mapOnDefaultForDebug(ClientService.convertToJSName(FormTemplateGenerator.getComponentTypeName((IFormElement)o))));
+					writer.value(ClientService.convertToJSName(FormTemplateGenerator.getComponentTypeName((IFormElement)o)));
 				}
 				if (o instanceof BaseComponent && ((BaseComponent)o).getCssPosition() != null)
 				{
@@ -667,13 +667,9 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 		 * @return
 		 */
 		private String mapOnDefaultForDebug(String typeName)
-		{
+		{ // Didn't remove this method completely, we might use it later.
 			switch (typeName)
 			{
-				case "bootstrapcomponentsTextbox" :
-					return "servoydefaultTextfield";
-				case "bootstrapcomponentsButton" :
-					return "servoydefaultButton";
 			}
 			return typeName;
 		}
