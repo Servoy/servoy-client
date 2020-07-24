@@ -31,6 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -525,6 +526,11 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 			Debug.log(e);
 		}
 		return null;
+	}
+
+	public static Object[] getArrayAsRightType(BaseColumnType type, int flags, Object[] array, boolean throwOnFail, boolean truncate)
+	{
+		return Arrays.stream(array).map(obj -> getAsRightType(type, flags, obj, throwOnFail, truncate)).toArray();
 	}
 
 	public Object getAsRightType(Object obj, String format)
