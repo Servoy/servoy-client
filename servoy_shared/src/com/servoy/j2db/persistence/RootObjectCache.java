@@ -271,8 +271,14 @@ public class RootObjectCache
 					}
 					else
 					{
-						rootObject = repository.loadRootObject(cacheRecord.rootObjectMetaData, realRelease);
-						loadingBlocker.remove(cacheRecord.rootObjectMetaData.getName());
+						try
+						{
+							rootObject = repository.loadRootObject(cacheRecord.rootObjectMetaData, realRelease);
+						}
+						finally
+						{
+							loadingBlocker.remove(cacheRecord.rootObjectMetaData.getName());
+						}
 					}
 				}
 				finally
