@@ -328,7 +328,8 @@ public class Row
 			convertedValue = sheet.convertObjectToValue(dataProviderID, convertedValue, parent.getFoundsetManager().getColumnConverterManager(),
 				parent.getFoundsetManager().getColumnValidatorManager(), src);
 		}
-		else if (parent.getFoundsetManager().isNullColumnValidatorEnabled())
+		else if (parent.getFoundsetManager().isNullColumnValidatorEnabled() &&
+			Settings.getInstance().getProperty("servoy.execute.column.validators.only.on.validate_and_save", "true").equals("false")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		{
 			//check for not null constraint
 			Column c = null;
