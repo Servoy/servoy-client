@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.util.I18NProvider;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
@@ -33,9 +34,10 @@ import com.servoy.j2db.util.ILogLevel;
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSValidationObject implements IJavaScriptType
+public class JSValidationObject implements IJavaScriptType, IValidationObject
 {
 	private final IRecord record;
+	private final I18NProvider application;
 	private final List<Exception> genericExceptions = new ArrayList<>(3);
 	private final List<JSProblem> problems = new ArrayList<>(3);
 	private boolean invalid = false;
@@ -45,9 +47,10 @@ public class JSValidationObject implements IJavaScriptType
 	/**
 	 * @param record
 	 */
-	public JSValidationObject(IRecord record)
+	public JSValidationObject(IRecord record, I18NProvider application)
 	{
 		this.record = record;
+		this.application = application;
 	}
 
 	/**
@@ -86,55 +89,40 @@ public class JSValidationObject implements IJavaScriptType
 		return record;
 	}
 
-	/**
-	 * Method to report a validation problem for this record.
-	 *
-	 * @param message The problem message
-	 */
+	@Override
 	@JSFunction
 	public void report(String message)
 	{
 		report(message, null, ILogLevel.ERROR, null);
 	}
 
-	/**
-	 * @clonedesc report(String)
-	 *
-	 * @param message The problem message
-	 * @param column The column for which this message is generated for
-	 */
+	@Override
 	@JSFunction
-	public void report(String message, String column)
+	public void report(String message, String dataprovider)
 	{
-		report(message, column, ILogLevel.ERROR, null);
+		report(message, dataprovider, ILogLevel.ERROR, null);
 	}
 
-	/**
-	 * @clonedesc report(String)
-	 *
-	 * @param message The problem message
-	 * @param column The column for which this message is generated for
-	 * @param level The the log level for this problem
-	 */
+	@Override
 	@JSFunction
-	public void report(String message, String column, int level)
+	public void report(String message, String dataprovider, int level)
 	{
-		report(message, column, level, null);
+		report(message, dataprovider, level, null);
 	}
 
-	/**
-	 * @clonedesc report(String)
-	 *
-	 * @param message The problem message
-	 * @param column The column for which this message is generated for
-	 * @param level The the log level for this problem
-	 * @param customObject Some user state that can be given to use later on.
-	 */
+	@Override
 	@JSFunction
-	public void report(String message, String column, int level, Object customObject)
+	public void report(String message, String dataprovider, int level, Object customObject)
+	{
+		report(message, dataprovider, level, customObject, null);
+	}
+
+	@Override
+	@JSFunction
+	public void report(String message, String dataprovider, int level, Object customObject, Object[] messageKeyParams)
 	{
 		invalid = true;
-		problems.add(new JSProblem(record, message, column, level, customObject));
+		problems.add(new JSProblem(record, application, message, dataprovider, level, customObject, messageKeyParams));
 	}
 
 	/**

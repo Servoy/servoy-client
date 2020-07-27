@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.dataprocessing;
 
+import com.servoy.base.util.I18NProvider;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
@@ -34,20 +35,26 @@ public class JSProblem implements IJavaScriptType
 	private final int level;
 	private final Object customObject;
 	private final IRecord record;
+	private final I18NProvider application;
+	private final Object[] messageKeyParams;
 
 	/**
+	 * @param application
 	 * @param message
 	 * @param column
 	 * @param level
 	 * @param customObject
+	 * @param messageKeyParams
 	 */
-	public JSProblem(IRecord record, String message, String column, int level, Object customObject)
+	public JSProblem(IRecord record, I18NProvider application, String message, String column, int level, Object customObject, Object[] messageKeyParams)
 	{
 		this.record = record;
+		this.application = application;
 		this.message = message;
 		this.column = column;
 		this.level = level;
 		this.customObject = customObject;
+		this.messageKeyParams = messageKeyParams;
 	}
 
 	/**
@@ -62,13 +69,28 @@ public class JSProblem implements IJavaScriptType
 	}
 
 	/**
-	 * The message of this problem.
+	 * The message of this problem, can be a i18n key, see getI18NMessage() for a resolved one.
 	 *
 	 * @return the message
 	 */
 	@JSReadonlyProperty
 	public String getMessage()
 	{
+		return message;
+	}
+
+	/**
+	 * The the resolved i19n message if the message was an i18n key.
+	 *
+	 * @return the resolved message
+	 */
+	@JSReadonlyProperty
+	public String getI18NMessage()
+	{
+		if (message.startsWith("i18n:")) //$NON-NLS-1$
+		{
+			return application.getI18NMessage(message, messageKeyParams);
+		}
 		return message;
 	}
 
