@@ -33,6 +33,7 @@ import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.StringComparator;
 import com.servoy.j2db.util.Utils;
@@ -158,6 +159,25 @@ public class Row
 		else
 		{
 			obj = unstoredCalcCache.get(id);
+		}
+		if (obj == UNINITIALIZED)
+		{
+			obj = null;
+		}
+		return obj;
+	}
+
+	/*
+	 * Get old unconverted value
+	 */
+	public Object getOldRawValue(String id)
+	{
+		if (oldValues == null) return getRawValue(id);
+		Object obj = null;
+		int columnIndex = parent.getSQLSheet().getColumnIndex(id);
+		if (columnIndex != -1)
+		{
+			obj = oldValues[columnIndex];
 		}
 		if (obj == UNINITIALIZED)
 		{
