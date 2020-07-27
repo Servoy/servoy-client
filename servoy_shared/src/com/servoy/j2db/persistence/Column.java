@@ -1401,12 +1401,20 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 				{
 					return ((String)value).length();
 				}
+				if (value instanceof UUID)
+				{
+					return 16;
+				}
 				break;
 
 			case MEDIA :
 				if (value instanceof byte[])
 				{
 					return ((byte[])value).length;
+				}
+				if (value instanceof UUID)
+				{
+					return 16;
 				}
 				break;
 		}
