@@ -52,6 +52,7 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -401,28 +402,20 @@ public class SQLSheet
 						new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue }), e);
 				}
 
+			}
+
+			if (Settings.getInstance().getProperty("servoy.execute.column.validators.only.on.validate_and_save", "true").equals("false")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			{
+				// the length check (also done in FoundsetManager.validate(record))
 				int valueLen = Column.getObjectSize(convertedValue, variableInfo.type);
 				if (valueLen > 0 && variableInfo.length > 0 && valueLen > variableInfo.length) // insufficient space to save value
 				{
 					throw new IllegalArgumentException(Messages.getString("servoy.record.error.columnSizeTooSmall", //$NON-NLS-1$
-						new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue }));
+						new Object[] { dataProviderID, Integer.valueOf(variableInfo.length), convertedValue }));
 				}
-			}
-
-			Pair<String, Map<String, String>> validatorInfo = getColumnValidatorInfo(columnIndex);
-			if (validatorInfo != null)
-			{
-				IColumnValidator validator = columnValidatorManager.getValidator(validatorInfo.getLeft());
-				if (validator == null)
-				{
-					throw new IllegalStateException(Messages.getString("servoy.error.validatorNotFound", new Object[] { validatorInfo.getLeft() })); //$NON-NLS-1$
-				}
-
-				try
-				{
-					validator.validate(validatorInfo.getRight(), convertedValue);
-				}
-				catch (IllegalArgumentException e)
+				// run the validators  (also done in FoundsetManager.validate(record))
+				Pair<String, Map<String, String>> validatorInfo = getColumnValidatorInfo(columnIndex);
+				if (validatorInfo != null)
 				{
 					IColumnValidator validator = columnValidatorManager.getValidator(validatorInfo.getLeft());
 					if (validator == null)
