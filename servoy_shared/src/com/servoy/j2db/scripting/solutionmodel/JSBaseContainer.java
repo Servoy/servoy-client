@@ -143,10 +143,10 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 	@JSFunction
 	public JSLayoutContainer newLayoutContainer(int x, int y)
 	{
-		return createLayoutContainer(x, y);
+		return createLayoutContainer(x, y, null);
 	}
 
-	protected JSLayoutContainer createLayoutContainer(int x, int y)
+	protected JSLayoutContainer createLayoutContainer(int x, int y, String spec)
 	{
 		checkModification();
 		try
@@ -155,8 +155,42 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 			Form form = (Form)container.getAncestor(IRepository.FORMS);
 			if (form.isResponsiveLayout())
 			{
+				String packageName = null;
+				String specName = null;
+				if (spec != null)
+				{
+					packageName = spec.contains("-") ? spec.split("-")[0].trim() : null;
+					specName = spec.contains("-") ? spec.split("-")[1].trim() : spec.trim();
+				}
+
+				if (specName == null || packageName == null)
+				{
+					if (container instanceof LayoutContainer)
+					{
+						LayoutContainer parent = (LayoutContainer)(getContainer());
+						packageName = parent.getPackageName();
+						if (specName == null && parent.getAllowedChildren() != null)
+						{
+
+							specName = parent.getAllowedChildren().get(0);
+						}
+					}
+				}
+				if (specName == null)
+				{
+					//the parent container could be a layout container or the form
+					//check if we have a sibling of the container we want to create
+					LayoutContainer sibling = container.getLayoutContainers().hasNext() ? container.getLayoutContainers().next() : null;
+					if (sibling != null)
+					{
+						packageName = sibling.getPackageName();
+						specName = sibling.getSpecName();
+					}
+				}
 				LayoutContainer layoutContainer = getContainer().createNewLayoutContainer();
 				layoutContainer.setLocation(new Point(x, y));
+				layoutContainer.setPackageName(packageName);
+				layoutContainer.setSpecName(specName);
 				return application.getScriptEngine().getSolutionModifier().createLayoutContainer(this, layoutContainer);
 			}
 			else
@@ -188,15 +222,43 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 	 * to create a form that is saved back into the workspace (servoyDeveloper.save(form)) then you have to set the
 	 * packageName and specName properties. So that it works later on in the designer.
 	 *
+	 * If the packageName and specName are not provided, then:
+	 *    the packageName is the same as for the parent container
+	 *    the specName is the first allowed child defined in the specification of the parent container
+	 *
+	 * If the specification of the parent container does not defined allowed children, then if it is not empty
+	 *    the packageName and the specName are copied from the first child layout container.
 	 * @sample
 	 * var container = form.newLayoutContainer(1);
+	 * container.packageName = "12grid";
+	 * container.specName = "row";
 	 * @param position the position of JSWebComponent object in its parent container
 	 * @return the new layout container
 	 */
 	@JSFunction
 	public JSLayoutContainer newLayoutContainer(int position)
 	{
-		return createLayoutContainer(position, position);
+		return createLayoutContainer(position, position, null);
+	}
+
+	/**
+	 * Create a new layout container. The position is used to determine the generated order in html markup.
+	 * This method can only be used in responsive forms.
+	 *
+	 * @sample
+	 * var container = form.newLayoutContainer(1, "12grid-row");
+	 * container.newLayoutContainer(1, "column");
+	 *
+	 * @param position the position of JSWebComponent object in its parent container
+	 * @param spec a string of the form 'packageName-layoutName', or 'layoutName'
+	 * @return the new layout container
+	 *
+	 */
+	@JSFunction
+	public JSLayoutContainer newLayoutContainer(int position, String spec) throws Exception
+	{
+
+		return createLayoutContainer(position, position, spec);
 	}
 
 	/**
