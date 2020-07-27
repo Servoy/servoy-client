@@ -326,7 +326,7 @@ public class Row
 		if (convertedValue != null && !("".equals(convertedValue) && Column.mapToDefaultType(variableInfo.type) == IColumnTypes.TEXT))//do not convert null to 0 incase of numbers, this means the calcs the value whould change each time //$NON-NLS-1$
 		{
 			convertedValue = sheet.convertObjectToValue(dataProviderID, convertedValue, parent.getFoundsetManager().getColumnConverterManager(),
-				parent.getFoundsetManager().getColumnValidatorManager());
+				parent.getFoundsetManager().getColumnValidatorManager(), src);
 		}
 		else if (parent.getFoundsetManager().isNullColumnValidatorEnabled())
 		{

@@ -375,7 +375,7 @@ public class SQLSheet
 	}
 
 	Object convertObjectToValue(String dataProviderID, Object obj, IConverterManager<IColumnConverter> columnConverterManager,
-		IColumnValidatorManager columnValidatorManager)
+		IColumnValidatorManager columnValidatorManager, IRowChangeListener record)
 	{
 		Object convertedValue = obj;
 
@@ -424,9 +424,41 @@ public class SQLSheet
 				}
 				catch (IllegalArgumentException e)
 				{
-					String msg = Messages.getString("servoy.record.error.validation", new Object[] { dataProviderID, convertedValue }); //$NON-NLS-1$
-					if (e.getMessage() != null && e.getMessage().length() != 0) msg += ' ' + e.getMessage();
-					throw new IllegalArgumentException(msg);
+					IColumnValidator validator = columnValidatorManager.getValidator(validatorInfo.getLeft());
+					if (validator == null)
+					{
+						throw new IllegalStateException(Messages.getString("servoy.error.validatorNotFound", new Object[] { validatorInfo.getLeft() })); //$NON-NLS-1$
+					}
+					if (validator instanceof IColumnValidator2)
+					{
+						JSValidationObject validationObject = new JSValidationObject(record instanceof IRecord ? (IRecord)record : null, application);
+						((IColumnValidator2)validator).validate(validatorInfo.getRight(), convertedValue, dataProviderID, validationObject, null);
+						if (validationObject.isInvalid())
+						{
+							if (validationObject.getProblems().length == 1)
+							{
+								throw new IllegalArgumentException(validationObject.getProblems()[0].getI18NMessage());
+							}
+							else
+							{
+								String msg = Messages.getString("servoy.record.error.validation", new Object[] { dataProviderID, convertedValue }); //$NON-NLS-1$
+								throw new IllegalArgumentException(msg);
+							}
+						}
+					}
+					else
+					{
+						try
+						{
+							validator.validate(validatorInfo.getRight(), convertedValue);
+						}
+						catch (IllegalArgumentException e)
+						{
+							String msg = Messages.getString("servoy.record.error.validation", new Object[] { dataProviderID, convertedValue }); //$NON-NLS-1$
+							if (e.getMessage() != null && e.getMessage().length() != 0) msg += ' ' + e.getMessage();
+							throw new IllegalArgumentException(msg);
+						}
+					}
 				}
 			}
 
