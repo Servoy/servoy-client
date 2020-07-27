@@ -110,6 +110,7 @@ import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.DatabaseUtils;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyJSONObject;
@@ -3357,6 +3358,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 	}
 
+	@SuppressWarnings("nls")
 	@Override
 	public JSValidationObject validateRecord(IRecordInternal record, Object state)
 	{
@@ -3365,7 +3367,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		record.setValidationObject(null);
 		// first check for a validation entity method
 		ITable table = record.getParentFoundSet().getTable();
-		JSValidationObject validationObject = new JSValidationObject(record);
+		JSValidationObject validationObject = new JSValidationObject(record, application);
 		Object[] args = new Object[] { record, validationObject, state };
 		Scriptable scope = record.getParentFoundSet() instanceof Scriptable ? (Scriptable)record.getParentFoundSet() : null;
 		try
@@ -3410,6 +3412,67 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				validationObject.addGenericException(e);
 			}
 		}
+
+
+		//check for null and length and validators
+		SQLSheet sqlSheet = record.getParentFoundSet().getSQLSheet();
+		record.getParentFoundSet().getTable().getColumns().forEach(column -> {
+			Object value = record.getValue(column.getDataProviderID());
+			// null
+			if (!column.getAllowNull())
+			{
+				if (value == null || ("".equals(value) && Column.mapToDefaultType(column.getType()) == IColumnTypes.TEXT))
+				{
+					validationObject.report("i18n:servoy.record.error.null.not.allowed", column.getDataProviderID(), ILogLevel.ERROR, state,
+						new Object[] { column.getDataProviderID() });
+				}
+			}
+			// the length check
+			int valueLen = Column.getObjectSize(value, column.getType());
+			if (valueLen > 0 && column.getLength() > 0 && valueLen > column.getLength()) // insufficient space to save value
+			{
+				validationObject.report("i18n:servoy.record.error.columnSizeTooSmall", column.getDataProviderID(), ILogLevel.ERROR, state,
+					new Object[] { column.getDataProviderID(), Integer.valueOf(column.getLength()), value });
+			}
+
+			// validators only for changed columns (based on the raw, "unconverted" value)
+			Object rawValue = record.getRawData().getRawValue(column.getDataProviderID());
+			Object oldRawValue = record.getRawData().getOldRawValue(column.getDataProviderID());
+			if (!Utils.equalObjects(rawValue, oldRawValue))
+			{
+				Pair<String, Map<String, String>> validatorInfo = sqlSheet.getColumnValidatorInfo(sqlSheet.getColumnIndex(column.getDataProviderID()));
+				if (validatorInfo != null)
+				{
+					IColumnValidator validator = columnValidatorManager.getValidator(validatorInfo.getLeft());
+					if (validator == null)
+					{
+						validationObject.report("i18n:servoy.error.validatorNotFound", column.getDataProviderID(), ILogLevel.ERROR, state,
+							new Object[] { validatorInfo.getLeft() });
+					}
+					else
+					{
+						if (validator instanceof IColumnValidator2)
+						{
+							((IColumnValidator2)validator).validate(validatorInfo.getRight(), rawValue, column.getDataProviderID(), validationObject, state);
+						}
+						else
+						{
+							try
+							{
+								validator.validate(validatorInfo.getRight(), rawValue);
+							}
+							catch (IllegalArgumentException e)
+							{
+								validationObject.report("i18n:servoy.record.error.validation", column.getDataProviderID(), ILogLevel.ERROR, state,
+									new Object[] { column.getDataProviderID(), value, e.getMessage() });
+							}
+						}
+					}
+				}
+			}
+		});
+
+
 		if (validationObject.isInvalid())
 		{
 			record.setValidationObject(validationObject);
