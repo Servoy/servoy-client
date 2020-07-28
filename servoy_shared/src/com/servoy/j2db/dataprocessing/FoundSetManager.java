@@ -3425,6 +3425,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				{
 					validationObject.report("i18n:servoy.record.error.null.not.allowed", column.getDataProviderID(), ILogLevel.ERROR, state,
 						new Object[] { column.getDataProviderID() });
+					// this would result normally in an Record.exception so for now also set that
+					record.getRawData().setLastException(
+						new DataException("Column " + column.getDataProviderID() + " can't be null", ServoyException.DATA_INTEGRITY_VIOLATION));
 				}
 			}
 			// the length check
