@@ -2761,7 +2761,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * All those methods do get a parameter JSValidationObject where the problems can be reported against.<br/>
 	 * All columns are then also null/empty checked and if they are and the Column is marked as "not null" an error will be
 	 * added with the message key "servoy.record.error.null.not.allowed" for that column.<br/>
-	 * All columns are length checked and if the record values is bigger then what the database column can handle and
+	 * All changed columns are length checked and if the record values is bigger then what the database column can handle and
 	 * error will be added with the message key "servoy.record.error.columnSizeTooSmall" for that column.<br/>
 	 * Then all the column validators will be run over all the changed columns, The validators will also get the same JSValidationObject
 	 * to report problems to. So the global method validator now also has more parameters then just the value.

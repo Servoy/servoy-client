@@ -3417,11 +3417,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		//check for null and length and validators
 		SQLSheet sqlSheet = record.getParentFoundSet().getSQLSheet();
 		record.getParentFoundSet().getTable().getColumns().forEach(column -> {
-			Object value = record.getValue(column.getDataProviderID());
 			// null
+			Object rawValue = record.getRawData().getRawValue(column.getDataProviderID());
 			if (!column.getAllowNull())
 			{
-				if (value == null || ("".equals(value) && Column.mapToDefaultType(column.getType()) == IColumnTypes.TEXT))
+				if (rawValue == null || ("".equals(rawValue) && Column.mapToDefaultType(column.getType()) == IColumnTypes.TEXT))
 				{
 					validationObject.report("i18n:servoy.record.error.null.not.allowed", column.getDataProviderID(), ILogLevel.ERROR, state,
 						new Object[] { column.getDataProviderID() });
@@ -3430,19 +3430,18 @@ public class FoundSetManager implements IFoundSetManagerInternal
 						new DataException("Column " + column.getDataProviderID() + " can't be null", ServoyException.DATA_INTEGRITY_VIOLATION));
 				}
 			}
-			// the length check
-			int valueLen = Column.getObjectSize(value, column.getType());
-			if (valueLen > 0 && column.getLength() > 0 && valueLen > column.getLength()) // insufficient space to save value
-			{
-				validationObject.report("i18n:servoy.record.error.columnSizeTooSmall", column.getDataProviderID(), ILogLevel.ERROR, state,
-					new Object[] { column.getDataProviderID(), Integer.valueOf(column.getLength()), value });
-			}
 
 			// validators only for changed columns (based on the raw, "unconverted" value)
-			Object rawValue = record.getRawData().getRawValue(column.getDataProviderID());
 			Object oldRawValue = record.getRawData().getOldRawValue(column.getDataProviderID());
 			if (!Utils.equalObjects(rawValue, oldRawValue))
 			{
+				// the length check
+				int valueLen = Column.getObjectSize(rawValue, column.getType());
+				if (valueLen > 0 && column.getLength() > 0 && valueLen > column.getLength()) // insufficient space to save value
+				{
+					validationObject.report("i18n:servoy.record.error.columnSizeTooSmall", column.getDataProviderID(), ILogLevel.ERROR, state,
+						new Object[] { column.getDataProviderID(), Integer.valueOf(column.getLength()), rawValue });
+				}
 				Pair<String, Map<String, String>> validatorInfo = sqlSheet.getColumnValidatorInfo(sqlSheet.getColumnIndex(column.getDataProviderID()));
 				if (validatorInfo != null)
 				{
@@ -3467,7 +3466,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 							catch (IllegalArgumentException e)
 							{
 								validationObject.report("i18n:servoy.record.error.validation", column.getDataProviderID(), ILogLevel.ERROR, state,
-									new Object[] { column.getDataProviderID(), value, e.getMessage() });
+									new Object[] { column.getDataProviderID(), rawValue, e.getMessage() });
 							}
 						}
 					}
