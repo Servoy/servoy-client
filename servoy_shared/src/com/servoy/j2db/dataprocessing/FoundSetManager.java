@@ -3432,7 +3432,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 
 			// validators only for changed columns (based on the raw, "unconverted" value)
-			Object oldRawValue = record.getRawData().getOldRawValue(column.getDataProviderID());
+			Object oldRawValue = record.existInDataSource() ? record.getRawData().getOldRawValue(column.getDataProviderID()) : null;
 			if (!Utils.equalObjects(rawValue, oldRawValue))
 			{
 				// the length check
@@ -3453,21 +3453,22 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					}
 					else
 					{
-						if (validator instanceof IColumnValidator2)
+						try
 						{
-							((IColumnValidator2)validator).validate(validatorInfo.getRight(), rawValue, column.getDataProviderID(), validationObject, state);
-						}
-						else
-						{
-							try
+							if (validator instanceof IColumnValidator2)
+							{
+								((IColumnValidator2)validator).validate(validatorInfo.getRight(), rawValue, column.getDataProviderID(), validationObject,
+									state);
+							}
+							else
 							{
 								validator.validate(validatorInfo.getRight(), rawValue);
 							}
-							catch (IllegalArgumentException e)
-							{
-								validationObject.report("i18n:servoy.record.error.validation", column.getDataProviderID(), ILogLevel.ERROR, state,
-									new Object[] { column.getDataProviderID(), rawValue, e.getMessage() });
-							}
+						}
+						catch (IllegalArgumentException e)
+						{
+							validationObject.report("i18n:servoy.record.error.validation", column.getDataProviderID(), ILogLevel.ERROR, state,
+								new Object[] { column.getDataProviderID(), rawValue, e.getMessage() });
 						}
 					}
 				}
