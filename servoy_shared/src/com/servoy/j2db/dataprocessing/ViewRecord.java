@@ -588,12 +588,6 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		lastException = ex;
 	}
 
-	@JSFunction
-	public boolean isNew()
-	{
-		return false;
-	}
-
 	/**
 	 * Returns the validation object if there where validation failures for this record
 	 * Can be set to null again if you checked the problems, will also be set to null when a save was succesful.
