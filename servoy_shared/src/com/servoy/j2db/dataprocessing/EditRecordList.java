@@ -731,6 +731,10 @@ public class EditRecordList
 						}
 						row.setLastException((Exception)retValue);
 						markRecordAsFailed(record);
+						JSValidationObject vo = record.getValidationObject() != null ? record.getValidationObject()
+							: new JSValidationObject(record, fsm.getApplication());
+						vo.addGenericException((Exception)retValue);
+						record.setValidationObject(vo);
 						continue;
 					}
 					else if (retValue instanceof Object[])
@@ -793,6 +797,10 @@ public class EditRecordList
 					lastStopEditingException = e;
 					failedCount++;
 					row.setLastException(e);
+					JSValidationObject vo = record.getValidationObject() != null ? record.getValidationObject()
+						: new JSValidationObject(record, fsm.getApplication());
+					vo.addGenericException(e);
+					record.setValidationObject(vo);
 					editRecordsLock.lock();
 					try
 					{
@@ -864,6 +872,10 @@ public class EditRecordList
 						lastStopEditingException = e;
 						failedCount++;
 						rowUpdateInfoRecord.getRawData().setLastException(e);
+						JSValidationObject vo = rowUpdateInfoRecord.getValidationObject() != null ? rowUpdateInfoRecord.getValidationObject()
+							: new JSValidationObject(rowUpdateInfoRecord, fsm.getApplication());
+						vo.addGenericException(e);
+						rowUpdateInfoRecord.setValidationObject(vo);
 						editRecordsLock.lock();
 						try
 						{
