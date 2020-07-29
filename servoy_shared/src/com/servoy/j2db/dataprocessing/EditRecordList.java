@@ -433,6 +433,7 @@ public class EditRecordList
 			}
 
 			int failedCount = 0;
+			boolean justValidationErrors = false;
 			lastStopEditingException = null;
 			List<RowUpdateInfo> rowUpdates = new ArrayList<RowUpdateInfo>(editRecordListSize);
 			editRecordsLock.lock();
@@ -498,6 +499,7 @@ public class EditRecordList
 							// when the trigger throws an exception, the record must move from editedRecords to failedRecords so that in
 							//    scripting the failed records can be examined (the thrown value is retrieved via record.exception.getValue())
 							editRecordsLock.unlock();
+							boolean validationErrors = false;
 							try
 							{
 								JSValidationObject validateObject = fsm.validateRecord(record, null);
@@ -509,25 +511,34 @@ public class EditRecordList
 										// compartible with old code, then those exceptions are catched below.
 										throw (Exception)genericExceptions[0];
 									}
-									// just directly return if one returns false.
-									placeBackAlreadyProcessedRecords(rowUpdates);
-									return ISaveConstants.VALIDATION_FAILED;
+									// we always want to process all records, but mark this as a validation error so below the failed records are updated.
+									validationErrors = true;
+									// update the just failed boolean to true, if that is true and there is not really an exception then handleException of application is not called.
+									justValidationErrors = true;
+									failedCount++;
+									if (!failedRecords.contains(record))
+									{
+										failedRecords.add(record);
+									}
+									recordTested.remove(record);
 								}
 							}
 							finally
 							{
 								editRecordsLock.lock();
 							}
-
-							RowUpdateInfo rowUpdateInfo = getRecordUpdateInfo(record);
-							if (rowUpdateInfo != null)
+							if (!validationErrors)
 							{
-								rowUpdateInfo.setRecord(record);
-								rowUpdates.add(rowUpdateInfo);
-							}
-							else
-							{
-								recordTested.remove(record);
+								RowUpdateInfo rowUpdateInfo = getRecordUpdateInfo(record);
+								if (rowUpdateInfo != null)
+								{
+									rowUpdateInfo.setRecord(record);
+									rowUpdates.add(rowUpdateInfo);
+								}
+								else
+								{
+									recordTested.remove(record);
+								}
 							}
 						}
 						catch (ServoyException e)
@@ -565,14 +576,21 @@ public class EditRecordList
 
 			if (failedCount > 0)
 			{
-				if (!(lastStopEditingException instanceof ServoyException))
-				{
-					lastStopEditingException = new ApplicationException(ServoyException.SAVE_FAILED, lastStopEditingException);
-				}
-				if (!javascriptStop) fsm.getApplication().handleException(fsm.getApplication().getI18NMessage("servoy.formPanel.error.saveFormData"), //$NON-NLS-1$
-					lastStopEditingException);
 				placeBackAlreadyProcessedRecords(rowUpdates);
-				return ISaveConstants.SAVE_FAILED;
+				if (lastStopEditingException == null && justValidationErrors)
+				{
+					return ISaveConstants.VALIDATION_FAILED;
+				}
+				else
+				{
+					if (!(lastStopEditingException instanceof ServoyException))
+					{
+						lastStopEditingException = new ApplicationException(ServoyException.SAVE_FAILED, lastStopEditingException);
+					}
+					if (!javascriptStop) fsm.getApplication().handleException(fsm.getApplication().getI18NMessage("servoy.formPanel.error.saveFormData"), //$NON-NLS-1$
+						lastStopEditingException);
+					return ISaveConstants.SAVE_FAILED;
+				}
 			}
 
 			if (rowUpdates.size() == 0)
