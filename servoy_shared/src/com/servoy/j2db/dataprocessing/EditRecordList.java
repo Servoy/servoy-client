@@ -510,6 +510,7 @@ public class EditRecordList
 										throw (Exception)genericExceptions[0];
 									}
 									// just directly return if one returns false.
+									placeBackAlreadyProcessedRecords(rowUpdates);
 									return ISaveConstants.VALIDATION_FAILED;
 								}
 							}
@@ -570,6 +571,7 @@ public class EditRecordList
 				}
 				if (!javascriptStop) fsm.getApplication().handleException(fsm.getApplication().getI18NMessage("servoy.formPanel.error.saveFormData"), //$NON-NLS-1$
 					lastStopEditingException);
+				placeBackAlreadyProcessedRecords(rowUpdates);
 				return ISaveConstants.SAVE_FAILED;
 			}
 
@@ -933,6 +935,14 @@ public class EditRecordList
 		}
 
 		return ISaveConstants.STOPPED;
+	}
+
+	/**
+	 * @param rowUpdates
+	 */
+	private void placeBackAlreadyProcessedRecords(List<RowUpdateInfo> rowUpdates)
+	{
+		rowUpdates.stream().map(update -> update.getRecord()).forEachOrdered(editedRecords::add);
 	}
 
 	/**
