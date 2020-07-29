@@ -400,7 +400,7 @@ public abstract class BasicFormController
 			{
 				allowHide = executeOnHideMethod();
 			}
-			else
+			else if (!allowHide)
 			{
 				getApplication().reportJSWarning("Can't hide form " + getName() + " because editing records " + //$NON-NLS-1$ //$NON-NLS-2$
 					application.getFoundSetManager().getEditRecordList().getEditedRecords(formModel) + "couldn't be saved (autosave is on)"); //$NON-NLS-1$
