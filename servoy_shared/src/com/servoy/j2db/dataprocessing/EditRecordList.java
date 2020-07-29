@@ -501,7 +501,7 @@ public class EditRecordList
 							try
 							{
 								JSValidationObject validateObject = fsm.validateRecord(record, null);
-								if (validateObject != null) // throws ServoyException when trigger method throws exception
+								if (validateObject != null && validateObject.isHasErrors()) // throws ServoyException when trigger method throws exception
 								{
 									Object[] genericExceptions = validateObject.getGenericExceptions();
 									if (genericExceptions.length > 0)

@@ -80,6 +80,15 @@ public class JSValidationObject implements IJavaScriptType, IValidationObject
 	}
 
 	/**
+	 * @return If this validation object has errors or only warnings which don't block the save.
+	 */
+	@JSReadonlyProperty
+	public boolean isHasErrors()
+	{
+		return onBeforeInsertFailed || onBeforeUpdateFailed || genericExceptions.size() > 0 || problems.stream().anyMatch(problem -> problem.getLevel() >= 3);
+	}
+
+	/**
 	 * The record for which this JSValidationObject is for.
 	 * @return the record
 	 */
