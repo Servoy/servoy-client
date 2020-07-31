@@ -220,7 +220,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	}
 
 	@SuppressWarnings({ "unchecked", "nls" })
-	public <T extends AbstractBase> T clonePersist(T persist, String newName, ISupportChilds newParent)
+	public <T extends AbstractBase> T clonePersist(T persist, String newName, AbstractBase newParent)
 	{
 		T clone = (T)persist.clonePersist(persist.getParent() == newParent ? null : newParent);
 		final Map<Object, Object> updatedElementIds = AbstractPersistFactory.resetUUIDSRecursively(clone, getPersistFactory(), false);
@@ -354,7 +354,13 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	{
 		if (index == null && mainSolution != null)
 		{
-			index = createPersistIndex();
+			synchronized (this)
+			{
+				if (index == null)
+				{
+					index = createPersistIndex();
+				}
+			}
 
 			// refresh all the extends forms, TODO this is kind of bad, because form instances are shared over clients.
 			// flush first the persist helpers cach that could already been filled with null values in creating the index.
@@ -450,7 +456,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			{
 				if (persist instanceof ICloneable)
 				{
-					copyParent.addChild(((ICloneable)persist).clonePersist());
+					((ICloneable)persist).clonePersist((AbstractBase)copyParent);
 				}
 				else
 				{

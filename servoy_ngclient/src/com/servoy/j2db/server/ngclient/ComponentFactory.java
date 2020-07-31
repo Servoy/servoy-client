@@ -30,6 +30,7 @@ import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.property.types.ISupportTemplateValue;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 
@@ -40,6 +41,7 @@ import com.servoy.j2db.util.Utils;
 public class ComponentFactory
 {
 
+	@SuppressWarnings("nls")
 	public static WebFormComponent createComponent(IApplication application, IDataAdapterList dataAdapterList, FormElement fe, Container parentToAddTo,
 		Form form)
 	{
@@ -135,6 +137,21 @@ public class ComponentFactory
 				if (function == null)
 				{
 					function = application.getFlattenedSolution().searchPersist((String)eventValue);
+					if (function == null)
+					{
+						Debug.warn("Script Method of value '" + eventValue + "' for handler " + eventName + " not found trying just the form " + form);
+
+						IPersist child = form.getChild(UUID.fromString((String)eventValue));
+						if (child != null)
+						{
+							Debug.warn("Script Method " + child + " on the form " + form + " with uuid " + child.getUUID());
+							function = child;
+						}
+						else
+						{
+							Debug.warn("Still not found on Form " + form + " Script Method of value '" + eventValue + "' for handler " + eventName);
+						}
+					}
 				}
 				if (function != null)
 				{
@@ -142,7 +159,7 @@ public class ComponentFactory
 				}
 				else
 				{
-					Debug.warn("Event handler for " + eventName + " not found (form " + form + ", form element " + formElementName + ")");
+					Debug.warn("Event handler for " + eventName + " with value '" + eventValue + "' not found (form " + form + ", form element " + formElementName + ")");
 				}
 			}
 			else if (eventValue instanceof Number && ((Number)eventValue).intValue() > 0)

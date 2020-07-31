@@ -81,6 +81,7 @@ import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.docvalidator.IdentDocumentValidator;
 import com.servoy.j2db.util.gui.RoundedBorder;
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
@@ -174,7 +175,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * //add a "normal" text entry field
 	 * myForm.newTextField('dataProviderNameHere', 140, 20, 140,20)
 	 *
-	 * @param name the specified name of the form
+	 * @param name the specified name of the form, must be a valid javascript identifier
 	 *
 	 * @param dataSource the specified name of the datasource for the specified table
 	 *
@@ -204,7 +205,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 			{
 				style = fs.getStyle(styleName);
 			}
-			Form form = createNewForm(style, name, dataSource, show_in_menu, new Dimension(width, height));
+			Form form = createNewForm(style, IdentDocumentValidator.checkName(name), dataSource, show_in_menu, new Dimension(width, height));
 			if (!isResponsive)
 			{
 				form.createNewPart(Part.BODY, height);
@@ -255,7 +256,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	@JSFunction
 	public JSForm newForm(String name, ISMForm superForm)
 	{
-		return newForm(name, superForm, null);
+		return newFormInternal(name, superForm, null);
 	}
 
 	/**
@@ -277,13 +278,24 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * forms['mySuperForm'].controller.recreateUI();
 	 * forms['mySubForm'].controller.show();
 	 *
-	 * @param name The name of the new form
+	 * @param name The name of the new form, must be a valid javascript identifier
 	 * @param superForm the super form that will extended from, see JSform.setExtendsForm();
 	 * @param isResponsive
 	 * @return a new JSForm object
 	 */
 	@JSFunction
-	public JSForm newForm(String name, ISMForm superForm, Boolean isResponsive)
+	public JSForm newForm(String name, ISMForm superForm, boolean isResponsive)
+	{
+		return newFormInternal(name, superForm, Boolean.valueOf(isResponsive));
+	}
+
+	/**
+	 * @param name
+	 * @param superForm
+	 * @param isResponsive
+	 * @return
+	 */
+	private JSForm newFormInternal(String name, ISMForm superForm, Boolean isResponsive)
 	{
 		if (superForm == null)
 		{
@@ -328,7 +340,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * var frm = solutionModel.newForm('test','db:/my_server/my_table', true);
 	 * var c = frm.newLayoutContainer(1);
 	 *
-	 * @param name The name of the new form
+	 * @param name The name of the new form, must be a valid javascript identifier
 	 * @param dataSource the form datasource
 	 * @param isResponsive if true will create an responsive form, otherwise an absolute layout form
 	 * @return a new JSForm object
@@ -346,7 +358,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * var frm = solutionModel.newForm('test', true);
 	 * var c = frm.newLayoutContainer(1);
 	 *
-	 * @param name The name of the new form
+	 * @param name The name of the new form, must be a valid javascript identifier
 	 * @param isResponsive if true will create an responsive form, otherwise an absolute layout form
 	 * @return a new JSForm object
 	 */
@@ -467,7 +479,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	public JSForm cloneForm(String newName, IBaseSMForm jsForm)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
-		Form clone = fs.clonePersist(((JSForm)jsForm).getSupportChild(), newName, fs.getSolutionCopy());
+		Form clone = fs.clonePersist(((JSForm)jsForm).getSupportChild(), IdentDocumentValidator.checkName(newName), fs.getSolutionCopy());
 		application.getFormManager().addForm(clone, false);
 		return instantiateForm(clone, true);
 	}
@@ -535,7 +547,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 		parent.checkModification();
 		Form form = parent.getSupportChild();
 		FlattenedSolution fs = application.getFlattenedSolution();
-		fs.clonePersist(((JSBase)component).getBaseComponent(false), newName, form);
+		fs.clonePersist(((JSBase)component).getBaseComponent(false), IdentDocumentValidator.checkName(newName), form);
 		return parent.getComponent(newName);
 	}
 

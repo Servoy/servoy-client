@@ -155,4 +155,6 @@ public interface IApplicationServerSingleton
 	boolean checkClientLicense(String companyName, String license, String numberOfLicenses);
 
 	Pair<Boolean, String> upgradeLicense(String companyName, String licensecode, String licenses);
+
+	String getServerUUID();
 }

@@ -659,13 +659,13 @@ public abstract class AbstractBase implements IPersist
 
 	protected void afterChildWasAdded(IPersist obj)
 	{
-		if (getRootObject().getChangeHandler() != null)
-		{
-			getRootObject().getChangeHandler().fireIPersistCreated(obj);
-		}
 		if (obj instanceof AbstractBase && this instanceof ISupportChilds)
 		{
 			((AbstractBase)obj).setParent((ISupportChilds)this);
+		}
+		if (getRootObject().getChangeHandler() != null)
+		{
+			getRootObject().getChangeHandler().fireIPersistCreated(obj);
 		}
 	}
 
@@ -745,10 +745,6 @@ public abstract class AbstractBase implements IPersist
 			AbstractBase abstractBase = (AbstractBase)obj;
 			if (abstractBase.getUUID().equals(uuid))
 			{
-				if (getParent() != null && abstractBase.getParent() != null)
-				{
-					return getParent().equals(abstractBase.getParent());
-				}
 				return true;
 			}
 		}
@@ -827,15 +823,7 @@ public abstract class AbstractBase implements IPersist
 	/**
 	 * @see java.lang.Object#clone()
 	 */
-	public final IPersist clonePersist()
-	{
-		return clonePersist(null);
-	}
-
-	/**
-	 * @see java.lang.Object#clone()
-	 */
-	public final IPersist clonePersist(ISupportChilds newParent)
+	public final IPersist clonePersist(AbstractBase newParent)
 	{
 		AbstractBase cloned;
 		try
@@ -866,9 +854,7 @@ public abstract class AbstractBase implements IPersist
 			{
 				if (persist instanceof ICloneable)
 				{
-					IPersist clonePersist = ((ICloneable)persist).clonePersist();
-					cloned.addChild(clonePersist);
-//					cloned.allobjects.add(clonePersist);
+					((ICloneable)persist).clonePersist(cloned);
 				}
 				else
 				{

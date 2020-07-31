@@ -38,7 +38,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 }).value("$clientPropertyConstants", {
 	WINDOW_BRANDING_ICON_32 : "window.branding.icon.32",
 	WINDOW_BRANDING_ICON_192 : "window.branding.icon.192"
-}).factory("$utils", function($rootScope: angular.IRootScopeService, $timeout: angular.ITimeoutService, $svyProperties: servoy.IServoyProperties, $sabloApplication: sablo.ISabloApplication) {
+}).factory("$utils", function($rootScope: angular.IRootScopeService, $timeout: angular.ITimeoutService, $svyProperties: servoy.IServoyProperties, $sabloApplication: sablo.ISabloApplication, $svyI18NService: servoy.IServoyI18NService) {
 
 	// internal function
 	function getPropByStringPath(o, s) {
@@ -129,6 +129,51 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		if (attrValue) {
 			return correctScope.$eval(attrValue);
 		}
+	};
+
+	function getI18NCalendarMessages( datePicker ) 
+	{
+		var tooltips = datePicker.tooltips();
+		var x = $svyI18NService.getI18NMessages( "servoy.datetimepicker.today", "servoy.datetimepicker.clear", "servoy.datetimepicker.close",
+			"servoy.datetimepicker.selectmonth", "servoy.datetimepicker.prevmonth", "servoy.datetimepicker.nextmonth",
+			"servoy.datetimepicker.selectyear", "servoy.datetimepicker.prevyear", "servoy.datetimepicker.nextyear",
+			"servoy.datetimepicker.selectdecade", "servoy.datetimepicker.prevdecade", "servoy.datetimepicker.nextdecade",
+			"servoy.datetimepicker.prevcentury", "servoy.datetimepicker.nextcentury",
+			"servoy.datetimepicker.pickhour", "servoy.datetimepicker.incrementhour", "servoy.datetimepicker.decrementhour",
+			"servoy.datetimepicker.pickminute", "servoy.datetimepicker.incrementminute", "servoy.datetimepicker.decrementminute",
+			"servoy.datetimepicker.picksecond", "servoy.datetimepicker.incrementsecond", "servoy.datetimepicker.decrementsecond",
+			"servoy.datetimepicker.toggleperiod", "servoy.datetimepicker.selecttime" );
+
+		x.then( function( result ) 
+		{
+			if ( result["servoy.datetimepicker.today"] != "!servoy.datetimepicker.today!" ) tooltips.today = result["servoy.datetimepicker.today"];
+			if ( result["servoy.datetimepicker.clear"] != "!servoy.datetimepicker.clear!" ) tooltips.clear = result["servoy.datetimepicker.clear"];
+			if ( result["servoy.datetimepicker.close"] != "!servoy.datetimepicker.close!" ) tooltips.close = result["servoy.datetimepicker.close"];
+			if ( result["servoy.datetimepicker.selectmonth"] != "!servoy.datetimepicker.selectmonth!" ) tooltips.selectMonth = result["servoy.datetimepicker.selectmonth"];
+			if ( result["servoy.datetimepicker.prevmonth"] != "!servoy.datetimepicker.prevmonth!" ) tooltips.prevMonth = result["servoy.datetimepicker.prevmonth"];
+			if ( result["servoy.datetimepicker.nextmonth"] != "!servoy.datetimepicker.nextmonth!" ) tooltips.nextMonth = result["servoy.datetimepicker.nextmonth"];
+			if ( result["servoy.datetimepicker.selectyear"] != "!servoy.datetimepicker.selectyear!" ) tooltips.selectYear = result["servoy.datetimepicker.selectyear"];
+			if ( result["servoy.datetimepicker.prevyear"] != "!servoy.datetimepicker.prevyear!" ) tooltips.prevYear = result["servoy.datetimepicker.prevyear"];
+			if ( result["servoy.datetimepicker.nextyear"] != "!servoy.datetimepicker.nextyear!" ) tooltips.nextYear = result["servoy.datetimepicker.nextyear"];
+			if ( result["servoy.datetimepicker.selectdecade"] != "!servoy.datetimepicker.selectdecade!" ) tooltips.selectDecade = result["servoy.datetimepicker.selectdecade"];
+			if ( result["servoy.datetimepicker.prevdecade"] != "!servoy.datetimepicker.prevdecade!" ) tooltips.prevDecade = result["servoy.datetimepicker.prevdecade"];
+			if ( result["servoy.datetimepicker.nextdecade"] != "!servoy.datetimepicker.nextdecade!" ) tooltips.nextDecade = result["servoy.datetimepicker.nextdecade"];
+			if ( result["servoy.datetimepicker.prevcentury"] != "!servoy.datetimepicker.prevcentury!" ) tooltips.prevCentury = result["servoy.datetimepicker.prevcentury"];
+			if ( result["servoy.datetimepicker.nextcentury"] != "!servoy.datetimepicker.nextcentury!" ) tooltips.nextCentury = result["servoy.datetimepicker.nextcentury"];
+			if ( result["servoy.datetimepicker.pickhour"] != "!servoy.datetimepicker.pickhour!" ) tooltips.pickHour = result["servoy.datetimepicker.pickhour"];
+			if ( result["servoy.datetimepicker.incrementhour"] != "!servoy.datetimepicker.incrementhour!" ) tooltips.incrementHour = result["servoy.datetimepicker.incrementhour"];
+			if ( result["servoy.datetimepicker.decrementhour"] != "!servoy.datetimepicker.decrementhour!" ) tooltips.decrementHour = result["servoy.datetimepicker.decrementhour"];
+			if ( result["servoy.datetimepicker.pickminute"] != "!servoy.datetimepicker.pickminute!" ) tooltips.pickMinute = result["servoy.datetimepicker.pickminute"];
+			if ( result["servoy.datetimepicker.incrementminute"] != "!servoy.datetimepicker.incrementminute!" ) tooltips.incrementMinute = result["servoy.datetimepicker.incrementminute"];
+			if ( result["servoy.datetimepicker.decrementminute"] != "!servoy.datetimepicker.decrementminute!" ) tooltips.decrementMinute = result["servoy.datetimepicker.decrementminute"];
+			if ( result["servoy.datetimepicker.picksecond"] != "!servoy.datetimepicker.picksecond!" ) tooltips.pickSecond = result["servoy.datetimepicker.picksecond"];
+			if ( result["servoy.datetimepicker.incrementsecond"] != "!servoy.datetimepicker.incrementsecond!" ) tooltips.incrementSecond = result["servoy.datetimepicker.incrementsecond"];
+			if ( result["servoy.datetimepicker.decrementsecond"] != "!servoy.datetimepicker.decrementsecond!" ) tooltips.decrementSecond = result["servoy.datetimepicker.decrementsecond"];
+			if ( result["servoy.datetimepicker.toggleperiod"] != "!servoy.datetimepicker.toggleperiod!" ) tooltips.togglePeriod = result["servoy.datetimepicker.toggleperiod"];
+			if ( result["servoy.datetimepicker.selecttime"] != "!servoy.datetimepicker.selecttime!" ) tooltips.selectTime = result["servoy.datetimepicker.selecttime"];
+			datePicker.tooltips( tooltips );
+
+		} )
 	};
 	
 	return <servoy.IUtils> {
@@ -297,7 +342,12 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
         generateServiceUploadUrl: function(serviceName, apiFunctionName){
         	// svy_services should be in sync with MediaResourceServlet.SERVICE_UPLOAD
             return "resources/upload/" + $sabloApplication.getClientnr() + "/svy_services/" + serviceName + "/" + apiFunctionName;
-        }
+        },
+        
+		getI18NCalendarMessages: function( datePicker: object ) 
+		{
+			return getI18NCalendarMessages( datePicker );
+		}
 	}
 }).factory("$svyProperties",function($svyTooltipUtils, $timeout:angular.ITimeoutService, $scrollbarConstants, $svyUIProperties) {
 	return <servoy.IServoyProperties> {
@@ -765,7 +815,20 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	}
 })
-
+.directive('svyAttributes',  function ($utils:servoy.IUtils,$parse:angular.IParseService) {
+	return {
+		restrict: 'A',
+		link: function (scope, element, attrs) {
+			var attributes= $parse(attrs['svyAttributes'])(scope);
+			if(attributes){ //only design time property, no watch
+				for (var key in attributes )
+				{
+					element.attr(key,attributes[key]);
+				}
+			}
+		}
+	}
+})
 .directive('svyTextrotation',  function ($utils:servoy.IUtils,$parse:angular.IParseService,$svyProperties:servoy.IServoyProperties) {
 	// DESIGN TIME ONLY
 	return {
@@ -913,7 +976,31 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 								break;
 							}	
 						}
-					}
+					} 
+					
+					scope.onKeydown = function(event, rowID) { 
+						const keycode = event.originalEvent.keyCode;
+						if (!getFoundset().multiSelect && keycode == 38 || keycode == 40) {
+							let selectedRowIndex = getFoundset().selectedRowIndexes[0]; // it starts from 0
+							if (keycode == 38) { // keyup
+								// move to the previous page if the first element (not from the first page) is selected
+								if (page != 0 && selectedRowIndex / (page) == scope.responsivePageSize) {
+									scope.moveLeft();
+								}
+								selectedRowIndex--;
+							} else if (keycode == 40) { // keydown
+							    selectedRowIndex++;
+							    // move to the next page if the last element (not from the last page) is selected
+								if (selectedRowIndex / (page + 1) == scope.responsivePageSize) {
+									scope.moveRight();
+								}
+							}
+							// do not move the selection for the first or last element 
+							if (selectedRowIndex >= 0 && selectedRowIndex < getFoundset().serverSize) {
+								scope.foundset.requestSelectionUpdate([selectedRowIndex]);
+							}
+						} 
+					} 
 
 					const parent = element.parent();
                     const rowToModel: Array<IServoyScopeInternal> = [];
@@ -1099,13 +1186,15 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						clone.removeAttr("svy-form-component");
 						// this compile (that happens before row contents are added to "clone") is only for ng-click to work on each rows container div, not the actual scope of the row (which is created and used for compilation in createChildElementForRow)
 						clone.attr("ng-click", "onRowClick(rowID)");
+						clone.attr("ng-keydown", "onKeydown($event, rowID)");
+						
 						if (scope.rowStyleClass)
 						{
 							clone.attr("class", clone.attr("class") +" "+scope.rowStyleClass);
 						}
 						if (scope.rowStyleClassDataprovider)
 						{
-							clone.attr("class", clone.attr("class") +" "+scope.rowStyleClassDataprovider[index]);
+							clone.attr("ng-class", "rowStyleClassDataprovider[" + index +"]");
 						}
 						$compile(clone)(row);
 						
@@ -1145,33 +1234,39 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					}
 
 					function updateSelection(newValue, oldValue?) {
-						let children = parent.children();
-						if(oldValue) {
-							for(let k = 0; k < oldValue.length; k++) {
-								let idx = oldValue[k] - scope.foundset.viewPort.startIndex;
+						if(scope.selectionClass) {
+							let children = parent.children();
+							if(oldValue) {
+								for(let k = 0; k < oldValue.length; k++) {
+									let idx = oldValue[k] - scope.foundset.viewPort.startIndex;
+									if(idx > -1 && idx < children.length - 1) {
+										$(parent.children()[idx + 1]).removeClass(scope.selectionClass);
+									}
+								}
+							}
+							else {
+								for(let k = 1; k < children.length; k++) {
+									$(parent.children()[k]).removeClass(scope.selectionClass);
+								}
+							}
+							for(let k = 0; k < newValue.length; k++) {
+								let idx = newValue[k] - scope.foundset.viewPort.startIndex;
 								if(idx > -1 && idx < children.length - 1) {
-									$(parent.children()[idx + 1]).removeClass(scope.selectionClass);
+									$(parent.children()[idx + 1]).addClass(scope.selectionClass);
 								}
 							}
 						}
-						else {
-							for(let k = 1; k < children.length; k++) {
-								$(parent.children()[k]).removeClass(scope.selectionClass);
-							}
-						}
-						for(let k = 0; k < newValue.length; k++) {
-							let idx = newValue[k] - scope.foundset.viewPort.startIndex;
-							if(idx > -1 && idx < children.length - 1) {
-								$(parent.children()[idx + 1]).addClass(scope.selectionClass);
-							}
-						}
 						updateChildElementsAPI(newValue[0]);
+						// update the focus
+                        let selectedRowIndex = getFoundset().selectedRowIndexes[0];
+                        const element = parent.children()[(page > 0) ? ++selectedRowIndex - scope.responsivePageSize * page : ++selectedRowIndex];
+                        if (element) element.focus();
 					}
 
 					function createRowsAndSetSelection() {
 						createRows();
 						var selectedRowsIndexes = getFoundset().selectedRowIndexes; 
-						if(selectedRowsIndexes.length && scope.selectionClass) {
+						if(selectedRowsIndexes.length) {
 							updateSelection(selectedRowsIndexes);
 						}
 					}
@@ -1278,9 +1373,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 											viewportSizeAfterShiftingIsDone -= Math.abs(loadLessCorrected);
 										}
 									}
-									if(scope.selectionClass) {
-										updateSelection(getFoundset().selectedRowIndexes);
-									}
+									updateSelection(getFoundset().selectedRowIndexes);
 								}
 								
 								// ok now we know startIndex is corrected if needed already; check is size needs to be corrected as well
@@ -1316,9 +1409,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							}
 							
 							if(changes.selectedRowIndexesChanged) {
-								if(scope.selectionClass) {
-									updateSelection(changes.selectedRowIndexesChanged.newValue, changes.selectedRowIndexesChanged.oldValue);
-								}
+								updateSelection(changes.selectedRowIndexesChanged.newValue, changes.selectedRowIndexesChanged.oldValue);
 								if(scope.selectionChangedHandler) {
 									var e = {target: parent[0]};
 									scope.selectionChangedHandler($utils.createJSEvent(e,"onselectionchanged"));
@@ -1350,6 +1441,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 														row.rowID = scope.foundset.viewPort.rows[k][$foundsetTypeConstants.ROW_ID_COL_KEY];
 														createChildElementForRow(k, row, scope.svyFormComponent.childElements[j] as componentType.ComponentPropertyValue);
 													}
+													updateSelection(getFoundset().selectedRowIndexes);
 												}
 											});
 										}

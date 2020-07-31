@@ -118,12 +118,24 @@ public class EventExecutor
 					if (foundsetScope != null)
 					{
 						scope = foundsetScope; // TODO ViewFoundSets should be come a scriptable if they have foundset methods..
-						f = (Function)scope.getPrototype().get(scriptMethod.getName(), scope);
+						Object scopeMethod = scope.getPrototype().get(scriptMethod.getName(), scope);
+						if (scopeMethod instanceof Function)
+							f = (Function)scopeMethod;
 					}
 				}
+				if (f == null)
+				{
+					Debug.error("No function found for " + scriptMethod + " when trying to execute the event " + eventType + '(' + eventId + //$NON-NLS-1$ //$NON-NLS-2$
+						") of component: " + component, new RuntimeException()); //$NON-NLS-1$
+					return null;
+				}
+			}
+			else
+			{
+				Debug.warn("Couldn't find the ScriptMethod for event: " + eventType + " with event id: " + eventId + " to execute for component " + component);
 			}
 		}
-		if (formController.isInFindMode() && !Utils.getAsBoolean(f.get("_AllowToRunInFind_", f))) return null;
+		if (formController.isInFindMode() && !Utils.getAsBoolean(f.get("_AllowToRunInFind_", f))) return null; //$NON-NLS-1$
 
 		if (newargs != null)
 		{
@@ -168,6 +180,12 @@ public class EventExecutor
 							}
 						}
 					}
+
+					if (json.has("data"))
+					{
+						event.setData(json.get("data"));
+					}
+
 					try
 					{
 						event.setTimestamp(new Timestamp(json.getLong("timestamp")));
@@ -216,7 +234,7 @@ public class EventExecutor
 							Object value = instanceMethodArguments.get(i);
 							if (value != null && value != JSONObject.NULL)
 							{
-								newargs[i] = value;
+								newargs[i] = Utils.parseJSExpression(value);
 							}
 						}
 					}

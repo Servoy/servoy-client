@@ -76,14 +76,12 @@ angular.module('servoydefaultTextfield',['servoy']).directive('servoydefaultText
 				modelChangFunction(key,$scope.model[key]);
 			}
 			
-			
 			var storedTooltip = false;
 			// fill in the api defined in the spec file
 
 			$scope.api.onDataChangeCallback = function(event, returnval) {
 				var stringValue = typeof returnval == 'string'
 					if(returnval === false || stringValue) {
-						$element[0].focus();
 						ngModel.$setValidity("", false);
 						if (stringValue) {
 							if ( storedTooltip == false)

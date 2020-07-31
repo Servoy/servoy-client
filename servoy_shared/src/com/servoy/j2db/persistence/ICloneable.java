@@ -18,9 +18,9 @@ package com.servoy.j2db.persistence;
 
 /**
  * @author jcompagner
- * 
+ *
  */
 public interface ICloneable extends Cloneable, IPersist
 {
-	public IPersist clonePersist();
+	public IPersist clonePersist(AbstractBase newParent);
 }

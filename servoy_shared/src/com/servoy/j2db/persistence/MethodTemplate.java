@@ -79,29 +79,35 @@ public class MethodTemplate implements IMethodTemplate
 		// valuelist global method
 
 		COMMON_TEMPLATES.put("valueListGlobalMethod", new MethodTemplate(
-			"Called when the valuelist needs data, it has 3 modes\nreal and display params both null: return the whole list\nonly display is specified, called by a typeahead, return a filtered list\nonly real value is specified, called when the list doesnt contain the real value for the give record value, this will insert this value into the existing list\n",
+			"The global method of the valuelist is called to fill in or adjust the values of the valuelist.\nThe method returns a dataset with one or two columns, first column is the display value, second column is real value(if present). The valuelist will be filled in with the dataset data.\nIf second column is not present real value and display value will be the same.\nThe method has to handle three different scenarios:\n1. 'displayValue' parameter is not null, this parameter should be used to filter the list of values(in a typeahead fashion)\n2. 'realValue' parameter is specified, that means value was not found in current list, so must be specified manually.\n In this case method should return only one row in the dataset, with the missing value, that will be added to the valuelist\n3. 'realValue' and 'displayValue' are both null , in this case the complete list of values should be returned.\nScenario 1 and 3 will completely replace any older results in the valuelist while scenario 2 will append results.\n",
 			new MethodArgument("getDataSetForValueList", ArgumentType.JSDataSet, //$NON-NLS-1$
-				"A dataset with 1 or 2 columns display[,real]"),
-			new MethodArgument[] { new MethodArgument("displayValue", ArgumentType.String, "The value of a lookupfield that a user types"), new MethodArgument(
-				"realValue", ArgumentType.Object, "The real value for a lookupfield where a display value should be get for"), new MethodArgument("record",
-					ArgumentType.JSRecord, "The current record for the valuelist."), new MethodArgument("valueListName", ArgumentType.String,
-						"The valuelist name that triggers the method. (This is the FindRecord in find mode, which is like JSRecord has all the columns/dataproviders, but doesn't have its methods)"), new MethodArgument(
-							"findMode", ArgumentType.Boolean, "True if foundset of this record is in find mode"), new MethodArgument("rawDisplayValue",
-								ArgumentType.Boolean, "The raw displayValue without being converted to lower case") },
+				"A dataset with 1 or 2 columns display[,real]. The values will fill in or append the valuelist."),
+			new MethodArgument[] { new MethodArgument("displayValue", ArgumentType.String,
+				"The filter string that a user types in a typeahead. Used to filter the valuelist."), new MethodArgument(
+					"realValue", ArgumentType.Object,
+					"A real value missing from valuelist that needs to be displayed. Method should provide the display value for it."), new MethodArgument(
+						"record",
+						ArgumentType.JSRecord,
+						"The current record for the valuelist. (This is the FindRecord in find mode, which is like JSRecord has all the columns/dataproviders, but doesn't have its methods)"), new MethodArgument(
+							"valueListName", ArgumentType.String,
+							"The valuelist name that triggers the method."), new MethodArgument(
+								"findMode", ArgumentType.Boolean, "True if foundset of this record is in find mode"), new MethodArgument("rawDisplayValue",
+									ArgumentType.Boolean, "The raw displayValue without being converted to lower case") },
 			"var args = null;\n" + "var query = datasources.db.example_data.employees.createSelect();\n" + "/** @type  {JSDataSet} */\n" +
-				"var result = null;\n" + "if (displayValue == null && realValue == null)\n" +
-				"{\n// TODO think about caching this result. can be called often!\n" + "// return the complete list\n" +
+				"var result = null;\n" +
+				"//add the two columns for the dataset: displayValue and realValue\n" +
 				"query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid);\n" +
+				"if (displayValue == null && realValue == null)\n" +
+				"{\n// TODO think about caching this result. can be called often!\n" + "// return the complete list\n" +
 				"result = databaseManager.getDataSetByQuery(query,100);\n" + "}\n" + "else if (displayValue != null)\n" + "{\n" +
 				"// TYPE_AHEAD filter call, return a filtered list\n" + "args = [displayValue + \"%\", displayValue + \"%\"];\n" +
-				"query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid).\n" +
-				"root.where.add(query.or.add(query.columns.firstname.lower.like(args[0] + '%')).add(query.columns.lastname.lower.like(args[1] + '%')));\n" +
+				"query.result.root.where.add(query.or.add(query.columns.firstname.lower.like(args[0] + '%')).add(query.columns.lastname.lower.like(args[1] + '%')));\n" +
 				"result = databaseManager.getDataSetByQuery(query,100);\n" + "}\n" + "else if (realValue != null)\n" + "{\n" +
 				"// TODO think about caching this result. can be called often!\n" +
 				"// real object not found in the current list, return 1 row with display,realvalue that will be added to the current list\n" +
 				"// dont return a complete list in this mode because that will be added to the list that is already there\n" + "args = [realValue];\n" +
-				"query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid).\n" +
-				"root.where.add(query.columns.employeeid.eq(args[0]));\n" + "result = databaseManager.getDataSetByQuery(query,1);\n" + "}\nreturn result;\n",
+				"query.result.root.where.add(query.columns.employeeid.eq(args[0]));\n" + "result = databaseManager.getDataSetByQuery(query,1);\n" +
+				"}\nreturn result;\n",
 			false));
 	}
 

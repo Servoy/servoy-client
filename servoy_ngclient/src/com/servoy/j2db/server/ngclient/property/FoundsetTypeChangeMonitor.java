@@ -419,8 +419,10 @@ public class FoundsetTypeChangeMonitor
 				int oldChangeFlags = changeFlags;
 				if (!shouldSendAll() && !shouldSendWholeViewPort())
 				{
+					// get the rows that are changed.
 					final int firstViewPortIndex = Math.max(viewPort.getStartIndex(), firstRow);
-					callAllViewportDataChangeMonitorsWrappedInFireCollector(new IVPDCMRunnable()
+					final int lastViewPortIndex = Math.min(viewPort.getStartIndex() + viewPort.getSize() - 1, lastRow);
+					if (firstViewPortIndex <= lastViewPortIndex) callAllViewportDataChangeMonitorsWrappedInFireCollector(new IVPDCMRunnable()
 					{
 						public void run(ViewportDataChangeMonitor< ? > vpdcm)
 						{

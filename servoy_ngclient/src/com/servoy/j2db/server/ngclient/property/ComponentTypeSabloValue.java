@@ -51,6 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.server.ngclient.ComponentContext;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
@@ -75,6 +76,7 @@ import com.servoy.j2db.server.ngclient.property.types.ReadonlyPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ReadonlySabloValue;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -344,13 +346,25 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			if (value instanceof String)
 			{
 				IPersist function = formUI.getController().getApplication().getFlattenedSolution().searchPersist((String)value);
+				Form form = formUI.getController().getForm();
+				if (function == null)
+				{
+					Debug.warn("Script Method of value '" + value + "' not found trying just the form " + form);
+
+					IPersist child = form.getChild(UUID.fromString((String)value));
+					if (child != null)
+					{
+						Debug.warn("Script Method " + child + " on the form " + form + " with uuid " + child.getUUID());
+						function = child;
+					}
+				}
 				if (function != null)
 				{
 					childComponent.add(handler, function.getID());
 				}
 				else
 				{
-					Debug.warn("Event handler for " + handler + " not found (form " + formUI.getController().getName() + ", form element " +
+					Debug.warn("Event handler for " + handler + " with value '" + value + "' not found (form " + form + ", form element " +
 						childComponent.getFormElement().getName() + ")");
 				}
 			}
@@ -693,10 +707,14 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 					properties.remove(propertyName);
 					changes.contentType = new PropertyDescriptionBuilder().withName(changes.contentType.getName()).withType(
 						changes.contentType.getType()).withConfig(changes.contentType.getConfig()).withProperties(properties).withDefaultValue(
-							changes.contentType.getDefaultValue()).withInitialValue(changes.contentType.getInitialValue()).withHasDefault(
-								changes.contentType.hasDefault()).withValues(changes.contentType.getValues()).withPushToServer(
-									changes.contentType.getPushToServer()).withOptional(changes.contentType.isOptional()).withDeprecated(
-										changes.contentType.getDeprecated()).build();
+							changes.contentType.getDefaultValue())
+						.withInitialValue(changes.contentType.getInitialValue()).withHasDefault(
+							changes.contentType.hasDefault())
+						.withValues(changes.contentType.getValues()).withPushToServer(
+							changes.contentType.getPushToServer())
+						.withOptional(changes.contentType.isOptional()).withDeprecated(
+							changes.contentType.getDeprecated())
+						.build();
 				}
 			}
 		}

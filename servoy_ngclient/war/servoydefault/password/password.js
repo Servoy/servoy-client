@@ -17,9 +17,7 @@ angular.module('servoydefaultPassword', [ 'servoy' ]).directive('servoydefaultPa
 
 			// fill in the api defined in the spec file
 			$scope.api.onDataChangeCallback = function(event, returnval) {
-				if (returnval === false) {
-					$element[0].childNodes[0].focus();
-				}
+				//do we need to do something here ?
 			},
 			/**
 			* Request the focus in this password field.
@@ -100,7 +98,7 @@ angular.module('servoydefaultPassword', [ 'servoy' ]).directive('servoydefaultPa
 			for (var key in $scope.model) {
 				modelChangFunction(key, $scope.model[key]);
 			}
-
+			
 		},
 		templateUrl : 'servoydefault/password/password.html'
 	};

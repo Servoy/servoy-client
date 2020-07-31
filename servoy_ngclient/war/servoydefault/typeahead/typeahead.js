@@ -44,7 +44,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 				lastSetterFunction = new SetterFunction()
 				return lastSetterFunction.setter;
 			}
-            
+			
 			$scope.onClick = function(event){
 				if ($scope.model.editable == false && $scope.handlers.onActionMethodID)
 				{
@@ -138,6 +138,11 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 							// compare trimmed values, typeahead will trim the selected value
 							if ($.trim($scope.value) === $.trim($scope.model.valuelistID[i].displayValue)) {
 								hasMatchingDisplayValue = true;
+								if ($scope.model.dataProviderID === $scope.model.valuelistID[i].realValue)
+								{
+									// same value, do not send again to server
+									return;
+								}	
 								$scope.model.dataProviderID = $scope.model.valuelistID[i].realValue;
 								break;
 							}
@@ -154,7 +159,15 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 								}	
 								// if the dataproviderid was null and we are in real|display then reset the value to ""
 								else if($scope.model.dataProviderID == null) {
-									$scope.value = "";
+									if ($scope.value !== "")
+									{
+										$scope.value = "";
+									}
+									else
+									{
+										// do not push, is not changed, maybe null is not allowed
+										return;
+									}	
 								}
 							}
 							else
@@ -231,7 +244,6 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 			$scope.api.onDataChangeCallback = function(event, returnval) {
 				var stringValue = typeof returnval == 'string'
 					if (returnval === false || stringValue) {
-						$element[0].focus();
 						ngModel.$setValidity("", false);
 						if (stringValue) {
 							if (storedTooltip == false)

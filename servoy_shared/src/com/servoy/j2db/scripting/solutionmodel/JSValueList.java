@@ -604,6 +604,30 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	}
 
 	/**
+	 * @clonedesc com.servoy.j2db.persistence.ValueList#getLazyLoading()
+	 *
+	 * @sample
+	 * var vlist = solutionModel.newValueList('options', JSValueList.DATABASE_VALUES);
+	 * vlist.dataSource = 'db:/example_data/valuelists';
+	 * vlist.setDisplayDataProviderIds('valuelist_data');
+	 * vlist.setReturnDataProviderIds('valuelist_data');
+	 * vlist.lazyLoading = true;
+	 * vlist.name = 'two';
+	 */
+	@JSGetter
+	public boolean getLazyLoading()
+	{
+		return valuelist.getLazyLoading();
+	}
+
+	@JSSetter
+	public void setLazyLoading(boolean arg)
+	{
+		checkModification();
+		valuelist.setLazyLoading(arg);
+	}
+
+	/**
 	 * @clonedesc com.servoy.j2db.persistence.ValueList#getValueListType()
 	 *
 	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
@@ -622,15 +646,18 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	}
 
 	/**
-	 * A global method that provides the data for the valuelist. The global method must provided the data
-	 * as a JSDataSet.
+	 * The global method of the valuelist is called to fill in or adjust the values of the valuelist.
+	 * The method returns a dataset with one or two columns, first column is the display value, second column is real value(if present).
+	 * The valuelist will be filled in with the dataset data. If second column is not present real value and display value will be the same.
+	 * The method has to handle three different scenarios:
+	 *  1. 'displayValue' parameter is not null, this parameter should be used to filter the list of values(in a typeahead fashion)
+	 *  2. 'realValue' parameter is specified, that means value was not found in current list, so must be specified manually.
+	 *  In this case method should return only one row in the dataset, with the missing value, that will be added to the valuelist
+	 *  3. 'realValue' and 'displayValue' are both null , in this case the complete list of values should be returned.
 	 *
-	 * It is called when the valuelist needs data, it has 3 modes.
-	 * real and display params both null: return the whole list
-	 * only display is specified, called by a typeahead, return a filtered list
-	 * only real value is specified, called when the list doesnt contain the real value for the give record value, this will insert this value into the existing list.
+	 * Scenario 1 and 3 will completely replace any older results in the valuelist while scenario 2 will append results.
 	 *
-	 * In find mode the record with be the FindRecord which is just like a normal JSRecord (DataRecord) it has the same properties (column/dataproviders) but doesnt have its methods (like isEditing())
+	 * In find mode the record will be the FindRecord which is just like a normal JSRecord (DataRecord) it has the same properties (column/dataproviders) but doesnt have its methods (like isEditing())
 	 *
 	 * The last argument is rawDisplayValue which contains the same text as displayValue but without converting it to lowercase.
 	 *
@@ -641,24 +668,22 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 * 		'var query = datasources.db.example_data.employees.createSelect();' +
 	 * 		'/** @type  {JSDataSet} *&#47;' +
 	 * 		'var result = null;' +
+	 * 		'query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid);' +
 	 * 		'if (displayValue == null && realValue == null) {' +
 	 * 		'  // TODO think about caching this result. can be called often!' +
 	 * 		'  // return the complete list' +
-	 * 		'  query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid);' +
 	 * 		'  result = databaseManager.getDataSetByQuery(query,100);' +
 	 * 		'} else if (displayValue != null) {' +
 	 * 		'  // TYPE_AHEAD filter call, return a filtered list' +
 	 * 		'  args = [displayValue + "%", displayValue + "%"]' +
-	 * 		'  query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid).' +
-	 * 		'  root.where.add(query.or.add(query.columns.firstname.lower.like(args[0] + '%')).add(query.columns.lastname.lower.like(args[1] + '%')));' +
+	 * 		'  query.result.root.where.add(query.or.add(query.columns.firstname.lower.like(args[0] + '%')).add(query.columns.lastname.lower.like(args[1] + '%')));' +
 	 * 		'  result = databaseManager.getDataSetByQuery(query,100);' +
 	 * 		'} else if (realValue != null) {' +
 	 * 		'  // TODO think about caching this result. can be called often!' +
 	 * 		'  // real object not found in the current list, return 1 row with display,realvalue that will be added to the current list' +
 	 * 		'  // dont return a complete list in this mode because that will be added to the list that is already there' +
 	 * 		'  args = [realValue];' +
-	 * 		'  query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname)).add(query.columns.employeeid).' +
-	 * 		'  root.where.add(query.columns.employeeid.eq(args[0]));' +
+	 * 		'  query.result.root.where.add(query.columns.employeeid.eq(args[0]));' +
 	 * 		'  result = databaseManager.getDataSetByQuery(query,1);' +
 	 * 		'}' +
 	 * 		'return result;' +

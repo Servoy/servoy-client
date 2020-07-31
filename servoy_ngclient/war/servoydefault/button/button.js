@@ -1,4 +1,4 @@
-angular.module('servoydefaultButton', [ 'servoy' ]).directive('servoydefaultButton', function(formatFilterFilter, $apifunctions, $svyProperties, $sabloConstants) {
+angular.module('servoydefaultButton', [ 'servoy' ]).directive('servoydefaultButton', function(formatFilterFilter, $apifunctions, $svyProperties, $sabloConstants,$utils) {
 	return {
 		restrict : 'E',
 		scope : {
@@ -81,7 +81,6 @@ angular.module('servoydefaultButton', [ 'servoy' ]).directive('servoydefaultButt
 			for (var key in $scope.model) {
 				modelChangFunction(key, $scope.model[key]);
 			}
-
 		},
 		templateUrl : 'servoydefault/button/button.html'
 	};

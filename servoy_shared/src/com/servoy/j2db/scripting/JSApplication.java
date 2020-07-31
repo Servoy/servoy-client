@@ -77,6 +77,7 @@ import com.servoy.j2db.dnd.DRAGNDROP;
 import com.servoy.j2db.dnd.JSDNDEvent;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPlugin;
 import com.servoy.j2db.scripting.info.APPLICATION_TYPES;
@@ -87,6 +88,7 @@ import com.servoy.j2db.scripting.info.NGCONSTANTS;
 import com.servoy.j2db.scripting.info.UICONSTANTS;
 import com.servoy.j2db.scripting.info.WEBCONSTANTS;
 import com.servoy.j2db.scripting.solutionmodel.ICSSPosition;
+import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IScriptRenderMethodsWithOptionalProps;
 import com.servoy.j2db.ui.ISupportValueList;
@@ -2255,6 +2257,28 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
+	 * Get the full version information of this solution and all its modules.
+	 * This will return an object that is a map of Name(Sting)->Version(String) of the solution and all its modules.
+	 *
+	 * @return Name->Version map object.
+	 */
+	public JSMap<String, String> js_getVersionInfo()
+	{
+		JSMap<String, String> info = new JSMap<>();
+		Solution solution = application.getSolution();
+		info.put(solution.getName(), solution.getVersion());
+		Solution[] modules = application.getFlattenedSolution().getModules();
+		if (modules != null)
+		{
+			for (Solution m : modules)
+			{
+				info.put(m.getName(), m.getVersion());
+			}
+		}
+		return info;
+	}
+
+	/**
 	 * Show the form specified by the parameter, that can be a name (is case sensitive!) or a form object.
 	 * This will show the form in the active/currently focused window. So when called from a form in a dialog the dialog will show the form.
 	 *
@@ -3039,6 +3063,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Returns the name of the operating system of the client.
+	 * In Smart Client this will return os.name system property. In Web/NG Client will return "OSFamily majorVersion.minorVersion".
 	 *
 	 * @sample var osname = application.getOSName();
 	 *
@@ -3544,6 +3569,21 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	{
 		//only for mobile
 	}
+
+	/**
+	 * Get the uuid from this server instance (the same value that is shown on the admin page)
+	 *
+	 * @sample
+	 * var uuid = application.getServerUUID();
+	 *
+	 */
+	@JSFunction
+	@ServoyClientSupport(ng = true, wc = true, sc = true, mc = false)
+	public String getServerUUID()
+	{
+		return ApplicationServerRegistry.get().getServerUUID();
+	}
+
 
 	@Override
 	public String toString()

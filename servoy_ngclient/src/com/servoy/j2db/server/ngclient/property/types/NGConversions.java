@@ -32,9 +32,7 @@ import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElementContext;
-import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGFormElement;
-import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoConversion;
 import com.servoy.j2db.util.Debug;
@@ -456,9 +454,7 @@ public class NGConversions
 		}
 		else
 		{
-			IServoyDataConverterContext dataConverterContext = null;
-			if (webObjectContext instanceof IContextProvider) dataConverterContext = ((IContextProvider)webObjectContext).getDataConverterContext();
-			sabloVal = (T)RhinoConversion.defaultFromRhino(rhinoValue, previousComponentValue, pd, dataConverterContext);
+			sabloVal = (T)RhinoConversion.defaultFromRhino(rhinoValue, previousComponentValue);
 		}
 		return sabloVal;
 	}

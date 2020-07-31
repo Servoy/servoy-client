@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.ICustomMessageLoader;
 
 /**
  * Context for data converters
@@ -31,12 +32,22 @@ public class ServoyDataConverterContext implements IServoyDataConverterContext
 	private final FlattenedSolution flattenedSolution;
 	private final INGApplication application;
 	private final IWebFormController form;
+	private final ICustomMessageLoader i18nLoader;
 
 	public ServoyDataConverterContext(FlattenedSolution flattenedSolution)
 	{
 		this.flattenedSolution = flattenedSolution;
 		this.application = null;
 		this.form = null;
+		this.i18nLoader = null;
+	}
+
+	public ServoyDataConverterContext(FlattenedSolution flattenedSolution, ICustomMessageLoader i18nLoader)
+	{
+		this.flattenedSolution = flattenedSolution;
+		this.application = null;
+		this.form = null;
+		this.i18nLoader = i18nLoader;
 	}
 
 	public ServoyDataConverterContext(INGApplication application)
@@ -44,6 +55,7 @@ public class ServoyDataConverterContext implements IServoyDataConverterContext
 		this.flattenedSolution = application.getFlattenedSolution();
 		this.application = application;
 		this.form = null;
+		this.i18nLoader = null;
 	}
 
 	public ServoyDataConverterContext(IWebFormController form)
@@ -51,6 +63,7 @@ public class ServoyDataConverterContext implements IServoyDataConverterContext
 		this.form = form;
 		this.application = form.getApplication();
 		this.flattenedSolution = application.getFlattenedSolution();
+		this.i18nLoader = null;
 
 	}
 
@@ -70,5 +83,11 @@ public class ServoyDataConverterContext implements IServoyDataConverterContext
 	public IWebFormController getForm()
 	{
 		return form;
+	}
+
+	@Override
+	public ICustomMessageLoader getI18nLoader()
+	{
+		return this.i18nLoader;
 	}
 }

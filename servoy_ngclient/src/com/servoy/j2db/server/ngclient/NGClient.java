@@ -78,6 +78,7 @@ import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.PluginScope;
 import com.servoy.j2db.scripting.info.NGCONSTANTS;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
+import com.servoy.j2db.server.headlessclient.util.HCUtils;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet.MediaInfo;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceFunction;
@@ -852,7 +853,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			{
 				if (scheduledExecutorService == null)
 				{
-					scheduledExecutorService = new ServoyScheduledExecutor(1, 4, 1)
+					scheduledExecutorService = new ServoyScheduledExecutor(4, 1)
 					{
 						private IServiceProvider prev;
 
@@ -935,11 +936,8 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 				String userAgent = ((JSONObject)retValue).optString("userAgent");
 				if (userAgent != null)
 				{
-					if (userAgent.indexOf("NT 6.1") != -1) return "Windows 7";
-					if (userAgent.indexOf("NT 6.0") != -1) return "Windows Vista";
-					if (userAgent.indexOf("NT 5.1") != -1 || userAgent.indexOf("Windows XP") != -1) return "Windows XP";
-					if (userAgent.indexOf("Linux") != -1) return "Linux";
-					if (userAgent.indexOf("Mac") != -1) return "Mac OS";
+					return HCUtils
+						.getOSName(userAgent);
 				}
 				String platform = ((JSONObject)retValue).optString("platform");
 				if (platform != null) return platform;
@@ -1333,7 +1331,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	public String serveResource(String filename, byte[] bs, String mimetype, String contentDisposition)
 	{
 		MediaInfo mediaInfo = MediaResourcesServlet.createMediaInfo(bs, filename, mimetype, contentDisposition);
-		return "resources/" + MediaResourcesServlet.DYNAMIC_DATA_ACCESS + "/" + mediaInfo.getName();
+		return mediaInfo.getURL(getWebsocketSession().getSessionKey().getClientnr());
 	}
 
 	/*

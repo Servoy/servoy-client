@@ -150,7 +150,7 @@ var Window = null;
 
     Window.prototype.close = function() {
         var _this = this;
-        if(this.options.window_manager && this.options.window_manager.modalStack.length === 1)
+        if(this.options.window_manager && this.options.window_manager.modalStack.length === 1 && this.options.isModal)
         	$('.modal-backdrop').remove(); 
         this.$el.trigger('close');
         if (this.options.parent) {

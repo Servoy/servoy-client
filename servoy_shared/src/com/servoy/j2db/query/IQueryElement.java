@@ -25,11 +25,10 @@ import com.servoy.j2db.util.visitor.IVisitable;
 
 /**
  * Common interface for all elements in the query structure.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
-public interface IQueryElement extends IBaseQueryElement, Serializable, Cloneable, IWriteReplace, IVisitable
+public interface IQueryElement extends IBaseQueryElement, Serializable, ISQLCloneable, IWriteReplace, IVisitable
 {
-	Object shallowClone() throws CloneNotSupportedException;
 }

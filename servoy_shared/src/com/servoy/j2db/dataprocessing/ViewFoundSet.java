@@ -189,6 +189,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	private final List<IRowListener> rowListeners = new ArrayList<>(3);
 
 	private List<ViewRecord> records = new ArrayList<>();
+	private final List<ViewRecord> editedRecords = new ArrayList<>();
+	private final List<ViewRecord> failedRecords = new ArrayList<ViewRecord>(2);
 
 	private final List<WeakReference<IRecordInternal>> allParents = new ArrayList<>(6);
 
@@ -196,7 +198,6 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 	private final Map<IQuerySelectValue, String> columnNames = new LinkedHashMap<>();
 
-	private final List<ViewRecord> editedRecords = new ArrayList<>();
 
 	private final QuerySelect select;
 
@@ -664,8 +665,26 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 	void addEditedRecord(ViewRecord record)
 	{
+		failedRecords.remove(record);
 		editedRecords.add(record);
 	}
+
+	/**
+	 * Get the edited records of this view foundset.
+	 * @sample
+	 * var editedRecords = foundset.getEditedRecords();
+	 * for (var i = 0; i < editedRecords.length; i++)
+	 * {
+	 *    application.output(editedRecords[i]);
+	 * }
+	 * @return an array of edited records
+	 */
+	@JSFunction
+	public ViewRecord[] getEditedRecords()
+	{
+		return editedRecords.toArray(new ViewRecord[editedRecords.size()]);
+	}
+
 
 	/**
 	 * Saves all records in the view foundset that have changes.
@@ -675,6 +694,29 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	public int save()
 	{
 		return save(null);
+	}
+
+	/**
+	 * Validates this view record, wil call the onValidate of this ViewFoundset.
+	 *
+	 * @param record
+	 */
+	@JSFunction
+	public JSValidationObject validate(ViewRecord record)
+	{
+		return validate(record, null);
+	}
+
+	/**
+	 * Validates this view record, wil call the onValidate of this ViewFoundset.
+	 *
+	 * @param record The ViewRecord to validate
+	 * @param state The extra state to give to the validate method.
+	 */
+	@JSFunction
+	public JSValidationObject validate(ViewRecord record, Object state)
+	{
+		return manager.validateRecord(record, state);
 	}
 
 	/**
@@ -688,6 +730,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	{
 		if (record != null && record.getParentFoundSet() != this) return ISaveConstants.SAVE_FAILED;
 
+		int retCode = ISaveConstants.STOPPED;
 		List<ViewRecord> toSave = new ArrayList<>();
 		if (record == null)
 		{
@@ -718,8 +761,13 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 					columnNames.forEach((selectValue, name) -> {
 						if (changes.containsKey(name))
 						{
-							QueryColumn realColumn = select.getRealColumn(selectValue).orElseThrow(() -> new RuntimeException(
-								"Can't save " + rec + " for changed values " + changes + " because table for column '" + name + "' cannot be found"));
+							QueryColumn realColumn = select.getRealColumn(selectValue).orElseThrow(() -> {
+								RuntimeException ex = new RuntimeException(
+									"Can't save " + rec + " for changed values " + changes + " because table for column '" + name + "' cannot be found");
+								rec.setLastException(ex);
+								if (!failedRecords.contains(rec)) failedRecords.add(rec);
+								return ex;
+							});
 							BaseQueryTable table = realColumn.getTable();
 							Map<QueryColumn, Object> map = tableToChanges.get(table);
 							if (map == null)
@@ -732,8 +780,14 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 					});
 					tableToChanges.forEach((table, changesMap) -> {
 						List<IQuerySelectValue> pkColumns = pkColumnsForTable.get(table);
-						if (pkColumns == null) throw new RuntimeException("Can't save " + rec + " for changed values " + changes +
-							" because there are no pk's found for table with changes " + table.getAlias() != null ? table.getAlias() : table.getName());
+						if (pkColumns == null)
+						{
+							RuntimeException ex = new RuntimeException("Can't save " + rec + " for changed values " + changes +
+								" because there are no pk's found for table with changes " + table.getAlias() != null ? table.getAlias() : table.getName());
+							rec.setLastException(ex);
+							if (!failedRecords.contains(rec)) failedRecords.add(rec);
+							throw ex;
+						}
 
 						int counter = 0;
 						Object[] pk = new Object[pkColumns.size()];
@@ -767,12 +821,16 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 				Object[] updateResult = manager.getApplication().getDataServer().performUpdates(manager.getApplication().getClientID(),
 					statements.toArray(new SQLStatement[statements.size()]));
-				for (Object o : updateResult)
+				for (int i = 0; i < updateResult.length; i++)
 				{
+					Object o = updateResult[i];
 					if (o instanceof Exception)
 					{
 						// something went wrong
-						throw new RuntimeException((Exception)o);
+						ViewRecord rec = toSave.get(i);
+						failedRecords.add(rec);
+						rec.setLastException((Exception)o);
+						retCode = ISaveConstants.SAVE_FAILED;
 					}
 				}
 
@@ -797,7 +855,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 				return ISaveConstants.SAVE_FAILED;
 			}
 		}
-		return ISaveConstants.STOPPED;
+		return retCode;
 	}
 
 
@@ -1567,7 +1625,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 	private boolean shouldRefresh()
 	{
-		return refresh && editedRecords.size() == 0;
+		return refresh && editedRecords.size() == 0 && failedRecords.size() == 0;
 	}
 
 	@Override
@@ -2205,5 +2263,64 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			}
 			return true;
 		}
+	}
+
+	/**
+	 * Revert changes of the provided view records.
+	 * @param rec an array of view records
+	 */
+	@JSFunction
+	public void revertEditedRecords(ViewRecord[] rec)
+	{
+		if (rec != null)
+		{
+			Arrays.stream(rec).forEach(r -> editedRecords.remove(r.revertChangesImpl()));
+		}
+	}
+
+	/**
+	 * Revert changes of all unsaved view records of the view foundset.
+	 */
+	@JSFunction
+	public void revertEditedRecords()
+	{
+		editedRecords.stream().forEach(r -> r.revertChangesImpl());
+		editedRecords.clear();
+	}
+
+	/**
+	 * Returns true if the viewfoundset has records.
+	 * @return true if the viewfoundset has records.
+	 */
+	@JSFunction
+	public boolean hasRecords()
+	{
+		return getSize() > 0;
+	}
+
+	/**
+	 * Get the records which could not be saved.
+	 * @return an array of failed records
+	 */
+	@JSFunction
+	public ViewRecord[] getFailedRecords()
+	{
+		return failedRecords.toArray(new ViewRecord[failedRecords.size()]);
+	}
+
+	/**
+	 * Check whether the foundset has record changes.
+	 * @return true if the foundset has any edited records, false otherwise
+	 */
+	@JSFunction
+	public boolean hasRecordChanges()
+	{
+		return !editedRecords.isEmpty();
+	}
+
+
+	public Class< ? >[] getAllReturnedTypes()
+	{
+		return new Class< ? >[] { ViewRecord.class };
 	}
 }

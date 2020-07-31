@@ -22,6 +22,7 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.mozilla.javascript.Context;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
@@ -29,21 +30,28 @@ import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 
+import com.servoy.j2db.IApplication;
+import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.Text;
+import com.servoy.j2db.util.serialize.JSONConverter;
 
 /**
  * @author gboros
  *
  */
 public class MapPropertyType extends DefaultPropertyType<JSONObject>
-	implements IConvertedPropertyType<JSONObject>, IFormElementToTemplateJSON<JSONObject, JSONObject>, IRhinoToSabloComponent<JSONObject>
+	implements IConvertedPropertyType<JSONObject>, IFormElementToTemplateJSON<JSONObject, JSONObject>, IRhinoToSabloComponent<JSONObject>, IRhinoDesignConverter
 {
 
 	public static final MapPropertyType INSTANCE = new MapPropertyType();
 	public static final String TYPE_NAME = "map"; //$NON-NLS-1$
+
+	private static final JSONConverter converter = new JSONConverter();
 
 	private MapPropertyType()
 	{
@@ -148,5 +156,52 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 		}
 
 		return sabloValue;
+	}
+
+	/**
+	 * To design should be to json (from native object)
+	 *
+	 * @see com.servoy.j2db.util.IRhinoDesignConverter#fromRhinoToDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription, com.servoy.j2db.IApplication, com.servoy.j2db.scripting.solutionmodel.JSWebComponent)
+	 */
+	@SuppressWarnings("nls")
+	@Override
+	public Object fromRhinoToDesignValue(Object solutionModelScriptingValue, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
+	{
+		if (solutionModelScriptingValue == null) return null;
+		try
+		{
+			return converter.convertToJSONValue(solutionModelScriptingValue);
+		}
+		catch (Exception e)
+		{
+			Debug.log("Converting json value " + solutionModelScriptingValue + "  to native js failed for " + pd, e);
+		}
+		return solutionModelScriptingValue;
+	}
+
+	/**
+	 * from design should be json to native js.
+	 * @see com.servoy.j2db.util.IRhinoDesignConverter#fromDesignToRhinoValue(java.lang.Object, org.sablo.specification.PropertyDescription, com.servoy.j2db.IApplication, com.servoy.j2db.scripting.solutionmodel.JSWebComponent)
+	 */
+	@SuppressWarnings("nls")
+	@Override
+	public Object fromDesignToRhinoValue(Object frmJSONValue, PropertyDescription pd, IApplication application, JSWebComponent webComponent)
+	{
+		if (frmJSONValue == null) return null;
+		Context cx = Context.enter();
+		try
+		{
+			Object fromJSON = converter.convertFromJSON(frmJSONValue);
+			return cx.getWrapFactory().wrap(cx, application.getScriptEngine().getSolutionScope(), fromJSON, frmJSONValue.getClass());
+		}
+		catch (Exception e)
+		{
+			Debug.log("Converting js object " + frmJSONValue + "  to json failed for " + pd, e);
+		}
+		finally
+		{
+			Context.exit();
+		}
+		return frmJSONValue;
 	}
 }

@@ -37,6 +37,7 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 			var lastCellModelsOfRenderedIndex = {};
 			var delayedChangeNotificationsForRenderedIndex = {};
 			var componentChangeListeners;
+			var foundsetListener;
 			
 			var locale = $sabloApplication.getLocale();
 			if (locale.language) {
@@ -525,7 +526,6 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 					rowAPICache.rowElement.on('$destroy', function () {
 						removeRowAPICacheWatches(rowAPICache);
 						if (cellAPICaches[renderedRowIndex] && cellAPICaches[renderedRowIndex].rowElement == rowAPICache.rowElement) delete cellAPICaches[renderedRowIndex];
-						// is .off needed for $destroy?
 					});
 				}
 
@@ -662,6 +662,18 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 				return elLayout;
 			}
 
+			var DUMMY_EMPTY_MODEL_OBJ = {};		
+			function getDummyEmptyModelObjForWhenUIGridAsksForAPIsOnRowsThatAreNoLongerInTheFoundset() {
+				// as this values is watched, make sure we always return the same instance for rows that are no longer in foundset to avoid hitting angular's digest loop limit (which
+				// could be reached if we always return a new object - although then the question is why does uiGrid keep asking for that inexistent row - something else is not refreshed propertly as well most likely)
+				
+				// clear the DUMMY_EMPTY_MODEL_OBJ obj as some compiled components in these invalid rows might have populated it and we want a clean one...
+				var propsToDelete = Object.getOwnPropertyNames(DUMMY_EMPTY_MODEL_OBJ);
+				propsToDelete.forEach(function(propName) { delete DUMMY_EMPTY_MODEL_OBJ[propName] });
+				
+				return DUMMY_EMPTY_MODEL_OBJ;
+			}
+
 			// merges component model and modelViewport (for record dependent properties like dataprovider/tagstring/...) the cell's element's model
 			$scope.getMergedCellModel = function(ngGridRow, elementIndex, renderedRowIndex, rowElementHelper) {
 				// TODO - can we avoid using ngGrid undocumented "row.entity"? that is what ngGrid uses internally as model for default cell templates...
@@ -669,8 +681,8 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 				var cellNotifierToUse = cacheOrGetCellNotifier(renderedRowIndex, elementIndex, rowElementHelper); // cellNotifiers are contributed to models but should be stable based on renderedRowIndex not on rowId as models do
 
 				var relativeRowIndex = rowIdToViewportRelativeRowIndex(rowId);
-				if(relativeRowIndex < 0) {
-					return {}
+				if (relativeRowIndex < 0) {
+					return getDummyEmptyModelObjForWhenUIGridAsksForAPIsOnRowsThatAreNoLongerInTheFoundset();
 				}
 
 				var cellProxies = getOrCreateElementProxies(rowId, elementIndex);
@@ -793,7 +805,6 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 									delete lastCellModelsOfRenderedIndex[renderedRowIndex];
 									delete delayedChangeNotificationsForRenderedIndex[renderedRowIndex];
 								} else if ($log.debugEnabled) $log.debug("portal ### DESTROY FAILED: either cache is already cleared of rowElement is different...");
-								// is .off needed for $destroy?
 							});
 						}
 						cellChangeNotifierCaches[renderedRowIndex][elementIndex] = cachedCellNotifier;
@@ -1027,11 +1038,23 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 					if (!cellAPI[p]) delete columnApi[p];
 				}
 			}
+			
+			var DUMMY_EMPTY_API_OBJ = {};		
+			function getDummyEmptyAPIObjForWhenUIGridAsksForAPIsOnRowsThatAreNoLongerInTheFoundset() {
+				// as this values is watched, make sure we always return the same instance for rows that are no longer in foundset to avoid hitting angular's digest loop limit (which
+				// could be reached if we always return a new object - although then the question is why does uiGrid keep asking for that inexistent row - something else is not refreshed propertly as well most likely)
+				
+				// clear the DUMM obj as some compiled components might have populated it...
+				var propsToDelete = Object.getOwnPropertyNames(DUMMY_EMPTY_API_OBJ);
+				propsToDelete.forEach(function(propName) { delete DUMMY_EMPTY_API_OBJ[propName] });
+				
+				return DUMMY_EMPTY_API_OBJ;
+			}
 
 			$scope.cellServoyApiWrapper = function(ngGridRow, elementIndex) {
 				var rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
-				if(rowIdToViewportRelativeRowIndex(rowId) < 0) {
-					return {}
+				if (rowIdToViewportRelativeRowIndex(rowId) < 0) {
+					return getDummyEmptyAPIObjForWhenUIGridAsksForAPIsOnRowsThatAreNoLongerInTheFoundset();
 				}
 
 				var cellProxies = getOrCreateElementProxies(rowId, elementIndex);
@@ -1506,7 +1529,7 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 					});
 
 					// size can change server-side if records get deleted by someone else and there are no other records to fill the viewport with (by sliding)
-					var foundsetListener = function(foundsetChanges) {
+					foundsetListener = function(foundsetChanges) {
 						$webSocket.addIncomingMessageHandlingDoneTask(function() {
 							var vpSizeChange = foundsetChanges[$foundsetTypeConstants.NOTIFY_VIEW_PORT_SIZE_CHANGED];
 							if (vpSizeChange) {
@@ -1516,6 +1539,7 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 							return [$scope];
 						});
 					};
+					
 					$scope.$watch('foundset', function(newVal, oldVal) {
 						if (oldVal && oldVal.removeChangeListener && newVal !== oldVal) oldVal.removeChangeListener(foundsetListener);
 						if (newVal && newVal.addChangeListener) {
@@ -1616,12 +1640,15 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 					return recordHandler.apply(recordHandler, arguments);
 				}
 			}
+			
+			var DUMMY_EMPTY_OBJECT_HANDLER = {};
+			
 			// each handler at column level gets it's rowId from the cell's wrapper handler below (to
 			// make sure that the foundset's selection is correct server-side when cell handler triggers)
 			$scope.cellHandlerWrapper = function(ngGridRow, elementIndex) {
 				var rowId = ngGridRow.entity[$foundsetTypeConstants.ROW_ID_COL_KEY];
-				if(rowIdToViewportRelativeRowIndex(rowId) < 0) {
-					return {}
+				if (rowIdToViewportRelativeRowIndex(rowId) < 0) {
+					return DUMMY_EMPTY_OBJECT_HANDLER; // give it always the same reference to avoid endless angular digest loops in case uiGrid insists on asking for rows that are no longer present in the foundset
 				}
 
 				var cellProxies = getOrCreateElementProxies(rowId, elementIndex);
@@ -1666,12 +1693,22 @@ angular.module('servoycorePortal',['webSocketModule', 'sabloApp','servoy','ui.gr
 					}
 				}
 			});
+			
 			var destroyListenerUnreg = $scope.$on("$destroy", function() {
 				destroyListenerUnreg();
+				
+				// remove model change notifiers (listener) for portal model and column component non-record-linked part of model
 				delete $scope.model[$sabloConstants.modelChangeNotifier];
-				for(var i=0;i<elements.length;i++) {
+				for (var i = 0; i < elements.length; i++) {
 					delete elements[i].model[$sabloConstants.modelChangeNotifier];
 				}
+				
+				// remove any registered listeners on foundset / column component viewports
+				if (componentChangeListeners && $scope.model.childElements) componentChangeListeners.forEach(function(chListener, idx) {
+					// componentChangeListeners and $scope.model.childElements must be here arrays wih the same length; the listener at index idx is for the child element at the same index
+					$scope.model.childElements[idx].removeViewportChangeListener(chListener);
+				});
+				if (foundsetListener && $scope.foundset.removeChangeListener) $scope.foundset.removeChangeListener(foundsetListener); // $scope.foundset is not directly the model relatedFoundset - can also be a dummy EMPTY value in some cases - and that doesn't know nor have listeners anyway so we have to check for removeChangeListener existence as well here
 			});
 			// data can already be here, if so call the modelChange function so that it is initialized correctly.
 			var modelChangFunction = $scope.model[$sabloConstants.modelChangeNotifier];

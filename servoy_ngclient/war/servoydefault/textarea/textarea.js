@@ -20,7 +20,6 @@ angular.module('servoydefaultTextarea', [ 'servoy' ]).directive('servoydefaultTe
 			$scope.api.onDataChangeCallback = function(event, returnval) {
 				var stringValue = typeof returnval == 'string'
 				if (returnval === false || stringValue) {
-					$element[0].focus();
 					ngModel.$setValidity("", false);
 					if (stringValue) {
 						if (storedTooltip == false)
@@ -195,7 +194,7 @@ angular.module('servoydefaultTextarea', [ 'servoy' ]).directive('servoydefaultTe
 			for (var key in $scope.model) {
 				modelChangFunction(key, $scope.model[key]);
 			}
-
+			
 		},
 		templateUrl : 'servoydefault/textarea/textarea.html',
 		replace : true

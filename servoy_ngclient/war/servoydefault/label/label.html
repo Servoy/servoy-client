@@ -2,7 +2,8 @@
 	 sablo-tabseq='(handlers.onActionMethodID || handlers.onDoubleClickMethodID || handlers.onRightClickMethodID) ? model.tabSeq : -2'
      svy-click='handlers.onActionMethodID($event)'
  	 svy-dblclick='handlers.onDoubleClickMethodID($event)'
- 	 svy-rightclick='handlers.onRightClickMethodID($event)'>  	 
+ 	 svy-rightclick='handlers.onRightClickMethodID($event)'
+ 	 svy-attributes='model.attributes'>  	 
   <div style="width:100%;overflow:hidden;position:relative;" class='svy-nowrap'>
 	   		<span svy-imagemediaid='{img: model.dataProviderID.url ? model.dataProviderID.url : model.imageMediaID, componentSize: model.size, rollOverImg:model.rolloverImageMediaID, visible: model.visible, updateParentSize: !hasText()}'/>
  	   		<span ng-bind-html='(((model.dataProviderID == null && !model.hideText) || model.dataProviderID.url) ? model.text : model.dataProviderID) | formatFilter:model.format.display:model.format.type | mnemonicletterFilter:model.mnemonic | trustAsHtml:servoyApi.trustAsHtml()'/>

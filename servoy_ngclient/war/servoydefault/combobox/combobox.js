@@ -104,7 +104,6 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 				var ngModel = element.children().controller("ngModel");
 				var stringValue = (typeof returnval === 'string' || returnval instanceof String);
 				if (returnval === false || stringValue) {
-					element[0].focus();
 					ngModel.$setValidity("", false);
 					if (stringValue) {
 						if (storedTooltip === false) { 
@@ -156,6 +155,7 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 				destroyListenerUnreg();
 				delete scope.model[$sabloConstants.modelChangeNotifier];
 			});
+			
 			// data can already be here, if so call the modelChange function so that it is initialized correctly.
 			function pushValues() {
 				if (element.find("span.ui-select-toggle").length > 0) {
@@ -178,6 +178,43 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 	return function (item) {
 		if (item === null || item === '') {return '&nbsp;'; }
 		return item;
+	};
+})
+.filter('propertyFormattedFilter', function ($filter) {
+	return function(items, props, format, type) {
+		var out = [];
+
+		if (angular.isArray(items)) {
+			var keys = Object.keys(props);
+
+			items.forEach(function(item) {
+				var itemMatches = false;
+
+				for (var i = 0; i < keys.length; i++) {
+					var prop = keys[i];
+					var text = props[prop].toLowerCase();
+					
+					var formattedItem = $filter("formatFilter")(item[prop], format, type);
+					
+					if (formattedItem.toString().toLowerCase().indexOf(text) !== -1) {
+						itemMatches = true;
+					}
+					else
+					{
+						itemMatches = false;
+						break;
+					}	
+				}
+
+				if (itemMatches) {
+					out.push(item);
+				}
+			});
+		} else {
+			// Let the output be the input untouched
+			out = items;
+		}
+		return out;
 	};
 })
 .filter('showDisplayValue', function () { // filter that takes the realValue as an input and returns the displayValue

@@ -1,5 +1,6 @@
 /* VERSION: 2019.6.0 */
 
+/* START General */
 /* main theme color; should be called primary ? */
 @main-color: #E9720B;							/* Main color */
 @main-color-inverse: #FFF;						/* Main color inverse */
@@ -60,7 +61,7 @@
 
 /* TODO icons */
 
-/* Sidenav */
+/* START Sidenav */
 @sidenav-color: @secondary-color;
 @sidenav-text-color: @secondary-color-inverse;
 @sidenav-text-font-size: @font-size-h6;
@@ -82,7 +83,7 @@
 @sidenav-secondary-selected-border-color: @main-color-inverse;
 @sidenav-secondary-selected-border-width: 0px 0px 0px 5px; /* Border for selected top-level item top|right|bottom|left */
 
-/* Navbar */
+* START Navbar */
 @navbar-bg: @main-color;								/* Navbar background color; */
 @navbar-bg-highlighted: @main-color-dark; 				/* Navbar highlighted item; */
 @navbar-text-color: @main-color-inverse;				/* Navbar text color; */
@@ -93,7 +94,7 @@
 @navbar-active-border-color:  @main-color-inverse;
 @navbar-active-border-width: 0;
 
-/* Tabs */
+/* START Tabs */
 @tab-bg: @body-bg-inverse;
 @tab-text-color: @text-color;
 @tab-text-transform: uppercase;
@@ -106,14 +107,14 @@
 @tab-active-border-color: @main-color;
 @tab-active-border-width: 0;
 
-/* Windows */
+/* START Windows */
 @window-header-bg : @brand-primary;				/* Window header bg */
 @window-header-color: @brand-primary-inverse;	/* Window header color */
 @window-body-bg: @body-bg;						/* Window body bg */
 @window-footer-bg: @body-bg;					/* Window footer bg */
 @window-border-radius: 6px;						/* Border radius for window and dialogs */
 
-/* Dialogs */
+/* START Dialogs */
 @dialog-info-header-bg: @brand-info;			/* Info Dialog header bg */
 @dialog-info-header-color: @brand-info-inverse; /* Info Dialog header color */
 @dialog-question-header-bg: @window-header-bg;	/* Question Dialog header bg */
@@ -121,7 +122,7 @@
 @dialog-input-header-bg: @window-header-bg;			/* Input and Select Dialog header bg */
 @dialog-input-header-color: @window-header-color;	/* Input and Select Dialog header color */
 
-/* Tables */
+* START Tables */
 @table-bg: inherit;								/* Table bg */
 @table-border-width: 1px;						/* TODO Table border width */
 @table-border-radius: 0;						/* Table border radius */
@@ -157,12 +158,13 @@
 @ngtable-side-button-selected-text-color: @text-color;
 @ngtable-search-field-height: 32px;
 
-/* Breadcrumb specific style */
+/* START Breadcrumb specific style */
 @breadcrumb-bg: @body-bg;
 @breadcrumb-color: @main-color;
 @breadcrumb-selected-color: @text-color;
 
-/* Brand colors applicable to labels and buttons */
+/* START Brand colors */
+/* applicable to labels and buttons */
 @brand-primary: #428bca;
 @brand-tertiary: #E8E6E6;
 @brand-success: #5cb85c;
@@ -197,9 +199,10 @@
 @brand-warning-highlighted-inverse: #FFF;
 @brand-danger-highlighted-inverse:  #FFF;
 
-/* Validations */
+/* START Validations */
 @form-required-label-suffix : "";
 
+/* START Margins and Padding */
 /* Margin sizing applicable to margins and padding */
 @box-size-10 : 10px;
 @box-size-20 : 20px;

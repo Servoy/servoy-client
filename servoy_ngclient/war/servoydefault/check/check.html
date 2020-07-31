@@ -6,6 +6,7 @@
 			ng-click="checkBoxClicked($event)"
             svy-focusgained='handlers.onFocusGainedMethodID($event)'
 	   	    svy-focuslost='handlers.onFocusLostMethodID($event)'
+	   	    svy-attributes='model.attributes'
 			id="{{::model.svyMarkupId}}"
 			/>
 	 <span ng-bind="isInPortal()? '' : model.text" />

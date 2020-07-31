@@ -111,12 +111,19 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 		return false;
 	}
 
+	@SuppressWarnings("nls")
 	@Override
 	public URL getServerURL()
 	{
 		try
 		{
-			return new URL("http://localhost:" + ApplicationServerRegistry.get().getWebServerPort()); //$NON-NLS-1$
+			String port = "";
+			int webServerPort = ApplicationServerRegistry.get().getWebServerPort();
+			if (webServerPort > 0)
+			{
+				port = ":" + webServerPort;
+			}
+			return new URL("http://localhost" + port);
 		}
 		catch (MalformedURLException e)
 		{
@@ -452,6 +459,20 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 		{
 			return '!' + realKey + "!,txt:" + message + ", error:" + e.getMessage(); //$NON-NLS-1$ //$NON-NLS-2$
 		}
+	}
+
+	public static String getDefaultMessage(String key, Locale loc)
+	{
+		String message = null;
+		try
+		{
+			ResourceBundle jar = ResourceBundle.getBundle(Messages.BUNDLE_NAME, loc);
+			message = jar != null ? jar.getString(key) : null;
+		}
+		catch (Exception e)
+		{
+		}
+		return message;
 	}
 
 	private static String getFormattedText(String message, Locale locale, Object[] args)

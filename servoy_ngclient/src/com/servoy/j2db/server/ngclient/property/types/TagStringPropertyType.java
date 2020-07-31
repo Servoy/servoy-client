@@ -16,6 +16,7 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 import org.json.JSONException;
@@ -114,6 +115,14 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (formElementValue != null && valueInTemplate(formElementValue, pd, formElementContext))
 		{
+
+			if (formElementValue.startsWith("i18n:") && formElementContext.getFormElement() != null && formElementContext.getFormElement().isInDesigner() &&
+				formElementContext.getContext() != null &&
+				formElementContext.getContext().getI18nLoader() != null)
+			{
+				formElementValue = formElementContext.getContext().getI18nLoader()
+					.getI18nMessage(formElementContext.getContext().getSolution().getSolution().getI18nDataSource(), formElementValue, Locale.getDefault());
+			}
 			writer.value(formElementValue);
 		}
 		else

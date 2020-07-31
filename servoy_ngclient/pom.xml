@@ -6,10 +6,10 @@
 	<parent>
 		<groupId>com.servoy</groupId>
 		<artifactId>servoy-client</artifactId>
-		<version>2020.6.0.3580_rc</version>
+		<version>2020.9.0.3600_rc</version>
 	</parent>
 	<artifactId>servoy_ngclient</artifactId>
-	<version>2020.6.0.3580_rc</version>
+	<version>2020.9.0.3600_rc</version>
 	<packaging>eclipse-plugin</packaging>
 	<build>
 		<plugins>
@@ -55,7 +55,7 @@
 						</goals>
 						<configuration>
 							<skipTests>${maven.test.skip}</skipTests>
-							<nodeVersion>v10.16.3</nodeVersion>
+							<nodeVersion>v12.18.0</nodeVersion>
 						</configuration>
 					</execution>
 

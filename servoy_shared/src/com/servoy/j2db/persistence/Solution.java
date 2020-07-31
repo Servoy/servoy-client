@@ -1462,6 +1462,12 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_VERSION, version != null ? version.trim() : version);
 	}
 
+	/**
+	 * This is the version of the solution, this can be any kind of string but try to follow "Semantic Versioning".
+	 * This version is important when you are making modules that are distributed by the Servoy Package Manager.
+	 * Then this version is used to know what the developer has installed. This version should be in sync then with the webpackage.json file.
+	 */
+	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
 	public String getVersion()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VERSION);

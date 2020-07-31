@@ -125,10 +125,10 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		{
 			public Class< ? >[] getAllReturnedTypes()
 			{
-				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, Record.class, FoundSet.class, JSTable.class, //
+				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, JSProblem.class, JSValidationObject.class, Record.class, FoundSet.class, JSTable.class, //
 					QBSelect.class, QBAggregate.class, QBColumn.class, QBColumns.class, QBCondition.class, //
 					QBFunction.class, QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBWhereCondition.class, QBResult.class, //
-					QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, QBFunctions.class, QUERY_COLUMN_TYPES.class, ViewFoundSet.class };
+					QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, QBFunctions.class, QUERY_COLUMN_TYPES.class, ViewFoundSet.class, ViewRecord.class };
 			}
 		});
 	}
@@ -157,6 +157,11 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Request lock(s) for a foundset, can be a normal or related foundset.
 	 * The record_index can be -1 to lock all rows, 0 to lock the current row, or a specific row of > 0
 	 * Optionally name the lock(s) so that it can be referenced it in releaseAllLocks()
+	 *
+	 * By default this call doesn't try to lock records in the database itself. But the locks are tracked  in the Servoy Server itself.
+	 * If you need database locking because of others applications that can also read the table or you use the Broadcaster plugin for more then 1 servoy server on the same database,
+	 * you need to set the property 'servoy.record.lock.lockInDB' in the servoy.properties file to true. This will try to do a 'select for update no wait' on databases that supports this.
+	 * This can only be used together with a transaction, so before you aquire the lock a transaction must be started so the database lock is held on to the transaction connection.
 	 *
 	 * returns true if the lock could be acquired.
 	 *
@@ -220,7 +225,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * // some filters with in-conditions
 	 * var success = databaseManager.addTableFilterParam('crm', 'products', 'productcode', 'in', [120, 144, 200])
-	 * var success = databaseManager.addTableFilterParam('crm', 'orders', 'countrycode', 'in', 'select country code from countries where region = "Europe"')
+	 * // use "sql:in" in stead of "in" to allow the value to be interpreted as a custom query
+	 * var success = databaseManager.addTableFilterParam('crm', 'orders', 'countrycode', 'sql:in', 'select country code from countries where region = "Europe"')
 	 *
 	 * // you can use modifiers in the operator as well, filter on companies where companyname is null or equals-ignore-case 'servoy'
 	 * var success = databaseManager.addTableFilterParam('crm', 'companies', 'companyname', '#^||=', 'servoy')
@@ -235,7 +241,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param serverName The name of the database server connection for the specified table name.
 	 * @param tableName The name of the specified table.
 	 * @param dataprovider A specified dataprovider column name.
-	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null).
+	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null), prefix with "sql:" to allow the value to be interpreted as a custom query.
 	 * @param value The specified filter value.
 	 *
 	 * @return true if the tablefilter could be applied.
@@ -314,7 +320,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @param datasource The datasource
 	 * @param dataprovider A specified dataprovider column name.
-	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null).
+	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null), prefix with "sql:" to allow the value to be interpreted as a custom query.
 	 * @param value The specified filter value.
 	 *
 	 * @return true if the tablefilter could be applied.
@@ -333,7 +339,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @param datasource The datasource
 	 * @param dataprovider A specified dataprovider column name.
-	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null).
+	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null), prefix with "sql:" to allow the value to be interpreted as a custom query.
 	 * @param value The specified filter value.
 	 * @param filterName The specified name of the database table filter.
 	 *
@@ -380,7 +386,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param serverName The name of the database server connection for the specified table name.
 	 * @param tableName The name of the specified table.
 	 * @param dataprovider A specified dataprovider column name.
-	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null).
+	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null), prefix with "sql:" to allow the value to be interpreted as a custom query..
 	 * @param value The specified filter value.
 	 * @param filterName The specified name of the database table filter.
 	 *
@@ -1378,7 +1384,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 	/**
 	 * Performs a sql query on the specified server, returns the result in a dataset.
-	 * Will throw an exception if anything did go wrong when executing the query.
+	 * Will throw an exception if query is not a select statement or anything did go wrong when executing the query.
 	 *
 	 * Using this variation of getDataSetByQuery any Tablefilter on the involved tables will be disregarded.
 	 *
@@ -2749,6 +2755,53 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		return true;
 	}
 
+	/**
+	 * @param record The record to validate.
+	 *
+	 * @throws ServoyException
+	 */
+	@JSFunction
+	public JSValidationObject validate(IJSRecord record) throws ServoyException
+	{
+		return validate(record, null);
+	}
+
+	/**
+	 * @param record The record to validate.
+	 * @param state The extra state that is passed on the the validation methods.
+	 *
+	 * @throws ServoyException
+	 */
+	@JSFunction
+	public JSValidationObject validate(IJSRecord record, Object state) throws ServoyException
+	{
+		checkAuthorized();
+		return application.getFoundSetManager().validateRecord((IRecordInternal)record, state);
+	}
+
+//	/**
+//	 * @param record The record to validate.
+//	 *
+//	 * @throws ServoyException
+//	 */
+//	@JSFunction
+//	public JSValidationObject validateRecord(ViewRecord record) throws ServoyException
+//	{
+//		return validateRecord(record, null);
+//	}
+//
+//	/**
+//	 * @param record The record to validate.
+//	 * @param state The extra state that is passed on the the validation methods.
+//	 *
+//	 * @throws ServoyException
+//	 */
+//	@JSFunction
+//	public JSValidationObject validateRecord(ViewRecord record, Object state) throws ServoyException
+//	{
+//		checkAuthorized();
+//		return application.getFoundSetManager().validateRecord(record, state);
+//	}
 
 	/**
 	 * Saves all outstanding (unsaved) data and exits the current record.
@@ -2842,6 +2895,26 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		}
 		return false;
 	}
+
+//	/**
+//	 * @clonedesc saveData()
+//	 *
+//	 * @sampleas saveData()
+//	 *
+//	 * @param record The JSRecord to save.
+//	 *
+//	 * @return true if the save was done without an error.
+//	 */
+//	@JSFunction
+//	public boolean saveData(ViewRecord record) throws ServoyException
+//	{
+//		checkAuthorized();
+//		if (record != null)
+//		{
+//			return ((ViewFoundSet)record.getParentFoundSet()).save(record) == ISaveConstants.STOPPED;
+//		}
+//		return false;
+//	}
 
 	/**
 	 * @clonedesc saveData()
@@ -4208,15 +4281,17 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Free resources allocated for a previously created data source
+	 * Free resources allocated for a previously created data source.
+	 * NOTE: make sure this datasource is not using anymore in forms or components!
+	 * because the inmemory table and the foundset build on that table are all just removed.
 	 *
-	 * @deprecated Deprecated as of release 5.0, not needed anymore.
+	 * Normally this will be automatically done if a client is removed/shutdown, but if constantly new stuff is created
+	 * or you don't need it anymore from what the client currently is using or seeing, then removing this will clean up memory.
 	 *
 	 * @sample databaseManager.removeDataSource(uri);
 	 *
 	 * @param uri
 	 */
-	@Deprecated
 	public boolean js_removeDataSource(String uri)
 	{
 		try

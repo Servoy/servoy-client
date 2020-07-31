@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
@@ -34,6 +35,7 @@ import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
@@ -55,6 +57,7 @@ import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyJSONObject;
 
@@ -87,6 +90,17 @@ class PersistBasedFormElementImpl
 
 	public Map<String, Object> getFormElementPropertyValues(FlattenedSolution fs, Map<String, PropertyDescription> specProperties, PropertyPath propertyPath)
 	{
+		Map<String, String> parsedAttributes = new HashMap<String, String>();
+		if (persist instanceof BaseComponent)
+		{
+			Map<String, String> attributes = new HashMap<String, String>(((BaseComponent)persist).getMergedAttributes());
+			if (attributes != null && attributes.size() > 0)
+			{
+				attributes.forEach((key, value) -> {
+					parsedAttributes.put(StringEscapeUtils.escapeEcmaScript(key), HtmlUtils.escapeMarkup(value, false, false).toString());
+				});
+			}
+		}
 		if (persist instanceof IBasicWebComponent)
 		{
 			if (FormTemplateGenerator.isWebcomponentBean(persist))
@@ -108,6 +122,10 @@ class PersistBasedFormElementImpl
 				{
 					Debug.error("Error while parsing bean design json", ex);
 					jsonMap.put("error", "Error while parsing bean design json(bean not supported in NGClient?): " + persist);
+				}
+				if (parsedAttributes.size() > 0)
+				{
+					jsonMap.put(IContentSpecConstants.PROPERTY_ATTRIBUTES, parsedAttributes);
 				}
 				return jsonMap;
 			}
@@ -134,6 +152,10 @@ class PersistBasedFormElementImpl
 			else if (persist instanceof Portal)
 			{
 				convertFromPortalToNGProperties((Portal)persist, fs, map, specProperties, propertyPath);
+			}
+			if (parsedAttributes.size() > 0)
+			{
+				map.put(IContentSpecConstants.PROPERTY_ATTRIBUTES, parsedAttributes);
 			}
 			return map;
 		}

@@ -25,10 +25,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.NativeJavaMethod;
+import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
+import com.servoy.base.scripting.api.IJSDataSet;
+import com.servoy.base.scripting.api.IJSFoundSet;
+import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.DefaultJavaScope;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -45,6 +56,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	private Map<String, Object> changes;
 	private final List<IModificationListener> modificationListeners;
 	private final ViewFoundSet foundset;
+	private Exception lastException;
 
 	public ViewRecord(String[] columnNames, Object[] data, ViewFoundSet foundset)
 	{
@@ -54,6 +66,26 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 			values.put(columnNames[i], data[i]);
 		}
 		this.modificationListeners = Collections.synchronizedList(new ArrayList<IModificationListener>(3));
+		initJSFunctions(foundset != null ? foundset.getFoundSetManager().getApplication() : null);
+	}
+
+	private Map<String, NativeJavaMethod> jsFunctions;
+
+	@SuppressWarnings("unchecked")
+	private void initJSFunctions(IServiceProvider serviceProvider)
+	{
+		if (serviceProvider != null)
+		{
+			jsFunctions = (Map<String, NativeJavaMethod>)serviceProvider.getRuntimeProperties().get(IServiceProvider.RT_JSVIEWRECORD_FUNCTIONS);
+		}
+		if (jsFunctions == null)
+		{
+			jsFunctions = DefaultJavaScope.getJsFunctions(ViewRecord.class);
+			if (serviceProvider != null)
+			{
+				serviceProvider.getRuntimeProperties().put(IServiceProvider.RT_JSVIEWRECORD_FUNCTIONS, jsFunctions);
+			}
+		}
 	}
 
 	@Override
@@ -101,6 +133,14 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	@Override
 	public Object getValue(String dataProviderID, boolean converted)
 	{
+		if ("foundset".equals(dataProviderID)) //$NON-NLS-1$
+		{
+			return foundset;
+		}
+		if ("exception".equals(dataProviderID)) //$NON-NLS-1$
+		{
+			return lastException;
+		}
 		if (values.containsKey(dataProviderID)) return values.get(dataProviderID);
 		return Scriptable.NOT_FOUND;
 	}
@@ -114,6 +154,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	@Override
 	public boolean has(String dataProviderID)
 	{
+		if ("foundset".equals(dataProviderID) || "exception".equals(dataProviderID) || jsFunctions.containsKey(dataProviderID)) return true; //$NON-NLS-1$ //$NON-NLS-2$
 		return values.containsKey(dataProviderID);
 	}
 
@@ -125,6 +166,20 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 			pk = new Object[] { Utils.calculateMD5HashBase64(RowManager.createPKHashKey(values.values().toArray())) };
 		}
 		return pk;
+	}
+
+	/**
+	 * Returns an array with the primary key values of the record.
+	 *
+	 * @sample
+	 * var pks = foundset.getSelectedRecord().getPKs() // also foundset.getRecord can be used
+	 *
+	 * @return an Array with the pk values.
+	 */
+	@JSFunction
+	public Object[] getPKs()
+	{
+		return getPK();
 	}
 
 	@Override
@@ -149,10 +204,34 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		if (listener != null) modificationListeners.remove(listener);
 	}
 
+
+	/**
+	 * Returns last occurred exception on this record (or null).
+	 *
+	 * @sample
+	 * var exception = record.exception;
+	 *
+	 * @return The occurred exception.
+	 */
+	@JSReadonlyProperty
 	@Override
 	public Exception getException()
 	{
-		return null;
+		return lastException;
+	}
+
+	/**
+	 * Returns parent foundset of the record.
+	 *
+	 * @sample
+	 * var parent = record.foundset;
+	 *
+	 * @return The parent foundset of the record.
+	 */
+	@JSReadonlyProperty
+	public IJSFoundSet getFoundset()
+	{
+		return (IJSFoundSet)foundset;
 	}
 
 	@Override
@@ -300,6 +379,8 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	private Scriptable prototype;
 	private Scriptable parentScope;
 
+	private JSValidationObject validateObject;
+
 	@Override
 	public String getClassName()
 	{
@@ -309,6 +390,12 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	@Override
 	public Object get(String name, Scriptable start)
 	{
+		Object mobj = jsFunctions.get(name);
+		if (mobj != null)
+		{
+			ScriptRuntime.setFunctionProtoAndParent((BaseFunction)mobj, start);
+			return mobj;
+		}
 		Object o = getValue(name);
 		if (o != null && o != Scriptable.NOT_FOUND && !(o instanceof Scriptable))
 		{
@@ -410,8 +497,130 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		return changes;
 	}
 
+	ViewRecord revertChangesImpl()
+	{
+		if (changes != null)
+		{
+			changes.forEach((key, value) -> values.put(key, value));
+		}
+		clearChanges();
+		return this;
+	}
+
 	void clearChanges()
 	{
 		changes = null;
+	}
+
+	/**
+	 * Returns a JSDataSet with outstanding (not saved) changed data of this record.
+	 * column1 is the column name, colum2 is the old data and column3 is the new data.
+	 *
+	 * NOTE: To return an array of records with outstanding changed data, see the function foundset.getEditedRecords().
+	 *
+	 * @sample
+	 * /** @type {JSDataSet} *&#47;
+	 * var dataset = record.getChangedData()
+	 * for( var i = 1 ; i <= dataset.getMaxRowIndex() ; i++ )
+	 * {
+	 * 	application.output(dataset.getValue(i,1) +' '+ dataset.getValue(i,2) +' '+ dataset.getValue(i,3));
+	 * }
+	 *
+	 * @return a JSDataSet with the changed data of this record.
+	 */
+	@JSFunction
+	public IJSDataSet getChangedData()
+	{
+		List<Object[]> rows = new ArrayList<Object[]>();
+		if (changes != null)
+		{
+			changes.forEach((key, value) -> {
+				if (value != null && !Utils.equalObjects(value, values.get(key)))
+				{
+					rows.add(new Object[] { key, value, values.get(key) });
+				}
+			});
+			return new JSDataSet(getParentFoundSet().getFoundSetManager().getApplication(),
+				new BufferedDataSet(new String[] { "col_name", "old_value", "new_value" }, rows)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
+		return new JSDataSet(getParentFoundSet().getFoundSetManager().getApplication(),
+			new BufferedDataSet(new String[] { "col_name", "old_value", "new_value" }, rows));
+	}
+
+	/**
+	 * Returns true if the current record has outstanding/changed data.
+	 *
+	 * @sample
+	 * var hasChanged = record.hasChangedData();
+	 *
+	 * @return true if the current record has outstanding/changed data.
+	 */
+	@JSFunction
+	public boolean hasChangedData()
+	{
+		return changes != null;
+	}
+
+	/**
+	 * Reverts the in memory outstanding (not saved) changes of the record.
+	 *
+	 * @sample
+	 * var record= %%prefix%%foundset.getSelectedRecord();
+	 * record.revertChanges();
+	 */
+	@JSFunction
+	public void revertChanges()
+	{
+		try
+		{
+			// this does a call back to revertChangesImpl
+			foundset.revertEditedRecords(new ViewRecord[] { this });
+		}
+		catch (Exception e)
+		{
+			setLastException(e);
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void setLastException(Exception ex)
+	{
+		lastException = ex;
+	}
+
+	@JSFunction
+	public boolean isNew()
+	{
+		return false;
+	}
+
+	/**
+	 * Returns the validation object if there where validation failures for this record
+	 * Can be set to null again if you checked the problems, will also be set to null when a save was succesful.
+	 *
+	 * @sample
+	 * var validationObject = record.validationObject;
+	 *
+	 * @return The last validtion object if the record was not validated.
+	 */
+	@JSGetter
+	public JSValidationObject getValidationObject()
+	{
+		return validateObject;
+	}
+
+	/**
+	 * Returns the validation object if there where validation failures for this record
+	 * Can be set to null again if you checked the problems, will also be set to null when a save was succesful.
+	 *
+	 * @sample
+	 * var validationObject = record.validationObject;
+	 *
+	 * @return The last validtion object if the record was not validated.
+	 */
+	@JSSetter
+	public void setValidationObject(JSValidationObject object)
+	{
+		validateObject = object;
 	}
 }

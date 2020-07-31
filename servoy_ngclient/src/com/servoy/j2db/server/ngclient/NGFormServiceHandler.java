@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient;
 
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -346,6 +347,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 
 			case "getValuelistDisplayValue" :
 			{
+				String formName = args.optString("formName", null);
 				Object realValue = args.get("realValue");
 				Object valuelistID = args.get("valuelist");
 				int id = Utils.getAsInteger(valuelistID);
@@ -367,8 +369,15 @@ public class NGFormServiceHandler extends FormServiceHandler
 					}
 					if (realValueList instanceof DBValueList)
 					{
+						IRecordInternal formRecord = null;
+						if (formName != null)
+						{
+							IWebFormUI form = getApplication().getFormManager().getForm(formName).getFormUI();
+							formRecord = form.getDataAdapterList().getRecord();
+						}
+
 						LookupValueList lookup = new LookupValueList(val, getApplication(),
-							ComponentFactory.getFallbackValueList(getApplication(), null, Types.OTHER, null, val), null);
+							ComponentFactory.getFallbackValueList(getApplication(), null, Types.OTHER, null, val), null, formRecord);
 						Object displayValue = null;
 						if (lookup.realValueIndexOf(realValue) != -1)
 						{
@@ -387,11 +396,6 @@ public class NGFormServiceHandler extends FormServiceHandler
 				IWebFormUI form = (IWebFormUI)NGClientWindow.getCurrentWindow().getForm(formName);
 				if (form != null)
 				{
-					if (!form.getController().isFormVisible())
-					{
-						Debug.warn("callServerSideApi called on a none visible form: " + formName + " call stopped, returning null");
-						return null;
-					}
 					if (form.getController().getDesignModeCallbacks() != null)
 					{
 						// ignoring all calls from the client
@@ -427,6 +431,48 @@ public class NGFormServiceHandler extends FormServiceHandler
 							{
 								functionSpec = (componentSpec != null ? componentSpec.getApiFunction(componentMethodName) : null);
 							}
+
+							if (!runtimeComponent.getComponent().isVisible() || !form.getController().isFormVisible())
+							{
+								List<String> allowAccessProperties = null;
+								if (functionSpec != null)
+								{
+									String allowAccess = functionSpec.getAllowAccess();
+									if (allowAccess != null)
+									{
+										allowAccessProperties = Arrays.asList(allowAccess.split(","));
+									}
+								}
+
+								if (!runtimeComponent.getComponent().isVisible())
+								{
+									boolean allowAccessComponentVisibility = false;
+									if (allowAccessProperties != null)
+									{
+										for (String p : allowAccessProperties)
+										{
+											allowAccessComponentVisibility = allowAccessComponentVisibility ||
+												runtimeComponent.getComponent().isVisibilityProperty(p);
+										}
+									}
+
+									if (!allowAccessComponentVisibility)
+									{
+										Debug.warn(
+											"callServerSideApi called on a none visible component: " + runtimeComponent + " call stopped, returning null");
+										return null;
+									}
+								}
+								else
+								{
+									if (allowAccessProperties == null || allowAccessProperties.indexOf("visible") == -1)
+									{
+										Debug.warn("callServerSideApi called on a none visible form: " + formName + " call stopped, returning null");
+										return null;
+									}
+								}
+							}
+
 							List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
 
 							// apply conversion

@@ -114,6 +114,12 @@ angular.module('dialogs',['servoy'])
 			dialog.on("shown.bs.modal", function() {
 				$sabloTestability.block(false);
 			})
+			dialog.on('keyup', function (event) {
+      			if (event.key == "Enter") {
+					dialogOpenedDeferred.resolve(dialog.find("select")[0].value);
+					dialog.modal('hide');
+				}
+    		});
 			return dialogOpenedDeferred.promise;
 		},
 		showWarningDialog: function(dialogTitle,dialogMessage,buttonsText) {
@@ -155,6 +161,12 @@ angular.module('dialogs',['servoy'])
 				}	
 			}	
 			var dialog = bootbox.dialog(dialogOptions);
+			dialog.on('keyup', function (event) {
+      			if (event.key == "Enter") {
+					dialogOpenedDeferred.resolve(dialog.find(".btn-primary")[0].innerHTML);
+					dialog.modal('hide');
+				}
+    		});
 			$sabloTestability.block(true);
 			dialog.on("shown.bs.modal", function() {
 				$sabloTestability.block(false);

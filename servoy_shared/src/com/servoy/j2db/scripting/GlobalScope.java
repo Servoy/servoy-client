@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.mozilla.javascript.Callable;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.Scriptable;
 
@@ -65,6 +67,18 @@ public class GlobalScope extends ScriptVariableScope
 		});
 		this.scopeName = scopeName;
 		this.application = application;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.scripting.DefaultScope#getClassName()
+	 */
+	@Override
+	public String getClassName()
+	{
+		if (application == null) return "DestroyedScope_" + scopeName;
+		return "Scope_" + scopeName;
 	}
 
 	@Override
@@ -177,6 +191,22 @@ public class GlobalScope extends ScriptVariableScope
 			}
 			return new NativeJavaArray(this, al.toArray(new String[al.size()]));
 		}
+		if ("__noSuchMethod__".equals(name))
+		{
+			return new Callable()
+			{
+				public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+				{
+					String message = "Trying to call method '" + args[0] + "' on scope: '" + scopeName +
+						"' but it is not found in the runtime compiled functions: " +
+						getDefaultValue(String.class) + ", trying to find the persist for that scope/name: " +
+						application.getFlattenedSolution().getScriptMethod(scopeName, (String)args[0]);
+					Debug.error(message);
+					throw new RuntimeException(
+						message);
+				}
+			};
+		}
 
 		Object o = super.get(name, start);
 		if (o == Scriptable.NOT_FOUND)
@@ -224,6 +254,6 @@ public class GlobalScope extends ScriptVariableScope
 	@Override
 	public String toString()
 	{
-		return "GlobalScope[name:" + scopeName + ", values:" + allVars + ']';
+		return "GlobalScope[name:" + scopeName + ",,destroyed:" + (application == null) + " values:" + allVars + ']';
 	}
 }

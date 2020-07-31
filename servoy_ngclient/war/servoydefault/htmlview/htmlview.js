@@ -10,7 +10,7 @@ angular.module('servoydefaultHtmlview',['servoy']).directive('servoydefaultHtmlv
       link: function($scope, $element, $attrs,ngModelController) {
 //       $scope.style = {width:'100%',height:'100%',overflow:'auto'}
 //       $scope.bgstyle = {left:'0',right:'0',top:'0',height:'100%',position:'relative',display:'block',};
-       
+    	 var element = $element.children().first();
        /**
      	 * Sets the scroll location of an element. It takes as input the X (horizontal) and Y (vertical) coordinates - starting from the TOP LEFT side of the screen - only for an element where the height of the element is greater than the height of element content
      	 * NOTE: getScrollX() can be used with getScrollY() to return the current scroll location of an element; then use the X and Y coordinates with the setScroll function to set a new scroll location. 
@@ -27,8 +27,8 @@ angular.module('servoydefaultHtmlview',['servoy']).directive('servoydefaultHtmlv
      	 * @param y the Y coordinate of the htmlview scroll location in pixels
      	 */
        $scope.api.setScroll = function(x, y) {
-      	 $element.scrollLeft(x);
-      	 $element.scrollTop(y);
+      	 element.scrollLeft(x);
+      	 element.scrollTop(y);
        }
        
        /**
@@ -46,7 +46,7 @@ angular.module('servoydefaultHtmlview',['servoy']).directive('servoydefaultHtmlv
      	  * @return The x scroll location in pixels.
      	  */
        $scope.api.getScrollX = function() {
-      	 return $element.scrollLeft();
+      	 return element.scrollLeft();
        }
        
        /**
@@ -62,7 +62,7 @@ angular.module('servoydefaultHtmlview',['servoy']).directive('servoydefaultHtmlv
         * @return The y scroll location in pixels.
         */
        $scope.api.getScrollY = function() {
-      	 return $element.scrollTop();
+      	 return element.scrollTop();
        }
 
        /**
@@ -83,7 +83,6 @@ angular.module('servoydefaultHtmlview',['servoy']).directive('servoydefaultHtmlv
        $scope.api.getLocationX = $apifunctions.getX($element[0]);
        $scope.api.getLocationY = $apifunctions.getY($element[0]);
        
-		var element = $element.children().first();
 		var className = null;
 		Object.defineProperty($scope.model, 	$sabloConstants.modelChangeNotifier, {
 			configurable : true,

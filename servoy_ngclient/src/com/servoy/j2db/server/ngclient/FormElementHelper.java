@@ -211,7 +211,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		List<IFormElement> formelements = fs.getFlattenedForm(frm).getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
 		for (IFormElement element : formelements)
 		{
-			element = (IFormElement)((AbstractBase)element).clonePersist();
+			element = (IFormElement)((AbstractBase)element).clonePersist(null);
 			// we kind of want to have this element a new uuid, but then it is very hard to get it stable.
 			UUID newElementUUID = null;
 			synchronized (formComponentElementsUUIDS)

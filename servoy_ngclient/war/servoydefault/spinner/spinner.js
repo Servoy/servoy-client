@@ -169,6 +169,7 @@ angular.module('servoydefaultSpinner', [ 'servoy' ]).directive('servoydefaultSpi
 					for (var key in $scope.model) {
 						modelChangFunction(key, $scope.model[key]);
 					}
+					
 				},
 				templateUrl : 'servoydefault/spinner/spinner.html'
 			};

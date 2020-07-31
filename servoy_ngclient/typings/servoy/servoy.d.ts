@@ -108,7 +108,7 @@ declare namespace servoy {
 	
 	interface IServoyI18NService {
 		addDefaultTranslations(translations):void,
-		getI18NMessages():angular.IPromise<{}>, // this uses the arguments as a variable arguments array..
+		getI18NMessages(...keys:string[]):angular.IPromise<{}>, // this uses the arguments as a variable arguments array..
 		getI18NMessage(key:string):string|angular.IPromise<{}>,
 		flush():void,
 	}
@@ -135,7 +135,8 @@ declare namespace servoy {
 		bindTwoWayObjectProperty(a, propertyNameA:string, b, propertyNameB:string, useObjectEquality:boolean, scope:angular.IScope):[()=>void, ()=>void],
 		findAttribute(element:JQuery, parent:angular.IScope, attributeName:string),
 		generateUploadUrl(formname:string,beanname:string,propertyName: string),
-		generateServiceUploadUrl(serviceName:string,apiFunctionName: string)
+		generateServiceUploadUrl(serviceName:string,apiFunctionName: string),
+		getI18NCalendarMessages(datePicker:object)
 	}
 	
 	interface IServoyScope extends angular.IScope {

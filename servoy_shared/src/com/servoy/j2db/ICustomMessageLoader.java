@@ -34,4 +34,6 @@ public interface ICustomMessageLoader
 	TreeMap<String, I18NUtil.MessageEntry> readMessages(String serverName, String tableName) throws RepositoryException;
 
 	void save(String serverName, String tableName, TreeMap<String, I18NUtil.MessageEntry> messages) throws RepositoryException;
+
+	public String getI18nMessage(String i18nDatasource, String key, Locale language);
 }

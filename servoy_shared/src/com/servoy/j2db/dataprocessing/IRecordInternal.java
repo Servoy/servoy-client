@@ -20,7 +20,7 @@ import java.util.List;
 
 /**
  * None public api interface for an {@link IRecord} object.
- * 
+ *
  * @author jblok
  */
 public interface IRecordInternal extends IRecord, IRowChangeListener
@@ -45,4 +45,8 @@ public interface IRecordInternal extends IRecord, IRowChangeListener
 	public Object getValue(String dataProviderID, boolean converted);
 
 	public Object setValue(String dataProviderID, Object value, boolean checkIsEditing);
+
+	public void setValidationObject(JSValidationObject object);
+
+	public JSValidationObject getValidationObject();
 }

@@ -1,10 +1,12 @@
 {
 	"name": "servoycore-formcomponent",
 	"displayName": "FormComponentContainer",
+	"categoryName": "Form Containers",
 	"version": 1,
 	"icon": "servoycore/formcomponent/formcomponent.png",
 	"definition": "servoycore/formcomponent/formcomponent.js", 
 	"libraries": [],	
+	"keywords": [],
 	"model":
 	{
 		"containedForm": "formcomponent",

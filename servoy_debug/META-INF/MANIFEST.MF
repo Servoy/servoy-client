@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy Debug Core Plug-in
 Bundle-SymbolicName: servoy_debug;singleton:=true
-Bundle-Version: 2020.6.0.3580_rc
+Bundle-Version: 2020.9.0.3600_rc
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: Servoy
 Require-Bundle: servoy_headless_client,
@@ -10,7 +10,7 @@ Require-Bundle: servoy_headless_client,
  servoy_smart_client,
  org.eclipse.dltk.javascript.rhino,
  org.eclipse.core.runtime,
- org.eclipse.swt;bundle-version="3.102.1",
+ org.eclipse.swt,
  servoy_ngclient,
  sablo
 Export-Package: com.servoy.j2db.debug,

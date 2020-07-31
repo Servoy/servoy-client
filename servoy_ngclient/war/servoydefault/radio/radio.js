@@ -100,7 +100,7 @@ angular.module('servoydefaultRadio', [ 'servoy' ]).directive('servoydefaultRadio
 			for (var key in $scope.model) {
 				modelChangFunction(key, $scope.model[key]);
 			}
-
+			
 		},
 		templateUrl : 'servoydefault/radio/radio.html'
 	};

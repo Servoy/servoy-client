@@ -197,7 +197,8 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 			var instances = $servoyWindowManager.instances;
 			var formTemplateUrls: { [s: string]: string; } = {};
 			var storage = webStorage.local;
-			var sol = $solutionSettings.solutionName + '.'
+			var sol = $solutionSettings.solutionName + '.';
+			var windowCounter = 0;
 
 			// track main app window size change
 			var mwResizeTimeoutID;
@@ -287,6 +288,10 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 					return loadedState
 				},
 				create: function( name, type ) {
+					webStorage.session.set('window' + windowCounter, {
+						name: name,
+						type: type
+					});
 					// dispose old one
 					if ( instances[name] ) {
 
@@ -366,6 +371,14 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 
 				},
 				show: function( name, form, title ) {
+                    const currentWindow = 'window' + windowCounter;
+					if (webStorage.session.has(currentWindow)) {
+						let window = webStorage.session.get(currentWindow);
+						window.showForm = form;
+						window.showTitle = title;
+						webStorage.session.set(currentWindow, window);
+						windowCounter++;
+					}
 					var instance = instances[name];
 					if ( instance ) {
 						instance.title = title;
@@ -425,6 +438,15 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 					}
 				},
 				hide: function( name ) {
+					var winCounter = 0;
+					while(webStorage.session.has('window' + winCounter)) {
+						let window = webStorage.session.get('window' + winCounter);
+						if (window.name == name) {
+							webStorage.session.remove('window' + winCounter);
+							windowCounter--;
+						} 
+						winCounter++;
+					} 
 					var instance = instances[name];
 					if ( instance ) {
 						if ( instance['loadingIndicatorIsHidden'] ) {
@@ -452,6 +474,15 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 					}
 				},
 				switchForm: function( name, form, navigatorForm ) {
+					const currentWindow = 'window' + windowCounter;
+					if (webStorage.session.has(currentWindow)) {
+						let window = webStorage.session.get(currentWindow);
+						if (!window.switchForm) {
+							window.switchForm = form;
+							window.navigatorForm = navigatorForm;
+							webStorage.session.set(currentWindow, window);
+						}
+					}
 					// if first show of this form in browser window then request initial data (dataproviders and such)
 					$formService.formWillShow( form.name, false ); // false because form was already made visible server-side
 					if ( navigatorForm && navigatorForm.name && navigatorForm.name.lastIndexOf( "default_navigator_container.html" ) == -1 ) {
@@ -476,6 +507,14 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 					}
 				},
 				setTitle: function( name, title ) {
+					const currentWindow = 'window' + windowCounter;
+					if (title && webStorage.session.has(currentWindow)) {
+						let window = webStorage.session.get(currentWindow);
+						if (!window.title) {
+							window.title = title;
+							webStorage.session.set(currentWindow, window);
+						}
+					}
 					if ( instances[name] && instances[name].type != WindowType.WINDOW ) {
 						instances[name].title = title;
 					} else {
@@ -689,10 +728,36 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 							if ( $log.debugEnabled ) $log.debug( "svy * Restoring focus after unneded scrollbars workaround execution failed. Error: " + ie );
 						}
 					}, 0 );
-				}
-			}
-		} );
+				} 
+			} 
+		} ).run(function($sabloApplication, $windowService: servoy.IWindowService, $webSocket ,webStorage) {   
+			
+			// the window must have a form to show
+	        if (webStorage.session.has('window0') && webStorage.session.get('window0').showForm != undefined) { 
+	        	  	let isConnected = false;
+					// wait until the server is connected
+        	  		let interval = setInterval(() => {
+        	  			if ($webSocket.isConnected()) {
+        	  				restoreDialogs();
+        	  			}
+        	  		}, 1000);
+        	  		function restoreDialogs() {  
+        	  			clearInterval(interval);
+    					let counter = 0;
+    					while(webStorage.session.has('window' + counter)) {
+    						let window = webStorage.session.get('window' + counter);
+							// call a couple of methods that will create and display the window
+        	                $windowService.create(window.name, window.type);
+        	                $windowService.switchForm(window.name, window.switchForm, window.navigatorForm);
+        	                $windowService.setTitle(window.name, window.title);
+        	                $windowService.show(window.name, window.showForm, window.showTitle);
+    						counter++;
+    					} 
 
+        	  		}
+	            }
+		});
+ 
 function evalControllerCodeWithoutClosure(controllerCode) {
 	if (controllerCode) {
 		eval(controllerCode);

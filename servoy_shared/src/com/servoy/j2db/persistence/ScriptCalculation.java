@@ -105,12 +105,12 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 				{
 					if (declaration.substring(typeIndex, declaration.indexOf('\n', typeIndex)).indexOf("{UUID}") != -1)
 					{
-						return Column.NORMAL_COLUMN | Column.UUID_COLUMN;
+						return IBaseColumn.NORMAL_COLUMN | IBaseColumn.UUID_COLUMN;
 					}
 				}
 			}
 		}
-		return Column.NORMAL_COLUMN;
+		return IBaseColumn.NORMAL_COLUMN;
 	}
 
 	public int getDataProviderType()

@@ -30,7 +30,7 @@ import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
-import com.servoy.j2db.dataprocessing.Record;
+import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
@@ -43,7 +43,8 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  *
  */
-public class RecordPropertyType extends UUIDReferencePropertyType<Record> implements IClassPropertyType<Record>, IFormElementToTemplateJSON<Record, Record>
+public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInternal>
+	implements IClassPropertyType<IRecordInternal>, IFormElementToTemplateJSON<IRecordInternal, IRecordInternal>
 {
 	public static final RecordPropertyType INSTANCE = new RecordPropertyType();
 	public static final String TYPE_NAME = "record"; //$NON-NLS-1$
@@ -59,10 +60,11 @@ public class RecordPropertyType extends UUIDReferencePropertyType<Record> implem
 	}
 
 	@Override
-	public Record fromJSON(Object newJSONValue, Record previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
+	public IRecordInternal fromJSON(Object newJSONValue, IRecordInternal previousSabloValue, PropertyDescription pd,
+		IBrowserConverterContext dataConverterContext,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
-		Record record = null;
+		IRecordInternal record = null;
 		if (newJSONValue instanceof JSONObject)
 		{
 			JSONObject jsonRecord = (JSONObject)newJSONValue;
@@ -87,7 +89,7 @@ public class RecordPropertyType extends UUIDReferencePropertyType<Record> implem
 							int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
 							if (recordIndex != -1)
 							{
-								return (Record)foundset.getRecord(recordIndex);
+								return foundset.getRecord(recordIndex);
 							}
 						}
 					}
@@ -99,7 +101,7 @@ public class RecordPropertyType extends UUIDReferencePropertyType<Record> implem
 					int recordIndex = fsSablo.getFoundset().getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
 					if (recordIndex != -1)
 					{
-						record = (Record)fsSablo.getFoundset().getRecord(recordIndex);
+						record = fsSablo.getFoundset().getRecord(recordIndex);
 						break;
 					}
 				}
@@ -109,7 +111,7 @@ public class RecordPropertyType extends UUIDReferencePropertyType<Record> implem
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, Record sabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+	public JSONWriter toJSON(JSONWriter writer, String key, IRecordInternal sabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
 		throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
@@ -123,13 +125,13 @@ public class RecordPropertyType extends UUIDReferencePropertyType<Record> implem
 	}
 
 	@Override
-	public Class<Record> getTypeClass()
+	public Class<IRecordInternal> getTypeClass()
 	{
-		return Record.class;
+		return IRecordInternal.class;
 	}
 
 	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Record formElementValue, PropertyDescription pd, FormElementContext formElementContext)
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, IRecordInternal formElementValue, PropertyDescription pd, FormElementContext formElementContext)
 		throws JSONException
 	{
 		if (formElementValue == null) return writer;

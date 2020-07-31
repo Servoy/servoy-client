@@ -1760,7 +1760,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			ViewFoundSet vfs = viewFoundSets.get(dataSource);
 			if (vfs == null) throw new IllegalStateException("The view datasource " + dataSource +
-				" is not registered yet on the form manager, please use databaseManager.getViewFoundSet(name, query, register)  with the register boolean true, or get at design time view through datasourcs.view.xxx.getFoundSet() first before showing a form");
+				" is not registered yet on the form manager, please use databaseManager.getViewFoundSet(name, query, register)  with the register boolean true, or get at design time view through datasources.view.xxx.getFoundSet() first before showing a form");
 			return vfs;
 		}
 		FoundSet foundset = null;
@@ -1893,7 +1893,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			ViewFoundSet vfs = viewFoundSets.get(dataSource);
 			if (vfs == null) throw new IllegalStateException("The view datasource " + dataSource +
-				" is not registered yet on the form manager, please use databaseManager.getViewFoundSet(name, query, register)  with the register boolean true, or get at design time view through datasourcs.view.xxx.getFoundSet() first before showing a form");
+				" is not registered yet on the form manager, please use databaseManager.getViewFoundSet(name, query, register)  with the register boolean true, or get at design time view through datasources.view.xxx.getFoundSet() first before showing a form");
 			return vfs;
 		}
 
@@ -3305,6 +3305,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				sharedDataSourceFoundSet.remove(uri);
 				application.getDataServer().dropTemporaryTable(application.getClientID(), table.getServerName(), table.getName());
+				getSQLGenerator().removeCache(uri);
 				return true;
 			}
 		}
@@ -3354,6 +3355,67 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				}
 			}
 		}
+	}
+
+	@Override
+	public JSValidationObject validateRecord(IRecordInternal record, Object state)
+	{
+		if (record == null) return null;
+		// always reset the validation object
+		record.setValidationObject(null);
+		// first check for a validation entity method
+		ITable table = record.getParentFoundSet().getTable();
+		JSValidationObject validationObject = new JSValidationObject(record);
+		Object[] args = new Object[] { record, validationObject, state };
+		Scriptable scope = record.getParentFoundSet() instanceof Scriptable ? (Scriptable)record.getParentFoundSet() : null;
+		try
+		{
+			executeFoundsetTriggerInternal(table, args, StaticContentSpecLoader.PROPERTY_ONVALIDATEMETHODID, false, true,
+				scope);
+		}
+		catch (ServoyException e)
+		{
+			validationObject.addGenericException(e);
+		}
+
+		if (record.existInDataSource())
+		{
+			try
+			{
+				// if the first returns false it will stop the rest (inline with what we had)
+				if (!executeFoundsetTriggerInternal(table, args, StaticContentSpecLoader.PROPERTY_ONUPDATEMETHODID, true, true,
+					scope))
+				{
+					validationObject.setOnBeforeUpdateFailed();
+				}
+			}
+			catch (ServoyException e)
+			{
+				validationObject.addGenericException(e);
+			}
+		}
+		else
+		{
+			try
+			{
+				// if the first returns false it will stop the rest (inline with what we had)
+				if (!executeFoundsetTriggerInternal(table, args, StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID, true, true,
+					scope))
+				{
+					validationObject.setOnBeforeInsertFailed();
+				}
+			}
+			catch (ServoyException e)
+			{
+				validationObject.addGenericException(e);
+			}
+		}
+		if (validationObject.isInvalid())
+		{
+			record.setValidationObject(validationObject);
+			return validationObject;
+		}
+		return null;
 	}
 
 	public int saveData()

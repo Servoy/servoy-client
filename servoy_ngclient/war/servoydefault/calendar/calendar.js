@@ -1,4 +1,5 @@
-angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCalendar', function($log, $apifunctions, $svyProperties, $sabloConstants,$sabloApplication,$applicationService,$animate) {
+angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCalendar', function($log, $apifunctions, 
+		$svyProperties, $sabloConstants, $sabloApplication, $applicationService, $animate, $utils) {
 	return {
 		restrict : 'E',
 		scope : {
@@ -37,8 +38,11 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 			}	
 			
 			child.datetimepicker(options);
+			
 			var theDateTimePicker = child.data('DateTimePicker');
-
+			//this method sets locale tooltips for the buttons in the datepickers
+			$utils.getI18NCalendarMessages(theDateTimePicker);
+					
 			if ($scope.model.format && $scope.model.format.isMask)
 			{
 				// delete shortcut clears the date; this interferes(behaves strange) with mask, so cancel the shortcut in this scenario 
@@ -227,7 +231,6 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 			$scope.api.onDataChangeCallback = function(event, returnval) {
 				var stringValue = typeof returnval == 'string'
 				if (returnval === false || stringValue) {
-					$element[0].focus();
 					ngModel.$setValidity("", false);
 					if (stringValue) {
 						if (storedTooltip == false)

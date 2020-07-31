@@ -148,7 +148,7 @@ public class WebServiceScriptable implements Scriptable
 	 * Compiles the server side script, enabled debugging if possible.
 	 * It returns the $scope object
 	 */
-	public static Scriptable compileServerScript(URL serverScript, Scriptable model, IApplication app)
+	public static Scriptable compileServerScript(URL serverScript, Scriptable model, INGApplication app)
 	{
 		Scriptable scopeObject = null;
 		Context context = Context.enter();

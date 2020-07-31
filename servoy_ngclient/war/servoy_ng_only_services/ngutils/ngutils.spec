@@ -63,12 +63,19 @@
 		},
 		"printDocument": {
 			"parameters": [{ "name": "url", "type": "string" }]
+		},
+		"getAbsoluteLocation": {
+			"parameters": [{ "name": "component", "type": "runtimecomponent" }],
+			"returns": "point"
+		},
+		"setLangAttribute": {
+			"parameters": [{ "name": "lang", "type": "string" }]
 		}
 	},
 
 	"types": {
 		"tag": {
-			"tagname": "string",
+			"tagName": "string",
 			"attrs": "attribute[]"
 		},
 		"attribute": {

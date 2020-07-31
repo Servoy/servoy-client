@@ -188,12 +188,7 @@ public class DatabaseUtils
 			ci.setAutoEnterSubType(ColumnInfo.SERVOY_SEQUENCE);
 			ci.setSequenceStepSize(1);
 		}
-		if (c.isUUID())
-		{
-			c.setFlag(IBaseColumn.UUID_COLUMN, true);
-			if (c.isDatabasePK()) c.setSequenceType(ColumnInfo.UUID_GENERATOR);
-		}
-		c.setFlag(IBaseColumn.NATIVE_COLUMN, c.isNativetype());
+		if (c.isUUID() && c.isDatabasePK()) c.setSequenceType(ColumnInfo.UUID_GENERATOR);
 		ci.setFlags(c.getFlags()); // when column has no columninfo and no flags it will return Column.PK_COLUMN for db pk column.
 		c.setColumnInfo(ci);
 	}

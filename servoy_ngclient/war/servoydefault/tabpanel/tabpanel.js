@@ -1,4 +1,4 @@
-angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpanel', function($window, $log, $apifunctions,$timeout,$anchorConstants) {  
+angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpanel', function($window, $log, $apifunctions,$timeout,$anchorConstants,$svyProperties) {  
 	return {
 		restrict: 'E',
 		transclude: true,
@@ -679,6 +679,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			$scope.api.getName = function() {
 				return $scope.model.name;
 			}
+			
 		},
 		template: "<div style='height:100%;width:100%;position:absolute;' svy-border='model.borderType'svy-font='model.fontType'><div ng-include='getTemplateUrl()' class='relativeMaxSize'></div></div>"
 	};

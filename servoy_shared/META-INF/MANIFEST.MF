@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy Shared Plug-in
 Bundle-SymbolicName: servoy_shared;singleton:=true
-Bundle-Version: 2020.6.0.3580_rc
+Bundle-Version: 2020.9.0.3600_rc
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: Servoy
 Bundle-ClassPath: .,
@@ -23,7 +23,7 @@ Bundle-ClassPath: .,
 Require-Bundle: org.eclipse.dltk.javascript.rhino,
  sablo,
  servoy_base;visibility:=reexport,
- org.apache.commons.io;bundle-version="2.6.0",
+ org.apache.commons.io,
  org.apache.logging.log4j.api,
  org.apache.logging.log4j.core,
  org.apache.commons.codec,
