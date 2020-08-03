@@ -420,6 +420,10 @@ public class SQLSheet
 					IColumnValidator validator = columnValidatorManager.getValidator(validatorInfo.getLeft());
 					if (validator == null)
 					{
+						Debug.error("Column '" + dataProviderID +
+								"' does have column validator  information, but either the validator '" + validatorInfo.getLeft() +
+								"'  is not available, is the validator installed? (default default_validators.jar in the plugins) or the validator information is incorrect.");
+
 						throw new IllegalStateException(Messages.getString("servoy.error.validatorNotFound", new Object[] { validatorInfo.getLeft() })); //$NON-NLS-1$
 					}
 					if (validator instanceof IColumnValidator2)
@@ -535,7 +539,8 @@ public class SQLSheet
 				else
 				{
 					Debug.error("Column '" + dataProviderID +
-						"' does have column converter information, but either the converter (type) is not available or the converter information is incorrect.");
+						"' does have column converter information, but either the converter '" + converterInfo.converterName +
+						"'  (type) is not available, is the converter installed? (default converters.jar in the plugins) or the converter information is incorrect.");
 					throw new IllegalArgumentException(Messages.getString("servoy.record.error.gettingDataprovider", //$NON-NLS-1$
 						new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type) }));
 				}
