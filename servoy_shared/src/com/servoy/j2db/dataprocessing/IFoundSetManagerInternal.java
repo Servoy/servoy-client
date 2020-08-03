@@ -222,5 +222,5 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	 * @param state
 	 * @return
 	 */
-	public JSValidationObject validateRecord(IRecordInternal record, Object state);
+	public JSRecordMarkers validateRecord(IRecordInternal record, Object state);
 }

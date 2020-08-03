@@ -421,20 +421,20 @@ public class SQLSheet
 					if (validator == null)
 					{
 						Debug.error("Column '" + dataProviderID +
-								"' does have column validator  information, but either the validator '" + validatorInfo.getLeft() +
-								"'  is not available, is the validator installed? (default default_validators.jar in the plugins) or the validator information is incorrect.");
+							"' does have column validator  information, but either the validator '" + validatorInfo.getLeft() +
+							"'  is not available, is the validator installed? (default default_validators.jar in the plugins) or the validator information is incorrect.");
 
 						throw new IllegalStateException(Messages.getString("servoy.error.validatorNotFound", new Object[] { validatorInfo.getLeft() })); //$NON-NLS-1$
 					}
 					if (validator instanceof IColumnValidator2)
 					{
-						JSValidationObject validationObject = new JSValidationObject(record instanceof IRecord ? (IRecord)record : null, application);
-						((IColumnValidator2)validator).validate(validatorInfo.getRight(), convertedValue, dataProviderID, validationObject, null);
-						if (validationObject.isInvalid())
+						JSRecordMarkers recordMarkers = new JSRecordMarkers(record instanceof IRecord ? (IRecord)record : null, application);
+						((IColumnValidator2)validator).validate(validatorInfo.getRight(), convertedValue, dataProviderID, recordMarkers, null);
+						if (recordMarkers.isInvalid())
 						{
-							if (validationObject.getProblems().length == 1)
+							if (recordMarkers.getMarkers().length == 1)
 							{
-								throw new IllegalArgumentException(validationObject.getProblems()[0].getI18NMessage());
+								throw new IllegalArgumentException(recordMarkers.getMarkers()[0].getI18NMessage());
 							}
 							else
 							{

@@ -502,7 +502,7 @@ public class EditRecordList
 							boolean validationErrors = false;
 							try
 							{
-								JSValidationObject validateObject = fsm.validateRecord(record, null);
+								JSRecordMarkers validateObject = fsm.validateRecord(record, null);
 								if (validateObject != null && validateObject.isHasErrors()) // throws ServoyException when trigger method throws exception
 								{
 									Object[] genericExceptions = validateObject.getGenericExceptions();
@@ -731,10 +731,10 @@ public class EditRecordList
 						}
 						row.setLastException((Exception)retValue);
 						markRecordAsFailed(record);
-						JSValidationObject vo = record.getValidationObject() != null ? record.getValidationObject()
-							: new JSValidationObject(record, fsm.getApplication());
+						JSRecordMarkers vo = record.getRecordMarkers() != null ? record.getRecordMarkers()
+							: new JSRecordMarkers(record, fsm.getApplication());
 						vo.addGenericException((Exception)retValue);
-						record.setValidationObject(vo);
+						record.setRecordMarkers(vo);
 						continue;
 					}
 					else if (retValue instanceof Object[])
@@ -797,10 +797,10 @@ public class EditRecordList
 					lastStopEditingException = e;
 					failedCount++;
 					row.setLastException(e);
-					JSValidationObject vo = record.getValidationObject() != null ? record.getValidationObject()
-						: new JSValidationObject(record, fsm.getApplication());
+					JSRecordMarkers vo = record.getRecordMarkers() != null ? record.getRecordMarkers()
+						: new JSRecordMarkers(record, fsm.getApplication());
 					vo.addGenericException(e);
-					record.setValidationObject(vo);
+					record.setRecordMarkers(vo);
 					editRecordsLock.lock();
 					try
 					{
@@ -872,10 +872,10 @@ public class EditRecordList
 						lastStopEditingException = e;
 						failedCount++;
 						rowUpdateInfoRecord.getRawData().setLastException(e);
-						JSValidationObject vo = rowUpdateInfoRecord.getValidationObject() != null ? rowUpdateInfoRecord.getValidationObject()
-							: new JSValidationObject(rowUpdateInfoRecord, fsm.getApplication());
+						JSRecordMarkers vo = rowUpdateInfoRecord.getRecordMarkers() != null ? rowUpdateInfoRecord.getRecordMarkers()
+							: new JSRecordMarkers(rowUpdateInfoRecord, fsm.getApplication());
 						vo.addGenericException(e);
-						rowUpdateInfoRecord.setValidationObject(vo);
+						rowUpdateInfoRecord.setRecordMarkers(vo);
 						editRecordsLock.lock();
 						try
 						{

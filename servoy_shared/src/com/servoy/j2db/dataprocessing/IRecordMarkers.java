@@ -18,10 +18,10 @@
 package com.servoy.j2db.dataprocessing;
 
 /**
- * @author jcomp
- *
+ * @author jcompagner
+ * @since 2020.09
  */
-public interface IValidationObject
+public interface IRecordMarkers
 {
 
 	/**

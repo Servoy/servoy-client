@@ -21,7 +21,7 @@ import java.util.Map;
 
 /**
  * Implement this ColumnValidator interface if you want to get more information into the validate method
- * A  {@link IValidationObject} and an optional state is given that can be passed on to the actual validation and
+ * A  {@link IRecordMarkers} and an optional state is given that can be passed on to the actual validation and
  * problems can be reported on that instead of throwing exceptions.
  *
  * @author jcompagner
@@ -32,13 +32,13 @@ public interface IColumnValidator2 extends IColumnValidator
 {
 
 	/**
-	 * Validate an argument, repots against the {@link IValidationObject} if there are problems.
+	 * Validate an argument, repots against the {@link IRecordMarkers} if there are problems.
 	 *
 	 * @param props
 	 * @param value
-	 * @param validationObject
+	 * @param recordMarkers
 	 * @param state
 	 */
-	public void validate(Map<String, String> props, Object value, String dataprovider, IValidationObject validationObject, Object state);
+	public void validate(Map<String, String> props, Object value, String dataprovider, IRecordMarkers recordMarkers, Object state);
 
 }

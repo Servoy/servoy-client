@@ -46,7 +46,7 @@ public interface IRecordInternal extends IRecord, IRowChangeListener
 
 	public Object setValue(String dataProviderID, Object value, boolean checkIsEditing);
 
-	public void setValidationObject(JSValidationObject object);
+	public void setRecordMarkers(JSRecordMarkers object);
 
-	public JSValidationObject getValidationObject();
+	public JSRecordMarkers getRecordMarkers();
 }

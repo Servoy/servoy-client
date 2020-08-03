@@ -3360,15 +3360,15 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	@SuppressWarnings("nls")
 	@Override
-	public JSValidationObject validateRecord(IRecordInternal record, Object state)
+	public JSRecordMarkers validateRecord(IRecordInternal record, Object state)
 	{
 		if (record == null) return null;
 		// always reset the validation object
-		record.setValidationObject(null);
+		record.setRecordMarkers(null);
 		// first check for a validation entity method
 		ITable table = record.getParentFoundSet().getTable();
-		JSValidationObject validationObject = new JSValidationObject(record, application);
-		Object[] args = new Object[] { record, validationObject, state };
+		JSRecordMarkers recordMarkers = new JSRecordMarkers(record, application);
+		Object[] args = new Object[] { record, recordMarkers, state };
 		Scriptable scope = record.getParentFoundSet() instanceof Scriptable ? (Scriptable)record.getParentFoundSet() : null;
 		try
 		{
@@ -3377,7 +3377,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 		catch (ServoyException e)
 		{
-			validationObject.addGenericException(e);
+			recordMarkers.addGenericException(e);
 		}
 
 		if (record.existInDataSource())
@@ -3388,12 +3388,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				if (!executeFoundsetTriggerInternal(table, args, StaticContentSpecLoader.PROPERTY_ONUPDATEMETHODID, true, true,
 					scope))
 				{
-					validationObject.setOnBeforeUpdateFailed();
+					recordMarkers.setOnBeforeUpdateFailed();
 				}
 			}
 			catch (ServoyException e)
 			{
-				validationObject.addGenericException(e);
+				recordMarkers.addGenericException(e);
 			}
 		}
 		else
@@ -3404,12 +3404,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				if (!executeFoundsetTriggerInternal(table, args, StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID, true, true,
 					scope))
 				{
-					validationObject.setOnBeforeInsertFailed();
+					recordMarkers.setOnBeforeInsertFailed();
 				}
 			}
 			catch (ServoyException e)
 			{
-				validationObject.addGenericException(e);
+				recordMarkers.addGenericException(e);
 			}
 		}
 
@@ -3423,7 +3423,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				if (rawValue == null || ("".equals(rawValue) && Column.mapToDefaultType(column.getType()) == IColumnTypes.TEXT))
 				{
-					validationObject.report("i18n:servoy.record.error.null.not.allowed", column.getDataProviderID(), ILogLevel.ERROR, state,
+					recordMarkers.report("i18n:servoy.record.error.null.not.allowed", column.getDataProviderID(), ILogLevel.ERROR, state,
 						new Object[] { column.getDataProviderID() });
 					// this would result normally in an Record.exception so for now also set that
 					record.getRawData().setLastException(
@@ -3439,7 +3439,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				int valueLen = Column.getObjectSize(rawValue, column.getType());
 				if (valueLen > 0 && column.getLength() > 0 && valueLen > column.getLength()) // insufficient space to save value
 				{
-					validationObject.report("i18n:servoy.record.error.columnSizeTooSmall", column.getDataProviderID(), ILogLevel.ERROR, state,
+					recordMarkers.report("i18n:servoy.record.error.columnSizeTooSmall", column.getDataProviderID(), ILogLevel.ERROR, state,
 						new Object[] { column.getDataProviderID(), Integer.valueOf(column.getLength()), rawValue });
 				}
 				Pair<String, Map<String, String>> validatorInfo = sqlSheet.getColumnValidatorInfo(sqlSheet.getColumnIndex(column.getDataProviderID()));
@@ -3452,7 +3452,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 							"' does have column validator  information, but either the validator '" + validatorInfo.getLeft() +
 							"'  is not available, is the validator installed? (default default_validators.jar in the plugins) or the validator information is incorrect.");
 
-						validationObject.report("i18n:servoy.error.validatorNotFound", column.getDataProviderID(), ILogLevel.ERROR, state,
+						recordMarkers.report("i18n:servoy.error.validatorNotFound", column.getDataProviderID(), ILogLevel.ERROR, state,
 							new Object[] { validatorInfo.getLeft() });
 					}
 					else
@@ -3461,7 +3461,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 						{
 							if (validator instanceof IColumnValidator2)
 							{
-								((IColumnValidator2)validator).validate(validatorInfo.getRight(), rawValue, column.getDataProviderID(), validationObject,
+								((IColumnValidator2)validator).validate(validatorInfo.getRight(), rawValue, column.getDataProviderID(), recordMarkers,
 									state);
 							}
 							else
@@ -3471,7 +3471,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 						}
 						catch (IllegalArgumentException e)
 						{
-							validationObject.report("i18n:servoy.record.error.validation", column.getDataProviderID(), ILogLevel.ERROR, state,
+							recordMarkers.report("i18n:servoy.record.error.validation", column.getDataProviderID(), ILogLevel.ERROR, state,
 								new Object[] { column.getDataProviderID(), rawValue, e.getMessage() });
 						}
 					}
@@ -3480,10 +3480,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		});
 
 
-		if (validationObject.isInvalid())
+		if (recordMarkers.isInvalid())
 		{
-			record.setValidationObject(validationObject);
-			return validationObject;
+			record.setRecordMarkers(recordMarkers);
+			return recordMarkers;
 		}
 		return null;
 	}

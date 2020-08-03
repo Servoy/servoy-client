@@ -28,7 +28,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSProblem implements IJavaScriptType
+public class JSRecordMarker implements IJavaScriptType
 {
 	private final String message;
 	private final String column;
@@ -46,7 +46,7 @@ public class JSProblem implements IJavaScriptType
 	 * @param customObject
 	 * @param messageKeyParams
 	 */
-	public JSProblem(IRecord record, I18NProvider application, String message, String column, int level, Object customObject, Object[] messageKeyParams)
+	public JSRecordMarker(IRecord record, I18NProvider application, String message, String column, int level, Object customObject, Object[] messageKeyParams)
 	{
 		this.record = record;
 		this.application = application;
@@ -106,7 +106,7 @@ public class JSProblem implements IJavaScriptType
 	}
 
 	/**
-	 * The LOGGINGLEVEL the users did give the the JSValidationObject.report() method.
+	 * The LOGGINGLEVEL the users did give the the JSRecordMarkers.report() method.
 	 *
 	 * @return the level
 	 */
@@ -117,7 +117,7 @@ public class JSProblem implements IJavaScriptType
 	}
 
 	/**
-	 * The custom object the users did give the the JSValidationObject.report() method.
+	 * The custom object the users did give the the JSrecordMarkers.report() method.
 	 *
 	 * @return the customObject
 	 */
@@ -132,7 +132,7 @@ public class JSProblem implements IJavaScriptType
 	@Override
 	public String toString()
 	{
-		return "JSProblem[message=" + message + ", column=" + column + ", level=" + level + ", customObject=" + customObject + ", record=" + record + "]";
+		return "JSRecordMarker[message=" + message + ", column=" + column + ", level=" + level + ", customObject=" + customObject + ", record=" + record + "]";
 	}
 
 }

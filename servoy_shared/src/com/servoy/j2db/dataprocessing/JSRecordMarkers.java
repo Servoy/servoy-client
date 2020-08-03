@@ -34,12 +34,12 @@ import com.servoy.j2db.util.ILogLevel;
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class JSValidationObject implements IJavaScriptType, IValidationObject
+public class JSRecordMarkers implements IJavaScriptType, IRecordMarkers
 {
 	private final IRecord record;
 	private final I18NProvider application;
 	private final List<Exception> genericExceptions = new ArrayList<>(3);
-	private final List<JSProblem> problems = new ArrayList<>(3);
+	private final List<JSRecordMarker> markers = new ArrayList<>(3);
 	private boolean invalid = false;
 	private boolean onBeforeUpdateFailed;
 	private boolean onBeforeInsertFailed;
@@ -47,7 +47,7 @@ public class JSValidationObject implements IJavaScriptType, IValidationObject
 	/**
 	 * @param record
 	 */
-	public JSValidationObject(IRecord record, I18NProvider application)
+	public JSRecordMarkers(IRecord record, I18NProvider application)
 	{
 		this.record = record;
 		this.application = application;
@@ -85,11 +85,11 @@ public class JSValidationObject implements IJavaScriptType, IValidationObject
 	@JSReadonlyProperty
 	public boolean isHasErrors()
 	{
-		return onBeforeInsertFailed || onBeforeUpdateFailed || genericExceptions.size() > 0 || problems.stream().anyMatch(problem -> problem.getLevel() >= 3);
+		return onBeforeInsertFailed || onBeforeUpdateFailed || genericExceptions.size() > 0 || markers.stream().anyMatch(problem -> problem.getLevel() >= 3);
 	}
 
 	/**
-	 * The record for which this JSValidationObject is for.
+	 * The record for which this JSRecordMarkers is for.
 	 * @return the record
 	 */
 	@JSReadonlyProperty
@@ -131,7 +131,7 @@ public class JSValidationObject implements IJavaScriptType, IValidationObject
 	public void report(String message, String dataprovider, int level, Object customObject, Object[] messageKeyParams)
 	{
 		invalid = true;
-		problems.add(new JSProblem(record, application, message, dataprovider, level, customObject, messageKeyParams));
+		markers.add(new JSRecordMarker(record, application, message, dataprovider, level, customObject, messageKeyParams));
 	}
 
 	/**
@@ -169,9 +169,9 @@ public class JSValidationObject implements IJavaScriptType, IValidationObject
 	 * @return all the problems that where reported by a report() call.
 	 */
 	@JSFunction
-	public JSProblem[] getProblems()
+	public JSRecordMarker[] getMarkers()
 	{
-		return problems.toArray(new JSProblem[problems.size()]);
+		return markers.toArray(new JSRecordMarker[markers.size()]);
 	}
 
 
@@ -179,7 +179,7 @@ public class JSValidationObject implements IJavaScriptType, IValidationObject
 	@Override
 	public String toString()
 	{
-		return "JSValidationObject[problems=" + problems + ", onBeforeUpdateFailed=" + onBeforeUpdateFailed +
+		return "JSRecordMarkers[markers=" + markers + ", onBeforeUpdateFailed=" + onBeforeUpdateFailed +
 			", onBeforeInsertFailed=" + onBeforeInsertFailed + ", genericExceptions=" + genericExceptions + ", record=" + record + "]";
 	}
 

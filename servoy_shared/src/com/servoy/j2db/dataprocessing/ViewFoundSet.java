@@ -698,21 +698,21 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 	/**
 	 * Validates the given record, it runs first the method that is attached to the entity event "onValidate".
-	 * Those methods do get a parameter JSValidationObject where the problems can be reported against.
+	 * Those methods do get a parameter JSRecordMarkers where the problems can be reported against.
 	 * All columns are then also null/empty checked and if they are and the Column is marked as "not null" an error will be
 	 * added with the message key "servoy.record.error.null.not.allowed" for that column.
 	 *
 	 * An extra state object can be given that will also be passed around if you want to have more state in the validation objects
 	 * (like giving some ui state so the entity methods know where you come from)
 	 *
-	 * It will return a JSValidationObject when the record had validaiton problems
+	 * It will return a JSRecordMarkers when the record had validaiton problems
 	 *
 	 * @param record
 	 *
-	 * @return Returns a JSValidationObject if the record has validation problems
+	 * @return Returns a JSRecordMarkers if the record has validation problems
 	 */
 	@JSFunction
-	public JSValidationObject validate(ViewRecord record)
+	public JSRecordMarkers validate(ViewRecord record)
 	{
 		return validate(record, null);
 	}
@@ -726,7 +726,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 * @param state The extra state to give to the validate method.
 	 */
 	@JSFunction
-	public JSValidationObject validate(ViewRecord record, Object state)
+	public JSRecordMarkers validate(ViewRecord record, Object state)
 	{
 		return manager.validateRecord(record, state);
 	}
