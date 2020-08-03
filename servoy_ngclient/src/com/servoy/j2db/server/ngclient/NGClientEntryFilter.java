@@ -260,119 +260,124 @@ public class NGClientEntryFilter extends WebEntry
 		{
 			HttpServletRequest request = (HttpServletRequest)servletRequest;
 			HttpServletResponse response = (HttpServletResponse)servletResponse;
-			if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
-			String uri = request.getRequestURI();
-
-			if (handleShortSolutionRequest(request, response))
+			if ("GET".equalsIgnoreCase(request.getMethod()))
 			{
-				return;
-			}
+				if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
+				String uri = request.getRequestURI();
 
-			if (handleDeeplink(request, response))
-			{
-				return;
-			}
-
-			if (handleRecording(request, response))
-			{
-				return;
-			}
-
-
-			if (uri != null && (uri.endsWith(".html") || uri.endsWith(".js")))
-			{
-				String solutionName = getSolutionNameFromURI(uri);
-				if (solutionName != null)
+				if (handleShortSolutionRequest(request, response))
 				{
-					String clientnr = getClientNr(uri, request);
-					INGClientWebsocketSession wsSession = null;
-					HttpSession httpSession = request.getSession(false);
-					if (clientnr != null && httpSession != null)
+					return;
+				}
+
+				if (handleDeeplink(request, response))
+				{
+					return;
+				}
+
+				if (handleRecording(request, response))
+				{
+					return;
+				}
+
+
+				if (uri != null && (uri.endsWith(".html") || uri.endsWith(".js")))
+				{
+					String solutionName = getSolutionNameFromURI(uri);
+					if (solutionName != null)
 					{
-						wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, Integer.parseInt(clientnr));
-					}
-					FlattenedSolution fs = null;
-					boolean closeFS = false;
-					if (wsSession != null)
-					{
-						fs = wsSession.getClient().getFlattenedSolution();
-					}
-					if (fs == null)
-					{
-						try
+						String clientnr = getClientNr(uri, request);
+						INGClientWebsocketSession wsSession = null;
+						HttpSession httpSession = request.getSession(false);
+						if (clientnr != null && httpSession != null)
 						{
-							closeFS = true;
-							IApplicationServer as = ApplicationServerRegistry.getService(IApplicationServer.class);
-							if (applicationServerUnavailable(response, as))
+							wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, Integer.parseInt(clientnr));
+						}
+						FlattenedSolution fs = null;
+						boolean closeFS = false;
+						if (wsSession != null)
+						{
+							fs = wsSession.getClient().getFlattenedSolution();
+						}
+						if (fs == null)
+						{
+							try
 							{
-								return;
-							}
-
-							SolutionMetaData solutionMetaData = (SolutionMetaData)ApplicationServerRegistry.get().getLocalRepository().getRootObjectMetaData(
-								solutionName, SOLUTIONS);
-							if (solutionMissing(response, solutionName, solutionMetaData))
-							{
-								return;
-							}
-
-							fs = new FlattenedSolution(solutionMetaData, new AbstractActiveSolutionHandler(as)
-							{
-								@Override
-								public IRepository getRepository()
+								closeFS = true;
+								IApplicationServer as = ApplicationServerRegistry.getService(IApplicationServer.class);
+								if (applicationServerUnavailable(response, as))
 								{
-									return ApplicationServerRegistry.get().getLocalRepository();
+									return;
 								}
-							});
-						}
-						catch (Exception e)
-						{
-							Debug.error("error loading solution: " + solutionName + " for clientnr: " + clientnr, e);
-						}
-					}
 
-					if (fs != null)
-					{
-						try
-						{
-							if (handleMainJs(request, response, fs))
+								SolutionMetaData solutionMetaData = (SolutionMetaData)ApplicationServerRegistry.get().getLocalRepository()
+									.getRootObjectMetaData(
+										solutionName, SOLUTIONS);
+								if (solutionMissing(response, solutionName, solutionMetaData))
+								{
+									return;
+								}
+
+								fs = new FlattenedSolution(solutionMetaData, new AbstractActiveSolutionHandler(as)
+								{
+									@Override
+									public IRepository getRepository()
+									{
+										return ApplicationServerRegistry.get().getLocalRepository();
+									}
+								});
+							}
+							catch (Exception e)
 							{
+								Debug.error("error loading solution: " + solutionName + " for clientnr: " + clientnr, e);
+							}
+						}
+
+						if (fs != null)
+						{
+							try
+							{
+								if (handleMainJs(request, response, fs))
+								{
+									return;
+								}
+
+								if (handleForm(request, response, wsSession, fs))
+								{
+									return;
+								}
+
+								if (handleMaintenanceMode(request, response, wsSession))
+								{
+									return;
+								}
+
+								// prepare for possible index.html lookup
+								Map<String, Object> variableSubstitution = getSubstitutions(request, solutionName, clientnr, fs);
+
+								List<String> extraMeta = new ArrayList<String>();
+								addManifest(fs, extraMeta);
+								addHeadIndexContributions(fs, extraMeta);
+
+								super.doFilter(servletRequest, servletResponse, filterChain, asList(SERVOY_CSS),
+									new ArrayList<String>(getFormScriptReferences(fs)),
+									extraMeta, variableSubstitution, getContentSecurityPolicyConfig(request));
 								return;
 							}
-
-							if (handleForm(request, response, wsSession, fs))
+							finally
 							{
-								return;
-							}
-
-							if (handleMaintenanceMode(request, response, wsSession))
-							{
-								return;
-							}
-
-							// prepare for possible index.html lookup
-							Map<String, Object> variableSubstitution = getSubstitutions(request, solutionName, clientnr, fs);
-
-							List<String> extraMeta = new ArrayList<String>();
-							addManifest(fs, extraMeta);
-							addHeadIndexContributions(fs, extraMeta);
-
-							super.doFilter(servletRequest, servletResponse, filterChain, asList(SERVOY_CSS), new ArrayList<String>(getFormScriptReferences(fs)),
-								extraMeta, variableSubstitution, getContentSecurityPolicyConfig(request));
-							return;
-						}
-						finally
-						{
-							if (closeFS)
-							{
-								fs.close(null);
+								if (closeFS)
+								{
+									fs.close(null);
+								}
 							}
 						}
 					}
 				}
-			}
 
-			if (!uri.contains(ModifiablePropertiesGenerator.PUSH_TO_SERVER_BINDINGS_LIST))
-				Debug.log("No solution found for this request, calling the default filter: " + uri);
+				if (!uri.contains(ModifiablePropertiesGenerator.PUSH_TO_SERVER_BINDINGS_LIST))
+					Debug.log("No solution found for this request, calling the default filter: " + uri);
+			}
 			super.doFilter(servletRequest, servletResponse, filterChain, null, null, null, null, null);
 		}
 		catch (RuntimeException | Error e)
