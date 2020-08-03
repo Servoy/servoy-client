@@ -3448,6 +3448,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					IColumnValidator validator = columnValidatorManager.getValidator(validatorInfo.getLeft());
 					if (validator == null)
 					{
+						Debug.error("Column '" + column.getDataProviderID() +
+							"' does have column validator  information, but either the validator '" + validatorInfo.getLeft() +
+							"'  is not available, is the validator installed? (default default_validators.jar in the plugins) or the validator information is incorrect.");
+
 						validationObject.report("i18n:servoy.error.validatorNotFound", column.getDataProviderID(), ILogLevel.ERROR, state,
 							new Object[] { validatorInfo.getLeft() });
 					}
