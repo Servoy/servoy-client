@@ -264,6 +264,7 @@ public class Row
 				((DbIdentValue)o).setPkValue(value);
 			}
 			columndata[identindex] = value;
+			parent.pkUpdated(this);
 			FireCollector collector = FireCollector.getFireCollector();
 			try
 			{
