@@ -1017,6 +1017,17 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		}
 	}
 
+	void pkUpdated(Row row)
+	{
+		String newKeyHash = row.recalcPKHashKey();
+		if (!pkRowMap.containsKey(newKeyHash))
+		{
+			pkRowMap.put(newKeyHash,
+				new SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>(row, referenceQueue));
+			clearAndCheckCache();
+		}
+	}
+
 	void clearAndCheckCache()
 	{
 		if (referenceQueue.poll() != null)
