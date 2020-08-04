@@ -28,35 +28,35 @@ public interface ILogLevel
 	/**
 	 * Logging level.
 	 *
-	 * @sample application.output('my message',APP_LOG_LEVEL.DEBUG)
+	 * @sample application.output('my message',LOGGINGLEVEL.DEBUG)
 	 */
 	public static final int DEBUG = 0;
 
 	/**
 	 * Logging level.
 	 *
-	 * @sample application.output('my message',APP_LOG_LEVEL.INFO)
+	 * @sample application.output('my message',LOGGINGLEVEL.INFO)
 	 */
 	public static final int INFO = 1;
 
 	/**
 	 * Logging level.
 	 *
-	 * @sample application.output('my message',APP_LOG_LEVEL.WARNING)
+	 * @sample application.output('my message',LOGGINGLEVEL.WARNING)
 	 */
 	public static final int WARNING = 2;
 
 	/**
 	 * Logging level.
 	 *
-	 * @sample application.output('my message',APP_LOG_LEVEL.ERROR)
+	 * @sample application.output('my message',LOGGINGLEVEL.ERROR)
 	 */
 	public static final int ERROR = 3;
 
 	/**
 	 * Logging level. This level will for the most part be mapped on ERROR, because of java loggign api's
 	 *
-	 * @sample application.output('my message',APP_LOG_LEVEL.FATAL)
+	 * @sample application.output('my message',LOGGINGLEVEL.FATAL)
 	 */
 	public static final int FATAL = 4;
 }
