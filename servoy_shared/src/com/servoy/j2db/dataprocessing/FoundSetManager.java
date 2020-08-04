@@ -3419,7 +3419,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		record.getParentFoundSet().getTable().getColumns().forEach(column -> {
 			// null
 			Object rawValue = record.getRawData().getRawValue(column.getDataProviderID());
-			if (!column.getAllowNull())
+			if (!column.getAllowNull() && column.getDatabaseDefaultValue() == null)
 			{
 				if (rawValue == null || ("".equals(rawValue) && Column.mapToDefaultType(column.getType()) == IColumnTypes.TEXT))
 				{
