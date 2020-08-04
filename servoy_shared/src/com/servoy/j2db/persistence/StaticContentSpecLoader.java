@@ -299,6 +299,8 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 	private static final TypedProperty<String> PROPERTY_PROTECTIONPASSWORD = new TypedProperty<String>("protectionPassword"); //$NON-NLS-1$;
 	public static final TypedProperty<String> PROPERTY_VERSION = new TypedProperty<String>("version"); //$NON-NLS-1$;
 	public static final TypedProperty<Integer> PROPERTY_ONVALIDATEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONVALIDATEMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONAUTOSAVEDFAILEDMETHODID = new TypedProperty<Integer>(
+		IContentSpecConstants.PROPERTY_ONAUTOSAVEDFAILEDMETHODID);
 
 	private static HashMap<Integer, ContentSpec> csMap = new HashMap<Integer, ContentSpec>();
 
@@ -923,6 +925,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 		{
 			//2020.09 properties here
 			cs.new Element(449, IRepository.TABLENODES, PROPERTY_ONVALIDATEMETHODID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(450, IRepository.SOLUTIONS, PROPERTY_ONAUTOSAVEDFAILEDMETHODID.getPropertyName(), IRepository.ELEMENTS);
 		}
 		//##add property adds here
 		return cs;

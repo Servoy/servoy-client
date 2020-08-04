@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 import org.mozilla.javascript.JavaScriptException;
 import org.slf4j.Logger;
@@ -34,12 +35,16 @@ import org.slf4j.LoggerFactory;
 
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.ApplicationException;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IPrepareForSave;
 import com.servoy.j2db.dataprocessing.ValueFactory.BlobMarkerValue;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.ScriptMethod;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.util.Debug;
@@ -237,7 +242,7 @@ public class EditRecordList
 
 	public int stopEditing(boolean javascriptStop)
 	{
-		return stopEditing(javascriptStop, (List<IRecord>)null, 0);
+		return stopEditing(javascriptStop, (List<IRecord>)null);
 	}
 
 	/**
@@ -249,7 +254,7 @@ public class EditRecordList
 	 */
 	public int stopEditing(boolean javascriptStop, IRecord recordToSave)
 	{
-		return stopEditing(javascriptStop, Arrays.asList(new IRecord[] { recordToSave }), 0);
+		return stopEditing(javascriptStop, Arrays.asList(new IRecord[] { recordToSave }));
 	}
 
 	/**
@@ -259,12 +264,51 @@ public class EditRecordList
 	 * @param recordsToSave null means all records
 	 * @return IRowChangeListener static final
 	 */
+	@SuppressWarnings("nls")
 	public int stopEditing(boolean javascriptStop, List<IRecord> recordsToSave)
 	{
-		return stopEditing(javascriptStop, recordsToSave, 0);
+		int stopped = stopEditingImpl(javascriptStop, recordsToSave, 0);
+		if ((stopped == ISaveConstants.VALIDATION_FAILED || stopped == ISaveConstants.SAVE_FAILED) && !javascriptStop)
+		{
+			IApplication application = fsm.getApplication();
+			Solution solution = application.getSolution();
+			int mid = solution.getOnAutoSaveFailedMethodID();
+			if (mid > 0)
+			{
+				ScriptMethod sm = application.getFlattenedSolution().getScriptMethod(mid);
+				if (sm != null)
+				{
+					// the validation failed in a none javascript stop (so this was an autosave failure)
+					List<JSRecordMarkers> failedMarkers = failedRecords.stream().map(record -> record.getRecordMarkers()).collect(Collectors.toList());
+					try
+					{
+						application.getScriptEngine().getScopesScope()
+							.executeGlobalFunction(sm.getScopeName(), sm.getName(),
+								Utils.arrayMerge((new Object[] { failedMarkers.toArray() }),
+									Utils.parseJSExpressions(
+										solution.getFlattenedMethodArguments(IContentSpecConstants.PROPERTY_ONAUTOSAVEDFAILEDMETHODID))),
+								false, false);
+					}
+					catch (Exception e)
+					{
+						application.reportJSError("Failed to run the solutions auto save failed method", e);
+					}
+				}
+				else
+				{
+					application
+						.reportJSWarning("Solution " + application.getSolutionName() + " onautosavefailed method not found for id " + mid);
+				}
+			}
+
+		}
+		return stopped;
 	}
 
-	private int stopEditing(final boolean javascriptStop, List<IRecord> recordsToSave, int recursionDepth)
+	/**
+	 * This method should only be called through stopEditing(boolean,List<Record>) so that that can call onAutoSaveFailed.
+	 */
+	private int stopEditingImpl(final boolean javascriptStop, List<IRecord> recordsToSave, int recursionDepth)
 	{
 		if (recursionDepth > 50)
 		{
@@ -961,7 +1005,7 @@ public class EditRecordList
 		if (editedRecords.size() != editedRecordsSize && recordsToSave == null)
 		{
 			// records where changed by the after insert/update table events, call stop edit again if this was not a specific record save.
-			return stopEditing(javascriptStop, null, recursionDepth + 1);
+			return stopEditingImpl(javascriptStop, null, recursionDepth + 1);
 		}
 
 		return ISaveConstants.STOPPED;
