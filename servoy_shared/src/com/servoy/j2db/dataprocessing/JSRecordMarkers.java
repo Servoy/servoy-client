@@ -43,14 +43,27 @@ public class JSRecordMarkers implements IJavaScriptType, IRecordMarkers
 	private boolean invalid = false;
 	private boolean onBeforeUpdateFailed;
 	private boolean onBeforeInsertFailed;
+	private final Object state;
 
 	/**
 	 * @param record
+	 * @param application
 	 */
 	public JSRecordMarkers(IRecord record, I18NProvider application)
 	{
+		this(record, application, null);
+	}
+
+	/**
+	 * @param record
+	 * @param application
+	 * @param state
+	 */
+	public JSRecordMarkers(IRecord record, I18NProvider application, Object state)
+	{
 		this.record = record;
 		this.application = application;
+		this.state = state;
 	}
 
 	/**
@@ -131,7 +144,7 @@ public class JSRecordMarkers implements IJavaScriptType, IRecordMarkers
 	public void report(String message, String dataprovider, int level, Object customObject, Object[] messageKeyParams)
 	{
 		invalid = true;
-		markers.add(new JSRecordMarker(record, application, message, dataprovider, level, customObject, messageKeyParams));
+		markers.add(new JSRecordMarker(record, application, message, dataprovider, level, customObject == null ? state : customObject, messageKeyParams));
 	}
 
 	/**

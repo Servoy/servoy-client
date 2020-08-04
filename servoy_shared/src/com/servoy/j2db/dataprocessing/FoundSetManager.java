@@ -3367,7 +3367,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		record.setRecordMarkers(null);
 		// first check for a validation entity method
 		ITable table = record.getParentFoundSet().getTable();
-		JSRecordMarkers recordMarkers = new JSRecordMarkers(record, application);
+		JSRecordMarkers recordMarkers = new JSRecordMarkers(record, application, state);
 		Object[] args = new Object[] { record, recordMarkers, state };
 		Scriptable scope = record.getParentFoundSet() instanceof Scriptable ? (Scriptable)record.getParentFoundSet() : null;
 		try
