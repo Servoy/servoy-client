@@ -723,12 +723,12 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 * @sampleas validate(ViewRecord)
 	 * 	 *
 	 * @param record The ViewRecord to validate
-	 * @param state The extra state to give to the validate method.
+	 * @param customObject An extra customObject to give to the validate method.
 	 */
 	@JSFunction
-	public JSRecordMarkers validate(ViewRecord record, Object state)
+	public JSRecordMarkers validate(ViewRecord record, Object customObject)
 	{
-		return manager.validateRecord(record, state);
+		return manager.validateRecord(record, customObject);
 	}
 
 	/**

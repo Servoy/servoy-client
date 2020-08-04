@@ -2791,15 +2791,15 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sampleas validate(IJSRecord)
 	 *
 	 * @param record The record to validate.
-	 * @param state The extra state that is passed on the the validation methods.
+	 * @param customObject The extra customObject that is passed on the the validation methods.
 	 *
 	 * @throws ServoyException
 	 */
 	@JSFunction
-	public JSRecordMarkers validate(IJSRecord record, Object state) throws ServoyException
+	public JSRecordMarkers validate(IJSRecord record, Object customObject) throws ServoyException
 	{
 		checkAuthorized();
-		return application.getFoundSetManager().validateRecord((IRecordInternal)record, state);
+		return application.getFoundSetManager().validateRecord((IRecordInternal)record, customObject);
 	}
 
 //	/**

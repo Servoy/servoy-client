@@ -31,7 +31,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 public class JSRecordMarker implements IJavaScriptType
 {
 	private final String message;
-	private final String column;
+	private final String dataprovider;
 	private final int level;
 	private final Object customObject;
 	private final IRecord record;
@@ -41,17 +41,18 @@ public class JSRecordMarker implements IJavaScriptType
 	/**
 	 * @param application
 	 * @param message
-	 * @param column
+	 * @param dataprovider
 	 * @param level
 	 * @param customObject
 	 * @param messageKeyParams
 	 */
-	public JSRecordMarker(IRecord record, I18NProvider application, String message, String column, int level, Object customObject, Object[] messageKeyParams)
+	public JSRecordMarker(IRecord record, I18NProvider application, String message, String dataprovider, int level, Object customObject,
+		Object[] messageKeyParams)
 	{
 		this.record = record;
 		this.application = application;
 		this.message = message;
-		this.column = column;
+		this.dataprovider = dataprovider;
 		this.level = level;
 		this.customObject = customObject;
 		this.messageKeyParams = messageKeyParams;
@@ -100,9 +101,9 @@ public class JSRecordMarker implements IJavaScriptType
 	 * @return the column
 	 */
 	@JSReadonlyProperty
-	public String getColumn()
+	public String getDataprovider()
 	{
-		return column;
+		return dataprovider;
 	}
 
 	/**
@@ -117,7 +118,7 @@ public class JSRecordMarker implements IJavaScriptType
 	}
 
 	/**
-	 * The custom object the users did give the the JSrecordMarkers.report() method.
+	 * The custom object the users did give the the JSRecordMarkers.report() method.
 	 *
 	 * @return the customObject
 	 */
@@ -132,7 +133,9 @@ public class JSRecordMarker implements IJavaScriptType
 	@Override
 	public String toString()
 	{
-		return "JSRecordMarker[message=" + message + ", column=" + column + ", level=" + level + ", customObject=" + customObject + ", record=" + record + "]";
+		return "JSRecordMarker[message=" + message + ", dataprovider=" + dataprovider + ", level=" + level + ", customObject=" + customObject + ", record=" +
+			record +
+			"]";
 	}
 
 }

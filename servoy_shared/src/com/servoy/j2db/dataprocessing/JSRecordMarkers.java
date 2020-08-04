@@ -111,6 +111,13 @@ public class JSRecordMarkers implements IJavaScriptType, IRecordMarkers
 		return record;
 	}
 
+	/**
+	 * Create a new JSMarker by reporting a message, this message can be an i18n key (should then start with 'i18n')
+	 * Optionally you can give a dataprovider for which this marker is reported, a LOGGINGLEVEL for this marker, some custom javascript object for later use
+	 * and a array of message keys if the message was an i18n key with variables.
+	 *
+	 * @param message The message (can be i18n)
+	 */
 	@Override
 	@JSFunction
 	public void report(String message)
@@ -118,6 +125,13 @@ public class JSRecordMarkers implements IJavaScriptType, IRecordMarkers
 		report(message, null, ILogLevel.ERROR, null);
 	}
 
+	/**
+	 * @clonedesc report(String)
+	 *
+	 * @param message The message (can be i18n)
+	 * @param dataprovider The dataprovider for which this marker is for.
+	 *
+	 */
 	@Override
 	@JSFunction
 	public void report(String message, String dataprovider)
@@ -125,6 +139,14 @@ public class JSRecordMarkers implements IJavaScriptType, IRecordMarkers
 		report(message, dataprovider, ILogLevel.ERROR, null);
 	}
 
+	/**
+	 * @clonedesc report(String)
+	 *
+	 * @param message The message (can be i18n)
+	 * @param dataprovider The dataprovider for which this marker is for.
+	 * @param level The LOGGINGLEVEL like ERROR or WARNING
+	 *
+	 */
 	@Override
 	@JSFunction
 	public void report(String message, String dataprovider, int level)
@@ -132,6 +154,15 @@ public class JSRecordMarkers implements IJavaScriptType, IRecordMarkers
 		report(message, dataprovider, level, null);
 	}
 
+	/**
+	 * @clonedesc report(String)
+	 *
+	 * @param message The message (can be i18n)
+	 * @param dataprovider The dataprovider for which this marker is for.
+	 * @param level The LOGGINGLEVEL like ERROR or WARNING
+	 * @param customObject A custom object is default the customObject of the validate() call.
+	 *
+	 */
 	@Override
 	@JSFunction
 	public void report(String message, String dataprovider, int level, Object customObject)
@@ -139,6 +170,16 @@ public class JSRecordMarkers implements IJavaScriptType, IRecordMarkers
 		report(message, dataprovider, level, customObject, null);
 	}
 
+	/**
+	 * @clonedesc report(String)
+	 *
+	 * @param message The message (can be i18n)
+	 * @param dataprovider The dataprovider for which this marker is for.
+	 * @param level The LOGGINGLEVEL like ERROR or WARNING
+	 * @param customObject A custom object is default the customObject of the validate() call.
+	 * @param messageKeyParams Some variables if he message is an i18n key that has place holders.
+	 *
+	 */
 	@Override
 	@JSFunction
 	public void report(String message, String dataprovider, int level, Object customObject, Object[] messageKeyParams)
