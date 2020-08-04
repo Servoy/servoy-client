@@ -19,6 +19,7 @@ package com.servoy.j2db.dataprocessing;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
@@ -226,6 +227,19 @@ public class JSRecordMarkers implements IJavaScriptType, IRecordMarkers
 	public JSRecordMarker[] getMarkers()
 	{
 		return markers.toArray(new JSRecordMarker[markers.size()]);
+	}
+
+	/**
+	 *  This returns the problems found when validation the record filtered by the given level
+	 *
+	 * @param level a level of a marker that should be returned.
+	 *
+	 * @return all the problems that where reported by a report() call.
+	 */
+	@JSFunction
+	public JSRecordMarker[] getMarkers(int level)
+	{
+		return markers.stream().filter(marker -> marker.getLevel() == level).collect(Collectors.toList()).toArray(new JSRecordMarker[0]);
 	}
 
 
