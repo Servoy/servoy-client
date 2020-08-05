@@ -92,7 +92,7 @@ public class ContainersScope implements Scriptable
 				else
 				{
 					Debug.warn(
-						"Couldn't register form container '" + lc.getName() + "' to the 'containters' because spec '" + lc.getPackageName() + "' not found");
+						"Couldn't register form container '" + lc.getName() + "' to the 'containers' because spec '" + lc.getPackageName() + "' not found");
 				}
 			}
 			fillNames(lc.getLayoutContainers(), namesToLayout);

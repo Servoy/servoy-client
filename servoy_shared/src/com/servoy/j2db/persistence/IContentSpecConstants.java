@@ -224,4 +224,5 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_VALUELIST_DISPLAYVALUE_TYPE = "displayValueType";
 	public static final String PROPERTY_IMPLICIT_SECURITY_NO_RIGHTS = "implicitSecurityNoRights";
 	public static final String PROPERTY_ONVALIDATEMETHODID = "onValidateMethodID";
+	public static final String PROPERTY_ONAUTOSAVEDFAILEDMETHODID = "onAutoSaveFailedMethodID";
 }

@@ -829,14 +829,13 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 	}
 
 	@Override
-	public void setValidationObject(JSValidationObject object)
+	public void setRecordMarkers(JSRecordMarkers object)
 	{
 	}
 
 	@Override
-	public JSValidationObject getValidationObject()
+	public JSRecordMarkers getRecordMarkers()
 	{
 		return null;
 	}
-
 }

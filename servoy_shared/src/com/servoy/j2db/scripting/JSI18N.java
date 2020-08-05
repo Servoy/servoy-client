@@ -280,6 +280,26 @@ public class JSI18N implements IJSI18N
 	}
 
 	/**
+	 * Gets the currency format from client (using client's locale).
+	 *
+	 * @sample
+	 * var currencyFormat = i18n.getCurrencyFormat();
+	 *
+	 * @return a String representing the currency format.
+	 */
+	@JSFunction
+	public String getCurrencyFormat()
+	{
+		NumberFormat numberFormat = NumberFormat.getCurrencyInstance(application.getLocale());
+		if (numberFormat instanceof DecimalFormat)
+		{
+			return ((DecimalFormat)numberFormat).toLocalizedPattern();
+		}
+		Debug.error("Cannot get currency format, wrong format instance:" + numberFormat);
+		return null;
+	}
+
+	/**
 	 * Returns a dataset with rows that contains a language key (en) and the displayname (English) column.
 	 *
 	 * See http://www.ics.uci.edu/pub/ietf/http/related/iso639.txt for a list that could be returned.

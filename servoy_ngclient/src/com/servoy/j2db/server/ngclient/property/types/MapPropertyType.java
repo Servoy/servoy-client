@@ -195,7 +195,7 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 		if (solutionModelScriptingValue == null) return null;
 		try
 		{
-			return converter.convertToJSON(solutionModelScriptingValue);
+			return converter.convertToJSONValue(solutionModelScriptingValue);
 		}
 		catch (Exception e)
 		{

@@ -133,6 +133,17 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 		return tag;
 	}
 
+	public List<String> getAllowedChildren()
+	{
+		Map<String, PackageSpecification<WebLayoutSpecification>> layouts = WebComponentSpecProvider.getSpecProviderState().getLayoutSpecifications();
+		if (layouts != null && getPackageName() != null && layouts.get(getPackageName()) != null)
+		{
+			WebLayoutSpecification spec = layouts.get(getPackageName()).getSpecification(getSpecName());
+			return spec.getAllowedChildren();
+		}
+		return null;
+	}
+
 	public void setElementId(String id)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ELEMENTID, id);

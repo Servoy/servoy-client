@@ -1305,6 +1305,41 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	/**
 	 * @param i
 	 */
+	public void setOnAutoSaveFailedMethodID(int i)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONAUTOSAVEDFAILEDMETHODID, i);
+	}
+
+	/**
+	 * The method that is executed when autosave results in validation or save failures.
+	 * This is not called for save or validate calls that are triggered from javascript itself (databaseManager.saveData()), only when Servoy tries an auto save
+	 * because of some event like user clicking on the form itself or foundset selection change.
+	 *
+	 * @templatedescription Callback method for when a validation problem is encountered or a database save failes.
+	 * @templatename onAutoSaveFailed
+	 * @templateparam JSRecordMarkers[] recordMarkers an array of all the record markers that failed to validate or save.
+	 * @templateaddtodo
+	 * @templatecode
+	 * 	recordMarkers.forEach(/** @param {JSRecordMarkers} marker*&#47; function(marker) {
+	 *  if (marker.hasErrors) {
+	 *	    // get validation markers that are added by onValidate/onRecordUpdate or insert/Column validators and null checks.
+	 *	    var markers = marker.getMarkers();
+	 *	    // get the generic exceptions that the database could have thrown.
+	 *	    var exceptions = marker.getGenericExceptions();
+	 *	    application.output(markers);
+	 *	    application.output(exceptions);
+	 *  }
+	});
+	 *
+	 */
+	public int getOnAutoSaveFailedMethodID()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONAUTOSAVEDFAILEDMETHODID).intValue();
+	}
+
+	/**
+	 * @param i
+	 */
 	public void setFirstFormID(int i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_FIRSTFORMID, i);

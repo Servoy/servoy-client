@@ -138,6 +138,11 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 							// compare trimmed values, typeahead will trim the selected value
 							if ($.trim($scope.value) === $.trim($scope.model.valuelistID[i].displayValue)) {
 								hasMatchingDisplayValue = true;
+								if ($scope.model.dataProviderID === $scope.model.valuelistID[i].realValue)
+								{
+									// same value, do not send again to server
+									return;
+								}	
 								$scope.model.dataProviderID = $scope.model.valuelistID[i].realValue;
 								break;
 							}
@@ -239,7 +244,6 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 			$scope.api.onDataChangeCallback = function(event, returnval) {
 				var stringValue = typeof returnval == 'string'
 					if (returnval === false || stringValue) {
-						$element[0].focus();
 						ngModel.$setValidity("", false);
 						if (stringValue) {
 							if (storedTooltip == false)

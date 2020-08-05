@@ -125,7 +125,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		{
 			public Class< ? >[] getAllReturnedTypes()
 			{
-				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, JSProblem.class, JSValidationObject.class, Record.class, FoundSet.class, JSTable.class, //
+				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, JSRecordMarker.class, JSRecordMarkers.class, Record.class, FoundSet.class, JSTable.class, //
 					QBSelect.class, QBAggregate.class, QBColumn.class, QBColumns.class, QBCondition.class, //
 					QBFunction.class, QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBWhereCondition.class, QBResult.class, //
 					QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, QBFunctions.class, QUERY_COLUMN_TYPES.class, ViewFoundSet.class, ViewRecord.class };
@@ -2756,27 +2756,50 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
+	 * Validates the given record, it runs first the method that is attached to the entity event "onValidate".<br/>
+	 * Then it will call also the entity events "onInsert" or "onUpdate" depending if the record is new or an update.
+	 * All those methods do get a parameter JSRecordMarkers where the problems can be reported against.<br/>
+	 * All columns are then also null/empty checked and if they are and the Column is marked as "not null" an error will be
+	 * added with the message key "servoy.record.error.null.not.allowed" for that column.<br/>
+	 * All changed columns are length checked and if the record values is bigger then what the database column can handle and
+	 * error will be added with the message key "servoy.record.error.columnSizeTooSmall" for that column.<br/>
+	 * Then all the column validators will be run over all the changed columns, The validators will also get the same JSRecordMarkers
+	 * to report problems to. So the global method validator now also has more parameters then just the value.
+	 *</br><br/>
+	 *  These 3 validations (null, length and column validators) are not by default done any more on change of the dataprovider itself.<br/>
+	 *  This is controlled by the servoy property "servoy.execute.column.validators.only.on.validate_and_save" which can also be seen at
+	 *  the TableEditor column validators page.
+	 * </br><br/>
+	 * An extra state object can be given that will also be passed around if you want to have more state in the validation objects
+	 * (like giving some ui state so the entity methods know where you come from)
+	 * </br><br/>
+	 * It will return a JSRecordMarkers when the record had validaiton problems
+	 * <br/>
 	 * @param record The record to validate.
 	 *
-	 * @throws ServoyException
+	 * @return Returns a JSRecordMarkers if the record has validation problems
 	 */
 	@JSFunction
-	public JSValidationObject validate(IJSRecord record) throws ServoyException
+	public JSRecordMarkers validate(IJSRecord record) throws ServoyException
 	{
 		return validate(record, null);
 	}
 
 	/**
+	 * @clonedesc validate(IJSRecord)
+	 *
+	 * @sampleas validate(IJSRecord)
+	 *
 	 * @param record The record to validate.
-	 * @param state The extra state that is passed on the the validation methods.
+	 * @param customObject The extra customObject that is passed on the the validation methods.
 	 *
 	 * @throws ServoyException
 	 */
 	@JSFunction
-	public JSValidationObject validate(IJSRecord record, Object state) throws ServoyException
+	public JSRecordMarkers validate(IJSRecord record, Object customObject) throws ServoyException
 	{
 		checkAuthorized();
-		return application.getFoundSetManager().validateRecord((IRecordInternal)record, state);
+		return application.getFoundSetManager().validateRecord((IRecordInternal)record, customObject);
 	}
 
 //	/**
@@ -2785,7 +2808,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 //	 * @throws ServoyException
 //	 */
 //	@JSFunction
-//	public JSValidationObject validateRecord(ViewRecord record) throws ServoyException
+//	public JSRecordMarkers validateRecord(ViewRecord record) throws ServoyException
 //	{
 //		return validateRecord(record, null);
 //	}
@@ -2797,7 +2820,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 //	 * @throws ServoyException
 //	 */
 //	@JSFunction
-//	public JSValidationObject validateRecord(ViewRecord record, Object state) throws ServoyException
+//	public JSRecordMarkers validateRecord(ViewRecord record, Object state) throws ServoyException
 //	{
 //		checkAuthorized();
 //		return application.getFoundSetManager().validateRecord(record, state);

@@ -110,6 +110,7 @@ import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.DatabaseUtils;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyJSONObject;
@@ -3357,16 +3358,17 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 	}
 
+	@SuppressWarnings("nls")
 	@Override
-	public JSValidationObject validateRecord(IRecordInternal record, Object state)
+	public JSRecordMarkers validateRecord(IRecordInternal record, Object state)
 	{
 		if (record == null) return null;
 		// always reset the validation object
-		record.setValidationObject(null);
+		record.setRecordMarkers(null);
 		// first check for a validation entity method
 		ITable table = record.getParentFoundSet().getTable();
-		JSValidationObject validationObject = new JSValidationObject(record);
-		Object[] args = new Object[] { record, validationObject, state };
+		JSRecordMarkers recordMarkers = new JSRecordMarkers(record, application, state);
+		Object[] args = new Object[] { record, recordMarkers, state };
 		Scriptable scope = record.getParentFoundSet() instanceof Scriptable ? (Scriptable)record.getParentFoundSet() : null;
 		try
 		{
@@ -3375,7 +3377,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 		catch (ServoyException e)
 		{
-			validationObject.addGenericException(e);
+			recordMarkers.addGenericException(e);
 		}
 
 		if (record.existInDataSource())
@@ -3386,12 +3388,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				if (!executeFoundsetTriggerInternal(table, args, StaticContentSpecLoader.PROPERTY_ONUPDATEMETHODID, true, true,
 					scope))
 				{
-					validationObject.setOnBeforeUpdateFailed();
+					recordMarkers.setOnBeforeUpdateFailed();
 				}
 			}
 			catch (ServoyException e)
 			{
-				validationObject.addGenericException(e);
+				recordMarkers.addGenericException(e);
 			}
 		}
 		else
@@ -3402,18 +3404,86 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				if (!executeFoundsetTriggerInternal(table, args, StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID, true, true,
 					scope))
 				{
-					validationObject.setOnBeforeInsertFailed();
+					recordMarkers.setOnBeforeInsertFailed();
 				}
 			}
 			catch (ServoyException e)
 			{
-				validationObject.addGenericException(e);
+				recordMarkers.addGenericException(e);
 			}
 		}
-		if (validationObject.isInvalid())
+
+
+		//check for null and length and validators
+		SQLSheet sqlSheet = record.getParentFoundSet().getSQLSheet();
+		record.getParentFoundSet().getTable().getColumns().forEach(column -> {
+			// null
+			Object rawValue = record.getRawData().getRawValue(column.getDataProviderID());
+			if (!column.getAllowNull() && column.getDatabaseDefaultValue() == null)
+			{
+				if (rawValue == null || ("".equals(rawValue) && Column.mapToDefaultType(column.getType()) == IColumnTypes.TEXT))
+				{
+					recordMarkers.report("i18n:servoy.record.error.null.not.allowed", column.getDataProviderID(), ILogLevel.ERROR, state,
+						new Object[] { column.getDataProviderID() });
+					// this would result normally in an Record.exception so for now also set that
+					record.getRawData().setLastException(
+						new DataException("Column " + column.getDataProviderID() + " can't be null", ServoyException.DATA_INTEGRITY_VIOLATION));
+				}
+			}
+
+			// validators only for changed columns (based on the raw, "unconverted" value)
+			Object oldRawValue = record.existInDataSource() ? record.getRawData().getOldRawValue(column.getDataProviderID()) : null;
+			if (!Utils.equalObjects(rawValue, oldRawValue))
+			{
+				// the length check
+				int valueLen = Column.getObjectSize(rawValue, column.getType());
+				if (valueLen > 0 && column.getLength() > 0 && valueLen > column.getLength()) // insufficient space to save value
+				{
+					recordMarkers.report("i18n:servoy.record.error.columnSizeTooSmall", column.getDataProviderID(), ILogLevel.ERROR, state,
+						new Object[] { column.getDataProviderID(), Integer.valueOf(column.getLength()), rawValue });
+				}
+				Pair<String, Map<String, String>> validatorInfo = sqlSheet.getColumnValidatorInfo(sqlSheet.getColumnIndex(column.getDataProviderID()));
+				if (validatorInfo != null)
+				{
+					IColumnValidator validator = columnValidatorManager.getValidator(validatorInfo.getLeft());
+					if (validator == null)
+					{
+						Debug.error("Column '" + column.getDataProviderID() +
+							"' does have column validator  information, but either the validator '" + validatorInfo.getLeft() +
+							"'  is not available, is the validator installed? (default default_validators.jar in the plugins) or the validator information is incorrect.");
+
+						recordMarkers.report("i18n:servoy.error.validatorNotFound", column.getDataProviderID(), ILogLevel.ERROR, state,
+							new Object[] { validatorInfo.getLeft() });
+					}
+					else
+					{
+						try
+						{
+							if (validator instanceof IColumnValidator2)
+							{
+								((IColumnValidator2)validator).validate(validatorInfo.getRight(), rawValue, column.getDataProviderID(), recordMarkers,
+									state);
+							}
+							else
+							{
+								validator.validate(validatorInfo.getRight(), rawValue);
+							}
+						}
+						catch (IllegalArgumentException e)
+						{
+							recordMarkers.report("i18n:servoy.record.error.validation", column.getDataProviderID(), ILogLevel.ERROR, state,
+								new Object[] { column.getDataProviderID(), rawValue, e.getMessage() });
+						}
+					}
+				}
+			}
+		});
+
+
+		if (recordMarkers.isInvalid())
 		{
-			record.setValidationObject(validationObject);
-			return validationObject;
+			record.setRecordMarkers(recordMarkers);
+			return recordMarkers;
 		}
 		return null;
 	}

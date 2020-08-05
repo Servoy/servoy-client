@@ -52,6 +52,7 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -375,7 +376,7 @@ public class SQLSheet
 	}
 
 	Object convertObjectToValue(String dataProviderID, Object obj, IConverterManager<IColumnConverter> columnConverterManager,
-		IColumnValidatorManager columnValidatorManager)
+		IColumnValidatorManager columnValidatorManager, IRowChangeListener record)
 	{
 		Object convertedValue = obj;
 
@@ -401,32 +402,60 @@ public class SQLSheet
 						new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue }), e);
 				}
 
+			}
+
+			if (Settings.getInstance().getProperty("servoy.execute.column.validators.only.on.validate_and_save", "true").equals("false")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			{
+				// the length check (also done in FoundsetManager.validate(record))
 				int valueLen = Column.getObjectSize(convertedValue, variableInfo.type);
 				if (valueLen > 0 && variableInfo.length > 0 && valueLen > variableInfo.length) // insufficient space to save value
 				{
 					throw new IllegalArgumentException(Messages.getString("servoy.record.error.columnSizeTooSmall", //$NON-NLS-1$
-						new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue }));
+						new Object[] { dataProviderID, Integer.valueOf(variableInfo.length), convertedValue }));
 				}
-			}
+				// run the validators  (also done in FoundsetManager.validate(record))
+				Pair<String, Map<String, String>> validatorInfo = getColumnValidatorInfo(columnIndex);
+				if (validatorInfo != null)
+				{
+					IColumnValidator validator = columnValidatorManager.getValidator(validatorInfo.getLeft());
+					if (validator == null)
+					{
+						Debug.error("Column '" + dataProviderID +
+							"' does have column validator  information, but either the validator '" + validatorInfo.getLeft() +
+							"'  is not available, is the validator installed? (default default_validators.jar in the plugins) or the validator information is incorrect.");
 
-			Pair<String, Map<String, String>> validatorInfo = getColumnValidatorInfo(columnIndex);
-			if (validatorInfo != null)
-			{
-				IColumnValidator validator = columnValidatorManager.getValidator(validatorInfo.getLeft());
-				if (validator == null)
-				{
-					throw new IllegalStateException(Messages.getString("servoy.error.validatorNotFound", new Object[] { validatorInfo.getLeft() })); //$NON-NLS-1$
-				}
-
-				try
-				{
-					validator.validate(validatorInfo.getRight(), convertedValue);
-				}
-				catch (IllegalArgumentException e)
-				{
-					String msg = Messages.getString("servoy.record.error.validation", new Object[] { dataProviderID, convertedValue }); //$NON-NLS-1$
-					if (e.getMessage() != null && e.getMessage().length() != 0) msg += ' ' + e.getMessage();
-					throw new IllegalArgumentException(msg);
+						throw new IllegalStateException(Messages.getString("servoy.error.validatorNotFound", new Object[] { validatorInfo.getLeft() })); //$NON-NLS-1$
+					}
+					if (validator instanceof IColumnValidator2)
+					{
+						JSRecordMarkers recordMarkers = new JSRecordMarkers(record instanceof IRecord ? (IRecord)record : null, application);
+						((IColumnValidator2)validator).validate(validatorInfo.getRight(), convertedValue, dataProviderID, recordMarkers, null);
+						if (recordMarkers.isInvalid())
+						{
+							if (recordMarkers.getMarkers().length == 1)
+							{
+								throw new IllegalArgumentException(recordMarkers.getMarkers()[0].getI18NMessage());
+							}
+							else
+							{
+								String msg = Messages.getString("servoy.record.error.validation", new Object[] { dataProviderID, convertedValue }); //$NON-NLS-1$
+								throw new IllegalArgumentException(msg);
+							}
+						}
+					}
+					else
+					{
+						try
+						{
+							validator.validate(validatorInfo.getRight(), convertedValue);
+						}
+						catch (IllegalArgumentException e)
+						{
+							String msg = Messages.getString("servoy.record.error.validation", new Object[] { dataProviderID, convertedValue }); //$NON-NLS-1$
+							if (e.getMessage() != null && e.getMessage().length() != 0) msg += ' ' + e.getMessage();
+							throw new IllegalArgumentException(msg);
+						}
+					}
 				}
 			}
 
@@ -510,7 +539,8 @@ public class SQLSheet
 				else
 				{
 					Debug.error("Column '" + dataProviderID +
-						"' does have column converter information, but either the converter (type) is not available or the converter information is incorrect.");
+						"' does have column converter information, but either the converter '" + converterInfo.converterName +
+						"'  (type) is not available, is the converter installed? (default converters.jar in the plugins) or the converter information is incorrect.");
 					throw new IllegalArgumentException(Messages.getString("servoy.record.error.gettingDataprovider", //$NON-NLS-1$
 						new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type) }));
 				}

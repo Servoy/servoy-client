@@ -190,9 +190,8 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 				SQLSheet sheet = foundset.getSQLSheet();
 
 				QueryUpdate sqlUpdate = new QueryUpdate(sqlParts.getTable());
-				for (int j = 0; j < list.size(); j++)
+				for (Pair<String, Object> p : list)
 				{
-					Pair<String, Object> p = list.get(j);
 					String name = p.getLeft();
 					Object val = p.getRight();
 					int columnIndex = sheet.getColumnIndex(name);
@@ -200,7 +199,7 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 					if (val != null && !("".equals(val) && Column.mapToDefaultType(variableInfo.type) == IColumnTypes.TEXT))//do not convert null to 0 incase of numbers, this means the calcs the value whould change each time //$NON-NLS-1$
 					{
 						val = sheet.convertObjectToValue(name, val, foundset.getFoundSetManager().getColumnConverterManager(),
-							foundset.getFoundSetManager().getColumnValidatorManager());
+							foundset.getFoundSetManager().getColumnValidatorManager(), null);
 					}
 					Column c = table.getColumn(name);
 					if (val == null)
@@ -303,9 +302,8 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 					if (record.startEditing())
 					{
 						//update the fields
-						for (int j = 0; j < list.size(); j++)
+						for (Pair<String, Object> p : list)
 						{
-							Pair<String, Object> p = list.get(j);
 							String name = p.getLeft();
 							Object val = p.getRight();
 							if (val instanceof Object[])

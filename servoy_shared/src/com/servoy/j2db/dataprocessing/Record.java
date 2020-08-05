@@ -212,9 +212,9 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		{
 			return parent.getDataProviderValue(dataProviderID);
 		}
-		if ("validationObject".equals(dataProviderID)) //$NON-NLS-1$
+		if ("recordMarkers".equals(dataProviderID)) //$NON-NLS-1$
 		{
-			return validateObject;
+			return recordMarkers;
 		}
 		if (ScopesUtils.isVariableScope(dataProviderID))
 		{
@@ -297,16 +297,16 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		{
 			return parent.setDataProviderValue(dataProviderID, managebleValue);
 		}
-		if ("validationObject".equals(dataProviderID)) //$NON-NLS-1$
+		if ("recordMarkers".equals(dataProviderID)) //$NON-NLS-1$
 		{
-			Object prev = validateObject;
-			if (value instanceof JSValidationObject)
+			Object prev = recordMarkers;
+			if (value instanceof JSRecordMarkers && ((JSRecordMarkers)value).getRecord() == this)
 			{
-				validateObject = (JSValidationObject)value;
+				recordMarkers = (JSRecordMarkers)value;
 			}
 			else
 			{
-				validateObject = null;
+				recordMarkers = null;
 			}
 			return prev;
 		}
@@ -527,7 +527,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 
 	private Scriptable prototypeScope;
 
-	private JSValidationObject validateObject;
+	private JSRecordMarkers recordMarkers;
 
 	public Scriptable getPrototype()
 	{
@@ -1186,14 +1186,14 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	 * Can be set to null again if you checked the problems, will also be set to null when a save was succesful.
 	 *
 	 * @sample
-	 * var validationObject = record.validationObject;
+	 * var recordMarkers = record.recordMarkers;
 	 *
 	 * @return The last validtion object if the record was not validated.
 	 */
 	@JSGetter
-	public JSValidationObject getValidationObject()
+	public JSRecordMarkers getRecordMarkers()
 	{
-		return validateObject;
+		return recordMarkers;
 	}
 
 	/**
@@ -1201,14 +1201,14 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	 * Can be set to null again if you checked the problems, will also be set to null when a save was succesful.
 	 *
 	 * @sample
-	 * var validationObject = record.validationObject;
+	 * var recordMarkers = record.recordMarkers;
 	 *
 	 * @return The last validtion object if the record was not validated.
 	 */
 	@JSSetter
-	public void setValidationObject(JSValidationObject object)
+	public void setRecordMarkers(JSRecordMarkers object)
 	{
-		validateObject = object;
+		recordMarkers = object == null ? null : object.getRecord() == this ? object : null;
 	}
 
 
