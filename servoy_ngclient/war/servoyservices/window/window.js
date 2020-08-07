@@ -344,8 +344,10 @@ angular.module('window',['servoy'])
 				scope.formPopupShown = null;
 			}
 			else {
-				_this.showFormPopup(scope.model.popupform.component,scope.model.popupform.form,scope.model.popupform.width,scope.model.popupform.height,scope.model.popupform.x,scope.model.popupform.y,scope.model.popupform.showBackdrop);
-				scope.formPopupShown = scope.model.popupform;
+				if( scope.model.popupform !== 'undefined' ) {
+					_this.showFormPopup(scope.model.popupform.component,scope.model.popupform.form,scope.model.popupform.width,scope.model.popupform.height,scope.model.popupform.x,scope.model.popupform.y,scope.model.popupform.showBackdrop);
+					scope.formPopupShown = scope.model.popupform;
+				}
 			}
 			if(scope.popupElement) {
 				scope.popupElement.remove();
