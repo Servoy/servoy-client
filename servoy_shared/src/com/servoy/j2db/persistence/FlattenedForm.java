@@ -136,9 +136,10 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		//first fill in the map to be sure is complete, can we improve this ?
 		for (Form f : allForms)
 		{
+			boolean responsiveLayout = f.isResponsiveLayout();
 			for (IPersist persist : f.getAllObjectsAsList())
 			{
-				if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0 && f.isResponsiveLayout())
+				if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0 && responsiveLayout)
 				{
 					IPersist p = PersistHelper.getSuperPersist((ISupportExtendsID)persist);
 					if (p != null)
@@ -150,9 +151,10 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		}
 		for (Form f : allForms)
 		{
+			boolean responsiveLayout = f.isResponsiveLayout();
 			for (IPersist persist : f.getAllObjectsAsList())
 			{
-				if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0 && f.isResponsiveLayout())
+				if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0 && responsiveLayout)
 				{
 					IPersist p = PersistHelper.getSuperPersist((ISupportExtendsID)persist);
 					if (p != null && !p.getParent().getUUID().equals(getUUID()))
