@@ -159,8 +159,21 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 				String specName = null;
 				if (spec != null)
 				{
-					packageName = spec.contains("-") ? spec.split("-")[0].trim() : null;
-					specName = spec.contains("-") ? spec.split("-")[1].trim() : spec.trim();
+					String[] split = spec.split("-");
+					if (split.length == 1)
+					{
+						specName = spec.trim();
+					}
+					else if (split.length == 2)
+					{
+						specName = split[1].trim();
+						packageName = split[0].trim();
+					}
+					else
+					{
+						Debug.warn("Illegal spec given: " + spec);
+					}
+
 				}
 
 				if (specName == null || packageName == null)
