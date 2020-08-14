@@ -98,6 +98,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Text;
+import com.servoy.j2db.util.TimezoneUtils;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -740,7 +741,8 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 				// if we have format with no hour, skip converting the date from the client and merge it with the old date
 				String displayFormat = fieldFormat.parsedFormat.getDisplayFormat();
 				boolean displayWithNoHour = displayFormat.indexOf('h') == -1 && displayFormat.indexOf('H') == -1;
-				Date newValue = NGDatePropertyType.NG_INSTANCE.fromJSON(newJSONValue, displayWithNoHour || NGDatePropertyType.hasNoDateConversion(typeOfDP));
+				boolean hasNoDateConversion = displayWithNoHour || NGDatePropertyType.hasNoDateConversion(typeOfDP);
+				Date newValue = NGDatePropertyType.NG_INSTANCE.fromJSON(newJSONValue, hasNoDateConversion);
 				if (newValue != null)
 				{
 					try
@@ -755,9 +757,16 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 						}
 						else
 						{
-							// if oldUIValue is null, create a Date with time: 0:00:00
-							LocalDateTime localDateTime = LocalDate.now().atStartOfDay();
-							originalDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+							if (hasNoDateConversion)
+							{
+								// if oldUIValue is null, create a Date with time: 0:00:00
+								LocalDateTime localDateTime = LocalDate.now().atStartOfDay();
+								originalDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+							}
+							else
+							{
+								originalDate = TimezoneUtils.getClientDate(dataAdapterList.getApplication());
+							}
 						}
 						formatter.setOriginal(originalDate);
 						formatter.parseObject(new SimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat(), locale).format(newValue));
