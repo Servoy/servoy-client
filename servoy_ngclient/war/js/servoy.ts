@@ -1217,7 +1217,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 								}
 							}
 						}
-						updateChildElementsAPI(newValue[0]);
+						if (newValue.length > 0) updateChildElementsAPI(newValue[0]);
 					}
 
 					function createRowsAndSetSelection() {
