@@ -364,6 +364,7 @@ public class ValidatingDelegateDataServer extends AbstractDelegateDataServer
 	 * @param startRow
 	 * @param rowsToRetrieve
 	 * @param forceQualifyColumns
+	 * @param disableUseArrayForIn
 	 * @return
 	 * @throws RepositoryException
 	 * @throws RemoteException
@@ -371,9 +372,9 @@ public class ValidatingDelegateDataServer extends AbstractDelegateDataServer
 	 */
 	@Override
 	public QuerySet getSQLQuerySet(String serverName, ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve,
-		boolean forceQualifyColumns) throws RepositoryException, RemoteException
+		boolean forceQualifyColumns, boolean disableUseArrayForIn) throws RepositoryException, RemoteException
 	{
 		validateQuery(sqlQuery);
-		return super.getSQLQuerySet(serverName, sqlQuery, filters, startRow, rowsToRetrieve, forceQualifyColumns);
+		return super.getSQLQuerySet(serverName, sqlQuery, filters, startRow, rowsToRetrieve, forceQualifyColumns, disableUseArrayForIn);
 	}
 }

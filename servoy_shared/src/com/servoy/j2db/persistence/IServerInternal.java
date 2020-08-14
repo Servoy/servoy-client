@@ -137,7 +137,8 @@ public interface IServerInternal
 
 	ITransactionConnection getUnmanagedConnection() throws SQLException, RepositoryException;
 
-	QuerySet getSQLQuerySet(ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve, boolean forceQualifyColumns)
+	QuerySet getSQLQuerySet(ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve, boolean forceQualifyColumns,
+		boolean disableUseArrayForIn)
 		throws RepositoryException;
 
 	String[] getMissingDBSequences(ITable table) throws SQLException, RepositoryException;
