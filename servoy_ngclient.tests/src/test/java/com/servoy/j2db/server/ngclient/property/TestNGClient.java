@@ -167,8 +167,9 @@ public class TestNGClient extends NGClient
 							returnDataSet[i] = new BufferedDataSet();
 							for (int k = 0; k < set.getRowCount(); k++)
 							{
-								Object[][] value = (Object[][])((Placeholder)((SetCondition)((QuerySelect)array[i].getSqlSelect()).getConditions().values().iterator().next().getConditions().get(
-									0)).getValues()).getValue();
+								Object[][] value = (Object[][])((Placeholder)((SetCondition)((QuerySelect)array[i].getSqlSelect()).getConditions().values()
+									.iterator().next().getConditions().get(
+										0)).getValues()).getValue();
 								if (set.getRow(k)[1].equals(value[0][0]))
 								{
 									returnDataSet[i].addRow(new Object[] { set.getRow(k)[0], set.getRow(k)[1], set.getRow(k)[2], set.getRow(k)[3] });
@@ -300,7 +301,7 @@ public class TestNGClient extends NGClient
 
 			@Override
 			public QuerySet getSQLQuerySet(String serverName, ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve,
-				boolean forceQualifyColumns) throws RepositoryException, RemoteException
+				boolean forceQualifyColumns, boolean disableUseArrayForIn) throws RepositoryException, RemoteException
 			{
 				return null;
 			}

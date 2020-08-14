@@ -296,9 +296,9 @@ public class DataServerProxy implements IDataServer
 	}
 
 	public QuerySet getSQLQuerySet(String serverName, ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve,
-		boolean forceQualifyColumns) throws RepositoryException, RemoteException
+		boolean forceQualifyColumns, boolean disableUseArrayForIn) throws RepositoryException, RemoteException
 	{
-		return ds.getSQLQuerySet(serverName, sqlQuery, filters, startRow, rowsToRetrieve, forceQualifyColumns);
+		return ds.getSQLQuerySet(serverName, sqlQuery, filters, startRow, rowsToRetrieve, forceQualifyColumns, disableUseArrayForIn);
 	}
 
 
