@@ -2103,7 +2103,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			sqlSelect.removeUnusedJoins(false);
 			tableFilterParams = null;
 		}
-		return application.getDataServer().getSQLQuerySet(serverName, sqlSelect, tableFilterParams, 0, -1, true);
+		return application.getDataServer().getSQLQuerySet(serverName, sqlSelect, tableFilterParams, 0, -1, true, true);
 	}
 
 	/**
