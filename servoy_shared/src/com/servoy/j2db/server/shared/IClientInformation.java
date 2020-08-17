@@ -107,4 +107,11 @@ public interface IClientInformation extends com.servoy.j2db.server.IClientInform
 	 * @return a String array with the client information
 	 */
 	String[] getClientInfos();
+
+	/**
+	 * This returns the status line of a NGClient (other clients don't have a value for this)
+	 *
+	 * @return a string that is the status line as reported on the admin page.
+	 */
+	String getStatusLine();
 }
