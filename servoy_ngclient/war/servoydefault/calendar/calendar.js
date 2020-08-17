@@ -43,15 +43,6 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 			//this method sets locale tooltips for the buttons in the datepickers
 			$utils.getI18NCalendarMessages(theDateTimePicker);
 					
-			if ($scope.model.format && $scope.model.format.isMask)
-			{
-				// delete shortcut clears the date; this interferes(behaves strange) with mask, so cancel the shortcut in this scenario 
-				var defaultBinding = theDateTimePicker.keyBinds();
-				defaultBinding.delete = function (widget) {
-					// nop
-		        }
-			}	
-	        
 			function inputChanged(e) {
 				if ($scope.model.findmode) {
 					ngModel.$setViewValue(child.children("input").val());
@@ -133,6 +124,15 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 				$element.off("dp.change", inputChanged);
 				if (format && format[which]) {
 					dateFormat = moment().toMomentFormatString(format[which]);
+				}
+				
+				if ($scope.model.format && $scope.model.format.isMask)
+				{
+					// delete shortcut clears the date; this interferes(behaves strange) with mask, so cancel the shortcut in this scenario 
+					var defaultBinding = theDateTimePicker.keyBinds();
+					defaultBinding.delete = function (widget) {
+						// nop
+			        }
 				}
 
 				if (angular.isDefined(theDateTimePicker)) { // can be undefined in find mode
