@@ -191,6 +191,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	@Override
 	public void detach()
 	{
+		if (webObjectContext == null) return; // already detached or nothing to clean up.
+
 		if (forFoundsetPropertyListener != null)
 		{
 			webObjectContext.removePropertyChangeListener(forFoundsetTypedPropertyName, forFoundsetPropertyListener);
