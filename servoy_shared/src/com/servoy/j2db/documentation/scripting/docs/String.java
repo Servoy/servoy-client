@@ -22,7 +22,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 /**
  * Dummy class for listing methods for JavaScript types in a manner that
  * suits our documentation generator.
- * 
+ *
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "String", scriptingName = "String")
@@ -33,7 +33,7 @@ public class String
 	 * Gives the length of the string.
 	 *
 	 * @sample string.length;
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/length
 	 */
 	public Number js_getLength()
@@ -49,9 +49,9 @@ public class String
 	 * returns a copy of the string embedded within an anchor &lt;A&gt; tag set.
 	 *
 	 * @sample string.anchor();
-	 * 
-	 * @param nameAttribute 
-	 * 
+	 *
+	 * @param nameAttribute
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/anchor
 	 */
 	public String js_anchor(String nameAttribute)
@@ -63,7 +63,7 @@ public class String
 	 * returns a copy of the string embedded within an &lt;BIG&gt; tag set.
 	 *
 	 * @sample string.big();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/big
 	 */
 	public String js_big()
@@ -75,7 +75,7 @@ public class String
 	 * returns a copy of the string embedded within an &lt;BLINK&gt; tag set.
 	 *
 	 * @sample string.blink();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/blink
 	 */
 	public String js_blink()
@@ -87,7 +87,7 @@ public class String
 	 * returns a copy of the string embedded within an &lt;B&gt; tag set.
 	 *
 	 * @sample string.bold();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/bold
 	 */
 	public String js_bold()
@@ -99,9 +99,9 @@ public class String
 	 * returns a character of the string.
 	 *
 	 * @sample string.charAt(integer_position);
-	 * 
-	 * @param index 
-	 * 
+	 *
+	 * @param index
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/charAt
 	 */
 	public Number js_charAt(Number index)
@@ -113,9 +113,9 @@ public class String
 	 * returns a decimal code of the char in the string.
 	 *
 	 * @sample string.charCodeAt(integer_position);
-	 * 
-	 * @param index 
-	 * 
+	 *
+	 * @param index
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/charCodeAt
 	 */
 	public Number js_charCodeAt(Number index)
@@ -127,9 +127,9 @@ public class String
 	 * returns a string that appends the parameter string to the string.
 	 *
 	 * @sample string.concat(string);
-	 * 
-	 * @param string2  
-	 * 
+	 *
+	 * @param string2
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/concat
 	 */
 	public String js_concat(String string2)
@@ -140,12 +140,42 @@ public class String
 	/**
 	* @clonedesc js_concat(String)
 	* @sampleas js_concat(String)
-	 * 
-	 * @param string2 
+	 *
+	 * @param string2
 	 * @param stringN
-	 * 
+	 *
 	 */
 	public String js_concat(String string2, String stringN)
+	{
+		return null;
+	}
+
+	/**
+	 * Determines whether a string ends with the characters of a specified string, returning true or false as appropriate.
+	 *
+	 *@sample
+	 *  var str1 = 'Cats are the best!';
+	 *  application.output(str1.endsWith('best', 17));
+	 *
+	 * @param searchString The characters to be searched for at the end of str.
+	 *
+	 * @return true if the given characters are found at the end of the string; otherwise, false
+	 */
+	public String js_endsWith(String searchString)
+	{
+		return null;
+	}
+
+	/**
+	* @clonedesc js_endsWith(String)
+	* @sampleas js_endsWith(String)
+	
+	 * @param searchString The characters to be searched for at the end of str.
+	 * @param length If provided, it is used as the length of str. Defaults to str.length.
+	 *
+	 * @return true if the given characters are found at the end of the string; otherwise, false
+	 */
+	public String js_endsWith(String searchString, Number length)
 	{
 		return null;
 	}
@@ -154,8 +184,8 @@ public class String
 	 * returns a boolean that checks if the given string is equal to the string
 	 *
 	 * @sample string.equals(string);
-	 * 
-	 * @param other 
+	 *
+	 * @param other
 	 */
 	public Boolean js_equals(String other)
 	{
@@ -166,8 +196,8 @@ public class String
 	 * returns a boolean that checks if the given string is equal to the string ignoring case
 	 *
 	 * @sample string.equalsIgnoreCase(string);
-	 * 
-	 * @param other 
+	 *
+	 * @param other
 	 */
 	public Boolean js_equalsIgnoreCase(String other)
 	{
@@ -178,7 +208,7 @@ public class String
 	 * returns a copy of the string embedded within an anchor &lt;TT&gt; tag set.
 	 *
 	 * @sample string.fixed();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/fixed
 	 */
 	public String js_fixed()
@@ -190,9 +220,9 @@ public class String
 	 * returns a copy of the string embedded within an &lt;FONT&gt; tag set, the color param is assigned the the color attribute.
 	 *
 	 * @sample string.fontcolor(color);
-	 * 
-	 * @param color 
-	 * 
+	 *
+	 * @param color
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/fontcolor
 	 */
 	public String js_fontcolor(String color)
@@ -204,9 +234,9 @@ public class String
 	 * returns a copy of the string embedded within an &lt;FONT&gt; tag set, The size param is set to the SIZE attribute
 	 *
 	 * @sample string.fontsize(size);
-	 * 
-	 * @param size 
-	 * 
+	 *
+	 * @param size
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/fontsize
 	 */
 	public String js_fontsize(Number size)
@@ -216,15 +246,15 @@ public class String
 
 	/**
 	 * returns a string created by using the specified sequence of Unicode values.
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * String.fromCharCode(num)
 	 * // String.fromCharCode(num1,num2,num3)
-	 * 
+	 *
 	 * @return
-	 * 
+	 *
 	 * @param num
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/fromCharCode
 	 */
 	public String js_fromCharCode(Number... num)
@@ -236,10 +266,10 @@ public class String
 	 * returns the found index of the given string in string.
 	 *
 	 * @sample string.indexOf(string,startPosition);
-	 * 
-	 * @param searchValue 
-	 * @param fromIndex 
-	 * 
+	 *
+	 * @param searchValue
+	 * @param fromIndex
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/indexOf
 	 */
 	public Number js_indexOf(String searchValue, Number fromIndex)
@@ -251,7 +281,7 @@ public class String
 	 * returns a copy of the string embedded within an &lt;I&gt; tag set
 	 *
 	 * @sample string.italics();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/italics
 	 */
 	public String js_italics()
@@ -263,10 +293,10 @@ public class String
 	 * returns the found index of the given string in string from the end.
 	 *
 	 * @sample string.lastIndexOf(string,startPosition);
-	 * 
-	 * @param searchValue 
-	 * @param fromIndex 
-	 * 
+	 *
+	 * @param searchValue
+	 * @param fromIndex
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/lastIndexOf
 	 */
 	public Number js_lastIndexOf(String searchValue, Number fromIndex)
@@ -278,9 +308,9 @@ public class String
 	 * returns a copy of the string embedded within an &lt;A&gt; tag set.
 	 *
 	 * @sample string.link(url);
-	 * 
-	 * @param hrefAttribute 
-	 * 
+	 *
+	 * @param hrefAttribute
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/link
 	 */
 	public String js_link(String hrefAttribute)
@@ -292,9 +322,9 @@ public class String
 	 * @sample
 	 * var s = "Have a nice day!";
 	 * application.output(s.localeCompare("Hello"));
-	 * 
+	 *
 	 * @param otherString
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/localeCompare
 	 */
 	public Number js_localeCompare(String otherString)
@@ -306,16 +336,60 @@ public class String
 	 * returns an array of strings within the current string that matches the regexp.
 	 *
 	 * @sample string.match(regexpr);
-	 * 
-	 * @param regexp 
-	 * 
+	 *
+	 * @param regexp
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/match
 	 */
 	public Array js_match(RegExp regexp)
 	{
 		return null;
 	}
-	
+
+	/**
+	 * Returns the Unicode Normalization Form of the string. (defaults to "NFC" form)
+	 *
+	 * @return A string containing the Unicode Normalization Form of the given string.
+	 */
+	public String js_normalize()
+	{
+		return null;
+	}
+
+	/**
+	 * Returns the Unicode Normalization Form of the string.
+	 * form param can be one of "NFC", "NFD", "NFKC", or "NFKD", specifying the Unicode Normalization Form. If omitted or undefined, "NFC" is used.
+	 *
+	 * These values have the following meanings:
+	 *
+	 * "NFC"
+	 * Canonical Decomposition, followed by Canonical Composition.
+	 * "NFD"
+	 * Canonical Decomposition.
+	 * "NFKC"
+	 * Compatibility Decomposition, followed by Canonical Composition.
+	 * "NFKD"
+	 * Compatibility Decomposition.
+	 *
+	 * @sample
+	 * var string1 = '\u00F1';           // ñ
+	 * var string2 = '\u006E\u0303';     // ñ
+	 *
+	 * string1 = string1.normalize('NFD');
+	 * string2 = string2.normalize('NFD');
+	 *
+	 * application.output(string1 === string2); // true
+	 * application.output(string1.length);      // 2
+	 * application.output(string2.length);      // 2
+	 *
+	 * @param form  param can be one of "NFC", "NFD", "NFKC", or "NFKD",
+	 * @return A string containing the Unicode Normalization Form of the given string.
+	 */
+	public String js_normalize(String form)
+	{
+		return null;
+	}
+
 	/**
 	 * Returns the string stripped of whitespace from both ends.
 	 *
@@ -329,18 +403,32 @@ public class String
 	}
 
 	/**
-	 * returns a new string where the matches of the given regexp are replaced by newSubStr.
+	 * Constructs and returns a new string which contains the specified number of copies of the string on which it was called, concatenated together.
 	 *
-	 * @sample 
+	 * @sample
+	 * var str = 'abc'.repeat(2); // 'abcabc'
+	 *
+	 * @param count An integer between 0 and +Infinity, indicating the number of times to repeat the string.
+	 * @return  A new string containing the specified number of copies of the given string.
+	 */
+	public String js_repeat(Number count)
+	{
+		return null;
+	}
+
+	/**
+	 * returns a new string where the matches of the given reg exp are replaced by newSubStr.
+	 *
+	 * @sample
 	 * string.replace(regexp,newSubStr);
 	 * //var re = /(\w+)\s(\w+)/;
 	 * //var str = "John Smith";
 	 * //var newstr = str.replace(re, "$2, $1");
 	 * //application.output(newstr);
-	 * 
-	 * @param regexp 
-	 * @param newSubStr 
-	 * 
+	 *
+	 * @param regexp
+	 * @param newSubStr
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/replace
 	 */
 	public String js_replace(RegExp regexp, String newSubStr)
@@ -352,7 +440,7 @@ public class String
 	 * returns a new string where the matches of the given regexp are replaced by the return value of the function.
 	 * The function parameter is the function to be invoked to create the new substring (to put in place of the substring received from parameter #1).
 	 *
-	 * @sample 
+	 * @sample
 	 * //the callback definition
 	 * function replacer(match, p1, p2, p3, offset, string){
 	 * 		// match is the matched substring
@@ -363,10 +451,10 @@ public class String
 	 * }
 	 * // using replace method with replacer callback
 	 * newString = "abc12345#$*%".replace(/([^\d]*)(\d*)([^\w]*)/, replacer);
-	 * 
-	 * @param regexp 
-	 * @param function 
-	 * 
+	 *
+	 * @param regexp
+	 * @param function
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/replace
 	 */
 	public String js_replace(RegExp regexp, Function function)
@@ -378,10 +466,10 @@ public class String
 	 * returns a new string where the first match of the given substr is replaced by newSubStr.
 	 *
 	 * @sample string.replace(substr,newSubStr);
-	 * 
+	 *
 	 * @param substr
-	 * @param newSubStr 
-	 * 
+	 * @param newSubStr
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/replace
 	 */
 	public String js_replace(String substr, String newSubStr)
@@ -393,17 +481,17 @@ public class String
 	 * returns a new string where the first match of the given substr is replaced by the return value of the function.
 	 * The function parameter is the function to be invoked to create the new substring (to put in place of the substring received from parameter #1).
 	 *
-	 * @sample 
+	 * @sample
 	 * // the callback definition
 	 * function replacer(match){
 	 * 		return match.toUpperCase()
 	 * }
 	 * // using replace method with replacer callback
 	 * var newString = "abc".replace("a", replacer);
-	 * 
+	 *
 	 * @param substr
-	 * @param function 
-	 * 
+	 * @param function
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/replace
 	 */
 	public String js_replace(String substr, Function function)
@@ -415,9 +503,9 @@ public class String
 	 * returns an index where the first match is found of the regexp
 	 *
 	 * @sample string.search(regexpr);
-	 * 
-	 * @param regexp 
-	 * 
+	 *
+	 * @param regexp
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/search
 	 */
 	public Number js_search(RegExp regexp)
@@ -429,9 +517,9 @@ public class String
 	 * returns a substring of the string.
 	 *
 	 * @sample string.slice(start,end);
-	 * 
-	 * @param beginSlice 
-	 * 
+	 *
+	 * @param beginSlice
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/slice
 	 */
 	public String js_slice(Number beginSlice)
@@ -442,10 +530,10 @@ public class String
 	/**
 	 * @clonedesc js_slice(Number)
 	 * @sampleas js_slice(Number)
-	 * 
-	 * @param beginSlice 
+	 *
+	 * @param beginSlice
 	 * @param endSlice
-	 * 
+	 *
 	 */
 	public String js_slice(Number beginSlice, Number endSlice)
 	{
@@ -456,7 +544,7 @@ public class String
 	 * returns a copy of the string embedded within an &lt;SMALL&gt; tag set.
 	 *
 	 * @sample string.small();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/small
 	 */
 	public String js_small()
@@ -501,10 +589,40 @@ public class String
 	}
 
 	/**
+	 * Determines whether a string begins with the characters of a specified string, returning true or false as appropriate.
+	 *
+	 *@sample
+	 *  var str1 = 'Cats are the best!';
+	 *  application.output(str1.startsWith('Cats'));
+	 *
+	 * @param searchString The characters to be searched for at the start of this string.
+	 *
+	 * @return true if the given characters are found at the beginning of the string; otherwise, false
+	 */
+	public String js_startsWith(String searchString)
+	{
+		return null;
+	}
+
+	/**
+	* @clonedesc js_startsWith(String)
+	* @sampleas js_startsWith(String)
+	
+	 * @param searchString The characters to be searched for at the start of this string.
+	 * @param position The position in this string at which to begin searching for searchString. Defaults to 0.
+	 *
+	 * @return true if the given characters are found at the beginning of the string; otherwise, false
+	 */
+	public String js_startsWith(String searchString, Number position)
+	{
+		return null;
+	}
+
+	/**
 	 * returns a copy of the string embedded within an &lt;STRIKE&gt; tag set.
 	 *
 	 * @sample string.strike();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/strike
 	 */
 	public String js_strike()
@@ -516,7 +634,7 @@ public class String
 	 * returns a copy of the string embedded within an &lt;SUB&gt; tag set.
 	 *
 	 * @sample string.sub();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/sub
 	 */
 	public String js_sub()
@@ -528,9 +646,9 @@ public class String
 	 * returns a substring of the string from the start with the number of chars specified.
 	 *
 	 * @sample string.substr(start, number_of_chars);
-	 * 
-	 * @param start 
-	 * 
+	 *
+	 * @param start
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/substr
 	 */
 	public String js_substr(Number start)
@@ -541,10 +659,10 @@ public class String
 	/**
 	 * @clonedesc js_substr(Number)
 	 * @sampleas js_substr(Number)
-	 * 
-	 * @param start 
+	 *
+	 * @param start
 	 * @param length
-	 * 
+	 *
 	 */
 	public String js_substr(Number start, Number length)
 	{
@@ -555,9 +673,9 @@ public class String
 	 * Returns a substring of the string from the start index until the end index.
 	 *
 	 * @sample string.substring(start, end);
-	 * 
-	 * @param indexA 
-	 * 
+	 *
+	 * @param indexA
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/substring
 	 */
 	public String js_substring(Number indexA)
@@ -568,10 +686,10 @@ public class String
 	/**
 	* @clonedesc js_substring(Number)
 	* @sampleas js_substring(Number)
-	 * 
-	 * @param indexA 
+	 *
+	 * @param indexA
 	 * @param indexB
-	 * 
+	 *
 	 */
 	public String js_substring(Number indexA, Number indexB)
 	{
@@ -582,7 +700,7 @@ public class String
 	 * returns a copy of the string embedded within an &lt;SUP&gt; tag set.
 	 *
 	 * @sample string.sup();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/sup
 	 */
 	public String js_sup()
@@ -591,11 +709,11 @@ public class String
 	}
 
 	/**
-	 * 
+	 *
 	 * @sample
 	 * var s = "Have a nice day!";
 	 * application.output(s.toLocaleLowerCase());
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/toLocaleLowerCase
 	 */
 	public String js_toLocaleLowerCase()
@@ -607,7 +725,7 @@ public class String
 	 * returns a string with all lowercase letters of the current string.
 	 *
 	 * @sample string.toLowerCase();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/toLowerCase
 	 */
 	public String js_toLowerCase()
@@ -616,11 +734,11 @@ public class String
 	}
 
 	/**
-	 * 
+	 *
 	 * @sample
 	 * var s = "Have a nice day!";
 	 * application.output(s.toLocaleUpperCase());
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/toLocaleUpperCase
 	 */
 	public String js_toLocaleUpperCase()
@@ -632,14 +750,14 @@ public class String
 	 * returns a string with all uppercase letters of the current string.
 	 *
 	 * @sample string.toUpperCase();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/toUpperCase
 	 */
 	public String js_toUpperCase()
 	{
 		return null;
 	}
-	
+
 	/**
 	 * Determines whether one string may be found within another string.
 	 *
