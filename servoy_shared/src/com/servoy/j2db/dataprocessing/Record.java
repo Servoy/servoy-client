@@ -807,12 +807,43 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		sb.append(']');
 
 		sb.append("  COLUMS: "); //$NON-NLS-1$
-		Object[] objects = getIds();
-		for (Object element : objects)
+		String[] objects = parent.getSQLSheet().getColumnNames();
+		for (String element : objects)
 		{
 			sb.append(element);
 			sb.append(',');
 		}
+
+		if (getParentFoundSet() != null && getRawData() != null)
+		{
+			String[] cnames = getParentFoundSet().getSQLSheet().getColumnNames();
+			Object[] oldd = getRawData().getRawOldColumnData();
+			List<Object[]> rows = new ArrayList<Object[]>();
+			if (oldd != null && getRawData().existInDB())
+			{
+				Object[] newd = getRawData().getRawColumnData();
+				for (int i = 0; i < cnames.length; i++)
+				{
+					Object oldv = (oldd == null ? null : oldd[i]);
+					if (!Utils.equalObjects(oldv, newd[i])) rows.add(new Object[] { cnames[i], oldv, newd[i] });
+				}
+			}
+			if (rows.size() > 0)
+			{
+				sb.append("  EDITED_COLUMS: "); //$NON-NLS-1$
+				for (Object[] editedData : rows)
+				{
+					sb.append(editedData[0]);
+					sb.append('[');
+					sb.append(editedData[1]);
+					sb.append(',');
+					sb.append(editedData[2]);
+					sb.append(']');
+					sb.append(',');
+				}
+			}
+		}
+
 		return sb.toString();
 	}
 
