@@ -354,7 +354,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	{
 		if (index == null && mainSolution != null)
 		{
-			synchronized (this)
+			// just sync on a private field (not the this! so there are no deadlocks)
+			synchronized (CLONE_PROPERTY)
 			{
 				if (index == null)
 				{
@@ -1601,7 +1602,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return dataProvidersMap;
 	}
 
-	public synchronized void flushDataProvidersForPersist(IPersist persist)
+	public void flushDataProvidersForPersist(IPersist persist)
 	{
 		if (persist == null || allProvidersForTable == null) return;
 
@@ -1616,7 +1617,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 	}
 
-	public synchronized void flushDataProvidersForTable(ITable table)
+	public void flushDataProvidersForTable(ITable table)
 	{
 		if (table != null && allProvidersForTable != null)
 		{
@@ -1811,7 +1812,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return seq;
 	}
 
-	private synchronized void flushGlobalProviders()
+	private void flushGlobalProviders()
 	{
 		globalProviders.clear();
 	}
