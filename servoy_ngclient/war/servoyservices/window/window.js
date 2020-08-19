@@ -343,7 +343,7 @@ angular.module('window',['servoy'])
 				scope.model.popupform = null;
 				scope.formPopupShown = null;
 			}
-			else {
+			else if( scope.model.popupform ) {
 				_this.showFormPopup(scope.model.popupform.component,scope.model.popupform.form,scope.model.popupform.width,scope.model.popupform.height,scope.model.popupform.x,scope.model.popupform.y,scope.model.popupform.showBackdrop);
 				scope.formPopupShown = scope.model.popupform;
 			}

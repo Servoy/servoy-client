@@ -831,6 +831,11 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 						new Object[] { ((LiteralDataprovider)primary[i]).getLiteral(), foreign[i].getDataProviderID() });
 				}
 
+				if (isUUID(primary[i]) && isUUID(foreign[i]))
+				{
+					continue; //allow uuid to media mapping
+				}
+
 				int primaryType = Column.mapToDefaultType(primary[i].getDataProviderType());
 				int foreignType = Column.mapToDefaultType(foreign[i].getDataProviderType());
 				if (primaryType == IColumnTypes.INTEGER && foreignType == IColumnTypes.NUMBER)
@@ -840,16 +845,6 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 				if (primaryType == IColumnTypes.NUMBER && foreignType == IColumnTypes.INTEGER)
 				{
 					continue; //allow number to integer mappings
-				}
-				if (primaryType == IColumnTypes.TEXT && foreignType == IColumnTypes.MEDIA && primary[i] instanceof IBaseColumn &&
-					((((IBaseColumn)primary[i]).getFlags() & IBaseColumn.UUID_COLUMN) != 0))
-				{
-					continue; //allow uuid to media mapping
-				}
-				if (primaryType == IColumnTypes.MEDIA && foreignType == IColumnTypes.TEXT &&
-					((foreign[i].getFlags() & IBaseColumn.UUID_COLUMN) != 0))
-				{
-					continue; //allow media to uuid mapping
 				}
 				if (foreignType == IColumnTypes.INTEGER && primary[i] instanceof AbstractBase &&
 					"Boolean".equals(((AbstractBase)primary[i]).getSerializableRuntimeProperty(IScriptProvider.TYPE))) //$NON-NLS-1$
@@ -864,6 +859,24 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * @param iDataProvider
+	 * @return
+	 */
+	private boolean isUUID(IDataProvider dataProvider)
+	{
+		IDataProvider real = dataProvider instanceof ColumnWrapper ? ((ColumnWrapper)dataProvider).getColumn() : dataProvider;
+		if (real instanceof AbstractBase)
+		{
+			return "UUID".equals(((AbstractBase)real).getSerializableRuntimeProperty(IScriptProvider.TYPE));
+		}
+		if (real instanceof Column)
+		{
+			return ((Column)real).hasFlag(IBaseColumn.UUID_COLUMN);
+		}
+		return false;
 	}
 
 	private transient Boolean isGlobal;

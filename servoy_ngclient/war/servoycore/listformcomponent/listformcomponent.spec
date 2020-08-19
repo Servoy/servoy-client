@@ -17,7 +17,8 @@
 		"rowStyleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }},
 		"rowStyleClassDataprovider": { "type": "dataprovider", "forFoundset": "foundset" },
 		"paginationStyleClass" : { "type" :"styleclass", "tags": { "scope" :"design" } },
-		"selectionClass": { "type": "styleclass", "tags": { "scope" :"design" }},
+		"readOnly" : "protected",
+		"selectionClass": { "type": "styleclass", "tags": { "scope" :"design", "doc": "In case <b>rowStyleClassDataprovider</b> or <b>rowStyleClass</b> are used, make sure that the selection styleclass definition is last in the solution stylesheet, to avoid overwriting it.<br/><i>.listitem-info</i> {<br/>&nbsp;&nbsp;&nbsp;<i>background-color: blue;</i><br/>}<br/><i>.listitem-selected</i> {<br/>&nbsp;&nbsp;&nbsp;<i>background-color: orange;</i><br/>}" }},
 		"tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design" }},
 		"visible" : "visible"
 	},

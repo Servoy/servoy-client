@@ -231,7 +231,7 @@ public interface IDataServer extends Remote
 	 * @throws RemoteException
 	 */
 	public QuerySet getSQLQuerySet(String serverName, ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve,
-		boolean forceQualifyColumns) throws RepositoryException, RemoteException;
+		boolean forceQualifyColumns, boolean disableUseArrayForIn) throws RepositoryException, RemoteException;
 
 
 	public IDataSet[] executeProcedure(String clientId, String server_name, String tid, Procedure procedure, Object[] arguments)

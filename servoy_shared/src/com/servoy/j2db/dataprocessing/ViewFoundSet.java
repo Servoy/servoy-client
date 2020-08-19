@@ -693,7 +693,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@JSFunction
 	public int save()
 	{
-		return save(null);
+		return doSave(null);
 	}
 
 	/**
@@ -741,7 +741,11 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	public int save(ViewRecord record)
 	{
 		if (record != null && record.getParentFoundSet() != this) return ISaveConstants.SAVE_FAILED;
+		return doSave(record);
+	}
 
+	private int doSave(ViewRecord record)
+	{
 		int retCode = ISaveConstants.STOPPED;
 		List<ViewRecord> toSave = new ArrayList<>();
 		if (record == null)
@@ -755,6 +759,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 		if (toSave.size() > 0)
 		{
+			ArrayList<ViewRecord> processedRecords = new ArrayList<ViewRecord>();
 			try
 			{
 				boolean previousRefresh = refresh;
@@ -765,10 +770,10 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 				for (ViewRecord rec : toSave)
 				{
 					Map<String, Object> changes = rec.getChanges();
-					// directly just remove it from the editted records if we try to save it.
-					rec.clearChanges();
+					// directly just remove it from the edited records if we try to save it.
 					editedRecords.remove(rec);
 					if (changes == null) continue;
+
 					Map<BaseQueryTable, Map<QueryColumn, Object>> tableToChanges = new IdentityHashMap<>();
 					columnNames.forEach((selectValue, name) -> {
 						if (changes.containsKey(name))
@@ -829,42 +834,76 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 						statement.setExpectedUpdateCount(1);
 						statements.add(statement);
 					});
-				}
-
-				Object[] updateResult = manager.getApplication().getDataServer().performUpdates(manager.getApplication().getClientID(),
-					statements.toArray(new SQLStatement[statements.size()]));
-				for (int i = 0; i < updateResult.length; i++)
-				{
-					Object o = updateResult[i];
-					if (o instanceof Exception)
+					JSRecordMarkers validateObject = validate(rec);
+					if (validateObject != null && validateObject.isHasErrors())
 					{
-						// something went wrong
-						ViewRecord rec = toSave.get(i);
-						failedRecords.add(rec);
-						rec.setLastException((Exception)o);
-						retCode = ISaveConstants.SAVE_FAILED;
+						Object[] genericExceptions = validateObject.getGenericExceptions();
+						if (genericExceptions.length > 0)
+						{
+							rec.setLastException((Exception)genericExceptions[0]);
+						}
+						if (!failedRecords.contains(rec))
+						{
+							failedRecords.add(rec);
+						}
+					}
+
+					if (!failedRecords.contains(rec))
+					{
+						processedRecords.add(rec);
 					}
 				}
 
-				// TODO what happens if the save failed for some? add the changes back in?
-
-				for (SQLStatement statement : statements)
+				if (toSave.size() > 1 && failedRecords.isEmpty() || //if this is a save all call we don't save if we have failed records
+					toSave.size() == 1 && !failedRecords.contains(record))//if this is a single record save, we just check if it is failed or not
 				{
-					manager.notifyDataChange(DataSourceUtils.createDBTableDataSource(statement.getServerName(), statement.getTableName()), statement.getPKs(),
-						ISQLActionTypes.UPDATE_ACTION, statement.getChangedColumns());
-				}
 
-				// if we should have refreshed before this save and it is still in refresh mode (refresh is true and no editted records anymore)
-				// do a load but only if there are listeners
-				if (previousRefresh && shouldRefresh() && foundSetEventListeners.size() > 0)
-				{
-					loadAllRecordsImpl();
+					Object[] updateResult = manager.getApplication().getDataServer().performUpdates(manager.getApplication().getClientID(),
+						statements.toArray(new SQLStatement[statements.size()]));
+					for (int i = 0; i < updateResult.length; i++)
+					{
+						ViewRecord rec = toSave.get(i);
+						Object o = updateResult[i];
+						if (o instanceof Exception)
+						{
+							// something went wrong
+							failedRecords.add(rec);
+							rec.setLastException((Exception)o);
+							retCode = ISaveConstants.SAVE_FAILED;
+						}
+						else
+						{
+							rec.clearChanges();
+						}
+					}
+
+					// TODO what happens if the save failed for some? add the changes back in?
+
+					for (SQLStatement statement : statements)
+					{
+						manager.notifyDataChange(DataSourceUtils.createDBTableDataSource(statement.getServerName(), statement.getTableName()),
+							statement.getPKs(),
+							ISQLActionTypes.UPDATE_ACTION, statement.getChangedColumns());
+					}
+
+					// if we should have refreshed before this save and it is still in refresh mode (refresh is true and no editted records anymore)
+					// do a load but only if there are listeners
+					if (previousRefresh && shouldRefresh() && foundSetEventListeners.size() > 0)
+					{
+						loadAllRecordsImpl();
+					}
 				}
 			}
 			catch (ServoyException | RemoteException e)
 			{
 				Debug.error(e);
-				return ISaveConstants.SAVE_FAILED;
+			}
+			finally
+			{
+				if (!failedRecords.isEmpty())
+				{
+					processedRecords.stream().forEachOrdered(editedRecords::add);
+				}
 			}
 		}
 		return retCode;
@@ -910,6 +949,18 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	public void loadAllRecords() throws ServoyException
 	{
 		currentChunkSize = chunkSize;
+		if (editedRecords.size() > 0)
+		{
+			// if there are editing records and load all is called, then just remove all changes
+			editedRecords.stream().forEach(edited -> edited.clearChanges());
+			editedRecords.clear();
+		}
+		if (failedRecords.size() > 0)
+		{
+			// if there are failed records and load all is called, then just remove all changes
+			failedRecords.stream().forEach(failed -> failed.clearChanges());
+			failedRecords.clear();
+		}
 		loadAllRecordsImpl();
 	}
 
@@ -927,16 +978,6 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			List<ViewRecord> old = records;
 			records = new ArrayList<>(ds.getRowCount());
 			pkByDatasourceCache.clear();
-
-			if (editedRecords.size() > 0)
-			{
-				// if there are editing records and load all is called, then just remove all changes
-				for (ViewRecord edit : editedRecords)
-				{
-					edit.clearChanges();
-				}
-				editedRecords.clear();
-			}
 
 			String[] colNames = columnNames.values().toArray(new String[columnNames.size()]);
 
@@ -2334,5 +2375,15 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	public Class< ? >[] getAllReturnedTypes()
 	{
 		return new Class< ? >[] { ViewRecord.class };
+	}
+
+	/**
+	 * Check if validation or db exceptions ocurred on a previous attempt to saving this record.
+	 * @param viewRecord
+	 * @return true if the record is failed, false otherwise
+	 */
+	boolean isFailedRecord(ViewRecord viewRecord)
+	{
+		return failedRecords.contains(viewRecord);
 	}
 }

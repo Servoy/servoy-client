@@ -27,6 +27,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Formatter;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
@@ -352,6 +353,51 @@ public class JSUtils implements IJSUtils
 	}
 
 	/**
+	 * Format a date object to a text representation.
+	 * This will format with the system timezone for the webclient
+	 * With language and/or country the locale will be created.
+	 * For NGClient it will use the timezone of the client, the same goes for the Smartclient (but that is the system timezone)
+	 * see {@link #dateFormat(Date, String, String)} for using the actual clients timezone.
+	 *
+	 * Format can be a string like: 'dd-MM-yyyy' , 'dd-MM-yyyy HH:mm' , 'MM/dd/yyyy', 'MM/dd/yyyy hh:mm aa', 'dd.MM.yyyy'.
+	 * Symbols meaning is:
+	 *  G        era designator
+	 *  y        year
+	 *  Y        week year
+	 *  M        month in year
+	 *  d        day in month
+	 *  h        hour in am/pm (1~12)
+	 *  H        hour in day (0~23)
+	 *  m        minute in hour
+	 *  s        second in minute
+	 *  S        millisecond
+	 *  E        day in week
+	 *  D        day in year
+	 *  F        day of week in month
+	 *  w        week in year
+	 *  W        week in month
+	 *  a        am/pm marker
+	 *  z        time zone
+	 *  k        hour in day (1~24)
+	 *  K        hour in am/pm (0~11)
+	 *
+	 * @sample
+	 * var formattedDateString = utils.dateFormat(dateobject,'EEE, d MMM yyyy HH:mm:ss', "fr", "CA");
+	 *
+	 * @param date the date
+	 * @param format the format to output
+	 * @param language language used to create locale
+	 * @param country country used along side language to create the locale
+	 * @return the date as text
+	 */
+	@JSFunction
+	public String dateFormat(Date date, String format, String language, String country)
+	{
+		boolean isSwingOrNGClient = Utils.isSwingClient(application.getApplicationType()) || (application.getApplicationType() == IApplication.NG_CLIENT);
+		return dateFormat(date, format, isSwingOrNGClient ? null : TimeZone.getDefault().getID(), language, country);
+	}
+
+	/**
 	 * Format a date object to a text representation using the format and timezone given.
 	 * If the timezone is not given the timezone of the client itself will be used.
 	 * see i18n.getAvailableTimeZoneIDs() to get a timezone string that can be used.
@@ -392,6 +438,69 @@ public class JSUtils implements IJSUtils
 		if (format != null && date != null)
 		{
 			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, application.getLocale());
+			simpleDateFormat.setTimeZone(timezone == null ? application.getTimeZone() : TimeZone.getTimeZone(timezone));
+			String format2 = simpleDateFormat.format(date);
+			return format2;
+		}
+		return ""; //$NON-NLS-1$
+	}
+
+	/**
+	 * Format a date object to a text representation using the format, timezone, language and country given.
+	 * With the language and country given, the locale will be created.
+	 * If the timezone is not given the timezone of the client itself will be used.
+	 * see i18n.getAvailableTimeZoneIDs() to get a timezone string that can be used.
+	 *
+	 * Format can be a string like: 'dd-MM-yyyy' , 'dd-MM-yyyy HH:mm' , 'MM/dd/yyyy', 'MM/dd/yyyy hh:mm aa', 'dd.MM.yyyy'
+	 * Symbols meaning is:
+	 *  G        era designator
+	 *  y        year
+	 *  Y        week year
+	 *  M        month in year
+	 *  d        day in month
+	 *  h        hour in am/pm (1~12)
+	 *  H        hour in day (0~23)
+	 *  m        minute in hour
+	 *  s        second in minute
+	 *  S        millisecond
+	 *  E        day in week
+	 *  D        day in year
+	 *  F        day of week in month
+	 *  w        week in year
+	 *  W        week in month
+	 *  a        am/pm marker
+	 *  z        time zone
+	 *  k        hour in day (1~24)
+	 *  K        hour in am/pm (0~11)
+	 *
+	 * @sample
+	 * var formattedDateString = utils.dateFormat(dateobject,'EEE, d MMM yyyy HH:mm:ss', "UTC", "fr", "CA");
+	 *
+	 * @param date the date
+	 * @param format the format to output
+	 * @param timezone the timezone to use the format, if null then current client timezone is used.
+	 * @param language language used to create locale
+	 * @param country country used along side language to create the locale
+	 * @return the date as text
+	 */
+	@JSFunction
+	public String dateFormat(Date date, String format, String timezone, String language, String country)
+	{
+		if (format != null && date != null)
+		{
+			Locale locale = null;
+			if (language != null || country != null)
+			{
+				if (language != null && (country == null || country.trim().equalsIgnoreCase(""))) //$NON-NLS-1$
+				{
+					locale = new Locale(language);
+				}
+				else if (language != null && country != null)
+				{
+					locale = new Locale(language, country);
+				}
+			}
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, locale == null ? application.getLocale() : locale);
 			simpleDateFormat.setTimeZone(timezone == null ? application.getTimeZone() : TimeZone.getTimeZone(timezone));
 			String format2 = simpleDateFormat.format(date);
 			return format2;
@@ -1126,6 +1235,44 @@ public class JSUtils implements IJSUtils
 	}
 
 	/**
+	 * Format a number to have a defined fraction.
+	 *
+	 * @sample
+	 * var textalNumber = utils.numberFormat(16.749, 2, "fr", "CA"); //returns 16.75
+	 *
+	 * @param number the number to format
+	 * @param digits nr of digits
+	 * @param language language used to create locale
+	 * @param country country used along side language to create the locale
+	 * @return the resulting number in text
+	 */
+	@JSFunction
+	public String numberFormat(Number number, Number digits, String language, String country)
+	{
+		Locale locale = null;
+		if (language != null || country != null)
+		{
+			if (language != null && (country == null || country.trim().equalsIgnoreCase(""))) //$NON-NLS-1$
+			{
+				locale = new Locale(language);
+			}
+			else if (language != null && country != null)
+			{
+				locale = new Locale(language, country);
+			}
+		}
+		if (number != null)
+		{
+			if (digits == null)
+			{
+				return number.toString();
+			}
+			return Utils.formatNumber(locale == null ? application.getLocale() : locale, number.doubleValue(), digits.intValue());
+		}
+		return ""; //$NON-NLS-1$
+	}
+
+	/**
 	 * Format a number to specification.
 	 *
 	 * @sample
@@ -1146,6 +1293,46 @@ public class JSUtils implements IJSUtils
 			}
 
 			return new RoundHalfUpDecimalFormat(format, application.getLocale()).format(number.doubleValue());
+		}
+		return ""; //$NON-NLS-1$
+	}
+
+	/**
+	 * Format a number to specification.
+	 *
+	 * @sample
+	 * var textalNumber2 = utils.numberFormat(100006.749, '#,###.00', "fr", "CA"); //returns 100,006.75
+	 *
+	 * @param number the number to format
+	 * @param format the format
+	 * @param language language used to create locale
+	 * @param country country used along side language to create the locale
+	 * @return the resulting number in text
+	 */
+	@JSFunction
+	public String numberFormat(Number number, String format, String language, String country)
+	{
+		if (number != null)
+		{
+			Locale locale = null;
+			if (language != null || country != null)
+			{
+				if (language != null && (country == null || country.trim().equalsIgnoreCase(""))) //$NON-NLS-1$
+				{
+					locale = new Locale(language);
+				}
+				else if (language != null && country != null)
+				{
+					locale = new Locale(language, country);
+				}
+			}
+
+			if (format == null)
+			{
+				return number.toString();
+			}
+
+			return new RoundHalfUpDecimalFormat(format, locale == null ? application.getLocale() : locale).format(number.doubleValue());
 		}
 		return ""; //$NON-NLS-1$
 	}

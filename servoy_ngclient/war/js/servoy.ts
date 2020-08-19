@@ -120,10 +120,10 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		var attrValue = element.attr(attributeName);
 		if (! attrValue) {
 			var parentEl = element.parents("[" + attributeName + "]").first(); 
-			if (parentEl) {
+			if (parentEl && parentEl.length) {
 				attrValue = parentEl.attr(attributeName);
-				while (parentEl && !parentEl.scope()) parentEl = parentEl.parent();
-				if (parentEl) correctScope = parentEl.scope();
+				while (parentEl && parentEl.length && !parentEl.scope()) parentEl = parentEl.parent();
+				if (parentEl && parentEl.length) correctScope = parentEl.scope();
 			}
 		}
 		if (attrValue) {
@@ -1026,7 +1026,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 
 					function createRows() {
                         numberOfCells = scope.responsivePageSize;
-                        if (numberOfCells == 0 ) {
+                        if (numberOfCells <= 0 ) {
                         	if (scope.svyFormComponent.absoluteLayout) {
 		                        const parentWidth = parent.outerWidth();
 		                        const parentHeight = parent.outerHeight();

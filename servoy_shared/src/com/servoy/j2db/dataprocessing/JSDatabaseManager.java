@@ -1628,14 +1628,28 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public void js_flushCalculations(String datasource, boolean unstoredOnly) throws ServoyException
 	{
+		js_flushCalculations(datasource, unstoredOnly, null);
+	}
+
+	/**
+	 * @clonedesc js_flushCalculations(String, boolean)
+	 *
+	 * @sampleas js_flushCalculations(String, boolean)
+	 *
+	 * @param datasource The datasource to flush all calculations of
+	 * @param onlyUnstored boolean to only go over the unstore cals of this datasource
+	 * @param calcnames A string array of calculation names that need to be flushed, if null then all unstored (or all depending on the boolean)
+	 */
+	public void js_flushCalculations(String datasource, boolean unstoredOnly, String[] calcnames) throws ServoyException
+	{
 		checkAuthorized();
 		if (datasource != null)
 		{
 			RowManager rowManager = application.getFoundSetManager().getRowManager(datasource);
 			if (rowManager != null)
 			{
-				List<String> calcNames = unstoredOnly ? rowManager.getSQLSheet().getUnStoredCalculationNames()
-					: rowManager.getSQLSheet().getAllCalculationNames();
+				List<String> calcNames = calcnames == null ? unstoredOnly ? rowManager.getSQLSheet().getUnStoredCalculationNames()
+					: rowManager.getSQLSheet().getAllCalculationNames() : Arrays.asList(calcnames);
 				rowManager.clearCalcs(null, calcNames);
 			}
 		}
@@ -2103,7 +2117,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			sqlSelect.removeUnusedJoins(false);
 			tableFilterParams = null;
 		}
-		return application.getDataServer().getSQLQuerySet(serverName, sqlSelect, tableFilterParams, 0, -1, true);
+		return application.getDataServer().getSQLQuerySet(serverName, sqlSelect, tableFilterParams, 0, -1, true, true);
 	}
 
 	/**

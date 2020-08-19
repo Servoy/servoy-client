@@ -518,15 +518,16 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @param startRow
 	 * @param rowsToRetrieve
 	 * @param forceQualifyColumns
+	 * @param disableUseArrayForIn
 	 * @return
 	 * @throws RepositoryException
 	 * @throws RemoteException
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#getSQLQuerySet(java.lang.String, com.servoy.j2db.query.ISQLQuery, java.util.ArrayList, int, int, boolean)
 	 */
 	public QuerySet getSQLQuerySet(String serverName, ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve,
-		boolean forceQualifyColumns) throws RepositoryException, RemoteException
+		boolean forceQualifyColumns, boolean disableUseArrayForIn) throws RepositoryException, RemoteException
 	{
-		return dataserver.getSQLQuerySet(serverName, sqlQuery, filters, startRow, rowsToRetrieve, forceQualifyColumns);
+		return dataserver.getSQLQuerySet(serverName, sqlQuery, filters, startRow, rowsToRetrieve, forceQualifyColumns, disableUseArrayForIn);
 	}
 
 	@Override
