@@ -1026,7 +1026,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 
 					function createRows() {
                         numberOfCells = scope.responsivePageSize;
-                        if (numberOfCells == 0 ) {
+                        if (numberOfCells <= 0 ) {
                         	if (scope.svyFormComponent.absoluteLayout) {
 		                        const parentWidth = parent.outerWidth();
 		                        const parentHeight = parent.outerHeight();
