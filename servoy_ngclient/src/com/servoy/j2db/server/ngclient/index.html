@@ -12,7 +12,7 @@
 		<!-- component_contributions -->
 		<link ng-repeat="path in solutionSettings.styleSheetPaths" rel="stylesheet" ng-href='{{path}}'>
 		<script nonce='##nonce##' src="solutions/##solution##/##clientnr##/main/browsercheck.js"></script>
-		<script nonce='##nonce##' src="solutions/##solution##/##clientnr##/main/startup.js"></script>
+		<script nonce='##nonce##' src="solutions/##solution##/##clientnr##/main/startup.js?##querystring##"></script>
 	</head>
 	
 	<body dir="{{solutionSettings.ltrOrientation ? 'ltr' : 'rtl'}}" sablo-tabseq="1" sablo-tabseq-config="{root: true}">
