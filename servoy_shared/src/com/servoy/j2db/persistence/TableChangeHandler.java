@@ -102,7 +102,7 @@ public class TableChangeHandler extends ItemChangeHandler<IServerInternal, ITabl
 		}
 	}
 
-	public void fireHiddenChanged(IServerInternal server, Table changedTable)
+	public void fireHiddenChanged(IServerInternal server, ITable changedTable)
 	{
 		IItemChangeListener<ITable>[] itemListeners = getListeners(server);
 		if (itemListeners != null)
