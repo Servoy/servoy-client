@@ -194,6 +194,19 @@ public class ValueFactory
 			}
 			return true;
 		}
+
+		@Override
+		public String toString()
+		{
+			String elementsString = "";
+			int length = elements.length;
+			for (int i = 0; i < length - 1; i++)
+			{
+				elementsString += elements[i].toString() + ", ";
+			}
+			elementsString += elements[length - 1];
+			return "ArrayValue[" + elementsString + "]";
+		}
 	}
 
 	public static DbIdentValue createDbIdentValue()
