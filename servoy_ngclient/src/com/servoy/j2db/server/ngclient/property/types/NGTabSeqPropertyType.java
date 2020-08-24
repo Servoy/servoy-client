@@ -44,7 +44,7 @@ public class NGTabSeqPropertyType extends TabSeqPropertyType implements IDesignD
 		PropertyPath propertyPath)
 	{
 		return FormElementHelper.INSTANCE.getControlledTabSeqReplacementFor(designValue, pd, formElement.getForm(), formElement.getPersistIfAvailable(),
-			flattenedSolution);
+			flattenedSolution, formElement.getDesignId() != null);
 	}
 
 	@Override
