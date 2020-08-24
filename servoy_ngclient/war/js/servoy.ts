@@ -1256,7 +1256,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 								}
 							}
 						}
-						updateChildElementsAPI(newValue[0]);
+						if (newValue.length > 0) updateChildElementsAPI(newValue[0]);
 						// update the focus
                         let selectedRowIndex = getFoundset().selectedRowIndexes[0];
                         const element = parent.children()[(page > 0) ? ++selectedRowIndex - scope.responsivePageSize * page : ++selectedRowIndex];
