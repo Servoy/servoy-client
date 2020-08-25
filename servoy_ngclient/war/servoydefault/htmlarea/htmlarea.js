@@ -1,4 +1,4 @@
-angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servoydefaultHtmlarea', function($apifunctions, $sabloConstants, $svyProperties,$applicationService) {  
+angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servoydefaultHtmlarea', function($apifunctions, $sabloConstants, $svyProperties,$applicationService, $timeout) {  
 	return {
 		restrict: 'E',
 		scope: {
@@ -262,8 +262,16 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 	    	*/
 			$scope.api.requestFocus = function(mustExecuteOnFocusGainedMethod) {
 				$scope.mustExecuteOnFocusGainedMethod = mustExecuteOnFocusGainedMethod;
-				$scope.editor.focus();
-				delete $scope.mustExecuteOnFocusGainedMethod;
+				if ($scope.editor.initialized)
+				{
+					$scope.editor.focus();
+					delete $scope.mustExecuteOnFocusGainedMethod;
+				}
+				else {
+					$timeout(function(){
+						$scope.api.requestFocus(mustExecuteOnFocusGainedMethod);
+					},10);
+				}
 			}
 			
 			$scope.api.getWidth = $apifunctions.getWidth($element[0]);
