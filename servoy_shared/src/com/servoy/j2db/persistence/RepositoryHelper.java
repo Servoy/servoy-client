@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -225,7 +226,7 @@ public class RepositoryHelper
 
 	public List<RootObjectReference> getActiveSolutionModuleMetaDatas(int solutionId) throws RepositoryException
 	{
-		Map<UUID, RootObjectReference> referencedModules = new HashMap<UUID, RootObjectReference>();
+		Map<UUID, RootObjectReference> referencedModules = new LinkedHashMap<UUID, RootObjectReference>();
 		// get the main solution;
 		try
 		{
