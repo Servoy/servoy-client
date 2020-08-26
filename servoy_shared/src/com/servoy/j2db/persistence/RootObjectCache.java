@@ -271,8 +271,19 @@ public class RootObjectCache
 					}
 					else
 					{
-						rootObject = repository.loadRootObject(cacheRecord.rootObjectMetaData, realRelease);
-						loadingBlocker.remove(cacheRecord.rootObjectMetaData.getName());
+						try
+						{
+							rootObject = repository.loadRootObject(cacheRecord.rootObjectMetaData, realRelease);
+							if (rootObject != null) cacheRecord.rootObjects.put(key, rootObject);
+						}
+						finally
+						{
+							loadingBlocker.remove(cacheRecord.rootObjectMetaData.getName());
+							synchronized (loadingBlocker)
+							{
+								loadingBlocker.notifyAll();
+							}
+						}
 					}
 				}
 				finally
