@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.servoy.j2db.PersistIndexCache;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SortedList;
 
 /**
@@ -275,6 +276,11 @@ public class RootObjectCache
 						{
 							rootObject = repository.loadRootObject(cacheRecord.rootObjectMetaData, realRelease);
 							if (rootObject != null) cacheRecord.rootObjects.put(key, rootObject);
+						}
+						catch (RepositoryException e)
+						{
+							Debug.error("Can't load root object of " + cacheRecord, e);
+							throw e;
 						}
 						finally
 						{
