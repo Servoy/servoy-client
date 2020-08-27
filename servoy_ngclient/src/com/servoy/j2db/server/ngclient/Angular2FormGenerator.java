@@ -543,7 +543,7 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 				}
 				if (o instanceof BaseComponent)
 				{
-					writer.key("attributes");
+					writer.key("svy_attributes");
 					writer.array();
 					Map<String, String> attributes = new HashMap<String, String>(((BaseComponent)fe.getPersistIfAvailable()).getMergedAttributes());
 					attributes.forEach((key, value) -> {
