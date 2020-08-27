@@ -385,8 +385,17 @@ $scope.api.closeFormPopup = function(retval)
 	}
 }
 
+$scope.clearPopupForm = function()
+{
+	$scope.model.popupform = null;
+}
+
 $scope.api.showFormPopup = function(component,form,dataproviderScope,dataproviderID,width,height,x,y,showBackdrop)
 {
+	if ($scope.model.popupform)
+	{
+		$scope.api.cancelFormPopup(true);
+	}
 	$scope.model.popupform = {};
 	$scope.model.popupform.component = component;
 	$scope.model.popupform.form = form;

@@ -8,7 +8,7 @@
 	"model":
 	{
 	 	"shortcuts" : { "type": "shortcut[]", "tags": { "scope" :"private" }},
-	 	"popupform": {"type": "popupform", "pushToServer": "shallow", "tags": { "scope" :"private" }},
+	 	"popupform": {"type": "popupform", "tags": { "scope" :"private" }},
 	 	"popupMenus" : {"type": "popup[]", "tags": { "scope" :"private" }},
 	 	"popupMenuShowCommand" : {"type": "popupMenuShowCommand", "pushToServer": "shallow", "tags": { "scope" :"private" }} 
 	},
@@ -127,6 +127,11 @@
 	     "cleanup": {
 	     	}
 	},
+	"internalApi":
+    {
+        "clearPopupForm" :{
+        }
+    },
 	"types": {
 	  "shortcut": {
 	  	"model": {

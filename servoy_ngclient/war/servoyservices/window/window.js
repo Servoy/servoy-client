@@ -313,7 +313,7 @@ angular.module('window',['servoy'])
 		 * plugins.window.cancelFormPopup();
 		 * 
 		 */
-		cancelFormPopup : function()
+		cancelFormPopup : function(enableCallServerSideApi)
 		{
 			$('body').off('mouseup',formPopupBodyListener);
 			if (scope.formPopupShown)
@@ -342,6 +342,13 @@ angular.module('window',['servoy'])
 			if (scope.model.popupform === scope.formPopupShown) {
 				scope.model.popupform = null;
 				scope.formPopupShown = null;
+				/* Only callServerSideApi clearPopupForm when the popup si closed.
+				 * If the form is already opened, and the user wants to open it again ,we need scope.model.popupform to have a value, in order to allow the popup to be closed.
+				 * This will set scope.model.popupform again to null only when necessary.
+				 * */
+				if(!enableCallServerSideApi){
+					$services.callServerSideApi("window","clearPopupForm",[]);
+				}
 			}
 			else if( scope.model.popupform ) {
 				_this.showFormPopup(scope.model.popupform.component,scope.model.popupform.form,scope.model.popupform.width,scope.model.popupform.height,scope.model.popupform.x,scope.model.popupform.y,scope.model.popupform.showBackdrop);
