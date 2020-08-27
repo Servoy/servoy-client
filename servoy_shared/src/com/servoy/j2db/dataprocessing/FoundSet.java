@@ -6658,7 +6658,20 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (fs.foundSetFilters != null)
 		{
 			// copy over the foundset filters from the other fs, merged with the filters this foundset had
-			foundSetFilters = new ArrayList<>(fs.foundSetFilters);
+			foundSetFilters = new ArrayList<>();
+			fs.foundSetFilters.forEach(filter -> {
+				if (filter.getTableFilterdefinition() instanceof QueryTableFilterdefinition)
+				{
+					QuerySelect select = AbstractBaseQuery.deepClone(((QueryTableFilterdefinition)filter.getTableFilterdefinition()).getQuerySelect());
+					select.relinkTable(select.getTable(), creationSqlSelect.getTable());
+					foundSetFilters.add(new TableFilter(filter.getName(), sheet.getServerName(), sheet.getTable().getName(), sheet.getTable().getSQLName(),
+						new QueryTableFilterdefinition(select)));
+				}
+				else
+				{
+					foundSetFilters.add(filter);
+				}
+			});
 			if (myOwnFilters != null)
 			{
 				foundSetFilters.addAll(myOwnFilters);
