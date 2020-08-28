@@ -394,7 +394,7 @@ $scope.api.showFormPopup = function(component,form,dataproviderScope,dataprovide
 {
 	if ($scope.model.popupform)
 	{
-		$scope.api.cancelFormPopup(true);
+		$scope.cancelFormPopupInternal(true);
 	}
 	$scope.model.popupform = {};
 	$scope.model.popupform.component = component;

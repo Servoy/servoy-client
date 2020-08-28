@@ -130,7 +130,15 @@
 	"internalApi":
     {
         "clearPopupForm" :{
-        }
+        },
+        "cancelFormPopupInternal": {
+        	"parameters":[
+	            {
+		            "name":"disableClearPopupFormCallToServer",
+		            "type":"boolean"
+	            }
+	        ]
+	    }
     },
 	"types": {
 	  "shortcut": {
