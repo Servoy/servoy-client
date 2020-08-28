@@ -815,7 +815,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	}
 })
-.directive('svyAttributes',  function ($utils:servoy.IUtils,$parse:angular.IParseService) {
+.directive('svyAttributes',  function ($utils:servoy.IUtils,$parse:angular.IParseService, $compile: angular.ICompileService) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
@@ -825,6 +825,8 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				{
 					element.attr(key,attributes[key]);
 				}
+				element.removeAttr('svy-attributes')
+				$compile(element)(scope);
 			}
 		}
 	}
