@@ -17,7 +17,7 @@
 
 package com.servoy.j2db.query;
 
-import org.apache.wicket.util.lang.Objects;
+import java.util.Objects;
 
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.util.serialize.ReplacedObject;
@@ -57,7 +57,7 @@ public class TableExpression implements ITableReference
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
-		return Objects.equal(table, ((TableExpression)obj).table);
+		return Objects.equals(table, ((TableExpression)obj).table);
 	}
 
 	@Override
