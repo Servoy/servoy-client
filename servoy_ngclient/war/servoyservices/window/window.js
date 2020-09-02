@@ -2,6 +2,8 @@ angular.module('window',['servoy'])
 .factory("window",function($window,$services,$compile,$formService,$windowService,$sabloApplication,$timeout,$q,$log,$sabloTestability,$utils,$log) {
 	var scope = $services.getServiceScope('window');
 	scope.formPopupShown = null;
+	// variable used to not close the popup when clicking outside it
+	scope.doNotCloseOnFocusOut = null;
 	// when a form popup is shown, we notify the server that the form will become visible but wait for the server to return any changes/data that form
     // needs to have client side (to be up to date) before really showing it in the browser; so after the form popup decides to show a form there will
 	// be a req/respone cycle before the reallyShownFormURL that shows that form in the DOM is set to the new form
@@ -121,14 +123,17 @@ angular.module('window',['servoy'])
 		 * @param x the popup x location
 		 * @param y the popup y location
 		 * @param showBackdrop whatever to show backdrop
+		 * @param doNotCloseOnFocusOut set by the user. This will prevent the formpopup to close when the focus is lost
 		 *
 		 */
-		showFormPopup : function(component,form,width,height,x,y,showBackdrop)
+		showFormPopup : function(component,form,width,height,x,y,showBackdrop, doNotCloseOnFocusOut)
 		{
 			if ( $( document ).find( '[svy-window]' ).length < 1 ) {
 				$( "#mainForm" ).trigger( "disableTabseq" );
 			}
 
+			scope.doNotCloseOnFocusOut = doNotCloseOnFocusOut;
+			
 			$formService.formWillShow(form, true).then(function successCallback() {
 				if ($log.debugEnabled) $log.debug("wnd * formWillShow resolved successfully for showFormPopup; form: " + form + ". Adding the form to DOM.");
 				scope.reallyShownFormURL = $windowService.getFormUrl(form);
@@ -363,7 +368,7 @@ angular.module('window',['servoy'])
 				}
 			}
 			else if( scope.model.popupform ) {
-				_this.showFormPopup(scope.model.popupform.component,scope.model.popupform.form,scope.model.popupform.width,scope.model.popupform.height,scope.model.popupform.x,scope.model.popupform.y,scope.model.popupform.showBackdrop);
+				_this.showFormPopup(scope.model.popupform.component,scope.model.popupform.form,scope.model.popupform.width,scope.model.popupform.height,scope.model.popupform.x,scope.model.popupform.y,scope.model.popupform.showBackdrop, scope.model.popupform.doNotCloseOnFocusOut);
 				scope.formPopupShown = scope.model.popupform;
 			}
 			if(scope.popupElement) {
@@ -444,6 +449,11 @@ angular.module('window',['servoy'])
 	}
 	function formPopupBodyListener(event)
 	{
+			if(scope.doNotCloseOnFocusOut){
+				if(scope.doNotCloseOnFocusOut == true){
+					return;
+				}
+			}
 			var backdrop = angular.element(".formpopup-backdrop");
 			if (backdrop && (backdrop.get(0) == event.target))
 			{
@@ -484,7 +494,7 @@ angular.module('window',['servoy'])
 		if (newvalue && newvalue.popupform && !angular.equals(oldvalue.popupform,newvalue.popupform))
 		{
 			if (!scope.formPopupShown) {
-				window.showFormPopup(newvalue.popupform.component,newvalue.popupform.form,newvalue.popupform.width,newvalue.popupform.height,newvalue.popupform.x,newvalue.popupform.y,newvalue.popupform.showBackdrop);
+				window.showFormPopup(newvalue.popupform.component,newvalue.popupform.form,newvalue.popupform.width,newvalue.popupform.height,newvalue.popupform.x,newvalue.popupform.y,newvalue.popupform.showBackdrop,newvalue.popupform.doNotCloseOnFocusOut);
 				scope.formPopupShown = newvalue.popupform;
 			}
 			else window.cancelFormPopup();
