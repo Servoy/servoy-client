@@ -1680,7 +1680,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			if (sheet != null)
 			{
 				recalculateRecord(record, sheet.getStoredCalculationNames());
-				((FoundSet)record.getParentFoundSet()).fireFoundSetChanged();
+				int index = ((FoundSet)record.getParentFoundSet()).getRecordIndex(record);
+				((FoundSet)record.getParentFoundSet()).fireFoundSetEvent(index, index, FoundSetEvent.CHANGE_UPDATE);
 			}
 		}
 		else if (foundsetOrRecord instanceof FoundSet)
