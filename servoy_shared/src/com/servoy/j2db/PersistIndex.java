@@ -164,13 +164,13 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 
 	protected void initDatasourceCache(String datasource)
 	{
-		if ((datasource == null && datasourceToPersist.size() == 0) || (datasource != null && datasourceToPersist.get(datasource) == null))
+		if ((datasourceToPersist.size() == 0) || (datasource != null && datasourceToPersist.get(datasource) == null))
 		{
 			visit((persist) -> {
 				if (persist instanceof TableNode)
 				{
 					String tableDs = ((TableNode)persist).getDataSource();
-					if (tableDs != null && (tableDs.equals(datasource) || datasource == null))
+					if (tableDs != null)
 					{
 						ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist
 							.get(tableDs);
