@@ -103,7 +103,7 @@
 		            				
 	            				},
 	            				{
-		            				"name":"doNotCloseOnFocusOut",
+		            				"name":"doNotCloseOnClickOutside",
 		            				"type":"boolean",
 		            				"optional":"true"
 		            				
@@ -170,7 +170,7 @@
 	  		"x": "int",
 	  		"y": "int",
 			"showBackdrop": "boolean",
-			"doNotCloseOnFocusOut": "boolean" 
+			"doNotCloseOnClickOutside": "boolean" 
 	  	}
 	  },
 	  "FormPopup": {
@@ -183,7 +183,7 @@
 	  		"x": "int",
 	  		"y": "int",
 			"showBackdrop": "boolean",
-			"doNotCloseOnFocusOut": "boolean" 
+			"doNotCloseOnClickOutside": "boolean" 
 	  	}
 	  },
 	  "popupMenuShowCommand":{
