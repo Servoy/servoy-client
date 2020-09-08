@@ -3544,7 +3544,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		if (dataSource.startsWith(DataSourceUtils.VIEW_DATASOURCE_SCHEME_COLON))
 		{
-			return viewFoundSets.get(dataSource);//TODO check
+			ViewFoundSet viewFoundSet = viewFoundSets.get(dataSource);
+			if (viewFoundSet == null)
+			{
+				// trigger the load if it is not there yet.
+				getTable(dataSource);
+				viewFoundSet = viewFoundSets.get(dataSource);
+			}
+			return viewFoundSet;
 		}
 		IFoundSetInternal fs = getNewFoundSet(dataSource, null, getDefaultPKSortColumns(dataSource));
 		fs.clear();//have to deliver a initialized foundset, user might call new record as next call on this one
