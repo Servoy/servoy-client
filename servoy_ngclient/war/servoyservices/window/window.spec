@@ -95,6 +95,18 @@
 		            				"type":"int",
 		            				"optional":"true"
 		            				
+	            				},
+	            				{
+		            				"name":"showBackdrop",
+		            				"type":"boolean",
+		            				"optional":"true"
+		            				
+	            				},
+	            				{
+		            				"name":"doNotCloseOnClickOutside",
+		            				"type":"boolean",
+		            				"optional":"true"
+		            				
 	            				}
 	            			 ]
 	        },
@@ -157,7 +169,8 @@
 	  		"height": "int",
 	  		"x": "int",
 	  		"y": "int",
-			"showBackdrop": "boolean" 
+			"showBackdrop": "boolean",
+			"doNotCloseOnClickOutside": "boolean" 
 	  	}
 	  },
 	  "FormPopup": {
@@ -169,7 +182,8 @@
 	  		"height": "int",
 	  		"x": "int",
 	  		"y": "int",
-			"showBackdrop": "boolean" 
+			"showBackdrop": "boolean",
+			"doNotCloseOnClickOutside": "boolean" 
 	  	}
 	  },
 	  "popupMenuShowCommand":{
