@@ -123,7 +123,7 @@ angular.module('window',['servoy'])
 		 * @param showBackdrop whatever to show backdrop
 		 *
 		 */
-		showFormPopupInternal : function(component,form,width,height,x,y,showBackdrop)
+		showFormPopup : function(component,form,width,height,x,y,showBackdrop)
 		{
 			if ( $( document ).find( '[svy-window]' ).length < 1 ) {
 				$( "#mainForm" ).trigger( "disableTabseq" );
@@ -363,7 +363,7 @@ angular.module('window',['servoy'])
 				}
 			}
 			else if( scope.model.popupform ) {
-				_this.showFormPopupInternal(scope.model.popupform.component,scope.model.popupform.form,scope.model.popupform.width,scope.model.popupform.height,scope.model.popupform.x,scope.model.popupform.y,scope.model.popupform.showBackdrop);
+				_this.showFormPopup(scope.model.popupform.component,scope.model.popupform.form,scope.model.popupform.width,scope.model.popupform.height,scope.model.popupform.x,scope.model.popupform.y,scope.model.popupform.showBackdrop);
 				scope.formPopupShown = scope.model.popupform;
 			}
 			if(scope.popupElement) {
@@ -444,9 +444,6 @@ angular.module('window',['servoy'])
 	}
 	function formPopupBodyListener(event)
 	{
-			if (scope.formPopupShown && scope.formPopupShown.doNotCloseOnClickOutside){
-				return;
-			}
 			var backdrop = angular.element(".formpopup-backdrop");
 			if (backdrop && (backdrop.get(0) == event.target))
 			{
@@ -487,7 +484,7 @@ angular.module('window',['servoy'])
 		if (newvalue && newvalue.popupform && !angular.equals(oldvalue.popupform,newvalue.popupform))
 		{
 			if (!scope.formPopupShown) {
-				window.showFormPopupInternal(newvalue.popupform.component,newvalue.popupform.form,newvalue.popupform.width,newvalue.popupform.height,newvalue.popupform.x,newvalue.popupform.y,newvalue.popupform.showBackdrop);
+				window.showFormPopup(newvalue.popupform.component,newvalue.popupform.form,newvalue.popupform.width,newvalue.popupform.height,newvalue.popupform.x,newvalue.popupform.y,newvalue.popupform.showBackdrop);
 				scope.formPopupShown = newvalue.popupform;
 			}
 			else window.cancelFormPopup();

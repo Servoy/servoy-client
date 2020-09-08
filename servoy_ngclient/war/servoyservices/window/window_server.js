@@ -310,7 +310,6 @@ $scope.api.createFormPopup = function (form) {
         _x: undefined,
         _y: undefined,
         _showBackdrop: undefined,
-        _doNotCloseOnClickOutside: undefined,
         _component: undefined,
         _scope: undefined,
         _dataprovider: undefined,
@@ -340,11 +339,6 @@ $scope.api.createFormPopup = function (form) {
             this._showBackdrop = val;
             return this;
         },
-        doNotCloseOnClickOutside:function(val) {
-            if (val == undefined) return this._doNotCloseOnClickOutside;
-            this._doNotCloseOnClickOutside = val;
-            return this;
-        },
         scope:function(val) {
             if (val == undefined) return this._scope;
             this._scope = val;
@@ -361,7 +355,7 @@ $scope.api.createFormPopup = function (form) {
             return this;
         },
         show: function() {
-            $scope.api.showFormPopup(this._component,form,this._scope,this._dataprovider,this._width,this._height,this._x,this._y,this._showBackdrop, this._doNotCloseOnClickOutside);
+            $scope.api.showFormPopup(this._component,form,this._scope,this._dataprovider,this._width,this._height,this._x,this._y,this._showBackdrop);
         }
     }
 }
@@ -396,7 +390,7 @@ $scope.clearPopupForm = function()
 	$scope.model.popupform = null;
 }
 
-$scope.api.showFormPopup = function(component,form,dataproviderScope,dataproviderID,width,height,x,y,showBackdrop,doNotCloseOnClickOutside)
+$scope.api.showFormPopup = function(component,form,dataproviderScope,dataproviderID,width,height,x,y,showBackdrop)
 {
 	if ($scope.model.popupform)
 	{
@@ -412,7 +406,6 @@ $scope.api.showFormPopup = function(component,form,dataproviderScope,dataprovide
 	$scope.model.popupform.x = x;
 	$scope.model.popupform.y = y;
 	$scope.model.popupform.showBackdrop = showBackdrop;
-	$scope.model.popupform.doNotCloseOnClickOutside = doNotCloseOnClickOutside;
 }
 
 $scope.api.createShortcut = function(shortcut,callback,contextFilter,arguments,consumeEvent)
