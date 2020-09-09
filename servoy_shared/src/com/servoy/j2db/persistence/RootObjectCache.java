@@ -254,33 +254,45 @@ public class RootObjectCache
 				try
 				{
 					// block loading for the same root object.
-					Boolean alreadyLoading = loadingBlocker.putIfAbsent(cacheRecord.rootObjectMetaData.getName(), Boolean.TRUE);
-					if (alreadyLoading != null)
+					Boolean wasAlreadyLoading;
+					synchronized (loadingBlocker)
 					{
-						synchronized (loadingBlocker)
+						wasAlreadyLoading = loadingBlocker.putIfAbsent(cacheRecord.rootObjectMetaData.getName(), Boolean.TRUE); // this has to be inside the synchronized (loadingBlocker) block to avoid calling .wait() below if the notifyAll() gets called by another thread before we call .wait() here but after the putIfAbsent - the sync block prevents that
+						if (wasAlreadyLoading != null)
 						{
 							try
 							{
-								loadingBlocker.wait();
+								loadingBlocker.wait(); // we don't have to do this in a while (to avoid spurious thread wakes - see javadoc or wakes due to other solutions/versions finishing load) because we call recursively getRootObject(...) below which is kind a a while loop - it rechecks wait conditions
 							}
 							catch (InterruptedException e)
 							{
 							}
 						}
-						return getRootObject(rootObjectId, release);
 					}
+
+					if (wasAlreadyLoading != null) return getRootObject(rootObjectId, release); // we waited for the solution with this name (and some version) to load above; now check again if it's there and get it (or wait again if another thread loads already some version of this solution)
 					else
 					{
 						try
 						{
-							rootObject = repository.loadRootObject(cacheRecord.rootObjectMetaData, realRelease);
-							if (rootObject != null) cacheRecord.rootObjects.put(key, rootObject);
+							rootObject = cacheRecord.rootObjects.get(key); // check again to see if another thread already loaded this solution/version; avoid loading it multiple times (it can happen theoretically that two threads get to the line after AbstractRepository.unlock(); above trying to load the same solution; then one of the threads could load it and finish loading it before the second thread resumes execution; but two threads will never be at this line for the same solution at the same time due to the loadingBlocker locking per solution; so a simple check here should be safe I think)
+							if (rootObject == null)
+							{
+								// do the actual load
+								rootObject = repository.loadRootObject(cacheRecord.rootObjectMetaData, realRelease);
+								if (rootObject != null)
+								{
+									AbstractRepository.lock(); // lock as we are modifying the cache
+									cacheRecord.rootObjects.put(key, rootObject);
+									AbstractRepository.unlock();
+								}
+							}
 						}
 						finally
 						{
-							loadingBlocker.remove(cacheRecord.rootObjectMetaData.getName());
 							synchronized (loadingBlocker)
 							{
+								loadingBlocker.remove(cacheRecord.rootObjectMetaData.getName());
 								loadingBlocker.notifyAll();
 							}
 						}
