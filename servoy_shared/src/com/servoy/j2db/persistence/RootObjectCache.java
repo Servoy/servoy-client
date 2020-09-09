@@ -23,6 +23,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.servoy.j2db.PersistIndexCache;
 import com.servoy.j2db.util.SortedList;
 
@@ -31,6 +34,9 @@ import com.servoy.j2db.util.SortedList;
  */
 public class RootObjectCache
 {
+
+	private static final Logger log = LoggerFactory.getLogger(RootObjectCache.class.getCanonicalName());
+
 	private final AbstractRepository repository;
 	private final HashMap<Integer, CacheRecord> rootObjectsById;
 	private final HashMap rootObjectsByName;
@@ -251,6 +257,8 @@ public class RootObjectCache
 			{
 				// don't fully lock on loading, only lock for this root object
 				AbstractRepository.unlock();
+				if (log.isDebugEnabled())
+					log.debug("[RootObjectCache][getRootObject] sol not in cache: " + cacheRecord.rootObjectMetaData.getName() + " / " + realRelease); //$NON-NLS-1$ //$NON-NLS-2$
 				try
 				{
 					// block loading for the same root object.
@@ -262,6 +270,8 @@ public class RootObjectCache
 						{
 							try
 							{
+								if (log.isDebugEnabled()) log.debug("[RootObjectCache][getRootObject][" + Thread.currentThread().getId() + //$NON-NLS-1$
+									"] waiting for other thread to finish loading: " + cacheRecord.rootObjectMetaData.getName() + " / " + realRelease); //$NON-NLS-1$ //$NON-NLS-2$
 								loadingBlocker.wait(); // we don't have to do this in a while (to avoid spurious thread wakes - see javadoc or wakes due to other solutions/versions finishing load) because we call recursively getRootObject(...) below which is kind a a while loop - it rechecks wait conditions
 							}
 							catch (InterruptedException e)
@@ -270,7 +280,12 @@ public class RootObjectCache
 						}
 					}
 
-					if (wasAlreadyLoading != null) return getRootObject(rootObjectId, release); // we waited for the solution with this name (and some version) to load above; now check again if it's there and get it (or wait again if another thread loads already some version of this solution)
+					if (wasAlreadyLoading != null)
+					{
+						if (log.isDebugEnabled()) log.debug("[RootObjectCache][getRootObject][" + Thread.currentThread().getId() + //$NON-NLS-1$
+							"] rechecking solution after wait: " + cacheRecord.rootObjectMetaData.getName() + " / " + realRelease); //$NON-NLS-1$ //$NON-NLS-2$
+						return getRootObject(rootObjectId, release); // we waited for the solution with this name (and some version) to load above; now check again if it's there and get it (or wait again if another thread loads already some version of this solution)
+					}
 					else
 					{
 						try
@@ -278,20 +293,32 @@ public class RootObjectCache
 							rootObject = cacheRecord.rootObjects.get(key); // check again to see if another thread already loaded this solution/version; avoid loading it multiple times (it can happen theoretically that two threads get to the line after AbstractRepository.unlock(); above trying to load the same solution; then one of the threads could load it and finish loading it before the second thread resumes execution; but two threads will never be at this line for the same solution at the same time due to the loadingBlocker locking per solution; so a simple check here should be safe I think)
 							if (rootObject == null)
 							{
+								if (log.isDebugEnabled()) log.debug("[RootObjectCache][getRootObject][" + Thread.currentThread().getId() + //$NON-NLS-1$
+									"] loading solution: " + cacheRecord.rootObjectMetaData.getName() + " / " + realRelease); //$NON-NLS-1$ //$NON-NLS-2$
+
 								// do the actual load
 								rootObject = repository.loadRootObject(cacheRecord.rootObjectMetaData, realRelease);
 								if (rootObject != null)
 								{
 									AbstractRepository.lock(); // lock as we are modifying the cache
+									if (log.isDebugEnabled()) log.debug("[RootObjectCache][getRootObject][" + Thread.currentThread().getId() + //$NON-NLS-1$
+										"] adding sol to cache: " + cacheRecord.rootObjectMetaData.getName() + " / " + realRelease); //$NON-NLS-1$ //$NON-NLS-2$
 									cacheRecord.rootObjects.put(key, rootObject);
 									AbstractRepository.unlock();
 								}
+							}
+							else
+							{
+								if (log.isDebugEnabled()) log.debug("[RootObjectCache][getRootObject][" + Thread.currentThread().getId() + //$NON-NLS-1$
+									"] solution was already loaded by another thread: " + cacheRecord.rootObjectMetaData.getName() + " / " + realRelease); //$NON-NLS-1$ //$NON-NLS-2$
 							}
 						}
 						finally
 						{
 							synchronized (loadingBlocker)
 							{
+								if (log.isDebugEnabled()) log.debug("[RootObjectCache][getRootObject][" + Thread.currentThread().getId() + //$NON-NLS-1$
+									"] clearing loading sol. flag and notifying: " + cacheRecord.rootObjectMetaData.getName() + " / " + realRelease); //$NON-NLS-1$ //$NON-NLS-2$
 								loadingBlocker.remove(cacheRecord.rootObjectMetaData.getName());
 								loadingBlocker.notifyAll();
 							}
