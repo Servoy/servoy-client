@@ -198,14 +198,33 @@ public class ValueFactory
 		@Override
 		public String toString()
 		{
-			String elementsString = "";
+			StringBuilder elementsString = new StringBuilder();
+			elementsString.append("ArrayValue[");
 			int length = elements.length;
+			if (length > 100)
+			{
+				length = 100;
+			}
 			for (int i = 0; i < length - 1; i++)
 			{
-				elementsString += elements[i].toString() + ", ";
+				elementsString.append(elements[i].toString() + ", ");
+				if (i > 9 && i % 10 == 0)
+				{
+					elementsString.append("\n");
+				}
 			}
-			elementsString += elements[length - 1];
-			return "ArrayValue[" + elementsString + "]";
+			elementsString.append(elements[length - 1].toString());
+			if (length == 100)
+			{
+				elementsString.append(", ... ]");
+			}
+			else
+			{
+
+				elementsString.append("]");
+			}
+
+			return elementsString.toString();
 		}
 	}
 
