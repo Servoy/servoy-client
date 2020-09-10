@@ -209,6 +209,15 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 				}
 				return persist instanceof Solution ? IPersistVisitor.CONTINUE_TRAVERSAL : IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 			});
+			if (datasource != null && datasourceToPersist.get(datasource) == null)
+			{
+				ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = new ConcurrentHashMap<>(4);
+				dsMap.put(ScriptCalculation.class, new ConcurrentHashMap<String, IPersist>(4));
+				dsMap.put(TableNode.class, new ConcurrentHashMap<String, IPersist>(4));
+				dsMap.put(AggregateVariable.class, new ConcurrentHashMap<String, IPersist>(4));
+				dsMap.put(ScriptMethod.class, new ConcurrentHashMap<String, IPersist>(4));
+				datasourceToPersist.put(datasource, dsMap);
+			}
 		}
 	}
 
