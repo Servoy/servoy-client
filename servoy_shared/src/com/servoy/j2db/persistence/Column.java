@@ -1164,7 +1164,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		}
 		if (flags != -1)
 		{
-			setFlags(flags); // use the flags (meant for the use-case when you want to create a column marked as UUID - before actually creating it in DB, see commit for revision 4340)
+			setFlags(flags | ci.getFlags()); // use the flags (meant for the use-case when you want to create a column marked as UUID - before actually creating it in DB, see commit for revision 4340)
 		}
 		else
 		{
