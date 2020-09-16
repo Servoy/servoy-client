@@ -1166,7 +1166,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	@Override
 	public void setTypeName(String arg)
 	{
-		pdPleaseUseGetterToAccessThis = null;
 		super.setTypeName(arg);
+		pdPleaseUseGetterToAccessThis = null;
 	}
 }

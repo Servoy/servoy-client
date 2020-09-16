@@ -153,8 +153,8 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 			@Override
 			public void setTypeName(String arg)
 			{
-				pdPleaseUseGetterToAccessThis = null;
 				getFullJsonInFrmFile().put(TYPE_NAME_KEY, arg);
+				pdPleaseUseGetterToAccessThis = null;
 			}
 
 			@Override
