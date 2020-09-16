@@ -123,6 +123,8 @@ public class SQLGenerator
 	public static final String CONDITION_SEARCH = SERVOY_CONDITION_PREFIX + 'S';
 	public static final String CONDITION_LOCK = SERVOY_CONDITION_PREFIX + 'L';
 
+	public static final String SQL_QUERY_VALIDATION_MESSAGE = "A query must start with 'SELECT', optionally preceded by 'WITH' or 'DECLARE', and must contain 'FROM'";
+
 /*
  * _____________________________________________________________ Declaration of attributes
  */
@@ -1342,7 +1344,7 @@ public class SQLGenerator
 				{
 					if (value != null && (op & IBaseSQLCondition.IS_SQL_MODIFIER) != 0)
 					{
-						Debug.warn("Filter has the sql-modifier, but the value is not valid sql for filters: '" + value + "'");
+						Debug.warn("Filter has the sql-modifier, but the value is not valid sql for filters: " + SQL_QUERY_VALIDATION_MESSAGE + ":" + value);
 					}
 					inValues = new Object[][] { new Object[] { value } };
 				}
@@ -1404,6 +1406,8 @@ public class SQLGenerator
 
 	/**
 	 * A select query must start with 'select' and must contains 'from'. This may be prefixed with starting word 'with' or 'declare'
+	 *
+	 * @see SQLGenerator#SQL_QUERY_VALIDATION_MESSAGE
 	 */
 	public static boolean isSelectQuery(String value)
 	{

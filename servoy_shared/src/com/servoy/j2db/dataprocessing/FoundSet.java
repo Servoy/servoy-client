@@ -2093,7 +2093,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		//check requirements
 		if (!SQLGenerator.isSelectQuery(query))
-			throw new IllegalArgumentException(fsm.getApplication().getI18NMessage("servoy.foundSet.query.error.startWithSelect", new Object[] { query })); //$NON-NLS-1$
+		{
+			throw new IllegalArgumentException(SQLGenerator.SQL_QUERY_VALIDATION_MESSAGE + ':' + query);
+		}
 		String sql_lowercase = Utils.toEnglishLocaleLowerCase(query);
 
 		order_by_index = sql_lowercase.lastIndexOf("order by"); //$NON-NLS-1$
@@ -6733,6 +6735,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return false;
 		}
 
+		fsm.getSQLGenerator();
 		// create condition to check filter
 		QueryFilter filtercondition = SQLGenerator.createTableFiltercondition(creationSqlSelect.getTable(), sheet.getTable(),
 			dataproviderTableFilterdefinition);
@@ -6838,6 +6841,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		for (TableFilter tf : iterate(filters))
 		{
+			fsm.getSQLGenerator();
 			QueryFilter filtercondition = SQLGenerator.createTableFiltercondition(select.getTable(), sheet.getTable(), tf);
 			select.addCondition(SQLGenerator.CONDITION_FILTER, filtercondition.getCondition());
 			for (ISQLJoin join : iterate(filtercondition.getJoins()))

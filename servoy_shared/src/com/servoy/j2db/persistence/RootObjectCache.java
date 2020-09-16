@@ -316,11 +316,17 @@ public class RootObjectCache
 								if (rootObject != null)
 								{
 									AbstractRepository.lock(); // lock as we are modifying the cache
-									if (log.isDebugEnabled()) log.debug("[RootObjectCache][getRootObject][" + Thread.currentThread().getId() + //$NON-NLS-1$
-										"] adding sol to cache: " + cacheRecord.rootObjectMetaData.getName() + " / " + realRelease + " / " + //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-										cacheRecord.rootObjectMetaData.getObjectTypeId());
-									cacheRecord.rootObjects.put(key, rootObject);
-									AbstractRepository.unlock();
+									try
+									{
+										if (log.isDebugEnabled()) log.debug("[RootObjectCache][getRootObject][" + Thread.currentThread().getId() + //$NON-NLS-1$
+											"] adding sol to cache: " + cacheRecord.rootObjectMetaData.getName() + " / " + realRelease + " / " + //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+											cacheRecord.rootObjectMetaData.getObjectTypeId());
+										cacheRecord.rootObjects.put(key, rootObject);
+									}
+									finally
+									{
+										AbstractRepository.unlock();
+									}
 								}
 							}
 							else
