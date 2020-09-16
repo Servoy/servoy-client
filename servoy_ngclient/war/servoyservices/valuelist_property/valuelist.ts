@@ -93,7 +93,7 @@ angular.module('valuelist_property', ['webSocketModule'])
 						internalState.isChanged = function() { return angular.isDefined(internalState.filterStringReq) || angular.isDefined(internalState.diplayValueReq); }
 					} else internalState = newValue[$sabloConverters.INTERNAL_IMPL];
 				}
-				else if (serverJSONValue[DISPLAYVALUE]) {
+				else if (serverJSONValue[DISPLAYVALUE] !== undefined) {
 					// this is the GETDISPLAYVALUE
 					newValue = currentClientValue;
 					internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];

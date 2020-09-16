@@ -90,15 +90,20 @@ public class TableFilter implements Serializable, IWriteReplace
 				Utils.stringSafeEquals(tf.getTableName(), getTableName()) && //
 				Utils.stringSafeEquals(tf.getTableSQLName(), getTableSQLName()) && //
 				//
-				tableFilterdefinition instanceof DataproviderTableFilterdefinition && //
-				tf.getTableFilterdefinition() instanceof DataproviderTableFilterdefinition && //
-				//
-				Utils.stringSafeEquals(((DataproviderTableFilterdefinition)tf.getTableFilterdefinition()).getDataprovider(),
-					((DataproviderTableFilterdefinition)tableFilterdefinition).getDataprovider()) && //
-				((DataproviderTableFilterdefinition)tf.getTableFilterdefinition()).getOperator() == ((DataproviderTableFilterdefinition)tableFilterdefinition).getOperator() && //
-				Utils.equalObjects(((DataproviderTableFilterdefinition)tf.getTableFilterdefinition()).getValue(),
-					((DataproviderTableFilterdefinition)tableFilterdefinition).getValue()) //
-			)
+				((tableFilterdefinition instanceof DataproviderTableFilterdefinition && //
+					tf.getTableFilterdefinition() instanceof DataproviderTableFilterdefinition && //
+					//
+					Utils.stringSafeEquals(((DataproviderTableFilterdefinition)tf.getTableFilterdefinition()).getDataprovider(),
+						((DataproviderTableFilterdefinition)tableFilterdefinition).getDataprovider()) && //
+					((DataproviderTableFilterdefinition)tf.getTableFilterdefinition())
+						.getOperator() == ((DataproviderTableFilterdefinition)tableFilterdefinition).getOperator() && //
+					Utils.equalObjects(((DataproviderTableFilterdefinition)tf.getTableFilterdefinition()).getValue(),
+						((DataproviderTableFilterdefinition)tableFilterdefinition).getValue())) //
+					|| //
+					(tableFilterdefinition instanceof QueryTableFilterdefinition && //
+						tf.getTableFilterdefinition() instanceof QueryTableFilterdefinition &&
+						((QueryTableFilterdefinition)tableFilterdefinition).getQuerySelect()
+							.equals(((QueryTableFilterdefinition)tf.tableFilterdefinition).getQuerySelect()))))
 			{
 				return true;
 			}

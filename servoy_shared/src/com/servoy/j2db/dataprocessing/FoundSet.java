@@ -2093,7 +2093,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		//check requirements
 		if (!SQLGenerator.isSelectQuery(query))
-			throw new IllegalArgumentException(fsm.getApplication().getI18NMessage("servoy.foundSet.query.error.startWithSelect", new Object[] { query })); //$NON-NLS-1$
+		{
+			throw new IllegalArgumentException(SQLGenerator.SQL_QUERY_VALIDATION_MESSAGE + ':' + query);
+		}
 		String sql_lowercase = Utils.toEnglishLocaleLowerCase(query);
 
 		order_by_index = sql_lowercase.lastIndexOf("order by"); //$NON-NLS-1$
@@ -6658,7 +6660,20 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (fs.foundSetFilters != null)
 		{
 			// copy over the foundset filters from the other fs, merged with the filters this foundset had
-			foundSetFilters = new ArrayList<>(fs.foundSetFilters);
+			foundSetFilters = new ArrayList<>();
+			fs.foundSetFilters.forEach(filter -> {
+				if (filter.getTableFilterdefinition() instanceof QueryTableFilterdefinition)
+				{
+					QuerySelect select = AbstractBaseQuery.deepClone(((QueryTableFilterdefinition)filter.getTableFilterdefinition()).getQuerySelect());
+					select.relinkTable(select.getTable(), creationSqlSelect.getTable());
+					foundSetFilters.add(new TableFilter(filter.getName(), sheet.getServerName(), sheet.getTable().getName(), sheet.getTable().getSQLName(),
+						new QueryTableFilterdefinition(select)));
+				}
+				else
+				{
+					foundSetFilters.add(filter);
+				}
+			});
 			if (myOwnFilters != null)
 			{
 				foundSetFilters.addAll(myOwnFilters);
@@ -6720,6 +6735,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return false;
 		}
 
+		fsm.getSQLGenerator();
 		// create condition to check filter
 		QueryFilter filtercondition = SQLGenerator.createTableFiltercondition(creationSqlSelect.getTable(), sheet.getTable(),
 			dataproviderTableFilterdefinition);
@@ -6825,6 +6841,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		for (TableFilter tf : iterate(filters))
 		{
+			fsm.getSQLGenerator();
 			QueryFilter filtercondition = SQLGenerator.createTableFiltercondition(select.getTable(), sheet.getTable(), tf);
 			select.addCondition(SQLGenerator.CONDITION_FILTER, filtercondition.getCondition());
 			for (ISQLJoin join : iterate(filtercondition.getJoins()))

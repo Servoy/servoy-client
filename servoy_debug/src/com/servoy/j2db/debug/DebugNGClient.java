@@ -54,6 +54,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.PluginScope;
+import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.INGFormManager;
 import com.servoy.j2db.server.ngclient.NGClient;
@@ -379,6 +380,11 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	public void refreshPersists(Collection<IPersist> changes)
 	{
 		if (isShutDown()) return;
+
+		// flush the solution model cache of the form element helper when there is a solution copy.
+		// so that FormComponents are recreated with the latest data once.
+		Solution solutionCopy = getFlattenedSolution().getSolutionCopy(false);
+		if (solutionCopy != null) solutionCopy.setRuntimeProperty(FormElementHelper.SOLUTION_MODEL_CACHE, null);
 
 		Set<IFormController>[] scopesAndFormsToReload = DebugUtils.getScopesAndFormsToReload(this, changes);
 

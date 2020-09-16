@@ -123,7 +123,7 @@ angular.module('window',['servoy'])
 		 * @param showBackdrop whatever to show backdrop
 		 *
 		 */
-		showFormPopup : function(component,form,width,height,x,y,showBackdrop)
+		showFormPopupInternal : function(component,form,width,height,x,y,showBackdrop)
 		{
 			if ( $( document ).find( '[svy-window]' ).length < 1 ) {
 				$( "#mainForm" ).trigger( "disableTabseq" );
@@ -307,6 +307,7 @@ angular.module('window',['servoy'])
 			 $log.error('Cannot show form popup, the related element is not visible: form name "'+form+'".');
 		 });
 		},
+		
 		/**
 		 * Close the current form popup panel.
 		 * @example 
@@ -314,6 +315,10 @@ angular.module('window',['servoy'])
 		 * 
 		 */
 		cancelFormPopup : function()
+		{
+			_this.cancelFormPopupInternal(false);
+		},
+		cancelFormPopupInternal : function(disableClearPopupFormCallToServer)
 		{
 			$('body').off('mouseup',formPopupBodyListener);
 			if (scope.formPopupShown)
@@ -342,9 +347,23 @@ angular.module('window',['servoy'])
 			if (scope.model.popupform === scope.formPopupShown) {
 				scope.model.popupform = null;
 				scope.formPopupShown = null;
+				/*
+				 * Because server side code in window_server.js checks for scope.model.popupform != null when closing a form popup it must have the correct value server-side; so
+				 *     - when it is closed by a click outside the popup form area that happens to be exactly on a button that opens it again, the current method executes and
+				 *       "scope.model.popupform" needs to reach server before the button click that will open the form editor again executes not after (because if it is set to null
+				 *       after the reshow, it will be in a wrong state server-side); that is why we use callServerSideApi here instead of relying on a shallow watch (pushToServer in spec)
+				 *       on the model property which would send the null change too late
+				 *     - if one would click twice really fast on a button that shows a form popup, both those clicks are queued on the server's event queue; it shows the first time
+				 *       then in server side code - when the show is called the second time it would close the first one and show it again; but in this case we must not call callServerSideApi
+				 *       to set scope.model.popupform to null because that would execute after the second show is done (it is queued after it on server) and again we'd end up with a shown
+				 *       form popup but a null scope.model.popupform on server which is wrong... that is the purpose of "disableClearPopupFormCallToServer" flag
+				 */
+				if(!disableClearPopupFormCallToServer){
+					$services.callServerSideApi("window","clearPopupForm",[]);
+				}
 			}
 			else if( scope.model.popupform ) {
-				_this.showFormPopup(scope.model.popupform.component,scope.model.popupform.form,scope.model.popupform.width,scope.model.popupform.height,scope.model.popupform.x,scope.model.popupform.y,scope.model.popupform.showBackdrop);
+				_this.showFormPopupInternal(scope.model.popupform.component,scope.model.popupform.form,scope.model.popupform.width,scope.model.popupform.height,scope.model.popupform.x,scope.model.popupform.y,scope.model.popupform.showBackdrop);
 				scope.formPopupShown = scope.model.popupform;
 			}
 			if(scope.popupElement) {
@@ -425,6 +444,9 @@ angular.module('window',['servoy'])
 	}
 	function formPopupBodyListener(event)
 	{
+			if (scope.formPopupShown && scope.formPopupShown.doNotCloseOnClickOutside){
+				return;
+			}
 			var backdrop = angular.element(".formpopup-backdrop");
 			if (backdrop && (backdrop.get(0) == event.target))
 			{
@@ -465,7 +487,7 @@ angular.module('window',['servoy'])
 		if (newvalue && newvalue.popupform && !angular.equals(oldvalue.popupform,newvalue.popupform))
 		{
 			if (!scope.formPopupShown) {
-				window.showFormPopup(newvalue.popupform.component,newvalue.popupform.form,newvalue.popupform.width,newvalue.popupform.height,newvalue.popupform.x,newvalue.popupform.y,newvalue.popupform.showBackdrop);
+				window.showFormPopupInternal(newvalue.popupform.component,newvalue.popupform.form,newvalue.popupform.width,newvalue.popupform.height,newvalue.popupform.x,newvalue.popupform.y,newvalue.popupform.showBackdrop);
 				scope.formPopupShown = newvalue.popupform;
 			}
 			else window.cancelFormPopup();

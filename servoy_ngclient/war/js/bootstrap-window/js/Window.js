@@ -122,8 +122,8 @@ var Window = null;
     
     Window.prototype.setSize = function(size){
     	 var winBody = this.$el.find(this.options.selectors.body);
-         winBody.css('width', size.width - parseInt(this.$el.css("marginRight")) - parseInt(this.$el.css("marginLeft")) );
-         winBody.css('height', size.height);    	
+         winBody.css('min-width', size.width - parseInt(this.$el.css("marginRight")) - parseInt(this.$el.css("marginLeft")) );
+         winBody.css('min-height', size.height);    	
     };
 
     Window.prototype.centerWindow = function () {

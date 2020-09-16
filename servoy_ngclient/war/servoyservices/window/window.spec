@@ -8,7 +8,7 @@
 	"model":
 	{
 	 	"shortcuts" : { "type": "shortcut[]", "tags": { "scope" :"private" }},
-	 	"popupform": {"type": "popupform", "pushToServer": "shallow", "tags": { "scope" :"private" }},
+	 	"popupform": {"type": "popupform", "tags": { "scope" :"private" }},
 	 	"popupMenus" : {"type": "popup[]", "tags": { "scope" :"private" }},
 	 	"popupMenuShowCommand" : {"type": "popupMenuShowCommand", "pushToServer": "shallow", "tags": { "scope" :"private" }} 
 	},
@@ -95,6 +95,18 @@
 		            				"type":"int",
 		            				"optional":"true"
 		            				
+	            				},
+	            				{
+		            				"name":"showBackdrop",
+		            				"type":"boolean",
+		            				"optional":"true"
+		            				
+	            				},
+	            				{
+		            				"name":"doNotCloseOnClickOutside",
+		            				"type":"boolean",
+		            				"optional":"true"
+		            				
 	            				}
 	            			 ]
 	        },
@@ -127,6 +139,19 @@
 	     "cleanup": {
 	     	}
 	},
+	"internalApi":
+    {
+        "clearPopupForm" :{
+        },
+        "cancelFormPopupInternal": {
+        	"parameters":[
+	            {
+		            "name":"disableClearPopupFormCallToServer",
+		            "type":"boolean"
+	            }
+	        ]
+	    }
+    },
 	"types": {
 	  "shortcut": {
 	  	"model": {
@@ -144,7 +169,8 @@
 	  		"height": "int",
 	  		"x": "int",
 	  		"y": "int",
-			"showBackdrop": "boolean" 
+			"showBackdrop": "boolean",
+			"doNotCloseOnClickOutside": "boolean" 
 	  	}
 	  },
 	  "FormPopup": {
@@ -156,7 +182,8 @@
 	  		"height": "int",
 	  		"x": "int",
 	  		"y": "int",
-			"showBackdrop": "boolean" 
+			"showBackdrop": "boolean",
+			"doNotCloseOnClickOutside": "boolean" 
 	  	}
 	  },
 	  "popupMenuShowCommand":{

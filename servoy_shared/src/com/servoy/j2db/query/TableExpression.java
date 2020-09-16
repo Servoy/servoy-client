@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.query;
 
+import java.util.Objects;
+
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
@@ -47,6 +49,15 @@ public class TableExpression implements ITableReference
 	public void acceptVisitor(IVisitor visitor)
 	{
 		table = AbstractBaseQuery.acceptVisitor(table, visitor);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		return Objects.equals(table, ((TableExpression)obj).table);
 	}
 
 	@Override

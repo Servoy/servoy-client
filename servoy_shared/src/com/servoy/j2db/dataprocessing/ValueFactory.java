@@ -194,6 +194,41 @@ public class ValueFactory
 			}
 			return true;
 		}
+
+		@Override
+		public String toString()
+		{
+			StringBuilder elementsString = new StringBuilder();
+			elementsString.append("ArrayValue[");
+			int length = elements.length;
+			boolean isLengthGreater100 = false;
+			if (length > 100)
+			{
+				length = 100;
+				isLengthGreater100 = true;
+			}
+			for (int i = 0; i < length - 1; i++)
+			{
+				elementsString.append(elements[i].toString());
+				elementsString.append(", ");
+				if (i > 9 && i % 10 == 0)
+				{
+					elementsString.append("\n");
+				}
+			}
+			elementsString.append(elements[length - 1].toString());
+			if (isLengthGreater100)
+			{
+				elementsString.append(", ... ]");
+			}
+			else
+			{
+
+				elementsString.append("]");
+			}
+
+			return elementsString.toString();
+		}
 	}
 
 	public static DbIdentValue createDbIdentValue()

@@ -1156,6 +1156,13 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		{
 			try
 			{
+				String hash = "";
+				int hashIndex = newUrl.lastIndexOf('#');
+				if (hashIndex != -1)
+				{
+					hash = newUrl.substring(hashIndex);
+					newUrl = newUrl.substring(0, hashIndex);
+				}
 				StringBuilder sb = new StringBuilder(newUrl);
 				URL newSolutionUrl = new URL(url);
 				if (newSolutionUrl.getQuery() != null)
@@ -1163,6 +1170,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 					sb.append("&").append(IWebsocketEndpoint.CLEAR_SESSION_PARAM).append("=true");
 				}
 				else sb.append("?").append(IWebsocketEndpoint.CLEAR_SESSION_PARAM).append("=true");
+				sb.append(hash);
 				newUrl = sb.toString();
 			}
 			catch (MalformedURLException e)

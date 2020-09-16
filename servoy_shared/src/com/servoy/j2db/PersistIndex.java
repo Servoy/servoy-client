@@ -164,13 +164,13 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 
 	protected void initDatasourceCache(String datasource)
 	{
-		if ((datasource == null && datasourceToPersist.size() == 0) || (datasource != null && datasourceToPersist.get(datasource) == null))
+		if ((datasourceToPersist.size() == 0) || (datasource != null && datasourceToPersist.get(datasource) == null))
 		{
 			visit((persist) -> {
 				if (persist instanceof TableNode)
 				{
 					String tableDs = ((TableNode)persist).getDataSource();
-					if (tableDs != null && (tableDs.equals(datasource) || datasource == null))
+					if (tableDs != null)
 					{
 						ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist
 							.get(tableDs);
@@ -209,6 +209,15 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 				}
 				return persist instanceof Solution ? IPersistVisitor.CONTINUE_TRAVERSAL : IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 			});
+			if (datasource != null && datasourceToPersist.get(datasource) == null)
+			{
+				ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = new ConcurrentHashMap<>(4);
+				dsMap.put(ScriptCalculation.class, new ConcurrentHashMap<String, IPersist>(4));
+				dsMap.put(TableNode.class, new ConcurrentHashMap<String, IPersist>(4));
+				dsMap.put(AggregateVariable.class, new ConcurrentHashMap<String, IPersist>(4));
+				dsMap.put(ScriptMethod.class, new ConcurrentHashMap<String, IPersist>(4));
+				datasourceToPersist.put(datasource, dsMap);
+			}
 		}
 	}
 

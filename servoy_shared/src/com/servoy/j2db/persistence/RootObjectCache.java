@@ -23,7 +23,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.servoy.j2db.PersistIndexCache;
+import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SortedList;
 
 /**
@@ -31,10 +36,13 @@ import com.servoy.j2db.util.SortedList;
  */
 public class RootObjectCache
 {
+
+	private static final Logger log = LoggerFactory.getLogger(RootObjectCache.class.getCanonicalName());
+
 	private final AbstractRepository repository;
 	private final HashMap<Integer, CacheRecord> rootObjectsById;
 	private final HashMap rootObjectsByName;
-	private final ConcurrentHashMap<String, Boolean> loadingBlocker = new ConcurrentHashMap<String, Boolean>();
+	private final ConcurrentHashMap<Pair<String, Integer>, Long> loadingBlocker = new ConcurrentHashMap<>(); // map of pair<rootObjectThatIsBeingLoaded, rootObjectType> -> id_of_thread_doing_the_actual_loading; the pair needs to contain information that makes a root object unique enough to not have getRootObject() called twice recursively (for example solution with name "A" while it loads might want to get style with name "A" used by a form and hang the thread if we don't identify rootObjects being loaded based on object types as well in the key of this map); (we ignore here root object versions - as I don't think they can mingle while loading root objects)
 
 	class RootObjectKey
 	{
@@ -249,46 +257,106 @@ public class RootObjectCache
 			IRootObject rootObject = cacheRecord.rootObjects.get(key);
 			if (rootObject == null)
 			{
-				// don't fully lock on loading, only lock for this root object
+				// don't fully lock on loading, only lock for this root object of this type
 				AbstractRepository.unlock();
+				if (log.isDebugEnabled())
+					log.debug("[RootObjectCache][getRootObject][" + Thread.currentThread().getId() + //$NON-NLS-1$
+						"] rootObj not in cache: " + cacheRecord.rootObjectMetaData.getName() + " / " + realRelease + " / " + //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+						cacheRecord.rootObjectMetaData.getObjectTypeId());
 				try
 				{
 					// block loading for the same root object.
-					Boolean alreadyLoading = loadingBlocker.putIfAbsent(cacheRecord.rootObjectMetaData.getName(), Boolean.TRUE);
-					if (alreadyLoading != null)
+					Long idOfThreadThatWasLoadingIt;
+					Pair<String, Integer> semiUniqueRootObjKey = new Pair<>(cacheRecord.rootObjectMetaData.getName(),
+						Integer.valueOf(cacheRecord.rootObjectMetaData.getObjectTypeId()));
+					synchronized (loadingBlocker)
 					{
-						synchronized (loadingBlocker)
+						idOfThreadThatWasLoadingIt = loadingBlocker.putIfAbsent(semiUniqueRootObjKey,
+								Long.valueOf(Thread.currentThread().getId())); // this has to be inside the synchronized (loadingBlocker) block to avoid calling .wait() below if the notifyAll() gets called by another thread before we call .wait() here but after the putIfAbsent - the sync block prevents that
+							if (idOfThreadThatWasLoadingIt != null)
 						{
+							if (idOfThreadThatWasLoadingIt.longValue() == Thread.currentThread().getId()) // this can cause a hang where 1 thread is waiting for itself to complete a rootObj load; should never happen
+								throw new RuntimeException("[RootObjectCache][getRootObject][" + Thread.currentThread().getId() + //$NON-NLS-1$
+									"] unexpected recursive getRootObject(...) call where the same thread is trying to load same (or similar) rootObj twice: " + //$NON-NLS-1$
+									cacheRecord.rootObjectMetaData.getName() + " / " + realRelease + " / " + cacheRecord.rootObjectMetaData.getObjectTypeId()); //$NON-NLS-1$ //$NON-NLS-2$
+
 							try
 							{
-								loadingBlocker.wait();
+								if (log.isDebugEnabled()) log.debug("[RootObjectCache][getRootObject][" + Thread.currentThread().getId() + //$NON-NLS-1$
+										"] waiting for other thread to finish loading: " + cacheRecord.rootObjectMetaData.getName() + " / " + realRelease + " / " + //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+										cacheRecord.rootObjectMetaData.getObjectTypeId());
+									loadingBlocker.wait(); // we don't have to do this in a while (to avoid spurious thread wakes - see javadoc or wakes due to other rootObjs/versions finishing load) because we call recursively getRootObject(...) below which is kind a a while loop - it rechecks wait conditions
 							}
 							catch (InterruptedException e)
 							{
 							}
 						}
-						return getRootObject(rootObjectId, release);
+					}
+
+					if (idOfThreadThatWasLoadingIt != null)
+					{
+						if (log.isDebugEnabled()) log.debug("[RootObjectCache][getRootObject][" + Thread.currentThread().getId() + //$NON-NLS-1$
+							"] rechecking rootObj after wait: " + cacheRecord.rootObjectMetaData.getName() + " / " + realRelease + " / " + //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+							cacheRecord.rootObjectMetaData.getObjectTypeId());
+						return getRootObject(rootObjectId, release); // we waited for the rootObj with this name (and some version) to load above; now check again if it's there and get it (or wait again if another thread loads already some version of this rootObj)
 					}
 					else
 					{
 						try
 						{
-							rootObject = repository.loadRootObject(cacheRecord.rootObjectMetaData, realRelease);
+							rootObject = cacheRecord.rootObjects.get(key); // check again to see if another thread already loaded this rootObj/version; avoid loading it multiple times (it can happen theoretically that two threads get to the line after AbstractRepository.unlock(); above trying to load the same rootObj; then one of the threads could load it and finish loading it before the second thread resumes execution; but two threads will never be at this line for the same rootObj at the same time due to the loadingBlocker locking per rootObj; so a simple check here should be safe I think)
+							if (rootObject == null)
+							{
+								if (log.isDebugEnabled()) log.debug("[RootObjectCache][getRootObject][" + Thread.currentThread().getId() + //$NON-NLS-1$
+									"] loading solution: " + cacheRecord.rootObjectMetaData.getName() + " / " + realRelease + " / " + //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+									cacheRecord.rootObjectMetaData.getObjectTypeId());
+
+								// do the actual load
+								rootObject = repository.loadRootObject(cacheRecord.rootObjectMetaData, realRelease);
+								if (rootObject != null)
+								{
+									AbstractRepository.lock(); // lock as we are modifying the cache
+									try
+									{
+										if (log.isDebugEnabled()) log.debug("[RootObjectCache][getRootObject][" + Thread.currentThread().getId() + //$NON-NLS-1$
+											"] adding sol to cache: " + cacheRecord.rootObjectMetaData.getName() + " / " + realRelease + " / " + //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+											cacheRecord.rootObjectMetaData.getObjectTypeId());
+										cacheRecord.rootObjects.put(key, rootObject);
+									}
+									finally
+									{
+										AbstractRepository.unlock();
+									}
+								}
+							}
+							else
+							{
+								if (log.isDebugEnabled()) log.debug("[RootObjectCache][getRootObject][" + Thread.currentThread().getId() + //$NON-NLS-1$
+									"] solution was already loaded by another thread: " + cacheRecord.rootObjectMetaData.getName() + " / " + realRelease + //$NON-NLS-1$//$NON-NLS-2$
+									" / " + cacheRecord.rootObjectMetaData.getObjectTypeId()); //$NON-NLS-1$
+							}
+						}
+						catch (RepositoryException e)
+						{
+							Debug.error("Can't load root object of " + cacheRecord, e);
+							throw e;
 						}
 						finally
 						{
-							loadingBlocker.remove(cacheRecord.rootObjectMetaData.getName());
+							synchronized (loadingBlocker)
+							{
+								if (log.isDebugEnabled()) log.debug("[RootObjectCache][getRootObject][" + Thread.currentThread().getId() + //$NON-NLS-1$
+										"] clearing loading sol. flag and notifying: " + cacheRecord.rootObjectMetaData.getName() + " / " + realRelease + " / " + //$NON-NLS-1$//$NON-NLS-2$
+										cacheRecord.rootObjectMetaData.getObjectTypeId());
+									loadingBlocker.remove(semiUniqueRootObjKey);
+								loadingBlocker.notifyAll();
+							}
 						}
 					}
 				}
 				finally
 				{
 					AbstractRepository.lock();
-				}
-				if (rootObject != null) cacheRecord.rootObjects.put(key, rootObject);
-				synchronized (loadingBlocker)
-				{
-					loadingBlocker.notifyAll();
 				}
 			}
 			return rootObject;

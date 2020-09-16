@@ -163,9 +163,9 @@ public interface IServerInternal
 	 * @param tableName the name of the table.
 	 * @param hiddenInDeveloper if it should be hidden or not.
 	 */
-	void setTableMarkedAsHiddenInDeveloper(String tableName, boolean hiddenInDeveloper);
+	void setTableMarkedAsHiddenInDeveloper(ITable t, boolean hiddenInDeveloper);
 
-	void setTableMarkedAsHiddenInDeveloper(String tableName, boolean hiddenInDeveloper, boolean fireTableHidden);
+	void setTableMarkedAsHiddenInDeveloper(ITable t, boolean hiddenInDeveloper, boolean fireTableHidden);
 
 	/**
 	 * Tells if a table is marked as 'hidden' in developer.

@@ -815,7 +815,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	}
 })
-.directive('svyAttributes',  function ($utils:servoy.IUtils,$parse:angular.IParseService) {
+.directive('svyAttributes',  function ($utils:servoy.IUtils,$parse:angular.IParseService, $compile: angular.ICompileService) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
@@ -825,6 +825,8 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				{
 					element.attr(key,attributes[key]);
 				}
+				element.removeAttr('svy-attributes')
+				$compile(element)(scope);
 			}
 		}
 	}
@@ -1256,7 +1258,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 								}
 							}
 						}
-						updateChildElementsAPI(newValue[0]);
+						if (newValue.length > 0) updateChildElementsAPI(newValue[0]);
 						// update the focus
                         let selectedRowIndex = getFoundset().selectedRowIndexes[0];
                         const element = parent.children()[(page > 0) ? ++selectedRowIndex - scope.responsivePageSize * page : ++selectedRowIndex];
