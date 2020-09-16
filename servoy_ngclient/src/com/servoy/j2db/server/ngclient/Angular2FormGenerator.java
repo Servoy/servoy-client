@@ -208,42 +208,49 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 		writer.value("");
 		writer.key("model");
 		writer.object();
+		Map<String, Object> containerProperties = null;
 		if (cachedFormController != null && cachedFormController.getFormUI() instanceof Container)
 		{
 			Container con = (Container)cachedFormController.getFormUI();
 			DataConversion dataConversion = new DataConversion();
-			con.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, con.getProperties(), dataConversion);
+			TypedData<Map<String, Object>> typedProperties = con.getProperties();
+			con.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, typedProperties, dataConversion);
 			JSONUtils.writeClientConversions(writer, dataConversion);
+			containerProperties = typedProperties.content;
 		}
+		final Map<String, Object> finalContainerProperties = containerProperties;
 		if (formWrapper != null)
 		{
 			Map<String, Object> properties = formWrapper.getProperties();
 			properties.forEach((key, value) -> {
-				writer.key(key);
-				if (value instanceof Integer || value instanceof Long)
+				if (finalContainerProperties == null || !finalContainerProperties.containsKey(key))
 				{
-					writer.value(((Number)value).longValue());
-				}
-				else if (value instanceof Float || value instanceof Double)
-				{
-					writer.value(((Number)value).doubleValue());
-				}
-				else if (value instanceof Boolean)
-				{
-					writer.value(((Boolean)value).booleanValue());
-				}
-				else if (value instanceof Dimension)
-				{
-					writer.object();
-					writer.key("width");
-					writer.value(((Dimension)value).getWidth());
-					writer.key("height");
-					writer.value(((Dimension)value).getHeight());
-					writer.endObject();
-				}
-				else
-				{
-					writer.value(value);
+					writer.key(key);
+					if (value instanceof Integer || value instanceof Long)
+					{
+						writer.value(((Number)value).longValue());
+					}
+					else if (value instanceof Float || value instanceof Double)
+					{
+						writer.value(((Number)value).doubleValue());
+					}
+					else if (value instanceof Boolean)
+					{
+						writer.value(((Boolean)value).booleanValue());
+					}
+					else if (value instanceof Dimension)
+					{
+						writer.object();
+						writer.key("width");
+						writer.value(((Dimension)value).getWidth());
+						writer.key("height");
+						writer.value(((Dimension)value).getHeight());
+						writer.endObject();
+					}
+					else
+					{
+						writer.value(value);
+					}
 				}
 			});
 		}
