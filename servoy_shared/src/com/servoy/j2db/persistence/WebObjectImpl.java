@@ -1167,6 +1167,15 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	public void setTypeName(String arg)
 	{
 		super.setTypeName(arg);
-		pdPleaseUseGetterToAccessThis = null;
+		if (pdPleaseUseGetterToAccessThis != null)
+		{
+			PropertyDescription pd = pdPleaseUseGetterToAccessThis;
+			boolean isCorrect = pd.getType() != null && pd.getType().getName().endsWith("." + arg) || pd.getName().equals(arg);
+			if (!isCorrect)
+			{
+				pdPleaseUseGetterToAccessThis = null;
+			}
+		}
+
 	}
 }
