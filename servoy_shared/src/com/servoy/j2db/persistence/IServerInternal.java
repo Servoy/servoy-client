@@ -181,6 +181,15 @@ public interface IServerInternal
 	 */
 	boolean isTableMarkedAsMetaData(String tableName);
 
+	/**
+	 * Tells if a table can be marked as invalid in developer, because it has no primary keys.
+	 * If the table's structure has not yet been read from DB this will not need to load it.
+	 *
+	 * @param tableName the name of the table
+	 * @return if it is flagged as without pks.
+	 */
+	boolean isTableInvalidInDeveloperBecauseNoPk(String tableName);
+
 	List<String> getTableAndViewNames(boolean hideTempTables, boolean hideHiddenInDeveloper) throws RepositoryException;
 
 	Table getLogTable() throws RepositoryException;
