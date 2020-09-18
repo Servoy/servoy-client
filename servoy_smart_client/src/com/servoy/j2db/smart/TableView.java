@@ -665,7 +665,7 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 							}
 						}
 						int objAccess = app.getFlattenedSolution().getSecurityAccess(obj.getUUID(),
-							fc.getForm() != null && fc.getForm().getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS
+							fc != null && fc.getForm() != null && fc.getForm().getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS
 								: IRepository.IMPLICIT_FORM_ACCESS);
 						boolean b_visible = (objAccess == -1 || ((objAccess & IRepository.VIEWABLE) == IRepository.VIEWABLE));
 						if (b_visible)
@@ -736,9 +736,9 @@ public class TableView extends FixedJTable implements IView, IDataRenderer, ISup
 			Debug.error(ex);
 		}
 		ArrayList<TableColumn> cts = new ArrayList<TableColumn>(columnTabSequence.size());
-		for (int i = 0; i < columnTabSequence.size(); i++)
+		for (Pair<ISupportTabSeq, TableColumn> element : columnTabSequence)
 		{
-			cts.add(columnTabSequence.get(i).getRight());
+			cts.add(element.getRight());
 		}
 		tableTabSequenceHandler = new TableTabSequenceHandler(this, cts);
 		setColumnModel(tcm);
