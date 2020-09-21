@@ -1262,7 +1262,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						// update the focus
                         let selectedRowIndex = getFoundset().selectedRowIndexes[0];
                         const element = parent.children()[(page > 0) ? ++selectedRowIndex - scope.responsivePageSize * page : ++selectedRowIndex];
-                        if (element) element.focus();
+                        if (element && !element.contains(document.activeElement)) element.focus(); 
 					}
 
 					function createRowsAndSetSelection() {
