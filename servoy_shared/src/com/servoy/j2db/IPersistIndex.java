@@ -20,7 +20,7 @@ package com.servoy.j2db;
 import java.util.Iterator;
 
 import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.persistence.ISupportScope;
+import com.servoy.j2db.persistence.IScriptElement;
 
 
 /**
@@ -79,7 +79,7 @@ public interface IPersistIndex
 	 * @param baseName
 	 * @return
 	 */
-	ISupportScope getSupportScope(String scopeName, String baseName);
+	IScriptElement getSupportScope(String scopeName, String baseName);
 
 	/**
 	 * @param scopeName
@@ -87,7 +87,7 @@ public interface IPersistIndex
 	 * @param cls class to filter
 	 * @return
 	 */
-	public <T extends ISupportScope> Iterator<T> getGlobalScriptObjects(String scopeName, boolean sort, Class<T> cls);
+	public <T extends IScriptElement> Iterator<T> getGlobalScriptObjects(String scopeName, boolean sort, Class<T> cls);
 
 	public <T extends IPersist> Iterator<T> getIterableFor(Class<T> clz);
 
