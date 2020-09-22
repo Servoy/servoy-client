@@ -69,6 +69,7 @@ import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.IRelationProvider;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IRootObject;
+import com.servoy.j2db.persistence.IScriptElement;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportName;
@@ -3158,13 +3159,13 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 
 		@Override
-		public ISupportScope getSupportScope(String scopeName, String baseName)
+		public IScriptElement getSupportScope(String scopeName, String baseName)
 		{
 			return null;
 		}
 
 		@Override
-		public <T extends ISupportScope> Iterator<T> getGlobalScriptObjects(String scopeName, boolean sort, Class<T> cls)
+		public <T extends IScriptElement> Iterator<T> getGlobalScriptObjects(String scopeName, boolean sort, Class<T> cls)
 		{
 			List<T> empty = Collections.emptyList();
 			return empty.iterator();
