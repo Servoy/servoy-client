@@ -318,12 +318,21 @@ angular.module('window',['servoy'])
 		{
 			_this.cancelFormPopupInternal(false);
 		},
-		cancelFormPopupInternal : function(disableClearPopupFormCallToServer)
+		cancelFormPopupInternal : function(disableClearPopupFormCallToServer, event)
 		{
 			$('body').off('mouseup',formPopupBodyListener);
 			if (scope.formPopupShown)
 			{
 				$formService.hideForm(scope.formPopupShown.form);
+			}
+			var closeCallback =  scope.model.popupform ? scope.model.popupform.onClose : _this.onClose;
+			if(closeCallback) {
+				var jsEvent = $utils.createJSEvent(event,"popupClose");
+				if (jsEvent){
+					var formName = jsEvent.formName;
+					if (!formName) formName = callback.formname;
+				}
+				$window.executeInlineScript(formName,closeCallback.script,[jsEvent]);
 			}
 			var popup = angular.element("#formpopup");
 			if (popup)
@@ -451,19 +460,19 @@ angular.module('window',['servoy'])
 			if (backdrop && (backdrop.get(0) == event.target))
 			{
 				backdrop.remove();
-				_this.cancelFormPopup();
+				_this.cancelFormPopupInternal(false, event);
 				return;
 			}
 			var mainform = angular.element(".svy-main-window-container");
 			if (mainform && mainform.find(event.target).length > 0 )
 			{
-				_this.cancelFormPopup();
+				_this.cancelFormPopupInternal(false, event);
 				return;
 			}
 			 mainform = angular.element(".svy-dialog");
 			 if (mainform && mainform.find(event.target).length > 0 )
 			 {
-				 _this.cancelFormPopup();
+				 _this.cancelFormPopupInternal(false, event);
 				 return;
 			 }
 	}
