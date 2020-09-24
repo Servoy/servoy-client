@@ -3419,16 +3419,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		record.getParentFoundSet().getTable().getColumns().forEach(column -> {
 			// null
 			Object rawValue = record.getRawData().getRawValue(column.getDataProviderID());
-			if (!column.getAllowNull() && column.getDatabaseDefaultValue() == null)
+			if (isNullColumnValidatorEnabled() && !column.getAllowNull() && column.getDatabaseDefaultValue() == null &&
+				(rawValue == null || ("".equals(rawValue) && Column.mapToDefaultType(column.getType()) == IColumnTypes.TEXT)))
 			{
-				if (rawValue == null || ("".equals(rawValue) && Column.mapToDefaultType(column.getType()) == IColumnTypes.TEXT))
-				{
-					recordMarkers.report("i18n:servoy.record.error.null.not.allowed", column.getDataProviderID(), ILogLevel.ERROR, state,
-						new Object[] { column.getDataProviderID() });
-					// this would result normally in an Record.exception so for now also set that
-					record.getRawData().setLastException(
-						new DataException("Column " + column.getDataProviderID() + " can't be null", ServoyException.DATA_INTEGRITY_VIOLATION));
-				}
+				recordMarkers.report("i18n:servoy.record.error.null.not.allowed", column.getDataProviderID(), ILogLevel.ERROR, state,
+					new Object[] { column.getDataProviderID() });
+				// this would result normally in an Record.exception so for now also set that
+				record.getRawData().setLastException(
+					new DataException("Column " + column.getDataProviderID() + " can't be null", ServoyException.DATA_INTEGRITY_VIOLATION));
 			}
 
 			// validators only for changed columns (based on the raw, "unconverted" value)
