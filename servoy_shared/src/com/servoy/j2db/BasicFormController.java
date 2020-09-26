@@ -1766,6 +1766,7 @@ public abstract class BasicFormController
 					{
 						setFormModelInternal(application.getFoundSetManager().getSeparateFoundSet(this, getDefaultSortColumns()));
 					}
+					((FoundSet)formModel).clearFilterParams();
 					((FoundSet)formModel).copyFrom(fs);
 					returnValue = setModel(formModel);
 				}
