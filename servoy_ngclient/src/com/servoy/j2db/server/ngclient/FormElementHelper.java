@@ -935,9 +935,8 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 								for (PropertyDescription tabSeqProperty : nestedProperties)
 								{
 									int tabseq = Utils.getAsInteger(webComponent.getProperty(tabSeqProperty.getName()));
-									if (tabseq >= 0 && isListFormComponent && listFormComponentElements != null)
+									if (isListFormComponent && listFormComponentElements != null)
 									{
-										// all elements will have the tabseq of the list
 										listFormComponentElements.add(new TabSeqProperty(element, tabSeqProperty.getName()));
 									}
 									else if (tabseq >= 0)
