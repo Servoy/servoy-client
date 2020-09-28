@@ -935,6 +935,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					}
 				}
 				else {
+					let selectionChangedByKey = false;
 					let foundsetListener = null;
 					const componentListeners = [];
 					scope.$on('$destroy', function() {
@@ -1000,6 +1001,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							// do not move the selection for the first or last element 
 							if (selectedRowIndex >= 0 && selectedRowIndex < getFoundset().serverSize) {
 								scope.foundset.requestSelectionUpdate([selectedRowIndex]);
+								selectionChangedByKey = true;
 							}
 						} 
 					} 
@@ -1259,10 +1261,13 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							}
 						}
 						if (newValue.length > 0) updateChildElementsAPI(newValue[0]);
-						// update the focus
+						// update the focus when the selection was changed using key up or down
                         let selectedRowIndex = getFoundset().selectedRowIndexes[0];
                         const element = parent.children()[(page > 0) ? ++selectedRowIndex - scope.responsivePageSize * page : ++selectedRowIndex];
-                        if (element && !element.contains(document.activeElement)) element.focus(); 
+                        if (element && !element.contains(document.activeElement) && selectionChangedByKey && !element.className.includes("svyPagination")) { 
+                        	element.focus(); 
+                        	selectionChangedByKey = false; 
+                        }
 					}
 
 					function createRowsAndSetSelection() {
