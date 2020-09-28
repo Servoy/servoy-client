@@ -112,7 +112,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 	private final ConcurrentMap<UUID, Map<String, FormComponentCache>> formComponentElements = new ConcurrentHashMap<>();
 	private final ConcurrentMap<UUID, Map<String, FormComponentCache>> formComponentElementsForDesign = new ConcurrentHashMap<>();
 
-	private final Map<UUID, Map<UUID, UUID>> formComponentElementsUUIDS = new WeakHashMap<>();
+	private static final Map<UUID, Map<UUID, UUID>> formComponentElementsUUIDS = new WeakHashMap<>();
 
 	private FormElementHelper()
 	{
@@ -138,8 +138,10 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 	{
 		ConcurrentMap<UUID, Map<String, FormComponentCache>> cache = formElement.getDesignId() != null ? formComponentElementsForDesign : formComponentElements;
 		Solution solutionCopy = fs.getSolutionCopy(false);
+		FlattenedSolution usedFS = getSharedFlattenedSolution(fs);
 		if (solutionCopy != null && solutionCopy.getForm(formElement.getForm().getName()) != null)
 		{
+			usedFS = fs;
 			// if the form is a solution model for we can't use the standard caches.
 			cache = solutionCopy.getRuntimeProperty(SOLUTION_MODEL_CACHE);
 			if (cache == null)
@@ -148,11 +150,11 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				solutionCopy.setRuntimeProperty(SOLUTION_MODEL_CACHE, cache);
 			}
 		}
-		return getFormComponentFromCache(formElement, pd, formElementValue, form, getSharedFlattenedSolution(fs),
+		return getFormComponentFromCache(formElement, pd, formElementValue, form, usedFS,
 			cache);
 	}
 
-	private FormComponentCache getFormComponentFromCache(INGFormElement parentElement, PropertyDescription pd, JSONObject json, Form frm,
+	private static FormComponentCache getFormComponentFromCache(INGFormElement parentElement, PropertyDescription pd, JSONObject json, Form frm,
 		FlattenedSolution fs, ConcurrentMap<UUID, Map<String, FormComponentCache>> cache)
 	{
 		Map<String, FormComponentCache> map = cache.get(parentElement.getPersistIfAvailable().getUUID());
@@ -171,7 +173,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		return fcCache;
 	}
 
-	private FormComponentCache generateFormComponentCacheObject(INGFormElement parentElement, PropertyDescription pd, Form frm, FlattenedSolution fs,
+	private static FormComponentCache generateFormComponentCacheObject(INGFormElement parentElement, PropertyDescription pd, Form frm, FlattenedSolution fs,
 		final List<FormElement> list)
 	{
 		IFormElementCache cache = new IFormElementCache()
@@ -193,7 +195,8 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		return new FormComponentCache(list, template);
 	}
 
-	private List<FormElement> generateFormComponentElements(INGFormElement parent, PropertyDescription pd, JSONObject json, Form frm, FlattenedSolution fs)
+	private static List<FormElement> generateFormComponentElements(INGFormElement parent, PropertyDescription pd, JSONObject json, Form frm,
+		FlattenedSolution fs)
 	{
 		List<FormElement> elements = new ArrayList<>();
 		List<IFormElement> persistElements = generateFormComponentPersists(parent, pd, json, frm, fs);
@@ -204,7 +207,8 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		return elements;
 	}
 
-	private List<IFormElement> generateFormComponentPersists(INGFormElement parent, PropertyDescription pd, JSONObject json, Form frm, FlattenedSolution fs)
+	private static List<IFormElement> generateFormComponentPersists(INGFormElement parent, PropertyDescription pd, JSONObject json, Form frm,
+		FlattenedSolution fs)
 	{
 		List<IFormElement> elements = new ArrayList<>();
 		List<IFormElement> formelements = fs.getFlattenedForm(frm).getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
