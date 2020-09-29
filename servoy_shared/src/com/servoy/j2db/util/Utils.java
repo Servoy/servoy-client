@@ -2002,6 +2002,36 @@ public final class Utils
 		return i;
 	}
 
+	/**
+	 * Gets the last path component of a path using a given separator. If the separator cannot be
+	 * found, the path itself is returned.
+	 * <p>
+	 * For example, lastPathComponent("foo.bar", '.') would return "bar" and
+	 * lastPathComponent("foo", '.') would return "foo".
+	 *
+	 * @param path
+	 *            The path to parse
+	 * @param separator
+	 *            The path separator character
+	 * @return The last component in the path or path itself if no separator characters exist.
+	 */
+	public static String lastPathComponent(final String path, final char separator)
+	{
+		if (path == null)
+		{
+			return null;
+		}
+
+		final int index = path.lastIndexOf(separator);
+
+		if (index == -1)
+		{
+			return path;
+		}
+
+		return path.substring(index + 1);
+	}
+
 	public static String unescape(String string, int escape)
 	{
 		StringBuilder buffer = new StringBuilder(string.length());
