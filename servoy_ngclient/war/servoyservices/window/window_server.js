@@ -314,6 +314,7 @@ $scope.api.createFormPopup = function (form) {
         _component: undefined,
         _scope: undefined,
         _dataprovider: undefined,
+        _onClose: undefined,
         
         width:function(val) {
             if (val == undefined) return this._width;
@@ -345,6 +346,11 @@ $scope.api.createFormPopup = function (form) {
             this._doNotCloseOnClickOutside = val;
             return this;
         },
+        onClose:function(val) {
+        	if (val == undefined) return this._onClose;
+            this._onClose = val;
+            return this;
+        },
         scope:function(val) {
             if (val == undefined) return this._scope;
             this._scope = val;
@@ -361,7 +367,7 @@ $scope.api.createFormPopup = function (form) {
             return this;
         },
         show: function() {
-            $scope.api.showFormPopup(this._component,form,this._scope,this._dataprovider,this._width,this._height,this._x,this._y,this._showBackdrop, this._doNotCloseOnClickOutside);
+            $scope.api.showFormPopup(this._component,form,this._scope,this._dataprovider,this._width,this._height,this._x,this._y,this._showBackdrop, this._doNotCloseOnClickOutside, this._onClose);
         }
     }
 }
@@ -396,7 +402,7 @@ $scope.clearPopupForm = function()
 	$scope.model.popupform = null;
 }
 
-$scope.api.showFormPopup = function(component,form,dataproviderScope,dataproviderID,width,height,x,y,showBackdrop,doNotCloseOnClickOutside)
+$scope.api.showFormPopup = function(component,form,dataproviderScope,dataproviderID,width,height,x,y,showBackdrop,doNotCloseOnClickOutside, onClose)
 {
 	if ($scope.model.popupform)
 	{
@@ -413,6 +419,7 @@ $scope.api.showFormPopup = function(component,form,dataproviderScope,dataprovide
 	$scope.model.popupform.y = y;
 	$scope.model.popupform.showBackdrop = showBackdrop;
 	$scope.model.popupform.doNotCloseOnClickOutside = doNotCloseOnClickOutside;
+	$scope.model.popupform.onClose = onClose;
 }
 
 $scope.api.createShortcut = function(shortcut,callback,contextFilter,arguments,consumeEvent)

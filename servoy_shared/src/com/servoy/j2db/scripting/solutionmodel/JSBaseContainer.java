@@ -182,9 +182,8 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 					{
 						LayoutContainer parent = (LayoutContainer)(getContainer());
 						packageName = parent.getPackageName();
-						if (specName == null && parent.getAllowedChildren() != null)
+						if (specName == null && parent.getAllowedChildren() != null && !parent.getAllowedChildren().isEmpty())
 						{
-
 							specName = parent.getAllowedChildren().get(0);
 						}
 					}

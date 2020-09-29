@@ -23,7 +23,6 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
@@ -94,6 +93,7 @@ import com.servoy.j2db.server.shared.PerformanceTimingAggregate;
 import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.util.Ad;
+import com.servoy.j2db.util.AppendingStringBuffer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IGetLastAccessed;
 import com.servoy.j2db.util.IGetStatusLine;
@@ -106,8 +106,6 @@ import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
-// TODO we should add a subclass between ClientState and SessionClient, (remove all "session" and wicket related stuff out of SessionClient)
-// then we can extend that one.
 @SuppressWarnings("nls")
 public class NGClient extends AbstractApplication implements INGApplication, IChangeListener, IServerService, IGetStatusLine, IGetLastAccessed
 {

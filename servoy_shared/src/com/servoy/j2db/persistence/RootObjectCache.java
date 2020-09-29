@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +42,7 @@ public class RootObjectCache
 	private final AbstractRepository repository;
 	private final HashMap<Integer, CacheRecord> rootObjectsById;
 	private final HashMap rootObjectsByName;
-	private final ConcurrentHashMap<Pair<String, Integer>, Long> loadingBlocker = new ConcurrentHashMap<>(); // map of pair<rootObjectThatIsBeingLoaded, rootObjectType> -> id_of_thread_doing_the_actual_loading; the pair needs to contain information that makes a root object unique enough to not have getRootObject() called twice recursively (for example solution with name "A" while it loads might want to get style with name "A" used by a form and hang the thread if we don't identify rootObjects being loaded based on object types as well in the key of this map); (we ignore here root object versions - as I don't think they can mingle while loading root objects)
+	private final Map<Pair<String, Integer>, Long> loadingBlocker = new HashMap<>(); // map of pair<rootObjectThatIsBeingLoaded, rootObjectType> -> id_of_thread_doing_the_actual_loading; the pair needs to contain information that makes a root object unique enough to not have getRootObject() called twice recursively (for example solution with name "A" while it loads might want to get style with name "A" used by a form and hang the thread if we don't identify rootObjects being loaded based on object types as well in the key of this map); (we ignore here root object versions - as I don't think they can mingle while loading root objects)
 
 	class RootObjectKey
 	{
@@ -272,8 +272,8 @@ public class RootObjectCache
 					synchronized (loadingBlocker)
 					{
 						idOfThreadThatWasLoadingIt = loadingBlocker.putIfAbsent(semiUniqueRootObjKey,
-								Long.valueOf(Thread.currentThread().getId())); // this has to be inside the synchronized (loadingBlocker) block to avoid calling .wait() below if the notifyAll() gets called by another thread before we call .wait() here but after the putIfAbsent - the sync block prevents that
-							if (idOfThreadThatWasLoadingIt != null)
+							Long.valueOf(Thread.currentThread().getId())); // this has to be inside the synchronized (loadingBlocker) block to avoid calling .wait() below if the notifyAll() gets called by another thread before we call .wait() here but after the putIfAbsent - the sync block prevents that
+						if (idOfThreadThatWasLoadingIt != null)
 						{
 							if (idOfThreadThatWasLoadingIt.longValue() == Thread.currentThread().getId()) // this can cause a hang where 1 thread is waiting for itself to complete a rootObj load; should never happen
 								throw new RuntimeException("[RootObjectCache][getRootObject][" + Thread.currentThread().getId() + //$NON-NLS-1$
@@ -283,9 +283,9 @@ public class RootObjectCache
 							try
 							{
 								if (log.isDebugEnabled()) log.debug("[RootObjectCache][getRootObject][" + Thread.currentThread().getId() + //$NON-NLS-1$
-										"] waiting for other thread to finish loading: " + cacheRecord.rootObjectMetaData.getName() + " / " + realRelease + " / " + //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-										cacheRecord.rootObjectMetaData.getObjectTypeId());
-									loadingBlocker.wait(); // we don't have to do this in a while (to avoid spurious thread wakes - see javadoc or wakes due to other rootObjs/versions finishing load) because we call recursively getRootObject(...) below which is kind a a while loop - it rechecks wait conditions
+									"] waiting for other thread to finish loading: " + cacheRecord.rootObjectMetaData.getName() + " / " + realRelease + " / " + //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+									cacheRecord.rootObjectMetaData.getObjectTypeId());
+								loadingBlocker.wait(); // we don't have to do this in a while (to avoid spurious thread wakes - see javadoc or wakes due to other rootObjs/versions finishing load) because we call recursively getRootObject(...) below which is kind a a while loop - it rechecks wait conditions
 							}
 							catch (InterruptedException e)
 							{
@@ -346,9 +346,9 @@ public class RootObjectCache
 							synchronized (loadingBlocker)
 							{
 								if (log.isDebugEnabled()) log.debug("[RootObjectCache][getRootObject][" + Thread.currentThread().getId() + //$NON-NLS-1$
-										"] clearing loading sol. flag and notifying: " + cacheRecord.rootObjectMetaData.getName() + " / " + realRelease + " / " + //$NON-NLS-1$//$NON-NLS-2$
-										cacheRecord.rootObjectMetaData.getObjectTypeId());
-									loadingBlocker.remove(semiUniqueRootObjKey);
+									"] clearing loading sol. flag and notifying: " + cacheRecord.rootObjectMetaData.getName() + " / " + realRelease + " / " + //$NON-NLS-1$//$NON-NLS-2$
+									cacheRecord.rootObjectMetaData.getObjectTypeId());
+								loadingBlocker.remove(semiUniqueRootObjKey);
 								loadingBlocker.notifyAll();
 							}
 						}

@@ -156,11 +156,6 @@ angular.module('servoydefaultSplitpane',['servoy']).directive('servoydefaultSpli
 				});
 			}
 			
-			$scope.$watch("model.resizeWeight", function(newValue,oldValue) {
-				if (newValue === oldValue) return;
-				processResize()
-			});
-
 			$scope.$watch('model.divSize', function(newValue, oldValue){
 				var dividerEl = getHandlerElement();
 				if($scope.model.tabOrientation == -3) {

@@ -42,15 +42,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadBase.FileSizeLimitExceededException;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.FileCleaningTracker;
 import org.apache.commons.io.IOUtils;
-import org.apache.wicket.util.file.FileCleaner;
-import org.apache.wicket.util.string.Strings;
-import org.apache.wicket.util.upload.DiskFileItem;
-import org.apache.wicket.util.upload.DiskFileItemFactory;
-import org.apache.wicket.util.upload.FileItem;
-import org.apache.wicket.util.upload.FileUploadBase.FileSizeLimitExceededException;
-import org.apache.wicket.util.upload.FileUploadException;
-import org.apache.wicket.util.upload.ServletFileUpload;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
@@ -110,6 +109,8 @@ import com.servoy.j2db.util.Utils;
 @WebServlet("/resources/*")
 public class MediaResourcesServlet extends HttpServlet
 {
+	private final FileCleaningTracker FILE_CLEANING_TRACKER = new FileCleaningTracker();
+
 	/**
 	 * constant for calling a service, should be in sync with servoy.ts generateServiceUploadUrl() function
 	 */
@@ -182,7 +183,7 @@ public class MediaResourcesServlet extends HttpServlet
 		{
 			deleteAll(tempDir);
 		}
-		FileCleaner.destroy();
+		FILE_CLEANING_TRACKER.exitWhenFinished();
 	}
 
 	private void deleteAll(File f)
@@ -457,7 +458,9 @@ public class MediaResourcesServlet extends HttpServlet
 							}
 						}
 						int tempFileThreshold = Utils.getAsInteger(settings.getProperty("servoy.ng_web_client.tempfile.threshold", "50"), false) * 1000;
-						ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory(tempFileThreshold, fileUploadDir));
+						DiskFileItemFactory diskFileItemFactory = new DiskFileItemFactory(tempFileThreshold, fileUploadDir);
+						diskFileItemFactory.setFileCleaningTracker(FILE_CLEANING_TRACKER);
+						ServletFileUpload upload = new ServletFileUpload(diskFileItemFactory);
 						upload.setHeaderEncoding("UTF-8");
 						long maxUpload = Utils.getAsLong(settings.getProperty("servoy.webclient.maxuploadsize", "0"), false);
 						if (maxUpload > 0) upload.setFileSizeMax(maxUpload * 1000);
@@ -769,8 +772,8 @@ public class MediaResourcesServlet extends HttpServlet
 
 			// when uploading from localhost some browsers will specify the entire path, we strip it
 			// down to just the file name
-			name = Strings.lastPathComponent(name, '/');
-			name = Strings.lastPathComponent(name, '\\');
+			name = Utils.lastPathComponent(name, '/');
+			name = Utils.lastPathComponent(name, '\\');
 
 			name = name.replace('\\', '/');
 			String[] tokenized = name.split("/"); //$NON-NLS-1$

@@ -177,10 +177,10 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 		var query = $("div.svy-layoutcontainer[svy-name='" + containername + "']");
 		if (query.length == 0) return null;
 		if (query.length == 1) return query;
-		var parents = query.closest("div.svy-form");
 		
-		for(var i = 0;i<parents.length;i++) {
-			if ($(parents[i]).filter("[ng-controller='${name}']").length != 0) return $(query[i]); 
+		for(var i = 0;i<query.length;i++) {
+		    var parents = $(query[i]).closest("div.svy-form");
+			if (parents.length > 0 && $(parents[0]).filter("[ng-controller='${name}']").length != 0) return $(query[i]); 
 		}
 		
 	}

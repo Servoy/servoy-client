@@ -59,7 +59,8 @@ public class IdentDocumentValidator implements ValidatingDocument.IDocumentValid
 	// Returns true if s is a legal SQL identifier.
 	public static boolean isSQLIdentifier(String s)
 	{
-		return validateIdentifier(s, TYPE_SQL, true) != null;
+		String validated = validateIdentifier(s, TYPE_SQL, true);
+		return validated != null && validated.equals(s);
 	}
 
 	public String validateInsertString(Document document, int offs, String str, AttributeSet a) throws BadLocationException

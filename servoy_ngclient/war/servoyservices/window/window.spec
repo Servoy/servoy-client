@@ -107,6 +107,11 @@
 		            				"type":"boolean",
 		            				"optional":"true"
 		            				
+	            				},
+	            				{
+		            				"name":"onClose",
+		            				"type":"function",
+		            				"optional":"true"
 	            				}
 	            			 ]
 	        },
@@ -170,7 +175,8 @@
 	  		"x": "int",
 	  		"y": "int",
 			"showBackdrop": "boolean",
-			"doNotCloseOnClickOutside": "boolean" 
+			"doNotCloseOnClickOutside": "boolean",
+			"onClose": "function" 
 	  	}
 	  },
 	  "FormPopup": {

@@ -6817,6 +6817,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return found;
 	}
 
+	public void clearFilterParams()
+	{
+		List<TableFilter> originalFilters = foundSetFilters;
+		this.foundSetFilters = null;
+		resetFiltercondition(originalFilters);
+	}
+
 	private void resetFiltercondition(List<TableFilter> originalFilters)
 	{
 		synchronized (pksAndRecords)
@@ -6841,7 +6848,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		for (TableFilter tf : iterate(filters))
 		{
-			fsm.getSQLGenerator();
 			QueryFilter filtercondition = SQLGenerator.createTableFiltercondition(select.getTable(), sheet.getTable(), tf);
 			select.addCondition(SQLGenerator.CONDITION_FILTER, filtercondition.getCondition());
 			for (ISQLJoin join : iterate(filtercondition.getJoins()))
