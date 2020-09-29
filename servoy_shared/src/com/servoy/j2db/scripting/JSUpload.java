@@ -23,15 +23,15 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
-import org.apache.wicket.util.string.Strings;
-import org.apache.wicket.util.upload.DiskFileItem;
-import org.apache.wicket.util.upload.FileItem;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.plugins.IFile;
 import com.servoy.j2db.plugins.IUploadData;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Class for holding references to the upload files, this is a JSWrapper around {@link IUploadData}
@@ -42,14 +42,13 @@ import com.servoy.j2db.util.Debug;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSUpload")
 public class JSUpload implements IUploadData, IJavaScriptType, IFile
 {
-	private final Object item;
+	private final FileItem item;
 	private final Map<String, String> formFields;
 
-	public JSUpload(Object item, Map<String, String> formFields)
+	public JSUpload(FileItem item, Map<String, String> formFields)
 	{
 		this.item = item;
 		this.formFields = formFields;
-
 	}
 
 	/**
@@ -61,7 +60,7 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	@JSFunction
 	public boolean isInMemory()
 	{
-		return ((FileItem)item).isInMemory(); // inlining casting is needed because of smart client, that doesn't have a FileItem
+		return item.isInMemory(); // inlining casting is needed because of smart client, that doesn't have a FileItem
 	}
 
 	/**
@@ -70,7 +69,7 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	@JSFunction
 	public long getSize()
 	{
-		return ((FileItem)item).getSize();
+		return item.getSize();
 	}
 
 	/**
@@ -82,12 +81,12 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	{
 		try
 		{
-			return ((FileItem)item).getString("UTF-8"); //$NON-NLS-1$
+			return item.getString("UTF-8"); //$NON-NLS-1$
 		}
 		catch (UnsupportedEncodingException e)
 		{
 		}
-		return ((FileItem)item).getString();
+		return item.getString();
 	}
 
 	/**
@@ -107,7 +106,7 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 		{
 			try
 			{
-				((FileItem)item).write((File)f);
+				item.write((File)f);
 			}
 			catch (Exception e)
 			{
@@ -162,7 +161,7 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	@JSFunction
 	public byte[] getBytes()
 	{
-		return ((FileItem)item).get();
+		return item.get();
 	}
 
 
@@ -172,12 +171,12 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	@JSFunction
 	public String getName()
 	{
-		String name = ((FileItem)item).getName();
+		String name = item.getName();
 
 		// when uploading from localhost some browsers will specify the entire path, we strip it
 		// down to just the file name
-		name = Strings.lastPathComponent(name, '/');
-		name = Strings.lastPathComponent(name, '\\');
+		name = Utils.lastPathComponent(name, '/');
+		name = Utils.lastPathComponent(name, '\\');
 
 		name = name.replace('\\', '/');
 		String[] tokenized = name.split("/"); //$NON-NLS-1$
@@ -190,7 +189,7 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	@JSFunction
 	public String getContentType()
 	{
-		return ((FileItem)item).getContentType();
+		return item.getContentType();
 	}
 
 	/**
@@ -198,7 +197,7 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	 */
 	public InputStream getInputStream() throws IOException
 	{
-		return ((FileItem)item).getInputStream();
+		return item.getInputStream();
 	}
 
 	/**
