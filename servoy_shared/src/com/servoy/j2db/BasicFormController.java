@@ -3054,9 +3054,11 @@ public abstract class BasicFormController
 		 * Loads a (related) foundset into the form.
 		 * The form will no longer share the default foundset with forms of the same datasource, use loadAllRecords to restore the default foundset.
 		 *
-		 * This will really update the foundset instance itself of the form, so now existing foundset is altered just the new foundset is shown.
+		 * This will really change the foundset instance itself of the form, so no existing foundset is altered just the new foundset that is given is used..
 		 * This is different then doing foundset.loadRecords(foundset) because that just alters the current foundset and doesn't do anything with the foundset
 		 * that is given.
+		 * So controller.loadRecords(fs) does overwrite the foundset instance completely, foundset filters set previously on the forms foundset are gone, only the foundset filters on the given foundset are set.
+		 * foundset.loadRecords(fs) will adjust the current forms foundset and the foundset filters that are set are kept and merged with the filters of the given foundset.
 		 *
 		 * When the form uses a seperate foundset, foundset filter params are copied over from the source foundset and are merged with the existing filters.
 		 *
