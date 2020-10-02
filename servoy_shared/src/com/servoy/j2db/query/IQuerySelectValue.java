@@ -18,6 +18,7 @@ package com.servoy.j2db.query;
 
 import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.IBaseQuerySelectValue;
+import com.servoy.base.query.TypeInfo;
 
 
 /** Interface for selectable values in a select statement.
@@ -57,6 +58,21 @@ public interface IQuerySelectValue extends IBaseQuerySelectValue, IQueryElement
 			return qcol.getColumnType();
 		}
 		return null;
+	}
+
+	default String getNativeTypename()
+	{
+		QueryColumn qcol = getColumn();
+		if (qcol != null)
+		{
+			return qcol.getNativeTypename();
+		}
+		return null;
+	}
+
+	default TypeInfo getTypeInfo()
+	{
+		return new TypeInfo(getColumnType(), getNativeTypename());
 	}
 
 	default int getFlags()

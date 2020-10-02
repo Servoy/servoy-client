@@ -2757,11 +2757,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				}
 
 				// add condition for return dp id
-				lastJoin.getCondition().addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR,
-					new QueryColumn(destQTable, destColumn.getID(), destColumn.getSQLName(), destColumn.getType(), destColumn.getLength(),
-						destColumn.getScale(), destColumn.getFlags()),
-					new QueryColumn(callingQTable, callingColumn.getID(), callingColumn.getSQLName(), callingColumn.getType(), callingColumn.getLength(),
-						callingColumn.getScale(), callingColumn.getFlags())));
+				lastJoin.getCondition().addCondition(
+					new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, destColumn.queryColumn(destQTable), callingColumn.queryColumn(callingQTable)));
 
 				relation = getSolutionCopy().createNewRelation(new ScriptNameValidator(this), relationName, callingTable.getDataSource(), destDataSource,
 					IJoinConstants.LEFT_OUTER_JOIN);

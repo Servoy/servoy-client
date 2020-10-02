@@ -27,7 +27,6 @@ import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Table;
-import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryUpdate;
 import com.servoy.j2db.scripting.IJavaScriptType;
@@ -207,8 +206,7 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 						val = ValueFactory.createNullValue(c.getType());
 					}
 
-					sqlUpdate.addValue(new QueryColumn(sqlParts.getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags()),
-						val);
+					sqlUpdate.addValue(c.queryColumn(sqlParts.getTable()), val);
 				}
 				sqlUpdate.setCondition(sqlParts.getWhereClone());
 

@@ -36,7 +36,6 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.IQuerySort;
-import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
@@ -408,7 +407,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 			Column c = table.getColumn(dataprovider);
 			if (c != null)
 			{
-				return new QueryColumn(queryTable, c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags());
+				return c.queryColumn(queryTable);
 			}
 		}
 		// should never happen

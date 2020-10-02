@@ -624,8 +624,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					while (pks.hasNext())
 					{
 						Column column = pks.next();
-						pkColumns.add(new QueryColumn(mainTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(), column.getScale(),
-							column.getFlags()));
+						pkColumns.add(column.queryColumn(mainTable));
 					}
 					sql.setColumns(pkColumns);
 
@@ -743,8 +742,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					if (column != null && !distinctColumns.contains(dpname))
 					{
 						distinctColumns.add(dpname);
-						cols.add(new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength(),
-							column.getScale(), column.getFlags()));
+						cols.add(column.queryColumn(sqlSelect.getTable()));
 					}
 				}
 
@@ -757,8 +755,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					{
 						if (!columnMap.containsKey(column.getDataProviderID()))
 						{
-							cols.add(new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength(),
-								column.getScale(), column.getFlags()));
+							cols.add(column.queryColumn(sqlSelect.getTable()));
 						}
 					}
 				}
@@ -1985,7 +1982,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					while (pkIt.hasNext())
 					{
 						Column c = pkIt.next();
-						select.addColumn(new QueryColumn(select.getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags()));
+						select.addColumn(c.queryColumn(select.getTable()));
 					}
 				}
 				QuerySet querySet = getQuerySet(select, includeFilters);
@@ -2067,7 +2064,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					while (pkIt.hasNext())
 					{
 						Column c = pkIt.next();
-						select.addColumn(new QueryColumn(select.getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags()));
+						select.addColumn(c.queryColumn(select.getTable()));
 					}
 				}
 				QuerySet querySet = getQuerySet(select, includeFilters);
@@ -2216,8 +2213,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					// large foundset, query the column in 1 go
 					QuerySelect sqlSelect = AbstractBaseQuery.deepClone(fs.getQuerySelectForReading());
 					ArrayList<IQuerySelectValue> cols = new ArrayList<IQuerySelectValue>(1);
-					cols.add(new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength(), column.getScale(),
-						column.getFlags()));
+					cols.add(column.queryColumn(sqlSelect.getTable()));
 					sqlSelect.setColumns(cols);
 					SQLStatement trackingInfo = null;
 					if (fsm.getEditRecordList().hasAccess(sheet.getTable(), IRepository.TRACKING_VIEWS))
@@ -2581,7 +2577,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 									QueryTable qTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
 									QueryUpdate qUpdate = new QueryUpdate(qTable);
 
-									QueryColumn qc = new QueryColumn(qTable, c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags());
+									QueryColumn qc = c.queryColumn(qTable);
 									qUpdate.addValue(qc, combinedDestinationRecordPK);
 
 									ISQLCondition condition = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, qc, sourceRecordPK);
@@ -2604,8 +2600,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				pks.addRow(new Object[] { sourceRecordPK });
 				QueryTable qTable = new QueryTable(mainTable.getSQLName(), mainTable.getDataSource(), mainTable.getCatalog(), mainTable.getSchema());
 				QueryDelete qDelete = new QueryDelete(qTable);
-				QueryColumn qc = new QueryColumn(qTable, pkc.getID(), pkc.getSQLName(), pkc.getType(), pkc.getLength(), pkc.getScale(), pkc.getFlags());
-				ISQLCondition condition = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, qc, sourceRecordPK);
+				ISQLCondition condition = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkc.queryColumn(qTable), sourceRecordPK);
 				qDelete.setCondition(condition);
 				SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, mainTable.getServerName(), mainTable.getName(), pks, transaction_id,
 					qDelete, fsm.getTableFilterParams(mainTable.getServerName(), qDelete));

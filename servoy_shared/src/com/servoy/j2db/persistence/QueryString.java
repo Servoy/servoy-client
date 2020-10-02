@@ -19,26 +19,27 @@ package com.servoy.j2db.persistence;
 import java.io.Serializable;
 
 import com.servoy.base.query.BaseAbstractBaseQuery;
+import com.servoy.base.query.TypeInfo;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.util.Utils;
 
 /**
  * Container for 1 sql string with parameters.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public class QueryString implements Serializable
 {
 	private String sql;
 	private Object[][] parameters;
-	private ColumnType[] typeInfo;
+	private TypeInfo[] typeInfo;
 	private final boolean performInIsolation;
 	private boolean limitApplied;
 	private int startRow;
 	private int rowsToRetrieve;
 
-	public QueryString(String sql, Object[][] parameters, ColumnType[] typeInfo, boolean performInIsolation)
+	public QueryString(String sql, Object[][] parameters, TypeInfo[] typeInfo, boolean performInIsolation)
 	{
 		this.sql = sql;
 		this.parameters = parameters;
@@ -61,7 +62,7 @@ public class QueryString implements Serializable
 		return parameters;
 	}
 
-	public ColumnType[] getTypeInfo()
+	public TypeInfo[] getTypeInfo()
 	{
 		return typeInfo;
 	}
@@ -113,7 +114,7 @@ public class QueryString implements Serializable
 
 	/**
 	 * Add parameters and type info
-	 * 
+	 *
 	 * @param parms
 	 * @param ti
 	 * @param position insert position
@@ -136,7 +137,7 @@ public class QueryString implements Serializable
 			// maintain the type info as well (once)
 			if (i == 0)
 			{
-				// use parms[0].length in stead of ti.length here to make sure parameters and typeInfo stay same width (and ti maybe null) 
+				// use parms[0].length in stead of ti.length here to make sure parameters and typeInfo stay same width (and ti maybe null)
 				typeInfo = Utils.arrayInsert(typeInfo, ti, position, parms[0].length);
 			}
 		}
@@ -146,7 +147,7 @@ public class QueryString implements Serializable
 	 * @param parameters
 	 * @param typeInfo
 	 */
-	public void setParametersAndTypeInfo(Object[][] parameters, ColumnType[] typeInfo)
+	public void setParametersAndTypeInfo(Object[][] parameters, TypeInfo[] typeInfo)
 	{
 		this.parameters = parameters;
 		this.typeInfo = typeInfo;

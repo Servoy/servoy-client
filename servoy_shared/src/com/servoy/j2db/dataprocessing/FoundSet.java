@@ -1850,7 +1850,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			while (pkIt.hasNext())
 			{
 				Column c = pkIt.next();
-				sqlSelect.addColumn(new QueryColumn(sqlSelect.getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags()));
+				sqlSelect.addColumn(c.queryColumn(sqlSelect.getTable()));
 			}
 		}
 
@@ -2166,7 +2166,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			while (pkIt.hasNext())
 			{
 				Column c = pkIt.next();
-				pkQueryColumns.add(new QueryColumn(sqlSelect.getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags()));
+				pkQueryColumns.add(c.queryColumn(sqlSelect.getTable()));
 			}
 
 			// must strip of the order-by part because not all databases (Oracle, who else) like order-by in subselect

@@ -33,13 +33,15 @@ public class BaseQueryColumn implements IBaseQuerySelectValue
 	protected int flags;
 	protected transient boolean identity;
 	protected int id; // id of this column, known on the server, may be used to lookup name and columnType
+	protected String nativeTypename;
 
-	public BaseQueryColumn(BaseQueryTable table, int id, String name, BaseColumnType columnType, int flags, boolean identity)
+	public BaseQueryColumn(BaseQueryTable table, int id, String name, BaseColumnType columnType, String nativeTypename, int flags, boolean identity)
 	{
-		this(table, id, name, null, columnType, flags, identity);
+		this(table, id, name, null, columnType, nativeTypename, flags, identity);
 	}
 
-	public BaseQueryColumn(BaseQueryTable table, int id, String name, String alias, BaseColumnType columnType, int flags, boolean identity)
+	public BaseQueryColumn(BaseQueryTable table, int id, String name, String alias, BaseColumnType columnType, String nativeTypename, int flags,
+		boolean identity)
 	{
 		if (table == null || (id == -1 && name == null))
 		{
@@ -50,6 +52,7 @@ public class BaseQueryColumn implements IBaseQuerySelectValue
 		this.name = name;
 		this.alias = alias;
 		this.columnType = columnType;
+		this.nativeTypename = nativeTypename;
 		this.flags = flags;
 		this.identity = identity;
 	}
@@ -99,6 +102,15 @@ public class BaseQueryColumn implements IBaseQuerySelectValue
 			throw new IllegalStateException("Column type requested on incomplete column"); //$NON-NLS-1$
 		}
 		return columnType;
+	}
+
+	public String getNativeTypename()
+	{
+		if (name == null)
+		{
+			throw new IllegalStateException("Native type name requested on incomplete column"); //$NON-NLS-1$
+		}
+		return nativeTypename;
 	}
 
 	public boolean isIdentity()
