@@ -39,6 +39,7 @@ import java.util.TimeZone;
 import com.servoy.base.persistence.BaseColumn;
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.BaseColumnType;
+import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
@@ -46,6 +47,7 @@ import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.dataprocessing.ValueFactory.NullValue;
 import com.servoy.j2db.query.ColumnType;
+import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.util.AliasKeyMap.ISupportAlias;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.TimezoneUtils;
@@ -1291,6 +1293,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	private transient String databaseSequenceName;
 
 	private transient int flags = -1;
+	private transient String nativeTypename;
 
 
 	public void setSequenceType(int i)
@@ -1322,6 +1325,22 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		{
 			this.databaseSequenceName = databaseSequenceName;
 		}
+	}
+
+
+	public void setNativeTypename(String nativeTypename)
+	{
+		this.nativeTypename = nativeTypename;
+	}
+
+	public String getNativeTypename()
+	{
+		return nativeTypename;
+	}
+
+	public QueryColumn queryColumn(BaseQueryTable queryTable)
+	{
+		return new QueryColumn(queryTable, getID(), getSQLName(), getColumnType(), getNativeTypename(), getFlags(), isDBIdentity());
 	}
 
 	/**
@@ -1468,5 +1487,4 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 		return false;
 	}
-
 }

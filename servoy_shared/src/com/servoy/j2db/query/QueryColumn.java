@@ -31,36 +31,36 @@ import com.servoy.j2db.util.visitor.IVisitor;
  */
 public final class QueryColumn extends BaseQueryColumn implements IWriteReplaceExtended, IQuerySelectValue
 {
-	public QueryColumn(BaseQueryTable table, int id, String name, ColumnType columnType, int flags, boolean identity)
+	public QueryColumn(BaseQueryTable table, int id, String name, ColumnType columnType, String nativeTypename, int flags, boolean identity)
 	{
-		super(table, id, name, columnType, flags, identity);
+		super(table, id, name, columnType, nativeTypename, flags, identity);
 	}
 
-	public QueryColumn(BaseQueryTable table, int id, String name, String alias, ColumnType columnType, int flags, boolean identity)
+	public QueryColumn(BaseQueryTable table, int id, String name, String alias, ColumnType columnType, String nativeTypename, int flags, boolean identity)
 	{
-		super(table, id, name, alias, columnType, flags, identity);
+		super(table, id, name, alias, columnType, nativeTypename, flags, identity);
 	}
 
-	public QueryColumn(BaseQueryTable table, int id, String name, int sqlType, int length, int scale, int flags, boolean identity)
+	public QueryColumn(BaseQueryTable table, int id, String name, int sqlType, int length, int scale, String nativeTypename, int flags, boolean identity)
 	{
-		this(table, id, name, ColumnType.getInstance(sqlType, length, scale), flags, identity);
+		this(table, id, name, ColumnType.getInstance(sqlType, length, scale), nativeTypename, flags, identity);
 	}
 
-	public QueryColumn(BaseQueryTable table, int id, String name, int sqlType, int length, int scale, int flags)
+	public QueryColumn(BaseQueryTable table, int id, String name, int sqlType, int length, int scale, String nativeTypename, int flags)
 	{
-		this(table, id, name, ColumnType.getInstance(sqlType, length, scale), flags, false);
+		this(table, id, name, ColumnType.getInstance(sqlType, length, scale), nativeTypename, flags, false);
 	}
 
 	public QueryColumn(BaseQueryTable table, String name)
 	{
-		this(table, -1, name, ColumnType.DUMMY, 0, false);
+		this(table, -1, name, ColumnType.DUMMY, null, 0, false);
 	}
 
 	@Override
 	public IQuerySelectValue asAlias(String newAlias)
 	{
 		return new QueryColumn(table, id, name, newAlias, ColumnType.getInstance(columnType.getSqlType(), columnType.getLength(), columnType.getScale()),
-			getFlags(), identity);
+			nativeTypename, getFlags(), identity);
 	}
 
 	@Override
@@ -95,7 +95,8 @@ public final class QueryColumn extends BaseQueryColumn implements IWriteReplaceE
 			return new ReplacedObject(
 				AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN,
 				getClass(),
-				new Object[] { table, name, new int[] { columnType.getSqlType(), columnType.getLength(), columnType.getScale(), identity ? 1 : 0, flags }, alias });
+				new Object[] { table, name, new int[] { columnType.getSqlType(), columnType.getLength(), columnType.getScale(), identity ? 1
+					: 0, flags }, alias, nativeTypename });
 		}
 		else
 		{
@@ -116,6 +117,7 @@ public final class QueryColumn extends BaseQueryColumn implements IWriteReplaceE
 			alias = i < members.length ? (String)members[i++] : null;
 			name = null;
 			columnType = null;
+			nativeTypename = null;
 			identity = false;
 			flags = 0;
 		}
@@ -130,6 +132,7 @@ public final class QueryColumn extends BaseQueryColumn implements IWriteReplaceE
 			identity = numbers[3] == 1;
 			flags = numbers.length < 5 ? 0 : numbers[4]; // was added later, some old stored QueryColumns may not have this
 			alias = i < members.length ? (String)members[i++] : null;
+			nativeTypename = i < members.length ? (String)members[i++] : null;
 			id = -1;
 		}
 	}
@@ -143,12 +146,12 @@ public final class QueryColumn extends BaseQueryColumn implements IWriteReplaceE
 	 * @param scale
 	 * @param identity
 	 */
-	public void update(String name, int sqlType, int length, int scale, int flags, boolean identity)
+	public void update(String name, int sqlType, int length, int scale, String nativeTypename, int flags, boolean identity)
 	{
 		this.name = name;
 		this.columnType = ColumnType.getInstance(sqlType, length, scale);
+		this.nativeTypename = nativeTypename;
 		this.flags = flags;
 		this.identity = identity;
 	}
-
 }

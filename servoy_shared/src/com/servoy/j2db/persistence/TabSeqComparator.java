@@ -17,7 +17,9 @@
 package com.servoy.j2db.persistence;
 
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * @author jcompagner,jblok
@@ -40,10 +42,64 @@ public class TabSeqComparator implements Comparator<ISupportTabSeq>
 
 	public static int compareTabSeq(int seq1, Object o1, int seq2, Object o2)
 	{
+		int yxCompare = 0;
 		if (seq1 == ISupportTabSeq.DEFAULT && seq2 == ISupportTabSeq.DEFAULT && o1 instanceof IPersist && o2 instanceof IPersist)
 		{
-			//delegate to Yx
-			int yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare((IPersist)o1, (IPersist)o2);
+			IPersist form = ((IPersist)o1).getAncestor(IRepository.FORMS);
+			if (form instanceof Form && ((Form)form).isResponsiveLayout())
+			{
+				if (((IPersist)o1).getParent().equals(((IPersist)o2).getParent()))
+				{
+					//delegate to Yx
+					yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare((IPersist)o1, (IPersist)o2);
+				}
+				else
+				{
+					/*
+					 * We must search all the parents of the objects o1 and o2.If the objects have a same parent by searching all the ancestors we must compare
+					 * the objects before encountering the same parent.
+					 */
+					List<IPersist> parentsOfo1 = new ArrayList<IPersist>();
+					IPersist parent = ((IPersist)o1).getParent();
+					while (!(parent instanceof Form))
+					{
+						parentsOfo1.add(parent);
+						parent = parent.getParent();
+					}
+					//also add the form to the list of parents
+					parentsOfo1.add(parent);
+
+					IPersist childo2 = (IPersist)o2;
+					IPersist parento2 = ((IPersist)o2).getParent();
+					while (!(parento2 instanceof Form))
+					{
+						if (parentsOfo1.contains(parento2))
+						{
+							int index = parentsOfo1.indexOf(parento2);
+							//delegate to Yx
+							if (index > 0)
+							{
+								yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare(parentsOfo1.get(index - 1), childo2);
+							}
+						}
+						childo2 = parento2;
+						parento2 = parento2.getParent();
+					}
+					//also check to see if the common parent is the actual form
+					if (parentsOfo1.contains(parento2))
+					{
+						int index = parentsOfo1.indexOf(parento2);
+						if (index > 0)
+						{
+							yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare(parentsOfo1.get(index - 1), childo2);
+						}
+					}
+				}
+			}
+			else if (form instanceof Form && !((Form)form).isResponsiveLayout())
+			{
+				yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare((IPersist)o1, (IPersist)o2);
+			}
 			// if they are at the same position, and are different persist, just use UUID to decide the sequence
 			return yxCompare == 0 ? ((IPersist)o1).getUUID().compareTo(((IPersist)o2).getUUID()) : yxCompare;
 		}

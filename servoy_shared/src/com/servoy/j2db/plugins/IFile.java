@@ -18,6 +18,8 @@
 package com.servoy.j2db.plugins;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Interface to implement for plugins that wants to provide a file for a give Javascript object.
@@ -28,4 +30,10 @@ import java.io.File;
 public interface IFile
 {
 	public File getFile();
+
+	public InputStream getInputStream() throws IOException;
+
+	public String getContentType();
+
+	public long getSize();
 }

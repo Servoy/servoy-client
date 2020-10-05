@@ -163,7 +163,8 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 			throw new RepositoryException("Cannot find column '" + name + "' in data source '" + dataSource + "'");
 		}
 		return new QBColumn(getRoot(), this,
-			new QueryColumn(getQueryTable(), col.getID(), col.getSQLName(), col.getType(), col.getLength(), col.getScale(), col.getFlags(), false));
+			new QueryColumn(getQueryTable(), col.getID(), col.getSQLName(), col.getType(), col.getLength(), col.getScale(), col.getNativeTypename(),
+				col.getFlags(), false));
 	}
 
 	/**

@@ -1364,12 +1364,14 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Copies foundset data from another foundset.
 	 * This will alter the foundset state to the state of the foundset that is given.
 	 * If you really just want to use the given foundset on the form itself, then you need to use controller.loadRecords(foundset)
-	 * that will change the instance of the foundset that is used for this form. Not just update an existing form.
-	 *
+	 * that will change the instance of the foundset that is used for this form. Not just update an existing forms foundset.
+	 * <br/><br/>
 	 * If you copy over a relation into this foundset, then this foundset will not be a related foundset, it will not automatically update its state
 	 * of records are updated or added that belong to that relation. It will only be a snapshot of that related foundsets state.
-	 *
-	 * Foundset filter params are copied over from the source foundset and are merged with the existing filters on this foundset.
+	 * <br/><br/>
+	 * Foundset filter params are copied over from the original/source foundset and are merged with the existing filters on this foundset.
+	 * So if the original foundset had filters and the given foundset has filters then the resulting foundset will have all the filters of both,
+	 * If you don't want this and you really want only the state of the given foundset, use controller.loadRecords(fs) instead of foundset.loadRecords(fs)
 	 *
 	 * @sample
 	 * //Copies foundset data from another foundset
@@ -1848,7 +1850,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			while (pkIt.hasNext())
 			{
 				Column c = pkIt.next();
-				sqlSelect.addColumn(new QueryColumn(sqlSelect.getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags()));
+				sqlSelect.addColumn(c.queryColumn(sqlSelect.getTable()));
 			}
 		}
 
@@ -2164,7 +2166,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			while (pkIt.hasNext())
 			{
 				Column c = pkIt.next();
-				pkQueryColumns.add(new QueryColumn(sqlSelect.getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags()));
+				pkQueryColumns.add(c.queryColumn(sqlSelect.getTable()));
 			}
 
 			// must strip of the order-by part because not all databases (Oracle, who else) like order-by in subselect

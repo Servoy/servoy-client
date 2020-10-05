@@ -624,8 +624,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					while (pks.hasNext())
 					{
 						Column column = pks.next();
-						pkColumns.add(new QueryColumn(mainTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(), column.getScale(),
-							column.getFlags()));
+						pkColumns.add(column.queryColumn(mainTable));
 					}
 					sql.setColumns(pkColumns);
 
@@ -743,8 +742,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					if (column != null && !distinctColumns.contains(dpname))
 					{
 						distinctColumns.add(dpname);
-						cols.add(new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength(),
-							column.getScale(), column.getFlags()));
+						cols.add(column.queryColumn(sqlSelect.getTable()));
 					}
 				}
 
@@ -757,8 +755,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					{
 						if (!columnMap.containsKey(column.getDataProviderID()))
 						{
-							cols.add(new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength(),
-								column.getScale(), column.getFlags()));
+							cols.add(column.queryColumn(sqlSelect.getTable()));
 						}
 					}
 				}
@@ -1985,7 +1982,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					while (pkIt.hasNext())
 					{
 						Column c = pkIt.next();
-						select.addColumn(new QueryColumn(select.getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags()));
+						select.addColumn(c.queryColumn(select.getTable()));
 					}
 				}
 				QuerySet querySet = getQuerySet(select, includeFilters);
@@ -2067,7 +2064,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					while (pkIt.hasNext())
 					{
 						Column c = pkIt.next();
-						select.addColumn(new QueryColumn(select.getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags()));
+						select.addColumn(c.queryColumn(select.getTable()));
 					}
 				}
 				QuerySet querySet = getQuerySet(select, includeFilters);
@@ -2216,8 +2213,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					// large foundset, query the column in 1 go
 					QuerySelect sqlSelect = AbstractBaseQuery.deepClone(fs.getQuerySelectForReading());
 					ArrayList<IQuerySelectValue> cols = new ArrayList<IQuerySelectValue>(1);
-					cols.add(new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength(), column.getScale(),
-						column.getFlags()));
+					cols.add(column.queryColumn(sqlSelect.getTable()));
 					sqlSelect.setColumns(cols);
 					SQLStatement trackingInfo = null;
 					if (fsm.getEditRecordList().hasAccess(sheet.getTable(), IRepository.TRACKING_VIEWS))
@@ -2581,7 +2577,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 									QueryTable qTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
 									QueryUpdate qUpdate = new QueryUpdate(qTable);
 
-									QueryColumn qc = new QueryColumn(qTable, c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags());
+									QueryColumn qc = c.queryColumn(qTable);
 									qUpdate.addValue(qc, combinedDestinationRecordPK);
 
 									ISQLCondition condition = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, qc, sourceRecordPK);
@@ -2604,8 +2600,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				pks.addRow(new Object[] { sourceRecordPK });
 				QueryTable qTable = new QueryTable(mainTable.getSQLName(), mainTable.getDataSource(), mainTable.getCatalog(), mainTable.getSchema());
 				QueryDelete qDelete = new QueryDelete(qTable);
-				QueryColumn qc = new QueryColumn(qTable, pkc.getID(), pkc.getSQLName(), pkc.getType(), pkc.getLength(), pkc.getScale(), pkc.getFlags());
-				ISQLCondition condition = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, qc, sourceRecordPK);
+				ISQLCondition condition = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkc.queryColumn(qTable), sourceRecordPK);
 				qDelete.setCondition(condition);
 				SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, mainTable.getServerName(), mainTable.getName(), pks, transaction_id,
 					qDelete, fsm.getTableFilterParams(mainTable.getServerName(), qDelete));
@@ -2773,21 +2768,23 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	/**
 	 * Validates the given record, it runs first the method that is attached to the entity event "onValidate".<br/>
 	 * Then it will call also the entity events "onInsert" or "onUpdate" depending if the record is new or an update.
-	 * All those methods do get a parameter JSRecordMarkers where the problems can be reported against.<br/>
+	 * All those methods do get a parameter JSRecordMarkers where the problems can be reported against.
+	 * <br/><br/>
 	 * All columns are then also null/empty checked and if they are and the Column is marked as "not null" an error will be
-	 * added with the message key "servoy.record.error.null.not.allowed" for that column.<br/>
+	 * added with the message key "servoy.record.error.null.not.allowed" for that column.
+	 * <br/><br/>
 	 * All changed columns are length checked and if the record values is bigger then what the database column can handle and
 	 * error will be added with the message key "servoy.record.error.columnSizeTooSmall" for that column.<br/>
 	 * Then all the column validators will be run over all the changed columns, The validators will also get the same JSRecordMarkers
 	 * to report problems to. So the global method validator now also has more parameters then just the value.
-	 *</br><br/>
-	 *  These 3 validations (null, length and column validators) are not by default done any more on change of the dataprovider itself.<br/>
-	 *  This is controlled by the servoy property "servoy.execute.column.validators.only.on.validate_and_save" which can also be seen at
-	 *  the TableEditor column validators page.
-	 * </br><br/>
+	 * <br/><br/>
+	 * These 3 validations (null, length and column validators) are not by default done any more on change of the dataprovider itself.<br/>
+	 * This is controlled by the servoy property "servoy.execute.column.validators.only.on.validate_and_save" which can also be seen at
+	 * the TableEditor column validators page.
+	 * <br/><br/>
 	 * An extra state object can be given that will also be passed around if you want to have more state in the validation objects
 	 * (like giving some ui state so the entity methods know where you come from)
-	 * </br><br/>
+	 * <br/><br/>
 	 * It will return a JSRecordMarkers when the record had validaiton problems
 	 * <br/>
 	 * @param record The record to validate.

@@ -42,7 +42,6 @@ import com.servoy.j2db.query.AndOrCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.Placeholder;
-import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
@@ -111,8 +110,7 @@ public abstract class RelatedFoundSet extends FoundSet
 		while (pkIt.hasNext())
 		{
 			Column column = pkIt.next();
-			pkColumns.add(new QueryColumn(select.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength(), column.getScale(),
-				column.getFlags()));
+			pkColumns.add(column.queryColumn(select.getTable()));
 		}
 		select.setColumns(pkColumns);
 		creationSqlSelect = AbstractBaseQuery.deepClone(select);
@@ -563,9 +561,8 @@ public abstract class RelatedFoundSet extends FoundSet
 	protected void recordsUpdated(List<Record> records, List<String> aggregatesToRemove)
 	{
 		super.recordsUpdated(records, aggregatesToRemove);
-		for (int i = 0; i < records.size(); i++)
+		for (Record record : records)
 		{
-			IRecordInternal record = records.get(i);
 			notifyChange_checkForUpdate(record.getRawData(), false);
 		}
 	}
