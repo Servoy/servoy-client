@@ -403,6 +403,27 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	public void setExtendsID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
+		if (arg <= 0 && !isResponsiveLayout())
+		{
+			//when extends form property is set to -none-
+			//we copy the body part from the parent
+			Part body = null;
+			Iterator<Part> parts = extendsForm.getParts();
+			while (parts.hasNext())
+			{
+				Part p = parts.next();
+				if (p.getPartType() == Part.BODY)
+				{
+					body = p;
+					break;
+				}
+			}
+			if (body != null)
+			{
+				Part clonedBody = (Part)body.clonePersist(this);
+				clonedBody.setExtendsID(0);
+			}
+		}
 		if ((extendsForm == null ? arg > 0 : extendsForm.getID() != arg) && getRootObject().getChangeHandler() != null)
 		{
 			// fire event to update parent form reference
@@ -817,9 +838,8 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 			array = new ArrayList<IFormElement>();
 			if (list != null)
 			{
-				for (int i = 0; i < list.size(); i++)
+				for (IPersist p : list)
 				{
-					IPersist p = list.get(i);
 					if (p instanceof IFormElement)
 					{
 						array.add((IFormElement)p);
