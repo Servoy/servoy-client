@@ -407,21 +407,24 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		{
 			//when extends form property is set to -none-
 			//we copy the body part from the parent
-			Part body = null;
-			Iterator<Part> parts = extendsForm.getParts();
-			while (parts.hasNext())
+			if (extendsForm != null)
 			{
-				Part p = parts.next();
-				if (p.getPartType() == Part.BODY)
+				Part body = null;
+				Iterator<Part> parts = extendsForm.getParts();
+				while (parts.hasNext())
 				{
-					body = p;
-					break;
+					Part p = parts.next();
+					if (p.getPartType() == Part.BODY)
+					{
+						body = p;
+						break;
+					}
 				}
-			}
-			if (body != null)
-			{
-				Part clonedBody = (Part)body.clonePersist(this);
-				clonedBody.setExtendsID(0);
+				if (body != null)
+				{
+					Part clonedBody = (Part)body.clonePersist(this);
+					clonedBody.setExtendsID(0);
+				}
 			}
 		}
 		if ((extendsForm == null ? arg > 0 : extendsForm.getID() != arg) && getRootObject().getChangeHandler() != null)
