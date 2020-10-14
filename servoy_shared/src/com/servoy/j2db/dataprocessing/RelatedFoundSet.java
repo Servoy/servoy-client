@@ -408,7 +408,9 @@ public abstract class RelatedFoundSet extends FoundSet
 		// from db coming from outside or a search that has no results.
 		clearOmit(null);
 
-		refreshFromDBInternal(AbstractBaseQuery.deepClone(creationSqlSelect), true, false, fsm.pkChunkSize, false, false);
+		refreshFromDBInternal(
+			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), creationSqlSelect, null, true, null, lastSortColumns, false),
+			true, false, fsm.pkChunkSize, false, false);
 	}
 
 	@Override

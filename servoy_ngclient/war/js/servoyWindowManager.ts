@@ -13,21 +13,28 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 			restrict: 'A',
 			link: function( scope, element, attrs ) {
 				scope['lastElementFocused'] = function( e ) {
-					var newTarget = $( '[tabindex=2]' );
-					// if there is no focusable element in the window, then newTarget == e.target,
-					// do a check here to avoid focus cycling
-					if(e.target != newTarget[0]) {
-						newTarget.focus();
+					var lastTabIndex = parseInt( element.find( '#tabStop' ).attr( 'tabindex' ) );
+					for(var i = 2; i < lastTabIndex; i++) {
+						var newTarget = $( '[tabindex=' + i +']' );
+						// if there is no focusable element in the window, then newTarget == e.target,
+						// do a check here to avoid focus cycling
+						if(newTarget.is(":visible") && (e.target != newTarget[0])) {
+							newTarget.focus();
+							break;
+						}
 					}
 				}
 
 				scope['firstElementFocused'] = function( e ) {
-					var tabIndex = parseInt( element.find( '#tabStop' ).attr( 'tabindex' ) );
-					var newTarget = $( '[tabindex=' + ( tabIndex - 1 ) + ']' );
-					// if there is no focusable element in the window, then newTarget == e.target,
-					// do a check here to avoid focus cycling
-					if(e.target != newTarget[0]) {
-						newTarget.focus();
+					var lastTabIndex = parseInt( element.find( '#tabStop' ).attr( 'tabindex' ) );
+					for(var i = lastTabIndex - 1; i > 1; i--) {
+						var newTarget = $( '[tabindex=' + i + ']' );
+						// if there is no focusable element in the window, then newTarget == e.target,
+						// do a check here to avoid focus cycling
+						if(newTarget.is(":visible") && (e.target != newTarget[0])) {
+							newTarget.focus();
+							break;
+						}
 					}
 				}
 			}

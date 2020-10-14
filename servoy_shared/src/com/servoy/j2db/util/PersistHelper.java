@@ -969,7 +969,7 @@ public class PersistHelper
 
 	public static ISupportChilds getRealParent(IPersist persist)
 	{
-		if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0 && persist.getParent() instanceof Form)//TODO check if responsive form?
+		if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0 && persist.getParent() instanceof Form)
 		{
 			IPersist superPersist = PersistHelper.getSuperPersist((ISupportExtendsID)persist);
 			if (superPersist != null)
@@ -985,7 +985,13 @@ public class PersistHelper
 							return (ISupportChilds)possibleParent;
 						}
 					}
-					return getRealParent(superPersist);
+					ISupportChilds realParent = getRealParent(superPersist);
+					if (realParent instanceof Form)
+					{
+						// this really was a form component, not an override
+						return persist.getParent();
+					}
+					return realParent;
 				}
 			}
 		}
