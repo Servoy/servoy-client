@@ -97,7 +97,8 @@ class PersistBasedFormElementImpl
 			if (attributes != null && attributes.size() > 0)
 			{
 				attributes.forEach((key, value) -> {
-					parsedAttributes.put(StringEscapeUtils.escapeEcmaScript(key), HtmlUtils.escapeMarkup(value, false, false).toString());
+					if (value != null && key != null)
+						parsedAttributes.put(StringEscapeUtils.escapeEcmaScript(key), HtmlUtils.escapeMarkup(value, false, false).toString());
 				});
 			}
 		}
