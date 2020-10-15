@@ -30,7 +30,6 @@ import java.util.Map.Entry;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Collectors;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -897,11 +896,8 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				Form frm = FormComponentPropertyType.INSTANCE.getForm(frmValue, flattenedSolution);
 				if (frm == null) continue;
 
-				FormComponentCache formComponentCache = getFormComponentCache(formComponentEl, property, (JSONObject)frmValue, frm, flattenedSolution);
-				if (formComponentCache == null) continue;
-
-				List<IFormElement> elements = formComponentCache.getFormComponentElements().stream()
-					.map(formComponent -> (IFormElement)formComponent.getPersistIfAvailable()).collect(Collectors.toList());
+				// do not use the formcomponentcache, we do not want formelement with wrong tabseq to be cached, must caclulate first the sequence
+				List<IFormElement> elements = generateFormComponentPersists(formComponentEl, property, (JSONObject)frmValue, frm, flattenedSolution);
 
 				for (IFormElement element : elements)
 				{
@@ -926,7 +922,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 						String nestedDomponentType = FormTemplateGenerator.getComponentTypeName(element);
 						WebObjectSpecification nestedSpecification = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(
 							nestedDomponentType);
-						if (specification != null)
+						if (nestedSpecification != null)
 						{
 							Collection<PropertyDescription> nestedProperties = nestedSpecification.getProperties(NGTabSeqPropertyType.NG_INSTANCE);
 							if (nestedProperties != null && nestedProperties.size() > 0)

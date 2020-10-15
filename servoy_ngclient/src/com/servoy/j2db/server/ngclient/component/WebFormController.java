@@ -678,7 +678,8 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	{
 		if (formModel != null)
 		{
-			return "FormController[form: " + getName() + ", fs size:" + Integer.toString(formModel.getSize()) + ", selected record: " + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			return "FormController[form: " + getName() + ", fs size:" + Integer.toString(formModel.getSize()) + ",visible: " + isFormVisible + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+				", selected record: " +
 				formModel.getRecord(formModel.getSelectedIndex()) + ",destroyed:" + isDestroyed() + "]"; //$NON-NLS-1$
 		}
 		else
@@ -726,9 +727,9 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 						TabPanel tabpanel = (TabPanel)((WebFormComponent)comp).getFormElement().getPersistIfAvailable();
 						if (tabpanel.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL || tabpanel.getTabOrientation() == TabPanel.SPLIT_VERTICAL)
 						{
-							for (int i = 0; i < tabsList.size(); i++)
+							for (Object element : tabsList)
 							{
-								Map<String, Object> tab = (Map<String, Object>)tabsList.get(i);
+								Map<String, Object> tab = (Map<String, Object>)element;
 								if (tab != null)
 								{
 									String relationName = tab.get("relationName") != null ? tab.get("relationName").toString() : null;
@@ -755,9 +756,9 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 							}
 							else if (tabIndex instanceof String || tabIndex instanceof CharSequence)
 							{
-								for (int i = 0; i < tabsList.size(); i++)
+								for (Object element : tabsList)
 								{
-									Map<String, Object> tab = (Map<String, Object>)tabsList.get(i);
+									Map<String, Object> tab = (Map<String, Object>)element;
 									if (Utils.equalObjects(tabIndex, tab.get("name")))
 									{
 										visibleTab = tab;
