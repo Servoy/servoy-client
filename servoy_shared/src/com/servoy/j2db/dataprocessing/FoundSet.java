@@ -182,7 +182,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	// forms might force their foundset to remain at a certain multiselect value
 	// if a form 'pinned' multiselect, multiSelect should not be changeable by foundset JS access
 	// if more then 1 form wishes to pin multiselect at a time, the form with lowest elementid wins
-	private int multiSelectPinnedTo = -1;
+	private String multiSelectPinnedForm = null;
 	private int multiSelectPinLevel;
 
 	private int foundsetID = 0;
@@ -3575,42 +3575,42 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public void setMultiSelect(boolean multiSelect)
 	{
-		if (multiSelectPinnedTo == -1) setMultiSelectInternal(multiSelect); // if a form is currently overriding this, ignore js call
+		if (multiSelectPinnedForm == null) setMultiSelectInternal(multiSelect); // if a form is currently overriding this, ignore js call
 	}
 
 	/**
 	 * @param pinId lower id has priority over higher id when using the same pinLevel. (refers to form element id)
 	 * @param pinLevel lower level has priority in pinning over higher level. (refers to visible/invisible forms)
 	 */
-	public void pinMultiSelectIfNeeded(boolean multiSelect, int pinId, int pinLevel)
+	public void pinMultiSelectIfNeeded(boolean multiSelect, String formName, int pinLevel)
 	{
-		if (multiSelectPinnedTo == -1)
+		if (multiSelectPinnedForm == null)
 		{
 			// no current pinning; just pin
 			multiSelectPinLevel = pinLevel;
-			multiSelectPinnedTo = pinId;
+			multiSelectPinnedForm = formName;
 			setMultiSelectInternal(multiSelect);
 		}
 		else if (pinLevel < multiSelectPinLevel)
 		{
 			// current pin was for hidden form, this is a visible form
 			multiSelectPinLevel = pinLevel;
-			if (multiSelectPinnedTo != pinId)
+			if (multiSelectPinnedForm != formName)
 			{
-				multiSelectPinnedTo = pinId;
+				multiSelectPinnedForm = formName;
 				setMultiSelectInternal(multiSelect);
 			}
 		}
 		else if (pinLevel == multiSelectPinLevel)
 		{
-			// same pin level, different forms; always choose one with lowest id
-			if (pinId < multiSelectPinnedTo)
+			// same pin level, different forms; always choose one with lowest "name"
+			if (formName.compareTo(multiSelectPinnedForm) < 0)
 			{
-				multiSelectPinnedTo = pinId;
+				multiSelectPinnedForm = formName;
 				setMultiSelectInternal(multiSelect);
 			}
 		}
-		else if (pinId == multiSelectPinnedTo) // && (pinLevel > multiSelectPinLevel) implied
+		else if (formName == multiSelectPinnedForm) // && (pinLevel > multiSelectPinLevel) implied
 		{
 			// pinlevel is higher then current; if this is the current pinned form, update the pin level
 			// maybe other visible forms using this foundset want to pin selection mode in this case (visible pinning form became hidden)
@@ -3622,11 +3622,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * As a guideline, only the one who pinned the multiSelect should unpin it.
 	 */
-	public void unpinMultiSelectIfNeeded(int pinId)
+	public void unpinMultiSelectIfNeeded(String formName)
 	{
-		if (multiSelectPinnedTo == pinId)
+		if (multiSelectPinnedForm == formName)
 		{
-			multiSelectPinnedTo = -1;
+			multiSelectPinnedForm = null;
 			fireSelectionModeChange(); // this allows any other forms that might be currently using this foundset to apply their own selectionMode to it
 		}
 	}

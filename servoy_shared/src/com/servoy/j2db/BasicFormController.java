@@ -1408,7 +1408,7 @@ public abstract class BasicFormController
 
 		if (mustUnpinSelectionMode != null)
 		{
-			mustUnpinSelectionMode.unpinMultiSelectIfNeeded(form.getID());
+			mustUnpinSelectionMode.unpinMultiSelectIfNeeded(getName());
 		}
 
 		// form model change set it on -2 so that we know that we shouldnt update the selection before it is tested
@@ -1434,11 +1434,11 @@ public abstract class BasicFormController
 				int pinLevel = isFormVisible ? PIN_VISIBLE : PIN_HIDDEN;
 				if (selectionMode == IForm.SELECTION_MODE_SINGLE)
 				{
-					((ISwingFoundSet)formModel).pinMultiSelectIfNeeded(false, form.getID(), pinLevel); // form wants to enforce single selection on the foundsets it uses
+					((ISwingFoundSet)formModel).pinMultiSelectIfNeeded(false, getName(), pinLevel); // form wants to enforce single selection on the foundsets it uses
 				}
 				else if (selectionMode == IForm.SELECTION_MODE_MULTI)
 				{
-					((ISwingFoundSet)formModel).pinMultiSelectIfNeeded(true, form.getID(), pinLevel); // form wants to enforce multi selection on the foundsets it uses
+					((ISwingFoundSet)formModel).pinMultiSelectIfNeeded(true, getName(), pinLevel); // form wants to enforce multi selection on the foundsets it uses
 				}
 			}
 		} // else this form model's multiSelect is already forced by a form and this form is not visible or this form has default non-forcing behavior
