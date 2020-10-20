@@ -76,7 +76,7 @@ public class EditRecordList
 
 	private final List<IRecordInternal> editedRecords = Collections.synchronizedList(new ArrayList<IRecordInternal>(32));
 	private final List<IRecordInternal> failedRecords = Collections.synchronizedList(new ArrayList<IRecordInternal>(2));
-	private final List<IRecordInternal> recordTested = Collections.synchronizedList(new ArrayList<IRecordInternal>(2)); //tested for form.OnRecordEditStop event
+	private final Map<IRecordInternal, List<IPrepareForSave>> recordTested = Collections.synchronizedMap(new HashMap<IRecordInternal, List<IPrepareForSave>>()); //tested for form.OnRecordEditStop event
 	private boolean preparingForSave;
 
 	private final boolean disableInsertsReorder;
@@ -1565,7 +1565,7 @@ public class EditRecordList
 	 * @param set
 	 * @return
 	 */
-	public IRecordInternal[] getUnmarkedEditedRecords(IFoundSetInternal set)
+	public IRecordInternal[] getUnmarkedEditedRecords(IFoundSetInternal set, IPrepareForSave prepareForSave)
 	{
 		List<IRecordInternal> al = new ArrayList<IRecordInternal>();
 		editRecordsLock.lock();
@@ -1574,9 +1574,13 @@ public class EditRecordList
 			for (int i = editedRecords.size(); --i >= 0;)
 			{
 				IRecordInternal record = editedRecords.get(i);
-				if (record.getParentFoundSet() == set && !recordTested.contains(record))
+				if (record.getParentFoundSet() == set)
 				{
-					al.add(record);
+					List<IPrepareForSave> forms = recordTested.get(record);
+					if (forms == null || !forms.contains(prepareForSave))
+					{
+						al.add(record);
+					}
 				}
 			}
 		}
@@ -1591,14 +1595,20 @@ public class EditRecordList
 	/**
 	 * @param record
 	 */
-	public void markRecordTested(IRecordInternal record)
+	public void markRecordTested(IRecordInternal record, IPrepareForSave prepareForSave)
 	{
 		editRecordsLock.lock();
 		try
 		{
-			if (!recordTested.contains(record))
+			List<IPrepareForSave> forms = recordTested.get(record);
+			if (forms == null)
 			{
-				recordTested.add(record);
+				forms = new ArrayList<IPrepareForSave>();
+				recordTested.put(record, forms);
+			}
+			if (!forms.contains(prepareForSave))
+			{
+				forms.add(prepareForSave);
 			}
 		}
 		finally
