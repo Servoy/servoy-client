@@ -572,6 +572,14 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 					}
 				},
 				setCSSClassName: function( name, cssClassName ) {
+					const currentWindow = 'window' + windowCounter;
+					if (webStorage.session.has(currentWindow)) {
+						let window = webStorage.session.get(currentWindow);
+						if (!window.cssClassName) {
+							window.cssClassName = cssClassName;
+							webStorage.session.set(currentWindow, window);
+						}
+					}
 					if ( instances[name] ) {
 						instances[name].cssClassName = cssClassName;
 					}
@@ -758,6 +766,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
         	                $windowService.switchForm(window.name, window.switchForm, window.navigatorForm);
         	                $windowService.setTitle(window.name, window.title);
         	                $windowService.show(window.name, window.showForm, window.showTitle);
+        	                $windowService.setCSSClassName(window.name, window.cssClassName);
     						counter++;
     					} 
 

@@ -718,8 +718,8 @@ public abstract class BasicFormController
 					executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID, new Object[] { record }, Boolean.TRUE, true, true));
 				if (ret && getApplication().getFoundSetManager() != null)
 				{
-					// for this record, record edit saved is called successfully shouldn't happen the second time.
-					getApplication().getFoundSetManager().getEditRecordList().markRecordTested(record);
+					// for this record, record edit saved is called successfully shouldn't happen the second time for this form.
+					getApplication().getFoundSetManager().getEditRecordList().markRecordTested(record, this);
 				}
 				return ret;
 			}

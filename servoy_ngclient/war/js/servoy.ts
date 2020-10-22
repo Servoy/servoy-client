@@ -38,6 +38,18 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 }).value("$clientPropertyConstants", {
 	WINDOW_BRANDING_ICON_32 : "window.branding.icon.32",
 	WINDOW_BRANDING_ICON_192 : "window.branding.icon.192"
+}).factory("$svyAttributesService", function() {
+	
+	var attributeListeners: Array<servoy.IAttributesListener> = [];
+	
+	return <servoy.IAttributesService> {
+		addListener : function (listener){
+			attributeListeners.push(listener);
+		},
+		getListeners : function (){
+			return attributeListeners;
+		}
+	}
 }).factory("$utils", function($rootScope: angular.IRootScopeService, $timeout: angular.ITimeoutService, $svyProperties: servoy.IServoyProperties, $sabloApplication: sablo.ISabloApplication, $svyI18NService: servoy.IServoyI18NService) {
 
 	// internal function
@@ -815,7 +827,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	}
 })
-.directive('svyAttributes',  function ($utils:servoy.IUtils,$parse:angular.IParseService, $compile: angular.ICompileService) {
+.directive('svyAttributes',  function ($parse:angular.IParseService, $svyAttributesService: servoy.IAttributesService) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
@@ -825,8 +837,14 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				{
 					element.attr(key,attributes[key]);
 				}
-				element.removeAttr('svy-attributes')
-				$compile(element)(scope);
+				var listeners = $svyAttributesService.getListeners();
+				if (listeners)
+				{
+					for (var i=0;i<listeners.length;i++)
+					{
+						listeners[i].attributesAdded(element, attributes);
+					}
+				}
 			}
 		}
 	}

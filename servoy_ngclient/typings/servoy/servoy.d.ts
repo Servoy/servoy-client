@@ -147,4 +147,13 @@ declare namespace servoy {
 	}
 	
 	interface IApplicationService {}
+	
+	interface IAttributesService{
+		addListener(listener:IAttributesListener),
+		getListeners():[IAttributesListener]
+	}
+	
+	interface IAttributesListener{
+		attributesAdded(element:JQuery, attributes : any);
+	}
 } 

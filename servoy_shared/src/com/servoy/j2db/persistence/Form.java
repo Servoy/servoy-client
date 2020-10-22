@@ -153,6 +153,33 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	@Override
 	public Dimension getSize()
 	{
+		if (getExtendsForm() != null)
+		{
+			List<Part> parts = new ArrayList<Part>();
+			Iterator<Part> it = getExtendsForm().getParts();
+			while (it.hasNext())
+			{
+				Part parentPart = it.next();
+				Iterator<Part> it2 = getParts();
+				boolean overriden = false;
+				while (it2.hasNext())
+				{
+					Part part = it2.next();
+					if (!parts.contains(part)) parts.add(part);
+					if (part.getExtendsID() > 0 && (parentPart.getID() == part.getExtendsID() || parentPart.getExtendsID() == part.getExtendsID()))
+					{
+						overriden = true;
+					}
+				}
+				if (!overriden) parts.add(parentPart);
+			}
+			if (parts.size() == 0)
+			{
+				// no parent parts
+				checkParts(getParts(), getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE));
+			}
+			return checkParts(parts.iterator(), getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE));
+		}
 		return checkParts(getParts(), getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE));
 	}
 

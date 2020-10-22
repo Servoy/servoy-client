@@ -209,7 +209,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		if (looseFocus && form.getOnRecordEditStopMethodID() != 0)
 		{
 			//allow beans to store there data via method
-			IRecordInternal[] records = getApplication().getFoundSetManager().getEditRecordList().getUnmarkedEditedRecords(formModel);
+			IRecordInternal[] records = getApplication().getFoundSetManager().getEditRecordList().getUnmarkedEditedRecords(formModel, this);
 			for (IRecordInternal element : records)
 			{
 				boolean b = executeOnRecordEditStop(element);
