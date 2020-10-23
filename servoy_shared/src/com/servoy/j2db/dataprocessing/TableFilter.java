@@ -16,8 +16,6 @@
  */
 package com.servoy.j2db.dataprocessing;
 
-import java.io.Serializable;
-
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.serialize.IWriteReplace;
 import com.servoy.j2db.util.serialize.ReplacedObject;
@@ -29,7 +27,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
  * @author rgansevles
  *
  */
-public class TableFilter implements Serializable, IWriteReplace
+public class TableFilter implements IWriteReplace
 {
 
 	private final String name;

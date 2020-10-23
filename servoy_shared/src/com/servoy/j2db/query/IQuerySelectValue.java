@@ -29,7 +29,10 @@ public interface IQuerySelectValue extends IBaseQuerySelectValue, IQueryElement
 {
 	String getAlias();
 
-	QueryColumn getColumn();
+	default QueryColumn getColumn()
+	{
+		return null;
+	}
 
 	IQuerySelectValue asAlias(String alias);
 

@@ -215,20 +215,32 @@ public class InstanceJavaMembers extends JavaMembers
 				if (member instanceof NativeJavaMethod && ((NativeJavaMethod)member).getMethods().length == 1)
 				{
 					MemberBox mb = ((NativeJavaMethod)member).getMethods()[0];
-					if (mb.isMethod() &&
-						AnnotationManagerReflection.getInstance().isAnnotationPresent(mb.method(), mb.getDeclaringClass(), JSReadonlyProperty.class))
+					if (mb.isMethod())
 					{
 						// make bean property
-						Object oldValue = copy.put(name, new BeanProperty(mb, null, null));
-						if (oldValue instanceof NativeJavaMethod)
+
+						JSReadonlyProperty jsReadonlyProperty = AnnotationManagerReflection.getInstance().getAnnotation(mb.method(), mb.getDeclaringClass(),
+							JSReadonlyProperty.class);
+						if (jsReadonlyProperty != null)
 						{
-							// allow the method to be called directly as well
-							String functionName = ((NativeJavaMethod)oldValue).getFunctionName();
-							if (!functionName.equals(name))
+
+							String propertyName = jsReadonlyProperty.property();
+							if (propertyName == null || propertyName.length() == 0)
 							{
-								copy.put(functionName, oldValue);
-								// but do not show it
-								addMethodToDelete(functionName);
+								propertyName = name;
+							}
+
+							Object oldValue = copy.put(propertyName, new BeanProperty(mb, null, null));
+							if (oldValue instanceof NativeJavaMethod)
+							{
+								// allow the method to be called directly as well
+								String functionName = ((NativeJavaMethod)oldValue).getFunctionName();
+								if (!functionName.equals(propertyName))
+								{
+									copy.put(functionName, oldValue);
+									// but do not show it
+									addMethodToDelete(functionName);
+								}
 							}
 						}
 					}

@@ -17,8 +17,6 @@
 
 package com.servoy.j2db.dataprocessing;
 
-import java.io.Serializable;
-
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.QuerySelect;
@@ -33,7 +31,7 @@ import com.servoy.j2db.util.visitor.IVisitor;
  * @author rgansevles
  *
  */
-public class QueryTableFilterdefinition implements Serializable, TableFilterdefinition, IVisitable, IWriteReplace
+public class QueryTableFilterdefinition implements TableFilterdefinition, IVisitable, IWriteReplace
 {
 	private QuerySelect querySelect;
 

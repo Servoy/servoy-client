@@ -72,11 +72,6 @@ public final class QueryColumnValue implements IQuerySelectValue
 		return fixedvalue;
 	}
 
-	public QueryColumn getColumn()
-	{
-		return null;
-	}
-
 	@Override
 	public BaseColumnType getColumnType()
 	{

@@ -489,6 +489,19 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		getQuery().setComment(comment);
 	}
 
+	/** RAGTEST doc
+	 * Create an negated condition.
+	 * @sample
+	 * foundset.query.where.add(query.not(query.columns.flag.eq(1)))
+	 *
+	 * @param cond the logical condition to negate
+	 */
+	@JSReadonlyProperty(property = "case")
+	public QBCase js_case()
+	{
+		return new QBCase(getRoot(), this);
+	}
+
 	public QuerySelect getQuery()
 	{
 		return getQuery(true);
