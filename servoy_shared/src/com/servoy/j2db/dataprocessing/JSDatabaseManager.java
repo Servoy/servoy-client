@@ -1867,10 +1867,19 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @return Array of outstanding/unsaved JSRecords.
 	 */
-
 	public IRecordInternal[] js_getEditedRecords(IFoundSetInternal foundset)
 	{
 		return application.getFoundSetManager().getEditRecordList().getEditedRecords(foundset, true);
+	}
+
+	public IRecordInternal[] js_getEditedRecords(String datasource)
+	{
+		return application.getFoundSetManager().getEditRecordList().getEditedRecords(datasource, null, true);
+	}
+
+	public IRecordInternal[] js_getEditedRecords(String datasource, NativeObject filter)
+	{
+		return application.getFoundSetManager().getEditRecordList().getEditedRecords(datasource, filter, true);
 	}
 
 	/**
