@@ -176,7 +176,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 			if (parts.size() == 0)
 			{
 				// no parent parts
-				checkParts(getParts(), getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE));
+				return checkParts(getParts(), getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE));
 			}
 			return checkParts(parts.iterator(), getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE));
 		}
