@@ -2421,7 +2421,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return false;
 		}
 
-		IDataSet pks = pksAndRecords.getPks();
+		PKDataSet pks = pksAndRecords.getPks();
 		Object[] selectedPK = (pks != null && getSelectedIndex() >= 0 && getSelectedIndex() < pks.getRowCount()) ? pks.getRow(getSelectedIndex()) : null;
 
 		int sizeBefore = getSize();
@@ -2431,6 +2431,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		IDataSet set;
+		boolean mustRefresh = false;
 		if (ds != null && ds.getRowCount() > 0)
 		{
 			List<Column> pkColumns = sheet.getTable().getRowIdentColumns();
@@ -2453,6 +2454,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				if (pkhashes.add(RowManager.createPKHashKey(pkrow))) // check for duplicate pks
 				{
 					pkRows.add(pkrow);
+
+					// if all the PKs being loaded were already in the foundset, theres no need to refresh further down as they must match the tableFilters and filter condition already
+					if (!mustRefresh && !pks.containsPk(pkrow))
+					{
+						mustRefresh = true;
+					}
 				}
 			}
 
@@ -2476,8 +2483,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		pksAndRecords.setPksAndQuery(set, sizeAfter, sqlSelect);
 		clearInternalState(true);
 
-		if ((fsm.getTableFilterParams(sheet.getServerName(), sqlSelect) != null || sqlSelect.getCondition(SQLGenerator.CONDITION_FILTER) != null) &&
-			set.getRowCount() > 0)
+		if (mustRefresh &&
+			set.getRowCount() > 0 &&
+			(fsm.getTableFilterParams(sheet.getServerName(), sqlSelect) != null || sqlSelect.getCondition(SQLGenerator.CONDITION_FILTER) != null))
 		{
 			fireDifference(sizeBefore, sizeAfter);
 			refreshFromDBInternal(null, false, true, set.getRowCount(), true, false); // some PKs in the set may not be valid for the current filters
