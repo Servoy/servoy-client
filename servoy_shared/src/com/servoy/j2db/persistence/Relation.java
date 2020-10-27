@@ -17,6 +17,7 @@
 package com.servoy.j2db.persistence;
 
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -794,6 +795,51 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		}
 
 		return Arrays.equals(foreign[0].getTable().getRowIdentColumns().toArray(), foreign);
+	}
+
+	/**
+	 * Does the relation have a PK > FK condition?
+	 *
+	 * @throws RepositoryException
+	 */
+	public boolean hasPKFKCondition(IDataProviderHandler dataProviderHandler) throws RepositoryException
+	{
+		IDataProvider[] dps = getPrimaryDataProviders(dataProviderHandler);
+
+		int[] ops = getOperators();
+		Column[] fcs = getForeignColumns(dataProviderHandler);
+
+		List<Column> pkCols = null;
+
+		for (int i = 0; i < dps.length; i++)
+		{
+			ColumnWrapper cw = dps[i].getColumnWrapper();
+
+			if (cw == null)
+			{
+				continue;
+			}
+
+			IColumn c = cw.getColumn();
+
+			if (pkCols == null)
+			{
+				pkCols = new ArrayList<Column>(c.getTable().getRowIdentColumns());
+			}
+
+			if (ops[i] == IBaseSQLCondition.EQUALS_OPERATOR &&
+				fcs[i] != null &&
+				pkCols.contains(c))
+			{
+				pkCols.remove(c);
+
+				if (pkCols.size() == 0)
+				{
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	public String checkKeyTypes(IDataProviderHandler dataProviderHandler) throws RepositoryException
