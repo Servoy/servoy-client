@@ -125,6 +125,19 @@ public class ScriptEngine implements IScriptSupport
 				IApplication application = (IApplication)sp;
 				cx.setApplicationClassLoader(application.getBeanManager().getClassLoader(), false);
 				cx.setWrapFactory(new ServoyWrapFactory(application));
+				
+				String version = application.getSettings().getProperty("servoy.javascript.version"); //$NON-NLS-1$
+				
+				if (version != null && version.length() > 0) {
+					try
+					{
+						cx.setLanguageVersion(Integer.parseInt(version));
+					}
+					catch (Exception e)
+					{
+						Debug.error("Error parsing value of 'servoy.javascript.version' property to an integer value: " + version); //$NON-NLS-1$
+					}
+				}
 			}
 		}
 
