@@ -649,7 +649,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 						LookupValueList lookup = new LookupValueList(valuelistSabloValue.getValueList().getValueList(), dataAdapterList.getApplication(),
 							ComponentFactory.getFallbackValueList(dataAdapterList.getApplication(), null, Types.OTHER, null,
 								valuelistSabloValue.getValueList().getValueList()),
-							null);
+							null, dataAdapterList.getRecord());
 						if (lookup.realValueIndexOf(uiValue) != -1)
 						{
 							// TODO don't we have to apply the UI converter's toObject here as well in the unlikely case of a valuelist + UI converter? and also
