@@ -65,7 +65,6 @@ import com.servoy.j2db.persistence.RepositoryHelper;
 import com.servoy.j2db.persistence.RuntimeProperty;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
-import com.servoy.j2db.persistence.TabSeqComparator;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.ComponentTypeConfig;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
@@ -96,6 +95,9 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 	{
 	};
 	public final static RuntimeProperty<String> FORM_COMPONENT_FORM_NAME = new RuntimeProperty<String>()
+	{
+	};
+	public final static RuntimeProperty<String> FORM_COMPONENT_UUID = new RuntimeProperty<String>()
 	{
 	};
 	public final static RuntimeProperty<Pair<Long, Map<TabSeqProperty, Integer>>> FORM_TAB_SEQUENCE = new RuntimeProperty<Pair<Long, Map<TabSeqProperty, Integer>>>()
@@ -245,6 +247,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				formName = ((AbstractBase)parent.getPersistIfAvailable()).getRuntimeProperty(FORM_COMPONENT_FORM_NAME);
 			}
 			((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_FORM_NAME, formName);
+			((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_UUID, parent.getPersistIfAvailable().getUUID().toString());
 			JSONObject elementJson = json.optJSONObject(elementName);
 			if (elementJson != null)
 			{
@@ -778,7 +781,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 								}
 							}
 						}
-						return TabSeqComparator.compareTabSeq(seq1, o1.element, seq2, o2.element);
+						return compareTabSeq(seq1, o1.element, seq2, o2.element, flattenedSolution);
 					}
 				});
 				Map<TabSeqProperty, List<TabSeqProperty>> listFormComponentMap = new HashMap<TabSeqProperty, List<TabSeqProperty>>();
@@ -1111,4 +1114,136 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		}
 	}
 
+	//TODO: try to make this method recursive, for the cases when there are more than 2 nested form components
+	public static int compareTabSeq(int seq1, Object o1, int seq2, Object o2, FlattenedSolution flattenedSolution)
+	{
+		int yxCompare = 0;
+		if (seq1 == ISupportTabSeq.DEFAULT && seq2 == ISupportTabSeq.DEFAULT && o1 instanceof IPersist && o2 instanceof IPersist)
+		{
+			IPersist form = ((IPersist)o1).getAncestor(IRepository.FORMS);
+			if (form instanceof Form && ((Form)form).isResponsiveLayout())
+			{
+				if (((IPersist)o1).getParent().equals(((IPersist)o2).getParent()))
+				{
+					//delegate to Yx
+					yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare((IPersist)o1, (IPersist)o2);
+				}
+				else
+				{
+					/*
+					 * We must search all the parents of the objects o1 and o2.If the objects have a same parent by searching all the ancestors we must compare
+					 * the objects before encountering the same parent.
+					 */
+					List<IPersist> parentsOfo1 = new ArrayList<IPersist>();
+					IPersist parent = ((IPersist)o1).getParent();
+					while (!(parent instanceof Form))
+					{
+						parentsOfo1.add(parent);
+						parent = parent.getParent();
+					}
+					//also add the form to the list of parents
+					parentsOfo1.add(parent);
+
+					//the last parent of o1 or o2 is a formComponent, not the main form
+					if (parent instanceof Form)
+					{
+						if (((Form)parent).isFormComponent() && o1 instanceof AbstractBase)
+						{
+							String uuid = ((AbstractBase)o1).getRuntimeProperty(FORM_COMPONENT_UUID);
+							if (uuid != null)
+							{
+								IPersist persist = flattenedSolution.searchPersist(uuid);
+								if (persist != null)
+								{
+									parent = persist.getParent();
+									while (!(parent instanceof Form))
+									{
+										parentsOfo1.add(parent);
+										parent = parent.getParent();
+									}
+									//also add the form to the list of parents
+									parentsOfo1.add(parent);
+								}
+							}
+						}
+					}
+
+					IPersist childo2 = (IPersist)o2;
+					IPersist parento2 = ((IPersist)o2).getParent();
+					while (!(parento2 instanceof Form))
+					{
+						if (parentsOfo1.contains(parento2))
+						{
+							int index = parentsOfo1.indexOf(parento2);
+							//delegate to Yx
+							if (index > 0)
+							{
+								yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare(parentsOfo1.get(index - 1), childo2);
+							}
+						}
+						childo2 = parento2;
+						parento2 = parento2.getParent();
+					}
+					//also check to see if the common parent is the actual form
+					if (parentsOfo1.contains(parento2))
+					{
+						int index = parentsOfo1.indexOf(parento2);
+						if (index > 0)
+						{
+							yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare(parentsOfo1.get(index - 1), childo2);
+						}
+					}
+
+					if (parento2 instanceof Form && !parento2.equals(form))
+					{
+						if (((Form)parento2).isFormComponent() && o2 instanceof AbstractBase)
+						{
+							String uuid = ((AbstractBase)o2).getRuntimeProperty(FORM_COMPONENT_UUID);
+							if (uuid != null)
+							{
+								IPersist persist = flattenedSolution.searchPersist(uuid);
+								if (persist != null)
+								{
+									parento2 = persist.getParent();
+									while (!(parento2 instanceof Form))
+									{
+										if (parentsOfo1.contains(parento2))
+										{
+											int index = parentsOfo1.indexOf(parento2);
+											//delegate to Yx
+											if (index > 0)
+											{
+												yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare(parentsOfo1.get(index - 1), childo2);
+											}
+										}
+										childo2 = parento2;
+										parento2 = parento2.getParent();
+									}
+								}
+							}
+						}
+					}
+					if (yxCompare == 0 && parentsOfo1.contains(parento2) && parentsOfo1.size() > 1)
+					{
+						yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare(parentsOfo1.get(parentsOfo1.size() - 2), childo2);
+					}
+				}
+			}
+			else if (form instanceof Form && !((Form)form).isResponsiveLayout())
+			{
+				yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare((IPersist)o1, (IPersist)o2);
+			}
+			// if they are at the same position, and are different persist, just use UUID to decide the sequence
+			return yxCompare == 0 ? ((IPersist)o1).getUUID().compareTo(((IPersist)o2).getUUID()) : yxCompare;
+		}
+		else if (seq1 == ISupportTabSeq.DEFAULT)
+		{
+			return 1;
+		}
+		else if (seq2 == ISupportTabSeq.DEFAULT)
+		{
+			return -1;
+		}
+		return seq1 - seq2;
+	}
 }
