@@ -17,10 +17,13 @@
 package com.servoy.j2db.persistence;
 
 
-import java.util.ArrayList;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import com.servoy.base.persistence.IBaseColumn;
@@ -785,16 +788,8 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			return false;
 		}
 
-		getOperators();
-		for (int element : operators)
-		{
-			if (element != IBaseSQLCondition.EQUALS_OPERATOR)
-			{
-				return false;
-			}
-		}
-
-		return Arrays.equals(foreign[0].getTable().getRowIdentColumns().toArray(), foreign);
+		return stream(getOperators()).allMatch(op -> op == IBaseSQLCondition.EQUALS_OPERATOR) &&
+			Arrays.equals(foreign[0].getTable().getRowIdentColumns().toArray(), foreign);
 	}
 
 	/**
@@ -804,41 +799,28 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public boolean hasPKFKCondition(IDataProviderHandler dataProviderHandler) throws RepositoryException
 	{
-		IDataProvider[] dps = getPrimaryDataProviders(dataProviderHandler);
-
-		int[] ops = getOperators();
-		Column[] fcs = getForeignColumns(dataProviderHandler);
-
-		List<Column> pkCols = null;
-
-		for (int i = 0; i < dps.length; i++)
+		getPrimaryDataProviders(dataProviderHandler);
+		if (primary == null || primary.length == 0)
 		{
-			ColumnWrapper cw = dps[i].getColumnWrapper();
-
-			if (cw == null)
-			{
-				continue;
-			}
-
-			IColumn c = cw.getColumn();
-
-			if (pkCols == null)
-			{
-				pkCols = new ArrayList<Column>(c.getTable().getRowIdentColumns());
-			}
-
-			if (ops[i] == IBaseSQLCondition.EQUALS_OPERATOR &&
-				fcs[i] != null &&
-				pkCols.contains(c))
-			{
-				pkCols.remove(c);
-
-				if (pkCols.size() == 0)
-				{
-					return true;
-				}
-			}
+			return false;
 		}
+
+		if (!stream(getOperators()).allMatch(op -> op == IBaseSQLCondition.EQUALS_OPERATOR))
+		{
+			return false;
+		}
+
+		List<IColumn> primaryColumns = stream(primary)
+			.map(IDataProvider::getColumnWrapper).filter(Objects::nonNull)
+			.map(ColumnWrapper::getColumn)
+			.collect(toList());
+
+		if (!primaryColumns.isEmpty())
+		{
+			primaryColumns.removeAll(primaryColumns.get(0).getTable().getRowIdentColumns());
+			return primaryColumns.isEmpty();
+		}
+
 		return false;
 	}
 
