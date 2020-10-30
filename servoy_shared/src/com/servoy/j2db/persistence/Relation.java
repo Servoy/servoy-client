@@ -815,13 +815,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			.map(ColumnWrapper::getColumn)
 			.collect(toList());
 
-		if (!primaryColumns.isEmpty())
-		{
-			primaryColumns.removeAll(primaryColumns.get(0).getTable().getRowIdentColumns());
-			return primaryColumns.isEmpty();
-		}
-
-		return false;
+		return !primaryColumns.isEmpty() && primaryColumns.containsAll(primaryColumns.get(0).getTable().getRowIdentColumns());
 	}
 
 	public String checkKeyTypes(IDataProviderHandler dataProviderHandler) throws RepositoryException
