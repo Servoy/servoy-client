@@ -222,7 +222,7 @@
 					} else if (k == 27) {//escape
 						input.val(focusText);
 						input.caret(0, checkVal());
-						return false;
+						e.preventDefault();
 					} else if (pos.begin != pos.end && !ignore) {
 						clearBuffer(pos.begin, pos.end);
 					}
