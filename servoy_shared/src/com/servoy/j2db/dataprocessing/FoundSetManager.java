@@ -20,6 +20,7 @@ package com.servoy.j2db.dataprocessing;
 import static com.servoy.j2db.query.AbstractBaseQuery.searchOne;
 import static com.servoy.j2db.util.Errors.catchExceptions;
 import static com.servoy.j2db.util.Utils.iterate;
+import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
 import java.lang.ref.SoftReference;
@@ -1484,7 +1485,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return removedFilters.size() > 0;
 	}
 
-	private Stream<IFoundSetInternal> getAllFoundsets()
+	private List<IFoundSetInternal> getAllFoundsets()
 	{
 		return Stream.concat(separateFoundSets.values().stream(), //
 			Stream.concat(sharedDataSourceFoundSet.values().stream(), //
@@ -1496,12 +1497,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 								.map(ConcurrentMap::values)
 								.flatMap(Collection::stream) //
 								.map(SoftReference::get) //
-								.filter(Objects::nonNull))))));
+								.filter(Objects::nonNull))))))
+			.collect(toList());
 	}
 
 	public void refreshFoundsetsForTenantTables()
 	{
-		List<ITable> tenantTablesInuse = getAllFoundsets() //
+		List<IFoundSetInternal> allFoundsets = getAllFoundsets();
+		List<ITable> tenantTablesInuse = allFoundsets.stream() //
 			.map(IFoundSetInternal::getQuerySelectForReading) //
 			.filter(Objects::nonNull) //
 			.map(query -> AbstractBaseQuery.<BaseQueryTable> search(query, new TypePredicate<>(BaseQueryTable.class))) //
@@ -1512,11 +1515,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			.map(datasource -> catchExceptions(() -> getTable(datasource))) //
 			.filter(Objects::nonNull) //
 			.filter(FoundSetManager::tableHasTenantColumn) //
-			.collect(Collectors.toList());
+			.collect(toList());
 		Set<String> tenantDatasourcesInuse = tenantTablesInuse.stream().map(ITable::getDataSource).collect(Collectors.toSet());
 
-		// refresh foundsets that use any of these datasources
-		getAllFoundsets().filter(fs -> usesDatasource(fs.getQuerySelectForReading(), tenantDatasourcesInuse)) //
+		// refresh foundsets that use any of these datasources, make sure all foundsets are collected to prevent ConcurrentModificationExceptions
+		allFoundsets.stream()
+			.filter(fs -> usesDatasource(fs.getQuerySelectForReading(), tenantDatasourcesInuse)) //
 			.forEach(catchExceptions(fs -> {
 				if (fs.isInitialized())
 				{
