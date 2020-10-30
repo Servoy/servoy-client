@@ -233,6 +233,16 @@ public abstract class RelatedFoundSet extends FoundSet
 					}
 					cachedRows.put(Integer.valueOf(i), cachedRow);
 				}
+				else if (!parents[i].existInDataSource() && !fsm.loadRelatedRecordsIfParentIsNew &&
+					relation.hasPKFKCondition(fsm.getApplication().getFlattenedSolution()))
+				{
+					/*
+					 * Optimize for init of related foundsets on a parent record that is new and where the relation includes equal conditions for all the parent
+					 * rowIdentifier columns
+					 *
+					 * In this case no query has to be made to the DB to fetch existing records, as there wouldn't be any.
+					 */
+				}
 				else
 				{
 					ISQLSelect selectStatement = AbstractBaseQuery.deepClone((ISQLSelect)sqlSelect);
