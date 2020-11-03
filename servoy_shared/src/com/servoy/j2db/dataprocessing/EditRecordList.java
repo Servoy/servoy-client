@@ -1214,6 +1214,8 @@ public class EditRecordList
 
 	private boolean removeUnchangedRecord(IRecordInternal record, boolean checkCalcValues, boolean doActualRemove)
 	{
+		if (preparingForSave) return false;
+		
 		if (!testIfRecordIsChanged(record, checkCalcValues))
 		{
 			if (doActualRemove)
