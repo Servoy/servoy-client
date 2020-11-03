@@ -130,6 +130,7 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 			writer.key("position").value("absolute");
 
 			String top = object.top;
+			String bottom = object.bottom;
 			if (formElement != null && fs != null && context != null && !formElement.isInDesigner())
 			{
 				// adjust the top for parts.
@@ -142,21 +143,44 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 					Part part = form.getPartAt(location.y);
 					if (part != null)
 					{
-						int topStart = form.getPartStartYPos(part.getID());
-						if (topStart > 0)
+						if (isSet(top))
 						{
-							if (top.endsWith("px"))
+							int topStart = form.getPartStartYPos(part.getID());
+							if (topStart > 0)
 							{
-								top = top.substring(0, top.length() - 2);
+								if (top.endsWith("px"))
+								{
+									top = top.substring(0, top.length() - 2);
+								}
+								int topInteger = Utils.getAsInteger(top, -1);
+								if (topInteger != -1)
+								{
+									top = String.valueOf(topInteger - topStart);
+								}
+								else
+								{
+									top = "calc(" + top + " - " + topStart + "px)";
+								}
 							}
-							int topInteger = Utils.getAsInteger(top, -1);
-							if (topInteger != -1)
+						}
+						if (isSet(bottom))
+						{
+							int extraHeight = form.getSize().height - part.getHeight();
+							if (extraHeight > 0)
 							{
-								top = String.valueOf(topInteger - topStart);
-							}
-							else
-							{
-								top = "calc(" + top + " - " + topStart + "px)";
+								if (bottom.endsWith("px"))
+								{
+									bottom = bottom.substring(0, bottom.length() - 2);
+								}
+								int bottomInteger = Utils.getAsInteger(bottom, -1);
+								if (bottomInteger != -1)
+								{
+									bottom = String.valueOf(bottomInteger - extraHeight);
+								}
+								else
+								{
+									bottom = "calc(" + bottom + " - " + extraHeight + "px)";
+								}
 							}
 						}
 					}
@@ -165,7 +189,7 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 
 			if (isSet(top)) writer.key("top").value(addPixels(top));
 			if (isSet(object.left)) writer.key("left").value(addPixels(object.left));
-			if (isSet(object.bottom)) writer.key("bottom").value(addPixels(object.bottom));
+			if (isSet(bottom)) writer.key("bottom").value(addPixels(bottom));
 			if (isSet(object.right)) writer.key("right").value(addPixels(object.right));
 			if (isSet(object.height))
 			{
