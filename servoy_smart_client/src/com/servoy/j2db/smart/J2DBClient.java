@@ -3887,7 +3887,8 @@ public class J2DBClient extends ClientState
 	protected IDataServer createDataServer()
 	{
 		IDataServer ds = super.createDataServer();
-		return new ExceptionCheckingDataServer(ds, this);
+		if (ds != null) return new ExceptionCheckingDataServer(ds, this);
+		return ds;
 	}
 
 	/**

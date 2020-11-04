@@ -52,6 +52,8 @@ public class ExceptionCheckingDataServer implements IDataServer
 
 	public ExceptionCheckingDataServer(IDataServer delegate, J2DBClient client)
 	{
+		if (delegate == null || client == null)
+			throw new NullPointerException("can't create ExceptionCheckingDataserver because delegate can't be null: " + delegate + ", client " + client); //$NON-NLS-1$ //$NON-NLS-2$
 		this.delegate = delegate;
 		this.client = client;
 	}
