@@ -5882,9 +5882,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (aggregatesToRemove.size() > 0)
 		{
+			aggregateCache.keySet().removeAll(aggregatesToRemove);
 			for (String aggregate : aggregatesToRemove)
 			{
-				aggregateCache.remove(aggregate);
 				fireAggregateModificationEvent(aggregate, null);
 			}
 		}
