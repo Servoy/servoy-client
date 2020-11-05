@@ -428,7 +428,7 @@ public final class Settings extends SortedProperties
 					}
 					catch (Exception e)
 					{
-						Debug.error("Error decrypting property: " + entry.getKey() + " with value " + val);
+						Debug.error("Error decrypting property: '" + entry.getKey() + "' with value '" + val + "'");
 						throw e;
 					}
 				}
