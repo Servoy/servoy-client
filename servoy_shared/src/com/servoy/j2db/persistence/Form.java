@@ -434,28 +434,30 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	public void setExtendsID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
-		if (arg <= 0 && !isResponsiveLayout())
+		if (arg <= 0 && !isResponsiveLayout() && !hasPart(Part.BODY))
 		{
 			//when extends form property is set to -none-
 			//we copy the body part from the parent
-			if (extendsForm != null)
+			Form parentForm = extendsForm;
+			Part body = null;
+			outer : while (parentForm != null)
 			{
-				Part body = null;
-				Iterator<Part> parts = extendsForm.getParts();
+				Iterator<Part> parts = parentForm.getParts();
 				while (parts.hasNext())
 				{
 					Part p = parts.next();
 					if (p.getPartType() == Part.BODY)
 					{
 						body = p;
-						break;
+						break outer;
 					}
 				}
-				if (body != null)
-				{
-					Part clonedBody = (Part)body.clonePersist(this);
-					clonedBody.setExtendsID(0);
-				}
+				parentForm = parentForm.getExtendsForm();
+			}
+			if (body != null)
+			{
+				Part clonedBody = (Part)body.clonePersist(this);
+				clonedBody.setExtendsID(0);
 			}
 		}
 		if ((extendsForm == null ? arg > 0 : extendsForm.getID() != arg) && getRootObject().getChangeHandler() != null)

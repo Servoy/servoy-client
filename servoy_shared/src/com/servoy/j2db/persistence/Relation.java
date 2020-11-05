@@ -17,9 +17,13 @@
 package com.servoy.j2db.persistence;
 
 
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import com.servoy.base.persistence.IBaseColumn;
@@ -784,16 +788,34 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			return false;
 		}
 
-		getOperators();
-		for (int element : operators)
+		return stream(getOperators()).allMatch(op -> op == IBaseSQLCondition.EQUALS_OPERATOR) &&
+			Arrays.equals(foreign[0].getTable().getRowIdentColumns().toArray(), foreign);
+	}
+
+	/**
+	 * Does the relation have a PK > FK condition?
+	 *
+	 * @throws RepositoryException
+	 */
+	public boolean hasPKFKCondition(IDataProviderHandler dataProviderHandler) throws RepositoryException
+	{
+		getPrimaryDataProviders(dataProviderHandler);
+		if (primary == null || primary.length == 0)
 		{
-			if (element != IBaseSQLCondition.EQUALS_OPERATOR)
-			{
-				return false;
-			}
+			return false;
 		}
 
-		return Arrays.equals(foreign[0].getTable().getRowIdentColumns().toArray(), foreign);
+		if (!stream(getOperators()).allMatch(op -> op == IBaseSQLCondition.EQUALS_OPERATOR))
+		{
+			return false;
+		}
+
+		List<IColumn> primaryColumns = stream(primary)
+			.map(IDataProvider::getColumnWrapper).filter(Objects::nonNull)
+			.map(ColumnWrapper::getColumn)
+			.collect(toList());
+
+		return !primaryColumns.isEmpty() && primaryColumns.containsAll(primaryColumns.get(0).getTable().getRowIdentColumns());
 	}
 
 	public String checkKeyTypes(IDataProviderHandler dataProviderHandler) throws RepositoryException
