@@ -161,6 +161,7 @@ import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.GlobalEditEvent;
 import com.servoy.j2db.dataprocessing.IClient;
+import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IGlobalEditListener;
 import com.servoy.j2db.dataprocessing.IInfoListener;
@@ -3882,11 +3883,19 @@ public class J2DBClient extends ClientState
 		return rmiFactoryFactory == null || rmiFactoryFactory.isConnected();
 	}
 
+	@Override
+	protected IDataServer createDataServer()
+	{
+		IDataServer ds = super.createDataServer();
+		if (ds != null) return new ExceptionCheckingDataServer(ds, this);
+		return ds;
+	}
+
 	/**
 	 * @see com.servoy.j2db.ClientState#testClientRegistered(Object)
 	 */
 	@Override
-	protected boolean testClientRegistered(Object exception)
+	public boolean testClientRegistered(Object exception)
 	{
 		Object ex = exception;
 		while (ex instanceof Exception && !(ex instanceof ServoyException))
