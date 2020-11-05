@@ -421,8 +421,16 @@ public final class Settings extends SortedProperties
 				if (val.startsWith(enc_prefix))
 				{
 					String val_val = val.substring(enc_prefix.length());
-					byte[] array_val = Utils.decodeBASE64(val_val);
-					entry.setValue(new String(desCipher.doFinal(array_val)));
+					try
+					{
+						byte[] array_val = Utils.decodeBASE64(val_val);
+						entry.setValue(new String(desCipher.doFinal(array_val)));
+					}
+					catch (Exception e)
+					{
+						Debug.error("Error decrypting property: " + entry.getKey() + " with value " + val);
+						throw e;
+					}
 				}
 			}
 		}
