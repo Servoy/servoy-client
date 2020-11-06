@@ -24,9 +24,10 @@ import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 
 import com.servoy.j2db.persistence.CSSPosition;
+import com.servoy.j2db.scripting.solutionmodel.AbstractCSSPosition;
 import com.servoy.j2db.scripting.solutionmodel.ICSSPosition;
 
-public class UpdateableCSSPosition implements ICSSPosition
+public class UpdateableCSSPosition extends AbstractCSSPosition
 {
 
 	private final IWebObjectContext comp;

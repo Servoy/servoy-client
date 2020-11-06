@@ -28,7 +28,7 @@ import com.servoy.j2db.persistence.CSSPosition;
  * @author lvostinar
  *
  */
-public class JSCSSPosition implements ICSSPosition
+public class JSCSSPosition extends AbstractCSSPosition
 {
 	private final JSComponent< ? extends BaseComponent> component;
 
