@@ -20,6 +20,7 @@ package com.servoy.j2db.dataprocessing;
 import static com.servoy.j2db.query.AbstractBaseQuery.searchOne;
 import static com.servoy.j2db.util.Errors.catchExceptions;
 import static com.servoy.j2db.util.Utils.iterate;
+import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
 import java.lang.ref.SoftReference;
@@ -163,6 +164,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public final int pkChunkSize;
 	public final int chunkSize;
 	public final int initialRelatedChunkSize;
+	public final boolean loadRelatedRecordsIfParentIsNew;
 
 	private final List<Runnable> fireRunabbles = new ArrayList<Runnable>();
 
@@ -181,6 +183,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		pkChunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.pkChunkSize", Integer.toString(200)));//primarykeys to be get in one roundtrip //$NON-NLS-1$
 		chunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.chunkSize", Integer.toString(30)));//records to be get in one roundtrip //$NON-NLS-1$
 		initialRelatedChunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.initialRelatedChunkSize", Integer.toString(chunkSize * 2))); //initial related records to get in one roundtrip//$NON-NLS-1$
+		loadRelatedRecordsIfParentIsNew = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.loadRelatedRecordsIfParentIsNew", "false")); //force-load of possible existing records in DB when initializing a related foundset when the parent is new and the relations is restricted on the rowIdentifier columns of the parent record //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	private Runnable createFlushAction(final String dataSource)
@@ -1484,7 +1487,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return removedFilters.size() > 0;
 	}
 
-	private Stream<IFoundSetInternal> getAllFoundsets()
+	private List<IFoundSetInternal> getAllFoundsets()
 	{
 		return Stream.concat(separateFoundSets.values().stream(), //
 			Stream.concat(sharedDataSourceFoundSet.values().stream(), //
@@ -1496,12 +1499,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 								.map(ConcurrentMap::values)
 								.flatMap(Collection::stream) //
 								.map(SoftReference::get) //
-								.filter(Objects::nonNull))))));
+								.filter(Objects::nonNull))))))
+			.collect(toList());
 	}
 
 	public void refreshFoundsetsForTenantTables()
 	{
-		List<ITable> tenantTablesInuse = getAllFoundsets() //
+		List<IFoundSetInternal> allFoundsets = getAllFoundsets();
+		List<ITable> tenantTablesInuse = allFoundsets.stream() //
 			.map(IFoundSetInternal::getQuerySelectForReading) //
 			.filter(Objects::nonNull) //
 			.map(query -> AbstractBaseQuery.<BaseQueryTable> search(query, new TypePredicate<>(BaseQueryTable.class))) //
@@ -1512,11 +1517,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			.map(datasource -> catchExceptions(() -> getTable(datasource))) //
 			.filter(Objects::nonNull) //
 			.filter(FoundSetManager::tableHasTenantColumn) //
-			.collect(Collectors.toList());
+			.collect(toList());
 		Set<String> tenantDatasourcesInuse = tenantTablesInuse.stream().map(ITable::getDataSource).collect(Collectors.toSet());
 
-		// refresh foundsets that use any of these datasources
-		getAllFoundsets().filter(fs -> usesDatasource(fs.getQuerySelectForReading(), tenantDatasourcesInuse)) //
+		// refresh foundsets that use any of these datasources, make sure all foundsets are collected to prevent ConcurrentModificationExceptions
+		allFoundsets.stream()
+			.filter(fs -> usesDatasource(fs.getQuerySelectForReading(), tenantDatasourcesInuse)) //
 			.forEach(catchExceptions(fs -> {
 				if (fs.isInitialized())
 				{
