@@ -1878,7 +1878,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sample
 	 * // This method can be used to loop through all outstanding changes for a specific datasource.
 	 * // The application.output line contains all the changed data, their tablename and primary key
-	 * var edits = databaseManager.getEditedRecords(datasources.db.mydb.mttable.getDataSource())
+	 * var edits = databaseManager.getEditedRecords(datasources.db.mydb.mytable.getDataSource())
 	 *
 	 * var jsTable = databaseManager.getTable('mydb', 'mytable');
 	 * var tableSQLName = jstable.getSQLName();
@@ -1918,43 +1918,40 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Returns an array of edited records with outstanding (unsaved) data.
+	 * Returns an array of edited records with outstanding (unsaved) data for a datasource with a filter.
 	 *
 	 * @sample
-	 * /**
-	 *  * Returns a record from mytable that matches the provided criteria:
-	 *  * - first look in memory for an edited record that matches the criteria
-	 *  * - else look at existing records in the db
-	 *  * - else create it
-	 *  *
-	 *  * @param {Object} criteria
-	 *  *
-	 *  * @return {JSRecord}
-	 *  *&#47;
-	 * function getOrCreateMyTableRecord(criteria) {
-	 * 	var dataSource = datasources.db.mydb.mttable;
-	 * 	var matches = databaseManager.getEditedRecords(dataSource.getDataSource(), criteria);
+	 * // This method can be used to loop through all outstanding changes for a specific datasource.
+	 * // The application.output line contains all the changed data, their tablename and primary key.
+	 * // Filter on records that match certain criteria.
+	 * // The criteria can be specified in a javascript object, for example get edited records for country NL or DE and currency EUR.
+	 * var edits = databaseManager.getEditedRecords(datasources.db.mydb.mytable.getDataSource(), {currency: 'EUR', country: ['NL', 'DE']})
 	 *
-	 * 	if (!matches.length) {
-	 * 		var fs = dataSource.getFoundSet();
+	 * var jsTable = databaseManager.getTable('mydb', 'mytable');
+	 * var tableSQLName = jstable.getSQLName();
+	 * var pkColumnNames = jstable.getRowIdentifierColumnNames().join(',');
+	 * var pkValues [];
 	 *
-	 *  	fs.find()
+	 * var x;
+	 * var ds;
+	 * var i;
 	 *
-	 *  	Object.keys(criteria).forEach(function(key) {
-	 *  		fs[key] = criteria[key];
-	 *  	});
+	 * for (x = 0; x < edits.length; x++) {
+	 * 	ds = edits[x].getChangedData();
+	 * 	pkValues.length = 0;
 	 *
-	 *  	if (!fs.search()) {
-	 *  		fs.newRecord();
+	 * 	for (i = 0; i < jsTable.getRowIdentifierColumnNames().length; i++) {
+	 * 		pkValues[i] = edits[x][jsTable.getRowIdentifierColumnNames()[i]];
+	 * 	}
 	 *
-	 *  		Object.keys(criteria).forEach(function(key) {
-	 *  			fs[key] = criteria[key];
-	 *  		});
-	 *  	}
-	 *  }
+	 * 	application.output('Table: ' + tableSQLName + ', PKs: ' + pkValues.join(',') + ' (' + pkColumnNames + ')');
 	 *
-	 *  return fs.getSelectedRecord();
+	 * 	// Output the outstanding changes on each record
+	 * 	for (i = 1; i <= ds.getMaxRowIndex(); i++) {
+	 * 		application.output('Column: ' + ds.getValue(i, 1) + ', oldValue: ' + ds.getValue(i, 2) + ', newValue: ' + ds.getValue(i, 3));
+	 * 	}
 	 * }
+	 * databaseManager.saveData(edits); //save all edited records in the datasource
 	 *
 	 * @param datasource the datasource for which to get the edited records
 	 * @param filter criteria against which the edited record must match to be included
