@@ -24,12 +24,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import org.mozilla.javascript.JavaScriptException;
+import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,10 +147,6 @@ public class EditRecordList
 
 	public IRecordInternal[] getEditedRecords(IFoundSet set, boolean removeUnchanged)
 	{
-		if (removeUnchanged)
-		{
-			removeUnChangedRecords(true, false, set);
-		}
 		List<IRecordInternal> al = new ArrayList<IRecordInternal>();
 		editRecordsLock.lock();
 		try
@@ -157,6 +156,71 @@ public class EditRecordList
 				IRecordInternal record = editedRecords.get(i);
 				if (record.getParentFoundSet() == set)
 				{
+					if (removeUnchanged && removeUnchangedRecord(record, true, false))
+					{
+						continue;
+					}
+
+					al.add(record);
+				}
+			}
+		}
+		finally
+		{
+			editRecordsLock.unlock();
+		}
+		return al.toArray(new IRecordInternal[al.size()]);
+	}
+
+	public IRecordInternal[] getEditedRecords(String datasource, NativeObject filter, boolean removeUnchanged)
+	{
+		List<IRecordInternal> al = new ArrayList<IRecordInternal>();
+
+		Set<Entry<Object, Object>> filterEntries = null;
+
+		if (filter != null)
+		{
+			filterEntries = filter.entrySet();
+		}
+
+		editRecordsLock.lock();
+		try
+		{
+			recLoop : for (int i = editedRecords.size(); --i >= 0;)
+			{
+				IRecordInternal record = editedRecords.get(i);
+				if (record.getParentFoundSet().getDataSource().equals(datasource))
+				{
+					if (filterEntries != null)
+					{
+						filterLoop: for (Map.Entry<Object, Object> entry : filterEntries)
+						{
+							if (record.has(entry.getKey().toString()))
+							{
+								Object recordValue = record.getValue(entry.getKey().toString());
+								Object filterValue = entry.getValue();
+								
+								if (filterValue instanceof NativeArray) {
+									NativeArray na = (NativeArray) filterValue;
+									for (Object val : na) {
+										if (Utils.equalObjects(recordValue, val)) {
+											break filterLoop;
+										}
+							        }
+									continue recLoop;
+								} else if (!Utils.equalObjects(recordValue, filterValue))
+								{
+									continue recLoop;
+								}
+							}
+						}
+					}
+
+					if (removeUnchanged && removeUnchangedRecord(record, true, false))
+					{
+						continue;
+					}
+
 					al.add(record);
 				}
 			}
@@ -1141,18 +1205,29 @@ public class EditRecordList
 		for (Object element : editedRecordsArray)
 		{
 			IRecordInternal record = (IRecordInternal)element;
-			if ((foundset == null || record.getParentFoundSet() == foundset) && !testIfRecordIsChanged(record, checkCalcValues))
+			if (foundset == null || record.getParentFoundSet() == foundset)
 			{
-				if (doActualRemove)
-				{
-					removeEditedRecord(record);
-				}
-				else
-				{
-					stopEditing(true, record);
-				}
+				removeUnchangedRecord(record, checkCalcValues, doActualRemove);
 			}
 		}
+	}
+
+	private boolean removeUnchangedRecord(IRecordInternal record, boolean checkCalcValues, boolean doActualRemove)
+	{
+		if (preparingForSave) return false;
+		
+		if (!testIfRecordIsChanged(record, checkCalcValues))
+		{
+			if (doActualRemove)
+			{
+				removeEditedRecord(record);
+				return true;
+			}
+
+			stopEditing(true, record);
+		}
+
+		return false;
 	}
 
 	public void removeEditedRecord(IRecordInternal r)

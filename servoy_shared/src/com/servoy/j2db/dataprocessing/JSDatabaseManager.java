@@ -1867,10 +1867,105 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @return Array of outstanding/unsaved JSRecords.
 	 */
-
 	public IRecordInternal[] js_getEditedRecords(IFoundSetInternal foundset)
 	{
 		return application.getFoundSetManager().getEditRecordList().getEditedRecords(foundset, true);
+	}
+
+	/**
+	 * Returns an array of edited records with outstanding (unsaved) data.
+	 *
+	 * @sample
+	 * // This method can be used to loop through all outstanding changes for a specific datasource.
+	 * // The application.output line contains all the changed data, their tablename and primary key
+	 * var edits = databaseManager.getEditedRecords(datasources.db.mydb.mttable.getDataSource())
+	 *
+	 * var jsTable = databaseManager.getTable('mydb', 'mytable');
+	 * var tableSQLName = jstable.getSQLName();
+	 * var pkColumnNames = jstable.getRowIdentifierColumnNames().join(',');
+	 * var pkValues [];
+	 *
+	 * var x;
+	 * var ds;
+	 * var i;
+	 *
+	 * for (x = 0; x < edits.length; x++) {
+	 * 	ds = edits[x].getChangedData();
+	 * 	pkValues.length = 0;
+	 *
+	 * 	for (i = 0; i < jsTable.getRowIdentifierColumnNames().length; i++) {
+	 * 		pkValues[i] = edits[x][jsTable.getRowIdentifierColumnNames()[i]];
+	 * 	}
+	 *
+	 * 	application.output('Table: ' + tableSQLName + ', PKs: ' + pkValues.join(',') + ' (' + pkColumnNames + ')');
+	 *
+	 * 	// Output the outstanding changes on each record
+	 * 	for (i = 1; i <= ds.getMaxRowIndex(); i++) {
+	 * 		application.output('Column: ' + ds.getValue(i, 1) + ', oldValue: ' + ds.getValue(i, 2) + ', newValue: ' + ds.getValue(i, 3));
+	 * 	}
+	 * }
+	 * databaseManager.saveData(edits); //save all edited records in the datasource
+	 *
+	 * @param datasource the datasource for which to get the edited records
+	 *
+	 * @return Array of outstanding/unsaved JSRecords
+	 *
+	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_getEditedRecords()
+	 */
+	public IRecordInternal[] js_getEditedRecords(String datasource)
+	{
+		return application.getFoundSetManager().getEditRecordList().getEditedRecords(datasource, null, true);
+	}
+
+	/**
+	 * Returns an array of edited records with outstanding (unsaved) data.
+	 *
+	 * @sample
+	 * /**
+	 *  * Returns a record from mytable that matches the provided criteria:
+	 *  * - first look in memory for an edited record that matches the criteria
+	 *  * - else look at existing records in the db
+	 *  * - else create it
+	 *  *
+	 *  * @param {Object} criteria
+	 *  *
+	 *  * @return {JSRecord}
+	 *  *&#47;
+	 * function getOrCreateMyTableRecord(criteria) {
+	 * 	var dataSource = datasources.db.mydb.mttable;
+	 * 	var matches = databaseManager.getEditedRecords(dataSource.getDataSource(), criteria);
+	 *
+	 * 	if (!matches.length) {
+	 * 		var fs = dataSource.getFoundSet();
+	 *
+	 *  	fs.find()
+	 *
+	 *  	Object.keys(criteria).forEach(function(key) {
+	 *  		fs[key] = criteria[key];
+	 *  	});
+	 *
+	 *  	if (!fs.search()) {
+	 *  		fs.newRecord();
+	 *
+	 *  		Object.keys(criteria).forEach(function(key) {
+	 *  			fs[key] = criteria[key];
+	 *  		});
+	 *  	}
+	 *  }
+	 *
+	 *  return fs.getSelectedRecord();
+	 * }
+	 *
+	 * @param datasource the datasource for which to get the edited records
+	 * @param filter criteria against which the edited record must match to be included
+	 *
+	 * @return Array of outstanding/unsaved JSRecords
+	 *
+	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_getEditedRecords()
+	 */
+	public IRecordInternal[] js_getEditedRecords(String datasource, NativeObject filter)
+	{
+		return application.getFoundSetManager().getEditRecordList().getEditedRecords(datasource, filter, true);
 	}
 
 	/**
