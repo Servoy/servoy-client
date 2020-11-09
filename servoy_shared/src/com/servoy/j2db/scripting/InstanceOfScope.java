@@ -49,6 +49,18 @@ public class InstanceOfScope implements Scriptable
 		else if (instance instanceof RecordingScriptable)
 		{
 			Object unwrap = ((RecordingScriptable)instance).unwrap();
+
+			if (unwrap instanceof Scriptable)
+			{
+				Scriptable proto = ((Scriptable)unwrap).getPrototype();
+
+				while (proto != null)
+				{
+					if (cls.isInstance(proto)) return true;
+					proto = proto.getPrototype();
+				}
+			}
+
 			return cls.isInstance(unwrap);
 		}
 		else if (instance instanceof IInstanceOf)
