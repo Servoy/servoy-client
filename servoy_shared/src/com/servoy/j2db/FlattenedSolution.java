@@ -1671,60 +1671,65 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 	}
 
-	public synchronized IDataProviderLookup getDataproviderLookup(IFoundSetManagerInternal foundSetManager, final IPersist p)
+	public IDataProviderLookup getDataproviderLookup(IFoundSetManagerInternal foundSetManager, final IPersist p)
 	{
-		if (dataProviderLookups == null) dataProviderLookups = new HashMap<IPersist, IDataProviderLookup>();
-		IDataProviderLookup retval = dataProviderLookups.get(p);
-		if (retval == null)
+		IDataProviderLookup retval = null;
+		synchronized (this)
 		{
-			if (p instanceof Form)
+			if (dataProviderLookups == null) dataProviderLookups = new HashMap<IPersist, IDataProviderLookup>();
+			retval = dataProviderLookups.get(p);
+			if (retval != null) return retval;
+		}
+		if (p instanceof Form)
+		{
+			ITable t = null;
+			try
 			{
-				ITable t = null;
-				try
+				if (foundSetManager == null)
 				{
-					if (foundSetManager == null)
-					{
-						t = getTable(((Form)p).getDataSource());
-					}
-					else
-					{
-						t = foundSetManager.getTable(((Form)p).getDataSource());
-					}
+					t = getTable(((Form)p).getDataSource());
 				}
-				catch (RepositoryException e)
+				else
 				{
-					Debug.error(e);
+					t = foundSetManager.getTable(((Form)p).getDataSource());
 				}
-				retval = new FormAndTableDataProviderLookup(this, (Form)p, t);
 			}
-			else if (p instanceof Portal)
+			catch (RepositoryException e)
 			{
-				ITable t = null;
-				Relation[] relations = getRelationSequence(((Portal)p).getRelationName());
-				if (relations == null)
+				Debug.error(e);
+			}
+			retval = new FormAndTableDataProviderLookup(this, (Form)p, t);
+		}
+		else if (p instanceof Portal)
+		{
+			ITable t = null;
+			Relation[] relations = getRelationSequence(((Portal)p).getRelationName());
+			if (relations == null)
+			{
+				return null;
+			}
+			t = getTable(relations[relations.length - 1].getForeignDataSource());
+			retval = new FormAndTableDataProviderLookup(this, (Form)p.getParent(), t);
+		}
+		else
+		//solution
+		{
+			retval = new IDataProviderLookup()
+			{
+				public IDataProvider getDataProvider(String id) throws RepositoryException
+				{
+					return getGlobalDataProvider(id);
+				}
+
+				public Table getTable() throws RepositoryException
 				{
 					return null;
 				}
-				t = getTable(relations[relations.length - 1].getForeignDataSource());
-				retval = new FormAndTableDataProviderLookup(this, (Form)p.getParent(), t);
-			}
-			else
-			//solution
-			{
-				retval = new IDataProviderLookup()
-				{
-					public IDataProvider getDataProvider(String id) throws RepositoryException
-					{
-						return getGlobalDataProvider(id);
-					}
+			};
+		}
 
-					public Table getTable() throws RepositoryException
-					{
-						return null;
-					}
-				};
-			}
-
+		synchronized (this)
+		{
 			dataProviderLookups.put(p, retval);
 		}
 		return retval;
