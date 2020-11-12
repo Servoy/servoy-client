@@ -65,6 +65,8 @@ import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractFormLayoutProvider;
 import com.servoy.j2db.server.ngclient.FormElementHelper.FormComponentCache;
 import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
+import com.servoy.j2db.server.ngclient.property.FoundsetLinkedPropertyType;
+import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
@@ -154,7 +156,8 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 				sb.append(name);
 				sb.append('"');
 
-				if (pd.getPushToServer() != null && pd.getPushToServer() != PushToServerEnum.reject)
+				if (pd.getPushToServer() != null && pd.getPushToServer() != PushToServerEnum.reject &&
+					!(pd.getType() instanceof FoundsetPropertyType || pd.getType() instanceof FoundsetLinkedPropertyType))
 				{
 					sb.append(" (");
 					sb.append(name);
