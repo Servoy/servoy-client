@@ -28,7 +28,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * A javascript wrapper around a {@link ITable} object.
- * 
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSTableObject")
@@ -43,10 +43,10 @@ public class JSTableObject extends JSTable
 	 * @clonedesc js_createNewColumn(String, Number, Number, Boolean, Boolean)
 	 * @sampleas js_createNewColumn(String, Number, Number, Boolean, Boolean)
 	 *
-	 * @param columnName 
-	 * @param type 
-	 * @param length 
-	 * @param allowNull 
+	 * @param columnName
+	 * @param type
+	 * @param length
+	 * @param allowNull
 	 */
 	public JSColumnObject js_createNewColumn(String columnName, Number type, Number length, Boolean allowNull)
 	{
@@ -57,9 +57,9 @@ public class JSTableObject extends JSTable
 	 * @clonedesc js_createNewColumn(String, Number, Number, Boolean, Boolean)
 	 * @sampleas js_createNewColumn(String, Number, Number, Boolean, Boolean)
 	 *
-	 * @param columnName 
-	 * @param type 
-	 * @param length 
+	 * @param columnName
+	 * @param type
+	 * @param length
 	 */
 	public JSColumnObject js_createNewColumn(String columnName, Number type, Number length)
 	{
@@ -69,8 +69,8 @@ public class JSTableObject extends JSTable
 	/**
 	 * Creates a new column in this table. The name, type and length of the new column must be specified. For specifying the
 	 * type of the column, use the JSColumn constants. The column is not actually created in the database until this
-	 * table is synchronized with the database using the JSServer.synchronizeWithDB method. 
-	 * 
+	 * table is synchronized with the database using the JSServer.synchronizeWithDB method.
+	 *
 	 * The method returns a JSColumn instance that corresponds to the newly created column. If any error occurs and the column cannot be created, then the method
 	 * returns null.
 	 * @see JSColumnObject
@@ -96,11 +96,11 @@ public class JSTableObject extends JSTable
 	 * 	}
 	 * }
 	 *
-	 * @param columnName 
-	 * @param type 
-	 * @param length 
-	 * @param allowNull 
-	 * @param pkColumn 
+	 * @param columnName
+	 * @param type
+	 * @param length
+	 * @param allowNull
+	 * @param pkColumn
 	 */
 	public JSColumnObject js_createNewColumn(String columnName, Number type, Number length, Boolean allowNull, Boolean pkColumn)
 	{
@@ -111,7 +111,7 @@ public class JSTableObject extends JSTable
 		try
 		{
 			Column c = ((Table)getTable()).createNewColumn(DummyValidator.INSTANCE, columnName, _type, _length, _allowNull, _pkColumn);
-			return new JSColumnObject(c, getServer());
+			return new JSColumnObject(c, getServer(), getTable());
 		}
 		catch (RepositoryException e)
 		{
@@ -134,7 +134,7 @@ public class JSTableObject extends JSTable
 	 * 	}
 	 * }
 	 *
-	 * @param columnName 
+	 * @param columnName
 	 */
 	public void js_deleteColumn(String columnName)
 	{

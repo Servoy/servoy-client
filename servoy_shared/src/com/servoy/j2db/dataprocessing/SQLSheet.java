@@ -354,8 +354,9 @@ public class SQLSheet
 							{
 								try
 								{
+									IServer server = application.getSolution().getServer(table.getServerName());
 									obj = application.getScriptEngine().getScopesScope().executeGlobalFunction(globalScriptMethod.getScopeName(),
-										globalScriptMethod.getName(), null, false, false);
+										globalScriptMethod.getName(), new Object[] { new JSColumn(c, server, table) }, false, false);
 								}
 								catch (Exception e)
 								{

@@ -17,10 +17,12 @@
 
 package com.servoy.j2db.dataprocessing;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.IServer;
+import com.servoy.j2db.persistence.ITable;
 
 /**
  * Scriptable column object used when new columns are created.
@@ -36,9 +38,9 @@ public class JSColumnObject extends JSColumn
 	{
 	} // only for use JS engine
 
-	public JSColumnObject(Column column, IServer server)
+	public JSColumnObject(Column column, IServer server, ITable table)
 	{
-		super(column, server);
+		super(column, server, table);
 	}
 
 	public void js_setAllowNull(boolean allowNull)
@@ -150,8 +152,8 @@ public class JSColumnObject extends JSColumn
 
 	public void js_setRowIdentifierType(int type)
 	{
-		getColumn().setFlag(Column.PK_COLUMN, type == JSColumn.PK_COLUMN);
-		getColumn().setFlag(Column.USER_ROWID_COLUMN, type == JSColumn.ROWID_COLUMN);
+		getColumn().setFlag(IBaseColumn.PK_COLUMN, type == JSColumn.PK_COLUMN);
+		getColumn().setFlag(IBaseColumn.USER_ROWID_COLUMN, type == JSColumn.ROWID_COLUMN);
 	}
 
 	/**

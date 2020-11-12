@@ -109,6 +109,14 @@ public class MethodTemplate implements IMethodTemplate
 				"query.result.root.where.add(query.columns.employeeid.eq(args[0]));\n" + "result = databaseManager.getDataSetByQuery(query,1);\n" +
 				"}\nreturn result;\n",
 			false));
+		COMMON_TEMPLATES.put("getLookupValue", new MethodTemplate(
+			"Return a lookup value for the given column\n",
+			new MethodArgument("getLookupValue", ArgumentType.Object, //$NON-NLS-1$
+				"Return a lookup value for the given column"),
+			new MethodArgument[] { new MethodArgument("column", ArgumentType.valueOf("JSColumn"), //$NON-NLS-1$
+				"the column for which a lookup value must be generated") },
+			"return 1;", false));
+
 	}
 
 	private final MethodArgument signature;
