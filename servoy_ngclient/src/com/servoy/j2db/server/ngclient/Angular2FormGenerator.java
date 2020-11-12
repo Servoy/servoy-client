@@ -21,7 +21,11 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -50,6 +54,7 @@ import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
@@ -102,6 +107,14 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 		// no html template needed.
 		StringBuilder sb = new StringBuilder();
 		WebObjectSpecification[] specs = WebComponentSpecProvider.getSpecProviderState().getAllWebComponentSpecifications();
+		Arrays.sort(specs, new Comparator<WebObjectSpecification>()
+		{
+			@Override
+			public int compare(WebObjectSpecification o1, WebObjectSpecification o2)
+			{
+				return o1.getName().compareToIgnoreCase(o2.getName());
+			}
+		});
 		for (WebObjectSpecification spec : specs)
 		{
 			sb.append("<ng-template #");
@@ -111,26 +124,56 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 			sb.append(spec.getName());
 			sb.append(' ');
 
-			for (PropertyDescription pd : spec.getProperties().values())
+			ArrayList<PropertyDescription> specProperties = new ArrayList<>(spec.getProperties().values());
+			Collections.sort(specProperties, new Comparator<PropertyDescription>()
 			{
-				if (pd.getName().equals("anchors") || pd.getName().equals("formIndex")) continue;
-				sb.append(" [");
-				sb.append(pd.getName());
-				sb.append("]=\"state.model.");
-				sb.append(pd.getName());
+				@Override
+				public int compare(PropertyDescription o1, PropertyDescription o2)
+				{
+					return o1.getName().compareToIgnoreCase(o2.getName());
+				}
+			});
+			for (PropertyDescription pd : specProperties)
+			{
+				String name = pd.getName();
+				if (name.equals("anchors") || name.equals("formIndex")) continue;
+				if (name.equals(IContentSpecConstants.PROPERTY_ATTRIBUTES))
+				{
+					name = "servoyAttributes";
+				}
+				if (name.equals(IContentSpecConstants.PROPERTY_VISIBLE))
+				{
+					sb.append(" *ngIf=\"state.model.");
+				}
+				else
+				{
+					sb.append(" [");
+					sb.append(name);
+					sb.append("]=\"state.model.");
+				}
+				sb.append(name);
 				sb.append('"');
 
 				if (pd.getPushToServer() != null && pd.getPushToServer() != PushToServerEnum.reject)
 				{
 					sb.append(" (");
-					sb.append(pd.getName());
+					sb.append(name);
 					sb.append("Change)=\"datachange(state.name,'");
-					sb.append(pd.getName());
+					sb.append(name);
 					sb.append("',$event)\"");
 				}
 			}
 
-			for (WebObjectFunctionDefinition handler : spec.getHandlers().values())
+			ArrayList<WebObjectFunctionDefinition> handlers = new ArrayList<>(spec.getHandlers().values());
+			Collections.sort(handlers, new Comparator<WebObjectFunctionDefinition>()
+			{
+				@Override
+				public int compare(WebObjectFunctionDefinition o1, WebObjectFunctionDefinition o2)
+				{
+					return o1.getName().compareToIgnoreCase(o2.getName());
+				}
+			});
+			for (WebObjectFunctionDefinition handler : handlers)
 			{
 				sb.append(" [");
 				sb.append(handler.getName());
@@ -550,7 +593,7 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 				}
 				if (o instanceof BaseComponent)
 				{
-					writer.key("svy_attributes");
+					writer.key("servoyAttributes");
 					writer.array();
 					Map<String, String> attributes = new HashMap<String, String>(((BaseComponent)fe.getPersistIfAvailable()).getMergedAttributes());
 					attributes.forEach((key, value) -> {
