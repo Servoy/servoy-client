@@ -1296,7 +1296,7 @@ public abstract class BasicFormController
 					boolean userChoseYes = getFormUI().showYesNoQuestionDialog(application, dlgMessage, "Search"); //$NON-NLS-1$
 					if (!userChoseYes)
 					{
-						((FoundSet)formModel).browseAll(true);//this removes the findmode
+						((FoundSet)formModel).browseAllInternal();//this removes the findmode
 
 						exitFindMode();
 					}
@@ -1314,7 +1314,7 @@ public abstract class BasicFormController
 			}
 			catch (ServoyException ex)
 			{
-				((FoundSet)formModel).browseAll(true); // make sure we get nicely out of find mode; something went wrong with the performFind
+				((FoundSet)formModel).browseAllInternal(); // make sure we get nicely out of find mode; something went wrong with the performFind
 				exitFindMode();
 				throw ex;
 			}

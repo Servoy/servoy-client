@@ -420,7 +420,7 @@ public abstract class RelatedFoundSet extends FoundSet
 
 		refreshFromDBInternal(
 			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), creationSqlSelect, null, true, null, lastSortColumns, false),
-			true, false, fsm.pkChunkSize, false, false);
+			false, fsm.pkChunkSize, false, false);
 	}
 
 	@Override

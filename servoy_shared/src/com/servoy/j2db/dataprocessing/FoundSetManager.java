@@ -396,7 +396,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				if (fs.isInitialized())
 				{
-					fs.refreshFromDB(false, skipStopEdit);
+					fs.refreshFromDB(skipStopEdit);
 				}
 				affectedTables.add(fs.getTable());
 			}
@@ -541,49 +541,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public void init()
 	{
 		editRecordList.init();
-	}
-
-	/**
-	 * flushes/refreshes only related foundsets with a changed sql.
-	 *
-	 * @param caller
-	 * @param relationName
-	 * @param parentToIndexen
-	 */
-	public void flushRelatedFoundSet(IFoundSetInternal caller, String relationName)
-	{
-		ConcurrentMap<String, SoftReference<RelatedFoundSet>> hm = cachedSubStates.get(relationName);
-		if (hm != null)
-		{
-			Map.Entry<String, SoftReference<RelatedFoundSet>>[] array = hm.entrySet().toArray(EMPTY_ENTRY_ARRAY);
-			for (Map.Entry<String, SoftReference<RelatedFoundSet>> entry : array)
-			{
-				SoftReference<RelatedFoundSet> sr = entry.getValue();
-				RelatedFoundSet element = sr.get();
-				if (element != null)
-				{
-					//prevent callbacks by called test
-					if (element != caller)
-					{
-						try
-						{
-							if (!element.creationSqlSelect.equals(element.getQuerySelectForReading()))
-							{
-								element.invalidateFoundset();
-							}
-						}
-						catch (Exception e)
-						{
-							Debug.error(e);
-						}
-					}
-				}
-				else
-				{
-					hm.remove(entry.getKey(), sr);
-				}
-			}
-		}
 	}
 
 	public IFoundSetInternal getGlobalRelatedFoundSet(String name) throws RepositoryException, ServoyException
@@ -1531,13 +1488,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 						((RelatedFoundSet)fs).invalidateFoundset();
 					}
 					else if (fs instanceof ViewFoundSet)
-				{
-					((ViewFoundSet)fs).loadAllRecords();
-				}
+					{
+						((ViewFoundSet)fs).loadAllRecords();
+					}
 					else if (fs instanceof FoundSet)
-				{
-					((FoundSet)fs).refreshFromDB(false, false);
-				}
+					{
+						((FoundSet)fs).refreshFromDB(false);
+					}
 				}
 			}));
 
