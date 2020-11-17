@@ -505,11 +505,6 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 			return retval;
 		}
 
-		public void setDelegate(IRecordInternal rec)//to make calcs work
-		{
-			parent = rec.getParentFoundSet();
-		}
-
 		/**
 		 *
 		 */

@@ -55,11 +55,11 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 	$scope.${part.name}Style = ${part.style};
 	</#list>
 
-	var getExecutor = function(beanName,eventType) {
+	var getExecutor = function(beanName,eventType,ignoreNGBlockDuplicateEvents) {
 		var callExecutor = function(args, rowId) {
 			if ($scope.model && $scope.model[beanName])
 			{
-				if($uiBlocker.shouldBlockDuplicateEvents(beanName, $scope.model[beanName], eventType, rowId))
+				if(!ignoreNGBlockDuplicateEvents && $uiBlocker.shouldBlockDuplicateEvents(beanName, $scope.model[beanName], eventType, rowId))
 				{
 					// reject execution
 					console.log("Prevented duplicate  execution of: "+eventType +" on "+beanName);
@@ -119,7 +119,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 
 	$scope.handlers = {
 	<#list baseComponents as bc>
-		'${bc.name}': {"svy_servoyApi":servoyApi('${bc.name}')<#list bc.handlers as handler>,${handler}:getExecutor('${bc.name}', '${handler}')</#list>}<#if bc_has_next>,</#if>
+		'${bc.name}': {"svy_servoyApi":servoyApi('${bc.name}')<#list bc.handlersDefinitions as handler>,${handler.name}:getExecutor('${bc.name}', '${handler.name}', ${handler.ignoreNGBlockDuplicateEvents?c})</#list>}<#if bc_has_next>,</#if>
 	</#list>
 	}
 

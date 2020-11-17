@@ -165,7 +165,7 @@ public class Debug
 
 	public static void trace(String message, Throwable throwable)
 	{
-		if (log == null) return;
+		if (log == null || !trace) return;
 		if (traceClient)
 		{
 			// if trace is enable on client (trace boolean is runtime toggle)
@@ -183,7 +183,7 @@ public class Debug
 
 	public static void trace(Object s)
 	{
-		if (log == null) return;
+		if (log == null || !trace) return;
 		if (traceClient)
 		{
 			// if trace is enable on client (trace boolean is runtime toggle)

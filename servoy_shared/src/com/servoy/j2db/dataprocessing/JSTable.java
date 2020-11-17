@@ -177,7 +177,7 @@ public class JSTable implements IReturnedTypesProvider, Wrapper, IJavaScriptType
 		Column c = ((Table)table).getColumn(name);
 		if (c != null)
 		{
-			return new JSColumn(c, server);
+			return new JSColumn(c, server, table);
 		}
 		return null;
 	}

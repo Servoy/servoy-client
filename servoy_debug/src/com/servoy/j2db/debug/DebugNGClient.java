@@ -434,10 +434,13 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 		invokeLater(() -> getFormManager().showFormInMainPanel(form.getName()));
 	}
 
+	private static int showCounter = 0;
+
 	@Override
 	protected void showInfoPanel()
 	{
-		//ignore
+		if (showCounter % 10 == 0) super.showInfoPanel();
+		showCounter++;
 	}
 
 	IDesignerCallback getDesignerCallback()

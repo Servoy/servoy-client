@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.dataprocessing;
 
+import static com.servoy.j2db.util.Utils.equalObjects;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,9 +29,12 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.mozilla.javascript.JavaScriptException;
+import org.mozilla.javascript.NativeObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,9 +149,57 @@ public class EditRecordList
 
 	public IRecordInternal[] getEditedRecords(IFoundSet set, boolean removeUnchanged)
 	{
+		return getEditedRecords(recordParentFoundsetFilter(set), removeUnchanged);
+	}
+
+	public IRecordInternal[] getEditedRecords(String datasource, NativeObject filter, boolean removeUnchanged)
+	{
+		return getEditedRecords(record -> applyDatasourceAndObjectFilter(record, datasource, filter), removeUnchanged);
+	}
+
+	private static Predicate< ? super IRecordInternal> recordParentFoundsetFilter(IFoundSet set)
+	{
+		return set == null ? record -> true : record -> record.getParentFoundSet() == set;
+	}
+
+	private static boolean applyDatasourceAndObjectFilter(IRecordInternal record, String datasource, NativeObject filter)
+	{
+		if (!record.getParentFoundSet().getDataSource().equals(datasource))
+		{
+			return false;
+		}
+
+		if (filter == null)
+		{
+			return true;
+		}
+
+		return filter.entrySet().stream()
+			.filter(entry -> record.has(entry.getKey().toString()))
+			.allMatch(entry -> {
+				Object recordValue = record.getValue(entry.getKey().toString());
+				Object filterValue = entry.getValue();
+				Predicate<Object> equalsRecordValue = value -> equalObjects(value, recordValue);
+
+				if (filterValue instanceof Object[])
+				{
+					return Arrays.stream((Object[])filterValue).anyMatch(equalsRecordValue);
+				}
+
+				if (filterValue instanceof Iterable)
+				{
+					return StreamSupport.stream(((Iterable< ? >)filterValue).spliterator(), false).anyMatch(equalsRecordValue);
+				}
+
+				return equalsRecordValue.test(filterValue);
+			});
+	}
+
+	private IRecordInternal[] getEditedRecords(Predicate< ? super IRecordInternal> recordFilter, boolean removeUnchanged)
+	{
 		if (removeUnchanged)
 		{
-			removeUnChangedRecords(true, false, set);
+			removeUnChangedRecords(true, false, recordFilter);
 		}
 		List<IRecordInternal> al = new ArrayList<IRecordInternal>();
 		editRecordsLock.lock();
@@ -155,7 +208,7 @@ public class EditRecordList
 			for (int i = editedRecords.size(); --i >= 0;)
 			{
 				IRecordInternal record = editedRecords.get(i);
-				if (record.getParentFoundSet() == set)
+				if (recordFilter.test(record))
 				{
 					al.add(record);
 				}
@@ -200,7 +253,7 @@ public class EditRecordList
 		// TODO don't we have to check for any related foundset edits here as well?
 		if (testForRemoves)
 		{
-			removeUnChangedRecords(false, false, foundset);
+			removeUnChangedRecords(false, false, recordParentFoundsetFilter(foundset));
 		}
 		editRecordsLock.lock();
 		try
@@ -695,7 +748,7 @@ public class EditRecordList
 									if (pkColumn.hasFlag(IBaseColumn.UUID_COLUMN))
 									{
 										// same uuids are the same even if not the same object
-										same = Utils.equalObjects(pkObject, values[l], 0, true);
+										same = equalObjects(pkObject, values[l], 0, true);
 									}
 								}
 								if (same)
@@ -1124,7 +1177,7 @@ public class EditRecordList
 		removeUnChangedRecords(checkCalcValues, doActualRemove, null);
 	}
 
-	public void removeUnChangedRecords(boolean checkCalcValues, boolean doActualRemove, IFoundSet foundset)
+	public void removeUnChangedRecords(boolean checkCalcValues, boolean doActualRemove, Predicate< ? super IRecordInternal> recordFilter)
 	{
 		if (preparingForSave) return;
 		// Test the edited records if they are changed or not.
@@ -1141,7 +1194,7 @@ public class EditRecordList
 		for (Object element : editedRecordsArray)
 		{
 			IRecordInternal record = (IRecordInternal)element;
-			if ((foundset == null || record.getParentFoundSet() == foundset) && !testIfRecordIsChanged(record, checkCalcValues))
+			if ((recordFilter == null || recordFilter.test(record)) && !testIfRecordIsChanged(record, checkCalcValues))
 			{
 				if (doActualRemove)
 				{
