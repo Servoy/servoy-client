@@ -1810,6 +1810,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			if (id == foundset.getIDInternal()) return foundset;
 		}
+		for (ViewFoundSet foundset : viewFoundSets.values())
+		{
+			if (id == foundset.getIDInternal()) return foundset;
+		}
 		return null;
 	}
 
