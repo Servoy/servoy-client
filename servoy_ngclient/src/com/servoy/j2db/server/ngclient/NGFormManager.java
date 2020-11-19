@@ -132,6 +132,22 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		// add all forms first, they may be referred to in the login form
 		Form first = application.getFlattenedSolution().getForm(solution.getFirstFormID());
 		boolean firstFormCanBeInstantiated = application.getFlattenedSolution().formCanBeInstantiated(first);
+		if (!firstFormCanBeInstantiated)
+		{
+			Solution[] modules = application.getFlattenedSolution().getModules();
+			if (modules != null)
+			{
+				for (Solution module : modules)
+				{
+					if (module.getFirstFormID() > 0)
+					{
+						first = application.getFlattenedSolution().getForm(module.getFirstFormID());
+						firstFormCanBeInstantiated = application.getFlattenedSolution().formCanBeInstantiated(first);
+						if (firstFormCanBeInstantiated) break;
+					}
+				}
+			}
+		}
 		while (e.hasNext())
 		{
 			Form form = e.next();
