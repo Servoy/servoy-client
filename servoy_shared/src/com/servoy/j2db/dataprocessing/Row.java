@@ -72,7 +72,8 @@ public class Row
 	{
 		synchronized (listeners)
 		{
-			if (!listeners.containsKey(r)) listeners.put(r, dummy);
+			listeners.remove(r);
+			listeners.put(r, dummy);
 		}
 	}
 
