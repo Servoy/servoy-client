@@ -46,11 +46,11 @@ public abstract class ReferencePropertyType<T, RT> extends DefaultPropertyType<T
 		if (refID == null)
 		{
 			refID = createUniqueIdentifier(ref);
-			WeakReference<T> weakRef = new WeakReference<T>(ref, garbageCollectedRefQueue);
-			allWeakRefsByID.put(refID, weakRef);
-			refsToIDs.put(ref, refID);
-			allIDsByWeakRef.put(weakRef, refID);
 		}
+		WeakReference<T> weakRef = new WeakReference<T>(ref, garbageCollectedRefQueue);
+		allWeakRefsByID.put(refID, weakRef);
+		refsToIDs.put(ref, refID);
+		allIDsByWeakRef.put(weakRef, refID);
 		return refID;
 	}
 
