@@ -851,7 +851,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			{
 				if (scheduledExecutorService == null)
 				{
-					scheduledExecutorService = new ServoyScheduledExecutor(4, 1)
+					scheduledExecutorService = new ServoyScheduledExecutor(4, 1, "NGClient-" + getClientID())
 					{
 						private IServiceProvider prev;
 
