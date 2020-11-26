@@ -3414,7 +3414,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 			// validators only for changed columns (based on the raw, "unconverted" value)
 			Object oldRawValue = record.existInDataSource() ? record.getRawData().getOldRawValue(column.getDataProviderID()) : null;
-			if (!Utils.equalObjects(rawValue, oldRawValue))
+			if (!(rawValue instanceof DbIdentValue) && !Utils.equalObjects(rawValue, oldRawValue))
 			{
 				// the length check
 				int valueLen = Column.getObjectSize(rawValue, column.getType());
