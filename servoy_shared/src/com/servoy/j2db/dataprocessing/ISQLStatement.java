@@ -48,7 +48,13 @@ public interface ISQLStatement extends Serializable, ISQLActionTypes
 	 * Get the pk columns.
 	 * @return the pks
 	 */
-	public IDataSet getPKs();
+	public IDataSet[] getPKs();
+
+
+	public default IDataSet getPKs(int index)
+	{
+		return getPKs() == null ? null : getPKs()[index];
+	}
 
 	/**
 	 * Get the update.

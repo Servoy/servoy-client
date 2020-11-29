@@ -552,7 +552,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				SQLStatement trackingInfo = null;
 				if (fsm.getEditRecordList().hasAccess(sheet.getTable(), IRepository.TRACKING_VIEWS))
 				{
-					trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, sheet.getServerName(), sheet.getTable().getName(), pks, null);
+					trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, sheet.getServerName(), sheet.getTable().getName(), new IDataSet[] { pks },
+						null);
 					trackingInfo.setTrackingData(sheet.getColumnNames(), new Object[][] { }, new Object[][] { }, fsm.getApplication().getUserUID(),
 						fsm.getTrackingInfo(), fsm.getApplication().getClientID());
 				}
@@ -867,7 +868,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 							" in query " + requerySelect + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$
 				}
 			}
-			SQLStatement statement = new SQLStatement(statement_action, sheet.getServerName(), table.getName(), pks, tid, sqlUpdate,
+			SQLStatement statement = new SQLStatement(statement_action, sheet.getServerName(), table.getName(), new IDataSet[] { pks }, tid, sqlUpdate,
 				fsm.getTableFilterParams(sheet.getServerName(), sqlUpdate), requerySelect);
 			if (doesExistInDB) statement.setExpectedUpdateCount(1); // check that the row is updated (skip check for inert)
 			if (changedColumns != null)
@@ -1093,8 +1094,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				tid = gt.getTransactionID(sheet.getServerName());
 			}
 
-			SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, sheet.getServerName(), sheet.getTable().getName(), pks, tid, sqlDelete,
-				fsm.getTableFilterParams(sheet.getServerName(), sqlDelete));
+			SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, sheet.getServerName(), sheet.getTable().getName(), new IDataSet[] { pks },
+				tid, sqlDelete, fsm.getTableFilterParams(sheet.getServerName(), sqlDelete));
 			statement.setExpectedUpdateCount(1); // check that 1 record is deleted
 			stats_a[0] = statement;
 			if (tracking)
