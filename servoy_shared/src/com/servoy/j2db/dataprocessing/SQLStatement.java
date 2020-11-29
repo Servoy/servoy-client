@@ -36,7 +36,7 @@ public class SQLStatement implements ITrackingSQLStatement
 	private int action = NO_ACTION;
 	private String server_name;
 	private final String table_name;
-	private final IDataSet[] pks;//all pks which should be broadcasted
+	private final IDataSet pks;//all pks which should be broadcasted
 	private final ISQLUpdate sqlUpdate;
 	private final ArrayList<TableFilter> filters;
 	private String[] changedColumns;
@@ -64,17 +64,17 @@ public class SQLStatement implements ITrackingSQLStatement
 	 * @param sql
 	 * @param questiondata
 	 */
-	public SQLStatement(int action, String connection_name, String tableName, IDataSet[] pks, ISQLUpdate sqlUpdate)
+	public SQLStatement(int action, String connection_name, String tableName, IDataSet pks, ISQLUpdate sqlUpdate)
 	{
 		this(action, connection_name, tableName, pks, null, sqlUpdate, null);
 	}
 
-	public SQLStatement(int action, String connection_name, String tableName, IDataSet[] pks, String tid, ISQLUpdate sqlUpdate, ArrayList<TableFilter> filters)
+	public SQLStatement(int action, String connection_name, String tableName, IDataSet pks, String tid, ISQLUpdate sqlUpdate, ArrayList<TableFilter> filters)
 	{
 		this(action, connection_name, tableName, pks, tid, sqlUpdate, filters, null);
 	}
 
-	public SQLStatement(int action, String connection_name, String tableName, IDataSet[] pks, String tid, ISQLUpdate sqlUpdate, ArrayList<TableFilter> filters,
+	public SQLStatement(int action, String connection_name, String tableName, IDataSet pks, String tid, ISQLUpdate sqlUpdate, ArrayList<TableFilter> filters,
 		ISQLSelect requerySelect)
 	{
 		this.action = action;
@@ -250,12 +250,11 @@ public class SQLStatement implements ITrackingSQLStatement
 		return clientId;
 	}
 
-
 	/**
 	 * Returns the pks.
 	 * @return Object[]
 	 */
-	public IDataSet[] getPKs()
+	public IDataSet getPKs()
 	{
 		return pks;
 	}

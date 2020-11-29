@@ -48,12 +48,19 @@ public interface ISQLStatement extends Serializable, ISQLActionTypes
 	 * Get the pk columns.
 	 * @return the pks
 	 */
-	public IDataSet[] getPKs();
+	public IDataSet getPKs();
 
 
-	public default IDataSet getPKs(int index)
+	public default IDataSet getPKsRow(int row)
 	{
-		return getPKs() == null ? null : getPKs()[index];
+		IDataSet pks = getPKs();
+		if (pks == null || pks.getRowCount() == 0)
+		{
+			return null;
+		}
+		BufferedDataSet rowDataSet = new BufferedDataSet();
+		rowDataSet.addRow(pks.getRow(row));
+		return rowDataSet;
 	}
 
 	/**

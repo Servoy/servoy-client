@@ -4226,7 +4226,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					deletePKs.addRow(new Object[] { ValueFactory.createTableFlushValue() });
 				}
 				String tid = fsm.getTransactionID(table.getServerName());
-				SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), new IDataSet[] { deletePKs },
+				SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), deletePKs,
 					tid, delete_sql, fsm.getTableFilterParams(table.getServerName(), delete_sql));
 				try
 				{

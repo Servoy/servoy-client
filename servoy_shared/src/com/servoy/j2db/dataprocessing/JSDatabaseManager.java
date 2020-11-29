@@ -2679,7 +2679,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 									pks.addRow(new Object[] { ValueFactory.createTableFlushValue() });//unknown number of records changed
 
 									SQLStatement statement = new SQLStatement(ISQLActionTypes.UPDATE_ACTION, table.getServerName(), table.getName(),
-										new IDataSet[] { pks }, transaction_id, qUpdate, fsm.getTableFilterParams(table.getServerName(), qUpdate));
+										pks, transaction_id, qUpdate, fsm.getTableFilterParams(table.getServerName(), qUpdate));
 
 									updates.add(statement);
 								}
@@ -2694,7 +2694,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				QueryDelete qDelete = new QueryDelete(qTable);
 				ISQLCondition condition = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkc.queryColumn(qTable), sourceRecordPK);
 				qDelete.setCondition(condition);
-				SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, mainTable.getServerName(), mainTable.getName(), new IDataSet[] { pks },
+				SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, mainTable.getServerName(), mainTable.getName(), pks,
 					transaction_id, qDelete, fsm.getTableFilterParams(mainTable.getServerName(), qDelete));
 				statement.setExpectedUpdateCount(1); // check that the row is really deleted
 				updates.add(statement);

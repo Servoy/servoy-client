@@ -828,8 +828,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 							changedColumns[counter++] = column.getName();
 						}
 
-						SQLStatement statement = new SQLStatement(ISQLActionTypes.UPDATE_ACTION, serverName, table.getName(), new IDataSet[] { pks },
-							transaction_id, update,
+						SQLStatement statement = new SQLStatement(ISQLActionTypes.UPDATE_ACTION, serverName, table.getName(), pks, transaction_id, update,
 							manager.getTableFilterParams(serverName, update));
 						statement.setChangedColumns(changedColumns);
 						statement.setExpectedUpdateCount(1);
@@ -883,7 +882,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 					for (SQLStatement statement : statements)
 					{
 						manager.notifyDataChange(DataSourceUtils.createDBTableDataSource(statement.getServerName(), statement.getTableName()),
-							statement.getPKs(0), ISQLActionTypes.UPDATE_ACTION, statement.getChangedColumns());
+							statement.getPKsRow(0), ISQLActionTypes.UPDATE_ACTION, statement.getChangedColumns());
 					}
 
 					// if we should have refreshed before this save and it is still in refresh mode (refresh is true and no editted records anymore)
