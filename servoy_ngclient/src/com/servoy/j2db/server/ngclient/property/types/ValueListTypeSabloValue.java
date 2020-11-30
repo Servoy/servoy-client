@@ -352,8 +352,6 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 		List<Map<String, Object>> jsonValue = null;
 
-		int vlSize = (filteredValuelist != null) ? filteredValuelist.getSize() : valueList.getSize();
-		int size = Math.min(getConfig().getMaxCount(dataAdapterListToUse.getApplication()), vlSize);
 		Object dpRealValue = null;
 		Object dpDisplayValue = null;
 		boolean containsDpValue = false;
@@ -361,12 +359,16 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		{
 			Object dpvalue = dataAdapterListToUse.getValueObject(previousRecord, dataproviderID);
 			int dpindex = (filteredValuelist != null) ? filteredValuelist.realValueIndexOf(dpvalue) : valueList.realValueIndexOf(dpvalue);
+			int vlSize = (filteredValuelist != null) ? filteredValuelist.getSize() : valueList.getSize();
 			if (dpindex != -1 && (dpindex < 0 || vlSize > getConfig().getMaxCount(dataAdapterListToUse.getApplication())))
 			{
 				dpRealValue = (filteredValuelist != null) ? filteredValuelist.getRealElementAt(dpindex) : valueList.getRealElementAt(dpindex);
 				dpDisplayValue = (filteredValuelist != null) ? filteredValuelist.getElementAt(dpindex) : valueList.getElementAt(dpindex);
 			}
 		}
+		int vlSize = (filteredValuelist != null) ? filteredValuelist.getSize() : valueList.getSize();
+		int size = Math.min(getConfig().getMaxCount(dataAdapterListToUse.getApplication()), vlSize);
+
 		List<Map<String, Object>> array = new ArrayList<>(size);
 		for (int i = 0; i < size; i++)
 		{
