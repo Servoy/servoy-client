@@ -50,6 +50,19 @@ public interface ISQLStatement extends Serializable, ISQLActionTypes
 	 */
 	public IDataSet getPKs();
 
+
+	public default IDataSet getPKsRow(int row)
+	{
+		IDataSet pks = getPKs();
+		if (pks == null || pks.getRowCount() == 0)
+		{
+			return null;
+		}
+		BufferedDataSet rowDataSet = new BufferedDataSet();
+		rowDataSet.addRow(pks.getRow(row));
+		return rowDataSet;
+	}
+
 	/**
 	 * Get the update.
 	 * @return ISQLUpdate update
