@@ -1041,8 +1041,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 	protected final class ComponentDataLinkedPropertyListener implements IDataLinkedPropertyRegistrationListener
 	{
-		private final Map<IDataLinkedPropertyValue, String> oldDataLinkedValuesToRootPropertyName = new HashMap<IDataLinkedPropertyValue, String>();
-		private List<IDataLinkedPropertyValue> initiallyAddedValuesWhileComponentIsNull = new ArrayList<IDataLinkedPropertyValue>();
+		private final Map<IDataLinkedPropertyValue, String> oldDataLinkedValuesToRootPropertyName = new HashMap<IDataLinkedPropertyValue, String>(3);
+		private final List<IDataLinkedPropertyValue> initiallyAddedValuesWhileComponentIsNull = new ArrayList<IDataLinkedPropertyValue>(3);
 
 		@Override
 		public void dataLinkedPropertyRegistered(IDataLinkedPropertyValue propertyValue, TargetDataLinks targetDataLinks)
@@ -1106,7 +1106,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		{
 			for (IDataLinkedPropertyValue v : initiallyAddedValuesWhileComponentIsNull)
 				recordLinkedPropAdded(v);
-			initiallyAddedValuesWhileComponentIsNull = null;
+			initiallyAddedValuesWhileComponentIsNull.clear();
 		}
 
 	}
