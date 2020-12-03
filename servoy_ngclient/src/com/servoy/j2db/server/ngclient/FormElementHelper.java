@@ -710,6 +710,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				if (mainFormName != null)
 				{
 					flattenedForm = flattenedSolution.getFlattenedForm(flattenedSolution.getForm(mainFormName));
+					if (flattenedForm == null) return Integer.valueOf(-2); // just return the skip value if this is somehow invalid.
 				}
 			}
 			boolean formWasModifiedViaSolutionModel = flattenedSolution.hasCopy(flattenedForm);
