@@ -809,10 +809,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				List<Object> argsArray = new ArrayList<Object>();
 				statement_action = ISQLActionTypes.INSERT_ACTION;
 				sqlDesc = sheet.getSQLDescription(SQLSheet.INSERT);
-				sqlUpdate = statement == null ? (ISQLUpdate)AbstractBaseQuery.deepClone(sqlDesc.getSQLQuery()) : statement.getUpdate();
 				List<String> req = sqlDesc.getRequiredDataProviderIDs();
-
-				Debug.trace(sqlUpdate);
+				List<Column> queryColumnsToRemove = new ArrayList<Column>();
 
 				for (int i = 0; i < req.size(); i++)
 				{
@@ -823,7 +821,6 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					}
 
 					Column c = table.getColumn(dataProviderID);
-					QueryColumn queryColumn = c.queryColumn(((QueryInsert)sqlUpdate).getTable());
 					ColumnInfo ci = c.getColumnInfo();
 
 					if (c.isDBIdentity())
@@ -845,7 +842,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 							// The database has a default value, and the value is null, and this is an insert...
 							// Remove the column from the query entirely and make sure the default value is requeried from the db.
 							mustRequeryRow = true;
-							((QueryInsert)sqlUpdate).removeColumn(queryColumn);
+							queryColumnsToRemove.add(c);
 						}
 						else
 						{
@@ -869,6 +866,16 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 						}
 					}
 				}
+
+				sqlUpdate = statement == null || !queryColumnsToRemove.isEmpty() ? (ISQLUpdate)AbstractBaseQuery.deepClone(sqlDesc.getSQLQuery())
+					: statement.getUpdate();
+
+				for (Column c : queryColumnsToRemove)
+				{
+					((QueryInsert)sqlUpdate).removeColumn(c.queryColumn(((QueryInsert)sqlUpdate).getTable()));
+				}
+
+				Debug.trace(sqlUpdate);
 
 				if (statement == null)
 				{
