@@ -49,6 +49,7 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLUpdate;
+import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryDelete;
@@ -889,7 +890,6 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				}
 				else
 				{
-					// CHECKME does this work properly when there are also table/foundset filters in play?
 					Placeholder p = (Placeholder)((QueryInsert)sqlUpdate).getValues();
 					Object[][] val = (Object[][])p.getValue();
 
@@ -897,8 +897,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					//	does that need improving?
 					for (int i = 0; i < val.length; i++)
 					{
-						val[i] = Arrays.copyOf(val[i], val[i].length + 1);
-						val[i][val[i].length - 1] = argsArray.get(i);
+						val[i] = Utils.arrayAdd(val[i], argsArray.get(i), true);
 					}
 				}
 			}
@@ -951,7 +950,6 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			}
 			else
 			{
-				// CHECKME not sure if this is relevant for inserts, which are the only type of statements that do batching atm
 				if (doesExistInDB) statement.setExpectedUpdateCount(statement.getExpectedUpdateCount() + 1);
 
 				// as batching is only for inserts atm, nothing is to be done currently for changedColumns
