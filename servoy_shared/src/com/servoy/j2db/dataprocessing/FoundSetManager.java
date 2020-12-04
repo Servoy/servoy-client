@@ -188,7 +188,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		chunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.chunkSize", Integer.toString(30)));//records to be get in one roundtrip //$NON-NLS-1$
 		initialRelatedChunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.initialRelatedChunkSize", Integer.toString(chunkSize * 2))); //initial related records to get in one roundtrip//$NON-NLS-1$
 		loadRelatedRecordsIfParentIsNew = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.loadRelatedRecordsIfParentIsNew", "false")); //force-load of possible existing records in DB when initializing a related foundset when the parent is new and the relations is restricted on the rowIdentifier columns of the parent record //$NON-NLS-1$ //$NON-NLS-2$
-		statementBatching = Utils.getAsBoolean(app.getSettings().getProperty("servoy.statementBatching", "false")); // whether to batch inserts/updates for rows together in the same SQLStatement where possible
+		statementBatching = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.statementBatching", "false")); // whether to batch inserts/updates for rows together in the same SQLStatement where possible //$NON-NLS-1$ //$NON-NLS-2$
 		disableInsertsReorder = statementBatching || Utils.getAsBoolean(app.getSettings().getProperty("servoy.disable.record.insert.reorder", "false")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
