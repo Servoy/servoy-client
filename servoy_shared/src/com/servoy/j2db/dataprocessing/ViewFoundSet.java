@@ -882,8 +882,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 					for (SQLStatement statement : statements)
 					{
 						manager.notifyDataChange(DataSourceUtils.createDBTableDataSource(statement.getServerName(), statement.getTableName()),
-							statement.getPKs(),
-							ISQLActionTypes.UPDATE_ACTION, statement.getChangedColumns());
+							statement.getPKsRow(0), ISQLActionTypes.UPDATE_ACTION, statement.getChangedColumns());
 					}
 
 					// if we should have refreshed before this save and it is still in refresh mode (refresh is true and no editted records anymore)

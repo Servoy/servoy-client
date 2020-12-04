@@ -386,7 +386,8 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			{
 				ArrayList<IFoundSetInternal> newRelatedFoundsets = getRelatedFoundsets(record, relationName);
 
-				if (!newRelatedFoundsets.equals(relatedFoundsets))
+				boolean equals = testByReference(newRelatedFoundsets, this.relatedFoundsets);
+				if (!equals)
 				{
 					IDataProvider column = dp;
 					if (column instanceof ColumnWrapper)
@@ -427,8 +428,8 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			try
 			{
 				ArrayList<IRecordInternal> newRelatedRecords = getRelatedRecords(record, relationName);
-
-				if (!newRelatedRecords.equals(relatedRecords))
+				boolean equals = testByReference(newRelatedRecords, this.relatedRecords);
+				if (!equals)
 				{
 					for (IRecordInternal relatedRecord : relatedRecords)
 					{
@@ -471,6 +472,20 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		{
 			changeMonitor.valueChanged();
 		}
+	}
+
+	private boolean testByReference(List< ? > listA, List< ? > listB)
+	{
+		if (listA == null && listB != null) return false;
+		if (listA != null && listB == null) return false;
+		if (listA.size() != listB.size()) return false;
+
+		for (int i = 0; i < listA.size(); i++)
+		{
+			if (listA.get(i) != listB.get(i)) return false;
+		}
+		return true;
+
 	}
 
 	private ArrayList<IFoundSetInternal> getRelatedFoundsets(IRecordInternal record, String relName)

@@ -52,6 +52,23 @@ public class PrototypeState extends Record
 	}
 
 	@Override
+	public boolean equals(Object obj)
+	{
+		if (obj instanceof PrototypeState)
+		{
+			PrototypeState rec = (PrototypeState)obj;
+			return parent == rec.parent;
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return parent.hashCode();
+	}
+
+	@Override
 	public int stopEditing()
 	{
 		isEditing = false;

@@ -60,7 +60,7 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	@JSFunction
 	public boolean isInMemory()
 	{
-		return item.isInMemory(); // inlining casting is needed because of smart client, that doesn't have a FileItem
+		return item.isInMemory();
 	}
 
 	/**

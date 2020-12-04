@@ -67,7 +67,8 @@ public class PerformanceAggregator
 	/**
 	 * Please use {@link #startAction(String, long, int)} / {@link #endAction(UUID)} / {@link #intervalAction(UUID)} whenever possible instead.
 	 */
-	public synchronized void addTiming(String action, long interval_ms, long total_ms, int type, Map<String, PerformanceTimingAggregate> subActionTimings)
+	public synchronized void addTiming(String action, long interval_ms, long total_ms, int type, Map<String, PerformanceTimingAggregate> subActionTimings,
+		int nrecords)
 	{
 		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return;
 
@@ -85,8 +86,8 @@ public class PerformanceAggregator
 		sortedAggregates.remove(time);
 
 		// update obj
-		time.updateTime(interval_ms, total_ms);
-		time.updateSubActionTimes(subActionTimings);
+		time.updateTime(interval_ms, total_ms, nrecords);
+		time.updateSubActionTimes(subActionTimings, nrecords);
 
 		// do sort again
 		sortedAggregates.add(time);

@@ -741,7 +741,12 @@ public class NGClientEntryFilter extends WebEntry
 			ipaddr = request.getRemoteAddr();
 		}
 		variableSubstitution.put("ipaddr", ipaddr);
-		variableSubstitution.put("hostaddr", request.getRemoteHost());
+		String remoteHost = request.getHeader("X-Forwarded-Host"); // in case there is a forwarding proxy
+		if (remoteHost == null)
+		{
+			remoteHost = request.getRemoteHost();
+		}
+		variableSubstitution.put("hostaddr", remoteHost);
 
 		// push some translations to the client, in case the client cannot connect back
 		JSONObject defaultTranslations = new JSONObject();

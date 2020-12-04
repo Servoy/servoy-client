@@ -317,12 +317,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		// don't do it in refreshFromDb because then
 		// the omits can be cleared if there is a refresh
 		// from db coming from outside or a search that has no results.
-		browseAll(initialized, true);
+		browseAllInternal(true);
 	}
 
-	public void browseAll(boolean flushRelatedFS) throws ServoyException
+	public void browseAllInternal() throws ServoyException
 	{
-		browseAll(flushRelatedFS, false);
+		browseAllInternal(false);
 	}
 
 	/**
@@ -335,7 +335,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return query.hasAnyCondition() || (sheet != null && fsm.getTableFilterParams(sheet.getServerName(), query) != null);
 	}
 
-	public void browseAll(boolean flushRelatedFS, boolean clearOmit) throws ServoyException
+	public void browseAllInternal(boolean clearOmit) throws ServoyException
 	{
 		if (sheet == null || sheet.getTable() == null) return;
 
@@ -352,8 +352,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		// do get the sql select with the omitted pks, else a find that didn't get anything will not
 		// just display the records without the omitted pks (when clear omit is false)
 		refreshFromDBInternal(
-			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), creationSqlSelect, null, true, omittedPKs, lastSortColumns, true),
-			flushRelatedFS, false, fsm.pkChunkSize, false, false);
+			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), creationSqlSelect, null, true, omittedPKs, lastSortColumns, true), false,
+			fsm.pkChunkSize, false, false);
 	}
 
 	protected void clearOmit(QuerySelect sqlSelect)
@@ -376,7 +376,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		try
 		{
-			refreshFromDB(true, false);
+			refreshFromDB(false);
 		}
 		catch (ServoyException e)
 		{
@@ -387,12 +387,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * browse all part which can be used by subclasses this also acts as refresh and performs the pk query (again) can be called on any thread
 	 *
-	 * @param flushRelatedFS
 	 * @param skipStopEdit
 	 */
-	void refreshFromDB(boolean flushRelatedFS, boolean skipStopEdit) throws ServoyException
+	void refreshFromDB(boolean skipStopEdit) throws ServoyException
 	{
-		refreshFromDBInternal(null, flushRelatedFS, true, fsm.pkChunkSize, false, skipStopEdit);
+		refreshFromDBInternal(null, true, fsm.pkChunkSize, false, skipStopEdit);
 	}
 
 	/**
@@ -402,7 +401,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @param flushRelatedFS
 	 * @param skipStopEdit
 	 */
-	protected void refreshFromDBInternal(QuerySelect sqlSelect, boolean flushRelatedFS, boolean dropSort, int rowsToRetrieve, boolean keepPkOrder,
+	protected void refreshFromDBInternal(QuerySelect sqlSelect, boolean dropSort, int rowsToRetrieve, boolean keepPkOrder,
 		boolean skipStopEdit) throws ServoyException
 	{
 		if (fsm.getDataServer() == null)
@@ -488,26 +487,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		initialized = true;
-
-		if (flushRelatedFS)
-		{
-			// Do not flush related foundsets during execution of current script, selected record may not be stable
-			fsm.getApplication().invokeLater(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					try
-					{
-						flushRelatedFoundsets();
-					}
-					catch (RepositoryException e)
-					{
-						Debug.error(e);
-					}
-				}
-			});
-		}
 
 		clearInternalState(true);
 
@@ -598,17 +577,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				setSelectedIndex(selectedIndex);
 			}
 		}
-	}
-
-	private void flushRelatedFoundsets() throws RepositoryException
-	{
-		for (Relation r : iterate(fsm.getApplication().getFlattenedSolution().getRelations(sheet.getTable(), true, false)))
-		{
-			fsm.flushRelatedFoundSet(FoundSet.this, r.getName());
-		}
-		EditRecordList editRecordList = getFoundSetManager().getEditRecordList();
-		editRecordList.getFoundsetEventMap().remove(this);
-		editRecordList.fireEvents();
 	}
 
 	public boolean hasAccess(int access)
@@ -2480,7 +2448,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			set.getRowCount() > 0)
 		{
 			fireDifference(sizeBefore, sizeAfter);
-			refreshFromDBInternal(null, false, true, set.getRowCount(), true, false); // some PKs in the set may not be valid for the current filters
+			refreshFromDBInternal(null, true, set.getRowCount(), true, false); // some PKs in the set may not be valid for the current filters
 		}
 		else
 		{
@@ -4258,8 +4226,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					deletePKs.addRow(new Object[] { ValueFactory.createTableFlushValue() });
 				}
 				String tid = fsm.getTransactionID(table.getServerName());
-				SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), deletePKs, tid, delete_sql,
-					fsm.getTableFilterParams(table.getServerName(), delete_sql));
+				SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), deletePKs,
+					tid, delete_sql, fsm.getTableFilterParams(table.getServerName(), delete_sql));
 				try
 				{
 					Object[] results = fsm.getDataServer().performUpdates(fsm.getApplication().getClientID(), new ISQLStatement[] { statement });
@@ -6721,7 +6689,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public void setSQLSelect(QuerySelect select) throws Exception
 	{
-		refreshFromDBInternal(select, false, false, fsm.pkChunkSize, false, false);
+		refreshFromDBInternal(select, false, fsm.pkChunkSize, false, false);
 	}
 
 	public boolean addFilterParam(String filterName, String dataprovider, String operator, Object value) throws ServoyException
@@ -6737,7 +6705,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return false;
 		}
 
-		fsm.getSQLGenerator();
 		// create condition to check filter
 		QueryFilter filtercondition = SQLGenerator.createTableFiltercondition(creationSqlSelect.getTable(), sheet.getTable(),
 			dataproviderTableFilterdefinition);

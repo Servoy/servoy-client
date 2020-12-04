@@ -23,10 +23,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -823,8 +825,8 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 									}
 								}
 							}
-							addFormComponentProperties(formComponentProperties, formElement, specification, flattenedSolution, cachedTabSeq, selected,
-								listFormComponentElements, design);
+							addFormComponentProperties(formComponentProperties, formElement, flattenedSolution, cachedTabSeq, selected,
+								listFormComponentElements, design, new HashSet<String>());
 						}
 					}
 					else if (formElement instanceof ISupportTabSeq)
@@ -884,9 +886,9 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		}
 	}
 
-	public void addFormComponentProperties(Collection<PropertyDescription> formComponentProperties, IFormElement formElement,
-		WebObjectSpecification specification, FlattenedSolution flattenedSolution, Map<TabSeqProperty, Integer> cachedTabSeq, List<TabSeqProperty> selected,
-		List<TabSeqProperty> listFormComponentElements, boolean design)
+	private void addFormComponentProperties(Collection<PropertyDescription> formComponentProperties, IFormElement formElement,
+		FlattenedSolution flattenedSolution, Map<TabSeqProperty, Integer> cachedTabSeq, List<TabSeqProperty> selected,
+		List<TabSeqProperty> listFormComponentElements, boolean design, Set<String> recursionCheck)
 	{
 		if (formComponentProperties != null && formComponentProperties.size() > 0)
 		{
@@ -898,6 +900,12 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				Object frmValue = formComponentEl.getPropertyValue(property.getName());
 				Form frm = FormComponentPropertyType.INSTANCE.getForm(frmValue, flattenedSolution);
 				if (frm == null) continue;
+
+				if (!recursionCheck.add(frm.getName()))
+				{
+					Debug.error("recursive reference found between (List)FormComponents: " + recursionCheck); //$NON-NLS-1$
+					continue;
+				}
 
 				// do not use the formcomponentcache, we do not want formelement with wrong tabseq to be cached, must caclulate first the sequence
 				List<IFormElement> elements = generateFormComponentPersists(formComponentEl, property, (JSONObject)frmValue, frm, flattenedSolution);
@@ -951,11 +959,12 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 							}
 
 							nestedProperties = nestedSpecification.getProperties(FormComponentPropertyType.INSTANCE);
-							addFormComponentProperties(nestedProperties, element, nestedSpecification, flattenedSolution, cachedTabSeq, selected,
-								listFormComponentElements, design);
+							addFormComponentProperties(nestedProperties, element, flattenedSolution, cachedTabSeq, selected,
+								listFormComponentElements, design, recursionCheck);
 						}
 					}
 				}
+				recursionCheck.remove(frm.getName());
 			}
 		}
 	}

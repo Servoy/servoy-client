@@ -434,7 +434,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	public void setExtendsID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
-		if (arg <= 0 && !isResponsiveLayout() && !hasPart(Part.BODY))
+		if (arg <= 0 && !isResponsiveLayout() && !hasPart(Part.BODY) && !hasPart(0))
 		{
 			//when extends form property is set to -none-
 			//we copy the body part from the parent
@@ -457,6 +457,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 			if (body != null)
 			{
 				Part clonedBody = (Part)body.clonePersist(this);
+				clonedBody.resetUUID();
 				clonedBody.setExtendsID(0);
 			}
 		}

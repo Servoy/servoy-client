@@ -23,7 +23,6 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Simple {@link ThreadPoolExecutor} executor that works around the fact that java 5 can't grow or shrink core threads.
@@ -50,14 +49,14 @@ public class ServoyThreadPoolExecutor extends ThreadPoolExecutor
 	 */
 	public ServoyThreadPoolExecutor(int maximumPoolSize, String name, boolean daemonThreads)
 	{
-		this(1, maximumPoolSize, 10, TimeUnit.SECONDS, new RejectingLinkedBlockingQueue(), new DefaultThreadFactory(name, daemonThreads),
+		this(1, maximumPoolSize, 10, TimeUnit.SECONDS, new RejectingLinkedBlockingQueue(), new NamedThreadFactory(name, daemonThreads),
 			new ReentryRejectedExecutionHandler());
 	}
 
 
 	public ServoyThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, String threadName, boolean daemonThreads)
 	{
-		this(corePoolSize, maximumPoolSize, keepAliveTime, unit, new RejectingLinkedBlockingQueue(), new DefaultThreadFactory(threadName, daemonThreads),
+		this(corePoolSize, maximumPoolSize, keepAliveTime, unit, new RejectingLinkedBlockingQueue(), new NamedThreadFactory(threadName, daemonThreads),
 			new ReentryRejectedExecutionHandler());
 	}
 
@@ -94,32 +93,6 @@ public class ServoyThreadPoolExecutor extends ThreadPoolExecutor
 		{
 			if (executor != null && executor.getPoolSize() < executor.getMaximumPoolSize()) return false;
 			return super.offer(e);
-		}
-	}
-
-	private static class DefaultThreadFactory implements ThreadFactory
-	{
-		static final AtomicInteger poolNumber = new AtomicInteger(1);
-		final ThreadGroup group;
-		final AtomicInteger threadNumber = new AtomicInteger(1);
-		final String namePrefix;
-		final boolean daemonThreads;
-
-		@SuppressWarnings("nls")
-		DefaultThreadFactory(String name, boolean daemonThreads)
-		{
-			this.daemonThreads = daemonThreads;
-			SecurityManager s = System.getSecurityManager();
-			group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-			namePrefix = (name == null ? "servoy-pool-" : name) + poolNumber.getAndIncrement() + "-thread-";
-		}
-
-		public Thread newThread(Runnable r)
-		{
-			Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
-			t.setDaemon(daemonThreads);
-			if (t.getPriority() != Thread.NORM_PRIORITY) t.setPriority(Thread.NORM_PRIORITY);
-			return t;
 		}
 	}
 }

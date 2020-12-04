@@ -240,7 +240,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 				fs.addFilterParam("valueList.nameColumn", NAME_COLUMN, "=", valueList.getName()); //$NON-NLS-1$
 			}
 
-			fs.browseAll(false);//we do nothing with related foundsets so don't touch these
+			fs.browseAllInternal();//we do nothing with related foundsets so don't touch these
 
 			// browse all could trigger also a fill
 			if (isLoaded) return;
