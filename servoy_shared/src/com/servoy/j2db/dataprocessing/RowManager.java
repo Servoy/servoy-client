@@ -867,7 +867,12 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					}
 				}
 
-				sqlUpdate = statement == null || !queryColumnsToRemove.isEmpty() ? (ISQLUpdate)AbstractBaseQuery.deepClone(sqlDesc.getSQLQuery())
+				if (!queryColumnsToRemove.isEmpty())
+				{
+					statement = null;
+				}
+
+				sqlUpdate = statement == null ? (ISQLUpdate)AbstractBaseQuery.deepClone(sqlDesc.getSQLQuery())
 					: statement.getUpdate();
 
 				for (Column c : queryColumnsToRemove)
