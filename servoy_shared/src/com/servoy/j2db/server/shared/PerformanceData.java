@@ -55,7 +55,12 @@ public class PerformanceData extends PerformanceAggregator
 		if (timing != null) timing.setIntervalTime();
 	}
 
-	public synchronized void endAction(UUID uuid)
+	public void endAction(UUID uuid)
+	{
+		endAction(uuid, 1);
+	}
+
+	public synchronized void endAction(UUID uuid, int nrecords)
 	{
 		if (maxEntriesToKeep == IPerformanceRegistry.OFF || uuid == null) return;
 
@@ -66,7 +71,7 @@ public class PerformanceData extends PerformanceAggregator
 			{
 				log.info(timing.getClientUUID() + '|' + timing.getAction() + '|' + timing.getRunningTimeMS() + '|' + timing.getIntervalTimeMS());
 			}
-			addTiming(timing.getAction(), timing.getIntervalTimeMS(), timing.getRunningTimeMS(), timing.getType(), timing.toMap());
+			addTiming(timing.getAction(), timing.getIntervalTimeMS(), timing.getRunningTimeMS(), timing.getType(), timing.toMap(), nrecords);
 		}
 		startedTimingUUIDsStack.pop();
 	}
