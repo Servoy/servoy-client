@@ -86,12 +86,9 @@ public class EditRecordList
 	private final Map<IRecordInternal, List<IPrepareForSave>> recordTested = Collections.synchronizedMap(new HashMap<IRecordInternal, List<IPrepareForSave>>()); //tested for form.OnRecordEditStop event
 	private boolean preparingForSave;
 
-	private final boolean disableInsertsReorder;
-
 	public EditRecordList(FoundSetManager fsm)
 	{
 		this.fsm = fsm;
-		disableInsertsReorder = Utils.getAsBoolean(fsm.getApplication().getSettings().getProperty("servoy.disable.record.insert.reorder", "false")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public IRecordInternal[] getFailedRecords()
@@ -712,7 +709,7 @@ public class EditRecordList
 			}
 
 			RowUpdateInfo[] infos = rowUpdates.toArray(new RowUpdateInfo[rowUpdates.size()]);
-			if (infos.length > 1 && !disableInsertsReorder)
+			if (infos.length > 1 && !fsm.disableInsertsReorder)
 			{
 				// search if there are new row pks used that are
 				// used in records before this record and sort it based on that.
