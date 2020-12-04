@@ -793,7 +793,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				{
 					Row previousRow = previous.getRow();
 
-					if (previousRow.getRowManager() == this)
+					if (previousRow.getRowManager() == this && previousRow.existInDB() == doesExistInDB)
 					{
 						statement = (SQLStatement)previous.getISQLStatement();
 
