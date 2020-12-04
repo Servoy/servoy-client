@@ -61,17 +61,17 @@ public class PerformanceTimingAggregate extends PerformanceAggregator
 		this.total_interval_ms = copy.getTotalIntervalTimeMS();
 	}
 
-	public void updateTime(long interval_ms, long running_ms)
+	public void updateTime(long interval_ms, long running_ms, int nrecords)
 	{
 		total_interval_ms += interval_ms;
 		xtotal_ms += running_ms;
 		min_ms = count == 0 ? running_ms : Math.min(min_ms, running_ms);
 		max_ms = count == 0 ? running_ms : Math.max(max_ms, running_ms);
 		s2 += (running_ms * running_ms);
-		count++;
+		count += nrecords;
 	}
 
-	public void updateSubActionTimes(Map<String, PerformanceTimingAggregate> newSubActionTimings)
+	public void updateSubActionTimes(Map<String, PerformanceTimingAggregate> newSubActionTimings, int nrecords)
 	{
 		long it = 0, rt = 0;
 		if (newSubActionTimings != null)
@@ -79,7 +79,7 @@ public class PerformanceTimingAggregate extends PerformanceAggregator
 			for (Entry<String, PerformanceTimingAggregate> newE : newSubActionTimings.entrySet())
 			{
 				PerformanceTimingAggregate newSubTime = newE.getValue();
-				addTiming(newE.getKey(), newSubTime.getTotalIntervalTimeMS(), newSubTime.getTotalTimeMS(), newSubTime.getType(), newSubTime.toMap());
+				addTiming(newE.getKey(), newSubTime.getTotalIntervalTimeMS(), newSubTime.getTotalTimeMS(), newSubTime.getType(), newSubTime.toMap(), nrecords);
 				if (newSubTime.getType() != IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT)
 				{
 					if (totalSubActionTimes == null)
@@ -97,7 +97,7 @@ public class PerformanceTimingAggregate extends PerformanceAggregator
 
 		if (totalSubActionTimes != null)
 		{
-			totalSubActionTimes.updateTime(it, rt); // it can happen that if in one parent method execution there are no child API calls, min will become 0 - that is normal
+			totalSubActionTimes.updateTime(it, rt, nrecords); // it can happen that if in one parent method execution there are no child API calls, min will become 0 - that is normal
 		}
 	}
 
