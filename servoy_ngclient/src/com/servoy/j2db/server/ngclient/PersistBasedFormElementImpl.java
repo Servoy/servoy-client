@@ -57,7 +57,6 @@ import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyJSONObject;
 
@@ -98,7 +97,7 @@ class PersistBasedFormElementImpl
 			{
 				attributes.forEach((key, value) -> {
 					if (value != null && key != null)
-						parsedAttributes.put(StringEscapeUtils.escapeEcmaScript(key), HtmlUtils.escapeMarkup(value, false, false).toString());
+						parsedAttributes.put(StringEscapeUtils.escapeEcmaScript(key), value);
 				});
 			}
 		}
