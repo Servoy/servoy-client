@@ -103,6 +103,7 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 		this.realFormName = realFormName;
 	}
 
+	@SuppressWarnings("nls")
 	@Override
 	public String generateHTMLTemplate()
 	{
@@ -119,101 +120,116 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 		});
 		for (WebObjectSpecification spec : specs)
 		{
-			sb.append("<ng-template #");
-			sb.append(ClientService.convertToJSName(spec.getName()));
-			sb.append(" let-state=\"state\">");
-			sb.append('<');
-			sb.append(spec.getName());
-			sb.append(' ');
-
-			ArrayList<PropertyDescription> specProperties = new ArrayList<>(spec.getProperties().values());
-			Collections.sort(specProperties, new Comparator<PropertyDescription>()
+			genereateSpec(sb, spec, spec.getName());
+			if (spec.getName().equals("servoydefault-tabpanel"))
 			{
-				@Override
-				public int compare(PropertyDescription o1, PropertyDescription o2)
-				{
-					return o1.getName().compareToIgnoreCase(o2.getName());
-				}
-			});
-			for (PropertyDescription pd : specProperties)
-			{
-				String name = pd.getName();
-				if (name.equals("anchors") || name.equals("formIndex")) continue;
-				if (name.equals(IContentSpecConstants.PROPERTY_ATTRIBUTES))
-				{
-					name = "servoyAttributes";
-				}
-				if (name.equals(IContentSpecConstants.PROPERTY_VISIBLE))
-				{
-					sb.append(" *ngIf=\"state.model.");
-				}
-				else
-				{
-					sb.append(" [");
-					sb.append(name);
-					sb.append("]=\"state.model.");
-				}
-				sb.append(name);
-				sb.append('"');
-
-				if (pd.getPushToServer() != null && pd.getPushToServer() != PushToServerEnum.reject &&
-					!(pd.getType() instanceof FoundsetPropertyType || pd.getType() instanceof FoundsetLinkedPropertyType))
-				{
-					sb.append(" (");
-					sb.append(name);
-					sb.append("Change)=\"datachange(state.name,'");
-					sb.append(name);
-					sb.append("',$event)\"");
-				}
+				// also generate the tabless
+				genereateSpec(sb, spec, "servoydefault-tablesspanel");
 			}
-
-			ArrayList<WebObjectFunctionDefinition> handlers = new ArrayList<>(spec.getHandlers().values());
-			Collections.sort(handlers, new Comparator<WebObjectFunctionDefinition>()
-			{
-				@Override
-				public int compare(WebObjectFunctionDefinition o1, WebObjectFunctionDefinition o2)
-				{
-					return o1.getName().compareToIgnoreCase(o2.getName());
-				}
-			});
-			for (WebObjectFunctionDefinition handler : handlers)
-			{
-				sb.append(" [");
-				sb.append(handler.getName());
-				sb.append("]=\"getHandler(state,'");
-				sb.append(handler.getName());
-				sb.append("')\"");
-			}
-			sb.append(" [servoyApi]=\"getServoyApi(state)\"");
-			sb.append(" [name]=\"state.name\" #cmp");
-			sb.append(">");
-			Collection<PropertyDescription> properties = spec.getProperties(FormPropertyType.INSTANCE);
-			if (properties.size() == 0)
-			{
-				Map<String, IPropertyType< ? >> declaredCustomObjectTypes = spec.getDeclaredCustomObjectTypes();
-				for (IPropertyType< ? > pt : declaredCustomObjectTypes.values())
-				{
-					if (pt instanceof CustomJSONPropertyType< ? >)
-					{
-						PropertyDescription customJSONSpec = ((CustomJSONPropertyType< ? >)pt).getCustomJSONTypeDefinition();
-						properties = customJSONSpec.getProperties(FormPropertyType.INSTANCE);
-						if (properties.size() > 0) break;
-					}
-				}
-			}
-			if (properties.size() > 0)
-			{
-				sb.append("<ng-template let-name='name'><svy-form *ngIf=\"isFormAvailable(name)\" [name]=\"name\"></svy-form></ng-template>");
-			}
-			sb.append("</");
-			sb.append(spec.getName());
-			sb.append(">");
-
-			sb.append("</ng-template>\n");
 
 		}
 		System.err.println(sb.toString());
 		return "";
+	}
+
+	/**
+	 * @param sb
+	 * @param spec
+	 * @param specName
+	 */
+	private void genereateSpec(StringBuilder sb, WebObjectSpecification spec, String specName)
+	{
+		sb.append("<ng-template #");
+		sb.append(ClientService.convertToJSName(specName));
+		sb.append(" let-state=\"state\">");
+		sb.append('<');
+		sb.append(specName);
+		sb.append(' ');
+
+		ArrayList<PropertyDescription> specProperties = new ArrayList<>(spec.getProperties().values());
+		Collections.sort(specProperties, new Comparator<PropertyDescription>()
+		{
+			@Override
+			public int compare(PropertyDescription o1, PropertyDescription o2)
+			{
+				return o1.getName().compareToIgnoreCase(o2.getName());
+			}
+		});
+		for (PropertyDescription pd : specProperties)
+		{
+			String name = pd.getName();
+			if (name.equals("anchors") || name.equals("formIndex")) continue;
+			if (name.equals(IContentSpecConstants.PROPERTY_ATTRIBUTES))
+			{
+				name = "servoyAttributes";
+			}
+			if (name.equals(IContentSpecConstants.PROPERTY_VISIBLE))
+			{
+				sb.append(" *ngIf=\"state.model.");
+			}
+			else
+			{
+				sb.append(" [");
+				sb.append(name);
+				sb.append("]=\"state.model.");
+			}
+			sb.append(name);
+			sb.append('"');
+
+			if (pd.getPushToServer() != null && pd.getPushToServer() != PushToServerEnum.reject &&
+				!(pd.getType() instanceof FoundsetPropertyType || pd.getType() instanceof FoundsetLinkedPropertyType))
+			{
+				sb.append(" (");
+				sb.append(name);
+				sb.append("Change)=\"datachange(state.name,'");
+				sb.append(name);
+				sb.append("',$event)\"");
+			}
+		}
+
+		ArrayList<WebObjectFunctionDefinition> handlers = new ArrayList<>(spec.getHandlers().values());
+		Collections.sort(handlers, new Comparator<WebObjectFunctionDefinition>()
+		{
+			@Override
+			public int compare(WebObjectFunctionDefinition o1, WebObjectFunctionDefinition o2)
+			{
+				return o1.getName().compareToIgnoreCase(o2.getName());
+			}
+		});
+		for (WebObjectFunctionDefinition handler : handlers)
+		{
+			sb.append(" [");
+			sb.append(handler.getName());
+			sb.append("]=\"getHandler(state,'");
+			sb.append(handler.getName());
+			sb.append("')\"");
+		}
+		sb.append(" [servoyApi]=\"getServoyApi(state)\"");
+		sb.append(" [name]=\"state.name\" #cmp");
+		sb.append(">");
+		Collection<PropertyDescription> properties = spec.getProperties(FormPropertyType.INSTANCE);
+		if (properties.size() == 0)
+		{
+			Map<String, IPropertyType< ? >> declaredCustomObjectTypes = spec.getDeclaredCustomObjectTypes();
+			for (IPropertyType< ? > pt : declaredCustomObjectTypes.values())
+			{
+				if (pt instanceof CustomJSONPropertyType< ? >)
+				{
+					PropertyDescription customJSONSpec = ((CustomJSONPropertyType< ? >)pt).getCustomJSONTypeDefinition();
+					properties = customJSONSpec.getProperties(FormPropertyType.INSTANCE);
+					if (properties.size() > 0) break;
+				}
+			}
+		}
+		if (properties.size() > 0)
+		{
+			sb.append("<ng-template let-name='name'><svy-form *ngIf=\"isFormAvailable(name)\" [name]=\"name\"></svy-form></ng-template>");
+		}
+		sb.append("</");
+		sb.append(specName);
+		sb.append(">");
+
+		sb.append("</ng-template>\n");
 	}
 
 	@SuppressWarnings("nls")
@@ -429,6 +445,7 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 			}
 		}
 
+		@SuppressWarnings("nls")
 		@Override
 		public Object visit(IPersist o)
 		{
@@ -498,10 +515,10 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 					{
 						String top = position.top;
 						Point location = CSSPositionUtils.getLocation((BaseComponent)o);
-						Part part = form.getPartAt(location.y);
-						if (part != null)
+						Part prt = form.getPartAt(location.y);
+						if (prt != null)
 						{
-							int topStart = form.getPartStartYPos(part.getID());
+							int topStart = form.getPartStartYPos(prt.getID());
 							if (topStart > 0)
 							{
 								if (top.endsWith("px"))
@@ -643,7 +660,7 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 								Form frm = FormComponentPropertyType.INSTANCE.getForm(propertyValue, context.getSolution());
 								if (frm == null) continue;
 								isResponsive = frm.isResponsiveLayout();
-								FormComponentCache cache = FormElementHelper.INSTANCE.getFormComponentCache(fe, pd,
+								FormComponentCache fccc = FormElementHelper.INSTANCE.getFormComponentCache(fe, pd,
 									(JSONObject)propertyValue, frm,
 									context.getSolution());
 								if (isResponsive)
@@ -655,7 +672,7 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 										public FormElement getFormElement(IFormElement component, FlattenedSolution flattendSol, PropertyPath path,
 											boolean design)
 										{
-											for (FormElement formElement : cache.getFormComponentElements())
+											for (FormElement formElement : fccc.getFormComponentElements())
 											{
 												if (component.getID() == formElement.getPersistIfAvailable().getID())
 												{
@@ -668,7 +685,7 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 								}
 								else
 								{
-									for (FormElement element : cache.getFormComponentElements())
+									for (FormElement element : fccc.getFormComponentElements())
 									{
 										IFormElement persistOfElement = (IFormElement)element.getPersistIfAvailable();
 										persistOfElement.acceptVisitor(new ChildrenJSONGenerator(writer, context, null, null, null));
@@ -714,19 +731,6 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 			}
 			return IPersistVisitor.CONTINUE_TRAVERSAL;
 		}
-
-		/**
-		 * @param convertToJSName
-		 * @return
-		 */
-		private String mapOnDefaultForDebug(String typeName)
-		{ // Didn't remove this method completely, we might use it later.
-			switch (typeName)
-			{
-			}
-			return typeName;
-		}
 	}
-
 }
 
