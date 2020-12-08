@@ -46,7 +46,7 @@ public class JLessCompiler
 		String css = null;
 		try
 		{
-			css = Less.compile(new URL("http://localhost"), text, Collections.singletonMap(Less.REWRITE_URLS, "local"), new ReaderFactory()
+			css = Less.compile(new URL("http://localhost"), text, Collections.singletonMap(Less.REWRITE_URLS, "all"), new ReaderFactory()
 			{
 				@Override
 				public Reader create(URL url) throws IOException
