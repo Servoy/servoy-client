@@ -75,7 +75,6 @@ import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.ngclient.template.FormTemplateObjectWrapper;
 import com.servoy.j2db.server.ngclient.template.FormWrapper;
 import com.servoy.j2db.server.ngclient.template.PartWrapper;
-import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Utils;
 
@@ -623,7 +622,7 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 						if (value != null && value.length() > 0)
 						{
 							writer.key("value");
-							writer.value(HtmlUtils.escapeMarkup(value, false, false));
+							writer.value(value);
 						}
 						writer.endObject();
 					});
