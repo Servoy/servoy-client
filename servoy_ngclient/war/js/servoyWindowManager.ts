@@ -567,6 +567,12 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 					}
 				},
 				setUndecorated: function( name, undecorated ) {
+                    const currentWindow = 'window' + windowCounter;
+                    if (webStorage.session.has(currentWindow)) {
+                        let window = webStorage.session.get(currentWindow);
+                        window.undecorated = undecorated;
+                        webStorage.session.set(currentWindow, window);
+                    }
 					if ( instances[name] ) {
 						instances[name].undecorated = undecorated;
 					}
@@ -765,6 +771,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
         	                $windowService.create(window.name, window.type);
         	                $windowService.switchForm(window.name, window.switchForm, window.navigatorForm);
         	                $windowService.setTitle(window.name, window.title);
+        	                $windowService.setUndecorated(window.name, window.undecorated);
         	                $windowService.show(window.name, window.showForm, window.showTitle);
         	                $windowService.setCSSClassName(window.name, window.cssClassName);
     						counter++;
