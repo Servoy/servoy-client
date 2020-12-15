@@ -1047,9 +1047,9 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					}
 
 					function createRows() {
-                        numberOfCells = scope.responsivePageSize;
+                        numberOfCells = svyServoyApi.isInAbsoluteLayout() ? 0 : scope.responsivePageSize;
                         if (numberOfCells <= 0 ) {
-                        	if (scope.svyFormComponent.absoluteLayout) {
+                        	if (svyServoyApi.isInAbsoluteLayout()) {
 		                        const parentWidth = parent.outerWidth();
 		                        const parentHeight = parent.outerHeight();
 		                        const height = scope.svyFormComponent.formHeight;
@@ -1061,7 +1061,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		                        if (numberOfCells < 1) numberOfCells = 1;
                         	}
                         	else {
-                        		parent.append(angular.element("<span>responsivePageSize property must be set when using a responsive form component</span>"));
+                        		parent.append(angular.element("<span>responsivePageSize property must be set when using a list form component in a responsive form</span>"));
                         		return;
                         	}
                         }
