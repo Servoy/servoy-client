@@ -60,6 +60,7 @@ import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
+import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
@@ -688,7 +689,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		removeRecordDependentProperties(runtimeProperties);
 		removeRecordDependentProperties(formElementProperties);
 
-		final FormElementContext formElementContext = new FormElementContext(fe);
+		IWebFormUI parent = childComponent.findParent(IWebFormUI.class);
+		final FormElementContext formElementContext = new FormElementContext(fe, new ServoyDataConverterContext(parent.getController()), null);
 		componentPropertyType.writeTemplateJSONContent(writer, formElementValue, forFoundsetTypedPropertyName, formElementContext, new IModelWriter()
 		{
 

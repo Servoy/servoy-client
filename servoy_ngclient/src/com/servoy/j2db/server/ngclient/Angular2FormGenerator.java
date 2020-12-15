@@ -65,12 +65,14 @@ import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractFormLayoutProvider;
 import com.servoy.j2db.server.ngclient.FormElementHelper.FormComponentCache;
 import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
+import com.servoy.j2db.server.ngclient.property.ComponentTypeConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedPropertyType;
 import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
+import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.ngclient.template.FormTemplateObjectWrapper;
 import com.servoy.j2db.server.ngclient.template.FormWrapper;
@@ -411,6 +413,103 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 
 
 	/**
+	 * @param writer
+	 * @param o
+	 */
+	@SuppressWarnings("nls")
+	public static void writePosition(JSONWriter writer, IPersist o, Form form)
+	{
+		if (o instanceof BaseComponent && ((BaseComponent)o).getCssPosition() != null)
+		{
+			CSSPosition position = ((BaseComponent)o).getCssPosition();
+			writer.key("position");
+			writer.object();
+			if (CSSPositionUtils.isSet(position.left))
+			{
+				writer.key("left").value(CSSPositionUtils.getCSSValue(position.left));
+			}
+			if (CSSPositionUtils.isSet(position.top))
+			{
+				String top = position.top;
+				Point location = CSSPositionUtils.getLocation((BaseComponent)o);
+				Part prt = form.getPartAt(location.y);
+				if (prt != null)
+				{
+					int topStart = form.getPartStartYPos(prt.getID());
+					if (topStart > 0)
+					{
+						if (top.endsWith("px"))
+						{
+							top = top.substring(0, top.length() - 2);
+						}
+						int topInteger = Utils.getAsInteger(top, -1);
+						if (topInteger != -1)
+						{
+							top = String.valueOf(topInteger - topStart);
+						}
+						else
+						{
+							top = "calc(" + top + "-" + topStart + "px)";
+						}
+					}
+				}
+				writer.key("top").value(CSSPositionUtils.getCSSValue(top));
+			}
+			if (CSSPositionUtils.isSet(position.bottom))
+			{
+				writer.key("bottom").value(CSSPositionUtils.getCSSValue(position.bottom));
+			}
+			if (CSSPositionUtils.isSet(position.right))
+			{
+				writer.key("right").value(CSSPositionUtils.getCSSValue(position.right));
+			}
+			if (CSSPositionUtils.isSet(position.width))
+			{
+				if (CSSPositionUtils.isSet(position.left) && CSSPositionUtils.isSet(position.right))
+				{
+					writer.key("min-width").value(CSSPositionUtils.getCSSValue(position.width));
+				}
+				else
+				{
+					writer.key("width").value(CSSPositionUtils.getCSSValue(position.width));
+				}
+			}
+			if (CSSPositionUtils.isSet(position.height))
+			{
+				if (CSSPositionUtils.isSet(position.top) && CSSPositionUtils.isSet(position.bottom))
+				{
+					writer.key("min-height").value(CSSPositionUtils.getCSSValue(position.height));
+				}
+				else
+				{
+					writer.key("height").value(CSSPositionUtils.getCSSValue(position.height));
+				}
+			}
+			writer.endObject();
+		}
+		else
+		{
+			Point location = ((IFormElement)o).getLocation();
+			Dimension size = ((IFormElement)o).getSize();
+			if (location != null && size != null)
+			{
+				writer.key("position");
+				writer.object();
+				writer.key("left");
+				writer.value(location.x + "px");
+				writer.key("top");
+				writer.value(location.y + "px");
+				writer.key("width");
+				writer.value(size.width + "px");
+				writer.key("height");
+				writer.value(size.height + "px");
+				writer.endObject();
+			}
+		}
+	}
+
+
+	/**
 	 * @author jcompagner
 	 */
 	private final class ChildrenJSONGenerator implements IPersistVisitor
@@ -506,93 +605,7 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 					// hack for now to map it to the types that we know are there, so that we can test responsive without really already having to have bootstrap components.
 					writer.value(ClientService.convertToJSName(FormTemplateGenerator.getComponentTypeName((IFormElement)o)));
 				}
-				if (o instanceof BaseComponent && ((BaseComponent)o).getCssPosition() != null)
-				{
-					CSSPosition position = ((BaseComponent)o).getCssPosition();
-					writer.key("position");
-					writer.object();
-					if (CSSPositionUtils.isSet(position.left))
-					{
-						writer.key("left").value(CSSPositionUtils.getCSSValue(position.left));
-					}
-					if (CSSPositionUtils.isSet(position.top))
-					{
-						String top = position.top;
-						Point location = CSSPositionUtils.getLocation((BaseComponent)o);
-						Part prt = form.getPartAt(location.y);
-						if (prt != null)
-						{
-							int topStart = form.getPartStartYPos(prt.getID());
-							if (topStart > 0)
-							{
-								if (top.endsWith("px"))
-								{
-									top = top.substring(0, top.length() - 2);
-								}
-								int topInteger = Utils.getAsInteger(top, -1);
-								if (topInteger != -1)
-								{
-									top = String.valueOf(topInteger - topStart);
-								}
-								else
-								{
-									top = "calc(" + top + "-" + topStart + "px)";
-								}
-							}
-						}
-						writer.key("top").value(CSSPositionUtils.getCSSValue(top));
-					}
-					if (CSSPositionUtils.isSet(position.bottom))
-					{
-						writer.key("bottom").value(CSSPositionUtils.getCSSValue(position.bottom));
-					}
-					if (CSSPositionUtils.isSet(position.right))
-					{
-						writer.key("right").value(CSSPositionUtils.getCSSValue(position.right));
-					}
-					if (CSSPositionUtils.isSet(position.width))
-					{
-						if (CSSPositionUtils.isSet(position.left) && CSSPositionUtils.isSet(position.right))
-						{
-							writer.key("min-width").value(CSSPositionUtils.getCSSValue(position.width));
-						}
-						else
-						{
-							writer.key("width").value(CSSPositionUtils.getCSSValue(position.width));
-						}
-					}
-					if (CSSPositionUtils.isSet(position.height))
-					{
-						if (CSSPositionUtils.isSet(position.top) && CSSPositionUtils.isSet(position.bottom))
-						{
-							writer.key("min-height").value(CSSPositionUtils.getCSSValue(position.height));
-						}
-						else
-						{
-							writer.key("height").value(CSSPositionUtils.getCSSValue(position.height));
-						}
-					}
-					writer.endObject();
-				}
-				else
-				{
-					Point location = ((IFormElement)o).getLocation();
-					Dimension size = ((IFormElement)o).getSize();
-					if (location != null && size != null)
-					{
-						writer.key("position");
-						writer.object();
-						writer.key("left");
-						writer.value(location.x + "px");
-						writer.key("top");
-						writer.value(location.y + "px");
-						writer.key("width");
-						writer.value(size.width + "px");
-						writer.key("height");
-						writer.value(size.height + "px");
-						writer.endObject();
-					}
-				}
+				writePosition(writer, o, form);
 				writer.key("model");
 				writer.object();
 				if (formUI != null)
@@ -653,13 +666,16 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 						Collection<PropertyDescription> properties = spec.getProperties(FormComponentPropertyType.INSTANCE);
 						if (properties.size() > 0)
 						{
-							writer.key("formComponent");
-							writer.value(true);
-							writer.key("children");
-							writer.array();
 							boolean isResponsive = false;
+							List<String> children = new ArrayList<>();
 							for (PropertyDescription pd : properties)
 							{
+								// check FormComponentPropertyType that sends already stuff when it is foundset based
+								// then we don't have todo it here.
+								if (pd.getConfig() instanceof ComponentTypeConfig && ((ComponentTypeConfig)pd.getConfig()).forFoundset != null) continue;
+								children.add("children_" + pd.getName());
+								writer.key("children_" + pd.getName());
+								writer.array();
 								Object propertyValue = fe.getPropertyValue(pd.getName());
 								Form frm = FormComponentPropertyType.INSTANCE.getForm(propertyValue, context.getSolution());
 								if (frm == null) continue;
@@ -695,7 +711,11 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 										persistOfElement.acceptVisitor(new ChildrenJSONGenerator(writer, context, null, null, null));
 									}
 								}
+								writer.endArray();
 							}
+							writer.key("formComponent");
+							writer.array();
+							children.stream().forEach((child) -> writer.value(child));
 							writer.endArray();
 							writer.key("responsive");
 							writer.value(isResponsive);

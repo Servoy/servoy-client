@@ -43,6 +43,7 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.ChildWebComponent;
+import com.servoy.j2db.server.ngclient.Angular2FormGenerator;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
@@ -257,6 +258,8 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		{
 			writer.key("headerIndex").value(componentFormElementContext.getFormElement().getPropertyValue("headerIndex"));
 		}
+		Angular2FormGenerator.writePosition(writer, formElementValue.element.getPersistIfAvailable(),
+			componentFormElementContext.getContext().getForm().getForm());
 
 		writer.key("model");
 		try
