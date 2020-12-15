@@ -136,11 +136,12 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 	 * @param spec
 	 * @param specName
 	 */
+	@SuppressWarnings("nls")
 	private void genereateSpec(StringBuilder sb, WebObjectSpecification spec, String specName)
 	{
 		sb.append("<ng-template #");
 		sb.append(ClientService.convertToJSName(specName));
-		sb.append(" let-state=\"state\">");
+		sb.append(" let-callback=\"callback\" let-state=\"state\">");
 		sb.append('<');
 		sb.append(specName);
 		sb.append(' ');
@@ -175,12 +176,16 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 			sb.append(name);
 			sb.append('"');
 
+			// all properties that handle there own stuff, (that have converters on the server side)
+			// should not have the need for an emitter/datachange call. this should be handled in the type itself.
 			if (pd.getPushToServer() != null && pd.getPushToServer() != PushToServerEnum.reject &&
-				!(pd.getType() instanceof FoundsetPropertyType || pd.getType() instanceof FoundsetLinkedPropertyType))
+				!(pd.getType() instanceof FoundsetPropertyType ||
+					pd.getType() instanceof FoundsetLinkedPropertyType ||
+					pd.getType() instanceof ValueListPropertyType))
 			{
 				sb.append(" (");
 				sb.append(name);
-				sb.append("Change)=\"datachange(state.name,'");
+				sb.append("Change)=\"callback.datachange(state,'");
 				sb.append(name);
 				sb.append("',$event)\"");
 			}
@@ -199,11 +204,11 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 		{
 			sb.append(" [");
 			sb.append(handler.getName());
-			sb.append("]=\"getHandler(state,'");
+			sb.append("]=\"callback.getHandler(state,'");
 			sb.append(handler.getName());
 			sb.append("')\"");
 		}
-		sb.append(" [servoyApi]=\"getServoyApi(state)\"");
+		sb.append(" [servoyApi]=\"callback.getServoyApi(state)\"");
 		sb.append(" [name]=\"state.name\" #cmp");
 		sb.append(">");
 		Collection<PropertyDescription> properties = spec.getProperties(FormPropertyType.INSTANCE);
