@@ -6612,7 +6612,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public boolean copyFrom(FoundSet fs)
 	{
-		if (fs == null || fs.getTable() == null) return false;
+		if (fs == null || fs.getTable() == null || fs == this) return false;
 		if (!fs.getTable().equals(getTable())) return false;
 		if (relationName != null) return false;
 
