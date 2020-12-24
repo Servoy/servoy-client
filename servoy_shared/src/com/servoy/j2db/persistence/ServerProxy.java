@@ -41,6 +41,7 @@ public class ServerProxy implements IServer, Serializable
 	//local cache
 	private String serverName;
 	private String databaseProductName;
+	private String databaseType;
 	private volatile transient Map<String, ITable> tables = new ConcurrentHashMap<String, ITable>();
 
 	public ServerProxy(IServer a_server)
@@ -206,6 +207,15 @@ public class ServerProxy implements IServer, Serializable
 			databaseProductName = server.getDatabaseProductName();
 		}
 		return databaseProductName;
+	}
+
+	public String getDatabaseType() throws RepositoryException, RemoteException
+	{
+		if (databaseType == null)
+		{
+			databaseType = server.getDatabaseType();
+		}
+		return databaseType;
 	}
 
 	public String getQuotedIdentifier(String tableSqlName, String columnSqlName) throws RemoteException, RepositoryException
