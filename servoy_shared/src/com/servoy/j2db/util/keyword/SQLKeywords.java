@@ -57,6 +57,8 @@ public class SQLKeywords
 			"call",
 			"current_role",
 			"binary",
+			"cube",
+			"lock",
 
 			//official ansi SQL 92 reserved list
 			"absolute",
@@ -385,7 +387,6 @@ public class SQLKeywords
 			"comment",
 			"compressed",
 			"contains",
-			"cube",
 			"dbspace",
 			"deleting",
 			"dynamic",
@@ -405,7 +406,6 @@ public class SQLKeywords
 			"instead",
 			"integrated",
 			"iq",
-			"lock",
 			"login",
 			"long",
 			"membership",
@@ -499,7 +499,6 @@ public class SQLKeywords
 			"inactive",
 			"index",
 			"input_type",
-			"lock",
 			"logfile",
 			"log_buffer_size",
 			"long",
@@ -592,6 +591,13 @@ public class SQLKeywords
 
 		KEYWORDS.put("hsqldb", new HashSet<>(asList(
 			"row"
+			)));
+
+		KEYWORDS.put("sqlserver", new HashSet<>(asList(
+			)));
+
+		KEYWORDS.put("sapdb", new HashSet<>(asList(
+			"object"
 			)));
 
 		// @formatter:on
