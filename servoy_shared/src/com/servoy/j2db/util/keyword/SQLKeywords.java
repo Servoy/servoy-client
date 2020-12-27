@@ -660,7 +660,7 @@ public class SQLKeywords
 			"object",
 			"top",
 			"statistics",
-			"uit"
+			"uid"
 			)));
 
 		// @formatter:on
