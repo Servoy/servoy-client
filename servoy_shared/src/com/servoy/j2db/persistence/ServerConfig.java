@@ -16,9 +16,12 @@
  */
 package com.servoy.j2db.persistence;
 
+import static java.util.Collections.emptyList;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.servoy.j2db.serverconfigtemplates.EmptyTemplate;
@@ -94,11 +97,12 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	private int idleTimeout;
 	private final Integer selectINValueCountLimit;
 	private final String dialectClass;
+	private final List<String> quoteList;
 
 	public ServerConfig(String serverName, String userName, String password, String serverUrl, Map<String, String> connectionProperties, String driver,
 		String catalog, String schema, int maxActive, int maxIdle, int maxPreparedStatementsIdle, int connectionValidationType, String validationQuery,
 		String dataModelCloneFrom, boolean enabled, boolean skipSysTables, boolean prefixTables, boolean queryProcedures, int idleTimeout,
-		Integer selectINValueCountLimit, String dialectClass)
+		Integer selectINValueCountLimit, String dialectClass, List<String> quoteList)
 	{
 		this.serverName = Utils.toEnglishLocaleLowerCase(serverName);//safety for when stored in columnInfo
 		this.userName = userName;
@@ -119,6 +123,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		this.idleTimeout = idleTimeout;
 		this.selectINValueCountLimit = selectINValueCountLimit;
 		this.dialectClass = dialectClass;
+		this.quoteList = quoteList;
 
 		if (driver == null || serverUrl == null)
 		{
@@ -139,7 +144,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	{
 		this(serverName, userName, password, serverUrl, connectionProperties, driver, catalog, schema, MAX_ACTIVE_DEFAULT, MAX_IDLE_DEFAULT,
 			MAX_PREPSTATEMENT_IDLE_DEFAULT, VALIDATION_TYPE_DEFAULT, null, null, enabled, skipSysTables, PREFIX_TABLES_DEFAULT, QUERY_PROCEDURES_DEFAULT, -1,
-			selectINValueCountLimit, dialectClass);
+			selectINValueCountLimit, dialectClass, emptyList());
 	}
 
 	public ServerConfig getNamedCopy(String newServerName)
@@ -147,7 +152,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		if (serverName.equals(newServerName)) return this;
 		return new ServerConfig(newServerName, userName, password, serverUrl, connectionProperties, driver, catalog, schema, maxActive, maxIdle,
 			maxPreparedStatementsIdle, connectionValidationType, validationQuery, dataModelCloneFrom, enabled, skipSysTables, prefixTables, queryProcedures,
-			idleTimeout, selectINValueCountLimit, dialectClass);
+			idleTimeout, selectINValueCountLimit, dialectClass, quoteList);
 	}
 
 	public ServerConfig getEnabledCopy(boolean newEnabled)
@@ -155,7 +160,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		if (enabled == newEnabled) return this;
 		return new ServerConfig(serverName, userName, password, serverUrl, connectionProperties, driver, catalog, schema, maxActive, maxIdle,
 			maxPreparedStatementsIdle, connectionValidationType, validationQuery, dataModelCloneFrom, newEnabled, skipSysTables, prefixTables, queryProcedures,
-			idleTimeout, selectINValueCountLimit, dialectClass);
+			idleTimeout, selectINValueCountLimit, dialectClass, quoteList);
 	}
 
 	public String getServerName()
@@ -265,6 +270,11 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	public String getDialectClass()
 	{
 		return dialectClass;
+	}
+
+	public List<String> getQuoteList()
+	{
+		return quoteList;
 	}
 
 	/**

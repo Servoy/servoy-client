@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2016 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,23 +14,30 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
+package com.servoy.j2db.persistence;
 
-package com.servoy.j2db.serverconfigtemplates;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
-import static java.util.Collections.emptyList;
-
-import com.servoy.j2db.persistence.ServerConfig;
 
 /**
- * @author gboros
+ * IValidateName validation failed.
  *
+ * @author rgansevles
  */
-public class FoxProTemplate extends ServerTemplateDefinition
+public class NamevalidationException extends RepositoryException
 {
-	public FoxProTemplate()
+	private final Collection<String> messages;
+
+	public NamevalidationException(Collection<String> messages)
 	{
-		super(new ServerConfig("new_dbf", "", "", "jdbc:DBF:/C:/TEMP?lockType=VFP&versionNumber=DB2K&delayedClose=0", null, "com.hxtt.sql.dbf.DBFDriver", null,
-			null, ServerConfig.MAX_ACTIVE_DEFAULT, ServerConfig.MAX_IDLE_DEFAULT, 0 /* disable PS pool */, ServerConfig.VALIDATION_TYPE_DEFAULT, null, null,
-			true, false, false, false, -1, null, null, emptyList()));
+		super(messages.stream().collect(Collectors.joining("\n")));
+		this.messages = messages;
 	}
+
+	public Collection<String> getMessages()
+	{
+		return messages;
+	}
+
 }

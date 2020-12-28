@@ -17,6 +17,9 @@
 package com.servoy.j2db.persistence;
 
 
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.rmi.RemoteException;
@@ -30,11 +33,10 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import com.servoy.base.persistence.BaseColumn;
 import com.servoy.base.persistence.IBaseColumn;
@@ -54,7 +56,6 @@ import com.servoy.j2db.util.TimezoneUtils;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.keyword.Ident;
-import com.servoy.j2db.util.keyword.SQLKeywords;
 
 /**
  * A database column, this information is not stored inside the repository but recreated each time<br>
@@ -1364,35 +1365,24 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	private transient Boolean hasBadName = null;
 	public static final String _SV_ROWID = "_sv_rowid";
 
-	public boolean hasBadNaming(boolean isMobile)
+	public boolean hasBadNaming(IValidateName validator, boolean isMobile)
 	{
 		if (hasBadName == null)
 		{
-			List<String> notes = new ArrayList<String>();
-
-			if (Ident.checkIfKeyword(getName()) || SQLKeywords.checkIfKeyword(getName()))
+			hasBadName = FALSE;
+			try
 			{
-				notes.add("'" + getName() + "' is an reserved word!");
+				validator.checkName(getName(), getID(), new ValidatorSearchContext(getTable(), IRepository.COLUMNS), true);
 			}
-			if (isMobile && Ident.checkIfReservedBrowserWindowObjectWord(getName()))
+			catch (NamevalidationException e)
 			{
-				notes.add("'" + getName() + "' is an reserved browser window object word!");
+				hasBadName = TRUE;
+				note = e.getMessages().stream().collect(Collectors.joining());
 			}
-			if (getName().length() > MAX_SQL_OBJECT_NAME_LENGTH)
+			catch (RepositoryException e)
 			{
-				notes.add("Column namnes longer than " + MAX_SQL_OBJECT_NAME_LENGTH + " are not supported by some databases!");
+				Debug.error(e);
 			}
-			if (notes.size() > 0)
-			{
-				StringBuilder sb = new StringBuilder();
-				for (String note2 : notes)
-				{
-					sb.append(note2);
-				}
-				note = sb.toString();
-			}
-
-			hasBadName = Boolean.valueOf(notes.size() > 0);
 		}
 		return hasBadName.booleanValue();
 	}

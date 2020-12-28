@@ -218,6 +218,12 @@ public abstract class AbstractSolutionTest
 		{
 			return null;
 		}
+
+		@Override
+		public String getDatabaseType()
+		{
+			return null;
+		}
 	};
 
 	private static IPackageReader[] getReaders(File[] packages, IPackageReader customComponents)
