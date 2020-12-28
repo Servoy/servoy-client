@@ -17,7 +17,6 @@
 package com.servoy.j2db.persistence;
 
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -26,7 +25,6 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.keyword.Ident;
-import com.servoy.j2db.util.keyword.SQLKeywords;
 
 /**
  * @author jcompagner,jblok
@@ -51,127 +49,127 @@ public class ScriptNameValidator implements IValidateName
 	public void checkName(String nameToCheck, int skip_element_id, ValidatorSearchContext searchContext, boolean sqlRelated) throws RepositoryException
 	{
 		List<String> warnings = new ArrayList<>();
-		try
+		if (nameToCheck == null || nameToCheck.length() == 0)
 		{
-			if (nameToCheck == null || nameToCheck.length() == 0)
-			{
-				warnings.add("The name is undefined please specify correct name"); //$NON-NLS-1$
-			}
-			if (Ident.checkIfKeyword(nameToCheck))
-			{
-				warnings.add("there is a keyword with name " + nameToCheck); //$NON-NLS-1$
-			}
-			if (Ident.checkIfReservedOSWord(nameToCheck))
-			{
-				warnings.add(nameToCheck + " is a reserved word on some operating systems"); //$NON-NLS-1$
-			}
+			warnings.add("The name is undefined please specify correct name"); //$NON-NLS-1$
+		}
+		if (Ident.checkIfKeyword(nameToCheck))
+		{
+			warnings.add("there is a servoy or javascript keyword with name " + nameToCheck); //$NON-NLS-1$
+		}
+		if (Ident.checkIfReservedOSWord(nameToCheck))
+		{
+			warnings.add(nameToCheck + " is a reserved word on some operating systems"); //$NON-NLS-1$
+		}
 
-			if (sqlRelated)
-			{
-				IServer server = getServer(searchContext.getObject());
-				String databaseType = server == null ? null : server.getDatabaseType();
+//		try
+//		{
+//			if (sqlRelated)
+//			{
+//				IServer server = getServer(searchContext.getObject());
+//				String databaseType = server == null ? null : server.getDatabaseType();
+//
+//				if (SQLKeywords.checkIfKeyword(nameToCheck, databaseType))
+//				{
+//					warnings.add("there is a SQL keyword with name " + nameToCheck + " for database type " + databaseType);
+//				}
+//			}
+//		}
+//		catch (RemoteException e)
+//		{
+//			throw new RepositoryException(e);
+//		}
 
-				if (SQLKeywords.checkIfKeyword(nameToCheck, databaseType))
-				{
-					warnings.add("there is a SQL keyword with name " + nameToCheck + " for database type " + databaseType);
-				}
-			}
+		if (nameToCheck.contains(" ")) //$NON-NLS-1$
+		{
+			warnings.add("there is a space in the name '" + nameToCheck + "' this is not allowed"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 
-			if (nameToCheck.contains(" ")) //$NON-NLS-1$
-			{
-				warnings.add("there is a space in the name '" + nameToCheck + "' this is not allowed"); //$NON-NLS-1$ //$NON-NLS-2$
-			}
+		if (solutionRoot != null && solutionRoot.getSolution().getSolutionType() == SolutionMetaData.MOBILE &&
+			Ident.checkIfReservedBrowserWindowObjectWord(nameToCheck))
+		{
+			if (searchContext.getType() == IRepository.COLUMNS || searchContext.getType() == IRepository.SCRIPTCALCULATIONS ||
+				searchContext.getType() == IRepository.RELATIONS || searchContext.getType() == IRepository.SCRIPTVARIABLES ||
+				searchContext.getType() == IRepository.METHODS)
+				warnings.add(nameToCheck + " is a reserved window object word in the (mobile)browser"); //$NON-NLS-1$
+		}
 
-			if (solutionRoot != null && solutionRoot.getSolution().getSolutionType() == SolutionMetaData.MOBILE &&
-				Ident.checkIfReservedBrowserWindowObjectWord(nameToCheck))
+		Object obj = findDuplicate(nameToCheck, skip_element_id, searchContext);
+		if (obj instanceof ScriptVariable)
+		{
+			if (searchContext.getObject() instanceof Form)
 			{
-				if (searchContext.getType() == IRepository.COLUMNS || searchContext.getType() == IRepository.SCRIPTCALCULATIONS ||
-					searchContext.getType() == IRepository.RELATIONS || searchContext.getType() == IRepository.SCRIPTVARIABLES ||
-					searchContext.getType() == IRepository.METHODS)
-					warnings.add(nameToCheck + " is a reserved window object word in the (mobile)browser"); //$NON-NLS-1$
+				warnings.add("The variable with name '" + nameToCheck + "' already exists"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-
-			Object obj = findDuplicate(nameToCheck, skip_element_id, searchContext);
-			if (obj instanceof ScriptVariable)
+			else
 			{
-				if (searchContext.getObject() instanceof Form)
-				{
-					warnings.add("The variable with name '" + nameToCheck + "' already exists"); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-				else
-				{
-					warnings.add("The name '" + nameToCheck + "' already exist as a scope variable"); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-			}
-			if (obj instanceof ScriptMethod)
-			{
-				if (searchContext.getObject() instanceof Form)
-				{
-					warnings.add("The method with name '" + nameToCheck + "' already exists for form " + ((Form)searchContext.getObject()).getName()); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-				if (searchContext.getObject() instanceof TableNode)
-				{
-					warnings.add("The method with name '" + nameToCheck + "' already exists as a foundset method for data source " + //$NON-NLS-1$//$NON-NLS-2$
-						((TableNode)searchContext.getObject()).getDataSource());
-				}
-				else
-				{
-					warnings.add("The name '" + nameToCheck + "' already exists as a scope method"); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-			}
-			if (obj instanceof Form)
-			{
-				warnings.add("The name '" + nameToCheck + "' already exists as another form"); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			if (obj instanceof Relation)
-			{
-				warnings.add("The name '" + nameToCheck + "' already exists as a relation name"); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			if (obj instanceof AggregateVariable)
-			{
-				warnings.add("The name '" + nameToCheck + "' already exists as an aggregate"); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			if (obj instanceof Column)
-			{
-				warnings.add("The name '" + nameToCheck + "' already exists as a column"); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			if (obj instanceof ScriptCalculation)
-			{
-				warnings.add("The name '" + nameToCheck + "' already exists as a scriptcalculation"); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			if (obj instanceof Media)
-			{
-				warnings.add("The name '" + nameToCheck + "' already exists as media in " + ((Media)obj).getRootObject().getName()); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			if (obj instanceof ValueList)
-			{
-				warnings.add("The name '" + nameToCheck + "' already exists as a valuelist"); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			if (obj instanceof IFormElement)
-			{
-				warnings.add("The element '" + nameToCheck + "' already exists on the form"); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			if (obj instanceof FormElementGroup)
-			{
-				warnings.add("The group '" + nameToCheck + "' already exists on the form"); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			if (obj instanceof Tab)
-			{
-				warnings.add("The tab '" + nameToCheck + "' already exists on the tab panel"); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			if (obj instanceof LayoutContainer)
-			{
-				warnings.add("The layout container '" + nameToCheck + "' already exists on the form"); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-
-			if (!warnings.isEmpty())
-			{
-				throw new NamevalidationException(warnings);
+				warnings.add("The name '" + nameToCheck + "' already exist as a scope variable"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
-		catch (RemoteException e)
+		if (obj instanceof ScriptMethod)
 		{
-			throw new RepositoryException(e);
+			if (searchContext.getObject() instanceof Form)
+			{
+				warnings.add("The method with name '" + nameToCheck + "' already exists for form " + ((Form)searchContext.getObject()).getName()); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			if (searchContext.getObject() instanceof TableNode)
+			{
+				warnings.add("The method with name '" + nameToCheck + "' already exists as a foundset method for data source " + //$NON-NLS-1$//$NON-NLS-2$
+					((TableNode)searchContext.getObject()).getDataSource());
+			}
+			else
+			{
+				warnings.add("The name '" + nameToCheck + "' already exists as a scope method"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		}
+		if (obj instanceof Form)
+		{
+			warnings.add("The name '" + nameToCheck + "' already exists as another form"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		if (obj instanceof Relation)
+		{
+			warnings.add("The name '" + nameToCheck + "' already exists as a relation name"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		if (obj instanceof AggregateVariable)
+		{
+			warnings.add("The name '" + nameToCheck + "' already exists as an aggregate"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		if (obj instanceof Column)
+		{
+			warnings.add("The name '" + nameToCheck + "' already exists as a column"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		if (obj instanceof ScriptCalculation)
+		{
+			warnings.add("The name '" + nameToCheck + "' already exists as a scriptcalculation"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		if (obj instanceof Media)
+		{
+			warnings.add("The name '" + nameToCheck + "' already exists as media in " + ((Media)obj).getRootObject().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		if (obj instanceof ValueList)
+		{
+			warnings.add("The name '" + nameToCheck + "' already exists as a valuelist"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		if (obj instanceof IFormElement)
+		{
+			warnings.add("The element '" + nameToCheck + "' already exists on the form"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		if (obj instanceof FormElementGroup)
+		{
+			warnings.add("The group '" + nameToCheck + "' already exists on the form"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		if (obj instanceof Tab)
+		{
+			warnings.add("The tab '" + nameToCheck + "' already exists on the tab panel"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		if (obj instanceof LayoutContainer)
+		{
+			warnings.add("The layout container '" + nameToCheck + "' already exists on the form"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+
+		if (!warnings.isEmpty())
+		{
+			throw new NamevalidationException(warnings);
 		}
 	}
 
