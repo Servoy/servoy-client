@@ -545,7 +545,8 @@ public class SQLKeywords
 			)));
 
 		KEYWORDS.put("progress", new HashSet<>(asList(
-			"range"
+			"range",
+			"variance"
 			)));
 
 		KEYWORDS.put("oracle", new HashSet<>(asList(
