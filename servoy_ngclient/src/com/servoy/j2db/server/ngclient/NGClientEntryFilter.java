@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -45,7 +44,6 @@ import org.json.JSONObject;
 import org.sablo.IContributionEntryFilter;
 import org.sablo.IndexPageEnhancer;
 import org.sablo.WebEntry;
-import org.sablo.security.ContentSecurityPolicyConfig;
 import org.sablo.services.template.ModifiablePropertiesGenerator;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.util.HTTPUtils;
@@ -61,7 +59,6 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
-import com.servoy.j2db.server.headlessclient.util.HCUtils;
 import com.servoy.j2db.server.ngclient.property.types.Types;
 import com.servoy.j2db.server.ngclient.template.DesignFormLayoutStructureGenerator;
 import com.servoy.j2db.server.ngclient.template.FormLayoutGenerator;
@@ -286,7 +283,7 @@ public class NGClientEntryFilter extends WebEntry
 					String solutionName = getSolutionNameFromURI(uri);
 					if (solutionName != null)
 					{
-						String clientnr = getClientNr(uri, request);
+						String clientnr = AngularIndexPageWriter.getClientNr(uri, request);
 						INGClientWebsocketSession wsSession = null;
 						HttpSession httpSession = request.getSession(false);
 						if (clientnr != null && httpSession != null)
@@ -305,7 +302,7 @@ public class NGClientEntryFilter extends WebEntry
 							{
 								closeFS = true;
 								IApplicationServer as = ApplicationServerRegistry.getService(IApplicationServer.class);
-								if (applicationServerUnavailable(response, as))
+								if (AngularIndexPageWriter.applicationServerUnavailable(response, as))
 								{
 									return;
 								}
@@ -313,7 +310,7 @@ public class NGClientEntryFilter extends WebEntry
 								SolutionMetaData solutionMetaData = (SolutionMetaData)ApplicationServerRegistry.get().getLocalRepository()
 									.getRootObjectMetaData(
 										solutionName, SOLUTIONS);
-								if (solutionMissing(response, solutionName, solutionMetaData))
+								if (AngularIndexPageWriter.solutionMissing(response, solutionName, solutionMetaData))
 								{
 									return;
 								}
@@ -361,7 +358,7 @@ public class NGClientEntryFilter extends WebEntry
 
 								super.doFilter(servletRequest, servletResponse, filterChain, asList(SERVOY_CSS),
 									new ArrayList<String>(getFormScriptReferences(fs)),
-									extraMeta, variableSubstitution, getContentSecurityPolicyConfig(request));
+									extraMeta, variableSubstitution, AngularIndexPageWriter.getContentSecurityPolicyConfig(request));
 								return;
 							}
 							finally
@@ -384,52 +381,6 @@ public class NGClientEntryFilter extends WebEntry
 		{
 			Debug.error(e);
 			throw e;
-		}
-	}
-
-	/**
-	 * Get the ContentSecurityPolicyConfig is it should be applied, otherwise return null;
-	 *
-	 * Only when configured and when the browser is a modern browser that supports Content-Security-Policy level 3.
-	 */
-	private ContentSecurityPolicyConfig getContentSecurityPolicyConfig(HttpServletRequest request)
-	{
-		Settings settings = Settings.getInstance();
-		if (!getAsBoolean(settings.getProperty("servoy.ngclient.setContentSecurityPolicyHeader", "true")))
-		{
-			Debug.trace("ContentSecurityPolicyHeader is disabled by configuration");
-			return null;
-		}
-
-		String userAgentHeader = request.getHeader("user-agent");
-
-		if (!HCUtils.supportsContentSecurityPolicyLevel3(userAgentHeader))
-		{
-			if (Debug.tracing())
-			{
-				Debug.trace("ContentSecurityPolicyHeader is disabled, user agent '" + userAgentHeader + "' does not support ContentSecurityPolicy level 3");
-			}
-			return null;
-		}
-
-		ContentSecurityPolicyConfig contentSecurityPolicyConfig = new ContentSecurityPolicyConfig(HTTPUtils.getNonce(request));
-
-		// Overridable directives
-		setDirectiveOverride(contentSecurityPolicyConfig, "frame-src", settings);
-		setDirectiveOverride(contentSecurityPolicyConfig, "style-src", settings);
-		setDirectiveOverride(contentSecurityPolicyConfig, "img-src", settings);
-		setDirectiveOverride(contentSecurityPolicyConfig, "font-src", settings);
-
-		return contentSecurityPolicyConfig;
-
-	}
-
-	private static void setDirectiveOverride(ContentSecurityPolicyConfig contentSecurityPolicyConfig, String directive, Settings settings)
-	{
-		String override = settings.getProperty("servoy.ngclient.contentSecurityPolicy." + directive);
-		if (override != null && override.trim().length() > 0 && override.indexOf(';') < 0)
-		{
-			contentSecurityPolicyConfig.setDirective(directive, override);
 		}
 	}
 
@@ -559,7 +510,7 @@ public class NGClientEntryFilter extends WebEntry
 			PrintWriter writer = response.getWriter();
 
 			String solutionName = getSolutionNameFromURI(uri);
-			String clientnr = getClientNr(uri, request);
+			String clientnr = AngularIndexPageWriter.getClientNr(uri, request);
 
 			Map<String, Object> variableSubstitution = getSubstitutions(request, solutionName, clientnr, fs);
 
@@ -572,41 +523,6 @@ public class NGClientEntryFilter extends WebEntry
 		return false;
 	}
 
-	/**
-	 * @param response
-	 * @param solutionName
-	 * @param solutionMetaData
-	 * @throws IOException
-	 */
-	private boolean solutionMissing(HttpServletResponse response, String solutionName, SolutionMetaData solutionMetaData) throws IOException
-	{
-		if (solutionMetaData == null)
-		{
-			Debug.error("Solution '" + solutionName + "' was not found.");
-			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			Writer w = response.getWriter();
-			w.write(
-				"<html><head><link rel=\"stylesheet\" href=\"/css/bootstrap/css/bootstrap.css\"/><link rel=\"stylesheet\" href=\"/css/servoy.css\"/></head><body><div style='padding:40px;'><div class=\"bs-callout bs-callout-danger\" ><h1>Page cannot be displayed</h1><p>Requested solution was not found.</p></div></div></body></html>");
-			w.close();
-			return true;
-		}
-		return false;
-	}
-
-	private boolean applicationServerUnavailable(HttpServletResponse response, IApplicationServer as) throws IOException
-	{
-		if (as == null)
-		{
-			response.setStatus(SC_SERVICE_UNAVAILABLE);
-			Writer w = response.getWriter();
-			w.write(
-				"<html><head><link rel=\"stylesheet\" href=\"/css/bootstrap/css/bootstrap.css\"/><link rel=\"stylesheet\" href=\"/css/servoy.css\"/></head><body><div style='padding:20px;color:#fd7100'><div class=\"bs-callout bs-callout-danger\"><p>System is inaccessible. Please contact your system administrator.</p></div></div></body></html>");
-			w.close();
-			return true;
-		}
-
-		return false;
-	}
 
 	private boolean handleRecording(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
@@ -819,31 +735,6 @@ public class NGClientEntryFilter extends WebEntry
 		if (solutionIndex >= 0)
 		{
 			return uri.substring(solutionIndex + SOLUTIONS_PATH.length(), uri.indexOf("/", solutionIndex + SOLUTIONS_PATH.length() + 1));
-		}
-		return null;
-	}
-
-	/**
-	 * Get the clientnr from parameter or an url /solutions/<solutionname>/<clientnr>/
-	 *
-	 */
-	private String getClientNr(String uri, ServletRequest request)
-	{
-		String clientnr = request.getParameter("clientnr");
-		if (clientnr != null)
-		{
-			return clientnr;
-		}
-
-
-		int solutionIndex = uri.indexOf(SOLUTIONS_PATH);
-		if (solutionIndex >= 0)
-		{
-			String[] parts = uri.substring(solutionIndex + SOLUTIONS_PATH.length()).split("/");
-			if (parts.length >= 2 && parts[1].matches("[0-9]+"))
-			{
-				return parts[1];
-			}
 		}
 		return null;
 	}
