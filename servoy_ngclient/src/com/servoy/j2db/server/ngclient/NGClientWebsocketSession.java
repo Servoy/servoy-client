@@ -134,7 +134,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		}
 		else
 		{
-			return new Angular2FormGenerator(client, form, realFormName);
+			return new AngularFormGenerator(client, form, realFormName);
 		}
 	}
 

@@ -82,9 +82,9 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
- *
+ * @since 2021.03
  */
-public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
+public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 {
 
 
@@ -97,7 +97,7 @@ public class Angular2FormGenerator implements IFormHTMLAndJSGenerator
 	 * @param form
 	 * @param realFormName
 	 */
-	public Angular2FormGenerator(NGClient client, Form form, String realFormName)
+	public AngularFormGenerator(NGClient client, Form form, String realFormName)
 	{
 		this.client = client;
 		this.form = form;
