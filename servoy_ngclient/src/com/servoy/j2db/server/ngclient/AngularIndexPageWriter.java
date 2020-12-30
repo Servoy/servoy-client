@@ -131,7 +131,7 @@ public class AngularIndexPageWriter
 		FlattenedSolution fs = pair.getLeft();
 		if (fs != null)
 		{
-			StringBuilder sb = new StringBuilder(256);
+			StringBuilder sb = new StringBuilder(756);
 
 			String indexHtml = page;
 			final String path = Settings.getInstance().getProperty("servoy.context.path", request.getContextPath() + '/');
@@ -204,7 +204,6 @@ public class AngularIndexPageWriter
 			sb.append("/main/startup.js?");
 			sb.append(HTTPUtils.generateQueryString(request.getParameterMap(), request.getCharacterEncoding()));
 			sb.append("\"></script>");
-			System.err.println(sb.length());
 			indexHtml = indexHtml.replace("<base href=\"/\">", sb.toString());
 
 			String requestLanguage = request.getHeader("accept-language");
