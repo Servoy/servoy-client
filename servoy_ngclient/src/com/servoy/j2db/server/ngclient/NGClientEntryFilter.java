@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -53,7 +52,6 @@ import org.sablo.websocket.WebsocketSessionManager;
 import com.servoy.base.util.TagParser;
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.MessagesResourceBundle;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
@@ -667,7 +665,7 @@ public class NGClientEntryFilter extends WebEntry
 		// push some translations to the client, in case the client cannot connect back
 		JSONObject defaultTranslations = new JSONObject();
 		defaultTranslations.put("servoy.ngclient.reconnecting",
-			getSolutionDefaultMessage(fs.getSolution(), request.getLocale(), "servoy.ngclient.reconnecting"));
+			AngularIndexPageWriter.getSolutionDefaultMessage(fs.getSolution(), request.getLocale(), "servoy.ngclient.reconnecting"));
 		variableSubstitution.put("defaultTranslations", defaultTranslations.toString());
 
 		return variableSubstitution;
@@ -691,19 +689,6 @@ public class NGClientEntryFilter extends WebEntry
 			}
 		}
 		return false;
-	}
-
-	private String getSolutionDefaultMessage(Solution solution, Locale locale, String key)
-	{
-		// removed the cache, if this gets called more often we may add it again
-		return getSolutionDefaultMessageNotCached(solution.getID(), locale, key);
-	}
-
-	private String getSolutionDefaultMessageNotCached(int solutionId, Locale locale, String key)
-	{
-		MessagesResourceBundle messagesResourceBundle = new MessagesResourceBundle(null /* application */, locale == null ? Locale.ENGLISH : locale,
-			null /* columnNameFilter */, null /* columnValueFilter */, solutionId);
-		return messagesResourceBundle.getString(key);
 	}
 
 	/**

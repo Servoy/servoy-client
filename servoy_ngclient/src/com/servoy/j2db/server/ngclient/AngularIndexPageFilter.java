@@ -40,7 +40,7 @@ import org.apache.commons.io.IOUtils;
  *
  */
 @SuppressWarnings("nls")
-@WebFilter(urlPatterns = { "/solution/*/index.html" }, dispatcherTypes = { DispatcherType.REQUEST, DispatcherType.FORWARD })
+@WebFilter(urlPatterns = { "/solution/*" }, dispatcherTypes = { DispatcherType.REQUEST, DispatcherType.FORWARD })
 public class AngularIndexPageFilter implements Filter
 {
 	public static final String SOLUTIONS_PATH = "solution/";
@@ -66,17 +66,21 @@ public class AngularIndexPageFilter implements Filter
 		HttpServletRequest request = (HttpServletRequest)servletRequest;
 		String requestURI = request.getRequestURI();
 		String solutionName = getSolutionNameFromURI(requestURI);
-		if ("GET".equalsIgnoreCase(request.getMethod()) && solutionName != null &&
-			(requestURI.endsWith("/") || requestURI.endsWith("/" + solutionName) || requestURI.toLowerCase().endsWith("/index.html")))
+		if ("GET".equalsIgnoreCase(request.getMethod()) && solutionName != null)
 		{
-			request.getSession();
-			AngularIndexPageWriter.writeIndexPage(this.indexPage, request, (HttpServletResponse)servletResponse, solutionName);
+			if ((requestURI.endsWith("/") || requestURI.endsWith("/" + solutionName) || requestURI.toLowerCase().endsWith("/index.html")))
+			{
+				request.getSession();
+				AngularIndexPageWriter.writeIndexPage(this.indexPage, request, (HttpServletResponse)servletResponse, solutionName);
+				return;
+			}
+			else if (requestURI.toLowerCase().endsWith("/startup.js"))
+			{
+				AngularIndexPageWriter.writeStartupJs(request, (HttpServletResponse)servletResponse, solutionName);
+				return;
+			}
 		}
-		else
-		{
-			// check to redirect the index page resources to "ng" dir?
-			chain.doFilter(servletRequest, servletResponse);
-		}
+		chain.doFilter(servletRequest, servletResponse);
 	}
 
 	@Override
