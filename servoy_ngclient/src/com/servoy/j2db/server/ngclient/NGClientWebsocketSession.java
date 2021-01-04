@@ -167,6 +167,11 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	public void onOpen(final Map<String, List<String>> requestParams)
 	{
 		super.onOpen(requestParams);
+		if (requestParams == null)
+		{
+			CurrentWindow.get().cancelSession("Solution name is required");
+			return;
+		}
 		if (requestParams.containsKey("clienttype"))
 		{
 			clientType = Utils.getAsInteger(requestParams.get("clienttype").get(0), 1);
@@ -174,11 +179,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 		lastSentStyleSheets = null;
 
-		if (requestParams == null)
-		{
-			CurrentWindow.get().cancelSession("Solution name is required");
-			return;
-		}
 		final StartupArguments args = new StartupArguments(requestParams);
 		final String solutionName = args.getSolutionName();
 
