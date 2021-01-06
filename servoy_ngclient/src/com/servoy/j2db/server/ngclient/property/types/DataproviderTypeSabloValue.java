@@ -689,9 +689,19 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 		else if (typeOfDP != null && !valuelistDisplayValue)
 		{
+			Object value = uiValue;
+			// if display value is null but is for count/avg/sum aggregate set it to 0, as
+			// it means that the foundset has no records, so count/avg/sum is 0;
+			// merged this change from SC, DisplaysAdapter
+			if (value == null && com.servoy.j2db.dataprocessing.DataAdapterList.isCountOrAvgOrSumAggregateDataProvider(dataProviderID,
+				new FormAndTableDataProviderLookup(servoyDataConverterContext.getApplication().getFlattenedSolution(),
+					servoyDataConverterContext.getForm().getForm(),
+					dataAdapterList.getRecord() != null ? dataAdapterList.getRecord().getParentFoundSet().getTable() : null)))
+				value = Integer.valueOf(0);
+
 			EmbeddableJSONWriter ejw = new EmbeddableJSONWriter(true); // that 'true' is a workaround for allowing directly a value instead of object or array
 			DataConversion jsonDataConversion = new DataConversion();
-			FullValueToJSONConverter.INSTANCE.toJSONValue(ejw, null, uiValue, typeOfDP, jsonDataConversion, dataConverterContext);
+			FullValueToJSONConverter.INSTANCE.toJSONValue(ejw, null, value, typeOfDP, jsonDataConversion, dataConverterContext);
 			if (jsonDataConversion.getConversions().size() == 0) jsonDataConversion = null;
 			String str = ejw.toJSONString();
 			if (str == null || str.trim().length() == 0)
