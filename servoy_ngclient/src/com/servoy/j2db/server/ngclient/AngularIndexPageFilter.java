@@ -82,6 +82,10 @@ public class AngularIndexPageFilter implements Filter
 				AngularIndexPageWriter.writeStartupJs(request, (HttpServletResponse)servletResponse, solutionName);
 				return;
 			}
+			else if (AngularIndexPageWriter.handleDeeplink(request, (HttpServletResponse)servletResponse))
+			{
+				return;
+			}
 		}
 		chain.doFilter(servletRequest, servletResponse);
 	}
