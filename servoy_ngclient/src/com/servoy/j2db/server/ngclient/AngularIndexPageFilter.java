@@ -51,13 +51,16 @@ public class AngularIndexPageFilter implements Filter
 	{
 		try (InputStream rs = filterConfig.getServletContext().getResourceAsStream("WEB-INF/angular-index.html"))
 		{
-			indexPage = IOUtils.toString(rs, Charset.forName("UTF-8"));
+			if (rs != null)
+			{
+				indexPage = IOUtils.toString(rs, Charset.forName("UTF-8"));
+			}
 		}
 		catch (IOException e)
 		{
 			throw new ServletException(e);
 		}
-		if (indexPage == null) throw new ServletException("Couldn't read 'WEB-INF/angular-index.html' from the context to get the angular index page");
+//		if (indexPage == null) throw new ServletException("Couldn't read 'WEB-INF/angular-index.html' from the context to get the angular index page");
 	}
 
 	@Override
