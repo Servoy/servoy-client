@@ -175,6 +175,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		if (requestParams.containsKey("clienttype"))
 		{
 			clientType = Utils.getAsInteger(requestParams.get("clienttype").get(0), 1);
+			if (clientType == 2) client.getRuntimeProperties().put("NG2", Boolean.TRUE);
 		}
 
 		lastSentStyleSheets = null;
