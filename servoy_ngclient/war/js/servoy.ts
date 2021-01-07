@@ -50,7 +50,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			return attributeListeners;
 		}
 	}
-}).factory("$utils", function($rootScope: angular.IRootScopeService, $timeout: angular.ITimeoutService, $svyProperties: servoy.IServoyProperties, $sabloApplication: sablo.ISabloApplication, $svyI18NService: servoy.IServoyI18NService) {
+}).factory("$utils", function($rootScope: angular.IRootScopeService, $timeout: angular.ITimeoutService, $svyProperties: servoy.IServoyProperties, $sabloApplication: sablo.ISabloApplication, $svyI18NService: servoy.IServoyI18NService,  $log: angular.ILogService) {
 
 	// internal function
 	function getPropByStringPath(o, s) {
@@ -291,6 +291,11 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		},
 		
 		createJSEvent : function(event,eventType,contextFilter,contextFilterElement) {
+			if (!event) {
+				if (contextFilter || contextFilterElement) return null;
+				$log.error("createJSEvent: event is undefined, returning default event");
+				return  {svyType: 'JSEvent', eventType: eventType, "timestamp": new Date().getTime()}; 
+			}
 			var targetEl = event;
 			if (event.target) targetEl = event.target;
 			else if (event.srcElement) targetEl = event.srcElement;
@@ -299,7 +304,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			var parent = targetEl;
 			var targetElNameChain = new Array();
 			var contextMatch = false;
-			while (parent) {
+			while (parent && parent.getAttribute) {
 				form = parent.getAttribute("ng-controller");
 				if (form) {
 					//global shortcut or context match

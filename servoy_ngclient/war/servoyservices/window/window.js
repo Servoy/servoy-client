@@ -330,7 +330,7 @@ angular.module('window',['servoy'])
 				var jsEvent = $utils.createJSEvent(event,"popupClose");
 				if (jsEvent){
 					var formName = jsEvent.formName;
-					if (!formName) formName = callback.formname;
+					if (!formName) formName = closeCallback.formname;
 				}
 				$window.executeInlineScript(formName,closeCallback.script,[jsEvent]);
 			}
