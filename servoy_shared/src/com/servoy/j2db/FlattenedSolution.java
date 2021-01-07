@@ -2381,7 +2381,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return Solution.getForms(getIndex().getIterableFor(Form.class), null, sort);
 	}
 
-	public Iterator<Form> getFormsForNamedFoundset(String namedFoundset)
+	public List<Form> getFormsForNamedFoundset(String namedFoundset)
 	{
 		// not used in client for now, in the future we may cache this
 		List<Form> forms = new ArrayList<Form>();
@@ -2394,7 +2394,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				forms.add(form);
 			}
 		}
-		return forms.iterator();
+		return forms;
 	}
 
 	public Form getForm(int id)
