@@ -59,6 +59,11 @@ public final class QueryColumnValue implements IQuerySelectValue
 		return value;
 	}
 
+	public IQuerySelectValue withValue(Object newValue)
+	{
+		return new QueryColumnValue(newValue, alias, fixedvalue);
+	}
+
 	public String getAlias()
 	{
 		return alias;

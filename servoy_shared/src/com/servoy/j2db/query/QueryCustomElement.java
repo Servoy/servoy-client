@@ -25,15 +25,15 @@ import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * Base class for query elements that are based on a user defined string and arguments.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public class QueryCustomElement implements IQueryElement
 
 {
 	protected final String sql;
-	protected final Object[] args;
+	protected Object[] args;
 
 	public QueryCustomElement(String sql, Object[] args)
 	{
@@ -65,6 +65,8 @@ public class QueryCustomElement implements IQueryElement
 
 	public void acceptVisitor(IVisitor visitor)
 	{
+		// may contain placeholders, they are set using PlaceHolderSetter visitor
+		args = AbstractBaseQuery.acceptVisitor(args, visitor);
 	}
 
 	public QueryTable getTable()
