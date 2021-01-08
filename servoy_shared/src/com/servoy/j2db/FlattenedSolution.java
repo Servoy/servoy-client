@@ -3131,6 +3131,20 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return null;
 	}
 
+	public synchronized void reload()
+	{
+		if (mainSolution != null)
+		{
+			this.flushAllCachedData();
+			getAllStyles();
+			if (index != null)
+			{
+				index.destroy();
+				index = null;
+			}
+		}
+	}
+
 	private class EmptyPersistIndex implements ISolutionModelPersistIndex
 	{
 		private EmptyPersistIndex()
