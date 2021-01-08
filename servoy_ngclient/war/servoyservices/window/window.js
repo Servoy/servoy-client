@@ -328,9 +328,9 @@ angular.module('window',['servoy'])
 			var closeCallback =  scope.model.popupform ? scope.model.popupform.onClose : _this.onClose;
 			if(closeCallback) {
 				var jsEvent = $utils.createJSEvent(event,"popupClose");
-				if (jsEvent){
-					var formName = jsEvent.formName;
-					if (!formName) formName = closeCallback.formname;
+				var formName = closeCallback.formname;
+				if (jsEvent && !formName){
+					formName = jsEvent.formName;
 				}
 				$window.executeInlineScript(formName,closeCallback.script,[jsEvent]);
 			}
