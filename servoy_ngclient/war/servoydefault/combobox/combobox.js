@@ -71,7 +71,8 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 						searchBox.on('focus', focus);
 						focusElement.on('focus', focus);
 					}
-					if (scope.handlers.onFocusLostMethodID) {
+					if (scope.handlers.onFocusLostMethodID || scope.handlers.onFocusGainedMethodID) {
+						if (scope.handlers.onFocusLostMethodID) scope.handlers.onFocusLostMethodID(e);
 						function blur(e) {
 							var currentElement = $(document.activeElement);
 							if (currentElement.is('body'))
