@@ -437,7 +437,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	 * If it is run from the developer it also adds the stack trace
 	 * @param e
 	 */
-	public static void sendInternalError(Exception e)
+	public static void sendInternalError(Throwable e)
 	{
 		Map<String, Object> internalError = new HashMap<>();
 		StringWriter sw = new StringWriter();

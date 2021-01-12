@@ -19,10 +19,12 @@ package com.servoy.j2db.server.ngclient.eventthread;
 
 import org.sablo.eventthread.Event;
 import org.sablo.eventthread.EventDispatcher;
+import org.sablo.websocket.CurrentWindow;
 
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.server.ngclient.INGApplication;
+import com.servoy.j2db.server.ngclient.NGClientWebsocketSession;
 
 /**
  * Runnable of the ScriptThread that executes {@link Event} objects.
@@ -59,4 +61,25 @@ public class NGEventDispatcher extends EventDispatcher
 			J2DBGlobals.setServiceProvider(null);
 		}
 	}
+
+	@Override
+	protected void handleException(Event event, Throwable t)
+	{
+		super.handleException(event, t);
+		boolean restoreWindow = false;
+		if (CurrentWindow.safeGet() == null && event != null)
+		{
+			restoreWindow = true;
+			CurrentWindow.set(event.getWindow());
+		}
+		try
+		{
+			NGClientWebsocketSession.sendInternalError(t);
+		}
+		finally
+		{
+			if (restoreWindow) CurrentWindow.set(null);
+		}
+	}
+
 }
