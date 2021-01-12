@@ -683,6 +683,12 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 		//nop
 	}
 
+	@Override
+	public void showUrl(String url, String browserTarget)
+	{
+		application.showURL(url, browserTarget, null, 0, true);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 *
