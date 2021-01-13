@@ -847,7 +847,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				{
 					for (var i=0;i<listeners.length;i++)
 					{
-						listeners[i].attributesAdded(element, attributes);
+						listeners[i].attributesAdded(element, attributes, scope);
 					}
 				}
 			}

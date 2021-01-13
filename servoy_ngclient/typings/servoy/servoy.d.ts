@@ -154,6 +154,6 @@ declare namespace servoy {
 	}
 	
 	interface IAttributesListener{
-		attributesAdded(element:JQuery, attributes : any);
+		attributesAdded(element:JQuery, attributes : any, scope: angular.IScope);
 	}
 } 
