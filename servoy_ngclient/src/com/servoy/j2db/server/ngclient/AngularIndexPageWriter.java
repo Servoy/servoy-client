@@ -114,7 +114,7 @@ public class AngularIndexPageWriter
 		sb.append(json.toString());
 
 		response.setCharacterEncoding("UTF-8");
-		response.setContentType("text/html");
+		response.setContentType("application/javascript");
 		response.setContentLengthLong(sb.length());
 		response.getWriter().write(sb.toString());
 		if (pair.getRight().booleanValue()) pair.getLeft().close(null);
