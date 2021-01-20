@@ -35,7 +35,7 @@ import com.servoy.j2db.util.Debug;
 
 /**
  * @author jcompagner
- * 
+ *
  */
 public class ScriptObjectRegistry
 {
@@ -144,9 +144,9 @@ public class ScriptObjectRegistry
 		return null;
 	}
 
-	/** 
+	/**
 	 * If there is an XMLScriptObject adapter in the registry, use that.
-	 * This means that the docs were loaded from an XML from the plugin jar. 
+	 * This means that the docs were loaded from an XML from the plugin jar.
 	 * The real scriptobject will be hidden behind the XMLScriptObject adapter.
 	 */
 	public static IScriptObject getAdapterIfAny(IScriptObject scriptObject)
@@ -229,7 +229,7 @@ public class ScriptObjectRegistry
 
 						/*
 						 * (non-Javadoc)
-						 * 
+						 *
 						 * @see com.servoy.j2db.scripting.InstanceJavaMembers#isJsMethod(java.lang.String)
 						 */
 						@Override
@@ -255,8 +255,9 @@ public class ScriptObjectRegistry
 				}
 				map.put(clss, jm);
 			}
-			catch (Exception e)
+			catch (Throwable e)
 			{
+				// this is throwable to not let the smart client not start when a (plugin) class can;'t be found
 				Debug.error("Error creating java members returning null", e); //$NON-NLS-1$
 			}
 			finally
