@@ -1283,7 +1283,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			{
 				guessedType = guessValuelistType(displayValues);
 			}
-			IValueList valueList = com.servoy.j2db.component.ComponentFactory.getRealValueList(this, vl, true, Types.OTHER, null, null);
+			IValueList valueList = com.servoy.j2db.component.ComponentFactory.getRealValueList(this, vl, false, Types.OTHER, null, null);
 			if (valueList instanceof CustomValueList)
 			{
 				((CustomValueList)valueList).setValueType(guessedType);
