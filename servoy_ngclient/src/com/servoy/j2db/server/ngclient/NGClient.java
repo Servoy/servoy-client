@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.rmi.RemoteException;
-import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,7 +49,6 @@ import org.sablo.websocket.WebsocketSessionManager;
 import org.sablo.websocket.impl.ClientService;
 import org.sablo.websocket.utils.JSONUtils;
 
-import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBasicFormManager;
@@ -61,24 +59,21 @@ import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.ClientInfo;
-import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.IClient;
 import com.servoy.j2db.dataprocessing.IDataServer;
-import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.SwingFoundSetFactory;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
-import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.PluginScope;
 import com.servoy.j2db.scripting.info.NGCONSTANTS;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
-import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
 import com.servoy.j2db.server.headlessclient.util.HCUtils;
+import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet.MediaInfo;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceFunction;
@@ -1270,31 +1265,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 					}
 				}
 			});
-		}
-	}
-
-	@Override
-	public void setValueListItems(String name, Object[] displayValues, Object[] realValues, boolean autoconvert)
-	{
-		ValueList vl = getFlattenedSolution().getValueList(name);
-		if (vl != null && vl.getValueListType() == IValueListConstants.CUSTOM_VALUES)
-		{
-			int guessedType = Types.OTHER;
-			if (autoconvert && realValues != null)
-			{
-				guessedType = guessValuelistType(realValues);
-			}
-			else if (autoconvert && displayValues != null)
-			{
-				guessedType = guessValuelistType(displayValues);
-			}
-			IValueList valueList = com.servoy.j2db.component.ComponentFactory.getRealValueList(this, vl, false, Types.OTHER, null, null);
-			if (valueList instanceof CustomValueList)
-			{
-				((CustomValueList)valueList).setValueType(guessedType);
-				((CustomValueList)valueList).fillWithArrayValues(displayValues, realValues);
-				((CustomValueList)valueList).setRuntimeChanged(true);
-			}
 		}
 	}
 
