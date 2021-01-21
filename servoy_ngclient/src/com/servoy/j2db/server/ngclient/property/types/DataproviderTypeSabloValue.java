@@ -248,6 +248,11 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		globalRelatedFoundset = null;
 		globalRelatedFoundsetListener = null;
 
+		if (relatedFoundsets.size() > 0)
+		{
+			// just remove it, no need to test this because a remove will be just a NOP when it was not registered anyway.
+			relatedFoundsets.get(relatedFoundsets.size() - 1).removeAggregateModificationListener(relatedRecordModificationListener);
+		}
 		for (IFoundSetInternal relatedFoundset : relatedFoundsets)
 		{
 			((ISwingFoundSet)relatedFoundset).getSelectionModel().removeListSelectionListener(relatedFoundsetSelectionListener);
