@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.json.JSONObject;
 import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.PropertyDescription;
@@ -457,20 +458,6 @@ public class FormLayoutGenerator
 			if (isNotSelectable(fe)) writer.print(" svy-non-selectable");
 		}
 		writer.print(">");
-	}
-
-	public static String getCSSValue(String value)
-	{
-		try
-		{
-			Utils.getAsInteger(value, true);
-			return value + "px";
-		}
-		catch (Exception ex)
-		{
-
-		}
-		return value;
 	}
 
 //	private static boolean canContainComponents(WebComponentSpecification spec)

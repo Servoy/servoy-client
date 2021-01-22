@@ -23,9 +23,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -84,12 +86,9 @@ public class EditRecordList
 	private final Map<IRecordInternal, List<IPrepareForSave>> recordTested = Collections.synchronizedMap(new HashMap<IRecordInternal, List<IPrepareForSave>>()); //tested for form.OnRecordEditStop event
 	private boolean preparingForSave;
 
-	private final boolean disableInsertsReorder;
-
 	public EditRecordList(FoundSetManager fsm)
 	{
 		this.fsm = fsm;
-		disableInsertsReorder = Utils.getAsBoolean(fsm.getApplication().getSettings().getProperty("servoy.disable.record.insert.reorder", "false")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public IRecordInternal[] getFailedRecords()
@@ -553,6 +552,7 @@ public class EditRecordList
 				}
 
 				Map<IRecordInternal, Integer> processed = new HashMap<IRecordInternal, Integer>();
+				RowUpdateInfo previousRowInfo = null;
 				for (IRecordInternal tmp = getFirstElement(editedRecords, recordsToSave); tmp != null; tmp = getFirstElement(editedRecords, recordsToSave))
 				{
 					// check if we do not have an infinite recursive loop
@@ -626,11 +626,14 @@ public class EditRecordList
 							}
 							if (!validationErrors)
 							{
-								RowUpdateInfo rowUpdateInfo = getRecordUpdateInfo(record);
+								RowUpdateInfo rowUpdateInfo = getRecordUpdateInfo(record, previousRowInfo);
+
 								if (rowUpdateInfo != null)
 								{
 									rowUpdateInfo.setRecord(record);
 									rowUpdates.add(rowUpdateInfo);
+
+									previousRowInfo = rowUpdateInfo;
 								}
 								else
 								{
@@ -706,7 +709,7 @@ public class EditRecordList
 			}
 
 			RowUpdateInfo[] infos = rowUpdates.toArray(new RowUpdateInfo[rowUpdates.size()]);
-			if (infos.length > 1 && !disableInsertsReorder)
+			if (infos.length > 1 && !fsm.disableInsertsReorder)
 			{
 				// search if there are new row pks used that are
 				// used in records before this record and sort it based on that.
@@ -773,11 +776,13 @@ public class EditRecordList
 				}
 			}
 
-			ISQLStatement[] statements = new ISQLStatement[infos.length];
-			for (int i = 0; i < infos.length; i++)
+			// Extracting unique statements from all info's: multiple info's can share the same statement of the records are batched together on the statement level
+			Set<ISQLStatement> uniqueStatements = new LinkedHashSet<ISQLStatement>(infos.length);
+			for (RowUpdateInfo element : infos)
 			{
-				statements[i] = infos[i].getISQLStatement();
+				uniqueStatements.add(element.getISQLStatement());
 			}
+			ISQLStatement[] statements = uniqueStatements.toArray(new ISQLStatement[uniqueStatements.size()]);
 
 			// TODO if one statement fails in a transaction how do we know which one? and should we rollback all rows in these statements?
 			Object[] idents = null;
@@ -1137,7 +1142,7 @@ public class EditRecordList
 	/*
 	 * _____________________________________________________________ Methods for data manipulation
 	 */
-	private RowUpdateInfo getRecordUpdateInfo(IRecordInternal state) throws ServoyException
+	private RowUpdateInfo getRecordUpdateInfo(IRecordInternal state, RowUpdateInfo previous) throws ServoyException
 	{
 		Table table = state.getParentFoundSet().getSQLSheet().getTable();
 		RowManager rowManager = fsm.getRowManager(fsm.getDataSource(table));
@@ -1155,7 +1160,7 @@ public class EditRecordList
 			gt.addRecord(table.getServerName(), state);
 		}
 
-		RowUpdateInfo rowUpdateInfo = rowManager.getRowUpdateInfo(rowData, hasAccess(table, IRepository.TRACKING));
+		RowUpdateInfo rowUpdateInfo = rowManager.getRowUpdateInfo(rowData, hasAccess(table, IRepository.TRACKING), previous);
 		return rowUpdateInfo;
 	}
 

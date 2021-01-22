@@ -36,11 +36,12 @@ public abstract class BaseNGClientEndpoint extends WebsocketEndpoint implements 
 {
 
 	/**
-	 * So basically forms can be on client/browser and have their state 'attachedToDOM' not.<br/>
+	 * So basically forms can be on client/browser and have their state 'attachedToDOM' or not.<br/>
 	 * For example a form could show, then hide so it was attached to DOM then it was detached.<br/><br/>
 	 *
 	 * The boolean in the right of each value in this map represents the attached/detached to/from DOM status.
 	 * The string in the left of each value is the URL for the form with name given by the key. A form is present in this map only
+	 * if it's state is present on client.
 	 */
 	private final ConcurrentMap<String, Pair<String, Boolean>> formsOnClientForThisEndpoint = new ConcurrentHashMap<String, Pair<String, Boolean>>();
 

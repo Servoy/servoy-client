@@ -271,7 +271,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	@JSFunction
 	public QBResult addSubSelect(String customQuery, Object[] args)
 	{
-		return doAddSubSelect(new QueryCustomSelect(customQuery, args), null);
+		return doAddSubSelect(new QueryCustomSelect(customQuery, args == null ? null : getRoot().createOperands(args, null, 0)), null);
 	}
 
 	/**
@@ -288,7 +288,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	@JSFunction
 	public QBResult addSubSelect(String customQuery, Object[] args, String alias)
 	{
-		return doAddSubSelect(new QueryCustomSelect(customQuery, args), alias);
+		return doAddSubSelect(new QueryCustomSelect(customQuery, args == null ? null : getRoot().createOperands(args, null, 0)), alias);
 	}
 
 	public QBResult addSubSelect(IQueryBuilder query, String alias) throws RepositoryException

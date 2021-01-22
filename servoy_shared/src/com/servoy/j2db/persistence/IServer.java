@@ -58,6 +58,8 @@ public interface IServer extends Remote
 
 	public String getDatabaseProductName() throws RepositoryException, RemoteException;
 
+	public String getDatabaseType() throws RepositoryException, RemoteException;
+
 	/**
 	 * Get quoted identifier according to the server dialect when needed, return original when no quoting is needed. When both args are used , the qualified
 	 * name is returned.

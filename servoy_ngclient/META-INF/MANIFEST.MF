@@ -25,6 +25,7 @@ Require-Bundle: servoy_shared,
  org.jsoup,
  org.freemarker.freemarker,
  org.apache.commons.lang3,
+ org.apache.commons.commons-text,
  de.inetsoftware.jlessc,
  org.apache.commons.commons-fileupload
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

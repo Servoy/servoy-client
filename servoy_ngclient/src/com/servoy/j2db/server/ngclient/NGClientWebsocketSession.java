@@ -54,11 +54,13 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.StartupArguments;
+import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.eventthread.NGEventDispatcher;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
@@ -77,6 +79,8 @@ import com.servoy.j2db.util.Utils;
  */
 public class NGClientWebsocketSession extends BaseWebsocketSession implements INGClientWebsocketSession
 {
+	private int clientType = 1;
+
 	private static final class WindowServiceSpecification extends WebObjectSpecification
 	{
 		private WindowServiceSpecification()
@@ -119,6 +123,21 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		return client;
 	}
 
+	/**
+	 * @return the clientType
+	 */
+	public IFormHTMLAndJSGenerator getFormHTMLAndJSGenerator(Form form, String realFormName)
+	{
+		if (clientType != 2)
+		{
+			return new FormHTMLAndJSGenerator(client, form, realFormName);
+		}
+		else
+		{
+			return new AngularFormGenerator(client, form, realFormName);
+		}
+	}
+
 	@Override
 	public INGClientWindow createWindow(int windowNr, String windowName)
 	{
@@ -148,14 +167,19 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	public void onOpen(final Map<String, List<String>> requestParams)
 	{
 		super.onOpen(requestParams);
-
-		lastSentStyleSheets = null;
-
 		if (requestParams == null)
 		{
 			CurrentWindow.get().cancelSession("Solution name is required");
 			return;
 		}
+		if (requestParams.containsKey("clienttype"))
+		{
+			clientType = Utils.getAsInteger(requestParams.get("clienttype").get(0), 1);
+			if (clientType == 2) client.getRuntimeProperties().put("NG2", Boolean.TRUE);
+		}
+
+		lastSentStyleSheets = null;
+
 		final StartupArguments args = new StartupArguments(requestParams);
 		final String solutionName = args.getSolutionName();
 
@@ -413,7 +437,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	 * If it is run from the developer it also adds the stack trace
 	 * @param e
 	 */
-	public static void sendInternalError(Exception e)
+	public static void sendInternalError(Throwable e)
 	{
 		Map<String, Object> internalError = new HashMap<>();
 		StringWriter sw = new StringWriter();

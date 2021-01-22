@@ -5309,6 +5309,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 		}
 
+		if (!initialized)
+		{
+			fsm.getApplication().reportJSWarning(
+				"Performing sort on an uninitialized foundset, please use defer=true or load records first (filter params may be discarded if not applied yet): " +
+					this);
+		}
+
 		reloadWithCurrentQuery(fsm.pkChunkSize, true, false);
 	}
 
@@ -6605,7 +6612,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public boolean copyFrom(FoundSet fs)
 	{
-		if (fs == null || fs.getTable() == null) return false;
+		if (fs == null || fs.getTable() == null || fs == this) return false;
 		if (!fs.getTable().equals(getTable())) return false;
 		if (relationName != null) return false;
 

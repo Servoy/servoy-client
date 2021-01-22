@@ -478,7 +478,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		getApplication().getWebsocketSession()
 			.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE)
 			.executeAsyncServiceCall("setStoreBounds",
-				new Object[] { getName(), String.valueOf(storeBounds) });
+				new Object[] { getName(), Boolean.valueOf(storeBounds) });
 	}
 
 	@Override

@@ -168,7 +168,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 	protected RuntimeWindow createWindowInternal(String windowName, int type, RuntimeWindow parent)
 	{
 		((INGApplication)application).getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("create",
-			new Object[] { windowName, String.valueOf(type) });
+			new Object[] { windowName, Integer.valueOf(type) });
 		if (parent == null && CurrentWindow.exists())
 		{
 			// try to always just set the current parent if it is null

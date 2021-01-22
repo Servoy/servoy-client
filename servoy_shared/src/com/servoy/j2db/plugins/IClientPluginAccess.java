@@ -377,6 +377,14 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	public void showFileOpenDialog(IMediaUploadCallback callback, String fileNameHint, boolean multiSelect, String[] filter, int selection, String dialogTitle);
 
 	/**
+	 * opens the url in the browser. This is the same as calling JSApplication.showUrl();
+	 *
+	 * @param url
+	 * @param browserTarget
+	 */
+	public void showUrl(String url, String browserTarget);
+
+	/**
 	 * exports a remote object on the client that can be transfered to the server (with a remote server call) that can have call backs.
 	 *
 	 * @param object The remote object to export

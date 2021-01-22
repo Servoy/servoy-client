@@ -337,27 +337,27 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 										win.bsWindowInstance.$el.css( 'left', this.location.x + 'px' );
 										win.bsWindowInstance.$el.css( 'top', this.location.y + 'px' );
 									}
-									if ( this.storeBounds ) storage.add( sol + name + '.storedBounds.location', location )
+									if ( this.storeBounds ) storage.set( sol + name + '.storedBounds.location', location )
 								},
 								setSize: function( size ) {
 									this.size = size;
 									if ( win.bsWindowInstance ) {
 										win.bsWindowInstance.setSize( size );
 									}
-									if ( this.storeBounds ) storage.add( sol + name + '.storedBounds.size', size )
+									if ( this.storeBounds ) storage.set( sol + name + '.storedBounds.size', size )
 								},
 								getSize: function() {
 									return win.size;
 								},
 								onResize: function( $event, size ) {
 									win.size = size;
-									if ( win.storeBounds ) storage.add( sol + name + '.storedBounds.size', size )
+									if ( win.storeBounds ) storage.set( sol + name + '.storedBounds.size', size )
 									$sabloApplication.callService( "$windowService", "resize", { name: win.name, size: win.size }, true );
 									win['$scope'].$broadcast( "dialogResize" );
 								},
 								onMove: function( $event, location ) {
 									win.location = { x: location.left, y: location.top };
-									if ( win.storeBounds ) storage.add( sol + name + '.storedBounds.location', win['location'] )
+									if ( win.storeBounds ) storage.set( sol + name + '.storedBounds.location', win['location'] )
 									$sabloApplication.callService( "$windowService", "move", { name: win.name, location: win['location'] }, true );
 								},
 								toFront: function() {
@@ -567,6 +567,12 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 					}
 				},
 				setUndecorated: function( name, undecorated ) {
+                    const currentWindow = 'window' + windowCounter;
+                    if (webStorage.session.has(currentWindow)) {
+                        let window = webStorage.session.get(currentWindow);
+                        window.undecorated = undecorated;
+                        webStorage.session.set(currentWindow, window);
+                    }
 					if ( instances[name] ) {
 						instances[name].undecorated = undecorated;
 					}
@@ -765,6 +771,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
         	                $windowService.create(window.name, window.type);
         	                $windowService.switchForm(window.name, window.switchForm, window.navigatorForm);
         	                $windowService.setTitle(window.name, window.title);
+        	                $windowService.setUndecorated(window.name, window.undecorated);
         	                $windowService.show(window.name, window.showForm, window.showTitle);
         	                $windowService.setCSSClassName(window.name, window.cssClassName);
     						counter++;

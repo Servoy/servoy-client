@@ -2381,6 +2381,22 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return Solution.getForms(getIndex().getIterableFor(Form.class), null, sort);
 	}
 
+	public List<Form> getFormsForNamedFoundset(String namedFoundset)
+	{
+		// not used in client for now, in the future we may cache this
+		List<Form> forms = new ArrayList<Form>();
+		Iterator<Form> it = getIndex().getIterableFor(Form.class);
+		while (it.hasNext())
+		{
+			Form form = it.next();
+			if (Utils.equalObjects(form.getNamedFoundSet(), namedFoundset))
+			{
+				forms.add(form);
+			}
+		}
+		return forms;
+	}
+
 	public Form getForm(int id)
 	{
 		if (id <= 0) return null;
@@ -3113,6 +3129,20 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			Debug.error(e);
 		}
 		return null;
+	}
+
+	public synchronized void reload()
+	{
+		if (mainSolution != null)
+		{
+			this.flushAllCachedData();
+			getAllStyles();
+			if (index != null)
+			{
+				index.destroy();
+				index = null;
+			}
+		}
 	}
 
 	private class EmptyPersistIndex implements ISolutionModelPersistIndex

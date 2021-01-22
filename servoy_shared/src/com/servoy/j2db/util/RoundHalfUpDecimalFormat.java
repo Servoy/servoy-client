@@ -30,12 +30,20 @@ public class RoundHalfUpDecimalFormat extends DecimalFormat
 {
 	private static ConcurrentHashMap<Locale, DecimalFormatSymbols> decimalFormatSymbols = new ConcurrentHashMap<Locale, DecimalFormatSymbols>();
 
+	@SuppressWarnings("nls")
 	public static DecimalFormatSymbols getDecimalFormatSymbols(Locale locale)
 	{
 		DecimalFormatSymbols dfs = decimalFormatSymbols.get(locale);
 		if (dfs == null)
 		{
-			dfs = new DecimalFormatSymbols(locale);
+			Locale loc = locale;
+			if (locale.getCountry().length() == 0)
+			{
+				// without a country the currency can't be get, make the locale with a currency
+				if (locale.getLanguage().equals("en")) loc = new Locale(loc.getLanguage(), "US", loc.getDisplayVariant());
+				else loc = new Locale(loc.getLanguage(), loc.getLanguage().toUpperCase(), loc.getDisplayVariant());
+			}
+			dfs = new DecimalFormatSymbols(loc);
 			decimalFormatSymbols.put(locale, dfs);
 		}
 		return dfs;

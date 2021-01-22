@@ -163,6 +163,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * you need to set the property 'servoy.record.lock.lockInDB' in the servoy.properties file to true. This will try to do a 'select for update no wait' on databases that supports this.
 	 * This can only be used together with a transaction, so before you aquire the lock a transaction must be started so the database lock is held on to the transaction connection.
 	 *
+	 * Do not change the record data before that, because aquirelock will make sure with a select from the database that it really has the latest data.
+	 * If there are changes to columns that you changed before calling aquireLock these changes will be reverted, so you don't change something again that you didn't see really the value of first.
+	 *
 	 * returns true if the lock could be acquired.
 	 *
 	 * @sample

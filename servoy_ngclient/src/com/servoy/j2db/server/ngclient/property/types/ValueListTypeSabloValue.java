@@ -341,7 +341,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		fireUnderlyingPropertyChangeListeners();
 	}
 
-	protected List<Map<String, Object>> getJavaValueForJSON() // TODO this should return TypedData<List<Map<String, Object>>> instead
+	protected List<Map<String, Object>> getJavaValueForJSON(JSONWriter writer) // TODO this should return TypedData<List<Map<String, Object>>> instead
 	{
 		// dataprovider will resolve this, do not send anything client side
 		if (isItemSendBlockedByAssociatedDataproviderResolve()) return new ArrayList<Map<String, Object>>();
@@ -370,15 +370,19 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		int size = Math.min(getConfig().getMaxCount(dataAdapterListToUse.getApplication()), vlSize);
 
 		List<Map<String, Object>> array = new ArrayList<>(size);
+		boolean displayAreDates = false;
+		boolean realAreDates = false;
 		for (int i = 0; i < size; i++)
 		{
 			Map<String, Object> map = new HashMap<String, Object>();
 			Object realValue = (filteredValuelist != null) ? filteredValuelist.getRealElementAt(i) : valueList.getRealElementAt(i);
+			realAreDates = realAreDates | realValue instanceof Date;
 			map.put("realValue", convertDate(realValue));
 			if (Utils.equalObjects(realValue, dpRealValue)) containsDpValue = true;
 			Object displayValue = (filteredValuelist != null) ? filteredValuelist.getElementAt(i) : valueList.getElementAt(i);
 			if (displayValue instanceof Date)
 			{
+				displayAreDates = true;
 				map.put("displayValue", convertDate(displayValue));
 			}
 			else
@@ -409,6 +413,10 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			// only add it if it was removed
 			valueList.addListDataListener(this);
 		}
+		writer.key("realValueAreDates");
+		writer.value(realAreDates);
+		writer.key("displayValueAreDates");
+		writer.value(displayAreDates);
 		return jsonValue;
 	}
 
@@ -562,8 +570,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		}
 		else
 		{
-			List<Map<String, Object>> newJavaValueForJSON = getJavaValueForJSON();
 			writer.object();
+			List<Map<String, Object>> newJavaValueForJSON = getJavaValueForJSON(writer);
 			if (handledIDForResponse != null)
 			{
 				writer.key(HANDLED);

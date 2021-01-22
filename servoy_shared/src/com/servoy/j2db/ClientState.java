@@ -1822,6 +1822,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				}
 
 				((CustomValueList)valuelist).fillWithArrayValues(displayValues, realValues);
+				((CustomValueList)valuelist).setRuntimeChanged(true);
 
 				IBasicFormManager fm = getFormManager();
 				List<IFormController> cachedFormControllers = fm.getCachedFormControllers();
@@ -1833,7 +1834,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		}
 	}
 
-	protected int guessValuelistType(Object[] realValues)
+	private int guessValuelistType(Object[] realValues)
 	{
 		if (realValues == null)
 		{

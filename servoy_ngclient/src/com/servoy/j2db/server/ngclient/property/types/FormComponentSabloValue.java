@@ -157,6 +157,7 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 		}
 	}
 
+	@SuppressWarnings("nls")
 	public void fullToJSON(JSONWriter writer, DataConversion clientConversion, FormComponentPropertyType formComponentPropertyType,
 		IBrowserConverterContext dataConverterContext)
 	{
@@ -178,11 +179,11 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 		writer.array();
 		DataConversion componentConversionMarkers = new DataConversion();
 		componentConversionMarkers.pushNode("childElements");
-		ComponentTypeSabloValue[] components = getComponents();
-		for (int i = 0; i < components.length; i++)
+		ComponentTypeSabloValue[] comps = getComponents();
+		for (int i = 0; i < comps.length; i++)
 		{
 			componentConversionMarkers.pushNode(String.valueOf(i));
-			components[i].fullToJSON(writer, componentConversionMarkers, ComponentPropertyType.INSTANCE);
+			comps[i].fullToJSON(writer, componentConversionMarkers, ComponentPropertyType.INSTANCE);
 			componentConversionMarkers.popNode();
 		}
 		componentConversionMarkers.popNode();
