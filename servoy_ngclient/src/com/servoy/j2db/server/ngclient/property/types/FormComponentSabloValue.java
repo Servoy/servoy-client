@@ -77,7 +77,7 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 
 	public FormComponentCache getCache()
 	{
-		Container parent = component.getParent();
+		Container parent = component.findParent(WebFormUI.class);
 		if (parent instanceof WebFormUI)
 		{
 			// cache it on the FormUI object, because FormElementHelper can only cache when it is not solution model, but then the cache is constantly changing..
