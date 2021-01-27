@@ -546,6 +546,21 @@ public abstract class AbstractBase implements IPersist
 			retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP) ? null : retval;
 	}
 
+	public Object acceptVisitor(IPersistVisitor visitor, Comparator< ? super IPersist> comparator)
+	{
+		Object retval = visitor.visit(this);
+		if (retval == IPersistVisitor.CONTINUE_TRAVERSAL && this instanceof ISupportChilds)
+		{
+			Iterator<IPersist> it = getAllObjects(comparator);
+			while ((retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER) && it.hasNext())
+			{
+				retval = it.next().acceptVisitor(visitor);
+			}
+		}
+		return (retval == IPersistVisitor.CONTINUE_TRAVERSAL || retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER ||
+			retval == IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_UP) ? null : retval;
+	}
+
 	public Object acceptVisitorDepthFirst(IPersistVisitor visitor) throws RepositoryException
 	{
 		Object retval = IPersistVisitor.CONTINUE_TRAVERSAL;
