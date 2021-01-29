@@ -2037,6 +2037,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (pk_data.getRowCount() > 0 && pk_data.getColumnCount() != sheet.getPKIndexes().length)
 			throw new IllegalArgumentException(fsm.getApplication().getI18NMessage("servoy.foundSet.query.error.incorrectNumberOfPKS")); //$NON-NLS-1$
 
+		pk_data = BufferedDataSetInternal.convertPksToRightType(pk_data, getTable());
+
 		pksAndRecords.setPksAndQuery(pk_data, pk_data.getRowCount(), sqlSelect);
 		clearInternalState(true);
 

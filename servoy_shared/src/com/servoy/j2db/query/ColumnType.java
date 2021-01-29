@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db.query;
 
-import java.io.Serializable;
 import java.sql.Types;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -32,7 +31,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
  * @author rgansevles
  *
  */
-public class ColumnType extends BaseColumnType implements Serializable, IWriteReplace
+public class ColumnType extends BaseColumnType implements IWriteReplace
 {
 	private static final ConcurrentMap<ColumnType, ColumnType> instances;
 	public static final ColumnType DUMMY;

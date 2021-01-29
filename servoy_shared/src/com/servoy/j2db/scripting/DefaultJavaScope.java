@@ -150,10 +150,22 @@ public abstract class DefaultJavaScope extends DefaultScope implements IJavaScri
 				{
 					name = method.getName().substring(11);
 				}
-				else if (AnnotationManagerReflection.getInstance().isAnnotationPresent(method, clazz, JSFunction.class) ||
-					AnnotationManagerReflection.getInstance().isAnnotationPresent(method, clazz, JSReadonlyProperty.class))
+				else
 				{
-					name = method.getName();
+					AnnotationManagerReflection annotationManager = AnnotationManagerReflection.getInstance();
+					JSReadonlyProperty jsReadonlyProperty = annotationManager.getAnnotation(method, clazz, JSReadonlyProperty.class);
+					if (jsReadonlyProperty != null)
+					{
+						name = jsReadonlyProperty.property();
+						if (name == null || name.length() == 0)
+						{
+							name = method.getName();
+						}
+					}
+					else if (annotationManager.isAnnotationPresent(method, clazz, JSFunction.class))
+					{
+						name = method.getName();
+					}
 				}
 				if (name != null)
 				{

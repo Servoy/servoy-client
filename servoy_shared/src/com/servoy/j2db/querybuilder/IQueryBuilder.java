@@ -132,6 +132,11 @@ public interface IQueryBuilder extends IQueryBuilderTableClause
 	IQueryBuilderGroupby groupBy();
 
 	/**
+	 * Create a case-when clause for a query
+	 */
+	IQueryBuilderCase qcase();
+
+	/**
 	 * Get or create a parameter for the query, this used to parameterize queries.
 	 * <pre>
 	 * query.where().add(query.getColumn("flag").eq(query.getParameter("myvar"));
