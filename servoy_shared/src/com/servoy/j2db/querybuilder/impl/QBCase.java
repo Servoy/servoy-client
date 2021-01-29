@@ -17,17 +17,16 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.QuerySearchedCaseExpression;
 import com.servoy.j2db.query.QueryWhenClause;
-import com.servoy.j2db.querybuilder.IQueryBuilderFunction;
 import com.servoy.j2db.util.Pair;
 
 /**
@@ -35,17 +34,21 @@ import com.servoy.j2db.util.Pair;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBCase")
-public class QBCase extends QBColumn implements IQueryBuilderFunction
+public class QBCase extends QBPart
 {
 	private final List<Pair<QBCondition, Object>> whenThen = new ArrayList<>();
-	private Object elseValue;
 
 	QBCase(QBSelect root, QBTableClause queryBuilderTableClause)
 	{
-		super(root, queryBuilderTableClause, null);
+		super(root, queryBuilderTableClause);
 	}
 
-	/** RAGTEST doc
+	/**
+	 * Add a when-clause to the case searched expression.
+	 *
+	 * @param condition The condition.
+	 *
+	 * @sampleas com.servoy.j2db.querybuilder.impl.QBSelect#js_case()
 	 */
 	@JSFunction
 	public QBCaseWhen when(QBCondition condition)
@@ -53,13 +56,17 @@ public class QBCase extends QBColumn implements IQueryBuilderFunction
 		return new QBCaseWhen(this, condition);
 	}
 
-	/** RAGTEST doc
+	/**
+	 * Set the return value to use when none of the when-clauses conditions are met.
+	 *
+	 * @param value The value.
+	 *
+	 * @sampleas com.servoy.j2db.querybuilder.impl.QBSelect#js_case()
 	 */
 	@JSFunction
-	public QBCase elseValue(Object value)
+	public QBSearchedCaseExpression elseValue(Object value)
 	{
-		this.elseValue = value;
-		return this;
+		return new QBSearchedCaseExpression(getRoot(), getParent(), buildSearchedCaseExpression(getRoot(), whenThen, value));
 	}
 
 	QBCase withWhenThen(QBCondition whenCondition, Object thenValue)
@@ -68,22 +75,12 @@ public class QBCase extends QBColumn implements IQueryBuilderFunction
 		return this;
 	}
 
-
-	@Override
-	public IQuerySelectValue getQuerySelectValue()
+	private static QuerySearchedCaseExpression buildSearchedCaseExpression(QBSelect root, List<Pair<QBCondition, Object>> whenThen, Object elseValue)
 	{
 		List<QueryWhenClause> qWhenThen = whenThen.stream()
-			.map(pair -> new QueryWhenClause(pair.getLeft().getQueryCondition(), getRoot().createOperand(pair.getRight(), null, 0)))
-			.collect(Collectors.toList());
+			.map(pair -> new QueryWhenClause(pair.getLeft().getQueryCondition(), root.createOperand(pair.getRight(), null, 0)))
+			.collect(toList());
 
-		IQuerySelectValue qElseValue = getRoot().createOperand(elseValue, null, 0);
-
-		return new QuerySearchedCaseExpression(qWhenThen, qElseValue, null);
+		return new QuerySearchedCaseExpression(qWhenThen, root.createOperand(elseValue, null, 0), null);
 	}
-
-//	@Override
-//	public String toString()
-//	{
-//		return (negate ? "!" : "") + functionType.name() + "(<args>)";
-//	}
 }

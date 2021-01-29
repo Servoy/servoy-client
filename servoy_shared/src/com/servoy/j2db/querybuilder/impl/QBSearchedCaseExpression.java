@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2021 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2020 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -13,41 +13,23 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-*/
+ */
 
 package com.servoy.j2db.querybuilder.impl;
 
-import org.mozilla.javascript.annotations.JSFunction;
-
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.scripting.IJavaScriptType;
+import com.servoy.j2db.query.QuerySearchedCaseExpression;
+import com.servoy.j2db.querybuilder.IQueryBuilderPart;
 
 /**
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBCaseWhen")
-public class QBCaseWhen implements IJavaScriptType
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBSearchedCaseExpression")
+public class QBSearchedCaseExpression extends QBColumn implements IQueryBuilderPart
 {
-	private final QBCase parent;
-	private final QBCondition whenCondition;
-
-	QBCaseWhen(QBCase parent, QBCondition whenCondition)
+	QBSearchedCaseExpression(QBSelect root, QBTableClause queryBuilderTableClause, QuerySearchedCaseExpression querySearchedCaseExpression)
 	{
-		this.parent = parent;
-		this.whenCondition = whenCondition;
-	}
-
-	/**
-	 * Set the return value to use when the condition of the searched case expression is met.
-	 *
-	 * @param value The value.
-	 *
-	 * @sampleas com.servoy.j2db.querybuilder.impl.QBSelect#js_case()
-	 */
-	@JSFunction
-	public QBCase then(Object value)
-	{
-		return parent.withWhenThen(whenCondition, value);
+		super(root, queryBuilderTableClause, querySearchedCaseExpression);
 	}
 }

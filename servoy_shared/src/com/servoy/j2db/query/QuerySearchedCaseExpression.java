@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2021 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -31,7 +31,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
- * RAGTEST doc
+ * Case-when element in a query structure.
  *
  * @author rgansevles
  *
@@ -79,13 +79,14 @@ public final class QuerySearchedCaseExpression implements IQuerySelectValue
 		return Stream.concat(whenClauses.stream().map(QueryWhenClause::getResult), Stream.of(otherwiseResult))
 			.filter(Objects::nonNull)
 			.map(IQuerySelectValue::getColumnType)
-			.reduce(QuerySearchedCaseExpression::ragtest)
+			.reduce(QuerySearchedCaseExpression::determineCompatibleColumnType)
 			.orElse(null);
 	}
 
-	/** RAGTEST doc
+	/**
+	 * Determine a column type that is compatible with both types
 	 */
-	private static BaseColumnType ragtest(BaseColumnType type1, BaseColumnType type2)
+	private static BaseColumnType determineCompatibleColumnType(BaseColumnType type1, BaseColumnType type2)
 	{
 		if (type1 == null)
 		{

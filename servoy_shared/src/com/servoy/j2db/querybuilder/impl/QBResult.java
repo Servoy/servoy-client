@@ -181,6 +181,31 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 		return add(func, alias);
 	}
 
+	/**
+	 * Add a case searched expression to the query result.
+	 *
+	 * @param qcase The searched case expression.
+	 *
+	 * @sampleas com.servoy.j2db.querybuilder.impl.QBSelect#js_case()
+	 */
+	public QBResult js_add(QBSearchedCaseExpression qcase)
+	{
+		return add(qcase);
+	}
+
+	/**
+	 * Add a case searched expression with alias to the query result.
+	 *
+	 * @param qcase The searched case expression.
+	 * @param alias function alias
+	 *
+	 * @sampleas com.servoy.j2db.querybuilder.impl.QBSelect#js_case()
+	 */
+	public QBResult js_add(QBSearchedCaseExpression qcase, String alias)
+	{
+		return add(qcase, alias);
+	}
+
 	public QBResult add(IQueryBuilderColumn column)
 	{
 		return add(column, null);

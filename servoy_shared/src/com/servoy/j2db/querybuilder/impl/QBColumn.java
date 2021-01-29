@@ -741,6 +741,6 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@Override
 	public String toString()
 	{
-		return (negate ? "!" : "") + queryColumn.toString();
+		return (negate ? "!" : "") + (queryColumn == null ? "<NONE>" : queryColumn.toString());
 	}
 }

@@ -336,8 +336,6 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 *
 	 * @sample
 	 * 	var query = datasources.db.example_data.order_details.createSelect();
-	 *
-	 * 	var query = datasources.db.example_data.order_details.createSelect();
 	 * 	var mult = query.columns.unitprice.multiply(query.inline(100, query.columns.unitprice));
 	 * 	query.result.add(mult);
 	 * 	query.result.add(query.columns.discount.max);
@@ -489,12 +487,19 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		getQuery().setComment(comment);
 	}
 
-	/** RAGTEST doc
-	 * Create an negated condition.
+	/** Create an case searched expression.
 	 * @sample
-	 * foundset.query.where.add(query.not(query.columns.flag.eq(1)))
+	 * 	var query = datasources.db.example_data.order_details.createSelect();
 	 *
-	 * @param cond the logical condition to negate
+	 * // case expressions can be added to the result of the query
+	 * 	query.result.add(query.case.when(query.columns.quantity.ge(1000)).then('BIG').elseValue('small'));
+	 *
+	 *  // they can also be used in conditions
+	 * 	query.where.add(query.case
+	 * 		.when(query.columns.discount.gt(10)).then(50)
+	 * 		.when(query.columns.quantity.le(20)).then(70)
+	 * 		.elseValue(100)
+	 * 	.multiply(query.columns.unitprice).lt(10000));
 	 */
 	@JSReadonlyProperty(property = "case")
 	public QBCase js_case()
