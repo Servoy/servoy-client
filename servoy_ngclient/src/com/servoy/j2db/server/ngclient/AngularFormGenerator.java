@@ -241,6 +241,13 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		writer.object();
 		writer.key("responsive");
 		writer.value(form.isResponsiveLayout());
+		writer.key("size");
+		writer.object();
+		writer.key("width");
+		writer.value(form.getWidth());
+		writer.key("height");
+		writer.value(form.getSize().getHeight());
+		writer.endObject();
 		String styleClasses = form.getStyleClass();
 		if (styleClasses != null)
 		{
