@@ -26,13 +26,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.text.StringEscapeUtils;
-import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.Container;
 import org.sablo.specification.PropertyDescription;
@@ -42,14 +38,12 @@ import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.CustomJSONPropertyType;
 import org.sablo.specification.property.IPropertyType;
-import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.impl.ClientService;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
-import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.CSSPositionUtils;
@@ -57,23 +51,14 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.persistence.IPersistVisitor;
-import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
-import com.servoy.j2db.persistence.TabPanel;
-import com.servoy.j2db.persistence.WebComponent;
+import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractFormLayoutProvider;
-import com.servoy.j2db.server.ngclient.FormElementHelper.FormComponentCache;
 import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
-import com.servoy.j2db.server.ngclient.property.ComponentTypeConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedPropertyType;
 import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
-import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
-import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.server.ngclient.template.FormTemplateObjectWrapper;
 import com.servoy.j2db.server.ngclient.template.FormWrapper;
 import com.servoy.j2db.server.ngclient.template.PartWrapper;
@@ -328,7 +313,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		{
 			form.acceptVisitor(new ChildrenJSONGenerator(writer,
 				cachedFormController != null ? new ServoyDataConverterContext(cachedFormController) : new ServoyDataConverterContext(client), form, null,
-				null));
+				null, form), PositionComparator.XY_PERSIST_COMPARATOR);
 		}
 		else
 		{
@@ -394,10 +379,11 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 					writer.key("children");
 					// write the default form value object.
 					writer.array();
+
 					form.acceptVisitor(new ChildrenJSONGenerator(writer,
 						cachedFormController != null ? new ServoyDataConverterContext(cachedFormController) : new ServoyDataConverterContext(client), form,
 						null,
-						part));
+						part, form), ChildrenJSONGenerator.FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
 					writer.endArray();
 					writer.endObject();
 				}
@@ -505,255 +491,6 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 				writer.value(size.height + "px");
 				writer.endObject();
 			}
-		}
-	}
-
-
-	/**
-	 * @author jcompagner
-	 */
-	private final class ChildrenJSONGenerator implements IPersistVisitor
-	{
-		private final JSONWriter writer;
-		private final ServoyDataConverterContext context;
-		private final WebFormUI formUI;
-		private final Object skip;
-		private final IFormElementCache cache;
-		private final Part part;
-
-		/**
-		 * @param writer
-		 * @param client
-		 * @param cachedFormController
-		 */
-		private ChildrenJSONGenerator(JSONWriter writer, ServoyDataConverterContext context, Object skip, IFormElementCache cache, Part part)
-		{
-			this.writer = writer;
-			this.context = context;
-			this.skip = skip;
-			this.cache = cache;
-			formUI = (context.getForm() != null && context.getForm().getFormUI() instanceof WebFormUI)
-				? (WebFormUI)context.getForm().getFormUI() : null;
-			this.part = part;
-			if (formUI != null)
-			{
-				// write component properties is not called so do register the container here with the current window.
-				CurrentWindow.get().registerContainer(formUI);
-
-				// add default navigator
-				if (context.getForm().getForm().getNavigatorID() == Form.NAVIGATOR_DEFAULT)
-				{
-					visit(DefaultNavigator.INSTANCE);
-				}
-			}
-		}
-
-		@SuppressWarnings("nls")
-		@Override
-		public Object visit(IPersist o)
-		{
-			if (o == skip) return IPersistVisitor.CONTINUE_TRAVERSAL;
-			if (o instanceof IFormElement)
-			{
-				FormElement fe = null;
-				if (part != null)
-				{
-					int startPos = form.getPartStartYPos(part.getID());
-					int endPos = part.getHeight();
-					Point location = CSSPositionUtils.getLocation((IFormElement)o);
-					if (location != null && (startPos > location.y || endPos <= location.y))
-					{
-						return IPersistVisitor.CONTINUE_TRAVERSAL;
-					}
-				}
-				if (cache != null)
-				{
-					// this is for form component elements finding
-					fe = cache.getFormElement((IFormElement)o, client.getFlattenedSolution(), null, false);
-				}
-				if (fe == null && formUI != null)
-				{
-					List<FormElement> cachedFormElements = formUI.getFormElements();
-					for (FormElement cachedFE : cachedFormElements)
-					{
-						if (Utils.equalObjects(cachedFE.getPersistIfAvailable(), o))
-						{
-							fe = cachedFE;
-							break;
-						}
-					}
-				}
-				fe = fe != null ? fe : FormElementHelper.INSTANCE.getFormElement((IFormElement)o, client.getFlattenedSolution(), null, false);
-				writer.object();
-				writer.key("name");
-				String name = fe.getName();
-				writer.value(name);
-				writer.key("type");
-				if (o instanceof TabPanel)
-				{
-					// special support for TabPanel so that we have a specific tabpanel,tablesspanel,accordion and splitpane
-					String type = "servoydefault-tabpanel";
-					int orient = ((TabPanel)o).getTabOrientation();
-					if (orient == TabPanel.SPLIT_HORIZONTAL || orient == TabPanel.SPLIT_VERTICAL) type = "servoydefault-splitpane";
-					else if (orient == TabPanel.ACCORDION_PANEL) type = "servoydefault-accordion";
-					else if (orient == TabPanel.HIDE || (orient == TabPanel.DEFAULT_ORIENTATION && ((TabPanel)o).hasOneTab()))
-						type = "servoydefault-tablesspanel";
-					writer.value(ClientService.convertToJSName(type));
-				}
-				else
-				{
-					// hack for now to map it to the types that we know are there, so that we can test responsive without really already having to have bootstrap components.
-					writer.value(ClientService.convertToJSName(FormTemplateGenerator.getComponentTypeName((IFormElement)o)));
-				}
-				writePosition(writer, o, form);
-				writer.key("model");
-				writer.object();
-				if (formUI != null)
-				{
-					// there is a existing form, take the current properties from that.
-					WebFormComponent webComponent = formUI.getWebComponent(fe.getName());
-					TypedData<Map<String, Object>> properties = webComponent.getProperties();
-					TypedData<Map<String, Object>> templateProperties = fe.propertiesForTemplateJSON();
-					// remove from the templates properties all the properties that are current "live" in the component
-					templateProperties.content.keySet().removeAll(properties.content.keySet());
-					DataConversion dataConversion = new DataConversion();
-					// write the template properties that are left
-					JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType, dataConversion,
-						new FormElementContext(fe));
-					// write the actual values
-					webComponent.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, properties, dataConversion);
-					JSONUtils.writeClientConversions(writer, dataConversion);
-				}
-				else
-				{
-					fe.propertiesAsTemplateJSON(writer, new FormElementContext(fe));
-				}
-				if (o instanceof BaseComponent)
-				{
-					writer.key("servoyAttributes");
-					writer.array();
-					Map<String, String> attributes = new HashMap<String, String>(((BaseComponent)fe.getPersistIfAvailable()).getMergedAttributes());
-					attributes.forEach((key, value) -> {
-						writer.object();
-						writer.key("key");
-						writer.value(StringEscapeUtils.escapeEcmaScript(key));
-						if (value != null && value.length() > 0)
-						{
-							writer.key("value");
-							writer.value(value);
-						}
-						writer.endObject();
-					});
-					writer.endArray();
-				}
-				writer.endObject();
-				Collection<String> handlers = fe.getHandlers();
-				if (handlers.size() > 0)
-				{
-					writer.key("handlers");
-					writer.array();
-					for (String handler : handlers)
-					{
-						writer.value(handler);
-					}
-					writer.endArray();
-				}
-				if (o instanceof WebComponent)
-				{
-					WebObjectSpecification spec = fe.getWebComponentSpec();
-					if (spec != null)
-					{
-						Collection<PropertyDescription> properties = spec.getProperties(FormComponentPropertyType.INSTANCE);
-						if (properties.size() > 0)
-						{
-							boolean isResponsive = false;
-							List<String> children = new ArrayList<>();
-							for (PropertyDescription pd : properties)
-							{
-								// check FormComponentPropertyType that sends already stuff when it is foundset based
-								// then we don't have todo it here.
-								if (pd.getConfig() instanceof ComponentTypeConfig && ((ComponentTypeConfig)pd.getConfig()).forFoundset != null) continue;
-								children.add("children_" + pd.getName());
-								writer.key("children_" + pd.getName());
-								writer.array();
-								Object propertyValue = fe.getPropertyValue(pd.getName());
-								Form frm = FormComponentPropertyType.INSTANCE.getForm(propertyValue, context.getSolution());
-								if (frm == null) continue;
-								isResponsive = frm.isResponsiveLayout();
-								FormComponentCache fccc = FormElementHelper.INSTANCE.getFormComponentCache(fe, pd,
-									(JSONObject)propertyValue, frm,
-									context.getSolution());
-								if (isResponsive)
-								{
-									// layout containers are not in the cache we need to generate manually the model
-									frm.acceptVisitor(new ChildrenJSONGenerator(writer, context, frm, new IFormElementCache()
-									{
-										@Override
-										public FormElement getFormElement(IFormElement component, FlattenedSolution flattendSol, PropertyPath path,
-											boolean design)
-										{
-											for (FormElement formElement : fccc.getFormComponentElements())
-											{
-												if (component.getID() == formElement.getPersistIfAvailable().getID())
-												{
-													return formElement;
-												}
-											}
-											return FormElementHelper.INSTANCE.getFormElement(component, flattendSol, path, design);
-										}
-									}, null));
-								}
-								else
-								{
-									for (FormElement element : fccc.getFormComponentElements())
-									{
-										IFormElement persistOfElement = (IFormElement)element.getPersistIfAvailable();
-										persistOfElement.acceptVisitor(new ChildrenJSONGenerator(writer, context, null, null, null));
-									}
-								}
-								writer.endArray();
-							}
-							writer.key("formComponent");
-							writer.array();
-							children.stream().forEach((child) -> writer.value(child));
-							writer.endArray();
-							writer.key("responsive");
-							writer.value(isResponsive);
-						}
-					}
-				}
-				writer.endObject();
-			}
-			else if (o instanceof LayoutContainer)
-			{
-				writer.object();
-				writer.key("layout");
-				writer.value(true);
-				String styleClasses = ((LayoutContainer)o).getCssClasses();
-				if (styleClasses != null)
-				{
-					writer.key("styleclass");
-					String[] classes = styleClasses.split(" ");
-					writer.array();
-					for (String cls : classes)
-					{
-						writer.value(cls);
-					}
-					writer.endArray();
-				}
-				if (((LayoutContainer)o).getStyle() != null)
-				{
-					writer.key("style");
-					writer.value(((LayoutContainer)o).getStyle());
-				}
-				writer.key("children");
-				writer.array();
-				o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null));
-				writer.endArray();
-				writer.endObject();
-				return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
-			}
-			return IPersistVisitor.CONTINUE_TRAVERSAL;
 		}
 	}
 }
