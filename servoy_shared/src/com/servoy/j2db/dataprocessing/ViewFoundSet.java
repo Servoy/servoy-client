@@ -705,7 +705,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 * An extra state object can be given that will also be passed around if you want to have more state in the validation objects
 	 * (like giving some ui state so the entity methods know where you come from)
 	 *
-	 * It will return a JSRecordMarkers when the record had validaiton problems
+	 * It will return a JSRecordMarkers when the record had validation problems
 	 *
 	 * @param record
 	 *
