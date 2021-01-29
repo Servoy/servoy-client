@@ -20,6 +20,8 @@ package com.servoy.j2db.querybuilder.impl;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.querybuilder.IQueryBuilderCaseWhen;
+import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.scripting.IJavaScriptType;
 
 /**
@@ -27,12 +29,12 @@ import com.servoy.j2db.scripting.IJavaScriptType;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBCaseWhen")
-public class QBCaseWhen implements IJavaScriptType
+public class QBCaseWhen implements IQueryBuilderCaseWhen, IJavaScriptType
 {
 	private final QBCase parent;
-	private final QBCondition whenCondition;
+	private final IQueryBuilderCondition whenCondition;
 
-	QBCaseWhen(QBCase parent, QBCondition whenCondition)
+	QBCaseWhen(QBCase parent, IQueryBuilderCondition whenCondition)
 	{
 		this.parent = parent;
 		this.whenCondition = whenCondition;

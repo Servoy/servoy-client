@@ -20,8 +20,8 @@ package com.servoy.j2db.querybuilder;
 import com.servoy.j2db.persistence.RepositoryException;
 
 /**
- * Gruop-by clause in Servoy Query Objects.
- * 
+ * Group-by clause in Servoy Query Objects.
+ *
  * @author rgansevles
  *
  * @since 6.1
@@ -41,14 +41,14 @@ public interface IQueryBuilderGroupby extends IQueryBuilderPart
 
 	/**
 	 * Add column name to group-by clause, column name is searched from parent query table.
-	 * 
+	 *
 	 * Same as query.groupBy().add("value")
 	 */
 	IQueryBuilderGroupby add(String columnName) throws RepositoryException;
 
 	/**
 	 * Add column name to group-by clause.
-	 * 
+	 *
 	 * Same as query.groupBy().add(join.getColumn("value"))
 	 */
 	IQueryBuilderGroupby add(IQueryBuilderColumn column) throws RepositoryException;

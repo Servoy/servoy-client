@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2020 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2021 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -15,21 +15,14 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.querybuilder.impl;
-
-import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.query.QuerySearchedCaseExpression;
-import com.servoy.j2db.querybuilder.IQueryBuilderSearchCaseExpression;
+package com.servoy.j2db.querybuilder;
 
 /**
+ * Case search expression used in Servoy Query Objects.
+ *
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBSearchedCaseExpression")
-public class QBSearchedCaseExpression extends QBColumn implements IQueryBuilderSearchCaseExpression
+public interface IQueryBuilderSearchCaseExpression extends IQueryBuilderColumn
 {
-	QBSearchedCaseExpression(QBSelect root, QBTableClause queryBuilderTableClause, QuerySearchedCaseExpression querySearchedCaseExpression)
-	{
-		super(root, queryBuilderTableClause, querySearchedCaseExpression);
-	}
 }

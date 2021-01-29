@@ -504,6 +504,11 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	@JSReadonlyProperty(property = "case")
 	public QBCase js_case()
 	{
+		return qcase();
+	}
+
+	public QBCase qcase()
+	{
 		return new QBCase(getRoot(), this);
 	}
 

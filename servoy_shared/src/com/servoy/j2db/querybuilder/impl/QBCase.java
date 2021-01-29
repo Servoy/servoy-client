@@ -27,6 +27,8 @@ import org.mozilla.javascript.annotations.JSFunction;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.QuerySearchedCaseExpression;
 import com.servoy.j2db.query.QueryWhenClause;
+import com.servoy.j2db.querybuilder.IQueryBuilderCase;
+import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.util.Pair;
 
 /**
@@ -34,7 +36,7 @@ import com.servoy.j2db.util.Pair;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBCase")
-public class QBCase extends QBPart
+public class QBCase extends QBPart implements IQueryBuilderCase
 {
 	private final List<Pair<QBCondition, Object>> whenThen = new ArrayList<>();
 
@@ -51,7 +53,7 @@ public class QBCase extends QBPart
 	 * @sampleas com.servoy.j2db.querybuilder.impl.QBSelect#js_case()
 	 */
 	@JSFunction
-	public QBCaseWhen when(QBCondition condition)
+	public QBCaseWhen when(IQueryBuilderCondition condition)
 	{
 		return new QBCaseWhen(this, condition);
 	}
@@ -69,9 +71,9 @@ public class QBCase extends QBPart
 		return new QBSearchedCaseExpression(getRoot(), getParent(), buildSearchedCaseExpression(getRoot(), whenThen, value));
 	}
 
-	QBCase withWhenThen(QBCondition whenCondition, Object thenValue)
+	QBCase withWhenThen(IQueryBuilderCondition whenCondition, Object thenValue)
 	{
-		whenThen.add(new Pair<>(whenCondition, thenValue));
+		whenThen.add(new Pair<>((QBCondition)whenCondition, thenValue));
 		return this;
 	}
 
