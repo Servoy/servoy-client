@@ -140,11 +140,11 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 	public Object toRhinoValue(Object webComponentValue, PropertyDescription pd, IWebObjectContext componentOrService, Scriptable startScriptable)
 	{
 		Scriptable newObject = DefaultScope.newObject(startScriptable);
-		// TODO return here a NativeScriptable object that understand the full hiearchy?
 		WebFormComponent webFormComponent = (WebFormComponent)componentOrService;
-		IWebFormUI formUI = webFormComponent.findParent(IWebFormUI.class);
 		FlattenedSolution fs = webFormComponent.getDataConverterContext().getSolution();
 		Form form = getForm(webComponentValue, fs);
+		if (form == null) return null;
+		// TODO return here a NativeScriptable object that understand the full hiearchy?
 		FormComponentCache cache = null;
 		if (webComponentValue instanceof FormComponentSabloValue)
 		{
@@ -154,6 +154,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 		{
 			cache = FormElementHelper.INSTANCE.getFormComponentCache(webFormComponent.getFormElement(), pd, (JSONObject)webComponentValue, form, fs);
 		}
+		IWebFormUI formUI = webFormComponent.findParent(IWebFormUI.class);
 		String prefix = FormElementHelper.getStartElementName(webFormComponent.getFormElement(), pd);
 		for (FormElement fe : cache.getFormComponentElements())
 		{
