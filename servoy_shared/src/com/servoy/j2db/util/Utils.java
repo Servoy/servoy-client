@@ -2422,6 +2422,8 @@ public final class Utils
 		return oldObj.equals(obj);
 	}
 
+	// THESE METHODS FOR JSON comparison are copy pasted to sablo's JSONUtils as well; if you alter them please update code in both places!
+	// BEGIN -------------------------
 	/**
 	 * Identical to {@link #areJSONEqual(Object, Object, String)} where keysToIgnoreRegex is null (so it doesn't skip any keys during comparison).
 	 */
@@ -2475,6 +2477,8 @@ public final class Utils
 			return elem;
 		}
 	}
+
+	// END -------------------------
 
 	/**
 	 * Convert to string representation, remove trailing '.0' for numbers.
