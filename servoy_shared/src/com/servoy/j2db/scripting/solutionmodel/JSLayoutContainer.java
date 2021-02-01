@@ -24,6 +24,7 @@ import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AbstractContainer;
@@ -36,6 +37,7 @@ import com.servoy.j2db.scripting.IJavaScriptType;
  */
 @SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSLayoutContainer")
+@ServoyClientSupport(mc = false, wc = false, sc = false, ng = true)
 public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implements IJavaScriptType
 {
 	private LayoutContainer layoutContainer;
