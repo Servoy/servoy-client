@@ -25,6 +25,7 @@ import java.util.TimeZone;
 import java.util.concurrent.ScheduledExecutorService;
 
 import com.servoy.base.util.I18NProvider;
+import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.IClientHost;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
@@ -86,6 +87,14 @@ public interface IServiceProvider extends IEventDelegator, I18NProvider
 	 * @return IClientHost
 	 */
 	public IClientHost getClientHost();
+
+	/**
+	 * FOR INTERNAL USE ONLY, DO NOT CALL.
+	 *
+	 * @return ClientInfo
+	 * @exclude
+	 */
+	public ClientInfo getClientInfo();
 
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL.

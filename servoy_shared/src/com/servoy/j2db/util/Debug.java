@@ -27,8 +27,10 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import com.servoy.base.util.ILogger;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
+import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.persistence.Solution;
 
 public class Debug
@@ -133,6 +135,7 @@ public class Debug
 		}
 	}
 
+	@SuppressWarnings("nls")
 	private static boolean insertClientInfo(boolean insert)
 	{
 		IServiceProvider serviceProvider = J2DBGlobals.getServiceProvider();
@@ -146,6 +149,17 @@ public class Debug
 				{
 					MDC.put("clientid", clientID);
 					MDC.put("solution", solution.getName());
+					String username = serviceProvider.getUserName();
+					if (username != null) MDC.put("username", username);
+					String useruuid = serviceProvider.getUserUID();
+					if (useruuid != null) MDC.put("useruuid", username);
+					ClientInfo clientInfo = serviceProvider.getClientInfo();
+					if (clientInfo != null)
+					{
+						MDC.put("clienttype", IApplication.getApplicationTypeAsString(clientInfo.getApplicationType()));
+						MDC.put("hostname", clientInfo.getHostName());
+						MDC.put("hostaddress", clientInfo.getHostAddress());
+					}
 					return true;
 				}
 			}
@@ -153,12 +167,22 @@ public class Debug
 			{
 				MDC.remove("clientid");
 				MDC.remove("solution");
+				MDC.remove("username");
+				MDC.remove("useruuid");
+				MDC.remove("clienttype");
+				MDC.remove("hostname");
+				MDC.remove("hostaddress");
 			}
 		}
 		else
 		{
 			MDC.remove("clientid");
 			MDC.remove("solution");
+			MDC.remove("username");
+			MDC.remove("useruuid");
+			MDC.remove("clienttype");
+			MDC.remove("hostname");
+			MDC.remove("hostaddress");
 		}
 		return false;
 	}
