@@ -163,6 +163,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		return new NGEventDispatcher(client);
 	}
 
+	@SuppressWarnings("nls")
 	@Override
 	public void onOpen(final Map<String, List<String>> requestParams)
 	{
@@ -176,6 +177,12 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		{
 			clientType = Utils.getAsInteger(requestParams.get("clienttype").get(0), 1);
 			if (clientType == 2) client.getRuntimeProperties().put("NG2", Boolean.TRUE);
+			else client.getRuntimeProperties().remove("NG2");
+		}
+		else
+		{
+			clientType = 1;
+			client.getRuntimeProperties().remove("NG2");
 		}
 
 		lastSentStyleSheets = null;
