@@ -144,7 +144,19 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 		// so that code that is run through a scheduler or databroadcast will have a current container in scripting
 		// getCurrentWindowName will return null so that the system can still know the difference. (NGEvent that resets the current window)
 		NGRuntimeWindow currentWindow = (NGRuntimeWindow)super.getCurrentWindow();
-		return currentWindow != null ? currentWindow : getWindow(lastCurrentWindow);
+		if (currentWindow == null)
+		{
+			if (log.isInfoEnabled())
+				log.info("Couldn't get the current window getting it by the last know window name " + lastCurrentWindow + ", all windows: " + this.windows);
+			currentWindow = getWindow(lastCurrentWindow);
+			if (currentWindow == null)
+			{
+				if (log.isInfoEnabled())
+					log.info("Last know window name " + lastCurrentWindow + " didn't result in a window returning the main application window");
+				currentWindow = (NGRuntimeWindow)getMainApplicationWindow();
+			}
+		}
+		return currentWindow;
 	}
 
 	@Override
