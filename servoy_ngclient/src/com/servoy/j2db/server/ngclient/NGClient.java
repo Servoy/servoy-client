@@ -117,9 +117,18 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	private Map<Object, Object> uiProperties;
 
-	private final Map<String, String> overrideStyleSheets = new HashMap<String, String>();
+	private final Map<String, String> overrideStyleSheets = new HashMap<String, String>(3);
+
+	private final Map<String, String> clientFunctions = new HashMap<String, String>(3);
+
+	private IMediaUploadCallback mediaUploadCallback;
+
+	private boolean reloadClientFunctionsSend;
 
 	private HashMap<String, String> properties = null;
+
+	private final Set<Pair<Form, String>> toRecreate = new HashSet<>();
+
 
 	private final IPerformanceRegistry perfRegistry;
 
@@ -1281,8 +1290,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		}
 	}
 
-	private IMediaUploadCallback mediaUploadCallback;
-
 	public IMediaUploadCallback getMediaUploadCallback()
 	{
 		return mediaUploadCallback;
@@ -1478,8 +1485,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		}
 	}
 
-	private final Set<Pair<Form, String>> toRecreate = new HashSet<>();
-
 	@Override
 	public void recreateForm(Form form, String name)
 	{
@@ -1495,6 +1500,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public void changesWillBeSend()
 	{
+		reloadClientFunctionsSend = false;
 		if (toRecreate.size() > 0)
 		{
 			NGClientWebsocketSessionWindows allWindowsProxy = new NGClientWebsocketSessionWindows(getWebsocketSession());
@@ -1571,6 +1577,30 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		return lastAccessed;
 	}
 
+
+	@Override
+	public String registerClientFunction(String code)
+	{
+		String uuid = clientFunctions.get(code);
+		if (uuid == null)
+		{
+			uuid = UUID.randomUUID().toString();
+			clientFunctions.put(code, uuid);
+			if (!reloadClientFunctionsSend)
+			{
+				reloadClientFunctionsSend = true;
+				this.getWebsocketSession().getClientService(NGClientWebsocketSession.CLIENT_FUNCTION_SERVICE).executeAsyncServiceCall("reloadClientFunctions",
+					null);
+			}
+		}
+		return uuid;
+	}
+
+	@Override
+	public Map<String, String> getClientFunctions()
+	{
+		return this.clientFunctions;
+	}
 
 	/**
 	 * @author jcompagner

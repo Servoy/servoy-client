@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.util.Map;
+
 import org.sablo.IChangeListener;
 import org.sablo.specification.WebObjectFunctionDefinition;
 
@@ -51,4 +53,8 @@ public interface INGApplication extends INGClientApplication
 	void recreateForm(Form form, String name);
 
 	void flushRecreatedForm(Form form, String formName);
+
+	String registerClientFunction(String code);
+
+	Map<String, String> getClientFunctions();
 }

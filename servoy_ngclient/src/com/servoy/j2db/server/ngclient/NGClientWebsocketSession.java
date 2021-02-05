@@ -79,6 +79,8 @@ import com.servoy.j2db.util.Utils;
  */
 public class NGClientWebsocketSession extends BaseWebsocketSession implements INGClientWebsocketSession
 {
+	public static final String CLIENT_FUNCTION_SERVICE = "clientFunctionService"; //$NON-NLS-1$
+
 	private int clientType = 1;
 
 	private static final class WindowServiceSpecification extends WebObjectSpecification
@@ -96,12 +98,27 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	private static final WindowServiceSpecification WINDOWS_SERVICE_SPEC = new WindowServiceSpecification();
 
+	private static final class ClientFunctionsServiceSpecification extends WebObjectSpecification
+	{
+		private ClientFunctionsServiceSpecification()
+		{
+			super(CLIENT_FUNCTION_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, "", null, null);
+			WebObjectFunctionDefinition reload = new WebObjectFunctionDefinition("reloadClientFunctions");
+			reload.setAsync(true);
+			reload.setPreDataServiceCall(true);
+			addApiFunction(reload);
+		}
+	}
+
+	private static final ClientFunctionsServiceSpecification CLIENT_FUNCTIONS_SERVICE_SPEC = new ClientFunctionsServiceSpecification();
+
 	private NGClient client;
 
 	public NGClientWebsocketSession(WebsocketSessionKey sessionKey)
 	{
 		super(sessionKey);
 		registerClientService(new ServoyClientService(NGRuntimeWindowManager.WINDOW_SERVICE, WINDOWS_SERVICE_SPEC, this, false));
+		registerClientService(new ServoyClientService(CLIENT_FUNCTION_SERVICE, CLIENT_FUNCTIONS_SERVICE_SPEC, this, false));
 	}
 
 	@Override
@@ -237,6 +254,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						startHandlingEvent();
 						try
 						{
+							client.getClientFunctions().clear();
 							sendUIProperties();
 							client.getRuntimeWindowManager().getCurrentWindow().setController(currentForm);
 							sendSolutionCSSURL(solution.getSolution());
