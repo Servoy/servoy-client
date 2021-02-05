@@ -142,6 +142,13 @@ public class AngularIndexPageWriter
 			ContentSecurityPolicyConfig contentSecurityPolicyConfig = getContentSecurityPolicyConfig(request);
 			if (contentSecurityPolicyConfig != null)
 			{
+				String directive = contentSecurityPolicyConfig.getDirective("script-src");
+				if (directive != null)
+				{
+					// for NG2 remove the unsafe-eval;
+					directive = directive.replace("'unsafe-eval' ", "");
+					contentSecurityPolicyConfig.setDirective("script-src", directive);
+				}
 				sb.append("\n  <meta http-equiv=\"Content-Security-Policy\" content=\"");
 				contentSecurityPolicyConfig.getDirectives().forEach(sb::append);
 				sb.append("\">");
