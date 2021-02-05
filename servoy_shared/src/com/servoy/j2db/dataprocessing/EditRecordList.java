@@ -17,17 +17,16 @@
 package com.servoy.j2db.dataprocessing;
 
 import static com.servoy.j2db.util.Utils.equalObjects;
+import static java.util.Arrays.stream;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -49,11 +48,16 @@ import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.query.Placeholder;
+import com.servoy.j2db.query.QueryInsert;
+import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IntHashMap;
 import com.servoy.j2db.util.ServoyException;
@@ -182,7 +186,7 @@ public class EditRecordList
 
 				if (filterValue instanceof Object[])
 				{
-					return Arrays.stream((Object[])filterValue).anyMatch(equalsRecordValue);
+					return stream((Object[])filterValue).anyMatch(equalsRecordValue);
 				}
 
 				if (filterValue instanceof Iterable)
@@ -552,7 +556,6 @@ public class EditRecordList
 				}
 
 				Map<IRecordInternal, Integer> processed = new HashMap<IRecordInternal, Integer>();
-				RowUpdateInfo previousRowInfo = null;
 				for (IRecordInternal tmp = getFirstElement(editedRecords, recordsToSave); tmp != null; tmp = getFirstElement(editedRecords, recordsToSave))
 				{
 					// check if we do not have an infinite recursive loop
@@ -626,14 +629,11 @@ public class EditRecordList
 							}
 							if (!validationErrors)
 							{
-								RowUpdateInfo rowUpdateInfo = getRecordUpdateInfo(record, previousRowInfo);
-
+								RowUpdateInfo rowUpdateInfo = getRecordUpdateInfo(record);
 								if (rowUpdateInfo != null)
 								{
 									rowUpdateInfo.setRecord(record);
 									rowUpdates.add(rowUpdateInfo);
-
-									previousRowInfo = rowUpdateInfo;
 								}
 								else
 								{
@@ -776,13 +776,36 @@ public class EditRecordList
 				}
 			}
 
-			// Extracting unique statements from all info's: multiple info's can share the same statement of the records are batched together on the statement level
-			Set<ISQLStatement> uniqueStatements = new LinkedHashSet<ISQLStatement>(infos.length);
-			for (RowUpdateInfo element : infos)
+			ISQLStatement[] statements;
+			if (fsm.statementBatching && infos.length > 1)
 			{
-				uniqueStatements.add(element.getISQLStatement());
+				// Merge insert statements insert statements from all info's: multiple info's can share the same statement of the records are batched together on the statement level
+				List<ISQLStatement> mergedStatements = new ArrayList<ISQLStatement>(infos.length);
+
+				ISQLStatement prevStatement = null;
+				for (RowUpdateInfo rowUpdateInfo : infos)
+				{
+					ISQLStatement statement = rowUpdateInfo.getISQLStatement();
+
+					if (statement.getAction() == ISQLActionTypes.INSERT_ACTION &&
+						prevStatement != null && prevStatement.getAction() == ISQLActionTypes.INSERT_ACTION &&
+						insertStatementsCanBeMerged(prevStatement, statement))
+					{
+						mergeInsertStatements(prevStatement, statement);
+					}
+					else
+					{
+						prevStatement = statement;
+						mergedStatements.add(statement);
+					}
+				}
+
+				statements = mergedStatements.toArray(new ISQLStatement[mergedStatements.size()]);
 			}
-			ISQLStatement[] statements = uniqueStatements.toArray(new ISQLStatement[uniqueStatements.size()]);
+			else
+			{
+				statements = stream(infos).map(RowUpdateInfo::getISQLStatement).toArray(ISQLStatement[]::new);
+			}
 
 			// TODO if one statement fails in a transaction how do we know which one? and should we rollback all rows in these statements?
 			Object[] idents = null;
@@ -1070,6 +1093,122 @@ public class EditRecordList
 	}
 
 	/**
+	 * Check if these 2 insert statements can be merged into one batched on.
+	 * @throws RepositoryException
+	 */
+	private boolean insertStatementsCanBeMerged(ISQLStatement statement1, ISQLStatement statement2)
+	{
+		// table
+		if (!statement1.getServerName().equals(statement2.getServerName()) || !statement1.getTableName().equals(statement2.getTableName()))
+		{
+			return false;
+		}
+
+		// skip oracle server
+		try
+		{
+			IServer server = fsm.getApplication().getSolution().getServer(statement1.getServerName());
+			if (SQLSheet.isOracleServer(server))
+			{
+				return false;
+			}
+		}
+		catch (RepositoryException e)
+		{
+			return false;
+		}
+
+		if (statement1.isOracleFixTrackingData() || statement2.isOracleFixTrackingData())
+		{
+			return false;
+		}
+
+		// insert with PKs, these will be combined
+		if (statement1.getPKs() == null || statement2.getPKs() == null || statement1.getPKs().getColumnCount() != statement2.getPKs().getColumnCount())
+		{
+			return false;
+		}
+
+		// filters
+		if (!statement1.getClass().equals(statement2.getClass()))
+		{
+			return false;
+		}
+		if (statement1 instanceof SQLStatement && !Utils.safeEquals(((SQLStatement)statement1).getFilters(), ((SQLStatement)statement2).getFilters()))
+		{
+			return false;
+		}
+
+		// Don't batch if statement requires requery, only because SQLStatements & serverside logic cannot handle it (yet)
+		// Neither do batching if tracking is enabled, because setTrackingData isn't yet implemented properly for batching
+
+		// requerySelect
+		if (statement1.getRequerySelect() != null || statement2.getRequerySelect() != null)
+		{
+			return false;
+		}
+
+		// tracking
+		if (statement1 instanceof SQLStatement && ((SQLStatement)statement1).isTracking())
+		{
+			return false;
+		}
+		if (statement2 instanceof SQLStatement && ((SQLStatement)statement2).isTracking())
+		{
+			return false;
+		}
+
+		// transaction
+		if (!Utils.safeEquals(statement1.getTransactionID(), statement2.getTransactionID()))
+		{
+			return false;
+		}
+
+		// identitycolumn
+		if (statement1.usedIdentity() || statement2.usedIdentity())
+		{
+			return false;
+		}
+
+		// datatype
+		if (statement1.getDataType() != statement2.getDataType())
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Merge the src statement into the target statement.
+	 */
+	private void mergeInsertStatements(ISQLStatement targetStatement, ISQLStatement srcStatement)
+	{
+		QueryInsert sqlUpdateTarget = (QueryInsert)targetStatement.getUpdate();
+		Placeholder placeholderTarget = sqlUpdateTarget
+			.getPlaceholder(new TablePlaceholderKey(sqlUpdateTarget.getTable(), SQLGenerator.PLACEHOLDER_INSERT_KEY));
+		Object[][] valTarget = (Object[][])placeholderTarget.getValue();
+
+		QueryInsert sqlUpdateSrc = (QueryInsert)srcStatement.getUpdate();
+		Placeholder placeholderSrc = sqlUpdateSrc.getPlaceholder(new TablePlaceholderKey(sqlUpdateSrc.getTable(), SQLGenerator.PLACEHOLDER_INSERT_KEY));
+		Object[][] valSrc = (Object[][])placeholderSrc.getValue();
+
+		// Copy insert values into the target insert placeholder
+		for (int i = 0; i < valTarget.length; i++)
+		{
+			valTarget[i] = Utils.arrayJoin(valSrc[i], valTarget[i]);
+		}
+
+		// Copy the pks into the target pks
+		IDataSet targetpKs = targetStatement.getPKs();
+		IDataSet srcpKs = srcStatement.getPKs();
+		for (int row = 0; row < srcpKs.getRowCount(); row++)
+		{
+			targetpKs.addRow(srcpKs.getRow(row));
+		}
+	}
+
+	/**
 	 * @param rowUpdates
 	 */
 	private void placeBackAlreadyProcessedRecords(List<RowUpdateInfo> rowUpdates)
@@ -1142,7 +1281,7 @@ public class EditRecordList
 	/*
 	 * _____________________________________________________________ Methods for data manipulation
 	 */
-	private RowUpdateInfo getRecordUpdateInfo(IRecordInternal state, RowUpdateInfo previous) throws ServoyException
+	private RowUpdateInfo getRecordUpdateInfo(IRecordInternal state) throws ServoyException
 	{
 		Table table = state.getParentFoundSet().getSQLSheet().getTable();
 		RowManager rowManager = fsm.getRowManager(fsm.getDataSource(table));
@@ -1160,7 +1299,7 @@ public class EditRecordList
 			gt.addRecord(table.getServerName(), state);
 		}
 
-		RowUpdateInfo rowUpdateInfo = rowManager.getRowUpdateInfo(rowData, hasAccess(table, IRepository.TRACKING), previous);
+		RowUpdateInfo rowUpdateInfo = rowManager.getRowUpdateInfo(rowData, hasAccess(table, IRepository.TRACKING));
 		return rowUpdateInfo;
 	}
 
