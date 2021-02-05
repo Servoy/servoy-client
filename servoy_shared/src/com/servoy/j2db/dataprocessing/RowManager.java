@@ -49,7 +49,6 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLUpdate;
-import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryDelete;
@@ -662,7 +661,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		}
 	}
 
-	RowUpdateInfo getRowUpdateInfo(Row row, boolean tracking, RowUpdateInfo previous) throws ServoyException
+	RowUpdateInfo getRowUpdateInfo(Row row, boolean tracking) throws ServoyException
 	{
 		try
 		{
@@ -699,8 +698,6 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			boolean doesExistInDB = row.existInDB();
 			List<String> aggregatesToRemove = new ArrayList<String>(8);
 			List<String> changedColumns = null;
-			SQLStatement statement = null;
-
 			if (doesExistInDB)
 			{
 				statement_action = ISQLActionTypes.UPDATE_ACTION;
@@ -788,31 +785,12 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			}
 			else
 			{
-				// Determining whether the row can be batched in with the SQLStatement for the previously processed row
-				// Only doing batching on inserts atm, because updates are harder to implement
-				if (fsm.statementBatching && !oracleServer && previous != null) // The !oracleServer clause is done because setTrackingData isn't implemented for batched statements (yet) and when using lobs in Oracle, setTrackingData is used
-				{
-					Row previousRow = previous.getRow();
-
-					if (previousRow.getRowManager() == this && previousRow.existInDB() == doesExistInDB)
-					{
-						statement = (SQLStatement)previous.getISQLStatement();
-
-						// Don't batch if statement requires requery, only because SQLStatements & serverside logic cannot handle it (yet)
-						// Neither do batching if tracking is enabled, because setTrackingData isn't yet implemented properly for batching
-						if (statement.getRequerySelect() != null || statement.isTracking())
-						{
-							statement = null;
-						}
-					}
-				}
-
 				List<Object> argsArray = new ArrayList<Object>();
 				statement_action = ISQLActionTypes.INSERT_ACTION;
 				sqlDesc = sheet.getSQLDescription(SQLSheet.INSERT);
+		 	sqlUpdate = (ISQLUpdate)AbstractBaseQuery.deepClone(sqlDesc.getSQLQuery());
 				List<String> req = sqlDesc.getRequiredDataProviderIDs();
-				List<Column> queryColumnsToRemove = new ArrayList<Column>();
-
+				if (Debug.tracing()) Debug.trace(sqlUpdate.toString());
 				for (int i = 0; i < req.size(); i++)
 				{
 					String dataProviderID = req.get(i);
@@ -820,10 +798,9 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					{
 						aggregatesToRemove.addAll(sheet.getAggregateName(dataProviderID));
 					}
-
 					Column c = table.getColumn(dataProviderID);
+					QueryColumn queryColumn = c.queryColumn(((QueryInsert)sqlUpdate).getTable());
 					ColumnInfo ci = c.getColumnInfo();
-
 					if (c.isDBIdentity())
 					{
 						dbPKReturnValues.add(c);
@@ -843,7 +820,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 							// The database has a default value, and the value is null, and this is an insert...
 							// Remove the column from the query entirely and make sure the default value is requeried from the db.
 							mustRequeryRow = true;
-							queryColumnsToRemove.add(c);
+							((QueryInsert)sqlUpdate).removeColumn(queryColumn);
 						}
 						else
 						{
@@ -867,52 +844,18 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 						}
 					}
 				}
-
-				if (!queryColumnsToRemove.isEmpty())
-				{
-					statement = null;
-				}
-
-				sqlUpdate = statement == null ? (ISQLUpdate)AbstractBaseQuery.deepClone(sqlDesc.getSQLQuery())
-					: statement.getUpdate();
-
-				for (Column c : queryColumnsToRemove)
-				{
-					((QueryInsert)sqlUpdate).removeColumn(c.queryColumn(((QueryInsert)sqlUpdate).getTable()));
-				}
-
-				Debug.trace(sqlUpdate);
-
-				if (statement == null)
-				{
-					AbstractBaseQuery.setPlaceholderValue(sqlUpdate,
-						new TablePlaceholderKey(((QueryInsert)sqlUpdate).getTable(), SQLGenerator.PLACEHOLDER_INSERT_KEY), argsArray.toArray());
-				}
-				else
-				{
-					Placeholder p = (Placeholder)((QueryInsert)sqlUpdate).getValues();
-					Object[][] val = (Object[][])p.getValue();
-
-					// CHECKME copying over the values to a new, longer array here everytime a new row is added to a batched statement.
-					//	does that need improving?
-					for (int i = 0; i < val.length; i++)
-					{
-						val[i] = Utils.arrayAdd(val[i], argsArray.get(i), true);
-					}
-				}
+				AbstractBaseQuery.setPlaceholderValue(sqlUpdate,
+					new TablePlaceholderKey(((QueryInsert)sqlUpdate).getTable(), SQLGenerator.PLACEHOLDER_INSERT_KEY), argsArray.toArray());
 			}
-
 			Object[] pk = row.getPK();
-			IDataSet pks = statement != null ? statement.getPKs() : new BufferedDataSet();
+			IDataSet pks = new BufferedDataSet();
 			pks.addRow(pk);
-
 			String tid = null;
 			GlobalTransaction gt = fsm.getGlobalTransaction();
 			if (gt != null)
 			{
 				tid = gt.getTransactionID(sheet.getServerName());
 			}
-
 			QuerySelect requerySelect = null;
 			if (mustRequeryRow)
 			{
@@ -924,47 +867,20 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 							" in query " + requerySelect + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$
 				}
 			}
-
-			if (statement == null)
+			SQLStatement statement = new SQLStatement(statement_action, sheet.getServerName(), table.getName(), pks, tid, sqlUpdate,
+				fsm.getTableFilterParams(sheet.getServerName(), sqlUpdate), requerySelect);
+			if (doesExistInDB) statement.setExpectedUpdateCount(1); // check that the row is updated (skip check for inert)
+			if (changedColumns != null)
 			{
-				statement = new SQLStatement(statement_action, sheet.getServerName(), table.getName(), pks, tid, sqlUpdate,
-					fsm.getTableFilterParams(sheet.getServerName(), sqlUpdate), requerySelect);
-
-				if (doesExistInDB) statement.setExpectedUpdateCount(1); // check that the row is updated (skip check for inert)
-
-				if (changedColumns != null)
-				{
-					statement.setChangedColumns(changedColumns.toArray(new String[changedColumns.size()]));
-				}
-
-				statement.setOracleFixTrackingData(usesLobs && !tracking);
-				statement.setIdentityColumn(dbPKReturnValues.size() == 0 ? null : dbPKReturnValues.get(0));
-
-				if (tracking || usesLobs)
-				{
-					statement.setTrackingData(sheet.getColumnNames(), row.getRawOldColumnData() != null ? new Object[][] { row.getRawOldColumnData() } : null,
-						row.getRawColumnData() != null ? new Object[][] { row.getRawColumnData() } : null, fsm.getApplication().getUserUID(),
-						fsm.getTrackingInfo(),
-						fsm.getApplication().getClientID());
-				}
+				statement.setChangedColumns(changedColumns.toArray(new String[changedColumns.size()]));
 			}
-			else
+			statement.setOracleFixTrackingData(usesLobs && !tracking);
+			statement.setIdentityColumn(dbPKReturnValues.size() == 0 ? null : dbPKReturnValues.get(0));
+			if (tracking || usesLobs)
 			{
-				if (doesExistInDB) statement.setExpectedUpdateCount(statement.getExpectedUpdateCount() + 1);
-
-				// as batching is only for inserts atm, nothing is to be done currently for changedColumns
-				if (changedColumns != null)
-				{
-					// TODO implement something when implementing batching for updates
-				}
-
-				if (!statement.isOracleFixTrackingData()) statement.setOracleFixTrackingData(usesLobs && !tracking);
-
-				if (tracking || usesLobs)
-				{
-					// TODO In order to remove the batching restriction that batching only works if tracking is off,
-					//	statement.setTrackingData needs to be called here to update old/newData with additional rows
-				}
+				statement.setTrackingData(sheet.getColumnNames(), row.getRawOldColumnData() != null ? new Object[][] { row.getRawOldColumnData() } : null,
+					row.getRawColumnData() != null ? new Object[][] { row.getRawColumnData() } : null, fsm.getApplication().getUserUID(), fsm.getTrackingInfo(),
+					fsm.getApplication().getClientID());
 			}
 			return new RowUpdateInfo(row, statement, dbPKReturnValues, aggregatesToRemove);
 		}
