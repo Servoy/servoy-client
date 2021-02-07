@@ -57,7 +57,6 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryInsert;
-import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IntHashMap;
 import com.servoy.j2db.util.ServoyException;
@@ -1185,12 +1184,13 @@ public class EditRecordList
 	private void mergeInsertStatements(ISQLStatement targetStatement, ISQLStatement srcStatement)
 	{
 		QueryInsert sqlUpdateTarget = (QueryInsert)targetStatement.getUpdate();
-		Placeholder placeholderTarget = sqlUpdateTarget
-			.getPlaceholder(new TablePlaceholderKey(sqlUpdateTarget.getTable(), SQLGenerator.PLACEHOLDER_INSERT_KEY));
+		Placeholder placeholderTarget = (Placeholder)sqlUpdateTarget.getValues();
+//		Placeholder placeholderTarget = sqlUpdateTarget.getPlaceholder(new TablePlaceholderKey(sqlUpdateTarget.getTable(), SQLGenerator.PLACEHOLDER_INSERT_KEY));
 		Object[][] valTarget = (Object[][])placeholderTarget.getValue();
 
 		QueryInsert sqlUpdateSrc = (QueryInsert)srcStatement.getUpdate();
-		Placeholder placeholderSrc = sqlUpdateSrc.getPlaceholder(new TablePlaceholderKey(sqlUpdateSrc.getTable(), SQLGenerator.PLACEHOLDER_INSERT_KEY));
+		Placeholder placeholderSrc = (Placeholder)sqlUpdateSrc.getValues();
+//		Placeholder placeholderSrc = sqlUpdateSrc.getPlaceholder(new TablePlaceholderKey(sqlUpdateSrc.getTable(), SQLGenerator.PLACEHOLDER_INSERT_KEY));
 		Object[][] valSrc = (Object[][])placeholderSrc.getValue();
 
 		// Copy insert values into the target insert placeholder
