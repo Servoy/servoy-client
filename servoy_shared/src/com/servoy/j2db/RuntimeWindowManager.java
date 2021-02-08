@@ -38,7 +38,7 @@ import com.servoy.j2db.util.Utils;
 public abstract class RuntimeWindowManager
 {
 	protected static final Logger log = LoggerFactory.getLogger("RuntimeWindowManager");
-	private static final String MAIN_APPLICATION_WINDOW_NAME = "mainApplicationWindow";
+	protected static final String MAIN_APPLICATION_WINDOW_NAME = "mainApplicationWindow";
 
 	protected final HashMap<String, RuntimeWindow> windows = new HashMap<String, RuntimeWindow>();
 	private String currentWindowName = null; // this should be null when the main application window is the current window

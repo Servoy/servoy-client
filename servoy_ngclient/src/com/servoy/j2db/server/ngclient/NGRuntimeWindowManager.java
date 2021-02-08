@@ -127,8 +127,22 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 	@Override
 	protected RuntimeWindow getMainApplicationWindow()
 	{
-		int windowNr = CurrentWindow.exists() ? CurrentWindow.get().getNr() : -1;
-		return windowNr != -1 ? getWindow(String.valueOf(windowNr)) : null;
+		RuntimeWindow runtimeWindow = this.windows.get(MAIN_APPLICATION_WINDOW_NAME);
+		if (runtimeWindow == null)
+		{
+			int windowNr = CurrentWindow.exists() ? CurrentWindow.get().getNr() : -1;
+			if (windowNr != -1)
+			{
+				String name = String.valueOf(windowNr);
+				runtimeWindow = getWindow(name);
+				if (runtimeWindow == null)
+				{
+					runtimeWindow = createWindowInternal(name, JSWindow.WINDOW, null);
+					windows.put(name, runtimeWindow);
+				}
+			}
+		}
+		return runtimeWindow;
 	}
 
 	@Override
