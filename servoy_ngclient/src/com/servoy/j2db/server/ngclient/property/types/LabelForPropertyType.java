@@ -31,6 +31,7 @@ import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
@@ -70,7 +71,7 @@ public class LabelForPropertyType extends DefaultPropertyType<String>
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
-		if (sabloValue != null && dataConverterContext != null && dataConverterContext.getWebObject() instanceof WebComponent)
+		if (!Utils.stringIsEmpty(sabloValue) && dataConverterContext != null && dataConverterContext.getWebObject() instanceof WebComponent)
 		{
 			writer.value(ComponentFactory.getMarkupId(
 				((WebComponent)dataConverterContext.getWebObject()).findParent(IWebFormUI.class).getController().getName(), sabloValue));
