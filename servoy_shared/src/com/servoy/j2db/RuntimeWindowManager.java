@@ -120,12 +120,15 @@ public abstract class RuntimeWindowManager
 	public RuntimeWindow getCurrentWindow()
 	{
 		RuntimeWindow window = getWindow(currentWindowName);
-		if (window == null && currentWindowName != null)
+		if (window == null)
 		{
-			if (log.isInfoEnabled()) log.info("No current window for " + currentWindowName + " creating one");
-			// the current window shouldn't be null, this could be a new tab in the web, create it
-			window = createWindowInternal(currentWindowName, JSWindow.WINDOW, null);
-			windows.put(currentWindowName, window);
+			if (log.isInfoEnabled()) log.info("No current window for '" + currentWindowName + "' creating one if name is not null");
+			if (currentWindowName != null)
+			{
+				// the current window shouldn't be null, this could be a new tab in the web, create it
+				window = createWindowInternal(currentWindowName, JSWindow.WINDOW, null);
+				windows.put(currentWindowName, window);
+			}
 		}
 		return window;
 	}
