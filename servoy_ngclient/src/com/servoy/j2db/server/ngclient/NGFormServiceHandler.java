@@ -187,7 +187,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 				{
 					if (!(ex instanceof ExitScriptException))
 					{
-						Debug.error("Cannot execute inline script", ex);
+						Debug.error("Cannot execute inline script: " + args, ex);
 					}
 				}
 				break;
