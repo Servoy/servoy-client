@@ -84,6 +84,9 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 
 	var servoyApi = function(beanname) {
 		return {
+		  getFormName: function() {
+                return $scope.formname;
+            },
 			formWillShow: function(formname,relationname,formIndex) {
 				return $formService.formWillShow(formname,true,$scope.formname,beanname,relationname,formIndex);
 			},

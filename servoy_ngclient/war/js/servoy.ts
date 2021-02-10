@@ -912,7 +912,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	};
 })
-.directive( 'svyFormComponent', function($utils, $compile: angular.ICompileService, $templateCache, $foundsetTypeConstants: foundsetType.FoundsetTypeConstants, $sabloConstants, $timeout: angular.ITimeoutService, $webSocket: sablo.IWebSocket, $applicationService, $anchorConstants) {
+.directive( 'svyFormComponent', function($utils, $compile: angular.ICompileService, $templateCache, $foundsetTypeConstants: foundsetType.FoundsetTypeConstants, $sabloConstants, $timeout: angular.ITimeoutService, $webSocket: sablo.IWebSocket, $applicationService, $anchorConstants, $formService) {
 		return {
 			restrict: 'A',
 			scope: {
@@ -1117,6 +1117,12 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							this.trustAsHtml = ( ) => {
 								return $applicationService.trustAsHtml(rowModel);
 							}
+                            this.formWillShow =  function(formname,relationname,formIndex) {
+                                return $formService.formWillShow(formname,true,svyServoyApi.getFormName(),childElement.name,relationname,formIndex);
+                            }
+                            this.hideForm  = function(formname,relationname,formIndex,formNameThatWillShow,relationnameThatWillBeShown,formIndexThatWillBeShown) {
+                                return $formService.hideForm(formname,svyServoyApi.getFormName(),childElement.name,relationname,formIndex,formNameThatWillShow,relationnameThatWillBeShown,formIndexThatWillBeShown);
+                            }
 						}
 						ServoyApi.prototype = svyServoyApi;
 						
