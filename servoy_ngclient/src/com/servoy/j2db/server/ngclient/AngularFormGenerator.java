@@ -57,6 +57,7 @@ import com.servoy.j2db.server.headlessclient.dataui.AbstractFormLayoutProvider;
 import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedPropertyType;
 import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
 import com.servoy.j2db.server.ngclient.template.FormTemplateObjectWrapper;
@@ -106,6 +107,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		});
 		for (WebObjectSpecification spec : specs)
 		{
+			if (spec.isDeprecated()) continue;
 			genereateSpec(sb, spec, spec.getName());
 			if (spec.getName().equals("servoydefault-tabpanel"))
 			{
@@ -174,7 +176,14 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 				sb.append(name);
 				sb.append("Change)=\"callback.datachange(state,'");
 				sb.append(name);
-				sb.append("',$event)\"");
+				if (pd.getType() instanceof DataproviderPropertyType)
+				{
+					sb.append("',$event, true)\"");
+				}
+				else
+				{
+					sb.append("',$event)\"");
+				}
 			}
 		}
 
