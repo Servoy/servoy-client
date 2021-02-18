@@ -277,6 +277,17 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 				}
 			} );
 
+			function saveInSessionStorage(property, propertyName) {
+				const currentWindow = 'window' + windowCounter;
+				if (property && webStorage.session.has(currentWindow)) {
+					let window = webStorage.session.get(currentWindow);
+					if (!window[propertyName]) {
+						window[propertyName] = property;
+						webStorage.session.set(currentWindow, window);
+					}
+				}
+			}
+
 			var self: servoy.IWindowService = {
 
 				getLoadedFormState: function() {
@@ -514,14 +525,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 					}
 				},
 				setTitle: function( name, title ) {
-					const currentWindow = 'window' + windowCounter;
-					if (title && webStorage.session.has(currentWindow)) {
-						let window = webStorage.session.get(currentWindow);
-						if (!window.title) {
-							window.title = title;
-							webStorage.session.set(currentWindow, window);
-						}
-					}
+					saveInSessionStorage(title, 'title');
 					if ( instances[name] && instances[name].type != WindowType.WINDOW ) {
 						instances[name].title = title;
 					} else {
@@ -533,11 +537,13 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 					}
 				},
 				setInitialBounds: function( name, initialBounds ) {
+					saveInSessionStorage(initialBounds, 'initialBounds');
 					if ( instances[name] ) {
 						instances[name].initialBounds = initialBounds;
 					}
 				},
 				setStoreBounds: function( name, storeBounds ) {
+					saveInSessionStorage(storeBounds, 'storeBounds');
 					if ( instances[name] ) {
 						instances[name].storeBounds = storeBounds;
 					}
@@ -549,11 +555,13 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 					}
 				},
 				setLocation: function( name, location ) {
+					saveInSessionStorage(location, 'location');
 					if ( instances[name] ) {
 						instances[name].setLocation( location );
 					}
 				},
 				setSize: function( name, size ) {
+					saveInSessionStorage(size, 'size');
 					if ( instances[name] ) {
 						instances[name].setSize( size );
 					}
@@ -567,17 +575,13 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 					}
 				},
 				setUndecorated: function( name, undecorated ) {
-                    const currentWindow = 'window' + windowCounter;
-                    if (webStorage.session.has(currentWindow)) {
-                        let window = webStorage.session.get(currentWindow);
-                        window.undecorated = undecorated;
-                        webStorage.session.set(currentWindow, window);
-                    }
+					saveInSessionStorage(undecorated, 'undecorated');
 					if ( instances[name] ) {
 						instances[name].undecorated = undecorated;
 					}
 				},
 				setCSSClassName: function( name, cssClassName ) {
+					saveInSessionStorage(cssClassName, 'cssClassName');
 					const currentWindow = 'window' + windowCounter;
 					if (webStorage.session.has(currentWindow)) {
 						let window = webStorage.session.get(currentWindow);
@@ -591,16 +595,19 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 					}
 				},
 				setOpacity: function( name, opacity ) {
+					saveInSessionStorage(opacity, 'opacity');
 					if ( instances[name] ) {
 						instances[name].opacity = opacity;
 					}
 				},
 				setResizable: function( name, resizable ) {
+					saveInSessionStorage(resizable, 'resizable');
 					if ( instances[name] ) {
 						instances[name].resizable = resizable;
 					}
 				},
 				setTransparent: function( name, transparent ) {
+					saveInSessionStorage(transparent, 'transparent');
 					if ( instances[name] ) {
 						instances[name].transparent = transparent;
 					}
@@ -772,11 +779,16 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
         	                $windowService.switchForm(window.name, window.switchForm, window.navigatorForm);
         	                $windowService.setTitle(window.name, window.title);
         	                $windowService.setUndecorated(window.name, window.undecorated);
+							$windowService.setCSSClassName(window.name, window.cssClassName);
+							$windowService.setSize(window.name, window.size);
+							$windowService.setInitialBounds(window.name, window.initialBounds);
+							$windowService.setStoreBounds(window.name, window.storeBounds);
+							$windowService.setLocation(window.name, window.location);
+							$windowService.setOpacity(window.name, window.opacity);
+							$windowService.setTransparent(window.name, window.transparent);
         	                $windowService.show(window.name, window.showForm, window.showTitle);
-        	                $windowService.setCSSClassName(window.name, window.cssClassName);
     						counter++;
     					} 
-
         	  		}
 	            }
 		});
