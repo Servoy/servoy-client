@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import static com.servoy.j2db.server.ngclient.AngularIndexPageWriter.addcontentSecurityPolicyHeader;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -33,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
+import org.sablo.security.ContentSecurityPolicyConfig;
 
 /**
  * @author jcompagner
@@ -67,6 +70,7 @@ public class AngularIndexPageFilter implements Filter
 	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException
 	{
 		HttpServletRequest request = (HttpServletRequest)servletRequest;
+		HttpServletResponse response = (HttpServletResponse)servletResponse;
 		String requestURI = request.getRequestURI();
 		String solutionName = getSolutionNameFromURI(requestURI);
 		if ("GET".equalsIgnoreCase(request.getMethod()) && solutionName != null)
@@ -74,7 +78,10 @@ public class AngularIndexPageFilter implements Filter
 			if ((requestURI.endsWith("/") || requestURI.endsWith("/" + solutionName) || requestURI.toLowerCase().endsWith("/index.html")))
 			{
 				request.getSession();
-				AngularIndexPageWriter.writeIndexPage(this.indexPage, request, (HttpServletResponse)servletResponse, solutionName);
+
+				ContentSecurityPolicyConfig contentSecurityPolicyConfig = addcontentSecurityPolicyHeader(request, response, false); // for NG2 remove the unsafe-eval
+				AngularIndexPageWriter.writeIndexPage(this.indexPage, request, response, solutionName,
+					contentSecurityPolicyConfig == null ? null : contentSecurityPolicyConfig.getNonce());
 				return;
 			}
 			else if (requestURI.toLowerCase().endsWith("/startup.js"))

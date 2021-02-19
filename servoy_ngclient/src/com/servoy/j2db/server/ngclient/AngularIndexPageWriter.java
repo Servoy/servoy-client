@@ -21,6 +21,7 @@ import static com.servoy.j2db.persistence.IRepository.SOLUTIONS;
 import static com.servoy.j2db.server.ngclient.MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS;
 import static com.servoy.j2db.server.ngclient.WebsocketSessionFactory.CLIENT_ENDPOINT;
 import static com.servoy.j2db.util.Utils.getAsBoolean;
+import static java.util.stream.Collectors.joining;
 import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 
 import java.io.BufferedReader;
@@ -121,7 +122,8 @@ public class AngularIndexPageWriter
 	}
 
 
-	public static void writeIndexPage(String page, HttpServletRequest request, HttpServletResponse response, String solutionName)
+	public static void writeIndexPage(String page, HttpServletRequest request, HttpServletResponse response, String solutionName,
+		String contentSecurityPolicyNonce)
 		throws IOException, ServletException
 	{
 		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
@@ -140,20 +142,9 @@ public class AngularIndexPageWriter
 			sb.append("\">");
 
 			ContentSecurityPolicyConfig contentSecurityPolicyConfig = getContentSecurityPolicyConfig(request);
-			if (contentSecurityPolicyConfig != null)
+			if (contentSecurityPolicyNonce != null)
 			{
-				String directive = contentSecurityPolicyConfig.getDirective("script-src");
-				if (directive != null)
-				{
-					// for NG2 remove the unsafe-eval;
-					directive = directive.replace("'unsafe-eval' ", "");
-					contentSecurityPolicyConfig.setDirective("script-src", directive);
-				}
-				sb.append("\n  <meta http-equiv=\"Content-Security-Policy\" content=\"");
-				contentSecurityPolicyConfig.getDirectives().forEach(sb::append);
-				sb.append("\">");
-
-				indexHtml = indexHtml.replace("<script ", "<script nonce='" + contentSecurityPolicyConfig.getNonce() + '\'');
+				indexHtml = indexHtml.replace("<script ", "<script nonce='" + contentSecurityPolicyNonce + '\'');
 			}
 
 			String titleText = fs.getSolution().getTitleText();
@@ -354,12 +345,31 @@ public class AngularIndexPageWriter
 		return messagesResourceBundle.getString(key);
 	}
 
+	public static ContentSecurityPolicyConfig addcontentSecurityPolicyHeader(HttpServletRequest request, HttpServletResponse response, boolean allowUnsafeEval)
+	{
+		ContentSecurityPolicyConfig contentSecurityPolicyConfig = getContentSecurityPolicyConfig(request);
+		if (contentSecurityPolicyConfig != null)
+		{
+			response.addHeader("Content-Security-Policy", contentSecurityPolicyConfig.getDirectives().entrySet().stream()
+				.map(entry -> {
+					String value = entry.getValue();
+					if (!allowUnsafeEval && "script-src".equals(entry.getKey()))
+					{
+						value = value.replace("'unsafe-eval'", "");
+					}
+					return entry.getKey() + ' ' + value;
+				})
+				.collect(joining("; ")));
+		}
+		return contentSecurityPolicyConfig;
+	}
+
 	/**
 	 * Get the ContentSecurityPolicyConfig is it should be applied, otherwise return null;
 	 *
 	 * Only when configured and when the browser is a modern browser that supports Content-Security-Policy level 3.
 	 */
-	public static ContentSecurityPolicyConfig getContentSecurityPolicyConfig(HttpServletRequest request)
+	private static ContentSecurityPolicyConfig getContentSecurityPolicyConfig(HttpServletRequest request)
 	{
 		Settings settings = Settings.getInstance();
 		if (!getAsBoolean(settings.getProperty("servoy.ngclient.setContentSecurityPolicyHeader", "true")))
@@ -383,6 +393,7 @@ public class AngularIndexPageWriter
 
 		// Overridable directives
 		setDirectiveOverride(contentSecurityPolicyConfig, "frame-src", settings);
+		setDirectiveOverride(contentSecurityPolicyConfig, "frame-ancestors", settings);
 		setDirectiveOverride(contentSecurityPolicyConfig, "style-src", settings);
 		setDirectiveOverride(contentSecurityPolicyConfig, "img-src", settings);
 		setDirectiveOverride(contentSecurityPolicyConfig, "font-src", settings);
@@ -439,5 +450,4 @@ public class AngularIndexPageWriter
 		}
 		return false;
 	}
-
 }
