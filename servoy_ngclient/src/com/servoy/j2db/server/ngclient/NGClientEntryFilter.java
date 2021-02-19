@@ -92,19 +92,22 @@ public class NGClientEntryFilter extends WebEntry
 
 	public static final String ANGULAR_JS = "js/angular.js";
 	public static final String[][] ANGULAR_JS_MODULES = { //
-		{ "angular-animate", "js/angular-modules/1.7.7/angular-animate.js" }, //
-		{ "angular-aria", "js/angular-modules/1.7.7/angular-aria.js" }, //
-		{ "angular-cookies", "js/angular-modules/1.7.7/angular-cookies.js" }, //
-		{ "angular-message-format", "js/angular-modules/1.7.7/angular-message-format.js" }, //
-		{ "angular-messages", "js/angular-modules/1.7.7/angular-messages.js" }, //
-		{ "angular-resource", "js/angular-modules/1.7.7/angular-resource.js" }, //
-		{ "angular-touch", "js/angular-modules/1.7.7/angular-touch.js" } };
+		{ "angular-animate", "js/angular-modules/1.8.2/angular-animate.js" }, //
+		{ "angular-aria", "js/angular-modules/1.8.2/angular-aria.js" }, //
+		{ "angular-cookies", "js/angular-modules/1.8.2/angular-cookies.js" }, //
+		{ "angular-message-format", "js/angular-modules/1.8.2/angular-message-format.js" }, //
+		{ "angular-messages", "js/angular-modules/1.8.2/angular-messages.js" }, //
+		{ "angular-resource", "js/angular-modules/1.8.2/angular-resource.js" }, //
+		{ "angular-touch", "js/angular-modules/1.8.2/angular-touch.js" } };
 	public static final String BOOTSTRAP_CSS = "css/bootstrap/css/bootstrap.css";
 
 	public static final String[] INDEX_3RD_PARTY_CSS = { //
 		"js/bootstrap-window/css/bootstrap-window.css" };
+
+	public static final String JQUERY_MIGRATE = "js/jquery-migrate-3.3.2.js";
+
 	public static final String[] INDEX_3RD_PARTY_JS = { //
-		"js/jquery-3.3.1.js", //
+		"js/jquery-3.5.1.js", //
 		"js/jquery.maskedinput.js", //
 		ANGULAR_JS, //
 		"js/angular-sanitize.js", //
@@ -811,6 +814,7 @@ public class NGClientEntryFilter extends WebEntry
 		else
 		{
 			allIndexJS = new ArrayList<String>(appendGroupIdRequestParamToUrls(asList(INDEX_3RD_PARTY_JS)));
+			if (System.getProperty("use.jquery.migrate", "false").equals("true")) allIndexJS.addAll(appendGroupIdRequestParamToUrls(asList(JQUERY_MIGRATE)));
 			allIndexJS.addAll(appendGroupIdRequestParamToUrls(asList(INDEX_SABLO_JS)));
 			allIndexJS.addAll(appendGroupIdRequestParamToUrls(asList(INDEX_SERVOY_JS)));
 			allIndexJS.addAll(appendGroupIdRequestParamToUrls(jsContributions));

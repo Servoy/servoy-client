@@ -1,5 +1,14 @@
 <#ftl output_format="JavaScript">
 angular.module('servoyApp').run(function($solutionSettings, $svyI18NService, $webSocket){
+        if (jQuery.UNSAFE_restoreLegacyHtmlPrefilter) {
+            jQuery.UNSAFE_restoreLegacyHtmlPrefilter();
+        }
+        else {        
+            var rxhtmlTag = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([a-z][^\/\0>\x20\t\r\n\f]*)[^>]*)\/>/gi;
+            jQuery.htmlPrefilter = function( html ) {
+                return html.replace( rxhtmlTag, "<$1></$2>" );
+            };
+        }
 		<#-- set pathname as received by the client, may be different from browser in case of url rewrite -->
 		<#--refer to solutions/<solution>/index.html, we are in solutions/<solution>/<clientnr>/main/startup.js -->
 		$webSocket.setPathname("${pathname?replace('[^/]*/[^/]*/startup.js$', 'index.html', 'r')}");

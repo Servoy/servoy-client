@@ -1,6 +1,6 @@
 /**
- * @license AngularJS v1.7.7
- * (c) 2010-2018 Google, Inc. http://angularjs.org
+ * @license AngularJS v1.8.2
+ * (c) 2010-2020 Google LLC. http://angularjs.org
  * License: MIT
  */
 (function(window, angular) {'use strict';
@@ -1056,7 +1056,7 @@ var toJson;
 var $$stringify;
 
 var ngModule = window['angular']['module']('ngMessageFormat', ['ng']);
-ngModule['info']({ 'angularVersion': '1.7.7' });
+ngModule['info']({ 'angularVersion': '1.8.2' });
 ngModule['factory']('$$messageFormat', $$MessageFormatFactory);
 ngModule['config'](['$provide', function($provide) {
   $interpolateMinErr = window['angular']['$interpolateMinErr'];
