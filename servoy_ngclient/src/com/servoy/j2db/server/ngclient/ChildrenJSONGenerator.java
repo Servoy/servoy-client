@@ -28,7 +28,10 @@ import java.util.Map;
 import org.apache.commons.text.StringEscapeUtils;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebLayoutSpecification;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.TypedData;
@@ -296,7 +299,8 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.object();
 			writer.key("layout");
 			writer.value(true);
-			String styleClasses = ((LayoutContainer)o).getCssClasses();
+			LayoutContainer layoutContainer = (LayoutContainer)o;
+			String styleClasses = layoutContainer.getCssClasses();
 			if (styleClasses != null)
 			{
 				writer.key("styleclass");
@@ -308,11 +312,42 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				}
 				writer.endArray();
 			}
-			if (((LayoutContainer)o).getStyle() != null)
+			if (layoutContainer.getStyle() != null)
 			{
 				writer.key("style");
-				writer.value(((LayoutContainer)o).getStyle());
+				writer.value(layoutContainer.getStyle());
 			}
+			Map<String, String> attributes = new HashMap<String, String>(layoutContainer.getMergedAttributes());
+			WebLayoutSpecification spec = null;
+			if (layoutContainer.getPackageName() != null)
+			{
+				PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getSpecProviderState().getLayoutSpecifications().get(
+					layoutContainer.getPackageName());
+				if (pkg != null)
+				{
+					spec = pkg.getSpecification(layoutContainer.getSpecName());
+				}
+			}
+			if (spec != null)
+			{
+				for (String propertyName : spec.getAllPropertiesNames())
+				{
+					PropertyDescription pd = spec.getProperty(propertyName);
+					if (pd.getDefaultValue() != null && !attributes.containsKey(propertyName))
+					{
+						attributes.put(propertyName, pd.getDefaultValue().toString());
+					}
+				}
+			}
+			writer.key("attributes");
+			writer.object();
+			attributes.remove("class");
+			attributes.remove("style");
+			attributes.forEach((key, value) -> {
+				writer.key(key);
+				writer.value(value);
+			});
+			writer.endObject();
 			writer.key("children");
 			writer.array();
 			o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form), PositionComparator.XY_PERSIST_COMPARATOR);
