@@ -1,4 +1,4 @@
-angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servoydefaultHtmlarea', function($apifunctions, $sabloConstants, $svyProperties,$applicationService, $timeout) {  
+angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servoydefaultHtmlarea', function($apifunctions, $sabloConstants, $svyProperties,$applicationService, $timeout, $sabloApplication) {  
 	return {
 		restrict: 'E',
 		scope: {
@@ -104,7 +104,10 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 						 }
 					}
 			}
-
+            var locale = $sabloApplication.getLocale();
+            if (locale && locale.language) {
+                $scope.tinyConfig.language = locale.language;
+            }
 			// app level configuration
 			var defaultConfiguration = $applicationService.getUIProperty("config");
 			if (defaultConfiguration)
