@@ -57,6 +57,7 @@ import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.solutionmodel.ISMDefaults;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.docvalidator.IdentDocumentValidator;
 
 
@@ -2157,7 +2158,8 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 
 	public static JSWebComponent createWebComponent(IJSParent< ? > parent, WebComponent baseComponent, IApplication application, boolean isNew)
 	{
-		if (application.getApplicationType() == IApplication.NG_CLIENT)
+		if (application.getApplicationType() == IApplication.NG_CLIENT ||
+			Utils.getAsBoolean(application.getRuntimeProperties().get("JSUnit")))
 		{
 			return new JSNGWebComponent(parent, baseComponent, application, isNew);
 		}
