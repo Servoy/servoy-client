@@ -84,7 +84,7 @@ public class RhinoConversion
 			for (Object id2 : ids)
 			{
 				String id = String.valueOf(id2);
-				map.put(id, defaultFromRhino(no.get(id2), oldMap != null ? oldMap.get(id) : null));
+				map.put(id, defaultFromRhino(no.get(id, no), oldMap != null ? oldMap.get(id) : null));
 			}
 			return map;
 		}
@@ -96,10 +96,9 @@ public class RhinoConversion
 
 			final NativeArray no = (NativeArray)propertyValue;
 			final long naLength = no.getLength();
-			for (long id = 0; id < naLength; id++)
+			for (int id = 0; id < naLength; id++)
 			{
-				list.add(
-					defaultFromRhino(no.get(id), oldList != null ? oldList.get((int)id) : null));
+				list.add(defaultFromRhino(no.get(id, no), oldList != null ? oldList.get(id) : null));
 
 			}
 			return list;
@@ -176,18 +175,18 @@ public class RhinoConversion
 								if (!Utils.equalObjects(((List)webComponentValue).get(index), value))
 								{
 									((List)webComponentValue).set(index, value);
-									if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
+									if (webObjectContext != null && pd != null)
+										webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
 								}
 							}
 							else
 							{
 								for (int i = ((List)webComponentValue).size(); i < index; i++)
 								{
-
 									((List)webComponentValue).add(i, null);
 								}
 								((List)webComponentValue).add(index, value);
-								if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
+								if (webObjectContext != null && pd != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
 
 							}
 						}
@@ -201,7 +200,7 @@ public class RhinoConversion
 						{
 							((List)webComponentValue).remove(index);
 						}
-						if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
+						if (webObjectContext != null && pd != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
 					}
 				};
 
