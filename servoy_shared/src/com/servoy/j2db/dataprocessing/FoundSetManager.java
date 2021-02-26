@@ -169,6 +169,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public final boolean loadRelatedRecordsIfParentIsNew;
 	public final boolean statementBatching;
 	public final boolean disableInsertsReorder;
+	public final boolean experimentalFoundSetNotifyChange;
 
 	private final List<Runnable> fireRunabbles = new ArrayList<Runnable>();
 
@@ -190,6 +191,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		loadRelatedRecordsIfParentIsNew = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.loadRelatedRecordsIfParentIsNew", "false")); //force-load of possible existing records in DB when initializing a related foundset when the parent is new and the relations is restricted on the rowIdentifier columns of the parent record //$NON-NLS-1$ //$NON-NLS-2$
 		statementBatching = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.statementBatching", "false")); // whether to batch inserts/updates for rows together in the same SQLStatement where possible //$NON-NLS-1$ //$NON-NLS-2$
 		disableInsertsReorder = Utils.getAsBoolean(app.getSettings().getProperty("servoy.disable.record.insert.reorder", "false")); //$NON-NLS-1$ //$NON-NLS-2$
+		experimentalFoundSetNotifyChange = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.experimental.notifyChange", "false")); // whether to use new optimized mechanism to call notifyChange on IRowListeners
 	}
 
 	/**
@@ -614,7 +616,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			return null;
 		}
-		RelatedHashedArguments relatedArguments = calculateFKHash(state, relation, false);
+		RelatedHashedArgumentsWithState relatedArguments = calculateFKHash(state, relation, false);
 		if (relatedArguments == null)
 		{
 			return null;
@@ -624,19 +626,40 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		if (rfsMap != null)
 		{
 			RelatedFoundSet rfs = null;
-			SoftReference<RelatedFoundSet> sr = rfsMap.get(relatedArguments.hash);
+			SoftReference<RelatedFoundSet> sr = rfsMap.get(relatedArguments.hashedArguments.hash);
 			if (sr != null)
 			{
 				rfs = sr.get();
 			}
 			else
 			{
-				rfs = checkDbIdentMap(relation.getName(), relatedArguments, rfsMap);
+				rfs = checkDbIdentMap(relation.getName(), relatedArguments.hashedArguments, rfsMap);
 			}
 			if (rfs != null && !rfs.mustQueryForUpdates() && !rfs.mustAggregatesBeLoaded())
 			{
 				return rfs;
 			}
+		}
+		return null;
+	}
+
+	public RelatedFoundSet getRelatedFoundSetWhenLoaded(RelatedHashedArguments relatedArguments, Relation relation)
+	{
+		if (relatedArguments == null || !Relation.isValid(relation, application.getFlattenedSolution()))
+		{
+			return null;
+		}
+
+		Map<String, SoftReferenceCache> rfsMap = getCachedSubStates().get(relation.getName());
+		if (rfsMap != null)
+		{
+			SoftReference<RelatedFoundSet> sr = rfsMap.get(relatedArguments.hash);
+			if (sr != null)
+			{
+				return sr.get();
+			}
+
+			return checkDbIdentMap(relation.getName(), relatedArguments, rfsMap);
 		}
 		return null;
 	}
@@ -657,7 +680,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			return state.getParentFoundSet();
 		}
 
-		RelatedHashedArguments relatedArguments = calculateFKHash(state, relation, false);
+		RelatedHashedArgumentsWithState relatedArguments = calculateFKHash(state, relation, false);
 		if (relatedArguments == null)
 		{
 			return null;
@@ -666,24 +689,24 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		ConcurrentMap<String, SoftReferenceCache> rfs = getCachedSubStates().get(relationName);
 		if (rfs != null)
 		{
-			SoftReference<RelatedFoundSet> sr = rfs.get(relatedArguments.hash);
+			SoftReference<RelatedFoundSet> sr = rfs.get(relatedArguments.hashedArguments.hash);
 			if (sr != null)
 			{
 				retval = sr.get();
 				if (retval == null && Debug.tracing())
-					Debug.trace("-----------CacheMiss for related founset " + relationName + " for keys " + relatedArguments.hash); //$NON-NLS-1$ //$NON-NLS-2$
+					Debug.trace("-----------CacheMiss for related founset " + relationName + " for keys " + relatedArguments.hashedArguments.hash); //$NON-NLS-1$ //$NON-NLS-2$
 				//else Debug.trace("-----------CacheHit!! for related foundset " + relID + " for keys " + calcPKHashKey);
 			}
 			else
 			{
-				retval = checkDbIdentMap(relationName, relatedArguments, rfs);
+				retval = checkDbIdentMap(relationName, relatedArguments.hashedArguments, rfs);
 			}
 		}
 
-		List<RelatedHashedArguments> toFetch = null;
+		List<RelatedHashedArgumentsWithState> toFetch = null;
 		if (retval == null)
 		{
-			String lockString = relationName + relatedArguments.hash;
+			String lockString = relationName + relatedArguments.hashedArguments.hash;
 			synchronized (locks)
 			{
 				rfs = getCachedSubStates().get(relationName);
@@ -703,7 +726,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 						Debug.error(e);
 					}
 				}
-				SoftReference<RelatedFoundSet> sr = rfs.get(relatedArguments.hash);
+				SoftReference<RelatedFoundSet> sr = rfs.get(relatedArguments.hashedArguments.hash);
 				if (sr != null)
 				{
 					retval = sr.get();
@@ -715,7 +738,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					locks.add(lockString);
 
 					// pre-fetch a number of sibling related found sets
-					toFetch = new ArrayList<RelatedHashedArguments>();
+					toFetch = new ArrayList<>();
 					toFetch.add(relatedArguments); // first to fetch is the one currently requested
 
 					IFoundSetInternal parent = state.getParentFoundSet();
@@ -729,10 +752,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 							IRecordInternal sibling = (IRecordInternal)siblingRecords[s];
 							if (sibling != null)
 							{
-								RelatedHashedArguments extra = calculateFKHash(sibling, relation, true);
+								RelatedHashedArgumentsWithState extra = calculateFKHash(sibling, relation, true);
 								if (extra != null)
 								{
-									SoftReference<RelatedFoundSet> srSibling = rfs.get(extra.hash);
+									SoftReference<RelatedFoundSet> srSibling = rfs.get(extra.hashedArguments.hash);
 
 									if (srSibling != null && srSibling.get() != null)
 									{
@@ -740,7 +763,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 										continue;
 									}
 
-									String extraLockString = relationName + extra.hash;
+									String extraLockString = relationName + extra.hashedArguments.hash;
 									if (!locks.contains(extraLockString))
 									{
 										locks.add(extraLockString);
@@ -762,9 +785,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					Object[][] whereArgsList = new Object[toFetch.size()][];
 					for (int f = 0; f < toFetch.size(); f++)
 					{
-						RelatedHashedArguments relargs = toFetch.get(f);
+						RelatedHashedArgumentsWithState relargs = toFetch.get(f);
 						states[f] = relargs.state;
-						whereArgsList[f] = relargs.whereArgs;
+						whereArgsList[f] = relargs.hashedArguments.whereArgs;
 					}
 					if (relation.getInitialSort() != null)
 					{
@@ -780,22 +803,23 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					{
 						for (int f = 0; f < toFetch.size(); f++)
 						{
-							RelatedHashedArguments relargs = toFetch.get(f);
+							RelatedHashedArgumentsWithState relargs = toFetch.get(f);
 							if (retvals != null)
 							{
-								rfs.put(relargs.hash, new SoftReferenceCache(retvals[f], cachedSubStatesReferenceQueue, relargs.hash, rfs));
-								if (relargs.isDBIdentity())
+								rfs.put(relargs.hashedArguments.hash,
+									new SoftReferenceCache(retvals[f], cachedSubStatesReferenceQueue, relargs.hashedArguments.hash, rfs));
+								if (relargs.hashedArguments.isDBIdentity())
 								{
 									List<RelatedHashedArguments> storedDBIdentArguments = dbIdentArguments.get(relationName);
 									if (storedDBIdentArguments == null)
 									{
-										storedDBIdentArguments = Collections.synchronizedList(new ArrayList<RelatedHashedArguments>());
+										storedDBIdentArguments = Collections.synchronizedList(new ArrayList<>());
 										dbIdentArguments.put(relationName, storedDBIdentArguments);
 									}
-									storedDBIdentArguments.add(relargs);
+									storedDBIdentArguments.add(relargs.hashedArguments);
 								}
 							}
-							locks.remove(relationName + relargs.hash);
+							locks.remove(relationName + relargs.hashedArguments.hash);
 						}
 
 						locks.notifyAll();
@@ -881,7 +905,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 	}
 
-	private RelatedHashedArguments calculateFKHash(IRecordInternal state, Relation r, boolean testForCalcs) throws RepositoryException
+	private RelatedHashedArgumentsWithState calculateFKHash(IRecordInternal state, Relation r, boolean testForCalcs) throws RepositoryException
 	{
 		Object[] whereArgs = getRelationWhereArgs(state, r, testForCalcs);
 		if (whereArgs == null)
@@ -889,7 +913,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			return null;
 		}
 
-		return new RelatedHashedArguments(state, whereArgs, RowManager.createPKHashKey(whereArgs));
+		return new RelatedHashedArgumentsWithState(state, new RelatedHashedArguments(whereArgs, RowManager.createPKHashKey(whereArgs)));
 	}
 
 	/**
@@ -956,9 +980,63 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return array;
 	}
 
+	/**
+	 * Get all related foundsets that are loaded and go to the row based on an equals-only relation.
+	 */
+	public List<RelatedFoundSet> getLoadedRelatedFoundsetsWithOnlyEqualRelationToRow(Row row)
+	{
+		FlattenedSolution flattenedSolution = application.getFlattenedSolution();
+		String datasource = row.getRowManager().getSQLSheet().getTable().getDataSource();
+
+		List<RelatedFoundSet> relatedFoundsets = new ArrayList<>();
+
+		getCachedSubStates().keySet().stream()
+			.map(flattenedSolution::getRelation)
+			.filter(relation -> Relation.isValid(relation, flattenedSolution))
+			.filter(relation -> datasource.equals(relation.getForeignDataSource()))
+			.filter(Relation::isOnlyEquals)
+			.forEach(relation -> {
+				try
+				{
+					RelatedHashedArguments hashedArguments = getRelationFkHashFromRelatedRow(row, relation);
+					if (hashedArguments != null)
+					{
+						RelatedFoundSet foundSet = getRelatedFoundSetWhenLoaded(hashedArguments, relation);
+						if (foundSet != null)
+						{
+							relatedFoundsets.add(foundSet);
+						}
+					}
+				}
+				catch (RepositoryException e)
+				{
+					Debug.error(e);
+				}
+			});
+
+		return relatedFoundsets;
+	}
+
+	private RelatedHashedArguments getRelationFkHashFromRelatedRow(Row row, Relation relation) throws RepositoryException
+	{
+		Column[] columns = relation.getForeignColumns(application.getFlattenedSolution());
+		Object[] whereArgs = new Object[columns.length];
+		for (int i = 0; i < columns.length; i++)
+		{
+			String dataProviderID = columns[i].getDataProviderID();
+			whereArgs[i] = columns[i].getAsRightType(row.getValue(dataProviderID));
+			if (whereArgs[i] == null)
+			{
+				return null;
+			}
+		}
+
+		return new RelatedHashedArguments(whereArgs, RowManager.createPKHashKey(whereArgs));
+	}
+
 	public void handleUserLoggedin()
 	{
-		// sqlGenerator may have calculations loaded based on the lgin flattened solution
+		// sqlGenerator may have calculations loaded based on the login flattened solution
 		sqlGenerator = null;
 	}
 
@@ -982,21 +1060,21 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	private void initMembers()
 	{
-		sharedDataSourceFoundSet = new ConcurrentHashMap<String, FoundSet>(64);
-		separateFoundSets = Collections.synchronizedMap(new WeakHashMap<IFoundSetListener, FoundSet>(32));
-		foundSets = Collections.synchronizedSet(new WeakHashSet<FoundSet>(64));
-		namedFoundSets = Collections.synchronizedMap(new HashMap<String, WeakReference<FoundSet>>(32));
-		viewFoundSets = new ConcurrentHashMap<String, ViewFoundSet>(16);
+		sharedDataSourceFoundSet = new ConcurrentHashMap<>(64);
+		separateFoundSets = Collections.synchronizedMap(new WeakHashMap<>(32));
+		foundSets = Collections.synchronizedSet(new WeakHashSet<>(64));
+		namedFoundSets = Collections.synchronizedMap(new HashMap<>(32));
+		viewFoundSets = new ConcurrentHashMap<>(16);
 		noTableFoundSet = null;
 
-		rowManagers = new ConcurrentHashMap<String, RowManager>(64);
-		tableListeners = new ConcurrentHashMap<ITable, CopyOnWriteArrayList<ITableChangeListener>>(16);
+		rowManagers = new ConcurrentHashMap<>(64);
+		tableListeners = new ConcurrentHashMap<>(16);
 		tableFilterParams = new ConcurrentHashMap<String, List<TableFilter>>();
 
-		cachedSubStates = new ConcurrentHashMap<String, ConcurrentMap<String, SoftReferenceCache>>(128);
-		dbIdentArguments = new ConcurrentHashMap<String, List<RelatedHashedArguments>>();
-		inMemDataSources = new ConcurrentHashMap<String, ITable>();
-		viewDataSources = new ConcurrentHashMap<String, ITable>();
+		cachedSubStates = new ConcurrentHashMap<>(128);
+		dbIdentArguments = new ConcurrentHashMap<>();
+		inMemDataSources = new ConcurrentHashMap<>();
+		viewDataSources = new ConcurrentHashMap<>();
 	}
 
 	/**
@@ -2927,16 +3005,43 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	 * @author rgansevles
 	 *
 	 */
-	private static class RelatedHashedArguments
+	private static class RelatedHashedArgumentsWithState
 	{
 		final IRecordInternal state;
+		final RelatedHashedArguments hashedArguments;
+
+		public RelatedHashedArgumentsWithState(IRecordInternal state, RelatedHashedArguments hashedArguments)
+		{
+			this.state = state;
+			this.hashedArguments = hashedArguments;
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (!(obj instanceof RelatedHashedArgumentsWithState))
+			{
+				return false;
+			}
+			RelatedHashedArgumentsWithState other = ((RelatedHashedArgumentsWithState)obj);
+			return Utils.equalObjects(state, other.state) && Utils.equalObjects(hashedArguments, other.hashedArguments);
+		}
+
+		@Override
+		public String toString()
+		{
+			return hashedArguments.toString();
+		}
+	}
+
+	private static class RelatedHashedArguments
+	{
 		final Object[] whereArgs;
 		final String hash;
 		boolean isDBIdentiy;
 
-		public RelatedHashedArguments(IRecordInternal state, Object[] whereArgs, String hash)
+		public RelatedHashedArguments(Object[] whereArgs, String hash)
 		{
-			this.state = state;
 			this.whereArgs = whereArgs;
 			this.hash = hash;
 			if (whereArgs != null)
@@ -2965,37 +3070,35 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				return false;
 			}
 			RelatedHashedArguments other = ((RelatedHashedArguments)obj);
-			if (Utils.equalObjects(state, other.state))
+
+			if (Utils.equalObjects(hash, other.hash))
 			{
-				if (Utils.equalObjects(hash, other.hash))
+				return true;
+			}
+			if (isDBIdentiy || other.isDBIdentiy)
+			{
+				// check for special scenario with dbidentity
+				if (whereArgs != null && other.whereArgs != null && whereArgs.length == other.whereArgs.length)
 				{
-					return true;
-				}
-				if (isDBIdentiy || other.isDBIdentiy)
-				{
-					// check for special scenario with dbidentity
-					if (whereArgs != null && other.whereArgs != null && whereArgs.length == other.whereArgs.length)
+					boolean argsEqual = true;
+					for (int i = 0; i < whereArgs.length; i++)
 					{
-						boolean argsEqual = true;
-						for (int i = 0; i < whereArgs.length; i++)
+						if (!Utils.equalObjects(whereArgs[i], other.whereArgs[i]))
 						{
-							if (!Utils.equalObjects(whereArgs[i], other.whereArgs[i]))
+							argsEqual = false;
+							if (whereArgs[i] instanceof DbIdentValue && Utils.equalObjects(((DbIdentValue)whereArgs[i]).getPkValue(), other.whereArgs[i]))
 							{
-								argsEqual = false;
-								if (whereArgs[i] instanceof DbIdentValue && Utils.equalObjects(((DbIdentValue)whereArgs[i]).getPkValue(), other.whereArgs[i]))
-								{
-									argsEqual = true;
-								}
-								if (other.whereArgs[i] instanceof DbIdentValue &&
-									Utils.equalObjects(((DbIdentValue)other.whereArgs[i]).getPkValue(), whereArgs[i]))
-								{
-									argsEqual = true;
-								}
-								if (!argsEqual) break;
+								argsEqual = true;
 							}
+							if (other.whereArgs[i] instanceof DbIdentValue &&
+								Utils.equalObjects(((DbIdentValue)other.whereArgs[i]).getPkValue(), whereArgs[i]))
+							{
+								argsEqual = true;
+							}
+							if (!argsEqual) break;
 						}
-						return argsEqual;
 					}
+					return argsEqual;
 				}
 			}
 			return false;

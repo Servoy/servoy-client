@@ -818,6 +818,14 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		return !primaryColumns.isEmpty() && primaryColumns.containsAll(primaryColumns.get(0).getTable().getRowIdentColumns());
 	}
 
+	/**
+	 * Is this relation only based on equals-operators without any modifiers?
+	 */
+	public boolean isOnlyEquals()
+	{
+		return getOperators().length > 0 && stream(getOperators()).allMatch(op -> op == IBaseSQLCondition.EQUALS_OPERATOR);
+	}
+
 	public String checkKeyTypes(IDataProviderHandler dataProviderHandler) throws RepositoryException
 	{
 		if (primary == null)

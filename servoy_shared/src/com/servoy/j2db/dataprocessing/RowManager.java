@@ -34,9 +34,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.IBaseSQLCondition;
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.dataprocessing.RowManager.RowFireNotifyChange.CalculationDependencyData;
 import com.servoy.j2db.dataprocessing.ValueFactory.BlobMarkerValue;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
@@ -44,6 +46,7 @@ import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServer;
+import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AbstractBaseQuery;
@@ -78,7 +81,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	private final ReferenceQueue<Row> referenceQueue;
 	private final Map<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>> pkRowMap; // pkString -> SoftReference(Row)
 	private final SQLSheet sheet;
-	private final WeakHashMap<IRowListener, Object> listeners;
+	private final WeakHashMap<IRowListener, Boolean> listeners; // value denotes if the listener can be looked up by relation FK
 	private final Set<NamedLock> lockedRowPKs;
 	private final Map<String, Set<String>> globalCalcDependencies = new HashMap<String, Set<String>>();
 	private final Map<String, Set<String>> relationsUsedInCalcs = new HashMap<String, Set<String>>();
@@ -90,10 +93,10 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	{
 		this.fsm = fsm;
 		this.sheet = sheet;
-		pkRowMap = new ConcurrentHashMap<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>>(64);
+		pkRowMap = new ConcurrentHashMap<>(64);
 		referenceQueue = new ReferenceQueue<Row>();
-		listeners = new WeakHashMap<IRowListener, Object>(10);
-		lockedRowPKs = Collections.synchronizedSet(new HashSet<NamedLock>());//my locks
+		listeners = new WeakHashMap<>(10);
+		lockedRowPKs = Collections.synchronizedSet(new HashSet<>()); //my locks
 	}
 
 	public void dispose()
@@ -101,13 +104,19 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		fsm.removeGlobalFoundsetEventListener(this);
 	}
 
-	private static Object dummy = new Object();
-
 	void register(IRowListener fs)
 	{
+		boolean isOnlyEqualsRelatedFoundset = false;
+		if (fsm.experimentalFoundSetNotifyChange && fs instanceof RelatedFoundSet)
+		{
+			FlattenedSolution flattenedSolution = getFoundsetManager().getApplication().getFlattenedSolution();
+			Relation relation = flattenedSolution.getRelation(((RelatedFoundSet)fs).getRelationName());
+			isOnlyEqualsRelatedFoundset = relation != null && Relation.isValid(relation, flattenedSolution) && relation.isOnlyEquals();
+		}
 		synchronized (listeners)
 		{
-			listeners.put(fs, dummy);
+			// Entries marked isOnlyEqualsRelatedFoundset are not always notified for changes outside their relation
+			listeners.put(fs, Boolean.valueOf(isOnlyEqualsRelatedFoundset));
 		}
 	}
 
@@ -619,24 +628,35 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		fireNotifyChange(skip, r, pkHashKey, changedColumns, eventType, false);
 	}
 
-	void fireNotifyChange(IRowListener skip, Row r, String pkHashKey, Object[] changedColumns, int eventType, boolean isAggregateChange)
+	void fireNotifyChange(IRowListener skip, Row row, String pkHashKey, Object[] changedColumns, int eventType, boolean isAggregateChange)
 	{
 		if (listeners.size() > 0)
 		{
-			RowEvent e = new RowEvent(this, r, pkHashKey, eventType, changedColumns, isAggregateChange);
+			RowEvent e = new RowEvent(this, row, pkHashKey, eventType, changedColumns, isAggregateChange);
+
+			List<RelatedFoundSet> loadedRelatedFoundsetsToRow;
+			if (eventType == RowEvent.INSERT && fsm.experimentalFoundSetNotifyChange)
+			{
+				loadedRelatedFoundsetsToRow = fsm.getLoadedRelatedFoundsetsWithOnlyEqualRelationToRow(row);
+			}
+			else
+			{
+				loadedRelatedFoundsetsToRow = null;
+			}
 
 			// First copy it to a array list for concurrent mod...
-			Object[] array = null;
+			List<IRowListener> toNotify;
 			synchronized (listeners)
 			{
-				array = listeners.keySet().toArray();
+				// value denotes if the listener can be looked up by relation FK
+				toNotify = listeners.entrySet().stream()
+					.filter(entry -> loadedRelatedFoundsetsToRow == null || !entry.getValue().booleanValue() ||
+						loadedRelatedFoundsetsToRow.contains(entry.getKey()))
+					.map(Entry::getKey).collect(Collectors.toList());
 			}
 
-			for (Object element2 : array)
-			{
-				IRowListener element = (IRowListener)element2;
-				if (element != skip) element.notifyChange(e);
-			}
+			toNotify.remove(skip);
+			toNotify.forEach(listener -> listener.notifyChange(e));
 		}
 		fsm.notifyChange(sheet.getTable());
 	}
@@ -788,7 +808,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				List<Object> argsArray = new ArrayList<Object>();
 				statement_action = ISQLActionTypes.INSERT_ACTION;
 				sqlDesc = sheet.getSQLDescription(SQLSheet.INSERT);
-		 	sqlUpdate = (ISQLUpdate)AbstractBaseQuery.deepClone(sqlDesc.getSQLQuery());
+				sqlUpdate = (ISQLUpdate)AbstractBaseQuery.deepClone(sqlDesc.getSQLQuery());
 				List<String> req = sqlDesc.getRequiredDataProviderIDs();
 				if (Debug.tracing()) Debug.trace(sqlUpdate.toString());
 				for (int i = 0; i < req.size(); i++)
