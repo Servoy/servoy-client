@@ -54,7 +54,6 @@ import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.server.ngclient.FormElementHelper.FormComponentCache;
-import com.servoy.j2db.server.ngclient.property.ComponentTypeConfig;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
@@ -244,8 +243,8 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 							isResponsive = frm.isResponsiveLayout();
 							// listformcomponents that are responsive must be also send over here (the components are also send over in the FormComponentSabloValue)
 							// this will result in duplicate component data, but we need the structure (and the component names in the right place)
-							if (!isResponsive && pd.getConfig() instanceof ComponentTypeConfig && ((ComponentTypeConfig)pd.getConfig()).forFoundset != null)
-								continue;
+//							if (!isResponsive && pd.getConfig() instanceof ComponentTypeConfig && ((ComponentTypeConfig)pd.getConfig()).forFoundset != null)
+//								continue;
 							children.add("children_" + pd.getName());
 							writer.key("children_" + pd.getName());
 							writer.array();
