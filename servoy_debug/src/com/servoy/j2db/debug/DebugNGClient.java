@@ -504,7 +504,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	{
 		if (Boolean.valueOf(settings.getProperty(Settings.DISABLE_SERVER_LOG_FORWARDING_TO_DEBUG_CLIENT_CONSOLE, "false")).booleanValue())
 		{
-			DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
+			invokeLater(() -> DebugUtils.errorToDebugger(getScriptEngine(), message, detail));
 		}
 	}
 
@@ -513,11 +513,11 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	{
 		if (!errorLevel)
 		{
-			DebugUtils.stdoutToDebugger(getScriptEngine(), messsage);
+			invokeLater(() -> DebugUtils.stdoutToDebugger(getScriptEngine(), messsage));
 		}
 		else
 		{
-			DebugUtils.stderrToDebugger(getScriptEngine(), messsage);
+			invokeLater(() -> DebugUtils.stderrToDebugger(getScriptEngine(), messsage));
 		}
 	}
 }
