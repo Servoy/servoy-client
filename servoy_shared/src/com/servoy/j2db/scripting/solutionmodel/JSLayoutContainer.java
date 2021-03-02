@@ -27,8 +27,12 @@ import org.mozilla.javascript.annotations.JSSetter;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AbstractContainer;
+import com.servoy.j2db.persistence.FlattenedLayoutContainer;
+import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.scripting.IJavaScriptType;
+import com.servoy.j2db.util.PersistHelper;
 
 /**
  * @author lvostinar
@@ -41,12 +45,14 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	private LayoutContainer layoutContainer;
 	private final IJSParent< ? > parent;
 	private boolean isCopy = false;
+	private final IApplication application;
 
 	public JSLayoutContainer(IJSParent< ? > parent, IApplication application, LayoutContainer layoutContainer)
 	{
 		super(application);
 		this.setLayoutContainer(layoutContainer);
 		this.parent = parent;
+		this.application = application;
 	}
 
 	private LayoutContainer getLayoutContainer()
@@ -361,7 +367,10 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	@Override
 	public AbstractContainer getFlattenedContainer()
 	{
-		return getLayoutContainer();
+		LayoutContainer lc = getLayoutContainer();
+		return (FlattenedLayoutContainer)PersistHelper.getFlattenedPersist(application.getFlattenedSolution(),
+			(Form)lc.getAncestor(IRepository.FORMS),
+			lc);
 	}
 
 	/*
