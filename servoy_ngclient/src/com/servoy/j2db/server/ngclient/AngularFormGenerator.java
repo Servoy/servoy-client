@@ -48,6 +48,7 @@ import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
@@ -495,16 +496,57 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 			Dimension size = ((IFormElement)o).getSize();
 			if (location != null && size != null)
 			{
+				int anchorFlags = ((BaseComponent)o).getAnchors();
+				boolean anchoredTop = (anchorFlags & IAnchorConstants.NORTH) != 0;
+				boolean anchoredRight = (anchorFlags & IAnchorConstants.EAST) != 0;
+				boolean anchoredBottom = (anchorFlags & IAnchorConstants.SOUTH) != 0;
+				boolean anchoredLeft = (anchorFlags & IAnchorConstants.WEST) != 0;
+
+				if (!anchoredLeft && !anchoredRight) anchoredLeft = true;
+				if (!anchoredTop && !anchoredBottom) anchoredTop = true;
 				writer.key("position");
 				writer.object();
-				writer.key("left");
-				writer.value(location.x + "px");
-				writer.key("top");
-				writer.value(location.y + "px");
-				writer.key("width");
-				writer.value(size.width + "px");
-				writer.key("height");
-				writer.value(size.height + "px");
+
+				if (anchoredTop)
+				{
+					writer.key("top");
+					int top = location.y;
+					Part prt = form.getPartAt(location.y);
+					if (prt != null)
+					{
+						int topStart = form.getPartStartYPos(prt.getID());
+						if (topStart > 0)
+						{
+							top = top - topStart;
+						}
+					}
+					writer.value(top + "px");
+				}
+				if (anchoredBottom)
+				{
+					writer.key("bottom");
+					writer.value(form.getSize().height - location.y - size.height + "px");
+				}
+				if (!anchoredTop || !anchoredBottom)
+				{
+					writer.key("height");
+					writer.value(size.height + "px");
+				}
+				if (anchoredLeft)
+				{
+					writer.key("left");
+					writer.value(location.x + "px");
+				}
+				if (anchoredRight)
+				{
+					writer.key("right");
+					writer.value((form.getWidth() - location.x - size.width) + "px");
+				}
+				if (!anchoredLeft || !anchoredRight)
+				{
+					writer.key("width");
+					writer.value(size.width + "px");
+				}
 				writer.endObject();
 			}
 		}
