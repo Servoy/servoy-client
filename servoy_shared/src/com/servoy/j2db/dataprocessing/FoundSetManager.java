@@ -3659,6 +3659,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return fs;
 	}
 
+	@SuppressWarnings("nls")
 	@Override
 	public ViewFoundSet getViewFoundSet(String name, QBSelect query)
 	{
@@ -3684,7 +3685,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					IQuerySelectValue selectValue = getSelectvalue(query, col.name);
 					if (selectValue == null)
 					{
-						Debug.error("Column " + col.name + " defined in view datasource '" + dataSource + "' was not found in the provided query.");
+						Debug.error("Column " + col.name + " of type " + col.columnType.toString() + " defined in view datasource '" + dataSource +
+							"' was not found in the provided query.");
 						return null;
 					}
 
@@ -3692,8 +3694,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					if (columnType != null && !columnType.equals(col.columnType) &&
 						!(columnType.getSqlType() == col.columnType.getSqlType() && col.columnType.getSqlType() == IColumnTypes.TEXT))
 					{
-						Debug.error("Column type for column '" + col.name + "' defined in view datasource '" + dataSource +
-							"' does not match the one provided in the query.");
+						Debug.error(
+							"Column type for column '" + col.name + " of type " + col.columnType.toString() + "' defined in view datasource '" + dataSource +
+								"' does not match the one " + columnType + " provided in the query.");
 						return null;
 					}
 				}
