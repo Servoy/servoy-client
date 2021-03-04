@@ -48,6 +48,12 @@ public class BufferedDataSet implements ISerializableDataSet
 		rows = new SafeArrayList<Object[]>(0);
 	}
 
+	public BufferedDataSet(boolean hashMore)
+	{
+		rows = new SafeArrayList<Object[]>(0);
+		this.hadMore = hashMore;
+	}
+
 	/**
 	 * Create a non db bind dataset
 	 *
