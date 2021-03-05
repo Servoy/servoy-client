@@ -209,7 +209,7 @@ public class MetaDataUtils
 		QuerySelect query = createTableMetadataQuery(table, qColumns);
 
 		BufferedDataSet dataSet = (BufferedDataSet)ApplicationServerRegistry.get().getDataServer().performQuery(ApplicationServerRegistry.get().getClientId(),
-			table.getServerName(), null, query, null, false, 0, max, IDataServer.META_DATA_QUERY, null);
+			table.getServerName(), null, query, null, null, false, 0, max, IDataServer.META_DATA_QUERY, null);
 		// not too much data?
 		if (dataSet.hadMoreRows())
 		{

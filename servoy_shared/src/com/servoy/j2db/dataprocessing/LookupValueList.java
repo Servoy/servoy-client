@@ -389,8 +389,8 @@ public class LookupValueList implements IValueList
 			trackingInfo.setTrackingData(select.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
 				foundSetManager.getTrackingInfo(), application.getClientID());
 		}
-		IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, select, tableFilterParams,
-			!select.isUnique(), 0, maxValuelistRows, IDataServer.VALUELIST_QUERY, trackingInfo);
+		IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, select, null,
+			tableFilterParams, !select.isUnique(), 0, maxValuelistRows, IDataServer.VALUELIST_QUERY, trackingInfo);
 		String[] displayFormats = getDisplayFormat();
 		for (int i = 0; i < set.getRowCount(); i++)
 		{

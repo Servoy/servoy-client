@@ -80,6 +80,7 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.AndCondition;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.CustomCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.IQuerySort;
@@ -461,7 +462,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 			else
 			{
-				pks = performQuery(transaction_id, theQuery, 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
+				pks = performQuery(transaction_id, theQuery, getRowIdentColumnTypes(), 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
 			}
 			synchronized (pksAndRecords)
 			{
@@ -2026,7 +2027,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		IDataSet pk_data;
 		try
 		{
-			pk_data = performQuery(transaction_id, sqlSelect, 0, fsm.pkChunkSize, IDataServer.CUSTOM_QUERY);
+			pk_data = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.pkChunkSize, IDataServer.CUSTOM_QUERY);
 		}
 		catch (RemoteException e)
 		{
@@ -2036,8 +2037,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		if (pk_data.getRowCount() > 0 && pk_data.getColumnCount() != sheet.getPKIndexes().length)
 			throw new IllegalArgumentException(fsm.getApplication().getI18NMessage("servoy.foundSet.query.error.incorrectNumberOfPKS")); //$NON-NLS-1$
-
-		pk_data = BufferedDataSetInternal.convertPksToRightType(pk_data, getTable());
 
 		pksAndRecords.setPksAndQuery(pk_data, pk_data.getRowCount(), sqlSelect);
 		clearInternalState(true);
@@ -2054,6 +2053,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		return true;
+	}
+
+	private ColumnType[] getRowIdentColumnTypes()
+	{
+		return getTable().getRowIdentColumns().stream().map(Column::getColumnType).toArray(ColumnType[]::new);
 	}
 
 	public boolean loadByQuery(String query, Object[] args) throws ServoyException
@@ -2526,7 +2530,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 			int size = getSize();
 			long time = System.currentTimeMillis();
-			IDataSet newpks = performQuery(transaction_id, sqlSelect, startRow, correctedMaxResult, IDataServer.FOUNDSET_LOAD_QUERY);
+			IDataSet newpks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), startRow, correctedMaxResult, IDataServer.FOUNDSET_LOAD_QUERY);
 
 			if (Debug.tracing())
 			{
@@ -2559,7 +2563,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					pks.createPKCache(); // out-of-sync detected, this also flags that new PKS need to be matched against existing ones
 					startRow = 0;
 					time = System.currentTimeMillis();
-					newpks = performQuery(transaction_id, sqlSelect, startRow, correctedMaxResult, IDataServer.FOUNDSET_LOAD_QUERY);
+					newpks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), startRow, correctedMaxResult, IDataServer.FOUNDSET_LOAD_QUERY);
 
 					if (Debug.tracing())
 					{
@@ -2668,7 +2672,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		long time = System.currentTimeMillis();
 		try
 		{
-			IDataSet pks = performQuery(transaction_id, sqlSelect, 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+			IDataSet pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
 
 			pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect);
 		}
@@ -4050,7 +4054,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			String transaction_id = fsm.getTransactionID(sheet);
 			long time = System.currentTimeMillis();
-			IDataSet ds = performQuery(transaction_id, select, 0, 1, IDataServer.AGGREGATE_QUERY);
+			IDataSet ds = performQuery(transaction_id, select, null, 0, 1, IDataServer.AGGREGATE_QUERY);
 
 			if (Debug.tracing())
 			{
@@ -4663,7 +4667,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			String transaction_id = fsm.getTransactionID(sheet);
 			try
 			{
-				IDataSet pks = performQuery(transaction_id, sqlSelect, 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+				IDataSet pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
 
 				synchronized (pksAndRecords)
 				{
@@ -5154,7 +5158,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			IDataSet findPKs = null;
 			try
 			{
-				findPKs = performQuery(transaction_id, findSqlSelect, 0, fsm.pkChunkSize, IDataServer.FIND_BROWSER_QUERY);
+				findPKs = performQuery(transaction_id, findSqlSelect, getRowIdentColumnTypes(), 0, fsm.pkChunkSize, IDataServer.FIND_BROWSER_QUERY);
 			}
 			catch (RemoteException e)
 			{
@@ -5354,7 +5358,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		String transaction_id = fsm.getTransactionID(sheet);
 		try
 		{
-			pks = performQuery(transaction_id, sqlSelect, 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
+			pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
 
 			synchronized (pksAndRecords)
 			{
@@ -7007,7 +7011,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 
-	protected IDataSet performQuery(String transaction_id, QuerySelect query, int startRow, int rowsToRetrieve, int type)
+	protected IDataSet performQuery(String transaction_id, QuerySelect query, ColumnType[] resultTypes, int startRow, int rowsToRetrieve, int type)
 		throws RemoteException, ServoyException
 	{
 		if (!hasAccess(IRepository.READ))
@@ -7050,7 +7054,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				}
 			}
 
-			return fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, theQuery,
+			return fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, theQuery, resultTypes,
 				fsm.getTableFilterParams(sheet.getServerName(), theQuery), distinctInMemory, startRow, rowsToRetrieve, type);
 		}
 		catch (ServoyException e)

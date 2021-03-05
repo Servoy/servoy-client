@@ -195,8 +195,9 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
-				boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException
+			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
+				ArrayList<TableFilter> filters, boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp)
+				throws ServoyException, RemoteException
 			{
 				return dataSetMap.get(sqlSelect.getTable().getDataSource());
 			}
@@ -213,7 +214,8 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
+			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
+				ArrayList<TableFilter> filters,
 				boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo)
 				throws ServoyException, RemoteException
 			{
@@ -221,7 +223,8 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
+			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
+				ArrayList<TableFilter> filters,
 				boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
 			{
 				IDataSet set = dataSetMap.get(sqlSelect.getTable().getDataSource());
@@ -252,8 +255,8 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
-				boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
+				ArrayList<TableFilter> filters, boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
 			{
 				return dataSetMap.get(sqlSelect.getTable().getDataSource());
 			}

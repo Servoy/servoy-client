@@ -244,7 +244,7 @@ public class PartNode
 
 			FoundSetManager foundSetManager = ((FoundSetManager)app.getFoundSetManager());
 			String transaction_id = foundSetManager.getTransactionID(table.getServerName());
-			IDataSet data = server.performQuery(app.getClientID(), table.getServerName(), transaction_id, newSQLString,
+			IDataSet data = server.performQuery(app.getClientID(), table.getServerName(), transaction_id, newSQLString, null,
 				foundSetManager.getTableFilterParams(table.getServerName(), newSQLString), false, 0, foundSetManager.pkChunkSize * 4, IDataServer.PRINT_QUERY);
 			SubSummaryFoundSet newSet = new SubSummaryFoundSet(app.getFoundSetManager(), rootSet, sortColumns, allAggregates, data, table);//create a new FoundSet with 'data' and with right 'table', 'where','whereArgs'
 

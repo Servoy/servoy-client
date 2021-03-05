@@ -776,7 +776,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 							fsm.getTrackingInfo(), fsm.getApplication().getClientID());
 					}
 					IDataSet dataSet = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), fsm.getTransactionID(sheet),
-						sqlSelect, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), hasJoins, 0, -1, IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
+						sqlSelect, null, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), hasJoins, 0, -1,
+						IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
 
 					lst = new ArrayList<Object[]>(dataSet.getRowCount());
 					for (int i = 0; i < dataSet.getRowCount(); i++)
@@ -2320,7 +2321,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					try
 					{
 						dataSet = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), fsm.getTransactionID(sheet),
-							sqlSelect, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), false, 0, -1, IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
+							sqlSelect, null, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), false, 0, -1, IDataServer.FOUNDSET_LOAD_QUERY,
+							trackingInfo);
 					}
 					catch (RemoteException e)
 					{

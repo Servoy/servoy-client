@@ -514,8 +514,8 @@ public class Messages
 			}
 			if (Debug.tracing()) Debug.trace("Loading messages from DB: SQL: " + sql); //$NON-NLS-1$
 
-			IDataSet set = dataServer.performQuery(clientId, server.getName(), null, sql, fm != null ? fm.getTableFilterParams(server.getName(), sql) : null,
-				false, 0, Integer.MAX_VALUE, IDataServer.MESSAGES_QUERY);
+			IDataSet set = dataServer.performQuery(clientId, server.getName(), null, sql, null,
+				fm != null ? fm.getTableFilterParams(server.getName(), sql) : null, false, 0, Integer.MAX_VALUE, IDataServer.MESSAGES_QUERY);
 			for (int i = 0; i < set.getRowCount(); i++)
 			{
 				Object[] row = set.getRow(i);
@@ -595,7 +595,7 @@ public class Messages
 		}
 
 		if (Debug.tracing()) Debug.trace("Loading messages from DB: SQL: " + sql); //$NON-NLS-1$
-		IDataSet set = dataServer.performQuery(clientId, serverName, null, sql, fm != null ? fm.getTableFilterParams(serverName, sql) : null, false, 0,
+		IDataSet set = dataServer.performQuery(clientId, serverName, null, sql, null, fm != null ? fm.getTableFilterParams(serverName, sql) : null, false, 0,
 			Integer.MAX_VALUE, IDataServer.MESSAGES_QUERY);
 		for (int i = 0; i < set.getRowCount(); i++)
 		{

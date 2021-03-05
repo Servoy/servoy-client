@@ -351,7 +351,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				transaction_id = gt.getTransactionID(sheet.getServerName());
 			}
 			formdata = fsm.getDataServer()
-				.performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select,
+				.performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select, null,
 					fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, 1, false);
 		}
 		catch (RemoteException e)
@@ -566,7 +566,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 						fsm.getTrackingInfo(), fsm.getApplication().getClientID());
 				}
 				formdata = fsm.getDataServer()
-					.performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select,
+					.performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select, null /* use types as reported by the db */,
 						fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, nvals, IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
 				if (Debug.tracing())
 				{

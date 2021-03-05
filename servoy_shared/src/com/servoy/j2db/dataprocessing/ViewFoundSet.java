@@ -970,7 +970,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		try
 		{
 			IDataSet ds = manager.getApplication().getDataServer().performQuery(manager.getApplication().getClientID(), serverName, transaction_id, select,
-				manager.getTableFilterParams(serverName, select), select.isUnique(), 0, currentChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+				null, manager.getTableFilterParams(serverName, select), select.isUnique(), 0, currentChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
 			refresh = false;
 			ArrayList<IQuerySelectValue> cols = select.getColumns();
 			int currentSize = records.size();
@@ -2238,7 +2238,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 										String serverName = DataSourceUtils.getDataSourceServerName(select.getTable().getDataSource());
 										String transaction_id = manager.getTransactionID(serverName);
 										IDataSet updatedDS = manager.getApplication().getDataServer().performQuery(manager.getApplication().getClientID(),
-											serverName, transaction_id, updateSelect, manager.getTableFilterParams(serverName, updateSelect), true, 0,
+											serverName, transaction_id, updateSelect, null, manager.getTableFilterParams(serverName, updateSelect), true, 0,
 											currentChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
 										if (updatedDS.getRowCount() > 0)
 										{
