@@ -293,7 +293,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 							foundSetManager.getTrackingInfo(), application.getClientID());
 					}
 					IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, creationSQLParts,
-						tableFilterParams, !creationSQLParts.isUnique(), 0, maxValuelistRows, IDataServer.VALUELIST_QUERY, trackingInfo);
+						null, tableFilterParams, !creationSQLParts.isUnique(), 0, maxValuelistRows, IDataServer.VALUELIST_QUERY, trackingInfo);
 					if (set.getRowCount() >= maxValuelistRows)
 					{
 						if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.client.report.max.valuelist.items", "true")))

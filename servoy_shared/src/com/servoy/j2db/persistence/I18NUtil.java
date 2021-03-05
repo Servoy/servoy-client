@@ -328,8 +328,8 @@ public class I18NUtil
 				sql.addSort(new QuerySort(msgLang, true));
 				sql.addSort(new QuerySort(msgKey, true));
 
-				IDataSet set = dataServer.performQuery(clientID, i18NServerName, null, sql, fm != null ? fm.getTableFilterParams(i18NServerName, sql) : null,
-					false, 0, Integer.MAX_VALUE, IDataServer.MESSAGES_QUERY);
+				IDataSet set = dataServer.performQuery(clientID, i18NServerName, null, sql, null,
+					fm != null ? fm.getTableFilterParams(i18NServerName, sql) : null, false, 0, Integer.MAX_VALUE, IDataServer.MESSAGES_QUERY);
 				int rowCount = set.getRowCount();
 				if (rowCount > 0)
 				{

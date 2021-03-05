@@ -2512,7 +2512,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				QuerySelect sqlString = foundset.getQuerySelectForReading();
 
 				QuerySelect selectCountSQLString = sqlString.getSelectCount("n", true); //$NON-NLS-1$
-				IDataSet set = ds.performQuery(application.getClientID(), t.getServerName(), transaction_id, selectCountSQLString,
+				IDataSet set = ds.performQuery(application.getClientID(), t.getServerName(), transaction_id, selectCountSQLString, null,
 					getTableFilterParams(t.getServerName(), selectCountSQLString), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
 				if (Debug.tracing())
 				{
@@ -2551,7 +2551,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				QuerySelect countSelect = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
 				countSelect.addColumn(new QueryAggregate(QueryAggregate.COUNT, new QueryColumnValue(Integer.valueOf(1), "n", true), null)); //$NON-NLS-1$
 
-				IDataSet set = ds.performQuery(application.getClientID(), table.getServerName(), transaction_id, countSelect,
+				IDataSet set = ds.performQuery(application.getClientID(), table.getServerName(), transaction_id, countSelect, null,
 					getTableFilterParams(table.getServerName(), countSelect), false, 0, 10, IDataServer.FOUNDSET_LOAD_QUERY);
 				if (Debug.tracing())
 				{
