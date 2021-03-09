@@ -102,7 +102,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 		this.apiFunctions = new HashMap<String, Function>();
 		this.webComponentSpec = webComponentSpec;
 
-		URL serverScript = webComponentSpec.getServerScript();
+		URL serverScript = webComponentSpec.getServerScript(component.getDataConverterContext().getApplication().getRuntimeProperties().containsKey("NG2"));
 		Scriptable apiObject = null;
 
 		if (webComponentSpec != null)
