@@ -5256,20 +5256,8 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 		return getBeans(false);
 	}
 
-	/**
-	 * Returns a JSComponent that has the given name; if found it will be a JSField, JSLabel, JSButton, JSPortal, JSBean, JSWebComponent or JSTabPanel.
-	 *
-	 * @sample
-	 * var frm = solutionModel.getForm("myForm");
-	 * var cmp = frm.getComponent("componentName");
-	 * application.output("Component type and name: " + cmp);
-	 *
-	 * @param name the specified name of the component
-	 *
-	 * @return a JSComponent object (might be a JSField, JSLabel, JSButton, JSPortal, JSBean, JSWebComponent or JSTabPanel)
-	 */
-	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
-	@JSFunction
+
+	@Override
 	public JSComponent< ? > getComponent(String name)
 	{
 		JSComponent< ? > comp = getLabel(name);
@@ -5289,42 +5277,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 		return null;
 	}
 
-	/**
-	 * Removes a component (JSLabel, JSButton, JSField, JSPortal, JSBean, JSTabpanel, JSWebComponent) that has the given name. It is the same as calling "if(!removeLabel(name) &amp;&amp; !removeButton(name) ....)".
-	 * Returns true if removal was successful, false otherwise.
-	 *
-	 * @sample
-	 * var form = solutionModel.newForm('newFormX','db:/server1/parent_table',null,true,1000,750);
-	 * var jsbutton = form.newButton('JSButton to delete',100,100,200,50,null);
-	 * jsbutton.name = 'jsb';
-	 * var jslabel = form.newLabel('JSLabel to delete',100,200,200,50,null);
-	 * jslabel.name = 'jsl';
-	 * jslabel.transparent = false;
-	 * jslabel.background = 'green';
-	 * var jsfield = form.newField('scopes.globals.myGlobalVariable',JSField.TEXT_FIELD,100,300,200,50);
-	 * jsfield.name = 'jsf';
-	 * var relation = solutionModel.newRelation('parentToChild','db:/server1/parent_table','db:/server1/child_table',JSRelation.INNER_JOIN);
-	 * relation.newRelationItem('parent_table_id', '=', 'child_table_id');
-	 * var jsportal = form.newPortal('jsp',relation,100,400,300,300);
-	 * jsportal.newField('child_table_id',JSField.TEXT_FIELD,200,200,120);
-	 * var childOne = solutionModel.newForm('childOne','db:/server1/child_table',null,false,400,300);
-	 * childOne.newField('child_table_id', JSField.TEXT_FIELD,10,10,100,20);
-	 * var childTwo = solutionModel.newForm('childTwo','server1','other_table',null,false,400,300);
-	 * childTwo.newField('some_table_id', JSField.TEXT_FIELD,10,10,100,100);
-	 * var jstabpanel = form.newTabPanel('jst',450,30,620,460);
-	 * jstabpanel.newTab('tab1','Child One',childOne,relation);
-	 * jstabpanel.newTab('tab2','Child Two',childTwo);
-	 * var jsmethod = form.newMethod("function removeMe(event) { var form = solutionModel.getForm('newFormX');\n if ((form.removeComponent('jsb') == true) && (form.removeComponent('jsl') == true) && (form.removeComponent('jsf') == true) && (form.removeComponent('jsp') == true) & (form.removeComponent('jst') == true)) application.output('Components removed ok'); else application.output('Some component(s) could not be deleted'); forms['newFormX'].controller.recreateUI();}");
-	 * var removerButton = form.newButton('Click here to remove form components',450,500,250,50,jsmethod);
-	 * removerButton.name = 'remover';
-	 * forms['newFormX'].controller.show();
-	 *
-	 * @param name the specified name of the component to be deleted
-	 *
-	 * @return true if component has been successfully deleted; false otherwise
-	 */
-	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
-	@JSFunction
+	@Override
 	public boolean removeComponent(String name)
 	{
 		if (name == null) return false;
@@ -5338,19 +5291,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 		return false;
 	}
 
-	/**
-	 * Returns a array of all the JSComponents that a form has; they are of type JSField,JSLabel,JSButton,JSPortal,JSBean, JSWebComponent or JSTabPanel.
-	 *
-	 * @sample
-	 * var form = solutionModel.getForm("myForm");
-	 * var components = form.getComponents();
-	 * for (var i in components)
-	 * 	application.output("Component type and name: " + components[i]);
-	 *
-	 * @param returnInheritedElements boolean true to also return the elements from the parent form
-	 * @return an array of all the JSComponents on the form.
-	 */
-	@JSFunction
+	@Override
 	public JSComponent< ? >[] getComponents(boolean returnInheritedElements)
 	{
 		List<JSComponent< ? >> lst = new ArrayList<JSComponent< ? >>();
@@ -5362,24 +5303,6 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 		lst.addAll(Arrays.asList(getTabPanels(returnInheritedElements)));
 		lst.addAll(Arrays.asList(getWebComponents(returnInheritedElements)));
 		return lst.toArray(new JSComponent[lst.size()]);
-	}
-
-	/**
-	 * Returns a array of all the JSComponents that a form has; they are of type JSField,JSLabel,JSButton,JSPortal,JSBean, JSWebComponents or JSTabPanel.
-	 *
-	 * @sample
-	 * var form = solutionModel.getForm("myForm");
-	 * var components = form.getComponents();
-	 * for (var i in components)
-	 * 	application.output("Component type and name: " + components[i]);
-	 *
-	 * @return an array of all the JSComponents on the form.
-	 */
-	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
-	@JSFunction
-	public JSComponent< ? >[] getComponents()
-	{
-		return getComponents(false);
 	}
 
 	/**
