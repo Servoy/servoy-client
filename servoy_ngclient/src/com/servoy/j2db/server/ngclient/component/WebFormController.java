@@ -309,15 +309,15 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	}
 
 	@Override
-	protected void focusFirstField()
+	protected boolean focusFirstField()
 	{
-		focusField(null, true);
+		return focusField(null, true);
 
 	}
 
 	@SuppressWarnings("nls")
 	@Override
-	protected void focusField(String fieldName, boolean skipReadonly)
+	protected boolean focusField(String fieldName, boolean skipReadonly)
 	{
 		WebComponent component = null;
 		WebObjectFunctionDefinition apiFunction = null;
@@ -373,7 +373,12 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			}
 		}
 
-		if (apiFunction != null && component != null) component.invokeApi(apiFunction, null);
+		if (apiFunction != null && component != null)
+		{
+			component.invokeApi(apiFunction, null);
+			return true;
+		}
+		return false;
 	}
 
 	@Override

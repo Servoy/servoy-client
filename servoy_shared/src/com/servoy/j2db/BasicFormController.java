@@ -260,9 +260,9 @@ public abstract class BasicFormController
 		return application.getFormManager().isFormEnabled(getName());
 	}
 
-	protected abstract void focusFirstField();
+	protected abstract boolean focusFirstField();
 
-	protected abstract void focusField(String fieldName, final boolean skipReadonly);
+	protected abstract boolean focusField(String fieldName, final boolean skipReadonly);
 
 	public abstract void propagateFindMode(boolean findMode);
 
@@ -3430,11 +3430,13 @@ public abstract class BasicFormController
 		 * @sample %%prefix%%controller.focusFirstField();
 		 *
 		 * @see focusField
+		 *
+		 * @return true if component was found and can be focused
 		 */
-		public void js_focusFirstField()
+		public boolean js_focusFirstField()
 		{
 			checkDestroyed();
-			formController.focusFirstField();
+			return formController.focusFirstField();
 		}
 
 		/**
@@ -3456,11 +3458,13 @@ public abstract class BasicFormController
 		 * }
 		 * @param fieldName the name of the field to be focussed
 		 * @param skipReadonly boolean indication to skip read only fields, if the named field happens to be read only
+		 *
+		 * @return true if component was found and can be focused
 		 */
-		public void js_focusField(String fieldName, boolean skipReadonly)
+		public boolean js_focusField(String fieldName, boolean skipReadonly)
 		{
 			checkDestroyed();
-			formController.focusField(fieldName, skipReadonly);
+			return formController.focusField(fieldName, skipReadonly);
 		}
 
 		/**

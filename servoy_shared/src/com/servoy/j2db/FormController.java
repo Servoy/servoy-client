@@ -623,13 +623,13 @@ public class FormController extends BasicFormController
 	}
 
 	@Override
-	protected void focusFirstField()
+	protected boolean focusFirstField()
 	{
-		focusField(null, true);
+		return focusField(null, true);
 	}
 
 	@Override
-	protected void focusField(String fieldName, final boolean skipReadonly)
+	protected boolean focusField(String fieldName, final boolean skipReadonly)
 	{
 		final Object field = tabSequence.getComponentForFocus(fieldName, skipReadonly);
 		if (field != null)
@@ -642,7 +642,9 @@ public class FormController extends BasicFormController
 					containerImpl.focusField(field);
 				}
 			});
+			return true;
 		}
+		return false;
 	}
 
 	/*
