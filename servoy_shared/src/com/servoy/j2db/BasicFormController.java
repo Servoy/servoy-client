@@ -3433,7 +3433,8 @@ public abstract class BasicFormController
 		 */
 		public void js_focusFirstField()
 		{
-			js_focusField(null, false);
+			checkDestroyed();
+			formController.focusFirstField();
 		}
 
 		/**

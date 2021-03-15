@@ -625,7 +625,7 @@ public class FormController extends BasicFormController
 	@Override
 	protected void focusFirstField()
 	{
-		focusField(null, false);
+		focusField(null, true);
 	}
 
 	@Override

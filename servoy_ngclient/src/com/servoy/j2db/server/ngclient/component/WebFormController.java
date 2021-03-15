@@ -69,6 +69,7 @@ import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.WebListFormUI;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.property.types.NGTabSeqPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.ReadonlySabloValue;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
@@ -310,7 +311,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	@Override
 	protected void focusFirstField()
 	{
-		focusField(null, false);
+		focusField(null, true);
 
 	}
 
@@ -355,8 +356,12 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 					{
 						if (skipReadonly)
 						{
-							// TODO first https://support.servoy.com/browse/SVY-8024 should be fixed then this check should be on the property type.
-							if (Boolean.TRUE.equals(component.getProperty("readOnly")))
+							Object value = seqComponent.getProperty(WebFormUI.READONLY);
+							if (value instanceof ReadonlySabloValue)
+							{
+								value = Boolean.valueOf(((ReadonlySabloValue)value).getValue());
+							}
+							if (Boolean.TRUE.equals(value))
 							{
 								continue;
 							}
