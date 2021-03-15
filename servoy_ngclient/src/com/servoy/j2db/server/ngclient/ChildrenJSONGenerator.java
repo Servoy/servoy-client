@@ -48,6 +48,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
@@ -58,6 +59,7 @@ import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -92,7 +94,8 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 	 * @param client
 	 * @param cachedFormController
 	 */
-	public ChildrenJSONGenerator(JSONWriter writer, ServoyDataConverterContext context, Object skip, IFormElementCache cache, Part part, Form form)
+	public ChildrenJSONGenerator(JSONWriter writer, ServoyDataConverterContext context, Object skip, IFormElementCache cache, Part part, Form form,
+		boolean mainFormGeneration)
 	{
 		this.writer = writer;
 		this.context = context;
@@ -102,7 +105,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		formUI = (context.getForm() != null && context.getForm().getFormUI() instanceof WebFormUI)
 			? (WebFormUI)context.getForm().getFormUI() : null;
 		this.part = part;
-		if (formUI != null)
+		if (formUI != null && mainFormGeneration)
 		{
 			// write component properties is not called so do register the container here with the current window.
 			CurrentWindow.get().registerContainer(formUI);
@@ -120,6 +123,8 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 	public Object visit(IPersist o)
 	{
 		if (o == skip) return IPersistVisitor.CONTINUE_TRAVERSAL;
+		if (!isSecurityVisible(o))
+			return IPersistVisitor.CONTINUE_TRAVERSAL;
 		if (o instanceof IFormElement)
 		{
 			FormElement fe = null;
@@ -179,17 +184,24 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			{
 				// there is a existing form, take the current properties from that.
 				WebFormComponent webComponent = formUI.getWebComponent(fe.getName());
-				TypedData<Map<String, Object>> properties = webComponent.getProperties();
-				TypedData<Map<String, Object>> templateProperties = fe.propertiesForTemplateJSON();
-				// remove from the templates properties all the properties that are current "live" in the component
-				templateProperties.content.keySet().removeAll(properties.content.keySet());
-				DataConversion dataConversion = new DataConversion();
-				// write the template properties that are left
-				JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType, dataConversion,
-					new FormElementContext(fe));
-				// write the actual values
-				webComponent.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, properties, dataConversion);
-				JSONUtils.writeClientConversions(writer, dataConversion);
+				if (webComponent != null)
+				{
+					TypedData<Map<String, Object>> properties = webComponent.getProperties();
+					TypedData<Map<String, Object>> templateProperties = fe.propertiesForTemplateJSON();
+					// remove from the templates properties all the properties that are current "live" in the component
+					templateProperties.content.keySet().removeAll(properties.content.keySet());
+					DataConversion dataConversion = new DataConversion();
+					// write the template properties that are left
+					JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType, dataConversion,
+						new FormElementContext(fe));
+					// write the actual values
+					webComponent.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, properties, dataConversion);
+					JSONUtils.writeClientConversions(writer, dataConversion);
+				}
+				else
+				{
+					System.err.println("null");
+				}
 			}
 			else
 			{
@@ -198,20 +210,23 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			if (o instanceof BaseComponent)
 			{
 				writer.key("servoyAttributes");
-				writer.array();
+				writer.object();
 				Map<String, String> attributes = new HashMap<String, String>(((BaseComponent)fe.getPersistIfAvailable()).getMergedAttributes());
-				attributes.forEach((key, value) -> {
-					writer.object();
-					writer.key("key");
-					writer.value(StringEscapeUtils.escapeEcmaScript(key));
-					if (value != null && value.length() > 0)
+				if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
+				{
+					String elementName = name;
+					if (elementName.startsWith("svy_") && o.getUUID() != null)
 					{
-						writer.key("value");
-						writer.value(value);
+						elementName = "svy_" + o.getUUID().toString();
 					}
-					writer.endObject();
+					attributes.put("data-svy-name", form.getName() + "." + elementName);
+				}
+
+				attributes.forEach((key, value) -> {
+					writer.key(StringEscapeUtils.escapeEcmaScript(key));
+					writer.value(value);
 				});
-				writer.endArray();
+				writer.endObject();
 			}
 			writer.endObject();
 			Collection<String> handlers = fe.getHandlers();
@@ -269,14 +284,14 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 										}
 										return FormElementHelper.INSTANCE.getFormElement(component, flattendSol, path, design);
 									}
-								}, null, this.form), PositionComparator.XY_PERSIST_COMPARATOR);
+								}, null, this.form, false), PositionComparator.XY_PERSIST_COMPARATOR);
 							}
 							else
 							{
 								for (FormElement element : fccc.getFormComponentElements())
 								{
 									IFormElement persistOfElement = (IFormElement)element.getPersistIfAvailable();
-									persistOfElement.acceptVisitor(new ChildrenJSONGenerator(writer, context, null, null, null, this.form),
+									persistOfElement.acceptVisitor(new ChildrenJSONGenerator(writer, context, null, null, null, this.form, false),
 										FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
 								}
 							}
@@ -349,11 +364,20 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.endObject();
 			writer.key("children");
 			writer.array();
-			o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form), PositionComparator.XY_PERSIST_COMPARATOR);
+			o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false), PositionComparator.XY_PERSIST_COMPARATOR);
 			writer.endArray();
 			writer.endObject();
 			return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 		}
 		return IPersistVisitor.CONTINUE_TRAVERSAL;
+	}
+
+	public boolean isSecurityVisible(IPersist persist)
+	{
+		if (context.getApplication() == null || persist.getUUID() == null || !(persist instanceof IFormElement)) return true;
+		int access = context.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID(),
+			form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
+		boolean b_visible = ((access & IRepository.VIEWABLE) != 0);
+		return b_visible;
 	}
 }
