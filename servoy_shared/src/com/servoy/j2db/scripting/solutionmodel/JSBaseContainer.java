@@ -123,6 +123,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 						if (specName == null && parent.getAllowedChildren() != null && !parent.getAllowedChildren().isEmpty())
 						{
 							specName = parent.getAllowedChildren().get(0);
+							if (specName.contains(".")) specName = specName.split("\\.")[1];
 						}
 					}
 				}
@@ -185,10 +186,59 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 	 * @param position the position of JSWebComponent object in its parent container
 	 * @return the new layout container
 	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
 	public JSLayoutContainer newLayoutContainer(int position)
 	{
 		return createLayoutContainer(position, position, null);
+	}
+
+	/**
+	 * Create a new layout container as the last child of its parent container.
+	 * This method can only be used in responsive forms.
+	 *
+	 * If you want to use default values and so on from a layout package (like 12grid) or if you use the solution model
+	 * to create a form that is saved back into the workspace (servoyDeveloper.save(form)) then you have to set the
+	 * packageName and specName properties. So that it works later on in the designer.
+	 *
+	 * If the packageName and specName are not provided, then:
+	 *    the packageName is the same as for the parent container
+	 *    the specName is the first allowed child defined in the specification of the parent container
+	 *
+	 * If the specification of the parent container does not defined allowed children, then if it is not empty
+	 *    the packageName and the specName are copied from the first child layout container.
+	 * @sample
+	 * var container = form.newLayoutContainer();
+	 * container.packageName = "12grid";
+	 * container.specName = "row";
+	 * @return the new layout container
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSLayoutContainer newLayoutContainer()
+	{
+		int pos = getLastPosition();
+		return createLayoutContainer(pos, pos, null);
+	}
+
+	/**
+	 * Create a new layout container as the last child in its parent container.
+	 * This method can only be used in responsive forms.
+	 *
+	 * @sample
+	 * var container = form.newLayoutContainer(1, "12grid-row");
+	 * container.newLayoutContainer(1, "column");
+	 *
+	 * @param spec a string of the form 'packageName-layoutName', or 'layoutName'
+	 * @return the new layout container
+	 *
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSLayoutContainer newLayoutContainer(String spec) throws Exception
+	{
+		int pos = getLastPosition();
+		return createLayoutContainer(pos, pos, spec);
 	}
 
 	/**
@@ -204,6 +254,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 	 * @return the new layout container
 	 *
 	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
 	public JSLayoutContainer newLayoutContainer(int position, String spec) throws Exception
 	{
@@ -409,7 +460,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 	 * @sample
 	 * var form = solutionModel.newForm('newForm1', 'db:/server1/table1', null, true, 800, 600);
 	 * var container = myForm.getLayoutContainer("row1")
-	 * var bean = container.newWebComponent('bean','mypackage-testcomponent',1);
+	 * var bean = container.newWebComponent('mypackage-testcomponent',1);
 	 *
 	 * @param type the webcomponent name as it appears in the spec
 	 * @param position the position of JSWebComponent object in its parent container
@@ -421,6 +472,27 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 	public JSWebComponent newWebComponent(String type, int position)
 	{
 		return newWebComponent(null, type, position);
+	}
+
+	/**
+	 * Creates a new JSWebComponent (spec based component) object on the RESPONSIVE form,
+	 * as the last component in its parent container.
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', 'db:/server1/table1', null, true, 800, 600);
+	 * var container = myForm.getLayoutContainer("row1")
+	 * var bean = container.newWebComponent('bean','mypackage-testcomponent');
+	 *
+	 * @param name the specified name of the JSWebComponent object
+	 * @param type the webcomponent name as it appears in the spec
+	 *
+	 * @return a JSWebComponent object
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSWebComponent newWebComponent(String name, String type)
+	{
+		return newWebComponent(name, type, getLastPosition());
 	}
 
 	/**
