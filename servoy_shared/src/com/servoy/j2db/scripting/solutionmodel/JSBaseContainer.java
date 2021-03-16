@@ -22,9 +22,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.mozilla.javascript.annotations.JSFunction;
+import org.sablo.specification.PackageSpecification;
+import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebLayoutSpecification;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.IApplication;
@@ -81,10 +87,10 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 	@JSFunction
 	public JSLayoutContainer newLayoutContainer(int x, int y)
 	{
-		return createLayoutContainer(x, y, null);
+		return createLayoutContainer(x, y, null, null);
 	}
 
-	protected JSLayoutContainer createLayoutContainer(int x, int y, String spec)
+	protected JSLayoutContainer createLayoutContainer(int x, int y, String spec, JSONObject config)
 	{
 		checkModification();
 		try
@@ -142,7 +148,25 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 				layoutContainer.setLocation(new Point(x, y));
 				layoutContainer.setPackageName(packageName);
 				layoutContainer.setSpecName(specName);
-				return application.getScriptEngine().getSolutionModifier().createLayoutContainer(this, layoutContainer);
+				JSLayoutContainer jsLayoutContainer = application.getScriptEngine().getSolutionModifier().createLayoutContainer(this, layoutContainer);
+				JSONObject conf = config;
+				if (config == null)
+				{
+					Map<String, PackageSpecification<WebLayoutSpecification>> layoutSpecifications = WebComponentSpecProvider.getSpecProviderState()
+						.getLayoutSpecifications();
+					if (packageName != null && specName != null && layoutSpecifications != null &&
+						layoutSpecifications.get(packageName) != null)
+					{
+						WebLayoutSpecification layoutSpec = layoutSpecifications.get(packageName)
+							.getSpecification(specName);
+						if (layoutSpec != null && layoutSpec.getConfig() instanceof JSONObject || layoutSpec.getConfig() instanceof String)
+						{
+							conf = layoutSpec.getConfig() instanceof String ? new JSONObject((String)layoutSpec.getConfig())
+								: ((JSONObject)layoutSpec.getConfig());
+						}
+					}
+				}
+				return configLayoutContainer(jsLayoutContainer, layoutContainer, conf);
 			}
 			else
 			{
@@ -159,10 +183,46 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 					" is not responsive, cannot add a layout container on it. Please use a responsive form or create a responsive form with solutionModel.newForm(formName, true);");
 			}
 		}
-		catch (RepositoryException e)
+		catch (Exception e)
 		{
 			throw new RuntimeException(e);
 		}
+	}
+
+	private JSLayoutContainer configLayoutContainer(JSLayoutContainer jsLayoutContainer, LayoutContainer layoutContainer, JSONObject config)
+		throws Exception
+	{
+		if (config != null)
+		{
+			for (String key : config.keySet())
+			{
+				if ("children".equals(key))
+				{
+					JSONArray array = config.optJSONArray("children");
+					for (int i = 0; i < array.length(); i++)
+					{
+						JSONObject jsonObject = array.getJSONObject(i);
+						if (jsonObject.has("layoutName"))
+						{
+							jsLayoutContainer.createLayoutContainer(i + 1, i + 1, jsonObject.optString("layoutName"), jsonObject.optJSONObject("model"));
+						}
+						else if (jsonObject.has("componentName"))
+						{
+							jsLayoutContainer.newWebComponent(jsonObject.optString("componentName"));//TODO config web component
+						}
+					}
+				}
+				else if (key.equals("layoutName"))
+				{
+					layoutContainer.setSpecName(config.optString(key));
+				}
+				else
+				{
+					layoutContainer.putAttribute(key, config.optString(key));
+				}
+			}
+		}
+		return jsLayoutContainer;
 	}
 
 	/**
@@ -190,7 +250,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 	@JSFunction
 	public JSLayoutContainer newLayoutContainer(int position)
 	{
-		return createLayoutContainer(position, position, null);
+		return createLayoutContainer(position, position, null, null);
 	}
 
 	/**
@@ -218,7 +278,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 	public JSLayoutContainer newLayoutContainer()
 	{
 		int pos = getLastPosition();
-		return createLayoutContainer(pos, pos, null);
+		return createLayoutContainer(pos, pos, null, null);
 	}
 
 	/**
@@ -238,7 +298,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 	public JSLayoutContainer newLayoutContainer(String spec) throws Exception
 	{
 		int pos = getLastPosition();
-		return createLayoutContainer(pos, pos, spec);
+		return createLayoutContainer(pos, pos, spec, null);
 	}
 
 	/**
@@ -258,7 +318,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 	@JSFunction
 	public JSLayoutContainer newLayoutContainer(int position, String spec) throws Exception
 	{
-		return createLayoutContainer(position, position, spec);
+		return createLayoutContainer(position, position, spec, null);
 	}
 
 	/**
