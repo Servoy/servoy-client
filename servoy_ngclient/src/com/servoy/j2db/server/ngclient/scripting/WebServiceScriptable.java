@@ -204,7 +204,7 @@ public class WebServiceScriptable implements Scriptable
 		this.application = application;
 		setParentScope(solutionScope);
 		this.serviceSpecification = serviceSpecification;
-		URL serverScript = serviceSpecification.getServerScript(false);
+		URL serverScript = serviceSpecification.getServerScript(application.getRuntimeProperties().containsKey("NG2"));
 		if (serverScript != null)
 		{
 			scopeObject = compileServerScript(serverScript, this, application);
