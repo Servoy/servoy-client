@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
@@ -34,8 +35,10 @@ import com.servoy.j2db.persistence.IFlattenedPersistWrapper;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportFormElements;
+import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.WebComponent;
@@ -51,6 +54,7 @@ import com.servoy.j2db.util.docvalidator.IdentDocumentValidator;
 public abstract class JSBaseContainer<T extends AbstractContainer> implements IJSParent<T>
 {
 	private final IApplication application;
+	private final AtomicInteger id = new AtomicInteger();
 
 	public JSBaseContainer(IApplication application)
 	{
@@ -359,6 +363,30 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 			Form form = (Form)container.getAncestor(IRepository.FORMS);
 			if (form.isResponsiveLayout())
 			{
+				if (name == null)
+				{
+					String componentName = type;
+					int index = componentName.indexOf("-");
+					if (index != -1)
+					{
+						componentName = componentName.substring(index + 1);
+					}
+					componentName = componentName.replaceAll("-", "_"); //$NON-NLS-1$//$NON-NLS-2$
+					name = componentName + "_" + id.incrementAndGet(); //$NON-NLS-1$
+					IJSParent< ? > parent = this;
+					while (!(parent instanceof JSForm))
+					{
+						parent = parent.getJSParent();
+					}
+					if (parent instanceof JSForm)
+					{
+						while (findComponent((JSForm)parent, name) != null)
+						{
+							name = componentName + "_" + id.incrementAndGet();
+						}
+					}
+
+				}
 				WebComponent webComponent = container.createNewWebComponent(IdentDocumentValidator.checkName(name), type);
 				webComponent.setLocation(new Point(position, position));
 				return createWebComponent(this, webComponent, application, true);
@@ -372,6 +400,89 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 		{
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * Creates a new JSWebComponent (spec based component) object on the RESPONSIVE form.
+	 * Will receive a generated name.
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', 'db:/server1/table1', null, true, 800, 600);
+	 * var container = myForm.getLayoutContainer("row1")
+	 * var bean = container.newWebComponent('bean','mypackage-testcomponent',1);
+	 *
+	 * @param type the webcomponent name as it appears in the spec
+	 * @param position the position of JSWebComponent object in its parent container
+	 *
+	 * @return a JSWebComponent object
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSWebComponent newWebComponent(String type, int position)
+	{
+		return newWebComponent(null, type, position);
+	}
+
+	/**
+	 * Creates a new JSWebComponent (spec based component) object on the RESPONSIVE form.
+	 * Will receive a generated name. Will be added as last position in container.
+	 *
+	 * @sample
+	 * var form = solutionModel.newForm('newForm1', 'db:/server1/table1', null, true, 800, 600);
+	 * var container = myForm.getLayoutContainer("row1")
+	 * var bean = container.newWebComponent('mypackage-testcomponent');
+	 *
+	 * @param type the webcomponent name as it appears in the spec
+	 *
+	 * @return a JSWebComponent object
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSWebComponent newWebComponent(String type)
+	{
+		return newWebComponent(null, type, getLastPosition());
+	}
+
+	private int getLastPosition()
+	{
+		int position = 0;
+		Iterator<IPersist> components = getFlattenedContainer().getAllObjects();
+		while (components.hasNext())
+		{
+			IPersist component = components.next();
+			if (component instanceof ISupportBounds)
+			{
+				Point location = ((ISupportBounds)component).getLocation();
+				if (location != null)
+				{
+					if (location.x > position)
+					{
+						position = location.x;
+					}
+					if (location.y > position)
+					{
+						position = location.y;
+					}
+				}
+			}
+		}
+		return position + 1;
+	}
+
+	public IPersist findComponent(JSForm jsform, final String name)
+	{
+		return (IPersist)jsform.getFlattenedContainer().acceptVisitor(new IPersistVisitor()
+		{
+			@Override
+			public Object visit(IPersist o)
+			{
+				if (o instanceof ISupportName && name.equals(((ISupportName)o).getName()))
+				{
+					return o;
+				}
+				return o instanceof ISupportFormElements ? CONTINUE_TRAVERSAL : CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+			}
+		});
 	}
 
 	/**
