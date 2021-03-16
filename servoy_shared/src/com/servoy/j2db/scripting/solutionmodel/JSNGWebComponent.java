@@ -59,7 +59,11 @@ public class JSNGWebComponent extends JSWebComponent
 			WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(webComponent.getTypeName());
 
 			Pair<PropertyDescription, String> propAndName = getPropertyDescriptionAndName(propertyName, spec);
-
+			if (propAndName.getLeft() == null)
+			{
+				Debug.warn("Property '" + propertyName + "' not found in spec file of: " + webComponent.getTypeName() +
+					". It was set using JSWebComponent.setJSONProperty API.");
+			}
 			Object convertedValue = fromRhinoToDesignValue(value, propAndName.getLeft(), application, this, propertyName);
 			webComponent.setProperty(propAndName.getRight(), convertedValue);
 		}
