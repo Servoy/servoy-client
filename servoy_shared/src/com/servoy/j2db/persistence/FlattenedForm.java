@@ -42,6 +42,7 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 	private static final long serialVersionUID = 1L;
 
 	private final Map<UUID, IPersist> extendsMap = new HashMap<>();
+	private final Map<String, Object> allProperties = new HashMap<>();
 
 	public static final Comparator<IFormElement> FORM_INDEX_WITH_HIERARCHY_COMPARATOR = new Comparator<IFormElement>()
 	{
@@ -120,6 +121,12 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 			return flattenedSolution.getForm(getExtendsID());
 		}
 		return null;
+	}
+
+	@Override
+	public Map<String, Object> getFlattenedPropertiesMap()
+	{
+		return new HashMap<String, Object>(allProperties);
 	}
 
 	private void fill()
@@ -220,6 +227,7 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		Collections.reverse(allForms); // change from sub-first to super-first
 		for (Form f : allForms)
 		{
+			allProperties.putAll(f.getPropertiesMap());
 			// Add parts
 			Iterator<Part> parts = f.getParts();
 			while (parts.hasNext())
@@ -271,6 +279,8 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 	public void reload()
 	{
 		internalClearAllObjects();
+		extendsMap.clear();
+		allProperties.clear();
 		fill();
 	}
 

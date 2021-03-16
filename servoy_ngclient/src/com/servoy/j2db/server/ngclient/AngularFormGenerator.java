@@ -330,7 +330,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		{
 			form.acceptVisitor(new ChildrenJSONGenerator(writer,
 				cachedFormController != null ? new ServoyDataConverterContext(cachedFormController) : new ServoyDataConverterContext(client), form, null,
-				null, form), PositionComparator.XY_PERSIST_COMPARATOR);
+				null, form, true), PositionComparator.XY_PERSIST_COMPARATOR);
 		}
 		else
 		{
@@ -400,7 +400,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 					form.acceptVisitor(new ChildrenJSONGenerator(writer,
 						cachedFormController != null ? new ServoyDataConverterContext(cachedFormController) : new ServoyDataConverterContext(client), form,
 						null,
-						part, form), ChildrenJSONGenerator.FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
+						part, form, true), ChildrenJSONGenerator.FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
 					writer.endArray();
 					writer.endObject();
 				}
