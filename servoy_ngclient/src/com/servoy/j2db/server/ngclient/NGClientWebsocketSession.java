@@ -345,6 +345,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	private List<String> lastSentStyleSheets;
 
+	@SuppressWarnings("nls")
 	protected void sendSolutionCSSURL(Solution solution)
 	{
 		Map<String, String> overrideStyleSheets = client != null ? client.getOverrideStyleSheets() : null;
@@ -365,7 +366,18 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			for (int i = 0; i < styleSheets.size(); i++)
 			{
 				long timestamp = 0;
-				Media media = client.getFlattenedSolution().getMedia(styleSheets.get(i));
+				Media media = null;
+				String stylesheetName = styleSheets.get(i);
+				if (client.getRuntimeProperties().containsKey("NG2"))
+				{
+					int lastPoint = stylesheetName.lastIndexOf('.');
+					String ng2StylesheetName = stylesheetName.substring(0, lastPoint) + "_ng2" + stylesheetName.substring(lastPoint);
+					media = client.getFlattenedSolution().getMedia(ng2StylesheetName);
+					if (media == null) media = client.getFlattenedSolution().getMedia(stylesheetName);
+					else stylesheetName = ng2StylesheetName;
+				}
+				else
+					media = client.getFlattenedSolution().getMedia(stylesheetName);
 				if (media != null && media.getLastModifiedTime() > 0)
 				{
 					timestamp = media.getLastModifiedTime();
@@ -377,7 +389,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					}
 				}
 				styleSheets.set(i, "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" +
-					styleSheets.get(i).replace(".less", ".css") + "?t=" +
+					stylesheetName.replace(".less", ".css") + "?t=" +
 					Long.toHexString(timestamp == 0 ? client.getSolution().getLastModifiedTime() : timestamp) + "&clientnr=" + getSessionKey().getClientnr());
 			}
 			if (compareList(lastSentStyleSheets, styleSheets)) return;
