@@ -1,0 +1,6 @@
+<div ng-class='model.styleClass' ng-if='model.visible && showEditorHint()'>
+  <label>
+  	 <span>Select contained form</span>
+  </label>
+</div>
+<div id="{{::model.svyMarkupId}}" class='bts-tablesspanel'  ng-include="getActiveTabUrl()" ng-class="model.styleClass" ng-style='getContainerStyle()' ng-if='model.visible' sablo-tabseq='model.tabSeq' sablo-tabseq-config="{container: true, reservedGap: 50}" svy-attributes='model.attributes'></div>
