@@ -19,6 +19,7 @@ package com.servoy.j2db.util;
 
 import static com.google.common.cache.CacheBuilder.newBuilder;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.synchronizedList;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
@@ -61,10 +62,24 @@ public class ConcurrentSoftvaluesMultimap<K, V>
 		List<ConcurrentMap<List< ? >, V>> list = cache.get(key);
 		if (list == null)
 		{
-			list = new ArrayList<>();
+			list = synchronizedList(new ArrayList<ConcurrentMap<List< ? >, V>>()
+			{
+				@Override
+				public int hashCode()
+				{
+					return 1;
+				}
+
+				@Override
+				public boolean equals(Object o)
+				{
+					// do not compare on elements (stackoverflow error)
+					return this == o;
+				}
+			});
 			cache.put(key, list);
 		}
-		else if (list.stream().map(ConcurrentMap::values).flatMap(Collection::stream).noneMatch(v -> v == value))
+		else if (list.stream().map(ConcurrentMap::values).flatMap(Collection::stream).anyMatch(v -> v == value))
 		{
 			// already contains value
 			return;
