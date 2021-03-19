@@ -211,6 +211,7 @@ html, body {
 .svy-textarea, .bts-textarea,
 .svy-textfield, .bts-textbox,
 .svy-typeahead, .bts-typeahead,
+.svy-combobox, .bts-combobox,
 .bts-select, .bts-select ~ .input-group-addon,
 .svy-calendar, .svy-calendar ~ .input-group-addon,
 .bts-calendar, .bts-calendar ~ .input-group-addon,
@@ -268,22 +269,49 @@ html, body {
             transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
 }
 
-.svy-calendar ~ .input-group-text,
-.bts-calendar ~ .input-group-text,
-.bts-calendar input ~ .input-group-text {
-    border-left: 0;
-}
+.svy-calendar,
+.bts-calendar  {
+    & ~ .input-group-text {
+        border-left: 0;
+        background-color: @field-addon-bg;
+    }
+    
+    &:focus ~ .input-group-text {
+        border-color: @main-color;
+    }
+    
+    &.no-border ~ .input-group-text {
+        .no-border();
+    }
+    
+    &.border-primary ~ .input-group-text {
+        .border-primary();
+    }
+    
+    &.border-info ~ .input-group-text {
+        .border-info();
+    }
+    
+    &.border-success ~ .input-group-text {
+        .border-success();
+    }
+    
+    &.border-warning ~ .input-group-text {
+        .border-warning();
+    }
+    
+    &.border-danger ~ .input-group-text {
+        .border-danger();
+    }
+    
+    &.border-tertiary ~ .input-group-text {
+        .border-tertiary();
+    }
+    
+    &.form-invalid ~ .input-group-text {
+        .border-danger();
+    }
 
-.svy-calendar ~ .input-group-text,
-.bts-calendar ~ .input-group-text,
-.bts-calendar input ~ .input-group-text {
-    background-color: @field-addon-bg;
-}
-
-.svy-calendar:focus ~ .input-group-text,
-.bts-calendar:focus ~ .input-group-text,
-.bts-calendar input:focus ~ .input-group-text {
-    border-color: @main-color;
 }
 
 .svy-field:focus, .svy-password:focus,
@@ -313,9 +341,86 @@ fieldset[disabled] .form-control {
     color: @main-color-inverse;
 }
 
+
+/* Combobox */
+.svy-combobox-container,
 .bts-combobox-container {
     border-radius: @field-border-radius;
+    
+    /* Combobox background */
+    &.form-primary > .svy-combobox,
+    &.form-primary > .bts-combobox {
+        .form-primary();
+    }
+    
+    &.form-info > .svy-combobox,
+    &.form-info > .bts-combobox {
+        .form-info();
+    }
+    
+    &.form-success > .svy-combobox,
+    &.form-success > .bts-combobox {
+        .form-success();
+    }
+    
+    &.form-warning > .svy-combobox,
+    &.form-warning > .bts-combobox {
+        .form-warning();
+    }
+
+    &.form-danger > .svy-combobox,
+    &.form-danger > .bts-combobox {
+        .form-danger();
+    }
+    
+    &.form-tertiary > .svy-combobox,
+    &.form-tertiary > .bts-combobox {
+        .form-tertiary();
+    }
+    
+    /* Combobox Border */
+    &.border-default {
+        border: 0;
+    }
+    
+    &.border-default > .svy-combobox,
+    &.border-default > .bts-combobox {
+        .border-default();
+    }
+
+    &.border-primary > .svy-combobox,
+    &.border-primary > .bts-combobox {
+        .border-primary();
+    }
+    
+    &.border-info > .svy-combobox,
+    &.border-info > .bts-combobox {
+        .border-info();
+    }
+    
+    &.border-success > .svy-combobox,
+    &.border-success > .bts-combobox {
+        .border-success();
+    }
+    
+    &.border-warning > .svy-combobox,
+    &.border-warning > .bts-combobox {
+        .border-warning();
+    }
+
+    &.border-danger > .svy-combobox,
+    &.border-danger > .bts-combobox {
+        .border-danger();
+    }
+    
+    &.border-tertiary > .svy-combobox,
+    &.border-tertiary > .bts-combobox {
+        .border-tertiary();
+    }
+
 }
+
+
 
 /* Combobox active */
 .bts-combobox-containerform-primary.show,
@@ -614,90 +719,90 @@ Can we make them look similar ?  */
 }
 
 /* Select2Tokenizer Servoy Extra */
-.svy-select2-autotokenizer-dropdown .select2-results__option.select2-results__option--highlighted {
-    background-color: @main-color;
+
+:root {
+    /* CSS variables used by the Tokenizer https://www.npmjs.com/package/ng-select2-component */
+    /* label */
+    --select2-label-text-color: @text-color;
+    /* --select2-required-color: red; */
+
+    /* selection */
+    --select2-selection-border-radius: @field-border-radius;
+    --select2-selection-background: @field-bg;
+    /* --select2-selection-disabled-background: #eee; */
+    --select2-selection-border-color: @border-color;
+    --select2-selection-focus-border-color: @main-color;
+    --select2-selection-text-color: @text-color;
+
+    /* selection: choice item (multiple) */
+    --select2-selection-choice-background: @main-color;
+    --select2-selection-choice-text-color: @main-color-inverse;
+    --select2-selection-choice-border-color: @border-color;
+    --select2-selection-choice-close-color: @main-color-inverse;
+    --select2-selection-choice-hover-close-color: @main-color-inverse;
+
+     /* placeholder */
+    /* --select2-placeholder-color: #999; */
+
+    /* reset */
+    /* --select2-reset-color: #999; */
+
+    /* arrow */
+    /* --select2-arrow-color: #888; */
+
+    /* dropdown panel */
+    --select2-dropdown-background: #fff;
+    --select2-dropdown-border-color: @border-color;
+
+    /* search field */
+    --select2-search-border-color: @border-color;
+    --select2-search-background: #fff;
+    --select2-search-border-radius: 0px;
+
+    /* dropdown option */
+    --select2-option-text-color: @text-color;
+    /* --select2-option-disabled-text-color: #999;
+    --select2-option-disabled-background: transparent; */
+    --select2-option-selected-text-color: @main-color-inverse;
+    --select2-option-selected-background: @main-color;
+    --select2-option-highlighted-text-color: @text-color;
+    --select2-option-highlighted-background: #e9ecef;
+    /* --select2-option-group-text-color: gray;
+    --select2-option-group-background: transparent; */
+
+    /* hint */
+    /* --select2-hint-text-color: #888; */
+
+    /* for Material ------------------------------------------
+    --select2-material-underline: #ddd;
+    --select2-material-underline-active: #5a419e;
+    --select2-material-underline-disabled: linear-gradient(to right, rgba(0, 0, 0, 0.26) 0, rgba(0, 0, 0, 0.26) 33%, transparent 0);
+    --select2-material-underline-invalid: red;
+    --select2-material-placeholder-color: rgba(0, 0, 0, 0.38);
+    --select2-material-selection-background: #ddd;
+    --select2-material-option-selected-background: rgba(0, 0, 0, 0.04);
+    --select2-material-option-highlighted-text-color: #000;
+    --select2-material-option-selected-text-color: #ff5722;
+    */
 }
 
 .svy-select2-autotokenizer .select2-container--default .select2-selection--multiple {
-    background-color: @field-bg;
-    color: @field-color;
+    /* TODO should make this important !? */
     border-style: @border-style;
-    border-color: @border-color;
     border-width: @field-border-width;
-    border-radius: 0;
-    cursor: text;
 }
 
-.svy-select2-autotokenizer .select2-container--default.select2-container--focus .select2-selection--multiple {
-    outline: 1px;
-    outline-color: @main-color-light;
-    border-color: @main-color-light;
-    box-shadow: none;
-}
-
-.svy-select2-autotokenizer .select2-container .select2-selection--multiple .select2-selection__rendered {
-    /*display: flex;
-    align-items: center;
-    justify-content: flex-start; 
-    padding: 2px 5px; */
-}
-
-.svy-select2-autotokenizer-dropdown .svy-select2-autotokenizer.select2-sm .svy-select2-autotokenizer-container .select2-selection__choice, 
-.svy-select2-autotokenizer.select2-sm .svy-select2-autotokenizer-container .select2-search--inline .select2-search__field {
-    margin-bottom: 5px;
-}
-
-.svy-select2-autotokenizer .select2-container--default .select2-selection--multiple .select2-selection__choice {
-    background-color: @main-color; /* #76BB29; */
-    border: 0px solid @border-color;
-    border-radius: 30px;
-    cursor: default;
-    margin-top: 5px;
-    padding: 1px 15px 1px 10px;
-    color: @main-color-inverse;
-/*     display: flex;
-    align-items: center; */
-}
-
-.svy-select2-autotokenizer .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
-    color: @main-color-inverse;
-}
-
-.svy-select2-autotokenizer-dropdown .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
-    color: #4A4A4A;
-    cursor: pointer;
+/* Checkbox icon for the select2tokenizer dropdown */
+.svy-select2-autotokenizer .select2-container-dropdown .select2-results__option[aria-selected]:before {
+    font-family: "FontAwesome", "Font Awesome 5 Free";
+    content: "\f0c8";
+    margin-right: 5px;
     font-weight: normal;
-    margin-right: 5px;
-    font-size: 0px;
 }
 
-.svy-select2-autotokenizer-dropdown .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:before {
-    font-family: "FontAwesome", "Font Awesome 5 Free";
-    content: "\F15A";
-    color: #ffffff;
+.svy-select2-autotokenizer .select2-container-dropdown .select2-results__option[aria-selected=true]:before {
+    content: "\f14a";
 }
-
-.svy-select2-autotokenizer-dropdown .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover:before {
-    font-family: "FontAwesome", "Font Awesome 5 Free";
-    content: "\F159";
-    /* color: #ffffff; */
-}
-
-.svy-select2-autotokenizer-dropdown .select2-results__option[aria-selected=true] {
-    background-color: @main-color;
-    color: @main-color-inverse;
-}
-
-.svy-select2-autotokenizer-dropdown .select2-results__option[aria-selected]:before {
-    font-family: 'Glyphicons Halflings';
-    content: "\e157";
-    margin-right: 5px;
-}
-
-.svy-select2-autotokenizer-dropdown .select2-results__option[aria-selected=true]:before {
-    content: "\e067";
-}
-
 
 /* Badge */
 .btn-filter .badge {
@@ -1262,9 +1367,10 @@ data-servoyextra-fontawesome > div {
 }
 
 /* Servoy Bootstrap/Extra Table */
-.svy-table,
+.svy-table tbody,
 .bts-table {
     border: @table-border-width @border-style @border-color;
+    border-top: 0;
 }
 
 .svy-table.no-border,
@@ -1273,7 +1379,9 @@ data-servoyextra-fontawesome > div {
 }
 
 .svy-table.no-border thead,
-.bts-table.no-border thead {
+.bts-table.no-border thead,
+.svy-table.no-border tbody,
+.bts-table.no-border tbody {
     border: 0px;
 }
 
@@ -1327,14 +1435,21 @@ data-servoyextra-fontawesome > div {
     border-width: @table-border-width;
 }
 
+.svy-table thead {
+    border-top-width: 0;
+}
+
 .ui-grid-header-cell,
 .svy-table th,
 .bts-table th,
 .table > thead > tr > th {
-    border-width: @table-border-width;
     text-transform: @table-header-text-transform;
     font-weight: @table-header-font-style;
 /*  font-size: 12px; */
+}
+
+.ui-grid-header-cell {
+    border-width: @table-border-width;
 }
 
 /**************************************************************
@@ -3223,19 +3338,21 @@ fieldset[disabled] .btn-outline-default:focus, .btn-outline-default.disabled.foc
 .svy-calendar.form-invalid, .svy-calendar.form-invalid ~ .input-group-addon, 
 .bts-calendar.form-invalid, .bts-calendar.form-invalid ~ .input-group-addon, 
 .bts-calendar input.form-invalid, .bts-calendar input.form-invalid ~ .input-group-addon {
-    border: 1px solid @brand-danger;
+    border: @field-border-width @border-style @brand-danger;
     outline-color: @brand-danger;
 }
 
 .svy-field.ng-invalid, .svy-password.ng-invalid, 
 .svy-textarea.ng-invalid, .bts-textarea.ng-invalid, 
 .svy-textfield.ng-invalid, .bts-textbox.ng-invalid, 
-.svy-typeahead.ng-invalid, .bts-typeahead.ng-invalid, 
+.svy-typeahead.ng-invalid, .bts-typeahead.ng-invalid,
+.svy-combobox-container.form-invalid .svy-combobox,
+.bts-combobox-container.form-invalid .bts-combobox,
 .bts-select.ng-invalid, .bts-select.ng-invalid ~ .input-group-addon, 
 .svy-calendar.ng-invalid, .svy-calendar.ng-invalid ~ .input-group-addon, 
 .bts-calendar.form-invalid, .bts-calendar.form-invalid ~ .input-group-addon,
 .bts-calendar.ng-invalid input, .bts-calendar.ng-invalid input ~ .input-group-addon {
-    border: 1px solid @brand-danger;
+    border: @field-border-width @border-style @brand-danger;
     outline-color: @brand-danger;
 }
 
@@ -3243,14 +3360,14 @@ fieldset[disabled] .btn-outline-default:focus, .btn-outline-default.disabled.foc
 .svy-calendar-container.form-invalid input.svy-calendar ~ .input-group-text,
 .bts-calendar-container.form-invalid input.bts-calendar ~ .input-group-text,
 .bts-calendar.form-invalid input ~ .input-group-text {
-    border: 1px solid @brand-danger;
+    border: @field-border-width @border-style @brand-danger;
     outline-color: @brand-danger;
 }
 
 .svy-calendar-container.ng-invalid input.svy-calendar ~ .input-group-text,
 .bts-calendar-container.form-invalid input.bts-calendar ~ .input-group-text,
 .bts-calendar.ng-invalid input ~ .input-group-text {
-    border: 1px solid @brand-danger;
+    border: @field-border-width @border-style @brand-danger;
     outline-color: @brand-danger;
 }
 
@@ -3608,7 +3725,7 @@ h6, .h6 {
 }
 
 .border-primary {
-    border-color: @brand-primary;
+    border-color: @brand-primary !important;
 }
 
 .border-tertiary {
@@ -3616,19 +3733,19 @@ h6, .h6 {
 }
 
 .border-info {
-    border-color: @brand-info;
+    border-color: @brand-info !important;
 }
 
 .border-success {
-    border-color: @brand-success;
+    border-color: @brand-success !important;
 }
 
 .border-warning {
-    border-color: @brand-warning;
+    border-color: @brand-warning !important;
 }
 
 .border-danger {
-    border-color: @brand-danger;
+    border-color: @brand-danger !important;
 }
 
 /* Clickable cursors */
