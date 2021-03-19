@@ -2450,8 +2450,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		pksAndRecords.setPksAndQuery(set, sizeAfter, sqlSelect);
 		clearInternalState(true);
 
-		if ((fsm.getTableFilterParams(sheet.getServerName(), sqlSelect) != null || sqlSelect.getCondition(SQLGenerator.CONDITION_FILTER) != null) &&
-			set.getRowCount() > 0)
+		if (((fsm.verifyPKDatasetAgainstTableFilters && fsm.getTableFilterParams(sheet.getServerName(), sqlSelect) != null) ||
+			sqlSelect.getCondition(SQLGenerator.CONDITION_FILTER) != null) && set.getRowCount() > 0)
 		{
 			fireDifference(sizeBefore, sizeAfter);
 			refreshFromDBInternal(null, true, set.getRowCount(), true, false); // some PKs in the set may not be valid for the current filters
