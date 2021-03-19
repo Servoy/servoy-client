@@ -198,7 +198,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	//must be used by subclasses
-	protected FoundSet(IFoundSetManagerInternal app, IRecordInternal a_parent, String relation_name, SQLSheet sheet, QuerySelect pkSelect,
+	protected FoundSet(IFoundSetManagerInternal app, String relation_name, SQLSheet sheet, QuerySelect pkSelect,
 		List<SortColumn> defaultSortColumns) throws ServoyException
 	{
 		fsm = (FoundSetManager)app;
@@ -212,7 +212,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		this.sheet = sheet;
 
 		rowManager = fsm.getRowManager(fsm.getDataSource(sheet.getTable()));
-		if (rowManager != null && !(a_parent instanceof FindState)) rowManager.register(this);
 		// null default sort columns means: use sort columns from query
 		defaultSort = defaultSortColumns;
 		lastSortColumns = defaultSort;
@@ -229,6 +228,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, AbstractBaseQuery.deepClone(creationSqlSelect));
 		aggregateCache = new HashMap<String, Object>(6);
 		findMode = false;
+	}
+
+	@Override
+	public void configure(IRecordInternal parent)
+	{
+		if (rowManager != null && !(parent instanceof FindState)) rowManager.register(this);
 	}
 
 	public String getRelationName()

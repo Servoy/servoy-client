@@ -30,18 +30,25 @@ public class SwingFoundSetFactory implements IFoundSetFactory
 	public IFoundSetInternal createFoundSet(IFoundSetManagerInternal fsm, SQLSheet sheet, QuerySelect pkSelect, List<SortColumn> defaultSortColumns)
 		throws ServoyException
 	{
-		return new SwingFoundSet(fsm, sheet, pkSelect, defaultSortColumns);
+		SwingFoundSet swingFoundSet = new SwingFoundSet(fsm, sheet, pkSelect, defaultSortColumns);
+		swingFoundSet.configure(null);
+		return swingFoundSet;
 	}
 
 	public IFoundSetInternal createRelatedFoundSet(IDataSet data, QuerySelect querySelect, IFoundSetManagerInternal fsm, IRecordInternal parent,
 		String relationName, SQLSheet sheet, List<SortColumn> defaultSortColumns, QuerySelect aggregateSelect, IDataSet aggregateData) throws ServoyException
 	{
-		return new SwingRelatedFoundSet(data, querySelect, fsm, parent, relationName, sheet, defaultSortColumns, aggregateSelect, aggregateData);
+		SwingRelatedFoundSet swingRelatedFoundSet = new SwingRelatedFoundSet(data, querySelect, fsm, relationName, sheet, defaultSortColumns,
+			aggregateSelect, aggregateData);
+		swingRelatedFoundSet.configure(parent);
+		return swingRelatedFoundSet;
 	}
 
 	public IFoundSetInternal createRelatedFindFoundSet(IFoundSetManagerInternal fsm, IRecordInternal parentRecord, String relationName, SQLSheet childSheet)
 		throws ServoyException
 	{
-		return new SwingRelatedFoundSet(fsm, parentRecord, relationName, childSheet);
+		SwingRelatedFoundSet swingRelatedFoundSet = new SwingRelatedFoundSet(fsm, relationName, childSheet);
+		swingRelatedFoundSet.configure(parentRecord);
+		return swingRelatedFoundSet;
 	}
 }

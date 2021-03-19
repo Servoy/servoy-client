@@ -20,11 +20,10 @@ package com.servoy.j2db.dataprocessing;
 import static com.servoy.j2db.query.AbstractBaseQuery.searchOne;
 import static com.servoy.j2db.util.Errors.catchExceptions;
 import static com.servoy.j2db.util.Utils.iterate;
+import static java.lang.Boolean.TRUE;
 import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.rmi.RemoteException;
 import java.sql.Types;
@@ -41,7 +40,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -56,6 +54,7 @@ import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
+import com.google.common.cache.CacheBuilder;
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.BaseQueryTable;
@@ -120,7 +119,6 @@ import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.StringComparator;
 import com.servoy.j2db.util.TypePredicate;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.WeakHashSet;
 import com.servoy.j2db.util.serialize.JSONSerializerWrapper;
 import com.servoy.j2db.util.visitor.IVisitor;
 import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
@@ -132,17 +130,13 @@ import com.servoy.j2db.util.xmlxport.TableDef;
  */
 public class FoundSetManager implements IFoundSetManagerInternal
 {
-	@SuppressWarnings("unchecked")
-	private static final Entry<String, SoftReference<RelatedFoundSet>>[] EMPTY_ENTRY_ARRAY = new Map.Entry[0];
-
 	private final IApplication application;
-	private Map<IFoundSetListener, FoundSet> separateFoundSets; //FoundSetListener -> FoundSet ... 1 foundset per listener
+	private ConcurrentMap<IFoundSetListener, FoundSet> separateFoundSets; //FoundSetListener -> FoundSet ... 1 foundset per listener
 	private Map<String, FoundSet> sharedDataSourceFoundSet; //dataSource -> FoundSet ... 1 foundset per data source
 	private Map<String, ViewFoundSet> viewFoundSets; //dataSource -> FoundSet ... 1 foundset per data source
-	private Set<FoundSet> foundSets;
-	private Map<String, WeakReference<FoundSet>> namedFoundSets;
+	private ConcurrentMap<FoundSet, Object> foundSets;
+	private ConcurrentMap<String, FoundSet> namedFoundSets;
 	private WeakReference<IFoundSetInternal> noTableFoundSet;
-
 	private Map<String, RowManager> rowManagers; //dataSource -> RowManager... 1 per table
 	private Map<ITable, CopyOnWriteArrayList<ITableChangeListener>> tableListeners; //table -> ArrayList(tableListeners)
 	protected SQLGenerator sqlGenerator;
@@ -153,9 +147,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private Map<String, List<TableFilter>> tableFilterParams;//server -> ArrayList(TableFilter)
 	private Map<String, ITable> inMemDataSources; // dataSourceUri -> temp table
 	private Map<String, ITable> viewDataSources;
-
-	private final ReferenceQueue<RelatedFoundSet> cachedSubStatesReferenceQueue = new ReferenceQueue<>();
-	protected Map<String, ConcurrentMap<String, SoftReferenceCache>> cachedSubStates;
+	protected Map<String, ConcurrentMap<String, RelatedFoundSet>> cachedSubStates; // Map based on guava soft values cache
 	protected Map<String, List<RelatedHashedArguments>> dbIdentArguments;
 	protected List<String> locks = new SortedList<String>(StringComparator.INSTANCE);
 
@@ -197,14 +189,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	/**
 	 * @return the cachedSubStates
 	 */
-	private Map<String, ConcurrentMap<String, SoftReferenceCache>> getCachedSubStates()
+	private Map<String, ConcurrentMap<String, RelatedFoundSet>> getCachedSubStates()
 	{
-		SoftReferenceCache poll = (SoftReferenceCache)cachedSubStatesReferenceQueue.poll();
-		while (poll != null)
-		{
-			poll.cache.remove(poll.key);
-			poll = (SoftReferenceCache)cachedSubStatesReferenceQueue.poll();
-		}
 		return cachedSubStates;
 	}
 
@@ -346,62 +332,40 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		List<FoundSet> fslist = new ArrayList<FoundSet>(sharedDataSourceFoundSet.size() + separateFoundSets.size() + foundSets.size());
 		fslist.addAll(sharedDataSourceFoundSet.values());
 		fslist.addAll(separateFoundSets.values());
-		fslist.addAll(foundSets);
+		fslist.addAll(foundSets.keySet());
 
 		for (FoundSet fs : fslist)
 		{
 			refreshFoundSet(fs, dataSource, tableFilterdefinition, skipStopEdit, affectedTables);
 		}
 
-		Iterator<Map.Entry<String, WeakReference<FoundSet>>> it = namedFoundSets.entrySet().iterator();
-		while (it.hasNext())
-		{
-			Map.Entry<String, WeakReference<FoundSet>> entry = it.next();
-			FoundSet foundset = entry.getValue().get();
-			if (foundset == null)
-			{
-				it.remove();
-			}
-			else
-			{
-				refreshFoundSet(foundset, dataSource, tableFilterdefinition, skipStopEdit, affectedTables);
-			}
-		}
+		namedFoundSets.values().forEach(foundset -> refreshFoundSet(foundset, dataSource, tableFilterdefinition, skipStopEdit, affectedTables));
+
 		// Can't just clear substates!! if used in portal then everything is out of sync
 //		if(server_name == null && table_name == null)
 //		{
 //			cachedSubStates.clear();
 //		}
 //		else
-		for (ConcurrentMap<String, SoftReferenceCache> map : getCachedSubStates().values())
+		for (ConcurrentMap<String, RelatedFoundSet> map : getCachedSubStates().values())
 		{
-			Map.Entry<String, SoftReference<RelatedFoundSet>>[] array = map.entrySet().toArray(EMPTY_ENTRY_ARRAY);
-			for (Map.Entry<String, SoftReference<RelatedFoundSet>> entry : array)
+			for (RelatedFoundSet relatedFoundSet : map.values())
 			{
-				SoftReference<RelatedFoundSet> sr = entry.getValue();
-				RelatedFoundSet element = sr.get();
-				if (element != null)
+				try
 				{
-					try
+					if (mustRefresh(relatedFoundSet.getTable(), dataSource, tableFilterdefinition))
 					{
-						if (mustRefresh(element.getTable(), dataSource, tableFilterdefinition))
-						{
-							//element.refreshFromDB(false);
-							// this call is somewhat different then a complete refresh from db.
-							// The selection isn't tried to keep on the same pk
-							// new records are really being flushed..
-							element.invalidateFoundset();
-							affectedTables.add(element.getTable());
-						}
-					}
-					catch (Exception e)
-					{
-						Debug.error(e);
+						//element.refreshFromDB(false);
+						// this call is somewhat different then a complete refresh from db.
+						// The selection isn't tried to keep on the same pk
+						// new records are really being flushed..
+						relatedFoundSet.invalidateFoundset();
+						affectedTables.add(relatedFoundSet.getTable());
 					}
 				}
-				else
+				catch (Exception e)
 				{
-					map.remove(entry.getKey(), sr);
+					Debug.error(e);
 				}
 			}
 		}
@@ -457,108 +421,20 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			return;
 		}
 
-		for (Object element : sharedDataSourceFoundSet.values().toArray())
-		{
-			FoundSet fs = (FoundSet)element;
-			try
-			{
-				if (dataSource.equals(fs.getDataSource()))
-				{
-					fs.reloadFoundsetMethod(scriptMethod);
-				}
-			}
-			catch (Exception e)
-			{
-				Debug.error(e);
-			}
-		}
-
-		for (Object element : separateFoundSets.values().toArray())
-		{
-			FoundSet fs = (FoundSet)element;
-			try
-			{
-				if (dataSource.equals(fs.getDataSource()))
-				{
-					fs.reloadFoundsetMethod(scriptMethod);
-				}
-			}
-			catch (Exception e)
-			{
-				Debug.error(e);
-			}
-		}
-
-		for (Object element : foundSets.toArray())
-		{
-			FoundSet fs = (FoundSet)element;
-			try
-			{
-				if (dataSource.equals(fs.getDataSource()))
-				{
-					fs.reloadFoundsetMethod(scriptMethod);
-				}
-			}
-			catch (Exception e)
-			{
-				Debug.error(e);
-			}
-		}
-
-		Iterator<Map.Entry<String, WeakReference<FoundSet>>> it = namedFoundSets.entrySet().iterator();
-		while (it.hasNext())
-		{
-			Map.Entry<String, WeakReference<FoundSet>> entry = it.next();
-			FoundSet foundset = entry.getValue().get();
-			if (foundset == null)
-			{
-				it.remove();
-			}
-			else
-			{
+		getAllFoundsetsStream()
+			.filter(FoundSet.class::isInstance).map(FoundSet.class::cast)
+			.filter(rfs -> dataSource.equals(rfs.getDataSource()))
+			.forEach(rfs -> {
 				try
 				{
-					if (dataSource.equals(foundset.getDataSource()))
-					{
-						foundset.reloadFoundsetMethod(scriptMethod);
-					}
+					rfs.reloadFoundsetMethod(scriptMethod);
 				}
 				catch (Exception e)
 				{
 					Debug.error(e);
 				}
-			}
-		}
-
-		for (ConcurrentMap<String, SoftReferenceCache> map : getCachedSubStates().values())
-		{
-			Map.Entry<String, SoftReference<RelatedFoundSet>>[] array = map.entrySet().toArray(EMPTY_ENTRY_ARRAY);
-			for (Map.Entry<String, SoftReference<RelatedFoundSet>> entry : array)
-			{
-				SoftReference<RelatedFoundSet> sr = entry.getValue();
-				RelatedFoundSet element = sr.get();
-				if (element != null)
-				{
-					try
-					{
-						if (dataSource.equals(element.getDataSource()))
-						{
-							element.reloadFoundsetMethod(scriptMethod);
-						}
-					}
-					catch (Exception e)
-					{
-						Debug.error(e);
-					}
-				}
-				else
-				{
-					map.remove(entry.getKey(), sr);
-				}
-			}
-		}
+			});
 	}
-
 
 	public void init()
 	{
@@ -622,44 +498,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			return null;
 		}
 
-		Map<String, SoftReferenceCache> rfsMap = getCachedSubStates().get(relation.getName());
-		if (rfsMap != null)
+		RelatedFoundSet rfs = getCachedRelatedFoundset(relation.getName(), relatedArguments);
+		if (rfs != null && !rfs.mustQueryForUpdates() && !rfs.mustAggregatesBeLoaded())
 		{
-			RelatedFoundSet rfs = null;
-			SoftReference<RelatedFoundSet> sr = rfsMap.get(relatedArguments.hashedArguments.hash);
-			if (sr != null)
-			{
-				rfs = sr.get();
-			}
-			else
-			{
-				rfs = checkDbIdentMap(relation.getName(), relatedArguments.hashedArguments, rfsMap);
-			}
-			if (rfs != null && !rfs.mustQueryForUpdates() && !rfs.mustAggregatesBeLoaded())
-			{
-				return rfs;
-			}
-		}
-		return null;
-	}
-
-	public RelatedFoundSet getRelatedFoundSetWhenLoaded(RelatedHashedArguments relatedArguments, Relation relation)
-	{
-		if (relatedArguments == null || !Relation.isValid(relation, application.getFlattenedSolution()))
-		{
-			return null;
-		}
-
-		Map<String, SoftReferenceCache> rfsMap = getCachedSubStates().get(relation.getName());
-		if (rfsMap != null)
-		{
-			SoftReference<RelatedFoundSet> sr = rfsMap.get(relatedArguments.hash);
-			if (sr != null)
-			{
-				return sr.get();
-			}
-
-			return checkDbIdentMap(relation.getName(), relatedArguments, rfsMap);
+			return rfs;
 		}
 		return null;
 	}
@@ -668,7 +510,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	protected IFoundSetInternal getRelatedFoundSet(IRecordInternal state, SQLSheet childSheet, String relationName, List<SortColumn> defaultSortColumns)
 		throws ServoyException
 	{
-		IFoundSetInternal retval = null;
 		Relation relation = application.getFlattenedSolution().getRelation(relationName);
 		if (!Relation.isValid(relation, application.getFlattenedSolution()))
 		{
@@ -686,33 +527,19 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			return null;
 		}
 
-		ConcurrentMap<String, SoftReferenceCache> rfs = getCachedSubStates().get(relationName);
-		if (rfs != null)
-		{
-			SoftReference<RelatedFoundSet> sr = rfs.get(relatedArguments.hashedArguments.hash);
-			if (sr != null)
-			{
-				retval = sr.get();
-				if (retval == null && Debug.tracing())
-					Debug.trace("-----------CacheMiss for related founset " + relationName + " for keys " + relatedArguments.hashedArguments.hash); //$NON-NLS-1$ //$NON-NLS-2$
-				//else Debug.trace("-----------CacheHit!! for related foundset " + relID + " for keys " + calcPKHashKey);
-			}
-			else
-			{
-				retval = checkDbIdentMap(relationName, relatedArguments.hashedArguments, rfs);
-			}
-		}
+		IFoundSetInternal retval = getCachedRelatedFoundset(relation.getName(), relatedArguments);
 
 		List<RelatedHashedArgumentsWithState> toFetch = null;
 		if (retval == null)
 		{
 			String lockString = relationName + relatedArguments.hashedArguments.hash;
+			ConcurrentMap<String, RelatedFoundSet> rfs;
 			synchronized (locks)
 			{
 				rfs = getCachedSubStates().get(relationName);
 				if (rfs == null)
 				{
-					rfs = new ConcurrentHashMap<String, SoftReferenceCache>();
+					rfs = CacheBuilder.newBuilder().softValues().<String, RelatedFoundSet> build().asMap();
 					getCachedSubStates().put(relationName, rfs);
 				}
 				while (locks.contains(lockString))
@@ -726,13 +553,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 						Debug.error(e);
 					}
 				}
-				SoftReference<RelatedFoundSet> sr = rfs.get(relatedArguments.hashedArguments.hash);
-				if (sr != null)
-				{
-					retval = sr.get();
-				}
-
-
+				retval = rfs.get(relatedArguments.hashedArguments.hash);
 				if (retval == null)
 				{
 					locks.add(lockString);
@@ -753,16 +574,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 							if (sibling != null)
 							{
 								RelatedHashedArgumentsWithState extra = calculateFKHash(sibling, relation, true);
-								if (extra != null)
+								if (extra != null && !rfs.containsKey(extra.hashedArguments.hash) /* already cached */)
 								{
-									SoftReference<RelatedFoundSet> srSibling = rfs.get(extra.hashedArguments.hash);
-
-									if (srSibling != null && srSibling.get() != null)
-									{
-										// already cached
-										continue;
-									}
-
 									String extraLockString = relationName + extra.hashedArguments.hash;
 									if (!locks.contains(extraLockString))
 									{
@@ -806,8 +619,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 							RelatedHashedArgumentsWithState relargs = toFetch.get(f);
 							if (retvals != null)
 							{
-								rfs.put(relargs.hashedArguments.hash,
-									new SoftReferenceCache(retvals[f], cachedSubStatesReferenceQueue, relargs.hashedArguments.hash, rfs));
+								rfs.put(relargs.hashedArguments.hash, retvals[f]);
 								if (relargs.hashedArguments.isDBIdentity())
 								{
 									List<RelatedHashedArguments> storedDBIdentArguments = dbIdentArguments.get(relationName);
@@ -848,6 +660,21 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return retval;
 	}
 
+	private RelatedFoundSet getCachedRelatedFoundset(String relationName, RelatedHashedArgumentsWithState relatedArguments)
+	{
+		ConcurrentMap<String, RelatedFoundSet> rfsCache = getCachedSubStates().get(relationName);
+		RelatedFoundSet rfs = null;
+		if (rfsCache != null)
+		{
+			rfs = rfsCache.get(relatedArguments.hashedArguments.hash);
+			if (rfs == null)
+			{
+				rfs = checkDbIdentMap(relationName, relatedArguments.hashedArguments, rfsCache);
+			}
+		}
+		return rfs;
+	}
+
 	/**
 	 * @param relationName
 	 * @param retval
@@ -855,7 +682,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	 * @param rfs
 	 * @return
 	 */
-	private RelatedFoundSet checkDbIdentMap(String relationName, RelatedHashedArguments relatedArguments, Map<String, SoftReferenceCache> rfs)
+	private RelatedFoundSet checkDbIdentMap(String relationName, RelatedHashedArguments relatedArguments, ConcurrentMap<String, RelatedFoundSet> rfs)
 	{
 		RelatedFoundSet retval = null;
 		List<RelatedHashedArguments> identArguments = dbIdentArguments.get(relationName);
@@ -863,12 +690,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		if (identArguments != null && (index = identArguments.indexOf(relatedArguments)) >= 0)
 		{
 			RelatedHashedArguments oldDBIdentArguments = identArguments.get(index);
-			SoftReferenceCache oldSR = rfs.get(oldDBIdentArguments.hash);
-			if (oldSR != null)
+			retval = rfs.get(oldDBIdentArguments.hash);
+			if (retval != null)
 			{
-				retval = oldSR.get();
 				// adjust the related cache
-				rfs.put(relatedArguments.hash, oldSR);
+				rfs.put(relatedArguments.hash, retval);
 				rfs.remove(oldDBIdentArguments.hash);
 				// test if last entry, if so remove the complete relation key
 				synchronized (identArguments)
@@ -980,60 +806,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return array;
 	}
 
-	/**
-	 * Get all related foundsets that are loaded and go to the row based on an equals-only relation.
-	 */
-	public List<RelatedFoundSet> getLoadedRelatedFoundsetsWithOnlyEqualRelationToRow(Row row)
-	{
-		FlattenedSolution flattenedSolution = application.getFlattenedSolution();
-		String datasource = row.getRowManager().getSQLSheet().getTable().getDataSource();
-
-		List<RelatedFoundSet> relatedFoundsets = new ArrayList<>();
-
-		getCachedSubStates().keySet().stream()
-			.map(flattenedSolution::getRelation)
-			.filter(relation -> Relation.isValid(relation, flattenedSolution))
-			.filter(relation -> datasource.equals(relation.getForeignDataSource()))
-			.filter(Relation::isOnlyEquals)
-			.forEach(relation -> {
-				try
-				{
-					RelatedHashedArguments hashedArguments = getRelationFkHashFromRelatedRow(row, relation);
-					if (hashedArguments != null)
-					{
-						RelatedFoundSet foundSet = getRelatedFoundSetWhenLoaded(hashedArguments, relation);
-						if (foundSet != null)
-						{
-							relatedFoundsets.add(foundSet);
-						}
-					}
-				}
-				catch (RepositoryException e)
-				{
-					Debug.error(e);
-				}
-			});
-
-		return relatedFoundsets;
-	}
-
-	private RelatedHashedArguments getRelationFkHashFromRelatedRow(Row row, Relation relation) throws RepositoryException
-	{
-		Column[] columns = relation.getForeignColumns(application.getFlattenedSolution());
-		Object[] whereArgs = new Object[columns.length];
-		for (int i = 0; i < columns.length; i++)
-		{
-			String dataProviderID = columns[i].getDataProviderID();
-			whereArgs[i] = columns[i].getAsRightType(row.getValue(dataProviderID));
-			if (whereArgs[i] == null)
-			{
-				return null;
-			}
-		}
-
-		return new RelatedHashedArguments(whereArgs, RowManager.createPKHashKey(whereArgs));
-	}
-
 	public void handleUserLoggedin()
 	{
 		// sqlGenerator may have calculations loaded based on the login flattened solution
@@ -1061,9 +833,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private void initMembers()
 	{
 		sharedDataSourceFoundSet = new ConcurrentHashMap<>(64);
-		separateFoundSets = Collections.synchronizedMap(new WeakHashMap<>(32));
-		foundSets = Collections.synchronizedSet(new WeakHashSet<>(64));
-		namedFoundSets = Collections.synchronizedMap(new HashMap<>(32));
+		separateFoundSets = CacheBuilder.newBuilder().weakKeys().initialCapacity(32).<IFoundSetListener, FoundSet> build().asMap();
+		foundSets = CacheBuilder.newBuilder().weakKeys().initialCapacity(64).<FoundSet, Object> build().asMap();
+		namedFoundSets = CacheBuilder.newBuilder().weakValues().initialCapacity(32).<String, FoundSet> build().asMap();
 		viewFoundSets = new ConcurrentHashMap<>(16);
 		noTableFoundSet = null;
 
@@ -1544,18 +1316,21 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	private List<IFoundSetInternal> getAllFoundsets()
 	{
+		return getAllFoundsetsStream().collect(toList());
+	}
+
+	private Stream<IFoundSetInternal> getAllFoundsetsStream()
+	{
 		return Stream.concat(separateFoundSets.values().stream(), //
 			Stream.concat(sharedDataSourceFoundSet.values().stream(), //
 				Stream.concat(viewFoundSets.values().stream(), //
-					Stream.concat(foundSets.stream(), //
-						Stream.concat(namedFoundSets.values().stream().map(WeakReference::get).filter(Objects::nonNull), //
+					Stream.concat(foundSets.keySet().stream(), //
+						Stream.concat(namedFoundSets.values().stream(), //
 							getCachedSubStates().values()
 								.stream() //
 								.map(ConcurrentMap::values)
 								.flatMap(Collection::stream) //
-								.map(SoftReference::get) //
-								.filter(Objects::nonNull))))))
-			.collect(toList());
+						)))));
 	}
 
 	public void refreshFoundsetsForTenantTables()
@@ -1828,12 +1603,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		FoundSet foundset = null;
 		if (l.getSharedFoundsetName() != null)
 		{
-			WeakReference<FoundSet> foundsetRef = namedFoundSets.get(l.getSharedFoundsetName());
-			if (foundsetRef != null)
-			{
-				foundset = foundsetRef.get();
-				if (foundset == null) namedFoundSets.remove(l.getSharedFoundsetName());
-			}
+			foundset = namedFoundSets.get(l.getSharedFoundsetName());
 		}
 		else
 		{
@@ -1857,7 +1627,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 		else
 		{
-			namedFoundSets.put(key.toString(), new WeakReference<FoundSet>(foundset));
+			namedFoundSets.put(key.toString(), foundset);
 		}
 		// inform global foundset event listeners that a new foundset has been created
 		globalFoundSetEventListener.foundSetCreated(foundset);
@@ -1867,36 +1637,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	@Override
 	public IFoundSetInternal findFoundset(int id)
 	{
-		for (FoundSet foundset : sharedDataSourceFoundSet.values())
-		{
-			if (id == foundset.getIDInternal()) return foundset;
-		}
-		for (ConcurrentMap<String, SoftReferenceCache> map : getCachedSubStates().values())
-		{
-			Map.Entry<String, SoftReference<RelatedFoundSet>>[] array = map.entrySet().toArray(EMPTY_ENTRY_ARRAY);
-			for (Map.Entry<String, SoftReference<RelatedFoundSet>> entry : array)
-			{
-				SoftReference<RelatedFoundSet> sr = entry.getValue();
-				RelatedFoundSet element = sr.get();
-				if (element != null && id == element.getIDInternal())
-				{
-					return element;
-				}
-			}
-		}
-		for (FoundSet foundset : separateFoundSets.values())
-		{
-			if (id == foundset.getIDInternal()) return foundset;
-		}
-		for (FoundSet foundset : foundSets)
-		{
-			if (id == foundset.getIDInternal()) return foundset;
-		}
-		for (ViewFoundSet foundset : viewFoundSets.values())
-		{
-			if (id == foundset.getIDInternal()) return foundset;
-		}
-		return null;
+		return getAllFoundsetsStream()
+			.filter(FoundSet.class::isInstance).map(FoundSet.class::cast)
+			.filter(fs -> id == fs.getIDInternal())
+			.findAny().orElse(null);
 	}
 
 	@Override
@@ -1910,19 +1654,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public IFoundSet getNamedFoundSet(String name) throws ServoyException
 	{
 		if (name == null) throw new RuntimeException("can't ask for a named foundset with a null name");
-		WeakReference<FoundSet> foundsetReference = namedFoundSets.get(name);
-		FoundSet foundset = null;
-		if (foundsetReference != null)
-		{
-			if (foundsetReference.get() != null)
-			{
-				foundset = foundsetReference.get();
-			}
-			else
-			{
-				namedFoundSets.remove(name);
-			}
-		}
+		FoundSet foundset = namedFoundSets.get(name);
 		if (foundset == null)
 		{
 			Iterator<Form> forms = application.getFlattenedSolution().getForms(false);
@@ -1941,7 +1673,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public String getFoundSetName(IFoundSet foundset)
 	{
-		return namedFoundSets.entrySet().stream().filter(entry -> (entry.getValue().get() == foundset)).findFirst().map(entry -> entry.getKey()).orElse(null);
+		return namedFoundSets.entrySet().stream().filter(entry -> entry.getValue() == foundset).findAny().map(Entry::getKey).orElse(null);
 	}
 
 	public IFoundSetInternal getSharedFoundSet(String dataSource, List<SortColumn> defaultSortColumns) throws ServoyException
@@ -2015,7 +1747,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		SQLSheet sheet = getSQLGenerator().getCachedTableSQLSheet(dataSource);
 		FoundSet foundset = (FoundSet)foundsetfactory.createFoundSet(this, sheet, pkSelect, defaultSortColumns);
 		if (createEmptyFoundsets) foundset.clear();
-		foundSets.add(foundset);
+		foundSets.put(foundset, TRUE);
 		// inform global foundset event listeners that a new foundset has been created
 		globalFoundSetEventListener.foundSetCreated(foundset);
 		return foundset;
@@ -2074,7 +1806,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		if (set == null) return false;
 		if (set instanceof RelatedFoundSet) return false;
 
-		return foundSets.contains(set);
+		return foundSets.containsKey(set);
 	}
 
 	@Override
@@ -2097,16 +1829,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				}
 			}
 		}
-		Iterator<Map.Entry<String, WeakReference<FoundSet>>> it = namedFoundSets.entrySet().iterator();
+		Iterator<Entry<String, FoundSet>> it = namedFoundSets.entrySet().iterator();
 		while (it.hasNext())
 		{
-			Map.Entry<String, WeakReference<FoundSet>> entry = it.next();
-			FoundSet namedFoundset = entry.getValue().get();
-			if (namedFoundset == null)
-			{
-				it.remove();
-			}
-			else if (foundset == namedFoundset)
+			Entry<String, FoundSet> entry = it.next();
+			if (foundset == entry.getValue())
 			{
 				it.remove();
 				break;
@@ -3896,25 +3623,5 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 		}
 		return true;
-	}
-
-	class SoftReferenceCache extends SoftReference<RelatedFoundSet>
-	{
-
-		final String key;
-		final ConcurrentMap<String, SoftReferenceCache> cache;
-
-		/**
-		 * @param referent
-		 * @param q
-		 */
-		public SoftReferenceCache(RelatedFoundSet referent, ReferenceQueue< ? super RelatedFoundSet> q, String key,
-			ConcurrentMap<String, SoftReferenceCache> cache)
-		{
-			super(referent, q);
-			this.key = key;
-			this.cache = cache;
-		}
-
 	}
 }

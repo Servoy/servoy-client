@@ -26,6 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.stream.IntStream;
+import java.util.stream.IntStream.Builder;
 
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
@@ -73,10 +75,12 @@ public abstract class RelatedFoundSet extends FoundSet
 		}
 	}
 
-	protected RelatedFoundSet(IDataSet data, QuerySelect select, IFoundSetManagerInternal app, IRecordInternal parent, String relationName, SQLSheet sheet,
+	private int[] equalsOpsIndexes;
+
+	protected RelatedFoundSet(IDataSet data, QuerySelect select, IFoundSetManagerInternal app, String relationName, SQLSheet sheet,
 		List<SortColumn> defaultSortColumns, QuerySelect aggregateSelect, IDataSet aggregateData) throws ServoyException
 	{
-		super(app, parent, relationName, sheet, null, defaultSortColumns);
+		super(app, relationName, sheet, null, defaultSortColumns);
 
 		if (data == null)
 		{
@@ -125,9 +129,9 @@ public abstract class RelatedFoundSet extends FoundSet
 
 
 	//can only used by findState
-	protected RelatedFoundSet(IFoundSetManagerInternal app, IRecordInternal parent, String relationName, SQLSheet sheet) throws ServoyException
+	protected RelatedFoundSet(IFoundSetManagerInternal app, String relationName, SQLSheet sheet) throws ServoyException
 	{
-		super(app, parent, relationName, sheet, null, null);
+		super(app, relationName, sheet, null, null);
 		getPksAndRecords().setPksAndQuery(new BufferedDataSet(), 0, null);
 		initialized = true;
 	}
@@ -437,6 +441,34 @@ public abstract class RelatedFoundSet extends FoundSet
 	 */
 	public String getWhereArgsHash()
 	{
+		Object[] whereArgs = getWhereArgs(false);
+		return RowManager.createPKHashKey(whereArgs);
+	}
+
+	private int[] getIndexesEqualsEntries()
+	{
+		if (equalsOpsIndexes == null)
+		{
+			Relation relation = fsm.getApplication().getFlattenedSolution().getRelation(relationName);
+
+			Builder indexBuilder = IntStream.builder();
+			int[] operators = relation.getOperators();
+			for (int i = 0; i < operators.length; i++)
+			{
+				if (operators[i] == IBaseSQLCondition.EQUALS_OPERATOR)
+				{
+					indexBuilder.add(i);
+				}
+			}
+
+			equalsOpsIndexes = indexBuilder.build().toArray();
+		}
+
+		return equalsOpsIndexes;
+	}
+
+	public Object[] getWhereArgs(boolean onlyEqualsConditions)
+	{
 		Placeholder ph = creationSqlSelect.getPlaceholder(SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), getRelationName()));
 		if (ph == null || !ph.isSet())
 		{
@@ -472,16 +504,28 @@ public abstract class RelatedFoundSet extends FoundSet
 			throw new IllegalStateException("Relation where-args inconsistent with columns for relation" + relationName); //$NON-NLS-1$
 		}
 
-		Object[] whereArgs = new Object[foreignData.length];
-		for (int i = 0; i < foreignData.length; i++)
+		IntStream columnIndexesStream;
+		if (onlyEqualsConditions)
 		{
-			// Use converted value for hash
-			int colindex = getSQLSheet().getColumnIndex(columns[i].getDataProviderID());
-			whereArgs[i] = getSQLSheet().convertValueToObject(foreignData[i][0], colindex, fsm.getColumnConverterManager());
+			int[] columnIndexes = getIndexesEqualsEntries();
+			if (columnIndexes.length == 0)
+			{
+				return null;
+			}
+			columnIndexesStream = IntStream.of(columnIndexes);
+		}
+		else
+		{
+			columnIndexesStream = IntStream.range(0, columns.length);
 		}
 
-		return RowManager.createPKHashKey(whereArgs);
+		return columnIndexesStream.mapToObj(i -> {
+			// Use converted value for hash
+			int colindex = getSQLSheet().getColumnIndex(columns[i].getDataProviderID());
+			return getSQLSheet().convertValueToObject(foreignData[i][0], colindex, fsm.getColumnConverterManager());
+		}).toArray();
 	}
+
 
 	@Override
 	public boolean addFilterParam(String filterName, String dataprovider, String operator, Object value)

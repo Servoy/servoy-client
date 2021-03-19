@@ -20,6 +20,7 @@ package com.servoy.j2db.persistence;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -824,6 +825,19 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	public boolean isOnlyEquals()
 	{
 		return getOperators().length > 0 && stream(getOperators()).allMatch(op -> op == IBaseSQLCondition.EQUALS_OPERATOR);
+	}
+
+	public List<Column> getForeignColumnsForEqualConditions()
+	{
+		List<Column> foreignColumns = new ArrayList<>();
+		for (int i = 0; i < operators.length; i++)
+		{
+			if (operators[i] == IBaseSQLCondition.EQUALS_OPERATOR && i < foreign.length)
+			{
+				foreignColumns.add(foreign[i]);
+			}
+		}
+		return foreignColumns;
 	}
 
 	public String checkKeyTypes(IDataProviderHandler dataProviderHandler) throws RepositoryException
