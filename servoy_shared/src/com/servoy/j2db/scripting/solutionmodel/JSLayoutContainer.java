@@ -236,7 +236,7 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	 * @clonedesc com.servoy.j2db.persistence.LayoutContainer#getStyle()
 	 *
 	 * @sample
-	 * layoutContainer.style = "background-color:'red'";
+	 * layoutContainer.style = "background-color:red";
 	 */
 	@JSGetter
 	public String getStyle()

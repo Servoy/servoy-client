@@ -326,11 +326,6 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				}
 				writer.endArray();
 			}
-			if (layoutContainer.getStyle() != null)
-			{
-				writer.key("style");
-				writer.value(layoutContainer.getStyle());
-			}
 			Map<String, String> attributes = new HashMap<String, String>(layoutContainer.getMergedAttributes());
 			WebLayoutSpecification spec = null;
 			if (layoutContainer.getPackageName() != null)
@@ -356,7 +351,6 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.key("attributes");
 			writer.object();
 			attributes.remove("class");
-			attributes.remove("style");
 			attributes.forEach((key, value) -> {
 				writer.key(key);
 				writer.value(value);
