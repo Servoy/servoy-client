@@ -43,7 +43,6 @@ import org.sablo.util.ValueReference;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IServerService;
-import org.sablo.websocket.IWebsocketEndpoint;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.WebsocketSessionManager;
 import org.sablo.websocket.impl.ClientService;
@@ -1152,41 +1151,13 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public boolean showURL(String url, String target, String target_options, int timeout, boolean onRootFrame)
 	{
-		String newUrl = url;
-
-		if (target != null && !target.equals("_self") && !target.equals("_top") && url.contains("/solutions/"))
-		{
-			try
-			{
-				String hash = "";
-				int hashIndex = newUrl.lastIndexOf('#');
-				if (hashIndex != -1)
-				{
-					hash = newUrl.substring(hashIndex);
-					newUrl = newUrl.substring(0, hashIndex);
-				}
-				StringBuilder sb = new StringBuilder(newUrl);
-				URL newSolutionUrl = new URL(url);
-				if (newSolutionUrl.getQuery() != null)
-				{
-					sb.append("&").append(IWebsocketEndpoint.CLEAR_SESSION_PARAM).append("=true");
-				}
-				else sb.append("?").append(IWebsocketEndpoint.CLEAR_SESSION_PARAM).append("=true");
-				sb.append(hash);
-				newUrl = sb.toString();
-			}
-			catch (MalformedURLException e)
-			{
-				e.printStackTrace();
-			}
-		}
 		// 2 calls to show url? Just send this one.
 		if (showUrl != null)
 		{
 			this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("showUrl",
 				new Object[] { showUrl.url, showUrl.target, showUrl.target_options, Integer.valueOf(showUrl.timeout) });
 		}
-		showUrl = new ShowUrl(newUrl, target, target_options, timeout, onRootFrame);
+		showUrl = new ShowUrl(url, target, target_options, timeout, onRootFrame);
 		return true;
 	}
 
