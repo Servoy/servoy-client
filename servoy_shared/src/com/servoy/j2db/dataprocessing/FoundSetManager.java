@@ -3420,8 +3420,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					}
 
 					BaseColumnType columnType = selectValue.getColumnType();
-					if (columnType != null && !columnType.equals(col.columnType) &&
-						!(columnType.getSqlType() == col.columnType.getSqlType() && col.columnType.getSqlType() == IColumnTypes.TEXT))
+					// relax the mapping on default Servoy types
+					if (columnType != null &&
+						Column.mapToDefaultType(columnType.getSqlType()) != Column.mapToDefaultType(col.columnType.getSqlType()))
 					{
 						Debug.error(
 							"Column type for column '" + col.name + " of type " + col.columnType.toString() + "' defined in view datasource '" + dataSource +
