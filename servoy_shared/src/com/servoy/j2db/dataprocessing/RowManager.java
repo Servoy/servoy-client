@@ -131,7 +131,9 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					if (listenersByEqualValues == null)
 					{
 						listenersByEqualValues = new ConcurrentSoftvaluesMultimap<String, RelatedFoundSet>();
-						listenersByRelationEqualValues.put(relation.getName(), listenersByEqualValues);
+						ConcurrentSoftvaluesMultimap<String, RelatedFoundSet> prevValue = listenersByRelationEqualValues.putIfAbsent(relation.getName(),
+							listenersByEqualValues);
+						if (prevValue != null) listenersByEqualValues = prevValue;
 					}
 
 					listenersByEqualValues.add(createPKHashKey(eqArgs), relatedFoundSet);
