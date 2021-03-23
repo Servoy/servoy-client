@@ -22,12 +22,15 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.synchronizedList;
 import static java.util.stream.Collectors.toList;
 
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Objects;
 
 /**
  * Multimap like implementation with soft reference to the values.
@@ -41,82 +44,122 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class ConcurrentSoftvaluesMultimap<K, V>
 {
-	private final Map<K, List<ConcurrentMap<List< ? >, V>>> cache = newBuilder()
-		.softValues()
-		.<K, List<ConcurrentMap<List< ? >, V>>> build()
+	private final ReferenceQueue<V> queue = new ReferenceQueue<V>();
+
+	private final Map<K, List<SoftReferenceWithData<V, K>>> cache = newBuilder()
+		.<K, List<SoftReferenceWithData<V, K>>> build()
 		.asMap();
 
-	public List<V> get(K key)
+	public Collection<V> get(K key)
 	{
-		List<ConcurrentMap<List< ? >, V>> list = cache.get(key);
+		List<SoftReferenceWithData<V, K>> list = cache.get(key);
 		if (list == null)
 		{
 			return emptyList();
 		}
-
-		return list.stream().map(ConcurrentMap::values).flatMap(Collection::stream).collect(toList());
+		return list.stream().map(SoftReference::get).filter(Objects::nonNull).collect(toList());
 	}
 
 	public void add(K key, V value)
 	{
-		List<ConcurrentMap<List< ? >, V>> list = cache.get(key);
+		List<SoftReferenceWithData<V, K>> list = cache.get(key);
 		if (list == null)
 		{
-			list = synchronizedList(new ArrayList<ConcurrentMap<List< ? >, V>>()
-			{
-				@Override
-				public int hashCode()
-				{
-					return 1;
-				}
-
-				@Override
-				public boolean equals(Object o)
-				{
-					// do not compare on elements (stackoverflow error)
-					return this == o;
-				}
-			});
-			cache.put(key, list);
+			cache.put(key, Collections.singletonList(new SoftReferenceWithData<V, K>(value, queue, key)));
 		}
-		else if (list.stream().map(ConcurrentMap::values).flatMap(Collection::stream).anyMatch(v -> v == value))
+		else if (list.stream().map(SoftReference::get).anyMatch(v -> v == value))
 		{
 			// already contains value
 			return;
 		}
-
-		// put a map in the list with a hard ref to the list and a soft reg to the value.
-		// when the value is GC'ed, the listValueRef becomes empty and no longer refers to the list.
-		// The the list (soft values in the main map) will then be removed.
-		ConcurrentMap<List< ? >, V> listValueRef = newBuilder()
-			.softValues()
-			.<List< ? >, V> build()
-			.asMap();
-
-		listValueRef.put(list, value);
-		list.add(listValueRef);
+		else
+		{
+			// if it is a list with 1 item its a single immutable list, create now a copy
+			if (list.size() == 1)
+			{
+				list = synchronizedList(new ArrayList<SoftReferenceWithData<V, K>>(list));
+				cache.put(key, list);
+			}
+			list.add(new SoftReferenceWithData<V, K>(value, queue, key));
+		}
+		cleanup();
 	}
 
 	public V remove(K key, V value)
 	{
-		List<ConcurrentMap<List< ? >, V>> list = cache.get(key);
+		List<SoftReferenceWithData<V, K>> list = cache.get(key);
 		if (list != null)
 		{
-			Iterator<ConcurrentMap<List< ? >, V>> iterator = list.iterator();
-			while (iterator.hasNext())
+			// if it is a list with 1 item its a single immutable list that can be removed from. just test the single value.
+			if (list.size() == 1)
 			{
-				if (iterator.next().values().stream().anyMatch(v -> v == value))
+				V v = list.get(0).get();
+				if (v == null || v == value)
 				{
-					iterator.remove();
+					cache.remove(key);
+					cleanup();
 					return value;
+				}
+				cleanup();
+			}
+			else
+			{
+				try
+				{
+					Iterator<SoftReferenceWithData<V, K>> iterator = list.iterator();
+					while (iterator.hasNext())
+					{
+						SoftReferenceWithData<V, K> ref = iterator.next();
+						V val = ref.get();
+						if (val == null) iterator.remove();
+						else if (val == value)
+						{
+							iterator.remove();
+							return value;
+						}
+					}
+				}
+				finally
+				{
+					if (list.size() == 0) cache.remove(key);
+					cleanup();
 				}
 			}
 		}
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
+	private void cleanup()
+	{
+		SoftReferenceWithData<V, K> removedRef = (SoftReferenceWithData<V, K>)queue.poll();
+		while (removedRef != null)
+		{
+			K key = removedRef.getData();
+			List<SoftReferenceWithData<V, K>> list = cache.get(key);
+			if (list != null)
+			{
+				if (list.size() == 1)
+				{
+					// single soft ref that is queued so this one can be removed right away
+					cache.remove(key);
+				}
+				else
+				{
+					Iterator<SoftReferenceWithData<V, K>> iterator = list.iterator();
+					while (iterator.hasNext())
+					{
+						if (iterator.next().get() == null) iterator.remove();
+					}
+					if (list.size() == 0) cache.remove(key);
+				}
+			}
+			removedRef = (SoftReferenceWithData<V, K>)queue.poll();
+		}
+	}
+
 	public Collection<V> allValues()
 	{
-		return cache.values().stream().flatMap(List::stream).map(Map::values).flatMap(Collection::stream).collect(toList());
+		return cache.values().stream().flatMap(Collection::stream).map(SoftReference::get).filter(Objects::nonNull).collect(toList());
 	}
 }
