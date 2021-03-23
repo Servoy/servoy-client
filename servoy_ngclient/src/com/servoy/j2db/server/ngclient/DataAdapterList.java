@@ -56,6 +56,7 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
+import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
@@ -869,6 +870,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			if (onDataChange != null)
 			{
 				JSONObject event = EventExecutor.createEvent(onDataChange, editingRecord.getParentFoundSet().getSelectedIndex());
+				event.put("data", createDataproviderInfo(editingRecord, formController.getFormScope(), dataProviderID));
 				Object returnValue = null;
 				Exception exception = null;
 				String onDataChangeCallback = null;
@@ -911,6 +913,42 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				}
 			}
 		}
+	}
+
+	private JSONObject createDataproviderInfo(IRecord record, FormScope fs, String dataProviderID)
+	{
+		Object scope = null;
+		String scopeID = null;
+		Pair<String, String> glScope = ScopesUtils.getVariableScope(dataProviderID);
+		if (glScope.getLeft() != null)
+		{
+			try
+			{
+				scope = fs.getFormController().getApplication().getScriptEngine().getScopesScope().getGlobalScope(glScope.getLeft());
+				dataProviderID = ScriptVariable.SCOPES_DOT_PREFIX + glScope.getRight();
+				scopeID = glScope.getLeft();
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);
+			}
+		}
+		else if (fs.has(dataProviderID, fs))
+		{
+			scope = fs;
+			scopeID = "forms." + fs.getScopeName();
+		}
+		else
+		{
+			scope = record;
+			scopeID = record.getParentFoundSet().getDataSource();
+		}
+
+		JSONObject dpInfo = new JSONObject();
+		dpInfo.put("dataprovider", dataProviderID);
+		dpInfo.put("scope", scope);
+		dpInfo.put("scopeid", scopeID);
+		return dpInfo;
 	}
 
 	/**
