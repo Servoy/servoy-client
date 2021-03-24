@@ -42,6 +42,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListDataListener;
 import javax.swing.table.AbstractTableModel;
 
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
@@ -466,10 +467,20 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	public Object forEach(IRecordCallback callback)
 	{
 		FoundSetIterator foundsetIterator = new FoundSetIterator();
+		Scriptable scriptableFoundset = null;
+		try
+		{
+			Context.enter();
+			scriptableFoundset = (Scriptable)Context.javaToJS(this, this.getFoundSetManager().getApplication().getScriptEngine().getSolutionScope());
+		}
+		finally
+		{
+			Context.exit();
+		}
 		while (foundsetIterator.hasNext())
 		{
 			IRecord currentRecord = foundsetIterator.next();
-			Object returnValue = callback.handleRecord(currentRecord, foundsetIterator.currentIndex, this);
+			Object returnValue = callback.handleRecord(currentRecord, foundsetIterator.currentIndex, scriptableFoundset);
 			if (returnValue != null && returnValue != Undefined.instance)
 			{
 				return returnValue;
