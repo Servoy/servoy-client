@@ -19,6 +19,8 @@ package com.servoy.j2db.dataprocessing;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mozilla.javascript.Scriptable;
+
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.SQLSheet.VariableInfo;
@@ -287,7 +289,7 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 		foundset.forEach(new IRecordCallback()
 		{
 			@Override
-			public Object handleRecord(IRecord record, int recordIndex, IFoundSet foundset)
+			public Object handleRecord(IRecord record, int recordIndex, Scriptable foundset)
 			{
 				if (arrayIndex[0] == rowsToUpdate)
 				{
