@@ -223,4 +223,31 @@ public class ServoyApiObject
 		MediaResourcesServlet.MediaInfo mediaInfo = MediaResourcesServlet.createMediaInfo(bytes);
 		return mediaInfo.getURL(app.getWebsocketSession().getSessionKey().getClientnr());
 	}
+
+
+	/**
+	 *	This will generate a list of primary keys names for the given data source.
+	 *
+	 * @sample
+	 * var pkNames = servoyApi.getDatasourcePKs(datasource);
+	 *
+	 * @param datasource the data source
+	 * @return a list of primary key names
+	 * @throws ServoyException
+	 */
+	@JSFunction
+	public String[] getDatasourcePKs(String datasource) throws ServoyException
+	{
+		if (!app.haveRepositoryAccess())
+		{
+			// no access to repository yet, have to log in first
+			throw new ServoyException(ServoyException.CLIENT_NOT_AUTHORIZED);
+		}
+		List<String> listOfPrimaryKeyNames = new ArrayList<String>();
+		app.getFoundSetManager().getTable(datasource).getRowIdentColumnNames().forEachRemaining(listOfPrimaryKeyNames::add);
+
+		return listOfPrimaryKeyNames.toArray(new String[0]);
+
+	}
+
 }
