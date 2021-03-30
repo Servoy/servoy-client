@@ -1,5 +1,5 @@
 describe("Test portal suite", function() {
-
+    beforeEach(function(){sessionStorage.removeItem('svy_session_lock')});
 	beforeEach(module('servoy'));
 	beforeEach(module('servoydefaultButton'));
 	

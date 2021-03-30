@@ -18,6 +18,7 @@ describe("Test custom_object_property suite", function() {
 	};
 
 	beforeEach(function() {
+        sessionStorage.removeItem('svy_session_lock');
 		module('servoy');
 		module('custom_json_object_property');
 		module('sabloApp');

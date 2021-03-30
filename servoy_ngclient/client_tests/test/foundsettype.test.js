@@ -14,7 +14,9 @@ describe("Test foundset_custom_property suite", function() {
 		return angular.equals(first, second);
 	};
 
-	beforeEach(inject(function(_$sabloConverters_, _$compile_, _$rootScope_, _$foundsetTypeConstants_){
+	beforeEach(function(){
+        sessionStorage.removeItem('svy_session_lock');
+        inject(function(_$sabloConverters_, _$compile_, _$rootScope_, _$foundsetTypeConstants_){
 		jasmine.addCustomEqualityTester(angularEquality);
 		// The injector unwraps the underscores (_) from around the parameter
 		//names when matching
@@ -24,7 +26,7 @@ describe("Test foundset_custom_property suite", function() {
 		$compile = _$compile_;
 
 		$scope = _$rootScope_.$new();
-	}));
+	})});
 
 	// var CHANGE = 0;
 	// var INSERT = 1;

@@ -25,7 +25,7 @@ client_tests   - main folder which contains the node module responsible for ngcl
    
    test - contains unit test code
    
-To run karma from command line run :"node ./node_modules/karma/bin/karma start karma.conf.js"
+To run karma from command line run :"node ../node_modules/karma/bin/karma start karma.conf.js" ; note you need the sablo path from karma.conf.js to be correct
 To debug a test : http://stackoverflow.com/questions/15906903/debug-in-browser-using-testacular-now-karma       (if you need to debug more than one minute set 'singleRun' to false in karma.conf.js ,run karma  and open http://localhost:9876/debug.html)
 To update check if a newer version of a depended library exists use "npm outdated"
 To update to the latest stable version do change the string versions in the package.json to '*' and run  "npm update --save" , 

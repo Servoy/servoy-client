@@ -16,6 +16,7 @@ describe('servoy $utils', function() {
 				}
 		}
 		beforeEach(function() {
+            sessionStorage.removeItem('svy_session_lock');
 			called = {};
 			 inject(function(_$rootScope_){
 		    	  $scope = _$rootScope_.$new();

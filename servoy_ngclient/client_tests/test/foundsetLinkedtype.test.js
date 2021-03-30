@@ -18,6 +18,7 @@ describe("Test foundset_linked_property suite", function() {
 	};
 
 	beforeEach(function() {
+        sessionStorage.removeItem('svy_session_lock');
 		module('servoy');
 		module('foundset_linked_property');
 		module('sabloApp');

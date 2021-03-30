@@ -15,7 +15,9 @@ describe("Test component_custom_property suite", function() {
 	var converted;
 	var componentModelGetter;
 
-	beforeEach(inject(function(_$sabloConverters_, _$compile_, _$rootScope_, _$foundsetTypeConstants_, $propertyWatchesRegistry){
+	beforeEach(function(){
+        sessionStorage.removeItem('svy_session_lock');
+        inject(function(_$sabloConverters_, _$compile_, _$rootScope_, _$foundsetTypeConstants_, $propertyWatchesRegistry){
 		// The injector unwraps the underscores (_) from around the parameter
 		//names when matching
 		sabloConverters = _$sabloConverters_;
@@ -52,7 +54,8 @@ describe("Test component_custom_property suite", function() {
 		$propertyWatchesRegistry.setAutoWatchPropertiesList("components",{"component" : { "text" : false, "recordDependentText" : true }});
 		converted = sabloConverters.convertFromServerToClient(serverValue,'component', $scope.model, $scope, componentModelGetter);
 		$scope.$digest();
-	}));
+	   })
+    });
 
 	it("should add requests when we change the model", function() {
 		converted.model.text = "button";

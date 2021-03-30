@@ -5,6 +5,7 @@
 describe('servoy $formatUtils', function() {
 
   beforeEach(function() {
+    sessionStorage.removeItem('svy_session_lock');
     module('servoy');
     angular.module('pushToServerData', ['pushToServer']);
   });
