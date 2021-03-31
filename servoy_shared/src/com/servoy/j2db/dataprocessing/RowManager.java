@@ -116,7 +116,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	void register(IRowListener fs)
 	{
 		boolean listenersByEqualValuesAdded = false;
-		if (fsm.experimentalFoundSetNotifyChange && fs instanceof RelatedFoundSet)
+		if (fsm.optimizedNotifyChange && fs instanceof RelatedFoundSet)
 		{
 			FlattenedSolution flattenedSolution = getFoundsetManager().getApplication().getFlattenedSolution();
 			RelatedFoundSet relatedFoundSet = (RelatedFoundSet)fs;
@@ -150,7 +150,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 
 	void unregister(IRowListener fs)
 	{
-		if (fsm.experimentalFoundSetNotifyChange && fs instanceof RelatedFoundSet)
+		if (fsm.optimizedNotifyChange && fs instanceof RelatedFoundSet)
 		{
 			FlattenedSolution flattenedSolution = getFoundsetManager().getApplication().getFlattenedSolution();
 			RelatedFoundSet relatedFoundSet = (RelatedFoundSet)fs;
@@ -689,7 +689,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	void fireNotifyChange(IRowListener skip, Row row, String pkHashKey, Object[] changedColumns, int eventType, boolean isAggregateChange)
 	{
 		List<IRowListener> toNotify = new ArrayList<>();
-		if (eventType == RowEvent.INSERT && fsm.experimentalFoundSetNotifyChange)
+		if (eventType == RowEvent.INSERT && fsm.optimizedNotifyChange)
 		{
 			FlattenedSolution flattenedSolution = getFoundsetManager().getApplication().getFlattenedSolution();
 			listenersByRelationEqualValues.entrySet().stream().forEach(entry -> {

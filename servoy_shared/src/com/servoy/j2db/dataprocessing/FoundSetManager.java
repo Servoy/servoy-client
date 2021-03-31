@@ -162,7 +162,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public final boolean statementBatching;
 	public final boolean disableInsertsReorder;
 	public final boolean verifyPKDatasetAgainstTableFilters;
-	public final boolean experimentalFoundSetNotifyChange;
+	public final boolean optimizedNotifyChange;
 
 	private final List<Runnable> fireRunabbles = new ArrayList<Runnable>();
 
@@ -170,6 +170,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private final HashMap<String, Object> trackingInfoMap = new HashMap<String, Object>();
 	private int foundsetCounter = 1;
 
+	@SuppressWarnings("nls")
 	public FoundSetManager(IApplication app, IFoundSetFactory factory)
 	{
 		application = app;
@@ -178,14 +179,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		foundsetfactory = factory;
 
-		pkChunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.pkChunkSize", Integer.toString(200)));//primarykeys to be get in one roundtrip //$NON-NLS-1$
-		chunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.chunkSize", Integer.toString(30)));//records to be get in one roundtrip //$NON-NLS-1$
-		initialRelatedChunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.initialRelatedChunkSize", Integer.toString(chunkSize * 2))); //initial related records to get in one roundtrip//$NON-NLS-1$
-		loadRelatedRecordsIfParentIsNew = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.loadRelatedRecordsIfParentIsNew", "false")); //force-load of possible existing records in DB when initializing a related foundset when the parent is new and the relations is restricted on the rowIdentifier columns of the parent record //$NON-NLS-1$ //$NON-NLS-2$
-		statementBatching = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.statementBatching", "false")); // whether to batch inserts/updates for rows together in the same SQLStatement where possible //$NON-NLS-1$ //$NON-NLS-2$
-		disableInsertsReorder = Utils.getAsBoolean(app.getSettings().getProperty("servoy.disable.record.insert.reorder", "false")); //$NON-NLS-1$ //$NON-NLS-2$
+		pkChunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.pkChunkSize", Integer.toString(200)));//primarykeys to be get in one roundtrip
+		chunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.chunkSize", Integer.toString(30)));//records to be get in one roundtrip
+		initialRelatedChunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.initialRelatedChunkSize", Integer.toString(chunkSize * 2))); //initial related records to get in one roundtrip
+		loadRelatedRecordsIfParentIsNew = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.loadRelatedRecordsIfParentIsNew", "false")); //force-load of possible existing records in DB when initializing a related foundset when the parent is new and the relations is restricted on the rowIdentifier columns of the parent record
+		disableInsertsReorder = Utils.getAsBoolean(app.getSettings().getProperty("servoy.disable.record.insert.reorder", "false"));
+		statementBatching = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.statementBatching", "false")); // whether to batch inserts/updates for rows together in the same SQLStatement where possible
 		verifyPKDatasetAgainstTableFilters = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.verifyPKDatasetAgainstTableFilters", "true")); // when false we do not trigger a query with fs.loadRecords(pk) icw table filters
-		experimentalFoundSetNotifyChange = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.experimental.notifyChange", "false")); // whether to use new optimized mechanism to call notifyChange on IRowListeners
+		optimizedNotifyChange = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.optimizedNotifyChange", "true")); // whether to use new optimized mechanism to call notifyChange on IRowListeners
 	}
 
 	/**
