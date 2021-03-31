@@ -118,6 +118,12 @@ public class FlattenedLayoutContainer extends LayoutContainer implements IFlatte
 	}
 
 	@Override
+	public boolean hasProperty(String propertyName)
+	{
+		return layoutContainer.hasProperty(propertyName);
+	}
+
+	@Override
 	public int hashCode()
 	{
 		return layoutContainer.hashCode();
