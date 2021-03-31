@@ -3133,7 +3133,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Returns a named foundset object created under a specific name. If foundset does not exist, null will be returned.
+	 * An existing foundset under that name will be returned, or created if there is a definition (there is a form with a named foundset property with that name).
 	 * Alternative method: datasources.db.server_name.table_name.getFoundSet(name)
 	 *
 	 * @sample
