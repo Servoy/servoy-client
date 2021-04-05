@@ -38,7 +38,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGCustomJSONObjectType;
 /**
  * @author acostescu
  */
-public class RhinoMapWrapperTest
+public class RhinoMapWrapperTest extends Log4JToConsoleTest
 {
 
 	RhinoMapOrArrayWrapper w;

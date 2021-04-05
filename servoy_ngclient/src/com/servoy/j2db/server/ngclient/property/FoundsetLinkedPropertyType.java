@@ -118,8 +118,10 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 		FoundsetLinkedConfig config = ((FoundsetLinkedConfig)parameters.getConfig());
 		config.setWrappedPropertyDescription(new PropertyDescriptionBuilder().withName(propertyName).withType(wrappedType).withConfig(
 			((FoundsetLinkedConfig)parameters.getConfig()).wrappedConfig).withDefaultValue(parameters.defaultValue).withInitialValue(
-				parameters.initialValue).withHasDefault(parameters.defaultValue != null).withValues(parameters.values).withPushToServer(
-					parameters.pushToServer).withTags(parameters.tags).withOptional(parameters.optional).withDeprecated(parameters.deprecated).build());
+				parameters.initialValue)
+			.withHasDefault(parameters.defaultValue != null).withValues(parameters.values).withPushToServer(
+				parameters.pushToServer)
+			.withTags(parameters.tags).withOptional(parameters.optional).withDeprecated(parameters.deprecated).build());
 		return this;
 	}
 
@@ -178,7 +180,7 @@ public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<Foundse
 
 		writer.key(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME).value(getConfig(pd).forFoundset);
 
-		if (wrappedType instanceof ISupportTemplateValue &&
+		if (!(wrappedType instanceof ISupportTemplateValue) || // types that do not implement ISupportTemplateValue are considered to be in template
 			((ISupportTemplateValue<YF>)wrappedType).valueInTemplate(formElementValue, getConfig(pd).wrappedPropertyDescription, formElementContext))
 		{
 			NGConversions.INSTANCE.convertFormElementToTemplateJSONValue(writer, SINGLE_VALUE, formElementValue, getConfig(pd).wrappedPropertyDescription,

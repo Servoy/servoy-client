@@ -514,7 +514,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 		{
 			// this is a list form component's (or similar) property - linked to foundset
 			JSONUtils.addKeyIfPresent(w, keyToAddTo);
-			w.key(keyToAddTo).value(TYPE_NAME);
+			w.value(TYPE_NAME);
 			return true;
 		}
 		else

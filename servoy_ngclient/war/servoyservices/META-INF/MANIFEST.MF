@@ -11,6 +11,12 @@ Web-Service: True
 Name: foundset_custom_property/foundset.spec
 Web-Service: True
 
+Name: foundset_custom_property/foundsetRef.spec
+Web-Service: True
+
+Name: foundset_custom_property/record.spec
+Web-Service: True
+
 Name: foundset_viewport_module/viewport.spec
 Web-Service: True
 
@@ -27,4 +33,7 @@ Name: date_custom_property/date.spec
 Web-Service: True
 
 Name: formcomponent_property/formcomponent_property.spec
+Web-Service: True
+
+Name: dataset_property/dataset.spec
 Web-Service: True

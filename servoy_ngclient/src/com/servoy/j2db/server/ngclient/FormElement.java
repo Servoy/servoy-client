@@ -596,6 +596,12 @@ public final class FormElement implements INGFormElement
 		return form;
 	}
 
+	@Override
+	public FormElement getRootFormElement()
+	{
+		return this;
+	}
+
 	public boolean isLegacy()
 	{
 		return persistImpl != null && persistImpl.isLegacy();

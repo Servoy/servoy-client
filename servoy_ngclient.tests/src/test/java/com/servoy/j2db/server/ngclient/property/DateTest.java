@@ -39,7 +39,7 @@ import com.servoy.j2db.server.ngclient.utils.NGUtils;
  * @author lvostinar
  *
  */
-public class DateTest
+public class DateTest extends Log4JToConsoleTest
 {
 	@Test
 	public void testDatesToJson() throws JSONException

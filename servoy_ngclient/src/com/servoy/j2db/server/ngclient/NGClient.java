@@ -1407,29 +1407,40 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 					{
 						functionSpec = (serviceSpec != null ? serviceSpec.getApiFunction(serviceMethodName) : null);
 					}
-					List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
 
-					// apply conversion
-					Object[] arrayOfJavaConvertedMethodArgs = new Object[methodArguments.length()];
-					for (int i = 0; i < methodArguments.length(); i++)
+					if (functionSpec == null)
 					{
-						arrayOfJavaConvertedMethodArgs[i] = JSONUtils.fromJSON(null, methodArguments.get(i),
-							(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null,
-							new BrowserConverterContext(serviceWebObject, PushToServerEnum.allow), new ValueReference<Boolean>(false));
+						Debug.warn("callServerSideApi for unknown function '" + serviceMethodName + "' of service '" + serviceScriptingName + "'.");
+						throw new RuntimeException("trying to call a function '" + serviceMethodName + "' that does not exist in .spec of service: " +
+							serviceSpec.getName());
 					}
+					else
+					{
+						List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
 
-					Object retVal = webServiceScriptable.executeScopeFunction(functionSpec, arrayOfJavaConvertedMethodArgs);
-					if (functionSpec != null && functionSpec.getReturnType() != null)
-					{
-						retVal = new TypedData<Object>(retVal, functionSpec.getReturnType()); // this means that when this return value is sent to client it will be converted to browser JSON correctly - if we give it the type
+						// apply conversion
+						Object[] arrayOfJavaConvertedMethodArgs = new Object[methodArguments.length()];
+						for (int i = 0; i < methodArguments.length(); i++)
+						{
+							arrayOfJavaConvertedMethodArgs[i] = JSONUtils.fromJSON(null, methodArguments.get(i),
+								(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null,
+								new BrowserConverterContext(serviceWebObject, PushToServerEnum.allow), new ValueReference<Boolean>(false));
+						}
+
+						Object retVal = webServiceScriptable.executeScopeFunction(functionSpec, arrayOfJavaConvertedMethodArgs);
+						if (functionSpec != null && functionSpec.getReturnType() != null)
+						{
+							retVal = new TypedData<Object>(retVal, functionSpec.getReturnType()); // this means that when this return value is sent to client it will be converted to browser JSON correctly - if we give it the type
+						}
+						return retVal;
 					}
-					return retVal;
 				}
 				else
 				{
 					Debug.warn("callServerSideApi for unknown service '" + serviceScriptingName + "'");
+					throw new RuntimeException("callServerSideApi for unknown service '" + serviceScriptingName + "'; called method: " +
+						args.getString("methodName"));
 				}
-				break;
 			}
 		}
 

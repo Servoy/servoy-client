@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.json.JSONException;
 import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
@@ -180,54 +179,48 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 
 	public Object executeScopeFunction(WebObjectFunctionDefinition functionSpec, Object[] arrayOfSabloJavaMethodArgs)
 	{
-		if (functionSpec != null)
+		assert (functionSpec != null);
+
+		Object object = scopeObject.get(functionSpec.getName(), scopeObject);
+		if (object instanceof Function)
 		{
-			Object object = scopeObject.get(functionSpec.getName(), scopeObject);
-			if (object instanceof Function)
+			Context context = Context.enter();
+			try
 			{
-				Context context = Context.enter();
+				// find spec for method
+				List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
+
+				// convert arguments to Rhino
+				Object[] array = new Object[arrayOfSabloJavaMethodArgs.length];
+				for (int i = 0; i < arrayOfSabloJavaMethodArgs.length; i++)
+				{
+					array[i] = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(arrayOfSabloJavaMethodArgs[i],
+						(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null, component, this);
+				}
+				context.putThreadLocal(SERVER_SIDE_SCRIPT_EXECUTE, Boolean.TRUE);
 				try
 				{
-					// find spec for method
-					List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
+					Object retValue = ((Function)object).call(context, scopeObject, scopeObject, array);
 
-					// convert arguments to Rhino
-					Object[] array = new Object[arrayOfSabloJavaMethodArgs.length];
-					for (int i = 0; i < arrayOfSabloJavaMethodArgs.length; i++)
-					{
-						array[i] = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(arrayOfSabloJavaMethodArgs[i],
-							(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null, component, this);
-					}
-					context.putThreadLocal(SERVER_SIDE_SCRIPT_EXECUTE, Boolean.TRUE);
-					try
-					{
-						Object retValue = ((Function)object).call(context, scopeObject, scopeObject, array);
-
-						PropertyDescription retValuePD = (functionSpec != null ? functionSpec.getReturnType() : null);
-						return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(retValue, null, retValuePD, component);
-					}
-					finally
-					{
-						context.removeThreadLocal(SERVER_SIDE_SCRIPT_EXECUTE);
-					}
-				}
-				catch (JSONException e)
-				{
-					e.printStackTrace();
-					return null;
+					PropertyDescription retValuePD = (functionSpec != null ? functionSpec.getReturnType() : null);
+					return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(retValue, null, retValuePD, component);
 				}
 				finally
 				{
-					Context.exit();
+					context.removeThreadLocal(SERVER_SIDE_SCRIPT_EXECUTE);
 				}
 			}
-			else
+			finally
 			{
-				throw new RuntimeException("trying to call a function '" + functionSpec.getName() + "' that does not exists on a component '" +
-					component.getName() + " with spec: " + webComponentSpec.getName());
+				Context.exit();
 			}
 		}
-		return null;
+		else
+		{
+			throw new RuntimeException(
+				"trying to call a function '" + functionSpec.getName() + "' that does not exist in server side scope of component '" +
+					component.getName() + " with spec: " + webComponentSpec.getName());
+		}
 	}
 
 	protected boolean isApiFunctionEnabled(String functionName)
@@ -559,9 +552,9 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 				TabPanel tabpanel = (TabPanel)component.getFormElement().getPersistIfAvailable();
 				if (tabpanel.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL || tabpanel.getTabOrientation() == TabPanel.SPLIT_VERTICAL)
 				{
-					for (int i = 0; i < tabsList.size(); i++)
+					for (Object element : tabsList)
 					{
-						Map<String, Object> tab = (Map<String, Object>)tabsList.get(i);
+						Map<String, Object> tab = (Map<String, Object>)element;
 						if (tab != null)
 						{
 							String relationName = tab.get("relationName") != null ? tab.get("relationName").toString() : null;
@@ -587,9 +580,9 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 					}
 					else if (tabIndex instanceof String || tabIndex instanceof CharSequence)
 					{
-						for (int i = 0; i < tabsList.size(); i++)
+						for (Object element : tabsList)
 						{
-							Map<String, Object> tab = (Map<String, Object>)tabsList.get(i);
+							Map<String, Object> tab = (Map<String, Object>)element;
 							if (Utils.equalObjects(tabIndex, tab.get("name")))
 							{
 								visibleTab = tab;

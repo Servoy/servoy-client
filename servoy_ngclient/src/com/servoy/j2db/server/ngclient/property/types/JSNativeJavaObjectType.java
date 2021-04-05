@@ -24,10 +24,8 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
-import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.util.ValueReference;
-
-import com.servoy.j2db.util.Debug;
+import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 /**
  * @author gboros
@@ -39,9 +37,6 @@ public class JSNativeJavaObjectType extends DefaultPropertyType<NativeJavaObject
 	public static final JSNativeJavaObjectType INSTANCE = new JSNativeJavaObjectType();
 	public static final String TYPE_NAME = "jsnativejavaobject"; //$NON-NLS-1$
 
-	/*
-	 * @see org.sablo.specification.property.IPropertyType#getName()
-	 */
 	@Override
 	public String getName()
 	{
@@ -52,7 +47,7 @@ public class JSNativeJavaObjectType extends DefaultPropertyType<NativeJavaObject
 	public NativeJavaObject fromJSON(Object newJSONValue, NativeJavaObject previousSabloValue, PropertyDescription pd,
 		IBrowserConverterContext dataConverterContext, ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
-		// TODO Auto-generated method stub
+		// not supported
 		return null;
 	}
 
@@ -60,28 +55,9 @@ public class JSNativeJavaObjectType extends DefaultPropertyType<NativeJavaObject
 	public JSONWriter toJSON(JSONWriter writer, String key, NativeJavaObject sabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
 		throws JSONException
 	{
-		if (sabloValue != null)
+		if (sabloValue != null) // should always be != null as long as this class is used only as a class type found based on sabloValue.getClass()
 		{
-			Object o = sabloValue.unwrap();
-			if (o != null)
-			{
-				String className = o.getClass().getName();
-				if (className != null)
-				{
-					try
-					{
-						IClassPropertyType classPropertyType = TypesRegistry.getType(Class.forName(className));
-						if (classPropertyType != null)
-						{
-							return classPropertyType.toJSON(writer, key, o, pd, dataConverterContext);
-						}
-					}
-					catch (ClassNotFoundException ex)
-					{
-						Debug.error(ex);
-					}
-				}
-			}
+			return FullValueToJSONConverter.INSTANCE.toJSONValue(writer, key, sabloValue.unwrap(), pd, dataConverterContext);
 		}
 		return null;
 	}
@@ -89,7 +65,6 @@ public class JSNativeJavaObjectType extends DefaultPropertyType<NativeJavaObject
 	@Override
 	public NativeJavaObject defaultValue(PropertyDescription pd)
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 

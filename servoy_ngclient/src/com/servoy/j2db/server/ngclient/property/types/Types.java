@@ -74,6 +74,7 @@ public class Types
 		TypesRegistry.addType(FindModePropertyType.INSTANCE);
 		TypesRegistry.addType(ReadonlyPropertyType.INSTANCE);
 
+		TypesRegistry.addType(NGObjectPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGEnabledPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGColorPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGDatePropertyType.NG_INSTANCE);

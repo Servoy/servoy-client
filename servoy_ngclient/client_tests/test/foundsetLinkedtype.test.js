@@ -1,10 +1,12 @@
 describe("Test foundset_linked_property suite", function() {
 
 	var sabloConverters;
+	var typesRegistry;
+	var pushToServerUtils;
 	var $scope;
 	var iS;
 
-	var componentModelGetter;
+	var propertyContext;
 
 	var serverValue;
 	var realClientValue;
@@ -22,9 +24,7 @@ describe("Test foundset_linked_property suite", function() {
 		module('foundset_linked_property');
 		module('sabloApp');
 
-		angular.module('pushToServerData', ['pushToServer']);
-
-		inject(function(_$sabloConverters_, _$compile_, _$rootScope_) {
+		inject(function(_$sabloConverters_, _$compile_, _$rootScope_, _$typesRegistry_, _$pushToServerUtils_) {
 			var angularEquality = function(first, second) {
 				return angular.equals(first, second);
 			};
@@ -33,10 +33,14 @@ describe("Test foundset_linked_property suite", function() {
 			// The injector unwraps the underscores (_) from around the parameter
 			// names when matching
 			sabloConverters = _$sabloConverters_;
+			typesRegistry = _$typesRegistry_;
+			pushToServerUtils = _$pushToServerUtils_;
 			iS = sabloConverters.INTERNAL_IMPL;
 			$compile = _$compile_;
 
 			$scope = _$rootScope_.$new();
+			
+            fslinkedType = typesRegistry.getAlreadyRegisteredType('fsLinked');
 		});
 
 		// mock timout
@@ -60,23 +64,24 @@ describe("Test foundset_linked_property suite", function() {
 						"rows": [ { "_svyRowId" : "bla bla" }, { "_svyRowId" : "har har" } ]
 					}
 			};
-			componentModelGetter = function(prop) {
-				return {
-					myfoundset: myfoundset
-				}[prop];
-			};
 
 			serverValue = { forFoundset: "myfoundset" };
 
 			var template = '<div></div>';
 			$compile(template)($scope);
-			realClientValue = sabloConverters.convertFromServerToClient(serverValue, 'fsLinked', undefined, $scope, componentModelGetter);
+			
+            propertyContext = {
+                getProperty: function(propertyName) { return ({ myfoundset: myfoundset })[propertyName]; },
+                getPushToServerCalculatedValue: function() { return pushToServerUtils.reject; }
+            };
+			
+			realClientValue = sabloConverters.convertFromServerToClient(serverValue, fslinkedType, undefined, undefined, undefined, $scope, propertyContext);
 			realClientValue[iS].setChangeNotifier(function () { changeNotified = true });
 			$scope.$digest();
 
 			serverValue = { forFoundset: "myfoundset", sv: ":) --- static string ***" };
 
-			realClientValue = sabloConverters.convertFromServerToClient(serverValue, 'fsLinked', realClientValue, $scope, componentModelGetter);
+			realClientValue = sabloConverters.convertFromServerToClient(serverValue, fslinkedType, realClientValue, undefined, undefined, $scope, propertyContext);
 			$scope.$digest();
 
 			expect(getAndClearNotified()).toEqual(false);
@@ -109,23 +114,24 @@ describe("Test foundset_linked_property suite", function() {
 						"rows": [ { "_svyRowId" : "bla bla" }, { "_svyRowId" : "har har" } ]
 					}
 			};
-			componentModelGetter = function(prop) {
-				return {
-					myfoundset: myfoundset
-				}[prop];
-			};
 
 			serverValue = { forFoundset: "myfoundset", w: false };
 
 			var template = '<div></div>';
 			$compile(template)($scope);
-			realClientValue = sabloConverters.convertFromServerToClient(serverValue, 'fsLinked', undefined, $scope, componentModelGetter);
+			
+            propertyContext = {
+                getProperty: function(propertyName) { return ({ myfoundset: myfoundset })[propertyName]; },
+                getPushToServerCalculatedValue: function() { return pushToServerUtils.shallow; }
+            };
+
+			realClientValue = sabloConverters.convertFromServerToClient(serverValue, fslinkedType, undefined, undefined, undefined, $scope, propertyContext);
 			realClientValue[iS].setChangeNotifier(function () { changeNotified = true });
 			$scope.$digest();
 
 			serverValue = { sv: ":) --- static string ***" };
 
-			realClientValue = sabloConverters.convertFromServerToClient(serverValue, 'fsLinked', realClientValue, $scope, componentModelGetter);
+			realClientValue = sabloConverters.convertFromServerToClient(serverValue, fslinkedType, realClientValue, undefined, undefined, $scope, propertyContext);
 			$scope.$digest();
 
 			expect(getAndClearNotified()).toEqual(false);
@@ -141,7 +147,7 @@ describe("Test foundset_linked_property suite", function() {
 
 			expect(getAndClearNotified()).toEqual(true);
 			expect(realClientValue[iS].isChanged()).toEqual(true);
-			expect(sabloConverters.convertFromClientToServer(realClientValue, 'fsLinked', realClientValue)).toEqual(
+			expect(sabloConverters.convertFromClientToServer(realClientValue, fslinkedType, realClientValue, $scope, propertyContext)).toEqual(
 					[ { propertyChange: 'I am really changed and I should be sent' } ]
 			);
 
@@ -155,27 +161,32 @@ describe("Test foundset_linked_property suite", function() {
 	describe("foundsetLinked_property with dumb values and foundset linked values suite; pushToServer not set (so reject)", function() {
 		beforeEach(function() {
 			var myfoundset = {
-					"serverSize": 0,
+					"serverSize": 10,
 					"selectedRowIndexes": [],
 					"multiSelect": false,
 					"viewPort": 
 					{
 						"startIndex": 0,
-						"size": 2,
-						"rows": [ { "_svyRowId" : "bla bla" }, { "_svyRowId" : "har har" }, { "_svyRowId" : "bl bl" }, { "_svyRowId" : "ha ha" }, { "_svyRowId" : "b b" }, { "_svyRowId" : "h h" } ]
+						"size": 6,
+						"rows": [ { "_svyRowId" : "bla bla" },
+						          { "_svyRowId" : "har har" },
+						          { "_svyRowId" : "bl bl" },
+						          { "_svyRowId" : "ha ha" },
+						          { "_svyRowId" : "b b" },
+						          { "_svyRowId" : "h h" } ]
 					}
 			};
-			componentModelGetter = function(prop) {
-				return {
-					myfoundset: myfoundset
-				}[prop];
-			};
+			
+			propertyContext = {
+                getProperty: function(propertyName) { return ({ myfoundset: myfoundset })[propertyName]; },
+                getPushToServerCalculatedValue: function() { return pushToServerUtils.reject; }
+            };
 
 			serverValue = { forFoundset: "myfoundset" };
 
 			var template = '<div></div>';
 			$compile(template)($scope);
-			realClientValue = sabloConverters.convertFromServerToClient(serverValue, 'fsLinked', undefined, $scope, componentModelGetter);
+			realClientValue = sabloConverters.convertFromServerToClient(serverValue, fslinkedType, undefined, undefined, undefined, $scope, propertyContext);
 			realClientValue[iS].setChangeNotifier(function () { changeNotified = true });
 			$scope.$digest();
 
@@ -184,7 +195,7 @@ describe("Test foundset_linked_property suite", function() {
 					"vp": [ 10643, 10702, 10835, 10952, 11011, 11081 ]
 			};
 
-			realClientValue = sabloConverters.convertFromServerToClient(serverValue, 'fsLinked', realClientValue, $scope, componentModelGetter);
+			realClientValue = sabloConverters.convertFromServerToClient(serverValue, fslinkedType, realClientValue, undefined, undefined, $scope, propertyContext);
 			$scope.$digest();
 
 			expect(getAndClearNotified()).toEqual(false);
@@ -207,27 +218,32 @@ describe("Test foundset_linked_property suite", function() {
 	describe("foundsetLinked_property with dumb values and foundset linked values suite; pushToServer set to shallow", function() {
 		beforeEach(function() {
 			var myfoundset = {
-					"serverSize": 0,
+					"serverSize": 10,
 					"selectedRowIndexes": [],
 					"multiSelect": false,
 					"viewPort": 
 					{
 						"startIndex": 0,
-						"size": 2,
-						"rows": [ { "_svyRowId" : "bla bla" }, { "_svyRowId" : "har har" }, { "_svyRowId" : "bl bl" }, { "_svyRowId" : "ha ha" }, { "_svyRowId" : "b b" }, { "_svyRowId" : "h h" } ]
+						"size": 6,
+						"rows": [ { "_svyRowId" : "bla bla" },
+						          { "_svyRowId" : "har har" },
+						          { "_svyRowId" : "bl bl" },
+						          { "_svyRowId" : "ha ha" },
+						          { "_svyRowId" : "b b" },
+						          { "_svyRowId" : "h h" } ]
 					}
 			};
-			componentModelGetter = function(prop) {
-				return {
-					myfoundset: myfoundset
-				}[prop];
-			};
+			
+            propertyContext = {
+                getProperty: function(propertyName) { return ({ myfoundset: myfoundset })[propertyName]; },
+                getPushToServerCalculatedValue: function() { return pushToServerUtils.shallow; }
+            };
 
 			serverValue = { forFoundset: "myfoundset", w: false };
 
 			var template = '<div></div>';
 			$compile(template)($scope);
-			realClientValue = sabloConverters.convertFromServerToClient(serverValue, 'fsLinked', undefined, $scope, componentModelGetter);
+			realClientValue = sabloConverters.convertFromServerToClient(serverValue, fslinkedType, undefined, undefined, undefined, $scope, propertyContext);
 			realClientValue[iS].setChangeNotifier(function () { changeNotified = true });
 			$scope.$digest();
 
@@ -236,7 +252,7 @@ describe("Test foundset_linked_property suite", function() {
 					"vp": [ 10643, 10702, 10835, 10952, 11011, 11081 ]
 			};
 
-			realClientValue = sabloConverters.convertFromServerToClient(serverValue, 'fsLinked', realClientValue, $scope, componentModelGetter);
+			realClientValue = sabloConverters.convertFromServerToClient(serverValue, fslinkedType, realClientValue, undefined, undefined, $scope, propertyContext);
 			$scope.$digest();
 
 			expect(getAndClearNotified()).toEqual(false);
@@ -245,14 +261,14 @@ describe("Test foundset_linked_property suite", function() {
 
 		});
 
-		it("Should not send value updates for when pushToServer is not specified", function() {
+		it("Should send value updates for when pushToServer >= shallow", function() {
 			// *** initial size no viewport
 			realClientValue[3] = 1010101010; 
 			$scope.$digest();
 
 			expect(getAndClearNotified()).toEqual(true);
 			expect(realClientValue[iS].isChanged()).toEqual(true);
-			expect(sabloConverters.convertFromClientToServer(realClientValue, 'fsLinked', realClientValue)).toEqual(
+			expect(sabloConverters.convertFromClientToServer(realClientValue, fslinkedType, realClientValue, $scope, propertyContext)).toEqual(
 					[ { viewportDataChanged: { _svyRowId: 'ha ha', dp: null, value: 1010101010 } } ]
 			);
 

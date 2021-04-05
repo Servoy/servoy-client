@@ -611,9 +611,13 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 			destinationJSON.key(ComponentPropertyType.MODEL_VIEWPORT_KEY);
 
-			// no need to keep and write return value below because components already know their property types client side (sent from ClientSideTypesState); and it will be null anyway because of what ComponentViewportRowDataProvider does
-			viewPortChangeMonitor.getRowDataProvider().writeRowData(foundsetPropertyViewPort.getStartIndex(),
+			// types implementing IPropertyConverterForBrowserWithDynamicClientType that wrote a dynamic type will be returned by following call;
+			// static IPropertyWithClientSideConversions values are just written without including the type; this is because client already knows the IPropertyWithClientSideConversions client-side (sent via ClientSideTypesState)
+			ViewportClientSideTypes dynamicClientSideTypes = viewPortChangeMonitor.getRowDataProvider().writeRowData(foundsetPropertyViewPort.getStartIndex(),
 				foundsetPropertyViewPort.getStartIndex() + foundsetPropertyViewPort.getSize() - 1, getFoundsetValue().getFoundset(), destinationJSON);
+
+			// conversion info for websocket traffic (for example Date objects will turn into long or String to be usable in JSON and client-side needs to know about this)
+			if (dynamicClientSideTypes != null) dynamicClientSideTypes.writeClientSideTypes(destinationJSON, JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY);
 
 			viewPortChangeMonitor.doneWritingChanges();
 		}

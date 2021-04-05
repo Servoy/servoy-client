@@ -2,28 +2,34 @@ describe("Test foundset_custom_property suite", function() {
 
 	beforeEach(module('sabloApp')); // for 'date' conversions
 	beforeEach(module('servoy'));
-	beforeEach(module('foundset_viewport_module')); // for foundset and viewport conversions
 	beforeEach(module('foundset_custom_property'));
 
 	var sabloConverters;
-	var foundsetTypeConstants;
+    var typesRegistry;
+    var pushToServerUtils;
+    
 	var $scope;
 	var iS;
+    var foundsetType;
+
 
 	var angularEquality = function(first, second) {
 		return angular.equals(first, second);
 	};
 
-	beforeEach(inject(function(_$sabloConverters_, _$compile_, _$rootScope_, _$foundsetTypeConstants_){
+	beforeEach(inject(function(_$sabloConverters_, _$compile_, _$rootScope_, _$pushToServerUtils_, _$typesRegistry_) {
 		jasmine.addCustomEqualityTester(angularEquality);
 		// The injector unwraps the underscores (_) from around the parameter
 		//names when matching
 		sabloConverters = _$sabloConverters_;
 		iS = sabloConverters.INTERNAL_IMPL;
-		foundsetTypeConstants = _$foundsetTypeConstants_;
+		pushToServerUtils = _$pushToServerUtils_;
+		typesRegistry = _$typesRegistry_;
 		$compile = _$compile_;
 
 		$scope = _$rootScope_.$new();
+		
+        foundsetType = typesRegistry.getAlreadyRegisteredType('foundset');
 	}));
 
 	// var CHANGE = 0;
@@ -39,7 +45,7 @@ describe("Test foundset_custom_property suite", function() {
 		var serverValue;
 		var originalTimeout;
 		var realClientValue;
-		var componentModelGetter;
+		var propertyContext;
 		var changeNotified = false;
 		
 		var someDate = new Date();
@@ -54,6 +60,11 @@ describe("Test foundset_custom_property suite", function() {
 		beforeEach(function() {
 			originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
 			jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000;
+			
+            propertyContext = {
+                getProperty: function(propertyName) { return undefined; },
+                getPushToServerCalculatedValue: function() { return pushToServerUtils.reject; }
+            };
 		});
 
 		afterEach(function() {
@@ -76,12 +87,11 @@ describe("Test foundset_custom_property suite", function() {
 
 			var template = '<div></div>';
 			$compile(template)($scope);
-			realClientValue = sabloConverters.convertFromServerToClient(serverValue,'foundset', $scope.model, $scope, componentModelGetter);
+			realClientValue = sabloConverters.convertFromServerToClient(serverValue, foundsetType, undefined, undefined, undefined, $scope, propertyContext);
 			realClientValue[iS].setChangeNotifier(function () { changeNotified = true });
 			$scope.$digest();
 			expect(getAndClearNotified()).toEqual(false);
 
-			// so no "w": false in server received value...
 			var tmp = realClientValue.viewPort.rows[0].i;
 			realClientValue.viewPort.rows[0].i = 4321234;
 			$scope.$digest();
@@ -90,7 +100,7 @@ describe("Test foundset_custom_property suite", function() {
 			realClientValue.viewPort.rows[0].i = tmp;
 		});
 		
-		it("Will get template dummy value", function() {
+		it("Will get template dummy value and not err. out", function() {
 			serverValue = {
 					"serverSize": 0,
 					"selectedRowIndexes": [],
@@ -104,7 +114,7 @@ describe("Test foundset_custom_property suite", function() {
 
 			var template = '<div></div>';
 			$compile(template)($scope);
-			realClientValue = sabloConverters.convertFromServerToClient(serverValue,'foundset', $scope.model, $scope, componentModelGetter);
+			realClientValue = sabloConverters.convertFromServerToClient(serverValue, foundsetType, undefined, undefined, undefined, $scope, propertyContext);
 			realClientValue[iS].setChangeNotifier(function () { changeNotified = true });
 			$scope.$digest();
 		});
@@ -113,7 +123,6 @@ describe("Test foundset_custom_property suite", function() {
 			// *** initial size no viewport
 			var updateValue = {
 					"serverSize": 6,
-					"w": false,
 					"selectedRowIndexes":[0],
 					"multiSelect": false,
 					"viewPort": 
@@ -123,18 +132,24 @@ describe("Test foundset_custom_property suite", function() {
 						"rows": []
 					}
 			};
-			realClientValue = sabloConverters.convertFromServerToClient(updateValue,'foundset', realClientValue, $scope, componentModelGetter);
+			
+			// just give some other property context push to server - it should have no effect if watches are not tested anyway
+            propertyContext = {
+                getProperty: function(propertyName) { return undefined; },
+                getPushToServerCalculatedValue: function() { return pushToServerUtils.shallow; }
+            };
+
+			realClientValue = sabloConverters.convertFromServerToClient(updateValue, foundsetType, realClientValue, undefined, undefined, $scope, propertyContext);
 			$scope.$digest();
 			realClientValue[iS].setChangeNotifier(function () { changeNotified = true });
 			var copy = angular.copy(updateValue);
-			delete copy["w"]; // this one goes to internal state
 			expect(realClientValue).toEqual(copy);
 
 			// *** request and receive new viewport (all records in this case)
 			realClientValue.loadRecordsAsync(0,6);
 			expect(getAndClearNotified()).toEqual(true);
 			expect(realClientValue[iS].isChanged()).toEqual(true);
-			expect(sabloConverters.convertFromClientToServer(realClientValue, 'foundset', realClientValue)).toEqual(
+			expect(sabloConverters.convertFromClientToServer(realClientValue, foundsetType, realClientValue, $scope, propertyContext)).toEqual(
 					[{"newViewPort":{"startIndex":0,"size":6},"id":1}]
 			);
 			expect(getAndClearNotified()).toEqual(false);
@@ -145,7 +160,7 @@ describe("Test foundset_custom_property suite", function() {
 				{
 					"startIndex": 0,
 					"size": 6,
-					"svy_types": {"rows":{"0":{"d":"Date"},"1":{"d":"Date"},"2":{"d":"Date"},"4":{"d":"Date"},"5":{"d":"Date"}}},
+                    _T: { mT: null, "cT": { "d": {"_T": "Date"} } },
 					"rows": 
 						[
 						 {
@@ -173,7 +188,7 @@ describe("Test foundset_custom_property suite", function() {
 						 }
 						 ]
 				}
-			},'foundset', realClientValue, $scope, componentModelGetter);
+			}, foundsetType, realClientValue, undefined, undefined, $scope, propertyContext);
 			$scope.$digest(); // so that watches are aware of new values and keep them as old ones
 			expect(realClientValue).toEqual({
 				"serverSize": 6,
@@ -234,7 +249,7 @@ describe("Test foundset_custom_property suite", function() {
 		
 		it("The selection change notification sent", function() {
 			expect(realClientValue[iS].isChanged()).toEqual(true);
-			expect(sabloConverters.convertFromClientToServer(realClientValue, 'foundset', realClientValue)).toEqual(
+			expect(sabloConverters.convertFromClientToServer(realClientValue, foundsetType, realClientValue, $scope, propertyContext)).toEqual(
 					[{"newClientSelection":[1]}]
 			);
 			expect(getAndClearNotified()).toEqual(false);
@@ -244,7 +259,7 @@ describe("Test foundset_custom_property suite", function() {
 		
 		it("Should get selection update from server", function() {
 			// *** initial size no viewport
-			realClientValue = sabloConverters.convertFromServerToClient({"upd_selectedRowIndexes":[2]},'foundset', realClientValue, $scope, componentModelGetter);
+			realClientValue = sabloConverters.convertFromServerToClient({"upd_selectedRowIndexes":[2]}, foundsetType, realClientValue, undefined, undefined, $scope, propertyContext);
 			$scope.$digest();
 			expect(realClientValue.selectedRowIndexes.length).toEqual(1);
 			expect(realClientValue.selectedRowIndexes[0]).toEqual(2);
@@ -258,28 +273,31 @@ describe("Test foundset_custom_property suite", function() {
 				{
 					"startIndex": 0,
 					"size": 8,
-					"svy_types": {"upd_rows":{"2":{"rows":{"0":{"d":"Date"}}},"3":{"rows":{"0":{"d":"Date"}}}}},
 					"upd_rows": 
 					[
 						{
+                            _T: { mT: null, "cT": { "d": {"_T": "Date"} } },
 							"rows": [{"d": null, "i": 1234, "_svyRowId": "5.11078;_1"}],
 							"startIndex": 1,
 							"endIndex": 1,
 							"type": 1
 						},
 						{
+                            _T: { mT: null, "cT": { "d": {"_T": "Date"} } },
 							"rows": [{"d": null, "i": 1234, "_svyRowId": "5.11078;_1"}],
 							"startIndex": 1,
 							"endIndex": 1,
 							"type": 0
 						},
 						{
+                            _T: { mT: null, "cT": { "d": {"_T": "Date"} } },
 							"rows": [{"d": someDateMs, "i": 1234, "_svyRowId": "5.11079;_2"}],
 							"startIndex": 2,
 							"endIndex": 2,
 							"type": 1
 						},
 						{
+                            _T: { mT: null, "cT": { "d": {"_T": "Date"} } },
 							"rows": [{"d": someDateMs, "i": 1234, "_svyRowId": "5.11079;_2"}],
 							"startIndex": 2,
 							"endIndex": 2,
@@ -287,7 +305,7 @@ describe("Test foundset_custom_property suite", function() {
 						}
 					]
 				}
-			},'foundset', realClientValue, $scope, componentModelGetter);
+			}, foundsetType, realClientValue, undefined, undefined, $scope, propertyContext);
 			$scope.$digest();
 			expect(realClientValue).toEqual({
 				"serverSize": 8,
@@ -373,7 +391,7 @@ describe("Test foundset_custom_property suite", function() {
 						}
 					]
 				}
-			},'foundset', realClientValue, $scope, componentModelGetter);
+			}, foundsetType, realClientValue, undefined, undefined, $scope, propertyContext);
 			$scope.$digest();
 			expect(realClientValue).toEqual({
 				"serverSize": 5,
@@ -430,7 +448,7 @@ describe("Test foundset_custom_property suite", function() {
 						
 					]
 				}
-			},'foundset', realClientValue, $scope, componentModelGetter);
+			}, foundsetType, realClientValue, undefined, undefined, $scope, propertyContext);
 			$scope.$digest();
 			expect(realClientValue.serverSize).toEqual(12);
 			expect(realClientValue.selectedRowIndexes[0]).toEqual(0);
@@ -441,7 +459,7 @@ describe("Test foundset_custom_property suite", function() {
 			realClientValue.loadRecordsAsync(0,9);
 			expect(getAndClearNotified()).toEqual(true);
 			expect(realClientValue[iS].isChanged()).toEqual(true);
-			expect(sabloConverters.convertFromClientToServer(realClientValue, 'foundset', realClientValue)).toEqual(
+			expect(sabloConverters.convertFromClientToServer(realClientValue, foundsetType, realClientValue, $scope, propertyContext)).toEqual(
 					[{"newViewPort":{"startIndex":0,"size":9},"id":2}]
 			);
 			expect(getAndClearNotified()).toEqual(false);
@@ -453,7 +471,7 @@ describe("Test foundset_custom_property suite", function() {
 				{
 					"startIndex": 0,
 					"size": 9,
-					"svy_types": {"rows":{"0":{"d":"Date"},"1":{"d":"Date"},"2":{"d":"Date"},"3":{"d":"Date"},"4":{"d":"Date"},"5":{"d":"Date"},"6":{"d":"Date"},"7":{"d":"Date"},"8":{"d":"Date"}}},
+                    _T: { mT: null, "cT": { "d": {"_T": "Date"} } },
 					"rows": 
 					[
 						{
@@ -493,7 +511,7 @@ describe("Test foundset_custom_property suite", function() {
 						}
 					]
 				}
-			},'foundset', realClientValue, $scope, componentModelGetter);
+			}, foundsetType, realClientValue, undefined, undefined, $scope, propertyContext);
 			$scope.$digest();
 			expect(realClientValue).toEqual({
 				"serverSize": 12,
@@ -558,10 +576,10 @@ describe("Test foundset_custom_property suite", function() {
 				],
 				"upd_viewPort": 
 				{
-					"svy_types": {"upd_rows":{"0":{"rows":{"0":{"d":"Date"}}},"1":{"rows":{"0":{"d":"Date"}}},"2":{"rows":{"0":{"d":"Date"}}},"3":{"rows":{"0":{"d":"Date"}}},"4":null}},
 					"upd_rows": 
 					[
 						{
+                            _T: { mT: null, "cT": { "d": {"_T": "Date"} } },
 							"rows": 
 							[
 								{
@@ -575,6 +593,7 @@ describe("Test foundset_custom_property suite", function() {
 						},
 
 						{
+                            _T: { mT: null, "cT": { "d": {"_T": "Date"} } },
 							"rows": 
 							[
 								{
@@ -588,6 +607,7 @@ describe("Test foundset_custom_property suite", function() {
 						},
 
 						{
+                            _T: { mT: null, "cT": { "d": {"_T": "Date"} } },
 							"rows": 
 							[
 								{
@@ -601,7 +621,8 @@ describe("Test foundset_custom_property suite", function() {
 						},
 
 						{
-							"rows": 
+                            _T: { mT: null, "cT": { "d": {"_T": "Date"} } },
+							"rows":
 							[
 								{
 									"d": someDateMs, "i": 1234, "_svyRowId": "5.11113;_2"
@@ -620,7 +641,7 @@ describe("Test foundset_custom_property suite", function() {
 						}
 					]
 				}
-			},'foundset', realClientValue, $scope, componentModelGetter);
+			}, foundsetType, realClientValue, undefined, undefined, $scope, propertyContext);
 			$scope.$digest();
 			expect(realClientValue).toEqual({
 				"serverSize": 14,
@@ -681,10 +702,10 @@ describe("Test foundset_custom_property suite", function() {
 				"upd_serverSize": 15,
 				"upd_viewPort": 
 				{
-					"svy_types": {"upd_rows":{"0":{"rows":{"0":{"d":"Date"}}},"1":null,"2":{"rows":{"0":{"d":"Date"}}}}},
 					"upd_rows": 
 					[
 						{
+                            _T: { mT: null, "cT": { "d": {"_T": "Date"} } },
 							"rows": 
 							[
 								{
@@ -704,7 +725,8 @@ describe("Test foundset_custom_property suite", function() {
 						},
 
 						{
-							"rows": 
+                            _T: { mT: null, "cT": { "d": {"_T": "Date"} } },
+							"rows":
 							[
 								{
 									"d": someDateMs, "i": 1234, "_svyRowId": "5.11115;_29"
@@ -717,7 +739,7 @@ describe("Test foundset_custom_property suite", function() {
 						}
 					]
 				}
-			},'foundset', realClientValue, $scope, componentModelGetter);
+			}, foundsetType, realClientValue, undefined, undefined, $scope, propertyContext);
 			$scope.$digest();
 			expect(realClientValue).toEqual({
 				"serverSize": 15,
@@ -778,7 +800,6 @@ describe("Test foundset_custom_property suite", function() {
 				"upd_serverSize": 14,
 				"upd_viewPort": 
 				{
-					"svy_types": {"upd_rows":{"0":null,"1":{"rows":{"0":{"d":"Date"}}}}},
 					"upd_rows": 
 					[
 						{
@@ -788,6 +809,7 @@ describe("Test foundset_custom_property suite", function() {
 						},
 						
 						{
+                            _T: { mT: null, "cT": { "d": {"_T": "Date"} } },
 							"rows": 
 							[
 								{
@@ -801,7 +823,7 @@ describe("Test foundset_custom_property suite", function() {
 						}
 					]
 				}
-			},'foundset', realClientValue, $scope, componentModelGetter);
+			}, foundsetType, realClientValue, undefined, undefined, $scope, propertyContext);
 			$scope.$digest();
 			expect(realClientValue).toEqual({
 				"serverSize": 14,
@@ -867,7 +889,6 @@ describe("Test foundset_custom_property suite", function() {
 
 				"upd_viewPort": 
 				{
-					"svy_types": {"upd_rows":{"0":null,"1":{"rows":{"0":{"d":"Date"}}}}},
 					"upd_rows": 
 					[
 						{
@@ -877,6 +898,7 @@ describe("Test foundset_custom_property suite", function() {
 						},
 						
 						{
+                            _T: { mT: null, "cT": { "d": {"_T": "Date"} } },
 							"rows": 
 							[
 								{
@@ -890,7 +912,7 @@ describe("Test foundset_custom_property suite", function() {
 						}
 					]
 				}
-			},'foundset', realClientValue, $scope, componentModelGetter);
+			}, foundsetType, realClientValue, undefined, undefined, $scope, propertyContext);
 			$scope.$digest();
 			expect(realClientValue).toEqual({
 				"serverSize": 13,
@@ -951,7 +973,7 @@ describe("Test foundset_custom_property suite", function() {
 			$scope.$digest();
 			expect(getAndClearNotified()).toEqual(true);
 			expect(realClientValue[iS].isChanged()).toEqual(true);
-			expect(sabloConverters.convertFromClientToServer(realClientValue, 'foundset', realClientValue)).toEqual(
+			expect(sabloConverters.convertFromClientToServer(realClientValue, foundsetType, realClientValue, $scope, propertyContext)).toEqual(
 					[{"loadExtraRecords":4,"id":3}]
 			);
 			expect(getAndClearNotified()).toEqual(false);
@@ -962,10 +984,10 @@ describe("Test foundset_custom_property suite", function() {
 				{
 					"startIndex": 0,
 					"size": 13,
-					"svy_types": {"upd_rows":{"0":{"rows":{"0":{"d":"Date"},"1":{"d":"Date"},"2":{"d":"Date"},"3":{"d":"Date"}}}}},
 					"upd_rows": 
 					[
 						{
+                            _T: { mT: null, "cT": { "d": {"_T": "Date"} } },
 							"rows": 
 							[
 								{
@@ -991,7 +1013,7 @@ describe("Test foundset_custom_property suite", function() {
 						}
 					]
 				}
-			},'foundset', realClientValue, $scope, componentModelGetter);
+			}, foundsetType, realClientValue, undefined, undefined, $scope, propertyContext);
 			$scope.$digest();
 			expect(realClientValue).toEqual({
 				"serverSize": 13,
@@ -1068,7 +1090,7 @@ describe("Test foundset_custom_property suite", function() {
 			$scope.$digest();
 			expect(getAndClearNotified()).toEqual(true);
 			expect(realClientValue[iS].isChanged()).toEqual(true);
-			expect(sabloConverters.convertFromClientToServer(realClientValue, 'foundset', realClientValue)).toEqual(
+			expect(sabloConverters.convertFromClientToServer(realClientValue, foundsetType, realClientValue, $scope, propertyContext)).toEqual(
 					[ { viewportDataChanged: { _svyRowId: '5.10832;_12', dp: 'd', value: newD.getTime() } } ]
 			);
 			expect(getAndClearNotified()).toEqual(false);
@@ -1079,7 +1101,7 @@ describe("Test foundset_custom_property suite", function() {
 			$scope.$digest();
 			expect(getAndClearNotified()).toEqual(true);
 			expect(realClientValue[iS].isChanged()).toEqual(true);
-			expect(sabloConverters.convertFromClientToServer(realClientValue, 'foundset', realClientValue)).toEqual(
+			expect(sabloConverters.convertFromClientToServer(realClientValue, foundsetType, realClientValue, $scope, propertyContext)).toEqual(
 					[ { viewportDataChanged: { _svyRowId: '5.11113;_2', dp: 'i', value: 4321 } } ]
 			);
 			expect(getAndClearNotified()).toEqual(false);
@@ -1090,7 +1112,7 @@ describe("Test foundset_custom_property suite", function() {
 			$scope.$digest();
 			expect(getAndClearNotified()).toEqual(true);
 			expect(realClientValue[iS].isChanged()).toEqual(true);
-			var message = sabloConverters.convertFromClientToServer(realClientValue, 'foundset', realClientValue)
+			var message = sabloConverters.convertFromClientToServer(realClientValue, foundsetType, realClientValue, $scope, propertyContext)
 			delete message[0].id
 			expect(message).toEqual(
 					[ { sort: [ { name: 'i', direction: 'asc' }, { name: 'd', direction: 'desc' } ] } ]
@@ -1109,26 +1131,18 @@ describe("Test $foundsetTypeUtils suite", function() {
 	beforeEach(module('foundset_custom_property'));
 	beforeEach(module('sabloApp')); // for 'date' conversions
 
-	var sabloConverters;
-	var foundsetTypeConstants;
 	var foundsetTypeUtils;
-	var $scope;
-	var iS;
 
 	var angularEquality = function(first, second) {
 		return angular.equals(first, second);
 	};
 
-	beforeEach(inject(function(_$sabloConverters_, _$rootScope_, _$foundsetTypeConstants_, _$foundsetTypeUtils_){
+	beforeEach(inject(function(_$sabloConverters_, _$rootScope_, _$foundsetTypeUtils_){
 		jasmine.addCustomEqualityTester(angularEquality);
 		// The injector unwraps the underscores (_) from around the parameter
 		//names when matching
 		sabloConverters = _$sabloConverters_;
-		iS = sabloConverters.INTERNAL_IMPL;
-		foundsetTypeConstants = _$foundsetTypeConstants_;
 		foundsetTypeUtils = _$foundsetTypeUtils_;
-
-		$scope = _$rootScope_.$new();
 	}));
 	
 	it("Empty updates result in empty updates", function() {

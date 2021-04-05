@@ -27,7 +27,7 @@ import org.sablo.websocket.IWindow;
 import com.servoy.j2db.util.Pair;
 
 /**
- * ClientSideWindowState for NGclients, keeps track of loaded forms on the client as well.
+ * ClientSideWindowState for NGClients, keeps track of loaded forms on the client as well.
  *
  * @author rgansevles, acostescu
  */
@@ -36,11 +36,12 @@ public class NGClientSideWindowState extends ClientSideWindowState
 {
 
 	/**
-	 * So basically forms can be on client/browser and have their state 'attachedToDOM' not.<br/>
+	 * So basically forms can be on client/browser and have their state 'attachedToDOM' or not.<br/>
 	 * For example a form could show, then hide so it was attached to DOM then it was detached.<br/><br/>
 	 *
 	 * The boolean in the right of each value in this map represents the attached/detached to/from DOM status.
 	 * The string in the left of each value is the URL for the form with name given by the key. A form is present in this map only
+	 * if it was previously sent to the this browser window.
 	 */
 	private final ConcurrentMap<String, Pair<String, Boolean>> formsOnClientForThisEndpoint = new ConcurrentHashMap<String, Pair<String, Boolean>>();
 
@@ -57,6 +58,15 @@ public class NGClientSideWindowState extends ClientSideWindowState
 	public void formDestroyed(String formName)
 	{
 		formsOnClientForThisEndpoint.remove(formName);
+	}
+
+	@Override
+	public void handleFreshBrowserWindowConnected()
+	{
+		super.handleFreshBrowserWindowConnected();
+
+		// new browser window or F5/refresh means that the client is not aware of any forms anymore...
+		formsOnClientForThisEndpoint.clear();
 	}
 
 	public String getFormUrl(String formName)

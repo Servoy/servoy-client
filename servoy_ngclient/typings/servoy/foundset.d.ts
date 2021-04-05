@@ -69,7 +69,7 @@ declare namespace foundsetType {
          * browser yourself; keys are the dataprovider names and values are objects that contain
          * the format contents
          */
-		columnFormats: object, 
+		columnFormats?: object, 
 		
 		/**
 		* Request a change of viewport bounds from the server; the requested data will be loaded
@@ -189,6 +189,24 @@ declare namespace foundsetType {
 		setPreferredViewportSize(preferredSize: number, sendViewportWithSelection: boolean, centerViewportOnSelected: boolean): void;
 		
 		/**
+		* It will send a data update for a cell (ros & column) in the foundset to the server.
+		* Please make sure to adjust the viewport value as well not just call this method.
+		*
+		* This method is useful if you do not want to add angular watches on data (so calculated pushToServer for the foundset property is set to just 'allow').
+		* Then server will accept data changes from this property, but there are no automatic watches to detect the changes so the component must call
+		* this method instead - when it wants to change the data in a cell.
+        * 
+        * @param rowID the _svyRowId (so $foundsetTypeConstants.ROW_ID_COL_KEY) column of the client side row
+        * @param columnID the name of the column to be updated on server (in that row).
+        * @param newValue the new data in that cell
+        * @param oldValue the old data that used to be in that cell
+        * @return (first versions of this method didn't return anything; more recent ones return this) a $q promise that will get resolved when the new cell value
+        *                   update is done server-side (resolved if ok, rejected if it failed). As with any promise you can register success, error
+        *                   and finally callbacks.
+		*/
+        updateViewportRecord(rowID: string, columnID: string, newValue: any, oldValue: any): angular.IPromise<any>;
+		
+		/**
 		* Receives a client side rowID (taken from myFoundsetProp.viewPort.rows[idx]
 		* [$foundsetTypeConstants.ROW_ID_COL_KEY]) and gives a Record reference, an object
 		* which can be resolved server side to the exact Record via the 'record' property type;
@@ -215,8 +233,9 @@ declare namespace foundsetType {
 		 * 
 		 * @see $webSocket.addIncomingMessageHandlingDoneTask if you need your code to execute after all properties that were linked to this foundset get their changes applied you can use $webSocket.addIncomingMessageHandlingDoneTask.
 		 * @param changeListener the listener to register.
+         * @return a listener unregister function
 		 */
-		addChangeListener(changeListener : ChangeListener) : ()=>void;
+		addChangeListener(changeListener : ChangeListener) : () => void;
 		removeChangeListener(changeListener : ChangeListener) : void;
 
 	}
@@ -253,19 +272,19 @@ declare namespace foundsetType {
 	    // value's listeners registered to itself
 	    // NOTE: it might be easier to rely just on a shallow $watch of the foundset value (to catch even the
 	    // null to non-null scenario that you still need) and not use NOTIFY_FULL_VALUE_CHANGED at all
-		fullValueChanged: { oldValue: object, newValue: object },
+		fullValueChanged?: { oldValue: object, newValue: object },
 	 
 	    // the following keys appear if each of these got updated from server; the names of those
 	    // constants suggest what it was that changed; oldValue and newValue are the values for what changed
 	    // (e.g. new server size and old server size) so not the whole foundset property new/old value
-		serverFoundsetSizeChanged: { oldValue: number, newValue: number },
-		hasMoreRowsChanged:  { oldValue: boolean, newValue: boolean },
-		multiSelectChanged:  { oldValue: boolean, newValue: boolean },
-		columnFormatsChanged:  { oldValue: object, newValue: object },
-		sortColumnsChanged:  { oldValue: string, newValue: string },
-		selectedRowIndexesChanged:  { oldValue: number[], newValue: number[] },
-		viewPortStartIndexChanged:  { oldValue: number, newValue: number },
-		viewPortSizeChanged:  { oldValue: number, newValue: number },
+		serverFoundsetSizeChanged?: { oldValue: number, newValue: number },
+		hasMoreRowsChanged?:  { oldValue: boolean, newValue: boolean },
+		multiSelectChanged?:  { oldValue: boolean, newValue: boolean },
+		columnFormatsChanged?:  { oldValue: object, newValue: object },
+		sortColumnsChanged?:  { oldValue: string, newValue: string },
+		selectedRowIndexesChanged?:  { oldValue: number[], newValue: number[] },
+		viewPortStartIndexChanged?:  { oldValue: number, newValue: number },
+		viewPortSizeChanged?:  { oldValue: number, newValue: number },
 	}
 
 } 

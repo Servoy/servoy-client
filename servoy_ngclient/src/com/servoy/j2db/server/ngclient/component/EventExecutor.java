@@ -199,7 +199,8 @@ public class EventExecutor
 					newargs[i] = event;
 				}
 				else
-				{ //try to convert the received arguments
+				{
+					// try to convert the received arguments
 					WebObjectFunctionDefinition propertyDesc = component.getSpecification().getHandler(eventType);
 					List<PropertyDescription> parameters = propertyDesc.getParameters();
 					if (i < parameters.size())

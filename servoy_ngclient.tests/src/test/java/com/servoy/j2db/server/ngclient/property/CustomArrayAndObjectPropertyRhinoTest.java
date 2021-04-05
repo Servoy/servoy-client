@@ -58,7 +58,7 @@ import com.servoy.j2db.server.ngclient.property.types.Types;
  * @author acostescu
  */
 @SuppressWarnings("nls")
-public class CustomArrayAndObjectPropertyRhinoTest
+public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 {
 
 	@Before

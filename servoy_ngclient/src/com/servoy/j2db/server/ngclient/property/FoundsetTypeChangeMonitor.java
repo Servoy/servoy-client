@@ -60,7 +60,7 @@ public class FoundsetTypeChangeMonitor
 
 	protected static final int SEND_HAD_MORE_ROWS = 0b100000000;
 
-	protected static final int SEND_PUSH_TO_SERVER = 0b1000000000;
+	// 0b1000000000 used to be PUSH_TO_SERVER that is now no longer needed/used;
 
 	protected static final int SEND_USER_SET_SELECTION = 0b10000000000;
 
@@ -70,7 +70,7 @@ public class FoundsetTypeChangeMonitor
 
 	protected IChangeListener changeNotifier;
 
-	protected int changeFlags = 0 | SEND_PUSH_TO_SERVER; // we want to automatically send push-to-server value as well the first time we are aware of a foundset (which will call changeNotifier.valueChanged() at that time), because the toTemplate... does not send that to client and is only followed by changesToJSON, not fullToJSON
+	protected int changeFlags = 0;
 	protected List<Pair<Integer, Boolean>> handledRequestIds = new ArrayList<>();
 	protected final FoundsetTypeViewportDataChangeMonitor viewPortDataChangeMonitor;
 	private final List<ViewportDataChangeMonitor< ? >> viewPortDataChangeMonitors = new ArrayList<>();
@@ -479,11 +479,6 @@ public class FoundsetTypeChangeMonitor
 	public boolean shouldSendAll()
 	{
 		return (changeFlags & SEND_ALL) != 0;
-	}
-
-	public boolean shouldSendPushToServer()
-	{
-		return (changeFlags & SEND_PUSH_TO_SERVER) != 0;
 	}
 
 	public boolean shouldSendSelectedIndexes()

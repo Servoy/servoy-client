@@ -42,18 +42,20 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyJSONObject;
 
 /**
- * Currently this type is only used in servoy-extra-components treeview, but in the future
- * it could be used in other places as well. It is also documented on wiki so others might use it too.
+ * This type is helpful for more advanced components like servoy-extra-components treeview or dataset based ng grid.<br/>
+ * It is documented on wiki so others might/will likely use it too.
  *
  * @author acostescu
  */
-public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implements IConvertedPropertyType<IDataSet>
+public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implements IConvertedPropertyType<IDataSet>,
+	IPropertyWithClientSideConversions<IDataSet>
 {
 
 	public static final DatasetPropertyType INSTANCE = new DatasetPropertyType();
 	public static final String TYPE_NAME = "dataset";
 	private static final String VALUE_KEY = "v";
 	private static final String TYPES_KEY = "t";
+	private static final String INCLUDES_COLUMN_NAMES_KEY = "i";
 
 	private DatasetPropertyType()
 	{
@@ -83,12 +85,15 @@ public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implement
 			return writer.value(null);
 		}
 
-		writer.object().key(VALUE_KEY).array();
+		DatasetConfig datasetConfig = (DatasetConfig)propertyDescription.getConfig();
+
+		writer.object();
+		if (datasetConfig.isIncludeColumnNames()) writer.key(INCLUDES_COLUMN_NAMES_KEY).value(true);
+		writer.key(VALUE_KEY).array();
 		HashMap<Integer, EmbeddableJSONWriter> columnTypes = null;
 
 		if (value.getColumnCount() > 0)
 		{
-			DatasetConfig datasetConfig = (DatasetConfig)propertyDescription.getConfig();
 			String[] columnNames = value.getColumnNames();
 
 			if (datasetConfig.isIncludeColumnNames() && columnNames != null)
@@ -130,13 +135,14 @@ public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implement
 						// see if it this type also needs client side conversions
 						if (pd.getType() instanceof IPropertyWithClientSideConversions< ? >) // no use checking here IPropertyConverterForBrowserWithDynamicClientType as dataset won't have those
 						{
-							if (columnTypes == null)
+							if (columnTypes == null || !columnTypes.containsKey(Integer.valueOf(j)))
 							{
-								columnTypes = new HashMap<>();
-							}
-							if (!columnTypes.containsKey(Integer.valueOf(j)))
-							{
-								columnTypes.put(Integer.valueOf(j), JSONUtils.getClientSideTypeJSONString(pd));
+								EmbeddableJSONWriter clientSideType = JSONUtils.getClientSideTypeJSONString(pd);
+								if (clientSideType != null)
+								{
+									if (columnTypes == null) columnTypes = new HashMap<>();
+									columnTypes.put(Integer.valueOf(j), clientSideType);
+								}
 							}
 						}
 					}
@@ -198,4 +204,13 @@ public class DatasetPropertyType extends DefaultPropertyType<IDataSet> implement
 
 		return new DatasetConfig(includeColumnNames, columnTypes);
 	}
+
+	@Override
+	public boolean writeClientSideTypeName(JSONWriter w, String keyToAddTo, PropertyDescription pd)
+	{
+		JSONUtils.addKeyIfPresent(w, keyToAddTo);
+		w.value(TYPE_NAME);
+		return true;
+	}
+
 }

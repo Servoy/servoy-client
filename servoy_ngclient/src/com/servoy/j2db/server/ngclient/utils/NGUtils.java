@@ -203,17 +203,17 @@ public abstract class NGUtils
 
 	/**
 	 * All 3rd party + some of the Servoy services (for example those that are based on bootstrap) should be avoidable when exporting.
-	 * The user might not be using them in the solution and he doesn't want all kinds of libs included that can mess up hist solution's UI.
+	 * The user might not be using them in the solution and he doesn't want all kinds of libs included that can mess up the solution's UI.
 	 */
 	public static WebObjectSpecification[] getAllWebServiceSpecificationsThatCanBeUncheckedAtWarExport(SpecProviderState servicesSpecProviderState)
 	{
 		return getAllWebServiceSpecificationsExcept(servicesSpecProviderState, new String[] { "sablo", "servoyservices" });
 	}
 
-	private static WebObjectSpecification[] getAllWebServiceSpecificationsExcept(SpecProviderState servicesSpecProviderState, String[] ignore)
+	private static WebObjectSpecification[] getAllWebServiceSpecificationsExcept(SpecProviderState servicesSpecProviderState, String[] packagesToIgnore)
 	{
 		ArrayList<WebObjectSpecification> allPublicWebServiceSpecifications = new ArrayList<WebObjectSpecification>();
-		List<String> ignoreList = Arrays.asList(ignore);
+		List<String> ignoreList = Arrays.asList(packagesToIgnore);
 		for (WebObjectSpecification spec : servicesSpecProviderState.getAllWebObjectSpecifications())
 		{
 			if (ignoreList.indexOf(spec.getPackageName()) == -1)

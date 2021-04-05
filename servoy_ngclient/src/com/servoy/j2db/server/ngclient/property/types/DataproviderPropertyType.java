@@ -174,7 +174,7 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 
 			if (jsonValue.getClientSideType() != null)
 			{
-				JSONUtils.writeConvertedValueWithClientType(writer, key, jsonValue.getClientSideType(), () -> {
+				JSONUtils.writeConvertedValueWithClientType(writer, null, jsonValue.getClientSideType(), () -> {
 					writer.value(jsonValue);
 					return null;
 				});

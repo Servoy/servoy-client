@@ -19,15 +19,22 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONString;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.JSONUtils.EmbeddableJSONWriter;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
+import org.sablo.websocket.utils.JSONUtils.IJSONStringWithClientSideType;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
+import org.sablo.websocket.utils.JSONUtils.JSONStringWithClientSideType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
@@ -49,6 +56,8 @@ public class NGConversions
 {
 
 	public static final NGConversions INSTANCE = new NGConversions();
+
+	private static final Logger log = LoggerFactory.getLogger(NGConversions.class.getCanonicalName());
 
 	/**
 	 * Conversion 1 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
@@ -332,11 +341,7 @@ public class NGConversions
 				}
 				else if (value != null)
 				{
-					if (!JSONUtils.defaultToJSONValue(this, writer, key, value, propertyDescription, formElementContext))
-					{
-						JSONUtils.addKeyIfPresent(writer, key);
-						writer.value(value);
-					}
+					JSONUtils.defaultToJSONValue(this, writer, key, value, propertyDescription, formElementContext);
 				} // else we don't write null values by default in the template; they will remain undefined on the client which is ok...
 			}
 			else if (type != null)
@@ -347,6 +352,53 @@ public class NGConversions
 					null); // webObject will always be null - this is template JSON
 			}
 			return writer;
+		}
+
+		@Override
+		public IJSONStringWithClientSideType getConvertedValueWithClientType(Object value, PropertyDescription propertyDescription, FormElementContext context,
+			boolean returnOnlyDynamicTypes)
+		{
+			IPropertyType< ? > type = (propertyDescription != null ? propertyDescription.getType() : null);
+
+			if (value != IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER || type instanceof IFormElementDefaultValueToSabloComponent)
+			{
+				// if it's a IFormElementDefaultValueToSabloComponent that means that it will NOT be using type.defaultValue(propertyDescription) at runtime; so
+				// we don't want it to go on the else branch where it would write type.defaultValue(propertyDescription) toJSON; instead we either write
+				// a null or don't write anything - depending also on if the type is IFormElementToTemplateJSON/ISupportTemplateValue
+
+				Object v = (value == IDesignToFormElement.TYPE_DEFAULT_VALUE_MARKER) ? null : value;
+				if (type instanceof IFormElementToTemplateJSON)
+				{
+					JSONString clientSideConversionType;
+					EmbeddableJSONWriter ejw = new EmbeddableJSONWriter(true); // that 'true' is a workaround for allowing directly a value instead of object or array
+
+					((IFormElementToTemplateJSON)type).toTemplateJSONValue(ejw, null, v, propertyDescription, context);
+
+					if (!returnOnlyDynamicTypes && type instanceof IPropertyWithClientSideConversions)
+					{
+						clientSideConversionType = JSONUtils.getClientSideTypeJSONString(propertyDescription);
+					}
+					else clientSideConversionType = null;
+
+					return ejw.isEmpty() ? null : new JSONStringWithClientSideType(ejw.toJSONString(), clientSideConversionType);
+				}
+				else if (type instanceof ISupportTemplateValue && !((ISupportTemplateValue)type).valueInTemplate(v, propertyDescription, context))
+				{
+					return null;
+				}
+				else if (value != null)
+				{
+					return JSONUtils.getDefaultConvertedValueWithClientType(this, value, propertyDescription, context);
+				} // else we don't write null values by default in the template; they will remain undefined on the client which is ok...
+			}
+			else if (type != null)
+			{
+				// so then this is a default value for that property... that is NON-NULL
+				// use conversion 5.1 to convert from DEFAULT sablo type value to browser JSON in this case
+				return FullValueToJSONConverter.INSTANCE.getConvertedValueWithClientType(type.defaultValue(propertyDescription), propertyDescription, null,
+					returnOnlyDynamicTypes);
+			}
+			return null;
 		}
 	}
 
@@ -454,7 +506,7 @@ public class NGConversions
 		}
 		else
 		{
-			sabloVal = (T)RhinoConversion.defaultFromRhino(rhinoValue, previousComponentValue);
+			sabloVal = (T)RhinoConversion.defaultFromRhino(rhinoValue);
 		}
 		return sabloVal;
 	}

@@ -3,25 +3,34 @@
 
 angular.module('valuelist_property', ['webSocketModule'])
 // Valuelist type -------------------------------------------
-.run(function ($sabloConverters, $sabloUtils, $q, $sabloApplication, $sabloDeferHelper: sablo.ISabloDeferHelper) {
+.run(function ($sabloConverters: sablo.ISabloConverters, $sabloDeferHelper: sablo.ISabloDeferHelper, $typesRegistry: sablo.ITypesRegistry) {
 	var ID_KEY = "id";
 	var VALUE_KEY = "value";
 	var HANDLED = "handledID";
 	var FILTER = "filter";
 	var DISPLAYVALUE = "getDisplayValue";
 
-	$sabloConverters.registerCustomPropertyHandler('valuelist', {
-		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, propertyContext) {
+	$typesRegistry.registerGlobalType('valuelist', {
+		fromServerToClient: function (serverJSONValue: any, currentClientValue: any, componentScope: angular.IScope, propertyContext: sablo.IPropertyContext): any {
+			// TODO it seems that the valuelist type server side never sends type info, just a "...dates" boolean that is used only in NG2 probably not be break things in NG1
+			// (it either writes default to JSON a value in case of a response to 'getDisplayValue' or a full valuelist
+			// generated as java array/map with default to JSON conversion); but it always changes Date to String in
+			// it's impl. before applying default to JSON conversions so no client side type info is needed then; so client side here as well it will not apply
+			// any server-to-client conversion on values, not even for dates - because they are already strings... changing it so that it works properly with
+			// Date conversions to generate actual Date values for entries might break existing components / formatters? though because they now expect strings instead of dates
+			
 			var newValue;
 			if (serverJSONValue) {
 				var deferredValue;
 				var internalState;
-				if ( serverJSONValue.values) {
+				if (serverJSONValue.values) {
 					newValue = serverJSONValue.values;
 					deferredValue = newValue;
 					
-					// because we reuse directly what we get from server serverJSONValue.values and because valuelists can be foundset linked (forFoundset in .spec) but not actually bound to records (for example custom valuelist),
-					// it is possible that foundsetLinked.js generates the whole viewport of the foundset using the same value comming from the server => this conversion will be called multiple times
+					// because we reuse directly what we get from server serverJSONValue.values and because valuelists can
+					// be foundset linked (forFoundset in .spec) but not actually bound to records (for example custom valuelist),
+					// it is possible that foundsetLinked.js generates the whole viewport of the foundset using the same value coming from
+					// the server => this conversion will be called multiple times
 					// with the same serverJSONValue so serverJSONValue.values might already be initialized... so skip it then
 					if (!newValue[$sabloConverters.INTERNAL_IMPL]) {
 						// initialize
@@ -119,7 +128,7 @@ angular.module('valuelist_property', ['webSocketModule'])
 			return newValue;
 		},
 
-		fromClientToServer: function(newClientData, oldClientData) {
+		fromClientToServer: function (newClientData: any, oldClientData: any, scope: angular.IScope, propertyContext: sablo.IPropertyContext): any {
 			if (newClientData) {
 				var newDataInternalState = newClientData[$sabloConverters.INTERNAL_IMPL];
 				if (newDataInternalState.isChanged()) {
@@ -142,5 +151,5 @@ angular.module('valuelist_property', ['webSocketModule'])
 			// nothing to do here
 		}
 		
-	});
+	}, false);
 })

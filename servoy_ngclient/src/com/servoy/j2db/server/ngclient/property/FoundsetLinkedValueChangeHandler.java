@@ -33,6 +33,7 @@ public class FoundsetLinkedValueChangeHandler
 
 	protected List<Runnable> changesWhileUpdatingFoundsetBasedDPFromClient;
 	private final FoundsetTypeSabloValue foundsetPropValue;
+	private boolean restoreSelectionToFoundsetDALWhenApplyFinishes;
 
 	public FoundsetLinkedValueChangeHandler(FoundsetTypeSabloValue foundsetPropValue)
 	{
@@ -74,6 +75,12 @@ public class FoundsetLinkedValueChangeHandler
 		}
 		else
 		{
+			if (restoreSelectionToFoundsetDALWhenApplyFinishes)
+			{
+				restoreSelectionToFoundsetDALWhenApplyFinishes = false;
+				foundsetPropValue.setDataAdapterListToSelectedRecord();
+			}
+
 			if (changesWhileUpdatingFoundsetBasedDPFromClient != null)
 			{
 				for (Runnable r : changesWhileUpdatingFoundsetBasedDPFromClient)
@@ -104,6 +111,16 @@ public class FoundsetLinkedValueChangeHandler
 				}
 			}
 		};
+	}
+
+	protected boolean willRestoreSelectedRecordToFoundsetDALLater()
+	{
+		if (changesWhileUpdatingFoundsetBasedDPFromClient != null)
+		{
+			restoreSelectionToFoundsetDALWhenApplyFinishes = true;
+			return true; // if DP changes are being applied from client, restore foundset selection to FoundsetDAL after all the apply operation finished
+		}
+		return false;
 	}
 
 }

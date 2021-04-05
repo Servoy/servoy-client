@@ -92,7 +92,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	public static final String FORM_FOUNDSET_SELECTOR = "";
 
 	protected static final Logger log = LoggerFactory.getLogger(FoundsetPropertyType.class.getCanonicalName());
-	protected static final String PUSH_TO_SERVER = "w";
 
 	/**
 	 * Column that is always automatically sent for each record in a foundset's viewport. It's value
@@ -533,10 +532,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		destinationJSON.object();
 
 		PushToServerEnum pushToServer = BrowserConverterContext.getPushToServerValue(dataConverterContext);
-		if (pushToServer == PushToServerEnum.shallow || pushToServer == PushToServerEnum.deep)
-		{
-			destinationJSON.key(PUSH_TO_SERVER).value(pushToServer == PushToServerEnum.shallow ? false : true);
-		}
 
 		destinationJSON.key(SERVER_SIZE).value(getFoundset() != null ? getFoundset().getSize() : 0);
 		if (getFoundset() != null) destinationJSON.key(FOUNDSET_ID).value(getFoundset().getID());
@@ -647,16 +642,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				if (!somethingChanged) destinationJSON.object();
 				destinationJSON.key(UPDATE_PREFIX + FOUNDSET_ID).value(getFoundset() != null ? getFoundset().getID() : 0);
 				somethingChanged = true;
-			}
-			if (changeMonitor.shouldSendPushToServer())
-			{
-				PushToServerEnum pushToServer = BrowserConverterContext.getPushToServerValue(dataConverterContext);
-				if (pushToServer == PushToServerEnum.shallow || pushToServer == PushToServerEnum.deep)
-				{
-					if (!somethingChanged) destinationJSON.object();
-					destinationJSON.key(UPDATE_PREFIX + PUSH_TO_SERVER).value(pushToServer == PushToServerEnum.shallow ? false : true);
-					somethingChanged = true;
-				}
 			}
 			if (changeMonitor.shouldSendFoundsetSort())
 			{
@@ -824,13 +809,13 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				}
 
 				w.key(entry.getKey());
-				IJSONStringWithClientSideType jsonValueRepresentationForWrappedValue = JSONUtils.getFullConvertedValueWithClientType(value, pd,
-					browserConverterContext);
+				IJSONStringWithClientSideType jsonValueRepresentationForWrappedValue = JSONUtils.FullValueToJSONConverter.INSTANCE
+					.getConvertedValueWithClientType(value, pd,
+						browserConverterContext, false);
 
-				w.value(jsonValueRepresentationForWrappedValue);
-				if (jsonValueRepresentationForWrappedValue.getClientSideType() != null)
+				w.value(jsonValueRepresentationForWrappedValue); // write it even if it is null
+				if (jsonValueRepresentationForWrappedValue != null && jsonValueRepresentationForWrappedValue.getClientSideType() != null)
 				{
-					// all this reusable thing
 					Pair<String/* forColumn */, JSONString/* type */> cellType = new Pair<>(entry.getKey(),
 						jsonValueRepresentationForWrappedValue.getClientSideType());
 					if (typesOfColumns == null) typesOfColumns = new ArrayList<>();
@@ -1044,6 +1029,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 					}
 					else if (update.has(ViewportDataChangeMonitor.VIEWPORT_CHANGED))
 					{
+						boolean success = false;
 						if (PushToServerEnum.allow.compareTo(pushToServer) <= 0)
 						{
 							// {dataChanged: { ROW_ID_COL_KEY: rowIDValue, dataproviderName: value }}
@@ -1083,6 +1069,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 											try
 											{
 												record.setValue(dataProviderName, value);
+												success = true;
 											}
 											catch (IllegalArgumentException e)
 											{
@@ -1097,7 +1084,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 									finally
 									{
 										// if server denies the new value as invalid and doesn't change it, send it to the client so that it doesn't keep invalid value; the same if for example a double was rounded to an int
-										if (!Utils.equalObjects(record.getValue(dataProviderName), value) ||
+										if (!Utils.equalObjects(record.getValue(dataProviderName), value) || // TODO I think we can also use here !success instead of equalObjects(...)
 											returnValueAdjustedIncommingValueForRow.value.booleanValue())
 										{
 											changeMonitor.recordsUpdated(recordIndex, recordIndex, foundset.getSize(), viewPort,
@@ -1118,6 +1105,12 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 								") that doesn't define a suitable pushToServer value (allow/shallow/deep) tried to modify foundset dataprovider value serverside. Denying and sending back full viewport!");
 							changeMonitor.viewPortCompletelyChanged();
 						}
+
+						if (update.has(ID_KEY))
+						{
+							// it was called from client side public API "updateViewportRecord" that now returns a promise just like many of the other API calls; resolve/reject that
+							changeMonitor.requestIdHandled(update.getInt(ID_KEY), success);
+						} // else it was called from an angular watch - it doesn't have any defers client-side so no ID_KEY for message; no ID to send back then
 					}
 				}
 			}

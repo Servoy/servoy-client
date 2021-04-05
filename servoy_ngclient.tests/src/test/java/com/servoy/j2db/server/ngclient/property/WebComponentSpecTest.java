@@ -54,7 +54,7 @@ import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
  *
  */
 @SuppressWarnings("nls")
-public class WebComponentSpecTest
+public class WebComponentSpecTest extends Log4JToConsoleTest
 {
 
 	@Before

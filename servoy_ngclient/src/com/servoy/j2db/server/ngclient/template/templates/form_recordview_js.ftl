@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 -->
 
-${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$log,$propertyWatchesRegistry,$applicationService,$q,$templateCache,$compile, $uiBlocker) {
+${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$log,$propertyWatchUtils,$applicationService,$q,$templateCache,$compile, $uiBlocker) {
 	if ($log.debugEnabled) $log.debug("svy * ftl; form '${name}' - scope create: " + $scope.$id);
 
 	var beans = {
@@ -33,7 +33,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 	
 	var parentSizes = ${containerSizesString}
 	var formProperties = ${propertiesString}
-	var formState = $servoyInternal.initFormState("${name}", beans, formProperties, $scope, false, parentSizes);
+	var formState = $servoyInternal.initFormState("${name}", beans, beanTypes, formProperties, $scope, false, parentSizes);
 	formState.resolving = true;
 	formState.absoluteLayout = formProperties.absoluteLayout[''];
 	if ($log.debugEnabled) $log.debug("svy * ftl; resolving = true for form = ${name}");
@@ -55,7 +55,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 	$scope.${part.name}Style = ${part.style};
 	</#list>
 
-	var getExecutor = function(beanName,eventType) {
+	var getExecutor = function(beanName, eventType) {
 		var callExecutor = function(args, rowId) {
 			if ($scope.model && $scope.model[beanName])
 			{
@@ -140,12 +140,12 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 		formState.removeWatches(beanNames);
 		if (beanNames) {
 		 	for (var beanName in beanNames) {
-		 		watches[beanName] =	$propertyWatchesRegistry.watchDumbPropertiesForComponent($scope, beanTypes[beanName], $scope.model[beanName], wrapper(beanName));
+		 		watches[beanName] =	$propertyWatchUtils.watchDumbPropertiesForComponent($scope, beanTypes[beanName], $scope.model[beanName], wrapper(beanName));
 			}
 		}
 		else {
 		<#list baseComponents as bc>
-			watches['${bc.name}'] = $propertyWatchesRegistry.watchDumbPropertiesForComponent($scope, beanTypes['${bc.name}'], $scope.model['${bc.name}'], wrapper('${bc.name}'));
+			watches['${bc.name}'] = $propertyWatchUtils.watchDumbPropertiesForComponent($scope, beanTypes['${bc.name}'], $scope.model['${bc.name}'], wrapper('${bc.name}'));
 		</#list>
 		}
 	}

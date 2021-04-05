@@ -18,10 +18,10 @@
 package com.servoy.j2db.server.ngclient.scripting;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
-import org.sablo.BaseWebObject;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
@@ -52,10 +52,10 @@ public class WebServiceFunction extends WebBaseFunction
 	{
 		if (args != null && args.length > 0)
 		{
-			PropertyDescription parameterTypes = BaseWebObject.getParameterTypes(definition);
+			List<PropertyDescription> parameterTypes = definition.getParameters();
 			for (int i = 0; i < args.length; i++)
 			{
-				args[i] = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(args[i], null, parameterTypes.getProperty(Integer.toString(i)),
+				args[i] = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(args[i], null, parameterTypes.get(i),
 					(IWebObjectContext)session.getClientService(serviceName));
 			}
 		}

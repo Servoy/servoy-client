@@ -30,7 +30,7 @@ import org.junit.Test;
  *
  */
 @SuppressWarnings("nls")
-public class ViewportChangeKeeperTest
+public class ViewportChangeKeeperTest extends Log4JToConsoleTest
 {
 
 	private ViewportChangeKeeper changeKeeper;

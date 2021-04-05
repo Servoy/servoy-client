@@ -67,7 +67,7 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 	public Date fromJSON(Object newValue, Date previousValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
-		return fromJSON(newValue, hasNoDateConversion(pd));
+		return fromJSON(newValue, pd == null ? false : hasNoDateConversion(pd));
 	}
 
 	public Date fromJSON(Object newValue, boolean hasNoDateConversion)
@@ -92,6 +92,7 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 	public JSONWriter toJSON(JSONWriter writer, String key, Date value, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
 		throws JSONException
 	{
+		// NOTE: pd and dataConverterContext can be null if call come from 'object' type / JSONUtils.defaultToJSONValue(...) conversions which rely on this Date type
 		JSONUtils.addKeyIfPresent(writer, key);
 		String sDate;
 		OffsetDateTime offsetDT;

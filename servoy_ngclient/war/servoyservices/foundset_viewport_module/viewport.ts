@@ -3,14 +3,14 @@
 
 angular.module('foundset_viewport_module', ['webSocketModule'])
 //Viewport reuse code module -------------------------------------------
-.factory("$viewportModule", function($sabloConverters: sablo.ISabloConverters, $foundsetTypeConstants, $sabloUtils: sablo.ISabloUtils, $typesRegistry: sablo.ITypesRegistryForSabloConverters) {
-	return new ngclient.propertyTypes.ViewportService($sabloConverters, $foundsetTypeConstants, $sabloUtils, $typesRegistry);
+.factory("$viewportModule", function($sabloConverters: sablo.ISabloConverters, $foundsetTypeConstants, $sabloUtils: sablo.ISabloUtils,
+		$typesRegistry: sablo.ITypesRegistryForSabloConverters, $pushToServerUtils: sablo.IPushToServerUtils) {
+	return new ngclient.propertyTypes.ViewportService($sabloConverters, $foundsetTypeConstants, $sabloUtils, $typesRegistry, $pushToServerUtils);
 });
 
 namespace ngclient.propertyTypes {
 	
 	export class ViewportService {
-		private static readonly CONVERSIONS = "viewportConversions"; // data conversion info
 		private static readonly CHANGED_IN_LINKED_PROPERTY = 9;
 		private static readonly DATAPROVIDER_KEY = "dp";
 		private static readonly VALUE_KEY = "value";
@@ -23,26 +23,40 @@ namespace ngclient.propertyTypes {
 		constructor(private readonly sabloConverters: sablo.ISabloConverters,
 				private readonly foundsetTypeConstants,
 				private readonly sabloUtils: sablo.ISabloUtils,
-				private readonly typesRegistry: sablo.ITypesRegistryForSabloConverters) {}
+				private readonly typesRegistry: sablo.ITypesRegistryForSabloConverters,
+				private readonly pushToServerUtils: sablo.IPushToServerUtils) {}
 	
-		private addDataWatchToCell(columnName /*can be null*/, idx, viewPort, internalState, componentScope, dumbWatchType) {
+		private addDataWatchToCell(columnName /*can be null*/, idx, viewPort, internalState: InternalStateForViewport, componentScope: angular.IScope, propertyContext: sablo.IPropertyContext) {
 			if (componentScope) {
-				const queueChange = function queueChange(newData, oldData) {
+                const setChangeNotifierIfSmartProperty = (value: any): boolean => {
+                    if (value && value[this.sabloConverters.INTERNAL_IMPL] && value[this.sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+                        // we don't care to check below for dumbWatchType because some types (see foundset) need to send internal protocol messages even if they are not watched/changeable on server
+                        value[this.sabloConverters.INTERNAL_IMPL].setChangeNotifier(() => {
+                            if (value[this.sabloConverters.INTERNAL_IMPL].isChanged()) queueChange(value, value);
+                        });
+                        return true;
+                    }
+                    return false;
+                }
+            
+				const queueChange = (newData, oldData) => {
 					const r = {};
 	
-					if (angular.isDefined(internalState[this.foundsetTypeConstants.FOR_FOUNDSET_PROPERTY])) {
-						r[this.foundsetTypeConstants.ROW_ID_COL_KEY] = internalState[this.foundsetTypeConstants.FOR_FOUNDSET_PROPERTY]().viewPort.rows[idx][this.foundsetTypeConstants.ROW_ID_COL_KEY];
-					} else r[this.foundsetTypeConstants.ROW_ID_COL_KEY] = viewPort[idx][this.foundsetTypeConstants.ROW_ID_COL_KEY]; // if it doesn't have internalState[this.foundsetTypeConstants.FOR_FOUNDSET_PROPERTY] then it's probably the foundset property's viewport directly which has those in the viewport
+					if (angular.isDefined(internalState.forFoundset)) {
+						r[this.foundsetTypeConstants.ROW_ID_COL_KEY] = internalState.forFoundset().viewPort.rows[idx][this.foundsetTypeConstants.ROW_ID_COL_KEY];
+					} else r[this.foundsetTypeConstants.ROW_ID_COL_KEY] = viewPort[idx][this.foundsetTypeConstants.ROW_ID_COL_KEY];
 					r[ViewportService.DATAPROVIDER_KEY] = columnName;
 					r[ViewportService.VALUE_KEY] = newData;
 	
 					// convert new data if necessary
-					const clientSideTypes = internalState[ViewportService.CONVERSIONS] ? internalState[ViewportService.CONVERSIONS][idx] : undefined;
-					if (clientSideTypes && (!columnName || clientSideTypes[columnName]))
-						r[ViewportService.VALUE_KEY] = this.sabloConverters.convertFromClientToServer(r[ViewportService.VALUE_KEY], columnName ? clientSideTypes[columnName] : clientSideTypes, oldData);
-					else r[ViewportService.VALUE_KEY] = this.sabloUtils.convertClientObject(r[ViewportService.VALUE_KEY]);
+					const clientSideTypes = internalState.viewportTypes ? internalState.viewportTypes[idx] : undefined;
+					const clientSideType = (clientSideTypes ? (columnName ? clientSideTypes[columnName] : clientSideTypes) : undefined); 
+					r[ViewportService.VALUE_KEY] = this.sabloConverters.convertFromClientToServer(r[ViewportService.VALUE_KEY], clientSideType, oldData, componentScope, propertyContext);
+					
+                    // set/update change notifier just in case a new full value was set into a smart property type that needs a changeNotifier for that specific property
+					setChangeNotifierIfSmartProperty(newData);
 	
-					internalState.requests.push({viewportDataChanged: r});
+					internalState.requests.push( { viewportDataChanged: r } );
 					if (internalState.changeNotifier) internalState.changeNotifier();
 				}
 	
@@ -50,30 +64,25 @@ namespace ngclient.propertyTypes {
 					return columnName == null ? viewPort[idx] : viewPort[idx][columnName]
 				}; // viewport row can be just a value or an object of key/value pairs
 	
-				if (getCellValue() && getCellValue()[this.sabloConverters.INTERNAL_IMPL] && getCellValue()[this.sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+				if (setChangeNotifierIfSmartProperty(getCellValue())) {
 					// smart property value
 	
-					// watch for change-by reference if needed
-					if (typeof (dumbWatchType) !== 'undefined') internalState.unwatchData[idx].push(
+            		// watch smart value for change-by reference if needed (if in spec it is either shallow or deep (which would be weird))
+					if (propertyContext.getPushToServerCalculatedValue().value >= this.pushToServerUtils.shallow.value) internalState.unwatchData[idx].push(
 							componentScope.$watch(getCellValue, (newData, oldData) => {
 								if (newData !== oldData) { /* this doesn't seem to work correctly for 2 identical Date objects in Chrome when debugging; but it should */
 									queueChange(newData, oldData);
 								}
 							})
 					);
-	
-					// we don't care to check below for dumbWatchType because some types (see foundset) need to send internal protocol messages even if they are not watched/changeable on server
-					getCellValue()[this.sabloConverters.INTERNAL_IMPL].setChangeNotifier(() => {
-						if (getCellValue()[this.sabloConverters.INTERNAL_IMPL].isChanged()) queueChange(getCellValue(), getCellValue());
-					});
-				} else if (typeof (dumbWatchType) !== 'undefined') {
-					// deep watch for change-by content / dumb value
+				} else if (propertyContext.getPushToServerCalculatedValue().value >= this.pushToServerUtils.shallow.value) {
+					// deep or shallow watch for dumb values
 					internalState.unwatchData[idx].push(
 							componentScope.$watch(getCellValue, (newData, oldData) => {
 								if (newData !== oldData) { /* this doesn't seem to work correctly for 2 identical Date objects in Chrome when debugging; but it should */
 									let changed = false;
 									if (typeof newData == "object") {
-										const clientSideTypes = internalState[ViewportService.CONVERSIONS] ? internalState[ViewportService.CONVERSIONS][idx] : undefined;
+										const clientSideTypes = internalState.viewportTypes ? internalState.viewportTypes[idx] : undefined;
 										if (this.sabloUtils.isChanged(newData, oldData, clientSideTypes ? (columnName ? clientSideTypes[columnName] : clientSideTypes) : undefined)) {
 											changed = true;
 										}
@@ -82,37 +91,33 @@ namespace ngclient.propertyTypes {
 									}
 									if (changed) queueChange(newData, oldData);
 								}
-							}, dumbWatchType)
+							}, propertyContext.getPushToServerCalculatedValue() == this.pushToServerUtils.shallow ? false : true)
 					);
 				}
 			}
 		}
 	
-		// 1. dumbWatchMarkers when simpleRowValue === true means (undefined - no watch needed, true/false - deep/shallow watch)
-		// 2. dumbWatchMarkers when simpleRowValue === false means (undefined - watch all cause there is no marker information,
-		//                                                          { col1: true; col2: false } means watch type needed for each column and no watches for the ones not mentioned,
-		//                                                          true/false directly means deep/shallow watch for all columns)
-		private addDataWatchesToRow(idx, viewPort, internalState, componentScope, simpleRowValue/*not key/value pairs in each row*/, dumbWatchMarkers) {
+		private addDataWatchesToRow(idx, viewPort, internalState: InternalStateForViewport, componentScope: angular.IScope, propertyContextCreator: sablo.IPropertyContextCreator, simpleRowValue/*not key/value pairs in each row*/) {
 			if (!angular.isDefined(internalState.unwatchData)) internalState.unwatchData = {};
 			internalState.unwatchData[idx] = [];
 			if (simpleRowValue) {
-				this.addDataWatchToCell(null, idx, viewPort, internalState, componentScope, dumbWatchMarkers);
+				this.addDataWatchToCell(null, idx, viewPort, internalState, componentScope, propertyContextCreator.withPushToServerFor(undefined));
 			} else {
 				for (const columnName in viewPort[idx]) {
-					if (columnName !== this.foundsetTypeConstants.ROW_ID_COL_KEY) 
-						this.addDataWatchToCell(columnName, idx, viewPort, internalState, componentScope,
-								(typeof dumbWatchMarkers === 'boolean' ? dumbWatchMarkers : (dumbWatchMarkers ? dumbWatchMarkers[columnName] : true)));
+					if (columnName !== this.foundsetTypeConstants.ROW_ID_COL_KEY) {
+						this.addDataWatchToCell(columnName, idx, viewPort, internalState, componentScope, propertyContextCreator.withPushToServerFor(columnName));
+					}
 				}
 			}
 		}
 	
-		public addDataWatchesToRows(viewPort, internalState, componentScope, simpleRowValue/*not key/value pairs in each row*/, dumbWatchMarkers) {
+		public addDataWatchesToRows(viewPort, internalState: InternalStateForViewport, componentScope: angular.IScope, propertyContextCreator: sablo.IPropertyContextCreator, simpleRowValue/*not key/value pairs in each row*/) {
 			for (let i = viewPort.length - 1; i >= 0; i--) {
-				this.addDataWatchesToRow(i, viewPort, internalState, componentScope, simpleRowValue, dumbWatchMarkers);
+				this.addDataWatchesToRow(i, viewPort, internalState, componentScope, propertyContextCreator, simpleRowValue);
 			}
 		}
 	
-		private removeDataWatchesFromRow(idx, internalState) {
+		private removeDataWatchesFromRow(idx, internalState: InternalStateForViewport) {
 			if (internalState.unwatchData && internalState.unwatchData[idx]) {
 				for (let j = internalState.unwatchData[idx].length - 1; j >= 0; j--)
 					internalState.unwatchData[idx][j]();
@@ -120,7 +125,7 @@ namespace ngclient.propertyTypes {
 			}
 		}
 	
-		public removeDataWatchesFromRows(rowCount, internalState) {
+		public removeDataWatchesFromRows(rowCount, internalState: InternalStateForViewport) {
 			for (let i = rowCount - 1; i >= 0; i--) {
 				this.removeDataWatchesFromRow(i, internalState);
 			}
@@ -174,40 +179,44 @@ namespace ngclient.propertyTypes {
 		 * The types are stored at indexes shifted with startIdxInViewportForRowsToBeConverted; old values are taken from the oldViewportRows shifted with the same number. 
 		 * 
 		 * @param rowsToBeConverted the data from server for received rows or row granular updates array.
+         * @param simpleRowValue true if each row in this viewport is a single value and false if each row in this viewport has columns / multiple values
 		 * @return the converted-to-client rows for rowsToBeConverted param; it's actually the same reference as given param - to which any server->client conversions were also applied.
 		 */
-		private expandTypeInfoAndApplyConversions(serverConversionInfo: object, rowsToBeConverted: any[], startIdxInViewportForRowsToBeConverted: number,
-		                             oldViewportRows: any[],  internalState, componentScope: angular.IScope, propertyContext: sablo.IPropertyContext,
-		                             fullRowUpdates: boolean): any[] {
+		private expandTypeInfoAndApplyConversions(serverConversionInfo: object, defaultColumnTypes: sablo.IWebObjectSpecification, rowsToBeConverted: any[],
+		                             startIdxInViewportForRowsToBeConverted: number, oldViewportRows: any[],  internalState: InternalStateForViewport, componentScope: angular.IScope,
+		                             propertyContextCreator: sablo.IPropertyContextCreator, simpleRowValue: boolean, fullRowUpdates: boolean): any[] {
 		                                                                                                                             
 			if (serverConversionInfo && rowsToBeConverted) {
 				rowsToBeConverted.forEach((rowData, index) => {
-					if (rowData instanceof Object) {
-						// with columns; so a foundset prop rows'
-						let rowConversions = (fullRowUpdates || !internalState[ViewportService.CONVERSIONS] ? undefined : internalState[ViewportService.CONVERSIONS][startIdxInViewportForRowsToBeConverted + index]);
-						Object.keys(rowData).forEach(columnName => {
-							let cellConversion = this.getCellTypeFromServer(serverConversionInfo, index, columnName);
-							
-							// ignore null or undefined type of cell; otherwise remember it in expanded
-							if (cellConversion) {
-								if (! rowConversions) rowConversions = {};
-								rowConversions[columnName] = cellConversion;
-							} else if (rowConversions && rowConversions[columnName]) delete rowConversions[columnName];
-
-							rowsToBeConverted[index][columnName] = this.sabloConverters.convertFromServerToClient(rowsToBeConverted[index][columnName],
-									cellConversion,
-									oldViewportRows ? (oldViewportRows[startIdxInViewportForRowsToBeConverted + index] ? (oldViewportRows[startIdxInViewportForRowsToBeConverted + index][columnName]) : undefined) : undefined,
-									componentScope, propertyContext);
-						});
-						if (rowConversions && Object.keys(rowConversions).length == 0) rowConversions = undefined; // in case all conversion infos from one row were deleted due to the update
-						this.updateRowTypes(startIdxInViewportForRowsToBeConverted + index, internalState, rowConversions);
+					if (simpleRowValue) {
+                        // without columns, so a foundset linked prop's rows
+                        let cellConversion = this.getCellTypeFromServer(serverConversionInfo, index); // this is the whole row in this case (only one cell)
+                        // defaultColumnTypes should be null here because it's not a component prop's viewport so no need to check for it
+                        
+                        rowsToBeConverted[index] = this.sabloConverters.convertFromServerToClient(rowsToBeConverted[index],
+                                cellConversion, oldViewportRows ? oldViewportRows[startIdxInViewportForRowsToBeConverted + index] : undefined,
+                                undefined /*dynamic types are already handled via serverConversionInfo here*/, undefined, componentScope, propertyContextCreator.withPushToServerFor(undefined));
+                        this.updateRowTypes(startIdxInViewportForRowsToBeConverted + index, internalState, cellConversion);
 					} else {
-						// without columns, so a foundset linked prop rows'
-						let cellConversion = this.getCellTypeFromServer(serverConversionInfo, index); // this is the whole row in this case (only one cell)
-						
-						rowsToBeConverted[index] = this.sabloConverters.convertFromServerToClient(rowsToBeConverted[index],
-								cellConversion, oldViewportRows ? oldViewportRows[startIdxInViewportForRowsToBeConverted + index] : undefined, componentScope, propertyContext);
-						this.updateRowTypes(startIdxInViewportForRowsToBeConverted + index, internalState, cellConversion);
+                        // with columns; so a foundset prop's rows or a component type prop's rows
+                        let rowConversions = (fullRowUpdates || !internalState.viewportTypes ? undefined : internalState.viewportTypes[startIdxInViewportForRowsToBeConverted + index]);
+                        Object.keys(rowData).forEach(columnName => {
+                            let cellConversion: sablo.IType<any> = this.getCellTypeFromServer(serverConversionInfo, index, columnName);
+                            if (!cellConversion && defaultColumnTypes) cellConversion = defaultColumnTypes.getPropertyType(columnName);
+                            
+                            // ignore null or undefined type of cell; otherwise remember it in expanded
+                            if (cellConversion) {
+                                if (! rowConversions) rowConversions = {};
+                                rowConversions[columnName] = cellConversion;
+                            } else if (rowConversions && rowConversions[columnName]) delete rowConversions[columnName];
+
+                            rowsToBeConverted[index][columnName] = this.sabloConverters.convertFromServerToClient(rowsToBeConverted[index][columnName],
+                                    cellConversion,
+                                    oldViewportRows ? (oldViewportRows[startIdxInViewportForRowsToBeConverted + index] ? (oldViewportRows[startIdxInViewportForRowsToBeConverted + index][columnName]) : undefined) : undefined,
+                                    undefined /*dynamic types are already handled via serverConversionInfo here*/, undefined, componentScope, propertyContextCreator.withPushToServerFor(columnName));
+                        });
+                        if (rowConversions && Object.keys(rowConversions).length == 0) rowConversions = undefined; // in case all conversion infos from one row were deleted due to the update
+                        this.updateRowTypes(startIdxInViewportForRowsToBeConverted + index, internalState, rowConversions);
 					}
 				});
 			}
@@ -215,12 +224,12 @@ namespace ngclient.propertyTypes {
 			return rowsToBeConverted;
 		}
 		
-		private getCellTypeFromServer(serverConversionInfo, rowIndex: number, columnName?) {
+		private getCellTypeFromServer(serverConversionInfo, rowIndex: number, columnName?): sablo.IType<any> {
 			const PROCESSED_CELL_TYPES = "pct"; // just to turn stuff like [{ "_T": "zyx", "i": [2,3] }, {"_T": "xyz", "i": [9] }] into an easier to use { 2: "zyx", 3: "zyx", 9: "xyz" }
 			const mainType = serverConversionInfo[ViewportService.MAIN_TYPE];
 			const columnTypes = serverConversionInfo[ViewportService.COL_TYPES];
 			
-			let cellConversion;
+			let cellConversion: sablo.ITypeFromServer;
 			if (columnTypes) {
 				let colType = (columnName ? columnTypes[columnName] : columnTypes); // foundset (multi col) or foundset linked (single col) data
 				if (colType) {
@@ -241,35 +250,38 @@ namespace ngclient.propertyTypes {
 			
 			if (cellConversion) return this.typesRegistry.getAlreadyRegisteredType(cellConversion);
 			
-			return cellConversion;
+			return undefined;
 		}
 	
 		/**
 		 * @param types can be one IType<?>  or an object of IType<?> for each column on that row.
 		 */
-		private updateRowTypes(idx, internalState, types : sablo.IType<any> | { [ colName: string ]: sablo.IType<any> }) {
-			if (angular.isUndefined(internalState[ViewportService.CONVERSIONS])) {
-				internalState[ViewportService.CONVERSIONS] = {};
+		private updateRowTypes(idx, internalState: InternalStateForViewport, types : sablo.IType<any> | { [ colName: string ]: sablo.IType<any> }) {
+			if (angular.isUndefined(internalState.viewportTypes)) {
+				internalState.viewportTypes = {};
 			}
-			internalState[ViewportService.CONVERSIONS][idx] = types;
+			internalState.viewportTypes[idx] = types;
 		}
 	
 		/**
-		 * I will update the whole viewport. More precisely it will apply all server-to-client conversions directly on given viewPortUpdate param and return it.
-		 * @param viewPort old viewport
+		 * It will update the whole viewport. More precisely it will apply all server-to-client conversions directly on given viewPortUpdate param and return it.
+		 * @param oldViewPort old viewport
 		 * @param viewPortUpdate the whole viewport update value from server
+		 * @param defaultColumnTypes only used for component type viewports - where the default column (component property) types (so non-dynamic types) are already known. All other viewports should give null here.
+		 * @param simpleRowValue true if each row in this viewport is a single value and false if each row in this viewport has columns / multiple values
 		 * 
 		 * @return the given viewPortUpdate with conversions applied to it
 		 */
-		public updateWholeViewport(viewPort: any[], internalState, viewPortUpdate: any[], viewPortUpdateConversions: object, componentScope: angular.IScope, propertyContext: sablo.IPropertyContext): any[] {
+		public updateWholeViewport(oldViewPort: any[], internalState: InternalStateForViewport, viewPortUpdate: any[], viewPortUpdateConversions: object, defaultColumnTypes: sablo.IWebObjectSpecification,
+		                           componentScope: angular.IScope, propertyContextCreator: sablo.IPropertyContextCreator, simpleRowValue: boolean): any[] {
 			// update conversion info; expand what we get from server to be easy to use on client (like main type and main column type from JSON are kept at cell level)
-			internalState[ViewportService.CONVERSIONS] = {};
-			return this.expandTypeInfoAndApplyConversions(viewPortUpdateConversions, viewPortUpdate, 0, viewPort, internalState, componentScope, propertyContext, true);
+			internalState.viewportTypes = {};
+			return this.expandTypeInfoAndApplyConversions(viewPortUpdateConversions, defaultColumnTypes, viewPortUpdate, 0, oldViewPort, internalState, componentScope, propertyContextCreator, simpleRowValue, true);
 		}
 	
 		// see comment above, before updateWholeViewport()
-		public updateViewportGranularly(viewPort: any[], internalState, rowUpdates: any[], componentScope: angular.IScope,
-		         propertyContext: sablo.IPropertyContext, simpleRowValue: boolean/*not key/value pairs in each row*/, rowCreator?: (rawRowData: any) => any) {
+		public updateViewportGranularly(viewPort: any[], internalState: InternalStateForViewport, rowUpdates: any[], defaultColumnTypes: sablo.IWebObjectSpecification, componentScope: angular.IScope,
+		         propertyContext: sablo.IPropertyContextCreator, simpleRowValue: boolean/*not key/value pairs in each row*/, rowCreator?: (rawRowData: any) => any): void {
 			// partial row updates (remove/insert/update)
 	
 			// {
@@ -285,9 +297,9 @@ namespace ngclient.propertyTypes {
 				if (rowUpdate.type == this.foundsetTypeConstants.ROWS_CHANGED) {
 					const wholeRowUpdates = simpleRowValue || rowUpdate.rows[0][this.foundsetTypeConstants.ROW_ID_COL_KEY]; // if the rowUpdate rows contain '_svyRowId' then we know it's the entire/complete row object; same if it's a one value per row (foundset linked)
 					
-					const convertedRowChangeData = this.expandTypeInfoAndApplyConversions(rowUpdate[this.sabloConverters.CONVERSION_CL_SIDE_TYPE_KEY],
+					const convertedRowChangeData = this.expandTypeInfoAndApplyConversions(rowUpdate[this.sabloConverters.CONVERSION_CL_SIDE_TYPE_KEY], defaultColumnTypes,
 							rowUpdate.rows, rowUpdate.startIndex, viewPort, internalState, componentScope, propertyContext,
-							wholeRowUpdates);
+							simpleRowValue, wholeRowUpdates);
 					
 					convertedRowChangeData.forEach((newRowValue, rowUpdateIndex) => {
 						if (wholeRowUpdates) viewPort[rowUpdate.startIndex + rowUpdateIndex] = rowCreator ? rowCreator(newRowValue) : newRowValue;
@@ -300,19 +312,19 @@ namespace ngclient.propertyTypes {
 						}
 					});
 				} else if (rowUpdate.type == this.foundsetTypeConstants.ROWS_INSERTED) {
-					if (internalState[ViewportService.CONVERSIONS]) {
+					if (internalState.viewportTypes) {
 						// shift conversion info of other rows if needed (that is an object with number keys, can't use array splice directly)
 						for (let j = rowUpdate.startIndex; j < viewPort.length; j++)
 						{
-							if (internalState[ViewportService.CONVERSIONS][j]) {
-								internalState[ViewportService.CONVERSIONS][j + rowUpdate.rows.length] = internalState[ViewportService.CONVERSIONS][j];
-								delete internalState[ViewportService.CONVERSIONS][j];
+							if (internalState.viewportTypes[j]) {
+								internalState.viewportTypes[j + rowUpdate.rows.length] = internalState.viewportTypes[j];
+								delete internalState.viewportTypes[j];
 							}
 						}	
 					}
-					const convertedRowChangeData = this.expandTypeInfoAndApplyConversions(rowUpdate[this.sabloConverters.CONVERSION_CL_SIDE_TYPE_KEY],
+					const convertedRowChangeData = this.expandTypeInfoAndApplyConversions(rowUpdate[this.sabloConverters.CONVERSION_CL_SIDE_TYPE_KEY], defaultColumnTypes,
 							rowUpdate.rows, rowUpdate.startIndex, null, internalState, componentScope, propertyContext,
-							true);
+							simpleRowValue, true);
 	
 					if (rowCreator) convertedRowChangeData.forEach((value, index) => convertedRowChangeData[index] = rowCreator(value));
 					viewPort.splice(rowUpdate.startIndex, 0, ...convertedRowChangeData);
@@ -321,17 +333,17 @@ namespace ngclient.propertyTypes {
 					rowUpdate.endIndex = rowUpdate.startIndex + rowUpdate.rows.length - 1; // prepare rowUpdate.endIndex for listener notifications
 				} else if (rowUpdate.type == this.foundsetTypeConstants.ROWS_DELETED) {
 					const oldLength = viewPort.length;
-					if (internalState[ViewportService.CONVERSIONS]) {
+					if (internalState.viewportTypes) {
 						// delete conversion info for deleted rows
 						for (let j = rowUpdate.startIndex; j < oldLength; j++)
 						{
 							if (j + (rowUpdate.endIndex - rowUpdate.startIndex) <  oldLength)
 							{
-								internalState[ViewportService.CONVERSIONS][j] = internalState[ViewportService.CONVERSIONS][j + (rowUpdate.endIndex - rowUpdate.startIndex)]
+								internalState.viewportTypes[j] = internalState.viewportTypes[j + (rowUpdate.endIndex - rowUpdate.startIndex)]
 							}
 							else
 							{
-								delete internalState[ViewportService.CONVERSIONS][j];
+								delete internalState.viewportTypes[j];
 							}
 						}	
 					}
@@ -351,9 +363,9 @@ namespace ngclient.propertyTypes {
 		/**
 		 * This will not remove/add viewport watches (use removeDataWatchesFromRows/addDataWatchesToRows for that) - it will just forward 'updateAngularScope' to viewport values that need it.
 		 */
-		public updateAngularScope(viewPort: any[], internalState, componentScope: angular.IScope, simpleRowValue: boolean/*not key/value pairs in each row*/) {
+		public updateAngularScope(viewPort: any[], internalState: InternalStateForViewport, componentScope: angular.IScope, simpleRowValue: boolean/*not key/value pairs in each row*/) {
 			for (let i = viewPort.length - 1; i >= 0; i--) {
-				const clientSideTypes = internalState[ViewportService.CONVERSIONS] ? internalState[ViewportService.CONVERSIONS][i] : undefined;
+				const clientSideTypes = internalState.viewportTypes ? internalState.viewportTypes[i] : undefined;
 				if (clientSideTypes) {
 					if (simpleRowValue) {
 						(<sablo.IType<any>>clientSideTypes).updateAngularScope(viewPort[i], componentScope);
@@ -366,7 +378,66 @@ namespace ngclient.propertyTypes {
 				}
 			}
 		}
+		
+		public getClientSideTypeFor(rowId: any, columnName: string, internalState: InternalStateForViewport, viewPortRowsInCaseCallerIsActualFoundsetProp?: any[]): sablo.IType<any> {
+			// find the index for this rowId
+			let idx = -1;
+			if (angular.isDefined(internalState[this.foundsetTypeConstants.FOR_FOUNDSET_PROPERTY])) {
+				idx = internalState[this.foundsetTypeConstants.FOR_FOUNDSET_PROPERTY]().viewPort.rows.findIndex((val: any) => {
+					return val[this.foundsetTypeConstants.ROW_ID_COL_KEY] == rowId;
+				});
+			} else {
+				// if it doesn't have internalState[this.foundsetTypeConstants.FOR_FOUNDSET_PROPERTY] then it's probably the foundset property's viewport directly which has those in the viewport
+				idx = viewPortRowsInCaseCallerIsActualFoundsetProp.findIndex((val: any) => {
+					return val[this.foundsetTypeConstants.ROW_ID_COL_KEY] == rowId;
+				});
+			}
+			
+			let clientSideType:sablo.IType<any> = undefined;
+			if (idx >= 0) {
+				const clientSideTypes = internalState.viewportTypes ? internalState.viewportTypes[idx] : undefined;
+				if (clientSideTypes && (!columnName || clientSideTypes[columnName]))
+					clientSideType = <sablo.IType<any>> (columnName ? clientSideTypes[columnName] : clientSideTypes);
+			}
+			return clientSideType;
+		}
 	
 	}
+	
+	// this class if currently copied over to all places where it needs to be implemented to avoid load order problems with js file that could happen on ng1 (like foundset or component type files being loaded in browser before viewport => runtime error because this class could not be found)
+    // make sure you keep all the copies in sync	
+	// ng2 will be smarter about load order and doesn't have to worry about this
+	abstract class InternalStateForViewport implements sablo.ISmartPropInternalState {
+        forFoundset?: () => FoundsetValue;
+        
+        viewportTypes: any; // TODO type this
+        unwatchData: { [idx: number]: Array<() => void> };
+        
+        requests: Array<any> = [];
+        
+        // inherited from sablo.ISmartPropInternalState
+        changeNotifier: () => void;
+        
+        
+        constructor(public readonly webSocket: sablo.IWebSocket,
+                        public readonly componentScope: angular.IScope, public readonly changeListeners: Array<(values: any) => void> = []) {}
+        
+        setChangeNotifier(changeNotifier: () => void): void {
+            this.changeNotifier = changeNotifier;
+        }
+         
+        isChanged(): boolean {
+            return this.requests && (this.requests.length > 0);
+        }
+        
+        fireChanges(changes: any) {
+            for (let i = 0; i < this.changeListeners.length; i++) {
+                this.webSocket.setIMHDTScopeHintInternal(this.componentScope);
+                this.changeListeners[i](changes);
+                this.webSocket.setIMHDTScopeHintInternal(undefined);
+            }
+        }
+
+    }
 	
 }

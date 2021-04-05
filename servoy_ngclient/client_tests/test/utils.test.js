@@ -4,7 +4,9 @@
 
 describe('servoy $utils', function() {
 
-  beforeEach(module('servoy'));
+  beforeEach(function() {
+    module('servoy');
+  })
 
   describe("test attach handler", function() {
 	  	var called = {};

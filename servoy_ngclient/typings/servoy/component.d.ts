@@ -31,7 +31,7 @@ declare namespace componentType {
 	    // the following keys appear if each of these got updated from server; the names of those
 	    // constants suggest what it was that changed; oldValue and newValue are the values for what changed
 	    // (e.g. new server size and old server size) so not the whole foundset property new/old value
-		viewportRowsCompletelyChanged:  { oldValue: number, newValue: number },
+		viewportRowsCompletelyChanged?:  { oldValue: number, newValue: number },
 	 
 	    // if we received add/remove/change operations on a set of rows from the viewport, this key
 	    // will be set; as seen below, it contains "updates" which is an array that holds a sequence of
@@ -40,7 +40,7 @@ declare namespace componentType {
 	    // all the "startIndex" and "endIndex" values below are relative to the viewport's state after all
 	    // previous updates in the array were already processed (so they are NOT relative to the initial state);
 	    // indexes are 0 based
-		viewportRowsUpdated: { updates: ViewportRowUpdates, oldViewportSize: number }
+		viewportRowsUpdated?: { updates: ViewportRowUpdates, oldViewportSize: number }
 	}
 	
 	type ViewportRowUpdate = RowsChanged | RowsInserted | RowsDeleted;

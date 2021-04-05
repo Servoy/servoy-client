@@ -21,7 +21,6 @@ import java.util.Collection;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
 
@@ -49,37 +48,20 @@ public class FormElementContext
 
 	public String getPropertiesString() throws JSONException
 	{
-		String designString = formElement.propertiesAsTemplateJSON(null, this).toString();
+		String propertyValuesString = formElement.propertiesAsTemplateJSON(null, this).toString(); // initially template/design property values
 		if (object != null)
 		{
-			JSONObject designValues = new JSONObject(designString);
+			JSONObject propertyValues = new JSONObject(propertyValuesString);
 
+			// on top of template values add the runtime values (which do overwrite the design ones) as now we are sending both together; historically they were separated in an attempt to cache the template ones but that caused problems/flickers
 			for (String key : object.keySet())
 			{
-				if (JSONUtils.TYPES_KEY.equals(key))
-				{
-					// don't override conversions entirely cause template json might have values that are not in initialData and those might need conversion info
-					JSONObject initialDataConversions = object.getJSONObject(JSONUtils.TYPES_KEY);
-					JSONObject designConversions = designValues.optJSONObject(JSONUtils.TYPES_KEY);
-					if (designConversions == null) designValues.put(JSONUtils.TYPES_KEY, initialDataConversions);
-					else
-					{
-						// merge conversions as well
-						for (String conversionKey : initialDataConversions.keySet())
-						{
-							designConversions.put(conversionKey, initialDataConversions.get(conversionKey));
-						}
-					}
-				}
-				else
-				{
-					// put 'initial' value instead of design value
-					designValues.put(key, object.get(key));
-				}
+				// put 'initial' runtime value instead of design/template value
+				propertyValues.put(key, object.get(key));
 			}
-			designString = designValues.toString();
+			propertyValuesString = propertyValues.toString();
 		}
-		return designString;
+		return propertyValuesString;
 	}
 
 	public String getTypeName()

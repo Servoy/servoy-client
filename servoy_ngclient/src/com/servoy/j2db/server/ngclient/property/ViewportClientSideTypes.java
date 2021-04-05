@@ -176,7 +176,7 @@ public class ViewportClientSideTypes
 	 *  "mT": "date",
 	 *  "cT": {
 	 *     "b": { "_T": null},
-	 *     "c": {`
+	 *     "c": {
 	 *         "eT":
 	 *           [
 	 *             { "_T": null, "i": [4] },
@@ -213,8 +213,10 @@ public class ViewportClientSideTypes
 			EmbeddableJSONWriter cellTypesWriter = new EmbeddableJSONWriter(true);
 			if (columnTypesEntry.getValue().size() > 0)
 			{
-				Entry<String, List<Integer>> columnMainTypeWinnerEntry = null; // appeared most times in viewport cells
+				Entry<String, List<Integer>> columnMainTypeWinnerEntry = null; // appeared most times in column cells
 				boolean cellTypesWritten = false;
+
+				// for each type present in a column see how many indexes it has; write the one that will not be the main col type to JSON
 				for (Entry<String, List<Integer>> columnTypeEntry : columnTypesEntry.getValue().entrySet())
 				{
 					Entry<String, List<Integer>> colTypeToWrite = null;
@@ -259,7 +261,7 @@ public class ViewportClientSideTypes
 			columnTypesEntry.getValue().clear(); // just to help GC
 		}
 
-		// now we know column main types is any; see which one appears most often
+		// now we know column main types; see which one appears most often
 		Entry<String, Integer> mainTypeWinnerEntry = null; // appeared most times in column main types
 		for (Entry<String, Integer> typeCounterEntry : colMainTypeCounter.entrySet())
 		{

@@ -130,7 +130,7 @@ public class ViewportClientSideTypesTests
 		expected.object().key(ViewportClientSideTypes.MAIN_TYPE).value(null).key(ViewportClientSideTypes.COL_TYPES).object().key("a").object().key(
 			JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value("date").endObject().endObject().endObject();
 
-		// {"mT":"date","cT":{"b":{"mT":null}}}
+		// {"mT":"null","cT":{"a":{"_T":"date"}}}
 		JSONAssert.assertEquals(
 			"Main type and b or a column main type expected:\n" + expected.toJSONString() + "\nActual:\n" + jsonTypes + "\n\nJSONAssert explanation:\n",
 			expected.toJSONString(), jsonTypes, JSONCompareMode.NON_EXTENSIBLE);
@@ -172,7 +172,6 @@ public class ViewportClientSideTypesTests
 			.endObject().endObject();
 		// @formatter:on
 
-		hmmAICIEOPROBLEMaCuCodulNouTrebuieVazutDacaMaxColoanaEsteMainSauAltcevaSiAtunciMaiAreSensMainTypePeViewportAsaCumEImplementatOare();
 		JSONAssert.assertEquals(
 			"Mixed types with first cell being main type. Expected:\n" + expected.toJSONString() + "\nActual:\n" + jsonTypes + "\n\nJSONAssert explanation:\n",
 			expected.toJSONString(), jsonTypes, JSONCompareMode.NON_EXTENSIBLE);

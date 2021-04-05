@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.json.JSONObject;
 import org.sablo.WebComponent;
-import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.persistence.Form;
@@ -71,15 +70,6 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 		{
 			String componentProps = NGUtils.formComponentPropertiesToString(formUI, FullValueToJSONConverter.INSTANCE);
 			runtimeProperties = new JSONObject(componentProps);
-			JSONObject conversions = runtimeProperties.optJSONObject(JSONUtils.TYPES_KEY);
-			if (conversions != null)
-			{
-				for (String elementName : conversions.keySet())
-				{
-					JSONObject jsonObject = runtimeProperties.getJSONObject(elementName);
-					jsonObject.put(JSONUtils.TYPES_KEY, conversions.getJSONObject(elementName));
-				}
-			}
 		}
 		else runtimeProperties = null;
 	}

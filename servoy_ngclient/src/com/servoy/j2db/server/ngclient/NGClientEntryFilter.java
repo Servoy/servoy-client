@@ -46,7 +46,6 @@ import org.sablo.IContributionEntryFilter;
 import org.sablo.IndexPageEnhancer;
 import org.sablo.WebEntry;
 import org.sablo.security.ContentSecurityPolicyConfig;
-import org.sablo.services.template.ModifiablePropertiesGenerator;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.util.HTTPUtils;
 import org.sablo.websocket.IWebsocketSessionFactory;
@@ -126,6 +125,12 @@ public class NGClientEntryFilter extends WebEntry
 		"sablo/js/websocket.js", //
 		"sablo/js/sablo_app.js", //
 		"sablo/js/types_registry.js", //
+
+		"sablo/types/array.js", //
+		"sablo/types/customJSONObject.js", //
+		"sablo/types/date.js", //
+		"sablo/types/objectType.js", //
+
 		"sablo/sabloService.js" };
 	public static final String[] INDEX_SERVOY_JS = { //
 		"js/servoy.js", //
@@ -372,8 +377,7 @@ public class NGClientEntryFilter extends WebEntry
 				}
 			}
 
-			if (!uri.contains(ModifiablePropertiesGenerator.PUSH_TO_SERVER_BINDINGS_LIST))
-				Debug.log("No solution found for this request, calling the default filter: " + uri);
+			Debug.log("No solution found for this request, calling the default filter: " + uri);
 			super.doFilter(servletRequest, servletResponse, filterChain, null, null, null, null, null);
 		}
 		catch (RuntimeException | Error e)

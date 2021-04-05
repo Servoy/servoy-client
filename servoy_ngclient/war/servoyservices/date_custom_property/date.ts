@@ -1,13 +1,13 @@
 angular.module('date_custom_property', ['webSocketModule'])
-// Valuelist type -------------------------------------------
-.run(function ($sabloConverters, $sabloUtils, $q, $sabloTestability,$sabloApplication) {
-	var dateConverter =  {
-			fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, propertyContext) {
+// Date type -------------------------------------------
+.run(function ($typesRegistry: sablo.ITypesRegistry) {
+	var dateType: sablo.IType<Date> =  {
+			fromServerToClient: function (serverJSONValue: any, currentClientValue: Date, componentScope: angular.IScope, propertyContext: sablo.IPropertyContext): Date {
 				var dateObj = moment(serverJSONValue).toDate();
 				return dateObj;
 			},
 
-			fromClientToServer: function(newClientData, oldClientData) {
+			fromClientToServer: function (newClientData: Date, oldClientData: Date, scope: angular.IScope, propertyContext: sablo.IPropertyContext): any {
 				if (!newClientData) return null;
 
 				var r = newClientData;
@@ -16,12 +16,13 @@ angular.module('date_custom_property', ['webSocketModule'])
 				return moment(r).format();
 			},
 			
-			updateAngularScope: function(clientValue, componentScope) {
+			updateAngularScope: function (clientValue: Date, componentScope: angular.IScope): void {
 				// nothing to do here
 			}
 			
 		}
-	$sabloConverters.registerCustomPropertyHandler('svy_date',dateConverter);
+	
+	$typesRegistry.registerGlobalType('svy_date', dateType, false);
 	// also set the default conversion (overwrite it)
-	$sabloConverters.registerCustomPropertyHandler('Date',dateConverter);
+	$typesRegistry.registerGlobalType('Date', dateType, false);
 })

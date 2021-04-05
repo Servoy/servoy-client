@@ -425,88 +425,99 @@ public class NGFormServiceHandler extends FormServiceHandler
 
 							// find spec for method
 							WebObjectSpecification componentSpec = webComponent.getSpecification();
-							WebObjectFunctionDefinition functionSpec = (componentSpec != null ? componentSpec.getInternalApiFunction(componentMethodName)
-								: null);
+							WebObjectFunctionDefinition functionSpec = (componentSpec != null ? componentSpec.getInternalApiFunction(componentMethodName) : null);
 							if (functionSpec == null)
 							{
 								functionSpec = (componentSpec != null ? componentSpec.getApiFunction(componentMethodName) : null);
 							}
 
-							if (!runtimeComponent.getComponent().isVisible() || !form.getController().isFormVisible())
+							if (functionSpec == null)
 							{
-								List<String> allowAccessProperties = null;
-								if (functionSpec != null)
+								log.warn("trying to call a function that does not exist in .spec of component '" +
+									webComponent.getName() + " with spec name: " + (componentSpec != null ? componentSpec.getName() : null));
+								throw new RuntimeException("trying to call a function that does not exist in .spec of component '" +
+									webComponent.getName() + " with spec name: " + (componentSpec != null ? componentSpec.getName() : null));
+							}
+							else
+							{
+								if (!runtimeComponent.getComponent().isVisible() || !form.getController().isFormVisible())
 								{
-									String allowAccess = functionSpec.getAllowAccess();
-									if (allowAccess != null)
+									List<String> allowAccessProperties = null;
+									if (functionSpec != null)
 									{
-										allowAccessProperties = Arrays.asList(allowAccess.split(","));
-									}
-								}
-
-								if (!runtimeComponent.getComponent().isVisible())
-								{
-									boolean allowAccessComponentVisibility = false;
-									if (allowAccessProperties != null)
-									{
-										for (String p : allowAccessProperties)
+										String allowAccess = functionSpec.getAllowAccess();
+										if (allowAccess != null)
 										{
-											allowAccessComponentVisibility = allowAccessComponentVisibility ||
-												runtimeComponent.getComponent().isVisibilityProperty(p);
+											allowAccessProperties = Arrays.asList(allowAccess.split(","));
 										}
 									}
 
-									if (!allowAccessComponentVisibility)
+									if (!runtimeComponent.getComponent().isVisible())
 									{
-										Debug.warn(
-											"callServerSideApi called on a none visible component: " + runtimeComponent + " call stopped, returning null");
-										return null;
+										boolean allowAccessComponentVisibility = false;
+										if (allowAccessProperties != null)
+										{
+											for (String p : allowAccessProperties)
+											{
+												allowAccessComponentVisibility = allowAccessComponentVisibility ||
+													runtimeComponent.getComponent().isVisibilityProperty(p);
+											}
+										}
+
+										if (!allowAccessComponentVisibility)
+										{
+											log.warn(
+												"callServerSideApi called on a none visible component: " + runtimeComponent + " call stopped, returning null");
+											return null; // TODO shouldn't we throw an exception here as well so that the client-side promise for this server side call would be rejected, not resolved?
+										}
+									}
+									else
+									{
+										if (allowAccessProperties == null || allowAccessProperties.indexOf("visible") == -1)
+										{
+											log.warn("callServerSideApi called on a none visible form: " + formName + " call stopped, returning null");
+											return null; // TODO shouldn't we throw an exception here as well so that the client-side promise for this server side call would be rejected, not resolved?
+										}
 									}
 								}
-								else
+
+								List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
+
+								// apply conversion
+								Object[] arrayOfJavaConvertedMethodArgs = new Object[methodArguments.length()];
+								for (int i = 0; i < methodArguments.length(); i++)
 								{
-									if (allowAccessProperties == null || allowAccessProperties.indexOf("visible") == -1)
-									{
-										Debug.warn("callServerSideApi called on a none visible form: " + formName + " call stopped, returning null");
-										return null;
-									}
+									arrayOfJavaConvertedMethodArgs[i] = JSONUtils.fromJSON(null, methodArguments.get(i),
+										(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null,
+										new BrowserConverterContext(webComponent, PushToServerEnum.allow), new ValueReference<Boolean>(false));
 								}
+
+								Object retVal = runtimeComponent.executeScopeFunction(functionSpec, arrayOfJavaConvertedMethodArgs);
+
+								if (functionSpec != null && functionSpec.getReturnType() != null)
+								{
+									retVal = new TypedData<Object>(retVal, functionSpec.getReturnType()); // this means that when this return value is sent to client it will be converted to browser JSON correctly - if we give it the type
+								}
+								return retVal;
 							}
-
-							List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
-
-							// apply conversion
-							Object[] arrayOfJavaConvertedMethodArgs = new Object[methodArguments.length()];
-							for (int i = 0; i < methodArguments.length(); i++)
-							{
-								arrayOfJavaConvertedMethodArgs[i] = JSONUtils.fromJSON(null, methodArguments.get(i),
-									(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null,
-									new BrowserConverterContext(webComponent, PushToServerEnum.allow), new ValueReference<Boolean>(false));
-							}
-
-							Object retVal = runtimeComponent.executeScopeFunction(functionSpec, arrayOfJavaConvertedMethodArgs);
-
-							if (functionSpec != null && functionSpec.getReturnType() != null)
-							{
-								retVal = new TypedData<Object>(retVal, functionSpec.getReturnType()); // this means that when this return value is sent to client it will be converted to browser JSON correctly - if we give it the type
-							}
-							return retVal;
 						}
 						else
 						{
 							log.warn("callServerSideApi for unknown bean '" + args.getString("beanname") + "' of form '" + formName + "'");
+							throw new RuntimeException("callServerSideApi for unknown bean '" + args.getString("beanname") + "' of form '" + formName + "'");
 						}
 					}
 					else
 					{
 						log.warn("callServerSideApi for unknown bean '" + args.getString("beanname") + "' of form '" + formName + "'");
+						throw new RuntimeException("callServerSideApi for unknown bean '" + args.getString("beanname") + "' of form '" + formName + "'");
 					}
 				}
 				else
 				{
 					log.warn("callServerSideApi for unknown form '" + formName + "'");
+					throw new RuntimeException("callServerSideApi for unknown form '" + formName + "'");
 				}
-				break;
 			}
 
 			case "performFind" :

@@ -17,6 +17,7 @@ module.exports = function(config) {
 
 			// sablo scripts
 			'sablo/META-INF/resources/sablo/js/*.js', /* use this when running from Git */
+			'sablo/META-INF/resources/sablo/types/*.js', /* use this when running from Git */
 			'sablo/META-INF/resources/sablo/*.js', /* use this when running from Git */
 
 			// ngclient scripts
@@ -30,19 +31,17 @@ module.exports = function(config) {
 			// components
 			'../war/servoydefault/*/*.js',
 			'../war/servoydefault/*/*/*.js',
-			'../war/servoyservices/component_custom_property/*.js',
-			'../war/servoyservices/custom_json_array_property/*.js',
-			'../war/servoyservices/custom_json_object_property/*.js',
-			'../war/servoyservices/foundset_linked_property/*.js',
-			'../war/servoyservices/foundset_custom_property/*.js',
 			'../war/servoyservices/foundset_viewport_module/*.js',
+			'../war/servoyservices/foundset_custom_property/*.js',
+			'../war/servoyservices/foundset_linked_property/*.js',
+			'../war/servoyservices/component_custom_property/*.js',
 
 			// templates
 			'../war/servoycore/**/*.html',
 			'../war/servoydefault/**/*.html',
 
 			// tests
-			'test/**/*.js'
+            'test/**/*.js'
 		],
 		exclude: [
 			'../war/servoycore/**/*_server.js',
@@ -60,7 +59,7 @@ module.exports = function(config) {
 			},
 		},
 
-		frameworks: ['jasmine'],
+		frameworks: ['es6-shim', 'jasmine'], // es6-shim is for polyfilling PhantomJS Map constructor - which is not there by default
 		client: {
 			jasmine: { random: false }
 		},

@@ -96,7 +96,8 @@ public class TabPanelTest extends AbstractSolutionTest
 		jsonWriter.endObject();
 
 		Assert.assertEquals(new JSONObject(
-			"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"tabpanel\":{\"enabled\":true,\"tabs\":{\"vEr\":3,\"v\":[{\"vEr\":3,\"v\":{\"relationName\":\"-1\",\"active\":true,\"disabled\":false,\"text\":\"tab1\",\"containsFormId\":\"f2\"},\"w\":false},{\"vEr\":3,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab2\",\"containsFormId\":\"f3\"},\"w\":false},{\"vEr\":3,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab3\",\"containsFormId\":\"f4\"},\"w\":false}],\"w\":false},\"svyMarkupId\":\"554517c05b68828168c38c67974bf993\"}}").toString(),
+			"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"tabpanel\":{\"enabled\":true,\"tabs\":{\"vEr\":3,\"v\":[{\"vEr\":3,\"v\":{\"relationName\":\"-1\",\"active\":true,\"disabled\":false,\"text\":\"tab1\",\"containsFormId\":\"f2\"}},{\"vEr\":3,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab2\",\"containsFormId\":\"f3\"}},{\"vEr\":3,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab3\",\"containsFormId\":\"f4\"}}]},\"svyMarkupId\":\"554517c05b68828168c38c67974bf993\"}}")
+				.toString(),
 			new JSONObject(stringWriter.toString()).toString());
 		webComponent.setProperty("tabIndex", "tab2");
 
@@ -107,7 +108,8 @@ public class TabPanelTest extends AbstractSolutionTest
 		jsonWriter.endObject();
 
 		Assert.assertEquals(new JSONObject(
-			"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"tabpanel\":{\"enabled\":true,\"tabs\":{\"vEr\":4,\"v\":[{\"vEr\":4,\"v\":{\"relationName\":\"-1\",\"active\":true,\"disabled\":false,\"text\":\"tab1\",\"containsFormId\":\"f2\"},\"w\":false},{\"vEr\":4,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab2\",\"containsFormId\":\"f3\"},\"w\":false},{\"vEr\":4,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab3\",\"containsFormId\":\"f4\"},\"w\":false}],\"w\":false},\"svyMarkupId\":\"554517c05b68828168c38c67974bf993\",\"tabIndex\":\"tab2\"}}").toString(),
+			"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"tabpanel\":{\"enabled\":true,\"tabs\":{\"vEr\":4,\"v\":[{\"vEr\":4,\"v\":{\"relationName\":\"-1\",\"active\":true,\"disabled\":false,\"text\":\"tab1\",\"containsFormId\":\"f2\"}},{\"vEr\":4,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab2\",\"containsFormId\":\"f3\"}},{\"vEr\":4,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab3\",\"containsFormId\":\"f4\"}}]},\"svyMarkupId\":\"554517c05b68828168c38c67974bf993\",\"tabIndex\":\"tab2\"}}")
+				.toString(),
 			new JSONObject(stringWriter.toString()).toString());
 
 		webComponent.setProperty("tabIndex", Integer.valueOf(3));
@@ -119,7 +121,8 @@ public class TabPanelTest extends AbstractSolutionTest
 		jsonWriter.endObject();
 
 		Assert.assertEquals(new JSONObject(
-			"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"tabpanel\":{\"enabled\":true,\"tabs\":{\"vEr\":5,\"v\":[{\"vEr\":5,\"v\":{\"relationName\":\"-1\",\"active\":true,\"disabled\":false,\"text\":\"tab1\",\"containsFormId\":\"f2\"},\"w\":false},{\"vEr\":5,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab2\",\"containsFormId\":\"f3\"},\"w\":false},{\"vEr\":5,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab3\",\"containsFormId\":\"f4\"},\"w\":false}],\"w\":false},\"svyMarkupId\":\"554517c05b68828168c38c67974bf993\",\"tabIndex\":3}}").toString(),
+			"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"tabpanel\":{\"enabled\":true,\"tabs\":{\"vEr\":5,\"v\":[{\"vEr\":5,\"v\":{\"relationName\":\"-1\",\"active\":true,\"disabled\":false,\"text\":\"tab1\",\"containsFormId\":\"f2\"}},{\"vEr\":5,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab2\",\"containsFormId\":\"f3\"}},{\"vEr\":5,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab3\",\"containsFormId\":\"f4\"}}]},\"svyMarkupId\":\"554517c05b68828168c38c67974bf993\",\"tabIndex\":3}}")
+				.toString(),
 			new JSONObject(stringWriter.toString()).toString());
 	}
 }

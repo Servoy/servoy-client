@@ -550,7 +550,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 				handledIDForResponse = null;
 			}
 			writer.key(DISPLAYVALUE);
-			JSONUtils.toBrowserJSONFullValue(writer, null, displayValue, null, clientConversionsInsideValuelist, dataConverterContext);
+			JSONUtils.toBrowserJSONFullValue(writer, null, (displayValue instanceof Date) ? convertDate(displayValue) : displayValue, null,
+				dataConverterContext);
 			writer.endObject();
 
 			displayValue = NULL_VALUE;

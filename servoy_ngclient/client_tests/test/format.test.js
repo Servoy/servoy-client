@@ -6,7 +6,6 @@ describe('servoy $formatUtils', function() {
 
   beforeEach(function() {
     module('servoy');
-    angular.module('pushToServerData', ['pushToServer']);
   });
 
   describe("format numbers", function() {

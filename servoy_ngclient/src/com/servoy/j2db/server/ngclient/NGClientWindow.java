@@ -26,10 +26,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeoutException;
 
+import org.json.JSONString;
 import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.eventthread.EventDispatcher;
-import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.BaseWindow;
@@ -37,6 +37,9 @@ import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IToJSONWriter;
 import org.sablo.websocket.IWebsocketEndpoint;
+import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.JSONUtils.EmbeddableJSONWriter;
+import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,11 +154,11 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	}
 
 	@Override
-	protected Object invokeApi(WebComponent receiver, WebObjectFunctionDefinition apiFunction, Object[] arguments, PropertyDescription argumentTypes,
-		Map<String, Object> callContributions)
+	protected Object invokeApi(WebComponent receiver, WebObjectFunctionDefinition apiFunction, Object[] arguments,
+		Map<String, JSONString> callContributions)
 	{
-		Map<String, Object> call = new HashMap<>();
-		if (callContributions != null) call.putAll(callContributions);
+		Map<String, JSONString> newCallContributions = new HashMap<>();
+		if (callContributions != null) newCallContributions.putAll(callContributions); // probably always null
 
 		IWebFormUI formUI = receiver.findParent(IWebFormUI.class);
 		IWebFormController form = getSession().getClient().getFormManager().getForm(formUI.getName());
@@ -174,7 +177,12 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		if (receiver instanceof WebFormComponent && ((WebFormComponent)receiver).getComponentContext() != null)
 		{
 			ComponentContext componentContext = ((WebFormComponent)receiver).getComponentContext();
-			call.put("propertyPath", componentContext.getPropertyPath());
+
+			// write the path to JSON
+			EmbeddableJSONWriter ejw = new JSONUtils.EmbeddableJSONWriter(true);
+			JSONUtils.defaultToJSONValue(FullValueToJSONConverter.INSTANCE, ejw, null, componentContext.getPropertyPath(), null, null);
+
+			newCallContributions.put("propertyPath", ejw);
 		}
 
 		Pair<UUID, UUID> perfId = getClient().onStartSubAction(receiver.getSpecification().getName(), apiFunction.getName(), apiFunction, arguments);
@@ -182,7 +190,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		try
 		{
 			// actual call
-			return super.invokeApi(receiver, apiFunction, arguments, argumentTypes, call);
+			return super.invokeApi(receiver, apiFunction, arguments, newCallContributions);
 		}
 		finally
 		{

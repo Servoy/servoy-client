@@ -131,7 +131,7 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 	@Override
 	// @formatter:off
 	public JSONWriter toJSON(JSONWriter writer, String key, FormatTypeSabloValue formatValue,
-		PropertyDescription pdd/* if this arg is needed in the future please also handle it in foundset property type! that uses null */,
+		PropertyDescription ppdd/* if this arg is needed in the future please also handle it in foundset property type! that uses null */,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	// @formatter:on
 	{

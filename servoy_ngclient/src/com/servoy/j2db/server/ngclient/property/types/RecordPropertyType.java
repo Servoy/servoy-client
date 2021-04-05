@@ -26,6 +26,7 @@ import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -43,8 +44,9 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  *
  */
-public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInternal>
-	implements IClassPropertyType<IRecordInternal>, IFormElementToTemplateJSON<IRecordInternal, IRecordInternal>
+public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInternal> implements
+	IClassPropertyType<IRecordInternal>, IFormElementToTemplateJSON<IRecordInternal, IRecordInternal>,
+	IPropertyWithClientSideConversions<IRecordInternal>
 {
 	public static final RecordPropertyType INSTANCE = new RecordPropertyType();
 	public static final String TYPE_NAME = "record"; //$NON-NLS-1$
@@ -131,10 +133,20 @@ public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInterna
 	}
 
 	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, IRecordInternal formElementValue, PropertyDescription pd, FormElementContext formElementContext)
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, IRecordInternal formElementValue, PropertyDescription pd,
+		FormElementContext formElementContext)
 		throws JSONException
 	{
 		if (formElementValue == null) return writer;
 		return toJSON(writer, key, formElementValue, pd, null);
 	}
+
+	@Override
+	public boolean writeClientSideTypeName(JSONWriter w, String keyToAddTo, PropertyDescription pd)
+	{
+		JSONUtils.addKeyIfPresent(w, keyToAddTo);
+		w.value(TYPE_NAME);
+		return true;
+	}
+
 }

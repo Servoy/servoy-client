@@ -13,7 +13,6 @@ module.exports = function(config) {
 //    config.browsers =['Firefox'];
     
     for (let i = 1; i < config.files.length; i++) {
-    	if (config.files[i] == 'sablo/META-INF/resources/sablo/js/*.js') config.files[i] ='../../../sablo/sablo/META-INF/resources/sablo/js/*.js'
-    	else if (config.files[i] == 'sablo/META-INF/resources/sablo/*.js') config.files[i] ='../../../sablo/sablo/META-INF/resources/sablo/*.js';
+        config.files[i] = config.files[i].replace('sablo/META-INF', '../../../sablo/sablo/META-INF');
     }
 }

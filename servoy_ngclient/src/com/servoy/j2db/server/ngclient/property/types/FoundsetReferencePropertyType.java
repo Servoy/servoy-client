@@ -25,6 +25,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -44,7 +45,8 @@ import com.servoy.j2db.util.Debug;
  */
 @SuppressWarnings("nls")
 public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundSetInternal, Integer> implements IPropertyConverterForBrowser<IFoundSetInternal>,
-	IClassPropertyType<IFoundSetInternal>, IRhinoToSabloComponent<IFoundSetInternal>, ISabloComponentToRhino<IFoundSetInternal>
+	IClassPropertyType<IFoundSetInternal>, IRhinoToSabloComponent<IFoundSetInternal>, ISabloComponentToRhino<IFoundSetInternal>,
+	IPropertyWithClientSideConversions<IFoundSetInternal>
 {
 
 	public static final FoundsetReferencePropertyType INSTANCE = new FoundsetReferencePropertyType();
@@ -138,6 +140,14 @@ public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundS
 			return (IFoundSetInternal)value;
 		}
 		return null;
+	}
+
+	@Override
+	public boolean writeClientSideTypeName(JSONWriter w, String keyToAddTo, PropertyDescription pd)
+	{
+		JSONUtils.addKeyIfPresent(w, keyToAddTo);
+		w.value(TYPE_NAME);
+		return true;
 	}
 
 }

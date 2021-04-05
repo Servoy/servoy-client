@@ -46,8 +46,6 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.DatePropertyType;
-import org.sablo.specification.property.types.DoublePropertyType;
-import org.sablo.specification.property.types.IntPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
@@ -684,9 +682,11 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 		else if (typeOfDP != null && !valuelistDisplayValue)
 		{
-			jsonValueRepresentation = JSONUtils.getFullConvertedValueWithClientType(uiValue, typeOfDP, dataConverterContext);
+			jsonValueRepresentation = JSONUtils.FullValueToJSONConverter.INSTANCE.getConvertedValueWithClientType(uiValue, typeOfDP, dataConverterContext,
+				false);
 
-			if (jsonValueRepresentation.toJSONString() == null || jsonValueRepresentation.toJSONString().trim().length() == 0)
+			if (jsonValueRepresentation == null || jsonValueRepresentation.toJSONString() == null ||
+				jsonValueRepresentation.toJSONString().trim().length() == 0)
 			{
 				Debug.error("A dataprovider that is not able to send itself to client... (" + typeOfDP + ", " + uiValue + ")");
 				jsonValueRepresentation = new JSONStringWithClientSideType("null", null);
@@ -697,35 +697,49 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			valuelistDisplayType == IColumnTypes.NUMBER ||
 			valuelistDisplayType == IColumnTypes.MEDIA) && !(uiValue instanceof String)) // I think the !(uiValue instanceof String) is needed because sometimes (table based valuelist with table level column format on display DP) a format is already applied to the display value; TODO use always an unformatted display value and give via the format property the correct format (either column level for display DP or a specific one set on the property)
 		{
-			EmbeddableJSONWriter ejw = new EmbeddableJSONWriter(true); // that 'true' is a workaround for allowing directly a value instead of object or array
-			DataConversion jsonDataConversion = new DataConversion();
+			PropertyDescription pdToUse = null;
 
+
+			// FIXME: don't we have to check more here when choosing the correct PropertyDescription for converting the display value?
+			// for example what if this dataprovider has a format which says "use local date"? shouldn't we then choose NGUtils.LOCAL_DATE_DATAPROVIDER_CACHED_PD instead?
+			// why don't we do here instead of all the ifs just
+			// NGUtils.getDataProviderPropertyDescription(valuelistDisplayType, getDataProviderConfig().hasParseHtml(),
+			//                                                fieldFormat != null ? fieldFormat.parsedFormat.useLocalDateTime() : false);
 			if (valuelistDisplayType == IColumnTypes.DATETIME)
 			{
-				NGDatePropertyType.NG_INSTANCE.toJSON(ejw, null, (Date)uiValue, null, jsonDataConversion, dataConverterContext);
+				pdToUse = NGUtils.DATE_DATAPROVIDER_CACHED_PD;
 			}
 			else if (valuelistDisplayType == IColumnTypes.INTEGER)
 			{
-				IntPropertyType.INSTANCE.toJSON(ejw, null, (Integer)uiValue, null, jsonDataConversion, dataConverterContext);
+				pdToUse = NGUtils.INTEGER_DATAPROVIDER_CACHED_PD;
 			}
 			else if (valuelistDisplayType == IColumnTypes.NUMBER)
 			{
-				DoublePropertyType.INSTANCE.toJSON(ejw, null, (Number)uiValue, null, jsonDataConversion, dataConverterContext);
+				pdToUse = NGUtils.NUMBER_DATAPROVIDER_CACHED_PD;
 			}
 			else if (valuelistDisplayType == IColumnTypes.MEDIA)
 			{
-				MediaDataproviderPropertyType.INSTANCE.toJSON(ejw, null, uiValue, null, jsonDataConversion, dataConverterContext);
+				pdToUse = NGUtils.MEDIA_PERMISIVE_DATAPROVIDER_NO_PARSE_HTML_CACHED_PD;
 			}
 
-			if (jsonDataConversion.getConversions().size() == 0) jsonDataConversion = null;
-			String str = ejw.toJSONString();
-			if (str == null || str.trim().length() == 0)
+			if (pdToUse == null)
 			{
 				Debug
 					.error("A dataprovider with resolveValuelist that is not able to send itself to client... (" + valuelistDisplayType + ", " + uiValue + ")");
-				str = "null";
+				jsonValueRepresentation = new JSONStringWithClientSideType("null");
 			}
-			jsonValueRepresentation = new JSONStringWithConversions(str, jsonDataConversion);
+			else
+			{
+				jsonValueRepresentation = JSONUtils.FullValueToJSONConverter.INSTANCE.getConvertedValueWithClientType(uiValue, pdToUse, dataConverterContext,
+					false);
+
+				if (jsonValueRepresentation == null || jsonValueRepresentation.toJSONString() == null ||
+					jsonValueRepresentation.toJSONString().trim().length() == 0)
+				{
+					Debug.error("A dataprovider (vl. display) that is not able to send itself to client... (" + typeOfDP + ", " + uiValue + ")");
+					jsonValueRepresentation = new JSONStringWithClientSideType("null", null);
+				}
+			}
 		}
 		else
 		{

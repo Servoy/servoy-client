@@ -35,26 +35,51 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 	
 }]).factory('$servoyInternal', function ($rootScope: angular.IRootScopeService, webStorage, $anchorConstants, $webSocket: sablo.IWebSocket, $q:angular.IQService,
 		$solutionSettings:servoy.SolutionSettings, $window: angular.IWindowService, $sabloConverters:sablo.ISabloConverters,
-		$sabloUtils:sablo.ISabloUtils, $sabloApplication: sablo.ISabloApplication, $utils,$foundsetTypeConstants,$log: angular.ILogService, clientdesign) {
-	function getComponentChanges(now, prev, componentSpecName, beanLayout, parentSize, property, beanModel,useAnchoring,formname) {
-		var changes = $sabloApplication.getComponentChanges(now, prev, componentSpecName, parentSize, property)
+		$sabloUtils:sablo.ISabloUtils, $sabloApplication: sablo.ISabloApplication, $utils,$foundsetTypeConstants,$log: angular.ILogService, clientdesign,
+		$typesRegistry: sablo.ITypesRegistry, $pushToServerUtils: sablo.IPushToServerUtils) {
+	
+	function getAllChanges(now: object, prev: object, dynamicTypes: object, beanLayout, parentSize, beanModel, useAnchoring, formname,
+	                       scope: angular.IScope, propertyContextCreator: sablo.IPropertyContextCreator): any {
+		var changes = $sabloApplication.getAllChanges(now, prev, dynamicTypes, scope, propertyContextCreator);
 		// TODO: visibility must be based on properties of type visible, not on property name
 		if (changes.location || changes.size || changes.visible || changes.anchors) {
 			if (beanLayout) {
-				applyBeanLayout(beanModel, beanLayout, changes, parentSize, false,useAnchoring,formname);
+				applyBeanLayout(beanModel, beanLayout, changes, parentSize, false, useAnchoring, formname);
 			}
 		}
 		return changes;
 	}
-	function sendChanges(now, prev, formname, beanname, property) {
+
+	function sendChanges(now, prev, formname, beanname, propertyName) {
 		$sabloApplication.getFormStateWithData(formname).then(function (formState) {
-			var beanConversionInfo = $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formname, beanname);
-			var changes = getComponentChanges(now, prev, beanConversionInfo, formState.layout[beanname], formState.properties.designSize, property, formState.model[beanname], !formState.properties.useCssPosition[beanname], formname);
+			var dynamicTypes = $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesDynamicClientSideTypes(), formname, beanname);
+			
+			const formScope = formState.getScope();
+			const componentModel = formState.model[beanname];
+			const componentSpecification = $typesRegistry.getComponentSpecification(formState.componentSpecNames[beanname]);
+			const propertyContextCreator: sablo.IPropertyContextCreator = $pushToServerUtils.newRootPropertyContextCreator(
+					(propertyName: string) => { return componentModel ? componentModel[propertyName] : undefined },
+					componentSpecification); 
+
+			var changes;
+			var propertyType: sablo.IType<any>;
+			if (angular.isDefined(propertyName)) {
+				// a component property; get it's type (either static or dynamic)
+				propertyType = dynamicTypes[propertyName]; // try dynamic types for non-viewport props.
+				if (!propertyType) { // try static types for props.
+					propertyType = componentSpecification?.getPropertyType(propertyName);
+				}
+				changes = $sabloApplication.getComponentPropertyChange(now, prev, propertyType, propertyName, formScope,
+				            propertyContextCreator.withPushToServerFor(propertyName), $sabloApplication.getChangeNotifierGenerator(formname, beanname));
+			} else changes = getAllChanges(now, prev, dynamicTypes, formState.layout[beanname], formState.properties.designSize, formState.model[beanname],
+					!formState.properties.useCssPosition[beanname], formname, formScope, propertyContextCreator); // probably for a form's own properties
+
+			
 			if (Object.getOwnPropertyNames(changes).length > 0) {
 				// if this is a simple property change without any special conversions then then push the old value.
-				if (angular.isDefined(property) && !(beanConversionInfo && beanConversionInfo[property])) {
-					var oldvalues ={};
-					oldvalues[property] = $sabloUtils.convertClientObject(prev)
+				if (angular.isDefined(propertyName) && !propertyType) {
+					var oldvalues = {};
+					oldvalues[propertyName] = $sabloConverters.convertFromClientToServer(prev, undefined, undefined, formScope, propertyContextCreator.withPushToServerFor(propertyName)); // just for any default conversions
 					$sabloApplication.callService('formService', 'dataPush', {formname:formname,beanname:beanname,changes:changes,oldvalues:oldvalues}, true)
 				}
 				else {
@@ -64,13 +89,15 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		})
 	}
 	
-	function applyBeanData(beanModel, beanLayout, beanData, containerSize, changeNotifierGenerator, componentSpecName: string, componentScope,useAnchoring,formname) {
-		$sabloApplication.applyBeanData(beanModel, beanData, containerSize, changeNotifierGenerator, componentSpecName, componentScope);
+	function applyBeanData(beanModel, beanLayout, beanData, containerSize, changeNotifierGenerator, componentSpecName: string, dynamicPropertyTypesHolder: object,
+	                       componentScope, useAnchoring, formname) {
+		$sabloApplication.applyBeanData(beanModel, beanData, containerSize, changeNotifierGenerator, componentSpecName, dynamicPropertyTypesHolder, componentScope);
 		applyBeanLayout(beanModel, beanLayout, beanData, containerSize, true, useAnchoring, formname);
 	}
 
 	function applyBeanLayout(beanModel, beanLayout, beanData, containerSize, isApplyBeanData, useAnchoring, formname) {
 		if (!beanLayout) return;
+		
 		var runtimeChanges = !isApplyBeanData && ( beanData.size != undefined || beanData.location != undefined );
 		//beanData.anchors means anchors changed or must be initialized
 		if (!clientdesign.isFormInDesign(formname) && (beanData.anchors || runtimeChanges) && useAnchoring && containerSize && $solutionSettings.enableAnchoring) {
@@ -209,18 +236,18 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			
 		}
 		var wsSession = $sabloApplication.connect('/solutions/'+$solutionSettings.solutionName, {solution:$solutionSettings.solutionName}, recordingPrefix)
-		wsSession.onMessageObject(function (msg, conversionInfo, scopesToDigest) {
+		wsSession.onMessageObject(function (msg, scopesToDigest) {
 			// data got back from the server
 			for(var formname in msg.forms) {
 				// current model
 				var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formname);
 				if (typeof(formState) == 'undefined') {
 					// if the form is not yet on the client ,wait for it and then apply it
-					$sabloApplication.getFormState(formname).then(getFormMessageHandler(formname, msg, conversionInfo), 
+					$sabloApplication.getFormState(formname).then(getFormMessageHandler(formname, msg), 
 							function(err) { $log.error("Error getting form state (svy) when trying to handle msg. from server: " + err); });
 				}
 				else {
-					getFormMessageHandler(formname, msg, conversionInfo)(formState);
+					getFormMessageHandler(formname, msg)(formState);
 					if (formState.getScope) {
 						// hack: if default navigator data is coming in, rootscope should be applied 
 						if (msg.forms[formname]["svy_default_navigator"]) {
@@ -272,7 +299,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				}
 			}
 
-			function getFormMessageHandler(formname, msg, conversionInfo) {
+			function getFormMessageHandler(formname, msg) {
 				return function (formState) {
 					var formModel = formState.model;
 					var layout = formState.layout;
@@ -362,13 +389,12 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		connect: connect,
 		// used by custom property component[] to implement nested component logic
 		applyBeanData: applyBeanData,
-		getComponentChanges: getComponentChanges,
 
-		initFormState: function(formName, beanDatas, formProperties, formScope, resolve, parentSizes) {
+		initFormState: function(formName: string, beanDatas, componentSpecNames: { [componentName: string]: string }, formProperties, formScope, resolve, parentSizes) {
 
 			var hasFormState = $sabloApplication.hasFormState(formName);
 
-			var state = $sabloApplication.initFormState(formName, beanDatas, formProperties, formScope,resolve);
+			var state = $sabloApplication.initFormState(formName, beanDatas, componentSpecNames, formProperties, formScope,resolve);
 
 			if (state) {
 				if (!hasFormState) {
@@ -392,7 +418,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					}	
 					state.style = formStyle;
 
-					if(formProperties.addMinSize)
+					if (formProperties.addMinSize)
 					{
 						state.style.minWidth = formProperties.size.width + "px";
 						state.style.minHeight = formProperties.size.height + "px";
@@ -403,10 +429,11 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						// initialize with design data
 						if (formProperties.absoluteLayout[''] || formProperties.absoluteLayout[beanName]) layout[beanName] = { position: 'absolute' }
 
-						var newBeanConversionInfo = beanDatas[beanName][$sabloConverters.TYPES_KEY];
-						var beanConversionInfo = newBeanConversionInfo ? $sabloUtils.getOrCreateInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName) : $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formName, beanName);
+						var dynamicPropertyTypesHolderForBean = $sabloUtils.getOrCreateInDepthProperty($sabloApplication.getFormStatesDynamicClientSideTypes(), formName, beanName);
 
-						applyBeanData(state.model[beanName], layout[beanName], beanDatas[beanName],parentSizes && parentSizes[beanName] ? parentSizes[beanName] : formProperties.designSize, $sabloApplication.getChangeNotifierGenerator(formName, beanName), beanConversionInfo, newBeanConversionInfo, formScope,!formProperties.useCssPosition[beanName], formName)
+						applyBeanData(state.model[beanName], layout[beanName], beanDatas[beanName], parentSizes && parentSizes[beanName] ? parentSizes[beanName] : formProperties.designSize,
+								$sabloApplication.getChangeNotifierGenerator(formName, beanName), componentSpecNames[beanName], dynamicPropertyTypesHolderForBean,
+								formScope, !formProperties.useCssPosition[beanName], formName)
 					}
 				} else {
 					// already initialized in the past; just make sure 'smart' properties use the correct (new) scope
@@ -432,12 +459,20 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		sendChanges: sendChanges,
 		
 		callServerSideApi: function(formname, beanname, methodName, args) {
-			// it would be nice to know here the argument and return types; for now just do default conversion (so that dates & types that use $sabloUtils.DEFAULT_CONVERSION_TO_SERVER_FUNC work correctly)
+			// see if args and/or return value need client side conversions
+			const formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formname);
+			const componentSpec: sablo.IWebObjectSpecification = $typesRegistry.getComponentSpecification(formState.componentSpecNames[beanname]);
+			const apiSpec = componentSpec?.getApiFunction(methodName);
+			
 			if (args && args.length) for (var i = 0; i < args.length; i++) {
-				args[i] = $sabloUtils.convertClientObject(args[i]); // TODO should be $sabloConverters.convertFromClientToServer(now, beanConversionInfo[property] ?, undefined);
+				args[i] = $sabloConverters.convertFromClientToServer(args[i], apiSpec?.getArgumentType(i), undefined, undefined, $sabloUtils.PROPERTY_CONTEXT_FOR_OUTGOING_ARGS_AND_RETURN_VALUES);
 			}
 
 			return $sabloApplication.callService('formService', 'callServerSideApi', {formname:formname,beanname:beanname,methodName:methodName,args:args})
+						.then(function successCallback(serviceCallResult) {
+							return $sabloConverters.convertFromServerToClient(serviceCallResult, apiSpec?.returnType,
+							         undefined, undefined, undefined, null, $sabloUtils.PROPERTY_CONTEXT_FOR_INCOMMING_ARGS_AND_RETURN_VALUES);
+						});
 		},
 		
 		pushEditingStarted: function(formName, beanName, propertyName) {
@@ -456,23 +491,36 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		},
 
 		pushDPChange: function(formname, beanname, property) {
-			var formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formname);
-			var changes = {};
+			const formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formname);
+			let changes = {};
+			const componentSpecification = $typesRegistry.getComponentSpecification(formState.componentSpecNames[beanname]);
 
-			var formStatesConversionInfo = $sabloApplication.getFormStatesConversionInfo();
-			var conversionInfo = (formStatesConversionInfo[formname] ? formStatesConversionInfo[formname][beanname] : undefined);
-			var fslRowID = null;
-			if (conversionInfo && conversionInfo[property]) {
+			let typeOfDP = $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesDynamicClientSideTypes(), formname, beanname, property); // try to get dynamic client side type if set
+			if (!typeOfDP) {
+				typeOfDP = componentSpecification?.getPropertyType(property);
+			}
+
+			let fslRowID = null;
+			if (typeOfDP) {
 				// I think this never happens currently
-				changes[property] = $sabloConverters.convertFromClientToServer(formState.model[beanname][property], conversionInfo[property], undefined);
+				const formScope = formState.getScope();
+				const componentModel = formState.model[beanname];
+				const propertyContext: sablo.IPropertyContext = {
+				    getProperty: (propertyName: string) => { return componentModel ? componentModel[propertyName] : undefined },
+					getPushToServerCalculatedValue : () => {
+						return componentSpecification ? componentSpecification.getPropertyPushToServer(property) : $pushToServerUtils.reject;
+					}
+				};
+				changes[property] = $sabloConverters.convertFromClientToServer(formState.model[beanname][property], typeOfDP, undefined, formScope, propertyContext);
 			} else {
 				var dpValue = null;
 
 				if (property.indexOf('.') > 0 || property.indexOf('[') > 0) {
-					// TODO this is a big hack - it would be nicer in the future if we have type info for all properties on the client and move
+					// TODO this is a big hack - it would be nicer in the future if we move
 					// internal states out of the values of the properties and into a separate locations (so that we can have internal states even for primitive dataprovider types)
 					// to have DP types register themselves to the apply() and startEdit() and do the apply/startEdit completely through the property itself (send property updates);
 					// then we can get rid of all the custom apply code on server as well as all this pushDPChange on client
+					// Without this . and [ impl, it could go though custom array/custom object/fs linked... property types instead? that are aware of types and push-to-server for the prop. path
 					
 					// nested property; get the value correctly
 					dpValue = eval('formState.model[beanname].' + property)
@@ -487,7 +535,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					dpValue = formState.model[beanname][property];
 				}
 				
-				changes[property] = $sabloUtils.convertClientObject(dpValue);
+				changes[property] = $sabloConverters.convertFromClientToServer(dpValue, undefined, undefined, undefined, undefined); // apply default conversion if needed as we don't know client side type for props nested with . and [
 			}
 			
 			var dpChange = {formname: formname, beanname: beanname, property: property, changes: changes};
