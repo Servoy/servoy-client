@@ -355,6 +355,11 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				writer.key(key);
 				writer.value(value);
 			});
+			if (layoutContainer.getName() != null)
+			{
+				writer.key("name");
+				writer.value(formUI.getName() + "_" + layoutContainer.getName());
+			}
 			writer.endObject();
 			writer.key("children");
 			writer.array();
