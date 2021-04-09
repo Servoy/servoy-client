@@ -22,6 +22,8 @@ import java.util.WeakHashMap;
 
 import javax.swing.event.SwingPropertyChangeSupport;
 
+import org.slf4j.MDC;
+
 public class J2DBGlobals
 {
 	private static final ThreadLocal<IServiceProvider> serviceprovider = new ThreadLocal<IServiceProvider>();
@@ -40,7 +42,7 @@ public class J2DBGlobals
 		J2DBGlobals.singletonServiceProvider = serviceprovider;
 		return old;
 	}
-	
+
 	public static IServiceProvider getThreadServiceProvider()
 	{
 		return serviceprovider.get();
@@ -55,6 +57,14 @@ public class J2DBGlobals
 	public static void setServiceProvider(IServiceProvider provider)
 	{
 		serviceprovider.set(provider);
+		if (provider == null)
+		{
+			MDC.remove("clientLoggingId");
+		}
+		else
+		{
+			MDC.put("clientLoggingId", provider.getClientID());
+		}
 	}
 
 	public static IServiceProvider getServiceProvider()
@@ -69,11 +79,11 @@ public class J2DBGlobals
 
 	/**
 	 * synchronized not needed SwingPropertyChangeSupport is thread safe
-	 * 
+	 *
 	 * Supports reporting bound property changes. If <code>oldValue</code> and <code>newValue</code> are not equal and the <code>PropertyChangeEvent</code>
 	 * listener list isn't empty, then fire a <code>PropertyChange</code> event to each listener. This method has an overloaded method for each primitive
 	 * type. For example, here's how to write a bound property set method whose value is an integer:
-	 * 
+	 *
 	 * <pre>
 	 * public void setFoo(int newValue)
 	 * {
@@ -82,7 +92,7 @@ public class J2DBGlobals
 	 * 	firePropertyChange(&quot;foo&quot;, oldValue, newValue);
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * @param propertyName the programmatic name of the property that was changed
 	 * @param oldValue the old value of the property (as an Object)
 	 * @param newValue the new value of the property (as an Object)
@@ -106,7 +116,7 @@ public class J2DBGlobals
 	 * <p>
 	 * Note that if the current component is inheriting its foreground, background, or font from its container, then no event will be fired in response to a
 	 * change in the inherited property.
-	 * 
+	 *
 	 * @param listener the <code>PropertyChangeListener</code> to be added
 	 */
 	public static synchronized void addPropertyChangeListener(Object src, PropertyChangeListener listener)
@@ -126,7 +136,7 @@ public class J2DBGlobals
 	 * names that specific property.
 	 * <p>
 	 * If listener is <code>null</code>, no exception is thrown and no action is performed.
-	 * 
+	 *
 	 * @param propertyName the name of the property to listen on
 	 * @param listener the <code>PropertyChangeListener</code> to be added
 	 */
@@ -148,7 +158,7 @@ public class J2DBGlobals
 	/**
 	 * Removes a <code>PropertyChangeListener</code> from the listener list. This removes a <code>PropertyChangeListener</code> that was registered for all
 	 * properties.
-	 * 
+	 *
 	 * @param listener the <code>PropertyChangeListener</code> to be removed
 	 */
 	public static synchronized void removePropertyChangeListener(Object src, PropertyChangeListener listener)
@@ -157,7 +167,7 @@ public class J2DBGlobals
 		if (changeSupport != null)
 		{
 			changeSupport.removePropertyChangeListener(listener);
-//DISABLED:for 1.4			
+//DISABLED:for 1.4
 //			if (changeSupport.getPropertyChangeListeners().length == 0)
 //			{
 //				changeSupportMap.remove(changeSupport);
@@ -173,7 +183,7 @@ public class J2DBGlobals
 	/**
 	 * Removes a <code>PropertyChangeListener</code> for a specific property. If listener is <code>null</code>, no exception is thrown and no action is
 	 * performed.
-	 * 
+	 *
 	 * @param propertyName the name of the property that was listened on
 	 * @param listener the <code>PropertyChangeListener</code> to be removed
 	 */
