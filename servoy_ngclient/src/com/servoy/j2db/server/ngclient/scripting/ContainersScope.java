@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.scripting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -27,12 +28,18 @@ import java.util.Set;
 
 import org.mozilla.javascript.Scriptable;
 import org.sablo.specification.PackageSpecification;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebLayoutSpecification;
+import org.sablo.specification.WebObjectSpecification;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.LayoutContainer;
+import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.server.ngclient.IWebFormController;
+import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -52,17 +59,18 @@ public class ContainersScope implements Scriptable
 	{
 		super();
 		this.fc = fc;
-		fillNames(fc.getForm().getLayoutContainers(), namesToLayout);
+		fillNames(fc.getForm().getLayoutContainers(), namesToLayout, fc.getApplication().getFlattenedSolution());
+		findFormComponentContainers(fc.getForm().getWebComponents(), namesToLayout, fc.getApplication().getFlattenedSolution());
 	}
 
-	public static Set<String> getAllLayoutNames(Form form)
+	public static Set<String> getAllLayoutNames(Form form, FlattenedSolution fs)
 	{
 		Map<String, List<String>> names = new HashMap<>();
-		fillNames(form.getLayoutContainers(), names);
+		fillNames(form.getLayoutContainers(), names, fs);
 		return names.keySet();
 	}
 
-	private static void fillNames(Iterator<LayoutContainer> iterator, Map<String, List<String>> namesToLayout)
+	private static void fillNames(Iterator<LayoutContainer> iterator, Map<String, List<String>> namesToLayout, FlattenedSolution fs)
 	{
 		while (iterator.hasNext())
 		{
@@ -95,7 +103,30 @@ public class ContainersScope implements Scriptable
 						"Couldn't register form container '" + lc.getName() + "' to the 'containers' because spec '" + lc.getPackageName() + "' not found");
 				}
 			}
-			fillNames(lc.getLayoutContainers(), namesToLayout);
+			fillNames(lc.getLayoutContainers(), namesToLayout, fs);
+			findFormComponentContainers(lc.getWebComponents(), namesToLayout, fs);
+		}
+	}
+
+	private static void findFormComponentContainers(Iterator<WebComponent> components, Map<String, List<String>> namesToLayout, FlattenedSolution fs)
+	{
+		while (components.hasNext())
+		{
+			WebComponent component = components.next();
+			String typeName = (String)component.getProperty(IContentSpecConstants.PROPERTY_TYPENAME);
+			WebComponentSpecProvider.getInstance();
+			WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(typeName);
+			Collection<PropertyDescription> pd = spec.getProperties(FormComponentPropertyType.INSTANCE);
+			if (pd != null && !pd.isEmpty())
+			{
+				PropertyDescription prop = pd.iterator().next();
+				Object val = component.getProperty(prop.getName());
+				Form fcomp = FormComponentPropertyType.INSTANCE.getForm(val, fs);
+				if (fcomp.isResponsiveLayout())
+				{
+					fillNames(fcomp.getLayoutContainers(), namesToLayout, fs);
+				}
+			}
 		}
 	}
 
