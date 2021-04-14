@@ -142,9 +142,6 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 		Scriptable newObject = DefaultScope.newObject(startScriptable);
 		WebFormComponent webFormComponent = (WebFormComponent)componentOrService;
 		FlattenedSolution fs = webFormComponent.getDataConverterContext().getSolution();
-		Form form = getForm(webComponentValue, fs);
-		if (form == null) return null;
-		// TODO return here a NativeScriptable object that understand the full hiearchy?
 		FormComponentCache cache = null;
 		if (webComponentValue instanceof FormComponentSabloValue)
 		{
@@ -152,6 +149,9 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 		}
 		else
 		{
+			Form form = getForm(webComponentValue, fs);
+			if (form == null) return null;
+			// TODO return here a NativeScriptable object that understand the full hiearchy?
 			cache = FormElementHelper.INSTANCE.getFormComponentCache(webFormComponent.getFormElement(), pd, (JSONObject)webComponentValue, form, fs);
 		}
 		IWebFormUI formUI = webFormComponent.findParent(IWebFormUI.class);
