@@ -1337,6 +1337,13 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			var locale = $sabloApplication.getLocale();
 			this.setAngularLocale(locale.language);
 			var userAgent = this.getUserAgentAndPlatform();
+			var timeZone;
+			try {
+				timeZone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
+			} catch(e) {
+				$log.warn('Cant get client timeZone ' + e);
+			}
+
 			return {
 				serverURL: getServerURL(),
 				userAgent : userAgent.userAgent,
@@ -1344,6 +1351,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				locale : locale.full,
 				remote_ipaddress : window.servoy_remoteaddr,
 				remote_host : window.servoy_remotehost,
+				timeZone,
 				utcOffset : (new Date(new Date().getFullYear(), 0, 1, 0, 0, 0, 0).getTimezoneOffset() / -60),utcDstOffset:(new Date(new Date().getFullYear(), 6, 1, 0, 0, 0, 0).getTimezoneOffset() / -60)
 			};
 		},
