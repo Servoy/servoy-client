@@ -369,4 +369,21 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 	{
 		return null;
 	}
+
+	/**
+	 * Get the list of property names this component supports.
+	 * It can return all properties specified in spec file or only the properties that are set in json.
+	 *
+	 * @param includeAll boolean whether to return all properties from specification file or only the ones that are set in json
+	 *
+	 * @sample
+	 * var wc = form.getWebComponent('mycomponent');
+	 * application.output(wc.getJSONPropertyNames(true)); // will output all property names from the spec file
+	 * application.output(wc.getJSONPropertyNames(false)); // will output all property names that are set in component json
+	 */
+	@JSFunction
+	public String[] getJSONPropertyNames(boolean includeAll)
+	{
+		return null;
+	}
 }

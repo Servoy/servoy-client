@@ -322,4 +322,27 @@ public class JSNGWebComponent extends JSWebComponent
 		return result == null ? Context.getUndefinedValue() : ServoyJSONObject.jsonNullToNull(result);
 	}
 
+	@Override
+	public String[] getJSONPropertyNames(boolean includeAll)
+	{
+		WebComponent webComponent = getBaseComponent(false);
+		if (includeAll)
+		{
+			WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(webComponent.getTypeName());
+			if (spec != null)
+			{
+				return spec.getAllPropertiesNames().toArray(new String[0]);
+			}
+		}
+		else
+		{
+			JSONObject json = webComponent.getFlattenedJson();
+			if (json != null)
+			{
+				return json.keySet().toArray(new String[0]);
+			}
+		}
+		return new String[] { };
+	}
+
 }
