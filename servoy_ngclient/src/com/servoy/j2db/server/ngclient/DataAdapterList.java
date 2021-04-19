@@ -47,12 +47,16 @@ import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
+import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.AggregateVariable;
+import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.ColumnWrapper;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.LiteralDataprovider;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
@@ -98,6 +102,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private final ArrayList<IWebFormController> parentRelatedForms = new ArrayList<IWebFormController>(3);
 
 	private Map<IDataLinkedPropertyValue, Pair<Relation[], List<RelatedListener>>> toWatchRelations;
+	private final Map<String, List<Pair<String, String>>> lookupDependency = new HashMap<String, List<Pair<String, String>>>();
 
 	private IRecordInternal record;
 	private boolean findMode = false;
@@ -111,6 +116,69 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 		this.formController = formController;
 		this.executor = new EventExecutor(formController);
+
+		ITable table = formController.getTable();
+		if (table != null)
+		{
+			for (Column c : table.getColumns())
+			{
+				ColumnInfo ci = c.getColumnInfo();
+				if (ci != null && ci.getAutoEnterType() == ColumnInfo.LOOKUP_VALUE_AUTO_ENTER)
+				{
+					String lookup = ci.getLookupValue();
+					if (lookup != null && lookup.length() != 0 && !ScopesUtils.isVariableScope(lookup))
+					{
+						int index = lookup.lastIndexOf('.');
+						if (index != -1)
+						{
+							try
+							{
+								Relation[] relations = formController.getApplication().getFlattenedSolution().getRelationSequence(lookup.substring(0, index));
+								if (relations != null && relations.length > 0)
+								{
+									// add a RelookupAdapter for the last relation
+									Relation relation = relations[relations.length - 1];
+									IDataProvider[] dps = relation.getPrimaryDataProviders(formController.getApplication().getFlattenedSolution());
+									if (dps != null)
+									{
+										StringBuilder prefix = new StringBuilder();
+										for (int r = 0; r < relations.length - 1; r++)
+										{
+											prefix.append(relations[r].getName());
+											prefix.append('.');
+										}
+										for (IDataProvider dp : dps)
+										{
+											if (dp instanceof LiteralDataprovider) continue;
+											String dataProviderID;
+											if (ScopesUtils.isVariableScope(dp.getDataProviderID()))
+											{
+												dataProviderID = dp.getDataProviderID();
+											}
+											else
+											{
+												dataProviderID = prefix.toString() + dp.getDataProviderID();
+											}
+											List<Pair<String, String>> lookupValueDependency = this.lookupDependency.get(dataProviderID);
+											if (lookupValueDependency == null)
+											{
+												lookupValueDependency = new ArrayList<Pair<String, String>>();
+												this.lookupDependency.put(dataProviderID, lookupValueDependency);
+											}
+											lookupValueDependency.add(new Pair(c.getDataProviderID(), lookup));
+										}
+									}
+								}
+							}
+							catch (RepositoryException e)
+							{
+								Debug.error(e);
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	public final INGApplication getApplication()
@@ -742,6 +810,21 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				if (depends)
 				{
 					relatedForm.loadRecords(record.getRelatedFoundSet(relatedFormRelation, ((BasicFormController)relatedForm).getDefaultSortColumns()));
+				}
+			}
+		}
+
+		if (!findMode && this.record != null && e.getName() != null && (e.getRecord() == null || e.getRecord() == this.record) &&
+			this.lookupDependency.containsKey(e.getName()) &&
+			!(this.record instanceof PrototypeState))
+		{
+			if (this.record.startEditing())
+			{
+				List<Pair<String, String>> lookupDepencies = this.lookupDependency.get(e.getName());
+				for (Pair<String, String> dependency : lookupDepencies)
+				{
+					Object obj = this.record.getValue(dependency.getRight());
+					this.record.setValue(dependency.getLeft(), obj);
 				}
 			}
 		}
