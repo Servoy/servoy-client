@@ -328,7 +328,7 @@ public class JSNGWebComponent extends JSWebComponent
 		WebComponent webComponent = getBaseComponent(false);
 		if (includeAll)
 		{
-			WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(webComponent.getTypeName());
+			WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(webComponent.getTypeName());
 			if (spec != null)
 			{
 				return spec.getAllPropertiesNames().toArray(new String[0]);

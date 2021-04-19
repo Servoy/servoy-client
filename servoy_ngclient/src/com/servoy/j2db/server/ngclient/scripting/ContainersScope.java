@@ -115,7 +115,7 @@ public class ContainersScope implements Scriptable
 			WebComponent component = components.next();
 			String typeName = (String)component.getProperty(IContentSpecConstants.PROPERTY_TYPENAME);
 			WebComponentSpecProvider.getInstance();
-			WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(typeName);
+			WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(typeName);
 			Collection<PropertyDescription> pd = spec.getProperties(FormComponentPropertyType.INSTANCE);
 			if (pd != null && !pd.isEmpty())
 			{
