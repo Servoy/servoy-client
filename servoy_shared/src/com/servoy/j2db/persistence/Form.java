@@ -153,6 +153,37 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	@Override
 	public Dimension getSize()
 	{
+		if (getExtendsForm() != null)
+		{
+			List<Part> parts = new ArrayList<Part>();
+			Iterator<Part> it = getParts();
+			while (it.hasNext())
+			{
+				parts.add(it.next());
+			}
+
+			Form parentForm = getExtendsForm();
+			while (parentForm != null)
+			{
+				it = parentForm.getParts();
+				while (it.hasNext())
+				{
+					Part parentPart = it.next();
+					boolean overriden = false;
+					for (Part part : parts)
+					{
+						if (part.getExtendsID() > 0 && (parentPart.getID() == part.getExtendsID() || parentPart.getExtendsID() == part.getExtendsID()))
+						{
+							overriden = true;
+							break;
+						}
+					}
+					if (!overriden && !parts.contains(parentPart)) parts.add(parentPart);
+				}
+				parentForm = parentForm.getExtendsForm();
+			}
+			return checkParts(parts.iterator(), getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE));
+		}
 		return checkParts(getParts(), getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE));
 	}
 
@@ -403,6 +434,33 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	public void setExtendsID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID, arg);
+		if (arg <= 0 && !isResponsiveLayout() && !hasPart(Part.BODY) && !hasPart(0))
+		{
+			//when extends form property is set to -none-
+			//we copy the body part from the parent
+			Form parentForm = extendsForm;
+			Part body = null;
+			outer : while (parentForm != null)
+			{
+				Iterator<Part> parts = parentForm.getParts();
+				while (parts.hasNext())
+				{
+					Part p = parts.next();
+					if (p.getPartType() == Part.BODY)
+					{
+						body = p;
+						break outer;
+					}
+				}
+				parentForm = parentForm.getExtendsForm();
+			}
+			if (body != null)
+			{
+				Part clonedBody = (Part)body.clonePersist(this);
+				clonedBody.resetUUID();
+				clonedBody.setExtendsID(0);
+			}
+		}
 		if ((extendsForm == null ? arg > 0 : extendsForm.getID() != arg) && getRootObject().getChangeHandler() != null)
 		{
 			// fire event to update parent form reference
@@ -817,9 +875,8 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 			array = new ArrayList<IFormElement>();
 			if (list != null)
 			{
-				for (int i = 0; i < list.size(); i++)
+				for (IPersist p : list)
 				{
-					IPersist p = list.get(i);
 					if (p instanceof IFormElement)
 					{
 						array.add((IFormElement)p);

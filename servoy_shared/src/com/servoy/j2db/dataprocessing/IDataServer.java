@@ -79,23 +79,27 @@ public interface IDataServer extends Remote
 	 * @throws RepositoryException
 	 * @throws RemoteException
 	 */
-	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
+	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
+		ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException;
 
 	public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
 		int startRow, int rowsToRetrieve) throws ServoyException, RemoteException;
 
-	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
+	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
+		ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException;
 
-	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
+	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
+		ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo) throws ServoyException, RemoteException;
 
 	public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
 		int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException;
 
-	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException;
+	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
+		ArrayList<TableFilter> filters, boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp)
+		throws ServoyException, RemoteException;
 
 	public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
 		int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException;
@@ -231,7 +235,7 @@ public interface IDataServer extends Remote
 	 * @throws RemoteException
 	 */
 	public QuerySet getSQLQuerySet(String serverName, ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve,
-		boolean forceQualifyColumns) throws RepositoryException, RemoteException;
+		boolean forceQualifyColumns, boolean disableUseArrayForIn) throws RepositoryException, RemoteException;
 
 
 	public IDataSet[] executeProcedure(String clientId, String server_name, String tid, Procedure procedure, Object[] arguments)

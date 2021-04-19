@@ -82,9 +82,7 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 		Object wrapped;
 		if (obj instanceof Form)
 		{
-			this.flattenedForm = context.getSolution().getFlattenedForm((Form)obj);
-			wrapped = new FormWrapper(flattenedForm, null, useControllerProvider, context, design,
-				runtimeProperties != null ? runtimeProperties.getJSONObject("") : null);
+			wrapped = getFormWrapper((Form)obj);
 		}
 		else if (obj instanceof Object[])
 		{
@@ -150,5 +148,15 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 		TemplateModel wrap = super.wrap(wrapped);
 		wrapperCache.put(obj, wrap);
 		return wrap;
+	}
+
+	/**
+	 * @return
+	 */
+	public FormWrapper getFormWrapper(Form frm)
+	{
+		this.flattenedForm = context.getSolution().getFlattenedForm(frm);
+		return new FormWrapper(flattenedForm, null, useControllerProvider, context, design,
+			runtimeProperties != null ? runtimeProperties.getJSONObject("") : null);
 	}
 }

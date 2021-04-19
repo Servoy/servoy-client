@@ -125,7 +125,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		{
 			public Class< ? >[] getAllReturnedTypes()
 			{
-				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, JSProblem.class, JSValidationObject.class, Record.class, FoundSet.class, JSTable.class, //
+				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, JSRecordMarker.class, JSRecordMarkers.class, Record.class, FoundSet.class, JSTable.class, //
 					QBSelect.class, QBAggregate.class, QBColumn.class, QBColumns.class, QBCondition.class, //
 					QBFunction.class, QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBWhereCondition.class, QBResult.class, //
 					QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, QBFunctions.class, QUERY_COLUMN_TYPES.class, ViewFoundSet.class, ViewRecord.class };
@@ -162,6 +162,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * If you need database locking because of others applications that can also read the table or you use the Broadcaster plugin for more then 1 servoy server on the same database,
 	 * you need to set the property 'servoy.record.lock.lockInDB' in the servoy.properties file to true. This will try to do a 'select for update no wait' on databases that supports this.
 	 * This can only be used together with a transaction, so before you aquire the lock a transaction must be started so the database lock is held on to the transaction connection.
+	 *
+	 * Do not change the record data before that, because aquirelock will make sure with a select from the database that it really has the latest data.
+	 * If there are changes to columns that you changed before calling aquireLock these changes will be reverted, so you don't change something again that you didn't see really the value of first.
 	 *
 	 * returns true if the lock could be acquired.
 	 *
@@ -624,8 +627,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					while (pks.hasNext())
 					{
 						Column column = pks.next();
-						pkColumns.add(new QueryColumn(mainTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(), column.getScale(),
-							column.getFlags()));
+						pkColumns.add(column.queryColumn(mainTable));
 					}
 					sql.setColumns(pkColumns);
 
@@ -743,8 +745,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					if (column != null && !distinctColumns.contains(dpname))
 					{
 						distinctColumns.add(dpname);
-						cols.add(new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength(),
-							column.getScale(), column.getFlags()));
+						cols.add(column.queryColumn(sqlSelect.getTable()));
 					}
 				}
 
@@ -757,8 +758,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					{
 						if (!columnMap.containsKey(column.getDataProviderID()))
 						{
-							cols.add(new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength(),
-								column.getScale(), column.getFlags()));
+							cols.add(column.queryColumn(sqlSelect.getTable()));
 						}
 					}
 				}
@@ -776,7 +776,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 							fsm.getTrackingInfo(), fsm.getApplication().getClientID());
 					}
 					IDataSet dataSet = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), fsm.getTransactionID(sheet),
-						sqlSelect, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), hasJoins, 0, -1, IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
+						sqlSelect, null, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), hasJoins, 0, -1,
+						IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
 
 					lst = new ArrayList<Object[]>(dataSet.getRowCount());
 					for (int i = 0; i < dataSet.getRowCount(); i++)
@@ -1628,14 +1629,28 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public void js_flushCalculations(String datasource, boolean unstoredOnly) throws ServoyException
 	{
+		js_flushCalculations(datasource, unstoredOnly, null);
+	}
+
+	/**
+	 * @clonedesc js_flushCalculations(String, boolean)
+	 *
+	 * @sampleas js_flushCalculations(String, boolean)
+	 *
+	 * @param datasource The datasource to flush all calculations of
+	 * @param onlyUnstored boolean to only go over the unstore cals of this datasource
+	 * @param calcnames A string array of calculation names that need to be flushed, if null then all unstored (or all depending on the boolean)
+	 */
+	public void js_flushCalculations(String datasource, boolean unstoredOnly, String[] calcnames) throws ServoyException
+	{
 		checkAuthorized();
 		if (datasource != null)
 		{
 			RowManager rowManager = application.getFoundSetManager().getRowManager(datasource);
 			if (rowManager != null)
 			{
-				List<String> calcNames = unstoredOnly ? rowManager.getSQLSheet().getUnStoredCalculationNames()
-					: rowManager.getSQLSheet().getAllCalculationNames();
+				List<String> calcNames = calcnames == null ? unstoredOnly ? rowManager.getSQLSheet().getUnStoredCalculationNames()
+					: rowManager.getSQLSheet().getAllCalculationNames() : Arrays.asList(calcnames);
 				rowManager.clearCalcs(null, calcNames);
 			}
 		}
@@ -1666,7 +1681,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			if (sheet != null)
 			{
 				recalculateRecord(record, sheet.getStoredCalculationNames());
-				((FoundSet)record.getParentFoundSet()).fireFoundSetChanged();
+				int index = ((FoundSet)record.getParentFoundSet()).getRecordIndex(record);
+				((FoundSet)record.getParentFoundSet()).fireFoundSetEvent(index, index, FoundSetEvent.CHANGE_UPDATE);
 			}
 		}
 		else if (foundsetOrRecord instanceof FoundSet)
@@ -1855,10 +1871,102 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @return Array of outstanding/unsaved JSRecords.
 	 */
-
 	public IRecordInternal[] js_getEditedRecords(IFoundSetInternal foundset)
 	{
 		return application.getFoundSetManager().getEditRecordList().getEditedRecords(foundset, true);
+	}
+
+	/**
+	 * Returns an array of edited records with outstanding (unsaved) data.
+	 *
+	 * @sample
+	 * // This method can be used to loop through all outstanding changes for a specific datasource.
+	 * // The application.output line contains all the changed data, their tablename and primary key
+	 * var edits = databaseManager.getEditedRecords(datasources.db.mydb.mytable.getDataSource())
+	 *
+	 * var jsTable = databaseManager.getTable('mydb', 'mytable');
+	 * var tableSQLName = jstable.getSQLName();
+	 * var pkColumnNames = jstable.getRowIdentifierColumnNames().join(',');
+	 * var pkValues [];
+	 *
+	 * var x;
+	 * var ds;
+	 * var i;
+	 *
+	 * for (x = 0; x < edits.length; x++) {
+	 * 	ds = edits[x].getChangedData();
+	 * 	pkValues.length = 0;
+	 *
+	 * 	for (i = 0; i < jsTable.getRowIdentifierColumnNames().length; i++) {
+	 * 		pkValues[i] = edits[x][jsTable.getRowIdentifierColumnNames()[i]];
+	 * 	}
+	 *
+	 * 	application.output('Table: ' + tableSQLName + ', PKs: ' + pkValues.join(',') + ' (' + pkColumnNames + ')');
+	 *
+	 * 	// Output the outstanding changes on each record
+	 * 	for (i = 1; i <= ds.getMaxRowIndex(); i++) {
+	 * 		application.output('Column: ' + ds.getValue(i, 1) + ', oldValue: ' + ds.getValue(i, 2) + ', newValue: ' + ds.getValue(i, 3));
+	 * 	}
+	 * }
+	 * databaseManager.saveData(edits); //save all edited records in the datasource
+	 *
+	 * @param datasource the datasource for which to get the edited records
+	 *
+	 * @return Array of outstanding/unsaved JSRecords
+	 *
+	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_getEditedRecords()
+	 */
+	public IRecordInternal[] js_getEditedRecords(String datasource)
+	{
+		return application.getFoundSetManager().getEditRecordList().getEditedRecords(datasource, null, true);
+	}
+
+	/**
+	 * Returns an array of edited records with outstanding (unsaved) data for a datasource with a filter.
+	 *
+	 * @sample
+	 * // This method can be used to loop through all outstanding changes for a specific datasource.
+	 * // The application.output line contains all the changed data, their tablename and primary key.
+	 * // Filter on records that match certain criteria.
+	 * // The criteria can be specified in a javascript object, for example get edited records for country NL or DE and currency EUR.
+	 * var edits = databaseManager.getEditedRecords(datasources.db.mydb.mytable.getDataSource(), {currency: 'EUR', country: ['NL', 'DE']})
+	 *
+	 * var jsTable = databaseManager.getTable('mydb', 'mytable');
+	 * var tableSQLName = jstable.getSQLName();
+	 * var pkColumnNames = jstable.getRowIdentifierColumnNames().join(',');
+	 * var pkValues [];
+	 *
+	 * var x;
+	 * var ds;
+	 * var i;
+	 *
+	 * for (x = 0; x < edits.length; x++) {
+	 * 	ds = edits[x].getChangedData();
+	 * 	pkValues.length = 0;
+	 *
+	 * 	for (i = 0; i < jsTable.getRowIdentifierColumnNames().length; i++) {
+	 * 		pkValues[i] = edits[x][jsTable.getRowIdentifierColumnNames()[i]];
+	 * 	}
+	 *
+	 * 	application.output('Table: ' + tableSQLName + ', PKs: ' + pkValues.join(',') + ' (' + pkColumnNames + ')');
+	 *
+	 * 	// Output the outstanding changes on each record
+	 * 	for (i = 1; i <= ds.getMaxRowIndex(); i++) {
+	 * 		application.output('Column: ' + ds.getValue(i, 1) + ', oldValue: ' + ds.getValue(i, 2) + ', newValue: ' + ds.getValue(i, 3));
+	 * 	}
+	 * }
+	 * databaseManager.saveData(edits); //save all edited records in the datasource
+	 *
+	 * @param datasource the datasource for which to get the edited records
+	 * @param filter criteria against which the edited record must match to be included
+	 *
+	 * @return Array of outstanding/unsaved JSRecords
+	 *
+	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_getEditedRecords()
+	 */
+	public IRecordInternal[] js_getEditedRecords(String datasource, NativeObject filter)
+	{
+		return application.getFoundSetManager().getEditRecordList().getEditedRecords(datasource, filter, true);
 	}
 
 	/**
@@ -1970,7 +2078,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					while (pkIt.hasNext())
 					{
 						Column c = pkIt.next();
-						select.addColumn(new QueryColumn(select.getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags()));
+						select.addColumn(c.queryColumn(select.getTable()));
 					}
 				}
 				QuerySet querySet = getQuerySet(select, includeFilters);
@@ -2052,7 +2160,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					while (pkIt.hasNext())
 					{
 						Column c = pkIt.next();
-						select.addColumn(new QueryColumn(select.getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags()));
+						select.addColumn(c.queryColumn(select.getTable()));
 					}
 				}
 				QuerySet querySet = getQuerySet(select, includeFilters);
@@ -2103,7 +2211,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			sqlSelect.removeUnusedJoins(false);
 			tableFilterParams = null;
 		}
-		return application.getDataServer().getSQLQuerySet(serverName, sqlSelect, tableFilterParams, 0, -1, true);
+		return application.getDataServer().getSQLQuerySet(serverName, sqlSelect, tableFilterParams, 0, -1, true, true);
 	}
 
 	/**
@@ -2201,8 +2309,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					// large foundset, query the column in 1 go
 					QuerySelect sqlSelect = AbstractBaseQuery.deepClone(fs.getQuerySelectForReading());
 					ArrayList<IQuerySelectValue> cols = new ArrayList<IQuerySelectValue>(1);
-					cols.add(new QueryColumn(sqlSelect.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength(), column.getScale(),
-						column.getFlags()));
+					cols.add(column.queryColumn(sqlSelect.getTable()));
 					sqlSelect.setColumns(cols);
 					SQLStatement trackingInfo = null;
 					if (fsm.getEditRecordList().hasAccess(sheet.getTable(), IRepository.TRACKING_VIEWS))
@@ -2214,7 +2321,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					try
 					{
 						dataSet = fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), fsm.getTransactionID(sheet),
-							sqlSelect, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), false, 0, -1, IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
+							sqlSelect, null, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), false, 0, -1, IDataServer.FOUNDSET_LOAD_QUERY,
+							trackingInfo);
 					}
 					catch (RemoteException e)
 					{
@@ -2566,7 +2674,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 									QueryTable qTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
 									QueryUpdate qUpdate = new QueryUpdate(qTable);
 
-									QueryColumn qc = new QueryColumn(qTable, c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags());
+									QueryColumn qc = c.queryColumn(qTable);
 									qUpdate.addValue(qc, combinedDestinationRecordPK);
 
 									ISQLCondition condition = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, qc, sourceRecordPK);
@@ -2575,8 +2683,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 									IDataSet pks = new BufferedDataSet();
 									pks.addRow(new Object[] { ValueFactory.createTableFlushValue() });//unknown number of records changed
 
-									SQLStatement statement = new SQLStatement(ISQLActionTypes.UPDATE_ACTION, table.getServerName(), table.getName(), pks,
-										transaction_id, qUpdate, fsm.getTableFilterParams(table.getServerName(), qUpdate));
+									SQLStatement statement = new SQLStatement(ISQLActionTypes.UPDATE_ACTION, table.getServerName(), table.getName(),
+										pks, transaction_id, qUpdate, fsm.getTableFilterParams(table.getServerName(), qUpdate));
 
 									updates.add(statement);
 								}
@@ -2589,11 +2697,10 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				pks.addRow(new Object[] { sourceRecordPK });
 				QueryTable qTable = new QueryTable(mainTable.getSQLName(), mainTable.getDataSource(), mainTable.getCatalog(), mainTable.getSchema());
 				QueryDelete qDelete = new QueryDelete(qTable);
-				QueryColumn qc = new QueryColumn(qTable, pkc.getID(), pkc.getSQLName(), pkc.getType(), pkc.getLength(), pkc.getScale(), pkc.getFlags());
-				ISQLCondition condition = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, qc, sourceRecordPK);
+				ISQLCondition condition = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkc.queryColumn(qTable), sourceRecordPK);
 				qDelete.setCondition(condition);
-				SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, mainTable.getServerName(), mainTable.getName(), pks, transaction_id,
-					qDelete, fsm.getTableFilterParams(mainTable.getServerName(), qDelete));
+				SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, mainTable.getServerName(), mainTable.getName(), pks,
+					transaction_id, qDelete, fsm.getTableFilterParams(mainTable.getServerName(), qDelete));
 				statement.setExpectedUpdateCount(1); // check that the row is really deleted
 				updates.add(statement);
 
@@ -2756,27 +2863,52 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
+	 * Validates the given record, it runs first the method that is attached to the entity event "onValidate".<br/>
+	 * Then it will call also the entity events "onInsert" or "onUpdate" depending if the record is new or an update.
+	 * All those methods do get a parameter JSRecordMarkers where the problems can be reported against.
+	 * <br/><br/>
+	 * All columns are then also null/empty checked and if they are and the Column is marked as "not null" an error will be
+	 * added with the message key "servoy.record.error.null.not.allowed" for that column.
+	 * <br/><br/>
+	 * All changed columns are length checked and if the record values is bigger then what the database column can handle and
+	 * error will be added with the message key "servoy.record.error.columnSizeTooSmall" for that column.<br/>
+	 * Then all the column validators will be run over all the changed columns, The validators will also get the same JSRecordMarkers
+	 * to report problems to. So the global method validator now also has more parameters then just the value.
+	 * <br/><br/>
+	 * These 3 validations (null, length and column validators) are not by default done any more on change of the dataprovider itself.<br/>
+	 * This is controlled by the servoy property "servoy.execute.column.validators.only.on.validate_and_save" which can also be seen at
+	 * the TableEditor column validators page.
+	 * <br/><br/>
+	 * An extra state object can be given that will also be passed around if you want to have more state in the validation objects
+	 * (like giving some ui state so the entity methods know where you come from)
+	 * <br/><br/>
+	 * It will return a JSRecordMarkers when the record had validation problems
+	 * <br/>
 	 * @param record The record to validate.
 	 *
-	 * @throws ServoyException
+	 * @return Returns a JSRecordMarkers if the record has validation problems
 	 */
 	@JSFunction
-	public JSValidationObject validate(IJSRecord record) throws ServoyException
+	public JSRecordMarkers validate(IJSRecord record) throws ServoyException
 	{
 		return validate(record, null);
 	}
 
 	/**
+	 * @clonedesc validate(IJSRecord)
+	 *
+	 * @sampleas validate(IJSRecord)
+	 *
 	 * @param record The record to validate.
-	 * @param state The extra state that is passed on the the validation methods.
+	 * @param customObject The extra customObject that is passed on the the validation methods.
 	 *
 	 * @throws ServoyException
 	 */
 	@JSFunction
-	public JSValidationObject validate(IJSRecord record, Object state) throws ServoyException
+	public JSRecordMarkers validate(IJSRecord record, Object customObject) throws ServoyException
 	{
 		checkAuthorized();
-		return application.getFoundSetManager().validateRecord((IRecordInternal)record, state);
+		return application.getFoundSetManager().validateRecord((IRecordInternal)record, customObject);
 	}
 
 //	/**
@@ -2785,7 +2917,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 //	 * @throws ServoyException
 //	 */
 //	@JSFunction
-//	public JSValidationObject validateRecord(ViewRecord record) throws ServoyException
+//	public JSRecordMarkers validateRecord(ViewRecord record) throws ServoyException
 //	{
 //		return validateRecord(record, null);
 //	}
@@ -2797,7 +2929,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 //	 * @throws ServoyException
 //	 */
 //	@JSFunction
-//	public JSValidationObject validateRecord(ViewRecord record, Object state) throws ServoyException
+//	public JSRecordMarkers validateRecord(ViewRecord record, Object state) throws ServoyException
 //	{
 //		checkAuthorized();
 //		return application.getFoundSetManager().validateRecord(record, state);
@@ -3001,7 +3133,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Returns a named foundset object created under a specific name. If foundset does not exist, null will be returned.
+	 * An existing foundset under that name will be returned, or created if there is a definition (there is a form with a named foundset property with that name).
 	 * Alternative method: datasources.db.server_name.table_name.getFoundSet(name)
 	 *
 	 * @sample

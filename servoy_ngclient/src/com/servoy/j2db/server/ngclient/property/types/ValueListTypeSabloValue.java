@@ -340,7 +340,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		fireUnderlyingPropertyChangeListeners();
 	}
 
-	protected List<Map<String, Object>> getJavaValueForJSON() // TODO this should return TypedData<List<Map<String, Object>>> instead
+	protected List<Map<String, Object>> getJavaValueForJSON(JSONWriter writer) // TODO this should return TypedData<List<Map<String, Object>>> instead
 	{
 		// dataprovider will resolve this, do not send anything client side
 		if (isItemSendBlockedByAssociatedDataproviderResolve()) return new ArrayList<Map<String, Object>>();
@@ -351,8 +351,6 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 		List<Map<String, Object>> jsonValue = null;
 
-		int vlSize = (filteredValuelist != null) ? filteredValuelist.getSize() : valueList.getSize();
-		int size = Math.min(getConfig().getMaxCount(dataAdapterListToUse.getApplication()), vlSize);
 		Object dpRealValue = null;
 		Object dpDisplayValue = null;
 		boolean containsDpValue = false;
@@ -360,22 +358,30 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		{
 			Object dpvalue = dataAdapterListToUse.getValueObject(previousRecord, dataproviderID);
 			int dpindex = (filteredValuelist != null) ? filteredValuelist.realValueIndexOf(dpvalue) : valueList.realValueIndexOf(dpvalue);
+			int vlSize = (filteredValuelist != null) ? filteredValuelist.getSize() : valueList.getSize();
 			if (dpindex != -1 && (dpindex < 0 || vlSize > getConfig().getMaxCount(dataAdapterListToUse.getApplication())))
 			{
 				dpRealValue = (filteredValuelist != null) ? filteredValuelist.getRealElementAt(dpindex) : valueList.getRealElementAt(dpindex);
 				dpDisplayValue = (filteredValuelist != null) ? filteredValuelist.getElementAt(dpindex) : valueList.getElementAt(dpindex);
 			}
 		}
+		int vlSize = (filteredValuelist != null) ? filteredValuelist.getSize() : valueList.getSize();
+		int size = Math.min(getConfig().getMaxCount(dataAdapterListToUse.getApplication()), vlSize);
+
 		List<Map<String, Object>> array = new ArrayList<>(size);
+		boolean displayAreDates = false;
+		boolean realAreDates = false;
 		for (int i = 0; i < size; i++)
 		{
 			Map<String, Object> map = new HashMap<String, Object>();
 			Object realValue = (filteredValuelist != null) ? filteredValuelist.getRealElementAt(i) : valueList.getRealElementAt(i);
+			realAreDates = realAreDates | realValue instanceof Date;
 			map.put("realValue", convertDate(realValue));
 			if (Utils.equalObjects(realValue, dpRealValue)) containsDpValue = true;
 			Object displayValue = (filteredValuelist != null) ? filteredValuelist.getElementAt(i) : valueList.getElementAt(i);
 			if (displayValue instanceof Date)
 			{
+				displayAreDates = true;
 				map.put("displayValue", convertDate(displayValue));
 			}
 			else
@@ -406,6 +412,10 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			// only add it if it was removed
 			valueList.addListDataListener(this);
 		}
+		writer.key("realValueAreDates");
+		writer.value(realAreDates);
+		writer.key("displayValueAreDates");
+		writer.value(displayAreDates);
 		return jsonValue;
 	}
 
@@ -558,8 +568,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		}
 		else
 		{
-			List<Map<String, Object>> newJavaValueForJSON = getJavaValueForJSON();
 			writer.object();
+			List<Map<String, Object>> newJavaValueForJSON = getJavaValueForJSON(writer);
 			if (handledIDForResponse != null)
 			{
 				writer.key(HANDLED);
@@ -673,7 +683,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 					new LookupValueList(valueList.getValueList(), dataAdapterListToUse.getApplication(),
 						ComponentFactory.getFallbackValueList(dataAdapterListToUse.getApplication(), dataproviderID, format != null ? format.uiType : 0,
 							format != null ? format.parsedFormat : null, valueList.getValueList()),
-						format != null && format.parsedFormat != null ? format.parsedFormat.getDisplayFormat() : null));
+						format != null && format.parsedFormat != null ? format.parsedFormat.getDisplayFormat() : null, dataAdapterListToUse.getRecord()));
 			}
 			catch (Exception ex)
 			{

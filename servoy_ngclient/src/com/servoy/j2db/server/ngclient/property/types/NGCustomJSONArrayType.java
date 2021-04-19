@@ -194,8 +194,9 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 						elementPD, componentOrService));
 				}
 			}
-			else Debug.warn("Cannot convert value assigned from solution scripting into array property type; new value = " + rhinoValue + "; property = " +
-				pd.getName() + "; component name = " + componentOrService.getUnderlyingWebObject().getName());
+			else Debug.warn("Cannot convert value assigned from solution scripting into array property type; class: " + rhinoValue.getClass() + //$NON-NLS-1$
+				", new value = " + rhinoValue + "; property = " + //$NON-NLS-1$ //$NON-NLS-2$
+				pd.getName() + "; component name = " + componentOrService.getUnderlyingWebObject().getName()); //$NON-NLS-1$
 
 			if (rhinoArrayCopy != null)
 			{

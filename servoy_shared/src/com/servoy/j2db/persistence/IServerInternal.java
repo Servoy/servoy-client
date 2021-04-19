@@ -139,7 +139,8 @@ public interface IServerInternal
 
 	ITransactionConnection getUnmanagedConnection() throws SQLException, RepositoryException;
 
-	QuerySet getSQLQuerySet(ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve, boolean forceQualifyColumns)
+	QuerySet getSQLQuerySet(ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve, boolean forceQualifyColumns,
+		boolean disableUseArrayForIn)
 		throws RepositoryException;
 
 	String[] getMissingDBSequences(ITable table) throws SQLException, RepositoryException;
@@ -162,9 +163,9 @@ public interface IServerInternal
 	 * @param tableName the name of the table.
 	 * @param hiddenInDeveloper if it should be hidden or not.
 	 */
-	void setTableMarkedAsHiddenInDeveloper(String tableName, boolean hiddenInDeveloper);
+	void setTableMarkedAsHiddenInDeveloper(ITable t, boolean hiddenInDeveloper);
 
-	void setTableMarkedAsHiddenInDeveloper(String tableName, boolean hiddenInDeveloper, boolean fireTableHidden);
+	void setTableMarkedAsHiddenInDeveloper(ITable t, boolean hiddenInDeveloper, boolean fireTableHidden);
 
 	/**
 	 * Tells if a table is marked as 'hidden' in developer.
@@ -183,6 +184,15 @@ public interface IServerInternal
 	 * @return if it is a metadata table or not.
 	 */
 	boolean isTableMarkedAsMetaData(String tableName);
+
+	/**
+	 * Tells if a table can be marked as invalid in developer, because it has no primary keys.
+	 * If the table's structure has not yet been read from DB this will not need to load it.
+	 *
+	 * @param tableName the name of the table
+	 * @return if it is flagged as without pks.
+	 */
+	boolean isTableInvalidInDeveloperBecauseNoPk(String tableName);
 
 	List<String> getTableAndViewNames(boolean hideTempTables, boolean hideHiddenInDeveloper) throws RepositoryException;
 

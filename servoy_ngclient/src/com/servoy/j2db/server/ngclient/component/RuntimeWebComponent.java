@@ -74,6 +74,7 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  *
  */
+@SuppressWarnings("nls")
 public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshValueList
 {
 	/**
@@ -100,7 +101,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 		this.apiFunctions = new HashMap<String, Function>();
 		this.webComponentSpec = webComponentSpec;
 
-		URL serverScript = webComponentSpec.getServerScript();
+		URL serverScript = webComponentSpec.getServerScript(component.getDataConverterContext().getApplication().getRuntimeProperties().containsKey("NG2"));
 		Scriptable apiObject = null;
 
 		if (webComponentSpec != null)
@@ -134,22 +135,25 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 				Set<String> handlers = component.getSpecification().getHandlers().keySet();
 				for (final String name : handlers)
 				{
-					handlerObject.put(name, handlerObject, new Callable()
+					if (this.component.hasEvent(name))
 					{
-						@Override
-						public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+						handlerObject.put(name, handlerObject, new Callable()
 						{
-							IEventHandler eventHandler = RuntimeWebComponent.this.component.getEventHandler(name);
-							try
+							@Override
+							public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 							{
-								return eventHandler.executeEvent(args);
+								IEventHandler eventHandler = RuntimeWebComponent.this.component.getEventHandler(name);
+								try
+								{
+									return eventHandler.executeEvent(args);
+								}
+								catch (Exception e)
+								{
+									throw new RuntimeException(e);
+								}
 							}
-							catch (Exception e)
-							{
-								throw new RuntimeException(e);
-							}
-						}
-					});
+						});
+					}
 				}
 			}
 			finally
@@ -406,6 +410,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean has(String name, Scriptable start)
 	{
@@ -415,7 +420,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 			IPropertyType< ? > type = pd.getType();
 			// it is available by default, so if it doesn't have conversion, or if it has conversion and is explicitly available
 			return !(type instanceof ISabloComponentToRhino< ? >) ||
-				((ISabloComponentToRhino)type).isValueAvailableInRhino(component.getProperty(name), pd, component);
+				((ISabloComponentToRhino<Object>)type).isValueAvailableInRhino(component.getProperty(name), pd, component);
 		}
 
 		if (apiFunctions.containsKey(name)) return true;
@@ -526,7 +531,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 			if (tabs instanceof List && value instanceof Number)
 			{
 				int index = ((Number)value).intValue() - 1;
-				if (index < 0 || index >= ((List)tabs).size())
+				if (index < 0 || index >= ((List< ? >)tabs).size())
 				{
 					return true;
 				}
@@ -546,15 +551,15 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 
 			Object tabIndex = component.getProperty("tabIndex");
 			Object tabs = component.getProperty("tabs");
-			if (tabs instanceof List && ((List)tabs).size() > 0)
+			if (tabs instanceof List && ((List< ? >)tabs).size() > 0)
 			{
-				List tabsList = (List)tabs;
+				@SuppressWarnings("unchecked")
+				List<Map<String, Object>> tabsList = (List<Map<String, Object>>)tabs;
 				TabPanel tabpanel = (TabPanel)component.getFormElement().getPersistIfAvailable();
 				if (tabpanel.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL || tabpanel.getTabOrientation() == TabPanel.SPLIT_VERTICAL)
 				{
-					for (Object element : tabsList)
+					for (Map<String, Object> tab : tabsList)
 					{
-						Map<String, Object> tab = (Map<String, Object>)element;
 						if (tab != null)
 						{
 							String relationName = tab.get("relationName") != null ? tab.get("relationName").toString() : null;
@@ -576,13 +581,12 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 						{
 							index = 0;
 						}
-						visibleTab = (Map<String, Object>)(tabsList.get(index));
+						visibleTab = tabsList.get(index);
 					}
 					else if (tabIndex instanceof String || tabIndex instanceof CharSequence)
 					{
-						for (Object element : tabsList)
+						for (Map<String, Object> tab : tabsList)
 						{
-							Map<String, Object> tab = (Map<String, Object>)element;
 							if (Utils.equalObjects(tabIndex, tab.get("name")))
 							{
 								visibleTab = tab;
@@ -618,21 +622,22 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 	@Override
 	public boolean refreshValueList(String propertyName)
 	{
-		if (propertyName == null)
+		String prop = propertyName;
+		if (prop == null)
 		{
 			Map<String, PropertyDescription> specs = webComponentSpec.getProperties();
 			for (String name : specs.keySet())
 			{
 				if (specs.get(name).getType() instanceof ValueListPropertyType)
 				{
-					propertyName = name;
+					prop = name;
 					break;
 				}
 			}
 		}
-		if (propertyName != null)
+		if (prop != null)
 		{
-			Object value = component.getProperty(propertyName);
+			Object value = component.getProperty(prop);
 			if (value instanceof ValueListTypeSabloValue)
 			{
 				IValueList valuelist = ((ValueListTypeSabloValue)value).getValueList();
@@ -688,6 +693,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 		parentScope = parent;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object[] getIds()
 	{
@@ -698,7 +704,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 			if (WebFormComponent.isDesignOnlyProperty(pd)) continue;
 			IPropertyType< ? > type = pd.getType();
 			if (!(type instanceof ISabloComponentToRhino< ? >) ||
-				((ISabloComponentToRhino)type).isValueAvailableInRhino(component.getProperty(name), pd, component))
+				((ISabloComponentToRhino<Object>)type).isValueAvailableInRhino(component.getProperty(name), pd, component))
 			{
 				al.add(name);
 			}

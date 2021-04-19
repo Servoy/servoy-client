@@ -55,11 +55,11 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 	$scope.${part.name}Style = ${part.style};
 	</#list>
 
-	var getExecutor = function(beanName, eventType) {
+	var getExecutor = function(beanName, eventType, ignoreNGBlockDuplicateEvents) {
 		var callExecutor = function(args, rowId) {
 			if ($scope.model && $scope.model[beanName])
 			{
-				if($uiBlocker.shouldBlockDuplicateEvents(beanName, $scope.model[beanName], eventType, rowId))
+				if(!ignoreNGBlockDuplicateEvents && $uiBlocker.shouldBlockDuplicateEvents(beanName, $scope.model[beanName], eventType, rowId))
 				{
 					// reject execution
 					console.log("Prevented duplicate  execution of: "+eventType +" on "+beanName);
@@ -84,6 +84,9 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 
 	var servoyApi = function(beanname) {
 		return {
+			getFormName: function() {
+				return $scope.formname;
+			},
 			formWillShow: function(formname,relationname,formIndex) {
 				return $formService.formWillShow(formname,true,$scope.formname,beanname,relationname,formIndex);
 			},
@@ -119,7 +122,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 
 	$scope.handlers = {
 	<#list baseComponents as bc>
-		'${bc.name}': {"svy_servoyApi":servoyApi('${bc.name}')<#list bc.handlers as handler>,${handler}:getExecutor('${bc.name}', '${handler}')</#list>}<#if bc_has_next>,</#if>
+		'${bc.name}': {"svy_servoyApi":servoyApi('${bc.name}')<#list bc.handlersDefinitions as handler>,${handler.name}:getExecutor('${bc.name}', '${handler.name}', ${handler.ignoreNGBlockDuplicateEvents?c})</#list>}<#if bc_has_next>,</#if>
 	</#list>
 	}
 
@@ -177,10 +180,10 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 		var query = $("div.svy-layoutcontainer[svy-name='" + containername + "']");
 		if (query.length == 0) return null;
 		if (query.length == 1) return query;
-		var parents = query.closest("div.svy-form");
 		
-		for(var i = 0;i<parents.length;i++) {
-			if ($(parents[i]).filter("[ng-controller='${name}']").length != 0) return $(query[i]); 
+		for(var i = 0;i<query.length;i++) {
+		    var parents = $(query[i]).closest("div.svy-form");
+			if (parents.length > 0 && $(parents[0]).filter("[ng-controller='${name}']").length != 0) return $(query[i]); 
 		}
 		
 	}

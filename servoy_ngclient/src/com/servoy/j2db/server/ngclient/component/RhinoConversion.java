@@ -93,10 +93,9 @@ public class RhinoConversion
 
 			final NativeArray no = (NativeArray)propertyValue;
 			final long naLength = no.getLength();
-			for (long id = 0; id < naLength; id++)
+			for (int id = 0; id < naLength; id++)
 			{
-				list.add(
-					defaultFromRhino(no.get(Long.valueOf(id).intValue(), no)));
+				list.add(defaultFromRhino(no.get(id, no)));
 
 			}
 			return list;
@@ -173,18 +172,18 @@ public class RhinoConversion
 								if (!Utils.equalObjects(((List)webComponentValue).get(index), value))
 								{
 									((List)webComponentValue).set(index, value);
-									if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
+									if (webObjectContext != null && pd != null)
+										webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
 								}
 							}
 							else
 							{
 								for (int i = ((List)webComponentValue).size(); i < index; i++)
 								{
-
 									((List)webComponentValue).add(i, null);
 								}
 								((List)webComponentValue).add(index, value);
-								if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
+								if (webObjectContext != null && pd != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
 
 							}
 						}
@@ -198,7 +197,7 @@ public class RhinoConversion
 						{
 							((List)webComponentValue).remove(index);
 						}
-						if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
+						if (webObjectContext != null && pd != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
 					}
 				};
 

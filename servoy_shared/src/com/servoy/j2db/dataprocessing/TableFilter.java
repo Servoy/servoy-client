@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2021 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -16,8 +16,6 @@
  */
 package com.servoy.j2db.dataprocessing;
 
-import java.io.Serializable;
-
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.serialize.IWriteReplace;
 import com.servoy.j2db.util.serialize.ReplacedObject;
@@ -29,7 +27,7 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
  * @author rgansevles
  *
  */
-public class TableFilter implements Serializable, IWriteReplace
+public class TableFilter implements IWriteReplace
 {
 
 	private final String name;
@@ -90,15 +88,20 @@ public class TableFilter implements Serializable, IWriteReplace
 				Utils.stringSafeEquals(tf.getTableName(), getTableName()) && //
 				Utils.stringSafeEquals(tf.getTableSQLName(), getTableSQLName()) && //
 				//
-				tableFilterdefinition instanceof DataproviderTableFilterdefinition && //
-				tf.getTableFilterdefinition() instanceof DataproviderTableFilterdefinition && //
-				//
-				Utils.stringSafeEquals(((DataproviderTableFilterdefinition)tf.getTableFilterdefinition()).getDataprovider(),
-					((DataproviderTableFilterdefinition)tableFilterdefinition).getDataprovider()) && //
-				((DataproviderTableFilterdefinition)tf.getTableFilterdefinition()).getOperator() == ((DataproviderTableFilterdefinition)tableFilterdefinition).getOperator() && //
-				Utils.equalObjects(((DataproviderTableFilterdefinition)tf.getTableFilterdefinition()).getValue(),
-					((DataproviderTableFilterdefinition)tableFilterdefinition).getValue()) //
-			)
+				((tableFilterdefinition instanceof DataproviderTableFilterdefinition && //
+					tf.getTableFilterdefinition() instanceof DataproviderTableFilterdefinition && //
+					//
+					Utils.stringSafeEquals(((DataproviderTableFilterdefinition)tf.getTableFilterdefinition()).getDataprovider(),
+						((DataproviderTableFilterdefinition)tableFilterdefinition).getDataprovider()) && //
+					((DataproviderTableFilterdefinition)tf.getTableFilterdefinition())
+						.getOperator() == ((DataproviderTableFilterdefinition)tableFilterdefinition).getOperator() && //
+					Utils.equalObjects(((DataproviderTableFilterdefinition)tf.getTableFilterdefinition()).getValue(),
+						((DataproviderTableFilterdefinition)tableFilterdefinition).getValue())) //
+					|| //
+					(tableFilterdefinition instanceof QueryTableFilterdefinition && //
+						tf.getTableFilterdefinition() instanceof QueryTableFilterdefinition &&
+						((QueryTableFilterdefinition)tableFilterdefinition).getQuerySelect()
+							.equals(((QueryTableFilterdefinition)tf.tableFilterdefinition).getQuerySelect()))))
 			{
 				return true;
 			}

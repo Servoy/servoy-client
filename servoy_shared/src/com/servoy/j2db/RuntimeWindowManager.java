@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.servoy.j2db.IBasicFormManager.History;
 import com.servoy.j2db.plugins.IPlugin;
 import com.servoy.j2db.scripting.JSWindow;
@@ -34,7 +37,8 @@ import com.servoy.j2db.util.Utils;
  */
 public abstract class RuntimeWindowManager
 {
-	private static final String MAIN_APPLICATION_WINDOW_NAME = "mainApplicationWindow";
+	protected static final Logger log = LoggerFactory.getLogger("RuntimeWindowManager");
+	protected static final String MAIN_APPLICATION_WINDOW_NAME = "mainApplicationWindow";
 
 	protected final HashMap<String, RuntimeWindow> windows = new HashMap<String, RuntimeWindow>();
 	private String currentWindowName = null; // this should be null when the main application window is the current window
@@ -116,11 +120,15 @@ public abstract class RuntimeWindowManager
 	public RuntimeWindow getCurrentWindow()
 	{
 		RuntimeWindow window = getWindow(currentWindowName);
-		if (window == null && currentWindowName != null)
+		if (window == null)
 		{
-			// the current window shouldn't be null, this could be a new tab in the web, create it
-			window = createWindowInternal(currentWindowName, JSWindow.WINDOW, null);
-			windows.put(currentWindowName, window);
+			if (log.isInfoEnabled()) log.info("No current window for '" + currentWindowName + "' creating one if name is not null");
+			if (currentWindowName != null)
+			{
+				// the current window shouldn't be null, this could be a new tab in the web, create it
+				window = createWindowInternal(currentWindowName, JSWindow.WINDOW, null);
+				windows.put(currentWindowName, window);
+			}
 		}
 		return window;
 	}
@@ -147,7 +155,8 @@ public abstract class RuntimeWindowManager
 				int form_id = fp.getForm().getNavigatorID();
 				if (form_id > 0)
 				{
-					IFormController navigator = (IFormController)app.getFormManager().getForm(app.getFlattenedSolution().getForm(form_id).getName()).getFormUI().getController();
+					IFormController navigator = (IFormController)app.getFormManager().getForm(app.getFlattenedSolution().getForm(form_id).getName()).getFormUI()
+						.getController();
 					List<Runnable> invokeLaterRunnables2 = new ArrayList<Runnable>();
 					if (navigator != null) navigator.notifyVisible(false, invokeLaterRunnables2);
 				}

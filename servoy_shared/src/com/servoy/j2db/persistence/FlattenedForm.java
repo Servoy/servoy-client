@@ -42,6 +42,7 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 	private static final long serialVersionUID = 1L;
 
 	private final Map<UUID, IPersist> extendsMap = new HashMap<>();
+	private final Map<String, Object> allProperties = new HashMap<>();
 
 	public static final Comparator<IFormElement> FORM_INDEX_WITH_HIERARCHY_COMPARATOR = new Comparator<IFormElement>()
 	{
@@ -122,6 +123,12 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		return null;
 	}
 
+	@Override
+	public Map<String, Object> getFlattenedPropertiesMap()
+	{
+		return new HashMap<String, Object>(allProperties);
+	}
+
 	private void fill()
 	{
 		List<Form> allForms = flattenedSolution.getFormHierarchy(form);
@@ -136,9 +143,10 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		//first fill in the map to be sure is complete, can we improve this ?
 		for (Form f : allForms)
 		{
+			boolean responsiveLayout = f.isResponsiveLayout();
 			for (IPersist persist : f.getAllObjectsAsList())
 			{
-				if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0 && f.isResponsiveLayout())
+				if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0 && responsiveLayout)
 				{
 					IPersist p = PersistHelper.getSuperPersist((ISupportExtendsID)persist);
 					if (p != null)
@@ -150,9 +158,10 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		}
 		for (Form f : allForms)
 		{
+			boolean responsiveLayout = f.isResponsiveLayout();
 			for (IPersist persist : f.getAllObjectsAsList())
 			{
-				if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0 && f.isResponsiveLayout())
+				if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0 && responsiveLayout)
 				{
 					IPersist p = PersistHelper.getSuperPersist((ISupportExtendsID)persist);
 					if (p != null && !p.getParent().getUUID().equals(getUUID()))
@@ -218,6 +227,7 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		Collections.reverse(allForms); // change from sub-first to super-first
 		for (Form f : allForms)
 		{
+			allProperties.putAll(f.getPropertiesMap());
 			// Add parts
 			Iterator<Part> parts = f.getParts();
 			while (parts.hasNext())
@@ -269,6 +279,8 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 	public void reload()
 	{
 		internalClearAllObjects();
+		extendsMap.clear();
+		allProperties.clear();
 		fill();
 	}
 

@@ -48,8 +48,7 @@ public class ComponentsModuleGenerator extends HttpServlet
 	{
 		resp.setContentType("text/javascript");
 		HTTPUtils.checkAndSetUnmodified(req, resp, System.currentTimeMillis());
-		StringBuilder sb = generateComponentsModule(getAllNames(WebServiceSpecProvider.getSpecProviderState().getAllWebObjectSpecifications()),
-			getAllNames(WebComponentSpecProvider.getSpecProviderState().getAllWebObjectSpecifications()));
+		StringBuilder sb = generateComponentsModule(null, null);
 		resp.setContentLength(sb.length());
 		resp.getWriter().write(sb.toString());
 	}
@@ -66,8 +65,18 @@ public class ComponentsModuleGenerator extends HttpServlet
 
 	public static StringBuilder generateComponentsModule(Set<String> services, Set<String> components)
 	{
+		Set<String> servicesIncludingOnesServedFromJARSInWarDeployment = null;
+		if (services != null)
+		{
+			// sablo is served from a jar file inside the war so it is not part of the "services" above which do not contain resources served from jars inside the war file
+			// so add those needed services (array/custom object/object types for example) to this module so they are found by the system even in (default) optimized/wro grouped war mode
+			servicesIncludingOnesServedFromJARSInWarDeployment = new HashSet<>(services);
+			servicesIncludingOnesServedFromJARSInWarDeployment
+				.addAll(WebServiceSpecProvider.getSpecProviderState().getWebObjectSpecifications().get("sablo").getSpecifications().keySet());
+		}
+
 		StringBuilder sb = new StringBuilder("angular.module('servoy-components', [ ");
-		generateModules(sb, services != null ? services : getAllNames(WebServiceSpecProvider.getSpecProviderState().getAllWebObjectSpecifications()));
+		generateModules(sb, servicesIncludingOnesServedFromJARSInWarDeployment != null ? servicesIncludingOnesServedFromJARSInWarDeployment : getAllNames(WebServiceSpecProvider.getSpecProviderState().getAllWebObjectSpecifications()));
 		generateModules(sb, components != null ? components : getAllNames(WebComponentSpecProvider.getSpecProviderState().getAllWebObjectSpecifications()));
 		sb.setLength(sb.length() - 1);
 		sb.append("]);");

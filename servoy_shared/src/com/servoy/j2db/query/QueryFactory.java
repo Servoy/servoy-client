@@ -55,7 +55,7 @@ public class QueryFactory implements IQueryFactory<ISQLCondition, IQuerySelectVa
 	@Override
 	public QueryColumn createQueryColumn(BaseQueryTable table, int id, String name, int sqlType, int length, int scale, int flags)
 	{
-		return new QueryColumn(table, id, name, sqlType, length, scale, flags);
+		return new QueryColumn(table, id, name, sqlType, length, scale, null, flags);
 	}
 
 }

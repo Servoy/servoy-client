@@ -58,6 +58,7 @@ public class Types
 		TypesRegistry.addType(FormatPropertyType.INSTANCE);
 		TypesRegistry.addType(FormScopePropertyType.INSTANCE);
 		TypesRegistry.addType(MediaOptionsPropertyType.INSTANCE);
+		TypesRegistry.addType(ClientFunctionPropertyType.CLIENT_FUNCTION_INSTANCE);
 		TypesRegistry.addType(
 			new FoundsetLinkedPropertyType<String, DataproviderTypeSabloValue>(DataproviderPropertyType.INSTANCE.getName(), DataproviderPropertyType.INSTANCE));
 		TypesRegistry.addType(

@@ -54,6 +54,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.PluginScope;
+import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.INGFormManager;
 import com.servoy.j2db.server.ngclient.NGClient;
@@ -380,6 +381,11 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	{
 		if (isShutDown()) return;
 
+		// flush the solution model cache of the form element helper when there is a solution copy.
+		// so that FormComponents are recreated with the latest data once.
+		Solution solutionCopy = getFlattenedSolution().getSolutionCopy(false);
+		if (solutionCopy != null) solutionCopy.setRuntimeProperty(FormElementHelper.SOLUTION_MODEL_CACHE, null);
+
 		Set<IFormController>[] scopesAndFormsToReload = DebugUtils.getScopesAndFormsToReload(this, changes);
 
 		for (IFormController controller : scopesAndFormsToReload[1])
@@ -428,10 +434,13 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 		invokeLater(() -> getFormManager().showFormInMainPanel(form.getName()));
 	}
 
+	private static int showCounter = 0;
+
 	@Override
 	protected void showInfoPanel()
 	{
-		//ignore
+		if (showCounter % 10 == 0) super.showInfoPanel();
+		showCounter++;
 	}
 
 	IDesignerCallback getDesignerCallback()
@@ -495,7 +504,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	{
 		if (Boolean.valueOf(settings.getProperty(Settings.DISABLE_SERVER_LOG_FORWARDING_TO_DEBUG_CLIENT_CONSOLE, "false")).booleanValue())
 		{
-			DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
+			invokeLater(() -> DebugUtils.errorToDebugger(getScriptEngine(), message, detail));
 		}
 	}
 
@@ -504,11 +513,11 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	{
 		if (!errorLevel)
 		{
-			DebugUtils.stdoutToDebugger(getScriptEngine(), messsage);
+			invokeLater(() -> DebugUtils.stdoutToDebugger(getScriptEngine(), messsage));
 		}
 		else
 		{
-			DebugUtils.stderrToDebugger(getScriptEngine(), messsage);
+			invokeLater(() -> DebugUtils.stderrToDebugger(getScriptEngine(), messsage));
 		}
 	}
 }

@@ -16,6 +16,9 @@
  */
 package com.servoy.j2db.dataprocessing;
 
+import static com.servoy.j2db.util.Utils.equalObjects;
+import static java.util.Arrays.stream;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,21 +30,33 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.mozilla.javascript.JavaScriptException;
+import org.mozilla.javascript.NativeObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.ApplicationException;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IPrepareForSave;
 import com.servoy.j2db.dataprocessing.ValueFactory.BlobMarkerValue;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.ScriptMethod;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.query.Placeholder;
+import com.servoy.j2db.query.QueryInsert;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IntHashMap;
 import com.servoy.j2db.util.ServoyException;
@@ -71,15 +86,12 @@ public class EditRecordList
 
 	private final List<IRecordInternal> editedRecords = Collections.synchronizedList(new ArrayList<IRecordInternal>(32));
 	private final List<IRecordInternal> failedRecords = Collections.synchronizedList(new ArrayList<IRecordInternal>(2));
-	private final List<IRecordInternal> recordTested = Collections.synchronizedList(new ArrayList<IRecordInternal>(2)); //tested for form.OnRecordEditStop event
+	private final Map<IRecordInternal, List<IPrepareForSave>> recordTested = Collections.synchronizedMap(new HashMap<IRecordInternal, List<IPrepareForSave>>()); //tested for form.OnRecordEditStop event
 	private boolean preparingForSave;
-
-	private final boolean disableInsertsReorder;
 
 	public EditRecordList(FoundSetManager fsm)
 	{
 		this.fsm = fsm;
-		disableInsertsReorder = Utils.getAsBoolean(fsm.getApplication().getSettings().getProperty("servoy.disable.record.insert.reorder", "false")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public IRecordInternal[] getFailedRecords()
@@ -139,9 +151,57 @@ public class EditRecordList
 
 	public IRecordInternal[] getEditedRecords(IFoundSet set, boolean removeUnchanged)
 	{
+		return getEditedRecords(recordParentFoundsetFilter(set), removeUnchanged);
+	}
+
+	public IRecordInternal[] getEditedRecords(String datasource, NativeObject filter, boolean removeUnchanged)
+	{
+		return getEditedRecords(record -> applyDatasourceAndObjectFilter(record, datasource, filter), removeUnchanged);
+	}
+
+	private static Predicate< ? super IRecordInternal> recordParentFoundsetFilter(IFoundSet set)
+	{
+		return set == null ? record -> true : record -> record.getParentFoundSet() == set;
+	}
+
+	private static boolean applyDatasourceAndObjectFilter(IRecordInternal record, String datasource, NativeObject filter)
+	{
+		if (!record.getParentFoundSet().getDataSource().equals(datasource))
+		{
+			return false;
+		}
+
+		if (filter == null)
+		{
+			return true;
+		}
+
+		return filter.entrySet().stream()
+			.filter(entry -> record.has(entry.getKey().toString()))
+			.allMatch(entry -> {
+				Object recordValue = record.getValue(entry.getKey().toString());
+				Object filterValue = entry.getValue();
+				Predicate<Object> equalsRecordValue = value -> equalObjects(value, recordValue);
+
+				if (filterValue instanceof Object[])
+				{
+					return stream((Object[])filterValue).anyMatch(equalsRecordValue);
+				}
+
+				if (filterValue instanceof Iterable)
+				{
+					return StreamSupport.stream(((Iterable< ? >)filterValue).spliterator(), false).anyMatch(equalsRecordValue);
+				}
+
+				return equalsRecordValue.test(filterValue);
+			});
+	}
+
+	private IRecordInternal[] getEditedRecords(Predicate< ? super IRecordInternal> recordFilter, boolean removeUnchanged)
+	{
 		if (removeUnchanged)
 		{
-			removeUnChangedRecords(true, false, set);
+			removeUnChangedRecords(true, false, recordFilter);
 		}
 		List<IRecordInternal> al = new ArrayList<IRecordInternal>();
 		editRecordsLock.lock();
@@ -150,7 +210,7 @@ public class EditRecordList
 			for (int i = editedRecords.size(); --i >= 0;)
 			{
 				IRecordInternal record = editedRecords.get(i);
-				if (record.getParentFoundSet() == set)
+				if (recordFilter.test(record))
 				{
 					al.add(record);
 				}
@@ -195,7 +255,7 @@ public class EditRecordList
 		// TODO don't we have to check for any related foundset edits here as well?
 		if (testForRemoves)
 		{
-			removeUnChangedRecords(false, false, foundset);
+			removeUnChangedRecords(false, false, recordParentFoundsetFilter(foundset));
 		}
 		editRecordsLock.lock();
 		try
@@ -237,7 +297,7 @@ public class EditRecordList
 
 	public int stopEditing(boolean javascriptStop)
 	{
-		return stopEditing(javascriptStop, (List<IRecord>)null, 0);
+		return stopEditing(javascriptStop, (List<IRecord>)null);
 	}
 
 	/**
@@ -249,7 +309,7 @@ public class EditRecordList
 	 */
 	public int stopEditing(boolean javascriptStop, IRecord recordToSave)
 	{
-		return stopEditing(javascriptStop, Arrays.asList(new IRecord[] { recordToSave }), 0);
+		return stopEditing(javascriptStop, Arrays.asList(new IRecord[] { recordToSave }));
 	}
 
 	/**
@@ -259,12 +319,51 @@ public class EditRecordList
 	 * @param recordsToSave null means all records
 	 * @return IRowChangeListener static final
 	 */
+	@SuppressWarnings("nls")
 	public int stopEditing(boolean javascriptStop, List<IRecord> recordsToSave)
 	{
-		return stopEditing(javascriptStop, recordsToSave, 0);
+		int stopped = stopEditingImpl(javascriptStop, recordsToSave, 0);
+		if ((stopped == ISaveConstants.VALIDATION_FAILED || stopped == ISaveConstants.SAVE_FAILED) && !javascriptStop)
+		{
+			IApplication application = fsm.getApplication();
+			Solution solution = application.getSolution();
+			int mid = solution.getOnAutoSaveFailedMethodID();
+			if (mid > 0)
+			{
+				ScriptMethod sm = application.getFlattenedSolution().getScriptMethod(mid);
+				if (sm != null)
+				{
+					// the validation failed in a none javascript stop (so this was an autosave failure)
+					List<JSRecordMarkers> failedMarkers = failedRecords.stream().map(record -> record.getRecordMarkers()).collect(Collectors.toList());
+					try
+					{
+						application.getScriptEngine().getScopesScope()
+							.executeGlobalFunction(sm.getScopeName(), sm.getName(),
+								Utils.arrayMerge((new Object[] { failedMarkers.toArray() }),
+									Utils.parseJSExpressions(
+										solution.getFlattenedMethodArguments(IContentSpecConstants.PROPERTY_ONAUTOSAVEDFAILEDMETHODID))),
+								false, false);
+					}
+					catch (Exception e)
+					{
+						application.reportJSError("Failed to run the solutions auto save failed method", e);
+					}
+				}
+				else
+				{
+					application
+						.reportJSWarning("Solution " + application.getSolutionName() + " onautosavefailed method not found for id " + mid);
+				}
+			}
+
+		}
+		return stopped;
 	}
 
-	private int stopEditing(final boolean javascriptStop, List<IRecord> recordsToSave, int recursionDepth)
+	/**
+	 * This method should only be called through stopEditing(boolean,List<Record>) so that that can call onAutoSaveFailed.
+	 */
+	private int stopEditingImpl(final boolean javascriptStop, List<IRecord> recordsToSave, int recursionDepth)
 	{
 		if (recursionDepth > 50)
 		{
@@ -433,6 +532,7 @@ public class EditRecordList
 			}
 
 			int failedCount = 0;
+			boolean justValidationErrors = false;
 			lastStopEditingException = null;
 			List<RowUpdateInfo> rowUpdates = new ArrayList<RowUpdateInfo>(editRecordListSize);
 			editRecordsLock.lock();
@@ -498,10 +598,11 @@ public class EditRecordList
 							// when the trigger throws an exception, the record must move from editedRecords to failedRecords so that in
 							//    scripting the failed records can be examined (the thrown value is retrieved via record.exception.getValue())
 							editRecordsLock.unlock();
+							boolean validationErrors = false;
 							try
 							{
-								JSValidationObject validateObject = fsm.validateRecord(record, null);
-								if (validateObject != null) // throws ServoyException when trigger method throws exception
+								JSRecordMarkers validateObject = fsm.validateRecord(record, null);
+								if (validateObject != null && validateObject.isHasErrors()) // throws ServoyException when trigger method throws exception
 								{
 									Object[] genericExceptions = validateObject.getGenericExceptions();
 									if (genericExceptions.length > 0)
@@ -509,24 +610,34 @@ public class EditRecordList
 										// compartible with old code, then those exceptions are catched below.
 										throw (Exception)genericExceptions[0];
 									}
-									// just directly return if one returns false.
-									return ISaveConstants.VALIDATION_FAILED;
+									// we always want to process all records, but mark this as a validation error so below the failed records are updated.
+									validationErrors = true;
+									// update the just failed boolean to true, if that is true and there is not really an exception then handleException of application is not called.
+									justValidationErrors = true;
+									failedCount++;
+									if (!failedRecords.contains(record))
+									{
+										failedRecords.add(record);
+									}
+									recordTested.remove(record);
 								}
 							}
 							finally
 							{
 								editRecordsLock.lock();
 							}
-
-							RowUpdateInfo rowUpdateInfo = getRecordUpdateInfo(record);
-							if (rowUpdateInfo != null)
+							if (!validationErrors)
 							{
-								rowUpdateInfo.setRecord(record);
-								rowUpdates.add(rowUpdateInfo);
-							}
-							else
-							{
-								recordTested.remove(record);
+								RowUpdateInfo rowUpdateInfo = getRecordUpdateInfo(record);
+								if (rowUpdateInfo != null)
+								{
+									rowUpdateInfo.setRecord(record);
+									rowUpdates.add(rowUpdateInfo);
+								}
+								else
+								{
+									recordTested.remove(record);
+								}
 							}
 						}
 						catch (ServoyException e)
@@ -564,13 +675,21 @@ public class EditRecordList
 
 			if (failedCount > 0)
 			{
-				if (!(lastStopEditingException instanceof ServoyException))
+				placeBackAlreadyProcessedRecords(rowUpdates);
+				if (lastStopEditingException == null && justValidationErrors)
 				{
-					lastStopEditingException = new ApplicationException(ServoyException.SAVE_FAILED, lastStopEditingException);
+					return ISaveConstants.VALIDATION_FAILED;
 				}
-				if (!javascriptStop) fsm.getApplication().handleException(fsm.getApplication().getI18NMessage("servoy.formPanel.error.saveFormData"), //$NON-NLS-1$
-					lastStopEditingException);
-				return ISaveConstants.SAVE_FAILED;
+				else
+				{
+					if (!(lastStopEditingException instanceof ServoyException))
+					{
+						lastStopEditingException = new ApplicationException(ServoyException.SAVE_FAILED, lastStopEditingException);
+					}
+					if (!javascriptStop) fsm.getApplication().handleException(fsm.getApplication().getI18NMessage("servoy.formPanel.error.saveFormData"), //$NON-NLS-1$
+						lastStopEditingException);
+					return ISaveConstants.SAVE_FAILED;
+				}
 			}
 
 			if (rowUpdates.size() == 0)
@@ -589,7 +708,7 @@ public class EditRecordList
 			}
 
 			RowUpdateInfo[] infos = rowUpdates.toArray(new RowUpdateInfo[rowUpdates.size()]);
-			if (infos.length > 1 && !disableInsertsReorder)
+			if (infos.length > 1 && !fsm.disableInsertsReorder)
 			{
 				// search if there are new row pks used that are
 				// used in records before this record and sort it based on that.
@@ -631,7 +750,7 @@ public class EditRecordList
 									if (pkColumn.hasFlag(IBaseColumn.UUID_COLUMN))
 									{
 										// same uuids are the same even if not the same object
-										same = Utils.equalObjects(pkObject, values[l], 0, true);
+										same = equalObjects(pkObject, values[l], 0, true);
 									}
 								}
 								if (same)
@@ -656,10 +775,35 @@ public class EditRecordList
 				}
 			}
 
-			ISQLStatement[] statements = new ISQLStatement[infos.length];
-			for (int i = 0; i < infos.length; i++)
+			ISQLStatement[] statements;
+			if (fsm.statementBatching && infos.length > 1)
 			{
-				statements[i] = infos[i].getISQLStatement();
+				// Merge insert statements insert statements from all info's: multiple info's can share the same statement of the records are batched together on the statement level
+				List<ISQLStatement> mergedStatements = new ArrayList<ISQLStatement>(infos.length);
+
+				ISQLStatement prevStatement = null;
+				for (RowUpdateInfo rowUpdateInfo : infos)
+				{
+					ISQLStatement statement = rowUpdateInfo.getISQLStatement();
+
+					if (statement.getAction() == ISQLActionTypes.INSERT_ACTION &&
+						prevStatement != null && prevStatement.getAction() == ISQLActionTypes.INSERT_ACTION &&
+						insertStatementsCanBeMerged(prevStatement, statement))
+					{
+						mergeInsertStatements(prevStatement, statement);
+					}
+					else
+					{
+						prevStatement = statement;
+						mergedStatements.add(statement);
+					}
+				}
+
+				statements = mergedStatements.toArray(new ISQLStatement[mergedStatements.size()]);
+			}
+			else
+			{
+				statements = stream(infos).map(RowUpdateInfo::getISQLStatement).toArray(ISQLStatement[]::new);
 			}
 
 			// TODO if one statement fails in a transaction how do we know which one? and should we rollback all rows in these statements?
@@ -711,6 +855,10 @@ public class EditRecordList
 						}
 						row.setLastException((Exception)retValue);
 						markRecordAsFailed(record);
+						JSRecordMarkers vo = record.getRecordMarkers() != null ? record.getRecordMarkers()
+							: new JSRecordMarkers(record, fsm.getApplication());
+						vo.addGenericException((Exception)retValue);
+						record.setRecordMarkers(vo);
 						continue;
 					}
 					else if (retValue instanceof Object[])
@@ -773,6 +921,10 @@ public class EditRecordList
 					lastStopEditingException = e;
 					failedCount++;
 					row.setLastException(e);
+					JSRecordMarkers vo = record.getRecordMarkers() != null ? record.getRecordMarkers()
+						: new JSRecordMarkers(record, fsm.getApplication());
+					vo.addGenericException(e);
+					record.setRecordMarkers(vo);
 					editRecordsLock.lock();
 					try
 					{
@@ -844,6 +996,10 @@ public class EditRecordList
 						lastStopEditingException = e;
 						failedCount++;
 						rowUpdateInfoRecord.getRawData().setLastException(e);
+						JSRecordMarkers vo = rowUpdateInfoRecord.getRecordMarkers() != null ? rowUpdateInfoRecord.getRecordMarkers()
+							: new JSRecordMarkers(rowUpdateInfoRecord, fsm.getApplication());
+						vo.addGenericException(e);
+						rowUpdateInfoRecord.setRecordMarkers(vo);
 						editRecordsLock.lock();
 						try
 						{
@@ -929,10 +1085,135 @@ public class EditRecordList
 		if (editedRecords.size() != editedRecordsSize && recordsToSave == null)
 		{
 			// records where changed by the after insert/update table events, call stop edit again if this was not a specific record save.
-			return stopEditing(javascriptStop, null, recursionDepth + 1);
+			return stopEditingImpl(javascriptStop, null, recursionDepth + 1);
 		}
 
 		return ISaveConstants.STOPPED;
+	}
+
+	/**
+	 * Check if these 2 insert statements can be merged into one batched on.
+	 * @throws RepositoryException
+	 */
+	private boolean insertStatementsCanBeMerged(ISQLStatement statement1, ISQLStatement statement2)
+	{
+		// table
+		if (!statement1.getServerName().equals(statement2.getServerName()) || !statement1.getTableName().equals(statement2.getTableName()))
+		{
+			return false;
+		}
+
+		// skip oracle server
+		try
+		{
+			IServer server = fsm.getApplication().getSolution().getServer(statement1.getServerName());
+			if (SQLSheet.isOracleServer(server))
+			{
+				return false;
+			}
+		}
+		catch (RepositoryException e)
+		{
+			return false;
+		}
+
+		if (statement1.isOracleFixTrackingData() || statement2.isOracleFixTrackingData())
+		{
+			return false;
+		}
+
+		// insert with PKs, these will be combined
+		if (statement1.getPKs() == null || statement2.getPKs() == null || statement1.getPKs().getColumnCount() != statement2.getPKs().getColumnCount())
+		{
+			return false;
+		}
+
+		// filters
+		if (!statement1.getClass().equals(statement2.getClass()))
+		{
+			return false;
+		}
+		if (statement1 instanceof SQLStatement && !Utils.safeEquals(((SQLStatement)statement1).getFilters(), ((SQLStatement)statement2).getFilters()))
+		{
+			return false;
+		}
+
+		// Don't batch if statement requires requery, only because SQLStatements & serverside logic cannot handle it (yet)
+		// Neither do batching if tracking is enabled, because setTrackingData isn't yet implemented properly for batching
+
+		// requerySelect
+		if (statement1.getRequerySelect() != null || statement2.getRequerySelect() != null)
+		{
+			return false;
+		}
+
+		// tracking
+		if (statement1 instanceof SQLStatement && ((SQLStatement)statement1).isTracking())
+		{
+			return false;
+		}
+		if (statement2 instanceof SQLStatement && ((SQLStatement)statement2).isTracking())
+		{
+			return false;
+		}
+
+		// transaction
+		if (!Utils.safeEquals(statement1.getTransactionID(), statement2.getTransactionID()))
+		{
+			return false;
+		}
+
+		// identitycolumn
+		if (statement1.usedIdentity() || statement2.usedIdentity())
+		{
+			return false;
+		}
+
+		// datatype
+		if (statement1.getDataType() != statement2.getDataType())
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Merge the src statement into the target statement.
+	 */
+	private void mergeInsertStatements(ISQLStatement targetStatement, ISQLStatement srcStatement)
+	{
+		QueryInsert sqlUpdateTarget = (QueryInsert)targetStatement.getUpdate();
+		Placeholder placeholderTarget = (Placeholder)sqlUpdateTarget.getValues();
+//		Placeholder placeholderTarget = sqlUpdateTarget.getPlaceholder(new TablePlaceholderKey(sqlUpdateTarget.getTable(), SQLGenerator.PLACEHOLDER_INSERT_KEY));
+		Object[][] valTarget = (Object[][])placeholderTarget.getValue();
+
+		QueryInsert sqlUpdateSrc = (QueryInsert)srcStatement.getUpdate();
+		Placeholder placeholderSrc = (Placeholder)sqlUpdateSrc.getValues();
+//		Placeholder placeholderSrc = sqlUpdateSrc.getPlaceholder(new TablePlaceholderKey(sqlUpdateSrc.getTable(), SQLGenerator.PLACEHOLDER_INSERT_KEY));
+		Object[][] valSrc = (Object[][])placeholderSrc.getValue();
+
+		// Copy insert values into the target insert placeholder
+		for (int i = 0; i < valTarget.length; i++)
+		{
+			valTarget[i] = Utils.arrayJoin(valSrc[i], valTarget[i]);
+		}
+
+		// Copy the pks into the target pks
+		IDataSet targetpKs = targetStatement.getPKs();
+		IDataSet srcpKs = srcStatement.getPKs();
+		for (int row = 0; row < srcpKs.getRowCount(); row++)
+		{
+			targetpKs.addRow(srcpKs.getRow(row));
+		}
+	}
+
+	/**
+	 * @param rowUpdates
+	 */
+	private void placeBackAlreadyProcessedRecords(List<RowUpdateInfo> rowUpdates)
+	{
+		rowUpdates.stream().map(update -> update.getRecord()).forEachOrdered(editedRecords::add);
 	}
 
 	/**
@@ -1040,7 +1321,7 @@ public class EditRecordList
 		removeUnChangedRecords(checkCalcValues, doActualRemove, null);
 	}
 
-	public void removeUnChangedRecords(boolean checkCalcValues, boolean doActualRemove, IFoundSet foundset)
+	public void removeUnChangedRecords(boolean checkCalcValues, boolean doActualRemove, Predicate< ? super IRecordInternal> recordFilter)
 	{
 		if (preparingForSave) return;
 		// Test the edited records if they are changed or not.
@@ -1057,7 +1338,7 @@ public class EditRecordList
 		for (Object element : editedRecordsArray)
 		{
 			IRecordInternal record = (IRecordInternal)element;
-			if ((foundset == null || record.getParentFoundSet() == foundset) && !testIfRecordIsChanged(record, checkCalcValues))
+			if ((recordFilter == null || recordFilter.test(record)) && !testIfRecordIsChanged(record, checkCalcValues))
 			{
 				if (doActualRemove)
 				{
@@ -1481,7 +1762,7 @@ public class EditRecordList
 	 * @param set
 	 * @return
 	 */
-	public IRecordInternal[] getUnmarkedEditedRecords(IFoundSetInternal set)
+	public IRecordInternal[] getUnmarkedEditedRecords(IFoundSetInternal set, IPrepareForSave prepareForSave)
 	{
 		List<IRecordInternal> al = new ArrayList<IRecordInternal>();
 		editRecordsLock.lock();
@@ -1490,9 +1771,13 @@ public class EditRecordList
 			for (int i = editedRecords.size(); --i >= 0;)
 			{
 				IRecordInternal record = editedRecords.get(i);
-				if (record.getParentFoundSet() == set && !recordTested.contains(record))
+				if (record.getParentFoundSet() == set)
 				{
-					al.add(record);
+					List<IPrepareForSave> forms = recordTested.get(record);
+					if (forms == null || !forms.contains(prepareForSave))
+					{
+						al.add(record);
+					}
 				}
 			}
 		}
@@ -1507,14 +1792,20 @@ public class EditRecordList
 	/**
 	 * @param record
 	 */
-	public void markRecordTested(IRecordInternal record)
+	public void markRecordTested(IRecordInternal record, IPrepareForSave prepareForSave)
 	{
 		editRecordsLock.lock();
 		try
 		{
-			if (!recordTested.contains(record))
+			List<IPrepareForSave> forms = recordTested.get(record);
+			if (forms == null)
 			{
-				recordTested.add(record);
+				forms = new ArrayList<IPrepareForSave>();
+				recordTested.put(record, forms);
+			}
+			if (!forms.contains(prepareForSave))
+			{
+				forms.add(prepareForSave);
 			}
 		}
 		finally

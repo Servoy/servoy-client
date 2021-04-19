@@ -74,7 +74,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	}
 
 	/**
-	 * Creates a new field on this form. The type of the field is specified by 
+	 * Creates a new field on this form. The type of the field is specified by
 	 * using one of the JSField constants like JSField.TEXT_FIELD.
 	 *
 	 * @sample
@@ -82,7 +82,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	 *
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
 	 * vlist.customValues = "one\ntwo\nthree\nfour";
-	 * 
+	 *
 	 * var cal = childrenPortal.newField('my_table_date', JSField.CALENDAR, 0, 60, 20);
 	 * var chk = childrenPortal.newField('my_table_options', JSField.CHECKS, 60, 60, 50);
 	 * chk.valuelist = vlist;
@@ -108,7 +108,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	 * @param width The width of the field.
 	 *
 	 * @param height The height of the field. In a portal the height of all components is set to the height of the first component, unless the "multiLine" property is set.
-	 * 
+	 *
 	 * @return A JSField instance that corresponds to the newly created field.
 	 */
 	@JSFunction
@@ -141,13 +141,13 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	}
 
 	/**
-	 * Creates a new text field in the portal. It is equivalent to calling "newField" 
+	 * Creates a new text field in the portal. It is equivalent to calling "newField"
 	 * with the type JSField.TEXT_FIELD.
-	 * 
+	 *
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_my_table', 10, 10, 1180, 780);
 	 * var tfield = childrenPortal.newTextField('my_table_text', 540, 60, 20);
-	 * 
+	 *
 	 * @param dataprovider The data provider for this field. Can be either a column name, or an instance of JSVariable.
 	 *
 	 * @param x The x coordinate of the field. If the portal does not have the "multiLine" property set, then the x coordinates are used only for determining the order of the columns in the grid. If the portal has the "multiLine" property set, then the components are actually displayed at the specified coordinates.
@@ -165,13 +165,13 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	}
 
 	/**
-	 * Creates a new text area field in the portal. It is equivalent to calling "newField" 
+	 * Creates a new text area field in the portal. It is equivalent to calling "newField"
 	 * with the type JSField.TEXT_AREA.
-	 * 
+	 *
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_my_table', 10, 10, 1180, 780);
 	 * var tarea = childrenPortal.newTextArea('my_table_text', 480, 60, 50);
-	 * 
+	 *
 	 * @param dataprovider The data provider for this field. Can be either a column name, or an instance of JSVariable.
 	 *
 	 * @param x The x coordinate of the field. If the portal does not have the "multiLine" property set, then the x coordinates are used only for determining the order of the columns in the grid. If the portal has the "multiLine" property set, then the components are actually displayed at the specified coordinates.
@@ -189,16 +189,16 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	}
 
 	/**
-	 * Creates a new combobox field in the portal. It is equivalent to calling "newField" 
+	 * Creates a new combobox field in the portal. It is equivalent to calling "newField"
 	 * with the type JSField.COMBOBOX.
-	 * 
+	 *
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_my_table', 10, 10, 1180, 780);
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
 	 * vlist.customValues = "one\ntwo\nthree\nfour";
 	 * var cmb = childrenPortal.newComboBox('my_table_options', 120, 160, 20);
 	 * cmb.valuelist = vlist;
-	 * 
+	 *
 	 * @param dataprovider The data provider for this field. Can be either a column name, or an instance of JSVariable.
 	 *
 	 * @param x The x coordinate of the field. If the portal does not have the "multiLine" property set, then the x coordinates are used only for determining the order of the columns in the grid. If the portal has the "multiLine" property set, then the components are actually displayed at the specified coordinates.
@@ -216,16 +216,16 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	}
 
 	/**
-	 * Creates a new radio buttons field in the portal. It is equivalent to calling "newField" 
+	 * Creates a new radio buttons field in the portal. It is equivalent to calling "newField"
 	 * with the type JSField.RADIOS.
-	 * 
+	 *
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_my_table', 10, 10, 1180, 780);
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
 	 * vlist.customValues = "one\ntwo\nthree\nfour";
 	 * var radio = childrenPortal.newRadios('my_table_options', 360, 60, 50);
 	 * radio.valuelist = vlist;
-	 * 
+	 *
 	 * @param dataprovider The data provider for this field. Can be either a column name, or an instance of JSVariable.
 	 *
 	 * @param x The x coordinate of the field. If the portal does not have the "multiLine" property set, then the x coordinates are used only for determining the order of the columns in the grid. If the portal has the "multiLine" property set, then the components are actually displayed at the specified coordinates.
@@ -243,16 +243,16 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	}
 
 	/**
-	 * Creates a new checkbox field in the portal. It is equivalent to calling "newField" 
+	 * Creates a new checkbox field in the portal. It is equivalent to calling "newField"
 	 * with the type JSField.CHECKS.
-	 * 
+	 *
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_my_table', 10, 10, 1180, 780);
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
 	 * vlist.customValues = "one\ntwo\nthree\nfour";
 	 * var chk = childrenPortal.newCheck('my_table_options', 60, 60, 50);
 	 * chk.valuelist = vlist;
-	 * 
+	 *
 	 * @param dataprovider The data provider for this field. Can be either a column name, or an instance of JSVariable.
 	 *
 	 * @param x The x coordinate of the field. If the portal does not have the "multiLine" property set, then the x coordinates are used only for determining the order of the columns in the grid. If the portal has the "multiLine" property set, then the components are actually displayed at the specified coordinates.
@@ -270,13 +270,13 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	}
 
 	/**
-	 * Creates a new calendar field in the portal. It is equivalent to calling "newField" 
+	 * Creates a new calendar field in the portal. It is equivalent to calling "newField"
 	 * with the type JSField.CALENDAR.
-	 * 
+	 *
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_my_table', 10, 10, 1180, 780);
 	 * var cal = childrenPortal.newCalendar('my_table_date', 0, 60, 20);
-	 * 
+	 *
 	 * @param dataprovider The data provider for this field. Can be either a column name, or an instance of JSVariable.
 	 *
 	 * @param x The x coordinate of the field. If the portal does not have the "multiLine" property set, then the x coordinates are used only for determining the order of the columns in the grid. If the portal has the "multiLine" property set, then the components are actually displayed at the specified coordinates.
@@ -294,13 +294,13 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	}
 
 	/**
-	 * Creates a new RTF Area field in the portal. It is equivalent to calling "newField" 
+	 * Creates a new RTF Area field in the portal. It is equivalent to calling "newField"
 	 * with the type JSField.RTF_AREA.
-	 * 
+	 *
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_my_table', 10, 10, 1180, 780);
 	 * var rtf = childrenPortal.newRtfArea('my_table_rtf', 420, 60, 50);
-	 * 
+	 *
 	 * @param dataprovider The data provider for this field. Can be either a column name, or an instance of JSVariable.
 	 *
 	 * @param x The x coordinate of the field. If the portal does not have the "multiLine" property set, then the x coordinates are used only for determining the order of the columns in the grid. If the portal has the "multiLine" property set, then the components are actually displayed at the specified coordinates.
@@ -318,13 +318,13 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	}
 
 	/**
-	 * Creates a new HTML Area field in the portal. It is equivalent to calling "newField" 
+	 * Creates a new HTML Area field in the portal. It is equivalent to calling "newField"
 	 * with the type JSField.HTML_AREA.
-	 * 
+	 *
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_my_table', 10, 10, 1180, 780);
 	 * var html = childrenPortal.newHtmlArea('my_table_html', 180, 60, 50);
-	 * 
+	 *
 	 * @param dataprovider The data provider for this field. Can be either a column name, or an instance of JSVariable.
 	 *
 	 * @param x The x coordinate of the field. If the portal does not have the "multiLine" property set, then the x coordinates are used only for determining the order of the columns in the grid. If the portal has the "multiLine" property set, then the components are actually displayed at the specified coordinates.
@@ -342,13 +342,13 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	}
 
 	/**
-	 * Creates a new Image Media field in the portal. It is equivalent to calling "newField" 
+	 * Creates a new Image Media field in the portal. It is equivalent to calling "newField"
 	 * with the type JSField.IMAGE_MEDIA.
-	 * 
+	 *
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_my_table', 10, 10, 1180, 780);
 	 * var img = childrenPortal.newImageMedia('my_table_image', 240, 60, 50);
-	 * 
+	 *
 	 * @param dataprovider The data provider for this field. Can be either a column name, or an instance of JSVariable.
 	 *
 	 * @param x The x coordinate of the field. If the portal does not have the "multiLine" property set, then the x coordinates are used only for determining the order of the columns in the grid. If the portal has the "multiLine" property set, then the components are actually displayed at the specified coordinates.
@@ -366,16 +366,16 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	}
 
 	/**
-	 * Creates a new type ahead field in the portal. It is equivalent to calling "newField" 
+	 * Creates a new type ahead field in the portal. It is equivalent to calling "newField"
 	 * with the type JSField.TYPE_AHEAD.
-	 * 
+	 *
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_my_table', 10, 10, 1180, 780);
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
 	 * vlist.customValues = "one\ntwo\nthree\nfour";
 	 * var tahead = childrenPortal.newTypeAhead('my_table_text', 600, 60, 20);
 	 * tahead.valuelist = vlist;
-	 * 
+	 *
 	 * @param dataprovider The data provider for this field. Can be either a column name, or an instance of JSVariable.
 	 *
 	 * @param x The x coordinate of the field. If the portal does not have the "multiLine" property set, then the x coordinates are used only for determining the order of the columns in the grid. If the portal has the "multiLine" property set, then the components are actually displayed at the specified coordinates.
@@ -393,13 +393,13 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	}
 
 	/**
-	 * Creates a new password field in the portal. It is equivalent to calling "newField" 
+	 * Creates a new password field in the portal. It is equivalent to calling "newField"
 	 * with the type JSField.PASSWORD.
-	 * 
+	 *
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_my_table', 10, 10, 1180, 780);
 	 * var pwd = childrenPortal.newPassword('my_table_text', 300, 60, 20);
-	 * 
+	 *
 	 * @param dataprovider The data provider for this field. Can be either a column name, or an instance of JSVariable.
 	 *
 	 * @param x The x coordinate of the field. If the portal does not have the "multiLine" property set, then the x coordinates are used only for determining the order of the columns in the grid. If the portal has the "multiLine" property set, then the components are actually displayed at the specified coordinates.
@@ -419,7 +419,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	/**
 	 * Creates a new button on the portal with the given text, place, size and JSMethod as the onClick action.
 	 *
-	 * @sample 
+	 * @sample
 	 * var clickMethod = form.newMethod('function clickMe() { application.output("I was clicked!"); }');
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_child', 10, 10, 620, 460);
 	 * childrenPortal.newButton('Click me!', 400, 100, 20, clickMethod);
@@ -433,7 +433,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	 * @param height The height of the button. In a portal the height of all components is set to the height of the first component, unless the "multiLine" property is set.
 	 *
 	 * @param action The JSMethod object that should be executed when the button is clicked.
-	 * 
+	 *
 	 * @return A JSButton instance representing the newly created button.
 	 */
 	@JSFunction
@@ -452,7 +452,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 			}
 			else
 			{
-				int id = JSBaseContainer.getMethodId(action, gc, application);
+				int id = JSForm.getMethodId(action, gc, application);
 				gc.setOnActionMethodID(id);
 				return new JSButton(this, gc, application, true);
 			}
@@ -474,11 +474,11 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	 * @sample
 	 * var clickMethod = form.newMethod('function clickMe() { application.output("I was clicked!"); }');
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_my_table', 10, 10, 1180, 780);
-	 * var calLabel = childrenPortal.newLabel('Date', 120, 60, 20); 
+	 * var calLabel = childrenPortal.newLabel('Date', 120, 60, 20);
 	 * // This will result in a button being actually created, because we specify an action.
 	 * var textLabel = childrenPortal.newLabel('Text', 180, 60, 20, clickMethod);
 	 *
-	 * @param txt The text that will be displayed in the label. 
+	 * @param txt The text that will be displayed in the label.
 	 *
 	 * @param x The x coordinate of the label. If the portal does not have the "multiLine" property set, then the x coordinates are used only for determining the order of the columns in the grid. If the portal has the "multiLine" property set, then the components are actually displayed at the specified coordinates.
 	 *
@@ -494,8 +494,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 		return newLabel(txt, x, width, height, null);
 	}
 
-	public IBaseSMLabel newLabel(String txt, int x, @SuppressWarnings("unused")
-	int y, int width, int height)
+	public IBaseSMLabel newLabel(String txt, int x, @SuppressWarnings("unused") int y, int width, int height)
 	{
 		return newLabel(txt, x, width, height, null);
 	}
@@ -506,11 +505,11 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	 * @sample
 	 * var clickMethod = form.newMethod('function clickMe() { application.output("I was clicked!"); }');
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_my_table', 10, 10, 1180, 780);
-	 * var calLabel = childrenPortal.newLabel('Date', 120, 60, 20); 
+	 * var calLabel = childrenPortal.newLabel('Date', 120, 60, 20);
 	 * // This will result in a button being actually created, because we specify an action.
 	 * var textLabel = childrenPortal.newLabel('Text', 180, 60, 20, clickMethod);
 	 *
-	 * @param text The text that will be displayed in the label. 
+	 * @param text The text that will be displayed in the label.
 	 *
 	 * @param x The x coordinate of the label. If the portal does not have the "multiLine" property set, then the x coordinates are used only for determining the order of the columns in the grid. If the portal has the "multiLine" property set, then the components are actually displayed at the specified coordinates.
 	 *
@@ -519,7 +518,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	 * @param height The height of the label. In a portal the height of all components is set to the height of the first component, unless the "multiLine" property is set.
 	 *
 	 * @param action The JSMethod object that should be executed when the label is clicked.
-	 * 
+	 *
 	 * @return A JSLabel instance that represents the newly created label.
 	 */
 	@JSFunction
@@ -538,7 +537,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 			}
 			else
 			{
-				int id = JSBaseContainer.getMethodId(action, gc, application);
+				int id = JSForm.getMethodId(action, gc, application);
 				if (id != -1) gc.setOnActionMethodID(id);
 				return new JSLabel(this, gc, application, true);
 			}
@@ -551,7 +550,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 
 	/**
 	 * Retrieves a field from this portal based on the name of the field.
-	 * 
+	 *
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_my_table', 10, 10, 1180, 780);
 	 * var cal = childrenPortal.newField('my_table_date', JSField.CALENDAR, 0, 60, 20);
@@ -564,9 +563,9 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	 * var allFields = childrenPortal.getFields();
 	 * var calFieldBack = allFields[0];
 	 * calFieldBack.foreground = 'red';
-	 * 
+	 *
 	 * @param name The name of the field to retrieve.
-	 * 
+	 *
 	 * @return A JSField instance corresponding to the field with the specified name.
 	 */
 	@JSFunction
@@ -588,9 +587,9 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 
 	/**
 	 * Retrieves an array with all fields in a portal.
-	 * 
+	 *
 	 * @sampleas getField(String)
-	 * 
+	 *
 	 * @return An array with JSField instances corresponding to all fields in the portal.
 	 */
 	@JSFunction
@@ -608,7 +607,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 
 	/**
 	 * Retrieves a button from the portal based on the name of the button.
-	 * 
+	 *
 	 * @sample
 	 * var clickMethod = form.newMethod('function clickMe() { application.output("I was clicked!"); }');
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_child', 10, 10, 620, 460);
@@ -621,9 +620,9 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	 * var allButtons = childrenPortal.getButtons();
 	 * var btnBackAgain = allButtons[0];
 	 * btnBackAgain.foreground = 'red';
-	 * 
+	 *
 	 * @param name The name of the button to retrieve.
-	 * 
+	 *
 	 * @return A JSButton instance that corresponds to the button with the specified name.
 	 */
 	@JSFunction
@@ -645,9 +644,9 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 
 	/**
 	 * Retrieves an array with all buttons in the portal.
-	 * 
+	 *
 	 * @sampleas getButton(String)
-	 * 
+	 *
 	 * @return An array with all buttons in the portal.
 	 */
 	@JSFunction
@@ -668,7 +667,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 
 	/**
 	 * Retrieves a label from this portal based on the name of the label.
-	 * 
+	 *
 	 * @sample
 	 * var calLabel = childrenPortal.newLabel('Date', 120, 60, 20);
 	 * var textLabel = childrenPortal.newLabel('Text', 180, 60, 20);
@@ -680,9 +679,9 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	 * var allLabels = childrenPortal.getLabels();
 	 * var calLabelBack = allLabels[0];
 	 * calLabelBack.foreground = 'red';
-	 * 
+	 *
 	 * @param name The name of the label to retrieve.
-	 * 
+	 *
 	 * @return A JSLabel instance corresponding to the label with the specified name.
 	 */
 	@JSFunction
@@ -704,9 +703,9 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 
 	/**
 	 * Retrieves all labels from the portal.
-	 * 
+	 *
 	 * @sampleas getLabel(String)
-	 * 
+	 *
 	 * @return An array of JSLabel instances corresponding to all labels in the portal.
 	 */
 	@JSFunction
@@ -736,7 +735,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Portal#getInitialSort()
-	 * 
+	 *
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp',rel,10,10,620,460);
 	 * childrenPortal.newTextField('child_table_id', 0, 100, 20);
@@ -758,12 +757,12 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Portal#getIntercellSpacing()
-	 * 
+	 *
 	 * @sample
 	 * var spacing = childrenPortal.getIntercellSpacing();
 	 * application.output("horizontal spacing: " + spacing.width);
 	 * application.output("vertical spacing: " + spacing.height);
-	 * 
+	 *
 	 * @return A java.awt.Dimension object holding the horizontal and vertical intercell spacing.
 	 */
 	@JSFunction
@@ -803,7 +802,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Portal#getRelationName()
-	 * 
+	 *
 	 * @sample
 	 * // Create the portal based on one relation.
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_child', 10, 10, 620, 460);
@@ -830,7 +829,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Portal#getReorderable()
-	 * 
+	 *
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_child', 10, 10, 620, 460);
 	 * childrenPortal.newTextField('child_table_id', 0, 100, 20);
@@ -852,9 +851,9 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Portal#getResizeble()
-	 * 
+	 *
 	 * @deprecated As of release 6.0, replaced by {@link #getResizable()}.
-	 * 
+	 *
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_child', 10, 10, 620, 460);
 	 * childrenPortal.newTextField('child_table_id', 0, 100, 20);
@@ -871,7 +870,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Portal#getResizable()
-	 * 
+	 *
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_child', 10, 10, 620, 460);
 	 * childrenPortal.newTextField('child_table_id', 0, 100, 20);
@@ -894,9 +893,9 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Portal#getRowBGColorCalculation()
-	 * 
+	 *
 	 * @deprecated As of release 6.0, replaced by onRender event.
-	 * 
+	 *
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_child', 10, 10, 620, 460);
 	 * childrenPortal.newTextField('child_table_id', 0, 100, 20);
@@ -905,7 +904,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 	 * // Set the row background color calculation. The name should be of a calculation that
 	 * // exists in the table.
 	 * childrenPortal.rowBGColorCalculation = 'row_color';
-	 * 
+	 *
 	 */
 	@Deprecated
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
@@ -916,7 +915,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Portal#getRowHeight()
-	 * 
+	 *
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_child', 10, 10, 620, 460);
 	 * childrenPortal.newTextField('child_table_id', 0, 100, 20);
@@ -953,7 +952,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Portal#getShowHorizontalLines()
-	 * 
+	 *
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_child', 10, 10, 620, 460);
 	 * childrenPortal.newTextField('child_table_id', 0, 100, 20);
@@ -976,7 +975,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Portal#getShowVerticalLines()
-	 * 
+	 *
 	 * @sampleas getShowHorizontalLines()
 	 */
 	@JSGetter
@@ -993,7 +992,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Portal#getSortable()
-	 * 
+	 *
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp', 'parent_to_child', 10, 10, 620, 460);
 	 * childrenPortal.newTextField('child_table_id', 0, 100, 20);
@@ -1030,16 +1029,16 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Portal#getIntercellSpacing()
-	 * 
+	 *
 	 * @sample
 	 * var childrenPortal = form.newPortal('pp',rel,10,10,620,460);
 	 * childrenPortal.newTextField('child_table_id', 0, 100, 20);
 	 * childrenPortal.newTextField('child_table_text',100,100,20);
 	 * childrenPortal.newTextField('child_table_parent_id', 200, 100, 20);
 	 * childrenPortal.setIntercellSpacing(5,10);
-	 * 
+	 *
 	 * @param width The horizontal spacing between cells.
-	 * 
+	 *
 	 * @param height The vertical spacing between cells.
 	 */
 	@JSFunction
@@ -1107,7 +1106,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Portal#getOnRenderMethodID()
-	 * 
+	 *
 	 * @sample
 	 * portal.onRender = form.newMethod('function onRender(event) { event.getElement().bgcolor = \'#00ff00\' }');
 	 */
@@ -1125,7 +1124,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Portal#getOnDragMethodID()
-	 * 
+	 *
 	 * @sample
 	 * form.onDrag = form.newMethod('function onDrag(event) { application.output("onDrag intercepted from " + event.getSource()); }');
 	 * form.onDragEnd = form.newMethod('function onDragEnd(event) { application.output("onDragEnd intercepted from " + event.getSource()); }');
@@ -1146,7 +1145,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Portal#getOnDragEndMethodID()
-	 * 
+	 *
 	 * @sampleas getOnDrag()
 	 */
 	@JSGetter
@@ -1163,7 +1162,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Portal#getOnDragOverMethodID()
-	 * 
+	 *
 	 * @sampleas getOnDrag()
 	 */
 	@JSGetter
@@ -1180,7 +1179,7 @@ public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, 
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Portal#getOnDropMethodID()
-	 * 
+	 *
 	 * @sampleas getOnDrag()
 	 */
 	@JSGetter

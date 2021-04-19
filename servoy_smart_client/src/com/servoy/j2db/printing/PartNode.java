@@ -122,8 +122,9 @@ public class PartNode
 						{
 							try
 							{
-								IDataProvider dp = application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), f).getDataProvider(
-									name);
+								IDataProvider dp = application.getFlattenedSolution().getDataproviderLookup(application.getFoundSetManager(), f)
+									.getDataProvider(
+										name);
 								if (dp instanceof AggregateVariable)
 								{
 									if (!aggregates.contains(dp)) aggregates.add((AggregateVariable)dp);
@@ -223,19 +224,17 @@ public class PartNode
 				}
 
 				Column column = (Column)element.getColumn();
-				QueryColumn queryColumn = new QueryColumn(queryTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(),
-					column.getScale(), column.getFlags());
+				QueryColumn queryColumn = column.queryColumn(queryTable);
 				selectCols.add(queryColumn);
 				groupbyCols.add(queryColumn);
 				sortbyCols.add(new QuerySort(queryColumn, element.getSortOrder() == SortColumn.ASCENDING));
 			}
 
 			//make sql
-			for (int i = 0; i < allAggregates.size(); i++)
+			for (AggregateVariable ag : allAggregates)
 			{
-				AggregateVariable ag = allAggregates.get(i);
 				selectCols.add(new QueryAggregate(ag.getType(), new QueryColumn(newSQLString.getTable(), -1, ag.getColumnNameToAggregate(),
-					ag.getDataProviderType(), ag.getLength(), 0, ag.getFlags()), ag.getName()));
+					ag.getDataProviderType(), ag.getLength(), 0, null, ag.getFlags()), ag.getName()));
 			}
 
 			newSQLString.setColumns(selectCols);
@@ -245,16 +244,16 @@ public class PartNode
 
 			FoundSetManager foundSetManager = ((FoundSetManager)app.getFoundSetManager());
 			String transaction_id = foundSetManager.getTransactionID(table.getServerName());
-			IDataSet data = server.performQuery(app.getClientID(), table.getServerName(), transaction_id, newSQLString,
+			IDataSet data = server.performQuery(app.getClientID(), table.getServerName(), transaction_id, newSQLString, null,
 				foundSetManager.getTableFilterParams(table.getServerName(), newSQLString), false, 0, foundSetManager.pkChunkSize * 4, IDataServer.PRINT_QUERY);
 			SubSummaryFoundSet newSet = new SubSummaryFoundSet(app.getFoundSetManager(), rootSet, sortColumns, allAggregates, data, table);//create a new FoundSet with 'data' and with right 'table', 'where','whereArgs'
 
 			newSQLString.setSorts(oldSort);//restore the sort for child body parts
 
 			//make new where for use in sub queries
-			for (int i = 0; i < sortbyCols.size(); i++)
+			for (QuerySort sortbyCol : sortbyCols)
 			{
-				QueryColumn sc = (QueryColumn)(sortbyCols.get(i)).getColumn();
+				QueryColumn sc = (QueryColumn)(sortbyCol).getColumn();
 				newSQLString.addCondition(SQLGenerator.CONDITION_SEARCH, new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, sc, new Placeholder(
 					new TablePlaceholderKey(sc.getTable(), '#' + sc.getName()))));
 			}
@@ -276,7 +275,8 @@ public class PartNode
 						TablePlaceholderKey placeholderKey = new TablePlaceholderKey(sc.getTable(), '#' + sc.getName());
 						if (!newSQLStringCopy.setPlaceholderValue(placeholderKey, data.getRow(ii)[i]))
 						{
-							Debug.error(new RuntimeException("Could not set placeholder " + placeholderKey + " in query " + newSQLStringCopy + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+							Debug
+								.error(new RuntimeException("Could not set placeholder " + placeholderKey + " in query " + newSQLStringCopy + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 						}
 					}
 					childRetval = child.process(fpp, rootSet, table, newSQLStringCopy);
@@ -360,9 +360,8 @@ public class PartNode
 
 	public void removePrintedStatesFromFoundSets()
 	{
-		for (int i = 0; i < foundSets.size(); i++)
+		for (FoundSet fs : foundSets)
 		{
-			FoundSet fs = foundSets.get(i);
 			if (fs.getSize() > 0 && fs.getSelectedIndex() == -1) fs.setSelectedIndex(0);
 			fs.flushAllCachedItems();
 		}

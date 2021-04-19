@@ -1,6 +1,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import static com.servoy.j2db.persistence.IRepository.SOLUTIONS;
+import static com.servoy.j2db.server.ngclient.AngularIndexPageWriter.addcontentSecurityPolicyHeader;
 import static com.servoy.j2db.server.ngclient.MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS;
 import static com.servoy.j2db.server.ngclient.WebsocketSessionFactory.CLIENT_ENDPOINT;
 import static com.servoy.j2db.util.Utils.getAsBoolean;
@@ -13,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -54,13 +53,11 @@ import org.sablo.websocket.WebsocketSessionManager;
 import com.servoy.base.util.TagParser;
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.MessagesResourceBundle;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
-import com.servoy.j2db.server.headlessclient.util.HCUtils;
 import com.servoy.j2db.server.ngclient.property.types.Types;
 import com.servoy.j2db.server.ngclient.template.DesignFormLayoutStructureGenerator;
 import com.servoy.j2db.server.ngclient.template.FormLayoutGenerator;
@@ -96,19 +93,22 @@ public class NGClientEntryFilter extends WebEntry
 
 	public static final String ANGULAR_JS = "js/angular.js";
 	public static final String[][] ANGULAR_JS_MODULES = { //
-		{ "angular-animate", "js/angular-modules/1.7.7/angular-animate.js" }, //
-		{ "angular-aria", "js/angular-modules/1.7.7/angular-aria.js" }, //
-		{ "angular-cookies", "js/angular-modules/1.7.7/angular-cookies.js" }, //
-		{ "angular-message-format", "js/angular-modules/1.7.7/angular-message-format.js" }, //
-		{ "angular-messages", "js/angular-modules/1.7.7/angular-messages.js" }, //
-		{ "angular-resource", "js/angular-modules/1.7.7/angular-resource.js" }, //
-		{ "angular-touch", "js/angular-modules/1.7.7/angular-touch.js" } };
+		{ "angular-animate", "js/angular-modules/1.8.2/angular-animate.js" }, //
+		{ "angular-aria", "js/angular-modules/1.8.2/angular-aria.js" }, //
+		{ "angular-cookies", "js/angular-modules/1.8.2/angular-cookies.js" }, //
+		{ "angular-message-format", "js/angular-modules/1.8.2/angular-message-format.js" }, //
+		{ "angular-messages", "js/angular-modules/1.8.2/angular-messages.js" }, //
+		{ "angular-resource", "js/angular-modules/1.8.2/angular-resource.js" }, //
+		{ "angular-touch", "js/angular-modules/1.8.2/angular-touch.js" } };
 	public static final String BOOTSTRAP_CSS = "css/bootstrap/css/bootstrap.css";
 
 	public static final String[] INDEX_3RD_PARTY_CSS = { //
 		"js/bootstrap-window/css/bootstrap-window.css" };
+
+	public static final String JQUERY_MIGRATE = "js/jquery-migrate-3.3.2.js";
+
 	public static final String[] INDEX_3RD_PARTY_JS = { //
-		"js/jquery-3.3.1.js", //
+		"js/jquery-3.5.1.js", //
 		"js/jquery.maskedinput.js", //
 		ANGULAR_JS, //
 		"js/angular-sanitize.js", //
@@ -128,7 +128,6 @@ public class NGClientEntryFilter extends WebEntry
 
 		"sablo/types/array.js", //
 		"sablo/types/customJSONObject.js", //
-		"sablo/types/date.js", //
 		"sablo/types/objectType.js", //
 
 		"sablo/sabloService.js" };
@@ -266,170 +265,130 @@ public class NGClientEntryFilter extends WebEntry
 		{
 			HttpServletRequest request = (HttpServletRequest)servletRequest;
 			HttpServletResponse response = (HttpServletResponse)servletResponse;
-			if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
-			String uri = request.getRequestURI();
-
-			if (handleShortSolutionRequest(request, response))
+			if ("GET".equalsIgnoreCase(request.getMethod()))
 			{
-				return;
-			}
+				if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
+				String uri = request.getRequestURI();
 
-			if (handleDeeplink(request, response))
-			{
-				return;
-			}
-
-			if (handleRecording(request, response))
-			{
-				return;
-			}
-
-
-			if (uri != null && (uri.endsWith(".html") || uri.endsWith(".js")))
-			{
-				String solutionName = getSolutionNameFromURI(uri);
-				if (solutionName != null)
+				if (handleShortSolutionRequest(request, response))
 				{
-					String clientnr = getClientNr(uri, request);
-					INGClientWebsocketSession wsSession = null;
-					HttpSession httpSession = request.getSession(false);
-					if (clientnr != null && httpSession != null)
+					return;
+				}
+
+				if (handleDeeplink(request, response))
+				{
+					return;
+				}
+
+				if (handleRecording(request, response))
+				{
+					return;
+				}
+
+
+				if (uri != null && (uri.endsWith(".html") || uri.endsWith(".js")))
+				{
+					String solutionName = getSolutionNameFromURI(uri);
+					if (solutionName != null)
 					{
-						wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, Integer.parseInt(clientnr));
-					}
-					FlattenedSolution fs = null;
-					boolean closeFS = false;
-					if (wsSession != null)
-					{
-						fs = wsSession.getClient().getFlattenedSolution();
-					}
-					if (fs == null)
-					{
-						try
+						String clientnr = AngularIndexPageWriter.getClientNr(uri, request);
+						INGClientWebsocketSession wsSession = null;
+						HttpSession httpSession = request.getSession(false);
+						if (clientnr != null && httpSession != null)
 						{
-							closeFS = true;
-							IApplicationServer as = ApplicationServerRegistry.getService(IApplicationServer.class);
-							if (applicationServerUnavailable(response, as))
+							wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, Integer.parseInt(clientnr));
+						}
+						FlattenedSolution fs = null;
+						boolean closeFS = false;
+						if (wsSession != null)
+						{
+							fs = wsSession.getClient().getFlattenedSolution();
+						}
+						if (fs == null)
+						{
+							try
 							{
-								return;
-							}
-
-							SolutionMetaData solutionMetaData = (SolutionMetaData)ApplicationServerRegistry.get().getLocalRepository().getRootObjectMetaData(
-								solutionName, SOLUTIONS);
-							if (solutionMissing(response, solutionName, solutionMetaData))
-							{
-								return;
-							}
-
-							fs = new FlattenedSolution(solutionMetaData, new AbstractActiveSolutionHandler(as)
-							{
-								@Override
-								public IRepository getRepository()
+								closeFS = true;
+								IApplicationServer as = ApplicationServerRegistry.getService(IApplicationServer.class);
+								if (AngularIndexPageWriter.applicationServerUnavailable(response, as))
 								{
-									return ApplicationServerRegistry.get().getLocalRepository();
+									return;
 								}
-							});
-						}
-						catch (Exception e)
-						{
-							Debug.error("error loading solution: " + solutionName + " for clientnr: " + clientnr, e);
-						}
-					}
 
-					if (fs != null)
-					{
-						try
-						{
-							if (handleMainJs(request, response, fs))
+								SolutionMetaData solutionMetaData = (SolutionMetaData)ApplicationServerRegistry.get().getLocalRepository()
+									.getRootObjectMetaData(
+										solutionName, SOLUTIONS);
+								if (AngularIndexPageWriter.solutionMissing(response, solutionName, solutionMetaData))
+								{
+									return;
+								}
+
+								fs = new FlattenedSolution(solutionMetaData, new AbstractActiveSolutionHandler(as)
+								{
+									@Override
+									public IRepository getRepository()
+									{
+										return ApplicationServerRegistry.get().getLocalRepository();
+									}
+								});
+							}
+							catch (Exception e)
 							{
+								Debug.error("error loading solution: " + solutionName + " for clientnr: " + clientnr, e);
+							}
+						}
+
+						if (fs != null)
+						{
+							try
+							{
+								if (handleMainJs(request, response, fs))
+								{
+									return;
+								}
+
+								if (handleForm(request, response, wsSession, fs))
+								{
+									return;
+								}
+
+								if (handleMaintenanceMode(request, response, wsSession))
+								{
+									return;
+								}
+
+								// prepare for possible index.html lookup
+								Map<String, Object> variableSubstitution = getSubstitutions(request, solutionName, clientnr, fs);
+
+								List<String> extraMeta = new ArrayList<String>();
+								addManifest(fs, extraMeta);
+								addHeadIndexContributions(fs, extraMeta);
+
+								ContentSecurityPolicyConfig contentSecurityPolicyConfig = addcontentSecurityPolicyHeader(request, response, true);
+								super.doFilter(servletRequest, servletResponse, filterChain, asList(SERVOY_CSS),
+									new ArrayList<String>(getFormScriptReferences(fs)), extraMeta, variableSubstitution,
+									contentSecurityPolicyConfig == null ? null : contentSecurityPolicyConfig.getNonce());
 								return;
 							}
-
-							if (handleForm(request, response, wsSession, fs))
+							finally
 							{
-								return;
-							}
-
-							if (handleMaintenanceMode(request, response, wsSession))
-							{
-								return;
-							}
-
-							// prepare for possible index.html lookup
-							Map<String, Object> variableSubstitution = getSubstitutions(request, solutionName, clientnr, fs);
-
-							List<String> extraMeta = new ArrayList<String>();
-							addManifest(fs, extraMeta);
-							addHeadIndexContributions(fs, extraMeta);
-
-							super.doFilter(servletRequest, servletResponse, filterChain, asList(SERVOY_CSS), new ArrayList<String>(getFormScriptReferences(fs)),
-								extraMeta, variableSubstitution, getContentSecurityPolicyConfig(request));
-							return;
-						}
-						finally
-						{
-							if (closeFS)
-							{
-								fs.close(null);
+								if (closeFS)
+								{
+									fs.close(null);
+								}
 							}
 						}
 					}
 				}
+				Debug.log("No solution found for this request, calling the default filter: " + uri);
 			}
 
-			Debug.log("No solution found for this request, calling the default filter: " + uri);
 			super.doFilter(servletRequest, servletResponse, filterChain, null, null, null, null, null);
 		}
 		catch (RuntimeException | Error e)
 		{
 			Debug.error(e);
 			throw e;
-		}
-	}
-
-	/**
-	 * Get the ContentSecurityPolicyConfig is it should be applied, otherwise return null;
-	 *
-	 * Only when configured and when the browser is a modern browser that supports Content-Security-Policy level 3.
-	 */
-	private ContentSecurityPolicyConfig getContentSecurityPolicyConfig(HttpServletRequest request)
-	{
-		Settings settings = Settings.getInstance();
-		if (!getAsBoolean(settings.getProperty("servoy.ngclient.setContentSecurityPolicyHeader", "true")))
-		{
-			Debug.trace("ContentSecurityPolicyHeader is disabled by configuration");
-			return null;
-		}
-
-		String userAgentHeader = request.getHeader("user-agent");
-
-		if (!HCUtils.supportsContentSecurityPolicyLevel3(userAgentHeader))
-		{
-			if (Debug.tracing())
-			{
-				Debug.trace("ContentSecurityPolicyHeader is disabled, user agent '" + userAgentHeader + "' does not support ContentSecurityPolicy level 3");
-			}
-			return null;
-		}
-
-		ContentSecurityPolicyConfig contentSecurityPolicyConfig = new ContentSecurityPolicyConfig(HTTPUtils.getNonce(request));
-
-		// Overridable directives
-		setDirectiveOverride(contentSecurityPolicyConfig, "frame-src", settings);
-		setDirectiveOverride(contentSecurityPolicyConfig, "style-src", settings);
-		setDirectiveOverride(contentSecurityPolicyConfig, "img-src", settings);
-		setDirectiveOverride(contentSecurityPolicyConfig, "font-src", settings);
-
-		return contentSecurityPolicyConfig;
-
-	}
-
-	private static void setDirectiveOverride(ContentSecurityPolicyConfig contentSecurityPolicyConfig, String directive, Settings settings)
-	{
-		String override = settings.getProperty("servoy.ngclient.contentSecurityPolicy." + directive);
-		if (override != null && override.trim().length() > 0 && override.indexOf(';') < 0)
-		{
-			contentSecurityPolicyConfig.setDirective(directive, override);
 		}
 	}
 
@@ -559,7 +518,7 @@ public class NGClientEntryFilter extends WebEntry
 			PrintWriter writer = response.getWriter();
 
 			String solutionName = getSolutionNameFromURI(uri);
-			String clientnr = getClientNr(uri, request);
+			String clientnr = AngularIndexPageWriter.getClientNr(uri, request);
 
 			Map<String, Object> variableSubstitution = getSubstitutions(request, solutionName, clientnr, fs);
 
@@ -572,41 +531,6 @@ public class NGClientEntryFilter extends WebEntry
 		return false;
 	}
 
-	/**
-	 * @param response
-	 * @param solutionName
-	 * @param solutionMetaData
-	 * @throws IOException
-	 */
-	private boolean solutionMissing(HttpServletResponse response, String solutionName, SolutionMetaData solutionMetaData) throws IOException
-	{
-		if (solutionMetaData == null)
-		{
-			Debug.error("Solution '" + solutionName + "' was not found.");
-			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-			Writer w = response.getWriter();
-			w.write(
-				"<html><head><link rel=\"stylesheet\" href=\"/css/bootstrap/css/bootstrap.css\"/><link rel=\"stylesheet\" href=\"/css/servoy.css\"/></head><body><div style='padding:40px;'><div class=\"bs-callout bs-callout-danger\" ><h1>Page cannot be displayed</h1><p>Requested solution was not found.</p></div></div></body></html>");
-			w.close();
-			return true;
-		}
-		return false;
-	}
-
-	private boolean applicationServerUnavailable(HttpServletResponse response, IApplicationServer as) throws IOException
-	{
-		if (as == null)
-		{
-			response.setStatus(SC_SERVICE_UNAVAILABLE);
-			Writer w = response.getWriter();
-			w.write(
-				"<html><head><link rel=\"stylesheet\" href=\"/css/bootstrap/css/bootstrap.css\"/><link rel=\"stylesheet\" href=\"/css/servoy.css\"/></head><body><div style='padding:20px;color:#fd7100'><div class=\"bs-callout bs-callout-danger\"><p>System is inaccessible. Please contact your system administrator.</p></div></div></body></html>");
-			w.close();
-			return true;
-		}
-
-		return false;
-	}
 
 	private boolean handleRecording(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
@@ -741,12 +665,17 @@ public class NGClientEntryFilter extends WebEntry
 			ipaddr = request.getRemoteAddr();
 		}
 		variableSubstitution.put("ipaddr", ipaddr);
-		variableSubstitution.put("hostaddr", request.getRemoteHost());
+		String remoteHost = request.getHeader("X-Forwarded-Host"); // in case there is a forwarding proxy
+		if (remoteHost == null)
+		{
+			remoteHost = request.getRemoteHost();
+		}
+		variableSubstitution.put("hostaddr", remoteHost);
 
 		// push some translations to the client, in case the client cannot connect back
 		JSONObject defaultTranslations = new JSONObject();
 		defaultTranslations.put("servoy.ngclient.reconnecting",
-			getSolutionDefaultMessage(fs.getSolution(), request.getLocale(), "servoy.ngclient.reconnecting"));
+			AngularIndexPageWriter.getSolutionDefaultMessage(fs.getSolution(), request.getLocale(), "servoy.ngclient.reconnecting"));
 		variableSubstitution.put("defaultTranslations", defaultTranslations.toString());
 
 		return variableSubstitution;
@@ -770,19 +699,6 @@ public class NGClientEntryFilter extends WebEntry
 			}
 		}
 		return false;
-	}
-
-	private String getSolutionDefaultMessage(Solution solution, Locale locale, String key)
-	{
-		// removed the cache, if this gets called more often we may add it again
-		return getSolutionDefaultMessageNotCached(solution.getID(), locale, key);
-	}
-
-	private String getSolutionDefaultMessageNotCached(int solutionId, Locale locale, String key)
-	{
-		MessagesResourceBundle messagesResourceBundle = new MessagesResourceBundle(null /* application */, locale == null ? Locale.ENGLISH : locale,
-			null /* columnNameFilter */, null /* columnValueFilter */, solutionId);
-		return messagesResourceBundle.getString(key);
 	}
 
 	/**
@@ -814,31 +730,6 @@ public class NGClientEntryFilter extends WebEntry
 		if (solutionIndex >= 0)
 		{
 			return uri.substring(solutionIndex + SOLUTIONS_PATH.length(), uri.indexOf("/", solutionIndex + SOLUTIONS_PATH.length() + 1));
-		}
-		return null;
-	}
-
-	/**
-	 * Get the clientnr from parameter or an url /solutions/<solutionname>/<clientnr>/
-	 *
-	 */
-	private String getClientNr(String uri, ServletRequest request)
-	{
-		String clientnr = request.getParameter("clientnr");
-		if (clientnr != null)
-		{
-			return clientnr;
-		}
-
-
-		int solutionIndex = uri.indexOf(SOLUTIONS_PATH);
-		if (solutionIndex >= 0)
-		{
-			String[] parts = uri.substring(solutionIndex + SOLUTIONS_PATH.length()).split("/");
-			if (parts.length >= 2 && parts[1].matches("[0-9]+"))
-			{
-				return parts[1];
-			}
 		}
 		return null;
 	}
@@ -930,6 +821,7 @@ public class NGClientEntryFilter extends WebEntry
 		else
 		{
 			allIndexJS = new ArrayList<String>(appendGroupIdRequestParamToUrls(asList(INDEX_3RD_PARTY_JS)));
+			if (System.getProperty("use.jquery.migrate", "false").equals("true")) allIndexJS.addAll(appendGroupIdRequestParamToUrls(asList(JQUERY_MIGRATE)));
 			allIndexJS.addAll(appendGroupIdRequestParamToUrls(asList(INDEX_SABLO_JS)));
 			allIndexJS.addAll(appendGroupIdRequestParamToUrls(asList(INDEX_SERVOY_JS)));
 			allIndexJS.addAll(appendGroupIdRequestParamToUrls(jsContributions));

@@ -527,10 +527,10 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		clientProperties.put(key, NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, clientProperties.get(key), null, component));
 	}
 
-	public Object getClientProperty(Object key)
+	public Object getClientProperty(Object key, Scriptable start)
 	{
 		if (clientProperties == null) return null;
-		return clientProperties.get(key);
+		return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(clientProperties.get(key), null, component, start);
 	}
 
 	private abstract class PropertyCallable extends BaseFunction
@@ -604,7 +604,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 
 			if ("clientProperty".equals(propertyName) && args != null && args.length > 0)
 			{
-				return getClientProperty(args[0]);
+				return getClientProperty(args[0], scope);
 			}
 			if ("dataProviderID".equals(propertyName))
 			{

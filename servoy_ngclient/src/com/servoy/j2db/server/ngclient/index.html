@@ -3,7 +3,6 @@
 	<head>
 		<base href="##contextPath##">
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge">
-		<!-- content_security_policy -->
 		
 		<link rel="icon" href="favicon32x32.png" sizes="32x32" type="image/png"/>
 		<link rel="icon" href="favicon192x192.png" sizes="192x192" type="image/png"/>
@@ -12,7 +11,7 @@
 		<!-- component_contributions -->
 		<link ng-repeat="path in solutionSettings.styleSheetPaths" rel="stylesheet" ng-href='{{path}}'>
 		<script nonce='##nonce##' src="solutions/##solution##/##clientnr##/main/browsercheck.js"></script>
-		<script nonce='##nonce##' src="solutions/##solution##/##clientnr##/main/startup.js"></script>
+		<script nonce='##nonce##' src="solutions/##solution##/##clientnr##/main/startup.js?##querystring##"></script>
 	</head>
 	
 	<body dir="{{solutionSettings.ltrOrientation ? 'ltr' : 'rtl'}}" sablo-tabseq="1" sablo-tabseq-config="{root: true}">

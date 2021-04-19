@@ -106,6 +106,11 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 				changes = new HashMap<String, Object>(3);
 				foundset.addEditedRecord(this);
 			}
+			else if (foundset.isFailedRecord(this))
+			{
+				lastException = null;
+				foundset.addEditedRecord(this);
+			}
 			if (!changes.containsKey(dataProviderID))
 			{
 				changes.put(dataProviderID, prevValue);
@@ -379,7 +384,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	private Scriptable prototype;
 	private Scriptable parentScope;
 
-	private JSValidationObject validateObject;
+	private JSRecordMarkers recordMarkers;
 
 	@Override
 	public String getClassName()
@@ -588,25 +593,19 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		lastException = ex;
 	}
 
-	@JSFunction
-	public boolean isNew()
-	{
-		return false;
-	}
-
 	/**
 	 * Returns the validation object if there where validation failures for this record
 	 * Can be set to null again if you checked the problems, will also be set to null when a save was succesful.
 	 *
 	 * @sample
-	 * var validationObject = record.validationObject;
+	 * var recordMarkers = record.recordMarkers;
 	 *
 	 * @return The last validtion object if the record was not validated.
 	 */
 	@JSGetter
-	public JSValidationObject getValidationObject()
+	public JSRecordMarkers getRecordMarkers()
 	{
-		return validateObject;
+		return recordMarkers;
 	}
 
 	/**
@@ -614,13 +613,13 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	 * Can be set to null again if you checked the problems, will also be set to null when a save was succesful.
 	 *
 	 * @sample
-	 * var validationObject = record.validationObject;
+	 * var recordMarkers = record.recordMarkers;
 	 *
 	 * @return The last validtion object if the record was not validated.
 	 */
 	@JSSetter
-	public void setValidationObject(JSValidationObject object)
+	public void setRecordMarkers(JSRecordMarkers object)
 	{
-		validateObject = object;
+		recordMarkers = object == null ? null : object.getRecord() == this ? object : null;
 	}
 }

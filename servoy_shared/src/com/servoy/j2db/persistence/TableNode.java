@@ -240,17 +240,17 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templatedescription
 	 * Record validation method, will be called by databaseManager.validateRecord() and when databaseManager.saveData() is called.
 	 * Validate changes or state of the record.
-	 * All errors need toe be reported in teh validationObject that is then returned by databaseManager.validateRecord() and is also placed
-	 * on the record itself (record.validationObject)
+	 * All errors need toe be reported in the recordMarkers that is then returned by databaseManager.validateRecord() and is also placed
+	 * on the record itself (record.recordMarkers)
 	 *
 	 * @templatename onValidate
 	 * @templateparam JSRecord<${dataSource}> record record that must be validated
-	 * @templateparam JSValidationObject validationObject the object where all the problems can be reported against.
+	 * @templateparam JSRecordMarkers recordMarkers the object where all the problems can be reported against.
 	 * @templateparam Object stateObject an object that a user can give to validateRecord for extra state (optional, can be null).
 	 * @templateaddtodo
 	 * @templatecode
 	 *
-	 * if (record.mynumber > 10) validationObject.report("mynumber must be greater then 10", "mynumber", LOGGINGLEVEL.ERROR);
+	 * if (record.mynumber > 10) recordMarkers.report("mynumber must be greater then 10", "mynumber", LOGGINGLEVEL.ERROR);
 	 *
 	 */
 	public int getOnValidateMethodID()
@@ -269,21 +269,21 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templatedescription
 	 * Record pre-insert trigger
 	 * Validate the record to be inserted.
-	 * When false is returned or a validaton error is added to the validationObject the record will not be inserted in the database.
+	 * When false is returned or a validaton error is added to the recordMarkers the record will not be inserted in the database.
 	 * When an exception is thrown the record will also not be inserted in the database but it will be added to databaseManager.getFailedRecords(),
 	 * the thrown exception can be retrieved via record.exception.getValue().
 	 * @templatename onRecordInsert
 	 * @templatetype Boolean
 	 * @templateparam JSRecord<${dataSource}> record record that will be inserted
-	 * @templateparam JSValidationObject validationObject the object where all the problems can be reported against
+	 * @templateparam JSRecordMarkers recordMarkers the object where all the problems can be reported against
 	 * @templateparam Object stateObject an object that a user can give to validateRecord for extra state (optional, can be null).
 	 * @templateaddtodo
 	 * @templatecode
 	 *
 	 * var valid = true;
 	 * if (record.mynumber > 10) {
-	 *   validationObject.report("mynumber must be greater then 10", "mynumber",LOGGINGLEVEL.ERROR);
-	 *   valid = true; // keep the valid on true if you just report through the validationObject and want to also execute other oninsert methods.;
+	 *   recordMarkers.report("mynumber must be greater then 10", "mynumber",LOGGINGLEVEL.ERROR);
+	 *   valid = true; // keep the valid on true if you just report through the recordMarkers and want to also execute other oninsert methods.;
 	 * }
 	 *
 	 * // return boolean to indicate success
@@ -305,21 +305,21 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templatedescription
 	 * Record pre-update trigger
 	 * Validate the record to be updated.
-	 * When false is returned or a validaton error is added to the validationObject the record will not be updated in the database.
+	 * When false is returned or a validaton error is added to the recordMarkers the record will not be updated in the database.
 	 * When an exception is thrown the record will also not be updated in the database but it will be added to databaseManager.getFailedRecords(),
 	 * the thrown exception can be retrieved via record.exception.getValue().
 	 * @templatename onRecordUpdate
 	 * @templatetype Boolean
 	 * @templateparam JSRecord<${dataSource}> record record that will be updated
-	 * @templateparam JSValidationObject validationObject the object where all the problems can be reported against
+	 * @templateparam JSRecordMarkers recordMarkers the object where all the problems can be reported against
 	 * @templateparam Object stateObject an object that a user can give to validateRecord for extra state (optional, can be null).
 	 * @templateaddtodo
 	 * @templatecode
 	 *
 	 * var valid = true;
 	 * if (record.mynumber > 10) {
-	 *   validationObject.report("mynumber must be greater then 10", "mynumber", LOGGINGLEVEL.ERROR);
-	 *   valid = true; // keep the valid on true if you just report through the validationObject and want to also execute other oninsert methods.
+	 *   recordMarkers.report("mynumber must be greater then 10", "mynumber", LOGGINGLEVEL.ERROR);
+	 *   valid = true; // keep the valid on true if you just report through the recordMarkers and want to also execute other oninsert methods.
 	 * }
 	 *
 	 * // return boolean to indicate success

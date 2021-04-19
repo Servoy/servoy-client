@@ -17,20 +17,23 @@ describe("Test foundset_custom_property suite", function() {
 		return angular.equals(first, second);
 	};
 
-	beforeEach(inject(function(_$sabloConverters_, _$compile_, _$rootScope_, _$pushToServerUtils_, _$typesRegistry_) {
-		jasmine.addCustomEqualityTester(angularEquality);
-		// The injector unwraps the underscores (_) from around the parameter
-		//names when matching
-		sabloConverters = _$sabloConverters_;
-		iS = sabloConverters.INTERNAL_IMPL;
-		pushToServerUtils = _$pushToServerUtils_;
-		typesRegistry = _$typesRegistry_;
-		$compile = _$compile_;
+	beforeEach(function() {
+		sessionStorage.removeItem('svy_session_lock');
+		inject(function(_$sabloConverters_, _$compile_, _$rootScope_, _$pushToServerUtils_, _$typesRegistry_) {
+			jasmine.addCustomEqualityTester(angularEquality);
+			// The injector unwraps the underscores (_) from around the parameter
+			//names when matching
+			sabloConverters = _$sabloConverters_;
+			iS = sabloConverters.INTERNAL_IMPL;
+			pushToServerUtils = _$pushToServerUtils_;
+			typesRegistry = _$typesRegistry_;
+			$compile = _$compile_;
 
-		$scope = _$rootScope_.$new();
+			$scope = _$rootScope_.$new();
 		
-        foundsetType = typesRegistry.getAlreadyRegisteredType('foundset');
-	}));
+			foundsetType = typesRegistry.getAlreadyRegisteredType('foundset');
+		})
+	});
 
 	// var CHANGE = 0;
 	// var INSERT = 1;

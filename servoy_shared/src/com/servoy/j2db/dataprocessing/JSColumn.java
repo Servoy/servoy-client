@@ -23,6 +23,7 @@ import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IServer;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.util.Debug;
@@ -138,14 +139,17 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	private Column column;
 	private IServer server;
 
+	private ITable table;
+
 	public JSColumn()
 	{
 	} //only for use JS engine
 
-	public JSColumn(Column column, IServer server)
+	public JSColumn(Column column, IServer server, ITable table)
 	{
 		this.column = column;
 		this.server = server;
+		this.table = table;
 	}
 
 	/**
@@ -560,6 +564,16 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	public String js_getTitle()
 	{
 		return column.getTitle();
+	}
+
+	/**
+	 * Get the JSTable of this column.
+	 *
+	 * @return table The JSTable of this column.
+	 */
+	public JSTable js_getTable()
+	{
+		return new JSTable(table, server);
 	}
 
 	/**

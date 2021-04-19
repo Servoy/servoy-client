@@ -127,8 +127,22 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 	@Override
 	protected RuntimeWindow getMainApplicationWindow()
 	{
-		int windowNr = CurrentWindow.exists() ? CurrentWindow.get().getNr() : -1;
-		return windowNr != -1 ? getWindow(String.valueOf(windowNr)) : null;
+		RuntimeWindow runtimeWindow = this.windows.get(MAIN_APPLICATION_WINDOW_NAME);
+		if (runtimeWindow == null)
+		{
+			int windowNr = CurrentWindow.exists() ? CurrentWindow.get().getNr() : -1;
+			if (windowNr != -1)
+			{
+				String name = String.valueOf(windowNr);
+				runtimeWindow = getWindow(name);
+				if (runtimeWindow == null)
+				{
+					runtimeWindow = createWindowInternal(name, JSWindow.WINDOW, null);
+					windows.put(name, runtimeWindow);
+				}
+			}
+		}
+		return runtimeWindow;
 	}
 
 	@Override
@@ -144,7 +158,19 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 		// so that code that is run through a scheduler or databroadcast will have a current container in scripting
 		// getCurrentWindowName will return null so that the system can still know the difference. (NGEvent that resets the current window)
 		NGRuntimeWindow currentWindow = (NGRuntimeWindow)super.getCurrentWindow();
-		return currentWindow != null ? currentWindow : getWindow(lastCurrentWindow);
+		if (currentWindow == null)
+		{
+			if (log.isInfoEnabled())
+				log.info("Couldn't get the current window getting it by the last know window name " + lastCurrentWindow + ", all windows: " + this.windows);
+			currentWindow = getWindow(lastCurrentWindow);
+			if (currentWindow == null)
+			{
+				if (log.isInfoEnabled())
+					log.info("Last know window name " + lastCurrentWindow + " didn't result in a window returning the main application window");
+				currentWindow = (NGRuntimeWindow)getMainApplicationWindow();
+			}
+		}
+		return currentWindow;
 	}
 
 	@Override
@@ -168,7 +194,7 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 	protected RuntimeWindow createWindowInternal(String windowName, int type, RuntimeWindow parent)
 	{
 		((INGApplication)application).getWebsocketSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("create",
-			new Object[] { windowName, String.valueOf(type) });
+			new Object[] { windowName, Integer.valueOf(type) });
 		if (parent == null && CurrentWindow.exists())
 		{
 			// try to always just set the current parent if it is null

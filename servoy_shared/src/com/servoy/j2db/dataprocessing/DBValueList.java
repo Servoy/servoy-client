@@ -36,7 +36,6 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.IQuerySort;
-import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
@@ -241,7 +240,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 				fs.addFilterParam("valueList.nameColumn", NAME_COLUMN, "=", valueList.getName()); //$NON-NLS-1$
 			}
 
-			fs.browseAll(false);//we do nothing with related foundsets so don't touch these
+			fs.browseAllInternal();//we do nothing with related foundsets so don't touch these
 
 			// browse all could trigger also a fill
 			if (isLoaded) return;
@@ -294,7 +293,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 							foundSetManager.getTrackingInfo(), application.getClientID());
 					}
 					IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, creationSQLParts,
-						tableFilterParams, !creationSQLParts.isUnique(), 0, maxValuelistRows, IDataServer.VALUELIST_QUERY, trackingInfo);
+						null, tableFilterParams, !creationSQLParts.isUnique(), 0, maxValuelistRows, IDataServer.VALUELIST_QUERY, trackingInfo);
 					if (set.getRowCount() >= maxValuelistRows)
 					{
 						if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.client.report.max.valuelist.items", "true")))
@@ -408,7 +407,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 			Column c = table.getColumn(dataprovider);
 			if (c != null)
 			{
-				return new QueryColumn(queryTable, c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags());
+				return c.queryColumn(queryTable);
 			}
 		}
 		// should never happen

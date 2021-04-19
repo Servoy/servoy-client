@@ -16,61 +16,64 @@ describe("Test component_custom_property suite", function() {
 	var propertyContext;
 	var componentType;
 
-	beforeEach(inject(function(_$sabloConverters_, _$compile_, _$rootScope_, _$foundsetTypeConstants_, _$typesRegistry_){
-		// The injector unwraps the underscores (_) from around the parameter
-		//names when matching
-		sabloConverters = _$sabloConverters_;
-		foundsetTypeConstants = _$foundsetTypeConstants_;
-		typesRegistry = _$typesRegistry_;
-		$scope = _$rootScope_.$new();
-		$compile = _$compile_;
-		serverValue = {
-				componentDirectiveName:'component',
-				handlers:{
-					onActionMethodID:"anyIDisGood"
-				},
-				model:{
-					text:"buitonn",
-					location: {x:1,y:2}
-				},
-				foundsetConfig : {
-					recordBasedProperties: ['dataProviderID']
-				}
-		};
-		serverValue[foundsetTypeConstants.FOR_FOUNDSET_PROPERTY] = "myFoundset";
-		var componentModel = {
-				myFoundset: { viewPort: { rows: [ {_svyRowId: 123},
-				                                  {_svyRowId: 321},
-				                                  {_svyRowId: 132},
-				                                  {_svyRowId: 231},
-				                                  {_svyRowId: 111},
-				                                  {_svyRowId: 222},
-				                                  {_svyRowId: 333} ] } }
-		}
-
-		var template = '<div></div>';
-		$compile(template)($scope);
-	
-        // see ClientSideTypesTest for what it can be
-		typesRegistry.addComponentClientSideSpecs({
-                component: {
-                    p: {
-                        "text": { "s": 2 },
-                        "recordDependentText": { "s": 3 },
-                        "justDateTypeV": "Date"
+	beforeEach(function() {
+		sessionStorage.removeItem('svy_session_lock');
+		inject(function(_$sabloConverters_, _$compile_, _$rootScope_, _$foundsetTypeConstants_, _$typesRegistry_) {
+    		// The injector unwraps the underscores (_) from around the parameter
+    		//names when matching
+    		sabloConverters = _$sabloConverters_;
+    		foundsetTypeConstants = _$foundsetTypeConstants_;
+    		typesRegistry = _$typesRegistry_;
+    		$scope = _$rootScope_.$new();
+    		$compile = _$compile_;
+    		serverValue = {
+    				componentDirectiveName:'component',
+    				handlers:{
+    					onActionMethodID:"anyIDisGood"
+    				},
+    				model:{
+    					text:"buitonn",
+    					location: {x:1,y:2}
+    				},
+    				foundsetConfig : {
+    					recordBasedProperties: ['dataProviderID']
+    				}
+    		};
+    		serverValue[foundsetTypeConstants.FOR_FOUNDSET_PROPERTY] = "myFoundset";
+    		var componentModel = {
+    				myFoundset: { viewPort: { rows: [ {_svyRowId: 123},
+    				                                  {_svyRowId: 321},
+    				                                  {_svyRowId: 132},
+    				                                  {_svyRowId: 231},
+    				                                  {_svyRowId: 111},
+    				                                  {_svyRowId: 222},
+    				                                  {_svyRowId: 333} ] } }
+    		}
+    
+    		var template = '<div></div>';
+    		$compile(template)($scope);
+    	
+            // see ClientSideTypesTest for what it can be
+    		typesRegistry.addComponentClientSideSpecs({
+                    component: {
+                        p: {
+                            "text": { "s": 2 },
+                            "recordDependentText": { "s": 3 },
+                            "justDateTypeV": "Date"
+                        }
                     }
-                }
-            });
-		
-		componentType = typesRegistry.getAlreadyRegisteredType('component');
-        propertyContext = {
-            getProperty: function(propertyName) { return componentModel[propertyName]; },
-            getPushToServerCalculatedValue: function() { return pushToServerUtils.reject; }
-        };
-
-		converted = sabloConverters.convertFromServerToClient(serverValue, componentType, undefined, undefined, undefined, $scope, propertyContext);
-		$scope.$digest();
-	}));
+                });
+    		
+    		componentType = typesRegistry.getAlreadyRegisteredType('component');
+            propertyContext = {
+                getProperty: function(propertyName) { return componentModel[propertyName]; },
+                getPushToServerCalculatedValue: function() { return pushToServerUtils.reject; }
+            };
+    
+    		converted = sabloConverters.convertFromServerToClient(serverValue, componentType, undefined, undefined, undefined, $scope, propertyContext);
+    		$scope.$digest();
+		})
+	});
 
 	it("should add requests when we change the model", function() {
 		converted.model.text = "button";

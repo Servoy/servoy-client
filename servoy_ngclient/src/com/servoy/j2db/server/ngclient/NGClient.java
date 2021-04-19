@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.rmi.RemoteException;
-import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,7 +22,6 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
@@ -45,13 +43,11 @@ import org.sablo.util.ValueReference;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IServerService;
-import org.sablo.websocket.IWebsocketEndpoint;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.WebsocketSessionManager;
 import org.sablo.websocket.impl.ClientService;
 import org.sablo.websocket.utils.JSONUtils;
 
-import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBasicFormManager;
@@ -62,16 +58,13 @@ import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.ClientInfo;
-import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.IClient;
 import com.servoy.j2db.dataprocessing.IDataServer;
-import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.SwingFoundSetFactory;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
-import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
@@ -79,6 +72,7 @@ import com.servoy.j2db.scripting.PluginScope;
 import com.servoy.j2db.scripting.info.NGCONSTANTS;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
 import com.servoy.j2db.server.headlessclient.util.HCUtils;
+import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet.MediaInfo;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceFunction;
@@ -93,6 +87,7 @@ import com.servoy.j2db.server.shared.PerformanceTimingAggregate;
 import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.util.Ad;
+import com.servoy.j2db.util.AppendingStringBuffer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IGetLastAccessed;
 import com.servoy.j2db.util.IGetStatusLine;
@@ -105,8 +100,6 @@ import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
-// TODO we should add a subclass between ClientState and SessionClient, (remove all "session" and wicket related stuff out of SessionClient)
-// then we can extend that one.
 @SuppressWarnings("nls")
 public class NGClient extends AbstractApplication implements INGApplication, IChangeListener, IServerService, IGetStatusLine, IGetLastAccessed
 {
@@ -125,9 +118,18 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	private Map<Object, Object> uiProperties;
 
-	private final Map<String, String> overrideStyleSheets = new HashMap<String, String>();
+	private final Map<String, String> overrideStyleSheets = new HashMap<String, String>(3);
+
+	private final Map<String, String> clientFunctions = new HashMap<String, String>(3);
+
+	private IMediaUploadCallback mediaUploadCallback;
+
+	private boolean reloadClientFunctionsSend;
 
 	private HashMap<String, String> properties = null;
+
+	private final Set<Pair<Form, String>> toRecreate = new HashSet<>();
+
 
 	private final IPerformanceRegistry perfRegistry;
 
@@ -853,7 +855,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			{
 				if (scheduledExecutorService == null)
 				{
-					scheduledExecutorService = new ServoyScheduledExecutor(4, 1)
+					scheduledExecutorService = new ServoyScheduledExecutor(4, 1, "NGClient-" + getClientID())
 					{
 						private IServiceProvider prev;
 
@@ -1151,33 +1153,13 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public boolean showURL(String url, String target, String target_options, int timeout, boolean onRootFrame)
 	{
-		String newUrl = url;
-
-		if (target != null && !target.equals("_self") && !target.equals("_top") && url.contains("/solutions/"))
-		{
-			try
-			{
-				StringBuilder sb = new StringBuilder(newUrl);
-				URL newSolutionUrl = new URL(url);
-				if (newSolutionUrl.getQuery() != null)
-				{
-					sb.append("&").append(IWebsocketEndpoint.CLEAR_SESSION_PARAM).append("=true");
-				}
-				else sb.append("?").append(IWebsocketEndpoint.CLEAR_SESSION_PARAM).append("=true");
-				newUrl = sb.toString();
-			}
-			catch (MalformedURLException e)
-			{
-				e.printStackTrace();
-			}
-		}
 		// 2 calls to show url? Just send this one.
 		if (showUrl != null)
 		{
 			this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("showUrl",
 				new Object[] { showUrl.url, showUrl.target, showUrl.target_options, Integer.valueOf(showUrl.timeout) });
 		}
-		showUrl = new ShowUrl(newUrl, target, target_options, timeout, onRootFrame);
+		showUrl = new ShowUrl(url, target, target_options, timeout, onRootFrame);
 		return true;
 	}
 
@@ -1269,31 +1251,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	}
 
 	@Override
-	public void setValueListItems(String name, Object[] displayValues, Object[] realValues, boolean autoconvert)
-	{
-		ValueList vl = getFlattenedSolution().getValueList(name);
-		if (vl != null && vl.getValueListType() == IValueListConstants.CUSTOM_VALUES)
-		{
-			int guessedType = Types.OTHER;
-			if (autoconvert && realValues != null)
-			{
-				guessedType = guessValuelistType(realValues);
-			}
-			else if (autoconvert && displayValues != null)
-			{
-				guessedType = guessValuelistType(displayValues);
-			}
-			IValueList valueList = com.servoy.j2db.component.ComponentFactory.getRealValueList(this, vl, true, Types.OTHER, null, null);
-			if (valueList instanceof CustomValueList)
-			{
-				((CustomValueList)valueList).setValueType(guessedType);
-				((CustomValueList)valueList).fillWithArrayValues(displayValues, realValues);
-				((CustomValueList)valueList).setRuntimeChanged(true);
-			}
-		}
-	}
-
-	@Override
 	public void showDefaultLogin() throws ServoyException
 	{
 		try
@@ -1305,8 +1262,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 			Debug.error(ex);
 		}
 	}
-
-	private IMediaUploadCallback mediaUploadCallback;
 
 	public IMediaUploadCallback getMediaUploadCallback()
 	{
@@ -1514,8 +1469,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		}
 	}
 
-	private final Set<Pair<Form, String>> toRecreate = new HashSet<>();
-
 	@Override
 	public void recreateForm(Form form, String name)
 	{
@@ -1531,12 +1484,14 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public void changesWillBeSend()
 	{
+		reloadClientFunctionsSend = false;
 		if (toRecreate.size() > 0)
 		{
 			NGClientWebsocketSessionWindows allWindowsProxy = new NGClientWebsocketSessionWindows(getWebsocketSession());
 			for (Pair<Form, String> pair : toRecreate)
 			{
-				allWindowsProxy.updateForm(pair.getLeft(), pair.getRight(), new FormHTMLAndJSGenerator(this, pair.getLeft(), pair.getRight()));
+				IFormHTMLAndJSGenerator generator = getWebsocketSession().getFormHTMLAndJSGenerator(pair.getLeft(), pair.getRight());
+				allWindowsProxy.updateForm(pair.getLeft(), pair.getRight(), generator);
 			}
 			toRecreate.clear();
 		}
@@ -1606,6 +1561,30 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		return lastAccessed;
 	}
 
+
+	@Override
+	public String registerClientFunction(String code)
+	{
+		String uuid = clientFunctions.get(code);
+		if (uuid == null)
+		{
+			uuid = UUID.randomUUID().toString();
+			clientFunctions.put(code, uuid);
+			if (!reloadClientFunctionsSend)
+			{
+				reloadClientFunctionsSend = true;
+				this.getWebsocketSession().getClientService(NGClientWebsocketSession.CLIENT_FUNCTION_SERVICE).executeAsyncServiceCall("reloadClientFunctions",
+					null);
+			}
+		}
+		return uuid;
+	}
+
+	@Override
+	public Map<String, String> getClientFunctions()
+	{
+		return this.clientFunctions;
+	}
 
 	/**
 	 * @author jcompagner

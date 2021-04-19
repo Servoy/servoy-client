@@ -43,6 +43,7 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.ChildWebComponent;
+import com.servoy.j2db.server.ngclient.AngularFormGenerator;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
@@ -260,6 +261,8 @@ public class ComponentPropertyType extends DefaultPropertyType<ComponentTypeSabl
 		{
 			writer.key("headerIndex").value(fe.getPropertyValue("headerIndex"));
 		}
+		AngularFormGenerator.writePosition(writer, formElementValue.element.getPersistIfAvailable(),
+			componentFormElementContext.getContext().getForm().getForm());
 
 		writer.key("model");
 		try

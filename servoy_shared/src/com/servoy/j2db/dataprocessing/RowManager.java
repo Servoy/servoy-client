@@ -17,6 +17,9 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
+
 import java.lang.ref.ReferenceQueue;
 import java.rmi.RemoteException;
 import java.sql.Types;
@@ -32,11 +35,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.Streams;
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.IBaseSQLCondition;
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.dataprocessing.RowManager.RowFireNotifyChange.CalculationDependencyData;
 import com.servoy.j2db.dataprocessing.ValueFactory.BlobMarkerValue;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
@@ -44,6 +50,7 @@ import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServer;
+import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AbstractBaseQuery;
@@ -59,6 +66,7 @@ import com.servoy.j2db.query.QueryUpdate;
 import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.scripting.GlobalScope;
+import com.servoy.j2db.util.ConcurrentSoftvaluesMultimap;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
@@ -78,7 +86,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	private final ReferenceQueue<Row> referenceQueue;
 	private final Map<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>> pkRowMap; // pkString -> SoftReference(Row)
 	private final SQLSheet sheet;
-	private final WeakHashMap<IRowListener, Object> listeners;
+	private final ConcurrentMap<IRowListener, Object> listeners;
+	private final ConcurrentHashMap<String, ConcurrentSoftvaluesMultimap<String, RelatedFoundSet>> listenersByRelationEqualValues;
 	private final Set<NamedLock> lockedRowPKs;
 	private final Map<String, Set<String>> globalCalcDependencies = new HashMap<String, Set<String>>();
 	private final Map<String, Set<String>> relationsUsedInCalcs = new HashMap<String, Set<String>>();
@@ -90,10 +99,11 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	{
 		this.fsm = fsm;
 		this.sheet = sheet;
-		pkRowMap = new ConcurrentHashMap<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>>(64);
+		pkRowMap = new ConcurrentHashMap<>(64);
 		referenceQueue = new ReferenceQueue<Row>();
-		listeners = new WeakHashMap<IRowListener, Object>(10);
-		lockedRowPKs = Collections.synchronizedSet(new HashSet<NamedLock>());//my locks
+		listeners = CacheBuilder.newBuilder().weakKeys().<IRowListener, Object> build().asMap();
+		listenersByRelationEqualValues = new ConcurrentHashMap<>();
+		lockedRowPKs = Collections.synchronizedSet(new HashSet<>()); //my locks
 	}
 
 	public void dispose()
@@ -105,7 +115,34 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 
 	void register(IRowListener fs)
 	{
-		synchronized (listeners)
+		boolean listenersByEqualValuesAdded = false;
+		if (fsm.optimizedNotifyChange && fs instanceof RelatedFoundSet)
+		{
+			FlattenedSolution flattenedSolution = getFoundsetManager().getApplication().getFlattenedSolution();
+			RelatedFoundSet relatedFoundSet = (RelatedFoundSet)fs;
+			Relation relation = flattenedSolution.getRelation(relatedFoundSet.getRelationName());
+
+			if (relation != null && Relation.isValid(relation, flattenedSolution))
+			{
+				Object[] eqArgs = relatedFoundSet.getWhereArgs(true);
+				if (eqArgs != null && !stream(eqArgs).anyMatch(DbIdentValue.class::isInstance))
+				{
+					ConcurrentSoftvaluesMultimap<String, RelatedFoundSet> listenersByEqualValues = listenersByRelationEqualValues.get(relation.getName());
+					if (listenersByEqualValues == null)
+					{
+						listenersByEqualValues = new ConcurrentSoftvaluesMultimap<String, RelatedFoundSet>();
+						ConcurrentSoftvaluesMultimap<String, RelatedFoundSet> prevValue = listenersByRelationEqualValues.putIfAbsent(relation.getName(),
+							listenersByEqualValues);
+						if (prevValue != null) listenersByEqualValues = prevValue;
+					}
+
+					listenersByEqualValues.add(createPKHashKey(eqArgs), relatedFoundSet);
+					listenersByEqualValuesAdded = true;
+				}
+			}
+		}
+
+		if (!listenersByEqualValuesAdded)
 		{
 			listeners.put(fs, dummy);
 		}
@@ -113,10 +150,41 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 
 	void unregister(IRowListener fs)
 	{
-		synchronized (listeners)
+		if (fsm.optimizedNotifyChange && fs instanceof RelatedFoundSet)
 		{
-			listeners.remove(fs);
+			FlattenedSolution flattenedSolution = getFoundsetManager().getApplication().getFlattenedSolution();
+			RelatedFoundSet relatedFoundSet = (RelatedFoundSet)fs;
+			Relation relation = flattenedSolution.getRelation(relatedFoundSet.getRelationName());
+
+			if (relation != null && Relation.isValid(relation, flattenedSolution))
+			{
+				Object[] eqArgs = relatedFoundSet.getWhereArgs(true);
+				if (eqArgs != null)
+				{
+					ConcurrentSoftvaluesMultimap<String, RelatedFoundSet> listenersByEqualValues = listenersByRelationEqualValues.get(relation.getName());
+					if (listenersByEqualValues != null)
+					{
+						listenersByEqualValues.remove(createPKHashKey(eqArgs), relatedFoundSet);
+					}
+				}
+			}
 		}
+
+		listeners.remove(fs);
+	}
+
+	private Collection<IRowListener> getAllListeners()
+	{
+		if (listenersByRelationEqualValues.isEmpty())
+		{
+			return listeners.keySet();
+		}
+
+		return Streams.concat(
+			listenersByRelationEqualValues.values()
+				.stream().map(ConcurrentSoftvaluesMultimap::allValues).flatMap(Collection::stream),
+			listeners.keySet().stream())
+			.collect(toList());
 	}
 
 	FoundSetManager getFoundsetManager()
@@ -342,7 +410,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				transaction_id = gt.getTransactionID(sheet.getServerName());
 			}
 			formdata = fsm.getDataServer()
-				.performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select,
+				.performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select, null,
 					fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, 1, false);
 		}
 		catch (RemoteException e)
@@ -557,7 +625,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 						fsm.getTrackingInfo(), fsm.getApplication().getClientID());
 				}
 				formdata = fsm.getDataServer()
-					.performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select,
+					.performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select, null /* use types as reported by the db */,
 						fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, nvals, IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
 				if (Debug.tracing())
 				{
@@ -590,7 +658,6 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			{
 				retval.set(maxRow - row - 1, null);
 			}
-
 		}
 		else
 		{
@@ -619,45 +686,48 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		fireNotifyChange(skip, r, pkHashKey, changedColumns, eventType, false);
 	}
 
-	void fireNotifyChange(IRowListener skip, Row r, String pkHashKey, Object[] changedColumns, int eventType, boolean isAggregateChange)
+	void fireNotifyChange(IRowListener skip, Row row, String pkHashKey, Object[] changedColumns, int eventType, boolean isAggregateChange)
 	{
-		if (listeners.size() > 0)
+		List<IRowListener> toNotify = new ArrayList<>();
+		if (eventType == RowEvent.INSERT && fsm.optimizedNotifyChange)
 		{
-			RowEvent e = new RowEvent(this, r, pkHashKey, eventType, changedColumns, isAggregateChange);
+			FlattenedSolution flattenedSolution = getFoundsetManager().getApplication().getFlattenedSolution();
+			listenersByRelationEqualValues.entrySet().stream().forEach(entry -> {
 
-			// First copy it to a array list for concurrent mod...
-			Object[] array = null;
-			synchronized (listeners)
-			{
-				array = listeners.keySet().toArray();
-			}
-
-			for (Object element2 : array)
-			{
-				IRowListener element = (IRowListener)element2;
-				if (element != skip) element.notifyChange(e);
-			}
+				Relation relation = flattenedSolution.getRelation(entry.getKey());
+				List<Column> columns = relation.getForeignColumnsForEqualConditions();
+				if (!columns.isEmpty())
+				{
+					Object[] eqArgs = columns.stream().map(column -> row.getValue(column.getDataProviderID())).toArray();
+					String eqHash = RowManager.createPKHashKey(eqArgs);
+					toNotify.addAll(entry.getValue().get(eqHash));
+				}
+			});
 		}
+		else
+		{
+			// add all related foundsets
+			listenersByRelationEqualValues.values().stream().map(ConcurrentSoftvaluesMultimap::allValues).forEach(toNotify::addAll);
+		}
+
+		toNotify.addAll(listeners.keySet());
+		toNotify.remove(skip);
+		if (!toNotify.isEmpty())
+		{
+			RowEvent e = new RowEvent(this, row, pkHashKey, eventType, changedColumns, isAggregateChange);
+			toNotify.forEach(listener -> listener.notifyChange(e));
+		}
+
 		fsm.notifyChange(sheet.getTable());
 	}
 
 	void firePKUpdated(Row row, String oldKeyHash)
 	{
-		if (listeners.size() > 0)
+		Collection<IRowListener> allListeners = getAllListeners();
+		if (allListeners.size() > 0)
 		{
 			RowEvent e = new RowEvent(this, row, RowEvent.PK_UPDATED, oldKeyHash);
-
-			// First copy it to a array list for concurrent mod...
-			Object[] array = null;
-			synchronized (listeners)
-			{
-				array = listeners.keySet().toArray();
-			}
-
-			for (Object listener : array)
-			{
-				((IRowListener)listener).notifyChange(e);
-			}
+			allListeners.forEach(listener -> listener.notifyChange(e));
 		}
 	}
 
@@ -742,8 +812,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 							}
 							Object robj = c.getAsRightType(newdata[i]);
 							if (robj == null) robj = ValueFactory.createNullValue(c.getType());
-							((QueryUpdate)sqlUpdate).addValue(new QueryColumn(((QueryUpdate)sqlUpdate).getTable(), c.getID(), c.getSQLName(), c.getType(),
-								c.getLength(), c.getScale(), c.getFlags()), robj);
+							((QueryUpdate)sqlUpdate).addValue(c.queryColumn(((QueryUpdate)sqlUpdate).getTable()), robj);
 							if (changedColumns == null)
 							{
 								changedColumns = new ArrayList<String>(olddata.length - i);
@@ -780,7 +849,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					pkValues[j] = row.getOldRequiredValue(dataProviderID);
 				}
 
-				// TODO: ckeck for success
+				// TODO: check for success
 				AbstractBaseQuery.setPlaceholderValue(sqlUpdate,
 					new TablePlaceholderKey(((QueryUpdate)sqlUpdate).getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pkValues);
 			}
@@ -800,8 +869,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 						aggregatesToRemove.addAll(sheet.getAggregateName(dataProviderID));
 					}
 					Column c = table.getColumn(dataProviderID);
-					QueryColumn queryColumn = new QueryColumn(((QueryInsert)sqlUpdate).getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(),
-						c.getScale(), c.getFlags());
+					QueryColumn queryColumn = c.queryColumn(((QueryInsert)sqlUpdate).getTable());
 					ColumnInfo ci = c.getColumnInfo();
 					if (c.isDBIdentity())
 					{
@@ -952,10 +1020,10 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				});
 			}
 		}
+
 		// run fires later (add this runnable here first because the runnables in EditRecordList are processed in reverse order)
 		runnables.add(new Runnable()
 		{
-
 			public void run()
 			{
 				fireNotifyChange(src, row, row.getPKHashKey(), changedColumnNames, doesExistInDB ? RowEvent.UPDATE : RowEvent.INSERT);
@@ -1014,6 +1082,17 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					new SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>(row, referenceQueue));
 				clearAndCheckCache();
 			}
+		}
+	}
+
+	void pkUpdated(Row row)
+	{
+		String newKeyHash = row.recalcPKHashKey();
+		if (!pkRowMap.containsKey(newKeyHash))
+		{
+			pkRowMap.put(newKeyHash,
+				new SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>(row, referenceQueue));
+			clearAndCheckCache();
 		}
 	}
 
@@ -1264,7 +1343,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		String blobColumnName = sheet.getColumnNames()[columnIndex];
 		Column blobColumn = sheet.getTable().getColumn(blobColumnName);
 		blobSelect.addColumn(new QueryColumn(blobSelect.getTable(), blobColumn.getID(), blobColumn.getSQLName(), blobColumn.getType(), blobColumn.getLength(),
-			blobColumn.getScale(), blobColumn.getFlags(), false));
+			blobColumn.getScale(), blobColumn.getNativeTypename(), blobColumn.getFlags(), false));
 
 		String[] pkColumnNames = sheet.getPKColumnDataProvidersAsArray();
 		IQuerySelectValue[] pkQuerycolumns = new IQuerySelectValue[pkColumnNames.length];
@@ -1276,7 +1355,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		{
 			Column pkcolumn = sheet.getTable().getColumn(pkColumnNames[k]);
 			pkQuerycolumns[k] = new QueryColumn(blobSelect.getTable(), pkcolumn.getID(), pkcolumn.getSQLName(), pkcolumn.getType(), pkcolumn.getLength(),
-				pkcolumn.getScale(), pkcolumn.getFlags(), false);
+				pkcolumn.getScale(), pkcolumn.getNativeTypename(), pkcolumn.getFlags(), false);
 			pkValues[k] = new Object[] { pk[k] };
 		}
 

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy NG Client Plug-in
 Bundle-SymbolicName: servoy_ngclient;singleton:=true
-Bundle-Version: 2020.9.0.3600_rc
+Bundle-Version: 2021.6.0.3680_rc
 Export-Package: com.servoy.j2db.server.ngclient,
  com.servoy.j2db.server.ngclient.component,
  com.servoy.j2db.server.ngclient.endpoint,
@@ -25,7 +25,9 @@ Require-Bundle: servoy_shared,
  org.jsoup,
  org.freemarker.freemarker,
  org.apache.commons.lang3,
- de.inetsoftware.jlessc
+ org.apache.commons.commons-text,
+ de.inetsoftware.jlessc,
+ org.apache.commons.commons-fileupload
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
 Bundle-Vendor: Servoy

@@ -26,6 +26,7 @@ import java.util.function.Predicate;
 
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.TypePredicate;
 import com.servoy.j2db.util.serialize.IWriteReplace;
 import com.servoy.j2db.util.serialize.ReplacedObject;
@@ -87,6 +88,8 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 		classMapping.put(TableExpression.class, Short.valueOf((short)30));
 		classMapping.put(DerivedTable.class, Short.valueOf((short)31));
 		classMapping.put(QuerySelectAllFrom.class, Short.valueOf((short)32));
+		classMapping.put(QuerySearchedCaseExpression.class, Short.valueOf((short)33));
+		classMapping.put(QueryWhenClause.class, Short.valueOf((short)34));
 
 		ReplacedObject.installClassMapping(QUERY_SERIALIZE_DOMAIN, classMapping);
 	}
@@ -169,6 +172,13 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 			{
 				((Object[])o2)[i] = acceptVisitor(((Object[])o2)[i], visitor);
 			}
+		}
+
+		else if (o2 instanceof Pair)
+		{
+			Pair pair = (Pair)o2;
+			pair.setLeft(acceptVisitor(pair.getLeft(), visitor));
+			pair.setRight(acceptVisitor(pair.getRight(), visitor));
 		}
 
 		else if (o2 instanceof IVisitable)

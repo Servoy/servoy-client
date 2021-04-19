@@ -1,4 +1,4 @@
-angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servoydefaultHtmlarea', function($apifunctions, $sabloConstants, $svyProperties,$applicationService) {  
+angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servoydefaultHtmlarea', function($apifunctions, $sabloConstants, $svyProperties,$applicationService, $timeout, $sabloApplication) {  
 	return {
 		restrict: 'E',
 		scope: {
@@ -19,6 +19,7 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 					setup: function(ed){
 						
 						editor = ed;
+						editor.settings.height = "100%";
 						$scope.editor = editor;
 						editor.on('init', function() {
 							$scope.init = true;
@@ -103,7 +104,10 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 						 }
 					}
 			}
-
+            var locale = $sabloApplication.getLocale();
+            if (locale && locale.language) {
+                $scope.tinyConfig.language = locale.language;
+            }
 			// app level configuration
 			var defaultConfiguration = $applicationService.getUIProperty("config");
 			if (defaultConfiguration)
@@ -123,7 +127,7 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 						var value = defaultConfiguration[key]
 						if (key === "plugins")
 						{
-							value += " tabindex resizetocontainer";
+							value += " tabindex";
 						}
 						$scope.tinyConfig[key] = value;
 					}
@@ -149,7 +153,7 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 						var value = configuration[key];
 						if (key === "plugins")
 						{
-							value += " tabindex resizetocontainer";
+							value += " tabindex";
 						}
 						$scope.tinyConfig[key] = value;
 					}
@@ -262,8 +266,16 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 	    	*/
 			$scope.api.requestFocus = function(mustExecuteOnFocusGainedMethod) {
 				$scope.mustExecuteOnFocusGainedMethod = mustExecuteOnFocusGainedMethod;
-				$scope.editor.focus();
-				delete $scope.mustExecuteOnFocusGainedMethod;
+				if ($scope.editor.initialized)
+				{
+					$scope.editor.focus();
+					delete $scope.mustExecuteOnFocusGainedMethod;
+				}
+				else {
+					$timeout(function(){
+						$scope.api.requestFocus(mustExecuteOnFocusGainedMethod);
+					},10);
+				}
 			}
 			
 			$scope.api.getWidth = $apifunctions.getWidth($element[0]);
@@ -324,7 +336,7 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 			menubar : false,
 			statusbar : false,
 			readonly: 0,
-			plugins: 'tabindex resizetocontainer',
+			plugins: 'tabindex',
 			tabindex: 'element',
 			toolbar: 'fontselect fontsizeselect | bold italic underline | superscript subscript | undo redo |alignleft aligncenter alignright alignjustify | styleselect | outdent indent bullist numlist'
 	}

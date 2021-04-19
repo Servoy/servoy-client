@@ -54,7 +54,7 @@ public class PerformanceTiming extends PerformanceData
 
 	@Override
 	public synchronized void addTiming(String subAction, long intervalMsSubAction, long totalMsSubAction, int typeOfSubAction,
-		Map<String, PerformanceTimingAggregate> subSubActionTimings)
+		Map<String, PerformanceTimingAggregate> subSubActionTimings, int nrecords)
 	{
 		if (typeOfSubAction == IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT)
 		{
@@ -63,7 +63,7 @@ public class PerformanceTiming extends PerformanceData
 			start_ms += totalMsSubAction;
 		}
 
-		super.addTiming(subAction, intervalMsSubAction, totalMsSubAction, typeOfSubAction, subSubActionTimings);
+		super.addTiming(subAction, intervalMsSubAction, totalMsSubAction, typeOfSubAction, subSubActionTimings, nrecords);
 	}
 
 	public UUID getUuid()

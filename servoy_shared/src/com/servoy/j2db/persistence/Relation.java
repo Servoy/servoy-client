@@ -17,9 +17,14 @@
 package com.servoy.j2db.persistence;
 
 
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import com.servoy.base.persistence.IBaseColumn;
@@ -784,16 +789,55 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			return false;
 		}
 
-		getOperators();
-		for (int element : operators)
+		return stream(getOperators()).allMatch(op -> op == IBaseSQLCondition.EQUALS_OPERATOR) &&
+			Arrays.equals(foreign[0].getTable().getRowIdentColumns().toArray(), foreign);
+	}
+
+	/**
+	 * Does the relation have a PK > FK condition?
+	 *
+	 * @throws RepositoryException
+	 */
+	public boolean hasPKFKCondition(IDataProviderHandler dataProviderHandler) throws RepositoryException
+	{
+		getPrimaryDataProviders(dataProviderHandler);
+		if (primary == null || primary.length == 0)
 		{
-			if (element != IBaseSQLCondition.EQUALS_OPERATOR)
-			{
-				return false;
-			}
+			return false;
 		}
 
-		return Arrays.equals(foreign[0].getTable().getRowIdentColumns().toArray(), foreign);
+		if (!stream(getOperators()).allMatch(op -> op == IBaseSQLCondition.EQUALS_OPERATOR))
+		{
+			return false;
+		}
+
+		List<IColumn> primaryColumns = stream(primary)
+			.map(IDataProvider::getColumnWrapper).filter(Objects::nonNull)
+			.map(ColumnWrapper::getColumn)
+			.collect(toList());
+
+		return !primaryColumns.isEmpty() && primaryColumns.containsAll(primaryColumns.get(0).getTable().getRowIdentColumns());
+	}
+
+	/**
+	 * Is this relation only based on equals-operators without any modifiers?
+	 */
+	public boolean isOnlyEquals()
+	{
+		return getOperators().length > 0 && stream(getOperators()).allMatch(op -> op == IBaseSQLCondition.EQUALS_OPERATOR);
+	}
+
+	public List<Column> getForeignColumnsForEqualConditions()
+	{
+		List<Column> foreignColumns = new ArrayList<>();
+		for (int i = 0; i < operators.length; i++)
+		{
+			if (operators[i] == IBaseSQLCondition.EQUALS_OPERATOR && i < foreign.length)
+			{
+				foreignColumns.add(foreign[i]);
+			}
+		}
+		return foreignColumns;
 	}
 
 	public String checkKeyTypes(IDataProviderHandler dataProviderHandler) throws RepositoryException
@@ -831,6 +875,11 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 						new Object[] { ((LiteralDataprovider)primary[i]).getLiteral(), foreign[i].getDataProviderID() });
 				}
 
+				if (isUUID(primary[i]) && isUUID(foreign[i]))
+				{
+					continue; //allow uuid to media mapping
+				}
+
 				int primaryType = Column.mapToDefaultType(primary[i].getDataProviderType());
 				int foreignType = Column.mapToDefaultType(foreign[i].getDataProviderType());
 				if (primaryType == IColumnTypes.INTEGER && foreignType == IColumnTypes.NUMBER)
@@ -840,16 +889,6 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 				if (primaryType == IColumnTypes.NUMBER && foreignType == IColumnTypes.INTEGER)
 				{
 					continue; //allow number to integer mappings
-				}
-				if (primaryType == IColumnTypes.TEXT && foreignType == IColumnTypes.MEDIA && primary[i] instanceof IBaseColumn &&
-					((((IBaseColumn)primary[i]).getFlags() & IBaseColumn.UUID_COLUMN) != 0))
-				{
-					continue; //allow uuid to media mapping
-				}
-				if (primaryType == IColumnTypes.MEDIA && foreignType == IColumnTypes.TEXT &&
-					((foreign[i].getFlags() & IBaseColumn.UUID_COLUMN) != 0))
-				{
-					continue; //allow media to uuid mapping
 				}
 				if (foreignType == IColumnTypes.INTEGER && primary[i] instanceof AbstractBase &&
 					"Boolean".equals(((AbstractBase)primary[i]).getSerializableRuntimeProperty(IScriptProvider.TYPE))) //$NON-NLS-1$
@@ -864,6 +903,24 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * @param iDataProvider
+	 * @return
+	 */
+	private boolean isUUID(IDataProvider dataProvider)
+	{
+		IDataProvider real = dataProvider instanceof ColumnWrapper ? ((ColumnWrapper)dataProvider).getColumn() : dataProvider;
+		if (real instanceof AbstractBase)
+		{
+			return "UUID".equals(((AbstractBase)real).getSerializableRuntimeProperty(IScriptProvider.TYPE));
+		}
+		if (real instanceof Column)
+		{
+			return ((Column)real).hasFlag(IBaseColumn.UUID_COLUMN);
+		}
+		return false;
 	}
 
 	private transient Boolean isGlobal;

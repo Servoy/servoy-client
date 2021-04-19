@@ -389,7 +389,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 				foundSetManager.getTrackingInfo(), application.getClientID());
 		}
 		IDataSet dataSet = application.getDataServer().performQuery(application.getClientID(), serverName, foundSetManager.getTransactionID(serverName), select,
-			foundSetManager.getTableFilterParams(serverName, select), !select.isUnique(), 0, maxValuelistRows, IDataServer.VALUELIST_QUERY, trackingInfo);
+			null, foundSetManager.getTableFilterParams(serverName, select), !select.isUnique(), 0, maxValuelistRows, IDataServer.VALUELIST_QUERY, trackingInfo);
 		try
 		{
 			startBundlingEvents();

@@ -36,6 +36,7 @@ import org.sablo.specification.property.types.TypesRegistry;
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.BasicFormController;
+import com.servoy.j2db.FormAndTableDataProviderLookup;
 import com.servoy.j2db.dataprocessing.FireCollector;
 import com.servoy.j2db.dataprocessing.FoundSetEvent;
 import com.servoy.j2db.dataprocessing.IDataAdapter;
@@ -51,9 +52,11 @@ import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.ColumnWrapper;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
+import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
@@ -867,6 +870,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			if (onDataChange != null)
 			{
 				JSONObject event = EventExecutor.createEvent(onDataChange, editingRecord.getParentFoundSet().getSelectedIndex());
+				event.put("data", createDataproviderInfo(editingRecord, formController.getFormScope(), dataProviderID));
 				Object returnValue = null;
 				Exception exception = null;
 				String onDataChangeCallback = null;
@@ -909,6 +913,42 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				}
 			}
 		}
+	}
+
+	private JSONObject createDataproviderInfo(IRecord record, FormScope fs, String dataProviderID)
+	{
+		Object scope = null;
+		String scopeID = null;
+		Pair<String, String> glScope = ScopesUtils.getVariableScope(dataProviderID);
+		if (glScope.getLeft() != null)
+		{
+			try
+			{
+				scope = fs.getFormController().getApplication().getScriptEngine().getScopesScope().getGlobalScope(glScope.getLeft());
+				dataProviderID = ScriptVariable.SCOPES_DOT_PREFIX + glScope.getRight();
+				scopeID = glScope.getLeft();
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);
+			}
+		}
+		else if (fs.has(dataProviderID, fs))
+		{
+			scope = fs;
+			scopeID = "forms." + fs.getScopeName();
+		}
+		else
+		{
+			scope = record;
+			scopeID = record.getParentFoundSet().getDataSource();
+		}
+
+		JSONObject dpInfo = new JSONObject();
+		dpInfo.put("dataprovider", dataProviderID);
+		dpInfo.put("scope", scope);
+		dpInfo.put("scopeid", scopeID);
+		return dpInfo;
 	}
 
 	/**
@@ -1004,7 +1044,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	public String getStringValue(String name)
 	{
 		String stringValue = TagResolver.formatObject(getValueObject(record, name), getApplication());
-		return processValue(stringValue, name, null); // TODO last param ,IDataProviderLookup, should be implemented
+		ITable table = record != null ? record.getParentFoundSet().getTable() : null;
+		FormAndTableDataProviderLookup dataproviderLookup = formController != null ? new FormAndTableDataProviderLookup(
+			formController.getApplication().getFlattenedSolution(), formController.getForm(), table != null ? table : formController.getTable()) : null;
+		return processValue(stringValue, name, dataproviderLookup);
 	}
 
 	public static String processValue(String stringValue, String dataProviderID, IDataProviderLookup dataProviderLookup)

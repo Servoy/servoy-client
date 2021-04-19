@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
@@ -57,7 +57,6 @@ import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyJSONObject;
 
@@ -97,7 +96,8 @@ class PersistBasedFormElementImpl
 			if (attributes != null && attributes.size() > 0)
 			{
 				attributes.forEach((key, value) -> {
-					parsedAttributes.put(StringEscapeUtils.escapeEcmaScript(key), HtmlUtils.escapeMarkup(value, false, false).toString());
+					if (value != null && key != null)
+						parsedAttributes.put(StringEscapeUtils.escapeEcmaScript(key), value);
 				});
 			}
 		}

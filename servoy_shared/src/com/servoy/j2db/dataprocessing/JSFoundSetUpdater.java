@@ -19,6 +19,8 @@ package com.servoy.j2db.dataprocessing;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mozilla.javascript.Scriptable;
+
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.SQLSheet.VariableInfo;
@@ -27,7 +29,6 @@ import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Table;
-import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryUpdate;
 import com.servoy.j2db.scripting.IJavaScriptType;
@@ -190,9 +191,8 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 				SQLSheet sheet = foundset.getSQLSheet();
 
 				QueryUpdate sqlUpdate = new QueryUpdate(sqlParts.getTable());
-				for (int j = 0; j < list.size(); j++)
+				for (Pair<String, Object> p : list)
 				{
-					Pair<String, Object> p = list.get(j);
 					String name = p.getLeft();
 					Object val = p.getRight();
 					int columnIndex = sheet.getColumnIndex(name);
@@ -200,7 +200,7 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 					if (val != null && !("".equals(val) && Column.mapToDefaultType(variableInfo.type) == IColumnTypes.TEXT))//do not convert null to 0 incase of numbers, this means the calcs the value whould change each time //$NON-NLS-1$
 					{
 						val = sheet.convertObjectToValue(name, val, foundset.getFoundSetManager().getColumnConverterManager(),
-							foundset.getFoundSetManager().getColumnValidatorManager());
+							foundset.getFoundSetManager().getColumnValidatorManager(), null);
 					}
 					Column c = table.getColumn(name);
 					if (val == null)
@@ -208,8 +208,7 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 						val = ValueFactory.createNullValue(c.getType());
 					}
 
-					sqlUpdate.addValue(new QueryColumn(sqlParts.getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags()),
-						val);
+					sqlUpdate.addValue(c.queryColumn(sqlParts.getTable()), val);
 				}
 				sqlUpdate.setCondition(sqlParts.getWhereClone());
 
@@ -290,7 +289,7 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 		foundset.forEach(new IRecordCallback()
 		{
 			@Override
-			public Object handleRecord(IRecord record, int recordIndex, IFoundSet foundset)
+			public Object handleRecord(IRecord record, int recordIndex, Scriptable foundset)
 			{
 				if (arrayIndex[0] == rowsToUpdate)
 				{
@@ -303,9 +302,8 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 					if (record.startEditing())
 					{
 						//update the fields
-						for (int j = 0; j < list.size(); j++)
+						for (Pair<String, Object> p : list)
 						{
-							Pair<String, Object> p = list.get(j);
 							String name = p.getLeft();
 							Object val = p.getRight();
 							if (val instanceof Object[])

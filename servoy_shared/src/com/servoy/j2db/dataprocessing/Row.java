@@ -33,6 +33,7 @@ import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.StringComparator;
 import com.servoy.j2db.util.Utils;
@@ -71,7 +72,8 @@ public class Row
 	{
 		synchronized (listeners)
 		{
-			if (!listeners.containsKey(r)) listeners.put(r, dummy);
+			listeners.remove(r);
+			listeners.put(r, dummy);
 		}
 	}
 
@@ -158,6 +160,25 @@ public class Row
 		else
 		{
 			obj = unstoredCalcCache.get(id);
+		}
+		if (obj == UNINITIALIZED)
+		{
+			obj = null;
+		}
+		return obj;
+	}
+
+	/*
+	 * Get old unconverted value
+	 */
+	public Object getOldRawValue(String id)
+	{
+		if (oldValues == null) return getRawValue(id);
+		Object obj = null;
+		int columnIndex = parent.getSQLSheet().getColumnIndex(id);
+		if (columnIndex != -1)
+		{
+			obj = oldValues[columnIndex];
 		}
 		if (obj == UNINITIALIZED)
 		{
@@ -264,6 +285,7 @@ public class Row
 				((DbIdentValue)o).setPkValue(value);
 			}
 			columndata[identindex] = value;
+			parent.pkUpdated(this);
 			FireCollector collector = FireCollector.getFireCollector();
 			try
 			{
@@ -326,9 +348,10 @@ public class Row
 		if (convertedValue != null && !("".equals(convertedValue) && Column.mapToDefaultType(variableInfo.type) == IColumnTypes.TEXT))//do not convert null to 0 incase of numbers, this means the calcs the value whould change each time //$NON-NLS-1$
 		{
 			convertedValue = sheet.convertObjectToValue(dataProviderID, convertedValue, parent.getFoundsetManager().getColumnConverterManager(),
-				parent.getFoundsetManager().getColumnValidatorManager());
+				parent.getFoundsetManager().getColumnValidatorManager(), src);
 		}
-		else if (parent.getFoundsetManager().isNullColumnValidatorEnabled())
+		else if (parent.getFoundsetManager().isNullColumnValidatorEnabled() &&
+			Settings.getInstance().getProperty("servoy.execute.column.validators.only.on.validate_and_save", "true").equals("false")) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		{
 			//check for not null constraint
 			Column c = null;

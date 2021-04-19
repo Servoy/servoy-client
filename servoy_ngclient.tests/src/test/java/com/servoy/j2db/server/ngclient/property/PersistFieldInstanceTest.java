@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sablo.InMemPackageReader;
@@ -185,8 +184,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		String json = JSONUtils.writeChanges(changes.content, changes.contentType, new BrowserConverterContext(wc, PushToServerEnum.allow));
 
-		Assert.assertEquals("{\"tabs\":{\"vEr\":1,\"u\":[{\"i\":0,\"v\":{\"vEr\":1,\"u\":[{\"k\":\"text\",\"v\":\"a test\"}]}}]}}", json);
-
+		JSONAssert.assertEquals("{\"tabs\":{\"vEr\":1,\"u\":[{\"i\":0,\"v\":{\"vEr\":1,\"u\":[{\"k\":\"text\",\"v\":\"a test\"}]}}]}}", json, true);
 	}
 
 	@Test
@@ -214,9 +212,9 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		TypedData<Map<String, Object>> props = wc.getProperties();
 
 		String json = JSONUtils.writeDataAsFullToJSON(props.content, props.contentType, allowBrowserConverterContext);
-		Assert.assertEquals(
-			new JSONObject("{\"atype\":{\"vEr\":2,\"v\":{\"text\":\"OK\",\"name\":\"name\"}},\"svyMarkupId\":\"f331d64ddc0c17747371b7740e3e3447\"}").toString(),
-			new JSONObject(json).toString());
+		JSONAssert.assertEquals(
+			"{\"atype\":{\"vEr\":2,\"v\":{\"text\":\"OK\",\"name\":\"name\"}},\"svyMarkupId\":\"f331d64ddc0c17747371b7740e3e3447\"}",
+			json, true);
 	}
 
 	@Test

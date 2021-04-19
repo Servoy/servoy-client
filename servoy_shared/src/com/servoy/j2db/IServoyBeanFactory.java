@@ -22,7 +22,8 @@ import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.ui.IComponent;
 
 /**
- * Interface to leave type creation to bean implementor, so that the implementor can deliver multiple instances like SWT/Swing/Wicket
+ * Interface to leave type creation to bean implementor, so that the implementor can deliver multiple instances like SWT/Swing/Wicket.
+ * Should be replaced by {@link IServoyBeanFactory2}
  * @author jblok
  */
 public interface IServoyBeanFactory extends ISupportName
@@ -30,17 +31,17 @@ public interface IServoyBeanFactory extends ISupportName
 	/**
 	 * Factory method to create the actual component, the servoyApplicationType is one the {@link IClientPluginAccess} client constants like
 	 * {@link IClientPluginAccess#CLIENT} for the smart client.
-	 * 
+	 *
 	 * The first argument of the cargs parameter is always set and is the name that should be used as the wicket id for the wicket componet.
 	 * This argument is not needed for the swing component.
-	 * 
+	 *
 	 * If the component that is returned implements {@link IServoyAwareBean} then the {@link IServoyAwareBean#initialize(IClientPluginAccess)} is not called on that one.
 	 * you have to do that yourself.
-	 * 
+	 *
 	 * @param servoyApplicationType The client's application type.
-	 * @param access The {@link IClientPluginAccess} 
+	 * @param access The {@link IClientPluginAccess}
 	 * @param cargs Arguments for this bean, the first argument is the bean (wicket)id, the second is the form name, the third is the form stylesheet name
-	 * 
+	 *
 	 * @return The actual bean component
 	 */
 	public IComponent getBeanInstance(int servoyApplicationType, IClientPluginAccess access, Object[] cargs);

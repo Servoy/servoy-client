@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.persistence.ISupportScope;
+import com.servoy.j2db.persistence.IScriptElement;
 import com.servoy.j2db.persistence.LineNumberComparator;
 import com.servoy.j2db.persistence.NameComparator;
 import com.servoy.j2db.persistence.ScriptVariable;
@@ -194,9 +194,9 @@ public class SolutionModelPersistIndex extends PersistIndex implements ISolution
 	}
 
 	@Override
-	public ISupportScope getSupportScope(String scopeName, String baseName)
+	public IScriptElement getSupportScope(String scopeName, String baseName)
 	{
-		ISupportScope supportScope = null;
+		IScriptElement supportScope = null;
 		if (testIndex())
 		{
 			supportScope = super.getSupportScope(scopeName, baseName);
@@ -209,7 +209,7 @@ public class SolutionModelPersistIndex extends PersistIndex implements ISolution
 	}
 
 	@Override
-	public <T extends ISupportScope> Iterator<T> getGlobalScriptObjects(String scopeName, boolean sort, Class<T> cls)
+	public <T extends IScriptElement> Iterator<T> getGlobalScriptObjects(String scopeName, boolean sort, Class<T> cls)
 	{
 		Iterator<T> iterator = index.getGlobalScriptObjects(scopeName, sort, cls);
 		if (testIndex())

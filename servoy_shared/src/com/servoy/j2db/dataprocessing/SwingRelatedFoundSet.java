@@ -38,10 +38,10 @@ public class SwingRelatedFoundSet extends RelatedFoundSet implements ISwingFound
 	protected transient AlwaysRowSelectedSelectionModel selectionModel;
 	private transient TableAndListEventDelegate tableAndListEventDelegate;
 
-	public SwingRelatedFoundSet(IDataSet data, QuerySelect querySelect, IFoundSetManagerInternal app, IRecordInternal parent, String relationName,
+	public SwingRelatedFoundSet(IDataSet data, QuerySelect querySelect, IFoundSetManagerInternal app, String relationName,
 		SQLSheet sheet, List<SortColumn> defaultSortColumns, QuerySelect aggregateSelect, IDataSet aggregateData) throws ServoyException
 	{
-		super(data, querySelect, app, parent, relationName, sheet, defaultSortColumns, aggregateSelect, aggregateData);
+		super(data, querySelect, app, relationName, sheet, defaultSortColumns, aggregateSelect, aggregateData);
 		createSelectionModel();
 	}
 
@@ -55,9 +55,9 @@ public class SwingRelatedFoundSet extends RelatedFoundSet implements ISwingFound
 	}
 
 	//can only used by findState
-	SwingRelatedFoundSet(IFoundSetManagerInternal app, IRecordInternal parent, String relationName, SQLSheet sheet) throws ServoyException
+	SwingRelatedFoundSet(IFoundSetManagerInternal app, String relationName, SQLSheet sheet) throws ServoyException
 	{
-		super(app, parent, relationName, sheet);
+		super(app, relationName, sheet);
 		createSelectionModel();
 	}
 

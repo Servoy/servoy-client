@@ -302,7 +302,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		if (RequestCycle.get() == null)
 		{
 			Debug.log("Set user property called when there is no request (onload of a from with a session timeout?), property " + name + ", value " + value +
-				" not saved");
+				" not saved", new RuntimeException());
 			return;
 		}
 		getDefaultUserProperties().remove(name);
@@ -1055,7 +1055,8 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 	}
 
-	public void onEndRequest(@SuppressWarnings("unused") WebClientSession webClientSession)
+	public void onEndRequest(@SuppressWarnings("unused")
+	WebClientSession webClientSession)
 	{
 		userRequestProperties.clear();
 		// just to make sure that on the end of the request there are really no more events waiting.

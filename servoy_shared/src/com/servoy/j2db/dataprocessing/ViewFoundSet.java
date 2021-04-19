@@ -42,6 +42,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListDataListener;
 import javax.swing.table.AbstractTableModel;
 
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
@@ -211,7 +212,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	// forms might force their foundset to remain at a certain multiselect value
 	// if a form 'pinned' multiselect, multiSelect should not be changeable by foundset JS access
 	// if more then 1 form wishes to pin multiselect at a time, the form with lowest elementid wins
-	private int multiSelectPinnedTo = -1;
+	private String multiSelectPinnedForm = null;
 	private int multiSelectPinLevel;
 	private final Map<BaseQueryTable, List<IQuerySelectValue>> pkColumnsForTable;
 	private final Map<BaseQueryTable, List<IQuerySelectValue>> columnsForTable;
@@ -466,10 +467,20 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	public Object forEach(IRecordCallback callback)
 	{
 		FoundSetIterator foundsetIterator = new FoundSetIterator();
+		Scriptable scriptableFoundset = null;
+		try
+		{
+			Context.enter();
+			scriptableFoundset = (Scriptable)Context.javaToJS(this, this.getFoundSetManager().getApplication().getScriptEngine().getSolutionScope());
+		}
+		finally
+		{
+			Context.exit();
+		}
 		while (foundsetIterator.hasNext())
 		{
 			IRecord currentRecord = foundsetIterator.next();
-			Object returnValue = callback.handleRecord(currentRecord, foundsetIterator.currentIndex, this);
+			Object returnValue = callback.handleRecord(currentRecord, foundsetIterator.currentIndex, scriptableFoundset);
 			if (returnValue != null && returnValue != Undefined.instance)
 			{
 				return returnValue;
@@ -693,30 +704,42 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@JSFunction
 	public int save()
 	{
-		return save(null);
+		return doSave(null);
 	}
 
 	/**
-	 * Validates this view record, wil call the onValidate of this ViewFoundset.
+	 * Validates the given record, it runs first the method that is attached to the entity event "onValidate".
+	 * Those methods do get a parameter JSRecordMarkers where the problems can be reported against.
+	 * All columns are then also null/empty checked and if they are and the Column is marked as "not null" an error will be
+	 * added with the message key "servoy.record.error.null.not.allowed" for that column.
+	 *
+	 * An extra state object can be given that will also be passed around if you want to have more state in the validation objects
+	 * (like giving some ui state so the entity methods know where you come from)
+	 *
+	 * It will return a JSRecordMarkers when the record had validation problems
 	 *
 	 * @param record
+	 *
+	 * @return Returns a JSRecordMarkers if the record has validation problems
 	 */
 	@JSFunction
-	public JSValidationObject validate(ViewRecord record)
+	public JSRecordMarkers validate(ViewRecord record)
 	{
 		return validate(record, null);
 	}
 
 	/**
-	 * Validates this view record, wil call the onValidate of this ViewFoundset.
+	 * @clonedesc validate(ViewRecord)
 	 *
+	 * @sampleas validate(ViewRecord)
+	 * 	 *
 	 * @param record The ViewRecord to validate
-	 * @param state The extra state to give to the validate method.
+	 * @param customObject An extra customObject to give to the validate method.
 	 */
 	@JSFunction
-	public JSValidationObject validate(ViewRecord record, Object state)
+	public JSRecordMarkers validate(ViewRecord record, Object customObject)
 	{
-		return manager.validateRecord(record, state);
+		return manager.validateRecord(record, customObject);
 	}
 
 	/**
@@ -729,7 +752,11 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	public int save(ViewRecord record)
 	{
 		if (record != null && record.getParentFoundSet() != this) return ISaveConstants.SAVE_FAILED;
+		return doSave(record);
+	}
 
+	private int doSave(ViewRecord record)
+	{
 		int retCode = ISaveConstants.STOPPED;
 		List<ViewRecord> toSave = new ArrayList<>();
 		if (record == null)
@@ -743,6 +770,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 		if (toSave.size() > 0)
 		{
+			ArrayList<ViewRecord> processedRecords = new ArrayList<ViewRecord>();
 			try
 			{
 				boolean previousRefresh = refresh;
@@ -753,10 +781,10 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 				for (ViewRecord rec : toSave)
 				{
 					Map<String, Object> changes = rec.getChanges();
-					// directly just remove it from the editted records if we try to save it.
-					rec.clearChanges();
+					// directly just remove it from the edited records if we try to save it.
 					editedRecords.remove(rec);
 					if (changes == null) continue;
+
 					Map<BaseQueryTable, Map<QueryColumn, Object>> tableToChanges = new IdentityHashMap<>();
 					columnNames.forEach((selectValue, name) -> {
 						if (changes.containsKey(name))
@@ -817,42 +845,75 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 						statement.setExpectedUpdateCount(1);
 						statements.add(statement);
 					});
-				}
-
-				Object[] updateResult = manager.getApplication().getDataServer().performUpdates(manager.getApplication().getClientID(),
-					statements.toArray(new SQLStatement[statements.size()]));
-				for (int i = 0; i < updateResult.length; i++)
-				{
-					Object o = updateResult[i];
-					if (o instanceof Exception)
+					JSRecordMarkers validateObject = validate(rec);
+					if (validateObject != null && validateObject.isHasErrors())
 					{
-						// something went wrong
-						ViewRecord rec = toSave.get(i);
-						failedRecords.add(rec);
-						rec.setLastException((Exception)o);
-						retCode = ISaveConstants.SAVE_FAILED;
+						Object[] genericExceptions = validateObject.getGenericExceptions();
+						if (genericExceptions.length > 0)
+						{
+							rec.setLastException((Exception)genericExceptions[0]);
+						}
+						if (!failedRecords.contains(rec))
+						{
+							failedRecords.add(rec);
+						}
+					}
+
+					if (!failedRecords.contains(rec))
+					{
+						processedRecords.add(rec);
 					}
 				}
 
-				// TODO what happens if the save failed for some? add the changes back in?
-
-				for (SQLStatement statement : statements)
+				if (toSave.size() > 1 && failedRecords.isEmpty() || //if this is a save all call we don't save if we have failed records
+					toSave.size() == 1 && !failedRecords.contains(record))//if this is a single record save, we just check if it is failed or not
 				{
-					manager.notifyDataChange(DataSourceUtils.createDBTableDataSource(statement.getServerName(), statement.getTableName()), statement.getPKs(),
-						ISQLActionTypes.UPDATE_ACTION, statement.getChangedColumns());
-				}
 
-				// if we should have refreshed before this save and it is still in refresh mode (refresh is true and no editted records anymore)
-				// do a load but only if there are listeners
-				if (previousRefresh && shouldRefresh() && foundSetEventListeners.size() > 0)
-				{
-					loadAllRecordsImpl();
+					Object[] updateResult = manager.getApplication().getDataServer().performUpdates(manager.getApplication().getClientID(),
+						statements.toArray(new SQLStatement[statements.size()]));
+					for (int i = 0; i < updateResult.length; i++)
+					{
+						ViewRecord rec = toSave.get(i);
+						Object o = updateResult[i];
+						if (o instanceof Exception)
+						{
+							// something went wrong
+							failedRecords.add(rec);
+							rec.setLastException((Exception)o);
+							retCode = ISaveConstants.SAVE_FAILED;
+						}
+						else
+						{
+							rec.clearChanges();
+						}
+					}
+
+					// TODO what happens if the save failed for some? add the changes back in?
+
+					for (SQLStatement statement : statements)
+					{
+						manager.notifyDataChange(DataSourceUtils.createDBTableDataSource(statement.getServerName(), statement.getTableName()),
+							statement.getPKsRow(0), ISQLActionTypes.UPDATE_ACTION, statement.getChangedColumns());
+					}
+
+					// if we should have refreshed before this save and it is still in refresh mode (refresh is true and no editted records anymore)
+					// do a load but only if there are listeners
+					if (previousRefresh && shouldRefresh() && foundSetEventListeners.size() > 0)
+					{
+						loadAllRecordsImpl();
+					}
 				}
 			}
 			catch (ServoyException | RemoteException e)
 			{
 				Debug.error(e);
-				return ISaveConstants.SAVE_FAILED;
+			}
+			finally
+			{
+				if (!failedRecords.isEmpty())
+				{
+					processedRecords.stream().forEachOrdered(editedRecords::add);
+				}
 			}
 		}
 		return retCode;
@@ -898,6 +959,18 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	public void loadAllRecords() throws ServoyException
 	{
 		currentChunkSize = chunkSize;
+		if (editedRecords.size() > 0)
+		{
+			// if there are editing records and load all is called, then just remove all changes
+			editedRecords.stream().forEach(edited -> edited.clearChanges());
+			editedRecords.clear();
+		}
+		if (failedRecords.size() > 0)
+		{
+			// if there are failed records and load all is called, then just remove all changes
+			failedRecords.stream().forEach(failed -> failed.clearChanges());
+			failedRecords.clear();
+		}
 		loadAllRecordsImpl();
 	}
 
@@ -908,23 +981,13 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		try
 		{
 			IDataSet ds = manager.getApplication().getDataServer().performQuery(manager.getApplication().getClientID(), serverName, transaction_id, select,
-				manager.getTableFilterParams(serverName, select), select.isUnique(), 0, currentChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+				null, manager.getTableFilterParams(serverName, select), select.isUnique(), 0, currentChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
 			refresh = false;
 			ArrayList<IQuerySelectValue> cols = select.getColumns();
 			int currentSize = records.size();
 			List<ViewRecord> old = records;
 			records = new ArrayList<>(ds.getRowCount());
 			pkByDatasourceCache.clear();
-
-			if (editedRecords.size() > 0)
-			{
-				// if there are editing records and load all is called, then just remove all changes
-				for (ViewRecord edit : editedRecords)
-				{
-					edit.clearChanges();
-				}
-				editedRecords.clear();
-			}
 
 			String[] colNames = columnNames.values().toArray(new String[columnNames.size()]);
 
@@ -1026,35 +1089,35 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 * @param pinId lower id has priority over higher id when using the same pinLevel. (refers to form element id)
 	 * @param pinLevel lower level has priority in pinning over higher level. (refers to visible/invisible forms)
 	 */
-	public void pinMultiSelectIfNeeded(boolean multiSelect, int pinId, int pinLevel)
+	public void pinMultiSelectIfNeeded(boolean multiSelect, String formName, int pinLevel)
 	{
-		if (multiSelectPinnedTo == -1)
+		if (multiSelectPinnedForm == null)
 		{
 			// no current pinning; just pin
 			multiSelectPinLevel = pinLevel;
-			multiSelectPinnedTo = pinId;
+			multiSelectPinnedForm = formName;
 			setMultiSelectInternal(multiSelect);
 		}
 		else if (pinLevel < multiSelectPinLevel)
 		{
 			// current pin was for hidden form, this is a visible form
 			multiSelectPinLevel = pinLevel;
-			if (multiSelectPinnedTo != pinId)
+			if (multiSelectPinnedForm != formName)
 			{
-				multiSelectPinnedTo = pinId;
+				multiSelectPinnedForm = formName;
 				setMultiSelectInternal(multiSelect);
 			}
 		}
 		else if (pinLevel == multiSelectPinLevel)
 		{
-			// same pin level, different forms; always choose one with lowest id
-			if (pinId < multiSelectPinnedTo)
+			// same pin level, different forms; always choose one with lowest "name"
+			if (formName.compareTo(multiSelectPinnedForm) < 0)
 			{
-				multiSelectPinnedTo = pinId;
+				multiSelectPinnedForm = formName;
 				setMultiSelectInternal(multiSelect);
 			}
 		}
-		else if (pinId == multiSelectPinnedTo) // && (pinLevel > multiSelectPinLevel) implied
+		else if (formName == multiSelectPinnedForm) // && (pinLevel > multiSelectPinLevel) implied
 		{
 			// pinlevel is higher then current; if this is the current pinned form, update the pin level
 			// maybe other visible forms using this foundset want to pin selection mode in this case (visible pinning form became hidden)
@@ -1063,11 +1126,11 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		}
 	}
 
-	public void unpinMultiSelectIfNeeded(int pinId)
+	public void unpinMultiSelectIfNeeded(String formName)
 	{
-		if (multiSelectPinnedTo == pinId)
+		if (multiSelectPinnedForm == formName)
 		{
-			multiSelectPinnedTo = -1;
+			multiSelectPinnedForm = null;
 			fireSelectionModeChange(); // this allows any other forms that might be currently using this foundset to apply their own selectionMode to it
 		}
 	}
@@ -1076,7 +1139,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@JSGetter
 	public void setMultiSelect(boolean multiSelect)
 	{
-		if (multiSelectPinnedTo == -1) setMultiSelectInternal(multiSelect); // if a form is currently overriding this, ignore js call
+		if (multiSelectPinnedForm == null) setMultiSelectInternal(multiSelect); // if a form is currently overriding this, ignore js call
 	}
 
 	@Override
@@ -2186,7 +2249,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 										String serverName = DataSourceUtils.getDataSourceServerName(select.getTable().getDataSource());
 										String transaction_id = manager.getTransactionID(serverName);
 										IDataSet updatedDS = manager.getApplication().getDataServer().performQuery(manager.getApplication().getClientID(),
-											serverName, transaction_id, updateSelect, manager.getTableFilterParams(serverName, updateSelect), true, 0,
+											serverName, transaction_id, updateSelect, null, manager.getTableFilterParams(serverName, updateSelect), true, 0,
 											currentChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
 										if (updatedDS.getRowCount() > 0)
 										{
@@ -2322,5 +2385,15 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	public Class< ? >[] getAllReturnedTypes()
 	{
 		return new Class< ? >[] { ViewRecord.class };
+	}
+
+	/**
+	 * Check if validation or db exceptions ocurred on a previous attempt to saving this record.
+	 * @param viewRecord
+	 * @return true if the record is failed, false otherwise
+	 */
+	boolean isFailedRecord(ViewRecord viewRecord)
+	{
+		return failedRecords.contains(viewRecord);
 	}
 }

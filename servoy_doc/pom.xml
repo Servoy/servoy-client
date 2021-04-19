@@ -5,12 +5,12 @@
 
 	<parent>
 		<artifactId>servoy-client</artifactId>
-		<version>2020.9.0.3600_rc</version>
+		<version>2021.6.0.3680_rc</version>
 		<groupId>com.servoy</groupId>
 	</parent>
 
 	<groupId>com.servoy</groupId>
-	<version>2020.9.0.3600_rc</version>
+	<version>2021.6.0.3680_rc</version>
 	<artifactId>servoy-doc</artifactId>
 	<packaging>jar</packaging>
 
@@ -237,11 +237,6 @@
 						<version>${tycho.version}</version>
 						<configuration>
 							<repositories>
-								<repository>
-									<id>servoy</id>
-									<url>${all.url}</url>
-									<layout>p2</layout>
-								</repository>
 								<repository>
 									<id>servoy_local</id>
 									<url>${servoy-local.url}</url>

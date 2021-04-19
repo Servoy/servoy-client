@@ -26,6 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.stream.IntStream;
+import java.util.stream.IntStream.Builder;
 
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
@@ -42,7 +44,6 @@ import com.servoy.j2db.query.AndOrCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.Placeholder;
-import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
@@ -74,10 +75,12 @@ public abstract class RelatedFoundSet extends FoundSet
 		}
 	}
 
-	protected RelatedFoundSet(IDataSet data, QuerySelect select, IFoundSetManagerInternal app, IRecordInternal parent, String relationName, SQLSheet sheet,
+	private int[] equalsOpsIndexes;
+
+	protected RelatedFoundSet(IDataSet data, QuerySelect select, IFoundSetManagerInternal app, String relationName, SQLSheet sheet,
 		List<SortColumn> defaultSortColumns, QuerySelect aggregateSelect, IDataSet aggregateData) throws ServoyException
 	{
-		super(app, parent, relationName, sheet, null, defaultSortColumns);
+		super(app, relationName, sheet, null, defaultSortColumns);
 
 		if (data == null)
 		{
@@ -111,8 +114,7 @@ public abstract class RelatedFoundSet extends FoundSet
 		while (pkIt.hasNext())
 		{
 			Column column = pkIt.next();
-			pkColumns.add(new QueryColumn(select.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength(), column.getScale(),
-				column.getFlags()));
+			pkColumns.add(column.queryColumn(select.getTable()));
 		}
 		select.setColumns(pkColumns);
 		creationSqlSelect = AbstractBaseQuery.deepClone(select);
@@ -127,9 +129,9 @@ public abstract class RelatedFoundSet extends FoundSet
 
 
 	//can only used by findState
-	protected RelatedFoundSet(IFoundSetManagerInternal app, IRecordInternal parent, String relationName, SQLSheet sheet) throws ServoyException
+	protected RelatedFoundSet(IFoundSetManagerInternal app, String relationName, SQLSheet sheet) throws ServoyException
 	{
-		super(app, parent, relationName, sheet, null, null);
+		super(app, relationName, sheet, null, null);
 		getPksAndRecords().setPksAndQuery(new BufferedDataSet(), 0, null);
 		initialized = true;
 	}
@@ -234,6 +236,16 @@ public abstract class RelatedFoundSet extends FoundSet
 						Debug.trace(Thread.currentThread().getName() + ": Found cached FK record"); //$NON-NLS-1$
 					}
 					cachedRows.put(Integer.valueOf(i), cachedRow);
+				}
+				else if (!parents[i].existInDataSource() && !fsm.loadRelatedRecordsIfParentIsNew &&
+					relation.hasPKFKCondition(fsm.getApplication().getFlattenedSolution()))
+				{
+					/*
+					 * Optimize for init of related foundsets on a parent record that is new and where the relation includes equal conditions for all the parent
+					 * rowIdentifier columns
+					 *
+					 * In this case no query has to be made to the DB to fetch existing records, as there wouldn't be any.
+					 */
 				}
 				else
 				{
@@ -410,7 +422,9 @@ public abstract class RelatedFoundSet extends FoundSet
 		// from db coming from outside or a search that has no results.
 		clearOmit(null);
 
-		refreshFromDBInternal(AbstractBaseQuery.deepClone(creationSqlSelect), true, false, fsm.pkChunkSize, false, false);
+		refreshFromDBInternal(
+			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), creationSqlSelect, null, true, null, lastSortColumns, false),
+			false, fsm.pkChunkSize, false, false);
 	}
 
 	@Override
@@ -426,6 +440,34 @@ public abstract class RelatedFoundSet extends FoundSet
 	 * @return
 	 */
 	public String getWhereArgsHash()
+	{
+		Object[] whereArgs = getWhereArgs(false);
+		return RowManager.createPKHashKey(whereArgs);
+	}
+
+	private int[] getIndexesEqualsEntries()
+	{
+		if (equalsOpsIndexes == null)
+		{
+			Relation relation = fsm.getApplication().getFlattenedSolution().getRelation(relationName);
+
+			Builder indexBuilder = IntStream.builder();
+			int[] operators = relation.getOperators();
+			for (int i = 0; i < operators.length; i++)
+			{
+				if (operators[i] == IBaseSQLCondition.EQUALS_OPERATOR)
+				{
+					indexBuilder.add(i);
+				}
+			}
+
+			equalsOpsIndexes = indexBuilder.build().toArray();
+		}
+
+		return equalsOpsIndexes;
+	}
+
+	public Object[] getWhereArgs(boolean onlyEqualsConditions)
 	{
 		Placeholder ph = creationSqlSelect.getPlaceholder(SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), getRelationName()));
 		if (ph == null || !ph.isSet())
@@ -462,16 +504,28 @@ public abstract class RelatedFoundSet extends FoundSet
 			throw new IllegalStateException("Relation where-args inconsistent with columns for relation" + relationName); //$NON-NLS-1$
 		}
 
-		Object[] whereArgs = new Object[foreignData.length];
-		for (int i = 0; i < foreignData.length; i++)
+		IntStream columnIndexesStream;
+		if (onlyEqualsConditions)
 		{
-			// Use converted value for hash
-			int colindex = getSQLSheet().getColumnIndex(columns[i].getDataProviderID());
-			whereArgs[i] = getSQLSheet().convertValueToObject(foreignData[i][0], colindex, fsm.getColumnConverterManager());
+			int[] columnIndexes = getIndexesEqualsEntries();
+			if (columnIndexes.length == 0)
+			{
+				return null;
+			}
+			columnIndexesStream = IntStream.of(columnIndexes);
+		}
+		else
+		{
+			columnIndexesStream = IntStream.range(0, columns.length);
 		}
 
-		return RowManager.createPKHashKey(whereArgs);
+		return columnIndexesStream.mapToObj(i -> {
+			// Use converted value for hash
+			int colindex = getSQLSheet().getColumnIndex(columns[i].getDataProviderID());
+			return getSQLSheet().convertValueToObject(foreignData[i][0], colindex, fsm.getColumnConverterManager());
+		}).toArray();
 	}
+
 
 	@Override
 	public boolean addFilterParam(String filterName, String dataprovider, String operator, Object value)
@@ -563,9 +617,8 @@ public abstract class RelatedFoundSet extends FoundSet
 	protected void recordsUpdated(List<Record> records, List<String> aggregatesToRemove)
 	{
 		super.recordsUpdated(records, aggregatesToRemove);
-		for (int i = 0; i < records.size(); i++)
+		for (Record record : records)
 		{
-			IRecordInternal record = records.get(i);
 			notifyChange_checkForUpdate(record.getRawData(), false);
 		}
 	}

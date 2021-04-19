@@ -134,10 +134,12 @@ public class DataServerProxy implements IDataServer
 		return ds.performCustomQuery(client_id, getMappedServerName(serverName), driverTableName, transaction_id, sqlSelect, filters, startRow, rowsToRetrieve);
 	}
 
-	public IDataSet performQuery(String client_id, String serverName, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
+	public IDataSet performQuery(String client_id, String serverName, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
+		ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException
 	{
-		return ds.performQuery(client_id, getMappedServerName(serverName), transaction_id, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve,
+		return ds.performQuery(client_id, getMappedServerName(serverName), transaction_id, sqlSelect, resultTypes, filters, distinctInMemory, startRow,
+			rowsToRetrieve,
 			updateIdleTimestamp);
 	}
 
@@ -148,34 +150,37 @@ public class DataServerProxy implements IDataServer
 			updateIdleTimestamp);
 	}
 
-	public IDataSet performQuery(String client_id, String serverName, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
+	public IDataSet performQuery(String client_id, String serverName, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
+		ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
 	{
-		return ds.performQuery(client_id, getMappedServerName(serverName), transaction_id, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve,
-			true);
+		return ds.performQuery(client_id, getMappedServerName(serverName), transaction_id, sqlSelect, resultTypes, filters, distinctInMemory, startRow,
+			rowsToRetrieve);
 	}
 
 	public IDataSet performQuery(String client_id, String serverName, String driverTableName, String transaction_id, String sql, Object[] questiondata,
 		int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
 	{
-		return ds.performQuery(client_id, getMappedServerName(serverName), driverTableName, transaction_id, sql, questiondata, startRow, rowsToRetrieve, true);
+		return ds.performQuery(client_id, getMappedServerName(serverName), driverTableName, transaction_id, sql, questiondata,
+			startRow, rowsToRetrieve);
 	}
 
-	public IDataSet performQuery(String client_id, String serverName, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
+	public IDataSet performQuery(String client_id, String serverName, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
+		ArrayList<TableFilter> filters, boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
 	{
-		return ds.performQuery(client_id, getMappedServerName(serverName), transaction_id, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve,
-			type);
+		return ds.performQuery(client_id, getMappedServerName(serverName), transaction_id, sqlSelect, resultTypes, filters, distinctInMemory, startRow,
+			rowsToRetrieve, type);
 	}
 
-	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
+	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
+		ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo) throws ServoyException, RemoteException
 	{
 		long time = System.currentTimeMillis();
 		try
 		{
-			return ds.performQuery(client_id, getMappedServerName(server_name), transaction_id, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve,
-				type, trackingInfo);
+			return ds.performQuery(client_id, getMappedServerName(server_name), transaction_id, sqlSelect, resultTypes, filters, distinctInMemory, startRow,
+				rowsToRetrieve, type, trackingInfo);
 		}
 		finally
 		{
@@ -296,9 +301,9 @@ public class DataServerProxy implements IDataServer
 	}
 
 	public QuerySet getSQLQuerySet(String serverName, ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve,
-		boolean forceQualifyColumns) throws RepositoryException, RemoteException
+		boolean forceQualifyColumns, boolean disableUseArrayForIn) throws RepositoryException, RemoteException
 	{
-		return ds.getSQLQuerySet(serverName, sqlQuery, filters, startRow, rowsToRetrieve, forceQualifyColumns);
+		return ds.getSQLQuerySet(serverName, sqlQuery, filters, startRow, rowsToRetrieve, forceQualifyColumns, disableUseArrayForIn);
 	}
 
 

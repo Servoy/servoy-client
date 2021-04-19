@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.mozilla.javascript.BaseFunction;
+import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
@@ -447,7 +448,7 @@ public class RuntimeWebGroup implements Scriptable
 			Object f = component.get("getDesignTimeProperty", scope);
 			if (f != null && f != Scriptable.NOT_FOUND)
 			{
-				Object value = ((Function)f).call(cx, scope, thisObj, args);
+				Object value = ((Callable)f).call(cx, scope, thisObj, args);
 				if (value != null) return value;
 			}
 		}

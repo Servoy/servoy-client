@@ -623,13 +623,13 @@ public class FormController extends BasicFormController
 	}
 
 	@Override
-	protected void focusFirstField()
+	protected boolean focusFirstField()
 	{
-		focusField(null, false);
+		return focusField(null, true);
 	}
 
 	@Override
-	protected void focusField(String fieldName, final boolean skipReadonly)
+	protected boolean focusField(String fieldName, final boolean skipReadonly)
 	{
 		final Object field = tabSequence.getComponentForFocus(fieldName, skipReadonly);
 		if (field != null)
@@ -642,7 +642,9 @@ public class FormController extends BasicFormController
 					containerImpl.focusField(field);
 				}
 			});
+			return true;
 		}
+		return false;
 	}
 
 	/*
@@ -762,7 +764,7 @@ public class FormController extends BasicFormController
 		if (looseFocus && form.getOnRecordEditStopMethodID() != 0)
 		{
 			//allow beans to store there data via method
-			IRecordInternal[] records = getApplication().getFoundSetManager().getEditRecordList().getUnmarkedEditedRecords(formModel);
+			IRecordInternal[] records = getApplication().getFoundSetManager().getEditRecordList().getUnmarkedEditedRecords(formModel, this);
 			for (IRecordInternal element : records)
 			{
 				boolean b = executeOnRecordEditStop(element);

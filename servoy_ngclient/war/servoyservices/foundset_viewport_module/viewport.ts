@@ -27,43 +27,43 @@ namespace ngclient.propertyTypes {
 				private readonly pushToServerUtils: sablo.IPushToServerUtils) {}
 	
 		private addDataWatchToCell(columnName /*can be null*/, idx, viewPort, internalState: InternalStateForViewport, componentScope: angular.IScope, propertyContext: sablo.IPropertyContext) {
-			if (componentScope) {
-                const setChangeNotifierIfSmartProperty = (value: any): boolean => {
-                    if (value && value[this.sabloConverters.INTERNAL_IMPL] && value[this.sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
-                        // we don't care to check below for dumbWatchType because some types (see foundset) need to send internal protocol messages even if they are not watched/changeable on server
-                        value[this.sabloConverters.INTERNAL_IMPL].setChangeNotifier(() => {
-                            if (value[this.sabloConverters.INTERNAL_IMPL].isChanged()) queueChange(value, value);
-                        });
-                        return true;
-                    }
-                    return false;
+            const setChangeNotifierIfSmartProperty = (value: any): boolean => {
+                if (value && value[this.sabloConverters.INTERNAL_IMPL] && value[this.sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
+                    // we don't care to check below for dumbWatchType because some types (see foundset) need to send internal protocol messages even if they are not watched/changeable on server
+                    value[this.sabloConverters.INTERNAL_IMPL].setChangeNotifier(() => {
+                        if (value[this.sabloConverters.INTERNAL_IMPL].isChanged()) queueChange(value, value);
+                    });
+                    return true;
                 }
-            
-				const queueChange = (newData, oldData) => {
-					const r = {};
+                return false;
+            }
+        
+			const queueChange = (newData, oldData) => {
+				const r = {};
+
+				if (angular.isDefined(internalState.forFoundset)) {
+					r[this.foundsetTypeConstants.ROW_ID_COL_KEY] = internalState.forFoundset().viewPort.rows[idx][this.foundsetTypeConstants.ROW_ID_COL_KEY];
+				} else r[this.foundsetTypeConstants.ROW_ID_COL_KEY] = viewPort[idx][this.foundsetTypeConstants.ROW_ID_COL_KEY];
+				r[ViewportService.DATAPROVIDER_KEY] = columnName;
+				r[ViewportService.VALUE_KEY] = newData;
+
+				// convert new data if necessary
+				const clientSideTypes = internalState.viewportTypes ? internalState.viewportTypes[idx] : undefined;
+				const clientSideType = (clientSideTypes ? (columnName ? clientSideTypes[columnName] : clientSideTypes) : undefined); 
+				r[ViewportService.VALUE_KEY] = this.sabloConverters.convertFromClientToServer(r[ViewportService.VALUE_KEY], clientSideType, oldData, componentScope, propertyContext);
+				
+                // set/update change notifier just in case a new full value was set into a smart property type that needs a changeNotifier for that specific property
+				setChangeNotifierIfSmartProperty(newData);
+
+				internalState.requests.push( { viewportDataChanged: r } );
+				if (internalState.changeNotifier) internalState.changeNotifier();
+			}
+
+			const getCellValue = function getCellValue() { 
+				return columnName == null ? viewPort[idx] : viewPort[idx][columnName]
+			}; // viewport row can be just a value or an object of key/value pairs
 	
-					if (angular.isDefined(internalState.forFoundset)) {
-						r[this.foundsetTypeConstants.ROW_ID_COL_KEY] = internalState.forFoundset().viewPort.rows[idx][this.foundsetTypeConstants.ROW_ID_COL_KEY];
-					} else r[this.foundsetTypeConstants.ROW_ID_COL_KEY] = viewPort[idx][this.foundsetTypeConstants.ROW_ID_COL_KEY];
-					r[ViewportService.DATAPROVIDER_KEY] = columnName;
-					r[ViewportService.VALUE_KEY] = newData;
-	
-					// convert new data if necessary
-					const clientSideTypes = internalState.viewportTypes ? internalState.viewportTypes[idx] : undefined;
-					const clientSideType = (clientSideTypes ? (columnName ? clientSideTypes[columnName] : clientSideTypes) : undefined); 
-					r[ViewportService.VALUE_KEY] = this.sabloConverters.convertFromClientToServer(r[ViewportService.VALUE_KEY], clientSideType, oldData, componentScope, propertyContext);
-					
-                    // set/update change notifier just in case a new full value was set into a smart property type that needs a changeNotifier for that specific property
-					setChangeNotifierIfSmartProperty(newData);
-	
-					internalState.requests.push( { viewportDataChanged: r } );
-					if (internalState.changeNotifier) internalState.changeNotifier();
-				}
-	
-				const getCellValue = function getCellValue() { 
-					return columnName == null ? viewPort[idx] : viewPort[idx][columnName]
-				}; // viewport row can be just a value or an object of key/value pairs
-	
+            if (componentScope) {
 				if (setChangeNotifierIfSmartProperty(getCellValue())) {
 					// smart property value
 	
@@ -94,7 +94,7 @@ namespace ngclient.propertyTypes {
 							}, propertyContext.getPushToServerCalculatedValue() == this.pushToServerUtils.shallow ? false : true)
 					);
 				}
-			}
+			} else setChangeNotifierIfSmartProperty(getCellValue());
 		}
 	
 		private addDataWatchesToRow(idx, viewPort, internalState: InternalStateForViewport, componentScope: angular.IScope, propertyContextCreator: sablo.IPropertyContextCreator, simpleRowValue/*not key/value pairs in each row*/) {

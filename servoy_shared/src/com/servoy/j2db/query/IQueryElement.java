@@ -16,8 +16,6 @@
  */
 package com.servoy.j2db.query;
 
-import java.io.Serializable;
-
 import com.servoy.base.query.IBaseQueryElement;
 import com.servoy.j2db.util.serialize.IWriteReplace;
 import com.servoy.j2db.util.visitor.IVisitable;
@@ -29,6 +27,6 @@ import com.servoy.j2db.util.visitor.IVisitable;
  * @author rgansevles
  *
  */
-public interface IQueryElement extends IBaseQueryElement, Serializable, ISQLCloneable, IWriteReplace, IVisitable
+public interface IQueryElement extends IBaseQueryElement, ISQLCloneable, IWriteReplace, IVisitable
 {
 }

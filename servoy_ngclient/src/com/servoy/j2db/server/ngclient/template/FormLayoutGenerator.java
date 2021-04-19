@@ -22,6 +22,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +33,7 @@ import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebLayoutSpecification;
+import org.sablo.specification.WebObjectSpecification;
 
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.base.persistence.constants.IPartConstants;
@@ -44,19 +46,23 @@ import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IAnchorConstants;
+import com.servoy.j2db.persistence.IBasicWebComponent;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.ISupportExtendsID;
+import com.servoy.j2db.persistence.ISupportTabSeq;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
+import com.servoy.j2db.persistence.TabSeqComparator;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IFormElementCache;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormUI;
+import com.servoy.j2db.server.ngclient.property.types.NGTabSeqPropertyType;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
@@ -70,6 +76,35 @@ public class FormLayoutGenerator
 {
 
 	private static final String TAG_DIRECT_EDIT = "directEdit";
+
+	private static int getTabSeq(IFormElement o)
+	{
+		int seq = 0;
+		if (o instanceof ISupportTabSeq)
+		{
+			seq = ((ISupportTabSeq)o).getTabSeq();
+		}
+		if (o instanceof IBasicWebComponent)
+		{
+			String componentType = FormTemplateGenerator.getComponentTypeName(o);
+			WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(
+				componentType);
+			if (spec != null)
+			{
+				Collection<PropertyDescription> properties = spec.getProperties(NGTabSeqPropertyType.NG_INSTANCE);
+				if (properties != null && properties.size() > 0)
+				{
+					IBasicWebComponent webComponent = (IBasicWebComponent)o;
+					for (PropertyDescription tabSeqProperty : properties)
+					{
+						seq = Utils.getAsInteger(webComponent.getProperty(tabSeqProperty.getName()));
+						break;
+					}
+				}
+			}
+		}
+		return seq;
+	}
 
 	public static String generateFormComponent(Form form, FlattenedSolution fs, IFormElementCache cache)
 	{
@@ -87,7 +122,18 @@ public class FormLayoutGenerator
 					formElements.add((IFormElement)persist);
 				}
 			}
-			Collections.sort(formElements, FlattenedForm.FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
+			Collections.sort(formElements, new Comparator<IFormElement>()
+			{
+				public int compare(IFormElement o1, IFormElement o2)
+				{
+					int result = FlattenedForm.FORM_INDEX_WITH_HIERARCHY_COMPARATOR.compare(o1, o2);
+					if (result == 0)
+					{
+						result = TabSeqComparator.compareTabSeq(getTabSeq(o1), o1, getTabSeq(o2), o2);
+					}
+					return result;
+				};
+			});
 			componentsIterator = formElements.iterator();
 		}
 		else
@@ -411,20 +457,6 @@ public class FormLayoutGenerator
 			if (isNotSelectable(fe)) writer.print(" svy-non-selectable");
 		}
 		writer.print(">");
-	}
-
-	public static String getCSSValue(String value)
-	{
-		try
-		{
-			Utils.getAsInteger(value, true);
-			return value + "px";
-		}
-		catch (Exception ex)
-		{
-
-		}
-		return value;
 	}
 
 //	private static boolean canContainComponents(WebComponentSpecification spec)

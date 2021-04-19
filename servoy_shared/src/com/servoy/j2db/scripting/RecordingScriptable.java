@@ -32,9 +32,9 @@ import com.servoy.j2db.util.ScopesUtils;
 
 /**
  * Scriptable for recording access to delegate scriptable. Used to determine dependencies for calculations.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public class RecordingScriptable implements Scriptable, IDelegate<Scriptable>, Wrapper
 {
@@ -93,6 +93,12 @@ public class RecordingScriptable implements Scriptable, IDelegate<Scriptable>, W
 
 	public Object unwrap()
 	{
+		// the scriptable is the tablescope for the "this" in a calculation then it should unwrap to the Record (whichs is the prototype)
+		// a related record is also wrapped in a RecordingScriptable but in that case the scriptable is directly the Record
+		if (scriptable instanceof TableScope)
+		{
+			return scriptable.getPrototype();
+		}
 		return scriptable instanceof Wrapper ? ((Wrapper)scriptable).unwrap() : scriptable;
 	}
 
@@ -143,9 +149,9 @@ public class RecordingScriptable implements Scriptable, IDelegate<Scriptable>, W
 			if (o instanceof Function)
 			{
 				if ((IExecutingEnviroment.TOPLEVEL_DATABASE_MANAGER.equals(scriptableName) || IExecutingEnviroment.TOPLEVEL_UTILS.equals(scriptableName)) &&
-					"hasRecords".equals(name)) //$NON-NLS-1$ 
+					"hasRecords".equals(name)) //$NON-NLS-1$
 				{
-					// special case, databaseManager.hasRecords(record, relationName) checks existence of related foundsets 
+					// special case, databaseManager.hasRecords(record, relationName) checks existence of related foundsets
 					return new RecordingFunction(name, (Function)o)
 					{
 						@Override

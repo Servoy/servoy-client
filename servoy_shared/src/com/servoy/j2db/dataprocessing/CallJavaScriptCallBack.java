@@ -37,12 +37,12 @@ class CallJavaScriptCallBack implements IRecordCallback
 	}
 
 	@Override
-	public Object handleRecord(IRecord record, int recordIndex, IFoundSet foundset)
+	public Object handleRecord(IRecord record, int recordIndex, Scriptable foundset)
 	{
 		Scriptable callbackScope = callback.getParentScope();
 		try
 		{
-			return scriptEngine.executeFunction(callback, callbackScope, (Scriptable)(thisObject == null ? foundset : thisObject),
+			return scriptEngine.executeFunction(callback, callbackScope, thisObject == null ? foundset : thisObject,
 				new Object[] { record, Integer.valueOf(recordIndex + 1), foundset }, false, true);
 		}
 		catch (Exception ex)

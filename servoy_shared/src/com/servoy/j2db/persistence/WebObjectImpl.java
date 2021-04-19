@@ -62,7 +62,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 
 	private boolean arePersistMappedPropertiesLoaded = false;
 	private final boolean pdIsWebComponentSpecification;
-	private PropertyDescription pdPleaseUseGetterToAccessThis;
+	protected PropertyDescription pdPleaseUseGetterToAccessThis;
 	private Map<UUID, IPersist> persistMappedPropetiesByUUID = null; // cached just like in AbstractBase
 
 	private boolean gettingTypeName;
@@ -1163,4 +1163,19 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		return getFullJSONInFrmFile(webObject.getParent(), webObject.getJsonKey(), webObject.getIndex(), isNew);
 	}
 
+	@Override
+	public void setTypeName(String arg)
+	{
+		super.setTypeName(arg);
+		if (pdPleaseUseGetterToAccessThis != null)
+		{
+			PropertyDescription pd = pdPleaseUseGetterToAccessThis;
+			boolean isCorrect = pd.getType() != null && pd.getType().getName().endsWith("." + arg) || pd.getName().equals(arg);
+			if (!isCorrect)
+			{
+				pdPleaseUseGetterToAccessThis = null;
+			}
+		}
+
+	}
 }

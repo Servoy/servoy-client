@@ -250,7 +250,6 @@ public class SQLStatement implements ITrackingSQLStatement
 		return clientId;
 	}
 
-
 	/**
 	 * Returns the pks.
 	 * @return Object[]

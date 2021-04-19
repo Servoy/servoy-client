@@ -20,6 +20,7 @@ package com.servoy.j2db.persistence;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.beans.IntrospectionException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -338,6 +339,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		IPersist clone = super.cloneObj(newParent, deep, validator, changeName, changeChildNames, flattenOverrides);
 		if (deep && clone instanceof WebComponent)
 		{
+			List<WebCustomType> types = new ArrayList<WebCustomType>();
 			clone.acceptVisitor(new IPersistVisitor()
 			{
 				@Override
@@ -346,11 +348,29 @@ public class WebComponent extends BaseComponent implements IWebComponent
 					if (o instanceof WebCustomType)
 					{
 						((WebCustomType)o).resetUUID();
+						types.add((WebCustomType)o);
 					}
 					return IPersistVisitor.CONTINUE_TRAVERSAL;
 				}
 			});
 			((WebComponent)clone).updateJSON();
+			for (WebCustomType customType : types)
+			{
+				getRootObject().getChangeHandler().fireIPersistChanged(customType);
+			}
+			// hack for cache, we put back the custom types
+			this.acceptVisitor(new IPersistVisitor()
+			{
+				@Override
+				public Object visit(IPersist o)
+				{
+					if (o instanceof WebCustomType)
+					{
+						getRootObject().getChangeHandler().fireIPersistChanged(o);
+					}
+					return IPersistVisitor.CONTINUE_TRAVERSAL;
+				}
+			});
 		}
 		return clone;
 	}

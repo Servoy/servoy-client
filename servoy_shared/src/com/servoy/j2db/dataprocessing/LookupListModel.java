@@ -379,7 +379,8 @@ public class LookupListModel extends AbstractListModel
 		{
 			CustomValueList clist = (CustomValueList)lookup;
 			boolean procentStart = false;
-			if (txt.startsWith("%")) {
+			if (txt.startsWith("%"))
+			{
 				procentStart = true;
 				txt = txt.substring(1, txt.length());
 			}
@@ -463,8 +464,8 @@ public class LookupListModel extends AbstractListModel
 				trackingInfo.setTrackingData(select.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
 					foundSetManager.getTrackingInfo(), application.getClientID());
 			}
-			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, select, tableFilterParams,
-				true, 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
+			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, select, null,
+				tableFilterParams, true, 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
 			String[] displayFormat = (lookup instanceof LookupValueList) ? ((LookupValueList)lookup).getDisplayFormat() : null;
 			for (int i = 0; i < set.getRowCount(); i++)
 			{
@@ -550,11 +551,11 @@ public class LookupListModel extends AbstractListModel
 					else
 					{
 						ArrayList<String> lst = new ArrayList<String>();
-						for (int i = 0; i < displayValues.length; i++)
+						for (String displayValue : displayValues)
 						{
-							if (!displayValues[i].trim().equals("")) //$NON-NLS-1$
+							if (!displayValue.trim().equals("")) //$NON-NLS-1$
 							{
-								lst.add(displayValues[i].toUpperCase() + '%');
+								lst.add(displayValue.toUpperCase() + '%');
 							}
 						}
 						displayValues = lst.toArray(new String[lst.size()]);
@@ -631,7 +632,7 @@ public class LookupListModel extends AbstractListModel
 				trackingInfo.setTrackingData(sqlParts.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
 					foundSetManager.getTrackingInfo(), application.getClientID());
 			}
-			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, sqlParts,
+			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, sqlParts, null,
 				tableFilterParams, !sqlParts.isUnique(), 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
 			String[] displayFormat = (lookup instanceof LookupValueList) ? ((LookupValueList)lookup).getDisplayFormat() : null;
 			for (int i = 0; i < set.getRowCount(); i++)
@@ -696,7 +697,7 @@ public class LookupListModel extends AbstractListModel
 				trackingInfo.setTrackingData(sqlParts.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
 					foundSetManager.getTrackingInfo(), application.getClientID());
 			}
-			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, sqlParts,
+			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, sqlParts, null,
 				tableFilterParams, !sqlParts.isUnique(), 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
 			for (int i = 0; i < set.getRowCount(); i++)
 			{

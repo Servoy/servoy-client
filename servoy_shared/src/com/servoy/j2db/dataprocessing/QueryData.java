@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db.dataprocessing;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +31,7 @@ import com.servoy.j2db.util.visitor.IVisitor;
  * @author jcompagner
  *
  */
-public class QueryData implements Serializable, IVisitable, IWriteReplace
+public class QueryData implements IVisitable, IWriteReplace
 {
 	private ISQLSelect sqlSelect;
 	private ArrayList<TableFilter> filters;

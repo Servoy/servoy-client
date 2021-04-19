@@ -38,16 +38,11 @@ public class SwingFoundSet extends FoundSet implements ISwingFoundSet, Cloneable
 	protected transient AlwaysRowSelectedSelectionModel selectionModel;
 	private transient TableAndListEventDelegate tableAndListEventDelegate;
 
-	SwingFoundSet(IFoundSetManagerInternal app, SQLSheet sheet, QuerySelect pkSelect, List<SortColumn> defaultSortColumns) throws ServoyException
-	{
-		this(app, null, sheet, pkSelect, defaultSortColumns);
-	}
-
 	//must be used by subclasses
-	protected SwingFoundSet(IFoundSetManagerInternal app, IRecordInternal a_parent, SQLSheet sheet, QuerySelect pkSelect, List<SortColumn> defaultSortColumns)
+	protected SwingFoundSet(IFoundSetManagerInternal app, SQLSheet sheet, QuerySelect pkSelect, List<SortColumn> defaultSortColumns)
 		throws ServoyException
 	{
-		super(app, a_parent, null, sheet, pkSelect, defaultSortColumns);
+		super(app, null, sheet, pkSelect, defaultSortColumns);
 		createSelectionModel();
 	}
 

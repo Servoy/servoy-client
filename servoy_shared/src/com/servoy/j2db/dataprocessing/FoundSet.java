@@ -80,6 +80,7 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.AndCondition;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.CustomCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.IQuerySort;
@@ -182,7 +183,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	// forms might force their foundset to remain at a certain multiselect value
 	// if a form 'pinned' multiselect, multiSelect should not be changeable by foundset JS access
 	// if more then 1 form wishes to pin multiselect at a time, the form with lowest elementid wins
-	private int multiSelectPinnedTo = -1;
+	private String multiSelectPinnedForm = null;
 	private int multiSelectPinLevel;
 
 	private int foundsetID = 0;
@@ -197,7 +198,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	//must be used by subclasses
-	protected FoundSet(IFoundSetManagerInternal app, IRecordInternal a_parent, String relation_name, SQLSheet sheet, QuerySelect pkSelect,
+	protected FoundSet(IFoundSetManagerInternal app, String relation_name, SQLSheet sheet, QuerySelect pkSelect,
 		List<SortColumn> defaultSortColumns) throws ServoyException
 	{
 		fsm = (FoundSetManager)app;
@@ -211,7 +212,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		this.sheet = sheet;
 
 		rowManager = fsm.getRowManager(fsm.getDataSource(sheet.getTable()));
-		if (rowManager != null && !(a_parent instanceof FindState)) rowManager.register(this);
 		// null default sort columns means: use sort columns from query
 		defaultSort = defaultSortColumns;
 		lastSortColumns = defaultSort;
@@ -228,6 +228,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, AbstractBaseQuery.deepClone(creationSqlSelect));
 		aggregateCache = new HashMap<String, Object>(6);
 		findMode = false;
+	}
+
+	@Override
+	public void configure(IRecordInternal parent)
+	{
+		if (rowManager != null && !(parent instanceof FindState)) rowManager.register(this);
 	}
 
 	public String getRelationName()
@@ -317,12 +323,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		// don't do it in refreshFromDb because then
 		// the omits can be cleared if there is a refresh
 		// from db coming from outside or a search that has no results.
-		browseAll(initialized, true);
+		browseAllInternal(true);
 	}
 
-	public void browseAll(boolean flushRelatedFS) throws ServoyException
+	public void browseAllInternal() throws ServoyException
 	{
-		browseAll(flushRelatedFS, false);
+		browseAllInternal(false);
 	}
 
 	/**
@@ -335,7 +341,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return query.hasAnyCondition() || (sheet != null && fsm.getTableFilterParams(sheet.getServerName(), query) != null);
 	}
 
-	public void browseAll(boolean flushRelatedFS, boolean clearOmit) throws ServoyException
+	public void browseAllInternal(boolean clearOmit) throws ServoyException
 	{
 		if (sheet == null || sheet.getTable() == null) return;
 
@@ -352,8 +358,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		// do get the sql select with the omitted pks, else a find that didn't get anything will not
 		// just display the records without the omitted pks (when clear omit is false)
 		refreshFromDBInternal(
-			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), creationSqlSelect, null, true, omittedPKs, lastSortColumns, true),
-			flushRelatedFS, false, fsm.pkChunkSize, false, false);
+			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), creationSqlSelect, null, true, omittedPKs, lastSortColumns, true), false,
+			fsm.pkChunkSize, false, false);
 	}
 
 	protected void clearOmit(QuerySelect sqlSelect)
@@ -376,7 +382,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		try
 		{
-			refreshFromDB(true, false);
+			refreshFromDB(false);
 		}
 		catch (ServoyException e)
 		{
@@ -387,12 +393,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * browse all part which can be used by subclasses this also acts as refresh and performs the pk query (again) can be called on any thread
 	 *
-	 * @param flushRelatedFS
 	 * @param skipStopEdit
 	 */
-	void refreshFromDB(boolean flushRelatedFS, boolean skipStopEdit) throws ServoyException
+	void refreshFromDB(boolean skipStopEdit) throws ServoyException
 	{
-		refreshFromDBInternal(null, flushRelatedFS, true, fsm.pkChunkSize, false, skipStopEdit);
+		refreshFromDBInternal(null, true, fsm.pkChunkSize, false, skipStopEdit);
 	}
 
 	/**
@@ -402,7 +407,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @param flushRelatedFS
 	 * @param skipStopEdit
 	 */
-	protected void refreshFromDBInternal(QuerySelect sqlSelect, boolean flushRelatedFS, boolean dropSort, int rowsToRetrieve, boolean keepPkOrder,
+	protected void refreshFromDBInternal(QuerySelect sqlSelect, boolean dropSort, int rowsToRetrieve, boolean keepPkOrder,
 		boolean skipStopEdit) throws ServoyException
 	{
 		if (fsm.getDataServer() == null)
@@ -462,7 +467,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 			else
 			{
-				pks = performQuery(transaction_id, theQuery, 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
+				pks = performQuery(transaction_id, theQuery, getRowIdentColumnTypes(), 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
 			}
 			synchronized (pksAndRecords)
 			{
@@ -488,26 +493,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		initialized = true;
-
-		if (flushRelatedFS)
-		{
-			// Do not flush related foundsets during execution of current script, selected record may not be stable
-			fsm.getApplication().invokeLater(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					try
-					{
-						flushRelatedFoundsets();
-					}
-					catch (RepositoryException e)
-					{
-						Debug.error(e);
-					}
-				}
-			});
-		}
 
 		clearInternalState(true);
 
@@ -598,17 +583,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				setSelectedIndex(selectedIndex);
 			}
 		}
-	}
-
-	private void flushRelatedFoundsets() throws RepositoryException
-	{
-		for (Relation r : iterate(fsm.getApplication().getFlattenedSolution().getRelations(sheet.getTable(), true, false)))
-		{
-			fsm.flushRelatedFoundSet(FoundSet.this, r.getName());
-		}
-		EditRecordList editRecordList = getFoundSetManager().getEditRecordList();
-		editRecordList.getFoundsetEventMap().remove(this);
-		editRecordList.fireEvents();
 	}
 
 	public boolean hasAccess(int access)
@@ -1364,12 +1338,14 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Copies foundset data from another foundset.
 	 * This will alter the foundset state to the state of the foundset that is given.
 	 * If you really just want to use the given foundset on the form itself, then you need to use controller.loadRecords(foundset)
-	 * that will change the instance of the foundset that is used for this form. Not just update an existing form.
-	 *
+	 * that will change the instance of the foundset that is used for this form. Not just update an existing forms foundset.
+	 * <br/><br/>
 	 * If you copy over a relation into this foundset, then this foundset will not be a related foundset, it will not automatically update its state
 	 * of records are updated or added that belong to that relation. It will only be a snapshot of that related foundsets state.
-	 *
-	 * Foundset filter params are copied over from the source foundset and are merged with the existing filters on this foundset.
+	 * <br/><br/>
+	 * Foundset filter params are copied over from the original/source foundset and are merged with the existing filters on this foundset.
+	 * So if the original foundset had filters and the given foundset has filters then the resulting foundset will have all the filters of both,
+	 * If you don't want this and you really want only the state of the given foundset, use controller.loadRecords(fs) instead of foundset.loadRecords(fs)
 	 *
 	 * @sample
 	 * //Copies foundset data from another foundset
@@ -1848,7 +1824,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			while (pkIt.hasNext())
 			{
 				Column c = pkIt.next();
-				sqlSelect.addColumn(new QueryColumn(sqlSelect.getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags()));
+				sqlSelect.addColumn(c.queryColumn(sqlSelect.getTable()));
 			}
 		}
 
@@ -2056,7 +2032,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		IDataSet pk_data;
 		try
 		{
-			pk_data = performQuery(transaction_id, sqlSelect, 0, fsm.pkChunkSize, IDataServer.CUSTOM_QUERY);
+			pk_data = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.pkChunkSize, IDataServer.CUSTOM_QUERY);
 		}
 		catch (RemoteException e)
 		{
@@ -2084,6 +2060,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return true;
 	}
 
+	private ColumnType[] getRowIdentColumnTypes()
+	{
+		return getTable().getRowIdentColumns().stream().map(Column::getColumnType).toArray(ColumnType[]::new);
+	}
+
 	public boolean loadByQuery(String query, Object[] args) throws ServoyException
 	{
 		if (query == null || sheet.getTable() == null) return false;
@@ -2093,7 +2074,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		//check requirements
 		if (!SQLGenerator.isSelectQuery(query))
-			throw new IllegalArgumentException(fsm.getApplication().getI18NMessage("servoy.foundSet.query.error.startWithSelect", new Object[] { query })); //$NON-NLS-1$
+		{
+			throw new IllegalArgumentException(SQLGenerator.SQL_QUERY_VALIDATION_MESSAGE + ':' + query);
+		}
 		String sql_lowercase = Utils.toEnglishLocaleLowerCase(query);
 
 		order_by_index = sql_lowercase.lastIndexOf("order by"); //$NON-NLS-1$
@@ -2162,7 +2145,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			while (pkIt.hasNext())
 			{
 				Column c = pkIt.next();
-				pkQueryColumns.add(new QueryColumn(sqlSelect.getTable(), c.getID(), c.getSQLName(), c.getType(), c.getLength(), c.getScale(), c.getFlags()));
+				pkQueryColumns.add(c.queryColumn(sqlSelect.getTable()));
 			}
 
 			// must strip of the order-by part because not all databases (Oracle, who else) like order-by in subselect
@@ -2472,11 +2455,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		pksAndRecords.setPksAndQuery(set, sizeAfter, sqlSelect);
 		clearInternalState(true);
 
-		if ((fsm.getTableFilterParams(sheet.getServerName(), sqlSelect) != null || sqlSelect.getCondition(SQLGenerator.CONDITION_FILTER) != null) &&
-			set.getRowCount() > 0)
+		if (((fsm.verifyPKDatasetAgainstTableFilters && fsm.getTableFilterParams(sheet.getServerName(), sqlSelect) != null) ||
+			sqlSelect.getCondition(SQLGenerator.CONDITION_FILTER) != null) && set.getRowCount() > 0)
 		{
 			fireDifference(sizeBefore, sizeAfter);
-			refreshFromDBInternal(null, false, true, set.getRowCount(), true, false); // some PKs in the set may not be valid for the current filters
+			refreshFromDBInternal(null, true, set.getRowCount(), true, false); // some PKs in the set may not be valid for the current filters
 		}
 		else
 		{
@@ -2552,7 +2535,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 			int size = getSize();
 			long time = System.currentTimeMillis();
-			IDataSet newpks = performQuery(transaction_id, sqlSelect, startRow, correctedMaxResult, IDataServer.FOUNDSET_LOAD_QUERY);
+			IDataSet newpks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), startRow, correctedMaxResult, IDataServer.FOUNDSET_LOAD_QUERY);
 
 			if (Debug.tracing())
 			{
@@ -2585,7 +2568,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					pks.createPKCache(); // out-of-sync detected, this also flags that new PKS need to be matched against existing ones
 					startRow = 0;
 					time = System.currentTimeMillis();
-					newpks = performQuery(transaction_id, sqlSelect, startRow, correctedMaxResult, IDataServer.FOUNDSET_LOAD_QUERY);
+					newpks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), startRow, correctedMaxResult, IDataServer.FOUNDSET_LOAD_QUERY);
 
 					if (Debug.tracing())
 					{
@@ -2694,7 +2677,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		long time = System.currentTimeMillis();
 		try
 		{
-			IDataSet pks = performQuery(transaction_id, sqlSelect, 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+			IDataSet pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
 
 			pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect);
 		}
@@ -3571,42 +3554,42 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public void setMultiSelect(boolean multiSelect)
 	{
-		if (multiSelectPinnedTo == -1) setMultiSelectInternal(multiSelect); // if a form is currently overriding this, ignore js call
+		if (multiSelectPinnedForm == null) setMultiSelectInternal(multiSelect); // if a form is currently overriding this, ignore js call
 	}
 
 	/**
 	 * @param pinId lower id has priority over higher id when using the same pinLevel. (refers to form element id)
 	 * @param pinLevel lower level has priority in pinning over higher level. (refers to visible/invisible forms)
 	 */
-	public void pinMultiSelectIfNeeded(boolean multiSelect, int pinId, int pinLevel)
+	public void pinMultiSelectIfNeeded(boolean multiSelect, String formName, int pinLevel)
 	{
-		if (multiSelectPinnedTo == -1)
+		if (multiSelectPinnedForm == null)
 		{
 			// no current pinning; just pin
 			multiSelectPinLevel = pinLevel;
-			multiSelectPinnedTo = pinId;
+			multiSelectPinnedForm = formName;
 			setMultiSelectInternal(multiSelect);
 		}
 		else if (pinLevel < multiSelectPinLevel)
 		{
 			// current pin was for hidden form, this is a visible form
 			multiSelectPinLevel = pinLevel;
-			if (multiSelectPinnedTo != pinId)
+			if (multiSelectPinnedForm != formName)
 			{
-				multiSelectPinnedTo = pinId;
+				multiSelectPinnedForm = formName;
 				setMultiSelectInternal(multiSelect);
 			}
 		}
 		else if (pinLevel == multiSelectPinLevel)
 		{
-			// same pin level, different forms; always choose one with lowest id
-			if (pinId < multiSelectPinnedTo)
+			// same pin level, different forms; always choose one with lowest "name"
+			if (formName.compareTo(multiSelectPinnedForm) < 0)
 			{
-				multiSelectPinnedTo = pinId;
+				multiSelectPinnedForm = formName;
 				setMultiSelectInternal(multiSelect);
 			}
 		}
-		else if (pinId == multiSelectPinnedTo) // && (pinLevel > multiSelectPinLevel) implied
+		else if (formName == multiSelectPinnedForm) // && (pinLevel > multiSelectPinLevel) implied
 		{
 			// pinlevel is higher then current; if this is the current pinned form, update the pin level
 			// maybe other visible forms using this foundset want to pin selection mode in this case (visible pinning form became hidden)
@@ -3618,11 +3601,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * As a guideline, only the one who pinned the multiSelect should unpin it.
 	 */
-	public void unpinMultiSelectIfNeeded(int pinId)
+	public void unpinMultiSelectIfNeeded(String formName)
 	{
-		if (multiSelectPinnedTo == pinId)
+		if (multiSelectPinnedForm == formName)
 		{
-			multiSelectPinnedTo = -1;
+			multiSelectPinnedForm = null;
 			fireSelectionModeChange(); // this allows any other forms that might be currently using this foundset to apply their own selectionMode to it
 		}
 	}
@@ -4076,7 +4059,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			String transaction_id = fsm.getTransactionID(sheet);
 			long time = System.currentTimeMillis();
-			IDataSet ds = performQuery(transaction_id, select, 0, 1, IDataServer.AGGREGATE_QUERY);
+			IDataSet ds = performQuery(transaction_id, select, null, 0, 1, IDataServer.AGGREGATE_QUERY);
 
 			if (Debug.tracing())
 			{
@@ -4254,8 +4237,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					deletePKs.addRow(new Object[] { ValueFactory.createTableFlushValue() });
 				}
 				String tid = fsm.getTransactionID(table.getServerName());
-				SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), deletePKs, tid, delete_sql,
-					fsm.getTableFilterParams(table.getServerName(), delete_sql));
+				SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), deletePKs,
+					tid, delete_sql, fsm.getTableFilterParams(table.getServerName(), delete_sql));
 				try
 				{
 					Object[] results = fsm.getDataServer().performUpdates(fsm.getApplication().getClientID(), new ISQLStatement[] { statement });
@@ -4689,7 +4672,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			String transaction_id = fsm.getTransactionID(sheet);
 			try
 			{
-				IDataSet pks = performQuery(transaction_id, sqlSelect, 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+				IDataSet pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
 
 				synchronized (pksAndRecords)
 				{
@@ -5180,7 +5163,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			IDataSet findPKs = null;
 			try
 			{
-				findPKs = performQuery(transaction_id, findSqlSelect, 0, fsm.pkChunkSize, IDataServer.FIND_BROWSER_QUERY);
+				findPKs = performQuery(transaction_id, findSqlSelect, getRowIdentColumnTypes(), 0, fsm.pkChunkSize, IDataServer.FIND_BROWSER_QUERY);
 			}
 			catch (RemoteException e)
 			{
@@ -5337,6 +5320,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 		}
 
+		if (!initialized)
+		{
+			fsm.getApplication().reportJSWarning(
+				"Performing sort on an uninitialized foundset, please use defer=true or load records first (filter params may be discarded if not applied yet): " +
+					this);
+		}
+
 		reloadWithCurrentQuery(fsm.pkChunkSize, true, false);
 	}
 
@@ -5373,7 +5363,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		String transaction_id = fsm.getTransactionID(sheet);
 		try
 		{
-			pks = performQuery(transaction_id, sqlSelect, 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
+			pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
 
 			synchronized (pksAndRecords)
 			{
@@ -5878,9 +5868,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (aggregatesToRemove.size() > 0)
 		{
+			aggregateCache.keySet().removeAll(aggregatesToRemove);
 			for (String aggregate : aggregatesToRemove)
 			{
-				aggregateCache.remove(aggregate);
 				fireAggregateModificationEvent(aggregate, null);
 			}
 		}
@@ -6633,7 +6623,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public boolean copyFrom(FoundSet fs)
 	{
-		if (fs == null || fs.getTable() == null) return false;
+		if (fs == null || fs.getTable() == null || fs == this) return false;
 		if (!fs.getTable().equals(getTable())) return false;
 		if (relationName != null) return false;
 
@@ -6658,7 +6648,20 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (fs.foundSetFilters != null)
 		{
 			// copy over the foundset filters from the other fs, merged with the filters this foundset had
-			foundSetFilters = new ArrayList<>(fs.foundSetFilters);
+			foundSetFilters = new ArrayList<>();
+			fs.foundSetFilters.forEach(filter -> {
+				if (filter.getTableFilterdefinition() instanceof QueryTableFilterdefinition)
+				{
+					QuerySelect select = AbstractBaseQuery.deepClone(((QueryTableFilterdefinition)filter.getTableFilterdefinition()).getQuerySelect());
+					select.relinkTable(select.getTable(), creationSqlSelect.getTable());
+					foundSetFilters.add(new TableFilter(filter.getName(), sheet.getServerName(), sheet.getTable().getName(), sheet.getTable().getSQLName(),
+						new QueryTableFilterdefinition(select)));
+				}
+				else
+				{
+					foundSetFilters.add(filter);
+				}
+			});
 			if (myOwnFilters != null)
 			{
 				foundSetFilters.addAll(myOwnFilters);
@@ -6704,7 +6707,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public void setSQLSelect(QuerySelect select) throws Exception
 	{
-		refreshFromDBInternal(select, false, false, fsm.pkChunkSize, false, false);
+		refreshFromDBInternal(select, false, fsm.pkChunkSize, false, false);
 	}
 
 	public boolean addFilterParam(String filterName, String dataprovider, String operator, Object value) throws ServoyException
@@ -6799,6 +6802,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			initialized = false;//to enforce browse all
 		}
 		return found;
+	}
+
+	public void clearFilterParams()
+	{
+		List<TableFilter> originalFilters = foundSetFilters;
+		this.foundSetFilters = null;
+		resetFiltercondition(originalFilters);
 	}
 
 	private void resetFiltercondition(List<TableFilter> originalFilters)
@@ -7006,7 +7016,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 
-	protected IDataSet performQuery(String transaction_id, QuerySelect query, int startRow, int rowsToRetrieve, int type)
+	protected IDataSet performQuery(String transaction_id, QuerySelect query, ColumnType[] resultTypes, int startRow, int rowsToRetrieve, int type)
 		throws RemoteException, ServoyException
 	{
 		if (!hasAccess(IRepository.READ))
@@ -7049,7 +7059,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				}
 			}
 
-			return fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, theQuery,
+			return fsm.getDataServer().performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, theQuery, resultTypes,
 				fsm.getTableFilterParams(sheet.getServerName(), theQuery), distinctInMemory, startRow, rowsToRetrieve, type);
 		}
 		catch (ServoyException e)

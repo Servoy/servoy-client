@@ -23,15 +23,15 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
-import org.apache.wicket.util.string.Strings;
-import org.apache.wicket.util.upload.DiskFileItem;
-import org.apache.wicket.util.upload.FileItem;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.plugins.IFile;
 import com.servoy.j2db.plugins.IUploadData;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Utils;
 
 /**
  * Class for holding references to the upload files, this is a JSWrapper around {@link IUploadData}
@@ -47,9 +47,9 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 
 	public JSUpload(Object item, Map<String, String> formFields)
 	{
+		// inlining casting is needed because of smart client, that doesn't have a FileItem
 		this.item = item;
 		this.formFields = formFields;
-
 	}
 
 	/**
@@ -61,7 +61,7 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	@JSFunction
 	public boolean isInMemory()
 	{
-		return ((FileItem)item).isInMemory(); // inlining casting is needed because of smart client, that doesn't have a FileItem
+		return ((FileItem)item).isInMemory();
 	}
 
 	/**
@@ -176,8 +176,8 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 
 		// when uploading from localhost some browsers will specify the entire path, we strip it
 		// down to just the file name
-		name = Strings.lastPathComponent(name, '/');
-		name = Strings.lastPathComponent(name, '\\');
+		name = Utils.lastPathComponent(name, '/');
+		name = Utils.lastPathComponent(name, '\\');
 
 		name = name.replace('\\', '/');
 		String[] tokenized = name.split("/"); //$NON-NLS-1$

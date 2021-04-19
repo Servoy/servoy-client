@@ -339,7 +339,7 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 
 		// we only accept strings or nulls from Rhino
 		if (rhinoValue != null && !(rhinoValue instanceof String))
-			throw new IllegalArgumentException("You can only assing a string as format for format property types: " + rhinoValue + " - " + formatPD.getName() +
+			throw new IllegalArgumentException("You can only assign a string as format for format property types: " + rhinoValue + " - " + formatPD.getName() +
 				" - " + webObjectContext.getUnderlyingWebObject().getName());
 
 		return new FormatTypeSabloValue((String)rhinoValue, getPropertyDependencies(formatPD, webObjectContext));

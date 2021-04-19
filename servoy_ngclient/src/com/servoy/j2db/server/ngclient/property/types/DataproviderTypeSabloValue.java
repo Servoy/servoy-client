@@ -93,6 +93,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Text;
+import com.servoy.j2db.util.TimezoneUtils;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -245,6 +246,11 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		globalRelatedFoundset = null;
 		globalRelatedFoundsetListener = null;
 
+		if (relatedFoundsets.size() > 0 && relatedRecordModificationListener != null)
+		{
+			// just remove it, no need to test this because a remove will be just a NOP when it was not registered anyway.
+			relatedFoundsets.get(relatedFoundsets.size() - 1).removeAggregateModificationListener(relatedRecordModificationListener);
+		}
 		for (IFoundSetInternal relatedFoundset : relatedFoundsets)
 		{
 			((ISwingFoundSet)relatedFoundset).getSelectionModel().removeListSelectionListener(relatedFoundsetSelectionListener);
@@ -380,7 +386,8 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			{
 				ArrayList<IFoundSetInternal> newRelatedFoundsets = getRelatedFoundsets(record, relationName);
 
-				if (!newRelatedFoundsets.equals(relatedFoundsets))
+				boolean equals = testByReference(newRelatedFoundsets, this.relatedFoundsets);
+				if (!equals)
 				{
 					IDataProvider column = dp;
 					if (column instanceof ColumnWrapper)
@@ -421,8 +428,8 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			try
 			{
 				ArrayList<IRecordInternal> newRelatedRecords = getRelatedRecords(record, relationName);
-
-				if (!newRelatedRecords.equals(relatedRecords))
+				boolean equals = testByReference(newRelatedRecords, this.relatedRecords);
+				if (!equals)
 				{
 					for (IRecordInternal relatedRecord : relatedRecords)
 					{
@@ -465,6 +472,20 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		{
 			changeMonitor.valueChanged();
 		}
+	}
+
+	private boolean testByReference(List< ? > listA, List< ? > listB)
+	{
+		if (listA == null && listB != null) return false;
+		if (listA != null && listB == null) return false;
+		if (listA.size() != listB.size()) return false;
+
+		for (int i = 0; i < listA.size(); i++)
+		{
+			if (listA.get(i) != listB.get(i)) return false;
+		}
+		return true;
+
 	}
 
 	private ArrayList<IFoundSetInternal> getRelatedFoundsets(IRecordInternal record, String relName)
@@ -655,7 +676,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 						LookupValueList lookup = new LookupValueList(valuelistSabloValue.getValueList().getValueList(), dataAdapterList.getApplication(),
 							ComponentFactory.getFallbackValueList(dataAdapterList.getApplication(), null, Types.OTHER, null,
 								valuelistSabloValue.getValueList().getValueList()),
-							null);
+							null, dataAdapterList.getRecord());
 						if (lookup.realValueIndexOf(uiValue) != -1)
 						{
 							// TODO don't we have to apply the UI converter's toObject here as well in the unlikely case of a valuelist + UI converter? and also
@@ -682,7 +703,17 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 		else if (typeOfDP != null && !valuelistDisplayValue)
 		{
-			jsonValueRepresentation = JSONUtils.FullValueToJSONConverter.INSTANCE.getConvertedValueWithClientType(uiValue, typeOfDP, dataConverterContext,
+			Object value = uiValue;
+			// if the value to display is null, but it represents a count/avg/sum aggregate DP then
+			// set it to 0, as it means that the foundset has no records, so count/avg/sum should show as 0;
+			// merged this change from SC, DisplaysAdapter
+			if (value == null && com.servoy.j2db.dataprocessing.DataAdapterList.isCountOrAvgOrSumAggregateDataProvider(dataProviderID,
+				new FormAndTableDataProviderLookup(servoyDataConverterContext.getApplication().getFlattenedSolution(),
+					servoyDataConverterContext.getForm().getForm(),
+					dataAdapterList.getRecord() != null ? dataAdapterList.getRecord().getParentFoundSet().getTable() : null)))
+				value = Integer.valueOf(0);
+
+			jsonValueRepresentation = JSONUtils.FullValueToJSONConverter.INSTANCE.getConvertedValueWithClientType(value, typeOfDP, dataConverterContext,
 				false);
 
 			if (jsonValueRepresentation == null || jsonValueRepresentation.toJSONString() == null ||
@@ -764,7 +795,8 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 				// if we have format with no hour, skip converting the date from the client and merge it with the old date
 				String displayFormat = fieldFormat.parsedFormat.getDisplayFormat();
 				boolean displayWithNoHour = displayFormat.indexOf('h') == -1 && displayFormat.indexOf('H') == -1;
-				Date newValue = NGDatePropertyType.NG_INSTANCE.fromJSON(newJSONValue, displayWithNoHour || NGDatePropertyType.hasNoDateConversion(typeOfDP));
+				boolean hasNoDateConversion = displayWithNoHour || NGDatePropertyType.hasNoDateConversion(typeOfDP);
+				Date newValue = NGDatePropertyType.NG_INSTANCE.fromJSON(newJSONValue, hasNoDateConversion);
 				if (newValue != null)
 				{
 					try
@@ -779,9 +811,16 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 						}
 						else
 						{
-							// if oldUIValue is null, create a Date with time: 0:00:00
-							LocalDateTime localDateTime = LocalDate.now().atStartOfDay();
-							originalDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+							if (hasNoDateConversion)
+							{
+								// if oldUIValue is null, create a Date with time: 0:00:00
+								LocalDateTime localDateTime = LocalDate.now().atStartOfDay();
+								originalDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+							}
+							else
+							{
+								originalDate = TimezoneUtils.getClientDate(dataAdapterList.getApplication());
+							}
 						}
 						formatter.setOriginal(originalDate);
 						formatter.parseObject(new SimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat(), locale).format(newValue));

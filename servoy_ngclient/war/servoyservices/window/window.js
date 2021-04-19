@@ -123,7 +123,7 @@ angular.module('window',['servoy'])
 		 * @param showBackdrop whatever to show backdrop
 		 *
 		 */
-		showFormPopup : function(component,form,width,height,x,y,showBackdrop)
+		showFormPopupInternal : function(component,form,width,height,x,y,showBackdrop)
 		{
 			if ( $( document ).find( '[svy-window]' ).length < 1 ) {
 				$( "#mainForm" ).trigger( "disableTabseq" );
@@ -143,21 +143,28 @@ angular.module('window',['servoy'])
 			};
 			
 			scope.lastElementFocused = function( e ) {
-				var newTarget = $( '[tabindex=2]' );
-				// if there is no focusable element in the popup, then newTarget == e.target,
-				// do a check here to avoid focus cycling
-				if(e.target != newTarget[0]) {
-					newTarget.focus();
-				}				
+				var lastTabIndex = parseInt( this.popupElement.closest( '#tabStop' ).attr( 'tabindex' ) );
+				for(var i = 2; i < lastTabIndex; i++) {
+					var newTarget = $( '[tabindex=' + i +']' );
+					// if there is no focusable element in the window, then newTarget == e.target,
+					// do a check here to avoid focus cycling
+					if(newTarget.is(":visible") && (e.target != newTarget[0])) {
+						newTarget.focus();
+						break;
+					}
+				}
 			}
 			
 			scope.firstElementFocused =  function( e ) {
-				var tabIndex = parseInt( this.popupElement.closest( '#tabStop' ).attr( 'tabindex' ) );
-				var newTarget = $( '[tabindex=' + ( tabIndex - 1 ) + ']' );
-				// if there is no focusable element in the popup, then newTarget == e.target,
-				// do a check here to avoid focus cycling
-				if(e.target != newTarget[0]) {
-					newTarget.focus();
+				var lastTabIndex = parseInt( this.popupElement.closest( '#tabStop' ).attr( 'tabindex' ) );
+				for(var i = lastTabIndex - 1; i > 1; i--) {
+					var newTarget = $( '[tabindex=' + i + ']' );
+					// if there is no focusable element in the window, then newTarget == e.target,
+					// do a check here to avoid focus cycling
+					if(newTarget.is(":visible") && (e.target != newTarget[0])) {
+						newTarget.focus();
+						break;
+					}
 				}
 			}
 			
@@ -307,6 +314,7 @@ angular.module('window',['servoy'])
 			 $log.error('Cannot show form popup, the related element is not visible: form name "'+form+'".');
 		 });
 		},
+		
 		/**
 		 * Close the current form popup panel.
 		 * @example 
@@ -315,10 +323,22 @@ angular.module('window',['servoy'])
 		 */
 		cancelFormPopup : function()
 		{
+			_this.cancelFormPopupInternal(false)
+		},
+		cancelFormPopupInternal : function(disableClearPopupFormCallToServer)
+		{
 			$('body').off('mouseup',formPopupBodyListener);
 			if (scope.formPopupShown)
 			{
 				$formService.hideForm(scope.formPopupShown.form);
+			}
+			var closeCallback =  scope.model.popupform ? scope.model.popupform.onClose : _this.onClose;
+			if(closeCallback) {
+				var jsEvent = $utils.createJSEvent({target:document.getElementById("formpopup")},"popupClose");
+				if (jsEvent){
+					jsEvent.formName = scope.formPopupShown.form;
+				}
+				$window.executeInlineScript(closeCallback.formname,closeCallback.script,[jsEvent]);
 			}
 			var popup = angular.element("#formpopup");
 			if (popup)
@@ -342,9 +362,23 @@ angular.module('window',['servoy'])
 			if (scope.model.popupform === scope.formPopupShown) {
 				scope.model.popupform = null;
 				scope.formPopupShown = null;
+				/*
+				 * Because server side code in window_server.js checks for scope.model.popupform != null when closing a form popup it must have the correct value server-side; so
+				 *     - when it is closed by a click outside the popup form area that happens to be exactly on a button that opens it again, the current method executes and
+				 *       "scope.model.popupform" needs to reach server before the button click that will open the form editor again executes not after (because if it is set to null
+				 *       after the reshow, it will be in a wrong state server-side); that is why we use callServerSideApi here instead of relying on a shallow watch (pushToServer in spec)
+				 *       on the model property which would send the null change too late
+				 *     - if one would click twice really fast on a button that shows a form popup, both those clicks are queued on the server's event queue; it shows the first time
+				 *       then in server side code - when the show is called the second time it would close the first one and show it again; but in this case we must not call callServerSideApi
+				 *       to set scope.model.popupform to null because that would execute after the second show is done (it is queued after it on server) and again we'd end up with a shown
+				 *       form popup but a null scope.model.popupform on server which is wrong... that is the purpose of "disableClearPopupFormCallToServer" flag
+				 */
+				if(!disableClearPopupFormCallToServer){
+					$services.callServerSideApi("window","clearPopupForm",[]);
+				}
 			}
-			else {
-				_this.showFormPopup(scope.model.popupform.component,scope.model.popupform.form,scope.model.popupform.width,scope.model.popupform.height,scope.model.popupform.x,scope.model.popupform.y,scope.model.popupform.showBackdrop);
+			else if( scope.model.popupform ) {
+				_this.showFormPopupInternal(scope.model.popupform.component,scope.model.popupform.form,scope.model.popupform.width,scope.model.popupform.height,scope.model.popupform.x,scope.model.popupform.y,scope.model.popupform.showBackdrop);
 				scope.formPopupShown = scope.model.popupform;
 			}
 			if(scope.popupElement) {
@@ -425,23 +459,26 @@ angular.module('window',['servoy'])
 	}
 	function formPopupBodyListener(event)
 	{
+			if (scope.formPopupShown && scope.formPopupShown.doNotCloseOnClickOutside){
+				return;
+			}
 			var backdrop = angular.element(".formpopup-backdrop");
 			if (backdrop && (backdrop.get(0) == event.target))
 			{
 				backdrop.remove();
-				_this.cancelFormPopup();
+				_this.cancelFormPopupInternal(false);
 				return;
 			}
 			var mainform = angular.element(".svy-main-window-container");
 			if (mainform && mainform.find(event.target).length > 0 )
 			{
-				_this.cancelFormPopup();
+				_this.cancelFormPopupInternal(false);
 				return;
 			}
 			 mainform = angular.element(".svy-dialog");
 			 if (mainform && mainform.find(event.target).length > 0 )
 			 {
-				 _this.cancelFormPopup();
+				 _this.cancelFormPopupInternal(false);
 				 return;
 			 }
 	}
@@ -465,7 +502,7 @@ angular.module('window',['servoy'])
 		if (newvalue && newvalue.popupform && !angular.equals(oldvalue.popupform,newvalue.popupform))
 		{
 			if (!scope.formPopupShown) {
-				window.showFormPopup(newvalue.popupform.component,newvalue.popupform.form,newvalue.popupform.width,newvalue.popupform.height,newvalue.popupform.x,newvalue.popupform.y,newvalue.popupform.showBackdrop);
+				window.showFormPopupInternal(newvalue.popupform.component,newvalue.popupform.form,newvalue.popupform.width,newvalue.popupform.height,newvalue.popupform.x,newvalue.popupform.y,newvalue.popupform.showBackdrop);
 				scope.formPopupShown = newvalue.popupform;
 			}
 			else window.cancelFormPopup();

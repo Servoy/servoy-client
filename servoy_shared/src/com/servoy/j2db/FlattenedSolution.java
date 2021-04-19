@@ -69,6 +69,7 @@ import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.IRelationProvider;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IRootObject;
+import com.servoy.j2db.persistence.IScriptElement;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportName;
@@ -354,7 +355,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	{
 		if (index == null && mainSolution != null)
 		{
-			synchronized (this)
+			// just sync on a private field (not the this! so there are no deadlocks)
+			synchronized (CLONE_PROPERTY)
 			{
 				if (index == null)
 				{
@@ -1601,7 +1603,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return dataProvidersMap;
 	}
 
-	public synchronized void flushDataProvidersForPersist(IPersist persist)
+	public void flushDataProvidersForPersist(IPersist persist)
 	{
 		if (persist == null || allProvidersForTable == null) return;
 
@@ -1616,7 +1618,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 	}
 
-	public synchronized void flushDataProvidersForTable(ITable table)
+	public void flushDataProvidersForTable(ITable table)
 	{
 		if (table != null && allProvidersForTable != null)
 		{
@@ -1669,60 +1671,65 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 	}
 
-	public synchronized IDataProviderLookup getDataproviderLookup(IFoundSetManagerInternal foundSetManager, final IPersist p)
+	public IDataProviderLookup getDataproviderLookup(IFoundSetManagerInternal foundSetManager, final IPersist p)
 	{
-		if (dataProviderLookups == null) dataProviderLookups = new HashMap<IPersist, IDataProviderLookup>();
-		IDataProviderLookup retval = dataProviderLookups.get(p);
-		if (retval == null)
+		IDataProviderLookup retval = null;
+		synchronized (this)
 		{
-			if (p instanceof Form)
+			if (dataProviderLookups == null) dataProviderLookups = new HashMap<IPersist, IDataProviderLookup>();
+			retval = dataProviderLookups.get(p);
+			if (retval != null) return retval;
+		}
+		if (p instanceof Form)
+		{
+			ITable t = null;
+			try
 			{
-				ITable t = null;
-				try
+				if (foundSetManager == null)
 				{
-					if (foundSetManager == null)
-					{
-						t = getTable(((Form)p).getDataSource());
-					}
-					else
-					{
-						t = foundSetManager.getTable(((Form)p).getDataSource());
-					}
+					t = getTable(((Form)p).getDataSource());
 				}
-				catch (RepositoryException e)
+				else
 				{
-					Debug.error(e);
+					t = foundSetManager.getTable(((Form)p).getDataSource());
 				}
-				retval = new FormAndTableDataProviderLookup(this, (Form)p, t);
 			}
-			else if (p instanceof Portal)
+			catch (RepositoryException e)
 			{
-				ITable t = null;
-				Relation[] relations = getRelationSequence(((Portal)p).getRelationName());
-				if (relations == null)
+				Debug.error(e);
+			}
+			retval = new FormAndTableDataProviderLookup(this, (Form)p, t);
+		}
+		else if (p instanceof Portal)
+		{
+			ITable t = null;
+			Relation[] relations = getRelationSequence(((Portal)p).getRelationName());
+			if (relations == null)
+			{
+				return null;
+			}
+			t = getTable(relations[relations.length - 1].getForeignDataSource());
+			retval = new FormAndTableDataProviderLookup(this, (Form)p.getParent(), t);
+		}
+		else
+		//solution
+		{
+			retval = new IDataProviderLookup()
+			{
+				public IDataProvider getDataProvider(String id) throws RepositoryException
+				{
+					return getGlobalDataProvider(id);
+				}
+
+				public Table getTable() throws RepositoryException
 				{
 					return null;
 				}
-				t = getTable(relations[relations.length - 1].getForeignDataSource());
-				retval = new FormAndTableDataProviderLookup(this, (Form)p.getParent(), t);
-			}
-			else
-			//solution
-			{
-				retval = new IDataProviderLookup()
-				{
-					public IDataProvider getDataProvider(String id) throws RepositoryException
-					{
-						return getGlobalDataProvider(id);
-					}
+			};
+		}
 
-					public Table getTable() throws RepositoryException
-					{
-						return null;
-					}
-				};
-			}
-
+		synchronized (this)
+		{
 			dataProviderLookups.put(p, retval);
 		}
 		return retval;
@@ -1811,7 +1818,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return seq;
 	}
 
-	private synchronized void flushGlobalProviders()
+	private void flushGlobalProviders()
 	{
 		globalProviders.clear();
 	}
@@ -2374,6 +2381,22 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return Solution.getForms(getIndex().getIterableFor(Form.class), null, sort);
 	}
 
+	public List<Form> getFormsForNamedFoundset(String namedFoundset)
+	{
+		// not used in client for now, in the future we may cache this
+		List<Form> forms = new ArrayList<Form>();
+		Iterator<Form> it = getIndex().getIterableFor(Form.class);
+		while (it.hasNext())
+		{
+			Form form = it.next();
+			if (Utils.equalObjects(form.getNamedFoundSet(), namedFoundset))
+			{
+				forms.add(form);
+			}
+		}
+		return forms;
+	}
+
 	public Form getForm(int id)
 	{
 		if (id <= 0) return null;
@@ -2755,11 +2778,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				}
 
 				// add condition for return dp id
-				lastJoin.getCondition().addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR,
-					new QueryColumn(destQTable, destColumn.getID(), destColumn.getSQLName(), destColumn.getType(), destColumn.getLength(),
-						destColumn.getScale(), destColumn.getFlags()),
-					new QueryColumn(callingQTable, callingColumn.getID(), callingColumn.getSQLName(), callingColumn.getType(), callingColumn.getLength(),
-						callingColumn.getScale(), callingColumn.getFlags())));
+				lastJoin.getCondition().addCondition(
+					new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, destColumn.queryColumn(destQTable), callingColumn.queryColumn(callingQTable)));
 
 				relation = getSolutionCopy().createNewRelation(new ScriptNameValidator(this), relationName, callingTable.getDataSource(), destDataSource,
 					IJoinConstants.LEFT_OUTER_JOIN);
@@ -3111,6 +3131,20 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return null;
 	}
 
+	public synchronized void reload()
+	{
+		if (mainSolution != null)
+		{
+			this.flushAllCachedData();
+			getAllStyles();
+			if (index != null)
+			{
+				index.destroy();
+				index = null;
+			}
+		}
+	}
+
 	private class EmptyPersistIndex implements ISolutionModelPersistIndex
 	{
 		private EmptyPersistIndex()
@@ -3157,13 +3191,13 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 
 		@Override
-		public ISupportScope getSupportScope(String scopeName, String baseName)
+		public IScriptElement getSupportScope(String scopeName, String baseName)
 		{
 			return null;
 		}
 
 		@Override
-		public <T extends ISupportScope> Iterator<T> getGlobalScriptObjects(String scopeName, boolean sort, Class<T> cls)
+		public <T extends IScriptElement> Iterator<T> getGlobalScriptObjects(String scopeName, boolean sort, Class<T> cls)
 		{
 			List<T> empty = Collections.emptyList();
 			return empty.iterator();

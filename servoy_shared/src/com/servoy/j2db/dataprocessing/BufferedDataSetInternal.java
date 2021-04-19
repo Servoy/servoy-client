@@ -63,7 +63,7 @@ public class BufferedDataSetInternal
 			return pks;
 		}
 
-		BufferedDataSet newPkSet = new BufferedDataSet();
+		BufferedDataSet newPkSet = new BufferedDataSet(pks.hadMoreRows());
 		List<Column> rowIdentColumns = table.getRowIdentColumns();
 		for (int r = 0; r < pks.getRowCount(); r++)
 		{

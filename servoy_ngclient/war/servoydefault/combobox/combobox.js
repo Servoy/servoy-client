@@ -71,7 +71,7 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 						searchBox.on('focus', focus);
 						focusElement.on('focus', focus);
 					}
-					if (scope.handlers.onFocusLostMethodID) {
+					if (scope.handlers.onFocusLostMethodID || scope.handlers.onFocusGainedMethodID) {
 						function blur(e) {
 							var currentElement = $(document.activeElement);
 							if (currentElement.is('body'))
@@ -81,7 +81,7 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 									var currentElement = $(document.activeElement)
 									if (currentElement.parents(".ui-select-container,.ui-select-choices").length == 0) {
 										hasFocus = false;
-										scope.handlers.onFocusLostMethodID(e);
+										if (scope.handlers.onFocusLostMethodID) scope.handlers.onFocusLostMethodID(e);
 									}
 								},200);
 							}
@@ -89,7 +89,7 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 							{
 								if (currentElement.parents(".ui-select-container,.ui-select-choices").length == 0) {
 									hasFocus = false;
-									scope.handlers.onFocusLostMethodID(e);
+									if (scope.handlers.onFocusLostMethodID) scope.handlers.onFocusLostMethodID(e);
 								}
 							}	
 						}

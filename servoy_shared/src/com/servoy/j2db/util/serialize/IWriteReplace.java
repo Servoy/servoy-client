@@ -17,12 +17,13 @@
 package com.servoy.j2db.util.serialize;
 
 import java.io.ObjectStreamException;
+import java.io.Serializable;
 
 /**
  * @author rgansevles
  *
  */
-public interface IWriteReplace
+public interface IWriteReplace extends Serializable
 {
 	Object writeReplace() throws ObjectStreamException;
 }

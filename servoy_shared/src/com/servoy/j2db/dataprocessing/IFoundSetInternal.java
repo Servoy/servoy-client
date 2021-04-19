@@ -33,6 +33,11 @@ import com.servoy.j2db.util.ServoyException;
  */
 public interface IFoundSetInternal extends IFoundSet, IFireCollectable
 {
+	default void configure(IRecordInternal parent)
+	{
+		// called after construction
+	}
+
 	public SQLSheet getSQLSheet();
 
 	public PrototypeState getPrototypeState();

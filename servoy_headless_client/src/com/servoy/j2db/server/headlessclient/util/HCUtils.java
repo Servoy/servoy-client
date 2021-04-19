@@ -19,8 +19,6 @@ package com.servoy.j2db.server.headlessclient.util;
 
 import static java.lang.Integer.parseInt;
 
-import java.io.IOException;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.jsoup.Jsoup;
@@ -64,21 +62,7 @@ public class HCUtils
 		}
 	}
 
-	private static final Parser USER_AGENT_PARSER;
-
-	static
-	{
-		try
-		{
-			USER_AGENT_PARSER = new Parser();
-		}
-		catch (IOException e)
-		{
-			// should not happen, default config should always be found
-			throw new RuntimeException(e);
-		}
-	}
-
+	private static final Parser USER_AGENT_PARSER = new Parser();
 
 	/**
 	 * Sanitize html against XSS attacks.

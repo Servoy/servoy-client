@@ -21,9 +21,9 @@ import java.lang.ref.SoftReference;
 
 /**
  * SoftReference with hard-referenced data.
- * 
+ *
  * @author rgansevles
- * 
+ *
  * @param <R>
  * @param <D>
  */
@@ -34,6 +34,12 @@ public class SoftReferenceWithData<R, D> extends SoftReference<R>
 	public SoftReferenceWithData(R ref, ReferenceQueue< ? super R> q)
 	{
 		super(ref, q);
+	}
+
+	public SoftReferenceWithData(R ref, ReferenceQueue< ? super R> q, D data)
+	{
+		this(ref, q);
+		this.data = data;
 	}
 
 	public D getData()

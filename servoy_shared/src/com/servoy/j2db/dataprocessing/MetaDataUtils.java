@@ -29,6 +29,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.BaseColumnType;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumn;
@@ -67,7 +68,7 @@ public class MetaDataUtils
 	{
 		for (IColumn column : table.getRowIdentColumns())
 		{
-			if (column.getColumnInfo() == null || !column.getColumnInfo().hasFlag(Column.UUID_COLUMN))
+			if (column.getColumnInfo() == null || !column.getColumnInfo().hasFlag(IBaseColumn.UUID_COLUMN))
 			{
 				return false;
 			}
@@ -208,7 +209,7 @@ public class MetaDataUtils
 		QuerySelect query = createTableMetadataQuery(table, qColumns);
 
 		BufferedDataSet dataSet = (BufferedDataSet)ApplicationServerRegistry.get().getDataServer().performQuery(ApplicationServerRegistry.get().getClientId(),
-			table.getServerName(), null, query, null, false, 0, max, IDataServer.META_DATA_QUERY, null);
+			table.getServerName(), null, query, null, null, false, 0, max, IDataServer.META_DATA_QUERY, null);
 		// not too much data?
 		if (dataSet.hadMoreRows())
 		{
@@ -235,10 +236,9 @@ public class MetaDataUtils
 		while (columns.hasNext())
 		{
 			Column column = columns.next();
-			if (!column.hasFlag(Column.EXCLUDED_COLUMN))
+			if (!column.hasFlag(IBaseColumn.EXCLUDED_COLUMN))
 			{
-				QueryColumn qColumn = new QueryColumn(query.getTable(), column.getID(), column.getSQLName(), column.getType(), column.getLength(),
-					column.getScale(), column.getFlags());
+				QueryColumn qColumn = column.queryColumn(query.getTable());
 				query.addColumn(qColumn);
 				qColumns.put(column, qColumn);
 			}

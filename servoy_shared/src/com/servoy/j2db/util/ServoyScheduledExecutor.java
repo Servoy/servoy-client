@@ -43,9 +43,9 @@ public class ServoyScheduledExecutor extends ThreadPoolExecutor implements Sched
 	private volatile ScheduledThreadPoolExecutor scheduledService;
 	private final int scheduledExecutorSize;
 
-	public ServoyScheduledExecutor()
+	public ServoyScheduledExecutor(String name)
 	{
-		this(30, 3);
+		this(30, 3, name);
 	}
 
 	/**
@@ -53,9 +53,9 @@ public class ServoyScheduledExecutor extends ThreadPoolExecutor implements Sched
 	 * @param executorMaximumPoolSize The maximum pool size that the normal executor can grow to.
 	 * @param scheduledExecutorSize The (fixed) core size of the scheduled executor
 	 */
-	public ServoyScheduledExecutor(int executorSize, int scheduledExecutorSize)
+	public ServoyScheduledExecutor(int executorSize, int scheduledExecutorSize, String name)
 	{
-		super(executorSize, executorSize, 4, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>());
+		super(executorSize, executorSize, 4, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>(), new NamedThreadFactory(name, false));
 		allowCoreThreadTimeOut(true);
 		this.scheduledExecutorSize = scheduledExecutorSize;
 	}

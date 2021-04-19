@@ -84,6 +84,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 		return InitialToJSONConverter.INSTANCE;
 	}
 
+	@SuppressWarnings("nls")
 	@Override
 	public Object executeMethod(String methodName, JSONObject args) throws Exception
 	{
@@ -187,7 +188,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 				{
 					if (!(ex instanceof ExitScriptException))
 					{
-						Debug.error("Cannot execute inline script", ex);
+						Debug.error("Cannot execute inline script: " + args, ex);
 					}
 				}
 				break;
@@ -255,12 +256,31 @@ public class NGFormServiceHandler extends FormServiceHandler
 							IRecordInternal selectedRecord = parentFs.getRecord(parentFs.getSelectedIndex());
 							if (selectedRecord != null)
 							{
-								controller.loadRecords(selectedRecord.getRelatedFoundSet(relationName));
+								try
+								{
+									controller.loadRecords(selectedRecord.getRelatedFoundSet(relationName));
+								}
+								catch (RuntimeException re)
+								{
+									throw new RuntimeException("Can't load records on form " + controller.getName() + ", of parent record: " +
+										selectedRecord + " with relation " + relationName + " for parent form  " + parentForm + " and bean " +
+										containerComponent, re);
+								}
 							}
 							else
 							{
 								// no selected record, then use prototype so we can get global relations
-								controller.loadRecords(parentFs.getPrototypeState().getRelatedFoundSet(relationName));
+								try
+								{
+									controller.loadRecords(parentFs.getPrototypeState().getRelatedFoundSet(relationName));
+								}
+								catch (RuntimeException re)
+								{
+									throw new RuntimeException("Can't load records on form " + controller.getName() + ", of parent record: " +
+										selectedRecord + " with relation " + relationName + " for parent form  " + parentForm + " and bean " +
+										containerComponent, re);
+								}
+
 							}
 						}
 

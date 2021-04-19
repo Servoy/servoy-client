@@ -260,9 +260,9 @@ public abstract class BasicFormController
 		return application.getFormManager().isFormEnabled(getName());
 	}
 
-	protected abstract void focusFirstField();
+	protected abstract boolean focusFirstField();
 
-	protected abstract void focusField(String fieldName, final boolean skipReadonly);
+	protected abstract boolean focusField(String fieldName, final boolean skipReadonly);
 
 	public abstract void propagateFindMode(boolean findMode);
 
@@ -399,6 +399,11 @@ public abstract class BasicFormController
 			if (allowHide && didOnShowCall)
 			{
 				allowHide = executeOnHideMethod();
+			}
+			else if (!allowHide)
+			{
+				getApplication().reportJSWarning("Can't hide form " + getName() + " because editing records " + //$NON-NLS-1$ //$NON-NLS-2$
+					application.getFoundSetManager().getEditRecordList().getEditedRecords(formModel) + "couldn't be saved (autosave is on)"); //$NON-NLS-1$
 			}
 			if (!allowHide)
 			{
@@ -713,8 +718,8 @@ public abstract class BasicFormController
 					executeFormMethod(StaticContentSpecLoader.PROPERTY_ONRECORDEDITSTOPMETHODID, new Object[] { record }, Boolean.TRUE, true, true));
 				if (ret && getApplication().getFoundSetManager() != null)
 				{
-					// for this record, record edit saved is called successfully shouldn't happen the second time.
-					getApplication().getFoundSetManager().getEditRecordList().markRecordTested(record);
+					// for this record, record edit saved is called successfully shouldn't happen the second time for this form.
+					getApplication().getFoundSetManager().getEditRecordList().markRecordTested(record, this);
 				}
 				return ret;
 			}
@@ -1291,7 +1296,7 @@ public abstract class BasicFormController
 					boolean userChoseYes = getFormUI().showYesNoQuestionDialog(application, dlgMessage, "Search"); //$NON-NLS-1$
 					if (!userChoseYes)
 					{
-						((FoundSet)formModel).browseAll(true);//this removes the findmode
+						((FoundSet)formModel).browseAllInternal();//this removes the findmode
 
 						exitFindMode();
 					}
@@ -1309,7 +1314,7 @@ public abstract class BasicFormController
 			}
 			catch (ServoyException ex)
 			{
-				((FoundSet)formModel).browseAll(true); // make sure we get nicely out of find mode; something went wrong with the performFind
+				((FoundSet)formModel).browseAllInternal(); // make sure we get nicely out of find mode; something went wrong with the performFind
 				exitFindMode();
 				throw ex;
 			}
@@ -1403,7 +1408,7 @@ public abstract class BasicFormController
 
 		if (mustUnpinSelectionMode != null)
 		{
-			mustUnpinSelectionMode.unpinMultiSelectIfNeeded(form.getID());
+			mustUnpinSelectionMode.unpinMultiSelectIfNeeded(getName());
 		}
 
 		// form model change set it on -2 so that we know that we shouldnt update the selection before it is tested
@@ -1429,11 +1434,11 @@ public abstract class BasicFormController
 				int pinLevel = isFormVisible ? PIN_VISIBLE : PIN_HIDDEN;
 				if (selectionMode == IForm.SELECTION_MODE_SINGLE)
 				{
-					((ISwingFoundSet)formModel).pinMultiSelectIfNeeded(false, form.getID(), pinLevel); // form wants to enforce single selection on the foundsets it uses
+					((ISwingFoundSet)formModel).pinMultiSelectIfNeeded(false, getName(), pinLevel); // form wants to enforce single selection on the foundsets it uses
 				}
 				else if (selectionMode == IForm.SELECTION_MODE_MULTI)
 				{
-					((ISwingFoundSet)formModel).pinMultiSelectIfNeeded(true, form.getID(), pinLevel); // form wants to enforce multi selection on the foundsets it uses
+					((ISwingFoundSet)formModel).pinMultiSelectIfNeeded(true, getName(), pinLevel); // form wants to enforce multi selection on the foundsets it uses
 				}
 			}
 		} // else this form model's multiSelect is already forced by a form and this form is not visible or this form has default non-forcing behavior
@@ -1761,6 +1766,7 @@ public abstract class BasicFormController
 					{
 						setFormModelInternal(application.getFoundSetManager().getSeparateFoundSet(this, getDefaultSortColumns()));
 					}
+					((FoundSet)formModel).clearFilterParams();
 					((FoundSet)formModel).copyFrom(fs);
 					returnValue = setModel(formModel);
 				}
@@ -3048,12 +3054,13 @@ public abstract class BasicFormController
 		/**
 		 * Loads a (related) foundset into the form.
 		 * The form will no longer share the default foundset with forms of the same datasource, use loadAllRecords to restore the default foundset.
-		 *
-		 * This will really update the foundset instance itself of the form, so now existing foundset is altered just the new foundset is shown.
-		 * This is different then doing foundset.loadRecords(foundset) because that just alters the current foundset and doesn't do anything with the foundset
-		 * that is given.
-		 *
-		 * When the form uses a seperate foundset, foundset filter params are copied over from the source foundset and are merged with the existing filters.
+		 * <br/><br/>
+		 * This will really change the foundset instance itself of the form, so no existing foundset is altered just the new foundset that is given is used..
+		 * This is different then doing foundset.loadRecords(foundset) because that just alters the current foundset and doesn't do anything with the foundset that is given.
+		 * <br/><br/>
+		 * So controller.loadRecords(fs) does overwrite the foundset instance completely, foundset filters set previously on the forms foundset are gone, only the foundset filters on the given foundset are set.
+		 * <br/><br/>
+		 * foundset.loadRecords(fs) will adjust the current forms foundset and the foundset filters that are set are kept and merged with the filters of the given foundset.
 		 *
 		 * @sample
 		 * //to load a (related)foundset into the form.
@@ -3423,10 +3430,13 @@ public abstract class BasicFormController
 		 * @sample %%prefix%%controller.focusFirstField();
 		 *
 		 * @see focusField
+		 *
+		 * @return true if component was found and can be focused
 		 */
-		public void js_focusFirstField()
+		public boolean js_focusFirstField()
 		{
-			js_focusField(null, false);
+			checkDestroyed();
+			return formController.focusFirstField();
 		}
 
 		/**
@@ -3448,11 +3458,13 @@ public abstract class BasicFormController
 		 * }
 		 * @param fieldName the name of the field to be focussed
 		 * @param skipReadonly boolean indication to skip read only fields, if the named field happens to be read only
+		 *
+		 * @return true if component was found and can be focused
 		 */
-		public void js_focusField(String fieldName, boolean skipReadonly)
+		public boolean js_focusField(String fieldName, boolean skipReadonly)
 		{
 			checkDestroyed();
-			formController.focusField(fieldName, skipReadonly);
+			return formController.focusField(fieldName, skipReadonly);
 		}
 
 		/**

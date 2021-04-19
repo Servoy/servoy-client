@@ -54,11 +54,13 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.StartupArguments;
+import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.eventthread.NGEventDispatcher;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
@@ -77,11 +79,15 @@ import com.servoy.j2db.util.Utils;
  */
 public class NGClientWebsocketSession extends BaseWebsocketSession implements INGClientWebsocketSession
 {
+	public static final String CLIENT_FUNCTION_SERVICE = "clientFunctionService"; //$NON-NLS-1$
+
+	private int clientType = 1;
+
 	private static final class WindowServiceSpecification extends WebObjectSpecification
 	{
 		private WindowServiceSpecification()
 		{
-			super(NGRuntimeWindowManager.WINDOW_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, "", null, null);
+			super(NGRuntimeWindowManager.WINDOW_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, "", null, null, null);
 			WebObjectFunctionDefinition destroy = new WebObjectFunctionDefinition("destroyController");
 			destroy.addParameter(new PropertyDescriptionBuilder().withName("name").withType(TypesRegistry.getType(StringPropertyType.TYPE_NAME)).build());
 			destroy.setAsync(true);
@@ -92,12 +98,27 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	private static final WindowServiceSpecification WINDOWS_SERVICE_SPEC = new WindowServiceSpecification();
 
+	private static final class ClientFunctionsServiceSpecification extends WebObjectSpecification
+	{
+		private ClientFunctionsServiceSpecification()
+		{
+			super(CLIENT_FUNCTION_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, "", null, null, null);
+			WebObjectFunctionDefinition reload = new WebObjectFunctionDefinition("reloadClientFunctions");
+			reload.setAsync(true);
+			reload.setPreDataServiceCall(true);
+			addApiFunction(reload);
+		}
+	}
+
+	private static final ClientFunctionsServiceSpecification CLIENT_FUNCTIONS_SERVICE_SPEC = new ClientFunctionsServiceSpecification();
+
 	private NGClient client;
 
 	public NGClientWebsocketSession(WebsocketSessionKey sessionKey)
 	{
 		super(sessionKey);
 		registerClientService(new ServoyClientService(NGRuntimeWindowManager.WINDOW_SERVICE, WINDOWS_SERVICE_SPEC, this, false));
+		registerClientService(new ServoyClientService(CLIENT_FUNCTION_SERVICE, CLIENT_FUNCTIONS_SERVICE_SPEC, this, false));
 	}
 
 	@Override
@@ -117,6 +138,21 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	public NGClient getClient()
 	{
 		return client;
+	}
+
+	/**
+	 * @return the clientType
+	 */
+	public IFormHTMLAndJSGenerator getFormHTMLAndJSGenerator(Form form, String realFormName)
+	{
+		if (clientType != 2)
+		{
+			return new FormHTMLAndJSGenerator(client, form, realFormName);
+		}
+		else
+		{
+			return new AngularFormGenerator(client, form, realFormName);
+		}
 	}
 
 	@Override
@@ -144,18 +180,30 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		return new NGEventDispatcher(client);
 	}
 
+	@SuppressWarnings("nls")
 	@Override
 	public void onOpen(final Map<String, List<String>> requestParams)
 	{
 		super.onOpen(requestParams);
-
-		lastSentStyleSheets = null;
-
 		if (requestParams == null)
 		{
 			CurrentWindow.get().cancelSession("Solution name is required");
 			return;
 		}
+		if (requestParams.containsKey("clienttype"))
+		{
+			clientType = Utils.getAsInteger(requestParams.get("clienttype").get(0), 1);
+			if (clientType == 2) client.getRuntimeProperties().put("NG2", Boolean.TRUE);
+			else client.getRuntimeProperties().remove("NG2");
+		}
+		else
+		{
+			clientType = 1;
+			client.getRuntimeProperties().remove("NG2");
+		}
+
+		lastSentStyleSheets = null;
+
 		final StartupArguments args = new StartupArguments(requestParams);
 		final String solutionName = args.getSolutionName();
 
@@ -206,6 +254,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						startHandlingEvent();
 						try
 						{
+							client.getClientFunctions().clear();
 							sendUIProperties();
 							client.getRuntimeWindowManager().getCurrentWindow().setController(currentForm);
 							sendSolutionCSSURL(solution.getSolution());
@@ -296,6 +345,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	private List<String> lastSentStyleSheets;
 
+	@SuppressWarnings("nls")
 	protected void sendSolutionCSSURL(Solution solution)
 	{
 		Map<String, String> overrideStyleSheets = client != null ? client.getOverrideStyleSheets() : null;
@@ -316,7 +366,18 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			for (int i = 0; i < styleSheets.size(); i++)
 			{
 				long timestamp = 0;
-				Media media = client.getFlattenedSolution().getMedia(styleSheets.get(i));
+				Media media = null;
+				String stylesheetName = styleSheets.get(i);
+				if (client.getRuntimeProperties().containsKey("NG2"))
+				{
+					int lastPoint = stylesheetName.lastIndexOf('.');
+					String ng2StylesheetName = stylesheetName.substring(0, lastPoint) + "_ng2" + stylesheetName.substring(lastPoint);
+					media = client.getFlattenedSolution().getMedia(ng2StylesheetName);
+					if (media == null) media = client.getFlattenedSolution().getMedia(stylesheetName);
+					else stylesheetName = ng2StylesheetName;
+				}
+				else
+					media = client.getFlattenedSolution().getMedia(stylesheetName);
 				if (media != null && media.getLastModifiedTime() > 0)
 				{
 					timestamp = media.getLastModifiedTime();
@@ -328,7 +389,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					}
 				}
 				styleSheets.set(i, "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" +
-					styleSheets.get(i).replace(".less", ".css") + "?t=" +
+					stylesheetName.replace(".less", ".css") + "?t=" +
 					Long.toHexString(timestamp == 0 ? client.getSolution().getLastModifiedTime() : timestamp) + "&clientnr=" + getSessionKey().getClientnr());
 			}
 			if (compareList(lastSentStyleSheets, styleSheets)) return;
@@ -413,7 +474,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	 * If it is run from the developer it also adds the stack trace
 	 * @param e
 	 */
-	public static void sendInternalError(Exception e)
+	public static void sendInternalError(Throwable e)
 	{
 		Map<String, Object> internalError = new HashMap<>();
 		StringWriter sw = new StringWriter();

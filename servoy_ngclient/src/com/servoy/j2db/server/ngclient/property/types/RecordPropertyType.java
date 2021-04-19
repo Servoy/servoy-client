@@ -71,11 +71,7 @@ public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInterna
 		{
 			JSONObject jsonRecord = (JSONObject)newJSONValue;
 			BaseWebObject webObject = dataConverterContext.getWebObject();
-			if (jsonRecord.has("recordhash"))
-			{
-				record = getReference(jsonRecord.optString("recordhash"));
-			}
-			if (record == null && webObject != null && jsonRecord.has(FoundsetTypeSabloValue.ROW_ID_COL_KEY))
+			if (webObject != null && jsonRecord.has(FoundsetTypeSabloValue.ROW_ID_COL_KEY))
 			{
 				String rowIDValue = jsonRecord.optString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
 				Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowIDValue);
@@ -108,6 +104,11 @@ public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInterna
 					}
 				}
 			}
+			if (record == null && jsonRecord.has("recordhash")) //$NON-NLS-1$
+			{
+				record = getReference(jsonRecord.optString("recordhash")); //$NON-NLS-1$
+			}
+
 		}
 		return record;
 	}

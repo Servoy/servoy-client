@@ -23,10 +23,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -65,7 +67,6 @@ import com.servoy.j2db.persistence.RepositoryHelper;
 import com.servoy.j2db.persistence.RuntimeProperty;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
-import com.servoy.j2db.persistence.TabSeqComparator;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.ComponentTypeConfig;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
@@ -92,7 +93,13 @@ import com.servoy.j2db.util.xmlxport.SolutionImportNotifier;
  */
 public class FormElementHelper implements IFormElementCache, ISolutionImportListener
 {
+	public final static RuntimeProperty<ConcurrentMap<UUID, Map<String, FormComponentCache>>> SOLUTION_MODEL_CACHE = new RuntimeProperty<ConcurrentMap<UUID, Map<String, FormComponentCache>>>()
+	{
+	};
 	public final static RuntimeProperty<String> FORM_COMPONENT_FORM_NAME = new RuntimeProperty<String>()
+	{
+	};
+	public final static RuntimeProperty<String> FORM_COMPONENT_UUID = new RuntimeProperty<String>()
 	{
 	};
 	public final static RuntimeProperty<Pair<Long, Map<TabSeqProperty, Integer>>> FORM_TAB_SEQUENCE = new RuntimeProperty<Pair<Long, Map<TabSeqProperty, Integer>>>()
@@ -106,8 +113,9 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 	private final ConcurrentMap<UUID, Map<TabSeqProperty, Integer>> formTabSequences = new ConcurrentHashMap<>();
 
 	private final ConcurrentMap<UUID, Map<String, FormComponentCache>> formComponentElements = new ConcurrentHashMap<>();
+	private final ConcurrentMap<UUID, Map<String, FormComponentCache>> formComponentElementsForDesign = new ConcurrentHashMap<>();
 
-	private final Map<UUID, Map<UUID, UUID>> formComponentElementsUUIDS = new WeakHashMap<>();
+	private static final Map<UUID, Map<UUID, UUID>> formComponentElementsUUIDS = new WeakHashMap<>();
 
 	private FormElementHelper()
 	{
@@ -131,25 +139,35 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 	public FormComponentCache getFormComponentCache(INGFormElement formElement, PropertyDescription pd, JSONObject formElementValue, Form form,
 		FlattenedSolution fs)
 	{
-		final List<FormElement> noneCacheableElements = testForDesignAndSolutionModel(formElement, pd, formElementValue, form, fs);
-		if (noneCacheableElements != null)
+		ConcurrentMap<UUID, Map<String, FormComponentCache>> cache = formElement.getDesignId() != null ? formComponentElementsForDesign : formComponentElements;
+		Solution solutionCopy = fs.getSolutionCopy(false);
+		FlattenedSolution usedFS = getSharedFlattenedSolution(fs);
+		if (solutionCopy != null && solutionCopy.getForm(formElement.getForm().getName()) != null)
 		{
-			return generateFormComponentCacheObject(formElement, pd, form, fs, noneCacheableElements);
+			usedFS = fs;
+			// if the form is a solution model for we can't use the standard caches.
+			cache = solutionCopy.getRuntimeProperty(SOLUTION_MODEL_CACHE);
+			if (cache == null)
+			{
+				cache = new ConcurrentHashMap<UUID, Map<String, FormComponentCache>>();
+				solutionCopy.setRuntimeProperty(SOLUTION_MODEL_CACHE, cache);
+			}
 		}
-
-		return getFormComponentFromCache(formElement, pd, formElementValue, form, getSharedFlattenedSolution(fs));
+		return getFormComponentFromCache(formElement, pd, formElementValue, form, usedFS,
+			cache);
 	}
 
-	private FormComponentCache getFormComponentFromCache(INGFormElement parentElement, PropertyDescription pd, JSONObject json, Form frm, FlattenedSolution fs)
+	private static FormComponentCache getFormComponentFromCache(INGFormElement parentElement, PropertyDescription pd, JSONObject json, Form frm,
+		FlattenedSolution fs, ConcurrentMap<UUID, Map<String, FormComponentCache>> cache)
 	{
-		Map<String, FormComponentCache> map = formComponentElements.get(parentElement.getPersistIfAvailable().getUUID());
+		Map<String, FormComponentCache> map = cache.get(parentElement.getPersistIfAvailable().getUUID());
 		if (map == null)
 		{
 			map = new ConcurrentHashMap<>();
-			formComponentElements.put(parentElement.getPersistIfAvailable().getUUID(), map);
+			cache.put(parentElement.getPersistIfAvailable().getUUID(), map);
 		}
 		FormComponentCache fcCache = map.get(pd.getName());
-		if (fcCache == null)
+		if (fcCache == null || fcCache.created < frm.getLastModified() || fcCache.created < parentElement.getForm().getLastModified())
 		{
 			final List<FormElement> list = generateFormComponentElements(parentElement, pd, json, frm, fs);
 			fcCache = generateFormComponentCacheObject(parentElement, pd, frm, fs, list);
@@ -158,7 +176,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		return fcCache;
 	}
 
-	private FormComponentCache generateFormComponentCacheObject(INGFormElement parentElement, PropertyDescription pd, Form frm, FlattenedSolution fs,
+	private static FormComponentCache generateFormComponentCacheObject(INGFormElement parentElement, PropertyDescription pd, Form frm, FlattenedSolution fs,
 		final List<FormElement> list)
 	{
 		IFormElementCache cache = new IFormElementCache()
@@ -177,24 +195,11 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 			}
 		};
 		String template = FormLayoutGenerator.generateFormComponent(frm, fs, cache);
-		return new FormComponentCache(parentElement, pd, list, template);
+		return new FormComponentCache(list, template);
 	}
 
-	private List<FormElement> testForDesignAndSolutionModel(INGFormElement parentElement, PropertyDescription pd, JSONObject json, Form frm,
+	private static List<FormElement> generateFormComponentElements(INGFormElement parent, PropertyDescription pd, JSONObject json, Form frm,
 		FlattenedSolution fs)
-	{
-		// for designer always just generate it
-		if (parentElement.getDesignId() != null) return generateFormComponentElements(parentElement, pd, json, frm, fs);
-
-		// if the form of the main form component component is a solution copy then don't cache (the form component component that has the form component in it might have changed via solution model)
-		// that means that the main form component component name or the customization it applies to the form component might have changed and some of these can affect the templateHTML
-		Solution solutionCopy = fs.getSolutionCopy(false);
-		if (solutionCopy != null && solutionCopy.getForm(parentElement.getForm().getName()) != null)
-			return generateFormComponentElements(parentElement, pd, json, frm, fs);
-		return null;
-	}
-
-	private List<FormElement> generateFormComponentElements(INGFormElement parent, PropertyDescription pd, JSONObject json, Form frm, FlattenedSolution fs)
 	{
 		List<FormElement> elements = new ArrayList<>();
 		List<IFormElement> persistElements = generateFormComponentPersists(parent, pd, json, frm, fs);
@@ -205,7 +210,8 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		return elements;
 	}
 
-	private List<IFormElement> generateFormComponentPersists(INGFormElement parent, PropertyDescription pd, JSONObject json, Form frm, FlattenedSolution fs)
+	private static List<IFormElement> generateFormComponentPersists(INGFormElement parent, PropertyDescription pd, JSONObject json, Form frm,
+		FlattenedSolution fs)
 	{
 		List<IFormElement> elements = new ArrayList<>();
 		List<IFormElement> formelements = fs.getFlattenedForm(frm).getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
@@ -243,6 +249,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				formName = ((AbstractBase)parent.getPersistIfAvailable()).getRuntimeProperty(FORM_COMPONENT_FORM_NAME);
 			}
 			((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_FORM_NAME, formName);
+			((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_UUID, parent.getPersistIfAvailable().getUUID().toString());
 			JSONObject elementJson = json.optJSONObject(elementName);
 			if (elementJson != null)
 			{
@@ -650,6 +657,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		persistWrappers.clear();
 		formTabSequences.clear();
 		formComponentElements.clear();
+		formComponentElementsForDesign.clear();
 		FormComponentCache.templateCache.clear();
 		for (FlattenedSolution fs : globalFlattendSolutions.values())
 		{
@@ -689,7 +697,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 	 * @return the requested controlled tabSeq (should make tabSeq be identical to the one shown in developer).
 	 */
 	public Integer getControlledTabSeqReplacementFor(Integer designValue, PropertyDescription pd, Form flattenedForm, IPersist persistIfAvailable,
-		FlattenedSolution flattenedSolution) // TODO more args will be needed here such as the tabSeq property name or description
+		FlattenedSolution flattenedSolution, boolean design) // TODO more args will be needed here such as the tabSeq property name or description
 	{
 		if (persistIfAvailable == null || (nestedCall.get() != null && nestedCall.get().booleanValue())) return designValue; // TODO this can be removed when we know we'll always have a persist here; currently don't handle this in any way as it's not supported
 		nestedCall.set(Boolean.TRUE);
@@ -702,6 +710,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				if (mainFormName != null)
 				{
 					flattenedForm = flattenedSolution.getFlattenedForm(flattenedSolution.getForm(mainFormName));
+					if (flattenedForm == null) return Integer.valueOf(-2); // just return the skip value if this is somehow invalid.
 				}
 			}
 			boolean formWasModifiedViaSolutionModel = flattenedSolution.hasCopy(flattenedForm);
@@ -775,7 +784,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 								}
 							}
 						}
-						return TabSeqComparator.compareTabSeq(seq1, o1.element, seq2, o2.element);
+						return compareTabSeq(seq1, o1.element, seq2, o2.element, flattenedSolution);
 					}
 				});
 				Map<TabSeqProperty, List<TabSeqProperty>> listFormComponentMap = new HashMap<TabSeqProperty, List<TabSeqProperty>>();
@@ -817,8 +826,8 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 									}
 								}
 							}
-							addFormComponentProperties(formComponentProperties, formElement, specification, flattenedSolution, cachedTabSeq, selected,
-								listFormComponentElements);
+							addFormComponentProperties(formComponentProperties, formElement, flattenedSolution, cachedTabSeq, selected,
+								listFormComponentElements, design, new HashSet<String>());
 						}
 					}
 					else if (formElement instanceof ISupportTabSeq)
@@ -878,21 +887,28 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		}
 	}
 
-	public void addFormComponentProperties(Collection<PropertyDescription> formComponentProperties, IFormElement formElement,
-		WebObjectSpecification specification, FlattenedSolution flattenedSolution, Map<TabSeqProperty, Integer> cachedTabSeq, List<TabSeqProperty> selected,
-		List<TabSeqProperty> listFormComponentElements)
+	private void addFormComponentProperties(Collection<PropertyDescription> formComponentProperties, IFormElement formElement,
+		FlattenedSolution flattenedSolution, Map<TabSeqProperty, Integer> cachedTabSeq, List<TabSeqProperty> selected,
+		List<TabSeqProperty> listFormComponentElements, boolean design, Set<String> recursionCheck)
 	{
 		if (formComponentProperties != null && formComponentProperties.size() > 0)
 		{
 			boolean isListFormComponent = isListFormComponent(formComponentProperties);
 			// avoid infinite cycle here
-			FormElement formComponentEl = FormElementHelper.INSTANCE.getFormElement(formElement, flattenedSolution, null, true);
+			FormElement formComponentEl = FormElementHelper.INSTANCE.getFormElement(formElement, flattenedSolution, null, design);
 			for (PropertyDescription property : formComponentProperties)
 			{
 				Object frmValue = formComponentEl.getPropertyValue(property.getName());
 				Form frm = FormComponentPropertyType.INSTANCE.getForm(frmValue, flattenedSolution);
 				if (frm == null) continue;
 
+				if (!recursionCheck.add(frm.getName()))
+				{
+					Debug.error("recursive reference found between (List)FormComponents: " + recursionCheck); //$NON-NLS-1$
+					continue;
+				}
+
+				// do not use the formcomponentcache, we do not want formelement with wrong tabseq to be cached, must caclulate first the sequence
 				List<IFormElement> elements = generateFormComponentPersists(formComponentEl, property, (JSONObject)frmValue, frm, flattenedSolution);
 
 				for (IFormElement element : elements)
@@ -918,7 +934,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 						String nestedDomponentType = FormTemplateGenerator.getComponentTypeName(element);
 						WebObjectSpecification nestedSpecification = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(
 							nestedDomponentType);
-						if (specification != null)
+						if (nestedSpecification != null)
 						{
 							Collection<PropertyDescription> nestedProperties = nestedSpecification.getProperties(NGTabSeqPropertyType.NG_INSTANCE);
 							if (nestedProperties != null && nestedProperties.size() > 0)
@@ -927,8 +943,9 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 								for (PropertyDescription tabSeqProperty : nestedProperties)
 								{
 									int tabseq = Utils.getAsInteger(webComponent.getProperty(tabSeqProperty.getName()));
-									if (isListFormComponent && listFormComponentElements != null)
+									if (tabseq >= 0 && isListFormComponent && listFormComponentElements != null)
 									{
+										// all elements will have the tabseq of the list
 										listFormComponentElements.add(new TabSeqProperty(element, tabSeqProperty.getName()));
 									}
 									else if (tabseq >= 0)
@@ -943,11 +960,12 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 							}
 
 							nestedProperties = nestedSpecification.getProperties(FormComponentPropertyType.INSTANCE);
-							addFormComponentProperties(nestedProperties, element, nestedSpecification, flattenedSolution, cachedTabSeq, selected,
-								listFormComponentElements);
+							addFormComponentProperties(nestedProperties, element, flattenedSolution, cachedTabSeq, selected,
+								listFormComponentElements, design, recursionCheck);
 						}
 					}
 				}
+				recursionCheck.remove(frm.getName());
 			}
 		}
 	}
@@ -1062,7 +1080,9 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 
 		private final String uuid;
 
-		public FormComponentCache(INGFormElement parentElement, PropertyDescription pd, List<FormElement> list, String template)
+		private final long created = System.currentTimeMillis();
+
+		public FormComponentCache(List<FormElement> list, String template)
 		{
 			this.list = list;
 			String templateHit = template.replace("\"", "\\\"");
@@ -1104,4 +1124,136 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		}
 	}
 
+	//TODO: try to make this method recursive, for the cases when there are more than 2 nested form components
+	public static int compareTabSeq(int seq1, Object o1, int seq2, Object o2, FlattenedSolution flattenedSolution)
+	{
+		int yxCompare = 0;
+		if (seq1 == ISupportTabSeq.DEFAULT && seq2 == ISupportTabSeq.DEFAULT && o1 instanceof IPersist && o2 instanceof IPersist)
+		{
+			IPersist form = ((IPersist)o1).getAncestor(IRepository.FORMS);
+			if (form instanceof Form && ((Form)form).isResponsiveLayout())
+			{
+				if (((IPersist)o1).getParent().equals(((IPersist)o2).getParent()))
+				{
+					//delegate to Yx
+					yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare((IPersist)o1, (IPersist)o2);
+				}
+				else
+				{
+					/*
+					 * We must search all the parents of the objects o1 and o2.If the objects have a same parent by searching all the ancestors we must compare
+					 * the objects before encountering the same parent.
+					 */
+					List<IPersist> parentsOfo1 = new ArrayList<IPersist>();
+					IPersist parent = ((IPersist)o1).getParent();
+					while (!(parent instanceof Form))
+					{
+						parentsOfo1.add(parent);
+						parent = parent.getParent();
+					}
+					//also add the form to the list of parents
+					parentsOfo1.add(parent);
+
+					//the last parent of o1 or o2 is a formComponent, not the main form
+					if (parent instanceof Form)
+					{
+						if (((Form)parent).isFormComponent() && o1 instanceof AbstractBase)
+						{
+							String uuid = ((AbstractBase)o1).getRuntimeProperty(FORM_COMPONENT_UUID);
+							if (uuid != null)
+							{
+								IPersist persist = flattenedSolution.searchPersist(uuid);
+								if (persist != null)
+								{
+									parent = persist.getParent();
+									while (!(parent instanceof Form))
+									{
+										parentsOfo1.add(parent);
+										parent = parent.getParent();
+									}
+									//also add the form to the list of parents
+									parentsOfo1.add(parent);
+								}
+							}
+						}
+					}
+
+					IPersist childo2 = (IPersist)o2;
+					IPersist parento2 = ((IPersist)o2).getParent();
+					while (!(parento2 instanceof Form))
+					{
+						if (parentsOfo1.contains(parento2))
+						{
+							int index = parentsOfo1.indexOf(parento2);
+							//delegate to Yx
+							if (index > 0)
+							{
+								yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare(parentsOfo1.get(index - 1), childo2);
+							}
+						}
+						childo2 = parento2;
+						parento2 = parento2.getParent();
+					}
+					//also check to see if the common parent is the actual form
+					if (parentsOfo1.contains(parento2))
+					{
+						int index = parentsOfo1.indexOf(parento2);
+						if (index > 0)
+						{
+							yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare(parentsOfo1.get(index - 1), childo2);
+						}
+					}
+
+					if (parento2 instanceof Form && !parento2.equals(form))
+					{
+						if (((Form)parento2).isFormComponent() && o2 instanceof AbstractBase)
+						{
+							String uuid = ((AbstractBase)o2).getRuntimeProperty(FORM_COMPONENT_UUID);
+							if (uuid != null)
+							{
+								IPersist persist = flattenedSolution.searchPersist(uuid);
+								if (persist != null)
+								{
+									parento2 = persist.getParent();
+									while (!(parento2 instanceof Form))
+									{
+										if (parentsOfo1.contains(parento2))
+										{
+											int index = parentsOfo1.indexOf(parento2);
+											//delegate to Yx
+											if (index > 0)
+											{
+												yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare(parentsOfo1.get(index - 1), childo2);
+											}
+										}
+										childo2 = parento2;
+										parento2 = parento2.getParent();
+									}
+								}
+							}
+						}
+					}
+					if (yxCompare == 0 && parentsOfo1.contains(parento2) && parentsOfo1.size() > 1)
+					{
+						yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare(parentsOfo1.get(parentsOfo1.size() - 2), childo2);
+					}
+				}
+			}
+			else if (form instanceof Form && !((Form)form).isResponsiveLayout())
+			{
+				yxCompare = PositionComparator.YX_PERSIST_COMPARATOR.compare((IPersist)o1, (IPersist)o2);
+			}
+			// if they are at the same position, and are different persist, just use UUID to decide the sequence
+			return yxCompare == 0 ? ((IPersist)o1).getUUID().compareTo(((IPersist)o2).getUUID()) : yxCompare;
+		}
+		else if (seq1 == ISupportTabSeq.DEFAULT)
+		{
+			return 1;
+		}
+		else if (seq2 == ISupportTabSeq.DEFAULT)
+		{
+			return -1;
+		}
+		return seq1 - seq2;
+	}
 }

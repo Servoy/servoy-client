@@ -977,7 +977,8 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 			{
 				if (scheduledExecutorService == null)
 				{
-					scheduledExecutorService = new ServoyScheduledExecutor(4, 1)
+					scheduledExecutorService = new ServoyScheduledExecutor(4, 1,
+						IApplication.getApplicationTypeAsString(getApplicationType()) + '-' + getClientID())
 					{
 						private IServiceProvider prev;
 
@@ -992,6 +993,12 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 						protected void afterExecute(Runnable r, Throwable t)
 						{
 							super.afterExecute(r, t);
+							if (t instanceof Error)
+							{
+								// do report this here once through our logging
+								// very likely it has been falling through everything.
+								Debug.error(t);
+							}
 							unsetThreadLocals(prev);
 						}
 					};

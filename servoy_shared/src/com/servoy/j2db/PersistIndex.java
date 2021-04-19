@@ -34,6 +34,7 @@ import com.servoy.j2db.persistence.IItemChangeListener;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.IScriptElement;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.ISupportScope;
@@ -67,7 +68,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 
 	protected final ConcurrentMap<String, ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>>> datasourceToPersist = new ConcurrentHashMap<>();
 
-	protected final ConcurrentMap<String, Map<String, ISupportScope>> scopeCacheByName = new ConcurrentHashMap<>();
+	protected final ConcurrentMap<String, Map<String, IScriptElement>> scopeCacheByName = new ConcurrentHashMap<>();
 
 	protected final CopyOnWriteArrayList<Solution> solutions = new CopyOnWriteArrayList<>();
 
@@ -164,13 +165,13 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 
 	protected void initDatasourceCache(String datasource)
 	{
-		if ((datasource == null && datasourceToPersist.size() == 0) || (datasource != null && datasourceToPersist.get(datasource) == null))
+		if ((datasourceToPersist.size() == 0) || (datasource != null && datasourceToPersist.get(datasource) == null))
 		{
 			visit((persist) -> {
 				if (persist instanceof TableNode)
 				{
 					String tableDs = ((TableNode)persist).getDataSource();
-					if (tableDs != null && (tableDs.equals(datasource) || datasource == null))
+					if (tableDs != null)
 					{
 						ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist
 							.get(tableDs);
@@ -209,6 +210,15 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 				}
 				return persist instanceof Solution ? IPersistVisitor.CONTINUE_TRAVERSAL : IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 			});
+			if (datasource != null && datasourceToPersist.get(datasource) == null)
+			{
+				ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = new ConcurrentHashMap<>(4);
+				dsMap.put(ScriptCalculation.class, new ConcurrentHashMap<String, IPersist>(4));
+				dsMap.put(TableNode.class, new ConcurrentHashMap<String, IPersist>(4));
+				dsMap.put(AggregateVariable.class, new ConcurrentHashMap<String, IPersist>(4));
+				dsMap.put(ScriptMethod.class, new ConcurrentHashMap<String, IPersist>(4));
+				datasourceToPersist.put(datasource, dsMap);
+			}
 		}
 	}
 
@@ -252,20 +262,20 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 	}
 
 	@Override
-	public ISupportScope getSupportScope(String scopeName, String baseName)
+	public IScriptElement getSupportScope(String scopeName, String baseName)
 	{
-		Map<String, ISupportScope> map = getGlobalScopeCache().get(scopeName);
+		Map<String, IScriptElement> map = getGlobalScopeCache().get(scopeName);
 		return map != null ? map.get(baseName) : null;
 	}
 
 	@Override
-	public <T extends ISupportScope> Iterator<T> getGlobalScriptObjects(String scopeName, boolean sort, Class<T> cls)
+	public <T extends IScriptElement> Iterator<T> getGlobalScriptObjects(String scopeName, boolean sort, Class<T> cls)
 	{
-		Stream<ISupportScope> stream = null;
-		Map<String, Map<String, ISupportScope>> globalMap = getGlobalScopeCache();
+		Stream<IScriptElement> stream = null;
+		Map<String, Map<String, IScriptElement>> globalMap = getGlobalScopeCache();
 		if (scopeName != null)
 		{
-			Map<String, ISupportScope> map = globalMap.get(scopeName);
+			Map<String, IScriptElement> map = globalMap.get(scopeName);
 			if (map != null)
 			{
 				stream = map.values().stream();
@@ -287,27 +297,27 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		return empty.iterator();
 	}
 
-	protected Map<String, Map<String, ISupportScope>> getGlobalScopeCache()
+	protected Map<String, Map<String, IScriptElement>> getGlobalScopeCache()
 	{
 		synchronized (scopeCacheByName)
 		{
 			if (scopeCacheByName.isEmpty())
 			{
 				visit((persist) -> {
-					if (persist instanceof ISupportScope)
+					if (persist instanceof IScriptElement)
 					{
-						String scopeName = ((ISupportScope)persist).getScopeName();
+						String scopeName = ((IScriptElement)persist).getScopeName();
 						if (scopeName == null)
 						{
 							scopeName = ScriptVariable.GLOBAL_SCOPE;
 						}
-						Map<String, ISupportScope> scopeMap = scopeCacheByName.get(scopeName);
+						Map<String, IScriptElement> scopeMap = scopeCacheByName.get(scopeName);
 						if (scopeMap == null)
 						{
-							Map<String, ISupportScope> prev = scopeCacheByName.putIfAbsent(scopeName, scopeMap = new HashMap<String, ISupportScope>(128));
+							Map<String, IScriptElement> prev = scopeCacheByName.putIfAbsent(scopeName, scopeMap = new HashMap<String, IScriptElement>(128));
 							if (prev != null) scopeMap = prev;
 						}
-						addInScopeCache(scopeMap, (ISupportScope)persist);
+						addInScopeCache(scopeMap, (IScriptElement)persist);
 					}
 					return persist instanceof Solution ? IPersistVisitor.CONTINUE_TRAVERSAL : IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 				});
@@ -316,7 +326,7 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		return scopeCacheByName;
 	}
 
-	protected void addInScopeCache(Map<String, ISupportScope> cache, ISupportScope persist)
+	protected void addInScopeCache(Map<String, IScriptElement> cache, IScriptElement persist)
 	{
 		cache.put(persist.getName(), persist);
 	}

@@ -705,7 +705,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver
 		return isCountOrAvgOrSumAggregateDataProvider(dataAdapter.getDataProviderID(), dataProviderLookup);
 	}
 
-	private static boolean isCountOrAvgOrSumAggregateDataProvider(String dataProvider, IDataProviderLookup dataProviderLookup)
+	public static boolean isCountOrAvgOrSumAggregateDataProvider(String dataProvider, IDataProviderLookup dataProviderLookup)
 	{
 		try
 		{

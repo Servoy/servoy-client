@@ -22,9 +22,11 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.border.Border;
 
@@ -60,6 +62,7 @@ import com.servoy.j2db.server.ngclient.property.ComponentTypeConfig;
 import com.servoy.j2db.server.ngclient.property.types.BorderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.util.ComponentFactoryHelper;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -180,7 +183,7 @@ public class FormWrapper
 			if (isSecurityVisible(persist))
 			{
 				if ((excludedComponents == null || !excludedComponents.contains(persist))) components.add(persist);
-				checkFormComponents(components, FormElementHelper.INSTANCE.getFormElement(persist, context.getSolution(), null, design));
+				checkFormComponents(components, FormElementHelper.INSTANCE.getFormElement(persist, context.getSolution(), null, design), new HashSet<String>());
 			}
 		}
 		if ((isListView && !design) || isTableView)
@@ -196,7 +199,7 @@ public class FormWrapper
 		return components;
 	}
 
-	private void checkFormComponents(List<IFormElement> components, FormElement formComponentFormElement)
+	private void checkFormComponents(List<IFormElement> components, FormElement formComponentFormElement, Set<String> recursiveCheck)
 	{
 		// if it's not a form component then .spec will not contain properties of type FormComponentPropertyType.INSTANCE and nothing will happen below
 		WebObjectSpecification spec = formComponentFormElement.getWebComponentSpec();
@@ -212,6 +215,11 @@ public class FormWrapper
 					Object propertyValue = formComponentFormElement.getPropertyValue(pd.getName());
 					Form frm = FormComponentPropertyType.INSTANCE.getForm(propertyValue, context.getSolution());
 					if (frm == null) continue;
+					if (!recursiveCheck.add(frm.getName()))
+					{
+						Debug.error("recursive reference found between (List)FormComponents: " + recursiveCheck); //$NON-NLS-1$
+						continue;
+					}
 					FormComponentCache cache = FormElementHelper.INSTANCE.getFormComponentCache(formComponentFormElement, pd, (JSONObject)propertyValue, frm,
 						context.getSolution());
 					Dimension frmSize = frm.getSize();
@@ -232,9 +240,10 @@ public class FormWrapper
 								formComponentCSSPositionElementNames.put(name, Boolean.TRUE);
 							}
 						}
-						checkFormComponents(components, element);
+						checkFormComponents(components, element, recursiveCheck);
 					}
 					formComponentTemplates.put(cache.getHtmlTemplateUUIDForAngular(), cache.getTemplate());
+					recursiveCheck.remove(frm.getName());
 				}
 			}
 		}
@@ -280,7 +289,13 @@ public class FormWrapper
 	public String getPropertiesString() throws JSONException, IllegalArgumentException
 	{
 		getBaseComponents();
-		Map<String, Object> properties = form.getPropertiesMap(); // a copy of form properties
+		Map<String, Object> properties = getProperties();
+		return JSONUtils.writeDataAsFullToJSON(properties, null, null); // null types as we don't have a .spec file for forms
+	}
+
+	public Map<String, Object> getProperties()
+	{
+		Map<String, Object> properties = form.getFlattenedPropertiesMap(); // a copy of form properties
 		properties.put("size", form.getSize()); // form.getSize() computes the form height from form parts so do call it instead of relying on the height from size taken from raw form.getPropertiesMap() - where the height is not kept in sync in developer - we have to call getSize()
 		properties.put("designSize", form.getSize());
 		properties.put("addMinSize", !form.isResponsiveLayout() && (form.getView() == IForm.RECORD_VIEW || form.getView() == IForm.LOCKED_RECORD_VIEW));
@@ -319,7 +334,7 @@ public class FormWrapper
 			Border border = ComponentFactoryHelper.createBorder((String)properties.get(StaticContentSpecLoader.PROPERTY_BORDERTYPE.getPropertyName()), false);
 			properties.put(StaticContentSpecLoader.PROPERTY_BORDERTYPE.getPropertyName(), BorderPropertyType.writeBorderToJson(border));
 		}
-		return JSONUtils.writeDataAsFullToJSON(properties, null, null); // null types as we don't have a .spec file for forms
+		return properties;
 	}
 
 	private static void removeUnneededFormProperties(Map<String, Object> properties)

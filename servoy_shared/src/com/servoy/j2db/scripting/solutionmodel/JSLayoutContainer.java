@@ -24,11 +24,16 @@ import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AbstractContainer;
+import com.servoy.j2db.persistence.FlattenedLayoutContainer;
+import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.scripting.IJavaScriptType;
+import com.servoy.j2db.util.PersistHelper;
 
 /**
  * @author lvostinar
@@ -36,17 +41,20 @@ import com.servoy.j2db.scripting.IJavaScriptType;
  */
 @SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSLayoutContainer")
+@ServoyClientSupport(mc = false, wc = false, sc = false, ng = true)
 public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implements IJavaScriptType
 {
 	private LayoutContainer layoutContainer;
 	private final IJSParent< ? > parent;
 	private boolean isCopy = false;
+	private final IApplication application;
 
 	public JSLayoutContainer(IJSParent< ? > parent, IApplication application, LayoutContainer layoutContainer)
 	{
 		super(application);
 		this.setLayoutContainer(layoutContainer);
 		this.parent = parent;
+		this.application = application;
 	}
 
 	private LayoutContainer getLayoutContainer()
@@ -234,7 +242,7 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	 * @clonedesc com.servoy.j2db.persistence.LayoutContainer#getStyle()
 	 *
 	 * @sample
-	 * layoutContainer.style = "background-color:'red'";
+	 * layoutContainer.style = "background-color:red";
 	 */
 	@JSGetter
 	public String getStyle()
@@ -361,7 +369,10 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	@Override
 	public AbstractContainer getFlattenedContainer()
 	{
-		return getLayoutContainer();
+		LayoutContainer lc = getLayoutContainer();
+		return (FlattenedLayoutContainer)PersistHelper.getFlattenedPersist(application.getFlattenedSolution(),
+			(Form)lc.getAncestor(IRepository.FORMS),
+			lc);
 	}
 
 	/*

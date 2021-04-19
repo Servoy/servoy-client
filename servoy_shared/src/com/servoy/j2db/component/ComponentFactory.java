@@ -1067,9 +1067,8 @@ public class ComponentFactory
 						StringBuffer message = new StringBuffer(
 							"The valuelist was already created for type: " + Column.getDisplayTypeString(((CustomValueList)list).getValueType()));
 						message.append("\n for the dataproviders: ");
-						for (int i = 0; i < lst.size(); i++)
+						for (String previousProviders : lst)
 						{
-							String previousProviders = lst.get(i);
 							message.append(previousProviders);
 							message.append(",");
 						}
@@ -2143,6 +2142,10 @@ public class ComponentFactory
 						{
 							continue;
 						}
+					}
+					else if (entryValue instanceof CustomValueList && ((CustomValueList)entryValue).isRuntimeChanged())
+					{
+						continue;
 					}
 					it.remove();
 				}

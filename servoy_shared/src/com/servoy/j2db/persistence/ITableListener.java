@@ -49,7 +49,7 @@ public interface ITableListener extends IItemChangeListener<ITable>
 	 * @param server the server that contains that table.
 	 * @param table the table that has been hidden/unhidden.
 	 */
-	void hiddenTableChanged(IServerInternal server, Table table);
+	void hiddenTableChanged(IServerInternal server, ITable table);
 
 	/**
 	 * @param oldValue bit-mask showing the old state. For example (oldValue & ENABLED) == ENABLED means enabled = true.
@@ -86,7 +86,7 @@ public interface ITableListener extends IItemChangeListener<ITable>
 		{
 		}
 
-		public void hiddenTableChanged(IServerInternal server, Table table)
+		public void hiddenTableChanged(IServerInternal server, ITable table)
 		{
 		}
 

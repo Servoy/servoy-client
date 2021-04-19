@@ -211,7 +211,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	public QBCondition in(String customQuery, Object[] args)
 	{
 		return createCondition(
-			new SetCondition(IBaseSQLCondition.IN_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() }, new QueryCustomSelect(customQuery, args), true));
+			new SetCondition(IBaseSQLCondition.IN_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() },
+				new QueryCustomSelect(customQuery, args == null ? null : getRoot().createOperands(args, null, 0)), true));
 	}
 
 	/**
@@ -740,6 +741,6 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@Override
 	public String toString()
 	{
-		return (negate ? "!" : "") + queryColumn.toString();
+		return (negate ? "!" : "") + (queryColumn == null ? "<NONE>" : queryColumn.toString());
 	}
 }

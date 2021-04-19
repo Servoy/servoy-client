@@ -108,8 +108,8 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	}
 
 	/**
-	 * Returns a named foundset object for a specified name. If named foundset datasource does not match current datasource will not be returned.
-	 * If named foundset is not created will return null.
+	 * An existing foundset under that name will be returned, or created if there is a definition (there is a form with a named foundset property with that name).
+	 * If named foundset datasource does not match current datasource will not be returned (will return null instead).
 	 *
 	 * @sample
 	 * var fs = datasources.db.example_data.orders.getFoundSet('myname')

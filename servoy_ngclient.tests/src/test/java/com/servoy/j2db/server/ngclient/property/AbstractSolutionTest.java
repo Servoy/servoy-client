@@ -199,6 +199,12 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 		{
 			return null;
 		}
+
+		@Override
+		public String getDatabaseType()
+		{
+			return null;
+		}
 	};
 
 	private static IPackageReader[] getReaders(File[] packages, IPackageReader testWebObjects)

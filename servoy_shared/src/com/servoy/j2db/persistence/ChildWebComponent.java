@@ -154,6 +154,15 @@ public class ChildWebComponent extends WebComponent implements IChildWebObject
 			public void setTypeName(String arg)
 			{
 				getFullJsonInFrmFile().put(TYPE_NAME_KEY, arg);
+				if (pdPleaseUseGetterToAccessThis != null)
+				{
+					PropertyDescription pd = pdPleaseUseGetterToAccessThis;
+					boolean isCorrect = pd.getType() != null && pd.getType().getName().endsWith("." + arg) || pd.getName().equals(arg);
+					if (!isCorrect)
+					{
+						pdPleaseUseGetterToAccessThis = null;
+					}
+				}
 			}
 
 			@Override

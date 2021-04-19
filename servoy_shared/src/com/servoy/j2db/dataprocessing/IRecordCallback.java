@@ -17,9 +17,11 @@
 
 package com.servoy.j2db.dataprocessing;
 
+import org.mozilla.javascript.Scriptable;
+
 /**
  * Interface used to handle a record during a foundset parse.
- * 
+ *
  * @author lvostinar
  * @since 7.4
  */
@@ -28,12 +30,12 @@ public interface IRecordCallback
 {
 	/**
 	 * Method that will be called for each record in the foundset.
-	 * 
+	 *
 	 * @param record Record to process.
 	 * @param recordIndex The index of the record in foundset.
 	 * @param foundset The foundset that is traversed.
-	 * 
+	 *
 	 * @return null to continue traversal, anything else to stop it
 	 */
-	public Object handleRecord(IRecord record, int recordIndex, IFoundSet foundset);
+	public Object handleRecord(IRecord record, int recordIndex, Scriptable foundset);
 }

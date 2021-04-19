@@ -17,6 +17,9 @@
 package com.servoy.j2db.persistence;
 
 
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.rmi.RemoteException;
@@ -30,14 +33,15 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import com.servoy.base.persistence.BaseColumn;
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.BaseColumnType;
+import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
@@ -45,13 +49,13 @@ import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.dataprocessing.ValueFactory.NullValue;
 import com.servoy.j2db.query.ColumnType;
+import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.util.AliasKeyMap.ISupportAlias;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.TimezoneUtils;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.keyword.Ident;
-import com.servoy.j2db.util.keyword.SQLKeywords;
 
 /**
  * A database column, this information is not stored inside the repository but recreated each time<br>
@@ -525,6 +529,11 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 			Debug.log(e);
 		}
 		return null;
+	}
+
+	public static Object[] getArrayAsRightType(BaseColumnType type, int flags, Object[] array, boolean throwOnFail, boolean truncate)
+	{
+		return Arrays.stream(array).map(obj -> getAsRightType(type, flags, obj, throwOnFail, truncate)).toArray();
 	}
 
 	public Object getAsRightType(Object obj, String format)
@@ -1158,7 +1167,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		}
 		if (flags != -1)
 		{
-			setFlags(flags); // use the flags (meant for the use-case when you want to create a column marked as UUID - before actually creating it in DB, see commit for revision 4340)
+			setFlags(flags | ci.getFlags()); // use the flags (meant for the use-case when you want to create a column marked as UUID - before actually creating it in DB, see commit for revision 4340)
 		}
 		else
 		{
@@ -1285,6 +1294,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	private transient String databaseSequenceName;
 
 	private transient int flags = -1;
+	private transient String nativeTypename;
 
 
 	public void setSequenceType(int i)
@@ -1318,6 +1328,22 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		}
 	}
 
+
+	public void setNativeTypename(String nativeTypename)
+	{
+		this.nativeTypename = nativeTypename;
+	}
+
+	public String getNativeTypename()
+	{
+		return nativeTypename;
+	}
+
+	public QueryColumn queryColumn(BaseQueryTable queryTable)
+	{
+		return new QueryColumn(queryTable, getID(), getSQLName(), getColumnType(), getNativeTypename(), getFlags(), isDBIdentity());
+	}
+
 	/**
 	 * @param flags
 	 */
@@ -1339,35 +1365,24 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	private transient Boolean hasBadName = null;
 	public static final String _SV_ROWID = "_sv_rowid";
 
-	public boolean hasBadNaming(boolean isMobile)
+	public boolean hasBadNaming(IValidateName validator, boolean isMobile)
 	{
 		if (hasBadName == null)
 		{
-			List<String> notes = new ArrayList<String>();
-
-			if (Ident.checkIfKeyword(getName()) || SQLKeywords.checkIfKeyword(getName()))
+			hasBadName = FALSE;
+			try
 			{
-				notes.add("'" + getName() + "' is an reserved word!");
+				validator.checkName(getName(), getID(), new ValidatorSearchContext(getTable(), IRepository.COLUMNS), true);
 			}
-			if (isMobile && Ident.checkIfReservedBrowserWindowObjectWord(getName()))
+			catch (NamevalidationException e)
 			{
-				notes.add("'" + getName() + "' is an reserved browser window object word!");
+				hasBadName = TRUE;
+				note = e.getMessages().stream().collect(Collectors.joining());
 			}
-			if (getName().length() > MAX_SQL_OBJECT_NAME_LENGTH)
+			catch (RepositoryException e)
 			{
-				notes.add("Column namnes longer than " + MAX_SQL_OBJECT_NAME_LENGTH + " are not supported by some databases!");
+				Debug.error(e);
 			}
-			if (notes.size() > 0)
-			{
-				StringBuilder sb = new StringBuilder();
-				for (String note2 : notes)
-				{
-					sb.append(note2);
-				}
-				note = sb.toString();
-			}
-
-			hasBadName = Boolean.valueOf(notes.size() > 0);
 		}
 		return hasBadName.booleanValue();
 	}
@@ -1395,12 +1410,20 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 				{
 					return ((String)value).length();
 				}
+				if (value instanceof UUID)
+				{
+					return 16;
+				}
 				break;
 
 			case MEDIA :
 				if (value instanceof byte[])
 				{
 					return ((byte[])value).length;
+				}
+				if (value instanceof UUID)
+				{
+					return 16;
 				}
 				break;
 		}
@@ -1454,5 +1477,4 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 		return false;
 	}
-
 }

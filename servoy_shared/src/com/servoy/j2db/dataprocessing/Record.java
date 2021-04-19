@@ -93,8 +93,8 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 
 	public static final ThreadLocal<Boolean> VALIDATE_CALCS = new ThreadLocal<Boolean>();
 
-	protected IFoundSetInternal parent;
-	private Row row; //table row data (and calculations which is row related)
+	protected final IFoundSetInternal parent;
+	private final Row row; //table row data (and calculations which is row related)
 	//temp storage to make possible to stop edits on relatedFields, we do not cache/lookup here because the we can't flush substates globally (important for valuelists)
 	private final Map<String, SoftReference<IFoundSetInternal>> relatedFoundSets;
 	private final List<IModificationListener> modificationListeners;
@@ -104,10 +104,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	 */
 	public Record(IFoundSetInternal parent, Row r)
 	{
-		this(parent);
-		if (r == null) throw new IllegalArgumentException(parent.getFoundSetManager().getApplication().getI18NMessage("servoy.record.error.nullRow")); //$NON-NLS-1$
-		this.row = r;
-		r.register(this);
+		this(parent, r, true);
 	}
 
 	/**
@@ -115,10 +112,21 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	 */
 	Record(IFoundSetInternal parent)
 	{
+		this(parent, null, false);
+	}
+
+	private Record(IFoundSetInternal parent, Row r, boolean registerRow)
+	{
 		this.parent = parent;
 		initJSFunctions(parent != null ? parent.getFoundSetManager().getApplication() : null);
 		this.relatedFoundSets = new HashMap<String, SoftReference<IFoundSetInternal>>(3);
 		this.modificationListeners = Collections.synchronizedList(new ArrayList<IModificationListener>(3));
+		this.row = r;
+		if (registerRow)
+		{
+			if (r == null) throw new IllegalArgumentException(parent.getFoundSetManager().getApplication().getI18NMessage("servoy.record.error.nullRow")); //$NON-NLS-1$
+			r.register(this);
+		}
 	}
 
 	void validateStoredCalculations()
@@ -212,9 +220,9 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		{
 			return parent.getDataProviderValue(dataProviderID);
 		}
-		if ("validationObject".equals(dataProviderID)) //$NON-NLS-1$
+		if ("recordMarkers".equals(dataProviderID)) //$NON-NLS-1$
 		{
-			return validateObject;
+			return recordMarkers;
 		}
 		if (ScopesUtils.isVariableScope(dataProviderID))
 		{
@@ -297,16 +305,16 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		{
 			return parent.setDataProviderValue(dataProviderID, managebleValue);
 		}
-		if ("validationObject".equals(dataProviderID)) //$NON-NLS-1$
+		if ("recordMarkers".equals(dataProviderID)) //$NON-NLS-1$
 		{
-			Object prev = validateObject;
-			if (value instanceof JSValidationObject)
+			Object prev = recordMarkers;
+			if (value instanceof JSRecordMarkers && ((JSRecordMarkers)value).getRecord() == this)
 			{
-				validateObject = (JSValidationObject)value;
+				recordMarkers = (JSRecordMarkers)value;
 			}
 			else
 			{
-				validateObject = null;
+				recordMarkers = null;
 			}
 			return prev;
 		}
@@ -527,7 +535,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 
 	private Scriptable prototypeScope;
 
-	private JSValidationObject validateObject;
+	private JSRecordMarkers recordMarkers;
 
 	public Scriptable getPrototype()
 	{
@@ -806,6 +814,12 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 			return row == rec.row && parent == rec.parent;
 		}
 		return false;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return row.hashCode();
 	}
 
 	@Override
@@ -1186,14 +1200,14 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	 * Can be set to null again if you checked the problems, will also be set to null when a save was succesful.
 	 *
 	 * @sample
-	 * var validationObject = record.validationObject;
+	 * var recordMarkers = record.recordMarkers;
 	 *
 	 * @return The last validtion object if the record was not validated.
 	 */
 	@JSGetter
-	public JSValidationObject getValidationObject()
+	public JSRecordMarkers getRecordMarkers()
 	{
-		return validateObject;
+		return recordMarkers;
 	}
 
 	/**
@@ -1201,14 +1215,14 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	 * Can be set to null again if you checked the problems, will also be set to null when a save was succesful.
 	 *
 	 * @sample
-	 * var validationObject = record.validationObject;
+	 * var recordMarkers = record.recordMarkers;
 	 *
 	 * @return The last validtion object if the record was not validated.
 	 */
 	@JSSetter
-	public void setValidationObject(JSValidationObject object)
+	public void setRecordMarkers(JSRecordMarkers object)
 	{
-		validateObject = object;
+		recordMarkers = object == null ? null : object.getRecord() == this ? object : null;
 	}
 
 

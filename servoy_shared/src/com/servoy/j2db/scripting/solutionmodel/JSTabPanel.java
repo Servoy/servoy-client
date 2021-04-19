@@ -67,7 +67,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	/**
 	 * Adds a new tab with the text label and JSForm.
 	 *
-	 * @sample 
+	 * @sample
 	 * // Create a parent form.
 	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table', null, false, 640, 480);
 	 * // Create a first child form.
@@ -101,7 +101,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	/**
 	 * Adds a new tab with the text label and JSForm and JSRelation (can be null for unrelated).
 	 *
-	 * @sample 
+	 * @sample
 	 * // Create a parent form.
 	 * var form = solutionModel.newForm('parentForm', 'db:/example_data/parent_table', null, false, 640, 480);
 	 * // Create a first child form.
@@ -126,7 +126,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	 *
 	 * @param relation A JSRelation object that relates the parent form with the form
 	 *                          that will be displayed in the new tab.
-	 *                          
+	 *
 	 * @return A JSTab instance representing the newly created and added tab.
 	 */
 	@JSFunction
@@ -164,15 +164,15 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 
 	/**
 	 * Returns a JSTab instance representing the tab which has the specified name.
-	 * 
+	 *
 	 * @param name The name of the tab that should be returned.
-	 * 
+	 *
 	 * @sample
 	 * var tabPanel = form.newTabPanel('tabs', 10, 10, 620, 460);
 	 * tabPanel.newTab('tab1', 'Child Two', childOne);
 	 * tabPanel.newTab('tab2', 'Child Two', childTwo);
 	 * tabPanel.getTab('tab2').text = 'Child Two Changed';
-	 * 
+	 *
 	 * @return A JSTab instance represented the requested tab.
 	 */
 	@JSFunction
@@ -194,15 +194,15 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 
 	/**
 	 * Removes the tab with the specified name from the tab panel.
-	 *  
+	 *
 	 * @param name the name of the tab to be removed
-	 * 
+	 *
 	 * @sample
 	 * var tabPanel = form.newTabPanel('tabs', 10, 10, 620, 460);
 	 * tabPanel.newTab('tab1', 'Child Two', childOne);
 	 * tabPanel.newTab('tab2', 'Child Two', childTwo);
 	 * tabPanel.removeTab('tab1');
-	 * 
+	 *
 	 */
 	@JSFunction
 	public void removeTab(String name)
@@ -233,7 +233,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	 * var tabs = tabPanel.getTabs();
 	 * for (var i=0; i<tabs.length; i++)
 	 * 	application.output("Tab " + i + " has text " + tabs[i].text);
-	 * 
+	 *
 	 * @return An array of JSTab instances representing all tabs of this tabpanel.
 	 */
 	@JSFunction
@@ -260,7 +260,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.TabPanel#getScrollTabs()
-	 * 
+	 *
 	 * @sample
 	 * var tabPanel = form.newTabPanel('tabs', 10, 10, 200, 200);
 	 * tabPanel.newTab('tab1', 'Child Two', childOne, parentToChild); // The first form uses the relation.
@@ -291,7 +291,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	/**
 	 * Specifies either the position of the tabs related to the tab panel or the type of tab-panel.
 	 * Can be one of SM_ALIGNMENT.(TOP, RIGHT, BOTTOM, LEFT), DEFAULT_ORIENTATION, HIDE, SPLIT_HORIZONTAL, SPLIT_VERTICAL, ACCORDION_PANEL.
-	 * 
+	 *
 	 * @sample
 	 * var tabPanel = form.newTabPanel('tabs', 10, 10, 620, 460);
 	 * tabPanel.newTab('tab1', 'Child Two', childOne, parentToChild); // The first form uses the relation.
@@ -301,7 +301,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	 * // The constants SPLIT_HORIZONTAL, SPLIT_VERTICAL can be used to create a split pane,
 	 * // where the first tab will be the first component and the second tab will the second component.
 	 * // ACCORDION_PANEL can be used to create an accordion pane.
-	 * tabPanel.tabOrientation = SM_ALIGNMENT.BOTTOM;  
+	 * tabPanel.tabOrientation = SM_ALIGNMENT.BOTTOM;
 	 */
 	@JSGetter
 	public int getTabOrientation()
@@ -342,7 +342,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	@Deprecated
 	public void js_setOnTabChangeMethod(Function function)
 	{
-		ScriptMethod scriptMethod = JSBaseContainer.getScriptMethod(function, application.getFlattenedSolution());
+		ScriptMethod scriptMethod = JSForm.getScriptMethod(function, application.getFlattenedSolution());
 		if (scriptMethod != null)
 		{
 			getBaseComponent(true).setOnTabChangeMethodID(scriptMethod.getID());
@@ -371,7 +371,7 @@ public class JSTabPanel extends JSComponent<TabPanel> implements IJSParent<TabPa
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.TabPanel#getOnChangeMethodID()
 	 *
-	 * @sample 
+	 * @sample
 	 * var onChangeMethod = form.newMethod('function onTabChange(previousIndex, event) { application.output("Tab changed from previous index " + previousIndex + " at " + event.getTimestamp()); }');
 	 * var tabPanel = form.newTabPanel('tabs', 10, 10, 620, 460);
 	 * tabPanel.newTab('tab1', 'Child Two', childOne);

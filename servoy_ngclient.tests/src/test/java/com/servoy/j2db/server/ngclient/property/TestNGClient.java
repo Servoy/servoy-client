@@ -167,8 +167,9 @@ public class TestNGClient extends NGClient
 							returnDataSet[i] = new BufferedDataSet();
 							for (int k = 0; k < set.getRowCount(); k++)
 							{
-								Object[][] value = (Object[][])((Placeholder)((SetCondition)((QuerySelect)array[i].getSqlSelect()).getConditions().values().iterator().next().getConditions().get(
-									0)).getValues()).getValue();
+								Object[][] value = (Object[][])((Placeholder)((SetCondition)((QuerySelect)array[i].getSqlSelect()).getConditions().values()
+									.iterator().next().getConditions().get(
+										0)).getValues()).getValue();
 								if (set.getRow(k)[1].equals(value[0][0]))
 								{
 									returnDataSet[i].addRow(new Object[] { set.getRow(k)[0], set.getRow(k)[1], set.getRow(k)[2], set.getRow(k)[3] });
@@ -194,8 +195,9 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
-				boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException
+			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
+				ArrayList<TableFilter> filters, boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp)
+				throws ServoyException, RemoteException
 			{
 				return dataSetMap.get(sqlSelect.getTable().getDataSource());
 			}
@@ -212,7 +214,8 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
+			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
+				ArrayList<TableFilter> filters,
 				boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo)
 				throws ServoyException, RemoteException
 			{
@@ -220,7 +223,8 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
+			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
+				ArrayList<TableFilter> filters,
 				boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
 			{
 				IDataSet set = dataSetMap.get(sqlSelect.getTable().getDataSource());
@@ -251,8 +255,8 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
-				boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
+				ArrayList<TableFilter> filters, boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
 			{
 				return dataSetMap.get(sqlSelect.getTable().getDataSource());
 			}
@@ -300,7 +304,7 @@ public class TestNGClient extends NGClient
 
 			@Override
 			public QuerySet getSQLQuerySet(String serverName, ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve,
-				boolean forceQualifyColumns) throws RepositoryException, RemoteException
+				boolean forceQualifyColumns, boolean disableUseArrayForIn) throws RepositoryException, RemoteException
 			{
 				return null;
 			}

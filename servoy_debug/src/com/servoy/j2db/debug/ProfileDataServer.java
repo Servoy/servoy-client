@@ -165,17 +165,18 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#performQuery(java.lang.String, java.lang.String, java.lang.String, com.servoy.j2db.query.ISQLSelect, java.util.ArrayList, boolean, int, int)
 	 */
 	@Override
-	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
+	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
+		ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
 	{
 		long startTime = System.currentTimeMillis();
 		try
 		{
-			return super.performQuery(client_id, server_name, transaction_id, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve);
+			return super.performQuery(client_id, server_name, transaction_id, sqlSelect, resultTypes, filters, distinctInMemory, startRow, rowsToRetrieve);
 		}
 		finally
 		{
-			QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, startRow, rowsToRetrieve, false);
+			QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, startRow, rowsToRetrieve, false, false);
 			informListeners("Query", server_name, set.getSelect().getSql(), transaction_id, startTime, set.getSelect().getParameters());
 		}
 	}
@@ -226,35 +227,38 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#performQuery(java.lang.String, java.lang.String, java.lang.String, com.servoy.j2db.query.ISQLSelect, java.util.ArrayList, boolean, int, int, int)
 	 */
 	@Override
-	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
+	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
+		ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
 	{
 		long startTime = System.currentTimeMillis();
 		try
 		{
-			return super.performQuery(client_id, server_name, transaction_id, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve, type);
+			return super.performQuery(client_id, server_name, transaction_id, sqlSelect, resultTypes, filters, distinctInMemory, startRow, rowsToRetrieve,
+				type);
 		}
 		finally
 		{
-			QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, startRow, rowsToRetrieve, false);
+			QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, startRow, rowsToRetrieve, false, false);
 			informListeners("Query[" + PerformanceTiming.getTypeString(type) + ']', server_name, set.getSelect().getSql(), transaction_id, startTime,
 				set.getSelect().getParameters());
 		}
 	}
 
 	@Override
-	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo) throws ServoyException, RemoteException
+	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
+		ArrayList<TableFilter> filters, boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo)
+		throws ServoyException, RemoteException
 	{
 		long startTime = System.currentTimeMillis();
 		try
 		{
-			return super.performQuery(client_id, server_name, transaction_id, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve, type,
+			return super.performQuery(client_id, server_name, transaction_id, sqlSelect, resultTypes, filters, distinctInMemory, startRow, rowsToRetrieve, type,
 				trackingInfo);
 		}
 		finally
 		{
-			QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, startRow, rowsToRetrieve, false);
+			QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, startRow, rowsToRetrieve, false, false);
 			informListeners("Query[" + PerformanceTiming.getTypeString(type) + ']', server_name, set.getSelect().getSql(), transaction_id, startTime,
 				set.getSelect().getParameters());
 		}
@@ -306,18 +310,19 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#performQuery(java.lang.String, java.lang.String, java.lang.String, com.servoy.j2db.query.ISQLSelect, java.util.ArrayList, boolean, int, int, boolean)
 	 */
 	@Override
-	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
+	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
+		ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException
 	{
 		long startTime = System.currentTimeMillis();
 		try
 		{
-			return super.performQuery(client_id, server_name, transaction_id, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve,
+			return super.performQuery(client_id, server_name, transaction_id, sqlSelect, resultTypes, filters, distinctInMemory, startRow, rowsToRetrieve,
 				updateIdleTimestamp);
 		}
 		finally
 		{
-			QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, startRow, rowsToRetrieve, false);
+			QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, startRow, rowsToRetrieve, false, false);
 			informListeners("Query", server_name, set.getSelect().getSql(), transaction_id, startTime, set.getSelect().getParameters());
 		}
 	}
@@ -376,7 +381,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 		}
 		finally
 		{
-			QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, 0, 1, false);
+			QuerySet set = getSQLQuerySet(server_name, sqlSelect, filters, 0, 1, false, false);
 			informListeners("Query", server_name, set.getSelect().getSql(), transaction_id, startTime, set.getSelect().getParameters());
 		}
 	}
@@ -395,7 +400,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 			for (QueryData queryData : array)
 			{
 				QuerySet set = getSQLQuerySet(server_name, queryData.getSqlSelect(), queryData.getFilters(), queryData.getStartRow(),
-					queryData.getRowsToRetrieve(), false);
+					queryData.getRowsToRetrieve(), false, false);
 				informListeners(PerformanceTiming.getTypeString(queryData.getType()) + " Combined Query[" + (counter++) + '/' + array.length + ']', server_name,
 					set.getSelect().getSql(), transaction_id, startTime, set.getSelect().getParameters());
 			}
@@ -444,7 +449,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 			QuerySet set;
 			try
 			{
-				set = getSQLQuerySet(server_name, sqlUpdate, filters, -1, -1, false);
+				set = getSQLQuerySet(server_name, sqlUpdate, filters, -1, -1, false, false);
 				informListeners("Query", server_name, set.getUpdate().getSql(), tid, startTime, set.getUpdate().getParameters());
 			}
 			catch (RepositoryException e)
@@ -474,7 +479,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 		{
 			for (ISQLStatement statement : statements)
 			{
-				QuerySet set = getSQLQuerySet(statement.getServerName(), statement.getUpdate(), null, -1, -1, false);
+				QuerySet set = getSQLQuerySet(statement.getServerName(), statement.getUpdate(), null, -1, -1, false, false);
 
 				informListeners("Update", statement.getServerName() + '.' + statement.getTableName(), set.getUpdate().getSql(), statement.getTransactionID(),
 					startTime, set.getUpdate().getParameters());
@@ -505,7 +510,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 		}
 		finally
 		{
-			QuerySet set = getSQLQuerySet(serverName, blobSelect, filters, 0, 1, false);
+			QuerySet set = getSQLQuerySet(serverName, blobSelect, filters, 0, 1, false, false);
 			informListeners("BlobLoad", serverName, set.getSelect().getSql(), tid, startTime, set.getSelect().getParameters());
 		}
 	}
@@ -640,7 +645,7 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 		}
 		finally
 		{
-			QuerySet set = getSQLQuerySet(queryServerName, sqlSelect, filters, startRow, rowsToRetrieve, false);
+			QuerySet set = getSQLQuerySet(queryServerName, sqlSelect, filters, startRow, rowsToRetrieve, false, false);
 			informListeners("FillDataSource", queryServerName, set.getSelect().getSql(), queryTid, startTime, set.getSelect().getParameters());
 		}
 	}

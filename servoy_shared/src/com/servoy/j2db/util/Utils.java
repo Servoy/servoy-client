@@ -86,6 +86,7 @@ import javax.print.attribute.standard.MediaSize;
 import org.apache.commons.codec.binary.Base64;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeError;
 import org.mozilla.javascript.NativeJavaMethod;
@@ -2002,6 +2003,36 @@ public final class Utils
 		return i;
 	}
 
+	/**
+	 * Gets the last path component of a path using a given separator. If the separator cannot be
+	 * found, the path itself is returned.
+	 * <p>
+	 * For example, lastPathComponent("foo.bar", '.') would return "bar" and
+	 * lastPathComponent("foo", '.') would return "foo".
+	 *
+	 * @param path
+	 *            The path to parse
+	 * @param separator
+	 *            The path separator character
+	 * @return The last component in the path or path itself if no separator characters exist.
+	 */
+	public static String lastPathComponent(final String path, final char separator)
+	{
+		if (path == null)
+		{
+			return null;
+		}
+
+		final int index = path.lastIndexOf(separator);
+
+		if (index == -1)
+		{
+			return path;
+		}
+
+		return path.substring(index + 1);
+	}
+
 	public static String unescape(String string, int escape)
 	{
 		StringBuilder buffer = new StringBuilder(string.length());
@@ -2422,6 +2453,8 @@ public final class Utils
 		return oldObj.equals(obj);
 	}
 
+	// THESE METHODS FOR JSON comparison are copy pasted to sablo's JSONUtils as well; if you alter them please update code in both places!
+	// BEGIN -------------------------
 	/**
 	 * Identical to {@link #areJSONEqual(Object, Object, String)} where keysToIgnoreRegex is null (so it doesn't skip any keys during comparison).
 	 */
@@ -2475,6 +2508,8 @@ public final class Utils
 			return elem;
 		}
 	}
+
+	// END -------------------------
 
 	/**
 	 * Convert to string representation, remove trailing '.0' for numbers.
@@ -3215,71 +3250,79 @@ public final class Utils
 	 */
 	private static CharSequence getScriptableString(Scriptable scriptable, Map<Scriptable, CharSequence> processed)
 	{
-		if (scriptable instanceof Record || scriptable instanceof FoundSet) return scriptable.toString();
-		if (scriptable instanceof XMLObject || scriptable instanceof NativeError) return scriptable.toString();
-		CharSequence processedString = processed.get(scriptable);
-		if (processedString != null)
-		{
-			return processedString;
-		}
-		if (processed.size() > 10) return scriptable.toString();
-
-		if (scriptable instanceof NativeArray) processed.put(scriptable, "Array[SelfRef]"); //$NON-NLS-1$
-		else processed.put(scriptable, "Object[SelfRef]"); //$NON-NLS-1$
-		Object[] ids = scriptable.getIds();
-		if (ids != null && ids.length > 0)
-		{
-			StringBuilder sb = new StringBuilder();
-			if (scriptable instanceof NativeArray) sb.append('[');
-			else sb.append('{');
-			for (Object object : ids)
-			{
-				if (!(object instanceof Integer))
-				{
-					sb.append(object);
-					sb.append(':');
-				}
-				Object value = null;
-				if (object instanceof String)
-				{
-					value = scriptable.get((String)object, scriptable);
-				}
-				else if (object instanceof Number)
-				{
-					value = scriptable.get(((Number)object).intValue(), scriptable);
-				}
-				if (!(value instanceof NativeJavaMethod))
-				{
-					if (value instanceof Scriptable)
-					{
-						sb.append(getScriptableString((Scriptable)value, processed));
-					}
-					else
-					{
-						sb.append(value);
-					}
-					sb.append(',');
-				}
-			}
-			sb.setLength(sb.length() - 1);
-			if (scriptable instanceof NativeArray) sb.append(']');
-			else sb.append('}');
-			processed.put(scriptable, sb);
-			return sb;
-		}
-
-		Object defaultValue;
+		Context.enter();
 		try
 		{
-			defaultValue = scriptable.getDefaultValue(String.class);
+			if (scriptable instanceof Record || scriptable instanceof FoundSet) return scriptable.toString();
+			if (scriptable instanceof XMLObject || scriptable instanceof NativeError) return scriptable.toString();
+			CharSequence processedString = processed.get(scriptable);
+			if (processedString != null)
+			{
+				return processedString;
+			}
+			if (processed.size() > 10) return scriptable.toString();
+
+			if (scriptable instanceof NativeArray) processed.put(scriptable, "Array[SelfRef]"); //$NON-NLS-1$
+			else processed.put(scriptable, "Object[SelfRef]"); //$NON-NLS-1$
+			Object[] ids = scriptable.getIds();
+			if (ids != null && ids.length > 0)
+			{
+				StringBuilder sb = new StringBuilder();
+				if (scriptable instanceof NativeArray) sb.append('[');
+				else sb.append('{');
+				for (Object object : ids)
+				{
+					if (!(object instanceof Integer))
+					{
+						sb.append(object);
+						sb.append(':');
+					}
+					Object value = null;
+					if (object instanceof String)
+					{
+						value = scriptable.get((String)object, scriptable);
+					}
+					else if (object instanceof Number)
+					{
+						value = scriptable.get(((Number)object).intValue(), scriptable);
+					}
+					if (!(value instanceof NativeJavaMethod))
+					{
+						if (value instanceof Scriptable)
+						{
+							sb.append(getScriptableString((Scriptable)value, processed));
+						}
+						else
+						{
+							sb.append(value);
+						}
+						sb.append(',');
+					}
+				}
+				sb.setLength(sb.length() - 1);
+				if (scriptable instanceof NativeArray) sb.append(']');
+				else sb.append('}');
+				processed.put(scriptable, sb);
+				return sb;
+			}
+
+			Object defaultValue;
+			try
+			{
+				defaultValue = scriptable.getDefaultValue(String.class);
+			}
+			catch (Exception e)
+			{
+				defaultValue = null;
+			}
+			if (defaultValue == null) defaultValue = scriptable.toString();
+			processed.put(scriptable, defaultValue.toString());
+			return defaultValue.toString();
 		}
-		catch (Exception e)
+		finally
 		{
-			defaultValue = null;
+			Context.exit();
 		}
-		if (defaultValue == null) defaultValue = scriptable.toString();
-		processed.put(scriptable, defaultValue.toString());
-		return defaultValue.toString();
 	}
 
 

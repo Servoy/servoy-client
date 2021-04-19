@@ -1,7 +1,8 @@
 <label for='{{model.labelFor}}' style='width:100%;height:100%;overflow:hidden;position:absolute' id="{{::model.svyMarkupId}}" class='svy-label'
 	   svy-click='handlers.onActionMethodID($event)'
 	   svy-dblclick='handlers.onDoubleClickMethodID($event)'
-	   svy-rightclick='handlers.onRightClickMethodID($event)'>
+	   svy-rightclick='handlers.onRightClickMethodID($event)'
+       svy-attributes='model.attributes'>
 	<div  style="width:100%;overflow:hidden;position:absolute" class='svy-nowrap'>
 	  <span svy-imagemediaid='{img: model.dataProviderID.url ? model.dataProviderID.url : model.imageMediaID, componentSize: model.size, rollOverImg:model.rolloverImageMediaID, visible: model.visible}'/>
 	  <span ng-bind-html='(model.dataProviderID == null ? model.text : model.dataProviderID) | formatFilter:model.format.display:model.format.type | mnemonicletterFilter:model.mnemonic | trustAsHtml:servoyApi.trustAsHtml()'/>

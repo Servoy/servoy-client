@@ -69,6 +69,7 @@ import com.servoy.j2db.server.ngclient.WebFormUI;
 import com.servoy.j2db.server.ngclient.WebListFormUI;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.property.types.NGTabSeqPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.ReadonlySabloValue;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.Utils;
@@ -209,7 +210,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		if (looseFocus && form.getOnRecordEditStopMethodID() != 0)
 		{
 			//allow beans to store there data via method
-			IRecordInternal[] records = getApplication().getFoundSetManager().getEditRecordList().getUnmarkedEditedRecords(formModel);
+			IRecordInternal[] records = getApplication().getFoundSetManager().getEditRecordList().getUnmarkedEditedRecords(formModel, this);
 			for (IRecordInternal element : records)
 			{
 				boolean b = executeOnRecordEditStop(element);
@@ -308,15 +309,15 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	}
 
 	@Override
-	protected void focusFirstField()
+	protected boolean focusFirstField()
 	{
-		focusField(null, false);
+		return focusField(null, true);
 
 	}
 
 	@SuppressWarnings("nls")
 	@Override
-	protected void focusField(String fieldName, boolean skipReadonly)
+	protected boolean focusField(String fieldName, boolean skipReadonly)
 	{
 		WebComponent component = null;
 		WebObjectFunctionDefinition apiFunction = null;
@@ -355,8 +356,12 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 					{
 						if (skipReadonly)
 						{
-							// TODO first https://support.servoy.com/browse/SVY-8024 should be fixed then this check should be on the property type.
-							if (Boolean.TRUE.equals(component.getProperty("readOnly")))
+							Object value = seqComponent.getProperty(WebFormUI.READONLY);
+							if (value instanceof ReadonlySabloValue)
+							{
+								value = Boolean.valueOf(((ReadonlySabloValue)value).getValue());
+							}
+							if (Boolean.TRUE.equals(value))
 							{
 								continue;
 							}
@@ -368,7 +373,12 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			}
 		}
 
-		if (apiFunction != null && component != null) component.invokeApi(apiFunction, null);
+		if (apiFunction != null && component != null)
+		{
+			component.invokeApi(apiFunction, null);
+			return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -678,7 +688,8 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	{
 		if (formModel != null)
 		{
-			return "FormController[form: " + getName() + ", fs size:" + Integer.toString(formModel.getSize()) + ", selected record: " + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			return "FormController[form: " + getName() + ", fs size:" + Integer.toString(formModel.getSize()) + ",visible: " + isFormVisible + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+				", selected record: " +
 				formModel.getRecord(formModel.getSelectedIndex()) + ",destroyed:" + isDestroyed() + "]"; //$NON-NLS-1$
 		}
 		else
@@ -726,9 +737,9 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 						TabPanel tabpanel = (TabPanel)((WebFormComponent)comp).getFormElement().getPersistIfAvailable();
 						if (tabpanel.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL || tabpanel.getTabOrientation() == TabPanel.SPLIT_VERTICAL)
 						{
-							for (int i = 0; i < tabsList.size(); i++)
+							for (Object element : tabsList)
 							{
-								Map<String, Object> tab = (Map<String, Object>)tabsList.get(i);
+								Map<String, Object> tab = (Map<String, Object>)element;
 								if (tab != null)
 								{
 									String relationName = tab.get("relationName") != null ? tab.get("relationName").toString() : null;
@@ -755,9 +766,9 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 							}
 							else if (tabIndex instanceof String || tabIndex instanceof CharSequence)
 							{
-								for (int i = 0; i < tabsList.size(); i++)
+								for (Object element : tabsList)
 								{
-									Map<String, Object> tab = (Map<String, Object>)tabsList.get(i);
+									Map<String, Object> tab = (Map<String, Object>)element;
 									if (Utils.equalObjects(tabIndex, tab.get("name")))
 									{
 										visibleTab = tab;

@@ -459,9 +459,9 @@ public class Messages
 		{
 			QueryTable messagesTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
 			QuerySelect sql = new QuerySelect(messagesTable);
-			QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
-			QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, 0); //$NON-NLS-1$
-			QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
+			QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
+			QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, null, 0); //$NON-NLS-1$
+			QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
 			sql.addColumn(msgKey);
 			sql.addColumn(msgVal);
 
@@ -471,8 +471,7 @@ public class Messages
 
 			if (filterColumn != null)
 			{
-				QueryColumn columnFilter = new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(), filterColumn.getType(),
-					filterColumn.getLength(), filterColumn.getScale(), filterColumn.getFlags());
+				QueryColumn columnFilter = filterColumn.queryColumn(messagesTable);
 				CompareCondition cc = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, columnFilter,
 					new QueryColumnValue(singleColumnValueFilter, null));
 				sql.addCondition(condMessages, cc);
@@ -481,9 +480,7 @@ public class Messages
 			//Filter to only include records with the default (null) value for columns flagged as Tenant column
 			for (Column column : table.getTenantColumns())
 			{
-				QueryColumn tenantColumn = new QueryColumn(messagesTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(),
-					column.getScale(), column.getFlags());
-				CompareCondition cc = new CompareCondition(IBaseSQLCondition.ISNULL_OPERATOR, tenantColumn, null);
+				CompareCondition cc = new CompareCondition(IBaseSQLCondition.ISNULL_OPERATOR, column.queryColumn(messagesTable), null);
 				sql.addCondition("_svy_tenant_id_filter_" + column.getName(), cc);
 			}
 
@@ -491,9 +488,9 @@ public class Messages
 			{
 				QueryTable subselectTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
 				QuerySelect subselect = new QuerySelect(subselectTable);
-				QueryColumn msgKeySub = new QueryColumn(subselectTable, -1, "message_key", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
-				QueryColumn msgValueSub = new QueryColumn(subselectTable, -1, "message_value", Types.VARCHAR, 2000, 0, 0); //$NON-NLS-1$
-				QueryColumn msgLangSub = new QueryColumn(subselectTable, -1, "message_language", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
+				QueryColumn msgKeySub = new QueryColumn(subselectTable, -1, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
+				QueryColumn msgValueSub = new QueryColumn(subselectTable, -1, "message_value", Types.VARCHAR, 2000, 0, null, 0); //$NON-NLS-1$
+				QueryColumn msgLangSub = new QueryColumn(subselectTable, -1, "message_language", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
 				subselect.addColumn(msgKeySub);
 
 				String condSearch = "SEARCH"; //$NON-NLS-1$
@@ -517,8 +514,8 @@ public class Messages
 			}
 			if (Debug.tracing()) Debug.trace("Loading messages from DB: SQL: " + sql); //$NON-NLS-1$
 
-			IDataSet set = dataServer.performQuery(clientId, server.getName(), null, sql, fm != null ? fm.getTableFilterParams(server.getName(), sql) : null,
-				false, 0, Integer.MAX_VALUE, IDataServer.MESSAGES_QUERY);
+			IDataSet set = dataServer.performQuery(clientId, server.getName(), null, sql, null,
+				fm != null ? fm.getTableFilterParams(server.getName(), sql) : null, false, 0, Integer.MAX_VALUE, IDataServer.MESSAGES_QUERY);
 			for (int i = 0; i < set.getRowCount(); i++)
 			{
 				Object[] row = set.getRow(i);
@@ -548,9 +545,9 @@ public class Messages
 	{
 		QueryTable messagesTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
 		QuerySelect sql = new QuerySelect(messagesTable);
-		QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
-		QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, 0); //$NON-NLS-1$
-		QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
+		QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
+		QueryColumn msgVal = new QueryColumn(messagesTable, -1, "message_value", Types.VARCHAR, 2000, 0, null, 0); //$NON-NLS-1$
+		QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
 		sql.addColumn(msgKey);
 		sql.addColumn(msgVal);
 
@@ -561,18 +558,15 @@ public class Messages
 
 		if (filterColumn != null)
 		{
-			QueryColumn columnFilter = new QueryColumn(messagesTable, filterColumn.getID(), filterColumn.getSQLName(), filterColumn.getType(),
-				filterColumn.getLength(), filterColumn.getScale(), filterColumn.getFlags());
-			CompareCondition cc = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, columnFilter, new QueryColumnValue(columnValueFilter, null));
+			CompareCondition cc = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, filterColumn.queryColumn(messagesTable),
+				new QueryColumnValue(columnValueFilter, null));
 			sql.addCondition(condMessages, cc);
 		}
 
 		//Filter to only include records with the default (null) value for columns flagged as Tenant column
 		for (Column column : table.getTenantColumns())
 		{
-			QueryColumn tenantColumn = new QueryColumn(messagesTable, column.getID(), column.getSQLName(), column.getType(), column.getLength(),
-				column.getScale(), column.getFlags());
-			CompareCondition cc = new CompareCondition(IBaseSQLCondition.ISNULL_OPERATOR, tenantColumn, null);
+			CompareCondition cc = new CompareCondition(IBaseSQLCondition.ISNULL_OPERATOR, column.queryColumn(messagesTable), null);
 			sql.addCondition("_svy_tenant_id_filter_" + column.getName(), cc);
 		}
 
@@ -580,9 +574,9 @@ public class Messages
 		{
 			QueryTable subselectTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
 			QuerySelect subselect = new QuerySelect(subselectTable);
-			QueryColumn msgKeySub = new QueryColumn(subselectTable, -1, "message_key", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
-			QueryColumn msgValueSub = new QueryColumn(subselectTable, -1, "message_value", Types.VARCHAR, 2000, 0, 0); //$NON-NLS-1$
-			QueryColumn msgLangSub = new QueryColumn(subselectTable, -1, "message_language", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
+			QueryColumn msgKeySub = new QueryColumn(subselectTable, -1, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
+			QueryColumn msgValueSub = new QueryColumn(subselectTable, -1, "message_value", Types.VARCHAR, 2000, 0, null, 0); //$NON-NLS-1$
+			QueryColumn msgLangSub = new QueryColumn(subselectTable, -1, "message_language", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
 			subselect.addColumn(msgKeySub);
 
 			String condSearch = "SEARCH"; //$NON-NLS-1$
@@ -601,7 +595,7 @@ public class Messages
 		}
 
 		if (Debug.tracing()) Debug.trace("Loading messages from DB: SQL: " + sql); //$NON-NLS-1$
-		IDataSet set = dataServer.performQuery(clientId, serverName, null, sql, fm != null ? fm.getTableFilterParams(serverName, sql) : null, false, 0,
+		IDataSet set = dataServer.performQuery(clientId, serverName, null, sql, null, fm != null ? fm.getTableFilterParams(serverName, sql) : null, false, 0,
 			Integer.MAX_VALUE, IDataServer.MESSAGES_QUERY);
 		for (int i = 0; i < set.getRowCount(); i++)
 		{
@@ -729,7 +723,7 @@ public class Messages
 				}
 
 				QueryTable messagesTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
-				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, 0); //$NON-NLS-1$
+				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, null, 0); //$NON-NLS-1$
 				QueryDelete delete = new QueryDelete(messagesTable);
 				delete.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, msgKey, key));
 

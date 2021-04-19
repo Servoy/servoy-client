@@ -47,7 +47,19 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 }).value("$clientPropertyConstants", {
 	WINDOW_BRANDING_ICON_32 : "window.branding.icon.32",
 	WINDOW_BRANDING_ICON_192 : "window.branding.icon.192"
-}).factory("$utils", function($rootScope: angular.IRootScopeService, $timeout: angular.ITimeoutService, $svyProperties: servoy.IServoyProperties, $sabloApplication: sablo.ISabloApplication, $svyI18NService: servoy.IServoyI18NService) {
+}).factory("$svyAttributesService", function() {
+	
+	var attributeListeners: Array<servoy.IAttributesListener> = [];
+	
+	return <servoy.IAttributesService> {
+		addListener : function (listener){
+			attributeListeners.push(listener);
+		},
+		getListeners : function (){
+			return attributeListeners;
+		}
+	}
+}).factory("$utils", function($rootScope: angular.IRootScopeService, $timeout: angular.ITimeoutService, $svyProperties: servoy.IServoyProperties, $sabloApplication: sablo.ISabloApplication, $svyI18NService: servoy.IServoyI18NService,  $log: angular.ILogService) {
 
 	// internal function
 	function getPropByStringPath(o, s) {
@@ -129,10 +141,10 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		var attrValue = element.attr(attributeName);
 		if (! attrValue) {
 			var parentEl = element.parents("[" + attributeName + "]").first(); 
-			if (parentEl) {
+			if (parentEl && parentEl.length) {
 				attrValue = parentEl.attr(attributeName);
-				while (parentEl && !parentEl.scope()) parentEl = parentEl.parent();
-				if (parentEl) correctScope = parentEl.scope();
+				while (parentEl && parentEl.length && !parentEl.scope()) parentEl = parentEl.parent();
+				if (parentEl && parentEl.length) correctScope = parentEl.scope();
 			}
 		}
 		if (attrValue) {
@@ -288,6 +300,11 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		},
 		
 		createJSEvent : function(event,eventType,contextFilter,contextFilterElement) {
+			if (!event) {
+				if (contextFilter || contextFilterElement) return null;
+				$log.error("createJSEvent: event is undefined, returning default event");
+				return  {svyType: 'JSEvent', eventType: eventType, "timestamp": new Date().getTime()}; 
+			}
 			var targetEl = event;
 			if (event.target) targetEl = event.target;
 			else if (event.srcElement) targetEl = event.srcElement;
@@ -296,7 +313,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			var parent = targetEl;
 			var targetElNameChain = new Array();
 			var contextMatch = false;
-			while (parent) {
+			while (parent && parent.getAttribute) {
 				form = parent.getAttribute("ng-controller");
 				if (form) {
 					//global shortcut or context match
@@ -824,7 +841,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	}
 })
-.directive('svyAttributes',  function ($utils:servoy.IUtils,$parse:angular.IParseService) {
+.directive('svyAttributes',  function ($parse:angular.IParseService, $svyAttributesService: servoy.IAttributesService) {
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
@@ -833,6 +850,14 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				for (var key in attributes )
 				{
 					element.attr(key,attributes[key]);
+				}
+				var listeners = $svyAttributesService.getListeners();
+				if (listeners)
+				{
+					for (var i=0;i<listeners.length;i++)
+					{
+						listeners[i].attributesAdded(element, attributes, scope, attrs);
+					}
 				}
 			}
 		}
@@ -896,7 +921,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}
 	};
 })
-.directive( 'svyFormComponent', function($utils, $compile: angular.ICompileService, $templateCache, $foundsetTypeConstants: foundsetType.FoundsetTypeConstants, $sabloConstants, $timeout: angular.ITimeoutService, $webSocket: sablo.IWebSocket, $applicationService, $anchorConstants) {
+.directive( 'svyFormComponent', function($utils, $compile: angular.ICompileService, $templateCache, $foundsetTypeConstants: foundsetType.FoundsetTypeConstants, $sabloConstants, $timeout: angular.ITimeoutService, $webSocket: sablo.IWebSocket, $applicationService, $anchorConstants, $formService) {
 		return {
 			restrict: 'A',
 			scope: {
@@ -942,6 +967,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					}
 				}
 				else {
+					let selectionChangedByKey = false;
 					let foundsetListener = null;
 					const componentListeners = [];
 					scope.$on('$destroy', function() {
@@ -1007,6 +1033,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							// do not move the selection for the first or last element 
 							if (selectedRowIndex >= 0 && selectedRowIndex < getFoundset().serverSize) {
 								scope.foundset.requestSelectionUpdate([selectedRowIndex]);
+								selectionChangedByKey = true;
 							}
 						} 
 					} 
@@ -1034,9 +1061,9 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					}
 
 					function createRows() {
-                        numberOfCells = scope.responsivePageSize;
-                        if (numberOfCells == 0 ) {
-                        	if (scope.svyFormComponent.absoluteLayout) {
+                        numberOfCells = svyServoyApi.isInAbsoluteLayout() ? 0 : scope.responsivePageSize;
+                        if (numberOfCells <= 0 ) {
+                        	if (svyServoyApi.isInAbsoluteLayout()) {
 		                        const parentWidth = parent.outerWidth();
 		                        const parentHeight = parent.outerHeight();
 		                        const height = scope.svyFormComponent.formHeight;
@@ -1048,7 +1075,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		                        if (numberOfCells < 1) numberOfCells = 1;
                         	}
                         	else {
-                        		parent.append(angular.element("<span>responsivePageSize property must be set when using a responsive form component</span>"));
+                        		parent.append(angular.element("<span>responsivePageSize property must be set when using a list form component in a responsive form</span>"));
                         		return;
                         	}
                         }
@@ -1099,6 +1126,12 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							this.trustAsHtml = ( ) => {
 								return $applicationService.trustAsHtml(rowModel);
 							}
+                            this.formWillShow =  function(formname,relationname,formIndex) {
+                                return $formService.formWillShow(formname,true,svyServoyApi.getFormName(),childElement.name,relationname,formIndex);
+                            }
+                            this.hideForm  = function(formname,relationname,formIndex,formNameThatWillShow,relationnameThatWillBeShown,formIndexThatWillBeShown) {
+                                return $formService.hideForm(formname,svyServoyApi.getFormName(),childElement.name,relationname,formIndex,formNameThatWillShow,relationnameThatWillBeShown,formIndexThatWillBeShown);
+                            }
 						}
 						ServoyApi.prototype = svyServoyApi;
 						
@@ -1265,11 +1298,14 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 								}
 							}
 						}
-						updateChildElementsAPI(newValue[0]);
-						// update the focus
+						if (newValue.length > 0) updateChildElementsAPI(newValue[0]);
+						// update the focus when the selection was changed using key up or down
                         let selectedRowIndex = getFoundset().selectedRowIndexes[0];
                         const element = parent.children()[(page > 0) ? ++selectedRowIndex - scope.responsivePageSize * page : ++selectedRowIndex];
-                        if (element) element.focus();
+                        if (element && !element.contains(document.activeElement) && selectionChangedByKey && !element.className.includes("svyPagination")) { 
+                        	element.focus(); 
+                        	selectionChangedByKey = false; 
+                        }
 					}
 
 					function createRowsAndSetSelection() {
@@ -1827,7 +1863,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							      }
 						      },
 						      function(error) {
-						    	  if (!this.reject) {
+						    	  if (!promise['reject']) {
 						    		  delete cachedPromises[key]; // try again later
 						    	  }
 						    	  return $q.reject(error);

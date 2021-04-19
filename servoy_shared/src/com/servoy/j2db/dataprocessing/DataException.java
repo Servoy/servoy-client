@@ -54,6 +54,12 @@ public class DataException extends ServoyException
 		super(errorCode, new Object[] { value });
 	}
 
+	public DataException(String message, int errorCode)
+	{
+		super(errorCode);
+		this.msg = message;
+	}
+
 	public DataException(int errorCode, Object value, Exception cause)
 	{
 		this(errorCode, value);
@@ -103,7 +109,7 @@ public class DataException extends ServoyException
 	 * 	application.output("VendorErrorCode: " + record.exception.getVendorErrorCode());
 	 * }
 	 * @return true.
-
+	
 	 */
 	@Deprecated
 	public boolean js_isDataException()

@@ -517,6 +517,9 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 			case BAD_SQL_SYNTAX :
 				return "Bad SQL syntax";
 
+			case DATA_INTEGRITY_VIOLATION :
+				return "Column data not valid, null check or other database validation failed";
+
 			default :
 				if (errorCode == 0 && getCause() != null)
 				{

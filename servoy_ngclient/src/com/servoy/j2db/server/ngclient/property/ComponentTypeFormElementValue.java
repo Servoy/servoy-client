@@ -29,7 +29,6 @@ import com.servoy.j2db.server.ngclient.FormElement;
  *
  * @author acostescu
  */
-@SuppressWarnings("nls")
 public class ComponentTypeFormElementValue
 {
 

@@ -22,7 +22,9 @@ import java.util.Collection;
 import org.sablo.IChangeListener;
 import org.sablo.websocket.IWebsocketSession;
 
+import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
 
 /**
  * Interface for classes handling a websocket session based on a client.
@@ -47,4 +49,6 @@ public interface INGClientWebsocketSession extends IWebsocketSession, IChangeLis
 	Collection<INGClientWindow> getWindows();
 
 	long getLastAccessed();
+
+	public IFormHTMLAndJSGenerator getFormHTMLAndJSGenerator(Form form, String realFormName);
 }
