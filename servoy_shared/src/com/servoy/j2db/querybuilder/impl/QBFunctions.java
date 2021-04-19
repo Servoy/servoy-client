@@ -30,6 +30,7 @@ import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
+import com.servoy.j2db.querybuilder.IQueryBuilderFunction;
 import com.servoy.j2db.querybuilder.IQueryBuilderFunctions;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Utils;
@@ -406,6 +407,23 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	public QBFunction round(Object arg)
 	{
 		return new QBFunction(getRoot(), getParent(), QueryFunctionType.round, new IQuerySelectValue[] { createOperand(arg) });
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#round(Object)
+	 * @param arg number object
+	 * @param decimals The number of decimal places to round number to, default 0
+	 * @sample
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mynumcol.round.eq(query.functions.round(myvar, 1))
+	 * foundset.loadRecords(query);
+	 */
+	@JSFunction
+	@Override
+	public IQueryBuilderFunction round(Object arg, int decimals)
+	{
+		return new QBFunction(getRoot(), getParent(), QueryFunctionType.round,
+			new IQuerySelectValue[] { createOperand(arg), createOperand(Integer.valueOf(decimals)) });
 	}
 
 	/**

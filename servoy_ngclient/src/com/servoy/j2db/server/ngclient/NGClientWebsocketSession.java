@@ -327,12 +327,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	}
 
 	@Override
-	protected IServerService createConsoleLoggerService()
-	{
-		return new NGConsoleLoggerServiceHandler(this);
-	}
-
-	@Override
 	public void solutionLoaded(Solution solution)
 	{
 		sendSolutionCSSURL(solution);
@@ -363,12 +357,13 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				}
 			}
 			Collections.reverse(styleSheets);
+			boolean ng2 = client.getRuntimeProperties().containsKey("NG2");
 			for (int i = 0; i < styleSheets.size(); i++)
 			{
 				long timestamp = 0;
 				Media media = null;
 				String stylesheetName = styleSheets.get(i);
-				if (client.getRuntimeProperties().containsKey("NG2"))
+				if (ng2)
 				{
 					int lastPoint = stylesheetName.lastIndexOf('.');
 					String ng2StylesheetName = stylesheetName.substring(0, lastPoint) + "_ng2" + stylesheetName.substring(lastPoint);
@@ -390,7 +385,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				}
 				styleSheets.set(i, "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + solution.getName() + "/" +
 					stylesheetName.replace(".less", ".css") + "?t=" +
-					Long.toHexString(timestamp == 0 ? client.getSolution().getLastModifiedTime() : timestamp) + "&clientnr=" + getSessionKey().getClientnr());
+					Long.toHexString(timestamp == 0 ? client.getSolution().getLastModifiedTime() : timestamp) +
+					"&clientnr=" + getSessionKey().getClientnr() + (ng2 ? "&ng2" : ""));
 			}
 			if (compareList(lastSentStyleSheets, styleSheets)) return;
 			lastSentStyleSheets = new ArrayList<String>(styleSheets);

@@ -52,6 +52,11 @@ public interface IQueryBuilderFunctions extends IQueryBuilderPart
 	IQueryBuilderFunction round(Object arg);
 
 	/**
+	 * Create round(column, decimals) expression
+	 */
+	IQueryBuilderFunction round(Object arg, int decimals);
+
+	/**
 	 * Create ceil(column) expression
 	 */
 	IQueryBuilderFunction ceil(Object arg);

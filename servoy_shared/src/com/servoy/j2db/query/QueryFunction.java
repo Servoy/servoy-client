@@ -184,6 +184,13 @@ public final class QueryFunction implements IQuerySelectValue
 			case bit_length :
 				return ColumnType.getColumnType(IColumnTypes.INTEGER);
 
+			case round :
+				if (args.length <= 1)
+				{
+					return ColumnType.getColumnType(IColumnTypes.INTEGER);
+				}
+				return ColumnType.getColumnType(IColumnTypes.NUMBER);
+
 			case concat :
 				return ColumnType.getColumnType(IColumnTypes.TEXT);
 
