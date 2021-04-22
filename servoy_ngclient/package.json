@@ -1,20 +1,22 @@
 {
-  "name": "ngclient-ts-compile",
-  "description": "A module that setsup typescript for the ts file compilation",
-  "dependencies": {
-    "jasmine-core": "~3.6.0",
-    "karma": "^6.1.2",
-    "karma-chrome-launcher": "~3.1.0",
-    "karma-coverage": "^2.0.3",
-    "karma-firefox-launcher": "~2.1.0",
-    "karma-ie-launcher": "~1.0.0",
-    "karma-jasmine": "^4.0.1",
-    "karma-junit-reporter": "~2.0.1",
-    "karma-ng-html2js-preprocessor": "~1.0.0",
-    "karma-phantomjs-launcher": "~1.0.4",
-    "typescript": "~4.2.3"
-  },
-  "scripts": {
-    "build": "tsc"
-  }
+	"name": "ngclient-ts-compile",
+	"description": "A module that setsup typescript for the ts file compilation",
+	"dependencies": {
+		"@chiragrupani/karma-chromium-edge-launcher": "^2.1.0",
+		"jasmine-core": "~3.7.1",
+		"karma": "^6.3.2",
+		"karma-chrome-launcher": "~3.1.0",
+		"karma-coverage": "^2.0.3",
+		"karma-firefox-launcher": "~2.1.0",
+		"karma-ie-launcher": "~1.0.0",
+		"karma-jasmine": "^4.0.1",
+		"karma-junit-reporter": "~2.0.1",
+		"karma-ng-html2js-preprocessor": "~1.0.0",
+		"typescript": "~4.2.4"
+	},
+	"scripts": {
+		"build": "tsc",
+		"test": "karma start ./client_tests/karma.conf.js --browsers ChromeHeadless",
+		"test_edge_nowatch": "karma start ./client_tests/karma.conf.js --browsers Edge"
+	}
 }
