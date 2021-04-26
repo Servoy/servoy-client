@@ -149,7 +149,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		if (callContributions != null) call.putAll(callContributions);
 
 		IWebFormUI formUI = receiver.findParent(IWebFormUI.class);
-		IWebFormController form = getSession().getClient().getFormManager().getForm(formUI.getName());
+		IWebFormController form = formUI.getController();
 
 		if (!isDelayedApiCall(apiFunction))
 		{
