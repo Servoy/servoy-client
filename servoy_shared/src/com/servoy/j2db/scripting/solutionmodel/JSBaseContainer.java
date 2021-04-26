@@ -341,7 +341,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 	public JSLayoutContainer[] getLayoutContainers()
 	{
 		List<JSLayoutContainer> containers = new ArrayList<JSLayoutContainer>();
-		Iterator<LayoutContainer> iterator = getContainer().getLayoutContainers();
+		Iterator<LayoutContainer> iterator = getFlattenedContainer().getLayoutContainers();
 		while (iterator.hasNext())
 		{
 			containers.add(application.getScriptEngine().getSolutionModifier().createLayoutContainer(this, iterator.next()));
