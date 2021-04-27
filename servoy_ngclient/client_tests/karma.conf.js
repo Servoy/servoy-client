@@ -59,19 +59,20 @@ module.exports = function(config) {
 			},
 		},
 
-		frameworks: ['es6-shim', 'jasmine'], // es6-shim is for polyfilling PhantomJS Map constructor - which is not there by default
+        frameworks: ['jasmine'],
 		client: {
 			jasmine: { random: false }
 		},
-		browsers: ['PhantomJS'],//
+        browsers: ['ChromeHeadless'],//
 
-		/*plugins : [    <- not needed since karma loads by default all sibling plugins that start with karma-*
-				'karma-junit-reporter',
-				'karma-chrome-launcher',
-				'karma-firefox-launcher',
-				'karma-script-launcher',
-				'karma-jasmine'
-				],*/
+        plugins: [
+            require('karma-jasmine'),
+            require('karma-chrome-launcher'),
+            require('@chiragrupani/karma-chromium-edge-launcher'),
+            require('karma-coverage'),
+            require('karma-junit-reporter'),
+            require('karma-ng-html2js-preprocessor')
+        ],
 		singleRun: true,
 		//autoWatch : true,
 		reporters: ['dots', 'junit'],
