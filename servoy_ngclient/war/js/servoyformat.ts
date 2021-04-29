@@ -697,7 +697,6 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 			var cancelNextBlur = 0;
 
 			function change() {
-				cancelNextBlur += 1; // the browser just called change(), we do not want the next blur() to do anything
 				if (!$scope.model.findmode) {
 					if (svyFormat.edit && svyFormat.isMask) element.unmask();
 					//blur needs this because we need to change to the display format even if the value didn't change
@@ -705,6 +704,11 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 						ngModelController.$setViewValue(modelToView(ngModelController.$modelValue))
 						ngModelController.$render();
 					})
+					if(!element.is(":focus")){
+						// only do this if the element is not focused anymore
+						// if it is focused, then it means that enter was pressed and after enter we still need blur
+						cancelNextBlur += 1; // the browser just called change(), we do not want the next blur() to do anything
+					}
 				}
 			}
 
