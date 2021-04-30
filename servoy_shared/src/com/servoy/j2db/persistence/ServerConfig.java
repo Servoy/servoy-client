@@ -98,12 +98,14 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	private final Integer selectINValueCountLimit;
 	private final String dialectClass;
 	private final List<String> quoteList;
+	private final boolean clientOnlyConnections;
 
 	public ServerConfig(String serverName, String userName, String password, String serverUrl, Map<String, String> connectionProperties, String driver,
 		String catalog, String schema, int maxActive, int maxIdle, int maxPreparedStatementsIdle, int connectionValidationType, String validationQuery,
 		String dataModelCloneFrom, boolean enabled, boolean skipSysTables, boolean prefixTables, boolean queryProcedures, int idleTimeout,
-		Integer selectINValueCountLimit, String dialectClass, List<String> quoteList)
+		Integer selectINValueCountLimit, String dialectClass, List<String> quoteList, boolean clientOnlyConnections)
 	{
+		this.clientOnlyConnections = clientOnlyConnections;
 		this.serverName = Utils.toEnglishLocaleLowerCase(serverName);//safety for when stored in columnInfo
 		this.userName = userName;
 		this.password = password;
@@ -144,7 +146,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	{
 		this(serverName, userName, password, serverUrl, connectionProperties, driver, catalog, schema, MAX_ACTIVE_DEFAULT, MAX_IDLE_DEFAULT,
 			MAX_PREPSTATEMENT_IDLE_DEFAULT, VALIDATION_TYPE_DEFAULT, null, null, enabled, skipSysTables, PREFIX_TABLES_DEFAULT, QUERY_PROCEDURES_DEFAULT, -1,
-			selectINValueCountLimit, dialectClass, emptyList());
+			selectINValueCountLimit, dialectClass, emptyList(), false);
 	}
 
 	public ServerConfig getNamedCopy(String newServerName)
@@ -152,7 +154,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		if (serverName.equals(newServerName)) return this;
 		return new ServerConfig(newServerName, userName, password, serverUrl, connectionProperties, driver, catalog, schema, maxActive, maxIdle,
 			maxPreparedStatementsIdle, connectionValidationType, validationQuery, dataModelCloneFrom, enabled, skipSysTables, prefixTables, queryProcedures,
-			idleTimeout, selectINValueCountLimit, dialectClass, quoteList);
+			idleTimeout, selectINValueCountLimit, dialectClass, quoteList, clientOnlyConnections);
 	}
 
 	public ServerConfig getEnabledCopy(boolean newEnabled)
@@ -160,7 +162,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		if (enabled == newEnabled) return this;
 		return new ServerConfig(serverName, userName, password, serverUrl, connectionProperties, driver, catalog, schema, maxActive, maxIdle,
 			maxPreparedStatementsIdle, connectionValidationType, validationQuery, dataModelCloneFrom, newEnabled, skipSysTables, prefixTables, queryProcedures,
-			idleTimeout, selectINValueCountLimit, dialectClass, quoteList);
+			idleTimeout, selectINValueCountLimit, dialectClass, quoteList, clientOnlyConnections);
 	}
 
 	public String getServerName()
@@ -201,6 +203,11 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	public String getSchema()
 	{
 		return schema;
+	}
+
+	public boolean isClientOnlyConnections()
+	{
+		return clientOnlyConnections;
 	}
 
 	public int getMaxActive()

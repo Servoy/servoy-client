@@ -31,6 +31,6 @@ public class ProgressABLTemplate extends ServerTemplateDefinition
 	{
 		super(new ServerConfig("new_progress_abl", "", "", "jdbc:abl:localhost:<port>", null, "ro.acorn.jdbc.ABLDriver", null, null,
 			ServerConfig.MAX_ACTIVE_DEFAULT, ServerConfig.MAX_IDLE_DEFAULT, ServerConfig.MAX_PREPSTATEMENT_IDLE_DEFAULT, ServerConfig.VALIDATION_TYPE_DEFAULT,
-			null, null, true, false, false, true, ServerConfig.MAX_IDLE_DEFAULT, null, null, emptyList()));
+			null, null, true, false, false, true, ServerConfig.MAX_IDLE_DEFAULT, null, null, emptyList(), false));
 	}
 }

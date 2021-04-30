@@ -135,7 +135,7 @@ public class DBDataSourceServer extends DefaultJavaScope implements LazyInitScop
 	 * Get the server where this server is a data model clone from.
 	 *
 	 * @sample
-	 * datasources.db.example_data99.getDataModelCloneFrom().getServerName()
+	 * datasources.db.example_data.getDataModelCloneFrom().getServerName()
 	 *
 	 * @return DBDataSourceServer server
 	 */
@@ -157,6 +157,36 @@ public class DBDataSourceServer extends DefaultJavaScope implements LazyInitScop
 		catch (RepositoryException e)
 		{
 			Debug.error(e);
+		}
+		return null;
+	}
+
+	/**
+	 * Define a client connection for this server, you can configure this DB Server to create connections for this client that are configured by this JSConnection.
+	 * All interaction with the database will go over a connection coming from a specific client pool with that is created for tihs client.
+	 * Things like username,password or connection properties can be adjusted.
+	 *
+	 * @sample
+	 * var conncetionDefinition = datasources.db.example_data.defineClientConnection().setProperty('key', 'value').create();
+	 *
+	 * @since 2021.06
+	 *
+	 * @return DBDataSourceServer server
+	 */
+	@JSFunction
+	public JSConnectionDefinition defineClientConnection()
+	{
+		try
+		{
+			IServer server = application.getRepository().getServer(serverName);
+			if (server != null)
+			{
+				return new JSConnectionDefinition(server, application.getClientID());
+			}
+		}
+		catch (RemoteException | RepositoryException e)
+		{
+			Debug.error("Can't define a client connection definiton for " + serverName, e); //$NON-NLS-1$
 		}
 		return null;
 	}

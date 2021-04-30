@@ -23,6 +23,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import com.servoy.j2db.dataprocessing.datasource.JSConnectionDefinition;
+
 /**
  * Remote interface to a database server
  *
@@ -77,4 +79,14 @@ public interface IServer extends Remote
 	 * @return
 	 */
 	public ISequenceProvider getSequenceProvider() throws RemoteException;
+
+	/**
+	 * @param definition
+	 */
+	public boolean createClientDatasource(JSConnectionDefinition definition);
+
+	/**
+	 * @param definition
+	 */
+	public void dropClientDatasource(String clientId);
 }
