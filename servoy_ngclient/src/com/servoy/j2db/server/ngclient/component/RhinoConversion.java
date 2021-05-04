@@ -98,7 +98,7 @@ public class RhinoConversion
 			final long naLength = no.getLength();
 			for (int id = 0; id < naLength; id++)
 			{
-				list.add(defaultFromRhino(no.get(id, no), oldList != null ? oldList.get(id) : null));
+				list.add(defaultFromRhino(no.get(id, no), oldList != null && oldList.size() > id ? oldList.get(id) : null));
 
 			}
 			return list;
