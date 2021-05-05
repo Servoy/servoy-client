@@ -352,7 +352,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 				for (WebComponent seqComponent : tabSequenceComponents)
 				{
 					apiFunction = seqComponent.getSpecification().getApiFunction("requestFocus");
-					if (apiFunction != null)
+					if (apiFunction != null && seqComponent.isVisible())
 					{
 						if (skipReadonly)
 						{
