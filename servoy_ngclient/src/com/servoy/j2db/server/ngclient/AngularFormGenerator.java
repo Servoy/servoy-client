@@ -21,25 +21,12 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
 
 import org.json.JSONWriter;
 import org.sablo.Container;
-import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentSpecProvider;
-import org.sablo.specification.WebObjectFunctionDefinition;
-import org.sablo.specification.WebObjectSpecification;
-import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
-import org.sablo.specification.property.CustomJSONPropertyType;
-import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.TypedData;
-import org.sablo.websocket.impl.ClientService;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
@@ -49,18 +36,12 @@ import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IAnchorConstants;
-import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractFormLayoutProvider;
 import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
-import com.servoy.j2db.server.ngclient.property.FoundsetLinkedPropertyType;
-import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.FormPropertyType;
-import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
 import com.servoy.j2db.server.ngclient.template.FormTemplateObjectWrapper;
 import com.servoy.j2db.server.ngclient.template.FormWrapper;
 import com.servoy.j2db.server.ngclient.template.PartWrapper;
@@ -95,142 +76,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 	@Override
 	public String generateHTMLTemplate()
 	{
-		// no html template needed.
-		StringBuilder sb = new StringBuilder();
-		WebObjectSpecification[] specs = WebComponentSpecProvider.getSpecProviderState().getAllWebComponentSpecifications();
-		Arrays.sort(specs, new Comparator<WebObjectSpecification>()
-		{
-			@Override
-			public int compare(WebObjectSpecification o1, WebObjectSpecification o2)
-			{
-				return o1.getName().compareToIgnoreCase(o2.getName());
-			}
-		});
-		for (WebObjectSpecification spec : specs)
-		{
-			if (spec.isDeprecated()) continue;
-			genereateSpec(sb, spec, spec.getName());
-			if (spec.getName().equals("servoydefault-tabpanel"))
-			{
-				// also generate the tabless
-				genereateSpec(sb, spec, "servoydefault-tablesspanel");
-			}
-
-		}
-		System.err.println(sb.toString());
 		return "";
-	}
-
-	/**
-	 * @param sb
-	 * @param spec
-	 * @param specName
-	 */
-	@SuppressWarnings("nls")
-	private void genereateSpec(StringBuilder sb, WebObjectSpecification spec, String specName)
-	{
-		sb.append("<ng-template #");
-		sb.append(ClientService.convertToJSName(specName));
-		sb.append(" let-callback=\"callback\" let-state=\"state\">");
-		sb.append('<');
-		sb.append(specName);
-		sb.append(' ');
-
-		ArrayList<PropertyDescription> specProperties = new ArrayList<>(spec.getProperties().values());
-		Collections.sort(specProperties, new Comparator<PropertyDescription>()
-		{
-			@Override
-			public int compare(PropertyDescription o1, PropertyDescription o2)
-			{
-				return o1.getName().compareToIgnoreCase(o2.getName());
-			}
-		});
-		for (PropertyDescription pd : specProperties)
-		{
-			String name = pd.getName();
-			if (name.equals("anchors") || name.equals("formIndex")) continue;
-			if (name.equals(IContentSpecConstants.PROPERTY_ATTRIBUTES))
-			{
-				name = "servoyAttributes";
-			}
-			if (name.equals(IContentSpecConstants.PROPERTY_VISIBLE))
-			{
-				sb.append(" *ngIf=\"state.model.");
-			}
-			else
-			{
-				sb.append(" [");
-				sb.append(name);
-				sb.append("]=\"state.model.");
-			}
-			sb.append(name);
-			sb.append('"');
-
-			// all properties that handle there own stuff, (that have converters on the server side)
-			// should not have the need for an emitter/datachange call. this should be handled in the type itself.
-			if (pd.getPushToServer() != null && pd.getPushToServer() != PushToServerEnum.reject &&
-				!(pd.getType() instanceof FoundsetPropertyType ||
-					pd.getType() instanceof FoundsetLinkedPropertyType ||
-					pd.getType() instanceof ValueListPropertyType))
-			{
-				sb.append(" (");
-				sb.append(name);
-				sb.append("Change)=\"callback.datachange(state,'");
-				sb.append(name);
-				if (pd.getType() instanceof DataproviderPropertyType)
-				{
-					sb.append("',$event, true)\"");
-				}
-				else
-				{
-					sb.append("',$event)\"");
-				}
-			}
-		}
-
-		ArrayList<WebObjectFunctionDefinition> handlers = new ArrayList<>(spec.getHandlers().values());
-		Collections.sort(handlers, new Comparator<WebObjectFunctionDefinition>()
-		{
-			@Override
-			public int compare(WebObjectFunctionDefinition o1, WebObjectFunctionDefinition o2)
-			{
-				return o1.getName().compareToIgnoreCase(o2.getName());
-			}
-		});
-		for (WebObjectFunctionDefinition handler : handlers)
-		{
-			sb.append(" [");
-			sb.append(handler.getName());
-			sb.append("]=\"callback.getHandler(state,'");
-			sb.append(handler.getName());
-			sb.append("')\"");
-		}
-		sb.append(" [servoyApi]=\"callback.getServoyApi(state)\"");
-		sb.append(" [name]=\"state.name\" #cmp");
-		sb.append(">");
-		Collection<PropertyDescription> properties = spec.getProperties(FormPropertyType.INSTANCE);
-		if (properties.size() == 0)
-		{
-			Map<String, IPropertyType< ? >> declaredCustomObjectTypes = spec.getDeclaredCustomObjectTypes();
-			for (IPropertyType< ? > pt : declaredCustomObjectTypes.values())
-			{
-				if (pt instanceof CustomJSONPropertyType< ? >)
-				{
-					PropertyDescription customJSONSpec = ((CustomJSONPropertyType< ? >)pt).getCustomJSONTypeDefinition();
-					properties = customJSONSpec.getProperties(FormPropertyType.INSTANCE);
-					if (properties.size() > 0) break;
-				}
-			}
-		}
-		if (properties.size() > 0)
-		{
-			sb.append("<ng-template let-name='name'><svy-form *ngIf=\"isFormAvailable(name)\" [name]=\"name\"></svy-form></ng-template>");
-		}
-		sb.append("</");
-		sb.append(specName);
-		sb.append(">");
-
-		sb.append("</ng-template>\n");
 	}
 
 	@SuppressWarnings("nls")
