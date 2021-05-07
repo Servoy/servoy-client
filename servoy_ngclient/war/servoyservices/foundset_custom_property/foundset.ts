@@ -211,7 +211,6 @@ namespace ngclient.propertyTypes {
 				if (hasListeners) notificationParamForListeners[this.foundsetTypeConstants.NOTIFY_FULL_VALUE_CHANGED] = { oldValue : currentClientValue, newValue : serverJSONValue };
 				const oldInternalState: FoundsetTypeInternalState = currentClientValue ? currentClientValue[this.sabloConverters.INTERNAL_IMPL] : undefined; // internal state / this.sabloConverters interface
 				if (oldInternalState) this.sabloDeferHelper.cancelAll(oldInternalState);
-
 			} else {
 				// check for updates
 				let updates = false;
@@ -320,13 +319,12 @@ namespace ngclient.propertyTypes {
 				// if it's a no-op, ignore it (sometimes server asks a prop. to send changes even though it has none to send)
 				if (!updates && !serverJSONValue[FoundsetType.NO_OP]) {
 					// not updates - so whole thing received
-					
+
 					newValue = new FoundsetValue(serverJSONValue, currentClientValue, componentScope, this.sabloConverters,
 							this.foundsetTypeConstants,	this.viewportModule, this.webSocket, this.log, this.sabloDeferHelper, propertyContext);
-							
+
 					if (hasListeners) notificationParamForListeners[this.foundsetTypeConstants.NOTIFY_FULL_VALUE_CHANGED] = { oldValue : currentClientValue, newValue : newValue };
 				}
-
 			}
 
 			// restore/add watches
