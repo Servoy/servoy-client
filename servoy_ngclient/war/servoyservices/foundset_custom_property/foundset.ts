@@ -321,16 +321,47 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 				// if it's a no-op, ignore it (sometimes server asks a prop. to send changes even though it has none to send)
 				if (!updates && !serverJSONValue[NO_OP]) {
 					// not updates - so whole thing received
-					var proto = { };
-					// conversion to server in case it is sent to handler or server side internalAPI calls as argument of type "foundsetRef"
-					proto[$sabloUtils.DEFAULT_CONVERSION_TO_SERVER_FUNC] = function() {
-						return this[FOUNDSET_ID];
-					};
+					let oldValueForListeners: any;
+					let oldInternalState: any;
+					if (currentClientValue) {
+                        // reuse the reference so it's easier for components to keep the correct reference (SVY-14764)
+                        newValue = currentClientValue; // just use the old value reference, do not create a new ref (easier for the components that use foundset properties)
+                        
+                        oldValueForListeners = {};
+                        oldInternalState = {};
+                        
+                        // put all from old value (currentClientValue which becomes newValue as well) into oldValueForListeners and remove it from the newValue
+                        for (let key of Object.keys(newValue)) {
+                            oldValueForListeners[key] = newValue[key];
+                            delete newValue[key];
+                        }
+                        
+                        // ok now copy over everything from serverJSONValue to be processed later below
+                        for (let key of Object.keys(serverJSONValue)) {
+                            newValue[key] = serverJSONValue[key];
+                        }
+                                                
+                        // internal state was not removed yet as it is a non-iterable prop; but we only need to keep from the old internal state the listeners and deferred;
+                        // everyting else starts clean; listeners and deferrs will be copied over later the same as it would be done for new values
+                        for (let key of Object.keys(newValue[$sabloConverters.INTERNAL_IMPL])) {
+                            oldInternalState[key] = newValue[$sabloConverters.INTERNAL_IMPL][key];
+                            delete newValue[$sabloConverters.INTERNAL_IMPL][key];
+                        }
+                    } else {
+                        // no old value; create a fresh one
+                        
+    					let proto = { };
+    					// conversion to server in case it is sent to handler or server side internalAPI calls as argument of type "foundsetRef"
+    					proto[$sabloUtils.DEFAULT_CONVERSION_TO_SERVER_FUNC] = function() {
+    						return this[FOUNDSET_ID];
+    					};
+    					
+    					newValue = $sabloUtils.cloneWithDifferentPrototype(serverJSONValue, proto);
+					    $sabloConverters.prepareInternalState(newValue);
+					}
 					
-					newValue = $sabloUtils.cloneWithDifferentPrototype(serverJSONValue, proto);
-					if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_FULL_VALUE_CHANGED] = { oldValue : currentClientValue, newValue : newValue };
+					if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_FULL_VALUE_CHANGED] = { oldValue : oldValueForListeners, newValue : newValue };
 						
-					$sabloConverters.prepareInternalState(newValue);
 					var internalState = newValue[$sabloConverters.INTERNAL_IMPL]; // internal state / $sabloConverters interface
 					
 					// conversion of rows to server in case it is sent to handler or server side internalAPI calls as argument of type "foundsetRef"
@@ -352,9 +383,9 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					}
 
 					internalState.requests = [];
-					if (currentClientValue && currentClientValue[$sabloConverters.INTERNAL_IMPL])
+					if (oldInternalState)
 					{	
-						$sabloDeferHelper.initInternalStateForDeferringFromOldInternalState(internalState, currentClientValue[$sabloConverters.INTERNAL_IMPL]);
+						$sabloDeferHelper.initInternalStateForDeferringFromOldInternalState(internalState, oldInternalState);
 					}
 					else
 					{
@@ -481,8 +512,10 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						internalState.requests.push({viewportDataChanged: r});
 						if (internalState.changeNotifier) internalState.changeNotifier();
 					}
-					// even if it's a completely new value, keep listeners from old one if there is an old value
-					internalState.changeListeners = (currentClientValue && currentClientValue[$sabloConverters.INTERNAL_IMPL] ? currentClientValue[$sabloConverters.INTERNAL_IMPL].changeListeners : []);
+					// even if it's a completely new value, keep listeners and change notifier from old one if there is an old value
+					internalState.changeListeners = (oldInternalState ? oldInternalState.changeListeners : []);
+					if (oldInternalState?.changeNotifier) internalState.changeNotifier = oldInternalState.changeNotifier;
+					
 					/**
 					 * Adds a change listener that will get triggered when server sends changes for this foundset.
 					 * 
