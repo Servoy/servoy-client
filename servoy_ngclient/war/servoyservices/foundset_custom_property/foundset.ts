@@ -320,10 +320,39 @@ namespace ngclient.propertyTypes {
 				if (!updates && !serverJSONValue[FoundsetType.NO_OP]) {
 					// not updates - so whole thing received
 
-					newValue = new FoundsetValue(serverJSONValue, currentClientValue, componentScope, this.sabloConverters,
-							this.foundsetTypeConstants,	this.viewportModule, this.webSocket, this.log, this.sabloDeferHelper, propertyContext);
+                    let internalState: FoundsetTypeInternalState;
+                    let oldValueShallowCopy: FoundsetFieldsOnly;
+					if (!newValue /* newValue is now already currentValue, see code above, so we are checking current value here */) {
+                        newValue = new FoundsetValue();
+                        this.sabloConverters.prepareInternalState(newValue, new FoundsetTypeInternalState(propertyContext, this.webSocket, componentScope,
+                             this.sabloConverters, this.viewportModule, this.sabloDeferHelper, this.foundsetTypeConstants, this.log));
+                        internalState = newValue[this.sabloConverters.INTERNAL_IMPL];
+                        this.sabloDeferHelper.initInternalStateForDeferring(internalState, "svy foundset * ");
+					} else {
+                        // reuse old value; but make a shallow copy of the old value to give as oldValue to the listener
+                        internalState = newValue[this.sabloConverters.INTERNAL_IMPL];
+                        
+                        oldValueShallowCopy = new FoundsetFieldsOnly(newValue);
+                    }
+                    
+                    for (const propName of Object.keys(serverJSONValue)) {
+                        newValue[propName] = serverJSONValue[propName];
+                    }
+        
+                    const rows = newValue[FoundsetType.VIEW_PORT][FoundsetType.ROWS];
+        
+                    // convert data if needed - specially done for Date send/receive as the rest are primitives anyway in case of foundset
+                    // relocate conversion info in internal state and convert
+                    newValue[FoundsetType.VIEW_PORT][FoundsetType.ROWS] = this.viewportModule.updateWholeViewport([] /* this is a full viewport replace; no need to give old/currentClientValue rows here I think */,
+                            internalState, newValue[FoundsetType.VIEW_PORT][FoundsetType.ROWS], newValue[FoundsetType.VIEW_PORT][this.sabloConverters.CONVERSION_CL_SIDE_TYPE_KEY],
+                            undefined, componentScope, internalState.propertyContextCreator, false);
+                        delete newValue[FoundsetType.VIEW_PORT][this.sabloConverters.CONVERSION_CL_SIDE_TYPE_KEY];
+                    
+                    for (let i = rows.length - 1; i >= 0; i--) {
+                        rows[i] = new RowValue(rows[i], newValue);
+                    }
 
-					if (hasListeners) notificationParamForListeners[this.foundsetTypeConstants.NOTIFY_FULL_VALUE_CHANGED] = { oldValue : currentClientValue, newValue : newValue };
+					if (hasListeners) notificationParamForListeners[this.foundsetTypeConstants.NOTIFY_FULL_VALUE_CHANGED] = { oldValue : oldValueShallowCopy, newValue : newValue };
 				}
 			}
 
@@ -412,8 +441,7 @@ namespace ngclient.propertyTypes {
         selectionUpdateDefer: angular.IDeferred<unknown>;
         unwatchSelection: () => void;
         
-        constructor(oldClientValueInternalState: FoundsetTypeInternalState,
-                    propertyContext: sablo.IPropertyContext,
+        constructor(propertyContext: sablo.IPropertyContext,
                     webSocket: sablo.IWebSocket,
                     componentScope: angular.IScope,
                     public readonly sabloConverters: sablo.ISabloConverters,
@@ -421,7 +449,8 @@ namespace ngclient.propertyTypes {
                     public readonly sabloDeferHelper: sablo.ISabloDeferHelper,
                     public foundsetTypeConstants: foundsetType.FoundsetTypeConstants,
                     public readonly log: sablo.ILogService) {
-            super(webSocket, componentScope, oldClientValueInternalState ? oldClientValueInternalState.changeListeners : []); // even if it's a completely new value, keep listeners from old one if there is an old value
+                        
+            super(webSocket, componentScope);
             
             this.propertyContextCreator = {
                 withPushToServerFor(propertyName: string): sablo.IPropertyContext {
@@ -441,11 +470,7 @@ namespace ngclient.propertyTypes {
         public foundsetId: any;
         public serverSize: number;
 		
-		public viewPort: {
-            startIndex: number,
-            size: number,
-            rows: { _svyRowId: string, [columnName: string]: any }[];
-        };
+		public viewPort: Viewport;
         
         public selectedRowIndexes: number[];
         public sortColumns: string;
@@ -455,40 +480,7 @@ namespace ngclient.propertyTypes {
         
         private __internalState: FoundsetTypeInternalState;
 
-		constructor (serverJsonValue: object, currentClientValue: FoundsetValue, componentScope: angular.IScope, sabloConverters: sablo.ISabloConverters,
-				foundsetTypeConstants: foundsetType.FoundsetTypeConstants, viewportModule: ngclient.propertyTypes.ViewportService,
-				webSocket: sablo.IWebSocket, log: sablo.ILogService,
-				sabloDeferHelper: sablo.ISabloDeferHelper, propertyContext: sablo.IPropertyContext) {
-			
-			for (const propName of Object.getOwnPropertyNames(serverJsonValue)) {
-				this[propName] = serverJsonValue[propName];
-			}
-
-			sabloConverters.prepareInternalState(this, new FoundsetTypeInternalState(currentClientValue?.__internalState, propertyContext, webSocket, componentScope,
-			     sabloConverters, viewportModule, sabloDeferHelper, foundsetTypeConstants, log));
-			let internalState: FoundsetTypeInternalState = this[sabloConverters.INTERNAL_IMPL]; // internal state / this.sabloConverters interface
-			
-			const rows = this[FoundsetType.VIEW_PORT][FoundsetType.ROWS];
-
-			if (currentClientValue && currentClientValue[sabloConverters.INTERNAL_IMPL])
-			{	
-				sabloDeferHelper.initInternalStateForDeferringFromOldInternalState(internalState, currentClientValue[sabloConverters.INTERNAL_IMPL]);
-			}
-			else
-			{
-				sabloDeferHelper.initInternalStateForDeferring(internalState, "svy foundset * ");
-			}
-			
-			// convert data if needed - specially done for Date send/receive as the rest are primitives anyway in case of foundset
-			// relocate conversion info in internal state and convert
-			this[FoundsetType.VIEW_PORT][FoundsetType.ROWS] = viewportModule.updateWholeViewport([] /* this is a full viewport replace; no need to give old/currentClientValue rows here I think */,
-					internalState, this[FoundsetType.VIEW_PORT][FoundsetType.ROWS], this[FoundsetType.VIEW_PORT][sabloConverters.CONVERSION_CL_SIDE_TYPE_KEY],
-					undefined, componentScope, internalState.propertyContextCreator, false);
-				delete this[FoundsetType.VIEW_PORT][sabloConverters.CONVERSION_CL_SIDE_TYPE_KEY];
-			
-			for (let i = rows.length - 1; i >= 0; i--) {
-				rows[i] = new RowValue(rows[i], this);
-			}
+		constructor () {
 		}
 		
 		// PUBLIC API to components follows; make it 'smart'
@@ -498,7 +490,7 @@ namespace ngclient.propertyTypes {
 			return this[FoundsetType.FOUNDSET_ID];
 		}
 		
-		public loadRecordsAsync(startIndex, size) {
+		public loadRecordsAsync(startIndex: number, size: number) {
 			if (this.__internalState.log.debugEnabled && this.__internalState.log.debugLevel === this.__internalState.log.SPAM) this.__internalState.log.debug("svy foundset * loadRecordsAsync requested with (" + startIndex + ", " + size + ")");
 			if (isNaN(startIndex) || isNaN(size)) throw new Error("loadRecordsAsync: start or size are not numbers (" + startIndex + "," + size + ")");
 
@@ -511,7 +503,7 @@ namespace ngclient.propertyTypes {
 			return this.__internalState.deferred[requestID].defer.promise;
 		}
 		
-		public loadExtraRecordsAsync(negativeOrPositiveCount, dontNotifyYet) {
+		public loadExtraRecordsAsync(negativeOrPositiveCount: number, dontNotifyYet?: boolean) {
 			if (this.__internalState.log.debugEnabled && this.__internalState.log.debugLevel === this.__internalState.log.SPAM) this.__internalState.log.debug("svy foundset * loadExtraRecordsAsync requested with (" + negativeOrPositiveCount + ", " + dontNotifyYet + ")");
 			if (isNaN(negativeOrPositiveCount)) throw new Error("loadExtraRecordsAsync: extrarecords is not a number (" + negativeOrPositiveCount + ")");
 
@@ -524,7 +516,7 @@ namespace ngclient.propertyTypes {
 			return this.__internalState.deferred[requestID].defer.promise;
 		}
 		
-		public loadLessRecordsAsync(negativeOrPositiveCount, dontNotifyYet) {
+		public loadLessRecordsAsync(negativeOrPositiveCount: number, dontNotifyYet?: boolean) {
 			if (this.__internalState.log.debugEnabled && this.__internalState.log.debugLevel === this.__internalState.log.SPAM) this.__internalState.log.debug("svy foundset * loadLessRecordsAsync requested with (" + negativeOrPositiveCount + ", " + dontNotifyYet + ")");
 			if (isNaN(negativeOrPositiveCount)) throw new Error("loadLessRecordsAsync: lessrecords is not a number (" + negativeOrPositiveCount + ")");
 
@@ -552,7 +544,7 @@ namespace ngclient.propertyTypes {
 			return this.__internalState.deferred[requestID].defer.promise;
 		}
 		
-		public setPreferredViewportSize(size, sendSelectionViewportInitially, initialSelectionViewportCentered) {
+		public setPreferredViewportSize(size: number, sendSelectionViewportInitially?: boolean, initialSelectionViewportCentered?: boolean) {
 			if (this.__internalState.log.debugEnabled && this.__internalState.log.debugLevel === this.__internalState.log.SPAM) this.__internalState.log.debug("svy foundset * setPreferredViewportSize called with (" + size + ", " + sendSelectionViewportInitially + ", " + initialSelectionViewportCentered + ")");
 			if (isNaN(size)) throw new Error("setPreferredViewportSize(...): illegal argument; size is not a number (" + size + ")");
 			const request = { "preferredViewportSize" : size };
@@ -562,7 +554,7 @@ namespace ngclient.propertyTypes {
 			if (this.__internalState.changeNotifier) this.__internalState.changeNotifier();
 		}
 		
-		public requestSelectionUpdate(tmpSelectedRowIdxs) {
+		public requestSelectionUpdate(tmpSelectedRowIdxs: number[]) {
 			if (this.__internalState.log.debugEnabled && this.__internalState.log.debugLevel === this.__internalState.log.SPAM) this.__internalState.log.debug("svy foundset * requestSelectionUpdate called with " + JSON.stringify(tmpSelectedRowIdxs));
 			if (this.__internalState.selectionUpdateDefer) {
 				this.__internalState.selectionUpdateDefer.reject("Selection change defer cancelled because we are already sending another selection to server.");
@@ -591,7 +583,7 @@ namespace ngclient.propertyTypes {
 			return null
 		}
 		
-		public updateViewportRecord(rowID, columnID, newValue, oldValue) {
+		public updateViewportRecord(rowID: string, columnID: string, newValue: any, oldValue: any): angular.IPromise<any> {
 			if (this.__internalState.log.debugEnabled && this.__internalState.log.debugLevel === this.__internalState.log.SPAM) this.__internalState.log.debug("svy foundset * updateRecord requested with (" + rowID + ", " + columnID + ", " + newValue);
 			
             const req = { };
@@ -671,5 +663,35 @@ namespace ngclient.propertyTypes {
 		}
 		
 	}
+	
+	type Viewport = {
+            startIndex: number,
+            size: number,
+            rows: { _svyRowId: string, [columnName: string]: any }[];
+    }
+	
+	class FoundsetFieldsOnly {
+
+        foundsetId: number;
+        serverSize: number;
+        viewPort: Viewport;
+        selectedRowIndexes: number[];
+        sortColumns: string;
+        multiSelect: boolean;
+        hasMoreRows: boolean;
+        columnFormats?: Record<string, any>;
+
+        constructor(foundsetToShallowCopy: FoundsetValue) {
+            this.foundsetId = foundsetToShallowCopy.foundsetId;
+            this.serverSize = foundsetToShallowCopy.serverSize;
+            this.viewPort = foundsetToShallowCopy.viewPort;
+            this.selectedRowIndexes = foundsetToShallowCopy.selectedRowIndexes;
+            this.sortColumns = foundsetToShallowCopy.sortColumns;
+            this.multiSelect = foundsetToShallowCopy.multiSelect;
+            this.hasMoreRows = foundsetToShallowCopy.hasMoreRows;
+            this.columnFormats = foundsetToShallowCopy.columnFormats;
+        }
+
+    }
 
 }
