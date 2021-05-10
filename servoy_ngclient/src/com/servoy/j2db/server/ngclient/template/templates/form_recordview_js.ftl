@@ -59,7 +59,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 		var callExecutor = function(args, rowId) {
 			if ($scope.model && $scope.model[beanName])
 			{
-				if(!ignoreNGBlockDuplicateEvents && $uiBlocker.shouldBlockDuplicateEvents(beanName, $scope.model[beanName], eventType, rowId))
+				if(!ignoreNGBlockDuplicateEvents && $uiBlocker.shouldBlockDuplicateEvents("${name}_" + beanName, $scope.model[beanName], eventType, rowId))
 				{
 					// reject execution
 					console.log("Prevented duplicate  execution of: "+eventType +" on "+beanName);
@@ -67,7 +67,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 				}
 				var promise = $sabloApplication.getExecutor("${name}").on(beanName,eventType,null,args,rowId);
 				promise.finally(function(){
-					$uiBlocker.eventExecuted(beanName, $scope.model[beanName], eventType, rowId);
+					$uiBlocker.eventExecuted("${name}_" + beanName, $scope.model[beanName], eventType, rowId);
 				});
 				return promise;
 			}
