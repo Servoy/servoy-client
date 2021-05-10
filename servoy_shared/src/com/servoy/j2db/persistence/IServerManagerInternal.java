@@ -121,4 +121,9 @@ public interface IServerManagerInternal extends IServerManager
 	void setServerEnableListener(IServerEnableListener iServerEnableListener);
 
 	void close();
+
+	/**
+	 * @param clientId
+	 */
+	void clientUnregistered(String clientId);
 }

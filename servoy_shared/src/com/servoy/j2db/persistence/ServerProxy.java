@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.servoy.j2db.dataprocessing.datasource.JSConnectionDefinition;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -255,5 +256,17 @@ public class ServerProxy implements IServer, Serializable
 	public Collection<Procedure> getProcedures() throws RepositoryException, RemoteException
 	{
 		return server.getProcedures();
+	}
+
+	@Override
+	public boolean createClientDatasource(JSConnectionDefinition definition)
+	{
+		return server.createClientDatasource(definition);
+	}
+
+	@Override
+	public void dropClientDatasource(String clientId)
+	{
+		server.dropClientDatasource(clientId);
 	}
 }

@@ -78,6 +78,7 @@ import org.sablo.websocket.WebsocketSessionManager;
 import com.servoy.j2db.IPersistIndex;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.PersistIndexCache;
+import com.servoy.j2db.dataprocessing.datasource.JSConnectionDefinition;
 import com.servoy.j2db.persistence.ChangeHandler;
 import com.servoy.j2db.persistence.IItemChangeListener;
 import com.servoy.j2db.persistence.IPersist;
@@ -204,6 +205,17 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 		public String getDatabaseType()
 		{
 			return null;
+		}
+
+		@Override
+		public boolean createClientDatasource(JSConnectionDefinition definition)
+		{
+			return false;
+		}
+
+		@Override
+		public void dropClientDatasource(String clientId)
+		{
 		}
 	};
 

@@ -95,6 +95,16 @@ public interface IServerAccess extends IPluginAccess
 	public Connection getDBServerConnection(String server_name, String transaction_id);
 
 	/**
+	 * Get a pooled and reserved jdbc connection, do not forget to close() if done with it (leave commit/rollback to starter of transaction).
+	 *
+	 * @param server_name
+	 * @param transaction_id null if not present/used
+	 * @return the connection, null if server or transaction not present.
+	 * @since 3.1
+	 */
+	public Connection getDBServerConnection(String server_name, String transaction_id, String clientId);
+
+	/**
 	 * Get a pooled raw jdbc connection, do not forget to close() if done with it.
 	 *
 	 * @param server_name
