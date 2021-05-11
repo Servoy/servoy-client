@@ -292,12 +292,16 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		IDataProviderLookup dpLookup = new FormAndTableDataProviderLookup(servoyDataConverterContext.getApplication().getFlattenedSolution(),
 			servoyDataConverterContext.getForm().getForm(), record != null ? record.getParentFoundSet().getTable() : null);
 
+		FormatTypeSabloValue formatSabloValue = null;
 		if (formatPdName != null)
 		{
 			INGApplication application = servoyDataConverterContext.getApplication();
-			FormatTypeSabloValue formatSabloValue = (FormatTypeSabloValue)webObjectContext.getProperty(formatPdName);
+			formatSabloValue = (FormatTypeSabloValue)webObjectContext.getProperty(formatPdName);
 			if (formatSabloValue != null && formatSabloValue.getFormatDesignValue() != null)
 			{
+				// TODO why do we rely here on formatSabloValue.getFormatDesignValue() - which could also be absent in case the format property
+				// was created from DB table column format settings (but is really there!), not as an actual component's format prop...?!
+				// why not use directly formatSabloValue.getComponentFormat() - it should already be computed correctly I think
 				fieldFormat = ComponentFormat.getComponentFormat(formatSabloValue.getFormatDesignValue(), dataProviderID, dpLookup, application);
 			}
 		}
@@ -316,7 +320,8 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			// see type of dataprovider; this is done only once - first time we get a new record
 			typeOfDP = NGUtils.getDataProviderPropertyDescription(dataProviderID, servoyDataConverterContext.getApplication(),
 				servoyDataConverterContext.getForm().getForm(), record != null ? record.getParentFoundSet().getTable() : null,
-				getDataProviderConfig().hasParseHtml(), false);
+				getDataProviderConfig().hasParseHtml(),
+				formatSabloValue != null ? formatSabloValue.getComponentFormat().parsedFormat.useLocalDateTime() : false);
 		}
 		if (dpPD.hasTag(TAG_TYPE_NAME))
 		{
@@ -615,6 +620,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			if (formatConfig instanceof String[] && Arrays.asList((String[])formatConfig).indexOf(dpPD.getName()) != -1)
 			{
 				formatPdName = formatPd.getName();
+				break;
 			}
 		}
 	}
