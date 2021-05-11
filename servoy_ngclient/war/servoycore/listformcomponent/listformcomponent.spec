@@ -12,7 +12,7 @@
 		"foundset" : {"type": "foundset", "default" : {"foundsetSelector":""}},
 		"containedForm": {"type":"formcomponent", "forFoundset":"foundset"},
 		"pageLayout" : {"type" : "string" , "values" : ["cardview","listview"] , "initialValue" : "cardview" },
-		"responsivePageSize": "int",
+		"responsivePageSize": { "type": "int", "tags": {"doc" : "This property sets the number of cells this component will generate when the this component is placed in a responsive form, ignored in absolute"}},
 		"styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "default": "svy-listformcomponent" },
 		"rowStyleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }},
 		"rowStyleClassDataprovider": { "type": "dataprovider", "forFoundset": "foundset" },
