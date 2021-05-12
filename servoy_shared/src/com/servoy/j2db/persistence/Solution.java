@@ -1222,6 +1222,24 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	}
 
 	/**
+	 * The method that is to onOpen just that it executes before the login. The default is -none-.
+	 *
+	 * @templatedescription Callback method for when solution is opened
+	 * When deeplinking into solutions, the argument part of the deeplink url will be passed in as the first argument
+	 * All query parameters + the argument of the deeplink url will be passed in as the second argument
+	 * For more information on deeplinking, see the chapters on the different Clients in the Deployment Guide.
+	 * @templatename onBeforeLogin
+	 * @templateaddtodo
+	 * @templateparam String arg startup argument part of the deeplink url with which the Client was started
+	 * @templateparam Object<Array<String>> queryParams all query parameters of the deeplink url with which the Client was started
+	 */
+	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
+	public int getOnBeforeLoginMethodID()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFORELOGINMETHODID).intValue();
+	}
+
+	/**
 	 * The menu bar title of a solution.
 	 */
 	public String getTitleText()
@@ -1359,6 +1377,14 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	public void setOnOpenMethodID(int i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONOPENMETHODID, i);
+	}
+
+	/**
+	 * @param i
+	 */
+	public void setOnBeforeLoginMethodID(int i)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFORELOGINMETHODID, i);
 	}
 
 	/**
