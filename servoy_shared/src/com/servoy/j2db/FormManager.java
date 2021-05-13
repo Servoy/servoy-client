@@ -187,6 +187,28 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 			application.getModeManager().setMode(IModeManager.EDIT_MODE);//start in browse mode
 		}
 
+		boolean showLoginForm = (solution.getLoginFormID() > 0 && solution.getMustAuthenticate() && application.getUserUID() == null);
+		if (application.getUserUID() == null)
+		{
+			ScriptMethod onBeforeLogin = application.getFlattenedSolution().getScriptMethod(solution.getOnBeforeLoginMethodID());
+			if (onBeforeLogin != null)
+			{
+				try
+				{
+					application.getScriptEngine().getScopesScope().executeGlobalFunction(onBeforeLogin.getScopeName(), onBeforeLogin.getName(),
+						Utils.arrayMerge(((ClientState)application).getPreferedSolutionMethodArguments(),
+							Utils.parseJSExpressions(solution.getFlattenedMethodArguments("onBeforeLoginMethodID"))),
+						false,
+						false);
+				}
+				catch (Exception e1)
+				{
+					application.reportError(
+						Messages.getString("servoy.formManager.error.ExecutingOpenSolutionMethod", new Object[] { onBeforeLogin.getName() }), //$NON-NLS-1$
+						e1);
+				}
+			}
+		}
 
 		if (solution.getLoginFormID() > 0 && solution.getMustAuthenticate() && application.getUserUID() == null)
 		{
@@ -200,6 +222,12 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 				return; //stop and recall this method from security.login(...)!
 			}
 		}
+		else if (showLoginForm)
+		{
+			// there was a login in onBeforeLogin, so only second call to makeSolutionSettings should go further
+			return;
+		}
+
 		if (solution.getLoginFormID() > 0 && solution.getMustAuthenticate() && application.getUserUID() != null && loginForm != null)
 		{
 			if (currentContainer.getController() != null && loginForm.getName().equals(currentContainer.getController().getForm().getName()))

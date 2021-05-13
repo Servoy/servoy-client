@@ -647,13 +647,10 @@ public class NGClientEntryFilter extends WebEntry
 		}
 		variableSubstitution.put("lang", lang);
 		String titleText = fs.getSolution().getTitleText();
-		if (StringUtils.isBlank(titleText))
+		if (StringUtils.isBlank(titleText) || titleText.equals("<empty>") || titleText.contains("i18n:") || titleText.contains(TagParser.TAGCHAR))
 		{
+			// jus always fallback to the name of the solution, to have someting in the title tag for the google results page.
 			titleText = fs.getSolution().getName();
-		}
-		else if (titleText.equals("<empty>") || titleText.contains("i18n:") || titleText.contains(TagParser.TAGCHAR))
-		{
-			titleText = "";
 		}
 		variableSubstitution.put("solutionTitle", titleText);
 

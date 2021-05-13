@@ -225,4 +225,5 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_IMPLICIT_SECURITY_NO_RIGHTS = "implicitSecurityNoRights";
 	public static final String PROPERTY_ONVALIDATEMETHODID = "onValidateMethodID";
 	public static final String PROPERTY_ONAUTOSAVEDFAILEDMETHODID = "onAutoSaveFailedMethodID";
+	public static final String PROPERTY_ONBEFORELOGINMETHODID = "onBeforeLoginMethodID";
 }
