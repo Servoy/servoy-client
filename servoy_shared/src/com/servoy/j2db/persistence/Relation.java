@@ -22,6 +22,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -827,12 +828,22 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		return getOperators().length > 0 && stream(getOperators()).allMatch(op -> op == IBaseSQLCondition.EQUALS_OPERATOR);
 	}
 
-	public List<Column> getForeignColumnsForEqualConditions()
+	public List<Column> getForeignColumnsForEqualConditions(IDataProviderHandler dataProviderHandler)
 	{
-		List<Column> foreignColumns = new ArrayList<>();
-		for (int i = 0; i < operators.length; i++)
+		try
 		{
-			if (operators[i] == IBaseSQLCondition.EQUALS_OPERATOR && i < foreign.length)
+			getForeignColumns(dataProviderHandler);
+		}
+		catch (RepositoryException e)
+		{
+			Debug.error(e);
+			return Collections.emptyList();
+		}
+		List<Column> foreignColumns = new ArrayList<>();
+		int[] opers = getOperators();
+		for (int i = 0; i < opers.length; i++)
+		{
+			if (opers[i] == IBaseSQLCondition.EQUALS_OPERATOR && i < foreign.length)
 			{
 				foreignColumns.add(foreign[i]);
 			}
