@@ -48,22 +48,28 @@ public class VersionInfo
 	public byte[] digest = null;
 
 	/**
+	 * The time when the solution was exported.
+	 */
+	private final long timestamp;
+
+	/**
 	 * Constructs a new <code>VersionInfo</code> object with the specified XML and repository versions.
-	 * 
+	 *
 	 * @param xmlVersion the XML version
 	 * @param repositoryVersion the repository version
 	 */
-	public VersionInfo(int xmlVersion, int repositoryVersion, String servoyVersion, int buildNumber)
+	public VersionInfo(int xmlVersion, int repositoryVersion, String servoyVersion, int buildNumber, long timestamp)
 	{
 		this.xmlVersion = xmlVersion;
 		this.repositoryVersion = repositoryVersion;
 		this.servoyVersion = servoyVersion;
 		this.buildNumber = buildNumber;
+		this.timestamp = timestamp;
 	}
 
 	/**
 	 * Get the xml version of this version info object.
-	 * 
+	 *
 	 * @return the XML version
 	 */
 	public int getXMLVersion()
@@ -73,7 +79,7 @@ public class VersionInfo
 
 	/**
 	 * Get the repository version of this version info object.
-	 * 
+	 *
 	 * @return the repository version
 	 */
 	public int getRepositoryVersion()
@@ -83,7 +89,7 @@ public class VersionInfo
 
 	/**
 	 * Get the Servoy version of this version info object.
-	 * 
+	 *
 	 * @return the Servoy version
 	 */
 	String getServoyVersion()
@@ -93,7 +99,7 @@ public class VersionInfo
 
 	/**
 	 * Get the build number of this version info object.
-	 * 
+	 *
 	 * @return the build number
 	 */
 	public int getBuildNumber()
@@ -103,11 +109,16 @@ public class VersionInfo
 
 	/**
 	 * Get the digest.
-	 * 
+	 *
 	 * @return the digest
 	 */
 	public byte[] getDigest()
 	{
 		return digest;
+	}
+
+	public long getTimestamp()
+	{
+		return timestamp;
 	}
 }
