@@ -204,5 +204,5 @@ public interface IServerInternal
 
 	Table createClientStatsTable() throws RepositoryException;
 
-	void createIndex(ITable table, String indexName, Column[] indexColumns, boolean unique) throws RepositoryException;
+	String createIndex(ITable table, String indexName, Column[] indexColumns, boolean unique) throws RepositoryException;
 }

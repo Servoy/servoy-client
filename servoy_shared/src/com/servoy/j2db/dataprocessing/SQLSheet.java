@@ -615,19 +615,22 @@ public class SQLSheet
 			if (table.getRowIdentColumns().size() > 1)
 			{
 				// find a match with an index
-				List<SortColumn>[] indexes = table.getIndexes();
-				for (int i = 0; ds == null && indexes != null && i < indexes.length; i++)
+				for (IndexInfo index : Utils.iterate(table.getIndexes()))
 				{
-					List<SortColumn> index = indexes[i];
-					List<Column> rowIdentColumnsCopy = new ArrayList<Column>(table.getRowIdentColumns());
-					boolean match = index.size() == rowIdentColumnsCopy.size();
-					for (int c = 0; match && c < index.size(); c++)
+					if (index.isUnique())
 					{
-						match = rowIdentColumnsCopy.remove(index.get(c).getColumn());
-					}
-					if (match)
-					{
-						ds = index;
+						List<SortColumn> indexCols = index.getColumns();
+						List<Column> rowIdentColumnsCopy = new ArrayList<Column>(table.getRowIdentColumns());
+						boolean match = indexCols.size() == rowIdentColumnsCopy.size();
+						for (int c = 0; match && c < indexCols.size(); c++)
+						{
+							match = rowIdentColumnsCopy.remove(indexCols.get(c).getColumn());
+						}
+						if (match)
+						{
+							ds = indexCols;
+							break;
+						}
 					}
 				}
 			}
