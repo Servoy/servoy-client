@@ -891,7 +891,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/*------------------------------------------------------------------------------------------------------------------------
 	 * LISTENERS
-
+	
 	public void iPersistChanged(IPersist persist)
 	{
 		getChangeHandler().fireIPersistChanged(persist);
@@ -1230,7 +1230,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * For more information on deeplinking, see the chapters on the different Clients in the Deployment Guide.
 	 * @templatename onBeforeLogin
 	 * @templateaddtodo
-	 * @templateparam String arg startup argument part of the deeplink url with which the Client was started
 	 * @templateparam Object<Array<String>> queryParams all query parameters of the deeplink url with which the Client was started
 	 */
 	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
