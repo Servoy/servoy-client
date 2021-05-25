@@ -33,6 +33,7 @@ import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.Symbol;
 import org.mozilla.javascript.TopLevel;
 import org.mozilla.javascript.Undefined;
 import org.sablo.IWebObjectContext;
@@ -77,14 +78,27 @@ public class RhinoConversion
 		}
 		if (propertyValue instanceof NativeObject)
 		{
-			Map<String, Object> map = new HashMap<>();
-			Map oldMap = (oldValue instanceof Map) ? (Map)oldValue : null;
+			Map<Object, Object> map = new HashMap<>();
+			@SuppressWarnings("unchecked")
+			Map<Object, Object> oldMap = (oldValue instanceof Map) ? (Map<Object, Object>)oldValue : null;
 			NativeObject no = (NativeObject)propertyValue;
 			Object[] ids = no.getIds();
 			for (Object id2 : ids)
 			{
-				String id = String.valueOf(id2);
-				map.put(id, defaultFromRhino(no.get(id, no), oldMap != null ? oldMap.get(id) : null));
+				Object value = null;
+				if (id2 instanceof String)
+				{
+					value = no.get((String)id2, no);
+				}
+				else if (id2 instanceof Symbol)
+				{
+					value = no.get((Symbol)id2, no);
+				}
+				else if (id2 instanceof Number)
+				{
+					value = no.get(((Number)id2).intValue(), no);
+				}
+				map.put(id2, defaultFromRhino(value, oldMap != null ? oldMap.get(id2) : null));
 			}
 			return map;
 		}
