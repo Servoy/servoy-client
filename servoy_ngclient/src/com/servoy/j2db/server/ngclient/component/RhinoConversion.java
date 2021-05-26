@@ -64,6 +64,7 @@ public class RhinoConversion
 	 * Default conversion used to convert from Rhino property types that do not explicitly implement component <-> Rhino conversions. <BR/><BR/>
 	 * Values of types that don't implement the sablo <-> rhino conversions are by default accessible directly.
 	 */
+	@SuppressWarnings("unchecked")
 	public static Object defaultFromRhino(Object propertyValue, Object oldValue) // PropertyDescription / IWebObjectContext ... can be made available here if needed
 	{
 		// convert simple values to json values
@@ -78,9 +79,8 @@ public class RhinoConversion
 		}
 		if (propertyValue instanceof NativeObject)
 		{
-			Map<Object, Object> map = new HashMap<>();
-			@SuppressWarnings("unchecked")
-			Map<Object, Object> oldMap = (oldValue instanceof Map) ? (Map<Object, Object>)oldValue : null;
+			Map<String, Object> map = new HashMap<>();
+			Map<String, Object> oldMap = (oldValue instanceof Map) ? (Map<String, Object>)oldValue : null;
 			NativeObject no = (NativeObject)propertyValue;
 			Object[] ids = no.getIds();
 			for (Object id2 : ids)
@@ -98,7 +98,8 @@ public class RhinoConversion
 				{
 					value = no.get(((Number)id2).intValue(), no);
 				}
-				map.put(id2, defaultFromRhino(value, oldMap != null ? oldMap.get(id2) : null));
+				String id = String.valueOf(id2);
+				map.put(id, defaultFromRhino(value, oldMap != null ? oldMap.get(id) : null));
 			}
 			return map;
 		}
