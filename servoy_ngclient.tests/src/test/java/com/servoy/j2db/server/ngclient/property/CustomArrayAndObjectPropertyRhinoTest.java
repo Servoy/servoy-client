@@ -16,6 +16,7 @@
 package com.servoy.j2db.server.ngclient.property;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -39,6 +40,7 @@ import org.sablo.specification.Package.IPackageReader;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
+import org.sablo.specification.property.ArrayOperation;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.ChangeAwareList;
 import org.sablo.specification.property.ChangeAwareMap;
@@ -46,6 +48,7 @@ import org.sablo.specification.property.ChangeAwareMap.Changes;
 import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.CustomJSONObjectType;
 import org.sablo.specification.property.CustomJSONPropertyType;
+import org.sablo.specification.property.ListTest;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -140,10 +143,7 @@ public class CustomArrayAndObjectPropertyRhinoTest
 			assertTrue(!chList.mustSendAll());
 			assertTrue(!chMap.mustSendAll());
 			assertEquals(0, component.getAndClearChanges().content.size());
-			assertEquals(0, chList.getIndexesChangedByRef().size());
-			assertEquals(0, chList.getIndexesWithContentUpdates().size());
-			assertEquals(0, chMap.getKeysChangedByRef().size());
-			assertEquals(0, chMap.getKeysWithUpdates().size());
+			assertFalse(chList.getGranularUpdatesKeeper().hasChanges());
 
 			// check changing java => change reflected in Rhino
 			ScriptableObject topLevel = new ScriptableObject()
@@ -161,8 +161,9 @@ public class CustomArrayAndObjectPropertyRhinoTest
 			cam.put("text", "Just some text 2");
 			assertEquals(1, chMap.getKeysChangedByRef().size());
 			assertEquals("text", chMap.getKeysChangedByRef().iterator().next());
-			assertEquals(1, chList.getIndexesWithContentUpdates().size());
-			assertEquals(Integer.valueOf(0), chList.getIndexesWithContentUpdates().iterator().next());
+			ArrayOperation[] opSeq = chList.getGranularUpdatesKeeper().getEquivalentSequenceOfOperations();
+			assertEquals(1, opSeq.length);
+			ListTest.assertGranularOpIs(0, 0, ArrayOperation.CHANGE, ChangeAwareList.GRANULAR_UPDATE_OP, opSeq[0]);
 			assertTrue(!chList.mustSendAll());
 			assertTrue(!chMap.mustSendAll());
 			assertEquals("Just some text 2", ((Scriptable)rhinoVal.get(0, rhinoVal)).get("text", rhinoVal));
@@ -177,7 +178,11 @@ public class CustomArrayAndObjectPropertyRhinoTest
 			assertTrue(chMap.mustSendAll());
 			cal.add(new HashMap<String, Object>());
 			ChangeAwareMap cam1 = ((ChangeAwareMap< ? , ? >)cal.get(1));
-			assertTrue(chList.mustSendAll());
+			assertFalse(chList.mustSendAll());
+			opSeq = chList.getGranularUpdatesKeeper().getEquivalentSequenceOfOperations();
+			assertEquals(2, opSeq.length);
+			ListTest.assertGranularOpIs(0, 0, ArrayOperation.CHANGE, ChangeAwareList.GRANULAR_UPDATE_OP, opSeq[0]);
+			ListTest.assertGranularOpIs(1, 1, ArrayOperation.INSERT, null, opSeq[1]);
 			assertTrue(chMap.mustSendAll());
 
 			// ok clear changes
@@ -187,8 +192,7 @@ public class CustomArrayAndObjectPropertyRhinoTest
 			assertEquals(0, component.getAndClearChanges().content.size());
 			assertTrue(!chList.mustSendAll());
 			assertTrue(!chMap.mustSendAll());
-			assertEquals(0, chList.getIndexesChangedByRef().size());
-			assertEquals(0, chList.getIndexesWithContentUpdates().size());
+			assertFalse(chList.getGranularUpdatesKeeper().hasChanges());
 			assertEquals(0, chMap.getKeysChangedByRef().size());
 			assertEquals(0, chMap.getKeysWithUpdates().size());
 
@@ -199,8 +203,9 @@ public class CustomArrayAndObjectPropertyRhinoTest
 			rhinoVal.put(0, rhinoVal, oneO);
 			Scriptable oneOScriptable = (Scriptable)rhinoVal.get(0, rhinoVal); // same as 'cam' but in it's Rhino representation
 			assertTrue(!chList.mustSendAll());
-			assertEquals(1, chList.getIndexesChangedByRef().size());
-			assertEquals(0, chList.getIndexesWithContentUpdates().size());
+			opSeq = chList.getGranularUpdatesKeeper().getEquivalentSequenceOfOperations();
+			assertEquals(1, opSeq.length);
+			ListTest.assertGranularOpIs(0, 0, ArrayOperation.CHANGE, null, opSeq[0]);
 			cam = ((ChangeAwareMap< ? , ? >)cal.get(0));
 			chMap = cam.getChanges();
 			activeA1Obj.put("field", activeA1Obj, 11);
@@ -213,8 +218,9 @@ public class CustomArrayAndObjectPropertyRhinoTest
 			assertEquals(0, chMap.getKeysWithUpdates().size());
 			assertTrue(chMap.getKeysChangedByRef().contains("active"));
 			assertTrue(!chList.mustSendAll());
-			assertEquals(1, chList.getIndexesChangedByRef().size()); // we havent cleared changes yet; so initial assignment still needs tosend full value
-			assertEquals(0, chList.getIndexesWithContentUpdates().size());
+			opSeq = chList.getGranularUpdatesKeeper().getEquivalentSequenceOfOperations();
+			assertEquals(1, opSeq.length);
+			ListTest.assertGranularOpIs(0, 0, ArrayOperation.CHANGE, null, opSeq[0]);
 
 			// now change the native values using initial ref to see if it changed in java; this is no longer supported after case SVY-11027
 //		activeA1Obj.put("field", activeA1Obj, 98);
@@ -226,7 +232,7 @@ public class CustomArrayAndObjectPropertyRhinoTest
 			changes = component.getAndClearChanges();
 			String msg = JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext);
 			JSONAssert.assertEquals(
-				"{\"arrayT\":{\"vEr\":3,\"u\":[{\"i\":0,\"v\":{\"rt\":\"mycomponent.mytype007\",\"vEr\":5,\"v\":{\"active\":{\"vEr\":2,\"v\":[{\"rt\":\"mycomponent.activeType\",\"vEr\":2,\"v\":{\"field\":11,\"percent\":0.22}}],\"svy_types\":{\"0\":\"JSON_obj\"}}},\"svy_types\":{\"active\":\"JSON_arr\"}}}],\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}}},\"svy_types\":{\"arrayT\":\"JSON_arr\"}}",
+				"{\"arrayT\":{\"vEr\":3,\"g\":[{\"op\":[0,0,0],\"d\":[{\"rt\":\"mycomponent.mytype007\",\"vEr\":5,\"v\":{\"active\":{\"vEr\":2,\"v\":[{\"rt\":\"mycomponent.activeType\",\"vEr\":2,\"v\":{\"field\":11,\"percent\":0.22}}],\"svy_types\":{\"0\":\"JSON_obj\"}}},\"svy_types\":{\"active\":\"JSON_arr\"}}],\"svy_types\":{\"0\":\"JSON_obj\"}}]},\"svy_types\":{\"arrayT\":\"JSON_arr\"}}",
 				msg, JSONCompareMode.NON_EXTENSIBLE);
 
 			((Map)((List)((Map)cal.get(0)).get("active")).get(0)).put("percent", 0.33);
@@ -237,7 +243,7 @@ public class CustomArrayAndObjectPropertyRhinoTest
 			changes = component.getAndClearChanges();
 			msg = JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext);
 			JSONAssert.assertEquals(
-				"{\"arrayT\":{\"vEr\":3,\"u\":[{\"i\":0,\"v\":{\"rt\":\"mycomponent.mytype007\",\"vEr\":5,\"u\":[{\"k\":\"active\",\"v\":{\"vEr\":2,\"u\":[{\"i\":0,\"v\":{\"rt\":\"mycomponent.activeType\",\"vEr\":2,\"u\":[{\"k\":\"percent\",\"v\":0.33}]}}],\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}}}}],\"svy_types\":{\"0\":{\"v\":\"JSON_arr\"}}}}],\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}}},\"svy_types\":{\"arrayT\":\"JSON_arr\"}}",
+				"{\"arrayT\":{\"vEr\":3,\"g\":[{\"op\":[0,0,0],\"d\":[{\"rt\":\"mycomponent.mytype007\",\"vEr\":5,\"u\":[{\"k\":\"active\",\"v\":{\"vEr\":2,\"g\":[{\"op\":[0,0,0],\"d\":[{\"rt\":\"mycomponent.activeType\",\"vEr\":2,\"u\":[{\"k\":\"percent\",\"v\":0.33}]}],\"svy_types\":{\"0\":\"JSON_obj\"}}]}}],\"svy_types\":{\"0\":{\"v\":\"JSON_arr\"}}}],\"svy_types\":{\"0\":\"JSON_obj\"}}]},\"svy_types\":{\"arrayT\":\"JSON_arr\"}}",
 				msg, JSONCompareMode.NON_EXTENSIBLE);
 
 			((List)((Map)cal.get(0)).get("active")).add(new HashMap<String, Object>());
@@ -253,8 +259,9 @@ public class CustomArrayAndObjectPropertyRhinoTest
 			assertEquals(0.56, ((Map)((List)((Map)cal.get(0)).get("active")).get(1)).get("percent"));
 			assertTrue(!chMap.mustSendAll());
 			assertTrue(!chList.mustSendAll());
-			assertEquals(1, chList.getIndexesWithContentUpdates().size());
-			assertEquals(0, chList.getIndexesChangedByRef().size());
+			opSeq = chList.getGranularUpdatesKeeper().getEquivalentSequenceOfOperations();
+			assertEquals(1, opSeq.length);
+			ListTest.assertGranularOpIs(0, 0, ArrayOperation.CHANGE, ChangeAwareList.GRANULAR_UPDATE_OP, opSeq[0]);
 			assertEquals(1, chMap.getKeysWithUpdates().size());
 			assertEquals("active", chMap.getKeysWithUpdates().iterator().next());
 		}

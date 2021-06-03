@@ -17,6 +17,9 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import java.util.Collections;
+import java.util.Set;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.sablo.specification.property.IBrowserConverterContext;
@@ -39,16 +42,20 @@ public final class FoundsetTypeRowDataProvider extends ViewportRowDataProvider
 	}
 
 	@Override
-	protected void populateRowData(IRecordInternal record, String columnName, JSONWriter w, DataConversion clientConversionInfo, String generatedRowId)
+	protected void populateRowData(IRecordInternal record, Set<String> columnNames, JSONWriter w, DataConversion clientConversionInfo, String generatedRowId)
 		throws JSONException
 	{
 		w.object();
-		if (columnName == null || foundsetPropertyValue.isPk(columnName))
+		if (columnNames == null)
 		{
 			w.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(generatedRowId); // foundsetIndex in that "generatedRowId" is just a hint for where to start searching for the pk when needed
 		}
+		else if (foundsetPropertyValue.isOneOfTheFollowingAPk(columnNames))
+		{
+			w.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY_PARTIAL_UPDATE).value(generatedRowId); // foundsetIndex in that "generatedRowId" is just a hint for where to start searching for the pk when needed
+		}
 
-		foundsetPropertyValue.populateRowData(record, columnName, w, clientConversionInfo, browserConverterContext);
+		foundsetPropertyValue.populateRowData(record, columnNames, w, clientConversionInfo, browserConverterContext);
 
 		w.endObject();
 	}
@@ -59,8 +66,9 @@ public final class FoundsetTypeRowDataProvider extends ViewportRowDataProvider
 		if (columnName == null) return true;
 
 		// if the col is a PK then yes, we do sent it to client as part of the ROW_ID_COL_KEY (see above)
-		// else see if this column is used  directly by the foundset property on client
-		return foundsetPropertyValue.isPk(columnName) || foundsetPropertyValue.getClientIDForColumnName(columnName, false) != null;
+		// else see if this column is used directly by the foundset property on client
+		return foundsetPropertyValue.isOneOfTheFollowingAPk(Collections.singleton(columnName)) ||
+			foundsetPropertyValue.getClientIDForColumnName(columnName, false) != null;
 	}
 
 	@Override

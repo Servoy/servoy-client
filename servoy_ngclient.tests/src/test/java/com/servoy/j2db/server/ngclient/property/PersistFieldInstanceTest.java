@@ -184,7 +184,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		String json = JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, null);
 		JSONAssert.assertEquals(
-			"{\"tabs\":{\"vEr\":1,\"u\":[{\"i\":0,\"v\":{\"rt\":\"servoydefault-tabpanel.tab\",\"vEr\":1,\"u\":[{\"k\":\"text\",\"v\":\"a test\"}]}}],\"svy_types\":{\"0\":{\"v\":\"JSON_obj\"}}},\"svy_types\":{\"tabs\":\"JSON_arr\"}}",
+			"{\"tabs\":{\"vEr\":1,\"g\":[{\"op\":[0,0,0],\"d\":[{\"rt\":\"servoydefault-tabpanel.tab\",\"vEr\":1,\"u\":[{\"k\":\"text\",\"v\":\"a test\"}]}],\"svy_types\":{\"0\":\"JSON_obj\"}}]},\"svy_types\":{\"tabs\":\"JSON_arr\"}}",
 			json, true);
 
 	}

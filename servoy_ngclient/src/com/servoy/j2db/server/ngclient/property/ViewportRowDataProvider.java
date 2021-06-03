@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import java.util.Set;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.sablo.websocket.utils.DataConversion;
@@ -45,7 +47,8 @@ public abstract class ViewportRowDataProvider
 	/**
 	 * @param generatedRowId null if {@link #shouldGenerateRowIds()} returns false
 	 */
-	protected abstract void populateRowData(IRecordInternal record, String columnName, JSONWriter w, DataConversion clientConversionInfo, String generatedRowId)
+	protected abstract void populateRowData(IRecordInternal record, Set<String> columnName, JSONWriter w, DataConversion clientConversionInfo,
+		String generatedRowId)
 		throws JSONException;
 
 	protected abstract boolean shouldGenerateRowIds();
@@ -55,7 +58,7 @@ public abstract class ViewportRowDataProvider
 	 */
 	protected abstract boolean containsColumn(String columnName);
 
-	protected void writeRowData(int foundsetIndex, String columnName, IFoundSetInternal foundset, JSONWriter w, DataConversion clientConversionInfo)
+	protected void writeRowData(int foundsetIndex, Set<String> columnName, IFoundSetInternal foundset, JSONWriter w, DataConversion clientConversionInfo)
 		throws JSONException
 	{
 		// write viewport row contents
@@ -69,7 +72,8 @@ public abstract class ViewportRowDataProvider
 		writeRowData(startIndex, endIndex, null, foundset, w, clientConversionInfo, null);
 	}
 
-	protected void writeRowData(int startIndex, int endIndex, String columnName, IFoundSetInternal foundset, JSONWriter w, DataConversion clientConversionInfo,
+	protected void writeRowData(int startIndex, int endIndex, Set<String> columnName, IFoundSetInternal foundset, JSONWriter w,
+		DataConversion clientConversionInfo,
 		Object sabloValueThatRequestedThisDataToBeWritten) throws JSONException
 	{
 		w.array();

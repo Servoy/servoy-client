@@ -26,6 +26,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.ArrayOperation;
 import org.sablo.specification.property.CustomJSONPropertyType;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
@@ -406,6 +407,32 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 		}
 
 		return newSabloValue;
+	}
+
+	public static boolean writeViewportOperationToJSON(ArrayOperation op, ViewportRowDataProvider rowDataProvider, IFoundSetInternal foundset,
+		int viewportStartIndex,
+		JSONWriter w,
+		String keyInParent, DataConversion clientDataConversions, Object sabloValueThatRequestedThisDataToBeWritten) throws JSONException
+	{
+		JSONUtils.addKeyIfPresent(w, keyInParent);
+
+		w.object();
+
+		// write actual data if necessary
+		if (op.type != ArrayOperation.DELETE)
+		{
+			w.key("rows");
+			clientDataConversions.pushNode("rows");
+			rowDataProvider.writeRowData(viewportStartIndex + op.startIndex, viewportStartIndex + op.endIndex, op.columnNames, foundset, w,
+				clientDataConversions,
+				sabloValueThatRequestedThisDataToBeWritten);
+			clientDataConversions.popNode();
+		}
+
+		w.key("startIndex").value(Integer.valueOf(op.startIndex)).key("endIndex").value(Integer.valueOf(op.endIndex)).key("type").value(
+			Integer.valueOf(op.type)).endObject();
+
+		return true;
 	}
 
 }

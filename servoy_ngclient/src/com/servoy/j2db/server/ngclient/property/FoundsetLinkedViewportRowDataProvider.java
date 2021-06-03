@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import java.util.Set;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
@@ -47,7 +49,7 @@ public class FoundsetLinkedViewportRowDataProvider<YF, YT> extends ViewportRowDa
 	}
 
 	@Override
-	protected void populateRowData(IRecordInternal record, String columnNameAlwaysNullSoIgnore, JSONWriter w, DataConversion clientConversionInfo,
+	protected void populateRowData(IRecordInternal record, Set<String> columnNamesAlwaysNullSoIgnore, JSONWriter w, DataConversion clientConversionInfo,
 		String generatedRowId) throws JSONException
 	{
 		// TODO we should change the order in which rows are populated for a foundset; the foundset itself should do dal.setRecordQuietly(record) then call all ViewportRowDataProvider to populate their data somehow

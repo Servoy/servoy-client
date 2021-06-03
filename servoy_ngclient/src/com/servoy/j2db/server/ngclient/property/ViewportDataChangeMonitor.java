@@ -17,7 +17,11 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import java.util.Collections;
+
 import org.sablo.IChangeListener;
+import org.sablo.specification.property.ArrayGranularChangeKeeper;
+import org.sablo.specification.property.ArrayOperation;
 
 /**
  * This class is responsible for monitoring changes to a foundset or foundset linked property's viewport data and
@@ -35,7 +39,7 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 	 */
 	protected boolean viewPortCompletelyChanged = false;
 
-	protected ViewportChangeKeeper viewPortChanges = new ViewportChangeKeeper();
+	protected ArrayGranularChangeKeeper viewPortChanges = new ArrayGranularChangeKeeper();
 
 	protected final DPT rowDataProvider;
 
@@ -74,7 +78,7 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 		return viewPortCompletelyChanged;
 	}
 
-	public ViewportOperation[] getViewPortChanges()
+	public ArrayOperation[] getViewPortChanges()
 	{
 		return viewPortChanges.getEquivalentSequenceOfOperations();
 	}
@@ -140,7 +144,8 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 		if (!shouldSendWholeViewport())
 		{
 			boolean changed = !viewPortChanges.hasChanges(); // if it doesn't already have changes then it changed
-			processOperation(changed, oldViewportSize, new ViewportOperation(relativeRowIndex, relativeRowIndex, ViewportOperation.CHANGE, columnName));
+			processOperation(changed, oldViewportSize,
+				new ViewportOperation(relativeRowIndex, relativeRowIndex, ArrayOperation.CHANGE, Collections.singleton(columnName)));
 
 			// If at least one ViewportDataChangeMonitor sent changes (so the change affected the data in that ViewportDataChangeMonitor)
 			// but the foundset property itself was not affected in any way; still, we want the client side (browser) listeners attached to the foundset property

@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -38,6 +39,7 @@ import org.sablo.IWebObjectContext;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
+import org.sablo.specification.property.ArrayOperation;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.CustomJSONPropertyType;
 import org.sablo.specification.property.IBrowserConverterContext;
@@ -100,6 +102,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	 * uniquely identifies that record.
 	 */
 	public static final String ROW_ID_COL_KEY = "_svyRowId";
+	public static final String ROW_ID_COL_KEY_PARTIAL_UPDATE = "_svyRowId_p";
+
 
 	public static final String DATAPROVIDER_KEY = "dp";
 	public static final String VALUE_KEY = "value";
@@ -226,15 +230,15 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		return foundsetSelector;
 	}
 
-	protected boolean isPk(String columnName)
+	protected boolean isOneOfTheFollowingAPk(Set<String> columnNames)
 	{
-		if (columnName == null) return false;
+		if (columnNames == null) return false;
 
 		if (foundset != null && foundset.getSQLSheet() != null)
 		{
 			String[] pkIDs = foundset.getSQLSheet().getPKColumnDataProvidersAsArray();
 			for (String pkID : pkIDs)
-				if (columnName.equals(pkID)) return true;
+				if (columnNames.contains(pkID)) return true;
 		}
 		return false;
 	}
@@ -735,7 +739,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 				if (changeMonitor.hasViewportChanges())
 				{
-					ViewportOperation[] viewPortChanges = changeMonitor.getViewPortChanges();
+					ArrayOperation[] viewPortChanges = changeMonitor.getViewPortChanges();
 					changeMonitor.clearChanges();
 					if (!somethingChanged) destinationJSON.object();
 					if (!viewPortUpdateAdded)
@@ -751,7 +755,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 					for (int i = 0; i < viewPortChanges.length; i++)
 					{
 						clientConversionInfo.pushNode(String.valueOf(i));
-						viewPortChanges[i].writeJSONContent(rowDataProvider, foundset, viewPort.getStartIndex(), destinationJSON, null, clientConversionInfo,
+						FoundsetPropertyType.writeViewportOperationToJSON(viewPortChanges[i], rowDataProvider, foundset, viewPort.getStartIndex(),
+							destinationJSON, null, clientConversionInfo,
 							null);
 						clientConversionInfo.popNode();
 					}
@@ -820,7 +825,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		return null;
 	}
 
-	protected void populateRowData(IRecordInternal record, String columnName, JSONWriter w, DataConversion clientConversionInfo,
+	protected void populateRowData(IRecordInternal record, Set<String> columnNames, JSONWriter w, DataConversion clientConversionInfo,
 		IBrowserConverterContext browserConverterContext) throws JSONException
 	{
 		Iterator<Entry<String, String>> it = dataproviders.entrySet().iterator();
@@ -828,7 +833,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		{
 			Entry<String, String> entry = it.next();
 			String dataProvider = entry.getValue();
-			if (columnName == null || Utils.equalObjects(columnName, dataProvider))
+			if (columnNames == null || columnNames.contains(dataProvider))
 			{
 				Object value = (dataProvider != null ? record.getValue(dataProvider) : null);
 				if (value == Scriptable.NOT_FOUND) value = null; // if the given DP is invalid, then record.getValue(dataProvider) can return Rhino Scriptable.NOT_FOUND; we must handle that as that can't be sent to client conversion directly

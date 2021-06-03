@@ -17,7 +17,10 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import java.util.Collections;
+
 import org.sablo.IChangeListener;
+import org.sablo.specification.property.ArrayOperation;
 
 /**
  * A ViewportDataChangeMonitor that is for the foundset property type itself.
@@ -46,7 +49,7 @@ public class FoundsetTypeViewportDataChangeMonitor extends ViewportDataChangeMon
 
 		boolean changed = !viewPortChanges.hasChanges(); // if it doesn't already have changes then it changed
 		processOperation(changed, oldViewportSize,
-			new ViewportOperation(firstRelativeRowIndex, lastRelativeRowIndex, ViewportOperation.CHANGE_IN_LINKED_PROPERTY, columnName));
+			new ViewportOperation(firstRelativeRowIndex, lastRelativeRowIndex, ArrayOperation.CHANGE, Collections.singleton(columnName)));
 
 		if (changed && monitor != null) monitor.valueChanged();
 		return changed;
