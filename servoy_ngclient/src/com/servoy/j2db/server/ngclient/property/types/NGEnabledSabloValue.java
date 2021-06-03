@@ -28,6 +28,8 @@ import com.servoy.j2db.server.ngclient.WebFormUI;
 
 public class NGEnabledSabloValue extends EnabledSabloValue
 {
+	private boolean accessible = true;
+
 	/**
 	 * @param value
 	 * @param dataConverterContext
@@ -40,6 +42,10 @@ public class NGEnabledSabloValue extends EnabledSabloValue
 	@Override
 	public boolean getValue()
 	{
+		if (!accessible)
+		{
+			return false;
+		}
 		boolean val = super.getValue();
 		if (val)
 		{
@@ -69,5 +75,10 @@ public class NGEnabledSabloValue extends EnabledSabloValue
 	public boolean getComponentValue()
 	{
 		return value;
+	}
+
+	public void setAccessible(boolean accessible)
+	{
+		this.accessible = accessible;
 	}
 }

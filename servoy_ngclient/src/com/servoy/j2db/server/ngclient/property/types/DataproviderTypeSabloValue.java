@@ -292,6 +292,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			servoyDataConverterContext.getForm().getForm(), record != null ? record.getParentFoundSet().getTable() : null);
 		Collection<PropertyDescription> properties = webObjectContext.getProperties(TypesRegistry.getType(FormatPropertyType.TYPE_NAME));
 
+		FormatTypeSabloValue formatSabloValue = null;
 		for (PropertyDescription formatPd : properties)
 		{
 			// see whether format if "for" this property (dataprovider)
@@ -299,10 +300,13 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			if (formatConfig instanceof String[] && Arrays.asList((String[])formatConfig).indexOf(dpPD.getName()) != -1)
 			{
 				INGApplication application = servoyDataConverterContext.getApplication();
-				FormatTypeSabloValue formatSabloValue = (FormatTypeSabloValue)webObjectContext.getProperty(formatPd.getName());
-				if (formatSabloValue != null && formatSabloValue.getFormatDesignValue() != null)
+				formatSabloValue = (FormatTypeSabloValue)webObjectContext.getProperty(formatPd.getName());
+				if (formatSabloValue != null)
 				{
-					fieldFormat = ComponentFormat.getComponentFormat(formatSabloValue.getFormatDesignValue(), dataProviderID, dpLookup, application);
+					if (formatSabloValue.getFormatDesignValue() != null)
+					{
+						fieldFormat = ComponentFormat.getComponentFormat(formatSabloValue.getFormatDesignValue(), dataProviderID, dpLookup, application);
+					}
 					break;
 				}
 			}
@@ -321,7 +325,8 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			// see type of dataprovider; this is done only once - first time we get a new record
 			typeOfDP = NGUtils.getDataProviderPropertyDescription(dataProviderID, servoyDataConverterContext.getApplication(),
 				servoyDataConverterContext.getForm().getForm(), record != null ? record.getParentFoundSet().getTable() : null,
-				getDataProviderConfig().hasParseHtml(), false);
+				getDataProviderConfig().hasParseHtml(),
+				formatSabloValue != null ? formatSabloValue.getComponentFormat().parsedFormat.useLocalDateTime() : false);
 		}
 		if (dpPD.hasTag(TAG_TYPE_NAME))
 		{

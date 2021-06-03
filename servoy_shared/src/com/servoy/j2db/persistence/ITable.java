@@ -21,6 +21,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import com.servoy.j2db.dataprocessing.IndexInfo;
+
 /**
  * Identifies a SQL server table obj.
  *
@@ -272,4 +274,6 @@ public interface ITable
 	 * @return
 	 */
 	public Iterator<Column> getColumnsSortedByIndex(List<String> indexedNames);
+
+	public List<IndexInfo> getIndexes();
 }

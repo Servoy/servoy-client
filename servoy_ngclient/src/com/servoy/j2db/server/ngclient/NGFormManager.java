@@ -164,8 +164,34 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		{
 			application.getModeManager().setMode(IModeManager.EDIT_MODE);//start in browse mode
 		}
-
-
+		boolean showLoginForm = (solution.getLoginFormID() > 0 && solution.getMustAuthenticate() && application.getUserUID() == null);
+		if (application.getUserUID() == null)
+		{
+			ScriptMethod onBeforeLogin = application.getFlattenedSolution().getScriptMethod(solution.getOnBeforeLoginMethodID());
+			if (onBeforeLogin != null)
+			{
+				try
+				{
+					Object[] paramArray = null;
+					Object[] clientArray = ((ClientState)application).getPreferedSolutionMethodArguments();
+					if (clientArray != null && clientArray.length > 1)
+					{
+						paramArray = new Object[] { clientArray[1] };
+					}
+					application.getScriptEngine().getScopesScope().executeGlobalFunction(onBeforeLogin.getScopeName(), onBeforeLogin.getName(),
+						Utils.arrayMerge(paramArray,
+							Utils.parseJSExpressions(solution.getFlattenedMethodArguments("onBeforeLoginMethodID"))),
+						false,
+						false);
+				}
+				catch (Exception e1)
+				{
+					application.reportError(
+						Messages.getString("servoy.formManager.error.ExecutingOpenSolutionMethod", new Object[] { onBeforeLogin.getName() }), //$NON-NLS-1$
+						e1);
+				}
+			}
+		}
 		if (solution.getLoginFormID() > 0 && solution.getMustAuthenticate() && application.getUserUID() == null)
 		{
 			Form login = application.getFlattenedSolution().getForm(solution.getLoginFormID());
@@ -176,7 +202,11 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 				return; //stop and recall this method from security.login(...)!
 			}
 		}
-
+		else if (showLoginForm)
+		{
+			// there was a login in onBeforeLogin, so only second call to makeSolutionSettings should go further
+			return;
+		}
 		IBasicMainContainer currentContainer = getCurrentContainer();
 		if (solution.getLoginFormID() > 0 && solution.getMustAuthenticate() && application.getUserUID() != null && loginForm != null)
 		{

@@ -891,7 +891,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/*------------------------------------------------------------------------------------------------------------------------
 	 * LISTENERS
-
+	
 	public void iPersistChanged(IPersist persist)
 	{
 		getChangeHandler().fireIPersistChanged(persist);
@@ -1213,12 +1213,31 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * @templatename onSolutionOpen
 	 * @templateaddtodo
 	 * @templateparam String arg startup argument part of the deeplink url with which the Client was started
-	 * @templateparam Object<Array<String>> queryParams all query parameters of the deeplink url with which the Client was started
+	 * @templateparam Object<Array<String> | String> queryParams all query parameters of the deeplink url with which the Client was started, key>string if there was one value else key>Array<String>
 	 */
 	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
 	public int getOnOpenMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONOPENMETHODID).intValue();
+	}
+
+	/**
+	 * The method that is to onOpen just that it executes before the login on solutions with a login form (not login soliution). The default is -none-.
+	 *
+	 * @templatedescription Callback method for when solution is loaded in before login of a solution that uses a login form.
+	 * This onbeforelogin is not executed when this is attached to a main solution that has a login soluton.
+	 * Then the the login solution should have an onbefore. Because the main is not loaded at all yet before the login solution is finished.
+	 * When deeplinking into solutions, the argument part of the deeplink url will be passed in as the first argument
+	 * All query parameters + the argument of the deeplink url will be passed in as the second argument
+	 * For more information on deeplinking, see the chapters on the different Clients in the Deployment Guide.
+	 * @templatename onBeforeLogin
+	 * @templateaddtodo
+	 * @templateparam Object<Array<String> | String> queryParams all query parameters of the deeplink url with which the Client was started, key>string if there was one value else key>Array<String>
+	 */
+	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
+	public int getOnBeforeLoginMethodID()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFORELOGINMETHODID).intValue();
 	}
 
 	/**
@@ -1359,6 +1378,14 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	public void setOnOpenMethodID(int i)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONOPENMETHODID, i);
+	}
+
+	/**
+	 * @param i
+	 */
+	public void setOnBeforeLoginMethodID(int i)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFORELOGINMETHODID, i);
 	}
 
 	/**

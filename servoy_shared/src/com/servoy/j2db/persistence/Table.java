@@ -19,12 +19,13 @@ package com.servoy.j2db.persistence;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.servoy.base.persistence.IBaseColumn;
-import com.servoy.j2db.dataprocessing.SortColumn;
+import com.servoy.j2db.dataprocessing.IndexInfo;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.keyword.Ident;
@@ -62,7 +63,7 @@ public class Table extends AbstractTable implements ITable, Serializable, ISuppo
 
 	private String dataSource;
 
-	private List<SortColumn>[] indexes;
+	private List<IndexInfo> indexes;
 
 /*
  * _____________________________________________________________ Declaration and definition of constructors
@@ -246,7 +247,7 @@ public class Table extends AbstractTable implements ITable, Serializable, ISuppo
 	/**
 	 * @param indexes
 	 */
-	public void setIndexes(List<SortColumn>[] indexes)
+	public void setIndexes(List<IndexInfo> indexes)
 	{
 		this.indexes = indexes;
 	}
@@ -254,9 +255,10 @@ public class Table extends AbstractTable implements ITable, Serializable, ISuppo
 	/**
 	 * @return the indexes
 	 */
-	public List<SortColumn>[] getIndexes()
+	@Override
+	public List<IndexInfo> getIndexes()
 	{
-		return indexes;
+		return indexes == null ? Collections.emptyList() : indexes;
 	}
 
 	/**
