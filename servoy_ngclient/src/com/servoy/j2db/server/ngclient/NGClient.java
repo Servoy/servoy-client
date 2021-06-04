@@ -1670,4 +1670,35 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	{
 		Debug.warn("Setting TimeZone on NG client is not allowed");
 	}
+
+	@Override
+	public void setClipboardContent(String content)
+	{
+		try
+		{
+			getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("setClipboardContent",
+				new Object[] { Utils.stringReplace(content, "\r", "") });
+		}
+		catch (IOException e)
+		{
+			Debug.error("Error setting the clipboard content", e);
+		}
+	}
+
+	@Override
+	public String getClipboardContent()
+	{
+		try
+		{
+			return (String)getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeServiceCall("getClipboardContent", null);
+		}
+		catch (IOException e)
+		{
+			Debug.error("Error getting the clipboard content", e);
+		}
+
+		return null;
+	}
+
+
 }

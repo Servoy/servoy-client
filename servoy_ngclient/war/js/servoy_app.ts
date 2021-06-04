@@ -1485,6 +1485,12 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		getSolutionName: function() {
 			return $solutionSettings.solutionName;
 		},
+		setClipboardContent: function(content: string) {
+			navigator.clipboard.writeText(content);
+		},
+		getClipboardContent() : Promise<string> {
+			return navigator.clipboard.readText();
+		},
 		trustAsHtml: trustAsHtml
 	}
 
