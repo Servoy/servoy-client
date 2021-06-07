@@ -22,6 +22,12 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 		},
 		link: function($scope, $element, $attrs, ngModel) {
 
+			// add custom class to the popup, needed by ng-grids (ag-grid) so it can be used in form editors (popups)
+			$timeout(function() {
+				var ariaOwns = $element.attr("aria-owns");
+				$("#" + ariaOwns).addClass("ag-custom-component-popup");
+			}, 0, false);
+
 			$scope.onFocus = function(){
 				angular.element("[move-in-progress]").css("min-width",$element.outerWidth()+"px");
 				if ($scope.showValues !== undefined && $scope.showValues != null)
