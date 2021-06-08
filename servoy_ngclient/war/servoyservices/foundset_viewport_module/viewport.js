@@ -193,7 +193,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
                         // this might be a partial update (so only a column changed for example) - don't drop all other columns, just update the ones we received
                         for (dpName in rowUpdate.rows[relIdx]) {
                             // update value
-                            viewPort[j][dpName == ROW_ID_COL_KEY_PARTIAL_UPDATE ? $foundsetTypeConstants.ROW_ID_COL_KEY : dpName] = rowUpdate.rows[relIdx][dpName];
+                            viewPort[j][dpName === ROW_ID_COL_KEY_PARTIAL_UPDATE ? $foundsetTypeConstants.ROW_ID_COL_KEY : dpName] = rowUpdate.rows[relIdx][dpName];
                             if (rowConversionUpdate) {
                                 // update conversion info
                                 if (angular.isUndefined(internalState[CONVERSIONS])) {
