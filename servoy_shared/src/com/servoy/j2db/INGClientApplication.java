@@ -27,4 +27,7 @@ public interface INGClientApplication extends IApplication
 
 	void overrideStyleSheet(String oldStyleSheet, String newStyleSheet);
 
+	void setClipboardContent(String content);
+
+	String getClipboardContent();
 }
