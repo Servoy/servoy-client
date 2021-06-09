@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.junit.After;
@@ -48,7 +49,6 @@ import org.sablo.specification.property.ChangeAwareMap.Changes;
 import org.sablo.specification.property.CustomJSONArrayType;
 import org.sablo.specification.property.CustomJSONObjectType;
 import org.sablo.specification.property.CustomJSONPropertyType;
-import org.sablo.specification.property.ListTest;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -163,7 +163,7 @@ public class CustomArrayAndObjectPropertyRhinoTest
 			assertEquals("text", chMap.getKeysChangedByRef().iterator().next());
 			ArrayOperation[] opSeq = chList.getGranularUpdatesKeeper().getEquivalentSequenceOfOperations();
 			assertEquals(1, opSeq.length);
-			ListTest.assertGranularOpIs(0, 0, ArrayOperation.CHANGE, ChangeAwareList.GRANULAR_UPDATE_OP, opSeq[0]);
+			assertGranularOpIs(0, 0, ArrayOperation.CHANGE, ChangeAwareList.GRANULAR_UPDATE_OP, opSeq[0]);
 			assertTrue(!chList.mustSendAll());
 			assertTrue(!chMap.mustSendAll());
 			assertEquals("Just some text 2", ((Scriptable)rhinoVal.get(0, rhinoVal)).get("text", rhinoVal));
@@ -181,8 +181,8 @@ public class CustomArrayAndObjectPropertyRhinoTest
 			assertFalse(chList.mustSendAll());
 			opSeq = chList.getGranularUpdatesKeeper().getEquivalentSequenceOfOperations();
 			assertEquals(2, opSeq.length);
-			ListTest.assertGranularOpIs(0, 0, ArrayOperation.CHANGE, ChangeAwareList.GRANULAR_UPDATE_OP, opSeq[0]);
-			ListTest.assertGranularOpIs(1, 1, ArrayOperation.INSERT, null, opSeq[1]);
+			assertGranularOpIs(0, 0, ArrayOperation.CHANGE, ChangeAwareList.GRANULAR_UPDATE_OP, opSeq[0]);
+			assertGranularOpIs(1, 1, ArrayOperation.INSERT, null, opSeq[1]);
 			assertTrue(chMap.mustSendAll());
 
 			// ok clear changes
@@ -205,7 +205,7 @@ public class CustomArrayAndObjectPropertyRhinoTest
 			assertTrue(!chList.mustSendAll());
 			opSeq = chList.getGranularUpdatesKeeper().getEquivalentSequenceOfOperations();
 			assertEquals(1, opSeq.length);
-			ListTest.assertGranularOpIs(0, 0, ArrayOperation.CHANGE, null, opSeq[0]);
+			assertGranularOpIs(0, 0, ArrayOperation.CHANGE, null, opSeq[0]);
 			cam = ((ChangeAwareMap< ? , ? >)cal.get(0));
 			chMap = cam.getChanges();
 			activeA1Obj.put("field", activeA1Obj, 11);
@@ -220,7 +220,7 @@ public class CustomArrayAndObjectPropertyRhinoTest
 			assertTrue(!chList.mustSendAll());
 			opSeq = chList.getGranularUpdatesKeeper().getEquivalentSequenceOfOperations();
 			assertEquals(1, opSeq.length);
-			ListTest.assertGranularOpIs(0, 0, ArrayOperation.CHANGE, null, opSeq[0]);
+			assertGranularOpIs(0, 0, ArrayOperation.CHANGE, null, opSeq[0]);
 
 			// now change the native values using initial ref to see if it changed in java; this is no longer supported after case SVY-11027
 //		activeA1Obj.put("field", activeA1Obj, 98);
@@ -261,7 +261,7 @@ public class CustomArrayAndObjectPropertyRhinoTest
 			assertTrue(!chList.mustSendAll());
 			opSeq = chList.getGranularUpdatesKeeper().getEquivalentSequenceOfOperations();
 			assertEquals(1, opSeq.length);
-			ListTest.assertGranularOpIs(0, 0, ArrayOperation.CHANGE, ChangeAwareList.GRANULAR_UPDATE_OP, opSeq[0]);
+			assertGranularOpIs(0, 0, ArrayOperation.CHANGE, ChangeAwareList.GRANULAR_UPDATE_OP, opSeq[0]);
 			assertEquals(1, chMap.getKeysWithUpdates().size());
 			assertEquals("active", chMap.getKeysWithUpdates().iterator().next());
 		}
@@ -380,6 +380,14 @@ public class CustomArrayAndObjectPropertyRhinoTest
 		assertEquals("Just some text 4", sbr.get(4).get("a"));
 		assertEquals(null, sbr.get(5).get("c"));
 		assertEquals(6, sbr.size());
+	}
+	
+	public static void assertGranularOpIs(int startIndex, int endIndex, int opType, Set<String> columnNames, ArrayOperation opSeq)
+	{
+		assertEquals("startIndex check", startIndex, opSeq.startIndex);
+		assertEquals("endIndex check", endIndex, opSeq.endIndex);
+		assertEquals("opType check", opType, opSeq.type);
+		assertEquals("columnName check", columnNames, opSeq.columnNames);
 	}
 
 }
