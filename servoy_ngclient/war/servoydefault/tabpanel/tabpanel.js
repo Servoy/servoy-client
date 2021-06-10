@@ -1,4 +1,5 @@
-angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpanel', function($window, $log, $apifunctions,$timeout,$anchorConstants,$svyProperties) {  
+angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpanel',
+            function($window, $log, $apifunctions, $timeout, $anchorConstants, $svyProperties, $sabloConstants) {
 	return {
 		restrict: 'E',
 		transclude: true,
@@ -84,10 +85,15 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 				refresh();
 			});
 
-			$scope.$watch("model.tabs", function(newValue) {
-				if ($log.debugEnabled) $log.debug("svy * model.tabs reference updated; length = " + ($scope.model.tabs ? $scope.model.tabs.length : undefined) + " -- " + new Date().getTime());
-				refresh();
-			});        
+            Object.defineProperty($scope.model, $sabloConstants.modelChangeNotifier, {
+                configurable: true,
+                value: function(property, value) {
+                    if (property === "tabs") { // tabs or any sub-property of it changed from server
+                        if ($log.debugEnabled) $log.debug("svy * model.tabs change from server received length = " + ($scope.model.tabs ? $scope.model.tabs.length : undefined) + " -- " + new Date().getTime());
+                        refresh();
+                    }
+                }
+            });
 
 			$scope.$watch("model.visible", function(newValue,oldValue) {
 	    	  		if ($scope.model.selectedTab && newValue !== oldValue && $scope.model.selectedTab.containsFormId)
