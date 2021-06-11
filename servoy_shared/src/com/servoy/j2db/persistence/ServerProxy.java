@@ -259,13 +259,13 @@ public class ServerProxy implements IServer, Serializable
 	}
 
 	@Override
-	public boolean createClientDatasource(JSConnectionDefinition definition)
+	public boolean createClientDatasource(JSConnectionDefinition definition) throws RemoteException
 	{
 		return server.createClientDatasource(definition);
 	}
 
 	@Override
-	public void dropClientDatasource(String clientId)
+	public void dropClientDatasource(String clientId) throws RemoteException
 	{
 		server.dropClientDatasource(clientId);
 	}

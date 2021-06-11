@@ -83,10 +83,10 @@ public interface IServer extends Remote
 	/**
 	 * @param definition
 	 */
-	public boolean createClientDatasource(JSConnectionDefinition definition);
+	public boolean createClientDatasource(JSConnectionDefinition definition) throws RemoteException;
 
 	/**
 	 * @param definition
 	 */
-	public void dropClientDatasource(String clientId);
+	public void dropClientDatasource(String clientId) throws RemoteException;
 }

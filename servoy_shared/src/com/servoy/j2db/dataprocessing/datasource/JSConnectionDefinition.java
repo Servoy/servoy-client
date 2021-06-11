@@ -18,6 +18,7 @@
 package com.servoy.j2db.dataprocessing.datasource;
 
 import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +28,7 @@ import org.mozilla.javascript.annotations.JSFunction;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.scripting.IJavaScriptType;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDestroyable;
 
 /**
@@ -139,8 +141,15 @@ public class JSConnectionDefinition implements IJavaScriptType, IDestroyable, Se
 	@JSFunction
 	public JSConnectionDefinition create()
 	{
-		if (server.createClientDatasource(this))
-			return this;
+		try
+		{
+			if (server.createClientDatasource(this))
+				return this;
+		}
+		catch (RemoteException e)
+		{
+			Debug.error("Can't creating JSConncetionDefinition for server " + server, e); //$NON-NLS-1$
+		}
 		return null;
 	}
 
@@ -152,7 +161,14 @@ public class JSConnectionDefinition implements IJavaScriptType, IDestroyable, Se
 	@JSFunction
 	public void destroy()
 	{
-		server.dropClientDatasource(clientId);
+		try
+		{
+			server.dropClientDatasource(clientId);
+		}
+		catch (RemoteException e)
+		{
+			Debug.error("Error destroying JSConncetionDefinition for server " + server, e); //$NON-NLS-1$
+		}
 	}
 
 	/**
