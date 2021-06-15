@@ -19,7 +19,7 @@ angular.module('foundset_manager',['sabloApp'])
 			var foundset = getFoundSetFromScope(foundsethash);
 			if(!foundset) {
 				if(!scope.model.foundsets) scope.model.foundsets = [];
-				var foundsetWatch = scope.$watch('model.foundsets', function(newVal, oldVal){
+				var foundsetWatch = scope.$watchCollection('model.foundsets', function(newVal, oldVal){
 					var foundset = getFoundSetFromScope(foundsethash);
 					if(foundset) {
 						foundsetWatch();
