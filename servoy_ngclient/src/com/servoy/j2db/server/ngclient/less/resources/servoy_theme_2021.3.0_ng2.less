@@ -1366,7 +1366,12 @@ data-servoyextra-fontawesome > div {
     color: @field-color;
 }
 
-/* Servoy Bootstrap/Extra Table */
+/**************************************************************
+ **************************************************************
+                Servoy Bootstrap/Extra Table 
+ **************************************************************
+ **************************************************************/
+
 .svy-table tbody,
 .bts-table {
     border: @table-border-width @border-style @border-color;
@@ -1405,9 +1410,9 @@ data-servoyextra-fontawesome > div {
     color: @table-row-odd-text-color;
 }
 
-.table > thead > tr > th, .table > tbody > tr > th, 
+.table > thead > tr > th, .table > tbody tr > th, 
 .table > tfoot > tr > th, .table > thead > tr > td, 
-.table > tbody > tr > td, .table > tfoot > tr > td {
+.table > tbody tr > td, .table > tfoot > tr > td {
     border-color: @border-color;
     border-top-width: @table-row-border-width;
 }
@@ -1418,6 +1423,7 @@ data-servoyextra-fontawesome > div {
     color: @table-row-selected-text-color;
 }
 
+/* Table border */
 .svy-table  th,
 .svy-table  td,
 .bts-table  th,
@@ -1425,6 +1431,7 @@ data-servoyextra-fontawesome > div {
     border-color: @border-color;
 }
 
+/* Table border header */
 .svy-table thead,
 .bts-table thead,
 .ui-grid-header-cell {
@@ -1437,6 +1444,23 @@ data-servoyextra-fontawesome > div {
 
 .svy-table thead {
     border-top-width: 0;
+    border: 0;
+}
+
+.svy-table thead > tr > th:first-child {
+    border-left-width: 1px;
+    border-style: @border-style;
+    border-color: @border-color;
+}
+
+.svy-table thead > tr > th:last-child {
+    border-right-width: 1px;
+    border-style: @border-style;
+    border-color: @border-color;
+}
+
+.table > :not(:last-child) > :last-child > * {
+    border-color: @border-color;
 }
 
 .ui-grid-header-cell,

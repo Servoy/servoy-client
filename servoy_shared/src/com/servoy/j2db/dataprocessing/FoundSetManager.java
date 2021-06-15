@@ -3452,13 +3452,21 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		if (foundset == null) return false;
 		viewFoundSets.put(foundset.getDataSource(), foundset);
+		ITable table = foundset.getTable();
+		if (!viewDataSources.containsKey(foundset.getDataSource()))
+			viewDataSources.put(foundset.getDataSource(), table);
 		return true;
 	}
 
 	@Override
 	public boolean unregisterViewFoundSet(String datasource)
 	{
-		return viewFoundSets.remove(datasource) != null;
+		boolean unregistered = viewFoundSets.remove(datasource) != null;
+		if (unregistered)
+		{
+			viewDataSources.remove(datasource);
+		}
+		return unregistered;
 	}
 
 	@Override
