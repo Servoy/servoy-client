@@ -19,13 +19,7 @@ package com.servoy.j2db.server.ngclient.property;
 
 import java.util.Set;
 
-import org.json.JSONException;
-import org.json.JSONWriter;
 import org.sablo.specification.property.ArrayOperation;
-import org.sablo.websocket.utils.DataConversion;
-import org.sablo.websocket.utils.JSONUtils;
-
-import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 
 @SuppressWarnings("nls")
 public class ViewportOperation extends ArrayOperation
@@ -39,29 +33,6 @@ public class ViewportOperation extends ArrayOperation
 	public ViewportOperation(int startIndex, int endIndex, int type, Set<String> columnNames)
 	{
 		super(startIndex, endIndex, type, columnNames);
-	}
-
-	public boolean writeJSONContent(ViewportRowDataProvider rowDataProvider, IFoundSetInternal foundset, int viewportStartIndex, JSONWriter w,
-		String keyInParent, DataConversion clientDataConversions, Object sabloValueThatRequestedThisDataToBeWritten) throws JSONException
-	{
-		JSONUtils.addKeyIfPresent(w, keyInParent);
-
-		w.object();
-
-		// write actual data if necessary
-		if (type != DELETE)
-		{
-			w.key("rows");
-			clientDataConversions.pushNode("rows");
-			rowDataProvider.writeRowData(viewportStartIndex + startIndex, viewportStartIndex + endIndex, columnNames, foundset, w, clientDataConversions,
-				sabloValueThatRequestedThisDataToBeWritten);
-			clientDataConversions.popNode();
-		}
-
-		w.key("startIndex").value(Integer.valueOf(startIndex)).key("endIndex").value(Integer.valueOf(endIndex)).key("type").value(
-			Integer.valueOf(type)).endObject();
-
-		return true;
 	}
 
 	@Override
