@@ -45,6 +45,7 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.TableNode;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IntHashMap;
 
 /**
@@ -131,7 +132,9 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 
 	protected void addInNameCache(ConcurrentMap<String, IPersist> cache, IPersist persist)
 	{
-		cache.put(((ISupportName)persist).getName(), persist);
+		String name = ((ISupportName)persist).getName();
+		if (name != null) cache.put(name, persist);
+		else Debug.warn("Trying to create the name cache of a Persist object that we expect to have a name but has none: " + persist); //$NON-NLS-1$
 	}
 
 	@SuppressWarnings("unchecked")
