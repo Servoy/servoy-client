@@ -172,8 +172,14 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 			{
 				try
 				{
+					Object[] paramArray = null;
+					Object[] clientArray = ((ClientState)application).getPreferedSolutionMethodArguments();
+					if (clientArray != null && clientArray.length > 1)
+					{
+						paramArray = new Object[] { clientArray[1] };
+					}
 					application.getScriptEngine().getScopesScope().executeGlobalFunction(onBeforeLogin.getScopeName(), onBeforeLogin.getName(),
-						Utils.arrayMerge(((ClientState)application).getPreferedSolutionMethodArguments(),
+						Utils.arrayMerge(paramArray,
 							Utils.parseJSExpressions(solution.getFlattenedMethodArguments("onBeforeLoginMethodID"))),
 						false,
 						false);

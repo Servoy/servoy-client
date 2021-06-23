@@ -40,6 +40,7 @@ import org.sablo.IllegalChangeFromClientException;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.WebObjectSpecification;
+import org.sablo.specification.property.ArrayOperation;
 import org.sablo.specification.property.ISmartPropertyValue;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.TypedData;
@@ -574,15 +575,16 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			else
 			// viewPortChanges.size() > 0
 			{
-				ViewportOperation[] viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
+				ArrayOperation[] viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
 				viewPortChangeMonitor.clearChanges();
 
 				destinationJSON.key(ComponentPropertyType.MODEL_VIEWPORT_CHANGES_KEY).array();
 
 				FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
-				for (ViewportOperation viewPortChange : viewPortChanges)
+				for (ArrayOperation viewPortChange : viewPortChanges)
 				{
-					viewPortChange.writeJSONContent(viewPortChangeMonitor.getRowDataProvider(), foundsetPropValue.getFoundset(),
+					FoundsetPropertyType.writeViewportOperationToJSON(viewPortChange, viewPortChangeMonitor.getRowDataProvider(),
+						foundsetPropValue.getFoundset(),
 						foundsetPropValue.getViewPort().getStartIndex(), destinationJSON, null, null);
 				}
 				destinationJSON.endArray();

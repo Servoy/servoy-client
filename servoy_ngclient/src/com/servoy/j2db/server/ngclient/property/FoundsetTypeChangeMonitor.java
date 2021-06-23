@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.sablo.IChangeListener;
+import org.sablo.specification.property.ArrayOperation;
+import org.sablo.specification.property.ArrayOperation;
 
 import com.servoy.j2db.dataprocessing.FireCollector;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
@@ -237,7 +239,7 @@ public class FoundsetTypeChangeMonitor
 				@Override
 				public void run(ViewportDataChangeMonitor< ? > vpdcm)
 				{
-					vpdcm.queueOperation(relativeFirstRowToOldViewport, relativeLastRowToOldViewport, oldSize, ViewportOperation.DELETE);
+					vpdcm.queueOperation(relativeFirstRowToOldViewport, relativeLastRowToOldViewport, oldSize, ArrayOperation.DELETE);
 				}
 			});
 		}
@@ -325,12 +327,12 @@ public class FoundsetTypeChangeMonitor
 					{
 						public void run(ViewportDataChangeMonitor< ? > vpdcm)
 						{
-							vpdcm.queueOperation(relativeFirstRow, relativeLastRow, oldViewPortSize, ViewportOperation.DELETE);
+							vpdcm.queueOperation(relativeFirstRow, relativeLastRow, oldViewPortSize, ArrayOperation.DELETE);
 
 							// see if records slided automatically into the viewport due to delete; generate an INSERT for those
 							if (insertedStartDueToSlidingInRelative <= insertedEndDueToSlidingInRelative)
 								vpdcm.queueOperation(insertedStartDueToSlidingInRelative, insertedEndDueToSlidingInRelative, oldViewPortSize,
-									ViewportOperation.INSERT);
+									ArrayOperation.INSERT);
 						}
 					});
 				}
@@ -360,7 +362,7 @@ public class FoundsetTypeChangeMonitor
 			{
 				public void run(ViewportDataChangeMonitor< ? > vpdcm)
 				{
-					vpdcm.queueOperation(firstRow - viewPort.getStartIndex(), lastViewPortInsert - viewPort.getStartIndex(), oldSize, ViewportOperation.INSERT);
+					vpdcm.queueOperation(firstRow - viewPort.getStartIndex(), lastViewPortInsert - viewPort.getStartIndex(), oldSize, ArrayOperation.INSERT);
 				}
 			});
 		}
@@ -388,13 +390,13 @@ public class FoundsetTypeChangeMonitor
 					public void run(ViewportDataChangeMonitor< ? > vpdcm)
 					{
 						vpdcm.queueOperation(firstRow - viewPort.getStartIndex(), lastViewPortInsert - viewPort.getStartIndex(), oldSize,
-							ViewportOperation.INSERT);
+							ArrayOperation.INSERT);
 
 						// for insert operations that will push some rows out of the viewport we need to generate a delete operation as well (so that viewport data is correct afterwards)
 						int rowsInsertedInViewport = lastViewPortInsert - firstRow + 1;
 						int rowsThatSlidedOutOfViewport = oldSize + rowsInsertedInViewport - viewPort.getSize();
 						if (rowsThatSlidedOutOfViewport > 0)
-							vpdcm.queueOperation(viewPort.getSize(), viewPort.getSize() + rowsThatSlidedOutOfViewport - 1, oldSize, ViewportOperation.DELETE);
+							vpdcm.queueOperation(viewPort.getSize(), viewPort.getSize() + rowsThatSlidedOutOfViewport - 1, oldSize, ArrayOperation.DELETE);
 					}
 				});
 			}
@@ -461,7 +463,7 @@ public class FoundsetTypeChangeMonitor
 							else
 							{
 								vpdcm.queueOperation(firstViewPortIndex - viewPort.getStartIndex(), lastViewPortIndex - viewPort.getStartIndex(),
-									viewPort.getSize(), ViewportOperation.CHANGE);
+									viewPort.getSize(), ArrayOperation.CHANGE);
 							}
 						}
 					});
@@ -536,7 +538,7 @@ public class FoundsetTypeChangeMonitor
 		return viewPortDataChangeMonitor.shouldSendWholeViewport();
 	}
 
-	public ViewportOperation[] getViewPortChanges()
+	public ArrayOperation[] getViewPortChanges()
 	{
 		return viewPortDataChangeMonitor.getViewPortChanges();
 	}

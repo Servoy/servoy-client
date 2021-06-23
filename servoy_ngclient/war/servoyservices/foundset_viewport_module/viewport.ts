@@ -11,8 +11,14 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 namespace ngclient.propertyTypes {
 	
 	export class ViewportService {
-		private static readonly CHANGED_IN_LINKED_PROPERTY = 9;
-		private static readonly DATAPROVIDER_KEY = "dp";
+        
+        // this key/column should be stored as $foundsetTypeConstants.ROW_ID_COL_KEY in the actual row, but this key is sent from server when the foundset property is sending
+        // just a partial update, but some of the columns that did change are also pks so they do affect the pk hash; client uses this to distiguish between a full
+        // update of a row and a partial update of a row; so if update has $foundsetTypeConstants.ROW_ID_COL_KEY it will consider it to be a full update,
+        // and if it has either ROW_ID_COL_KEY_PARTIAL_UPDATE or no rowID then it is a partial update of a row (only some of the columns in that row have changed) 
+        private static readonly ROW_ID_COL_KEY_PARTIAL_UPDATE = "_svyRowId_p";
+
+        private static readonly DATAPROVIDER_KEY = "dp";
 		private static readonly VALUE_KEY = "value";
 		
 		public static readonly MAIN_TYPE = "mT";
@@ -210,11 +216,17 @@ namespace ngclient.propertyTypes {
                                 rowConversions[columnName] = cellConversion;
                             } else if (rowConversions && rowConversions[columnName]) delete rowConversions[columnName];
 
-                            rowsToBeConverted[index][columnName] = this.sabloConverters.convertFromServerToClient(rowsToBeConverted[index][columnName],
+                            rowData[columnName] = this.sabloConverters.convertFromServerToClient(rowsToBeConverted[index][columnName],
                                     cellConversion,
                                     oldViewportRows ? (oldViewportRows[startIdxInViewportForRowsToBeConverted + index] ? (oldViewportRows[startIdxInViewportForRowsToBeConverted + index][columnName]) : undefined) : undefined,
                                     undefined /*dynamic types are already handled via serverConversionInfo here*/, undefined, componentScope, propertyContextCreator.withPushToServerFor(columnName));
                         });
+                        if (rowData[ViewportService.ROW_ID_COL_KEY_PARTIAL_UPDATE] !== undefined) {
+                            // see comment of ROW_ID_COL_KEY_PARTIAL_UPDATE
+                            rowData[this.foundsetTypeConstants.ROW_ID_COL_KEY] = rowData[ViewportService.ROW_ID_COL_KEY_PARTIAL_UPDATE];
+                            delete rowData[ViewportService.ROW_ID_COL_KEY_PARTIAL_UPDATE];
+                        }
+
                         if (rowConversions && Object.keys(rowConversions).length == 0) rowConversions = undefined; // in case all conversion infos from one row were deleted due to the update
                         this.updateRowTypes(startIdxInViewportForRowsToBeConverted + index, internalState, rowConversions);
 					}
@@ -314,13 +326,10 @@ namespace ngclient.propertyTypes {
 				} else if (rowUpdate.type == this.foundsetTypeConstants.ROWS_INSERTED) {
 					if (internalState.viewportTypes) {
 						// shift conversion info of other rows if needed (that is an object with number keys, can't use array splice directly)
-						for (let j = rowUpdate.startIndex; j < viewPort.length; j++)
-						{
-							if (internalState.viewportTypes[j]) {
-								internalState.viewportTypes[j + rowUpdate.rows.length] = internalState.viewportTypes[j];
-								delete internalState.viewportTypes[j];
-							}
-						}	
+                        for (let j = viewPort.length - 1; j >= rowUpdate.startIndex; j--) {
+                            internalState.viewportTypes[j + rowUpdate.rows.length] = internalState.viewportTypes[j];
+                            delete internalState.viewportTypes[j];
+                        }
 					}
 					const convertedRowChangeData = this.expandTypeInfoAndApplyConversions(rowUpdate[this.sabloConverters.CONVERSION_CL_SIDE_TYPE_KEY], defaultColumnTypes,
 							rowUpdate.rows, rowUpdate.startIndex, null, internalState, componentScope, propertyContext,
@@ -333,27 +342,21 @@ namespace ngclient.propertyTypes {
 					rowUpdate.endIndex = rowUpdate.startIndex + rowUpdate.rows.length - 1; // prepare rowUpdate.endIndex for listener notifications
 				} else if (rowUpdate.type == this.foundsetTypeConstants.ROWS_DELETED) {
 					const oldLength = viewPort.length;
+					var numberOfDeletedRows = rowUpdate.endIndex - rowUpdate.startIndex + 1;
 					if (internalState.viewportTypes) {
-						// delete conversion info for deleted rows
-						for (let j = rowUpdate.startIndex; j < oldLength; j++)
-						{
-							if (j + (rowUpdate.endIndex - rowUpdate.startIndex) <  oldLength)
-							{
-								internalState.viewportTypes[j] = internalState.viewportTypes[j + (rowUpdate.endIndex - rowUpdate.startIndex)]
-							}
-							else
-							{
-								delete internalState.viewportTypes[j];
-							}
-						}	
+						// delete conversion info for deleted rows and shift left what is after deletion
+                        for (let j = rowUpdate.startIndex; j <= rowUpdate.endIndex; j++)
+                          delete internalState.viewportTypes[j];
+                        for (let j = rowUpdate.endIndex + 1; j < oldLength; j++) {
+                            internalState.viewportTypes[j - numberOfDeletedRows] = internalState.viewportTypes[j];
+                            delete internalState.viewportTypes[j];
+                        }
 					}
-					viewPort.splice(rowUpdate.startIndex, rowUpdate.endIndex - rowUpdate.startIndex + 1);
+					viewPort.splice(rowUpdate.startIndex, numberOfDeletedRows);
 					
 					rowUpdate.appendedToVPEnd = 0; // prepare rowUpdate for listener notifications; starting with Servoy 8.4 'appendedToVPEnd' is deprecated and always 0 as server-side code will add a separate insert operation as necessary
-				} else if (rowUpdate.type == ViewportService.CHANGED_IN_LINKED_PROPERTY) {
-					// just prepare it for the foundset change listener; components will want to handle this type of change as well so we should notify them when it happens
-					rowUpdate.type = this.foundsetTypeConstants.ROWS_CHANGED;
 				}
+				
 				delete rowUpdate[this.sabloConverters.CONVERSION_CL_SIDE_TYPE_KEY];
 				delete rowUpdate.rows; // prepare rowUpdate for listener notifications
 			}

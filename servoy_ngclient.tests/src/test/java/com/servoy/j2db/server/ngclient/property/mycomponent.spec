@@ -11,7 +11,8 @@
 		"arraySkipNullsAtRuntime": { "type" : "objWith3Keys[]", "skipNullItemsAtRuntime": true, "elementConfig": { "setToNullAtRuntimeIfAnyOfTheseKeysAreNull": [ "a", "c" ] } },
 		"normalArray": "objWith3Keys[]",
 		"normalArrayWithConfig": { "type": "objWith3Keys[]", "elementConfig": {} },
-		"defaultConversionsProp": "object"
+		"defaultConversionsProp": "object",
+		"stringArray": "string[]"
 	},
 	"types": {
 		"mytype007": {

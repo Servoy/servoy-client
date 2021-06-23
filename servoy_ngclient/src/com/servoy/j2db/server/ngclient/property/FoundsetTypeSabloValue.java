@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -39,6 +40,7 @@ import org.sablo.IWebObjectContext;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
+import org.sablo.specification.property.ArrayOperation;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.types.TypesRegistry;
@@ -98,6 +100,15 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	 * uniquely identifies that record.
 	 */
 	public static final String ROW_ID_COL_KEY = "_svyRowId";
+
+	/**
+	 * This key/column should be stored as $foundsetTypeConstants.ROW_ID_COL_KEY in the actual client side row, but this key is sent from server when the foundset property is sending
+	 * just a partial update, but some of the columns that did change are also pks so they do affect the pk hash; client uses this to distiguish between a full
+	 * update of a row and a partial update of a row; so if update has $foundsetTypeConstants.ROW_ID_COL_KEY it will consider it to be a full update,
+	 * and if it has either ROW_ID_COL_KEY_PARTIAL_UPDATE or no rowID then it is a partial update of a row (only some of the columns in that row have changed).
+	 */
+	public static final String ROW_ID_COL_KEY_PARTIAL_UPDATE = "_svyRowId_p";
+
 
 	public static final String DATAPROVIDER_KEY = "dp";
 	public static final String VALUE_KEY = "value";
@@ -224,15 +235,15 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		return foundsetSelector;
 	}
 
-	protected boolean isPk(String columnName)
+	protected boolean isOneOfTheFollowingAPk(Set<String> columnNames)
 	{
-		if (columnName == null) return false;
+		if (columnNames == null) return false;
 
 		if (foundset != null && foundset.getSQLSheet() != null)
 		{
 			String[] pkIDs = foundset.getSQLSheet().getPKColumnDataProvidersAsArray();
 			for (String pkID : pkIDs)
-				if (columnName.equals(pkID)) return true;
+				if (columnNames.contains(pkID)) return true;
 		}
 		return false;
 	}
@@ -701,7 +712,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 				if (changeMonitor.hasViewportChanges())
 				{
-					ViewportOperation[] viewPortChanges = changeMonitor.getViewPortChanges();
+					ArrayOperation[] viewPortChanges = changeMonitor.getViewPortChanges();
 					changeMonitor.clearChanges();
 					if (!somethingChanged) destinationJSON.object();
 					if (!viewPortUpdateAdded)
@@ -712,9 +723,10 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 					destinationJSON.key(UPDATE_PREFIX + ROWS).array();
 
-					for (ViewportOperation viewPortChange : viewPortChanges)
+					for (ArrayOperation viewPortChange : viewPortChanges)
 					{
-						viewPortChange.writeJSONContent(rowDataProvider, foundset, viewPort.getStartIndex(), destinationJSON, null, null);
+						FoundsetPropertyType.writeViewportOperationToJSON(viewPortChange, rowDataProvider, foundset, viewPort.getStartIndex(),
+							destinationJSON, null, null);
 					}
 					destinationJSON.endArray();
 
@@ -778,7 +790,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		return null;
 	}
 
-	protected void populateRowData(IRecordInternal record, String columnName, JSONWriter w, IBrowserConverterContext browserConverterContext,
+	protected void populateRowData(IRecordInternal record, Set<String> columnNames, JSONWriter w, IBrowserConverterContext browserConverterContext,
 		ViewportClientSideTypes types) throws JSONException
 	{
 		Iterator<Entry<String, String>> it = dataproviders.entrySet().iterator();
@@ -789,7 +801,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		{
 			Entry<String, String> entry = it.next();
 			String dataProvider = entry.getValue();
-			if (columnName == null || Utils.equalObjects(columnName, dataProvider))
+			if (columnNames == null || columnNames.contains(dataProvider))
 			{
 				Object value = (dataProvider != null ? record.getValue(dataProvider) : null);
 				if (value == Scriptable.NOT_FOUND) value = null; // if the given DP is invalid, then record.getValue(dataProvider) can return Rhino Scriptable.NOT_FOUND; we must handle that as that can't be sent to client conversion directly

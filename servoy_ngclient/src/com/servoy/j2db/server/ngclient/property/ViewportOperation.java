@@ -17,47 +17,27 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import java.util.Set;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
+import org.sablo.specification.property.ArrayOperation;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 
 @SuppressWarnings("nls")
-public class ViewportOperation
+public class ViewportOperation extends ArrayOperation
 {
-	public static final int CHANGE = 0;
-	public static final int INSERT = 1;
-	public static final int DELETE = 2;
-	public static final int CHANGE_IN_LINKED_PROPERTY = 9;
-
-	public final int startIndex;
-	public final int endIndex;
-	public final int type;
-
-	/**
-	 * Null if it's a whole row, and non-null of only one column of the row is in this row data.
-	 */
-	public final String columnName;
 
 	public ViewportOperation(int startIndex, int endIndex, int type)
 	{
-		this(startIndex, endIndex, type, null);
+		super(startIndex, endIndex, type, null);
 	}
 
-	/**
-	 * @throws IllegalArgumentException if you specify a column name, start index and end index must be the same (only one row). Partial changes like that are not supported currently
-	 * for multiple rows inside the same operation.
-	 */
-	public ViewportOperation(int startIndex, int endIndex, int type, String columnName)
+	public ViewportOperation(int startIndex, int endIndex, int type, Set<String> columnNames)
 	{
-		this.startIndex = startIndex;
-		this.endIndex = endIndex;
-		this.type = type;
-		this.columnName = columnName;
-
-		if (columnName != null && startIndex != endIndex) throw new IllegalArgumentException(
-			"Partial row updates are not supported for multiple indexes... Column name: " + columnName + ", [" + startIndex + ", " + endIndex + "].");
+		super(startIndex, endIndex, type, columnNames);
 	}
 
 	public boolean writeJSONContent(ViewportRowDataProvider rowDataProvider, IFoundSetInternal foundset, int viewportStartIndex, JSONWriter w,
@@ -69,10 +49,10 @@ public class ViewportOperation
 
 		ViewportClientSideTypes clientSideTypesForViewport = null;
 		// write actual data if necessary
-		if (type != DELETE && type != CHANGE_IN_LINKED_PROPERTY)
+		if (type != DELETE)
 		{
 			w.key("rows");
-			clientSideTypesForViewport = rowDataProvider.writeRowData(viewportStartIndex + startIndex, viewportStartIndex + endIndex, columnName, foundset, w,
+			clientSideTypesForViewport = rowDataProvider.writeRowData(viewportStartIndex + startIndex, viewportStartIndex + endIndex, columnNames, foundset, w,
 				sabloValueThatRequestedThisDataToBeWritten);
 		}
 
@@ -89,7 +69,7 @@ public class ViewportOperation
 	@Override
 	public String toString()
 	{
-		return "ViewportOperation [startIndex=" + startIndex + ", endIndex=" + endIndex + ", type=" + type + ", columnName=" + columnName + "]";
+		return "ViewportOperation [startIndex=" + startIndex + ", endIndex=" + endIndex + ", type=" + type + ", columnName=" + columnNames + "]";
 	}
 
 }

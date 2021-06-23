@@ -29,6 +29,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.property.types.ISupportTemplateValue;
+import com.servoy.j2db.server.ngclient.property.types.NGEnabledSabloValue;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -114,7 +115,12 @@ public class ComponentFactory
 		{
 			if (!((elementSecurity & IRepository.ACCESSIBLE) != 0)) // element not accessible
 			{
-				webComponent.setProperty("enabled", false);
+				webComponent.setProperty(WebFormUI.ENABLED, false);
+				Object enableValue = webComponent.getRawPropertyValue(WebFormUI.ENABLED);
+				if (enableValue instanceof NGEnabledSabloValue)
+				{
+					((NGEnabledSabloValue)enableValue).setAccessible(false);
+				}
 			}
 			else
 			{
@@ -122,7 +128,12 @@ public class ComponentFactory
 					form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 				if (!((formSecurity & IRepository.ACCESSIBLE) != 0)) // form not accessible
 				{
-					webComponent.setProperty("enabled", false);
+					webComponent.setProperty(WebFormUI.ENABLED, false);
+					Object enableValue = webComponent.getRawPropertyValue(WebFormUI.ENABLED);
+					if (enableValue instanceof NGEnabledSabloValue)
+					{
+						((NGEnabledSabloValue)enableValue).setAccessible(false);
+					}
 				}
 			}
 		}

@@ -26,6 +26,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.ArrayOperation;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IGranularProtectionChecker;
@@ -233,8 +234,12 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 						@Override
 						public void put(String nm, Scriptable strt, Object value)
 						{
-							webComponentValue.dataproviders.put(nm, (String)value);
-							webComponentValue.notifyDataProvidersUpdated();
+							final String dp = webComponentValue.dataproviders.get(nm);
+							if (dp == null || !dp.equals(value))
+							{
+								webComponentValue.dataproviders.put(nm, (String)value);
+								webComponentValue.notifyDataProvidersUpdated();
+							}
 						}
 
 						@Override
@@ -410,6 +415,31 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 		}
 
 		return newSabloValue;
+	}
+
+	public static boolean writeViewportOperationToJSON(ArrayOperation op, ViewportRowDataProvider rowDataProvider, IFoundSetInternal foundset,
+		int viewportStartIndex,
+		JSONWriter w,
+		String keyInParent, Object sabloValueThatRequestedThisDataToBeWritten) throws JSONException
+	{
+		JSONUtils.addKeyIfPresent(w, keyInParent);
+
+		w.object();
+
+		ViewportClientSideTypes clientSideTypesForViewport = null;
+		// write actual data if necessary
+		if (op.type != ArrayOperation.DELETE)
+		{
+			w.key("rows");
+			clientSideTypesForViewport = rowDataProvider.writeRowData(viewportStartIndex + op.startIndex, viewportStartIndex + op.endIndex, op.columnNames,
+				foundset, w,
+				sabloValueThatRequestedThisDataToBeWritten);
+		}
+
+		w.key("startIndex").value(Integer.valueOf(op.startIndex)).key("endIndex").value(Integer.valueOf(op.endIndex)).key("type").value(
+			Integer.valueOf(op.type)).endObject();
+
+		return true;
 	}
 
 	@Override

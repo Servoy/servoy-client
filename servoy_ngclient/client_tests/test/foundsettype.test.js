@@ -66,7 +66,7 @@ describe("Test foundset_custom_property suite", function() {
 			
             propertyContext = {
                 getProperty: function(propertyName) { return undefined; },
-                getPushToServerCalculatedValue: function() { return pushToServerUtils.reject; }
+                getPushToServerCalculatedValue: function() { return pushToServerUtils.shallow; }
             };
 		});
 
@@ -90,7 +90,11 @@ describe("Test foundset_custom_property suite", function() {
 
 			var template = '<div></div>';
 			$compile(template)($scope);
-			realClientValue = sabloConverters.convertFromServerToClient(serverValue, foundsetType, undefined, undefined, undefined, $scope, propertyContext);
+            noWatchespropertyContext = {
+                getProperty: function(propertyName) { return undefined; },
+                getPushToServerCalculatedValue: function() { return pushToServerUtils.reject; }
+            };
+			realClientValue = sabloConverters.convertFromServerToClient(serverValue, foundsetType, undefined, undefined, undefined, $scope, noWatchespropertyContext);
 			realClientValue[iS].setChangeNotifier(function () { changeNotified = true });
 			$scope.$digest();
 			expect(getAndClearNotified()).toEqual(false);
@@ -136,12 +140,6 @@ describe("Test foundset_custom_property suite", function() {
 					}
 			};
 			
-			// just give some other property context push to server - it should have no effect if watches are not tested anyway
-            propertyContext = {
-                getProperty: function(propertyName) { return undefined; },
-                getPushToServerCalculatedValue: function() { return pushToServerUtils.shallow; }
-            };
-
 			realClientValue = sabloConverters.convertFromServerToClient(updateValue, foundsetType, realClientValue, undefined, undefined, $scope, propertyContext);
 			$scope.$digest();
 			realClientValue[iS].setChangeNotifier(function () { changeNotified = true });

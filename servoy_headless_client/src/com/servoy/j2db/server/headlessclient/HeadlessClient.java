@@ -60,8 +60,11 @@ public class HeadlessClient extends SessionClient
 			{
 				// always reset for headless client the tenant value.
 				ClientInfo clientInfo = getClientInfo();
-				clientInfo.setTenantValue(null);
-				getClientHost().pushClientInfo(clientInfo.getClientId(), clientInfo);
+				if (clientInfo != null)
+				{
+					clientInfo.setTenantValue(null);
+					getClientHost().pushClientInfo(clientInfo.getClientId(), clientInfo);
+				}
 			}
 			catch (Exception e)
 			{

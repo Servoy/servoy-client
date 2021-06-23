@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.property;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONString;
@@ -59,19 +60,25 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 	}
 
 	@Override
-	protected void populateRowData(IRecordInternal record, String columnName, JSONWriter w, String generatedRowId, ViewportClientSideTypes types)
+	protected void populateRowData(IRecordInternal record, Set<String> columnNames, JSONWriter w, String generatedRowId, ViewportClientSideTypes types)
 		throws JSONException
 	{
 		w.object();
 		dal.setRecordQuietly(record);
 
-		String columnPropertyName = getPropertyName(columnName);
-
 		List<Pair<String/* propertyName */, JSONString/* dynamicClientSideType */>> dynamicClientSideTypesForProperties = new ArrayList<>();
-		if (columnPropertyName != null)
+		if (columnNames != null)
 		{
-			// cell update
-			populateCellData(columnPropertyName, w, dynamicClientSideTypesForProperties);
+			String columnPropertyName;
+			for (String columnName : columnNames)
+			{
+				columnPropertyName = getPropertyName(columnName);
+				if (columnPropertyName != null)
+				{
+					// cell update
+					populateCellData(columnPropertyName, w, dynamicClientSideTypesForProperties);
+				}
+			}
 		}
 		else
 		{

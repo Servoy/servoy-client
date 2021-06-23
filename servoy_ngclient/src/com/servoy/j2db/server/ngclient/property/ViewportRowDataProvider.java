@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import java.util.Set;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 
@@ -47,7 +49,7 @@ public abstract class ViewportRowDataProvider
 	 * @param types this can be used to register client-side conversion types for each cell - if needed. It is the responsibility of the caller to call
 	 * {@link ViewportClientSideTypes#nextRecordWillBe(int)} before calling this method - so that "populateRowData" can directly use {@link ViewportClientSideTypes#registerClientSideType(com.servoy.j2db.util.Pair...)}
 	 */
-	protected abstract void populateRowData(IRecordInternal record, String columnName, JSONWriter w, String generatedRowId, ViewportClientSideTypes types)
+	protected abstract void populateRowData(IRecordInternal record, Set<String> columnNames, JSONWriter w, String generatedRowId, ViewportClientSideTypes types)
 		throws JSONException;
 
 	protected abstract boolean shouldGenerateRowIds();
@@ -57,13 +59,13 @@ public abstract class ViewportRowDataProvider
 	 */
 	protected abstract boolean containsColumn(String columnName);
 
-	protected void writeRowData(int foundsetIndex, String columnName, IFoundSetInternal foundset, JSONWriter w, ViewportClientSideTypes types)
+	protected void writeRowData(int foundsetIndex, Set<String> columnNames, IFoundSetInternal foundset, JSONWriter w, ViewportClientSideTypes types)
 		throws JSONException
 	{
 		// write viewport row contents
 		IRecordInternal record = foundset.getRecord(foundsetIndex);
 		types.nextRecordWillBe(foundsetIndex);
-		populateRowData(record, columnName, w, shouldGenerateRowIds() ? record.getPKHashKey() + "_" + foundsetIndex : null, types);
+		populateRowData(record, columnNames, w, shouldGenerateRowIds() ? record.getPKHashKey() + "_" + foundsetIndex : null, types);
 	}
 
 	protected ViewportClientSideTypes writeRowData(int startIndex, int endIndex, IFoundSetInternal foundset, JSONWriter w) throws JSONException
@@ -71,7 +73,7 @@ public abstract class ViewportRowDataProvider
 		return writeRowData(startIndex, endIndex, null, foundset, w, null);
 	}
 
-	protected ViewportClientSideTypes writeRowData(int startIndex, int endIndex, String columnName, IFoundSetInternal foundset, JSONWriter w,
+	protected ViewportClientSideTypes writeRowData(int startIndex, int endIndex, Set<String> columnNames, IFoundSetInternal foundset, JSONWriter w,
 		Object sabloValueThatRequestedThisDataToBeWritten) throws JSONException
 	{
 		ViewportClientSideTypes types = null;
@@ -103,7 +105,7 @@ public abstract class ViewportRowDataProvider
 					types = new ViewportClientSideTypes(startIndex, endIndex);
 					for (int i = startIndex; i <= endIndex; i++)
 					{
-						writeRowData(i, columnName, foundset, w, types);
+						writeRowData(i, columnNames, foundset, w, types);
 					}
 				}
 				finally

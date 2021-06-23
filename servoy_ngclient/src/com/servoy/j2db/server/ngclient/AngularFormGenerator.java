@@ -257,8 +257,6 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		writer.endArray();
 		writer.endObject();
 		writer.endObject();
-		System.err.println(stringWriter.toString());
-
 		return stringWriter.toString();
 	}
 

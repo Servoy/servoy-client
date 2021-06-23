@@ -2049,12 +2049,18 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @param string New content of the clipboard
 	 */
-	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
+	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = true)
 	public void js_setClipboardContent(Object string)
 	{
 		if (application instanceof ISmartClientApplication && string instanceof String)
 		{
 			((ISmartClientApplication)application).setClipboardContent((String)string);
+
+		}
+		else if (application instanceof INGClientApplication && string instanceof String)
+		{
+
+			((INGClientApplication)application).setClipboardContent((String)string);
 		}
 	}
 
@@ -2065,12 +2071,18 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @return The string from the clipboard
 	 */
-	@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
+	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = true)
 	public String js_getClipboardString()
 	{
 		if (application instanceof ISmartClientApplication)
 		{
 			return ((ISmartClientApplication)application).getClipboardString();
+
+		}
+		else if (application instanceof INGClientApplication)
+		{
+
+			return ((INGClientApplication)application).getClipboardContent();
 		}
 		return null;
 	}

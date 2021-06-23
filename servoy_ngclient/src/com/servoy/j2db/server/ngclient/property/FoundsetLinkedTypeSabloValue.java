@@ -32,6 +32,7 @@ import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
+import org.sablo.specification.property.ArrayOperation;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyType;
@@ -582,14 +583,14 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			{
 				writer.key(FoundsetLinkedPropertyType.VIEWPORT_VALUE_UPDATE);
 
-				ViewportOperation[] viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
+				ArrayOperation[] viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
 				viewPortChangeMonitor.clearChanges();
 
 				writer.array();
-				for (ViewportOperation viewPortChange : viewPortChanges)
+				for (ArrayOperation viewPortChange : viewPortChanges)
 				{
-					viewPortChange.writeJSONContent(viewPortChangeMonitor.getRowDataProvider(), getFoundset(), getFoundsetValue().getViewPort().getStartIndex(),
-						writer, null, wrappedSabloValue);
+					FoundsetPropertyType.writeViewportOperationToJSON(viewPortChange, viewPortChangeMonitor.getRowDataProvider(), getFoundset(),
+						getFoundsetValue().getViewPort().getStartIndex(), writer, null, wrappedSabloValue);
 				}
 				writer.endArray();
 			}
@@ -744,7 +745,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 						if (firstViewPortIndex <= lastViewPortIndex)
 						{
 							viewPortChangeMonitor.queueOperation(firstViewPortIndex - viewPort.getStartIndex(), lastViewPortIndex - viewPort.getStartIndex(),
-								viewPort.getSize(), ViewportOperation.CHANGE);
+								viewPort.getSize(), ArrayOperation.CHANGE);
 						}
 					}
 				}

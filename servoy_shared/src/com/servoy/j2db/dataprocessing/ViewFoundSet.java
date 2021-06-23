@@ -1570,6 +1570,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 				if (table == null)
 				{
 					table = new Table(IServer.VIEW_SERVER, DataSourceUtils.getViewDataSourceName(getDataSource()), true, ITable.VIEW, null, null);
+					((Table)table).setDataSource(getDataSource());
 					for (IQuerySelectValue col : select.getColumns())
 					{
 						Column newCol = null;

@@ -16,6 +16,7 @@
 package com.servoy.j2db.server.ngclient.property;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -25,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.json.JSONException;
 import org.junit.After;
@@ -39,6 +41,7 @@ import org.sablo.specification.Package.IPackageReader;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
+import org.sablo.specification.property.ArrayOperation;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.ChangeAwareList;
 import org.sablo.specification.property.ChangeAwareMap;
@@ -140,10 +143,7 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 			assertTrue(!chList.mustSendAll());
 			assertTrue(!chMap.mustSendAll());
 			assertEquals(0, component.getAndClearChanges().content.size());
-			assertEquals(0, chList.getIndexesChangedByRef().size());
-			assertEquals(0, chList.getIndexesWithContentUpdates().size());
-			assertEquals(0, chMap.getKeysChangedByRef().size());
-			assertEquals(0, chMap.getKeysWithUpdates().size());
+			assertFalse(chList.getGranularUpdatesKeeper().hasChanges());
 
 			// check changing java => change reflected in Rhino
 			ScriptableObject topLevel = new ScriptableObject()
@@ -161,8 +161,9 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 			cam.put("text", "Just some text 2");
 			assertEquals(1, chMap.getKeysChangedByRef().size());
 			assertEquals("text", chMap.getKeysChangedByRef().iterator().next());
-			assertEquals(1, chList.getIndexesWithContentUpdates().size());
-			assertEquals(Integer.valueOf(0), chList.getIndexesWithContentUpdates().iterator().next());
+			ArrayOperation[] opSeq = chList.getGranularUpdatesKeeper().getEquivalentSequenceOfOperations();
+			assertEquals(1, opSeq.length);
+			assertGranularOpIs(0, 0, ArrayOperation.CHANGE, ChangeAwareList.GRANULAR_UPDATE_OP, opSeq[0]);
 			assertTrue(!chList.mustSendAll());
 			assertTrue(!chMap.mustSendAll());
 			assertEquals("Just some text 2", ((Scriptable)rhinoVal.get(0, rhinoVal)).get("text", rhinoVal));
@@ -177,7 +178,11 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 			assertTrue(chMap.mustSendAll());
 			cal.add(new HashMap<String, Object>());
 			ChangeAwareMap cam1 = ((ChangeAwareMap< ? , ? >)cal.get(1));
-			assertTrue(chList.mustSendAll());
+			assertFalse(chList.mustSendAll());
+			opSeq = chList.getGranularUpdatesKeeper().getEquivalentSequenceOfOperations();
+			assertEquals(2, opSeq.length);
+			assertGranularOpIs(0, 0, ArrayOperation.CHANGE, ChangeAwareList.GRANULAR_UPDATE_OP, opSeq[0]);
+			assertGranularOpIs(1, 1, ArrayOperation.INSERT, null, opSeq[1]);
 			assertTrue(chMap.mustSendAll());
 
 			// ok clear changes
@@ -187,8 +192,7 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 			assertEquals(0, component.getAndClearChanges().content.size());
 			assertTrue(!chList.mustSendAll());
 			assertTrue(!chMap.mustSendAll());
-			assertEquals(0, chList.getIndexesChangedByRef().size());
-			assertEquals(0, chList.getIndexesWithContentUpdates().size());
+			assertFalse(chList.getGranularUpdatesKeeper().hasChanges());
 			assertEquals(0, chMap.getKeysChangedByRef().size());
 			assertEquals(0, chMap.getKeysWithUpdates().size());
 
@@ -199,8 +203,9 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 			rhinoVal.put(0, rhinoVal, oneO);
 			Scriptable oneOScriptable = (Scriptable)rhinoVal.get(0, rhinoVal); // same as 'cam' but in it's Rhino representation
 			assertTrue(!chList.mustSendAll());
-			assertEquals(1, chList.getIndexesChangedByRef().size());
-			assertEquals(0, chList.getIndexesWithContentUpdates().size());
+			opSeq = chList.getGranularUpdatesKeeper().getEquivalentSequenceOfOperations();
+			assertEquals(1, opSeq.length);
+			assertGranularOpIs(0, 0, ArrayOperation.CHANGE, null, opSeq[0]);
 			cam = ((ChangeAwareMap< ? , ? >)cal.get(0));
 			chMap = cam.getChanges();
 			activeA1Obj.put("field", activeA1Obj, 11);
@@ -213,8 +218,9 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 			assertEquals(0, chMap.getKeysWithUpdates().size());
 			assertTrue(chMap.getKeysChangedByRef().contains("active"));
 			assertTrue(!chList.mustSendAll());
-			assertEquals(1, chList.getIndexesChangedByRef().size()); // we havent cleared changes yet; so initial assignment still needs tosend full value
-			assertEquals(0, chList.getIndexesWithContentUpdates().size());
+			opSeq = chList.getGranularUpdatesKeeper().getEquivalentSequenceOfOperations();
+			assertEquals(1, opSeq.length);
+			assertGranularOpIs(0, 0, ArrayOperation.CHANGE, null, opSeq[0]);
 
 			// now change the native values using initial ref to see if it changed in java; this is no longer supported after case SVY-11027
 //		activeA1Obj.put("field", activeA1Obj, 98);
@@ -225,7 +231,7 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 
 			changes = component.getAndClearChanges();
 			JSONAssert.assertEquals(
-				"{\"arrayT\":{\"u\":[{\"v\":{\"v\":{\"active\":{\"v\":[{\"v\":{\"field\":11,\"percent\":0.22},\"vEr\":2}],\"vEr\":2}},\"vEr\":5},\"i\":0}],\"vEr\":3}}",
+				"{\"arrayT\":{\"vEr\":3,\"g\":[{\"op\":[0,0,0],\"d\":[{\"vEr\":5,\"v\":{\"active\":{\"vEr\":2,\"v\":[{\"vEr\":2,\"v\":{\"field\":11,\"percent\":0.22}}]}}}]}]}}",
 				JSONUtils.writeChanges(changes.content, changes.contentType, allowingBrowserConverterContext), JSONCompareMode.NON_EXTENSIBLE);
 
 			((Map)((List)((Map)cal.get(0)).get("active")).get(0)).put("percent", 0.33);
@@ -235,7 +241,7 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 
 			changes = component.getAndClearChanges();
 			JSONAssert.assertEquals(
-				"{\"arrayT\":{\"u\":[{\"v\":{\"u\":[{\"v\":{\"u\":[{\"v\":{\"u\":[{\"v\":0.33,\"k\":\"percent\"}],\"vEr\":2},\"i\":0}],\"vEr\":2},\"k\":\"active\"}],\"vEr\":5},\"i\":0}],\"vEr\":3}}",
+				"{\"arrayT\":{\"vEr\":3,\"g\":[{\"op\":[0,0,0],\"d\":[{\"vEr\":5,\"u\":[{\"k\":\"active\",\"v\":{\"vEr\":2,\"g\":[{\"op\":[0,0,0],\"d\":[{\"vEr\":2,\"u\":[{\"k\":\"percent\",\"v\":0.33}]}]}]}}]}]}]}}",
 				JSONUtils.writeChanges(changes.content, changes.contentType, allowingBrowserConverterContext), JSONCompareMode.NON_EXTENSIBLE);
 
 			((List)((Map)cal.get(0)).get("active")).add(new HashMap<String, Object>());
@@ -251,8 +257,9 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 			assertEquals(0.56, ((Map)((List)((Map)cal.get(0)).get("active")).get(1)).get("percent"));
 			assertTrue(!chMap.mustSendAll());
 			assertTrue(!chList.mustSendAll());
-			assertEquals(1, chList.getIndexesWithContentUpdates().size());
-			assertEquals(0, chList.getIndexesChangedByRef().size());
+			opSeq = chList.getGranularUpdatesKeeper().getEquivalentSequenceOfOperations();
+			assertEquals(1, opSeq.length);
+			assertGranularOpIs(0, 0, ArrayOperation.CHANGE, ChangeAwareList.GRANULAR_UPDATE_OP, opSeq[0]);
 			assertEquals(1, chMap.getKeysWithUpdates().size());
 			assertEquals("active", chMap.getKeysWithUpdates().iterator().next());
 		}
@@ -371,6 +378,14 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 		assertEquals("Just some text 4", sbr.get(4).get("a"));
 		assertEquals(null, sbr.get(5).get("c"));
 		assertEquals(6, sbr.size());
+	}
+
+	public static void assertGranularOpIs(int startIndex, int endIndex, int opType, Set<String> columnNames, ArrayOperation opSeq)
+	{
+		assertEquals("startIndex check", startIndex, opSeq.startIndex);
+		assertEquals("endIndex check", endIndex, opSeq.endIndex);
+		assertEquals("opType check", opType, opSeq.type);
+		assertEquals("columnName check", columnNames, opSeq.columnNames);
 	}
 
 }

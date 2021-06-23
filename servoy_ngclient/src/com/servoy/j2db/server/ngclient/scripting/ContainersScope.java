@@ -122,7 +122,7 @@ public class ContainersScope implements Scriptable
 				PropertyDescription prop = pd.iterator().next();
 				Object val = component.getProperty(prop.getName());
 				Form fcomp = FormComponentPropertyType.INSTANCE.getForm(val, fs);
-				if (fcomp.isResponsiveLayout())
+				if (fcomp != null && fcomp.isResponsiveLayout())
 				{
 					fillNames(fcomp.getLayoutContainers(), namesToLayout, fs);
 				}

@@ -95,8 +95,10 @@ import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.ValidatorSearchContext;
 import com.servoy.j2db.server.ngclient.DefaultComponentPropertiesProvider;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
+import com.servoy.j2db.server.ngclient.INGClientWindow;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.NGClientWebsocketSession;
+import com.servoy.j2db.server.ngclient.NGClientWindow;
 import com.servoy.j2db.server.ngclient.endpoint.NGClientEndpoint;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.property.types.Types;
@@ -446,6 +448,22 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 				public void init(Map<String, List<String>> requestParams) throws Exception
 				{
 					// override default init, shouldnt make another client.
+				}
+
+				@Override
+				public INGClientWindow createWindow(int windowNr, String windowName)
+				{
+					return new NGClientWindow(this, windowNr, windowName)
+					{
+						@Override
+						public long getLastPingTime()
+						{
+							// prevent org.sablo.websocket.WebsocketSessionManager.pingEndpointsThread from closing test session & changing window instance (which could lead to lost api calls for example when debugging unit tests)
+							// because unit tests do not receive pings from client side / browser
+							return System.currentTimeMillis();
+						}
+					};
+
 				}
 
 				@Override

@@ -695,7 +695,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			listenersByRelationEqualValues.entrySet().stream().forEach(entry -> {
 
 				Relation relation = flattenedSolution.getRelation(entry.getKey());
-				List<Column> columns = relation.getForeignColumnsForEqualConditions();
+				List<Column> columns = relation.getForeignColumnsForEqualConditions(flattenedSolution);
 				if (!columns.isEmpty())
 				{
 					Object[] eqArgs = columns.stream().map(column -> row.getValue(column.getDataProviderID())).toArray();

@@ -184,7 +184,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		String json = JSONUtils.writeChanges(changes.content, changes.contentType, new BrowserConverterContext(wc, PushToServerEnum.allow));
 
-		JSONAssert.assertEquals("{\"tabs\":{\"vEr\":1,\"u\":[{\"i\":0,\"v\":{\"vEr\":1,\"u\":[{\"k\":\"text\",\"v\":\"a test\"}]}}]}}", json, true);
+		JSONAssert.assertEquals("{\"tabs\":{\"vEr\":1,\"g\":[{\"op\":[0,0,0],\"d\":[{\"vEr\":1,\"u\":[{\"k\":\"text\",\"v\":\"a test\"}]}]}]}}", json, true);
 	}
 
 	@Test
