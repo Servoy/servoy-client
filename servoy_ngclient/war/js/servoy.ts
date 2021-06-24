@@ -1123,6 +1123,10 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
                             this.hideForm  = function(formname,relationname,formIndex,formNameThatWillShow,relationnameThatWillBeShown,formIndexThatWillBeShown) {
                                 return $formService.hideForm(formname,svyServoyApi.getFormName(),childElement.name,relationname,formIndex,formNameThatWillShow,relationnameThatWillBeShown,formIndexThatWillBeShown);
                             }
+                            
+                            this.getFormComponentElements = (propertyName, formComponentValue) => {
+                                 return $compile($templateCache.get(formComponentValue.uuid))(row);
+                            }
 						}
 						ServoyApi.prototype = svyServoyApi;
 						

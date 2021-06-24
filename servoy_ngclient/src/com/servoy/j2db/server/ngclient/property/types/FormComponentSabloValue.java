@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -96,7 +98,7 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 		if (currentFormComponentCache != formComponentCache)
 		{
 			List<FormElement> elements = formComponentCache.getFormComponentElements();
-			components = new ComponentTypeSabloValue[elements.size()];
+			List<ComponentTypeSabloValue> componentsList = new ArrayList<ComponentTypeSabloValue>(elements.size());
 
 			PropertyPath path = new PropertyPath();
 			path.add(component.getName());
@@ -107,27 +109,61 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 			PropertyDescription compPd = new PropertyDescriptionBuilder().withName(pd.getName()).withType(ComponentPropertyType.INSTANCE).withConfig(
 				pd.getConfig()).withTags(tags).build();
 			int j = 0;
-			for (int i = 0; i < components.length; i++)
+			for (FormElement element : elements)
 			{
-				FormElement element = elements.get(i);
 				path.add(j);
 				ComponentTypeFormElementValue elementValue = ComponentPropertyType.INSTANCE.getFormElementValue(null, compPd, path, element,
 					dal.getApplication().getFlattenedSolution());
 				ComponentTypeSabloValue ctsv = ComponentPropertyType.INSTANCE.toSabloComponentValue(elementValue, compPd, element, component, dal);
-				if (ctsv != null) components[j++] = ctsv; // if it is null then it is probably a child component that was blocked by security (visibility == false); in that case just ignore it (similar to what portal does through .spec setting on comp. array to ignore null values at runtime)
+				if (ctsv != null)
+				{
+					j++; // if it is null then it is probably a child component that was blocked by security (visibility == false); in that case just ignore it (similar to what portal does through .spec setting on comp. array to ignore null values at runtime)
+					componentsList.add(ctsv);
+				}
 				path.backOneLevel();
+				if (element.getWebComponentSpec() != null)
+				{
+					Collection<PropertyDescription> properties = element.getWebComponentSpec().getProperties(FormComponentPropertyType.INSTANCE);
+					if (properties.size() > 0)
+					{
+						for (PropertyDescription pd : properties)
+						{
+							Object propertyValue = element.getPropertyValue(pd.getName());
+							Form frm = FormComponentPropertyType.INSTANCE.getForm(propertyValue, dal.getApplication().getFlattenedSolution());
+							if (frm == null) continue;
+							FormComponentCache innerCache = FormElementHelper.INSTANCE.getFormComponentCache(element, pd, (JSONObject)propertyValue, frm,
+								dal.getApplication().getFlattenedSolution());
+							List<FormElement> innerElements = innerCache.getFormComponentElements();
+							for (FormElement innerElement : innerElements)
+							{
+								path.add(j);
+								elementValue = ComponentPropertyType.INSTANCE.getFormElementValue(null, compPd, path, innerElement,
+									dal.getApplication().getFlattenedSolution());
+								// use main property
+								ctsv = ComponentPropertyType.INSTANCE.toSabloComponentValue(elementValue, compPd, innerElement, component, dal);
+								if (ctsv != null)
+								{
+									j++; // if it is null then it is probably a child component that was blocked by security (visibility == false); in that case just ignore it (similar to what portal does through .spec setting on comp. array to ignore null values at runtime)
+									componentsList.add(ctsv);
+								}
+								path.backOneLevel();
+							}
+						}
+					}
+				}
 			}
 
 			// re-attach
 			if (currentFormComponentCache != null && changeMonitor != null && webObjectContext != null)
 			{
-				for (ComponentTypeSabloValue componentTypeSabloValue : components)
+				for (ComponentTypeSabloValue componentTypeSabloValue : componentsList)
 				{
 					componentTypeSabloValue.attachToBaseObject(changeMonitor, webObjectContext);
 				}
 
 			}
 			currentFormComponentCache = formComponentCache;
+			components = componentsList.toArray(new ComponentTypeSabloValue[0]);
 		}
 		return components;
 	}
