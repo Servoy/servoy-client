@@ -19,12 +19,7 @@ package com.servoy.j2db.server.ngclient.property;
 
 import java.util.Set;
 
-import org.json.JSONException;
-import org.json.JSONWriter;
 import org.sablo.specification.property.ArrayOperation;
-import org.sablo.websocket.utils.JSONUtils;
-
-import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 
 @SuppressWarnings("nls")
 public class ViewportOperation extends ArrayOperation
@@ -38,32 +33,6 @@ public class ViewportOperation extends ArrayOperation
 	public ViewportOperation(int startIndex, int endIndex, int type, Set<String> columnNames)
 	{
 		super(startIndex, endIndex, type, columnNames);
-	}
-
-	public boolean writeJSONContent(ViewportRowDataProvider rowDataProvider, IFoundSetInternal foundset, int viewportStartIndex, JSONWriter w,
-		String keyInParent, Object sabloValueThatRequestedThisDataToBeWritten) throws JSONException
-	{
-		JSONUtils.addKeyIfPresent(w, keyInParent);
-
-		w.object();
-
-		ViewportClientSideTypes clientSideTypesForViewport = null;
-		// write actual data if necessary
-		if (type != DELETE)
-		{
-			w.key("rows");
-			clientSideTypesForViewport = rowDataProvider.writeRowData(viewportStartIndex + startIndex, viewportStartIndex + endIndex, columnNames, foundset, w,
-				sabloValueThatRequestedThisDataToBeWritten);
-		}
-
-		w.key("startIndex").value(Integer.valueOf(startIndex)).key("endIndex").value(Integer.valueOf(endIndex)).key("type").value(Integer.valueOf(type));
-
-		// conversion info for websocket traffic (for example Date objects will turn into long or String to be usable in JSON)
-		if (clientSideTypesForViewport != null) clientSideTypesForViewport.writeClientSideTypes(w, JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY);
-
-		w.endObject();
-
-		return true;
 	}
 
 	@Override

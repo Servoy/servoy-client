@@ -3238,19 +3238,24 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		SQLSheet sqlSheet = record.getParentFoundSet().getSQLSheet();
 		record.getParentFoundSet().getTable().getColumns().forEach(column -> {
 			// null
-			Object rawValue = record.getRawData().getRawValue(column.getDataProviderID());
+			Object rawValue = record instanceof ViewRecord ? record.getValue(column.getDataProviderID())
+				: record.getRawData().getRawValue(column.getDataProviderID());
 			if (isNullColumnValidatorEnabled() && !column.getAllowNull() && column.getDatabaseDefaultValue() == null &&
 				(rawValue == null || ("".equals(rawValue) && Column.mapToDefaultType(column.getType()) == IColumnTypes.TEXT)))
 			{
 				recordMarkers.report("i18n:servoy.record.error.null.not.allowed", column.getDataProviderID(), ILogLevel.ERROR, state,
 					new Object[] { column.getDataProviderID() });
 				// this would result normally in an Record.exception so for now also set that
-				record.getRawData().setLastException(
-					new DataException("Column " + column.getDataProviderID() + " can't be null", ServoyException.DATA_INTEGRITY_VIOLATION));
+				if (!(record instanceof ViewRecord))
+				{
+					record.getRawData().setLastException(
+						new DataException("Column " + column.getDataProviderID() + " can't be null", ServoyException.DATA_INTEGRITY_VIOLATION));
+				}
 			}
 
 			// validators only for changed columns (based on the raw, "unconverted" value)
-			Object oldRawValue = record.existInDataSource() ? record.getRawData().getOldRawValue(column.getDataProviderID()) : null;
+			Object oldRawValue = record instanceof ViewRecord ? ((ViewRecord)record).getOldVaue(column.getDataProviderID())
+				: record.existInDataSource() ? record.getRawData().getOldRawValue(column.getDataProviderID()) : null;
 			if (!(rawValue instanceof DbIdentValue) && !Utils.equalObjects(rawValue, oldRawValue))
 			{
 				// the length check
@@ -3260,37 +3265,40 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					recordMarkers.report("i18n:servoy.record.error.columnSizeTooSmall", column.getDataProviderID(), ILogLevel.ERROR, state,
 						new Object[] { column.getDataProviderID(), Integer.valueOf(column.getLength()), rawValue });
 				}
-				Pair<String, Map<String, String>> validatorInfo = sqlSheet.getColumnValidatorInfo(sqlSheet.getColumnIndex(column.getDataProviderID()));
-				if (validatorInfo != null)
+				if (sqlSheet != null) // for ViewRecords this is null, we don't have the actual sheet here for the underlying column
 				{
-					IColumnValidator validator = columnValidatorManager.getValidator(validatorInfo.getLeft());
-					if (validator == null)
+					Pair<String, Map<String, String>> validatorInfo = sqlSheet.getColumnValidatorInfo(sqlSheet.getColumnIndex(column.getDataProviderID()));
+					if (validatorInfo != null)
 					{
-						Debug.error("Column '" + column.getDataProviderID() +
-							"' does have column validator  information, but either the validator '" + validatorInfo.getLeft() +
-							"'  is not available, is the validator installed? (default default_validators.jar in the plugins) or the validator information is incorrect.");
+						IColumnValidator validator = columnValidatorManager.getValidator(validatorInfo.getLeft());
+						if (validator == null)
+						{
+							Debug.error("Column '" + column.getDataProviderID() +
+								"' does have column validator  information, but either the validator '" + validatorInfo.getLeft() +
+								"'  is not available, is the validator installed? (default default_validators.jar in the plugins) or the validator information is incorrect.");
 
-						recordMarkers.report("i18n:servoy.error.validatorNotFound", column.getDataProviderID(), ILogLevel.ERROR, state,
-							new Object[] { validatorInfo.getLeft() });
-					}
-					else
-					{
-						try
-						{
-							if (validator instanceof IColumnValidator2)
-							{
-								((IColumnValidator2)validator).validate(validatorInfo.getRight(), rawValue, column.getDataProviderID(), recordMarkers,
-									state);
-							}
-							else
-							{
-								validator.validate(validatorInfo.getRight(), rawValue);
-							}
+							recordMarkers.report("i18n:servoy.error.validatorNotFound", column.getDataProviderID(), ILogLevel.ERROR, state,
+								new Object[] { validatorInfo.getLeft() });
 						}
-						catch (IllegalArgumentException e)
+						else
 						{
-							recordMarkers.report("i18n:servoy.record.error.validation", column.getDataProviderID(), ILogLevel.ERROR, state,
-								new Object[] { column.getDataProviderID(), rawValue, e.getMessage() });
+							try
+							{
+								if (validator instanceof IColumnValidator2)
+								{
+									((IColumnValidator2)validator).validate(validatorInfo.getRight(), rawValue, column.getDataProviderID(), recordMarkers,
+										state);
+								}
+								else
+								{
+									validator.validate(validatorInfo.getRight(), rawValue);
+								}
+							}
+							catch (IllegalArgumentException e)
+							{
+								recordMarkers.report("i18n:servoy.record.error.validation", column.getDataProviderID(), ILogLevel.ERROR, state,
+									new Object[] { column.getDataProviderID(), rawValue, e.getMessage() });
+							}
 						}
 					}
 				}

@@ -700,11 +700,13 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	/**
 	 * Saves all records in the view foundset that have changes.
 	 * You can only save columns from a table if the pks of that table are also selected by the view foundset's query.
+	 *
+	 * @return true if the save was successfull, false if not and then the record will hav the exception set.
 	 */
 	@JSFunction
-	public int save()
+	public boolean save()
 	{
-		return doSave(null);
+		return doSave(null) == ISaveConstants.STOPPED;
 	}
 
 	/**
@@ -746,16 +748,18 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 * Saved a specific record of this foundset.
 	 * You can only save columns from a table if also the pk is selected of that table
 	 *
+	 * @return true if the save was successfull, false if not and then the record will hav the exception set.
+	 *
 	 * @param record
 	 */
 	@JSFunction
-	public int save(ViewRecord record)
+	public boolean save(ViewRecord record)
 	{
-		if (record != null && record.getParentFoundSet() != this) return ISaveConstants.SAVE_FAILED;
-		return doSave(record);
+		if (record != null && record.getParentFoundSet() != this) return false;
+		return doSave(record) == ISaveConstants.STOPPED;
 	}
 
-	private int doSave(ViewRecord record)
+	int doSave(ViewRecord record)
 	{
 		int retCode = ISaveConstants.STOPPED;
 		List<ViewRecord> toSave = new ArrayList<>();

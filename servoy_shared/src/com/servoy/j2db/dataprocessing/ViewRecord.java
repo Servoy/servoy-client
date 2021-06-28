@@ -135,6 +135,15 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		return value;
 	}
 
+	public Object getOldVaue(String dataProviderID)
+	{
+		if (changes != null && changes.containsKey(dataProviderID))
+		{
+			return changes.get(dataProviderID);
+		}
+		return values.get(dataProviderID);
+	}
+
 	@Override
 	public Object getValue(String dataProviderID, boolean converted)
 	{
@@ -291,7 +300,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	@Override
 	public int stopEditing()
 	{
-		return foundset.save(this);
+		return foundset.doSave(this);
 	}
 
 	@Override
