@@ -46,6 +46,10 @@ public class ComponentFactory
 	public static WebFormComponent createComponent(IApplication application, IDataAdapterList dataAdapterList, FormElement fe, Container parentToAddTo,
 		Form form)
 	{
+		// TODO anything to do here for custom special types?
+		WebFormComponent webComponent = new WebFormComponent(fe.getName(), fe, dataAdapterList);
+		if (parentToAddTo != null) parentToAddTo.add(webComponent);
+
 		String name = fe.getName();
 		IPersist persist = fe.getPersistIfAvailable();
 		int elementSecurity = 0;
@@ -88,13 +92,11 @@ public class ComponentFactory
 					form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 			}
 
-			// don't add the component to the form ui if component is not visible due to security settings
-			if (!((elementSecurity & IRepository.VIEWABLE) != 0)) return null;
+			if (!((elementSecurity & IRepository.VIEWABLE) != 0))
+			{
+				webComponent.setVisible(false);
+			}
 		}
-
-		// TODO anything to do here for custom special types?
-		WebFormComponent webComponent = new WebFormComponent(name, fe, dataAdapterList);
-		if (parentToAddTo != null) parentToAddTo.add(webComponent);
 
 		WebObjectSpecification componentSpec = fe.getWebComponentSpec(false);
 

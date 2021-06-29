@@ -257,10 +257,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 				{
 					WebFormComponent child = ComponentFactory.createComponent(dataAdapterList.getApplication(), dataAdapterList, element, component.getParent(),
 						dataAdapterList.getForm().getForm());
-					if (child != null)
-					{
-						formUI.contributeComponentToElementsScope(element, element.getWebComponentSpec(), child);
-					}
+					formUI.contributeComponentToElementsScope(element, element.getWebComponentSpec(), child);
 				}
 			}
 		}
