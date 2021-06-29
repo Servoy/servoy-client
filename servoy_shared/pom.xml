@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>com.servoy</groupId>
 		<artifactId>servoy-client</artifactId>
-		<version>2021.6.0.3682_rc3</version>
+		<version>2021.6.0.3683</version>
 	</parent>
 	<artifactId>servoy_shared</artifactId>
 	<packaging>eclipse-plugin</packaging>
