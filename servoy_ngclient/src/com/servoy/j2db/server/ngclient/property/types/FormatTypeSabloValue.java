@@ -29,6 +29,7 @@ import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.ISmartPropertyValue;
+import org.sablo.specification.property.ISmartSortOrderPrevalence;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.FormAndTableDataProviderLookup;
@@ -65,7 +66,7 @@ import com.servoy.j2db.util.Utils;
  *
  * @author acostescu
  */
-public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlyingState, PropertyChangeListener, IChangeListener
+public class FormatTypeSabloValue implements ISmartSortOrderPrevalence, IHasUnderlyingState, PropertyChangeListener, IChangeListener
 {
 
 	protected List<IChangeListener> underlyingValueChangeListeners = new ArrayList<>();
@@ -122,6 +123,12 @@ public class FormatTypeSabloValue implements ISmartPropertyValue, IHasUnderlying
 		this.componentFormat = getSabloValue(formatDesignValue, dataproviderID, valuelistID, foundsetID, webObjectContext);
 
 		initialized = true;
+	}
+
+	@Override
+	public int getPrevalence()
+	{
+		return 0; // attach of this class should be done first, all others should have a higher number
 	}
 
 	public ComponentFormat getComponentFormat()
