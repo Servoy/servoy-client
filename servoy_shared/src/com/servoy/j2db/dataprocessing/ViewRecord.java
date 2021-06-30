@@ -30,6 +30,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
@@ -440,7 +441,16 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	@Override
 	public void put(String name, Scriptable start, Object value)
 	{
-		setValue(name, value);
+		Object tmp = value;
+		while (tmp instanceof Wrapper)
+		{
+			tmp = ((Wrapper)tmp).unwrap();
+			if (tmp == value)
+			{
+				break;
+			}
+		}
+		setValue(name, tmp);
 	}
 
 	@Override

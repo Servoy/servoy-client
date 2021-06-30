@@ -860,6 +860,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 						if (!failedRecords.contains(rec))
 						{
 							failedRecords.add(rec);
+							retCode = ISaveConstants.SAVE_FAILED;
 						}
 					}
 
