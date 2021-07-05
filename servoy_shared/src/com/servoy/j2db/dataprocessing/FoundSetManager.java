@@ -64,6 +64,7 @@ import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.ClientState;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.SQLSheet.ConverterInfo;
@@ -3459,10 +3460,20 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public boolean registerViewFoundSet(ViewFoundSet foundset)
 	{
 		if (foundset == null) return false;
-		viewFoundSets.put(foundset.getDataSource(), foundset);
+		ViewFoundSet oldValue = viewFoundSets.put(foundset.getDataSource(), foundset);
 		ITable table = foundset.getTable();
 		if (!viewDataSources.containsKey(foundset.getDataSource()))
 			viewDataSources.put(foundset.getDataSource(), table);
+		if (oldValue != null)
+		{
+			for (IFormController controller : application.getFormManager().getCachedFormControllers())
+			{
+				if (controller.getFormModel() == oldValue)
+				{
+					controller.loadAllRecords();
+				}
+			}
+		}
 		return true;
 	}
 
