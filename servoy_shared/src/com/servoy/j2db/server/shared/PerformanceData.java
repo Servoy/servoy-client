@@ -74,9 +74,9 @@ public class PerformanceData
 		endAction(uuid, 1, clientUUID);
 	}
 
-	public PerformanceTimingAggregate endAction(UUID uuid, int nrecords, String clientUUID)
+	public void endAction(UUID uuid, int nrecords, String clientUUID)
 	{
-		if (maxEntriesToKeep == IPerformanceRegistry.OFF || uuid == null) return null;
+		if (maxEntriesToKeep == IPerformanceRegistry.OFF || uuid == null) return;
 		PerformanceTiming timing;
 		Stack<PerformanceTiming> stack = startedTimingUUIDsStack.get(clientUUID);
 		if (stack != null)
@@ -95,11 +95,7 @@ public class PerformanceData
 			}
 			else
 			{
-				PerformanceTimingAggregate subTiming = timing.endAction(uuid, nrecords, clientUUID);
-				if (subTiming != null)
-				{
-					subTimings.put(subTiming.getAction(), subTiming);
-				}
+				timing.endAction(uuid, nrecords, clientUUID);
 				timing = null; // this one is not done yet should not be ended below.
 			}
 
@@ -114,9 +110,14 @@ public class PerformanceData
 			{
 				log.info(timing.getClientUUID() + '|' + timing.getAction() + '|' + timing.getRunningTimeMS() + '|' + timing.getIntervalTimeMS());
 			}
-			return addTiming(timing.getAction(), timing.getIntervalTimeMS(), timing.getRunningTimeMS(), timing.getType(), subTimings, nrecords);
+			PerformanceTimingAggregate subTiming = addTiming(timing.getAction(), timing.getIntervalTimeMS(), timing.getRunningTimeMS(), timing.getType(),
+				timing.getSubTimings(), nrecords);
+			if (subTiming != null)
+			{
+				subTimings.put(subTiming.getAction(), subTiming);
+			}
 		}
-		return null;
+		return;
 	}
 
 	public PerformanceTimingAggregate addTiming(String action, long interval_ms, long total_ms, int type,
@@ -172,6 +173,14 @@ public class PerformanceData
 	public PerformanceTiming[] getStartedActions()
 	{
 		return startedTimings.values().toArray(new PerformanceTiming[startedTimings.size()]);
+	}
+
+	/**
+	 * @return the subTimings
+	 */
+	public Map<String, PerformanceTimingAggregate> getSubTimings()
+	{
+		return subTimings;
 	}
 
 	/**

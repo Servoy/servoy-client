@@ -57,14 +57,18 @@ public class PerformanceTiming extends PerformanceData
 	public PerformanceTimingAggregate addTiming(String subAction, long intervalMsSubAction, long totalMsSubAction, int typeOfSubAction,
 		Map<String, PerformanceTimingAggregate> subActionTimings, int nrecords)
 	{
+		long totalMsSubAction2 = totalMsSubAction;
+		long intervalMsSubAction2 = intervalMsSubAction;
 		if (typeOfSubAction == IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT)
 		{
 			// the subaction was waiting for user input; so discard it's running time from this action's calculation as it's not useful
 			// (we could also keep a separate longs and substract them from these values during display if we need to show total time of an action including waiting for user stuff in the future)
 			start_ms.addAndGet(totalMsSubAction);
+			totalMsSubAction2 = 0;
+			intervalMsSubAction2 = 0;
 		}
 
-		return super.addTiming(subAction, intervalMsSubAction, totalMsSubAction, typeOfSubAction, subActionTimings, nrecords);
+		return super.addTiming(subAction, intervalMsSubAction2, totalMsSubAction2, typeOfSubAction, subActionTimings, nrecords);
 	}
 
 	public UUID getUuid()
