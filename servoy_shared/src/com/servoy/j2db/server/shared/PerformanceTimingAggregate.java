@@ -47,7 +47,7 @@ public class PerformanceTimingAggregate extends PerformanceAggregator
 		super(maxEntriesToKeep);
 		this.action = action;
 		this.type = type;
-		totalSubActionTimes = new PerformanceTimingAggregate(action + " - subactions", IDataServer.METHOD_CALL, getSubActionMaxEntries());
+		totalSubActionTimes = new PerformanceTimingAggregate(action + " - subactions", getSubActionMaxEntries()); //$NON-NLS-1$
 		totalSubActionTimes.count.set(count.get() - 1); // if only some of the calls (not first ones) call client side APIs, we still must average on all calls
 	}
 
@@ -63,8 +63,22 @@ public class PerformanceTimingAggregate extends PerformanceAggregator
 		this.count.set(copy.getCount());
 		this.xtotal_ms.set(copy.getTotalTimeMS());
 		this.total_interval_ms.set(copy.getTotalIntervalTimeMS());
-		totalSubActionTimes = new PerformanceTimingAggregate(action + " - subactions", IDataServer.METHOD_CALL, getSubActionMaxEntries());
-		totalSubActionTimes.count.set(count.get() - 1); // if only some of the calls (not first ones) call client side APIs, we still must average on all calls
+		if (copy.totalSubActionTimes != null)
+		{
+			totalSubActionTimes = new PerformanceTimingAggregate(copy.totalSubActionTimes);
+		}
+		else
+		{
+			totalSubActionTimes = null;
+		}
+	}
+
+	private PerformanceTimingAggregate(String action, int maxEntriesToKeep)
+	{
+		super(maxEntriesToKeep);
+		this.action = action;
+		this.type = IDataServer.METHOD_CALL;
+		totalSubActionTimes = null;
 	}
 
 	public void updateTime(long interval_ms, long running_ms, int nrecords)
