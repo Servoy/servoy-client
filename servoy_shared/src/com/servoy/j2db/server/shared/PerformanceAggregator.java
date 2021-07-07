@@ -19,8 +19,10 @@ package com.servoy.j2db.server.shared;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.servoy.j2db.server.shared.PerformanceData.TimeComparator;
 import com.servoy.j2db.util.SortedList;
@@ -39,6 +41,8 @@ public class PerformanceAggregator
 	private final ConcurrentMap<String, PerformanceTimingAggregate> aggregatesByAction;
 
 	protected final int maxEntriesToKeep;
+
+	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
 	public PerformanceAggregator(int maxEntriesToKeep)
 	{
@@ -89,43 +93,78 @@ public class PerformanceAggregator
 	/**
 	 * Please use {@link #startAction(String, long, int)} / {@link #endAction(UUID)} / {@link #intervalAction(UUID)} whenever possible instead.
 	 */
-	public void addTiming(String action, long interval_ms, long total_ms, int type, int nrecords)
+	public PerformanceTimingAggregate addTiming(String action, long interval_ms, long total_ms, int type,
+		Map<String, PerformanceTimingAggregate> subActionTimings, int nrecords)
 	{
-		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return;
+		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return null;
 
-		PerformanceTimingAggregate time = aggregatesByAction.get(action);
-		if (time == null)
+		PerformanceTimingAggregate time;
+		lock.readLock().lock();
+		try
 		{
-			time = new PerformanceTimingAggregate(action, type, getSubActionMaxEntries());
-			aggregatesByAction.put(action, time);
+			time = aggregatesByAction.get(action);
+			if (time == null)
+			{
+				time = new PerformanceTimingAggregate(action, type, getSubActionMaxEntries());
+				PerformanceTimingAggregate alreadyThere = aggregatesByAction.putIfAbsent(action, time);
+				if (alreadyThere != null) time = alreadyThere;
+			}
+			// remove it because it will need to be sorted again after update
+			sortedAggregates.remove(time);
+
+			// update obj
+			time.updateTime(interval_ms, total_ms, nrecords);
+			time.updateSubActionTimes(subActionTimings, nrecords);
+
+			// do sort again
+			sortedAggregates.add(time);
 		}
-		// remove it because it will need to be sorted again after update
-		sortedAggregates.remove(time);
-
-		// update obj
-		time.updateTime(interval_ms, total_ms, nrecords);
-//		time.updateSubActionTimes(subActionTimings, nrecords);
-
-		// do sort again
-		sortedAggregates.add(time);
-
+		finally
+		{
+			lock.readLock().unlock();
+		}
 		// do clean
 		if (maxEntriesToKeep != IPerformanceRegistry.UNLIMITED_ENTRIES && sortedAggregates.size() > maxEntriesToKeep)
 		{
-			PerformanceTimingAggregate old = sortedAggregates.remove(maxEntriesToKeep);
-			aggregatesByAction.remove(old.getAction());
+			lock.writeLock().lock();
+			try
+			{
+				if (sortedAggregates.size() > maxEntriesToKeep)
+				{
+					PerformanceTimingAggregate old = sortedAggregates.remove(maxEntriesToKeep);
+					aggregatesByAction.remove(old.getAction());
+				}
+			}
+			finally
+			{
+				lock.writeLock().unlock();
+			}
 		}
+		return time;
 	}
 
 	public void clear()
 	{
-		sortedAggregates.clear();
-		aggregatesByAction.clear();
+		lock.writeLock().lock();
+		try
+		{
+			aggregatesByAction.clear();
+			sortedAggregates.clear();
+		}
+		finally
+		{
+			lock.writeLock().unlock();
+		}
 	}
 
 	public PerformanceTimingAggregate[] toArray()
 	{
 		return sortedAggregates.toArray(new PerformanceTimingAggregate[sortedAggregates.size()]);
+	}
+
+	public Map<String, PerformanceTimingAggregate> toMap()
+	{
+		return Collections.unmodifiableMap(aggregatesByAction);
 	}
 
 	protected int getSubActionMaxEntries()

@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.shared;
 
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
@@ -53,7 +54,8 @@ public class PerformanceTiming extends PerformanceData
 
 
 	@Override
-	public void addTiming(String subAction, long intervalMsSubAction, long totalMsSubAction, int typeOfSubAction, int nrecords)
+	public PerformanceTimingAggregate addTiming(String subAction, long intervalMsSubAction, long totalMsSubAction, int typeOfSubAction,
+		Map<String, PerformanceTimingAggregate> subActionTimings, int nrecords)
 	{
 		if (typeOfSubAction == IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT)
 		{
@@ -62,7 +64,7 @@ public class PerformanceTiming extends PerformanceData
 			start_ms.addAndGet(totalMsSubAction);
 		}
 
-		super.addTiming(subAction, intervalMsSubAction, totalMsSubAction, typeOfSubAction, nrecords);
+		return super.addTiming(subAction, intervalMsSubAction, totalMsSubAction, typeOfSubAction, subActionTimings, nrecords);
 	}
 
 	public UUID getUuid()

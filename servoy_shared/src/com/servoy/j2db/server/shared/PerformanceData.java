@@ -2,6 +2,7 @@ package com.servoy.j2db.server.shared;
 
 
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -19,6 +20,8 @@ import com.servoy.j2db.util.UUID;
 public class PerformanceData
 {
 	private final ConcurrentMap<UUID, PerformanceTiming> startedTimings = new ConcurrentHashMap<>();
+
+	private final ConcurrentHashMap<String, PerformanceTimingAggregate> subTimings = new ConcurrentHashMap<>();
 
 	// stack because for example an showForm modal dialog could execute other actions and then when modal
 	// is closed sub-actions might still happen and they need to point to the correct parent action
@@ -71,9 +74,9 @@ public class PerformanceData
 		endAction(uuid, 1, clientUUID);
 	}
 
-	public void endAction(UUID uuid, int nrecords, String clientUUID)
+	public PerformanceTimingAggregate endAction(UUID uuid, int nrecords, String clientUUID)
 	{
-		if (maxEntriesToKeep == IPerformanceRegistry.OFF || uuid == null) return;
+		if (maxEntriesToKeep == IPerformanceRegistry.OFF || uuid == null) return null;
 		PerformanceTiming timing;
 		Stack<PerformanceTiming> stack = startedTimingUUIDsStack.get(clientUUID);
 		if (stack != null)
@@ -92,7 +95,11 @@ public class PerformanceData
 			}
 			else
 			{
-				timing.endAction(uuid, nrecords, clientUUID);
+				PerformanceTimingAggregate subTiming = timing.endAction(uuid, nrecords, clientUUID);
+				if (subTiming != null)
+				{
+					subTimings.put(subTiming.getAction(), subTiming);
+				}
 				timing = null; // this one is not done yet should not be ended below.
 			}
 
@@ -107,13 +114,15 @@ public class PerformanceData
 			{
 				log.info(timing.getClientUUID() + '|' + timing.getAction() + '|' + timing.getRunningTimeMS() + '|' + timing.getIntervalTimeMS());
 			}
-			addTiming(timing.getAction(), timing.getIntervalTimeMS(), timing.getRunningTimeMS(), timing.getType(), nrecords);
+			return addTiming(timing.getAction(), timing.getIntervalTimeMS(), timing.getRunningTimeMS(), timing.getType(), subTimings, nrecords);
 		}
+		return null;
 	}
 
-	public void addTiming(String action, long interval_ms, long total_ms, int type, int nrecords)
+	public PerformanceTimingAggregate addTiming(String action, long interval_ms, long total_ms, int type,
+		Map<String, PerformanceTimingAggregate> subActionTimings, int nrecords)
 	{
-		this.aggregator.addTiming(action, interval_ms, total_ms, type, nrecords);
+		return this.aggregator.addTiming(action, interval_ms, total_ms, type, subActionTimings, nrecords);
 	}
 
 	// currently we can have/need only one layer of nesting/sub-actions (sub-actions cannot be accessed right now by the outside world to continue nesting furter)
