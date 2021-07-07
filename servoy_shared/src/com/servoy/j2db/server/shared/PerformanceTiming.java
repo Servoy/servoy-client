@@ -17,7 +17,7 @@
 
 package com.servoy.j2db.server.shared;
 
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 
@@ -35,35 +35,34 @@ public class PerformanceTiming extends PerformanceData
 
 	private final UUID uuid;
 	private final String action;
-	private long start_ms;
 	private final int type;
-	private long interval_ms;
 	private final String clientUUID;
+	private final AtomicLong start_ms = new AtomicLong(0);
+	private final AtomicLong interval_ms = new AtomicLong(0);
 
-	public PerformanceTiming(String action, int type, long start_ms, String clientUUID, int maxEntriesToKeep, Logger log)
+	public PerformanceTiming(String action, int type, long start_ms, String clientUUID, int maxEntriesToKeep, Logger log, PerformanceAggregator aggregator)
 	{
-		super(maxEntriesToKeep, log);
+		super(maxEntriesToKeep, log, aggregator);
 
 		this.uuid = UUID.randomUUID();
 		this.action = action;
 		this.type = type;
-		this.start_ms = start_ms;
+		this.start_ms.set(start_ms);
 		this.clientUUID = clientUUID;
 	}
 
 
 	@Override
-	public synchronized void addTiming(String subAction, long intervalMsSubAction, long totalMsSubAction, int typeOfSubAction,
-		Map<String, PerformanceTimingAggregate> subSubActionTimings, int nrecords)
+	public void addTiming(String subAction, long intervalMsSubAction, long totalMsSubAction, int typeOfSubAction, int nrecords)
 	{
 		if (typeOfSubAction == IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT)
 		{
 			// the subaction was waiting for user input; so discard it's running time from this action's calculation as it's not useful
 			// (we could also keep a separate longs and substract them from these values during display if we need to show total time of an action including waiting for user stuff in the future)
-			start_ms += totalMsSubAction;
+			start_ms.addAndGet(totalMsSubAction);
 		}
 
-		super.addTiming(subAction, intervalMsSubAction, totalMsSubAction, typeOfSubAction, subSubActionTimings, nrecords);
+		super.addTiming(subAction, intervalMsSubAction, totalMsSubAction, typeOfSubAction, nrecords);
 	}
 
 	public UUID getUuid()
@@ -130,7 +129,7 @@ public class PerformanceTiming extends PerformanceData
 
 	public long getStartTimeMS()
 	{
-		return start_ms;
+		return start_ms.get();
 	}
 
 	public String getClientUUID()
@@ -140,17 +139,17 @@ public class PerformanceTiming extends PerformanceData
 
 	public long getRunningTimeMS()
 	{
-		return System.currentTimeMillis() - start_ms;
+		return System.currentTimeMillis() - start_ms.get();
 	}
 
 	public long getIntervalTimeMS()
 	{
-		return (interval_ms == 0 ? System.currentTimeMillis() : interval_ms) - start_ms;
+		return (interval_ms.get() == 0 ? System.currentTimeMillis() : interval_ms.get()) - start_ms.get();
 	}
 
 	public void setIntervalTime()
 	{
-		interval_ms = System.currentTimeMillis();
+		interval_ms.set(System.currentTimeMillis());
 	}
 
 }

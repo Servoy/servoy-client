@@ -18,8 +18,9 @@
 package com.servoy.j2db.server.shared;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.servoy.j2db.server.shared.PerformanceData.TimeComparator;
 import com.servoy.j2db.util.SortedList;
@@ -32,17 +33,27 @@ import com.servoy.j2db.util.UUID;
  */
 public class PerformanceAggregator
 {
-
 	public static final int DEFAULT_MAX_ENTRIES_TO_KEEP_IN_PRODUCTION = 500;
 
-	private SortedList<PerformanceTimingAggregate> sortedAggregates;
-	private Map<String, PerformanceTimingAggregate> aggregatesByAction;
+	private final List<PerformanceTimingAggregate> sortedAggregates;
+	private final ConcurrentMap<String, PerformanceTimingAggregate> aggregatesByAction;
 
 	protected final int maxEntriesToKeep;
 
 	public PerformanceAggregator(int maxEntriesToKeep)
 	{
 		this.maxEntriesToKeep = maxEntriesToKeep;
+		if (maxEntriesToKeep == IPerformanceRegistry.OFF)
+		{
+			sortedAggregates = null;
+			aggregatesByAction = null;
+		}
+		else
+		{
+			sortedAggregates = Collections.synchronizedList(new SortedList<PerformanceTimingAggregate>(new TimeComparator()));
+			aggregatesByAction = new ConcurrentHashMap<String, PerformanceTimingAggregate>(
+				maxEntriesToKeep > 0 ? maxEntriesToKeep : DEFAULT_MAX_ENTRIES_TO_KEEP_IN_PRODUCTION);
+		}
 	}
 
 	/**
@@ -53,8 +64,8 @@ public class PerformanceAggregator
 		this.maxEntriesToKeep = copy.maxEntriesToKeep;
 		if (copy.sortedAggregates != null)
 		{
-			sortedAggregates = new SortedList<PerformanceTimingAggregate>(new TimeComparator());
-			aggregatesByAction = new HashMap<String, PerformanceTimingAggregate>(maxEntriesToKeep);
+			sortedAggregates = Collections.synchronizedList(new SortedList<PerformanceTimingAggregate>(new TimeComparator()));
+			aggregatesByAction = new ConcurrentHashMap<String, PerformanceTimingAggregate>(maxEntriesToKeep);
 			for (PerformanceTimingAggregate a : copy.sortedAggregates)
 			{
 				PerformanceTimingAggregate copyOfA = new PerformanceTimingAggregate(a);
@@ -62,19 +73,25 @@ public class PerformanceAggregator
 				aggregatesByAction.put(a.getAction(), copyOfA);
 			}
 		}
+		else if (maxEntriesToKeep == IPerformanceRegistry.OFF)
+		{
+			sortedAggregates = null;
+			aggregatesByAction = null;
+		}
+		else
+		{
+			sortedAggregates = Collections.synchronizedList(new SortedList<PerformanceTimingAggregate>(new TimeComparator()));
+			aggregatesByAction = new ConcurrentHashMap<String, PerformanceTimingAggregate>(
+				maxEntriesToKeep > 0 ? maxEntriesToKeep : DEFAULT_MAX_ENTRIES_TO_KEEP_IN_PRODUCTION);
+		}
 	}
 
 	/**
 	 * Please use {@link #startAction(String, long, int)} / {@link #endAction(UUID)} / {@link #intervalAction(UUID)} whenever possible instead.
 	 */
-	public synchronized void addTiming(String action, long interval_ms, long total_ms, int type, Map<String, PerformanceTimingAggregate> subActionTimings,
-		int nrecords)
+	public void addTiming(String action, long interval_ms, long total_ms, int type, int nrecords)
 	{
 		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return;
-
-		if (aggregatesByAction == null) aggregatesByAction = new HashMap<String, PerformanceTimingAggregate>(
-			maxEntriesToKeep > 0 ? maxEntriesToKeep : DEFAULT_MAX_ENTRIES_TO_KEEP_IN_PRODUCTION);
-		if (sortedAggregates == null) sortedAggregates = new SortedList<PerformanceTimingAggregate>(new TimeComparator());
 
 		PerformanceTimingAggregate time = aggregatesByAction.get(action);
 		if (time == null)
@@ -87,7 +104,7 @@ public class PerformanceAggregator
 
 		// update obj
 		time.updateTime(interval_ms, total_ms, nrecords);
-		time.updateSubActionTimes(subActionTimings, nrecords);
+//		time.updateSubActionTimes(subActionTimings, nrecords);
 
 		// do sort again
 		sortedAggregates.add(time);
@@ -100,21 +117,15 @@ public class PerformanceAggregator
 		}
 	}
 
-	public synchronized void clear()
+	public void clear()
 	{
-		if (sortedAggregates != null) sortedAggregates.clear();
-		if (aggregatesByAction != null) aggregatesByAction.clear();
+		sortedAggregates.clear();
+		aggregatesByAction.clear();
 	}
 
-	public synchronized PerformanceTimingAggregate[] toArray()
+	public PerformanceTimingAggregate[] toArray()
 	{
-		return (sortedAggregates != null ? sortedAggregates.toArray(new PerformanceTimingAggregate[sortedAggregates.size()])
-			: new PerformanceTimingAggregate[0]);
-	}
-
-	public synchronized Map<String, PerformanceTimingAggregate> toMap()
-	{
-		return (aggregatesByAction != null ? Collections.unmodifiableMap(aggregatesByAction) : new HashMap<String, PerformanceTimingAggregate>());
+		return sortedAggregates.toArray(new PerformanceTimingAggregate[sortedAggregates.size()]);
 	}
 
 	protected int getSubActionMaxEntries()

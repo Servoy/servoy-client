@@ -1539,7 +1539,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		if (perfId != null)
 		{
 			PerformanceData performanceData = perfRegistry.getPerformanceData(getSolutionName());
-			if (performanceData != null) performanceData.endSubAction(perfId);
+			if (performanceData != null) performanceData.endSubAction(perfId, getClientID());
 		}
 	}
 

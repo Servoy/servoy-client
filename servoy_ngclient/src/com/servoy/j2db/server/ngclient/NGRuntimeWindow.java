@@ -536,11 +536,12 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 				Pair<UUID, UUID> perfId = null;
 				PerformanceData performanceData = null;
+				String clientID = getApplication().getClientID();
 				if (perfRegistry != null)
 				{
 					performanceData = perfRegistry.getPerformanceData(getApplication().getSolutionName());
 					perfId = performanceData != null ? performanceData.startSubAction("$windowService.show", System.currentTimeMillis(),
-						IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT, getApplication().getClientID()) : null;
+						IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT, clientID) : null;
 				}
 				try
 				{
@@ -551,7 +552,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				}
 				finally
 				{
-					if (perfId != null) performanceData.endSubAction(perfId);
+					if (perfId != null) performanceData.endSubAction(perfId, clientID);
 				}
 
 				// this is now a hide of this window, set back the window name just before this show.

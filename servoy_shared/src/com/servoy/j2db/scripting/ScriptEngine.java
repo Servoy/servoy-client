@@ -125,10 +125,11 @@ public class ScriptEngine implements IScriptSupport
 				IApplication application = (IApplication)sp;
 				cx.setApplicationClassLoader(application.getBeanManager().getClassLoader(), false);
 				cx.setWrapFactory(new ServoyWrapFactory(application));
-				
+
 				String version = application.getSettings().getProperty("servoy.javascript.version"); //$NON-NLS-1$
-				
-				if (version != null && version.length() > 0) {
+
+				if (version != null && version.length() > 0)
+				{
 					try
 					{
 						cx.setLanguageVersion(Integer.parseInt(version));
@@ -623,6 +624,7 @@ public class ScriptEngine implements IScriptSupport
 			// only search for nice strings needed in performance admin page if performance is actually enabled
 			UUID pfUuid = null;
 			PerformanceData performanceData = null;
+			String clientID = application.getClientID();
 			try
 			{
 				if (application instanceof ISmartClientApplication)
@@ -670,7 +672,7 @@ public class ScriptEngine implements IScriptSupport
 
 					methodName = scopeName + "." + methodName; //$NON-NLS-1$
 					//	application.addPerformanceTiming(server, sql, 0 - t1);
-					pfUuid = performanceData.startAction(methodName, System.currentTimeMillis(), IDataServer.METHOD_CALL, application.getClientID());
+					pfUuid = performanceData.startAction(methodName, System.currentTimeMillis(), IDataServer.METHOD_CALL, clientID);
 				}
 
 				retValue = f.call(cx, scope, thisObject, wrappedArgs);
@@ -734,7 +736,7 @@ public class ScriptEngine implements IScriptSupport
 				}
 				else if (pfUuid != null)
 				{
-					performanceData.endAction(pfUuid);
+					performanceData.endAction(pfUuid, clientID);
 				}
 				Context.exit();
 			}

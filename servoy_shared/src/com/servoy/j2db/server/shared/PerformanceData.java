@@ -2,9 +2,9 @@ package com.servoy.j2db.server.shared;
 
 
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
 
@@ -16,38 +16,49 @@ import com.servoy.j2db.util.UUID;
  *
  * @author jblok
  */
-public class PerformanceData extends PerformanceAggregator
+public class PerformanceData
 {
-	private final Map<UUID, PerformanceTiming> startedTimings = new HashMap<UUID, PerformanceTiming>();
+	private final ConcurrentMap<UUID, PerformanceTiming> startedTimings = new ConcurrentHashMap<>();
 
 	// stack because for example an showForm modal dialog could execute other actions and then when modal
 	// is closed sub-actions might still happen and they need to point to the correct parent action
-	private final Stack<UUID> startedTimingUUIDsStack = new Stack<>();
+	private final ConcurrentMap<String, Stack<PerformanceTiming>> startedTimingUUIDsStack = new ConcurrentHashMap<>();
 
 	private final Logger log;
 
-	public PerformanceData(int maxEntriesToKeep, Logger log)
+	private final int maxEntriesToKeep;
+
+	private final PerformanceAggregator aggregator;
+
+	public PerformanceData(int maxEntriesToKeep, Logger log, PerformanceAggregator aggregator)
 	{
-		super(maxEntriesToKeep);
+		super();
+		this.maxEntriesToKeep = maxEntriesToKeep;
 		this.log = log;
+		this.aggregator = aggregator;
 	}
 
-	public synchronized UUID startAction(String action, long start_ms, int type, String clientUUID)
+	public UUID startAction(String action, long start_ms, int type, String clientUUID)
 	{
 		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return null;
-
-		PerformanceTiming timing = new PerformanceTiming(action, type, start_ms, clientUUID, maxEntriesToKeep, log);
-		startedTimingUUIDsStack.push(timing.getUuid());
-		startedTimings.put(timing.getUuid(), timing);
-		return timing.getUuid();
+		Stack<PerformanceTiming> stack = startedTimingUUIDsStack.get(clientUUID);
+		if (stack == null)
+		{
+			stack = new Stack<>();
+			startedTimingUUIDsStack.put(clientUUID, stack);
+			PerformanceTiming timing = new PerformanceTiming(action, type, start_ms, clientUUID, maxEntriesToKeep, log, this.aggregator);
+			startedTimings.put(timing.getUuid(), timing);
+			stack.push(timing);
+			return timing.getUuid();
+		}
+		else
+		{
+			PerformanceTiming timing = stack.peek();
+			return timing.startAction(action, start_ms, type, clientUUID);
+		}
 	}
 
-	public synchronized UUID startAction(String action, long start_ms, int type)
-	{
-		return startAction(action, start_ms, type, null);
-	}
-
-	public synchronized void intervalAction(UUID uuid)
+	public void intervalAction(UUID uuid)
 	{
 		if (maxEntriesToKeep == IPerformanceRegistry.OFF || uuid == null) return;
 
@@ -55,45 +66,75 @@ public class PerformanceData extends PerformanceAggregator
 		if (timing != null) timing.setIntervalTime();
 	}
 
-	public void endAction(UUID uuid)
+	public void endAction(UUID uuid, String clientUUID)
 	{
-		endAction(uuid, 1);
+		endAction(uuid, 1, clientUUID);
 	}
 
-	public synchronized void endAction(UUID uuid, int nrecords)
+	public void endAction(UUID uuid, int nrecords, String clientUUID)
 	{
 		if (maxEntriesToKeep == IPerformanceRegistry.OFF || uuid == null) return;
+		PerformanceTiming timing;
+		Stack<PerformanceTiming> stack = startedTimingUUIDsStack.get(clientUUID);
+		if (stack != null)
+		{
+			timing = stack.peek();
+			// is this the uuid that is on this stack. then this one should be ended.
+			// else a child/sub timing should be searched for.
+			if (uuid.equals(timing.getUuid()))
+			{
+				stack.pop();
+				if (stack.size() == 0)
+				{
+					startedTimingUUIDsStack.remove(clientUUID);
+					startedTimings.remove(uuid);
+				}
+			}
+			else
+			{
+				timing.endAction(uuid, nrecords, clientUUID);
+				timing = null; // this one is not done yet should not be ended below.
+			}
 
-		PerformanceTiming timing = startedTimings.remove(uuid);
+		}
+		else
+		{
+			timing = startedTimings.remove(uuid);
+		}
 		if (timing != null)
 		{
 			if (log != null && log.isInfoEnabled())
 			{
 				log.info(timing.getClientUUID() + '|' + timing.getAction() + '|' + timing.getRunningTimeMS() + '|' + timing.getIntervalTimeMS());
 			}
-			addTiming(timing.getAction(), timing.getIntervalTimeMS(), timing.getRunningTimeMS(), timing.getType(), timing.toMap(), nrecords);
+			addTiming(timing.getAction(), timing.getIntervalTimeMS(), timing.getRunningTimeMS(), timing.getType(), nrecords);
 		}
-		startedTimingUUIDsStack.pop();
+	}
+
+	public void addTiming(String action, long interval_ms, long total_ms, int type, int nrecords)
+	{
+		this.aggregator.addTiming(action, interval_ms, total_ms, type, nrecords);
 	}
 
 	// currently we can have/need only one layer of nesting/sub-actions (sub-actions cannot be accessed right now by the outside world to continue nesting furter)
-	public synchronized Pair<UUID, UUID> startSubAction(String action, long start_ms, int type, String clientUUID)
+	public Pair<UUID, UUID> startSubAction(String action, long start_ms, int type, String clientUUID)
 	{
 		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return null;
 
-		if (startedTimingUUIDsStack.isEmpty()) return null; // probably a Servoy internal service API call that gets called outside any user method; ignore
-		UUID lastStartedTimingUUID = startedTimingUUIDsStack.peek();
+		Stack<PerformanceTiming> stack = startedTimingUUIDsStack.get(clientUUID);
+		if (stack == null || stack.isEmpty()) return null; // probably a Servoy internal service API call that gets called outside any user method; ignore
 
-		PerformanceTiming lastStartedTiming = startedTimings.get(lastStartedTimingUUID);
+		PerformanceTiming lastStartedTiming = stack.peek();
+
 		UUID subTimingUUID = null;
 		if (lastStartedTiming != null)
 		{
 			subTimingUUID = lastStartedTiming.startAction(action, start_ms, type, clientUUID);
 		}
-		return new Pair<>(lastStartedTimingUUID, subTimingUUID);
+		return new Pair<>(lastStartedTiming.getUuid(), subTimingUUID);
 	}
 
-	public synchronized void endSubAction(Pair<UUID, UUID> subActionUUIDs)
+	public void endSubAction(Pair<UUID, UUID> subActionUUIDs, String clientUUID)
 	{
 		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return;
 		if (subActionUUIDs == null) return; // probably a Servoy internal service API call that gets called outside any user method; ignore
@@ -101,7 +142,7 @@ public class PerformanceData extends PerformanceAggregator
 		PerformanceTiming timingWithSubAction = startedTimings.get(subActionUUIDs.getLeft());
 		if (timingWithSubAction != null)
 		{
-			timingWithSubAction.endAction(subActionUUIDs.getRight());
+			timingWithSubAction.endAction(subActionUUIDs.getRight(), clientUUID);
 		}
 	}
 
@@ -119,8 +160,16 @@ public class PerformanceData extends PerformanceAggregator
 		}
 	}
 
-	public synchronized PerformanceTiming[] getStartedActions()
+	public PerformanceTiming[] getStartedActions()
 	{
 		return startedTimings.values().toArray(new PerformanceTiming[startedTimings.size()]);
+	}
+
+	/**
+	 * @return the aggregator
+	 */
+	public PerformanceAggregator getAggregator()
+	{
+		return aggregator;
 	}
 }

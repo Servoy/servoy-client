@@ -171,7 +171,7 @@ public interface IServerAccess extends IPluginAccess
 	 * @param uuid
 	 * @since 8.0
 	 */
-	public void endPerformanceTiming(String context, UUID uuid);
+	public void endPerformanceTiming(String context, UUID uuid, String clientId);
 
 	/**
 	 * Add performance timing data for an action. This is shown on the server admin page, performance section.

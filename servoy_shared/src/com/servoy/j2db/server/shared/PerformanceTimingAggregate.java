@@ -79,7 +79,7 @@ public class PerformanceTimingAggregate extends PerformanceAggregator
 			for (Entry<String, PerformanceTimingAggregate> newE : newSubActionTimings.entrySet())
 			{
 				PerformanceTimingAggregate newSubTime = newE.getValue();
-				addTiming(newE.getKey(), newSubTime.getTotalIntervalTimeMS(), newSubTime.getTotalTimeMS(), newSubTime.getType(), newSubTime.toMap(), nrecords);
+				addTiming(newE.getKey(), newSubTime.getTotalIntervalTimeMS(), newSubTime.getTotalTimeMS(), newSubTime.getType(), nrecords);
 				if (newSubTime.getType() != IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT)
 				{
 					if (totalSubActionTimes == null)
