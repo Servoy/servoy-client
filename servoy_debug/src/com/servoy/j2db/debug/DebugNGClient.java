@@ -308,12 +308,19 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	@Override
 	public void recreateForms()
 	{
-		INGFormManager fm = getFormManager();
-		if (fm != null)
+		invokeAndWait(new Runnable()
 		{
-			List<IFormController> cachedFormControllers = fm.getCachedFormControllers();
-			refreshForms(cachedFormControllers, false);
-		}
+			@Override
+			public void run()
+			{
+				INGFormManager fm = getFormManager();
+				if (fm != null)
+				{
+					List<IFormController> cachedFormControllers = fm.getCachedFormControllers();
+					refreshForms(cachedFormControllers, false);
+				}
+			}
+		});
 	}
 
 	private void refreshForms(Collection<IFormController> forms, boolean forcePageReload)

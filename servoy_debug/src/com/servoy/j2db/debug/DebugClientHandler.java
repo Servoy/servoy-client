@@ -352,7 +352,14 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		}
 		if (debugNGClient != null)
 		{
-			debugNGClient.setCurrent(solution);
+			debugNGClient.invokeLater(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					debugNGClient.setCurrent(solution);
+				}
+			});
 		}
 		if (debugHeadlessClient != null)
 		{
