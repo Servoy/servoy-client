@@ -1795,7 +1795,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	/**
 	 * Same as {@link #getID()} but it will not assign an id if it wasn't set before.
 	 */
-	int getIDInternal()
+	public int getIDInternal()
 	{
 		return foundsetID;
 	}

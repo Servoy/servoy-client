@@ -664,6 +664,12 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 	}
 
 	@Override
+	public int getIDInternal()
+	{
+		return 0;
+	}
+
+	@Override
 	public int getRawSize()
 	{
 		return getSize();

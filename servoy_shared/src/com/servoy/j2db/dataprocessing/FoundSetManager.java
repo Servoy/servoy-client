@@ -1642,7 +1642,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public IFoundSetInternal findFoundset(int id)
 	{
 		return getAllFoundsetsStream()
-			.filter(FoundSet.class::isInstance).map(FoundSet.class::cast)
 			.filter(fs -> id == fs.getIDInternal())
 			.findAny().orElse(null);
 	}

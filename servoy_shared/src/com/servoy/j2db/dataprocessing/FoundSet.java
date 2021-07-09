@@ -295,7 +295,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Same as {@link #getID()} but it will not assign an id if it wasn't set before.
 	 */
-	int getIDInternal()
+	public int getIDInternal()
 	{
 		return foundsetID;
 	}
