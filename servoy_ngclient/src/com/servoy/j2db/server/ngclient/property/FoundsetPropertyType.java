@@ -231,7 +231,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 						public void put(String nm, Scriptable strt, Object value)
 						{
 							final String dp = webComponentValue.dataproviders.get(nm);
-							if (dp == null || !dp.equals(value))
+							if ((dp == null && value != null) || (dp != null && !dp.equals(value)))
 							{
 								webComponentValue.dataproviders.put(nm, (String)value);
 								webComponentValue.notifyDataProvidersUpdated();
