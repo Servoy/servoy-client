@@ -51,6 +51,7 @@ import com.servoy.j2db.IDebugNGClient;
 import com.servoy.j2db.IDebugWebClient;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormController;
+import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.debug.extensions.IDebugClientPovider;
@@ -466,7 +467,9 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 			@Override
 			public DebugJ2DBClient createDebugClient(DebugClientHandler debugClientHandler)
 			{
-				return new DebugJ2DBClient(true, debugClientHandler);
+				DebugJ2DBClient client = new DebugJ2DBClient(debugClientHandler);
+				J2DBGlobals.setSingletonServiceProvider(client);
+				return client;
 			}
 
 			@Override

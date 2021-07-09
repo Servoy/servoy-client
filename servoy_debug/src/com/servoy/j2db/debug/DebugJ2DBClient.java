@@ -482,9 +482,9 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		return shutDown;
 	}
 
-	public DebugJ2DBClient(boolean setSingletonServiceProvider, final IDesignerCallback callback)
+	public DebugJ2DBClient(final IDesignerCallback callback)
 	{
-		super(setSingletonServiceProvider);
+		super(false);
 		this.designerCallback = callback;
 		refreshPersistsSequencer = new RefreshPersistsSequencer();
 		startupApplication(new String[0]);
