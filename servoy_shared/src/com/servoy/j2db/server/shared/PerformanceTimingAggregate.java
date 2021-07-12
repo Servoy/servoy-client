@@ -48,7 +48,6 @@ public class PerformanceTimingAggregate extends PerformanceAggregator
 		this.action = action;
 		this.type = type;
 		totalSubActionTimes = new PerformanceTimingAggregate(action + " - subactions", getSubActionMaxEntries()); //$NON-NLS-1$
-		totalSubActionTimes.count.set(count.get() - 1); // if only some of the calls (not first ones) call client side APIs, we still must average on all calls
 	}
 
 	public PerformanceTimingAggregate(PerformanceTimingAggregate copy)
@@ -100,18 +99,12 @@ public class PerformanceTimingAggregate extends PerformanceAggregator
 			{
 				PerformanceTimingAggregate newSubTime = newE.getValue();
 				addTiming(newE.getKey(), newSubTime.getTotalIntervalTimeMS(), newSubTime.getTotalTimeMS(), newSubTime.getType(), newSubTime.toMap(), nrecords);
-				if (newSubTime.getType() != IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT)
-				{
-					it += newSubTime.getTotalIntervalTimeMS();
-					rt += newSubTime.getTotalTimeMS();
-				}
+				it += newSubTime.getTotalIntervalTimeMS();
+				rt += newSubTime.getTotalTimeMS();
 			}
 		}
 
-		if (it != 0 || rt != 0)
-		{
-			totalSubActionTimes.updateTime(it, rt, nrecords); // it can happen that if in one parent method execution there are no child API calls, min will become 0 - that is normal
-		}
+		totalSubActionTimes.updateTime(it, rt, nrecords); // it can happen that if in one parent method execution there are no child API calls, min will become 0 - that is normal
 	}
 
 	public PerformanceTimingAggregate getTotalSubActionTimes()
