@@ -17,8 +17,7 @@
 
 package com.servoy.j2db.server.shared;
 
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -90,17 +89,17 @@ public class PerformanceTimingAggregate extends PerformanceAggregator
 		count.addAndGet(nrecords);
 	}
 
-	public void updateSubActionTimes(Map<String, PerformanceTimingAggregate> newSubActionTimings, int nrecords)
+	public void updateSubActionTimes(Queue<PerformanceTiming> newSubActionTimings, int nrecords)
 	{
 		long it = 0, rt = 0;
 		if (newSubActionTimings != null)
 		{
-			for (Entry<String, PerformanceTimingAggregate> newE : newSubActionTimings.entrySet())
+			for (PerformanceTiming newSubTime : newSubActionTimings)
 			{
-				PerformanceTimingAggregate newSubTime = newE.getValue();
-				addTiming(newE.getKey(), newSubTime.getTotalIntervalTimeMS(), newSubTime.getTotalTimeMS(), newSubTime.getType(), newSubTime.toMap(), nrecords);
-				it += newSubTime.getTotalIntervalTimeMS();
-				rt += newSubTime.getTotalTimeMS();
+				addTiming(newSubTime.getAction(), newSubTime.getIntervalTimeMS(), newSubTime.getRunningTimeMS(), newSubTime.getType(),
+					newSubTime.getSubTimings(), 1);
+				it += newSubTime.getIntervalTimeMS();
+				rt += newSubTime.getRunningTimeMS();
 			}
 		}
 

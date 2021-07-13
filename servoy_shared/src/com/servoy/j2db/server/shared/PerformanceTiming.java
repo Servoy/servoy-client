@@ -17,7 +17,7 @@
 
 package com.servoy.j2db.server.shared;
 
-import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
@@ -39,6 +39,7 @@ public class PerformanceTiming extends PerformanceData
 	private final int type;
 	private final String clientUUID;
 	private final AtomicLong start_ms = new AtomicLong(0);
+	private final AtomicLong end_ms = new AtomicLong(0);
 	private final AtomicLong interval_ms = new AtomicLong(0);
 
 	public PerformanceTiming(String action, int type, long start_ms, String clientUUID, int maxEntriesToKeep, Logger log, PerformanceAggregator aggregator)
@@ -54,8 +55,8 @@ public class PerformanceTiming extends PerformanceData
 
 
 	@Override
-	public PerformanceTimingAggregate addTiming(String subAction, long intervalMsSubAction, long totalMsSubAction, int typeOfSubAction,
-		Map<String, PerformanceTimingAggregate> subActionTimings, int nrecords)
+	public void addTiming(String subAction, long intervalMsSubAction, long totalMsSubAction, int typeOfSubAction,
+		Queue<PerformanceTiming> subActionTimings, int nrecords)
 	{
 		long totalMsSubAction2 = totalMsSubAction;
 		long intervalMsSubAction2 = intervalMsSubAction;
@@ -68,7 +69,7 @@ public class PerformanceTiming extends PerformanceData
 			intervalMsSubAction2 = 0;
 		}
 
-		return super.addTiming(subAction, intervalMsSubAction2, totalMsSubAction2, typeOfSubAction, subActionTimings, nrecords);
+		super.addTiming(subAction, intervalMsSubAction2, totalMsSubAction2, typeOfSubAction, subActionTimings, nrecords);
 	}
 
 	public UUID getUuid()
@@ -145,7 +146,9 @@ public class PerformanceTiming extends PerformanceData
 
 	public long getRunningTimeMS()
 	{
-		return System.currentTimeMillis() - start_ms.get();
+		long end = end_ms.get();
+		if (end == 0) end = System.currentTimeMillis();
+		return end - start_ms.get();
 	}
 
 	public long getIntervalTimeMS()
@@ -158,4 +161,9 @@ public class PerformanceTiming extends PerformanceData
 		interval_ms.set(System.currentTimeMillis());
 	}
 
+
+	public void setEndTime()
+	{
+		end_ms.set(System.currentTimeMillis());
+	}
 }

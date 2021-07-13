@@ -20,6 +20,7 @@ package com.servoy.j2db.server.shared;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -93,10 +94,10 @@ public class PerformanceAggregator
 	/**
 	 * Please use {@link #startAction(String, long, int)} / {@link #endAction(UUID)} / {@link #intervalAction(UUID)} whenever possible instead.
 	 */
-	public PerformanceTimingAggregate addTiming(String action, long interval_ms, long total_ms, int type,
-		Map<String, PerformanceTimingAggregate> subActionTimings, int nrecords)
+	public void addTiming(String action, long interval_ms, long total_ms, int type,
+		Queue<PerformanceTiming> subActionTimings, int nrecords)
 	{
-		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return null;
+		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return;
 
 		PerformanceTimingAggregate time;
 		lock.readLock().lock();
@@ -140,7 +141,7 @@ public class PerformanceAggregator
 				lock.writeLock().unlock();
 			}
 		}
-		return time;
+		return;
 	}
 
 	public void clear()
