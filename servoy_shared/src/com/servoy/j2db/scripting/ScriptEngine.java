@@ -47,7 +47,6 @@ import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.dataprocessing.DataException;
 import com.servoy.j2db.dataprocessing.FoundSet;
-import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.JSDatabaseManager;
 import com.servoy.j2db.dataprocessing.Record;
@@ -599,6 +598,36 @@ public class ScriptEngine implements IScriptSupport
 			f.put("_AllowToRunInFind_", f, Boolean.valueOf(sp.getDeclaration().indexOf("@AllowToRunInFind") != -1 || declaration.indexOf(".search") != -1 || //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 				declaration.indexOf("controller.loadAllRecords") != -1));
 		}
+
+		String solutionName = application.getSolutionName();
+		IPerformanceRegistry performanceRegistry = null;
+
+		try
+		{
+			performanceRegistry = (application.getApplicationServerAccess() != null &&
+				!(application instanceof ISmartClientApplication)
+					? application.getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
+		}
+		catch (Exception e)
+		{
+		}
+		String methodName = sp.getName();
+		PerformanceData performanceData = performanceRegistry != null ? performanceRegistry.getPerformanceData(solutionName) : null;
+		if (performanceData != null)
+		{
+			String scopeName = scope.getClassName();
+			if (scope instanceof LazyCompilationScope) scopeName = ((LazyCompilationScope)scope).getScopeName();
+			if (scope instanceof FoundSet)
+			{
+				Scriptable parentScope = ((FoundSet)scope).getPrototype();
+				if (parentScope instanceof LazyCompilationScope)
+				{
+					scopeName = ((LazyCompilationScope)parentScope).getScopeName();
+				}
+			}
+			methodName = scopeName + "." + methodName;
+			return new FunctionWrapper(f, methodName, performanceData, application.getClientID());
+		}
 		return f;
 	}
 
@@ -622,9 +651,9 @@ public class ScriptEngine implements IScriptSupport
 			Context cx = Context.enter();
 
 			// only search for nice strings needed in performance admin page if performance is actually enabled
-			UUID pfUuid = null;
-			PerformanceData performanceData = null;
-			String clientID = application.getClientID();
+//			UUID pfUuid = null;
+//			PerformanceData performanceData = null;
+//			String clientID = application.getClientID();
 			try
 			{
 				if (application instanceof ISmartClientApplication)
@@ -648,32 +677,32 @@ public class ScriptEngine implements IScriptSupport
 						}
 					}
 				}
-				String solutionName = application.getSolutionName();
-				IPerformanceRegistry performanceRegistry = (application.getApplicationServerAccess() != null &&
-					!(application instanceof ISmartClientApplication)
-						? application.getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
-				performanceData = performanceRegistry != null ? performanceRegistry.getPerformanceData(solutionName) : null;
-				//run
-				if (performanceData != null)
-				{
-					String methodName = null;
-					methodName = f.getClassName();
-					if (f instanceof NativeFunction) methodName = ((NativeFunction)f).getFunctionName();
-					String scopeName = scope.getClassName();
-					if (scope instanceof LazyCompilationScope) scopeName = ((LazyCompilationScope)scope).getScopeName();
-					if (scope instanceof FoundSet)
-					{
-						Scriptable parentScope = ((FoundSet)scope).getPrototype();
-						if (parentScope instanceof LazyCompilationScope)
-						{
-							scopeName = ((LazyCompilationScope)parentScope).getScopeName();
-						}
-					}
-
-					methodName = scopeName + "." + methodName; //$NON-NLS-1$
-					//	application.addPerformanceTiming(server, sql, 0 - t1);
-					pfUuid = performanceData.startAction(methodName, System.currentTimeMillis(), IDataServer.METHOD_CALL, clientID);
-				}
+//				String solutionName = application.getSolutionName();
+//				IPerformanceRegistry performanceRegistry = (application.getApplicationServerAccess() != null &&
+//					!(application instanceof ISmartClientApplication)
+//						? application.getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
+//				performanceData = performanceRegistry != null ? performanceRegistry.getPerformanceData(solutionName) : null;
+//				//run
+//				if (performanceData != null)
+//				{
+//					String methodName = null;
+//					methodName = f.getClassName();
+//					if (f instanceof NativeFunction) methodName = ((NativeFunction)f).getFunctionName();
+//					String scopeName = scope.getClassName();
+//					if (scope instanceof LazyCompilationScope) scopeName = ((LazyCompilationScope)scope).getScopeName();
+//					if (scope instanceof FoundSet)
+//					{
+//						Scriptable parentScope = ((FoundSet)scope).getPrototype();
+//						if (parentScope instanceof LazyCompilationScope)
+//						{
+//							scopeName = ((LazyCompilationScope)parentScope).getScopeName();
+//						}
+//					}
+//
+//					methodName = scopeName + "." + methodName; //$NON-NLS-1$
+//					//	application.addPerformanceTiming(server, sql, 0 - t1);
+//					pfUuid = performanceData.startAction(methodName, System.currentTimeMillis(), IDataServer.METHOD_CALL, clientID);
+//				}
 
 				retValue = f.call(cx, scope, thisObject, wrappedArgs);
 
@@ -734,10 +763,10 @@ public class ScriptEngine implements IScriptSupport
 				{
 					((ISmartClientApplication)application).setPaintTableImmediately(true);
 				}
-				else if (pfUuid != null)
-				{
-					performanceData.endAction(pfUuid, clientID);
-				}
+//				else if (pfUuid != null)
+//				{
+//					performanceData.endAction(pfUuid, clientID);
+//				}
 				Context.exit();
 			}
 			testClientUidChange(scope, userUidBefore);
