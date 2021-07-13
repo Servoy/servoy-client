@@ -340,14 +340,39 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 	@JSFunction
 	public JSLayoutContainer[] getLayoutContainers()
 	{
+		return getLayoutContainers(false);
+	}
+
+	/**
+	 * Returns all JSLayoutContainers objects of this container
+	 *
+	 * @sample
+	 * var frm = solutionModel.getForm("myForm");
+	 * var containers = frm.getLayoutContainers();
+	 * for (var c in containers)
+	 * {
+	 * 		var fname = containers[c].name;
+	 * 		application.output(fname);
+	 * }
+	 *
+	 * @param returnInheritedElements boolean true to also return the elements from parent form
+	 * @return all JSLayoutContainers objects of this container
+	 *
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSLayoutContainer[] getLayoutContainers(boolean returnInheritedElements)
+	{
 		List<JSLayoutContainer> containers = new ArrayList<JSLayoutContainer>();
-		Iterator<LayoutContainer> iterator = getFlattenedContainer().getLayoutContainers();
+		AbstractContainer container = returnInheritedElements ? getFlattenedContainer() : getContainer();
+		Iterator<LayoutContainer> iterator = container.getLayoutContainers();
 		while (iterator.hasNext())
 		{
 			containers.add(application.getScriptEngine().getSolutionModifier().createLayoutContainer(this, iterator.next()));
 		}
 		return containers.toArray(new JSLayoutContainer[containers.size()]);
 	}
+
 
 	/**
 	 * Returns a JSLayoutContainer that has the given name of this container.
