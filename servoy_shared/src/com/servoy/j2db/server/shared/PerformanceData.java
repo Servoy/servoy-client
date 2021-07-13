@@ -20,6 +20,8 @@ import com.servoy.j2db.util.UUID;
  */
 public class PerformanceData
 {
+	private final static ThreadLocal<PerformanceTiming> top = new ThreadLocal<>();
+
 	private final ConcurrentMap<UUID, PerformanceTiming> startedTimings = new ConcurrentHashMap<>();
 
 	private final ConcurrentLinkedQueue<PerformanceTiming> subTimings = new ConcurrentLinkedQueue<>();
@@ -34,11 +36,14 @@ public class PerformanceData
 
 	private final PerformanceAggregator aggregator;
 
-	public PerformanceData(int maxEntriesToKeep, Logger log, PerformanceAggregator aggregator)
+	private final String id;
+
+	public PerformanceData(int maxEntriesToKeep, Logger log, String id, PerformanceAggregator aggregator)
 	{
 		super();
 		this.maxEntriesToKeep = maxEntriesToKeep;
 		this.log = log;
+		this.id = id;
 		this.aggregator = aggregator;
 	}
 
@@ -50,9 +55,11 @@ public class PerformanceData
 		{
 			stack = new Stack<>();
 			startedTimingUUIDsStack.put(clientUUID, stack);
-			PerformanceTiming timing = new PerformanceTiming(action, type, start_ms, clientUUID, maxEntriesToKeep, log, this.aggregator);
+			PerformanceTiming timing = new PerformanceTiming(action, type, start_ms, clientUUID, maxEntriesToKeep, log, id, this.aggregator);
 			startedTimings.put(timing.getUuid(), timing);
 			stack.push(timing);
+			PerformanceTiming topTiming = top.get();
+			if (topTiming == null) top.set(timing);
 			return timing.getUuid();
 		}
 		else
@@ -92,6 +99,19 @@ public class PerformanceData
 				{
 					startedTimingUUIDsStack.remove(clientUUID);
 					startedTimings.remove(uuid);
+					PerformanceTiming topTiming = top.get();
+					if (topTiming == timing) top.remove();
+					else if ("sql".equals(id)) // bit of a hack to tie the sql data to the method data based on the id of the Performance Registry
+					{
+						PerformanceTiming current = topTiming;
+						PerformanceTiming[] startedActions = current.getStartedActions();
+						while (startedActions.length == 1)
+						{
+							current = startedActions[0]; // should always be null for the same client (a stack)
+							startedActions = current.getStartedActions();
+						}
+						current.getSubTimings().add(timing);
+					}
 				}
 			}
 			else

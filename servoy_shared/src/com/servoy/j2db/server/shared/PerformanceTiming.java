@@ -42,9 +42,10 @@ public class PerformanceTiming extends PerformanceData
 	private final AtomicLong end_ms = new AtomicLong(0);
 	private final AtomicLong interval_ms = new AtomicLong(0);
 
-	public PerformanceTiming(String action, int type, long start_ms, String clientUUID, int maxEntriesToKeep, Logger log, PerformanceAggregator aggregator)
+	public PerformanceTiming(String action, int type, long start_ms, String clientUUID, int maxEntriesToKeep, Logger log, String id,
+		PerformanceAggregator aggregator)
 	{
-		super(maxEntriesToKeep, log, aggregator);
+		super(maxEntriesToKeep, log, id, aggregator);
 
 		this.uuid = UUID.randomUUID();
 		this.action = action;
