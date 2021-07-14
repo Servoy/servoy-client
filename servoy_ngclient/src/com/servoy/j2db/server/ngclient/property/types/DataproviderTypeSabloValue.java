@@ -804,7 +804,14 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 							}
 						}
 						formatter.setOriginal(originalDate);
-						formatter.parseObject(new SimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat(), locale).format(newValue));
+						if (fieldFormat.parsedFormat.getEditFormat() != null)
+						{
+							formatter.parseObject(new SimpleDateFormat(fieldFormat.parsedFormat.getEditFormat(), locale).format(newValue));
+						}
+						else
+						{
+							formatter.parseObject(new SimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat(), locale).format(newValue));
+						}
 						uiValue = formatter.getMergedDate();
 					}
 					catch (Exception ex)
