@@ -46,6 +46,15 @@ public class FunctionWrapper implements Function
 
 	}
 
+	private Scriptable fixStart(Scriptable start)
+	{
+		if (start == this)
+		{
+			return function;
+		}
+		return start;
+	}
+
 	/**
 	 * @param cx
 	 * @param scope
@@ -59,7 +68,7 @@ public class FunctionWrapper implements Function
 		UUID pfUuid = performanceData != null ? performanceData.startAction(name, System.currentTimeMillis(), IDataServer.METHOD_CALL, clientID) : null;
 		try
 		{
-			return function.call(cx, scope, thisObj, args);
+			return function.call(cx, fixStart(scope), fixStart(thisObj), args);
 		}
 		finally
 		{
@@ -88,7 +97,7 @@ public class FunctionWrapper implements Function
 	 */
 	public Scriptable construct(Context cx, Scriptable scope, Object[] args)
 	{
-		return function.construct(cx, scope, args);
+		return function.construct(cx, fixStart(scope), args);
 	}
 
 	/**
@@ -99,7 +108,7 @@ public class FunctionWrapper implements Function
 	 */
 	public Object get(String name, Scriptable start)
 	{
-		return function.get(name, start);
+		return function.get(name, fixStart(start));
 	}
 
 	/**
@@ -110,7 +119,7 @@ public class FunctionWrapper implements Function
 	 */
 	public Object get(int index, Scriptable start)
 	{
-		return function.get(index, start);
+		return function.get(index, fixStart(start));
 	}
 
 	/**
@@ -121,7 +130,7 @@ public class FunctionWrapper implements Function
 	 */
 	public boolean has(String name, Scriptable start)
 	{
-		return function.has(name, start);
+		return function.has(name, fixStart(start));
 	}
 
 	/**
@@ -132,7 +141,7 @@ public class FunctionWrapper implements Function
 	 */
 	public boolean has(int index, Scriptable start)
 	{
-		return function.has(index, start);
+		return function.has(index, fixStart(start));
 	}
 
 	/**
@@ -143,7 +152,7 @@ public class FunctionWrapper implements Function
 	 */
 	public void put(String name, Scriptable start, Object value)
 	{
-		function.put(name, start, value);
+		function.put(name, fixStart(start), value);
 	}
 
 	/**
@@ -154,7 +163,7 @@ public class FunctionWrapper implements Function
 	 */
 	public void put(int index, Scriptable start, Object value)
 	{
-		function.put(index, start, value);
+		function.put(index, fixStart(start), value);
 	}
 
 	/**
