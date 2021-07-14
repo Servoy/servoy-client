@@ -246,7 +246,7 @@ public class FunctionWrapper implements Function
 	 */
 	public boolean hasInstance(Scriptable instance)
 	{
-		return function.hasInstance(instance);
+		return function.hasInstance(fixStart(instance));
 	}
 
 
