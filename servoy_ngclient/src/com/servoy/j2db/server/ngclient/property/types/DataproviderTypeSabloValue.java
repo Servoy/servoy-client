@@ -784,7 +784,8 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 					{
 						Locale locale = dataAdapterList.getApplication().getLocale();
 						if (locale == null) locale = Locale.getDefault(Locale.Category.FORMAT);
-						StateFullSimpleDateFormat formatter = new StateFullSimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat(), null, locale, true);
+						StateFullSimpleDateFormat formatter = new StateFullSimpleDateFormat(fieldFormat.parsedFormat.getEditFormat() != null
+							? fieldFormat.parsedFormat.getEditFormat() : fieldFormat.parsedFormat.getDisplayFormat(), null, locale, true);
 						Date originalDate;
 						if (oldUIValue instanceof Date)
 						{
@@ -804,14 +805,8 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 							}
 						}
 						formatter.setOriginal(originalDate);
-						if (fieldFormat.parsedFormat.getEditFormat() != null)
-						{
-							formatter.parseObject(new SimpleDateFormat(fieldFormat.parsedFormat.getEditFormat(), locale).format(newValue));
-						}
-						else
-						{
-							formatter.parseObject(new SimpleDateFormat(fieldFormat.parsedFormat.getDisplayFormat(), locale).format(newValue));
-						}
+						formatter.parseObject(new SimpleDateFormat(fieldFormat.parsedFormat.getEditFormat() != null
+							? fieldFormat.parsedFormat.getEditFormat() : fieldFormat.parsedFormat.getDisplayFormat(), locale).format(newValue));
 						uiValue = formatter.getMergedDate();
 					}
 					catch (Exception ex)
