@@ -3,7 +3,6 @@ package com.servoy.j2db.server.shared;
 
 import java.util.Comparator;
 import java.util.Queue;
-import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
@@ -28,7 +27,7 @@ public class PerformanceData
 
 	// stack because for example an showForm modal dialog could execute other actions and then when modal
 	// is closed sub-actions might still happen and they need to point to the correct parent action
-	private final ConcurrentMap<String, Stack<PerformanceTiming>> startedTimingUUIDsStack = new ConcurrentHashMap<>();
+	private final ConcurrentMap<String, PerformanceTiming> startedTimingUUIDsStack = new ConcurrentHashMap<>();
 
 	private final Logger log;
 
@@ -50,21 +49,18 @@ public class PerformanceData
 	public UUID startAction(String action, long start_ms, int type, String clientUUID)
 	{
 		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return null;
-		Stack<PerformanceTiming> stack = startedTimingUUIDsStack.get(clientUUID);
-		if (stack == null)
+		PerformanceTiming timing = startedTimingUUIDsStack.get(clientUUID);
+		if (timing == null)
 		{
-			stack = new Stack<>();
-			startedTimingUUIDsStack.put(clientUUID, stack);
-			PerformanceTiming timing = new PerformanceTiming(action, type, start_ms, clientUUID, maxEntriesToKeep, log, id, this.aggregator);
+			timing = new PerformanceTiming(action, type, start_ms, clientUUID, maxEntriesToKeep, log, id, this.aggregator);
+			startedTimingUUIDsStack.put(clientUUID, timing);
 			startedTimings.put(timing.getUuid(), timing);
-			stack.push(timing);
 			PerformanceTiming topTiming = top.get();
 			if (topTiming == null) top.set(timing);
 			return timing.getUuid();
 		}
 		else
 		{
-			PerformanceTiming timing = stack.peek();
 			return timing.startAction(action, start_ms, type, clientUUID);
 		}
 	}
@@ -85,33 +81,27 @@ public class PerformanceData
 	public void endAction(UUID uuid, int nrecords, String clientUUID)
 	{
 		if (maxEntriesToKeep == IPerformanceRegistry.OFF || uuid == null) return;
-		PerformanceTiming timing;
-		Stack<PerformanceTiming> stack = startedTimingUUIDsStack.get(clientUUID);
-		if (stack != null)
+		PerformanceTiming timing = startedTimingUUIDsStack.get(clientUUID);
+		if (timing != null)
 		{
-			timing = stack.peek();
 			// is this the uuid that is on this stack. then this one should be ended.
 			// else a child/sub timing should be searched for.
 			if (uuid.equals(timing.getUuid()))
 			{
-				stack.pop();
-				if (stack.size() == 0)
+				startedTimingUUIDsStack.remove(clientUUID);
+				startedTimings.remove(uuid);
+				PerformanceTiming topTiming = top.get();
+				if (topTiming == timing) top.remove();
+				else if ("sql".equals(id)) // bit of a hack to tie the sql data to the method data based on the id of the Performance Registry
 				{
-					startedTimingUUIDsStack.remove(clientUUID);
-					startedTimings.remove(uuid);
-					PerformanceTiming topTiming = top.get();
-					if (topTiming == timing) top.remove();
-					else if ("sql".equals(id)) // bit of a hack to tie the sql data to the method data based on the id of the Performance Registry
+					PerformanceTiming current = topTiming;
+					PerformanceTiming[] startedActions = current.getStartedActions();
+					while (startedActions.length == 1)
 					{
-						PerformanceTiming current = topTiming;
-						PerformanceTiming[] startedActions = current.getStartedActions();
-						while (startedActions.length == 1)
-						{
-							current = startedActions[0]; // should always be null for the same client (a stack)
-							startedActions = current.getStartedActions();
-						}
-						current.getSubTimings().add(timing);
+						current = startedActions[0]; // should always be null for the same client (a stack)
+						startedActions = current.getStartedActions();
 					}
+					current.getSubTimings().add(timing);
 				}
 			}
 			else
@@ -149,16 +139,10 @@ public class PerformanceData
 	{
 		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return null;
 
-		Stack<PerformanceTiming> stack = startedTimingUUIDsStack.get(clientUUID);
-		if (stack == null || stack.isEmpty()) return null; // probably a Servoy internal service API call that gets called outside any user method; ignore
+		PerformanceTiming lastStartedTiming = startedTimingUUIDsStack.get(clientUUID);
+		if (lastStartedTiming == null) return null; // probably a Servoy internal service API call that gets called outside any user method; ignore
 
-		PerformanceTiming lastStartedTiming = stack.peek();
-
-		UUID subTimingUUID = null;
-		if (lastStartedTiming != null)
-		{
-			subTimingUUID = lastStartedTiming.startAction(action, start_ms, type, clientUUID);
-		}
+		UUID subTimingUUID = lastStartedTiming.startAction(action, start_ms, type, clientUUID);
 		return new Pair<>(lastStartedTiming.getUuid(), subTimingUUID);
 	}
 
