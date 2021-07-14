@@ -57,6 +57,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IScriptProvider;
+import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -616,7 +617,16 @@ public class ScriptEngine implements IScriptSupport
 		if (performanceData != null)
 		{
 			String scopeName = scope.getClassName();
-			if (scope instanceof LazyCompilationScope) scopeName = ((LazyCompilationScope)scope).getScopeName();
+			if (scope instanceof LazyCompilationScope)
+			{
+				scopeName = ((LazyCompilationScope)scope).getScopeName();
+				scopeName = lookForSuperCalls(sp, scopeName);
+			}
+			else if (scope.getParentScope() instanceof LazyCompilationScope)
+			{
+				scopeName = ((LazyCompilationScope)scope.getParentScope()).getScopeName();
+				scopeName = lookForSuperCalls(sp, scopeName);
+			}
 			if (scope instanceof FoundSet)
 			{
 				Scriptable parentScope = ((FoundSet)scope).getPrototype();
@@ -629,6 +639,26 @@ public class ScriptEngine implements IScriptSupport
 			return new FunctionWrapper(f, methodName, performanceData, application.getClientID());
 		}
 		return f;
+	}
+
+	/**
+	 * @param sp
+	 * @param scopeName
+	 * @return
+	 */
+	private String lookForSuperCalls(IScriptProvider sp, String scopeName)
+	{
+		ISupportChilds parent = sp.getParent();
+		if (parent instanceof Form)
+		{
+			String name = ((Form)parent).getName();
+			if (!scopeName.equals(name))
+			{
+				// this is a super call
+				scopeName += '(' + name + ')';
+			}
+		}
+		return scopeName;
 	}
 
 	public Object executeFunction(Function f, Scriptable scope, Scriptable thisObject, Object[] args, boolean focusEvent, boolean throwException)
