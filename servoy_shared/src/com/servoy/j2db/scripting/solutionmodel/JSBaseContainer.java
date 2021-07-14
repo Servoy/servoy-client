@@ -323,7 +323,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 
 	/**
 	 * Returns all JSLayoutContainers objects of this container.
-	 * Does not return the inherited containers.
+	 * Does not return the inherited containers, use #getLayoutContainers(true) to get the inherited as well.
 	 *
 	 * @sample
 	 * var frm = solutionModel.getForm("myForm");
@@ -812,8 +812,8 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 	/**
 	 * Returns all JSWebComponents of this form/container.
 	 * If this method is called on a form, then it will return all web components on that form.
-	 * If the form is responsive, it will return the web components from all the containers,
-	 * but it does not return the inherited components.
+	 * If the form is responsive, it will return the web components from all the containers.
+	 * It does not return the inherited components, use #getWebComponents(true) to get the inherited as well.
 	 *
 	 * @sample
 	 * var webComponents = myForm.getWebComponents();
