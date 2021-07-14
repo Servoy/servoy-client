@@ -32,8 +32,8 @@ public class PerformanceTimingAggregate extends PerformanceAggregator
 {
 	private final String action;
 	private final int type;
-	private final AtomicLong min_ms = new AtomicLong();
-	private final AtomicLong max_ms = new AtomicLong();
+	private final AtomicLong min_ms = new AtomicLong(-1);
+	private final AtomicLong max_ms = new AtomicLong(-1);
 	private final AtomicLong s2 = new AtomicLong(); // used for running calculation of standard deviation
 	private final AtomicLong xtotal_ms = new AtomicLong();
 	private final AtomicLong total_interval_ms = new AtomicLong();
@@ -79,16 +79,6 @@ public class PerformanceTimingAggregate extends PerformanceAggregator
 		totalSubActionTimes = null;
 	}
 
-	public void updateTime(long interval_ms, long running_ms, int nrecords)
-	{
-		total_interval_ms.addAndGet(interval_ms);
-		xtotal_ms.addAndGet(running_ms);
-		min_ms.set(count.get() == 0 ? running_ms : Math.min(min_ms.get(), running_ms));
-		max_ms.set(count.get() == 0 ? running_ms : Math.max(max_ms.get(), running_ms));
-		s2.addAndGet((running_ms * running_ms));
-		count.addAndGet(nrecords);
-	}
-
 	public void updateSubActionTimes(Queue<PerformanceTiming> newSubActionTimings, int nrecords)
 	{
 		long it = 0, rt = 0;
@@ -115,10 +105,15 @@ public class PerformanceTimingAggregate extends PerformanceAggregator
 	{
 		this.total_interval_ms.addAndGet(totalIntervalMs);
 		this.xtotal_ms.addAndGet(running_ms);
-		this.min_ms.set(Math.min(this.min_ms.get(), minMs));
-		this.max_ms.set(Math.max(this.max_ms.get(), maxMs));
+		this.min_ms.accumulateAndGet(minMs, (current, run_ms) -> current == -1 ? run_ms : Math.min(current, run_ms));
+		this.max_ms.accumulateAndGet(maxMs, (current, run_ms) -> current == -1 ? run_ms : Math.max(current, run_ms));
 		this.s2.addAndGet(s);
 		this.count.addAndGet(cnt);
+	}
+
+	public void updateTime(long interval_ms, long running_ms, int nrecords)
+	{
+		updateTime(interval_ms, running_ms, running_ms, running_ms, (running_ms * running_ms), nrecords);
 	}
 
 	public String getAction()

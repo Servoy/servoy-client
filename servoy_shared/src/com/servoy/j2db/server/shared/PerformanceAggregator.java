@@ -19,7 +19,6 @@ package com.servoy.j2db.server.shared;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -161,11 +160,6 @@ public class PerformanceAggregator
 	public PerformanceTimingAggregate[] toArray()
 	{
 		return sortedAggregates.toArray(new PerformanceTimingAggregate[sortedAggregates.size()]);
-	}
-
-	public Map<String, PerformanceTimingAggregate> toMap()
-	{
-		return Collections.unmodifiableMap(aggregatesByAction);
 	}
 
 	protected int getSubActionMaxEntries()
