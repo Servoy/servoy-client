@@ -70,7 +70,7 @@ import com.servoy.j2db.scripting.solutionmodel.JSField;
 import com.servoy.j2db.scripting.solutionmodel.JSFieldWithConstants;
 import com.servoy.j2db.scripting.solutionmodel.JSMethodWithArguments;
 import com.servoy.j2db.scripting.solutionmodel.JSSolutionModel;
-import com.servoy.j2db.server.shared.IPerformanceRegistry;
+import com.servoy.j2db.server.shared.IPerformanceDataProvider;
 import com.servoy.j2db.server.shared.PerformanceData;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IScriptAccordionPanelMethods;
@@ -600,20 +600,8 @@ public class ScriptEngine implements IScriptSupport
 				declaration.indexOf("controller.loadAllRecords") != -1));
 		}
 
-		String solutionName = application.getSolutionName();
-		IPerformanceRegistry performanceRegistry = null;
-
-		try
-		{
-			performanceRegistry = (application.getApplicationServerAccess() != null &&
-				!(application instanceof ISmartClientApplication)
-					? application.getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
-		}
-		catch (Exception e)
-		{
-		}
 		String methodName = sp.getName();
-		PerformanceData performanceData = performanceRegistry != null ? performanceRegistry.getPerformanceData(solutionName) : null;
+		PerformanceData performanceData = application instanceof IPerformanceDataProvider ? ((IPerformanceDataProvider)application).getPerformanceData() : null;
 		if (performanceData != null)
 		{
 			String scopeName = scope.getClassName();
@@ -627,7 +615,7 @@ public class ScriptEngine implements IScriptSupport
 				scopeName = ((LazyCompilationScope)scope.getParentScope()).getScopeName();
 				scopeName = lookForSuperCalls(sp, scopeName);
 			}
-			if (scope instanceof FoundSet)
+			else if (scope instanceof FoundSet)
 			{
 				Scriptable parentScope = ((FoundSet)scope).getPrototype();
 				if (parentScope instanceof LazyCompilationScope)

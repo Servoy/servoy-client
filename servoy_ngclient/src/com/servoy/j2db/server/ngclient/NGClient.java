@@ -80,6 +80,7 @@ import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
+import com.servoy.j2db.server.shared.IPerformanceDataProvider;
 import com.servoy.j2db.server.shared.IPerformanceRegistry;
 import com.servoy.j2db.server.shared.PerformanceData;
 import com.servoy.j2db.server.shared.PerformanceTiming;
@@ -101,7 +102,8 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 @SuppressWarnings("nls")
-public class NGClient extends AbstractApplication implements INGApplication, IChangeListener, IServerService, IGetStatusLine, IGetLastAccessed
+public class NGClient extends AbstractApplication
+	implements INGApplication, IChangeListener, IServerService, IGetStatusLine, IGetLastAccessed, IPerformanceDataProvider
 {
 	private static final long serialVersionUID = 1L;
 
@@ -128,8 +130,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 	private final Set<Pair<Form, String>> toRecreate = new HashSet<>();
 
-
-	private final IPerformanceRegistry perfRegistry;
+	private PerformanceData performanceData;
 
 	private boolean registered = false;
 
@@ -149,12 +150,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 		applicationSetup();
 		applicationInit();
 		applicationServerInit();
-		IPerformanceRegistry registry = (getApplicationServerAccess() != null ? getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
-		if (registry == null)
-		{
-			registry = new DummyPerformanceRegistry();
-		}
-		perfRegistry = registry;
 	}
 
 	@Override
@@ -578,6 +573,28 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	}
 
 	@Override
+	public PerformanceData getPerformanceData()
+	{
+		String solutionName = getSolutionName();
+		if (performanceData == null && solutionName != null)
+		{
+			try
+			{
+				IPerformanceRegistry registry = (getApplicationServerAccess() != null ? getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
+				if (registry != null)
+				{
+					performanceData = registry.getPerformanceData(solutionName);
+				}
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);
+			}
+		}
+		return performanceData;
+	}
+
+	@Override
 	protected int getSolutionTypeFilter()
 	{
 		return super.getSolutionTypeFilter() | SolutionMetaData.NG_CLIENT_ONLY;
@@ -691,6 +708,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	protected void loadSolution(SolutionMetaData solutionMeta) throws RepositoryException
 	{
+		performanceData = null; // make sure a new one in started if a new solution is loaded
 		runWhileShowingLoadingIndicator(() -> {
 			if (loadSolutionsAndModules(solutionMeta))
 			{
@@ -1526,7 +1544,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	@Override
 	public Pair<Integer, Integer> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] arguments)
 	{
-		PerformanceData performanceData = perfRegistry.getPerformanceData(getSolutionName());
 		if (performanceData != null) return performanceData.startSubAction(serviceName + "." + functionName, System.currentTimeMillis(),
 			(apiFunction == null || apiFunction.getBlockEventProcessing()) ? IDataServer.METHOD_CALL : IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT,
 			getClientID());
@@ -1538,7 +1555,6 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	{
 		if (perfId != null)
 		{
-			PerformanceData performanceData = perfRegistry.getPerformanceData(getSolutionName());
 			if (performanceData != null) performanceData.endSubAction(perfId, getClientID());
 		}
 	}

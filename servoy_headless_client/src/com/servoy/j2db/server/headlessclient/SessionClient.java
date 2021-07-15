@@ -84,6 +84,9 @@ import com.servoy.j2db.server.headlessclient.dataui.WebDataRendererFactory;
 import com.servoy.j2db.server.headlessclient.dataui.WebItemFactory;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
+import com.servoy.j2db.server.shared.IPerformanceDataProvider;
+import com.servoy.j2db.server.shared.IPerformanceRegistry;
+import com.servoy.j2db.server.shared.PerformanceData;
 import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.smart.dataui.DataRendererFactory;
 import com.servoy.j2db.smart.dataui.SwingItemFactory;
@@ -104,7 +107,7 @@ import com.servoy.j2db.util.Utils;
  *
  * @author jblok
  */
-public class SessionClient extends AbstractApplication implements ISessionClient, HttpSessionActivationListener
+public class SessionClient extends AbstractApplication implements ISessionClient, HttpSessionActivationListener, IPerformanceDataProvider
 {
 	protected transient IDataRendererFactory<org.apache.wicket.Component> dataRendererFactory;
 	protected transient ItemFactory itemFactory;
@@ -117,6 +120,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 
 	private transient InfoChannel outputChannel;
 	private RuntimeWindowManager jsWindowManager;
+	private PerformanceData performanceData;
 
 	private volatile boolean shuttingDown = false;
 
@@ -180,6 +184,28 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 		{
 			unsetThreadLocals(prev);
 		}
+	}
+
+	@Override
+	public PerformanceData getPerformanceData()
+	{
+		String solutionName = getSolutionName();
+		if (performanceData == null && solutionName != null)
+		{
+			try
+			{
+				IPerformanceRegistry registry = (getApplicationServerAccess() != null ? getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
+				if (registry != null)
+				{
+					performanceData = registry.getPerformanceData(solutionName);
+				}
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);
+			}
+		}
+		return performanceData;
 	}
 
 	private void guessLocaleCountryIfAbsent()
@@ -286,6 +312,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 		IServiceProvider prev = testThreadLocals();
 		try
 		{
+			performanceData = null; // make sure a new one in started if a new solution is loaded
 			loadSolutionsAndModules(solutionMeta);
 			setAjaxUsage(solutionMeta.getName());
 			enableAnchors(solutionMeta.getName());

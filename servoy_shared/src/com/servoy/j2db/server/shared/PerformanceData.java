@@ -30,16 +30,16 @@ public class PerformanceData
 
 	private final Logger log;
 
-	private final int maxEntriesToKeep;
+	private final IPerformanceRegistry registry;
 
 	private final PerformanceAggregator aggregator;
 
 	private final String id;
 
-	public PerformanceData(int maxEntriesToKeep, Logger log, String id, PerformanceAggregator aggregator)
+	public PerformanceData(IPerformanceRegistry registry, Logger log, String id, PerformanceAggregator aggregator)
 	{
 		super();
-		this.maxEntriesToKeep = maxEntriesToKeep;
+		this.registry = registry;
 		this.log = log;
 		this.id = id;
 		this.aggregator = aggregator;
@@ -47,11 +47,11 @@ public class PerformanceData
 
 	public Integer startAction(String action, long start_ms, int type, String clientUUID)
 	{
-		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return null;
+		if (registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.OFF) return null;
 		PerformanceTiming timing = startedTimingUUIDsStack.get(clientUUID);
 		if (timing == null)
 		{
-			timing = new PerformanceTiming(action, type, start_ms, clientUUID, maxEntriesToKeep, log, id, this.aggregator);
+			timing = new PerformanceTiming(action, type, start_ms, clientUUID, registry, log, id, this.aggregator);
 			startedTimingUUIDsStack.put(clientUUID, timing);
 			startedTimings.put(timing.getID(), timing);
 			PerformanceTiming topTiming = top.get();
@@ -66,7 +66,7 @@ public class PerformanceData
 
 	public void intervalAction(Integer uuid)
 	{
-		if (maxEntriesToKeep == IPerformanceRegistry.OFF || uuid == null) return;
+		if (registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.OFF || uuid == null) return;
 
 		PerformanceTiming timing = startedTimings.get(uuid);
 		if (timing != null) timing.setIntervalTime();
@@ -79,7 +79,7 @@ public class PerformanceData
 
 	public void endAction(Integer uuid, int nrecords, String clientUUID)
 	{
-		if (maxEntriesToKeep == IPerformanceRegistry.OFF || uuid == null) return;
+		if (registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.OFF || uuid == null) return;
 		PerformanceTiming timing = startedTimingUUIDsStack.get(clientUUID);
 		if (timing != null)
 		{
@@ -136,7 +136,7 @@ public class PerformanceData
 	// currently we can have/need only one layer of nesting/sub-actions (sub-actions cannot be accessed right now by the outside world to continue nesting furter)
 	public Pair<Integer, Integer> startSubAction(String action, long start_ms, int type, String clientUUID)
 	{
-		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return null;
+		if (registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.OFF) return null;
 
 		PerformanceTiming lastStartedTiming = startedTimingUUIDsStack.get(clientUUID);
 		if (lastStartedTiming == null) return null; // probably a Servoy internal service API call that gets called outside any user method; ignore
@@ -147,7 +147,7 @@ public class PerformanceData
 
 	public void endSubAction(Pair<Integer, Integer> subActionUUIDs, String clientUUID)
 	{
-		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return;
+		if (registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.OFF) return;
 		if (subActionUUIDs == null) return; // probably a Servoy internal service API call that gets called outside any user method; ignore
 
 		PerformanceTiming timingWithSubAction = startedTimings.get(subActionUUIDs.getLeft());
