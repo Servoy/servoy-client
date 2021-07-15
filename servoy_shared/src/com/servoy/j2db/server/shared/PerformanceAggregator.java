@@ -144,7 +144,7 @@ public class PerformanceAggregator
 
 	public PerformanceTimingAggregate[] toArray()
 	{
-		SortedList<PerformanceTimingAggregate> sortedAggregates = new SortedList<>(TimeComparator.INSTANCE);
+		SortedList<PerformanceTimingAggregate> sortedAggregates = new SortedList<>(TimeComparator.INSTANCE, aggregatesByAction.values().size());
 		lock.writeLock().lock();
 		try
 		{
