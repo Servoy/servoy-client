@@ -163,7 +163,7 @@ public interface IServerAccess extends IPluginAccess
 	 * @param time_ms
 	 * @since 8.0
 	 */
-	public UUID addPerformanceTiming(String context, String action, long time_ms, String clientId);
+	public Integer addPerformanceTiming(String context, String action, long time_ms, String clientId);
 
 	/**
 	 * End the timing that was started with {@link #addPerformanceTiming(String, String, long, String)}
@@ -171,7 +171,7 @@ public interface IServerAccess extends IPluginAccess
 	 * @param uuid
 	 * @since 8.0
 	 */
-	public void endPerformanceTiming(String context, UUID uuid, String clientId);
+	public void endPerformanceTiming(String context, Integer id, String clientId);
 
 	/**
 	 * Add performance timing data for an action. This is shown on the server admin page, performance section.

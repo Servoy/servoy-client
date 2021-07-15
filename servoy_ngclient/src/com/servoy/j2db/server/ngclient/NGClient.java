@@ -1524,7 +1524,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 
 
 	@Override
-	public Pair<UUID, UUID> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] arguments)
+	public Pair<Integer, Integer> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] arguments)
 	{
 		PerformanceData performanceData = perfRegistry.getPerformanceData(getSolutionName());
 		if (performanceData != null) return performanceData.startSubAction(serviceName + "." + functionName, System.currentTimeMillis(),
@@ -1534,7 +1534,7 @@ public class NGClient extends AbstractApplication implements INGApplication, ICh
 	}
 
 	@Override
-	public void onStopSubAction(Pair<UUID, UUID> perfId)
+	public void onStopSubAction(Pair<Integer, Integer> perfId)
 	{
 		if (perfId != null)
 		{

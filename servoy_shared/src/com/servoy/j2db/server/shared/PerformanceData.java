@@ -10,7 +10,6 @@ import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
 
 import com.servoy.j2db.util.Pair;
-import com.servoy.j2db.util.UUID;
 
 /**
  * Keeps a list off last 200 most expensive actions (e.g. sql, method calls) to be viewed in a UI.
@@ -21,7 +20,7 @@ public class PerformanceData
 {
 	private final static ThreadLocal<PerformanceTiming> top = new ThreadLocal<>();
 
-	private final ConcurrentMap<UUID, PerformanceTiming> startedTimings = new ConcurrentHashMap<>();
+	private final ConcurrentMap<Integer, PerformanceTiming> startedTimings = new ConcurrentHashMap<>();
 
 	private final ConcurrentLinkedQueue<PerformanceTiming> subTimings = new ConcurrentLinkedQueue<>();
 
@@ -46,7 +45,7 @@ public class PerformanceData
 		this.aggregator = aggregator;
 	}
 
-	public UUID startAction(String action, long start_ms, int type, String clientUUID)
+	public Integer startAction(String action, long start_ms, int type, String clientUUID)
 	{
 		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return null;
 		PerformanceTiming timing = startedTimingUUIDsStack.get(clientUUID);
@@ -54,10 +53,10 @@ public class PerformanceData
 		{
 			timing = new PerformanceTiming(action, type, start_ms, clientUUID, maxEntriesToKeep, log, id, this.aggregator);
 			startedTimingUUIDsStack.put(clientUUID, timing);
-			startedTimings.put(timing.getUuid(), timing);
+			startedTimings.put(timing.getID(), timing);
 			PerformanceTiming topTiming = top.get();
 			if (topTiming == null) top.set(timing);
-			return timing.getUuid();
+			return timing.getID();
 		}
 		else
 		{
@@ -65,7 +64,7 @@ public class PerformanceData
 		}
 	}
 
-	public void intervalAction(UUID uuid)
+	public void intervalAction(Integer uuid)
 	{
 		if (maxEntriesToKeep == IPerformanceRegistry.OFF || uuid == null) return;
 
@@ -73,12 +72,12 @@ public class PerformanceData
 		if (timing != null) timing.setIntervalTime();
 	}
 
-	public void endAction(UUID uuid, String clientUUID)
+	public void endAction(Integer uuid, String clientUUID)
 	{
 		endAction(uuid, 1, clientUUID);
 	}
 
-	public void endAction(UUID uuid, int nrecords, String clientUUID)
+	public void endAction(Integer uuid, int nrecords, String clientUUID)
 	{
 		if (maxEntriesToKeep == IPerformanceRegistry.OFF || uuid == null) return;
 		PerformanceTiming timing = startedTimingUUIDsStack.get(clientUUID);
@@ -86,19 +85,19 @@ public class PerformanceData
 		{
 			// is this the uuid that is on this stack. then this one should be ended.
 			// else a child/sub timing should be searched for.
-			if (uuid.equals(timing.getUuid()))
+			if (uuid.equals(timing.getID()))
 			{
 				startedTimingUUIDsStack.remove(clientUUID);
 				startedTimings.remove(uuid);
 				PerformanceTiming topTiming = top.get();
 				if (topTiming == timing) top.remove();
-				else if ("sql".equals(id)) // bit of a hack to tie the sql data to the method data based on the id of the Performance Registry
+				else if ("sql".equals(id)) // bit of a hack to tie the sql data to the method data based on the id of the Performance Registry //$NON-NLS-1$
 				{
 					PerformanceTiming current = topTiming;
 					PerformanceTiming[] startedActions = current.getStartedActions();
 					while (startedActions.length == 1)
 					{
-						current = startedActions[0]; // should always be null for the same client (a stack)
+						current = startedActions[0]; // should always be 0 for the same client (a stack)
 						startedActions = current.getStartedActions();
 					}
 					current.getSubTimings().add(timing);
@@ -135,18 +134,18 @@ public class PerformanceData
 	}
 
 	// currently we can have/need only one layer of nesting/sub-actions (sub-actions cannot be accessed right now by the outside world to continue nesting furter)
-	public Pair<UUID, UUID> startSubAction(String action, long start_ms, int type, String clientUUID)
+	public Pair<Integer, Integer> startSubAction(String action, long start_ms, int type, String clientUUID)
 	{
 		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return null;
 
 		PerformanceTiming lastStartedTiming = startedTimingUUIDsStack.get(clientUUID);
 		if (lastStartedTiming == null) return null; // probably a Servoy internal service API call that gets called outside any user method; ignore
 
-		UUID subTimingUUID = lastStartedTiming.startAction(action, start_ms, type, clientUUID);
-		return new Pair<>(lastStartedTiming.getUuid(), subTimingUUID);
+		Integer subTimingUUID = lastStartedTiming.startAction(action, start_ms, type, clientUUID);
+		return new Pair<>(lastStartedTiming.getID(), subTimingUUID);
 	}
 
-	public void endSubAction(Pair<UUID, UUID> subActionUUIDs, String clientUUID)
+	public void endSubAction(Pair<Integer, Integer> subActionUUIDs, String clientUUID)
 	{
 		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return;
 		if (subActionUUIDs == null) return; // probably a Servoy internal service API call that gets called outside any user method; ignore

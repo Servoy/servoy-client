@@ -45,7 +45,6 @@ import com.servoy.j2db.server.shared.PerformanceData;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Text;
-import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -534,7 +533,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 					Debug.error(e);
 				}
 
-				Pair<UUID, UUID> perfId = null;
+				Pair<Integer, Integer> perfId = null;
 				PerformanceData performanceData = null;
 				String clientID = getApplication().getClientID();
 				if (perfRegistry != null)

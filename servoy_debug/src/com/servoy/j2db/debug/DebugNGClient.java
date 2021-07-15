@@ -70,7 +70,6 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Settings;
-import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -456,10 +455,10 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	}
 
 	@Override
-	public Pair<UUID, UUID> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] args)
+	public Pair<Integer, Integer> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] args)
 	{
 
-		Pair<UUID, UUID> result = super.onStartSubAction(serviceName, functionName, apiFunction, args);
+		Pair<Integer, Integer> result = super.onStartSubAction(serviceName, functionName, apiFunction, args);
 		DBGPDebugFrame stackFrame = getStackFrame();
 
 		if (stackFrame instanceof ServoyDebugFrame)
@@ -489,7 +488,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	}
 
 	@Override
-	public void onStopSubAction(Pair<UUID, UUID> perfId)
+	public void onStopSubAction(Pair<Integer, Integer> perfId)
 	{
 		super.onStopSubAction(perfId);
 		DBGPDebugFrame stackFrame = getStackFrame();

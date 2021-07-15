@@ -47,7 +47,6 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.ngclient.endpoint.INGClientWebsocketEndpoint;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
-import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.WeakHashSet;
 
 /**
@@ -168,7 +167,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 			call.put("propertyPath", componentContext.getPropertyPath());
 		}
 
-		Pair<UUID, UUID> perfId = getClient().onStartSubAction(receiver.getSpecification().getName(), apiFunction.getName(), apiFunction, arguments);
+		Pair<Integer, Integer> perfId = getClient().onStartSubAction(receiver.getSpecification().getName(), apiFunction.getName(), apiFunction, arguments);
 
 		try
 		{
@@ -489,7 +488,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	public Object executeServiceCall(IClientService clientService, String functionName, Object[] arguments, WebObjectFunctionDefinition apiFunction,
 		IToJSONWriter<IBrowserConverterContext> pendingChangesWriter, boolean blockEventProcessing) throws IOException
 	{
-		Pair<UUID, UUID> perfId = getClient().onStartSubAction(clientService.getName(), functionName, apiFunction, arguments);
+		Pair<Integer, Integer> perfId = getClient().onStartSubAction(clientService.getName(), functionName, apiFunction, arguments);
 		try
 		{
 			return super.executeServiceCall(clientService, functionName, arguments, apiFunction, pendingChangesWriter, blockEventProcessing);

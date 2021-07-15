@@ -18,12 +18,12 @@
 package com.servoy.j2db.server.shared;
 
 import java.util.Queue;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 
 import com.servoy.j2db.dataprocessing.IDataServer;
-import com.servoy.j2db.util.UUID;
 
 /**
  * Timing of actions like queries/methods in the server.
@@ -33,8 +33,8 @@ import com.servoy.j2db.util.UUID;
  */
 public class PerformanceTiming extends PerformanceData
 {
-
-	private final UUID uuid;
+	private final static AtomicInteger ID_GEN = new AtomicInteger();
+	private final Integer id;
 	private final String action;
 	private final int type;
 	private final String clientUUID;
@@ -47,7 +47,7 @@ public class PerformanceTiming extends PerformanceData
 	{
 		super(maxEntriesToKeep, log, id, aggregator);
 
-		this.uuid = UUID.randomUUID();
+		this.id = Integer.valueOf(ID_GEN.getAndIncrement());
 		this.action = action;
 		this.type = type;
 		this.start_ms.set(start_ms);
@@ -73,9 +73,9 @@ public class PerformanceTiming extends PerformanceData
 		super.addTiming(subAction, intervalMsSubAction2, totalMsSubAction2, typeOfSubAction, subActionTimings, nrecords);
 	}
 
-	public UUID getUuid()
+	public Integer getID()
 	{
-		return uuid;
+		return id;
 	}
 
 	public String getAction()

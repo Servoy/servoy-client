@@ -23,7 +23,6 @@ import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.server.shared.PerformanceData;
-import com.servoy.j2db.util.UUID;
 
 /**
  * @author jcomp
@@ -65,7 +64,7 @@ public class FunctionWrapper implements Function
 	 */
 	public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 	{
-		UUID pfUuid = performanceData.startAction(name, System.currentTimeMillis(), IDataServer.METHOD_CALL, clientID);
+		Integer pfUuid = performanceData.startAction(name, System.currentTimeMillis(), IDataServer.METHOD_CALL, clientID);
 		try
 		{
 			return function.call(cx, fixStart(scope), fixStart(thisObj), args);
