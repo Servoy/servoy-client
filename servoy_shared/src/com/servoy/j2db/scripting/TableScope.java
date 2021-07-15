@@ -56,6 +56,12 @@ public class TableScope extends LazyCompilationScope
 		setFunctionParentScriptable(new RecordingScriptable(null, this));
 	}
 
+	@Override
+	public String getClassName()
+	{
+		return "TableScope(" + table.getDataSource() + ')'; //$NON-NLS-1$
+	}
+
 	public void setArguments(Object[] vargs)
 	{
 		Object[] array = getThreadLocalArray();
