@@ -17,8 +17,6 @@
 
 package com.servoy.j2db.server.shared;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -37,7 +35,6 @@ public class PerformanceAggregator
 {
 	public static final int DEFAULT_MAX_ENTRIES_TO_KEEP_IN_PRODUCTION = 500;
 
-	private final List<PerformanceTimingAggregate> sortedAggregates;
 	private final ConcurrentMap<String, PerformanceTimingAggregate> aggregatesByAction;
 
 	protected final int maxEntriesToKeep;
@@ -46,15 +43,13 @@ public class PerformanceAggregator
 
 	public PerformanceAggregator(int maxEntriesToKeep)
 	{
-		this.maxEntriesToKeep = maxEntriesToKeep;
+		this.maxEntriesToKeep = 5; //maxEntriesToKeep;
 		if (maxEntriesToKeep == IPerformanceRegistry.OFF)
 		{
-			sortedAggregates = null;
 			aggregatesByAction = null;
 		}
 		else
 		{
-			sortedAggregates = Collections.synchronizedList(new SortedList<PerformanceTimingAggregate>(new TimeComparator()));
 			aggregatesByAction = new ConcurrentHashMap<String, PerformanceTimingAggregate>(
 				maxEntriesToKeep > 0 ? maxEntriesToKeep : DEFAULT_MAX_ENTRIES_TO_KEEP_IN_PRODUCTION);
 		}
@@ -66,25 +61,21 @@ public class PerformanceAggregator
 	public PerformanceAggregator(PerformanceAggregator copy)
 	{
 		this.maxEntriesToKeep = copy.maxEntriesToKeep;
-		if (copy.sortedAggregates != null)
+		if (copy.aggregatesByAction != null)
 		{
-			sortedAggregates = Collections.synchronizedList(new SortedList<PerformanceTimingAggregate>(new TimeComparator()));
 			aggregatesByAction = new ConcurrentHashMap<String, PerformanceTimingAggregate>(maxEntriesToKeep);
-			for (PerformanceTimingAggregate a : copy.sortedAggregates)
+			for (PerformanceTimingAggregate a : copy.aggregatesByAction.values())
 			{
 				PerformanceTimingAggregate copyOfA = new PerformanceTimingAggregate(a);
-				sortedAggregates.add(copyOfA);
 				aggregatesByAction.put(a.getAction(), copyOfA);
 			}
 		}
 		else if (maxEntriesToKeep == IPerformanceRegistry.OFF)
 		{
-			sortedAggregates = null;
 			aggregatesByAction = null;
 		}
 		else
 		{
-			sortedAggregates = Collections.synchronizedList(new SortedList<PerformanceTimingAggregate>(new TimeComparator()));
 			aggregatesByAction = new ConcurrentHashMap<String, PerformanceTimingAggregate>(
 				maxEntriesToKeep > 0 ? maxEntriesToKeep : DEFAULT_MAX_ENTRIES_TO_KEEP_IN_PRODUCTION);
 		}
@@ -109,30 +100,25 @@ public class PerformanceAggregator
 				PerformanceTimingAggregate alreadyThere = aggregatesByAction.putIfAbsent(action, time);
 				if (alreadyThere != null) time = alreadyThere;
 			}
-			// remove it because it will need to be sorted again after update
-			sortedAggregates.remove(time);
-
 			// update obj
 			time.updateTime(interval_ms, total_ms, nrecords);
 			time.updateSubActionTimes(subActionTimings, nrecords);
 
-			// do sort again
-			sortedAggregates.add(time);
 		}
 		finally
 		{
 			lock.readLock().unlock();
 		}
 		// do clean
-		if (maxEntriesToKeep != IPerformanceRegistry.UNLIMITED_ENTRIES && sortedAggregates.size() > maxEntriesToKeep)
+		if (maxEntriesToKeep != IPerformanceRegistry.UNLIMITED_ENTRIES && aggregatesByAction.size() > maxEntriesToKeep)
 		{
 			lock.writeLock().lock();
 			try
 			{
-				if (sortedAggregates.size() > maxEntriesToKeep)
+				while (aggregatesByAction.size() > maxEntriesToKeep)
 				{
-					PerformanceTimingAggregate old = sortedAggregates.remove(maxEntriesToKeep);
-					aggregatesByAction.remove(old.getAction());
+					PerformanceTimingAggregate last = aggregatesByAction.values().stream().max(TimeComparator.INSTANCE).get();
+					aggregatesByAction.remove(last.getAction());
 				}
 			}
 			finally
@@ -149,7 +135,6 @@ public class PerformanceAggregator
 		try
 		{
 			aggregatesByAction.clear();
-			sortedAggregates.clear();
 		}
 		finally
 		{
@@ -159,6 +144,16 @@ public class PerformanceAggregator
 
 	public PerformanceTimingAggregate[] toArray()
 	{
+		SortedList<PerformanceTimingAggregate> sortedAggregates = new SortedList<>(TimeComparator.INSTANCE);
+		lock.writeLock().lock();
+		try
+		{
+			sortedAggregates.addAll(aggregatesByAction.values());
+		}
+		finally
+		{
+			lock.writeLock().unlock();
+		}
 		return sortedAggregates.toArray(new PerformanceTimingAggregate[sortedAggregates.size()]);
 	}
 

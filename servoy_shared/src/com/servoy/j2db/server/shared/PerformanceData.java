@@ -159,6 +159,12 @@ public class PerformanceData
 
 	protected static class TimeComparator implements Comparator<PerformanceTimingAggregate>
 	{
+		public static final TimeComparator INSTANCE = new TimeComparator();
+
+		private TimeComparator()
+		{
+		}
+
 		public int compare(PerformanceTimingAggregate o1, PerformanceTimingAggregate o2)
 		{
 			long t1 = o1.getTotalIntervalTimeMS();
