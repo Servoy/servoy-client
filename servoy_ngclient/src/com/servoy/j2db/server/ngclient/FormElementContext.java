@@ -49,7 +49,7 @@ public class FormElementContext
 
 	public String getPropertiesString() throws JSONException
 	{
-		String designString = formElement.propertiesAsTemplateJSON(null, this).toString();
+		String designString = formElement.propertiesAsTemplateJSON(null, this, true).toString();
 		if (object != null)
 		{
 			JSONObject designValues = new JSONObject(designString);

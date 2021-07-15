@@ -31,6 +31,7 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.CSSPositionUtils;
@@ -59,17 +60,30 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 	private final NGClient client;
 	private final Form form;
 	private final String realFormName;
+	private final FlattenedSolution flattenedSolution;
+	private final boolean isDesigner;
 
 	/**
 	 * @param client
 	 * @param form
 	 * @param realFormName
 	 */
-	public AngularFormGenerator(NGClient client, Form form, String realFormName)
+	public AngularFormGenerator(NGClient client, Form form, String realFormName, boolean isDesigner)
 	{
 		this.client = client;
 		this.form = form;
 		this.realFormName = realFormName;
+		this.flattenedSolution = null;
+		this.isDesigner = isDesigner;
+	}
+
+	public AngularFormGenerator(FlattenedSolution fs, Form form, String realFormName, boolean isDesigner)
+	{
+		this.flattenedSolution = fs;
+		this.form = form;
+		this.realFormName = realFormName;
+		this.client = null;
+		this.isDesigner = isDesigner;
 	}
 
 	@SuppressWarnings("nls")
@@ -83,10 +97,9 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 	@Override
 	public String generateJS() throws IOException
 	{
-		IWebFormController cachedFormController = client.getFormManager().getCachedFormController(realFormName);
-		ServoyDataConverterContext context = cachedFormController != null ? new ServoyDataConverterContext(cachedFormController)
-			: new ServoyDataConverterContext(client);
-		FormTemplateObjectWrapper formTemplate = new FormTemplateObjectWrapper(context, true, false);
+		IWebFormController cachedFormController = client != null ? client.getFormManager().getCachedFormController(realFormName) : null;
+
+		FormTemplateObjectWrapper formTemplate = new FormTemplateObjectWrapper(getAContext(), true, false);
 		FormWrapper formWrapper = formTemplate.getFormWrapper(form);
 
 		// for this form it is really just some json.
@@ -175,8 +188,8 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		if (form.isResponsiveLayout())
 		{
 			form.acceptVisitor(new ChildrenJSONGenerator(writer,
-				cachedFormController != null ? new ServoyDataConverterContext(cachedFormController) : new ServoyDataConverterContext(client), form, null,
-				null, form, true), PositionComparator.XY_PERSIST_COMPARATOR);
+				getAContext(), form, null,
+				null, form, true, isDesigner), PositionComparator.XY_PERSIST_COMPARATOR);
 		}
 		else
 		{
@@ -244,9 +257,9 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 					writer.array();
 
 					form.acceptVisitor(new ChildrenJSONGenerator(writer,
-						cachedFormController != null ? new ServoyDataConverterContext(cachedFormController) : new ServoyDataConverterContext(client), form,
+						getAContext(), form,
 						null,
-						part, form, true), ChildrenJSONGenerator.FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
+						part, form, true, isDesigner), ChildrenJSONGenerator.FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
 					writer.endArray();
 					writer.endObject();
 				}
@@ -394,6 +407,17 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 				writer.endObject();
 			}
 		}
+	}
+
+	private ServoyDataConverterContext getAContext()
+	{
+		if (client != null)
+		{
+			IWebFormController cachedFormController = client.getFormManager().getCachedFormController(realFormName);
+			return cachedFormController != null ? new ServoyDataConverterContext(cachedFormController)
+				: new ServoyDataConverterContext(client);
+		}
+		return new ServoyDataConverterContext(flattenedSolution);
 	}
 }
 

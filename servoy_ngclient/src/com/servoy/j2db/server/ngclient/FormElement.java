@@ -700,21 +700,22 @@ public final class FormElement implements INGFormElement
 
 	public String getPropertiesString() throws JSONException
 	{
-		return propertiesAsTemplateJSON(null, new FormElementContext(this)).toString();
+		return propertiesAsTemplateJSON(null, new FormElementContext(this), true).toString();
 	}
 
-	public JSONWriter propertiesAsTemplateJSON(JSONWriter writer, FormElementContext context) throws JSONException
+	public JSONWriter propertiesAsTemplateJSON(JSONWriter writer, FormElementContext context, boolean writeAsValue) throws JSONException
 	{
 		TypedData<Map<String, Object>> propertiesTypedData = propertiesForTemplateJSON();
 
 		JSONWriter propertyWriter = (writer != null ? writer : new JSONStringer());
 		try
 		{
-			propertyWriter.object();
+			if (writeAsValue) propertyWriter.object();
 			JSONUtils.writeDataWithConversions(FormElementToJSON.INSTANCE, propertyWriter, propertiesTypedData.content, propertiesTypedData.contentType,
 				context);
 			if (inDesigner) propertyWriter.key("svyVisible").value(isVisible);
-			return propertyWriter.endObject();
+			if (writeAsValue) propertyWriter.endObject();
+			return writer;
 		}
 		catch (JSONException | IllegalArgumentException e)
 		{

@@ -88,6 +88,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 	private final IFormElementCache cache;
 	private final Part part;
 	private final Form form;
+	private final boolean designer;
 
 	/**
 	 * @param writer
@@ -95,13 +96,14 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 	 * @param cachedFormController
 	 */
 	public ChildrenJSONGenerator(JSONWriter writer, ServoyDataConverterContext context, Object skip, IFormElementCache cache, Part part, Form form,
-		boolean mainFormGeneration)
+		boolean mainFormGeneration, boolean designer)
 	{
 		this.writer = writer;
 		this.context = context;
 		this.skip = skip;
 		this.cache = cache;
 		this.form = form;
+		this.designer = designer;
 		formUI = (context.getForm() != null && context.getForm().getFormUI() instanceof WebFormUI)
 			? (WebFormUI)context.getForm().getFormUI() : null;
 		this.part = part;
@@ -141,7 +143,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			if (cache != null)
 			{
 				// this is for form component elements finding
-				fe = cache.getFormElement((IFormElement)o, this.context.getSolution(), null, false);
+				fe = cache.getFormElement((IFormElement)o, this.context.getSolution(), null, designer);
 			}
 			if (fe == null && formUI != null)
 			{
@@ -155,7 +157,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 					}
 				}
 			}
-			fe = fe != null ? fe : FormElementHelper.INSTANCE.getFormElement((IFormElement)o, this.context.getSolution(), null, false);
+			fe = fe != null ? fe : FormElementHelper.INSTANCE.getFormElement((IFormElement)o, this.context.getSolution(), null, designer);
 			writer.object();
 			writer.key("name");
 			String name = fe.getName();
@@ -205,7 +207,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			}
 			else
 			{
-				fe.propertiesAsTemplateJSON(writer, new FormElementContext(fe));
+				fe.propertiesAsTemplateJSON(writer, new FormElementContext(fe, context, null), false);
 			}
 			if (o instanceof BaseComponent)
 			{
@@ -284,14 +286,14 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 										}
 										return FormElementHelper.INSTANCE.getFormElement(component, flattendSol, path, design);
 									}
-								}, null, this.form, false), PositionComparator.XY_PERSIST_COMPARATOR);
+								}, null, this.form, false, designer), PositionComparator.XY_PERSIST_COMPARATOR);
 							}
 							else
 							{
 								for (FormElement element : fccc.getFormComponentElements())
 								{
 									IFormElement persistOfElement = (IFormElement)element.getPersistIfAvailable();
-									persistOfElement.acceptVisitor(new ChildrenJSONGenerator(writer, context, null, null, null, this.form, false),
+									persistOfElement.acceptVisitor(new ChildrenJSONGenerator(writer, context, null, null, null, this.form, false, designer),
 										FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
 								}
 							}
@@ -369,7 +371,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.endObject();
 			writer.key("children");
 			writer.array();
-			o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false), PositionComparator.XY_PERSIST_COMPARATOR);
+			o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer), PositionComparator.XY_PERSIST_COMPARATOR);
 			writer.endArray();
 			writer.endObject();
 			return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
