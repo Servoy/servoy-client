@@ -65,7 +65,7 @@ public class FunctionWrapper implements Function
 	 */
 	public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 	{
-		UUID pfUuid = performanceData != null ? performanceData.startAction(name, System.currentTimeMillis(), IDataServer.METHOD_CALL, clientID) : null;
+		UUID pfUuid = performanceData.startAction(name, System.currentTimeMillis(), IDataServer.METHOD_CALL, clientID);
 		try
 		{
 			return function.call(cx, fixStart(scope), fixStart(thisObj), args);
