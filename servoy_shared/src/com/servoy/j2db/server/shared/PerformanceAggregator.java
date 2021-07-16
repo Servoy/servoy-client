@@ -102,8 +102,7 @@ public class PerformanceAggregator
 			}
 			// update obj
 			time.updateTime(interval_ms, total_ms, nrecords);
-			time.updateSubActionTimes(subActionTimings, nrecords);
-
+			time.updateSubActionTimes(subActionTimings, nrecords); // update the sub-action times on sub-aggregate(s) as well
 		}
 		finally
 		{

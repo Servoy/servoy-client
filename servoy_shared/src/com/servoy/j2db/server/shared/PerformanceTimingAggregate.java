@@ -86,6 +86,8 @@ public class PerformanceTimingAggregate extends PerformanceAggregator
 		{
 			for (PerformanceTiming newSubTime : newSubActionTimings)
 			{
+				// now aggregate the sub-actions in sub-aggregates of this (parent) aggregate; not that it will not aggregate to the root aggregate entry of
+				// those (sub)actions which were already aggregated to before, but rather to children of this aggregate
 				addTiming(newSubTime.getAction(), newSubTime.getIntervalTimeMS(), newSubTime.getRunningTimeMS(), newSubTime.getType(),
 					newSubTime.getSubTimings(), 1);
 				it += newSubTime.getIntervalTimeMS();
