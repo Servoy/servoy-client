@@ -43,7 +43,7 @@ public class PerformanceAggregator
 
 	public PerformanceAggregator(int maxEntriesToKeep)
 	{
-		this.maxEntriesToKeep = 5; //maxEntriesToKeep;
+		this.maxEntriesToKeep = maxEntriesToKeep;
 		if (maxEntriesToKeep == IPerformanceRegistry.OFF)
 		{
 			aggregatesByAction = null;
