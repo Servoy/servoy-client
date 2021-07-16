@@ -54,6 +54,16 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 		//
 	};
 
+	private static final Pattern[] OPERATOR_PATTERNS = new Pattern[IBaseSQLCondition.OPERATOR_STRINGS.length];
+
+	static
+	{
+		for (int i = 0; i < IBaseSQLCondition.OPERATOR_STRINGS.length; i++)
+		{
+			OPERATOR_PATTERNS[i] = Pattern.compile(IBaseSQLCondition.OPERATOR_STRINGS[i].replace(" ", "\\s+"), Pattern.CASE_INSENSITIVE);
+		}
+	}
+
 	/**
 	 * Constructor I
 	 */
@@ -205,9 +215,10 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 		while (foundModifiers)
 		{
 			foundModifiers = false;
+			String toLowerCase = opString.toLowerCase();
 			for (int m = 0; m < IBaseSQLCondition.ALL_MODIFIERS.length; m++)
 			{
-				if (opString.toLowerCase().startsWith(IBaseSQLCondition.MODIFIER_STRINGS[m]))
+				if (toLowerCase.startsWith(IBaseSQLCondition.MODIFIER_STRINGS[m]))
 				{
 					foundModifiers = true;
 					opString = opString.substring(IBaseSQLCondition.MODIFIER_STRINGS[m].length());
@@ -217,10 +228,9 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 			}
 		}
 
-		for (int i = 0; i < IBaseSQLCondition.OPERATOR_STRINGS.length; i++)
+		for (int i = 0; i < OPERATOR_PATTERNS.length; i++)
 		{
-			Pattern pattern = Pattern.compile(IBaseSQLCondition.OPERATOR_STRINGS[i].replace(" ", "\\s+"), Pattern.CASE_INSENSITIVE);
-			if (pattern.matcher(opString).matches())
+			if (OPERATOR_PATTERNS[i].matcher(opString).matches())
 			{
 				return IBaseSQLCondition.ALL_DEFINED_OPERATORS[i] | mod;
 			}
