@@ -545,8 +545,39 @@ public class SQLKeywords
 			)));
 
 		KEYWORDS.put("progress", new HashSet<>(asList(
+			"abs",
+			"after",
+            "before",
+			"clustered",
+			"contains",
+            "database",
+			"exclusive",
+			"identified",
+			"file",
+            "function",
+            "inout",
+			"length",
+			"like",
+            "mod",
+			"mode",
+			"off",
+			"offset",
+			"out",
 			"range",
-			"variance"
+			"readpast",
+			"rename",
+            "replace",
+			"resource",
+            "return",
+			"row",
+			"rowcount",
+			"statement",
+			"statistics",
+			"share",
+			"top",
+			"uid",
+			"variance",
+			"wait"
 			)));
 
 		KEYWORDS.put("oracle", new HashSet<>(asList(
