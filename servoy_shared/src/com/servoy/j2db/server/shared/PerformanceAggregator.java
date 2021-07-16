@@ -37,13 +37,14 @@ public class PerformanceAggregator
 
 	private final ConcurrentMap<String, PerformanceTimingAggregate> aggregatesByAction;
 
-	protected final int maxEntriesToKeep;
+	protected final IPerformanceRegistry registry;
 
 	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
-	public PerformanceAggregator(int maxEntriesToKeep)
+	public PerformanceAggregator(IPerformanceRegistry registry)
 	{
-		this.maxEntriesToKeep = maxEntriesToKeep;
+		this.registry = registry;
+		int maxEntriesToKeep = registry.getMaxNumberOfEntriesPerContext();
 		if (maxEntriesToKeep == IPerformanceRegistry.OFF)
 		{
 			aggregatesByAction = null;
@@ -60,7 +61,8 @@ public class PerformanceAggregator
 	 */
 	public PerformanceAggregator(PerformanceAggregator copy)
 	{
-		this.maxEntriesToKeep = copy.maxEntriesToKeep;
+		this.registry = copy.registry;
+		int maxEntriesToKeep = this.registry.getMaxNumberOfEntriesPerContext();
 		if (copy.aggregatesByAction != null)
 		{
 			aggregatesByAction = new ConcurrentHashMap<String, PerformanceTimingAggregate>(maxEntriesToKeep);
@@ -87,7 +89,7 @@ public class PerformanceAggregator
 	public void addTiming(String action, long interval_ms, long total_ms, int type,
 		Queue<PerformanceTiming> subActionTimings, int nrecords)
 	{
-		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return;
+		if (this.registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.OFF) return;
 
 		PerformanceTimingAggregate time;
 		lock.readLock().lock();
@@ -96,7 +98,7 @@ public class PerformanceAggregator
 			time = aggregatesByAction.get(action);
 			if (time == null)
 			{
-				time = new PerformanceTimingAggregate(action, type, getSubActionMaxEntries());
+				time = new PerformanceTimingAggregate(action, type, registry);
 				PerformanceTimingAggregate alreadyThere = aggregatesByAction.putIfAbsent(action, time);
 				if (alreadyThere != null) time = alreadyThere;
 			}

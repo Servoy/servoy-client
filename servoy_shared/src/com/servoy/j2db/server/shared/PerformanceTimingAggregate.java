@@ -41,12 +41,12 @@ public class PerformanceTimingAggregate extends PerformanceAggregator
 
 	private final PerformanceTimingAggregate totalSubActionTimes;
 
-	public PerformanceTimingAggregate(String action, int type, int maxEntriesToKeep)
+	public PerformanceTimingAggregate(String action, int type, IPerformanceRegistry registry)
 	{
-		super(maxEntriesToKeep);
+		super(registry);
 		this.action = action;
 		this.type = type;
-		totalSubActionTimes = new PerformanceTimingAggregate(action + " - subactions", getSubActionMaxEntries()); //$NON-NLS-1$
+		totalSubActionTimes = new PerformanceTimingAggregate(action + " - subactions", registry); //$NON-NLS-1$
 	}
 
 	public PerformanceTimingAggregate(PerformanceTimingAggregate copy)
@@ -71,9 +71,9 @@ public class PerformanceTimingAggregate extends PerformanceAggregator
 		}
 	}
 
-	private PerformanceTimingAggregate(String action, int maxEntriesToKeep)
+	private PerformanceTimingAggregate(String action, IPerformanceRegistry registry)
 	{
-		super(maxEntriesToKeep);
+		super(registry);
 		this.action = action;
 		this.type = IDataServer.METHOD_CALL;
 		totalSubActionTimes = null;
