@@ -111,20 +111,15 @@ public class PerformanceAggregator
 			lock.readLock().unlock();
 		}
 		// do clean
-		if (maxEntriesToKeep != IPerformanceRegistry.UNLIMITED_ENTRIES && aggregatesByAction.size() > maxEntriesToKeep)
+		int maxEntriesToKeep = this.registry.getMaxNumberOfEntriesPerContext();
+		if (maxEntriesToKeep != IPerformanceRegistry.UNLIMITED_ENTRIES && aggregatesByAction.size() > (maxEntriesToKeep * 1.1)) // 10% more is allowed
 		{
-			lock.writeLock().lock();
-			try
+			SortedList<PerformanceTimingAggregate> sorted = getSortedList();
+			int counter = sorted.size() - 1;
+			while (aggregatesByAction.size() > maxEntriesToKeep)
 			{
-				while (aggregatesByAction.size() > maxEntriesToKeep)
-				{
-					PerformanceTimingAggregate last = aggregatesByAction.values().stream().max(TimeComparator.INSTANCE).get();
-					aggregatesByAction.remove(last.getAction());
-				}
-			}
-			finally
-			{
-				lock.writeLock().unlock();
+				PerformanceTimingAggregate last = sorted.get(counter);
+				aggregatesByAction.remove(last.getAction());
 			}
 		}
 		return;
@@ -145,6 +140,15 @@ public class PerformanceAggregator
 
 	public PerformanceTimingAggregate[] toArray()
 	{
+		SortedList<PerformanceTimingAggregate> sortedAggregates = getSortedList();
+		return sortedAggregates.toArray(new PerformanceTimingAggregate[sortedAggregates.size()]);
+	}
+
+	/**
+	 * @return
+	 */
+	private SortedList<PerformanceTimingAggregate> getSortedList()
+	{
 		SortedList<PerformanceTimingAggregate> sortedAggregates = new SortedList<>(TimeComparator.INSTANCE, aggregatesByAction.values().size());
 		lock.writeLock().lock();
 		try
@@ -155,12 +159,6 @@ public class PerformanceAggregator
 		{
 			lock.writeLock().unlock();
 		}
-		return sortedAggregates.toArray(new PerformanceTimingAggregate[sortedAggregates.size()]);
+		return sortedAggregates;
 	}
-
-	protected int getSubActionMaxEntries()
-	{
-		return maxEntriesToKeep == IPerformanceRegistry.UNLIMITED_ENTRIES ? IPerformanceRegistry.UNLIMITED_ENTRIES : Math.max(5, maxEntriesToKeep / 10);
-	}
-
 }
