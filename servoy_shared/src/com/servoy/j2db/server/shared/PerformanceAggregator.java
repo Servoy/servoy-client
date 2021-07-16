@@ -112,13 +112,15 @@ public class PerformanceAggregator
 		}
 		// do clean
 		int maxEntriesToKeep = this.registry.getMaxNumberOfEntriesPerContext();
-		if (maxEntriesToKeep != IPerformanceRegistry.UNLIMITED_ENTRIES && aggregatesByAction.size() > (maxEntriesToKeep * 1.1)) // 10% more is allowed
+		if (maxEntriesToKeep != IPerformanceRegistry.UNLIMITED_ENTRIES && aggregatesByAction.size() > (maxEntriesToKeep * 1.5)) // 10% more is allowed
 		{
+			int maxToRemoveForThisClient = aggregatesByAction.size() - maxEntriesToKeep;
 			SortedList<PerformanceTimingAggregate> sorted = getSortedList();
-			int counter = sorted.size() - 1;
-			while (aggregatesByAction.size() > maxEntriesToKeep)
+			int size = sorted.size();
+			int counter = 0;
+			while (aggregatesByAction.size() > maxEntriesToKeep && counter++ < maxToRemoveForThisClient)
 			{
-				PerformanceTimingAggregate last = sorted.get(counter);
+				PerformanceTimingAggregate last = sorted.get(size - counter);
 				aggregatesByAction.remove(last.getAction());
 			}
 		}
