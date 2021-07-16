@@ -715,7 +715,7 @@ public final class FormElement implements INGFormElement
 				context);
 			if (inDesigner) propertyWriter.key("svyVisible").value(isVisible);
 			if (writeAsValue) propertyWriter.endObject();
-			return writer;
+			return propertyWriter;
 		}
 		catch (JSONException | IllegalArgumentException e)
 		{
