@@ -112,7 +112,7 @@ public class PerformanceAggregator
 		}
 		// do clean
 		int maxEntriesToKeep = this.registry.getMaxNumberOfEntriesPerContext();
-		if (maxEntriesToKeep != IPerformanceRegistry.UNLIMITED_ENTRIES && aggregatesByAction.size() > (maxEntriesToKeep * 1.5)) // 10% more is allowed
+		if (maxEntriesToKeep != IPerformanceRegistry.UNLIMITED_ENTRIES && aggregatesByAction.size() > (maxEntriesToKeep * 1.1)) // 10% more is allowed
 		{
 			int maxToRemoveForThisClient = aggregatesByAction.size() - maxEntriesToKeep;
 			SortedList<PerformanceTimingAggregate> sorted = getSortedList();
