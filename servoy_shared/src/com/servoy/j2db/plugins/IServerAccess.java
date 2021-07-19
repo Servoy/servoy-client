@@ -30,7 +30,6 @@ import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.server.shared.IClientInformation;
 import com.servoy.j2db.util.ServoyException;
-import com.servoy.j2db.util.UUID;
 
 /**
  * Api to use by server plugins.
@@ -156,7 +155,7 @@ public interface IServerAccess extends IPluginAccess
 
 	/**
 	 * Add performance timing data for an action. This is shown on the server admin page, performance section.
-	 * returns a UUID that should be give to the {@link #endPerformanceTiming(UUID)} to end the timing.
+	 * returns an ID that should be given to the {@link #endPerformanceTiming(String, Integer, String)} method in order to end the timing.
 	 *
 	 * @param context group
 	 * @param action
@@ -168,7 +167,7 @@ public interface IServerAccess extends IPluginAccess
 	/**
 	 * End the timing that was started with {@link #addPerformanceTiming(String, String, long, String)}
 	 *
-	 * @param uuid
+	 * @param id the id that was returned by {@link #addPerformanceTiming(String, String, long, String)}
 	 * @since 8.0
 	 */
 	public void endPerformanceTiming(String context, Integer id, String clientId);
