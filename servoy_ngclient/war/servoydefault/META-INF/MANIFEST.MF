@@ -2,6 +2,10 @@ Manifest-Version: 1.0
 Ant-Version: Apache Ant 1.8.4
 Created-By: 1.7.0_05-b06 (Oracle Corporation)
 CSS-ClientLibs: css/bootstrap/css/bootstrap.css;name=bootstrap;version=3.4.1
+NG2-CSS-ClientLibs: ~@servoy/servoydefault/defaultcomponents.css,~bootstrap/dist/css/bootstrap.min.css
+NPM-PackageName: @servoy/servoydefault
+NG2-Module: ServoyDefaultComponentsModule
+Entry-Point: projects/servoydefault
 Absolute-Layout: True
 Bundle-Name: Servoy Default
 Bundle-SymbolicName: servoydefault

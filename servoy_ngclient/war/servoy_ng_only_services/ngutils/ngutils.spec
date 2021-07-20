@@ -6,7 +6,11 @@
 	"definition": "servoy_ng_only_services/ngutils/ngutils.js",
 	"serverscript": "servoy_ng_only_services/ngutils/ngutils_server.js",
 	"libraries": [],
-
+    "ng2Config": {
+       "packageName": "@servoy/ngclientutils",
+       "serviceName": "NGUtilsService",
+       "entryPoint": "projects/ngclientutils"
+    },
 	"model": {
 		"VIEWPORT_MOBILE_DEFAULT": { "type": "int", "default": 1 },
 		"VIEWPORT_MOBILE_DENY_ZOOM": { "type": "int", "default": 2 },
