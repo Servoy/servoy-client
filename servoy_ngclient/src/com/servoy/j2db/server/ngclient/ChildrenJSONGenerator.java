@@ -214,6 +214,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				writer.key("servoyAttributes");
 				writer.object();
 				Map<String, String> attributes = new HashMap<String, String>(((BaseComponent)fe.getPersistIfAvailable()).getMergedAttributes());
+				if (designer) attributes.put("svy-id", fe.getDesignId());
 				if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
 				{
 					String elementName = name;
@@ -335,6 +336,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				writer.endArray();
 			}
 			Map<String, String> attributes = new HashMap<String, String>(layoutContainer.getMergedAttributes());
+			if (designer) attributes.put("svy-id", layoutContainer.getUUID().toString());
 			WebLayoutSpecification spec = null;
 			if (layoutContainer.getPackageName() != null)
 			{
