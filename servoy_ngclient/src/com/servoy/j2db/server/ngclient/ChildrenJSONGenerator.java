@@ -214,7 +214,15 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				writer.key("servoyAttributes");
 				writer.object();
 				Map<String, String> attributes = new HashMap<String, String>(((BaseComponent)fe.getPersistIfAvailable()).getMergedAttributes());
-				if (designer) attributes.put("svy-id", fe.getDesignId());
+				if (designer)
+				{
+					attributes.put("svy-id", fe.getDesignId());
+					List<String>[] typeAndPropertyNames = fe.getSvyTypesAndPropertiesNames();
+					if (typeAndPropertyNames[0].size() > 0)
+					{
+						attributes.put("svy-types", String.join(",", typeAndPropertyNames[0]));
+					}
+				}
 				if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
 				{
 					String elementName = name;
