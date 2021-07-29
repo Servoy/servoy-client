@@ -698,7 +698,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 
 			function change() {
 				if (!$scope.model.findmode) {
-					if (svyFormat.edit && svyFormat.isMask) element.unmask();
+					if (!element.is(":focus") && svyFormat.edit && svyFormat.isMask) element.unmask();
 					//blur needs this because we need to change to the display format even if the value didn't change
 					$scope.$evalAsync(function() {
 						ngModelController.$setViewValue(modelToView(ngModelController.$modelValue))
