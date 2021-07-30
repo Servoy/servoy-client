@@ -824,7 +824,22 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 						int counter = 0;
 						Object[] pk = new Object[pkColumns.size()];
 						QueryUpdate update = new QueryUpdate(table);
-						for (IQuerySelectValue pkColumn : pkColumns)
+
+						IQuerySelectValue[] queryPks = null;
+						try
+						{
+							RowManager rowManager = manager.getRowManager(table.getDataSource());
+							if (rowManager != null)
+							{
+								queryPks = getOrderedPkColumns(pkColumns, rowManager.getSQLSheet().getPKColumnDataProvidersAsArray());
+							}
+						}
+						catch (Exception ex)
+						{
+							Debug.error(ex);
+						}
+						if (queryPks == null) queryPks = pkColumns.toArray(new IQuerySelectValue[0]);
+						for (IQuerySelectValue pkColumn : queryPks)
 						{
 							Object pkValue = rec.getValue(columnNames.get(pkColumn));
 							update.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkColumn, pkValue));
@@ -1994,7 +2009,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			for (int j = records.size(); --j >= 0;)
 			{
 				ViewRecord record = records.get(j);
-				for (int i = pkColumns.length; --i >= 0;)
+				for (int i = 0; i < pkColumns.length; i++)
 				{
 					pks[i] = record.getValue(columnNames.get(pkColumns[i]));
 				}
