@@ -1,4 +1,6 @@
 var index = 1;
+var menuId = 1;
+var menuArgumentsInternal = {}; // menuId => [Menu, Arguments];
 
 var MenuItem = {
 	doClick: function()
@@ -54,16 +56,16 @@ var MenuItem = {
 		this.visible = visible;
 	},
 	
-	setMethodArguments: function(args)
+	set methodArguments(args)
 	{
-		this.methodArguments = args;
+		menuArgumentsInternal[this.id] = [this, args];
 	},
 	
-	getMethodArguments: function()
+	get methodArguments()
 	{
-		if (this.methodArguments == undefined)
+		if (menuArgumentsInternal == undefined)
 			return null;
-		return this.methodArguments;
+		return menuArgumentsInternal;
 	},
 	
 	setSelected: function(selected)
@@ -116,6 +118,7 @@ var Menu = {
 	addMenuItem : function(text,callback,icon,mnemonic,enabled,align)
 	{
 		var newItem = Object.create(MenuItem);
+		newItem.id = menuId++ + '';
 		newItem.text = text;
 		newItem.callback = callback;
 		if (icon && icon.slice(0, 2) === "fa")
@@ -400,6 +403,12 @@ $scope.api.closeFormPopup = function(retval)
 $scope.clearPopupForm = function()
 {
 	$scope.model.popupform = null;
+}
+
+$scope.executeMenuItem = function(menuItemId)
+{
+	var menuAndArgs = menuArgumentsInternal[menuItemId];
+	menuAndArgs[0].callback.apply(null,menuAndArgs[1]);
 }
 
 $scope.api.showFormPopup = function(component,form,dataproviderScope,dataproviderID,width,height,x,y,showBackdrop,doNotCloseOnClickOutside, onClose)

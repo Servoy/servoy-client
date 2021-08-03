@@ -420,11 +420,7 @@ angular.module('window',['servoy'])
 					var mi = new YAHOO.widget.MenuItem(text);
 					if (items[j].callback) {
 						mi.cfg.setProperty('onclick', {fn:function(index) {return function(){
-							var args = [index, -1, items[index].selected, null, items[index].text];
-							if(items[index].methodArguments && items[index].methodArguments.length) {
-								args = args.concat(items[index].methodArguments);
-							}
-							$window.executeInlineScript(items[index].callback.formname,items[index].callback.script,args)
+							$services.callServerSideApi("window","executeMenuItem",[items[index].id]);
 							}}(j)
 						});
 					}

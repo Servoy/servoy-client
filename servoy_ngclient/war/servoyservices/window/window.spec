@@ -164,7 +164,15 @@
 		            "type":"boolean"
 	            }
 	        ]
-	    }
+	    },
+	     "executeMenuItem" :{
+	           "parameters":[
+                 {
+                    "name":"menuItemId",
+                    "type":"string"
+                 }
+            ]
+        }
     },
 	"types": {
 	  "shortcut": {
@@ -211,6 +219,7 @@
 	  },
 	  "menuitem": {
 		"model": {
+		    "id":"string",
 		 	"text": "string",
 		  	"callback": "function",
 		  	"name": "string",
