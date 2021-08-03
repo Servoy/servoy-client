@@ -132,6 +132,7 @@ var Menu = {
 		newItem.mnemonic = mnemonic;
 		newItem.align = align;
 		newItem.enabled = enabled;
+		newItem.methodArguments = null;
 		return this.items[this.items.push(newItem) - 1]; // we set and get it back to return as that instruments the value and makes it change-aware (be able to send granular updates to browser);
 //		return newItem;
 	},
