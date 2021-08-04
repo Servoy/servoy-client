@@ -65,7 +65,7 @@ var MenuItem = {
 	{
 		if (menuArgumentsInternal == undefined)
 			return null;
-		return menuArgumentsInternal;
+		return menuArgumentsInternal[this.id];
 	},
 	
 	setSelected: function(selected)
