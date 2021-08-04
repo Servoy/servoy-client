@@ -16,7 +16,7 @@ var MenuItem = {
 	setMethod: function(callback,args)
 	{
 		this.callback = callback;
-		this.args = args;
+		this.methodArguments = args;
 	},
 	
 	setAccelarator: function(accelerator)
@@ -132,7 +132,6 @@ var Menu = {
 		newItem.mnemonic = mnemonic;
 		newItem.align = align;
 		newItem.enabled = enabled;
-		//newItem.methodArguments = null;
 		menuArgumentsInternal[newItem.id] = [newItem, null];
 		return this.items[this.items.push(newItem) - 1]; // we set and get it back to return as that instruments the value and makes it change-aware (be able to send granular updates to browser);
 //		return newItem;
@@ -407,10 +406,12 @@ $scope.clearPopupForm = function()
 	$scope.model.popupform = null;
 }
 
-$scope.executeMenuItem = function(menuItemId)
+$scope.executeMenuItem = function(menuItemId, itemIndex, parentItemIndex, isSelected, parentMenuText, menuText)
 {
 	var menuAndArgs = menuArgumentsInternal[menuItemId];
-	menuAndArgs[0].callback.apply(null,menuAndArgs[1]);
+	var fixedArgs = new Array(itemIndex, parentItemIndex, isSelected, parentMenuText, menuText);
+	var allArgs = fixedArgs.concat(menuAndArgs[1]);
+	menuAndArgs[0].callback.apply(null, allArgs);
 }
 
 $scope.api.showFormPopup = function(component,form,dataproviderScope,dataproviderID,width,height,x,y,showBackdrop,doNotCloseOnClickOutside, onClose)

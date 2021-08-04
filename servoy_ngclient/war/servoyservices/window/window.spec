@@ -170,6 +170,26 @@
                  {
                     "name":"menuItemId",
                     "type":"string"
+                 },
+                 {
+                    "name":"itemIndex",
+                    "type":"int"
+                 },
+                 {
+                    "name":"parentItemIndex",
+                    "type":"int"
+                 },
+                 {
+                    "name":"isSelected",
+                    "type":"boolean"
+                 },
+                 {
+                    "name":"parentMenuText",
+                    "type":"string"
+                 },
+                 {
+                    "name":"menuText",
+                    "type":"string"
                  }
             ]
         }
