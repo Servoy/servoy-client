@@ -31,12 +31,14 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
+import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IAnchorConstants;
+import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Part;
@@ -277,11 +279,19 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 	 * @param o
 	 */
 	@SuppressWarnings("nls")
-	public static void writePosition(JSONWriter writer, IPersist o, Form form)
+	public static void writePosition(JSONWriter writer, IPersist o, Form form, WebFormComponent webComponent)
 	{
 		if (o instanceof BaseComponent && ((BaseComponent)o).getCssPosition() != null)
 		{
 			CSSPosition position = ((BaseComponent)o).getCssPosition();
+			if (webComponent != null)
+			{
+				Object runtimeValue = webComponent.getProperty(IContentSpecConstants.PROPERTY_CSS_POSITION);
+				if (runtimeValue instanceof CSSPosition)
+				{
+					position = (CSSPosition)runtimeValue;
+				}
+			}
 			writer.key("position");
 			writer.object();
 			if (CSSPositionUtils.isSet(position.left))
@@ -351,6 +361,19 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		{
 			Point location = ((IFormElement)o).getLocation();
 			Dimension size = ((IFormElement)o).getSize();
+			if (webComponent != null)
+			{
+				Object runtimeValue = webComponent.getProperty(IContentSpecConstantsBase.PROPERTY_LOCATION);
+				if (runtimeValue instanceof Point)
+				{
+					location = (Point)runtimeValue;
+				}
+				runtimeValue = webComponent.getProperty(IContentSpecConstantsBase.PROPERTY_SIZE);
+				if (runtimeValue instanceof Dimension)
+				{
+					size = (Dimension)runtimeValue;
+				}
+			}
 			if (location != null && size != null)
 			{
 				int anchorFlags = ((BaseComponent)o).getAnchors();

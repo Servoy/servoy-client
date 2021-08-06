@@ -279,13 +279,14 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			// hack for now to map it to the types that we know are there, so that we can test responsive without really already having to have bootstrap components.
 			writer.value(ClientService.convertToJSName(FormTemplateGenerator.getComponentTypeName((IFormElement)o)));
 		}
-		AngularFormGenerator.writePosition(writer, o, form);
+		WebFormComponent webComponent = (formUI != null) ? formUI.getWebComponent(fe.getName()) : null;
+
+		AngularFormGenerator.writePosition(writer, o, form, webComponent);
 		writer.key("model");
 		writer.object();
 		if (formUI != null)
 		{
 			// there is a existing form, take the current properties from that.
-			WebFormComponent webComponent = formUI.getWebComponent(fe.getName());
 			if (webComponent != null)
 			{
 				TypedData<Map<String, Object>> properties = webComponent.getProperties();
