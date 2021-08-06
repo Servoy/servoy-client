@@ -159,98 +159,9 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			}
 			fe = fe != null ? fe : FormElementHelper.INSTANCE.getFormElement((IFormElement)o, this.context.getSolution(), null, designer);
 			writer.object();
-			writer.key("name");
-			String name = fe.getName();
-			writer.value(name);
-			writer.key("type");
-			if (o instanceof TabPanel)
-			{
-				// special support for TabPanel so that we have a specific tabpanel,tablesspanel,accordion and splitpane
-				String type = "servoydefault-tabpanel";
-				int orient = ((TabPanel)o).getTabOrientation();
-				if (orient == TabPanel.SPLIT_HORIZONTAL || orient == TabPanel.SPLIT_VERTICAL) type = "servoydefault-splitpane";
-				else if (orient == TabPanel.ACCORDION_PANEL) type = "servoydefault-accordion";
-				else if (orient == TabPanel.HIDE || (orient == TabPanel.DEFAULT_ORIENTATION && ((TabPanel)o).hasOneTab()))
-					type = "servoydefault-tablesspanel";
-				writer.value(ClientService.convertToJSName(type));
-			}
-			else
-			{
-				// hack for now to map it to the types that we know are there, so that we can test responsive without really already having to have bootstrap components.
-				writer.value(ClientService.convertToJSName(FormTemplateGenerator.getComponentTypeName((IFormElement)o)));
-			}
-			AngularFormGenerator.writePosition(writer, o, form);
-			writer.key("model");
-			writer.object();
-			if (formUI != null)
-			{
-				// there is a existing form, take the current properties from that.
-				WebFormComponent webComponent = formUI.getWebComponent(fe.getName());
-				if (webComponent != null)
-				{
-					TypedData<Map<String, Object>> properties = webComponent.getProperties();
-					TypedData<Map<String, Object>> templateProperties = fe.propertiesForTemplateJSON();
-					// remove from the templates properties all the properties that are current "live" in the component
-					templateProperties.content.keySet().removeAll(properties.content.keySet());
-					DataConversion dataConversion = new DataConversion();
-					// write the template properties that are left
-					JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType, dataConversion,
-						new FormElementContext(fe));
-					// write the actual values
-					webComponent.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, properties, dataConversion);
-					JSONUtils.writeClientConversions(writer, dataConversion);
-				}
-				else
-				{
-					System.err.println("null");
-				}
-			}
-			else
-			{
-				fe.propertiesAsTemplateJSON(writer, new FormElementContext(fe, context, null), false);
-			}
-			if (o instanceof BaseComponent)
-			{
-				writer.key("servoyAttributes");
-				writer.object();
-				Map<String, String> attributes = new HashMap<String, String>(((BaseComponent)fe.getPersistIfAvailable()).getMergedAttributes());
-				if (designer)
-				{
-					attributes.put("svy-id", fe.getDesignId());
-					List<String>[] typeAndPropertyNames = fe.getSvyTypesAndPropertiesNames();
-					if (typeAndPropertyNames[0].size() > 0)
-					{
-						attributes.put("svy-types", String.join(",", typeAndPropertyNames[0]));
-					}
-				}
-				if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
-				{
-					String elementName = name;
-					if (elementName.startsWith("svy_") && o.getUUID() != null)
-					{
-						elementName = "svy_" + o.getUUID().toString();
-					}
-					attributes.put("data-svy-name", form.getName() + "." + elementName);
-				}
 
-				attributes.forEach((key, value) -> {
-					writer.key(StringEscapeUtils.escapeEcmaScript(key));
-					writer.value(value);
-				});
-				writer.endObject();
-			}
-			writer.endObject();
-			Collection<String> handlers = fe.getHandlers();
-			if (handlers.size() > 0)
-			{
-				writer.key("handlers");
-				writer.array();
-				for (String handler : handlers)
-				{
-					writer.value(handler);
-				}
-				writer.endArray();
-			}
+			writeFormElement(writer, o, form, fe, formUI, context, designer);
+
 			if (o instanceof WebComponent)
 			{
 				WebObjectSpecification spec = fe.getWebComponentSpec();
@@ -322,63 +233,10 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		else if (o instanceof LayoutContainer)
 		{
 			writer.object();
-			writer.key("layout");
-			writer.value(true);
 			LayoutContainer layoutContainer = (LayoutContainer)o;
-			String tagType = layoutContainer.getTagType();
-			if (!"div".equals(tagType))
-			{
-				writer.key("tagname");
-				writer.value("svyResponsive" + tagType);
-			}
-			String styleClasses = layoutContainer.getCssClasses();
-			if (styleClasses != null)
-			{
-				writer.key("styleclass");
-				String[] classes = styleClasses.split(" ");
-				writer.array();
-				for (String cls : classes)
-				{
-					writer.value(cls);
-				}
-				writer.endArray();
-			}
-			Map<String, String> attributes = new HashMap<String, String>(layoutContainer.getMergedAttributes());
-			if (designer) attributes.put("svy-id", layoutContainer.getUUID().toString());
-			WebLayoutSpecification spec = null;
-			if (layoutContainer.getPackageName() != null)
-			{
-				PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getSpecProviderState().getLayoutSpecifications().get(
-					layoutContainer.getPackageName());
-				if (pkg != null)
-				{
-					spec = pkg.getSpecification(layoutContainer.getSpecName());
-				}
-			}
-			if (spec != null)
-			{
-				for (String propertyName : spec.getAllPropertiesNames())
-				{
-					PropertyDescription pd = spec.getProperty(propertyName);
-					if (pd.getDefaultValue() != null && !attributes.containsKey(propertyName))
-					{
-						attributes.put(propertyName, pd.getDefaultValue().toString());
-					}
-				}
-			}
-			writer.key("attributes");
-			writer.object();
-			attributes.remove("class");
-			attributes.forEach((key, value) -> {
-				writer.key(key);
-				writer.value(value);
-			});
-			if (layoutContainer.getName() != null)
-			{
-				writer.key("name");
-				writer.value(formUI.getName() + "." + layoutContainer.getName());
-			}
-			writer.endObject();
+
+			writeLayoutContainer(writer, layoutContainer, formUI, designer);
+
 			writer.key("children");
 			writer.array();
 			o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer), PositionComparator.XY_PERSIST_COMPARATOR);
@@ -396,5 +254,167 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 		boolean b_visible = ((access & IRepository.VIEWABLE) != 0);
 		return b_visible;
+	}
+
+	public static void writeFormElement(JSONWriter writer, IPersist o, Form form, FormElement fe, WebFormUI formUI, ServoyDataConverterContext context,
+		boolean designer)
+	{
+		writer.key("name");
+		String name = designer ? fe.getDesignId() : fe.getName();
+		writer.value(name);
+		writer.key("type");
+		if (o instanceof TabPanel)
+		{
+			// special support for TabPanel so that we have a specific tabpanel,tablesspanel,accordion and splitpane
+			String type = "servoydefault-tabpanel";
+			int orient = ((TabPanel)o).getTabOrientation();
+			if (orient == TabPanel.SPLIT_HORIZONTAL || orient == TabPanel.SPLIT_VERTICAL) type = "servoydefault-splitpane";
+			else if (orient == TabPanel.ACCORDION_PANEL) type = "servoydefault-accordion";
+			else if (orient == TabPanel.HIDE || (orient == TabPanel.DEFAULT_ORIENTATION && ((TabPanel)o).hasOneTab()))
+				type = "servoydefault-tablesspanel";
+			writer.value(ClientService.convertToJSName(type));
+		}
+		else
+		{
+			// hack for now to map it to the types that we know are there, so that we can test responsive without really already having to have bootstrap components.
+			writer.value(ClientService.convertToJSName(FormTemplateGenerator.getComponentTypeName((IFormElement)o)));
+		}
+		AngularFormGenerator.writePosition(writer, o, form);
+		writer.key("model");
+		writer.object();
+		if (formUI != null)
+		{
+			// there is a existing form, take the current properties from that.
+			WebFormComponent webComponent = formUI.getWebComponent(fe.getName());
+			if (webComponent != null)
+			{
+				TypedData<Map<String, Object>> properties = webComponent.getProperties();
+				TypedData<Map<String, Object>> templateProperties = fe.propertiesForTemplateJSON();
+				// remove from the templates properties all the properties that are current "live" in the component
+				templateProperties.content.keySet().removeAll(properties.content.keySet());
+				DataConversion dataConversion = new DataConversion();
+				// write the template properties that are left
+				JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType, dataConversion,
+					new FormElementContext(fe));
+				// write the actual values
+				webComponent.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, properties, dataConversion);
+				JSONUtils.writeClientConversions(writer, dataConversion);
+			}
+			else
+			{
+				System.err.println("null");
+			}
+		}
+		else
+		{
+			fe.propertiesAsTemplateJSON(writer, new FormElementContext(fe, context, null), false);
+		}
+		if (o instanceof BaseComponent)
+		{
+			writer.key("servoyAttributes");
+			writer.object();
+			Map<String, String> attributes = new HashMap<String, String>(((BaseComponent)fe.getPersistIfAvailable()).getMergedAttributes());
+			if (designer)
+			{
+				attributes.put("svy-id", fe.getDesignId());
+				List<String>[] typeAndPropertyNames = fe.getSvyTypesAndPropertiesNames();
+				if (typeAndPropertyNames[0].size() > 0)
+				{
+					attributes.put("svy-types", String.join(",", typeAndPropertyNames[0]));
+				}
+			}
+			if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
+			{
+				String elementName = name;
+				if (elementName.startsWith("svy_") && o.getUUID() != null)
+				{
+					elementName = "svy_" + o.getUUID().toString();
+				}
+				attributes.put("data-svy-name", form.getName() + "." + elementName);
+			}
+
+			attributes.forEach((key, value) -> {
+				writer.key(StringEscapeUtils.escapeEcmaScript(key));
+				writer.value(value);
+			});
+			writer.endObject();
+		}
+		writer.endObject();
+		Collection<String> handlers = fe.getHandlers();
+		if (handlers.size() > 0)
+		{
+			writer.key("handlers");
+			writer.array();
+			for (String handler : handlers)
+			{
+				writer.value(handler);
+			}
+			writer.endArray();
+		}
+	}
+
+	public static void writeLayoutContainer(JSONWriter writer, LayoutContainer layoutContainer, WebFormUI formUI, boolean designer)
+	{
+		writer.key("layout");
+		writer.value(true);
+		String tagType = layoutContainer.getTagType();
+		if (!"div".equals(tagType))
+		{
+			writer.key("tagname");
+			writer.value("svyResponsive" + tagType);
+		}
+		String styleClasses = layoutContainer.getCssClasses();
+		if (styleClasses != null)
+		{
+			writer.key("styleclass");
+			String[] classes = styleClasses.split(" ");
+			writer.array();
+			for (String cls : classes)
+			{
+				writer.value(cls);
+			}
+			writer.endArray();
+		}
+		Map<String, String> attributes = new HashMap<String, String>(layoutContainer.getMergedAttributes());
+		if (designer) attributes.put("svy-id", layoutContainer.getUUID().toString());
+		WebLayoutSpecification spec = null;
+		if (layoutContainer.getPackageName() != null)
+		{
+			PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getSpecProviderState().getLayoutSpecifications().get(
+				layoutContainer.getPackageName());
+			if (pkg != null)
+			{
+				spec = pkg.getSpecification(layoutContainer.getSpecName());
+			}
+		}
+		if (spec != null)
+		{
+			for (String propertyName : spec.getAllPropertiesNames())
+			{
+				PropertyDescription pd = spec.getProperty(propertyName);
+				if (pd.getDefaultValue() != null && !attributes.containsKey(propertyName))
+				{
+					attributes.put(propertyName, pd.getDefaultValue().toString());
+				}
+			}
+		}
+		writer.key("attributes");
+		writer.object();
+		attributes.remove("class");
+		attributes.forEach((key, value) -> {
+			writer.key(key);
+			writer.value(value);
+		});
+		if (formUI != null && layoutContainer.getName() != null)
+		{
+			writer.key("name");
+			writer.value(formUI.getName() + "." + layoutContainer.getName());
+		}
+		if (designer)
+		{
+			writer.key("id");
+			writer.value(layoutContainer.getUUID());
+		}
+		writer.endObject();
 	}
 }
