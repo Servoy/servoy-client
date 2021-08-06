@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import java.awt.Point;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.WeakHashMap;
 
 import org.json.JSONException;
@@ -79,12 +80,30 @@ public class JSEventType extends UUIDReferencePropertyType<JSEvent> implements I
 				event = new JSEvent();
 				BaseWebObject webObject = dataConverterContext.getWebObject();
 				event.setType(jsonObject.optString("eventType")); //$NON-NLS-1$
-				String formName = jsonObject.optString("formName");
+				String formName = jsonObject.optString("formName"); //$NON-NLS-1$
+				String elementName = jsonObject.optString("elementName"); //$NON-NLS-1$
 				if (formName.length() == 0)
 				{
 					if (webObject instanceof WebFormComponent)
 					{
-						formName = ((WebFormComponent)webObject).getFormElement().getForm().getName();
+						BaseWebObject parentWebObject = ((WebFormComponent)webObject).getParent();
+						if (parentWebObject != null && parentWebObject instanceof WebFormUI)
+						{
+							formName = ((WebFormUI)parentWebObject).getName();
+						}
+						else
+						{
+							formName = ((WebFormComponent)webObject).getFormElement().getForm().getName();
+							while (!(parentWebObject instanceof WebFormUI || parentWebObject == null))
+							{
+								parentWebObject = ((WebFormComponent)webObject).getParent();
+							}
+							if (parentWebObject != null && parentWebObject instanceof WebFormUI)
+							{
+								formName = ((WebFormUI)parentWebObject).getName();
+							}
+						}
+						if (elementName.length() == 0) elementName = ((WebFormComponent)webObject).getName();
 					}
 					else if (webObject instanceof WebFormUI)
 					{
@@ -92,7 +111,6 @@ public class JSEventType extends UUIDReferencePropertyType<JSEvent> implements I
 					}
 				}
 				if (formName.length() > 0) event.setFormName(formName);
-				String elementName = jsonObject.optString("elementName"); //$NON-NLS-1$
 				if (elementName.length() > 0) event.setElementName(elementName);
 				if (formName.length() > 0 && elementName.length() > 0)
 				{
@@ -114,7 +132,8 @@ public class JSEventType extends UUIDReferencePropertyType<JSEvent> implements I
 					if (jsonObject.has("x")) event.setLocation(new Point(jsonObject.optInt("x"), jsonObject.optInt("y")));
 					if (jsonObject.has("modifiers")) event.setModifiers(jsonObject.optInt("modifiers"));
 					if (jsonObject.has("data")) event.setData(jsonObject.opt("data"));
-					event.setTimestamp(new Timestamp(jsonObject.optLong("timestamp")));
+					if (jsonObject.has("timestamp")) event.setTimestamp(new Timestamp(jsonObject.getLong("timestamp")));
+					else event.setTimestamp(new Date());
 				}
 				catch (Exception e)
 				{

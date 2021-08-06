@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient.component;
 import java.awt.Point;
 import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.json.JSONException;
@@ -188,7 +189,8 @@ public class EventExecutor
 
 					try
 					{
-						event.setTimestamp(new Timestamp(json.getLong("timestamp")));
+						if (json.has("timestamp")) event.setTimestamp(new Timestamp(json.getLong("timestamp")));
+						else event.setTimestamp(new Date());
 						if (json.has("x")) event.setLocation(new Point(json.getInt("x"), json.getInt("y")));
 						if (json.has("modifiers")) event.setModifiers(json.getInt("modifiers"));
 					}
