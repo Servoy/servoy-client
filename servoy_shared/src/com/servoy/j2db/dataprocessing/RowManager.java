@@ -1628,10 +1628,12 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>> sr = pkRowMap.get(pkHashKey);
 			if (sr != null)
 			{
+				List<RowFireNotifyChange> myFires = new ArrayList<RowFireNotifyChange>();
 				for (String calc : calcs)
 				{
-					flagRowCalcForRecalculation(pkHashKey, calc);
+					fireCalculationFlagged(pkHashKey, calc, myFires);
 				}
+				fireRowNotifyChanges(myFires);
 			}
 		}
 	}
