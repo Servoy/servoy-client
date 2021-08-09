@@ -815,7 +815,12 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			.map(ColumnWrapper::getColumn)
 			.collect(toList());
 
-		return !primaryColumns.isEmpty() && primaryColumns.containsAll(primaryColumns.get(0).getTable().getRowIdentColumns());
+		if (!primaryColumns.isEmpty())
+		{
+			List<Column> rowIdentColumns = primaryColumns.get(0).getTable().getRowIdentColumns();
+			return !rowIdentColumns.isEmpty() && primaryColumns.containsAll(rowIdentColumns);
+		}
+		return false;
 	}
 
 	/**
