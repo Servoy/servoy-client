@@ -180,6 +180,12 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		return new NGEventDispatcher(client);
 	}
 
+	@Override
+	protected String getDispatcherThreadName()
+	{
+		return super.getDispatcherThreadName() + ", clientid: " + getClient().getClientID(); //$NON-NLS-1$
+	}
+
 	@SuppressWarnings("nls")
 	@Override
 	public void onOpen(final Map<String, List<String>> requestParams)
