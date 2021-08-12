@@ -147,6 +147,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	var ROWS = "rows";
 	var COLUMN_FORMATS = "columnFormats";
 	var HANDLED_CLIENT_REQUESTS = "handledClientReqIds";
+	var REQUEST_ID = "requestId";
 	var ID_KEY = "id";
 	var VALUE_KEY = "value";
 	var DATAPROVIDER_KEY = "dp";
@@ -261,16 +262,21 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					var handledRequests = serverJSONValue[HANDLED_CLIENT_REQUESTS]; // array of { id: ...int..., value: ...boolean... } which says if a req. was handled successfully by server or not
 					var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
 					
+					// CHECKME while `handledRequests` is defined as an array, there's a one on one correlation between the request and response messages, so the handleRequests array would always just have a length of one
+					if (handledRequests.length !== 1) $log.warn('Unexpected response for multiple clientside api calls at once: ' + JSON.stringify(serverJSONValue, null, '\t')); 
+					
 					handledRequests.forEach(function(handledReq) { 
 					     var defer = $sabloDeferHelper.retrieveDeferForHandling(handledReq[ID_KEY], internalState);
 					     if (defer) {
-					    	 if (defer === internalState.selectionUpdateDefer) {
+					         if (hasListeners) notificationParamForListeners[REQUEST_ID] = defer[REQUEST_ID];
+				             
+				             if (defer === internalState.selectionUpdateDefer) {
 						    	 if (handledReq[VALUE_KEY]) defer.resolve(currentClientValue[SELECTED_ROW_INDEXES]);
 						    	 else defer.reject(currentClientValue[SELECTED_ROW_INDEXES]);
 						    	 
 						    	 delete internalState.selectionUpdateDefer;
 					    	 } else {
-						    	 if (handledReq[VALUE_KEY]) defer.resolve();
+					    		 if (handledReq[VALUE_KEY]) defer.resolve();
 						    	 else defer.reject();
 					    	 }
 					     }
@@ -414,7 +420,10 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						internalState.requests.push(req);
 						
 						if (internalState.changeNotifier) internalState.changeNotifier();
-						return internalState.deferred[requestID].defer.promise;
+						
+						var promise = internalState.deferred[requestID].defer.promise;
+						promise[REQUEST_ID] = requestID;
+						return promise;
 					};
 					newValue.loadExtraRecordsAsync = function(negativeOrPositiveCount, dontNotifyYet) {
 						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * loadExtraRecordsAsync requested with (" + negativeOrPositiveCount + ", " + dontNotifyYet + ")");
@@ -426,7 +435,10 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						internalState.requests.push(req);
 						
 						if (internalState.changeNotifier && !dontNotifyYet) internalState.changeNotifier();
-						return internalState.deferred[requestID].defer.promise;
+						
+						var promise = internalState.deferred[requestID].defer.promise;
+                        promise[REQUEST_ID] = requestID;
+                        return promise;
 					};
 					newValue.loadLessRecordsAsync = function(negativeOrPositiveCount, dontNotifyYet) {
 						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * loadLessRecordsAsync requested with (" + negativeOrPositiveCount + ", " + dontNotifyYet + ")");
@@ -438,7 +450,10 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						internalState.requests.push(req);
 
 						if (internalState.changeNotifier && !dontNotifyYet) internalState.changeNotifier();
-						return internalState.deferred[requestID].defer.promise;
+						
+						var promise = internalState.deferred[requestID].defer.promise;
+                        promise[REQUEST_ID] = requestID;
+                        return promise;
 					};
 					newValue.notifyChanged = function() {
 						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * notifyChanged called");
@@ -451,7 +466,10 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						req[ID_KEY] = requestID;
 						internalState.requests.push(req);
 						if (internalState.changeNotifier) internalState.changeNotifier();
-						return internalState.deferred[requestID].defer.promise;
+						
+						var promise = internalState.deferred[requestID].defer.promise;
+                        promise[REQUEST_ID] = requestID;
+                        return promise;
 					}
 					newValue.setPreferredViewportSize = function(size, sendSelectionViewportInitially, initialSelectionViewportCentered) {
 						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * setPreferredViewportSize called with (" + size + ", " + sendSelectionViewportInitially + ", " + initialSelectionViewportCentered + ")");
@@ -477,7 +495,9 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						internalState.requests.push(req);
 						if (internalState.changeNotifier) internalState.changeNotifier();
 
-						return internalState.selectionUpdateDefer.promise;
+						var promise = internalState.selectionUpdateDefer.promise;
+                        promise[REQUEST_ID] = msgId;
+                        return promise;
 					}
 					newValue.getRecordRefByRowID = function(rowID) {
 						if (rowID)
