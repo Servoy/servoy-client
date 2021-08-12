@@ -11,6 +11,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	FOR_FOUNDSET_PROPERTY: 'forFoundset',
 	
 	// listener notification constants follow; prefixed just to separate them a bit from other constants
+	NOTIFY_REQUEST_IDS: "requestIds",
 	NOTIFY_FULL_VALUE_CHANGED: "fullValueChanged",
 	NOTIFY_SERVER_SIZE_CHANGED: "serverFoundsetSizeChanged",
 	NOTIFY_HAS_MORE_ROWS_CHANGED: "hasMoreRowsChanged",
@@ -262,14 +263,16 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					var handledRequests = serverJSONValue[HANDLED_CLIENT_REQUESTS]; // array of { id: ...int..., value: ...boolean... } which says if a req. was handled successfully by server or not
 					var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
 					
-					// CHECKME while `handledRequests` is defined as an array, there's a one on one correlation between the request and response messages, so the handleRequests array would always just have a length of one
-					if (handledRequests.length !== 1) $log.warn('Unexpected response for multiple clientside api calls at once: ' + JSON.stringify(serverJSONValue, null, '\t')); 
-					
 					handledRequests.forEach(function(handledReq) { 
-					     var defer = $sabloDeferHelper.retrieveDeferForHandling(handledReq[ID_KEY], internalState);
-					     if (defer) {
-					         if (hasListeners) notificationParamForListeners[REQUEST_ID] = defer[REQUEST_ID];
-				             
+						var defer = $sabloDeferHelper.retrieveDeferForHandling(handledReq[ID_KEY], internalState);
+						if (defer) {
+							if (hasListeners) {
+								if (!Array.isArray(notificationParamForListeners[$foundsetTypeConstants.NOTIFY_REQUEST_IDS])) {
+									notificationParamForListeners[$foundsetTypeConstants.NOTIFY_REQUEST_IDS] = [];
+								}
+								notificationParamForListeners[$foundsetTypeConstants.NOTIFY_REQUEST_IDS].push(defer.promise[REQUEST_ID]);
+							}
+
 				             if (defer === internalState.selectionUpdateDefer) {
 						    	 if (handledReq[VALUE_KEY]) defer.resolve(currentClientValue[SELECTED_ROW_INDEXES]);
 						    	 else defer.reject(currentClientValue[SELECTED_ROW_INDEXES]);
