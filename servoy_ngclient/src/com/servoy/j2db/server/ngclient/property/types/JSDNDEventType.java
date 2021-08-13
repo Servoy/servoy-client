@@ -17,9 +17,6 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
-import java.awt.Point;
-import java.sql.Timestamp;
-import java.util.Date;
 import java.util.WeakHashMap;
 
 import org.json.JSONException;
@@ -35,13 +32,6 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.dnd.JSDNDEvent;
-import com.servoy.j2db.server.ngclient.IContextProvider;
-import com.servoy.j2db.server.ngclient.INGApplication;
-import com.servoy.j2db.server.ngclient.IWebFormController;
-import com.servoy.j2db.server.ngclient.WebFormComponent;
-import com.servoy.j2db.server.ngclient.WebFormUI;
-import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
-import com.servoy.j2db.util.Debug;
 
 /**
  * JSDNDEvent property type
@@ -77,68 +67,9 @@ public class JSDNDEventType extends UUIDReferencePropertyType<JSDNDEvent> implem
 			event = getReference(jsonObject.optString("jseventhash")); //$NON-NLS-1$
 			if (event == null)
 			{
-				event = new JSDNDEvent();
 				BaseWebObject webObject = dataConverterContext.getWebObject();
-				event.setType(jsonObject.optString("eventType")); //$NON-NLS-1$
-				String formName = jsonObject.optString("formName"); //$NON-NLS-1$
-				String elementName = jsonObject.optString("elementName"); //$NON-NLS-1$
-				if (formName.length() == 0)
-				{
-					if (webObject instanceof WebFormComponent)
-					{
-						BaseWebObject parentWebObject = ((WebFormComponent)webObject).getParent();
-						if (parentWebObject != null && parentWebObject instanceof WebFormUI)
-						{
-							formName = ((WebFormUI)parentWebObject).getName();
-						}
-						else
-						{
-							formName = ((WebFormComponent)webObject).getFormElement().getForm().getName();
-							while (!(parentWebObject == null || parentWebObject instanceof WebFormUI))
-							{
-								parentWebObject = ((WebFormComponent)webObject).getParent();
-							}
-							if (parentWebObject != null && parentWebObject instanceof WebFormUI)
-							{
-								formName = ((WebFormUI)parentWebObject).getName();
-							}
-						}
-						if (elementName.length() == 0) elementName = ((WebFormComponent)webObject).getName();
-					}
-					else if (webObject instanceof WebFormUI)
-					{
-						formName = ((WebFormUI)webObject).getName();
-					}
-				}
-				if (formName.length() > 0) event.setFormName(formName);
-				if (elementName.length() > 0) event.setElementName(elementName);
-				if (formName.length() > 0 && elementName.length() > 0)
-				{
-					INGApplication application = ((IContextProvider)webObject).getDataConverterContext().getApplication();
-					IWebFormController formController = application.getFormManager().getForm(formName);
-					if (formController != null)
-					{
-						for (RuntimeWebComponent c : formController.getWebComponentElements())
-						{
-							if (elementName.equals(c.getComponent().getName()))
-							{
-								event.setSource(c);
-							}
-						}
-					}
-				}
-				try
-				{
-					if (jsonObject.has("x")) event.setLocation(new Point(jsonObject.optInt("x"), jsonObject.optInt("y")));
-					if (jsonObject.has("modifiers")) event.setModifiers(jsonObject.optInt("modifiers"));
-					if (jsonObject.has("data")) event.setData(jsonObject.opt("data"));
-					if (jsonObject.has("timestamp")) event.setTimestamp(new Timestamp(jsonObject.getLong("timestamp")));
-					else event.setTimestamp(new Date());
-				}
-				catch (Exception e)
-				{
-					Debug.error("error setting event properties from " + jsonObject + ", for component: " + elementName + " on form " + formName, e);
-				}
+				event = new JSDNDEvent();
+				JSEventType.fillJSEvent(event, jsonObject, webObject, null);
 			}
 		}
 		return event;

@@ -25,6 +25,7 @@ import java.util.WeakHashMap;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
@@ -34,12 +35,19 @@ import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.j2db.FormController;
+import com.servoy.j2db.IForm;
+import com.servoy.j2db.scripting.ElementScope;
+import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.scripting.JSBaseEvent;
 import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebFormUI;
+import com.servoy.j2db.server.ngclient.component.RuntimeLegacyComponent;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.util.Debug;
 
@@ -74,74 +82,109 @@ public class JSEventType extends UUIDReferencePropertyType<JSEvent> implements I
 		if (newJSONValue instanceof JSONObject)
 		{
 			JSONObject jsonObject = (JSONObject)newJSONValue;
-			event = getReference(jsonObject.optString("jseventhash"));
+			event = getReference(jsonObject.optString("jseventhash")); //$NON-NLS-1$
 			if (event == null)
 			{
-				event = new JSEvent();
 				BaseWebObject webObject = dataConverterContext.getWebObject();
-				event.setType(jsonObject.optString("eventType")); //$NON-NLS-1$
-				String formName = jsonObject.optString("formName"); //$NON-NLS-1$
-				String elementName = jsonObject.optString("elementName"); //$NON-NLS-1$
-				if (formName.length() == 0)
-				{
-					if (webObject instanceof WebFormComponent)
-					{
-						BaseWebObject parentWebObject = ((WebFormComponent)webObject).getParent();
-						if (parentWebObject != null && parentWebObject instanceof WebFormUI)
-						{
-							formName = ((WebFormUI)parentWebObject).getName();
-						}
-						else
-						{
-							formName = ((WebFormComponent)webObject).getFormElement().getForm().getName();
-							while (!(parentWebObject instanceof WebFormUI || parentWebObject == null))
-							{
-								parentWebObject = ((WebFormComponent)webObject).getParent();
-							}
-							if (parentWebObject != null && parentWebObject instanceof WebFormUI)
-							{
-								formName = ((WebFormUI)parentWebObject).getName();
-							}
-						}
-						if (elementName.length() == 0) elementName = ((WebFormComponent)webObject).getName();
-					}
-					else if (webObject instanceof WebFormUI)
-					{
-						formName = ((WebFormUI)webObject).getName();
-					}
-				}
-				if (formName.length() > 0) event.setFormName(formName);
-				if (elementName.length() > 0) event.setElementName(elementName);
-				if (formName.length() > 0 && elementName.length() > 0)
-				{
-					INGApplication application = ((IContextProvider)webObject).getDataConverterContext().getApplication();
-					IWebFormController formController = application.getFormManager().getForm(formName);
-					if (formController != null)
-					{
-						for (RuntimeWebComponent c : formController.getWebComponentElements())
-						{
-							if (elementName.equals(c.getComponent().getName()))
-							{
-								event.setSource(c);
-							}
-						}
-					}
-				}
-				try
-				{
-					if (jsonObject.has("x")) event.setLocation(new Point(jsonObject.optInt("x"), jsonObject.optInt("y")));
-					if (jsonObject.has("modifiers")) event.setModifiers(jsonObject.optInt("modifiers"));
-					if (jsonObject.has("data")) event.setData(jsonObject.opt("data"));
-					if (jsonObject.has("timestamp")) event.setTimestamp(new Timestamp(jsonObject.getLong("timestamp")));
-					else event.setTimestamp(new Date());
-				}
-				catch (Exception e)
-				{
-					Debug.error("error setting event properties from " + jsonObject + ", for component: " + elementName + " on form " + formName, e);
-				}
+				event = new JSEvent();
+				fillJSEvent(event, jsonObject, webObject, null);
 			}
 		}
 		return event;
+	}
+
+	/**
+	 * @param event Event that needs to be filled
+	 * @param jsonObject The json data for that has the event data.
+	 * @param webObject The webObject element (WEbFormComponent or WebFormUI)
+	 * @param controller Optional the controller object if the caller knows this already
+	 * @return
+	 */
+	@SuppressWarnings("nls")
+	public static void fillJSEvent(JSBaseEvent event, JSONObject jsonObject, BaseWebObject webObject, IWebFormController controller)
+	{
+		event.setType(jsonObject.optString("eventType"));
+		String formName = controller != null ? controller.getName() : "";
+		String elementName = "";
+		if (webObject instanceof WebFormComponent)
+		{
+			elementName = ((WebFormComponent)webObject).getFormElement().getRawName();
+			if (elementName == null) elementName = "";
+			if (formName.isEmpty())
+			{
+				BaseWebObject parentWebObject = ((WebFormComponent)webObject).getParent();
+				while (parentWebObject != null && !(parentWebObject instanceof WebFormUI))
+				{
+					parentWebObject = ((WebFormComponent)parentWebObject).getParent();
+				}
+				if (parentWebObject instanceof WebFormUI)
+				{
+					formName = parentWebObject.getName();
+				}
+			}
+		}
+		else if (formName.isEmpty() && webObject instanceof WebFormUI)
+		{
+			formName = webObject.getName();
+		}
+		if (formName.isEmpty())
+		{
+			formName = jsonObject.optString("formName");
+		}
+		if (elementName.isEmpty())
+		{
+			formName = jsonObject.optString("elementName");
+		}
+		if (!formName.isEmpty()) event.setFormName(formName);
+		if (!elementName.isEmpty()) event.setElementName(elementName);
+		if (!formName.isEmpty())
+		{
+			INGApplication application = ((IContextProvider)webObject).getDataConverterContext().getApplication();
+			IWebFormController formController = controller != null ? controller : application.getFormManager().getForm(formName);
+			if (formController != null)
+			{
+				FormScope formScope = formController.getFormScope();
+				if (formScope != null)
+				{
+					ElementScope elementsScope = (ElementScope)formScope.get("elements", null);
+					if (elementsScope != null)
+					{
+						Object scriptableElement = !elementName.isEmpty() ? elementsScope.get(elementName, null) : null;
+						if (scriptableElement != null && scriptableElement != Scriptable.NOT_FOUND)
+						{
+							event.setSource(scriptableElement);
+						}
+						else if (webObject instanceof WebFormComponent)
+						{
+							// quickly create a scriptable wrapper around the component so that the source can be set to a value that we expect.
+							FormElement fe = ((WebFormComponent)webObject).getFormElement();
+							RuntimeWebComponent runtimeComponent = new RuntimeWebComponent((WebFormComponent)webObject, webObject.getSpecification());
+							if (fe.isLegacy() || ((fe.getForm().getView() == IForm.LIST_VIEW ||
+								fe.getForm().getView() == FormController.LOCKED_LIST_VIEW ||
+								fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW) &&
+								fe.getTypeName().startsWith("svy-")))
+							{
+								// add legacy behavior
+								runtimeComponent.setPrototype(new RuntimeLegacyComponent((WebFormComponent)webObject));
+							}
+							event.setSource(runtimeComponent);
+						}
+					}
+				}
+			}
+		}
+		try
+		{
+			if (jsonObject.has("x")) event.setLocation(new Point(jsonObject.optInt("x"), jsonObject.optInt("y")));
+			if (jsonObject.has("modifiers")) event.setModifiers(jsonObject.optInt("modifiers"));
+			if (jsonObject.has("data")) event.setData(jsonObject.opt("data"));
+			if (jsonObject.has("timestamp")) event.setTimestamp(new Timestamp(jsonObject.getLong("timestamp")));
+			else event.setTimestamp(new Date());
+		}
+		catch (Exception e)
+		{
+			Debug.error("error setting event properties from " + jsonObject + ", for component: " + elementName + " on form " + formName, e);
+		}
 	}
 
 	private final WeakHashMap<Object, JSEvent> sourceEventMap = new WeakHashMap<Object, JSEvent>();

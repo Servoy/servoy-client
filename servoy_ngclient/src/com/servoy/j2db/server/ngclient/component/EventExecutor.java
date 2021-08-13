@@ -17,10 +17,7 @@
 
 package com.servoy.j2db.server.ngclient.component;
 
-import java.awt.Point;
-import java.sql.Timestamp;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import org.json.JSONException;
@@ -37,8 +34,6 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
 import com.servoy.base.scripting.api.IJSEvent;
-import com.servoy.j2db.FormController;
-import com.servoy.j2db.IForm;
 import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
@@ -48,13 +43,12 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.RepositoryHelper;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Solution;
-import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.JSEvent;
-import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.types.JSEventType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
@@ -146,58 +140,9 @@ public class EventExecutor
 				{
 					JSONObject json = (JSONObject)newargs[i];
 					JSEvent event = new JSEvent();
+					JSEventType.fillJSEvent(event, json, component, formController);
 					event.setType(getEventType(eventType));
 					event.setName(RepositoryHelper.getDisplayName(eventType, BaseComponent.class));
-					event.setFormName(formController.getName());
-					// the names used in scripting are the actual persist names
-					// not the processed names (web friendly)
-					String componentName = component instanceof WebFormComponent ? ((WebFormComponent)component).getFormElement().getRawName()
-						: component.getName();
-					event.setElementName(componentName);
-					FormScope formScope = formController.getFormScope();
-					if (formScope != null)
-					{
-						ElementScope elementsScope = (ElementScope)formScope.get("elements", null);
-						if (elementsScope != null)
-						{
-							Object scriptableElement = componentName != null ? elementsScope.get(componentName, null) : null;
-							if (scriptableElement != null && scriptableElement != Scriptable.NOT_FOUND)
-							{
-								event.setSource(scriptableElement);
-							}
-							else if (component instanceof WebFormComponent)
-							{
-								// quickly create a scriptable wrapper around the component so that the source can be set to a value that we expect.
-								FormElement fe = ((WebFormComponent)component).getFormElement();
-								RuntimeWebComponent runtimeComponent = new RuntimeWebComponent((WebFormComponent)component, component.getSpecification());
-								if (fe.isLegacy() || ((fe.getForm().getView() == IForm.LIST_VIEW || fe.getForm().getView() == FormController.LOCKED_LIST_VIEW ||
-									fe.getForm().getView() == FormController.TABLE_VIEW || fe.getForm().getView() == FormController.LOCKED_TABLE_VIEW) &&
-									fe.getTypeName().startsWith("svy-")))
-								{
-									// add legacy behavior
-									runtimeComponent.setPrototype(new RuntimeLegacyComponent((WebFormComponent)component));
-								}
-								event.setSource(runtimeComponent);
-							}
-						}
-					}
-
-					if (json.has("data"))
-					{
-						event.setData(json.get("data"));
-					}
-
-					try
-					{
-						if (json.has("timestamp")) event.setTimestamp(new Timestamp(json.getLong("timestamp")));
-						else event.setTimestamp(new Date());
-						if (json.has("x")) event.setLocation(new Point(json.getInt("x"), json.getInt("y")));
-						if (json.has("modifiers")) event.setModifiers(json.getInt("modifiers"));
-					}
-					catch (Exception ex)
-					{
-						Debug.error("error setting event properties from " + json + ", for component: " + componentName, ex);
-					}
 					newargs[i] = event;
 				}
 				else
