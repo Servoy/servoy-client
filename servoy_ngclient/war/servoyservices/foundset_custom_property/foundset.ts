@@ -272,18 +272,18 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 								requestContexts.push(defer.promise[$foundsetTypeConstants.NOTIFY_CONTEXT]);
 							}
 
-				             if (defer === internalState.selectionUpdateDefer) {
-						    	 if (handledReq[VALUE_KEY]) defer.resolve(currentClientValue[SELECTED_ROW_INDEXES]);
-						    	 else defer.reject(currentClientValue[SELECTED_ROW_INDEXES]);
-						    	 
-						    	 delete internalState.selectionUpdateDefer;
-					    	 } else {
-					    		 if (handledReq[VALUE_KEY]) defer.resolve();
-						    	 else defer.reject();
-					    	 }
-					     }
+							if (defer === internalState.selectionUpdateDefer) {
+								if (handledReq[VALUE_KEY]) defer.resolve(currentClientValue[SELECTED_ROW_INDEXES]);
+								else defer.reject(currentClientValue[SELECTED_ROW_INDEXES]);
+
+								delete internalState.selectionUpdateDefer;
+							} else {
+								 if (handledReq[VALUE_KEY]) defer.resolve();
+								 else defer.reject();
+							 }
+						}
 					});
-					
+
 					updates = true;
 				}
 				
