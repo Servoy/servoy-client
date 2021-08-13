@@ -226,7 +226,7 @@ declare namespace foundsetType {
 		FOR_FOUNDSET_PROPERTY: string,
 	
 		// listener notification constants follow; prefixed just to separate them a bit from other constants
-		NOTIFY_REQUEST_IDS: string,
+		NOTIFY_CONTEXT: string,
 		NOTIFY_FULL_VALUE_CHANGED: string,
 		NOTIFY_SERVER_SIZE_CHANGED: string,
 		NOTIFY_HAS_MORE_ROWS_CHANGED: string,
@@ -249,7 +249,7 @@ declare namespace foundsetType {
     }
 	
 	interface ChangeEvent extends componentType.ChangeEvent {
-		requestIds: number[],
+		context: object[],
 		// if value was non-null and had a listener attached before, and a full value update was
 	    // received from server, this key is set; if newValue is non-null, it will automatically get the old
 	    // value's listeners registered to itself

@@ -11,7 +11,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	FOR_FOUNDSET_PROPERTY: 'forFoundset',
 	
 	// listener notification constants follow; prefixed just to separate them a bit from other constants
-	NOTIFY_REQUEST_IDS: "requestIds",
+	NOTIFY_CONTEXT: "context",
 	NOTIFY_FULL_VALUE_CHANGED: "fullValueChanged",
 	NOTIFY_SERVER_SIZE_CHANGED: "serverFoundsetSizeChanged",
 	NOTIFY_HAS_MORE_ROWS_CHANGED: "hasMoreRowsChanged",
@@ -148,7 +148,6 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	var ROWS = "rows";
 	var COLUMN_FORMATS = "columnFormats";
 	var HANDLED_CLIENT_REQUESTS = "handledClientReqIds";
-	var REQUEST_ID = "requestId";
 	var ID_KEY = "id";
 	var VALUE_KEY = "value";
 	var DATAPROVIDER_KEY = "dp";
@@ -212,6 +211,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 			} else {
 				// check for updates
 				var updates = false;
+				var requestContexts;
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SERVER_SIZE])) {
 					if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_SERVER_SIZE_CHANGED] = { oldValue : currentClientValue[SERVER_SIZE], newValue : serverJSONValue[UPDATE_PREFIX + SERVER_SIZE] };
 					currentClientValue[SERVER_SIZE] = serverJSONValue[UPDATE_PREFIX + SERVER_SIZE]; // currentClientValue should always be defined in this case
@@ -266,11 +266,10 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					handledRequests.forEach(function(handledReq) { 
 						var defer = $sabloDeferHelper.retrieveDeferForHandling(handledReq[ID_KEY], internalState);
 						if (defer) {
-							if (hasListeners) {
-								if (!Array.isArray(notificationParamForListeners[$foundsetTypeConstants.NOTIFY_REQUEST_IDS])) {
-									notificationParamForListeners[$foundsetTypeConstants.NOTIFY_REQUEST_IDS] = [];
-								}
-								notificationParamForListeners[$foundsetTypeConstants.NOTIFY_REQUEST_IDS].push(defer.promise[REQUEST_ID]);
+							if (hasListeners && defer.promise.hasOwnProperty($foundsetTypeConstants.NOTIFY_CONTEXT)) {
+								if (!Array.isArray(requestContexts)) requestContexts = [];
+								
+								requestContexts.push(defer.promise[$foundsetTypeConstants.NOTIFY_CONTEXT]);
 							}
 
 				             if (defer === internalState.selectionUpdateDefer) {
@@ -424,9 +423,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						
 						if (internalState.changeNotifier) internalState.changeNotifier();
 						
-						var promise = internalState.deferred[requestID].defer.promise;
-						promise[REQUEST_ID] = requestID;
-						return promise;
+						return internalState.deferred[requestID].defer.promise;
 					};
 					newValue.loadExtraRecordsAsync = function(negativeOrPositiveCount, dontNotifyYet) {
 						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * loadExtraRecordsAsync requested with (" + negativeOrPositiveCount + ", " + dontNotifyYet + ")");
@@ -439,9 +436,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						
 						if (internalState.changeNotifier && !dontNotifyYet) internalState.changeNotifier();
 						
-						var promise = internalState.deferred[requestID].defer.promise;
-                        promise[REQUEST_ID] = requestID;
-                        return promise;
+						return internalState.deferred[requestID].defer.promise;
 					};
 					newValue.loadLessRecordsAsync = function(negativeOrPositiveCount, dontNotifyYet) {
 						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * loadLessRecordsAsync requested with (" + negativeOrPositiveCount + ", " + dontNotifyYet + ")");
@@ -454,9 +449,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 
 						if (internalState.changeNotifier && !dontNotifyYet) internalState.changeNotifier();
 						
-						var promise = internalState.deferred[requestID].defer.promise;
-                        promise[REQUEST_ID] = requestID;
-                        return promise;
+						return internalState.deferred[requestID].defer.promise;
 					};
 					newValue.notifyChanged = function() {
 						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * notifyChanged called");
@@ -470,9 +463,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						internalState.requests.push(req);
 						if (internalState.changeNotifier) internalState.changeNotifier();
 						
-						var promise = internalState.deferred[requestID].defer.promise;
-                        promise[REQUEST_ID] = requestID;
-                        return promise;
+						return internalState.deferred[requestID].defer.promise;
 					}
 					newValue.setPreferredViewportSize = function(size, sendSelectionViewportInitially, initialSelectionViewportCentered) {
 						if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * setPreferredViewportSize called with (" + size + ", " + sendSelectionViewportInitially + ", " + initialSelectionViewportCentered + ")");
@@ -498,9 +489,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						internalState.requests.push(req);
 						if (internalState.changeNotifier) internalState.changeNotifier();
 
-						var promise = internalState.selectionUpdateDefer.promise;
-                        promise[REQUEST_ID] = msgId;
-                        return promise;
+						return internalState.selectionUpdateDefer.promise;
 					}
 					newValue.getRecordRefByRowID = function(rowID) {
 						if (rowID)
@@ -580,6 +569,8 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 			if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * updates or value received from server; new viewport and server size (" + (newValue ? newValue[VIEW_PORT][START_INDEX] + ", " + newValue[VIEW_PORT][SIZE] + ", " + newValue[SERVER_SIZE] + ", " + JSON.stringify(newValue[SELECTED_ROW_INDEXES]) : newValue) + ")");
 			if (notificationParamForListeners && Object.keys(notificationParamForListeners).length > 0) {
 				if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * firing founset listener notifications...");
+				
+				if (Array.isArray(requestContexts)) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_CONTEXT] = requestContexts;
 				// use previous (current) value as newValue might be undefined/null and the listeners would be the same anyway
 				currentClientValue[$sabloConverters.INTERNAL_IMPL].fireChanges(notificationParamForListeners);
 			}
