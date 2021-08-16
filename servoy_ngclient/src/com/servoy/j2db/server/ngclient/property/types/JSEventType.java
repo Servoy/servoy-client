@@ -133,7 +133,7 @@ public class JSEventType extends UUIDReferencePropertyType<JSEvent> implements I
 		}
 		if (elementName.isEmpty())
 		{
-			formName = jsonObject.optString("elementName");
+			elementName = jsonObject.optString("elementName");
 		}
 		if (!formName.isEmpty()) event.setFormName(formName);
 		if (!elementName.isEmpty()) event.setElementName(elementName);
