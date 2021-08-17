@@ -56,6 +56,7 @@ import com.servoy.base.scripting.api.IJSRecord;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.dataprocessing.FoundSetManager.GlobalFoundSetEventListener;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -634,7 +635,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			Debug.warn("Cannot dispose the related foundset:  " + getRelationName() + ", fs: " + this);
 			return false;
 		}
-		if (foundSetEventListeners.size() != 0)
+		if (foundSetEventListeners.size() != 0 && !(foundSetEventListeners.size() == 1 && foundSetEventListeners.get(0) instanceof GlobalFoundSetEventListener))
 		{
 			Debug.warn("Cannot dispose foundset, still linked to component, fs: " + this + ", listeners: " + foundSetEventListeners);
 			return false;
