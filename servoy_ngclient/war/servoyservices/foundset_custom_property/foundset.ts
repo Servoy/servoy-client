@@ -11,6 +11,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	FOR_FOUNDSET_PROPERTY: 'forFoundset',
 	
 	// listener notification constants follow; prefixed just to separate them a bit from other constants
+	NOTIFY_CONTEXT: "context",
 	NOTIFY_FULL_VALUE_CHANGED: "fullValueChanged",
 	NOTIFY_SERVER_SIZE_CHANGED: "serverFoundsetSizeChanged",
 	NOTIFY_HAS_MORE_ROWS_CHANGED: "hasMoreRowsChanged",
@@ -210,6 +211,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 			} else {
 				// check for updates
 				var updates = false;
+				var requestContexts;
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SERVER_SIZE])) {
 					if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_SERVER_SIZE_CHANGED] = { oldValue : currentClientValue[SERVER_SIZE], newValue : serverJSONValue[UPDATE_PREFIX + SERVER_SIZE] };
 					currentClientValue[SERVER_SIZE] = serverJSONValue[UPDATE_PREFIX + SERVER_SIZE]; // currentClientValue should always be defined in this case
@@ -262,20 +264,26 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
 					
 					handledRequests.forEach(function(handledReq) { 
-					     var defer = $sabloDeferHelper.retrieveDeferForHandling(handledReq[ID_KEY], internalState);
-					     if (defer) {
-					    	 if (defer === internalState.selectionUpdateDefer) {
-						    	 if (handledReq[VALUE_KEY]) defer.resolve(currentClientValue[SELECTED_ROW_INDEXES]);
-						    	 else defer.reject(currentClientValue[SELECTED_ROW_INDEXES]);
-						    	 
-						    	 delete internalState.selectionUpdateDefer;
-					    	 } else {
-						    	 if (handledReq[VALUE_KEY]) defer.resolve();
-						    	 else defer.reject();
-					    	 }
-					     }
+						var defer = $sabloDeferHelper.retrieveDeferForHandling(handledReq[ID_KEY], internalState);
+						if (defer) {
+							if (hasListeners && defer.promise.hasOwnProperty($foundsetTypeConstants.NOTIFY_CONTEXT)) {
+								if (!Array.isArray(requestContexts)) requestContexts = [];
+								
+								requestContexts.push(defer.promise[$foundsetTypeConstants.NOTIFY_CONTEXT]);
+							}
+
+							if (defer === internalState.selectionUpdateDefer) {
+								if (handledReq[VALUE_KEY]) defer.resolve(currentClientValue[SELECTED_ROW_INDEXES]);
+								else defer.reject(currentClientValue[SELECTED_ROW_INDEXES]);
+
+								delete internalState.selectionUpdateDefer;
+							} else {
+								 if (handledReq[VALUE_KEY]) defer.resolve();
+								 else defer.reject();
+							 }
+						}
 					});
-					
+
 					updates = true;
 				}
 				
@@ -414,6 +422,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						internalState.requests.push(req);
 						
 						if (internalState.changeNotifier) internalState.changeNotifier();
+						
 						return internalState.deferred[requestID].defer.promise;
 					};
 					newValue.loadExtraRecordsAsync = function(negativeOrPositiveCount, dontNotifyYet) {
@@ -426,6 +435,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						internalState.requests.push(req);
 						
 						if (internalState.changeNotifier && !dontNotifyYet) internalState.changeNotifier();
+						
 						return internalState.deferred[requestID].defer.promise;
 					};
 					newValue.loadLessRecordsAsync = function(negativeOrPositiveCount, dontNotifyYet) {
@@ -438,6 +448,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						internalState.requests.push(req);
 
 						if (internalState.changeNotifier && !dontNotifyYet) internalState.changeNotifier();
+						
 						return internalState.deferred[requestID].defer.promise;
 					};
 					newValue.notifyChanged = function() {
@@ -451,6 +462,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						req[ID_KEY] = requestID;
 						internalState.requests.push(req);
 						if (internalState.changeNotifier) internalState.changeNotifier();
+						
 						return internalState.deferred[requestID].defer.promise;
 					}
 					newValue.setPreferredViewportSize = function(size, sendSelectionViewportInitially, initialSelectionViewportCentered) {
@@ -557,6 +569,8 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 			if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * updates or value received from server; new viewport and server size (" + (newValue ? newValue[VIEW_PORT][START_INDEX] + ", " + newValue[VIEW_PORT][SIZE] + ", " + newValue[SERVER_SIZE] + ", " + JSON.stringify(newValue[SELECTED_ROW_INDEXES]) : newValue) + ")");
 			if (notificationParamForListeners && Object.keys(notificationParamForListeners).length > 0) {
 				if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * firing founset listener notifications...");
+				
+				if (Array.isArray(requestContexts)) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_CONTEXT] = requestContexts;
 				// use previous (current) value as newValue might be undefined/null and the listeners would be the same anyway
 				currentClientValue[$sabloConverters.INTERNAL_IMPL].fireChanges(notificationParamForListeners);
 			}
