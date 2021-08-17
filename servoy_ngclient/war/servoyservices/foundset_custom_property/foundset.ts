@@ -11,7 +11,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	FOR_FOUNDSET_PROPERTY: 'forFoundset',
 	
 	// listener notification constants follow; prefixed just to separate them a bit from other constants
-	NOTIFY_CONTEXT: "context",
+	NOTIFY_REQUEST_INFOS: "requestInfos",
 	NOTIFY_FULL_VALUE_CHANGED: "fullValueChanged",
 	NOTIFY_SERVER_SIZE_CHANGED: "serverFoundsetSizeChanged",
 	NOTIFY_HAS_MORE_ROWS_CHANGED: "hasMoreRowsChanged",
@@ -211,7 +211,6 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 			} else {
 				// check for updates
 				var updates = false;
-				var requestContexts;
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SERVER_SIZE])) {
 					if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_SERVER_SIZE_CHANGED] = { oldValue : currentClientValue[SERVER_SIZE], newValue : serverJSONValue[UPDATE_PREFIX + SERVER_SIZE] };
 					currentClientValue[SERVER_SIZE] = serverJSONValue[UPDATE_PREFIX + SERVER_SIZE]; // currentClientValue should always be defined in this case
@@ -263,13 +262,14 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					var handledRequests = serverJSONValue[HANDLED_CLIENT_REQUESTS]; // array of { id: ...int..., value: ...boolean... } which says if a req. was handled successfully by server or not
 					var internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
 					
+                    let requestInfos: any[];
 					handledRequests.forEach(function(handledReq) { 
 						var defer = $sabloDeferHelper.retrieveDeferForHandling(handledReq[ID_KEY], internalState);
 						if (defer) {
-							if (hasListeners && defer.promise.hasOwnProperty($foundsetTypeConstants.NOTIFY_CONTEXT)) {
-								if (!Array.isArray(requestContexts)) requestContexts = [];
-								
-								requestContexts.push(defer.promise[$foundsetTypeConstants.NOTIFY_CONTEXT]);
+                            const promise = defer.promise as foundsetType.RequestInfoPromise<any>;
+							if (hasListeners && promise.requestInfo) {
+								if (!requestInfos) requestInfos = [];
+								requestInfos.push(promise.requestInfo);
 							}
 
 							if (defer === internalState.selectionUpdateDefer) {
@@ -283,6 +283,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 							 }
 						}
 					});
+                    if (hasListeners && requestInfos) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_REQUEST_INFOS] = requestInfos;
 
 					updates = true;
 				}
@@ -570,7 +571,6 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 			if (notificationParamForListeners && Object.keys(notificationParamForListeners).length > 0) {
 				if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * firing founset listener notifications...");
 				
-				if (Array.isArray(requestContexts)) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_CONTEXT] = requestContexts;
 				// use previous (current) value as newValue might be undefined/null and the listeners would be the same anyway
 				currentClientValue[$sabloConverters.INTERNAL_IMPL].fireChanges(notificationParamForListeners);
 			}
