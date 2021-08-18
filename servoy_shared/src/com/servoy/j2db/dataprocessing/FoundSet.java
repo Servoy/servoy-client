@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db.dataprocessing;
 
-
 import static com.servoy.j2db.dataprocessing.SQLGenerator.isDistinctAllowed;
 import static com.servoy.j2db.util.Utils.iterate;
 
@@ -1240,9 +1239,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			throw new IllegalStateException("couldn't load dataset on a foundset that has no table: " + this); //$NON-NLS-1$
 		}
 
-		if (!allowRelated && relationName != null) // on related foundset, only allow loadRecords without arguments
+		if (!allowRelated && relationName != null) // on non-global related foundset, only allow loadRecords without arguments
 		{
-			throw new IllegalStateException("Can't load data/records in a related foundset: " + this); //$NON-NLS-1$
+			if (this instanceof RelatedFoundSet && !((RelatedFoundSet)this).isGlobal())
+			{
+				throw new IllegalStateException("Can't load data/records in a related foundset: " + this); //$NON-NLS-1$
+			}
 		}
 
 		if (isInFindMode() && allowInFind)

@@ -60,7 +60,6 @@ import com.servoy.j2db.util.visitor.PackVisitor;
  */
 public abstract class RelatedFoundSet extends FoundSet
 {
-
 	private static NativeJavaMethod maxRecord;
 
 	static
@@ -76,6 +75,8 @@ public abstract class RelatedFoundSet extends FoundSet
 	}
 
 	private int[] equalsOpsIndexes;
+
+	private Boolean isGlobal = null;
 
 	protected RelatedFoundSet(IDataSet data, QuerySelect select, IFoundSetManagerInternal app, String relationName, SQLSheet sheet,
 		List<SortColumn> defaultSortColumns, QuerySelect aggregateSelect, IDataSet aggregateData) throws ServoyException
@@ -126,7 +127,6 @@ public abstract class RelatedFoundSet extends FoundSet
 
 		initialized = true;
 	}
-
 
 	//can only used by findState
 	protected RelatedFoundSet(IFoundSetManagerInternal app, String relationName, SQLSheet sheet) throws ServoyException
@@ -434,7 +434,6 @@ public abstract class RelatedFoundSet extends FoundSet
 		return super.getSize();
 	}
 
-
 	/**
 	 * Get the arguments hash this related foundSet was created with. Hash is based on values converted using column converters.
 	 * @return
@@ -465,6 +464,16 @@ public abstract class RelatedFoundSet extends FoundSet
 		}
 
 		return equalsOpsIndexes;
+	}
+
+	protected boolean isGlobal()
+	{
+		if (isGlobal == null)
+		{
+			isGlobal = Boolean.valueOf(fsm.getApplication().getFlattenedSolution().getRelation(relationName).isGlobal());
+		}
+
+		return isGlobal.booleanValue();
 	}
 
 	public Object[] getWhereArgs(boolean onlyEqualsConditions)
@@ -526,21 +535,34 @@ public abstract class RelatedFoundSet extends FoundSet
 		}).toArray();
 	}
 
-
 	@Override
-	public boolean addFilterParam(String filterName, String dataprovider, String operator, Object value)
+	public boolean addFilterParam(String filterName, String dataprovider, String operator, Object value) throws ServoyException
 	{
-		// don't do anything, can't add parameters to related foundset
-		fsm.getApplication().reportJSError("Cannot addFoundSetFilterParam to related foundset", null); //$NON-NLS-1$
-		return false;//would also cause problem due to sharing related foundsets for different records
+		if (isGlobal())
+		{
+			return super.addFilterParam(filterName, dataprovider, operator, value);
+		}
+		else
+		{
+			// don't do anything, can't add parameters to related foundset
+			fsm.getApplication().reportJSError("Cannot addFoundSetFilterParam to related foundset", null); //$NON-NLS-1$
+			return false;//would also cause problem due to sharing related foundsets for different records
+		}
 	}
 
 	@Override
 	@ServoyClientSupport(mc = false, wc = false, sc = false, ng = false)
 	public void js_clear()
 	{
-		// don't do anything, can't clear related data
-		fsm.getApplication().reportJSError("Clearing a relatedfoundset is not possible", null); //$NON-NLS-1$
+		if (isGlobal())
+		{
+			super.js_clear();
+		}
+		else
+		{
+			// don't do anything, can't clear related data
+			fsm.getApplication().reportJSError("Clearing a relatedfoundset is not possible", null); //$NON-NLS-1$
+		}
 	}
 
 	private static IDataSet createPKDataSet(SQLSheet sheet, IDataSet data)//extract primary columns from all the related data
