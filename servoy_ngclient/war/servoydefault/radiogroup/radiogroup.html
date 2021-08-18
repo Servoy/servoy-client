@@ -3,7 +3,7 @@
 	 svy-attributes='model.attributes'
 	 id="{{::model.svyMarkupId}}">
   <label class='svy-check-radio'
-         ng-repeat="item in model.valuelistID | filter:notNullOrEmpty('realValue') && notNullOrEmpty('displayValue')">
+         ng-repeat="item in model.valuelistID | filter:item && (notNullOrEmpty('realValue') || notNullOrEmpty('displayValue'))">
          <input type="radio" ng-model="value[0]"  
            ng-value="item.realValue"  
 	       ng-click="radioClicked($event,item.realValue)"  
