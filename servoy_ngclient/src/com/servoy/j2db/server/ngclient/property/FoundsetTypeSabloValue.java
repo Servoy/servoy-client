@@ -474,9 +474,12 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				chainedRelatedFoundsetSelectionMonitor.unregisterListeners();
 				chainedRelatedFoundsetSelectionMonitor = null;
 			}
-			if (foundset != null && getDataAdapterList() != null) getDataAdapterList().setFindMode(foundset.isInFindMode());
 
-			fireUnderlyingStateChangedListeners(); // some listening properties might be interested in the underlying foundset itself
+			FoundsetDataAdapterList fsDAL = getDataAdapterList();
+			if (fsDAL != null) fsDAL.setRecordQuietly(null, true); // avoid the DAL listening to changes in obsolete Records from the previous foundset
+			if (foundset != null && fsDAL != null) fsDAL.setFindMode(foundset.isInFindMode());
+
+			fireUnderlyingStateChangedListeners(); // some listening properties might be interested in the new underlying foundset itself
 		}
 	}
 
@@ -486,10 +489,17 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		// that use this DAL are seen in the UI
 		// TODO make related DP updates also work with non-selected records in those cases...
 
-		if (dataAdapterList != null && foundset != null && foundset.getSize() > 0)
+		if (dataAdapterList != null)
 		{
-			IRecord selectedRecord = foundset.getRecord(foundset.getSelectedIndex());
-			dataAdapterList.setRecordQuietly(selectedRecord, true);
+			if (foundset != null && foundset.getSize() > 0)
+			{
+				IRecord selectedRecord = foundset.getRecord(foundset.getSelectedIndex());
+				dataAdapterList.setRecordQuietly(selectedRecord, true);
+			}
+			else
+			{
+				dataAdapterList.setRecordQuietly(null, true); // make sure DAL is not listening to records that are no longer there in the foundset
+			}
 		}
 	}
 

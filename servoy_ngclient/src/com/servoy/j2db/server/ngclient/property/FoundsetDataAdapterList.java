@@ -137,6 +137,10 @@ public class FoundsetDataAdapterList extends DataAdapterList
 			IRecord selectedRecord = foundset.getRecord(foundset.getSelectedIndex());
 			setRecordQuietly(selectedRecord, true);
 		}
+		else
+		{
+			setRecordQuietly(null, true); // to make sure DAL is not listening to records that are no longer in the foundset
+		}
 	}
 
 	@Override
