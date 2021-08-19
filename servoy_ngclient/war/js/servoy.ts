@@ -198,6 +198,17 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				return !(propByStringPath === null || propByStringPath === '')
 			}
 		},
+		
+		notNullOrEmptyValueListItem: function() {
+			return function( item: { displayValue: any; realValue: any } ) {
+				if ( item ) {
+					return !( item.displayValue === null || item.displayValue === '') 
+					|| !(item.realValue === null || item.realValue === '' )
+				}
+				return false;
+			}
+		},
+        
 		autoApplyStyle: function(scope,element,modelToWatch,cssPropertyName){
 			scope.$watch(modelToWatch,function(newVal,oldVal){
 				$svyProperties.setCssProperty(element,cssPropertyName,newVal);
