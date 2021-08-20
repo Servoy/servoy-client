@@ -46,26 +46,25 @@ angular.module( 'formcomponent_property', ['webSocketModule'] )
 				}
 				if ( serverJSONValue[$sabloConverters.TYPES_KEY] ) {
 					conversionInfo = serverJSONValue[$sabloConverters.TYPES_KEY];
+					delete serverJSONValue[$sabloConverters.TYPES_KEY];
 				}
-				if ( conversionInfo ) {
-					for ( let key in conversionInfo ) {
-						let elem = serverJSONValue[key];
+				for ( let key in serverJSONValue ) {
+					let elem = serverJSONValue[key];
 
-						const internalState = realValue[$sabloConverters.INTERNAL_IMPL];
-						internalState.conversionInfo[key] = conversionInfo[key];
-						realValue[key] = elem = $sabloConverters.convertFromServerToClient( elem, conversionInfo[key], currentClientValue ? currentClientValue[key] : undefined, componentScope, componentModelGetter );
+					const internalState = realValue[$sabloConverters.INTERNAL_IMPL];
+					if (conversionInfo?.[key]) internalState.conversionInfo[key] = conversionInfo[key];
+					realValue[key] = elem = $sabloConverters.convertFromServerToClient( elem, conversionInfo?.[key], currentClientValue ? currentClientValue[key] : undefined, componentScope, componentModelGetter );
 
-						if ( elem && elem[$sabloConverters.INTERNAL_IMPL] && elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier ) {
-							// child is able to handle it's own change mechanism
-							elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier( getChangeNotifier( realValue ) );
-						}
-						if ( key == "childElements" && elem ) {
-							for ( let i = 0; i < elem.length; i++ ) {
-								var comp = elem[i];
-								if ( comp && comp[$sabloConverters.INTERNAL_IMPL] && comp[$sabloConverters.INTERNAL_IMPL].setChangeNotifier ) {
-									// child is able to handle it's own change mechanism
-									comp[$sabloConverters.INTERNAL_IMPL].setChangeNotifier( getChangeNotifier( realValue ) );
-								}
+					if ( elem && elem[$sabloConverters.INTERNAL_IMPL] && elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier ) {
+						// child is able to handle it's own change mechanism
+						elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier( getChangeNotifier( realValue ) );
+					}
+					if ( key == "childElements" && elem ) {
+						for ( let i = 0; i < elem.length; i++ ) {
+							var comp = elem[i];
+							if ( comp && comp[$sabloConverters.INTERNAL_IMPL] && comp[$sabloConverters.INTERNAL_IMPL].setChangeNotifier ) {
+								// child is able to handle it's own change mechanism
+								comp[$sabloConverters.INTERNAL_IMPL].setChangeNotifier( getChangeNotifier( realValue ) );
 							}
 						}
 					}
