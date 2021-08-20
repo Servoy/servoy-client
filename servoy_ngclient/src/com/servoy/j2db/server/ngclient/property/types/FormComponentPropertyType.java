@@ -81,10 +81,10 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 	implements IConvertedPropertyType<Object>, ISabloComponentToRhino<Object>, IFormElementToTemplateJSON<Object, Object>,
 	IFormElementToSabloComponent<Object, Object>, IFormComponentType, IPushToServerSpecialType, ISupportsGranularUpdates<Object>
 {
-	public static final String SVY_FORM = "svy_form";
+	public static final String SVY_FORM = "svy_form"; //$NON-NLS-1$
 
 	public static final FormComponentPropertyType INSTANCE = new FormComponentPropertyType();
-	public static final String TYPE_NAME = "formcomponent";
+	public static final String TYPE_NAME = "formcomponent"; //$NON-NLS-1$
 
 	protected FormComponentPropertyType()
 	{
@@ -180,7 +180,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
+		DataConversion clientConversion, FormElementContext formElementContext) throws JSONException
 	{
 		if (formElementValue == null) return writer;
 
@@ -188,6 +188,11 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 		Form form = getForm(formElementValue, fs);
 		if (form != null)
 		{
+			if (pd.getConfig() instanceof ComponentTypeConfig && ((ComponentTypeConfig)pd.getConfig()).forFoundset != null)
+			{
+				clientConversion.convert(FormComponentPropertyType.TYPE_NAME);
+			} // else this info below seems to be needed client-side even for non-foundset linked form components; but it's just some dumb simple JSON, not a client side type
+
 			JSONUtils.addKeyIfPresent(writer, key);
 			// we output here a uuid that is a uuid that must be used to get the compiled template from the $formcomponentCache
 			String uuid = FormElementHelper.INSTANCE.getFormComponentCache(formElementContext.getFormElement(), pd, (JSONObject)formElementValue, form,
