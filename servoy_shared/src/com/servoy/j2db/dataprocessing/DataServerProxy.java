@@ -210,16 +210,21 @@ public class DataServerProxy implements IDataServer
 
 	public Object[] performUpdates(String clientId, ISQLStatement[] statements) throws ServoyException, RemoteException
 	{
-		if (statements != null)
+		List<Runnable> resetServernames = new ArrayList<>(statements.length);
+		for (ISQLStatement element : statements)
 		{
-			for (ISQLStatement element : statements)
-			{
-				String sname = element.getServerName();
-				sname = getMappedServerName(sname);
-				element.setServerName(sname);
-			}
+			String sname = element.getServerName();
+			element.setServerName(getMappedServerName(sname));
+			resetServernames.add(() -> element.setServerName(sname));
 		}
-		return ds.performUpdates(clientId, statements);
+		try
+		{
+			return ds.performUpdates(clientId, statements);
+		}
+		finally
+		{
+			resetServernames.forEach(Runnable::run);
+		}
 	}
 
 	public String startTransaction(String clientId, String serverName) throws RepositoryException, RemoteException
