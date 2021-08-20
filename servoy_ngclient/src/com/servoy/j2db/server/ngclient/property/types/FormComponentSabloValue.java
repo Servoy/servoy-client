@@ -52,6 +52,7 @@ import com.servoy.j2db.server.ngclient.property.ComponentTypeSabloValue;
  */
 public class FormComponentSabloValue implements ISmartPropertyValue
 {
+
 	private final Form form;
 	private final String elementStartName;
 	private final INGFormElement formElement;
@@ -161,7 +162,7 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 	public void fullToJSON(JSONWriter writer, DataConversion clientConversion, FormComponentPropertyType formComponentPropertyType,
 		IBrowserConverterContext dataConverterContext)
 	{
-		clientConversion.convert("formcomponent");
+		clientConversion.convert(FormComponentPropertyType.TYPE_NAME);
 		writer.object();
 		writer.key("uuid");
 		writer.value(getCache().getHtmlTemplateUUIDForAngular());
@@ -197,9 +198,6 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 		writer.endObject();
 	}
 
-	/**
-	 * @param newJSONValue
-	 */
 	public void browserUpdatesReceived(JSONArray array)
 	{
 		ComponentTypeSabloValue[] components = getComponents();
@@ -212,7 +210,7 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 
 	public void changesToJSON(JSONWriter writer, DataConversion clientConversion, FormComponentPropertyType formComponentPropertyType)
 	{
-		clientConversion.convert("formcomponent");
+		clientConversion.convert(FormComponentPropertyType.TYPE_NAME);
 		writer.object();
 		writer.key("childElements");
 		writer.array();
