@@ -27,7 +27,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 
+import com.google.common.cache.CacheBuilder;
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.query.IJoinConstants;
@@ -67,7 +69,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 * All 1-n providers for this class
 	 */
 
-	private transient CachedDataproviders cachedDataproviders;
+	private transient ICacheDataproviders cachedDataproviders;
 	private transient int[] operators;
 
 	/**
@@ -526,25 +528,38 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		return getAllObjectsAsList().size();
 	}
 
-	private CachedDataproviders getCachedDataproviders(IDataProviderHandler dataProviderHandler)
+	private ICacheDataproviders getCachedDataproviders(IDataProviderHandler dataProviderHandler)
 	{
-		CachedDataproviders tmp = cachedDataproviders;
-		if (tmp == null || !tmp.matchesDataProviderHandler(dataProviderHandler))
+		ICacheDataproviders tmp = cachedDataproviders;
+		if (tmp == null)
 		{
-			tmp = new CachedDataproviders(dataProviderHandler);
+			if (isDbServer())
+			{
+				tmp = new CachedDataproviders();
+			}
+			else
+			{
+				tmp = new PerHandlerCachedDataproviders();
+			}
 			cachedDataproviders = tmp;
 		}
 		return tmp;
 	}
 
+	private boolean isDbServer()
+	{
+		return DataSourceUtilsBase.getDBServernameTablename(getForeignDataSource()) != null &&
+			DataSourceUtilsBase.getDBServernameTablename(getForeignDataSource()) != null;
+	}
+
 	public IDataProvider[] getPrimaryDataProviders(IDataProviderHandler dataProviderHandler) throws RepositoryException
 	{
-		return getCachedDataproviders(dataProviderHandler).getPrimaryDataProviders();
+		return getCachedDataproviders(dataProviderHandler).getPrimaryDataProviders(dataProviderHandler);
 	}
 
 	public Column[] getForeignColumns(IDataProviderHandler dataProviderHandler) throws RepositoryException
 	{
-		return getCachedDataproviders(dataProviderHandler).getForeignColumns();
+		return getCachedDataproviders(dataProviderHandler).getForeignColumns(dataProviderHandler);
 	}
 
 	public boolean isUsableInSort()
@@ -648,7 +663,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public boolean isFKPKRef(IDataProviderHandler dataProviderHandler) throws RepositoryException
 	{
-		Column[] foreign = getCachedDataproviders(dataProviderHandler).getForeignColumns();
+		Column[] foreign = getCachedDataproviders(dataProviderHandler).getForeignColumns(dataProviderHandler);
 		if (foreign == null || foreign.length == 0)
 		{
 			return false;
@@ -665,7 +680,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public boolean hasPKFKCondition(IDataProviderHandler dataProviderHandler) throws RepositoryException
 	{
-		IDataProvider[] primary = getCachedDataproviders(dataProviderHandler).getPrimaryDataProviders();
+		IDataProvider[] primary = getCachedDataproviders(dataProviderHandler).getPrimaryDataProviders(dataProviderHandler);
 		if (primary == null || primary.length == 0)
 		{
 			return false;
@@ -697,7 +712,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		Column[] foreign;
 		try
 		{
-			foreign = getCachedDataproviders(dataProviderHandler).getForeignColumns();
+			foreign = getCachedDataproviders(dataProviderHandler).getForeignColumns(dataProviderHandler);
 		}
 		catch (RepositoryException e)
 		{
@@ -718,9 +733,9 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	public String checkKeyTypes(IDataProviderHandler dataProviderHandler) throws RepositoryException
 	{
-		CachedDataproviders cachedDp = getCachedDataproviders(dataProviderHandler);
-		IDataProvider[] primary = cachedDp.getPrimaryDataProviders();
-		Column[] foreign = cachedDp.getForeignColumns();
+		ICacheDataproviders cachedDp = getCachedDataproviders(dataProviderHandler);
+		IDataProvider[] primary = cachedDp.getPrimaryDataProviders(dataProviderHandler);
+		Column[] foreign = cachedDp.getForeignColumns(dataProviderHandler);
 
 		if (primary != null && foreign != null)
 		{
@@ -1049,26 +1064,37 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		return relation.valid == null || relation.valid.booleanValue();
 	}
 
-	public class CachedDataproviders
+	private interface ICacheDataproviders
 	{
-		private final IDataProviderHandler dataProviderHandler;
 
+		/**
+		 * @return
+		 */
+		IDataProvider[] getPrimaryDataProviders(IDataProviderHandler dataProviderHandler) throws RepositoryException;
+
+		/**
+		 * @return
+		 */
+		Column[] getForeignColumns(IDataProviderHandler dataProviderHandler) throws RepositoryException;
+
+	}
+
+	private final class CachedDataproviders implements ICacheDataproviders
+	{
 		private IDataProvider[] primary;
 		private Column[] foreign;
 
 		private RepositoryException exception;
 
-		public CachedDataproviders(IDataProviderHandler dataProviderHandler)
+		public CachedDataproviders()
 		{
-			this.dataProviderHandler = dataProviderHandler;
 		}
 
-		public IDataProvider[] getPrimaryDataProviders() throws RepositoryException
+		public IDataProvider[] getPrimaryDataProviders(IDataProviderHandler dataProviderHandler) throws RepositoryException
 		{
 			if (primary == null)
 			{
-				primary = makePrimaryDataProviders();
-
+				primary = makePrimaryDataProviders(dataProviderHandler);
 				if (exception != null)
 				{
 					valid = Boolean.FALSE;
@@ -1078,11 +1104,11 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			return primary;
 		}
 
-		public Column[] getForeignColumns() throws RepositoryException
+		public Column[] getForeignColumns(IDataProviderHandler dataProviderHandler) throws RepositoryException
 		{
 			if (foreign == null)
 			{
-				foreign = makeForeignColumns();
+				foreign = makeForeignColumns(dataProviderHandler);
 
 				if (exception != null)
 				{
@@ -1093,13 +1119,8 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			return foreign;
 		}
 
-		public boolean matchesDataProviderHandler(IDataProviderHandler handler)
-		{
-			return dataProviderHandler.getClass().equals(handler.getClass());
-		}
-
 		//creates real object relations also does some checks
-		private IDataProvider[] makePrimaryDataProviders() throws RepositoryException
+		private IDataProvider[] makePrimaryDataProviders(IDataProviderHandler dataProviderHandler) throws RepositoryException
 		{
 			List<IPersist> allobjects = getAllObjectsAsList();
 			IDataProvider[] p = new IDataProvider[allobjects.size()];
@@ -1124,7 +1145,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 						if (enumParts.length > 3)
 						{
 							//enum not yet filled in
-							Column[] f = getForeignColumns();
+							Column[] f = getForeignColumns(dataProviderHandler);
 							int type = 0;
 							if (f != null && pos < f.length && f[pos] != null) type = f[pos].getType();
 							p[pos] = new EnumDataProvider(pdp, type);
@@ -1171,7 +1192,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			return p;
 		}
 
-		private Column[] makeForeignColumns()
+		private Column[] makeForeignColumns(IDataProviderHandler dataProviderHandler)
 		{
 			List<IPersist> allobjects = getAllObjectsAsList();
 			Column[] f = new Column[allobjects.size()];
@@ -1208,5 +1229,34 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 			return f;
 		}
 	}
+	private final class PerHandlerCachedDataproviders implements ICacheDataproviders
+	{
+		private final ConcurrentMap<IDataProviderHandler, ICacheDataproviders> cache = CacheBuilder.newBuilder().weakKeys().initialCapacity(16)
+			.<IDataProviderHandler, ICacheDataproviders> build().asMap();
 
+		@Override
+		public IDataProvider[] getPrimaryDataProviders(IDataProviderHandler dataProviderHandler) throws RepositoryException
+		{
+			return getCachedValue(dataProviderHandler).getPrimaryDataProviders(dataProviderHandler);
+		}
+
+		@Override
+		public Column[] getForeignColumns(IDataProviderHandler dataProviderHandler) throws RepositoryException
+		{
+			return getCachedValue(dataProviderHandler).getForeignColumns(dataProviderHandler);
+		}
+
+		private ICacheDataproviders getCachedValue(IDataProviderHandler dataProviderHandler)
+		{
+			ICacheDataproviders cacheDataproviders = cache.get(dataProviderHandler);
+			if (cacheDataproviders == null)
+			{
+				cacheDataproviders = new CachedDataproviders();
+				cache.put(dataProviderHandler, cacheDataproviders);
+			}
+			return cacheDataproviders;
+		}
+
+	}
 }
+
