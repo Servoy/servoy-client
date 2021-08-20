@@ -34,6 +34,8 @@ import java.util.TimeZone;
 
 import javax.swing.text.MaskFormatter;
 
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
@@ -1688,5 +1690,76 @@ public class JSUtils implements IJSUtils
 	public void destroy()
 	{
 		this.application = null;
+	}
+
+	/**
+	 * @sample
+	 * var hex = utils.stringToHex(string);
+	 *
+	 * @param string String to be encoded into hex
+	 * @return returns hex encoded string
+	 */
+	@JSFunction
+	public String stringToHex(String string)
+	{
+		char[] chars = Hex.encodeHex(string.getBytes(StandardCharsets.UTF_8));
+
+		return String.valueOf(chars);
+	}
+
+	/**
+	 * @sample
+	 * var string = utils.hexToString(hex);
+	 *
+	 * @param hex
+	 * @return returns decoded string from hex
+	 */
+	@JSFunction
+	public String hexToString(String hex)
+	{
+		String result = ""; //$NON-NLS-1$
+		try
+		{
+			byte[] bytes = Hex.decodeHex(hex);
+			result = new String(bytes, StandardCharsets.UTF_8);
+		}
+		catch (DecoderException e)
+		{
+			throw new IllegalArgumentException("Invalid Hex format!"); //$NON-NLS-1$
+		}
+		return result;
+	}
+
+	/**
+	 * @sample
+	 * var array = utils.hexToBytes(hex);
+	 *
+	 * @param hex hex encoded string to be decoded into a byte array.
+	 * @return a byte array from hex encoded string
+	 */
+	@JSFunction
+	public byte[] hexToBytes(String hex)
+	{
+		try
+		{
+			return Hex.decodeHex(hex);
+		}
+		catch (DecoderException e)
+		{
+			throw new IllegalArgumentException("Invalid Hex format!"); //$NON-NLS-1$
+		}
+	}
+
+	/**
+	 * @sample
+	 * var string = utils.bytesToHex(byteArray);
+	
+	 * @param bytearray the byte array to convert to hex encoded string
+	 * @return returns hex encoded string from bytearray
+	 */
+	@JSFunction
+	public String bytesToHex(byte[] bytearray)
+	{
+		return Hex.encodeHexString(bytearray);
 	}
 }
