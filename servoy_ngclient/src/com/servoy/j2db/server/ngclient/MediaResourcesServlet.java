@@ -23,6 +23,7 @@ import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FileCleaningTracker;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
@@ -429,6 +431,7 @@ public class MediaResourcesServlet extends HttpServlet
 		String path = req.getPathInfo();
 		if (path.startsWith("/")) path = path.substring(1);
 		String[] paths = path.split("/");
+		String reqEncoding = req.getCharacterEncoding() == null ? "UTF-8" : req.getCharacterEncoding();
 
 		if ((paths.length == 2 || paths.length >= 5) && paths[0].equals("upload"))
 		{
@@ -461,7 +464,7 @@ public class MediaResourcesServlet extends HttpServlet
 						DiskFileItemFactory diskFileItemFactory = new DiskFileItemFactory(tempFileThreshold, fileUploadDir);
 						diskFileItemFactory.setFileCleaningTracker(FILE_CLEANING_TRACKER);
 						ServletFileUpload upload = new ServletFileUpload(diskFileItemFactory);
-						upload.setHeaderEncoding("UTF-8");
+						upload.setHeaderEncoding(reqEncoding);
 						long maxUpload = Utils.getAsLong(settings.getProperty("servoy.webclient.maxuploadsize", "0"), false);
 						if (maxUpload > 0) upload.setFileSizeMax(maxUpload * 1000);
 						Iterator<FileItem> iterator = upload.parseRequest(req).iterator();
@@ -488,10 +491,19 @@ public class MediaResourcesServlet extends HttpServlet
 									@Override
 									public void run()
 									{
+										String encoding = StringUtils.defaultString(req.getCharacterEncoding(), "UTF-8");
+
 										Map<String, String> formFields = new JSMap<>();
 										for (FileItem fileItem : fields)
 										{
-											formFields.put(fileItem.getFieldName(), fileItem.getString());
+											try
+											{
+												formFields.put(fileItem.getFieldName(), fileItem.getString(encoding));
+											}
+											catch (UnsupportedEncodingException e)
+											{
+												Debug.error(e);
+											}
 										}
 										if (formName.equals(SERVICE_UPLOAD))
 										{
@@ -506,6 +518,7 @@ public class MediaResourcesServlet extends HttpServlet
 													Context context = Context.enter();
 													try
 													{
+														System.out.println("Executing callback");
 														((Function)func).call(context, plugin, plugin, new Object[] { new JSUpload(item, formFields) });
 													}
 													finally
