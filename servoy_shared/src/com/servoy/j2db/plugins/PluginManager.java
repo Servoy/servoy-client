@@ -20,9 +20,7 @@ package com.servoy.j2db.plugins;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.lang.reflect.Method;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -116,7 +114,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 			allUrls.add(ext.jarUrl);
 		}
 		URL[] urls = allUrls.toArray(new URL[allUrls.size()]);
-		PluginManager._pluginsClassLoader = new ExtendableURLClassLoader(urls, lafLoader != null ? lafLoader : getClass().getClassLoader(), PLUGIN_CL_SUFFIX);
+		PluginManager._pluginsClassLoader = ExtendableURLClassLoader.create(urls, lafLoader != null ? lafLoader : getClass().getClassLoader());
 	}
 
 	public File getPluginsDir()
@@ -149,9 +147,8 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 
 		if (loadedServerPlugins != null)
 		{
-			for (int j = 0; j < loadedServerPlugins.size(); j++)
+			for (IServerPlugin plugin : loadedServerPlugins)
 			{
-				IPlugin plugin = loadedServerPlugins.get(j);
 				try
 				{
 					plugin.unload();
@@ -727,8 +724,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 					allUrls.add(ext.jarUrl);
 				}
 				URL[] urls = allUrls.toArray(new URL[allUrls.size()]);
-				_pluginsClassLoader = new ExtendableURLClassLoader(urls, parentClassLoader != null ? parentClassLoader : getClass().getClassLoader(),
-					PLUGIN_CL_SUFFIX);
+				_pluginsClassLoader = ExtendableURLClassLoader.create(urls, parentClassLoader != null ? parentClassLoader : getClass().getClassLoader());
 			}
 			catch (Throwable th)
 			{
