@@ -1815,6 +1815,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	@Override
 	public void removeFoundSet(FoundSet foundset)
 	{
+		// TODO should we also add a FOUNDSET_DISPOSED to the globalFoundSetEventListener? it is able to trigger a NEW_FOUNDSET event for example
+		foundset.removeFoundSetEventListener(globalFoundSetEventListener);
 		foundSets.remove(foundset);
 		if (sharedDataSourceFoundSet.get(foundset.getDataSource()) == foundset)
 		{
