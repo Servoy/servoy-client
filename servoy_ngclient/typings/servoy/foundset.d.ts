@@ -6,22 +6,26 @@ declare namespace foundsetType {
     type ChangeListener = (changeEvent: ChangeEvent) => void;
     
     /**
-     * Besides working like a normal IPromise that you can use to get notified when some action is done (success/error/finally), chain etc., this promise also
-     * contains field "requestInfo" which can be set by the user and could later be reported in some listener events back to the user (in case this same action
-     * is going to trigger those listeners as well).
+     * Besides working like a normal IPromise that you can use to get notified when some action is done
+     * (success/error/finally), chain etc., this promise also contains field "requestInfo" which can be set
+     * by the user and could later be reported in some listener events back to the user (in case this same
+     * action is going to trigger those listeners as well).
      *
      * @since 2021.09
      */
     interface RequestInfoPromise<T> extends angular.IPromise<T> {
     
         /**
-         * You can assign any value to it. The value that you assign - if any - will be given back in the event object of any listener that will be triggered
-         * as a result of the promise's action. So in case the same action, when done, will trigger both the "then" of the Promise and a separate listener,
-         * that separate listener will contain this "requestInfo" value.
+         * You can assign any value to it. The value that you assign - if any - will be given back in the
+         * event object of any listener that will be triggered as a result of the promise's action. So in
+         * case the same action, when done, will trigger both the "then" of the Promise and a separate
+         * listener, that separate listener will contain this "requestInfo" value.
          *
-         * This is useful for some components that want to know if some change (reported by the listener) happened due to an action that the component
-         * requested or due to changes in the outside world. (eg: FoundsetPropertyValue.loadRecordsAsync(...) returns RequestInfoPromise and
-         * ChangeEvent.requestInfos array can return that RequestInfoPromise.requestInfo on the event that was triggered by that loadRecordsAsync)
+         * This is useful for some components that want to know if some change (reported by the listener)
+         * happened due to an action that the component requested or due to changes in the outside world.
+         * (eg: FoundsetPropertyValue.loadRecordsAsync(...) returns RequestInfoPromise and 
+         * ChangeEvent.requestInfos array can return that RequestInfoPromise.requestInfo on the event that
+         * was triggered by that loadRecordsAsync)
          */
         requestInfo?: any;
     
@@ -221,7 +225,8 @@ declare namespace foundsetType {
          *                                           selected row (here the page size is assumed to be
          *                                           preferredSize).
          */
-        setPreferredViewportSize(preferredSize: number, sendViewportWithSelection: boolean, centerViewportOnSelected: boolean): void;
+        setPreferredViewportSize(preferredSize: number, sendViewportWithSelection: boolean,
+                                    centerViewportOnSelected: boolean): void;
         
         /**
          * Receives a client side rowID (taken from myFoundsetProp.viewPort.rows[idx]
@@ -246,9 +251,27 @@ declare namespace foundsetType {
         getRecordRefByRowID(rowId: string): void;
         
         /**
+         * It will send a data update for a cell (ros & column) in the foundset to the server.
+         * Please make sure to adjust the viewport value as well not just call this method.
+         *
+         * This method is useful if you do not want to add angular watches on data (so calculated
+         * pushToServer for the foundset property is set to just 'allow'). Then server will accept
+         * data changes from this property, but there are no automatic watches to detect the changes
+         * so the component must call this method instead - when it wants to change the data in a cell.
+         *
+         * @param rowID the _svyRowId (so $foundsetTypeConstants.ROW_ID_COL_KEY) column of the client side row
+         * @param columnID the name of the column to be updated on server (in that row).
+         * @param newValue the new data in that cell
+         * @param oldValue the old data that used to be in that cell
+         */
+        updateViewportRecord(rowID: string, columnID: string, newValue: any, oldValue: any): void;
+    
+        /**
          * Adds a change listener that will get triggered when server sends changes for this foundset.
          * 
-         * @see $webSocket.addIncomingMessageHandlingDoneTask if you need your code to execute after all properties that were linked to this foundset get their changes applied you can use $webSocket.addIncomingMessageHandlingDoneTask.
+         * @see $webSocket.addIncomingMessageHandlingDoneTask if you need your code to execute after all
+         *      properties that were linked to this foundset get their changes applied you can use
+         *      $webSocket.addIncomingMessageHandlingDoneTask.
          * @param changeListener the listener to register.
          */
         addChangeListener(changeListener : ChangeListener) : () => void;
@@ -277,7 +300,7 @@ declare namespace foundsetType {
         NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE: string,
         NOTIFY_VIEW_PORT_ROW_UPDATES: string,
     
-        // row update types for listener notifications - in case NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED is triggered
+        // row update types for listener notifications, in case NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED is triggered
         ROWS_CHANGED: number,
         ROWS_INSERTED: number,
         ROWS_DELETED: number
@@ -286,12 +309,14 @@ declare namespace foundsetType {
     interface ChangeEvent extends componentType.ChangeEvent {
 
         /**
-         * If this change event is caused by one or more calls (by the component) on the IFoundset obj (like loadRecordsAsync requestSelectionUpdate and so on),
-         * and the caller then assigned a value to the returned RequestInfoPromise's "requestInfo" field, then that value will be present in this array.
+         * If this change event is caused by one or more calls (by the component) on the IFoundset obj
+         * (like loadRecordsAsync requestSelectionUpdate and so on), and the caller then assigned a value to
+         * the returned RequestInfoPromise's "requestInfo" field, then that value will be present in this array.
          *
-         * This is useful for some components that want to know if some change (reported in this ChangeEvent) happened due to an action that the component
-         * requested or due to changes in the outside world. (eg: IFoundset.loadRecordsAsync(...) returns RequestInfoPromise and
-         * ChangeEvent.requestInfos array can contain that RequestInfoPromise.requestInfo on the event that was triggered by that loadRecordsAsync)
+         * This is useful for some components that want to know if some change (reported in this ChangeEvent)
+         * happened due to an action that the component requested or due to changes in the outside world. (eg:
+         * IFoundset.loadRecordsAsync(...) returns RequestInfoPromise and ChangeEvent.requestInfos array can
+         * contain that RequestInfoPromise.requestInfo on the event that was triggered by that loadRecordsAsync)
          *
          * @since 2021.09
          */
