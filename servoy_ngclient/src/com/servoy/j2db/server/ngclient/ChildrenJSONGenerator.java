@@ -57,6 +57,7 @@ import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.server.ngclient.FormElementHelper.FormComponentCache;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignerDefaultWriter;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.util.Settings;
@@ -309,6 +310,18 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		else
 		{
 			fe.propertiesAsTemplateJSON(writer, new FormElementContext(fe, context, null), false);
+		}
+		if (designer)
+		{
+			DataConversion dataConversion = new DataConversion();
+			fe.getWebComponentSpec().getProperties().values().forEach(pd -> {
+				if (pd.getType() instanceof IDesignerDefaultWriter)
+					((IDesignerDefaultWriter)pd.getType()).toDesignerDefaultJSONValue(writer, pd.getName(), dataConversion);
+			});
+			if (!dataConversion.getConversions().isEmpty())
+			{
+				JSONUtils.writeClientConversions(writer, dataConversion);
+			}
 		}
 		if (o instanceof BaseComponent)
 		{

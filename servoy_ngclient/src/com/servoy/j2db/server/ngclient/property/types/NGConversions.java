@@ -238,6 +238,11 @@ public class NGConversions
 
 	}
 
+	public static interface IDesignerDefaultWriter
+	{
+		JSONWriter toDesignerDefaultJSONValue(JSONWriter writer, String key, DataConversion dataConversion) throws JSONException;
+	}
+
 	/**
 	 * Conversion 1 as specified in https://wiki.servoy.com/pages/viewpage.action?pageId=8716797.
 	 */

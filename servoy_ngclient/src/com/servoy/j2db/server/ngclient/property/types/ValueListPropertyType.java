@@ -15,7 +15,11 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,6 +35,7 @@ import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
+import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.FlattenedSolution;
@@ -56,6 +61,7 @@ import com.servoy.j2db.server.ngclient.property.FoundsetLinkedPropertyType;
 import com.servoy.j2db.server.ngclient.property.ICanBeLinkedToFoundset;
 import com.servoy.j2db.server.ngclient.property.NGComponentDALContext;
 import com.servoy.j2db.server.ngclient.property.ValueListConfig;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignerDefaultWriter;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
@@ -73,7 +79,8 @@ import com.servoy.j2db.util.IRhinoDesignConverter;
 public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabloValue> implements IConvertedPropertyType<ValueListTypeSabloValue>,
 	IFormElementToSabloComponent<Object, ValueListTypeSabloValue>, ISupportTemplateValue<Object>, IDataLinkedType<Object, ValueListTypeSabloValue>,
 	IRhinoToSabloComponent<ValueListTypeSabloValue>, ISabloComponentToRhino<ValueListTypeSabloValue>, IPushToServerSpecialType, IRhinoDesignConverter,
-	II18NPropertyType<ValueListTypeSabloValue>, ICanBeLinkedToFoundset<Object, ValueListTypeSabloValue>, ISupportsGranularUpdates<ValueListTypeSabloValue>
+	II18NPropertyType<ValueListTypeSabloValue>, ICanBeLinkedToFoundset<Object, ValueListTypeSabloValue>, ISupportsGranularUpdates<ValueListTypeSabloValue>,
+	IDesignerDefaultWriter
 {
 
 	public static final ValueListPropertyType INSTANCE = new ValueListPropertyType();
@@ -440,6 +447,36 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			this.formatPropertyName = formatPropertyName;
 			this.dataproviderResolveValuelist = dataproviderResolveValuelist;
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignerDefaultWriter#toDesignerDefaultJSONValue(org.json.JSONWriter,
+	 * java.lang.String)
+	 */
+	@Override
+	public JSONWriter toDesignerDefaultJSONValue(JSONWriter writer, String key, DataConversion dataConversion) throws JSONException
+	{
+		dataConversion.pushNode(key);
+		dataConversion.convert(TYPE_NAME);
+		writer.key(key);
+		writer.object();
+		writer.key("hasRealValues");
+		writer.value(true);
+		writer.key("values");
+		List<Map<String, Object>> array = new ArrayList<>(3);
+		for (int i = 0; i < 3; i++)
+		{
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("realValue", Integer.valueOf(i + 1));
+			map.put("displayValue", "Item" + (i + 1));
+			array.add(map);
+		}
+		JSONUtils.toBrowserJSONFullValue(writer, null, array, null, null, null);
+		writer.endObject();
+		dataConversion.popNode();
+		return writer;
 	}
 
 }
