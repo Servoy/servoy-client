@@ -37,6 +37,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.sablo.security.ContentSecurityPolicyConfig;
 
+import com.servoy.j2db.util.Debug;
+
 /**
  * @author jcompagner
  * @since 2021.03
@@ -80,8 +82,19 @@ public class AngularIndexPageFilter implements Filter
 				request.getSession();
 
 				ContentSecurityPolicyConfig contentSecurityPolicyConfig = addcontentSecurityPolicyHeader(request, response, false); // for NG2 remove the unsafe-eval
-				AngularIndexPageWriter.writeIndexPage(this.indexPage, request, response, solutionName,
+				if (this.indexPage != null) AngularIndexPageWriter.writeIndexPage(this.indexPage, request, response, solutionName,
 					contentSecurityPolicyConfig == null ? null : contentSecurityPolicyConfig.getNonce());
+				else
+				{
+					response.setCharacterEncoding("UTF-8");
+					response.setContentType("text/html");
+					String indexHtml = "<html><body>No NGClient2 resources exported</body></html>";
+					response.setContentLengthLong(indexHtml.length());
+					response.getWriter().write(indexHtml);
+					Debug.error(
+						"Trying to service NGClient2, but no resouces are generatd for that in the exporter (-NG2 flag) or an error happend when exporting");
+
+				}
 				return;
 			}
 			else if (requestURI.toLowerCase().endsWith("/startup.js"))
