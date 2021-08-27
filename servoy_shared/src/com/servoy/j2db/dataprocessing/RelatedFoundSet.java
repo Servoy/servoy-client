@@ -642,21 +642,21 @@ public abstract class RelatedFoundSet extends FoundSet
 				}
 				else
 				{
-					if ((e.getType() == RowEvent.UPDATE //
-						|| (e.getType() == RowEvent.PK_UPDATED && e.getOldPkHash() == null)) // pk was updated by another client (oldpkhash is filled when updated by self)
-						&& getPksAndRecords().getPks() != null)
+					boolean pkUpdated = e.getType() == RowEvent.PK_UPDATED && e.getOldPkHash() == null; // pk was updated by another client (oldpkhash is filled when updated by self)
+					if ((e.getType() == RowEvent.UPDATE || pkUpdated) && getPksAndRecords().getPks() != null)
 					{
-						if (r == null || (e.getType() == RowEvent.PK_UPDATED && e.getOldPkHash() == null))
+						if (r == null || pkUpdated)
 						{
 							// cached row was not found, check if a column was updated that the relation depends on
-							if (e.getChangedColumnNames() != null)
+							Object[] changedColumnNames = e.getChangedColumnNames();
+							if (changedColumnNames != null)
 							{
-								if (hasForeignColumn(e.getChangedColumnNames()))
+								if (hasForeignColumn(changedColumnNames) || (r != null && pkUpdated && checkForUpdatedPk(r.getPKHashKey())))
 								{
 									invalidateFoundset();
 									getFoundSetManager().getEditRecordList().fireEvents();
 								}
-								return;//make sure processing stops here
+								return; // make sure processing stops here
 							}
 						}
 						else
@@ -666,7 +666,7 @@ public abstract class RelatedFoundSet extends FoundSet
 							{
 								notifyChange_checkForNewRow(r);
 							}
-							return;//make sure processing stops here
+							return; // make sure processing stops here
 						}
 					}
 					super.notifyChange(e);
@@ -709,6 +709,18 @@ public abstract class RelatedFoundSet extends FoundSet
 			}
 		}
 		return false;
+	}
+
+	private boolean checkForUpdatedPk(String pkHash)
+	{
+		// if already in state for new query then don't test anything.
+		if (mustQueryForUpdates)
+		{
+			return false;
+		}
+
+		IDataSet pks = getPksAndRecords().getPks();
+		return pks != null && pks.getRows().stream().map(RowManager::createPKHashKey).anyMatch(pkHash::equals);
 	}
 
 	private boolean notifyChange_checkForUpdate(Row r, boolean updateTest)
