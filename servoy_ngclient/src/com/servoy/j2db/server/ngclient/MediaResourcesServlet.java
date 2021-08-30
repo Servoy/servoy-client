@@ -518,7 +518,6 @@ public class MediaResourcesServlet extends HttpServlet
 													Context context = Context.enter();
 													try
 													{
-														System.out.println("Executing callback");
 														((Function)func).call(context, plugin, plugin, new Object[] { new JSUpload(item, formFields) });
 													}
 													finally
