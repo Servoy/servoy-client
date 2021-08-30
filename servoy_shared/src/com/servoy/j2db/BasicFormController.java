@@ -84,12 +84,12 @@ import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.ITwoNativeJavaObject;
-import com.servoy.j2db.scripting.InstanceJavaMembers;
 import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.ScriptEngine;
+import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.scripting.SelectedRecordScope;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.ui.IComponent;
@@ -1540,7 +1540,8 @@ public abstract class BasicFormController
 				scriptableForm = new BasicFormController.JSForm(this);
 
 				//set parent scope
-				NativeJavaObject formObject = new NativeJavaObject(formScope, scriptableForm, new InstanceJavaMembers(formScope, JSForm.class));
+				NativeJavaObject formObject = new NativeJavaObject(formScope, scriptableForm,
+					ScriptObjectRegistry.getJavaMembers(FormController.JSForm.class, formScope));
 				formScope.putWithoutFireChange("controller", formObject); //$NON-NLS-1$
 
 				//register the place holder 'scriptableForm' in CreationalPrototype scope

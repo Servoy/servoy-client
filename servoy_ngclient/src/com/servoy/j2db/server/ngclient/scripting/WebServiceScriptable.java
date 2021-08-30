@@ -48,7 +48,7 @@ import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugClient;
-import com.servoy.j2db.scripting.InstanceJavaMembers;
+import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
@@ -173,10 +173,10 @@ public class WebServiceScriptable implements Scriptable
 			execScope.put("$scope", execScope, scopeObject);
 
 			execScope.put("console", execScope,
-				new NativeJavaObject(execScope, new ConsoleObject(app), new InstanceJavaMembers(execScope, ConsoleObject.class)));
+				new NativeJavaObject(execScope, new ConsoleObject(app), ScriptObjectRegistry.getJavaMembers(ConsoleObject.class, execScope)));
 
 			execScope.put("servoyApi", execScope,
-				new NativeJavaObject(execScope, new ServoyApiObject(app), new InstanceJavaMembers(execScope, ServoyApiObject.class)));
+				new NativeJavaObject(execScope, new ServoyApiObject(app), ScriptObjectRegistry.getJavaMembers(ServoyApiObject.class, execScope)));
 
 			getScript(context, serverScript, app).exec(context, execScope);
 			apiObject.setPrototype(model);

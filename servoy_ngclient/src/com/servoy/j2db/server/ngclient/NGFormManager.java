@@ -48,9 +48,9 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.GlobalScope;
-import com.servoy.j2db.scripting.InstanceJavaMembers;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
+import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.server.ngclient.component.WebFormController;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
@@ -345,7 +345,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 			{
 				ss.put("currentcontroller", ss, //$NON-NLS-1$
 					new NativeJavaObject(ss, currentController.initForJSUsage(),
-						new InstanceJavaMembers(ss, com.servoy.j2db.BasicFormController.JSForm.class)));
+						ScriptObjectRegistry.getJavaMembers(com.servoy.j2db.BasicFormController.JSForm.class, ss)));
 			}
 			finally
 			{
