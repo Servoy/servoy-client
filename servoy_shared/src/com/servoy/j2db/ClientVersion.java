@@ -27,9 +27,9 @@ public abstract class ClientVersion
 {
 	// these fields are private intentionally, to prevent final class member copy in other classes!
 	private static final int majorVersion = 2021;
-	private static final int middleVersion = 9;
+	private static final int middleVersion = 12;
 	private static final int minorVersion = 0;
-	private static final int releaseNumber = 3700;
+	private static final int releaseNumber = 3720;
 	private static final String versionPostfix = "rc";
 	private static final boolean lts = false;
 
