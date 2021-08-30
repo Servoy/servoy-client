@@ -569,8 +569,13 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 			if (notificationParamForListeners && Object.keys(notificationParamForListeners).length > 0) {
 				if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * firing founset listener notifications...");
 
+                if ($webSocket.getCurrentRequestInfo()) {
+                    if (!requestInfos) requestInfos = [];
+                    requestInfos.push($webSocket.getCurrentRequestInfo());
+                }
+
                 if (requestInfos) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_REQUEST_INFOS] = requestInfos;
-				
+
 				// use previous (current) value as newValue might be undefined/null and the listeners would be the same anyway
 				currentClientValue[$sabloConverters.INTERNAL_IMPL].fireChanges(notificationParamForListeners);
 			}
