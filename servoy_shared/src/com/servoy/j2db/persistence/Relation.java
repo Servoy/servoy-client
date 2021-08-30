@@ -768,8 +768,11 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 					continue; //allow uuid to media mapping
 				}
 
+				if (primary[i].getDataProviderType() == Types.NULL) continue; // Support is null/is not null
+
 				int primaryType = Column.mapToDefaultType(primary[i].getDataProviderType());
 				int foreignType = Column.mapToDefaultType(foreign[i].getDataProviderType());
+
 				if (primaryType == IColumnTypes.INTEGER && foreignType == IColumnTypes.NUMBER)
 				{
 					continue; //allow integer to number mappings
