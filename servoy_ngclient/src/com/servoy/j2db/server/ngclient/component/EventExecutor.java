@@ -173,21 +173,20 @@ public class EventExecutor
 				List<Object> instanceMethodArguments = ((AbstractBase)persist).getFlattenedMethodArguments(eventType);
 				if (instanceMethodArguments != null && instanceMethodArguments.size() > 0)
 				{
-					if (instanceMethodArguments.size() <= newargs.length)
+					// create entries for the instanceMethodArguments if they are more then callback arguments
+					if (instanceMethodArguments.size() > newargs.length)
 					{
-						// more arguments are sent now from client, still use the instance arguments
-						for (int i = 0; i < instanceMethodArguments.size(); i++)
-						{
-							Object value = instanceMethodArguments.get(i);
-							if (value != null && value != JSONObject.NULL)
-							{
-								newargs[i] = Utils.parseJSExpression(value);
-							}
-						}
+						newargs = Utils.arrayJoin(newargs, new Object[instanceMethodArguments.size() - newargs.length]);
 					}
-					else
+
+					// use instanceMethodArguments if not null, else just use the callback argument
+					for (int i = 0; i < instanceMethodArguments.size(); i++)
 					{
-						newargs = Utils.arrayMerge(newargs, Utils.parseJSExpressions(instanceMethodArguments));
+						Object value = instanceMethodArguments.get(i);
+						if (value != null && value != JSONObject.NULL)
+						{
+							newargs[i] = Utils.parseJSExpression(value);
+						}
 					}
 				}
 			}
