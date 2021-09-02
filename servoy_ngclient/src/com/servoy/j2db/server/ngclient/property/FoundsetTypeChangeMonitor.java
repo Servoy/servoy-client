@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.sablo.IChangeListener;
 import org.sablo.specification.property.ArrayOperation;
-import org.sablo.specification.property.ArrayOperation;
 
 import com.servoy.j2db.dataprocessing.FireCollector;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
@@ -280,8 +279,9 @@ public class FoundsetTypeChangeMonitor
 
 	public void recordsDeleted(int firstRow, int lastRow, final FoundsetTypeViewport viewPort)
 	{
-		if (firstRow == ((FoundSetManager)propertyValue.getApplication().getFoundSetManager()).pkChunkSize &&
-			(firstRow + ((FoundSetManager)propertyValue.getApplication().getFoundSetManager()).pkChunkSize < lastRow) &&
+		int pkChunkSize = ((FoundSetManager)propertyValue.getApplication().getFoundSetManager()).pkChunkSize;
+		if (firstRow == pkChunkSize &&
+			propertyValue.getFoundset().getSize() == pkChunkSize &&
 			(viewPort.getStartIndex() + viewPort.getSize() - 1 <= lastRow))
 		{
 			// try to determine when foundset is changed by loadbyquery/loadallrecords, in this case we should not load the whole foundset based on old viewport data, we should reset the viewport to default values

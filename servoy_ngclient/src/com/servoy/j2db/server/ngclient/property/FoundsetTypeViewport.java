@@ -41,6 +41,7 @@ public class FoundsetTypeViewport
 	private boolean initialSelectionViewportCentered = true; // see setInitialSelectionViewportCentered(...) below
 
 	private boolean sendingInitialPreferredViewport = false;
+	private boolean callPreferredViewportBoundsOnSelectionChange = false;
 
 	/**
 	 * Creates a new viewport object.
@@ -67,6 +68,11 @@ public class FoundsetTypeViewport
 
 	public void setPreferredViewportBounds()
 	{
+		if (foundset.getSelectedIndex() >= foundset.getSize())
+		{
+			this.callPreferredViewportBoundsOnSelectionChange = true;
+			return;
+		}
 		sendingInitialPreferredViewport = true;
 
 		if (foundset != null)
@@ -113,8 +119,9 @@ public class FoundsetTypeViewport
 		// as for example when showing the form the first time foundset will have size 0
 		// then it will gain records with selection -1 then selection will be set to 0 then the on show can change selection again -
 		// all this in the same event - we must set preferred viewport bounds based on last initial selection
-		if (sendSelectionViewportInitially && sendingInitialPreferredViewport)
+		if (callPreferredViewportBoundsOnSelectionChange || (sendSelectionViewportInitially && sendingInitialPreferredViewport))
 		{
+			this.callPreferredViewportBoundsOnSelectionChange = false;
 			setPreferredViewportBounds();
 		}
 	}
