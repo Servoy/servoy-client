@@ -765,6 +765,12 @@ public class TestFormController implements IWebFormController
 		return null;
 	}
 
+	@Override
+	public RuntimeWebComponent getWebComponentElement(String name)
+	{
+		return null;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 *
