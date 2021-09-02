@@ -17,6 +17,7 @@
 package com.servoy.j2db.scripting.info;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
@@ -93,6 +94,23 @@ public class NGCONSTANTS implements IPrefixedConstantsObject
 	 * application.putClientProperty(APP_NG_PROPERTY.FORM_BASED_BROWSER_HISTORY, false);
 	 */
 	public static final String FORM_BASED_BROWSER_HISTORY = "servoy.ngclient.formbased_browser_history"; //$NON-NLS-1$
+
+
+	/**
+	 * the client property that can be set to always do a like search when filtering over valuelist on a typeahead like component.
+	 * So a component that has a valuelist as a property and uses user input to search in that valuelist.
+	 * By default it uses a like search with a % at the end (startsWith search on the fields of the valuelist).
+	 * But this makes it a like %value% so a contains search.
+	 *
+	 * This can be set on the element (element.putClientProperty() or on a application wide level (application.putClientProperty())
+	 *
+	 * DEFAULT: false
+	 *
+	 * @sample
+	 * elements.typeahead.putClientProperty(APP_NG_PROPERTY.VALUELIST_CONTAINS_SEARCH, true);
+	 *
+	 */
+	public static final String VALUELIST_CONTAINS_SEARCH = IApplication.VALUELIST_CONTAINS_SEARCH;
 
 	public String getPrefix()
 	{

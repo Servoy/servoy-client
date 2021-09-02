@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
@@ -830,6 +831,24 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	public Map<String, Object> getNavigatorProperties()
 	{
 		return navigatorProperties;
+	}
+
+	public RuntimeWebComponent getWebComponentElement(String name)
+	{
+		Object elementScope = formScope == null ? null : formScope.get("elements");
+		if (elementScope instanceof DefaultScope)
+		{
+			Object element = ((Scriptable)elementScope).get(name, (Scriptable)elementScope);
+			if (element instanceof Wrapper)
+			{
+				element = ((Wrapper)element).unwrap();
+			}
+			if (element instanceof RuntimeWebComponent)
+			{
+				return (RuntimeWebComponent)element;
+			}
+		}
+		return null;
 	}
 
 	public RuntimeWebComponent[] getWebComponentElements()
