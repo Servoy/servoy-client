@@ -653,4 +653,40 @@ public class Array
 	{
 		return null;
 	}
+
+	/**
+	 *  Returns the value of the first element in the provided array that satisfies the provided testing function.
+	 *  If no values satisfy the testing function, undefined is returned.
+	 *  The callback function can invoked with three arguments: the element value, the element index(optional), the array being traversed (optional).
+	 *
+	 *  @sample
+	 *  var array1 = [5, 12, 8, 130, 44];
+	 *  var found = array1.find(function(element) { return element > 10});
+	 *  application.output(found); // prints 12
+	 *
+	 * @param callback a testing function
+	 * @return the element which satisfies the function or undefined
+	 */
+	public Object js_find(Function callback)
+	{
+		return null;
+	}
+
+	/**
+	 *  Returns the index of the first element in the provided array which satisfies the provided testing function.
+	 *  If no values satisfy the testing function, -1 is returned.
+	 *  The callback function can invoked with three arguments: the element value, the element index (optional), the array being traversed (optional).
+	 *
+	 *  @sample
+	 *  var array1 = [5, 12, 8, 130, 44];
+	 *  var found = array1.findIndex(function(element) { return element > 10});
+	 *  application.output(found); // prints 1
+	 *
+	 * @param callback a testing function
+	 * @return the index of the first element which satisfies the function or -1
+	 */
+	public Number js_findIndex(Function callback)
+	{
+		return null;
+	}
 }
