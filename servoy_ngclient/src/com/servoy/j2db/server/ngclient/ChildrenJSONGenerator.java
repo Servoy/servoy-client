@@ -59,6 +59,7 @@ import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignerDefaultWriter;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
+import com.servoy.j2db.server.ngclient.template.FormLayoutStructureGenerator;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
@@ -431,34 +432,16 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 
 			String designClass = spec.getDesignStyleClass() != null && spec.getDesignStyleClass().length() > 0 ? spec.getDesignStyleClass()
 				: "customDivDesign";
+			if ("customDivDesign".equals(designClass) && FormLayoutStructureGenerator.hasSameDesignClassAsParent(layoutContainer, spec))
+			{
+				designClass = FormLayoutStructureGenerator.isEvenLayoutContainer(layoutContainer) ? "customDivDesignOdd" : "customDivDesignEven";
+			}
 			writer.key("designclass");
 			writer.value(designClass);
 
 			writer.key("svy-title");
-			writer.value(getLayouContainerTitle(layoutContainer));
+			writer.value(FormLayoutStructureGenerator.getLayouContainerTitle(layoutContainer));
 		}
 		writer.endObject();
-	}
-
-	public static String getLayouContainerTitle(LayoutContainer container)
-	{
-		if (container.getCssClasses() == null) return container.getTagType();
-		String title = container.getCssClasses().replaceFirst("col-", "");
-		//we should make sure the container title in the wireframe is not too long
-		if (title.length() > 20)
-		{
-			String[] parts = title.split(" ");
-			title = parts[0];
-			if (parts.length > 1)
-			{
-				int i = 1;
-				do
-				{
-					title += " " + parts[i++];
-				}
-				while (i < parts.length && title.length() < 20);
-			}
-		}
-		return title;
 	}
 }

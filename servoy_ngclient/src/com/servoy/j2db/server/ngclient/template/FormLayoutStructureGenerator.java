@@ -349,7 +349,7 @@ public class FormLayoutStructureGenerator
 //		}
 //	}
 
-	private static boolean hasSameDesignClassAsParent(LayoutContainer container, WebLayoutSpecification spec)
+	public static boolean hasSameDesignClassAsParent(LayoutContainer container, WebLayoutSpecification spec)
 	{
 		ISupportChilds realParent = container.getExtendsID() > 0 ? PersistHelper.getRealParent(container) : container.getParent();
 		if (realParent instanceof LayoutContainer)
@@ -369,7 +369,7 @@ public class FormLayoutStructureGenerator
 		return false;
 	}
 
-	private static boolean isEvenLayoutContainer(LayoutContainer c)
+	public static boolean isEvenLayoutContainer(LayoutContainer c)
 	{
 		int i = 0;
 		LayoutContainer container = c;
