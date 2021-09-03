@@ -38,9 +38,7 @@ public abstract class ViewportRowDataProvider
 
 	/**
 	 * Some data providers need to be initialized before being used. (usually that happens when the property that uses it has first time 'to browser json' happen).
-	 * This is needed in order to ignore any previous foundset changes - don't force a toJSON for them before initial send of value, because for such
-	 * cases foundset property types convert/write viewport changes to a string and keep it that way - but converting cell values might need a BrowserConverterContext
-	 * which is not yet available...
+	 * This is needed in order to ignore any previous foundset changes - don't force a toJSON for them before initial send of value.
 	 */
 	protected abstract boolean isReady();
 
@@ -53,17 +51,12 @@ public abstract class ViewportRowDataProvider
 
 	protected abstract boolean shouldGenerateRowIds();
 
-	/**
-	 *  Returns whether viewport contains dataprovider sent as parameter. Null means all columns, so will return true.
-	 */
-	protected abstract boolean containsColumn(String columnName);
-
-	protected void writeRowData(int foundsetIndex, Set<String> columnName, IFoundSetInternal foundset, JSONWriter w, DataConversion clientConversionInfo)
+	protected void writeRowData(int foundsetIndex, Set<String> columnNames, IFoundSetInternal foundset, JSONWriter w, DataConversion clientConversionInfo)
 		throws JSONException
 	{
 		// write viewport row contents
 		IRecordInternal record = foundset.getRecord(foundsetIndex);
-		populateRowData(record, columnName, w, clientConversionInfo, shouldGenerateRowIds() ? record.getPKHashKey() + "_" + foundsetIndex : null);
+		populateRowData(record, columnNames, w, clientConversionInfo, shouldGenerateRowIds() ? record.getPKHashKey() + "_" + foundsetIndex : null);
 	}
 
 	protected void writeRowData(int startIndex, int endIndex, IFoundSetInternal foundset, JSONWriter w, DataConversion clientConversionInfo)
@@ -72,7 +65,7 @@ public abstract class ViewportRowDataProvider
 		writeRowData(startIndex, endIndex, null, foundset, w, clientConversionInfo, null);
 	}
 
-	protected void writeRowData(int startIndex, int endIndex, Set<String> columnName, IFoundSetInternal foundset, JSONWriter w,
+	protected void writeRowData(int startIndex, int endIndex, Set<String> columnNames, IFoundSetInternal foundset, JSONWriter w,
 		DataConversion clientConversionInfo,
 		Object sabloValueThatRequestedThisDataToBeWritten) throws JSONException
 	{
@@ -101,7 +94,7 @@ public abstract class ViewportRowDataProvider
 					for (int i = startIndex; i <= endIndex; i++)
 					{
 						clientConversionInfo.pushNode(String.valueOf(i - startIndex));
-						writeRowData(i, columnName, foundset, w, clientConversionInfo);
+						writeRowData(i, columnNames, foundset, w, clientConversionInfo);
 						clientConversionInfo.popNode();
 					}
 				}
@@ -119,4 +112,5 @@ public abstract class ViewportRowDataProvider
 	}
 
 	protected abstract FoundsetDataAdapterList getDataAdapterList();
+
 }

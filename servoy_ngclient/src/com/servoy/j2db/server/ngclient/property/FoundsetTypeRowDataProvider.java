@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
-import java.util.Collections;
 import java.util.Set;
 
 import org.json.JSONException;
@@ -58,17 +57,6 @@ public final class FoundsetTypeRowDataProvider extends ViewportRowDataProvider
 		foundsetPropertyValue.populateRowData(record, columnNames, w, clientConversionInfo, browserConverterContext);
 
 		w.endObject();
-	}
-
-	@Override
-	protected boolean containsColumn(String columnName)
-	{
-		if (columnName == null) return true;
-
-		// if the col is a PK then yes, we do sent it to client as part of the ROW_ID_COL_KEY (see above)
-		// else see if this column is used directly by the foundset property on client
-		return foundsetPropertyValue.isOneOfTheFollowingAPk(Collections.singleton(columnName)) ||
-			foundsetPropertyValue.getClientIDForColumnName(columnName, false) != null;
 	}
 
 	@Override

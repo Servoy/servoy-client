@@ -133,7 +133,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		FlattenedSolution flattenedSolution) throws JSONException
 	{
 		List<String> apisOnAll = null;
-		List<String> recordBasedProperties = null;
+		RecordBasedProperties recordBasedProperties = null;
 		if (forFoundsetTypedPropertyName(pd) != null)
 		{
 			if (callTypes == null) apisOnAll = findCallTypesInApiSpecDefinition(element.getWebComponentSpec().getApiFunctions());
@@ -156,9 +156,9 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		return pd.getConfig() instanceof ComponentTypeConfig ? ((ComponentTypeConfig)pd.getConfig()).forFoundset : null;
 	}
 
-	protected List<String> findRecordAwareRootProperties(FormElement formElement, FlattenedSolution flattenedSolution)
+	protected RecordBasedProperties findRecordAwareRootProperties(FormElement formElement, FlattenedSolution flattenedSolution)
 	{
-		List<String> m = new ArrayList<>();
+		RecordBasedProperties m = new RecordBasedProperties();
 
 		// tagstrings, valuelists, tab seq, ... must be implemented separately and provided as a
 		// viewport containing these values as part of 'components' property
@@ -174,7 +174,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 					flattenedSolution, formElement);
 				if (dataLinks != TargetDataLinks.NOT_LINKED_TO_DATA && dataLinks != null && dataLinks.recordLinked)
 				{
-					m.add(propertyDescriptorEntry.getKey());
+					m.addRecordBasedProperty(propertyDescriptorEntry.getKey(), dataLinks.dataProviderIDs, null);
 				}
 			}
 		}
@@ -243,7 +243,8 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	}
 
 	protected <ContextT> void writeTemplateJSONContent(JSONWriter writer, ComponentTypeFormElementValue formElementValue, String forFoundsetPropertyType,
-		FormElementContext componentFormElementContext, IModelWriter modelWriter, List<String> recordBasedProperties, boolean writeViewportIfFoundsetBased)
+		FormElementContext componentFormElementContext, IModelWriter modelWriter, RecordBasedProperties recordBasedProperties,
+		boolean writeViewportIfFoundsetBased)
 		throws JSONException
 	{
 		if (forFoundsetPropertyType != null) writer.key(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME).value(forFoundsetPropertyType);
@@ -291,10 +292,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 			if (recordBasedProperties != null)
 			{
 				writer.key(RECORD_BASED_PROPERTIES).array();
-				for (String propertyName : recordBasedProperties)
-				{
-					writer.value(propertyName);
-				}
+				recordBasedProperties.forEach(propertyName -> writer.value(propertyName));
 				writer.endArray();
 			}
 			if (formElementValue.apisOnAll != null)

@@ -88,7 +88,7 @@ public class FoundsetTypeChangeMonitor
 			{
 				notifyChange();
 			}
-		}, rowDataProvider);
+		}, rowDataProvider, propertyValue);
 		addViewportDataChangeMonitor(viewPortDataChangeMonitor);
 	}
 
@@ -439,7 +439,7 @@ public class FoundsetTypeChangeMonitor
 						{
 							for (String dataprovider : dataproviders)
 							{
-								vpdcm.queueCellChange(firstViewPortIndex - viewPort.getStartIndex(), viewPort.getSize(), dataprovider);
+								vpdcm.queueCellChangeDueToColumn(firstViewPortIndex - viewPort.getStartIndex(), viewPort.getSize(), dataprovider);
 							}
 						}
 					});
@@ -466,7 +466,7 @@ public class FoundsetTypeChangeMonitor
 							{
 								for (String dataprovider : dataproviders)
 								{
-									vpdcm.queueCellChange(firstViewPortIndex - viewPort.getStartIndex(), viewPort.getSize(), dataprovider);
+									vpdcm.queueCellChangeDueToColumn(firstViewPortIndex - viewPort.getStartIndex(), viewPort.getSize(), dataprovider);
 								}
 							}
 							else

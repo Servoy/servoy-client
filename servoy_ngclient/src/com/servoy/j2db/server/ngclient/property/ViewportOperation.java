@@ -30,15 +30,15 @@ public class ViewportOperation extends ArrayOperation
 		super(startIndex, endIndex, type, null);
 	}
 
-	public ViewportOperation(int startIndex, int endIndex, int type, Set<String> columnNames)
+	public ViewportOperation(int startIndex, int endIndex, int type, Set<String> cellNames)
 	{
-		super(startIndex, endIndex, type, columnNames);
+		super(startIndex, endIndex, type, cellNames);
 	}
 
 	@Override
 	public String toString()
 	{
-		return "ViewportOperation [startIndex=" + startIndex + ", endIndex=" + endIndex + ", type=" + type + ", columnName=" + columnNames + "]";
+		return "ViewportOperation [startIndex=" + startIndex + ", endIndex=" + endIndex + ", type=" + type + ", columnName=" + cellNames + "]";
 	}
 
 }
