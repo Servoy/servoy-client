@@ -30,9 +30,13 @@ import org.sablo.specification.property.ArrayOperation;
 public class FoundsetTypeViewportDataChangeMonitor extends ViewportDataChangeMonitor<FoundsetTypeRowDataProvider>
 {
 
-	public FoundsetTypeViewportDataChangeMonitor(IChangeListener monitor, FoundsetTypeRowDataProvider rowDataProvider)
+	private final FoundsetTypeSabloValue foundsetPropertyValue;
+
+	public FoundsetTypeViewportDataChangeMonitor(IChangeListener monitor, FoundsetTypeRowDataProvider rowDataProvider,
+		FoundsetTypeSabloValue foundsetPropertyValue)
 	{
 		super(monitor, rowDataProvider);
+		this.foundsetPropertyValue = foundsetPropertyValue;
 	}
 
 	/**
@@ -53,6 +57,19 @@ public class FoundsetTypeViewportDataChangeMonitor extends ViewportDataChangeMon
 
 		if (changed && monitor != null) monitor.valueChanged();
 		return changed;
+	}
+
+	@Override
+	public boolean queueCellChangeDueToColumn(int relativeRowIndex, int oldViewportSize, String columnDPName)
+	{
+		// if the col is a PK then yes, we do sent it to client as part of the ROW_ID_COL_KEY (see above)
+		// else see if this column is used directly by the foundset property on client
+		if (columnDPName == null || foundsetPropertyValue.isOneOfTheFollowingAPk(Collections.singleton(columnDPName)) ||
+			foundsetPropertyValue.getClientIDForColumnName(columnDPName, false) != null)
+		{
+			return queueCellChange(relativeRowIndex, oldViewportSize, columnDPName);
+		}
+		return false;
 	}
 
 }

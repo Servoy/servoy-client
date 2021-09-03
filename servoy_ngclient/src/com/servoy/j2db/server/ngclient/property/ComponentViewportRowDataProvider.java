@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
-import java.util.List;
 import java.util.Set;
 
 import org.json.JSONException;
@@ -29,8 +28,6 @@ import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
-import com.servoy.j2db.server.ngclient.property.types.DataproviderTypeSabloValue;
-import com.servoy.j2db.util.Utils;
 
 /**
  * This class provides viewport data for a component's record - related properties. It is used when combining component properties with foundset properties.
@@ -43,81 +40,38 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 {
 
 	protected final FoundsetDataAdapterList dal;
-	protected final List<String> recordBasedProperties;
 	protected final ComponentTypeSabloValue componentTypeSabloValue;
 	protected final WebFormComponent component;
 
-	public ComponentViewportRowDataProvider(FoundsetDataAdapterList dal, WebFormComponent component, List<String> recordBasedProperties,
+	public ComponentViewportRowDataProvider(FoundsetDataAdapterList dal, WebFormComponent component,
 		ComponentTypeSabloValue componentTypeSabloValue)
 	{
 		this.dal = dal;
-		this.recordBasedProperties = recordBasedProperties;
 		this.componentTypeSabloValue = componentTypeSabloValue;
 		this.component = component;
 	}
 
 	@Override
-	protected void populateRowData(IRecordInternal record, Set<String> columnNames, JSONWriter w, DataConversion clientConversionInfo, String generatedRowId)
+	protected void populateRowData(IRecordInternal record, Set<String> propertyNames, JSONWriter w, DataConversion clientConversionInfo, String generatedRowId)
 		throws JSONException
 	{
 		w.object();
 		dal.setRecordQuietly(record);
 
-		if (columnNames != null)
+		if (propertyNames != null)
 		{
-			String columnPropertyName;
-			for (String columnName : columnNames)
+			for (String propertyName : propertyNames)
 			{
-				columnPropertyName = getPropertyName(columnName);
-				if (columnPropertyName != null)
-				{
-					// cell update
-					populateCellData(columnPropertyName, w, clientConversionInfo);
-				}
+				// cell update
+				populateCellData(propertyName, w, clientConversionInfo);
 			}
 		}
 		else
 		{
 			// full row
-			for (String propertyName : recordBasedProperties)
-			{
-				populateCellData(propertyName, w, clientConversionInfo);
-			}
+			componentTypeSabloValue.recordBasedProperties.forEach(propertyName -> populateCellData(propertyName, w, clientConversionInfo));
 		}
 		w.endObject();
-	}
-
-	@Override
-	protected boolean containsColumn(String columnName)
-	{
-		if (columnName == null) return true;
-
-		return getPropertyName(columnName) != null;
-	}
-
-	private String getPropertyName(String columnName)
-	{
-		if (columnName != null)
-		{
-			if (recordBasedProperties.contains(columnName))
-			{
-				return columnName;
-			}
-			else
-			{
-				// this is probably a dpid
-				for (String propertyName : recordBasedProperties)
-				{
-					Object dpValue = component.getProperty(propertyName);
-					if (dpValue instanceof DataproviderTypeSabloValue &&
-						Utils.equalObjects(((DataproviderTypeSabloValue)dpValue).getDataProviderID(), columnName))
-					{
-						return propertyName;
-					}
-				}
-			}
-		}
-		return null;
 	}
 
 	private void populateCellData(String propertyName, JSONWriter w, DataConversion clientConversionInfo) throws JSONException

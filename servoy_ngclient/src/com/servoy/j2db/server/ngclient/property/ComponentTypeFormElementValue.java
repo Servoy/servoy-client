@@ -38,18 +38,19 @@ public class ComponentTypeFormElementValue
 	/**
 	 * These represent the property names of the component that change together with data; for example foundset record linked dataproviders.
 	 */
-	protected final List<String> recordBasedProperties;
+	protected final RecordBasedProperties recordBasedProperties;
 	protected final Object[] propertyPath;
 
 	/**
 	 * @param apisOnAll can be null if the component is not linked to a foundset
 	 * @param recordBasedProperties can be null if the component is not linked to a foundset
 	 */
-	public ComponentTypeFormElementValue(FormElement element, List<String> apisOnAll, List<String> recordBasedProperties, Object[] propertyPath)
+	public ComponentTypeFormElementValue(FormElement element, List<String> apisOnAll, RecordBasedProperties recordBasedProperties, Object[] propertyPath)
 	{
 		this.element = element;
 		this.apisOnAll = apisOnAll;
 		this.recordBasedProperties = recordBasedProperties;
+		recordBasedProperties.seal();
 		this.propertyPath = propertyPath;
 	}
 

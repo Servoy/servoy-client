@@ -58,8 +58,8 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
 
 /**
- * A {@link Scriptable} for wrapping a client side service.
- * So that model values can be get and set and api functions can be called.
+ * A {@link Scriptable} for wrapping a ng service (both client side js and server-side js).
+ * So that model values can be read/set and api functions can be called.
  *
  * @author jcompagner
  */

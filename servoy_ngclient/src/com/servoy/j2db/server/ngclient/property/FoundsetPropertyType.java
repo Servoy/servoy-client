@@ -427,7 +427,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 		{
 			w.key("rows");
 			clientDataConversions.pushNode("rows");
-			rowDataProvider.writeRowData(viewportStartIndex + op.startIndex, viewportStartIndex + op.endIndex, op.columnNames, foundset, w,
+			rowDataProvider.writeRowData(viewportStartIndex + op.startIndex, viewportStartIndex + op.endIndex, op.cellNames, foundset, w,
 				clientDataConversions,
 				sabloValueThatRequestedThisDataToBeWritten);
 			clientDataConversions.popNode();
