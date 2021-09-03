@@ -54,16 +54,6 @@ public final class FoundsetTypeRowDataProvider extends ViewportRowDataProvider
 	}
 
 	@Override
-	protected boolean containsColumn(String columnName)
-	{
-		if (columnName == null) return true;
-
-		// if the col is a PK then yes, we do sent it to client as part of the ROW_ID_COL_KEY (see above)
-		// else see if this column is used  directly by the foundset property on client
-		return foundsetPropertyValue.isPk(columnName) || foundsetPropertyValue.getClientIDForColumnName(columnName, false) != null;
-	}
-
-	@Override
 	protected boolean shouldGenerateRowIds()
 	{
 		return true;

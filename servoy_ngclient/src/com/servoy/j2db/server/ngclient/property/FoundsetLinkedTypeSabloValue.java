@@ -72,6 +72,13 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	protected static final String ID_FOR_FOUNDSET = "idForFoundset";
 
 	/**
+	 * Constant given to viewport change monitor and row data provider as column name.
+	 * It doesn't matter much because there is only one "cell" to write in case of foundset-linked properties (unlike
+	 * foundset props. with columns and component props. with properties which can have multiple cells in one row).
+	 */
+	protected static final String DUMMY_COL_NAME = "";
+
+	/**
 	 * When non-null then the wrapped property is not yet initialized - waiting for forFoundset property's DAL to be available
 	 */
 	protected InitializingState<YT> initializingState;
@@ -92,7 +99,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	private FoundsetLinkedValueChangeHandler actualWrappedValueChangeHandlerForFoundsetLinked;
 	private IChangeListener wrappedUnderlyingStateListener;
 
-	protected Set<String> foundsetLinkedDPs = new HashSet<>();
+	private final Set<String> foundsetLinkedDPs = new HashSet<>();
+	private boolean foundsetLinkedUsesAllDPs = false;
 
 	protected boolean idForFoundsetChanged = false;
 
@@ -233,7 +241,10 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		if (dal == null) return; // foundset property val. is not yet attached to component it seems
 
 		idForFoundset = null;
+
 		foundsetLinkedDPs.clear();
+		foundsetLinkedUsesAllDPs = false;
+
 		dal.addDataLinkedPropertyRegistrationListener(getDataLinkedPropertyRegistrationListener(changeMonitor, foundsetPropValue));
 
 		wrappedComponentContext = new NGComponentDALContext(foundsetPropValue.getDataAdapterList(), webObjectContext);
@@ -299,15 +310,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 					FoundsetTypeSabloValue foundsetValue = getFoundsetValue();
 					if (foundsetValue != null && !foundsetValue.getDataAdapterList().isQuietRecordChangeInProgress())
 					{
-						// here for column name we give the name of the first foundset linked DP that the wrapped sablo val. attached to the dal, or if not available then the actual prop. name;
-						// the idea is that when this will call a queueCellChange on the viewPortChangeMonitor, it should pass the columnName check (from #usesFoundsetLinkedDataprovider() that gets
-						// called from FoundsetLinkedViewportRowDataProvider.containsColumn(String))
-						// TODO maybe we should give a generated UUID or something instead of wrappedPropertyDescription.getName() if there are no foundsetLinkedDPs (linked-to-all) and add the same
-						// UUID to foundsetLinkedDPs to avoid overlaps between wrapped PD and foundset given column names that could be checked in usesFoundsetLinkedDataprovider; but it's not a big
-						// deal as worst it could happen I think is sending the foundset linked value to client a bit more often then needed in case of such an overlap and changes happening in
-						// foundset on the column with the same name;
-						actualWrappedValueChangeHandlerForFoundsetLinked.valueChangedInFSLinkedUnderlyingValue(
-							foundsetLinkedDPs.size() > 0 ? foundsetLinkedDPs.iterator().next() : wrappedPropertyDescription.getName(), viewPortChangeMonitor);
+						actualWrappedValueChangeHandlerForFoundsetLinked.valueChangedInFSLinkedUnderlyingValue(DUMMY_COL_NAME, viewPortChangeMonitor);
 					}
 				}
 				else
@@ -374,14 +377,17 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 					ViewportDataChangeMonitor< ? > old = viewPortChangeMonitor;
 					actualWrappedValueChangeHandlerForFoundsetLinked = new FoundsetLinkedValueChangeHandler(foundsetPropValue);
-					viewPortChangeMonitor = new ViewportDataChangeMonitor<>(chMonitor, new FoundsetLinkedViewportRowDataProvider<YF, YT>(
-						foundsetPropValue.getDataAdapterList(), wrappedPropertyDescription, FoundsetLinkedTypeSabloValue.this));
+					viewPortChangeMonitor = new FoundsetLinkedTypeViewportDataChangeMonitor<>(chMonitor, new FoundsetLinkedViewportRowDataProvider<YF, YT>(
+						foundsetPropValue.getDataAdapterList(), wrappedPropertyDescription, FoundsetLinkedTypeSabloValue.this),
+						FoundsetLinkedTypeSabloValue.this);
 					foundsetPropValue.addViewportDataChangeMonitor(viewPortChangeMonitor);
 					if (old != null) viewPortChangeMonitor.viewPortCompletelyChanged = old.viewPortCompletelyChanged;
 
 					if (targetDataLinks.dataProviderIDs != null &&
-						targetDataLinks.dataProviderIDs.length > 0) /* this condition should always be true, except when it's TargetDataLinks.LINKED_TO_ALL */
+						targetDataLinks.dataProviderIDs.length > 0)
 					{
+						// this condition above should always be true, except when it's TargetDataLinks.LINKED_TO_ALL
+						// because there is a check above for targetDataLinks.recordLinked == true
 						if (idForFoundset == null)
 						{
 							// register the first dataprovider used by the wrapped property to the foundset for sorting
@@ -390,7 +396,9 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 							foundsetPropValue.setRecordDataLinkedPropertyIDToColumnDP(idForFoundset, targetDataLinks.dataProviderIDs[0]);
 						}
 						foundsetLinkedDPs.addAll(Arrays.asList(targetDataLinks.dataProviderIDs));
+						foundsetLinkedUsesAllDPs = false;
 					}
+					else foundsetLinkedUsesAllDPs = true;
 
 					if (changed)
 					{
@@ -415,6 +423,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 						idForFoundsetChanged = true;
 						foundsetLinkedDPs.clear();
 					}
+					foundsetLinkedUsesAllDPs = false;
 					viewPortChangeMonitor = null;
 					actualWrappedValueChangeHandlerForFoundsetLinked = null;
 					chMonitor.valueChanged();
@@ -807,17 +816,16 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		return webObjectContext;
 	}
 
-	protected boolean usesFoundsetLinkedDataprovider(String dataProviderID)
-	{
-		// see #getWrappedPropChangeMonitor() impl. to understand why the wrappedPropertyDescription.getName() is also considered a "used dataprovider"
-		return foundsetLinkedDPs.contains(dataProviderID) || Utils.stringSafeEquals(wrappedPropertyDescription.getName(), dataProviderID);
-	}
-
 	public void setApplyingDPValueFromClient(boolean applyInProgress)
 	{
 		if (actualWrappedValueChangeHandlerForFoundsetLinked != null)
 			actualWrappedValueChangeHandlerForFoundsetLinked.setApplyingDPValueFromClient(applyInProgress);
 	}
 
+	protected boolean isLinkedToRecordDP(String columnDPName)
+	{
+		// FoundsetTypeChangeMonitor.recordsUpdated can end up notifying changes for actual dataproviders - we must check if they affect or not the foundset-linked-value
+		return foundsetLinkedUsesAllDPs || foundsetLinkedDPs.contains(columnDPName);
+	}
 
 }

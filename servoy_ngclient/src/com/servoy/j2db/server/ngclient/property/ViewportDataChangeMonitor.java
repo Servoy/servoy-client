@@ -26,7 +26,7 @@ import org.sablo.IChangeListener;
  * @author acostescu
  */
 @SuppressWarnings("nls")
-public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
+public abstract class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 {
 	public static final String VIEWPORT_CHANGED = "viewportDataChanged";
 
@@ -127,20 +127,34 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 	}
 
 	/**
-	 * This gets called when the value of a cell in the viewport was changed.
+	 * This gets called when the value of a cell in the viewport was changed. Depending on impl. it might end up calling {@link #queueCellChange(int, int, String)} 0 or more times.
 	 *
 	 * @param relativeRowIndex viewPort relative row index for given cell-change operation.
+	 * @param columnDPName (non-null) the name of the foundset column that changed for the given row index; this is the actual column/dp name
+	 * not the cellName that could be impl. specific (based on what rowDataProvider impl. uses as cellNames)
 	 *
 	 * @return true if the operation was queued, false otherwise.
 	 */
-	public boolean queueCellChange(int relativeRowIndex, int oldViewportSize, final String columnName)
+	public abstract boolean queueCellChangeDueToColumn(int relativeRowIndex, int oldViewportSize, final String columnDPName);
+
+	/**
+	 * This gets called when the value of a cell in the viewport was changed.
+	 *
+	 * @param relativeRowIndex viewPort relative row index for given cell-change operation.
+	 * @param cellName whatever the rowDataProvider uses to identify cells within a row/record. Foundset types will
+	 *                 give actual table column name, components will use property names, foundset linked types will
+	 *                 probably use something that is not important as they have only 1 cell/row.
+	 *
+	 * @return true if the operation was queued, false otherwise.
+	 */
+	public boolean queueCellChange(int relativeRowIndex, int oldViewportSize, final String cellName)
 	{
-		if (!rowDataProvider.isReady() || !rowDataProvider.containsColumn(columnName)) return false;
+		if (!rowDataProvider.isReady()) return false;
 
 		if (!shouldSendWholeViewport())
 		{
 			boolean changed = !viewPortChanges.hasChanges(); // if it doesn't already have changes then it changed
-			processOperation(changed, oldViewportSize, new ViewportOperation(relativeRowIndex, relativeRowIndex, ViewportOperation.CHANGE, columnName));
+			processOperation(changed, oldViewportSize, new ViewportOperation(relativeRowIndex, relativeRowIndex, ViewportOperation.CHANGE, cellName));
 
 			// If at least one ViewportDataChangeMonitor sent changes (so the change affected the data in that ViewportDataChangeMonitor)
 			// but the foundset property itself was not affected in any way; still, we want the client side (browser) listeners attached to the foundset property
@@ -148,7 +162,7 @@ public class ViewportDataChangeMonitor<DPT extends ViewportRowDataProvider>
 			// in the future if we impl. change listeners for foundset linked or foundset linked component types, we could avoid this "queueLinkedPropertyUpdate" completely
 			if (foundsetTypeViewportDataChangeMonitor != null)
 			{
-				foundsetTypeViewportDataChangeMonitor.queueLinkedPropertyUpdate(relativeRowIndex, relativeRowIndex, oldViewportSize, columnName);
+				foundsetTypeViewportDataChangeMonitor.queueLinkedPropertyUpdate(relativeRowIndex, relativeRowIndex, oldViewportSize, cellName);
 			}
 
 			if (changed && monitor != null) monitor.valueChanged();
