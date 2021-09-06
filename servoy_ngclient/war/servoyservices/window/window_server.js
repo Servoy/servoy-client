@@ -255,7 +255,7 @@ var Menu = {
 			{ //show(component, checkAbove)
 				command.elementId = component.svyMarkupId;
 				command.x = 0;
-				command.y = (x == true ?Â 0 : component.height);
+				command.y = (x == true ? 0 : component.height);
 				command.checkAbove = x;
 			} else //show(x, y)
 			{ 
