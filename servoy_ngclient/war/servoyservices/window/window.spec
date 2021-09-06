@@ -234,7 +234,8 @@
 			"popupName": "string",
 			"elementId": "string",
 			"x": "int",
-			"y": "int"
+			"y": "int",
+			"checkAbove": "boolean"
 		}
 	  },
 	  "menuitem": {

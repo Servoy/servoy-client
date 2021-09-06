@@ -541,17 +541,21 @@ angular.module('window',['servoy'])
 						}
 						if(element)
 						{
-							var parentReg = YAHOO.util.Dom.getRegion(element.offsetParent);
 							var jsCompReg = YAHOO.util.Dom.getRegion(element);
 							oMenu.render(document.body);
 							var oMenuReg = YAHOO.util.Dom.getRegion(document.getElementById(oMenu.id));
-							if(element.offsetParent && (jsCompReg.top + newvalue.popupMenuShowCommand.y + (oMenuReg.bottom - oMenuReg.top) > parentReg.top + (parentReg.bottom - parentReg.top)) && 
-									(jsCompReg.top + newvalue.popupMenuShowCommand.y - (oMenuReg.bottom - oMenuReg.top) > parentReg.top))
-							{
-								oMenu.moveTo(jsCompReg.left  + newvalue.popupMenuShowCommand.x, jsCompReg.top -(oMenuReg.bottom - oMenuReg.top));
-							}
-							else
-							{
+							if (newvalue.popupMenuShowCommand.checkAbove == true) {
+								if ((jsCompReg.top + newvalue.popupMenuShowCommand.y - (oMenuReg.bottom - oMenuReg.top) > 0)) {//has room above
+									oMenu.moveTo(jsCompReg.left  + newvalue.popupMenuShowCommand.x, jsCompReg.top + newvalue.popupMenuShowCommand.y -(oMenuReg.bottom - oMenuReg.top));
+								} else {//no room so move below
+									oMenu.moveTo(jsCompReg.left  + newvalue.popupMenuShowCommand.x, jsCompReg.top + newvalue.popupMenuShowCommand.y);
+								}
+							} else if(element.offsetParent && 
+								//document.documentElement.clientHeight - contain viewport's height excluding horizontal scroll - if any
+								(jsCompReg.top + newvalue.popupMenuShowCommand.y + (oMenuReg.bottom - oMenuReg.top) > document.documentElement.clientHeight) && //no space below
+								(jsCompReg.top + newvalue.popupMenuShowCommand.y - (oMenuReg.bottom - oMenuReg.top) > 0)) {//and have space above
+									oMenu.moveTo(jsCompReg.left  + newvalue.popupMenuShowCommand.x, jsCompReg.top + newvalue.popupMenuShowCommand.y -(oMenuReg.bottom - oMenuReg.top));
+							} else {//move below
 								oMenu.moveTo(jsCompReg.left  + newvalue.popupMenuShowCommand.x, jsCompReg.top + newvalue.popupMenuShowCommand.y);
 							}
 						}

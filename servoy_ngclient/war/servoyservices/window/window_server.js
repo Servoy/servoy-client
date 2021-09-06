@@ -134,7 +134,6 @@ var Menu = {
 		newItem.enabled = enabled;
 		menuArgumentsInternal[newItem.id] = [newItem, null];
 		return this.items[this.items.push(newItem) - 1]; // we set and get it back to return as that instruments the value and makes it change-aware (be able to send granular updates to browser);
-//		return newItem;
 	},
 	
 	addCheckBox : function(text,callback,icon,mnemonic,enabled,align)
@@ -235,31 +234,40 @@ var Menu = {
 		return this.key;
 	},
 	
-	show : function(component,x,y)
+	show : function(component,x,y, checkAbove)
 	{
 		// this belongs to popup only but cannot assign directly on instance because then it is sent to client
 		var command = {'popupName': this.name};
-		if (component == undefined)
+		if (component == undefined) //show()
 		{
 			command.x = 0;
 			command.y = 0;
-		}
-		else if (x == undefined && y == undefined)
+		} 
+		else if (x == undefined && y == undefined) //show(component) or show(event)
 		{
 			command.elementId = component.svyMarkupId;
 			command.x = 0;
-			command.y = component.height;
+			command.y = (component.height != undefined ? component.height : 0);
 		}
-		else if (x != undefined && y == undefined)
+		else if (x != undefined && y == undefined) 
 		{
-			command.x = component;
-			command.y = x;
-		}
-		else
+			if (x === false || x === true) 
+			{ //show(component, checkAbove)
+				command.elementId = component.svyMarkupId;
+				command.x = 0;
+				command.y = (x == true ? 0 : component.height);
+				command.checkAbove = x;
+			} else //show(x, y)
+			{ 
+				command.x = component;
+				command.y = x;
+			}
+		} else  
 		{
 			command.elementId = component.svyMarkupId;
 			command.x = x;
 			command.y = y;
+			command.checkAbove = checkAbove;
 		}
 		$scope.model.popupMenuShowCommand = command;
 	},
