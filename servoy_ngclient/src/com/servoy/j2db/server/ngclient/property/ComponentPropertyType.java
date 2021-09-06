@@ -172,7 +172,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 				// as these are root-level component properties, their TargetDataLinks will always be cached (only array element values are not cached)
 				TargetDataLinks dataLinks = ((IDataLinkedType)type).getDataLinks(formElement.getPropertyValue(pd.getName()), propertyDescriptorEntry.getValue(),
 					flattenedSolution, formElement);
-				if (dataLinks != TargetDataLinks.NOT_LINKED_TO_DATA && dataLinks != null && dataLinks.recordLinked)
+				if (dataLinks != TargetDataLinks.NOT_LINKED_TO_DATA && dataLinks.recordLinked)
 				{
 					m.addRecordBasedProperty(propertyDescriptorEntry.getKey(), dataLinks.dataProviderIDs, null);
 				}

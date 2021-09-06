@@ -102,6 +102,9 @@ public class RecordBasedProperties
 		{
 			if (updatedRBP.sealed) updatedRBP = makeACopy();
 			updatedRBP.recordBasedPropertiesThatListenToAllDPs.add(propertyName);
+
+			// also update specific dependencies - no need for any of those for this prop name as it is linked to all
+			updatedRBP.removePropFromAllDPArrays(propertyName);
 		}
 
 		return updatedRBP;
@@ -117,22 +120,27 @@ public class RecordBasedProperties
 	{
 		RecordBasedProperties updatedRBP = this;
 
-		if (updatedRBP.recordBasedPropertyNames.remove(propertyName))
+		if (updatedRBP.recordBasedPropertyNames.contains(propertyName))
 		{
-			updatedRBP.recordBasedPropertiesChanged = true;
-			updatedRBP.recordBasedPropertiesChangedComparedToTemplate = true;
-			monitor.valueChanged();
-
 			if (updatedRBP.sealed) updatedRBP = makeACopy();
 
+			updatedRBP.recordBasedPropertyNames.remove(propertyName);
 			updatedRBP.recordBasedPropertiesThatListenToAllDPs.remove(propertyName);
+			updatedRBP.removePropFromAllDPArrays(propertyName);
 
-			// remove this property from all DP arrays and remove resulting empty DP arrays
-			updatedRBP.dataproviderToRecordBasedPropertyNames.entrySet().stream()
-				.filter(entry -> (!entry.getValue().remove(propertyName) || entry.getValue().size() > 0));
+			updatedRBP.recordBasedPropertiesChanged = true;
+			updatedRBP.recordBasedPropertiesChangedComparedToTemplate = true;
+
+			monitor.valueChanged();
 		}
 
 		return updatedRBP;
+	}
+
+	private void removePropFromAllDPArrays(String propertyName)
+	{
+		// remove this property from all DP arrays and remove resulting empty DP arrays
+		dataproviderToRecordBasedPropertyNames.entrySet().removeIf(entry -> (entry.getValue().remove(propertyName) && entry.getValue().size() == 0));
 	}
 
 	/**
