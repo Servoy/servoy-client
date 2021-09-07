@@ -240,7 +240,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	@Override
 	public TargetDataLinks getDataLinks(Object formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement)
 	{
-		return null; // we don't have the IValueList yet (that is a runtime thing, not a form element thing); so for now say "not linked to data"; at runtime when valuelist sablo value might add
+		return TargetDataLinks.NOT_LINKED_TO_DATA; // we don't have the IValueList yet (that is a runtime thing, not a form element thing); so for now say "not linked to data"; at runtime when valuelist sablo value might add
 		// itself as a listener to the DataAdapterList, any ComponentTypeSabloValue or FoundsetLinkedSabloValue using that should/will update their state
 	}
 
