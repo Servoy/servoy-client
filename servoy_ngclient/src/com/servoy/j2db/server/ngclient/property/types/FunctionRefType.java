@@ -20,7 +20,7 @@ package com.servoy.j2db.server.ngclient.property.types;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
-import org.mozilla.javascript.NativeFunction;
+import org.mozilla.javascript.Function;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
@@ -33,63 +33,53 @@ import org.sablo.websocket.utils.JSONUtils;
  * @author gboros
  *
  */
-public class NativeFunctionType extends UUIDReferencePropertyType<NativeFunction>
-	implements IPropertyConverterForBrowser<NativeFunction>, IClassPropertyType<NativeFunction>
+public class FunctionRefType extends UUIDReferencePropertyType<Function>
+	implements IPropertyConverterForBrowser<Function>, IClassPropertyType<Function>
 {
-	public static final NativeFunctionType INSTANCE = new NativeFunctionType();
+
+	private static final String FUNCTION_HASH = "functionhash"; //$NON-NLS-1$
+
+	public static final FunctionRefType INSTANCE = new FunctionRefType();
 	public static final String TYPE_NAME = "NativeFunction"; //$NON-NLS-1$
 
-	private NativeFunctionType()
+	private FunctionRefType()
 	{
 	}
 
-	/*
-	 * @see org.sablo.specification.property.IPropertyConverter#fromJSON(java.lang.Object, java.lang.Object, org.sablo.specification.PropertyDescription,
-	 * java.lang.Object, org.sablo.util.ValueReference)
-	 */
 	@Override
-	public NativeFunction fromJSON(Object newJSONValue, NativeFunction previousSabloValue, PropertyDescription propertyDescription,
+	public Function fromJSON(Object newJSONValue, Function previousSabloValue, PropertyDescription propertyDescription,
 		IBrowserConverterContext context, ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		if (newJSONValue instanceof JSONObject)
 		{
-			JSONObject jsonNativeFunction = (JSONObject)newJSONValue;
-			return getReference(jsonNativeFunction.optString("functionhash"));
+			JSONObject jsonFunction = (JSONObject)newJSONValue;
+			return getReference(jsonFunction.optString(FUNCTION_HASH));
 		}
 		return null;
 	}
 
-	/*
-	 * @see org.sablo.specification.property.IPropertyConverter#toJSON(org.json.JSONWriter, java.lang.String, java.lang.Object,
-	 * org.sablo.specification.PropertyDescription, org.sablo.websocket.utils.DataConversion, java.lang.Object)
-	 */
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, NativeFunction sabloValue, PropertyDescription propertyDescription, DataConversion clientConversion,
+	public JSONWriter toJSON(JSONWriter writer, String key, Function sabloValue, PropertyDescription propertyDescription, DataConversion clientConversion,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.object();
-		writer.key("functionhash").value(addReference(sabloValue));
-		writer.key("svyType").value(getName());
+		writer.key(FUNCTION_HASH).value(addReference(sabloValue));
+		writer.key("svyType").value(getName()); // TODO is this "svyType" used anywhere? can it be removed?
 		writer.endObject();
 		return writer;
 	}
 
-	/*
-	 * @see org.sablo.specification.property.IPropertyType#getName()
-	 */
 	@Override
 	public String getName()
 	{
 		return TYPE_NAME;
 	}
 
-	/*
-	 * @see org.sablo.specification.property.IClassPropertyType#getTypeClass()
-	 */
 	@Override
-	public Class<NativeFunction> getTypeClass()
+	public Class<Function> getTypeClass()
 	{
-		return NativeFunction.class;
+		return Function.class;
 	}
+
 }
