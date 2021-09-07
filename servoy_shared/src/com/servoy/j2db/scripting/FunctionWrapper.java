@@ -43,6 +43,15 @@ public class FunctionWrapper implements Function
 		this.clientID = clientID;
 	}
 
+	/**
+	 * In almost all cases - that just deal with any Function impl. - you should not need to call this method.
+	 * It returns the wrapped method.
+	 */
+	public Function getWrappedFunction()
+	{
+		return function;
+	}
+
 	private Scriptable fixStart(Scriptable start)
 	{
 		if (start == this)
