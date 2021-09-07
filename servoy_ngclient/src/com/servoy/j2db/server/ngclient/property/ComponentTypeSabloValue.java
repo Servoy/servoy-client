@@ -111,9 +111,13 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	protected ComponentDataLinkedPropertyListener dataLinkedPropertyRegistrationListener; // only used in case component is foundset-linked
 
 	/**
-	 * Initially equal to recordBasedProperties. Make sure to make & use a copy of it if it needs to become different at runtime!
+	 * Initially equal to recordBasedProperties of the form element. It will always return a copy and keep the original intact if any
+	 * methods that can mutate it's state are about to do that.
+	 *
+	 * This will be null if the component is not foundset-linked and will always be non-null (no matter if it has record based props or
+	 * not in the component) if the component is foundset linked.
 	 */
-	protected RecordBasedProperties recordBasedProperties;
+	private RecordBasedProperties recordBasedProperties;
 
 	private IWebObjectContext webObjectContext;
 	private IChangeListener foundsetStateChangeListener;
@@ -129,8 +133,13 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	{
 		this.formElementValue = formElementValue;
 		this.forFoundsetTypedPropertyName = forFoundsetTypedPropertyName;
-		this.recordBasedProperties = forFoundsetTypedPropertyName != null ? formElementValue.recordBasedProperties : null;
 		this.componentPropertyDescription = componentPropertyDescription;
+		initRecordBasedProperties();
+	}
+
+	private void initRecordBasedProperties()
+	{
+		this.recordBasedProperties = forFoundsetTypedPropertyName != null ? formElementValue.recordBasedProperties : null;
 	}
 
 	public String getName()
@@ -238,10 +247,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		}
 		componentIsCreated = false;
 
-		if (recordBasedProperties != null)
-		{
-			recordBasedProperties = formElementValue.recordBasedProperties;
-		}
+		initRecordBasedProperties(); // reset to form element's record based properties or null
 
 		this.monitor = null;
 		this.webObjectContext = null;
@@ -510,7 +516,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	public JSONWriter initialToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers, ComponentPropertyType componentPropertyType)
 		throws JSONException
 	{
-		if (recordBasedProperties.areRecordBasedPropertiesChangedComparedToTemplate())
+		if (forFoundsetTypedPropertyName != null && recordBasedProperties.areRecordBasedPropertiesChangedComparedToTemplate())
 			return fullToJSON(destinationJSON, conversionMarkers, componentPropertyType);
 
 		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
@@ -546,7 +552,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	public JSONWriter changesToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers, ComponentPropertyType componentPropertyType)
 		throws JSONException
 	{
-		if (recordBasedProperties.areRecordBasedPropertiesChanged())
+		if (forFoundsetTypedPropertyName != null && recordBasedProperties.areRecordBasedPropertiesChanged())
 		{
 			// just send over the whole thing - viewport and model properties are not the same as they used to be
 			return fullToJSON(destinationJSON, conversionMarkers, componentPropertyType);
@@ -715,7 +721,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			}
 
 		}, recordBasedProperties, false);
-		recordBasedProperties.clearChanged();
+		if (forFoundsetTypedPropertyName != null) recordBasedProperties.clearChanged();
 
 		writeWholeViewportToJSON(writer);
 

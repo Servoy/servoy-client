@@ -40,7 +40,7 @@ public class ComponentTypeViewportDataChangeMonitor extends ViewportDataChangeMo
 		final boolean[] somethingWasQueued = new boolean[] { false };
 		if (columnDPName != null)
 		{
-			componentTypeSabloValue.recordBasedProperties.forEachPropertyNameThatListensToDp(columnDPName, propertyName -> {
+			componentTypeSabloValue.getRecordBasedProperties().forEachPropertyNameThatListensToDp(columnDPName, propertyName -> {
 				somethingWasQueued[0] = queueCellChange(relativeRowIndex, oldViewportSize, propertyName) || somethingWasQueued[0];
 			});
 		}

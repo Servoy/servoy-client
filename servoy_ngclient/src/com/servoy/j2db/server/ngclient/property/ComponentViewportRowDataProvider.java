@@ -65,7 +65,7 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 		else
 		{
 			// full row
-			componentTypeSabloValue.recordBasedProperties.forEach(propName -> populateCellData(propName, w, clientConversionInfo));
+			componentTypeSabloValue.getRecordBasedProperties().forEach(propName -> populateCellData(propName, w, clientConversionInfo));
 		}
 		w.endObject();
 	}
