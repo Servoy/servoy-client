@@ -22,6 +22,8 @@ import java.util.Map.Entry;
 
 import org.json.JSONException;
 
+import com.servoy.base.util.I18NProvider;
+
 
 /**
  * @author jcompagner
@@ -33,10 +35,15 @@ public class FormatParser
 
 	public static ParsedFormat parseFormatProperty(String formatProperty)
 	{
-		return parseFormatProperty(formatProperty, null);
+		return parseFormatProperty(formatProperty, null, null);
 	}
 
 	public static ParsedFormat parseFormatProperty(String formatProperty, String defaultFormat)
+	{
+		return parseFormatProperty(formatProperty, defaultFormat, null);
+	}
+
+	public static ParsedFormat parseFormatProperty(String formatProperty, String defaultFormat, I18NProvider i18nProvider)
 	{
 		if (formatProperty != null && formatProperty.startsWith("{") && formatProperty.endsWith("}"))
 		{
@@ -60,7 +67,7 @@ public class FormatParser
 				if (formatString == null) formatString = defaultFormat;
 				if (formatString != null)
 				{
-					return parseFormatString(formatString, uiConverterName, uiConverterProperties, useLocalDateTime);
+					return parseFormatString(formatString, uiConverterName, uiConverterProperties, useLocalDateTime, i18nProvider);
 				}
 
 				// all in json
@@ -71,6 +78,11 @@ public class FormatParser
 				boolean mask = Boolean.TRUE.equals(props.get("mask"));
 				String editOrPlaceholder = (String)props.get("editOrPlaceholder");
 				String displayFormat = (String)props.get("displayFormat");
+				if (i18nProvider != null)
+				{
+					editOrPlaceholder = i18nProvider.getI18NMessageIfPrefixed(editOrPlaceholder);
+					displayFormat = i18nProvider.getI18NMessageIfPrefixed(displayFormat);
+				}
 				Integer maxLength = (Integer)props.get("maxLength");
 				String allowedCharacters = (String)props.get("allowedCharacters");
 
@@ -84,7 +96,7 @@ public class FormatParser
 		}
 
 		// plain format string
-		return parseFormatString(formatProperty, null, null, false);
+		return parseFormatString(formatProperty, null, null, false, i18nProvider);
 	}
 
 	/**
@@ -96,7 +108,8 @@ public class FormatParser
 	 *
 	 * @param format
 	 */
-	private static ParsedFormat parseFormatString(String fmtString, String uiConverterName, Map<String, String> uiConverterProperties, boolean useLocalDateTime)
+	private static ParsedFormat parseFormatString(String fmtString, String uiConverterName, Map<String, String> uiConverterProperties, boolean useLocalDateTime,
+		I18NProvider i18nProvider)
 	{
 		String formatString = fmtString == null || fmtString.length() == 0 ? null : fmtString;
 		boolean allLowerCase = false;
@@ -186,7 +199,11 @@ public class FormatParser
 				}
 			}
 		}
-
+		if (i18nProvider != null)
+		{
+			editOrPlaceholder = i18nProvider.getI18NMessageIfPrefixed(editOrPlaceholder);
+			displayFormat = i18nProvider.getI18NMessageIfPrefixed(displayFormat);
+		}
 		return new ParsedFormat(allUpperCase, allLowerCase, numberValidator, raw, mask, editOrPlaceholder, displayFormat, maxLength, uiConverterName,
 			uiConverterProperties == null ? null : Collections.unmodifiableMap(uiConverterProperties), null, useLocalDateTime);
 	}

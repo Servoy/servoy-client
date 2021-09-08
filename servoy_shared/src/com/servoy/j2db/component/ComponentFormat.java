@@ -146,7 +146,7 @@ public class ComponentFormat
 
 		// parse format to see if it contains UI converter info
 		boolean hasUIConverter = false;
-		ParsedFormat parsedFormat = FormatParser.parseFormatProperty(formatProperty);
+		ParsedFormat parsedFormat = FormatParser.parseFormatProperty(formatProperty, null, application);
 		if (parsedFormat.getUIConverterName() != null)
 		{
 			IUIConverter uiConverter = ((FoundSetManager)application.getFoundSetManager()).getUIConverterManager().getConverter(
