@@ -75,6 +75,7 @@ import com.servoy.j2db.server.headlessclient.util.HCUtils;
 import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet.MediaInfo;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
+import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceFunction;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
@@ -1716,5 +1717,10 @@ public class NGClient extends AbstractApplication
 		return null;
 	}
 
+	@Override
+	public String getMediaURL(String mediaName)
+	{
+		return MediaPropertyType.getMediaUrl(mediaName, getFlattenedSolution(), this);
+	}
 
 }

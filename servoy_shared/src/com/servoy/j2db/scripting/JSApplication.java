@@ -609,6 +609,25 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
+	 * Get the media url that can be used to server a media in NGClient.
+	 *
+	 * @sample
+	 * application.getMediaURL('solution.css');
+	 *
+	 * @param mediaName Name of the media
+	 */
+	@JSFunction
+	@ServoyClientSupport(ng = true, wc = false, sc = false)
+	public String getMediaURL(String mediaName)
+	{
+		if (application instanceof INGClientApplication)
+		{
+			return ((INGClientApplication)application).getMediaURL(mediaName);
+		}
+		return null;
+	}
+
+	/**
 	 * Fill a custom type valuelist with values from array(s) or dataset.
 	 *
 	 * NOTE: if you modify values for checkbox/radio field, note that having one value in valuelist is a special case, so switching between one value and 0/multiple values may have side effects

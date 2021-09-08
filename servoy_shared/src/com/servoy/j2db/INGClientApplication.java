@@ -30,4 +30,6 @@ public interface INGClientApplication extends IApplication
 	void setClipboardContent(String content);
 
 	String getClipboardContent();
+
+	String getMediaURL(String mediaName);
 }
