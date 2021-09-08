@@ -647,6 +647,16 @@ public class FoundsetTypeChangeMonitor
 		}
 	}
 
+
+	public boolean isVisible()
+	{
+		if (propertyValue != null && propertyValue.getDataAdapterList() != null)
+		{
+			return propertyValue.getDataAdapterList().getForm().isFormVisible();
+		}
+		return true;
+	}
+
 //	protected static class RecordChangeDescriptor implements JSONWritable
 //	{
 //

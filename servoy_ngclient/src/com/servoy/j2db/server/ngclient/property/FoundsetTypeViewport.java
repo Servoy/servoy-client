@@ -341,7 +341,7 @@ public class FoundsetTypeViewport
 							changeMonitor.recordsUpdated(event.getFirstRow(), event.getLastRow(), foundset.getSize(), FoundsetTypeViewport.this,
 								event.getDataProviders());
 						}
-						else if (event.getChangeType() == FoundSetEvent.FOUNDSET_INVALIDATED) foundset.getSize(); // getSize on a related foundset (that can be invalidated) will validate the foundset and send any changes as subsequent events; do that as we are actively monitoring this foundset
+						else if (event.getChangeType() == FoundSetEvent.FOUNDSET_INVALIDATED && changeMonitor.isVisible()) foundset.getSize(); // getSize on a related foundset (that can be invalidated) will validate the foundset and send any changes as subsequent events; do that as we are actively monitoring this foundset
 
 						changeMonitor.checkHadMoreRows();
 					}
