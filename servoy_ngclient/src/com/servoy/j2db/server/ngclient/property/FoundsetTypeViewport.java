@@ -68,15 +68,15 @@ public class FoundsetTypeViewport
 
 	public void setPreferredViewportBounds()
 	{
-		if (foundset.getSelectedIndex() >= foundset.getSize())
-		{
-			this.callPreferredViewportBoundsOnSelectionChange = true;
-			return;
-		}
 		sendingInitialPreferredViewport = true;
 
 		if (foundset != null)
 		{
+			if (foundset.getSelectedIndex() >= foundset.getSize())
+			{
+				this.callPreferredViewportBoundsOnSelectionChange = true;
+				return;
+			}
 			// reset to the preferred viewport
 			int firstSelectedIndex;
 			if (sendSelectionViewportInitially && (firstSelectedIndex = foundset.getSelectedIndex()) >= 0)
