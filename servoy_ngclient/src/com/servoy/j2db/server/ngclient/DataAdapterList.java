@@ -198,12 +198,17 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(jsRetVal, null, null, (IWebObjectContext)webComponent); // TODO why do handlers not have complete definitions in spec - just like apis? - we don't know types here
 	}
 
+	/**
+	 * @param args args to replace in script - used for HTML-triggered executeInlineScript; so calls generated via HTMLTagsConverter.convert(String, IServoyDataConverterContext, boolean) inside some piece of HTML
+	 * @param appendingArgs args to append in script execution - used for component/service client side code triggered executeInlineScript.
+	 */
 	@Override
 	public Object executeInlineScript(String script, JSONObject args, JSONArray appendingArgs)
 	{
 		String decryptedScript = HTMLTagsConverter.decryptInlineScript(script, args);
 		if (appendingArgs != null && decryptedScript.endsWith("()"))
 		{
+			// this is an executeInlineScript called from component/service client-side code
 			ArrayList<Object> javaArguments = new ArrayList<Object>();
 			Object argObj = null;
 			BrowserConverterContext dataConverterContext = new BrowserConverterContext((WebFormUI)formController.getFormUI(), PushToServerEnum.allow);
@@ -288,7 +293,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				Debug.error(ex);
 				return null;
 			}
-		}
+		} // else this is a executeInlineScript called from within a piece of HTML that was treated before being sent to client using HTMLTagsConverter.convert(...); all that was needed (including args) was already done inside the HTMLTagsConverter.decryptInlineScript() call above
+
 		return decryptedScript != null ? formController.eval(decryptedScript) : null;
 	}
 

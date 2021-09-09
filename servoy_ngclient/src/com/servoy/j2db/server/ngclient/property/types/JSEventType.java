@@ -106,6 +106,7 @@ public class JSEventType extends UUIDReferencePropertyType<JSEvent> implements I
 		event.setType(jsonObject.optString("eventType"));
 		String formName = controller != null ? controller.getName() : "";
 		String elementName = "";
+
 		if (webObject instanceof WebFormComponent)
 		{
 			elementName = ((WebFormComponent)webObject).getFormElement().getRawName();
@@ -123,14 +124,24 @@ public class JSEventType extends UUIDReferencePropertyType<JSEvent> implements I
 				}
 			}
 		}
-		else if (formName.isEmpty() && webObject instanceof WebFormUI)
-		{
-			formName = webObject.getName();
-		}
+
 		if (formName.isEmpty())
 		{
 			formName = jsonObject.optString("formName");
 		}
+
+		if (formName.isEmpty() && webObject instanceof WebFormUI)
+		{
+			// executeInlineScript with an event in params tells a DAL to execute it and it gives a formui as context to the fromJSON conversion
+			// for JSEventType problem is that it can give any formName from the client (the component/service can give anything there as an arg); or, if the function
+			// (sent to client before through "function" type) that will be used to execute the script is a global/scope function
+			// then formName can be null and in that case the WebFormUI will be the main form or the window (not the most nested one)
+
+			// so this is just a fallback and we do give priority to the form name determined on client through $window.createJSEvent(...) an put into
+			// "jsonObject" (see if above) - to target the correct form - closest one to event
+			formName = webObject.getName();
+		}
+
 		if (elementName.isEmpty())
 		{
 			elementName = jsonObject.optString("elementName");
