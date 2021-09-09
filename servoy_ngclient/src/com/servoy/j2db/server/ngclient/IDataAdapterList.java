@@ -47,8 +47,8 @@ public interface IDataAdapterList extends ITagResolver
 	Object executeEvent(WebComponent webComponent, String event, int eventId, Object[] args);
 
 	/**
-	 * @param args args to replace in script
-	 * @param appendingArgs args to append in script execution
+	 * @param args args to replace in script - used for HTML-triggered executeInlineScript; so calls generated via HTMLTagsConverter.convert(String, IServoyDataConverterContext, boolean) inside some piece of HTML
+	 * @param appendingArgs args to append in script execution - used for component/service client side code triggered executeInlineScript.
 	 */
 	Object executeInlineScript(String script, JSONObject args, JSONArray appendingArgs);
 
