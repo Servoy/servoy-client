@@ -16,7 +16,10 @@ var MenuItem = {
 	setMethod: function(callback,args)
 	{
 		this.callback = callback;
-		this.methodArguments = args;
+		if(args !== undefined) 
+		{
+			this.methodArguments = args;
+		}
 	},
 	
 	setAccelarator: function(accelerator)
