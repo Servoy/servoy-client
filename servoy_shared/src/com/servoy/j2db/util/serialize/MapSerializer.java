@@ -21,8 +21,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.mozilla.javascript.Function;
 import org.mozilla.javascript.IdScriptableObject;
-import org.mozilla.javascript.NativeFunction;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.Wrapper;
@@ -34,7 +34,7 @@ import com.servoy.j2db.scripting.JSMap;
 /**
  * Serializer for map to javascript object and back
  * simple version, might need some improves
- * 
+ *
  * @author jblok
  */
 public class MapSerializer
@@ -69,7 +69,7 @@ public class MapSerializer
 				// should not happen
 				continue;
 			}
-			if (propertyValue instanceof NativeFunction)
+			if (propertyValue instanceof Function) // allow but ignore functions nested in objects
 			{
 				continue;
 			}

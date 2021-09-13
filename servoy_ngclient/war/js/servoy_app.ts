@@ -51,7 +51,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			var beanConversionInfo = $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesConversionInfo(), formname, beanname);
 			var changes = getComponentChanges(now, prev, beanConversionInfo, formState.layout[beanname], formState.properties.designSize, property, formState.model[beanname], !formState.properties.useCssPosition[beanname], formname);
 			if (Object.getOwnPropertyNames(changes).length > 0) {
-				// if this is a simple property change without any special conversions then then push the old value.
+				// if this is a simple property change without any special conversions then push the old value.
 				if (angular.isDefined(property) && !(beanConversionInfo && beanConversionInfo[property])) {
 					var oldvalues ={};
 					oldvalues[property] = $sabloUtils.convertClientObject(prev)
