@@ -834,6 +834,8 @@ public class ScriptEngine implements IScriptSupport
 		{
 			Object o = null;
 			Function compileFunction = cx.compileFunction(scope, "function evalFunction(){}", "evalFunction", 0, null); //$NON-NLS-1$ //$NON-NLS-2$
+			if (compileFunction instanceof FunctionWrapper) compileFunction = ((FunctionWrapper)compileFunction).getWrappedFunction();
+
 			if (compileFunction instanceof NativeFunction)
 			{
 				o = cx.evaluateString(ScriptRuntime.createFunctionActivation((NativeFunction)compileFunction, scope, null), eval_string, "internal_anon", 1, //$NON-NLS-1$
