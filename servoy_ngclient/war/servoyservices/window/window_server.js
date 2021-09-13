@@ -135,8 +135,9 @@ var Menu = {
 		newItem.mnemonic = mnemonic;
 		newItem.align = align;
 		newItem.enabled = enabled;
+		newItem = this.items[this.items.push(newItem) - 1]; // we set and get it back to return as that instruments the value and makes it change-aware (be able to send granular updates to browser);
 		menuArgumentsInternal[newItem.id] = [newItem, null];
-		return this.items[this.items.push(newItem) - 1]; // we set and get it back to return as that instruments the value and makes it change-aware (be able to send granular updates to browser);
+		return newItem;
 	},
 	
 	addCheckBox : function(text,callback,icon,mnemonic,enabled,align)
