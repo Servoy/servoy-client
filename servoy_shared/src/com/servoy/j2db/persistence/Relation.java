@@ -20,6 +20,7 @@ package com.servoy.j2db.persistence;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -768,8 +769,11 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 					continue; //allow uuid to media mapping
 				}
 
+				if (primary[i].getDataProviderType() == Types.NULL) continue; // Support is null/is not null
+
 				int primaryType = Column.mapToDefaultType(primary[i].getDataProviderType());
 				int foreignType = Column.mapToDefaultType(foreign[i].getDataProviderType());
+
 				if (primaryType == IColumnTypes.INTEGER && foreignType == IColumnTypes.NUMBER)
 				{
 					continue; //allow integer to number mappings
