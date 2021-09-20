@@ -12,6 +12,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 		return {
 			restrict: 'A',
 			link: function( scope, element, attrs ) {
+				var firstTimeFocus = true;
 				scope['lastElementFocused'] = function( e ) {
 					var lastTabIndex = parseInt( element.find( '#tabStop' ).attr( 'tabindex' ) );
 					for(var i = 2; i < lastTabIndex; i++) {
@@ -20,20 +21,36 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 						// do a check here to avoid focus cycling
 						if(newTarget.is(":visible") && (e.target != newTarget[0])) {
 							newTarget.focus();
+							firstTimeFocus = false;
 							break;
 						}
 					}
 				}
 
 				scope['firstElementFocused'] = function( e ) {
+					var firstTabIndex = parseInt( element.find( '#tabStart' ).attr( 'tabindex' ) );
 					var lastTabIndex = parseInt( element.find( '#tabStop' ).attr( 'tabindex' ) );
-					for(var i = lastTabIndex - 1; i > 1; i--) {
-						var newTarget = $( '[tabindex=' + i + ']' );
-						// if there is no focusable element in the window, then newTarget == e.target,
-						// do a check here to avoid focus cycling
-						if(newTarget.is(":visible") && (e.target != newTarget[0])) {
-							newTarget.focus();
-							break;
+					if (firstTimeFocus === true) {						
+						for(var i = firstTabIndex + 1; i < lastTabIndex; i++) {
+							var newTarget = $( '[tabindex=' + i + ']' );
+							// if there is no focusable element in the window, then newTarget == e.target,
+							// do a check here to avoid focus cycling
+							if(newTarget.is(":visible") && (e.target != newTarget[0])) {
+								newTarget.focus();
+								firstTimeFocus = false;
+								break;
+							}
+						}
+					} else {
+						for(var i = lastTabIndex - 1; i > 1; i--) {
+							var newTarget = $( '[tabindex=' + i + ']' );
+							// if there is no focusable element in the window, then newTarget == e.target,
+							// do a check here to avoid focus cycling
+							if(newTarget.is(":visible") && (e.target != newTarget[0])) {
+								newTarget.focus();
+								firstTimeFocus = false;
+								break;
+							}
 						}
 					}
 				}

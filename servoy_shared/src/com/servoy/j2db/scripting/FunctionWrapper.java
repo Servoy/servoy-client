@@ -35,6 +35,10 @@ public class FunctionWrapper implements Function
 	private final String clientID;
 	private final String name;
 
+	/**
+	 * @param function always seems to be NativeFunction instance as both Codegen.createFunctionObject and Interpreter.createFunctionObject return NativeFunction instances.
+	 * And that is what cx.compileFunction(...) ends up calling.
+	 */
 	public FunctionWrapper(Function function, String name, PerformanceData performanceData, String clientID)
 	{
 		this.function = function;
