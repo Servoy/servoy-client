@@ -74,7 +74,10 @@
 		},
 		"setLangAttribute": {
 			"parameters": [{ "name": "lang", "type": "string" }]
-		}
+		},
+		"scrollIntoView": {
+            "parameters": [{ "name": "anchorSelector", "type": "string" }, { "name": "scrollIntoViewOptions", "type": "object", "optional": true }]
+        }
 	},
 
 	"types": {
