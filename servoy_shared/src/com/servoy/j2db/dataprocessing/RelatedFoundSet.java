@@ -820,6 +820,9 @@ public abstract class RelatedFoundSet extends FoundSet
 
 	private boolean checkForeignKeyValue(Object obj, Object whereArg, int operator)
 	{
+		if (obj instanceof DbIdentValue && ((DbIdentValue)obj).getPkValue() != null) obj = ((DbIdentValue)obj).getPkValue();
+		if (whereArg instanceof DbIdentValue && ((DbIdentValue)whereArg).getPkValue() != null) whereArg = ((DbIdentValue)whereArg).getPkValue();
+
 		int maskedOperator = operator & IBaseSQLCondition.OPERATOR_MASK;
 		if (Utils.equalObjects(whereArg, obj, true))
 		{
