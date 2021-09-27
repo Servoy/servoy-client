@@ -237,7 +237,7 @@
 			"y": "int",
 			"height": "int",
 			"positionTop": "boolean"
-		}
+  		}
 	  },
 	  "menuitem": {
 		"model": {

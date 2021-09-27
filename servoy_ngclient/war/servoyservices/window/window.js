@@ -553,8 +553,8 @@ angular.module('window',['servoy'])
 							var x = xyReceived ? newvalue.popupMenuShowCommand.x : 0;
 							var y = xyReceived ? newvalue.popupMenuShowCommand.y : 0;
 							
-							if ((newvalue.popupMenuShowCommand.positionTop == true && menuHeight <= roomAbove) || 
-							    (newvalue.popupMenuShowCommand.positionTop == false && (menuHeight > roomBelow) && (menuHeight <= roomAbove))) {
+							if ((newvalue.popupMenuShowCommand.positionTop == true && menuHeight <= roomAbove) || //top position wanted
+							    (newvalue.popupMenuShowCommand.positionTop == false && (menuHeight > roomBelow) && (menuHeight <= roomAbove))) {//no space below
 								oMenu.moveTo(jsCompReg.left  + x, jsCompReg.top + y - menuHeight); //draw on component's top
 							} else if (menuHeight <= roomBelow) { //default we are drawing below component
 								oMenu.moveTo(jsCompReg.left  + x, jsCompReg.top + y + (xyReceived ? 0 : newvalue.popupMenuShowCommand.height));

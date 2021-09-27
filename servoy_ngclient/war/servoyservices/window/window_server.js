@@ -247,8 +247,8 @@ var Menu = {
 			command.x = 0;
 			command.y = 0;
 		} 
-		else if (x == undefined && y == undefined) //show(component) or show(event)
-		{
+		else if (x == undefined && y == undefined) 
+		{//show(component) or show(event)
 			command.elementId = component.svyMarkupId;
 			command.height = component.height;
 			command.positionTop = false;
