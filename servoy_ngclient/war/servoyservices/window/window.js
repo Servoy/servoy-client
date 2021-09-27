@@ -541,22 +541,34 @@ angular.module('window',['servoy'])
 						}
 						if(element)
 						{
-							var jsCompReg = YAHOO.util.Dom.getRegion(element);
+
+							var jsCompReg = YAHOO.util.Dom.getRegion(element); //get element region relative to viewport
+							var roomAbove = jsCompReg.top - 1;
+							var roomBelow = document.documentElement.clientHeight - jsCompReg.top - newvalue.popupMenuShowCommand.height;
 							oMenu.render(document.body);
+
 							var oMenuReg = YAHOO.util.Dom.getRegion(document.getElementById(oMenu.id));
+							var menuHeight = oMenuReg.bottom - oMenuReg.top;
+							var xyReceived = newvalue.popupMenuShowCommand.y != undefined;
+							var x = xyReceived ? newvalue.popupMenuShowCommand.x : 0;
+							var y = xyReceived ? newvalue.popupMenuShowCommand.y : 0;
+							
 							if (newvalue.popupMenuShowCommand.checkAbove == true) {
-								if ((jsCompReg.top + newvalue.popupMenuShowCommand.y - (oMenuReg.bottom - oMenuReg.top) > 0)) {//has room above
-									oMenu.moveTo(jsCompReg.left  + newvalue.popupMenuShowCommand.x, jsCompReg.top + newvalue.popupMenuShowCommand.y -(oMenuReg.bottom - oMenuReg.top));
-								} else {//no room so move below
-									oMenu.moveTo(jsCompReg.left  + newvalue.popupMenuShowCommand.x, jsCompReg.top + newvalue.popupMenuShowCommand.y);
+								if ((menuHeight <= roomAbove)) {//has room above
+									oMenu.moveTo(jsCompReg.left  + x, jsCompReg.top + y - menuHeight);
+								} else if (menuHeight <= roomBelow) {//no room above so ... check below 
+									oMenu.moveTo(jsCompReg.left  + x, jsCompReg.top + y + (xyReceived ? 0 : newvalue.popupMenuShowCommand.height));
+								} else { // no room above or below - that means a huge popup or a tiny display area - draw menu starting from top viewport
+									oMenu.moveTo(jsCompReg.left  + x, jsCompReg.top + 1); //browser decision 								
 								}
-							} else if(element.offsetParent && 
-								//document.documentElement.clientHeight - contain viewport's height excluding horizontal scroll - if any
-								(jsCompReg.top + newvalue.popupMenuShowCommand.y + (oMenuReg.bottom - oMenuReg.top) > document.documentElement.clientHeight) && //no space below
-								(jsCompReg.top + newvalue.popupMenuShowCommand.y - (oMenuReg.bottom - oMenuReg.top) > 0)) {//and have space above
-									oMenu.moveTo(jsCompReg.left  + newvalue.popupMenuShowCommand.x, jsCompReg.top + newvalue.popupMenuShowCommand.y -(oMenuReg.bottom - oMenuReg.top));
-							} else {//move below
-								oMenu.moveTo(jsCompReg.left  + newvalue.popupMenuShowCommand.x, jsCompReg.top + newvalue.popupMenuShowCommand.y);
+							} else {
+								if ((menuHeight <= roomBelow)) {//has room below
+									oMenu.moveTo(jsCompReg.left  + x, jsCompReg.top + y  + (xyReceived ? 0 : newvalue.popupMenuShowCommand.height));
+								} else if (menuHeight <= roomAbove) {//no room below so ... check above 
+									oMenu.moveTo(jsCompReg.left  + x, jsCompReg.top + y - menuHeight);
+								} else { // no room above or below - that means a huge popup or a tiny display area - draw menu starting from top viewport
+									oMenu.moveTo(jsCompReg.left  + newvalue.popupMenuShowCommand.x, jsCompReg.top + 1); //browser decision 
+								}
 							}
 						}
 						else

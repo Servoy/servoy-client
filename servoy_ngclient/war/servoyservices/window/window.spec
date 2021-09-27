@@ -235,6 +235,7 @@
 			"elementId": "string",
 			"x": "int",
 			"y": "int",
+			"height": "int",
 			"checkAbove": "boolean"
 		}
 	  },

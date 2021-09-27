@@ -250,16 +250,15 @@ var Menu = {
 		else if (x == undefined && y == undefined) //show(component) or show(event)
 		{
 			command.elementId = component.svyMarkupId;
-			command.x = 0;
-			command.y = (component.height != undefined ? component.height : 0);
+			command.height = component.height;
+			command.checkAbove = false;
 		}
 		else if (x != undefined && y == undefined) 
 		{
 			if (x === false || x === true) 
 			{ //show(component, checkAbove)
 				command.elementId = component.svyMarkupId;
-				command.x = 0;
-				command.y = (x == true ? 0 : component.height);
+				command.height = component.height;
 				command.checkAbove = x;
 			} else //show(x, y)
 			{ 
@@ -267,11 +266,16 @@ var Menu = {
 				command.y = x;
 			}
 		} else  
-		{
+		{ //show(component, x, y [, checkAbove])
 			command.elementId = component.svyMarkupId;
 			command.x = x;
 			command.y = y;
-			command.checkAbove = checkAbove;
+			command.height = component.height;
+			if (checkAbove == undefined) {
+				command.checkAbove = false;
+			} else {
+				command.checkAbove = checkAbove;
+			}
 		}
 		$scope.model.popupMenuShowCommand = command;
 	},
