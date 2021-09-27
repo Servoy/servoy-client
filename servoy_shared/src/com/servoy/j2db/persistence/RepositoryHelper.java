@@ -682,7 +682,8 @@ public class RepositoryHelper
 		}
 		if (ValueList.class.isAssignableFrom(persistClass) && !"name".equals(name) && //$NON-NLS-1$
 			!StaticContentSpecLoader.PROPERTY_ENCAPSULATION.getPropertyName().equals(name) &&
-			!StaticContentSpecLoader.PROPERTY_DEPRECATED.getPropertyName().equals(name))
+			!StaticContentSpecLoader.PROPERTY_DEPRECATED.getPropertyName().equals(name) &&
+			!StaticContentSpecLoader.PROPERTY_COMMENT.getPropertyName().equals(name))
 		{
 			return false;
 		}
