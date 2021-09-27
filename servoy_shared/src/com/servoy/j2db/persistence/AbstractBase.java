@@ -1450,6 +1450,17 @@ public abstract class AbstractBase implements IPersist
 		return false;
 	}
 
+	public String getComment()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_COMMENT);
+	}
+
+	public void setComment(String arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_COMMENT, arg);
+	}
+
+
 	/* Runtime properties */
 	/** Application level meta data. */
 	private PropertyEntry[] properties;

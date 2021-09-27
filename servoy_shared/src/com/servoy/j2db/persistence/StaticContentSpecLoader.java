@@ -934,6 +934,21 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			//2021.06 properties here
 			cs.new Element(451, IRepository.SOLUTIONS, PROPERTY_ONBEFORELOGINMETHODID.getPropertyName(), IRepository.ELEMENTS);
 		}
+		if (old_repository_version < 55)
+		{
+			//2021.12 properties here
+			cs.new Element(452, IRepository.SOLUTIONS, PROPERTY_COMMENT.getPropertyName(), IRepository.STRING);
+			cs.new Element(453, IRepository.MEDIA, PROPERTY_COMMENT.getPropertyName(), IRepository.STRING);
+			cs.new Element(454, IRepository.RELATIONS, PROPERTY_COMMENT.getPropertyName(), IRepository.STRING);
+			cs.new Element(455, IRepository.FORMS, PROPERTY_COMMENT.getPropertyName(), IRepository.STRING);
+			cs.new Element(456, IRepository.LAYOUTCONTAINERS, PROPERTY_COMMENT.getPropertyName(), IRepository.STRING);
+			cs.new Element(457, IRepository.FIELDS, PROPERTY_COMMENT.getPropertyName(), IRepository.STRING);
+			cs.new Element(458, IRepository.GRAPHICALCOMPONENTS, PROPERTY_COMMENT.getPropertyName(), IRepository.STRING);
+			cs.new Element(459, IRepository.TABPANELS, PROPERTY_COMMENT.getPropertyName(), IRepository.STRING);
+			cs.new Element(460, IRepository.WEBCOMPONENTS, PROPERTY_COMMENT.getPropertyName(), IRepository.STRING);
+			cs.new Element(461, IRepository.VALUELISTS, PROPERTY_COMMENT.getPropertyName(), IRepository.STRING);
+		}
+
 		//##add property adds here
 		return cs;
 	}
