@@ -236,7 +236,7 @@
 			"x": "int",
 			"y": "int",
 			"height": "int",
-			"checkAbove": "boolean"
+			"positionTop": "boolean"
 		}
 	  },
 	  "menuitem": {

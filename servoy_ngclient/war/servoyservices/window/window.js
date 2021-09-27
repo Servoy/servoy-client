@@ -553,22 +553,13 @@ angular.module('window',['servoy'])
 							var x = xyReceived ? newvalue.popupMenuShowCommand.x : 0;
 							var y = xyReceived ? newvalue.popupMenuShowCommand.y : 0;
 							
-							if (newvalue.popupMenuShowCommand.checkAbove == true) {
-								if ((menuHeight <= roomAbove)) {//has room above
-									oMenu.moveTo(jsCompReg.left  + x, jsCompReg.top + y - menuHeight);
-								} else if (menuHeight <= roomBelow) {//no room above so ... check below 
-									oMenu.moveTo(jsCompReg.left  + x, jsCompReg.top + y + (xyReceived ? 0 : newvalue.popupMenuShowCommand.height));
-								} else { // no room above or below - that means a huge popup or a tiny display area - draw menu starting from top viewport
-									oMenu.moveTo(jsCompReg.left  + x, jsCompReg.top + 1); //browser decision 								
-								}
-							} else {
-								if ((menuHeight <= roomBelow)) {//has room below
-									oMenu.moveTo(jsCompReg.left  + x, jsCompReg.top + y  + (xyReceived ? 0 : newvalue.popupMenuShowCommand.height));
-								} else if (menuHeight <= roomAbove) {//no room below so ... check above 
-									oMenu.moveTo(jsCompReg.left  + x, jsCompReg.top + y - menuHeight);
-								} else { // no room above or below - that means a huge popup or a tiny display area - draw menu starting from top viewport
-									oMenu.moveTo(jsCompReg.left  + newvalue.popupMenuShowCommand.x, jsCompReg.top + 1); //browser decision 
-								}
+							if ((newvalue.popupMenuShowCommand.positionTop == true && menuHeight <= roomAbove) || 
+							    (newvalue.popupMenuShowCommand.positionTop == false && (menuHeight > roomBelow) && (menuHeight <= roomAbove))) {
+								oMenu.moveTo(jsCompReg.left  + x, jsCompReg.top + y - menuHeight); //draw on component's top
+							} else if (menuHeight <= roomBelow) { //default we are drawing below component
+								oMenu.moveTo(jsCompReg.left  + x, jsCompReg.top + y + (xyReceived ? 0 : newvalue.popupMenuShowCommand.height));
+							} else {//no room for popup menu so let's browser decide
+								oMenu.moveTo(jsCompReg.left  + x, jsCompReg.top + 1); 
 							}
 						}
 						else
