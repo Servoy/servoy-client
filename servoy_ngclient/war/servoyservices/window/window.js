@@ -541,22 +541,25 @@ angular.module('window',['servoy'])
 						}
 						if(element)
 						{
-							var jsCompReg = YAHOO.util.Dom.getRegion(element);
+
+							var jsCompReg = YAHOO.util.Dom.getRegion(element); //get element region relative to viewport
+							var roomAbove = jsCompReg.top - 1;
+							var roomBelow = document.documentElement.clientHeight - jsCompReg.top - newvalue.popupMenuShowCommand.height;
 							oMenu.render(document.body);
+
 							var oMenuReg = YAHOO.util.Dom.getRegion(document.getElementById(oMenu.id));
-							if (newvalue.popupMenuShowCommand.checkAbove == true) {
-								if ((jsCompReg.top + newvalue.popupMenuShowCommand.y - (oMenuReg.bottom - oMenuReg.top) > 0)) {//has room above
-									oMenu.moveTo(jsCompReg.left  + newvalue.popupMenuShowCommand.x, jsCompReg.top + newvalue.popupMenuShowCommand.y -(oMenuReg.bottom - oMenuReg.top));
-								} else {//no room so move below
-									oMenu.moveTo(jsCompReg.left  + newvalue.popupMenuShowCommand.x, jsCompReg.top + newvalue.popupMenuShowCommand.y);
-								}
-							} else if(element.offsetParent && 
-								//document.documentElement.clientHeight - contain viewport's height excluding horizontal scroll - if any
-								(jsCompReg.top + newvalue.popupMenuShowCommand.y + (oMenuReg.bottom - oMenuReg.top) > document.documentElement.clientHeight) && //no space below
-								(jsCompReg.top + newvalue.popupMenuShowCommand.y - (oMenuReg.bottom - oMenuReg.top) > 0)) {//and have space above
-									oMenu.moveTo(jsCompReg.left  + newvalue.popupMenuShowCommand.x, jsCompReg.top + newvalue.popupMenuShowCommand.y -(oMenuReg.bottom - oMenuReg.top));
-							} else {//move below
-								oMenu.moveTo(jsCompReg.left  + newvalue.popupMenuShowCommand.x, jsCompReg.top + newvalue.popupMenuShowCommand.y);
+							var menuHeight = oMenuReg.bottom - oMenuReg.top;
+							var xyReceived = newvalue.popupMenuShowCommand.y != undefined;
+							var x = xyReceived ? newvalue.popupMenuShowCommand.x : 0;
+							var y = xyReceived ? newvalue.popupMenuShowCommand.y : 0;
+							
+							if ((newvalue.popupMenuShowCommand.positionTop == true && menuHeight <= roomAbove) || //top position wanted
+							    (newvalue.popupMenuShowCommand.positionTop == false && (menuHeight > roomBelow) && (menuHeight <= roomAbove))) {//no space below
+								oMenu.moveTo(jsCompReg.left  + x, jsCompReg.top + y - menuHeight); //draw on component's top
+							} else if (menuHeight <= roomBelow) { //default we are drawing below component
+								oMenu.moveTo(jsCompReg.left  + x, jsCompReg.top + y + (xyReceived ? 0 : newvalue.popupMenuShowCommand.height));
+							} else {//no room for popup menu so let's browser decide
+								oMenu.moveTo(jsCompReg.left  + x, jsCompReg.top + 1); 
 							}
 						}
 						else

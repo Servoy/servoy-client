@@ -235,8 +235,9 @@
 			"elementId": "string",
 			"x": "int",
 			"y": "int",
-			"checkAbove": "boolean"
-		}
+			"height": "int",
+			"positionTop": "boolean"
+  		}
 	  },
 	  "menuitem": {
 		"model": {

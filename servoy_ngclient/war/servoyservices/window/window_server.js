@@ -238,7 +238,7 @@ var Menu = {
 		return this.key;
 	},
 	
-	show : function(component,x,y, checkAbove)
+	show : function(component,x,y, positionTop)
 	{
 		// this belongs to popup only but cannot assign directly on instance because then it is sent to client
 		var command = {'popupName': this.name};
@@ -247,31 +247,35 @@ var Menu = {
 			command.x = 0;
 			command.y = 0;
 		} 
-		else if (x == undefined && y == undefined) //show(component) or show(event)
-		{
+		else if (x == undefined && y == undefined) 
+		{//show(component) or show(event)
 			command.elementId = component.svyMarkupId;
-			command.x = 0;
-			command.y = (component.height != undefined ? component.height : 0);
+			command.height = component.height;
+			command.positionTop = false;
 		}
 		else if (x != undefined && y == undefined) 
 		{
 			if (x === false || x === true) 
-			{ //show(component, checkAbove)
+			{ //show(component, positionTop)
 				command.elementId = component.svyMarkupId;
-				command.x = 0;
-				command.y = (x == true ? 0 : component.height);
-				command.checkAbove = x;
+				command.height = component.height;
+				command.positionTop = x;
 			} else //show(x, y)
 			{ 
 				command.x = component;
 				command.y = x;
 			}
 		} else  
-		{
+		{ //show(component, x, y [, positionTop])
 			command.elementId = component.svyMarkupId;
 			command.x = x;
 			command.y = y;
-			command.checkAbove = checkAbove;
+			command.height = component.height;
+			if (positionTop == undefined) {
+				command.positionTop = false;
+			} else {
+				command.positionTop = positionTop;
+			}
 		}
 		$scope.model.popupMenuShowCommand = command;
 	},
