@@ -14,7 +14,7 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 		return function() {
 			var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
 			internalState.changedKeys[key] = true;
-			internalState.notifier();
+			if (internalState.notifier) internalState.notifier();
 		}
 	}
 	
@@ -26,7 +26,7 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 			if (oldvalue === newvalue) return;
 			var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
 			internalState.changedKeys[key] = { old: oldvalue };
-			internalState.notifier();
+			if (internalState.notifier) internalState.notifier();
 		}, deep);
 	}
 
@@ -99,7 +99,7 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 					if (newWVal === null || oldWVal === null) {
 						// send new value entirely
 						internalState.allChanged = true;
-						internalState.notifier();
+						if (internalState.notifier) internalState.notifier();
 					} else {
 						// search for differences between properties of the old and new objects
 						var changed = false;
@@ -148,7 +148,7 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 								else internalState.elUnwatch[key] = watchDumbElementForChanges(newWVal, key, componentScope, internalState[PUSH_TO_SERVER]);
 							} // TODO do we need to handle unlikely situation where the value for a key would switch from dumb in the past to smart?
 						}
-						if (changed) internalState.notifier();
+						if (changed && internalState.notifier) internalState.notifier();
 					}
 				});
 			}

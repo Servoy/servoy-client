@@ -164,7 +164,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 				iS.unwatchSelection();
 				delete iS.unwatchSelection;
 			}
-			if (value[VIEW_PORT][ROWS]) $viewportModule.removeDataWatchesFromRows(value[VIEW_PORT][ROWS].length, iS);
+			if (value[VIEW_PORT][ROWS]) $viewportModule.removeDataWatchesFromRows(iS, value[VIEW_PORT][ROWS], false);
 		}
 	};
 

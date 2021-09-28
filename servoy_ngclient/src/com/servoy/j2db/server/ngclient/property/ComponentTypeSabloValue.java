@@ -1013,16 +1013,37 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 			if (recordIndex != -1)
 			{
-				foundsetPropertyValue.getDataAdapterList().setRecordQuietly(foundset.getRecord(recordIndex));
+				// ok we found the record; check that it is still available in the viewport of this foundset linked component (as it might have been excluded from viewport prior to this)
+				FoundsetTypeViewport vp = foundsetPropertyValue.getViewPort();
+				if (vp.getStartIndex() <= recordIndex && recordIndex < (vp.getStartIndex() + vp.getSize()))
+				{
+					foundsetPropertyValue.getDataAdapterList().setRecordQuietly(foundset.getRecord(recordIndex));
 
-				try
-				{
-					childComponent.putBrowserProperty(propertyName, value);
+					try
+					{
+						childComponent.putBrowserProperty(propertyName, value);
+					}
+					catch (JSONException e)
+					{
+						Debug.error(
+							"Setting value for record dependent property '" + propertyName + "' in foundset linked component to value: " + value + " failed.",
+							e);
+					}
 				}
-				catch (JSONException e)
+				else
 				{
-					Debug.error(
-						"Setting value for record dependent property '" + propertyName + "' in foundset linked component to value: " + value + " failed.", e);
+					// normally when this happens it is a strange sequence of requests from the client side component (updates are sent for components that are no longer inside the used viewport)
+					// for example a list form component that uses a form component that contains an extra table (related foundset)
+					// had a bad behavior that, after it received 50 records initially, it would only need 9 and would request loadLessRecords -41/41 twice on the main foundset (=> 0 size viewport server side)
+					// but at the same time the extra-table that corresponds to the first record had many related rows and it also sent update from browser to loadLessRecords then initially...
+					// so the list form components viewport was size 0 on server already but an update came for a child component - a record that does exist, but is no longer in viewport;
+					// and that resulted in a valid loadLess on the extra table but which was marked as handled correctly (handleID) but it was never sent back to client as it no longer existed on client
+					// and when list form component corrected it's viewport again to be 0-9, the nested foundset property type of the extra table still had that "handledID" set
+					// so basically it sent a handledID to client for a previous value "undefined" (as viewport was 0) => exception on client
+					//
+					// I think we can safely ignore these type of requests - as they are for obsolete records
+					Debug.debug("Cannot set foundset linked record dependent component property for (" + rowIDValue + ") property '" + propertyName +
+						"' to value '" + value + "' of component: " + childComponent + ". Record found, but out of current viewport.");
 				}
 			}
 			else

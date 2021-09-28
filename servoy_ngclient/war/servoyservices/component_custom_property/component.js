@@ -60,7 +60,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 					iS.modelUnwatch[unW]();
 				iS.modelUnwatch = null;
 			}
-			if (value[MODEL_VIEWPORT]) $viewportModule.removeDataWatchesFromRows(value[MODEL_VIEWPORT].length, iS);
+			if (value[MODEL_VIEWPORT]) $viewportModule.removeDataWatchesFromRows(iS, value[MODEL_VIEWPORT], false);
 		}
 	};
 

@@ -20,7 +20,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 		return function() {
 			var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
 			internalState.changedIndexes[idx] = true;
-			internalState.changeNotifier();
+			if (internalState.changeNotifier) internalState.changeNotifier();
 		}
 	}
 
@@ -32,7 +32,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 			if (oldvalue === newvalue) return;
 			var internalState = propertyValue[$sabloConverters.INTERNAL_IMPL];
 			internalState.changedIndexes[idx] = { old: oldvalue };
-			internalState.changeNotifier();
+			if (internalState.changeNotifier) internalState.changeNotifier();
 		}, deep);
 	}
 
@@ -104,7 +104,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 
 					if (newWVal === null || oldWVal === null || newWVal.length !== oldWVal.length) {
 						internalState.allChanged = true;
-						internalState.changeNotifier();
+						if (internalState.changeNotifier) internalState.changeNotifier();
 					} else {
 						// some elements changed by reference; we only need to handle this for smart element values,
 						// as the others will be handled by the separate 'dumb' watches
@@ -116,7 +116,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 							}
 						}
 
-						if (referencesChanged) internalState.changeNotifier();
+						if (referencesChanged && internalState.changeNotifier) internalState.changeNotifier();
 					}
 				});
 			}

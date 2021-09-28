@@ -1352,6 +1352,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							let shouldUpdatePagingControls = false;
 							if (changes.viewportRowsCompletelyChanged) {
 								createRows();
+								return;
 							} else if (changes.fullValueChanged) {
 								scope.foundset = changes.fullValueChanged.newValue; // the new value by ref would be updated in scope automatically only later otherwise and we use that in code
 								createRows();
@@ -1451,8 +1452,8 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 										const availableExtraRecords = getFoundset().serverSize - (vpStartIndexForCurrentCalcs + vpSizeForCurrentCalcs)
 										if (availableExtraRecords > 0) getFoundset().loadExtraRecordsAsync(Math.min(deltaSize, availableExtraRecords), true);
 									} else if (deltaSize < 0) {
-										// we need to show less records
-										getFoundset().loadLessRecordsAsync(-deltaSize, true);
+										// we need to show less records; deltaSize is already negative; so it will load less from end of viewport 
+										getFoundset().loadLessRecordsAsync(deltaSize, true);
 									} // else it's already ok
 								}
 								

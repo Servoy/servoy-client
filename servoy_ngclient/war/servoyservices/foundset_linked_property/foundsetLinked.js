@@ -101,7 +101,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 							if (!angular.isDefined(newViewportSize)) newViewportSize = 0;
 							
 							componentScope.$evalAsync(function() {
-								$viewportModule.removeDataWatchesFromRows(value.length, iS);
+								$viewportModule.removeDataWatchesFromRows(iS, value, true);
 								var wholeViewport = iS.singleValueState.generateWholeViewportFromOneValue(iS, newViewportSize);
 								iS.singleValueState.updateWholeViewport(value, iS, wholeViewport, iS.singleValueState.conversionInfos, componentScope);
 								$viewportModule.addDataWatchesToRows(value, iS, componentScope, true, iS[PUSH_TO_SERVER]);
@@ -114,7 +114,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 	function removeAllWatches(value) {
 		if (value != null && angular.isDefined(value)) {
 			var iS = value[$sabloConverters.INTERNAL_IMPL];
-			$viewportModule.removeDataWatchesFromRows(value.length, iS);
+			$viewportModule.removeDataWatchesFromRows(iS, value, true);
 			if (iS.singleValueState && iS.singleValueState.viewportSizeUnwatch) {
 				iS.singleValueState.viewportSizeUnwatch();
 				iS.singleValueState.viewportSizeUnwatch = undefined;

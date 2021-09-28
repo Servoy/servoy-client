@@ -12,7 +12,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 	var DATAPROVIDER_KEY = "dp";
 	var VALUE_KEY = "value";
 
-	function addDataWatchToCell(columnName /*can be null*/, idx, viewPort, internalState, componentScope, dumbWatchType) {
+	function addDataWatchToCell(columnName /*can be null*/, idx, viewPort: any[], internalState, componentScope, dumbWatchType) {
 		
 		function queueChange(newData, oldData) {
 			var r = {};
@@ -85,7 +85,7 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 	// 2. dumbWatchMarkers when simpleRowValue === false means (undefined - watch all cause there is no marker information,
 	//                                                          { col1: true; col2: false } means watch type needed for each column and no watches for the ones not mentioned,
 	//                                                          true/false directly means deep/shallow watch for all columns)
-	function addDataWatchesToRow(idx, viewPort, internalState, componentScope, simpleRowValue/*not key/value pairs in each row*/, dumbWatchMarkers) {
+	function addDataWatchesToRow(idx, viewPort: any[], internalState, componentScope, simpleRowValue/*not key/value pairs in each row*/, dumbWatchMarkers) {
 		if (!angular.isDefined(internalState.unwatchData)) internalState.unwatchData = {};
 		internalState.unwatchData[idx] = [];
 		if (simpleRowValue) {
@@ -100,25 +100,40 @@ angular.module('foundset_viewport_module', ['webSocketModule'])
 		}
 	};
 
-	function addDataWatchesToRows(viewPort, internalState, componentScope, simpleRowValue/*not key/value pairs in each row*/, dumbWatchMarkers) {
-		var i;
+	function addDataWatchesToRows(viewPort: any[], internalState, componentScope, simpleRowValue/*not key/value pairs in each row*/, dumbWatchMarkers) {
+		let i: number;
 		for (i = viewPort.length - 1; i >= 0; i--) {
 			addDataWatchesToRow(i, viewPort, internalState, componentScope, simpleRowValue, dumbWatchMarkers);
 		}
 	};
 
-	function removeDataWatchesFromRow(idx, internalState) {
+    function removeSmartChangeNotifiers(cellValue: any) {
+        if (cellValue && cellValue[$sabloConverters.INTERNAL_IMPL] && cellValue[$sabloConverters.INTERNAL_IMPL].setChangeNotifier)
+            cellValue[$sabloConverters.INTERNAL_IMPL].setChangeNotifier(undefined);
+    }
+
+	function removeDataWatchesFromRow(idx, internalState, viewPort: any[], simpleRowValue: boolean) {
+        // remove dumb watches
 		if (internalState.unwatchData && internalState.unwatchData[idx]) {
 			for (let j = internalState.unwatchData[idx].length - 1; j >= 0; j--)
 				internalState.unwatchData[idx][j]();
 			delete internalState.unwatchData[idx];
 		}
+		
+		// also remove smart change notifiers just in case components hang on to obsolete values and change stuff in them
+	    if (simpleRowValue) {
+            removeSmartChangeNotifiers(viewPort[idx]);
+        } else {
+            let columnName;
+            for (columnName in viewPort[idx])
+                if (columnName !== $foundsetTypeConstants.ROW_ID_COL_KEY) removeSmartChangeNotifiers(viewPort[idx][columnName]);
+        }
 	};
-
-	function removeDataWatchesFromRows(rowCount, internalState) {
-		var i;
-		for (i = rowCount - 1; i >= 0; i--) {
-			removeDataWatchesFromRow(i, internalState);
+	
+	function removeDataWatchesFromRows(internalState, viewPort: any[], simpleRowValue: boolean/*not key/value pairs in each row*/) {
+		let i: number;
+		for (i = viewPort.length - 1; i >= 0; i--) {
+			removeDataWatchesFromRow(i, internalState, viewPort, simpleRowValue);
 		}
 	};
 
