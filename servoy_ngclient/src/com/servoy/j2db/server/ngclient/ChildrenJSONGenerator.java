@@ -332,6 +332,8 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			if (designer)
 			{
 				attributes.put("svy-id", fe.getDesignId());
+				attributes.put("svy-formelement-type", fe.getTypeName());
+				attributes.put("svy-name", fe.getName());
 				List<String>[] typeAndPropertyNames = fe.getSvyTypesAndPropertiesNames();
 				if (typeAndPropertyNames[0].size() > 0)
 				{
@@ -391,7 +393,6 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.endArray();
 		}
 		Map<String, String> attributes = new HashMap<String, String>(layoutContainer.getMergedAttributes());
-		if (designer) attributes.put("svy-id", layoutContainer.getUUID().toString());
 		WebLayoutSpecification spec = null;
 		if (layoutContainer.getPackageName() != null)
 		{
@@ -411,6 +412,18 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				{
 					attributes.put(propertyName, pd.getDefaultValue().toString());
 				}
+			}
+		}
+		if (designer)
+		{
+			attributes.put("svy-id", layoutContainer.getUUID().toString());
+			if (spec != null)
+			{
+				attributes.put("svy-layoutname", spec.getPackageName() + "." + spec.getName());
+			}
+			if (layoutContainer.getName() != null)
+			{
+				attributes.put("svy-name", layoutContainer.getName());
 			}
 		}
 		writer.key("attributes");
