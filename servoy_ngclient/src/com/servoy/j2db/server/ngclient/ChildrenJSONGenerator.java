@@ -420,6 +420,11 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			if (spec != null)
 			{
 				attributes.put("svy-layoutname", spec.getPackageName() + "." + spec.getName());
+				String solutionStyleClasses = FormLayoutStructureGenerator.getSolutionSpecificClasses(spec, layoutContainer);
+				if (solutionStyleClasses != null && !solutionStyleClasses.isEmpty())
+				{
+					attributes.put("svy-solution-layout-class", solutionStyleClasses);
+				}
 			}
 			if (layoutContainer.getName() != null)
 			{

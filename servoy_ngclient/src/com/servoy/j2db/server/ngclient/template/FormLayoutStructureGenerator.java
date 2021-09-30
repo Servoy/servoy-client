@@ -168,9 +168,7 @@ public class FormLayoutStructureGenerator
 				ngClass.put("highlight_element", "<design_highlight=='highlight_element'<");//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
 
 				List<String> containerStyleClasses = getStyleClassValues(spec, container.getCssClasses());
-				solutionStyleClasses = container.getCssClasses() != null
-					? Arrays.stream(container.getCssClasses().split(" ")).filter(cls -> !containerStyleClasses.contains(cls)).collect(Collectors.joining(" "))
-					: "";
+				solutionStyleClasses = getSolutionSpecificClasses(spec, container);
 				if (!containerStyleClasses.isEmpty())
 				{
 					layoutStyleClasses = containerStyleClasses.stream().collect(Collectors.joining(" "));
@@ -379,6 +377,14 @@ public class FormLayoutStructureGenerator
 			i++;
 		}
 		return i % 2 == 0;
+	}
+
+	public static String getSolutionSpecificClasses(WebLayoutSpecification spec, LayoutContainer container)
+	{
+		List<String> containerStyleClasses = getStyleClassValues(spec, container.getCssClasses());
+		return container.getCssClasses() != null
+			? Arrays.stream(container.getCssClasses().split(" ")).filter(cls -> !containerStyleClasses.contains(cls)).collect(Collectors.joining(" "))
+			: "";
 	}
 
 	/**
