@@ -287,7 +287,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
                             var oldVal = oldClientData ? oldClientData[idx] : undefined;
                             var changed = (newVal !== oldVal);
                             if (!changed) {
-                                if (internalState.elUnwatch[idx]) {
+                                if (internalState.elUnwatch && internalState.elUnwatch[idx]) {
                                     var oldDumbVal = internalState.changedIndexes[idx].old;
                                     // it's a dumb value - watched; see if it really changed acording to sablo rules
                                     if (oldDumbVal !== newVal) {
