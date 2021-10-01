@@ -81,8 +81,6 @@ public interface IValueList extends ListModel
 	 * Returns the dataproviders this valuelist depends on, if none then return null
 	 * If it can't really determine then return a new IDataProvider[0] instance so
 	 * it will treat this valuelist as if it depends on all dataprovider changes.
-	 *
-	 * @return
 	 */
 	public IDataProvider[] getDependedDataProviders();
 
