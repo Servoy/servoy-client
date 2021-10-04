@@ -134,7 +134,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 			$scope.doSvyApply = function(isSelectFromPopup, doApply) {
 				if (!editing || ($element.attr("readonly") == "readonly")) 
 					return;
-				if (isSelectFromPopup || ($('[uib-typeahead-popup]').attr('aria-hidden') == "true")) {
+				if (isSelectFromPopup || !$scope.model.isOpened) {
 					if(!isSelectFromPopup) {
 						editing = false;
 					}
