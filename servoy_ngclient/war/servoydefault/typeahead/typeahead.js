@@ -131,7 +131,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 				}
 			}
 
-			$scope.doSvyApply = function(isSelectFromPopup) {
+			$scope.doSvyApply = function(isSelectFromPopup, doApply) {
 				if (!editing || ($element.attr("readonly") == "readonly")) 
 					return;
 				if (isSelectFromPopup || ($('[uib-typeahead-popup]').attr('aria-hidden') == "true")) {
@@ -190,9 +190,17 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 				} 
 				else if (!hasRealValues && ($scope.model.dataProviderID != $scope.value))
 				{
-					editing = false;
-					$scope.model.dataProviderID = $scope.value;
-					$scope.svyServoyapi.apply('dataProviderID');
+                    if (doApply) {
+                        editing = false;
+                        $scope.model.dataProviderID = $scope.value;
+                        $scope.svyServoyapi.apply('dataProviderID');
+                    } else {
+                        $timeout(function(triggerValue){
+                            if (triggerValue == $scope.value) {
+                                $scope.doSvyApply(false,true);
+                            }
+                        },100,true,$scope.value)
+                    }
 				}
 				else if (hasRealValues) {
 					$timeout(function(triggerValue){
