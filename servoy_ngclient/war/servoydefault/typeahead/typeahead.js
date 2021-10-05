@@ -131,7 +131,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 				}
 			}
 
-			$scope.doSvyApply = function(isSelectFromPopup, doApply) {
+			$scope.doSvyApply = function(isSelectFromPopup, doApply, event) {
 				if (!editing || ($element.attr("readonly") == "readonly")) 
 					return;
 				if (isSelectFromPopup || !$scope.model.isOpened) {
@@ -190,7 +190,11 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 				} 
 				else if (!hasRealValues && ($scope.model.dataProviderID != $scope.value))
 				{
-                    if (doApply) {
+                    var apply = true;
+                    if (event && event.originalEvent && event.originalEvent.relatedTarget) {
+                        apply = !event.originalEvent.relatedTarget.parentElement.classList.contains("uib-typeahead-match");
+                    }
+                    if (apply) {
                         editing = false;
                         $scope.model.dataProviderID = $scope.value;
                         $scope.svyServoyapi.apply('dataProviderID');
