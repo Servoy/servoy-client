@@ -90,7 +90,8 @@ public abstract class RelatedFoundSet extends FoundSet
 		{
 			IDataSet pks = createPKDataSet(sheet, data);
 
-			SafeArrayList<IRecordInternal> cachedRecords = getPksAndRecords().setPksAndQuery(pks, pks.getRowCount(), select);
+			getPksAndRecords().setPksAndQuery(pks, pks.getRowCount(), select);
+			SafeArrayList<IRecordInternal> cachedRecords = getPksAndRecords().getCachedRecords();
 			for (int row = 0; row < pks.getRowCount(); row++)
 			{
 				Object[] rowArray = data.getRow(row);

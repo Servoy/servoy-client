@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.dataprocessing;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.servoy.j2db.query.AbstractBaseQuery;
@@ -26,23 +28,24 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * @author jcompagner
- * 
+ *
  */
 public class PksAndRecordsHolder
 {
-	private transient SafeArrayList<IRecordInternal> cachedRecords = new SafeArrayList<IRecordInternal>(5); //row -> State Note:is based on the 'pks' 
+	private transient SafeArrayList<IRecordInternal> cachedRecords = new SafeArrayList<IRecordInternal>(5); //row -> State Note:is based on the 'pks'
 	private PKDataSet pks; //the primary keys so far
 	private AtomicInteger dbIndexLastPk; // mutable integer wrapper, use wrapper in stead of primitive so that shallow copy can update same data
 	private QuerySelect querySelect; // the query the pks were based on
 
 	private final int chunkSize;
+	private final boolean optimzeChangeFires;
 	private final FoundSet foundSet;
 	private boolean hasDynamicPlaceholder;
 
 	private PksAndRecordsHolder(FoundSet foundSet, SafeArrayList<IRecordInternal> cachedRecords, IDataSet pks, AtomicInteger dbIndexLastPk,
-		QuerySelect querySelect, int chunkSize, boolean hasDynamicPlaceholder)
+		QuerySelect querySelect, int chunkSize, boolean hasDynamicPlaceholder, boolean optimzeChangeFires)
 	{
-		this(foundSet, chunkSize);
+		this(foundSet, chunkSize, optimzeChangeFires);
 		this.cachedRecords = cachedRecords;
 		this.pks = pks == null || pks instanceof PKDataSet ? (PKDataSet)pks : new PKDataSet(pks);
 		if (this.pks != null)
@@ -54,23 +57,24 @@ public class PksAndRecordsHolder
 		this.hasDynamicPlaceholder = hasDynamicPlaceholder;
 	}
 
-	public PksAndRecordsHolder(FoundSet foundSet, int chunkSize)
+	public PksAndRecordsHolder(FoundSet foundSet, int chunkSize, boolean optimzeChangeFires)
 	{
 		this.foundSet = foundSet;
 		this.chunkSize = chunkSize;
+		this.optimzeChangeFires = optimzeChangeFires;
 	}
 
 	public synchronized PksAndRecordsHolder shallowCopy()
 	{
-		return new PksAndRecordsHolder(foundSet, cachedRecords, pks, dbIndexLastPk, querySelect, chunkSize, hasDynamicPlaceholder);
+		return new PksAndRecordsHolder(foundSet, cachedRecords, pks, dbIndexLastPk, querySelect, chunkSize, hasDynamicPlaceholder, optimzeChangeFires);
 	}
 
-	public synchronized SafeArrayList<IRecordInternal> setPks(IDataSet bufferedDataSet, int dbIndexLastPk)
+	public synchronized IFoundSetChanges setPks(IDataSet bufferedDataSet, int dbIndexLastPk)
 	{
 		return setPksAndQuery(bufferedDataSet, dbIndexLastPk, this.querySelect, false);
 	}
 
-	public synchronized SafeArrayList<IRecordInternal> setPksAndQuery(IDataSet bufferedDataSet, int dbIndexLastPk, QuerySelect querySelect)
+	public synchronized IFoundSetChanges setPksAndQuery(IDataSet bufferedDataSet, int dbIndexLastPk, QuerySelect querySelect)
 	{
 		return setPksAndQuery(bufferedDataSet, dbIndexLastPk, querySelect, false);
 	}
@@ -79,8 +83,28 @@ public class PksAndRecordsHolder
 	 * @param bufferedDataSet
 	 * @param querySelect
 	 */
-	public synchronized SafeArrayList<IRecordInternal> setPksAndQuery(IDataSet bufferedDataSet, int dbIndexLastPk, QuerySelect querySelect, boolean reuse)
+	public synchronized IFoundSetChanges setPksAndQuery(IDataSet bufferedDataSet, int dbIndexLastPk, QuerySelect querySelect, boolean reuse)
 	{
+		FoundsetChanges changes = null;
+		if (optimzeChangeFires && pks != bufferedDataSet && pks != null && pks.getRowCount() > 0 &&
+			pks.getColumnCount() == 1 && bufferedDataSet != null && bufferedDataSet.getRowCount() > 0)
+		{
+			changes = new FoundsetChanges();
+			// if there are currently already pks. and this is a pks set of 1 column try to generate a change object.
+			int smallestSize = Math.min(pks.getRowCount(), bufferedDataSet.getRowCount());
+			for (int i = 0; i < smallestSize; i++)
+			{
+				changes.record(i, Utils.equalObjects(pks.getRow(i)[0], bufferedDataSet.getRow(i)[0]));
+			}
+			if (pks.getRowCount() > bufferedDataSet.getRowCount())
+			{
+				changes.add(new FoundsetChange(FoundSetEvent.CHANGE_DELETE, bufferedDataSet.getRowCount(), pks.getRowCount() - 1));
+			}
+			else if (pks.getRowCount() < bufferedDataSet.getRowCount())
+			{
+				changes.add(new FoundsetChange(FoundSetEvent.CHANGE_INSERT, pks.getRowCount(), bufferedDataSet.getRowCount() - 1));
+			}
+		}
 		pks = bufferedDataSet == null || bufferedDataSet instanceof PKDataSet ? (PKDataSet)bufferedDataSet : new PKDataSet(bufferedDataSet);
 		this.dbIndexLastPk = new AtomicInteger(dbIndexLastPk);
 		this.querySelect = querySelect;
@@ -95,7 +119,7 @@ public class PksAndRecordsHolder
 		{
 			cachedRecords = new SafeArrayList<IRecordInternal>((pks != null ? pks.getRowCount() : 0) + 5);//(re)new
 		}
-		return cachedRecords;
+		return changes;
 	}
 
 	public synchronized SafeArrayList<IRecordInternal> getCachedRecords()
@@ -190,7 +214,7 @@ public class PksAndRecordsHolder
 
 	/**
 	 * Sort entries in PKs as in sortedPKs.
-	 * 
+	 *
 	 * @param sortedPKs
 	 */
 	public synchronized void reorder(IDataSet sortedPKs)
@@ -253,5 +277,103 @@ public class PksAndRecordsHolder
 				return;
 			}
 		}
+	}
+}
+
+class FoundsetChanges implements IFoundSetChanges
+{
+	private final List<IFoundSetChange> changes = new ArrayList<>();
+
+	private FoundsetChange current;
+
+	public void record(int row, boolean isEquals)
+	{
+		if (isEquals && current == null) return;
+		if (isEquals && current != null)
+		{
+			testCurrent();
+			return;
+		}
+		if (!isEquals && current == null)
+		{
+			current = new FoundsetChange(FoundSetEvent.CONTENTS_CHANGED, row);
+		}
+		else
+		{
+			current.lastRow = row;
+		}
+	}
+
+	/**
+	 * @param foundsetChange
+	 */
+	public void add(FoundsetChange change)
+	{
+		testCurrent();
+		changes.add(change);
+	}
+
+	/**
+	 *
+	 */
+	private void testCurrent()
+	{
+		if (current != null)
+		{
+			changes.add(current);
+			current = null;
+		}
+	}
+
+	@Override
+	public List<IFoundSetChange> getChanges()
+	{
+		testCurrent();
+		return changes;
+	}
+}
+
+class FoundsetChange implements IFoundSetChange
+{
+
+	private final int type;
+	private final int firstRow;
+
+	int lastRow;
+
+	public FoundsetChange(int type, int firstRow)
+	{
+		this.type = type;
+		this.firstRow = firstRow;
+	}
+
+	/**
+	 * @param type
+	 * @param firstRow
+	 * @param firstRow
+	 */
+	public FoundsetChange(int type, int firstRow, int lastRow)
+	{
+		this.type = type;
+		this.firstRow = firstRow;
+		this.lastRow = lastRow;
+	}
+
+	@Override
+	public int getType()
+	{
+		return type;
+	}
+
+	@Override
+	public int getFirstRow()
+	{
+		return firstRow;
+	}
+
+	@Override
+	public int getLastRow()
+	{
+		return lastRow;
 	}
 }

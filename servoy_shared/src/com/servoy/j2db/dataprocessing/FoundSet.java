@@ -208,7 +208,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			throw new IllegalArgumentException(app.getApplication().getI18NMessage("servoy.foundSet.error.sqlsheet")); //$NON-NLS-1$
 		}
-		pksAndRecords = new PksAndRecordsHolder(this, fsm.chunkSize);
+		pksAndRecords = new PksAndRecordsHolder(this, fsm.chunkSize, fsm.optimizedChangeFires);
 		relationName = relation_name;
 		this.sheet = sheet;
 
@@ -455,6 +455,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		IDataSet oldPKs = pks;
 
+		IFoundSetChanges changes = null;
 		//cache pks
 		String transaction_id = fsm.getTransactionID(sheet);
 		long time = System.currentTimeMillis();
@@ -475,7 +476,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				// optimistic locking, if the query has been changed in the mean time forget about the refresh
 				if (sqlSelect != null || theQuery == null || theQuery == pksAndRecords.getQuerySelectForReading())
 				{
-					cachedRecords = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), theQuery);
+					changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), theQuery);
+					cachedRecords = pksAndRecords.getCachedRecords();
 				}
 				else
 				{
@@ -516,6 +518,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 						cachedRecords.add(0, newRecord);
 						pks.addRow(0, newRecord.getPK());
 						selectedIndex = 0;
+						changes = null;
 					}
 					else if (newRecordIndex > 0)
 					{
@@ -523,12 +526,14 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 						cachedRecords.add(newRecordIndex, newRecord);
 						pks.addRow(newRecordIndex, newRecord.getPK());
 						selectedIndex = newRecordIndex;
+						changes = null;
 					}
 				}
 
 				if (keepPkOrder)
 				{
 					pksAndRecords.reorder(oldPKs);
+					changes = null;
 				}
 			}
 			else
@@ -556,6 +561,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					{
 						int hint = ((getSize() / fsm.pkChunkSize) + 2) * fsm.pkChunkSize;
 						queryForMorePKs(pksAndRecords, pks.getRowCount(), hint, true);
+						changes = null;
 					}
 					else
 					{
@@ -567,7 +573,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		//let the List know the model changed
-		fireDifference(oldSize, getSize());
+		fireDifference(oldSize, getSize(), changes);
 
 		//move to correct position if we know
 		if (selectedIndex != -1 || !selectRecord(selectedPK))
@@ -617,7 +623,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			fireSelectionAdjusting();
 		}
 		clear();
-		fireDifference(size, getSize());
+		fireDifference(size, getSize(), null);
 	}
 
 	abstract boolean canDispose();
@@ -1189,7 +1195,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			clearInternalState(true);
 			int oldSize = getSize();
 			pksAndRecords.setPks(null, 0);
-			fireDifference(oldSize, 0);
+			fireDifference(oldSize, 0, null);
 		}
 
 		loadAllRecords();
@@ -2044,10 +2050,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (pk_data.getRowCount() > 0 && pk_data.getColumnCount() != sheet.getPKIndexes().length)
 			throw new IllegalArgumentException(fsm.getApplication().getI18NMessage("servoy.foundSet.query.error.incorrectNumberOfPKS")); //$NON-NLS-1$
 
-		pksAndRecords.setPksAndQuery(pk_data, pk_data.getRowCount(), sqlSelect);
+		IFoundSetChanges changes = pksAndRecords.setPksAndQuery(pk_data, pk_data.getRowCount(), sqlSelect);
 		clearInternalState(true);
 
-		fireDifference(sizeBefore, getSize());
+		fireDifference(sizeBefore, getSize(), changes);
 
 		// try to preserve selection after load by query; if not possible select first record
 		if (selectedPK != null)
@@ -2453,20 +2459,20 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		fsm.getSQLGenerator().addSorts(sqlSelect, sqlSelect.getTable(), this, sheet.getTable(), lastSortColumns, false, false);
 		clearOmit(sqlSelect);
 		int sizeAfter = set.getRowCount();
-		pksAndRecords.setPksAndQuery(set, sizeAfter, sqlSelect);
+		IFoundSetChanges changes = pksAndRecords.setPksAndQuery(set, sizeAfter, sqlSelect);
 		clearInternalState(true);
 
 		if (((fsm.verifyPKDatasetAgainstTableFilters && fsm.getTableFilterParams(sheet.getServerName(), sqlSelect) != null) ||
 			sqlSelect.getCondition(SQLGenerator.CONDITION_FILTER) != null) && set.getRowCount() > 0)
 		{
-			fireDifference(sizeBefore, sizeAfter);
+			fireDifference(sizeBefore, sizeAfter, changes);
 			refreshFromDBInternal(null, true, set.getRowCount(), true, false); // some PKs in the set may not be valid for the current filters
 		}
 		else
 		{
 			if (pksAndRecords.getPks().getRowCount() > 0) getRecord(0);
 
-			fireDifference(sizeBefore, sizeAfter);
+			fireDifference(sizeBefore, sizeAfter, changes);
 
 			// try to preserve selection after load pk list; if not possible select first record
 			if (selectedPK != null)
@@ -2672,7 +2678,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			creationSqlSelect = AbstractBaseQuery.deepClone(sqlSelect);
 		}
-
+		IFoundSetChanges changes = null;
 		//cache pks
 		String transaction_id = fsm.getTransactionID(sheet);
 		long time = System.currentTimeMillis();
@@ -2680,7 +2686,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			IDataSet pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
 
-			pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect);
+			changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect);
 		}
 		catch (RemoteException e)
 		{
@@ -2697,7 +2703,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		clearInternalState(true);
 
 		//let the List know the model changed
-		fireDifference(oldSize, getSize());
+		fireDifference(oldSize, getSize(), changes);
 	}
 
 	/**
@@ -3701,7 +3707,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			int newSize = pks.getRowCount();
 			if (oldSize != newSize)
 			{
-				fireDifference(oldSize, newSize);
+				fireDifference(oldSize, newSize, null);
 			}
 			synchronized (pksAndRecords)
 			{
@@ -4630,6 +4636,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		int sizeBefore;
 		QuerySelect sqlSelect;
 		ArrayList<String> invertConditionNames = new ArrayList<String>();
+		IFoundSetChanges changes = null;
 		synchronized (pksAndRecords)
 		{
 			sizeBefore = getSize();
@@ -4652,7 +4659,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 			if (invertConditionNames.size() == 0)
 			{
-				pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, sqlSelect);
+				changes = pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, sqlSelect);
 			}
 			else
 			{
@@ -4663,7 +4670,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				}
 				clearOmit(sqlSelect);
 				// set pks here in case a refresh comes along
-				pksAndRecords.setPksAndQuery(pksAndRecords.getPks(), pksAndRecords.getDbIndexLastPk(), sqlSelect);
+				changes = pksAndRecords.setPksAndQuery(pksAndRecords.getPks(), pksAndRecords.getDbIndexLastPk(), sqlSelect);
 			}
 		}
 
@@ -4683,12 +4690,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 						Debug.log("invert: query was changed during refresh, not resetting old query"); //$NON-NLS-1$
 						return;
 					}
-					pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect);
+					changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect);
 				}
 			}
 			catch (RemoteException e)
 			{
-				pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, sqlSelect);
+				changes = pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, sqlSelect);
 				throw new RepositoryException(e);
 			}
 		}
@@ -4698,7 +4705,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			fireAggregateChangeWithEvents(null);
 		}
 
-		fireDifference(sizeBefore, getSize());
+		fireDifference(sizeBefore, getSize(), changes);
 	}
 
 
@@ -4871,7 +4878,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			PKDataSet pks = pksAndRecords.getPks();
 			if (pks == null)
 			{
-				cachedRecords = pksAndRecords.setPks(new BufferedDataSet(), 0);
+				pksAndRecords.setPks(new BufferedDataSet(), 0);
+				cachedRecords = pksAndRecords.getCachedRecords();
 				pks = pksAndRecords.getPks();
 			}
 			else
@@ -5058,7 +5066,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		pksAndRecords.setPks(new BufferedDataSet(), 0);//return to 0
 
 		//let the List know the model changed
-		fireDifference(oldSize, 0);
+		fireDifference(oldSize, 0, null);
 //		selectionModel.setSelectedRow(-1);
 
 		boolean oldFindMode = findMode;
@@ -5176,11 +5184,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					findSqlSelect.toString());
 			}
 
+			IFoundSetChanges changes = null;
 			if (findPKs.getRowCount() == 0)
 			{
 				if (clearIfZero)
 				{
-					pksAndRecords.setPksAndQuery(null, 0, findSqlSelect);
+					changes = pksAndRecords.setPksAndQuery(null, 0, findSqlSelect);
 					clearInternalState(true);
 					setSelectedIndex(-1);
 				}
@@ -5188,14 +5197,14 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			else
 			{
 				fireSelectionAdjusting();
-				pksAndRecords.setPksAndQuery(findPKs, findPKs.getRowCount(), findSqlSelect);
+				changes = pksAndRecords.setPksAndQuery(findPKs, findPKs.getRowCount(), findSqlSelect);
 
 				clearInternalState(true);
 				fireAggregateChangeWithEvents(null); //notify about aggregate change,because the find has cleared them all.
 			}
 			initialized = true;
 
-			fireDifference(numberOfFindStates, getSize());
+			fireDifference(numberOfFindStates, getSize(), changes);
 
 			if (getSelectedIndex() == -1 && getSize() > 0)
 			{
@@ -5219,7 +5228,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			pksAndRecords.setPks(null, 0);
 			clearInternalState(true);
 			setSelectedIndex(-1);
-			fireDifference(numberOfFindStates, 0);
+			fireDifference(numberOfFindStates, 0, null);
 
 			throw e;
 		}
@@ -5231,8 +5240,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @param oldSize
 	 * @param newSize
 	 */
-	protected void fireDifference(int oldSize, int newSize)
+	protected void fireDifference(int oldSize, int newSize, IFoundSetChanges changes)
 	{
+		if (changes != null)
+		{
+			changes.getChanges().forEach(change -> fireFoundSetEvent(change.getFirstRow(), change.getLastRow(), change.getType()));
+			return;
+		}
 		if (newSize == 0 && oldSize == 0) return;
 
 		//let the List know the model changed,the new states
@@ -5358,7 +5372,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				selectedPKs[i++] = pks.getRow(selectedIndex);
 			}
 		}
-
+		IFoundSetChanges changes = null;
 		int oldSize = getRawSize();
 		//cache pks
 		String transaction_id = fsm.getTransactionID(sheet);
@@ -5374,7 +5388,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					Debug.log("sort: query was changed during refresh, not resetting old query"); //$NON-NLS-1$
 					return false;
 				}
-				pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect, reuse);
+				changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect, reuse);
 			}
 		}
 		catch (RemoteException e)
@@ -5393,7 +5407,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		int newSize = getRawSize();
-		fireDifference(oldSize, newSize);
+		fireDifference(oldSize, newSize, changes);
 
 		boolean selectedPKsRecPresent = false;
 		if (selectedPKs != null)
@@ -5456,13 +5470,14 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			pks2 = pksAndRecordsHolderCopy.getPksClone();
 		}
 		pks2.sort(recordPKComparator);
+		IFoundSetChanges changes = null;
 		synchronized (pksAndRecords)
 		{
-			pksAndRecords.setPksAndQuery(pks2, pksAndRecordsHolderCopy.getDbIndexLastPk(), pksAndRecords.getQuerySelectForReading(), true);
+			changes = pksAndRecords.setPksAndQuery(pks2, pksAndRecordsHolderCopy.getDbIndexLastPk(), pksAndRecords.getQuerySelectForReading(), true);
 		}
 
 		int newSize = getSize();
-		fireDifference(oldSize, newSize);
+		fireDifference(oldSize, newSize, changes);
 
 		boolean selectedPKsRecPresent = false;
 		if (selectedPKs != null)
@@ -5585,7 +5600,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public void fireFoundSetChanged()
 	{
 		int size = getSize();
-		fireDifference(size, size);
+		fireDifference(size, size, null);
 	}
 
 	public abstract int getSelectedIndex();
@@ -6487,7 +6502,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	protected Object clone() throws CloneNotSupportedException
 	{
 		FoundSet obj = (FoundSet)super.clone();
-		obj.pksAndRecords = new PksAndRecordsHolder(obj, fsm.chunkSize);
+		obj.pksAndRecords = new PksAndRecordsHolder(obj, fsm.chunkSize, fsm.optimizedChangeFires);
 		synchronized (pksAndRecords)
 		{
 			obj.pksAndRecords.setPksAndQuery(new BufferedDataSet(pksAndRecords.getPks()), pksAndRecords.getDbIndexLastPk(),
@@ -6644,7 +6659,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 		}
 		sheet = fs.sheet;
-		pksAndRecords.setPksAndQuery(new BufferedDataSet(fs.pksAndRecords.getPks()), fs.pksAndRecords.getDbIndexLastPk(),
+		IFoundSetChanges changes = pksAndRecords.setPksAndQuery(new BufferedDataSet(fs.pksAndRecords.getPks()), fs.pksAndRecords.getDbIndexLastPk(),
 			addFilterconditions(fs.pksAndRecords.getQuerySelectForModification(), myOwnFilters));
 		if (fs.foundSetFilters != null)
 		{
@@ -6683,11 +6698,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				if (record != null && !record.existInDataSource())
 				{
 					cachedRecords.set(i, new Record(this, record.getRawData()));
+
 				}
 			}
 		}
 		lastSortColumns = ((FoundSetManager)getFoundSetManager()).getSortColumns(getTable(), fs.getSort());
-		fireDifference(oldNumberOfRows, getSize());
+		fireDifference(oldNumberOfRows, getSize(), changes);
 
 		setMultiSelect(fs.isMultiSelect());
 		if (fs.isMultiSelect())
@@ -7022,7 +7038,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (!hasAccess(IRepository.READ))
 		{
-			fireDifference(getSize(), 0);
+			fireDifference(getSize(), 0, null);
 			throw new ApplicationException(ServoyException.NO_ACCESS, new Object[] { getSQLSheet().getTable().getName() });
 		}
 

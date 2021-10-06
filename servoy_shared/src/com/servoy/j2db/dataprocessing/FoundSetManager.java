@@ -164,6 +164,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public final boolean disableInsertsReorder;
 	public final boolean verifyPKDatasetAgainstTableFilters;
 	public final boolean optimizedNotifyChange;
+	public final boolean optimizedChangeFires;
 
 	private final List<Runnable> fireRunabbles = new ArrayList<Runnable>();
 
@@ -188,6 +189,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		statementBatching = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.statementBatching", "false")); // whether to batch inserts/updates for rows together in the same SQLStatement where possible
 		verifyPKDatasetAgainstTableFilters = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.verifyPKDatasetAgainstTableFilters", "true")); // when false we do not trigger a query with fs.loadRecords(pk) icw table filters
 		optimizedNotifyChange = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.optimizedNotifyChange", "true")); // whether to use new optimized mechanism to call notifyChange on IRowListeners
+		optimizedChangeFires = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.optimizedChangeFires", "true")); // whether to use new optimized mechanism to call notifyChange on IRowListeners
 	}
 
 	/**
