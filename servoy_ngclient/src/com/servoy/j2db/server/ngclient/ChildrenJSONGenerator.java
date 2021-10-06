@@ -283,7 +283,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		}
 		WebFormComponent webComponent = (formUI != null) ? formUI.getWebComponent(fe.getName()) : null;
 
-		AngularFormGenerator.writePosition(writer, o, form, webComponent);
+		AngularFormGenerator.writePosition(writer, o, form, webComponent, designer);
 		writer.key("model");
 		writer.object();
 		if (formUI != null)

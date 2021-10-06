@@ -279,7 +279,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 	 * @param o
 	 */
 	@SuppressWarnings("nls")
-	public static void writePosition(JSONWriter writer, IPersist o, Form form, WebFormComponent webComponent)
+	public static void writePosition(JSONWriter writer, IPersist o, Form form, WebFormComponent webComponent, boolean isDesigner)
 	{
 		if (o instanceof BaseComponent && ((BaseComponent)o).getCssPosition() != null)
 		{
@@ -301,25 +301,28 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 			if (CSSPositionUtils.isSet(position.top))
 			{
 				String top = position.top;
-				Point location = CSSPositionUtils.getLocation((BaseComponent)o);
-				Part prt = form.getPartAt(location.y);
-				if (prt != null)
+				if (!isDesigner)
 				{
-					int topStart = form.getPartStartYPos(prt.getID());
-					if (topStart > 0)
+					Point location = CSSPositionUtils.getLocation((BaseComponent)o);
+					Part prt = form.getPartAt(location.y);
+					if (prt != null)
 					{
-						if (top.endsWith("px"))
+						int topStart = form.getPartStartYPos(prt.getID());
+						if (topStart > 0)
 						{
-							top = top.substring(0, top.length() - 2);
-						}
-						int topInteger = Utils.getAsInteger(top, -1);
-						if (topInteger != -1)
-						{
-							top = String.valueOf(topInteger - topStart);
-						}
-						else
-						{
-							top = "calc(" + top + "-" + topStart + "px)";
+							if (top.endsWith("px"))
+							{
+								top = top.substring(0, top.length() - 2);
+							}
+							int topInteger = Utils.getAsInteger(top, -1);
+							if (topInteger != -1)
+							{
+								top = String.valueOf(topInteger - topStart);
+							}
+							else
+							{
+								top = "calc(" + top + "-" + topStart + "px)";
+							}
 						}
 					}
 				}
@@ -391,13 +394,16 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 				{
 					writer.key("top");
 					int top = location.y;
-					Part prt = form.getPartAt(location.y);
-					if (prt != null)
+					if (!isDesigner)
 					{
-						int topStart = form.getPartStartYPos(prt.getID());
-						if (topStart > 0)
+						Part prt = form.getPartAt(location.y);
+						if (prt != null)
 						{
-							top = top - topStart;
+							int topStart = form.getPartStartYPos(prt.getID());
+							if (topStart > 0)
+							{
+								top = top - topStart;
+							}
 						}
 					}
 					writer.value(top + "px");

@@ -260,7 +260,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 			writer.key("headerIndex").value(componentFormElementContext.getFormElement().getPropertyValue("headerIndex"));
 		}
 		AngularFormGenerator.writePosition(writer, formElementValue.element.getPersistIfAvailable(),
-			componentFormElementContext.getContext().getForm().getForm(), null);
+			componentFormElementContext.getContext().getForm().getForm(), null, formElementValue.element.isInDesigner());
 
 		writer.key("model");
 		try
