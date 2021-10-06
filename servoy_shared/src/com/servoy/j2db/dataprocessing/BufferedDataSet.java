@@ -213,7 +213,7 @@ public class BufferedDataSet implements ISerializableDataSet
 		}
 
 		//fallback to first row
-		if (getRowCount() > 0)
+		if (getRowCount() > 0 && getRow(0) != null)
 		{
 			return getRow(0).length;
 		}
