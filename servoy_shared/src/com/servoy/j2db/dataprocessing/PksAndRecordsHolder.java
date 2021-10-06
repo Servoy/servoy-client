@@ -296,7 +296,7 @@ class FoundsetChanges implements IFoundSetChanges
 		}
 		if (!isEquals && current == null)
 		{
-			current = new FoundsetChange(FoundSetEvent.CONTENTS_CHANGED, row);
+			current = new FoundsetChange(FoundSetEvent.CHANGE_UPDATE, row);
 		}
 		else
 		{
@@ -331,6 +331,12 @@ class FoundsetChanges implements IFoundSetChanges
 		testCurrent();
 		return changes;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "FoundSetChanges[" + changes + ']'; //$NON-NLS-1$
+	}
 }
 
 class FoundsetChange implements IFoundSetChange
@@ -345,6 +351,7 @@ class FoundsetChange implements IFoundSetChange
 	{
 		this.type = type;
 		this.firstRow = firstRow;
+		this.lastRow = firstRow;
 	}
 
 	/**
@@ -375,5 +382,12 @@ class FoundsetChange implements IFoundSetChange
 	public int getLastRow()
 	{
 		return lastRow;
+	}
+
+	@SuppressWarnings("nls")
+	@Override
+	public String toString()
+	{
+		return "FoundSetChange[type: " + type + ", firstrow: " + firstRow + " ,lastrow: " + lastRow + ']';
 	}
 }
