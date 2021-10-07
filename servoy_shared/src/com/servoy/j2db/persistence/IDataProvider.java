@@ -17,14 +17,13 @@
 package com.servoy.j2db.persistence;
 
 
-
 public interface IDataProvider
 {
 	public String getDataProviderID();//get the id of the provider
 
 	/**
 	 * Leaves in dataprovider tree can be columns
-	 * 
+	 *
 	 * @return a column or column and relation, null if no database column depenency
 	 */
 	public ColumnWrapper getColumnWrapper();
@@ -34,6 +33,14 @@ public interface IDataProvider
 	public boolean isEditable();
 
 	public int getFlags();
+
+	/**
+	 * @param flag
+	 */
+	public default boolean hasFlag(int flag)
+	{
+		return (getFlags() & flag) != 0;
+	}
 
 	/**
 	 * returns a in the Column class defined type,return -1 if unkown or can be anything (happpens only in script calcs for now)

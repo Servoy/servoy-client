@@ -1101,14 +1101,6 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		setFlags(set ? (getFlags() | flag) : (getFlags() & ~flag));
 	}
 
-	/**
-	 * @param flag
-	 */
-	public boolean hasFlag(int flag)
-	{
-		return (getFlags() & flag) != 0;
-	}
-
 	public void setDatabaseDefaultValue(String value)
 	{
 		databaseDefaultValue = value;
