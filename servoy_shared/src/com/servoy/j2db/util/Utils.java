@@ -41,6 +41,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.net.JarURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
@@ -79,6 +80,9 @@ import java.util.jar.JarFile;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import javax.print.attribute.Size2DSyntax;
 import javax.print.attribute.standard.MediaSize;
@@ -3369,5 +3373,83 @@ public final class Utils
 			Debug.error(e);
 			return value;
 		}
+	}
+
+	public static boolean isValidZipFile(File file)
+	{
+		try (ZipFile zipfile = new ZipFile(file);
+			ZipInputStream zis = new ZipInputStream(new FileInputStream(file)))
+		{
+
+			ZipEntry ze = zis.getNextEntry();
+			if (ze == null)
+			{
+				return false;
+			}
+			while (ze != null)
+			{
+				// if it throws an exception fetching any of the following then we know the file is corrupted.
+				zipfile.getInputStream(ze);
+				ze.getCrc();
+				ze.getCompressedSize();
+				ze.getName();
+				ze = zis.getNextEntry();
+			}
+			return true;
+		}
+		catch (ZipException e)
+		{
+			return false;
+		}
+		catch (IOException e)
+		{
+			return false;
+		}
+	}
+
+	/*
+	 * Download stream to a temporary file. After three unsuccessful attempts is throwing an IOException
+	 *
+	 */
+	public static File downloadUrlPackage(String urlString) throws IOException
+	{
+
+		for (int index = 0; index < 3; index++)
+		{
+			try
+			{
+				File dataFile = File.createTempFile("tmp", "data");
+				dataFile.deleteOnExit();
+				URL url = new URL(urlString);
+				URLConnection conn = url.openConnection();
+				try (InputStream is = conn.getInputStream();
+					FileOutputStream os = new FileOutputStream(dataFile))
+				{
+
+					int readBytes = Utils.streamCopy(is, os);
+					if (readBytes <= 0)
+					{
+						throw new IOException("Download error: " + urlString.substring(urlString.lastIndexOf("/") + 1));
+					}
+				}
+				if (!Utils.isValidZipFile(dataFile))
+				{
+					if (index < 3) continue;
+					throw new IOException("Download error: " + urlString.substring(urlString.lastIndexOf("/") + 1));
+				}
+				return dataFile;
+			}
+			catch (MalformedURLException | SecurityException e)
+			{
+				throw new IOException(e.getMessage());
+			}
+			catch (IOException e)
+			{
+				if (index < 3) continue;
+				throw e;
+			}
+
+		}
+		return null; //theoretically we shouldn't be here
 	}
 }
