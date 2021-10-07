@@ -15,7 +15,6 @@ import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyType;
-import org.sablo.specification.property.types.ProtectedConfig;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
@@ -226,19 +225,7 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 				int access = dataAdapterList.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID(),
 					formElement.getForm().getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 				if (!((access & IRepository.ACCESSIBLE) != 0))
-				{
-					boolean blockingChanges = true;
-					PropertyDescription enabledProperty = formElement.getPropertyDescription(WebFormUI.ENABLED);
-					if (enabledProperty != null)
-					{
-						Object config = enabledProperty.getConfig();
-						if (config instanceof ProtectedConfig)
-						{
-							blockingChanges = ((ProtectedConfig)config).getBlockingChanges();
-						}
-					}
-					if (blockingChanges) throw new RuntimeException("Security error. Component '" + getProperty("name") + "' is not accessible.");
-				}
+					throw new RuntimeException("Security error. Component '" + getProperty("name") + "' is not accessible.");
 			}
 			if (Utils.equalObjects(eventType, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
 				(formElement.getForm().getOnElementFocusGainedMethodID() > 0) && formElement.getForm().getOnElementFocusGainedMethodID() != functionID)
