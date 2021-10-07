@@ -49,6 +49,7 @@ import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
@@ -339,6 +340,8 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				{
 					attributes.put("svy-types", String.join(",", typeAndPropertyNames[0]));
 				}
+				attributes.put("svy-priority",
+					form.isResponsiveLayout() ? String.valueOf(((ISupportBounds)o).getLocation().x) : String.valueOf(((BaseComponent)o).getFormIndex()));
 			}
 			if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
 			{
@@ -430,6 +433,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			{
 				attributes.put("svy-name", layoutContainer.getName());
 			}
+			attributes.put("svy-priority", String.valueOf(layoutContainer.getLocation().x));
 		}
 		writer.key("attributes");
 		writer.object();
