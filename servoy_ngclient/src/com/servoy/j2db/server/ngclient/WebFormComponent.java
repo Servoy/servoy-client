@@ -1,5 +1,6 @@
 package com.servoy.j2db.server.ngclient;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -225,7 +226,19 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 				int access = dataAdapterList.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID(),
 					formElement.getForm().getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 				if (!((access & IRepository.ACCESSIBLE) != 0))
-					throw new RuntimeException("Security error. Component '" + getProperty("name") + "' is not accessible.");
+				{
+					boolean blockingChanges = true;
+					WebObjectFunctionDefinition handler = getSpecification().getHandler(eventType);
+					if (handler != null)
+					{
+						String allowAccess = handler.getAllowAccess();
+						if (allowAccess != null)
+						{
+							blockingChanges = Arrays.asList(allowAccess.split(",")).indexOf(WebFormUI.ENABLED) == -1;
+						}
+					}
+					if (blockingChanges) throw new RuntimeException("Security error. Component '" + getProperty("name") + "' is not accessible.");
+				}
 			}
 			if (Utils.equalObjects(eventType, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
 				(formElement.getForm().getOnElementFocusGainedMethodID() > 0) && formElement.getForm().getOnElementFocusGainedMethodID() != functionID)
