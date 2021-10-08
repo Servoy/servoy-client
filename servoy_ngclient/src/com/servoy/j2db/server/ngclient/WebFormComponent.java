@@ -220,26 +220,8 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 		public Object executeEvent(Object[] args)
 		{
 			// verify if component is accessible due to security options
-			IPersist persist = formElement.getPersistIfAvailable();
-			if (persist != null)
-			{
-				int access = dataAdapterList.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID(),
-					formElement.getForm().getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
-				if (!((access & IRepository.ACCESSIBLE) != 0))
-				{
-					boolean blockingChanges = true;
-					WebObjectFunctionDefinition handler = getSpecification().getHandler(eventType);
-					if (handler != null)
-					{
-						String allowAccess = handler.getAllowAccess();
-						if (allowAccess != null)
-						{
-							blockingChanges = Arrays.asList(allowAccess.split(",")).indexOf(WebFormUI.ENABLED) == -1;
-						}
-					}
-					if (blockingChanges) throw new RuntimeException("Security error. Component '" + getProperty("name") + "' is not accessible.");
-				}
-			}
+			checkMethodExecutionSecurityAccess(getSpecification().getHandler(eventType));
+
 			if (Utils.equalObjects(eventType, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
 				(formElement.getForm().getOnElementFocusGainedMethodID() > 0) && formElement.getForm().getOnElementFocusGainedMethodID() != functionID)
 			{
@@ -253,6 +235,7 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 
 			Object executeEventReturn = dataAdapterList.executeEvent(WebFormComponent.this, eventType, functionID, args);
 			Form formElementForm = null;
+			IPersist persist = formElement.getPersistIfAvailable();
 			if (persist instanceof AbstractBase)
 			{
 				String formName = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_FORM_NAME);
@@ -280,6 +263,29 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 			}
 
 			return executeEventReturn;
+		}
+	}
+
+	public void checkMethodExecutionSecurityAccess(WebObjectFunctionDefinition functionDef)
+	{
+		IPersist persist = formElement.getPersistIfAvailable();
+		if (persist != null)
+		{
+			int access = dataAdapterList.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID(),
+				formElement.getForm().getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
+			if (!((access & IRepository.ACCESSIBLE) != 0))
+			{
+				boolean blockingChanges = true;
+				if (functionDef != null)
+				{
+					String allowAccess = functionDef.getAllowAccess();
+					if (allowAccess != null)
+					{
+						blockingChanges = Arrays.asList(allowAccess.split(",")).indexOf(WebFormUI.ENABLED) == -1;
+					}
+				}
+				if (blockingChanges) throw new RuntimeException("Security error. Component '" + getProperty("name") + "' is not accessible.");
+			}
 		}
 	}
 
