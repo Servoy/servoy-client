@@ -102,6 +102,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private final ArrayList<IWebFormController> parentRelatedForms = new ArrayList<IWebFormController>(3);
 
 	private Map<IDataLinkedPropertyValue, Pair<Relation[], List<RelatedListener>>> toWatchRelations;
+	private DLPropertyValueFoundsetFoundsetListener maxRecIndexPropertyValueListener;
 	private final Map<String, List<Pair<String, String>>> lookupDependency = new HashMap<String, List<Pair<String, String>>>();
 
 	private IRecordInternal record;
@@ -546,6 +547,14 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			{
 				allLinksOfDP = new ArrayList<>();
 				dataProviderToLinkedComponentProperty.put(dpID, allLinksOfDP);
+				if (dpID.equalsIgnoreCase("maxRecordIndex") || dpID.equalsIgnoreCase("lazyMaxRecordIndex"))
+				{
+					if (maxRecIndexPropertyValueListener == null)
+					{
+						maxRecIndexPropertyValueListener = new DLPropertyValueFoundsetFoundsetListener();
+					}
+					maxRecIndexPropertyValueListener.addPropertyValueToList(propertyValue);
+				}
 			}
 			if (allLinksOfDP.remove(propertyValue))
 			{
@@ -593,6 +602,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				toWatchRelationsForPropertyValue.getRight().clear();
 			}
 		}
+
+		if (maxRecIndexPropertyValueListener != null)
+		{
+			maxRecIndexPropertyValueListener.dispose();
+		}
 	}
 
 	public void addFindModeAwareProperty(IFindModeAwarePropertyValue propertyValue)
@@ -637,6 +651,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				this.record.getParentFoundSet().addAggregateModificationListener(this);
 			}
 			createRelationListeners();
+			if (maxRecIndexPropertyValueListener != null) maxRecIndexPropertyValueListener.setRecord(this.record);
 		}
 		finally
 		{
@@ -1299,6 +1314,57 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		findModeAwareProperties.clear();
 		parentRelatedForms.clear();
 		visibleChildForms.clear();
+	}
+
+	private static class DLPropertyValueFoundsetFoundsetListener implements IFoundSetEventListener
+	{
+		private IRecordInternal recordInternal;
+		private final List<IDataLinkedPropertyValue> propertyValues = new ArrayList<IDataLinkedPropertyValue>(2);
+		private IFoundSetInternal foundset;
+
+		public void setRecord(IRecordInternal recordInternal)
+		{
+			if (this.recordInternal != recordInternal)
+			{
+				this.recordInternal = recordInternal;
+				if (this.recordInternal != null)
+				{
+					if (this.foundset != this.recordInternal.getParentFoundSet())
+					{
+						if (this.foundset != null) foundset.removeFoundSetEventListener(this);
+						this.foundset = this.recordInternal.getParentFoundSet();
+						this.foundset.addFoundSetEventListener(this);
+					}
+				}
+				else if (this.foundset != null)
+				{
+					this.foundset.removeFoundSetEventListener(this);
+					this.foundset = null;
+				}
+			}
+		}
+
+		public void dispose()
+		{
+			if (this.recordInternal != null)
+			{
+				this.recordInternal.getParentFoundSet().removeFoundSetEventListener(this);
+			}
+		}
+
+		public void addPropertyValueToList(IDataLinkedPropertyValue propertyValue)
+		{
+			propertyValues.add(propertyValue);
+		}
+
+		@Override
+		public void foundSetChanged(FoundSetEvent e)
+		{
+			if (e.getType() == FoundSetEvent.CONTENTS_CHANGED)
+			{
+				propertyValues.forEach(propertyValue -> propertyValue.dataProviderOrRecordChanged(this.recordInternal, null, false, false, true));
+			}
+		}
 	}
 
 	private class RelatedListener implements ListSelectionListener, IModificationListener, IFoundSetEventListener
