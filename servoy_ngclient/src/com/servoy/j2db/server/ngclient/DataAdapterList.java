@@ -547,7 +547,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			{
 				allLinksOfDP = new ArrayList<>();
 				dataProviderToLinkedComponentProperty.put(dpID, allLinksOfDP);
-				if (dpID.equalsIgnoreCase("maxRecordIndex") || dpID.equalsIgnoreCase("lazyMaxRecordIndex"))
+				if ("maxRecordIndex".equalsIgnoreCase(dpID) || "lazyMaxRecordIndex".equalsIgnoreCase(dpID))
 				{
 					if (maxRecIndexPropertyValueListener == null)
 					{
