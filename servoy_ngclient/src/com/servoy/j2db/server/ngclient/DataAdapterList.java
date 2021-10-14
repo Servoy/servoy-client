@@ -1346,9 +1346,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 		public void dispose()
 		{
-			if (this.recordInternal != null)
+			if (this.foundset != null)
 			{
-				this.recordInternal.getParentFoundSet().removeFoundSetEventListener(this);
+				this.foundset.removeFoundSetEventListener(this);
+				this.recordInternal = null;
+				this.foundset = null;
 			}
 		}
 
