@@ -1557,10 +1557,13 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return null;
 	}
 
-	public synchronized Map<String, IDataProvider> getAllDataProvidersForTable(ITable table) throws RepositoryException
+	public Map<String, IDataProvider> getAllDataProvidersForTable(ITable table) throws RepositoryException
 	{
 		if (table == null) return null;
-		if (allProvidersForTable == null) allProvidersForTable = new ConcurrentHashMap<ITable, Map<String, IDataProvider>>(64, 0.9f, 16);
+		synchronized (this)
+		{
+			if (allProvidersForTable == null) allProvidersForTable = new ConcurrentHashMap<ITable, Map<String, IDataProvider>>(64, 0.9f, 16);
+		}
 
 		Map<String, IDataProvider> dataProvidersMap = allProvidersForTable.get(table);
 		if (dataProvidersMap == null)
@@ -1598,7 +1601,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 					}
 				}
 			}
-			allProvidersForTable.put(table, dataProvidersMap);
+			Map<String, IDataProvider> currentValue = allProvidersForTable.putIfAbsent(table, dataProvidersMap);
+			if (currentValue != null) dataProvidersMap = currentValue;
 		}
 		return dataProvidersMap;
 	}
@@ -1795,7 +1799,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	 * @param name
 	 * @return
 	 */
-	public synchronized Relation[] getRelationSequence(String name)
+	public Relation[] getRelationSequence(String name)
 	{
 		if (name == null)
 		{
