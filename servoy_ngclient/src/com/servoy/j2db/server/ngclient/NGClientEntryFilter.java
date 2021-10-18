@@ -109,7 +109,7 @@ public class NGClientEntryFilter extends WebEntry
 	public static final String JQUERY_MIGRATE = "js/jquery-migrate-3.3.2.js";
 
 	public static final String[] INDEX_3RD_PARTY_JS = { //
-		"js/jquery-3.5.1.js", //
+		"js/jquery-3.6.0.js", //
 		"js/jquery.maskedinput.js", //
 		ANGULAR_JS, //
 		"js/angular-sanitize.js", //
