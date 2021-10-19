@@ -335,6 +335,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				attributes.put("svy-id", fe.getDesignId());
 				attributes.put("svy-formelement-type", fe.getTypeName());
 				attributes.put("svy-name", fe.getName());
+				attributes.put("svy-anchors", Integer.toString(((BaseComponent)o).getAnchors()));
 				List<String>[] typeAndPropertyNames = fe.getSvyTypesAndPropertiesNames();
 				if (typeAndPropertyNames[0].size() > 0)
 				{
