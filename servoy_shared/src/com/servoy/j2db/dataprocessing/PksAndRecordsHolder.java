@@ -38,7 +38,7 @@ public class PksAndRecordsHolder
 	private QuerySelect querySelect; // the query the pks were based on
 
 	private final int chunkSize;
-	private final boolean optimzeChangeFires;
+	private final boolean optimizeChangeFires;
 	private final FoundSet foundSet;
 	private boolean hasDynamicPlaceholder;
 
@@ -61,12 +61,12 @@ public class PksAndRecordsHolder
 	{
 		this.foundSet = foundSet;
 		this.chunkSize = chunkSize;
-		this.optimzeChangeFires = optimzeChangeFires;
+		this.optimizeChangeFires = optimzeChangeFires;
 	}
 
 	public synchronized PksAndRecordsHolder shallowCopy()
 	{
-		return new PksAndRecordsHolder(foundSet, cachedRecords, pks, dbIndexLastPk, querySelect, chunkSize, hasDynamicPlaceholder, optimzeChangeFires);
+		return new PksAndRecordsHolder(foundSet, cachedRecords, pks, dbIndexLastPk, querySelect, chunkSize, hasDynamicPlaceholder, optimizeChangeFires);
 	}
 
 	public synchronized IFoundSetChanges setPks(IDataSet bufferedDataSet, int dbIndexLastPk)
@@ -86,7 +86,7 @@ public class PksAndRecordsHolder
 	public synchronized IFoundSetChanges setPksAndQuery(IDataSet bufferedDataSet, int dbIndexLastPk, QuerySelect querySelect, boolean reuse)
 	{
 		FoundsetChanges changes = null;
-		if (optimzeChangeFires && pks != bufferedDataSet && pks != null && pks.getRowCount() > 0 &&
+		if (optimizeChangeFires && pks != bufferedDataSet && pks != null && pks.getRowCount() > 0 &&
 			pks.getColumnCount() == 1 && bufferedDataSet != null && bufferedDataSet.getRowCount() > 0)
 		{
 			changes = new FoundsetChanges();
