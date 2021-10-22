@@ -717,6 +717,8 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 			// wrap the new foundSet to redirect all IDataSet methods to the foundSet
 			set = new FoundsetDataSet(foundSet, dataSource, pkNames);
+
+			return dataSource;
 		}
 		return null;
 	}
