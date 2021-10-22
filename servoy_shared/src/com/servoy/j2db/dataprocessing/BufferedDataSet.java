@@ -336,7 +336,7 @@ public class BufferedDataSet implements ISerializableDataSet
 			return false;
 		}
 
-		String[] newColumns = Utils.arrayInsert(getColumnNames(), new String[] { columnName }, index, 1);
+		String[] newColumns = Utils.arrayInsert(columnNames /* no default names */, new String[] { columnName }, index, 1);
 		columnNames = newColumns;
 
 		if (size == 0 || columnTypes != null)

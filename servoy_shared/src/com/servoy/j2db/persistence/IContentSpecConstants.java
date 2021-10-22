@@ -92,6 +92,7 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_ONAFTERSEARCHMETHODID = "onAfterSearchMethodID";
 	public static final String PROPERTY_ONAFTERUPDATEMETHODID = "onAfterUpdateMethodID";
 	public static final String PROPERTY_ONFOUNDSETLOADMETHODID = "onFoundSetLoadMethodID";
+	public static final String PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID = "onFoundsetNextChunkMethodID";
 	public static final String PROPERTY_ONCLOSEMETHODID = "onCloseMethodID";
 	public static final String PROPERTY_ONCREATEMETHODID = "onCreateMethodID";
 	public static final String PROPERTY_ONDATABROADCASTMETHODID = "onDataBroadcastMethodID";
@@ -140,7 +141,7 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_PAPERPRINTSCALE = "paperPrintScale";
 	public static final String PROPERTY_PARTTYPE = "partType";
 	public static final String PROPERTY_PRINTSLIDING = "printSliding";
-	public static final String PROPERTY_RESOURCETYPE = "resourceType";;
+	public static final String PROPERTY_RESOURCETYPE = "resourceType";
 	public static final String PROPERTY_RETURNDATAPROVIDERS = "returnDataProviders";
 	public static final String PROPERTY_ROLLOVERCURSOR = "rolloverCursor";
 	public static final String PROPERTY_ROLLOVERIMAGEMEDIAID = "rolloverImageMediaID";
@@ -167,7 +168,7 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_BEANCLASSNAME = "beanClassName";
 	public static final String PROPERTY_BORDERTYPE = "borderType";
 	public static final String PROPERTY_COMMENT = "comment";
-	public static final String PROPERTY_CONTENT = "content";;
+	public static final String PROPERTY_CONTENT = "content";
 	public static final String PROPERTY_CSSTEXT = "CSSText";
 	public static final String PROPERTY_CUSTOMVALUES = "customValues";
 	public static final String PROPERTY_DATAPROVIDERID1 = "dataProviderID1";

@@ -118,7 +118,7 @@ public class ValuelistPropTest extends AbstractSolutionTest
 		ds.addRow(new Object[] { Integer.valueOf(16), "value16", "valueP" });
 		ds.addRow(new Object[] { Integer.valueOf(17), "value17", "valueQ" });
 		ds.addRow(new Object[] { Integer.valueOf(18), "value18", "valueR" });
-		client.getFoundSetManager().createDataSourceFromDataSet("test", ds, null, new String[] { "pk" }, false);
+		client.getFoundSetManager().insertToDataSource("test", ds, null, new String[] { "pk" }, true, false);
 
 		ConcurrentHashMap<String, IServer> serverProxies = new ConcurrentHashMap<String, IServer>();
 		serverProxies.put("_sv_inmem", DUMMY_ISERVER);

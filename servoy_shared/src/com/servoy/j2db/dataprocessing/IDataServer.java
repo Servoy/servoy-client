@@ -17,6 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Procedure;
 import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.ISQLQuery;
 import com.servoy.j2db.query.ISQLSelect;
@@ -61,7 +63,6 @@ public interface IDataServer extends Remote
 	public static final int META_DATA_QUERY = 17;
 	public static final int METHOD_CALL = 18;
 	public static final int METHOD_CALL_WAITING_FOR_USER_INPUT = 19;
-
 
 	public static final String BLOB_MARKER_COLUMN_ALIAS = "SV_BLOB_M"; //$NON-NLS-1$
 
@@ -190,8 +191,8 @@ public interface IDataServer extends Remote
 	 * @throws ServoyException
 	 * @throws RemoteException
 	 */
-	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid, ColumnType[] columnTypes,
-		String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException;
+	public InsertResult insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid,
+		ColumnType[] columnTypes, String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException;
 
 	/**
 	 * Insert a data from a query in a table. When tableName is null a temporary table will be created
@@ -256,4 +257,26 @@ public interface IDataServer extends Remote
 	boolean isInServerMaintenanceMode() throws RemoteException;
 
 	void setServerMaintenanceMode(boolean maintenanceMode) throws RemoteException;
+
+	public class InsertResult implements Serializable
+	{
+		private final Table table;
+		private final Object[] generatedPks;
+
+		public InsertResult(Table table, Object[] generatedPks)
+		{
+			this.table = table;
+			this.generatedPks = generatedPks;
+		}
+
+		public Table getTable()
+		{
+			return table;
+		}
+
+		public Object[] getGeneratedPks()
+		{
+			return generatedPks;
+		}
+	}
 }

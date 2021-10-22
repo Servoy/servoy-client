@@ -148,7 +148,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		ds.addRow(new Object[] { Integer.valueOf(16), "value3", "value4" });
 		ds.addRow(new Object[] { Integer.valueOf(17), "value1", "value2" });
 		ds.addRow(new Object[] { Integer.valueOf(18), "value3", "value4" });
-		client.getFoundSetManager().createDataSourceFromDataSet("test", ds, null, new String[] { "pk" }, false);
+		client.getFoundSetManager().insertToDataSource("test", ds, null, new String[] { "pk" }, true, false);
 
 		BufferedDataSet separateDSs = new BufferedDataSet(new String[] { "pk", "test1", "test2" },
 			new int[] { IColumnTypes.INTEGER, IColumnTypes.TEXT, IColumnTypes.TEXT });
@@ -156,7 +156,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		{
 			separateDSs.addRow(new Object[] { Integer.valueOf(i), "value" + i + "0", "value" + i + "1" });
 		}
-		client.getFoundSetManager().createDataSourceFromDataSet("testseparatefoundset", separateDSs, null, new String[] { "pk" }, false);
+		client.getFoundSetManager().insertToDataSource("testseparatefoundset", separateDSs, null, new String[] { "pk" }, true, false);
 
 		BufferedDataSet relatedDS = new BufferedDataSet(new String[] { "relatedtestpk", "testpk", "relatedtest1", "relatedtest2" },
 			new int[] { IColumnTypes.INTEGER, IColumnTypes.INTEGER, IColumnTypes.TEXT, IColumnTypes.TEXT });
@@ -176,7 +176,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		relatedDS.addRow(new Object[] { Integer.valueOf(14), Integer.valueOf(1), "relatedvalue121", "relatedvalue122" });
 		relatedDS.addRow(new Object[] { Integer.valueOf(15), Integer.valueOf(1), "relatedvalue131", "relatedvalue132" });
 		relatedDS.addRow(new Object[] { Integer.valueOf(16), Integer.valueOf(2), "relatedvalue241", "relatedvalue242" });
-		client.getFoundSetManager().createDataSourceFromDataSet("relatedtest", relatedDS, null, new String[] { "relatedtestpk" }, false);
+		client.getFoundSetManager().insertToDataSource("relatedtest", relatedDS, null, new String[] { "relatedtestpk" }, true, false);
 
 		ConcurrentHashMap<String, IServer> serverProxies = new ConcurrentHashMap<String, IServer>();
 		serverProxies.put("_sv_inmem", DUMMY_ISERVER);

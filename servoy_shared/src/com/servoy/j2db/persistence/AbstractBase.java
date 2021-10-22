@@ -476,7 +476,7 @@ public abstract class AbstractBase implements IPersist
 	}
 
 	@SuppressWarnings("unchecked")
-	<T> T getTypedProperty(TypedProperty<T> property)
+	public <T> T getTypedProperty(TypedProperty<T> property)
 	{
 		return (T)getProperty(property.getPropertyName());
 	}

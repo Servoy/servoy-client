@@ -110,6 +110,8 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 		IContentSpecConstants.PROPERTY_ONAFTERUPDATEMETHODID);
 	public static final TypedProperty<Integer> PROPERTY_ONFOUNDSETLOADMETHODID = new TypedProperty<Integer>(
 		IContentSpecConstants.PROPERTY_ONFOUNDSETLOADMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID = new TypedProperty<Integer>(
+		IContentSpecConstants.PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID);
 	public static final TypedProperty<Integer> PROPERTY_ONCLOSEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONCLOSEMETHODID);
 	public static final TypedProperty<Integer> PROPERTY_ONCREATEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONCREATEMETHODID);
 	public static final TypedProperty<Integer> PROPERTY_ONDATABROADCASTMETHODID = new TypedProperty<Integer>(
@@ -947,6 +949,8 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(459, IRepository.TABPANELS, PROPERTY_COMMENT.getPropertyName(), IRepository.STRING);
 			cs.new Element(460, IRepository.WEBCOMPONENTS, PROPERTY_COMMENT.getPropertyName(), IRepository.STRING);
 			cs.new Element(461, IRepository.VALUELISTS, PROPERTY_COMMENT.getPropertyName(), IRepository.STRING);
+
+			cs.new Element(462, IRepository.TABLENODES, PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID.getPropertyName(), IRepository.ELEMENTS);
 		}
 
 		//##add property adds here

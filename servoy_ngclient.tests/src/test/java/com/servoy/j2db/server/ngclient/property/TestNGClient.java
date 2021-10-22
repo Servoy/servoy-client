@@ -284,7 +284,7 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public ITable insertDataSet(String client_id, IDataSet set, final String dataSource, String serverName, String tableName, String tid,
+			public InsertResult insertDataSet(String client_id, IDataSet set, final String dataSource, String serverName, String tableName, String tid,
 				ColumnType[] columnTypes, String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException
 			{
 				dataSetMap.put(dataSource, set);
@@ -299,7 +299,7 @@ public class TestNGClient extends NGClient
 						col.setDatabasePK(true);
 					}
 				}
-				return table;
+				return new InsertResult(table, new Object[0]);
 			}
 
 			@Override

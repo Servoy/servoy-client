@@ -52,6 +52,7 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.IDelegate;
@@ -703,10 +704,13 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			// invent column names if none defined yet
 			makeColumnMap();
 		}
-		String dataSource = application.getFoundSetManager().createDataSourceFromDataSet(name, set, columnTypes /* inferred from dataset when null */, pkNames,
-			true);
-		if (dataSource != null)
+
+		Object[] insertResult = application.getFoundSetManager().insertToDataSource(name, set, columnTypes /* inferred from dataset when null */, pkNames,
+			true, true);
+		if (insertResult != null)
 		{
+			String dataSource = DataSourceUtils.createInmemDataSource(name);
+
 			// create a new foundSet for the temp table
 			IFoundSetInternal foundSet = application.getFoundSetManager().getSharedFoundSet(dataSource);
 			foundSet.loadAllRecords();
@@ -714,7 +718,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			// wrap the new foundSet to redirect all IDataSet methods to the foundSet
 			set = new FoundsetDataSet(foundSet, dataSource, pkNames);
 		}
-		return dataSource;
+		return null;
 	}
 
 	/**

@@ -264,6 +264,29 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	}
 
 	/**
+	 * A method that can be used to load extra data in an in memory datasource.
+	 * <p>
+	 * This method id called when the inMem datasource is fully read.
+	 *
+	 * @templatedescription
+	 * Return the next chunk of data for an inmemory datasource, when there is no more data, return nothing or an empty dataset.
+	 * @templatetype JSDataSet
+	 * @templateparam inmemDataSourceName name of the inmemory datasource
+	 * @templateaddtodo
+	 * @templatecode
+	 * return databaseManager.createEmptyDataSet();
+	 */
+	public int getOnFoundsetNextChunkMethodID()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID).intValue();
+	}
+
+	public void setOnFoundsetNextChunkMethodID(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID, arg);
+	}
+
+	/**
 	 * A method that is executed before an insert operation. The method can block the insert operation by returning false.
 	 *
 	 * @templatedescription

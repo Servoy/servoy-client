@@ -96,7 +96,7 @@ public class FlattenedPortal extends Portal implements IFlattenedPersistWrapper<
 	}
 
 	@Override
-	<T> T getTypedProperty(TypedProperty<T> property)
+	public <T> T getTypedProperty(TypedProperty<T> property)
 	{
 		return portal.getTypedProperty(property);
 	}

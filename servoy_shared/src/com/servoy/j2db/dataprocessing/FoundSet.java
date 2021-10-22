@@ -18,13 +18,17 @@ package com.servoy.j2db.dataprocessing;
 
 
 import static com.servoy.j2db.dataprocessing.SQLGenerator.isDistinctAllowed;
+import static com.servoy.j2db.persistence.ColumnInfo.DATABASE_IDENTITY;
 import static com.servoy.j2db.util.Utils.iterate;
+import static com.servoy.j2db.util.Utils.stream;
+import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
 
 import java.lang.ref.WeakReference;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -111,6 +115,7 @@ import com.servoy.j2db.scripting.TableScope;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.scripting.annotations.JSSignature;
+import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
@@ -180,6 +185,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	private PrototypeState proto = null;
 
 	protected boolean mustQueryForUpdates;
+
+	private MethodCallState nextChunkLoadState = MethodCallState.READY;
 
 	// forms might force their foundset to remain at a certain multiselect value
 	// if a form 'pinned' multiselect, multiSelect should not be changeable by foundset JS access
@@ -2500,7 +2507,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return creationSqlSelect;
 	}
 
-	public boolean queryForAllPKs()
+	public void queryForAllPKs()
 	{
 		PksAndRecordsHolder pksAndRecordsCopy;
 		int rowCount;
@@ -2510,13 +2517,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			IDataSet pks = pksAndRecordsCopy.getPks();
 			rowCount = pks == null ? 0 : pks.getRowCount();
 		}
-		return queryForMorePKs(pksAndRecordsCopy, rowCount, -1, true);
+		queryForMorePKs(pksAndRecordsCopy, rowCount, -1, true);
 	}
 
 	/*
 	 * Fill the pks from pksAndRecordsCopy starting at originalPKRowcount.
 	 */
-	protected boolean queryForMorePKs(PksAndRecordsHolder pksAndRecordsCopy, int originalPKRowcount, int maxResult, boolean fireChanges)
+	protected void queryForMorePKs(PksAndRecordsHolder pksAndRecordsCopy, int originalPKRowcount, int maxResult, boolean fireChanges)
 	{
 		try
 		{
@@ -2608,13 +2615,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 			pksAndRecordsCopy.setDbIndexLastPk(dbIndexLastPk);
 
-			int newSize = getCorrectedSizeForFires();
-			if (newpks.getRowCount() != 0)
+			if (fireChanges && newpks.getRowCount() != 0)
 			{
-				if (fireChanges) fireFoundSetEvent(size, newSize, FoundSetEvent.CHANGE_INSERT);
-				return true;
+				fireFoundSetEvent(size, getCorrectedSizeForFires(), FoundSetEvent.CHANGE_INSERT);
 			}
-			return false;
 		}
 		catch (ServoyException ex)
 		{
@@ -2787,10 +2791,28 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			hadMoreRows = pks.hadMoreRows();
 		}
 
-		if (row >= rowCount - 1 && hadMoreRows)
+		if (row >= rowCount - 1)
 		{
-			int hint = ((row / fsm.pkChunkSize) + 2) * fsm.pkChunkSize;
-			queryForMorePKs(pksAndRecordsCopy, rowCount, hint, true);
+			String dataSource = getDataSource();
+			String inmemDataSourceName = DataSourceUtils.getInmemDataSourceName(dataSource);
+			if (inmemDataSourceName != null && fsm.hasFoundsetTrigger(dataSource, StaticContentSpecLoader.PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID))
+			{
+				// Inmem datasource with an OnNextChunkMethod
+				try
+				{
+					loadNextChunkFromMethod(inmemDataSourceName);
+				}
+				catch (ServoyException e)
+				{
+					fsm.getApplication().handleException(fsm.getApplication().getI18NMessage("servoy.foundSet.error.loadingRecord"), e);
+				}
+			}
+
+			else if (hadMoreRows)
+			{
+				int hint = ((row / fsm.pkChunkSize) + 2) * fsm.pkChunkSize;
+				queryForMorePKs(pksAndRecordsCopy, rowCount, hint, true);
+			}
 		}
 		IRecordInternal state = pksAndRecordsCopy.getCachedRecords().get(row);
 		if (state == null && !findMode)
@@ -2804,6 +2826,96 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			state = getPrototypeState();
 		}
 		return state;
+	}
+
+	/**
+	 * Call the OnFoundsetNextChunkMethod.
+	 */
+	private void loadNextChunkFromMethod(String inmemDataSourceName) throws ServoyException
+	{
+		List<Object[]> newPks = null;
+
+		if (nextChunkLoadState == MethodCallState.READY)
+		{
+			nextChunkLoadState = MethodCallState.CALLING;
+			try
+			{
+				Object nextChunk = executeFoundsetTriggerReturnFirst(new Object[] { inmemDataSourceName },
+					StaticContentSpecLoader.PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID, false);
+
+				if (nextChunk instanceof IDataSet && ((IDataSet)nextChunk).getRowCount() > 0)
+				{
+					IDataSet nextChunkDataset = (IDataSet)nextChunk;
+
+					int sizeBefore = -1;
+					int[] pkIndexesInDataset;
+					boolean hasIdentityColumn = getTable().getRowIdentColumns().stream().mapToInt(Column::getSequenceType)
+						.anyMatch(sequenceType -> sequenceType == DATABASE_IDENTITY);
+					if (hasIdentityColumn)
+					{
+						// we assume that he identity column is the single pk.
+						// this may be the internal hidden identity column (_sv_id) or a user-defined one.
+						pkIndexesInDataset = new int[] { 0 };
+					}
+					else
+					{
+						// extract pks from dataset and add them to the foundset pks
+						String[] pkColumnnames = stream(getTable().getRowIdentColumnNames()).toArray(String[]::new);
+						List<String> pkColumnnamesList = asList(pkColumnnames);
+
+						pkIndexesInDataset = stream(nextChunkDataset.getColumnNames())
+							.mapToInt(pkColumnnamesList::indexOf).filter(idx -> idx >= 0)
+							.toArray();
+
+						if (pkIndexesInDataset.length != pkColumnnames.length)
+						{
+							List<String> missingPks = stream(pkColumnnamesList).filter(pkName -> !asList(nextChunkDataset.getColumnNames()).contains(pkName))
+								.collect(toList());
+							if (!missingPks.isEmpty())
+							{
+								throw new IllegalArgumentException(
+									"onFoundsetNextChunkMethod: Not all pk columns are in the dataset, missing dataproviders: " + missingPks);
+							}
+						}
+
+						newPks = nextChunkDataset.getRows();
+					}
+
+					Object[] generatedPks = fsm.insertToDataSource(inmemDataSourceName, nextChunkDataset, null, null, false, true);
+
+					if (hasIdentityColumn && generatedPks != null)
+					{
+						// dbidentity values for inserted records
+						newPks = stream(generatedPks).map(o -> new Object[] { o }).collect(toList());
+					}
+
+					synchronized (pksAndRecords)
+					{
+						PKDataSet pks = pksAndRecords.getPks();
+						sizeBefore = pks.getRowCount();
+
+						// get the pkvalues from the nextChunkDataset based on pkIndexesInDataset
+						newPks.stream()
+							.map(r -> stream(pkIndexesInDataset).mapToObj(idx -> r[idx]).toArray())
+							.forEach(newpk -> pks.setRow(pks.getRowCount(), newpk, false));
+					}
+
+					fireFoundSetEvent(sizeBefore, sizeBefore + newPks.size() - 1, FoundSetEvent.CHANGE_INSERT);
+				}
+				else
+				{
+					nextChunkLoadState = MethodCallState.DONE;
+				}
+			}
+			finally
+			{
+				// In case of exception, try again next time
+				if (nextChunkLoadState != MethodCallState.DONE)
+				{
+					nextChunkLoadState = MethodCallState.READY;
+				}
+			}
+		}
 	}
 
 	public IRecordInternal[] getRecords(int startrow, int count)
@@ -4491,7 +4603,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	boolean executeFoundsetTriggerBreakOnFalse(Object[] args, TypedProperty<Integer> property, boolean throwException) throws ServoyException
 	{
-		return fsm.executeFoundsetTriggerInternal(getTable(), args, property, true, throwException, this);
+		return fsm.executeFoundsetTriggerBreakOnFalse(getTable(), args, property, throwException, this);
 	}
 
 	/**
@@ -4504,9 +4616,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	void executeFoundsetTrigger(Object[] args, TypedProperty<Integer> property, boolean throwException) throws ServoyException
 	{
-		fsm.executeFoundsetTriggerInternal(getTable(), args, property, false, throwException, this);
+		fsm.executeFoundsetTrigger(getTable(), args, property, throwException, this);
 	}
 
+	Object executeFoundsetTriggerReturnFirst(Object[] args, TypedProperty<Integer> property, boolean throwException) throws ServoyException
+	{
+		return fsm.executeFoundsetTriggerReturnFirst(getTable(), args, property, throwException, this);
+	}
 
 	private boolean tableHasOnDeleteMethods()
 	{
@@ -5783,7 +5899,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 							Object[] changedColumnNames = e.getChangedColumnNames();
 							if (changedColumnNames instanceof String[])
 							{
-								fireFoundSetEvent(0, getSize() - 1, FoundSetEvent.CHANGE_UPDATE, Arrays.asList((String[])changedColumnNames));
+								fireFoundSetEvent(0, getSize() - 1, FoundSetEvent.CHANGE_UPDATE, asList((String[])changedColumnNames));
 							}
 							else
 							{
@@ -7249,5 +7365,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return false;
 		}
 
+	}
+
+	enum MethodCallState
+	{
+		READY, CALLING, DONE;
 	}
 }

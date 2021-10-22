@@ -98,7 +98,12 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	public IApplication getApplication();
 
-	public String createDataSourceFromDataSet(String name, IDataSet dataSet, ColumnType[] columnTypes, String[] pkNames, boolean skipOnLoad)
+	/**
+	 * Insert data to a new or existing data source.
+	 *
+	 * @return generated values for db identity columns
+	 */
+	public Object[] insertToDataSource(String name, IDataSet dataSet, ColumnType[] columnTypes, String[] pkNames, boolean create, boolean skipOnLoad)
 		throws ServoyException;
 
 	public boolean removeDataSource(String uri) throws RepositoryException;

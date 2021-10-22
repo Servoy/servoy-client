@@ -4404,7 +4404,10 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				}
 				try
 				{
-					return application.getFoundSetManager().createDataSourceFromDataSet(name, (IDataSet)args[1], columnTypes, null, true);
+					if (application.getFoundSetManager().insertToDataSource(name, (IDataSet)args[1], columnTypes, null, true, true) != null)
+					{
+						return DataSourceUtils.createInmemDataSource(name);
+					}
 				}
 				catch (ServoyException e)
 				{

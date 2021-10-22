@@ -79,6 +79,7 @@ import java.util.StringTokenizer;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -3091,17 +3092,24 @@ public final class Utils
 	}
 
 	/**
+	 * Stream from iterator.
+	 *
+	 * @param iterator when null, return empty stream
+	 */
+	public static <T> Stream<T> stream(Iterator<T> iterator)
+	{
+		return iterator == null
+			? Stream.empty()
+			: StreamSupport.stream(((Iterable<T>)() -> iterator).spliterator(), false);
+	}
+
+	/**
 	 * Returns true if the given client/application type is a Swing client and false if it is not.
 	 * @param applicationType the type to check
 	 */
 	public static boolean isSwingClient(int applicationType)
 	{
 		return applicationType == IApplication.CLIENT || applicationType == IApplication.OFFLINE || applicationType == IApplication.RUNTIME;
-	}
-
-	private static String getPrefixedType(String type, String prefix)
-	{
-		return prefix != null ? prefix + type : type;
 	}
 
 	/**
