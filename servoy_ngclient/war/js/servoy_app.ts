@@ -1388,9 +1388,13 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						if (!initializing) webStorage.session.set("locale", (country + '-' + country).toLowerCase());
 					} catch(e3) {
 						try {
-							numeral.localeData(country.toLowerCase());
-							numeral.locale(country.toLowerCase());
-							if (!initializing) webStorage.session.set("locale", country.toLowerCase());
+                            if (country){
+                                numeral.localeData(country.toLowerCase());
+                                numeral.locale(country.toLowerCase());
+                                 if (!initializing) webStorage.session.set("locale", country.toLowerCase());
+                            }else {
+                                throw "Empty/null country";
+                            }
 						} catch(e4) {	
 							try {
 								//try it with just the language part
