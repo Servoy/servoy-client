@@ -120,7 +120,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		return prevValue;
 	}
 
-	private Object setValueImpl(String dataProviderID, Object value)
+	Object setValueImpl(String dataProviderID, Object value)
 	{
 		Object managebleValue = Utils.mapToNullIfUnmanageble(value);
 		Object prevValue = values.get(dataProviderID);

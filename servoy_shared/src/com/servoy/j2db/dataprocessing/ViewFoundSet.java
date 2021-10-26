@@ -781,7 +781,9 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 				String serverName = DataSourceUtils.getDataSourceServerName(select.getTable().getDataSource());
 				String transaction_id = manager.getTransactionID(serverName);
 
+				HashMap<SQLStatement, ViewRecord> statementToRecord = new HashMap<>();
 				List<SQLStatement> statements = new ArrayList<>();
+
 				for (ViewRecord rec : toSave)
 				{
 					Map<String, Object> changes = rec.getChanges();
@@ -863,6 +865,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 						statement.setChangedColumns(changedColumns);
 						statement.setExpectedUpdateCount(1);
 						statements.add(statement);
+						statementToRecord.put(statement, rec);
 					});
 					JSRecordMarkers validateObject = validate(rec);
 					if (validateObject != null && validateObject.isHasErrors())
@@ -893,7 +896,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 						statements.toArray(new SQLStatement[statements.size()]));
 					for (int i = 0; i < updateResult.length; i++)
 					{
-						ViewRecord rec = toSave.get(i);
+						ViewRecord rec = statementToRecord.get(statements.get(i)); // i of the updateResults should be the same for the statements;
 						Object o = updateResult[i];
 						if (o instanceof Exception)
 						{
@@ -2226,7 +2229,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 									for (Integer rowIndex : rowIndexes)
 									{
 										ViewRecord viewRecord = records.get(rowIndex.intValue());
-										viewRecord.setValue(columnNames.get(column), rowValue);
+										viewRecord.setValueImpl(columnNames.get(column), rowValue);
 									}
 								}
 							}
@@ -2283,7 +2286,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 												for (Integer rowIndex : rowIndexes)
 												{
 													ViewRecord viewRecord = records.get(rowIndex.intValue());
-													viewRecord.setValue(columnNames.get(column), rowValue);
+													viewRecord.setValueImpl(columnNames.get(column), rowValue);
 												}
 											}
 										}
