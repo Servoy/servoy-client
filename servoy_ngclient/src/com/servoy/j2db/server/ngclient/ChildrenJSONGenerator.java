@@ -418,6 +418,10 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				}
 			}
 		}
+		if (formUI != null && layoutContainer.getName() != null)
+		{
+			attributes.put("name", formUI.getName() + "." + layoutContainer.getName());
+		}
 		if (designer)
 		{
 			attributes.put("svy-id", layoutContainer.getUUID().toString());
@@ -435,6 +439,15 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				attributes.put("svy-name", layoutContainer.getName());
 			}
 			attributes.put("svy-priority", String.valueOf(layoutContainer.getLocation().x));
+			String designClass = spec.getDesignStyleClass() != null && spec.getDesignStyleClass().length() > 0 ? spec.getDesignStyleClass()
+				: "customDivDesign";
+			if ("customDivDesign".equals(designClass) && FormLayoutStructureGenerator.hasSameDesignClassAsParent(layoutContainer, spec))
+			{
+				designClass = FormLayoutStructureGenerator.isEvenLayoutContainer(layoutContainer) ? "customDivDesignOdd" : "customDivDesignEven";
+			}
+			attributes.put("designclass", designClass);
+
+			attributes.put("svy-title", FormLayoutStructureGenerator.getLayouContainerTitle(layoutContainer));
 		}
 		writer.key("attributes");
 		writer.object();
@@ -443,28 +456,6 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.key(key);
 			writer.value(value);
 		});
-		if (formUI != null && layoutContainer.getName() != null)
-		{
-			writer.key("name");
-			writer.value(formUI.getName() + "." + layoutContainer.getName());
-		}
-		if (designer)
-		{
-			writer.key("id");
-			writer.value(layoutContainer.getUUID());
-
-			String designClass = spec.getDesignStyleClass() != null && spec.getDesignStyleClass().length() > 0 ? spec.getDesignStyleClass()
-				: "customDivDesign";
-			if ("customDivDesign".equals(designClass) && FormLayoutStructureGenerator.hasSameDesignClassAsParent(layoutContainer, spec))
-			{
-				designClass = FormLayoutStructureGenerator.isEvenLayoutContainer(layoutContainer) ? "customDivDesignOdd" : "customDivDesignEven";
-			}
-			writer.key("designclass");
-			writer.value(designClass);
-
-			writer.key("svy-title");
-			writer.value(FormLayoutStructureGenerator.getLayouContainerTitle(layoutContainer));
-		}
 		writer.endObject();
 	}
 }
