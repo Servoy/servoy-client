@@ -896,7 +896,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 						statements.toArray(new SQLStatement[statements.size()]));
 					for (int i = 0; i < updateResult.length; i++)
 					{
-						ViewRecord rec = statementToRecord.get(statements.get(i)); // i of the updateResults should be the same for the statements;
+						ViewRecord rec = statementToRecord.remove(statements.get(i)); // i of the updateResults should be the same for the statements;
 						Object o = updateResult[i];
 						if (o instanceof Exception)
 						{
@@ -905,7 +905,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 							rec.setLastException((Exception)o);
 							retCode = ISaveConstants.SAVE_FAILED;
 						}
-						else
+						else if (!statementToRecord.values().contains(rec) && !failedRecords.contains(rec))
 						{
 							rec.clearChanges();
 						}
