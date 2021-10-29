@@ -312,6 +312,11 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		else
 		{
 			fe.propertiesAsTemplateJSON(writer, new FormElementContext(fe, context, null), false);
+			if (designer && Utils.isInheritedFormElement(o, form))
+			{
+				writer.key("svyInheritedElement");
+				writer.value(true);
+			}
 		}
 		if (designer)
 		{
