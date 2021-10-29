@@ -19,6 +19,15 @@ package com.servoy.j2db.dataprocessing;
 
 import static com.servoy.j2db.dataprocessing.SQLGenerator.isDistinctAllowed;
 import static com.servoy.j2db.persistence.ColumnInfo.DATABASE_IDENTITY;
+import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONAFTERCREATEMETHODID;
+import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONAFTERDELETEMETHODID;
+import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONAFTERFINDMETHODID;
+import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONAFTERSEARCHMETHODID;
+import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONCREATEMETHODID;
+import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONDELETEMETHODID;
+import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONFINDMETHODID;
+import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID;
+import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONSEARCHMETHODID;
 import static com.servoy.j2db.util.Utils.iterate;
 import static com.servoy.j2db.util.Utils.stream;
 import static java.util.Arrays.asList;
@@ -79,7 +88,6 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
-import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
@@ -2793,24 +2801,39 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		if (row >= rowCount - 1)
 		{
+			int hint = ((row / fsm.pkChunkSize) + 2) * fsm.pkChunkSize;
+
 			String dataSource = getDataSource();
 			String inmemDataSourceName = DataSourceUtils.getInmemDataSourceName(dataSource);
-			if (inmemDataSourceName != null && fsm.hasFoundsetTrigger(dataSource, StaticContentSpecLoader.PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID))
+			if (inmemDataSourceName != null //
+				&& nextChunkLoadState != MethodCallState.DONE // When all chunks are loaded switch to queries (for example after sort)
+				&& fsm.hasFoundsetTrigger(dataSource, PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID))
 			{
 				// Inmem datasource with an OnNextChunkMethod
+				int total = 0;
 				try
 				{
-					loadNextChunkFromMethod(inmemDataSourceName);
+					int newPksCount;
+					do
+					{
+						newPksCount = loadNextChunkFromMethod(inmemDataSourceName, hint - rowCount - total);
+						total += newPksCount;
+					}
+					while (newPksCount > 0 && row >= rowCount + total - 1);
 				}
 				catch (ServoyException e)
 				{
 					fsm.getApplication().handleException(fsm.getApplication().getI18NMessage("servoy.foundSet.error.loadingRecord"), e);
 				}
+
+				if (total > 0)
+				{
+					fireFoundSetEvent(rowCount, rowCount + total - 1, FoundSetEvent.CHANGE_INSERT);
+				}
 			}
 
 			else if (hadMoreRows)
 			{
-				int hint = ((row / fsm.pkChunkSize) + 2) * fsm.pkChunkSize;
 				queryForMorePKs(pksAndRecordsCopy, rowCount, hint, true);
 			}
 		}
@@ -2831,23 +2854,21 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Call the OnFoundsetNextChunkMethod.
 	 */
-	private void loadNextChunkFromMethod(String inmemDataSourceName) throws ServoyException
+	private int loadNextChunkFromMethod(String inmemDataSourceName, int numberRequested) throws ServoyException
 	{
-		List<Object[]> newPks = null;
-
 		if (nextChunkLoadState == MethodCallState.READY)
 		{
 			nextChunkLoadState = MethodCallState.CALLING;
 			try
 			{
-				Object nextChunk = executeFoundsetTriggerReturnFirst(new Object[] { inmemDataSourceName },
-					StaticContentSpecLoader.PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID, false);
+				Object nextChunk = executeFoundsetTriggerReturnFirst(new Object[] { inmemDataSourceName, Integer.valueOf(numberRequested) },
+					PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID, false);
 
 				if (nextChunk instanceof IDataSet && ((IDataSet)nextChunk).getRowCount() > 0)
 				{
 					IDataSet nextChunkDataset = (IDataSet)nextChunk;
 
-					int sizeBefore = -1;
+					List<Object[]> newPks = null;
 					int[] pkIndexesInDataset;
 					boolean hasIdentityColumn = getTable().getRowIdentColumns().stream().mapToInt(Column::getSequenceType)
 						.anyMatch(sequenceType -> sequenceType == DATABASE_IDENTITY);
@@ -2892,7 +2913,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					synchronized (pksAndRecords)
 					{
 						PKDataSet pks = pksAndRecords.getPks();
-						sizeBefore = pks.getRowCount();
 
 						// get the pkvalues from the nextChunkDataset based on pkIndexesInDataset
 						newPks.stream()
@@ -2900,7 +2920,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 							.forEach(newpk -> pks.setRow(pks.getRowCount(), newpk, false));
 					}
 
-					fireFoundSetEvent(sizeBefore, sizeBefore + newPks.size() - 1, FoundSetEvent.CHANGE_INSERT);
+					return newPks.size();
 				}
 				else
 				{
@@ -2916,6 +2936,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				}
 			}
 		}
+
+		return 0;
 	}
 
 	public IRecordInternal[] getRecords(int startrow, int count)
@@ -4497,7 +4519,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				{
 					// see EditRecordList.stopEditing
 					if (state.existInDataSource() &&
-						!executeFoundsetTriggerBreakOnFalse(new Object[] { state }, StaticContentSpecLoader.PROPERTY_ONDELETEMETHODID, true))
+						!executeFoundsetTriggerBreakOnFalse(new Object[] { state }, PROPERTY_ONDELETEMETHODID, true))
 					{
 						// trigger returned false
 						Debug.log("Delete not granted for the table " + getTable()); //$NON-NLS-1$
@@ -4564,7 +4586,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				Row data = state.getRawData();
 				rowManager.deleteRow(this, data, hasAccess(IRepository.TRACKING), partOfBiggerDelete);
 
-				executeFoundsetTrigger(new Object[] { state }, StaticContentSpecLoader.PROPERTY_ONAFTERDELETEMETHODID, false);
+				executeFoundsetTrigger(new Object[] { state }, PROPERTY_ONAFTERDELETEMETHODID, false);
 
 				GlobalTransaction gt = fsm.getGlobalTransaction();
 				if (gt != null)
@@ -5072,7 +5094,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		try
 		{
-			if (javascriptRecord && !executeFoundsetTriggerBreakOnFalse(null, StaticContentSpecLoader.PROPERTY_ONCREATEMETHODID, false))
+			if (javascriptRecord && !executeFoundsetTriggerBreakOnFalse(null, PROPERTY_ONCREATEMETHODID, false))
 			{
 				Debug.trace("New record creation was denied by onCreateRecord method"); //$NON-NLS-1$
 				return null;
@@ -5098,7 +5120,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			if (javascriptRecord)
 			{
-				executeFoundsetTrigger(new Object[] { newRecord }, StaticContentSpecLoader.PROPERTY_ONAFTERCREATEMETHODID, false);
+				executeFoundsetTrigger(new Object[] { newRecord }, PROPERTY_ONAFTERCREATEMETHODID, false);
 			}
 		}
 		catch (ServoyException e)
@@ -5164,7 +5186,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		try
 		{
-			if (!executeFoundsetTriggerBreakOnFalse(null, StaticContentSpecLoader.PROPERTY_ONFINDMETHODID, false))
+			if (!executeFoundsetTriggerBreakOnFalse(null, PROPERTY_ONFINDMETHODID, false))
 			{
 				Debug.trace("Find mode switch was denied by onFind method"); //$NON-NLS-1$
 				return;
@@ -5202,7 +5224,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		try
 		{
-			executeFoundsetTrigger(null, StaticContentSpecLoader.PROPERTY_ONAFTERFINDMETHODID, false);
+			executeFoundsetTrigger(null, PROPERTY_ONAFTERFINDMETHODID, false);
 		}
 		catch (ServoyException e)
 		{
@@ -5255,7 +5277,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			try
 			{
 				if (!executeFoundsetTriggerBreakOnFalse(new Object[] { Boolean.valueOf(clearLastResult), Boolean.valueOf(reduceSearch) },
-					StaticContentSpecLoader.PROPERTY_ONSEARCHMETHODID, true))
+					PROPERTY_ONSEARCHMETHODID, true))
 				{
 					Debug.trace("Foundset search was denied by onSearchFoundset method"); //$NON-NLS-1$
 					return -1; // blocked
@@ -5330,7 +5352,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			int nfound = findPKs.getRowCount();
 			try
 			{
-				executeFoundsetTrigger(null, StaticContentSpecLoader.PROPERTY_ONAFTERSEARCHMETHODID, false);
+				executeFoundsetTrigger(null, PROPERTY_ONAFTERSEARCHMETHODID, false);
 			}
 			catch (ServoyException e)
 			{
