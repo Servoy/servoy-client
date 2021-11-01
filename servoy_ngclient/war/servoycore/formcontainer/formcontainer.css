@@ -1,4 +1,4 @@
-.svy-wrapper > * > .bts-tablesspanel {
+.svy-wrapper > * > .svy-container {
     overflow: auto;
     height: 100%;
     width: 100%;
@@ -6,6 +6,6 @@
 }
 
 /* Default form's height to 100% if responsive form is contained within an anchored form */
-.svy-wrapper > * > .bts-tablesspanel > svy-formload > .svy-respform {
+.svy-wrapper > * > .svy-container > svy-formload > .svy-respform {
 	height: 100%;
 }
