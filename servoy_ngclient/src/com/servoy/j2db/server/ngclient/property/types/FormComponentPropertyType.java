@@ -306,7 +306,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 			}
 			while (form != null)
 			{
-				List<IFormElement> formelements = form.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+				List<IFormElement> formelements = form.getFlattenedObjects(null);
 				for (IFormElement element : formelements)
 				{
 					if (element.getName() != null)
