@@ -517,10 +517,11 @@ public final class CSSPositionUtils
 		{
 			return true;
 		}
-		if (persist instanceof BaseComponent && PersistHelper.getRealParent((BaseComponent)persist) instanceof LayoutContainer)
+		if (persist instanceof BaseComponent)
 		{
-			return CSSPositionUtils.isCSSPositionContainer(
-				(LayoutContainer)PersistHelper.getRealParent((BaseComponent)persist));
+			ISupportChilds realParent = PersistHelper.getRealParent((BaseComponent)persist);
+			if (realParent instanceof LayoutContainer)
+				return CSSPositionUtils.isCSSPositionContainer((LayoutContainer)realParent);
 		}
 		return false;
 	}
@@ -530,9 +531,10 @@ public final class CSSPositionUtils
 		IPersist currentComponent = component;
 		while (currentComponent != null)
 		{
-			if (PersistHelper.getRealParent(currentComponent) instanceof AbstractContainer)
+			ISupportChilds realParent = PersistHelper.getRealParent(currentComponent);
+			if (realParent instanceof AbstractContainer)
 			{
-				return (AbstractContainer)PersistHelper.getRealParent(currentComponent);
+				return (AbstractContainer)realParent;
 			}
 			currentComponent = currentComponent.getParent();
 		}
