@@ -16,8 +16,10 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,7 +49,6 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
-import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.solutionmodel.JSForm;
 import com.servoy.j2db.scripting.solutionmodel.JSNGWebComponent;
@@ -278,7 +279,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 
 	public PropertyDescription getPropertyDescription(String property, JSONObject currentValue, FlattenedSolution fs)
 	{
-		return getFCPropertyDescription(property, currentValue, fs, new HashSet<String>());
+		return getFCPropertyDescription(property, currentValue, fs, new HashSet<String>(), new HashMap<String, PropertyDescription>());
 	}
 
 	/**
@@ -288,14 +289,21 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 	 * @param forms
 	 * @return
 	 */
-	private PropertyDescription getFCPropertyDescription(String property, JSONObject currentValue, FlattenedSolution fs, HashSet<String> forms)
+	private PropertyDescription getFCPropertyDescription(String property, JSONObject currentValue, FlattenedSolution fs, HashSet<String> forms,
+		Map<String, PropertyDescription> cached)
 	{
-		PropertyDescriptionBuilder pdBuilder = new PropertyDescriptionBuilder().withName(property).withType(FormComponentPropertyType.INSTANCE);
-		PropertyDescription formDesc = new PropertyDescriptionBuilder().withName(SVY_FORM).withType(StringPropertyType.INSTANCE).build();
-		pdBuilder.withProperty(SVY_FORM, formDesc);
+		PropertyDescription pd;
 		if (currentValue != null)
 		{
 			String formName = currentValue.optString(SVY_FORM);
+			PropertyDescription propertyDescription = cached.get(formName);
+			if (propertyDescription != null)
+			{
+				return propertyDescription;
+			}
+			PropertyDescriptionBuilder pdBuilder = new PropertyDescriptionBuilder().withName(property).withType(FormComponentPropertyType.INSTANCE);
+			PropertyDescription formDesc = new PropertyDescriptionBuilder().withName(SVY_FORM).withType(StringPropertyType.INSTANCE).build();
+			pdBuilder.withProperty(SVY_FORM, formDesc);
 			Form form = getForm(formName, fs);
 			String testFormName = form.getName();
 			boolean nested = false;
@@ -323,7 +331,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 								if (object instanceof JSONObject)
 								{
 									nestedFormComponentBuilder.withProperty(nestedFormComponentPD.getName(),
-										getFCPropertyDescription(nestedFormComponentPD.getName(), (JSONObject)object, fs, forms));
+										getFCPropertyDescription(nestedFormComponentPD.getName(), (JSONObject)object, fs, forms, cached));
 								}
 							}
 							pdBuilder.withProperty(element.getName(), nestedFormComponentBuilder.build());
@@ -337,8 +345,17 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object>
 				form = form.getExtendsForm();
 			}
 			forms.remove(testFormName);
+			pd = pdBuilder.build();
+			cached.put(formName, pd);
 		}
-		return pdBuilder.build();
+		else
+		{
+			PropertyDescriptionBuilder pdBuilder = new PropertyDescriptionBuilder().withName(property).withType(FormComponentPropertyType.INSTANCE);
+			PropertyDescription formDesc = new PropertyDescriptionBuilder().withName(SVY_FORM).withType(StringPropertyType.INSTANCE).build();
+			pdBuilder.withProperty(SVY_FORM, formDesc);
+			pd = pdBuilder.build();
+		}
+		return pd;
 	}
 
 	private class FormComponentValue implements IFormComponentRhinoConverter
