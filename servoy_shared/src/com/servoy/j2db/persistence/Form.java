@@ -29,6 +29,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.util.DataSourceUtils;
+import com.servoy.j2db.util.IntHashMap;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -2267,4 +2268,44 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		return true;
 	}
 
+	private volatile IntHashMap<IPersist> superPersistCache = null;
+
+	/**
+	 * @param extendsID
+	 * @return
+	 */
+	public IPersist getSuperPersist(int extendsID)
+	{
+		synchronized (this)
+		{
+			if (superPersistCache == null)
+			{
+				IntHashMap<IPersist> cache = new IntHashMap<>();
+				acceptVisitor((IPersist persist) -> {
+					cache.put(persist.getID(), persist);
+					if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0)
+					{
+						cache.put(((ISupportExtendsID)persist).getExtendsID(), persist);
+					}
+					return IPersistVisitor.CONTINUE_TRAVERSAL;
+				});
+				superPersistCache = cache;
+			}
+		}
+		return superPersistCache.get(extendsID);
+	}
+
+	@Override
+	public void childAdded(IPersist obj)
+	{
+		super.childAdded(obj);
+		superPersistCache = null;
+	}
+
+	@Override
+	public void childRemoved(IPersist obj)
+	{
+		super.childRemoved(obj);
+		superPersistCache = null;
+	}
 }

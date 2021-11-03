@@ -68,7 +68,7 @@ public abstract class AbstractBase implements IPersist
 		public String toString()
 		{
 			return "-undefined-";
-		};
+		}
 	};
 
 
@@ -661,6 +661,8 @@ public abstract class AbstractBase implements IPersist
 		{
 			getRootObject().getChangeHandler().fireIPersistRemoved(obj);
 		}
+		ISupportChilds p = getParent();
+		if (p != null) p.childRemoved(obj);
 	}
 
 	protected void internalRemoveChild(IPersist obj)
@@ -691,6 +693,8 @@ public abstract class AbstractBase implements IPersist
 		{
 			getRootObject().getChangeHandler().fireIPersistCreated(obj);
 		}
+		ISupportChilds p = getParent();
+		if (p != null) p.childAdded(obj);
 	}
 
 	public void internalAddChild(IPersist obj)
@@ -1079,7 +1083,6 @@ public abstract class AbstractBase implements IPersist
 	 * Gets the value of the custom property identified by path in the current persist's own properties (so it ignores inherited values).
 	 * It will return null both if the value is null or if the value is not present.
 	 */
-	@SuppressWarnings("unchecked")
 	public Object getCustomPropertyNonFlattened(String[] path)
 	{
 		Object val = getCustomPropertyNonFlattenedInternal(path);

@@ -73,7 +73,6 @@ import com.servoy.j2db.server.shared.IClientManager;
 import com.servoy.j2db.server.shared.IUserManager;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
@@ -123,8 +122,6 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		@Override
 		protected void flushExtendsStuff()
 		{
-			// flush first the persist helpers cache that could already been filled with null values in creating the index.
-			PersistHelper.flushSuperPersistCache();
 			// refresh all the extends forms, TODO this is kind of bad, because form instances are shared over clients.
 			Iterator<Form> it = getForms(false);
 			while (it.hasNext())

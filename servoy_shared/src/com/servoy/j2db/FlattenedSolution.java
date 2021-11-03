@@ -113,7 +113,6 @@ import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IteratorChain;
 import com.servoy.j2db.util.Pair;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -501,24 +500,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				public IPersist createNewObject(ISupportChilds parent, int object_type_id, int element_id, UUID uuid) throws RepositoryException
 				{
 					return factory.createObject(parent, object_type_id, element_id, uuid);
-				}
-
-				@Override
-				protected void fireIPersistRemoved(IPersist persist)
-				{
-					// TODO this does flush over all clients all the time.
-					// should this super cache be moved to the FS itself?
-					PersistHelper.flushSuperPersistCache();
-					super.fireIPersistRemoved(persist);
-				}
-
-				@Override
-				protected void fireIPersistCreated(IPersist persist)
-				{
-					// TODO this does flush over all clients all the time.
-					// should this super cache be moved to the FS itself?
-					PersistHelper.flushSuperPersistCache();
-					super.fireIPersistCreated(persist);
 				}
 			});
 			copySolution.getChangeHandler().addIPersistListener(this);

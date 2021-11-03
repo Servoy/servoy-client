@@ -39,8 +39,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.MediaURLStreamHandler;
@@ -51,7 +49,6 @@ import com.servoy.j2db.persistence.FlattenedLayoutContainer;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFlattenedPersistWrapper;
 import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportExtendsID;
@@ -70,9 +67,6 @@ public class PersistHelper
 {
 	public static final String COLOR_RGBA_DEF = "rgba"; //$NON-NLS-1$
 	public static final Color COLOR_TRANSPARENT = new Color(0, 0, 0, 0);
-
-	private static final Object NULL = new Object();
-	private static final ConcurrentMap<ISupportExtendsID, Object> superPersistCache = new ConcurrentHashMap<>();
 
 	private PersistHelper()
 	{
@@ -898,7 +892,7 @@ public class PersistHelper
 			ISupportExtendsID superp = (ISupportExtendsID)PersistHelper.getSuperPersist(p);
 			if (superp == null)
 			{
-				return (IPersist)p;
+				return p;
 			}
 			p = superp;
 		}
@@ -917,35 +911,38 @@ public class PersistHelper
 		final int extendsID = persist.getExtendsID();
 		if (extendsID > 0)
 		{
-			Object cache = superPersistCache.get(persist);
-			if (cache instanceof IPersist) return (IPersist)cache;
-			else if (cache == NULL) return null;
-			Form form = (Form)((AbstractBase)persist).getAncestor(IRepository.FORMS);
-			if (form != null)
+			try
 			{
-				form = form.getExtendsForm();
-				while (form != null)
+				Form form = (Form)((AbstractBase)persist).getAncestor(IRepository.FORMS);
+				if (form != null)
 				{
-					IPersist superPersist = (IPersist)form.acceptVisitor(new IPersistVisitor()
-					{
-						public Object visit(IPersist o)
-						{
-							if (o instanceof ISupportExtendsID && (extendsID == o.getID() || extendsID == ((ISupportExtendsID)o).getExtendsID()))
-							{
-								return o;
-							}
-							return CONTINUE_TRAVERSAL;
-						}
-					});
-					if (superPersist != null)
-					{
-						superPersistCache.put(persist, superPersist);
-						return superPersist;
-					}
 					form = form.getExtendsForm();
+					while (form != null)
+					{
+						IPersist superPersist = form.getSuperPersist(extendsID);
+//						IPersist superPersist = (IPersist)form.acceptVisitor(new IPersistVisitor()
+//						{
+//							public Object visit(IPersist o)
+//							{
+//								if (o instanceof ISupportExtendsID && (extendsID == o.getID() || extendsID == ((ISupportExtendsID)o).getExtendsID()))
+//								{
+//									return o;
+//								}
+//								return CONTINUE_TRAVERSAL;
+//							}
+//						});
+						if (superPersist != null)
+						{
+							return superPersist;
+						}
+						form = form.getExtendsForm();
+					}
 				}
 			}
-			superPersistCache.put(persist, NULL);
+			finally
+			{
+//				System.err.println("getting super persist for " + persist.getID() + " extends: " + extendsID + " time " + (System.currentTimeMillis() - time));
+			}
 		}
 		return null;
 	}
@@ -983,7 +980,7 @@ public class PersistHelper
 
 	public static boolean isOverrideOrphanElement(ISupportExtendsID persist)
 	{
-		IPersist parentPersist = (IPersist)persist;
+		IPersist parentPersist = persist;
 		if (parentPersist instanceof ISupportExtendsID && ((ISupportExtendsID)parentPersist).getExtendsID() == IRepository.UNRESOLVED_ELEMENT)
 		{
 			return true;
@@ -1040,7 +1037,7 @@ public class PersistHelper
 	public static List<AbstractBase> getOverrideHierarchy(ISupportExtendsID persist)
 	{
 		List<AbstractBase> overrideHierarchy = new ArrayList<AbstractBase>(3);
-		IPersist superPersist = (IPersist)persist;
+		IPersist superPersist = persist;
 		while (superPersist instanceof ISupportExtendsID)
 		{
 			overrideHierarchy.add((AbstractBase)superPersist);
@@ -1193,10 +1190,5 @@ public class PersistHelper
 		}
 		return null;
 
-	}
-
-	public static void flushSuperPersistCache()
-	{
-		superPersistCache.clear();
 	}
 }
