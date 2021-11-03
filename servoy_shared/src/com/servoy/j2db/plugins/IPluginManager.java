@@ -24,14 +24,14 @@ import com.servoy.j2db.IManager;
 
 /**
  * Public interface for the plugin manager
- * 
+ *
  * @author jblok
  */
 public interface IPluginManager extends IManager
 {
 	/**
 	 * Create a bean based from an classname.
-	 * 
+	 *
 	 * @param pluginSubType the class
 	 * @param name the plugin name
 	 * @return the instance
@@ -40,7 +40,7 @@ public interface IPluginManager extends IManager
 
 	/**
 	 * Get a list of all loaded plugins for a class type
-	 * 
+	 *
 	 * @param pluginSubType the class name
 	 * @return instances
 	 */
@@ -48,7 +48,7 @@ public interface IPluginManager extends IManager
 
 	/**
 	 * Get the plugin classloader
-	 * 
+	 *
 	 * @return ClassLoader
 	 */
 	public ClassLoader getClassLoader();
@@ -58,4 +58,7 @@ public interface IPluginManager extends IManager
 	 * @since 8.0
 	 */
 	public void addClientExtension(String clientPluginClassName, URL extension, URL[] supportLibs) throws PluginException;
+
+
+	<T> T getPluginInstance(Class<T> pluginClass);
 }

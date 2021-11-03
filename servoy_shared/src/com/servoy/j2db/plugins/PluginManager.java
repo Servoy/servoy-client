@@ -341,6 +341,8 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 
 				flagInitialized();
 			}
+			loadedServerPlugins.stream().filter(plugin -> plugin instanceof IPostInitializeListener).map(plugin -> (IPostInitializeListener)plugin)
+				.forEach(plugin -> plugin.afterInit());
 		}
 	}
 
@@ -770,5 +772,16 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 	public void addClientExtension(String clientPluginClassName, URL extension, URL[] supportLibs) throws PluginException
 	{
 		//implemented by subclasses
+	}
+
+	@Override
+	public <T> T getPluginInstance(Class<T> pluginClass)
+	{
+		// assume plugins are already initialized
+		if (loadedServerPlugins != null)
+		{
+			return loadedServerPlugins.stream().filter(plugin -> pluginClass.isInstance(plugin)).map(plugin -> (T)plugin).findFirst().orElse(null);
+		}
+		return null;
 	}
 }

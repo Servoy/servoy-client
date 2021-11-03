@@ -397,4 +397,12 @@ public interface IServerAccess extends IPluginAccess
 
 
 	public JSDataSet getLocks();
+
+	/** Gets a server plugin instance. Should be always called using IPostInitializeListener so that all plugins are already initialized.
+	 * @param pluginClass
+	 *
+	 * @return plugin instance
+	 *
+	 */
+	public <T> T getPluginInstance(Class<T> pluginClass);
 }
