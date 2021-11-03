@@ -1689,12 +1689,12 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			});
 		}
 	}
-}]).directive('svyFormstyle',  function () {
+}]).directive('svyFormstyle', ['$parse', function($parse:angular.IParseService){
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
 			element.css({position:'absolute'});
-			scope.$watch(attrs['svyFormstyle'], function(newVal) {
+			function applyStyle(newVal) {
 				if (newVal)
 				{
 					if(scope["formProperties"] && !scope["formProperties"]["hasExtraParts"] && isInContainer(scope)) {
@@ -1702,8 +1702,10 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
         				delete newVal["minHeight"];
         			}
 					element.css(newVal);
-				}	
-			})
+				}
+			}
+			applyStyle($parse(attrs['svyFormstyle'])(scope));
+			scope.$watch(attrs['svyFormstyle'], applyStyle);
 		}
 	}
 
@@ -1716,7 +1718,19 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}	
 		return false;
 	}
-}).directive("svyDecimalKeyConverter",[function(){
+}]).directive('svyNgStyle', ['$parse', function($parse:angular.IParseService){
+	// similar to ng-style just it adds the style a bit earlier, during its link phase
+	return {
+		restrict: 'A',
+		link: function (scope, element, attrs) {
+			function applyStyle(newVal) {
+				element.css(newVal);
+			}
+			applyStyle($parse(attrs['svyNgStyle'])(scope));
+			scope.$watch(attrs['svyNgStyle'], applyStyle);
+		}
+	}
+}]).directive("svyDecimalKeyConverter",[function(){
 	return {
 		restrict: 'A',
 		link: function(scope,element,attrs) {
