@@ -41,6 +41,7 @@ import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractFormLayoutProvider;
@@ -64,6 +65,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 	private final String realFormName;
 	private final FlattenedSolution flattenedSolution;
 	private final boolean isDesigner;
+	private final LayoutContainer zoomedInContainer;
 
 	/**
 	 * @param client
@@ -77,15 +79,17 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		this.realFormName = realFormName;
 		this.flattenedSolution = null;
 		this.isDesigner = isDesigner;
+		this.zoomedInContainer = null;
 	}
 
-	public AngularFormGenerator(FlattenedSolution fs, Form form, String realFormName, boolean isDesigner)
+	public AngularFormGenerator(FlattenedSolution fs, Form form, String realFormName, boolean isDesigner, LayoutContainer zoomedInContainer)
 	{
 		this.flattenedSolution = fs;
 		this.form = form;
 		this.realFormName = realFormName;
 		this.client = null;
 		this.isDesigner = isDesigner;
+		this.zoomedInContainer = zoomedInContainer;
 	}
 
 	@SuppressWarnings("nls")
@@ -189,9 +193,19 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		writer.endObject();
 		if (form.isResponsiveLayout())
 		{
-			form.acceptVisitor(new ChildrenJSONGenerator(writer,
-				getAContext(), form, null,
-				null, form, true, isDesigner), PositionComparator.XY_PERSIST_COMPARATOR);
+			if (zoomedInContainer != null)
+			{
+				zoomedInContainer.acceptVisitor(new ChildrenJSONGenerator(writer,
+					getAContext(), form, null,
+					null, form, true, isDesigner), PositionComparator.XY_PERSIST_COMPARATOR);
+			}
+			else
+			{
+				form.acceptVisitor(new ChildrenJSONGenerator(writer,
+					getAContext(), form, null,
+					null, form, true, isDesigner), PositionComparator.XY_PERSIST_COMPARATOR);
+			}
+
 		}
 		else
 		{
