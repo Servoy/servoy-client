@@ -20,7 +20,6 @@ import java.io.Serializable;
 
 import com.servoy.base.query.BaseAbstractBaseQuery;
 import com.servoy.base.query.TypeInfo;
-import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -119,7 +118,7 @@ public class QueryString implements Serializable
 	 * @param ti
 	 * @param position insert position
 	 */
-	public void addParameters(Object[][] parms, ColumnType[] ti, int position)
+	public void addParameters(Object[][] parms, TypeInfo[] ti, int position)
 	{
 		if (parms.length != parameters.length)
 		{
