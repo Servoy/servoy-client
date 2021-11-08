@@ -271,6 +271,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templatedescription
 	 * Return the next chunk of data for an inmemory datasource, when there is no more data, return nothing or an empty dataset.
 	 * @templatetype JSDataSet
+	 * @templatename onFoundsetNextChunk
 	 * @templateparam inmemDataSourceName name of the inmemory datasource
 	 * @templateparam sizeHint preferred number of records to be retrieved
 	 * @templateaddtodo
