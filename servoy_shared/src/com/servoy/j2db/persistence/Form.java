@@ -2095,6 +2095,8 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 		Dimension size = getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE);
 		if (size != null) ((Form)cloned).setSize(size);
+
+		((Form)cloned).superPersistCache = null;
 	}
 
 	/*
