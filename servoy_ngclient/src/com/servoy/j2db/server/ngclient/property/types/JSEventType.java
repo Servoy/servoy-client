@@ -90,6 +90,10 @@ public class JSEventType extends UUIDReferencePropertyType<JSEvent> implements I
 				fillJSEvent(event, jsonObject, webObject, null);
 			}
 		}
+		else if (newJSONValue instanceof JSEvent)
+		{
+			event = (JSEvent)newJSONValue;
+		}
 		return event;
 	}
 
