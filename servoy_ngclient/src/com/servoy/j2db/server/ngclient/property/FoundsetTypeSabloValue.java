@@ -972,11 +972,12 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 						{
 							try
 							{
+								String currentSort = foundset.getSort();
 								String newSort = sort.toString();
 								foundset.setSort(newSort);
-								if (!Utils.equalObjects(foundset.getSort(), newSort))
+								if (!Utils.equalObjects(currentSort, newSort) || // really a new sort
+									!Utils.equalObjects(foundset.getSort(), newSort)) // not sorted, send back to client
 								{
-									// not sorted, send back to client
 									changeMonitor.foundsetSortChanged();
 								}
 							}
