@@ -56,7 +56,7 @@ public class JSUploadPropertyType extends DefaultPropertyType<JSUpload> implemen
 	public JSUpload fromJSON(Object newJSONValue, JSUpload previousSabloValue, PropertyDescription propertyDescription, IBrowserConverterContext context,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
-		// not needed
+		if (newJSONValue instanceof JSUpload) return (JSUpload)newJSONValue;
 		return null;
 	}
 
