@@ -27,7 +27,8 @@ Require-Bundle: servoy_shared,
  org.apache.commons.lang3,
  org.apache.commons.commons-text,
  de.inetsoftware.jlessc,
- org.apache.commons.commons-fileupload
+ org.apache.commons.commons-fileupload,
+ tus-java-server
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: .
 Bundle-Vendor: Servoy
