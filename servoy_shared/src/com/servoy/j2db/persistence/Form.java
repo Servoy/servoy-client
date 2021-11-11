@@ -2270,7 +2270,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		return true;
 	}
 
-	private volatile IntHashMap<IPersist> superPersistCache = null;
+	private transient IntHashMap<IPersist> superPersistCache = null;
 
 	/**
 	 * @param extendsID
