@@ -268,12 +268,11 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * <p>
 	 * This method id called when the inMem datasource is fully read.
 	 *
-	 * @templatedescription
-	 * Return the next chunk of data for an inmemory datasource, when there is no more data, return nothing or an empty dataset.
+	 * @templatedescription Return the next chunk of data for an inmemory datasource, when there is no more data, return nothing or an empty dataset
 	 * @templatetype JSDataSet
 	 * @templatename onFoundsetNextChunk
-	 * @templateparam inmemDataSourceName name of the inmemory datasource
-	 * @templateparam sizeHint preferred number of records to be retrieved
+	 * @templateparam String inmemDataSourceName name of the inmemory datasource.
+	 * @templateparam Number sizeHint preferred number of records to be retrieved.
 	 * @templateaddtodo
 	 * @templatecode
 	 * return databaseManager.createEmptyDataSet();
