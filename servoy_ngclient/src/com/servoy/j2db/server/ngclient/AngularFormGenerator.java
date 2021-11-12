@@ -407,25 +407,24 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 				if (anchoredTop)
 				{
 					writer.key("top");
-					int top = location.y;
-					if (!isDesigner)
-					{
-						Part prt = form.getPartAt(location.y);
-						if (prt != null)
-						{
-							int topStart = form.getPartStartYPos(prt.getID());
-							if (topStart > 0)
-							{
-								top = top - topStart;
-							}
-						}
-					}
-					writer.value(top + "px");
+					writer.value(location.y + "px");
 				}
 				if (anchoredBottom)
 				{
 					writer.key("bottom");
-					writer.value(form.getSize().height - location.y - size.height + "px");
+					int partHeight = form.getSize().height;
+					if (!isDesigner)
+					{
+						// search for element's part using its design time location
+						Part prt = form.getPartAt(((IFormElement)o).getLocation().y);
+						if (prt != null)
+						{
+							int prtEnd = form.getPartEndYPos(prt.getID());
+							if (prtEnd > form.getSize().height) prtEnd = form.getSize().height;
+							partHeight = prtEnd - form.getPartStartYPos(prt.getID());
+						}
+					}
+					writer.value(partHeight - location.y - size.height + "px");
 				}
 				if (!anchoredTop || !anchoredBottom)
 				{
@@ -447,6 +446,17 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 					writer.key("width");
 					writer.value(size.width + "px");
 				}
+				if (anchoredTop && anchoredBottom)
+				{
+					writer.key("min-height");
+					writer.value(size.height + "px");
+				}
+				if (anchoredLeft && anchoredRight)
+				{
+					writer.key("min-width");
+					writer.value(size.width + "px");
+				}
+
 				writer.endObject();
 			}
 		}
