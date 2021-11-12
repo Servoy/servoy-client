@@ -86,8 +86,7 @@ public class VisitOnceDelegateVisitor implements IVisitor, IDelegate<IVisitor>
 		@Override
 		public int hashCode()
 		{
-			if (o == null) return 0;
-			return o.hashCode();
+			return System.identityHashCode(o);
 		}
 
 		@Override
