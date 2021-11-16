@@ -68,7 +68,6 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 						if ($scope.model.tabs[i] === $scope.model.selectedTab)
 							selectedTabNotFound = false;
 						
-						$scope.model.tabs[i].disabled = false;
 					}
 					
 					if (selectedTabNotFound)
