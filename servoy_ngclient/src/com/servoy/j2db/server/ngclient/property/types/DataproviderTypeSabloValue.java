@@ -18,10 +18,8 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import java.sql.Types;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,9 +27,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.TimeZone;
 
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -96,9 +94,7 @@ import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetData
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ScopesUtils;
-import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Text;
-import com.servoy.j2db.util.TimezoneUtils;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -773,54 +769,39 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			if (typeOfDP.getType() instanceof DatePropertyType && fieldFormat != null && fieldFormat.parsedFormat != null &&
 				fieldFormat.parsedFormat.getDisplayFormat() != null && (oldUIValue instanceof Date || oldUIValue == null))
 			{
-				// if we have format with no hour, skip converting the date from the client and merge it with the old date
-				String displayFormat = fieldFormat.parsedFormat.getDisplayFormat();
-				boolean displayWithNoHour = displayFormat.indexOf('h') == -1 && displayFormat.indexOf('H') == -1;
-				boolean hasNoDateConversion = displayWithNoHour || NGDatePropertyType.hasNoDateConversion(typeOfDP);
+				boolean hasNoDateConversion = NGDatePropertyType.hasNoDateConversion(typeOfDP);
 				Date newValue = NGDatePropertyType.NG_INSTANCE.fromJSON(newJSONValue, hasNoDateConversion);
-				if (newValue != null)
+				if (oldUIValue != null)
 				{
+					String format = fieldFormat.parsedFormat.getEditFormat() != null ? fieldFormat.parsedFormat.getEditFormat()
+						: fieldFormat.parsedFormat.getDisplayFormat();
+					SimpleDateFormat sdf = new SimpleDateFormat(format);
+					if (!hasNoDateConversion) sdf.setTimeZone(dataAdapterList.getApplication().getTimeZone());
+
 					try
 					{
-						Locale locale = dataAdapterList.getApplication().getLocale();
-						if (locale == null) locale = Locale.getDefault(Locale.Category.FORMAT);
-						StateFullSimpleDateFormat formatter = new StateFullSimpleDateFormat(fieldFormat.parsedFormat.getEditFormat() != null
-							? fieldFormat.parsedFormat.getEditFormat() : fieldFormat.parsedFormat.getDisplayFormat(), null, locale, true);
-						Date originalDate;
-						if (oldUIValue instanceof Date)
-						{
-							originalDate = (Date)oldUIValue;
-						}
-						else
-						{
-							if (hasNoDateConversion)
-							{
-								// if oldUIValue is null, create a Date with time: 0:00:00
-								LocalDateTime localDateTime = LocalDate.now().atStartOfDay();
-								originalDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-							}
-							else
-							{
-								originalDate = TimezoneUtils.getClientDate(dataAdapterList.getApplication());
-							}
-						}
-						formatter.setOriginal(originalDate);
-						formatter.parseObject(new SimpleDateFormat(fieldFormat.parsedFormat.getEditFormat() != null
-							? fieldFormat.parsedFormat.getEditFormat() : fieldFormat.parsedFormat.getDisplayFormat(), locale).format(newValue));
-						uiValue = formatter.getMergedDate();
+						String oldFormatted = sdf.format(oldUIValue);
+						String newFormatted = sdf.format(newValue);
+						// need to go back to the default time zone so it doesn't make it sudden 2 jan 1970 because of the
+						// time zone difference between the default here and where it needs to go to.
+						sdf.setTimeZone(TimeZone.getDefault());
+						Date oldValueParsed = sdf.parse(oldFormatted);
+						Date newValueParsed = sdf.parse(newFormatted);
+						uiValue = new Date(((Date)oldUIValue).getTime() + (newValueParsed.getTime() - oldValueParsed.getTime()));
 					}
-					catch (Exception ex)
+					catch (ParseException e)
 					{
-						Debug.error(ex);
-						// just set the value to the newValue so we dont loose the input of the user (maybe only the other time part, like minutes)
 						uiValue = newValue;
 					}
 				}
-				else uiValue = newValue;
+				else
+				{
+					uiValue = newValue;
+				}
 			}
 			else if (typeOfDP.getType() instanceof IPropertyConverterForBrowser< ? >)
 			{
-				uiValue = ((IPropertyConverterForBrowser)typeOfDP.getType()).fromJSON(newJSONValue, uiValue, typeOfDP, dataConverterContext,
+				uiValue = ((IPropertyConverterForBrowser<Object>)typeOfDP.getType()).fromJSON(newJSONValue, uiValue, typeOfDP, dataConverterContext,
 					serverSideValueIsNotTheSameAsClient);
 			}
 			else
@@ -831,6 +812,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		else uiValue = newJSONValue;
 
 		if (oldUIValue != uiValue && (oldUIValue == null || !oldUIValue.equals(uiValue)))
+
 		{
 			jsonValue = null;
 		}
