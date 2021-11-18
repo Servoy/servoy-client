@@ -30,17 +30,7 @@ public class PerformanceData
 
 	private final ConcurrentLinkedQueue<PerformanceTiming> subTimings = new ConcurrentLinkedQueue<>();
 
-	/**
-	 * Started timings are kept to form a stack per client (through PerformanceData/PerformanceTiming startedTimingPerClient hierarchy) as well because for
-	 * example an showForm modal dialog could execute other actions and then when modal is closed sub-actions might still happen and they need to point to
-	 * the correct parent action.<br/><br/>
-	 *
-	 * Keys in this map are client UUIDs as strings (so not PerformanceTiming IDs); so there is one child performanceTiming per servoy client executing things (which then can have other timings nested in it).
-	 *
-	 * NOTE: The root PerformanceData can have multiple started timings in this map: 1 for each client. All sub-timing (PerformanceTiming extends PerformanceData)
-	 * will only have max one item in this map. As they are just a call inside a singular call stack for that client.
-	 */
-	private final ConcurrentMap<String, PerformanceTiming> startedTimingPerClient = new ConcurrentHashMap<>();
+	private final ThreadLocal<PerformanceTiming> startedTimingPerClient = new ThreadLocal<>();
 
 	private final Logger log;
 
@@ -62,11 +52,11 @@ public class PerformanceData
 	public Integer startAction(String action, long start_ms, int type, String clientUUID)
 	{
 		if (registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.OFF) return null;
-		PerformanceTiming timing = startedTimingPerClient.get(clientUUID);
+		PerformanceTiming timing = startedTimingPerClient.get();
 		if (timing == null)
 		{
 			timing = new PerformanceTiming(action, type, start_ms, clientUUID, registry, log, id, this.aggregator);
-			startedTimingPerClient.put(clientUUID, timing);
+			startedTimingPerClient.set(timing);
 			startedTimings.put(timing.getID(), timing);
 			PerformanceTiming topTiming = top.get();
 			if (topTiming == null) top.set(timing);
@@ -94,14 +84,14 @@ public class PerformanceData
 	public void endAction(Integer timingId, int nrecords, String clientUUID)
 	{
 		if (registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.OFF || timingId == null) return;
-		PerformanceTiming timing = startedTimingPerClient.get(clientUUID);
+		PerformanceTiming timing = startedTimingPerClient.get();
 		if (timing != null)
 		{
 			// is this the uuid that is on this stack? then this one should be ended.
 			// else a child/sub timing should be searched for.
 			if (timingId.equals(timing.getID()))
 			{
-				startedTimingPerClient.remove(clientUUID);
+				startedTimingPerClient.remove();
 				startedTimings.remove(timingId);
 				PerformanceTiming topTiming = top.get();
 				if (topTiming == timing) top.remove(); // so the thread local "top" is also the timing that is now ending
@@ -137,7 +127,7 @@ public class PerformanceData
 		{
 			if (log != null && log.isInfoEnabled())
 			{
-				log.info(timing.getClientUUID() + '|' + timing.getAction() + '|' + timing.getRunningTimeMS() + '|' + timing.getIntervalTimeMS());
+//				log.info(timing.getClientUUID() + '|' + timing.getAction() + '|' + timing.getRunningTimeMS() + '|' + timing.getIntervalTimeMS());
 			}
 			timing.setEndTime();
 			addTiming(timing.getAction(), timing.getIntervalTimeMS(), timing.getRunningTimeMS(), timing.getType(), timing.getSubTimings(), nrecords);
@@ -156,7 +146,7 @@ public class PerformanceData
 	{
 		if (registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.OFF) return null;
 
-		PerformanceTiming lastStartedTiming = startedTimingPerClient.get(clientUUID);
+		PerformanceTiming lastStartedTiming = startedTimingPerClient.get();
 		if (lastStartedTiming == null) return null; // probably a Servoy internal service API call that gets called outside any user method; ignore
 
 		Integer subTimingUUID = lastStartedTiming.startAction(action, start_ms, type, clientUUID); // this call will go to (recursively) last started action on this client's stack
