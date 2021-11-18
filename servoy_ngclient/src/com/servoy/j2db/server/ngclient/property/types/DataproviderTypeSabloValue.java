@@ -767,7 +767,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		if (!findMode && typeOfDP != null)
 		{
 			if (typeOfDP.getType() instanceof DatePropertyType && fieldFormat != null && fieldFormat.parsedFormat != null &&
-				fieldFormat.parsedFormat.getDisplayFormat() != null && (oldUIValue instanceof Date || oldUIValue == null))
+				newJSONValue != null && fieldFormat.parsedFormat.getDisplayFormat() != null && (oldUIValue instanceof Date || oldUIValue == null))
 			{
 				boolean hasNoDateConversion = NGDatePropertyType.hasNoDateConversion(typeOfDP);
 				Date newValue = NGDatePropertyType.NG_INSTANCE.fromJSON(newJSONValue, hasNoDateConversion);
@@ -812,7 +812,6 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		else uiValue = newJSONValue;
 
 		if (oldUIValue != uiValue && (oldUIValue == null || !oldUIValue.equals(uiValue)))
-
 		{
 			jsonValue = null;
 		}

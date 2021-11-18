@@ -154,6 +154,14 @@ public class DataProviderDateTest
 	}
 
 	@Test
+	public void testWithOriginalAndGettingANull()
+	{
+		TestDataproviderTypeSabloValue value = createSabloValue(false, THREE_IN_AFTERNOON_PLUS13, "dd-MM-yyy");
+		value.browserUpdateReceived(null, null);
+		Assert.assertNull(value.getValue());
+	}
+
+	@Test
 	public void testWithOriginalAndUseLocalDate()
 	{
 		TestDataproviderTypeSabloValue value = createSabloValue(true, THREE_IN_AFTERNOON_PLUS13, null);
