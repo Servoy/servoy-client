@@ -3100,7 +3100,19 @@ public final class Utils
 	{
 		return iterator == null
 			? Stream.empty()
-			: StreamSupport.stream(((Iterable<T>)() -> iterator).spliterator(), false);
+			: stream(((Iterable<T>)() -> iterator));
+	}
+
+	/**
+	 * Stream iterable iterator.
+	 *
+	 * @param iterable when null, return empty stream
+	 */
+	public static <T> Stream<T> stream(Iterable<T> iterable)
+	{
+		return iterable == null
+			? Stream.empty()
+			: StreamSupport.stream(iterable.spliterator(), false);
 	}
 
 	/**
