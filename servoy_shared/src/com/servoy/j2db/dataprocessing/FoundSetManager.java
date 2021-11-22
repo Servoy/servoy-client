@@ -2976,7 +2976,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			if (!asList(dataSet.getColumnNames()).equals(inmemColumnNames) || !compareColumnTypes(fixedColumnTypes, inmemColumnTypes))
 			{
 				fixedColumnTypes = inmemColumnTypes;
-				fixedDataSet = BufferedDataSetInternal.createBufferedDataSet(inmemColumnNames.toArray(new String[fixedColumnTypes.size()]),
+				fixedDataSet = BufferedDataSetInternal.createBufferedDataSet(inmemColumnNames.toArray(new String[inmemColumnNames.size()]),
 					fixedColumnTypes.toArray(new ColumnType[fixedColumnTypes.size()]), new ArrayList<Object[]>(), false);
 				if (dataSet.getColumnCount() > 0 && !asList(dataSet.getColumnNames()).equals(inmemColumnNames))
 				{

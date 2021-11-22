@@ -4386,7 +4386,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 
 	/**
-	 * @deprecated  As of release 5.0, replaced by {@link JSDataSet#createDataSource(String, Object)}
+	 * @deprecated  As of release 5.0, replaced by {@link JSDataSet#js_createDataSource(String, Object, String[])}
 	 */
 	@Deprecated
 	public String js_createDataSource(Object[] args) throws ServoyException
