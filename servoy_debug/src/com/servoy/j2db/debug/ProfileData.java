@@ -164,15 +164,28 @@ public final class ProfileData
 
 	public long getDataQueriesTime()
 	{
-		long time = 0;
+		long sqlOwnTime = 0;
 		if (dataCallProfileDatas != null && dataCallProfileDatas.size() > 0)
 		{
 			for (DataCallProfileData profile : dataCallProfileDatas)
 			{
-				time += profile.getTime();
+				sqlOwnTime += profile.getTime();
 			}
 		}
-		return time;
+		return sqlOwnTime;
+	}
+
+	public long getTotalDataQueriesTime()
+	{
+		long totalTime = this.getDataQueriesTime();
+		if (this.childs.size() > 0)
+		{
+			for (ProfileData pd : childs)
+			{
+				totalTime += pd.getTotalDataQueriesTime();
+			}
+		}
+		return totalTime;
 	}
 
 	/**
