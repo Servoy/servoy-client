@@ -102,7 +102,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	 * uniquely identifies that record.
 	 */
 	public static final String ROW_ID_COL_KEY = "_svyRowId";
-	public static final String ROW_ID_COL_KEY_PARTIAL_UPDATE = "_svyRowId_p";
+	public static final String ROW_ID_COL_KEY_PARTIAL_UPDATE = "_svyRowId_p"; // when writing foundset row updates to client, if we send full row (all columns), then ROW_ID_COL_KEY is used; but if we send only partial (some columns) updates for that row, the pk is only written again using ROW_ID_COL_KEY_PARTIAL_UPDATE if one of the written columns is a pk; this is for a client-side viewport 'if' that needs to differentiate between the two
 
 
 	public static final String DATAPROVIDER_KEY = "dp";

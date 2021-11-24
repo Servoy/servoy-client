@@ -47,11 +47,16 @@ public final class FoundsetTypeRowDataProvider extends ViewportRowDataProvider
 		w.object();
 		if (columnNames == null)
 		{
-			w.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(generatedRowId); // foundsetIndex in that "generatedRowId" is just a hint for where to start searching for the pk when needed
+			// foundsetIndex in that "generatedRowId" is just a hint for where to start searching for the pk when needed
+			w.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(generatedRowId);
 		}
 		else if (foundsetPropertyValue.isOneOfTheFollowingAPk(columnNames))
 		{
-			w.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY_PARTIAL_UPDATE).value(generatedRowId); // foundsetIndex in that "generatedRowId" is just a hint for where to start searching for the pk when needed
+			// when writing foundset row updates to client, if we send full row (all columns), then ROW_ID_COL_KEY is used; but if we
+			// send only partial (some columns) updates for that row, the pk is only written again using ROW_ID_COL_KEY_PARTIAL_UPDATE if one of the written columns is a pk; this is for a client-side viewport 'if' that needs to differentiate between the two
+
+			// foundsetIndex in that "generatedRowId" is just a hint for where to start searching for the pk when needed
+			w.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY_PARTIAL_UPDATE).value(generatedRowId);
 		}
 
 		foundsetPropertyValue.populateRowData(record, columnNames, w, clientConversionInfo, browserConverterContext);
