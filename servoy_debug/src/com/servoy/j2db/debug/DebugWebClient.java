@@ -197,7 +197,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 
 	public void refreshForI18NChange(boolean recreateForms)
 	{
-		refreshI18NMessages();
+		refreshI18NMessages(true);
 
 		if (recreateForms)
 		{

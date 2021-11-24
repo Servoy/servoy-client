@@ -297,7 +297,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	protected void applicationSetup()
 	{
-		refreshI18NMessages();
+		refreshI18NMessages(true);
 
 		TimeZone defaultTimeZone = TimeZone.getDefault();
 		if (defaultTimeZone != null) //can this happen?
@@ -1318,7 +1318,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				foundSetManager.init();
 			}
 			// inform messages of the closed solution
-			refreshI18NMessages();
+			refreshI18NMessages(true);
 
 			if (scriptEngine != null)
 			{
@@ -1407,7 +1407,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		return pluginAccess;
 	}
 
-	public abstract void refreshI18NMessages();
+	public abstract void refreshI18NMessages(boolean clearCustomMessages);
 
 	protected void registerListeners()
 	{
@@ -1617,7 +1617,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		{
 			loadSecuritySettings(solutionRoot);
 
-			refreshI18NMessages();
+			refreshI18NMessages(true);
 
 			getScriptEngine().getScopesScope().reloadVariablesAndScripts(); // add variables for new solution
 

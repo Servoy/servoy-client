@@ -3806,7 +3806,7 @@ public class J2DBClient extends ClientState
 	{
 		this.i18nColumnName = columnname;
 		this.i18nColunmValue = value;
-		refreshI18NMessages();
+		refreshI18NMessages(true);
 	}
 
 	public String getI18NColumnNameFilter()
@@ -3828,7 +3828,7 @@ public class J2DBClient extends ClientState
 	 * @see com.servoy.j2db.ClientState#refreshI18NMessages()
 	 */
 	@Override
-	public void refreshI18NMessages()
+	public void refreshI18NMessages(boolean clearCustomMessages)
 	{
 		Messages.loadInternal(this, getFoundSetManager());
 	}

@@ -2859,7 +2859,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 		if (sourceName.equals(application.getSolution().getI18nServerName()))
 		{
-			((ClientState)application).refreshI18NMessages();
+			((ClientState)application).refreshI18NMessages(true);
 		}
 
 		return true;

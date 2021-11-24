@@ -297,7 +297,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	{
 		if (isShutDown()) return;
 
-		refreshI18NMessages();
+		refreshI18NMessages(true);
 		if (recreateForms)
 		{
 			recreateForms();

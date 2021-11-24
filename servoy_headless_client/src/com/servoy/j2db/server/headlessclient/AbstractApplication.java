@@ -72,6 +72,7 @@ import com.servoy.j2db.util.Utils;
 public abstract class AbstractApplication extends ClientState implements IApplication
 {
 	private final HashMap<Locale, Properties> messages = new HashMap<Locale, Properties>();
+	private final Map<String, String> customMessages = new HashMap<String, String>();
 	protected Locale locale;
 	protected TimeZone timeZone;
 
@@ -299,9 +300,18 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 	}
 
 	@Override
-	public void refreshI18NMessages()
+	public void refreshI18NMessages(boolean clearCustomMessages)
 	{
 		messages.clear();
+		if (clearCustomMessages)
+		{
+			customMessages.clear();
+		}
+		else if (customMessages.size() > 0)
+		{
+			Properties properties = getMessages(getLocale());
+			properties.putAll(this.customMessages);
+		}
 	}
 
 
@@ -405,11 +415,13 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 			if (value == null)
 			{
 				properties.remove(key);
-				refreshI18NMessages();
+				customMessages.remove(key);
+				refreshI18NMessages(true);
 			}
 			else
 			{
 				properties.setProperty(key, value);
+				customMessages.put(key, value);
 			}
 
 		}

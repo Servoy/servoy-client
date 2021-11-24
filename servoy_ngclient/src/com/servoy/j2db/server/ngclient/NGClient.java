@@ -223,9 +223,9 @@ public class NGClient extends AbstractApplication
 	}
 
 	@Override
-	public void refreshI18NMessages()
+	public void refreshI18NMessages(boolean clearCustomMessages)
 	{
-		super.refreshI18NMessages();
+		super.refreshI18NMessages(true);
 		if (!isClosing)
 		{
 			refreshI18n();

@@ -1114,7 +1114,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	public void refreshForI18NChange(boolean recreateForms)
 	{
 		if (shutDown) return;
-		refreshI18NMessages();
+		refreshI18NMessages(true);
 
 		if (recreateForms)
 		{
@@ -1188,7 +1188,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	 */
 	private void destroyForm(IFormController formController)
 	{
-		refreshI18NMessages();
+		refreshI18NMessages(true);
 		if (formController.isFormVisible())
 		{
 			IFoundSetInternal foundSet = formController.getFormModel();
