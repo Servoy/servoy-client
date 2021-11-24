@@ -342,6 +342,23 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 				}
 			};
 		}
+		if ("getDesignProperties".equals(name) && component.getFormElement().getPersistIfAvailable() instanceof AbstractBase)
+		{
+			return new Callable()
+			{
+				@Override
+				public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+				{
+					Map<String, Object> designProperties = ((AbstractBase)component.getFormElement().getPersistIfAvailable())
+						.getMergedCustomDesignTimeProperties();
+					Map<String, Object> parsedMap = new HashMap<String, Object>();
+					designProperties.entrySet().forEach(entry -> {
+						parsedMap.put(entry.getKey(), Utils.parseJSExpression(entry.getValue()));
+					});
+					return parsedMap;
+				}
+			};
+		}
 		final Function func = apiFunctions.get(name);
 		if (func != null && isApiFunctionEnabled(name))
 		{
@@ -442,6 +459,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 		{
 			case "getFormName" :
 			case "getDesigntimeProperty" :
+			case "getDesignProperties" :
 				return true;
 		}
 		return false;

@@ -106,6 +106,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		LegacyApiNames.add("getName");
 		LegacyApiNames.add("getValueListName");
 		LegacyApiNames.add("getDesignTimeProperty");
+		LegacyApiNames.add("getDesignProperties");
 		LegacyApiNames.add("getLocationX");
 		LegacyApiNames.add("getLocationY");
 		LegacyApiNames.add("getWidth");

@@ -22,7 +22,9 @@ import java.awt.Rectangle;
 import java.awt.print.PageFormat;
 import java.awt.print.PrinterJob;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.print.attribute.Size2DSyntax;
@@ -63,6 +65,7 @@ import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dataprocessing.ViewFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.ArgumentType;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProvider;
@@ -2457,6 +2460,16 @@ public abstract class BasicFormController
 		return Utils.parseJSExpression(getForm().getCustomDesignTimeProperty(key));
 	}
 
+	public Map<String, Object> getDesignProperties()
+	{
+		Map<String, Object> designProperties = ((AbstractBase)getForm()).getMergedCustomDesignTimeProperties();
+		Map<String, Object> parsedMap = new HashMap<String, Object>();
+		designProperties.entrySet().forEach(entry -> {
+			parsedMap.put(entry.getKey(), Utils.parseJSExpression(entry.getValue()));
+		});
+		return parsedMap;
+	}
+
 	public PageFormat getPageFormat()
 	{
 		return pageFormat;
@@ -4580,6 +4593,18 @@ public abstract class BasicFormController
 		{
 			checkDestroyed();
 			return formController.getDesignTimeProperty(key);
+		}
+
+		/** Get the design-time properties of the form.
+		 *
+		 * @sample
+		 * var prop = fforms.orders.controller.getDesignProperties()
+		 */
+		@JSFunction
+		public Map<String, Object> getDesignProperties()
+		{
+			checkDestroyed();
+			return formController.getDesignProperties();
 		}
 
 		/**

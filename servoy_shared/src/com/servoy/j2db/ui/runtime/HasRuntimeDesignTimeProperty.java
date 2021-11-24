@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.ui.runtime;
 
+import java.util.Map;
+
 import org.mozilla.javascript.annotations.JSFunction;
 
 /**
@@ -37,4 +39,12 @@ public interface HasRuntimeDesignTimeProperty
 	 */
 	@JSFunction
 	public Object getDesignTimeProperty(String key);
+
+	/** Get the design-time properties of an element.
+	 *
+	 * @sample
+	 * var prop = forms.orders.elements.mylabel.getDesignProperties()
+	 */
+	@JSFunction
+	public Map<String, Object> getDesignProperties();
 }
