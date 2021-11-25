@@ -127,7 +127,7 @@ public class PerformanceData
 		{
 			if (log != null && log.isInfoEnabled())
 			{
-//				log.info(timing.getClientUUID() + '|' + timing.getAction() + '|' + timing.getRunningTimeMS() + '|' + timing.getIntervalTimeMS());
+				log.info(timing.getClientUUID() + '|' + timing.getAction() + '|' + timing.getRunningTimeMS() + '|' + timing.getIntervalTimeMS());
 			}
 			timing.setEndTime();
 			addTiming(timing.getAction(), timing.getIntervalTimeMS(), timing.getRunningTimeMS(), timing.getType(), timing.getSubTimings(), nrecords);
