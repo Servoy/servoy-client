@@ -341,8 +341,8 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 
 				flagInitialized();
 			}
-			loadedServerPlugins.stream().filter(plugin -> plugin instanceof IPostInitializeListener).map(plugin -> (IPostInitializeListener)plugin)
-				.forEach(plugin -> plugin.afterInit());
+			loadedServerPlugins.stream().filter(plugin -> plugin instanceof IPostInitializeListener)
+				.forEach(plugin -> ((IPostInitializeListener)plugin).afterInit());
 		}
 	}
 
