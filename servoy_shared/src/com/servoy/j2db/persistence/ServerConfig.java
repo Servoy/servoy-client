@@ -32,6 +32,7 @@ import com.servoy.j2db.serverconfigtemplates.InMemoryTemplate;
 import com.servoy.j2db.serverconfigtemplates.InformixTemplate;
 import com.servoy.j2db.serverconfigtemplates.MSSQLFreeTDSTemplate;
 import com.servoy.j2db.serverconfigtemplates.MSSQLTemplate;
+import com.servoy.j2db.serverconfigtemplates.MariaDBTemplate;
 import com.servoy.j2db.serverconfigtemplates.MySQLTemplate;
 import com.servoy.j2db.serverconfigtemplates.ODBCTemplate;
 import com.servoy.j2db.serverconfigtemplates.OpenbaseTemplate;
@@ -483,6 +484,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		map.put("MS SQL", new MSSQLTemplate());
 		map.put("MS SQL (freetds)", new MSSQLFreeTDSTemplate());
 		map.put("MySQL", new MySQLTemplate());
+		map.put("MariaDB", new MariaDBTemplate());
 		map.put("ODBC Datasource", new ODBCTemplate());
 		map.put("Openbase", new OpenbaseTemplate());
 		map.put("Oracle", new OracleTemplate());
