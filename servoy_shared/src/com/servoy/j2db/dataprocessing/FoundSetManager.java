@@ -2981,7 +2981,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 						"Dataset column names definition does not match inmem table definition for datasource : " + dataSource + " columns of dataset: " +
 							Arrays.toString(dataSet.getColumnNames()) + ", columns of in mem definition: " + inmemColumnNames);
 				}
-				if (compareColumnTypes(fixedColumnTypes, inmemColumnTypes))
+				if (!compareColumnTypes(fixedColumnTypes, inmemColumnTypes))
 				{
 					Debug.warn("Dataset column types definition does not match inmem table definition for datasource : " + dataSource + " types of dataset: " +
 						fixedColumnTypes + ", types of in mem definition: " + inmemColumnTypes);
@@ -2992,8 +2992,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 		}
 
-		// check if column names width matches rows
-		if (dataSet.getRowCount() > 0 && dataSet.getRow(0).length != dataSet.getColumnCount())
+		// check if column count of the actual data corresponds to the count of needed columns (fixedColumnTypes.size()) that are
+		//   - in the if branch above (not table node), taken from columnTypes arg or from dataset arg column type info
+		//   - in the else branch above (already defined in the table node), columns that are not auto sequences or dbidents; see inmemColumnNames/inmemColumnTypes(which is at this point the same as fixedColumnTypes)
+		if (dataSet.getRowCount() > 0 && dataSet.getRow(0).length != fixedColumnTypes.size())
 		{
 			throw new RepositoryException("Data set rows do not match column count"); //$NON-NLS-1$
 		}
