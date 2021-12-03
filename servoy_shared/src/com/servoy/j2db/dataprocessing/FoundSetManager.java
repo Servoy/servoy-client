@@ -2975,25 +2975,25 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 			if (!asList(dataSet.getColumnNames()).equals(inmemColumnNames) || !compareColumnTypes(fixedColumnTypes, inmemColumnTypes))
 			{
-				fixedColumnTypes = inmemColumnTypes;
-				fixedDataSet = BufferedDataSetInternal.createBufferedDataSet(inmemColumnNames.toArray(new String[inmemColumnNames.size()]),
-					fixedColumnTypes.toArray(new ColumnType[fixedColumnTypes.size()]), new ArrayList<Object[]>(), false);
 				if (dataSet.getColumnCount() > 0 && !asList(dataSet.getColumnNames()).equals(inmemColumnNames))
 				{
 					Debug.warn(
 						"Dataset column names definition does not match inmem table definition for datasource : " + dataSource + " columns of dataset: " +
 							Arrays.toString(dataSet.getColumnNames()) + ", columns of in mem definition: " + inmemColumnNames);
 				}
-				if (columnTypes != null && !compareColumnTypes(asList(columnTypes), inmemColumnTypes))
+				if (compareColumnTypes(fixedColumnTypes, inmemColumnTypes))
 				{
 					Debug.warn("Dataset column types definition does not match inmem table definition for datasource : " + dataSource + " types of dataset: " +
-						Arrays.toString(columnTypes) + ", types of in mem definition: " + inmemColumnTypes);
+						fixedColumnTypes + ", types of in mem definition: " + inmemColumnTypes);
 				}
+				fixedColumnTypes = inmemColumnTypes;
+				fixedDataSet = BufferedDataSetInternal.createBufferedDataSet(inmemColumnNames.toArray(new String[inmemColumnNames.size()]),
+					fixedColumnTypes.toArray(new ColumnType[fixedColumnTypes.size()]), new ArrayList<Object[]>(), false);
 			}
 		}
 
 		// check if column names width matches rows
-		if (fixedDataSet.getRowCount() > 0 && fixedDataSet.getRow(0).length != fixedDataSet.getColumnCount())
+		if (dataSet.getRowCount() > 0 && dataSet.getRow(0).length != dataSet.getColumnCount())
 		{
 			throw new RepositoryException("Data set rows do not match column count"); //$NON-NLS-1$
 		}
@@ -3058,8 +3058,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				if (dataSet != fixedDataSet && dataSet.getRowCount() > 0)
 				{
 					insertResult = application.getDataServer()
-						.insertDataSet(application.getClientID(), dataSet, dataSource, table.getServerName(), table.getName(),
-							tid, columnTypes /* inferred from dataset when null */, pkNames, columnInfoDefinitions);
+						.insertDataSet(application.getClientID(), dataSet, dataSource, table.getServerName(), table.getName(), tid,
+							fixedColumnTypes == null ? null
+								: fixedColumnTypes.toArray(new ColumnType[fixedColumnTypes.size()]) /* inferred from dataset when null */,
+							pkNames, columnInfoDefinitions);
 				}
 				if (IServer.INMEM_SERVER.equals(serverName))
 				{
