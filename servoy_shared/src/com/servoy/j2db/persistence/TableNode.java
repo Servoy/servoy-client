@@ -250,7 +250,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templateaddtodo
 	 * @templatecode
 	 *
-	 * if (record.mynumber > 10) recordMarkers.report("mynumber must be greater then 10", "mynumber", LOGGINGLEVEL.ERROR);
+	 * if (record.mynumber < 10) recordMarkers.report("mynumber must be greater then 10", "mynumber", LOGGINGLEVEL.ERROR);
 	 *
 	 */
 	public int getOnValidateMethodID()
