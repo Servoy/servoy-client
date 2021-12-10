@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
+import java.util.concurrent.TimeUnit;
 
 import javax.print.DocFlavor;
 import javax.print.PrintService;
@@ -42,6 +43,7 @@ import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
 
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Function;
 import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeError;
@@ -80,6 +82,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPlugin;
+import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.scripting.info.APPLICATION_TYPES;
 import com.servoy.j2db.scripting.info.CLIENTDESIGN;
 import com.servoy.j2db.scripting.info.ELEMENT_TYPES;
@@ -989,6 +992,41 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 			return ((IRefreshValueList)element).refreshValueList(propertyName);
 		}
 		return false;
+	}
+
+
+	/**
+	 * Runs at method at the given delay in milliseconds.
+	 *
+	 * This is like a simple scheduler to quickly run something after a bit of delay
+	 *
+	 * @param {Function} function The function to call
+	 * @param {Number} milis The millis that has to elapse before the function is called.
+	 *
+	 */
+	@JSFunction
+	public void executeLater(Function function, int milis)
+	{
+		executeLater(function, milis, null);
+	}
+
+	/**
+	 * Runs at method at the given delay in milliseconds with the arguments given to the method.
+	 *
+	 * This is like a simple scheduler to quickly run something after a bit of delay
+	 *
+	 * @param {Function} function The function to call
+	 * @param {Number} milis The millis that has to elapse before the function is called.
+	 * @param {Object[]} args The arguments that are given to the function when called.
+	 *
+	 */
+	@JSFunction
+	public void executeLater(Function function, int milis, Object[] args)
+	{
+		final FunctionDefinition fd = new FunctionDefinition(function);
+		application.getScheduledExecutor().schedule(() -> {
+			fd.executeAsync((IClientPluginAccess)application.getPluginAccess(), args);
+		}, milis, TimeUnit.MILLISECONDS);
 	}
 
 	// Return -1L if str is not an index or the index value as lower 32
