@@ -2862,7 +2862,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			try
 			{
 				Object nextChunk = executeFoundsetTriggerReturnFirst(new Object[] { inmemDataSourceName, Integer.valueOf(numberRequested) },
-					PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID, false);
+					PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID, true);
 
 				if (nextChunk instanceof IDataSet && ((IDataSet)nextChunk).getRowCount() > 0)
 				{
