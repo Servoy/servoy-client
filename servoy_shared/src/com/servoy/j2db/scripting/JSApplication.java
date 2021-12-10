@@ -1000,14 +1000,14 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * This is like a simple scheduler to quickly run something after a bit of delay
 	 *
-	 * @param {Function} function The function to call
-	 * @param {Number} milis The millis that has to elapse before the function is called.
+	 * @param function The function to call
+	 * @param delay The millis that has to elapse before the function is called.
 	 *
 	 */
 	@JSFunction
-	public void executeLater(Function function, int milis)
+	public void executeLater(Function function, int delay)
 	{
-		executeLater(function, milis, null);
+		executeLater(function, delay, null);
 	}
 
 	/**
@@ -1015,18 +1015,18 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * This is like a simple scheduler to quickly run something after a bit of delay
 	 *
-	 * @param {Function} function The function to call
-	 * @param {Number} milis The millis that has to elapse before the function is called.
-	 * @param {Object[]} args The arguments that are given to the function when called.
+	 * @param function The function to call
+	 * @param delay The millis that has to elapse before the function is called.
+	 * @param arguments The arguments that are given to the function when called.
 	 *
 	 */
 	@JSFunction
-	public void executeLater(Function function, int milis, Object[] args)
+	public void executeLater(Function function, int delay, Object[] arguments)
 	{
 		final FunctionDefinition fd = new FunctionDefinition(function);
 		application.getScheduledExecutor().schedule(() -> {
-			fd.executeAsync((IClientPluginAccess)application.getPluginAccess(), args);
-		}, milis, TimeUnit.MILLISECONDS);
+			fd.executeAsync((IClientPluginAccess)application.getPluginAccess(), arguments);
+		}, delay, TimeUnit.MILLISECONDS);
 	}
 
 	// Return -1L if str is not an index or the index value as lower 32
