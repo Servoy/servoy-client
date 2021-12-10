@@ -2981,7 +2981,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 						"Dataset column names definition does not match inmem table definition for datasource : " + dataSource + " columns of dataset: " +
 							Arrays.toString(dataSet.getColumnNames()) + ", columns of in mem definition: " + inmemColumnNames);
 				}
-				if (!compareColumnTypes(fixedColumnTypes, inmemColumnTypes))
+				if (fixedColumnTypes != null && !compareColumnTypes(fixedColumnTypes, inmemColumnTypes))
 				{
 					Debug.warn("Dataset column types definition does not match inmem table definition for datasource : " + dataSource + " types of dataset: " +
 						fixedColumnTypes + ", types of in mem definition: " + inmemColumnTypes);
@@ -3549,22 +3549,26 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return getDataSetByQuery(serverName, select.build(), useTableFilters, max_returned_rows);
 	}
 
-	private static boolean compareColumnTypes(List<ColumnType> a, List<ColumnType> a2)
+	private static boolean compareColumnTypes(List<ColumnType> types1, List<ColumnType> types2)
 	{
-		if (a == a2) return true;
-		if (a == null || a2 == null) return false;
+		if (types1 == types2) return true;
+		if (types1 == null || types2 == null) return false;
 
-		int length = a.size();
-		if (a2.size() != length) return false;
+		int length = types1.size();
+		if (types2.size() != length) return false;
 
 		for (int i = 0; i < length; i++)
 		{
-			ColumnType o1 = a.get(i);
-			ColumnType o2 = a2.get(i);
-			if (o1 == null && o2 != null) return false;
-			if (o1 != null && o2 == null) return false;
-			// if they are not equal then test if this type is a TEXT column on both ends, then only type is needed
-			if (!o1.equals(o2) && !(o1.getSqlType() == o2.getSqlType() && o1.getSqlType() == IColumnTypes.TEXT)) return false;
+			ColumnType type1 = types1.get(i);
+			ColumnType type2 = types2.get(i);
+			if (type1 == null && type2 != null) return false;
+			if (type1 != null && type2 == null) return false;
+			// if they are not equal then test if this type is a TEXT or INTEGER column on both ends, then only type is needed
+			if (!type1.equals(type2) &&
+				!(type1.getSqlType() == type2.getSqlType() && (type1.getSqlType() == IColumnTypes.TEXT || type1.getSqlType() == IColumnTypes.INTEGER)))
+			{
+				return false;
+			}
 		}
 
 		return true;
