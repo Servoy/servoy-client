@@ -60,6 +60,16 @@ public class RecordingScriptable implements Scriptable, IDelegate<Scriptable>, W
 		stack.add(usedDataProviderTracker);
 	}
 
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (!super.equals(obj))
+		{
+			return scriptable.equals(obj);
+		}
+		return false;
+	}
+
 	public UsedDataProviderTracker popRecordingTracker()
 	{
 		List<UsedDataProviderTracker> stack = recordedThreadLocal.get();
