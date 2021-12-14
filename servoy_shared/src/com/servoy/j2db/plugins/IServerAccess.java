@@ -405,4 +405,15 @@ public interface IServerAccess extends IPluginAccess
 	 *
 	 */
 	public <T> T getPluginInstance(Class<T> pluginClass);
+
+	/**
+	 * Release locks for the specified client
+	 * The client is identified through its client ID, which can be retrieved from an IClientInformation
+	 * instance.
+	 *
+	 * @param clientId The ID of the client that will be disconnected.
+	 *
+	 * @since 5.0
+	 */
+	public void releaseLocks(String clientId);
 }
