@@ -53,7 +53,7 @@ public class TableScope extends LazyCompilationScope
 		super(parent, engine, scriptLookup);
 		this.table = (Table)table;
 		this.solution = solution;
-		setFunctionParentScriptable(new RecordingScriptable(null, this));
+		setFunctionParentScriptable(RecordingScriptable.wrapIfNeeded(null, this));
 	}
 
 	@Override
