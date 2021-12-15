@@ -21,7 +21,7 @@
 		<repository>
 			<id>developer_repo</id>
 			<name>developer_repo</name>
-			<url>http://developer.servoy.com/mvn_repository/</url>
+			<url>https://developer.servoy.com/mvn_repository/</url>
 		</repository>
 	</repositories>
 
