@@ -180,7 +180,7 @@ public class InstanceJavaMembers extends JavaMembers
 					}
 				}
 			}
-			if (newName != null && newName.length() > 0 && !newName.equals(name) && !Ident.checkIfJavascriptKeyword(newName))
+			if (newName != null && newName.length() > 0 && !newName.equals(name) && !Ident.checkIfScriptingKeyword(newName))
 			{
 				putNewValueMergeForDuplicates(copy, name, newName);
 			}
@@ -204,7 +204,7 @@ public class InstanceJavaMembers extends JavaMembers
 			if (name.startsWith("jsFunction_")) //$NON-NLS-1$
 			{
 				String newName = name.substring(11);
-				if (!Ident.checkIfKeyword(newName))
+				if (!Ident.checkIfScriptingKeyword(newName))
 				{
 					putNewValueMergeForDuplicates(copy, name, newName);
 				}

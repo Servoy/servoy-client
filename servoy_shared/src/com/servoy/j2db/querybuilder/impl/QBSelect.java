@@ -527,13 +527,13 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * 	var query = datasources.db.example_data.order_details.createSelect();
 	 *
 	 * // case expressions can be added to the result of the query
-	 * 	query.result.add(query.case.when(query.columns.quantity.ge(1000)).then('BIG').elseValue('small'));
+	 * 	query.result.add(query.case.when(query.columns.quantity.ge(1000)).then('BIG').else('small'));
 	 *
 	 *  // they can also be used in conditions
 	 * 	query.where.add(query.case
 	 * 		.when(query.columns.discount.gt(10)).then(50)
 	 * 		.when(query.columns.quantity.le(20)).then(70)
-	 * 		.elseValue(100)
+	 * 		.else(100)
 	 * 	.multiply(query.columns.unitprice).lt(10000));
 	 */
 	@JSReadonlyProperty(property = "case")
