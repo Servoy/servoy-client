@@ -25,10 +25,12 @@ import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
@@ -55,8 +57,6 @@ import com.servoy.j2db.util.keyword.Ident;
 @SuppressWarnings("nls")
 public class PluginManager extends JarManager implements IPluginManagerInternal, PropertyChangeListener
 {
-	private static final String PLUGIN_CL_SUFFIX = " plugins"; //$NON-NLS-1$
-
 	private final File pluginsDir;
 	protected static ExtendableURLClassLoader _pluginsClassLoader;
 	protected final static List<ExtensionResource> supportLibExtensions = new ArrayList<ExtensionResource>();
@@ -341,9 +341,38 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 
 				flagInitialized();
 			}
-			loadedServerPlugins.stream().filter(plugin -> plugin instanceof IPostInitializeListener)
-				.forEach(plugin -> ((IPostInitializeListener)plugin).afterInit());
+			loadedServerPlugins.stream()
+				.filter(IPostInitializeListener.class::isInstance)
+				.map(IPostInitializeListener.class::cast)
+				.forEach(plugin -> {
+					try
+					{
+						plugin.afterInit();
+					}
+					catch (Exception e)
+					{
+						Debug.error("Error in postInitialization of server plugin " + plugin.getClass(), e);
+					}
+				});
 		}
+	}
+
+	@Override
+	public void notifyShutdownServerPlugins()
+	{
+		getServerPlugins().stream()
+			.filter(IPreShutdownListener.class::isInstance)
+			.map(IPreShutdownListener.class::cast)
+			.forEach(plugin -> {
+				try
+				{
+					plugin.beforeShutdown();
+				}
+				catch (Exception e)
+				{
+					Debug.error("Error notifying server shutdown to plugin " + plugin.getClass(), e);
+				}
+			});
 	}
 
 	/**
@@ -646,7 +675,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		checkIfInitialized();
 		synchronized (initLock)
 		{
-			return loadedServerPlugins;
+			return Optional.ofNullable(loadedServerPlugins).orElseGet(Collections::emptyList);
 		}
 	}
 
