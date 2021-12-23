@@ -68,6 +68,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * @author jcompagner
  */
+@SuppressWarnings("nls")
 public final class ChildrenJSONGenerator implements IPersistVisitor
 {
 	public static final Comparator<IPersist> FORM_INDEX_WITH_HIERARCHY_COMPARATOR = new Comparator<IPersist>()
@@ -92,6 +93,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 	private final Part part;
 	private final Form form;
 	private final boolean designer;
+	private static final String TAG_DIRECT_EDIT = "directEdit";
 
 	/**
 	 * @param writer
@@ -358,7 +360,11 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				}
 				attributes.put("data-svy-name", form.getName() + "." + elementName);
 			}
-
+			String directEditPropertyName = getDirectEditProperty(fe);
+			if (directEditPropertyName != null)
+			{
+				attributes.put("directEditPropertyName", directEditPropertyName);
+			}
 			attributes.forEach((key, value) -> {
 				writer.key(StringEscapeUtils.escapeEcmaScript(key));
 				writer.value(value);
@@ -462,5 +468,18 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.value(value);
 		});
 		writer.endObject();
+	}
+
+	private static String getDirectEditProperty(FormElement fe)
+	{
+		Map<String, PropertyDescription> properties = fe.getWebComponentSpec(false).getProperties();
+		for (PropertyDescription pd : properties.values())
+		{
+			if (Utils.getAsBoolean(pd.getTag(TAG_DIRECT_EDIT)))
+			{
+				return pd.getName();
+			}
+		}
+		return null;
 	}
 }
