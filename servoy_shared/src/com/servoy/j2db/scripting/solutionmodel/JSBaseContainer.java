@@ -159,7 +159,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 					{
 						WebLayoutSpecification layoutSpec = layoutSpecifications.get(packageName)
 							.getSpecification(specName);
-						if (layoutSpec != null && layoutSpec.getConfig() instanceof JSONObject || layoutSpec.getConfig() instanceof String)
+						if (layoutSpec != null && (layoutSpec.getConfig() instanceof JSONObject || layoutSpec.getConfig() instanceof String))
 						{
 							conf = layoutSpec.getConfig() instanceof String ? new JSONObject((String)layoutSpec.getConfig())
 								: ((JSONObject)layoutSpec.getConfig());
