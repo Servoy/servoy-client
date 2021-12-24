@@ -23,6 +23,7 @@ import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.IUIConverter;
 import com.servoy.j2db.dataprocessing.TagResolver;
+import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
 import com.servoy.j2db.persistence.ColumnWrapper;
@@ -30,7 +31,9 @@ import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IDataProviderLookup;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.ui.scripting.IFormatScriptComponent;
 import com.servoy.j2db.util.Debug;
@@ -105,6 +108,46 @@ public class ComponentFormat
 			else if (dataProvider instanceof Column)
 			{
 				column = (Column)dataProvider;
+			}
+			else if (dataProvider instanceof ScriptCalculation)
+			{
+				// When it is a stored calculation, the name of the calc is the name of he column
+				ScriptCalculation calc = (ScriptCalculation)dataProvider;
+				try
+				{
+					ITable table = calc.getTable();
+					if (table != null)
+					{
+						column = table.getColumn(calc.getName());
+					}
+				}
+				catch (RepositoryException e)
+				{
+					Debug.error(e);
+				}
+			}
+
+			if (column instanceof AggregateVariable)
+			{
+				Column columnToAggregate = null;
+				try
+				{
+					ITable table = column.getTable();
+					if (table != null)
+					{
+						columnToAggregate = table.getColumn(((AggregateVariable)column).getDataProviderIDToAggregate());
+					}
+				}
+				catch (RepositoryException e)
+				{
+					Debug.error(e);
+				}
+
+				// Use aggregated column when they are of the same type (so not count(textcolumn))
+				if (columnToAggregate != null && column.getDataProviderType() == columnToAggregate.getDataProviderType())
+				{
+					column = columnToAggregate;
+				}
 			}
 
 			if (column instanceof Column)
