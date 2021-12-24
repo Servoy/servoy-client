@@ -358,7 +358,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				{
 					elementName = "svy_" + o.getUUID().toString();
 				}
-				attributes.put("data-svy-name", form.getName() + "." + elementName);
+				attributes.put("data-cy", form.getName() + "." + elementName);
 			}
 			String directEditPropertyName = getDirectEditProperty(fe);
 			if (directEditPropertyName != null)
