@@ -25,7 +25,7 @@ import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 
-import com.servoy.base.query.IJoinConstants;
+import com.servoy.base.query.IQueryConstants;
 import com.servoy.j2db.dataprocessing.SQLGenerator;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.IRelation;
@@ -269,7 +269,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 			throw new RepositoryException("Cannot find relation '" + dataSourceOrRelation + "'");
 		}
 		// a data source
-		return add(dataSourceOrRelation, IJoinConstants.LEFT_OUTER_JOIN, alias);
+		return add(dataSourceOrRelation, IQueryConstants.LEFT_OUTER_JOIN, alias);
 	}
 
 	/**
@@ -281,7 +281,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	@JSFunction
 	public QBJoin add(String dataSource)
 	{
-		return add(dataSource, IJoinConstants.LEFT_OUTER_JOIN, null);
+		return add(dataSource, IQueryConstants.LEFT_OUTER_JOIN, null);
 	}
 
 	/**

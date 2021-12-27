@@ -20,8 +20,8 @@ import java.util.Arrays;
 
 import com.servoy.base.query.BaseAbstractBaseQuery;
 import com.servoy.base.query.BaseColumnType;
+import com.servoy.base.query.IQueryConstants;
 import com.servoy.j2db.persistence.IColumnTypes;
-import com.servoy.j2db.querybuilder.IQueryBuilderConstants;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
 
@@ -202,17 +202,17 @@ public final class QueryFunction implements IQuerySelectValue
 					{
 						switch (((String)castTo).toLowerCase())
 						{
-							case IQueryBuilderConstants.TYPE_DATE :
-							case IQueryBuilderConstants.TYPE_TIMESTAMP :
+							case IQueryConstants.TYPE_DATE :
+							case IQueryConstants.TYPE_TIMESTAMP :
 								return ColumnType.getColumnType(IColumnTypes.DATETIME);
-							case IQueryBuilderConstants.TYPE_STRING :
-							case IQueryBuilderConstants.TYPE_TEXT :
+							case IQueryConstants.TYPE_STRING :
+							case IQueryConstants.TYPE_TEXT :
 								return ColumnType.getColumnType(IColumnTypes.TEXT);
-							case IQueryBuilderConstants.TYPE_INTEGER :
-							case IQueryBuilderConstants.TYPE_SHORT :
+							case IQueryConstants.TYPE_INTEGER :
+							case IQueryConstants.TYPE_SHORT :
 								return ColumnType.getColumnType(IColumnTypes.INTEGER);
-							case IQueryBuilderConstants.TYPE_FLOAT :
-							case IQueryBuilderConstants.TYPE_DOUBLE :
+							case IQueryConstants.TYPE_FLOAT :
+							case IQueryConstants.TYPE_DOUBLE :
 								return ColumnType.getColumnType(IColumnTypes.NUMBER);
 						}
 					}

@@ -16,10 +16,10 @@
  */
 package com.servoy.j2db.query;
 
-import static com.servoy.base.query.IJoinConstants.FULL_JOIN;
-import static com.servoy.base.query.IJoinConstants.INNER_JOIN;
-import static com.servoy.base.query.IJoinConstants.LEFT_OUTER_JOIN;
-import static com.servoy.base.query.IJoinConstants.RIGHT_OUTER_JOIN;
+import static com.servoy.base.query.IQueryConstants.FULL_JOIN;
+import static com.servoy.base.query.IQueryConstants.INNER_JOIN;
+import static com.servoy.base.query.IQueryConstants.LEFT_OUTER_JOIN;
+import static com.servoy.base.query.IQueryConstants.RIGHT_OUTER_JOIN;
 
 import com.servoy.base.query.BaseQueryTable;
 

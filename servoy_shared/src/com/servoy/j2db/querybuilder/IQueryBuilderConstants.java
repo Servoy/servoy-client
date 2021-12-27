@@ -17,105 +17,105 @@
 
 package com.servoy.j2db.querybuilder;
 
+import com.servoy.base.query.IQueryConstants;
 
 /**
  * Script constants for Query Builder column types.
- * 
+ *
  * @author rgansevles
  */
-@SuppressWarnings("nls")
 public interface IQueryBuilderConstants
 {
 	/**
 	 * Constant used for casting.
-	 * 
+	 *
 	 * @sampleas com.servoy.j2db.querybuilder.impl.QBFunctions#cast(Object, String)
 	 */
-	public static final String TYPE_BIG_INTEGER = "big_integer";
+	public static final String TYPE_BIG_INTEGER = IQueryConstants.TYPE_BIG_INTEGER;
 
 	/**
 	 * @sameas TYPE_BIG_INTEGER
 	 */
-	public static final String TYPE_BINARY = "binary";
+	public static final String TYPE_BINARY = IQueryConstants.TYPE_BINARY;
 
 	/**
 	 * @sameas TYPE_BIG_INTEGER
 	 */
-	public static final String TYPE_BOOLEAN = "boolean";
+	public static final String TYPE_BOOLEAN = IQueryConstants.TYPE_BOOLEAN;
 
 	/**
 	 * @sameas TYPE_BIG_INTEGER
 	 */
-	public static final String TYPE_CHARACTER = "character";
+	public static final String TYPE_CHARACTER = IQueryConstants.TYPE_CHARACTER;
 
 	/**
 	 * @sameas TYPE_BIG_INTEGER
 	 */
-	public static final String TYPE_DATE = "date";
+	public static final String TYPE_DATE = IQueryConstants.TYPE_DATE;
 
 	/**
 	 * @sameas TYPE_BIG_INTEGER
 	 */
-	public static final String TYPE_DOUBLE = "double";
+	public static final String TYPE_DOUBLE = IQueryConstants.TYPE_DOUBLE;
 
 	/**
 	 * @sameas TYPE_BIG_INTEGER
 	 */
-	public static final String TYPE_INTEGER = "integer";
+	public static final String TYPE_INTEGER = IQueryConstants.TYPE_INTEGER;
 
 	/**
 	 * @sameas TYPE_BIG_INTEGER
 	 */
-	public static final String TYPE_SHORT = "short";
+	public static final String TYPE_SHORT = IQueryConstants.TYPE_SHORT;
 
 	/**
 	 * @sameas TYPE_BIG_INTEGER
 	 */
-	public static final String TYPE_BYTE = "byte";
+	public static final String TYPE_BYTE = IQueryConstants.TYPE_BYTE;
 
 	/**
 	 * @sameas TYPE_BIG_INTEGER
 	 */
-	public static final String TYPE_TIME = "time";
+	public static final String TYPE_TIME = IQueryConstants.TYPE_TIME;
 
 	/**
 	 * @sameas TYPE_BIG_INTEGER
 	 */
-	public static final String TYPE_TIMESTAMP = "timestamp";
+	public static final String TYPE_TIMESTAMP = IQueryConstants.TYPE_TIMESTAMP;
 
 	/**
 	 * @sameas TYPE_BIG_INTEGER
 	 */
-	public static final String TYPE_STRING = "string";
+	public static final String TYPE_STRING = IQueryConstants.TYPE_STRING;
 
 	/**
 	 * @sameas TYPE_BIG_INTEGER
 	 */
-	public static final String TYPE_TEXT = "text";
+	public static final String TYPE_TEXT = IQueryConstants.TYPE_TEXT;
 
 	/**
 	 * @sameas TYPE_BIG_INTEGER
 	 */
-	public static final String TYPE_IMAGE = "image";
+	public static final String TYPE_IMAGE = IQueryConstants.TYPE_IMAGE;
 
 	/**
 	 * @sameas TYPE_BIG_INTEGER
 	 */
-	public static final String TYPE_BIG_DECIMAL = "big_decimal";
+	public static final String TYPE_BIG_DECIMAL = IQueryConstants.TYPE_BIG_DECIMAL;
 
 	/**
 	 * @sameas TYPE_BIG_INTEGER
 	 */
-	public static final String TYPE_BLOB = "blob";
+	public static final String TYPE_BLOB = IQueryConstants.TYPE_BLOB;
 
 	/**
 	 * @sameas TYPE_BIG_INTEGER
 	 */
-	public static final String TYPE_CLOB = "clob";
+	public static final String TYPE_CLOB = IQueryConstants.TYPE_CLOB;
 
 	/**
 	 * @sameas TYPE_BIG_INTEGER
 	 */
-	public static final String TYPE_FLOAT = "float";
+	public static final String TYPE_FLOAT = IQueryConstants.TYPE_FLOAT;
 
 }

@@ -17,6 +17,7 @@
 package com.servoy.j2db.persistence;
 
 
+import static com.servoy.j2db.persistence.Column.mapToDefaultType;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
@@ -33,7 +34,7 @@ import java.util.concurrent.ConcurrentMap;
 import com.google.common.cache.CacheBuilder;
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.IBaseSQLCondition;
-import com.servoy.base.query.IJoinConstants;
+import com.servoy.base.query.IQueryConstants;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.Messages;
@@ -569,7 +570,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		{
 			return false;
 		}
-		if (getJoinType() != IJoinConstants.INNER_JOIN)
+		if (getJoinType() != IQueryConstants.INNER_JOIN)
 		{ // outer joins icw or-null modifiers do not work (oracle) or looses outer join (ansi)
 			for (int operator : getOperators())
 			{
@@ -771,21 +772,29 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 				if (primary[i].getDataProviderType() == Types.NULL) continue; // Support is null/is not null
 
-				int primaryType = Column.mapToDefaultType(primary[i].getDataProviderType());
-				int foreignType = Column.mapToDefaultType(foreign[i].getDataProviderType());
+				int primaryType = mapToDefaultType(primary[i].getDataProviderType());
+				int foreignType = mapToDefaultType(foreign[i].getDataProviderType());
 
+				if (primaryType == IColumnTypes.TEXT && (foreignType == IColumnTypes.INTEGER || foreignType == IColumnTypes.NUMBER))
+				{
+					continue; // allow casting to text
+				}
+				if (foreignType == IColumnTypes.TEXT && (primaryType == IColumnTypes.INTEGER || primaryType == IColumnTypes.NUMBER))
+				{
+					continue; // allow casting to text
+				}
 				if (primaryType == IColumnTypes.INTEGER && foreignType == IColumnTypes.NUMBER)
 				{
-					continue; //allow integer to number mappings
+					continue; // allow integer to number mappings
 				}
 				if (primaryType == IColumnTypes.NUMBER && foreignType == IColumnTypes.INTEGER)
 				{
-					continue; //allow number to integer mappings
+					continue; // allow number to integer mappings
 				}
 				if (foreignType == IColumnTypes.INTEGER && primary[i] instanceof AbstractBase &&
 					"Boolean".equals(((AbstractBase)primary[i]).getSerializableRuntimeProperty(IScriptProvider.TYPE))) //$NON-NLS-1$
 				{
-					continue; //allow boolean var to number mappings
+					continue; // allow boolean var to number mappings
 				}
 				if (primaryType != foreignType)
 				{

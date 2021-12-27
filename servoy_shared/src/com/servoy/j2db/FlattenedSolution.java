@@ -16,6 +16,9 @@
  */
 package com.servoy.j2db;
 
+import static com.servoy.base.query.IQueryConstants.INNER_JOIN;
+import static com.servoy.base.query.IQueryConstants.LEFT_OUTER_JOIN;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.rmi.RemoteException;
@@ -36,7 +39,6 @@ import org.json.JSONObject;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.base.query.IBaseSQLCondition;
-import com.servoy.base.query.IJoinConstants;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.DBValueList;
@@ -2640,7 +2642,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				{
 					for (Relation r : relationSequence)
 					{
-						if (r.getJoinType() != IJoinConstants.INNER_JOIN)
+						if (r.getJoinType() != INNER_JOIN)
 						{
 							// disabled related vl sorting for muti-level related VLs,
 							// outer join on the intermediate tables causes extra results that influence the sorting result
@@ -2723,7 +2725,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				if (relationSequence == null)
 				{
 					// table values
-					joins.add(lastJoin = new QueryJoin(relationName, callingQTable, destQTable, new AndCondition(), IJoinConstants.LEFT_OUTER_JOIN, false));
+					joins.add(lastJoin = new QueryJoin(relationName, callingQTable, destQTable, new AndCondition(), LEFT_OUTER_JOIN, false));
 
 					if (valueList.getUseTableFilter()) //apply name as filter on column valuelist_name
 					{
@@ -2782,7 +2784,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 					new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, destColumn.queryColumn(destQTable), callingColumn.queryColumn(callingQTable)));
 
 				relation = getSolutionCopy().createNewRelation(new ScriptNameValidator(this), relationName, callingTable.getDataSource(), destDataSource,
-					IJoinConstants.LEFT_OUTER_JOIN);
+					LEFT_OUTER_JOIN);
 
 				ISQLTableJoin join;
 				if (joins.size() == 1)

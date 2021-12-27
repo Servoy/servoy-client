@@ -16,9 +16,9 @@
  */
 package com.servoy.j2db.query;
 
-import static com.servoy.base.query.IJoinConstants.INNER_JOIN;
-import static com.servoy.base.query.IJoinConstants.LEFT_OUTER_JOIN;
-import static com.servoy.base.query.IJoinConstants.RIGHT_OUTER_JOIN;
+import static com.servoy.base.query.IQueryConstants.INNER_JOIN;
+import static com.servoy.base.query.IQueryConstants.LEFT_OUTER_JOIN;
+import static com.servoy.base.query.IQueryConstants.RIGHT_OUTER_JOIN;
 
 import java.util.List;
 
@@ -100,12 +100,12 @@ public final class QueryJoin implements ISQLTableJoin
 		{
 //			 subconditions of type COMPARE
 			List conditions = ((AndCondition)c).getConditions();
-			for (int i = 0; i < conditions.size(); i++)
+			for (Object condition2 : conditions)
 			{
-				if (!(conditions.get(i) instanceof CompareCondition))
+				if (!(condition2 instanceof CompareCondition))
 				{
 					throw new IllegalArgumentException(
-						"Expecting compare-condition in join on table " + foreignTableReference + ", receiving " + conditions.get(i).getClass().getName()); //$NON-NLS-1$ //$NON-NLS-2$
+						"Expecting compare-condition in join on table " + foreignTableReference + ", receiving " + condition2.getClass().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 			condition = (AndCondition)c;

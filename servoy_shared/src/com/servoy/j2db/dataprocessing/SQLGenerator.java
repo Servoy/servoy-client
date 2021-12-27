@@ -17,7 +17,11 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.j2db.persistence.Column.mapToDefaultType;
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
+import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.cast;
+import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.castfrom;
+import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.upper;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.reflect.Array;
@@ -41,7 +45,7 @@ import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.BaseQueryColumn;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
-import com.servoy.base.query.IJoinConstants;
+import com.servoy.base.query.IQueryConstants;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IServiceProvider;
@@ -86,7 +90,6 @@ import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QueryFactory;
 import com.servoy.j2db.query.QueryFilter;
 import com.servoy.j2db.query.QueryFunction;
-import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
 import com.servoy.j2db.query.QueryInsert;
 import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QuerySelect;
@@ -265,9 +268,9 @@ public class SQLGenerator
 						// override join type to left outer join, a related OR-search should not make the result set smaller
 						for (ISQLJoin join : retval.getJoins())
 						{
-							if (join instanceof QueryJoin && ((QueryJoin)join).getJoinType() == IJoinConstants.INNER_JOIN)
+							if (join instanceof QueryJoin && ((QueryJoin)join).getJoinType() == IQueryConstants.INNER_JOIN)
 							{
-								((QueryJoin)join).setJoinType(IJoinConstants.LEFT_OUTER_JOIN);
+								((QueryJoin)join).setJoinType(IQueryConstants.LEFT_OUTER_JOIN);
 							}
 						}
 					}
@@ -713,7 +716,7 @@ public class SQLGenerator
 							int convType = ((ITypedColumnConverter)columnConverter).getToObjectType(columnConverterInfo.props);
 							if (convType != Integer.MAX_VALUE)
 							{
-								dataProviderType = Column.mapToDefaultType(convType);
+								dataProviderType = mapToDefaultType(convType);
 							}
 						}
 					}
@@ -1221,19 +1224,37 @@ public class SQLGenerator
 		Column[] foreign = relation.getForeignColumns(app.getFlattenedSolution());
 		int[] operators = relation.getOperators();
 
-		QueryColumn[] keys = new QueryColumn[primary.length];
+		IQuerySelectValue[] keys = new IQuerySelectValue[primary.length];
 		int swapped[] = new int[primary.length];
 
 		for (int x = 0; x < primary.length; x++)
 		{
 			// need all keys as columns on the left side......
-			swapped[x] = RelationItem.swapOperator(operators[x]);
-			if (swapped[x] == -1)
+			int operator = RelationItem.swapOperator(operators[x]);
+			if (operator == -1)
 			{
-				throw new RepositoryException("Cannot swap relation operator for relation " + relation.getName()); //$NON-NLS-1$
+				throw new RepositoryException("Cannot swap relation operator for relation " + relation.getName());
 			}
-			//column = ? construct
-			keys[x] = foreign[x].queryColumn(foreignTable);
+			// column = ? construct
+			IQuerySelectValue key = foreign[x].queryColumn(foreignTable);
+
+			// When we have a text and non-text column we can cast the non-text column to string
+			int primaryType = primary[x].getDataProviderType();
+			int foreignType = mapToDefaultType(key.getColumn().getColumnType());
+			if (foreignType == IColumnTypes.TEXT && primaryType != IColumnTypes.TEXT && primaryType != 0)
+			{
+				// key is text, value is non-text, cast the value to text when we supply it
+				operator |= IBaseSQLCondition.CAST_TO_MODIFIER;
+			}
+			else if (primaryType == IColumnTypes.TEXT && foreignType != IColumnTypes.TEXT)
+			{
+				// value is text, key is non-text, cast the key to text
+				key = new QueryFunction(cast,
+					new IQuerySelectValue[] { key, new QueryColumnValue(IQueryConstants.TYPE_STRING, null, true) }, null);
+			}
+
+			keys[x] = key;
+			swapped[x] = operator;
 		}
 		return new SetCondition(swapped, keys, new Placeholder(createRelationKeyPlaceholderKey(foreignTable, relation.getName())), true);
 	}
@@ -1499,7 +1520,7 @@ public class SQLGenerator
 	 */
 	static boolean isBlobColumn(Column column)
 	{
-		return Column.mapToDefaultType(column.getType()) == IColumnTypes.MEDIA && !column.hasFlag(IBaseColumn.UUID_COLUMN | IBaseColumn.IDENT_COLUMNS);
+		return mapToDefaultType(column.getType()) == IColumnTypes.MEDIA && !column.hasFlag(IBaseColumn.UUID_COLUMN | IBaseColumn.IDENT_COLUMNS);
 	}
 
 	/**
@@ -1587,13 +1608,13 @@ public class SQLGenerator
 	public static CompareCondition createLikeCompareCondition(IQuerySelectValue selectValue, int dataProviderType, String value)
 	{
 		IQuerySelectValue likeSelectValue;
-		if (Column.mapToDefaultType(dataProviderType) == IColumnTypes.TEXT)
+		if (mapToDefaultType(dataProviderType) == IColumnTypes.TEXT)
 		{
-			likeSelectValue = new QueryFunction(QueryFunctionType.upper, selectValue, null);
+			likeSelectValue = new QueryFunction(upper, selectValue, null);
 		}
 		else
 		{
-			likeSelectValue = new QueryFunction(QueryFunctionType.castfrom,
+			likeSelectValue = new QueryFunction(castfrom,
 				new IQuerySelectValue[] { selectValue, new QueryColumnValue("integer", null, true), new QueryColumnValue("string", null, true) }, null); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, likeSelectValue, value);
