@@ -2559,6 +2559,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					insertedRows == null ? null : insertedRows.get(i));
 				didHaveRowAndIsUpdated = (didHaveRowAndIsUpdated || b);
 			}
+			// changed by other calls don't notify the table change for every row, call it once now.
+			notifyChange(rm.getSQLSheet().getTable());
 			final boolean didHaveDataCached = didHaveRowAndIsUpdated;
 			Runnable r = new Runnable()
 			{
