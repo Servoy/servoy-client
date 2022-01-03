@@ -29,8 +29,8 @@ public abstract class ClientVersion
 	private static final int majorVersion = 2021;
 	private static final int middleVersion = 12;
 	private static final int minorVersion = 0;
-	private static final int releaseNumber = 3721;
-	private static final String versionPostfix = "rc2";
+	private static final int releaseNumber = 3722;
+	private static final String versionPostfix = "";
 	private static final boolean lts = false;
 
 	// make sure you keep this the same format, or make it work with extensions version comparing & xml schema
