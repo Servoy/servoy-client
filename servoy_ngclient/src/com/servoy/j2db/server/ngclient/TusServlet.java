@@ -75,7 +75,7 @@ public class TusServlet extends AbstractMediaResourceServlet
 					"', directory could not be created or doesn't exists");
 			}
 		}
-		tusFileUploadService = new TusFileUploadService().withUploadURI("/tus/upload/[0-9]+/.+/.+/.+/");
+		tusFileUploadService = new TusFileUploadService().withUploadURI(config.getServletContext().getContextPath() + "/tus/upload/[0-9]+/.+/.+/.+/");
 		if (fileUploadDir != null)
 		{
 			try
