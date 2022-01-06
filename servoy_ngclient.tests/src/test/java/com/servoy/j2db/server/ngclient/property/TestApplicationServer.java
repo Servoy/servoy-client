@@ -127,12 +127,6 @@ final class TestApplicationServer implements IApplicationServerSingleton
 	}
 
 	@Override
-	public boolean hadIncompatibleExtensionsWhenStarted()
-	{
-		return false;
-	}
-
-	@Override
 	public Map<String, HttpServlet> getWebServices()
 	{
 		// TODO Auto-generated method stub
