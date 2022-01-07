@@ -193,23 +193,43 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 						return IPersistVisitor.CONTINUE_TRAVERSAL;
 					}
 				}
-				else if (persist instanceof ScriptCalculation)
+				else
 				{
-					ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist
-						.get(((TableNode)persist.getParent()).getDataSource());
-					addInDatasourceCache(dsMap.get(ScriptCalculation.class), persist, datasource);
-				}
-				else if (persist instanceof AggregateVariable)
-				{
-					ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist
-						.get(((TableNode)persist.getParent()).getDataSource());
-					addInDatasourceCache(dsMap.get(AggregateVariable.class), persist, datasource);
-				}
-				else if (persist instanceof ScriptMethod && persist.getParent() instanceof TableNode)
-				{
-					ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist
-						.get(((TableNode)persist.getParent()).getDataSource());
-					addInDatasourceCache(dsMap.get(ScriptMethod.class), persist, datasource);
+					ISupportChilds parent = persist.getParent();
+					if (persist instanceof ScriptCalculation)
+					{
+						if (parent instanceof TableNode)
+						{
+							ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist
+								.get(((TableNode)parent).getDataSource());
+							addInDatasourceCache(dsMap.get(ScriptCalculation.class), persist, datasource);
+						}
+						else
+						{
+							Debug.error("Something wrong with ScriptCalculation " + ((ScriptCalculation)persist).getName() +
+								" should  have table as parent but the parent is: " + parent);
+						}
+					}
+					else if (persist instanceof AggregateVariable)
+					{
+						if (parent instanceof TableNode)
+						{
+							ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist
+								.get(((TableNode)parent).getDataSource());
+							addInDatasourceCache(dsMap.get(AggregateVariable.class), persist, datasource);
+						}
+						else
+						{
+							Debug.error("Something wrong with AggregateVariable " + ((ScriptCalculation)persist).getName() +
+								" should  have table as parent but the parent is: " + parent);
+						}
+					}
+					else if (persist instanceof ScriptMethod && parent instanceof TableNode)
+					{
+						ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist
+							.get(((TableNode)parent).getDataSource());
+						addInDatasourceCache(dsMap.get(ScriptMethod.class), persist, datasource);
+					}
 				}
 				return persist instanceof Solution ? IPersistVisitor.CONTINUE_TRAVERSAL : IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 			});
