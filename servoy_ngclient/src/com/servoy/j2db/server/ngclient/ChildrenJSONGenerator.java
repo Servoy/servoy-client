@@ -387,9 +387,23 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 
 	public static void writeLayoutContainer(JSONWriter writer, LayoutContainer layoutContainer, WebFormUI formUI, boolean designer)
 	{
+		WebLayoutSpecification spec = null;
+		if (layoutContainer.getPackageName() != null)
+		{
+			PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getSpecProviderState().getLayoutSpecifications().get(
+				layoutContainer.getPackageName());
+			if (pkg != null)
+			{
+				spec = pkg.getSpecification(layoutContainer.getSpecName());
+			}
+		}
 		writer.key("layout");
 		writer.value(true);
 		String tagType = layoutContainer.getTagType();
+		if (spec != null && spec.getDirectives().size() > 0)
+		{
+			tagType = spec.getName();
+		}
 		if (!"div".equals(tagType))
 		{
 			writer.key("tagname");
@@ -408,16 +422,6 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.endArray();
 		}
 		Map<String, String> attributes = new HashMap<String, String>(layoutContainer.getMergedAttributes());
-		WebLayoutSpecification spec = null;
-		if (layoutContainer.getPackageName() != null)
-		{
-			PackageSpecification<WebLayoutSpecification> pkg = WebComponentSpecProvider.getSpecProviderState().getLayoutSpecifications().get(
-				layoutContainer.getPackageName());
-			if (pkg != null)
-			{
-				spec = pkg.getSpecification(layoutContainer.getSpecName());
-			}
-		}
 		if (spec != null)
 		{
 			for (String propertyName : spec.getAllPropertiesNames())
