@@ -696,7 +696,8 @@ public class RepositoryHelper
 		}
 
 		if (name.equals(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName()) && displayType != Field.TEXT_FIELD &&
-			displayType != Field.PASSWORD && displayType != Field.TYPE_AHEAD && displayType != Field.TEXT_AREA && displayType >= 0)
+			displayType != Field.PASSWORD && displayType != Field.TYPE_AHEAD && displayType != Field.TEXT_AREA && displayType >= 0 &&
+			displayType != Field.COMBOBOX)
 		{
 			return false;
 		}
