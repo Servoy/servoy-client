@@ -255,6 +255,11 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSFunction
 	public QBCondition like(Object pattern)
 	{
+		if (pattern instanceof String)
+		{
+			// don't try to convert the pattern to the column type
+			return createCondition(new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, getQuerySelectValue(), pattern));
+		}
 		return createCompareCondition(IBaseSQLCondition.LIKE_OPERATOR, pattern);
 	}
 
