@@ -472,5 +472,12 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		}
 		return new ServoyDataConverterContext(flattenedSolution);
 	}
+
+
+	@Override
+	public boolean waitForBackgroundFormLoad()
+	{
+		return false;
+	}
 }
 

@@ -253,6 +253,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		{
 			throw new IllegalStateException("Can't show form: " + formName + " because it is not allowed in the client");
 		}
+		IFormHTMLAndJSGenerator generator = getSession().getFormHTMLAndJSGenerator(form, formName);
 		String formUrl = getRealFormURLAndSeeIfItIsACopy(form, formName).getLeft();
 		boolean nowSentToClient = getEndpoint().addFormIfAbsent(formName, formUrl);
 		if (nowSentToClient)
@@ -269,7 +270,6 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 				formUI.setParentWindowName(currentWindowName);
 			}
 			// form is not yet on the client, send over the controller
-			IFormHTMLAndJSGenerator generator = getSession().getFormHTMLAndJSGenerator(form, formName);
 			updateController(form, formName, !async, generator);
 			// if recreateUI was also called (even that is not really needed), do flush the recreate map, so the form is not send again in the same response.
 			getClient().flushRecreatedForm(form, formName);
@@ -303,17 +303,20 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 				{
 					Debug.error(e);
 				}
-				try
+				if (generator.waitForBackgroundFormLoad())
 				{
-					getSession().getEventDispatcher().suspend(formUrl, IWebsocketEndpoint.EVENT_LEVEL_SYNC_API_CALL, EventDispatcher.CONFIGURED_TIMEOUT);
-				}
-				catch (CancellationException e)
-				{
-					throw e; // full browser refresh while doing this?
-				}
-				catch (TimeoutException e)
-				{
-					throw new RuntimeException("Touch form realInstanceName (" + form.getName() + ") timed out.", e); // timeout... something went wrong; propagate this exception to calling code...
+					try
+					{
+						getSession().getEventDispatcher().suspend(formUrl, IWebsocketEndpoint.EVENT_LEVEL_SYNC_API_CALL, EventDispatcher.CONFIGURED_TIMEOUT);
+					}
+					catch (CancellationException e)
+					{
+						throw e; // full browser refresh while doing this?
+					}
+					catch (TimeoutException e)
+					{
+						throw new RuntimeException("Touch form realInstanceName (" + form.getName() + ") timed out.", e); // timeout... something went wrong; propagate this exception to calling code...
+					}
 				}
 			}
 		}

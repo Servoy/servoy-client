@@ -85,4 +85,10 @@ public class FormHTMLAndJSGenerator implements IFormHTMLAndJSGenerator
 		}
 		return cachedJSTemplate;
 	}
+
+	@Override
+	public boolean waitForBackgroundFormLoad()
+	{
+		return true;
+	}
 }
