@@ -3018,7 +3018,7 @@ public class J2DBClient extends ClientState
 		}
 		catch (Throwable e)
 		{
-			Debug.error(e);
+			Debug.trace(e);
 		}
 	}
 
