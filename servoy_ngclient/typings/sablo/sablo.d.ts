@@ -134,7 +134,8 @@ declare namespace sablo {
         setPathname(pathname: string): void,
         getPathname(): string,
         setQueryString(queryString: string): void,
-        getQueryString(): string
+        getQueryString(): string,
+		getCurrentRequestInfo(): any
 	}
 
 	interface ISabloDeferHelper {
