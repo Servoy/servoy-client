@@ -116,6 +116,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	public static final String SELECTED_ROW_INDEXES = "selectedRowIndexes";
 	public static final String FOUNDSET_ID = "foundsetId";
 	public static final String USER_SET_SELECTION = "userSetSelection";
+	public static final String FOUNDSET_DEFINITION = "foundsetDefinition";
 
 	public static final String HANDLED_CLIENT_REQUESTS = "handledClientReqIds";
 	public static final String ID_KEY = "id";
@@ -679,6 +680,12 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			{
 				if (!somethingChanged) destinationJSON.object();
 				destinationJSON.key(UPDATE_PREFIX + FOUNDSET_ID).value(getFoundset() != null ? getFoundset().getID() : 0);
+				somethingChanged = true;
+			}
+			if (changeMonitor.shouldSendFoundsetDefinitionChange())
+			{
+				if (!somethingChanged) destinationJSON.object();
+				destinationJSON.key(UPDATE_PREFIX + FOUNDSET_DEFINITION).value(true);
 				somethingChanged = true;
 			}
 			if (changeMonitor.shouldSendPushToServer())

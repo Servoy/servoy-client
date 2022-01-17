@@ -291,6 +291,12 @@ public class FoundsetTypeViewport
 			foundsetEventListener = new IFoundSetEventListener()
 			{
 				@Override
+				public boolean wantsFoundSetDefinitionChanges()
+				{
+					return true;
+				}
+
+				@Override
 				public void foundSetChanged(FoundSetEvent event)
 				{
 					if (event.getType() == FoundSetEvent.FIND_MODE_CHANGE) changeMonitor.findModeChanged(foundset.isInFindMode());
@@ -346,6 +352,7 @@ public class FoundsetTypeViewport
 						changeMonitor.checkHadMoreRows();
 					}
 					else if (event.getType() == FoundSetEvent.SELECTION_MODE_CHANGE) changeMonitor.multiSelectChanged();
+					else if (event.getType() == FoundSetEvent.FOUNDSET_DEFINITION_CHANGE) changeMonitor.foundsetDefinitionChanged();
 				}
 			};
 		}

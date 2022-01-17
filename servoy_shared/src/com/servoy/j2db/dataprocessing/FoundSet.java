@@ -82,6 +82,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -169,6 +170,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	protected boolean findMode = false;
 	private List<IFoundSetEventListener> foundSetEventListeners = new ArrayList<IFoundSetEventListener>();
 	private List<IModificationListener> aggregateModificationListeners = new ArrayList<IModificationListener>();
+
+	private String serializedQuery;
 
 	protected SQLSheet sheet; //SQL statements to perform on certain actions
 
@@ -5372,6 +5375,23 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 	}
 
+	String getSerialziedQuery()
+	{
+		QuerySelect currentQuery = pksAndRecords.getQuerySelectForReading();
+		String serverName = DataSourceUtils.getDataSourceServerName(getDataSource());
+		ArrayList<TableFilter> tableFilterParams = fsm.getTableFilterParams(serverName, currentQuery);
+		try
+		{
+			QuerySet qs = fsm.getDataServer().getSQLQuerySet(serverName, currentQuery, tableFilterParams, 0, -1, true, true);
+			return qs.getSelect().getSql();
+		}
+		catch (RepositoryException | RemoteException e)
+		{
+			Debug.error("Can't get a serialized state from " + currentQuery, e); //$NON-NLS-1$
+		}
+		return ""; //$NON-NLS-1$
+	}
+
 	/**
 	 * Fire difference based on real size (not corrected for fires!)
 	 *
@@ -5380,6 +5400,15 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	protected void fireDifference(int oldSize, int newSize, IFoundSetChanges changes)
 	{
+		if (serializedQuery != null)
+		{
+			String currentQuery = getSerialziedQuery();
+			if (!currentQuery.equals(serializedQuery))
+			{
+				this.serializedQuery = currentQuery;
+				fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.FOUNDSET_DEFINITION_CHANGE, FoundSetEvent.CHANGE_UPDATE));
+			}
+		}
 		if (changes != null)
 		{
 			changes.getChanges().forEach(change -> fireFoundSetEvent(change.getFirstRow(), change.getLastRow(), change.getType()));
@@ -7111,6 +7140,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			if (!foundSetEventListeners.contains(l))
 			{
 				foundSetEventListeners.add(l);
+				if (serializedQuery == null && l.wantsFoundSetDefinitionChanges())
+				{
+					// if this new listener wants to have a defintion change, generate the serialized query
+					serializedQuery = getSerialziedQuery();
+				}
 			}
 		}
 	}
@@ -7120,6 +7154,15 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		synchronized (foundSetEventListeners)
 		{
 			foundSetEventListeners.remove(l);
+			// did we remove a listener that wants a definition change and we do have a serializedQuery?
+			if (serializedQuery != null && l.wantsFoundSetDefinitionChanges())
+			{
+				// then check if there are others, if not set it to null
+				if (!foundSetEventListeners.stream().anyMatch(listener -> listener.wantsFoundSetDefinitionChanges()))
+				{
+					serializedQuery = null;
+				}
+			}
 		}
 	}
 
