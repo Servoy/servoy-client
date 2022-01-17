@@ -26,7 +26,8 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 	NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED: "viewportRowsUpdated",
 	NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE: "oldViewportSize", // deprecated since 8.4 where granular updates are pre-processed server side and can be applied directed on client - making this not needed
 	NOTIFY_VIEW_PORT_ROW_UPDATES: "updates",
-	
+	NOTIFY_FOUNDSET_DEFINITION_CHANGE: "foundsetDefinitionChanged",
+
 	// row update types for listener notifications - in case NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED is triggered
 	ROWS_CHANGED: 0,
     ROWS_INSERTED: 1,
@@ -137,6 +138,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 
 	const SERVER_SIZE = "serverSize";
 	const FOUNDSET_ID = "foundsetId";
+	const FOUNDSET_DEFINITION_CHANGE = "foundsetDefinition";
 	const SORT_COLUMNS = "sortColumns";
 	const SELECTED_ROW_INDEXES = "selectedRowIndexes";
 	const USER_SET_SELECTION = "userSetSelection";
@@ -217,6 +219,10 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					currentClientValue[SERVER_SIZE] = serverJSONValue[UPDATE_PREFIX + SERVER_SIZE]; // currentClientValue should always be defined in this case
 					updates = true;
 				}
+                if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + FOUNDSET_DEFINITION_CHANGE])) {
+                    if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_FOUNDSET_DEFINITION_CHANGE] = true;;
+                    updates = true;
+                }
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + PUSH_TO_SERVER])) {
 					const internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
 					internalState[PUSH_TO_SERVER] = serverJSONValue[UPDATE_PREFIX + PUSH_TO_SERVER];

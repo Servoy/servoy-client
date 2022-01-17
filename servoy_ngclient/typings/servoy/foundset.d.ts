@@ -299,6 +299,7 @@ declare namespace foundsetType {
         NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED: string,
         NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE: string,
         NOTIFY_VIEW_PORT_ROW_UPDATES: string,
+        NOTIFY_FOUNDSET_DEFINITION_CHANGE: string,
     
         // row update types for listener notifications, in case NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED is triggered
         ROWS_CHANGED: number,
