@@ -640,7 +640,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 					}
 				},
 				reload: function() {
-					$window.location.reload( true );
+					$window.location.reload( );
 				},
 				updateController: function( formName, controllerCode, realFormUrl, forceLoad, html ) {
 					if ( $log.debugEnabled ) $log.debug( "svy * updateController = " + formName + ", realFormUrl = " + realFormUrl );
