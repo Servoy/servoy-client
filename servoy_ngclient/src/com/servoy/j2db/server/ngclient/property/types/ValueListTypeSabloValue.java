@@ -513,7 +513,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		{
 			revertFilter();
 		}
-
+		boolean dbValueRowRendered = false;
 		boolean removed = false;
 		if (!fireChangeEvent)
 		{
@@ -521,6 +521,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		}
 		try
 		{
+			dbValueRowRendered = true;
 			valueList.fill(record);
 		}
 		finally
@@ -532,6 +533,15 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 					// only add it if it was removed
 					valueList.addListDataListener(this);
 				}
+			}
+		}
+		if (!changeMonitor.isChanged() && previousRecord != null && dbValueRowRendered)
+		{
+			dbValueRowRendered = false;
+			Object dbValue = previousRecord.getValue(dataproviderID);
+			if (dbValue != null && !dbValue.equals(record != null ? record.getValue(dataproviderID) : null))
+			{
+				changeMonitor.markFullyChanged(true);
 			}
 		}
 		previousRecord = record;
