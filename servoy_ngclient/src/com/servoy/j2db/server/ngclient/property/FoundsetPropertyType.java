@@ -337,6 +337,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 		boolean sendDefaultFormats = FoundsetPropertyTypeConfig.DEFAULT_SEND_DEFAULT_FORMATS;
 		int initialPreferredViewPortSize = FoundsetPropertyTypeConfig.DEFAULT_INITIALL_PREFERRED_VIEWPORT_SIZE;
 		boolean sendSelectionViewportInitially = FoundsetPropertyTypeConfig.DEFAULT_SEND_SELECTION_VIEWPORT_INITIALLY;
+		boolean foundsetDefinitionListener = FoundsetPropertyTypeConfig.DEFAULT_FOUNDSET_DEFINITION_LISTENER;
 
 		if (rhinoValue instanceof Wrapper) rhinoValue = ((Wrapper)rhinoValue).unwrap();
 
@@ -382,6 +383,8 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 					initialPreferredViewPortSize = Utils.getAsInteger(obj.get(FoundsetPropertyTypeConfig.INITIAL_PREFERRED_VIEWPORT_SIZE, obj));
 				if (obj.has(FoundsetPropertyTypeConfig.SEND_SELECTION_VIEWPORT_INITIALLY, obj))
 					sendSelectionViewportInitially = Utils.getAsBoolean(obj.get(FoundsetPropertyTypeConfig.SEND_SELECTION_VIEWPORT_INITIALLY, obj));
+				if (obj.has(FoundsetPropertyTypeConfig.FOUNDSET_DEFINITION_LISTENER, obj))
+					foundsetDefinitionListener = Utils.getAsBoolean(obj.get(FoundsetPropertyTypeConfig.FOUNDSET_DEFINITION_LISTENER, obj));
 			}
 		}
 		else if (rhinoValue instanceof IFoundSetInternal)
@@ -400,7 +403,8 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 
 
 				newSabloValue = new FoundsetTypeSabloValue(designJSON, null, null,
-					new FoundsetPropertyTypeConfig(sendDefaultFormats, true, null, sendSelectionViewportInitially, initialPreferredViewPortSize));
+					new FoundsetPropertyTypeConfig(sendDefaultFormats, true, null, sendSelectionViewportInitially, initialPreferredViewPortSize,
+						foundsetDefinitionListener));
 				newSabloValue.updateFoundset(newFoundset);
 			}
 		}

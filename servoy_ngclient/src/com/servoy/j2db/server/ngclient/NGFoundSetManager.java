@@ -74,8 +74,10 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 
 			FoundsetTypeSabloValue value = getFoundsetTypeSabloValue(foundset, args.optJSONObject("dataproviders"));
 
-			ChangeAwareList<ChangeAwareMap<String, Object>, Object> foundsets = (ChangeAwareList<ChangeAwareMap<String, Object>, Object>)((NGClient)getApplication()).getWebsocketSession().getClientService(
-				"foundset_manager").getProperty("foundsets");
+			ChangeAwareList<ChangeAwareMap<String, Object>, Object> foundsets = (ChangeAwareList<ChangeAwareMap<String, Object>, Object>)((NGClient)getApplication())
+				.getWebsocketSession().getClientService(
+					"foundset_manager")
+				.getProperty("foundsets");
 			if (foundsets == null)
 			{
 				foundsets = new ChangeAwareList<ChangeAwareMap<String, Object>, Object>(new ArrayList<ChangeAwareMap<String, Object>>());
@@ -170,8 +172,10 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 		}
 		else if ("removeFoundSetsFromCache".equals(methodName))
 		{
-			ChangeAwareList<ChangeAwareMap<String, Object>, Object> foundsets = (ChangeAwareList<ChangeAwareMap<String, Object>, Object>)((NGClient)getApplication()).getWebsocketSession().getClientService(
-				"foundset_manager").getProperty("foundsets");
+			ChangeAwareList<ChangeAwareMap<String, Object>, Object> foundsets = (ChangeAwareList<ChangeAwareMap<String, Object>, Object>)((NGClient)getApplication())
+				.getWebsocketSession().getClientService(
+					"foundset_manager")
+				.getProperty("foundsets");
 			if (foundsets != null)
 			{
 				foundsets.clear();
@@ -186,8 +190,10 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 		if (foundset != null)
 		{
 			FoundsetTypeSabloValue value = foundsetTypeSabloValueMap.remove(foundset);
-			ChangeAwareList<ChangeAwareMap<String, Object>, Object> foundsets = (ChangeAwareList<ChangeAwareMap<String, Object>, Object>)((NGClient)getApplication()).getWebsocketSession().getClientService(
-				"foundset_manager").getProperty("foundsets");
+			ChangeAwareList<ChangeAwareMap<String, Object>, Object> foundsets = (ChangeAwareList<ChangeAwareMap<String, Object>, Object>)((NGClient)getApplication())
+				.getWebsocketSession().getClientService(
+					"foundset_manager")
+				.getProperty("foundsets");
 			if (foundsets != null)
 			{
 				int i = 0;
@@ -221,7 +227,8 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 		FoundsetTypeSabloValue foundsetTypeSabloValue = foundsetTypeSabloValueMap.get(foundset);
 		if (foundsetTypeSabloValue == null)
 		{
-			foundsetTypeSabloValue = new FoundsetTypeSabloValue(new JSONObject(), null, null, new FoundsetPropertyTypeConfig(false, false, null, false, 15))
+			foundsetTypeSabloValue = new FoundsetTypeSabloValue(new JSONObject(), null, null,
+				new FoundsetPropertyTypeConfig(false, false, null, false, 15, false))
 			{
 				@Override
 				protected void updateFoundset(IRecordInternal record)

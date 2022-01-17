@@ -42,6 +42,7 @@ public class FoundsetTypeViewport
 
 	private boolean sendingInitialPreferredViewport = false;
 	private boolean callPreferredViewportBoundsOnSelectionChange = false;
+	private final boolean foundsetDefinitionListener;
 
 	/**
 	 * Creates a new viewport object.
@@ -52,6 +53,7 @@ public class FoundsetTypeViewport
 		this.changeMonitor = changeMonitor;
 		this.preferredViewPortSize = specConfig.initialPreferredViewPortSize;
 		this.sendSelectionViewportInitially = specConfig.sendSelectionViewportInitially;
+		this.foundsetDefinitionListener = specConfig.foundsetDefinitionListener;
 		// we don't define initialSelectionViewportCentered in .spec config yet because the component usually doesn't know on first show what it's desired page size is (that is normally based on UI space) - or some component might even not know if it's using paging or scrolling UI viewport
 		// but initialSelectionViewportCentered can still be altered by the component after it is shown in browser via a foundset type API call from client
 	}
@@ -293,7 +295,7 @@ public class FoundsetTypeViewport
 				@Override
 				public boolean wantsFoundSetDefinitionChanges()
 				{
-					return true;
+					return foundsetDefinitionListener;
 				}
 
 				@Override

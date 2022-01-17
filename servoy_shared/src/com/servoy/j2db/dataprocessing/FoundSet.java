@@ -5733,7 +5733,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 						final IFoundSetEventListener[] array;
 						synchronized (foundSetEventListeners)
 						{
-							array = foundSetEventListeners.toArray(new IFoundSetEventListener[foundSetEventListeners.size()]);
+							if (e.getType() == FoundSetEvent.FOUNDSET_DEFINITION_CHANGE)
+								array = foundSetEventListeners.stream().filter(listener -> listener.wantsFoundSetDefinitionChanges())
+									.toArray(IFoundSetEventListener[]::new);
+							else array = foundSetEventListeners.toArray(new IFoundSetEventListener[foundSetEventListeners.size()]);
 						}
 
 						// make sure that all the foundset events are completely handled
