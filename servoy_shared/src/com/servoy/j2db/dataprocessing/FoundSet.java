@@ -5375,7 +5375,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 	}
 
-	String getSerialziedQuery()
+	String getSerializedQuery()
 	{
 		QuerySelect currentQuery = pksAndRecords.getQuerySelectForReading();
 		String serverName = DataSourceUtils.getDataSourceServerName(getDataSource());
@@ -5402,7 +5402,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (serializedQuery != null)
 		{
-			String currentQuery = getSerialziedQuery();
+			String currentQuery = getSerializedQuery();
 			if (!currentQuery.equals(serializedQuery))
 			{
 				this.serializedQuery = currentQuery;
@@ -7146,7 +7146,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				if (serializedQuery == null && l.wantsFoundSetDefinitionChanges())
 				{
 					// if this new listener wants to have a defintion change, generate the serialized query
-					serializedQuery = getSerialziedQuery();
+					serializedQuery = getSerializedQuery();
 				}
 			}
 		}

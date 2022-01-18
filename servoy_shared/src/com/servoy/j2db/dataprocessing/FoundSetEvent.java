@@ -56,7 +56,7 @@ public class FoundSetEvent extends EventObject
 	/**
 	 * Change when the foundset definition was changed.
 	 */
-	public static final int FOUNDSET_DEFINITION_CHANGE = 15; // currently only used to broadcast foundset multiselect unpin/lower pinLevel events, but can be extended with change type if needed
+	public static final int FOUNDSET_DEFINITION_CHANGE = 15;
 
 	/**
 	 * Change type data is inserted when type is CONTENTS_CHANGED.

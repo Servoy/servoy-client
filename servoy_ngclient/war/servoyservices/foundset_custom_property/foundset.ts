@@ -220,7 +220,7 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 					updates = true;
 				}
                 if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + FOUNDSET_DEFINITION_CHANGE])) {
-                    if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_FOUNDSET_DEFINITION_CHANGE] = true;;
+                    if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_FOUNDSET_DEFINITION_CHANGE] = true;
                     updates = true;
                 }
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + PUSH_TO_SERVER])) {
