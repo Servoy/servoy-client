@@ -77,6 +77,7 @@ public final class Settings extends SortedProperties
 	public static final String RMI_CONNECTION_TIMEOUT = "rmi.connection.timeout";
 
 	public static final String TRUST_DATA_AS_HTML_SETTING = "servoy.clientTrustDataAsHtml"; //$NON-NLS-1$
+	public static final String ASK_BIG_METADATA_TABLE_WARNING = "servoy.askBigMetadataTableWarning"; //$NON-NLS-1$
 	public static final String USER_HOME = "servoy.user.home";
 
 	public static final String DISABLE_SERVER_LOG_FORWARDING_TO_DEBUG_CLIENT_CONSOLE = "servoy.developer.disableServerLogForwardingToDebugClientConsole"; //$NON-NLS-1$
