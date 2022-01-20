@@ -26,7 +26,6 @@ import java.rmi.UnmarshalException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -53,7 +52,6 @@ import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.ISaveConstants;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.persistence.ClientMethodTemplatesLoader;
-import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IActiveSolutionHandler;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IRepository;
@@ -117,23 +115,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	protected Object[] preferredSolutionMethodArguments = null;
 
 	//the main solution, also called root
-	protected final FlattenedSolution solutionRoot = new FlattenedSolution()
-	{
-		@Override
-		protected void flushExtendsStuff()
-		{
-			// refresh all the extends forms, TODO this is kind of bad, because form instances are shared over clients.
-			Iterator<Form> it = getForms(false);
-			while (it.hasNext())
-			{
-				Form childForm = it.next();
-				if (childForm.getExtendsID() > 0)
-				{
-					childForm.setExtendsForm(getForm(childForm.getExtendsID()));
-				}
-			}
-		}
-	};
+	protected final FlattenedSolution solutionRoot = new ExtendsConfiguratingFlattenedSolution();
 
 	/**
 	 * Managers
