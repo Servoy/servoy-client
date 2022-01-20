@@ -1195,6 +1195,118 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		return null;
 	}
 
+	/**
+	 * Get the selected records.
+	 * When the viewfounset is in multiSelect mode (see property multiSelect), selection can be a more than 1 record.
+	 *
+	 * @sample var selectedRecords = %%prefix%%foundset.getSelectedRecords();
+	 * @return Array current records.
+	 */
+	@JSFunction
+	public ViewRecord[] getSelectedRecords()
+	{
+		int[] selectedIndexes = getSelectedIndexes();
+		List<ViewRecord> selectedRecords = new ArrayList<ViewRecord>(selectedIndexes.length);
+		for (int index : selectedIndexes)
+		{
+			ViewRecord record = getRecord(index);
+			if (record != null)
+			{
+				selectedRecords.add(record);
+			}
+		}
+
+		return selectedRecords.toArray(new ViewRecord[selectedRecords.size()]);
+	}
+
+	/**
+	 * Set the current record index.
+	 *
+	 * @sampleas js_getSelectedIndex()
+	 *
+	 * @param index int index to set (1-based)
+	 */
+	public void jsFunction_setSelectedIndex(int index)
+	{
+		if (index >= 1 && index <= getSize())
+		{
+			setSelectedIndex(index - 1);
+		}
+	}
+
+	/**
+	 * Get the current record index of the viewfoundset.
+	 *
+	 * @sample
+	 * //gets the current record index in the current viewfoundset
+	 * var current = %%prefix%%foundset.getSelectedIndex();
+	 * //sets the next record in the viewfoundset
+	 * %%prefix%%foundset.setSelectedIndex(current+1);
+	 * @return int current index (1-based)
+	 */
+	public int js_getSelectedIndex()
+	{
+		return getSelectedIndex() + 1;
+	}
+
+	/**
+	 * Get the indexes of the selected records.
+	 * When the viewfounset is in multiSelect mode (see property multiSelect), a selection can consist of more than one index.
+	 *
+	 * @sample
+	 * // modify selection to the first selected item and the following row only
+	 * var current = %%prefix%%foundset.getSelectedIndexes();
+	 * if (current.length > 1)
+	 * {
+	 * 	var newSelection = new Array();
+	 * 	newSelection[0] = current[0]; // first current selection
+	 * 	newSelection[1] = current[0] + 1; // and the next row
+	 * 	%%prefix%%foundset.setSelectedIndexes(newSelection);
+	 * }
+	 * @return Array current indexes (1-based)
+	 */
+	public Number[] js_getSelectedIndexes()
+	{
+		Number[] selected = null;
+		int[] selectedIndexes = getSelectedIndexes();
+		if (selectedIndexes != null && selectedIndexes.length > 0)
+		{
+			selected = new Number[selectedIndexes.length];
+			for (int i = 0; i < selectedIndexes.length; i++)
+			{
+				selected[i] = Integer.valueOf(selectedIndexes[i] + 1);
+			}
+		}
+
+		return selected;
+	}
+
+	/**
+	 * Set the selected records indexes.
+	 *
+	 * @sampleas js_getSelectedIndexes()
+	 *
+	 * @param indexes An array with indexes to set.
+	 */
+	public void js_setFunctionSelectedIndexes(Number[] indexes)
+	{
+		if (indexes == null || indexes.length == 0) return;
+		ArrayList<Integer> selectedIndexes = new ArrayList<Integer>();
+
+		Integer i;
+		for (Object index : indexes)
+		{
+			i = Integer.valueOf(Utils.getAsInteger(index));
+			if (selectedIndexes.indexOf(i) == -1) selectedIndexes.add(i);
+		}
+		int[] iSelectedIndexes = new int[selectedIndexes.size()];
+		for (int j = 0; j < selectedIndexes.size(); j++)
+		{
+			iSelectedIndexes[j] = selectedIndexes.get(j).intValue() - 1;
+		}
+		setSelectedIndexes(iSelectedIndexes);
+	}
+
 	@Override
 	public String getSort()
 	{
