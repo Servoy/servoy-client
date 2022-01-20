@@ -417,24 +417,18 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		return null;
 	}
 
-	public Relation createNewRelation(IValidateName validator, String relationName, int joinType) throws RepositoryException
+	public Relation createNewRelation(IValidateName validator, String relationName, String primaryDataSource, String foreignDataSource, int joinType)
+		throws RepositoryException
 	{
 		String name = relationName == null ? "untitled" : relationName; //$NON-NLS-1$
 		//check if name is in use
-		validator.checkName(name, 0, new ValidatorSearchContext(IRepository.RELATIONS), true);
+		validator.checkName(name, 0, new ValidatorSearchContext(primaryDataSource, IRepository.RELATIONS), true);
 		Relation obj = (Relation)getChangeHandler().createNewObject(this, IRepository.RELATIONS);
 		obj.setJoinType(joinType);
 		//set all the required properties
 
 		obj.setName(name);
 		addChild(obj);
-		return obj;
-	}
-
-	public Relation createNewRelation(IValidateName validator, String name, String primaryDataSource, String foreignDataSource, int joinType)
-		throws RepositoryException
-	{
-		Relation obj = createNewRelation(validator, name, joinType);
 		obj.setPrimaryDataSource(primaryDataSource);
 		obj.setForeignDataSource(foreignDataSource);
 		return obj;
