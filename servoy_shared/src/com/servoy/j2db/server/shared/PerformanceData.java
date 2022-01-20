@@ -2,9 +2,7 @@ package com.servoy.j2db.server.shared;
 
 
 import java.util.Comparator;
-import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
@@ -27,8 +25,6 @@ public class PerformanceData
 	 * will only have max one item in this map. As they are an item of a singular stack for that client.
 	 */
 	private final ConcurrentMap<Integer, PerformanceTiming> startedTimings = new ConcurrentHashMap<>();
-
-	private final ConcurrentLinkedQueue<PerformanceTiming> subTimings = new ConcurrentLinkedQueue<>();
 
 	private final ThreadLocal<PerformanceTiming> startedTimingPerClient = new ThreadLocal<>();
 
@@ -130,16 +126,14 @@ public class PerformanceData
 				log.info(timing.getClientUUID() + '|' + timing.getAction() + '|' + timing.getRunningTimeMS() + '|' + timing.getIntervalTimeMS());
 			}
 			timing.setEndTime();
-			addTiming(timing.getAction(), timing.getIntervalTimeMS(), timing.getRunningTimeMS(), timing.getType(), timing.getSubTimings(), nrecords);
-			subTimings.add(timing);
+			addTiming(timing, timing.getIntervalTimeMS(), timing.getRunningTimeMS(), nrecords);
 		}
 		return;
 	}
 
-	public void addTiming(String action, long interval_ms, long total_ms, int type,
-		Queue<PerformanceTiming> subActionTimings, int nrecords)
+	public void addTiming(PerformanceTiming timing, long interval_ms, long total_ms, int nrecords)
 	{
-		this.aggregator.addTiming(action, interval_ms, total_ms, type, subActionTimings, nrecords);
+		this.aggregator.addTiming(timing.getAction(), interval_ms, total_ms, timing.getType(), timing.getSubTimings(), nrecords);
 	}
 
 	public Pair<Integer, Integer> startSubAction(String action, long start_ms, int type, String clientUUID)
@@ -188,11 +182,6 @@ public class PerformanceData
 	public PerformanceTiming[] getStartedActions()
 	{
 		return startedTimings.values().toArray(new PerformanceTiming[startedTimings.size()]);
-	}
-
-	public Queue<PerformanceTiming> getSubTimings()
-	{
-		return subTimings;
 	}
 
 	public PerformanceAggregator getAggregator()

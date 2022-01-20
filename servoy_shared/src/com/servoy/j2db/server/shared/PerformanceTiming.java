@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.shared;
 
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -42,6 +43,8 @@ public class PerformanceTiming extends PerformanceData
 	private final AtomicLong end_ms = new AtomicLong(0);
 	private final AtomicLong interval_ms = new AtomicLong(0);
 
+	private final ConcurrentLinkedQueue<PerformanceTiming> subTimings = new ConcurrentLinkedQueue<>();
+
 	public PerformanceTiming(String action, int type, long start_ms, String clientUUID, IPerformanceRegistry registry, Logger log, String id,
 		PerformanceAggregator aggregator)
 	{
@@ -56,12 +59,11 @@ public class PerformanceTiming extends PerformanceData
 
 
 	@Override
-	public void addTiming(String subAction, long intervalMsSubAction, long totalMsSubAction, int typeOfSubAction,
-		Queue<PerformanceTiming> subActionTimings, int nrecords)
+	public void addTiming(PerformanceTiming timing, long intervalMsSubAction, long totalMsSubAction, int nrecords)
 	{
 		long totalMsSubAction2 = totalMsSubAction;
 		long intervalMsSubAction2 = intervalMsSubAction;
-		if (typeOfSubAction == IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT)
+		if (timing.getType() == IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT)
 		{
 			// the subaction was waiting for user input; so discard it's running time from this action's calculation as it's not useful
 			// (we could also keep a separate longs and substract them from these values during display if we need to show total time of an action including waiting for user stuff in the future)
@@ -70,7 +72,8 @@ public class PerformanceTiming extends PerformanceData
 			intervalMsSubAction2 = 0;
 		}
 
-		super.addTiming(subAction, intervalMsSubAction2, totalMsSubAction2, typeOfSubAction, subActionTimings, nrecords);
+		super.addTiming(timing, intervalMsSubAction2, totalMsSubAction2, nrecords);
+		subTimings.add(timing);
 	}
 
 	public Integer getID()
@@ -167,4 +170,10 @@ public class PerformanceTiming extends PerformanceData
 	{
 		end_ms.set(System.currentTimeMillis());
 	}
+
+	public Queue<PerformanceTiming> getSubTimings()
+	{
+		return subTimings;
+	}
+
 }
