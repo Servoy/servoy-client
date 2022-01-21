@@ -27,8 +27,8 @@ import org.slf4j.Logger;
 import com.servoy.j2db.dataprocessing.IDataServer;
 
 /**
- * Timing of actions like queries/methods in the server.
- * It can contain sub-actions so it extends PerformanceData.
+ * Timing of sub-actions like queries/methods in the server. It is not used as a root entry in the performance registry (which are just PerformanceData instances),
+ * just for sub-actions of those. It can contain sub-actions of it's own - building 1 stack per client, so it extends PerformanceData.
  *
  * @author jblok
  */

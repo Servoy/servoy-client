@@ -10,13 +10,25 @@ import org.slf4j.Logger;
 import com.servoy.j2db.util.Pair;
 
 /**
- * Keeps a list off last 200 most expensive actions (e.g. sql, method calls) to be viewed in a UI.
+ * Root entries in {@link IPerformanceRegistry}. So the performance registry will have 1 instance of this class per "context". (context in perf. reg. is either the solution name
+ * - in case of performance registry for method calls, or the DB server name - in case of performance registry for sql).<br/><br/>
+ *
+ * This class is extended by {@link PerformanceTiming} as well, so all sub-actions (PerformanceTiming) in each client's stack do extend from this class as well.
  *
  * @author jblok
  */
 public class PerformanceData
 {
-	private final static ThreadLocal<PerformanceTiming> top = new ThreadLocal<>();
+
+	/**
+	 * Static, so 1 instance per thread/client for the whole PerformanceData class (no matter how many instances of it there are).<br/>
+	 * That means that this instance is shared between all PerformanceData instances (no matter of the context they are registered for -
+	 * the solution name or DB server name) in all IPerformanceRegistry instances (on the same thread/client of course).<br/><br/>
+	 *
+	 * So there is only 1 instance of this for a client - shared between the PerformanceData instance for solutions (which is 1 for method calls in the active
+	 * solution of the client, at least until client changes solution) and all DB server sql PerformanceData instances (for that client).
+	 */
+	private final static ThreadLocal<PerformanceTiming> sharedTopTimingOfClientTL = new ThreadLocal<>();
 
 	/**
 	 * Keys are PerformanceTiming unique id's; each PerformanceTiming generates a new id in it's constructor.<br/><br/>
@@ -26,7 +38,10 @@ public class PerformanceData
 	 */
 	private final ConcurrentMap<Integer, PerformanceTiming> startedTimings = new ConcurrentHashMap<>();
 
-	private final ThreadLocal<PerformanceTiming> startedTimingPerClient = new ThreadLocal<>();
+	/**
+	 * Non-static, so 1 instance per thread and per instance of PerformanceData/PerformanceTiming (so multiple instances in the end for each thread/client).
+	 */
+	private final ThreadLocal<PerformanceTiming> startedTimingPerClientForThisInstanceTL = new ThreadLocal<>();
 
 	private final Logger log;
 
@@ -48,19 +63,19 @@ public class PerformanceData
 	public Integer startAction(String action, long start_ms, int type, String clientUUID)
 	{
 		if (registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.OFF) return null;
-		PerformanceTiming timing = startedTimingPerClient.get();
-		if (timing == null)
+		PerformanceTiming startedTimingPerClientForThisInstance = startedTimingPerClientForThisInstanceTL.get();
+		if (startedTimingPerClientForThisInstance == null)
 		{
-			timing = new PerformanceTiming(action, type, start_ms, clientUUID, registry, log, id, this.aggregator);
-			startedTimingPerClient.set(timing);
-			startedTimings.put(timing.getID(), timing);
-			PerformanceTiming topTiming = top.get();
-			if (topTiming == null) top.set(timing);
-			return timing.getID();
+			startedTimingPerClientForThisInstance = new PerformanceTiming(action, type, start_ms, clientUUID, registry, log, id, this.aggregator);
+			startedTimingPerClientForThisInstanceTL.set(startedTimingPerClientForThisInstance);
+			startedTimings.put(startedTimingPerClientForThisInstance.getID(), startedTimingPerClientForThisInstance);
+			PerformanceTiming sharedTopTimingOfClient = sharedTopTimingOfClientTL.get();
+			if (sharedTopTimingOfClient == null) sharedTopTimingOfClientTL.set(startedTimingPerClientForThisInstance);
+			return startedTimingPerClientForThisInstance.getID();
 		}
 		else
 		{
-			return timing.startAction(action, start_ms, type, clientUUID);
+			return startedTimingPerClientForThisInstance.startAction(action, start_ms, type, clientUUID);
 		}
 	}
 
@@ -80,53 +95,57 @@ public class PerformanceData
 	public void endAction(Integer timingId, int nrecords, String clientUUID)
 	{
 		if (registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.OFF || timingId == null) return;
-		PerformanceTiming timing = startedTimingPerClient.get();
-		if (timing != null)
+		PerformanceTiming startedTimingPerClientForThisInstance = startedTimingPerClientForThisInstanceTL.get();
+		PerformanceTiming timingThatEnded = startedTimingPerClientForThisInstance;
+		if (startedTimingPerClientForThisInstance != null)
 		{
 			// is this the uuid that is on this stack? then this one should be ended.
 			// else a child/sub timing should be searched for.
-			if (timingId.equals(timing.getID()))
+			if (timingId.equals(startedTimingPerClientForThisInstance.getID()))
 			{
-				startedTimingPerClient.remove();
+				startedTimingPerClientForThisInstanceTL.remove();
 				startedTimings.remove(timingId);
-				PerformanceTiming topTiming = top.get();
-				if (topTiming == timing) top.remove(); // so the thread local "top" is also the timing that is now ending
+				PerformanceTiming sharedTopTimingOfClient = sharedTopTimingOfClientTL.get();
+				if (sharedTopTimingOfClient == startedTimingPerClientForThisInstance) sharedTopTimingOfClientTL.remove(); // so the static thread local is also the timing that is now ending
 				else if ("sql".equals(id)) //$NON-NLS-1$
 				{
-					// so the thread local "top" is NOT the timing that is now ending; we are ending an SQL statement (this.id is "sql") but the "top" on this
-					// thread is not that SQL statement but probably a method call put in "top" thread local by another PerformanceData instance
+					// so the thread local "sharedTopTimingOfClientTL" is NOT the timing that is now ending;
+					// we are ending an SQL statement (this.id is "sql") but the "sharedTopTimingOfClientTL" on this
+					// thread is not that SQL statement but probably a method call put in "sharedTopTimingOfClientTL" thread local by another PerformanceData instance
 
-					// this is bit of a hack to tie the SQL data to the method data based on the id of the Performance Registry
-					// find the (possibly nested) method call that is currently running to attach this ending SQL timing to it
-					PerformanceTiming methodCallCurrentlyRunning = topTiming;
+					// this is bit of a hack to tie the SQL data of current timing that now ends to the correct method data based on the id of the Performance Registry;
+					// find the most deeply nested method call - that is currently running to attach this ending SQL timing to it
+					PerformanceTiming methodCallCurrentlyRunning = sharedTopTimingOfClient;
 					PerformanceTiming[] startedActions = methodCallCurrentlyRunning.getStartedActions(); // startedActions can only be max size 1 on PerformanceTiming instances; see javadoc
 					while (startedActions.length == 1)
 					{
 						methodCallCurrentlyRunning = startedActions[0];
 						startedActions = methodCallCurrentlyRunning.getStartedActions();
 					}
-					methodCallCurrentlyRunning.getSubTimings().add(timing);
+					methodCallCurrentlyRunning.getSubTimings().add(startedTimingPerClientForThisInstance);
 				}
 			}
 			else
 			{
-				timing.endAction(timingId, nrecords, clientUUID);
-				timing = null; // this one is not done yet should not be ended below.
+				// ok so child startedTimingPerClientForThisInstance is not the action that is being ended; forward end action to child in the action 'stack'
+				startedTimingPerClientForThisInstance.endAction(timingId, nrecords, clientUUID);
+				timingThatEnded = null; // this one is not done yet should not be ended below.
 			}
-
 		}
 		else
 		{
-			timing = startedTimings.remove(timingId);
+			timingThatEnded = startedTimings.remove(timingId);
 		}
-		if (timing != null)
+		if (timingThatEnded != null)
 		{
 			if (log != null && log.isInfoEnabled())
 			{
-				log.info(timing.getClientUUID() + '|' + timing.getAction() + '|' + timing.getRunningTimeMS() + '|' + timing.getIntervalTimeMS());
+				log.info(timingThatEnded.getClientUUID() + '|' + timingThatEnded.getAction() + '|' +
+					timingThatEnded.getRunningTimeMS() + '|' + timingThatEnded.getIntervalTimeMS());
 			}
-			timing.setEndTime();
-			addTiming(timing, timing.getIntervalTimeMS(), timing.getRunningTimeMS(), nrecords);
+			timingThatEnded.setEndTime();
+			addTiming(timingThatEnded, timingThatEnded.getIntervalTimeMS(),
+				timingThatEnded.getRunningTimeMS(), nrecords);
 		}
 		return;
 	}
@@ -140,7 +159,7 @@ public class PerformanceData
 	{
 		if (registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.OFF) return null;
 
-		PerformanceTiming lastStartedTiming = startedTimingPerClient.get();
+		PerformanceTiming lastStartedTiming = startedTimingPerClientForThisInstanceTL.get();
 		if (lastStartedTiming == null) return null; // probably a Servoy internal service API call that gets called outside any user method; ignore
 
 		Integer subTimingUUID = lastStartedTiming.startAction(action, start_ms, type, clientUUID); // this call will go to (recursively) last started action on this client's stack
