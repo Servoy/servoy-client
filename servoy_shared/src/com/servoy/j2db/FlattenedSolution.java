@@ -670,7 +670,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				{
 					if (loginFlattenedSolution == null)
 					{
-						loginFlattenedSolution = new FlattenedSolution();
+						loginFlattenedSolution = new ExtendsConfiguratingFlattenedSolution();
 					}
 					loginFlattenedSolution.setSolutionAndModules(loginSolutionAndModules[0].getName(), loginSolutionAndModules);
 					loginFlattenedSolution.setParentSolution(this);
