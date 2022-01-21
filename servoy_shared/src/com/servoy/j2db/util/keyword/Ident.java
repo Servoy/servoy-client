@@ -257,7 +257,12 @@ public class Ident
 
 	public static boolean checkIfScriptingKeyword(String name)
 	{
-		return checkName(js_keywords, name) || checkName(servoy_keywords, name);
+		return checkIfJavascriptKeyword(name) || checkName(servoy_keywords, name);
+	}
+
+	public static boolean checkIfJavascriptKeyword(String name)
+	{
+		return checkName(js_keywords, name);
 	}
 
 	public static boolean checkIfReservedOSWord(String name)
