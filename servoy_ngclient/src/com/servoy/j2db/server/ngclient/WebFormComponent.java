@@ -1,6 +1,7 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import org.sablo.IEventHandler;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectFunctionDefinition;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.utils.DataConversion;
@@ -27,6 +29,7 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.component.EventExecutor;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.INGWebObjectContext;
+import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
@@ -250,15 +253,27 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 				formElementForm = formElement.getForm();
 			}
 
+			WebObjectSpecification componentSpec = formElement.getWebComponentSpec(false);
 
-			if (Utils.equalObjects(eventType, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()) &&
-				(formElementForm.getOnElementDataChangeMethodID() > 0) && formElementForm.getOnElementDataChangeMethodID() != functionID)
+			Collection<PropertyDescription> propertyDesciptionList = componentSpec.getProperties(DataproviderPropertyType.INSTANCE,
+				false);
+
+			for (PropertyDescription propertyDescription : propertyDesciptionList)
 			{
-				boolean isValueValid = !Boolean.FALSE.equals(executeEventReturn) &&
-					!(executeEventReturn instanceof String && ((String)executeEventReturn).length() > 0);
-				if (isValueValid)
+				// the property type found here is for a 'dataprovider' property from the spec file of this component
+				DataproviderConfig dpConfig = (DataproviderConfig)propertyDescription.getConfig();
+
+				if (dpConfig.getOnDataChange() != null && Utils.equalObjects(eventType, dpConfig.getOnDataChange()) &&
+					formElementForm.getOnElementDataChangeMethodID() > 0 &&
+					formElementForm.getOnElementDataChangeMethodID() != functionID)
 				{
-					executeEventReturn = dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElementForm.getOnElementDataChangeMethodID(), args);
+					boolean isValueValid = !Boolean.FALSE.equals(executeEventReturn) &&
+						!(executeEventReturn instanceof String && ((String)executeEventReturn).length() > 0);
+					if (isValueValid)
+					{
+						executeEventReturn = dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElementForm.getOnElementDataChangeMethodID(),
+							args);
+					}
 				}
 			}
 

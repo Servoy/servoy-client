@@ -28,6 +28,8 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
+import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ISupportTemplateValue;
 import com.servoy.j2db.server.ngclient.property.types.NGEnabledSabloValue;
 import com.servoy.j2db.util.Debug;
@@ -140,6 +142,17 @@ public class ComponentFactory
 				}
 			}
 		}
+
+		componentSpec.getProperties(DataproviderPropertyType.INSTANCE, false).forEach((propertyFromSpec) -> {
+			// the property type found here is for a 'dataprovider' property from the spec file of this component
+
+			DataproviderConfig dpConfig = (DataproviderConfig)propertyFromSpec.getConfig();
+
+			if (dpConfig.getOnDataChange() != null && form.getOnElementDataChangeMethodID() > 0)
+			{
+				webComponent.add(dpConfig.getOnDataChange(), form.getOnElementDataChangeMethodID());
+			}
+		});
 
 		// TODO should this be a part of type conversions for handlers instead?
 		for (String eventName : componentSpec.getHandlers().keySet())
