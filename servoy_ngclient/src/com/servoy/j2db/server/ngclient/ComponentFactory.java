@@ -203,11 +203,6 @@ public class ComponentFactory
 			{
 				webComponent.add(eventName, form.getOnElementFocusLostMethodID());
 			}
-			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()) &&
-				(form.getOnElementDataChangeMethodID() > 0))
-			{
-				webComponent.add(eventName, form.getOnElementDataChangeMethodID());
-			}
 		}
 
 		// just created, it should have no changes.
