@@ -466,7 +466,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 						}, function( reason ) {
 							throw reason;
 						} )
-						if ( instance.form.name != form ) throw 'switchform should set the instances state before showing it'
+						if ( ($solutionSettings.windowName == name &&  $solutionSettings.mainForm.name != form) || ($solutionSettings.windowName != name && instance.form.name != form) ) $log.error( "switchform should set the instances state before showing it: '" + form + "'" );
 					}
 					else {
 						$log.error( "Trying to show window with name: '" + name + "' which is not created." );
@@ -775,7 +775,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 					}, 0 );
 				} 
 			} 
-		} ).run(function($sabloApplication, $windowService: servoy.IWindowService, $webSocket ,webStorage) {   
+		} ).run(function($sabloApplication, $windowService: servoy.IWindowService, $webSocket ,webStorage, $solutionSettings) {   
 			
 			// the window must have a form to show
 	        if (webStorage.session.has('window0') && webStorage.session.get('window0').showForm != undefined) { 
@@ -791,19 +791,22 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
     					let counter = 0;
     					while(webStorage.session.has('window' + counter)) {
     						let window = webStorage.session.get('window' + counter);
-							// call a couple of methods that will create and display the window
-        	                $windowService.create(window.name, window.type);
-        	                $windowService.switchForm(window.name, window.switchForm, window.navigatorForm);
-        	                $windowService.setTitle(window.name, window.title);
-        	                $windowService.setUndecorated(window.name, window.undecorated);
-							$windowService.setCSSClassName(window.name, window.cssClassName);
-							$windowService.setSize(window.name, window.size);
-							$windowService.setInitialBounds(window.name, window.initialBounds);
-							$windowService.setStoreBounds(window.name, window.storeBounds);
-							$windowService.setLocation(window.name, window.location);
-							$windowService.setOpacity(window.name, window.opacity);
-							$windowService.setTransparent(window.name, window.transparent);
-        	                $windowService.show(window.name, window.showForm, window.showTitle);
+                            // do not restore main window
+                            if ($solutionSettings.windowName != window.name){
+							 // call a couple of methods that will create and display the window
+        	                   $windowService.create(window.name, window.type);
+        	                   $windowService.switchForm(window.name, window.switchForm, window.navigatorForm);
+        	                   $windowService.setTitle(window.name, window.title);
+        	                   $windowService.setUndecorated(window.name, window.undecorated);
+							   $windowService.setCSSClassName(window.name, window.cssClassName);
+							   $windowService.setSize(window.name, window.size);
+							   $windowService.setInitialBounds(window.name, window.initialBounds);
+							   $windowService.setStoreBounds(window.name, window.storeBounds);
+							   $windowService.setLocation(window.name, window.location);
+							   $windowService.setOpacity(window.name, window.opacity);
+							   $windowService.setTransparent(window.name, window.transparent);
+        	                  $windowService.show(window.name, window.showForm, window.showTitle);
+                            }
     						counter++;
     					} 
         	  		}
