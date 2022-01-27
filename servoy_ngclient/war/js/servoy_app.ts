@@ -1495,6 +1495,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		getClipboardContent() : Promise<string> {
 			return navigator.clipboard.readText();
 		},
+		replaceUrlState: function() {
+			history.replaceState({}, '', window.location.href.split('?')[0]);
+		},
 		trustAsHtml: trustAsHtml
 	}
 

@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient;
 
 import com.servoy.j2db.plugins.ClientPluginAccessProvider;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
+import com.servoy.j2db.plugins.INGClientPluginAccess;
 
 /**
  * @author gboros
@@ -72,5 +73,13 @@ public class NGClientPluginAccessProvider extends ClientPluginAccessProvider imp
 			}
 		}
 		ngClient.showFileOpenDialog(callback, multiSelect, acceptFilter.toString(), dialogTitle);
+	}
+
+	@Override
+	public void replaceUrlState()
+	{
+		getApplication().invokeLater(() -> {
+			ngClient.getWebsocketSession().getClientService("$applicationService").executeAsyncNowServiceCall("replaceUrlState", null);
+		});
 	}
 }
