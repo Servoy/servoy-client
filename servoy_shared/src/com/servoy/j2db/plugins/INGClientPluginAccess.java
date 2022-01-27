@@ -15,9 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.server.ngclient;
-
-import com.servoy.j2db.plugins.IAllWebClientPluginAccess;
+package com.servoy.j2db.plugins;
 
 /**
  * Extended plugin api for the ng webclient.
@@ -27,5 +25,5 @@ import com.servoy.j2db.plugins.IAllWebClientPluginAccess;
  */
 public interface INGClientPluginAccess extends IAllWebClientPluginAccess
 {
-
+	public void replaceUrlState();
 }
