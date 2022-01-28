@@ -38,6 +38,7 @@ import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.ArrayOperation;
 import org.sablo.specification.property.BrowserConverterContext;
@@ -1079,6 +1080,11 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 					}
 					else if (update.has(ViewportDataChangeMonitor.VIEWPORT_CHANGED))
 					{
+						// ALLOW_ACCESS on foundset only for updates that are NOT CHANGING DATA, so for viewport data change check protection again
+						if (this.webObjectContext instanceof WebComponent && pd != null && pd.getTag(WebObjectSpecification.ALLOW_ACCESS) != null)
+						{
+							((WebComponent)this.webObjectContext).checkPropertyProtection(propertyName);
+						}
 						if (PushToServerEnum.allow.compareTo(pushToServer) <= 0)
 						{
 							// {dataChanged: { ROW_ID_COL_KEY: rowIDValue, dataproviderName: value }}
