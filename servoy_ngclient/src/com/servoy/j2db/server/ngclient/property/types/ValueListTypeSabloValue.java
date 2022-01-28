@@ -509,19 +509,22 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			// lazy load, wait for initial filter to load the valuelist
 			return;
 		}
+		boolean dbValueRowRendered = false;
 		if ((previousRecord != null && !previousRecord.equals(record)) || Utils.equalObjects(dataProvider, dataproviderID))
 		{
 			revertFilter();
 		}
-		boolean dbValueRowRendered = false;
 		boolean removed = false;
 		if (!fireChangeEvent)
 		{
 			removed = valueList.removeListDataListenerIfNeeded(this);
 		}
-		try
+		else
 		{
 			dbValueRowRendered = true;
+		}
+		try
+		{
 			valueList.fill(record);
 		}
 		finally
@@ -535,7 +538,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 				}
 			}
 		}
-		if (!changeMonitor.isChanged() && previousRecord != null && dbValueRowRendered)
+		if (!changeMonitor.isChanged() && previousRecord != null && dbValueRowRendered && !isItemSendBlockedByAssociatedDataproviderResolve())
 		{
 			dbValueRowRendered = false;
 			Object dbValue = previousRecord.getValue(dataproviderID);
