@@ -469,11 +469,21 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		}
 	}
 
+	/**
+	 * NOTE: when getting this take into account that currently this is set (based on getExtendsID()) only by ClientState root flattened solution and login
+	 * flattened solution + from developer project flattened solutions - at the time the solutions get loaded into flattened, or in case of reload +
+	 * due to persist change/create/copy etc in developer. It is a bit weird as this is actually a repo persist model class,
+	 * and these Form instances are not stored nor up-to-date unless in what I mentioned earlier, but it was needed for SVY-16572 for example. This might be
+	 * improved somehow in the future.
+	 */
 	public Form getExtendsForm()
 	{
 		return extendsForm;
 	}
 
+	/**
+	 * See comment from {@link #getExtendsForm()}
+	 */
 	public void setExtendsForm(Form form)
 	{
 		this.extendsForm = form;
