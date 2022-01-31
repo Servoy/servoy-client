@@ -5,6 +5,24 @@
 	"icon": "servoydefault/htmlarea/html_area.png",
 	"definition": "servoydefault/htmlarea/htmlarea.js",
 	"libraries": [{"name":"tinymce", "version":"5.7.0", "url":"servoydefault/htmlarea/lib/tinymce/tinymce.min.js", "mimetype":"text/javascript", "group":false},{"name":"ui-tinymce", "version":"1", "url":"servoydefault/htmlarea/lib/ui-tinymce.js", "mimetype":"text/javascript"}],
+	"ng2Config": {
+       "assets": [{
+                "glob" : "**/*",
+                "input" : "node_modules/tinymce",
+                "output": "/tinymce/"
+            },
+            {
+                "glob" : "**/*",
+                "input" : "node_modules/tinymce-i18n/langs",
+                "output": "/tinymce/langs"
+            },
+            {
+                "glob" : "**/*",
+                "input" : "node_modules/tinymce-i18n/langs5",
+                "output": "/tinymce/langs5"
+            }
+        ]
+    },
 	"model":
 	{
 	        "background" : "color", 
