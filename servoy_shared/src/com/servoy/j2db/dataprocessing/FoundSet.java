@@ -1221,6 +1221,20 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
+	 * Reloads all last records again with the filters applied.
+	 *
+	 * @sample
+	 *  %%prefix%%foundset.reloadWithFilters();
+	 *
+	 */
+	public void js_reloadWithFilters() throws ServoyException
+	{
+		refreshFromDBInternal(
+			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), pksAndRecords.getTempQuery(), null, true, null, lastSortColumns, false),
+			false, fsm.pkChunkSize, false, false);
+	}
+
+	/**
 	 * Loads the records that are currently omitted as a foundset.
 	 *
 	 * Before loading the omitted records, all unsaved records will be saved in the database.
@@ -7006,6 +7020,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			// remove joins made for filter conditions
 			removeFilterJoins(creationSqlSelect, originalFilters);
 			addFilterconditions(creationSqlSelect, foundSetFilters);
+
+			// update temp query with the current filters so it can be used with js_reloadWithFilters
+			QuerySelect tempQuery = pksAndRecords.getTempQuery();
+			tempQuery.clearCondition(SQLGenerator.CONDITION_FILTER);
+			// remove joins made for filter conditions
+			removeFilterJoins(tempQuery, originalFilters);
+			addFilterconditions(tempQuery, foundSetFilters);
 		}
 	}
 

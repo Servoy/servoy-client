@@ -37,6 +37,8 @@ public class PksAndRecordsHolder
 	private AtomicInteger dbIndexLastPk; // mutable integer wrapper, use wrapper in stead of primitive so that shallow copy can update same data
 	private QuerySelect querySelect; // the query the pks were based on
 
+	private QuerySelect tempSelect; // reference to a clone of the querySelect
+
 	private final int chunkSize;
 	private final boolean optimizeChangeFires;
 	private final FoundSet foundSet;
@@ -108,6 +110,8 @@ public class PksAndRecordsHolder
 		pks = bufferedDataSet == null || bufferedDataSet instanceof PKDataSet ? (PKDataSet)bufferedDataSet : new PKDataSet(bufferedDataSet);
 		this.dbIndexLastPk = new AtomicInteger(dbIndexLastPk);
 		this.querySelect = querySelect;
+		// there is a new querySelect so clear the current temp select
+		this.tempSelect = null;
 		this.hasDynamicPlaceholder = checkForDynamicPlaceholder(querySelect);
 		if (this.pks != null) this.pks.setPksAndRecordsHolder(this);
 
@@ -170,6 +174,18 @@ public class PksAndRecordsHolder
 	public synchronized QuerySelect getQuerySelectForModification()
 	{
 		return AbstractBaseQuery.deepClone(querySelect);
+	}
+
+	/**
+	 * Get a reference to a clone of the querySelect
+	 */
+	public synchronized QuerySelect getTempQuery()
+	{
+		if (tempSelect == null)
+		{
+			tempSelect = getQuerySelectForModification();
+		}
+		return tempSelect;
 	}
 
 	private SafeArrayList<IRecordInternal> reUseStatesBasedOnNewPrimaryKeys()
