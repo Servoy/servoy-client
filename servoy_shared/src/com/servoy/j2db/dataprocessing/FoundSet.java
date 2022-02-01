@@ -3503,6 +3503,95 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
+	 * Create a new record in the foundset and change selection to it at specified index. Returns the new record or null if the record can't be made.
+	 *
+	 * @sample
+	 * var rec = %%prefix%%foundset.createRecord(1); // add as first record, do change selection
+	 *
+	 * @param index the new record is added at specified index (1-based).
+	 *
+	 * @return IJSRecord of new record.
+	 */
+	@JSFunction
+	public IJSRecord createRecord(Number index) throws Exception
+	{
+		return createRecord(index, Boolean.TRUE);
+	}
+
+	/**
+	 * Create a new record in the foundset. Returns the new record or null if the record can't be made.
+	 *
+	 * @sample
+	 *  var rec = %%prefix%%foundset.createRecord(1, false); // add as first record, do not change selection
+	 *
+	 * @param index the new record is added at specified index (1-based).
+	 * @param changeSelection boolean when true the selection is changed to the new record.
+	 *
+	 * @return  IJSRecord of new record.
+	 */
+	@JSFunction
+	public IJSRecord createRecord(Number index, Boolean changeSelection) throws Exception
+	{
+		int _index = getNumberAsInt(index, 1);
+		boolean _changeSelection = getBooleanAsbool(changeSelection, true);
+		if (_index > 0)
+		{
+			return (IJSRecord)getRecord(newRecord(null, _index - 1, _changeSelection));
+		}
+		return null;
+	}
+
+	/**
+	 * Create a new record in the foundset. Returns the new record or null if the record can't be made.
+	 *
+	 * @sample
+	 * var rec = %%prefix%%foundset.createRecord(false); // add as last record, do change selection
+	 *
+	 * @param onTop when true the new record is added as the topmost record.
+	 *
+	 * @return IJSRecord of new record.
+	 */
+	@JSFunction
+	public IJSRecord createRecord(Boolean onTop) throws ServoyException
+	{
+		return createRecord(onTop, Boolean.TRUE);
+	}
+
+	/**
+	 * Create a new record in the foundset. Returns the new record or null if the record can't be made.
+	 *
+	 * @sample
+	 * var rec = %%prefix%%foundset.createRecord(false, false); // add as last record, do not change selection
+	 *
+	 * @param onTop when true the new record is added as the topmost record; when false
+	 * the record is added to the end, if all records are loaded, otherwise it will be added to the top
+	 * @param changeSelection boolean when true the selection is changed to the new record.
+	 *
+	 * @return  IJSRecord of new record.
+	 */
+	@JSFunction
+	public IJSRecord createRecord(Boolean onTop, Boolean changeSelection) throws ServoyException
+	{
+		boolean _onTop = getBooleanAsbool(onTop, true);
+		boolean _changeSelection = getBooleanAsbool(changeSelection, true);
+		return (IJSRecord)getRecord(newRecord(null, _onTop ? 0 : Integer.MAX_VALUE, _changeSelection));//javascript index is plus one
+	}
+
+	/**
+	 * Create a new record on top of the foundset and change selection to it. Returns the new record or null if record was not created.
+	 *
+	 * @sample
+	 * var rec = %%prefix%%foundset.createRecord(); // add as first record
+	 *
+	 * @return IJSRecord the new record
+	 */
+	@JSFunction
+	public IJSRecord createRecord() throws Exception
+	{
+		return createRecord(Integer.valueOf(1), Boolean.TRUE);
+	}
+
+	/**
 	 * Get the current record index of the foundset.
 	 *
 	 * @sample
