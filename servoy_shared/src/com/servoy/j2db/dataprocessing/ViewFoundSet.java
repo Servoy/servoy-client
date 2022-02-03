@@ -67,9 +67,11 @@ import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.DerivedTable;
 import com.servoy.j2db.query.IQuerySelectValue;
+import com.servoy.j2db.query.IQuerySort;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
+import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryUpdate;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.impl.QBJoin;
@@ -208,6 +210,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	private boolean refresh = true;
 	private int currentChunkSize;
 	private final int chunkSize;
+
+	private List<SortColumn> lastSortColumns;
 
 	// forms might force their foundset to remain at a certain multiselect value
 	// if a form 'pinned' multiselect, multiSelect should not be changeable by foundset JS access
@@ -757,6 +761,73 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	{
 		if (record != null && record.getParentFoundSet() != this) return false;
 		return doSave(record) == ISaveConstants.STOPPED;
+	}
+
+	/**
+	 * Sorts the foundset based on the given sort string.
+	 * Column in sort string must already exist in ViewFoundset.
+	 *
+	 * @sample %%prefix%%foundset.sort('columnA desc,columnB asc');
+	 *
+	 * @param sortString the specified columns (and sort order)
+	 */
+	@JSFunction
+	public void sort(String sortString) throws ServoyException
+	{
+		sort(getFoundSetManager().getSortColumns(getTable(), sortString), false);
+	}
+
+	/**
+	 * Sorts the foundset based on the given sort string.
+	 * Column in sort string must already exist in ViewFoundset.
+	 *
+	 * @sample %%prefix%%foundset.sort('columnA desc,columnB asc');
+	 *
+	 * @param sortString the specified columns (and sort order)
+	 * @param defer boolean when true, the "sortString" will be just stored, without performing a query on the database (the actual sorting will be deferred until the next data loading action).
+	 */
+	@JSFunction
+	public void sort(String sortString, Boolean defer) throws ServoyException
+	{
+		sort(getFoundSetManager().getSortColumns(getTable(), sortString), defer == null ? false : defer.booleanValue());
+	}
+
+	/**
+	 * Get the current sort columns.
+	 *
+	 * @sample
+	 * //reverse the current sort
+	 *
+	 * //the original sort "companyName asc, companyContact desc"
+	 * //the inversed sort "companyName desc, companyContact asc"
+	 * var foundsetSort = foundset.getCurrentSort()
+	 * var sortColumns = foundsetSort.split(',')
+	 * var newFoundsetSort = ''
+	 * for(var i=0; i<sortColumns.length; i++)
+	 * {
+	 * 	var currentSort = sortColumns[i]
+	 * 	var sortType = currentSort.substring(currentSort.length-3)
+	 * 	if(sortType.equalsIgnoreCase('asc'))
+	 * 	{
+	 * 		newFoundsetSort += currentSort.replace(' asc', ' desc')
+	 * 	}
+	 * 	else
+	 * 	{
+	 * 		newFoundsetSort += currentSort.replace(' desc', ' asc')
+	 * 	}
+	 * 	if(i != sortColumns.length - 1)
+	 * 	{
+	 * 		newFoundsetSort += ','
+	 * 	}
+	 * }
+	 * foundset.sort(newFoundsetSort)
+	 *
+	 * @return String sort columns
+	 */
+	@JSFunction
+	public String getCurrentSort()
+	{
+		return FoundSetManager.getSortColumnsAsString(lastSortColumns);
 	}
 
 	int doSave(ViewRecord record)
@@ -1310,15 +1381,13 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public String getSort()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return FoundSetManager.getSortColumnsAsString(lastSortColumns);
 	}
 
 	@Override
 	public void setSort(String sortString) throws ServoyException
 	{
-		// TODO Auto-generated method stub
-
+		sort(getFoundSetManager().getSortColumns(getTable(), sortString), false);
 	}
 
 	/**
@@ -1373,7 +1442,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public void sort(List<SortColumn> sortColumns) throws ServoyException
 	{
-		// TODO Auto-generated method stub
+		sort(sortColumns, false);
 	}
 
 	@Override
@@ -1608,7 +1677,17 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public void sort(List<SortColumn> sortColumns, boolean defer) throws ServoyException
 	{
-		// TODO Auto-generated method stub
+		if (!defer && doSave(null) != ISaveConstants.STOPPED)
+		{
+			manager.getApplication().reportJSError("Couldn't do a sort because there are edited records on this foundset: " + this, null); //$NON-NLS-1$
+			return;
+		}
+		lastSortColumns = sortColumns;
+		this.select.clearSorts();
+		if (sortColumns != null) this.select.setSorts((ArrayList< ? extends IQuerySort>)sortColumns.stream()
+			.map(sort -> new QuerySort(((Column)sort.getColumn()).queryColumn(this.select.getTable()), sort.getSortOrder() == SortColumn.ASCENDING))
+			.collect(Collectors.toList()));
+		this.loadAllRecordsImpl();
 
 	}
 
@@ -1622,8 +1701,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public List<SortColumn> getSortColumns()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return lastSortColumns;
 	}
 
 	/**
