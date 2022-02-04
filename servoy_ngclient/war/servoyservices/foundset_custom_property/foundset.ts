@@ -575,6 +575,12 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 			if (notificationParamForListeners && Object.keys(notificationParamForListeners).length > 0) {
 				if ($log.debugEnabled && $log.debugLevel === $log.SPAM) $log.debug("svy foundset * firing founset listener notifications...");
 
+				var currentRequestInfo = $webSocket.getCurrentRequestInfo();
+				if(currentRequestInfo) {
+					if (!requestInfos) requestInfos = [];
+					requestInfos.push(currentRequestInfo);
+				}
+
                 if (requestInfos) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_REQUEST_INFOS] = requestInfos;
 				
 				// use previous (current) value as newValue might be undefined/null and the listeners would be the same anyway
