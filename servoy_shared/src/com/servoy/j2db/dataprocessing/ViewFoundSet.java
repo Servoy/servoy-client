@@ -34,6 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -57,6 +58,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.DummyValidator;
+import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
@@ -210,8 +212,6 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	private boolean refresh = true;
 	private int currentChunkSize;
 	private final int chunkSize;
-
-	private List<SortColumn> lastSortColumns;
 
 	// forms might force their foundset to remain at a certain multiselect value
 	// if a form 'pinned' multiselect, multiSelect should not be changeable by foundset JS access
@@ -793,7 +793,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	/**
-	 * Get the current sort columns.
+	 * Get the last sort columns that were set using viewfoundset sort api.s
 	 *
 	 * @sample
 	 * //reverse the current sort
@@ -827,7 +827,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@JSFunction
 	public String getCurrentSort()
 	{
-		return FoundSetManager.getSortColumnsAsString(lastSortColumns);
+		return getSort();
 	}
 
 	int doSave(ViewRecord record)
@@ -1381,7 +1381,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public String getSort()
 	{
-		return FoundSetManager.getSortColumnsAsString(lastSortColumns);
+		return FoundSetManager.getSortColumnsAsString(determineSortColumns());
 	}
 
 	@Override
@@ -1682,7 +1682,6 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			manager.getApplication().reportJSError("Couldn't do a sort because there are edited records on this foundset: " + this, null); //$NON-NLS-1$
 			return;
 		}
-		lastSortColumns = sortColumns;
 		this.select.clearSorts();
 		if (sortColumns != null) this.select.setSorts((ArrayList< ? extends IQuerySort>)sortColumns.stream()
 			.map(sort -> new QuerySort(((Column)sort.getColumn()).queryColumn(this.select.getTable()), sort.getSortOrder() == SortColumn.ASCENDING))
@@ -1701,7 +1700,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public List<SortColumn> getSortColumns()
 	{
-		return lastSortColumns;
+		return determineSortColumns();
 	}
 
 	/**
@@ -1764,6 +1763,27 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 				}
 			});
 		}
+	}
+
+	private List<SortColumn> determineSortColumns()
+	{
+		List<IQuerySort> sorts = select.getSorts();
+		if (sorts != null)
+		{
+			return sorts.stream().filter(QuerySort.class::isInstance).map(QuerySort.class::cast)
+				.map(sort -> {
+					String name = sort.getColumn().getAliasOrName();
+					IColumn column = getTable().getColumnBySqlname(name);
+					if (column != null)
+					{
+						return new SortColumn(column, sort.isAscending() ? SortColumn.ASCENDING : SortColumn.DESCENDING);
+					}
+					return null;
+				})
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
+		}
+		return null;
 	}
 
 	@Override
