@@ -307,7 +307,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	@Override
 	public void recreateForms()
 	{
-		invokeAndWait(new Runnable()
+		invokeLater(new Runnable()
 		{
 			@Override
 			public void run()
