@@ -38,7 +38,7 @@ public final class ProfileData
 	private final String[] args;
 	private final String sourceName;
 
-	private final List<ProfileData> childs = new ArrayList<ProfileData>();
+	private final List<ProfileData> children = new ArrayList<ProfileData>();
 	private ProfileData parent;
 
 	private final boolean isCalculation;
@@ -178,9 +178,9 @@ public final class ProfileData
 	public long getTotalDataQueriesTime()
 	{
 		long totalTime = this.getDataQueriesTime();
-		if (this.childs.size() > 0)
+		if (this.children.size() > 0)
 		{
-			for (ProfileData pd : childs)
+			for (ProfileData pd : children)
 			{
 				totalTime += pd.getTotalDataQueriesTime();
 			}
@@ -194,7 +194,7 @@ public final class ProfileData
 	public void addChild(ProfileData profileData)
 	{
 		profileData.setParent(this);
-		childs.add(profileData);
+		children.add(profileData);
 	}
 
 	public boolean isInnerFunction()
@@ -236,7 +236,7 @@ public final class ProfileData
 	 */
 	public ProfileData[] getChildren()
 	{
-		return childs.toArray(new ProfileData[0]);
+		return children.toArray(new ProfileData[0]);
 	}
 
 	/**
@@ -255,7 +255,7 @@ public final class ProfileData
 	public long getOwnTime()
 	{
 		int childtime = 0;
-		for (ProfileData pd : childs)
+		for (ProfileData pd : children)
 		{
 			childtime += pd.time;
 		}
@@ -321,7 +321,7 @@ public final class ProfileData
 				dataCallProfileData.toXML(sb);
 			}
 		}
-		for (ProfileData child : childs)
+		for (ProfileData child : children)
 		{
 			sb.append('\n');
 			sb.append(childPrefix);
