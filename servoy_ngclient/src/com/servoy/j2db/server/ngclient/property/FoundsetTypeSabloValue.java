@@ -1315,10 +1315,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		}
 	}
 
-	/**
-	 * @param data
-	 * @return
-	 */
 	public boolean allowPush(Object jsonValue)
 	{
 		if (jsonValue instanceof JSONArray)
