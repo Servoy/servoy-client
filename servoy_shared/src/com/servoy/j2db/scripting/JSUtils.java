@@ -278,23 +278,29 @@ public class JSUtils implements IJSUtils
 	 */
 	public Date js_parseDate(String date, String format, String language, String country)
 	{
+		return js_parseDate(date, format, application.getTimeZone().getID(), language, country);
+	}
 
+	/**
+	 * @param language language used to create locale
+	 * @param country country used along side language to create the locale
+	 * @return the locale object
+	 */
+	private Locale getNewLocale(String language, String country)
+	{
 		Locale locale = application.getLocale();
-		if (format != null && date != null)
+		if (language != null || country != null)
 		{
-			if (language != null || country != null)
+			if (language != null && (country == null || country.trim().equalsIgnoreCase(""))) //$NON-NLS-1$
 			{
-				if (language != null && (country == null || country.trim().equalsIgnoreCase(""))) //$NON-NLS-1$
-				{
-					locale = new Locale(language);
-				}
-				else if (language != null && country != null)
-				{
-					locale = new Locale(language, country);
-				}
+				locale = new Locale(language);
+			}
+			else if (language != null && country != null)
+			{
+				locale = new Locale(language, country);
 			}
 		}
-		return parseDate(date, format, application.getTimeZone(), locale);
+		return locale;
 	}
 
 	/**
@@ -320,21 +326,7 @@ public class JSUtils implements IJSUtils
 
 		TimeZone zone = application.getTimeZone();
 		if (timezone != null) zone = TimeZone.getTimeZone(timezone);
-		Locale locale = application.getLocale();
-		if (format != null && date != null)
-		{
-			if (language != null || country != null)
-			{
-				if (language != null && (country == null || country.trim().equalsIgnoreCase(""))) //$NON-NLS-1$
-				{
-					locale = new Locale(language);
-				}
-				else if (language != null && country != null)
-				{
-					locale = new Locale(language, country);
-				}
-			}
-		}
+		Locale locale = getNewLocale(language, country);
 		return parseDate(date, format, zone, locale);
 	}
 
@@ -428,7 +420,7 @@ public class JSUtils implements IJSUtils
 	public String dateFormat(Date date, String format)
 	{
 		boolean isSwingOrNGClient = Utils.isSwingClient(application.getApplicationType()) || (application.getApplicationType() == IApplication.NG_CLIENT);
-		return dateFormat(date, format, isSwingOrNGClient ? null : TimeZone.getDefault().getID());
+		return dateFormat(date, format, isSwingOrNGClient ? null : application.getTimeZone().getID());
 	}
 
 	/**
@@ -473,7 +465,7 @@ public class JSUtils implements IJSUtils
 	public String dateFormat(Date date, String format, String language, String country)
 	{
 		boolean isSwingOrNGClient = Utils.isSwingClient(application.getApplicationType()) || (application.getApplicationType() == IApplication.NG_CLIENT);
-		return dateFormat(date, format, isSwingOrNGClient ? null : TimeZone.getDefault().getID(), language, country);
+		return dateFormat(date, format, isSwingOrNGClient ? null : application.getTimeZone().getID(), language, country);
 	}
 
 	/**
@@ -567,19 +559,8 @@ public class JSUtils implements IJSUtils
 	{
 		if (format != null && date != null)
 		{
-			Locale locale = null;
-			if (language != null || country != null)
-			{
-				if (language != null && (country == null || country.trim().equalsIgnoreCase(""))) //$NON-NLS-1$
-				{
-					locale = new Locale(language);
-				}
-				else if (language != null && country != null)
-				{
-					locale = new Locale(language, country);
-				}
-			}
-			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, locale == null ? application.getLocale() : locale);
+			Locale locale = getNewLocale(language, country);
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, locale);
 			simpleDateFormat.setTimeZone(timezone == null ? application.getTimeZone() : TimeZone.getTimeZone(timezone));
 			String format2 = simpleDateFormat.format(date);
 			return format2;
