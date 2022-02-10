@@ -801,8 +801,17 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			}
 			else if (typeOfDP.getType() instanceof IPropertyConverterForBrowser< ? >)
 			{
-				uiValue = ((IPropertyConverterForBrowser<Object>)typeOfDP.getType()).fromJSON(newJSONValue, uiValue, typeOfDP, dataConverterContext,
-					serverSideValueIsNotTheSameAsClient);
+				try
+				{
+					uiValue = ((IPropertyConverterForBrowser<Object>)typeOfDP.getType()).fromJSON(newJSONValue, uiValue, typeOfDP, dataConverterContext,
+						serverSideValueIsNotTheSameAsClient);
+				}
+				catch (ClassCastException e)
+				{
+					// this can hapen if a find mode uiVaue keeps hanging
+					uiValue = ((IPropertyConverterForBrowser<Object>)typeOfDP.getType()).fromJSON(newJSONValue, null, typeOfDP, dataConverterContext,
+						serverSideValueIsNotTheSameAsClient);
+				}
 			}
 			else
 			{
