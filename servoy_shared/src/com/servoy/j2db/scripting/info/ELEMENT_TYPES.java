@@ -281,7 +281,7 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 * {
 	 *      // element is a LIST_BOX element
 	 * }
-	 * 
+	 *
 	 * @deprecated replaced by ELEMENT_TYPES.LISTBOX
 	 */
 	@Deprecated
@@ -341,6 +341,6 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 
 	public String getPrefix()
 	{
-		return "ELEMENT_TYPES";
+		return "ELEMENT_TYPES"; // RAGTEST default
 	}
 }

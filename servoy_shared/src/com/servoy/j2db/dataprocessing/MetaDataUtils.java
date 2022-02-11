@@ -247,7 +247,7 @@ public class MetaDataUtils
 		{
 			if (qColumns.containsKey(column))
 			{
-				query.addSort(new QuerySort(qColumns.get(column), true));
+				query.addSort(new QuerySort(qColumns.get(column), true, false));
 			}
 		}
 		return query;

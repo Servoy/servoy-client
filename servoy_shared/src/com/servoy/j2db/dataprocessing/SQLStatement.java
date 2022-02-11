@@ -271,11 +271,6 @@ public class SQLStatement implements ITrackingSQLStatement
 		return identityColumn;
 	}
 
-	public boolean usedIdentity()
-	{
-		return identityColumn != null;
-	}
-
 	public int getExpectedUpdateCount()
 	{
 		return expectedUpdateCount;

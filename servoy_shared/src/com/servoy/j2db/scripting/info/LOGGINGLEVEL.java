@@ -22,7 +22,7 @@ import com.servoy.j2db.util.ILogLevel;
 
 /***
  * Script constants class for application.output logging levels
- * 
+ *
  *  @author lvostinar
  *  @see ILogLevel
  */
@@ -31,7 +31,7 @@ public class LOGGINGLEVEL implements IPrefixedConstantsObject, ILogLevel
 {
 	public String getPrefix()
 	{
-		return "LOGGINGLEVEL";
+		return "LOGGINGLEVEL"; // RAGTEST default
 	}
 
 	@Override

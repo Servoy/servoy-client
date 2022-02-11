@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.querybuilder.IQueryBuilderSort;
@@ -30,13 +32,23 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 public class QBSort extends QBPart implements IQueryBuilderSort
 {
 	private final boolean ascending;
+	private boolean ignoreCase;
 	private final QBColumn queryBuilderColumn;
 
-	public QBSort(QBSelect parent, QBColumn queryBuilderColumn, boolean ascending)
+	public QBSort(QBSelect parent, QBColumn queryBuilderColumn, boolean ascending, boolean ignoreCase)
 	{
 		super(parent, parent);
 		this.queryBuilderColumn = queryBuilderColumn;
 		this.ascending = ascending;
+		this.ignoreCase = ignoreCase;
+	}
+
+	@Override
+	@JSFunction
+	public QBSort ignoreCase(boolean ic)
+	{
+		ignoreCase = ic;
+		return this;
 	}
 
 	@Override
@@ -48,6 +60,6 @@ public class QBSort extends QBPart implements IQueryBuilderSort
 
 	public QuerySort getQueryQuerySort()
 	{
-		return new QuerySort(queryBuilderColumn.getQuerySelectValue(), ascending);
+		return new QuerySort(queryBuilderColumn.getQuerySelectValue(), ascending, ignoreCase);
 	}
 }

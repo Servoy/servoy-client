@@ -73,6 +73,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SimpleTimeZone;
 import java.util.StringTokenizer;
@@ -700,17 +701,15 @@ public final class Utils
 	/**
 	 * Compares two objects no matter if they are null
 	 *
+	 * @deprecated use Objects.equals
 	 * @param left object
 	 * @param right object
 	 * @return true if they are the same
 	 */
+	@Deprecated()
 	public static boolean safeEquals(Object left, Object right)
 	{
-		if (left == null)
-		{
-			return right == null;
-		}
-		return left.equals(right);
+		return Objects.equals(left, right);
 	}
 
 	/**
@@ -730,11 +729,11 @@ public final class Utils
 	}
 
 	/**
-	 * Format a given number of miliseconds in a formatted time
+	 * Format a given number of milliseconds in a formatted time
 	 *
-	 * Note:if the time (in milliseconds) is smaller than ~month, it is calulated without a timezone)
+	 * Note:if the time (in milliseconds) is smaller than ~month, it is calculated without a time zone)
 	 *
-	 * @param msec the miliseconds (current time can be get by 'new java.util.Date().getTime()')
+	 * @param msec the milliseconds (current time can be get by 'new java.util.Date().getTime()')
 	 * @param format the display format (format used from java.text.SimpleDateFormat!)
 	 * @return the formatted time
 	 * @see java.text.SimpleDateFormat
@@ -745,11 +744,11 @@ public final class Utils
 	}
 
 	/**
-	 * Format a given number of miliseconds in a formatted time
+	 * Format a given number of milliseconds in a formatted time
 	 *
-	 * Note:if the time (in milliseconds) is smaller than ~month, it is calulated without a timezone)
+	 * Note:if the time (in milliseconds) is smaller than ~month, it is calculated without a time zone)
 	 *
-	 * @param msec the miliseconds (current time can be get by 'new java.util.Date().getTime()')
+	 * @param msec the milliseconds (current time can be get by 'new java.util.Date().getTime()')
 	 * @param format the display format
 	 * @return the formatted time
 	 * @see java.text.SimpleDateFormat
@@ -893,7 +892,7 @@ public final class Utils
 	/**
 	 * Method for replacing part of a string with a string
 	 *
-	 * @param org the orginal string
+	 * @param org the original string
 	 * @param source the string to search
 	 * @param destination the string to replace
 	 * @return the result

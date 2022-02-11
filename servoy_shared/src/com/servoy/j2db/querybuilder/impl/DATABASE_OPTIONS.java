@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2011 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2022 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -15,18 +15,25 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.querybuilder;
+package com.servoy.j2db.querybuilder.impl;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.querybuilder.IDatabaseOptions;
+import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
- * A sorting column in Servoy Query Objects.
+ * Script constants for database options.
  *
  * @author rgansevles
  *
- * @since 6.1
+ * @since 2022.03
  */
-
-public interface IQueryBuilderSort extends IQueryBuilderPart
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+public class DATABASE_OPTIONS implements IPrefixedConstantsObject, IDatabaseOptions
 {
-	IQueryBuilderSort ignoreCase(boolean ignoreCase);
+	@Override
+	public String toString()
+	{
+		return "Database options";
+	}
 }

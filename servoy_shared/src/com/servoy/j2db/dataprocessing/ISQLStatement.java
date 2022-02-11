@@ -19,6 +19,7 @@ package com.servoy.j2db.dataprocessing;
 
 import java.io.Serializable;
 
+import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLUpdate;
 
@@ -78,7 +79,7 @@ public interface ISQLStatement extends Serializable, ISQLActionTypes
 	/**
 	 * @return
 	 */
-	public boolean usedIdentity();
+	public IColumn getIdentityColumn();
 
 	public boolean isOracleFixTrackingData();
 

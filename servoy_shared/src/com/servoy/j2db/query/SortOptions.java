@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2011 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2022 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -13,20 +13,47 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
- */
+*/
 
-package com.servoy.j2db.querybuilder;
-
+package com.servoy.j2db.query;
 
 /**
- * A sorting column in Servoy Query Objects.
+ * RAGTEST doc
  *
  * @author rgansevles
  *
- * @since 6.1
  */
-
-public interface IQueryBuilderSort extends IQueryBuilderPart
+public enum SortOptions
 {
-	IQueryBuilderSort ignoreCase(boolean ignoreCase);
+	none(false),
+	ignoreCase(true);
+
+	private boolean ign;
+
+	SortOptions(boolean ign)
+	{
+		this.ign = ign;
+	}
+
+	public boolean ignoreCase()
+	{
+		return ign;
+	}
+
+	static SortOptions ignoreCase(boolean ign)
+	{
+		return valueOf(ign);
+	}
+
+	private static SortOptions valueOf(boolean ign)
+	{
+		return ign ? ignoreCase : none;
+	}
+
+	public String display()
+	{
+		return ign ? "#" : "";
+	}
+
+
 }

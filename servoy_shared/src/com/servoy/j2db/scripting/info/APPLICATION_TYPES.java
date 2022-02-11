@@ -25,7 +25,7 @@ public class APPLICATION_TYPES implements IPrefixedConstantsObject, IBaseApplica
 {
 	public String getPrefix()
 	{
-		return "APPLICATION_TYPES";
+		return "APPLICATION_TYPES"; // RAGTEST default
 	}
 
 	@Override

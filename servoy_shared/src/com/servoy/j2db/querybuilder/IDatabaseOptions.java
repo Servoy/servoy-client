@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2011 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2022 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -17,16 +17,19 @@
 
 package com.servoy.j2db.querybuilder;
 
-
 /**
- * A sorting column in Servoy Query Objects.
+ * Script constants for database options.
  *
  * @author rgansevles
- *
- * @since 6.1
  */
-
-public interface IQueryBuilderSort extends IQueryBuilderPart
+public interface IDatabaseOptions
 {
-	IQueryBuilderSort ignoreCase(boolean ignoreCase);
+	/** RAGTEST doc
+	 * Constant used for casting.
+	 *
+	 * @sampleas com.servoy.j2db.querybuilder.impl.QBFunctions#cast(Object, String)
+	 */
+	public static final String FOUNDSET_SORT_IGNORE_CASE = "fondset.sort.ignorecase";
+
+
 }

@@ -47,6 +47,6 @@ public class CLIENTDESIGN implements IPrefixedConstantsObject
 
 	public String getPrefix()
 	{
-		return "CLIENTDESIGN";
+		return "CLIENTDESIGN";// RAGTEST default
 	}
 }

@@ -78,6 +78,8 @@ import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
+import com.servoy.j2db.querybuilder.IDatabaseOptions;
+import com.servoy.j2db.querybuilder.impl.DATABASE_OPTIONS;
 import com.servoy.j2db.querybuilder.impl.QBAggregate;
 import com.servoy.j2db.querybuilder.impl.QBCase;
 import com.servoy.j2db.querybuilder.impl.QBCaseWhen;
@@ -131,7 +133,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, JSRecordMarker.class, JSRecordMarkers.class, Record.class, FoundSet.class, JSTable.class, //
 					QBSelect.class, QBAggregate.class, QBCase.class, QBCaseWhen.class, QBColumn.class, QBColumns.class, QBCondition.class, //
 					QBFunction.class, QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBWhereCondition.class, QBResult.class, //
-					QBSearchedCaseExpression.class, QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, QBFunctions.class, QUERY_COLUMN_TYPES.class, ViewFoundSet.class, ViewRecord.class };
+					QBSearchedCaseExpression.class, QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, //
+					QBFunctions.class, QUERY_COLUMN_TYPES.class, DATABASE_OPTIONS.class, ViewFoundSet.class, ViewRecord.class };
 			}
 		});
 	}
@@ -708,7 +711,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			}
 
 			FoundSetManager fsm = (FoundSetManager)application.getFoundSetManager();
-			boolean getInOneQuery = !fs.isInFindMode() && (fs.hadMoreRows() || fs.getSize() > fsm.pkChunkSize) && !fsm.getEditRecordList().hasEditedRecords(fs);
+			boolean getInOneQuery = !fs.isInFindMode() && (fs.hadMoreRows() || fs.getSize() > fsm.config.pkChunkSize()) &&
+				!fsm.getEditRecordList().hasEditedRecords(fs);
 
 			dptypes = new ColumnType[dpnames.length];
 			Table table = fs.getSQLSheet().getTable();
@@ -2307,7 +2311,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			if (column != null)
 			{
 				IDataSet dataSet = null;
-				if ((fs.hadMoreRows() || fs.getSize() > fsm.pkChunkSize) && !fsm.getEditRecordList().hasEditedRecords(fs))
+				if ((fs.hadMoreRows() || fs.getSize() > fsm.config.pkChunkSize()) && !fsm.getEditRecordList().hasEditedRecords(fs))
 				{
 					// large foundset, query the column in 1 go
 					QuerySelect sqlSelect = AbstractBaseQuery.deepClone(fs.getQuerySelectForReading());
@@ -3686,6 +3690,31 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public void js_setNullColumnValidatorEnabled(boolean enable)
 	{
 		((FoundSetManager)application.getFoundSetManager()).setNullColumnValidatorEnabled(enable);
+	}
+
+	/**
+	 * Configure options for the database layer.
+	 * <p
+	 * These options should be set in the solutionOnopen method, when called later in the process it may be anly partly effective.
+	 *
+	 * @sample
+	 * // Configure all foundset queries to be case insensitive in sorting (in solution.onOpen handler)
+	 * databaseManager.setDatabaseOption(DATABASE_OPTIONS.FOUNDSET_SORT_IGNORE_CASE)
+	 *
+	 * // RAGTEST doc nullsfirst/last
+	 *
+	 */
+	@JSFunction
+	public void setDatabaseOption(String option)
+	{
+		if (IDatabaseOptions.FOUNDSET_SORT_IGNORE_CASE.equals(option))
+		{
+			((FoundSetManager)application.getFoundSetManager()).setGlobalSortingIgnoreCase(true);
+		}
+		else
+		{
+			Debug.warn("setDatabaseOption: unknown option '" + option + "' (ignored)");
+		}
 	}
 
 	/**

@@ -226,7 +226,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			throw new IllegalArgumentException(app.getApplication().getI18NMessage("servoy.foundSet.error.sqlsheet")); //$NON-NLS-1$
 		}
-		pksAndRecords = new PksAndRecordsHolder(this, fsm.chunkSize, fsm.optimizedChangeFires);
+		pksAndRecords = new PksAndRecordsHolder(this, fsm.config.chunkSize(), fsm.config.optimizedChangeFires());
 		relationName = relation_name;
 		this.sheet = sheet;
 
@@ -378,7 +378,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		// just display the records without the omitted pks (when clear omit is false)
 		refreshFromDBInternal(
 			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), creationSqlSelect, null, true, omittedPKs, lastSortColumns, true), false,
-			fsm.pkChunkSize, false, false);
+			fsm.config.pkChunkSize(), false, false);
 	}
 
 	protected void clearOmit(QuerySelect sqlSelect)
@@ -416,7 +416,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	void refreshFromDB(boolean skipStopEdit) throws ServoyException
 	{
-		refreshFromDBInternal(null, true, fsm.pkChunkSize, false, skipStopEdit);
+		refreshFromDBInternal(null, true, fsm.config.pkChunkSize(), false, skipStopEdit);
 	}
 
 	/**
@@ -577,7 +577,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					}
 					if (getSize() < oldSize && pks.hadMoreRows())
 					{
-						int hint = ((getSize() / fsm.pkChunkSize) + 2) * fsm.pkChunkSize;
+						int hint = ((getSize() / fsm.config.pkChunkSize()) + 2) * fsm.config.pkChunkSize();
 						queryForMorePKs(pksAndRecords, pks.getRowCount(), hint, true);
 						changes = null;
 					}
@@ -1231,7 +1231,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		refreshFromDBInternal(
 			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), pksAndRecords.getTempQuery(), null, true, null, lastSortColumns, false),
-			false, fsm.pkChunkSize, false, false);
+			false, fsm.config.pkChunkSize(), false, false);
 	}
 
 	/**
@@ -1915,6 +1915,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 						SortColumn sortColumn = new SortColumn(columnWrapper);
 						sortColumn.setSortOrder(((QuerySort)qsort).isAscending() ? SortColumn.ASCENDING : SortColumn.DESCENDING);
 						sortColumns.add(sortColumn);
+
 						continue; // otherwise stop searching
 					}
 				}
@@ -2071,7 +2072,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		IDataSet pk_data;
 		try
 		{
-			pk_data = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.pkChunkSize, IDataServer.CUSTOM_QUERY);
+			pk_data = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.config.pkChunkSize(), IDataServer.CUSTOM_QUERY);
 		}
 		catch (RemoteException e)
 		{
@@ -2494,7 +2495,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		IFoundSetChanges changes = pksAndRecords.setPksAndQuery(set, sizeAfter, sqlSelect);
 		clearInternalState(true);
 
-		if (((fsm.verifyPKDatasetAgainstTableFilters && fsm.getTableFilterParams(sheet.getServerName(), sqlSelect) != null) ||
+		if (((fsm.config.verifyPKDatasetAgainstTableFilters() && fsm.getTableFilterParams(sheet.getServerName(), sqlSelect) != null) ||
 			sqlSelect.getCondition(SQLGenerator.CONDITION_FILTER) != null) && set.getRowCount() > 0)
 		{
 			fireDifference(sizeBefore, sizeAfter, changes);
@@ -2713,7 +2714,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		long time = System.currentTimeMillis();
 		try
 		{
-			IDataSet pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+			IDataSet pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.config.pkChunkSize(), IDataServer.FOUNDSET_LOAD_QUERY);
 
 			changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect);
 		}
@@ -2772,9 +2773,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			SafeArrayList<IRecordInternal> cachedRecords = pksAndRecords.getCachedRecords();
 			for (int i = cachedRecords.size() - 1; i >= 0; i--)
 			{
-				if (row >= 0 && i < row + fsm.chunkSize)//leave every thing close to the selection
+				if (row >= 0 && i < row + fsm.config.chunkSize())//leave every thing close to the selection
 				{
-					i = row - fsm.chunkSize;
+					i = row - fsm.config.chunkSize();
 					row = -1; // so this test isn't needed anymore
 					continue;
 				}
@@ -2795,7 +2796,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public IRecordInternal getRecord(int row)
 	{
-		return getRecord(row, fsm.chunkSize);
+		return getRecord(row, fsm.config.chunkSize());
 	}
 
 	private IRecordInternal getRecord(int row, int sizeHint)
@@ -2818,7 +2819,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		if (row >= rowCount - 1)
 		{
-			int hint = ((row / fsm.pkChunkSize) + 2) * fsm.pkChunkSize;
+			int hint = ((row / fsm.config.pkChunkSize()) + 2) * fsm.config.pkChunkSize();
 
 			String dataSource = getDataSource();
 			String inmemDataSourceName = DataSourceUtils.getInmemDataSourceName(dataSource);
@@ -3867,7 +3868,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	// is already synched by caller around the PksAndRecordsHolder instance
 	private Record createRecord(int row, int sz, IDataSet pks, SafeArrayList<IRecordInternal> cachedRecords)
 	{
-		int a_sizeHint = (sz > fsm.pkChunkSize) ? fsm.pkChunkSize : sz; //safety, SQL in limit
+		int a_sizeHint = (sz > fsm.config.pkChunkSize()) ? fsm.config.pkChunkSize() : sz; //safety, SQL in limit
 
 		if (Math.abs(row - lastRecordCreatedIndex) > 30 && cachedRecords.get(row - 1) == null && cachedRecords.get(row + 1) == null)
 		{
@@ -3888,11 +3889,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				{
 					if (cachedRecords.get(row + 1) != null)
 					{
-						startRow = row - fsm.chunkSize;
+						startRow = row - fsm.config.chunkSize();
 					}
 					else
 					{
-						startRow = row - fsm.chunkSize / 2;
+						startRow = row - fsm.config.chunkSize() / 2;
 					}
 					startRow = Math.max(startRow, 0);
 				}
@@ -3979,7 +3980,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	// caller already synced on PksAndRecordsHolder
 	private void removeRecords(int row, boolean breakOnNull, SafeArrayList<IRecordInternal> cachedRecords)
 	{
-		int cacheSize = fsm.chunkSize * 3;
+		int cacheSize = fsm.config.chunkSize() * 3;
 		int selected = getSelectedIndex();
 		if (row > cacheSize)
 		{
@@ -4924,7 +4925,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			String transaction_id = fsm.getTransactionID(sheet);
 			try
 			{
-				IDataSet pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+				IDataSet pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.config.pkChunkSize(), IDataServer.FOUNDSET_LOAD_QUERY);
 
 				synchronized (pksAndRecords)
 				{
@@ -5166,7 +5167,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (findMode)
 		{
-			if (pksAndRecords.getCachedRecords().size() > fsm.pkChunkSize) return null;//limit to 200
+			if (pksAndRecords.getCachedRecords().size() > fsm.config.pkChunkSize()) return null;//limit to 200
 			return new FindState(this);
 		}
 
@@ -5416,7 +5417,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			IDataSet findPKs = null;
 			try
 			{
-				findPKs = performQuery(transaction_id, findSqlSelect, getRowIdentColumnTypes(), 0, fsm.pkChunkSize, IDataServer.FIND_BROWSER_QUERY);
+				findPKs = performQuery(transaction_id, findSqlSelect, getRowIdentColumnTypes(), 0, fsm.config.pkChunkSize(), IDataServer.FIND_BROWSER_QUERY);
 			}
 			catch (RemoteException e)
 			{
@@ -5612,7 +5613,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					this);
 		}
 
-		reloadWithCurrentQuery(fsm.pkChunkSize, true, false);
+		reloadWithCurrentQuery(fsm.config.pkChunkSize(), true, false);
 	}
 
 	/**
@@ -6775,7 +6776,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	protected Object clone() throws CloneNotSupportedException
 	{
 		FoundSet obj = (FoundSet)super.clone();
-		obj.pksAndRecords = new PksAndRecordsHolder(obj, fsm.chunkSize, fsm.optimizedChangeFires);
+		obj.pksAndRecords = new PksAndRecordsHolder(obj, fsm.config.chunkSize(), fsm.config.optimizedChangeFires());
 		synchronized (pksAndRecords)
 		{
 			obj.pksAndRecords.setPksAndQuery(new BufferedDataSet(pksAndRecords.getPks()), pksAndRecords.getDbIndexLastPk(),
@@ -6997,7 +6998,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public void setSQLSelect(QuerySelect select) throws Exception
 	{
-		refreshFromDBInternal(select, false, fsm.pkChunkSize, false, false);
+		refreshFromDBInternal(select, false, fsm.config.pkChunkSize(), false, false);
 	}
 
 	public boolean addFilterParam(String filterName, String dataprovider, String operator, Object value) throws ServoyException

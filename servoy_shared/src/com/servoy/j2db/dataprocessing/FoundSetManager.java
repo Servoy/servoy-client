@@ -165,15 +165,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	private final EditRecordList editRecordList;
 
-	public final int pkChunkSize;
-	public final int chunkSize;
-	public final int initialRelatedChunkSize;
-	public final boolean loadRelatedRecordsIfParentIsNew;
-	public final boolean statementBatching;
-	public final boolean disableInsertsReorder;
-	public final boolean verifyPKDatasetAgainstTableFilters;
-	public final boolean optimizedNotifyChange;
-	public final boolean optimizedChangeFires;
+	public final FoundSetManagerConfig config;
+	private boolean globalSortingIgnoreCase;
 
 	private final List<Runnable> fireRunabbles = new ArrayList<Runnable>();
 
@@ -182,23 +175,24 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private int foundsetCounter = 1;
 
 	@SuppressWarnings("nls")
-	public FoundSetManager(IApplication app, IFoundSetFactory factory)
+	public FoundSetManager(IApplication app, FoundSetManagerConfig config, IFoundSetFactory factory)
 	{
 		application = app;
+		this.config = config;
 		initMembers();
 		editRecordList = new EditRecordList(this);
-
 		foundsetfactory = factory;
+	}
 
-		pkChunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.pkChunkSize", Integer.toString(200)));//primarykeys to be get in one roundtrip
-		chunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.chunkSize", Integer.toString(30)));//records to be get in one roundtrip
-		initialRelatedChunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.initialRelatedChunkSize", Integer.toString(chunkSize * 2))); //initial related records to get in one roundtrip
-		loadRelatedRecordsIfParentIsNew = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.loadRelatedRecordsIfParentIsNew", "false")); //force-load of possible existing records in DB when initializing a related foundset when the parent is new and the relations is restricted on the rowIdentifier columns of the parent record
-		disableInsertsReorder = Utils.getAsBoolean(app.getSettings().getProperty("servoy.disable.record.insert.reorder", "false"));
-		statementBatching = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.statementBatching", "false")); // whether to batch inserts/updates for rows together in the same SQLStatement where possible
-		verifyPKDatasetAgainstTableFilters = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.verifyPKDatasetAgainstTableFilters", "true")); // when false we do not trigger a query with fs.loadRecords(pk) icw table filters
-		optimizedNotifyChange = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.optimizedNotifyChange", "true")); // whether to use new optimized mechanism to call notifyChange on IRowListeners
-		optimizedChangeFires = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.optimizedChangeFires", "true")); // whether to use new optimized mechanism to call notifyChange on IRowListeners
+	public void setGlobalSortingIgnoreCase(boolean globalSortingIgnoreCase)
+	{
+		this.globalSortingIgnoreCase = globalSortingIgnoreCase;
+	}
+
+	@Override
+	public boolean isGlobalSortingIgnoreCase()
+	{
+		return globalSortingIgnoreCase;
 	}
 
 	/**
@@ -581,7 +575,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					int currIndex = parent.getRecordIndex(state);
 					if (currIndex >= 0 && parent instanceof FoundSet)
 					{
-						int relatedChunkSize = chunkSize / 3;
+						int relatedChunkSize = config.chunkSize() / 3;
 						Object[] siblingRecords = ((FoundSet)parent).getPksAndRecords().getCachedRecords().toArray(); // take a snapshot of cachedRecords
 						for (int s = currIndex + 1; s < siblingRecords.length && toFetch.size() < relatedChunkSize; s++)
 						{
@@ -3435,7 +3429,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			throw new RuntimeException("Can't create a ViewFoundset with name: " + name + " and query  " + query + " that has no columns");
 		}
 		String dataSource = DataSourceUtils.createViewDataSource(name);
-		ViewFoundSet vfs = new ViewFoundSet(dataSource, query.build(), application.getFoundSetManager(), pkChunkSize);
+		ViewFoundSet vfs = new ViewFoundSet(dataSource, query.build(), application.getFoundSetManager(), config.pkChunkSize());
 
 		// if this datasource defintion is created already in the developer then we need to check if the query columns are correctly matching it.
 		ServoyJSONObject columnsDef = null;

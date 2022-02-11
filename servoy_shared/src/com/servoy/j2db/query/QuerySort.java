@@ -21,23 +21,29 @@ import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * Sort class in a query structure that refers to a column.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public final class QuerySort implements IQuerySort
 {
 	private IQuerySelectValue column;
 	private final boolean ascending;
+	private final SortOptions options;
 
-	/**
-	 * @param table
-	 * @param columnName
-	 */
-	public QuerySort(IQuerySelectValue column, boolean ascending)
+	public QuerySort(IQuerySelectValue column, boolean ascending) // RAGTEST weg
 	{
 		this.column = column;
 		this.ascending = ascending;
+		this.options = SortOptions.none;
+	}
+
+
+	public QuerySort(IQuerySelectValue column, boolean ascending, boolean ignoreCase)
+	{
+		this.column = column;
+		this.ascending = ascending;
+		this.options = SortOptions.ignoreCase(ignoreCase);
 	}
 
 	public IQuerySelectValue getColumn()
@@ -48,6 +54,11 @@ public final class QuerySort implements IQuerySort
 	public boolean isAscending()
 	{
 		return ascending;
+	}
+
+	public boolean isIgnoreCase()
+	{
+		return options.ignoreCase();
 	}
 
 	@Override
@@ -61,15 +72,23 @@ public final class QuerySort implements IQuerySort
 		column = AbstractBaseQuery.acceptVisitor(column, visitor);
 	}
 
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
 	public int hashCode()
 	{
-		final int PRIME = 31;
+		final int prime = 31;
 		int result = 1;
-		result = PRIME * result + ((this.column == null) ? 0 : this.column.hashCode());
-		result = PRIME * result + (this.ascending ? 1231 : 1237);
+		result = prime * result + (ascending ? 1231 : 1237);
+		result = prime * result + ((column == null) ? 0 : column.hashCode());
+		result = prime * result + ((options == null) ? 0 : options.hashCode());
 		return result;
 	}
+
 
 	@Override
 	public boolean equals(Object obj)
@@ -77,29 +96,31 @@ public final class QuerySort implements IQuerySort
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
-		final QuerySort other = (QuerySort)obj;
-		if (this.column == null)
+		QuerySort other = (QuerySort)obj;
+		if (ascending != other.ascending) return false;
+		if (column == null)
 		{
 			if (other.column != null) return false;
 		}
-		else if (!this.column.equals(other.column)) return false;
-		if (this.ascending != other.ascending) return false;
+		else if (!column.equals(other.column)) return false;
+		if (options != other.options) return false;
 		return true;
 	}
+
 
 	@Override
 	public String toString()
 	{
-		return new StringBuffer(column.toString()).append(ascending ? " ASC" : " DESC").toString(); //$NON-NLS-1$ //$NON-NLS-2$
+		return new StringBuilder(column.toString()).append(options.display()).append(ascending ? " ASC" : " DESC").toString();
 	}
 
 	///////// serialization ////////////////
 
-
 	public Object writeReplace()
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
-		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { column, Boolean.valueOf(ascending) });
+		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(),
+			new Object[] { column, Boolean.valueOf(ascending), options });
 	}
 
 	public QuerySort(ReplacedObject s)
@@ -108,5 +129,6 @@ public final class QuerySort implements IQuerySort
 		int i = 0;
 		column = (IQuerySelectValue)members[i++];
 		ascending = ((Boolean)members[i++]).booleanValue();
+		options = i < members.length ? SortOptions.none : (SortOptions)members[i++];
 	}
 }

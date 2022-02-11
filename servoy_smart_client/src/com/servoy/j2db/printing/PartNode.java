@@ -227,7 +227,7 @@ public class PartNode
 				QueryColumn queryColumn = column.queryColumn(queryTable);
 				selectCols.add(queryColumn);
 				groupbyCols.add(queryColumn);
-				sortbyCols.add(new QuerySort(queryColumn, element.getSortOrder() == SortColumn.ASCENDING));
+				sortbyCols.add(new QuerySort(queryColumn, element.getSortOrder() == SortColumn.ASCENDING, fs.getFoundSetManager().isGlobalSortingIgnoreCase()));
 			}
 
 			//make sql
@@ -245,7 +245,8 @@ public class PartNode
 			FoundSetManager foundSetManager = ((FoundSetManager)app.getFoundSetManager());
 			String transaction_id = foundSetManager.getTransactionID(table.getServerName());
 			IDataSet data = server.performQuery(app.getClientID(), table.getServerName(), transaction_id, newSQLString, null,
-				foundSetManager.getTableFilterParams(table.getServerName(), newSQLString), false, 0, foundSetManager.pkChunkSize * 4, IDataServer.PRINT_QUERY);
+				foundSetManager.getTableFilterParams(table.getServerName(), newSQLString), false, 0, foundSetManager.config.pkChunkSize() * 4,
+				IDataServer.PRINT_QUERY);
 			SubSummaryFoundSet newSet = new SubSummaryFoundSet(app.getFoundSetManager(), rootSet, sortColumns, allAggregates, data, table);//create a new FoundSet with 'data' and with right 'table', 'where','whereArgs'
 
 			newSQLString.setSorts(oldSort);//restore the sort for child body parts

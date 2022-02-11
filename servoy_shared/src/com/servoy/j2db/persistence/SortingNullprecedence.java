@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2011 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2022 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -13,20 +13,31 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
- */
+*/
 
-package com.servoy.j2db.querybuilder;
+package com.servoy.j2db.persistence;
 
+import static java.util.Arrays.stream;
+
+import java.util.Optional;
 
 /**
- * A sorting column in Servoy Query Objects.
+ * RAGTEST doc
  *
  * @author rgansevles
  *
- * @since 6.1
  */
-
-public interface IQueryBuilderSort extends IQueryBuilderPart
+public enum SortingNullprecedence
 {
-	IQueryBuilderSort ignoreCase(boolean ignoreCase);
+	ragtestDefault, ascNullsFirst, ascNullsLast;
+
+	public String display()
+	{
+		return "RAGTEST:" + name();
+	}
+
+	public static Optional<SortingNullprecedence> fromDisplay(String display)
+	{
+		return stream(values()).filter(snp -> snp.display().equals(display)).findAny();
+	}
 }

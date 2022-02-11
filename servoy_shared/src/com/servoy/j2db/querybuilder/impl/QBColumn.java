@@ -311,7 +311,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBSort asc()
 	{
-		return new QBSort(getRoot(), this, true);
+		return new QBSort(getRoot(), this, true, false);
 	}
 
 	/**
@@ -326,7 +326,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBSort desc()
 	{
-		return new QBSort(getRoot(), this, false);
+		return new QBSort(getRoot(), this, false, false);
 	}
 
 	/**

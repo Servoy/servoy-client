@@ -72,7 +72,7 @@ public interface IServerManagerInternal extends IServerManager
 
 	void setLogTableName(String tableName);
 
-	void saveServerConfig(String oldServerName, ServerConfig serverConfig) throws RepositoryException;
+	void saveServerConfig(String oldServerName, ServerConfig serverConfig, ServerSettings serverSettings) throws RepositoryException;
 
 	/**
 	 * Get list of drivers found in drivers dir
@@ -98,9 +98,11 @@ public interface IServerManagerInternal extends IServerManager
 
 	ISequenceProvider getSequenceProvider(String name);
 
-	IColumnInfoManager[] getColumnInfoManagers(String name);
+	IColumnInfoManager[] getColumnInfoManagers();
 
 	ServerConfig getServerConfig(String name);
+
+	ServerSettings getServerSettings(String name);
 
 	IServer getRepositoryServer() throws RepositoryException;
 

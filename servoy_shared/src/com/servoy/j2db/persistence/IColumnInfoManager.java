@@ -20,7 +20,7 @@ import java.util.HashMap;
 
 import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
 
-/**
+/**  RAGTEST rename naar IServerInfoManager
  * Interface for repository component that manages the column info.
  *
  * @author jblok
@@ -28,13 +28,17 @@ import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
  */
 public interface IColumnInfoManager extends IColumnInfoProvider
 {
-	public void createNewColumnInfo(Column c, boolean createMissingServoySequence) throws RepositoryException;
+	void createNewColumnInfo(Column c, boolean createMissingServoySequence) throws RepositoryException;
 
-	public void removeColumnInfo(Column c) throws RepositoryException;
+	void removeColumnInfo(Column c) throws RepositoryException;
 
-	public void removeAllColumnInfo(ITable t) throws RepositoryException;
+	void removeAllColumnInfo(ITable t) throws RepositoryException;
 
-	public void updateAllColumnInfo(ITable t) throws RepositoryException;
+	void updateAllColumnInfo(ITable t) throws RepositoryException;
 
-	public void setTableColumnInfos(ITable t, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws RepositoryException;
+	void setTableColumnInfos(ITable t, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws RepositoryException;
+
+	// Server methods RAGTEST
+
+	void updateServerSettings(String serverName, ServerSettings serverSettings) throws RepositoryException;
 }

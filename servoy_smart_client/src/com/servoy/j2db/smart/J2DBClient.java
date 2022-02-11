@@ -3388,7 +3388,7 @@ public class J2DBClient extends ClientState
 	@Override
 	protected void createFoundSetManager()
 	{
-		foundSetManager = new FoundSetManager(this, new SwingFoundSetFactory());
+		foundSetManager = new FoundSetManager(this, getFoundSetManagerConfig(), new SwingFoundSetFactory());
 		((FoundSetManager)foundSetManager).setInfoListener(this);
 		foundSetManager.init();
 		((FoundSetManager)foundSetManager).getEditRecordList().addEditListener(this);

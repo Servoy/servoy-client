@@ -33,6 +33,7 @@ import org.sablo.websocket.TypedData;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
+import com.servoy.j2db.dataprocessing.FoundSetManagerConfig;
 import com.servoy.j2db.dataprocessing.IFoundSetFactory;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
@@ -53,9 +54,9 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 {
 	public static final String FOUNDSET_SERVICE = "$foundsetManager"; //$NON-NLS-1$
 
-	public NGFoundSetManager(IApplication app, IFoundSetFactory factory)
+	public NGFoundSetManager(IApplication app, FoundSetManagerConfig config, IFoundSetFactory factory)
 	{
-		super(app, factory);
+		super(app, config, factory);
 		((NGClient)getApplication()).getWebsocketSession().registerServerService(FOUNDSET_SERVICE, this);
 	}
 

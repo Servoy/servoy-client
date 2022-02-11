@@ -17,7 +17,11 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.base.persistence.IBaseColumn.IDENT_COLUMNS;
+import static com.servoy.base.persistence.IBaseColumn.UUID_COLUMN;
+import static com.servoy.j2db.dataprocessing.SortColumn.ASCENDING;
 import static com.servoy.j2db.persistence.Column.mapToDefaultType;
+import static com.servoy.j2db.persistence.IColumnTypes.MEDIA;
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.cast;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.castfrom;
@@ -40,7 +44,6 @@ import org.mozilla.javascript.Wrapper;
 import com.servoy.base.dataprocessing.BaseSQLGenerator;
 import com.servoy.base.dataprocessing.ITypeConverter;
 import com.servoy.base.dataprocessing.IValueConverter;
-import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.BaseQueryColumn;
 import com.servoy.base.query.BaseQueryTable;
@@ -322,11 +325,12 @@ public class SQLGenerator
 		boolean includeRelated, boolean permanentJoins) throws RepositoryException
 	{
 		List<Column> unusedRowidentColumns = new ArrayList<Column>(table.getRowIdentColumns());
+		boolean globalSortingIgnoreCase = application.getFoundSetManager().isGlobalSortingIgnoreCase();
 		for (int i = 0; orderByFields != null && i < orderByFields.size(); i++)
 		{
 			SortColumn sc = orderByFields.get(i);
 			IColumn column = sc.getColumn(); // can be column or aggregate
-			if (column.getDataProviderType() == IColumnTypes.MEDIA && (column.getFlags() & (IBaseColumn.IDENT_COLUMNS | IBaseColumn.UUID_COLUMN)) == 0)
+			if (column.getDataProviderType() == MEDIA && (column.getFlags() & (IDENT_COLUMNS | UUID_COLUMN)) == 0)
 				continue;//skip cannot sort blob columns
 
 			Relation[] relations = sc.getRelations();
@@ -407,14 +411,14 @@ public class SQLGenerator
 					Debug.log("Skipping sort on unexpected related column type " + column.getClass()); //$NON-NLS-1$
 					continue;
 				}
-				sqlSelect.addSort(new QuerySort(queryColumn, sc.getSortOrder() == SortColumn.ASCENDING));
+				sqlSelect.addSort(new QuerySort(queryColumn, sc.getSortOrder() == ASCENDING, globalSortingIgnoreCase));
 			}
 			else
 			{
 				// make sure an invalid sort is not possible
 				if (column instanceof Column && column.getTable().getName().equals(table.getName()))
 				{
-					sqlSelect.addSort(new QuerySort(((Column)column).queryColumn(selectTable), sc.getSortOrder() == SortColumn.ASCENDING));
+					sqlSelect.addSort(new QuerySort(((Column)column).queryColumn(selectTable), sc.getSortOrder() == ASCENDING, globalSortingIgnoreCase));
 					unusedRowidentColumns.remove(column);
 				}
 				else
@@ -429,7 +433,7 @@ public class SQLGenerator
 		{
 			for (Column column : unusedRowidentColumns)
 			{
-				sqlSelect.addSort(new QuerySort(column.queryColumn(selectTable), true));
+				sqlSelect.addSort(new QuerySort(column.queryColumn(selectTable), true, globalSortingIgnoreCase));
 			}
 		}
 	}
@@ -1520,7 +1524,7 @@ public class SQLGenerator
 	 */
 	static boolean isBlobColumn(Column column)
 	{
-		return mapToDefaultType(column.getType()) == IColumnTypes.MEDIA && !column.hasFlag(IBaseColumn.UUID_COLUMN | IBaseColumn.IDENT_COLUMNS);
+		return mapToDefaultType(column.getType()) == MEDIA && !column.hasFlag(UUID_COLUMN | IDENT_COLUMNS);
 	}
 
 	/**

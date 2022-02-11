@@ -45,6 +45,7 @@ import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.DataServerProxy;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
+import com.servoy.j2db.dataprocessing.FoundSetManagerConfig;
 import com.servoy.j2db.dataprocessing.IClient;
 import com.servoy.j2db.dataprocessing.IClientHost;
 import com.servoy.j2db.dataprocessing.IDataServer;
@@ -934,6 +935,10 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	protected abstract void createFoundSetManager();
 
+	protected FoundSetManagerConfig getFoundSetManagerConfig()
+	{
+		return new FoundSetManagerConfig(getSettings());
+	}
 
 	public String getClientID()
 	{
