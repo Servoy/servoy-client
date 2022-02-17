@@ -788,7 +788,7 @@ public class RepositoryHelper
 		{
 			return displayName.substring(0, displayName.length() - 8);
 		}
-		if (displayName.endsWith("ID")) //$NON-NLS-1$
+		if (displayName.endsWith("ID") || displayName.endsWith("Id")) //$NON-NLS-1$ //$NON-NLS-2$
 		{
 			return displayName.substring(0, displayName.length() - 2);
 		}
