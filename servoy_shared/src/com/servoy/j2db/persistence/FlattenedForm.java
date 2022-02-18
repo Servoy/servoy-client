@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.persistence;
 
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -264,7 +265,14 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 			}
 		}
 
-		setSize(checkParts(getParts(), getSize())); // recalculate height
+		setSize(getSize()); // recalculate height, getSize() will check the parts (is this call needed? getsize will already recalculate)
+	}
+
+	// need to override getSize() because that checks the extended parts again, which shouldn't happen for a FF.
+	@Override
+	public Dimension getSize()
+	{
+		return checkParts(getParts(), getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE));
 	}
 
 	@Override
