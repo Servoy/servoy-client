@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.query;
 
+import static java.util.Arrays.stream;
+
 import java.util.Arrays;
 
 import com.servoy.base.query.BaseAbstractBaseQuery;
@@ -100,12 +102,12 @@ public final class QueryFunction implements IQuerySelectValue
 
 	/**
 	 * @param function
-	 * @param key
-	 * @param object
+	 * @param arg0
+	 * @param name
 	 */
-	public QueryFunction(QueryFunctionType function, IQuerySelectValue key, String name)
+	public QueryFunction(QueryFunctionType function, IQuerySelectValue arg0, String name)
 	{
-		this(function, new IQuerySelectValue[] { key }, name, null);
+		this(function, new IQuerySelectValue[] { arg0 }, name, null);
 	}
 
 	@Override
@@ -193,6 +195,14 @@ public final class QueryFunction implements IQuerySelectValue
 
 			case concat :
 				return ColumnType.getColumnType(IColumnTypes.TEXT);
+
+			case coalesce :
+				return stream(args)
+					.filter(IQuerySelectValue.class::isInstance)
+					.map(IQuerySelectValue.class::cast)
+					.map(IQuerySelectValue::getColumnType)
+					.reduce(IQuerySelectValue::determineCompatibleColumnType)
+					.orElse(null);
 
 			case cast :
 				if (args != null && args.length > 1 && args[1] instanceof QueryColumnValue)
