@@ -63,7 +63,6 @@ import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGClientWindow;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
-import com.servoy.j2db.server.ngclient.NGClientWindow;
 import com.servoy.j2db.server.ngclient.NGRuntimeWindow;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebFormUI;
@@ -295,10 +294,9 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 				}
 				super.destroy();
 				IWindow window = CurrentWindow.safeGet();
-				if (window instanceof NGClientWindow && application.isSolutionLoaded())
+				if (window instanceof INGClientWindow && application.isSolutionLoaded())
 				{
-
-					((NGClientWindow)window).destroyForm(getName());
+					((INGClientWindow)window).destroyForm(getName());
 				}
 				if (getBasicFormManager() != null) getBasicFormManager().removeFormController(this);
 			}
