@@ -675,11 +675,15 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 
 	public void flush(Collection<IPersist> changes)
 	{
+		// change in developer, flush form component cache of the parent
 		if (changes != null)
 		{
 			for (IPersist persist : changes)
 			{
-				persistWrappers.remove(persist);
+				if (persist instanceof IBasicWebObject)
+				{
+					formComponentElementsForDesign.remove(persist.getParent().getUUID());
+				}
 			}
 		}
 	}
