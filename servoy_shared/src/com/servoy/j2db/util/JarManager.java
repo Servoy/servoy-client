@@ -635,4 +635,19 @@ public abstract class JarManager
 		}
 		return null;
 	}
+
+	public static String getImplementationVersion(URL jarUrl)
+	{
+		try (JarInputStream jis = new JarInputStream(jarUrl.openStream(), false))
+		{
+			Manifest mf = jis.getManifest();
+			return mf.getMainAttributes().getValue(Attributes.Name.IMPLEMENTATION_VERSION);
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+		return null;
+
+	}
 }
