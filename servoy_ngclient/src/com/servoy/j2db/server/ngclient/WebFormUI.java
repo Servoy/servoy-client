@@ -38,6 +38,8 @@ import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.BooleanPropertyType;
 import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.specification.property.types.VisiblePropertyType;
+import org.sablo.websocket.CurrentWindow;
+import org.sablo.websocket.IWindow;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
@@ -568,6 +570,8 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		}
 		clearComponents();
 		cleanupListeners();
+		IWindow window = CurrentWindow.safeGet();
+		if (window != null) window.unregisterContainer(this);
 	}
 
 	@Override

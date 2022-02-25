@@ -560,6 +560,10 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 */
 	public Object js_getClientProperty(Object name)
 	{
+		if ("NG2".equals(name)) //$NON-NLS-1$
+		{
+			return application.getRuntimeProperties().get("NG2"); //$NON-NLS-1$
+		}
 		return application.getClientProperty(name);
 	}
 
