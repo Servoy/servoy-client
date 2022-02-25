@@ -132,8 +132,6 @@ public class LookupListModel extends AbstractListModel
 			creationSQLParts = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
 			creationSQLParts.setDistinct(true);
 
-			boolean globalSortingIgnoreCase = application.getFoundSetManager().isGlobalSortingIgnoreCase();
-
 			ArrayList<IQuerySelectValue> columns = new ArrayList<IQuerySelectValue>();
 			ArrayList<IQuerySort> orderColumns = new ArrayList<IQuerySort>();
 			if ((total & 1) != 0)
@@ -149,7 +147,8 @@ public class LookupListModel extends AbstractListModel
 				columns.add(cSQLName);
 				if ((showValues & 1) != 0)
 				{
-					orderColumns.add(new QuerySort(cSQLName, true, globalSortingIgnoreCase));
+					boolean sortingIgnoreCase = application.getFoundSetManager().isSortingIgnoreCase(table.getColumn(vl.getDataProviderID1()));
+					orderColumns.add(new QuerySort(cSQLName, true, sortingIgnoreCase));
 				}
 			}
 			if ((total & 2) != 0)
@@ -168,7 +167,8 @@ public class LookupListModel extends AbstractListModel
 				}
 				if ((showValues & 2) != 0)
 				{
-					orderColumns.add(new QuerySort(cSQLName, true, globalSortingIgnoreCase));
+					boolean sortingIgnoreCase = application.getFoundSetManager().isSortingIgnoreCase(table.getColumn(vl.getDataProviderID2()));
+					orderColumns.add(new QuerySort(cSQLName, true, sortingIgnoreCase));
 				}
 			}
 			if ((total & 4) != 0)
@@ -187,7 +187,8 @@ public class LookupListModel extends AbstractListModel
 				}
 				if ((showValues & 4) != 0)
 				{
-					orderColumns.add(new QuerySort(cSQLName, true, globalSortingIgnoreCase));
+					boolean sortingIgnoreCase = application.getFoundSetManager().isSortingIgnoreCase(table.getColumn(vl.getDataProviderID3()));
+					orderColumns.add(new QuerySort(cSQLName, true, sortingIgnoreCase));
 				}
 			}
 
@@ -240,7 +241,7 @@ public class LookupListModel extends AbstractListModel
 			ArrayList<IQuerySort> orderColumns = new ArrayList<IQuerySort>();
 			IQuerySelectValue cSQLName = DBValueList.getQuerySelectValue(table, creationSQLParts.getTable(), dataProviderID);
 			columns.add(cSQLName);
-			orderColumns.add(new QuerySort(cSQLName, true, application.getFoundSetManager().isGlobalSortingIgnoreCase()));
+			orderColumns.add(new QuerySort(cSQLName, true, application.getFoundSetManager().isSortingIgnoreCase(table.getColumn(dataProviderID))));
 
 			creationSQLParts.setColumns(columns);
 			creationSQLParts.setSorts(orderColumns);
@@ -284,7 +285,7 @@ public class LookupListModel extends AbstractListModel
 					if (sortColumn.getName().trim().equalsIgnoreCase(column.getColumn().getName().trim()))
 					{
 						sortColumnsForQuery.add(new QuerySort(column, sortColumn.getSortOrder() == SortColumn.ASCENDING,
-							application.getFoundSetManager().isGlobalSortingIgnoreCase()));
+							application.getFoundSetManager().isSortingIgnoreCase(sortColumn.getColumn())));
 						break;
 					}
 				}

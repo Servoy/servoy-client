@@ -15,21 +15,25 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
 
-package com.servoy.j2db.querybuilder;
+package com.servoy.j2db.querybuilder.impl;
+
+import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.querybuilder.IDatabaseOptionsRAGTESTWeg;
+import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
  * Script constants for database options.
  *
  * @author rgansevles
+ *
+ * @since 2022.03
  */
-public interface IDatabaseOptions
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+public class DATABASE_OPTIONSRAGTESTWeg implements IPrefixedConstantsObject, IDatabaseOptionsRAGTESTWeg
 {
-	/** RAGTEST doc
-	 * Constant used for casting.
-	 *
-	 * @sampleas com.servoy.j2db.querybuilder.impl.QBFunctions#cast(Object, String)
-	 */
-	public static final String FOUNDSET_SORT_IGNORE_CASE = "fondset.sort.ignorecase";
-
-
+	@Override
+	public String toString()
+	{
+		return "Database options";
+	}
 }

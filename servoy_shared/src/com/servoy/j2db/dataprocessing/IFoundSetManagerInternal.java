@@ -229,6 +229,6 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	 */
 	public JSRecordMarkers validateRecord(IRecordInternal record, Object state);
 
-	public boolean isGlobalSortingIgnoreCase();
+	public boolean isSortingIgnoreCase(IColumn column);
 
 }

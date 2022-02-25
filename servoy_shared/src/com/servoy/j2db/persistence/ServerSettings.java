@@ -57,9 +57,9 @@ public class ServerSettings implements Serializable
 	@Override
 	public String toString()
 	{
-		return new StringBuilder("ServerSettings [") //
-			.append(", sortIgnorecase=").append(sortIgnorecase) //
-			.append(", sortingNullprecedence=").append(sortingNullprecedence) //
+		return new StringBuilder("ServerSettings [")
+			.append("sortIgnorecase=").append(sortIgnorecase)
+			.append(", sortingNullprecedence=").append(sortingNullprecedence)
 			.append("]").toString();
 	}
 }

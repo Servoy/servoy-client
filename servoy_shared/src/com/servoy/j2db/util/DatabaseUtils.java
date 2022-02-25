@@ -37,6 +37,8 @@ import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IPersistFactory;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.ServerSettings;
+import com.servoy.j2db.persistence.SortingNullprecedence;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
 import com.servoy.j2db.util.xmlxport.TableDef;
@@ -47,6 +49,39 @@ import com.servoy.j2db.util.xmlxport.TableDef;
  */
 public class DatabaseUtils
 {
+	/**
+	 * Gets the table information from a .dbi (JSON format) file like structured String.
+	 *
+	 * @param stringDBIContent the table information in .dbi format
+	 * @return the deserialized table information.
+	 * @throws JSONException if the structure of the JSON in String stringDBIContent is bad.
+	 */
+	public static TableDef deserializeTableInfo(String stringDBIContent) throws JSONException
+	{
+		ServoyJSONObject dbiContents = new ServoyJSONObject(stringDBIContent, true);
+		return deserializeTableInfo(dbiContents);
+	}
+
+	/** RAGTEST doc
+	 * Gets the table information from a .dbi (JSON format) file like structured String.
+	 *
+	 * @param stringDBIContent the table information in .dbi format
+	 * @return the deserialized table information.
+	 * @throws JSONException if the structure of the JSON in String stringDBIContent is bad.
+	 */
+	public static ServerSettings deserializeServerSettings(String stringDBIContent)
+	{
+		if (stringDBIContent != null)
+		{
+			ServoyJSONObject json = new ServoyJSONObject(stringDBIContent, true);
+			return new ServerSettings(
+				json.getBoolean("sortIgnorecase"),
+				SortingNullprecedence.valueOf(json.getString("sortingNullprecedence")));
+		}
+
+		return ServerSettings.DEFAULT;
+	}
+
 	/**
 	 * Gets the table information from a .dbi (JSON format) file like structured String.
 	 *
@@ -135,10 +170,8 @@ public class DatabaseUtils
 		if (tableInfo.columnInfoDefSet.size() > 0)
 		{
 			changedColumns = new ArrayList<IColumn>(tableInfo.columnInfoDefSet.size());
-			for (int j = 0; j < tableInfo.columnInfoDefSet.size(); j++)
+			for (ColumnInfoDef cid : tableInfo.columnInfoDefSet)
 			{
-				ColumnInfoDef cid = tableInfo.columnInfoDefSet.get(j);
-
 				String cname = cid.name;
 				Column c = t.getColumn(cname);
 

@@ -39,8 +39,9 @@ public class ServerProxy implements IServer, Serializable
 {
 	protected final IServer server;
 
-	//local cache
+	// local cache
 	private String serverName;
+	private ServerSettings serverSettings;
 	private String databaseProductName;
 	private String databaseType;
 	private volatile transient Map<String, ITable> tables = new ConcurrentHashMap<String, ITable>();
@@ -159,6 +160,16 @@ public class ServerProxy implements IServer, Serializable
 			serverName = server.getName();
 		}
 		return serverName;
+	}
+
+	@Override
+	public ServerSettings getSettings() throws RemoteException
+	{
+		if (serverSettings == null)
+		{
+			serverSettings = server.getSettings();
+		}
+		return serverSettings;
 	}
 
 	private boolean valid = false;

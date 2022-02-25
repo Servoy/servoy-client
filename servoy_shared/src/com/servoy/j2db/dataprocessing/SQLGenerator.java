@@ -325,13 +325,15 @@ public class SQLGenerator
 		boolean includeRelated, boolean permanentJoins) throws RepositoryException
 	{
 		List<Column> unusedRowidentColumns = new ArrayList<Column>(table.getRowIdentColumns());
-		boolean globalSortingIgnoreCase = application.getFoundSetManager().isGlobalSortingIgnoreCase();
 		for (int i = 0; orderByFields != null && i < orderByFields.size(); i++)
 		{
 			SortColumn sc = orderByFields.get(i);
 			IColumn column = sc.getColumn(); // can be column or aggregate
 			if (column.getDataProviderType() == MEDIA && (column.getFlags() & (IDENT_COLUMNS | UUID_COLUMN)) == 0)
-				continue;//skip cannot sort blob columns
+			{
+				continue; // skip cannot sort blob columns
+			}
+			boolean sortingIgnoreCase = application.getFoundSetManager().isSortingIgnoreCase(sc.getColumn());
 
 			Relation[] relations = sc.getRelations();
 			// compare on server objects, relation.foreignServerName may be different in case of duplicates
@@ -411,14 +413,14 @@ public class SQLGenerator
 					Debug.log("Skipping sort on unexpected related column type " + column.getClass()); //$NON-NLS-1$
 					continue;
 				}
-				sqlSelect.addSort(new QuerySort(queryColumn, sc.getSortOrder() == ASCENDING, globalSortingIgnoreCase));
+				sqlSelect.addSort(new QuerySort(queryColumn, sc.getSortOrder() == ASCENDING, sortingIgnoreCase));
 			}
 			else
 			{
 				// make sure an invalid sort is not possible
 				if (column instanceof Column && column.getTable().getName().equals(table.getName()))
 				{
-					sqlSelect.addSort(new QuerySort(((Column)column).queryColumn(selectTable), sc.getSortOrder() == ASCENDING, globalSortingIgnoreCase));
+					sqlSelect.addSort(new QuerySort(((Column)column).queryColumn(selectTable), sc.getSortOrder() == ASCENDING, sortingIgnoreCase));
 					unusedRowidentColumns.remove(column);
 				}
 				else
@@ -433,7 +435,8 @@ public class SQLGenerator
 		{
 			for (Column column : unusedRowidentColumns)
 			{
-				sqlSelect.addSort(new QuerySort(column.queryColumn(selectTable), true, globalSortingIgnoreCase));
+				boolean sortingIgnoreCase = application.getFoundSetManager().isSortingIgnoreCase(column);
+				sqlSelect.addSort(new QuerySort(column.queryColumn(selectTable), true, sortingIgnoreCase));
 			}
 		}
 	}

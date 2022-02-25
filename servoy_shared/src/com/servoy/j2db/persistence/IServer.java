@@ -89,4 +89,6 @@ public interface IServer extends Remote
 	 * @param definition
 	 */
 	public void dropClientDatasource(String clientId) throws RemoteException;
+
+	public ServerSettings getSettings() throws RemoteException;
 }

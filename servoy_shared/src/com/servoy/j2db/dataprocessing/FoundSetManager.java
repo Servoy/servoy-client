@@ -21,6 +21,7 @@ import static com.servoy.j2db.dataprocessing.FoundSetManager.TriggerExecutionMod
 import static com.servoy.j2db.dataprocessing.FoundSetManager.TriggerExecutionMode.ExecuteEach;
 import static com.servoy.j2db.dataprocessing.FoundSetManager.TriggerExecutionMode.ReturnFirst;
 import static com.servoy.j2db.query.AbstractBaseQuery.searchOne;
+import static com.servoy.j2db.util.DataSourceUtils.getDataSourceServerName;
 import static com.servoy.j2db.util.Errors.catchExceptions;
 import static com.servoy.j2db.util.Utils.arrayMerge;
 import static com.servoy.j2db.util.Utils.iterate;
@@ -95,6 +96,7 @@ import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.persistence.ServerSettings;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
@@ -166,7 +168,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private final EditRecordList editRecordList;
 
 	public final FoundSetManagerConfig config;
-	private boolean globalSortingIgnoreCase;
 
 	private final List<Runnable> fireRunabbles = new ArrayList<Runnable>();
 
@@ -184,15 +185,37 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		foundsetfactory = factory;
 	}
 
-	public void setGlobalSortingIgnoreCase(boolean globalSortingIgnoreCase)
-	{
-		this.globalSortingIgnoreCase = globalSortingIgnoreCase;
-	}
 
 	@Override
-	public boolean isGlobalSortingIgnoreCase()
+	public boolean isSortingIgnoreCase(IColumn column)
 	{
-		return globalSortingIgnoreCase;
+		if (column != null)
+		{
+			try
+			{
+				String serverName = column.getTable().getServerName();
+				if (serverName != null)
+				{
+
+					IServer server = application.getSolution().getServer(serverName);
+					if (server != null)
+					{
+						ServerSettings serverSettings = server.getSettings();
+						if (serverSettings.isSortIgnorecase())
+						{
+							return true;
+						}
+						// RAGTEST TODO  table/column-specific
+					}
+				}
+			}
+			catch (RepositoryException | RemoteException e)
+			{
+				Debug.error("Exception getting server settings", e);
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -1007,7 +1030,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					throw new RepositoryException(e);
 				}
 			}
-			else if (DataSourceUtils.getDataSourceServerName(dataSource) == IServer.INMEM_SERVER)
+			else if (getDataSourceServerName(dataSource) == IServer.INMEM_SERVER)
 			{
 				if (!inMemDataSources.containsKey(dataSource) && dataSourceExists(dataSource))
 				{
@@ -1023,7 +1046,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				}
 				return inMemDataSources.get(dataSource);
 			}
-			else if (DataSourceUtils.getDataSourceServerName(dataSource) == IServer.VIEW_SERVER)
+			else if (getDataSourceServerName(dataSource) == IServer.VIEW_SERVER)
 			{
 				Optional<ServoyJSONObject> columnDefintion;
 				if (!viewDataSources.containsKey(dataSource) && (columnDefintion = getColumnDefintion(dataSource)).isPresent())
@@ -1054,7 +1077,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public boolean dataSourceExists(String dataSource) throws RepositoryException
 	{
-		if (DataSourceUtils.getDataSourceServerName(dataSource) == IServer.INMEM_SERVER)
+		if (getDataSourceServerName(dataSource) == IServer.INMEM_SERVER)
 		{
 			if (inMemDataSources.containsKey(dataSource))
 			{
@@ -1064,7 +1087,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			return getColumnDefintion(dataSource).isPresent();
 		}
 
-		if (DataSourceUtils.getDataSourceServerName(dataSource) == IServer.VIEW_SERVER)
+		if (getDataSourceServerName(dataSource) == IServer.VIEW_SERVER)
 		{
 			if (viewDataSources.containsKey(dataSource))
 			{
@@ -3178,7 +3201,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		for (String datasource : rowManagers.keySet())
 		{
-			if (serverName == null || serverName.equals(DataSourceUtils.getDataSourceServerName(datasource)))
+			if (serverName == null || serverName.equals(getDataSourceServerName(datasource)))
 			{
 				ITable t = getTable(datasource);
 				try
@@ -3537,7 +3560,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		QBSelect select = (QBSelect)query;
 
-		String serverName = DataSourceUtils.getDataSourceServerName(select.getDataSource());
+		String serverName = getDataSourceServerName(select.getDataSource());
 
 		if (serverName == null)
 			throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { select.getDataSource() }));

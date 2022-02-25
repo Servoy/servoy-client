@@ -31,13 +31,12 @@ public final class QuerySort implements IQuerySort
 	private final boolean ascending;
 	private final SortOptions options;
 
-	public QuerySort(IQuerySelectValue column, boolean ascending) // RAGTEST weg
+	public QuerySort(IQuerySelectValue column, boolean ascending) // RAGTEST weg, alleen nog gebruikt in test
 	{
 		this.column = column;
 		this.ascending = ascending;
 		this.options = SortOptions.none;
 	}
-
 
 	public QuerySort(IQuerySelectValue column, boolean ascending, boolean ignoreCase)
 	{
@@ -129,6 +128,6 @@ public final class QuerySort implements IQuerySort
 		int i = 0;
 		column = (IQuerySelectValue)members[i++];
 		ascending = ((Boolean)members[i++]).booleanValue();
-		options = i < members.length ? SortOptions.none : (SortOptions)members[i++];
+		options = i < members.length ? (SortOptions)members[i++] : SortOptions.none;
 	}
 }

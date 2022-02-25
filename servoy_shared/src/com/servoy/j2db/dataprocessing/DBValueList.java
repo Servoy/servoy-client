@@ -436,16 +436,16 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		ArrayList<IQuerySort> orderColumns = new ArrayList<IQuerySort>();
 		ArrayList<IQuerySelectValue> columns = new ArrayList<IQuerySelectValue>();
 
-		boolean globalSortingIgnoreCase = application.getFoundSetManager().isGlobalSortingIgnoreCase();
 
 		boolean useDefinedSort = sortColumns != null && sortColumns.size() > 0;
 		if (useDefinedSort)
 		{
 			for (SortColumn sc : sortColumns)
 			{
+				boolean sortIgnoreCase = application.getFoundSetManager().isSortingIgnoreCase(sc.getColumn());
 				orderColumns.add(
 					new QuerySort(getQuerySelectValue(table, select.getTable(), sc.getDataProviderID()), sc.getSortOrder() == SortColumn.ASCENDING,
-						globalSortingIgnoreCase));
+						sortIgnoreCase));
 			}
 		}
 
@@ -455,7 +455,8 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 			columns.add(cSQLName);
 			if ((showValues & 1) != 0 && !useDefinedSort)
 			{
-				orderColumns.add(new QuerySort(cSQLName, true, globalSortingIgnoreCase));
+				boolean sortingIgnoreCase = application.getFoundSetManager().isSortingIgnoreCase(table.getColumn(valueList.getDataProviderID1()));
+				orderColumns.add(new QuerySort(cSQLName, true, sortingIgnoreCase));
 			}
 		}
 		if ((total & 2) != 0)
@@ -464,7 +465,8 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 			columns.add(cSQLName);
 			if ((showValues & 2) != 0 && !useDefinedSort)
 			{
-				orderColumns.add(new QuerySort(cSQLName, true, globalSortingIgnoreCase));
+				boolean sortingIgnoreCase = application.getFoundSetManager().isSortingIgnoreCase(table.getColumn(valueList.getDataProviderID2()));
+				orderColumns.add(new QuerySort(cSQLName, true, sortingIgnoreCase));
 			}
 		}
 		if ((total & 4) != 0)
@@ -473,7 +475,8 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 			columns.add(cSQLName);
 			if ((showValues & 4) != 0 && !useDefinedSort)
 			{
-				orderColumns.add(new QuerySort(cSQLName, true, globalSortingIgnoreCase));
+				boolean sortingIgnoreCase = application.getFoundSetManager().isSortingIgnoreCase(table.getColumn(valueList.getDataProviderID3()));
+				orderColumns.add(new QuerySort(cSQLName, true, sortingIgnoreCase));
 			}
 		}
 

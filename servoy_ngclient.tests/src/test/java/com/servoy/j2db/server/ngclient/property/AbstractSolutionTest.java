@@ -95,6 +95,7 @@ import com.servoy.j2db.persistence.IValidateName;
 import com.servoy.j2db.persistence.Procedure;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.RootObjectMetaData;
+import com.servoy.j2db.persistence.ServerSettings;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.ValidatorSearchContext;
@@ -188,6 +189,11 @@ public abstract class AbstractSolutionTest
 		public String getName() throws RemoteException
 		{
 			return null;
+		}
+
+		public ServerSettings getSettings() throws RemoteException
+		{
+			return ServerSettings.DEFAULT;
 		}
 
 		@Override
