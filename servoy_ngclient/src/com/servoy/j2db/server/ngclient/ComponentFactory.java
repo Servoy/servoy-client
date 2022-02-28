@@ -29,6 +29,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
+import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ISupportTemplateValue;
 import com.servoy.j2db.server.ngclient.property.types.NGEnabledSabloValue;
@@ -143,13 +144,19 @@ public class ComponentFactory
 			}
 		}
 
-		componentSpec.getProperties(DataproviderPropertyType.INSTANCE, false).forEach((propertyFromSpec) -> {
+		boolean foundOnDataChangeInDPConfigFromSpec[] = new boolean[] { false };
+		componentSpec.getProperties(DataproviderPropertyType.INSTANCE, true).forEach((propertyFromSpec) -> {
 			// the property type found here is for a 'dataprovider' property from the spec file of this component
+			Object configOfDPOrFoundsetLinkedDP = propertyFromSpec.getConfig();
+			DataproviderConfig dpConfig;
 
-			DataproviderConfig dpConfig = (DataproviderConfig)propertyFromSpec.getConfig();
+			if (configOfDPOrFoundsetLinkedDP instanceof FoundsetLinkedConfig)
+				dpConfig = (DataproviderConfig)((FoundsetLinkedConfig)configOfDPOrFoundsetLinkedDP).getWrappedConfig();
+			else dpConfig = (DataproviderConfig)configOfDPOrFoundsetLinkedDP;
 
 			if (dpConfig.getOnDataChange() != null && form.getOnElementDataChangeMethodID() > 0)
 			{
+				foundOnDataChangeInDPConfigFromSpec[0] = true;
 				webComponent.add(dpConfig.getOnDataChange(), form.getOnElementDataChangeMethodID());
 			}
 		});
@@ -202,6 +209,13 @@ public class ComponentFactory
 				(form.getOnElementFocusLostMethodID() > 0))
 			{
 				webComponent.add(eventName, form.getOnElementFocusLostMethodID());
+			}
+			else if (!foundOnDataChangeInDPConfigFromSpec[0] &&
+				Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()) &&
+				(form.getOnElementDataChangeMethodID() > 0))
+			{
+				// legacy behavior - based on hard-coded handler name (of component)
+				webComponent.add(eventName, form.getOnElementDataChangeMethodID());
 			}
 		}
 

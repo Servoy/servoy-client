@@ -28,6 +28,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.component.EventExecutor;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
+import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.INGWebObjectContext;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
@@ -222,46 +223,38 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 		@Override
 		public Object executeEvent(Object[] args)
 		{
+			Form formElementForm = findCorrectFormEvenForServoyFormComponentChildren();
+
 			// verify if component is accessible due to security options
-			checkMethodExecutionSecurityAccess(getSpecification().getHandler(eventType));
+			checkMethodExecutionSecurityAccess(getSpecification().getHandler(eventType), formElementForm);
 
 			if (Utils.equalObjects(eventType, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
-				(formElement.getForm().getOnElementFocusGainedMethodID() > 0) && formElement.getForm().getOnElementFocusGainedMethodID() != functionID)
+				(formElementForm.getOnElementFocusGainedMethodID() > 0) && formElementForm.getOnElementFocusGainedMethodID() != functionID)
 			{
-				dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElement.getForm().getOnElementFocusGainedMethodID(), args);
+				dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElementForm.getOnElementFocusGainedMethodID(), args);
 			}
 			else if (Utils.equalObjects(eventType, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
-				(formElement.getForm().getOnElementFocusLostMethodID() > 0) && formElement.getForm().getOnElementFocusLostMethodID() != functionID)
+				(formElementForm.getOnElementFocusLostMethodID() > 0) && formElementForm.getOnElementFocusLostMethodID() != functionID)
 			{
-				dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElement.getForm().getOnElementFocusLostMethodID(), args);
+				dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElementForm.getOnElementFocusLostMethodID(), args);
 			}
 
 			Object executeEventReturn = dataAdapterList.executeEvent(WebFormComponent.this, eventType, functionID, args);
-			Form formElementForm = null;
-			IPersist persist = formElement.getPersistIfAvailable();
-			if (persist instanceof AbstractBase)
-			{
-				String formName = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_FORM_NAME);
-				if (formName != null)
-				{
-					formElementForm = dataAdapterList.getApplication().getFormManager().getForm(formName).getForm();
-				}
-
-			}
-			if (formElementForm == null)
-			{
-				formElementForm = formElement.getForm();
-			}
 
 			WebObjectSpecification componentSpec = formElement.getWebComponentSpec(false);
 
-			Collection<PropertyDescription> propertyDesciptionList = componentSpec.getProperties(DataproviderPropertyType.INSTANCE,
-				false);
+			Collection<PropertyDescription> propertyDescriptionList = componentSpec.getProperties(DataproviderPropertyType.INSTANCE,
+				true);
 
-			for (PropertyDescription propertyDescription : propertyDesciptionList)
+			for (PropertyDescription propertyDescription : propertyDescriptionList)
 			{
 				// the property type found here is for a 'dataprovider' property from the spec file of this component
-				DataproviderConfig dpConfig = (DataproviderConfig)propertyDescription.getConfig();
+				Object configOfDPOrFoundsetLinkedDP = propertyDescription.getConfig();
+				DataproviderConfig dpConfig;
+
+				if (configOfDPOrFoundsetLinkedDP instanceof FoundsetLinkedConfig)
+					dpConfig = (DataproviderConfig)((FoundsetLinkedConfig)configOfDPOrFoundsetLinkedDP).getWrappedConfig();
+				else dpConfig = (DataproviderConfig)configOfDPOrFoundsetLinkedDP;
 
 				if (dpConfig.getOnDataChange() != null && Utils.equalObjects(eventType, dpConfig.getOnDataChange()) &&
 					formElementForm.getOnElementDataChangeMethodID() > 0 &&
@@ -276,18 +269,41 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 					}
 				}
 			}
-
 			return executeEventReturn;
 		}
 	}
 
+	private Form findCorrectFormEvenForServoyFormComponentChildren()
+	{
+		Form formElementForm = null;
+		IPersist persist = formElement.getPersistIfAvailable();
+		if (persist instanceof AbstractBase)
+		{
+			String formName = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_FORM_NAME);
+			if (formName != null)
+			{
+				formElementForm = dataAdapterList.getApplication().getFormManager().getForm(formName).getForm();
+			}
+		}
+		if (formElementForm == null)
+		{
+			formElementForm = formElement.getForm();
+		}
+		return formElementForm;
+	}
+
 	public void checkMethodExecutionSecurityAccess(WebObjectFunctionDefinition functionDef)
+	{
+		checkMethodExecutionSecurityAccess(functionDef, findCorrectFormEvenForServoyFormComponentChildren());
+	}
+
+	private void checkMethodExecutionSecurityAccess(WebObjectFunctionDefinition functionDef, Form formElementForm)
 	{
 		IPersist persist = formElement.getPersistIfAvailable();
 		if (persist != null)
 		{
 			int access = dataAdapterList.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID(),
-				formElement.getForm().getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
+				formElementForm.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 			if (!((access & IRepository.ACCESSIBLE) != 0))
 			{
 				boolean blockingChanges = true;
