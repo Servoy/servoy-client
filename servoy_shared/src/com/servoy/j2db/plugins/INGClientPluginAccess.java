@@ -25,5 +25,5 @@ package com.servoy.j2db.plugins;
  */
 public interface INGClientPluginAccess extends IAllWebClientPluginAccess
 {
-	public void replaceUrlState();
+	public void clearUrlState();
 }
