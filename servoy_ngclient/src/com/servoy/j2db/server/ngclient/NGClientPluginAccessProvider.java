@@ -76,7 +76,7 @@ public class NGClientPluginAccessProvider extends ClientPluginAccessProvider imp
 	}
 
 	@Override
-	public void replaceUrlState()
+	public void clearUrlState()
 	{
 		getApplication().invokeLater(() -> {
 			ngClient.getWebsocketSession().getClientService("$applicationService").executeAsyncNowServiceCall("replaceUrlState", null);
