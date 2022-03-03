@@ -147,6 +147,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	@Override
 	public void clearProperty(String propertyName)
 	{
+		if (IContentSpecConstants.PROPERTY_TYPENAME.equals(propertyName)) return;
 		super.clearProperty(propertyName);
 		webObjectImpl.clearProperty(propertyName);
 	}
