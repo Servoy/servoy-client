@@ -628,49 +628,57 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			if (record != this.record)
 			{
-				throw new IllegalStateException("Record " + record + " is being set on DAL when record: " + this.record + " is being processed");
+				throw new IllegalStateException(
+					"Record " + record + " is being set on DAL when record: " + this.record + " is being processed for form " + getForm());
 			}
 			return;
 		}
-		FireCollector fireCollector = FireCollector.getFireCollector();
 		try
 		{
-			settingRecord = true;
-			formController.getFormUI().setChanging(true);
-			if (this.record != null)
+			FireCollector fireCollector = FireCollector.getFireCollector();
+			try
 			{
-				this.record.removeModificationListener(this);
-				this.record.getParentFoundSet().removeAggregateModificationListener(this);
-			}
-			this.record = (IRecordInternal)record;
-
-			if (this.record != null)
-			{
-				pushChangedValues(null, fireChangeEvent);
-				this.record.addModificationListener(this);
-				this.record.getParentFoundSet().addAggregateModificationListener(this);
-			}
-			createRelationListeners();
-			if (maxRecIndexPropertyValueListener != null) maxRecIndexPropertyValueListener.setRecord(this.record);
-		}
-		finally
-		{
-			formController.getFormUI().setChanging(false);
-			settingRecord = false;
-			fireCollector.done();
-		}
-		// we should use the "this.record" because fireCollector.done() could result in a setRecord with a different record.
-		if (this.record != null)
-		{
-			for (Entry<IWebFormController, String> entry : getVisibleChildFormCopy().entrySet())
-			{
-				String relation = entry.getValue();
-				if (relation != null)
+				settingRecord = true;
+				formController.getFormUI().setChanging(true);
+				if (this.record != null)
 				{
-					IWebFormController form = entry.getKey();
-					form.loadRecords(this.record.getRelatedFoundSet(relation, ((BasicFormController)form).getDefaultSortColumns()));
+					this.record.removeModificationListener(this);
+					this.record.getParentFoundSet().removeAggregateModificationListener(this);
+				}
+				this.record = (IRecordInternal)record;
+
+				if (this.record != null)
+				{
+					pushChangedValues(null, fireChangeEvent);
+					this.record.addModificationListener(this);
+					this.record.getParentFoundSet().addAggregateModificationListener(this);
+				}
+				createRelationListeners();
+				if (maxRecIndexPropertyValueListener != null) maxRecIndexPropertyValueListener.setRecord(this.record);
+			}
+			finally
+			{
+				formController.getFormUI().setChanging(false);
+				settingRecord = false;
+				fireCollector.done();
+			}
+			// we should use the "this.record" because fireCollector.done() could result in a setRecord with a different record.
+			if (this.record != null)
+			{
+				for (Entry<IWebFormController, String> entry : getVisibleChildFormCopy().entrySet())
+				{
+					String relation = entry.getValue();
+					if (relation != null)
+					{
+						IWebFormController form = entry.getKey();
+						form.loadRecords(this.record.getRelatedFoundSet(relation, ((BasicFormController)form).getDefaultSortColumns()));
+					}
 				}
 			}
+		}
+		catch (RuntimeException re)
+		{
+			throw new RuntimeException("Error setting record " + record + " on form " + getForm() + " on DAL " + this, re);
 		}
 
 	}
@@ -1314,6 +1322,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		findModeAwareProperties.clear();
 		parentRelatedForms.clear();
 		visibleChildForms.clear();
+	}
+
+	@Override
+	public String toString()
+	{
+		return "DAL[form:" + getForm() + ", record:" + getRecord() + "]";
 	}
 
 	private static class DLPropertyValueFoundsetFoundsetListener implements IFoundSetEventListener
