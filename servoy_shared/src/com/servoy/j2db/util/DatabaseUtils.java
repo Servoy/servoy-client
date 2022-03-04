@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.IntSupplier;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -179,7 +180,7 @@ public class DatabaseUtils
 				{
 					c = t.createNewColumn(DummyValidator.INSTANCE, cid.name, cid.columnType.getSqlType(), cid.columnType.getLength());
 					existingColumnInfo++;
-					updateColumnInfo(persistFactory, c, cid);
+					updateColumnInfo(persistFactory.getNewElementID(null), c, cid);
 					changedColumns.add(c);
 				}
 			}
@@ -192,7 +193,7 @@ public class DatabaseUtils
 			if (c.getColumnInfo() == null)
 			{
 				// only create servoy sequences when this was a new table and there is only 1 pk column
-				createNewColumnInfo(persistFactory, c, existingColumnInfo == 0 && t.getPKColumnTypeRowIdentCount() == 1);//was missing - create automatic sequences if missing
+				createNewColumnInfo(persistFactory.getNewElementID(null), c, existingColumnInfo == 0 && t.getPKColumnTypeRowIdentCount() == 1);//was missing - create automatic sequences if missing
 			}
 		}
 
@@ -209,9 +210,8 @@ public class DatabaseUtils
 		t.fireIColumnsChanged(changedColumns);
 	}
 
-	public static void createNewColumnInfo(IPersistFactory persistFactory, Column c, boolean createMissingServoySequence) throws RepositoryException
+	public static void createNewColumnInfo(int element_id, Column c, boolean createMissingServoySequence)
 	{
-		int element_id = persistFactory.getNewElementID(null);
 		ColumnInfo ci = new ColumnInfo(element_id, false);
 		if (createMissingServoySequence && c.getRowIdentType() != IBaseColumn.NORMAL_COLUMN && c.getSequenceType() == ColumnInfo.NO_SEQUENCE_SELECTED &&
 			(Column.mapToDefaultType(c.getConfiguredColumnType().getSqlType()) == IColumnTypes.INTEGER ||
@@ -226,9 +226,8 @@ public class DatabaseUtils
 		c.setColumnInfo(ci);
 	}
 
-	public static void updateColumnInfo(IPersistFactory persistFactory, Column c, ColumnInfoDef cid) throws RepositoryException
+	public static void updateColumnInfo(int element_id, Column c, ColumnInfoDef cid)
 	{
-		int element_id = persistFactory.getNewElementID(null);
 		ColumnInfo ci = new ColumnInfo(element_id, true);
 		ci.setAutoEnterType(cid.autoEnterType);
 		ci.setAutoEnterSubType(cid.autoEnterSubType);
@@ -256,8 +255,7 @@ public class DatabaseUtils
 		c.setColumnInfo(ci);
 	}
 
-	public static void updateTableColumnInfos(IPersistFactory persistFactory, ITable t, HashMap<String, ColumnInfoDef> columnInfoDefinitions)
-		throws RepositoryException
+	public static void updateTableColumnInfos(IntSupplier elementIdSupplier, ITable t, HashMap<String, ColumnInfoDef> columnInfoDefinitions)
 	{
 		Iterator<Column> tableColumnsIte = t.getColumns().iterator();
 		while (tableColumnsIte.hasNext())
@@ -265,7 +263,7 @@ public class DatabaseUtils
 			Column column = tableColumnsIte.next();
 			if (columnInfoDefinitions.containsKey(column.getName()))
 			{
-				DatabaseUtils.updateColumnInfo(persistFactory, column, columnInfoDefinitions.get(column.getName()));
+				DatabaseUtils.updateColumnInfo(elementIdSupplier.getAsInt(), column, columnInfoDefinitions.get(column.getName()));
 			}
 		}
 	}

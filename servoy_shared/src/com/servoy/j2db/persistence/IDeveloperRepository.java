@@ -49,7 +49,7 @@ public interface IDeveloperRepository extends IRepository, IPersistFactory
 
 	public String convertObjectToArgumentString(int typeID, Object propertyObjectValue) throws RepositoryException;
 
-	public IColumnInfoManager getColumnInfoManager();
+	//RAGTEST public IColumnInfoManager getColumnInfoManager();
 
 	public UUID getRepositoryUUID() throws RepositoryException;
 

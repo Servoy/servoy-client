@@ -67,8 +67,6 @@ public interface IServerInternal
 
 	ServerConfig getConfig();
 
-	ServerSettings getSettings();
-
 	String[] removeTable(ITable t) throws SQLException, RepositoryException;
 
 	public String[] removeTable(Table t, Connection connection) throws SQLException, RepositoryException;
@@ -121,7 +119,7 @@ public interface IServerInternal
 
 	IRepository createRepositoryTables() throws RepositoryException;
 
-	IRepository getRepository() throws RepositoryException;
+	// RAGTEST IRepository getRepository() throws RepositoryException;
 
 	Table getRepositoryTable(String name) throws RepositoryException;
 
