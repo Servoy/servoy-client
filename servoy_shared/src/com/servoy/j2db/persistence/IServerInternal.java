@@ -127,6 +127,8 @@ public interface IServerInternal
 
 	boolean isTableListLoaded();
 
+	boolean isTableListLoadedAsync();
+
 	boolean isTableLoaded(String tableName);
 
 	void reloadTableColumnInfo(ITable t) throws RepositoryException;
