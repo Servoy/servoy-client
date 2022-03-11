@@ -23,7 +23,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.IntSupplier;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -139,6 +138,13 @@ public class DatabaseUtils
 				cid.dataProviderID = cobj.has(ColumnInfoDef.DATA_PROVIDER_ID) ? Utils.toEnglishLocaleLowerCase(cobj.optString(ColumnInfoDef.DATA_PROVIDER_ID))
 					: null;
 				cid.containsMetaData = cobj.has(ColumnInfoDef.CONTAINS_META_DATA) ? Integer.valueOf(cobj.optInt(ColumnInfoDef.CONTAINS_META_DATA)) : null;
+				cid.sortIgnorecase = cobj.optBoolean(ColumnInfoDef.SORT_IGNORECASE, false);
+				String sortingNullprecedence = cobj.optString(ColumnInfoDef.SORTING_NULLPRECEDENCE, null);
+				if (sortingNullprecedence != null)
+				{
+					cid.sortingNullprecedence = SortingNullprecedence.valueOf(sortingNullprecedence);
+				}
+
 				if (!tableInfo.columnInfoDefSet.contains(cid))
 				{
 					tableInfo.columnInfoDefSet.add(cid);
@@ -251,19 +257,20 @@ public class DatabaseUtils
 		ci.setConfiguredColumnType(cid.columnType);
 		ci.setCompatibleColumnTypes(cid.compatibleColumnTypes);
 		ci.setFlags(cid.flags);
+		ci.setSortIgnorecase(cid.sortIgnorecase);
+		ci.setSortingNullprecedence(cid.sortingNullprecedence);
 		c.setDatabasePK((cid.flags & IBaseColumn.PK_COLUMN) != 0);
 		c.setColumnInfo(ci);
 	}
 
-	public static void updateTableColumnInfos(IntSupplier elementIdSupplier, ITable t, HashMap<String, ColumnInfoDef> columnInfoDefinitions)
+	public static void updateTableColumnInfos(IPersistFactory persistFactory, ITable t, HashMap<String, ColumnInfoDef> columnInfoDefinitions)
+		throws RepositoryException
 	{
-		Iterator<Column> tableColumnsIte = t.getColumns().iterator();
-		while (tableColumnsIte.hasNext())
+		for (Column column : t.getColumns())
 		{
-			Column column = tableColumnsIte.next();
 			if (columnInfoDefinitions.containsKey(column.getName()))
 			{
-				DatabaseUtils.updateColumnInfo(elementIdSupplier.getAsInt(), column, columnInfoDefinitions.get(column.getName()));
+				updateColumnInfo(persistFactory.getNewElementID(null), column, columnInfoDefinitions.get(column.getName()));
 			}
 		}
 	}

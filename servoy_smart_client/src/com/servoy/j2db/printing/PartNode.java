@@ -227,7 +227,7 @@ public class PartNode
 				QueryColumn queryColumn = column.queryColumn(queryTable);
 				selectCols.add(queryColumn);
 				groupbyCols.add(queryColumn);
-				sortbyCols.add(new QuerySort(queryColumn, element.getSortOrder() == SortColumn.ASCENDING, fs.getFoundSetManager().isSortingIgnoreCase(column)));
+				sortbyCols.add(new QuerySort(queryColumn, element.getSortOrder() == SortColumn.ASCENDING, fs.getFoundSetManager().getSortOptions(column)));
 			}
 
 			//make sql

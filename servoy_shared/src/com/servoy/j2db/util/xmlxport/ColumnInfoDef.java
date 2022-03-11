@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import com.servoy.j2db.persistence.ColumnInfo;
+import com.servoy.j2db.persistence.SortingNullprecedence;
 import com.servoy.j2db.query.ColumnType;
 
 public final class ColumnInfoDef implements Serializable
@@ -51,6 +52,8 @@ public final class ColumnInfoDef implements Serializable
 	public static final String CREATION_ORDER_INDEX = "creationOrderIndex"; //$NON-NLS-1$
 	public static final String DATA_PROVIDER_ID = "dataProviderID"; //$NON-NLS-1$
 	public static final String CONTAINS_META_DATA = "containsMetaData"; //$NON-NLS-1$
+	public static final String SORT_IGNORECASE = "sortIgnorecase"; //$NON-NLS-1$
+	public static final String SORTING_NULLPRECEDENCE = "sortingNullprecedence"; //$NON-NLS-1$
 
 	public String name = null;
 	public ColumnType columnType = null;
@@ -76,6 +79,8 @@ public final class ColumnInfoDef implements Serializable
 	public String elementTemplateProperties = null;
 	public String dataProviderID = null;
 	public Integer containsMetaData = null;
+	public boolean sortIgnorecase = false;
+	public SortingNullprecedence sortingNullprecedence = null;
 	public int creationOrderIndex = -1; // used only during import; at export the value is written directly into the XML
 
 	/**

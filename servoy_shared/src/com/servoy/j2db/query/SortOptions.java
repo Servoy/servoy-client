@@ -17,42 +17,40 @@
 
 package com.servoy.j2db.query;
 
+import com.servoy.j2db.persistence.SortingNullprecedence;
+
 /**
  * RAGTEST doc
  *
  * @author rgansevles
  *
  */
-public enum SortOptions
+public class SortOptions
 {
-	none(false),
-	ignoreCase(true);
+	public static SortOptions NONE = new SortOptions(false, SortingNullprecedence.ragtestDefault);
 
-	private boolean ign;
+	private final boolean ignoreCase;
+	private final SortingNullprecedence nullprecedence;
 
-	SortOptions(boolean ign)
+	public SortOptions(boolean ignoreCase, SortingNullprecedence nullprecedence)
 	{
-		this.ign = ign;
+		this.ignoreCase = ignoreCase;
+		this.nullprecedence = nullprecedence;
 	}
 
 	public boolean ignoreCase()
 	{
-		return ign;
+		return ignoreCase;
 	}
 
-	static SortOptions ignoreCase(boolean ign)
+	public SortingNullprecedence nullprecedence()
 	{
-		return valueOf(ign);
-	}
-
-	private static SortOptions valueOf(boolean ign)
-	{
-		return ign ? ignoreCase : none;
+		return nullprecedence;
 	}
 
 	public String display()
 	{
-		return ign ? "#" : "";
+		return (ignoreCase ? "#" : "") + nullprecedence.display();
 	}
 
 

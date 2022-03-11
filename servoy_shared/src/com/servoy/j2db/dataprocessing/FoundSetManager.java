@@ -96,7 +96,6 @@ import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
-import com.servoy.j2db.persistence.ServerSettings;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
@@ -114,6 +113,7 @@ import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
+import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
 import com.servoy.j2db.querybuilder.impl.QBFactory;
@@ -187,27 +187,20 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 
 	@Override
-	public boolean isSortingIgnoreCase(IColumn column)
+	public SortOptions getSortOptions(IColumn column)
 	{
 		if (column != null)
 		{
+			boolean ignoreCase =false
+			if (column.getColumnInfo() != null && column.getColumnInfo().isSortIgnorecase())
+			{
+				return true;
+			}
+
 			try
 			{
-				String serverName = column.getTable().getServerName();
-				if (serverName != null)
-				{
-
-					IServer server = application.getSolution().getServer(serverName);
-					if (server != null)
-					{
-						ServerSettings serverSettings = server.getSettings();
-						if (serverSettings.isSortIgnorecase())
-						{
-							return true;
-						}
-						// RAGTEST TODO  table/column-specific
-					}
-				}
+				IServer server = application.getSolution().getServer(column.getTable().getServerName());
+				return server != null && server.getSettings().isSortIgnorecase();
 			}
 			catch (RepositoryException | RemoteException e)
 			{
@@ -215,7 +208,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 		}
 
-		return false;
+		return SortOptions.NONE;
 	}
 
 	/**

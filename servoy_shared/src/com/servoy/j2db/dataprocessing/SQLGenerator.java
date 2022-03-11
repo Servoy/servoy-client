@@ -333,7 +333,7 @@ public class SQLGenerator
 			{
 				continue; // skip cannot sort blob columns
 			}
-			boolean sortingIgnoreCase = application.getFoundSetManager().isSortingIgnoreCase(sc.getColumn());
+			boolean sortingIgnoreCase = application.getFoundSetManager().getSortOptions(sc.getColumn());
 
 			Relation[] relations = sc.getRelations();
 			// compare on server objects, relation.foreignServerName may be different in case of duplicates
@@ -435,7 +435,7 @@ public class SQLGenerator
 		{
 			for (Column column : unusedRowidentColumns)
 			{
-				boolean sortingIgnoreCase = application.getFoundSetManager().isSortingIgnoreCase(column);
+				boolean sortingIgnoreCase = application.getFoundSetManager().getSortOptions(column);
 				sqlSelect.addSort(new QuerySort(column.queryColumn(selectTable), true, sortingIgnoreCase));
 			}
 		}

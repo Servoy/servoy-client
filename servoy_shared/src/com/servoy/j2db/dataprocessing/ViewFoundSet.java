@@ -1685,7 +1685,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		this.select.clearSorts();
 		if (sortColumns != null) this.select.setSorts((ArrayList< ? extends IQuerySort>)sortColumns.stream()
 			.map(sort -> new QuerySort(((Column)sort.getColumn()).queryColumn(this.select.getTable()), sort.getSortOrder() == SortColumn.ASCENDING,
-				manager.isSortingIgnoreCase(sort.getColumn())))
+				manager.getSortOptions(sort.getColumn())))
 			.collect(Collectors.toList()));
 		this.loadAllRecordsImpl();
 

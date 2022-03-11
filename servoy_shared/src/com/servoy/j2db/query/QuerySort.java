@@ -35,14 +35,14 @@ public final class QuerySort implements IQuerySort
 	{
 		this.column = column;
 		this.ascending = ascending;
-		this.options = SortOptions.none;
+		this.options = SortOptions.NONE;
 	}
 
-	public QuerySort(IQuerySelectValue column, boolean ascending, boolean ignoreCase)
+	public QuerySort(IQuerySelectValue column, boolean ascending, SortOptions options)
 	{
 		this.column = column;
 		this.ascending = ascending;
-		this.options = SortOptions.ignoreCase(ignoreCase);
+		this.options = options;
 	}
 
 	public IQuerySelectValue getColumn()

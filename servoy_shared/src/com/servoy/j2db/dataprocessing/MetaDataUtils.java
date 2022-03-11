@@ -42,6 +42,7 @@ import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
+import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyJSONObject;
@@ -247,7 +248,7 @@ public class MetaDataUtils
 		{
 			if (qColumns.containsKey(column))
 			{
-				query.addSort(new QuerySort(qColumns.get(column), true, false));
+				query.addSort(new QuerySort(qColumns.get(column), true, SortOptions.NONE));
 			}
 		}
 		return query;
