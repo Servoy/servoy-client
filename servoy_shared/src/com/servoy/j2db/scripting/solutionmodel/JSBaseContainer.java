@@ -947,4 +947,17 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 			return new JSWebComponent(parent, baseComponent, application, isNew);
 		}
 	}
+
+	/**
+	 * Returns the comment of this container.
+	 *
+	 * @sample
+	 * var comment = solutionModel.getForm("my_form").getComment();
+	 * application.output(comment);
+	 */
+	@JSFunction
+	public String getComment()
+	{
+		return getContainer().getComment();
+	}
 }
