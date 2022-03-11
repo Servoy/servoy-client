@@ -129,6 +129,7 @@ import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.StringComparator;
 import com.servoy.j2db.util.TypePredicate;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.WrappedObjectReference;
 import com.servoy.j2db.util.serialize.JSONSerializerWrapper;
 import com.servoy.j2db.util.visitor.IVisitor;
 import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
@@ -2879,13 +2880,15 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		nullColumnValidatorEnabled = enable;
 	}
 
-	public Object[] insertToDataSource(String name, IDataSet dataSet, ColumnType[] columnTypes, String[] pkNames, boolean create, boolean skipOnLoad)
+	public Object[] insertToDataSource(String name, IDataSet dataSet, ColumnType[] columnTypes, WrappedObjectReference<String[]> pkNames, boolean create,
+		boolean skipOnLoad)
 		throws ServoyException
 	{
 		return insertToDataSource(name, dataSet, columnTypes, pkNames, create, skipOnLoad, null);
 	}
 
-	public Object[] insertToDataSource(String name, IDataSet dataSet, ColumnType[] columnTypes, String[] pkNames, boolean create, boolean skipOnLoad,
+	public Object[] insertToDataSource(String name, IDataSet dataSet, ColumnType[] columnTypes, WrappedObjectReference<String[]> pkNames, boolean create,
+		boolean skipOnLoad,
 		String server)
 		throws ServoyException
 	{
@@ -2893,6 +2896,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			return null;
 		}
+		WrappedObjectReference<String[]> actualPkNames = pkNames;
+		if (actualPkNames == null) actualPkNames = new WrappedObjectReference<String[]>(null);
 
 		String dataSource = IServer.VIEW_SERVER.equals(server) ? DataSourceUtils.createViewDataSource(name) : DataSourceUtils.createInmemDataSource(name);
 
@@ -2954,6 +2959,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				ColumnInfoDef cid = tableInfo.columnInfoDefSet.get(j);
 				if (cid.autoEnterType != ColumnInfo.SEQUENCE_AUTO_ENTER || cid.autoEnterSubType != ColumnInfo.DATABASE_IDENTITY)
 				{
+					// we only support auto-enter for in-mem tables based on dbident (that is then handled by hsql)
+					// that is why we only check for that here; for example, if one would define at design time a
+					// uuid generator pk column on an in-mem table, that would not work; it would try to insert null into a non-nullable column
 					inmemColumnNamesThatCanSetData.add(cid.name);
 					inmemColumnTypesForColumnsThatCanSetData.add(cid.columnType);
 				}
@@ -2974,15 +2982,19 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				}
 			}
 
-			if (pkNames == null && inmemPKs.size() > 0)
+			if (actualPkNames.o == null && inmemPKs.size() > 0)
 			{
-				pkNames = inmemPKs.toArray(new String[inmemPKs.size()]);
+				actualPkNames.o = inmemPKs.toArray(new String[inmemPKs.size()]);
 			}
 
 			if (!asList(dataSet.getColumnNames()).equals(inmemColumnNamesThatCanSetData) ||
 				!compareColumnTypes(fixedColumnTypes, inmemColumnTypesForColumnsThatCanSetData))
 			{
-				if (dataSet.getColumnCount() > 0 && !asList(dataSet.getColumnNames()).equals(inmemColumnNamesThatCanSetData))
+				if (dataSet.getColumnCount() > 0 /*
+													 * do not generate warning if this is just the initial load of a design time inmem table that adds 0 rows
+													 * and doesn't care about columns
+													 */
+					&& !asList(dataSet.getColumnNames()).equals(inmemColumnNamesThatCanSetData))
 				{
 					Debug.warn(
 						"Dataset column names definition does not match inmem table definition for datasource : " + dataSource + " columns of dataset: " +
@@ -3061,19 +3073,23 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				.insertDataSet(application.getClientID(), fixedDataSet, dataSource,
 					table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */, tid,
 					fixedColumnTypes == null ? null : fixedColumnTypes.toArray(new ColumnType[fixedColumnTypes.size()]) /* inferred from dataset when null */,
-					pkNames, columnInfoDefinitions);
+					actualPkNames.o, columnInfoDefinitions);
 			if (insertResult != null)
 			{
 				table = insertResult.getTable();
 				// if the given dataset is not the dataset that is "fixed" (columns/typing fixed to the in mem design definition) and it has rows,
 				// then call insertDataSet again so the data is inserted with the columns defined in the the dataset
-				// we assume here that "dataSet" contains a valid subset (names, types, data) of columns
+
+				// we did check above that the dataSet column count matches the settable columns the foundset is supposed to have,
+				// but they could be in a different order
+				// TODO then the FoundsetDataSet that is created based on the foundset will not work correctly with indexes inside the foundset...
+				// do we want to fix that somehow or the caller should just make sure it calls it with the correct column order?
 				if (dataSet != fixedDataSet && dataSet.getRowCount() > 0)
 				{
 					insertResult = application.getDataServer()
 						.insertDataSet(application.getClientID(), dataSet, dataSource, table.getServerName(), table.getName(), tid,
 							columnTypes/* will be inferred by called method from dataset if null */,
-							pkNames, columnInfoDefinitions);
+							actualPkNames.o, columnInfoDefinitions);
 				}
 				if (IServer.INMEM_SERVER.equals(serverName))
 				{
