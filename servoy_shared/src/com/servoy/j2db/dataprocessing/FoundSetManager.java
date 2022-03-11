@@ -2913,7 +2913,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		String dataSource = IServer.VIEW_SERVER.equals(server) ? DataSourceUtils.createViewDataSource(name) : DataSourceUtils.createInmemDataSource(name);
 
+		// initial dataset to use, but can also be set later to a 0 row dataset that is created to match columnNames and columnTypes with an in-mem
+		// table definition, if that is available and columns do not match with the initial dataset
 		IDataSet fixedDataSet = dataSet;
+
 		List<ColumnType> fixedColumnTypes;
 		if (columnTypes == null)
 		{
@@ -2937,20 +2940,20 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 
 		HashMap<String, ColumnInfoDef> columnInfoDefinitions = null;
-		boolean[] rowsToStringserialize = null;
+		Set<Integer> columnsThatNeedToStringSerialize = null;
 		if (columnsDef == null)
 		{
 			// if we have array columns, convert values using StringSerializer
 			if (containsArrayType(fixedColumnTypes))
 			{
-				rowsToStringserialize = new boolean[fixedColumnTypes.size()];
+				columnsThatNeedToStringSerialize = new HashSet<>();
 				for (int i = 0; i < fixedColumnTypes.size(); i++)
 				{
 					ColumnType columnType = fixedColumnTypes.get(i);
 					if (columnType.getSqlType() == Types.ARRAY)
 					{
 						fixedColumnTypes.set(i, ColumnType.getColumnType(IColumnTypes.TEXT));
-						rowsToStringserialize[i] = true;
+						columnsThatNeedToStringSerialize.add(Integer.valueOf(i));
 					}
 				}
 			}
@@ -2958,17 +2961,18 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		else
 		{
 			TableDef tableInfo = DatabaseUtils.deserializeTableInfo(columnsDef);
-			columnInfoDefinitions = new HashMap<String, ColumnInfoDef>();
-			List<String> inmemColumnNames = new ArrayList<>();
-			List<String> inmemPKs = new ArrayList<>();
-			List<ColumnType> inmemColumnTypes = new ArrayList<>();
+			List<String> inmemColumnNamesThatCanSetData = new ArrayList<>(); // column names that are not SEQUENCE_AUTO_ENTER/DATABASE_IDENTITY from table node (columnsDef)
+			List<ColumnType> inmemColumnTypesForColumnsThatCanSetData = new ArrayList<>(); // column types of columns that are not SEQUENCE_AUTO_ENTER/DATABASE_IDENTITY from table node (columnsDef)
+			columnInfoDefinitions = new HashMap<String, ColumnInfoDef>(); // ALL column defs from design time table node (columnsDef)
+			List<String> inmemPKs = new ArrayList<>(); // pk/rowid column names from design time table node (columnsDef)
+
 			for (int j = 0; j < tableInfo.columnInfoDefSet.size(); j++)
 			{
 				ColumnInfoDef cid = tableInfo.columnInfoDefSet.get(j);
 				if (cid.autoEnterType != ColumnInfo.SEQUENCE_AUTO_ENTER || cid.autoEnterSubType != ColumnInfo.DATABASE_IDENTITY)
 				{
-					inmemColumnNames.add(cid.name);
-					inmemColumnTypes.add(cid.columnType);
+					inmemColumnNamesThatCanSetData.add(cid.name);
+					inmemColumnTypesForColumnsThatCanSetData.add(cid.columnType);
 				}
 				if ((cid.flags & IBaseColumn.IDENT_COLUMNS) != 0)
 				{
@@ -2979,11 +2983,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				// apply stringserializer on designed datasources
 				if (JSONSerializerWrapper.STRING_SERIALIZER_NAME.equals(cid.converterName))
 				{
-					if (rowsToStringserialize == null)
+					if (columnsThatNeedToStringSerialize == null)
 					{
-						rowsToStringserialize = new boolean[fixedColumnTypes.size()];
+						columnsThatNeedToStringSerialize = new HashSet<>();
 					}
-					rowsToStringserialize[j] = true;
+					columnsThatNeedToStringSerialize.add(Integer.valueOf(j));
 				}
 			}
 
@@ -2992,36 +2996,40 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				pkNames = inmemPKs.toArray(new String[inmemPKs.size()]);
 			}
 
-			if (!asList(dataSet.getColumnNames()).equals(inmemColumnNames) || !compareColumnTypes(fixedColumnTypes, inmemColumnTypes))
+			if (!asList(dataSet.getColumnNames()).equals(inmemColumnNamesThatCanSetData) ||
+				!compareColumnTypes(fixedColumnTypes, inmemColumnTypesForColumnsThatCanSetData))
 			{
-				if (dataSet.getColumnCount() > 0 && !asList(dataSet.getColumnNames()).equals(inmemColumnNames))
+				if (dataSet.getColumnCount() > 0 && !asList(dataSet.getColumnNames()).equals(inmemColumnNamesThatCanSetData))
 				{
 					Debug.warn(
 						"Dataset column names definition does not match inmem table definition for datasource : " + dataSource + " columns of dataset: " +
-							Arrays.toString(dataSet.getColumnNames()) + ", columns of in mem definition: " + inmemColumnNames);
+							Arrays.toString(dataSet.getColumnNames()) + ", columns of in mem definition: " + inmemColumnNamesThatCanSetData);
 				}
-				if (fixedColumnTypes != null && !compareColumnTypes(fixedColumnTypes, inmemColumnTypes))
+				if (fixedColumnTypes != null && !compareColumnTypes(fixedColumnTypes, inmemColumnTypesForColumnsThatCanSetData))
 				{
 					Debug.warn("Dataset column types definition does not match inmem table definition for datasource : " + dataSource + " types of dataset: " +
-						fixedColumnTypes + ", types of in mem definition: " + inmemColumnTypes);
+						fixedColumnTypes + ", types of in mem definition: " + inmemColumnTypesForColumnsThatCanSetData);
 				}
-				fixedColumnTypes = inmemColumnTypes;
-				fixedDataSet = BufferedDataSetInternal.createBufferedDataSet(inmemColumnNames.toArray(new String[inmemColumnNames.size()]),
+				fixedColumnTypes = inmemColumnTypesForColumnsThatCanSetData;
+				fixedDataSet = BufferedDataSetInternal.createBufferedDataSet(
+					inmemColumnNamesThatCanSetData.toArray(new String[inmemColumnNamesThatCanSetData.size()]),
 					fixedColumnTypes.toArray(new ColumnType[fixedColumnTypes.size()]), new ArrayList<Object[]>(), false);
 			}
 		}
 
 		// check if column count of the actual data corresponds to the count of needed columns (fixedColumnTypes.size()) that are
-		//   - in the if branch above (not table node), taken from columnTypes arg or from dataset arg column type info
-		//   - in the else branch above (already defined in the table node), columns that are not auto sequences or dbidents; see inmemColumnNames/inmemColumnTypes(which is at this point the same as fixedColumnTypes)
-		if (dataSet.getRowCount() > 0 && dataSet.getRow(0).length != fixedColumnTypes.size())
+		//   - in the if branch above (not defined as a design-time inmem table (table node))
+		//       - taken from columnTypes arg or from dataset arg column type info - if available
+		//       - if fixedColumnTypes is null then this is an in-mem that is not defined at design time nor does it have column types available so we will just use the columns that the dataset has
+		//   - in the else branch above (already defined at design time), columns that are not auto sequences or dbidents; see inmemColumnNames/inmemColumnTypes(which is at this point the same as fixedColumnTypes)
+		if (fixedColumnTypes != null && dataSet.getRowCount() > 0 && dataSet.getRow(0).length != fixedColumnTypes.size())
 		{
 			throw new RepositoryException("Data set rows do not match column count"); //$NON-NLS-1$
 		}
 
-		if (rowsToStringserialize != null)
+		if (columnsThatNeedToStringSerialize != null)
 		{
-			replaceValuesWithSerializedString(dataSet, rowsToStringserialize);
+			replaceValuesWithSerializedString(dataSet, columnsThatNeedToStringSerialize);
 		}
 
 		try
@@ -3074,14 +3082,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			if (insertResult != null)
 			{
 				table = insertResult.getTable();
-				// if the given dataset is not the dataset that is "fixed" (columns/typing fixed to the in mem definition) and it has rows
-				// then call insertDataSet again so the data is inserted with the columns defined in the the dataset.
+				// if the given dataset is not the dataset that is "fixed" (columns/typing fixed to the in mem design definition) and it has rows,
+				// then call insertDataSet again so the data is inserted with the columns defined in the the dataset
+				// we assume here that "dataSet" contains a valid subset (names, types, data) of columns
 				if (dataSet != fixedDataSet && dataSet.getRowCount() > 0)
 				{
 					insertResult = application.getDataServer()
 						.insertDataSet(application.getClientID(), dataSet, dataSource, table.getServerName(), table.getName(), tid,
-							fixedColumnTypes == null ? null
-								: fixedColumnTypes.toArray(new ColumnType[fixedColumnTypes.size()]) /* inferred from dataset when null */,
+							columnTypes/* will be inferred by called method from dataset if null */,
 							pkNames, columnInfoDefinitions);
 				}
 				if (IServer.INMEM_SERVER.equals(serverName))
@@ -3093,7 +3101,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					viewDataSources.put(dataSource, table);
 				}
 				fireTableEvent(table);
-				if (!skipOnLoad && fixedDataSet.getRowCount() == 0 && onLoadMethodId > 0)
+				if (!skipOnLoad && dataSet.getRowCount() == 0 && onLoadMethodId > 0)
 				{
 					IFoundSetInternal sharedFoundSet = getSharedFoundSet(dataSource);
 					executeFoundsetTriggerReturnFirst(sharedFoundSet.getTable(), new Object[] { DataSourceUtils.getInmemDataSourceName(dataSource) },
@@ -3114,21 +3122,24 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return null;
 	}
 
-	private static void replaceValuesWithSerializedString(IDataSet dataSet, boolean[] rowsToStringserialize)
+	private static void replaceValuesWithSerializedString(IDataSet dataSet, Set<Integer> columnsThatNeedToStringSerialize)
 	{
+		Integer[] colIndexesThatNeedToStringSerialize = columnsThatNeedToStringSerialize.toArray(new Integer[columnsThatNeedToStringSerialize.size()]);
+
 		// run stringserializer over the rows
 		JSONSerializerWrapper stringserializer = new JSONSerializerWrapper(false);
 		for (int r = 0; r < dataSet.getRowCount(); r++)
 		{
 			Object[] row = dataSet.getRow(r).clone();
-			for (int i = 0; i < rowsToStringserialize.length; i++)
+			for (Integer colIdxAsInteger : colIndexesThatNeedToStringSerialize)
 			{
-				if (rowsToStringserialize[i] && row[i] != null && !(row[i] instanceof String))
+				int colIdx = colIdxAsInteger.intValue();
+				if (row[colIdx] != null && !(row[colIdx] instanceof String))
 				{
 					// the data was not a string (so not pre-serialized from js), run it through the stringserializer.
 					try
 					{
-						row[i] = stringserializer.toJSON(row[i]).toString();
+						row[colIdx] = stringserializer.toJSON(row[colIdx]).toString();
 					}
 					catch (MarshallException e)
 					{

@@ -9,7 +9,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 			handlers: "=svyHandlers",
 			api: "=svyApi"
 		},
-		controller: function ($scope) {
+		controller: function ($scope, $element) {
 			$scope.showValues = null;
 			if ($scope.model.clientProperty && $scope.model.clientProperty['TypeAhead'] && $scope.model.clientProperty['TypeAhead']['showPopupOnFocusGain'] !== null && $scope.model.clientProperty['TypeAhead']['showPopupOnFocusGain'] !== undefined )
 			{
@@ -19,6 +19,14 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 			{
 				$scope.showValues = $applicationService.getUIProperty('TypeAhead.showPopupOnFocusGain');
 			}	
+			$scope.enterPressed = function(event)
+			{
+				if ($scope.handlers.onActionMethodID) {
+					$scope.handlers.onActionMethodID(event)
+				}
+				$scope.value = $element.val();
+                $scope.doSvyApply(false,true, event);
+			};
 		},
 		link: function($scope, $element, $attrs, ngModel) {
 

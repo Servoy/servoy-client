@@ -196,4 +196,9 @@ public class FoundsetDataAdapterList extends DataAdapterList
 		return this.onlyFireListenersForPropertyValue == null || this.onlyFireListenersForPropertyValue == propertyValue;
 	}
 
+	@Override
+	public String toString()
+	{
+		return "FoundsetDAL[form:" + getForm() + ",foundsettype:" + this.foundsetTypeSabloValue + "]";
+	}
 }
