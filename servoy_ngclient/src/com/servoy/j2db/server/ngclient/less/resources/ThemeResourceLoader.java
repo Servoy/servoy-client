@@ -40,7 +40,7 @@ public class ThemeResourceLoader
 	public static final String CUSTOM_PROPERTIES_NG2_LESS = "custom_servoy_theme_properties_ng2.less";
 	public static final String PROPERTIES_LESS = "servoy_theme_properties.less";
 	public static final String THEME_LESS = "servoy_theme.less";
-	public static final String[] VERSIONS = new String[] { "latest", "2021.3.0_ng2", "2020.6.0", "2019.12.0", "2019.6.0", "2019.3.0", "8.4.0" };
+	public static final String[] VERSIONS = new String[] { "latest", "2022.3.0_ng2", "2022.3.0", "2021.3.0_ng2", "2020.6.0", "2019.12.0", "2019.6.0", "2019.3.0", "8.4.0" };
 
 	private static SortedMap<Version, String> themePropertyResource = new TreeMap<>();
 	private static SortedMap<Version, String> themeResource = new TreeMap<>();
@@ -52,6 +52,8 @@ public class ThemeResourceLoader
 		themeResource.put(new Version("2019.12.0"), "servoy_theme_2019.12.0.less");
 		themeResource.put(new Version("2020.6.0"), "servoy_theme_2020.6.0.less");
 		themeResource.put(new Version("2021.3.0_ng2"), "servoy_theme_2021.3.0_ng2.less");
+		themeResource.put(new Version("2022.3.0"), "servoy_theme_2022.3.0.less");
+		themeResource.put(new Version("2022.3.0_ng2"), "servoy_theme_2022.3.0_ng2.less");
 
 		themePropertyResource.put(new Version("8.4.0"), "servoy_theme_properties_8.4.0.less");
 		themePropertyResource.put(new Version("2019.3.0"), "servoy_theme_properties_2019.3.0.less");
@@ -59,6 +61,8 @@ public class ThemeResourceLoader
 		themePropertyResource.put(new Version("2019.12.0"), "servoy_theme_properties_2019.12.0.less");
 		themePropertyResource.put(new Version("2020.6.0"), "servoy_theme_properties_2020.6.0.less");
 		themePropertyResource.put(new Version("2021.3.0_ng2"), "servoy_theme_properties_2021.3.0_ng2.less");
+		themePropertyResource.put(new Version("2022.3.0"), "servoy_theme_properties_2022.3.0.less");
+		themePropertyResource.put(new Version("2022.3.0_ng2"), "servoy_theme_properties_2022.3.0_ng2.less");
 	}
 
 	public static byte[] getDefaultSolutionLess()
