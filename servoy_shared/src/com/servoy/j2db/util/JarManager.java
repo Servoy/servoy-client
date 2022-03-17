@@ -636,20 +636,21 @@ public abstract class JarManager
 		return null;
 	}
 
-	public static String getVersion(URL jarUrl)
+	public static Pair<String, String> getNameAndVersion(URL jarUrl)
 	{
 		try (JarInputStream jis = new JarInputStream(jarUrl.openStream(), false))
 		{
 			Manifest mf = jis.getManifest();
 			String version = mf.getMainAttributes().getValue(Attributes.Name.IMPLEMENTATION_VERSION);
 			if (version == null) version = mf.getMainAttributes().getValue("Bundle-Version");
-			return version;
+			String name = mf.getMainAttributes().getValue("Bundle-SymbolicName");
+			if (name == null) mf.getMainAttributes().getValue("Automatic-Module-Name");
+			return new Pair<>(name, version);
 		}
 		catch (Exception e)
 		{
 			Debug.error(e);
 		}
 		return null;
-
 	}
 }
