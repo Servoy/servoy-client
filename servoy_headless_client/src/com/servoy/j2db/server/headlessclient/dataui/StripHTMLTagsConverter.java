@@ -44,6 +44,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.server.headlessclient.ServoyForm;
 import com.servoy.j2db.server.headlessclient.TabIndexHelper;
+import com.servoy.j2db.server.headlessclient.util.HCUtils;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
@@ -368,7 +369,7 @@ public class StripHTMLTagsConverter implements IConverter
 		{
 			Debug.error(ex);
 			bodyTxt.append("<span style=\"color : #ff0000;\">"); //$NON-NLS-1$
-			bodyTxt.append(ex.getMessage());
+			bodyTxt.append(HCUtils.sanitize(ex.getMessage()));
 			bodyTxt.append(bodyText.subSequence(ex.getErrorOffset(), Math.min(ex.getErrorOffset() + 100, bodyText.length())));
 			bodyTxt.append("</span></body></html>"); //$NON-NLS-1$
 			st.setBodyTxt(bodyTxt);
@@ -377,7 +378,7 @@ public class StripHTMLTagsConverter implements IConverter
 		{
 			Debug.error(ex);
 			bodyTxt.append("<span style=\"color : #ff0000;\">"); //$NON-NLS-1$
-			bodyTxt.append(ex.getMessage());
+			bodyTxt.append(HCUtils.sanitize(ex.getMessage()));
 			bodyTxt.append("</span></body></html>"); //$NON-NLS-1$
 			st.setBodyTxt(bodyTxt);
 		}
