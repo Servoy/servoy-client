@@ -26,9 +26,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.JavaMembers;
+import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeDate;
 import org.mozilla.javascript.NativeJavaObject;
+import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.TopLevel;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.WrapFactory;
 
@@ -197,7 +200,10 @@ public final class ServoyWrapFactory extends WrapFactory
 				Object src = source[i];
 				array[i] = wrap(cx, scope, src, src != null ? src.getClass() : null);
 			}
-			return cx.newArray(scope, array);
+			NativeArray result = new ServoyNativeArray(array, obj.getClass().getComponentType());
+			ScriptRuntime.setBuiltinProtoAndParent(result, scope,
+				TopLevel.Builtins.Array);
+			return result;
 		}
 		return super.wrap(cx, scope, obj, staticType);
 	}
