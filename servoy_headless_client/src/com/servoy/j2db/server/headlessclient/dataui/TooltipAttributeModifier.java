@@ -34,9 +34,12 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.util.string.Strings;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.scripting.IScriptable;
+import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.server.headlessclient.WebClient;
 import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.ui.IComponent;
+import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 
@@ -109,9 +112,27 @@ public class TooltipAttributeModifier extends AttributeModifier implements IIgno
 			{
 				tooltip = (String)component.getMetaData(TOOLTIP_METADATA);
 			}
-			return tooltip;
+
+			if (tooltip != null)
+			{
+				return WebBaseButton.sanitize(tooltip, trustDataAsHtml(component)).toString();
+			}
 		}
+
 		return null;
+	}
+
+	private static boolean trustDataAsHtml(Component component)
+	{
+		if (component instanceof IScriptableProvider)
+		{
+			IScriptable scriptObject = ((IScriptableProvider)component).getScriptObject();
+			if (scriptObject instanceof AbstractRuntimeBaseComponent)
+			{
+				return ((AbstractRuntimeBaseComponent< ? >)scriptObject).trustDataAsHtml();
+			}
+		}
+		return false;
 	}
 
 	@Override
