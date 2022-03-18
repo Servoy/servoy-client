@@ -641,12 +641,15 @@ public abstract class JarManager
 		try (JarInputStream jis = new JarInputStream(jarUrl.openStream(), false))
 		{
 			Manifest mf = jis.getManifest();
-			Attributes mainAttributes = mf.getMainAttributes();
-			String version = mainAttributes.getValue(Attributes.Name.IMPLEMENTATION_VERSION);
-			if (version == null) version = mainAttributes.getValue("Bundle-Version");
-			String name = mainAttributes.getValue("Bundle-SymbolicName");
-			if (name == null) name = mainAttributes.getValue("Automatic-Module-Name");
-			return new Pair<>(name, version);
+			if (mf != null)
+			{
+				Attributes mainAttributes = mf.getMainAttributes();
+				String version = mainAttributes.getValue(Attributes.Name.IMPLEMENTATION_VERSION);
+				if (version == null) version = mainAttributes.getValue("Bundle-Version");
+				String name = mainAttributes.getValue("Bundle-SymbolicName");
+				if (name == null) name = mainAttributes.getValue("Automatic-Module-Name");
+				return new Pair<>(name, version);
+			}
 		}
 		catch (Exception e)
 		{
