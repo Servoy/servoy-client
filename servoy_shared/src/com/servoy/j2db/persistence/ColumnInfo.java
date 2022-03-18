@@ -99,7 +99,7 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	private String validatorName = null;
 	private String defaultFormat = null;
 	private Integer containsMetaData = null;
-	private boolean sortIgnorecase = false;
+	private Boolean sortIgnorecase = null;
 	private SortingNullprecedence sortingNullprecedence = null;
 
 	private ColumnType configuredColumnType; // as configured by developer
@@ -794,7 +794,7 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	/**
 	 * @param sortIgnorecase the sortIgnorecase to set
 	 */
-	public void setSortIgnorecase(boolean sortIgnorecase)
+	public void setSortIgnorecase(Boolean sortIgnorecase)
 	{
 		this.sortIgnorecase = sortIgnorecase;
 	}
@@ -802,7 +802,7 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	/**
 	 * @return the sortIgnorecase
 	 */
-	public boolean isSortIgnorecase()
+	public Boolean getSortIgnorecase()
 	{
 		return sortIgnorecase;
 	}
@@ -871,7 +871,7 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		setConfiguredColumnType(sourceColumnInfo.getConfiguredColumnType());
 		setCompatibleColumnTypes(sourceColumnInfo.getCompatibleColumnTypes());
 
-		setSortIgnorecase(sourceColumnInfo.isSortIgnorecase());
+		setSortIgnorecase(sourceColumnInfo.getSortIgnorecase());
 		setSortingNullprecedence(sourceColumnInfo.getSortingNullprecedence());
 
 		// Flag that the column is changed.

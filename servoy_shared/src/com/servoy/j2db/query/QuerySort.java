@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.query;
 
+import com.servoy.j2db.persistence.SortingNullprecedence;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.IVisitor;
 
@@ -58,6 +59,11 @@ public final class QuerySort implements IQuerySort
 	public boolean isIgnoreCase()
 	{
 		return options.ignoreCase();
+	}
+
+	public SortingNullprecedence nullprecedence()
+	{
+		return options.nullprecedence();
 	}
 
 	@Override
@@ -128,6 +134,6 @@ public final class QuerySort implements IQuerySort
 		int i = 0;
 		column = (IQuerySelectValue)members[i++];
 		ascending = ((Boolean)members[i++]).booleanValue();
-		options = i < members.length ? (SortOptions)members[i++] : SortOptions.none;
+		options = i < members.length ? (SortOptions)members[i++] : SortOptions.NONE;
 	}
 }

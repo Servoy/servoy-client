@@ -79,7 +79,7 @@ public final class ColumnInfoDef implements Serializable
 	public String elementTemplateProperties = null;
 	public String dataProviderID = null;
 	public Integer containsMetaData = null;
-	public boolean sortIgnorecase = false;
+	public Boolean sortIgnorecase = null;
 	public SortingNullprecedence sortingNullprecedence = null;
 	public int creationOrderIndex = -1; // used only during import; at export the value is written directly into the XML
 

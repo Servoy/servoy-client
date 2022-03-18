@@ -39,6 +39,7 @@ import com.servoy.j2db.query.IQuerySort;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
+import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.Settings;
@@ -442,10 +443,10 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		{
 			for (SortColumn sc : sortColumns)
 			{
-				boolean sortIgnoreCase = application.getFoundSetManager().getSortOptions(sc.getColumn());
+				SortOptions sortoptions = application.getFoundSetManager().getSortOptions(sc.getColumn());
 				orderColumns.add(
 					new QuerySort(getQuerySelectValue(table, select.getTable(), sc.getDataProviderID()), sc.getSortOrder() == SortColumn.ASCENDING,
-						sortIgnoreCase));
+						sortoptions));
 			}
 		}
 
@@ -455,8 +456,8 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 			columns.add(cSQLName);
 			if ((showValues & 1) != 0 && !useDefinedSort)
 			{
-				boolean sortingIgnoreCase = application.getFoundSetManager().getSortOptions(table.getColumn(valueList.getDataProviderID1()));
-				orderColumns.add(new QuerySort(cSQLName, true, sortingIgnoreCase));
+				SortOptions sortoptions = application.getFoundSetManager().getSortOptions(table.getColumn(valueList.getDataProviderID1()));
+				orderColumns.add(new QuerySort(cSQLName, true, sortoptions));
 			}
 		}
 		if ((total & 2) != 0)
@@ -465,8 +466,8 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 			columns.add(cSQLName);
 			if ((showValues & 2) != 0 && !useDefinedSort)
 			{
-				boolean sortingIgnoreCase = application.getFoundSetManager().getSortOptions(table.getColumn(valueList.getDataProviderID2()));
-				orderColumns.add(new QuerySort(cSQLName, true, sortingIgnoreCase));
+				SortOptions sortoptions = application.getFoundSetManager().getSortOptions(table.getColumn(valueList.getDataProviderID2()));
+				orderColumns.add(new QuerySort(cSQLName, true, sortoptions));
 			}
 		}
 		if ((total & 4) != 0)
@@ -475,8 +476,8 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 			columns.add(cSQLName);
 			if ((showValues & 4) != 0 && !useDefinedSort)
 			{
-				boolean sortingIgnoreCase = application.getFoundSetManager().getSortOptions(table.getColumn(valueList.getDataProviderID3()));
-				orderColumns.add(new QuerySort(cSQLName, true, sortingIgnoreCase));
+				SortOptions sortoptions = application.getFoundSetManager().getSortOptions(table.getColumn(valueList.getDataProviderID3()));
+				orderColumns.add(new QuerySort(cSQLName, true, sortoptions));
 			}
 		}
 

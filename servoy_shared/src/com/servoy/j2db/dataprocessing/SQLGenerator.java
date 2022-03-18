@@ -100,6 +100,7 @@ import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
 import com.servoy.j2db.query.SetCondition;
+import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
@@ -333,7 +334,7 @@ public class SQLGenerator
 			{
 				continue; // skip cannot sort blob columns
 			}
-			boolean sortingIgnoreCase = application.getFoundSetManager().getSortOptions(sc.getColumn());
+			SortOptions sortOptions = application.getFoundSetManager().getSortOptions(sc.getColumn());
 
 			Relation[] relations = sc.getRelations();
 			// compare on server objects, relation.foreignServerName may be different in case of duplicates
@@ -413,14 +414,14 @@ public class SQLGenerator
 					Debug.log("Skipping sort on unexpected related column type " + column.getClass()); //$NON-NLS-1$
 					continue;
 				}
-				sqlSelect.addSort(new QuerySort(queryColumn, sc.getSortOrder() == ASCENDING, sortingIgnoreCase));
+				sqlSelect.addSort(new QuerySort(queryColumn, sc.getSortOrder() == ASCENDING, sortOptions));
 			}
 			else
 			{
 				// make sure an invalid sort is not possible
 				if (column instanceof Column && column.getTable().getName().equals(table.getName()))
 				{
-					sqlSelect.addSort(new QuerySort(((Column)column).queryColumn(selectTable), sc.getSortOrder() == ASCENDING, sortingIgnoreCase));
+					sqlSelect.addSort(new QuerySort(((Column)column).queryColumn(selectTable), sc.getSortOrder() == ASCENDING, sortOptions));
 					unusedRowidentColumns.remove(column);
 				}
 				else
@@ -435,8 +436,8 @@ public class SQLGenerator
 		{
 			for (Column column : unusedRowidentColumns)
 			{
-				boolean sortingIgnoreCase = application.getFoundSetManager().getSortOptions(column);
-				sqlSelect.addSort(new QuerySort(column.queryColumn(selectTable), true, sortingIgnoreCase));
+				SortOptions sortOptions = application.getFoundSetManager().getSortOptions(column);
+				sqlSelect.addSort(new QuerySort(column.queryColumn(selectTable), true, sortOptions));
 			}
 		}
 	}

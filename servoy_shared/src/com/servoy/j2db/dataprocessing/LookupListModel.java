@@ -45,6 +45,7 @@ import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
+import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
@@ -147,8 +148,8 @@ public class LookupListModel extends AbstractListModel
 				columns.add(cSQLName);
 				if ((showValues & 1) != 0)
 				{
-					boolean sortingIgnoreCase = application.getFoundSetManager().getSortOptions(table.getColumn(vl.getDataProviderID1()));
-					orderColumns.add(new QuerySort(cSQLName, true, sortingIgnoreCase));
+					SortOptions sortOptions = application.getFoundSetManager().getSortOptions(table.getColumn(vl.getDataProviderID1()));
+					orderColumns.add(new QuerySort(cSQLName, true, sortOptions));
 				}
 			}
 			if ((total & 2) != 0)
@@ -167,8 +168,8 @@ public class LookupListModel extends AbstractListModel
 				}
 				if ((showValues & 2) != 0)
 				{
-					boolean sortingIgnoreCase = application.getFoundSetManager().getSortOptions(table.getColumn(vl.getDataProviderID2()));
-					orderColumns.add(new QuerySort(cSQLName, true, sortingIgnoreCase));
+					SortOptions sortOptions = application.getFoundSetManager().getSortOptions(table.getColumn(vl.getDataProviderID2()));
+					orderColumns.add(new QuerySort(cSQLName, true, sortOptions));
 				}
 			}
 			if ((total & 4) != 0)
@@ -187,8 +188,8 @@ public class LookupListModel extends AbstractListModel
 				}
 				if ((showValues & 4) != 0)
 				{
-					boolean sortingIgnoreCase = application.getFoundSetManager().getSortOptions(table.getColumn(vl.getDataProviderID3()));
-					orderColumns.add(new QuerySort(cSQLName, true, sortingIgnoreCase));
+					SortOptions sortOptions = application.getFoundSetManager().getSortOptions(table.getColumn(vl.getDataProviderID3()));
+					orderColumns.add(new QuerySort(cSQLName, true, sortOptions));
 				}
 			}
 

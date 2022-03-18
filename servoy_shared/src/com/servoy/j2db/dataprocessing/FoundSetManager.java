@@ -97,6 +97,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.SortingNullprecedence;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.persistence.Table;
@@ -176,7 +177,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private final HashMap<String, Object> trackingInfoMap = new HashMap<String, Object>();
 	private int foundsetCounter = 1;
 
-	@SuppressWarnings("nls")
 	public FoundSetManager(IApplication app, FoundSetManagerConfig config, IFoundSetFactory factory)
 	{
 		application = app;
@@ -190,26 +190,42 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	@Override
 	public SortOptions getSortOptions(IColumn column)
 	{
+		boolean ignoreCase = false;
+		SortingNullprecedence sortingNullprecedence = SortingNullprecedence.ragtestDefault;
 		if (column != null)
 		{
-			boolean ignoreCase =false
-			if (column.getColumnInfo() != null && column.getColumnInfo().isSortIgnorecase())
-			{
-				return true;
-			}
-
 			try
 			{
+				// First defined at server level
 				IServer server = application.getSolution().getServer(column.getTable().getServerName());
-				return server != null && server.getSettings().isSortIgnorecase();
+				if (server != null)
+				{
+					ignoreCase = server.getSettings().isSortIgnorecase();
+					sortingNullprecedence = server.getSettings().getSortingNullprecedence();
+				}
 			}
 			catch (RepositoryException | RemoteException e)
 			{
 				Debug.error("Exception getting server settings", e);
 			}
+
+
+			ColumnInfo columnInfo = column.getColumnInfo();
+			if (columnInfo != null)
+			{
+				// Can be overridden at column level
+				if (columnInfo.getSortIgnorecase() != null)
+				{
+					ignoreCase = columnInfo.getSortIgnorecase().booleanValue();
+				}
+				if (columnInfo.getSortingNullprecedence() != SortingNullprecedence.ragtestDefault)
+				{
+					sortingNullprecedence = columnInfo.getSortingNullprecedence();
+				}
+			}
 		}
 
-		return SortOptions.NONE;
+		return SortOptions.NONE.withIgnoreCase(ignoreCase).withNullprecedence(sortingNullprecedence);
 	}
 
 	/**

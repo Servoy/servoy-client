@@ -75,25 +75,16 @@ public class TestRepository extends AbstractRepository
 		return rootObject;
 	}
 
-//	RAGTEST @Override
-//	public IColumnInfoManager getColumnInfoManager()
-//	{
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-
 	@Override
 	public void setUserProperties(int systemUserId, Map props) throws RepositoryException
 	{
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setRootObjectActiveRelease(int rootObjectId, int releaseNumber) throws RepositoryException
 	{
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override

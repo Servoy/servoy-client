@@ -138,12 +138,9 @@ public class DatabaseUtils
 				cid.dataProviderID = cobj.has(ColumnInfoDef.DATA_PROVIDER_ID) ? Utils.toEnglishLocaleLowerCase(cobj.optString(ColumnInfoDef.DATA_PROVIDER_ID))
 					: null;
 				cid.containsMetaData = cobj.has(ColumnInfoDef.CONTAINS_META_DATA) ? Integer.valueOf(cobj.optInt(ColumnInfoDef.CONTAINS_META_DATA)) : null;
-				cid.sortIgnorecase = cobj.optBoolean(ColumnInfoDef.SORT_IGNORECASE, false);
-				String sortingNullprecedence = cobj.optString(ColumnInfoDef.SORTING_NULLPRECEDENCE, null);
-				if (sortingNullprecedence != null)
-				{
-					cid.sortingNullprecedence = SortingNullprecedence.valueOf(sortingNullprecedence);
-				}
+				cid.sortIgnorecase = cobj.has(ColumnInfoDef.SORT_IGNORECASE) ? Boolean.valueOf(cobj.getBoolean(ColumnInfoDef.SORT_IGNORECASE)) : null;
+				cid.sortingNullprecedence = cobj.has(ColumnInfoDef.SORTING_NULLPRECEDENCE)
+					? SortingNullprecedence.valueOf(cobj.getString(ColumnInfoDef.SORTING_NULLPRECEDENCE)) : null;
 
 				if (!tableInfo.columnInfoDefSet.contains(cid))
 				{

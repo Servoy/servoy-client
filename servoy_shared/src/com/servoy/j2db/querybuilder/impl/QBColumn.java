@@ -30,6 +30,7 @@ import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.SetCondition;
+import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderPart;
@@ -311,7 +312,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBSort asc()
 	{
-		return new QBSort(getRoot(), this, true, false);
+		return new QBSort(getRoot(), this, true, SortOptions.NONE);
 	}
 
 	/**
@@ -326,7 +327,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBSort desc()
 	{
-		return new QBSort(getRoot(), this, false, false);
+		return new QBSort(getRoot(), this, false, SortOptions.NONE);
 	}
 
 	/**

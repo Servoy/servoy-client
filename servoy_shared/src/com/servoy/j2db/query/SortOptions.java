@@ -48,10 +48,24 @@ public class SortOptions
 		return nullprecedence;
 	}
 
-	public String display()
+	public SortOptions withIgnoreCase(boolean ic)
 	{
-		return (ignoreCase ? "#" : "") + nullprecedence.display();
+		return this.ignoreCase == ic ? this : new SortOptions(ic, this.nullprecedence);
 	}
 
+	public SortOptions withNullprecedence(SortingNullprecedence np)
+	{
+		return this.nullprecedence == np ? this : new SortOptions(this.ignoreCase, np);
+	}
 
+	public String display()
+	{
+		return ignoreCase ? "#" + nullprecedence.display() : nullprecedence.display();
+	}
+
+	@Override
+	public String toString()
+	{
+		return "SortOptions(" + display() + ")";
+	}
 }
