@@ -34,6 +34,7 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.WrappedObjectReference;
 
 /**
  * Internal interface to extend the foundset manager
@@ -102,9 +103,11 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	/**
 	 * Insert data to a new or existing data source.
 	 *
+	 * @param pkNames gives the names of pk columns; if null and insertToDataSource finds a design-time in-mem table definition that does have pks, it will change this reference to the pks it finds.
 	 * @return generated values for db identity columns
 	 */
-	public Object[] insertToDataSource(String name, IDataSet dataSet, ColumnType[] columnTypes, String[] pkNames, boolean create, boolean skipOnLoad)
+	public Object[] insertToDataSource(String name, IDataSet dataSet, ColumnType[] columnTypes, WrappedObjectReference<String[]> pkNames, boolean create,
+		boolean skipOnLoad)
 		throws ServoyException;
 
 	public boolean removeDataSource(String uri) throws RepositoryException;
