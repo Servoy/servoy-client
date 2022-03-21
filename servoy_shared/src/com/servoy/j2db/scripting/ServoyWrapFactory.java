@@ -200,7 +200,8 @@ public final class ServoyWrapFactory extends WrapFactory
 				Object src = source[i];
 				array[i] = wrap(cx, scope, src, src != null ? src.getClass() : null);
 			}
-			NativeArray result = new ServoyNativeArray(array, obj.getClass().getComponentType());
+			NativeArray result = obj.getClass().getComponentType() != Object.class ? new ServoyNativeArray(array, obj.getClass().getComponentType())
+				: new NativeArray(array);
 			ScriptRuntime.setBuiltinProtoAndParent(result, scope,
 				TopLevel.Builtins.Array);
 			return result;
