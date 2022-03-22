@@ -56,7 +56,6 @@ html, body {
 .svy-form {
     background-color: @body-bg;
 }
-
 .svy-form-inverse {
     background-color: @body-bg-inverse;
 }
@@ -206,6 +205,10 @@ html, body {
             transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
 }
 
+.svy-ngbdropdownitem 
+{ 
+    font-size: @field-font-size;
+}
 
 .svy-field, .svy-password,
 .svy-textarea, .bts-textarea,
@@ -452,7 +455,6 @@ fieldset[disabled] .form-control {
     margin: 0;
     padding: 0;
 }
-
 .svy-check input[type=checkbox],
 .svy-check input[type=radio],
 .svy-checkgroup input[type=checkbox],
@@ -468,7 +470,6 @@ fieldset[disabled] .form-control {
     width: 0;
     height: 0;
 }
-
 .svy-check input[type=checkbox] + span:before,
 .svy-check input[type=radio] + span:before,
 .svy-checkgroup input[type=checkbox] + span:before,
@@ -481,7 +482,6 @@ fieldset[disabled] .form-control {
     letter-spacing: 5px;
     color: @field-check-color;
 }
-
 .svy-check input[type=checkbox]:focus + span:before,
 .svy-check input[type=radio]:focus + span:before,
 .svy-checkgroup input[type=checkbox]:focus + span:before,
@@ -491,7 +491,6 @@ fieldset[disabled] .form-control {
 .bts-radiogroup input[type=radio]:focus + span:before {
     color: darken(@field-check-color, 15%);
 }
-
 input[type="radio"][disabled] + span, 
 input[type="checkbox"][disabled] + span, 
 input[type="radio"].disabled + span, 
@@ -500,7 +499,6 @@ fieldset[disabled] input[type="radio"] + span,
 fieldset[disabled] input[type="checkbox"] + span {
     cursor: not-allowed;
 }
-
 input[type="radio"][disabled] + span:before, 
 input[type="checkbox"][disabled] + span:before, 
 input[type="radio"].disabled + span:before, 
@@ -510,26 +508,22 @@ fieldset[disabled] input[type="checkbox"] + span:before {
     cursor: not-allowed;
     opacity: 0.6;
 }
-
 .svy-check input[type=checkbox] + span:before,
 .bts-check input[type=checkbox] + span:before,
 .svy-checkgroup input[type=checkbox] + span:before,
 .bts-radiogroup input[type=checkbox] + span:before { 
     content: "\e157";
 }
-
 .svy-check input[type=checkbox]:checked + span:before,
 .bts-check input[type=checkbox]:checked + span:before,
 .svy-checkgroup input[type=checkbox]:checked + span:before,
 .bts-radiogroup input[type=checkbox]:checked + span:before {
     content: "\e067";
 }
-
 .svy-radiogroup input[type=radio] + span:before,
 .bts-radiogroup input[type=radio] + span:before { 
     content: "\e157";
 }
-
 .svy-radiogroup input[type=radio]:checked + span:before,
 .bts-radiogroup input[type=radio]:checked + span:before {
     content: "\e165";
@@ -541,7 +535,6 @@ fieldset[disabled] input[type="checkbox"] + span:before {
 .bts-calendar input {
     border: 0;
 }
-
 /* Input Groups *
 .input-group .input-group-addon {
     background-color: @field-addon-bg;
@@ -555,7 +548,6 @@ fieldset[disabled] input[type="checkbox"] + span:before {
          -o-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
             transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
 }
-
 .svy-field:focus ~ .input-group-addon,
 .svy-textarea:focus ~ .input-group-addon, .bts-textarea:focus ~ .input-group-addon,
 .svy-textfield:focus ~ .input-group-addon, .bts-textbox:focus ~ .input-group-addon,
@@ -565,7 +557,6 @@ fieldset[disabled] input[type="checkbox"] + span:before {
 .bts-calendar input:focus ~ .input-group-addon  {
     border-color: @main-color;
 }
-
 .svy-field:focus ~ .input-group-addon,
 .svy-textarea:focus ~ .input-group-addon, .bts-textarea:focus ~ .input-group-addon,
 .svy-textfield:focus ~ .input-group-addon, .bts-textbox:focus ~ .input-group-addon,
@@ -575,7 +566,6 @@ fieldset[disabled] input[type="checkbox"] + span:before {
 .bts-calendar input:focus ~ .input-group-addon  {
     border-color: @main-color;
 }
-
 .svy-calendar input,
 .bts-calendar input,
 .table .input-group .input-group-addon {
@@ -823,19 +813,19 @@ Can we make them look similar ?  */
 }
 
 /* TabPanel */
-.svy-tabpanel > .nav-tabs,
-.bts-tabpanel > .nav-tabs {
+.svy-tabpanel.nav-tabs,
+.bts-tabpanel.nav-tabs {
     border: 0;
     background-color: @tab-bg;
 }
 
-.svy-tabpanel > .nav-tabs > li,
-.bts-tabpanel > .nav-tabs > li {
+.svy-tabpanel.nav-tabs > li,
+.bts-tabpanel.nav-tabs > li {
     margin-bottom: 0;
 }
 
-.svy-tabpanel > .nav-tabs > li > a,
-.bts-tabpanel > .nav-tabs > li > a {
+.svy-tabpanel.nav-tabs > li > a,
+.bts-tabpanel.nav-tabs > li > a {
     background-color: @tab-bg;
     color: @tab-text-color;
     text-transform: @tab-text-transform;
@@ -846,12 +836,12 @@ Can we make them look similar ?  */
     border-radius: @tab-border-radius;
 }
 
-.svy-tabpanel > .nav-tabs > li.active > a, 
-.svy-tabpanel > .nav-tabs > li.active > a:hover, 
-.svy-tabpanel > .nav-tabs > li.active > a:focus,
-.bts-tabpanel > .nav-tabs > li.active > a, 
-.bts-tabpanel > .nav-tabs > li.active > a:hover, 
-.bts-tabpanel > .nav-tabs > li.active > a:focus {
+.svy-tabpanel.nav-tabs > li > .nav-link.active, 
+.svy-tabpanel.nav-tabs > li > .nav-link.active:hover, 
+.svy-tabpanel.nav-tabs > li > .nav-link.active:focus,
+.bts-tabpanel.nav-tabs > li > .nav-link.active, 
+.bts-tabpanel.nav-tabs > li > .nav-link.active:hover, 
+.bts-tabpanel.nav-tabs > li > .nav-link.active:focus {
     /* border: @tab-border;
     border-radius: @tab-border-radius; */
     background-color: @tab-active-bg;
@@ -862,24 +852,24 @@ Can we make them look similar ?  */
 }
 
 /* Tab Tertiary */
-.svy-tabpanel.bg-tertiary > .nav-tabs,
-.bts-tabpanel.bg-tertiary > .nav-tabs {
+.svy-tabpanel.bg-tertiary.nav-tabs,
+.bts-tabpanel.bg-tertiary.nav-tabs {
     background-color: @brand-tertiary;
     background-color: @brand-tertiary-inverse;
 }
 
-.svy-tabpanel.bg-tertiary > .nav-tabs > li > a,
-.bts-tabpanel.bg-tertiary > .nav-tabs > li > a {
+.svy-tabpanel.bg-tertiary.nav-tabs > li > a,
+.bts-tabpanel.bg-tertiary.nav-tabs > li > a {
     background-color: @brand-tertiary;
     background-color: @brand-tertiary-inverse;
 }
 
-.svy-tabpanel.bg-tertiary > .nav-tabs > li.active > a, 
-.svy-tabpanel.bg-tertiary > .nav-tabs > li.active > a:hover, 
-.svy-tabpanel.bg-tertiary > .nav-tabs > li.active > a:focus,
-.bts-tabpanel.bg-tertiary > .nav-tabs > li.active > a, 
-.bts-tabpanel.bg-tertiary > .nav-tabs > li.active > a:hover, 
-.bts-tabpanel.bg-tertiary > .nav-tabs > li.active > a:focus {
+.svy-tabpanel.bg-tertiary > .nav-tabs > li > .nav-link.active, 
+.svy-tabpanel.bg-tertiary > .nav-tabs > li > .nav-link.active:hover, 
+.svy-tabpanel.bg-tertiary > .nav-tabs > li > .nav-link.active:focus,
+.bts-tabpanel.bg-tertiary > .nav-tabs > li > .nav-link.active, 
+.bts-tabpanel.bg-tertiary > .nav-tabs > li > .nav-link.active:hover, 
+.bts-tabpanel.bg-tertiary > .nav-tabs > li > .nav-link.active:focus {
     background-color: @brand-tertiary;
     background-color: @brand-tertiary-inverse;
     border-color: @main-color;
@@ -1768,11 +1758,9 @@ data-servoyextra-fontawesome > div {
     height: auto;
     width: auto;
 }
-
 .ag-theme-servoy .ag-icon-checkbox-checked:before {
     content: "\e067";
 }
-
 .ag-theme-servoy .ag-icon-checkbox-unchecked {
     font-family: 'Glyphicons Halflings';
     letter-spacing: 5px;
@@ -1783,11 +1771,9 @@ data-servoyextra-fontawesome > div {
     height: auto;
     width: auto;
 }
-
 .ag-theme-servoy .ag-icon-checkbox-unchecked:before {
     content: "\e157";
 }
-
 .ag-theme-servoy .ag-icon-checkbox-indeterminate {
     font-family: 'Glyphicons Halflings';
     letter-spacing: 5px;
@@ -1798,7 +1784,6 @@ data-servoyextra-fontawesome > div {
     height: auto;
     width: auto;
 }
-
 .ag-theme-servoy .ag-icon-checkbox-indeterminate:before {
     content: "\e157";
 } */
