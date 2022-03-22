@@ -62,6 +62,7 @@ import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AbstractBaseQuery;
@@ -1644,8 +1645,16 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public boolean isValidRelation(String name)
 	{
-		// TODO Auto-generated method stub
-		return false;
+		Relation[] relationSequence = getFoundSetManager().getApplication().getFlattenedSolution().getRelationSequence(name);
+		if (relationSequence != null && relationSequence.length > 0 && !relationSequence[0].isGlobal() &&
+			!relationSequence[0].getPrimaryDataSource().equals(getDataSource()))
+		{
+			getFoundSetManager().getApplication().reportJSWarning("An incorrect child relation (" + relationSequence[0].getName() +
+				") was accessed through a foundset (or a record of foundset) with datasource '" + getDataSource() + "'. The accessed relation actually has '" +
+				relationSequence[0].getPrimaryDataSource() +
+				"' as primary datasource. It will resolve for legacy reasons but please fix it as it is error prone.", new ServoyException());
+		}
+		return relationSequence != null;
 	}
 
 	/*
@@ -1655,10 +1664,65 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 * java.util.List)
 	 */
 	@Override
-	public IFoundSetInternal getRelatedFoundSet(IRecordInternal record, String relationName, List<SortColumn> defaultSortColumns) throws ServoyException
+	public IFoundSetInternal getRelatedFoundSet(IRecordInternal record, String fullRelationName, List<SortColumn> defaultSortColumns) throws ServoyException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		if (fullRelationName == null)
+		{
+			return null;
+		}
+		IFoundSetInternal retval = null;
+		IRecordInternal currentRecord = record;
+		String[] parts = fullRelationName.split("\\."); //$NON-NLS-1$
+		for (int i = 0; i < parts.length; i++)
+		{
+			// if this is a findstate and that is not the source record then leave the relation lookup to the findstate itself.
+			if (currentRecord instanceof FindState && i != 0)
+			{
+				String leftPart = parts[i];
+				for (int k = i + 1; k < parts.length; k++)
+				{
+					leftPart += "." + parts[k]; //$NON-NLS-1$
+				}
+				return currentRecord.getRelatedFoundSet(leftPart);
+			}
+
+			RowManager rowManager = manager.getRowManager(table.getDataSource());
+			SQLSheet relatedSheet = rowManager.getSQLSheet().getRelatedSheet(getFoundSetManager().getApplication().getFlattenedSolution().getRelation(parts[i]),
+				((FoundSetManager)getFoundSetManager()).getSQLGenerator());
+			if (relatedSheet == null)
+			{
+				retval = getFoundSetManager().getGlobalRelatedFoundSet(parts[i]);
+			}
+			else
+			{
+				retval = ((FoundSetManager)getFoundSetManager()).getRelatedFoundSet(currentRecord, relatedSheet, parts[i], defaultSortColumns);
+				if (retval != null)
+				{
+					if (retval.getSize() == 0 && !currentRecord.existInDataSource())
+					{
+						Relation r = getFoundSetManager().getApplication().getFlattenedSolution().getRelation(parts[i]);
+						if (r != null && r.isExactPKRef(getFoundSetManager().getApplication().getFlattenedSolution()))//TODO add unique column test instead of pk requirement
+						{
+							((FoundSet)retval).newRecord(record.getRawData(), 0, true, false);
+						}
+					}
+					retval.addParent(currentRecord);
+				}
+			}
+			if (retval == null)
+			{
+				return null;
+			}
+			if (i < parts.length - 1)
+			{
+				currentRecord = retval.getRecord(retval.getSelectedIndex());
+				if (currentRecord == null)
+				{
+					return null;
+				}
+			}
+		}
+		return retval;
 	}
 
 	/*
