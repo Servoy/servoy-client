@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.scripting.solutionmodel;
 
+import org.json.JSONArray;
+
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -89,5 +91,11 @@ public interface IJSDeveloperSolutionModel
 	 * @param form The form name or JSForm object to open in an editor.
 	 */
 	void js_openForm(Object form);
+
+	JSONArray js_getExistingVariants(String variantCategoryName);
+
+	void js_setVariantsFor(String variantCategoryName, JSONArray components);
+
+	void js_setVariants(JSONArray variants);
 
 }
