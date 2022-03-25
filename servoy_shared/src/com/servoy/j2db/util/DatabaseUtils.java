@@ -62,6 +62,21 @@ public class DatabaseUtils
 		return deserializeTableInfo(dbiContents);
 	}
 
+	/** RAGTEST Doc
+	 * Creates a .dbi (JSON format) file like structured String from the given table information.
+	 *
+	 * @param tableInfo the information about the table to be transformed into a JSON String.
+	 * @return the JSON representation of tableInfo.
+	 * @throws JSONException if something goes wrong with the serialize.
+	 */
+	public static String serializeServerSettings(ServerSettings serverSettings) throws JSONException
+	{
+		ServoyJSONObject json = new ServoyJSONObject();
+		json.put("sortIgnorecase", serverSettings.isSortIgnorecase());
+		json.put("sortingNullprecedence", serverSettings.getSortingNullprecedence().name());
+		return json.toString(true);
+	}
+
 	/** RAGTEST doc
 	 * Gets the table information from a .dbi (JSON format) file like structured String.
 	 *

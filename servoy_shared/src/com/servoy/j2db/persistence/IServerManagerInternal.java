@@ -108,11 +108,15 @@ public interface IServerManagerInternal extends IServerManager
 
 	IServer getRepositoryServer() throws RepositoryException;
 
+	IRepository createRepository() throws RepositoryException;
+
 	IRepository getRepository() throws RepositoryException;
 
 	void addGlobalColumnInfoProvider(IColumnInfoProvider cip);
 
 	void removeGlobalColumnInfoProvider(IColumnInfoProvider cip);
+
+	void setGlobalColumnInfoProviders(IServerInternal server, IDeveloperRepository rep, String clientId);
 
 	void setGlobalSequenceProvider(ISequenceProvider sm);
 

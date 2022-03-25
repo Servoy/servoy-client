@@ -218,7 +218,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				{
 					ignoreCase = columnInfo.getSortIgnorecase().booleanValue();
 				}
-				if (columnInfo.getSortingNullprecedence() != SortingNullprecedence.ragtestDefault)
+				if (columnInfo.getSortingNullprecedence() != null && columnInfo.getSortingNullprecedence() != SortingNullprecedence.ragtestDefault)
 				{
 					sortingNullprecedence = columnInfo.getSortingNullprecedence();
 				}
