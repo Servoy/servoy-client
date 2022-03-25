@@ -33,6 +33,7 @@ import com.servoy.j2db.util.ServoyException;
  */
 public interface IFormController extends IForm
 {
+
 	IApplication getApplication();
 
 	String getName();
@@ -49,85 +50,39 @@ public interface IFormController extends IForm
 
 	boolean recreateUI();
 
-	/**
-	 * @param creationalPrototype
-	 */
 	JSForm initForJSUsage(CreationalPrototype creationalPrototype);
 
 	boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables);
 
 	boolean stopUIEditing(boolean looseFocus);
 
-	/**
-	 *
-	 */
 	void destroy();
 
 	boolean isDestroyed();
 
-	/**
-	 * @return
-	 */
 	JSForm initForJSUsage();
 
-	/**
-	 * @return
-	 */
 	boolean isFormVisible();
 
-	/**
-	 *
-	 */
 	void init();
 
-	/**
-	 * @return
-	 */
 	boolean isFormExecutingFunction();
 
 	public void executeOnLoadMethod();
 
 	public void notifyResized();
 
-	/**
-	 * @param cmd
-	 * @param args
-	 * @param saveData
-	 * @param src
-	 * @param focusEvent
-	 * @param methodKey
-	 */
 	public Object executeFunction(String cmd, Object[] args, boolean saveData, Object src, boolean focusEvent, String methodKey);
 
-	/**
-	 * @param cmd
-	 * @param args
-	 * @param saveData
-	 * @param src
-	 * @param focusEvent
-	 * @param methodKey
-	 * @param allowFoundsetMethods
-	 * @param executeWhenFieldValidationFailed
-	 * @param throwException
-	 * @return
-	 */
 	public Object executeFunction(String cmd, Object[] args, boolean saveData, Object src, boolean focusEvent, String methodKey, boolean allowFoundsetMethods,
 		boolean executeWhenFieldValidationFailed, boolean throwException) throws Exception;
 
-	/**
-	 * @return
-	 */
 	boolean wantEmptyFoundSet();
 
-	/**
-	 * @param b
-	 */
 	boolean loadAllRecordsImpl(boolean b) throws ServoyException;
 
-	/**
-	 *
-	 */
 	void refreshView();
 
 	boolean setMode(int mode);
+
 }

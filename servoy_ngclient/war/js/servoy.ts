@@ -1352,10 +1352,14 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							let shouldUpdatePagingControls = false;
 							if (changes.viewportRowsCompletelyChanged) {
 								createRows();
+								 if (changes.selectedRowIndexesChanged) 
+                                    updateSelection(changes.selectedRowIndexesChanged.newValue, changes.selectedRowIndexesChanged.oldValue);
 								return;
 							} else if (changes.fullValueChanged) {
 								scope.foundset = changes.fullValueChanged.newValue; // the new value by ref would be updated in scope automatically only later otherwise and we use that in code
 								createRows();
+                                 if (changes.selectedRowIndexesChanged) 
+                                    updateSelection(changes.selectedRowIndexesChanged.newValue, changes.selectedRowIndexesChanged.oldValue);
 								return;
 							} else if (changes.viewportRowsUpdated) {
 								const updates = changes.viewportRowsUpdated.updates;

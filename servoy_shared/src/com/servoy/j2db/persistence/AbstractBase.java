@@ -661,8 +661,7 @@ public abstract class AbstractBase implements IPersist
 		{
 			getRootObject().getChangeHandler().fireIPersistRemoved(obj);
 		}
-		ISupportChilds p = getParent();
-		if (p != null) p.childRemoved(obj);
+		childRemoved(obj);
 	}
 
 	protected void internalRemoveChild(IPersist obj)
@@ -693,8 +692,7 @@ public abstract class AbstractBase implements IPersist
 		{
 			getRootObject().getChangeHandler().fireIPersistCreated(obj);
 		}
-		ISupportChilds p = getParent();
-		if (p != null) p.childAdded(obj);
+		childAdded(obj);
 	}
 
 	public void internalAddChild(IPersist obj)
@@ -1486,5 +1484,17 @@ public abstract class AbstractBase implements IPersist
 	public <T extends Object> void setRuntimeProperty(RuntimeProperty<T> property, T object)
 	{
 		transient_properties = property.set(transient_properties, object);
+	}
+
+	public void childAdded(IPersist obj)
+	{
+		ISupportChilds p = getParent();
+		if (p != null) p.childAdded(obj);
+	}
+
+	public void childRemoved(IPersist obj)
+	{
+		ISupportChilds p = getParent();
+		if (p != null) p.childRemoved(obj);
 	}
 }

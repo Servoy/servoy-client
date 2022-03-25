@@ -181,7 +181,8 @@ public class DatabaseUtils
 
 				if (c == null)
 				{
-					c = t.createNewColumn(DummyValidator.INSTANCE, cid.name, cid.columnType.getSqlType(), cid.columnType.getLength());
+					c = t.createNewColumn(DummyValidator.INSTANCE, cid.name, cid.columnType.getSqlType(), cid.columnType.getLength(), cid.columnType.getScale(),
+						cid.allowNull);
 					existingColumnInfo++;
 					updateColumnInfo(persistFactory.getNewElementID(null), c, cid);
 					changedColumns.add(c);
