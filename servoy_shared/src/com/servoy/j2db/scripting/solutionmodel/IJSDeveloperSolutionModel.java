@@ -94,5 +94,8 @@ public interface IJSDeveloperSolutionModel
 
 	JSONArray js_getExistingVariants(String variantCategoryName);
 
-	void js_setVariantsFor(String variantCategoryName, String jsonArrayString);
+	void js_setVariantsFor(String variantCategoryName, JSONArray components);
+
+	void js_setVariants(JSONArray variants);
+
 }
