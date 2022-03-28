@@ -679,6 +679,10 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		{
 			for (IPersist persist : changes)
 			{
+				if (persist instanceof IBasicWebObject)
+				{
+					formComponentElementsForDesign.remove(persist.getParent().getUUID());
+				}
 				persistWrappers.remove(persist);
 			}
 		}
