@@ -38,6 +38,6 @@ public class WebsocketSessionFactory implements IWebsocketSessionFactory
 	@Override
 	public IWebsocketSession createSession(WebsocketSessionKey sessionKey) throws Exception
 	{
-		return new NGClientWebsocketSession(sessionKey, null);
+		return new NGClientWebsocketSession(sessionKey);
 	}
 }

@@ -148,7 +148,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	 */
 	public DebugNGClient(INGClientWebsocketSession wsSession, IDesignerCallback designerCallback) throws Exception
 	{
-		super(wsSession, null);
+		super(wsSession);
 		this.designerCallback = designerCallback;
 		getWebsocketSession().registerServerService("developerService", new DeveloperServiceHandler(this));
 	}

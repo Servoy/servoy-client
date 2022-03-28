@@ -52,7 +52,6 @@ import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBasicFormManager;
 import com.servoy.j2db.IDataRendererFactory;
-import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
@@ -140,13 +139,10 @@ public class NGClient extends AbstractApplication
 
 	private URL serverURL;
 
-	private final IDesignerCallback designerCallback;
-
-	public NGClient(INGClientWebsocketSession wsSession, IDesignerCallback designerCallback) throws Exception
+	public NGClient(INGClientWebsocketSession wsSession) throws Exception
 	{
 		super(new WebCredentials());
 
-		this.designerCallback = designerCallback;
 		this.wsSession = wsSession;
 		getWebsocketSession().registerServerService(APPLICATION_SERVER_SERVICE, this);
 		getWebsocketSession().registerServerService(I18NService.NAME, new I18NService(this));
@@ -294,10 +290,6 @@ public class NGClient extends AbstractApplication
 			}
 		}
 		scope.setLocked(true);
-		if (designerCallback != null)
-		{
-			designerCallback.addScriptObjects(null, scriptEngine.getSolutionScope());
-		}
 		return scriptEngine;
 	}
 
