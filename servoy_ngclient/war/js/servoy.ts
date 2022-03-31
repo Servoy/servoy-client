@@ -1521,13 +1521,13 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			                  }});
 						}
 						if (scope.responsivePageSize == 0){
-							let lastValue = 0;
-							let lastChangeTimed= 0;
+							let lastNumberOfCellsToLoadThatWasUsed = 0;
+							let lastChangeTime= 0;
 							const NUMBER_OF_CELLS_CHANGE_TIMEOUT = 500;
-							let resizeTimeoutID;
+							let resizeTimeoutPromise: angular.IPromise<void>;
 							
-							// this watch will also be called when resizing browser window due to the $timeout in servoy_app.ts -> svyLayoutUpdate
-							scope.$watch(() => {
+							// this watch will also be called when resizing browser window due to the $timeout in servoy_app.ts -> svyLayoutUpdate, not just initially
+							scope.$watch(() => { // watches for "lastNumberOfCellsToLoadThatWasUsed" returned below
 				                        const parentWidth = parent.outerWidth();
 				                        const parentHeight = parent.outerHeight();
 				                        const height = scope.svyFormComponent.formHeight;
@@ -1535,22 +1535,27 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				                        const numberOfColumns = (scope.pageLayout == 'listview') ? 1 : Math.floor(parentWidth/width);
 				                        const numberOfRows = Math.floor(parentHeight/height);
 				                        const numberOfCells = numberOfRows * numberOfColumns;
-				                        let currentTime;
-				                        if (lastValue != numberOfCells && ((currentTime = new Date().getTime()) - lastChangeTimed) > NUMBER_OF_CELLS_CHANGE_TIMEOUT) {
-				                        	lastValue = numberOfCells;
-				                        	lastChangeTimed = currentTime;
-				                        	if (resizeTimeoutID) {
-				                        		$timeout.cancel(resizeTimeoutID);
-				                        		resizeTimeoutID = undefined;
-				                        	}
-				                        } else if (!resizeTimeoutID) {
-				                        	resizeTimeoutID = $timeout( function() {
-				        						// nothing to do here; it will just make sure to trigger an angular digest that will call the $watch above again - to not miss handling last change
-				                        		resizeTimeoutID = undefined;
-				        					}, NUMBER_OF_CELLS_CHANGE_TIMEOUT);
+				                        let currentTime: number;
+
+				                        if (lastNumberOfCellsToLoadThatWasUsed != numberOfCells)
+				                        {
+                                            // we will need to update that lastNumberOfCellsToLoadThatWasUsed; but do it max once every NUMBER_OF_CELLS_CHANGE_TIMEOUT ms
+                                            if (((currentTime = new Date().getTime()) - lastChangeTime) > NUMBER_OF_CELLS_CHANGE_TIMEOUT) {
+    				                        	lastNumberOfCellsToLoadThatWasUsed = numberOfCells;
+    				                        	lastChangeTime = currentTime;
+    				                        	if (resizeTimeoutPromise) {
+    				                        		$timeout.cancel(resizeTimeoutPromise);
+    				                        		resizeTimeoutPromise = undefined;
+				                        		}
+    				                        } else if (!resizeTimeoutPromise) {
+    				                        	resizeTimeoutPromise = $timeout( function() {
+    				        						// nothing to do here; it will just make sure to trigger an angular digest that will call the $watch above again - to not miss handling latest lastNumberOfCellsToLoadThatWasUsed
+    				                        		resizeTimeoutPromise = undefined;
+    				        					}, NUMBER_OF_CELLS_CHANGE_TIMEOUT);
+    				                        }
 				                        }
 				                        
-							            return lastValue;
+							            return lastNumberOfCellsToLoadThatWasUsed;
 							        }, (newValue) => {
 										createRowsAndSetSelection();
 							        });
