@@ -81,7 +81,6 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 	public PersistIndex(List<Solution> solutions)
 	{
 		this.solutions.addAll(solutions);
-		createIndex();
 	}
 
 	@Override
@@ -387,12 +386,13 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		cache.put(persist.getName(), persist);
 	}
 
-	protected final void createIndex()
+	public final PersistIndex createIndex()
 	{
 		visit((persist) -> {
 			putInCache(persist);
 			return IPersistVisitor.CONTINUE_TRAVERSAL;
 		});
+		return this;
 	}
 
 	/**

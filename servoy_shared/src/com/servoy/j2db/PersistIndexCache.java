@@ -56,7 +56,7 @@ public class PersistIndexCache
 					solutions.add(mod);
 				}
 			}
-			index = new PersistIndex(solutions);
+			index = new PersistIndex(solutions).createIndex();
 
 			if (!isCloned)
 			{
