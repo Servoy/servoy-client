@@ -5,7 +5,6 @@
 	"icon": "servoydefault/button/button.png",
 	"definition": "servoydefault/button/button.js",
 	"libraries": [],
-    "styleVariantCategory": "button",
 	"model":
 	{
 	        "background" : "color", 

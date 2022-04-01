@@ -27,10 +27,10 @@ angular.module('servoycoreFormcomponent',['servoy']).directive('servoycoreFormco
      					   if (!height) height = newValue.formHeight;
      					   if (!width) width = newValue.formWidth;
      				   }
-     				   if (height || width) { 	// is absolute. Why not to use newValue.absoluteLayout !?
+     				   if (height || width) { 	// it is an absolute form component. Why not to use newValue.absoluteLayout !?
      					   var template = "<div style='position:relative;";
-     					   if (height) template += "height:" +height + "px;"
-     					   if (width) template += "width:" +width + "px;"
+     					   if (height) template += "height:" + height + "px;";
+     					   if (width) template += ($scope.svyServoyapi.isInAbsoluteLayout() ? "width:" : "min-width") + width + "px;"; // if container is in a responsive form, allow (anchored) form component to fill width
      					   template += "'";
      					   template += " class='svy-wrapper " + styleClass + "'";
      					   template += "></div>";
