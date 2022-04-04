@@ -3041,7 +3041,10 @@ public abstract class BasicFormController
 		 *
 		 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_addTableFilterParam(String, String, String, String, Object, String)
 		 * @return true if successful
+		 *
+		 *  @deprecated  Should use {@link foundset#loadAllRecords()}
 		 */
+		@Deprecated
 		public boolean js_loadAllRecords() throws ServoyException
 		{
 			checkDestroyed();
@@ -3058,7 +3061,10 @@ public abstract class BasicFormController
 		 *
 		 * @return true if successful
 		 * @see com.servoy.j2db.dataprocessing.FoundSet#js_loadRecords()
+		 *
+		 * @deprecated  Should use {@link foundset#loadRecords()}
 		 */
+		@Deprecated
 		public boolean js_loadRecords() throws ServoyException
 		{
 			checkDestroyed();
@@ -3138,7 +3144,10 @@ public abstract class BasicFormController
 		 *
 		 * @param pkdataset to load
 		 * @return true if successful
+		 *
+		 * @deprecated  Should use {@link foundset#loadRecords(IDataSet)}
 		 */
+		@Deprecated
 		public boolean js_loadRecords(IDataSet pkdataset)
 		{
 			checkDestroyed();
@@ -3168,7 +3177,10 @@ public abstract class BasicFormController
 		 *
 		 * @param singlenNmber_pk to load
 		 * @return true if successful
+		 *
+		 * @deprecated  Should use {@link foundset#loadRecords(Number)}
 		 */
+		@Deprecated
 		public boolean js_loadRecords(Number singlenNmber_pk)
 		{
 			checkDestroyed();
@@ -3196,7 +3208,10 @@ public abstract class BasicFormController
 		 *
 		 * @param UUIDpk to load
 		 * @return true if successful
+		 *
+		 * @deprecated  Should use {@link foundset#loadRecords(UUID)}
 		 */
+		@Deprecated
 		public boolean js_loadRecords(UUID UUIDpk)
 		{
 			checkDestroyed();
@@ -3241,7 +3256,10 @@ public abstract class BasicFormController
 		 *
 		 * @param queryString to load
 		 * @return true if successful
+		 *
+		 * @deprecated  Should use {@link foundset#loadRecords(QBSelect)}
 		 */
+		@Deprecated
 		public boolean js_loadRecords(String queryString)
 		{
 			checkDestroyed();
@@ -3257,7 +3275,10 @@ public abstract class BasicFormController
 		 * @param queryString to load
 		 * @param queryArgumentsArray the arguments to replace the questions marks in the queryString
 		 * @return true if successful
+		 *
+		 * @deprecated  Should use {@link foundset#loadRecords(QBSelect)}
 		 */
+		@Deprecated
 		public boolean js_loadRecords(String queryString, Object[] queryArgumentsArray)
 		{
 			checkDestroyed();
@@ -3326,7 +3347,10 @@ public abstract class BasicFormController
 		 * }
 		 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_getFoundSetCount(Object)
 		 * @return the max record index
+		 *
+		 * @deprecated  Should use {@link foundset#getSize()}
 		 */
+		@Deprecated
 		public int js_getMaxRecordIndex()
 		{
 			checkDestroyed();
@@ -3567,7 +3591,10 @@ public abstract class BasicFormController
 		 * //sets the next record in the foundset, will be reflected in UI
 		 * %%prefix%%controller.setSelectedIndex(current+1);
 		 * @return the index
+		 *
+		 * @deprecated  Should use {@link foundset#getSelectedIndex()}
 		 */
+		@Deprecated
 		@JSFunction
 		public int getSelectedIndex()
 		{
@@ -3585,7 +3612,10 @@ public abstract class BasicFormController
 		 * %%prefix%%controller.setSelectedIndex(current+1);
 		 *
 		 * @param index the index to select
+		 *
+		 * @deprecated  Should use {@link foundset#setSelectedIndex(int)}
 		 */
+		@Deprecated
 		@JSFunction
 		public void setSelectedIndex(int index) //Object[] args)
 		{
@@ -3908,7 +3938,10 @@ public abstract class BasicFormController
 		 * @sample
 		 * var success = %%prefix%%controller.deleteRecord();
 		 * @return false incase of related foundset having records and orphans records are not allowed by the relation
+		 *
+		 * @deprecated  Should use {@link foundset#deleteRecord()}
 		 */
+		@Deprecated
 		public boolean js_deleteRecord() throws ServoyException
 		{
 			checkDestroyed();
@@ -3921,7 +3954,10 @@ public abstract class BasicFormController
 		 * @sample
 		 * var success = %%prefix%%controller.deleteAllRecords();
 		 * @return false incase of related foundset having records and orphans records are not allowed by the relation
+		 *
+		 * @deprecated  Should use {@link foundset#deleteAllRecords()}
 		 */
+		@Deprecated
 		public boolean js_deleteAllRecords() throws ServoyException
 		{
 			checkDestroyed();
@@ -4073,7 +4109,9 @@ public abstract class BasicFormController
 		 * //%%prefix%%controller.newRecord(2); //adds as second record
 		 *
 		 * @return true if succesful
+		 * @deprecated  Should use {@link foundset#deleteRecord()}
 		 */
+		@Deprecated
 		public boolean js_newRecord() throws ServoyException
 		{
 			return js_newRecord(true);
@@ -4084,7 +4122,10 @@ public abstract class BasicFormController
 		 * @sampleas js_newRecord()
 		 * @param insertOnTop boolean true adds the new record as the topmost record
 		 * @return true if successful
+		 *
+		 * @deprecated  Should use {@link foundset#deleteRecord(boolean)}
 		 */
+		@Deprecated
 		public boolean js_newRecord(boolean insertOnTop) throws ServoyException
 		{
 			checkDestroyed();
@@ -4096,7 +4137,10 @@ public abstract class BasicFormController
 		 * @sampleas js_newRecord()
 		 * @param location adds at specified index
 		 * @return true if successful
+		 *
+		 * @deprecated  Should use {@link foundset#deleteRecord(int)}
 		 */
+		@Deprecated
 		public boolean js_newRecord(int location) throws ServoyException
 		{
 			checkDestroyed();
@@ -4128,7 +4172,10 @@ public abstract class BasicFormController
 		 * //%%prefix%%controller.duplicateRecord(1,2); //duplicate the first record as second record
 		 *
 		 * @return true if succesful
+		 *
+		 * @deprecated  Should use {@link foundset#duplicateRecord()}
 		 */
+		@Deprecated
 		public boolean js_duplicateRecord() throws ServoyException
 		{
 			return js_duplicateRecord(true);
@@ -4139,7 +4186,10 @@ public abstract class BasicFormController
 		 * @sampleas js_duplicateRecord()
 		 * @param location boolean true adds the new record as the topmost record
 		 * @return true if successful
+		 *
+		 * @deprecated  Should use {@link foundset#duplicateRecord(boolean)}
 		 */
+		@Deprecated
 		public boolean js_duplicateRecord(boolean location) throws ServoyException
 		{
 			checkDestroyed();
@@ -4151,7 +4201,10 @@ public abstract class BasicFormController
 		 * @sampleas js_duplicateRecord()
 		 * @param location adds at specified index
 		 * @return true if successful
+		 *
+		 * @deprecated  Should use {@link foundset#duplicateRecord(int)}
 		 */
+		@Deprecated
 		public boolean js_duplicateRecord(int location) throws ServoyException
 		{
 			checkDestroyed();
@@ -4225,7 +4278,10 @@ public abstract class BasicFormController
 		 * @return true if all selected record(s) could be omitted
 		 *
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadOmittedRecords()
+		 *
+		 * @deprecated  Should use {@link foundset#omitRecord()}
 		 */
+		@Deprecated
 		public boolean js_omitRecord() throws ServoyException
 		{
 			checkDestroyed();
@@ -4247,7 +4303,10 @@ public abstract class BasicFormController
 		 *
 		 * @sample %%prefix%%controller.loadOmittedRecords();
 		 * @return true if successful
+		 *
+		 * @deprecated  Should use {@link foundset#loadOmittedRecords()}
 		 */
+		@Deprecated
 		public boolean js_loadOmittedRecords() throws ServoyException
 		{
 			checkDestroyed();
@@ -4259,7 +4318,10 @@ public abstract class BasicFormController
 		 *
 		 * @sample %%prefix%%controller.invertRecords();
 		 * @return true if successful
+		 *
+		 * @deprecated  Should use {@link foundset#invertRecords()}
 		 */
+		@Deprecated
 		public boolean js_invertRecords() throws ServoyException
 		{
 			checkDestroyed();
@@ -4326,7 +4388,10 @@ public abstract class BasicFormController
 		 * @sample %%prefix%%controller.sort('columnA desc,columnB asc');
 		 *
 		 * @param sortString the specified columns (and sort order)
+		 *
+		 * @deprecated  Should use {@link foundset#sort(String)}
 		 */
+		@Deprecated
 		public void js_sort(String sortString)
 		{
 			js_sort(sortString, false);
@@ -4338,7 +4403,10 @@ public abstract class BasicFormController
 		 *
 		 * @param sortString the specified columns (and sort order)
 		 * @param defer the "sortString" will be just stored, without performing a query on the database (the actual sorting will be deferred until the next data loading action).
+		 *
+		 * @deprecated  Should use {@link foundset#sort(String, boolean)}
 		 */
+		@Deprecated
 		public void js_sort(String sortString, boolean defer)
 		{
 			checkDestroyed();
@@ -4350,7 +4418,10 @@ public abstract class BasicFormController
 		 * Lookups are defined in the dataprovider (columns) auto-enter setting and are normally performed over a relation upon record creation.
 		 *
 		 * @sample %%prefix%%controller.relookup();
+		 *
+		 * @deprecated  Should use {@link foundset#relookup()}
 		 */
+		@Deprecated
 		public void js_relookup()
 		{
 			checkDestroyed();
