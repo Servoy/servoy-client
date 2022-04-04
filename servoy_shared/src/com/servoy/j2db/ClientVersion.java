@@ -26,7 +26,7 @@ package com.servoy.j2db;
 public abstract class ClientVersion
 {
 	// these fields are private intentionally, to prevent final class member copy in other classes!
-	private static final int majorVersion = 2020;
+	private static final int majorVersion = 2022;
 	private static final int middleVersion = 3;
 	private static final int minorVersion = 0;
 	private static final int releaseNumber = 3742;
