@@ -399,6 +399,8 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		}
 		writer.key("layout");
 		writer.value(true);
+		writer.key("cssPositionContainer");
+		writer.value(CSSPositionUtils.isCSSPositionContainer(layoutContainer));
 		String tagType = layoutContainer.getTagType();
 		if (spec != null && spec.getDirectives().size() > 0)
 		{
