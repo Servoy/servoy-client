@@ -450,4 +450,22 @@ public class AngularIndexPageWriter
 		}
 		return false;
 	}
+
+	protected static boolean handleMaintenanceMode(HttpServletRequest request, HttpServletResponse response, INGClientWebsocketSession wsSession)
+		throws IOException
+	{
+		boolean maintenanceMode = wsSession == null //
+			&& ApplicationServerRegistry.get().getDataServer().isInServerMaintenanceMode() //
+			// when there is a http session, let the new client go through, otherwise another
+			// client from the same browser may be killed by a load balancer
+			&& request.getSession(false) == null;
+		if (maintenanceMode)
+		{
+			response.getWriter().write("Server in maintenance mode");
+			response.setStatus(SC_SERVICE_UNAVAILABLE);
+			return true;
+		}
+
+		return false;
+	}
 }
