@@ -3,16 +3,16 @@
 	"description": "A module that setsup typescript for the ts file compilation",
 	"dependencies": {
 		"@chiragrupani/karma-chromium-edge-launcher": "^2.2.1",
-		"jasmine-core": "~4.0.0",
-		"karma": "^6.3.16",
-		"karma-chrome-launcher": "~3.1.0",
+		"jasmine-core": "~4.0.1",
+		"karma": "^6.3.17",
+		"karma-chrome-launcher": "~3.1.1",
 		"karma-coverage": "^2.2.0",
 		"karma-firefox-launcher": "~2.1.2",
 		"karma-ie-launcher": "~1.0.0",
-		"karma-jasmine": "^4.0.1",
+		"karma-jasmine": "^4.0.2",
 		"karma-junit-reporter": "~2.0.1",
 		"karma-ng-html2js-preprocessor": "~1.0.0",
-		"typescript": "~4.5.5"
+		"typescript": "~4.6.3"
 	},
 	"scripts": {
 		"build": "tsc",
