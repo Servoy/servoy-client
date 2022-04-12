@@ -25,11 +25,11 @@ import com.servoy.j2db.scripting.IReturnedTypesProvider;
 
 /**
  * Class defining drag and drop constants.
- *  
+ *
  * @author gboros
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-@ServoyClientSupport(ng = false, wc = true, sc = true)
+@ServoyClientSupport(ng = true, wc = true, sc = true)
 public class DRAGNDROP implements IPrefixedConstantsObject, IReturnedTypesProvider
 {
 	/**
@@ -67,25 +67,25 @@ public class DRAGNDROP implements IPrefixedConstantsObject, IReturnedTypesProvid
 
 	/**
 	 * Constant used as mime type for servoy objects.
-	 * 
+	 *
 	 * @sample
 	 * if (event.dataMimeType == DRAGNDROP.MIME_TYPE_SERVOY || event.dataMimeType == DRAGNDROP.MIME_TYPE_SERVOY_RECORD) {
 	 * 	application.output("Dropping is allowed" );
 	 * 	return true;
-	 * } else { 
+	 * } else {
 	 * 	application.output("Dropping is not allowed" );
 	 * 	return false;
 	 * }
-	 * 
+	 *
 	 */
 	public static final String MIME_TYPE_SERVOY = "application/x-servoy-object; class=java.lang.Object";
 
 	/**
 	 * Constant used as mime type for servoy record objects.
-	 * 
+	 *
 	 * @sampleas MIME_TYPE_SERVOY
 	 * @see #MIME_TYPE_SERVOY
-	 * 
+	 *
 	 */
 	public static final String MIME_TYPE_SERVOY_RECORD = "application/x-servoy-record-object; class=com.servoy.j2db.dataprocessing.Record";
 
