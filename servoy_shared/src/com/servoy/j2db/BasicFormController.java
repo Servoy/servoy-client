@@ -3591,10 +3591,7 @@ public abstract class BasicFormController
 		 * //sets the next record in the foundset, will be reflected in UI
 		 * %%prefix%%controller.setSelectedIndex(current+1);
 		 * @return the index
-		 *
-		 * @deprecated  Should use {@link foundset#getSelectedIndex()}
 		 */
-		@Deprecated
 		@JSFunction
 		public int getSelectedIndex()
 		{
@@ -3612,10 +3609,7 @@ public abstract class BasicFormController
 		 * %%prefix%%controller.setSelectedIndex(current+1);
 		 *
 		 * @param index the index to select
-		 *
-		 * @deprecated  Should use {@link foundset#setSelectedIndex(int)}
 		 */
-		@Deprecated
 		@JSFunction
 		public void setSelectedIndex(int index) //Object[] args)
 		{
