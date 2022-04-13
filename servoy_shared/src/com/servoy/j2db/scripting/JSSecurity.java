@@ -1426,7 +1426,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 		ci.setUserGroups(groups);
 		if (application.getSolution().getSolutionType() != SolutionMetaData.AUTHENTICATOR)
 		{
-			application.clearLoginForm();
+			application.invokeLater(() -> application.clearLoginForm());
 		}
 		return true;
 	}
