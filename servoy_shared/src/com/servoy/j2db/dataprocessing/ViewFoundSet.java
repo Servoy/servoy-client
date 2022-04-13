@@ -1316,7 +1316,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 * %%prefix%%foundset.setSelectedIndex(current+1);
 	 * @return int current index (1-based)
 	 */
-	public int js_getSelectedIndex()
+	public int jsFunction_getSelectedIndex()
 	{
 		return getSelectedIndex() + 1;
 	}
@@ -1337,7 +1337,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 * }
 	 * @return Array current indexes (1-based)
 	 */
-	public Number[] js_getSelectedIndexes()
+	public Number[] jsFunction_getSelectedIndexes()
 	{
 		Number[] selected = null;
 		int[] selectedIndexes = getSelectedIndexes();
@@ -1360,7 +1360,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 *
 	 * @param indexes An array with indexes to set.
 	 */
-	public void js_setFunctionSelectedIndexes(Number[] indexes)
+	public void jsFunction_setSelectedIndexes(Number[] indexes)
 	{
 		if (indexes == null || indexes.length == 0) return;
 		ArrayList<Integer> selectedIndexes = new ArrayList<Integer>();

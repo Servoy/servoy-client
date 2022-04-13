@@ -26,18 +26,18 @@ import com.servoy.j2db.scripting.JSBaseEvent;
 
 /**
  * JSDNDEvent, used as argument to drag and drop callbacks.
- * 
+ *
  * @author gboros
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSDNDEvent")
-@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+@ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
 public class JSDNDEvent extends JSBaseEvent
 {
 	/**
 	 * Constant returned by JSDNDEvent.getType() in a method that is attached to an onDrag event.
 	 *
 	 * @sample
-	 * if (event.getType() == JSDNDEvent.ONDRAG) 
+	 * if (event.getType() == JSDNDEvent.ONDRAG)
 	 * {
 	 * 	// its an ondrag event
 	 * 	if (event.getElementName() == 'todragelement')
@@ -50,7 +50,7 @@ public class JSDNDEvent extends JSBaseEvent
 	 * Constant returned by JSDNDEvent.getType() in a method that is attached to an onDrop event.
 	 *
 	 * @sample
-	 * if (event.getType() == JSDNDEvent.ONDROP) 
+	 * if (event.getType() == JSDNDEvent.ONDROP)
 	 * {
 	 * 	// its a on drop event.
 	 * 	var element = elements[event.getElementName()];
@@ -64,7 +64,7 @@ public class JSDNDEvent extends JSBaseEvent
 	 * Constant returned by JSDNDEvent.getType() in a method that is attached to an onDragOver event.
 	 *
 	 * @sample
-	 * if (event.getType() == JSDNDEvent.ONDRAGOVER) 
+	 * if (event.getType() == JSDNDEvent.ONDRAGOVER)
 	 * {
 	 * 	// its an on drag over event.
 	 * 	// return true if it over the right element.
@@ -77,11 +77,11 @@ public class JSDNDEvent extends JSBaseEvent
 	 * Constant returned by JSDNDEvent.getType() in a method that is attached to an onDragEnd event.
 	 *
 	 * @sample
-	 * if (event.getType() == JSDNDEvent.ONDRAGEND) 
+	 * if (event.getType() == JSDNDEvent.ONDRAGEND)
 	 * {
 	 * 	// its an on drag end event.
 	 * 	// return true if the drop has been completed successfully
-	 * 	return event.isDropSuccess(); 
+	 * 	return event.isDropSuccess();
 	 * }
 	 */
 	public static final String ONDRAGEND = EventType.onDragEnd.toString();
@@ -89,36 +89,36 @@ public class JSDNDEvent extends JSBaseEvent
 
 	/**
 	 * Constant for the SHIFT modifier that can be returned by JSDNDEvent.getModifiers();
-	 * 
+	 *
 	 * @sampleas getModifiers()
-	 * 
+	 *
 	 * @see #getModifiers()
 	 */
 	public static final int MODIFIER_SHIFT = Event.SHIFT_MASK;
 
 	/**
 	 * Constant for the CTRL modifier that can be returned by JSDNDEvent.getModifiers();
-	 * 
+	 *
 	 * @sampleas getModifiers()
-	 * 
+	 *
 	 * @see #getModifiers()
 	 */
 	public static final int MODIFIER_CTRL = Event.CTRL_MASK;
 
 	/**
 	 * Constant for the META modifier that can be returned by JSDNDEvent.getModifiers();
-	 * 
+	 *
 	 * @sampleas getModifiers()
-	 * 
+	 *
 	 * @see #getModifiers()
 	 */
 	public static final int MODIFIER_META = Event.META_MASK;
 
 	/**
 	 * Constant for the ALT modifier that can be returned by JSDNDEvent.getModifiers();
-	 * 
+	 *
 	 * @sampleas getModifiers()
-	 * 
+	 *
 	 * @see #getModifiers()
 	 */
 	public static final int MODIFIER_ALT = Event.ALT_MASK;
@@ -130,7 +130,7 @@ public class JSDNDEvent extends JSBaseEvent
 
 	/**
 	 * Sets the result of the drag action.
-	 * 
+	 *
 	 * @param dragResult a DRAGNDROP constant, representing the result of the drag action
 	 */
 	public void setDragResult(int dragResult)
@@ -139,7 +139,7 @@ public class JSDNDEvent extends JSBaseEvent
 	}
 
 	/**
-	 * Returns the result of the drag action. 
+	 * Returns the result of the drag action.
 	 *
 	 * @sample
 	 * function onDragEnd(event)
@@ -167,7 +167,7 @@ public class JSDNDEvent extends JSBaseEvent
 
 	/**
 	 * Sets the record of the event.
-	 * 
+	 *
 	 * @param record of the event
 	 */
 	public void setRecord(Record record)
@@ -179,8 +179,8 @@ public class JSDNDEvent extends JSBaseEvent
 	 * Returns the record of the event.
 	 *
 	 * @sample event.Record();
-	 * 
-	 * @return Record of the event 
+	 *
+	 * @return Record of the event
 	 */
 	public Record js_getRecord()
 	{
@@ -189,14 +189,14 @@ public class JSDNDEvent extends JSBaseEvent
 
 	/**
 	 * The event data mime type.
-	 * 
+	 *
 	 * @sample
-	 * // only accept drag if data is a servoy record 
+	 * // only accept drag if data is a servoy record
 	 * function onDragOver(event)
 	 * {
 	 * 	if(event.dataMimeType.indexOf("application/x-servoy-record-object") == 0) return true;
 	 * 	else return false;
-	 * } 
+	 * }
 	 */
 	public String js_getDataMimeType()
 	{
@@ -211,7 +211,7 @@ public class JSDNDEvent extends JSBaseEvent
 
 	/**
 	 * Returns the event data mime type.
-	
+
 	 * @return event data mime type
 	 */
 	public String getDataMimeType()
@@ -221,7 +221,7 @@ public class JSDNDEvent extends JSBaseEvent
 
 	/**
 	 * Sets the event data mime type.
-	 * 
+	 *
 	 * @param mimeType event data mime type
 	 */
 	public void setDataMimeType(String mimeType)
@@ -233,11 +233,11 @@ public class JSDNDEvent extends JSBaseEvent
 	 * returns the dnd event type see the JSDNDEvents constants what it can return.
 	 *
 	 * @sample
-	 * if (event.getType() == JSDNDEvent.ONDROP) 
+	 * if (event.getType() == JSDNDEvent.ONDROP)
 	 * {
 	 * 	// it's a drop
-	 * }	
-	 * 
+	 * }
+	 *
 	 * @return a String representing the type of this event.
 	 */
 	@Override
@@ -255,7 +255,7 @@ public class JSDNDEvent extends JSBaseEvent
 	 * {
 	 * 	//do shift action
 	 * }
-	 * 
+	 *
 	 * @return an int which holds the modifiers as a bitset.
 	 */
 	@Override
@@ -283,7 +283,8 @@ public class JSDNDEvent extends JSBaseEvent
 		}
 		return "JSDNDEvent(type = " + type + ", source = " + source + ", formName = " + formName + ", elementName = " + eName + ", timestamp = " + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			timestamp +
-			",modifiers = " + modifiers + ",x =" + x + ",y = " + y + ",data = " + dataToString + ",dataMimeType = " + dataMimeType + ",dragResult = " + dragResult + ')'; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+			",modifiers = " + modifiers + ",x =" + x + ",y = " + y + ",data = " + dataToString + ",dataMimeType = " + dataMimeType + ",dragResult = " + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$//$NON-NLS-6$
+			dragResult + ')';
 	}
 
 	/**
