@@ -3628,6 +3628,20 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		isCapturingErrors = cap;
 	}
 
+	@JSFunction
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
+	public JSLogger getLogger(String loggerName)
+	{
+		return new JSLogger(loggerName);
+	}
+
+	@JSFunction
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
+	public JSLogger getLogger()
+	{
+		return new JSLogger();
+	}
+
 	/**
 	 * Sets the application server URL for mobile client to connect to.
 	 *
