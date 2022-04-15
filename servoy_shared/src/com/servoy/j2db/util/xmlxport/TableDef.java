@@ -38,4 +38,5 @@ public class TableDef implements Serializable
 	public ArrayList<ColumnInfoDef> columnInfoDefSet = new ArrayList<ColumnInfoDef>(); // this should be a list, otherwise column creation order is broken
 	public int tableType = ITable.TABLE;
 
+	public String dbiFileContents = null;
 }

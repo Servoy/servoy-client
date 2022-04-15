@@ -59,7 +59,9 @@ public class DatabaseUtils
 	public static TableDef deserializeTableInfo(String stringDBIContent) throws JSONException
 	{
 		ServoyJSONObject dbiContents = new ServoyJSONObject(stringDBIContent, true);
-		return deserializeTableInfo(dbiContents);
+		TableDef tableInfo = deserializeTableInfo(dbiContents);
+		tableInfo.dbiFileContents = stringDBIContent;
+		return tableInfo;
 	}
 
 	/** RAGTEST Doc
