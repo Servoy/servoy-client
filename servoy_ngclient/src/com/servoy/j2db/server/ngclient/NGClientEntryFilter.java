@@ -6,7 +6,6 @@ import static com.servoy.j2db.server.ngclient.MediaResourcesServlet.FLATTENED_SO
 import static com.servoy.j2db.server.ngclient.WebsocketSessionFactory.CLIENT_ENDPOINT;
 import static com.servoy.j2db.util.Utils.getAsBoolean;
 import static java.util.Arrays.asList;
-import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -347,7 +346,7 @@ public class NGClientEntryFilter extends WebEntry
 									return;
 								}
 
-								if (handleMaintenanceMode(request, response, wsSession))
+								if (AngularIndexPageWriter.handleMaintenanceMode(request, response, wsSession))
 								{
 									return;
 								}
@@ -420,23 +419,6 @@ public class NGClientEntryFilter extends WebEntry
 			}
 		}
 
-	}
-
-	private boolean handleMaintenanceMode(HttpServletRequest request, HttpServletResponse response, INGClientWebsocketSession wsSession) throws IOException
-	{
-		boolean maintenanceMode = wsSession == null //
-			&& ApplicationServerRegistry.get().getDataServer().isInServerMaintenanceMode() //
-			// when there is a http session, let the new client go through, otherwise another
-			// client from the same browser may be killed by a load balancer
-			&& request.getSession(false) == null;
-		if (maintenanceMode)
-		{
-			response.getWriter().write("Server in maintenance mode");
-			response.setStatus(SC_SERVICE_UNAVAILABLE);
-			return true;
-		}
-
-		return false;
 	}
 
 	private boolean handleForm(HttpServletRequest request, HttpServletResponse response, INGClientWebsocketSession wsSession, FlattenedSolution fs)

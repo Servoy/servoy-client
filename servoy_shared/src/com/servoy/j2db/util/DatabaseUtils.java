@@ -49,6 +49,10 @@ import com.servoy.j2db.util.xmlxport.TableDef;
  */
 public class DatabaseUtils
 {
+	public static final int UPDATE_NOW = 0;
+	public static final int UPDATE_LATER = 1;
+	public static final int NO_UPDATE = 2;
+
 	/**
 	 * Gets the table information from a .dbi (JSON format) file like structured String.
 	 *

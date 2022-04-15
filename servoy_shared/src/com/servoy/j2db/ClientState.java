@@ -1451,7 +1451,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			getClientHost().pushClientInfo(clientInfo.getClientId(), clientInfo);
 
 			loadSecuritySettings(solutionRoot);
-			getFormManager().clearLoginForm();
+
+			invokeLater(() -> getFormManager().clearLoginForm());
 		}
 		catch (Exception ex)
 		{

@@ -347,6 +347,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				if (typeAndPropertyNames[0].size() > 0)
 				{
 					attributes.put("svy-types", String.join(",", typeAndPropertyNames[0]));
+					attributes.put("svy-types-properties", String.join(",", typeAndPropertyNames[1]));
 				}
 				attributes.put("svy-priority",
 					form.isResponsiveLayout() ? String.valueOf(((ISupportBounds)o).getLocation().x) : String.valueOf(((BaseComponent)o).getFormIndex()));
@@ -399,6 +400,8 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		}
 		writer.key("layout");
 		writer.value(true);
+		writer.key("cssPositionContainer");
+		writer.value(CSSPositionUtils.isCSSPositionContainer(layoutContainer));
 		String tagType = layoutContainer.getTagType();
 		if (spec != null && spec.getDirectives().size() > 0)
 		{
