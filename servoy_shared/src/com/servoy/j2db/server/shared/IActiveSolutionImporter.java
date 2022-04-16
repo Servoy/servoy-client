@@ -23,6 +23,8 @@ package com.servoy.j2db.server.shared;
  */
 public interface IActiveSolutionImporter
 {
+	boolean hasIncludedSolution();
+
 	void doActiveSolutionImport() throws Exception;
 
 	long[] getSolutionLastModified(int[] ids);
