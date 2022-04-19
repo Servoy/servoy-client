@@ -4103,7 +4103,7 @@ public abstract class BasicFormController
 		 * //%%prefix%%controller.newRecord(2); //adds as second record
 		 *
 		 * @return true if succesful
-		 * @deprecated  Should use {@link foundset#deleteRecord()}
+		 * @deprecated  Should use {@link foundset#newRecord()}
 		 */
 		@Deprecated
 		public boolean js_newRecord() throws ServoyException
@@ -4117,7 +4117,7 @@ public abstract class BasicFormController
 		 * @param insertOnTop boolean true adds the new record as the topmost record
 		 * @return true if successful
 		 *
-		 * @deprecated  Should use {@link foundset#deleteRecord(boolean)}
+		 * @deprecated  Should use {@link foundset#newRecord(boolean)}
 		 */
 		@Deprecated
 		public boolean js_newRecord(boolean insertOnTop) throws ServoyException
@@ -4132,7 +4132,7 @@ public abstract class BasicFormController
 		 * @param location adds at specified index
 		 * @return true if successful
 		 *
-		 * @deprecated  Should use {@link foundset#deleteRecord(int)}
+		 * @deprecated  Should use {@link foundset#newRecord(int)}
 		 */
 		@Deprecated
 		public boolean js_newRecord(int location) throws ServoyException
