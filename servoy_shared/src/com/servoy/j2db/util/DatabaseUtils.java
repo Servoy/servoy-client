@@ -47,10 +47,6 @@ import com.servoy.j2db.util.xmlxport.TableDef;
  */
 public class DatabaseUtils
 {
-	public static final int UPDATE_NOW = 0;
-	public static final int UPDATE_LATER = 1;
-	public static final int NO_UPDATE = 2;
-
 	/**
 	 * Gets the table information from a .dbi (JSON format) file like structured String.
 	 *
@@ -139,10 +135,8 @@ public class DatabaseUtils
 		if (tableInfo.columnInfoDefSet.size() > 0)
 		{
 			changedColumns = new ArrayList<IColumn>(tableInfo.columnInfoDefSet.size());
-			for (int j = 0; j < tableInfo.columnInfoDefSet.size(); j++)
+			for (ColumnInfoDef cid : tableInfo.columnInfoDefSet)
 			{
-				ColumnInfoDef cid = tableInfo.columnInfoDefSet.get(j);
-
 				String cname = cid.name;
 				Column c = t.getColumn(cname);
 
