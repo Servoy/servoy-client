@@ -19,14 +19,14 @@ package com.servoy.j2db.scripting;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.annotations.JSGetter;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Debug;
 
 /**
- * This class is a wrapper for the Log4j logger.
- * It provides an API for logging with arguments, e.g. log.info("my message and my {}", "argument");.
+ * This logger provides an API for logging with arguments, e.g. log.info().log("my message and my {}", "argument");.
  * This class can also be used to obtain JSLogBuilder instances.
  * Available logging levels are (in order): fatal, error, warn, info, debug and trace.
  *
@@ -39,436 +39,23 @@ public class JSLogger
 	private final Logger logger;
 
 
+	/**
+	 * Get the default logger
+	 */
 	public JSLogger()
 	{
 		this.logger = LogManager.getLogger(Debug.class);
 	}
 
+	/**
+	 * Get a specific logger
+	 *
+	 * @param loggerName
+	 */
 	public JSLogger(String loggerName)
 	{
 		this.logger = LogManager.getLogger(loggerName);
 	}
-
-	// INFO
-	/**
-	 * Log a message without arguments on the 'info' level,
-	 * so it only writes if the logger's level is set to trace, debug or info.
-	 *
-	 * @param message the message to write to the log
-	 */
-	@JSFunction
-	public void info(String message)
-	{
-		logger.info(message);
-	}
-
-	/**
-	 * Log a message with an argument on the 'info' level,
-	 * so it only writes if the logger's level is set to trace, debug or info.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param arg1
-	 */
-	@JSFunction
-	public void info(String message, Object arg1)
-	{
-		logger.info(message, arg1);
-	}
-
-	/**
-	 * Log a message with two arguments on the 'info' level,
-	 * so it only writes if the logger's level is set to trace, debug or info.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param arg1
-	 * @param arg2
-	 */
-	@JSFunction
-	public void info(String message, Object arg1, Object arg2)
-	{
-		logger.info(message, arg1, arg2);
-	}
-
-	/**
-	 * Log a message with multiple arguments on the 'info' level,
-	 * so it only writes if the logger's level is set to trace, debug or info.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param args
-	 */
-	@JSFunction
-	public void info(String message, Object... args)
-	{
-		logger.info(message, args);
-	}
-
-	/**
-	 * Log a message with a Throwable argument on the 'info' level,
-	 * so it only writes if the logger's level is set to trace, debug or info.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param arg1 a Throwable
-	 */
-	@JSFunction
-	public void info(String message, Throwable arg1)
-	{
-		logger.info(message, arg1);
-	}
-
-	// WARN
-	/**
-	 * Log a message without arguments on the 'warn' level,
-	 * so it only writes if the logger's level is set to trace, debug, info or warn.
-	 *
-	 * @param message the message to write to the log
-	 */
-	@JSFunction
-	public void warn(String message)
-	{
-		logger.warn(message);
-	}
-
-	/**
-	 * Log a message with an argument on the 'warn' level,
-	 * so it only writes if the logger's level is set to trace, debug, info or warn.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param arg1
-	 */
-	@JSFunction
-	public void warn(String message, Object arg1)
-	{
-		logger.warn(message, arg1);
-	}
-
-	/**
-	 * Log a message with two arguments on the 'warn' level,
-	 * so it only writes if the logger's level is set to trace, debug, info or warn.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param arg1
-	 * @param arg2
-	 */
-	@JSFunction
-	public void warn(String message, Object arg1, Object arg2)
-	{
-		logger.warn(message, arg1, arg2);
-	}
-
-	/**
-	 * Log a message with multiple arguments on the 'warn' level,
-	 * so it only writes if the logger's level is set to trace, debug, info or warn.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param args
-	 */
-	@JSFunction
-	public void warn(String message, Object... args)
-	{
-		logger.warn(message, args);
-	}
-
-	/**
-	 * Log a message with a Throwable argument on the 'warn' level,
-	 * so it only writes if the logger's level is set to trace, debug, info or warn.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param arg1 a Throwable
-	 */
-	@JSFunction
-	public void warn(String message, Throwable arg1)
-	{
-		logger.warn(message, arg1);
-	}
-
-	// ERROR
-	/**
-	 * Log a message without arguments on the 'error' level,
-	 * so it only writes if the logger's level is set to trace, debug, info, warn or error.
-	 *
-	 * @param message the message to write to the log
-	 */
-	@JSFunction
-	public void error(String message)
-	{
-		logger.error(message);
-	}
-
-	/**
-	 * Log a message with an argument on the 'error' level,
-	 * so it only writes if the logger's level is set to trace, debug, info, warn or error.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param arg1
-	 */
-	@JSFunction
-	public void error(String message, Object arg1)
-	{
-		logger.error(message, arg1);
-	}
-
-	/**
-	 * Log a message with two arguments on the 'error' level,
-	 * so it only writes if the logger's level is set to trace, debug, info, warn or error.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param arg1
-	 * @param arg2
-	 */
-	@JSFunction
-	public void error(String message, Object arg1, Object arg2)
-	{
-		logger.error(message, arg1, arg2);
-	}
-
-	/**
-	 * Log a message with multiple arguments on the 'error' level,
-	 * so it only writes if the logger's level is set to trace, debug, info, warn or error.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param args
-	 */
-	@JSFunction
-	public void error(String message, Object... args)
-	{
-		logger.error(message, args);
-	}
-
-	/**
-	 * Log a message with a Throwable argument on the 'error' level,
-	 * so it only writes if the logger's level is set to trace, debug, info, warn or error.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param arg1 a Throwable
-	 */
-	@JSFunction
-	public void error(String message, Throwable arg1)
-	{
-		logger.error(message, arg1);
-	}
-
-	// DEBUG
-	/**
-	 * Log a message without arguments on the 'debug' level,
-	 * so it only writes if the logger's level is set to trace or debug.
-	 *
-	 * @param message the message to write to the log
-	 */
-	@JSFunction
-	public void debug(String message)
-	{
-		logger.debug(message);
-	}
-
-	/**
-	 * Log a message with an argument on the 'debug' level,
-	 * so it only writes if the logger's level is set to trace or debug.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param arg1
-	 */
-	@JSFunction
-	public void debug(String message, Object arg1)
-	{
-		logger.debug(message, arg1);
-	}
-
-	/**
-	 * Log a message with two arguments on the 'debug' level,
-	 * so it only writes if the logger's level is set to trace or debug.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param arg1
-	 * @param arg2
-	 */
-	@JSFunction
-	public void debug(String message, Object arg1, Object arg2)
-	{
-		logger.debug(message, arg1, arg2);
-	}
-
-	/**
-	 * Log a message with multiple arguments on the 'debug' level,
-	 * so it only writes if the logger's level is set to trace or debug.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param args
-	 */
-	@JSFunction
-	public void debug(String message, Object... args)
-	{
-		logger.debug(message, args);
-	}
-
-	/**
-	 * Log a message with a Throwable argument on the 'debug' level,
-	 * so it only writes if the logger's level is set to trace or debug.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param arg1 a Throwable
-	 */
-	@JSFunction
-	public void debug(String message, Throwable arg1)
-	{
-		logger.debug(message, arg1);
-	}
-
-	//TRACE
-	/**
-	 * Log a message without arguments on the 'trace' level,
-	 * so it only writes if the logger's level is set to trace.
-	 *
-	 * @param message the message to write to the log
-	 */
-	@JSFunction
-	public void trace(String message)
-	{
-		logger.trace(message);
-	}
-
-	/**
-	 * Log a message with an argument on the 'trace' level,
-	 * so it only writes if the logger's level is set to trace.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param arg1
-	 */
-	@JSFunction
-	public void trace(String message, Object arg1)
-	{
-		logger.trace(message, arg1);
-	}
-
-	/**
-	 * Log a message with two arguments on the 'trace' level,
-	 * so it only writes if the logger's level is set to trace.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param arg1
-	 * @param arg2
-	 */
-	@JSFunction
-	public void trace(String message, Object arg1, Object arg2)
-	{
-		logger.trace(message, arg1, arg2);
-	}
-
-	/**
-	 * Log a message with multiple arguments on the 'trace' level,
-	 * so it only writes if the logger's level is set to trace.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param args
-	 */
-	@JSFunction
-	public void trace(String message, Object... args)
-	{
-		logger.trace(message, args);
-	}
-
-	/**
-	 * Log a message with a Throwable argument on the 'trace' level,
-	 * so it only writes if the logger's level is set to trace.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param arg1 a Throwable
-	 */
-	@JSFunction
-	public void trace(String message, Throwable arg1)
-	{
-		logger.trace(message, arg1);
-	}
-
-	// FATAL
-	/**
-	 * Log a message without arguments on the 'fatal' level,
-	 * so since fatal is the most severe logging level, it always writes to the log.
-	 *
-	 * @param message the message to write to the log
-	 */
-	@JSFunction
-	public void fatal(String message)
-	{
-		logger.fatal(message);
-	}
-
-	/**
-	 * Log a message with an argument on the 'fatal' level,
-	 * so since fatal is the most severe logging level, it always writes to the log.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param arg1
-	 */
-	@JSFunction
-	public void fatal(String message, Object arg1)
-	{
-		logger.fatal(message, arg1);
-	}
-
-	/**
-	 * Log a message with two arguments on the 'fatal' level,
-	 * so since fatal is the most severe logging level, it always writes to the log.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param arg1
-	 * @param arg2
-	 */
-	@JSFunction
-	public void fatal(String message, Object arg1, Object arg2)
-	{
-		logger.fatal(message, arg1, arg2);
-	}
-
-	/**
-	 * Log a message with multiple arguments on the 'fatal' level,
-	 * so since fatal is the most severe logging level, it always writes to the log.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param args
-	 */
-	@JSFunction
-	public void fatal(String message, Object... args)
-	{
-		logger.fatal(message, args);
-	}
-
-	/**
-	 * Log a message with a Throwable argument on the 'fatal' level,
-	 * so since fatal is the most severe logging level, it always writes to the log.
-	 * Use {} as placeholder for an argument.
-	 *
-	 * @param message the message to write to the log
-	 * @param arg1 a Throwable
-	 */
-	@JSFunction
-	public void fatal(String message, Throwable arg1)
-	{
-		logger.fatal(message, arg1);
-	}
-
 
 	// IS LEVEL ENABLED?
 	/**
@@ -477,7 +64,7 @@ public class JSLogger
 	 *
 	 * @return true if 'info' level is enabled for logging
 	 */
-	@JSFunction
+	@JSReadonlyProperty
 	public boolean isInfoEnabled()
 	{
 		return logger.isInfoEnabled();
@@ -489,7 +76,7 @@ public class JSLogger
 	 *
 	 * @return true if 'warn' level is enabled for logging
 	 */
-	@JSFunction
+	@JSReadonlyProperty
 	public boolean isWarnEnabled()
 	{
 		return logger.isWarnEnabled();
@@ -501,7 +88,7 @@ public class JSLogger
 	 *
 	 * @return true if 'error' level is enabled for logging
 	 */
-	@JSFunction
+	@JSReadonlyProperty
 	public boolean isErrorEnabled()
 	{
 		return logger.isErrorEnabled();
@@ -513,7 +100,7 @@ public class JSLogger
 	 *
 	 * @return true if 'debug' level is enabled for logging
 	 */
-	@JSFunction
+	@JSReadonlyProperty
 	public boolean isDebugEnabled()
 	{
 		return logger.isDebugEnabled();
@@ -525,7 +112,7 @@ public class JSLogger
 	 *
 	 * @return true if 'trace' level is enabled for logging
 	 */
-	@JSFunction
+	@JSReadonlyProperty
 	public boolean isTraceEnabled()
 	{
 		return logger.isTraceEnabled();
@@ -537,7 +124,7 @@ public class JSLogger
 	 *
 	 * @return true if 'fatal' level is enabled for logging
 	 */
-	@JSFunction
+	@JSReadonlyProperty
 	public boolean isFatalEnabled()
 	{
 		return logger.isFatalEnabled();
@@ -548,12 +135,13 @@ public class JSLogger
 	 * Construct an info log event.
 	 *
 	 * @sample
-	 * log.atInfo().log("some message and {} ", "some", "arguments");
+	 * var log = application.getLogger();
+	 * log.info().log("some message and {} {}", "some", "arguments");
 	 *
 	 * @return a LogBuilder.
 	 */
-	@JSFunction
-	public JSLogBuilder atInfo()
+	@JSGetter
+	public JSLogBuilder info()
 	{
 		return new JSLogBuilder(logger.atInfo());
 	}
@@ -562,12 +150,13 @@ public class JSLogger
 	 * Construct a warn log event.
 	 *
 	 * @sample
-	 * log.atWarn().log("some message and {} ", "some", "arguments");
+	 * var log = application.getLogger();
+	 * log.warn().log("some message and {} {}", "some", "arguments");
 	 *
 	 * @return a LogBuilder.
 	 */
-	@JSFunction
-	public JSLogBuilder atWarn()
+	@JSGetter
+	public JSLogBuilder warn()
 	{
 		return new JSLogBuilder(logger.atWarn());
 	}
@@ -576,12 +165,13 @@ public class JSLogger
 	 * Construct a debug log event.
 	 *
 	 * @sample
-	 * log.atDebug().log("some message and {} ", "some", "arguments");
+	 * var log = application.getLogger();
+	 * log.debug().log("some message and {} {}", "some", "arguments");
 	 *
 	 * @return a LogBuilder.
 	 */
-	@JSFunction
-	public JSLogBuilder atDebug()
+	@JSGetter
+	public JSLogBuilder debug()
 	{
 		return new JSLogBuilder(logger.atDebug());
 	}
@@ -590,12 +180,13 @@ public class JSLogger
 	 * Construct an error log event.
 	 *
 	 * @sample
-	 * log.atError().log("some message and {} ", "some", "arguments");
+	 * var log = application.getLogger();
+	 * log.error().log("some message and {} {}", "some", "arguments");
 	 *
 	 * @return a LogBuilder.
 	 */
-	@JSFunction
-	public JSLogBuilder atError()
+	@JSGetter
+	public JSLogBuilder error()
 	{
 		return new JSLogBuilder(logger.atError());
 	}
@@ -604,12 +195,13 @@ public class JSLogger
 	 * Construct a trace log event.
 	 *
 	 * @sample
-	 * log.atTrace().log("some message and {} ", "some", "arguments");
+	 * var log = application.getLogger();
+	 * log.trace().log("some message and {} {}", "some", "arguments");
 	 *
 	 * @return a LogBuilder.
 	 */
-	@JSFunction
-	public JSLogBuilder atTrace()
+	@JSGetter
+	public JSLogBuilder trace()
 	{
 		return new JSLogBuilder(logger.atTrace());
 	}
@@ -618,10 +210,12 @@ public class JSLogger
 	 * Construct a log event that will always be logged.
 	 *
 	 * @sample
-	 * log.always().log("some message and {} ", "some", "arguments");
+	 * var log = application.getLogger();
+	 * log.always().log("some message and {} {}", "some", "arguments");
 	 *
 	 * @return a LogBuilder.
 	 */
+	@JSGetter
 	public JSLogBuilder always()
 	{
 		return new JSLogBuilder(logger.always());
