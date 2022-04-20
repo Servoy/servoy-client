@@ -19,14 +19,13 @@ package com.servoy.j2db.scripting;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.mozilla.javascript.annotations.JSGetter;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Debug;
 
 /**
- * This logger provides an API for logging with arguments, e.g. log.info().log("my message and my {}", "argument");.
+ * This logger provides an API for logging with arguments, e.g. log.info.log("my message and my {}", "argument");.
  * This class can also be used to obtain JSLogBuilder instances.
  * Available logging levels are (in order): fatal, error, warn, info, debug and trace.
  *
@@ -136,11 +135,11 @@ public class JSLogger
 	 *
 	 * @sample
 	 * var log = application.getLogger();
-	 * log.info().log("some message and {} {}", "some", "arguments");
+	 * log.info.log("some message and {} {}", "some", "arguments");
 	 *
-	 * @return a LogBuilder.
+	 * @return a LogBuilder
 	 */
-	@JSGetter
+	@JSReadonlyProperty
 	public JSLogBuilder info()
 	{
 		return new JSLogBuilder(logger.atInfo());
@@ -151,11 +150,11 @@ public class JSLogger
 	 *
 	 * @sample
 	 * var log = application.getLogger();
-	 * log.warn().log("some message and {} {}", "some", "arguments");
+	 * log.warn.log("some message and {} {}", "some", "arguments");
 	 *
-	 * @return a LogBuilder.
+	 * @return a LogBuilder
 	 */
-	@JSGetter
+	@JSReadonlyProperty
 	public JSLogBuilder warn()
 	{
 		return new JSLogBuilder(logger.atWarn());
@@ -166,11 +165,11 @@ public class JSLogger
 	 *
 	 * @sample
 	 * var log = application.getLogger();
-	 * log.debug().log("some message and {} {}", "some", "arguments");
+	 * log.debug.log("some message and {} {}", "some", "arguments");
 	 *
-	 * @return a LogBuilder.
+	 * @return a LogBuilder
 	 */
-	@JSGetter
+	@JSReadonlyProperty
 	public JSLogBuilder debug()
 	{
 		return new JSLogBuilder(logger.atDebug());
@@ -181,11 +180,11 @@ public class JSLogger
 	 *
 	 * @sample
 	 * var log = application.getLogger();
-	 * log.error().log("some message and {} {}", "some", "arguments");
+	 * log.error.log("some message and {} {}", "some", "arguments");
 	 *
-	 * @return a LogBuilder.
+	 * @return a LogBuilder
 	 */
-	@JSGetter
+	@JSReadonlyProperty
 	public JSLogBuilder error()
 	{
 		return new JSLogBuilder(logger.atError());
@@ -196,11 +195,11 @@ public class JSLogger
 	 *
 	 * @sample
 	 * var log = application.getLogger();
-	 * log.trace().log("some message and {} {}", "some", "arguments");
+	 * log.trace.log("some message and {} {}", "some", "arguments");
 	 *
-	 * @return a LogBuilder.
+	 * @return a LogBuilder
 	 */
-	@JSGetter
+	@JSReadonlyProperty
 	public JSLogBuilder trace()
 	{
 		return new JSLogBuilder(logger.atTrace());
@@ -211,11 +210,11 @@ public class JSLogger
 	 *
 	 * @sample
 	 * var log = application.getLogger();
-	 * log.always().log("some message and {} {}", "some", "arguments");
+	 * log.always.log("some message and {} {}", "some", "arguments");
 	 *
-	 * @return a LogBuilder.
+	 * @return a LogBuilder
 	 */
-	@JSGetter
+	@JSReadonlyProperty
 	public JSLogBuilder always()
 	{
 		return new JSLogBuilder(logger.always());

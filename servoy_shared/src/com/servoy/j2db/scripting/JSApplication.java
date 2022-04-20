@@ -3638,7 +3638,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sample
 	 * var log = application.getLogger("myLogger");
 	 * application.output("is logging level 'warn' enabled? " + log.isWarnEnabled); // if false, next line won't log
-	 * log.warn().log("this logger logs {} {} {}", "all", "my", "arguments");
+	 * log.warn.log("this logger logs {} {} {}", "all", "my", "arguments");
 	 *
 	 *
 	 * @param loggerName the name of the logger, as configured in log4j.xml
@@ -3660,7 +3660,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sample
 	 * var log = application.getLogger(); // returns the default logger.
 	 * application.output("is logging level 'warn' enabled? " + log.isWarnEnabled); // if false, next line won't log
-	 * log.warn().log("this logger logs {} {} {}", "all", "my", "arguments");
+	 * log.warn.log("this logger logs {} {} {}", "all", "my", "arguments");
 	 *
 	 *
 	 * @return a new JSLogger instance

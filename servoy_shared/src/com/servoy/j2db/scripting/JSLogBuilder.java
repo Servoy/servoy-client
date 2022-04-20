@@ -24,7 +24,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Interface for constructing log events before logging them. Instances of JSLogBuilder should only be created
+ * Object for constructing log events before logging them. Instances of JSLogBuilder should only be created
  * by calling one of the JSLogger methods that return a JSLogBuilder.
  *
  * @author jdejong
@@ -33,7 +33,7 @@ import com.servoy.j2db.util.Utils;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSLogBuilder")
 public class JSLogBuilder
 {
-	LogBuilder builder;
+	private final LogBuilder builder;
 
 	JSLogBuilder(LogBuilder builder)
 	{
@@ -45,24 +45,24 @@ public class JSLogBuilder
 	 *
 	 * @sample
 	 * var log = application.getLogger();
-	 * log.warn().withException(myException).log("some message");
+	 * log.warn.withException(myException).log("some message");
 	 *
-	 * @param throwable The exception to log.
+	 * @param exception The exception to log.
 	 * @return the LogBuilder.
 	 */
 	@JSFunction
 	public JSLogBuilder withException(Throwable exception)
 	{
-		this.builder = builder.withThrowable(exception);
+		builder.withThrowable(exception);
 		return this;
 	}
 
 	/**
-	 * Logs a message with parameters.
+	 * Logs a message with or without parameters.
 	 *
 	 * @sample
 	 * var log = application.getLogger();
-	 * log.warn().log("some message {} {} {}", "with", "multiple", "arguments");
+	 * log.warn.log("some message {} {} {}", "with", "multiple", "arguments");
 	 *
 	 * @param message the message to log; the format depends on the message factory.
 	 * @param params parameters to the message.
@@ -70,17 +70,17 @@ public class JSLogBuilder
 	 * @see org.apache.logging.log4j.util.Unbox
 	 */
 	@JSFunction
-	public void log(String message, Object... params)
+	public void log(Object message, Object... params)
 	{
-		this.builder.log(message, params);
+		this.builder.log(message != null ? Utils.getScriptableString(message) : "", params); //$NON-NLS-1$
 	}
 
 	/**
-	 * Causes all the data collected to be logged along with the message.
+	 * Logs a message.
 	 *
 	 * @sample
 	 * var log = application.getLogger();
-	 * log.warn().log("some message or object");
+	 * log.warn.log("some message or object");
 	 *
 	 * @param message The message to log.
 	 */
@@ -91,7 +91,13 @@ public class JSLogBuilder
 	}
 
 	/**
-	 * Causes all the data collected to be logged. Default implementation does nothing.
+	 * Logs an event without adding a message.
+	 * This can be useful in combination with withException(e) if no message is required.
+	 *
+	 * @sample
+	 * var log = application.getLogger();
+	 * log.warn.withException(myException).log();
+	 *
 	 */
 	@JSFunction
 	public void log()
