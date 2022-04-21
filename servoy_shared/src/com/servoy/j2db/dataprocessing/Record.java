@@ -1197,12 +1197,12 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 
 	/**
 	 * Returns the validation object if there where validation failures for this record
-	 * Can be set to null again if you checked the problems, will also be set to null when a save was succesful.
+	 * Can be set to null again if you checked the problems, will also be set to null when a save was successful.
 	 *
 	 * @sample
 	 * var recordMarkers = record.recordMarkers;
 	 *
-	 * @return The last validtion object if the record was not validated.
+	 * @return The last validation object if the record was not validated.
 	 */
 	@JSGetter
 	public JSRecordMarkers getRecordMarkers()
@@ -1212,12 +1212,12 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 
 	/**
 	 * Returns the validation object if there where validation failures for this record
-	 * Can be set to null again if you checked the problems, will also be set to null when a save was succesful.
+	 * Can be set to null again if you checked the problems, will also be set to null when a save was successful.
 	 *
 	 * @sample
 	 * var recordMarkers = record.recordMarkers;
 	 *
-	 * @return The last validtion object if the record was not validated.
+	 * @return The last validation object if the record was not validated.
 	 */
 	@JSSetter
 	public void setRecordMarkers(JSRecordMarkers object)
