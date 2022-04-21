@@ -75,21 +75,6 @@ public class JSLogBuilder
 		this.builder.log(message != null ? Utils.getScriptableString(message) : "", params); //$NON-NLS-1$
 	}
 
-	///**
-	// * Logs a message.
-	// *
-	// * @sample
-	// * var log = application.getLogger();
-	// * log.warn.log("some message or object");
-	// *
-	// * @param message The message to log.
-	// */
-	///@JSFunction
-	///public void log(Object message)
-	//{
-	//	this.builder.log(Utils.getScriptableString(message));
-	//}
-
 	/**
 	 * Logs an event without adding a message.
 	 * This can be useful in combination with withException(e) if no message is required.
