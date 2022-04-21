@@ -168,7 +168,7 @@ angular.module('custom_json_array_property', ['webSocketModule'])
 
 					// if something changed browser-side, increasing the content version thus not matching next expected version,
 					// we ignore this update and expect a fresh full copy of the array from the server (currently server value is leading/has priority because not all server side values might support being recreated from client values)
-					if (internalState[CONTENT_VERSION] === serverJSONValue[CONTENT_VERSION]) {
+					if (internalState[CONTENT_VERSION] <= serverJSONValue[CONTENT_VERSION]) {
                         var i;
                         for (var granularOp of serverJSONValue[GRANULAR_UPDATES]) {
                             var startIndex_endIndex_opType = granularOp[OP_ARRAY_START_END_TYPE]; // it's an array of 3 elements in the order given in name
