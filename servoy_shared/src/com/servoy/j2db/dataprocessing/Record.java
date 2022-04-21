@@ -1196,6 +1196,23 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	}
 
 	/**
+	 * Creates and returns a new validation object for this record, which allows for markers to be used outside the validation flow.
+	 * Will overwrite the current markers if present.
+	 * Can be set to null again if you checked the problems, will also be set to null when a save was successful.
+	 *
+	 * @sample var recordMarkers = record.createMarkers();
+	 *
+	 * @return A new validation object.
+	 */
+	@JSFunction
+	public JSRecordMarkers createMarkers()
+	{
+		this.recordMarkers = new JSRecordMarkers(this, this.parent.getFoundSetManager().getApplication());
+		return this.recordMarkers;
+	}
+
+
+	/**
 	 * Returns the validation object if there where validation failures for this record
 	 * Can be set to null again if you checked the problems, will also be set to null when a save was successful.
 	 *
