@@ -620,8 +620,14 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 				return IPersistVisitor.CONTINUE_TRAVERSAL;
 			}
 		});
-
-		parent.addChild(persist);
+		if (parent instanceof WebComponent && persist instanceof IChildWebObject)
+		{
+			((WebComponent)parent).insertChild((IChildWebObject)persist);
+		}
+		else
+		{
+			parent.addChild(persist);
+		}
 	}
 
 	public abstract IRootObject createNewRootObject(String name, int objectTypeId, int newElementID, UUID uuid) throws RepositoryException;
