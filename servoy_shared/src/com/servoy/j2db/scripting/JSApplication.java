@@ -3629,6 +3629,50 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
+	 * Get a JSLogger instance which offers an API for logging with arguments.
+	 * Available logging levels are (in order): fatal, error, warn, info, debug and trace.
+	 * The argument should be the name of a logger that is configured in myServoyInstallationDir/application_server/log4j.xml.
+	 * A new logger can be configured in log4j.xml by adding the following line:
+	 * <Logger name="myLogger" level="INFO"/>
+	 *
+	 * @sample
+	 * var log = application.getLogger("myLogger");
+	 * application.output("is logging level 'warn' enabled? " + log.isWarnEnabled); // if false, next line won't log
+	 * log.warn.log("this logger logs {} {} {}", "all", "my", "arguments");
+	 *
+	 *
+	 * @param loggerName the name of the logger, as configured in log4j.xml
+	 * @return a new JSLogger instance
+	 */
+	@JSFunction
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
+	public JSLogger getLogger(String loggerName)
+	{
+		return new JSLogger(loggerName);
+	}
+
+	/**
+	 * Get a JSLogger instance which offers an API for logging with arguments.
+	 * Available logging levels are (in order): fatal, error, warn, info, debug and trace.
+	 * If no loggerName is given to this method, it returns the default logger (LoggerFactory.getLogger(Debug.class))
+	 * NOTE: the default logging level of the the default logger is 'warn', so info, debug and trace events are not logged.
+	 *
+	 * @sample
+	 * var log = application.getLogger(); // returns the default logger.
+	 * application.output("is logging level 'warn' enabled? " + log.isWarnEnabled); // if false, next line won't log
+	 * log.warn.log("this logger logs {} {} {}", "all", "my", "arguments");
+	 *
+	 *
+	 * @return a new JSLogger instance
+	 */
+	@JSFunction
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
+	public JSLogger getLogger()
+	{
+		return new JSLogger();
+	}
+
+	/**
 	 * Sets the application server URL for mobile client to connect to.
 	 *
 	 * @sample

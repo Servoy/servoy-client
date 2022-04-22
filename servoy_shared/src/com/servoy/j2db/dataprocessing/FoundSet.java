@@ -1165,6 +1165,31 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return relationName;
 	}
 
+	/**
+	 * Gets the parent records when called on a related foundset. (empty array if not a related foundset)
+	 * Depending on the cardinality of the relation, this method returns either 1 or more records.
+	 * This can be useful when creating a new record in an empty related foundset and some data from the parent record(s) is needed.
+	 * <br/><br/>
+	 * Be aware that if getFoundset() is called multiple times on the same datasource,
+	 * the related foundset can have multiple references to the same parent records in different foundsets.
+	 * In that case, this method returns the first obtained references.
+	 *
+	 * @sample var parents = relatedFoundset.getParentRecords();
+	 *
+	 * @return an array of records
+	 */
+	@JSFunction
+	public IRecordInternal[] getParentRecords()
+	{
+		if (this.allParents.isEmpty()) return new IRecordInternal[0];
+		Map<String, IRecordInternal> uniqueRecords = new HashMap<String, IRecordInternal>();
+		for (IRecordInternal record : getParents())
+		{
+			uniqueRecords.putIfAbsent(record.getPKHashKey(), record);
+		}
+		return uniqueRecords.values().toArray(new IRecordInternal[0]);
+	}
+
 
 	/**
 	 * Invert the foundset against all rows of the current table.
@@ -1518,7 +1543,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Loads records into form foundset based on a query builder object (also known as 'Form by query').
-	 * When the founset is in find mode, the find states are discarded, the foundset will go out of find mode and the foundset will be loaded using the query.
+	 * When the foundset is in find mode, the find states are discarded, the foundset will go out of find mode and the foundset will be loaded using the query.
 	 * If the foundset is related, the relation-condition will be added to the query.
 	 * Tries to preserve selection based on primary key, otherwise first record is selected.
 	 *

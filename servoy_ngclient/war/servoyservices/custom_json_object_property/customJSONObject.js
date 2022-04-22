@@ -207,7 +207,7 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 
 					// if something changed browser-side, increasing the content version thus not matching next expected version,
 					// we ignore this update and expect a fresh full copy of the object from the server (currently server value is leading/has priority because not all server side values might support being recreated from client values)
-					if (internalState[CONTENT_VERSION] == serverJSONValue[CONTENT_VERSION]) {
+					if (internalState[CONTENT_VERSION] <= serverJSONValue[CONTENT_VERSION]) {
 						var updates = serverJSONValue[UPDATES];
 						var conversionInfos = serverJSONValue[$sabloConverters.TYPES_KEY];
 						var i;
