@@ -106,11 +106,11 @@ public interface IServerManagerInternal extends IServerManager
 
 	ServerSettings getServerSettings(String name);
 
-	IServer getRepositoryServer() throws RepositoryException;
+	IServerInternal getRepositoryServer() throws RepositoryException;
 
 	IRepository createRepository() throws RepositoryException;
 
-	IRepository getRepository() throws RepositoryException;
+	IDeveloperRepository getRepository() throws RepositoryException;
 
 	void addGlobalColumnInfoProvider(IColumnInfoProvider cip);
 
