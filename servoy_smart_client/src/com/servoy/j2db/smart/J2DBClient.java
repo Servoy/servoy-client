@@ -757,6 +757,7 @@ public class J2DBClient extends ClientState
 	protected J2DBClient()
 	{
 		this(true);
+
 	}
 
 	/**
@@ -773,6 +774,7 @@ public class J2DBClient extends ClientState
 		}
 		getClientInfo().setApplicationType(getApplicationType());
 		if (setSingletonServiceProvider) J2DBGlobals.setSingletonServiceProvider(this);
+		System.setProperty("servoy.use.compositefont", "true"); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	protected boolean getAppleScreenMenuBar()
