@@ -1170,7 +1170,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * Depending on the cardinality of the relation, this method returns either 1 or more records.
 	 * This can be useful when creating a new record in an empty related foundset and some data from the parent record(s) is needed.
 	 * <br/><br/>
-	 * Be aware that if datasources.xxx.getFoundset() is called multiple times on the same datasource it creates multiply foundset instances
+	 * Be aware that if datasources.xxx.getFoundset() is called multiple times on the same datasource it creates multiple foundset instances
 	 * then the related foundset can have multiple references to the same parent record but in different foundsets.
 	 * (different instances of the record for the same row in the database)
 	 * In that case, this method will return the record from the first foundset.
