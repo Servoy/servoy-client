@@ -25,6 +25,7 @@ import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 import org.sablo.IWebObjectContext;
+import org.sablo.IllegalChangeFromClientException;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.ArrayOperation;
 import org.sablo.specification.property.CustomJSONPropertyType;
@@ -304,11 +305,11 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 	}
 
 	@Override
-	public boolean allowPush(Object data, FoundsetTypeSabloValue sabloValue)
+	public boolean allowPush(Object data, FoundsetTypeSabloValue sabloValue, IllegalChangeFromClientException e)
 	{
 		if (sabloValue != null)
 		{
-			return sabloValue.allowPush(data);
+			return sabloValue.allowPush(data, e);
 		}
 		return false;
 	}

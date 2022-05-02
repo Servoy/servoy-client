@@ -36,6 +36,7 @@ import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
+import org.sablo.IllegalChangeFromClientException;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification;
@@ -44,6 +45,7 @@ import org.sablo.specification.property.ArrayOperation;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.CustomJSONPropertyType;
 import org.sablo.specification.property.IBrowserConverterContext;
+import org.sablo.specification.property.types.EnabledPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
@@ -1080,11 +1082,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 					}
 					else if (update.has(ViewportDataChangeMonitor.VIEWPORT_CHANGED))
 					{
-						// ALLOW_ACCESS on foundset only for updates that are NOT CHANGING DATA, so for viewport data change check protection again
-						if (this.webObjectContext instanceof WebComponent && pd != null && pd.getTag(WebObjectSpecification.ALLOW_ACCESS) != null)
-						{
-							((WebComponent)this.webObjectContext).checkPropertyProtection(propertyName);
-						}
 						if (PushToServerEnum.allow.compareTo(pushToServer) <= 0)
 						{
 							// {dataChanged: { ROW_ID_COL_KEY: rowIDValue, dataproviderName: value }}
@@ -1315,18 +1312,32 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		}
 	}
 
-	public boolean allowPush(Object jsonValue)
+	public boolean allowPush(Object jsonValue, IllegalChangeFromClientException e)
 	{
 		if (jsonValue instanceof JSONArray)
 		{
-			List<String> allowed = Arrays.asList(PREFERRED_VIEWPORT_SIZE);
+			List<String> propertiesToCheck;
+			boolean blockAllowPushIfContainsIs;
 			JSONArray arr = (JSONArray)jsonValue;
+			// for allow access on enabled, allow everything except data push
+			if (EnabledPropertyType.TYPE_NAME.equals(e.getBlockedByProperty()) && hasAllowAccessFor(EnabledPropertyType.TYPE_NAME))
+			{
+				propertiesToCheck = Arrays.asList(ViewportDataChangeMonitor.VIEWPORT_CHANGED);
+				blockAllowPushIfContainsIs = true;
+			}
+			else
+			{
+				// by default only allow viewport size update
+				propertiesToCheck = Arrays.asList(PREFERRED_VIEWPORT_SIZE);
+				blockAllowPushIfContainsIs = false;
+			}
+
 			for (int i = 0; i < arr.length(); i++)
 			{
 				JSONObject update = (JSONObject)arr.get(i);
 				for (String key : update.keySet())
 				{
-					if (!allowed.contains(key))
+					if (blockAllowPushIfContainsIs == propertiesToCheck.contains(key))
 					{
 						return false;
 					}
@@ -1337,4 +1348,29 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		return false;
 	}
 
+	private boolean hasAllowAccessFor(String propertyTypeName)
+	{
+		boolean hasAllowAccessForEnabled = false;
+		PropertyDescription pd = this.webObjectContext.getPropertyDescription(this.propertyName);
+		Object allowEditTag = pd.getTag(WebObjectSpecification.ALLOW_ACCESS);
+		// allowEditTag is either a String or an array of Strings representing 'blocked by' property name(s) that should not block the given property (the spec makes specific exceptions in the property itself for the other props. that should not block it)
+		if (allowEditTag instanceof JSONArray)
+		{
+			Iterator<Object> iterator = ((JSONArray)allowEditTag).iterator();
+			while (iterator.hasNext())
+			{
+				if (iterator.next().equals(propertyTypeName))
+				{
+					hasAllowAccessForEnabled = true;
+					break;
+				}
+			}
+		}
+		else if (allowEditTag instanceof String && allowEditTag.equals(propertyTypeName))
+		{
+			hasAllowAccessForEnabled = true;
+		}
+
+		return hasAllowAccessForEnabled;
+	}
 }
