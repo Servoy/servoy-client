@@ -131,11 +131,7 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	public IFoundSet getFoundSet(String name) throws ServoyException
 	{
 		IFoundSet foundset = application.getFoundSetManager().getNamedFoundSet(name);
-		if (foundset != null && Utils.equalObjects(foundset.getDataSource(), datasource))
-		{
-			return foundset;
-		}
-		return null;
+		return checkDataSourceEquality(foundset) ? foundset : null;
 	}
 
 	/**
@@ -173,6 +169,95 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 		}
 
 		return singleRecordFoundsetCache.js_getRecord(1);
+	}
+
+	/**
+	 * get a new foundset containing records based on a QBSelect query.
+	 *
+	 * @sample
+	 * var qb = datasources.db.example_data.orders.createSelect();
+	 * qb.result.add(qb.columns.orderid);
+	 * var fs = datasources.db.example_data.orders.loadRecords(qb);
+	 *
+	 * @param qbSelect a query builder object
+	 * @return a new JSFoundset
+	 * @throws ServoyException
+	 */
+	@JSFunction
+	public IFoundSet loadRecords(QBSelect qbSelect) throws ServoyException
+	{
+		IFoundSet foundset = application.getFoundSetManager().getFoundSet(datasource);
+		foundset.loadByQuery(qbSelect);
+
+		return checkDataSourceEquality(foundset) ? foundset : null;
+	}
+
+	/**
+	 * get a new foundset containing records based on an SQL query string with parameters.
+	 *
+	 * @sample
+	 * var query = "SELECT * FROM public.orders WHERE customerid = ? OR customerid = ? order by orderid asc";
+	 * var args = ['ROMEY', 'BERGS'];
+	 * var fs = datasources.db.example_data.orders.loadRecords(query, args);
+	 *
+	 * @param query an SQL query string with parameter placeholders
+	 * @param args an array of arguments for the query string
+	 * @return a new JSFoundset
+	 * @throws ServoyException
+	 */
+	@JSFunction
+	public IFoundSet loadRecords(String query, Object[] args) throws ServoyException
+	{
+		IFoundSet foundset = application.getFoundSetManager().getFoundSet(datasource);
+		((FoundSet)foundset).loadByQuery(query, args);
+
+		return checkDataSourceEquality(foundset) ? foundset : null;
+	}
+
+	/**
+	 * get a new foundset containing records based on an SQL query string.
+	 *
+	 * @sample
+	 * var query = "SELECT * FROM public.orders WHERE customerid = 'ROMEY' ORDER BY orderid ASC";
+	 * var fs = datasources.db.example_data.orders.loadRecords(query);
+	 *
+	 * @param query an SQL query
+	 * @return a new JSFoundset
+	 * @throws ServoyException
+	 */
+	@JSFunction
+	public IFoundSet loadRecords(String query) throws ServoyException
+	{
+		return loadRecords(query, null);
+	}
+
+	/**
+	 * get a new foundset containing records based on a dataset of pks.
+	 *
+	 * @sample var fs = datasources.db.example_data.customers.loadRecords(pkDataSet)
+	 *
+	 * @param dataSet
+	 * @return a new JSFoundset
+	 * @throws ServoyException
+	 */
+	@JSFunction
+	public IFoundSet loadRecords(IDataSet dataSet) throws ServoyException
+	{
+		IFoundSet foundset = application.getFoundSetManager().getFoundSet(datasource);
+		((FoundSet)foundset).js_loadRecords(dataSet);
+
+		return checkDataSourceEquality(foundset) ? foundset : null;
+	}
+
+	/**
+	 * check whether a foundset is not null and comes from this datasource
+	 *
+	 * @param foundset
+	 * @return true if not null and datasource matches
+	 */
+	private boolean checkDataSourceEquality(IFoundSet foundset)
+	{
+		return (foundset != null && Utils.equalObjects(foundset.getDataSource(), datasource));
 	}
 
 	/**
