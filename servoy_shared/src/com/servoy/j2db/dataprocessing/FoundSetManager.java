@@ -397,7 +397,15 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				if (fs.isInitialized())
 				{
-					fs.refreshFromDB(skipStopEdit);
+					fs.getPksAndRecords().setSkipOptimizeChangeFires(true);
+					try
+					{
+						fs.refreshFromDB(skipStopEdit);
+					}
+					finally
+					{
+						fs.getPksAndRecords().setSkipOptimizeChangeFires(false);
+					}
 				}
 				affectedTables.add(fs.getTable());
 			}
@@ -1357,7 +1365,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				{
 					if (fs instanceof RelatedFoundSet)
 					{
-						((RelatedFoundSet)fs).invalidateFoundset();
+						((RelatedFoundSet)fs).invalidateFoundset(true);
 					}
 					else if (fs instanceof ViewFoundSet)
 				{
