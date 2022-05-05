@@ -718,9 +718,23 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	{
 		if (isFormVisible == visible) return true;
 
+		if (!visible && destroyOnHide)
+		{
+			Runnable run = new Runnable()
+			{
+				public void run()
+				{
+					destroy();
+				}
+			};
+			invokeLaterRunnables.add(run);
+		}
+		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables);
+
 		if (visible && !isFormVisible)
 		{
-			// legacy support, first touch now also the tabpanel forms.
+			// following loop is for legacy support: first touch (now) also the tabpanel forms.
+			// note: the show operation (visible = true in if above) of a form cannot be denied, so we can update things before the call to super.notifyVisible below
 			for (WebComponent comp : getFormUI().getComponents())
 			{
 				if ((comp instanceof WebFormComponent) && ((WebFormComponent)comp).getFormElement().getPersistIfAvailable() instanceof TabPanel)
@@ -789,20 +803,8 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 					}
 				}
 			}
+		}
 
-		}
-		if (!visible && destroyOnHide)
-		{
-			Runnable run = new Runnable()
-			{
-				public void run()
-				{
-					destroy();
-				}
-			};
-			invokeLaterRunnables.add(run);
-		}
-		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables);
 		if (notifyVisibleSuccess) notifyVisibleOnChildren(visible, invokeLaterRunnables); // TODO should notifyVisibleSuccess be altered here? See WebFormUI/WebFormComponent notifyVisible calls.
 		return notifyVisibleSuccess;
 	}
@@ -874,11 +876,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		return new RuntimeWebComponent[0];
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.IWebFormController#pushParentReadOnly(boolean)
-	 */
 	@Override
 	public void pushParentReadOnly(boolean b)
 	{

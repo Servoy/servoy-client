@@ -225,7 +225,8 @@ public class NGFormServiceHandler extends FormServiceHandler
 					}
 					if (isVisible)
 					{
-						// if the parent container form and component are give then check for those
+						// if the parent container form and component are given, then check for those;
+						// note: the show operation (isVisible = true in if above) of a form cannot be denied, so we can update things before the call to controller.notifyVisible below
 						if (parentForm != null && containerComponent != null)
 						{
 							if (!parentForm.isFormVisible() || !containerComponent.isVisible())
@@ -243,7 +244,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 							relationName = NGClientWindow.getCurrentWindow().isVisibleAllowed(formName, args.optString("relation", null), null);
 						}
 					}
-					ok = controller.notifyVisible(isVisible, invokeLaterRunnables);
+					ok = controller.notifyVisible(isVisible, invokeLaterRunnables); // can only return false (deny) in case of hide; show is always allowed
 					if (ok && parentForm != null)
 					{
 						if (!isVisible && containerComponent != null)
@@ -413,122 +414,147 @@ public class NGFormServiceHandler extends FormServiceHandler
 			case "callServerSideApi" :
 			{
 				String formName = args.getString("formname");
-				IWebFormUI form = (IWebFormUI)NGClientWindow.getCurrentWindow().getForm(formName);
-				if (form != null)
+
+				IWebFormUI form = null;
+				INGFormManager fm = websocketSession.getClient().getFormManager();
+				if (fm != null)
 				{
-					if (form.getController().getDesignModeCallbacks() != null)
+					IWebFormController formController = fm.getCachedFormController(formName);
+					if (formController == null)
 					{
-						// ignoring all calls from the client
-						return null;
-					}
-					WebFormComponent webComponent = form.getWebComponent(args.getString("beanname"));
-					if (webComponent != null)
-					{
-						RuntimeWebComponent runtimeComponent = null;
-						RuntimeWebComponent[] webComponentElements = form.getController().getWebComponentElements();
-						for (RuntimeWebComponent runtimeWebComponent : webComponentElements)
-						{
-							if (runtimeWebComponent.getComponent() == webComponent)
-							{
-								runtimeComponent = runtimeWebComponent;
-								break;
-							}
-						}
-
-						if (runtimeComponent != null)
-						{
-							JSONArray methodArguments = args.getJSONArray("args");
-							String componentMethodName = args.getString("methodName");
-
-							// apply browser to sablo java value conversion - using server-side-API definition from the component's spec file if available (otherwise use default conversion)
-							// the call to runtimeComponent.executeScopeFunction will do the java to Rhino one
-
-							// find spec for method
-							WebObjectSpecification componentSpec = webComponent.getSpecification();
-							WebObjectFunctionDefinition functionSpec = (componentSpec != null ? componentSpec.getInternalApiFunction(componentMethodName)
-								: null);
-							if (functionSpec == null)
-							{
-								functionSpec = (componentSpec != null ? componentSpec.getApiFunction(componentMethodName) : null);
-							}
-
-							// verify if component is accessible due to security options
-							if (functionSpec != null) webComponent.checkMethodExecutionSecurityAccess(functionSpec);
-
-							if (!runtimeComponent.getComponent().isVisible() || !form.getController().isFormVisible())
-							{
-								List<String> allowAccessProperties = null;
-								if (functionSpec != null)
-								{
-									String allowAccess = functionSpec.getAllowAccess();
-									if (allowAccess != null)
-									{
-										allowAccessProperties = Arrays.asList(allowAccess.split(","));
-									}
-								}
-
-								if (!runtimeComponent.getComponent().isVisible())
-								{
-									boolean allowAccessComponentVisibility = false;
-									if (allowAccessProperties != null)
-									{
-										for (String p : allowAccessProperties)
-										{
-											allowAccessComponentVisibility = allowAccessComponentVisibility ||
-												runtimeComponent.getComponent().isVisibilityProperty(p);
-										}
-									}
-
-									if (!allowAccessComponentVisibility)
-									{
-										Debug.warn(
-											"callServerSideApi called on a none visible component: " + runtimeComponent + " call stopped, returning null");
-										return null;
-									}
-								}
-								else
-								{
-									if (allowAccessProperties == null || allowAccessProperties.indexOf("visible") == -1)
-									{
-										Debug.warn("callServerSideApi called on a none visible form: " + formName + " call stopped, returning null");
-										return null;
-									}
-								}
-							}
-
-							List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
-
-							// apply conversion
-							Object[] arrayOfJavaConvertedMethodArgs = new Object[methodArguments.length()];
-							for (int i = 0; i < methodArguments.length(); i++)
-							{
-								arrayOfJavaConvertedMethodArgs[i] = JSONUtils.fromJSON(null, methodArguments.get(i),
-									(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null,
-									new BrowserConverterContext(webComponent, PushToServerEnum.allow), new ValueReference<Boolean>(false));
-							}
-
-							Object retVal = runtimeComponent.executeScopeFunction(functionSpec, arrayOfJavaConvertedMethodArgs);
-
-							if (functionSpec != null && functionSpec.getReturnType() != null)
-							{
-								retVal = new TypedData<Object>(retVal, functionSpec.getReturnType()); // this means that when this return value is sent to client it will be converted to browser JSON correctly - if we give it the type
-							}
-							return retVal;
-						}
-						else
-						{
-							log.warn("callServerSideApi for unknown bean '" + args.getString("beanname") + "' of form '" + formName + "'");
-						}
+						// if form is already destroyed / not leased in form manager - log it and ignore in this situation;
+						// this did happen with a datagrid that send a "filterMyFoundset" server side api call (which was marked in spec to
+						// be allowed even for non-visible forms for some reason) after it was no longer visible due to a default tabpanel tab switch
+						// that also ended up destroying this form...
+						// and this resulted in an unwanted re-load of that form and an error in server side scripting code
+						log.info(
+							"callServerSideApi for a form that is not in use (or does not exist, or has already been destroyed); form: '" + formName + "'");
 					}
 					else
 					{
-						log.warn("callServerSideApi for unknown bean '" + args.getString("beanname") + "' of form '" + formName + "'");
+						form = formController.getFormUI();
+						if (form != null)
+						{
+							if (form.getController().getDesignModeCallbacks() != null)
+							{
+								// ignoring all calls from the client
+								return null;
+							}
+							WebFormComponent webComponent = form.getWebComponent(args.getString("beanname"));
+							if (webComponent != null)
+							{
+								RuntimeWebComponent runtimeComponent = null;
+								RuntimeWebComponent[] webComponentElements = form.getController().getWebComponentElements();
+								for (RuntimeWebComponent runtimeWebComponent : webComponentElements)
+								{
+									if (runtimeWebComponent.getComponent() == webComponent)
+									{
+										runtimeComponent = runtimeWebComponent;
+										break;
+									}
+								}
+
+								if (runtimeComponent != null)
+								{
+									JSONArray methodArguments = args.getJSONArray("args");
+									String componentMethodName = args.getString("methodName");
+
+									// apply browser to sablo java value conversion - using server-side-API definition from the component's spec file if available (otherwise use default conversion)
+									// the call to runtimeComponent.executeScopeFunction will do the java to Rhino one
+
+									// find spec for method
+									WebObjectSpecification componentSpec = webComponent.getSpecification();
+									WebObjectFunctionDefinition functionSpec = (componentSpec != null
+										? componentSpec.getInternalApiFunction(componentMethodName)
+										: null);
+									if (functionSpec == null)
+									{
+										functionSpec = (componentSpec != null ? componentSpec.getApiFunction(componentMethodName) : null);
+									}
+
+									// verify if component is accessible due to security options
+									if (functionSpec != null) webComponent.checkMethodExecutionSecurityAccess(functionSpec);
+
+									if (!runtimeComponent.getComponent().isVisible() || !form.getController().isFormVisible())
+									{
+										List<String> allowAccessProperties = null;
+										if (functionSpec != null)
+										{
+											String allowAccess = functionSpec.getAllowAccess();
+											if (allowAccess != null)
+											{
+												allowAccessProperties = Arrays.asList(allowAccess.split(","));
+											}
+										}
+
+										if (!runtimeComponent.getComponent().isVisible())
+										{
+											boolean allowAccessComponentVisibility = false;
+											if (allowAccessProperties != null)
+											{
+												for (String p : allowAccessProperties)
+												{
+													allowAccessComponentVisibility = allowAccessComponentVisibility ||
+														runtimeComponent.getComponent().isVisibilityProperty(p);
+												}
+											}
+
+											if (!allowAccessComponentVisibility)
+											{
+												Debug.warn(
+													"callServerSideApi called on a none visible component: " + runtimeComponent +
+														" call stopped, returning null");
+												return null;
+											}
+										}
+										else
+										{
+											if (allowAccessProperties == null || allowAccessProperties.indexOf("visible") == -1)
+											{
+												Debug.warn("callServerSideApi called on a none visible form: " + formName + " call stopped, returning null");
+												return null;
+											}
+										}
+									}
+
+									List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
+
+									// apply conversion
+									Object[] arrayOfJavaConvertedMethodArgs = new Object[methodArguments.length()];
+									for (int i = 0; i < methodArguments.length(); i++)
+									{
+										arrayOfJavaConvertedMethodArgs[i] = JSONUtils.fromJSON(null, methodArguments.get(i),
+											(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null,
+											new BrowserConverterContext(webComponent, PushToServerEnum.allow), new ValueReference<Boolean>(false));
+									}
+
+									Object retVal = runtimeComponent.executeScopeFunction(functionSpec, arrayOfJavaConvertedMethodArgs);
+
+									if (functionSpec != null && functionSpec.getReturnType() != null)
+									{
+										retVal = new TypedData<Object>(retVal, functionSpec.getReturnType()); // this means that when this return value is sent to client it will be converted to browser JSON correctly - if we give it the type
+									}
+									return retVal;
+								}
+								else
+								{
+									log.warn("callServerSideApi for unknown bean '" + args.getString("beanname") + "' of form '" + formName + "'");
+								}
+							}
+							else
+							{
+								log.warn("callServerSideApi for unknown bean '" + args.getString("beanname") + "' of form '" + formName + "'");
+							}
+						}
+						else
+						{
+							log.warn("callServerSideApi failed; null form UI for form controller of '" + formName + "'");
+						}
 					}
 				}
-				else
-				{
-					log.warn("callServerSideApi for unknown form '" + formName + "'");
-				}
+				else log.warn("callServerSideApi cannot access form manager; is client shut down? (form: '" + formName + "', comp: '" +
+					args.optString("beanname") + "', method: '" + args.optString("methodName") + "'");
+
 				break;
 			}
 
