@@ -35,7 +35,7 @@ public class ImportInfo implements Serializable
 	public Map<String, UUID> cleanImportUUIDMap = new HashMap<String, UUID>();
 	public Set<UserInfo> userInfoSet = null;
 	public Map<String, Set<TableDef>> databaseInfoMap = null;
-	public Map<String, String> datasourcesMap = null;
+	public Map<String, DBIDefinition> datasourcesMap = null;
 	public Map<String, Set<MetadataDef>> metadataMap = null;
 	public Set<RootObjectImportInfo> rootObjectInfoSet = new HashSet<RootObjectImportInfo>();
 	public RootObjectImportInfo main = null;

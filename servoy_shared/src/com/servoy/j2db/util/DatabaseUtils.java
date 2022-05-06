@@ -41,6 +41,7 @@ import com.servoy.j2db.persistence.ServerSettings;
 import com.servoy.j2db.persistence.SortingNullprecedence;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
+import com.servoy.j2db.util.xmlxport.ServerDef;
 import com.servoy.j2db.util.xmlxport.TableDef;
 
 /**
@@ -86,17 +87,19 @@ public class DatabaseUtils
 	 * @return the deserialized table information.
 	 * @throws JSONException if the structure of the JSON in String stringDBIContent is bad.
 	 */
-	public static ServerSettings deserializeServerSettings(String stringDBIContent)
+	public static ServerDef deserializeServerInfo(String serverName, String stringDBIContent)
 	{
+		ServerDef serverDef = new ServerDef(serverName);
 		if (stringDBIContent != null)
 		{
+			serverDef.dbiFileContents = stringDBIContent;
 			ServoyJSONObject json = new ServoyJSONObject(stringDBIContent, true);
-			return new ServerSettings(
+			serverDef.serverSettings = new ServerSettings(
 				json.getBoolean("sortIgnorecase"),
 				SortingNullprecedence.valueOf(json.getString("sortingNullprecedence")));
 		}
 
-		return ServerSettings.DEFAULT;
+		return serverDef;
 	}
 
 	/**

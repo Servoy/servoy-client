@@ -13,42 +13,17 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
- */
+*/
 
 package com.servoy.j2db.util.xmlxport;
 
-import java.io.Serializable;
-
-import com.servoy.j2db.persistence.ServerSettings;
-
-public class ServerDef implements Serializable, DBIDefinition
+/**
+ * RAGTEST doc
+ *
+ * @author rgansevles
+ *
+ */
+public interface DBIDefinition
 {
-	public final String name;
-	public ServerSettings serverSettings = ServerSettings.DEFAULT;
-	public String dbiFileContents = null;
-
-	public ServerDef(String name)
-	{
-		this.name = name;
-	}
-
-	/**
-	 * @return the dbiFileContents
-	 */
-	public String getDbiFileContents()
-	{
-		return dbiFileContents;
-	}
-
-	@Override
-	public int hashCode()
-	{
-		return name.hashCode();
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		return obj != null && (getClass() == obj.getClass()) && name.equals(((ServerDef)obj).name);
-	}
+	String getDbiFileContents();
 }
