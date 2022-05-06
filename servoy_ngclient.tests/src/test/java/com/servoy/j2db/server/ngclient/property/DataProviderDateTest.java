@@ -790,6 +790,11 @@ public class DataProviderDateTest
 
 	private static class ServiceProvider implements INGApplication
 	{
+		@Override
+		public Object generateBrowserFunction(String functionString)
+		{
+			return functionString;
+		}
 
 		@Override
 		public void invokeLater(Runnable r)

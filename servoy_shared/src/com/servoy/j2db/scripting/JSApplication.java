@@ -2884,6 +2884,26 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
+	 * This generates a browser function for the given function string that can be executed in the browser
+	 * The resulting object can be assigned into a config/property object that is then assigned to a component
+	 * The component will receive this function as a real function object.
+	 *
+	 * This is a more dynamic variant of the spec property "clientfunction" https://wiki.servoy.com/display/DOCS/Property+Types
+	 *
+	 * @sample
+	 * var options = { myfunction: application.generateBrowserFunction("function(param) { return param + 1 }") };
+	 * elements.component.setOptions(options);
+	 *
+	 * @return An object that can be assignd to a javascript/json object that is send to the client
+	 */
+	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
+	@JSFunction
+	public Object generateBrowserFunction(String functionString)
+	{
+		return application.generateBrowserFunction(functionString);
+	}
+
+	/**
 	 * Show the calendar, returns selected date or null if canceled. Initial value and date format can be also specified.
 	 *
 	 * @sample var selectedDate = application.showCalendar();

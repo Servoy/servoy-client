@@ -429,6 +429,12 @@ public class J2DBClient extends ClientState
 		return CLIENT;
 	}
 
+	@Override
+	public Object generateBrowserFunction(String functionString)
+	{
+		return functionString;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 *
