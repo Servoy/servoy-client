@@ -75,6 +75,8 @@ public abstract class RelatedFoundSet extends FoundSet
 		}
 	}
 
+	private boolean skipOptimizeQuery;
+
 	private int[] equalsOpsIndexes;
 
 	protected RelatedFoundSet(IDataSet data, QuerySelect select, IFoundSetManagerInternal app, String relationName, SQLSheet sheet,
@@ -1037,21 +1039,19 @@ public abstract class RelatedFoundSet extends FoundSet
 
 	protected void invalidateFoundset()
 	{
+		invalidateFoundset(false);
+	}
+
+	protected void invalidateFoundset(boolean fullFlush)
+	{
 		if (!mustQueryForUpdates)
 		{
-			int size = getCorrectedSizeForFires();
 			IRecordInternal record = getRecord(getSelectedIndex());
 			mustQueryForUpdates = true;
+			skipOptimizeQuery = fullFlush;
 			Map<FoundSet, int[]> parentToIndexen = getFoundSetManager().getEditRecordList().getFoundsetEventMap();
-//			if (size >= 0)
-//			{
-//				parentToIndexen.put(this, new int[] { 0, size });
-//			}
-//			else
-			{
-				// when foundset was empty (size = -1) this will be fired as an foundset-invalidated event, see EditRecordList.fireEvents()
-				parentToIndexen.put(this, new int[] { -1, -1 });
-			}
+			// when foundset was empty (size = -1) this will be fired as an foundset-invalidated event, see EditRecordList.fireEvents()
+			parentToIndexen.put(this, new int[] { -1, -1 });
 			fireAggregateChange(record);
 		}
 	}
@@ -1077,6 +1077,7 @@ public abstract class RelatedFoundSet extends FoundSet
 				}
 
 				mustQueryForUpdates = false;
+				skipOptimizeQuery = false;
 			}
 			catch (ServoyException ex)
 			{

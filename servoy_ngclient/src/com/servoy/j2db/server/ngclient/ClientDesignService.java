@@ -71,9 +71,13 @@ public class ClientDesignService implements IServerService
 			}
 
 			List<RuntimeWebComponent> selection = new ArrayList<>();
+			String name = layoutWrapperName;
 			if (layoutWrapperName != null && layoutWrapperName.startsWith("layout."))
 			{
-				String name = layoutWrapperName.substring(7);
+				name = name.substring(7);
+			}
+			if (name != null && !"".equals(name))
+			{
 				RuntimeWebComponent[] webComponentElements = form.getWebComponentElements();
 				for (RuntimeWebComponent component : webComponentElements)
 				{
