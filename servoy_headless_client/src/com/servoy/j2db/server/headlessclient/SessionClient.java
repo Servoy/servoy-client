@@ -996,6 +996,12 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	}
 
 	@Override
+	public Object generateBrowserFunction(String functionString)
+	{
+		return functionString;
+	}
+
+	@Override
 	public ScheduledExecutorService getScheduledExecutor()
 	{
 		if (scheduledExecutorService == null && !isShutDown())

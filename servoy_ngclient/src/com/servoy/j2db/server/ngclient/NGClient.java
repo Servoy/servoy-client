@@ -75,6 +75,7 @@ import com.servoy.j2db.server.headlessclient.util.HCUtils;
 import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet.MediaInfo;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
+import com.servoy.j2db.server.ngclient.property.BrowserFunction;
 import com.servoy.j2db.server.ngclient.property.types.MediaPropertyType;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceFunction;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
@@ -1597,6 +1598,13 @@ public class NGClient extends AbstractApplication
 	{
 		return this.clientFunctions;
 	}
+
+	@Override
+	public Object generateBrowserFunction(String functionString)
+	{
+		return new BrowserFunction(functionString, this);
+	}
+
 
 	/**
 	 * @author jcompagner
