@@ -1063,9 +1063,9 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					}
 
 					function createRows() {
-                        numberOfCells = svyServoyApi.isInAbsoluteLayout() ? 0 : scope.responsivePageSize;
+                        numberOfCells = svyServoyApi.isInAbsoluteLayout() && scope.svyFormComponent.absoluteLayout ? 0 : scope.responsivePageSize;
                         if (numberOfCells <= 0 ) {
-                        	if (svyServoyApi.isInAbsoluteLayout()) {
+                        	if (svyServoyApi.isInAbsoluteLayout() && scope.svyFormComponent.absoluteLayout) {
 		                        const parentWidth = parent.outerWidth();
 		                        const parentHeight = parent.outerHeight();
 		                        const height = scope.svyFormComponent.formHeight;
@@ -1077,7 +1077,12 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		                        if (numberOfCells < 1) numberOfCells = 1;
                         	}
                         	else {
-                        		parent.append(angular.element("<span>responsivePageSize property must be set when using a list form component in a responsive form</span>"));
+								if(!svyServoyApi.isInAbsoluteLayout()) {
+                        			parent.append(angular.element("<span>responsivePageSize property must be set when using a list form component in a responsive form</span>"));
+								}
+								else if(!scope.svyFormComponent.absoluteLayout) {
+									parent.append(angular.element("<span>responsivePageSize property must be set when using a list form component with a responsive containedForm</span>"));
+								}
                         		return;
                         	}
                         }
