@@ -27,15 +27,19 @@ import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.dataprocessing.FoundSetManager;
+import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.ViewFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
+import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
@@ -248,6 +252,41 @@ public class ServoyApiObject
 
 		return listOfPrimaryKeyNames.toArray(new String[0]);
 
+	}
+
+	/**
+	 * Performs a sql query with a query builder object.
+	 * Will throw an exception if anything did go wrong when executing the query.
+	 * Will use any data filter defined on table.
+	 *
+	 * @sample
+	 *  var dataset = servoyApi.getDataSetByQuery(qbselect, 10);
+	 *
+	 * @param query QBSelect query.
+	 * @param max_returned_rows The maximum number of rows returned by the query.
+	 *
+	 * @return The JSDataSet containing the results of the query.
+	 */
+	@JSFunction
+	public JSDataSet getDataSetByQuery(QBSelect query, Number max_returned_rows)
+	{
+		int _max_returned_rows = Utils.getAsInteger(max_returned_rows);
+
+		String serverName = DataSourceUtils.getDataSourceServerName(query.getDataSource());
+
+		if (serverName == null)
+			throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { query.getDataSource() }));
+		QuerySelect select = query.build();
+
+		try
+		{
+			return new JSDataSet(app, ((FoundSetManager)app.getFoundSetManager()).getDataSetByQuery(serverName, select,
+				true, _max_returned_rows));
+		}
+		catch (ServoyException e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
 
 }

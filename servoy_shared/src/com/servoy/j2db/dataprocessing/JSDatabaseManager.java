@@ -1505,7 +1505,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Will throw an exception if anything did go wrong when executing the query.
 	 *
 	 * @sample
-	 * // use the query froma foundset and add a condition
+	 * // use the query from a foundset and add a condition
 	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var q = foundset.getQuery()
 	 * q.where.add(q.joins.orders_to_order_details.columns.discount.eq(2))
