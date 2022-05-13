@@ -70,7 +70,7 @@ public final class QuerySearchedCaseExpression implements IQuerySelectValue
 	@Override
 	public BaseColumnType getColumnType()
 	{
-		// Use the column type of the reults
+		// Use the column type of the results
 		return Stream.concat(whenClauses.stream().map(QueryWhenClause::getResult), Stream.of(otherwiseResult))
 			.filter(Objects::nonNull)
 			.map(IQuerySelectValue::getColumnType)

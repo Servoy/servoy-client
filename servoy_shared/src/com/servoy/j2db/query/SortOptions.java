@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.query;
 
+import java.io.Serializable;
+
 import com.servoy.j2db.persistence.SortingNullprecedence;
 
 /**
@@ -25,7 +27,7 @@ import com.servoy.j2db.persistence.SortingNullprecedence;
  * @author rgansevles
  *
  */
-public class SortOptions
+public class SortOptions implements Serializable
 {
 	public static SortOptions NONE = new SortOptions(false, SortingNullprecedence.ragtestDefault);
 
