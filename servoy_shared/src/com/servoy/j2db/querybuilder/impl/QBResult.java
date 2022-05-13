@@ -279,7 +279,8 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	@JSFunction
 	public QBResult addValue(Object value, String alias)
 	{
-		getParent().getQuery().addColumn(new QueryColumnValue(value, alias, value instanceof Integer));
+		getParent().getQuery().addColumn(
+			value instanceof IQuerySelectValue ? ((IQuerySelectValue)value).asAlias(alias) : new QueryColumnValue(value, alias, value instanceof Integer));
 		return this;
 	}
 

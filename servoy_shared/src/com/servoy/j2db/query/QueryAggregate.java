@@ -124,7 +124,7 @@ public final class QueryAggregate implements IQuerySelectValue, IQueryElement, I
 		{
 			return ColumnType.getColumnType(IColumnTypes.INTEGER);
 		}
-		return IQuerySelectValue.super.getColumnType();
+		return aggregee == null ? null : aggregee.getColumnType();
 	}
 
 	@Override
@@ -134,7 +134,7 @@ public final class QueryAggregate implements IQuerySelectValue, IQueryElement, I
 		{
 			return 0;
 		}
-		return IQuerySelectValue.super.getFlags();
+		return aggregee == null ? 0 : aggregee.getFlags();
 	}
 
 	public String getAggregateName()
