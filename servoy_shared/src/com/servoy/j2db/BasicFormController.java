@@ -4086,7 +4086,7 @@ public abstract class BasicFormController
 		 *
 		 * @return the design mode state (true/fase)
 		 */
-		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+		@ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
 		public boolean jsFunction_getDesignMode()
 		{
 			checkDestroyed();

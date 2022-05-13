@@ -530,4 +530,10 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	{
 		reportWarning(getI18NMessage(key, args));
 	}
+
+	/**
+	 * @param functionString
+	 * @return
+	 */
+	public Object generateBrowserFunction(String functionString);
 }

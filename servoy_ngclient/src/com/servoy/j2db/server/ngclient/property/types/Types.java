@@ -120,5 +120,6 @@ public class Types
 		TypesRegistry.addType(MapPropertyType.INSTANCE);
 
 		TypesRegistry.addType(DbIdentPropertyType.INSTANCE);
+		TypesRegistry.addType(DynamicClientFunctionPropertyType.INSTANCE);
 	}
 }

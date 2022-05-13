@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.scripting;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogBuilder;
 import org.mozilla.javascript.annotations.JSFunction;
 
@@ -34,10 +35,12 @@ import com.servoy.j2db.util.Utils;
 public class JSLogBuilder
 {
 	private final LogBuilder builder;
+	private final Level logLevel; // This is only here so that users can call log.setLevel(log.info), which might be a violation of the principle of single responsibility
 
-	JSLogBuilder(LogBuilder builder)
+	JSLogBuilder(LogBuilder builder, Level logLevel)
 	{
 		this.builder = builder;
+		this.logLevel = logLevel;
 	}
 
 	/**
@@ -88,5 +91,10 @@ public class JSLogBuilder
 	public void log()
 	{
 		this.builder.log();
+	}
+
+	Level getLevel()
+	{
+		return this.logLevel;
 	}
 }

@@ -17,8 +17,11 @@
 
 package com.servoy.j2db.scripting;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
@@ -142,7 +145,7 @@ public class JSLogger
 	@JSReadonlyProperty
 	public JSLogBuilder info()
 	{
-		return new JSLogBuilder(logger.atInfo());
+		return new JSLogBuilder(logger.atInfo(), Level.INFO);
 	}
 
 	/**
@@ -157,7 +160,7 @@ public class JSLogger
 	@JSReadonlyProperty
 	public JSLogBuilder warn()
 	{
-		return new JSLogBuilder(logger.atWarn());
+		return new JSLogBuilder(logger.atWarn(), Level.WARN);
 	}
 
 	/**
@@ -172,7 +175,7 @@ public class JSLogger
 	@JSReadonlyProperty
 	public JSLogBuilder debug()
 	{
-		return new JSLogBuilder(logger.atDebug());
+		return new JSLogBuilder(logger.atDebug(), Level.DEBUG);
 	}
 
 	/**
@@ -187,7 +190,7 @@ public class JSLogger
 	@JSReadonlyProperty
 	public JSLogBuilder error()
 	{
-		return new JSLogBuilder(logger.atError());
+		return new JSLogBuilder(logger.atError(), Level.ERROR);
 	}
 
 	/**
@@ -202,7 +205,22 @@ public class JSLogger
 	@JSReadonlyProperty
 	public JSLogBuilder trace()
 	{
-		return new JSLogBuilder(logger.atTrace());
+		return new JSLogBuilder(logger.atTrace(), Level.TRACE);
+	}
+
+	/**
+	 * Construct a fatal log event.
+	 *
+	 * @sample
+	 * var log = application.getLogger();
+	 * log.fatal.log("some message and {} {}", "some", "arguments");
+	 *
+	 * @return a LogBuilder
+	 */
+	@JSReadonlyProperty
+	public JSLogBuilder fatal()
+	{
+		return new JSLogBuilder(logger.atFatal(), Level.FATAL);
 	}
 
 	/**
@@ -217,7 +235,44 @@ public class JSLogger
 	@JSReadonlyProperty
 	public JSLogBuilder always()
 	{
-		return new JSLogBuilder(logger.always());
+		return new JSLogBuilder(logger.always(), Level.ALL);
+	}
+
+	/**
+	 * Set the level for this logger.
+	 * Be aware that this will override the logging level as configured in log4j.xml,
+	 * meaning it affects all JSLogger instances based on that configuration.
+	 * This changes the global configuration,
+	 * meaning that restarting the client will not reset the logging level to it's default state.
+	 * Only restarting the application server will reset the logging level to it's default state.
+	 *
+	 * @sample
+	 * var log = application.getLogger("myLogger");
+	 * log.setLevel(log.info);
+	 *
+	 * @param level the desired logging level for this logger
+	 */
+	// this argument type might be a little confusing, but we do this so that users can call e.g. log.setLevel(log.info)
+	// and log.info happens to return a JSLogBuilder instance.
+	@JSFunction
+	public void setLevel(JSLogBuilder level)
+	{
+		Level logLevel = Level.toLevel(level.getLevel().name(), this.logger.getLevel());
+		if (logLevel != this.logger.getLevel())
+		{
+			Configurator.setAllLevels(logger.getName(), logLevel);
+		}
+	}
+
+	/**
+	 * Get the logging level of this logger
+	 *
+	 * @return the logging level of this logger
+	 */
+	@JSReadonlyProperty
+	public String level()
+	{
+		return this.logger.getLevel().name();
 	}
 
 }
