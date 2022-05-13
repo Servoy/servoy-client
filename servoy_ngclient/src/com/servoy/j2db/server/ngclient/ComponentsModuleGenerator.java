@@ -59,7 +59,8 @@ public class ComponentsModuleGenerator extends HttpServlet
 		Set<String> names = new HashSet<>();
 		for (WebObjectSpecification webSpec : allWebSpecifications)
 		{
-			names.add(webSpec.getName());
+			// TODO how to ignore these components, they have only titanium implmentation
+			if (!webSpec.getName().startsWith("bootstrapcomponents-floatlabel")) names.add(webSpec.getName());
 		}
 		return names;
 	}
