@@ -40,6 +40,7 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
+import com.servoy.j2db.persistence.IRelation;
 import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElementContext;
@@ -263,7 +264,18 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 					value = value instanceof Wrapper ? ((Wrapper)value).unwrap() : value;
 					if (value instanceof IFoundSetInternal)
 					{
-						if (webComponentValue.foundsetSelector == null || webComponentValue.foundsetSelector.equals(((IFoundSetInternal)value).getDataSource()))
+						String foundsetSelector = webComponentValue.foundsetSelector;
+						if (foundsetSelector != null)
+						{
+							// if foundsetSelector is a relation, get right datasource
+							IRelation r = webComponentValue.getFoundSetManager().getRelation(foundsetSelector);
+							if (r != null)
+							{
+								foundsetSelector = r.getForeignDataSource();
+							}
+						}
+
+						if (foundsetSelector == null || foundsetSelector.equals(((IFoundSetInternal)value).getDataSource()))
 						{
 							webComponentValue.updateFoundset((IFoundSetInternal)value);
 						}
