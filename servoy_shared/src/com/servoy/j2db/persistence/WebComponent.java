@@ -357,7 +357,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 			((WebComponent)clone).updateJSON();
 			for (WebCustomType customType : types)
 			{
-				getRootObject().getChangeHandler().fireIPersistChanged(customType);
+				clone.getRootObject().getChangeHandler().fireIPersistChanged(customType);
 			}
 			// hack for cache, we put back the custom types
 			this.acceptVisitor(new IPersistVisitor()
