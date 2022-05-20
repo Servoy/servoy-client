@@ -529,9 +529,8 @@ public abstract class RelatedFoundSet extends FoundSet
 		}).toArray();
 	}
 
-
 	@Override
-	public boolean addFilterParam(String filterName, String dataprovider, String operator, Object value)
+	protected boolean addFilterParam(String filterName, TableFilterdefinition tableFilterdefinition)
 	{
 		// don't do anything, can't add parameters to related foundset
 		fsm.getApplication().reportJSError("Cannot addFoundSetFilterParam to related foundset", null); //$NON-NLS-1$
