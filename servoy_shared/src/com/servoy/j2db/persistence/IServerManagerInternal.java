@@ -98,7 +98,7 @@ public interface IServerManagerInternal extends IServerManager
 
 	void addServerListener(IServerListener serverListener);
 
-	ISequenceProvider getSequenceProvider(String name);
+	ISequenceProvider getSequenceProvider();
 
 	IColumnInfoManager[] getColumnInfoManagers();
 

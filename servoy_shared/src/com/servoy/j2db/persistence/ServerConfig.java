@@ -206,6 +206,10 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		return schema;
 	}
 
+	/**
+	 * @deprecated use {@link ServerSettings#getClientOnlyConnections()} with fallback on this call
+	 */
+	@Deprecated
 	public boolean isClientOnlyConnections()
 	{
 		return clientOnlyConnections;
@@ -258,8 +262,9 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	}
 
 	/**
-	 * @return the queryProcedures
+	 * @deprecated use {@link ServerSettings#getQueryProcedures()} with fallback on this call
 	 */
+	@Deprecated
 	public boolean getQueryProcedures()
 	{
 		return queryProcedures;

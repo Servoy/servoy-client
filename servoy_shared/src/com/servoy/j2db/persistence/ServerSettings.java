@@ -29,15 +29,19 @@ import java.io.Serializable;
  */
 public class ServerSettings implements Serializable
 {
-	public static final ServerSettings DEFAULT = new ServerSettings(false, ragtestDefault);
+	public static final ServerSettings DEFAULT = new ServerSettings(false, ragtestDefault, null, null);
 
 	private final boolean sortIgnorecase;
 	private final SortingNullprecedence sortingNullprecedence;
+	private final Boolean queryProcedures;
+	private final Boolean clientOnlyConnections;
 
-	public ServerSettings(boolean sortIgnorecase, SortingNullprecedence sortingNullprecedence)
+	public ServerSettings(boolean sortIgnorecase, SortingNullprecedence sortingNullprecedence, Boolean queryProcedures, Boolean clientOnlyConnections)
 	{
 		this.sortIgnorecase = sortIgnorecase;
 		this.sortingNullprecedence = sortingNullprecedence;
+		this.queryProcedures = queryProcedures;
+		this.clientOnlyConnections = clientOnlyConnections;
 	}
 
 	/**
@@ -56,19 +60,57 @@ public class ServerSettings implements Serializable
 		return sortingNullprecedence;
 	}
 
+	/**
+	 * @return the queryProcedures
+	 */
+	public Boolean getQueryProcedures()
+	{
+		return queryProcedures;
+	}
+
+	/**
+	 * @return the clientOnlyConnections
+	 */
+	public Boolean getClientOnlyConnections()
+	{
+		return clientOnlyConnections;
+	}
+
+	public ServerSettings withQueryProcedures(boolean queryProceduresSet)
+	{
+		if (Boolean.valueOf(queryProceduresSet).equals(this.queryProcedures))
+		{
+			return this;
+		}
+		return new ServerSettings(this.sortIgnorecase, this.sortingNullprecedence, Boolean.valueOf(queryProceduresSet), this.clientOnlyConnections);
+	}
+
+	public ServerSettings withClientOnlyConnections(boolean clientOnlyConnectionsSet)
+	{
+		if (Boolean.valueOf(clientOnlyConnectionsSet).equals(this.clientOnlyConnections))
+		{
+			return this;
+		}
+		return new ServerSettings(this.sortIgnorecase, this.sortingNullprecedence, this.queryProcedures, Boolean.valueOf(clientOnlyConnectionsSet));
+	}
+
+
 	@Override
 	public int hashCode()
 	{
+		// RAGTEST queryProcedures clientOnlyConnections
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + (sortIgnorecase ? 1231 : 1237);
 		result = prime * result + ((sortingNullprecedence == null) ? 0 : sortingNullprecedence.hashCode());
+		result = prime * result + ((queryProcedures == null) ? 0 : queryProcedures.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj)
 	{
+		// RAGTEST queryProcedures clientOnlyConnections
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
@@ -81,6 +123,7 @@ public class ServerSettings implements Serializable
 	@Override
 	public String toString()
 	{
+		// RAGTEST queryProcedures clientOnlyConnections
 		return new StringBuilder("ServerSettings [")
 			.append("sortIgnorecase=").append(sortIgnorecase)
 			.append(", sortingNullprecedence=").append(sortingNullprecedence)

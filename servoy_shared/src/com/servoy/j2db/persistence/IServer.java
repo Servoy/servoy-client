@@ -78,7 +78,7 @@ public interface IServer extends Remote
 	/**
 	 * @return
 	 */
-	public ISequenceProvider getSequenceProvider() throws RemoteException;
+// RAGTEST 	public ISequenceProvider getSequenceProvider() throws RemoteException;
 
 	/**
 	 * @param definition

@@ -256,12 +256,12 @@ public class ServerProxy implements IServer, Serializable
 	 *
 	 * @see com.servoy.j2db.persistence.IServer#getSequenceProvider()
 	 */
-	@Override
-	public ISequenceProvider getSequenceProvider()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+// RAGTEST 	@Override
+//	public ISequenceProvider getSequenceProvider()
+//	{
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 
 	@Override
 	public Collection<Procedure> getProcedures() throws RepositoryException, RemoteException

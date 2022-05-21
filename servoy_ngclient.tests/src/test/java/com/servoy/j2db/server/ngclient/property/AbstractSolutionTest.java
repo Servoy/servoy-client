@@ -88,7 +88,6 @@ import com.servoy.j2db.persistence.ChangeHandler;
 import com.servoy.j2db.persistence.IItemChangeListener;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
-import com.servoy.j2db.persistence.ISequenceProvider;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.IValidateName;
@@ -216,12 +215,6 @@ public abstract class AbstractSolutionTest
 
 		@Override
 		public String[] getDataModelClonesFrom() throws RemoteException
-		{
-			return null;
-		}
-
-		@Override
-		public ISequenceProvider getSequenceProvider()
 		{
 			return null;
 		}
