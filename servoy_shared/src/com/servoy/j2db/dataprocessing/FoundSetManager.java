@@ -145,6 +145,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private ConcurrentMap<IFoundSetListener, FoundSet> separateFoundSets; //FoundSetListener -> FoundSet ... 1 foundset per listener
 	private Map<String, FoundSet> sharedDataSourceFoundSet; //dataSource -> FoundSet ... 1 foundset per data source
 	private Map<String, ViewFoundSet> viewFoundSets; //dataSource -> FoundSet ... 1 foundset per data source
+	private Map<ViewFoundSet, Object> noneRegisteredVFS;
 	private ConcurrentMap<FoundSet, Object> foundSets;
 	private ConcurrentMap<String, FoundSet> namedFoundSets;
 	private WeakReference<IFoundSetInternal> noTableFoundSet;
@@ -861,6 +862,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		foundSets = CacheBuilder.newBuilder().weakKeys().initialCapacity(64).<FoundSet, Object> build().asMap();
 		namedFoundSets = CacheBuilder.newBuilder().weakValues().initialCapacity(32).<String, FoundSet> build().asMap();
 		viewFoundSets = new ConcurrentHashMap<>(16);
+		noneRegisteredVFS = CacheBuilder.newBuilder().weakKeys().initialCapacity(8).<ViewFoundSet, Object> build().asMap();
 		noTableFoundSet = null;
 
 		rowManagers = new ConcurrentHashMap<>(64);
@@ -1332,13 +1334,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return Stream.concat(separateFoundSets.values().stream(), //
 			Stream.concat(sharedDataSourceFoundSet.values().stream(), //
 				Stream.concat(viewFoundSets.values().stream(), //
-					Stream.concat(foundSets.keySet().stream(), //
-						Stream.concat(namedFoundSets.values().stream(), //
-							getCachedSubStates().values()
-								.stream() //
-								.map(ConcurrentMap::values)
-								.flatMap(Collection::stream) //
-						)))));
+					Stream.concat(noneRegisteredVFS.keySet().stream(), //
+						Stream.concat(foundSets.keySet().stream(), //
+							Stream.concat(namedFoundSets.values().stream(), //
+								getCachedSubStates().values()
+									.stream() //
+									.map(ConcurrentMap::values)
+									.flatMap(Collection::stream) //
+							))))));
 	}
 
 	public void refreshFoundsetsForTenantTables()
@@ -3520,20 +3523,27 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	}
 
 	@Override
-	public boolean registerViewFoundSet(ViewFoundSet foundset)
+	public boolean registerViewFoundSet(ViewFoundSet foundset, boolean onlyWeak)
 	{
 		if (foundset == null) return false;
-		ViewFoundSet oldValue = viewFoundSets.put(foundset.getDataSource(), foundset);
-		ITable table = foundset.getTable();
-		if (!viewDataSources.containsKey(foundset.getDataSource()))
-			viewDataSources.put(foundset.getDataSource(), table);
-		if (oldValue != null)
+		if (onlyWeak)
 		{
-			for (IFormController controller : application.getFormManager().getCachedFormControllers())
+			noneRegisteredVFS.put(foundset, TRUE);
+		}
+		else
+		{
+			ViewFoundSet oldValue = viewFoundSets.put(foundset.getDataSource(), foundset);
+			ITable table = foundset.getTable();
+			if (!viewDataSources.containsKey(foundset.getDataSource()))
+				viewDataSources.put(foundset.getDataSource(), table);
+			if (oldValue != null)
 			{
-				if (controller.getFormModel() == oldValue)
+				for (IFormController controller : application.getFormManager().getCachedFormControllers())
 				{
-					controller.loadAllRecords();
+					if (controller.getFormModel() == oldValue)
+					{
+						controller.loadAllRecords();
+					}
 				}
 			}
 		}

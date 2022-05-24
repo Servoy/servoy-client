@@ -124,7 +124,7 @@ public class JSViewDataSource implements IJavaScriptType, IDestroyable
 		ViewFoundSet viewFoundSet = application.getFoundSetManager().getViewFoundSet(DataSourceUtils.getViewDataSourceName(datasource), query);
 		if (register && viewFoundSet != null)
 		{
-			application.getFoundSetManager().registerViewFoundSet(viewFoundSet);
+			application.getFoundSetManager().registerViewFoundSet(viewFoundSet, false);
 		}
 		return viewFoundSet;
 	}
