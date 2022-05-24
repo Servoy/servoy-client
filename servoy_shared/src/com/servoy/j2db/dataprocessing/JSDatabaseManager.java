@@ -3222,7 +3222,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public ViewFoundSet js_getViewFoundSet(String name, QBSelect query) throws ServoyException
 	{
 		checkAuthorized();
-		return application.getFoundSetManager().getViewFoundSet(name, query);
+		return application.getFoundSetManager().getViewFoundSet(name, query, false);
 	}
 
 	/**
@@ -3258,8 +3258,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public ViewFoundSet js_getViewFoundSet(String name, QBSelect query, boolean register) throws ServoyException
 	{
 		checkAuthorized();
-		ViewFoundSet viewFoundSet = application.getFoundSetManager().getViewFoundSet(name, query);
-		if (register) application.getFoundSetManager().registerViewFoundSet(viewFoundSet, false);
+		ViewFoundSet viewFoundSet = application.getFoundSetManager().getViewFoundSet(name, query, register);
 		return viewFoundSet;
 	}
 

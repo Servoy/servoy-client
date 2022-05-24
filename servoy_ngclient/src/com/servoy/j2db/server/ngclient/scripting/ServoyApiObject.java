@@ -71,7 +71,7 @@ public class ServoyApiObject
 			// no access to repository yet, have to log in first
 			throw new ServoyException(ServoyException.CLIENT_NOT_AUTHORIZED);
 		}
-		return app.getFoundSetManager().getViewFoundSet(name, query);
+		return app.getFoundSetManager().getViewFoundSet(name, query, false);
 	}
 
 	/**

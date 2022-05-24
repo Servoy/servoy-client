@@ -3453,7 +3453,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	@SuppressWarnings("nls")
 	@Override
-	public ViewFoundSet getViewFoundSet(String name, QBSelect query)
+	public ViewFoundSet getViewFoundSet(String name, QBSelect query, boolean register)
 	{
 		if (query.getQuery().getColumns() == null || query.getQuery().getColumns().size() == 0)
 		{
@@ -3495,6 +3495,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				}
 			}
 		}
+
+		registerViewFoundSet(vfs, !register);
 
 		return vfs;
 	}
