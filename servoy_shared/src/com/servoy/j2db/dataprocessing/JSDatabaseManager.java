@@ -3259,7 +3259,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	{
 		checkAuthorized();
 		ViewFoundSet viewFoundSet = application.getFoundSetManager().getViewFoundSet(name, query);
-		if (register) application.getFoundSetManager().registerViewFoundSet(viewFoundSet);
+		if (register) application.getFoundSetManager().registerViewFoundSet(viewFoundSet, false);
 		return viewFoundSet;
 	}
 
@@ -3274,7 +3274,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public boolean js_registerViewFoundSet(ViewFoundSet viewFoundset) throws ServoyException
 	{
 		checkAuthorized();
-		return application.getFoundSetManager().registerViewFoundSet(viewFoundset);
+		return application.getFoundSetManager().registerViewFoundSet(viewFoundset, false);
 	}
 
 	/**

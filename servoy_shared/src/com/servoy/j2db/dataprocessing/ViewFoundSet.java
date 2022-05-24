@@ -302,6 +302,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			}
 			columnNames.put(col, selectToName.get(selectValue));
 		}
+		manager.registerViewFoundSet(this, true);
 	}
 
 	private void addRealColumnToTableMap(Map<BaseQueryTable, List<QueryColumn>> columnsInJoinsPerTable, QueryColumn column)
