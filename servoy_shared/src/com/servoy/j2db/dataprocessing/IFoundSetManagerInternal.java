@@ -194,7 +194,7 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	* @param query
 	* @return
 	*/
-	public ViewFoundSet getViewFoundSet(String name, QBSelect query);
+	public ViewFoundSet getViewFoundSet(String name, QBSelect query, boolean register);
 
 	/**
 	 * @param foundset

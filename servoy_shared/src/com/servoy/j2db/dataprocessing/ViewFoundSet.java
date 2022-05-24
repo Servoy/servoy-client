@@ -303,7 +303,6 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			}
 			columnNames.put(col, selectToName.get(selectValue));
 		}
-		manager.registerViewFoundSet(this, true);
 	}
 
 	private void addRealColumnToTableMap(Map<BaseQueryTable, List<QueryColumn>> columnsInJoinsPerTable, QueryColumn column)
@@ -1941,7 +1940,9 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public IFoundSetInternal copy(boolean unrelate) throws ServoyException
 	{
-		return new ViewFoundSet(datasource, AbstractBaseQuery.deepClone(this.select, true), manager, chunkSize);
+		ViewFoundSet viewFoundSetCopy = new ViewFoundSet(datasource, AbstractBaseQuery.deepClone(this.select, true), manager, chunkSize);
+		manager.registerViewFoundSet(viewFoundSetCopy, true);
+		return viewFoundSetCopy;
 	}
 
 	/**

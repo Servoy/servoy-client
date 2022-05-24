@@ -121,11 +121,7 @@ public class JSViewDataSource implements IJavaScriptType, IDestroyable
 	@JSFunction
 	public ViewFoundSet getViewFoundSet(QBSelect query, boolean register)
 	{
-		ViewFoundSet viewFoundSet = application.getFoundSetManager().getViewFoundSet(DataSourceUtils.getViewDataSourceName(datasource), query);
-		if (register && viewFoundSet != null)
-		{
-			application.getFoundSetManager().registerViewFoundSet(viewFoundSet, false);
-		}
+		ViewFoundSet viewFoundSet = application.getFoundSetManager().getViewFoundSet(DataSourceUtils.getViewDataSourceName(datasource), query, register);
 		return viewFoundSet;
 	}
 
