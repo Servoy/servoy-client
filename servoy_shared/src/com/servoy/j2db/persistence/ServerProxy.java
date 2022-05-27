@@ -251,18 +251,6 @@ public class ServerProxy implements IServer, Serializable
 		return server.getDataModelClonesFrom();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.IServer#getSequenceProvider()
-	 */
-// RAGTEST 	@Override
-//	public ISequenceProvider getSequenceProvider()
-//	{
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-
 	@Override
 	public Collection<Procedure> getProcedures() throws RepositoryException, RemoteException
 	{

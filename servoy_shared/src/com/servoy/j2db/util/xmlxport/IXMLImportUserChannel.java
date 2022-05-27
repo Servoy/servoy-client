@@ -146,11 +146,11 @@ public interface IXMLImportUserChannel extends InfoChannel
 	 */
 	public int askAllowSQLKeywords();
 
-	/** RAGTEST doc
-	 * This method returns whether to import included meta data or not. Return <code>OK_ACTION</code> to import meta data, <code>CANCEL_ACTION</code> to
+	/**
+	 * This method returns whether to import included dbi files or not. Return <code>OK_ACTION</code> to import meta data, <code>CANCEL_ACTION</code> to
 	 * skip it.
 	 *
-	 * @return whether or not to import included meta data
+	 * @return whether or not to import included dbi files
 	 */
 	default int askImportDatasources()
 	{

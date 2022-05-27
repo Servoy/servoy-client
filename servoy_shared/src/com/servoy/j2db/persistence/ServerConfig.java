@@ -45,7 +45,9 @@ import com.servoy.j2db.util.Utils;
 
 
 /**
- * Server configuration data.
+ * Server configuration to define the runtime environment.
+ *
+ * This data differs from {@link ServerSettings} which contains the configuration of the behaviour of the solution.
  *
  * @author rgansevles
  *

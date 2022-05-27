@@ -29,11 +29,6 @@ import com.servoy.j2db.util.ILogLevel;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class LOGGINGLEVEL implements IPrefixedConstantsObject, ILogLevel
 {
-	public String getPrefix()
-	{
-		return "LOGGINGLEVEL"; // RAGTEST default
-	}
-
 	@Override
 	public String toString()
 	{

@@ -29,11 +29,6 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class SQL_ACTION_TYPES implements IPrefixedConstantsObject, ISQLActionTypes
 {
-	public String getPrefix()
-	{
-		return "SQL_ACTION_TYPES";// RAGTEST default
-	}
-
 	@Override
 	public String toString()
 	{

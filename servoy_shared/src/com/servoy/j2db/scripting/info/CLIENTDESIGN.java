@@ -45,8 +45,4 @@ public class CLIENTDESIGN implements IPrefixedConstantsObject
 	 */
 	public static final String SELECTABLE = "clientdesign.selectable"; //$NON-NLS-1$
 
-	public String getPrefix()
-	{
-		return "CLIENTDESIGN";// RAGTEST default
-	}
 }

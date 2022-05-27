@@ -339,8 +339,4 @@ public class ELEMENT_TYPES implements IPrefixedConstantsObject
 	 */
 	public static final String FORM = IRuntimeComponent.FORM;
 
-	public String getPrefix()
-	{
-		return "ELEMENT_TYPES"; // RAGTEST default
-	}
 }

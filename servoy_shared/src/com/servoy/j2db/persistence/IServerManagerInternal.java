@@ -100,7 +100,7 @@ public interface IServerManagerInternal extends IServerManager
 
 	ISequenceProvider getSequenceProvider();
 
-	IColumnInfoManager[] getColumnInfoManagers();
+	IServerInfoManager[] getServerInfoManagers();
 
 	ServerConfig getServerConfig(String name);
 

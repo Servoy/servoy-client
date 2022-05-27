@@ -65,12 +65,8 @@ public class DatabaseUtils
 		return tableInfo;
 	}
 
-	/** RAGTEST Doc
-	 * Creates a .dbi (JSON format) file like structured String from the given table information.
-	 *
-	 * @param tableInfo the information about the table to be transformed into a JSON String.
-	 * @return the JSON representation of tableInfo.
-	 * @throws JSONException if something goes wrong with the serialize.
+	/**
+	 * Creates a .dbi (JSON format) file like structured String from the given server settings.
 	 */
 	public static String serializeServerSettings(ServerSettings serverSettings) throws JSONException
 	{
@@ -82,12 +78,8 @@ public class DatabaseUtils
 		return json.toString(true);
 	}
 
-	/** RAGTEST doc
-	 * Gets the table information from a .dbi (JSON format) file like structured String.
-	 *
-	 * @param stringDBIContent the table information in .dbi format
-	 * @return the deserialized table information.
-	 * @throws JSONException if the structure of the JSON in String stringDBIContent is bad.
+	/**
+	 * Gets the server settings from a .dbi (JSON format) file like structured String.
 	 */
 	public static ServerDef deserializeServerInfo(String serverName, String stringDBIContent)
 	{

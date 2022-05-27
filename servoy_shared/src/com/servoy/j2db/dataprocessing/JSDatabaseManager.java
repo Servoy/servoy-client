@@ -3690,31 +3690,6 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Configure options for the database layer.
-	 * <p
-	 * These options should be set in the solutionOnopen method, when called later in the process it may be anly partly effective.
-	 *
-	 * @sample
-	 * // Configure all foundset queries to be case insensitive in sorting (in solution.onOpen handler)
-	 * databaseManager.setDatabaseOption(DATABASE_OPTIONS.FOUNDSET_SORT_IGNORE_CASE)
-	 *
-	 * // RAGTEST doc nullsfirst/last
-	 *
-	 */
-//	@JSFunction
-//	public void setDatabaseOption(String option)
-//	{
-//		if (IDatabaseOptions.FOUNDSET_SORT_IGNORE_CASE.equals(option))
-//		{
-//			((FoundSetManager)application.getFoundSetManager()).setGlobalSortingIgnoreCase(true);
-//		}
-//		else
-//		{
-//			Debug.warn("setDatabaseOption: unknown option '" + option + "' (ignored)");
-//		}
-//	}
-
-	/**
 	 * Set autosave, if false then no saves will happen by the ui (not including deletes!).
 	 * Until you call databaseManager.saveData() or setAutoSave(true)
 	 *

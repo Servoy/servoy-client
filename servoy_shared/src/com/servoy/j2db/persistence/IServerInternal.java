@@ -121,8 +121,6 @@ public interface IServerInternal
 
 	IRepository createRepositoryTables() throws RepositoryException;
 
-	// RAGTEST IRepository getRepository() throws RepositoryException;
-
 	Table getRepositoryTable(String name) throws RepositoryException;
 
 	ITable createNewTable(IValidateName nameValidator, ITable selectedTable, String tableName) throws RepositoryException;

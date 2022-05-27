@@ -23,11 +23,6 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class APPLICATION_TYPES implements IPrefixedConstantsObject, IBaseApplicationTypes
 {
-	public String getPrefix()
-	{
-		return "APPLICATION_TYPES"; // RAGTEST default
-	}
-
 	@Override
 	public String toString()
 	{

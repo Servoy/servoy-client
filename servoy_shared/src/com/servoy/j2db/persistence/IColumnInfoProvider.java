@@ -16,17 +16,16 @@
  */
 package com.servoy.j2db.persistence;
 
-/** RAGTEST rename naarf Serverxxxx?
+/**
  * Interface for various column info providers (loaders)
  * @author jblok
  */
 public interface IColumnInfoProvider
 {
-	void loadAllColumnInfo(ITable t) throws RepositoryException;
 
-	TableMetaInfo getTableMetainfo(IServerInternal server, String tableName);
+	public void loadAllColumnInfo(ITable t) throws RepositoryException;
 
-	void columInfoSequenceOverriden(Column c);
+	public TableMetaInfo getTableMetainfo(IServerInternal server, String tableName);
 
-	ServerSettings loadServerSettings(String serverName) throws RepositoryException;
+	public void columInfoSequenceOverriden(Column c);
 }

@@ -18,7 +18,7 @@
 package com.servoy.j2db.util.xmlxport;
 
 /**
- * RAGTEST doc
+ * Common interface for holders of DBI file information.
  *
  * @author rgansevles
  *

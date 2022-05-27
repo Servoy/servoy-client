@@ -31,12 +31,6 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QUERY_COLUMN_TYPES implements IPrefixedConstantsObject, IQueryBuilderConstants
 {
-
-	public String getPrefix()
-	{
-		return "QUERY_COLUMN_TYPES";// RAGTEST default
-	}
-
 	@Override
 	public String toString()
 	{

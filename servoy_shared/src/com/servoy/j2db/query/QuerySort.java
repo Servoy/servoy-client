@@ -32,13 +32,6 @@ public final class QuerySort implements IQuerySort
 	private final boolean ascending;
 	private final SortOptions options;
 
-	public QuerySort(IQuerySelectValue column, boolean ascending) // RAGTEST weg, alleen nog gebruikt in test
-	{
-		this.column = column;
-		this.ascending = ascending;
-		this.options = SortOptions.NONE;
-	}
-
 	public QuerySort(IQuerySelectValue column, boolean ascending, SortOptions options)
 	{
 		this.column = column;

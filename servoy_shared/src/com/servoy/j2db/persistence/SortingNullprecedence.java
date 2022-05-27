@@ -22,18 +22,27 @@ import static java.util.Arrays.stream;
 import java.util.Optional;
 
 /**
- * RAGTEST doc
+ * Options for sorting for null values.
  *
  * @author rgansevles
  *
  */
 public enum SortingNullprecedence
 {
-	ragtestDefault, ascNullsFirst, ascNullsLast;
+	databaseDefault("Database default"),
+	ascNullsFirst("Nulls first on sort asc"),
+	ascNullsLast("Nulls last on sort asc");
+
+	private final String display;
+
+	SortingNullprecedence(String display)
+	{
+		this.display = display;
+	}
 
 	public String display()
 	{
-		return "RAGTEST:" + name();
+		return display;
 	}
 
 	public static Optional<SortingNullprecedence> fromDisplay(String display)

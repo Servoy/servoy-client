@@ -22,14 +22,14 @@ import java.io.Serializable;
 import com.servoy.j2db.persistence.SortingNullprecedence;
 
 /**
- * RAGTEST doc
+ * Configuration options for sorting in queries.
  *
  * @author rgansevles
  *
  */
 public class SortOptions implements Serializable
 {
-	public static SortOptions NONE = new SortOptions(false, SortingNullprecedence.ragtestDefault);
+	public static SortOptions NONE = new SortOptions(false, SortingNullprecedence.databaseDefault);
 
 	private final boolean ignoreCase;
 	private final SortingNullprecedence nullprecedence;
@@ -62,7 +62,7 @@ public class SortOptions implements Serializable
 
 	public String display()
 	{
-		return ignoreCase ? "#" + nullprecedence.display() : nullprecedence.display();
+		return (ignoreCase ? "#" : "") + nullprecedence.display();
 	}
 
 	@Override

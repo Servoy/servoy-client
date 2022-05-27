@@ -192,7 +192,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public SortOptions getSortOptions(IColumn column)
 	{
 		boolean ignoreCase = false;
-		SortingNullprecedence sortingNullprecedence = SortingNullprecedence.ragtestDefault;
+		SortingNullprecedence sortingNullprecedence = SortingNullprecedence.databaseDefault;
 		if (column != null)
 		{
 			try
@@ -219,7 +219,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				{
 					ignoreCase = columnInfo.getSortIgnorecase().booleanValue();
 				}
-				if (columnInfo.getSortingNullprecedence() != null && columnInfo.getSortingNullprecedence() != SortingNullprecedence.ragtestDefault)
+				if (columnInfo.getSortingNullprecedence() != null && columnInfo.getSortingNullprecedence() != SortingNullprecedence.databaseDefault)
 				{
 					sortingNullprecedence = columnInfo.getSortingNullprecedence();
 				}
