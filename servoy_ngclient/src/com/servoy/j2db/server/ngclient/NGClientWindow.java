@@ -458,19 +458,6 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		{
 			synchronized (formUrl)
 			{
-				boolean isAttached = getEndpoint().isFormAttachedToDOM(formName);
-				for (WebComponent comp : getClient().getFormManager().getForm(formName).getFormUI().getComponents())
-				{
-					if (isAttached)
-					{//form is visible
-						comp.invokeApi("showComponent", null);
-					}
-					else
-					{//form is not visible
-						comp.invokeApi("hideComponent", null);
-					}
-
-				}
 				getEndpoint().setAttachedToDOM(formName, resolved);
 				if (Debug.isDebugEnabled())
 					Debug.debug((resolved ? "formIsNowMarkedAsResolvedOnServer(" : "formIsNowMarkedAsUNResolvedOnServer(") + formUrl + "): " + formName);
