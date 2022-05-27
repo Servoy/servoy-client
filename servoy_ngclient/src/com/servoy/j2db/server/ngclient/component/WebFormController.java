@@ -731,6 +731,27 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		}
 		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables);
 
+		if (notifyVisibleSuccess)
+		{
+			for (WebComponent comp : getFormUI().getComponents())
+			{
+				RuntimeWebComponent runtimeComponent = getFormUI().getRuntimeWebComponent(comp.getName());
+				if (runtimeComponent != null)
+				{
+					WebObjectFunctionDefinition function = null;
+					if (visible)
+						function = comp.getSpecification().getInternalApiFunction("showComponent");
+					else
+						function = comp.getSpecification().getInternalApiFunction("hideComponent");
+					if (function != null)
+					{
+						function.setDelayUntilFormLoads(true);
+						runtimeComponent.executeScopeFunction(function, new Object[0]);
+					}
+				}
+			}
+		}
+
 		if (visible && !isFormVisible)
 		{
 			// following loop is for legacy support: first touch (now) also the tabpanel forms.
