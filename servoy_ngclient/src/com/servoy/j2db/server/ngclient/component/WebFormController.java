@@ -740,9 +740,9 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 				{
 					WebObjectFunctionDefinition function = null;
 					if (visible)
-						function = comp.getSpecification().getInternalApiFunction("showComponent");
+						function = comp.getSpecification().getInternalApiFunction("onShow");
 					else
-						function = comp.getSpecification().getInternalApiFunction("hideComponent");
+						function = comp.getSpecification().getInternalApiFunction("onHide");
 					if (function != null)
 					{
 						runtimeComponent.executeScopeFunction(function, new Object[0]);
