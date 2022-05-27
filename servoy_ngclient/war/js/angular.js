@@ -1,9 +1,9 @@
-/**
- * @license XLTS for AngularJS v1.8.7
- * (c) 2021 XLTS.dev All Rights Reserved. https://xlts.dev/angularjs
- * License: Obtain a commercial license from XLTS.dev before using this software.
+/*!
+ * @license XLTS for AngularJS License Agreement
+ * (c) 2022 XLTS.dev All Rights Reserved. https://xlts.dev/angularjs
+ * v1.9.0
  */
-/**
+/*!
  * @license AngularJS
  * (c) 2010-2020 Google LLC. http://angularjs.org
  * License: MIT
@@ -104,7 +104,7 @@ function isValidObjectMaxDepth(maxDepth) {
 function minErr(module, ErrorConstructor) {
   ErrorConstructor = ErrorConstructor || Error;
 
-  var url = 'https://errors.angularjs.xlts.dev/1.8.7/';
+  var url = 'https://errors.angularjs.xlts.dev/1.9.0/';
   var regex = url.replace('.', '\\.') + '[\\s\\S]*';
   var errRegExp = new RegExp(regex, 'g');
 
@@ -2857,13 +2857,15 @@ function toDebugString(obj, maxDepth) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
+  vendor: 'XLTS.dev',
+
   // These placeholder strings will be replaced by grunt's `build` task.
   // They need to be double- or single-quoted.
-  full: '1.8.7',
+  full: '1.9.0',
   major: 1,
-  minor: 8,
-  dot: 7,
-  codeName: 'childlike-rejuvenation'
+  minor: 9,
+  dot: 0,
+  codeName: 'crossly-blocking'
 };
 
 
@@ -3014,7 +3016,7 @@ function publishExternalAPI(angular) {
       });
     }
   ])
-  .info({ angularVersion: '1.8.7' });
+  .info({ angularVersion: '1.9.0' });
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -8340,14 +8342,33 @@ function $TemplateCacheProvider() {
  *
  * ### Double Compilation
  *
-   Double compilation occurs when an already compiled part of the DOM gets
-   compiled again. This is an undesired effect and can lead to misbehaving directives, performance issues,
-   and memory leaks. Refer to the Compiler Guide {@link guide/compiler#double-compilation-and-how-to-avoid-it
-   section on double compilation} for an in-depth explanation and ways to avoid it.
-
+ * Double compilation occurs when an already compiled part of the DOM gets
+ * compiled again. This is an undesired effect and can lead to misbehaving directives, performance issues,
+ * and memory leaks. Refer to the Compiler Guide {@link guide/compiler#double-compilation-and-how-to-avoid-it
+ * section on double compilation} for an in-depth explanation and ways to avoid it.
+ *
  * @knownIssue
-
-   ### Issues with `replace: true`
+ *
+ * ### Interpolation in `<textarea>` on Internet Explorer
+ *
+ * Due to security considerations related to page caching, the contents of `<textarea>` elements are
+ * not interpolated on Internet Explorer. If you want to set the `<textarea>` element's value by
+ * evaluating an AngularJS expression, you can use {@link directive:ngBind ng-bind} or
+ * {@link directive:ngProp ng-prop-value}.
+ *
+ * For example:
+ * ```html
+ * <!-- Don't do this: -->
+ * <textarea>{{ 'This remains as is ' + 'on IE.' }}</textarea>
+ *
+ * <!-- Do one of these instead: -->
+ * <textarea ng-bind="'This works ' + 'on all browsers.'"></textarea>
+ * <textarea ng-prop-value="'This works ' + 'on all browsers.'"></textarea>
+ * ```
+ *
+ * @knownIssue
+ *
+ * ### Issues with `replace: true`
  *
  * <div class="alert alert-danger">
  *   **Note**: {@link $compile#-replace- `replace: true`} is deprecated and not recommended to use,
@@ -8710,7 +8731,7 @@ function $TemplateCacheProvider() {
  *     <span>Event log: {{$ctrl.eventLog}}</span>
  *   </file>
  *   <file name="child.html">
-      <button ng-click="$ctrl.fireEvent()">Fire custom event</button>
+ *     <button ng-click="$ctrl.fireEvent()">Fire custom event</button>
  *   </file>
  *   <file name="index.html">
  *     <main></main>
@@ -10148,7 +10169,10 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
           }
           break;
         case NODE_TYPE_TEXT: /* Text Node */
-          addTextInterpolateDirective(directives, node.nodeValue);
+          // Don't interpolate `<textarea>` contents in IE due to security considerations.
+          if (!msie || !node.parentNode || nodeName_(node.parentNode) !== 'textarea') {
+            addTextInterpolateDirective(directives, node.nodeValue);
+          }
           break;
         case NODE_TYPE_COMMENT: /* Comment */
           if (!commentDirectivesEnabled) break;
@@ -20835,8 +20859,8 @@ function $SceDelegateProvider() {
  *           self.userComments = response.data;
  *         });
  *         self.explicitlyTrustedHtml = $sce.trustAsHtml(
- *             '<span onmouseover="this.textContent=&quot;Explicitly trusted HTML bypasses ' +
- *             'sanitization.&quot;">Hover over this text.</span>');
+ *             '<span onmouseover="this.textContent=\'Explicitly trusted HTML bypasses ' +
+ *             'sanitization.\'">Hover over this text.</span>');
  *       }]);
  * </file>
  *
@@ -20844,10 +20868,10 @@ function $SceDelegateProvider() {
  * [
  *   { "name": "Alice",
  *     "htmlComment":
- *         "<span onmouseover='this.textContent=\"PWN3D!\"'>Is <i>anyone</i> reading this?</span>"
+ *         "<span onmouseover=\"this.textContent='PWN3D!'\">Is <i>anyone</i> reading this?</span>"
  *   },
  *   { "name": "Bob",
- *     "htmlComment": "<i>Yes!</i>  Am I the only other one?"
+ *     "htmlComment": "<i>Yes!</i> Am I the only other one?"
  *   }
  * ]
  * </file>
@@ -20861,8 +20885,8 @@ function $SceDelegateProvider() {
  *
  *     it('should NOT sanitize explicitly trusted values', function() {
  *       expect(element(by.id('explicitlyTrustedHtml')).getAttribute('innerHTML')).toBe(
- *           '<span onmouseover="this.textContent=&quot;Explicitly trusted HTML bypasses ' +
- *           'sanitization.&quot;">Hover over this text.</span>');
+ *           '<span onmouseover="this.textContent=\'Explicitly trusted HTML bypasses ' +
+ *           'sanitization.\'">Hover over this text.</span>');
  *     });
  *   });
  * </file>
@@ -21870,7 +21894,7 @@ var urlParsingNode = window.document.createElement('a');
 var originUrl = urlResolve(window.location.href);
 var baseUrlParsingNode;
 
-urlParsingNode.href = 'http://[::1]';
+urlParsingNode.href = 'https://[::1]';
 
 // Support: IE 9-11 only, Edge 16-17 only (fixed in 18 Preview)
 // IE/Edge don't wrap IPv6 addresses' hostnames in square brackets
@@ -22658,6 +22682,12 @@ currencyFilter.$inject = ['$locale'];
 function currencyFilter($locale) {
   var formats = $locale.NUMBER_FORMATS;
   return function(amount, currencySymbol, fractionSize) {
+
+    // if null or undefined pass it through
+    if (amount == null) {
+      return amount;
+    }
+
     if (isUndefined(currencySymbol)) {
       currencySymbol = formats.CURRENCY_SYM;
     }
@@ -22666,14 +22696,20 @@ function currencyFilter($locale) {
       fractionSize = formats.PATTERNS[1].maxFrac;
     }
 
-    // If the currency symbol is empty, trim whitespace around the symbol
-    var currencySymbolRe = !currencySymbol ? /\s*\u00A4\s*/g : /\u00A4/g;
+    var value = formatNumber(
+      amount,
+      formats.PATTERNS[1],
+      formats.GROUP_SEP,
+      formats.DECIMAL_SEP,
+      fractionSize
+    );
 
-    // if null or undefined pass it through
-    return (amount == null)
-        ? amount
-        : formatNumber(amount, formats.PATTERNS[1], formats.GROUP_SEP, formats.DECIMAL_SEP, fractionSize).
-            replace(currencySymbolRe, currencySymbol);
+    // If the currency symbol is empty, trim whitespace around the symbol
+    return currencySymbol ?
+      value.replace(/\u00A4/g, currencySymbol) :
+      value.replace(/(^|\S)\s*\u00A4\s*(\S|$)/g, function(_, g1, g2) {
+        return g1 + currencySymbol + g2;
+      });
   };
 }
 
@@ -26962,6 +26998,7 @@ function createDateInputType(type, regexp, parseDate, format) {
 
     function isValidDate(value) {
       // Invalid Date: getTime() returns NaN
+      // eslint-disable-next-line no-self-compare
       return value && !(value.getTime && value.getTime() !== value.getTime());
     }
 

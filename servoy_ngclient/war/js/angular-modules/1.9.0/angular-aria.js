@@ -1,5 +1,10 @@
 /**
- * @license AngularJS v1.8.2
+ * @license XLTS for AngularJS v1.9.0
+ * (c) 2022 XLTS.dev All Rights Reserved. https://xlts.dev/angularjs
+ * License: Obtain a commercial license from XLTS.dev before using this software.
+ */
+/**
+ * @license AngularJS
  * (c) 2010-2020 Google LLC. http://angularjs.org
  * License: MIT
  */
@@ -63,7 +68,7 @@
 var ARIA_DISABLE_ATTR = 'ngAriaDisable';
 
 var ngAriaModule = angular.module('ngAria', ['ng']).
-                        info({ angularVersion: '1.8.2' }).
+                        info({ angularVersion: '1.9.0' }).
                         provider('$aria', $AriaProvider);
 
 /**
