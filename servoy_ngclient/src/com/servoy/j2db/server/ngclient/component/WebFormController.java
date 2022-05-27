@@ -745,7 +745,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 						function = comp.getSpecification().getInternalApiFunction("hideComponent");
 					if (function != null)
 					{
-						function.setDelayUntilFormLoads(true);
 						runtimeComponent.executeScopeFunction(function, new Object[0]);
 					}
 				}
