@@ -7051,7 +7051,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return addFilterParam(filterName, dataproviderTableFilterdefinition);
 	}
 
-	private boolean addFilterParam(String filterName, TableFilterdefinition tableFilterdefinition)
+	protected boolean addFilterParam(String filterName, TableFilterdefinition tableFilterdefinition)
 	{
 		if (sheet.getTable() == null)
 		{
