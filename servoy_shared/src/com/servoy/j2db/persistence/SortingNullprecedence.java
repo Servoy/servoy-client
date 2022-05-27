@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2022 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,27 +14,39 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
+
 package com.servoy.j2db.persistence;
 
-import java.util.HashMap;
+import static java.util.Arrays.stream;
 
-import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
+import java.util.Optional;
 
 /**
- * Interface for repository component that manages the column info.
+ * Options for sorting for null values.
  *
- * @author jblok
+ * @author rgansevles
  *
  */
-public interface IColumnInfoManager extends IColumnInfoProvider
+public enum SortingNullprecedence
 {
-	public void createNewColumnInfo(Column c, boolean createMissingServoySequence) throws RepositoryException;
+	databaseDefault("Database default"),
+	ascNullsFirst("Nulls first on sort asc"),
+	ascNullsLast("Nulls last on sort asc");
 
-	public void removeColumnInfo(Column c) throws RepositoryException;
+	private final String display;
 
-	public void removeAllColumnInfo(ITable t) throws RepositoryException;
+	SortingNullprecedence(String display)
+	{
+		this.display = display;
+	}
 
-	public void updateAllColumnInfo(ITable t) throws RepositoryException;
+	public String display()
+	{
+		return display;
+	}
 
-	public void setTableColumnInfos(ITable t, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws RepositoryException;
+	public static Optional<SortingNullprecedence> fromDisplay(String display)
+	{
+		return stream(values()).filter(snp -> snp.display().equals(display)).findAny();
+	}
 }

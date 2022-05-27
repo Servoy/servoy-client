@@ -39,8 +39,9 @@ public class ServerProxy implements IServer, Serializable
 {
 	protected final IServer server;
 
-	//local cache
+	// local cache
 	private String serverName;
+	private ServerSettings serverSettings;
 	private String databaseProductName;
 	private String databaseType;
 	private volatile transient Map<String, ITable> tables = new ConcurrentHashMap<String, ITable>();
@@ -161,6 +162,16 @@ public class ServerProxy implements IServer, Serializable
 		return serverName;
 	}
 
+	@Override
+	public ServerSettings getSettings() throws RemoteException
+	{
+		if (serverSettings == null)
+		{
+			serverSettings = server.getSettings();
+		}
+		return serverSettings;
+	}
+
 	private boolean valid = false;
 
 	public boolean isValid() throws RemoteException
@@ -238,18 +249,6 @@ public class ServerProxy implements IServer, Serializable
 	public String[] getDataModelClonesFrom() throws RemoteException
 	{
 		return server.getDataModelClonesFrom();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.persistence.IServer#getSequenceProvider()
-	 */
-	@Override
-	public ISequenceProvider getSequenceProvider()
-	{
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

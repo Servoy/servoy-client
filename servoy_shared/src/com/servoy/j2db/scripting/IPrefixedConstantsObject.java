@@ -19,15 +19,18 @@ package com.servoy.j2db.scripting;
 /**
  * An interface to create Constants objects for return types {@link IReturnedTypesProvider#getAllReturnedTypes()}. Objects implementing this interface must have a
  * default constructor so that {@link #getPrefix()} can be called.
- * 
+ *
  * Classes where the prefix can just be the class name can just implement the {@link IConstantsObject}
- * 
+ *
  * @author jcompagner
- * 
+ *
  * @see IScriptObject
  * @since 5.0
  */
 public interface IPrefixedConstantsObject extends IConstantsObject
 {
-	public String getPrefix();
+	default String getPrefix()
+	{
+		return getClass().getSimpleName();
+	}
 }

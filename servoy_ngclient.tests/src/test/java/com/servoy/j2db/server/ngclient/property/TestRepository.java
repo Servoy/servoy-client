@@ -26,7 +26,6 @@ import java.util.Properties;
 
 import com.servoy.j2db.persistence.AbstractRepository;
 import com.servoy.j2db.persistence.ContentSpec;
-import com.servoy.j2db.persistence.IColumnInfoManager;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRootObject;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -53,7 +52,7 @@ public class TestRepository extends AbstractRepository
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.AbstractRepository#createRootObjectMetaData(int, com.servoy.j2db.util.UUID, java.lang.String, int, int, int)
 	 */
 	@Override
@@ -66,7 +65,7 @@ public class TestRepository extends AbstractRepository
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.persistence.AbstractRepository#createRootObject(com.servoy.j2db.persistence.RootObjectMetaData)
 	 */
 	@Override
@@ -77,24 +76,15 @@ public class TestRepository extends AbstractRepository
 	}
 
 	@Override
-	public IColumnInfoManager getColumnInfoManager()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public void setUserProperties(int systemUserId, Map props) throws RepositoryException
 	{
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void setRootObjectActiveRelease(int rootObjectId, int releaseNumber) throws RepositoryException
 	{
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override

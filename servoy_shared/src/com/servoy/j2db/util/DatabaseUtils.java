@@ -37,8 +37,11 @@ import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IPersistFactory;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.ServerSettings;
+import com.servoy.j2db.persistence.SortingNullprecedence;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
+import com.servoy.j2db.util.xmlxport.ServerDef;
 import com.servoy.j2db.util.xmlxport.TableDef;
 
 /**
@@ -47,6 +50,54 @@ import com.servoy.j2db.util.xmlxport.TableDef;
  */
 public class DatabaseUtils
 {
+	/**
+	 * Gets the table information from a .dbi (JSON format) file like structured String.
+	 *
+	 * @param stringDBIContent the table information in .dbi format
+	 * @return the deserialized table information.
+	 * @throws JSONException if the structure of the JSON in String stringDBIContent is bad.
+	 */
+	public static TableDef deserializeTableInfo(String stringDBIContent) throws JSONException
+	{
+		ServoyJSONObject dbiContents = new ServoyJSONObject(stringDBIContent, true);
+		TableDef tableInfo = deserializeTableInfo(dbiContents);
+		tableInfo.dbiFileContents = stringDBIContent;
+		return tableInfo;
+	}
+
+	/**
+	 * Creates a .dbi (JSON format) file like structured String from the given server settings.
+	 */
+	public static String serializeServerSettings(ServerSettings serverSettings) throws JSONException
+	{
+		ServoyJSONObject json = new ServoyJSONObject();
+		json.put("sortIgnorecase", serverSettings.isSortIgnorecase());
+		json.put("sortingNullprecedence", serverSettings.getSortingNullprecedence().name());
+		json.put("queryProcedures", serverSettings.getQueryProcedures()); // nullable
+		json.put("clientOnlyConnections", serverSettings.getClientOnlyConnections()); // nullable
+		return json.toString(true);
+	}
+
+	/**
+	 * Gets the server settings from a .dbi (JSON format) file like structured String.
+	 */
+	public static ServerDef deserializeServerInfo(String serverName, String stringDBIContent)
+	{
+		ServerDef serverDef = new ServerDef(serverName);
+		if (stringDBIContent != null)
+		{
+			serverDef.dbiFileContents = stringDBIContent;
+			ServoyJSONObject json = new ServoyJSONObject(stringDBIContent, true);
+			serverDef.serverSettings = new ServerSettings(
+				json.getBoolean("sortIgnorecase"),
+				SortingNullprecedence.valueOf(json.getString("sortingNullprecedence")),
+				(Boolean)json.opt("queryProcedures"),
+				(Boolean)json.opt("clientOnlyConnections"));
+		}
+
+		return serverDef;
+	}
+
 	/**
 	 * Gets the table information from a .dbi (JSON format) file like structured String.
 	 *
@@ -103,6 +154,10 @@ public class DatabaseUtils
 				cid.dataProviderID = cobj.has(ColumnInfoDef.DATA_PROVIDER_ID) ? Utils.toEnglishLocaleLowerCase(cobj.optString(ColumnInfoDef.DATA_PROVIDER_ID))
 					: null;
 				cid.containsMetaData = cobj.has(ColumnInfoDef.CONTAINS_META_DATA) ? Integer.valueOf(cobj.optInt(ColumnInfoDef.CONTAINS_META_DATA)) : null;
+				cid.sortIgnorecase = cobj.has(ColumnInfoDef.SORT_IGNORECASE) ? Boolean.valueOf(cobj.getBoolean(ColumnInfoDef.SORT_IGNORECASE)) : null;
+				cid.sortingNullprecedence = cobj.has(ColumnInfoDef.SORTING_NULLPRECEDENCE)
+					? SortingNullprecedence.valueOf(cobj.getString(ColumnInfoDef.SORTING_NULLPRECEDENCE)) : null;
+
 				if (!tableInfo.columnInfoDefSet.contains(cid))
 				{
 					tableInfo.columnInfoDefSet.add(cid);
@@ -145,7 +200,7 @@ public class DatabaseUtils
 					c = t.createNewColumn(DummyValidator.INSTANCE, cid.name, cid.columnType.getSqlType(), cid.columnType.getLength(), cid.columnType.getScale(),
 						cid.allowNull);
 					existingColumnInfo++;
-					updateColumnInfo(persistFactory, c, cid);
+					updateColumnInfo(persistFactory.getNewElementID(null), c, cid);
 					changedColumns.add(c);
 				}
 			}
@@ -158,7 +213,7 @@ public class DatabaseUtils
 			if (c.getColumnInfo() == null)
 			{
 				// only create servoy sequences when this was a new table and there is only 1 pk column
-				createNewColumnInfo(persistFactory, c, existingColumnInfo == 0 && t.getPKColumnTypeRowIdentCount() == 1);//was missing - create automatic sequences if missing
+				createNewColumnInfo(persistFactory.getNewElementID(null), c, existingColumnInfo == 0 && t.getPKColumnTypeRowIdentCount() == 1);//was missing - create automatic sequences if missing
 			}
 		}
 
@@ -175,9 +230,8 @@ public class DatabaseUtils
 		t.fireIColumnsChanged(changedColumns);
 	}
 
-	public static void createNewColumnInfo(IPersistFactory persistFactory, Column c, boolean createMissingServoySequence) throws RepositoryException
+	public static void createNewColumnInfo(int element_id, Column c, boolean createMissingServoySequence)
 	{
-		int element_id = persistFactory.getNewElementID(null);
 		ColumnInfo ci = new ColumnInfo(element_id, false);
 		if (createMissingServoySequence && c.getRowIdentType() != IBaseColumn.NORMAL_COLUMN && c.getSequenceType() == ColumnInfo.NO_SEQUENCE_SELECTED &&
 			(Column.mapToDefaultType(c.getConfiguredColumnType().getSqlType()) == IColumnTypes.INTEGER ||
@@ -192,9 +246,8 @@ public class DatabaseUtils
 		c.setColumnInfo(ci);
 	}
 
-	public static void updateColumnInfo(IPersistFactory persistFactory, Column c, ColumnInfoDef cid) throws RepositoryException
+	public static void updateColumnInfo(int element_id, Column c, ColumnInfoDef cid)
 	{
-		int element_id = persistFactory.getNewElementID(null);
 		ColumnInfo ci = new ColumnInfo(element_id, true);
 		ci.setAutoEnterType(cid.autoEnterType);
 		ci.setAutoEnterSubType(cid.autoEnterSubType);
@@ -218,6 +271,8 @@ public class DatabaseUtils
 		ci.setConfiguredColumnType(cid.columnType);
 		ci.setCompatibleColumnTypes(cid.compatibleColumnTypes);
 		ci.setFlags(cid.flags);
+		ci.setSortIgnorecase(cid.sortIgnorecase);
+		ci.setSortingNullprecedence(cid.sortingNullprecedence);
 		c.setDatabasePK((cid.flags & IBaseColumn.PK_COLUMN) != 0);
 		c.setColumnInfo(ci);
 	}
@@ -225,13 +280,11 @@ public class DatabaseUtils
 	public static void updateTableColumnInfos(IPersistFactory persistFactory, ITable t, HashMap<String, ColumnInfoDef> columnInfoDefinitions)
 		throws RepositoryException
 	{
-		Iterator<Column> tableColumnsIte = t.getColumns().iterator();
-		while (tableColumnsIte.hasNext())
+		for (Column column : t.getColumns())
 		{
-			Column column = tableColumnsIte.next();
 			if (columnInfoDefinitions.containsKey(column.getName()))
 			{
-				DatabaseUtils.updateColumnInfo(persistFactory, column, columnInfoDefinitions.get(column.getName()));
+				updateColumnInfo(persistFactory.getNewElementID(null), column, columnInfoDefinitions.get(column.getName()));
 			}
 		}
 	}

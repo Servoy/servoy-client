@@ -49,14 +49,11 @@ public interface IDeveloperRepository extends IRepository, IPersistFactory
 
 	public String convertObjectToArgumentString(int typeID, Object propertyObjectValue) throws RepositoryException;
 
-	public IColumnInfoManager getColumnInfoManager();
-
 	public UUID getRepositoryUUID() throws RepositoryException;
 
 	public Map getUserProperties(int user_id) throws RepositoryException; //user 0 is SYSTEM
 
 	public void setUserProperties(int systemUserId, Map props) throws RepositoryException; //user 0 is SYSTEM
-
 
 	public void setRootObjectActiveRelease(int rootObjectId, int releaseNumber) throws RepositoryException;
 

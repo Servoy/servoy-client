@@ -868,7 +868,7 @@ public class NGClient extends AbstractApplication
 	@Override
 	protected void createFoundSetManager()
 	{
-		foundSetManager = new NGFoundSetManager(this, new SwingFoundSetFactory());
+		foundSetManager = new NGFoundSetManager(this, getFoundSetManagerConfig(), new SwingFoundSetFactory());
 		foundSetManager.init();
 	}
 

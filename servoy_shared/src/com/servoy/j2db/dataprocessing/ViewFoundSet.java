@@ -1748,7 +1748,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		}
 		this.select.clearSorts();
 		if (sortColumns != null) this.select.setSorts((ArrayList< ? extends IQuerySort>)sortColumns.stream()
-			.map(sort -> new QuerySort(((Column)sort.getColumn()).queryColumn(this.select.getTable()), sort.getSortOrder() == SortColumn.ASCENDING))
+			.map(sort -> new QuerySort(((Column)sort.getColumn()).queryColumn(this.select.getTable()), sort.getSortOrder() == SortColumn.ASCENDING,
+				manager.getSortOptions(sort.getColumn())))
 			.collect(Collectors.toList()));
 		this.loadAllRecordsImpl();
 
@@ -1886,7 +1887,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 										column.getAllowNull());
 									if (column.getColumnInfo() != null)
 									{
-										DatabaseUtils.createNewColumnInfo(manager.getApplication().getFlattenedSolution().getPersistFactory(), newCol, false);
+										DatabaseUtils.createNewColumnInfo(
+											manager.getApplication().getFlattenedSolution().getPersistFactory().getNewElementID(null), newCol, false);
 										newCol.getColumnInfo().copyFrom(column.getColumnInfo());
 									}
 								}

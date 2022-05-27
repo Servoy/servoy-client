@@ -21,6 +21,7 @@ import static com.servoy.j2db.dataprocessing.FoundSetManager.TriggerExecutionMod
 import static com.servoy.j2db.dataprocessing.FoundSetManager.TriggerExecutionMode.ExecuteEach;
 import static com.servoy.j2db.dataprocessing.FoundSetManager.TriggerExecutionMode.ReturnFirst;
 import static com.servoy.j2db.query.AbstractBaseQuery.searchOne;
+import static com.servoy.j2db.util.DataSourceUtils.getDataSourceServerName;
 import static com.servoy.j2db.util.Errors.catchExceptions;
 import static com.servoy.j2db.util.Utils.arrayMerge;
 import static com.servoy.j2db.util.Utils.iterate;
@@ -96,6 +97,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.SortingNullprecedence;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.persistence.Table;
@@ -112,6 +114,7 @@ import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
+import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
 import com.servoy.j2db.querybuilder.impl.QBFactory;
@@ -167,15 +170,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	private final EditRecordList editRecordList;
 
-	public final int pkChunkSize;
-	public final int chunkSize;
-	public final int initialRelatedChunkSize;
-	public final boolean loadRelatedRecordsIfParentIsNew;
-	public final boolean statementBatching;
-	public final boolean disableInsertsReorder;
-	public final boolean verifyPKDatasetAgainstTableFilters;
-	public final boolean optimizedNotifyChange;
-	public final boolean optimizedChangeFires;
+	public final FoundSetManagerConfig config;
 
 	private final List<Runnable> fireRunabbles = new ArrayList<Runnable>();
 
@@ -183,24 +178,55 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private final HashMap<String, Object> trackingInfoMap = new HashMap<String, Object>();
 	private int foundsetCounter = 1;
 
-	@SuppressWarnings("nls")
-	public FoundSetManager(IApplication app, IFoundSetFactory factory)
+	public FoundSetManager(IApplication app, FoundSetManagerConfig config, IFoundSetFactory factory)
 	{
 		application = app;
+		this.config = config;
 		initMembers();
 		editRecordList = new EditRecordList(this);
-
 		foundsetfactory = factory;
+	}
 
-		pkChunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.pkChunkSize", Integer.toString(200)));//primarykeys to be get in one roundtrip
-		chunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.chunkSize", Integer.toString(30)));//records to be get in one roundtrip
-		initialRelatedChunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.initialRelatedChunkSize", Integer.toString(chunkSize * 2))); //initial related records to get in one roundtrip
-		loadRelatedRecordsIfParentIsNew = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.loadRelatedRecordsIfParentIsNew", "false")); //force-load of possible existing records in DB when initializing a related foundset when the parent is new and the relations is restricted on the rowIdentifier columns of the parent record
-		disableInsertsReorder = Utils.getAsBoolean(app.getSettings().getProperty("servoy.disable.record.insert.reorder", "false"));
-		statementBatching = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.statementBatching", "false")); // whether to batch inserts/updates for rows together in the same SQLStatement where possible
-		verifyPKDatasetAgainstTableFilters = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.verifyPKDatasetAgainstTableFilters", "true")); // when false we do not trigger a query with fs.loadRecords(pk) icw table filters
-		optimizedNotifyChange = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.optimizedNotifyChange", "true")); // whether to use new optimized mechanism to call notifyChange on IRowListeners
-		optimizedChangeFires = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.optimizedChangeFires", "true")); // whether to use new optimized mechanism to call notifyChange on IRowListeners
+
+	@Override
+	public SortOptions getSortOptions(IColumn column)
+	{
+		boolean ignoreCase = false;
+		SortingNullprecedence sortingNullprecedence = SortingNullprecedence.databaseDefault;
+		if (column != null)
+		{
+			try
+			{
+				// First defined at server level
+				IServer server = application.getSolution().getServer(column.getTable().getServerName());
+				if (server != null)
+				{
+					ignoreCase = server.getSettings().isSortIgnorecase();
+					sortingNullprecedence = server.getSettings().getSortingNullprecedence();
+				}
+			}
+			catch (RepositoryException | RemoteException e)
+			{
+				Debug.error("Exception getting server settings", e);
+			}
+
+
+			ColumnInfo columnInfo = column.getColumnInfo();
+			if (columnInfo != null)
+			{
+				// Can be overridden at column level
+				if (columnInfo.getSortIgnorecase() != null)
+				{
+					ignoreCase = columnInfo.getSortIgnorecase().booleanValue();
+				}
+				if (columnInfo.getSortingNullprecedence() != null && columnInfo.getSortingNullprecedence() != SortingNullprecedence.databaseDefault)
+				{
+					sortingNullprecedence = columnInfo.getSortingNullprecedence();
+				}
+			}
+		}
+
+		return SortOptions.NONE.withIgnoreCase(ignoreCase).withNullprecedence(sortingNullprecedence);
 	}
 
 	/**
@@ -591,7 +617,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					int currIndex = parent.getRecordIndex(state);
 					if (currIndex >= 0 && parent instanceof FoundSet)
 					{
-						int relatedChunkSize = chunkSize / 3;
+						int relatedChunkSize = config.chunkSize() / 3;
 						Object[] siblingRecords = ((FoundSet)parent).getPksAndRecords().getCachedRecords().toArray(); // take a snapshot of cachedRecords
 						for (int s = currIndex + 1; s < siblingRecords.length && toFetch.size() < relatedChunkSize; s++)
 						{
@@ -1024,7 +1050,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					throw new RepositoryException(e);
 				}
 			}
-			else if (DataSourceUtils.getDataSourceServerName(dataSource) == IServer.INMEM_SERVER)
+			else if (getDataSourceServerName(dataSource) == IServer.INMEM_SERVER)
 			{
 				if (!inMemDataSources.containsKey(dataSource) && dataSourceExists(dataSource))
 				{
@@ -1040,7 +1066,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				}
 				return inMemDataSources.get(dataSource);
 			}
-			else if (DataSourceUtils.getDataSourceServerName(dataSource) == IServer.VIEW_SERVER)
+			else if (getDataSourceServerName(dataSource) == IServer.VIEW_SERVER)
 			{
 				Optional<ServoyJSONObject> columnDefintion;
 				if (!viewDataSources.containsKey(dataSource) && (columnDefintion = getColumnDefintion(dataSource)).isPresent())
@@ -1071,7 +1097,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public boolean dataSourceExists(String dataSource) throws RepositoryException
 	{
-		if (DataSourceUtils.getDataSourceServerName(dataSource) == IServer.INMEM_SERVER)
+		if (getDataSourceServerName(dataSource) == IServer.INMEM_SERVER)
 		{
 			if (inMemDataSources.containsKey(dataSource))
 			{
@@ -1081,7 +1107,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			return getColumnDefintion(dataSource).isPresent();
 		}
 
-		if (DataSourceUtils.getDataSourceServerName(dataSource) == IServer.VIEW_SERVER)
+		if (getDataSourceServerName(dataSource) == IServer.VIEW_SERVER)
 		{
 			if (viewDataSources.containsKey(dataSource))
 			{
@@ -3222,7 +3248,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		for (String datasource : rowManagers.keySet())
 		{
-			if (serverName == null || serverName.equals(DataSourceUtils.getDataSourceServerName(datasource)))
+			if (serverName == null || serverName.equals(getDataSourceServerName(datasource)))
 			{
 				ITable t = getTable(datasource);
 				try
@@ -3473,7 +3499,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			throw new RuntimeException("Can't create a ViewFoundset with name: " + name + " and query  " + query + " that has no columns");
 		}
 		String dataSource = DataSourceUtils.createViewDataSource(name);
-		ViewFoundSet vfs = new ViewFoundSet(dataSource, query.build(), application.getFoundSetManager(), pkChunkSize);
+		ViewFoundSet vfs = new ViewFoundSet(dataSource, query.build(), application.getFoundSetManager(), config.pkChunkSize());
 
 		// if this datasource defintion is created already in the developer then we need to check if the query columns are correctly matching it.
 		ServoyJSONObject columnsDef = null;
@@ -3590,7 +3616,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		QBSelect select = (QBSelect)query;
 
-		String serverName = DataSourceUtils.getDataSourceServerName(select.getDataSource());
+		String serverName = getDataSourceServerName(select.getDataSource());
 
 		if (serverName == null)
 			throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { select.getDataSource() }));

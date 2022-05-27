@@ -240,7 +240,7 @@ public abstract class RelatedFoundSet extends FoundSet
 					}
 					cachedRows.put(Integer.valueOf(i), cachedRow);
 				}
-				else if (!parents[i].existInDataSource() && !fsm.loadRelatedRecordsIfParentIsNew &&
+				else if (!parents[i].existInDataSource() && !fsm.config.loadRelatedRecordsIfParentIsNew() &&
 					relation.hasPKFKCondition(fsm.getApplication().getFlattenedSolution()))
 				{
 					/*
@@ -262,8 +262,9 @@ public abstract class RelatedFoundSet extends FoundSet
 						trackingInfo.setTrackingData(sheet.getColumnNames(), new Object[][] { }, new Object[][] { }, fsm.getApplication().getUserUID(),
 							fsm.getTrackingInfo(), fsm.getApplication().getClientID());
 					}
-					queryDatas.add(new QueryData(selectStatement, sqlFilters, !sqlSelect.isUnique(), 0, fsm.initialRelatedChunkSize, IDataServer.RELATION_QUERY,
-						trackingInfo));
+					queryDatas.add(
+						new QueryData(selectStatement, sqlFilters, !sqlSelect.isUnique(), 0, fsm.config.initialRelatedChunkSize(), IDataServer.RELATION_QUERY,
+							trackingInfo));
 					queryIndex.add(Integer.valueOf(i));
 
 					QuerySelect aggregateSelect = FoundSet.getAggregateSelect(sheet, sqlSelect);
@@ -427,7 +428,7 @@ public abstract class RelatedFoundSet extends FoundSet
 
 		refreshFromDBInternal(
 			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), creationSqlSelect, null, true, null, lastSortColumns, false),
-			false, fsm.pkChunkSize, false, false);
+			false, fsm.config.pkChunkSize(), false, false);
 	}
 
 	@Override
@@ -1069,7 +1070,7 @@ public abstract class RelatedFoundSet extends FoundSet
 				getPksAndRecords().setSkipOptimizeChangeFires(skipOptimizeQuery);
 				try
 				{
-					reloadWithCurrentQuery(Math.max(getSelectedIndex(), fsm.chunkSize) + fsm.chunkSize, false, true);
+					reloadWithCurrentQuery(Math.max(getSelectedIndex(), fsm.config.chunkSize()) + fsm.config.chunkSize(), false, true);
 				}
 				finally
 				{

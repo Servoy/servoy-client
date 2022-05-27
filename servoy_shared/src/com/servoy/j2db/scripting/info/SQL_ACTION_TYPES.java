@@ -23,17 +23,12 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
  * Script constants for SQL data manipulation actions.
- * 
+ *
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class SQL_ACTION_TYPES implements IPrefixedConstantsObject, ISQLActionTypes
 {
-	public String getPrefix()
-	{
-		return "SQL_ACTION_TYPES"; //$NON-NLS-1$
-	}
-
 	@Override
 	public String toString()
 	{

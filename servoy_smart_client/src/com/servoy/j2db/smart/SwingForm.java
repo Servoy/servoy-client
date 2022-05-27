@@ -1184,7 +1184,7 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 	private int willingToPrint(IFoundSetInternal formModel)
 	{
 		//test if foundset is big. if so ask if really want to print/preview
-		if (formModel.getSize() >= ((FoundSetManager)formModel.getFoundSetManager()).pkChunkSize)
+		if (formModel.getSize() >= ((FoundSetManager)formModel.getFoundSetManager()).config.pkChunkSize())
 		{
 			Object[] options = new String[] { Messages.getString("servoy.button.ok"), //$NON-NLS-1$
 				Messages.getString("servoy.button.cancel"), //$NON-NLS-1$
