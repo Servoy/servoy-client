@@ -1241,7 +1241,8 @@ public class SQLGenerator
 			// When we have a text and non-text column we can cast the non-text column to string
 			int primaryType = primary[x].getDataProviderType();
 			int foreignType = mapToDefaultType(key.getColumn().getColumnType());
-			if (foreignType == IColumnTypes.TEXT && primaryType != IColumnTypes.TEXT && primaryType != 0)
+			if (!"uuid".equalsIgnoreCase(key.getColumn().getNativeTypename()) && foreignType == IColumnTypes.TEXT && primaryType != IColumnTypes.TEXT &&
+				primaryType != 0)
 			{
 				// key is text, value is non-text, cast the value to text when we supply it
 				operator |= IBaseSQLCondition.CAST_TO_MODIFIER;
