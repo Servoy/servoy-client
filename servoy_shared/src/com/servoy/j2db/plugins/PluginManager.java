@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
+import java.util.stream.Collectors;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.J2DBGlobals;
@@ -248,6 +249,10 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 
 		if (notProcessedMap.size() > 0)
 		{
+			String errorWarningMessage = "Some plugins don't follow the ServiceLoader setup, please make sure that those plugins are updated, this will be mandatory in the new future, see  https://wiki.servoy.com/display/DOCS/Creating+Client+Plugins#CreatingClientPlugins-EntryPoints, the plugins: " +
+				notProcessedMap.stream().map(t -> t.jarFileName).collect(Collectors.joining(", "));
+			Debug.warn(
+				errorWarningMessage);
 			Extension<T>[] additionalExtensions = getExtensions((ExtendableURLClassLoader)getClassLoader(), searchClass, notProcessedMap);
 			if (additionalExtensions != null)
 			{
