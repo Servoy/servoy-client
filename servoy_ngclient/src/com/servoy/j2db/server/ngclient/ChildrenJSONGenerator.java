@@ -228,8 +228,6 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 						writer.array();
 						children.stream().forEach((child) -> writer.value(child));
 						writer.endArray();
-						writer.key("responsive");
-						writer.value(isResponsive);
 					}
 				}
 			}
@@ -373,6 +371,27 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.endObject();
 		}
 		writer.endObject();
+
+		WebObjectSpecification spec = fe.getWebComponentSpec();
+		if (spec != null)
+		{
+			Collection<PropertyDescription> properties = spec.getProperties(FormComponentPropertyType.INSTANCE);
+			if (properties.size() > 0)
+			{
+				boolean isResponsive = false;
+				for (PropertyDescription pd : properties)
+				{
+					Object propertyValue = fe.getPropertyValue(pd.getName());
+					Form frm = FormComponentPropertyType.INSTANCE.getForm(propertyValue, context.getSolution());
+					if (frm == null) continue;
+					isResponsive = frm.isResponsiveLayout();
+				}
+				// responsive state can change, so send it with updates
+				writer.key("responsive");
+				writer.value(isResponsive);
+			}
+		}
+
 		Collection<String> handlers = fe.getHandlers();
 		if (handlers.size() > 0)
 		{
