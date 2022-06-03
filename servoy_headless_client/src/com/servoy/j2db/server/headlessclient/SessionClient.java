@@ -512,7 +512,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	@Override
 	protected void createFoundSetManager()
 	{
-		foundSetManager = new FoundSetManager(this, new SwingFoundSetFactory());
+		foundSetManager = new FoundSetManager(this, getFoundSetManagerConfig(), new SwingFoundSetFactory());
 		foundSetManager.init();
 	}
 

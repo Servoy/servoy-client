@@ -76,11 +76,6 @@ public interface IServer extends Remote
 	public String[] getDataModelClonesFrom() throws RemoteException;
 
 	/**
-	 * @return
-	 */
-	public ISequenceProvider getSequenceProvider() throws RemoteException;
-
-	/**
 	 * @param definition
 	 */
 	public boolean createClientDatasource(JSConnectionDefinition definition) throws RemoteException;
@@ -89,4 +84,6 @@ public interface IServer extends Remote
 	 * @param definition
 	 */
 	public void dropClientDatasource(String clientId) throws RemoteException;
+
+	public ServerSettings getSettings() throws RemoteException;
 }

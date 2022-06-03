@@ -31,6 +31,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.IQueryElement;
 import com.servoy.j2db.query.QuerySelect;
+import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.WrappedObjectReference;
@@ -231,4 +232,7 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	 * @return
 	 */
 	public JSRecordMarkers validateRecord(IRecordInternal record, Object state);
+
+	public SortOptions getSortOptions(IColumn column);
+
 }

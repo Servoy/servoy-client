@@ -40,6 +40,7 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
+import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -325,8 +326,8 @@ public class I18NUtil
 					}
 				}
 
-				sql.addSort(new QuerySort(msgLang, true));
-				sql.addSort(new QuerySort(msgKey, true));
+				sql.addSort(new QuerySort(msgLang, true, SortOptions.NONE));
+				sql.addSort(new QuerySort(msgKey, true, SortOptions.NONE));
 
 				IDataSet set = dataServer.performQuery(clientID, i18NServerName, null, sql, null,
 					fm != null ? fm.getTableFilterParams(i18NServerName, sql) : null, false, 0, Integer.MAX_VALUE, IDataServer.MESSAGES_QUERY);

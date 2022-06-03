@@ -99,6 +99,8 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	private String validatorName = null;
 	private String defaultFormat = null;
 	private Integer containsMetaData = null;
+	private Boolean sortIgnorecase = null;
+	private SortingNullprecedence sortingNullprecedence = null;
 
 	private ColumnType configuredColumnType; // as configured by developer
 	private List<ColumnType> compatibleColumnTypes; // compatible with configured
@@ -790,6 +792,38 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 	}
 
 	/**
+	 * @param sortIgnorecase the sortIgnorecase to set
+	 */
+	public void setSortIgnorecase(Boolean sortIgnorecase)
+	{
+		this.sortIgnorecase = sortIgnorecase;
+	}
+
+	/**
+	 * @return the sortIgnorecase
+	 */
+	public Boolean getSortIgnorecase()
+	{
+		return sortIgnorecase;
+	}
+
+	/**
+	 * @param sortingNullprecedence the sortingNullprecedence to set
+	 */
+	public void setSortingNullprecedence(SortingNullprecedence sortingNullprecedence)
+	{
+		this.sortingNullprecedence = sortingNullprecedence;
+	}
+
+	/**
+	 * @return the sortingNullprecedence
+	 */
+	public SortingNullprecedence getSortingNullprecedence()
+	{
+		return sortingNullprecedence;
+	}
+
+	/**
 	 * Turns strings with no content (blank spaces are not considered content) into null. Returns other strings unchanged.
 	 *
 	 * @param s the string.
@@ -836,6 +870,9 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		setDatabaseSequenceName(sourceColumnInfo.getDatabaseSequenceName());
 		setConfiguredColumnType(sourceColumnInfo.getConfiguredColumnType());
 		setCompatibleColumnTypes(sourceColumnInfo.getCompatibleColumnTypes());
+
+		setSortIgnorecase(sourceColumnInfo.getSortIgnorecase());
+		setSortingNullprecedence(sourceColumnInfo.getSortingNullprecedence());
 
 		// Flag that the column is changed.
 		flagChanged();

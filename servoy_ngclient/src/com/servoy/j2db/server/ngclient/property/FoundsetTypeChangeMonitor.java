@@ -281,7 +281,7 @@ public class FoundsetTypeChangeMonitor
 
 	public void recordsDeleted(int firstRow, int lastRow, final FoundsetTypeViewport viewPort)
 	{
-		int pkChunkSize = ((FoundSetManager)propertyValue.getApplication().getFoundSetManager()).pkChunkSize;
+		int pkChunkSize = ((FoundSetManager)propertyValue.getApplication().getFoundSetManager()).config.pkChunkSize();
 		if (firstRow == pkChunkSize &&
 			propertyValue.getFoundset().getSize() == pkChunkSize &&
 			(viewPort.getStartIndex() + viewPort.getSize() - 1 <= lastRow))

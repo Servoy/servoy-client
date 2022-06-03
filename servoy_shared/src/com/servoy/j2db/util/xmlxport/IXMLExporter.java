@@ -31,8 +31,8 @@ import com.servoy.j2db.persistence.Solution;
 public interface IXMLExporter
 {
 	void exportSolutionToFile(Solution solution, File file, String version, int buildNumber, boolean exportMetaData, boolean exportSampleData,
-		int nrOfExportSampleData, boolean exportI18N, boolean exportUserInfo, boolean includeModules, boolean protect, ITableDefinitionsAndSecurityBasedOnWorkspaceFiles tableDefManager,
-		IMetadataDefManager metadataDefManager, boolean exportSolution, JSONObject importSettings, Map<String, List<File>> modulesWebPackages,
-		boolean exportSolutionsVersions)
+		int nrOfExportSampleData, boolean exportI18N, boolean exportUserInfo, boolean includeModules, boolean protect,
+		ITableDefinitionsAndSecurityBasedOnWorkspaceFiles tableDefAndSecFromFiles, boolean exportUsingDbiFileInfoOnly, IMetadataDefManager metadataDefManager,
+		boolean exportSolution, JSONObject importSettings, Map<String, List<File>> modulesWebPackages, boolean exportSolutionsVersions)
 		throws RepositoryException;
 }

@@ -118,7 +118,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	void register(IRowListener fs)
 	{
 		boolean listenersByEqualValuesAdded = false;
-		if (fsm.optimizedNotifyChange && fs instanceof RelatedFoundSet)
+		if (fsm.config.optimizedNotifyChange() && fs instanceof RelatedFoundSet)
 		{
 			FlattenedSolution flattenedSolution = getFoundsetManager().getApplication().getFlattenedSolution();
 			RelatedFoundSet relatedFoundSet = (RelatedFoundSet)fs;
@@ -152,7 +152,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 
 	void unregister(IRowListener fs)
 	{
-		if (fsm.optimizedNotifyChange && fs instanceof RelatedFoundSet)
+		if (fsm.config.optimizedNotifyChange() && fs instanceof RelatedFoundSet)
 		{
 			FlattenedSolution flattenedSolution = getFoundsetManager().getApplication().getFlattenedSolution();
 			RelatedFoundSet relatedFoundSet = (RelatedFoundSet)fs;
@@ -666,7 +666,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			retval.add(rowData);
 			if (sizeHint > 1)
 			{
-				int maxRow = Math.min(row + fsm.chunkSize, pks.getRowCount());
+				int maxRow = Math.min(row + fsm.config.chunkSize(), pks.getRowCount());
 				for (int r = row + 1; r < maxRow; r++)
 				{
 					Object[] data = pks.getRow(r);
@@ -691,7 +691,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	void fireNotifyChange(IRowListener skip, Row row, String pkHashKey, Object[] changedColumns, int eventType, boolean isAggregateChange, boolean skipFSM)
 	{
 		List<IRowListener> toNotify = new ArrayList<>();
-		if (eventType == RowEvent.INSERT && fsm.optimizedNotifyChange)
+		if (eventType == RowEvent.INSERT && fsm.config.optimizedNotifyChange())
 		{
 			FlattenedSolution flattenedSolution = getFoundsetManager().getApplication().getFlattenedSolution();
 			listenersByRelationEqualValues.entrySet().stream().forEach(entry -> {
@@ -941,7 +941,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			}
 			SQLStatement statement = new SQLStatement(statement_action, sheet.getServerName(), table.getName(), pks, tid, sqlUpdate,
 				fsm.getTableFilterParams(sheet.getServerName(), sqlUpdate), requerySelect);
-			if (doesExistInDB) statement.setExpectedUpdateCount(1); // check that the row is updated (skip check for inert)
+			if (doesExistInDB) statement.setExpectedUpdateCount(1); // check that the row is updated (skip check for insert)
 			if (changedColumns != null)
 			{
 				statement.setChangedColumns(changedColumns.toArray(new String[changedColumns.size()]));
@@ -1250,7 +1250,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			IDataSet dataset = fsm.getApplication()
 				.getDataServer()
 				.acquireLocks(client_id, sheet.getServerName(), sheet.getTable().getName(), ids, lockSelect,
-					transaction_id, getFoundsetManager().getTableFilterParams(sheet.getServerName(), lockSelect), getFoundsetManager().chunkSize);
+					transaction_id, getFoundsetManager().getTableFilterParams(sheet.getServerName(), lockSelect), getFoundsetManager().config.chunkSize());
 			if (dataset != null)
 			{
 				addLocks(ids, lockName);

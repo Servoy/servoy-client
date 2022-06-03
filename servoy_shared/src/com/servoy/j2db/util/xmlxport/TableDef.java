@@ -22,7 +22,7 @@ import java.util.ArrayList;
 
 import com.servoy.j2db.persistence.ITable;
 
-public class TableDef implements Serializable
+public class TableDef implements Serializable, DBIDefinition
 {
 
 	public static final String PROP_TABLE_TYPE = "tableType"; //$NON-NLS-1$
@@ -38,4 +38,13 @@ public class TableDef implements Serializable
 	public ArrayList<ColumnInfoDef> columnInfoDefSet = new ArrayList<ColumnInfoDef>(); // this should be a list, otherwise column creation order is broken
 	public int tableType = ITable.TABLE;
 
+	public String dbiFileContents = null;
+
+	/**
+	 * @return the dbiFileContents
+	 */
+	public String getDbiFileContents()
+	{
+		return dbiFileContents;
+	}
 }

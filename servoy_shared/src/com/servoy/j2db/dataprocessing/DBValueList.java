@@ -39,6 +39,7 @@ import com.servoy.j2db.query.IQuerySort;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
+import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.Settings;
@@ -267,12 +268,12 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 				}
 
 				QuerySelect creationSQLParts = null;
-				if (singleColumn && fs.getSize() >= ((FoundSetManager)application.getFoundSetManager()).pkChunkSize && !containsCalculation)
+				if (singleColumn && fs.getSize() >= ((FoundSetManager)application.getFoundSetManager()).config.pkChunkSize() && !containsCalculation)
 				{
 					creationSQLParts = createValuelistQuery(application, valueList, table);
 				}
 				if (creationSQLParts != null && creationSQLParts.isDistinct() &&
-					fs.getSize() >= ((FoundSetManager)application.getFoundSetManager()).pkChunkSize && !containsCalculation)
+					fs.getSize() >= ((FoundSetManager)application.getFoundSetManager()).config.pkChunkSize() && !containsCalculation)
 				{
 					ArrayList<TableFilter> tableFilterParams = foundSetManager.getTableFilterParams(table.getServerName(), creationSQLParts);
 					if (valueList.getUseTableFilter()) //apply name as filter on column valuelist_name in creationSQLParts
@@ -436,13 +437,16 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		ArrayList<IQuerySort> orderColumns = new ArrayList<IQuerySort>();
 		ArrayList<IQuerySelectValue> columns = new ArrayList<IQuerySelectValue>();
 
+
 		boolean useDefinedSort = sortColumns != null && sortColumns.size() > 0;
 		if (useDefinedSort)
 		{
 			for (SortColumn sc : sortColumns)
 			{
+				SortOptions sortoptions = application.getFoundSetManager().getSortOptions(sc.getColumn());
 				orderColumns.add(
-					new QuerySort(getQuerySelectValue(table, select.getTable(), sc.getDataProviderID()), sc.getSortOrder() == SortColumn.ASCENDING));
+					new QuerySort(getQuerySelectValue(table, select.getTable(), sc.getDataProviderID()), sc.getSortOrder() == SortColumn.ASCENDING,
+						sortoptions));
 			}
 		}
 
@@ -452,7 +456,8 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 			columns.add(cSQLName);
 			if ((showValues & 1) != 0 && !useDefinedSort)
 			{
-				orderColumns.add(new QuerySort(cSQLName, true));
+				SortOptions sortoptions = application.getFoundSetManager().getSortOptions(table.getColumn(valueList.getDataProviderID1()));
+				orderColumns.add(new QuerySort(cSQLName, true, sortoptions));
 			}
 		}
 		if ((total & 2) != 0)
@@ -461,7 +466,8 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 			columns.add(cSQLName);
 			if ((showValues & 2) != 0 && !useDefinedSort)
 			{
-				orderColumns.add(new QuerySort(cSQLName, true));
+				SortOptions sortoptions = application.getFoundSetManager().getSortOptions(table.getColumn(valueList.getDataProviderID2()));
+				orderColumns.add(new QuerySort(cSQLName, true, sortoptions));
 			}
 		}
 		if ((total & 4) != 0)
@@ -470,7 +476,8 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 			columns.add(cSQLName);
 			if ((showValues & 4) != 0 && !useDefinedSort)
 			{
-				orderColumns.add(new QuerySort(cSQLName, true));
+				SortOptions sortoptions = application.getFoundSetManager().getSortOptions(table.getColumn(valueList.getDataProviderID3()));
+				orderColumns.add(new QuerySort(cSQLName, true, sortoptions));
 			}
 		}
 

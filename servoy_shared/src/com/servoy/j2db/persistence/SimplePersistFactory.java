@@ -90,7 +90,7 @@ public class SimplePersistFactory extends AbstractPersistFactory
 	/**
 	 * @see com.servoy.j2db.persistence.IPersistFactory#getNewElementID(com.servoy.j2db.util.UUID)
 	 */
-	public int getNewElementID(UUID new_uuid) throws RepositoryException
+	public int getNewElementID(UUID new_uuid)
 	{
 		synchronized (uuid_element_id_map)
 		{

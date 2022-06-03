@@ -708,7 +708,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			}
 
 			FoundSetManager fsm = (FoundSetManager)application.getFoundSetManager();
-			boolean getInOneQuery = !fs.isInFindMode() && (fs.hadMoreRows() || fs.getSize() > fsm.pkChunkSize) && !fsm.getEditRecordList().hasEditedRecords(fs);
+			boolean getInOneQuery = !fs.isInFindMode() && (fs.hadMoreRows() || fs.getSize() > fsm.config.pkChunkSize()) &&
+				!fsm.getEditRecordList().hasEditedRecords(fs);
 
 			dptypes = new ColumnType[dpnames.length];
 			Table table = fs.getSQLSheet().getTable();
@@ -2307,7 +2308,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			if (column != null)
 			{
 				IDataSet dataSet = null;
-				if ((fs.hadMoreRows() || fs.getSize() > fsm.pkChunkSize) && !fsm.getEditRecordList().hasEditedRecords(fs))
+				if ((fs.hadMoreRows() || fs.getSize() > fsm.config.pkChunkSize()) && !fsm.getEditRecordList().hasEditedRecords(fs))
 				{
 					// large foundset, query the column in 1 go
 					QuerySelect sqlSelect = AbstractBaseQuery.deepClone(fs.getQuerySelectForReading());

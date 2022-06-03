@@ -54,6 +54,10 @@ public interface IXMLImportHandlerVersions11AndHigher
 
 	void handleI18NImport(ImportInfo importInfo, String i18NServerName, String i18NTableName, TreeMap<String, MessageEntry> messages) throws Exception;
 
+	default void importDatasources(ImportInfo importInfo) throws RepositoryException
+	{
+	}
+
 	void importMetaData(ImportInfo importInfo) throws RepositoryException;
 
 	void importSampleData(JarFile jarFile, ImportInfo importInfo);

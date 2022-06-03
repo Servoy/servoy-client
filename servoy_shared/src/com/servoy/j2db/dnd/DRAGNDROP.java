@@ -89,13 +89,6 @@ public class DRAGNDROP implements IPrefixedConstantsObject, IReturnedTypesProvid
 	 */
 	public static final String MIME_TYPE_SERVOY_RECORD = "application/x-servoy-record-object; class=com.servoy.j2db.dataprocessing.Record";
 
-	/*
-	 * @see com.servoy.j2db.scripting.IPrefixedConstantsObject#getPrefix()
-	 */
-	public String getPrefix()
-	{
-		return "DRAGNDROP"; //$NON-NLS-1$
-	}
 
 	/*
 	 * @see com.servoy.j2db.scripting.IReturnedTypesProvider#getAllReturnedTypes()
