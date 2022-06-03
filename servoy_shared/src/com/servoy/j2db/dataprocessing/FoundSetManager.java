@@ -1307,6 +1307,33 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return true;
 	}
 
+	public boolean updateTableFilterParam(String serverName, String filterName, ITable table, TableFilterdefinition tableFilterdefinition)
+	{
+		if (filterName != null)
+		{
+			for (TableFilter f : iterate(tableFilterParams.get(serverName)))
+			{
+				if (filterName.equals(f.getName()))
+				{
+					f.setTableFilterDefinition(tableFilterdefinition);
+
+					for (ITable affectedtable : getFilterUpdateAffectedTables(getDataSource(table), tableFilterdefinition))
+					{
+						fireTableEvent(affectedtable);
+					}
+
+					if (Messages.isI18NTable(serverName, table != null ? table.getName() : null, application))
+					{
+						((ClientState)application).refreshI18NMessages(false);
+					}
+
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	public boolean removeTableFilterParam(String serverName, String filterName)
 	{
 		List<TableFilter> params = tableFilterParams.get(serverName);

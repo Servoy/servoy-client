@@ -34,7 +34,7 @@ public class TableFilter implements IWriteReplace
 	private final String serverName;
 	private final String tableName;
 	private final String tableSQLName;
-	private final TableFilterdefinition tableFilterdefinition;
+	private TableFilterdefinition tableFilterdefinition;
 
 	public TableFilter(String name, String serverName, String tableName, String tableSQLName, String dataprovider, int operator, Object value)
 	{
@@ -76,6 +76,11 @@ public class TableFilter implements IWriteReplace
 	public TableFilterdefinition getTableFilterdefinition()
 	{
 		return tableFilterdefinition;
+	}
+
+	public void setTableFilterDefinition(TableFilterdefinition tableFilterDefinition)
+	{
+		this.tableFilterdefinition = tableFilterDefinition;
 	}
 
 	public boolean isContainedIn(Iterable<TableFilter> filters)

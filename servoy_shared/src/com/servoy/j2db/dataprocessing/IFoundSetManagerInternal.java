@@ -164,6 +164,9 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	public boolean addTableFilterParam(String filterName, String serverName, ITable table, TableFilterdefinition tableFilterdefinition) throws ServoyException;
 
+	public boolean updateTableFilterParam(String serverName, String filterName, ITable table, TableFilterdefinition tableFilterdefinition)
+		throws ServoyException;
+
 	public ArrayList<TableFilter> getTableFilterParams(String serverName, IQueryElement sql);
 
 	public boolean hasTableFiltersWithJoins(String serverName, IQueryElement sql);

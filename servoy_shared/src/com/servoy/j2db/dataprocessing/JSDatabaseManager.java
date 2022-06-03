@@ -480,6 +480,97 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
+	 * Updates a previously defined table filter. Server/Table should not be changed.
+	 *
+	 * @sample var success = databaseManager.updateTableFilterParam('admin', 'higNumberedMessagesRule', query)
+	 *
+	 * @param serverName The name of the database server connection.
+	 * @param filterName The name of the filter that should be updated.
+	 * @param query condition to filter on.
+	 *
+	 * @return true if the filter could be updated.
+	 */
+	public boolean js_updateTableFilterParam(String serverName, String filterName, QBSelect query) throws ServoyException
+	{
+		if (serverName == null || filterName == null) return false;
+
+		checkAuthorized();
+
+		IFoundSetManagerInternal foundSetManager = application.getFoundSetManager();
+		ITable table = foundSetManager.getTable(query.getDataSource());
+
+		return foundSetManager.updateTableFilterParam(table.getServerName(), filterName, table,
+			// make a deep clone and clone Table as well in case the same table is used in a new query.
+			new QueryTableFilterdefinition(AbstractBaseQuery.deepClone(query.build(), true)));
+	}
+
+	/**
+	 * Updates a filter with a new condition. The server/table name should be unchanged.
+	 *
+	 * @sample
+	 *	databaseManager.updateTableFilterParam('database', 'myfilter', 'your_i18n_table', 'message_variant', 'in', [1, 2])
+	 *
+	 * @param serverName The name of the database server connection for the specified table name.
+	 * @param filterName The name of the filter that should be updated.
+	 * @param tableName The name of the specified table.
+	 * @param dataprovider A specified dataprovider column name.
+	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null), prefix with "sql:" to allow the value to be interpreted as a custom query.
+	 * @param value The specified filter value.
+	 *
+	 * @return true if the tablefilter could be updated.
+	 */
+	public boolean js_updateTableFilterParam(String serverName, String filterName, String tableName, String dataprovider, String operator, Object value)
+		throws ServoyException
+	{
+		checkAuthorized();
+		try
+		{
+			if (value instanceof Wrapper)
+			{
+				value = ((Wrapper)value).unwrap();
+			}
+			IServer server = application.getSolution().getServer(serverName);
+			if (server == null)
+			{
+				application.reportJSError("Table filter not applied to unknown server '" + serverName + "', tableName = '" + tableName + "', dataprovider = '" +
+					dataprovider + "', operator = '" + operator + "', value = '" + value + "', filterName = '" + filterName + "'", null);
+				return false;
+			}
+			ITable table = null;
+			if (tableName != null)
+			{
+				table = server.getTable(tableName);
+				if (table == null)
+				{
+					application.reportJSError("Table filter not applied to unknown table: serverName = '" + serverName + "', tableName = '" + tableName +
+						"', dataprovider = '" + dataprovider + "', operator = '" + operator + "', value = '" + value + "', filterName = '" + filterName + "'",
+						null);
+					return false;
+				}
+			}
+			// else table remains null: apply to all tables with that column
+
+			DataproviderTableFilterdefinition dataproviderTableFilterdefinition = application.getFoundSetManager().createDataproviderTableFilterdefinition(
+				table, dataprovider, operator, value);
+			if (dataproviderTableFilterdefinition == null)
+			{
+				application.reportJSError("Table filter not created, column not found in table or operator invalid, filterName = '" + filterName +
+					"', serverName = '" + serverName + "', table = '" + table + "', dataprovider = '" + dataprovider + "', operator = '" + operator + "'",
+					null);
+				return false;
+			}
+
+			return (((FoundSetManager)application.getFoundSetManager()).updateTableFilterParam(serverName, filterName, table,
+				dataproviderTableFilterdefinition));
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
+		}
+		return false;
+	}
+
+	/**
 	 * Returns a two dimensional array object containing the table filter information currently applied to the servers tables.
 	 * For column-based table filters, a row of 5 fields per filter are returned.
 	 * The "columns" of a row from this array are: tablename, dataprovider, operator, value, filtername
