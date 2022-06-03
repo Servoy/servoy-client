@@ -12,7 +12,5 @@ Require-Bundle: org.junit,
  org.skyscreamer.jsonassert,
  org.apache.logging.log4j.core,
  org.apache.logging.log4j.api,
- org.apache.logging.log4j.slf4j18-impl,
- com.servoy.eclipse.model,
- com.servoy.eclipse.ui
+ org.apache.logging.log4j.slf4j18-impl
 Automatic-Module-Name: servoy_ngclient.tests

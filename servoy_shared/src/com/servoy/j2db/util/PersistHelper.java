@@ -33,15 +33,12 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.MediaURLStreamHandler;
@@ -50,7 +47,6 @@ import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.FlattenedLayoutContainer;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IFlattenedPersistWrapper;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -58,7 +54,6 @@ import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportExtendsID;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Media;
-import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
@@ -1202,57 +1197,5 @@ public class PersistHelper
 		}
 		return null;
 
-	}
-
-	public static CopyOnWriteArrayList<String> setupChildrenUUIDS(ISupportChilds persist, Form form, FlattenedSolution fs)
-	{
-		CopyOnWriteArrayList<String> uuids = new CopyOnWriteArrayList<>();
-		ISupportChilds parent = PersistHelper.getFlattenedPersist(fs, form, persist);
-		Iterator<IPersist> it = parent.getAllObjects();
-		while (it.hasNext())
-		{
-			IPersist next = it.next();
-			if (next instanceof IFlattenedPersistWrapper< ? >)
-			{
-				next = ((IFlattenedPersistWrapper< ? >)next).getWrappedPersist();
-			}
-			uuids.add(next.getUUID().toString());
-		}
-		//TODO should the *CustomProperty methods be part of some interface?
-		System.out.println(parent.getUUID() + " Setup uuids  " + uuids);//TODO rem
-		((AbstractBase)parent).putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_CHILDREN_UUIDS }, uuids);
-		return uuids;
-	}
-
-	public static List<String> getSortedChildren(ISupportChilds parent, Form form, FlattenedSolution fs)
-	{
-		try
-		{
-			if (parent instanceof AbstractBase)
-			{
-				ISupportChilds persist = parent;
-				if (parent instanceof LayoutContainer)
-				{
-					persist = PersistHelper.getFlattenedPersist(fs,
-						form, parent);
-				}
-				ArrayList<IPersist> children = new ArrayList<>();
-				Iterator<IPersist> it = persist.getAllObjects();
-				while (it.hasNext())
-				{
-					IPersist p = it.next();
-					children.add(p instanceof IFlattenedPersistWrapper< ? > ? ((IFlattenedPersistWrapper< ? >)p).getWrappedPersist()
-						: p);
-				}
-				Collections.sort(children, PositionComparator.XY_PERSIST_COMPARATOR);
-
-				return children.stream().map(p -> p.getUUID().toString()).collect(Collectors.toList());
-			}
-		}
-		catch (Exception ex)
-		{
-			//TODO log
-		}
-		return null;
 	}
 }

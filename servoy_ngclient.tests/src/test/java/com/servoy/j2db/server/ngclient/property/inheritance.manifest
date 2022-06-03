@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Ant-Version: Apache Ant 1.8.4
-Created-By: 1.7.0_05-b06 (Oracle Corporation)
-Bundle-SymbolicName: inheritance
-
-Name: inheritance-button.spec
-Web-Component: True

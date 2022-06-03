@@ -227,5 +227,4 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_ONVALIDATEMETHODID = "onValidateMethodID";
 	public static final String PROPERTY_ONAUTOSAVEDFAILEDMETHODID = "onAutoSaveFailedMethodID";
 	public static final String PROPERTY_ONBEFORELOGINMETHODID = "onBeforeLoginMethodID";
-	public static final String PROPERTY_CHILDREN_UUIDS = "uuids";
 }
