@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import com.servoy.j2db.FlattenedSolution;
@@ -330,4 +331,15 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		return extendsMap;
 	}
 
+	@Override
+	public void addSuperListener(ISupportInheritedChildren listener)
+	{
+		form.addSuperListener(listener);
+	}
+
+	@Override
+	public Optional<Set<ISupportInheritedChildren>> getListeners()
+	{
+		return form.getListeners();
+	}
 }
