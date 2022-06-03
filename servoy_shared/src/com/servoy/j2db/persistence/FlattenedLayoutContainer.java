@@ -3,6 +3,8 @@ package com.servoy.j2db.persistence;
 import java.awt.Point;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.util.PersistHelper;
@@ -133,5 +135,17 @@ public class FlattenedLayoutContainer extends LayoutContainer implements IFlatte
 	public List<IPersist> getHierarchyChildren()
 	{
 		return getAllObjectsAsList();
+	}
+
+	@Override
+	public void addSuperListener(ISupportInheritedChildren listener)
+	{
+		layoutContainer.addSuperListener(listener);
+	}
+
+	@Override
+	public Optional<Set<ISupportInheritedChildren>> getListeners()
+	{
+		return layoutContainer.getListeners();
 	}
 }

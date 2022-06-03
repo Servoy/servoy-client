@@ -21,10 +21,14 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.util.PersistHelper;
@@ -35,10 +39,11 @@ import com.servoy.j2db.util.UUID;
  *
  */
 public abstract class AbstractContainer extends AbstractBase
-	implements ISupportFormElements, ISupportExtendsID, ISupportUpdateableName, IPersistCloneable, ICloneable
+	implements ISupportFormElements, ISupportInheritedChildren, ISupportUpdateableName, IPersistCloneable, ICloneable
 {
 
 	private static final long serialVersionUID = 1L;
+	private final Set<ISupportInheritedChildren> superPersistListeners = new HashSet<>();
 
 	protected AbstractContainer(int type, ISupportChilds parent, int element_id, UUID uuid)
 	{
@@ -467,4 +472,36 @@ public abstract class AbstractContainer extends AbstractBase
 		return null;
 	}
 
+	@Override
+	public Optional<Set<ISupportInheritedChildren>> getListeners()
+	{
+		return !superPersistListeners.isEmpty() ? Optional.of(superPersistListeners) : Optional.empty();
+	}
+
+	@Override
+	public void addSuperListener(ISupportInheritedChildren listener)
+	{
+		superPersistListeners.add(listener);
+	}
+
+	@Override
+	public void addChild(IPersist obj)
+	{
+		super.addChild(obj);
+
+		if (getExtendsID() > 0)
+		{
+			//for extended the list of uuids is already sorted
+			insertBeforeUUID(obj.getUUID(), null);
+		}
+		else if (getListeners().isPresent())
+		{
+			//if it doesn't have a list of uuids, but has listeners then we need to sort the children by location
+			List<IPersist> children = new ArrayList<>(getAllObjectsAsList());
+			Collections.sort(children, PositionComparator.XY_PERSIST_COMPARATOR);
+			int index = children.indexOf(obj);
+			IPersist next = index < children.size() - 1 ? children.get(index + 1) : null;
+			getListeners().ifPresent(listeners -> listeners.forEach(l -> l.insertBeforeUUID(obj.getUUID(), next)));
+		}
+	}
 }
