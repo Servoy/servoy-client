@@ -109,7 +109,8 @@ angular.module('dialogs',['servoy'])
 					  message: dialogMessage,
                       locale: navigator.language,
 					  inputType: 'select',
-					  inputOptions: options
+					  inputOptions: options,
+                      value: options[0].value
 					};
 			var dialog = bootbox.prompt(dialogOptions);
 			$sabloTestability.block(true);
