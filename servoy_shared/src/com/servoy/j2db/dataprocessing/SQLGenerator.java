@@ -1238,20 +1238,22 @@ public class SQLGenerator
 			// column = ? construct
 			IQuerySelectValue key = foreign[x].queryColumn(foreignTable);
 
-			// When we have a text and non-text column we can cast the non-text column to string
-			int primaryType = primary[x].getDataProviderType();
-			int foreignType = mapToDefaultType(key.getColumn().getColumnType());
-			if (!"uuid".equalsIgnoreCase(key.getColumn().getNativeTypename()) && foreignType == IColumnTypes.TEXT && primaryType != IColumnTypes.TEXT &&
-				primaryType != 0)
+			if ((key.getColumn().getFlags() & UUID_COLUMN) == 0)
 			{
-				// key is text, value is non-text, cast the value to text when we supply it
-				operator |= IBaseSQLCondition.CAST_TO_MODIFIER;
-			}
-			else if (primaryType == IColumnTypes.TEXT && foreignType != IColumnTypes.TEXT)
-			{
-				// value is text, key is non-text, cast the key to text
-				key = new QueryFunction(cast,
-					new IQuerySelectValue[] { key, new QueryColumnValue(IQueryConstants.TYPE_STRING, null, true) }, null);
+				// When we have a text and non-text column we can cast the non-text column to string
+				int primaryType = primary[x].getDataProviderType();
+				int foreignType = mapToDefaultType(key.getColumn().getColumnType());
+				if (foreignType == IColumnTypes.TEXT && primaryType != IColumnTypes.TEXT && primaryType != 0)
+				{
+					// key is text, value is non-text, cast the value to text when we supply it
+					operator |= IBaseSQLCondition.CAST_TO_MODIFIER;
+				}
+				else if (primaryType == IColumnTypes.TEXT && foreignType != IColumnTypes.TEXT)
+				{
+					// value is text, key is non-text, cast the key to text
+					key = new QueryFunction(cast,
+						new IQuerySelectValue[] { key, new QueryColumnValue(IQueryConstants.TYPE_STRING, null, true) }, null);
+				}
 			}
 
 			keys[x] = key;
