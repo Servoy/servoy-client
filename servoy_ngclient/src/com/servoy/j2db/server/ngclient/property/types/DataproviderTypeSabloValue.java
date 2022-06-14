@@ -467,7 +467,8 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 
 		v = replaceTagsIfNeeded(v);
-		boolean changed = ((v != uiValue) && (v == null || !v.equals(uiValue)));
+		// this is Utils.equalsObject() because it could be that the Row has a timestamp but the uivalue is just a date (representing the same date)
+		boolean changed = ((v != uiValue) && (v == null || !Utils.equalObjects(uiValue, v)));
 
 		uiValue = v;
 		if (changed)
