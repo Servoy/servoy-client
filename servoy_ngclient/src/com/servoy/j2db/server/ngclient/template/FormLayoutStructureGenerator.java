@@ -399,7 +399,7 @@ public class FormLayoutStructureGenerator
 		if (cssClasses == null) return result;
 		String[] classes = cssClasses.split(" ");
 		JSONObject config = spec.getConfig() instanceof String ? new JSONObject((String)spec.getConfig()) : null;
-		String defaultClass = config.optString("class", "");
+		String defaultClass = config != null ? config.optString("class", "") : "";
 
 		Collection<PropertyDescription> properties = spec.getProperties(StyleClassPropertyType.INSTANCE);
 		for (PropertyDescription pd : properties)
