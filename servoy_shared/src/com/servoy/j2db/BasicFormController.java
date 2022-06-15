@@ -34,6 +34,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
+import org.json.JSONObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeJavaObject;
@@ -4666,10 +4667,10 @@ public abstract class BasicFormController
 		 * var prop = fforms.orders.controller.getDesignProperties()
 		 */
 		@JSFunction
-		public Map<String, Object> getDesignProperties()
+		public JSONObject getDesignProperties()
 		{
 			checkDestroyed();
-			return formController.getDesignProperties();
+			return new JSONObject(formController.getDesignProperties());
 		}
 
 		/**
