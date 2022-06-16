@@ -53,6 +53,7 @@ import com.servoy.j2db.persistence.ISupportAnchors;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.scripting.IInstanceOf;
+import com.servoy.j2db.scripting.JSMap;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
@@ -351,7 +352,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 				{
 					Map<String, Object> designProperties = ((AbstractBase)component.getFormElement().getPersistIfAvailable())
 						.getMergedCustomDesignTimeProperties();
-					Map<String, Object> parsedMap = new HashMap<String, Object>();
+					Map<String, Object> parsedMap = new JSMap<String, Object>();
 					designProperties.entrySet().forEach(entry -> {
 						parsedMap.put(entry.getKey(), Utils.parseJSExpression(entry.getValue()));
 					});
