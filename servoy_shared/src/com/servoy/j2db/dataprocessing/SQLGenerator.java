@@ -386,8 +386,10 @@ public class SQLGenerator
 				else if (column instanceof AggregateVariable)
 				{
 					AggregateVariable aggregate = (AggregateVariable)column;
-					queryColumn = new QueryAggregate(aggregate.getType(), new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(),
-						aggregate.getDataProviderType(), aggregate.getLength(), 0, null, aggregate.getFlags()), aggregate.getName());
+					queryColumn = new QueryAggregate(aggregate.getType(), aggregate.getAggregateQuantifier(),
+						new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(),
+							aggregate.getDataProviderType(), aggregate.getLength(), 0, null, aggregate.getFlags()),
+						aggregate.getName(), null, false);
 
 					// there has to be a group-by clause for all selected fields
 					List<IQuerySelectValue> columns = sqlSelect.getColumns();
@@ -401,8 +403,9 @@ public class SQLGenerator
 					}
 
 					// if the aggregate has not been selected yet, add it and skip it in the result
-					QueryAggregate skippedAggregate = new QueryAggregate(aggregate.getType(), QueryAggregate.ALL, new QueryColumn(foreignQtable, -1,
-						aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength(), 0, null, aggregate.getFlags()),
+					QueryAggregate skippedAggregate = new QueryAggregate(aggregate.getType(), aggregate.getAggregateQuantifier(),
+						new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength(), 0,
+							null, aggregate.getFlags()),
 						aggregate.getName(), null, true);
 					if (!columns.contains(skippedAggregate))
 					{
@@ -1035,7 +1038,7 @@ public class SQLGenerator
 		return null;
 	}
 
-	private void createAggregates(SQLSheet sheet, QueryTable queryTable) throws RepositoryException
+	private void createAggregates(SQLSheet sheet, QueryTable queryTable)
 	{
 		Table table = sheet.getTable();
 		Iterator<AggregateVariable> it = application.getFlattenedSolution().getAggregateVariables(table, false);
@@ -1043,8 +1046,10 @@ public class SQLGenerator
 		{
 			AggregateVariable aggregate = it.next();
 			QuerySelect sql = new QuerySelect(queryTable);
-			sql.addColumn(new QueryAggregate(aggregate.getType(), new QueryColumn(queryTable, -1, aggregate.getColumnNameToAggregate(),
-				aggregate.getDataProviderType(), aggregate.getLength(), 0, null, aggregate.getFlags()), aggregate.getName()));
+			sql.addColumn(new QueryAggregate(aggregate.getType(), aggregate.getAggregateQuantifier(),
+				new QueryColumn(queryTable, -1, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength(), 0, null,
+					aggregate.getFlags()),
+				aggregate.getName(), null, false));
 			sheet.addAggregate(aggregate.getDataProviderID(), aggregate.getDataProviderIDToAggregate(), sql);
 		}
 	}
@@ -1555,7 +1560,6 @@ public class SQLGenerator
 				: column.queryColumn(select.getTable()),
 			"maxval")); //$NON-NLS-1$
 		return select;
-
 	}
 
 	public static QuerySelect createAggregateSelect(QuerySelect sqlSelect, Collection<QuerySelect> aggregates, List<Column> pkColumns)

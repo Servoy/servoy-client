@@ -104,10 +104,10 @@ public class TableNode extends AbstractBase implements ISupportChilds
 		return getObjects(IRepository.AGGREGATEVARIABLES);
 	}
 
-	AggregateVariable createNewAggregateVariable(IValidateName validator, String calcName, int atype, String dataProviderIDToAggregate, ITable table)
+	AggregateVariable createNewAggregateVariable(IValidateName validator, String aggName, int atype, String dataProviderIDToAggregate, ITable table)
 		throws RepositoryException
 	{
-		String name = calcName == null ? "untitled" : calcName; //$NON-NLS-1$
+		String name = aggName == null ? "untitled" : aggName; //$NON-NLS-1$
 
 		//check if name is in use
 		ValidatorSearchContext ft = new ValidatorSearchContext(table, IRepository.AGGREGATEVARIABLES);
