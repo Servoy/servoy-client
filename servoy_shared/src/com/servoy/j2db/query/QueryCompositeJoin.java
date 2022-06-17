@@ -152,13 +152,6 @@ public final class QueryCompositeJoin implements ISQLTableJoin
 		return tableJoins().anyMatch(ISQLTableJoin::isPermanent);
 	}
 
-
-	@Override
-	public void setPermanent(boolean permanent)
-	{
-		tableJoins().forEach(join -> join.setPermanent(permanent));
-	}
-
 	@Override
 	public Object shallowClone() throws CloneNotSupportedException
 	{

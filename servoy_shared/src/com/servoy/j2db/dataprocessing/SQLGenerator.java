@@ -294,13 +294,13 @@ public class SQLGenerator
 				}
 			}
 
-			addSorts(retval, retval.getTable(), provider, table, orderBy, true, false /* joins added for sorting ans not permanent */);
+			addSorts(retval, retval.getTable(), provider, table, orderBy, true, false /* joins added for sorting are not permanent */);
 		} // else use ordering defined in query
 
 		if (removeUnusedJoins)
 		{
 			// remove unneeded joins, some may have been added because of a previous sort and are no longer needed.
-			retval.removeUnusedJoins(false);
+			retval.removeUnusedJoins(false, true);
 		}
 
 		//1 do not remove sort or groupby test, will cause invalid queries
@@ -1564,7 +1564,7 @@ public class SQLGenerator
 		selectClone.clearSorts();
 		selectClone.setDistinct(false);
 		selectClone.setColumns(null);
-		selectClone.removeUnusedJoins(true);
+		selectClone.removeUnusedJoins(true, true);
 
 		QuerySelect aggregateSqlSelect;
 

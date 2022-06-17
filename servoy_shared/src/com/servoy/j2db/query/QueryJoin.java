@@ -42,7 +42,7 @@ public final class QueryJoin implements ISQLTableJoin
 	private ITableReference foreignTableReference;
 	private AndCondition condition;
 	private int joinType;
-	private boolean permanent;
+	private final boolean permanent;
 
 	private transient Object origin; // origin, transient, only used in the client
 
@@ -147,12 +147,6 @@ public final class QueryJoin implements ISQLTableJoin
 	public boolean isPermanent()
 	{
 		return permanent;
-	}
-
-	@Override
-	public void setPermanent(boolean permanent)
-	{
-		this.permanent = permanent;
 	}
 
 	@Override

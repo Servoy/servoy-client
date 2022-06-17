@@ -87,4 +87,11 @@ public interface IQueryBuilderJoins extends IQueryBuilderPart
 	 */
 	IQueryBuilderJoin add(IQueryBuilder subqueryBuilder, int joinType, String alias);
 
+	/**
+	 * Remove the joins that are not used anywhere in the query.
+	 *
+	 * @param keepInnerjoins when true inner joins are not removed, inner joins may impact the query result, even when not used
+	 *
+	 */
+	IQueryBuilderJoins removeUnused(boolean keepInnerjoins);
 }
