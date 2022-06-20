@@ -1238,7 +1238,7 @@ public class SQLGenerator
 			// column = ? construct
 			IQuerySelectValue key = foreign[x].queryColumn(foreignTable);
 
-			if ((key.getColumn().getFlags() & UUID_COLUMN) == 0)
+			if ((key.getColumn().getFlags() & IBaseColumn.UUID_COLUMN) == 0)
 			{
 				// When we have a text and non-text column we can cast the non-text column to string
 				int primaryType = primary[x].getDataProviderType();
