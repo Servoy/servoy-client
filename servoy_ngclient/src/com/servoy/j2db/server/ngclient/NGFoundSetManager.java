@@ -71,7 +71,13 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 			{
 				foundset.setSort(sort);
 			}
-
+			while (true)
+			{
+				int size = foundset.getSize();
+				foundset.getRecord(size);
+				if (size == foundset.getSize())
+					break;
+			}
 			FoundsetTypeSabloValue value = getFoundsetTypeSabloValue(foundset, args.optJSONObject("dataproviders"));
 
 			ChangeAwareList<ChangeAwareMap<String, Object>, Object> foundsets = (ChangeAwareList<ChangeAwareMap<String, Object>, Object>)((NGClient)getApplication())
