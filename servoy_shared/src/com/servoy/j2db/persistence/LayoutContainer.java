@@ -93,6 +93,7 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 	public void setLocation(java.awt.Point arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_LOCATION, arg);
+		((ISupportInheritedChildren)getRealParent()).updateLocation(uuid);
 	}
 
 	public java.awt.Point getLocation()

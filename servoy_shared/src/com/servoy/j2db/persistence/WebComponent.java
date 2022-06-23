@@ -430,6 +430,13 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	}
 
 	@Override
+	public void setLocation(Point point)
+	{
+		super.setLocation(point);
+		((ISupportInheritedChildren)getRealParent()).updateLocation(uuid);
+	}
+
+	@Override
 	public String toString()
 	{
 		return getClass().getSimpleName() + " -> " + webObjectImpl.toString(); //$NON-NLS-1$

@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.persistence;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -125,6 +127,31 @@ public interface ISupportInheritedChildren extends ISupportChilds, ISupportExten
 
 		IPersist toRemove = superPersist != null ? superPersist : persist;
 		getListeners().ifPresent(listeners -> listeners.forEach(l -> l.removeUUID(toRemove)));
+	}
+
+	default void updateLocation(UUID uuid)
+	{
+		if (getExtendsID() < 0) return;
+		CopyOnWriteArrayList<String> uuids = getSortedChildren();
+		if (uuids != null && uuids.contains(uuid.toString()))
+		{
+			List<IPersist> all = PersistHelper.getHierarchyChildren(this);
+			Collections.sort(all, PositionComparator.XY_PERSIST_COMPARATOR);
+			List<String> currentUUIDS = all.stream().map(p -> p.getUUID().toString()).collect(Collectors.toList());
+			int newLocation = currentUUIDS.indexOf(uuid.toString());
+			if (newLocation < 0 || newLocation >= uuids.size())
+			{
+				//TODO log?
+				return;
+			}
+			int oldIndex = uuids.indexOf(uuid.toString());
+			if (oldIndex > 0 && oldIndex < newLocation)
+			{
+				newLocation -= 1;
+			}
+			uuids.remove(uuid.toString());
+			uuids.add(newLocation, uuid.toString());
+		}
 	}
 
 	default CopyOnWriteArrayList<String> getSortedChildren()

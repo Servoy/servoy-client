@@ -39,6 +39,7 @@ import com.servoy.eclipse.model.DeveloperPersistIndex;
 import com.servoy.eclipse.ui.property.PersistContext;
 import com.servoy.eclipse.ui.util.ElementUtil;
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.LayoutContainer;
@@ -308,62 +309,110 @@ public class Inheritance_UUIDSList_Test extends AbstractSolutionTest
 	public void testReorderingTopContainers() throws JSONException, RepositoryException
 	{
 		FlattenedSolution fs = client.getFlattenedSolution();
-		Form child = fs.getFlattenedForm(fs.getForm("child"));
+		Form child = fs.getForm("child");
+		FlattenedForm flattened_child = (FlattenedForm)fs.getFlattenedForm(child);
 		Form parent = fs.getFlattenedForm(fs.getForm("parent"));
-		Assert.assertNotNull(child.getLayoutContainers());
+		Assert.assertNotNull(flattened_child.getLayoutContainers());
 		Assert.assertFalse(parent.getListeners().isPresent());
-		LayoutContainer row = (child.getLayoutContainers().next());//.getWrappedPersist();
+		LayoutContainer row = (flattened_child.getLayoutContainers().next());
 
 		//add new row after the existing one
 		LayoutContainer row_2 = child.createNewLayoutContainer();
+		row_2.setLocation(new Point(20, 20));
 		child.addChild(row_2);
-
-		List<String> containers = PersistHelper.getSortedChildren(child, child, fs);
+		flattened_child.reload();
+		List<String> containers = PersistHelper.getSortedChildren(flattened_child, child, fs);
 		assertEquals(2, containers.size());
 		assertEquals(row.getUUID().toString(), containers.get(0));
 		assertEquals(row_2.getUUID().toString(), containers.get(1));
-		assertNull("nothing is overridden yet, should not have uuids", child.getSortedChildren());
-		assertFalse("nothing is overridden, should not listen", child.getListeners().isPresent());
+		assertNull("nothing is overridden yet, should not have uuids", flattened_child.getSortedChildren());
+		assertFalse("nothing is overridden, should not listen", flattened_child.getListeners().isPresent());
 
-		assertEquals(2, child.getAllObjectsAsList().size());
-		//assertEquals(1, fs.getForm("child").getAllObjectsAsList().size());
+		assertEquals(2, flattened_child.getAllObjectsAsList().size());
+		assertEquals(1, child.getAllObjectsAsList().size());
 		//add row before (need to override row from the parent)
-		//assertEquals(2, ((LayoutContainer)child.getAllObjectsAsList().get(0)).getLocation().x);
-		LayoutContainer row_ = (LayoutContainer)ElementUtil.getOverridePersist(PersistContext.create(row, fs.getForm("child")), fs);
-		assertEquals(2, child.getAllObjectsAsList().size());
+		assertEquals(20, ((LayoutContainer)child.getAllObjectsAsList().get(0)).getLocation().x);
+		LayoutContainer row_ = (LayoutContainer)ElementUtil.getOverridePersist(PersistContext.create(row, child), fs);
+
+		CopyOnWriteArrayList<String> sortedChildren = flattened_child.getSortedChildren();
+		assertEquals(2, flattened_child.getAllObjectsAsList().size());
+		assertNull("parent should not have uuids list", parent.getSortedChildren());
 		row_.setLocation(new Point(20, 20));//override the row of the parent because we need to change the location property
 		row_2.setLocation(new Point(30, 30));
 		LayoutContainer row_0 = child.createNewLayoutContainer();
 		row_0.setLocation(new Point(11, 11));
 		child.addChild(row_0);
-		assertEquals(3, child.getAllObjectsAsList().size());
+		flattened_child.reload();
 
-		CopyOnWriteArrayList<String> sortedChildren = child.getSortedChildren();
+		assertEquals(3, flattened_child.getAllObjectsAsList().size());
+		assertEquals("should contain the overriden and its own children", 3, child.getAllObjectsAsList().size());
+		assertEquals(3, child.getSortedChildren().size());
+
+		sortedChildren = flattened_child.getSortedChildren();
 		assertNotNull(sortedChildren);
 		assertTrue(parent.getListeners().isPresent());
-		assertTrue(parent.getListeners().get().contains(fs.getForm("child")));
+		assertTrue(parent.getListeners().get().contains(child));
 		assertTrue(row.getListeners().isPresent());
 		assertTrue(row.getListeners().get().contains(row_));
 
-		System.out.println(row_0.getUUID());
-		System.out.println(row_.getUUID());
-		System.out.println(row_2.getUUID());
-		assertEquals(3, child.getAllObjectsAsList().size());
+		assertEquals(3, flattened_child.getAllObjectsAsList().size());
 		assertEquals(3, sortedChildren.size());
-		assertTrue(child.getAllObjectsAsList().contains(row));
-		assertEquals(row, child.getAllObjectsAsList().get(0));
-//		assertTrue(sortedChildren.contains(row_.getUUID().toString()));
-//		assertTrue(sortedChildren.contains(row_0.getUUID().toString()));
-//		assertTrue(sortedChildren.contains(row_2.getUUID().toString()));
-//		assertFalse(sortedChildren.contains(row.getUUID().toString()));
-//		assertEquals(row_0.getUUID().toString(), sortedChildren.get(0));
-//		assertEquals(row_.getUUID().toString(), sortedChildren.get(1));
-//		assertEquals(row_2.getUUID().toString(), sortedChildren.get(2));
-
+		assertTrue(sortedChildren.contains(row_.getUUID().toString()));
+		assertTrue(sortedChildren.contains(row_0.getUUID().toString()));
+		assertTrue(sortedChildren.contains(row_2.getUUID().toString()));
+		assertFalse(sortedChildren.contains(row.getUUID().toString()));
+		assertEquals(row_0.getUUID().toString(), sortedChildren.get(0));
+		assertEquals(row_.getUUID().toString(), sortedChildren.get(1));
+		assertEquals(row_2.getUUID().toString(), sortedChildren.get(2));
 	}
 
 	//TODO test for listeners (e.g. overriden is listener instead of parent, removed is not listener)
 	//TODO test remove own, overridden (remove of inherited as is from the parent should not be allowed)
 
-	//TODO test 3 forms hierarchy
+	@Test
+	public void test3FormsHierarchy() throws JSONException, RepositoryException
+	{
+		FlattenedSolution fs = client.getFlattenedSolution();
+		Form child = fs.getFlattenedForm(fs.getForm("child"));
+
+		Form child2 = solution.createNewForm(validator, null, "child2", null, false, null);
+		child2.setResponsiveLayout(true);
+		child2.setExtendsID(child.getID());
+
+		FlattenedForm flattened_child2 = (FlattenedForm)fs.getFlattenedForm(child2);
+		assertNotNull(flattened_child2.getLayoutContainers());
+		assertFalse(child.getListeners().isPresent());
+
+		Form parent = fs.getFlattenedForm(fs.getForm("parent"));
+		assertFalse(parent.getListeners().isPresent());
+		LayoutContainer row = flattened_child2.getLayoutContainers().next();
+
+		LayoutContainer row_2 = child2.createNewLayoutContainer();
+		row_2.setLocation(new Point(20, 20));
+		child2.addChild(row_2);
+		flattened_child2.reload();
+		List<String> containers = PersistHelper.getSortedChildren(flattened_child2, child2, fs);
+		assertEquals(2, containers.size());
+		assertEquals(row.getUUID().toString(), containers.get(0));
+		assertEquals(row_2.getUUID().toString(), containers.get(1));
+		assertNull("nothing is overridden yet, should not have uuids", flattened_child2.getSortedChildren());
+		assertFalse("nothing is overridden, should not listen", flattened_child2.getListeners().isPresent());
+		assertFalse(parent.getListeners().isPresent());
+		assertFalse(child.getListeners().isPresent());
+
+		LayoutContainer row_ = (LayoutContainer)ElementUtil.getOverridePersist(PersistContext.create(row, child2), fs);
+
+		assertEquals(2, flattened_child2.getAllObjectsAsList().size());
+		row_.setLocation(new Point(20, 20));
+		row_2.setLocation(new Point(30, 30));
+		LayoutContainer row_0 = child2.createNewLayoutContainer();
+		row_0.setLocation(new Point(11, 11));
+		child2.addChild(row_0);
+		flattened_child2.reload();
+		//assertTrue(parent.getListeners().isPresent());
+		assertTrue(child.getListeners().isPresent());
+		assertEquals(3, flattened_child2.getAllObjectsAsList().size());
+		assertNotNull(child2.getSortedChildren());
+		assertEquals(3, child2.getSortedChildren().size());
+	}
 }

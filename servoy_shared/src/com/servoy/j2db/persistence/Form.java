@@ -2324,8 +2324,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	@Override
 	public void addChild(IPersist obj)
 	{
-		internalAddChild(obj);
-		afterChildWasAdded(obj);
+		super.addChild(obj);
 		if (isResponsiveLayout() && getExtendsID() > 0 && obj instanceof ISupportExtendsID && equals(((ISupportExtendsID)obj).getRealParent())) //TODO check if this is the real parent
 		{
 			insertBeforeUUID(obj.getUUID(), null);

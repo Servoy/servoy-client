@@ -1058,48 +1058,51 @@ public class PersistHelper
 		return overrideHierarchy;
 	}
 
-	public static List<IPersist> getHierarchyChildren(AbstractBase parent)
+	public static List<IPersist> getHierarchyChildren(IPersist parent)
 	{
-		if (parent instanceof ISupportExtendsID)
+		if (parent instanceof AbstractBase)
 		{
-			List<IPersist> children = new ArrayList<IPersist>();
-			List<AbstractBase> parentHierarchy = new ArrayList<AbstractBase>();
-			List<Integer> existingIDs = new ArrayList<Integer>();
-			AbstractBase element = parent;
-			while (element != null && !parentHierarchy.contains(element))
+			if (parent instanceof ISupportExtendsID)
 			{
-				parentHierarchy.add(element);
-				element = (AbstractBase)PersistHelper.getSuperPersist((ISupportExtendsID)element);
-			}
-			for (AbstractBase temp : parentHierarchy)
-			{
-				for (IPersist child : temp.getAllObjectsAsList())
+				List<IPersist> children = new ArrayList<IPersist>();
+				List<AbstractBase> parentHierarchy = new ArrayList<AbstractBase>();
+				List<Integer> existingIDs = new ArrayList<Integer>();
+				AbstractBase element = (AbstractBase)parent;
+				while (element != null && !parentHierarchy.contains(element))
 				{
-					if (!(child instanceof ISupportExtendsID)) continue;
-					Integer extendsID = new Integer(((ISupportExtendsID)child).getExtendsID());
-					if (!existingIDs.contains(new Integer(child.getID())) && !existingIDs.contains(extendsID))
+					parentHierarchy.add(element);
+					element = (AbstractBase)PersistHelper.getSuperPersist((ISupportExtendsID)element);
+				}
+				for (AbstractBase temp : parentHierarchy)
+				{
+					for (IPersist child : temp.getAllObjectsAsList())
 					{
-						if (PersistHelper.isOverrideOrphanElement((ISupportExtendsID)child))
+						if (!(child instanceof ISupportExtendsID)) continue;
+						Integer extendsID = new Integer(((ISupportExtendsID)child).getExtendsID());
+						if (!existingIDs.contains(new Integer(child.getID())) && !existingIDs.contains(extendsID))
 						{
-							// some deleted element
-							continue;
+							if (PersistHelper.isOverrideOrphanElement((ISupportExtendsID)child))
+							{
+								// some deleted element
+								continue;
+							}
+							existingIDs.add(child.getID());
+							children.add(child);
 						}
-						existingIDs.add(child.getID());
-						children.add(child);
-					}
-					if (extendsID.intValue() > 0 && !existingIDs.contains(extendsID))
-					{
-						existingIDs.add(extendsID);
+						if (extendsID.intValue() > 0 && !existingIDs.contains(extendsID))
+						{
+							existingIDs.add(extendsID);
+						}
 					}
 				}
+				return children;
 			}
-			return children;
+			else
+			{
+				return ((AbstractBase)parent).getAllObjectsAsList();
+			}
 		}
-		else
-		{
-			return parent.getAllObjectsAsList();
-		}
-
+		return null;
 	}
 
 	/**
@@ -1206,25 +1209,14 @@ public class PersistHelper
 
 	public static CopyOnWriteArrayList<String> setupChildrenUUIDS(ISupportChilds persist, Form form, FlattenedSolution fs)
 	{
-		CopyOnWriteArrayList<String> uuids = new CopyOnWriteArrayList<>();
 		ISupportChilds parent = PersistHelper.getFlattenedPersist(fs, form, persist);
-		Iterator<IPersist> it = parent.getAllObjects();
-		while (it.hasNext())
-		{
-			IPersist next = it.next();
-			if (next instanceof IFlattenedPersistWrapper< ? >)
-			{
-				next = ((IFlattenedPersistWrapper< ? >)next).getWrappedPersist();
-			}
-			uuids.add(next.getUUID().toString());
-		}
+		CopyOnWriteArrayList<String> uuids = getSortedChildren(parent, form, fs);
 		//TODO should the *CustomProperty methods be part of some interface?
-		System.out.println(parent.getUUID() + " Setup uuids  " + uuids);//TODO rem
 		((AbstractBase)parent).putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_CHILDREN_UUIDS }, uuids);
 		return uuids;
 	}
 
-	public static List<String> getSortedChildren(ISupportChilds parent, Form form, FlattenedSolution fs)
+	public static CopyOnWriteArrayList<String> getSortedChildren(ISupportChilds parent, Form form, FlattenedSolution fs)
 	{
 		try
 		{
@@ -1246,7 +1238,7 @@ public class PersistHelper
 				}
 				Collections.sort(children, PositionComparator.XY_PERSIST_COMPARATOR);
 
-				return children.stream().map(p -> p.getUUID().toString()).collect(Collectors.toList());
+				return children.stream().map(p -> p.getUUID().toString()).collect(Collectors.toCollection(CopyOnWriteArrayList::new));
 			}
 		}
 		catch (Exception ex)
