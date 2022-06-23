@@ -374,11 +374,11 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templateaddtodo
 	 * @templatecode
 	 *
-	 * var not_valid = false;
+	 * var valid = true;
 	 * // test if it is valid.
 	 *
 	 * // throw exception to pass info to handler, will be returned in record.exception.getValue() when record.exception is a DataException
-	 * if (not_valid) throw 'cannot delete'
+	 * if (!valid) throw 'cannot delete'
 	 *
 	 * // return boolean to indicate success
 	 * return true
