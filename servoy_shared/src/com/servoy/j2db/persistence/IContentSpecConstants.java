@@ -175,6 +175,7 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_DATAPROVIDERID2 = "dataProviderID2";
 	public static final String PROPERTY_DATAPROVIDERID3 = "dataProviderID3";
 	public static final String PROPERTY_DATAPROVIDERIDTOAGGREGATE = "dataProviderIDToAggregate";
+	public static final String PROPERTY_AGGREGATE_QUANTIFIER = "aggregateQuantifier";
 	public static final String PROPERTY_DECLARATION = "declaration";
 	public static final String PROPERTY_DEFAULTPAGEFORMAT = "defaultPageFormat";
 	public static final String PROPERTY_DEFAULTVALUE = "defaultValue";

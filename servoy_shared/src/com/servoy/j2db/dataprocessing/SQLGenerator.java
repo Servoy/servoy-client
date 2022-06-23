@@ -294,13 +294,13 @@ public class SQLGenerator
 				}
 			}
 
-			addSorts(retval, retval.getTable(), provider, table, orderBy, true, false /* joins added for sorting ans not permanent */);
+			addSorts(retval, retval.getTable(), provider, table, orderBy, true, false /* joins added for sorting are not permanent */);
 		} // else use ordering defined in query
 
 		if (removeUnusedJoins)
 		{
 			// remove unneeded joins, some may have been added because of a previous sort and are no longer needed.
-			retval.removeUnusedJoins(false);
+			retval.removeUnusedJoins(false, true);
 		}
 
 		//1 do not remove sort or groupby test, will cause invalid queries
@@ -386,8 +386,10 @@ public class SQLGenerator
 				else if (column instanceof AggregateVariable)
 				{
 					AggregateVariable aggregate = (AggregateVariable)column;
-					queryColumn = new QueryAggregate(aggregate.getType(), new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(),
-						aggregate.getDataProviderType(), aggregate.getLength(), 0, null, aggregate.getFlags()), aggregate.getName());
+					queryColumn = new QueryAggregate(aggregate.getType(), aggregate.getAggregateQuantifier(),
+						new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(),
+							aggregate.getDataProviderType(), aggregate.getLength(), 0, null, aggregate.getFlags()),
+						aggregate.getName(), null, false);
 
 					// there has to be a group-by clause for all selected fields
 					List<IQuerySelectValue> columns = sqlSelect.getColumns();
@@ -401,8 +403,9 @@ public class SQLGenerator
 					}
 
 					// if the aggregate has not been selected yet, add it and skip it in the result
-					QueryAggregate skippedAggregate = new QueryAggregate(aggregate.getType(), QueryAggregate.ALL, new QueryColumn(foreignQtable, -1,
-						aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength(), 0, null, aggregate.getFlags()),
+					QueryAggregate skippedAggregate = new QueryAggregate(aggregate.getType(), aggregate.getAggregateQuantifier(),
+						new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength(), 0,
+							null, aggregate.getFlags()),
 						aggregate.getName(), null, true);
 					if (!columns.contains(skippedAggregate))
 					{
@@ -1035,7 +1038,7 @@ public class SQLGenerator
 		return null;
 	}
 
-	private void createAggregates(SQLSheet sheet, QueryTable queryTable) throws RepositoryException
+	private void createAggregates(SQLSheet sheet, QueryTable queryTable)
 	{
 		Table table = sheet.getTable();
 		Iterator<AggregateVariable> it = application.getFlattenedSolution().getAggregateVariables(table, false);
@@ -1043,8 +1046,10 @@ public class SQLGenerator
 		{
 			AggregateVariable aggregate = it.next();
 			QuerySelect sql = new QuerySelect(queryTable);
-			sql.addColumn(new QueryAggregate(aggregate.getType(), new QueryColumn(queryTable, -1, aggregate.getColumnNameToAggregate(),
-				aggregate.getDataProviderType(), aggregate.getLength(), 0, null, aggregate.getFlags()), aggregate.getName()));
+			sql.addColumn(new QueryAggregate(aggregate.getType(), aggregate.getAggregateQuantifier(),
+				new QueryColumn(queryTable, -1, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength(), 0, null,
+					aggregate.getFlags()),
+				aggregate.getName(), null, false));
 			sheet.addAggregate(aggregate.getDataProviderID(), aggregate.getDataProviderIDToAggregate(), sql);
 		}
 	}
@@ -1246,20 +1251,22 @@ public class SQLGenerator
 			// column = ? construct
 			IQuerySelectValue key = foreign[x].queryColumn(foreignTable);
 
-			// When we have a text and non-text column we can cast the non-text column to string
-			int primaryType = primary[x].getDataProviderType();
-			int foreignType = mapToDefaultType(key.getColumn().getColumnType());
-			if (!"uuid".equalsIgnoreCase(key.getColumn().getNativeTypename()) && foreignType == IColumnTypes.TEXT && primaryType != IColumnTypes.TEXT &&
-				primaryType != 0)
+			if ((key.getColumn().getFlags() & UUID_COLUMN) == 0)
 			{
-				// key is text, value is non-text, cast the value to text when we supply it
-				operator |= IBaseSQLCondition.CAST_TO_MODIFIER;
-			}
-			else if (primaryType == IColumnTypes.TEXT && foreignType != IColumnTypes.TEXT)
-			{
-				// value is text, key is non-text, cast the key to text
-				key = new QueryFunction(cast,
-					new IQuerySelectValue[] { key, new QueryColumnValue(IQueryConstants.TYPE_STRING, null, true) }, null);
+				// When we have a text and non-text column we can cast the non-text column to string
+				int primaryType = primary[x].getDataProviderType();
+				int foreignType = mapToDefaultType(key.getColumn().getColumnType());
+				if (foreignType == IColumnTypes.TEXT && primaryType != IColumnTypes.TEXT && primaryType != 0)
+				{
+					// key is text, value is non-text, cast the value to text when we supply it
+					operator |= IBaseSQLCondition.CAST_TO_MODIFIER;
+				}
+				else if (primaryType == IColumnTypes.TEXT && foreignType != IColumnTypes.TEXT)
+				{
+					// value is text, key is non-text, cast the key to text
+					key = new QueryFunction(cast,
+						new IQuerySelectValue[] { key, new QueryColumnValue(IQueryConstants.TYPE_STRING, null, true) }, null);
+				}
 			}
 
 			keys[x] = key;
@@ -1553,7 +1560,6 @@ public class SQLGenerator
 				: column.queryColumn(select.getTable()),
 			"maxval")); //$NON-NLS-1$
 		return select;
-
 	}
 
 	public static QuerySelect createAggregateSelect(QuerySelect sqlSelect, Collection<QuerySelect> aggregates, List<Column> pkColumns)
@@ -1562,7 +1568,7 @@ public class SQLGenerator
 		selectClone.clearSorts();
 		selectClone.setDistinct(false);
 		selectClone.setColumns(null);
-		selectClone.removeUnusedJoins(true);
+		selectClone.removeUnusedJoins(true, true);
 
 		QuerySelect aggregateSqlSelect;
 

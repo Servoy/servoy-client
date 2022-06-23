@@ -556,7 +556,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		selectCount.clearSorts();
 
 		// remove unused joins
-		selectCount.removeUnusedJoins(true);
+		selectCount.removeUnusedJoins(true, true);
 
 		IQuerySelectValue agregee;
 		int aggregateQuantifier;
@@ -588,7 +588,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	/**
 	 * Remove joins that whose foreign table is not referred to in this query.
 	 */
-	public void removeUnusedJoins(boolean keepInnerjoins)
+	public void removeUnusedJoins(boolean keepInnerjoins, boolean keepPermanent)
 	{
 		boolean updated = true;
 		while (joins != null && updated)
@@ -598,7 +598,9 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 			for (int i = 0; i < njoins && !updated; i++)
 			{
 				ISQLJoin join = joins.get(i);
-				if (!(join instanceof ISQLTableJoin) || (keepInnerjoins && ((ISQLTableJoin)join).hasInnerJoin()) || ((ISQLTableJoin)join).isPermanent())
+				if (!(join instanceof ISQLTableJoin) ||
+					(keepInnerjoins && ((ISQLTableJoin)join).hasInnerJoin()) ||
+					(keepPermanent && ((ISQLTableJoin)join).isPermanent()))
 				{
 					// count may depend on related records or is marked as permanent
 					continue;

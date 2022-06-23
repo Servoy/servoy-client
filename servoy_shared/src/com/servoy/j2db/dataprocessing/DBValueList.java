@@ -60,6 +60,8 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 	protected boolean containsCalculation = false;
 	protected boolean registered = false;
 
+	protected boolean fullyLoadedLogged = false;
+
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
@@ -299,15 +301,19 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 					{
 						if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.client.report.max.valuelist.items", "true")))
 						{
-							if (application instanceof IApplication)
+							if (!fullyLoadedLogged)
 							{
-								((IApplication)application).reportJSWarning(
-									"Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!");
-							}
-							else
-							{
-								application.reportJSError(
-									"Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!", null);
+								if (application instanceof IApplication)
+								{
+									((IApplication)application).reportJSWarning(
+										"Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!");
+								}
+								else
+								{
+									application.reportJSError(
+										"Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!", null);
+								}
+								fullyLoadedLogged = true;
 							}
 						}
 					}
@@ -351,15 +357,19 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 					{
 						if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.client.report.max.valuelist.items", "true")))
 						{
-							if (application instanceof IApplication)
+							if (!fullyLoadedLogged)
 							{
-								((IApplication)application).reportJSWarning(
-									"Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!");
-							}
-							else
-							{
-								application.reportJSError(
-									"Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!", null);
+								if (application instanceof IApplication)
+								{
+									((IApplication)application).reportJSWarning(
+										"Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!");
+								}
+								else
+								{
+									application.reportJSError(
+										"Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!", null);
+								}
+								fullyLoadedLogged = true;
 							}
 						}
 					}

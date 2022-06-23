@@ -23,6 +23,7 @@ import java.util.HashMap;
 
 import org.json.JSONObject;
 
+import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.util.ServoyJSONObject;
 
 
@@ -227,6 +228,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 	public static final TypedProperty<String> PROPERTY_DATAPROVIDERID = new TypedProperty<String>(IContentSpecConstants.PROPERTY_DATAPROVIDERID);
 	public static final TypedProperty<String> PROPERTY_DATAPROVIDERIDTOAGGREGATE = new TypedProperty<String>(
 		IContentSpecConstants.PROPERTY_DATAPROVIDERIDTOAGGREGATE);
+	public static final TypedProperty<Integer> PROPERTY_AGGREGATE_QUANTIFIER = new TypedProperty<>(IContentSpecConstants.PROPERTY_AGGREGATE_QUANTIFIER);
 	public static final TypedProperty<String> PROPERTY_DATASOURCE = new TypedProperty<String>(IContentSpecConstants.PROPERTY_DATASOURCE);
 	public static final TypedProperty<String> PROPERTY_DECLARATION = new TypedProperty<String>(IContentSpecConstants.PROPERTY_DECLARATION);
 	public static final TypedProperty<String> PROPERTY_DEFAULTPAGEFORMAT = new TypedProperty<String>(IContentSpecConstants.PROPERTY_DEFAULTPAGEFORMAT);
@@ -951,6 +953,11 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(461, IRepository.VALUELISTS, PROPERTY_COMMENT.getPropertyName(), IRepository.STRING);
 
 			cs.new Element(462, IRepository.TABLENODES, PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID.getPropertyName(), IRepository.ELEMENTS);
+		}
+		if (old_repository_version < 56)
+		{
+			//2022.09 properties here
+			cs.new Element(463, IRepository.AGGREGATEVARIABLES, PROPERTY_AGGREGATE_QUANTIFIER.getPropertyName(), IRepository.INTEGER, QueryAggregate.ALL);
 		}
 
 		//##add property adds here

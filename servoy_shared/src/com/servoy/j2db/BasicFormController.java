@@ -22,7 +22,6 @@ import java.awt.Rectangle;
 import java.awt.print.PageFormat;
 import java.awt.print.PrinterJob;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -89,6 +88,7 @@ import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.ITwoNativeJavaObject;
 import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.scripting.JSMap;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.ScriptEngine;
@@ -2463,7 +2463,8 @@ public abstract class BasicFormController
 	public Map<String, Object> getDesignProperties()
 	{
 		Map<String, Object> designProperties = ((AbstractBase)getForm()).getMergedCustomDesignTimeProperties();
-		Map<String, Object> parsedMap = new HashMap<String, Object>();
+		Map<String, Object> parsedMap = new JSMap<>();
+
 		designProperties.entrySet().forEach(entry -> {
 			parsedMap.put(entry.getKey(), Utils.parseJSExpression(entry.getValue()));
 		});

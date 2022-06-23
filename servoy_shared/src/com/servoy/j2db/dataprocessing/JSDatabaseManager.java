@@ -2303,7 +2303,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			// get the sql without any filters
 			sqlSelect = AbstractBaseQuery.deepClone(sqlSelect);
 			sqlSelect.clearCondition(SQLGenerator.CONDITION_FILTER);
-			sqlSelect.removeUnusedJoins(false);
+			sqlSelect.removeUnusedJoins(false, true);
 			tableFilterParams = null;
 		}
 		return application.getDataServer().getSQLQuerySet(serverName, sqlSelect, tableFilterParams, 0, -1, true, true);

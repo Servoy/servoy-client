@@ -182,6 +182,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 							Object propertyValue = fe.getPropertyValue(pd.getName());
 							Form frm = FormComponentPropertyType.INSTANCE.getForm(propertyValue, context.getSolution());
 							if (frm == null) continue;
+							frm = context.getSolution().getFlattenedForm(frm);
 							isResponsive = frm.isResponsiveLayout();
 							// listformcomponents that are responsive must be also send over here (the components are also send over in the FormComponentSabloValue)
 							// this will result in duplicate component data, but we need the structure (and the component names in the right place)

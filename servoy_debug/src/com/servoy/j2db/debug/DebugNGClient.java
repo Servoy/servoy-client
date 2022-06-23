@@ -510,7 +510,9 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	{
 		if (Boolean.valueOf(settings.getProperty(Settings.DISABLE_SERVER_LOG_FORWARDING_TO_DEBUG_CLIENT_CONSOLE, "false")).booleanValue())
 		{
-			invokeLater(() -> DebugUtils.errorToDebugger(getScriptEngine(), message, detail));
+			Runnable runable = () -> DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
+			if (isEventDispatchThread()) runable.run();
+			else invokeLater(runable);
 		}
 	}
 
@@ -519,11 +521,15 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	{
 		if (!errorLevel)
 		{
-			invokeLater(() -> DebugUtils.stdoutToDebugger(getScriptEngine(), messsage));
+			Runnable runable = () -> DebugUtils.stdoutToDebugger(getScriptEngine(), messsage);
+			if (isEventDispatchThread()) runable.run();
+			else invokeLater(runable);
 		}
 		else
 		{
-			invokeLater(() -> DebugUtils.stderrToDebugger(getScriptEngine(), messsage));
+			Runnable runable = () -> DebugUtils.stderrToDebugger(getScriptEngine(), messsage);
+			if (isEventDispatchThread()) runable.run();
+			else invokeLater(runable);
 		}
 	}
 }

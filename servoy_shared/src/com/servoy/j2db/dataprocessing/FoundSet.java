@@ -2008,24 +2008,31 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Get the query that the foundset is currently using (as a clone; modifying this QBSelect will not automatically change the foundset).
-	 * When the founset is in find mode, the find conditions are included in the resulting query.
+	 * When the foundset is in find mode, the find conditions are included in the resulting query.
 	 * So the query that would be used when just calling search() (or search(true,true)) is returned.
-	 * Note that foundset filters are included and table filters are not included in the query.
+	 * Note that foundset filters are optionally included and table filters are not included in the query.
 	 *
 	 * @sample
 	 * var q = foundset.getQuery()
 	 * q.where.add(q.columns.x.eq(100))
 	 * foundset.loadRecords(q);
 	 *
+	 * @param includeFilters include the foundset filters, default true.
+	 *
 	 * @return query.
 	 */
 	@JSFunction
-	public QBSelect getQuery()
+	public QBSelect getQuery(boolean includeFilters)
 	{
 		QuerySelect query;
 		try
 		{
 			query = getCurrentStateQuery(true, true);
+			if (!includeFilters)
+			{
+				query.clearCondition(SQLGenerator.CONDITION_FILTER);
+				removeFilterJoins(query, foundSetFilters);
+			}
 		}
 		catch (ServoyException e)
 		{
@@ -2034,6 +2041,18 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		return new QBSelect(getFoundSetManager(), getFoundSetManager().getScopesScopeProvider(), getFoundSetManager().getApplication().getFlattenedSolution(),
 			getFoundSetManager().getApplication().getScriptEngine().getSolutionScope(), getDataSource(), null, query);
+	}
+
+	/**
+	 * @clonedesc getQuery(boolean)
+	 * @sampleas getQuery(boolean)
+	 *
+	 * @return query.
+	 */
+	@JSFunction
+	public QBSelect getQuery()
+	{
+		return getQuery(true);
 	}
 
 	/**

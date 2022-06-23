@@ -205,6 +205,7 @@ public class SolutionModelPersistIndex extends PersistIndex implements ISolution
 		{
 			supportScope = index.getSupportScope(scopeName, baseName);
 		}
+		if (supportScope != null && isRemoved(supportScope)) return null;
 		return supportScope;
 	}
 
