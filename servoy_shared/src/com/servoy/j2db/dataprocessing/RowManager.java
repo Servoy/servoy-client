@@ -204,7 +204,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			for (Object val : pk)
 			{
 				String str = valueHash(val);
-				sb.append(str.length());
+				if (str != null) sb.append(str.length());
 				sb.append('.');
 				sb.append(str);
 				sb.append(';');
@@ -253,10 +253,10 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		}
 		if (val instanceof Object[])
 		{
-			return "[" + stream((Object[])val).map(el -> valueHash(el)).sorted().collect(joining(",")) + "]";
+			return "[" + stream((Object[])val).map(el -> String.valueOf(valueHash(el))).sorted().collect(joining(",")) + "]";
 		}
 
-		return Utils.convertToString(val);
+		return val == null ? null : Utils.convertToString(val);
 	}
 
 	/**
