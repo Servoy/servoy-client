@@ -1241,7 +1241,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 						newFormController.loadData(foundSet, null);
 
 						List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-						newFormController.notifyVisible(true, invokeLaterRunnables);
+						newFormController.notifyVisible(true, invokeLaterRunnables, true);
 						Utils.invokeLater(this, invokeLaterRunnables);
 					}
 				}
@@ -1253,7 +1253,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 					{
 						navigator.loadData(foundSet, null);
 						List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-						navigator.notifyVisible(true, invokeLaterRunnables);
+						navigator.notifyVisible(true, invokeLaterRunnables, true);
 						Utils.invokeLater(this, invokeLaterRunnables);
 					}
 					mainPanel.setNavigator(navigator);

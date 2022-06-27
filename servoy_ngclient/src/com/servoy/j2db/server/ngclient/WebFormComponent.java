@@ -152,7 +152,7 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 		{
 			IWebFormController fc = webUI.getController();
 			childFormsThatWereNotified.add(fc);
-			retValue = retValue && fc.notifyVisible(visible, invokeLaterRunnables);
+			retValue = retValue && fc.notifyVisible(visible, invokeLaterRunnables, false);
 		}
 
 		if (!visible && retValue)
@@ -160,6 +160,18 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 			visibleForms.clear();
 		}
 		return retValue;
+	}
+
+	/**
+	 * @return
+	 */
+	public boolean executeOnBeforeHide()
+	{
+		for (IWebFormUI webUI : visibleForms.keySet())
+		{
+			if (!webUI.getController().executeOnBeforeHide()) return false;
+		}
+		return true;
 	}
 
 	public int getFormIndex(IWebFormUI form)
@@ -439,4 +451,5 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	{
 		return MARKUP_PROPERTY_ID.equals(property) || super.isVisible(property);
 	}
+
 }

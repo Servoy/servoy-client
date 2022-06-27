@@ -500,7 +500,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 				if (fp != null && !sameForm)
 				{
 					List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-					boolean ok = fp.notifyVisible(false, invokeLaterRunnables);
+					boolean ok = fp.notifyVisible(false, invokeLaterRunnables, true);
 					if (invokeLaterRunnables.size() > 0) wrapInShowLoadingIndicator(invokeLaterRunnables);
 					Utils.invokeLater(application, invokeLaterRunnables);
 
@@ -533,7 +533,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 
 				//show panel as main
 				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-				fp.notifyVisible(true, invokeLaterRunnables);
+				fp.notifyVisible(true, invokeLaterRunnables, true);
 
 				String titleText = title;
 				if (titleText == null) titleText = f.getTitleText();

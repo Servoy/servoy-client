@@ -271,7 +271,7 @@ public class WebFormManager extends FormManager
 								if (navigator != null)
 								{
 									List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-									navigator.notifyVisible(true, invokeLaterRunnables);
+									navigator.notifyVisible(true, invokeLaterRunnables, true);
 									Utils.invokeLater(getApplication(), invokeLaterRunnables);
 									parent.setNavigator(navigator);
 									//parent.triggerBrowserRequestIfNeeded(); // FIXME: this is needed here but currently does nothing because the request target is not yet set

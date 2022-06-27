@@ -379,6 +379,7 @@ public class FormWrapper
 		properties.remove(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID.getPropertyName());
 		properties.remove(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSLOSTMETHODID.getPropertyName());
 		properties.remove(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID.getPropertyName());
 		properties.remove(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID.getPropertyName());
 		properties.remove(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID.getPropertyName());
 		properties.remove(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID.getPropertyName());

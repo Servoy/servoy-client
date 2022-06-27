@@ -121,7 +121,7 @@ public class ServoyApiObject
 		if (formController != null)
 		{
 			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-			boolean ret = formController.notifyVisible(false, invokeLaterRunnables);
+			boolean ret = formController.notifyVisible(false, invokeLaterRunnables, true);
 			if (ret)
 			{
 				formController.setParentFormController(null);

@@ -326,8 +326,7 @@ public abstract class BasicFormController
 		}
 	}
 
-	//this method first overloaded setVisible but setVisible is not always called and had differences between jdks
-	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables)
+	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables, boolean executeOnBeforeHide)
 	{
 		if (isFormVisible == visible || executingOnLoad) return true;
 		if (formModel == null)
@@ -397,11 +396,18 @@ public abstract class BasicFormController
 		else
 		{
 			int stopped = application.getFoundSetManager().getEditRecordList().stopIfEditing(formModel);
-			isFormVisible = false;
 			boolean allowHide = stopped == ISaveConstants.STOPPED || stopped == ISaveConstants.AUTO_SAVE_BLOCKED;
-			if (allowHide && didOnShowCall)
+			if (allowHide)
 			{
-				allowHide = executeOnHideMethod();
+				allowHide = !executeOnBeforeHide || executeOnBeforeHide();
+				if (allowHide)
+				{
+					isFormVisible = false;
+					if (allowHide && didOnShowCall)
+					{
+						allowHide = executeOnHideMethod();
+					}
+				}
 			}
 			else if (!allowHide)
 			{
@@ -665,6 +671,19 @@ public abstract class BasicFormController
 			didOnShowOnce = true;
 			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID, args, null, true, true);
 		}
+	}
+
+
+	/**
+	 * onBeforeHide will be called throughout the full hiearchy, children first. if any returns false then it will be stopped right away
+	 */
+	public boolean executeOnBeforeHide()
+	{
+		boolean canHide = getFormUI().executeOnBeforeHide();
+		if (!canHide) return false;
+		return form.getOnBeforeHideMethodID() == 0 ||
+			!Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID, new Object[] { getJSEvent(formScope,
+				RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID.getPropertyName(), Form.class)) }, null, true, true));
 	}
 
 	/**

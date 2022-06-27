@@ -459,7 +459,7 @@ public class SwingFormManager extends FormManager implements ISwingFormManager, 
 		if (fc != null)
 		{
 			List invokeLaterRunnables = new ArrayList();
-			boolean ok = fc.notifyVisible(false, invokeLaterRunnables);
+			boolean ok = fc.notifyVisible(false, invokeLaterRunnables, true);
 			Utils.invokeLater(getApplication(), invokeLaterRunnables);
 			if (!ok)
 			{

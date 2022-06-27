@@ -723,6 +723,19 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	}
 
 	@Override
+	public boolean executeOnBeforeHide()
+	{
+		for (WebComponent component : getComponents())
+		{
+			if (!((WebFormComponent)component).executeOnBeforeHide())
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	@Override
 	public void setLocation(Point location)
 	{
 		// TODO Auto-generated method stub

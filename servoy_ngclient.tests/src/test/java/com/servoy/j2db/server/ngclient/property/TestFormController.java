@@ -146,7 +146,7 @@ public class TestFormController implements IWebFormController
 	 * @see com.servoy.j2db.IFormController#notifyVisible(boolean, java.util.List)
 	 */
 	@Override
-	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables)
+	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables, boolean executeOnBeforeHide)
 	{
 		// TODO Auto-generated method stub
 		return false;

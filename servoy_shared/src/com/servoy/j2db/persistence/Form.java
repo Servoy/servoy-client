@@ -1024,6 +1024,28 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
+	 * This method is triggered when the form wants to hide, this will be called before onHide and should be used to return if this form can be hidden or not.
+	 * Before the form is really going to hide, this form and all the forms that this form is also showing in its ui hierarchy must allow this.
+	 * For example, when using onBeforeHide with showFormInDialog, the form will not close by clicking the dialog close box (X) if the main for in the dialog or any
+	 * of the other visible forms in tabpanels/containers are nested in the main are returning false.
+	 *
+	 * So this can be used to validate input in the main or any nested form.
+	 *
+	 * @templatedescription Check if this form can be hidden, return false if this is not allowed.
+	 * @templatename onBeforeHide
+	 * @templatetype Boolean
+	 * @templateparam JSEvent event the event that triggered the action
+	 * @templateaddtodo
+	 * @templatecode
+	 * return true
+	 */
+	@ServoyClientSupport(mc = false, wc = false, sc = false, ng = true)
+	public int getOnBeforeHideMethodID()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID).intValue();
+	}
+
+	/**
 	 * The method that is triggered when a record is being saved.
 	 * A record is saved when a user clicks out of it (for example on an empty part of the layout or to another form).
 	 * When the method returns false (for example as part of a validation), the user cannot leave the record, for example in
@@ -1118,6 +1140,16 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	public void setOnHideMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID, arg);
+	}
+
+	/**
+	 * Set the onHideMethodID.
+	 *
+	 * @param arg The onHideMethodID to set
+	 */
+	public void setOnBeforeHideMethodID(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID, arg);
 	}
 
 	/**
