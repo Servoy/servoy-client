@@ -3061,13 +3061,16 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					&& !asList(dataSet.getColumnNames()).equals(inmemColumnNamesThatCanSetData))
 				{
 					Debug.warn(
-						"Dataset column names definition does not match inmem table definition for datasource : " + dataSource + " columns of dataset: " +
-							Arrays.toString(dataSet.getColumnNames()) + ", columns of in mem definition: " + inmemColumnNamesThatCanSetData);
+						"Dataset column names definition does not match inmem table definition for datasource: " + dataSource + " columns of dataset: " + //$NON-NLS-1$ //$NON-NLS-2$
+							Arrays.toString(dataSet.getColumnNames()) + ", columns of in mem definition: " + inmemColumnNamesThatCanSetData + //$NON-NLS-1$
+							". The table definition will be used."); //$NON-NLS-1$
 				}
 				if (fixedColumnTypes != null && !compareColumnTypes(fixedColumnTypes, inmemColumnTypesForColumnsThatCanSetData))
 				{
-					Debug.warn("Dataset column types definition does not match inmem table definition for datasource : " + dataSource + " types of dataset: " +
-						fixedColumnTypes + ", types of in mem definition: " + inmemColumnTypesForColumnsThatCanSetData);
+					Debug.warn("Dataset column types definition does not match inmem table definition for datasource: " + dataSource + //$NON-NLS-1$
+						" types of dataset (type, length, scale): " + //$NON-NLS-1$
+						fixedColumnTypes + ", types of in mem definition: " + inmemColumnTypesForColumnsThatCanSetData + //$NON-NLS-1$
+						". The table definition will be used."); //$NON-NLS-1$
 				}
 				fixedColumnTypes = inmemColumnTypesForColumnsThatCanSetData;
 				fixedDataSet = BufferedDataSetInternal.createBufferedDataSet(
