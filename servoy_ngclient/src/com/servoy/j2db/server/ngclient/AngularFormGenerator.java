@@ -99,13 +99,18 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		return "";
 	}
 
-	@SuppressWarnings("nls")
 	@Override
 	public String generateJS() throws IOException
 	{
+		return generateJS(getAContext());
+	}
+
+	@SuppressWarnings("nls")
+	public String generateJS(ServoyDataConverterContext servoyDataConverterContext) throws IOException
+	{
 		IWebFormController cachedFormController = client != null ? client.getFormManager().getCachedFormController(realFormName) : null;
 
-		FormTemplateObjectWrapper formTemplate = new FormTemplateObjectWrapper(getAContext(), true, false);
+		FormTemplateObjectWrapper formTemplate = new FormTemplateObjectWrapper(servoyDataConverterContext, true, false);
 		FormWrapper formWrapper = formTemplate.getFormWrapper(form);
 
 		// for this form it is really just some json.
@@ -273,7 +278,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 					writer.array();
 
 					form.acceptVisitor(new ChildrenJSONGenerator(writer,
-						getAContext(), form,
+						servoyDataConverterContext, form,
 						null,
 						part, form, true, isDesigner), ChildrenJSONGenerator.FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
 					writer.endArray();
@@ -480,4 +485,3 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		return false;
 	}
 }
-
