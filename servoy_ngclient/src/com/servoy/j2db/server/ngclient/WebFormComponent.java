@@ -315,7 +315,7 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 						blockingChanges = Arrays.asList(allowAccess.split(",")).indexOf(WebFormUI.ENABLED) == -1;
 					}
 				}
-				if (blockingChanges) throw new RuntimeException("Security error. Component '" + this + "' is not accessible.");
+				if (blockingChanges) throw new RuntimeException("Security error. Component '" + this + "' is not accessible when calling: " + functionDef);
 			}
 		}
 	}
