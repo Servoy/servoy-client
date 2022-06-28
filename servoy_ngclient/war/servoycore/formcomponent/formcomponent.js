@@ -47,7 +47,7 @@ angular.module('servoycoreFormcomponent',['servoy']).directive('servoycoreFormco
      					   var template = "<div style='position:relative;";
      					   if (minHeight) { // should always be truthy
                                 template += "min-height:" + minHeight + "px;";
-                                if (containerFormOfFormComponentIsAbsolute) template += "height:100%;"; // allow anchoring to bottom in anchored form + anchored form component
+                                if (containerFormOfFormComponentIsAbsolute)  styleClass += " svy-height100"; // allow anchoring to bottom in anchored form + anchored form component
                            }
      					   if (minWidth) { // should always be truthy
                                 template += "min-width:" + minWidth + "px;";
@@ -55,7 +55,7 @@ angular.module('servoycoreFormcomponent',['servoy']).directive('servoycoreFormco
                                     // if container is in a responsive form, content is anchored and width model property is explicitly set
                                     // then we assume that developer wants to really set width of the form component so it can put multiple of them inside
                                     // for example a 12grid column; that means they should not simply be div / block elements; we change float as well
-                                    template += "float:left;";
+                                    styleClass += " svy-floatleft";
                                 } 
                            }
      					   template += "'";
