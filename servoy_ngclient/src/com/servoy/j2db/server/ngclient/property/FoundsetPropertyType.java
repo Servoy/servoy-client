@@ -306,7 +306,8 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 						}
 						webComponentValue.notifyDataProvidersUpdated();
 					}
-					else throw new RuntimeException("illegal value '" + value + "' to set on the dataprovides property " + pd.getName());
+					else Debug.error("Error Setting foundset value through scripting (servoy scripting or server side api scripting",
+						new RuntimeException("illegal value '" + value + "' to set on the dataprovides property " + pd.getName()));
 					break;
 				}
 			}
