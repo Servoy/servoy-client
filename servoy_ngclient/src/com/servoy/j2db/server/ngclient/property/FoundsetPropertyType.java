@@ -53,6 +53,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -280,12 +281,13 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 						{
 							webComponentValue.updateFoundset((IFoundSetInternal)value);
 						}
-						else throw new RuntimeException(
+						else Debug.error("Error Setting foundset value through scripting (servoy scripting or server side api scripting", new RuntimeException(
 							"illegal value '" + value + "' to set on the foundset property with foundsetSelector/datasource: " + foundsetSelector + '(' +
 								webComponentValue.foundsetSelector + "), foundset (" + ((IFoundSetInternal)value).getDataSource() +
-								") is either pinned to form's foundset or to a related foundset " + pd.getName());
+								") is either pinned to form's foundset or to a related foundset " + pd.getName()));
 					}
-					else throw new RuntimeException("illegal value '" + value + "' to set on the foundset property " + pd.getName());
+					else Debug.error("Error Setting foundset value through scripting (servoy scripting or server side api scripting",
+						new RuntimeException("illegal value '" + value + "' to set on the foundset property " + pd.getName()));
 					break;
 				}
 				case DATAPROVIDERS_KEY_FOR_RHINO :
