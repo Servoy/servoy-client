@@ -252,6 +252,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 			return Scriptable.NOT_FOUND;
 		}
 
+		@SuppressWarnings("nls")
 		@Override
 		public void put(String name, Scriptable start, Object val)
 		{
@@ -279,9 +280,10 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 						{
 							webComponentValue.updateFoundset((IFoundSetInternal)value);
 						}
-						else throw new RuntimeException("illegal value '" + value +
-							"' to set on the foundset property with foundsetSelector/datasource: " + webComponentValue.foundsetSelector +
-							", foundset is either pinned to form's foundset or to a related foundset " + pd.getName());
+						else throw new RuntimeException(
+							"illegal value '" + value + "' to set on the foundset property with foundsetSelector/datasource: " + foundsetSelector + '(' +
+								webComponentValue.foundsetSelector + "), foundset (" + ((IFoundSetInternal)value).getDataSource() +
+								") is either pinned to form's foundset or to a related foundset " + pd.getName());
 					}
 					else throw new RuntimeException("illegal value '" + value + "' to set on the foundset property " + pd.getName());
 					break;

@@ -425,7 +425,8 @@ public final class FormElement implements INGFormElement
 		}
 		if (spec == null)
 		{
-			String errorMessage = "Component spec for " + componentType + " not found; please check your component spec file(s).";
+			String errorMessage = "Component spec for " + componentType + " not found; for persist: " + persistImpl +
+				", please check your component spec file(s).";
 			Debug.error(errorMessage);
 			return componentsSpecProviderState.getWebComponentSpecification(FormElement.ERROR_BEAN);
 			//if (throwException) throw new IllegalStateException(errorMessage);

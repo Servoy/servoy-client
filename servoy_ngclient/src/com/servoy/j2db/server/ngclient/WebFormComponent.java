@@ -125,7 +125,7 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	@Override
 	public String toString()
 	{
-		return "<'" + getName() + "' of parent " + getParent() + ">";
+		return "<Component:'" + getName() + "' of parent " + getParent() + ", with spec: " + getSpecification() + " >";
 	}
 
 	public void updateVisibleForm(IWebFormUI form, boolean visible, int formIndex)
@@ -327,7 +327,7 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 						blockingChanges = Arrays.asList(allowAccess.split(",")).indexOf(WebFormUI.ENABLED) == -1;
 					}
 				}
-				if (blockingChanges) throw new RuntimeException("Security error. Component '" + getProperty("name") + "' is not accessible.");
+				if (blockingChanges) throw new RuntimeException("Security error. Component '" + this + "' is not accessible when calling: " + functionDef);
 			}
 		}
 	}
