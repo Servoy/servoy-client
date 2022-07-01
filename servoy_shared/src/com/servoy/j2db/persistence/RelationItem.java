@@ -136,7 +136,7 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 			// no modifiers
 			return IBaseSQLCondition.OPERATOR_STRINGS[op];
 		}
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < IBaseSQLCondition.ALL_MODIFIERS.length; i++)
 		{
 			if ((op & IBaseSQLCondition.ALL_MODIFIERS[i]) != 0)
@@ -147,7 +147,6 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 		sb.append(IBaseSQLCondition.OPERATOR_STRINGS[op & IBaseSQLCondition.OPERATOR_MASK]);
 		return sb.toString();
 	}
-
 
 	/**
 	 * Swap the operator, leave the modifier in place

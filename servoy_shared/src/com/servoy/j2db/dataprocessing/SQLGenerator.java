@@ -1266,6 +1266,8 @@ public class SQLGenerator
 					// value is text, key is non-text, cast the key to text
 					key = new QueryFunction(cast,
 						new IQuerySelectValue[] { key, new QueryColumnValue(IQueryConstants.TYPE_STRING, null, true) }, null);
+					// Cast if needed
+					operator |= IBaseSQLCondition.CAST_TO_MODIFIER;
 				}
 			}
 

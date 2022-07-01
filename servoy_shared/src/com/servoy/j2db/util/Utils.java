@@ -1120,6 +1120,18 @@ public final class Utils
 		return buf.toString();
 	}
 
+	public static int indexOf(int[] array, int elem)
+	{
+		for (int i = 0; array != null && i < array.length; i++)
+		{
+			if (array[i] == elem)
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	/**
 	 * Converts a Java String to an HTML markup string, but does not convert normal spaces to non-breaking space entities (&lt;nbsp&gt;).
 	 *
