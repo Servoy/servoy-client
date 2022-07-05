@@ -809,7 +809,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 	}
 
 	@Override
-	public <T> T getPluginInstance(Class<T> pluginClass)
+	public <T> T getServerPluginByInstance(Class<T> pluginClass)
 	{
 		// assume plugins are already initialized
 		if (loadedServerPlugins != null)
