@@ -772,7 +772,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 	}
 
 	@Override
-	public PluginManager createEfficientCopy(Object prop_change_source)
+	public PluginManager createEfficientCopy(IApplication prop_change_source)
 	{
 		PluginManager retval = new PluginManager(prop_change_source, parentClassLoader);
 		return retval;

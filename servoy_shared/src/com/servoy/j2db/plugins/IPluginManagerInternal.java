@@ -46,7 +46,7 @@ public interface IPluginManagerInternal extends IPluginManager
 
 	public File getPluginsDir();
 
-	public IPluginManagerInternal createEfficientCopy(Object prop_change_source);
+	public IPluginManagerInternal createEfficientCopy(IApplication prop_change_source);
 
 	public void notifyShutdownServerPlugins();
 
