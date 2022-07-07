@@ -1005,17 +1005,23 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The method that is triggered when another form is being activated.
-	 * NOTE: If the onHide method returns false, the form can be prevented from hiding.
-	 * For example, when using onHide with showFormInDialog, the form will not close by clicking the dialog close box (X).
+	 * This method is triggered when the form gets hidden.
 	 *
-	 * @templatedescription Handle hide window
+	 * Return value is DEPRECATED: false return value should no longer be used. In the past, if the onHide method returned false, the form hide could be prevented from happening
+	 * in some cases (for example, when using onHide with showFormInDialog, the form will not close by clicking the dialog close box (X)). But that lead to
+	 * unexpected situations when the form being hidden had visible nested children it it (tab panels, splits etc.) because only the current form would
+	 * decide if hide could be denied, and all other forms, even if they returned false in their on-hide, would not be able to block the hide if this form allowed it.
+	 * So those nested forms might think that they are still visible even though they are not.
+	 *
+	 * Please use the new onBeforeHide method/handler instead if you want to prevent forms from hiding.
+	 *
+	 * @templatedescription Handle form's hide.
 	 * @templatename onHide
 	 * @templatetype Boolean
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 * @templatecode
-	 * return true
+	 * return true; // do not return false; if needed, use onBeforeHide instead.
 	 */
 	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public int getOnHideMethodID()
@@ -1024,12 +1030,14 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * This method is triggered when the form wants to hide, this will be called before onHide and should be used to return if this form can be hidden or not.
-	 * Before the form is really going to hide, this form and all the forms that this form is also showing in its ui hierarchy must allow this.
-	 * For example, when using onBeforeHide with showFormInDialog, the form will not close by clicking the dialog close box (X) if the main for in the dialog or any
+	 * This method is triggered when the form wants to hide; this will be called before onHide, and should be used to return if this form can be hidden or not.
+	 * Before the form is really going to hide, this form and all the forms that this form is also showing in its ui hierarchy must allow the hide (return true in onBeforeHide - if present).
+	 * For example, when using onBeforeHide with showFormInDialog, the form will not close by clicking the dialog close box (X) if the main form in the dialog or any
 	 * of the other visible forms in tabpanels/containers are nested in the main are returning false.
 	 *
-	 * So this can be used to validate input in the main or any nested form.
+	 * If the hide operation is allowed for all the forms that are in the affected visible hierarchy, then the onHide handler/method will get called on them as well afterwards.
+	 *
+	 * So this handler (on each form) can be used to validate input in the main form and/or any nested visible forms - that are getting ready to hide.
 	 *
 	 * @templatedescription Check if this form can be hidden, return false if this is not allowed.
 	 * @templatename onBeforeHide

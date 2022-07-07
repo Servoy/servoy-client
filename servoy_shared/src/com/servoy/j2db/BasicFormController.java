@@ -402,6 +402,8 @@ public abstract class BasicFormController
 				allowHide = !executeOnBeforeHide || executeOnBeforeHide();
 				if (allowHide)
 				{
+					// this means that either executeOnBeforeHide param was false (so it really only wants to call the actual onHide method) or
+					// executeOnBeforeHide is true and neither this form's nor it's children's returned false in their onBeforeHide (if present)
 					isFormVisible = false;
 					if (allowHide && didOnShowCall)
 					{
@@ -409,7 +411,7 @@ public abstract class BasicFormController
 					}
 				}
 			}
-			else if (!allowHide)
+			else
 			{
 				getApplication().reportJSWarning("Can't hide form " + getName() + " because editing records " + //$NON-NLS-1$ //$NON-NLS-2$
 					application.getFoundSetManager().getEditRecordList().getEditedRecords(formModel) + "couldn't be saved (autosave is on)"); //$NON-NLS-1$
