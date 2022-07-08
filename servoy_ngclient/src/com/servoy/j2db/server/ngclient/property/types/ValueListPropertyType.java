@@ -47,6 +47,7 @@ import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.ValueListFactory;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.solutionmodel.JSValueList;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
@@ -354,25 +355,47 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	public Object toRhinoValue(ValueListTypeSabloValue webComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext,
 		Scriptable startScriptable)
 	{
-		if (webComponentValue != null)
+		return new DefaultScope(startScriptable)
 		{
-			if (webComponentValue.getValueList() != null)
-			{
-				return webComponentValue.getValueList().getName();
-			}
-			else
-			{
-				// should never happen
-				String warnMsg;
-				if (!webComponentValue.isInitialized())
-					warnMsg = "Trying to get vl. name from an uninitialized valuelist property (this is not allowed): " + pd + " of " + webObjectContext;
-				else warnMsg = "Trying to get vl. name from an initialize valuelist property failed for an unknown reason: " + pd + " of " + webObjectContext; // this should happen even less then never :)
+			private static final String NAME = "name";
+			private static final String DATASET = "dataset";
 
-				Debug.warn(warnMsg);
-				throw new RuntimeException(warnMsg);
+			@Override
+			public Object get(String name, Scriptable start)
+			{
+				if (webComponentValue != null && webComponentValue.getValueList() != null)
+				{
+					if (NAME.equals(name))
+					{
+						return webComponentValue.getValueList().getName();
+					}
+					if (DATASET.equals(name))
+					{
+						JSDataSet dataset = new JSDataSet();
+						dataset.js_addColumn("display_values");
+						dataset.js_addColumn("real_values");
+						IValueList valueList = webComponentValue.getValueList();
+						for (int i = 0; i < valueList.getSize(); i++)
+						{
+							dataset.js_addRow(new Object[] { valueList.getElementAt(i), valueList.getRealElementAt(i) });
+						}
+						return dataset;
+					}
+				}
+				return super.get(name, start);
 			}
-		}
-		return null;
+
+			@Override
+			public void put(String name, Scriptable start, Object value)
+			{
+				if (NAME.equals(name) || DATASET.equals(name))
+				{
+					toSabloComponentValue(value, webComponentValue, pd, webObjectContext);
+					return;
+				}
+				super.put(name, start, value);
+			}
+		};
 	}
 
 	@Override
