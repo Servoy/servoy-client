@@ -717,17 +717,19 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		}
 		if (retValue) setVisible(visible);
 
-		// childFormsThatWereNotified is given here to avoid double calling for example onHide on the same form if the form's onHide returns false the first time
+		// childFormsThatWereNotified is given here to avoid double calling for example onHide on the same form if the form's onHide returns false the first time;
+		// I think this call is only useful for visible = true so onShow (to propagate data?); in case of hide I think childFormsThatWereNotified will already contain forms that DAL would want to hide (SVY-8406)
 		dataAdapterList.notifyVisible(visible, invokeLaterRunnables, childFormsThatWereNotified);
+
 		return retValue;
 	}
 
 	@Override
-	public boolean executeOnBeforeHide()
+	public boolean executePreHideSteps()
 	{
 		for (WebComponent component : getComponents())
 		{
-			if (!((WebFormComponent)component).executeOnBeforeHide())
+			if (!((WebFormComponent)component).executePreHideSteps())
 			{
 				return false;
 			}

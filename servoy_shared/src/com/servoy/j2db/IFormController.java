@@ -54,7 +54,7 @@ public interface IFormController extends IForm
 	 */
 	JSForm initForJSUsage(CreationalPrototype creationalPrototype);
 
-	boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables, boolean executeOnBeforeHide);
+	boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables, boolean executePreHideSteps);
 
 	boolean stopUIEditing(boolean looseFocus);
 

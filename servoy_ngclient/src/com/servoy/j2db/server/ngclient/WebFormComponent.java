@@ -162,14 +162,11 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 		return retValue;
 	}
 
-	/**
-	 * @return
-	 */
-	public boolean executeOnBeforeHide()
+	public boolean executePreHideSteps()
 	{
 		for (IWebFormUI webUI : visibleForms.keySet())
 		{
-			if (!webUI.getController().executeOnBeforeHide()) return false;
+			if (!webUI.getController().executePreHideSteps()) return false;
 		}
 		return true;
 	}

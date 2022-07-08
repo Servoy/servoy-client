@@ -326,7 +326,7 @@ public abstract class BasicFormController
 		}
 	}
 
-	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables, boolean executeOnBeforeHide)
+	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables, boolean executePreHideSteps)
 	{
 		if (isFormVisible == visible || executingOnLoad) return true;
 		if (formModel == null)
@@ -395,27 +395,18 @@ public abstract class BasicFormController
 		}
 		else
 		{
-			int stopped = application.getFoundSetManager().getEditRecordList().stopIfEditing(formModel);
-			boolean allowHide = stopped == ISaveConstants.STOPPED || stopped == ISaveConstants.AUTO_SAVE_BLOCKED;
+			boolean allowHide = !executePreHideSteps || executePreHideSteps();
 			if (allowHide)
 			{
-				allowHide = !executeOnBeforeHide || executeOnBeforeHide();
-				if (allowHide)
+				// this means that either executePreHideSteps param was false (so it really only wants to call the actual onHide method) or
+				// executePreHideSteps is true and neither this form's nor it's children's returned false in their onBeforeHide (if present)
+				isFormVisible = false;
+				if (allowHide && didOnShowCall)
 				{
-					// this means that either executeOnBeforeHide param was false (so it really only wants to call the actual onHide method) or
-					// executeOnBeforeHide is true and neither this form's nor it's children's returned false in their onBeforeHide (if present)
-					isFormVisible = false;
-					if (allowHide && didOnShowCall)
-					{
-						allowHide = executeOnHideMethod();
-					}
+					allowHide = executeOnHideMethod(); // return value of onHide is deprecated in favor of onBeforeHide use, but do use it for backwards compatibility (although it can result in child forms thinking that they are still visible although they are not - if first/parent form says OK to hide)
 				}
 			}
-			else
-			{
-				getApplication().reportJSWarning("Can't hide form " + getName() + " because editing records " + //$NON-NLS-1$ //$NON-NLS-2$
-					application.getFoundSetManager().getEditRecordList().getEditedRecords(formModel) + "couldn't be saved (autosave is on)"); //$NON-NLS-1$
-			}
+
 			if (!allowHide)
 			{
 				isFormVisible = true;
@@ -677,15 +668,37 @@ public abstract class BasicFormController
 
 
 	/**
-	 * onBeforeHide will be called throughout the full hiearchy, children first. if any returns false then it will be stopped right away
+	 * stopIfEditing and onBeforeHide will be called throughout the full UI form hierarchy - children first.
+	 * If any of them returns false then hide will be stopped right away.
 	 */
-	public boolean executeOnBeforeHide()
+	public boolean executePreHideSteps()
 	{
-		boolean canHide = getFormUI().executeOnBeforeHide();
-		if (!canHide) return false;
-		return form.getOnBeforeHideMethodID() == 0 ||
-			!Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID, new Object[] { getJSEvent(formScope,
-				RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID.getPropertyName(), Form.class)) }, null, true, true));
+		// first go check in depth - to any child forms in UI
+		boolean canHide = getFormUI().executePreHideSteps();
+		if (canHide)
+		{
+			// if children allowed hide, see if stopIfEditing wants to block hide for this form
+			int stopped = application.getFoundSetManager().getEditRecordList().stopIfEditing(formModel);
+			canHide = (stopped == ISaveConstants.STOPPED || stopped == ISaveConstants.AUTO_SAVE_BLOCKED);
+
+			if (canHide)
+			{
+				// if we can still hide, call the solution onBeforeHide (if present) to check if the solution allows hide for the form
+				return form.getOnBeforeHideMethodID() == 0 ||
+					!Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID,
+						new Object[] { getJSEvent(formScope,
+							RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID.getPropertyName(),
+								Form.class))
+						}, null, true, true));
+			}
+			else
+			{
+				getApplication().reportJSWarning("Can't hide form " + getName() + " because editing records " + //$NON-NLS-1$ //$NON-NLS-2$
+					application.getFoundSetManager().getEditRecordList().getEditedRecords(formModel) + "couldn't be saved (autosave is on)"); //$NON-NLS-1$
+				return false;
+			}
+		}
+		else return false;
 	}
 
 	/**

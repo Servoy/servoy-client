@@ -56,7 +56,7 @@ public interface IWebFormController extends IFormController
 
 	public void pushParentReadOnly(boolean parentReadOnly);
 
-	default public boolean executeOnBeforeHide()
+	default public boolean executePreHideSteps()
 	{
 		return true;
 	}

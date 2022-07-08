@@ -1235,7 +1235,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			if (!relatedController.isDestroyed())
 			{
 				updateParentContainer(relatedController, childFormsCopy.get(relatedController), b);
-				if (!childFormsThatWereAlreadyNotified.contains(relatedController)) relatedController.notifyVisible(b, invokeLaterRunnables, true);
+				if (!childFormsThatWereAlreadyNotified.contains(relatedController)) relatedController.notifyVisible(b, invokeLaterRunnables, false);
 			}
 		}
 		if (!b)

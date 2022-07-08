@@ -1021,7 +1021,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 * @templatecode
-	 * return true; // do not return false; if needed, use onBeforeHide instead.
+	 *
 	 */
 	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public int getOnHideMethodID()

@@ -714,7 +714,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	}
 
 	@Override
-	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables, boolean executeOnBeforeHide)
+	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables, boolean executePreHideSteps)
 	{
 		if (isFormVisible == visible) return true;
 
@@ -729,7 +729,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			};
 			invokeLaterRunnables.add(run);
 		}
-		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables, executeOnBeforeHide);
+		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables, executePreHideSteps);
 
 		if (notifyVisibleSuccess)
 		{

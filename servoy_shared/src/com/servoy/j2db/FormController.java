@@ -780,7 +780,7 @@ public class FormController extends BasicFormController
 	 */
 	//this method first overloaded setVisible but setVisible is not always called and had differences between jdks
 	@Override
-	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables, boolean executeOnBeforeHide)
+	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables, boolean executePreHideSteps)
 	{
 		if (isFormVisible == visible || executingOnLoad) return true;
 		if (formModel == null)
@@ -789,7 +789,7 @@ public class FormController extends BasicFormController
 			return true;
 		}
 
-		boolean notifyVisible = super.notifyVisible(visible, invokeLaterRunnables, executeOnBeforeHide);
+		boolean notifyVisible = super.notifyVisible(visible, invokeLaterRunnables, executePreHideSteps);
 
 		if (notifyVisible)
 		{
