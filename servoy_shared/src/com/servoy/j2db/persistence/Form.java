@@ -1017,7 +1017,6 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @templatedescription Handle form's hide.
 	 * @templatename onHide
-	 * @templatetype Boolean
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 * @templatecode
