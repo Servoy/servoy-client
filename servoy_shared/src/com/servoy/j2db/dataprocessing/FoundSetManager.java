@@ -3666,11 +3666,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			ColumnType type1 = types1.get(i);
 			ColumnType type2 = types2.get(i);
-			if (type1 == null && type2 != null) return false;
-			if (type1 != null && type2 == null) return false;
-			// if they are not equal then test if this type is a TEXT or INTEGER column on both ends, then only type is needed
-			if (!type1.equals(type2) &&
-				!(type1.getSqlType() == type2.getSqlType() && (type1.getSqlType() == IColumnTypes.TEXT || type1.getSqlType() == IColumnTypes.INTEGER)))
+
+			if (!Column.isColumnInfoCompatible(type1, type2, false))
 			{
 				return false;
 			}
