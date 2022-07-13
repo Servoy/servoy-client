@@ -34,7 +34,7 @@ import com.servoy.j2db.util.UUID;
  * @author jblok
  */
 public class BaseComponent extends AbstractBase
-	implements IFormElement, ISupportAnchors, ISupportPrintSliding, IPersistCloneable, ICloneable, IBaseComponent, ISupportAttributes
+	implements IFormElement, ISupportAnchors, ISupportPrintSliding, IPersistCloneable, ICloneable, IBaseComponent, ISupportAttributes, ISupportCSSPosition
 {
 	private static final long serialVersionUID = 1L;
 
