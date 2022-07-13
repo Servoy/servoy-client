@@ -42,7 +42,12 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 
 	protected LayoutContainer(ISupportChilds parent, int element_id, UUID uuid)
 	{
-		super(IRepository.LAYOUTCONTAINERS, parent, element_id, uuid);
+		this(IRepository.LAYOUTCONTAINERS, parent, element_id, uuid);
+	}
+
+	protected LayoutContainer(int type, ISupportChilds parent, int element_id, UUID uuid)
+	{
+		super(type, parent, element_id, uuid);
 	}
 
 	/**

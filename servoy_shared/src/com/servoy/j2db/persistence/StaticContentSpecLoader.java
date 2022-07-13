@@ -962,6 +962,18 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(463, IRepository.AGGREGATEVARIABLES, PROPERTY_AGGREGATE_QUANTIFIER.getPropertyName(), IRepository.INTEGER,
 				Integer.valueOf(QueryAggregate.ALL));
 			cs.new Element(464, IRepository.FORMS, PROPERTY_ONBEFOREHIDEMETHODID.getPropertyName(), IRepository.ELEMENTS);
+
+			cs.new Element(465, IRepository.CSSPOS_LAYOUTCONTAINERS, PROPERTY_CSS_POSITION.getPropertyName(), IRepository.CSSPOSITION);
+//			cs.new Element(465, IRepository.CSSPOS_LAYOUTCONTAINERS, PROPERTY_LOCATION.getPropertyName(), IRepository.POINT);
+			cs.new Element(466, IRepository.CSSPOS_LAYOUTCONTAINERS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
+			cs.new Element(467, IRepository.CSSPOS_LAYOUTCONTAINERS, PROPERTY_TAGTYPE.getPropertyName(), IRepository.STRING);
+			cs.new Element(468, IRepository.CSSPOS_LAYOUTCONTAINERS, PROPERTY_ELEMENTID.getPropertyName(), IRepository.STRING);
+			cs.new Element(469, IRepository.CSSPOS_LAYOUTCONTAINERS, PROPERTY_CSSCLASS.getPropertyName(), IRepository.STRING);
+			cs.new Element(470, IRepository.CSSPOS_LAYOUTCONTAINERS, PROPERTY_STYLE.getPropertyName(), IRepository.STRING);
+			cs.new Element(471, IRepository.CSSPOS_LAYOUTCONTAINERS, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
+			cs.new Element(472, IRepository.CSSPOS_LAYOUTCONTAINERS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
+//			cs.new Element(472, IRepository.LAYOUTCONTAINERS, PROPERTY_SIZE.getPropertyName(), IRepository.DIMENSION);
+
 		}
 
 		//##add property adds here
