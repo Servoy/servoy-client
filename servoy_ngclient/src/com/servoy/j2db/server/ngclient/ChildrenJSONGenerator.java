@@ -42,6 +42,8 @@ import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.BaseComponent;
+import com.servoy.j2db.persistence.CSSPosition;
+import com.servoy.j2db.persistence.CSSPositionLayoutContainer;
 import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
@@ -245,6 +247,11 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.array();
 			o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer), PositionComparator.XY_PERSIST_COMPARATOR);
 			writer.endArray();
+			if (o instanceof CSSPositionLayoutContainer)
+			{
+				CSSPosition cssPosition = ((CSSPositionLayoutContainer)o).getCssPosition();
+				AngularFormGenerator.writeCSSPosition(writer, ((CSSPositionLayoutContainer)o), form, designer, cssPosition);
+			}
 			writer.endObject();
 			return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 		}
@@ -336,7 +343,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.key("servoyAttributes");
 			writer.object();
 			Map<String, String> attributes = new HashMap<String, String>(((BaseComponent)fe.getPersistIfAvailable()).getMergedAttributes());
-			if (designer)
+			if (designer && !(o.getParent() instanceof CSSPositionLayoutContainer))
 			{
 				attributes.put("svy-id", fe.getDesignId());
 				attributes.put("svy-formelement-type", fe.getTypeName());
@@ -350,6 +357,11 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				}
 				attributes.put("svy-priority",
 					form.isResponsiveLayout() ? String.valueOf(((ISupportBounds)o).getLocation().x) : String.valueOf(((BaseComponent)o).getFormIndex()));
+				String directEditPropertyName = getDirectEditProperty(fe);
+				if (directEditPropertyName != null)
+				{
+					attributes.put("directEditPropertyName", directEditPropertyName);
+				}
 			}
 			if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
 			{
@@ -359,11 +371,6 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 					elementName = "svy_" + o.getUUID().toString();
 				}
 				attributes.put("data-cy", form.getName() + "." + elementName);
-			}
-			String directEditPropertyName = getDirectEditProperty(fe);
-			if (directEditPropertyName != null)
-			{
-				attributes.put("directEditPropertyName", directEditPropertyName);
 			}
 			attributes.forEach((key, value) -> {
 				writer.key(StringEscapeUtils.escapeEcmaScript(key));
@@ -477,13 +484,15 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				attributes.put("svy-name", layoutContainer.getName());
 			}
 			attributes.put("svy-priority", String.valueOf(layoutContainer.getLocation().x));
-			String designClass = spec.getDesignStyleClass() != null && spec.getDesignStyleClass().length() > 0 ? spec.getDesignStyleClass()
-				: "customDivDesign";
-			if ("customDivDesign".equals(designClass) && FormLayoutStructureGenerator.hasSameDesignClassAsParent(layoutContainer, spec))
+			if (spec != null)
 			{
-				designClass = FormLayoutStructureGenerator.isEvenLayoutContainer(layoutContainer) ? "customDivDesignOdd" : "customDivDesignEven";
+				String designClass = spec.getDesignStyleClass() != null && spec.getDesignStyleClass().length() > 0 ? spec.getDesignStyleClass()
+					: "customDivDesign";
+				if ("customDivDesign".equals(designClass) && FormLayoutStructureGenerator.hasSameDesignClassAsParent(layoutContainer, spec))
+				{
+					designClass = FormLayoutStructureGenerator.isEvenLayoutContainer(layoutContainer) ? "customDivDesignOdd" : "customDivDesignEven";
+				}
 			}
-			attributes.put("designclass", designClass);
 
 			attributes.put("svy-title", FormLayoutStructureGenerator.getLayouContainerTitle(layoutContainer));
 		}
