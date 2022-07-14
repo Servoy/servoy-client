@@ -441,6 +441,10 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.value("svyResponsive" + tagType);
 		}
 		String styleClasses = layoutContainer.getCssClasses();
+		if (layoutContainer instanceof CSSPositionLayoutContainer)
+		{
+			styleClasses = styleClasses != null ? styleClasses + " svy-responsivecontainer" : "svy-responsivecontainer";
+		}
 		if (styleClasses != null)
 		{
 			writer.key("styleclass");
