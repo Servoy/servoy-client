@@ -241,17 +241,12 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.object();
 			LayoutContainer layoutContainer = (LayoutContainer)o;
 
-			writeLayoutContainer(writer, layoutContainer, formUI, designer);
+			writeLayoutContainer(writer, layoutContainer, formUI, form, designer);
 
 			writer.key("children");
 			writer.array();
 			o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer), PositionComparator.XY_PERSIST_COMPARATOR);
 			writer.endArray();
-			if (o instanceof CSSPositionLayoutContainer)
-			{
-				CSSPosition cssPosition = ((CSSPositionLayoutContainer)o).getCssPosition();
-				AngularFormGenerator.writeCSSPosition(writer, ((CSSPositionLayoutContainer)o), form, designer, cssPosition);
-			}
 			writer.endObject();
 			return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 		}
@@ -413,7 +408,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		}
 	}
 
-	public static void writeLayoutContainer(JSONWriter writer, LayoutContainer layoutContainer, WebFormUI formUI, boolean designer)
+	public static void writeLayoutContainer(JSONWriter writer, LayoutContainer layoutContainer, WebFormUI formUI, Form form, boolean designer)
 	{
 		WebLayoutSpecification spec = null;
 		if (layoutContainer.getPackageName() != null)
@@ -425,6 +420,12 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				spec = pkg.getSpecification(layoutContainer.getSpecName());
 			}
 		}
+		if (layoutContainer instanceof CSSPositionLayoutContainer)
+		{
+			CSSPosition cssPosition = ((CSSPositionLayoutContainer)layoutContainer).getCssPosition();
+			AngularFormGenerator.writeCSSPosition(writer, ((CSSPositionLayoutContainer)layoutContainer), form, designer, cssPosition);
+		}
+
 		writer.key("layout");
 		writer.value(true);
 		writer.key("cssPositionContainer");
