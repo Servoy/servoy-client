@@ -338,7 +338,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.key("servoyAttributes");
 			writer.object();
 			Map<String, String> attributes = new HashMap<String, String>(((BaseComponent)fe.getPersistIfAvailable()).getMergedAttributes());
-			if (designer && !(o.getParent() instanceof CSSPositionLayoutContainer))
+			if (designer)
 			{
 				attributes.put("svy-id", fe.getDesignId());
 				attributes.put("svy-formelement-type", fe.getTypeName());
