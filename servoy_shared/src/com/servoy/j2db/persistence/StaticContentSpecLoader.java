@@ -972,6 +972,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(470, IRepository.CSSPOS_LAYOUTCONTAINERS, PROPERTY_STYLE.getPropertyName(), IRepository.STRING);
 			cs.new Element(471, IRepository.CSSPOS_LAYOUTCONTAINERS, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
 			cs.new Element(472, IRepository.CSSPOS_LAYOUTCONTAINERS, PROPERTY_EXTENDSID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(473, IRepository.CSSPOS_LAYOUTCONTAINERS, PROPERTY_COMMENT.getPropertyName(), IRepository.STRING);
 //			cs.new Element(472, IRepository.LAYOUTCONTAINERS, PROPERTY_SIZE.getPropertyName(), IRepository.DIMENSION);
 
 		}

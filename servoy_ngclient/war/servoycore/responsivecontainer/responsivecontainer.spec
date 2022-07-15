@@ -6,7 +6,7 @@
 	"layoutcontainer":true,
 	"model":
 	{
-		"styleClass" : "styleclass",
+		"class" : "styleclass",
 		"tagType" : "string",
 		"cssPosition": "CSSPosition"
 		
