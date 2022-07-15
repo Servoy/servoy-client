@@ -424,7 +424,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		if (layoutContainer instanceof CSSPositionLayoutContainer)
 		{
 			CSSPosition cssPosition = ((CSSPositionLayoutContainer)layoutContainer).getCssPosition();
-			AngularFormGenerator.writeCSSPosition(writer, ((CSSPositionLayoutContainer)layoutContainer), form, designer, cssPosition);
+			if (cssPosition != null) AngularFormGenerator.writeCSSPosition(writer, ((CSSPositionLayoutContainer)layoutContainer), form, designer, cssPosition);
 		}
 
 		writer.key("layout");

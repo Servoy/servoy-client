@@ -508,7 +508,7 @@ public final class CSSPositionUtils
 
 	public static boolean useCSSPosition(Object persist)
 	{
-		if (persist instanceof CSSPositionLayoutContainer) return true;
+		if (persist instanceof CSSPositionLayoutContainer && ((CSSPositionLayoutContainer)persist).getCssPosition() != null) return true;
 
 		if (persist instanceof BaseComponent && ((BaseComponent)persist).getParent() instanceof Form &&
 			((Form)((BaseComponent)persist).getParent()).getUseCssPosition().booleanValue())
