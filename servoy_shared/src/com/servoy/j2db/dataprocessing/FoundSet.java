@@ -7143,6 +7143,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return select;
 	}
 
+	public boolean addFoundSetFilterParam(QBSelect query, String filterName)
+	{
+		return this.js_addFoundSetFilterParam(query, filterName);
+	}
+
 	public boolean hadMoreRows()
 	{
 		IDataSet pks = pksAndRecords.getPks();
