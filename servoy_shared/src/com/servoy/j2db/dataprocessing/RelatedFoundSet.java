@@ -539,6 +539,20 @@ public abstract class RelatedFoundSet extends FoundSet
 	}
 
 	@Override
+	public boolean addFoundSetFilterParam(QBSelect query, String filterName)
+	{
+		if (query == null || sheet.getTable() == null || !sheet.getTable().getDataSource().equals(query.getDataSource()))
+		{
+			return false;
+		}
+
+		QuerySelect queryClone = query.build(); // makes a clone
+		// the make sure the main table of the query is linked to the table of the foundset
+		queryClone.relinkTable(queryClone.getTable(), creationSqlSelect.getTable());
+		return super.addFilterParam(filterName, new QueryTableFilterdefinition(queryClone));
+	}
+
+	@Override
 	@ServoyClientSupport(mc = false, wc = false, sc = false, ng = false)
 	public void js_clear()
 	{
