@@ -8,7 +8,5 @@
 	{
 		"class" : "styleclass",
 		"tagType" : "string",
-		"cssPosition": "CSSPosition"
-		
 	}
 }
