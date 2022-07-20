@@ -498,6 +498,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				{
 					designClass = FormLayoutStructureGenerator.isEvenLayoutContainer(layoutContainer) ? "customDivDesignOdd" : "customDivDesignEven";
 				}
+				attributes.put("designclass", designClass);
 			}
 
 			attributes.put("svy-title", FormLayoutStructureGenerator.getLayouContainerTitle(layoutContainer));
