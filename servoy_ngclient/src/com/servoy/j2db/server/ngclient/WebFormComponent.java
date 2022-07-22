@@ -23,6 +23,7 @@ import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
@@ -299,7 +300,32 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 
 	private void checkMethodExecutionSecurityAccess(WebObjectFunctionDefinition functionDef, Form formElementForm)
 	{
-		IPersist persist = formElement.getPersistIfAvailable();
+		IPersist persist = null;
+
+		// FormComponent's child security is the security of the FormComponent
+		if (formElement.isFormComponentChild())
+		{
+			String feName = formElement.getName();
+			// form component children security access is currently dictated by the root form component component security settings; currently one only has the Security tab in form editors not in form component editors;
+			// for example if you have a form that contains a form component component A pointing to form component X that has in it a form component component B that points to form component Y
+			// then the children of both X and Y in this case have the same security settings as 'root' form component component which is A;
+
+			// so find the 'root' form component component persist and get it's access rights; this should always be found!
+			String formComponentName = feName.substring(0, feName.indexOf('$'));
+			for (IPersist p : formElementForm.getFlattenedFormElementsAndLayoutContainers())
+			{
+				if (p instanceof IFormElement && formComponentName.equals(((IFormElement)p).getName()))
+				{
+					persist = p;
+					break;
+				}
+			}
+		}
+		else
+		{
+			persist = formElement.getPersistIfAvailable();
+		}
+
 		if (persist != null)
 		{
 			int access = dataAdapterList.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID(),
