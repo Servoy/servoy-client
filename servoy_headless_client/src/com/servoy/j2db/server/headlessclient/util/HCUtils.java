@@ -25,7 +25,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.safety.Cleaner;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 
 import com.servoy.j2db.util.HtmlUtils;
 
@@ -44,11 +44,11 @@ public class HCUtils
 		"dd", "div", "dl", "dt", "em", "h1", "h2", "h3", "h4", "h5", "h6", "i", "img", "li", "ol", "p", "pre", "q", "small", "span", //
 		"strike", "strong", "sub", "sup", "table", "tbody", "td", "tfoot", "th", "thead", "tr", "u", "ul" };
 
-	private static final Whitelist WHITELIST;
+	private static final Safelist WHITELIST;
 
 	static
 	{
-		WHITELIST = Whitelist.relaxed() //
+		WHITELIST = Safelist.relaxed() //
 			.preserveRelativeLinks(true) //
 			.addTags("html", "head", "body", "style") //
 			.addAttributes("style", "type") //
