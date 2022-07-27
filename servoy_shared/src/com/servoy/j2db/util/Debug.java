@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.util;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.JavaScriptException;
@@ -468,5 +470,10 @@ public class Debug
 		{
 			log(msg);
 		}
+	}
+
+	public static void setAllLevels(Level level)
+	{
+		Configurator.setAllLevels(Debug.class.getName(), level);
 	}
 }

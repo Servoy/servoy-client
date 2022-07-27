@@ -27,6 +27,7 @@ import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.ViewFoundSet;
@@ -289,4 +290,16 @@ public class ServoyApiObject
 		}
 	}
 
+	/**
+	 * Add a filter parameter that is permanent per user session to limit a specified foundset of records.
+	 * This is similar as calling foundset.js_addFoundSetFilterParam, but the main difference is that this
+	 * works also on related foundsets.
+	 *
+	 * @see Foundset.js_addFoundSetFilterParam
+	 */
+	@JSFunction
+	public boolean addFoundSetFilterParam(FoundSet foundset, QBSelect query, String filterName)
+	{
+		return foundset.addFoundSetFilterParam(query, filterName);
+	}
 }
