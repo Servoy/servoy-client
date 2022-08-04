@@ -52,6 +52,7 @@ import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.persistence.Form;
@@ -83,11 +84,13 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	private int clientType = 1;
 
+	IDesignerCallback designerCallback;
+
 	private static final class WindowServiceSpecification extends WebObjectSpecification
 	{
 		private WindowServiceSpecification()
 		{
-			super(NGRuntimeWindowManager.WINDOW_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, "", null, null, null);
+			super(NGRuntimeWindowManager.WINDOW_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, null, "", null, null, null);
 			WebObjectFunctionDefinition destroy = new WebObjectFunctionDefinition("destroyController");
 			destroy.addParameter(new PropertyDescriptionBuilder().withName("name").withType(TypesRegistry.getType(StringPropertyType.TYPE_NAME)).build());
 			destroy.setAsync(true);
@@ -102,7 +105,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	{
 		private ClientFunctionsServiceSpecification()
 		{
-			super(CLIENT_FUNCTION_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, "", null, null, null);
+			super(CLIENT_FUNCTION_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, null, "", null, null, null);
 			WebObjectFunctionDefinition reload = new WebObjectFunctionDefinition("reloadClientFunctions");
 			reload.setAsync(true);
 			reload.setPreDataServiceCall(true);
@@ -114,7 +117,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	private NGClient client;
 
-	public NGClientWebsocketSession(WebsocketSessionKey sessionKey)
+	public NGClientWebsocketSession(WebsocketSessionKey sessionKey, IDesignerCallback designerCallback)
 	{
 		super(sessionKey);
 		registerClientService(new ServoyClientService(NGRuntimeWindowManager.WINDOW_SERVICE, WINDOWS_SERVICE_SPEC, this, false));
@@ -126,7 +129,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	{
 		if (client == null)
 		{
-			setClient(new NGClient(this));
+			setClient(new NGClient(this, designerCallback));
 		}
 	}
 

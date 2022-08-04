@@ -92,7 +92,7 @@ public class TestNGClient extends NGClient
 	 */
 	TestNGClient(TestRepository tr, NGClientWebsocketSession session) throws Exception
 	{
-		super(session);
+		super(session, null);
 		this.tr = tr;
 		((NGClientWebsocketSession)getWebsocketSession()).setClient(this);
 	}

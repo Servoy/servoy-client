@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.scripting.solutionmodel;
 
+import org.json.JSONArray;
+
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -90,4 +92,7 @@ public interface IJSDeveloperSolutionModel
 	 */
 	void js_openForm(Object form);
 
+	JSONArray js_getExistingVariants(String variantCategoryName);
+
+	void js_setVariantsFor(String variantCategoryName, String jsonArrayString);
 }

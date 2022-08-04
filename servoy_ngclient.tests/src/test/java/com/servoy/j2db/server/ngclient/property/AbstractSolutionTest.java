@@ -468,7 +468,7 @@ public abstract class AbstractSolutionTest
 				}
 			};
 
-			NGClientWebsocketSession session = new NGClientWebsocketSession(new WebsocketSessionKey(testHttpsession.getId(), 1))
+			NGClientWebsocketSession session = new NGClientWebsocketSession(new WebsocketSessionKey(testHttpsession.getId(), 1), null)
 			{
 				@Override
 				public void init(Map<String, List<String>> requestParams) throws Exception
