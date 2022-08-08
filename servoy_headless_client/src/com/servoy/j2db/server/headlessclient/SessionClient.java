@@ -1010,7 +1010,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 			{
 				if (scheduledExecutorService == null)
 				{
-					scheduledExecutorService = new ServoyScheduledExecutor(2, 16, 1,
+					scheduledExecutorService = new ServoyScheduledExecutor(16, 1,
 						IApplication.getApplicationTypeAsString(getApplicationType()) + '-' + getClientID())
 					{
 						private IServiceProvider prev;

@@ -881,7 +881,7 @@ public class NGClient extends AbstractApplication
 			{
 				if (scheduledExecutorService == null)
 				{
-					scheduledExecutorService = new ServoyScheduledExecutor(2, 16, 1, "NGClient-Pool-" + getClientID())
+					scheduledExecutorService = new ServoyScheduledExecutor(16, 1, "NGClient-Pool-" + getClientID())
 					{
 						private IServiceProvider prev;
 
