@@ -2181,7 +2181,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		}
 		else if (msg instanceof NativeError)
 		{
-			application.output(msg.toString() + '\n' + ((NativeError)msg).getStackDelegated((NativeError)msg), level);
+			application.output(msg.toString() + '\n' + ((NativeError)msg).getStackDelegated(), level);
 		}
 		else if (msg instanceof Scriptable)
 		{
