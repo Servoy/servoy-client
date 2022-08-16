@@ -289,8 +289,6 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 							 }
 						}
 					});
-
-					updates = true;
 				}
 				
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + VIEW_PORT])) {
