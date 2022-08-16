@@ -504,7 +504,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		{
 			Pair<IDataLinkedPropertyValue, PropertyDescription> tmp = ((IWrapperDataLinkedType)propertyDescription.getType()).getWrappedDataLinkedValue(
 				propertyValue, propertyDescription);
-			return nestedPropertyFound(propertyValueToFind, tmp.getLeft(), tmp.getRight());
+			if (tmp != null) nestedPropertyFound(propertyValueToFind, tmp.getLeft(), tmp.getRight());
 		}
 
 		return false;
