@@ -51,7 +51,7 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 
 		List<Integer> relationOperators = new ArrayList<>();
 		stream(basicOperators).forEach(relationOperators::add);
-		stream(ignoreCaseOperators).map(op -> op | IBaseSQLCondition.CASEINSENTITIVE_MODIFIER).forEach(relationOperators::add);
+		stream(ignoreCaseOperators).map(op -> op | IBaseSQLCondition.CASEINSENSITIVE_MODIFIER).forEach(relationOperators::add);
 		int[] baseOperators = relationOperators.stream().mapToInt(Integer::intValue).toArray();
 		// from here we add the option for the modifier or-null and remove-when-null
 		stream(baseOperators).map(op -> op | IBaseSQLCondition.ORNULL_MODIFIER).forEach(relationOperators::add);
