@@ -88,11 +88,6 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 	private final Part part;
 	private final Form form;
 
-	/**
-	 * @param writer
-	 * @param client
-	 * @param cachedFormController
-	 */
 	public ChildrenJSONGenerator(JSONWriter writer, ServoyDataConverterContext context, Object skip, IFormElementCache cache, Part part, Form form,
 		boolean mainFormGeneration)
 	{
@@ -106,7 +101,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		this.part = part;
 		if (formUI != null && mainFormGeneration)
 		{
-			// write component properties is not called so do register the container here with the current window.
+			// write component properties is now called so do register the container here with the current window.
 			CurrentWindow.get().registerContainer(formUI);
 
 			// add default navigator

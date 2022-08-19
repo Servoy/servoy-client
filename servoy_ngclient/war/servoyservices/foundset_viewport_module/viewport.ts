@@ -3,7 +3,7 @@
 
 angular.module('foundset_viewport_module', ['webSocketModule'])
 //Viewport reuse code module -------------------------------------------
-.factory("$viewportModule", function($sabloConverters: sablo.ISabloConverters, $foundsetTypeConstants, $sabloUtils: sablo.ISabloUtils,
+.factory("$viewportModule", function($sabloConverters: sablo.ISabloConverters, $foundsetTypeConstants: foundsetType.FoundsetTypeConstants, $sabloUtils: sablo.ISabloUtils,
 		$typesRegistry: sablo.ITypesRegistryForSabloConverters, $pushToServerUtils: sablo.IPushToServerUtils) {
 	return new ngclient.propertyTypes.ViewportService($sabloConverters, $foundsetTypeConstants, $sabloUtils, $typesRegistry, $pushToServerUtils);
 });
@@ -27,12 +27,12 @@ namespace ngclient.propertyTypes {
 		private static readonly FOR_ROW_IDXS = "i";
 		
 		constructor(private readonly sabloConverters: sablo.ISabloConverters,
-				private readonly foundsetTypeConstants,
+				private readonly foundsetTypeConstants: foundsetType.FoundsetTypeConstants,
 				private readonly sabloUtils: sablo.ISabloUtils,
 				private readonly typesRegistry: sablo.ITypesRegistryForSabloConverters,
 				private readonly pushToServerUtils: sablo.IPushToServerUtils) {}
 	
-		private addDataWatchToCell(columnName /*can be null*/, idx, viewPort, internalState: InternalStateForViewport, componentScope: angular.IScope, propertyContext: sablo.IPropertyContext) {
+		private addDataWatchToCell(columnName: string/*can be null*/, idx: number, viewPort: any[], internalState: InternalStateForViewport, componentScope: angular.IScope, propertyContext: sablo.IPropertyContext) {
             const setChangeNotifierIfSmartProperty = (value: any): boolean => {
                 if (value && value[this.sabloConverters.INTERNAL_IMPL] && value[this.sabloConverters.INTERNAL_IMPL].setChangeNotifier) {
                     // we don't care to check below for dumbWatchType because some types (see foundset) need to send internal protocol messages even if they are not watched/changeable on server
@@ -44,7 +44,7 @@ namespace ngclient.propertyTypes {
                 return false;
             }
         
-			const queueChange = (newData, oldData) => {
+			const queueChange = (newData: any, oldData: any) => {
 				const r = {};
 
 				if (angular.isDefined(internalState.forFoundset)) {
@@ -103,7 +103,7 @@ namespace ngclient.propertyTypes {
 			} else setChangeNotifierIfSmartProperty(getCellValue());
 		}
 	
-		private addDataWatchesToRow(idx, viewPort, internalState: InternalStateForViewport, componentScope: angular.IScope, propertyContextCreator: sablo.IPropertyContextCreator, simpleRowValue/*not key/value pairs in each row*/) {
+		private addDataWatchesToRow(idx: number, viewPort: any[], internalState: InternalStateForViewport, componentScope: angular.IScope, propertyContextCreator: sablo.IPropertyContextCreator, simpleRowValue: boolean/*not key/value pairs in each row*/) {
 			if (!angular.isDefined(internalState.unwatchData)) internalState.unwatchData = {};
 			internalState.unwatchData[idx] = [];
 			if (simpleRowValue) {
@@ -117,13 +117,13 @@ namespace ngclient.propertyTypes {
 			}
 		}
 	
-		public addDataWatchesToRows(viewPort, internalState: InternalStateForViewport, componentScope: angular.IScope, propertyContextCreator: sablo.IPropertyContextCreator, simpleRowValue/*not key/value pairs in each row*/) {
+		public addDataWatchesToRows(viewPort: any[], internalState: InternalStateForViewport, componentScope: angular.IScope, propertyContextCreator: sablo.IPropertyContextCreator, simpleRowValue: boolean/*not key/value pairs in each row*/) {
 			for (let i = viewPort.length - 1; i >= 0; i--) {
 				this.addDataWatchesToRow(i, viewPort, internalState, componentScope, propertyContextCreator, simpleRowValue);
 			}
 		}
 	
-		private removeDataWatchesFromRow(idx, internalState: InternalStateForViewport) {
+		private removeDataWatchesFromRow(idx: number, internalState: InternalStateForViewport) {
 			if (internalState.unwatchData && internalState.unwatchData[idx]) {
 				for (let j = internalState.unwatchData[idx].length - 1; j >= 0; j--)
 					internalState.unwatchData[idx][j]();
@@ -131,7 +131,7 @@ namespace ngclient.propertyTypes {
 			}
 		}
 	
-		public removeDataWatchesFromRows(rowCount, internalState: InternalStateForViewport) {
+		public removeDataWatchesFromRows(rowCount: number, internalState: InternalStateForViewport) {
 			for (let i = rowCount - 1; i >= 0; i--) {
 				this.removeDataWatchesFromRow(i, internalState);
 			}
@@ -236,7 +236,7 @@ namespace ngclient.propertyTypes {
 			return rowsToBeConverted;
 		}
 		
-		private getCellTypeFromServer(serverConversionInfo, rowIndex: number, columnName?): sablo.IType<any> {
+		private getCellTypeFromServer(serverConversionInfo: object, rowIndex: number, columnName?: string): sablo.IType<any> {
 			const PROCESSED_CELL_TYPES = "pct"; // just to turn stuff like [{ "_T": "zyx", "i": [2,3] }, {"_T": "xyz", "i": [9] }] into an easier to use { 2: "zyx", 3: "zyx", 9: "xyz" }
 			const mainType = serverConversionInfo[ViewportService.MAIN_TYPE];
 			const columnTypes = serverConversionInfo[ViewportService.COL_TYPES];
@@ -250,8 +250,8 @@ namespace ngclient.propertyTypes {
 							processed = colType[PROCESSED_CELL_TYPES] = {};
 							if (colType[ViewportService.CELL_TYPES])
 								colType[ViewportService.CELL_TYPES].forEach(
-										value => value[ViewportService.FOR_ROW_IDXS].forEach(
-												ri => processed[ri] = value[this.sabloConverters.CONVERSION_CL_SIDE_TYPE_KEY]));
+										(value: any) => value[ViewportService.FOR_ROW_IDXS].forEach(
+												(ri: any) => processed[ri] = value[this.sabloConverters.CONVERSION_CL_SIDE_TYPE_KEY]));
 						}
 						
 						cellConversion = processed[rowIndex]; // look at cell type; null is a valid type in what server can send so we check with === undefined
@@ -268,7 +268,7 @@ namespace ngclient.propertyTypes {
 		/**
 		 * @param types can be one IType<?>  or an object of IType<?> for each column on that row.
 		 */
-		private updateRowTypes(idx, internalState: InternalStateForViewport, types : sablo.IType<any> | { [ colName: string ]: sablo.IType<any> }) {
+		private updateRowTypes(idx: number, internalState: InternalStateForViewport, types : sablo.IType<any> | { [ colName: string ]: sablo.IType<any> }) {
 			if (angular.isUndefined(internalState.viewportTypes)) {
 				internalState.viewportTypes = {};
 			}
@@ -327,7 +327,9 @@ namespace ngclient.propertyTypes {
 					if (internalState.viewportTypes) {
 						// shift conversion info of other rows if needed (that is an object with number keys, can't use array splice directly)
                         for (let j = viewPort.length - 1; j >= rowUpdate.startIndex; j--) {
-                            internalState.viewportTypes[j + rowUpdate.rows.length] = internalState.viewportTypes[j];
+                            if (internalState.viewportTypes[j]) internalState.viewportTypes[j + rowUpdate.rows.length] = internalState.viewportTypes[j];
+                            else if (internalState.viewportTypes[j + rowUpdate.rows.length]) delete internalState.viewportTypes[j + rowUpdate.rows.length];
+
                             delete internalState.viewportTypes[j];
                         }
 					}
@@ -348,7 +350,9 @@ namespace ngclient.propertyTypes {
                         for (let j = rowUpdate.startIndex; j <= rowUpdate.endIndex; j++)
                           delete internalState.viewportTypes[j];
                         for (let j = rowUpdate.endIndex + 1; j < oldLength; j++) {
-                            internalState.viewportTypes[j - numberOfDeletedRows] = internalState.viewportTypes[j];
+                            if (internalState.viewportTypes[j]) internalState.viewportTypes[j - numberOfDeletedRows] = internalState.viewportTypes[j];
+                            else if (internalState.viewportTypes[j - numberOfDeletedRows]) delete internalState.viewportTypes[j - numberOfDeletedRows];
+
                             delete internalState.viewportTypes[j];
                         }
 					}

@@ -880,7 +880,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 		Object newValue = value;
 		// Check security
-		webComponent.checkPropertyProtection(beanProperty);
+		webComponent.checkThatPropertyAllowsUpdateFromClient(beanProperty);
 
 		IRecordInternal editingRecord = record;
 
@@ -1079,7 +1079,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 		try
 		{
-			webComponent.checkPropertyProtection(property);
+			webComponent.checkThatPropertyAllowsUpdateFromClient(property);
 		}
 		catch (IllegalChangeFromClientException ex)
 		{

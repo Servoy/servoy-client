@@ -347,8 +347,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		});
 	}
 	
-	function getFoundsetLinkedDPInfo(propertyName, beanModel) {
-		var propertyNameForServerAndRowID;
+	function getFoundsetLinkedDPInfo(propertyName, beanModel): { propertyNameForServer: string; rowId?: string } {
+		var propertyNameForServerAndRowID: { propertyNameForServer: string; rowId?: string };
 		
 		if ((propertyName.indexOf('.') > 0 || propertyName.indexOf('[') > 0) && propertyName.endsWith("]"))	{
 			// TODO this is a big hack - see comment in pushDPChange below
@@ -463,7 +463,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			const formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formname);
 			const componentSpec: sablo.IWebObjectSpecification = $typesRegistry.getComponentSpecification(formState.componentSpecNames[beanname]);
 			const apiSpec = componentSpec?.getApiFunction(methodName);
-			
+
 			if (args && args.length) for (var i = 0; i < args.length; i++) {
 				args[i] = $sabloConverters.convertFromClientToServer(args[i], apiSpec?.getArgumentType(i), undefined, undefined, $sabloUtils.PROPERTY_CONTEXT_FOR_OUTGOING_ARGS_AND_RETURN_VALUES);
 			}
@@ -492,7 +492,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 
 		pushDPChange: function(formname, beanname, property) {
 			const formState = $sabloApplication.getFormStateEvenIfNotYetResolved(formname);
-			let changes = {};
+			const changes = {};
 			const componentSpecification = $typesRegistry.getComponentSpecification(formState.componentSpecNames[beanname]);
 
 			let typeOfDP = $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesDynamicClientSideTypes(), formname, beanname, property); // try to get dynamic client side type if set
@@ -502,7 +502,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 
 			let fslRowID = null;
 			if (typeOfDP) {
-				// I think this never happens currently
+                // I think this never happens currently except for simple date dataproviders; because other simple dataproviders don't have a client-side type (either static or dynamic)
+                // and foundset linked dataproviders would be an array of values and applyDataprovider would be called with a propertyName like ...pathToFSLinkedDP[15]
+                // for which no propertyType will be found due to the index
 				const formScope = formState.getScope();
 				const componentModel = formState.model[beanname];
 				const propertyContext: sablo.IPropertyContext = {
@@ -535,7 +537,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					dpValue = formState.model[beanname][property];
 				}
 				
-				changes[property] = $sabloConverters.convertFromClientToServer(dpValue, undefined, undefined, undefined, undefined); // apply default conversion if needed as we don't know client side type for props nested with . and [
+                // apply default conversion if needed as we don't search for/generate client side type, property context etc. for props nested with . and [
+                // see TODO above if the lack of type/property context causes problems
+				changes[property] = $sabloConverters.convertFromClientToServer(dpValue, undefined, undefined, undefined, undefined);
 			}
 			
 			var dpChange = {formname: formname, beanname: beanname, property: property, changes: changes};

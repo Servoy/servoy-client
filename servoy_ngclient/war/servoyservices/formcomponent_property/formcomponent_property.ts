@@ -60,7 +60,7 @@ angular.module( 'formcomponent_property', ['webSocketModule'] )
 			fromClientToServer: function( newClientData, oldClientData, scope: angular.IScope, propertyContext: sablo.IPropertyContext ) {
 				if ( !newClientData ) return null;
 				// only childElements are pushed.
-				let changes = undefined;
+				let changes = null;
 				if (newClientData.childElements) {
 					changes = [];
 					for ( let idx = 0; idx < newClientData.childElements.length; idx++ ) {

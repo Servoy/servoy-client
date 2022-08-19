@@ -753,7 +753,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 						boolean selectionOk = true;
 						if (update.has("rowId"))
 						{
-							String rowId = update.optString("rowId");
+							String rowId = update.optString("rowId", null);
 							if (rowId != null)
 							{
 								FoundsetTypeSabloValue foundsetValue = getFoundsetValue();
@@ -862,15 +862,17 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				}
 				else if (update.has("svyApply"))
 				{
-					// { svyApply: {
-					// 		rowId: rowId, // only when linked to foundset
-					// 		propertyName: property,
-					// 		propertyValue: propertyValue
-					// }}
+					// svyApply: {
+					//     _svyRowId?: string;
+					//     _svyRowIdOfProp?: string;
+					//     pn: string;
+					//     v: any;
+					// }
 					JSONObject changeAndApply = update.getJSONObject("svyApply");
 
 					String propertyName = changeAndApply.getString(ComponentPropertyType.PROPERTY_NAME_KEY);
 					Object value = changeAndApply.get(ComponentPropertyType.VALUE_KEY);
+					String rowIDOfPropInsideComponent = changeAndApply.optString(ComponentPropertyType.ROW_ID_OF_PROP_INSIDE_COMPONENT, null);
 
 					try
 					{
@@ -883,7 +885,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 							updatePropertyValueForRecord(foundsetValue, rowIDValue, propertyName, value);
 
 							// apply change to record/dp
-							foundsetValue.getDataAdapterList().pushChanges(childComponent, propertyName);
+							foundsetValue.getDataAdapterList().pushChanges(childComponent, propertyName, rowIDOfPropInsideComponent);
 
 							foundsetValue.setDataAdapterListToSelectedRecord();
 						}
@@ -893,7 +895,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 							IWebFormUI formUI = getParentComponent().findParent(IWebFormUI.class);
 
 							// apply change to record/dp
-							formUI.getDataAdapterList().pushChanges(childComponent, propertyName);
+							formUI.getDataAdapterList().pushChanges(childComponent, propertyName, rowIDOfPropInsideComponent);
 						}
 
 

@@ -3,7 +3,7 @@ angular.module('date_custom_property', ['webSocketModule'])
 .run(function ($typesRegistry: sablo.ITypesRegistry) {
 	var dateType: sablo.IType<Date> =  {
 			fromServerToClient: function (serverJSONValue: any, currentClientValue: Date, componentScope: angular.IScope, propertyContext: sablo.IPropertyContext): Date {
-				var dateObj = moment(serverJSONValue).toDate();
+				var dateObj = (serverJSONValue != null) ? moment(serverJSONValue).toDate() : serverJSONValue;
 				return dateObj;
 			},
 

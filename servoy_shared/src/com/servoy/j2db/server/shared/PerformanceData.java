@@ -12,7 +12,7 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.UUID;
 
 /**
- * Keeps a list off last 200 most expensive actions (e.g. sql, method calls) to be viewed in a UI.
+ * Keeps a list off last "maxEntriesToKeep" most expensive actions (e.g. sql, method calls) to be viewed in a UI.
  *
  * @author jblok
  */

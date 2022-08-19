@@ -139,7 +139,7 @@ namespace ngclient.propertyTypes {
 					this.viewportModule.updateViewportGranularly(newValue, internalState, serverJSONValue[FoundsetLinkedType.VIEWPORT_VALUE_UPDATE],
 							undefined, componentScope, internalState.propertyContextCreator, true);
 					if (this.log.debugEnabled && this.log.debugLevel === this.log.SPAM) this.log.debug("svy foundset linked * firing change listener: granular updates...");
-					internalState.fireChanges(serverJSONValue[FoundsetLinkedType.VIEWPORT_VALUE_UPDATE]);
+					internalState.fireChanges({ viewportRowsUpdated: serverJSONValue[FoundsetLinkedType.VIEWPORT_VALUE_UPDATE] });
 				} else {
 					// the rest will always be treated as a full viewport update (single values are actually going to generate a full viewport of 'the one' new value)
 					let conversionInfos;
@@ -200,7 +200,7 @@ namespace ngclient.propertyTypes {
 			}
 		}
 
-		public fromClientToServer(newClientData: any, oldClientData: FoundsetLinkedValue, scope: angular.IScope, propertyContext: sablo.IPropertyContext) {
+		public fromClientToServer(newClientData: any, _oldClientData: FoundsetLinkedValue, _scope: angular.IScope, _propertyContext: sablo.IPropertyContext) {
 			if (newClientData) {
 				const internalState: FSLinkedInternalState = newClientData[this.sabloConverters.INTERNAL_IMPL];
 				if (internalState.isChanged()) {

@@ -26,12 +26,6 @@ import java.util.Map;
 
 import org.json.JSONWriter;
 import org.sablo.Container;
-import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebComponentSpecProvider;
-import org.sablo.specification.WebObjectFunctionDefinition;
-import org.sablo.specification.WebObjectSpecification;
-import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
-import org.sablo.specification.property.ICustomType;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
@@ -131,6 +125,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		Map<String, Object> containerProperties = null;
 		if (cachedFormController != null && cachedFormController.getFormUI() instanceof Container)
 		{
+			// write the properties of the formUI itself using an already present form controller
 			Container con = (Container)cachedFormController.getFormUI();
 			TypedData<Map<String, Object>> typedProperties = con.getProperties();
 			con.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, typedProperties);
@@ -139,6 +134,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		final Map<String, Object> finalContainerProperties = containerProperties;
 		if (formWrapper != null)
 		{
+			// write the remaining (not already written) properties of the form using FormWrapper
 			Map<String, Object> properties = formWrapper.getProperties();
 			properties.forEach((key, value) -> {
 				if (finalContainerProperties == null || !finalContainerProperties.containsKey(key))
@@ -176,12 +172,14 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		writer.endObject();
 		if (form.isResponsiveLayout())
 		{
+			// write form contents (layout / components)
 			form.acceptVisitor(new ChildrenJSONGenerator(writer,
 				cachedFormController != null ? new ServoyDataConverterContext(cachedFormController) : new ServoyDataConverterContext(client), form, null,
 				null, form, true), PositionComparator.XY_PERSIST_COMPARATOR);
 		}
 		else
 		{
+			// write form contents (part / components)
 			Iterator<Part> it = form.getParts();
 			while (it.hasNext())
 			{

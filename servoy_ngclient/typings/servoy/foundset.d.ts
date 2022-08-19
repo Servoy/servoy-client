@@ -189,7 +189,7 @@ declare namespace foundsetType {
 		setPreferredViewportSize(preferredSize: number, sendViewportWithSelection: boolean, centerViewportOnSelected: boolean): void;
 		
 		/**
-		* It will send a data update for a cell (ros & column) in the foundset to the server.
+		* It will send a data update for a cell (a column in a row) in the foundset to the server.
 		* Please make sure to adjust the viewport value as well not just call this method.
 		*
 		* This method is useful if you do not want to add angular watches on data (so calculated pushToServer for the foundset property is set to just 'allow').
