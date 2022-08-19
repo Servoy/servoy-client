@@ -213,45 +213,36 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 
 			} else {
 				// check for updates
-				let updates = false;
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SERVER_SIZE])) {
 					if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_SERVER_SIZE_CHANGED] = { oldValue : currentClientValue[SERVER_SIZE], newValue : serverJSONValue[UPDATE_PREFIX + SERVER_SIZE] };
 					currentClientValue[SERVER_SIZE] = serverJSONValue[UPDATE_PREFIX + SERVER_SIZE]; // currentClientValue should always be defined in this case
-					updates = true;
 				}
                 if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + FOUNDSET_DEFINITION_CHANGE])) {
                     if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_FOUNDSET_DEFINITION_CHANGE] = true;
-                    updates = true;
                 }
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + PUSH_TO_SERVER])) {
 					const internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
 					internalState[PUSH_TO_SERVER] = serverJSONValue[UPDATE_PREFIX + PUSH_TO_SERVER];
-					updates = true;
 				}
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + HAS_MORE_ROWS])) {
 					if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_HAS_MORE_ROWS_CHANGED] = { oldValue : currentClientValue[HAS_MORE_ROWS], newValue : serverJSONValue[UPDATE_PREFIX + HAS_MORE_ROWS] };
 					currentClientValue[HAS_MORE_ROWS] = serverJSONValue[UPDATE_PREFIX + HAS_MORE_ROWS];
-					updates = true;
 				}
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + MULTI_SELECT])) {
 					if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_MULTI_SELECT_CHANGED] = { oldValue : currentClientValue[MULTI_SELECT], newValue : serverJSONValue[UPDATE_PREFIX + MULTI_SELECT] };
 					currentClientValue[MULTI_SELECT] = serverJSONValue[UPDATE_PREFIX + MULTI_SELECT];
-					updates = true;
 				}
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + FOUNDSET_ID])) {
 					currentClientValue[FOUNDSET_ID] = serverJSONValue[UPDATE_PREFIX + FOUNDSET_ID] ? serverJSONValue[UPDATE_PREFIX + FOUNDSET_ID] : undefined;
-					updates = true;
 				}
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + COLUMN_FORMATS])) {
 					if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_COLUMN_FORMATS_CHANGED] = { oldValue : currentClientValue[COLUMN_FORMATS], newValue : serverJSONValue[UPDATE_PREFIX + COLUMN_FORMATS] };
 					currentClientValue[COLUMN_FORMATS] = serverJSONValue[UPDATE_PREFIX + COLUMN_FORMATS];
-					updates = true;
 				}
 				
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SORT_COLUMNS])) {
 					if (hasListeners) notificationParamForListeners[$foundsetTypeConstants.NOTIFY_SORT_COLUMNS_CHANGED] = { oldValue : currentClientValue[SORT_COLUMNS], newValue : serverJSONValue[UPDATE_PREFIX + SORT_COLUMNS] };
 					currentClientValue[SORT_COLUMNS] = serverJSONValue[UPDATE_PREFIX + SORT_COLUMNS];
-					updates = true;
 				}
 				
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES])) {
@@ -262,11 +253,11 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 						}
 					}
 					currentClientValue[SELECTED_ROW_INDEXES] = serverJSONValue[UPDATE_PREFIX + SELECTED_ROW_INDEXES];
-					updates = true;
 				}
 				
 				if (angular.isDefined(serverJSONValue[HANDLED_CLIENT_REQUESTS])) {
 					const handledRequests = serverJSONValue[HANDLED_CLIENT_REQUESTS]; // array of { id: ...int..., value: ...boolean... } which says if a req. was handled successfully by server or not
+					delete serverJSONValue[HANDLED_CLIENT_REQUESTS]; // make sure it does not end up in the actual value if this is a full value update
 					const internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
 					
 					handledRequests.forEach(function(handledReq) { 
@@ -289,12 +280,9 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 							 }
 						}
 					});
-
-					updates = true;
 				}
 				
 				if (angular.isDefined(serverJSONValue[UPDATE_PREFIX + VIEW_PORT])) {
-					updates = true;
 					const viewPortUpdate = serverJSONValue[UPDATE_PREFIX + VIEW_PORT];
 					
 					const internalState = currentClientValue[$sabloConverters.INTERNAL_IMPL];
@@ -332,8 +320,9 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 				}
 
 				// if it's a no-op, ignore it (sometimes server asks a prop. to send changes even though it has none to send)
-				if (!updates && !serverJSONValue[NO_OP]) {
-					// not updates - so whole thing received
+				// if it has serverJSONValue[SERVER_SIZE] !== undefined that means a full value has been sent from server; so no granular updates above
+				if (!serverJSONValue[NO_OP] && serverJSONValue[SERVER_SIZE] !== undefined) {
+					// not updates - so the whole thing was received
 					let oldValueForListeners: any;
 					let oldInternalState: any;
 					if (currentClientValue) {
