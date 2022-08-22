@@ -97,6 +97,7 @@ describe("Test portal suite", function() {
 			},
 			relatedFoundset: {
 				selectedRowIndexes: [],
+				serverSize: 3,
 				viewPort: {
 					rows: [{
 						"_svyRowId": "5.10248;2.11;_0"
