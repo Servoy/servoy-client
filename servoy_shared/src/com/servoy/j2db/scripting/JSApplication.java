@@ -477,6 +477,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Get a persistent user property.
+	 * <br>
+	 * In NGClient this is stored in the locale storage of the browser, so it will be persisted over restarts as long as the user didn't clear the data.
 	 *
 	 * @sample var value = application.getUserProperty('showOrders');
 	 *
@@ -492,6 +494,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Sets a user property for this client: <br>
+	 * In NGClient this is stored in the locale storage of the browser, so it will be persisted over restarts as long as the user didn't clear the data.
+	 * <br>
 	 * For headless clients(including Batch Processors and Authentication clients) the user property is stored in memory and will be lost upon client restart.
 	 * <br>
 	 * For Web Client the user property will be stored in a persistent cookie
