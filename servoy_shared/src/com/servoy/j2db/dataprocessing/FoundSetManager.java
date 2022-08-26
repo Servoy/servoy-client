@@ -768,7 +768,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	private static void unwrapDbIdentValue(QuerySelect querySelect, String relationName)
 	{
-		Placeholder whereArgsPlaceholder = querySelect.getPlaceholder(SQLGenerator.createRelationKeyPlaceholderKey(querySelect.getTable(), relationName));
+		Placeholder whereArgsPlaceholder = SQLGenerator.getRelationPlaceholder(querySelect, relationName);
 		if (whereArgsPlaceholder != null && whereArgsPlaceholder.getValue() instanceof Object[][])
 		{
 			Object[][] createWhereArgs = (Object[][])whereArgsPlaceholder.getValue();

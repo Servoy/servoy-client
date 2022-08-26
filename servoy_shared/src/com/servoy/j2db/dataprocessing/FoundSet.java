@@ -5232,8 +5232,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			Relation relation = fsm.getApplication().getFlattenedSolution().getRelation(relationName);
 			if (relation != null)
 			{
-				Placeholder ph = creationSqlSelect.getPlaceholder(
-					SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), relation.getName()));
+				Placeholder ph = SQLGenerator.getRelationPlaceholder(creationSqlSelect, relation.getName());
 				if (ph == null || !ph.isSet() || ph.getValue() == null || ((Object[])ph.getValue()).length == 0)
 				{
 					Debug.trace(

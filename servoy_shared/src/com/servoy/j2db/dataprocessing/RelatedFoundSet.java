@@ -457,7 +457,7 @@ public abstract class RelatedFoundSet extends FoundSet
 
 	public Object[] getWhereArgs(boolean onlyEqualsConditions)
 	{
-		Placeholder ph = creationSqlSelect.getPlaceholder(SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), getRelationName()));
+		Placeholder ph = SQLGenerator.getRelationPlaceholder(creationSqlSelect, getRelationName());
 		if (ph == null || !ph.isSet())
 		{
 			if (!findMode)
@@ -739,12 +739,12 @@ public abstract class RelatedFoundSet extends FoundSet
 			throw new IllegalStateException("Relation not found for related foundset: " + relationName); //$NON-NLS-1$
 		}
 
-		Placeholder whereArgsPlaceholder = creationSqlSelect.getPlaceholder(
-			SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), relation.getName()));
+		Placeholder whereArgsPlaceholder = SQLGenerator.getRelationPlaceholder(creationSqlSelect, relation.getName());
 		if (whereArgsPlaceholder == null || !whereArgsPlaceholder.isSet())
 		{
 			Debug.error("creationSqlSelect = " + creationSqlSelect); //$NON-NLS-1$
-			Debug.error("PlaceholderKey = " + SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), relation.getName())); //$NON-NLS-1$
+			Debug.error("Table = " + creationSqlSelect.getTable()); //$NON-NLS-1$
+			Debug.error("Relation = " + relation.getName()); //$NON-NLS-1$
 			Debug.error("RelatedFoundSet = " + this); //$NON-NLS-1$
 			Debug.error("Row = " + r); //$NON-NLS-1$
 			Debug.error("whereArgsPlaceholder = " + whereArgsPlaceholder); //$NON-NLS-1$
@@ -752,9 +752,12 @@ public abstract class RelatedFoundSet extends FoundSet
 			// log on server as well
 			try
 			{
-				fsm.getApplication().getDataServer().logMessage("creationSqlSelect = " + creationSqlSelect + '\n' + "PlaceholderKey = " + //$NON-NLS-1$ //$NON-NLS-2$
-					SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), relation.getName()) + '\n' + "RelatedFoundSet = " + this + '\n' + //$NON-NLS-1$
-					"Row = " + r + '\n' + "whereArgsPlaceholder = " + whereArgsPlaceholder); //$NON-NLS-1$//$NON-NLS-2$
+				fsm.getApplication().getDataServer().logMessage("creationSqlSelect = " + creationSqlSelect + '\n' + //
+					"Table = " + creationSqlSelect.getTable() + '\n' + //
+					"Relation = " + relation.getName() + '\n' + //
+					"RelatedFoundSet = " + this + '\n' + //
+					"Row = " + r + '\n' + //
+					"whereArgsPlaceholder = " + whereArgsPlaceholder);
 			}
 			catch (Exception e)
 			{
@@ -944,9 +947,8 @@ public abstract class RelatedFoundSet extends FoundSet
 					// this may happen when the relation was removed using solution model
 					return;
 				}
-				//check the foreign key if they match, if so it will fall in this foundset
-				Placeholder ph = creationSqlSelect.getPlaceholder(
-					SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), relation.getName()));
+				// check the foreign key if they match, if so it will fall in this foundset
+				Placeholder ph = SQLGenerator.getRelationPlaceholder(creationSqlSelect, relation.getName());
 				if (ph == null || !ph.isSet())
 				{
 					Column[] cols = relation.getForeignColumns(fsm.getApplication().getFlattenedSolution());

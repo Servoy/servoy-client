@@ -1174,9 +1174,14 @@ public class SQLGenerator
 	/**
 	 * Create place holder name for PR (Relation Key)
 	 */
-	public static TablePlaceholderKey createRelationKeyPlaceholderKey(BaseQueryTable foreignTable, String relationName)
+	static TablePlaceholderKey createRelationKeyPlaceholderKey(BaseQueryTable foreignTable, String relationName)
 	{
-		return new TablePlaceholderKey(foreignTable, PLACEHOLDER_RELATION_KEY + ':' + relationName);
+		return new TablePlaceholderKey(foreignTable, createRelationKeyPlaceholderName(relationName));
+	}
+
+	private static String createRelationKeyPlaceholderName(String relationName)
+	{
+		return PLACEHOLDER_RELATION_KEY + ':' + relationName;
 	}
 
 	synchronized void makeRelatedSQL(SQLSheet relatedSheet, Relation r)
@@ -1275,6 +1280,36 @@ public class SQLGenerator
 			swapped[x] = operator;
 		}
 		return new SetCondition(swapped, keys, new Placeholder(createRelationKeyPlaceholderKey(foreignTable, relation.getName())), true);
+	}
+
+	/**
+	 * Find the relation placeholder in the query.
+	 *
+	 * <p>Use this method instead of
+	 * <pre>querySelect.getPlaceholder(SQLGenerator.createRelationKeyPlaceholderKey(querySelect.getTable(), relationName));</pre>
+	 * For better performance.
+	 */
+	public static Placeholder getRelationPlaceholder(QuerySelect querySelect, String relationName)
+	{
+		AndCondition relationCondition = querySelect.getCondition(SQLGenerator.CONDITION_RELATION);
+		if (relationCondition != null && !relationCondition.getConditions().isEmpty())
+		{
+			ISQLCondition firstCondition = relationCondition.getConditions().iterator().next();
+			if (firstCondition instanceof SetCondition)
+			{
+				SetCondition setCondition = (SetCondition)firstCondition;
+				if (setCondition.getValues() instanceof Placeholder)
+				{
+					Placeholder placeholder = (Placeholder)setCondition.getValues();
+					if (createRelationKeyPlaceholderName(relationName).equals(placeholder.getKey().getName()))
+					{
+						return placeholder;
+					}
+				}
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -1636,5 +1671,6 @@ public class SQLGenerator
 		}
 		return new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, likeSelectValue, value);
 	}
+
 
 }

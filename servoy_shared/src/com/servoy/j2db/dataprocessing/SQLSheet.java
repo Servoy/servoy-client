@@ -259,9 +259,7 @@ public class SQLSheet
 				{
 					fcols = relation.getForeignColumns(app.getFlattenedSolution());
 
-					QuerySelect creationSQLString = fs.getCreationSqlSelect();
-					Placeholder ph = creationSQLString.getPlaceholder(
-						SQLGenerator.createRelationKeyPlaceholderKey(creationSQLString.getTable(), relation.getName()));
+					Placeholder ph = SQLGenerator.getRelationPlaceholder(fs.getCreationSqlSelect(), relation.getName());
 					if (ph != null && ph.isSet())
 					{
 						// a matrix as wide as the relation keys and 1 deep
@@ -333,12 +331,10 @@ public class SQLSheet
 		{
 			return;
 		}
-		List< ? > list = desc.getDataProviderIDsDilivery();
-		for (int i = 0; i < list.size(); i++)
+		for (String id : desc.getDataProviderIDsDilivery())
 		{
 			try
 			{
-				String id = (String)list.get(i);
 				Column c = table.getColumn(id);
 				if (c != null)
 				{

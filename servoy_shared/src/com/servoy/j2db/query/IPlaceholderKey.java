@@ -19,12 +19,12 @@ package com.servoy.j2db.query;
 
 /**
  * Key class for named value in a query structure.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 
 public interface IPlaceholderKey extends IQueryElement
 {
-
+	String getName();
 }
