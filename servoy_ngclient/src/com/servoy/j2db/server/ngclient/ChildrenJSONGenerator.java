@@ -137,19 +137,19 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		if (o == skip) return IPersistVisitor.CONTINUE_TRAVERSAL;
 		if (!isSecurityVisible(o))
 			return IPersistVisitor.CONTINUE_TRAVERSAL;
+		if (part != null && (o instanceof IFormElement || o instanceof CSSPositionLayoutContainer))
+		{
+			int startPos = form.getPartStartYPos(part.getID());
+			int endPos = part.getHeight();
+			Point location = CSSPositionUtils.getLocation(o instanceof IFormElement ? (IFormElement)o : (CSSPositionLayoutContainer)o);
+			if (location != null && (startPos > location.y || endPos <= location.y))
+			{
+				return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+			}
+		}
 		if (o instanceof IFormElement)
 		{
 			FormElement fe = null;
-			if (part != null)
-			{
-				int startPos = form.getPartStartYPos(part.getID());
-				int endPos = part.getHeight();
-				Point location = CSSPositionUtils.getLocation((IFormElement)o);
-				if (location != null && (startPos > location.y || endPos <= location.y))
-				{
-					return IPersistVisitor.CONTINUE_TRAVERSAL;
-				}
-			}
 			if (cache != null)
 			{
 				// this is for form component elements finding
