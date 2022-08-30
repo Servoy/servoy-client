@@ -45,7 +45,7 @@
 								<artifactItem>
 									<groupId>com.servoy</groupId>
 									<artifactId>org.eclipse.dltk.javascript.rhino</artifactId>
-									<version>${project.version}</version>
+									<version>${rhino.version}</version>
 									<type>zip</type>
 									<classifier>project</classifier>
 									<outputDirectory>${project.build.directory}/org.eclipse.dltk.javascript.rhino/</outputDirectory>
