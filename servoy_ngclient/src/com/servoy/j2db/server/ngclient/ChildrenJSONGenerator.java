@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +34,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebLayoutSpecification;
 import org.sablo.specification.WebObjectSpecification;
+import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.impl.ClientService;
@@ -40,6 +42,7 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
+import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPosition;
@@ -134,19 +137,19 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		if (o == skip) return IPersistVisitor.CONTINUE_TRAVERSAL;
 		if (!isSecurityVisible(o))
 			return IPersistVisitor.CONTINUE_TRAVERSAL;
+		if (part != null && (o instanceof IFormElement || o instanceof CSSPositionLayoutContainer))
+		{
+			int startPos = form.getPartStartYPos(part.getID());
+			int endPos = part.getHeight();
+			Point location = CSSPositionUtils.getLocation(o instanceof IFormElement ? (IFormElement)o : (CSSPositionLayoutContainer)o);
+			if (location != null && (startPos > location.y || endPos <= location.y))
+			{
+				return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+			}
+		}
 		if (o instanceof IFormElement)
 		{
 			FormElement fe = null;
-			if (part != null)
-			{
-				int startPos = form.getPartStartYPos(part.getID());
-				int endPos = part.getHeight();
-				Point location = CSSPositionUtils.getLocation((IFormElement)o);
-				if (location != null && (startPos > location.y || endPos <= location.y))
-				{
-					return IPersistVisitor.CONTINUE_TRAVERSAL;
-				}
-			}
 			if (cache != null)
 			{
 				// this is for form component elements finding
@@ -430,7 +433,8 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		writer.key("layout");
 		writer.value(true);
 		writer.key("cssPositionContainer");
-		writer.value(CSSPositionUtils.isCSSPositionContainer(layoutContainer));
+		boolean cssPositionContainer = CSSPositionUtils.isCSSPositionContainer(layoutContainer);
+		writer.value(cssPositionContainer);
 		String tagType = layoutContainer.getTagType();
 		if (spec != null && spec.getDirectives().size() > 0)
 		{
@@ -458,14 +462,18 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.endArray();
 		}
 		Map<String, String> attributes = new HashMap<String, String>(layoutContainer.getMergedAttributes());
+		// properties in the .spec file for layouts are seen as "attributes to add to html tag"
+		// except for "class" and "size" that are special - treatead separately below
 		if (spec != null)
 		{
 			for (String propertyName : spec.getAllPropertiesNames())
 			{
+				if (IContentSpecConstantsBase.PROPERTY_SIZE.equals(propertyName) || "class".equals(propertyName)) continue;
+
 				PropertyDescription pd = spec.getProperty(propertyName);
 				if (pd.getDefaultValue() != null && !attributes.containsKey(propertyName))
 				{
-					attributes.put(propertyName, pd.getDefaultValue().toString());
+					attributes.put(propertyName, pd.getDefaultValue().toString()); // they should be already strings in the spec files!
 				}
 			}
 		}
@@ -506,6 +514,29 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		writer.key("attributes");
 		writer.object();
 		attributes.remove("class");
+		if (cssPositionContainer)
+		{
+			// client side needs to know height in this case
+			Dimension sizePropValue = layoutContainer.hasProperty(IContentSpecConstantsBase.PROPERTY_SIZE) ? layoutContainer.getSize() : null;
+			if (sizePropValue != null)
+			{
+				DimensionPropertyType.INSTANCE.toJSON(writer, IContentSpecConstantsBase.PROPERTY_SIZE, sizePropValue, null, null, null);
+			}
+			else if (spec != null)
+			{
+				// use default value from. spec if available
+				PropertyDescription pd = spec.getProperty(IContentSpecConstantsBase.PROPERTY_SIZE);
+				if (pd.getDefaultValue() != null)
+				{
+					writer.key(IContentSpecConstantsBase.PROPERTY_SIZE).value(pd.getDefaultValue());
+				}
+				else
+				{
+					// no default in spec, property not set in form designer => use default from AbstractContainer.getSize()
+					DimensionPropertyType.INSTANCE.toJSON(writer, IContentSpecConstantsBase.PROPERTY_SIZE, layoutContainer.getSize(), null, null, null);
+				}
+			}
+		}
 		attributes.forEach((key, value) -> {
 			writer.key(key);
 			writer.value(value);
