@@ -46,6 +46,7 @@ public class Types
 	{
 		if (registered) return;
 		registered = true;
+		TypesRegistry.addType(JSUploadPropertyType.INSTANCE);
 		TypesRegistry.addType(CSSPositionPropertyType.INSTANCE);
 		TypesRegistry.addType(BorderPropertyType.INSTANCE);
 		TypesRegistry.addType(DatasetPropertyType.INSTANCE);
@@ -86,7 +87,7 @@ public class Types
 		TypesRegistry.addType(NGPointPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGTabSeqPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(RecordPropertyType.INSTANCE);
-		TypesRegistry.addType(NativeFunctionType.INSTANCE);
+		TypesRegistry.addType(FunctionRefType.INSTANCE);
 
 		// TODO allow bean developer through a sort of plug point to contribute these kind of types themselves
 		TypesRegistry.addType(FoundsetPropertyType.INSTANCE);
@@ -120,5 +121,6 @@ public class Types
 		TypesRegistry.addType(MapPropertyType.INSTANCE);
 
 		TypesRegistry.addType(DbIdentPropertyType.INSTANCE);
+		TypesRegistry.addType(DynamicClientFunctionPropertyType.INSTANCE);
 	}
 }

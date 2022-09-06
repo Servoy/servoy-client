@@ -39,6 +39,8 @@ public interface INGClientWindow extends IWindow
 
 		String generateJS() throws IOException;
 
+		boolean waitForBackgroundFormLoad();
+
 	}
 
 	boolean hasForm(String realName);

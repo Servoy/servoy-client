@@ -28,6 +28,9 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Portal;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
+import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
+import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ISupportTemplateValue;
 import com.servoy.j2db.server.ngclient.property.types.NGEnabledSabloValue;
 import com.servoy.j2db.util.Debug;
@@ -46,6 +49,10 @@ public class ComponentFactory
 	public static WebFormComponent createComponent(IApplication application, IDataAdapterList dataAdapterList, FormElement fe, Container parentToAddTo,
 		Form form)
 	{
+		// TODO anything to do here for custom special types?
+		WebFormComponent webComponent = new WebFormComponent(fe.getName(), fe, dataAdapterList);
+		if (parentToAddTo != null) parentToAddTo.add(webComponent);
+
 		String formElementName = fe.getName();
 		IPersist persist = fe.getPersistIfAvailable();
 		int elementSecurity = 0;
@@ -87,13 +94,11 @@ public class ComponentFactory
 					form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 			}
 
-			// don't add the component to the form ui if component is not visible due to security settings
-			if (!((elementSecurity & IRepository.VIEWABLE) != 0)) return null;
+			if (!((elementSecurity & IRepository.VIEWABLE) != 0))
+			{
+				webComponent.setVisible(false);
+			}
 		}
-
-		// TODO anything to do here for custom special types?
-		WebFormComponent webComponent = new WebFormComponent(formElementName, fe, dataAdapterList);
-		if (parentToAddTo != null) parentToAddTo.add(webComponent);
 
 		WebObjectSpecification componentSpec = fe.getWebComponentSpec(false);
 
@@ -137,6 +142,23 @@ public class ComponentFactory
 				}
 			}
 		}
+
+		boolean foundOnDataChangeInDPConfigFromSpec[] = new boolean[] { false };
+		componentSpec.getProperties(DataproviderPropertyType.INSTANCE, true).forEach((propertyFromSpec) -> {
+			// the property type found here is for a 'dataprovider' property from the spec file of this component
+			Object configOfDPOrFoundsetLinkedDP = propertyFromSpec.getConfig();
+			DataproviderConfig dpConfig;
+
+			if (configOfDPOrFoundsetLinkedDP instanceof FoundsetLinkedConfig)
+				dpConfig = (DataproviderConfig)((FoundsetLinkedConfig)configOfDPOrFoundsetLinkedDP).getWrappedConfig();
+			else dpConfig = (DataproviderConfig)configOfDPOrFoundsetLinkedDP;
+
+			if (dpConfig.getOnDataChange() != null && form.getOnElementDataChangeMethodID() > 0)
+			{
+				foundOnDataChangeInDPConfigFromSpec[0] = true;
+				webComponent.add(dpConfig.getOnDataChange(), form.getOnElementDataChangeMethodID());
+			}
+		});
 
 		// TODO should this be a part of type conversions for handlers instead?
 		for (String eventName : componentSpec.getHandlers().keySet())
@@ -187,9 +209,11 @@ public class ComponentFactory
 			{
 				webComponent.add(eventName, form.getOnElementFocusLostMethodID());
 			}
-			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()) &&
+			else if (!foundOnDataChangeInDPConfigFromSpec[0] &&
+				Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()) &&
 				(form.getOnElementDataChangeMethodID() > 0))
 			{
+				// legacy behavior - based on hard-coded handler name (of component)
 				webComponent.add(eventName, form.getOnElementDataChangeMethodID());
 			}
 		}
@@ -223,7 +247,7 @@ public class ComponentFactory
 
 	public static String getMarkupId(String formName, String elementName)
 	{
-		return Utils.calculateMD5HashBase16(formName + '.' + elementName);
+		return 's' + Utils.calculateMD5HashBase16(formName + '.' + elementName);
 	}
 
 }

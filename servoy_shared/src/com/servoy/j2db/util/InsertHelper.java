@@ -2,7 +2,9 @@ package com.servoy.j2db.util;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -43,6 +45,46 @@ public class InsertHelper
 		st.close();
 		columnData = new HashMap<String, Pair<Integer, Object>>();
 		return retval;
+	}
+
+	/**
+	 * @param connection
+	 */
+	public Object insertReturnAutoGenKeys(Connection connection) throws SQLException
+	{
+		PreparedStatement st = null;
+		ResultSet generatedKeys = null;
+		try
+		{
+			int index = 1;
+			String columns = createColumnsList();
+			String questions = createQuestionsList();
+			st = connection.prepareStatement("insert into " + tableName + " (" + columns + ") values (" + questions + ")",
+				Statement.RETURN_GENERATED_KEYS);
+			Iterator<String> it = columnData.keySet().iterator();
+			while (it.hasNext())
+			{
+				String name = it.next();
+				Pair<Integer, Object> pair = columnData.get(name);
+				st.setObject(index, pair.getRight(), (pair.getLeft()).intValue());
+				index++;
+			}
+			st.executeUpdate();
+			generatedKeys = st.getGeneratedKeys();
+			while (generatedKeys.next())
+			{
+				Object key = generatedKeys.getObject(1);
+				// we expect to insert 1 row, so 1 generated key
+				return key;
+			}
+		}
+		finally
+		{
+			columnData = new HashMap<String, Pair<Integer, Object>>();
+			if (st != null) st.close();
+			if (generatedKeys != null) generatedKeys.close();
+		}
+		return null;
 	}
 
 	/**

@@ -9,8 +9,8 @@ angular.module('servoydefaultCheckgroup',['servoy']).directive('servoydefaultChe
         svyServoyapi: "="
       },
       link: function($scope, $element, $attrs) {
-         $scope.notNullOrEmpty = $utils.notNullOrEmpty  // adding it to the root scope doesn't fix the resolution of the comparator in the filter (in this directive). it has to be in local scope. TODO remove the need for this
-         $element.children().first().css($svyProperties.getScrollbarsStyleObj($scope.model.scrollbars));
+    	  $scope.notNullOrEmptyValueListItem = $utils.notNullOrEmptyValueListItem // adding it to the root scope doesn't fix the resolution of the comparator in the filter (in this directive). it has to be in local scope. TODO remove the need for this
+    	  $element.children().first().css($svyProperties.getScrollbarsStyleObj($scope.model.scrollbars));
 //         angular.extend($scope.style,);
          
           var allowNullinc=0;

@@ -33,6 +33,7 @@ import org.sablo.websocket.TypedData;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
+import com.servoy.j2db.dataprocessing.FoundSetManagerConfig;
 import com.servoy.j2db.dataprocessing.IFoundSetFactory;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
@@ -53,9 +54,9 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 {
 	public static final String FOUNDSET_SERVICE = "$foundsetManager"; //$NON-NLS-1$
 
-	public NGFoundSetManager(IApplication app, IFoundSetFactory factory)
+	public NGFoundSetManager(IApplication app, FoundSetManagerConfig config, IFoundSetFactory factory)
 	{
-		super(app, factory);
+		super(app, config, factory);
 		((NGClient)getApplication()).getWebsocketSession().registerServerService(FOUNDSET_SERVICE, this);
 	}
 
@@ -71,11 +72,19 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 			{
 				foundset.setSort(sort);
 			}
-
+			while (true)
+			{
+				int size = foundset.getSize();
+				foundset.getRecord(size);
+				if (size == foundset.getSize())
+					break;
+			}
 			FoundsetTypeSabloValue value = getFoundsetTypeSabloValue(foundset, args.optJSONObject("dataproviders"));
 
-			ChangeAwareList<ChangeAwareMap<String, Object>, Object> foundsets = (ChangeAwareList<ChangeAwareMap<String, Object>, Object>)((NGClient)getApplication()).getWebsocketSession().getClientService(
-				"foundset_manager").getProperty("foundsets");
+			ChangeAwareList<ChangeAwareMap<String, Object>, Object> foundsets = (ChangeAwareList<ChangeAwareMap<String, Object>, Object>)((NGClient)getApplication())
+				.getWebsocketSession().getClientService(
+					"foundset_manager")
+				.getProperty("foundsets");
 			if (foundsets == null)
 			{
 				foundsets = new ChangeAwareList<ChangeAwareMap<String, Object>, Object>(new ArrayList<ChangeAwareMap<String, Object>>());
@@ -170,8 +179,10 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 		}
 		else if ("removeFoundSetsFromCache".equals(methodName))
 		{
-			ChangeAwareList<ChangeAwareMap<String, Object>, Object> foundsets = (ChangeAwareList<ChangeAwareMap<String, Object>, Object>)((NGClient)getApplication()).getWebsocketSession().getClientService(
-				"foundset_manager").getProperty("foundsets");
+			ChangeAwareList<ChangeAwareMap<String, Object>, Object> foundsets = (ChangeAwareList<ChangeAwareMap<String, Object>, Object>)((NGClient)getApplication())
+				.getWebsocketSession().getClientService(
+					"foundset_manager")
+				.getProperty("foundsets");
 			if (foundsets != null)
 			{
 				foundsets.clear();
@@ -186,8 +197,10 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 		if (foundset != null)
 		{
 			FoundsetTypeSabloValue value = foundsetTypeSabloValueMap.remove(foundset);
-			ChangeAwareList<ChangeAwareMap<String, Object>, Object> foundsets = (ChangeAwareList<ChangeAwareMap<String, Object>, Object>)((NGClient)getApplication()).getWebsocketSession().getClientService(
-				"foundset_manager").getProperty("foundsets");
+			ChangeAwareList<ChangeAwareMap<String, Object>, Object> foundsets = (ChangeAwareList<ChangeAwareMap<String, Object>, Object>)((NGClient)getApplication())
+				.getWebsocketSession().getClientService(
+					"foundset_manager")
+				.getProperty("foundsets");
 			if (foundsets != null)
 			{
 				int i = 0;
@@ -221,7 +234,8 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 		FoundsetTypeSabloValue foundsetTypeSabloValue = foundsetTypeSabloValueMap.get(foundset);
 		if (foundsetTypeSabloValue == null)
 		{
-			foundsetTypeSabloValue = new FoundsetTypeSabloValue(new JSONObject(), null, null, new FoundsetPropertyTypeConfig(false, false, null, false, 15))
+			foundsetTypeSabloValue = new FoundsetTypeSabloValue(new JSONObject(), null, null,
+				new FoundsetPropertyTypeConfig(false, false, null, false, 15, false))
 			{
 				@Override
 				protected void updateFoundset(IRecordInternal record)

@@ -314,7 +314,7 @@ public abstract class BasicFormManager implements IBasicFormManager
 		{
 			fc.getFormUI().setComponentVisible(false);
 			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-			fc.notifyVisible(false, invokeLaterRunnables);
+			fc.notifyVisible(false, invokeLaterRunnables, true);
 			Utils.invokeLater(application, invokeLaterRunnables);
 		}
 	}

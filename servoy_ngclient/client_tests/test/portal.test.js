@@ -101,6 +101,7 @@ describe("Test portal suite", function() {
 			relatedFoundset: {
                 serverSize: 8,
 				selectedRowIndexes: [],
+				serverSize: 3,
 				viewPort: {
                     startIndex: 2,
                     size: 3,

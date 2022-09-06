@@ -28,7 +28,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.mozilla.javascript.ClassCache;
+import org.mozilla.javascript.ClassCache.CacheKey;
 import org.mozilla.javascript.JavaMembers;
+import org.mozilla.javascript.JavaMembers_jdk11;
 import org.mozilla.javascript.MemberBox;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
@@ -45,7 +47,7 @@ import com.servoy.j2db.util.keyword.Ident;
 /**
  * @author jcompagner
  */
-public class InstanceJavaMembers extends JavaMembers
+public class InstanceJavaMembers extends JavaMembers_jdk11
 {
 	private List<String> gettersAndSettersToHide;
 
@@ -57,7 +59,7 @@ public class InstanceJavaMembers extends JavaMembers
 	 */
 	public InstanceJavaMembers(Scriptable scope, Class< ? > cl)
 	{
-		super(scope, cl);
+		super(scope, cl, false);
 	}
 
 	/**
@@ -204,7 +206,7 @@ public class InstanceJavaMembers extends JavaMembers
 			if (name.startsWith("jsFunction_")) //$NON-NLS-1$
 			{
 				String newName = name.substring(11);
-				if (!Ident.checkIfKeyword(newName))
+				if (!Ident.checkIfJavascriptKeyword(newName))
 				{
 					putNewValueMergeForDuplicates(copy, name, newName);
 				}
@@ -323,9 +325,9 @@ public class InstanceJavaMembers extends JavaMembers
 	static void registerClass(Scriptable scope, Class< ? > cls, InstanceJavaMembers ijm)
 	{
 		ClassCache cache = ClassCache.get(scope);
-		Map<Class< ? >, JavaMembers> ct = cache.getClassCacheMap();
+		Map<CacheKey, JavaMembers> ct = cache.getClassCacheMap();
 
-		ct.put(cls, ijm);
+		ct.put(new ClassCache.CacheKey(cls, null), ijm);
 	}
 
 	public static void deRegisterClass(Scriptable scope)

@@ -159,7 +159,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 					{
 						WebLayoutSpecification layoutSpec = layoutSpecifications.get(packageName)
 							.getSpecification(specName);
-						if (layoutSpec != null && layoutSpec.getConfig() instanceof JSONObject || layoutSpec.getConfig() instanceof String)
+						if (layoutSpec != null && (layoutSpec.getConfig() instanceof JSONObject || layoutSpec.getConfig() instanceof String))
 						{
 							conf = layoutSpec.getConfig() instanceof String ? new JSONObject((String)layoutSpec.getConfig())
 								: ((JSONObject)layoutSpec.getConfig());
@@ -322,7 +322,8 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 	}
 
 	/**
-	 * Returns all JSLayoutContainers objects of this container
+	 * Returns all JSLayoutContainers objects of this container.
+	 * Does not return the inherited containers, use #getLayoutContainers(true) to get the inherited as well.
 	 *
 	 * @sample
 	 * var frm = solutionModel.getForm("myForm");
@@ -340,14 +341,39 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 	@JSFunction
 	public JSLayoutContainer[] getLayoutContainers()
 	{
+		return getLayoutContainers(false);
+	}
+
+	/**
+	 * Returns all JSLayoutContainers objects of this container
+	 *
+	 * @sample
+	 * var frm = solutionModel.getForm("myForm");
+	 * var containers = frm.getLayoutContainers();
+	 * for (var c in containers)
+	 * {
+	 * 		var fname = containers[c].name;
+	 * 		application.output(fname);
+	 * }
+	 *
+	 * @param returnInheritedElements boolean true to also return the elements from parent form
+	 * @return all JSLayoutContainers objects of this container
+	 *
+	 */
+	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
+	@JSFunction
+	public JSLayoutContainer[] getLayoutContainers(boolean returnInheritedElements)
+	{
 		List<JSLayoutContainer> containers = new ArrayList<JSLayoutContainer>();
-		Iterator<LayoutContainer> iterator = getFlattenedContainer().getLayoutContainers();
+		AbstractContainer container = returnInheritedElements ? getFlattenedContainer() : getContainer();
+		Iterator<LayoutContainer> iterator = container.getLayoutContainers();
 		while (iterator.hasNext())
 		{
 			containers.add(application.getScriptEngine().getSolutionModifier().createLayoutContainer(this, iterator.next()));
 		}
 		return containers.toArray(new JSLayoutContainer[containers.size()]);
 	}
+
 
 	/**
 	 * Returns a JSLayoutContainer that has the given name of this container.
@@ -787,6 +813,7 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 	 * Returns all JSWebComponents of this form/container.
 	 * If this method is called on a form, then it will return all web components on that form.
 	 * If the form is responsive, it will return the web components from all the containers.
+	 * It does not return the inherited components, use #getWebComponents(true) to get the inherited as well.
 	 *
 	 * @sample
 	 * var webComponents = myForm.getWebComponents();
@@ -919,5 +946,18 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 		{
 			return new JSWebComponent(parent, baseComponent, application, isNew);
 		}
+	}
+
+	/**
+	 * Returns the comment of this container.
+	 *
+	 * @sample
+	 * var comment = solutionModel.getForm("my_form").getComment();
+	 * application.output(comment);
+	 */
+	@JSFunction
+	public String getComment()
+	{
+		return getContainer().getComment();
 	}
 }

@@ -9,6 +9,14 @@ angular.module('servoycoreFormcomponent',['servoy']).directive('servoycoreFormco
         },
         controller: function($scope, $element, $attrs)
         {
+           function getModelMinWidth() {
+               return $scope.model.minWidth !== undefined ? $scope.model.minWidth : $scope.model.width; // width is deprecated in favor of minWidth but they do the same thing;
+           }
+            
+           function getModelMinHeight() {
+               return $scope.model.minHeight !== undefined ? $scope.model.minHeight : $scope.model.height; // height is deprecated in favor of minHeight but they do the same thing;
+           }
+            
      	   function createContent() {
      		   $element.empty();
      		   var newValue = $scope.model.containedForm;
@@ -16,28 +24,48 @@ angular.module('servoycoreFormcomponent',['servoy']).directive('servoycoreFormco
      			   if ($scope.model.visible)
      			   {
      				   var elements = $scope.svyServoyapi.getFormComponentElements("containedForm", newValue);
-     				   var height = $scope.model.height;
-     				   var width = $scope.model.width;
 
      				   // set the styleClass
      				   var styleClass = "svy-formcomponent";
      				   if ($scope.model.styleClass) styleClass += " " + $scope.model.styleClass;
 
-     				   if (newValue.absoluteLayout) {
-     					   if (!height) height = newValue.formHeight;
-     					   if (!width) width = newValue.formWidth;
-     				   }
-     				   if (height || width) { 	// is absolute. Why not to use newValue.absoluteLayout !?
+                       var formComponentContentIsAbsolute = newValue.absoluteLayout;
+                       var containerFormOfFormComponentIsAbsolute = $scope.svyServoyapi.isInAbsoluteLayout();
+     				   if (formComponentContentIsAbsolute) {
+                           // see if they are set explicitly through model
+         				   var minHeight = getModelMinHeight();
+         				   var minWidth = getModelMinWidth();
+         				   var widthExplicitlySet;
+
+                           // use form design height/width if not set directly on the component
+     					   if (!minHeight) minHeight = newValue.formHeight;
+     					   if (!minWidth) {
+                               widthExplicitlySet = false;
+                               minWidth = newValue.formWidth;
+                           } else widthExplicitlySet = true;
+     					   
      					   var template = "<div style='position:relative;";
-     					   if (height) template += "height:" +height + "px;"
-     					   if (width) template += "width:" +width + "px;"
+     					   if (minHeight) { // should always be truthy
+                                template += "min-height:" + minHeight + "px;";
+                                if (containerFormOfFormComponentIsAbsolute)  styleClass += " svy-height100"; // allow anchoring to bottom in anchored form + anchored form component
+                           }
+     					   if (minWidth) { // should always be truthy
+                                template += "min-width:" + minWidth + "px;";
+                                if (!containerFormOfFormComponentIsAbsolute && widthExplicitlySet) {
+                                    // if container is in a responsive form, content is anchored and width model property is explicitly set
+                                    // then we assume that developer wants to really set width of the form component so it can put multiple of them inside
+                                    // for example a 12grid column; that means they should not simply be div / block elements; we change float as well
+                                    styleClass += " svy-floatleft";
+                                } 
+                           }
      					   template += "'";
      					   template += " class='svy-wrapper " + styleClass + "'";
      					   template += "></div>";
      					   var div = $compile(template)($scope);
      					   div.append(elements);
      					   $element.append(div);
-     				   } else  {	// is responsive
+     				   } else  {
+                           // form component content is responsive; we don't set width/height/wrapper div
      					   // add the styleClass to the angular data-x element
      					   if (styleClass) $element.addClass(styleClass);
      					   $element.append(elements);
@@ -58,20 +86,24 @@ angular.module('servoycoreFormcomponent',['servoy']).directive('servoycoreFormco
 			}	
 		  });
      	   if ($scope.svyServoyapi.isInDesigner()) {
-     		   var previousWidth = $scope.model.width;
-     		   var previousHeigth = $scope.model.height;
-     		   $scope.$watch("model.width", function() { 
-     			  if (previousWidth != $scope.model.width) {
-	             		  createContent();
-	             		  previousWidth = $scope.model.width;
-     			  }
-          	   });
-     		   $scope.$watch("model.height", function() { 
-      			  if (previousHeigth != $scope.model.height) {
-               		  createContent();
-               		  previousHeigth = $scope.model.height;
-     			  }
-           	   });
+     		   var previousWidth = getModelMinWidth();
+     		   var previousHeigth = getModelMinHeight();
+     		   var minWidthChanged = function() { 
+                  if (previousWidth != getModelMinWidth()) {
+                      createContent();
+                      previousWidth = getModelMinWidth();
+                  }
+               };
+               var minHeightChanged = function() { 
+                  if (previousHeigth != getModelMinHeight()) {
+                      createContent();
+                      previousHeigth = getModelMinHeight();
+                  }
+               };
+     		   $scope.$watch("model.width", minWidthChanged);
+               $scope.$watch("model.minWidth", minWidthChanged);
+               $scope.$watch("model.height", minHeightChanged);
+               $scope.$watch("model.minHeight", minHeightChanged);
      	   }
      },
 		link:  function($scope, $element, $attrs) {

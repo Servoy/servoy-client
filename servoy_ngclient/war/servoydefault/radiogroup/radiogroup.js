@@ -8,7 +8,7 @@ angular.module('servoydefaultRadiogroup', [ 'servoy' ]).directive('servoydefault
 			svyServoyapi : "="
 		},
 		controller : function($scope, $element, $attrs) {
-			$scope.notNullOrEmpty = $utils.notNullOrEmpty // TODO remove the need for this
+			$scope.notNullOrEmptyValueListItem = $utils.notNullOrEmptyValueListItem // TODO remove the need for this
 			$element.children().first().css($svyProperties.getScrollbarsStyleObj($scope.model.scrollbars));
 //			angular.extend($scope.style, $svyProperties.getScrollbarsStyleObj($scope.model.scrollbars));
 			

@@ -455,8 +455,8 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 	 * @throws RemoteException
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#insertDataSet(java.lang.String, com.servoy.j2db.dataprocessing.IDataSet, java.lang.String, java.lang.String, java.lang.String, java.lang.String, com.servoy.j2db.query.ColumnType[], java.lang.String[], java.util.HashMap)
 	 */
-	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid, ColumnType[] columnTypes,
-		String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException
+	public InsertResult insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid,
+		ColumnType[] columnTypes, String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException
 	{
 		return dataserver.insertDataSet(client_id, set, dataSource, serverName, tableName, tid, columnTypes, pkNames, columnInfoDefinitions);
 	}

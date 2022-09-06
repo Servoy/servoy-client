@@ -17,7 +17,7 @@
 
 package com.servoy.j2db.solutionmodel;
 
-import com.servoy.base.query.IJoinConstants;
+import com.servoy.base.query.IQueryConstants;
 import com.servoy.base.solutionmodel.IBaseSMRelation;
 
 
@@ -38,25 +38,25 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.joinType = JSRelation.LEFT_OUTER_JOIN;
 	 */
-	public static final int INNER_JOIN = IJoinConstants.INNER_JOIN;
+	public static final int INNER_JOIN = IQueryConstants.INNER_JOIN;
 
 	/**
 	 * @sameas INNER_JOIN
 	 * @see #INNER_JOIN
 	 */
-	public static final int LEFT_OUTER_JOIN = IJoinConstants.LEFT_OUTER_JOIN;
+	public static final int LEFT_OUTER_JOIN = IQueryConstants.LEFT_OUTER_JOIN;
 
 	/**
 	 * @sameas INNER_JOIN
 	 * @see #INNER_JOIN
 	 */
-	public static final int RIGHT_OUTER_JOIN = IJoinConstants.RIGHT_OUTER_JOIN;
+	public static final int RIGHT_OUTER_JOIN = IQueryConstants.RIGHT_OUTER_JOIN;
 
 	/**
 	 * @sameas INNER_JOIN
 	 * @see #INNER_JOIN
 	 */
-	public static final int FULL_JOIN = IJoinConstants.FULL_JOIN;
+	public static final int FULL_JOIN = IQueryConstants.FULL_JOIN;
 
 	/**
 	 * Removes the desired relation item from the specified relation.

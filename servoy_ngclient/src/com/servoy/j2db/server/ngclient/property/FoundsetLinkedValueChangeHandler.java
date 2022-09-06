@@ -51,7 +51,8 @@ public class FoundsetLinkedValueChangeHandler
 
 			if (changesWhileUpdatingFoundsetBasedDPFromClient != null)
 			{
-				// if for example a dataprovider property change does in its fromJSON a monitor.valueChanged() (for example an integer DP getting client update of 1.15 would want to send back 1.00)
+				// if for example a dataProvider or tagstring property changes (does in its fromJSON a monitor.valueChanged())
+				// - for example an integer DP getting client update of 1.15 would want to send back 1.00 -
 				// it will end up here; we do want to send that back to the client but as the new value is not
 				// yet pushed to the record, we don't want the new value to be reverted by a DAL.setRecord() that happens when queuing changes for a specific record index
 				// so we need to handle this change at a later time

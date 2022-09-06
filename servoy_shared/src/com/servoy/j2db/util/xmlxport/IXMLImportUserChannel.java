@@ -147,6 +147,17 @@ public interface IXMLImportUserChannel extends InfoChannel
 	public int askAllowSQLKeywords();
 
 	/**
+	 * This method returns whether to import included dbi files or not. Return <code>OK_ACTION</code> to import meta data, <code>CANCEL_ACTION</code> to
+	 * skip it.
+	 *
+	 * @return whether or not to import included dbi files
+	 */
+	default int askImportDatasources()
+	{
+		return CANCEL_ACTION;
+	}
+
+	/**
 	 * This method returns whether to import included meta data or not. Return <code>OK_ACTION</code> to import meta data, <code>CANCEL_ACTION</code> to
 	 * skip it.
 	 *

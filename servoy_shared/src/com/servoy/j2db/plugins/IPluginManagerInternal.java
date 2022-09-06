@@ -40,9 +40,14 @@ public interface IPluginManagerInternal extends IPluginManager
 
 	public Extension<IClientPlugin>[] loadClientPluginDefs();
 
+	public void initClientPlugins(IApplication application, IClientPluginAccess app);
+
 	public void loadClientPlugins(IApplication app);
 
 	public File getPluginsDir();
 
-	public IPluginManagerInternal createEfficientCopy(Object prop_change_source);
+	public IPluginManagerInternal createEfficientCopy(IApplication prop_change_source);
+
+	public void notifyShutdownServerPlugins();
+
 }

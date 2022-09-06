@@ -23,6 +23,7 @@ import java.awt.print.PageFormat;
 import java.awt.print.PrinterJob;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.print.attribute.Size2DSyntax;
@@ -63,6 +64,7 @@ import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dataprocessing.ViewFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.ArgumentType;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProvider;
@@ -84,12 +86,13 @@ import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.ITwoNativeJavaObject;
-import com.servoy.j2db.scripting.InstanceJavaMembers;
 import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.scripting.JSMap;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.ScriptEngine;
+import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.scripting.SelectedRecordScope;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.ui.IComponent;
@@ -323,8 +326,7 @@ public abstract class BasicFormController
 		}
 	}
 
-	//this method first overloaded setVisible but setVisible is not always called and had differences between jdks
-	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables)
+	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables, boolean executePreHideSteps)
 	{
 		if (isFormVisible == visible || executingOnLoad) return true;
 		if (formModel == null)
@@ -393,18 +395,18 @@ public abstract class BasicFormController
 		}
 		else
 		{
-			int stopped = application.getFoundSetManager().getEditRecordList().stopIfEditing(formModel);
-			isFormVisible = false;
-			boolean allowHide = stopped == ISaveConstants.STOPPED || stopped == ISaveConstants.AUTO_SAVE_BLOCKED;
-			if (allowHide && didOnShowCall)
+			boolean allowHide = !executePreHideSteps || executePreHideSteps();
+			if (allowHide)
 			{
-				allowHide = executeOnHideMethod();
+				// this means that either executePreHideSteps param was false (so it really only wants to call the actual onHide method) or
+				// executePreHideSteps is true and neither this form's nor it's children's returned false in their onBeforeHide (if present)
+				isFormVisible = false;
+				if (allowHide && didOnShowCall)
+				{
+					allowHide = executeOnHideMethod(); // return value of onHide is deprecated in favor of onBeforeHide use, but do use it for backwards compatibility (although it can result in child forms thinking that they are still visible although they are not - if first/parent form says OK to hide)
+				}
 			}
-			else if (!allowHide)
-			{
-				getApplication().reportJSWarning("Can't hide form " + getName() + " because editing records " + //$NON-NLS-1$ //$NON-NLS-2$
-					application.getFoundSetManager().getEditRecordList().getEditedRecords(formModel) + "couldn't be saved (autosave is on)"); //$NON-NLS-1$
-			}
+
 			if (!allowHide)
 			{
 				isFormVisible = true;
@@ -662,6 +664,41 @@ public abstract class BasicFormController
 			didOnShowOnce = true;
 			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID, args, null, true, true);
 		}
+	}
+
+
+	/**
+	 * stopIfEditing and onBeforeHide will be called throughout the full UI form hierarchy - children first.
+	 * If any of them returns false then hide will be stopped right away.
+	 */
+	public boolean executePreHideSteps()
+	{
+		// first go check in depth - to any child forms in UI
+		boolean canHide = getFormUI().executePreHideSteps();
+		if (canHide)
+		{
+			// if children allowed hide, see if stopIfEditing wants to block hide for this form
+			int stopped = application.getFoundSetManager().getEditRecordList().stopIfEditing(formModel);
+			canHide = (stopped == ISaveConstants.STOPPED || stopped == ISaveConstants.AUTO_SAVE_BLOCKED);
+
+			if (canHide)
+			{
+				// if we can still hide, call the solution onBeforeHide (if present) to check if the solution allows hide for the form
+				return form.getOnBeforeHideMethodID() == 0 ||
+					!Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID,
+						new Object[] { getJSEvent(formScope,
+							RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID.getPropertyName(),
+								Form.class))
+						}, null, true, true));
+			}
+			else
+			{
+				getApplication().reportJSWarning("Can't hide form " + getName() + " because editing records " + //$NON-NLS-1$ //$NON-NLS-2$
+					application.getFoundSetManager().getEditRecordList().getEditedRecords(formModel) + "couldn't be saved (autosave is on)"); //$NON-NLS-1$
+				return false;
+			}
+		}
+		else return false;
 	}
 
 	/**
@@ -1540,7 +1577,8 @@ public abstract class BasicFormController
 				scriptableForm = new BasicFormController.JSForm(this);
 
 				//set parent scope
-				NativeJavaObject formObject = new NativeJavaObject(formScope, scriptableForm, new InstanceJavaMembers(formScope, JSForm.class));
+				NativeJavaObject formObject = new NativeJavaObject(formScope, scriptableForm,
+					ScriptObjectRegistry.getJavaMembers(FormController.JSForm.class, formScope));
 				formScope.putWithoutFireChange("controller", formObject); //$NON-NLS-1$
 
 				//register the place holder 'scriptableForm' in CreationalPrototype scope
@@ -2456,6 +2494,17 @@ public abstract class BasicFormController
 		return Utils.parseJSExpression(getForm().getCustomDesignTimeProperty(key));
 	}
 
+	public Map<String, Object> getDesignProperties()
+	{
+		Map<String, Object> designProperties = ((AbstractBase)getForm()).getMergedCustomDesignTimeProperties();
+		Map<String, Object> parsedMap = new JSMap<>();
+
+		designProperties.entrySet().forEach(entry -> {
+			parsedMap.put(entry.getKey(), Utils.parseJSExpression(entry.getValue()));
+		});
+		return parsedMap;
+	}
+
 	public PageFormat getPageFormat()
 	{
 		return pageFormat;
@@ -3027,7 +3076,10 @@ public abstract class BasicFormController
 		 *
 		 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_addTableFilterParam(String, String, String, String, Object, String)
 		 * @return true if successful
+		 *
+		 *  @deprecated  Should use {@link foundset#loadAllRecords()}
 		 */
+		@Deprecated
 		public boolean js_loadAllRecords() throws ServoyException
 		{
 			checkDestroyed();
@@ -3044,7 +3096,10 @@ public abstract class BasicFormController
 		 *
 		 * @return true if successful
 		 * @see com.servoy.j2db.dataprocessing.FoundSet#js_loadRecords()
+		 *
+		 * @deprecated  Should use {@link foundset#loadRecords()}
 		 */
+		@Deprecated
 		public boolean js_loadRecords() throws ServoyException
 		{
 			checkDestroyed();
@@ -3124,7 +3179,10 @@ public abstract class BasicFormController
 		 *
 		 * @param pkdataset to load
 		 * @return true if successful
+		 *
+		 * @deprecated  Should use {@link foundset#loadRecords(IDataSet)}
 		 */
+		@Deprecated
 		public boolean js_loadRecords(IDataSet pkdataset)
 		{
 			checkDestroyed();
@@ -3154,7 +3212,10 @@ public abstract class BasicFormController
 		 *
 		 * @param singlenNmber_pk to load
 		 * @return true if successful
+		 *
+		 * @deprecated  Should use {@link foundset#loadRecords(Number)}
 		 */
+		@Deprecated
 		public boolean js_loadRecords(Number singlenNmber_pk)
 		{
 			checkDestroyed();
@@ -3182,7 +3243,10 @@ public abstract class BasicFormController
 		 *
 		 * @param UUIDpk to load
 		 * @return true if successful
+		 *
+		 * @deprecated  Should use {@link foundset#loadRecords(UUID)}
 		 */
+		@Deprecated
 		public boolean js_loadRecords(UUID UUIDpk)
 		{
 			checkDestroyed();
@@ -3227,7 +3291,10 @@ public abstract class BasicFormController
 		 *
 		 * @param queryString to load
 		 * @return true if successful
+		 *
+		 * @deprecated  Should use {@link foundset#loadRecords(QBSelect)}
 		 */
+		@Deprecated
 		public boolean js_loadRecords(String queryString)
 		{
 			checkDestroyed();
@@ -3243,7 +3310,10 @@ public abstract class BasicFormController
 		 * @param queryString to load
 		 * @param queryArgumentsArray the arguments to replace the questions marks in the queryString
 		 * @return true if successful
+		 *
+		 * @deprecated  Should use {@link foundset#loadRecords(QBSelect)}
 		 */
+		@Deprecated
 		public boolean js_loadRecords(String queryString, Object[] queryArgumentsArray)
 		{
 			checkDestroyed();
@@ -3312,7 +3382,10 @@ public abstract class BasicFormController
 		 * }
 		 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_getFoundSetCount(Object)
 		 * @return the max record index
+		 *
+		 * @deprecated  Should use {@link foundset#getSize()}
 		 */
+		@Deprecated
 		public int js_getMaxRecordIndex()
 		{
 			checkDestroyed();
@@ -3894,7 +3967,10 @@ public abstract class BasicFormController
 		 * @sample
 		 * var success = %%prefix%%controller.deleteRecord();
 		 * @return false incase of related foundset having records and orphans records are not allowed by the relation
+		 *
+		 * @deprecated  Should use {@link foundset#deleteRecord()}
 		 */
+		@Deprecated
 		public boolean js_deleteRecord() throws ServoyException
 		{
 			checkDestroyed();
@@ -3907,7 +3983,10 @@ public abstract class BasicFormController
 		 * @sample
 		 * var success = %%prefix%%controller.deleteAllRecords();
 		 * @return false incase of related foundset having records and orphans records are not allowed by the relation
+		 *
+		 * @deprecated  Should use {@link foundset#deleteAllRecords()}
 		 */
+		@Deprecated
 		public boolean js_deleteAllRecords() throws ServoyException
 		{
 			checkDestroyed();
@@ -4042,7 +4121,7 @@ public abstract class BasicFormController
 		 *
 		 * @return the design mode state (true/fase)
 		 */
-		@ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+		@ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
 		public boolean jsFunction_getDesignMode()
 		{
 			checkDestroyed();
@@ -4059,7 +4138,9 @@ public abstract class BasicFormController
 		 * //%%prefix%%controller.newRecord(2); //adds as second record
 		 *
 		 * @return true if succesful
+		 * @deprecated  Should use {@link foundset#newRecord()}
 		 */
+		@Deprecated
 		public boolean js_newRecord() throws ServoyException
 		{
 			return js_newRecord(true);
@@ -4070,7 +4151,10 @@ public abstract class BasicFormController
 		 * @sampleas js_newRecord()
 		 * @param insertOnTop boolean true adds the new record as the topmost record
 		 * @return true if successful
+		 *
+		 * @deprecated  Should use {@link foundset#newRecord(boolean)}
 		 */
+		@Deprecated
 		public boolean js_newRecord(boolean insertOnTop) throws ServoyException
 		{
 			checkDestroyed();
@@ -4082,7 +4166,10 @@ public abstract class BasicFormController
 		 * @sampleas js_newRecord()
 		 * @param location adds at specified index
 		 * @return true if successful
+		 *
+		 * @deprecated  Should use {@link foundset#newRecord(int)}
 		 */
+		@Deprecated
 		public boolean js_newRecord(int location) throws ServoyException
 		{
 			checkDestroyed();
@@ -4114,7 +4201,10 @@ public abstract class BasicFormController
 		 * //%%prefix%%controller.duplicateRecord(1,2); //duplicate the first record as second record
 		 *
 		 * @return true if succesful
+		 *
+		 * @deprecated  Should use {@link foundset#duplicateRecord()}
 		 */
+		@Deprecated
 		public boolean js_duplicateRecord() throws ServoyException
 		{
 			return js_duplicateRecord(true);
@@ -4125,7 +4215,10 @@ public abstract class BasicFormController
 		 * @sampleas js_duplicateRecord()
 		 * @param location boolean true adds the new record as the topmost record
 		 * @return true if successful
+		 *
+		 * @deprecated  Should use {@link foundset#duplicateRecord(boolean)}
 		 */
+		@Deprecated
 		public boolean js_duplicateRecord(boolean location) throws ServoyException
 		{
 			checkDestroyed();
@@ -4137,7 +4230,10 @@ public abstract class BasicFormController
 		 * @sampleas js_duplicateRecord()
 		 * @param location adds at specified index
 		 * @return true if successful
+		 *
+		 * @deprecated  Should use {@link foundset#duplicateRecord(int)}
 		 */
+		@Deprecated
 		public boolean js_duplicateRecord(int location) throws ServoyException
 		{
 			checkDestroyed();
@@ -4211,7 +4307,10 @@ public abstract class BasicFormController
 		 * @return true if all selected record(s) could be omitted
 		 *
 		 * @see com.servoy.j2db.BasicFormController$JSForm#js_loadOmittedRecords()
+		 *
+		 * @deprecated  Should use {@link foundset#omitRecord()}
 		 */
+		@Deprecated
 		public boolean js_omitRecord() throws ServoyException
 		{
 			checkDestroyed();
@@ -4233,7 +4332,10 @@ public abstract class BasicFormController
 		 *
 		 * @sample %%prefix%%controller.loadOmittedRecords();
 		 * @return true if successful
+		 *
+		 * @deprecated  Should use {@link foundset#loadOmittedRecords()}
 		 */
+		@Deprecated
 		public boolean js_loadOmittedRecords() throws ServoyException
 		{
 			checkDestroyed();
@@ -4245,7 +4347,10 @@ public abstract class BasicFormController
 		 *
 		 * @sample %%prefix%%controller.invertRecords();
 		 * @return true if successful
+		 *
+		 * @deprecated  Should use {@link foundset#invertRecords()}
 		 */
+		@Deprecated
 		public boolean js_invertRecords() throws ServoyException
 		{
 			checkDestroyed();
@@ -4312,7 +4417,10 @@ public abstract class BasicFormController
 		 * @sample %%prefix%%controller.sort('columnA desc,columnB asc');
 		 *
 		 * @param sortString the specified columns (and sort order)
+		 *
+		 * @deprecated  Should use {@link foundset#sort(String)}
 		 */
+		@Deprecated
 		public void js_sort(String sortString)
 		{
 			js_sort(sortString, false);
@@ -4324,7 +4432,10 @@ public abstract class BasicFormController
 		 *
 		 * @param sortString the specified columns (and sort order)
 		 * @param defer the "sortString" will be just stored, without performing a query on the database (the actual sorting will be deferred until the next data loading action).
+		 *
+		 * @deprecated  Should use {@link foundset#sort(String, boolean)}
 		 */
+		@Deprecated
 		public void js_sort(String sortString, boolean defer)
 		{
 			checkDestroyed();
@@ -4336,7 +4447,10 @@ public abstract class BasicFormController
 		 * Lookups are defined in the dataprovider (columns) auto-enter setting and are normally performed over a relation upon record creation.
 		 *
 		 * @sample %%prefix%%controller.relookup();
+		 *
+		 * @deprecated  Should use {@link foundset#relookup()}
 		 */
+		@Deprecated
 		public void js_relookup()
 		{
 			checkDestroyed();
@@ -4579,6 +4693,18 @@ public abstract class BasicFormController
 		{
 			checkDestroyed();
 			return formController.getDesignTimeProperty(key);
+		}
+
+		/** Get the design-time properties of the form.
+		 *
+		 * @sample
+		 * var prop = fforms.orders.controller.getDesignProperties()
+		 */
+		@JSFunction
+		public Map<String, Object> getDesignProperties()
+		{
+			checkDestroyed();
+			return formController.getDesignProperties();
 		}
 
 		/**

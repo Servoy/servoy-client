@@ -147,7 +147,7 @@ public interface IQueryBuilder extends IQueryBuilderTableClause
 	 */
 	IQueryBuilderParameter getParameter(String name) throws RepositoryException;
 
-	/** Create an inlined value. An inlined value is a value that will appear literally in the resulting sql.
+	/** Create an inlined value. An inlined value is a value that will appear literally (or quoted in case of a string) in the resulting sql.
 	 *  For example
 	 *  <pre>
 	 *  	query.where().add(query.getColumn("custid").eq(query.inline(200)))
@@ -173,6 +173,9 @@ public interface IQueryBuilder extends IQueryBuilderTableClause
 	Object inline(Number number);
 
 	Object inline(Number number, IQueryBuilderColumn columnForType);
+
+	Object inline(String string);
+
 
 	/**
 	 * Create an OR-condition to add conditions to.

@@ -18,13 +18,26 @@ package com.servoy.j2db.dataprocessing;
 
 
 import static com.servoy.j2db.dataprocessing.SQLGenerator.isDistinctAllowed;
+import static com.servoy.j2db.persistence.ColumnInfo.DATABASE_IDENTITY;
+import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONAFTERCREATEMETHODID;
+import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONAFTERDELETEMETHODID;
+import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONAFTERFINDMETHODID;
+import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONAFTERSEARCHMETHODID;
+import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONCREATEMETHODID;
+import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONDELETEMETHODID;
+import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONFINDMETHODID;
+import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID;
+import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONSEARCHMETHODID;
 import static com.servoy.j2db.util.Utils.iterate;
+import static com.servoy.j2db.util.Utils.stream;
+import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
 
 import java.lang.ref.WeakReference;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -56,6 +69,7 @@ import com.servoy.base.scripting.api.IJSRecord;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.dataprocessing.FoundSetManager.GlobalFoundSetEventListener;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -68,13 +82,13 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
-import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
@@ -110,6 +124,7 @@ import com.servoy.j2db.scripting.TableScope;
 import com.servoy.j2db.scripting.UsedDataProviderTracker;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.scripting.annotations.JSSignature;
+import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
@@ -156,6 +171,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	private List<IFoundSetEventListener> foundSetEventListeners = new ArrayList<IFoundSetEventListener>();
 	private List<IModificationListener> aggregateModificationListeners = new ArrayList<IModificationListener>();
 
+	private String serializedQuery;
+
 	protected SQLSheet sheet; //SQL statements to perform on certain actions
 
 	private volatile PksAndRecordsHolder pksAndRecords;
@@ -179,6 +196,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	private PrototypeState proto = null;
 
 	protected boolean mustQueryForUpdates;
+
+	private MethodCallState nextChunkLoadState = MethodCallState.READY;
 
 	// forms might force their foundset to remain at a certain multiselect value
 	// if a form 'pinned' multiselect, multiSelect should not be changeable by foundset JS access
@@ -207,7 +226,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			throw new IllegalArgumentException(app.getApplication().getI18NMessage("servoy.foundSet.error.sqlsheet")); //$NON-NLS-1$
 		}
-		pksAndRecords = new PksAndRecordsHolder(this, fsm.chunkSize);
+		pksAndRecords = new PksAndRecordsHolder(this, fsm.config.chunkSize(), fsm.config.optimizedChangeFires());
 		relationName = relation_name;
 		this.sheet = sheet;
 
@@ -295,7 +314,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * Same as {@link #getID()} but it will not assign an id if it wasn't set before.
 	 */
-	int getIDInternal()
+	public int getIDInternal()
 	{
 		return foundsetID;
 	}
@@ -359,7 +378,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		// just display the records without the omitted pks (when clear omit is false)
 		refreshFromDBInternal(
 			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), creationSqlSelect, null, true, omittedPKs, lastSortColumns, true), false,
-			fsm.pkChunkSize, false, false);
+			fsm.config.pkChunkSize(), false, false);
 	}
 
 	protected void clearOmit(QuerySelect sqlSelect)
@@ -397,7 +416,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	void refreshFromDB(boolean skipStopEdit) throws ServoyException
 	{
-		refreshFromDBInternal(null, true, fsm.pkChunkSize, false, skipStopEdit);
+		refreshFromDBInternal(null, true, fsm.config.pkChunkSize(), false, skipStopEdit);
 	}
 
 	/**
@@ -454,6 +473,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		IDataSet oldPKs = pks;
 
+		IFoundSetChanges changes = null;
 		//cache pks
 		String transaction_id = fsm.getTransactionID(sheet);
 		long time = System.currentTimeMillis();
@@ -474,7 +494,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				// optimistic locking, if the query has been changed in the mean time forget about the refresh
 				if (sqlSelect != null || theQuery == null || theQuery == pksAndRecords.getQuerySelectForReading())
 				{
-					cachedRecords = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), theQuery);
+					changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), theQuery);
+					cachedRecords = pksAndRecords.getCachedRecords();
 				}
 				else
 				{
@@ -515,6 +536,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 						cachedRecords.add(0, newRecord);
 						pks.addRow(0, newRecord.getPK());
 						selectedIndex = 0;
+						changes = null;
 					}
 					else if (newRecordIndex > 0)
 					{
@@ -522,12 +544,14 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 						cachedRecords.add(newRecordIndex, newRecord);
 						pks.addRow(newRecordIndex, newRecord.getPK());
 						selectedIndex = newRecordIndex;
+						changes = null;
 					}
 				}
 
 				if (keepPkOrder)
 				{
 					pksAndRecords.reorder(oldPKs);
+					changes = null;
 				}
 			}
 			else
@@ -553,8 +577,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					}
 					if (getSize() < oldSize && pks.hadMoreRows())
 					{
-						int hint = ((getSize() / fsm.pkChunkSize) + 2) * fsm.pkChunkSize;
+						int hint = ((getSize() / fsm.config.pkChunkSize()) + 2) * fsm.config.pkChunkSize();
 						queryForMorePKs(pksAndRecords, pks.getRowCount(), hint, true);
+						changes = null;
 					}
 					else
 					{
@@ -566,7 +591,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		//let the List know the model changed
-		fireDifference(oldSize, getSize());
+		fireDifference(oldSize, getSize(), changes);
 
 		//move to correct position if we know
 		if (selectedIndex != -1 || !selectRecord(selectedPK))
@@ -616,7 +641,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			fireSelectionAdjusting();
 		}
 		clear();
-		fireDifference(size, getSize());
+		fireDifference(size, getSize(), null);
 	}
 
 	abstract boolean canDispose();
@@ -639,7 +664,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			Debug.warn("Cannot dispose the related foundset:  " + getRelationName() + ", fs: " + this);
 			return false;
 		}
-		if (foundSetEventListeners.size() != 0)
+		if (foundSetEventListeners.size() != 0 && !(foundSetEventListeners.size() == 1 && foundSetEventListeners.get(0) instanceof GlobalFoundSetEventListener))
 		{
 			Debug.warn("Cannot dispose foundset, still linked to component, fs: " + this + ", listeners: " + foundSetEventListeners);
 			return false;
@@ -657,7 +682,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Add a filter parameter that is permanent per user session to limit a specified foundset of records.
-	 * Use clear(), loadRecords() or loadAllRecords() to make the filter effective.
+	 * Use clear(), reloadWithFilters(), loadRecords() or loadAllRecords() to make the filter effective.
 	 * Multiple filters can be added to the same dataprovider, they will all be applied.
 	 *
 	 * @sampleas js_addFoundSetFilterParam(String, String, Object, String)
@@ -678,7 +703,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Add a filter parameter that is permanent per user session to limit a specified foundset of records.
-	 * Use clear(), loadRecords() or loadAllRecords() to make the filter effective.
+	 * Use clear(), reloadWithFilters(), loadRecords() or loadAllRecords() to make the filter effective.
 	 * The filter is removed again using removeFoundSetFilterParam(name).
 	 *
 	 * @sample
@@ -722,7 +747,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * a query filter with a join from orders to order_details will be applied to the foundset,
 	 * but the filter condition on the orders_details table will not be included.
 	 *
-	 * Use clear(), loadRecords() or loadAllRecords() to make the filter effective.
+	 * Use clear(), reloadWithFilters(), loadRecords() or loadAllRecords() to make the filter effective.
 	 * Multiple filters can be added to the same dataprovider, they will all be applied.
 	 *
 	 * @sampleas js_addFoundSetFilterParam(QBSelect, String)
@@ -744,7 +769,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * a query filter with a join from orders to order_details will be applied to the foundset,
 	 * but the filter condition on the orders_details table will not be included.
 	 *
-	 * Use clear(), loadRecords() or loadAllRecords() to make the filter effective.
+	 * Use clear(), reloadWithFilters(), loadRecords() or loadAllRecords() to make the filter effective.
 	 * The filter is removed again using removeFoundSetFilterParam(name).
 	 *
 	 * The table of the query has to be the same as the foundset table.
@@ -783,7 +808,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Remove a named foundset filter.
-	 * Use clear(), loadRecords() or loadAllRecords() to make the filter effective.
+	 * Use clear(), reloadWithFilters(), loadRecords() or loadAllRecords() to make the filter effective.
 	 *
 	 * @sample
 	 * var success = %%prefix%%foundset.removeFoundSetFilterParam('custFilter');// removes all filters with this name
@@ -1140,6 +1165,32 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return relationName;
 	}
 
+	/**
+	 * Gets the parent records when called on a related foundset. (empty array if not a related foundset)
+	 * Depending on the cardinality of the relation, this method returns either 1 or more records.
+	 * This can be useful when creating a new record in an empty related foundset and some data from the parent record(s) is needed.
+	 * <br/><br/>
+	 * Be aware that if datasources.xxx.getFoundset() is called multiple times on the same datasource it creates multiple foundset instances
+	 * then the related foundset can have multiple references to the same parent record but in different foundsets.
+	 * (different instances of the record for the same row in the database)
+	 * In that case, this method will return the record from the first foundset.
+	 *
+	 * @sample var parents = relatedFoundset.getParentRecords();
+	 *
+	 * @return an array of records
+	 */
+	@JSFunction
+	public IRecordInternal[] getParentRecords()
+	{
+		if (this.allParents.isEmpty()) return new IRecordInternal[0];
+		Map<String, IRecordInternal> uniqueRecords = new HashMap<String, IRecordInternal>();
+		for (IRecordInternal record : getParents())
+		{
+			uniqueRecords.putIfAbsent(record.getPKHashKey(), record);
+		}
+		return uniqueRecords.values().toArray(new IRecordInternal[0]);
+	}
+
 
 	/**
 	 * Invert the foundset against all rows of the current table.
@@ -1188,11 +1239,25 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			clearInternalState(true);
 			int oldSize = getSize();
 			pksAndRecords.setPks(null, 0);
-			fireDifference(oldSize, 0);
+			fireDifference(oldSize, 0, null);
 		}
 
 		loadAllRecords();
 		return true;
+	}
+
+	/**
+	 * Reloads all last records again with the filters applied.
+	 *
+	 * @sample
+	 *  %%prefix%%foundset.reloadWithFilters();
+	 *
+	 */
+	public void js_reloadWithFilters() throws ServoyException
+	{
+		refreshFromDBInternal(
+			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), pksAndRecords.getTempQuery(), null, true, null, lastSortColumns, false),
+			false, fsm.config.pkChunkSize(), false, false);
 	}
 
 	/**
@@ -1479,7 +1544,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Loads records into form foundset based on a query builder object (also known as 'Form by query').
-	 * When the founset is in find mode, the find states are discarded, the foundset will go out of find mode and the foundset will be loaded using the query.
+	 * When the foundset is in find mode, the find states are discarded, the foundset will go out of find mode and the foundset will be loaded using the query.
 	 * If the foundset is related, the relation-condition will be added to the query.
 	 * Tries to preserve selection based on primary key, otherwise first record is selected.
 	 *
@@ -1876,6 +1941,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 						SortColumn sortColumn = new SortColumn(columnWrapper);
 						sortColumn.setSortOrder(((QuerySort)qsort).isAscending() ? SortColumn.ASCENDING : SortColumn.DESCENDING);
 						sortColumns.add(sortColumn);
+
 						continue; // otherwise stop searching
 					}
 				}
@@ -1942,24 +2008,31 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	/**
 	 * Get the query that the foundset is currently using (as a clone; modifying this QBSelect will not automatically change the foundset).
-	 * When the founset is in find mode, the find conditions are included in the resulting query.
+	 * When the foundset is in find mode, the find conditions are included in the resulting query.
 	 * So the query that would be used when just calling search() (or search(true,true)) is returned.
-	 * Note that foundset filters are included and table filters are not included in the query.
+	 * Note that foundset filters are optionally included and table filters are not included in the query.
 	 *
 	 * @sample
 	 * var q = foundset.getQuery()
 	 * q.where.add(q.columns.x.eq(100))
 	 * foundset.loadRecords(q);
 	 *
+	 * @param includeFilters include the foundset filters, default true.
+	 *
 	 * @return query.
 	 */
 	@JSFunction
-	public QBSelect getQuery()
+	public QBSelect getQuery(boolean includeFilters)
 	{
 		QuerySelect query;
 		try
 		{
 			query = getCurrentStateQuery(true, true);
+			if (!includeFilters)
+			{
+				query.clearCondition(SQLGenerator.CONDITION_FILTER);
+				removeFilterJoins(query, foundSetFilters);
+			}
 		}
 		catch (ServoyException e)
 		{
@@ -1968,6 +2041,18 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		return new QBSelect(getFoundSetManager(), getFoundSetManager().getScopesScopeProvider(), getFoundSetManager().getApplication().getFlattenedSolution(),
 			getFoundSetManager().getApplication().getScriptEngine().getSolutionScope(), getDataSource(), null, query);
+	}
+
+	/**
+	 * @clonedesc getQuery(boolean)
+	 * @sampleas getQuery(boolean)
+	 *
+	 * @return query.
+	 */
+	@JSFunction
+	public QBSelect getQuery()
+	{
+		return getQuery(true);
 	}
 
 	/**
@@ -2032,7 +2117,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		IDataSet pk_data;
 		try
 		{
-			pk_data = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.pkChunkSize, IDataServer.CUSTOM_QUERY);
+			pk_data = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.config.pkChunkSize(), IDataServer.CUSTOM_QUERY);
 		}
 		catch (RemoteException e)
 		{
@@ -2043,10 +2128,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (pk_data.getRowCount() > 0 && pk_data.getColumnCount() != sheet.getPKIndexes().length)
 			throw new IllegalArgumentException(fsm.getApplication().getI18NMessage("servoy.foundSet.query.error.incorrectNumberOfPKS")); //$NON-NLS-1$
 
-		pksAndRecords.setPksAndQuery(pk_data, pk_data.getRowCount(), sqlSelect);
+		IFoundSetChanges changes = pksAndRecords.setPksAndQuery(pk_data, pk_data.getRowCount(), sqlSelect);
 		clearInternalState(true);
 
-		fireDifference(sizeBefore, getSize());
+		fireDifference(sizeBefore, getSize(), changes);
 
 		// try to preserve selection after load by query; if not possible select first record
 		if (selectedPK != null)
@@ -2452,20 +2537,20 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		fsm.getSQLGenerator().addSorts(sqlSelect, sqlSelect.getTable(), this, sheet.getTable(), lastSortColumns, false, false);
 		clearOmit(sqlSelect);
 		int sizeAfter = set.getRowCount();
-		pksAndRecords.setPksAndQuery(set, sizeAfter, sqlSelect);
+		IFoundSetChanges changes = pksAndRecords.setPksAndQuery(set, sizeAfter, sqlSelect);
 		clearInternalState(true);
 
-		if (((fsm.verifyPKDatasetAgainstTableFilters && fsm.getTableFilterParams(sheet.getServerName(), sqlSelect) != null) ||
+		if (((fsm.config.verifyPKDatasetAgainstTableFilters() && fsm.getTableFilterParams(sheet.getServerName(), sqlSelect) != null) ||
 			sqlSelect.getCondition(SQLGenerator.CONDITION_FILTER) != null) && set.getRowCount() > 0)
 		{
-			fireDifference(sizeBefore, sizeAfter);
+			fireDifference(sizeBefore, sizeAfter, changes);
 			refreshFromDBInternal(null, true, set.getRowCount(), true, false); // some PKs in the set may not be valid for the current filters
 		}
 		else
 		{
 			if (pksAndRecords.getPks().getRowCount() > 0) getRecord(0);
 
-			fireDifference(sizeBefore, sizeAfter);
+			fireDifference(sizeBefore, sizeAfter, changes);
 
 			// try to preserve selection after load pk list; if not possible select first record
 			if (selectedPK != null)
@@ -2493,7 +2578,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return creationSqlSelect;
 	}
 
-	public boolean queryForAllPKs()
+	public void queryForAllPKs()
 	{
 		PksAndRecordsHolder pksAndRecordsCopy;
 		int rowCount;
@@ -2503,13 +2588,15 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			IDataSet pks = pksAndRecordsCopy.getPks();
 			rowCount = pks == null ? 0 : pks.getRowCount();
 		}
-		return queryForMorePKs(pksAndRecordsCopy, rowCount, -1, true);
+		queryForMorePKs(pksAndRecordsCopy, rowCount, -1, true);
 	}
 
-	/*
+	/**
 	 * Fill the pks from pksAndRecordsCopy starting at originalPKRowcount.
+	 *
+	 * @return the number of records added
 	 */
-	protected boolean queryForMorePKs(PksAndRecordsHolder pksAndRecordsCopy, int originalPKRowcount, int maxResult, boolean fireChanges)
+	protected int queryForMorePKs(PksAndRecordsHolder pksAndRecordsCopy, int originalPKRowcount, int maxResult, boolean fireChanges)
 	{
 		try
 		{
@@ -2602,12 +2689,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			pksAndRecordsCopy.setDbIndexLastPk(dbIndexLastPk);
 
 			int newSize = getCorrectedSizeForFires();
-			if (newpks.getRowCount() != 0)
+			if (fireChanges && newpks.getRowCount() != 0)
 			{
-				if (fireChanges) fireFoundSetEvent(size, newSize, FoundSetEvent.CHANGE_INSERT);
-				return true;
+				fireFoundSetEvent(size, newSize, FoundSetEvent.CHANGE_INSERT);
 			}
-			return false;
+			return newSize - size;
 		}
 		catch (ServoyException ex)
 		{
@@ -2671,15 +2757,15 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			creationSqlSelect = AbstractBaseQuery.deepClone(sqlSelect);
 		}
-
+		IFoundSetChanges changes = null;
 		//cache pks
 		String transaction_id = fsm.getTransactionID(sheet);
 		long time = System.currentTimeMillis();
 		try
 		{
-			IDataSet pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+			IDataSet pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.config.pkChunkSize(), IDataServer.FOUNDSET_LOAD_QUERY);
 
-			pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect);
+			changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect);
 		}
 		catch (RemoteException e)
 		{
@@ -2696,7 +2782,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		clearInternalState(true);
 
 		//let the List know the model changed
-		fireDifference(oldSize, getSize());
+		fireDifference(oldSize, getSize(), changes);
 	}
 
 	/**
@@ -2736,9 +2822,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			SafeArrayList<IRecordInternal> cachedRecords = pksAndRecords.getCachedRecords();
 			for (int i = cachedRecords.size() - 1; i >= 0; i--)
 			{
-				if (row >= 0 && i < row + fsm.chunkSize)//leave every thing close to the selection
+				if (row >= 0 && i < row + fsm.config.chunkSize())//leave every thing close to the selection
 				{
-					i = row - fsm.chunkSize;
+					i = row - fsm.config.chunkSize();
 					row = -1; // so this test isn't needed anymore
 					continue;
 				}
@@ -2759,7 +2845,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public IRecordInternal getRecord(int row)
 	{
-		return getRecord(row, fsm.chunkSize);
+		return getRecord(row, fsm.config.chunkSize());
 	}
 
 	private IRecordInternal getRecord(int row, int sizeHint)
@@ -2780,11 +2866,46 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			hadMoreRows = pks.hadMoreRows();
 		}
 
-		if (row >= rowCount - 1 && hadMoreRows)
+		if (row >= rowCount - 1)
 		{
-			int hint = ((row / fsm.pkChunkSize) + 2) * fsm.pkChunkSize;
-			queryForMorePKs(pksAndRecordsCopy, rowCount, hint, true);
+			int hint = ((row / fsm.config.pkChunkSize()) + 2) * fsm.config.pkChunkSize();
+			int nQueried = 0;
+			if (hadMoreRows)
+			{
+				nQueried = queryForMorePKs(pksAndRecordsCopy, rowCount, hint, true);
+			}
+
+			String dataSource = getDataSource();
+			String inmemDataSourceName = DataSourceUtils.getInmemDataSourceName(dataSource);
+			if (nQueried <= 0 //
+				&& inmemDataSourceName != null //
+				&& nextChunkLoadState != MethodCallState.DONE // When all chunks are loaded switch to queries (for example after sort)
+				&& fsm.hasFoundsetTrigger(dataSource, PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID))
+			{
+				// Inmem datasource with an OnNextChunkMethod
+				int total = 0;
+				try
+				{
+					int newPksCount;
+					do
+					{
+						newPksCount = loadNextChunkFromMethod(inmemDataSourceName, hint - rowCount - total);
+						total += newPksCount;
+					}
+					while (newPksCount > 0 && row >= rowCount + total - 1);
+				}
+				catch (ServoyException e)
+				{
+					fsm.getApplication().handleException(fsm.getApplication().getI18NMessage("servoy.foundSet.error.loadingRecord"), e);
+				}
+
+				if (total > 0)
+				{
+					fireFoundSetEvent(rowCount, rowCount + total - 1, FoundSetEvent.CHANGE_INSERT);
+				}
+			}
 		}
+
 		IRecordInternal state = pksAndRecordsCopy.getCachedRecords().get(row);
 		if (state == null && !findMode)
 		{
@@ -2797,6 +2918,95 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			state = getPrototypeState();
 		}
 		return state;
+	}
+
+	/**
+	 * Call the OnFoundsetNextChunkMethod.
+	 */
+	private int loadNextChunkFromMethod(String inmemDataSourceName, int numberRequested) throws ServoyException
+	{
+		if (nextChunkLoadState == MethodCallState.READY)
+		{
+			nextChunkLoadState = MethodCallState.CALLING;
+			try
+			{
+				Object nextChunk = executeFoundsetTriggerReturnFirst(new Object[] { inmemDataSourceName, Integer.valueOf(numberRequested) },
+					PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID, true);
+
+				if (nextChunk instanceof IDataSet && ((IDataSet)nextChunk).getRowCount() > 0)
+				{
+					IDataSet nextChunkDataset = (IDataSet)nextChunk;
+
+					List<Object[]> newPks = null;
+					int[] pkIndexesInDataset;
+					boolean hasIdentityColumn = getTable().getRowIdentColumns().stream().mapToInt(Column::getSequenceType)
+						.anyMatch(sequenceType -> sequenceType == DATABASE_IDENTITY);
+					if (hasIdentityColumn)
+					{
+						// we assume that he identity column is the single pk.
+						// this may be the internal hidden identity column (_sv_id) or a user-defined one.
+						pkIndexesInDataset = new int[] { 0 };
+					}
+					else
+					{
+						// extract pks from dataset and add them to the foundset pks
+						String[] pkColumnnames = stream(getTable().getRowIdentColumnNames()).toArray(String[]::new);
+						List<String> pkColumnnamesList = asList(pkColumnnames);
+
+						pkIndexesInDataset = stream(nextChunkDataset.getColumnNames())
+							.mapToInt(pkColumnnamesList::indexOf).filter(idx -> idx >= 0)
+							.toArray();
+
+						if (pkIndexesInDataset.length != pkColumnnames.length)
+						{
+							List<String> missingPks = stream(pkColumnnamesList).filter(pkName -> !asList(nextChunkDataset.getColumnNames()).contains(pkName))
+								.collect(toList());
+							if (!missingPks.isEmpty())
+							{
+								throw new IllegalArgumentException(
+									"onFoundsetNextChunkMethod: Not all pk columns are in the dataset, missing dataproviders: " + missingPks);
+							}
+						}
+
+						newPks = nextChunkDataset.getRows();
+					}
+
+					Object[] generatedPks = fsm.insertToDataSource(inmemDataSourceName, nextChunkDataset, null, null, false, true);
+
+					if (hasIdentityColumn && generatedPks != null)
+					{
+						// dbidentity values for inserted records
+						newPks = stream(generatedPks).map(o -> new Object[] { o }).collect(toList());
+					}
+
+					synchronized (pksAndRecords)
+					{
+						PKDataSet pks = pksAndRecords.getPks();
+
+						// get the pkvalues from the nextChunkDataset based on pkIndexesInDataset
+						newPks.stream()
+							.map(r -> stream(pkIndexesInDataset).mapToObj(idx -> r[idx]).toArray())
+							.forEach(newpk -> pks.setRow(pks.getRowCount(), newpk, false));
+					}
+
+					return newPks.size();
+				}
+				else
+				{
+					nextChunkLoadState = MethodCallState.DONE;
+				}
+			}
+			finally
+			{
+				// In case of exception, try again next time
+				if (nextChunkLoadState != MethodCallState.DONE)
+				{
+					nextChunkLoadState = MethodCallState.READY;
+				}
+			}
+		}
+
+		return 0;
 	}
 
 	public IRecordInternal[] getRecords(int startrow, int count)
@@ -3345,6 +3555,95 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/**
+	 * Create a new record in the foundset and change selection to it at specified index. Returns the new record or null if the record can't be made.
+	 *
+	 * @sample
+	 * var rec = %%prefix%%foundset.createRecord(1); // add as first record, do change selection
+	 *
+	 * @param index the new record is added at specified index (1-based).
+	 *
+	 * @return IJSRecord of new record.
+	 */
+	@JSFunction
+	public IJSRecord createRecord(Number index) throws Exception
+	{
+		return createRecord(index, Boolean.TRUE);
+	}
+
+	/**
+	 * Create a new record in the foundset. Returns the new record or null if the record can't be made.
+	 *
+	 * @sample
+	 *  var rec = %%prefix%%foundset.createRecord(1, false); // add as first record, do not change selection
+	 *
+	 * @param index the new record is added at specified index (1-based).
+	 * @param changeSelection boolean when true the selection is changed to the new record.
+	 *
+	 * @return  IJSRecord of new record.
+	 */
+	@JSFunction
+	public IJSRecord createRecord(Number index, Boolean changeSelection) throws Exception
+	{
+		int _index = getNumberAsInt(index, 1);
+		boolean _changeSelection = getBooleanAsbool(changeSelection, true);
+		if (_index > 0)
+		{
+			return (IJSRecord)getRecord(newRecord(null, _index - 1, _changeSelection));
+		}
+		return null;
+	}
+
+	/**
+	 * Create a new record in the foundset. Returns the new record or null if the record can't be made.
+	 *
+	 * @sample
+	 * var rec = %%prefix%%foundset.createRecord(false); // add as last record, do change selection
+	 *
+	 * @param onTop when true the new record is added as the topmost record.
+	 *
+	 * @return IJSRecord of new record.
+	 */
+	@JSFunction
+	public IJSRecord createRecord(Boolean onTop) throws ServoyException
+	{
+		return createRecord(onTop, Boolean.TRUE);
+	}
+
+	/**
+	 * Create a new record in the foundset. Returns the new record or null if the record can't be made.
+	 *
+	 * @sample
+	 * var rec = %%prefix%%foundset.createRecord(false, false); // add as last record, do not change selection
+	 *
+	 * @param onTop when true the new record is added as the topmost record; when false
+	 * the record is added to the end, if all records are loaded, otherwise it will be added to the top
+	 * @param changeSelection boolean when true the selection is changed to the new record.
+	 *
+	 * @return  IJSRecord of new record.
+	 */
+	@JSFunction
+	public IJSRecord createRecord(Boolean onTop, Boolean changeSelection) throws ServoyException
+	{
+		boolean _onTop = getBooleanAsbool(onTop, true);
+		boolean _changeSelection = getBooleanAsbool(changeSelection, true);
+		return (IJSRecord)getRecord(newRecord(null, _onTop ? 0 : Integer.MAX_VALUE, _changeSelection));//javascript index is plus one
+	}
+
+	/**
+	 * Create a new record on top of the foundset and change selection to it. Returns the new record or null if record was not created.
+	 *
+	 * @sample
+	 * var rec = %%prefix%%foundset.createRecord(); // add as first record
+	 *
+	 * @return IJSRecord the new record
+	 */
+	@JSFunction
+	public IJSRecord createRecord() throws Exception
+	{
+		return createRecord(Integer.valueOf(1), Boolean.TRUE);
+	}
+
+	/**
 	 * Get the current record index of the foundset.
 	 *
 	 * @sample
@@ -3620,7 +3919,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	// is already synched by caller around the PksAndRecordsHolder instance
 	private Record createRecord(int row, int sz, IDataSet pks, SafeArrayList<IRecordInternal> cachedRecords)
 	{
-		int a_sizeHint = (sz > fsm.pkChunkSize) ? fsm.pkChunkSize : sz; //safety, SQL in limit
+		int a_sizeHint = (sz > fsm.config.pkChunkSize()) ? fsm.config.pkChunkSize() : sz; //safety, SQL in limit
 
 		if (Math.abs(row - lastRecordCreatedIndex) > 30 && cachedRecords.get(row - 1) == null && cachedRecords.get(row + 1) == null)
 		{
@@ -3641,11 +3940,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				{
 					if (cachedRecords.get(row + 1) != null)
 					{
-						startRow = row - fsm.chunkSize;
+						startRow = row - fsm.config.chunkSize();
 					}
 					else
 					{
-						startRow = row - fsm.chunkSize / 2;
+						startRow = row - fsm.config.chunkSize() / 2;
 					}
 					startRow = Math.max(startRow, 0);
 				}
@@ -3700,7 +3999,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			int newSize = pks.getRowCount();
 			if (oldSize != newSize)
 			{
-				fireDifference(oldSize, newSize);
+				fireDifference(oldSize, newSize, null);
 			}
 			synchronized (pksAndRecords)
 			{
@@ -3732,7 +4031,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	// caller already synced on PksAndRecordsHolder
 	private void removeRecords(int row, boolean breakOnNull, SafeArrayList<IRecordInternal> cachedRecords)
 	{
-		int cacheSize = fsm.chunkSize * 3;
+		int cacheSize = fsm.config.chunkSize() * 3;
 		int selected = getSelectedIndex();
 		if (row > cacheSize)
 		{
@@ -4378,7 +4677,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				{
 					// see EditRecordList.stopEditing
 					if (state.existInDataSource() &&
-						!executeFoundsetTriggerBreakOnFalse(new Object[] { state }, StaticContentSpecLoader.PROPERTY_ONDELETEMETHODID, true))
+						!executeFoundsetTriggerBreakOnFalse(new Object[] { state }, PROPERTY_ONDELETEMETHODID, true))
 					{
 						// trigger returned false
 						Debug.log("Delete not granted for the table " + getTable()); //$NON-NLS-1$
@@ -4445,7 +4744,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				Row data = state.getRawData();
 				rowManager.deleteRow(this, data, hasAccess(IRepository.TRACKING), partOfBiggerDelete);
 
-				executeFoundsetTrigger(new Object[] { state }, StaticContentSpecLoader.PROPERTY_ONAFTERDELETEMETHODID, false);
+				executeFoundsetTrigger(new Object[] { state }, PROPERTY_ONAFTERDELETEMETHODID, false);
 
 				GlobalTransaction gt = fsm.getGlobalTransaction();
 				if (gt != null)
@@ -4484,7 +4783,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	boolean executeFoundsetTriggerBreakOnFalse(Object[] args, TypedProperty<Integer> property, boolean throwException) throws ServoyException
 	{
-		return fsm.executeFoundsetTriggerInternal(getTable(), args, property, true, throwException, this);
+		return fsm.executeFoundsetTriggerBreakOnFalse(getTable(), args, property, throwException, this);
 	}
 
 	/**
@@ -4497,9 +4796,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	void executeFoundsetTrigger(Object[] args, TypedProperty<Integer> property, boolean throwException) throws ServoyException
 	{
-		fsm.executeFoundsetTriggerInternal(getTable(), args, property, false, throwException, this);
+		fsm.executeFoundsetTrigger(getTable(), args, property, throwException, this);
 	}
 
+	Object executeFoundsetTriggerReturnFirst(Object[] args, TypedProperty<Integer> property, boolean throwException) throws ServoyException
+	{
+		return fsm.executeFoundsetTriggerReturnFirst(getTable(), args, property, throwException, this);
+	}
 
 	private boolean tableHasOnDeleteMethods()
 	{
@@ -4629,6 +4932,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		int sizeBefore;
 		QuerySelect sqlSelect;
 		ArrayList<String> invertConditionNames = new ArrayList<String>();
+		IFoundSetChanges changes = null;
 		synchronized (pksAndRecords)
 		{
 			sizeBefore = getSize();
@@ -4651,7 +4955,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 			if (invertConditionNames.size() == 0)
 			{
-				pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, sqlSelect);
+				changes = pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, sqlSelect);
 			}
 			else
 			{
@@ -4662,7 +4966,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				}
 				clearOmit(sqlSelect);
 				// set pks here in case a refresh comes along
-				pksAndRecords.setPksAndQuery(pksAndRecords.getPks(), pksAndRecords.getDbIndexLastPk(), sqlSelect);
+				changes = pksAndRecords.setPksAndQuery(pksAndRecords.getPks(), pksAndRecords.getDbIndexLastPk(), sqlSelect);
 			}
 		}
 
@@ -4672,7 +4976,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			String transaction_id = fsm.getTransactionID(sheet);
 			try
 			{
-				IDataSet pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.pkChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+				IDataSet pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.config.pkChunkSize(), IDataServer.FOUNDSET_LOAD_QUERY);
 
 				synchronized (pksAndRecords)
 				{
@@ -4682,12 +4986,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 						Debug.log("invert: query was changed during refresh, not resetting old query"); //$NON-NLS-1$
 						return;
 					}
-					pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect);
+					changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect);
 				}
 			}
 			catch (RemoteException e)
 			{
-				pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, sqlSelect);
+				changes = pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, sqlSelect);
 				throw new RepositoryException(e);
 			}
 		}
@@ -4697,7 +5001,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			fireAggregateChangeWithEvents(null);
 		}
 
-		fireDifference(sizeBefore, getSize());
+		fireDifference(sizeBefore, getSize(), changes);
 	}
 
 
@@ -4870,7 +5174,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			PKDataSet pks = pksAndRecords.getPks();
 			if (pks == null)
 			{
-				cachedRecords = pksAndRecords.setPks(new BufferedDataSet(), 0);
+				pksAndRecords.setPks(new BufferedDataSet(), 0);
+				cachedRecords = pksAndRecords.getCachedRecords();
 				pks = pksAndRecords.getPks();
 			}
 			else
@@ -4913,7 +5218,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (findMode)
 		{
-			if (pksAndRecords.getCachedRecords().size() > fsm.pkChunkSize) return null;//limit to 200
+			if (pksAndRecords.getCachedRecords().size() > fsm.config.pkChunkSize()) return null;//limit to 200
 			return new FindState(this);
 		}
 
@@ -4927,8 +5232,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			Relation relation = fsm.getApplication().getFlattenedSolution().getRelation(relationName);
 			if (relation != null)
 			{
-				Placeholder ph = creationSqlSelect.getPlaceholder(
-					SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), relation.getName()));
+				Placeholder ph = SQLGenerator.getRelationPlaceholder(creationSqlSelect, relation.getName());
 				if (ph == null || !ph.isSet() || ph.getValue() == null || ((Object[])ph.getValue()).length == 0)
 				{
 					Debug.trace(
@@ -4947,7 +5251,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		try
 		{
-			if (javascriptRecord && !executeFoundsetTriggerBreakOnFalse(null, StaticContentSpecLoader.PROPERTY_ONCREATEMETHODID, false))
+			if (javascriptRecord && !executeFoundsetTriggerBreakOnFalse(null, PROPERTY_ONCREATEMETHODID, false))
 			{
 				Debug.trace("New record creation was denied by onCreateRecord method"); //$NON-NLS-1$
 				return null;
@@ -4973,7 +5277,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			if (javascriptRecord)
 			{
-				executeFoundsetTrigger(new Object[] { newRecord }, StaticContentSpecLoader.PROPERTY_ONAFTERCREATEMETHODID, false);
+				executeFoundsetTrigger(new Object[] { newRecord }, PROPERTY_ONAFTERCREATEMETHODID, false);
 			}
 		}
 		catch (ServoyException e)
@@ -5039,7 +5343,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		try
 		{
-			if (!executeFoundsetTriggerBreakOnFalse(null, StaticContentSpecLoader.PROPERTY_ONFINDMETHODID, false))
+			if (!executeFoundsetTriggerBreakOnFalse(null, PROPERTY_ONFINDMETHODID, false))
 			{
 				Debug.trace("Find mode switch was denied by onFind method"); //$NON-NLS-1$
 				return;
@@ -5057,7 +5361,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		pksAndRecords.setPks(new BufferedDataSet(), 0);//return to 0
 
 		//let the List know the model changed
-		fireDifference(oldSize, 0);
+		fireDifference(oldSize, 0, null);
 //		selectionModel.setSelectedRow(-1);
 
 		boolean oldFindMode = findMode;
@@ -5077,7 +5381,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		try
 		{
-			executeFoundsetTrigger(null, StaticContentSpecLoader.PROPERTY_ONAFTERFINDMETHODID, false);
+			executeFoundsetTrigger(null, PROPERTY_ONAFTERFINDMETHODID, false);
 		}
 		catch (ServoyException e)
 		{
@@ -5130,7 +5434,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			try
 			{
 				if (!executeFoundsetTriggerBreakOnFalse(new Object[] { Boolean.valueOf(clearLastResult), Boolean.valueOf(reduceSearch) },
-					StaticContentSpecLoader.PROPERTY_ONSEARCHMETHODID, true))
+					PROPERTY_ONSEARCHMETHODID, true))
 				{
 					Debug.trace("Foundset search was denied by onSearchFoundset method"); //$NON-NLS-1$
 					return -1; // blocked
@@ -5163,7 +5467,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			IDataSet findPKs = null;
 			try
 			{
-				findPKs = performQuery(transaction_id, findSqlSelect, getRowIdentColumnTypes(), 0, fsm.pkChunkSize, IDataServer.FIND_BROWSER_QUERY);
+				findPKs = performQuery(transaction_id, findSqlSelect, getRowIdentColumnTypes(), 0, fsm.config.pkChunkSize(), IDataServer.FIND_BROWSER_QUERY);
 			}
 			catch (RemoteException e)
 			{
@@ -5175,11 +5479,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					findSqlSelect.toString());
 			}
 
+			IFoundSetChanges changes = null;
 			if (findPKs.getRowCount() == 0)
 			{
 				if (clearIfZero)
 				{
-					pksAndRecords.setPksAndQuery(null, 0, findSqlSelect);
+					changes = pksAndRecords.setPksAndQuery(null, 0, findSqlSelect);
 					clearInternalState(true);
 					setSelectedIndex(-1);
 				}
@@ -5187,14 +5492,14 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			else
 			{
 				fireSelectionAdjusting();
-				pksAndRecords.setPksAndQuery(findPKs, findPKs.getRowCount(), findSqlSelect);
+				changes = pksAndRecords.setPksAndQuery(findPKs, findPKs.getRowCount(), findSqlSelect);
 
 				clearInternalState(true);
 				fireAggregateChangeWithEvents(null); //notify about aggregate change,because the find has cleared them all.
 			}
 			initialized = true;
 
-			fireDifference(numberOfFindStates, getSize());
+			fireDifference(numberOfFindStates, getSize(), changes);
 
 			if (getSelectedIndex() == -1 && getSize() > 0)
 			{
@@ -5204,7 +5509,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			int nfound = findPKs.getRowCount();
 			try
 			{
-				executeFoundsetTrigger(null, StaticContentSpecLoader.PROPERTY_ONAFTERSEARCHMETHODID, false);
+				executeFoundsetTrigger(null, PROPERTY_ONAFTERSEARCHMETHODID, false);
 			}
 			catch (ServoyException e)
 			{
@@ -5218,10 +5523,27 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			pksAndRecords.setPks(null, 0);
 			clearInternalState(true);
 			setSelectedIndex(-1);
-			fireDifference(numberOfFindStates, 0);
+			fireDifference(numberOfFindStates, 0, null);
 
 			throw e;
 		}
+	}
+
+	String getSerializedQuery()
+	{
+		QuerySelect currentQuery = pksAndRecords.getQuerySelectForReading();
+		String serverName = DataSourceUtils.getDataSourceServerName(getDataSource());
+		ArrayList<TableFilter> tableFilterParams = fsm.getTableFilterParams(serverName, currentQuery);
+		try
+		{
+			QuerySet qs = fsm.getDataServer().getSQLQuerySet(serverName, currentQuery, tableFilterParams, 0, -1, true, true);
+			return qs.getSelect().getSql();
+		}
+		catch (RepositoryException | RemoteException e)
+		{
+			Debug.error("Can't get a serialized state from " + currentQuery, e); //$NON-NLS-1$
+		}
+		return ""; //$NON-NLS-1$
 	}
 
 	/**
@@ -5230,8 +5552,22 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @param oldSize
 	 * @param newSize
 	 */
-	protected void fireDifference(int oldSize, int newSize)
+	protected void fireDifference(int oldSize, int newSize, IFoundSetChanges changes)
 	{
+		if (serializedQuery != null)
+		{
+			String currentQuery = getSerializedQuery();
+			if (!currentQuery.equals(serializedQuery))
+			{
+				this.serializedQuery = currentQuery;
+				fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.FOUNDSET_DEFINITION_CHANGE, FoundSetEvent.CHANGE_UPDATE));
+			}
+		}
+		if (changes != null)
+		{
+			changes.getChanges().forEach(change -> fireFoundSetEvent(change.getFirstRow(), change.getLastRow(), change.getType()));
+			return;
+		}
 		if (newSize == 0 && oldSize == 0) return;
 
 		//let the List know the model changed,the new states
@@ -5327,7 +5663,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					this);
 		}
 
-		reloadWithCurrentQuery(fsm.pkChunkSize, true, false);
+		reloadWithCurrentQuery(fsm.config.pkChunkSize(), true, false);
 	}
 
 	/**
@@ -5357,7 +5693,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				selectedPKs[i++] = pks.getRow(selectedIndex);
 			}
 		}
-
+		IFoundSetChanges changes = null;
 		int oldSize = getRawSize();
 		//cache pks
 		String transaction_id = fsm.getTransactionID(sheet);
@@ -5373,7 +5709,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					Debug.log("sort: query was changed during refresh, not resetting old query"); //$NON-NLS-1$
 					return false;
 				}
-				pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect, reuse);
+				changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect, reuse);
 			}
 		}
 		catch (RemoteException e)
@@ -5392,7 +5728,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		int newSize = getRawSize();
-		fireDifference(oldSize, newSize);
+		fireDifference(oldSize, newSize, changes);
 
 		boolean selectedPKsRecPresent = false;
 		if (selectedPKs != null)
@@ -5455,13 +5791,14 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			pks2 = pksAndRecordsHolderCopy.getPksClone();
 		}
 		pks2.sort(recordPKComparator);
+		IFoundSetChanges changes = null;
 		synchronized (pksAndRecords)
 		{
-			pksAndRecords.setPksAndQuery(pks2, pksAndRecordsHolderCopy.getDbIndexLastPk(), pksAndRecords.getQuerySelectForReading(), true);
+			changes = pksAndRecords.setPksAndQuery(pks2, pksAndRecordsHolderCopy.getDbIndexLastPk(), pksAndRecords.getQuerySelectForReading(), true);
 		}
 
 		int newSize = getSize();
-		fireDifference(oldSize, newSize);
+		fireDifference(oldSize, newSize, changes);
 
 		boolean selectedPKsRecPresent = false;
 		if (selectedPKs != null)
@@ -5550,7 +5887,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 						final IFoundSetEventListener[] array;
 						synchronized (foundSetEventListeners)
 						{
-							array = foundSetEventListeners.toArray(new IFoundSetEventListener[foundSetEventListeners.size()]);
+							if (e.getType() == FoundSetEvent.FOUNDSET_DEFINITION_CHANGE)
+								array = foundSetEventListeners.stream().filter(listener -> listener.wantsFoundSetDefinitionChanges())
+									.toArray(IFoundSetEventListener[]::new);
+							else array = foundSetEventListeners.toArray(new IFoundSetEventListener[foundSetEventListeners.size()]);
 						}
 
 						// make sure that all the foundset events are completely handled
@@ -5584,7 +5924,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public void fireFoundSetChanged()
 	{
 		int size = getSize();
-		fireDifference(size, size);
+		fireDifference(size, size, null);
 	}
 
 	public abstract int getSelectedIndex();
@@ -5767,7 +6107,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 							Object[] changedColumnNames = e.getChangedColumnNames();
 							if (changedColumnNames instanceof String[])
 							{
-								fireFoundSetEvent(0, getSize() - 1, FoundSetEvent.CHANGE_UPDATE, Arrays.asList((String[])changedColumnNames));
+								fireFoundSetEvent(0, getSize() - 1, FoundSetEvent.CHANGE_UPDATE, asList((String[])changedColumnNames));
 							}
 							else
 							{
@@ -6486,7 +6826,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	protected Object clone() throws CloneNotSupportedException
 	{
 		FoundSet obj = (FoundSet)super.clone();
-		obj.pksAndRecords = new PksAndRecordsHolder(obj, fsm.chunkSize);
+		obj.pksAndRecords = new PksAndRecordsHolder(obj, fsm.config.chunkSize(), fsm.config.optimizedChangeFires());
 		synchronized (pksAndRecords)
 		{
 			obj.pksAndRecords.setPksAndQuery(new BufferedDataSet(pksAndRecords.getPks()), pksAndRecords.getDbIndexLastPk(),
@@ -6643,7 +6983,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 		}
 		sheet = fs.sheet;
-		pksAndRecords.setPksAndQuery(new BufferedDataSet(fs.pksAndRecords.getPks()), fs.pksAndRecords.getDbIndexLastPk(),
+		IFoundSetChanges changes = pksAndRecords.setPksAndQuery(new BufferedDataSet(fs.pksAndRecords.getPks()), fs.pksAndRecords.getDbIndexLastPk(),
 			addFilterconditions(fs.pksAndRecords.getQuerySelectForModification(), myOwnFilters));
 		if (fs.foundSetFilters != null)
 		{
@@ -6682,11 +7022,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				if (record != null && !record.existInDataSource())
 				{
 					cachedRecords.set(i, new Record(this, record.getRawData()));
+
 				}
 			}
 		}
 		lastSortColumns = ((FoundSetManager)getFoundSetManager()).getSortColumns(getTable(), fs.getSort());
-		fireDifference(oldNumberOfRows, getSize());
+		fireDifference(oldNumberOfRows, getSize(), changes);
 
 		setMultiSelect(fs.isMultiSelect());
 		if (fs.isMultiSelect())
@@ -6707,7 +7048,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public void setSQLSelect(QuerySelect select) throws Exception
 	{
-		refreshFromDBInternal(select, false, fsm.pkChunkSize, false, false);
+		refreshFromDBInternal(select, false, fsm.config.pkChunkSize(), false, false);
 	}
 
 	public boolean addFilterParam(String filterName, String dataprovider, String operator, Object value) throws ServoyException
@@ -6734,7 +7075,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		return addFilterParam(filterName, dataproviderTableFilterdefinition);
 	}
 
-	private boolean addFilterParam(String filterName, TableFilterdefinition tableFilterdefinition)
+	protected boolean addFilterParam(String filterName, TableFilterdefinition tableFilterdefinition)
 	{
 		if (sheet.getTable() == null)
 		{
@@ -6819,6 +7160,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			// remove joins made for filter conditions
 			removeFilterJoins(creationSqlSelect, originalFilters);
 			addFilterconditions(creationSqlSelect, foundSetFilters);
+
+			// update temp query with the current filters so it can be used with js_reloadWithFilters
+			QuerySelect tempQuery = pksAndRecords.getTempQuery();
+			tempQuery.clearCondition(SQLGenerator.CONDITION_FILTER);
+			// remove joins made for filter conditions
+			removeFilterJoins(tempQuery, originalFilters);
+			addFilterconditions(tempQuery, foundSetFilters);
 		}
 	}
 
@@ -6844,6 +7192,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 		}
 		return select;
+	}
+
+	public boolean addFoundSetFilterParam(QBSelect query, String filterName)
+	{
+		return this.js_addFoundSetFilterParam(query, filterName);
 	}
 
 	public boolean hadMoreRows()
@@ -6956,6 +7309,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			if (!foundSetEventListeners.contains(l))
 			{
 				foundSetEventListeners.add(l);
+				if (serializedQuery == null && l.wantsFoundSetDefinitionChanges())
+				{
+					// if this new listener wants to have a defintion change, generate the serialized query
+					serializedQuery = getSerializedQuery();
+				}
 			}
 		}
 	}
@@ -6965,6 +7323,15 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		synchronized (foundSetEventListeners)
 		{
 			foundSetEventListeners.remove(l);
+			// did we remove a listener that wants a definition change and we do have a serializedQuery?
+			if (serializedQuery != null && l.wantsFoundSetDefinitionChanges())
+			{
+				// then check if there are others, if not set it to null
+				if (!foundSetEventListeners.stream().anyMatch(listener -> listener.wantsFoundSetDefinitionChanges()))
+				{
+					serializedQuery = null;
+				}
+			}
 		}
 	}
 
@@ -7021,7 +7388,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (!hasAccess(IRepository.READ))
 		{
-			fireDifference(getSize(), 0);
+			fireDifference(getSize(), 0, null);
 			throw new ApplicationException(ServoyException.NO_ACCESS, new Object[] { getSQLSheet().getTable().getName() });
 		}
 
@@ -7232,5 +7599,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return false;
 		}
 
+	}
+
+	enum MethodCallState
+	{
+		READY, CALLING, DONE;
 	}
 }

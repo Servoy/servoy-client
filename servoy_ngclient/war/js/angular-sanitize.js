@@ -1,5 +1,10 @@
 /**
- * @license AngularJS v1.8.2
+ * @license XLTS for AngularJS v1.9.0
+ * (c) 2022 XLTS.dev All Rights Reserved. https://xlts.dev/angularjs
+ * License: Obtain a commercial license from XLTS.dev before using this software.
+ */
+/**
+ * @license AngularJS
  * (c) 2010-2020 Google LLC. http://angularjs.org
  * License: MIT
  */
@@ -65,7 +70,7 @@ var htmlSanitizeWriter;
          angular.module('sanitizeExample', ['ngSanitize'])
            .controller('ExampleController', ['$scope', '$sce', function($scope, $sce) {
              $scope.snippet =
-               '<p style="color:blue">an html\n' +
+               '<p style="color: blue;">an html\n' +
                '<em onmouseover="this.textContent=\'PWN3D!\'">click here</em>\n' +
                'snippet</p>';
              $scope.deliberatelyTrustDangerousSnippet = function() {
@@ -114,16 +119,16 @@ var htmlSanitizeWriter;
 
      it('should inline raw snippet if bound to a trusted value', function() {
        expect(element(by.css('#bind-html-with-trust div')).getAttribute('innerHTML')).
-         toBe("<p style=\"color:blue\">an html\n" +
-              "<em onmouseover=\"this.textContent='PWN3D!'\">click here</em>\n" +
-              "snippet</p>");
+         toBe('<p style="color: blue;">an html\n' +
+              '<em onmouseover="this.textContent=\'PWN3D!\'">click here</em>\n' +
+              'snippet</p>');
      });
 
      it('should escape snippet without any filter', function() {
        expect(element(by.css('#bind-default div')).getAttribute('innerHTML')).
-         toBe("&lt;p style=\"color:blue\"&gt;an html\n" +
-              "&lt;em onmouseover=\"this.textContent='PWN3D!'\"&gt;click here&lt;/em&gt;\n" +
-              "snippet&lt;/p&gt;");
+         toBe('&lt;p style="color: blue;"&gt;an html\n' +
+              '&lt;em onmouseover="this.textContent=\'PWN3D!\'"&gt;click here&lt;/em&gt;\n' +
+              'snippet&lt;/p&gt;');
      });
 
      it('should update', function() {
@@ -134,7 +139,7 @@ var htmlSanitizeWriter;
        expect(element(by.css('#bind-html-with-trust div')).getAttribute('innerHTML')).toBe(
          'new <b onclick="alert(1)">text</b>');
        expect(element(by.css('#bind-default div')).getAttribute('innerHTML')).toBe(
-         "new &lt;b onclick=\"alert(1)\"&gt;text&lt;/b&gt;");
+         'new &lt;b onclick="alert(1)"&gt;text&lt;/b&gt;');
      });
    </file>
    </example>
@@ -689,7 +694,7 @@ function sanitizeText(chars) {
 // define ngSanitize module and register $sanitize service
 angular.module('ngSanitize', [])
   .provider('$sanitize', $SanitizeProvider)
-  .info({ angularVersion: '1.8.2' });
+  .info({ angularVersion: '1.9.0' });
 
 /**
  * @ngdoc filter
@@ -770,24 +775,24 @@ angular.module('ngSanitize', [])
          .controller('ExampleController', ['$scope', function($scope) {
            $scope.snippet =
              'Pretty text with some links:\n' +
-             'http://angularjs.org/,\n' +
+             'https://angularjs.xlts.dev/,\n' +
              'mailto:us@somewhere.org,\n' +
              'another@somewhere.org,\n' +
              'and one more: ftp://127.0.0.1/.';
-           $scope.snippetWithSingleURL = 'http://angularjs.org/';
+           $scope.snippetWithSingleURL = 'https://angularjs.xlts.dev/';
          }]);
      </file>
      <file name="protractor.js" type="protractor">
        it('should linkify the snippet with urls', function() {
          expect(element(by.id('linky-filter')).element(by.binding('snippet | linky')).getText()).
-             toBe('Pretty text with some links: http://angularjs.org/, us@somewhere.org, ' +
+             toBe('Pretty text with some links: https://angularjs.xlts.dev/, us@somewhere.org, ' +
                   'another@somewhere.org, and one more: ftp://127.0.0.1/.');
          expect(element.all(by.css('#linky-filter a')).count()).toEqual(4);
        });
 
        it('should not linkify snippet without the linky filter', function() {
          expect(element(by.id('escaped-html')).element(by.binding('snippet')).getText()).
-             toBe('Pretty text with some links: http://angularjs.org/, mailto:us@somewhere.org, ' +
+             toBe('Pretty text with some links: https://angularjs.xlts.dev/, mailto:us@somewhere.org, ' +
                   'another@somewhere.org, and one more: ftp://127.0.0.1/.');
          expect(element.all(by.css('#escaped-html a')).count()).toEqual(0);
        });
@@ -805,14 +810,14 @@ angular.module('ngSanitize', [])
        it('should work with the target property', function() {
         expect(element(by.id('linky-target')).
             element(by.binding("snippetWithSingleURL | linky:'_blank'")).getText()).
-            toBe('http://angularjs.org/');
+            toBe('https://angularjs.xlts.dev/');
         expect(element(by.css('#linky-target a')).getAttribute('target')).toEqual('_blank');
        });
 
        it('should optionally add custom attributes', function() {
         expect(element(by.id('linky-custom-attributes')).
             element(by.binding("snippetWithSingleURL | linky:'_self':{rel: 'nofollow'}")).getText()).
-            toBe('http://angularjs.org/');
+            toBe('https://angularjs.xlts.dev/');
         expect(element(by.css('#linky-custom-attributes a')).getAttribute('rel')).toEqual('nofollow');
        });
      </file>

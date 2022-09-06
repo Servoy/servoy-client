@@ -130,7 +130,7 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 		return null;
 	}
 
-	public String getMediaUrl(Object value, FlattenedSolution flattenedSolution, INGApplication application)
+	public static String getMediaUrl(Object value, FlattenedSolution flattenedSolution, INGApplication application)
 	{
 		String url = null;
 		Media media = null;

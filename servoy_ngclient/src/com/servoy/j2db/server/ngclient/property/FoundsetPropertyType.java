@@ -25,6 +25,7 @@ import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 import org.sablo.IWebObjectContext;
+import org.sablo.IllegalChangeFromClientException;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.ArrayOperation;
 import org.sablo.specification.property.IBrowserConverterContext;
@@ -39,6 +40,7 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
+import com.servoy.j2db.persistence.IRelation;
 import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElementContext;
@@ -51,6 +53,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -235,7 +238,7 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 						public void put(String nm, Scriptable strt, Object value)
 						{
 							final String dp = webComponentValue.dataproviders.get(nm);
-							if (dp == null || !dp.equals(value))
+							if ((dp == null && value != null) || (dp != null && !dp.equals(value)))
 							{
 								webComponentValue.dataproviders.put(nm, (String)value);
 								webComponentValue.notifyDataProvidersUpdated();
@@ -254,6 +257,7 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 			return Scriptable.NOT_FOUND;
 		}
 
+		@SuppressWarnings("nls")
 		@Override
 		public void put(String name, Scriptable start, Object val)
 		{
@@ -266,15 +270,28 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 					value = value instanceof Wrapper ? ((Wrapper)value).unwrap() : value;
 					if (value instanceof IFoundSetInternal)
 					{
-						if (webComponentValue.foundsetSelector == null || webComponentValue.foundsetSelector.equals(((IFoundSetInternal)value).getDataSource()))
+						String foundsetSelector = webComponentValue.foundsetSelector;
+						if (foundsetSelector != null)
+						{
+							// if foundsetSelector is a relation, get right datasource
+							IRelation r = webComponentValue.getFoundSetManager().getRelation(foundsetSelector);
+							if (r != null)
+							{
+								foundsetSelector = r.getForeignDataSource();
+							}
+						}
+
+						if (foundsetSelector == null || foundsetSelector.equals(((IFoundSetInternal)value).getDataSource()))
 						{
 							webComponentValue.updateFoundset((IFoundSetInternal)value);
 						}
-						else throw new RuntimeException("illegal value '" + value +
-							"' to set on the foundset property with foundsetSelector/datasource: " + webComponentValue.foundsetSelector +
-							", foundset is either pinned to form's foundset or to a related foundset " + pd.getName());
+						else Debug.error("Error Setting foundset value through scripting (servoy scripting or server side api scripting", new RuntimeException(
+							"illegal value '" + value + "' to set on the foundset property with foundsetSelector/datasource: " + foundsetSelector + '(' +
+								webComponentValue.foundsetSelector + "), foundset (" + ((IFoundSetInternal)value).getDataSource() +
+								") is either pinned to form's foundset or to a related foundset " + pd.getName()));
 					}
-					else throw new RuntimeException("illegal value '" + value + "' to set on the foundset property " + pd.getName());
+					else Debug.error("Error Setting foundset value through scripting (servoy scripting or server side api scripting",
+						new RuntimeException("illegal value '" + value + "' to set on the foundset property " + pd.getName()));
 					break;
 				}
 				case DATAPROVIDERS_KEY_FOR_RHINO :
@@ -293,7 +310,8 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 						}
 						webComponentValue.notifyDataProvidersUpdated();
 					}
-					else throw new RuntimeException("illegal value '" + value + "' to set on the dataprovides property " + pd.getName());
+					else Debug.error("Error Setting foundset value through scripting (servoy scripting or server side api scripting",
+						new RuntimeException("illegal value '" + value + "' to set on the dataprovides property " + pd.getName()));
 					break;
 				}
 			}
@@ -308,11 +326,11 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 	}
 
 	@Override
-	public boolean allowPush(Object data, FoundsetTypeSabloValue sabloValue)
+	public boolean allowPush(Object data, FoundsetTypeSabloValue sabloValue, IllegalChangeFromClientException e)
 	{
 		if (sabloValue != null)
 		{
-			return sabloValue.allowPush(data);
+			return sabloValue.allowPush(data, e);
 		}
 		return false;
 	}
@@ -341,6 +359,7 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 		boolean sendDefaultFormats = FoundsetPropertyTypeConfig.DEFAULT_SEND_DEFAULT_FORMATS;
 		int initialPreferredViewPortSize = FoundsetPropertyTypeConfig.DEFAULT_INITIALL_PREFERRED_VIEWPORT_SIZE;
 		boolean sendSelectionViewportInitially = FoundsetPropertyTypeConfig.DEFAULT_SEND_SELECTION_VIEWPORT_INITIALLY;
+		boolean foundsetDefinitionListener = FoundsetPropertyTypeConfig.DEFAULT_FOUNDSET_DEFINITION_LISTENER;
 
 		if (rhinoValue instanceof Wrapper) rhinoValue = ((Wrapper)rhinoValue).unwrap();
 
@@ -386,6 +405,8 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 					initialPreferredViewPortSize = Utils.getAsInteger(obj.get(FoundsetPropertyTypeConfig.INITIAL_PREFERRED_VIEWPORT_SIZE, obj));
 				if (obj.has(FoundsetPropertyTypeConfig.SEND_SELECTION_VIEWPORT_INITIALLY, obj))
 					sendSelectionViewportInitially = Utils.getAsBoolean(obj.get(FoundsetPropertyTypeConfig.SEND_SELECTION_VIEWPORT_INITIALLY, obj));
+				if (obj.has(FoundsetPropertyTypeConfig.FOUNDSET_DEFINITION_LISTENER, obj))
+					foundsetDefinitionListener = Utils.getAsBoolean(obj.get(FoundsetPropertyTypeConfig.FOUNDSET_DEFINITION_LISTENER, obj));
 			}
 		}
 		else if (rhinoValue instanceof IFoundSetInternal)
@@ -404,7 +425,8 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 
 
 				newSabloValue = new FoundsetTypeSabloValue(designJSON, null, null,
-					new FoundsetPropertyTypeConfig(sendDefaultFormats, true, null, sendSelectionViewportInitially, initialPreferredViewPortSize));
+					new FoundsetPropertyTypeConfig(sendDefaultFormats, true, null, sendSelectionViewportInitially, initialPreferredViewPortSize,
+						foundsetDefinitionListener));
 				newSabloValue.updateFoundset(newFoundset);
 			}
 		}
@@ -431,7 +453,7 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 		if (op.type != ArrayOperation.DELETE)
 		{
 			w.key("rows");
-			clientSideTypesForViewport = rowDataProvider.writeRowData(viewportStartIndex + op.startIndex, viewportStartIndex + op.endIndex, op.columnNames,
+			clientSideTypesForViewport = rowDataProvider.writeRowData(viewportStartIndex + op.startIndex, viewportStartIndex + op.endIndex, op.cellNames,
 				foundset, w,
 				sabloValueThatRequestedThisDataToBeWritten);
 		}

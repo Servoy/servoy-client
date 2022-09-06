@@ -74,6 +74,8 @@ public interface IServerManagerInternal extends IServerManager
 
 	void saveServerConfig(String oldServerName, ServerConfig serverConfig) throws RepositoryException;
 
+	void saveServerSettings(String serverName, ServerSettings serverSettings) throws RepositoryException;
+
 	/**
 	 * Get list of drivers found in drivers dir
 	 * @return the known drivers
@@ -96,13 +98,19 @@ public interface IServerManagerInternal extends IServerManager
 
 	void addServerListener(IServerListener serverListener);
 
-	ISequenceProvider getSequenceProvider(String name);
+	ISequenceProvider getSequenceProvider();
 
-	IColumnInfoManager[] getColumnInfoManagers(String name);
+	IServerInfoManager[] getServerInfoManagers();
 
 	ServerConfig getServerConfig(String name);
 
-	IServer getRepositoryServer() throws RepositoryException;
+	ServerSettings getServerSettings(String name);
+
+	IServerInternal getRepositoryServer() throws RepositoryException;
+
+	IRepository createRepository() throws RepositoryException;
+
+	IDeveloperRepository getRepository() throws RepositoryException;
 
 	void addGlobalColumnInfoProvider(IColumnInfoProvider cip);
 

@@ -52,7 +52,6 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.plugins.ClientPluginAccessProvider;
 import com.servoy.j2db.plugins.IClientPluginAccess;
-import com.servoy.j2db.plugins.PluginManager;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.StartupArguments;
@@ -72,6 +71,7 @@ import com.servoy.j2db.util.Utils;
 public abstract class AbstractApplication extends ClientState implements IApplication
 {
 	private final HashMap<Locale, Properties> messages = new HashMap<Locale, Properties>();
+	private final Map<String, String> customMessages = new HashMap<String, String>();
 	protected Locale locale;
 	protected TimeZone timeZone;
 
@@ -253,7 +253,7 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 	{
 		pluginManager = ApplicationServerRegistry.get().getPluginManager().createEfficientCopy(this);
 		pluginManager.init();
-		((PluginManager)pluginManager).initClientPlugins(this, (IClientPluginAccess)(pluginAccess = createClientPluginAccess()));
+		pluginManager.initClientPlugins(this, (IClientPluginAccess)(pluginAccess = createClientPluginAccess()));
 		((FoundSetManager)getFoundSetManager()).setColumnManangers(pluginManager.getColumnValidatorManager(), pluginManager.getColumnConverterManager(),
 			pluginManager.getUIConverterManager());
 	}
@@ -299,9 +299,18 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 	}
 
 	@Override
-	public void refreshI18NMessages()
+	public void refreshI18NMessages(boolean clearCustomMessages)
 	{
 		messages.clear();
+		if (clearCustomMessages)
+		{
+			customMessages.clear();
+		}
+		else if (customMessages.size() > 0)
+		{
+			Properties properties = getMessages(getLocale());
+			properties.putAll(this.customMessages);
+		}
 	}
 
 
@@ -405,11 +414,13 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 			if (value == null)
 			{
 				properties.remove(key);
-				refreshI18NMessages();
+				customMessages.remove(key);
+				refreshI18NMessages(true);
 			}
 			else
 			{
 				properties.setProperty(key, value);
+				customMessages.put(key, value);
 			}
 
 		}

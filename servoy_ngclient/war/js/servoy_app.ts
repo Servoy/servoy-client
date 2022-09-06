@@ -76,7 +76,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 
 			
 			if (Object.getOwnPropertyNames(changes).length > 0) {
-				// if this is a simple property change without any special conversions then then push the old value.
+				// if this is a simple property change without any special conversions then push the old value.
 				if (angular.isDefined(propertyName) && !propertyType) {
 					var oldvalues = {};
 					oldvalues[propertyName] = $sabloConverters.convertFromClientToServer(prev, undefined, undefined, formScope, propertyContextCreator.withPushToServerFor(propertyName)); // just for any default conversions
@@ -1440,9 +1440,13 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						if (!initializing) webStorage.session.set("locale", (country + '-' + country).toLowerCase());
 					} catch(e3) {
 						try {
-							numeral.localeData(country.toLowerCase());
-							numeral.locale(country.toLowerCase());
-							if (!initializing) webStorage.session.set("locale", country.toLowerCase());
+                            if (country) {
+                                numeral.localeData(country.toLowerCase());
+                                numeral.locale(country.toLowerCase());
+                                if (!initializing) webStorage.session.set("locale", country.toLowerCase());
+                            } else {
+                                throw "Empty/null country";
+                            }
 						} catch(e4) {	
 							try {
 								//try it with just the language part
@@ -1542,6 +1546,9 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		},
 		getClipboardContent() : Promise<string> {
 			return navigator.clipboard.readText();
+		},
+		replaceUrlState: function() {
+			history.replaceState({}, '', window.location.href.split('?')[0]);
 		},
 		trustAsHtml: trustAsHtml
 	}

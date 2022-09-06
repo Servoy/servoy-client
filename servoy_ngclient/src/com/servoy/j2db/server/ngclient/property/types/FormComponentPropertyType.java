@@ -81,10 +81,10 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 	IFormElementToTemplateJSON<Object, Object>, IFormElementToSabloComponent<Object, Object>, IFormComponentType, IPushToServerSpecialType,
 	ISupportsGranularUpdates<Object>, IPropertyWithClientSideConversions<Object>
 {
-	public static final String SVY_FORM = "svy_form";
+	public static final String SVY_FORM = "svy_form"; //$NON-NLS-1$
 
 	public static final FormComponentPropertyType INSTANCE = new FormComponentPropertyType();
-	public static final String TYPE_NAME = "formcomponent";
+	public static final String TYPE_NAME = "formcomponent"; //$NON-NLS-1$
 
 	protected FormComponentPropertyType()
 	{
@@ -257,10 +257,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 				{
 					WebFormComponent child = ComponentFactory.createComponent(dataAdapterList.getApplication(), dataAdapterList, element, component.getParent(),
 						dataAdapterList.getForm().getForm());
-					if (child != null)
-					{
-						formUI.contributeComponentToElementsScope(element, element.getWebComponentSpec(), child);
-					}
+					formUI.contributeComponentToElementsScope(element, element.getWebComponentSpec(), child);
 				}
 			}
 		}
@@ -276,7 +273,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 
 	public PropertyDescription getPropertyDescription(String property, JSONObject currentValue, FlattenedSolution fs)
 	{
-		return getFCPropertyDescription(property, currentValue, fs, new HashSet<String>());
+		return getFCPropertyDescription(property, currentValue, fs, new HashSet<String>(), new HashMap<String, PropertyDescription>());
 	}
 
 	/**
@@ -286,14 +283,21 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 	 * @param forms
 	 * @return
 	 */
-	private PropertyDescription getFCPropertyDescription(String property, JSONObject currentValue, FlattenedSolution fs, HashSet<String> forms)
+	private PropertyDescription getFCPropertyDescription(String property, JSONObject currentValue, FlattenedSolution fs, HashSet<String> forms,
+		Map<String, PropertyDescription> cached)
 	{
-		PropertyDescriptionBuilder pdBuilder = new PropertyDescriptionBuilder().withName(property).withType(FormComponentPropertyType.INSTANCE);
-		PropertyDescription formDesc = new PropertyDescriptionBuilder().withName(SVY_FORM).withType(StringPropertyType.INSTANCE).build();
-		pdBuilder.withProperty(SVY_FORM, formDesc);
+		PropertyDescription pd;
 		if (currentValue != null)
 		{
 			String formName = currentValue.optString(SVY_FORM);
+			PropertyDescription propertyDescription = cached.get(formName);
+			if (propertyDescription != null)
+			{
+				return propertyDescription;
+			}
+			PropertyDescriptionBuilder pdBuilder = new PropertyDescriptionBuilder().withName(property).withType(FormComponentPropertyType.INSTANCE);
+			PropertyDescription formDesc = new PropertyDescriptionBuilder().withName(SVY_FORM).withType(StringPropertyType.INSTANCE).build();
+			pdBuilder.withProperty(SVY_FORM, formDesc);
 			Form form = getForm(formName, fs);
 			String testFormName = form.getName();
 			boolean nested = false;
@@ -304,7 +308,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 			}
 			while (form != null)
 			{
-				List<IFormElement> formelements = form.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+				List<IFormElement> formelements = form.getFlattenedObjects(null);
 				for (IFormElement element : formelements)
 				{
 					if (element.getName() != null)
@@ -321,7 +325,7 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 								if (object instanceof JSONObject)
 								{
 									nestedFormComponentBuilder.withProperty(nestedFormComponentPD.getName(),
-										getFCPropertyDescription(nestedFormComponentPD.getName(), (JSONObject)object, fs, forms));
+										getFCPropertyDescription(nestedFormComponentPD.getName(), (JSONObject)object, fs, forms, cached));
 								}
 							}
 							pdBuilder.withProperty(element.getName(), nestedFormComponentBuilder.build());
@@ -335,8 +339,17 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 				form = form.getExtendsForm();
 			}
 			forms.remove(testFormName);
+			pd = pdBuilder.build();
+			cached.put(formName, pd);
 		}
-		return pdBuilder.build();
+		else
+		{
+			PropertyDescriptionBuilder pdBuilder = new PropertyDescriptionBuilder().withName(property).withType(FormComponentPropertyType.INSTANCE);
+			PropertyDescription formDesc = new PropertyDescriptionBuilder().withName(SVY_FORM).withType(StringPropertyType.INSTANCE).build();
+			pdBuilder.withProperty(SVY_FORM, formDesc);
+			pd = pdBuilder.build();
+		}
+		return pd;
 	}
 
 	private class FormComponentValue implements IFormComponentRhinoConverter

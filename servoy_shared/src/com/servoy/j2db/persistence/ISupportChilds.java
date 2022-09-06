@@ -46,4 +46,18 @@ public interface ISupportChilds extends IPersist
 	 * Only changes the in-mem model, does not do actual deletes anywhere else!
 	 */
 	void removeChild(IPersist child);
+
+	/**
+	 * call on the parent of a container where a child was added. so the parent of a parent knows that something changed in its structure.
+	 * It should fire this on to its parent.
+	 * @param obj
+	 */
+	void childAdded(IPersist obj);
+
+	/**
+	 * call on the parent of a container where a child was added. so the parent of a parent knows that something changed in its structure.
+	 * It should fire this on to its parent.
+	 * @param obj
+	 */
+	void childRemoved(IPersist obj);
 }

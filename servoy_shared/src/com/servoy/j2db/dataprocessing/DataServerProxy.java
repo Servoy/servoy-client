@@ -210,16 +210,21 @@ public class DataServerProxy implements IDataServer
 
 	public Object[] performUpdates(String clientId, ISQLStatement[] statements) throws ServoyException, RemoteException
 	{
-		if (statements != null)
+		List<Runnable> resetServernames = new ArrayList<>(statements.length);
+		for (ISQLStatement element : statements)
 		{
-			for (ISQLStatement element : statements)
-			{
-				String sname = element.getServerName();
-				sname = getMappedServerName(sname);
-				element.setServerName(sname);
-			}
+			String sname = element.getServerName();
+			element.setServerName(getMappedServerName(sname));
+			resetServernames.add(() -> element.setServerName(sname));
 		}
-		return ds.performUpdates(clientId, statements);
+		try
+		{
+			return ds.performUpdates(clientId, statements);
+		}
+		finally
+		{
+			resetServernames.forEach(Runnable::run);
+		}
 	}
 
 	public String startTransaction(String clientId, String serverName) throws RepositoryException, RemoteException
@@ -270,8 +275,8 @@ public class DataServerProxy implements IDataServer
 		ds.logMessage(msg);
 	}
 
-	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid, ColumnType[] columnTypes,
-		String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException
+	public InsertResult insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid,
+		ColumnType[] columnTypes, String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException
 	{
 		return ds.insertDataSet(client_id, set, dataSource, getMappedServerName(serverName), tableName, tid, columnTypes, pkNames, columnInfoDefinitions);
 	}

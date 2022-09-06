@@ -6,7 +6,6 @@ import static com.servoy.j2db.server.ngclient.MediaResourcesServlet.FLATTENED_SO
 import static com.servoy.j2db.server.ngclient.WebsocketSessionFactory.CLIENT_ENDPOINT;
 import static com.servoy.j2db.util.Utils.getAsBoolean;
 import static java.util.Arrays.asList;
-import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -93,13 +92,13 @@ public class NGClientEntryFilter extends WebEntry
 
 	public static final String ANGULAR_JS = "js/angular.js";
 	public static final String[][] ANGULAR_JS_MODULES = { //
-		{ "angular-animate", "js/angular-modules/1.8.2/angular-animate.js" }, //
-		{ "angular-aria", "js/angular-modules/1.8.2/angular-aria.js" }, //
-		{ "angular-cookies", "js/angular-modules/1.8.2/angular-cookies.js" }, //
-		{ "angular-message-format", "js/angular-modules/1.8.2/angular-message-format.js" }, //
-		{ "angular-messages", "js/angular-modules/1.8.2/angular-messages.js" }, //
-		{ "angular-resource", "js/angular-modules/1.8.2/angular-resource.js" }, //
-		{ "angular-touch", "js/angular-modules/1.8.2/angular-touch.js" } };
+		{ "angular-animate", "js/angular-modules/1.9.0/angular-animate.js" }, //
+		{ "angular-aria", "js/angular-modules/1.9.0/angular-aria.js" }, //
+		{ "angular-cookies", "js/angular-modules/1.9.0/angular-cookies.js" }, //
+		{ "angular-message-format", "js/angular-modules/1.9.0/angular-message-format.js" }, //
+		{ "angular-messages", "js/angular-modules/1.9.0/angular-messages.js" }, //
+		{ "angular-resource", "js/angular-modules/1.9.0/angular-resource.js" }, //
+		{ "angular-touch", "js/angular-modules/1.9.0/angular-touch.js" } };
 	public static final String BOOTSTRAP_CSS = "css/bootstrap/css/bootstrap.css";
 
 	public static final String[] INDEX_3RD_PARTY_CSS = { //
@@ -108,7 +107,7 @@ public class NGClientEntryFilter extends WebEntry
 	public static final String JQUERY_MIGRATE = "js/jquery-migrate-3.3.2.js";
 
 	public static final String[] INDEX_3RD_PARTY_JS = { //
-		"js/jquery-3.5.1.js", //
+		"js/jquery-3.6.0.js", //
 		"js/jquery.maskedinput.js", //
 		ANGULAR_JS, //
 		"js/angular-sanitize.js", //
@@ -352,7 +351,7 @@ public class NGClientEntryFilter extends WebEntry
 									return;
 								}
 
-								if (handleMaintenanceMode(request, response, wsSession))
+								if (AngularIndexPageWriter.handleMaintenanceMode(request, response, wsSession))
 								{
 									return;
 								}
@@ -424,23 +423,6 @@ public class NGClientEntryFilter extends WebEntry
 			}
 		}
 
-	}
-
-	private boolean handleMaintenanceMode(HttpServletRequest request, HttpServletResponse response, INGClientWebsocketSession wsSession) throws IOException
-	{
-		boolean maintenanceMode = wsSession == null //
-			&& ApplicationServerRegistry.get().getDataServer().isInServerMaintenanceMode() //
-			// when there is a http session, let the new client go through, otherwise another
-			// client from the same browser may be killed by a load balancer
-			&& request.getSession(false) == null;
-		if (maintenanceMode)
-		{
-			response.getWriter().write("Server in maintenance mode");
-			response.setStatus(SC_SERVICE_UNAVAILABLE);
-			return true;
-		}
-
-		return false;
 	}
 
 	private boolean handleForm(HttpServletRequest request, HttpServletResponse response, INGClientWebsocketSession wsSession, FlattenedSolution fs)

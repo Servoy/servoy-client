@@ -247,11 +247,20 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 * @sample
 	 * query.where.add(query.columns.companyname.like('Serv%'))
+	 *
+	 * // case-insensitive compares can be done using the upper (or lower) functions,
+	 * // this can be useful when using for example German letters like ß,
+	 * query.where.add(query.columns.companyname.upper.like(query.functions.upper('groß%')))
 	 */
 	@JSFunction
-	public QBCondition like(String pattern)
+	public QBCondition like(Object pattern)
 	{
-		return createCondition(new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, getQuerySelectValue(), pattern));
+		if (pattern instanceof String)
+		{
+			// don't try to convert the pattern to the column type
+			return createCondition(new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, getQuerySelectValue(), pattern));
+		}
+		return createCompareCondition(IBaseSQLCondition.LIKE_OPERATOR, pattern);
 	}
 
 	/**
@@ -265,9 +274,17 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * query.where.add(query.columns.companyname.like('X_%', '_'))
 	 */
 	@JSFunction
-	public QBCondition like(String pattern, char escape)
+	public QBCondition like(Object pattern, char escape)
 	{
-		return createCondition(new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, getQuerySelectValue(), new Object[] { pattern, String.valueOf(escape) }));
+		if (pattern instanceof String)
+		{
+			// don't try to convert the pattern to the column type
+			return createCondition(
+				new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, getQuerySelectValue(), new Object[] { pattern, String.valueOf(escape) }));
+		}
+
+		return createCondition(
+			new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, getQuerySelectValue(), new Object[] { createOperand(pattern), String.valueOf(escape) }));
 	}
 
 	/**

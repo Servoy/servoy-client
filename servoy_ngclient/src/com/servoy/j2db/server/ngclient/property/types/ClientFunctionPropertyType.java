@@ -29,7 +29,9 @@ import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGApplication;
 
 /**
- * In NG1 it remain to operate just like a TagStringPropertyType - and client will call eval on the property's string value.</br>
+ * A type for string representation of JS code set on the server that is meant to run directly on client/inside the browser.
+ *
+ * In NG1 it remains to operate just like a TagStringPropertyType - and client will call JS eval on the property's string value.</br>
  * But in NG2 this is smarter and avoids the need to an eval client-side; it just sends an UUID and generates a script file (identified based on that UUID on client)
  * from the actual function string (prop. value).
  *

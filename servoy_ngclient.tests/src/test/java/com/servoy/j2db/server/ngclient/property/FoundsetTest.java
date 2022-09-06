@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import static com.servoy.base.query.IQueryConstants.LEFT_OUTER_JOIN;
+
 import java.awt.Dimension;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,7 +42,6 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import com.servoy.base.query.IBaseSQLCondition;
-import com.servoy.base.query.IJoinConstants;
 import com.servoy.base.solutionmodel.IBaseSMPart;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.FoundSet;
@@ -57,6 +58,7 @@ import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyJSONObject;
+import com.servoy.j2db.util.WrappedObjectReference;
 
 /**
  * @author jcompagner
@@ -147,7 +149,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		ds.addRow(new Object[] { Integer.valueOf(16), "value3", "value4" });
 		ds.addRow(new Object[] { Integer.valueOf(17), "value1", "value2" });
 		ds.addRow(new Object[] { Integer.valueOf(18), "value3", "value4" });
-		client.getFoundSetManager().createDataSourceFromDataSet("test", ds, null, new String[] { "pk" }, false);
+		client.getFoundSetManager().insertToDataSource("test", ds, null, new WrappedObjectReference<String[]>(new String[] { "pk" }), true, false);
 
 		BufferedDataSet separateDSs = new BufferedDataSet(new String[] { "pk", "test1", "test2" },
 			new int[] { IColumnTypes.INTEGER, IColumnTypes.TEXT, IColumnTypes.TEXT });
@@ -155,7 +157,8 @@ public class FoundsetTest extends AbstractSolutionTest
 		{
 			separateDSs.addRow(new Object[] { Integer.valueOf(i), "value" + i + "0", "value" + i + "1" });
 		}
-		client.getFoundSetManager().createDataSourceFromDataSet("testseparatefoundset", separateDSs, null, new String[] { "pk" }, false);
+		client.getFoundSetManager().insertToDataSource("testseparatefoundset", separateDSs, null, new WrappedObjectReference<String[]>(new String[] { "pk" }),
+			true, false);
 
 		BufferedDataSet relatedDS = new BufferedDataSet(new String[] { "relatedtestpk", "testpk", "relatedtest1", "relatedtest2" },
 			new int[] { IColumnTypes.INTEGER, IColumnTypes.INTEGER, IColumnTypes.TEXT, IColumnTypes.TEXT });
@@ -175,13 +178,14 @@ public class FoundsetTest extends AbstractSolutionTest
 		relatedDS.addRow(new Object[] { Integer.valueOf(14), Integer.valueOf(1), "relatedvalue121", "relatedvalue122" });
 		relatedDS.addRow(new Object[] { Integer.valueOf(15), Integer.valueOf(1), "relatedvalue131", "relatedvalue132" });
 		relatedDS.addRow(new Object[] { Integer.valueOf(16), Integer.valueOf(2), "relatedvalue241", "relatedvalue242" });
-		client.getFoundSetManager().createDataSourceFromDataSet("relatedtest", relatedDS, null, new String[] { "relatedtestpk" }, false);
+		client.getFoundSetManager().insertToDataSource("relatedtest", relatedDS, null, new WrappedObjectReference<String[]>(new String[] { "relatedtestpk" }),
+			true, false);
 
 		ConcurrentHashMap<String, IServer> serverProxies = new ConcurrentHashMap<String, IServer>();
 		serverProxies.put("_sv_inmem", DUMMY_ISERVER);
 		solution.setServerProxies(serverProxies);
 
-		Relation relation = solution.createNewRelation(validator, "test_to_relatedtest", "mem:test", "mem:relatedtest", IJoinConstants.LEFT_OUTER_JOIN);
+		Relation relation = solution.createNewRelation(validator, "test_to_relatedtest", "mem:test", "mem:relatedtest", LEFT_OUTER_JOIN);
 		Column primaryColumn = ((Table)client.getFoundSetManager().getTable(relation.getPrimaryDataSource())).getColumn("pk");
 		Column foreignColumn = ((Table)client.getFoundSetManager().getTable(relation.getForeignDataSource())).getColumn("testpk");
 		relation.createNewRelationItem(client.getFoundSetManager(), primaryColumn, IBaseSQLCondition.EQUALS_OPERATOR, foreignColumn);

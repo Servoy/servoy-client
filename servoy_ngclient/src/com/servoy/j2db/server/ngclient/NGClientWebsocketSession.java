@@ -151,7 +151,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		}
 		else
 		{
-			return new AngularFormGenerator(client, form, realFormName);
+			return new AngularFormGenerator(client, form, realFormName, false);
 		}
 	}
 
@@ -178,6 +178,12 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	protected IEventDispatcher createEventDispatcher()
 	{
 		return new NGEventDispatcher(client);
+	}
+
+	@Override
+	protected String getDispatcherThreadName()
+	{
+		return super.getDispatcherThreadName() + ", clientid: " + getClient().getClientID(); //$NON-NLS-1$
 	}
 
 	@SuppressWarnings("nls")

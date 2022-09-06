@@ -67,6 +67,8 @@ import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebFormUI;
+import com.servoy.j2db.server.ngclient.component.RuntimeLegacyComponent;
+import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.IHasUnderlyingState;
@@ -507,15 +509,19 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			// lazy load, wait for initial filter to load the valuelist
 			return;
 		}
+		boolean dbValueRowRendered = false;
 		if ((previousRecord != null && !previousRecord.equals(record)) || Utils.equalObjects(dataProvider, dataproviderID))
 		{
 			revertFilter();
 		}
-
 		boolean removed = false;
 		if (!fireChangeEvent)
 		{
 			removed = valueList.removeListDataListenerIfNeeded(this);
+		}
+		else
+		{
+			dbValueRowRendered = true;
 		}
 		try
 		{
@@ -530,6 +536,15 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 					// only add it if it was removed
 					valueList.addListDataListener(this);
 				}
+			}
+		}
+		if (!changeMonitor.isChanged() && previousRecord != null && dbValueRowRendered && !isItemSendBlockedByAssociatedDataproviderResolve())
+		{
+			dbValueRowRendered = false;
+			Object dbValue = previousRecord.getValue(dataproviderID);
+			if (dbValue != null && !dbValue.equals(record != null ? record.getValue(dataproviderID) : null))
+			{
+				changeMonitor.markFullyChanged(true);
 			}
 		}
 		previousRecord = record;
@@ -659,6 +674,19 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 				// do mark it as changed but don't notify yet (false arg) because fill below will probably trigger listener above and notify anyway; that would mean that although
 				// we do call notify after fill that is likely to end up in a NO_OP changesToJSON in case of foundset-linked valuelist properties
 				changeMonitor.markFullyChanged(false);
+				boolean useContains = Utils.getAsBoolean(dataAdapterListToUse.getApplication().getClientProperty(IApplication.VALUELIST_CONTAINS_SEARCH));
+				if (!useContains && webObjectContext != null && webObjectContext.getUnderlyingWebObject() instanceof WebFormComponent)
+				{
+
+					WebFormComponent webObject = (WebFormComponent)webObjectContext.getUnderlyingWebObject();
+					RuntimeWebComponent webComponentElement = dataAdapterListToUse.getForm().getWebComponentElement(webObject.getFormElement().getRawName());
+					if (webComponentElement != null && webComponentElement.getPrototype() instanceof RuntimeLegacyComponent)
+					{
+						RuntimeLegacyComponent legacy = (RuntimeLegacyComponent)webComponentElement.getPrototype();
+						useContains = Utils.getAsBoolean(legacy.getClientProperty(IApplication.VALUELIST_CONTAINS_SEARCH, legacy));
+					}
+				}
+				if (useContains && filterString != null) filterString = '%' + filterString;
 				filteredValuelist.fill(dataAdapterListToUse.getRecord(), dataproviderID, filterString, realValue, false);
 				changeMonitor.notifyOfChange(); // in case fill really somehow did not result in the filteredValuelist listener doing a notify
 

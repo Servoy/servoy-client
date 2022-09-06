@@ -19,6 +19,7 @@ package com.servoy.j2db.persistence;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
+import static java.util.Arrays.stream;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -33,7 +34,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
@@ -392,6 +392,11 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		if (obj == null) return null;
 		if (obj instanceof DbIdentValue || obj instanceof NullValue) return obj;
 
+		if (obj instanceof Object[])
+		{
+			return stream((Object[])obj).map(el -> getAsRightType(type, flags, el, throwOnFail, truncate)).toArray();
+		}
+
 		if ((flags & UUID_COLUMN) != 0 || obj instanceof UUID)
 		{
 			UUID uuid = Utils.getAsUUID(obj, throwOnFail);
@@ -533,7 +538,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 	public static Object[] getArrayAsRightType(BaseColumnType type, int flags, Object[] array, boolean throwOnFail, boolean truncate)
 	{
-		return Arrays.stream(array).map(obj -> getAsRightType(type, flags, obj, throwOnFail, truncate)).toArray();
+		return stream(array).map(obj -> getAsRightType(type, flags, obj, throwOnFail, truncate)).toArray();
 	}
 
 	public Object getAsRightType(Object obj, String format)
@@ -1099,14 +1104,6 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	public void setFlag(int flag, boolean set)
 	{
 		setFlags(set ? (getFlags() | flag) : (getFlags() & ~flag));
-	}
-
-	/**
-	 * @param flag
-	 */
-	public boolean hasFlag(int flag)
-	{
-		return (getFlags() & flag) != 0;
 	}
 
 	public void setDatabaseDefaultValue(String value)

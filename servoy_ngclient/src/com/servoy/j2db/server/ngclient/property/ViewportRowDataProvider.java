@@ -38,9 +38,7 @@ public abstract class ViewportRowDataProvider
 
 	/**
 	 * Some data providers need to be initialized before being used. (usually that happens when the property that uses it has first time 'to browser json' happen).
-	 * This is needed in order to ignore any previous foundset changes - don't force a toJSON for them before initial send of value, because for such
-	 * cases foundset property types convert/write viewport changes to a string and keep it that way - but converting cell values might need a BrowserConverterContext
-	 * which is not yet available...
+	 * This is needed in order to ignore any previous foundset changes - don't force a toJSON for them before initial send of value.
 	 */
 	protected abstract boolean isReady();
 
@@ -53,11 +51,6 @@ public abstract class ViewportRowDataProvider
 		throws JSONException;
 
 	protected abstract boolean shouldGenerateRowIds();
-
-	/**
-	 *  Returns whether viewport contains dataprovider sent as parameter. Null means all columns, so will return true.
-	 */
-	protected abstract boolean containsColumn(String columnName);
 
 	protected void writeRowData(int foundsetIndex, Set<String> columnNames, IFoundSetInternal foundset, JSONWriter w, ViewportClientSideTypes types)
 		throws JSONException

@@ -36,27 +36,31 @@ public class FoundsetPropertyTypeConfig
 	public static final boolean DEFAULT_SEND_DEFAULT_FORMATS = false;
 	public static final boolean DEFAULT_SEND_SELECTION_VIEWPORT_INITIALLY = false;
 	public static final int DEFAULT_INITIALL_PREFERRED_VIEWPORT_SIZE = 50;
+	public static final boolean DEFAULT_FOUNDSET_DEFINITION_LISTENER = false;
 
 	public static final String SEND_DEFAULT_FORMATS = "provideColumnFormats";
 	public static final String DATAPROVIDERS = "dataproviders";
 	public static final String DYNAMIC_DATAPROVIDERS = "dynamicDataproviders";
 	public static final String SEND_SELECTION_VIEWPORT_INITIALLY = "sendSelectionViewportInitially";
 	public static final String INITIAL_PREFERRED_VIEWPORT_SIZE = "initialPreferredViewPortSize";
+	public static final String FOUNDSET_DEFINITION_LISTENER = "foundsetDefinitionListener";
 
 	public final boolean sendDefaultFormats;
 	public final boolean hasDynamicDataproviders;
 	public final String[] dataproviders;
 	public final int initialPreferredViewPortSize;
+	public final boolean foundsetDefinitionListener;
 	public final boolean sendSelectionViewportInitially;
 
 	public FoundsetPropertyTypeConfig(boolean sendDefaultFormats, boolean hasDynamicDataproviders, String[] dataproviders,
-		boolean sendSelectionViewportInitially, int initialPreferredViewPortSize)
+		boolean sendSelectionViewportInitially, int initialPreferredViewPortSize, boolean foundsetDefinitionListener)
 	{
 		this.sendDefaultFormats = sendDefaultFormats;
 		this.hasDynamicDataproviders = hasDynamicDataproviders;
 		this.dataproviders = dataproviders;
 		this.sendSelectionViewportInitially = sendSelectionViewportInitially;
 		this.initialPreferredViewPortSize = initialPreferredViewPortSize;
+		this.foundsetDefinitionListener = foundsetDefinitionListener;
 	}
 
 	public FoundsetPropertyTypeConfig(JSONObject config)
@@ -69,7 +73,8 @@ public class FoundsetPropertyTypeConfig
 			? config.optBoolean(SEND_SELECTION_VIEWPORT_INITIALLY) : DEFAULT_SEND_SELECTION_VIEWPORT_INITIALLY);
 		this.initialPreferredViewPortSize = (config != null && config.has(INITIAL_PREFERRED_VIEWPORT_SIZE) ? config.optInt(INITIAL_PREFERRED_VIEWPORT_SIZE)
 			: DEFAULT_INITIALL_PREFERRED_VIEWPORT_SIZE);
-
+		this.foundsetDefinitionListener = (config != null && config.has(FOUNDSET_DEFINITION_LISTENER) ? config.optBoolean(FOUNDSET_DEFINITION_LISTENER)
+			: DEFAULT_FOUNDSET_DEFINITION_LISTENER);
 		String[] dps = null;
 		if (config != null)
 		{

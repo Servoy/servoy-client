@@ -34,6 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -57,9 +58,11 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.DummyValidator;
+import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AbstractBaseQuery;
@@ -67,9 +70,11 @@ import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.DerivedTable;
 import com.servoy.j2db.query.IQuerySelectValue;
+import com.servoy.j2db.query.IQuerySort;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
+import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryUpdate;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.impl.QBJoin;
@@ -759,6 +764,73 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		return doSave(record) == ISaveConstants.STOPPED;
 	}
 
+	/**
+	 * Sorts the foundset based on the given sort string.
+	 * Column in sort string must already exist in ViewFoundset.
+	 *
+	 * @sample %%prefix%%foundset.sort('columnA desc,columnB asc');
+	 *
+	 * @param sortString the specified columns (and sort order)
+	 */
+	@JSFunction
+	public void sort(String sortString) throws ServoyException
+	{
+		sort(getFoundSetManager().getSortColumns(getTable(), sortString), false);
+	}
+
+	/**
+	 * Sorts the foundset based on the given sort string.
+	 * Column in sort string must already exist in ViewFoundset.
+	 *
+	 * @sample %%prefix%%foundset.sort('columnA desc,columnB asc');
+	 *
+	 * @param sortString the specified columns (and sort order)
+	 * @param defer boolean when true, the "sortString" will be just stored, without performing a query on the database (the actual sorting will be deferred until the next data loading action).
+	 */
+	@JSFunction
+	public void sort(String sortString, Boolean defer) throws ServoyException
+	{
+		sort(getFoundSetManager().getSortColumns(getTable(), sortString), defer == null ? false : defer.booleanValue());
+	}
+
+	/**
+	 * Get the last sort columns that were set using viewfoundset sort api.s
+	 *
+	 * @sample
+	 * //reverse the current sort
+	 *
+	 * //the original sort "companyName asc, companyContact desc"
+	 * //the inversed sort "companyName desc, companyContact asc"
+	 * var foundsetSort = foundset.getCurrentSort()
+	 * var sortColumns = foundsetSort.split(',')
+	 * var newFoundsetSort = ''
+	 * for(var i=0; i<sortColumns.length; i++)
+	 * {
+	 * 	var currentSort = sortColumns[i]
+	 * 	var sortType = currentSort.substring(currentSort.length-3)
+	 * 	if(sortType.equalsIgnoreCase('asc'))
+	 * 	{
+	 * 		newFoundsetSort += currentSort.replace(' asc', ' desc')
+	 * 	}
+	 * 	else
+	 * 	{
+	 * 		newFoundsetSort += currentSort.replace(' desc', ' asc')
+	 * 	}
+	 * 	if(i != sortColumns.length - 1)
+	 * 	{
+	 * 		newFoundsetSort += ','
+	 * 	}
+	 * }
+	 * foundset.sort(newFoundsetSort)
+	 *
+	 * @return String sort columns
+	 */
+	@JSFunction
+	public String getCurrentSort()
+	{
+		return getSort();
+	}
+
 	int doSave(ViewRecord record)
 	{
 		int retCode = ISaveConstants.STOPPED;
@@ -781,7 +853,9 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 				String serverName = DataSourceUtils.getDataSourceServerName(select.getTable().getDataSource());
 				String transaction_id = manager.getTransactionID(serverName);
 
+				HashMap<SQLStatement, ViewRecord> statementToRecord = new HashMap<>();
 				List<SQLStatement> statements = new ArrayList<>();
+
 				for (ViewRecord rec : toSave)
 				{
 					Map<String, Object> changes = rec.getChanges();
@@ -824,7 +898,22 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 						int counter = 0;
 						Object[] pk = new Object[pkColumns.size()];
 						QueryUpdate update = new QueryUpdate(table);
-						for (IQuerySelectValue pkColumn : pkColumns)
+
+						IQuerySelectValue[] queryPks = null;
+						try
+						{
+							RowManager rowManager = manager.getRowManager(table.getDataSource());
+							if (rowManager != null)
+							{
+								queryPks = getOrderedPkColumns(pkColumns, rowManager.getSQLSheet().getPKColumnDataProvidersAsArray());
+							}
+						}
+						catch (Exception ex)
+						{
+							Debug.error(ex);
+						}
+						if (queryPks == null) queryPks = pkColumns.toArray(new IQuerySelectValue[0]);
+						for (IQuerySelectValue pkColumn : queryPks)
 						{
 							Object pkValue = rec.getValue(columnNames.get(pkColumn));
 							update.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkColumn, pkValue));
@@ -848,6 +937,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 						statement.setChangedColumns(changedColumns);
 						statement.setExpectedUpdateCount(1);
 						statements.add(statement);
+						statementToRecord.put(statement, rec);
 					});
 					JSRecordMarkers validateObject = validate(rec);
 					if (validateObject != null && validateObject.isHasErrors())
@@ -860,6 +950,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 						if (!failedRecords.contains(rec))
 						{
 							failedRecords.add(rec);
+							retCode = ISaveConstants.SAVE_FAILED;
 						}
 					}
 
@@ -877,7 +968,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 						statements.toArray(new SQLStatement[statements.size()]));
 					for (int i = 0; i < updateResult.length; i++)
 					{
-						ViewRecord rec = toSave.get(i);
+						ViewRecord rec = statementToRecord.remove(statements.get(i)); // i of the updateResults should be the same for the statements;
 						Object o = updateResult[i];
 						if (o instanceof Exception)
 						{
@@ -886,7 +977,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 							rec.setLastException((Exception)o);
 							retCode = ISaveConstants.SAVE_FAILED;
 						}
-						else
+						else if (!statementToRecord.values().contains(rec) && !failedRecords.contains(rec))
 						{
 							rec.clearChanges();
 						}
@@ -1176,18 +1267,128 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		return null;
 	}
 
+	/**
+	 * Get the selected records.
+	 * When the viewfounset is in multiSelect mode (see property multiSelect), selection can be a more than 1 record.
+	 *
+	 * @sample var selectedRecords = %%prefix%%foundset.getSelectedRecords();
+	 * @return Array current records.
+	 */
+	@JSFunction
+	public ViewRecord[] getSelectedRecords()
+	{
+		int[] selectedIndexes = getSelectedIndexes();
+		List<ViewRecord> selectedRecords = new ArrayList<ViewRecord>(selectedIndexes.length);
+		for (int index : selectedIndexes)
+		{
+			ViewRecord record = getRecord(index);
+			if (record != null)
+			{
+				selectedRecords.add(record);
+			}
+		}
+
+		return selectedRecords.toArray(new ViewRecord[selectedRecords.size()]);
+	}
+
+	/**
+	 * Set the current record index.
+	 *
+	 * @sampleas js_getSelectedIndex()
+	 *
+	 * @param index int index to set (1-based)
+	 */
+	public void jsFunction_setSelectedIndex(int index)
+	{
+		if (index >= 1 && index <= getSize())
+		{
+			setSelectedIndex(index - 1);
+		}
+	}
+
+	/**
+	 * Get the current record index of the viewfoundset.
+	 *
+	 * @sample
+	 * //gets the current record index in the current viewfoundset
+	 * var current = %%prefix%%foundset.getSelectedIndex();
+	 * //sets the next record in the viewfoundset
+	 * %%prefix%%foundset.setSelectedIndex(current+1);
+	 * @return int current index (1-based)
+	 */
+	public int jsFunction_getSelectedIndex()
+	{
+		return getSelectedIndex() + 1;
+	}
+
+	/**
+	 * Get the indexes of the selected records.
+	 * When the viewfounset is in multiSelect mode (see property multiSelect), a selection can consist of more than one index.
+	 *
+	 * @sample
+	 * // modify selection to the first selected item and the following row only
+	 * var current = %%prefix%%foundset.getSelectedIndexes();
+	 * if (current.length > 1)
+	 * {
+	 * 	var newSelection = new Array();
+	 * 	newSelection[0] = current[0]; // first current selection
+	 * 	newSelection[1] = current[0] + 1; // and the next row
+	 * 	%%prefix%%foundset.setSelectedIndexes(newSelection);
+	 * }
+	 * @return Array current indexes (1-based)
+	 */
+	public Number[] jsFunction_getSelectedIndexes()
+	{
+		Number[] selected = null;
+		int[] selectedIndexes = getSelectedIndexes();
+		if (selectedIndexes != null && selectedIndexes.length > 0)
+		{
+			selected = new Number[selectedIndexes.length];
+			for (int i = 0; i < selectedIndexes.length; i++)
+			{
+				selected[i] = Integer.valueOf(selectedIndexes[i] + 1);
+			}
+		}
+
+		return selected;
+	}
+
+	/**
+	 * Set the selected records indexes.
+	 *
+	 * @sampleas js_getSelectedIndexes()
+	 *
+	 * @param indexes An array with indexes to set.
+	 */
+	public void jsFunction_setSelectedIndexes(Number[] indexes)
+	{
+		if (indexes == null || indexes.length == 0) return;
+		ArrayList<Integer> selectedIndexes = new ArrayList<Integer>();
+
+		Integer i;
+		for (Object index : indexes)
+		{
+			i = Integer.valueOf(Utils.getAsInteger(index));
+			if (selectedIndexes.indexOf(i) == -1) selectedIndexes.add(i);
+		}
+		int[] iSelectedIndexes = new int[selectedIndexes.size()];
+		for (int j = 0; j < selectedIndexes.size(); j++)
+		{
+			iSelectedIndexes[j] = selectedIndexes.get(j).intValue() - 1;
+		}
+		setSelectedIndexes(iSelectedIndexes);
+	}
+
 	@Override
 	public String getSort()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return FoundSetManager.getSortColumnsAsString(determineSortColumns());
 	}
 
 	@Override
 	public void setSort(String sortString) throws ServoyException
 	{
-		// TODO Auto-generated method stub
-
+		sort(getFoundSetManager().getSortColumns(getTable(), sortString), false);
 	}
 
 	/**
@@ -1242,7 +1443,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public void sort(List<SortColumn> sortColumns) throws ServoyException
 	{
-		// TODO Auto-generated method stub
+		sort(sortColumns, false);
 	}
 
 	@Override
@@ -1444,8 +1645,16 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public boolean isValidRelation(String name)
 	{
-		// TODO Auto-generated method stub
-		return false;
+		Relation[] relationSequence = getFoundSetManager().getApplication().getFlattenedSolution().getRelationSequence(name);
+		if (relationSequence != null && relationSequence.length > 0 && !relationSequence[0].isGlobal() &&
+			!relationSequence[0].getPrimaryDataSource().equals(getDataSource()))
+		{
+			getFoundSetManager().getApplication().reportJSWarning("An incorrect child relation (" + relationSequence[0].getName() +
+				") was accessed through a foundset (or a record of foundset) with datasource '" + getDataSource() + "'. The accessed relation actually has '" +
+				relationSequence[0].getPrimaryDataSource() +
+				"' as primary datasource. It will resolve for legacy reasons but please fix it as it is error prone.", new ServoyException());
+		}
+		return relationSequence != null;
 	}
 
 	/*
@@ -1455,10 +1664,66 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 * java.util.List)
 	 */
 	@Override
-	public IFoundSetInternal getRelatedFoundSet(IRecordInternal record, String relationName, List<SortColumn> defaultSortColumns) throws ServoyException
+	public IFoundSetInternal getRelatedFoundSet(IRecordInternal record, String fullRelationName, List<SortColumn> defaultSortColumns) throws ServoyException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		if (fullRelationName == null)
+		{
+			return null;
+		}
+		IFoundSetInternal retval = null;
+		IRecordInternal currentRecord = record;
+		String[] parts = fullRelationName.split("\\."); //$NON-NLS-1$
+		for (int i = 0; i < parts.length; i++)
+		{
+			// if this is a findstate and that is not the source record then leave the relation lookup to the findstate itself.
+			if (currentRecord instanceof FindState && i != 0)
+			{
+				String leftPart = parts[i];
+				for (int k = i + 1; k < parts.length; k++)
+				{
+					leftPart += "." + parts[k]; //$NON-NLS-1$
+				}
+				return currentRecord.getRelatedFoundSet(leftPart);
+			}
+
+			RowManager rowManager = manager.getRowManager(getTable().getDataSource());
+			SQLSheet relatedSheet = rowManager == null ? null
+				: rowManager.getSQLSheet().getRelatedSheet(getFoundSetManager().getApplication().getFlattenedSolution().getRelation(parts[i]),
+					((FoundSetManager)getFoundSetManager()).getSQLGenerator());
+			if (relatedSheet == null)
+			{
+				retval = getFoundSetManager().getGlobalRelatedFoundSet(parts[i]);
+			}
+			else
+			{
+				retval = ((FoundSetManager)getFoundSetManager()).getRelatedFoundSet(currentRecord, relatedSheet, parts[i], defaultSortColumns);
+				if (retval != null)
+				{
+					if (retval.getSize() == 0 && !currentRecord.existInDataSource())
+					{
+						Relation r = getFoundSetManager().getApplication().getFlattenedSolution().getRelation(parts[i]);
+						if (r != null && r.isExactPKRef(getFoundSetManager().getApplication().getFlattenedSolution()))//TODO add unique column test instead of pk requirement
+						{
+							((FoundSet)retval).newRecord(record.getRawData(), 0, true, false);
+						}
+					}
+					retval.addParent(currentRecord);
+				}
+			}
+			if (retval == null)
+			{
+				return null;
+			}
+			if (i < parts.length - 1)
+			{
+				currentRecord = retval.getRecord(retval.getSelectedIndex());
+				if (currentRecord == null)
+				{
+					return null;
+				}
+			}
+		}
+		return retval;
 	}
 
 	/*
@@ -1477,7 +1742,17 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public void sort(List<SortColumn> sortColumns, boolean defer) throws ServoyException
 	{
-		// TODO Auto-generated method stub
+		if (!defer && doSave(null) != ISaveConstants.STOPPED)
+		{
+			manager.getApplication().reportJSError("Couldn't do a sort because there are edited records on this foundset: " + this, null); //$NON-NLS-1$
+			return;
+		}
+		this.select.clearSorts();
+		if (sortColumns != null) this.select.setSorts((ArrayList< ? extends IQuerySort>)sortColumns.stream()
+			.map(sort -> new QuerySort(((Column)sort.getColumn()).queryColumn(this.select.getTable()), sort.getSortOrder() == SortColumn.ASCENDING,
+				manager.getSortOptions(sort.getColumn())))
+			.collect(Collectors.toList()));
+		this.loadAllRecordsImpl();
 
 	}
 
@@ -1491,8 +1766,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public List<SortColumn> getSortColumns()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return determineSortColumns();
 	}
 
 	/**
@@ -1557,6 +1831,27 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		}
 	}
 
+	private List<SortColumn> determineSortColumns()
+	{
+		List<IQuerySort> sorts = select.getSorts();
+		if (sorts != null)
+		{
+			return sorts.stream().filter(QuerySort.class::isInstance).map(QuerySort.class::cast)
+				.map(sort -> {
+					String name = sort.getColumn().getAliasOrName();
+					IColumn column = getTable().getColumnBySqlname(name);
+					if (column != null)
+					{
+						return new SortColumn(column, sort.isAscending() ? SortColumn.ASCENDING : SortColumn.DESCENDING);
+					}
+					return null;
+				})
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
+		}
+		return null;
+	}
+
 	@Override
 	public IFoundSetManagerInternal getFoundSetManager()
 	{
@@ -1593,7 +1888,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 										column.getAllowNull());
 									if (column.getColumnInfo() != null)
 									{
-										DatabaseUtils.createNewColumnInfo(manager.getApplication().getFlattenedSolution().getPersistFactory(), newCol, false);
+										DatabaseUtils.createNewColumnInfo(
+											manager.getApplication().getFlattenedSolution().getPersistFactory().getNewElementID(null), newCol, false);
 										newCol.getColumnInfo().copyFrom(column.getColumnInfo());
 									}
 								}
@@ -1647,7 +1943,9 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public IFoundSetInternal copy(boolean unrelate) throws ServoyException
 	{
-		return new ViewFoundSet(datasource, AbstractBaseQuery.deepClone(this.select, true), manager, chunkSize);
+		ViewFoundSet viewFoundSetCopy = new ViewFoundSet(datasource, AbstractBaseQuery.deepClone(this.select, true), manager, chunkSize);
+		manager.registerViewFoundSet(viewFoundSetCopy, true);
+		return viewFoundSetCopy;
 	}
 
 	/**
@@ -1794,7 +2092,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	/**
 	 * Same as {@link #getID()} but it will not assign an id if it wasn't set before.
 	 */
-	int getIDInternal()
+	public int getIDInternal()
 	{
 		return foundsetID;
 	}
@@ -1993,7 +2291,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			for (int j = records.size(); --j >= 0;)
 			{
 				ViewRecord record = records.get(j);
-				for (int i = pkColumns.length; --i >= 0;)
+				for (int i = 0; i < pkColumns.length; i++)
 				{
 					pks[i] = record.getValue(columnNames.get(pkColumns[i]));
 				}
@@ -2210,7 +2508,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 									for (Integer rowIndex : rowIndexes)
 									{
 										ViewRecord viewRecord = records.get(rowIndex.intValue());
-										viewRecord.setValue(columnNames.get(column), rowValue);
+										viewRecord.setValueImpl(columnNames.get(column), rowValue);
 									}
 								}
 							}
@@ -2267,7 +2565,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 												for (Integer rowIndex : rowIndexes)
 												{
 													ViewRecord viewRecord = records.get(rowIndex.intValue());
-													viewRecord.setValue(columnNames.get(column), rowValue);
+													viewRecord.setValueImpl(columnNames.get(column), rowValue);
 												}
 											}
 										}

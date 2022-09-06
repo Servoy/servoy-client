@@ -17,9 +17,15 @@
 package com.servoy.j2db.persistence;
 
 
+import static com.servoy.base.query.IBaseSQLCondition.EQUALS_OPERATOR;
+import static com.servoy.base.query.IBaseSQLCondition.IN_OPERATOR;
+import static com.servoy.base.query.IBaseSQLCondition.NOT_OPERATOR;
+import static com.servoy.base.query.IBaseSQLCondition.OPERATOR_MASK;
+import static com.servoy.j2db.persistence.Column.mapToDefaultType;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,10 +33,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
 
+import com.google.common.cache.CacheBuilder;
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.IBaseSQLCondition;
-import com.servoy.base.query.IJoinConstants;
+import com.servoy.base.query.IQueryConstants;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.Messages;
@@ -66,8 +74,8 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	/*
 	 * All 1-n providers for this class
 	 */
-	private transient IDataProvider[] primary;
-	private transient Column[] foreign;
+
+	private transient ICacheDataproviders cachedDataproviders;
 	private transient int[] operators;
 
 	/**
@@ -141,8 +149,6 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		}
 
 		flushCashedItems();
-		primary = primaryDataProvider; //faster
-		foreign = foreignColumns; //faster
 		operators = ops; //faster
 	}
 
@@ -528,22 +534,38 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		return getAllObjectsAsList().size();
 	}
 
+	private ICacheDataproviders getCachedDataproviders(IDataProviderHandler dataProviderHandler)
+	{
+		ICacheDataproviders tmp = cachedDataproviders;
+		if (tmp == null)
+		{
+			if (isDbServer())
+			{
+				tmp = new CachedDataproviders();
+			}
+			else
+			{
+				tmp = new PerHandlerCachedDataproviders();
+			}
+			cachedDataproviders = tmp;
+		}
+		return tmp;
+	}
+
+	private boolean isDbServer()
+	{
+		return DataSourceUtilsBase.getDBServernameTablename(getForeignDataSource()) != null &&
+			DataSourceUtilsBase.getDBServernameTablename(getForeignDataSource()) != null;
+	}
+
 	public IDataProvider[] getPrimaryDataProviders(IDataProviderHandler dataProviderHandler) throws RepositoryException
 	{
-		if (primary == null)
-		{
-			makePrimaryDataProviders(dataProviderHandler);
-		}
-		return primary;
+		return getCachedDataproviders(dataProviderHandler).getPrimaryDataProviders(dataProviderHandler);
 	}
 
 	public Column[] getForeignColumns(IDataProviderHandler dataProviderHandler) throws RepositoryException
 	{
-		if (foreign == null)
-		{
-			makeForeignColumns(dataProviderHandler);
-		}
-		return foreign;
+		return getCachedDataproviders(dataProviderHandler).getForeignColumns(dataProviderHandler);
 	}
 
 	public boolean isUsableInSort()
@@ -552,7 +574,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		{
 			return false;
 		}
-		if (getJoinType() != IJoinConstants.INNER_JOIN)
+		if (getJoinType() != IQueryConstants.INNER_JOIN)
 		{ // outer joins icw or-null modifiers do not work (oracle) or looses outer join (ansi)
 			for (int operator : getOperators())
 			{
@@ -575,131 +597,6 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		return !DataSourceUtils.isSameServer(getPrimaryDataSource(), getForeignDataSource());
 	}
 
-	//creates real object relations also does some checks
-	private void makePrimaryDataProviders(IDataProviderHandler dataProviderHandler) throws RepositoryException
-	{
-		if (primary != null) return;
-
-		List<IPersist> allobjects = getAllObjectsAsList();
-		IDataProvider[] p = new IDataProvider[allobjects.size()];
-		ITable pt = null;
-		RepositoryException exception = null;
-
-		for (int pos = 0; pos < allobjects.size(); pos++)
-		{
-			RelationItem ri = (RelationItem)allobjects.get(pos);
-			String pdp = ri.getPrimaryDataProviderID();
-
-			if (ScopesUtils.isVariableScope(pdp))
-			{
-				IDataProvider pc = dataProviderHandler.getGlobalDataProvider(pdp);
-				if (pc != null)
-				{
-					p[pos] = pc;
-				}
-				else if (exception == null)
-				{
-					String[] enumParts = pdp.split("\\."); //$NON-NLS-1$
-					if (enumParts.length > 3)
-					{
-						//enum not yet filled in
-						getForeignColumns(dataProviderHandler);
-						int type = 0;
-						if (foreign != null && pos < foreign.length && foreign[pos] != null) type = foreign[pos].getType();
-						p[pos] = new EnumDataProvider(pdp, type);
-					}
-					else
-					{
-						exception = new RepositoryException(Messages.getString("servoy.relation.error.dataproviderDoesntExist", //$NON-NLS-1$
-							new Object[] { ri.getPrimaryDataProviderID(), ri.getForeignColumnName(), getName() }));
-					}
-				}
-			}
-			else if (pdp != null && pdp.startsWith(LiteralDataprovider.LITERAL_PREFIX))
-			{
-				p[pos] = new LiteralDataprovider(pdp);
-			}
-			else
-			{
-				if (pt == null)
-				{
-					pt = dataProviderHandler.getTable(getPrimaryDataSource());
-				}
-
-				if (pt != null)
-				{
-					IDataProvider pc = dataProviderHandler.getDataProviderForTable(pt, pdp);
-					if (pc != null)
-					{
-						p[pos] = pc;
-					}
-					else if (exception == null)
-					{
-						exception = new RepositoryException(Messages.getString("servoy.relation.error.dataproviderDoesntExist", //$NON-NLS-1$
-							new Object[] { ri.getPrimaryDataProviderID(), ri.getForeignColumnName(), getName() }));
-					}
-				}
-				else if (exception == null)
-				{
-					exception = new RepositoryException(
-						Messages.getString("servoy.relation.error.tableDoesntExist", new Object[] { getPrimaryTableName(), getForeignTableName(), getName() })); //$NON-NLS-1$
-				}
-			}
-		}
-		primary = p;
-
-		if (exception != null)
-		{
-			valid = Boolean.FALSE;
-			throw exception;
-		}
-
-	}
-
-	private void makeForeignColumns(IDataProviderHandler dataProviderHandler) throws RepositoryException
-	{
-		if (foreign != null) return;
-
-		List<IPersist> allobjects = getAllObjectsAsList();
-		Column[] f = new Column[allobjects.size()];
-		ITable ft = null;
-		RepositoryException exception = null;
-
-		for (int pos = 0; pos < allobjects.size(); pos++)
-		{
-			RelationItem ri = (RelationItem)allobjects.get(pos);
-			if (ft == null)
-			{
-				ft = dataProviderHandler.getTable(getForeignDataSource());
-			}
-
-			if (ft != null)
-			{
-				Column fc = ft.getColumn(ri.getForeignColumnName());
-				if (fc != null)
-				{
-					f[pos] = fc;
-				}
-				else
-				{
-					if (exception == null) exception = new RepositoryException(Messages.getString("servoy.relation.error.dataproviderDoesntExist", //$NON-NLS-1$
-						new Object[] { ri.getPrimaryDataProviderID(), ri.getForeignColumnName(), getName() }));
-				}
-			}
-			else
-			{
-				if (exception == null) exception = new RepositoryException(Messages.getString("servoy.relation.error.tableDoesntExist", //$NON-NLS-1$
-					new Object[] { getPrimaryTableName(), getForeignTableName(), getName() }));
-			}
-		}
-		foreign = f;
-
-		if (exception != null)
-		{
-			valid = Boolean.FALSE;
-			throw exception;
-		}
-	}
 
 	public Boolean valid = null;
 
@@ -721,8 +618,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	public void flushCashedItems()
 	{
-		primary = null;
-		foreign = null;
+		cachedDataproviders = null;
 		operators = null;
 		isGlobal = null;
 		usedScopes = null;
@@ -735,23 +631,12 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		if (operators == null)
 		{
 			List<IPersist> allobjects = getAllObjectsAsList();
-			int size = 0;
-			if (primary != null)
-			{
-				size = primary.length;
-			}
-			else
-			{
-				size = allobjects.size();
-			}
+			int size = allobjects.size();
 			operators = new int[size];
-			if (allobjects != null)
+			for (int pos = 0; pos < size; pos++)
 			{
-				for (int pos = 0; pos < allobjects.size(); pos++)
-				{
-					RelationItem ri = (RelationItem)allobjects.get(pos);
-					operators[pos] = ri.getOperator();
-				}
+				RelationItem ri = (RelationItem)allobjects.get(pos);
+				operators[pos] = ri.getOperator();
 			}
 		}
 		return operators;
@@ -784,7 +669,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public boolean isFKPKRef(IDataProviderHandler dataProviderHandler) throws RepositoryException
 	{
-		getForeignColumns(dataProviderHandler);
+		Column[] foreign = getCachedDataproviders(dataProviderHandler).getForeignColumns(dataProviderHandler);
 		if (foreign == null || foreign.length == 0)
 		{
 			return false;
@@ -801,7 +686,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	 */
 	public boolean hasPKFKCondition(IDataProviderHandler dataProviderHandler) throws RepositoryException
 	{
-		getPrimaryDataProviders(dataProviderHandler);
+		IDataProvider[] primary = getCachedDataproviders(dataProviderHandler).getPrimaryDataProviders(dataProviderHandler);
 		if (primary == null || primary.length == 0)
 		{
 			return false;
@@ -830,9 +715,10 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	public List<Column> getForeignColumnsForEqualConditions(IDataProviderHandler dataProviderHandler)
 	{
+		Column[] foreign;
 		try
 		{
-			getForeignColumns(dataProviderHandler);
+			foreign = getCachedDataproviders(dataProviderHandler).getForeignColumns(dataProviderHandler);
 		}
 		catch (RepositoryException e)
 		{
@@ -853,12 +739,9 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 
 	public String checkKeyTypes(IDataProviderHandler dataProviderHandler) throws RepositoryException
 	{
-		if (primary == null)
-		{
-			//make sure they are loaded
-			getPrimaryDataProviders(dataProviderHandler);
-			getForeignColumns(dataProviderHandler);
-		}
+		ICacheDataproviders cachedDp = getCachedDataproviders(dataProviderHandler);
+		IDataProvider[] primary = cachedDp.getPrimaryDataProviders(dataProviderHandler);
+		Column[] foreign = cachedDp.getForeignColumns(dataProviderHandler);
 
 		if (primary != null && foreign != null)
 		{
@@ -891,20 +774,43 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 					continue; //allow uuid to media mapping
 				}
 
-				int primaryType = Column.mapToDefaultType(primary[i].getDataProviderType());
-				int foreignType = Column.mapToDefaultType(foreign[i].getDataProviderType());
+				if (primary[i].getDataProviderType() == Types.NULL) continue; // Support is null/is not null
+
+				int primaryType = mapToDefaultType(primary[i].getDataProviderType());
+				int foreignType = mapToDefaultType(foreign[i].getDataProviderType());
+
+				if (primaryType == IColumnTypes.TEXT && (foreignType == IColumnTypes.INTEGER || foreignType == IColumnTypes.NUMBER))
+				{
+					continue; // allow casting to text
+				}
+				if (foreignType == IColumnTypes.TEXT && (primaryType == IColumnTypes.INTEGER || primaryType == IColumnTypes.NUMBER))
+				{
+					continue; // allow casting to text
+				}
 				if (primaryType == IColumnTypes.INTEGER && foreignType == IColumnTypes.NUMBER)
 				{
-					continue; //allow integer to number mappings
+					continue; // allow integer to number mappings
 				}
 				if (primaryType == IColumnTypes.NUMBER && foreignType == IColumnTypes.INTEGER)
 				{
-					continue; //allow number to integer mappings
+					continue; // allow number to integer mappings
 				}
 				if (foreignType == IColumnTypes.INTEGER && primary[i] instanceof AbstractBase &&
 					"Boolean".equals(((AbstractBase)primary[i]).getSerializableRuntimeProperty(IScriptProvider.TYPE))) //$NON-NLS-1$
 				{
-					continue; //allow boolean var to number mappings
+					continue; // allow boolean var to number mappings
+				}
+				if (primaryType == IColumnTypes.MEDIA && primary[i] instanceof AbstractBase &&
+					"Array".equals(((AbstractBase)primary[i]).getSerializableRuntimeProperty(IScriptProvider.TYPE))) //$NON-NLS-1$
+				{
+					int maskedOp = operators[i] & OPERATOR_MASK;
+					if (maskedOp == EQUALS_OPERATOR || maskedOp == NOT_OPERATOR || maskedOp == IN_OPERATOR)
+					{
+						continue; // allow arrays, we cannot check the array element type
+					}
+					return Messages.getString("servoy.relation.error.unsupportedKindForOperator", //$NON-NLS-1$
+						new Object[] { ((AbstractBase)primary[i]).getSerializableRuntimeProperty(IScriptProvider.TYPE), RelationItem
+							.getOperatorAsString(operators[i]) });
 				}
 				if (primaryType != foreignType)
 				{
@@ -1186,4 +1092,200 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		// default to true
 		return relation.valid == null || relation.valid.booleanValue();
 	}
+
+	private interface ICacheDataproviders
+	{
+
+		/**
+		 * @return
+		 */
+		IDataProvider[] getPrimaryDataProviders(IDataProviderHandler dataProviderHandler) throws RepositoryException;
+
+		/**
+		 * @return
+		 */
+		Column[] getForeignColumns(IDataProviderHandler dataProviderHandler) throws RepositoryException;
+
+	}
+
+	private final class CachedDataproviders implements ICacheDataproviders
+	{
+		private IDataProvider[] primary;
+		private Column[] foreign;
+
+		private RepositoryException exception;
+
+		public CachedDataproviders()
+		{
+		}
+
+		public IDataProvider[] getPrimaryDataProviders(IDataProviderHandler dataProviderHandler) throws RepositoryException
+		{
+			if (primary == null)
+			{
+				primary = makePrimaryDataProviders(dataProviderHandler);
+				if (exception != null)
+				{
+					valid = Boolean.FALSE;
+					throw exception;
+				}
+			}
+			return primary;
+		}
+
+		public Column[] getForeignColumns(IDataProviderHandler dataProviderHandler) throws RepositoryException
+		{
+			if (foreign == null)
+			{
+				foreign = makeForeignColumns(dataProviderHandler);
+
+				if (exception != null)
+				{
+					valid = Boolean.FALSE;
+					throw exception;
+				}
+			}
+			return foreign;
+		}
+
+		//creates real object relations also does some checks
+		private IDataProvider[] makePrimaryDataProviders(IDataProviderHandler dataProviderHandler) throws RepositoryException
+		{
+			List<IPersist> allobjects = getAllObjectsAsList();
+			IDataProvider[] p = new IDataProvider[allobjects.size()];
+			ITable pt = null;
+			exception = null;
+
+			for (int pos = 0; pos < allobjects.size(); pos++)
+			{
+				RelationItem ri = (RelationItem)allobjects.get(pos);
+				String pdp = ri.getPrimaryDataProviderID();
+
+				if (ScopesUtils.isVariableScope(pdp))
+				{
+					IDataProvider pc = dataProviderHandler.getGlobalDataProvider(pdp);
+					if (pc != null)
+					{
+						p[pos] = pc;
+					}
+					else if (exception == null)
+					{
+						String[] enumParts = pdp.split("\\."); //$NON-NLS-1$
+						if (enumParts.length > 3)
+						{
+							//enum not yet filled in
+							Column[] f = getForeignColumns(dataProviderHandler);
+							int type = 0;
+							if (f != null && pos < f.length && f[pos] != null) type = f[pos].getType();
+							p[pos] = new EnumDataProvider(pdp, type);
+						}
+						else
+						{
+							exception = new RepositoryException(Messages.getString("servoy.relation.error.dataproviderDoesntExist", //$NON-NLS-1$
+								new Object[] { ri.getPrimaryDataProviderID(), ri.getForeignColumnName(), getName() }));
+						}
+					}
+				}
+				else if (pdp != null && pdp.startsWith(LiteralDataprovider.LITERAL_PREFIX))
+				{
+					p[pos] = new LiteralDataprovider(pdp);
+				}
+				else
+				{
+					if (pt == null)
+					{
+						pt = dataProviderHandler.getTable(getPrimaryDataSource());
+					}
+
+					if (pt != null)
+					{
+						IDataProvider pc = dataProviderHandler.getDataProviderForTable(pt, pdp);
+						if (pc != null)
+						{
+							p[pos] = pc;
+						}
+						else if (exception == null)
+						{
+							exception = new RepositoryException(Messages.getString("servoy.relation.error.dataproviderDoesntExist", //$NON-NLS-1$
+								new Object[] { ri.getPrimaryDataProviderID(), ri.getForeignColumnName(), getName() }));
+						}
+					}
+					else if (exception == null)
+					{
+						exception = new RepositoryException(
+							Messages.getString("servoy.relation.error.tableDoesntExist", //$NON-NLS-1$
+								new Object[] { getPrimaryTableName(), getForeignTableName(), getName() }));
+					}
+				}
+			}
+			return p;
+		}
+
+		private Column[] makeForeignColumns(IDataProviderHandler dataProviderHandler)
+		{
+			List<IPersist> allobjects = getAllObjectsAsList();
+			Column[] f = new Column[allobjects.size()];
+			ITable ft = null;
+			exception = null;
+
+			for (int pos = 0; pos < allobjects.size(); pos++)
+			{
+				RelationItem ri = (RelationItem)allobjects.get(pos);
+				if (ft == null)
+				{
+					ft = dataProviderHandler.getTable(getForeignDataSource());
+				}
+
+				if (ft != null)
+				{
+					Column fc = ft.getColumn(ri.getForeignColumnName());
+					if (fc != null)
+					{
+						f[pos] = fc;
+					}
+					else
+					{
+						if (exception == null) exception = new RepositoryException(Messages.getString("servoy.relation.error.dataproviderDoesntExist", //$NON-NLS-1$
+							new Object[] { ri.getPrimaryDataProviderID(), ri.getForeignColumnName(), getName() }));
+					}
+				}
+				else
+				{
+					if (exception == null) exception = new RepositoryException(Messages.getString("servoy.relation.error.tableDoesntExist", //$NON-NLS-1$
+						new Object[] { getPrimaryTableName(), getForeignTableName(), getName() }));
+				}
+			}
+			return f;
+		}
+	}
+	private final class PerHandlerCachedDataproviders implements ICacheDataproviders
+	{
+		private final ConcurrentMap<IDataProviderHandler, ICacheDataproviders> cache = CacheBuilder.newBuilder().weakKeys().initialCapacity(16)
+			.<IDataProviderHandler, ICacheDataproviders> build().asMap();
+
+		@Override
+		public IDataProvider[] getPrimaryDataProviders(IDataProviderHandler dataProviderHandler) throws RepositoryException
+		{
+			return getCachedValue(dataProviderHandler).getPrimaryDataProviders(dataProviderHandler);
+		}
+
+		@Override
+		public Column[] getForeignColumns(IDataProviderHandler dataProviderHandler) throws RepositoryException
+		{
+			return getCachedValue(dataProviderHandler).getForeignColumns(dataProviderHandler);
+		}
+
+		private ICacheDataproviders getCachedValue(IDataProviderHandler dataProviderHandler)
+		{
+			ICacheDataproviders cacheDataproviders = cache.get(dataProviderHandler);
+			if (cacheDataproviders == null)
+			{
+				cacheDataproviders = new CachedDataproviders();
+				cache.put(dataProviderHandler, cacheDataproviders);
+			}
+			return cacheDataproviders;
+		}
+
+	}
 }
+

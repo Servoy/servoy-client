@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient.less.resources;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.SortedMap;
@@ -36,9 +37,10 @@ import com.servoy.j2db.util.Utils;
 public class ThemeResourceLoader
 {
 	public static final String CUSTOM_PROPERTIES_LESS = "custom_servoy_theme_properties.less";
+	public static final String CUSTOM_PROPERTIES_NG2_LESS = "custom_servoy_theme_properties_ng2.less";
 	public static final String PROPERTIES_LESS = "servoy_theme_properties.less";
 	public static final String THEME_LESS = "servoy_theme.less";
-	public static final String[] VERSIONS = new String[] { "latest", "2021.3.0_ng2", "2020.6.0", "2019.12.0", "2019.6.0", "2019.3.0", "8.4.0" };
+	public static final String[] VERSIONS = new String[] { "latest", "2022.3.0_ng2", "2022.3.0", "2021.3.0_ng2", "2020.6.0", "2019.12.0", "2019.6.0", "2019.3.0", "8.4.0" };
 
 	private static SortedMap<Version, String> themePropertyResource = new TreeMap<>();
 	private static SortedMap<Version, String> themeResource = new TreeMap<>();
@@ -50,6 +52,8 @@ public class ThemeResourceLoader
 		themeResource.put(new Version("2019.12.0"), "servoy_theme_2019.12.0.less");
 		themeResource.put(new Version("2020.6.0"), "servoy_theme_2020.6.0.less");
 		themeResource.put(new Version("2021.3.0_ng2"), "servoy_theme_2021.3.0_ng2.less");
+		themeResource.put(new Version("2022.3.0"), "servoy_theme_2022.3.0.less");
+		themeResource.put(new Version("2022.3.0_ng2"), "servoy_theme_2022.3.0_ng2.less");
 
 		themePropertyResource.put(new Version("8.4.0"), "servoy_theme_properties_8.4.0.less");
 		themePropertyResource.put(new Version("2019.3.0"), "servoy_theme_properties_2019.3.0.less");
@@ -57,6 +61,8 @@ public class ThemeResourceLoader
 		themePropertyResource.put(new Version("2019.12.0"), "servoy_theme_properties_2019.12.0.less");
 		themePropertyResource.put(new Version("2020.6.0"), "servoy_theme_properties_2020.6.0.less");
 		themePropertyResource.put(new Version("2021.3.0_ng2"), "servoy_theme_properties_2021.3.0_ng2.less");
+		themePropertyResource.put(new Version("2022.3.0"), "servoy_theme_properties_2022.3.0.less");
+		themePropertyResource.put(new Version("2022.3.0_ng2"), "servoy_theme_properties_2022.3.0_ng2.less");
 	}
 
 	public static byte[] getDefaultSolutionLess()
@@ -64,9 +70,24 @@ public class ThemeResourceLoader
 		return load("default_solution.less", ClientVersion.getPureVersion()).getBytes(Charset.forName("UTF-8"));
 	}
 
+	public static byte[] getDefaultNG2SolutionLess()
+	{
+		return load("default_solution_ng2.less", ClientVersion.getPureVersion()).getBytes(Charset.forName("UTF-8"));
+	}
+
 	public static byte[] getCustomProperties()
 	{
 		return load("custom_servoy_theme_properties.less", ClientVersion.getPureVersion()).getBytes(Charset.forName("UTF-8"));
+	}
+
+	public static byte[] getNG2CustomProperties()
+	{
+		return load("custom_servoy_theme_properties.less", getLatestNG2Version()).getBytes(Charset.forName("UTF-8"));
+	}
+
+	public static String getLatestNG2Version()
+	{
+		return Arrays.stream(VERSIONS).filter(version -> version.contains("_ng2")).findFirst().orElse(null);
 	}
 
 	public static String getLatestThemeProperties()

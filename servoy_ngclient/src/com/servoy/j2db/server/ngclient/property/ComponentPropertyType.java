@@ -147,7 +147,7 @@ public class ComponentPropertyType extends DefaultPropertyType<ComponentTypeSabl
 		FlattenedSolution flattenedSolution) throws JSONException
 	{
 		List<String> apisOnAll = null;
-		List<String> recordBasedProperties = null;
+		RecordBasedProperties recordBasedProperties = null;
 		if (forFoundsetTypedPropertyName(pd) != null)
 		{
 			if (callTypes == null) apisOnAll = findCallTypesInApiSpecDefinition(element.getWebComponentSpec().getApiFunctions());
@@ -170,9 +170,9 @@ public class ComponentPropertyType extends DefaultPropertyType<ComponentTypeSabl
 		return pd.getConfig() instanceof ComponentTypeConfig ? ((ComponentTypeConfig)pd.getConfig()).forFoundset : null;
 	}
 
-	protected List<String> findRecordAwareRootProperties(FormElement formElement, FlattenedSolution flattenedSolution)
+	protected RecordBasedProperties findRecordAwareRootProperties(FormElement formElement, FlattenedSolution flattenedSolution)
 	{
-		List<String> m = new ArrayList<>();
+		RecordBasedProperties m = new RecordBasedProperties();
 
 		// tagstrings, valuelists, tab seq, ... must be implemented separately and provided as a
 		// viewport containing these values as part of 'components' property
@@ -186,9 +186,9 @@ public class ComponentPropertyType extends DefaultPropertyType<ComponentTypeSabl
 				// as these are root-level component properties, their TargetDataLinks will always be cached (only array element values are not cached)
 				TargetDataLinks dataLinks = ((IDataLinkedType)type).getDataLinks(formElement.getPropertyValue(pd.getName()), propertyDescriptorEntry.getValue(),
 					flattenedSolution, formElement);
-				if (dataLinks != TargetDataLinks.NOT_LINKED_TO_DATA && dataLinks != null && dataLinks.recordLinked)
+				if (dataLinks != TargetDataLinks.NOT_LINKED_TO_DATA && dataLinks.recordLinked)
 				{
-					m.add(propertyDescriptorEntry.getKey());
+					m.addRecordBasedProperty(propertyDescriptorEntry.getKey(), dataLinks.dataProviderIDs, null);
 				}
 			}
 		}
@@ -255,7 +255,8 @@ public class ComponentPropertyType extends DefaultPropertyType<ComponentTypeSabl
 	}
 
 	protected <ContextT> void writeTemplateJSONContent(JSONWriter writer, ComponentTypeFormElementValue formElementValue, String forFoundsetPropertyType,
-		FormElementContext componentFormElementContext, IModelWriter modelWriter, List<String> recordBasedProperties, boolean writeViewportIfFoundsetBased)
+		FormElementContext componentFormElementContext, IModelWriter modelWriter, RecordBasedProperties recordBasedProperties,
+		boolean writeViewportIfFoundsetBased)
 		throws JSONException
 	{
 		FormElement fe = componentFormElementContext.getFormElement();
@@ -273,7 +274,7 @@ public class ComponentPropertyType extends DefaultPropertyType<ComponentTypeSabl
 			writer.key("headerIndex").value(fe.getPropertyValue("headerIndex"));
 		}
 		AngularFormGenerator.writePosition(writer, formElementValue.element.getPersistIfAvailable(),
-			componentFormElementContext.getContext().getForm().getForm());
+			componentFormElementContext.getContext().getForm().getForm(), null, formElementValue.element.isInDesigner());
 
 		writer.key("model");
 		try
@@ -304,10 +305,7 @@ public class ComponentPropertyType extends DefaultPropertyType<ComponentTypeSabl
 			if (recordBasedProperties != null)
 			{
 				writer.key(RECORD_BASED_PROPERTIES).array();
-				for (String propertyName : recordBasedProperties)
-				{
-					writer.value(propertyName);
-				}
+				recordBasedProperties.forEach(propertyName -> writer.value(propertyName));
 				writer.endArray();
 			}
 			if (formElementValue.apisOnAll != null)

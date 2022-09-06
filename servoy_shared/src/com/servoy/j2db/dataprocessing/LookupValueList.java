@@ -106,7 +106,7 @@ public class LookupValueList implements IValueList
 		int maxRowsSetting = (application instanceof IApplication)
 			? Utils.getAsInteger(((IApplication)application).getClientProperty(IApplication.VALUELIST_MAX_ROWS)) : 0;
 		maxValuelistRows = (maxRowsSetting > 0 && maxRowsSetting <= 1000) ? maxRowsSetting
-			: ((FoundSetManager)application.getFoundSetManager()).pkChunkSize * 4;
+			: ((FoundSetManager)application.getFoundSetManager()).config.pkChunkSize() * 4;
 
 		table = application.getFoundSetManager().getTable(dataSource);
 

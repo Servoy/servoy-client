@@ -207,6 +207,17 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				return !(propByStringPath === null || propByStringPath === '')
 			}
 		},
+		
+		notNullOrEmptyValueListItem: function() {
+			return function( item: { displayValue: any; realValue: any } ) {
+				if ( item ) {
+					return !( item.displayValue === null || item.displayValue === '') 
+					|| !(item.realValue === null || item.realValue === '' )
+				}
+				return false;
+			}
+		},
+        
 		autoApplyStyle: function(scope,element,modelToWatch,cssPropertyName){
 			scope.$watch(modelToWatch,function(newVal,oldVal){
 				$svyProperties.setCssProperty(element,cssPropertyName,newVal);
@@ -1013,6 +1024,16 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						}
 					} 
 					
+					scope.getRowStyleClassDataprovider = function(rowID) {
+						for ( let i = 0; i < scope.foundset.viewPort.rows.length; i++ ) {
+							if (scope.foundset.viewPort.rows[i][$foundsetTypeConstants.ROW_ID_COL_KEY] == rowID)
+							{
+								return scope.rowStyleClassDataprovider && i < scope.rowStyleClassDataprovider.length ? scope.rowStyleClassDataprovider[i] : '';
+							}
+						}
+						return '';					
+					}
+
 					scope.onKeydown = function(event, rowID) { 
 						const keycode = event.originalEvent.keyCode;
 						if (!getFoundset().multiSelect && keycode == 38 || keycode == 40) {
@@ -1061,9 +1082,9 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					}
 
 					function createRows() {
-                        numberOfCells = svyServoyApi.isInAbsoluteLayout() ? 0 : scope.responsivePageSize;
+                        numberOfCells = svyServoyApi.isInAbsoluteLayout() && scope.svyFormComponent.absoluteLayout ? 0 : scope.responsivePageSize;
                         if (numberOfCells <= 0 ) {
-                        	if (svyServoyApi.isInAbsoluteLayout()) {
+                        	if (svyServoyApi.isInAbsoluteLayout() && scope.svyFormComponent.absoluteLayout) {
 		                        const parentWidth = parent.outerWidth();
 		                        const parentHeight = parent.outerHeight();
 		                        const height = scope.svyFormComponent.formHeight;
@@ -1075,7 +1096,12 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		                        if (numberOfCells < 1) numberOfCells = 1;
                         	}
                         	else {
-                        		parent.append(angular.element("<span>responsivePageSize property must be set when using a list form component in a responsive form</span>"));
+								if(!svyServoyApi.isInAbsoluteLayout()) {
+                        			parent.append(angular.element("<span>responsivePageSize property must be set when using a list form component in a responsive form</span>"));
+								}
+								else if(!scope.svyFormComponent.absoluteLayout) {
+									parent.append(angular.element("<span>responsivePageSize property must be set when using a list form component with a responsive containedForm</span>"));
+								}
                         		return;
                         	}
                         }
@@ -1240,7 +1266,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						}
 						if (scope.rowStyleClassDataprovider)
 						{
-							clone.attr("ng-class", "rowStyleClassDataprovider[" + index +"]");
+							clone.attr("ng-class", "getRowStyleClassDataprovider(rowID)");
 						}
 						$compile(clone)(row);
 						
@@ -1350,9 +1376,14 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 							let shouldUpdatePagingControls = false;
 							if (changes.viewportRowsCompletelyChanged) {
 								createRows();
+								 if (changes.selectedRowIndexesChanged) 
+                                    updateSelection(changes.selectedRowIndexesChanged.newValue, changes.selectedRowIndexesChanged.oldValue);
+								return;
 							} else if (changes.fullValueChanged) {
 								scope.foundset = changes.fullValueChanged.newValue; // the new value by ref would be updated in scope automatically only later otherwise and we use that in code
 								createRows();
+                                 if (changes.selectedRowIndexesChanged) 
+                                    updateSelection(changes.selectedRowIndexesChanged.newValue, changes.selectedRowIndexesChanged.oldValue);
 								return;
 							} else if (changes.viewportRowsUpdated) {
 								const updates = changes.viewportRowsUpdated.updates;
@@ -1449,8 +1480,8 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 										const availableExtraRecords = getFoundset().serverSize - (vpStartIndexForCurrentCalcs + vpSizeForCurrentCalcs)
 										if (availableExtraRecords > 0) getFoundset().loadExtraRecordsAsync(Math.min(deltaSize, availableExtraRecords), true);
 									} else if (deltaSize < 0) {
-										// we need to show less records
-										getFoundset().loadLessRecordsAsync(-deltaSize, true);
+										// we need to show less records; deltaSize is already negative; so it will load less from end of viewport 
+										getFoundset().loadLessRecordsAsync(deltaSize, true);
 									} // else it's already ok
 								}
 								
@@ -1514,13 +1545,13 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			                  }});
 						}
 						if (scope.responsivePageSize == 0){
-							let lastValue = 0;
-							let lastChangeTimed= 0;
+							let lastNumberOfCellsToLoadThatWasUsed = 0;
+							let lastChangeTime= 0;
 							const NUMBER_OF_CELLS_CHANGE_TIMEOUT = 500;
-							let resizeTimeoutID;
+							let resizeTimeoutPromise: angular.IPromise<void>;
 							
-							// this watch will also be called when resizing browser window due to the $timeout in servoy_app.ts -> svyLayoutUpdate
-							scope.$watch(() => {
+							// this watch will also be called when resizing browser window due to the $timeout in servoy_app.ts -> svyLayoutUpdate, not just initially
+							scope.$watch(() => { // watches for "lastNumberOfCellsToLoadThatWasUsed" returned below
 				                        const parentWidth = parent.outerWidth();
 				                        const parentHeight = parent.outerHeight();
 				                        const height = scope.svyFormComponent.formHeight;
@@ -1528,22 +1559,27 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 				                        const numberOfColumns = (scope.pageLayout == 'listview') ? 1 : Math.floor(parentWidth/width);
 				                        const numberOfRows = Math.floor(parentHeight/height);
 				                        const numberOfCells = numberOfRows * numberOfColumns;
-				                        let currentTime;
-				                        if (lastValue != numberOfCells && ((currentTime = new Date().getTime()) - lastChangeTimed) > NUMBER_OF_CELLS_CHANGE_TIMEOUT) {
-				                        	lastValue = numberOfCells;
-				                        	lastChangeTimed = currentTime;
-				                        	if (resizeTimeoutID) {
-				                        		$timeout.cancel(resizeTimeoutID);
-				                        		resizeTimeoutID = undefined;
-				                        	}
-				                        } else if (!resizeTimeoutID) {
-				                        	resizeTimeoutID = $timeout( function() {
-				        						// nothing to do here; it will just make sure to trigger an angular digest that will call the $watch above again - to not miss handling last change
-				                        		resizeTimeoutID = undefined;
-				        					}, NUMBER_OF_CELLS_CHANGE_TIMEOUT);
+				                        let currentTime: number;
+
+				                        if (lastNumberOfCellsToLoadThatWasUsed != numberOfCells)
+				                        {
+                                            // we will need to update that lastNumberOfCellsToLoadThatWasUsed; but do it max once every NUMBER_OF_CELLS_CHANGE_TIMEOUT ms
+                                            if (((currentTime = new Date().getTime()) - lastChangeTime) > NUMBER_OF_CELLS_CHANGE_TIMEOUT) {
+    				                        	lastNumberOfCellsToLoadThatWasUsed = numberOfCells;
+    				                        	lastChangeTime = currentTime;
+    				                        	if (resizeTimeoutPromise) {
+    				                        		$timeout.cancel(resizeTimeoutPromise);
+    				                        		resizeTimeoutPromise = undefined;
+				                        		}
+    				                        } else if (!resizeTimeoutPromise) {
+    				                        	resizeTimeoutPromise = $timeout( function() {
+    				        						// nothing to do here; it will just make sure to trigger an angular digest that will call the $watch above again - to not miss handling latest lastNumberOfCellsToLoadThatWasUsed
+    				                        		resizeTimeoutPromise = undefined;
+    				        					}, NUMBER_OF_CELLS_CHANGE_TIMEOUT);
+    				                        }
 				                        }
 				                        
-							            return lastValue;
+							            return lastNumberOfCellsToLoadThatWasUsed;
 							        }, (newValue) => {
 										createRowsAndSetSelection();
 							        });
@@ -1686,12 +1722,12 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 			});
 		}
 	}
-}]).directive('svyFormstyle',  function () {
+}]).directive('svyFormstyle', ['$parse', function($parse:angular.IParseService){
 	return {
 		restrict: 'A',
 		link: function (scope, element, attrs) {
 			element.css({position:'absolute'});
-			scope.$watch(attrs['svyFormstyle'], function(newVal) {
+			function applyStyle(newVal) {
 				if (newVal)
 				{
 					if(scope["formProperties"] && !scope["formProperties"]["hasExtraParts"] && isInContainer(scope)) {
@@ -1699,8 +1735,10 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
         				delete newVal["minHeight"];
         			}
 					element.css(newVal);
-				}	
-			})
+				}
+			}
+			applyStyle($parse(attrs['svyFormstyle'])(scope));
+			scope.$watch(attrs['svyFormstyle'], applyStyle);
 		}
 	}
 
@@ -1713,7 +1751,19 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 		}	
 		return false;
 	}
-}).directive("svyDecimalKeyConverter",[function(){
+}]).directive('svyNgStyle', ['$parse', function($parse:angular.IParseService){
+	// similar to ng-style just it adds the style a bit earlier, during its link phase
+	return {
+		restrict: 'A',
+		link: function (scope, element, attrs) {
+			function applyStyle(newVal) {
+				element.css(newVal);
+			}
+			applyStyle($parse(attrs['svyNgStyle'])(scope));
+			scope.$watch(attrs['svyNgStyle'], applyStyle);
+		}
+	}
+}]).directive("svyDecimalKeyConverter",[function(){
 	return {
 		restrict: 'A',
 		link: function(scope,element,attrs) {
@@ -1741,7 +1791,8 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 					        var startString = element.val().slice(0, caretPos);
 					        var endString = element.val().slice(element[0]['selectionEnd'], element.val().length);
 					        element.val(startString + numeral.localeData().delimiters.decimal + endString);
-					        setCaretPosition(element[0], caretPos+1); // '+1' puts the caret after the input
+					        var inputElement = (element[0] as HTMLInputElement);
+							if(inputElement.type  === "text")	setCaretPosition(element[0], caretPos+1); // '+1' puts the caret after the input
 					        event.preventDefault ? event.preventDefault() : event.returnValue = false; //for IE8
 						}
 					});

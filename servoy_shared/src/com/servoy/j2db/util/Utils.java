@@ -41,6 +41,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.net.JarURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
@@ -72,13 +73,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SimpleTimeZone;
 import java.util.StringTokenizer;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import javax.print.attribute.Size2DSyntax;
 import javax.print.attribute.standard.MediaSize;
@@ -695,17 +701,15 @@ public final class Utils
 	/**
 	 * Compares two objects no matter if they are null
 	 *
+	 * @deprecated use Objects.equals
 	 * @param left object
 	 * @param right object
 	 * @return true if they are the same
 	 */
+	@Deprecated()
 	public static boolean safeEquals(Object left, Object right)
 	{
-		if (left == null)
-		{
-			return right == null;
-		}
-		return left.equals(right);
+		return Objects.equals(left, right);
 	}
 
 	/**
@@ -725,11 +729,11 @@ public final class Utils
 	}
 
 	/**
-	 * Format a given number of miliseconds in a formatted time
+	 * Format a given number of milliseconds in a formatted time
 	 *
-	 * Note:if the time (in milliseconds) is smaller than ~month, it is calulated without a timezone)
+	 * Note:if the time (in milliseconds) is smaller than ~month, it is calculated without a time zone)
 	 *
-	 * @param msec the miliseconds (current time can be get by 'new java.util.Date().getTime()')
+	 * @param msec the milliseconds (current time can be get by 'new java.util.Date().getTime()')
 	 * @param format the display format (format used from java.text.SimpleDateFormat!)
 	 * @return the formatted time
 	 * @see java.text.SimpleDateFormat
@@ -740,11 +744,11 @@ public final class Utils
 	}
 
 	/**
-	 * Format a given number of miliseconds in a formatted time
+	 * Format a given number of milliseconds in a formatted time
 	 *
-	 * Note:if the time (in milliseconds) is smaller than ~month, it is calulated without a timezone)
+	 * Note:if the time (in milliseconds) is smaller than ~month, it is calculated without a time zone)
 	 *
-	 * @param msec the miliseconds (current time can be get by 'new java.util.Date().getTime()')
+	 * @param msec the milliseconds (current time can be get by 'new java.util.Date().getTime()')
 	 * @param format the display format
 	 * @return the formatted time
 	 * @see java.text.SimpleDateFormat
@@ -888,7 +892,7 @@ public final class Utils
 	/**
 	 * Method for replacing part of a string with a string
 	 *
-	 * @param org the orginal string
+	 * @param org the original string
 	 * @param source the string to search
 	 * @param destination the string to replace
 	 * @return the result
@@ -1114,6 +1118,18 @@ public final class Utils
 			}
 		}
 		return buf.toString();
+	}
+
+	public static int indexOf(int[] array, int elem)
+	{
+		for (int i = 0; array != null && i < array.length; i++)
+		{
+			if (array[i] == elem)
+			{
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	/**
@@ -3087,17 +3103,36 @@ public final class Utils
 	}
 
 	/**
+	 * Stream from iterator.
+	 *
+	 * @param iterator when null, return empty stream
+	 */
+	public static <T> Stream<T> stream(Iterator<T> iterator)
+	{
+		return iterator == null
+			? Stream.empty()
+			: stream(((Iterable<T>)() -> iterator));
+	}
+
+	/**
+	 * Stream iterable iterator.
+	 *
+	 * @param iterable when null, return empty stream
+	 */
+	public static <T> Stream<T> stream(Iterable<T> iterable)
+	{
+		return iterable == null
+			? Stream.empty()
+			: StreamSupport.stream(iterable.spliterator(), false);
+	}
+
+	/**
 	 * Returns true if the given client/application type is a Swing client and false if it is not.
 	 * @param applicationType the type to check
 	 */
 	public static boolean isSwingClient(int applicationType)
 	{
 		return applicationType == IApplication.CLIENT || applicationType == IApplication.OFFLINE || applicationType == IApplication.RUNTIME;
-	}
-
-	private static String getPrefixedType(String type, String prefix)
-	{
-		return prefix != null ? prefix + type : type;
 	}
 
 	/**
@@ -3369,5 +3404,83 @@ public final class Utils
 			Debug.error(e);
 			return value;
 		}
+	}
+
+	public static boolean isValidZipFile(File file)
+	{
+		try (ZipFile zipfile = new ZipFile(file);
+			ZipInputStream zis = new ZipInputStream(new FileInputStream(file)))
+		{
+
+			ZipEntry ze = zis.getNextEntry();
+			if (ze == null)
+			{
+				return false;
+			}
+			while (ze != null)
+			{
+				// if it throws an exception fetching any of the following then we know the file is corrupted.
+				zipfile.getInputStream(ze);
+				ze.getCrc();
+				ze.getCompressedSize();
+				ze.getName();
+				ze = zis.getNextEntry();
+			}
+			return true;
+		}
+		catch (ZipException e)
+		{
+			return false;
+		}
+		catch (IOException e)
+		{
+			return false;
+		}
+	}
+
+	/*
+	 * Download stream to a temporary file. After three unsuccessful attempts is throwing an IOException
+	 *
+	 */
+	public static File downloadUrlPackage(String urlString) throws IOException
+	{
+
+		for (int index = 0; index < 3; index++)
+		{
+			try
+			{
+				File dataFile = File.createTempFile("tmp", "data");
+				dataFile.deleteOnExit();
+				URL url = new URL(urlString);
+				URLConnection conn = url.openConnection();
+				try (InputStream is = conn.getInputStream();
+					FileOutputStream os = new FileOutputStream(dataFile))
+				{
+
+					int readBytes = Utils.streamCopy(is, os);
+					if (readBytes <= 0)
+					{
+						throw new IOException("Download error: " + urlString.substring(urlString.lastIndexOf("/") + 1));
+					}
+				}
+				if (!Utils.isValidZipFile(dataFile))
+				{
+					if (index < 3) continue;
+					throw new IOException("Download error: " + urlString.substring(urlString.lastIndexOf("/") + 1));
+				}
+				return dataFile;
+			}
+			catch (MalformedURLException | SecurityException e)
+			{
+				throw new IOException(e.getMessage());
+			}
+			catch (IOException e)
+			{
+				if (index < 3) continue;
+				throw e;
+			}
+
+		}
+		return null; //theoretically we shouldn't be here
 	}
 }

@@ -32,6 +32,7 @@ import com.servoy.j2db.serverconfigtemplates.InMemoryTemplate;
 import com.servoy.j2db.serverconfigtemplates.InformixTemplate;
 import com.servoy.j2db.serverconfigtemplates.MSSQLFreeTDSTemplate;
 import com.servoy.j2db.serverconfigtemplates.MSSQLTemplate;
+import com.servoy.j2db.serverconfigtemplates.MariaDBTemplate;
 import com.servoy.j2db.serverconfigtemplates.MySQLTemplate;
 import com.servoy.j2db.serverconfigtemplates.ODBCTemplate;
 import com.servoy.j2db.serverconfigtemplates.OpenbaseTemplate;
@@ -44,7 +45,9 @@ import com.servoy.j2db.util.Utils;
 
 
 /**
- * Server configuration data.
+ * Server configuration to define the runtime environment.
+ *
+ * This data differs from {@link ServerSettings} which contains the configuration of the behaviour of the solution.
  *
  * @author rgansevles
  *
@@ -205,6 +208,10 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		return schema;
 	}
 
+	/**
+	 * @deprecated use {@link ServerSettings#getClientOnlyConnections()} with fallback on this call
+	 */
+	@Deprecated
 	public boolean isClientOnlyConnections()
 	{
 		return clientOnlyConnections;
@@ -257,8 +264,9 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	}
 
 	/**
-	 * @return the queryProcedures
+	 * @deprecated use {@link ServerSettings#getQueryProcedures()} with fallback on this call
 	 */
+	@Deprecated
 	public boolean getQueryProcedures()
 	{
 		return queryProcedures;
@@ -483,6 +491,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		map.put("MS SQL", new MSSQLTemplate());
 		map.put("MS SQL (freetds)", new MSSQLFreeTDSTemplate());
 		map.put("MySQL", new MySQLTemplate());
+		map.put("MariaDB", new MariaDBTemplate());
 		map.put("ODBC Datasource", new ODBCTemplate());
 		map.put("Openbase", new OpenbaseTemplate());
 		map.put("Oracle", new OracleTemplate());

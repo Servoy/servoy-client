@@ -23,6 +23,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.IdFunctionObject;
 import org.mozilla.javascript.ImporterTopLevel;
+import org.mozilla.javascript.NativeDate;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
@@ -43,7 +44,7 @@ public class RecordingScriptable implements Scriptable, IDelegate<Scriptable>, W
 	protected final Scriptable scriptable;
 	protected final String scriptableName;
 
-	public RecordingScriptable(String scriptableName, Scriptable scriptable)
+	protected RecordingScriptable(String scriptableName, Scriptable scriptable)
 	{
 		this.scriptableName = scriptableName;
 		this.scriptable = scriptable;
@@ -58,6 +59,22 @@ public class RecordingScriptable implements Scriptable, IDelegate<Scriptable>, W
 			recordedThreadLocal.set(stack);
 		}
 		stack.add(usedDataProviderTracker);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (!super.equals(obj))
+		{
+			return scriptable.equals(obj);
+		}
+		return true;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return scriptable.hashCode();
 	}
 
 	public UsedDataProviderTracker popRecordingTracker()
@@ -180,10 +197,18 @@ public class RecordingScriptable implements Scriptable, IDelegate<Scriptable>, W
 				return new RecordingFunction(name, (Function)o);
 			}
 
-			return new RecordingScriptable(name, (Scriptable)o);
+			return RecordingScriptable.wrapIfNeeded(name, (Scriptable)o);
 		}
 		return o;
 	}
+
+	public static Scriptable wrapIfNeeded(String scriptableName, Scriptable scriptable)
+	{
+		if (scriptable == null) return null;
+		if (scriptable instanceof NativeDate) return scriptable;
+		return new RecordingScriptable(scriptableName, scriptable);
+	}
+
 
 	public static Object unwrapScriptable(Object obj)
 	{
@@ -231,13 +256,13 @@ public class RecordingScriptable implements Scriptable, IDelegate<Scriptable>, W
 	{
 		Scriptable parentScope = scriptable.getParentScope();
 		// do not wrap toplevel scope. Note that scriptengine puts anything that needs to be tracked in solution scope.
-		return parentScope == null ? null : parentScope.getParentScope() == null ? parentScope : new RecordingScriptable(null, parentScope);
+		return parentScope == null ? null : parentScope.getParentScope() == null ? parentScope : RecordingScriptable.wrapIfNeeded(null, parentScope);
 	}
 
 	public Scriptable getPrototype()
 	{
 		Scriptable prototype = scriptable.getPrototype();
-		return prototype == null ? scriptable instanceof ImporterTopLevel ? scriptable : null : new RecordingScriptable(null, prototype);
+		return prototype == null ? scriptable instanceof ImporterTopLevel ? scriptable : null : RecordingScriptable.wrapIfNeeded(null, prototype);
 	}
 
 	/**

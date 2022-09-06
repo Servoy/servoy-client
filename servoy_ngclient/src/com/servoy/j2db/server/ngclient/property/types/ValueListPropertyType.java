@@ -15,7 +15,11 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,6 +36,7 @@ import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.FlattenedSolution;
@@ -43,6 +48,7 @@ import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.ValueListFactory;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.solutionmodel.JSValueList;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
@@ -57,6 +63,7 @@ import com.servoy.j2db.server.ngclient.property.FoundsetLinkedPropertyType;
 import com.servoy.j2db.server.ngclient.property.ICanBeLinkedToFoundset;
 import com.servoy.j2db.server.ngclient.property.NGComponentDALContext;
 import com.servoy.j2db.server.ngclient.property.ValueListConfig;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignerDefaultWriter;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
@@ -75,7 +82,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	implements IConvertedPropertyType<ValueListTypeSabloValue>, IFormElementToSabloComponent<Object, ValueListTypeSabloValue>, ISupportTemplateValue<Object>,
 	IDataLinkedType<Object, ValueListTypeSabloValue>, IRhinoToSabloComponent<ValueListTypeSabloValue>, ISabloComponentToRhino<ValueListTypeSabloValue>,
 	IPushToServerSpecialType, IRhinoDesignConverter, II18NPropertyType<ValueListTypeSabloValue>, ICanBeLinkedToFoundset<Object, ValueListTypeSabloValue>,
-	ISupportsGranularUpdates<ValueListTypeSabloValue>, IPropertyWithClientSideConversions<ValueListTypeSabloValue>
+	ISupportsGranularUpdates<ValueListTypeSabloValue>, IPropertyWithClientSideConversions<ValueListTypeSabloValue>, IDesignerDefaultWriter
 {
 
 	public static final ValueListPropertyType INSTANCE = new ValueListPropertyType();
@@ -235,7 +242,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	@Override
 	public TargetDataLinks getDataLinks(Object formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement)
 	{
-		return null; // we don't have the IValueList yet (that is a runtime thing, not a form element thing); so for now say "not linked to data"; at runtime when valuelist sablo value might add
+		return TargetDataLinks.NOT_LINKED_TO_DATA; // we don't have the IValueList yet (that is a runtime thing, not a form element thing); so for now say "not linked to data"; at runtime when valuelist sablo value might add
 		// itself as a listener to the DataAdapterList, any ComponentTypeSabloValue or FoundsetLinkedSabloValue using that should/will update their state
 	}
 
@@ -349,25 +356,47 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	public Object toRhinoValue(ValueListTypeSabloValue webComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext,
 		Scriptable startScriptable)
 	{
-		if (webComponentValue != null)
+		return new DefaultScope(startScriptable)
 		{
-			if (webComponentValue.getValueList() != null)
-			{
-				return webComponentValue.getValueList().getName();
-			}
-			else
-			{
-				// should never happen
-				String warnMsg;
-				if (!webComponentValue.isInitialized())
-					warnMsg = "Trying to get vl. name from an uninitialized valuelist property (this is not allowed): " + pd + " of " + webObjectContext;
-				else warnMsg = "Trying to get vl. name from an initialize valuelist property failed for an unknown reason: " + pd + " of " + webObjectContext; // this should happen even less then never :)
+			private static final String NAME = "name";
+			private static final String DATASET = "dataset";
 
-				Debug.warn(warnMsg);
-				throw new RuntimeException(warnMsg);
+			@Override
+			public Object get(String name, Scriptable start)
+			{
+				if (webComponentValue != null && webComponentValue.getValueList() != null)
+				{
+					if (NAME.equals(name))
+					{
+						return webComponentValue.getValueList().getName();
+					}
+					if (DATASET.equals(name))
+					{
+						JSDataSet dataset = new JSDataSet();
+						dataset.js_addColumn("display_values");
+						dataset.js_addColumn("real_values");
+						IValueList valueList = webComponentValue.getValueList();
+						for (int i = 0; i < valueList.getSize(); i++)
+						{
+							dataset.js_addRow(new Object[] { valueList.getElementAt(i), valueList.getRealElementAt(i) });
+						}
+						return dataset;
+					}
+				}
+				return super.get(name, start);
 			}
-		}
-		return null;
+
+			@Override
+			public void put(String name, Scriptable start, Object value)
+			{
+				if (NAME.equals(name) || DATASET.equals(name))
+				{
+					toSabloComponentValue(value, webComponentValue, pd, webObjectContext);
+					return;
+				}
+				super.put(name, start, value);
+			}
+		};
 	}
 
 	@Override
@@ -442,6 +471,30 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			this.formatPropertyName = formatPropertyName;
 			this.dataproviderResolveValuelist = dataproviderResolveValuelist;
 		}
+	}
+
+	@Override
+	public JSONWriter toDesignerDefaultJSONValue(JSONWriter writer, String key, DataConversion dataConversion) throws JSONException
+	{
+		dataConversion.pushNode(key);
+		dataConversion.convert(TYPE_NAME);
+		writer.key(key);
+		writer.object();
+		writer.key("hasRealValues");
+		writer.value(true);
+		writer.key("values");
+		List<Map<String, Object>> array = new ArrayList<>(3);
+		for (int i = 0; i < 3; i++)
+		{
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("realValue", Integer.valueOf(i + 1));
+			map.put("displayValue", "Item" + (i + 1));
+			array.add(map);
+		}
+		JSONUtils.toBrowserJSONFullValue(writer, null, array, null, null, null);
+		writer.endObject();
+		dataConversion.popNode();
+		return writer;
 	}
 
 	@Override

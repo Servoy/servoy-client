@@ -16,7 +16,6 @@
 	        "foreground" : "color", 
 	        "horizontalAlignment" : {"type" :"int", "tags": { "scope" :"design" }, "values" :[{"LEFT":2}, {"CENTER":0},{"RIGHT":4}],"default" : -1}, 
 	        "location" : "point", 
-	        "readOnly" : { "type": "protected", "for": ["onChangeMethodID","onTabChangeMethodID"] }, 
 	        "selectedTabColor" : "color", 
 	        "size" : {"type" :"dimension",  "default" : {"width":300, "height":300}}, 
 	        "styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "values" :[]}, 

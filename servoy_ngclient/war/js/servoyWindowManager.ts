@@ -12,6 +12,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 		return {
 			restrict: 'A',
 			link: function( scope, element, attrs ) {
+				var firstTimeFocus = true;
 				scope['lastElementFocused'] = function( e ) {
 					var lastTabIndex = parseInt( element.find( '#tabStop' ).attr( 'tabindex' ) );
 					for(var i = 2; i < lastTabIndex; i++) {
@@ -20,20 +21,36 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 						// do a check here to avoid focus cycling
 						if(newTarget.is(":visible") && (e.target != newTarget[0])) {
 							newTarget.focus();
+							firstTimeFocus = false;
 							break;
 						}
 					}
 				}
 
 				scope['firstElementFocused'] = function( e ) {
+					var firstTabIndex = parseInt( element.find( '#tabStart' ).attr( 'tabindex' ) );
 					var lastTabIndex = parseInt( element.find( '#tabStop' ).attr( 'tabindex' ) );
-					for(var i = lastTabIndex - 1; i > 1; i--) {
-						var newTarget = $( '[tabindex=' + i + ']' );
-						// if there is no focusable element in the window, then newTarget == e.target,
-						// do a check here to avoid focus cycling
-						if(newTarget.is(":visible") && (e.target != newTarget[0])) {
-							newTarget.focus();
-							break;
+					if (firstTimeFocus === true) {						
+						for(var i = firstTabIndex + 1; i < lastTabIndex; i++) {
+							var newTarget = $( '[tabindex=' + i + ']' );
+							// if there is no focusable element in the window, then newTarget == e.target,
+							// do a check here to avoid focus cycling
+							if(newTarget.is(":visible") && (e.target != newTarget[0])) {
+								newTarget.focus();
+								firstTimeFocus = false;
+								break;
+							}
+						}
+					} else {
+						for(var i = lastTabIndex - 1; i > 1; i--) {
+							var newTarget = $( '[tabindex=' + i + ']' );
+							// if there is no focusable element in the window, then newTarget == e.target,
+							// do a check here to avoid focus cycling
+							if(newTarget.is(":visible") && (e.target != newTarget[0])) {
+								newTarget.focus();
+								firstTimeFocus = false;
+								break;
+							}
 						}
 					}
 				}
@@ -449,7 +466,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 						}, function( reason ) {
 							throw reason;
 						} )
-						if ( instance.form.name != form ) throw 'switchform should set the instances state before showing it'
+						if ( ($solutionSettings.windowName == name &&  $solutionSettings.mainForm.name != form) || ($solutionSettings.windowName != name && instance.form.name != form) ) $log.error( "switchform should set the instances state before showing it: '" + form + "'" );
 					}
 					else {
 						$log.error( "Trying to show window with name: '" + name + "' which is not created." );
@@ -623,7 +640,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 					}
 				},
 				reload: function() {
-					$window.location.reload( true );
+					$window.location.reload( );
 				},
 				updateController: function( formName, controllerCode, realFormUrl, forceLoad, html ) {
 					if ( $log.debugEnabled ) $log.debug( "svy * updateController = " + formName + ", realFormUrl = " + realFormUrl );
@@ -758,7 +775,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 					}, 0 );
 				} 
 			} 
-		} ).run(function($sabloApplication, $windowService: servoy.IWindowService, $webSocket ,webStorage) {   
+		} ).run(function($sabloApplication, $windowService: servoy.IWindowService, $webSocket ,webStorage, $solutionSettings) {   
 			
 			// the window must have a form to show
 	        if (webStorage.session.has('window0') && webStorage.session.get('window0').showForm != undefined) { 
@@ -774,19 +791,22 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
     					let counter = 0;
     					while(webStorage.session.has('window' + counter)) {
     						let window = webStorage.session.get('window' + counter);
-							// call a couple of methods that will create and display the window
-        	                $windowService.create(window.name, window.type);
-        	                $windowService.switchForm(window.name, window.switchForm, window.navigatorForm);
-        	                $windowService.setTitle(window.name, window.title);
-        	                $windowService.setUndecorated(window.name, window.undecorated);
-							$windowService.setCSSClassName(window.name, window.cssClassName);
-							$windowService.setSize(window.name, window.size);
-							$windowService.setInitialBounds(window.name, window.initialBounds);
-							$windowService.setStoreBounds(window.name, window.storeBounds);
-							$windowService.setLocation(window.name, window.location);
-							$windowService.setOpacity(window.name, window.opacity);
-							$windowService.setTransparent(window.name, window.transparent);
-        	                $windowService.show(window.name, window.showForm, window.showTitle);
+                            // do not restore main window
+                            if ($solutionSettings.windowName != window.name){
+							 // call a couple of methods that will create and display the window
+        	                   $windowService.create(window.name, window.type);
+        	                   $windowService.switchForm(window.name, window.switchForm, window.navigatorForm);
+        	                   $windowService.setTitle(window.name, window.title);
+        	                   $windowService.setUndecorated(window.name, window.undecorated);
+							   $windowService.setCSSClassName(window.name, window.cssClassName);
+							   $windowService.setSize(window.name, window.size);
+							   $windowService.setInitialBounds(window.name, window.initialBounds);
+							   $windowService.setStoreBounds(window.name, window.storeBounds);
+							   $windowService.setLocation(window.name, window.location);
+							   $windowService.setOpacity(window.name, window.opacity);
+							   $windowService.setTransparent(window.name, window.transparent);
+        	                  $windowService.show(window.name, window.showForm, window.showTitle);
+                            }
     						counter++;
     					} 
         	  		}

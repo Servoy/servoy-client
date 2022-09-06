@@ -447,6 +447,21 @@ public abstract class AbstractRuntimeBaseComponent<C extends IComponent> impleme
 		return null;
 	}
 
+	@Override
+	public Map<String, Object> getDesignProperties()
+	{
+		if (getPersist() instanceof AbstractBase)
+		{
+			Map<String, Object> designProperties = ((AbstractBase)getPersist()).getMergedCustomDesignTimeProperties();
+			Map<String, Object> parsedMap = new HashMap<String, Object>();
+			designProperties.entrySet().forEach(entry -> {
+				parsedMap.put(entry.getKey(), Utils.parseJSExpression(entry.getValue()));
+			});
+			return parsedMap;
+		}
+		return null;
+	}
+
 	public String toString(String valueString)
 	{
 		if (getComponent() == null)

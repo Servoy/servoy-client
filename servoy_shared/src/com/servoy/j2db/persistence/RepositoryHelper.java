@@ -682,7 +682,8 @@ public class RepositoryHelper
 		}
 		if (ValueList.class.isAssignableFrom(persistClass) && !"name".equals(name) && //$NON-NLS-1$
 			!StaticContentSpecLoader.PROPERTY_ENCAPSULATION.getPropertyName().equals(name) &&
-			!StaticContentSpecLoader.PROPERTY_DEPRECATED.getPropertyName().equals(name))
+			!StaticContentSpecLoader.PROPERTY_DEPRECATED.getPropertyName().equals(name) &&
+			!StaticContentSpecLoader.PROPERTY_COMMENT.getPropertyName().equals(name))
 		{
 			return false;
 		}
@@ -695,7 +696,8 @@ public class RepositoryHelper
 		}
 
 		if (name.equals(StaticContentSpecLoader.PROPERTY_PLACEHOLDERTEXT.getPropertyName()) && displayType != Field.TEXT_FIELD &&
-			displayType != Field.PASSWORD && displayType != Field.TYPE_AHEAD && displayType != Field.TEXT_AREA && displayType >= 0)
+			displayType != Field.PASSWORD && displayType != Field.TYPE_AHEAD && displayType != Field.TEXT_AREA && displayType >= 0 &&
+			displayType != Field.COMBOBOX)
 		{
 			return false;
 		}
@@ -786,7 +788,7 @@ public class RepositoryHelper
 		{
 			return displayName.substring(0, displayName.length() - 8);
 		}
-		if (displayName.endsWith("ID")) //$NON-NLS-1$
+		if (displayName.endsWith("ID") || displayName.endsWith("Id")) //$NON-NLS-1$ //$NON-NLS-2$
 		{
 			return displayName.substring(0, displayName.length() - 2);
 		}

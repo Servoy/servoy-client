@@ -284,15 +284,20 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 					if (records.length >= maxValuelistRows &&
 						Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.client.report.max.valuelist.items", "true")))
 					{
-						if (application instanceof IApplication)
+						if (!fullyLoadedLogged)
 						{
-							((IApplication)application).reportJSWarning(
-								"Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!");
-						}
-						else
-						{
-							application.reportJSError("Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!",
-								null);
+							if (application instanceof IApplication)
+							{
+								((IApplication)application).reportJSWarning(
+									"Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!");
+							}
+							else
+							{
+								application.reportJSError(
+									"Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!",
+									null);
+							}
+							fullyLoadedLogged = true;
 						}
 					}
 
@@ -402,14 +407,19 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 			if (dataSet.getRowCount() >= maxValuelistRows &&
 				Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.client.report.max.valuelist.items", "true")))
 			{
-				if (application instanceof IApplication)
+				if (!fullyLoadedLogged)
 				{
-					((IApplication)application).reportJSWarning(
-						"Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!");
-				}
-				else
-				{
-					application.reportJSError("Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!", null);
+					if (application instanceof IApplication)
+					{
+						((IApplication)application).reportJSWarning(
+							"Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!");
+					}
+					else
+					{
+						application.reportJSError("Valuelist " + getName() + " fully loaded with " + maxValuelistRows + " rows, more rows are discarded!!",
+							null);
+					}
+					fullyLoadedLogged = true;
 				}
 			}
 			String[] displayFormat = getDisplayFormat((Table)application.getFoundSetManager().getTable(pair.getRight().getDataSource()));

@@ -84,6 +84,19 @@ public class JSBase<T extends AbstractBase> implements ISMHasUUID
 		return baseComponent.getUUID();
 	}
 
+	/**
+	 * Returns the comment of this component.
+	 *
+	 * @sample
+	 * var comment = solutionModel.getForm("my_form").getButton("my_button").getComment();
+	 * application.output(comment);
+	 */
+	@JSFunction
+	public String getComment()
+	{
+		return baseComponent.getComment();
+	}
+
 	@SuppressWarnings("unchecked")
 	public final void checkModification()
 	{

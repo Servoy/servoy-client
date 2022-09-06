@@ -168,9 +168,7 @@ public class FormLayoutStructureGenerator
 				ngClass.put("highlight_element", "<design_highlight=='highlight_element'<");//added <> tokens so that we can remove quotes around the values so that angular will evaluate at runtime
 
 				List<String> containerStyleClasses = getStyleClassValues(spec, container.getCssClasses());
-				solutionStyleClasses = container.getCssClasses() != null
-					? Arrays.stream(container.getCssClasses().split(" ")).filter(cls -> !containerStyleClasses.contains(cls)).collect(Collectors.joining(" "))
-					: "";
+				solutionStyleClasses = getSolutionSpecificClasses(spec, container);
 				if (!containerStyleClasses.isEmpty())
 				{
 					layoutStyleClasses = containerStyleClasses.stream().collect(Collectors.joining(" "));
@@ -349,7 +347,7 @@ public class FormLayoutStructureGenerator
 //		}
 //	}
 
-	private static boolean hasSameDesignClassAsParent(LayoutContainer container, WebLayoutSpecification spec)
+	public static boolean hasSameDesignClassAsParent(LayoutContainer container, WebLayoutSpecification spec)
 	{
 		ISupportChilds realParent = container.getExtendsID() > 0 ? PersistHelper.getRealParent(container) : container.getParent();
 		if (realParent instanceof LayoutContainer)
@@ -369,7 +367,7 @@ public class FormLayoutStructureGenerator
 		return false;
 	}
 
-	private static boolean isEvenLayoutContainer(LayoutContainer c)
+	public static boolean isEvenLayoutContainer(LayoutContainer c)
 	{
 		int i = 0;
 		LayoutContainer container = c;
@@ -379,6 +377,14 @@ public class FormLayoutStructureGenerator
 			i++;
 		}
 		return i % 2 == 0;
+	}
+
+	public static String getSolutionSpecificClasses(WebLayoutSpecification spec, LayoutContainer container)
+	{
+		List<String> containerStyleClasses = getStyleClassValues(spec, container.getCssClasses());
+		return container.getCssClasses() != null
+			? Arrays.stream(container.getCssClasses().split(" ")).filter(cls -> !containerStyleClasses.contains(cls)).collect(Collectors.joining(" "))
+			: "";
 	}
 
 	/**
@@ -393,7 +399,7 @@ public class FormLayoutStructureGenerator
 		if (cssClasses == null) return result;
 		String[] classes = cssClasses.split(" ");
 		JSONObject config = spec.getConfig() instanceof String ? new JSONObject((String)spec.getConfig()) : null;
-		String defaultClass = config.optString("class", "");
+		String defaultClass = config != null ? config.optString("class", "") : "";
 
 		Collection<PropertyDescription> properties = spec.getProperties(StyleClassPropertyType.INSTANCE);
 		for (PropertyDescription pd : properties)

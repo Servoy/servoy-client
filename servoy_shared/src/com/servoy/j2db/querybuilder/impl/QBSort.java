@@ -19,6 +19,7 @@ package com.servoy.j2db.querybuilder.impl;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.QuerySort;
+import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.querybuilder.IQueryBuilderSort;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
@@ -48,6 +49,6 @@ public class QBSort extends QBPart implements IQueryBuilderSort
 
 	public QuerySort getQueryQuerySort()
 	{
-		return new QuerySort(queryBuilderColumn.getQuerySelectValue(), ascending);
+		return new QuerySort(queryBuilderColumn.getQuerySelectValue(), ascending, SortOptions.NONE);
 	}
 }

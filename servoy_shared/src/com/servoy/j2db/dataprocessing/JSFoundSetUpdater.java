@@ -213,7 +213,7 @@ public class JSFoundSetUpdater implements IReturnedTypesProvider, IJavaScriptTyp
 				sqlUpdate.setCondition(sqlParts.getWhereClone());
 
 				IDataSet pks;
-				boolean allFoundsetRecordsLoaded = currentPKs != null && currentPKs.getRowCount() <= fsm.pkChunkSize && !currentPKs.hadMoreRows();
+				boolean allFoundsetRecordsLoaded = currentPKs != null && currentPKs.getRowCount() <= fsm.config.pkChunkSize() && !currentPKs.hadMoreRows();
 				if (allFoundsetRecordsLoaded)
 				{
 					pks = currentPKs;

@@ -2,111 +2,190 @@ package com.servoy.j2db.server.shared;
 
 
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.slf4j.Logger;
 
 import com.servoy.j2db.util.Pair;
-import com.servoy.j2db.util.UUID;
 
 /**
- * Keeps a list off last "maxEntriesToKeep" most expensive actions (e.g. sql, method calls) to be viewed in a UI.
+ * Root entries in {@link IPerformanceRegistry}. So the performance registry will have 1 instance of this class per "context". (context in perf. reg. is either the solution name
+ * - in case of performance registry for method calls, or the DB server name - in case of performance registry for sql).<br/><br/>
+ *
+ * This class is extended by {@link PerformanceTiming} as well, so all sub-actions (PerformanceTiming) in each client's stack do extend from this class as well.
  *
  * @author jblok
  */
-public class PerformanceData extends PerformanceAggregator
+public class PerformanceData
 {
-	private final Map<UUID, PerformanceTiming> startedTimings = new HashMap<UUID, PerformanceTiming>();
 
-	// stack because for example an showForm modal dialog could execute other actions and then when modal
-	// is closed sub-actions might still happen and they need to point to the correct parent action
-	private final Stack<UUID> startedTimingUUIDsStack = new Stack<>();
+	/**
+	 * Static, so 1 instance per thread/client for the whole PerformanceData class (no matter how many instances of it there are).<br/>
+	 * That means that this instance is shared between all PerformanceData instances (no matter of the context they are registered for -
+	 * the solution name or DB server name) in all IPerformanceRegistry instances (on the same thread/client of course).<br/><br/>
+	 *
+	 * So there is only 1 instance of this for a client - shared between the PerformanceData instance for solutions (which is 1 for method calls in the active
+	 * solution of the client, at least until client changes solution) and all DB server sql PerformanceData instances (for that client).
+	 */
+	private final static ThreadLocal<PerformanceTiming> sharedTopTimingOfClientTL = new ThreadLocal<>();
+
+	/**
+	 * Keys are PerformanceTiming unique id's; each PerformanceTiming generates a new id in it's constructor.<br/><br/>
+	 *
+	 * NOTE: The root PerformanceData can have multiple started timings in this map: 1 for each client. All sub-timing (PerformanceTiming extends PerformanceData)
+	 * will only have max one item in this map. As they are an item of a singular stack for that client.
+	 */
+	private final ConcurrentMap<Integer, PerformanceTiming> startedTimings = new ConcurrentHashMap<>();
+
+	/**
+	 * Non-static, so 1 instance per thread and per instance of PerformanceData/PerformanceTiming (so multiple instances in the end for each thread/client).
+	 */
+	private final ThreadLocal<PerformanceTiming> startedTimingPerClientForThisInstanceTL = new ThreadLocal<>();
 
 	private final Logger log;
 
-	public PerformanceData(int maxEntriesToKeep, Logger log)
+	private final IPerformanceRegistry registry;
+
+	private final PerformanceAggregator aggregator;
+
+	private final String id;
+
+	public PerformanceData(IPerformanceRegistry registry, Logger log, String id, PerformanceAggregator aggregator)
 	{
-		super(maxEntriesToKeep);
+		super();
+		this.registry = registry;
 		this.log = log;
+		this.id = id;
+		this.aggregator = aggregator;
 	}
 
-	public synchronized UUID startAction(String action, long start_ms, int type, String clientUUID)
+	public Integer startAction(String action, long start_ms, int type, String clientUUID)
 	{
-		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return null;
-
-		PerformanceTiming timing = new PerformanceTiming(action, type, start_ms, clientUUID, maxEntriesToKeep, log);
-		startedTimingUUIDsStack.push(timing.getUuid());
-		startedTimings.put(timing.getUuid(), timing);
-		return timing.getUuid();
+		if (registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.OFF) return null;
+		PerformanceTiming startedTimingPerClientForThisInstance = startedTimingPerClientForThisInstanceTL.get();
+		if (startedTimingPerClientForThisInstance == null)
+		{
+			startedTimingPerClientForThisInstance = new PerformanceTiming(action, type, start_ms, clientUUID, registry, log, id, this.aggregator);
+			startedTimingPerClientForThisInstanceTL.set(startedTimingPerClientForThisInstance);
+			startedTimings.put(startedTimingPerClientForThisInstance.getID(), startedTimingPerClientForThisInstance);
+			PerformanceTiming sharedTopTimingOfClient = sharedTopTimingOfClientTL.get();
+			if (sharedTopTimingOfClient == null) sharedTopTimingOfClientTL.set(startedTimingPerClientForThisInstance);
+			return startedTimingPerClientForThisInstance.getID();
+		}
+		else
+		{
+			return startedTimingPerClientForThisInstance.startAction(action, start_ms, type, clientUUID);
+		}
 	}
 
-	public synchronized UUID startAction(String action, long start_ms, int type)
+	public void intervalAction(Integer timingId)
 	{
-		return startAction(action, start_ms, type, null);
-	}
+		if (registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.OFF || timingId == null) return;
 
-	public synchronized void intervalAction(UUID uuid)
-	{
-		if (maxEntriesToKeep == IPerformanceRegistry.OFF || uuid == null) return;
-
-		PerformanceTiming timing = startedTimings.get(uuid);
+		PerformanceTiming timing = startedTimings.get(timingId);
 		if (timing != null) timing.setIntervalTime();
 	}
 
-	public void endAction(UUID uuid)
+	public void endAction(Integer timingId, String clientUUID)
 	{
-		endAction(uuid, 1);
+		endAction(timingId, 1, clientUUID);
 	}
 
-	public synchronized void endAction(UUID uuid, int nrecords)
+	public void endAction(Integer timingId, int nrecords, String clientUUID)
 	{
-		if (maxEntriesToKeep == IPerformanceRegistry.OFF || uuid == null) return;
+		if (registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.OFF || timingId == null) return;
+		PerformanceTiming startedTimingPerClientForThisInstance = startedTimingPerClientForThisInstanceTL.get();
+		PerformanceTiming timingThatEnded = startedTimingPerClientForThisInstance;
+		if (startedTimingPerClientForThisInstance != null)
+		{
+			// is this the uuid that is on this stack? then this one should be ended.
+			// else a child/sub timing should be searched for.
+			if (timingId.equals(startedTimingPerClientForThisInstance.getID()))
+			{
+				startedTimingPerClientForThisInstanceTL.remove();
+				startedTimings.remove(timingId);
+				PerformanceTiming sharedTopTimingOfClient = sharedTopTimingOfClientTL.get();
+				if (sharedTopTimingOfClient == startedTimingPerClientForThisInstance) sharedTopTimingOfClientTL.remove(); // so the static thread local is also the timing that is now ending
+				else if ("sql".equals(id)) //$NON-NLS-1$
+				{
+					// so the thread local "sharedTopTimingOfClientTL" is NOT the timing that is now ending;
+					// we are ending an SQL statement (this.id is "sql") but the "sharedTopTimingOfClientTL" on this
+					// thread is not that SQL statement but probably a method call put in "sharedTopTimingOfClientTL" thread local by another PerformanceData instance
 
-		PerformanceTiming timing = startedTimings.remove(uuid);
-		if (timing != null)
+					// this is bit of a hack to tie the SQL data of current timing that now ends to the correct method data based on the id of the Performance Registry;
+					// find the most deeply nested method call - that is currently running to attach this ending SQL timing to it
+					PerformanceTiming methodCallCurrentlyRunning = sharedTopTimingOfClient;
+					PerformanceTiming[] startedActions = methodCallCurrentlyRunning.getStartedActions(); // startedActions can only be max size 1 on PerformanceTiming instances; see javadoc
+					while (startedActions.length == 1)
+					{
+						methodCallCurrentlyRunning = startedActions[0];
+						startedActions = methodCallCurrentlyRunning.getStartedActions();
+					}
+					methodCallCurrentlyRunning.getSubTimings().add(startedTimingPerClientForThisInstance);
+				}
+			}
+			else
+			{
+				// ok so child startedTimingPerClientForThisInstance is not the action that is being ended; forward end action to child in the action 'stack'
+				startedTimingPerClientForThisInstance.endAction(timingId, nrecords, clientUUID);
+				timingThatEnded = null; // this one is not done yet should not be ended below.
+			}
+		}
+		else
+		{
+			timingThatEnded = startedTimings.remove(timingId);
+		}
+		if (timingThatEnded != null)
 		{
 			if (log != null && log.isInfoEnabled())
 			{
-				log.info(timing.getClientUUID() + '|' + timing.getAction() + '|' + timing.getRunningTimeMS() + '|' + timing.getIntervalTimeMS());
+				log.info(timingThatEnded.getClientUUID() + '|' + timingThatEnded.getAction() + '|' +
+					timingThatEnded.getRunningTimeMS() + '|' + timingThatEnded.getIntervalTimeMS());
 			}
-			addTiming(timing.getAction(), timing.getIntervalTimeMS(), timing.getRunningTimeMS(), timing.getType(), timing.toMap(), nrecords);
+			timingThatEnded.setEndTime();
+			addTiming(timingThatEnded, timingThatEnded.getIntervalTimeMS(),
+				timingThatEnded.getRunningTimeMS(), nrecords);
 		}
-		startedTimingUUIDsStack.pop();
+		return;
 	}
 
-	// currently we can have/need only one layer of nesting/sub-actions (sub-actions cannot be accessed right now by the outside world to continue nesting furter)
-	public synchronized Pair<UUID, UUID> startSubAction(String action, long start_ms, int type, String clientUUID)
+	public void addTiming(PerformanceTiming timing, long interval_ms, long total_ms, int nrecords)
 	{
-		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return null;
-
-		if (startedTimingUUIDsStack.isEmpty()) return null; // probably a Servoy internal service API call that gets called outside any user method; ignore
-		UUID lastStartedTimingUUID = startedTimingUUIDsStack.peek();
-
-		PerformanceTiming lastStartedTiming = startedTimings.get(lastStartedTimingUUID);
-		UUID subTimingUUID = null;
-		if (lastStartedTiming != null)
-		{
-			subTimingUUID = lastStartedTiming.startAction(action, start_ms, type, clientUUID);
-		}
-		return new Pair<>(lastStartedTimingUUID, subTimingUUID);
+		this.aggregator.addTiming(timing.getAction(), interval_ms, total_ms, timing.getType(), timing.getSubTimings(), nrecords);
 	}
 
-	public synchronized void endSubAction(Pair<UUID, UUID> subActionUUIDs)
+	public Pair<Integer, Integer> startSubAction(String action, long start_ms, int type, String clientUUID)
 	{
-		if (maxEntriesToKeep == IPerformanceRegistry.OFF) return;
-		if (subActionUUIDs == null) return; // probably a Servoy internal service API call that gets called outside any user method; ignore
+		if (registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.OFF) return null;
 
-		PerformanceTiming timingWithSubAction = startedTimings.get(subActionUUIDs.getLeft());
+		PerformanceTiming lastStartedTiming = startedTimingPerClientForThisInstanceTL.get();
+		if (lastStartedTiming == null) return null; // probably a Servoy internal service API call that gets called outside any user method; ignore
+
+		Integer subTimingUUID = lastStartedTiming.startAction(action, start_ms, type, clientUUID); // this call will go to (recursively) last started action on this client's stack
+		return new Pair<>(lastStartedTiming.getID(), subTimingUUID);
+	}
+
+	public void endSubAction(Pair<Integer, Integer> subActionIDs, String clientUUID)
+	{
+		if (registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.OFF) return;
+		if (subActionIDs == null) return; // probably a Servoy internal service API call that gets called outside any user method; ignore
+
+		PerformanceTiming timingWithSubAction = startedTimings.get(subActionIDs.getLeft());
 		if (timingWithSubAction != null)
 		{
-			timingWithSubAction.endAction(subActionUUIDs.getRight());
+			timingWithSubAction.endAction(subActionIDs.getRight(), clientUUID);
 		}
 	}
 
 	protected static class TimeComparator implements Comparator<PerformanceTimingAggregate>
 	{
+		public static final TimeComparator INSTANCE = new TimeComparator();
+
+		private TimeComparator()
+		{
+		}
+
 		public int compare(PerformanceTimingAggregate o1, PerformanceTimingAggregate o2)
 		{
 			long t1 = o1.getTotalIntervalTimeMS();
@@ -119,8 +198,13 @@ public class PerformanceData extends PerformanceAggregator
 		}
 	}
 
-	public synchronized PerformanceTiming[] getStartedActions()
+	public PerformanceTiming[] getStartedActions()
 	{
 		return startedTimings.values().toArray(new PerformanceTiming[startedTimings.size()]);
+	}
+
+	public PerformanceAggregator getAggregator()
+	{
+		return aggregator;
 	}
 }

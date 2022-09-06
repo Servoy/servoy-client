@@ -21,6 +21,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.json.JSONObject;
@@ -63,15 +64,20 @@ public class ClientDesignService implements IServerService
 			JSONObject jsevent = args.optJSONObject("event");
 			if (jsevent != null)
 			{
-				event.setTimestamp(new Timestamp(jsevent.getLong("timestamp")));
+				if (jsevent.has("timestamp")) event.setTimestamp(new Timestamp(jsevent.getLong("timestamp")));
+				else event.setTimestamp(new Date());
 				if (jsevent.has("x")) event.setLocation(new Point(jsevent.getInt("x"), jsevent.getInt("y")));
 				if (jsevent.has("modifiers")) event.setModifiers(jsevent.getInt("modifiers"));
 			}
 
 			List<RuntimeWebComponent> selection = new ArrayList<>();
+			String name = layoutWrapperName;
 			if (layoutWrapperName != null && layoutWrapperName.startsWith("layout."))
 			{
-				String name = layoutWrapperName.substring(7);
+				name = name.substring(7);
+			}
+			if (name != null && !"".equals(name))
+			{
 				RuntimeWebComponent[] webComponentElements = form.getWebComponentElements();
 				for (RuntimeWebComponent component : webComponentElements)
 				{

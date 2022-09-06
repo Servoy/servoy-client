@@ -51,6 +51,7 @@ import com.servoy.j2db.server.ngclient.property.ComponentTypeSabloValue;
  */
 public class FormComponentSabloValue implements ISmartPropertyValue
 {
+
 	private final Form form;
 	private final String elementStartName;
 	private final INGFormElement formElement;

@@ -1044,7 +1044,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 						if (((WebRequest)RequestCycle.get().getRequest()).isAjax()) throw new AbortException();
 						else throw new RestartResponseException(Application.get().getHomePage());
 					}
-					refreshI18NMessages();
+					refreshI18NMessages(true);
 					((IScriptSupport)getScriptEngine()).reload();
 					((WebFormManager)getFormManager()).reload();
 					MainPage page = (MainPage)((WebFormManager)getFormManager()).getMainContainer(null);
@@ -1055,8 +1055,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		}
 	}
 
-	public void onEndRequest(@SuppressWarnings("unused")
-	WebClientSession webClientSession)
+	public void onEndRequest(@SuppressWarnings("unused") WebClientSession webClientSession)
 	{
 		userRequestProperties.clear();
 		// just to make sure that on the end of the request there are really no more events waiting.

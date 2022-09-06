@@ -24,7 +24,15 @@ import java.util.List;
 
 public class ExtendableURLClassLoader extends URLClassLoader
 {
-	public ExtendableURLClassLoader(URL[] urls, ClassLoader parent, String nameSuffix)
+	public static IExtendableURLClassLoaderFactory factory = null;
+
+	public static ExtendableURLClassLoader create(URL[] urls, ClassLoader parent)
+	{
+		if (factory == null) return new ExtendableURLClassLoader(urls, parent);
+		return factory.createExtendableURLClassLoader(urls, parent);
+	}
+
+	protected ExtendableURLClassLoader(URL[] urls, ClassLoader parent)
 	{
 		super(urls, parent);
 	}

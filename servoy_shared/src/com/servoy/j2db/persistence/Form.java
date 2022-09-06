@@ -29,6 +29,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.util.DataSourceUtils;
+import com.servoy.j2db.util.IntHashMap;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -468,11 +469,21 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		}
 	}
 
+	/**
+	 * NOTE: when getting this take into account that currently this is set (based on getExtendsID()) only by ClientState root flattened solution and login
+	 * flattened solution + from developer project flattened solutions - at the time the solutions get loaded into flattened, or in case of reload +
+	 * due to persist change/create/copy etc in developer. It is a bit weird as this is actually a repo persist model class,
+	 * and these Form instances are not stored nor up-to-date unless in what I mentioned earlier, but it was needed for SVY-16572 for example. This might be
+	 * improved somehow in the future.
+	 */
 	public Form getExtendsForm()
 	{
 		return extendsForm;
 	}
 
+	/**
+	 * See comment from {@link #getExtendsForm()}
+	 */
 	public void setExtendsForm(Form form)
 	{
 		this.extendsForm = form;
@@ -994,22 +1005,51 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The method that is triggered when another form is being activated.
-	 * NOTE: If the onHide method returns false, the form can be prevented from hiding.
-	 * For example, when using onHide with showFormInDialog, the form will not close by clicking the dialog close box (X).
+	 * This method is triggered when the form gets hidden.
 	 *
-	 * @templatedescription Handle hide window
+	 * Return value is DEPRECATED: false return value should no longer be used. In the past, if the onHide method returned false, the form hide could be prevented from happening
+	 * in some cases (for example, when using onHide with showFormInDialog, the form will not close by clicking the dialog close box (X)). But that lead to
+	 * unexpected situations when the form being hidden had visible nested children it it (tab panels, splits etc.) because only the current form would
+	 * decide if hide could be denied, and all other forms, even if they returned false in their on-hide, would not be able to block the hide if this form allowed it.
+	 * So those nested forms might think that they are still visible even though they are not.
+	 *
+	 * Please use the new onBeforeHide method/handler instead if you want to prevent forms from hiding.
+	 *
+	 * @templatedescription Handle form's hide.
 	 * @templatename onHide
+	 * @templateparam JSEvent event the event that triggered the action
+	 * @templateaddtodo
+	 * @templatecode
+	 *
+	 */
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
+	public int getOnHideMethodID()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID).intValue();
+	}
+
+	/**
+	 * This method is triggered when the form wants to hide; this will be called before onHide, and should be used to return if this form can be hidden or not.
+	 * Before the form is really going to hide, this form and all the forms that this form is also showing in its ui hierarchy must allow the hide (return true in onBeforeHide - if present).
+	 * For example, when using onBeforeHide with showFormInDialog, the form will not close by clicking the dialog close box (X) if the main form in the dialog or any
+	 * of the other visible forms in tabpanels/containers are nested in the main are returning false.
+	 *
+	 * If the hide operation is allowed for all the forms that are in the affected visible hierarchy, then the onHide handler/method will get called on them as well afterwards.
+	 *
+	 * So this handler (on each form) can be used to validate input in the main form and/or any nested visible forms - that are getting ready to hide.
+	 *
+	 * @templatedescription Check if this form can be hidden, return false if this is not allowed.
+	 * @templatename onBeforeHide
 	 * @templatetype Boolean
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 * @templatecode
 	 * return true
 	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
-	public int getOnHideMethodID()
+	@ServoyClientSupport(mc = false, wc = false, sc = false, ng = true)
+	public int getOnBeforeHideMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID).intValue();
 	}
 
 	/**
@@ -1107,6 +1147,16 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	public void setOnHideMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID, arg);
+	}
+
+	/**
+	 * Set the onHideMethodID.
+	 *
+	 * @param arg The onHideMethodID to set
+	 */
+	public void setOnBeforeHideMethodID(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID, arg);
 	}
 
 	/**
@@ -2094,6 +2144,8 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 		Dimension size = getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE);
 		if (size != null) ((Form)cloned).setSize(size);
+
+		((Form)cloned).superPersistCache = null;
 	}
 
 	/*
@@ -2267,4 +2319,44 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		return true;
 	}
 
+	private transient IntHashMap<IPersist> superPersistCache = null;
+
+	/**
+	 * @param extendsID
+	 * @return
+	 */
+	public IPersist getSuperPersist(int extendsID)
+	{
+		synchronized (this)
+		{
+			if (superPersistCache == null)
+			{
+				IntHashMap<IPersist> cache = new IntHashMap<>();
+				acceptVisitor((IPersist persist) -> {
+					cache.put(persist.getID(), persist);
+					if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0)
+					{
+						cache.put(((ISupportExtendsID)persist).getExtendsID(), persist);
+					}
+					return IPersistVisitor.CONTINUE_TRAVERSAL;
+				});
+				superPersistCache = cache;
+			}
+		}
+		return superPersistCache.get(extendsID);
+	}
+
+	@Override
+	public void childAdded(IPersist obj)
+	{
+		super.childAdded(obj);
+		superPersistCache = null;
+	}
+
+	@Override
+	public void childRemoved(IPersist obj)
+	{
+		super.childRemoved(obj);
+		superPersistCache = null;
+	}
 }

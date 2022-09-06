@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
@@ -62,7 +63,6 @@ import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGClientWindow;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
-import com.servoy.j2db.server.ngclient.NGClientWindow;
 import com.servoy.j2db.server.ngclient.NGRuntimeWindow;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.WebFormUI;
@@ -175,13 +175,13 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 				{
 					if (currentNavigator != null)
 					{
-						currentNavigator.notifyVisible(false, invokeLaterRunnables);
+						currentNavigator.notifyVisible(false, invokeLaterRunnables, true);
 					}
 					Form navigator = application.getFlattenedSolution().getForm(form_id);
 					if (navigator != null)
 					{
 						IFormController navigatorController = getApplication().getFormManager().getForm(navigator.getName());
-						navigatorController.notifyVisible(true, invokeLaterRunnables);
+						navigatorController.notifyVisible(true, invokeLaterRunnables, true);
 					}
 				}
 				else
@@ -196,7 +196,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			}
 			else if (form_id != Form.NAVIGATOR_IGNORE)
 			{
-				if (currentNavigator != null) currentNavigator.notifyVisible(false, invokeLaterRunnables);
+				if (currentNavigator != null) currentNavigator.notifyVisible(false, invokeLaterRunnables, true);
 			}
 			window.setNavigator(form_id);
 		}
@@ -294,10 +294,9 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 				}
 				super.destroy();
 				IWindow window = CurrentWindow.safeGet();
-				if (window instanceof NGClientWindow && application.isSolutionLoaded())
+				if (window instanceof INGClientWindow && application.isSolutionLoaded())
 				{
-
-					((NGClientWindow)window).destroyForm(getName());
+					((INGClientWindow)window).destroyForm(getName());
 				}
 				if (getBasicFormManager() != null) getBasicFormManager().removeFormController(this);
 			}
@@ -715,13 +714,47 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	}
 
 	@Override
-	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables)
+	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables, boolean executePreHideSteps)
 	{
 		if (isFormVisible == visible) return true;
 
+		if (!visible && destroyOnHide)
+		{
+			Runnable run = new Runnable()
+			{
+				public void run()
+				{
+					destroy();
+				}
+			};
+			invokeLaterRunnables.add(run);
+		}
+		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables, executePreHideSteps);
+
+		if (notifyVisibleSuccess)
+		{
+			for (WebComponent comp : getFormUI().getComponents())
+			{
+				RuntimeWebComponent runtimeComponent = getFormUI().getRuntimeWebComponent(comp.getName());
+				if (runtimeComponent != null)
+				{
+					WebObjectFunctionDefinition function = null;
+					if (visible)
+						function = comp.getSpecification().getInternalApiFunction("onShow");
+					else
+						function = comp.getSpecification().getInternalApiFunction("onHide");
+					if (function != null)
+					{
+						runtimeComponent.executeScopeFunction(function, new Object[0]);
+					}
+				}
+			}
+		}
+
 		if (visible && !isFormVisible)
 		{
-			// legacy support, first touch now also the tabpanel forms.
+			// following loop is for legacy support: first touch (now) also the tabpanel forms.
+			// note: the show operation (visible = true in if above) of a form cannot be denied, so we can update things before the call to super.notifyVisible below
 			for (WebComponent comp : getFormUI().getComponents())
 			{
 				if ((comp instanceof WebFormComponent) && ((WebFormComponent)comp).getFormElement().getPersistIfAvailable() instanceof TabPanel)
@@ -790,20 +823,8 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 					}
 				}
 			}
+		}
 
-		}
-		if (!visible && destroyOnHide)
-		{
-			Runnable run = new Runnable()
-			{
-				public void run()
-				{
-					destroy();
-				}
-			};
-			invokeLaterRunnables.add(run);
-		}
-		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables);
 		if (notifyVisibleSuccess) notifyVisibleOnChildren(visible, invokeLaterRunnables); // TODO should notifyVisibleSuccess be altered here? See WebFormUI/WebFormComponent notifyVisible calls.
 		return notifyVisibleSuccess;
 	}
@@ -832,6 +853,24 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		return navigatorProperties;
 	}
 
+	public RuntimeWebComponent getWebComponentElement(String name)
+	{
+		Object elementScope = formScope == null ? null : formScope.get("elements");
+		if (elementScope instanceof DefaultScope)
+		{
+			Object element = ((Scriptable)elementScope).get(name, (Scriptable)elementScope);
+			if (element instanceof Wrapper)
+			{
+				element = ((Wrapper)element).unwrap();
+			}
+			if (element instanceof RuntimeWebComponent)
+			{
+				return (RuntimeWebComponent)element;
+			}
+		}
+		return null;
+	}
+
 	public RuntimeWebComponent[] getWebComponentElements()
 	{
 		Object elementScope = formScope == null ? null : formScope.get("elements");
@@ -857,11 +896,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		return new RuntimeWebComponent[0];
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.IWebFormController#pushParentReadOnly(boolean)
-	 */
 	@Override
 	public void pushParentReadOnly(boolean b)
 	{

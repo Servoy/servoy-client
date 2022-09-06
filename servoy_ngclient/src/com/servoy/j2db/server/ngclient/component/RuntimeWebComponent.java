@@ -52,6 +52,7 @@ import com.servoy.j2db.persistence.ISupportAnchors;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.scripting.IInstanceOf;
+import com.servoy.j2db.scripting.JSMap;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
@@ -301,11 +302,13 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 	@Override
 	public Object get(final String name, final Scriptable start)
 	{
-		if (specProperties != null && specProperties.contains(name))
+		String realName = !specProperties.contains(name) && specProperties.contains(name + "ID") ? name + "ID" : name;
+
+		if (specProperties.contains(realName))
 		{
-			PropertyDescription pd = webComponentSpec.getProperties().get(name);
+			PropertyDescription pd = webComponentSpec.getProperties().get(realName);
 			if (WebFormComponent.isDesignOnlyProperty(pd)) return Scriptable.NOT_FOUND;
-			return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty(name), pd, component, start);
+			return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(component.getProperty(realName), pd, component, start);
 		}
 		if ("getFormName".equals(name))
 		{
@@ -332,6 +335,23 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 				{
 					return Utils.parseJSExpression(
 						((AbstractBase)component.getFormElement().getPersistIfAvailable()).getCustomDesignTimeProperty((String)args[0]));
+				}
+			};
+		}
+		if ("getDesignProperties".equals(name) && component.getFormElement().getPersistIfAvailable() instanceof AbstractBase)
+		{
+			return new Callable()
+			{
+				@Override
+				public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+				{
+					Map<String, Object> designProperties = ((AbstractBase)component.getFormElement().getPersistIfAvailable())
+						.getMergedCustomDesignTimeProperties();
+					Map<String, Object> parsedMap = new JSMap<String, Object>();
+					designProperties.entrySet().forEach(entry -> {
+						parsedMap.put(entry.getKey(), Utils.parseJSExpression(entry.getValue()));
+					});
+					return parsedMap;
 				}
 			};
 		}
@@ -435,6 +455,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 		{
 			case "getFormName" :
 			case "getDesigntimeProperty" :
+			case "getDesignProperties" :
 				return true;
 		}
 		return false;
@@ -449,22 +470,23 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 	@Override
 	public void put(String name, Scriptable start, Object value)
 	{
-		if (isInvalidValue(name, value)) return;
+		String realName = !specProperties.contains(name) && specProperties.contains(name + "ID") ? name + "ID" : name;
+		if (isInvalidValue(realName, value)) return;
 		List<Pair<String, String>> oldVisibleForms = getVisibleForms();
-		if (specProperties != null && specProperties.contains(name))
+		if (specProperties.contains(realName))
 		{
 			Object previousVal = null;
-			PropertyDescription pd = webComponentSpec.getProperties().get(name);
+			PropertyDescription pd = webComponentSpec.getProperties().get(realName);
 			if (pd.getType() instanceof ISabloComponentToRhino && !(pd.getType() instanceof IRhinoToSabloComponent))
 			{
 				// the it has sablo to rhino conversion but not the other way around then we should just use the
 				// value from the conversion so call get(String,Scriptable)
-				previousVal = get(name, start);
+				previousVal = get(realName, start);
 			}
-			else previousVal = component.getProperty(name);
+			else previousVal = component.getProperty(realName);
 			Object val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousVal, pd, component);
 
-			if (val != previousVal) component.setProperty(name, val);
+			if (val != previousVal) component.setProperty(realName, val);
 
 			if (pd != null && pd.getType() instanceof VisiblePropertyType)
 			{
@@ -488,7 +510,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 										previousVal = siblingComponent.getProperty(visibleProperty.getName());
 										val = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(value, previousVal, visibleProperty, siblingComponent);
 
-										if (val != previousVal) siblingComponent.setProperty(name, val);
+										if (val != previousVal) siblingComponent.setProperty(realName, val);
 									}
 								}
 								break;
@@ -500,12 +522,12 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 		}
 		else if (prototypeScope != null)
 		{
-			if (!apiFunctions.containsKey(name))
+			if (!apiFunctions.containsKey(realName))
 			{
 				// check if we have a setter for this property
-				if (name != null && name.length() > 0)
+				if (realName != null && realName.length() > 0)
 				{
-					String uName = new StringBuffer(name.substring(0, 1).toUpperCase()).append(name.substring(1)).toString();
+					String uName = new StringBuffer(realName.substring(0, 1).toUpperCase()).append(realName.substring(1)).toString();
 					if (apiFunctions.containsKey("set" + uName) && apiFunctions.containsKey("get" + uName))
 					{
 						// call setter
@@ -514,7 +536,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 					}
 					else
 					{
-						prototypeScope.put(name, start, value);
+						prototypeScope.put(realName, start, value);
 					}
 				}
 			}

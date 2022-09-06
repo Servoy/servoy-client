@@ -68,7 +68,7 @@ public abstract class AbstractBase implements IPersist
 		public String toString()
 		{
 			return "-undefined-";
-		};
+		}
 	};
 
 
@@ -476,7 +476,7 @@ public abstract class AbstractBase implements IPersist
 	}
 
 	@SuppressWarnings("unchecked")
-	<T> T getTypedProperty(TypedProperty<T> property)
+	public <T> T getTypedProperty(TypedProperty<T> property)
 	{
 		return (T)getProperty(property.getPropertyName());
 	}
@@ -527,6 +527,15 @@ public abstract class AbstractBase implements IPersist
 		propertiesMap.remove(property.getPropertyName());
 	}
 
+	public String getComment()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_COMMENT);
+	}
+
+	public void setComment(String arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_COMMENT, arg);
+	}
 	/*
 	 * _____________________________________________________________ Methods from IPersist
 	 */
@@ -652,6 +661,7 @@ public abstract class AbstractBase implements IPersist
 		{
 			getRootObject().getChangeHandler().fireIPersistRemoved(obj);
 		}
+		childRemoved(obj);
 	}
 
 	protected void internalRemoveChild(IPersist obj)
@@ -682,6 +692,7 @@ public abstract class AbstractBase implements IPersist
 		{
 			getRootObject().getChangeHandler().fireIPersistCreated(obj);
 		}
+		childAdded(obj);
 	}
 
 	public void internalAddChild(IPersist obj)
@@ -1070,7 +1081,6 @@ public abstract class AbstractBase implements IPersist
 	 * Gets the value of the custom property identified by path in the current persist's own properties (so it ignores inherited values).
 	 * It will return null both if the value is null or if the value is not present.
 	 */
-	@SuppressWarnings("unchecked")
 	public Object getCustomPropertyNonFlattened(String[] path)
 	{
 		Object val = getCustomPropertyNonFlattenedInternal(path);
@@ -1474,5 +1484,17 @@ public abstract class AbstractBase implements IPersist
 	public <T extends Object> void setRuntimeProperty(RuntimeProperty<T> property, T object)
 	{
 		transient_properties = property.set(transient_properties, object);
+	}
+
+	public void childAdded(IPersist obj)
+	{
+		ISupportChilds p = getParent();
+		if (p != null) p.childAdded(obj);
+	}
+
+	public void childRemoved(IPersist obj)
+	{
+		ISupportChilds p = getParent();
+		if (p != null) p.childRemoved(obj);
 	}
 }

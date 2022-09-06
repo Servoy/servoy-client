@@ -47,7 +47,6 @@ import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.dataprocessing.DataException;
 import com.servoy.j2db.dataprocessing.FoundSet;
-import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.JSDatabaseManager;
 import com.servoy.j2db.dataprocessing.Record;
@@ -58,6 +57,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IScriptProvider;
+import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -70,7 +70,7 @@ import com.servoy.j2db.scripting.solutionmodel.JSField;
 import com.servoy.j2db.scripting.solutionmodel.JSFieldWithConstants;
 import com.servoy.j2db.scripting.solutionmodel.JSMethodWithArguments;
 import com.servoy.j2db.scripting.solutionmodel.JSSolutionModel;
-import com.servoy.j2db.server.shared.IPerformanceRegistry;
+import com.servoy.j2db.server.shared.IPerformanceDataProvider;
 import com.servoy.j2db.server.shared.PerformanceData;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IScriptAccordionPanelMethods;
@@ -125,10 +125,11 @@ public class ScriptEngine implements IScriptSupport
 				IApplication application = (IApplication)sp;
 				cx.setApplicationClassLoader(application.getBeanManager().getClassLoader(), false);
 				cx.setWrapFactory(new ServoyWrapFactory(application));
-				
+
 				String version = application.getSettings().getProperty("servoy.javascript.version"); //$NON-NLS-1$
-				
-				if (version != null && version.length() > 0) {
+
+				if (version != null && version.length() > 0)
+				{
 					try
 					{
 						cx.setLanguageVersion(Integer.parseInt(version));
@@ -587,6 +588,8 @@ public class ScriptEngine implements IScriptSupport
 			declaration = extractFunction(declaration, "function $1");
 		}
 
+		// f below always seems to be NativeFunction instance as both Codegen.createFunctionObject and Interpreter.createFunctionObject return
+		// a NativeFunction instance; and that is what cx.compileFunction(...) ends up calling
 		Function f = cx.compileFunction(scope, declaration, sourceName, sp.getLineNumberOffset(), null);
 		if (!(sp instanceof ScriptCalculation))
 		{
@@ -598,7 +601,54 @@ public class ScriptEngine implements IScriptSupport
 			f.put("_AllowToRunInFind_", f, Boolean.valueOf(sp.getDeclaration().indexOf("@AllowToRunInFind") != -1 || declaration.indexOf(".search") != -1 || //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 				declaration.indexOf("controller.loadAllRecords") != -1));
 		}
+
+		String methodName = sp.getName();
+		PerformanceData performanceData = application instanceof IPerformanceDataProvider ? ((IPerformanceDataProvider)application).getPerformanceData() : null;
+		if (performanceData != null)
+		{
+			String scopeName = scope.getClassName();
+			if (scope instanceof LazyCompilationScope)
+			{
+				scopeName = ((LazyCompilationScope)scope).getScopeName();
+				scopeName = lookForSuperCalls(sp, scopeName);
+			}
+			else if (scope.getParentScope() instanceof LazyCompilationScope)
+			{
+				scopeName = ((LazyCompilationScope)scope.getParentScope()).getScopeName();
+				scopeName = lookForSuperCalls(sp, scopeName);
+			}
+			else if (scope instanceof FoundSet)
+			{
+				Scriptable parentScope = ((FoundSet)scope).getPrototype();
+				if (parentScope instanceof LazyCompilationScope)
+				{
+					scopeName = ((LazyCompilationScope)parentScope).getScopeName();
+				}
+			}
+			methodName = scopeName + "." + methodName;
+			return new FunctionWrapper(f, methodName, performanceData, application.getClientID());
+		}
 		return f;
+	}
+
+	/**
+	 * @param sp
+	 * @param scopeName
+	 * @return
+	 */
+	private String lookForSuperCalls(IScriptProvider sp, String scopeName)
+	{
+		ISupportChilds parent = sp.getParent();
+		if (parent instanceof Form)
+		{
+			String name = ((Form)parent).getName();
+			if (!scopeName.equals(name))
+			{
+				// this is a super call
+				scopeName += '(' + name + ')';
+			}
+		}
+		return scopeName;
 	}
 
 	public Object executeFunction(Function f, Scriptable scope, Scriptable thisObject, Object[] args, boolean focusEvent, boolean throwException)
@@ -621,8 +671,9 @@ public class ScriptEngine implements IScriptSupport
 			Context cx = Context.enter();
 
 			// only search for nice strings needed in performance admin page if performance is actually enabled
-			UUID pfUuid = null;
-			PerformanceData performanceData = null;
+//			UUID pfUuid = null;
+//			PerformanceData performanceData = null;
+//			String clientID = application.getClientID();
 			try
 			{
 				if (application instanceof ISmartClientApplication)
@@ -646,32 +697,32 @@ public class ScriptEngine implements IScriptSupport
 						}
 					}
 				}
-				String solutionName = application.getSolutionName();
-				IPerformanceRegistry performanceRegistry = (application.getApplicationServerAccess() != null &&
-					!(application instanceof ISmartClientApplication)
-						? application.getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
-				performanceData = performanceRegistry != null ? performanceRegistry.getPerformanceData(solutionName) : null;
-				//run
-				if (performanceData != null)
-				{
-					String methodName = null;
-					methodName = f.getClassName();
-					if (f instanceof NativeFunction) methodName = ((NativeFunction)f).getFunctionName();
-					String scopeName = scope.getClassName();
-					if (scope instanceof LazyCompilationScope) scopeName = ((LazyCompilationScope)scope).getScopeName();
-					if (scope instanceof FoundSet)
-					{
-						Scriptable parentScope = ((FoundSet)scope).getPrototype();
-						if (parentScope instanceof LazyCompilationScope)
-						{
-							scopeName = ((LazyCompilationScope)parentScope).getScopeName();
-						}
-					}
-
-					methodName = scopeName + "." + methodName; //$NON-NLS-1$
-					//	application.addPerformanceTiming(server, sql, 0 - t1);
-					pfUuid = performanceData.startAction(methodName, System.currentTimeMillis(), IDataServer.METHOD_CALL, application.getClientID());
-				}
+//				String solutionName = application.getSolutionName();
+//				IPerformanceRegistry performanceRegistry = (application.getApplicationServerAccess() != null &&
+//					!(application instanceof ISmartClientApplication)
+//						? application.getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
+//				performanceData = performanceRegistry != null ? performanceRegistry.getPerformanceData(solutionName) : null;
+//				//run
+//				if (performanceData != null)
+//				{
+//					String methodName = null;
+//					methodName = f.getClassName();
+//					if (f instanceof NativeFunction) methodName = ((NativeFunction)f).getFunctionName();
+//					String scopeName = scope.getClassName();
+//					if (scope instanceof LazyCompilationScope) scopeName = ((LazyCompilationScope)scope).getScopeName();
+//					if (scope instanceof FoundSet)
+//					{
+//						Scriptable parentScope = ((FoundSet)scope).getPrototype();
+//						if (parentScope instanceof LazyCompilationScope)
+//						{
+//							scopeName = ((LazyCompilationScope)parentScope).getScopeName();
+//						}
+//					}
+//
+//					methodName = scopeName + "." + methodName; //$NON-NLS-1$
+//					//	application.addPerformanceTiming(server, sql, 0 - t1);
+//					pfUuid = performanceData.startAction(methodName, System.currentTimeMillis(), IDataServer.METHOD_CALL, clientID);
+//				}
 
 				retValue = f.call(cx, scope, thisObject, wrappedArgs);
 
@@ -732,10 +783,10 @@ public class ScriptEngine implements IScriptSupport
 				{
 					((ISmartClientApplication)application).setPaintTableImmediately(true);
 				}
-				else if (pfUuid != null)
-				{
-					performanceData.endAction(pfUuid);
-				}
+//				else if (pfUuid != null)
+//				{
+//					performanceData.endAction(pfUuid, clientID);
+//				}
 				Context.exit();
 			}
 			testClientUidChange(scope, userUidBefore);
@@ -785,6 +836,8 @@ public class ScriptEngine implements IScriptSupport
 		{
 			Object o = null;
 			Function compileFunction = cx.compileFunction(scope, "function evalFunction(){}", "evalFunction", 0, null); //$NON-NLS-1$ //$NON-NLS-2$
+			if (compileFunction instanceof FunctionWrapper) compileFunction = ((FunctionWrapper)compileFunction).getWrappedFunction();
+
 			if (compileFunction instanceof NativeFunction)
 			{
 				o = cx.evaluateString(ScriptRuntime.createFunctionActivation((NativeFunction)compileFunction, scope, null), eval_string, "internal_anon", 1, //$NON-NLS-1$

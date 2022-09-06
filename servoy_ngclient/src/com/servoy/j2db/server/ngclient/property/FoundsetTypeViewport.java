@@ -41,6 +41,8 @@ public class FoundsetTypeViewport
 	private boolean initialSelectionViewportCentered = true; // see setInitialSelectionViewportCentered(...) below
 
 	private boolean sendingInitialPreferredViewport = false;
+	private boolean callPreferredViewportBoundsOnSelectionChange = false;
+	private final boolean foundsetDefinitionListener;
 
 	/**
 	 * Creates a new viewport object.
@@ -51,6 +53,7 @@ public class FoundsetTypeViewport
 		this.changeMonitor = changeMonitor;
 		this.preferredViewPortSize = specConfig.initialPreferredViewPortSize;
 		this.sendSelectionViewportInitially = specConfig.sendSelectionViewportInitially;
+		this.foundsetDefinitionListener = specConfig.foundsetDefinitionListener;
 		// we don't define initialSelectionViewportCentered in .spec config yet because the component usually doesn't know on first show what it's desired page size is (that is normally based on UI space) - or some component might even not know if it's using paging or scrolling UI viewport
 		// but initialSelectionViewportCentered can still be altered by the component after it is shown in browser via a foundset type API call from client
 	}
@@ -71,6 +74,11 @@ public class FoundsetTypeViewport
 
 		if (foundset != null)
 		{
+			if (foundset.getSelectedIndex() >= foundset.getSize())
+			{
+				this.callPreferredViewportBoundsOnSelectionChange = true;
+				return;
+			}
 			// reset to the preferred viewport
 			int firstSelectedIndex;
 			if (sendSelectionViewportInitially && (firstSelectedIndex = foundset.getSelectedIndex()) >= 0)
@@ -113,8 +121,9 @@ public class FoundsetTypeViewport
 		// as for example when showing the form the first time foundset will have size 0
 		// then it will gain records with selection -1 then selection will be set to 0 then the on show can change selection again -
 		// all this in the same event - we must set preferred viewport bounds based on last initial selection
-		if (sendSelectionViewportInitially && sendingInitialPreferredViewport)
+		if (callPreferredViewportBoundsOnSelectionChange || (sendSelectionViewportInitially && sendingInitialPreferredViewport))
 		{
+			this.callPreferredViewportBoundsOnSelectionChange = false;
 			setPreferredViewportBounds();
 		}
 	}
@@ -284,6 +293,12 @@ public class FoundsetTypeViewport
 			foundsetEventListener = new IFoundSetEventListener()
 			{
 				@Override
+				public boolean wantsFoundSetDefinitionChanges()
+				{
+					return foundsetDefinitionListener;
+				}
+
+				@Override
 				public void foundSetChanged(FoundSetEvent event)
 				{
 					if (event.getType() == FoundSetEvent.FIND_MODE_CHANGE) changeMonitor.findModeChanged(foundset.isInFindMode());
@@ -334,11 +349,12 @@ public class FoundsetTypeViewport
 							changeMonitor.recordsUpdated(event.getFirstRow(), event.getLastRow(), foundset.getSize(), FoundsetTypeViewport.this,
 								event.getDataProviders());
 						}
-						else if (event.getChangeType() == FoundSetEvent.FOUNDSET_INVALIDATED) foundset.getSize(); // getSize on a related foundset (that can be invalidated) will validate the foundset and send any changes as subsequent events; do that as we are actively monitoring this foundset
+						else if (event.getChangeType() == FoundSetEvent.FOUNDSET_INVALIDATED && changeMonitor.isVisible()) foundset.getSize(); // getSize on a related foundset (that can be invalidated) will validate the foundset and send any changes as subsequent events; do that as we are actively monitoring this foundset
 
 						changeMonitor.checkHadMoreRows();
 					}
 					else if (event.getType() == FoundSetEvent.SELECTION_MODE_CHANGE) changeMonitor.multiSelectChanged();
+					else if (event.getType() == FoundSetEvent.FOUNDSET_DEFINITION_CHANGE) changeMonitor.foundsetDefinitionChanged();
 				}
 			};
 		}

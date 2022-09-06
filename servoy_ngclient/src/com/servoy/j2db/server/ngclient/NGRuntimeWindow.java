@@ -45,7 +45,6 @@ import com.servoy.j2db.server.shared.PerformanceData;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Text;
-import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -534,13 +533,16 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 					Debug.error(e);
 				}
 
-				Pair<UUID, UUID> perfId = null;
+				Pair<Integer, Integer> perfId = null;
 				PerformanceData performanceData = null;
+				String clientID = getApplication().getClientID();
 				if (perfRegistry != null)
 				{
 					performanceData = perfRegistry.getPerformanceData(getApplication().getSolutionName());
-					perfId = performanceData != null ? performanceData.startSubAction("$windowService.show", System.currentTimeMillis(),
-						IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT, getApplication().getClientID()) : null;
+					perfId = performanceData != null
+						? performanceData.startSubAction("showDialog(" + windowName + "->" + formName + ")", System.currentTimeMillis(), //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+							IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT, clientID)
+						: null;
 				}
 				try
 				{
@@ -551,7 +553,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				}
 				finally
 				{
-					if (perfId != null) performanceData.endSubAction(perfId);
+					if (perfId != null) performanceData.endSubAction(perfId, clientID);
 				}
 
 				// this is now a hide of this window, set back the window name just before this show.

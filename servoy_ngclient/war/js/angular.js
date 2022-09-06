@@ -1,5 +1,10 @@
-/**
- * @license AngularJS v1.8.2
+/*!
+ * @license XLTS for AngularJS License Agreement
+ * (c) 2022 XLTS.dev All Rights Reserved. https://xlts.dev/angularjs
+ * v1.9.0
+ */
+/*!
+ * @license AngularJS
  * (c) 2010-2020 Google LLC. http://angularjs.org
  * License: MIT
  */
@@ -99,7 +104,7 @@ function isValidObjectMaxDepth(maxDepth) {
 function minErr(module, ErrorConstructor) {
   ErrorConstructor = ErrorConstructor || Error;
 
-  var url = 'https://errors.angularjs.org/1.8.2/';
+  var url = 'https://errors.angularjs.xlts.dev/1.9.0/';
   var regex = url.replace('.', '\\.') + '[\\s\\S]*';
   var errRegExp = new RegExp(regex, 'g');
 
@@ -2089,6 +2094,7 @@ function bindJQuery() {
   bindJQueryFired = true;
 }
 
+var XHTML_TAG_REGEXP = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:-]+)(?:[^\w:>-][^>]*)?)\/>/gi;
 /**
  * @ngdoc function
  * @name angular.UNSAFE_restoreLegacyJqLiteXHTMLReplacement
@@ -2100,13 +2106,38 @@ function bindJQuery() {
  * `<div /><span />` to `<div></div><span></span>` instead of `<div><span></span></div>`.
  * The new behavior is a security fix. Thus, if you need to call this function, please try to adjust
  * your code for this change and remove your use of this function as soon as possible.
-
+ *
+ * Calling this method will print console warnings if a HTML string passed to jqLite
+ * is replaced with a different one thanks to the restoration of the old behavior.
+ * Adjusting HTML syntax used to avoid these warnings helps with making the code
+ * compatible with the default state of AngularJS which allows one to stop calling
+ * `angular.UNSAFE_restoreLegacyJqLiteXHTMLReplacement()`.
+ *
  * Note that this only patches jqLite. If you use jQuery 3.5.0 or newer, please read the
  * [jQuery 3.5 upgrade guide](https://jquery.com/upgrade-guide/3.5/) for more details
  * about the workarounds.
  */
 function UNSAFE_restoreLegacyJqLiteXHTMLReplacement() {
-  JQLite.legacyXHTMLReplacement = true;
+  JQLite.htmlPrefilter = function(html) {
+    var finalHtml = html.replace(XHTML_TAG_REGEXP, '<$1></$2>');
+
+    // Support: IE 9 only
+    // In IE 9 console only exists if DevTools are open.
+    if (window.console && window.console.warn && html !== finalHtml) {
+      window.console.warn('JQLite changed the HTML string:\n' +
+        '\n' +
+        html + '\n' +
+        '\n' +
+        'to remove self-closing tags, resulting in this HTML string:\n' +
+        '\n' +
+        finalHtml + '\n' +
+        '\n' +
+        'JQLite no longer does this replacement when you stop calling ' +
+        'UNSAFE_restoreLegacyJqLiteXHTMLReplacement; please update your code ' +
+        'to avoid self-closing tags.');
+    }
+    return finalHtml;
+  };
 }
 
 /**
@@ -2826,13 +2857,15 @@ function toDebugString(obj, maxDepth) {
  * - `codeName` – `{string}` – Code name of the release, such as "jiggling-armfat".
  */
 var version = {
+  vendor: 'XLTS.dev',
+
   // These placeholder strings will be replaced by grunt's `build` task.
   // They need to be double- or single-quoted.
-  full: '1.8.2',
+  full: '1.9.0',
   major: 1,
-  minor: 8,
-  dot: 2,
-  codeName: 'meteoric-mining'
+  minor: 9,
+  dot: 0,
+  codeName: 'crossly-blocking'
 };
 
 
@@ -2983,7 +3016,7 @@ function publishExternalAPI(angular) {
       });
     }
   ])
-  .info({ angularVersion: '1.8.2' });
+  .info({ angularVersion: '1.9.0' });
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -3163,7 +3196,6 @@ function kebabToCamel(name) {
 var SINGLE_TAG_REGEXP = /^<([\w-]+)\s*\/?>(?:<\/\1>|)$/;
 var HTML_REGEXP = /<|&#?\w+;/;
 var TAG_NAME_REGEXP = /<([\w:-]+)/;
-var XHTML_TAG_REGEXP = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:-]+)[^>]*)\/>/gi;
 
 // Table parts need to be wrapped with `<table>` or they're
 // stripped to their contents when put in a div.
@@ -3226,9 +3258,7 @@ function jqLiteBuildFragment(html, context) {
     // Convert html into DOM nodes
     tmp = fragment.appendChild(context.createElement('div'));
     tag = (TAG_NAME_REGEXP.exec(html) || ['', ''])[1].toLowerCase();
-    finalHtml = JQLite.legacyXHTMLReplacement ?
-      html.replace(XHTML_TAG_REGEXP, '<$1></$2>') :
-      html;
+    finalHtml = JQLite.htmlPrefilter(html);
 
     if (msie < 10) {
       wrap = wrapMapIE9[tag] || wrapMapIE9._default;
@@ -3314,7 +3344,8 @@ function JQLite(element) {
   }
   if (!(this instanceof JQLite)) {
     if (argIsString && element.charAt(0) !== '<') {
-      throw jqLiteMinErr('nosel', 'Looking up elements via selectors is not supported by jqLite! See: http://docs.angularjs.org/api/angular.element');
+      throw jqLiteMinErr('nosel',
+        'Looking up elements via selectors is not supported by jqLite! See: https://docs.angularjs.xlts.dev/api/ng/function/angular.element');
     }
     return new JQLite(element);
   }
@@ -3665,6 +3696,9 @@ forEach({
       jqLiteRemoveData(nodes[i]);
       jqLiteOff(nodes[i]);
     }
+  },
+  htmlPrefilter: function jqLiteHtmlPrefilter(html) {
+    return html;
   }
 }, function(fn, name) {
   JQLite[name] = fn;
@@ -8308,14 +8342,33 @@ function $TemplateCacheProvider() {
  *
  * ### Double Compilation
  *
-   Double compilation occurs when an already compiled part of the DOM gets
-   compiled again. This is an undesired effect and can lead to misbehaving directives, performance issues,
-   and memory leaks. Refer to the Compiler Guide {@link guide/compiler#double-compilation-and-how-to-avoid-it
-   section on double compilation} for an in-depth explanation and ways to avoid it.
-
+ * Double compilation occurs when an already compiled part of the DOM gets
+ * compiled again. This is an undesired effect and can lead to misbehaving directives, performance issues,
+ * and memory leaks. Refer to the Compiler Guide {@link guide/compiler#double-compilation-and-how-to-avoid-it
+ * section on double compilation} for an in-depth explanation and ways to avoid it.
+ *
  * @knownIssue
-
-   ### Issues with `replace: true`
+ *
+ * ### Interpolation in `<textarea>` on Internet Explorer
+ *
+ * Due to security considerations related to page caching, the contents of `<textarea>` elements are
+ * not interpolated on Internet Explorer. If you want to set the `<textarea>` element's value by
+ * evaluating an AngularJS expression, you can use {@link directive:ngBind ng-bind} or
+ * {@link directive:ngProp ng-prop-value}.
+ *
+ * For example:
+ * ```html
+ * <!-- Don't do this: -->
+ * <textarea>{{ 'This remains as is ' + 'on IE.' }}</textarea>
+ *
+ * <!-- Do one of these instead: -->
+ * <textarea ng-bind="'This works ' + 'on all browsers.'"></textarea>
+ * <textarea ng-prop-value="'This works ' + 'on all browsers.'"></textarea>
+ * ```
+ *
+ * @knownIssue
+ *
+ * ### Issues with `replace: true`
  *
  * <div class="alert alert-danger">
  *   **Note**: {@link $compile#-replace- `replace: true`} is deprecated and not recommended to use,
@@ -8678,7 +8731,7 @@ function $TemplateCacheProvider() {
  *     <span>Event log: {{$ctrl.eventLog}}</span>
  *   </file>
  *   <file name="child.html">
-      <button ng-click="$ctrl.fireEvent()">Fire custom event</button>
+ *     <button ng-click="$ctrl.fireEvent()">Fire custom event</button>
  *   </file>
  *   <file name="index.html">
  *     <main></main>
@@ -10116,7 +10169,10 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
           }
           break;
         case NODE_TYPE_TEXT: /* Text Node */
-          addTextInterpolateDirective(directives, node.nodeValue);
+          // Don't interpolate `<textarea>` contents in IE due to security considerations.
+          if (!msie || !node.parentNode || nodeName_(node.parentNode) !== 'textarea') {
+            addTextInterpolateDirective(directives, node.nodeValue);
+          }
           break;
         case NODE_TYPE_COMMENT: /* Comment */
           if (!commentDirectivesEnabled) break;
@@ -10624,11 +10680,18 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
           var controller = elementControllers[name];
           var bindings = controllerDirective.$$bindings.bindToController;
 
-          controller.instance = controller();
-          $element.data('$' + controllerDirective.name + 'Controller', controller.instance);
-          controller.bindingInfo =
-            initializeDirectiveBindings(controllerScope, attrs, controller.instance, bindings, controllerDirective);
+          var customBindingAssignment = isFunction(compile.$$customAssignBindings) &&
+            compile.$$customAssignBindings(
+                bindings, controller, controllerDirective, controllerScope, $element, attrs,
+                initializeDirectiveBindings);
+
+          if (!customBindingAssignment) {
+            controller.instance = controller();
+            $element.data('$' + controllerDirective.name + 'Controller', controller.instance);
+            controller.bindingInfo =
+              initializeDirectiveBindings(controllerScope, attrs, controller.instance, bindings, controllerDirective);
           }
+        }
 
         // Bind the required controllers to the controller, if `require` is an object and `bindToController` is truthy
         forEach(controllerDirectives, function(controllerDirective, name) {
@@ -12949,13 +13012,15 @@ function $HttpProvider() {
     <input type="text" ng-model="url" size="80" aria-label="URL" />
     <button id="fetchbtn" ng-click="fetch()">fetch</button><br>
     <button id="samplegetbtn" ng-click="updateModel('GET', 'http-hello.html')">Sample GET</button>
+    <!-- TODO fix this and the below test. Related issue: https://github.com/angular/angular.js/issues/9185.
     <button id="samplejsonpbtn"
       ng-click="updateModel('JSONP',
-                    'https://angularjs.org/greet.php?name=Super%20Hero')">
+                    'https://angularjs.xlts.dev/greet.php?name=Super%20Hero')">
       Sample JSONP
     </button>
+    -->
     <button id="invalidjsonpbtn"
-      ng-click="updateModel('JSONP', 'https://angularjs.org/doesntexist')">
+      ng-click="updateModel('JSONP', 'https://angularjs.xlts.dev/doesntexist')">
         Invalid JSONP
       </button>
     <pre>http status code: {{status}}</pre>
@@ -12968,7 +13033,7 @@ function $HttpProvider() {
       // We must add the JSONP endpoint that we are using to the trusted list to show that we trust it
       $sceDelegateProvider.trustedResourceUrlList([
         'self',
-        'https://angularjs.org/**'
+        'https://angularjs.xlts.dev/**'
       ]);
     }])
     .controller('FetchController', ['$scope', '$http', '$templateCache',
@@ -13014,7 +13079,8 @@ function $HttpProvider() {
   });
 
 // Commented out due to flakes. See https://github.com/angular/angular.js/issues/9185
-// it('should make a JSONP request to angularjs.org', function() {
+// TODO update this to work with a Firebase Function, re-add the button above, and re-enable this test
+// it('should make a JSONP request to angularjs.xlts.dev', function() {
 //   var sampleJsonpBtn = element(by.id('samplejsonpbtn'));
 //   sampleJsonpBtn.click();
 //   fetchBtn.click();
@@ -13774,7 +13840,7 @@ $interpolateMinErr.throwNoconcat = function(text) {
   throw $interpolateMinErr('noconcat',
       'Error while interpolating: {0}\nStrict Contextual Escaping disallows ' +
       'interpolations that concatenate multiple expressions when a trusted value is ' +
-      'required.  See http://docs.angularjs.org/api/ng.$sce', text);
+      'required.  See https://docs.angularjs.xlts.dev/api/ng/service/$sce', text);
 };
 
 $interpolateMinErr.interr = function(text, err) {
@@ -15727,7 +15793,7 @@ var objectValueOf = {}.constructor.prototype.valueOf;
 // It is important to realize that if you create an expression from a string that contains user provided
 // content then it is possible that your application contains a security vulnerability to an XSS style attack.
 //
-// See https://docs.angularjs.org/guide/security
+// See https://docs.angularjs.xlts.dev/guide/security
 
 
 function getStringValue(name) {
@@ -17600,7 +17666,7 @@ function $ParseProvider() {
 
       var useInputs = parsedExpression.inputs && !exp.inputs;
 
-      // Propogate the literal/inputs/constant attributes
+      // Propagate the literal/inputs/constant attributes
       // ... but not oneTime since we are handling it
       oneTimeWatch.literal = parsedExpression.literal;
       oneTimeWatch.constant = parsedExpression.constant;
@@ -17687,7 +17753,7 @@ function $ParseProvider() {
       fn.$$intercepted = parsedExpression;
       fn.$$interceptor = interceptorFn;
 
-      // Propogate the literal/oneTime/constant attributes
+      // Propagate the literal/oneTime/constant attributes
       fn.literal = parsedExpression.literal;
       fn.oneTime = parsedExpression.oneTime;
       fn.constant = parsedExpression.constant;
@@ -20793,8 +20859,8 @@ function $SceDelegateProvider() {
  *           self.userComments = response.data;
  *         });
  *         self.explicitlyTrustedHtml = $sce.trustAsHtml(
- *             '<span onmouseover="this.textContent=&quot;Explicitly trusted HTML bypasses ' +
- *             'sanitization.&quot;">Hover over this text.</span>');
+ *             '<span onmouseover="this.textContent=\'Explicitly trusted HTML bypasses ' +
+ *             'sanitization.\'">Hover over this text.</span>');
  *       }]);
  * </file>
  *
@@ -20802,10 +20868,10 @@ function $SceDelegateProvider() {
  * [
  *   { "name": "Alice",
  *     "htmlComment":
- *         "<span onmouseover='this.textContent=\"PWN3D!\"'>Is <i>anyone</i> reading this?</span>"
+ *         "<span onmouseover=\"this.textContent='PWN3D!'\">Is <i>anyone</i> reading this?</span>"
  *   },
  *   { "name": "Bob",
- *     "htmlComment": "<i>Yes!</i>  Am I the only other one?"
+ *     "htmlComment": "<i>Yes!</i> Am I the only other one?"
  *   }
  * ]
  * </file>
@@ -20819,8 +20885,8 @@ function $SceDelegateProvider() {
  *
  *     it('should NOT sanitize explicitly trusted values', function() {
  *       expect(element(by.id('explicitlyTrustedHtml')).getAttribute('innerHTML')).toBe(
- *           '<span onmouseover="this.textContent=&quot;Explicitly trusted HTML bypasses ' +
- *           'sanitization.&quot;">Hover over this text.</span>');
+ *           '<span onmouseover="this.textContent=\'Explicitly trusted HTML bypasses ' +
+ *           'sanitization.\'">Hover over this text.</span>');
  *     });
  *   });
  * </file>
@@ -20926,7 +20992,7 @@ function $SceProvider() {
       throw $sceMinErr('iequirks',
         'Strict Contextual Escaping does not support Internet Explorer version < 11 in quirks ' +
         'mode.  You can fix this by adding the text <!doctype html> to the top of your HTML ' +
-        'document.  See http://docs.angularjs.org/api/ng.$sce for more information.');
+        'document.  See https://docs.angularjs.xlts.dev/api/ng/service/$sce for more information.');
     }
 
     var sce = shallowCopy(SCE_CONTEXTS);
@@ -21828,7 +21894,7 @@ var urlParsingNode = window.document.createElement('a');
 var originUrl = urlResolve(window.location.href);
 var baseUrlParsingNode;
 
-urlParsingNode.href = 'http://[::1]';
+urlParsingNode.href = 'https://[::1]';
 
 // Support: IE 9-11 only, Edge 16-17 only (fixed in 18 Preview)
 // IE/Edge don't wrap IPv6 addresses' hostnames in square brackets
@@ -22616,6 +22682,12 @@ currencyFilter.$inject = ['$locale'];
 function currencyFilter($locale) {
   var formats = $locale.NUMBER_FORMATS;
   return function(amount, currencySymbol, fractionSize) {
+
+    // if null or undefined pass it through
+    if (amount == null) {
+      return amount;
+    }
+
     if (isUndefined(currencySymbol)) {
       currencySymbol = formats.CURRENCY_SYM;
     }
@@ -22624,14 +22696,20 @@ function currencyFilter($locale) {
       fractionSize = formats.PATTERNS[1].maxFrac;
     }
 
-    // If the currency symbol is empty, trim whitespace around the symbol
-    var currencySymbolRe = !currencySymbol ? /\s*\u00A4\s*/g : /\u00A4/g;
+    var value = formatNumber(
+      amount,
+      formats.PATTERNS[1],
+      formats.GROUP_SEP,
+      formats.DECIMAL_SEP,
+      fractionSize
+    );
 
-    // if null or undefined pass it through
-    return (amount == null)
-        ? amount
-        : formatNumber(amount, formats.PATTERNS[1], formats.GROUP_SEP, formats.DECIMAL_SEP, fractionSize).
-            replace(currencySymbolRe, currencySymbol);
+    // If the currency symbol is empty, trim whitespace around the symbol
+    return currencySymbol ?
+      value.replace(/\u00A4/g, currencySymbol) :
+      value.replace(/(^|\S)\s*\u00A4\s*(\S|$)/g, function(_, g1, g2) {
+        return g1 + currencySymbol + g2;
+      });
   };
 }
 
@@ -26920,6 +26998,7 @@ function createDateInputType(type, regexp, parseDate, format) {
 
     function isValidDate(value) {
       // Invalid Date: getTime() returns NaN
+      // eslint-disable-next-line no-self-compare
       return value && !(value.getTime && value.getTime() !== value.getTime());
     }
 

@@ -40,9 +40,11 @@ import org.sablo.specification.property.types.StyleClassPropertyType;
 
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.persistence.AbstractBase;
+import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
+import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportName;
@@ -52,6 +54,7 @@ import com.servoy.j2db.persistence.RectShape;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.scripting.IInstanceOf;
+import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
@@ -60,6 +63,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
 import com.servoy.j2db.server.ngclient.property.types.ValueListTypeSabloValue;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -106,6 +110,7 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 		LegacyApiNames.add("getName");
 		LegacyApiNames.add("getValueListName");
 		LegacyApiNames.add("getDesignTimeProperty");
+		LegacyApiNames.add("getDesignProperties");
 		LegacyApiNames.add("getLocationX");
 		LegacyApiNames.add("getLocationY");
 		LegacyApiNames.add("getWidth");
@@ -263,6 +268,41 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 			String newName = generatePropertyName(name);
 			if (name.startsWith("set"))
 			{
+				if ("setSize".equals(name))
+				{
+					Form form = null;
+					IWebFormUI parent = component.findParent(IWebFormUI.class);
+					if (parent != null)
+					{
+						form = parent.getController().getForm();
+					}
+					else
+					{
+						form = component.getFormElement().getForm();
+					}
+					if (!form.isResponsiveLayout() && !form.getUseCssPosition())
+					{
+						IPersist persist = component.getFormElement().getPersistIfAvailable();
+						if (persist instanceof BaseComponent)
+						{
+							int anchors = ((BaseComponent)persist).getAnchors();
+							if (anchors == 0)
+							{
+								anchors = IAnchorConstants.DEFAULT;
+							}
+							else if (anchors == -1)
+							{
+								anchors = 0;
+							}
+							if (((((anchors & IAnchorConstants.EAST) != 0) && ((anchors & IAnchorConstants.WEST) != 0))) ||
+								(((anchors & IAnchorConstants.NORTH) != 0) && ((anchors & IAnchorConstants.SOUTH) != 0)))
+							{
+								Debug.warn("Form '" + form.getName() + "' element '" + ((BaseComponent)persist).getName() +
+									"' is in anchored mode (streching anchors) and setSize is called. This may lead to unexpected results.");
+							}
+						}
+					}
+				}
 				putCallable.setProperty(newName);
 				return putCallable;
 			}

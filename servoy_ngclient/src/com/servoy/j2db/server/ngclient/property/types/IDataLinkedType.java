@@ -118,7 +118,7 @@ public interface IDataLinkedType<FormElementT, T> extends IPropertyType<T>
 	 * If it wants to be notified of specific data changes (for example only some dataprovider changes + record change it should return an appropriate instance of {@link TargetDataLinks}.
 	 *
 	 * @param value this is the template/form element value of the property.
-	 * @return some TargetDataLinks if this value depends on foundset record or scripting variables or {@link TargetDataLinks#NOT_LINKED_TO_DATA} if not. Another predifined value you can use is {@link TargetDataLinks#LINKED_TO_ALL}.
+	 * @return some TargetDataLinks if this value depends on foundset record or scripting variables or {@link TargetDataLinks#NOT_LINKED_TO_DATA} if not. Another predefined value you can use is {@link TargetDataLinks#LINKED_TO_ALL}.
 	 */
 	TargetDataLinks getDataLinks(FormElementT formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement);
 

@@ -43,6 +43,7 @@ import org.sablo.util.HTTPUtils;
 public class ComponentsModuleGenerator extends HttpServlet
 {
 
+	@SuppressWarnings("nls")
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
@@ -53,16 +54,18 @@ public class ComponentsModuleGenerator extends HttpServlet
 		resp.getWriter().write(sb.toString());
 	}
 
-	private static Set<String> getAllNames(WebObjectSpecification[] allWebSpecifications)
+	private static Set<String> getAllNames(WebObjectSpecification[] allWebSpecifications, Set<String> namesToBeIncluded)
 	{
 		Set<String> names = new HashSet<>();
 		for (WebObjectSpecification webSpec : allWebSpecifications)
 		{
-			names.add(webSpec.getName());
+			// ignore these components, they have only titanium implmentation
+			if (webSpec.getDefinition() != null && (namesToBeIncluded == null || namesToBeIncluded.contains(webSpec.getName()))) names.add(webSpec.getName());
 		}
 		return names;
 	}
 
+	@SuppressWarnings("nls")
 	public static StringBuilder generateComponentsModule(Set<String> services, Set<String> components)
 	{
 		Set<String> servicesIncludingOnesServedFromJARSInWarDeployment = null;
@@ -76,8 +79,8 @@ public class ComponentsModuleGenerator extends HttpServlet
 		}
 
 		StringBuilder sb = new StringBuilder("angular.module('servoy-components', [ ");
-		generateModules(sb, servicesIncludingOnesServedFromJARSInWarDeployment != null ? servicesIncludingOnesServedFromJARSInWarDeployment : getAllNames(WebServiceSpecProvider.getSpecProviderState().getAllWebObjectSpecifications()));
-		generateModules(sb, components != null ? components : getAllNames(WebComponentSpecProvider.getSpecProviderState().getAllWebObjectSpecifications()));
+		generateModules(sb, getAllNames(WebServiceSpecProvider.getSpecProviderState().getAllWebObjectSpecifications(), servicesIncludingOnesServedFromJARSInWarDeployment));
+		generateModules(sb, getAllNames(WebComponentSpecProvider.getSpecProviderState().getAllWebObjectSpecifications(), components));
 		sb.setLength(sb.length() - 1);
 		sb.append("]);");
 		return sb;

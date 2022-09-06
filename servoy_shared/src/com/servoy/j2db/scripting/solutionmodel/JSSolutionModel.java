@@ -1655,25 +1655,6 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 		if (name == null) return null;
 		FlattenedSolution fs = application.getFlattenedSolution();
 		Relation relation = fs.getRelation(name);
-		if (relation == null)
-		{
-			// search ignoring case
-			try
-			{
-				Iterator<Relation> relations = fs.getRelations(false);
-				String lowerCaseName = Utils.toEnglishLocaleLowerCase(name);
-				Relation r;
-				while (relations.hasNext() && relation == null)
-				{
-					r = relations.next();
-					if (Utils.toEnglishLocaleLowerCase(r.getName()).equals(lowerCaseName)) relation = r;
-				}
-			}
-			catch (RepositoryException e)
-			{
-				// not found then
-			}
-		}
 		if (relation != null)
 		{
 			return new JSRelation(relation, application, false);

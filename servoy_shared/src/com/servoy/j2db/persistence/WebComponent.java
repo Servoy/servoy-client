@@ -147,6 +147,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	@Override
 	public void clearProperty(String propertyName)
 	{
+		if (IContentSpecConstants.PROPERTY_TYPENAME.equals(propertyName)) return;
 		super.clearProperty(propertyName);
 		webObjectImpl.clearProperty(propertyName);
 	}
@@ -356,7 +357,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 			((WebComponent)clone).updateJSON();
 			for (WebCustomType customType : types)
 			{
-				getRootObject().getChangeHandler().fireIPersistChanged(customType);
+				clone.getRootObject().getChangeHandler().fireIPersistChanged(customType);
 			}
 			// hack for cache, we put back the custom types
 			this.acceptVisitor(new IPersistVisitor()

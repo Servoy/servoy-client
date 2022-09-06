@@ -116,15 +116,18 @@ public class ContainersScope implements Scriptable
 			String typeName = (String)component.getProperty(IContentSpecConstants.PROPERTY_TYPENAME);
 			WebComponentSpecProvider.getInstance();
 			WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(typeName);
-			Collection<PropertyDescription> pd = spec.getProperties(FormComponentPropertyType.INSTANCE);
-			if (pd != null && !pd.isEmpty())
+			if (spec != null)
 			{
-				PropertyDescription prop = pd.iterator().next();
-				Object val = component.getProperty(prop.getName());
-				Form fcomp = FormComponentPropertyType.INSTANCE.getForm(val, fs);
-				if (fcomp != null && fcomp.isResponsiveLayout())
+				Collection<PropertyDescription> pd = spec.getProperties(FormComponentPropertyType.INSTANCE);
+				if (pd != null && !pd.isEmpty())
 				{
-					fillNames(fcomp.getLayoutContainers(), namesToLayout, fs);
+					PropertyDescription prop = pd.iterator().next();
+					Object val = component.getProperty(prop.getName());
+					Form fcomp = FormComponentPropertyType.INSTANCE.getForm(val, fs);
+					if (fcomp != null && fcomp.isResponsiveLayout())
+					{
+						fillNames(fcomp.getLayoutContainers(), namesToLayout, fs);
+					}
 				}
 			}
 		}

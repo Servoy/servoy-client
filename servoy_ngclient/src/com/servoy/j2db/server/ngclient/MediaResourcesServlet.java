@@ -23,24 +23,20 @@ import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadBase.FileSizeLimitExceededException;
@@ -48,21 +44,14 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.io.FileCleaningTracker;
 import org.apache.commons.io.IOUtils;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.Function;
-import org.mozilla.javascript.Scriptable;
-import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebObjectSpecification;
+import org.apache.commons.lang3.StringUtils;
 import org.sablo.util.HTTPUtils;
-import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.MediaURLStreamHandler;
-import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -70,20 +59,13 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.plugins.IUploadData;
-import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.JSMap;
-import com.servoy.j2db.scripting.JSUpload;
 import com.servoy.j2db.server.ngclient.less.LessCompiler;
-import com.servoy.j2db.server.ngclient.property.ComponentTypeConfig;
-import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
-import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
-import com.servoy.j2db.ui.IMediaFieldConstants;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.MimeTypes;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SecuritySupport;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
@@ -107,15 +89,8 @@ import com.servoy.j2db.util.Utils;
  */
 @SuppressWarnings("nls")
 @WebServlet("/resources/*")
-public class MediaResourcesServlet extends HttpServlet
+public class MediaResourcesServlet extends AbstractMediaResourceServlet
 {
-	private final FileCleaningTracker FILE_CLEANING_TRACKER = new FileCleaningTracker();
-
-	/**
-	 * constant for calling a service, should be in sync with servoy.ts generateServiceUploadUrl() function
-	 */
-	private static final String SERVICE_UPLOAD = "svy_services";
-
 	/**
 	 * the folder that contains the compiled less files
 	 */
@@ -183,7 +158,6 @@ public class MediaResourcesServlet extends HttpServlet
 		{
 			deleteAll(tempDir);
 		}
-		FILE_CLEANING_TRACKER.exitWhenFinished();
 	}
 
 	private void deleteAll(File f)
@@ -382,23 +356,6 @@ public class MediaResourcesServlet extends HttpServlet
 		return false;
 	}
 
-	protected IApplication getClient(HttpServletRequest request, int clientnr)
-	{
-		INGClientWebsocketSession wsSession = getSession(request, clientnr);
-		return wsSession != null ? wsSession.getClient() : null;
-	}
-
-	protected INGClientWebsocketSession getSession(HttpServletRequest request, int clientnr)
-	{
-		// try to look it up as clientnr. (solution model)
-		HttpSession httpSession = request.getSession(false);
-		if (httpSession != null)
-		{
-			return (INGClientWebsocketSession)WebsocketSessionManager.getSession(WebsocketSessionFactory.CLIENT_ENDPOINT, httpSession, clientnr);
-		}
-		return null;
-	}
-
 	private boolean sendData(HttpServletResponse resp, byte[] mediaData, String contentType, String fileName, String contentDisposition) throws IOException
 	{
 		boolean dataWasSent = false;
@@ -429,6 +386,7 @@ public class MediaResourcesServlet extends HttpServlet
 		String path = req.getPathInfo();
 		if (path.startsWith("/")) path = path.substring(1);
 		String[] paths = path.split("/");
+		String reqEncoding = req.getCharacterEncoding() == null ? "UTF-8" : req.getCharacterEncoding();
 
 		if ((paths.length == 2 || paths.length >= 5) && paths[0].equals("upload"))
 		{
@@ -438,10 +396,6 @@ public class MediaResourcesServlet extends HttpServlet
 				final INGClientWebsocketSession wsSession = getSession(req, clientnr);
 				try
 				{
-					final String formName = paths.length >= 5 ? paths[2] : null;
-					final String elementName = paths.length >= 5 ? paths[3] : null;
-					final String propertyName = paths.length >= 5 ? paths[4] : null;
-					final String rowID = paths.length >= 6 ? paths[5] : null;
 					if (wsSession != null)
 					{
 						Settings settings = Settings.getInstance();
@@ -461,7 +415,7 @@ public class MediaResourcesServlet extends HttpServlet
 						DiskFileItemFactory diskFileItemFactory = new DiskFileItemFactory(tempFileThreshold, fileUploadDir);
 						diskFileItemFactory.setFileCleaningTracker(FILE_CLEANING_TRACKER);
 						ServletFileUpload upload = new ServletFileUpload(diskFileItemFactory);
-						upload.setHeaderEncoding("UTF-8");
+						upload.setHeaderEncoding(reqEncoding);
 						long maxUpload = Utils.getAsLong(settings.getProperty("servoy.webclient.maxuploadsize", "0"), false);
 						if (maxUpload > 0) upload.setFileSizeMax(maxUpload * 1000);
 						Iterator<FileItem> iterator = upload.parseRequest(req).iterator();
@@ -474,128 +428,32 @@ public class MediaResourcesServlet extends HttpServlet
 							{
 								formFields.add(item);
 							}
-							else if (formName != null && elementName != null && propertyName != null)
-							{
-								final Map<String, Object> fileData = new HashMap<String, Object>();
-								fileData.put("", item.get());
-								fileData.put(IMediaFieldConstants.FILENAME, item.getName());
-								fileData.put(IMediaFieldConstants.MIMETYPE, item.getContentType());
-								final List<FileItem> fields = formFields;
-								formFields = new ArrayList<>();
-
-								((NGClient)wsSession.getClient()).invokeLater(new Runnable()
-								{
-									@Override
-									public void run()
-									{
-										Map<String, String> formFields = new JSMap<>();
-										for (FileItem fileItem : fields)
-										{
-											formFields.put(fileItem.getFieldName(), fileItem.getString());
-										}
-										if (formName.equals(SERVICE_UPLOAD))
-										{
-											Scriptable plugins = (Scriptable)wsSession.getClient().getScriptEngine().getSolutionScope().get(
-												IExecutingEnviroment.TOPLEVEL_PLUGINS, null);
-											Scriptable plugin = (Scriptable)plugins.get(elementName, plugins);
-											if (plugin != null)
-											{
-												Object func = plugin.get(propertyName, plugin);
-												if (func instanceof Function)
-												{
-													Context context = Context.enter();
-													try
-													{
-														((Function)func).call(context, plugin, plugin, new Object[] { new JSUpload(item, formFields) });
-													}
-													finally
-													{
-														Context.exit();
-													}
-												}
-											}
-										}
-										else
-										{
-											IWebFormUI form = wsSession.getClient().getFormManager().getForm(formName).getFormUI();
-											if (form == null)
-											{
-												Debug.error("uploading data for:  " + formName + ", element: " + elementName + ", property: " + propertyName +
-													" but form is not found, data: " + fileData);
-												return;
-											}
-											WebFormComponent webComponent = form.getWebComponent(elementName);
-											if (webComponent == null)
-											{
-												Debug.error("uploading data for:  " + formName + ", element: " + elementName + ", property: " + propertyName +
-													" but component  is not found, data: " + fileData);
-												return;
-											}
-											// if the property is a event handler  then just call that event with the FileUploadData as the argument
-											if (webComponent.hasEvent(propertyName))
-											{
-												try
-												{
-													webComponent.executeEvent(propertyName, new Object[] { new JSUpload(item, formFields) });
-												}
-												catch (Exception e)
-												{
-													Debug.error("Error calling the upload event handler " + propertyName + "   of " + webComponent, e);
-												}
-											}
-											else
-											{
-												boolean isListFormComponent = false;
-												WebObjectSpecification spec = webComponent.getParent().getSpecification();
-												if (spec != null)
-												{
-													Collection<PropertyDescription> formComponentProperties = spec
-														.getProperties(FormComponentPropertyType.INSTANCE);
-													if (formComponentProperties != null)
-													{
-														for (PropertyDescription property : formComponentProperties)
-														{
-															if (property.getConfig() instanceof ComponentTypeConfig &&
-																((ComponentTypeConfig)property.getConfig()).forFoundset != null)
-															{
-																isListFormComponent = true;
-																FoundsetTypeSabloValue foundsetPropertyValue = (FoundsetTypeSabloValue)webComponent
-																	.getParent().getProperty(((ComponentTypeConfig)property.getConfig()).forFoundset);
-																if (rowID != null)
-																{
-																	IFoundSetInternal foundset = foundsetPropertyValue.getFoundset();
-
-																	Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowID);
-																	if (foundset != null)
-																	{
-																		int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(),
-																			splitHashAndIndex.getRight().intValue());
-
-																		if (recordIndex != -1)
-																		{
-																			foundsetPropertyValue.getDataAdapterList()
-																				.setRecordQuietly(foundset.getRecord(recordIndex));
-																		}
-																	}
-																}
-																foundsetPropertyValue.getDataAdapterList().pushChanges(webComponent, propertyName, fileData,
-																	null);
-																break;
-															}
-
-														}
-													}
-												}
-												if (!isListFormComponent) form.getDataAdapterList().pushChanges(webComponent, propertyName, fileData, null);
-											}
-										}
-									}
-								});
-							}
 							else
 							{
-								// it is a file from the built-in file selector
-								aFileUploadData.add(new FileUploadData(item));
+								String encoding = StringUtils.defaultString(req.getCharacterEncoding(), "UTF-8");
+
+								JSMap<String, String> fieldsMap = new JSMap<>();
+								for (FileItem fileItem : formFields)
+								{
+									try
+									{
+										fieldsMap.put(fileItem.getFieldName(), fileItem.getString(encoding));
+									}
+									catch (UnsupportedEncodingException e)
+									{
+										Debug.error(e);
+									}
+								}
+
+								if (callClient(req, paths, wsSession, fieldsMap, item))
+								{
+									formFields = new ArrayList<>();
+								}
+								else
+								{
+									// it is a file from the built-in file selector
+									aFileUploadData.add(new FileUploadData(item));
+								}
 							}
 						}
 						if (aFileUploadData.size() > 0)
@@ -607,6 +465,7 @@ public class MediaResourcesServlet extends HttpServlet
 								// dialog can do its close
 								((NGClient)wsSession.getClient()).invokeLater(new Runnable()
 								{
+
 									@Override
 									public void run()
 									{
@@ -621,7 +480,7 @@ public class MediaResourcesServlet extends HttpServlet
 				catch (FileSizeLimitExceededException ex)
 				{
 					res.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
-					res.getWriter().print(
+					if (wsSession != null) res.getWriter().print(
 						wsSession.getClient().getI18NMessage("servoy.filechooser.sizeExceeded", new Object[] { ex.getPermittedSize() / 1000 + "KB" }));
 				}
 				catch (FileUploadException ex)
@@ -632,7 +491,6 @@ public class MediaResourcesServlet extends HttpServlet
 			}
 		}
 	}
-
 
 	public static final class MediaInfo
 	{

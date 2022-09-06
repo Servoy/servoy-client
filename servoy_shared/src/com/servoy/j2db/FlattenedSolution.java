@@ -16,6 +16,9 @@
  */
 package com.servoy.j2db;
 
+import static com.servoy.base.query.IQueryConstants.INNER_JOIN;
+import static com.servoy.base.query.IQueryConstants.LEFT_OUTER_JOIN;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.rmi.RemoteException;
@@ -36,7 +39,6 @@ import org.json.JSONObject;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.base.query.IBaseSQLCondition;
-import com.servoy.base.query.IJoinConstants;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.DBValueList;
@@ -113,7 +115,6 @@ import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IteratorChain;
 import com.servoy.j2db.util.Pair;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -364,21 +365,18 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				}
 			}
 
-			// refresh all the extends forms, TODO this is kind of bad, because form instances are shared over clients.
-			// flush first the persist helpers cach that could already been filled with null values in creating the index.
-			PersistHelper.flushSuperPersistCache();
-			Iterator<Form> it = getForms(false);
-			while (it.hasNext())
-			{
-				Form childForm = it.next();
-				if (childForm.getExtendsID() > 0)
-				{
-					childForm.setExtendsForm(getForm(childForm.getExtendsID()));
-				}
-			}
+			flushExtendsStuff();
 
 		}
 		return index != null ? index : loginFlattenedSolution != null ? loginFlattenedSolution.getIndex() : new EmptyPersistIndex();
+	}
+
+	/**
+	 *
+	 */
+	protected void flushExtendsStuff()
+	{
+		// implemented by the real client FS and the DeveloperFS
 	}
 
 	public void addToRemovedPersists(AbstractBase persist)
@@ -672,7 +670,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				{
 					if (loginFlattenedSolution == null)
 					{
-						loginFlattenedSolution = new FlattenedSolution();
+						loginFlattenedSolution = new ExtendsConfiguratingFlattenedSolution();
 					}
 					loginFlattenedSolution.setSolutionAndModules(loginSolutionAndModules[0].getName(), loginSolutionAndModules);
 					loginFlattenedSolution.setParentSolution(this);
@@ -852,7 +850,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				List<IFormController> cachedFormControllers = ((IApplication)app).getFormManager().getCachedFormControllers();
 				for (IFormController fc : cachedFormControllers)
 				{
-					fc.notifyVisible(false, new ArrayList<>());
+					fc.notifyVisible(false, new ArrayList<>(), true);
 					fc.destroy();
 				}
 			}
@@ -1557,10 +1555,13 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return null;
 	}
 
-	public synchronized Map<String, IDataProvider> getAllDataProvidersForTable(ITable table) throws RepositoryException
+	public Map<String, IDataProvider> getAllDataProvidersForTable(ITable table) throws RepositoryException
 	{
 		if (table == null) return null;
-		if (allProvidersForTable == null) allProvidersForTable = new ConcurrentHashMap<ITable, Map<String, IDataProvider>>(64, 0.9f, 16);
+		synchronized (this)
+		{
+			if (allProvidersForTable == null) allProvidersForTable = new ConcurrentHashMap<ITable, Map<String, IDataProvider>>(64, 0.9f, 16);
+		}
 
 		Map<String, IDataProvider> dataProvidersMap = allProvidersForTable.get(table);
 		if (dataProvidersMap == null)
@@ -1598,7 +1599,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 					}
 				}
 			}
-			allProvidersForTable.put(table, dataProvidersMap);
+			Map<String, IDataProvider> currentValue = allProvidersForTable.putIfAbsent(table, dataProvidersMap);
+			if (currentValue != null) dataProvidersMap = currentValue;
 		}
 		return dataProvidersMap;
 	}
@@ -1795,7 +1797,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	 * @param name
 	 * @return
 	 */
-	public synchronized Relation[] getRelationSequence(String name)
+	public Relation[] getRelationSequence(String name)
 	{
 		if (name == null)
 		{
@@ -2640,7 +2642,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				{
 					for (Relation r : relationSequence)
 					{
-						if (r.getJoinType() != IJoinConstants.INNER_JOIN)
+						if (r.getJoinType() != INNER_JOIN)
 						{
 							// disabled related vl sorting for muti-level related VLs,
 							// outer join on the intermediate tables causes extra results that influence the sorting result
@@ -2723,7 +2725,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				if (relationSequence == null)
 				{
 					// table values
-					joins.add(lastJoin = new QueryJoin(relationName, callingQTable, destQTable, new AndCondition(), IJoinConstants.LEFT_OUTER_JOIN, false));
+					joins.add(lastJoin = new QueryJoin(relationName, callingQTable, destQTable, new AndCondition(), LEFT_OUTER_JOIN, false));
 
 					if (valueList.getUseTableFilter()) //apply name as filter on column valuelist_name
 					{
@@ -2782,7 +2784,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 					new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, destColumn.queryColumn(destQTable), callingColumn.queryColumn(callingQTable)));
 
 				relation = getSolutionCopy().createNewRelation(new ScriptNameValidator(this), relationName, callingTable.getDataSource(), destDataSource,
-					IJoinConstants.LEFT_OUTER_JOIN);
+					LEFT_OUTER_JOIN);
 
 				ISQLTableJoin join;
 				if (joins.size() == 1)

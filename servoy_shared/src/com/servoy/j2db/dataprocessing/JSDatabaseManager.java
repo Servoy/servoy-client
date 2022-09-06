@@ -480,6 +480,97 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
+	 * Updates a previously defined table filter. Server/Table should not be changed.
+	 *
+	 * @sample var success = databaseManager.updateTableFilterParam('admin', 'higNumberedMessagesRule', query)
+	 *
+	 * @param serverName The name of the database server connection.
+	 * @param filterName The name of the filter that should be updated.
+	 * @param query condition to filter on.
+	 *
+	 * @return true if the filter could be updated.
+	 */
+	public boolean js_updateTableFilterParam(String serverName, String filterName, QBSelect query) throws ServoyException
+	{
+		if (serverName == null || filterName == null) return false;
+
+		checkAuthorized();
+
+		IFoundSetManagerInternal foundSetManager = application.getFoundSetManager();
+		ITable table = foundSetManager.getTable(query.getDataSource());
+
+		return foundSetManager.updateTableFilterParam(table.getServerName(), filterName, table,
+			// make a deep clone and clone Table as well in case the same table is used in a new query.
+			new QueryTableFilterdefinition(AbstractBaseQuery.deepClone(query.build(), true)));
+	}
+
+	/**
+	 * Updates a filter with a new condition. The server/table name should be unchanged.
+	 *
+	 * @sample
+	 *	databaseManager.updateTableFilterParam('database', 'myfilter', 'your_i18n_table', 'message_variant', 'in', [1, 2])
+	 *
+	 * @param serverName The name of the database server connection for the specified table name.
+	 * @param filterName The name of the filter that should be updated.
+	 * @param tableName The name of the specified table.
+	 * @param dataprovider A specified dataprovider column name.
+	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null), prefix with "sql:" to allow the value to be interpreted as a custom query.
+	 * @param value The specified filter value.
+	 *
+	 * @return true if the tablefilter could be updated.
+	 */
+	public boolean js_updateTableFilterParam(String serverName, String filterName, String tableName, String dataprovider, String operator, Object value)
+		throws ServoyException
+	{
+		checkAuthorized();
+		try
+		{
+			if (value instanceof Wrapper)
+			{
+				value = ((Wrapper)value).unwrap();
+			}
+			IServer server = application.getSolution().getServer(serverName);
+			if (server == null)
+			{
+				application.reportJSError("Table filter not applied to unknown server '" + serverName + "', tableName = '" + tableName + "', dataprovider = '" +
+					dataprovider + "', operator = '" + operator + "', value = '" + value + "', filterName = '" + filterName + "'", null);
+				return false;
+			}
+			ITable table = null;
+			if (tableName != null)
+			{
+				table = server.getTable(tableName);
+				if (table == null)
+				{
+					application.reportJSError("Table filter not applied to unknown table: serverName = '" + serverName + "', tableName = '" + tableName +
+						"', dataprovider = '" + dataprovider + "', operator = '" + operator + "', value = '" + value + "', filterName = '" + filterName + "'",
+						null);
+					return false;
+				}
+			}
+			// else table remains null: apply to all tables with that column
+
+			DataproviderTableFilterdefinition dataproviderTableFilterdefinition = application.getFoundSetManager().createDataproviderTableFilterdefinition(
+				table, dataprovider, operator, value);
+			if (dataproviderTableFilterdefinition == null)
+			{
+				application.reportJSError("Table filter not created, column not found in table or operator invalid, filterName = '" + filterName +
+					"', serverName = '" + serverName + "', table = '" + table + "', dataprovider = '" + dataprovider + "', operator = '" + operator + "'",
+					null);
+				return false;
+			}
+
+			return (((FoundSetManager)application.getFoundSetManager()).updateTableFilterParam(serverName, filterName, table,
+				dataproviderTableFilterdefinition));
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
+		}
+		return false;
+	}
+
+	/**
 	 * Returns a two dimensional array object containing the table filter information currently applied to the servers tables.
 	 * For column-based table filters, a row of 5 fields per filter are returned.
 	 * The "columns" of a row from this array are: tablename, dataprovider, operator, value, filtername
@@ -708,7 +799,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			}
 
 			FoundSetManager fsm = (FoundSetManager)application.getFoundSetManager();
-			boolean getInOneQuery = !fs.isInFindMode() && (fs.hadMoreRows() || fs.getSize() > fsm.pkChunkSize) && !fsm.getEditRecordList().hasEditedRecords(fs);
+			boolean getInOneQuery = !fs.isInFindMode() && (fs.hadMoreRows() || fs.getSize() > fsm.config.pkChunkSize()) &&
+				!fsm.getEditRecordList().hasEditedRecords(fs);
 
 			dptypes = new ColumnType[dpnames.length];
 			Table table = fs.getSQLSheet().getTable();
@@ -1505,7 +1597,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Will throw an exception if anything did go wrong when executing the query.
 	 *
 	 * @sample
-	 * // use the query froma foundset and add a condition
+	 * // use the query from a foundset and add a condition
 	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
 	 * var q = foundset.getQuery()
 	 * q.where.add(q.joins.orders_to_order_details.columns.discount.eq(2))
@@ -2211,7 +2303,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			// get the sql without any filters
 			sqlSelect = AbstractBaseQuery.deepClone(sqlSelect);
 			sqlSelect.clearCondition(SQLGenerator.CONDITION_FILTER);
-			sqlSelect.removeUnusedJoins(false);
+			sqlSelect.removeUnusedJoins(false, true);
 			tableFilterParams = null;
 		}
 		return application.getDataServer().getSQLQuerySet(serverName, sqlSelect, tableFilterParams, 0, -1, true, true);
@@ -2307,7 +2399,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			if (column != null)
 			{
 				IDataSet dataSet = null;
-				if ((fs.hadMoreRows() || fs.getSize() > fsm.pkChunkSize) && !fsm.getEditRecordList().hasEditedRecords(fs))
+				if ((fs.hadMoreRows() || fs.getSize() > fsm.config.pkChunkSize()) && !fsm.getEditRecordList().hasEditedRecords(fs))
 				{
 					// large foundset, query the column in 1 go
 					QuerySelect sqlSelect = AbstractBaseQuery.deepClone(fs.getQuerySelectForReading());
@@ -2859,7 +2951,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 		if (sourceName.equals(application.getSolution().getI18nServerName()))
 		{
-			((ClientState)application).refreshI18NMessages();
+			((ClientState)application).refreshI18NMessages(true);
 		}
 
 		return true;
@@ -3222,7 +3314,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public ViewFoundSet js_getViewFoundSet(String name, QBSelect query) throws ServoyException
 	{
 		checkAuthorized();
-		return application.getFoundSetManager().getViewFoundSet(name, query);
+		return application.getFoundSetManager().getViewFoundSet(name, query, false);
 	}
 
 	/**
@@ -3258,8 +3350,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public ViewFoundSet js_getViewFoundSet(String name, QBSelect query, boolean register) throws ServoyException
 	{
 		checkAuthorized();
-		ViewFoundSet viewFoundSet = application.getFoundSetManager().getViewFoundSet(name, query);
-		if (register) application.getFoundSetManager().registerViewFoundSet(viewFoundSet);
+		ViewFoundSet viewFoundSet = application.getFoundSetManager().getViewFoundSet(name, query, register);
 		return viewFoundSet;
 	}
 
@@ -3274,7 +3365,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public boolean js_registerViewFoundSet(ViewFoundSet viewFoundset) throws ServoyException
 	{
 		checkAuthorized();
-		return application.getFoundSetManager().registerViewFoundSet(viewFoundset);
+		return application.getFoundSetManager().registerViewFoundSet(viewFoundset, false);
 	}
 
 	/**
@@ -4386,7 +4477,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 
 	/**
-	 * @deprecated  As of release 5.0, replaced by {@link JSDataSet#createDataSource(String, Object)}
+	 * @deprecated  As of release 5.0, replaced by {@link JSDataSet#js_createDataSource(String, Object, String[])}
 	 */
 	@Deprecated
 	public String js_createDataSource(Object[] args) throws ServoyException
@@ -4404,7 +4495,10 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				}
 				try
 				{
-					return application.getFoundSetManager().createDataSourceFromDataSet(name, (IDataSet)args[1], columnTypes, null, true);
+					if (application.getFoundSetManager().insertToDataSource(name, (IDataSet)args[1], columnTypes, null, true, true) != null)
+					{
+						return DataSourceUtils.createInmemDataSource(name);
+					}
 				}
 				catch (ServoyException e)
 				{

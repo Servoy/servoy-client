@@ -17,58 +17,68 @@
 
 package com.servoy.j2db.server.shared;
 
-import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 
 import com.servoy.j2db.dataprocessing.IDataServer;
-import com.servoy.j2db.util.UUID;
 
 /**
- * Timing of actions like queries/methods in the server.
- * It can contain sub-actions so it extends PerformanceData.
+ * Timing of sub-actions like queries/methods in the server. It is not used as a root entry in the performance registry (which are just PerformanceData instances),
+ * just for sub-actions of those. It can contain sub-actions of it's own - building 1 stack per client, so it extends PerformanceData.
  *
  * @author jblok
  */
 public class PerformanceTiming extends PerformanceData
 {
-
-	private final UUID uuid;
+	private final static AtomicInteger ID_GEN = new AtomicInteger();
+	private final Integer id;
 	private final String action;
-	private long start_ms;
 	private final int type;
-	private long interval_ms;
 	private final String clientUUID;
+	private final AtomicLong start_ms = new AtomicLong(0);
+	private final AtomicLong end_ms = new AtomicLong(0);
+	private final AtomicLong interval_ms = new AtomicLong(0);
 
-	public PerformanceTiming(String action, int type, long start_ms, String clientUUID, int maxEntriesToKeep, Logger log)
+	private final ConcurrentLinkedQueue<PerformanceTiming> subTimings = new ConcurrentLinkedQueue<>();
+
+	public PerformanceTiming(String action, int type, long start_ms, String clientUUID, IPerformanceRegistry registry, Logger log, String id,
+		PerformanceAggregator aggregator)
 	{
-		super(maxEntriesToKeep, log);
+		super(registry, log, id, aggregator);
 
-		this.uuid = UUID.randomUUID();
+		this.id = Integer.valueOf(ID_GEN.getAndIncrement());
 		this.action = action;
 		this.type = type;
-		this.start_ms = start_ms;
+		this.start_ms.set(start_ms);
 		this.clientUUID = clientUUID;
 	}
 
 
 	@Override
-	public synchronized void addTiming(String subAction, long intervalMsSubAction, long totalMsSubAction, int typeOfSubAction,
-		Map<String, PerformanceTimingAggregate> subSubActionTimings, int nrecords)
+	public void addTiming(PerformanceTiming timing, long intervalMsSubAction, long totalMsSubAction, int nrecords)
 	{
-		if (typeOfSubAction == IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT)
+		long totalMsSubAction2 = totalMsSubAction;
+		long intervalMsSubAction2 = intervalMsSubAction;
+		if (timing.getType() == IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT)
 		{
 			// the subaction was waiting for user input; so discard it's running time from this action's calculation as it's not useful
 			// (we could also keep a separate longs and substract them from these values during display if we need to show total time of an action including waiting for user stuff in the future)
-			start_ms += totalMsSubAction;
+			start_ms.addAndGet(totalMsSubAction);
+			totalMsSubAction2 = 0;
+			intervalMsSubAction2 = 0;
 		}
 
-		super.addTiming(subAction, intervalMsSubAction, totalMsSubAction, typeOfSubAction, subSubActionTimings, nrecords);
+		super.addTiming(timing, intervalMsSubAction2, totalMsSubAction2, nrecords);
+		subTimings.add(timing);
 	}
 
-	public UUID getUuid()
+	public Integer getID()
 	{
-		return uuid;
+		return id;
 	}
 
 	public String getAction()
@@ -130,7 +140,7 @@ public class PerformanceTiming extends PerformanceData
 
 	public long getStartTimeMS()
 	{
-		return start_ms;
+		return start_ms.get();
 	}
 
 	public String getClientUUID()
@@ -140,17 +150,30 @@ public class PerformanceTiming extends PerformanceData
 
 	public long getRunningTimeMS()
 	{
-		return System.currentTimeMillis() - start_ms;
+		long end = end_ms.get();
+		if (end == 0) end = System.currentTimeMillis();
+		return end - start_ms.get();
 	}
 
 	public long getIntervalTimeMS()
 	{
-		return (interval_ms == 0 ? System.currentTimeMillis() : interval_ms) - start_ms;
+		return (interval_ms.get() == 0 ? System.currentTimeMillis() : interval_ms.get()) - start_ms.get();
 	}
 
 	public void setIntervalTime()
 	{
-		interval_ms = System.currentTimeMillis();
+		interval_ms.set(System.currentTimeMillis());
+	}
+
+
+	public void setEndTime()
+	{
+		end_ms.set(System.currentTimeMillis());
+	}
+
+	public Queue<PerformanceTiming> getSubTimings()
+	{
+		return subTimings;
 	}
 
 }

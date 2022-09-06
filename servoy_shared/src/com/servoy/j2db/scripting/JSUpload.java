@@ -93,6 +93,7 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	/**
 	 * Writes the contents of this upload right to a file. Use the file plugin to create a JSFile object that can be given to this function.
 	 * If this file was not fully in memory (isInMemory == false) then this will just stream the tmp file to the give file.
+	 * If it was a temp file then it will try to move the file to the given location (so temp file is moved and because of that already deleted/cleaned up).
 	 *
 	 * @param file the file object where to write to can be a JSFile or path string
 	 * @return if write could be done
@@ -117,6 +118,20 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Delets this uploaded file so it will be cleaned up if it was streamed in a temp file.
+	 * The system tries to clean this up for you, but that can take a while and depends on Garbage Collection.
+	 * So it is better to be explicit and delete this file.
+	 * if you use JSUpload.write(file) then the file is very likely moved instead of copied so the temp file is also removed.
+	 *
+	 * @since 2021.12
+	 */
+	@JSFunction
+	public void deleteFile()
+	{
+		((FileItem)item).delete();
 	}
 
 	/**
@@ -150,6 +165,10 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 		if (item instanceof DiskFileItem)
 		{
 			return ((DiskFileItem)item).getStoreLocation();
+		}
+		else if (item instanceof IFile)
+		{
+			return ((IFile)item).getFile();
 		}
 		return null;
 	}

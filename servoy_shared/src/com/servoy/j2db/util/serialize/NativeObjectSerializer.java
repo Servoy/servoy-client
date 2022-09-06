@@ -16,8 +16,6 @@
  */
 package com.servoy.j2db.util.serialize;
 
-import java.util.Iterator;
-
 import org.jabsorb.serializer.AbstractSerializer;
 import org.jabsorb.serializer.MarshallException;
 import org.jabsorb.serializer.ObjectMatch;
@@ -26,20 +24,21 @@ import org.jabsorb.serializer.UnmarshallException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mozilla.javascript.Function;
 import org.mozilla.javascript.IdScriptableObject;
 import org.mozilla.javascript.NativeArray;
-import org.mozilla.javascript.NativeFunction;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 
 import com.servoy.j2db.scripting.JSMap;
+import com.servoy.j2db.scripting.ServoyNativeArray;
 import com.servoy.j2db.util.Utils;
 
 
 /**
  * Rhino NativeObject JSON serializer
- * 
+ *
  * @author gboros
  */
 public class NativeObjectSerializer extends AbstractSerializer
@@ -48,7 +47,7 @@ public class NativeObjectSerializer extends AbstractSerializer
 
 	private static final String PROPERTY_MARK = "_"; //$NON-NLS-1$
 
-	private static Class[] _serializableClasses = new Class[] { NativeObject.class, NativeObject[].class, NativeArray.class };
+	private static Class[] _serializableClasses = new Class[] { NativeObject.class, NativeObject[].class, NativeArray.class, ServoyNativeArray.class };
 
 	private static Class[] _JSONClasses = new Class[] { JSONObject.class, JSONArray.class };
 
@@ -113,7 +112,7 @@ public class NativeObjectSerializer extends AbstractSerializer
 				// should not happen
 				continue;
 			}
-			if (propertyValue instanceof NativeFunction)
+			if (propertyValue instanceof Function) // allow but ignore functions nested in objects
 			{
 				continue;
 			}
@@ -161,7 +160,7 @@ public class NativeObjectSerializer extends AbstractSerializer
 		boolean hasJavaClass = jso.has("javaClass"); // legacy, remove prefixes
 
 		JSMap<Object, Object> no = new JSMap<Object, Object>(NativeArray.class.equals(clazz) ? "Array" : null);
-		for (String jsonKey : Utils.iterate((Iterator<String>)jso.keys()))
+		for (String jsonKey : Utils.iterate(jso.keys()))
 		{
 			String jsonProperty = jsonKey;
 			if (hasJavaClass)

@@ -34,6 +34,8 @@ import java.util.TimeZone;
 
 import javax.swing.text.MaskFormatter;
 
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
@@ -248,7 +250,7 @@ public class JSUtils implements IJSUtils
 	 * var parsedDate = utils.parseDate(datestring,'EEE, d MMM yyyy HH:mm:ss');
 	 *
 	 * @param date the date as text
-	 * @param format the format to parse the to date
+	 * @param format the format to parse the date
 	 * @param timezone The timezone string to use to parse the date (like GMT+3)
 	 * @return the date as date object
 	 */
@@ -256,7 +258,76 @@ public class JSUtils implements IJSUtils
 	{
 		TimeZone zone = application.getTimeZone();
 		if (timezone != null) zone = TimeZone.getTimeZone(timezone);
-		return parseDate(date, format, zone);
+		return parseDate(date, format, zone, application.getLocale());
+	}
+
+	/**
+	 * Parse a string to a date object. Using language and country that are given,
+	 * if null then it formats it with the locale of the client
+	 *
+	 * Format can be a string like: 'dd-MM-yyyy' , 'dd-MM-yyyy HH:mm' , 'MM/dd/yyyy', 'MM/dd/yyyy hh:mm aa', 'dd.MM.yyyy'
+	 *
+	 * @sample
+	 * var parsedDate = utils.parseDate(datestring,'EEE, d MMM yyyy HH:mm:ss', 'en', 'US');
+	 *
+	 * @param date the date as text
+	 * @param format the format to parse the date
+	 * @param language language used to create locale
+	 * @param country country used along side language to create the locale
+	 * @return the date as date object
+	 */
+	public Date js_parseDate(String date, String format, String language, String country)
+	{
+		return js_parseDate(date, format, application.getTimeZone().getID(), language, country);
+	}
+
+	/**
+	 * @param language language used to create locale
+	 * @param country country used along side language to create the locale
+	 * @return the locale object
+	 */
+	private Locale getNewLocale(String language, String country)
+	{
+		Locale locale = application.getLocale();
+		if (language != null || country != null)
+		{
+			if (language != null && (country == null || country.trim().equalsIgnoreCase(""))) //$NON-NLS-1$
+			{
+				locale = new Locale(language);
+			}
+			else if (language != null && country != null)
+			{
+				locale = new Locale(language, country);
+			}
+		}
+		return locale;
+	}
+
+	/**
+	 * Parse a string to a date object. Using the timezone, language and country that are given,
+	 * if null then it formats it with the timezone and locale of the client
+	 *
+	 * see i18n.getAvailableTimeZoneIDs() to get a timezone string that can be used.
+	 *
+	 * Format can be a string like: 'dd-MM-yyyy' , 'dd-MM-yyyy HH:mm' , 'MM/dd/yyyy', 'MM/dd/yyyy hh:mm aa', 'dd.MM.yyyy'
+	 *
+	 * @sample
+	 * var parsedDate = utils.parseDate(datestring,'EEE, d MMM yyyy HH:mm:ss', 'GMT+3', 'en', 'US');
+	 *
+	 * @param date the date as text
+	 * @param format the format to parse the date
+	 * @param timezone The timezone string to use to parse the date (like GMT+3)
+	 * @param language language used to create locale
+	 * @param country country used along side language to create the locale
+	 * @return the date as date object
+	 */
+	public Date js_parseDate(String date, String format, String timezone, String language, String country)
+	{
+
+		TimeZone zone = application.getTimeZone();
+		if (timezone != null) zone = TimeZone.getTimeZone(timezone);
+		Locale locale = getNewLocale(language, country);
+		return parseDate(date, format, zone, locale);
 	}
 
 	/**
@@ -267,21 +338,21 @@ public class JSUtils implements IJSUtils
 	 * var parsedDate = utils.parseDate(datestring,'EEE, d MMM yyyy HH:mm:ss');
 	 *
 	 * @param date the date as text
-	 * @param format the format to parse the to date
+	 * @param format the format to parse the date
 	 * @return the date as date object
 	 */
 	public Date js_parseDate(String date, String format)
 	{
-		return parseDate(date, format, TimeZone.getDefault());
+		return parseDate(date, format, application.getTimeZone(), application.getLocale());
 	}
 
-	private Date parseDate(String date, String format, TimeZone zone)
+	private Date parseDate(String date, String format, TimeZone zone, Locale locale)
 	{
 		if (format != null && date != null)
 		{
 			try
 			{
-				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, application.getLocale());
+				SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, locale);
 				simpleDateFormat.setTimeZone(zone);
 				return simpleDateFormat.parse(date);
 			}
@@ -349,7 +420,7 @@ public class JSUtils implements IJSUtils
 	public String dateFormat(Date date, String format)
 	{
 		boolean isSwingOrNGClient = Utils.isSwingClient(application.getApplicationType()) || (application.getApplicationType() == IApplication.NG_CLIENT);
-		return dateFormat(date, format, isSwingOrNGClient ? null : TimeZone.getDefault().getID());
+		return dateFormat(date, format, isSwingOrNGClient ? null : application.getTimeZone().getID());
 	}
 
 	/**
@@ -394,7 +465,7 @@ public class JSUtils implements IJSUtils
 	public String dateFormat(Date date, String format, String language, String country)
 	{
 		boolean isSwingOrNGClient = Utils.isSwingClient(application.getApplicationType()) || (application.getApplicationType() == IApplication.NG_CLIENT);
-		return dateFormat(date, format, isSwingOrNGClient ? null : TimeZone.getDefault().getID(), language, country);
+		return dateFormat(date, format, isSwingOrNGClient ? null : application.getTimeZone().getID(), language, country);
 	}
 
 	/**
@@ -429,7 +500,7 @@ public class JSUtils implements IJSUtils
 	 *
 	 * @param date the date
 	 * @param format the format to output
-	 * @param timezone the timezone to use the format, if null then current client timezone is used.
+	 * @param timezone The timezone string to use to parse the date (like GMT+3), if null then the timezone of the current client is used.
 	 * @return the date as text
 	 */
 	@JSFunction
@@ -488,19 +559,8 @@ public class JSUtils implements IJSUtils
 	{
 		if (format != null && date != null)
 		{
-			Locale locale = null;
-			if (language != null || country != null)
-			{
-				if (language != null && (country == null || country.trim().equalsIgnoreCase(""))) //$NON-NLS-1$
-				{
-					locale = new Locale(language);
-				}
-				else if (language != null && country != null)
-				{
-					locale = new Locale(language, country);
-				}
-			}
-			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, locale == null ? application.getLocale() : locale);
+			Locale locale = getNewLocale(language, country);
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format, locale);
 			simpleDateFormat.setTimeZone(timezone == null ? application.getTimeZone() : TimeZone.getTimeZone(timezone));
 			String format2 = simpleDateFormat.format(date);
 			return format2;
@@ -1688,5 +1748,76 @@ public class JSUtils implements IJSUtils
 	public void destroy()
 	{
 		this.application = null;
+	}
+
+	/**
+	 * @sample
+	 * var hex = utils.stringToHex(string);
+	 *
+	 * @param string String to be encoded into hex
+	 * @return returns hex encoded string
+	 */
+	@JSFunction
+	public String stringToHex(String string)
+	{
+		char[] chars = Hex.encodeHex(string.getBytes(StandardCharsets.UTF_8));
+
+		return String.valueOf(chars);
+	}
+
+	/**
+	 * @sample
+	 * var string = utils.hexToString(hex);
+	 *
+	 * @param hex
+	 * @return returns decoded string from hex
+	 */
+	@JSFunction
+	public String hexToString(String hex)
+	{
+		String result = ""; //$NON-NLS-1$
+		try
+		{
+			byte[] bytes = Hex.decodeHex(hex);
+			result = new String(bytes, StandardCharsets.UTF_8);
+		}
+		catch (DecoderException e)
+		{
+			throw new IllegalArgumentException("Invalid Hex format!"); //$NON-NLS-1$
+		}
+		return result;
+	}
+
+	/**
+	 * @sample
+	 * var array = utils.hexToBytes(hex);
+	 *
+	 * @param hex hex encoded string to be decoded into a byte array.
+	 * @return a byte array from hex encoded string
+	 */
+	@JSFunction
+	public byte[] hexToBytes(String hex)
+	{
+		try
+		{
+			return Hex.decodeHex(hex);
+		}
+		catch (DecoderException e)
+		{
+			throw new IllegalArgumentException("Invalid Hex format!"); //$NON-NLS-1$
+		}
+	}
+
+	/**
+	 * @sample
+	 * var string = utils.bytesToHex(byteArray);
+	
+	 * @param bytearray the byte array to convert to hex encoded string
+	 * @return returns hex encoded string from bytearray
+	 */
+	@JSFunction
+	public String bytesToHex(byte[] bytearray)
+	{
+		return Hex.encodeHexString(bytearray);
 	}
 }

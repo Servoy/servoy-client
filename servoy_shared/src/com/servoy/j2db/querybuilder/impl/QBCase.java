@@ -65,8 +65,22 @@ public class QBCase extends QBPart implements IQueryBuilderCase
 	 *
 	 * @sampleas com.servoy.j2db.querybuilder.impl.QBSelect#js_case()
 	 */
+	public QBSearchedCaseExpression jsFunction_else(Object value)
+	{
+		return qelse(value);
+	}
+
+	/**
+	 * @deprecated replaced by else.
+	 */
+	@Deprecated
 	@JSFunction
 	public QBSearchedCaseExpression elseValue(Object value)
+	{
+		return qelse(value);
+	}
+
+	public QBSearchedCaseExpression qelse(Object value)
 	{
 		return new QBSearchedCaseExpression(getRoot(), getParent(), buildSearchedCaseExpression(getRoot(), whenThen, value));
 	}

@@ -26,7 +26,6 @@ import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.query.BaseQueryTable;
-import com.servoy.base.query.IJoinConstants;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -47,7 +46,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IJoinConstants, IConstantsObject
+public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstantsObject
 {
 	private final ISQLTableJoin join;
 

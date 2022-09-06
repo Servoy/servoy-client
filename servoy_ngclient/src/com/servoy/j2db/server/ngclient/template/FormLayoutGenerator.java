@@ -219,7 +219,7 @@ public class FormLayoutGenerator
 			{
 				if (!design)
 				{
-					writer.print("<div ng-style=\"");
+					writer.print("<div svy-ng-style=\"");
 					writer.print(PartWrapper.getName(part));
 					writer.print("Style\"");
 					String partClass = "svy-" + PartWrapper.getName(part);
@@ -387,7 +387,16 @@ public class FormLayoutGenerator
 		}
 		else
 		{
-			writer.print("<div ng-style=\"layout.");
+			// use svy-ng-style (that adds the style at link-phase) as the list form component does
+			// calculations during link-phase based on the size of the parent container
+			if (fe.getPersistIfAvailable() != null && "servoycore-listformcomponent".equals(fe.getTypeName()))
+			{
+				writer.print("<div svy-ng-style=\"layout.");
+			}
+			else
+			{
+				writer.print("<div ng-style=\"layout.");
+			}
 			writer.print(name);
 			writer.print("\" class=\"svy-wrapper\" ");
 		}

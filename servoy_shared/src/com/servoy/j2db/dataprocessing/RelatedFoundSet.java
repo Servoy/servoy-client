@@ -75,6 +75,8 @@ public abstract class RelatedFoundSet extends FoundSet
 		}
 	}
 
+	private boolean skipOptimizeQuery;
+
 	private int[] equalsOpsIndexes;
 
 	protected RelatedFoundSet(IDataSet data, QuerySelect select, IFoundSetManagerInternal app, String relationName, SQLSheet sheet,
@@ -90,7 +92,8 @@ public abstract class RelatedFoundSet extends FoundSet
 		{
 			IDataSet pks = createPKDataSet(sheet, data);
 
-			SafeArrayList<IRecordInternal> cachedRecords = getPksAndRecords().setPksAndQuery(pks, pks.getRowCount(), select);
+			getPksAndRecords().setPksAndQuery(pks, pks.getRowCount(), select);
+			SafeArrayList<IRecordInternal> cachedRecords = getPksAndRecords().getCachedRecords();
 			for (int row = 0; row < pks.getRowCount(); row++)
 			{
 				Object[] rowArray = data.getRow(row);
@@ -216,62 +219,60 @@ public abstract class RelatedFoundSet extends FoundSet
 			}
 			sqlSelects[i] = sqlSelect;
 
-			// Check for non-empty where-arguments, joins on null-conditions are not allowed (similar to FK constraints in databases)
-			if (!whereArgsIsEmpty(whereArgs))
+			// We allow null values in where-args (is handled in the QueryGenerator)
+			Row cachedRow = null;
+			if (relation.isFKPKRef(fsm.getApplication().getFlattenedSolution()))
 			{
-				Row cachedRow = null;
-				if (relation.isFKPKRef(fsm.getApplication().getFlattenedSolution()))
+				// optimize for FK->PK relation, if the data is already cached, do not query
+				RowManager rowManager = fsm.getRowManager(relation.getForeignDataSource());
+				if (rowManager != null)
 				{
-					// optimize for FK->PK relation, if the data is already cached, do not query
-					RowManager rowManager = fsm.getRowManager(relation.getForeignDataSource());
-					if (rowManager != null)
-					{
-						cachedRow = rowManager.getCachedRow(whereArgs).getLeft();
-					}
+					cachedRow = rowManager.getCachedRow(whereArgs).getLeft();
 				}
-				if (cachedRow != null)
+			}
+			if (cachedRow != null)
+			{
+				if (Debug.tracing())
 				{
-					if (Debug.tracing())
-					{
-						Debug.trace(Thread.currentThread().getName() + ": Found cached FK record"); //$NON-NLS-1$
-					}
-					cachedRows.put(Integer.valueOf(i), cachedRow);
+					Debug.trace(Thread.currentThread().getName() + ": Found cached FK record"); //$NON-NLS-1$
 				}
-				else if (!parents[i].existInDataSource() && !fsm.loadRelatedRecordsIfParentIsNew &&
-					relation.hasPKFKCondition(fsm.getApplication().getFlattenedSolution()))
+				cachedRows.put(Integer.valueOf(i), cachedRow);
+			}
+			else if (!parents[i].existInDataSource() && !fsm.config.loadRelatedRecordsIfParentIsNew() &&
+				relation.hasPKFKCondition(fsm.getApplication().getFlattenedSolution()))
+			{
+				/*
+				 * Optimize for init of related foundsets on a parent record that is new and where the relation includes equal conditions for all the parent
+				 * rowIdentifier columns
+				 *
+				 * In this case no query has to be made to the DB to fetch existing records, as there wouldn't be any.
+				 */
+			}
+			else
+			{
+				ISQLSelect selectStatement = AbstractBaseQuery.deepClone((ISQLSelect)sqlSelect);
+				// Note: put a clone of sqlSelect in the queryDatas list, we will compress later over multiple queries using pack().
+				// Clone is needed because packed queries may not be save to manipulate.
+				SQLStatement trackingInfo = null;
+				if (fsm.getEditRecordList().hasAccess(sheet.getTable(), IRepository.TRACKING_VIEWS))
 				{
-					/*
-					 * Optimize for init of related foundsets on a parent record that is new and where the relation includes equal conditions for all the parent
-					 * rowIdentifier columns
-					 *
-					 * In this case no query has to be made to the DB to fetch existing records, as there wouldn't be any.
-					 */
+					trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, sheet.getServerName(), sheet.getTable().getName(), null, null);
+					trackingInfo.setTrackingData(sheet.getColumnNames(), new Object[][] { }, new Object[][] { }, fsm.getApplication().getUserUID(),
+						fsm.getTrackingInfo(), fsm.getApplication().getClientID());
 				}
-				else
-				{
-					ISQLSelect selectStatement = AbstractBaseQuery.deepClone((ISQLSelect)sqlSelect);
-					// Note: put a clone of sqlSelect in the queryDatas list, we will compress later over multiple queries using pack().
-					// Clone is needed because packed queries may not be save to manipulate.
-					SQLStatement trackingInfo = null;
-					if (fsm.getEditRecordList().hasAccess(sheet.getTable(), IRepository.TRACKING_VIEWS))
-					{
-						trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, sheet.getServerName(), sheet.getTable().getName(), null, null);
-						trackingInfo.setTrackingData(sheet.getColumnNames(), new Object[][] { }, new Object[][] { }, fsm.getApplication().getUserUID(),
-							fsm.getTrackingInfo(), fsm.getApplication().getClientID());
-					}
-					queryDatas.add(new QueryData(selectStatement, sqlFilters, !sqlSelect.isUnique(), 0, fsm.initialRelatedChunkSize, IDataServer.RELATION_QUERY,
+				queryDatas.add(
+					new QueryData(selectStatement, sqlFilters, !sqlSelect.isUnique(), 0, fsm.config.initialRelatedChunkSize(), IDataServer.RELATION_QUERY,
 						trackingInfo));
-					queryIndex.add(Integer.valueOf(i));
+				queryIndex.add(Integer.valueOf(i));
 
-					QuerySelect aggregateSelect = FoundSet.getAggregateSelect(sheet, sqlSelect);
-					if (aggregateSelect != null)
-					{
-						// Note: see note about clone above.
-						queryDatas.add(new QueryData(AbstractBaseQuery.deepClone((ISQLSelect)aggregateSelect),
-							fsm.getTableFilterParams(sheet.getServerName(), aggregateSelect), false, 0, 1, IDataServer.AGGREGATE_QUERY, null));
-						queryIndex.add(Integer.valueOf(i)); // same index for aggregates
-						aggregateSelects[i] = aggregateSelect;
-					}
+				QuerySelect aggregateSelect = FoundSet.getAggregateSelect(sheet, sqlSelect);
+				if (aggregateSelect != null)
+				{
+					// Note: see note about clone above.
+					queryDatas.add(new QueryData(AbstractBaseQuery.deepClone((ISQLSelect)aggregateSelect),
+						fsm.getTableFilterParams(sheet.getServerName(), aggregateSelect), false, 0, 1, IDataServer.AGGREGATE_QUERY, null));
+					queryIndex.add(Integer.valueOf(i)); // same index for aggregates
+					aggregateSelects[i] = aggregateSelect;
 				}
 			}
 		}
@@ -351,7 +352,6 @@ public abstract class RelatedFoundSet extends FoundSet
 					// cached
 					data.addRow(row.getRawColumnData());
 				}
-				// else whereArgsIsEmpty
 			}
 
 			foundsets[i] = factory.createRelatedFoundSet(data, sqlSelects[i], app, parents[i], relation.getName(), sheet, sortColumns, aggregateSelects[i],
@@ -387,18 +387,6 @@ public abstract class RelatedFoundSet extends FoundSet
 		}
 	}
 
-	//related foundsets based on null cannot exist by SQL definition
-	private static boolean whereArgsIsEmpty(Object[] whereArgs)
-	{
-		boolean empty = true;
-		for (Object element : whereArgs)
-		{
-			if (element instanceof DbIdentValue && ((DbIdentValue)element).getPkValue() == null) return true;
-			if (element != null) empty = false;
-		}
-		return empty;//only return true when all null (in case of multi key)
-	}
-
 	@Override
 	protected int newRecord(Row rowData, int indexToAdd, boolean changeSelection, boolean javascriptRecord) throws ServoyException
 	{
@@ -424,7 +412,7 @@ public abstract class RelatedFoundSet extends FoundSet
 
 		refreshFromDBInternal(
 			fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), creationSqlSelect, null, true, null, lastSortColumns, false),
-			false, fsm.pkChunkSize, false, false);
+			false, fsm.config.pkChunkSize(), false, false);
 	}
 
 	@Override
@@ -469,7 +457,7 @@ public abstract class RelatedFoundSet extends FoundSet
 
 	public Object[] getWhereArgs(boolean onlyEqualsConditions)
 	{
-		Placeholder ph = creationSqlSelect.getPlaceholder(SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), getRelationName()));
+		Placeholder ph = SQLGenerator.getRelationPlaceholder(creationSqlSelect, getRelationName());
 		if (ph == null || !ph.isSet())
 		{
 			if (!findMode)
@@ -526,13 +514,26 @@ public abstract class RelatedFoundSet extends FoundSet
 		}).toArray();
 	}
 
-
 	@Override
-	public boolean addFilterParam(String filterName, String dataprovider, String operator, Object value)
+	protected boolean addFilterParam(String filterName, TableFilterdefinition tableFilterdefinition)
 	{
 		// don't do anything, can't add parameters to related foundset
 		fsm.getApplication().reportJSError("Cannot addFoundSetFilterParam to related foundset", null); //$NON-NLS-1$
 		return false;//would also cause problem due to sharing related foundsets for different records
+	}
+
+	@Override
+	public boolean addFoundSetFilterParam(QBSelect query, String filterName)
+	{
+		if (query == null || sheet.getTable() == null || !sheet.getTable().getDataSource().equals(query.getDataSource()))
+		{
+			return false;
+		}
+
+		QuerySelect queryClone = query.build(); // makes a clone
+		// the make sure the main table of the query is linked to the table of the foundset
+		queryClone.relinkTable(queryClone.getTable(), creationSqlSelect.getTable());
+		return super.addFilterParam(filterName, new QueryTableFilterdefinition(queryClone));
 	}
 
 	@Override
@@ -642,21 +643,21 @@ public abstract class RelatedFoundSet extends FoundSet
 				}
 				else
 				{
-					if ((e.getType() == RowEvent.UPDATE //
-						|| (e.getType() == RowEvent.PK_UPDATED && e.getOldPkHash() == null)) // pk was updated by another client (oldpkhash is filled when updated by self)
-						&& getPksAndRecords().getPks() != null)
+					boolean pkUpdated = e.getType() == RowEvent.PK_UPDATED && e.getOldPkHash() == null; // pk was updated by another client (oldpkhash is filled when updated by self)
+					if ((e.getType() == RowEvent.UPDATE || pkUpdated) && getPksAndRecords().getPks() != null)
 					{
-						if (r == null || (e.getType() == RowEvent.PK_UPDATED && e.getOldPkHash() == null))
+						if (r == null || pkUpdated)
 						{
 							// cached row was not found, check if a column was updated that the relation depends on
-							if (e.getChangedColumnNames() != null)
+							Object[] changedColumnNames = e.getChangedColumnNames();
+							if (changedColumnNames != null)
 							{
-								if (hasForeignColumn(e.getChangedColumnNames()))
+								if (hasForeignColumn(changedColumnNames) || (r != null && pkUpdated && checkForUpdatedPk(r.getPKHashKey())))
 								{
 									invalidateFoundset();
 									getFoundSetManager().getEditRecordList().fireEvents();
 								}
-								return;//make sure processing stops here
+								return; // make sure processing stops here
 							}
 						}
 						else
@@ -666,7 +667,7 @@ public abstract class RelatedFoundSet extends FoundSet
 							{
 								notifyChange_checkForNewRow(r);
 							}
-							return;//make sure processing stops here
+							return; // make sure processing stops here
 						}
 					}
 					super.notifyChange(e);
@@ -711,6 +712,18 @@ public abstract class RelatedFoundSet extends FoundSet
 		return false;
 	}
 
+	private boolean checkForUpdatedPk(String pkHash)
+	{
+		// if already in state for new query then don't test anything.
+		if (mustQueryForUpdates)
+		{
+			return false;
+		}
+
+		IDataSet pks = getPksAndRecords().getPks();
+		return pks != null && pks.getRows().stream().map(RowManager::createPKHashKey).anyMatch(pkHash::equals);
+	}
+
 	private boolean notifyChange_checkForUpdate(Row r, boolean updateTest)
 	{
 		// if already in state for new query then don't test anything.
@@ -726,12 +739,12 @@ public abstract class RelatedFoundSet extends FoundSet
 			throw new IllegalStateException("Relation not found for related foundset: " + relationName); //$NON-NLS-1$
 		}
 
-		Placeholder whereArgsPlaceholder = creationSqlSelect.getPlaceholder(
-			SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), relation.getName()));
+		Placeholder whereArgsPlaceholder = SQLGenerator.getRelationPlaceholder(creationSqlSelect, relation.getName());
 		if (whereArgsPlaceholder == null || !whereArgsPlaceholder.isSet())
 		{
 			Debug.error("creationSqlSelect = " + creationSqlSelect); //$NON-NLS-1$
-			Debug.error("PlaceholderKey = " + SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), relation.getName())); //$NON-NLS-1$
+			Debug.error("Table = " + creationSqlSelect.getTable()); //$NON-NLS-1$
+			Debug.error("Relation = " + relation.getName()); //$NON-NLS-1$
 			Debug.error("RelatedFoundSet = " + this); //$NON-NLS-1$
 			Debug.error("Row = " + r); //$NON-NLS-1$
 			Debug.error("whereArgsPlaceholder = " + whereArgsPlaceholder); //$NON-NLS-1$
@@ -739,9 +752,12 @@ public abstract class RelatedFoundSet extends FoundSet
 			// log on server as well
 			try
 			{
-				fsm.getApplication().getDataServer().logMessage("creationSqlSelect = " + creationSqlSelect + '\n' + "PlaceholderKey = " + //$NON-NLS-1$ //$NON-NLS-2$
-					SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), relation.getName()) + '\n' + "RelatedFoundSet = " + this + '\n' + //$NON-NLS-1$
-					"Row = " + r + '\n' + "whereArgsPlaceholder = " + whereArgsPlaceholder); //$NON-NLS-1$//$NON-NLS-2$
+				fsm.getApplication().getDataServer().logMessage("creationSqlSelect = " + creationSqlSelect + '\n' + //
+					"Table = " + creationSqlSelect.getTable() + '\n' + //
+					"Relation = " + relation.getName() + '\n' + //
+					"RelatedFoundSet = " + this + '\n' + //
+					"Row = " + r + '\n' + //
+					"whereArgsPlaceholder = " + whereArgsPlaceholder);
 			}
 			catch (Exception e)
 			{
@@ -808,6 +824,9 @@ public abstract class RelatedFoundSet extends FoundSet
 
 	private boolean checkForeignKeyValue(Object obj, Object whereArg, int operator)
 	{
+		if (obj instanceof DbIdentValue && ((DbIdentValue)obj).getPkValue() != null) obj = ((DbIdentValue)obj).getPkValue();
+		if (whereArg instanceof DbIdentValue && ((DbIdentValue)whereArg).getPkValue() != null) whereArg = ((DbIdentValue)whereArg).getPkValue();
+
 		int maskedOperator = operator & IBaseSQLCondition.OPERATOR_MASK;
 		if (Utils.equalObjects(whereArg, obj, true))
 		{
@@ -928,9 +947,8 @@ public abstract class RelatedFoundSet extends FoundSet
 					// this may happen when the relation was removed using solution model
 					return;
 				}
-				//check the foreign key if they match, if so it will fall in this foundset
-				Placeholder ph = creationSqlSelect.getPlaceholder(
-					SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), relation.getName()));
+				// check the foreign key if they match, if so it will fall in this foundset
+				Placeholder ph = SQLGenerator.getRelationPlaceholder(creationSqlSelect, relation.getName());
 				if (ph == null || !ph.isSet())
 				{
 					Column[] cols = relation.getForeignColumns(fsm.getApplication().getFlattenedSolution());
@@ -1020,21 +1038,19 @@ public abstract class RelatedFoundSet extends FoundSet
 
 	protected void invalidateFoundset()
 	{
+		invalidateFoundset(false);
+	}
+
+	protected void invalidateFoundset(boolean fullFlush)
+	{
 		if (!mustQueryForUpdates)
 		{
-			int size = getCorrectedSizeForFires();
 			IRecordInternal record = getRecord(getSelectedIndex());
 			mustQueryForUpdates = true;
+			skipOptimizeQuery = fullFlush;
 			Map<FoundSet, int[]> parentToIndexen = getFoundSetManager().getEditRecordList().getFoundsetEventMap();
-//			if (size >= 0)
-//			{
-//				parentToIndexen.put(this, new int[] { 0, size });
-//			}
-//			else
-			{
-				// when foundset was empty (size = -1) this will be fired as an foundset-invalidated event, see EditRecordList.fireEvents()
-				parentToIndexen.put(this, new int[] { -1, -1 });
-			}
+			// when foundset was empty (size = -1) this will be fired as an foundset-invalidated event, see EditRecordList.fireEvents()
+			parentToIndexen.put(this, new int[] { -1, -1 });
 			fireAggregateChange(record);
 		}
 	}
@@ -1051,8 +1067,15 @@ public abstract class RelatedFoundSet extends FoundSet
 			{
 				long time = System.currentTimeMillis();
 
-				reloadWithCurrentQuery(Math.max(getSelectedIndex(), fsm.chunkSize) + fsm.chunkSize, false, true);
-
+				getPksAndRecords().setSkipOptimizeChangeFires(skipOptimizeQuery);
+				try
+				{
+					reloadWithCurrentQuery(Math.max(getSelectedIndex(), fsm.config.chunkSize()) + fsm.config.chunkSize(), false, true);
+				}
+				finally
+				{
+					getPksAndRecords().setSkipOptimizeChangeFires(false);
+				}
 				if (Debug.tracing())
 				{
 					Debug.trace(Thread.currentThread().getName() + ": Related CheckForUpdate DB time: " + (System.currentTimeMillis() - time) + " pks: " + //$NON-NLS-1$//$NON-NLS-2$
@@ -1060,6 +1083,7 @@ public abstract class RelatedFoundSet extends FoundSet
 				}
 
 				mustQueryForUpdates = false;
+				skipOptimizeQuery = false;
 			}
 			catch (ServoyException ex)
 			{

@@ -16,9 +16,14 @@
  */
 package com.servoy.j2db.query;
 
+import static com.servoy.j2db.persistence.IColumnTypes.INTEGER;
+import static com.servoy.j2db.persistence.IColumnTypes.NUMBER;
+import static com.servoy.j2db.persistence.IColumnTypes.TEXT;
+
 import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.IBaseQuerySelectValue;
 import com.servoy.base.query.TypeInfo;
+import com.servoy.j2db.persistence.Column;
 
 
 /** Interface for selectable values in a select statement.
@@ -87,4 +92,62 @@ public interface IQuerySelectValue extends IBaseQuerySelectValue, IQueryElement
 		}
 		return 0;
 	}
+
+
+	/**
+	 * Determine a column type that is compatible with both types
+	 */
+	public static BaseColumnType determineCompatibleColumnType(BaseColumnType type1, BaseColumnType type2)
+	{
+		if (type1 == null)
+		{
+			return type2;
+		}
+		if (type2 == null)
+		{
+			return type1;
+		}
+
+		int mappedType1 = Column.mapToDefaultType(type1);
+		int mappedType2 = Column.mapToDefaultType(type2);
+
+		if (mappedType1 == TEXT)
+		{
+			// can be converted to other types
+			return type2;
+		}
+
+		if (mappedType2 == TEXT)
+		{
+			// can be converted to other types
+			return type1;
+		}
+
+		if (mappedType1 == INTEGER)
+		{
+			// can be converted to other non-text types
+			return type2;
+		}
+
+		if (mappedType2 == INTEGER)
+		{
+			// can be converted to other non-text types
+			return type1;
+		}
+		if (mappedType1 == NUMBER)
+		{
+			// can be converted to other non-text types
+			return type2;
+		}
+
+		if (mappedType2 == NUMBER)
+		{
+			// can be converted to other non-text types
+			return type1;
+		}
+
+		// choose one (in a stable way), if they are not compatible the query will fail, we cannot check that here
+		return type1.getSqlType() < type2.getSqlType() ? type1 : type2;
+	}
+
 }

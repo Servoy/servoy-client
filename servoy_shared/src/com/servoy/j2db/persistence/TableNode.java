@@ -104,10 +104,10 @@ public class TableNode extends AbstractBase implements ISupportChilds
 		return getObjects(IRepository.AGGREGATEVARIABLES);
 	}
 
-	AggregateVariable createNewAggregateVariable(IValidateName validator, String calcName, int atype, String dataProviderIDToAggregate, ITable table)
+	AggregateVariable createNewAggregateVariable(IValidateName validator, String aggName, int atype, String dataProviderIDToAggregate, ITable table)
 		throws RepositoryException
 	{
-		String name = calcName == null ? "untitled" : calcName; //$NON-NLS-1$
+		String name = aggName == null ? "untitled" : aggName; //$NON-NLS-1$
 
 		//check if name is in use
 		ValidatorSearchContext ft = new ValidatorSearchContext(table, IRepository.AGGREGATEVARIABLES);
@@ -250,7 +250,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templateaddtodo
 	 * @templatecode
 	 *
-	 * if (record.mynumber > 10) recordMarkers.report("mynumber must be greater then 10", "mynumber", LOGGINGLEVEL.ERROR);
+	 * if (record.mynumber < 10) recordMarkers.report("mynumber must be greater then 10", "mynumber", LOGGINGLEVEL.ERROR);
 	 *
 	 */
 	public int getOnValidateMethodID()
@@ -261,6 +261,30 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	public void setOnValidateMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONVALIDATEMETHODID, arg);
+	}
+
+	/**
+	 * A method that can be used to load extra data in an in memory datasource.
+	 * <p>
+	 * This method id called when the inMem datasource is fully read.
+	 *
+	 * @templatedescription Return the next chunk of data for an inmemory datasource, when there is no more data, return nothing or an empty dataset
+	 * @templatetype JSDataSet
+	 * @templatename onFoundsetNextChunk
+	 * @templateparam String inmemDataSourceName name of the inmemory datasource.
+	 * @templateparam Number sizeHint preferred number of records to be retrieved.
+	 * @templateaddtodo
+	 * @templatecode
+	 * return databaseManager.createEmptyDataSet();
+	 */
+	public int getOnFoundsetNextChunkMethodID()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID).intValue();
+	}
+
+	public void setOnFoundsetNextChunkMethodID(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID, arg);
 	}
 
 	/**
@@ -350,11 +374,11 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templateaddtodo
 	 * @templatecode
 	 *
-	 * var not_valid = false;
+	 * var valid = true;
 	 * // test if it is valid.
 	 *
 	 * // throw exception to pass info to handler, will be returned in record.exception.getValue() when record.exception is a DataException
-	 * if (not_valid) throw 'cannot delete'
+	 * if (!valid) throw 'cannot delete'
 	 *
 	 * // return boolean to indicate success
 	 * return true

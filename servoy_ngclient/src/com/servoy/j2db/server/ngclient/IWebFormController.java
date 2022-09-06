@@ -35,24 +35,13 @@ public interface IWebFormController extends IFormController
 
 	public INGApplication getApplication();
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IForm#getFoundSet()
-	 */
 	@Override
 	public IFoundSetInternal getFoundSet();
 
 	void setParentFormController(IWebFormController parentFormController);
 
-	/**
-	 * @param b
-	 */
 	public void setRendering(boolean rendering);
 
-	/**
-	 * @return
-	 */
 	public boolean isRendering();
 
 	void setNavigatorProperties(Map<String, Object> navigatorProperties);
@@ -61,7 +50,14 @@ public interface IWebFormController extends IFormController
 
 	public RuntimeWebComponent[] getWebComponentElements();
 
+	public RuntimeWebComponent getWebComponentElement(String name);
+
 	public DesignModeCallbacks getDesignModeCallbacks();
 
 	public void pushParentReadOnly(boolean parentReadOnly);
+
+	default public boolean executePreHideSteps()
+	{
+		return true;
+	}
 }

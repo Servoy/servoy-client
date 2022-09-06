@@ -5,12 +5,12 @@
 
 	<parent>
 		<artifactId>servoy-client</artifactId>
-		<version>2021.9.0.3700_rc</version>
+		<version>2022.12.0.3820_rc</version>
 		<groupId>com.servoy</groupId>
 	</parent>
 
 	<groupId>com.servoy</groupId>
-	<version>2021.9.0.3700_rc</version>
+	<version>2022.12.0.3820_rc</version>
 	<artifactId>servoy-doc</artifactId>
 	<packaging>jar</packaging>
 
@@ -45,7 +45,7 @@
 								<artifactItem>
 									<groupId>com.servoy</groupId>
 									<artifactId>org.eclipse.dltk.javascript.rhino</artifactId>
-									<version>${project.version}</version>
+									<version>${rhino.version}</version>
 									<type>zip</type>
 									<classifier>project</classifier>
 									<outputDirectory>${project.build.directory}/org.eclipse.dltk.javascript.rhino/</outputDirectory>
@@ -222,7 +222,36 @@
 									<goal>eclipse-run</goal>
 								</goals>
 							</execution>
-						</executions>
+                            <execution>
+                                <id>design</id>
+                                <phase>generate-resources</phase>
+                                <configuration>
+                                    <applicationsArgs>
+                                        <args>-application</args>
+                                        <args>com.servoy.eclipse.docgenerator.client.designtime</args>
+                                        <args>-data</args>
+                                        <args>${workspace_dir}/</args>
+                                        <args>--workspace</args>
+                                        <args>${workspace_dir}/</args>
+                                        <args>--project</args>
+                                        <args>servoy_shared</args>
+                                        <args>com.servoy.base</args>
+                                        <args>com.servoy.j2db.persistence</args>
+                                        <args>com.servoy.j2db.scripting</args>
+                                        <args>com.servoy.j2db.dnd</args>
+                                        <args>com.servoy.j2db.dataprocessing</args>
+                                        <args>com.servoy.j2db.documentation.persistence.docs</args>
+                                        <args>--output-file</args>
+                                        <args>/servoy_shared/_doc/servoydoc_design.xml</args>
+                                        <args>--import-projects</args>
+                                        <args>true</args>
+                                    </applicationsArgs>
+                                </configuration>
+                                <goals>
+                                    <goal>eclipse-run</goal>
+                                </goals>
+                            </execution>
+                            </executions>
 					</plugin>
 				</plugins>
 			</build>

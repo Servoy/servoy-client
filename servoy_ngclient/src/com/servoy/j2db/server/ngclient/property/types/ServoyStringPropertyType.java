@@ -27,9 +27,12 @@ import org.sablo.specification.property.types.StringPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
+import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.component.RhinoConversion;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 
@@ -38,7 +41,8 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabl
  *
  */
 public class ServoyStringPropertyType extends StringPropertyType
-	implements IConvertedPropertyType<String>, IRhinoToSabloComponent<String>, IFormElementToTemplateJSON<String, String>
+	implements IConvertedPropertyType<String>, IRhinoToSabloComponent<String>, IFormElementToTemplateJSON<String, String>,
+	IDesignToFormElement<Object, String, String>
 {
 
 	public static final ServoyStringPropertyType INSTANCE = new ServoyStringPropertyType();
@@ -91,6 +95,14 @@ public class ServoyStringPropertyType extends StringPropertyType
 			return rhinoValue.toString();
 		}
 		return null;
+	}
+
+	@Override
+	public String toFormElementValue(Object designValue, PropertyDescription pd, FlattenedSolution flattenedSolution, INGFormElement formElement,
+		PropertyPath propertyPath)
+	{
+		if (designValue == null) return null;
+		return designValue.toString();
 	}
 
 }

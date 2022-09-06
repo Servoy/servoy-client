@@ -4,6 +4,15 @@
 	"version": 1,
 	"definition": "servoyservices/window/window.js",
 	"serverscript": "servoyservices/window/window_server.js",
+	"ng2Config": {
+       "packageName": "@servoy/window",
+       "moduleName": "WindowServiceModule",
+       "serviceName": "WindowPluginService",
+       "entryPoint": "projects/window",
+       "dependencies": {
+            "csslibrary" : ["~@servoy/window/servoy-menu.css"]
+        }
+    },
 	"libraries": [{"name":"window/shortcut.js", "version":"1", "url":"servoyservices/window/shortcut.js", "mimetype":"text/javascript"},{"name":"yahoo-dom-event.js", "version":"2.9.0", "url":"servoyservices/window/yahoo-dom-event.js", "mimetype":"text/javascript"},{"name":"window/container_core.js", "version":"2.9.0", "url":"servoyservices/window/container_core-min.js", "mimetype":"text/javascript"},{"name":"menu.js", "version":"2.9.0", "url":"servoyservices/window/menu-min.js", "mimetype":"text/javascript"},{"name":"menu.css", "version":"2.9.0", "url":"servoyservices/window/menu.css", "mimetype":"text/css"},{"name":"servoy-menu.css", "version":"1", "url":"servoyservices/window/servoy-menu.css", "mimetype":"text/css"}],
 	"model":
 	{
@@ -155,7 +164,35 @@
 		            "type":"boolean"
 	            }
 	        ]
-	    }
+	    },
+	     "executeMenuItem" :{
+	           "parameters":[
+                 {
+                    "name":"menuItemId",
+                    "type":"string"
+                 },
+                 {
+                    "name":"itemIndex",
+                    "type":"int"
+                 },
+                 {
+                    "name":"parentItemIndex",
+                    "type":"int"
+                 },
+                 {
+                    "name":"isSelected",
+                    "type":"boolean"
+                 },
+                 {
+                    "name":"parentMenuText",
+                    "type":"string"
+                 },
+                 {
+                    "name":"menuText",
+                    "type":"string"
+                 }
+            ]
+        }
     },
 	"types": {
 	  "shortcut": {
@@ -197,11 +234,14 @@
 			"popupName": "string",
 			"elementId": "string",
 			"x": "int",
-			"y": "int"
-		}
+			"y": "int",
+			"height": "int",
+			"positionTop": "boolean"
+  		}
 	  },
 	  "menuitem": {
 		"model": {
+		    "id":"string",
 		 	"text": "string",
 		  	"callback": "function",
 		  	"name": "string",

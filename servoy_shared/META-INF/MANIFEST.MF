@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy Shared Plug-in
 Bundle-SymbolicName: servoy_shared;singleton:=true
-Bundle-Version: 2021.9.0.3700_rc
+Bundle-Version: 2022.12.0.3820_rc
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: Servoy
 Bundle-ClassPath: .,
@@ -30,12 +30,7 @@ Require-Bundle: org.eclipse.dltk.javascript.rhino,
  slf4j.api,
  org.apache.commons.commons-fileupload,
  com.google.guava
-Export-Package: com.servoy.extension,
- com.servoy.extension.dependency,
- com.servoy.extension.hook,
- com.servoy.extension.install,
- com.servoy.extension.parser,
- com.servoy.j2db,
+Export-Package: com.servoy.j2db,
  com.servoy.j2db.cmd,
  com.servoy.j2db.component,
  com.servoy.j2db.dataprocessing,
@@ -264,8 +259,8 @@ Export-Package: com.servoy.extension,
  org.xhtmlrenderer.css.util,
  org.xhtmlrenderer.css.value,
  org.xhtmlrenderer.util
-Import-Package: javax.servlet,
- javax.servlet.http,
+Import-Package: javax.servlet;version="[4.0.0,5.0.0)",
+ javax.servlet.http;version="[4.0.0,5.0.0)",
  org.sablo,
  org.sablo.specification,
  org.sablo.specification.property,

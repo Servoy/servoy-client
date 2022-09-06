@@ -102,6 +102,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private final ArrayList<IWebFormController> parentRelatedForms = new ArrayList<IWebFormController>(3);
 
 	private Map<IDataLinkedPropertyValue, Pair<Relation[], List<RelatedListener>>> toWatchRelations;
+	private DLPropertyValueFoundsetFoundsetListener maxRecIndexPropertyValueListener;
 	private final Map<String, List<Pair<String, String>>> lookupDependency = new HashMap<String, List<Pair<String, String>>>();
 
 	private IRecordInternal record;
@@ -198,12 +199,17 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(jsRetVal, null, null, (IWebObjectContext)webComponent); // TODO why do handlers not have complete definitions in spec - just like apis? - we don't know types here
 	}
 
+	/**
+	 * @param args args to replace in script - used for HTML-triggered executeInlineScript; so calls generated via HTMLTagsConverter.convert(String, IServoyDataConverterContext, boolean) inside some piece of HTML
+	 * @param appendingArgs args to append in script execution - used for component/service client side code triggered executeInlineScript.
+	 */
 	@Override
 	public Object executeInlineScript(String script, JSONObject args, JSONArray appendingArgs)
 	{
 		String decryptedScript = HTMLTagsConverter.decryptInlineScript(script, args);
 		if (appendingArgs != null && decryptedScript.endsWith("()"))
 		{
+			// this is an executeInlineScript called from component/service client-side code
 			ArrayList<Object> javaArguments = new ArrayList<Object>();
 			Object argObj = null;
 			BrowserConverterContext dataConverterContext = new BrowserConverterContext((WebFormUI)formController.getFormUI(), PushToServerEnum.allow);
@@ -288,7 +294,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				Debug.error(ex);
 				return null;
 			}
-		}
+		} // else this is a executeInlineScript called from within a piece of HTML that was treated before being sent to client using HTMLTagsConverter.convert(...); all that was needed (including args) was already done inside the HTMLTagsConverter.decryptInlineScript() call above
+
 		return decryptedScript != null ? formController.eval(decryptedScript) : null;
 	}
 
@@ -322,7 +329,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				if (fc != null && !newForms.contains(oldForm) && visibleChildForms.containsKey(fc))
 				{
 					List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-					fc.notifyVisible(false, invokeLaterRunnables);
+					fc.notifyVisible(false, invokeLaterRunnables, true);
 					Utils.invokeLater(getApplication(), invokeLaterRunnables);
 					removeVisibleChildForm(fc, true);
 				}
@@ -348,7 +355,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 						}
 						updateParentContainer(newFormController, newVisibleForm.getRight(), formController.isFormVisible());
 						List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-						newFormController.notifyVisible(formController.isFormVisible(), invokeLaterRunnables);
+						newFormController.notifyVisible(formController.isFormVisible(), invokeLaterRunnables, true);
 						Utils.invokeLater(getApplication(), invokeLaterRunnables);
 					}
 				}
@@ -540,6 +547,14 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			{
 				allLinksOfDP = new ArrayList<>();
 				dataProviderToLinkedComponentProperty.put(dpID, allLinksOfDP);
+				if ("maxRecordIndex".equalsIgnoreCase(dpID) || "lazyMaxRecordIndex".equalsIgnoreCase(dpID))
+				{
+					if (maxRecIndexPropertyValueListener == null)
+					{
+						maxRecIndexPropertyValueListener = new DLPropertyValueFoundsetFoundsetListener();
+					}
+					maxRecIndexPropertyValueListener.addPropertyValueToList(propertyValue);
+				}
 			}
 			if (allLinksOfDP.remove(propertyValue))
 			{
@@ -587,6 +602,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				toWatchRelationsForPropertyValue.getRight().clear();
 			}
 		}
+
+		if (maxRecIndexPropertyValueListener != null)
+		{
+			maxRecIndexPropertyValueListener.dispose();
+		}
 	}
 
 	public void addFindModeAwareProperty(IFindModeAwarePropertyValue propertyValue)
@@ -608,48 +628,57 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		{
 			if (record != this.record)
 			{
-				throw new IllegalStateException("Record " + record + " is being set on DAL when record: " + this.record + " is being processed");
+				throw new IllegalStateException(
+					"Record " + record + " is being set on DAL when record: " + this.record + " is being processed for form " + getForm());
 			}
 			return;
 		}
-		FireCollector fireCollector = FireCollector.getFireCollector();
 		try
 		{
-			settingRecord = true;
-			formController.getFormUI().setChanging(true);
-			if (this.record != null)
+			FireCollector fireCollector = FireCollector.getFireCollector();
+			try
 			{
-				this.record.removeModificationListener(this);
-				this.record.getParentFoundSet().removeAggregateModificationListener(this);
-			}
-			this.record = (IRecordInternal)record;
-
-			if (this.record != null)
-			{
-				pushChangedValues(null, fireChangeEvent);
-				this.record.addModificationListener(this);
-				this.record.getParentFoundSet().addAggregateModificationListener(this);
-			}
-			createRelationListeners();
-		}
-		finally
-		{
-			formController.getFormUI().setChanging(false);
-			settingRecord = false;
-			fireCollector.done();
-		}
-		// we should use the "this.record" because fireCollector.done() could result in a setRecord with a different record.
-		if (this.record != null)
-		{
-			for (Entry<IWebFormController, String> entry : getVisibleChildFormCopy().entrySet())
-			{
-				String relation = entry.getValue();
-				if (relation != null)
+				settingRecord = true;
+				formController.getFormUI().setChanging(true);
+				if (this.record != null)
 				{
-					IWebFormController form = entry.getKey();
-					form.loadRecords(this.record.getRelatedFoundSet(relation, ((BasicFormController)form).getDefaultSortColumns()));
+					this.record.removeModificationListener(this);
+					this.record.getParentFoundSet().removeAggregateModificationListener(this);
+				}
+				this.record = (IRecordInternal)record;
+
+				if (this.record != null)
+				{
+					pushChangedValues(null, fireChangeEvent);
+					this.record.addModificationListener(this);
+					this.record.getParentFoundSet().addAggregateModificationListener(this);
+				}
+				createRelationListeners();
+				if (maxRecIndexPropertyValueListener != null) maxRecIndexPropertyValueListener.setRecord(this.record);
+			}
+			finally
+			{
+				formController.getFormUI().setChanging(false);
+				settingRecord = false;
+				fireCollector.done();
+			}
+			// we should use the "this.record" because fireCollector.done() could result in a setRecord with a different record.
+			if (this.record != null)
+			{
+				for (Entry<IWebFormController, String> entry : getVisibleChildFormCopy().entrySet())
+				{
+					String relation = entry.getValue();
+					if (relation != null)
+					{
+						IWebFormController form = entry.getKey();
+						form.loadRecords(this.record.getRelatedFoundSet(relation, ((BasicFormController)form).getDefaultSortColumns()));
+					}
 				}
 			}
+		}
+		catch (RuntimeException re)
+		{
+			throw new RuntimeException("Error setting record " + record + " on form " + getForm() + " on DAL " + this, re);
 		}
 
 	}
@@ -1206,7 +1235,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			if (!relatedController.isDestroyed())
 			{
 				updateParentContainer(relatedController, childFormsCopy.get(relatedController), b);
-				if (!childFormsThatWereAlreadyNotified.contains(relatedController)) relatedController.notifyVisible(b, invokeLaterRunnables);
+				if (!childFormsThatWereAlreadyNotified.contains(relatedController)) relatedController.notifyVisible(b, invokeLaterRunnables, false);
 			}
 		}
 		if (!b)
@@ -1293,6 +1322,65 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		findModeAwareProperties.clear();
 		parentRelatedForms.clear();
 		visibleChildForms.clear();
+	}
+
+	@Override
+	public String toString()
+	{
+		return "DAL[form:" + getForm() + ", record:" + getRecord() + "]";
+	}
+
+	private static class DLPropertyValueFoundsetFoundsetListener implements IFoundSetEventListener
+	{
+		private IRecordInternal recordInternal;
+		private final List<IDataLinkedPropertyValue> propertyValues = new ArrayList<IDataLinkedPropertyValue>(2);
+		private IFoundSetInternal foundset;
+
+		public void setRecord(IRecordInternal recordInternal)
+		{
+			if (this.recordInternal != recordInternal)
+			{
+				this.recordInternal = recordInternal;
+				if (this.recordInternal != null)
+				{
+					if (this.foundset != this.recordInternal.getParentFoundSet())
+					{
+						if (this.foundset != null) foundset.removeFoundSetEventListener(this);
+						this.foundset = this.recordInternal.getParentFoundSet();
+						this.foundset.addFoundSetEventListener(this);
+					}
+				}
+				else if (this.foundset != null)
+				{
+					this.foundset.removeFoundSetEventListener(this);
+					this.foundset = null;
+				}
+			}
+		}
+
+		public void dispose()
+		{
+			if (this.foundset != null)
+			{
+				this.foundset.removeFoundSetEventListener(this);
+				this.recordInternal = null;
+				this.foundset = null;
+			}
+		}
+
+		public void addPropertyValueToList(IDataLinkedPropertyValue propertyValue)
+		{
+			propertyValues.add(propertyValue);
+		}
+
+		@Override
+		public void foundSetChanged(FoundSetEvent e)
+		{
+			if (e.getType() == FoundSetEvent.CONTENTS_CHANGED)
+			{
+				propertyValues.forEach(propertyValue -> propertyValue.dataProviderOrRecordChanged(this.recordInternal, null, false, false, true));
+			}
+		}
 	}
 
 	private class RelatedListener implements ListSelectionListener, IModificationListener, IFoundSetEventListener

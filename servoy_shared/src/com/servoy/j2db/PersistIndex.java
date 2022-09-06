@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -80,7 +81,6 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 	public PersistIndex(List<Solution> solutions)
 	{
 		this.solutions.addAll(solutions);
-		createIndex();
 	}
 
 	@Override
@@ -112,7 +112,39 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		ConcurrentMap<String, IPersist> classToList = nameToPersist.get(persistClass);
 		if (classToList == null)
 		{
-			final ConcurrentMap<String, IPersist> tmp = new ConcurrentHashMap<>(128);
+			// make the name cache always lower case hits, we don't allow different casing for most if not all stuff.
+			final ConcurrentMap<String, IPersist> tmp = new ConcurrentHashMap<String, IPersist>(128)
+			{
+				@Override
+				public IPersist get(Object key)
+				{
+					return super.get(key instanceof String ? ((String)key).toLowerCase(Locale.ENGLISH) : key);
+				}
+
+				@Override
+				public boolean containsKey(Object key)
+				{
+					return super.containsKey(key instanceof String ? ((String)key).toLowerCase(Locale.ENGLISH) : key);
+				}
+
+				@Override
+				public IPersist put(String key, IPersist value)
+				{
+					return super.put(key.toLowerCase(Locale.ENGLISH), value);
+				}
+
+				@Override
+				public IPersist putIfAbsent(String key, IPersist value)
+				{
+					return super.putIfAbsent(key.toLowerCase(Locale.ENGLISH), value);
+				}
+
+				@Override
+				public void putAll(Map< ? extends String, ? extends IPersist> map)
+				{
+					map.entrySet().forEach(entry -> put(entry.getKey(), entry.getValue()));
+				}
+			};
 			if (ISupportName.class.isAssignableFrom(persistClass))
 			{
 				visit((persist) -> {
@@ -193,23 +225,43 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 						return IPersistVisitor.CONTINUE_TRAVERSAL;
 					}
 				}
-				else if (persist instanceof ScriptCalculation)
+				else
 				{
-					ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist
-						.get(((TableNode)persist.getParent()).getDataSource());
-					addInDatasourceCache(dsMap.get(ScriptCalculation.class), persist, datasource);
-				}
-				else if (persist instanceof AggregateVariable)
-				{
-					ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist
-						.get(((TableNode)persist.getParent()).getDataSource());
-					addInDatasourceCache(dsMap.get(AggregateVariable.class), persist, datasource);
-				}
-				else if (persist instanceof ScriptMethod && persist.getParent() instanceof TableNode)
-				{
-					ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist
-						.get(((TableNode)persist.getParent()).getDataSource());
-					addInDatasourceCache(dsMap.get(ScriptMethod.class), persist, datasource);
+					ISupportChilds parent = persist.getParent();
+					if (persist instanceof ScriptCalculation)
+					{
+						if (parent instanceof TableNode)
+						{
+							ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist
+								.get(((TableNode)parent).getDataSource());
+							addInDatasourceCache(dsMap.get(ScriptCalculation.class), persist, datasource);
+						}
+						else
+						{
+							Debug.error("Something wrong with ScriptCalculation " + ((ScriptCalculation)persist).getName() +
+								" should  have table as parent but the parent is: " + parent);
+						}
+					}
+					else if (persist instanceof AggregateVariable)
+					{
+						if (parent instanceof TableNode)
+						{
+							ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist
+								.get(((TableNode)parent).getDataSource());
+							addInDatasourceCache(dsMap.get(AggregateVariable.class), persist, datasource);
+						}
+						else
+						{
+							Debug.error("Something wrong with AggregateVariable " + ((ScriptCalculation)persist).getName() +
+								" should  have table as parent but the parent is: " + parent);
+						}
+					}
+					else if (persist instanceof ScriptMethod && parent instanceof TableNode)
+					{
+						ConcurrentMap<Class< ? extends IPersist>, ConcurrentMap<String, IPersist>> dsMap = datasourceToPersist
+							.get(((TableNode)parent).getDataSource());
+						addInDatasourceCache(dsMap.get(ScriptMethod.class), persist, datasource);
+					}
 				}
 				return persist instanceof Solution ? IPersistVisitor.CONTINUE_TRAVERSAL : IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
 			});
@@ -334,12 +386,13 @@ public class PersistIndex implements IItemChangeListener<IPersist>, IPersistInde
 		cache.put(persist.getName(), persist);
 	}
 
-	protected final void createIndex()
+	public final PersistIndex createIndex()
 	{
 		visit((persist) -> {
 			putInCache(persist);
 			return IPersistVisitor.CONTINUE_TRAVERSAL;
 		});
+		return this;
 	}
 
 	/**

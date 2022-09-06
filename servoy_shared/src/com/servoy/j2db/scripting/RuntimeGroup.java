@@ -20,6 +20,7 @@ package com.servoy.j2db.scripting;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
@@ -214,6 +215,25 @@ public class RuntimeGroup implements IRuntimeGroup
 		for (IRuntimeComponent obj : scriptBaseObjects)
 		{
 			Object value = obj.getDesignTimeProperty(key);
+			if (value != null)
+			{
+				return value;
+			}
+		}
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.ui.runtime.HasRuntimeDesignTimeProperty#getDesignProperties()
+	 */
+	@Override
+	public Map<String, Object> getDesignProperties()
+	{
+		for (IRuntimeComponent obj : scriptBaseObjects)
+		{
+			Map<String, Object> value = obj.getDesignProperties();
 			if (value != null)
 			{
 				return value;

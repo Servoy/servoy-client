@@ -37,12 +37,15 @@ import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
+import org.sablo.IllegalChangeFromClientException;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.ArrayOperation;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.IBrowserConverterContext;
+import org.sablo.specification.property.types.EnabledPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
@@ -121,6 +124,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	public static final String SELECTED_ROW_INDEXES = "selectedRowIndexes";
 	public static final String FOUNDSET_ID = "foundsetId";
 	public static final String USER_SET_SELECTION = "userSetSelection";
+	public static final String FOUNDSET_DEFINITION = "foundsetDefinition";
 
 	public static final String HANDLED_CLIENT_REQUESTS = "handledClientReqIds";
 	public static final String ID_KEY = "id";
@@ -470,9 +474,12 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				chainedRelatedFoundsetSelectionMonitor.unregisterListeners();
 				chainedRelatedFoundsetSelectionMonitor = null;
 			}
-			if (foundset != null && getDataAdapterList() != null) getDataAdapterList().setFindMode(foundset.isInFindMode());
 
-			fireUnderlyingStateChangedListeners(); // some listening properties might be interested in the underlying foundset itself
+			FoundsetDataAdapterList fsDAL = getDataAdapterList();
+			if (fsDAL != null) fsDAL.setRecordQuietly(null, true); // avoid the DAL listening to changes in obsolete Records from the previous foundset
+			if (foundset != null && fsDAL != null) fsDAL.setFindMode(foundset.isInFindMode());
+
+			fireUnderlyingStateChangedListeners(); // some listening properties might be interested in the new underlying foundset itself
 		}
 	}
 
@@ -482,10 +489,17 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		// that use this DAL are seen in the UI
 		// TODO make related DP updates also work with non-selected records in those cases...
 
-		if (dataAdapterList != null && foundset != null && foundset.getSize() > 0)
+		if (dataAdapterList != null)
 		{
-			IRecord selectedRecord = foundset.getRecord(foundset.getSelectedIndex());
-			dataAdapterList.setRecordQuietly(selectedRecord, true);
+			if (foundset != null && foundset.getSize() > 0)
+			{
+				IRecord selectedRecord = foundset.getRecord(foundset.getSelectedIndex());
+				dataAdapterList.setRecordQuietly(selectedRecord, true);
+			}
+			else
+			{
+				dataAdapterList.setRecordQuietly(null, true); // make sure DAL is not listening to records that are no longer there in the foundset
+			}
 		}
 	}
 
@@ -652,6 +666,12 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			{
 				if (!somethingChanged) destinationJSON.object();
 				destinationJSON.key(UPDATE_PREFIX + FOUNDSET_ID).value(getFoundset() != null ? getFoundset().getID() : 0);
+				somethingChanged = true;
+			}
+			if (changeMonitor.shouldSendFoundsetDefinitionChange())
+			{
+				if (!somethingChanged) destinationJSON.object();
+				destinationJSON.key(UPDATE_PREFIX + FOUNDSET_DEFINITION).value(true);
 				somethingChanged = true;
 			}
 			if (changeMonitor.shouldSendFoundsetSort())
@@ -942,11 +962,12 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 						{
 							try
 							{
+								String currentSort = foundset.getSort();
 								String newSort = sort.toString();
 								foundset.setSort(newSort);
-								if (!Utils.equalObjects(foundset.getSort(), newSort))
+								if (!Utils.equalObjects(currentSort, newSort) || // really a new sort
+									!Utils.equalObjects(foundset.getSort(), newSort)) // not sorted, send back to client
 								{
-									// not sorted, send back to client
 									changeMonitor.foundsetSortChanged();
 								}
 							}
@@ -1279,22 +1300,32 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		}
 	}
 
-	/**
-	 * @param data
-	 * @return
-	 */
-	public boolean allowPush(Object jsonValue)
+	public boolean allowPush(Object jsonValue, IllegalChangeFromClientException e)
 	{
 		if (jsonValue instanceof JSONArray)
 		{
-			List<String> allowed = Arrays.asList(PREFERRED_VIEWPORT_SIZE);
+			List<String> propertiesToCheck;
+			boolean blockAllowPushIfContainsIs;
 			JSONArray arr = (JSONArray)jsonValue;
+			// for allow access on enabled, allow everything except data push
+			if (EnabledPropertyType.TYPE_NAME.equals(e.getBlockedByProperty()) && hasAllowAccessFor(EnabledPropertyType.TYPE_NAME))
+			{
+				propertiesToCheck = Arrays.asList(ViewportDataChangeMonitor.VIEWPORT_CHANGED);
+				blockAllowPushIfContainsIs = true;
+			}
+			else
+			{
+				// by default only allow viewport size update
+				propertiesToCheck = Arrays.asList(PREFERRED_VIEWPORT_SIZE);
+				blockAllowPushIfContainsIs = false;
+			}
+
 			for (int i = 0; i < arr.length(); i++)
 			{
 				JSONObject update = (JSONObject)arr.get(i);
 				for (String key : update.keySet())
 				{
-					if (!allowed.contains(key))
+					if (blockAllowPushIfContainsIs == propertiesToCheck.contains(key))
 					{
 						return false;
 					}
@@ -1305,4 +1336,29 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		return false;
 	}
 
+	private boolean hasAllowAccessFor(String propertyTypeName)
+	{
+		boolean hasAllowAccessForEnabled = false;
+		PropertyDescription pd = this.webObjectContext.getPropertyDescription(this.propertyName);
+		Object allowEditTag = pd.getTag(WebObjectSpecification.ALLOW_ACCESS);
+		// allowEditTag is either a String or an array of Strings representing 'blocked by' property name(s) that should not block the given property (the spec makes specific exceptions in the property itself for the other props. that should not block it)
+		if (allowEditTag instanceof JSONArray)
+		{
+			Iterator<Object> iterator = ((JSONArray)allowEditTag).iterator();
+			while (iterator.hasNext())
+			{
+				if (iterator.next().equals(propertyTypeName))
+				{
+					hasAllowAccessForEnabled = true;
+					break;
+				}
+			}
+		}
+		else if (allowEditTag instanceof String && allowEditTag.equals(propertyTypeName))
+		{
+			hasAllowAccessForEnabled = true;
+		}
+
+		return hasAllowAccessForEnabled;
+	}
 }

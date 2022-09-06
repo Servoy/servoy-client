@@ -68,7 +68,6 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 						if ($scope.model.tabs[i] === $scope.model.selectedTab)
 							selectedTabNotFound = false;
 						
-						$scope.model.tabs[i].disabled = false;
 					}
 					
 					if (selectedTabNotFound)
@@ -238,7 +237,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			$scope.getTabIndex = function(tab) {
 				if(tab) {
 					for(var i=0;i<$scope.model.tabs.length;i++) {
-						if (($scope.model.tabs[i].containsFormId == tab.containsFormId) && ($scope.model.tabs[i].relationName == tab.relationName)) {
+						if ($scope.model.tabs[i] === tab) {
 							return i + 1;
 						}
 					}
@@ -257,7 +256,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 						updateActiveTabIndex();
 					}
 					if ($log.debugEnabled) $log.debug("svy * Will select tab '" + (tab ? tab.containsFormId : undefined) + "'. Previously selected: '" + ($scope.model.selectedTab ? $scope.model.selectedTab.containsFormId : undefined) + "'. Same: " + (tab == $scope.model.selectedTab));
-					if ((tab != undefined && $scope.model.selectedTab != undefined && tab.containsFormId == $scope.model.selectedTab.containsFormId && tab.relationName == $scope.model.selectedTab.relationName) || (tab == $scope.model.selectedTab)) return;
+					if (isValidTab($scope.model.selectedTab) && $scope.model.selectedTab === tab) return;
 					var selectEvent = $window.event ? $window.event : null;
 					if ($scope.model.selectedTab) {
 						if ($scope.model.selectedTab.containsFormId && !$scope.waitingForServerVisibility[$scope.model.selectedTab.containsFormId])

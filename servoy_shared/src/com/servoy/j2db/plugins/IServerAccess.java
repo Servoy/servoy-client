@@ -30,7 +30,6 @@ import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.server.shared.IClientInformation;
 import com.servoy.j2db.util.ServoyException;
-import com.servoy.j2db.util.UUID;
 
 /**
  * Api to use by server plugins.
@@ -156,22 +155,22 @@ public interface IServerAccess extends IPluginAccess
 
 	/**
 	 * Add performance timing data for an action. This is shown on the server admin page, performance section.
-	 * returns a UUID that should be give to the {@link #endPerformanceTiming(UUID)} to end the timing.
+	 * returns an ID that should be given to the {@link #endPerformanceTiming(String, Integer, String)} method in order to end the timing.
 	 *
 	 * @param context group
 	 * @param action
 	 * @param time_ms
 	 * @since 8.0
 	 */
-	public UUID addPerformanceTiming(String context, String action, long time_ms, String clientId);
+	public Integer addPerformanceTiming(String context, String action, long time_ms, String clientId);
 
 	/**
 	 * End the timing that was started with {@link #addPerformanceTiming(String, String, long, String)}
 	 *
-	 * @param uuid
+	 * @param id the id that was returned by {@link #addPerformanceTiming(String, String, long, String)}
 	 * @since 8.0
 	 */
-	public void endPerformanceTiming(String context, UUID uuid);
+	public void endPerformanceTiming(String context, Integer id, String clientId);
 
 	/**
 	 * Add performance timing data for an action. This is shown on the server admin page, performance section.
@@ -398,4 +397,23 @@ public interface IServerAccess extends IPluginAccess
 
 
 	public JSDataSet getLocks();
+
+	/** Gets a server plugin instance. Should be always called using IPostInitializeListener so that all plugins are already initialized.
+	 * @param pluginClass
+	 *
+	 * @return plugin instance
+	 *
+	 */
+	public <T> T getPluginInstance(Class<T> pluginClass);
+
+	/**
+	 * Release locks for the specified client
+	 * The client is identified through its client ID, which can be retrieved from an IClientInformation
+	 * instance.
+	 *
+	 * @param clientId The ID of the client that will be disconnected.
+	 *
+	 * @since 5.0
+	 */
+	public void releaseLocks(String clientId);
 }

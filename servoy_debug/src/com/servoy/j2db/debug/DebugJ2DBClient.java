@@ -482,9 +482,9 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 		return shutDown;
 	}
 
-	public DebugJ2DBClient(boolean setSingletonServiceProvider, final IDesignerCallback callback)
+	public DebugJ2DBClient(final IDesignerCallback callback)
 	{
-		super(setSingletonServiceProvider);
+		super(false);
 		this.designerCallback = callback;
 		refreshPersistsSequencer = new RefreshPersistsSequencer();
 		startupApplication(new String[0]);
@@ -1114,7 +1114,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	public void refreshForI18NChange(boolean recreateForms)
 	{
 		if (shutDown) return;
-		refreshI18NMessages();
+		refreshI18NMessages(true);
 
 		if (recreateForms)
 		{
@@ -1188,7 +1188,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	 */
 	private void destroyForm(IFormController formController)
 	{
-		refreshI18NMessages();
+		refreshI18NMessages(true);
 		if (formController.isFormVisible())
 		{
 			IFoundSetInternal foundSet = formController.getFormModel();
@@ -1241,7 +1241,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 						newFormController.loadData(foundSet, null);
 
 						List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-						newFormController.notifyVisible(true, invokeLaterRunnables);
+						newFormController.notifyVisible(true, invokeLaterRunnables, true);
 						Utils.invokeLater(this, invokeLaterRunnables);
 					}
 				}
@@ -1253,7 +1253,7 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 					{
 						navigator.loadData(foundSet, null);
 						List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-						navigator.notifyVisible(true, invokeLaterRunnables);
+						navigator.notifyVisible(true, invokeLaterRunnables, true);
 						Utils.invokeLater(this, invokeLaterRunnables);
 					}
 					mainPanel.setNavigator(navigator);

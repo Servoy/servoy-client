@@ -64,7 +64,7 @@ namespace ngclient.propertyTypes {
 								if (!angular.isDefined(newViewportSize)) newViewportSize = 0;
 								
 								componentScope.$evalAsync(() => {
-									this.viewportModule.removeDataWatchesFromRows(value.length, iS);
+									this.viewportModule.removeDataWatchesFromRows(iS, value, true);
 									const wholeViewport = iS.singleValueState.generateWholeViewportFromOneValue(iS, newViewportSize);
 									iS.singleValueState.updateWholeViewport(value, iS, wholeViewport, iS.singleValueState.conversionInfos, componentScope);
 									this.viewportModule.addDataWatchesToRows(value, iS, componentScope, iS.propertyContextCreator, true);
@@ -77,7 +77,7 @@ namespace ngclient.propertyTypes {
 		private removeAllWatches(value) {
 			if (value != null && angular.isDefined(value)) {
 				const iS: FSLinkedInternalState = value[this.sabloConverters.INTERNAL_IMPL];
-				this.viewportModule.removeDataWatchesFromRows(value.length, iS);
+				this.viewportModule.removeDataWatchesFromRows(iS, value, true);
 				if (iS.singleValueState && iS.singleValueState.viewportSizeUnwatch) {
 					iS.singleValueState.viewportSizeUnwatch();
 					iS.singleValueState.viewportSizeUnwatch = undefined;

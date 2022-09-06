@@ -17,7 +17,15 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.base.persistence.IBaseColumn.IDENT_COLUMNS;
+import static com.servoy.base.persistence.IBaseColumn.UUID_COLUMN;
+import static com.servoy.j2db.dataprocessing.SortColumn.ASCENDING;
+import static com.servoy.j2db.persistence.Column.mapToDefaultType;
+import static com.servoy.j2db.persistence.IColumnTypes.MEDIA;
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
+import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.cast;
+import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.castfrom;
+import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.upper;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.reflect.Array;
@@ -36,12 +44,11 @@ import org.mozilla.javascript.Wrapper;
 import com.servoy.base.dataprocessing.BaseSQLGenerator;
 import com.servoy.base.dataprocessing.ITypeConverter;
 import com.servoy.base.dataprocessing.IValueConverter;
-import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.BaseQueryColumn;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
-import com.servoy.base.query.IJoinConstants;
+import com.servoy.base.query.IQueryConstants;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IServiceProvider;
@@ -86,7 +93,6 @@ import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QueryFactory;
 import com.servoy.j2db.query.QueryFilter;
 import com.servoy.j2db.query.QueryFunction;
-import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
 import com.servoy.j2db.query.QueryInsert;
 import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QuerySelect;
@@ -94,6 +100,7 @@ import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
 import com.servoy.j2db.query.SetCondition;
+import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
@@ -265,9 +272,9 @@ public class SQLGenerator
 						// override join type to left outer join, a related OR-search should not make the result set smaller
 						for (ISQLJoin join : retval.getJoins())
 						{
-							if (join instanceof QueryJoin && ((QueryJoin)join).getJoinType() == IJoinConstants.INNER_JOIN)
+							if (join instanceof QueryJoin && ((QueryJoin)join).getJoinType() == IQueryConstants.INNER_JOIN)
 							{
-								((QueryJoin)join).setJoinType(IJoinConstants.LEFT_OUTER_JOIN);
+								((QueryJoin)join).setJoinType(IQueryConstants.LEFT_OUTER_JOIN);
 							}
 						}
 					}
@@ -287,13 +294,13 @@ public class SQLGenerator
 				}
 			}
 
-			addSorts(retval, retval.getTable(), provider, table, orderBy, true, false /* joins added for sorting ans not permanent */);
+			addSorts(retval, retval.getTable(), provider, table, orderBy, true, false /* joins added for sorting are not permanent */);
 		} // else use ordering defined in query
 
 		if (removeUnusedJoins)
 		{
 			// remove unneeded joins, some may have been added because of a previous sort and are no longer needed.
-			retval.removeUnusedJoins(false);
+			retval.removeUnusedJoins(false, true);
 		}
 
 		//1 do not remove sort or groupby test, will cause invalid queries
@@ -323,8 +330,11 @@ public class SQLGenerator
 		{
 			SortColumn sc = orderByFields.get(i);
 			IColumn column = sc.getColumn(); // can be column or aggregate
-			if (column.getDataProviderType() == IColumnTypes.MEDIA && (column.getFlags() & (IBaseColumn.IDENT_COLUMNS | IBaseColumn.UUID_COLUMN)) == 0)
-				continue;//skip cannot sort blob columns
+			if (column.getDataProviderType() == MEDIA && (column.getFlags() & (IDENT_COLUMNS | UUID_COLUMN)) == 0)
+			{
+				continue; // skip cannot sort blob columns
+			}
+			SortOptions sortOptions = application.getFoundSetManager().getSortOptions(sc.getColumn());
 
 			Relation[] relations = sc.getRelations();
 			// compare on server objects, relation.foreignServerName may be different in case of duplicates
@@ -376,8 +386,10 @@ public class SQLGenerator
 				else if (column instanceof AggregateVariable)
 				{
 					AggregateVariable aggregate = (AggregateVariable)column;
-					queryColumn = new QueryAggregate(aggregate.getType(), new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(),
-						aggregate.getDataProviderType(), aggregate.getLength(), 0, null, aggregate.getFlags()), aggregate.getName());
+					queryColumn = new QueryAggregate(aggregate.getType(), aggregate.getAggregateQuantifier(),
+						new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(),
+							aggregate.getDataProviderType(), aggregate.getLength(), 0, null, aggregate.getFlags()),
+						aggregate.getName(), null, false);
 
 					// there has to be a group-by clause for all selected fields
 					List<IQuerySelectValue> columns = sqlSelect.getColumns();
@@ -391,8 +403,9 @@ public class SQLGenerator
 					}
 
 					// if the aggregate has not been selected yet, add it and skip it in the result
-					QueryAggregate skippedAggregate = new QueryAggregate(aggregate.getType(), QueryAggregate.ALL, new QueryColumn(foreignQtable, -1,
-						aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength(), 0, null, aggregate.getFlags()),
+					QueryAggregate skippedAggregate = new QueryAggregate(aggregate.getType(), aggregate.getAggregateQuantifier(),
+						new QueryColumn(foreignQtable, -1, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength(), 0,
+							null, aggregate.getFlags()),
 						aggregate.getName(), null, true);
 					if (!columns.contains(skippedAggregate))
 					{
@@ -404,14 +417,14 @@ public class SQLGenerator
 					Debug.log("Skipping sort on unexpected related column type " + column.getClass()); //$NON-NLS-1$
 					continue;
 				}
-				sqlSelect.addSort(new QuerySort(queryColumn, sc.getSortOrder() == SortColumn.ASCENDING));
+				sqlSelect.addSort(new QuerySort(queryColumn, sc.getSortOrder() == ASCENDING, sortOptions));
 			}
 			else
 			{
 				// make sure an invalid sort is not possible
 				if (column instanceof Column && column.getTable().getName().equals(table.getName()))
 				{
-					sqlSelect.addSort(new QuerySort(((Column)column).queryColumn(selectTable), sc.getSortOrder() == SortColumn.ASCENDING));
+					sqlSelect.addSort(new QuerySort(((Column)column).queryColumn(selectTable), sc.getSortOrder() == ASCENDING, sortOptions));
 					unusedRowidentColumns.remove(column);
 				}
 				else
@@ -426,7 +439,8 @@ public class SQLGenerator
 		{
 			for (Column column : unusedRowidentColumns)
 			{
-				sqlSelect.addSort(new QuerySort(column.queryColumn(selectTable), true));
+				SortOptions sortOptions = application.getFoundSetManager().getSortOptions(column);
+				sqlSelect.addSort(new QuerySort(column.queryColumn(selectTable), true, sortOptions));
 			}
 		}
 	}
@@ -713,7 +727,7 @@ public class SQLGenerator
 							int convType = ((ITypedColumnConverter)columnConverter).getToObjectType(columnConverterInfo.props);
 							if (convType != Integer.MAX_VALUE)
 							{
-								dataProviderType = Column.mapToDefaultType(convType);
+								dataProviderType = mapToDefaultType(convType);
 							}
 						}
 					}
@@ -1024,7 +1038,7 @@ public class SQLGenerator
 		return null;
 	}
 
-	private void createAggregates(SQLSheet sheet, QueryTable queryTable) throws RepositoryException
+	private void createAggregates(SQLSheet sheet, QueryTable queryTable)
 	{
 		Table table = sheet.getTable();
 		Iterator<AggregateVariable> it = application.getFlattenedSolution().getAggregateVariables(table, false);
@@ -1032,8 +1046,10 @@ public class SQLGenerator
 		{
 			AggregateVariable aggregate = it.next();
 			QuerySelect sql = new QuerySelect(queryTable);
-			sql.addColumn(new QueryAggregate(aggregate.getType(), new QueryColumn(queryTable, -1, aggregate.getColumnNameToAggregate(),
-				aggregate.getDataProviderType(), aggregate.getLength(), 0, null, aggregate.getFlags()), aggregate.getName()));
+			sql.addColumn(new QueryAggregate(aggregate.getType(), aggregate.getAggregateQuantifier(),
+				new QueryColumn(queryTable, -1, aggregate.getColumnNameToAggregate(), aggregate.getDataProviderType(), aggregate.getLength(), 0, null,
+					aggregate.getFlags()),
+				aggregate.getName(), null, false));
 			sheet.addAggregate(aggregate.getDataProviderID(), aggregate.getDataProviderIDToAggregate(), sql);
 		}
 	}
@@ -1158,9 +1174,14 @@ public class SQLGenerator
 	/**
 	 * Create place holder name for PR (Relation Key)
 	 */
-	public static TablePlaceholderKey createRelationKeyPlaceholderKey(BaseQueryTable foreignTable, String relationName)
+	static TablePlaceholderKey createRelationKeyPlaceholderKey(BaseQueryTable foreignTable, String relationName)
 	{
-		return new TablePlaceholderKey(foreignTable, PLACEHOLDER_RELATION_KEY + ':' + relationName);
+		return new TablePlaceholderKey(foreignTable, createRelationKeyPlaceholderName(relationName));
+	}
+
+	private static String createRelationKeyPlaceholderName(String relationName)
+	{
+		return PLACEHOLDER_RELATION_KEY + ':' + relationName;
 	}
 
 	synchronized void makeRelatedSQL(SQLSheet relatedSheet, Relation r)
@@ -1221,21 +1242,74 @@ public class SQLGenerator
 		Column[] foreign = relation.getForeignColumns(app.getFlattenedSolution());
 		int[] operators = relation.getOperators();
 
-		QueryColumn[] keys = new QueryColumn[primary.length];
+		IQuerySelectValue[] keys = new IQuerySelectValue[primary.length];
 		int swapped[] = new int[primary.length];
 
 		for (int x = 0; x < primary.length; x++)
 		{
 			// need all keys as columns on the left side......
-			swapped[x] = RelationItem.swapOperator(operators[x]);
-			if (swapped[x] == -1)
+			int operator = RelationItem.swapOperator(operators[x]);
+			if (operator == -1)
 			{
-				throw new RepositoryException("Cannot swap relation operator for relation " + relation.getName()); //$NON-NLS-1$
+				throw new RepositoryException("Cannot swap relation operator for relation " + relation.getName());
 			}
-			//column = ? construct
-			keys[x] = foreign[x].queryColumn(foreignTable);
+			// column = ? construct
+			IQuerySelectValue key = foreign[x].queryColumn(foreignTable);
+
+			if ((key.getColumn().getFlags() & UUID_COLUMN) == 0)
+			{
+				// When we have a text and non-text column we can cast the non-text column to string
+				int primaryType = primary[x].getDataProviderType();
+				int foreignType = mapToDefaultType(key.getColumn().getColumnType());
+				if (foreignType == IColumnTypes.TEXT && primaryType != IColumnTypes.TEXT && primaryType != 0)
+				{
+					// key is text, value is non-text, cast the value to text when we supply it
+					operator |= IBaseSQLCondition.CAST_TO_MODIFIER;
+				}
+				else if (primaryType == IColumnTypes.TEXT && foreignType != IColumnTypes.TEXT)
+				{
+					// value is text, key is non-text, cast the key to text
+					key = new QueryFunction(cast,
+						new IQuerySelectValue[] { key, new QueryColumnValue(IQueryConstants.TYPE_STRING, null, true) }, null);
+					// Cast if needed
+					operator |= IBaseSQLCondition.CAST_TO_MODIFIER;
+				}
+			}
+
+			keys[x] = key;
+			swapped[x] = operator;
 		}
 		return new SetCondition(swapped, keys, new Placeholder(createRelationKeyPlaceholderKey(foreignTable, relation.getName())), true);
+	}
+
+	/**
+	 * Find the relation placeholder in the query.
+	 *
+	 * <p>Use this method instead of
+	 * <pre>querySelect.getPlaceholder(SQLGenerator.createRelationKeyPlaceholderKey(querySelect.getTable(), relationName));</pre>
+	 * For better performance.
+	 */
+	public static Placeholder getRelationPlaceholder(QuerySelect querySelect, String relationName)
+	{
+		AndCondition relationCondition = querySelect.getCondition(SQLGenerator.CONDITION_RELATION);
+		if (relationCondition != null && !relationCondition.getConditions().isEmpty())
+		{
+			ISQLCondition firstCondition = relationCondition.getConditions().iterator().next();
+			if (firstCondition instanceof SetCondition)
+			{
+				SetCondition setCondition = (SetCondition)firstCondition;
+				if (setCondition.getValues() instanceof Placeholder)
+				{
+					Placeholder placeholder = (Placeholder)setCondition.getValues();
+					if (createRelationKeyPlaceholderName(relationName).equals(placeholder.getKey().getName()))
+					{
+						return placeholder;
+					}
+				}
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -1499,7 +1573,7 @@ public class SQLGenerator
 	 */
 	static boolean isBlobColumn(Column column)
 	{
-		return Column.mapToDefaultType(column.getType()) == IColumnTypes.MEDIA && !column.hasFlag(IBaseColumn.UUID_COLUMN | IBaseColumn.IDENT_COLUMNS);
+		return mapToDefaultType(column.getType()) == MEDIA && !column.hasFlag(UUID_COLUMN | IDENT_COLUMNS);
 	}
 
 	/**
@@ -1523,7 +1597,6 @@ public class SQLGenerator
 				: column.queryColumn(select.getTable()),
 			"maxval")); //$NON-NLS-1$
 		return select;
-
 	}
 
 	public static QuerySelect createAggregateSelect(QuerySelect sqlSelect, Collection<QuerySelect> aggregates, List<Column> pkColumns)
@@ -1532,7 +1605,7 @@ public class SQLGenerator
 		selectClone.clearSorts();
 		selectClone.setDistinct(false);
 		selectClone.setColumns(null);
-		selectClone.removeUnusedJoins(true);
+		selectClone.removeUnusedJoins(true, true);
 
 		QuerySelect aggregateSqlSelect;
 
@@ -1587,16 +1660,17 @@ public class SQLGenerator
 	public static CompareCondition createLikeCompareCondition(IQuerySelectValue selectValue, int dataProviderType, String value)
 	{
 		IQuerySelectValue likeSelectValue;
-		if (Column.mapToDefaultType(dataProviderType) == IColumnTypes.TEXT)
+		if (mapToDefaultType(dataProviderType) == IColumnTypes.TEXT)
 		{
-			likeSelectValue = new QueryFunction(QueryFunctionType.upper, selectValue, null);
+			likeSelectValue = new QueryFunction(upper, selectValue, null);
 		}
 		else
 		{
-			likeSelectValue = new QueryFunction(QueryFunctionType.castfrom,
+			likeSelectValue = new QueryFunction(castfrom,
 				new IQuerySelectValue[] { selectValue, new QueryColumnValue("integer", null, true), new QueryColumnValue("string", null, true) }, null); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, likeSelectValue, value);
 	}
+
 
 }

@@ -52,12 +52,14 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HtmlUtils;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.WrappedObjectReference;
 
 
 /**
@@ -703,18 +705,31 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			// invent column names if none defined yet
 			makeColumnMap();
 		}
-		String dataSource = application.getFoundSetManager().createDataSourceFromDataSet(name, set, columnTypes /* inferred from dataset when null */, pkNames,
-			true);
-		if (dataSource != null)
+
+		// SQLEngine will add that Column._SV_ROWID = "_sv_rowid" dbident column as a first column automatically if the datasource doesn't specify
+		// an explicit pk; and that shifts column indexes in foundset compared to source dataset;
+		// but it might be that "pkNames" arg of this method is null but there is a design-time in mem table defined that defines
+		// a pk though; but that is added as last column and does not affect indexes like "_sv_rowid" does.
+		// so anyway, we need to know only if there was an automatically added first "_sv_rowid" column or not, in order to calculate indexes correctly
+		// in FoundsetDataSet below
+		WrappedObjectReference<String[]> nonAutomaticPkNames = new WrappedObjectReference<>(pkNames);
+
+		Object[] insertResult = application.getFoundSetManager().insertToDataSource(name, set, columnTypes /* inferred from dataset when null */,
+			nonAutomaticPkNames, true, true);
+		if (insertResult != null)
 		{
+			String dataSource = DataSourceUtils.createInmemDataSource(name);
+
 			// create a new foundSet for the temp table
 			IFoundSetInternal foundSet = application.getFoundSetManager().getSharedFoundSet(dataSource);
 			foundSet.loadAllRecords();
 
 			// wrap the new foundSet to redirect all IDataSet methods to the foundSet
-			set = new FoundsetDataSet(foundSet, dataSource, pkNames);
+			set = new FoundsetDataSet(foundSet, dataSource, nonAutomaticPkNames.o == null);
+
+			return dataSource;
 		}
-		return dataSource;
+		return null;
 	}
 
 	/**
@@ -1330,7 +1345,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 								param1 = ((FoundSet)foundset).getRecord(o1).getRawData().getRawColumnData();
 								param2 = ((FoundSet)foundset).getRecord(o2).getRawData().getRawColumnData();
 
-								if (((FoundsetDataSet)set).pkNames == null)
+								if (((FoundsetDataSet)set).autoAddedPkAsFirstCol_Offset == 1)
 								{
 									// hide servoy internal pk column when pknames is null
 									Object[] res = new Object[param1.length - 1];
@@ -1710,14 +1725,13 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 		private final String dataSource;
 
 		private Integer rowCount = null;
-		private final String[] pkNames;
+		private final int autoAddedPkAsFirstCol_Offset;
 
-
-		public FoundsetDataSet(IFoundSetInternal foundSet, String dataSource, String[] pkNames)
+		public FoundsetDataSet(IFoundSetInternal foundSet, String dataSource, boolean hasAutoAddedPk)
 		{
 			this.foundSet = foundSet;
 			this.dataSource = dataSource;
-			this.pkNames = pkNames;
+			this.autoAddedPkAsFirstCol_Offset = hasAutoAddedPk ? 1 : 0;
 			// note that this will also creates a reference from the foundSet to this FoundsetDataSet, when GC'ed both go at the same time
 			foundSet.addFoundSetEventListener(this);
 		}
@@ -1730,7 +1744,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 		@Override
 		public FoundsetDataSet clone()
 		{
-			return new FoundsetDataSet(foundSet, dataSource, pkNames);
+			return new FoundsetDataSet(foundSet, dataSource, autoAddedPkAsFirstCol_Offset == 1);
 		}
 
 		public String getDataSource()
@@ -1791,14 +1805,13 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 		public int getColumnCount()
 		{
-			int offset = pkNames == null ? 1 : 0;
-			return foundSet.getTable().getColumnNames().length - offset; // hide servoy internal pk column when pknames is null
+			return foundSet.getTable().getColumnNames().length - autoAddedPkAsFirstCol_Offset; // hide servoy internal pk column when pknames is null
 		}
 
 		public String[] getColumnNames()
 		{
 			String[] columnNames = foundSet.getTable().getDataProviderIDs();
-			if (pkNames != null)
+			if (autoAddedPkAsFirstCol_Offset == 0) // no auto-added pks in foundset
 			{
 				return columnNames;
 			}
@@ -1814,13 +1827,11 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			ITable table = foundSet.getTable();
 			String[] columnNames = table.getColumnNames();
 
-			int offset = pkNames == null ? 1 : 0;
-
 			// hide servoy internal pk column when pknames is null
-			int[] res = new int[columnNames.length - offset];
-			for (int i = offset; i < columnNames.length; i++)
+			int[] res = new int[columnNames.length - autoAddedPkAsFirstCol_Offset];
+			for (int i = autoAddedPkAsFirstCol_Offset; i < columnNames.length; i++)
 			{
-				res[i - offset] = table.getColumnType(columnNames[i]);
+				res[i - autoAddedPkAsFirstCol_Offset] = table.getColumnType(columnNames[i]);
 			}
 			return res;
 		}
@@ -1834,12 +1845,11 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			}
 			String[] columnNames = foundSet.getTable().getDataProviderIDs();
 
-			int offset = pkNames == null ? 1 : 0;
 			// hide servoy internal pk column when pknames is null
-			Object[] res = new Object[columnNames.length - offset];
-			for (int i = offset; i < columnNames.length; i++)
+			Object[] res = new Object[columnNames.length - autoAddedPkAsFirstCol_Offset];
+			for (int i = autoAddedPkAsFirstCol_Offset; i < columnNames.length; i++)
 			{
-				res[i - offset] = record.getValue(columnNames[i]); // get value via record so that conversion is done
+				res[i - autoAddedPkAsFirstCol_Offset] = record.getValue(columnNames[i]); // get value via record so that conversion is done
 			}
 			return res;
 		}
@@ -1902,11 +1912,10 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			{
 				String[] columnNames = foundSet.getTable().getDataProviderIDs();
 
-				int offset = pkNames == null ? 1 : 0;
 				// hide servoy internal pk column when pknames is null
-				for (int i = 0; i < array.length && (i + offset) < columnNames.length; i++)
+				for (int i = 0; i < array.length && (i + autoAddedPkAsFirstCol_Offset) < columnNames.length; i++)
 				{
-					record.setValue(columnNames[i + offset], array[i]);
+					record.setValue(columnNames[i + autoAddedPkAsFirstCol_Offset], array[i]);
 				}
 				record.stopEditing();
 			}
@@ -1914,9 +1923,8 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 
 		public void sort(int column, boolean ascending)
 		{
-			int offset = pkNames == null ? 1 : 0;
 			// hide servoy internal pk column when pknames is null
-			IColumn c = (IColumn)((Table)foundSet.getTable()).getColumns().toArray()[column + offset];
+			IColumn c = (IColumn)((Table)foundSet.getTable()).getColumns().toArray()[column + autoAddedPkAsFirstCol_Offset];
 			SortColumn sortColumn = new SortColumn(c);
 			sortColumn.setSortOrder(ascending ? SortColumn.ASCENDING : SortColumn.DESCENDING);
 			List<SortColumn> sortColumns = new ArrayList<SortColumn>(1);

@@ -229,6 +229,9 @@ public class ScriptNameValidator implements IValidateName
 		//Test for script calculations
 		if (searchContext.getObject() instanceof TableNode || searchContext.getObject() instanceof Table)
 		{
+			Object obj = testRelations(nameToCheck, skip_element_id);
+			if (obj != null) return obj;
+
 			ITable table;
 			if (searchContext.getObject() instanceof Table)
 			{
@@ -238,9 +241,6 @@ public class ScriptNameValidator implements IValidateName
 			{
 				table = solutionRoot.getTable(((TableNode)searchContext.getObject()).getDataSource());
 			}
-
-			Object obj = testRelations(nameToCheck, skip_element_id);
-			if (obj != null) return obj;
 
 			// Test table dataproviders
 			obj = testTableProviders(table, nameToCheck, skip_element_id, searchContext.getType() == IRepository.COLUMNS,
@@ -271,18 +271,18 @@ public class ScriptNameValidator implements IValidateName
 		else if ((searchContext.getType() == IRepository.SCRIPTVARIABLES || searchContext.getType() == IRepository.METHODS) &&
 			!(searchContext.getObject() instanceof Form))
 		{
-			for (ScriptVariable sgv : Utils.iterate(solutionRoot.getScriptVariables(false)))
+			if (searchContext.getObject() instanceof String)
 			{
-				if (nameToCheck.equals(sgv.getName()) && sgv.getID() != skip_element_id &&
-					(searchContext.getObject() instanceof String && searchContext.getObject().equals(sgv.getScopeName()))) // search context string is scopeName
+				// search context string is scopeName
+				String scope = (String)searchContext.getObject();
+				ScriptVariable sgv = solutionRoot.getScriptVariable(scope, nameToCheck);
+				if (sgv != null && sgv.getID() != skip_element_id)
 				{
 					return sgv;
 				}
-			}
-			for (ScriptMethod sm : Utils.iterate(solutionRoot.getScriptMethods(false)))
-			{
-				if (nameToCheck.equals(sm.getName()) && sm.getID() != skip_element_id &&
-					(searchContext.getObject() instanceof String && searchContext.getObject().equals(sm.getScopeName()))) // search context string is scopeName
+
+				ScriptMethod sm = solutionRoot.getScriptMethod(scope, nameToCheck);
+				if (sm != null && sm.getID() != skip_element_id)
 				{
 					return sm;
 				}
@@ -291,12 +291,10 @@ public class ScriptNameValidator implements IValidateName
 
 		if (searchContext.getType() == IRepository.FORMS)
 		{
-			for (Form form : Utils.iterate(solutionRoot.getForms(false)))
+			Form form = solutionRoot.getForm(nameToCheck);
+			if (form != null && form.getID() != skip_element_id)
 			{
-				if (nameToCheck.equalsIgnoreCase(form.getName()) && form.getID() != skip_element_id)
-				{
-					return form;
-				}
+				return form;
 			}
 		}
 
@@ -334,11 +332,22 @@ public class ScriptNameValidator implements IValidateName
 
 		if (searchContext.getType() == IRepository.RELATIONS)
 		{
-			// TODO new or name change of relations must be figured out. (Now only testing form script of every form)
 			Object obj = testRelations(nameToCheck, skip_element_id);
 			if (obj != null) return obj;
 
-			for (Form form : Utils.iterate(solutionRoot.getForms(false)))
+			Iterator<Form> forms;
+
+			// if there is an object set in the content which is a string then that is the primary datasource of this relation.
+			Object primaryDataSource = searchContext.getObject();
+			if (primaryDataSource instanceof String)
+			{
+				forms = solutionRoot.getForms((String)primaryDataSource, false);
+			}
+			else
+			{
+				forms = solutionRoot.getForms(false);
+			}
+			for (Form form : Utils.iterate(forms))
 			{
 				obj = testFormScripts(form, nameToCheck, skip_element_id);
 				if (obj != null) return obj;
@@ -347,23 +356,19 @@ public class ScriptNameValidator implements IValidateName
 
 		if (searchContext.getType() == IRepository.VALUELISTS)
 		{
-			for (ValueList vl : Utils.iterate(solutionRoot.getValueLists(false)))
+			ValueList vl = solutionRoot.getValueList(nameToCheck);
+			if (vl != null && vl.getID() != skip_element_id)
 			{
-				if (nameToCheck.equalsIgnoreCase(vl.getName()) && vl.getID() != skip_element_id)
-				{
-					return vl;
-				}
+				return vl;
 			}
 		}
 
 		if (searchContext.getType() == IRepository.MEDIA)
 		{
-			for (Media media : Utils.iterate(solutionRoot.getMedias(false)))
+			Media media = solutionRoot.getMedia(nameToCheck);
+			if (media != null && media.getID() != skip_element_id)
 			{
-				if (nameToCheck.equalsIgnoreCase(media.getName()) && media.getID() != skip_element_id)
-				{
-					return media;
-				}
+				return media;
 			}
 		}
 
@@ -457,14 +462,12 @@ public class ScriptNameValidator implements IValidateName
 		return null;
 	}
 
-	private Object testRelations(String name, int id) throws RepositoryException
+	private Object testRelations(String name, int id)
 	{
-		for (Relation r : Utils.iterate(solutionRoot.getRelations(false)))
+		Relation r = solutionRoot.getRelation(name);
+		if (r != null && r.getID() != id) // relations with mixed name casing are allowed at runtime with solution model but to avoid confusions do not allow names equalIgnoreCase in this case either
 		{
-			if (r.getName().equalsIgnoreCase(name) && r.getID() != id) // relations with mixed name casing are allowed at runtime with solution model but to avoid confusions do not allow names equalIgnoreCase in this case either
-			{
-				return r;
-			}
+			return r;
 		}
 		return null;
 	}

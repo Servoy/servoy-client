@@ -47,6 +47,7 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.ITeamRepository;
 import com.servoy.j2db.persistence.Procedure;
 import com.servoy.j2db.persistence.QuerySet;
+import com.servoy.j2db.persistence.QueryString;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
@@ -284,7 +285,7 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public ITable insertDataSet(String client_id, IDataSet set, final String dataSource, String serverName, String tableName, String tid,
+			public InsertResult insertDataSet(String client_id, IDataSet set, final String dataSource, String serverName, String tableName, String tid,
 				ColumnType[] columnTypes, String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException
 			{
 				dataSetMap.put(dataSource, set);
@@ -299,14 +300,16 @@ public class TestNGClient extends NGClient
 						col.setDatabasePK(true);
 					}
 				}
-				return table;
+				return new InsertResult(table, new Object[0]);
 			}
 
 			@Override
 			public QuerySet getSQLQuerySet(String serverName, ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve,
 				boolean forceQualifyColumns, boolean disableUseArrayForIn) throws RepositoryException, RemoteException
 			{
-				return null;
+				QuerySet qs = new QuerySet();
+				qs.setSelect(new QueryString("select from test", false));
+				return qs;
 			}
 
 			@Override
@@ -531,7 +534,7 @@ public class TestNGClient extends NGClient
 							@Override
 							public PerformanceData getPerformanceData(String context)
 							{
-								return new PerformanceData(PerformanceAggregator.DEFAULT_MAX_ENTRIES_TO_KEEP_IN_PRODUCTION, null);
+								return new PerformanceData(this, null, "", new PerformanceAggregator(this));
 							}
 
 							@Override

@@ -27,21 +27,26 @@ import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.dataprocessing.FoundSet;
+import com.servoy.j2db.dataprocessing.FoundSetManager;
+import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.ViewFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
+import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Provides utility methods for server side scripting.
+ * Provides utility methods for web object server side scripting to interact with the Servoy environment.
  * @author lvostinar
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ServoyApi", scriptingName = "servoyApi")
@@ -70,7 +75,7 @@ public class ServoyApiObject
 			// no access to repository yet, have to log in first
 			throw new ServoyException(ServoyException.CLIENT_NOT_AUTHORIZED);
 		}
-		return app.getFoundSetManager().getViewFoundSet(name, query);
+		return app.getFoundSetManager().getViewFoundSet(name, query, false);
 	}
 
 	/**
@@ -117,7 +122,7 @@ public class ServoyApiObject
 		if (formController != null)
 		{
 			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-			boolean ret = formController.notifyVisible(false, invokeLaterRunnables);
+			boolean ret = formController.notifyVisible(false, invokeLaterRunnables, true);
 			if (ret)
 			{
 				formController.setParentFormController(null);
@@ -250,4 +255,51 @@ public class ServoyApiObject
 
 	}
 
+	/**
+	 * Performs a sql query with a query builder object.
+	 * Will throw an exception if anything did go wrong when executing the query.
+	 * Will use any data filter defined on table.
+	 *
+	 * @sample
+	 *  var dataset = servoyApi.getDataSetByQuery(qbselect, 10);
+	 *
+	 * @param query QBSelect query.
+	 * @param max_returned_rows The maximum number of rows returned by the query.
+	 *
+	 * @return The JSDataSet containing the results of the query.
+	 */
+	@JSFunction
+	public JSDataSet getDataSetByQuery(QBSelect query, Number max_returned_rows)
+	{
+		int _max_returned_rows = Utils.getAsInteger(max_returned_rows);
+
+		String serverName = DataSourceUtils.getDataSourceServerName(query.getDataSource());
+
+		if (serverName == null)
+			throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { query.getDataSource() }));
+		QuerySelect select = query.build();
+
+		try
+		{
+			return new JSDataSet(app, ((FoundSetManager)app.getFoundSetManager()).getDataSetByQuery(serverName, select,
+				true, _max_returned_rows));
+		}
+		catch (ServoyException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Add a filter parameter that is permanent per user session to limit a specified foundset of records.
+	 * This is similar as calling foundset.js_addFoundSetFilterParam, but the main difference is that this
+	 * works also on related foundsets.
+	 *
+	 * @see Foundset.js_addFoundSetFilterParam
+	 */
+	@JSFunction
+	public boolean addFoundSetFilterParam(FoundSet foundset, QBSelect query, String filterName)
+	{
+		return foundset.addFoundSetFilterParam(query, filterName);
+	}
 }

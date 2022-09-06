@@ -19,6 +19,7 @@ package com.servoy.j2db.dataprocessing;
 
 import static com.servoy.j2db.dataprocessing.FireCollector.getFireCollector;
 
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
@@ -38,8 +40,10 @@ import com.servoy.base.scripting.api.IJSDataSet;
 import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -57,6 +61,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	private final List<IModificationListener> modificationListeners;
 	private final ViewFoundSet foundset;
 	private Exception lastException;
+	private final Map<String, SoftReference<IFoundSetInternal>> relatedFoundSets;
 
 	public ViewRecord(String[] columnNames, Object[] data, ViewFoundSet foundset)
 	{
@@ -66,6 +71,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 			values.put(columnNames[i], data[i]);
 		}
 		this.modificationListeners = Collections.synchronizedList(new ArrayList<IModificationListener>(3));
+		this.relatedFoundSets = new HashMap<String, SoftReference<IFoundSetInternal>>(3);
 		initJSFunctions(foundset != null ? foundset.getFoundSetManager().getApplication() : null);
 	}
 
@@ -119,7 +125,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		return prevValue;
 	}
 
-	private Object setValueImpl(String dataProviderID, Object value)
+	Object setValueImpl(String dataProviderID, Object value)
 	{
 		Object managebleValue = Utils.mapToNullIfUnmanageble(value);
 		Object prevValue = values.get(dataProviderID);
@@ -156,6 +162,47 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 			return lastException;
 		}
 		if (values.containsKey(dataProviderID)) return values.get(dataProviderID);
+		int index = dataProviderID.lastIndexOf('.');
+		if (index > 0) //check if is related value request
+		{
+			String partName = dataProviderID.substring(0, index);
+			String restName = dataProviderID.substring(index + 1);
+
+			if ("lazyMaxRecordIndex".equals(restName)) //$NON-NLS-1$
+			{
+				if (!isRelatedFoundSetLoaded(partName, restName))
+				{
+					return "?"; //$NON-NLS-1$
+				}
+				restName = "maxRecordIndex"; //$NON-NLS-1$
+			}
+
+			IFoundSetInternal foundSet = getRelatedFoundSet(partName);// partName may be multiple levels deep; check substate, will return null if not found
+			if (foundSet != null)
+			{
+				//related data
+				int selected = foundSet.getSelectedIndex();
+
+				//in printing selected row will be set to -1, but if data is retrieved we need to use the first record again for use after printing...
+				if (selected == -1 && foundSet.getSize() > 0) selected = 0;
+
+				IRecordInternal state = foundSet.getRecord(selected);
+				if (state != null)
+				{
+					return state.getValue(restName);
+				}
+				if (foundSet.containsDataProvider(restName))
+				{
+					return foundSet.getDataProviderValue(restName);
+				}
+			}
+			return null;
+		}
+
+		if (foundset.isValidRelation(dataProviderID))
+		{
+			return getRelatedFoundSet(dataProviderID);
+		}
 		return Scriptable.NOT_FOUND;
 	}
 
@@ -180,6 +227,21 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 			pk = new Object[] { Utils.calculateMD5HashBase64(RowManager.createPKHashKey(values.values().toArray())) };
 		}
 		return pk;
+	}
+
+	/**
+	 * Returns true if the current record is a new record or false otherwise. New record means not saved to database.
+	 * Because this record is part of a view foundset, this method will always return false.
+	 *
+	 * @sample
+	 * var isNew = viewFoundset.getSelectedRecord().isNew();
+	 *
+	 * @return true if the current record is a new record, false otherwise;
+	 */
+	@JSFunction
+	public boolean isNew()
+	{
+		return getRawData() != null && !existInDataSource();
 	}
 
 	/**
@@ -232,6 +294,20 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	public Exception getException()
 	{
 		return lastException;
+	}
+
+	/**
+	 * Returns the records datasource string.
+	 *
+	 * @sample
+	 * var ds = record.getDataSource();
+	 *
+	 * @return The datasource string of this record.
+	 */
+	@JSFunction
+	public String getDataSource()
+	{
+		return foundset.getDataSource();
 	}
 
 	/**
@@ -291,7 +367,32 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		return true;
 	}
 
+	/**
+	 * Returns true or false if the related foundset is already loaded. Will not load the related foundset.
+	 *
+	 * @sample
+	 * var isLoaded = viewfoundset.getSelectedRecord().isRelatedFoundSetLoaded(relationName)
+	 *
+	 * @param relationName name of the relation to check for
+	 *
+	 * @return true if related foundset is loaded.
+	 */
+	@JSFunction
+	public boolean isRelatedFoundSetLoaded(String relationName)
+	{
+		return isRelatedFoundSetLoaded(relationName, null);
+	}
+
+	/**
+	 * Returns true or false if the record has changes or not.
+	 *
+	 * As opposed to isEditing() of regular records, this method actually returns whether there are unsaved changes
+	 * on this record, since there is no edit mode for view records.
+	 *
+	 * @return true if unsaved changes are detected.
+	 */
 	@Override
+	@JSFunction
 	public boolean isEditing()
 	{
 		return changes != null && changes.size() > 0;
@@ -330,7 +431,34 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	@Override
 	public boolean isRelatedFoundSetLoaded(String relationName, String restName)
 	{
-		return false;
+		if (relatedFoundSets.size() > 0)
+		{
+			SoftReference<IFoundSetInternal> sr = null;
+			synchronized (relatedFoundSets)
+			{
+				if (relatedFoundSets.containsKey(relationName))
+				{
+					sr = relatedFoundSets.get(relationName);
+					if (sr == null)
+					{
+						// special case, relation was ask for but didn't return anything,
+						// see getRelatedFoundSet()
+						return true;
+					}
+				}
+			}
+
+			if (sr != null)
+			{
+				IFoundSetInternal fs = sr.get();
+				if (fs instanceof RelatedFoundSet)
+				{
+					RelatedFoundSet rfs = (RelatedFoundSet)fs;
+					return !rfs.mustQueryForUpdates() && !(rfs.mustAggregatesBeLoaded() && fs.getSQLSheet().containsAggregate(restName));
+				}
+			}
+		}
+		return ((FoundSetManager)foundset.getFoundSetManager()).isRelatedFoundSetLoaded(this, relationName);
 	}
 
 	@Override
@@ -348,15 +476,48 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	@Override
 	public IFoundSetInternal getRelatedFoundSet(String relationName)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return getRelatedFoundSet(relationName, null);
 	}
 
 	@Override
 	public IFoundSetInternal getRelatedFoundSet(String relationName, List<SortColumn> defaultSortColumns)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		if (relationName == null || foundset == null) return null;
+
+		try
+		{
+			if (relationName.indexOf('.') < 0)
+			{
+				// one level deep relation name
+				Relation relation = foundset.getFoundSetManager().getApplication().getFlattenedSolution().getRelation(relationName);
+				if (relation != null && relation.isGlobal())//only do handle global relations
+				{
+					return foundset.getFoundSetManager().getGlobalRelatedFoundSet(relationName);
+				}
+			}
+
+			// when relationName is multiple levels deep or a fk(null)->pk relation then the relation doesn't have to be there yet.
+			IFoundSetInternal sub = foundset.getRelatedFoundSet(this, relationName, defaultSortColumns);
+			synchronized (relatedFoundSets)
+			{
+				if (sub != null)
+				{
+					relatedFoundSets.put(relationName, new SoftReference<IFoundSetInternal>(sub));
+				}
+				else
+				{
+					// relation was asked for but didn't return anything, don't ask for it again. (see isRelatedFoundsetLoaded())
+					relatedFoundSets.put(relationName, null);
+				}
+				return sub;
+			}
+		}
+		catch (ServoyException ex)
+		{
+			foundset.getFoundSetManager().getApplication().reportError(foundset.getFoundSetManager().getApplication().getI18NMessage("servoy.relation.error"), //$NON-NLS-1$
+				ex);
+			return null;
+		}
 	}
 
 	@Override
@@ -440,7 +601,16 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	@Override
 	public void put(String name, Scriptable start, Object value)
 	{
-		setValue(name, value);
+		Object tmp = value;
+		while (tmp instanceof Wrapper)
+		{
+			tmp = ((Wrapper)tmp).unwrap();
+			if (tmp == value)
+			{
+				break;
+			}
+		}
+		setValue(name, tmp);
 	}
 
 	@Override
@@ -573,6 +743,22 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	public boolean hasChangedData()
 	{
 		return changes != null;
+	}
+
+	/**
+	 * Creates and returns a new validation object for this record, which allows for markers to be used outside the validation flow.
+	 * Will overwrite the current markers if present.
+	 * Can be set to null again if you checked the problems, will also be set to null when a save was successful.
+	 *
+	 * @sample var recordMarkers = record.createMarkers();
+	 *
+	 * @return A new validation object.
+	 */
+	@JSFunction
+	public JSRecordMarkers createMarkers()
+	{
+		this.recordMarkers = new JSRecordMarkers(this, this.foundset.getFoundSetManager().getApplication());
+		return this.recordMarkers;
 	}
 
 	/**

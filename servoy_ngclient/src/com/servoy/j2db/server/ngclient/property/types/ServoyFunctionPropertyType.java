@@ -42,6 +42,7 @@ import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.scripting.FunctionWrapper;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.ScriptVariableScope;
 import com.servoy.j2db.scripting.solutionmodel.IJSParent;
@@ -156,25 +157,11 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 			}
 			else if (object instanceof NativeFunction)
 			{
-				NativeFunction function = (NativeFunction)object;
-				String functionName = function.getFunctionName();
-				Scriptable parentScope = function.getParentScope();
-				while (parentScope != null && !(parentScope instanceof ScriptVariableScope))
-				{
-					parentScope = parentScope.getParentScope();
-				}
-				if (parentScope instanceof FormScope && ((FormScope)parentScope).getFormController() != null)
-				{
-					String formName = ((FormScope)parentScope).getFormController().getName();
-					map.put("script", SecuritySupport.encrypt(Settings.getInstance(), "forms." + formName + "." + functionName + "()"));
-					map.put("formname", formName);
-				}
-				else if (parentScope instanceof GlobalScope)
-				{
-					map.put("script",
-						SecuritySupport.encrypt(Settings.getInstance(), "scopes." + ((GlobalScope)parentScope).getScopeName() + "." + functionName + "()"));
-				}
-
+				nativeFunctionToJSON((NativeFunction)object, map);
+			}
+			else if (object instanceof FunctionWrapper && ((FunctionWrapper)object).getWrappedFunction() instanceof NativeFunction)
+			{
+				nativeFunctionToJSON((NativeFunction)((FunctionWrapper)object).getWrappedFunction(), map);
 			}
 			else if (object instanceof Map)
 			{
@@ -187,6 +174,27 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 			Debug.error(ex);
 		}
 		return JSONUtils.toBrowserJSONFullValue(writer, key, map.size() == 0 ? null : map, null, null);
+	}
+
+	private void nativeFunctionToJSON(NativeFunction function, Map<String, Object> map) throws Exception
+	{
+		String functionName = function.getFunctionName();
+		Scriptable parentScope = function.getParentScope();
+		while (parentScope != null && !(parentScope instanceof ScriptVariableScope))
+		{
+			parentScope = parentScope.getParentScope();
+		}
+		if (parentScope instanceof FormScope && ((FormScope)parentScope).getFormController() != null)
+		{
+			String formName = ((FormScope)parentScope).getFormController().getName();
+			map.put("script", SecuritySupport.encrypt(Settings.getInstance(), "forms." + formName + "." + functionName + "()"));
+			map.put("formname", formName);
+		}
+		else if (parentScope instanceof GlobalScope)
+		{
+			map.put("script",
+				SecuritySupport.encrypt(Settings.getInstance(), "scopes." + ((GlobalScope)parentScope).getScopeName() + "." + functionName + "()"));
+		}
 	}
 
 	private void addScriptToMap(String script, Map<String, Object> map) throws Exception

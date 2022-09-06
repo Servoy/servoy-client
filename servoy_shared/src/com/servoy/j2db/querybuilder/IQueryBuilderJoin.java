@@ -17,7 +17,7 @@
 
 package com.servoy.j2db.querybuilder;
 
-import com.servoy.base.query.IJoinConstants;
+import com.servoy.base.query.IQueryConstants;
 
 /**
  * Join clause in Servoy Query Objects.
@@ -33,25 +33,25 @@ public interface IQueryBuilderJoin extends IQueryBuilderTableClause
 	 * Constant for join types.
 	 * @see #on()
 	 */
-	static final int INNER_JOIN = IJoinConstants.INNER_JOIN;
+	static final int INNER_JOIN = IQueryConstants.INNER_JOIN;
 
 	/**
 	 * Constant for join types.
 	 * @see #on()
 	 */
-	static final int LEFT_OUTER_JOIN = IJoinConstants.LEFT_OUTER_JOIN;
+	static final int LEFT_OUTER_JOIN = IQueryConstants.LEFT_OUTER_JOIN;
 
 	/**
 	 * Constant for join types.
 	 * @see #on()
 	 */
-	static final int FULL_JOIN = IJoinConstants.FULL_JOIN;
+	static final int FULL_JOIN = IQueryConstants.FULL_JOIN;
 
 	/**
 	 * Constant for join types.
 	 * @see #on()
 	 */
-	static final int RIGHT_OUTER_JOIN = IJoinConstants.RIGHT_OUTER_JOIN;
+	static final int RIGHT_OUTER_JOIN = IQueryConstants.RIGHT_OUTER_JOIN;
 
 	/**
 	 * Get the on clause for the join.

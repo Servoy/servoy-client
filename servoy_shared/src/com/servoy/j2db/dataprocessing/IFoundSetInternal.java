@@ -93,6 +93,8 @@ public interface IFoundSetInternal extends IFoundSet, IFireCollectable
 
 	public int getID();
 
+	public int getIDInternal();
+
 	public boolean isInitialized();
 
 	public int getRawSize();

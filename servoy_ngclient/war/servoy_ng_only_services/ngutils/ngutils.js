@@ -1,5 +1,5 @@
 angular.module('ngclientutils', [ 'servoy' ])
-.factory("ngclientutils",["$services","$window",function($services, $window) {
+.factory("ngclientutils",["$services","$window", "$log", function($services, $window, $log) {
 	var scope = $services.getServiceScope('ngclientutils');
 	var confirmMessage = null;
 	var beforeUnload =  function(e) {
@@ -248,6 +248,29 @@ angular.module('ngclientutils', [ 'servoy' ])
 		setLangAttribute: function(lang)
 		{
 			$("html").attr("lang",lang);
+		},
+		
+		/**
+		 * Move the scrollbar to the position of the given anchorSelector.
+		 * The target anchorSelector can be a Servoy Form, Layout Container or element in a responsive form or any element in a form.
+		 * You can use styleClass as selector.
+		 * For example: you can add 'scroll-element' to an element of the form.
+		 * Examples of usage: 
+		 * - plugins.ngclientutils.scrollIntoView(".toScroll-To");
+		 * - plugins.ngclientutils.scrollIntoView(".toScroll-To", { behavior: "smooth", block: "start", inline: "nearest" });
+		 
+		 * @param anchorSelector {string} the selector to which the scrollbar should be moved to.
+		 * @param scrollIntoViewOptions option argument used for scrolling animation (example:  { behavior: "smooth", block: "start", inline: "nearest" }).
+		 */
+		scrollIntoView: function( anchorSelector, scrollIntoViewOptions ) {
+			var anchor = document.querySelector(anchorSelector);
+            if ( anchor ) {
+            	if ( !scrollIntoViewOptions ) scrollIntoViewOptions = { behavior: "smooth", block: "start", inline: "nearest" };
+                // move scrolling to position
+            	anchor.scrollIntoView( scrollIntoViewOptions );
+            } else {
+            	$log.warn( 'cannot find anchor element ' + anchorSelector );                
+            }
 		}
 	}
 }])
@@ -296,10 +319,58 @@ angular.module('ngclientutils', [ 'servoy' ])
 			// bind-once watch to wait for the server value to come (become defined) in case of a browser page refresh
 			scope.$watch("model.contributedTags", function(newVal, oldVal) {
 				if (newVal) {
-					var tags = scope.model.contributedTags;
-
-					// remove old ones if any
-					angular.element("head > [hhsManagedTag]").remove();
+					var tags = scope.model.contributedTags.slice();
+                    var uitags = angular.element("head > [hhsManagedTag]");
+					
+                    // remove old ones if any
+                    if (oldVal){
+                        for (var i = 0; i < oldVal.length; i++) {
+                            var oldTag = oldVal[i];
+                            var newIndex = -1;
+                            for (var j = 0; j < tags.length; j++) {
+                                var tag = tags[j];
+                                if (oldTag.tagName == tag.tagName && oldTag.attrs.length == tag.attrs.length){
+                                     var sameAttributes = true;
+                                     for (var k = 0; k < tag.attrs.length; k++) {
+                                         if (oldTag.attrs[k].name != tag.attrs[k].name || oldTag.attrs[k].value != tag.attrs[k].value){
+                                            sameAttributes = false;
+                                            break;
+                                        }
+                                     }
+                                     if (sameAttributes){
+                                        newIndex = j;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (newIndex >= 0) {
+                                // element was found unchanged, just leave it alone
+                                tags.splice(newIndex, 1);
+                            }
+                            else{
+                                // element was deleted or changed, we must remove it from dom
+                                 for (var j = 0; j < uitags.length; j++) {
+                                    var uitag = uitags[j];
+                                    if (uitag.tagName.toLowerCase() == oldTag.tagName.toLowerCase()){
+                                         var sameAttributes = true;
+                                         for (var k = 0; k < oldTag.attrs.length; k++) {
+                                            if ( uitag.getAttribute(oldTag.attrs[k].name) != oldTag.attrs[k].value){
+                                                sameAttributes = false;
+                                                break;
+                                            }
+                                        }
+                                        if (sameAttributes){
+                                            uitag.remove();
+                                            break;
+                                        }
+                                    }
+                                 }
+                            }
+                        }
+                    }
+                    else{
+                        uitags.remove();
+                    }
 
 					// create new ones
 					if (tags) {

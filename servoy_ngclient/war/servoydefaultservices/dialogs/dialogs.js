@@ -68,6 +68,7 @@ angular.module('dialogs',['servoy'])
 					  closeButton: false,
 					  title: dialogTitle,
 					  message: dialogMessage,
+                      locale: navigator.language,
 					  value: initialValue
 					};
 			var dialog = bootbox.prompt(dialogOptions);
@@ -106,8 +107,10 @@ angular.module('dialogs',['servoy'])
 					  closeButton: false,
 					  title: dialogTitle,
 					  message: dialogMessage,
+                      locale: navigator.language,
 					  inputType: 'select',
-					  inputOptions: options
+					  inputOptions: options,
+                      value: options[0].value
 					};
 			var dialog = bootbox.prompt(dialogOptions);
 			$sabloTestability.block(true);
@@ -132,6 +135,7 @@ angular.module('dialogs',['servoy'])
 					  buttons: {
 					  },
 					  closeButton: false,
+                      locale : navigator.language,
 					  onEscape: function(){  dialogOpenedDeferred.resolve(null) }
 					};
 			if (dialogTitle) dialogOptions.title = dialogTitle;

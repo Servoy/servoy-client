@@ -54,6 +54,11 @@ public class FoundSetEvent extends EventObject
 	public static final int SELECTION_MODE_CHANGE = 14; // currently only used to broadcast foundset multiselect unpin/lower pinLevel events, but can be extended with change type if needed
 
 	/**
+	 * Change when the foundset definition was changed.
+	 */
+	public static final int FOUNDSET_DEFINITION_CHANGE = 15;
+
+	/**
 	 * Change type data is inserted when type is CONTENTS_CHANGED.
 	 */
 	public static final int CHANGE_INSERT = 1;

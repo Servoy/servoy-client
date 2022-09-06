@@ -694,31 +694,28 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				}
 			}
 
-			var cancelNextBlur = 0;
-
+            
+            function applyChange(){
+                if (!$scope.model.findmode) {
+                    if (!element.is(":focus") && svyFormat.edit && svyFormat.isMask) element.unmask();
+                    //blur needs this because we need to change to the display format even if the value didn't change
+                    $scope.$evalAsync(function() {
+                        ngModelController.$setViewValue(modelToView(ngModelController.$modelValue))
+                        ngModelController.$render();
+                    })
+                }
+            }
+            // blur is called first then change event (if clicking outside); so blur should always apply and onchange only if enter was pressed
 			function change() {
-				if (!$scope.model.findmode) {
-					if (svyFormat.edit && svyFormat.isMask) element.unmask();
-					//blur needs this because we need to change to the display format even if the value didn't change
-					$scope.$evalAsync(function() {
-						ngModelController.$setViewValue(modelToView(ngModelController.$modelValue))
-						ngModelController.$render();
-					})
-					if(!element.is(":focus")){
-						// only do this if the element is not focused anymore
-						// if it is focused, then it means that enter was pressed and after enter we still need blur
-						cancelNextBlur += 1; // the browser just called change(), we do not want the next blur() to do anything
-					}
-				}
+                if(element.is(":focus")){
+                    // only apply the change if is still focused (enter was pressed, otherwise rely on blur to apply the changes)
+                    applyChange();
+                }
 			}
 
 			function blur() {
 				//call change so that the (view)formatting is applied even if the data was not changed - i.e. change() was not called by the browser
-				if (cancelNextBlur) cancelNextBlur = 0;
-				else {
-					cancelNextBlur = -1; //so that the next change does not count as a change event from the browser
-					change();
-				}
+				applyChange();
 			}
 
 			var isKeyPressEventFired = false;

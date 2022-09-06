@@ -106,12 +106,18 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	protected String forFoundsetTypedPropertyName;
 	protected PropertyChangeListener forFoundsetPropertyListener, readonlyPropertyListener;
 
-	protected boolean recordBasedPropertiesChanged = false;
-	protected boolean recordBasedPropertiesChangedComparedToTemplate = false;
 	protected ViewportDataChangeMonitor<ComponentViewportRowDataProvider> viewPortChangeMonitor;
 
 	protected ComponentDataLinkedPropertyListener dataLinkedPropertyRegistrationListener; // only used in case component is foundset-linked
-	protected final List<String> recordBasedProperties;
+
+	/**
+	 * Initially equal to recordBasedProperties of the form element. It will always return a copy and keep the original intact if any
+	 * methods that can mutate it's state are about to do that.
+	 *
+	 * This will be null if the component is not foundset-linked and will always be non-null (no matter if it has record based props or
+	 * not in the component) if the component is foundset linked.
+	 */
+	private RecordBasedProperties recordBasedProperties;
 
 	private IWebObjectContext webObjectContext;
 	private IChangeListener foundsetStateChangeListener;
@@ -127,8 +133,13 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	{
 		this.formElementValue = formElementValue;
 		this.forFoundsetTypedPropertyName = forFoundsetTypedPropertyName;
-		this.recordBasedProperties = forFoundsetTypedPropertyName != null ? new ArrayList<>(formElementValue.recordBasedProperties) : null;
 		this.componentPropertyDescription = componentPropertyDescription;
+		initRecordBasedProperties();
+	}
+
+	private void initRecordBasedProperties()
+	{
+		this.recordBasedProperties = forFoundsetTypedPropertyName != null ? formElementValue.recordBasedProperties : null;
 	}
 
 	public String getName()
@@ -236,11 +247,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		}
 		componentIsCreated = false;
 
-		if (recordBasedProperties != null)
-		{
-			recordBasedProperties.clear();
-			recordBasedProperties.addAll(formElementValue.recordBasedProperties);
-		}
+		initRecordBasedProperties(); // reset to form element's record based properties or null
 
 		this.monitor = null;
 		this.webObjectContext = null;
@@ -380,8 +387,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 		if (foundsetPropValue != null)
 		{
-			viewPortChangeMonitor = new ViewportDataChangeMonitor<>(monitor,
-				new ComponentViewportRowDataProvider((FoundsetDataAdapterList)dal, childComponent, recordBasedProperties, this));
+			viewPortChangeMonitor = new ComponentTypeViewportDataChangeMonitor(monitor,
+				new ComponentViewportRowDataProvider((FoundsetDataAdapterList)dal, childComponent, this), this);
 			foundsetPropValue.addViewportDataChangeMonitor(viewPortChangeMonitor);
 			setDataproviderNameToFoundset();
 		}
@@ -389,6 +396,11 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		addPropagatingPropertyChangeListener(WebFormUI.READONLY, webObjectContext.getProperty(WebFormUI.READONLY));
 
 		if (childComponent.hasChanges()) monitor.valueChanged();
+	}
+
+	protected RecordBasedProperties getRecordBasedProperties()
+	{
+		return recordBasedProperties;
 	}
 
 	private IChangeListener getFoundsetStateChangeListener()
@@ -491,7 +503,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		{
 			Pair<IDataLinkedPropertyValue, PropertyDescription> tmp = ((IWrapperDataLinkedType)propertyDescription.getType()).getWrappedDataLinkedValue(
 				propertyValue, propertyDescription);
-			return nestedPropertyFound(propertyValueToFind, tmp.getLeft(), tmp.getRight());
+			if (tmp != null) nestedPropertyFound(propertyValueToFind, tmp.getLeft(), tmp.getRight());
 		}
 
 		return false;
@@ -503,7 +515,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	 */
 	public JSONWriter initialToJSON(JSONWriter destinationJSON, ComponentPropertyType componentPropertyType) throws JSONException
 	{
-		if (recordBasedPropertiesChangedComparedToTemplate) return fullToJSON(destinationJSON, componentPropertyType);
+		if (forFoundsetTypedPropertyName != null && recordBasedProperties.areRecordBasedPropertiesChangedComparedToTemplate())
+			return fullToJSON(destinationJSON, componentPropertyType);
 
 		destinationJSON.object();
 		destinationJSON.key(ComponentPropertyType.PROPERTY_UPDATES_KEY);
@@ -533,7 +546,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 	public JSONWriter changesToJSON(JSONWriter destinationJSON, ComponentPropertyType componentPropertyType) throws JSONException
 	{
-		if (recordBasedPropertiesChanged)
+		if (forFoundsetTypedPropertyName != null && recordBasedProperties.areRecordBasedPropertiesChanged())
 		{
 			// just send over the whole thing - viewport and model properties are not the same as they used to be
 			return fullToJSON(destinationJSON, componentPropertyType);
@@ -684,7 +697,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			}
 
 		}, recordBasedProperties, false);
-		recordBasedPropertiesChanged = false;
+		if (forFoundsetTypedPropertyName != null) recordBasedProperties.clearChanged();
 
 		writeWholeViewportToJSON(writer);
 
@@ -700,8 +713,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		if (forFoundsetTypedPropertyName != null)
 		{
 			// remove properties that are per record basis from the "per all model"
-			for (String propertyName : recordBasedProperties)
-			{
+			recordBasedProperties.forEach((propertyName) -> {
 				try
 				{
 					changes.content.remove(propertyName);
@@ -726,7 +738,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 							changes.contentType.getDeprecated())
 						.build();
 				}
-			}
+			});
 		}
 	}
 
@@ -977,16 +989,37 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 			if (recordIndex != -1)
 			{
-				foundsetPropertyValue.getDataAdapterList().setRecordQuietly(foundset.getRecord(recordIndex));
+				// ok we found the record; check that it is still available in the viewport of this foundset linked component (as it might have been excluded from viewport prior to this)
+				FoundsetTypeViewport vp = foundsetPropertyValue.getViewPort();
+				if (vp.getStartIndex() <= recordIndex && recordIndex < (vp.getStartIndex() + vp.getSize()))
+				{
+					foundsetPropertyValue.getDataAdapterList().setRecordQuietly(foundset.getRecord(recordIndex));
 
-				try
-				{
-					childComponent.putBrowserProperty(propertyName, value);
+					try
+					{
+						childComponent.putBrowserProperty(propertyName, value);
+					}
+					catch (JSONException e)
+					{
+						Debug.error(
+							"Setting value for record dependent property '" + propertyName + "' in foundset linked component to value: " + value + " failed.",
+							e);
+					}
 				}
-				catch (JSONException e)
+				else
 				{
-					Debug.error(
-						"Setting value for record dependent property '" + propertyName + "' in foundset linked component to value: " + value + " failed.", e);
+					// normally when this happens it is a strange sequence of requests from the client side component (updates are sent for components that are no longer inside the used viewport)
+					// for example a list form component that uses a form component that contains an extra table (related foundset)
+					// had a bad behavior that, after it received 50 records initially, it would only need 9 and would request loadLessRecords -41/41 twice on the main foundset (=> 0 size viewport server side)
+					// but at the same time the extra-table that corresponds to the first record had many related rows and it also sent update from browser to loadLessRecords then initially...
+					// so the list form components viewport was size 0 on server already but an update came for a child component - a record that does exist, but is no longer in viewport;
+					// and that resulted in a valid loadLess on the extra table but which was marked as handled correctly (handleID) but it was never sent back to client as it no longer existed on client
+					// and when list form component corrected it's viewport again to be 0-9, the nested foundset property type of the extra table still had that "handledID" set
+					// so basically it sent a handledID to client for a previous value "undefined" (as viewport was 0) => exception on client
+					//
+					// I think we can safely ignore these type of requests - as they are for obsolete records
+					Debug.debug("Cannot set foundset linked record dependent component property for (" + rowIDValue + ") property '" + propertyName +
+						"' to value '" + value + "' of component: " + childComponent + ". Record found, but out of current viewport.");
 				}
 			}
 			else
@@ -1022,7 +1055,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	protected final class ComponentDataLinkedPropertyListener implements IDataLinkedPropertyRegistrationListener
 	{
 		private final Map<IDataLinkedPropertyValue, String> oldDataLinkedValuesToRootPropertyName = new HashMap<IDataLinkedPropertyValue, String>(3);
-		private final List<IDataLinkedPropertyValue> initiallyAddedValuesWhileComponentIsNull = new ArrayList<IDataLinkedPropertyValue>(3);
+		private final List<Pair<IDataLinkedPropertyValue, String[]>> initiallyAddedValuesWhileComponentIsNull = new ArrayList<>(3);
 
 		@Override
 		public void dataLinkedPropertyRegistered(IDataLinkedPropertyValue propertyValue, TargetDataLinks targetDataLinks)
@@ -1031,31 +1064,23 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			{
 				if (childComponent != null)
 				{
-					recordLinkedPropAdded(propertyValue);
+					recordLinkedPropAdded(propertyValue, targetDataLinks.dataProviderIDs);
 				}
 				else
 				{
-					initiallyAddedValuesWhileComponentIsNull.add(propertyValue);
+					initiallyAddedValuesWhileComponentIsNull.add(new Pair<>(propertyValue, targetDataLinks.dataProviderIDs));
 				}
 			}
 		}
 
-		protected void recordLinkedPropAdded(IDataLinkedPropertyValue propertyValue)
+		protected void recordLinkedPropAdded(IDataLinkedPropertyValue propertyValue, String[] dataProviderIDs)
 		{
 			String propertyName = findComponentPropertyName(propertyValue);
 
 			if (propertyName != null)
 			{
 				oldDataLinkedValuesToRootPropertyName.put(propertyValue, propertyName);
-
-				if (!recordBasedProperties.contains(propertyName))
-				{
-					recordBasedProperties.add(propertyName);
-
-					recordBasedPropertiesChanged = true;
-					recordBasedPropertiesChangedComparedToTemplate = true;
-					monitor.valueChanged();
-				}
+				recordBasedProperties = recordBasedProperties.addRecordBasedProperty(propertyName, dataProviderIDs, monitor);
 			}
 		}
 
@@ -1069,23 +1094,21 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				// so we use this map to find the rootPropertyName if it's a value of this child component
 				String propertyName = oldDataLinkedValuesToRootPropertyName.remove(propertyValue);
 
-				if (propertyName != null && recordBasedProperties.remove(propertyName))
+				if (propertyName != null)
 				{
-					recordBasedPropertiesChanged = true;
-					recordBasedPropertiesChangedComparedToTemplate = true;
-					monitor.valueChanged();
+					recordBasedProperties = recordBasedProperties.removeRecordBasedProperty(propertyName, monitor);
 				}
 			}
 			else
 			{
-				initiallyAddedValuesWhileComponentIsNull.remove(propertyValue);
+				initiallyAddedValuesWhileComponentIsNull.removeIf(item -> (item.getLeft() == propertyValue));
 			}
 		}
 
 		protected void componentIsNowAvailable()
 		{
-			for (IDataLinkedPropertyValue v : initiallyAddedValuesWhileComponentIsNull)
-				recordLinkedPropAdded(v);
+			for (Pair<IDataLinkedPropertyValue, String[]> e : initiallyAddedValuesWhileComponentIsNull)
+				recordLinkedPropAdded(e.getLeft(), e.getRight());
 			initiallyAddedValuesWhileComponentIsNull.clear();
 		}
 

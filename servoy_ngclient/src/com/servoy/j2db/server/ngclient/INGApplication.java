@@ -25,7 +25,6 @@ import org.sablo.specification.WebObjectFunctionDefinition;
 import com.servoy.j2db.INGClientApplication;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.util.Pair;
-import com.servoy.j2db.util.UUID;
 
 /**
  * Client with websocket-client specific features.
@@ -44,9 +43,9 @@ public interface INGApplication extends INGClientApplication
 
 	void changesWillBeSend();
 
-	Pair<UUID, UUID> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] arguments);
+	Pair<Integer, Integer> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] arguments);
 
-	void onStopSubAction(Pair<UUID, UUID> perfId);
+	void onStopSubAction(Pair<Integer, Integer> perfId);
 
 	void updateLastAccessed();
 

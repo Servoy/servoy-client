@@ -144,8 +144,6 @@ public interface IApplicationServerSingleton
 
 	public <S> S getService(Class<S> reference);
 
-	public boolean hadIncompatibleExtensionsWhenStarted();
-
 	boolean isClientRepositoryAccessAllowed(String serverName);
 
 	boolean isClientRepositoryAccessAllowed();

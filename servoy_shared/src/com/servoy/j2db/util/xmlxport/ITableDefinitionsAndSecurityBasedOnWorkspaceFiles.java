@@ -30,9 +30,7 @@ import com.servoy.j2db.server.shared.SecurityInfo;
  */
 public interface ITableDefinitionsAndSecurityBasedOnWorkspaceFiles
 {
-	void setServerTableDefs(Map<String, List<TableDef>> serverTableDefsMap);
-
-	Map<String, List<TableDef>> getServerTableDefs();
+	Map<ServerDef, List<TableDef>> getServerTableDefs();
 
 	List<SecurityInfo> getDatabaseSecurityInfoByGroup(String groupName);
 

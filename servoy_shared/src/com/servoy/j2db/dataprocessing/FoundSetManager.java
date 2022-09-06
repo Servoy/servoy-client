@@ -17,10 +17,18 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.j2db.dataprocessing.FoundSetManager.TriggerExecutionMode.BreakOnFalse;
+import static com.servoy.j2db.dataprocessing.FoundSetManager.TriggerExecutionMode.ExecuteEach;
+import static com.servoy.j2db.dataprocessing.FoundSetManager.TriggerExecutionMode.ReturnFirst;
 import static com.servoy.j2db.query.AbstractBaseQuery.searchOne;
+import static com.servoy.j2db.util.DataSourceUtils.getDataSourceServerName;
 import static com.servoy.j2db.util.Errors.catchExceptions;
+import static com.servoy.j2db.util.Utils.arrayMerge;
 import static com.servoy.j2db.util.Utils.iterate;
+import static com.servoy.j2db.util.Utils.parseJSExpressions;
+import static com.servoy.j2db.util.Utils.stream;
 import static java.lang.Boolean.TRUE;
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
@@ -38,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
@@ -64,8 +73,10 @@ import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.ClientState;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.component.ComponentFactory;
+import com.servoy.j2db.dataprocessing.IDataServer.InsertResult;
 import com.servoy.j2db.dataprocessing.SQLSheet.ConverterInfo;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -86,6 +97,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.SortingNullprecedence;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.persistence.Table;
@@ -102,6 +114,7 @@ import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
+import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
 import com.servoy.j2db.querybuilder.impl.QBFactory;
@@ -119,6 +132,7 @@ import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.StringComparator;
 import com.servoy.j2db.util.TypePredicate;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.WrappedObjectReference;
 import com.servoy.j2db.util.serialize.JSONSerializerWrapper;
 import com.servoy.j2db.util.visitor.IVisitor;
 import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
@@ -134,6 +148,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private ConcurrentMap<IFoundSetListener, FoundSet> separateFoundSets; //FoundSetListener -> FoundSet ... 1 foundset per listener
 	private Map<String, FoundSet> sharedDataSourceFoundSet; //dataSource -> FoundSet ... 1 foundset per data source
 	private Map<String, ViewFoundSet> viewFoundSets; //dataSource -> FoundSet ... 1 foundset per data source
+	private Map<ViewFoundSet, Object> noneRegisteredVFS;
 	private ConcurrentMap<FoundSet, Object> foundSets;
 	private ConcurrentMap<String, FoundSet> namedFoundSets;
 	private WeakReference<IFoundSetInternal> noTableFoundSet;
@@ -155,14 +170,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	private final EditRecordList editRecordList;
 
-	public final int pkChunkSize;
-	public final int chunkSize;
-	public final int initialRelatedChunkSize;
-	public final boolean loadRelatedRecordsIfParentIsNew;
-	public final boolean statementBatching;
-	public final boolean disableInsertsReorder;
-	public final boolean verifyPKDatasetAgainstTableFilters;
-	public final boolean optimizedNotifyChange;
+	public final FoundSetManagerConfig config;
 
 	private final List<Runnable> fireRunabbles = new ArrayList<Runnable>();
 
@@ -170,23 +178,55 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private final HashMap<String, Object> trackingInfoMap = new HashMap<String, Object>();
 	private int foundsetCounter = 1;
 
-	@SuppressWarnings("nls")
-	public FoundSetManager(IApplication app, IFoundSetFactory factory)
+	public FoundSetManager(IApplication app, FoundSetManagerConfig config, IFoundSetFactory factory)
 	{
 		application = app;
+		this.config = config;
 		initMembers();
 		editRecordList = new EditRecordList(this);
-
 		foundsetfactory = factory;
+	}
 
-		pkChunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.pkChunkSize", Integer.toString(200)));//primarykeys to be get in one roundtrip
-		chunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.chunkSize", Integer.toString(30)));//records to be get in one roundtrip
-		initialRelatedChunkSize = Utils.getAsInteger(app.getSettings().getProperty("servoy.foundset.initialRelatedChunkSize", Integer.toString(chunkSize * 2))); //initial related records to get in one roundtrip
-		loadRelatedRecordsIfParentIsNew = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.loadRelatedRecordsIfParentIsNew", "false")); //force-load of possible existing records in DB when initializing a related foundset when the parent is new and the relations is restricted on the rowIdentifier columns of the parent record
-		disableInsertsReorder = Utils.getAsBoolean(app.getSettings().getProperty("servoy.disable.record.insert.reorder", "false"));
-		statementBatching = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.statementBatching", "false")); // whether to batch inserts/updates for rows together in the same SQLStatement where possible
-		verifyPKDatasetAgainstTableFilters = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.verifyPKDatasetAgainstTableFilters", "true")); // when false we do not trigger a query with fs.loadRecords(pk) icw table filters
-		optimizedNotifyChange = Utils.getAsBoolean(app.getSettings().getProperty("servoy.foundset.optimizedNotifyChange", "true")); // whether to use new optimized mechanism to call notifyChange on IRowListeners
+
+	@Override
+	public SortOptions getSortOptions(IColumn column)
+	{
+		boolean ignoreCase = false;
+		SortingNullprecedence sortingNullprecedence = SortingNullprecedence.databaseDefault;
+		if (column != null)
+		{
+			try
+			{
+				// First defined at server level
+				IServer server = application.getSolution().getServer(column.getTable().getServerName());
+				if (server != null)
+				{
+					ignoreCase = server.getSettings().isSortIgnorecase();
+					sortingNullprecedence = server.getSettings().getSortingNullprecedence();
+				}
+			}
+			catch (RepositoryException | RemoteException e)
+			{
+				Debug.error("Exception getting server settings", e);
+			}
+
+
+			ColumnInfo columnInfo = column.getColumnInfo();
+			if (columnInfo != null)
+			{
+				// Can be overridden at column level
+				if (columnInfo.getSortIgnorecase() != null)
+				{
+					ignoreCase = columnInfo.getSortIgnorecase().booleanValue();
+				}
+				if (columnInfo.getSortingNullprecedence() != null && columnInfo.getSortingNullprecedence() != SortingNullprecedence.databaseDefault)
+				{
+					sortingNullprecedence = columnInfo.getSortingNullprecedence();
+				}
+			}
+		}
+
+		return SortOptions.NONE.withIgnoreCase(ignoreCase).withNullprecedence(sortingNullprecedence);
 	}
 
 	/**
@@ -385,7 +425,15 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				if (fs.isInitialized())
 				{
-					fs.refreshFromDB(skipStopEdit);
+					fs.getPksAndRecords().setSkipOptimizeChangeFires(true);
+					try
+					{
+						fs.refreshFromDB(skipStopEdit);
+					}
+					finally
+					{
+						fs.getPksAndRecords().setSkipOptimizeChangeFires(false);
+					}
 				}
 				affectedTables.add(fs.getTable());
 			}
@@ -569,7 +617,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					int currIndex = parent.getRecordIndex(state);
 					if (currIndex >= 0 && parent instanceof FoundSet)
 					{
-						int relatedChunkSize = chunkSize / 3;
+						int relatedChunkSize = config.chunkSize() / 3;
 						Object[] siblingRecords = ((FoundSet)parent).getPksAndRecords().getCachedRecords().toArray(); // take a snapshot of cachedRecords
 						for (int s = currIndex + 1; s < siblingRecords.length && toFetch.size() < relatedChunkSize; s++)
 						{
@@ -720,7 +768,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	private static void unwrapDbIdentValue(QuerySelect querySelect, String relationName)
 	{
-		Placeholder whereArgsPlaceholder = querySelect.getPlaceholder(SQLGenerator.createRelationKeyPlaceholderKey(querySelect.getTable(), relationName));
+		Placeholder whereArgsPlaceholder = SQLGenerator.getRelationPlaceholder(querySelect, relationName);
 		if (whereArgsPlaceholder != null && whereArgsPlaceholder.getValue() instanceof Object[][])
 		{
 			Object[][] createWhereArgs = (Object[][])whereArgsPlaceholder.getValue();
@@ -840,6 +888,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		foundSets = CacheBuilder.newBuilder().weakKeys().initialCapacity(64).<FoundSet, Object> build().asMap();
 		namedFoundSets = CacheBuilder.newBuilder().weakValues().initialCapacity(32).<String, FoundSet> build().asMap();
 		viewFoundSets = new ConcurrentHashMap<>(16);
+		noneRegisteredVFS = CacheBuilder.newBuilder().weakKeys().initialCapacity(8).<ViewFoundSet, Object> build().asMap();
 		noTableFoundSet = null;
 
 		rowManagers = new ConcurrentHashMap<>(64);
@@ -1001,13 +1050,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					throw new RepositoryException(e);
 				}
 			}
-			else if (DataSourceUtils.getDataSourceServerName(dataSource) == IServer.INMEM_SERVER)
+			else if (getDataSourceServerName(dataSource) == IServer.INMEM_SERVER)
 			{
 				if (!inMemDataSources.containsKey(dataSource) && dataSourceExists(dataSource))
 				{
 					try
 					{
-						createDataSourceFromDataSet(DataSourceUtils.getDataSourceTableName(dataSource), new BufferedDataSet(), null, null, false,
+						insertToDataSource(DataSourceUtils.getDataSourceTableName(dataSource), new BufferedDataSet(), null, null, true, false,
 							IServer.INMEM_SERVER);
 					}
 					catch (Exception e)
@@ -1017,22 +1066,22 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				}
 				return inMemDataSources.get(dataSource);
 			}
-			else if (DataSourceUtils.getDataSourceServerName(dataSource) == IServer.VIEW_SERVER)
+			else if (getDataSourceServerName(dataSource) == IServer.VIEW_SERVER)
 			{
-				Pair<ServoyJSONObject, Integer> columnDefintion = null;
-				if (!viewDataSources.containsKey(dataSource) && (columnDefintion = getColumnDefintion(dataSource)) != null)
+				Optional<ServoyJSONObject> columnDefintion;
+				if (!viewDataSources.containsKey(dataSource) && (columnDefintion = getColumnDefintion(dataSource)).isPresent())
 				{
 					Table tbl = new Table(IServer.VIEW_SERVER, DataSourceUtils.getViewDataSourceName(dataSource), true, ITable.VIEW, null, null);
 					tbl.setDataSource(dataSource);
-					DatabaseUtils.deserializeInMemoryTable(application.getFlattenedSolution().getPersistFactory(), tbl, columnDefintion.getLeft());
+					DatabaseUtils.deserializeInMemoryTable(application.getFlattenedSolution().getPersistFactory(), tbl, columnDefintion.get());
 					tbl.setExistInDB(true);
 					tbl.setInitialized(true);
 					viewDataSources.put(dataSource, tbl);
 
 					try
 					{
-						executeFoundsetTriggerInternal(tbl, new Object[] { DataSourceUtils.getViewDataSourceName(dataSource) },
-							StaticContentSpecLoader.PROPERTY_ONFOUNDSETLOADMETHODID, false, false, null); // can't entity methods, not supported on view foundsets
+						executeFoundsetTriggerReturnFirst(tbl, new Object[] { DataSourceUtils.getViewDataSourceName(dataSource) },
+							StaticContentSpecLoader.PROPERTY_ONFOUNDSETLOADMETHODID, false, null); // can't entity methods, not supported on view foundsets
 					}
 					catch (ServoyException e)
 					{
@@ -1048,56 +1097,40 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public boolean dataSourceExists(String dataSource) throws RepositoryException
 	{
-		if (DataSourceUtils.getDataSourceServerName(dataSource) == IServer.INMEM_SERVER)
+		if (getDataSourceServerName(dataSource) == IServer.INMEM_SERVER)
 		{
 			if (inMemDataSources.containsKey(dataSource))
 			{
 				return true;
 			}
-			Pair<ServoyJSONObject, Integer> columnsDef = getColumnDefintion(dataSource);
 
-			if (columnsDef != null)
-			{
-				return true;
-			}
-			return false;
+			return getColumnDefintion(dataSource).isPresent();
 		}
-		if (DataSourceUtils.getDataSourceServerName(dataSource) == IServer.VIEW_SERVER)
+
+		if (getDataSourceServerName(dataSource) == IServer.VIEW_SERVER)
 		{
 			if (viewDataSources.containsKey(dataSource))
 			{
 				return true;
 			}
-			Pair<ServoyJSONObject, Integer> columnsDef = getColumnDefintion(dataSource);
 
-			if (columnsDef != null)
-			{
-				return true;
-			}
-			return false;
+			return getColumnDefintion(dataSource).isPresent();
 		}
-		else
-		{
-			return getTable(dataSource) != null;
-		}
+
+
+		return getTable(dataSource) != null;
 	}
 
 	/**
 	 * @param dataSource
 	 * @return
 	 */
-	private Pair<ServoyJSONObject, Integer> getColumnDefintion(String dataSource)
+	private Optional<ServoyJSONObject> getColumnDefintion(String dataSource)
 	{
-		ServoyJSONObject columnsDef = null;
-		Iterator<TableNode> tblIte = application.getFlattenedSolution().getTableNodes(dataSource);
-		int onFoundSetLoadMethodID = -1;
-		while (tblIte.hasNext() && columnsDef == null)
-		{
-			TableNode tn = tblIte.next();
-			columnsDef = tn.getColumns();
-			onFoundSetLoadMethodID = tn.getOnFoundSetLoadMethodID();
-		}
-		return columnsDef != null ? new Pair<ServoyJSONObject, Integer>(columnsDef, Integer.valueOf(onFoundSetLoadMethodID)) : null;
+		return stream(application.getFlattenedSolution().getTableNodes(dataSource))
+			.map(TableNode::getColumns)
+			.filter(Objects::nonNull)
+			.findFirst();
 	}
 
 	public Collection<String> getInMemDataSourceNames()
@@ -1268,10 +1301,37 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		if (Messages.isI18NTable(serverName, table != null ? table.getName() : null, application))
 		{
-			((ClientState)application).refreshI18NMessages();
+			((ClientState)application).refreshI18NMessages(false);
 		}
 
 		return true;
+	}
+
+	public boolean updateTableFilterParam(String serverName, String filterName, ITable table, TableFilterdefinition tableFilterdefinition)
+	{
+		if (filterName != null)
+		{
+			for (TableFilter f : iterate(tableFilterParams.get(serverName)))
+			{
+				if (filterName.equals(f.getName()))
+				{
+					f.setTableFilterDefinition(tableFilterdefinition);
+
+					for (ITable affectedtable : getFilterUpdateAffectedTables(getDataSource(table), tableFilterdefinition))
+					{
+						fireTableEvent(affectedtable);
+					}
+
+					if (Messages.isI18NTable(serverName, table != null ? table.getName() : null, application))
+					{
+						((ClientState)application).refreshI18NMessages(false);
+					}
+
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	public boolean removeTableFilterParam(String serverName, String filterName)
@@ -1327,13 +1387,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return Stream.concat(separateFoundSets.values().stream(), //
 			Stream.concat(sharedDataSourceFoundSet.values().stream(), //
 				Stream.concat(viewFoundSets.values().stream(), //
-					Stream.concat(foundSets.keySet().stream(), //
-						Stream.concat(namedFoundSets.values().stream(), //
-							getCachedSubStates().values()
-								.stream() //
-								.map(ConcurrentMap::values)
-								.flatMap(Collection::stream) //
-						)))));
+					Stream.concat(noneRegisteredVFS.keySet().stream(), //
+						Stream.concat(foundSets.keySet().stream(), //
+							Stream.concat(namedFoundSets.values().stream(), //
+								getCachedSubStates().values()
+									.stream() //
+									.map(ConcurrentMap::values)
+									.flatMap(Collection::stream) //
+							))))));
 	}
 
 	public void refreshFoundsetsForTenantTables()
@@ -1361,7 +1422,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				{
 					if (fs instanceof RelatedFoundSet)
 					{
-						((RelatedFoundSet)fs).invalidateFoundset();
+						((RelatedFoundSet)fs).invalidateFoundset(true);
 					}
 					else if (fs instanceof ViewFoundSet)
 				{
@@ -1641,7 +1702,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public IFoundSetInternal findFoundset(int id)
 	{
 		return getAllFoundsetsStream()
-			.filter(FoundSet.class::isInstance).map(FoundSet.class::cast)
 			.filter(fs -> id == fs.getIDInternal())
 			.findAny().orElse(null);
 	}
@@ -1815,6 +1875,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	@Override
 	public void removeFoundSet(FoundSet foundset)
 	{
+		// TODO should we also add a FOUNDSET_DISPOSED to the globalFoundSetEventListener? it is able to trigger a NEW_FOUNDSET event for example
+		foundset.removeFoundSetEventListener(globalFoundSetEventListener);
 		foundSets.remove(foundset);
 		if (sharedDataSourceFoundSet.get(foundset.getDataSource()) == foundset)
 		{
@@ -1917,7 +1979,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public List<SortColumn> getSortColumns(ITable t, String options)
 	{
 		List<SortColumn> list = new ArrayList<SortColumn>(3);
-		if (t == null || DataSourceUtils.getViewDataSourceName(t.getDataSource()) != null) return list;
+		if (t == null) return list;
 		if (options != null)
 		{
 			try
@@ -2562,6 +2624,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					insertedRows == null ? null : insertedRows.get(i));
 				didHaveRowAndIsUpdated = (didHaveRowAndIsUpdated || b);
 			}
+			// changed by other calls don't notify the table change for every row, call it once now.
+			notifyChange(rm.getSQLSheet().getTable());
 			final boolean didHaveDataCached = didHaveRowAndIsUpdated;
 			Runnable r = new Runnable()
 			{
@@ -2578,9 +2642,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 								application.getScriptEngine()
 									.getScopesScope()
 									.executeGlobalFunction(sm.getScopeName(), sm.getName(),
-										Utils.arrayMerge(
+										arrayMerge(
 											new Object[] { ds, new Integer(action), new JSDataSet(application, fnewPks), Boolean.valueOf(didHaveDataCached) },
-											Utils.parseJSExpressions(solution.getFlattenedMethodArguments("onDataBroadcastMethodID"))), //$NON-NLS-1$
+											parseJSExpressions(solution.getFlattenedMethodArguments("onDataBroadcastMethodID"))), //$NON-NLS-1$
 										false, false);
 							}
 							catch (Exception e1)
@@ -2880,30 +2944,45 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		nullColumnValidatorEnabled = enable;
 	}
 
-	public String createDataSourceFromDataSet(String name, IDataSet dataSet, ColumnType[] columnTypes, String[] pkNames, boolean skipOnLoad)
+	public Object[] insertToDataSource(String name, IDataSet dataSet, ColumnType[] columnTypes, WrappedObjectReference<String[]> pkNames, boolean create,
+		boolean skipOnLoad)
 		throws ServoyException
 	{
-		return createDataSourceFromDataSet(name, dataSet, columnTypes, pkNames, skipOnLoad, null);
+		return insertToDataSource(name, dataSet, columnTypes, pkNames, create, skipOnLoad, null);
 	}
 
-	public String createDataSourceFromDataSet(String name, IDataSet dataSet, ColumnType[] columnTypes, String[] pkNames, boolean skipOnLoad, String server)
+	public Object[] insertToDataSource(String name, IDataSet dataSet, ColumnType[] columnTypes, WrappedObjectReference<String[]> pkNames, boolean create,
+		boolean skipOnLoad,
+		String server)
 		throws ServoyException
 	{
 		if (name == null)
 		{
 			return null;
 		}
+		WrappedObjectReference<String[]> actualPkNames = pkNames;
+		if (actualPkNames == null) actualPkNames = new WrappedObjectReference<String[]>(null);
 
-		String dataSource = server == IServer.VIEW_SERVER ? DataSourceUtils.createViewDataSource(name) : DataSourceUtils.createInmemDataSource(name);
-		FlattenedSolution s = application.getFlattenedSolution();
+		String dataSource = IServer.VIEW_SERVER.equals(server) ? DataSourceUtils.createViewDataSource(name) : DataSourceUtils.createInmemDataSource(name);
 
+		// initial dataset to use, but can also be set later to a 0 row dataset that is created to match columnNames and columnTypes with an in-mem
+		// table definition, if that is available and columns do not match with the initial dataset
 		IDataSet fixedDataSet = dataSet;
-		ColumnType[] fixedColumnTypes = columnTypes;
-		if (fixedColumnTypes == null) fixedColumnTypes = BufferedDataSetInternal.getColumnTypeInfo(dataSet);
+
+		List<ColumnType> fixedColumnTypes;
+		if (columnTypes == null)
+		{
+			ColumnType[] dataSetTypes = BufferedDataSetInternal.getColumnTypeInfo(dataSet);
+			fixedColumnTypes = dataSetTypes == null ? null : asList(dataSetTypes);
+		}
+		else
+		{
+			fixedColumnTypes = asList(columnTypes);
+		}
 
 		// get column def from the first in-mem datasource found
 		ServoyJSONObject columnsDef = null;
-		Iterator<TableNode> tblIte = s.getTableNodes(dataSource);
+		Iterator<TableNode> tblIte = application.getFlattenedSolution().getTableNodes(dataSource);
 		int onLoadMethodId = -1;
 		while (tblIte.hasNext())
 		{
@@ -2913,20 +2992,20 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 
 		HashMap<String, ColumnInfoDef> columnInfoDefinitions = null;
-		boolean[] rowsToStringserialize = null;
+		Set<Integer> columnsThatNeedToStringSerialize = null;
 		if (columnsDef == null)
 		{
 			// if we have array columns, convert values using StringSerializer
 			if (containsArrayType(fixedColumnTypes))
 			{
-				rowsToStringserialize = new boolean[fixedColumnTypes.length];
-				for (int i = 0; i < fixedColumnTypes.length; i++)
+				columnsThatNeedToStringSerialize = new HashSet<>();
+				for (int i = 0; i < fixedColumnTypes.size(); i++)
 				{
-					ColumnType columnType = fixedColumnTypes[i];
+					ColumnType columnType = fixedColumnTypes.get(i);
 					if (columnType.getSqlType() == Types.ARRAY)
 					{
-						fixedColumnTypes[i] = ColumnType.getColumnType(IColumnTypes.TEXT);
-						rowsToStringserialize[i] = true;
+						fixedColumnTypes.set(i, ColumnType.getColumnType(IColumnTypes.TEXT));
+						columnsThatNeedToStringSerialize.add(Integer.valueOf(i));
 					}
 				}
 			}
@@ -2934,15 +3013,22 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		else
 		{
 			TableDef tableInfo = DatabaseUtils.deserializeTableInfo(columnsDef);
-			columnInfoDefinitions = new HashMap<String, ColumnInfoDef>();
-			String[] inmemColumnNames = new String[tableInfo.columnInfoDefSet.size()];
-			List<String> inmemPKs = new ArrayList<String>();
-			ColumnType[] inmemColumnTypes = new ColumnType[tableInfo.columnInfoDefSet.size()];
+			List<String> inmemColumnNamesThatCanSetData = new ArrayList<>(); // column names that are not SEQUENCE_AUTO_ENTER/DATABASE_IDENTITY from table node (columnsDef)
+			List<ColumnType> inmemColumnTypesForColumnsThatCanSetData = new ArrayList<>(); // column types of columns that are not SEQUENCE_AUTO_ENTER/DATABASE_IDENTITY from table node (columnsDef)
+			columnInfoDefinitions = new HashMap<String, ColumnInfoDef>(); // ALL column defs from design time table node (columnsDef)
+			List<String> inmemPKs = new ArrayList<>(); // pk/rowid column names from design time table node (columnsDef)
+
 			for (int j = 0; j < tableInfo.columnInfoDefSet.size(); j++)
 			{
 				ColumnInfoDef cid = tableInfo.columnInfoDefSet.get(j);
-				inmemColumnNames[j] = cid.name;
-				inmemColumnTypes[j] = cid.columnType;
+				if (cid.autoEnterType != ColumnInfo.SEQUENCE_AUTO_ENTER || cid.autoEnterSubType != ColumnInfo.DATABASE_IDENTITY)
+				{
+					// we only support auto-enter for in-mem tables based on dbident (that is then handled by hsql)
+					// that is why we only check for that here; for example, if one would define at design time a
+					// uuid generator pk column on an in-mem table, that would not work; it would try to insert null into a non-nullable column
+					inmemColumnNamesThatCanSetData.add(cid.name);
+					inmemColumnTypesForColumnsThatCanSetData.add(cid.columnType);
+				}
 				if ((cid.flags & IBaseColumn.IDENT_COLUMNS) != 0)
 				{
 					inmemPKs.add(cid.name);
@@ -2952,51 +3038,70 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				// apply stringserializer on designed datasources
 				if (JSONSerializerWrapper.STRING_SERIALIZER_NAME.equals(cid.converterName))
 				{
-					if (rowsToStringserialize == null)
+					if (columnsThatNeedToStringSerialize == null)
 					{
-						rowsToStringserialize = new boolean[fixedColumnTypes.length];
+						columnsThatNeedToStringSerialize = new HashSet<>();
 					}
-					rowsToStringserialize[j] = true;
+					columnsThatNeedToStringSerialize.add(Integer.valueOf(j));
 				}
 			}
 
-			if (pkNames == null && inmemPKs.size() > 0)
+			if (actualPkNames.o == null && inmemPKs.size() > 0)
 			{
-				pkNames = inmemPKs.toArray(new String[inmemPKs.size()]);
+				actualPkNames.o = inmemPKs.toArray(new String[inmemPKs.size()]);
 			}
 
-			if (!Arrays.equals(dataSet.getColumnNames(), inmemColumnNames) || !compareColumnTypes(fixedColumnTypes, inmemColumnTypes))
+			if (!asList(dataSet.getColumnNames()).equals(inmemColumnNamesThatCanSetData) ||
+				!compareColumnTypes(fixedColumnTypes, inmemColumnTypesForColumnsThatCanSetData))
 			{
-				fixedColumnTypes = inmemColumnTypes;
-				fixedDataSet = BufferedDataSetInternal.createBufferedDataSet(inmemColumnNames, fixedColumnTypes, new ArrayList<Object[]>(), false);
-				if (dataSet.getColumnCount() > 0 && !Arrays.equals(dataSet.getColumnNames(), inmemColumnNames))
+				if (dataSet.getColumnCount() > 0 /*
+													 * do not generate warning if this is just the initial load of a design time inmem table that adds 0 rows
+													 * and doesn't care about columns
+													 */
+					&& !asList(dataSet.getColumnNames()).equals(inmemColumnNamesThatCanSetData))
 				{
 					Debug.warn(
-						"Dataset column names definition does not match inmem table definition for datasource : " + dataSource + " columns of dataset: " +
-							Arrays.toString(dataSet.getColumnNames()) + ", columns of in mem definition: " + Arrays.toString(inmemColumnNames));
+						"Dataset column names definition does not match inmem table definition for datasource: " + dataSource + " columns of dataset: " + //$NON-NLS-1$ //$NON-NLS-2$
+							Arrays.toString(dataSet.getColumnNames()) + ", columns of in mem definition: " + inmemColumnNamesThatCanSetData + //$NON-NLS-1$
+							". The table definition will be used."); //$NON-NLS-1$
 				}
-				if (columnTypes != null && !compareColumnTypes(columnTypes, inmemColumnTypes))
+				if (fixedColumnTypes != null && !compareColumnTypes(fixedColumnTypes, inmemColumnTypesForColumnsThatCanSetData))
 				{
-					Debug.warn("Dataset column types definition does not match inmem table definition for datasource : " + dataSource + " types of dataset: " +
-						Arrays.toString(columnTypes) + ", types of in mem definition: " + Arrays.toString(inmemColumnTypes));
+					Debug.warn("Dataset column types definition does not match inmem table definition for datasource: " + dataSource + //$NON-NLS-1$
+						" types of dataset (type, length, scale): " + //$NON-NLS-1$
+						fixedColumnTypes + ", types of in mem definition: " + inmemColumnTypesForColumnsThatCanSetData + //$NON-NLS-1$
+						". The table definition will be used."); //$NON-NLS-1$
 				}
+				fixedColumnTypes = inmemColumnTypesForColumnsThatCanSetData;
+				fixedDataSet = BufferedDataSetInternal.createBufferedDataSet(
+					inmemColumnNamesThatCanSetData.toArray(new String[inmemColumnNamesThatCanSetData.size()]),
+					fixedColumnTypes.toArray(new ColumnType[fixedColumnTypes.size()]), new ArrayList<Object[]>(), false);
 			}
 		}
 
-		// check if column names width matches rows
-		if (fixedDataSet.getRowCount() > 0 && fixedDataSet.getRow(0).length != fixedDataSet.getColumnCount())
+		// check if column count of the actual data corresponds to the count of needed columns (fixedColumnTypes.size()) that are
+		//   - in the if branch above (not defined as a design-time inmem table (table node))
+		//       - taken from columnTypes arg or from dataset arg column type info - if available
+		//       - if fixedColumnTypes is null then this is an in-mem that is not defined at design time nor does it have column types available so we will just use the columns that the dataset has
+		//   - in the else branch above (already defined at design time), columns that are not auto sequences or dbidents; see inmemColumnNames/inmemColumnTypes(which is at this point the same as fixedColumnTypes)
+		if (fixedColumnTypes != null && dataSet.getRowCount() > 0 && dataSet.getRow(0).length != fixedColumnTypes.size())
 		{
 			throw new RepositoryException("Data set rows do not match column count"); //$NON-NLS-1$
 		}
 
-		if (rowsToStringserialize != null)
+		if (columnsThatNeedToStringSerialize != null)
 		{
-			replaceValuesWithSerializedString(dataSet, rowsToStringserialize);
+			replaceValuesWithSerializedString(dataSet, columnsThatNeedToStringSerialize);
 		}
 
 		try
 		{
-			ITable table = server == IServer.VIEW_SERVER ? viewDataSources.get(dataSource) : inMemDataSources.get(dataSource);
+			ITable table = IServer.VIEW_SERVER.equals(server) ? viewDataSources.get(dataSource) : inMemDataSources.get(dataSource);
+
+			if (table == null && !create)
+			{
+				throw new RepositoryException("Appending to non-existing datasource: " + dataSource);
+			}
 
 			GlobalTransaction gt = getGlobalTransaction();
 			String tid = null;
@@ -3006,7 +3111,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				tid = gt.getTransactionID(serverName);
 			}
 
-			if (table != null)
+			if (create && table != null)
 			{
 				// temp table was used before, delete all data in it
 				FoundSet foundSet = (FoundSet)getSharedFoundSet(dataSource);
@@ -3031,22 +3136,29 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				}
 			}
 
-
-			table = application.getDataServer()
+			InsertResult insertResult = application.getDataServer()
 				.insertDataSet(application.getClientID(), fixedDataSet, dataSource,
 					table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */, tid,
-					fixedColumnTypes /* inferred from dataset when null */, pkNames, columnInfoDefinitions);
-			if (table != null)
+					fixedColumnTypes == null ? null : fixedColumnTypes.toArray(new ColumnType[fixedColumnTypes.size()]) /* inferred from dataset when null */,
+					actualPkNames.o, columnInfoDefinitions);
+			if (insertResult != null)
 			{
-				// if the given dataset is not the dataset that is "fixed" (columns/typing fixed to the in mem definition) and it has rows
-				// then call insertDataSet again so the data is inserted with the columns defined in the the dataset.
+				table = insertResult.getTable();
+				// if the given dataset is not the dataset that is "fixed" (columns/typing fixed to the in mem design definition) and it has rows,
+				// then call insertDataSet again so the data is inserted with the columns defined in the the dataset
+
+				// we did check above that the dataSet column count matches the settable columns the foundset is supposed to have,
+				// but they could be in a different order
+				// TODO then the FoundsetDataSet that is created based on the foundset will not work correctly with indexes inside the foundset...
+				// do we want to fix that somehow or the caller should just make sure it calls it with the correct column order?
 				if (dataSet != fixedDataSet && dataSet.getRowCount() > 0)
 				{
-					table = application.getDataServer()
-						.insertDataSet(application.getClientID(), dataSet, dataSource, table.getServerName(), table.getName(),
-							tid, columnTypes /* inferred from dataset when null */, pkNames, columnInfoDefinitions);
+					insertResult = application.getDataServer()
+						.insertDataSet(application.getClientID(), dataSet, dataSource, table.getServerName(), table.getName(), tid,
+							columnTypes/* will be inferred by called method from dataset if null */,
+							actualPkNames.o, columnInfoDefinitions);
 				}
-				if (serverName == IServer.INMEM_SERVER)
+				if (IServer.INMEM_SERVER.equals(serverName))
 				{
 					inMemDataSources.put(dataSource, table);
 				}
@@ -3055,14 +3167,18 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					viewDataSources.put(dataSource, table);
 				}
 				fireTableEvent(table);
-				if (!skipOnLoad && fixedDataSet.getRowCount() == 0 && onLoadMethodId > 0)
+				if (!skipOnLoad && dataSet.getRowCount() == 0 && onLoadMethodId > 0)
 				{
 					IFoundSetInternal sharedFoundSet = getSharedFoundSet(dataSource);
-					executeFoundsetTriggerInternal(sharedFoundSet.getTable(), new Object[] { DataSourceUtils.getInmemDataSourceName(dataSource) },
-						StaticContentSpecLoader.PROPERTY_ONFOUNDSETLOADMETHODID, false, false, (Scriptable)sharedFoundSet);
+					executeFoundsetTriggerReturnFirst(sharedFoundSet.getTable(), new Object[] { DataSourceUtils.getInmemDataSourceName(dataSource) },
+						StaticContentSpecLoader.PROPERTY_ONFOUNDSETLOADMETHODID, false, (Scriptable)sharedFoundSet);
 				}
-				refreshFoundSetsFromDB(dataSource, null, false);
-				return dataSource;
+				if (create)
+				{
+					// only refresh when it is a new full load, when adding data to an existing table, it is only applicable to the (shared) foundset
+					refreshFoundSetsFromDB(dataSource, null, false);
+				}
+				return insertResult.getGeneratedPks();
 			}
 		}
 		catch (RemoteException e)
@@ -3072,21 +3188,24 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return null;
 	}
 
-	private static void replaceValuesWithSerializedString(IDataSet dataSet, boolean[] rowsToStringserialize)
+	private static void replaceValuesWithSerializedString(IDataSet dataSet, Set<Integer> columnsThatNeedToStringSerialize)
 	{
+		Integer[] colIndexesThatNeedToStringSerialize = columnsThatNeedToStringSerialize.toArray(new Integer[columnsThatNeedToStringSerialize.size()]);
+
 		// run stringserializer over the rows
 		JSONSerializerWrapper stringserializer = new JSONSerializerWrapper(false);
 		for (int r = 0; r < dataSet.getRowCount(); r++)
 		{
 			Object[] row = dataSet.getRow(r).clone();
-			for (int i = 0; i < rowsToStringserialize.length; i++)
+			for (Integer colIdxAsInteger : colIndexesThatNeedToStringSerialize)
 			{
-				if (rowsToStringserialize[i] && row[i] != null && !(row[i] instanceof String))
+				int colIdx = colIdxAsInteger.intValue();
+				if (row[colIdx] != null && !(row[colIdx] instanceof String))
 				{
 					// the data was not a string (so not pre-serialized from js), run it through the stringserializer.
 					try
 					{
-						row[i] = stringserializer.toJSON(row[i]).toString();
+						row[colIdx] = stringserializer.toJSON(row[colIdx]).toString();
 					}
 					catch (MarshallException e)
 					{
@@ -3098,7 +3217,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 	}
 
-	private static boolean containsArrayType(ColumnType[] columnTypes)
+	private static boolean containsArrayType(List<ColumnType> columnTypes)
 	{
 		if (columnTypes != null)
 		{
@@ -3159,7 +3278,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		for (String datasource : rowManagers.keySet())
 		{
-			if (serverName == null || serverName.equals(DataSourceUtils.getDataSourceServerName(datasource)))
+			if (serverName == null || serverName.equals(getDataSourceServerName(datasource)))
 			{
 				ITable t = getTable(datasource);
 				try
@@ -3192,7 +3311,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		Scriptable scope = record.getParentFoundSet() instanceof Scriptable ? (Scriptable)record.getParentFoundSet() : null;
 		try
 		{
-			executeFoundsetTriggerInternal(table, args, StaticContentSpecLoader.PROPERTY_ONVALIDATEMETHODID, false, true,
+			executeFoundsetTrigger(table, args, StaticContentSpecLoader.PROPERTY_ONVALIDATEMETHODID, true,
 				scope);
 		}
 		catch (ServoyException e)
@@ -3205,8 +3324,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			try
 			{
 				// if the first returns false it will stop the rest (inline with what we had)
-				if (!executeFoundsetTriggerInternal(table, args, StaticContentSpecLoader.PROPERTY_ONUPDATEMETHODID, true, true,
-					scope))
+				if (!executeFoundsetTriggerBreakOnFalse(table, args, StaticContentSpecLoader.PROPERTY_ONUPDATEMETHODID, true, scope))
 				{
 					recordMarkers.setOnBeforeUpdateFailed();
 				}
@@ -3221,8 +3339,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			try
 			{
 				// if the first returns false it will stop the rest (inline with what we had)
-				if (!executeFoundsetTriggerInternal(table, args, StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID, true, true,
-					scope))
+				if (!executeFoundsetTriggerBreakOnFalse(table, args, StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID, true, scope))
 				{
 					recordMarkers.setOnBeforeInsertFailed();
 				}
@@ -3379,6 +3496,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 			return viewFoundSet;
 		}
+		if (dataSource.startsWith(DataSourceUtils.INMEM_DATASOURCE) &&
+			hasFoundsetTrigger(dataSource, StaticContentSpecLoader.PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID))
+		{
+			return getSharedFoundSet(dataSource);
+		}
+
 		IFoundSetInternal fs = getNewFoundSet(dataSource, null, getDefaultPKSortColumns(dataSource));
 		fs.clear();//have to deliver a initialized foundset, user might call new record as next call on this one
 		return fs;
@@ -3399,14 +3522,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	@SuppressWarnings("nls")
 	@Override
-	public ViewFoundSet getViewFoundSet(String name, QBSelect query)
+	public ViewFoundSet getViewFoundSet(String name, QBSelect query, boolean register)
 	{
 		if (query.getQuery().getColumns() == null || query.getQuery().getColumns().size() == 0)
 		{
 			throw new RuntimeException("Can't create a ViewFoundset with name: " + name + " and query  " + query + " that has no columns");
 		}
 		String dataSource = DataSourceUtils.createViewDataSource(name);
-		ViewFoundSet vfs = new ViewFoundSet(dataSource, query.build(), application.getFoundSetManager(), pkChunkSize);
+		ViewFoundSet vfs = new ViewFoundSet(dataSource, query.build(), application.getFoundSetManager(), config.pkChunkSize());
 
 		// if this datasource defintion is created already in the developer then we need to check if the query columns are correctly matching it.
 		ServoyJSONObject columnsDef = null;
@@ -3442,6 +3565,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 		}
 
+		registerViewFoundSet(vfs, !register);
+
 		return vfs;
 	}
 
@@ -3456,13 +3581,30 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	}
 
 	@Override
-	public boolean registerViewFoundSet(ViewFoundSet foundset)
+	public boolean registerViewFoundSet(ViewFoundSet foundset, boolean onlyWeak)
 	{
 		if (foundset == null) return false;
-		viewFoundSets.put(foundset.getDataSource(), foundset);
-		ITable table = foundset.getTable();
-		if (!viewDataSources.containsKey(foundset.getDataSource()))
-			viewDataSources.put(foundset.getDataSource(), table);
+		if (onlyWeak)
+		{
+			noneRegisteredVFS.put(foundset, TRUE);
+		}
+		else
+		{
+			ViewFoundSet oldValue = viewFoundSets.put(foundset.getDataSource(), foundset);
+			ITable table = foundset.getTable();
+			if (!viewDataSources.containsKey(foundset.getDataSource()))
+				viewDataSources.put(foundset.getDataSource(), table);
+			if (oldValue != null)
+			{
+				for (IFormController controller : application.getFormManager().getCachedFormControllers())
+				{
+					if (controller.getFormModel() == oldValue)
+					{
+						controller.loadAllRecords();
+					}
+				}
+			}
+		}
 		return true;
 	}
 
@@ -3504,7 +3646,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		QBSelect select = (QBSelect)query;
 
-		String serverName = DataSourceUtils.getDataSourceServerName(select.getDataSource());
+		String serverName = getDataSourceServerName(select.getDataSource());
 
 		if (serverName == null)
 			throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { select.getDataSource() }));
@@ -3512,22 +3654,23 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return getDataSetByQuery(serverName, select.build(), useTableFilters, max_returned_rows);
 	}
 
-	private static boolean compareColumnTypes(ColumnType[] a, ColumnType[] a2)
+	private static boolean compareColumnTypes(List<ColumnType> types1, List<ColumnType> types2)
 	{
-		if (a == a2) return true;
-		if (a == null || a2 == null) return false;
+		if (types1 == types2) return true;
+		if (types1 == null || types2 == null) return false;
 
-		int length = a.length;
-		if (a2.length != length) return false;
+		int length = types1.size();
+		if (types2.size() != length) return false;
 
 		for (int i = 0; i < length; i++)
 		{
-			ColumnType o1 = a[i];
-			ColumnType o2 = a2[i];
-			if (o1 == null && o2 != null) return false;
-			if (o1 != null && o2 == null) return false;
-			// if they are not equal then test if this type is a TEXT column on both ends, then only type is needed
-			if (!o1.equals(o2) && !(o1.getSqlType() == o2.getSqlType() && o1.getSqlType() == IColumnTypes.TEXT)) return false;
+			ColumnType type1 = types1.get(i);
+			ColumnType type2 = types2.get(i);
+
+			if (!Column.isColumnInfoCompatible(type1, type2, false))
+			{
+				return false;
+			}
 		}
 
 		return true;
@@ -3579,69 +3722,142 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return viewFoundsetDataSourceNames;
 	}
 
-	boolean executeFoundsetTriggerInternal(ITable table, Object[] args, TypedProperty<Integer> property, boolean breakOnFalse, boolean throwException,
-		Scriptable foundsetScope) throws ServoyException
+
+	boolean executeFoundsetTriggerBreakOnFalse(ITable table, Object[] args, TypedProperty<Integer> property, boolean throwException, Scriptable foundsetScope)
+		throws ServoyException
+	{
+		return Boolean.TRUE.equals(executeFoundsetTriggerInternal(table, args, property, BreakOnFalse, throwException, foundsetScope));
+	}
+
+	Object executeFoundsetTriggerReturnFirst(ITable table, Object[] args, TypedProperty<Integer> property, boolean throwException, Scriptable foundsetScope)
+		throws ServoyException
+	{
+		return executeFoundsetTriggerInternal(table, args, property, ReturnFirst, throwException, foundsetScope);
+	}
+
+	void executeFoundsetTrigger(ITable table, Object[] args, TypedProperty<Integer> property, boolean throwException, Scriptable foundsetScope)
+		throws ServoyException
+	{
+		executeFoundsetTriggerInternal(table, args, property, ExecuteEach, throwException, foundsetScope);
+	}
+
+	private List<TriggerFunction> getTriggerFunctions(ITable table, TypedProperty<Integer> property, Scriptable foundsetScope)
 	{
 		FlattenedSolution solutionRoot = getApplication().getFlattenedSolution();
-		Iterator<TableNode> tableNodes = solutionRoot.getTableNodes(table);
-		while (tableNodes.hasNext())
-		{
-			TableNode tn = tableNodes.next();
-			int methodId = ((Integer)tn.getProperty(property.getPropertyName())).intValue();
-			if (methodId > 0)
+		IExecutingEnviroment scriptEngine = getApplication().getScriptEngine();
+
+		return stream(solutionRoot.getTableNodes(table)).map(tableNode -> {
+			Object function = null;
+			Scriptable scope = null;
+			ScriptMethod scriptMethod = solutionRoot.getScriptMethod(((Integer)tableNode.getProperty(property.getPropertyName())).intValue());
+			if (scriptMethod != null)
 			{
-				IExecutingEnviroment scriptEngine = getApplication().getScriptEngine();
-				Object function = null;
-				Scriptable scope = null;
-				ScriptMethod scriptMethod = solutionRoot.getScriptMethod(methodId);
-				if (scriptMethod != null)
+				if (scriptMethod.getParent() instanceof Solution)
 				{
-					if (scriptMethod.getParent() instanceof Solution)
+					// global method
+					GlobalScope gs = scriptEngine.getScopesScope().getGlobalScope(scriptMethod.getScopeName());
+					if (gs != null)
 					{
-						// global method
-						GlobalScope gs = scriptEngine.getScopesScope().getGlobalScope(scriptMethod.getScopeName());
-						if (gs != null)
-						{
-							scope = gs;
-							function = gs.get(scriptMethod.getName());
-						}
-					}
-					else if (foundsetScope != null)
-					{
-						// foundset method
-						scope = foundsetScope;
-						function = scope.getPrototype().get(scriptMethod.getName(), scope);
+						scope = gs;
+						function = gs.get(scriptMethod.getName());
 					}
 				}
-				if (function instanceof Function)
+				else if (foundsetScope != null)
 				{
-					try
-					{
-						if (Boolean.FALSE.equals(scriptEngine.executeFunction(((Function)function), scope, scope,
-							Utils.arrayMerge(args, Utils.parseJSExpressions(tn.getFlattenedMethodArguments(property.getPropertyName()))), false,
-							throwException)) && breakOnFalse)
-						{
-							// break on false return, do not execute remaining triggers.
-							return false;
-						}
-					}
-					catch (JavaScriptException e)
-					{
-						// update or insert method threw exception.
-						throw new DataException(ServoyException.RECORD_VALIDATION_FAILED, e.getValue(), e).setContext(this.toString());
-					}
-					catch (EcmaError e)
-					{
-						throw new ApplicationException(ServoyException.SAVE_FAILED, e).setContext(this.toString());
-					}
-					catch (Exception e)
-					{
-						Debug.error(e);
-						throw new ServoyException(ServoyException.SAVE_FAILED, new Object[] { e.getMessage() }).setContext(this.toString());
-					}
+					// foundset method
+					scope = foundsetScope;
+					function = scope.getPrototype().get(scriptMethod.getName(), scope);
 				}
 			}
+			if (function instanceof Function)
+			{
+				return new TriggerFunction((Function)function, scope, tableNode);
+			}
+			return null;
+		}).filter(Objects::nonNull).collect(toList());
+	}
+
+	private Object executeFoundsetTriggerInternal(ITable table, Object[] args, TypedProperty<Integer> property, TriggerExecutionMode executionMode,
+		boolean throwException, Scriptable foundsetScope) throws ServoyException
+	{
+		IExecutingEnviroment scriptEngine = getApplication().getScriptEngine();
+
+		List<TriggerFunction> functions = getTriggerFunctions(table, property, foundsetScope);
+		if (executionMode == ReturnFirst && functions.size() > 1)
+		{
+			Debug.warn("Multiple event handlers found for event " + property.getPropertyName() + ", only executing one");
 		}
-		return true;
+
+		for (TriggerFunction function : functions)
+		{
+			try
+			{
+				Object returnValue = scriptEngine.executeFunction(function.getFunction(), function.getScope(), function.getScope(),
+					arrayMerge(args, parseJSExpressions(function.getTableNode().getFlattenedMethodArguments(property.getPropertyName()))), false,
+					throwException);
+				if (executionMode == ReturnFirst || (executionMode == BreakOnFalse && Boolean.FALSE.equals(returnValue)))
+				{
+					// return first value or break on false return, do not execute remaining triggers.
+					return returnValue;
+				}
+			}
+			catch (JavaScriptException e)
+			{
+				// update or insert method threw exception.
+				throw new DataException(ServoyException.RECORD_VALIDATION_FAILED, e.getValue(), e).setContext(this.toString());
+			}
+			catch (EcmaError e)
+			{
+				throw new ApplicationException(ServoyException.SAVE_FAILED, e).setContext(this.toString());
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);
+				throw new ServoyException(ServoyException.SAVE_FAILED, new Object[] { e.getMessage() }).setContext(this.toString());
+			}
+		}
+
+		return Boolean.TRUE;
+	}
+
+	enum TriggerExecutionMode
+	{
+		ReturnFirst, BreakOnFalse, ExecuteEach
+	}
+
+	private static class TriggerFunction
+	{
+		private final Function function;
+		private final Scriptable scope;
+		private final TableNode tableNode;
+
+		public TriggerFunction(Function function, Scriptable scope, TableNode tableNode)
+		{
+			this.function = function;
+			this.scope = scope;
+			this.tableNode = tableNode;
+		}
+
+		public Scriptable getScope()
+		{
+			return scope;
+		}
+
+		public Function getFunction()
+		{
+			return function;
+		}
+
+		public TableNode getTableNode()
+		{
+			return tableNode;
+		}
+	}
+
+	public boolean hasFoundsetTrigger(String dataSource, TypedProperty<Integer> property)
+	{
+		return stream(application.getFlattenedSolution().getTableNodes(dataSource))
+			.mapToInt(tableNode -> tableNode.getTypedProperty(property))
+			.anyMatch(methodId -> methodId > 0);
 	}
 }

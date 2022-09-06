@@ -70,7 +70,6 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Settings;
-import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -298,7 +297,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	{
 		if (isShutDown()) return;
 
-		refreshI18NMessages();
+		refreshI18NMessages(true);
 		if (recreateForms)
 		{
 			recreateForms();
@@ -308,12 +307,19 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	@Override
 	public void recreateForms()
 	{
-		INGFormManager fm = getFormManager();
-		if (fm != null)
+		invokeLater(new Runnable()
 		{
-			List<IFormController> cachedFormControllers = fm.getCachedFormControllers();
-			refreshForms(cachedFormControllers, false);
-		}
+			@Override
+			public void run()
+			{
+				INGFormManager fm = getFormManager();
+				if (fm != null)
+				{
+					List<IFormController> cachedFormControllers = fm.getCachedFormControllers();
+					refreshForms(cachedFormControllers, false);
+				}
+			}
+		});
 	}
 
 	private void refreshForms(Collection<IFormController> forms, boolean forcePageReload)
@@ -334,7 +340,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 			for (IFormController controller : forms)
 			{
 				boolean isVisible = controller.isFormVisible();
-				if (isVisible) controller.notifyVisible(false, invokeLaterRunnables);
+				if (isVisible) controller.notifyVisible(false, invokeLaterRunnables, true);
 				if (controller.getFormModel() != null && !Utils.stringSafeEquals(controller.getDataSource(), controller.getFormModel().getDataSource()))
 				{
 					// for now we just destroy the form and recreate it with the other datasource;
@@ -358,7 +364,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 				{
 					if (!controller.isDestroyed()) ((WebFormController)controller).initFormUI();
 				}
-				if (isVisible) controller.notifyVisible(true, invokeLaterRunnables);
+				if (isVisible) controller.notifyVisible(true, invokeLaterRunnables, true);
 			}
 		}
 		if (reload)
@@ -449,10 +455,10 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	}
 
 	@Override
-	public Pair<UUID, UUID> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] args)
+	public Pair<Integer, Integer> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] args)
 	{
 
-		Pair<UUID, UUID> result = super.onStartSubAction(serviceName, functionName, apiFunction, args);
+		Pair<Integer, Integer> result = super.onStartSubAction(serviceName, functionName, apiFunction, args);
 		DBGPDebugFrame stackFrame = getStackFrame();
 
 		if (stackFrame instanceof ServoyDebugFrame)
@@ -482,7 +488,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	}
 
 	@Override
-	public void onStopSubAction(Pair<UUID, UUID> perfId)
+	public void onStopSubAction(Pair<Integer, Integer> perfId)
 	{
 		super.onStopSubAction(perfId);
 		DBGPDebugFrame stackFrame = getStackFrame();
@@ -504,7 +510,9 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	{
 		if (Boolean.valueOf(settings.getProperty(Settings.DISABLE_SERVER_LOG_FORWARDING_TO_DEBUG_CLIENT_CONSOLE, "false")).booleanValue())
 		{
-			invokeLater(() -> DebugUtils.errorToDebugger(getScriptEngine(), message, detail));
+			Runnable runable = () -> DebugUtils.errorToDebugger(getScriptEngine(), message, detail);
+			if (isEventDispatchThread()) runable.run();
+			else invokeLater(runable);
 		}
 	}
 
@@ -513,11 +521,15 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	{
 		if (!errorLevel)
 		{
-			invokeLater(() -> DebugUtils.stdoutToDebugger(getScriptEngine(), messsage));
+			Runnable runable = () -> DebugUtils.stdoutToDebugger(getScriptEngine(), messsage);
+			if (isEventDispatchThread()) runable.run();
+			else invokeLater(runable);
 		}
 		else
 		{
-			invokeLater(() -> DebugUtils.stderrToDebugger(getScriptEngine(), messsage));
+			Runnable runable = () -> DebugUtils.stderrToDebugger(getScriptEngine(), messsage);
+			if (isEventDispatchThread()) runable.run();
+			else invokeLater(runable);
 		}
 	}
 }

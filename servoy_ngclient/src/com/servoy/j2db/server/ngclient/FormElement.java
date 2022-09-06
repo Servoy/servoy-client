@@ -425,7 +425,8 @@ public final class FormElement implements INGFormElement
 		}
 		if (spec == null)
 		{
-			String errorMessage = "Component spec for " + componentType + " not found; please check your component spec file(s).";
+			String errorMessage = "Component spec for " + componentType + " not found; for persist: " + persistImpl +
+				", please check your component spec file(s).";
 			Debug.error(errorMessage);
 			return componentsSpecProviderState.getWebObjectSpecification(FormElement.ERROR_BEAN);
 			//if (throwException) throw new IllegalStateException(errorMessage);
@@ -706,20 +707,21 @@ public final class FormElement implements INGFormElement
 
 	public String getPropertiesString() throws JSONException
 	{
-		return propertiesAsTemplateJSON(null, new FormElementContext(this)).toString();
+		return propertiesAsTemplateJSON(null, new FormElementContext(this), true).toString();
 	}
 
-	public JSONWriter propertiesAsTemplateJSON(JSONWriter writer, FormElementContext context) throws JSONException
+	public JSONWriter propertiesAsTemplateJSON(JSONWriter writer, FormElementContext context, boolean writeAsValue) throws JSONException
 	{
 		TypedData<Map<String, Object>> propertiesTypedData = propertiesForTemplateJSON();
 
 		JSONWriter propertyWriter = (writer != null ? writer : new JSONStringer());
 		try
 		{
-			propertyWriter.object();
+			if (writeAsValue) propertyWriter.object();
 			JSONUtils.writeData(FormElementToJSON.INSTANCE, propertyWriter, propertiesTypedData.content, propertiesTypedData.contentType, context);
 			if (inDesigner) propertyWriter.key("svyVisible").value(isVisible);
-			return propertyWriter.endObject();
+			if (writeAsValue) propertyWriter.endObject();
+			return propertyWriter;
 		}
 		catch (JSONException | IllegalArgumentException e)
 		{

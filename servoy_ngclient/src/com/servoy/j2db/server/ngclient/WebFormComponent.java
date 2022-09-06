@@ -1,5 +1,7 @@
 package com.servoy.j2db.server.ngclient;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,18 +15,22 @@ import org.sablo.IEventHandler;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebObjectFunctionDefinition;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.server.ngclient.component.EventExecutor;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
+import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.INGWebObjectContext;
+import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
@@ -119,7 +125,7 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	@Override
 	public String toString()
 	{
-		return "<'" + getName() + "' of parent " + getParent() + ">";
+		return "<Component:'" + getName() + "' of parent " + getParent() + ", with spec: " + getSpecification() + " >";
 	}
 
 	public void updateVisibleForm(IWebFormUI form, boolean visible, int formIndex)
@@ -146,7 +152,7 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 		{
 			IWebFormController fc = webUI.getController();
 			childFormsThatWereNotified.add(fc);
-			retValue = retValue && fc.notifyVisible(visible, invokeLaterRunnables);
+			retValue = retValue && fc.notifyVisible(visible, invokeLaterRunnables, false);
 		}
 
 		if (!visible && retValue)
@@ -154,6 +160,15 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 			visibleForms.clear();
 		}
 		return retValue;
+	}
+
+	public boolean executePreHideSteps()
+	{
+		for (IWebFormUI webUI : visibleForms.keySet())
+		{
+			if (!webUI.getController().executePreHideSteps()) return false;
+		}
+		return true;
 	}
 
 	public int getFormIndex(IWebFormUI form)
@@ -217,55 +232,125 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 		@Override
 		public Object executeEvent(Object[] args)
 		{
+			Form formElementForm = findCorrectFormEvenForServoyFormComponentChildren();
+
 			// verify if component is accessible due to security options
-			IPersist persist = formElement.getPersistIfAvailable();
-			if (persist != null)
-			{
-				int access = dataAdapterList.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID(),
-					formElement.getForm().getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
-				if (!((access & IRepository.ACCESSIBLE) != 0))
-					throw new RuntimeException("Security error. Component '" + getProperty("name") + "' is not accessible.");
-			}
+			checkMethodExecutionSecurityAccess(getSpecification().getHandler(eventType), formElementForm);
+
 			if (Utils.equalObjects(eventType, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
-				(formElement.getForm().getOnElementFocusGainedMethodID() > 0) && formElement.getForm().getOnElementFocusGainedMethodID() != functionID)
+				(formElementForm.getOnElementFocusGainedMethodID() > 0) && formElementForm.getOnElementFocusGainedMethodID() != functionID)
 			{
-				dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElement.getForm().getOnElementFocusGainedMethodID(), args);
+				dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElementForm.getOnElementFocusGainedMethodID(), args);
 			}
 			else if (Utils.equalObjects(eventType, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
-				(formElement.getForm().getOnElementFocusLostMethodID() > 0) && formElement.getForm().getOnElementFocusLostMethodID() != functionID)
+				(formElementForm.getOnElementFocusLostMethodID() > 0) && formElementForm.getOnElementFocusLostMethodID() != functionID)
 			{
-				dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElement.getForm().getOnElementFocusLostMethodID(), args);
+				dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElementForm.getOnElementFocusLostMethodID(), args);
 			}
 
 			Object executeEventReturn = dataAdapterList.executeEvent(WebFormComponent.this, eventType, functionID, args);
-			Form formElementForm = null;
-			if (persist instanceof AbstractBase)
+
+			WebObjectSpecification componentSpec = formElement.getWebComponentSpec(false);
+
+			Collection<PropertyDescription> propertyDescriptionList = componentSpec.getProperties(DataproviderPropertyType.INSTANCE,
+				true);
+
+			for (PropertyDescription propertyDescription : propertyDescriptionList)
 			{
-				String formName = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_FORM_NAME);
-				if (formName != null)
+				// the property type found here is for a 'dataprovider' property from the spec file of this component
+				Object configOfDPOrFoundsetLinkedDP = propertyDescription.getConfig();
+				DataproviderConfig dpConfig;
+
+				if (configOfDPOrFoundsetLinkedDP instanceof FoundsetLinkedConfig)
+					dpConfig = (DataproviderConfig)((FoundsetLinkedConfig)configOfDPOrFoundsetLinkedDP).getWrappedConfig();
+				else dpConfig = (DataproviderConfig)configOfDPOrFoundsetLinkedDP;
+
+				if (dpConfig.getOnDataChange() != null && Utils.equalObjects(eventType, dpConfig.getOnDataChange()) &&
+					formElementForm.getOnElementDataChangeMethodID() > 0 &&
+					formElementForm.getOnElementDataChangeMethodID() != functionID)
 				{
-					formElementForm = dataAdapterList.getApplication().getFormManager().getForm(formName).getForm();
-				}
-
-			}
-			if (formElementForm == null)
-			{
-				formElementForm = formElement.getForm();
-			}
-
-
-			if (Utils.equalObjects(eventType, StaticContentSpecLoader.PROPERTY_ONDATACHANGEMETHODID.getPropertyName()) &&
-				(formElementForm.getOnElementDataChangeMethodID() > 0) && formElementForm.getOnElementDataChangeMethodID() != functionID)
-			{
-				boolean isValueValid = !Boolean.FALSE.equals(executeEventReturn) &&
-					!(executeEventReturn instanceof String && ((String)executeEventReturn).length() > 0);
-				if (isValueValid)
-				{
-					executeEventReturn = dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElementForm.getOnElementDataChangeMethodID(), args);
+					boolean isValueValid = !Boolean.FALSE.equals(executeEventReturn) &&
+						!(executeEventReturn instanceof String && ((String)executeEventReturn).length() > 0);
+					if (isValueValid)
+					{
+						executeEventReturn = dataAdapterList.executeEvent(WebFormComponent.this, eventType, formElementForm.getOnElementDataChangeMethodID(),
+							args);
+					}
 				}
 			}
-
 			return executeEventReturn;
+		}
+	}
+
+	private Form findCorrectFormEvenForServoyFormComponentChildren()
+	{
+		Form formElementForm = null;
+		IPersist persist = formElement.getPersistIfAvailable();
+		if (persist instanceof AbstractBase)
+		{
+			String formName = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_FORM_NAME);
+			if (formName != null)
+			{
+				formElementForm = dataAdapterList.getApplication().getFormManager().getForm(formName).getForm();
+			}
+		}
+		if (formElementForm == null)
+		{
+			formElementForm = formElement.getForm();
+		}
+		return formElementForm;
+	}
+
+	public void checkMethodExecutionSecurityAccess(WebObjectFunctionDefinition functionDef)
+	{
+		checkMethodExecutionSecurityAccess(functionDef, findCorrectFormEvenForServoyFormComponentChildren());
+	}
+
+	private void checkMethodExecutionSecurityAccess(WebObjectFunctionDefinition functionDef, Form formElementForm)
+	{
+		IPersist persist = null;
+
+		// FormComponent's child security is the security of the FormComponent
+		if (formElement.isFormComponentChild())
+		{
+			String feName = formElement.getName();
+			// form component children security access is currently dictated by the root form component component security settings; currently one only has the Security tab in form editors not in form component editors;
+			// for example if you have a form that contains a form component component A pointing to form component X that has in it a form component component B that points to form component Y
+			// then the children of both X and Y in this case have the same security settings as 'root' form component component which is A;
+
+			// so find the 'root' form component component persist and get it's access rights; this should always be found!
+			String formComponentName = feName.substring(0, feName.indexOf('$'));
+			for (IPersist p : formElementForm.getFlattenedFormElementsAndLayoutContainers())
+			{
+				if (p instanceof IFormElement && formComponentName.equals(((IFormElement)p).getName()))
+				{
+					persist = p;
+					break;
+				}
+			}
+		}
+		else
+		{
+			persist = formElement.getPersistIfAvailable();
+		}
+
+		if (persist != null)
+		{
+			int access = dataAdapterList.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID(),
+				formElementForm.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
+			if (!((access & IRepository.ACCESSIBLE) != 0))
+			{
+				boolean blockingChanges = true;
+				if (functionDef != null)
+				{
+					String allowAccess = functionDef.getAllowAccess();
+					if (allowAccess != null)
+					{
+						blockingChanges = Arrays.asList(allowAccess.split(",")).indexOf(WebFormUI.ENABLED) == -1;
+					}
+				}
+				if (blockingChanges) throw new RuntimeException("Security error. Component '" + this + "' is not accessible when calling: " + functionDef);
+			}
 		}
 	}
 
@@ -387,4 +472,5 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	{
 		return MARKUP_PROPERTY_ID.equals(property) || super.isVisible(property);
 	}
+
 }

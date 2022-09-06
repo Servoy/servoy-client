@@ -9,7 +9,7 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 			handlers: "=svyHandlers",
 			api: "=svyApi"
 		},
-		controller: function ($scope) {
+		controller: function ($scope, $element) {
 			$scope.showValues = null;
 			if ($scope.model.clientProperty && $scope.model.clientProperty['TypeAhead'] && $scope.model.clientProperty['TypeAhead']['showPopupOnFocusGain'] !== null && $scope.model.clientProperty['TypeAhead']['showPopupOnFocusGain'] !== undefined )
 			{
@@ -19,6 +19,14 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 			{
 				$scope.showValues = $applicationService.getUIProperty('TypeAhead.showPopupOnFocusGain');
 			}	
+			$scope.enterPressed = function(event)
+			{
+				if ($scope.handlers.onActionMethodID) {
+					$scope.handlers.onActionMethodID(event)
+				}
+				$scope.value = $element.val();
+                $scope.doSvyApply(false,true, event);
+			};
 		},
 		link: function($scope, $element, $attrs, ngModel) {
 
@@ -131,10 +139,10 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 				}
 			}
 
-			$scope.doSvyApply = function(isSelectFromPopup) {
+			$scope.doSvyApply = function(isSelectFromPopup, doApply, event) {
 				if (!editing || ($element.attr("readonly") == "readonly")) 
 					return;
-				if (isSelectFromPopup || ($('[uib-typeahead-popup]').attr('aria-hidden') == "true")) {
+				if (isSelectFromPopup || !$scope.model.isOpened) {
 					if(!isSelectFromPopup) {
 						editing = false;
 					}
@@ -190,9 +198,21 @@ angular.module('servoydefaultTypeahead', ['servoy'])
 				} 
 				else if (!hasRealValues && ($scope.model.dataProviderID != $scope.value))
 				{
-					editing = false;
-					$scope.model.dataProviderID = $scope.value;
-					$scope.svyServoyapi.apply('dataProviderID');
+                    var apply = true;
+                    if (event && event.originalEvent && event.originalEvent.relatedTarget) {
+                        apply = !event.originalEvent.relatedTarget.parentElement.classList.contains("uib-typeahead-match");
+                    }
+                    if (apply) {
+                        editing = false;
+                        $scope.model.dataProviderID = $scope.value;
+                        $scope.svyServoyapi.apply('dataProviderID');
+                    } else {
+                        $timeout(function(triggerValue){
+                            if (triggerValue == $scope.value) {
+                                $scope.doSvyApply(false,true);
+                            }
+                        },100,true,$scope.value)
+                    }
 				}
 				else if (hasRealValues) {
 					$timeout(function(triggerValue){

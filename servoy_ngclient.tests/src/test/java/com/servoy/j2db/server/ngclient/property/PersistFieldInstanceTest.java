@@ -213,7 +213,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		String json = JSONUtils.writeDataAsFullToJSON(props.content, props.contentType, allowBrowserConverterContext);
 		JSONAssert.assertEquals(
-			"{\"atype\":{\"vEr\":2,\"v\":{\"text\":\"OK\",\"name\":\"name\"}},\"svyMarkupId\":\"f331d64ddc0c17747371b7740e3e3447\"}",
+			"{\"atype\":{\"vEr\":2,\"v\":{\"text\":\"OK\",\"name\":\"name\"}},\"svyMarkupId\":\"sf331d64ddc0c17747371b7740e3e3447\"}",
 			json, true);
 	}
 
@@ -260,7 +260,7 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 		TypedData<Map<String, Object>> props = wc.getProperties();
 
 		String json = JSONUtils.writeDataAsFullToJSON(props.content, props.contentType, new BrowserConverterContext(wc, PushToServerEnum.allow));
-		JSONAssert.assertEquals("{\"svyMarkupId\":\"f331d64ddc0c17747371b7740e3e3447\",\"atype\":{\"vEr\":2,\"v\":{\"form\":\"tabform\",\"name\":\"name\"}}}",
+		JSONAssert.assertEquals("{\"svyMarkupId\":\"sf331d64ddc0c17747371b7740e3e3447\",\"atype\":{\"vEr\":2,\"v\":{\"form\":\"tabform\",\"name\":\"name\"}}}",
 			json, true);
 	}
 

@@ -25,7 +25,7 @@ import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 
-import com.servoy.base.query.IJoinConstants;
+import com.servoy.base.query.IQueryConstants;
 import com.servoy.j2db.dataprocessing.SQLGenerator;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.IRelation;
@@ -67,7 +67,12 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		super(root.getScriptableParent(), jsFunctions);
 		this.root = root;
 		this.parent = parent;
+	}
 
+	@Override
+	protected boolean fill()
+	{
+		allVars.clear();
 		QuerySelect query = root.getQuery(false);
 		if (query != null && parent == root)
 		{
@@ -76,6 +81,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 				.forEach(queryJoin -> allVars.put(queryJoin.getName(),
 					new QBJoin(root, parent, queryJoin.getForeignTable().getDataSource(), queryJoin, queryJoin.getName())));
 		}
+		return true;
 	}
 
 	/**
@@ -176,6 +182,29 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		}
 	}
 
+	/**
+	 * Remove the joins that are not used anywhere in the query.
+	 *
+	 * @sample
+	 * 	var query = datasources.db.example_data.orders.createSelect()
+	 *  // a joins is added from the relation
+	 *  query.sort.add(query.joins.orders_to_detail.columns.price.sum.asc)
+	 *  // clearing the sort does not remove the joins
+	 *  query.sort.clear()
+	 *  // remove the unused joins
+	 *  query.joins.removeUnused(false)
+	 *
+	 * @param keepInnerjoins when true inner joins are not removed, inner joins may impact the query result, even when not used
+	 */
+	@Override
+	@JSFunction
+	public QBJoins removeUnused(boolean keepInnerjoins)
+	{
+		root.getQuery().removeUnusedJoins(keepInnerjoins, false);
+		fill();
+		return this;
+	}
+
 	private QBJoin getOrAddRelation(IRelation relation, String relationName, String alias)
 	{
 		if (relation == null || !parent.getDataSource().equals(relation.getPrimaryDataSource()))
@@ -269,7 +298,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 			throw new RepositoryException("Cannot find relation '" + dataSourceOrRelation + "'");
 		}
 		// a data source
-		return add(dataSourceOrRelation, IJoinConstants.LEFT_OUTER_JOIN, alias);
+		return add(dataSourceOrRelation, IQueryConstants.LEFT_OUTER_JOIN, alias);
 	}
 
 	/**
@@ -281,7 +310,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	@JSFunction
 	public QBJoin add(String dataSource)
 	{
-		return add(dataSource, IJoinConstants.LEFT_OUTER_JOIN, null);
+		return add(dataSource, IQueryConstants.LEFT_OUTER_JOIN, null);
 	}
 
 	/**

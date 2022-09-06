@@ -1,4 +1,6 @@
 var index = 1;
+var menuId = 1;
+var menuArgumentsInternal = {}; // menuId => [Menu, Arguments];
 
 var MenuItem = {
 	doClick: function()
@@ -14,7 +16,10 @@ var MenuItem = {
 	setMethod: function(callback,args)
 	{
 		this.callback = callback;
-		this.args = args;
+		if(args !== undefined) 
+		{
+			this.methodArguments = args;
+		}
 	},
 	
 	setAccelarator: function(accelerator)
@@ -54,16 +59,16 @@ var MenuItem = {
 		this.visible = visible;
 	},
 	
-	setMethodArguments: function(args)
+	set methodArguments(args)
 	{
-		this.methodArguments = args;
+		menuArgumentsInternal[this.id] = [this, args];
 	},
 	
-	getMethodArguments: function()
+	get methodArguments()
 	{
-		if (this.methodArguments == undefined)
+		if (menuArgumentsInternal == undefined)
 			return null;
-		return this.methodArguments;
+		return menuArgumentsInternal[this.id];
 	},
 	
 	setSelected: function(selected)
@@ -116,6 +121,7 @@ var Menu = {
 	addMenuItem : function(text,callback,icon,mnemonic,enabled,align)
 	{
 		var newItem = Object.create(MenuItem);
+		newItem.id = menuId++ + '';
 		newItem.text = text;
 		newItem.callback = callback;
 		if (icon && icon.slice(0, 2) === "fa")
@@ -129,8 +135,9 @@ var Menu = {
 		newItem.mnemonic = mnemonic;
 		newItem.align = align;
 		newItem.enabled = enabled;
-		return this.items[this.items.push(newItem) - 1]; // we set and get it back to return as that instruments the value and makes it change-aware (be able to send granular updates to browser);
-//		return newItem;
+		newItem = this.items[this.items.push(newItem) - 1]; // we set and get it back to return as that instruments the value and makes it change-aware (be able to send granular updates to browser);
+		menuArgumentsInternal[newItem.id] = [newItem, null];
+		return newItem;
 	},
 	
 	addCheckBox : function(text,callback,icon,mnemonic,enabled,align)
@@ -231,31 +238,44 @@ var Menu = {
 		return this.key;
 	},
 	
-	show : function(component,x,y)
+	show : function(component,x,y, positionTop)
 	{
 		// this belongs to popup only but cannot assign directly on instance because then it is sent to client
 		var command = {'popupName': this.name};
-		if (component == undefined)
+		if (component == undefined) //show()
 		{
 			command.x = 0;
 			command.y = 0;
-		}
-		else if (x == undefined && y == undefined)
-		{
+		} 
+		else if (x == undefined && y == undefined) 
+		{//show(component) or show(event)
 			command.elementId = component.svyMarkupId;
-			command.x = 0;
-			command.y = component.height;
+			command.height = component.height;
+			command.positionTop = false;
 		}
-		else if (x != undefined && y == undefined)
+		else if (x != undefined && y == undefined) 
 		{
-			command.x = component;
-			command.y = x;
-		}
-		else
-		{
+			if (x === false || x === true) 
+			{ //show(component, positionTop)
+				command.elementId = component.svyMarkupId;
+				command.height = component.height;
+				command.positionTop = x;
+			} else //show(x, y)
+			{ 
+				command.x = component;
+				command.y = x;
+			}
+		} else  
+		{ //show(component, x, y [, positionTop])
 			command.elementId = component.svyMarkupId;
 			command.x = x;
 			command.y = y;
+			command.height = component.height;
+			if (positionTop == undefined) {
+				command.positionTop = false;
+			} else {
+				command.positionTop = positionTop;
+			}
 		}
 		$scope.model.popupMenuShowCommand = command;
 	},
@@ -400,6 +420,14 @@ $scope.api.closeFormPopup = function(retval)
 $scope.clearPopupForm = function()
 {
 	$scope.model.popupform = null;
+}
+
+$scope.executeMenuItem = function(menuItemId, itemIndex, parentItemIndex, isSelected, parentMenuText, menuText)
+{
+	var menuAndArgs = menuArgumentsInternal[menuItemId];
+	var fixedArgs = new Array(itemIndex, parentItemIndex, isSelected, parentMenuText, menuText);
+	var allArgs = fixedArgs.concat(menuAndArgs[1]);
+	menuAndArgs[0].callback.apply(null, allArgs);
 }
 
 $scope.api.showFormPopup = function(component,form,dataproviderScope,dataproviderID,width,height,x,y,showBackdrop,doNotCloseOnClickOutside, onClose)

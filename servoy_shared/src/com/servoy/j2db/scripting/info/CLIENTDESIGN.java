@@ -24,7 +24,7 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-@ServoyClientSupport(ng = false, wc = true, sc = true)
+@ServoyClientSupport(ng = true, wc = true, sc = true)
 public class CLIENTDESIGN implements IPrefixedConstantsObject
 {
 	/**
@@ -32,7 +32,7 @@ public class CLIENTDESIGN implements IPrefixedConstantsObject
 	 *
 	 * @sample
 	 * //by default all are present. ('l' stands for left, 't' stands for top, etc.)
-	 * elements['element_1'].putClientProperty(CLIENTDESIGN.HANDLES, new Array('r', 'l')); // other options are 't', 'b', 'r', 'l', 'bl', 'br', 'tl', 'tr' 
+	 * elements['element_1'].putClientProperty(CLIENTDESIGN.HANDLES, new Array('r', 'l')); // other options are 't', 'b', 'r', 'l', 'bl', 'br', 'tl', 'tr'
 	 */
 	public static final String HANDLES = "clientdesign.handles"; //$NON-NLS-1$
 
@@ -45,8 +45,4 @@ public class CLIENTDESIGN implements IPrefixedConstantsObject
 	 */
 	public static final String SELECTABLE = "clientdesign.selectable"; //$NON-NLS-1$
 
-	public String getPrefix()
-	{
-		return "CLIENTDESIGN";
-	}
 }

@@ -514,4 +514,10 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	 * @since 7.3
 	 */
 	public void setUserProperties(Map<String, String> properties);
+
+	/**
+	 * Gets the client locale
+	 * @return client Locale object
+	 */
+	public Locale getLocale();
 }

@@ -22,7 +22,6 @@ import java.util.List;
 
 import org.sablo.IChangeListener;
 import org.sablo.specification.property.ArrayOperation;
-import org.sablo.specification.property.ArrayOperation;
 
 import com.servoy.j2db.dataprocessing.FireCollector;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
@@ -68,6 +67,8 @@ public class FoundsetTypeChangeMonitor
 
 	protected static final int SEND_FOUNDSET_ID = 0b100000000000;
 
+	protected static final int SEND_FOUNDSET_DEFINITION_CHANGE = 0b1000000000000;
+
 	protected boolean lastHadMoreRecords = false;
 
 	protected IChangeListener changeNotifier;
@@ -89,7 +90,7 @@ public class FoundsetTypeChangeMonitor
 			{
 				notifyChange();
 			}
-		}, rowDataProvider);
+		}, rowDataProvider, propertyValue);
 		addViewportDataChangeMonitor(viewPortDataChangeMonitor);
 	}
 
@@ -271,8 +272,9 @@ public class FoundsetTypeChangeMonitor
 
 	public void recordsDeleted(int firstRow, int lastRow, final FoundsetTypeViewport viewPort)
 	{
-		if (firstRow == ((FoundSetManager)propertyValue.getApplication().getFoundSetManager()).pkChunkSize &&
-			(firstRow + ((FoundSetManager)propertyValue.getApplication().getFoundSetManager()).pkChunkSize < lastRow) &&
+		int pkChunkSize = ((FoundSetManager)propertyValue.getApplication().getFoundSetManager()).config.pkChunkSize();
+		if (firstRow == pkChunkSize &&
+			propertyValue.getFoundset().getSize() == pkChunkSize &&
 			(viewPort.getStartIndex() + viewPort.getSize() - 1 <= lastRow))
 		{
 			// try to determine when foundset is changed by loadbyquery/loadallrecords, in this case we should not load the whole foundset based on old viewport data, we should reset the viewport to default values
@@ -430,7 +432,7 @@ public class FoundsetTypeChangeMonitor
 						{
 							for (String dataprovider : dataproviders)
 							{
-								vpdcm.queueCellChange(firstViewPortIndex - viewPort.getStartIndex(), viewPort.getSize(), dataprovider);
+								vpdcm.queueCellChangeDueToColumn(firstViewPortIndex - viewPort.getStartIndex(), viewPort.getSize(), dataprovider);
 							}
 						}
 					});
@@ -457,7 +459,7 @@ public class FoundsetTypeChangeMonitor
 							{
 								for (String dataprovider : dataproviders)
 								{
-									vpdcm.queueCellChange(firstViewPortIndex - viewPort.getStartIndex(), viewPort.getSize(), dataprovider);
+									vpdcm.queueCellChangeDueToColumn(firstViewPortIndex - viewPort.getStartIndex(), viewPort.getSize(), dataprovider);
 								}
 							}
 							else
@@ -521,6 +523,11 @@ public class FoundsetTypeChangeMonitor
 	public boolean shouldSendFoundsetID()
 	{
 		return (changeFlags & SEND_FOUNDSET_ID) != 0;
+	}
+
+	public boolean shouldSendFoundsetDefinitionChange()
+	{
+		return (changeFlags & SEND_FOUNDSET_DEFINITION_CHANGE) != 0;
 	}
 
 	public boolean shouldSendColumnFormats()
@@ -631,6 +638,26 @@ public class FoundsetTypeChangeMonitor
 			changeFlags = changeFlags | SEND_FOUNDSET_ID;
 			if (oldChangeFlags != changeFlags) notifyChange();
 		}
+	}
+
+	public void foundsetDefinitionChanged()
+	{
+		if (!shouldSendAll())
+		{
+			int oldChangeFlags = changeFlags;
+			changeFlags = changeFlags | SEND_FOUNDSET_DEFINITION_CHANGE;
+			if (oldChangeFlags != changeFlags) notifyChange();
+		}
+	}
+
+
+	public boolean isVisible()
+	{
+		if (propertyValue != null && propertyValue.getDataAdapterList() != null)
+		{
+			return propertyValue.getDataAdapterList().getForm().isFormVisible();
+		}
+		return true;
 	}
 
 //	protected static class RecordChangeDescriptor implements JSONWritable

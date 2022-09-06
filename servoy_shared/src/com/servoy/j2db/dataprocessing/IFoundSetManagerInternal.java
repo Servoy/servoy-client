@@ -31,8 +31,10 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.IQueryElement;
 import com.servoy.j2db.query.QuerySelect;
+import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.WrappedObjectReference;
 
 /**
  * Internal interface to extend the foundset manager
@@ -98,7 +100,14 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	public IApplication getApplication();
 
-	public String createDataSourceFromDataSet(String name, IDataSet dataSet, ColumnType[] columnTypes, String[] pkNames, boolean skipOnLoad)
+	/**
+	 * Insert data to a new or existing data source.
+	 *
+	 * @param pkNames gives the names of pk columns; if null and insertToDataSource finds a design-time in-mem table definition that does have pks, it will change this reference to the pks it finds.
+	 * @return generated values for db identity columns
+	 */
+	public Object[] insertToDataSource(String name, IDataSet dataSet, ColumnType[] columnTypes, WrappedObjectReference<String[]> pkNames, boolean create,
+		boolean skipOnLoad)
 		throws ServoyException;
 
 	public boolean removeDataSource(String uri) throws RepositoryException;
@@ -155,6 +164,9 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	public boolean addTableFilterParam(String filterName, String serverName, ITable table, TableFilterdefinition tableFilterdefinition) throws ServoyException;
 
+	public boolean updateTableFilterParam(String serverName, String filterName, ITable table, TableFilterdefinition tableFilterdefinition)
+		throws ServoyException;
+
 	public ArrayList<TableFilter> getTableFilterParams(String serverName, IQueryElement sql);
 
 	public boolean hasTableFiltersWithJoins(String serverName, IQueryElement sql);
@@ -186,13 +198,13 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	* @param query
 	* @return
 	*/
-	public ViewFoundSet getViewFoundSet(String name, QBSelect query);
+	public ViewFoundSet getViewFoundSet(String name, QBSelect query, boolean register);
 
 	/**
 	 * @param foundset
 	 * @return
 	 */
-	public boolean registerViewFoundSet(ViewFoundSet foundset);
+	public boolean registerViewFoundSet(ViewFoundSet foundset, boolean onlyWeak);
 
 	/**
 	 * @param datasource
@@ -223,4 +235,7 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	 * @return
 	 */
 	public JSRecordMarkers validateRecord(IRecordInternal record, Object state);
+
+	public SortOptions getSortOptions(IColumn column);
+
 }

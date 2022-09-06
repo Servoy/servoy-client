@@ -26,9 +26,15 @@ public interface IFoundSetEventListener extends EventListener
 {
 	/**
 	 * The method to receive notifications
-	 * 
+	 *
 	 * @param e the event object
 	 */
 	void foundSetChanged(FoundSetEvent e);
+
+
+	default boolean wantsFoundSetDefinitionChanges()
+	{
+		return false;
+	}
 
 }

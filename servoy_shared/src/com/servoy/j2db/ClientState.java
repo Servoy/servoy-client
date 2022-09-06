@@ -45,6 +45,7 @@ import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.DataServerProxy;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
+import com.servoy.j2db.dataprocessing.FoundSetManagerConfig;
 import com.servoy.j2db.dataprocessing.IClient;
 import com.servoy.j2db.dataprocessing.IClientHost;
 import com.servoy.j2db.dataprocessing.IDataServer;
@@ -115,7 +116,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	protected Object[] preferredSolutionMethodArguments = null;
 
 	//the main solution, also called root
-	protected final FlattenedSolution solutionRoot = new FlattenedSolution();
+	protected final FlattenedSolution solutionRoot = new ExtendsConfiguratingFlattenedSolution();
 
 	/**
 	 * Managers
@@ -279,7 +280,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	protected void applicationSetup()
 	{
-		refreshI18NMessages();
+		refreshI18NMessages(true);
 
 		TimeZone defaultTimeZone = TimeZone.getDefault();
 		if (defaultTimeZone != null) //can this happen?
@@ -934,6 +935,10 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	protected abstract void createFoundSetManager();
 
+	protected FoundSetManagerConfig getFoundSetManagerConfig()
+	{
+		return new FoundSetManagerConfig(getSettings());
+	}
 
 	public String getClientID()
 	{
@@ -1300,7 +1305,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				foundSetManager.init();
 			}
 			// inform messages of the closed solution
-			refreshI18NMessages();
+			refreshI18NMessages(true);
 
 			if (scriptEngine != null)
 			{
@@ -1389,7 +1394,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		return pluginAccess;
 	}
 
-	public abstract void refreshI18NMessages();
+	public abstract void refreshI18NMessages(boolean clearCustomMessages);
 
 	protected void registerListeners()
 	{
@@ -1446,7 +1451,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			getClientHost().pushClientInfo(clientInfo.getClientId(), clientInfo);
 
 			loadSecuritySettings(solutionRoot);
-			getFormManager().clearLoginForm();
+
+			invokeLater(() -> getFormManager().clearLoginForm());
 		}
 		catch (Exception ex)
 		{
@@ -1599,7 +1605,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		{
 			loadSecuritySettings(solutionRoot);
 
-			refreshI18NMessages();
+			refreshI18NMessages(true);
 
 			getScriptEngine().getScopesScope().reloadVariablesAndScripts(); // add variables for new solution
 

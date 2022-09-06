@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
+import java.util.concurrent.TimeUnit;
 
 import javax.print.DocFlavor;
 import javax.print.PrintService;
@@ -42,6 +43,7 @@ import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
 
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Function;
 import org.mozilla.javascript.JavaScriptException;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeError;
@@ -80,6 +82,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPlugin;
+import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.scripting.info.APPLICATION_TYPES;
 import com.servoy.j2db.scripting.info.CLIENTDESIGN;
 import com.servoy.j2db.scripting.info.ELEMENT_TYPES;
@@ -474,6 +477,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Get a persistent user property.
+	 * <br>
+	 * In NGClient this is stored in the locale storage of the browser, so it will be persisted over restarts as long as the user didn't clear the data.
 	 *
 	 * @sample var value = application.getUserProperty('showOrders');
 	 *
@@ -489,6 +494,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Sets a user property for this client: <br>
+	 * In NGClient this is stored in the locale storage of the browser, so it will be persisted over restarts as long as the user didn't clear the data.
+	 * <br>
 	 * For headless clients(including Batch Processors and Authentication clients) the user property is stored in memory and will be lost upon client restart.
 	 * <br>
 	 * For Web Client the user property will be stored in a persistent cookie
@@ -557,6 +564,10 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 */
 	public Object js_getClientProperty(Object name)
 	{
+		if ("NG2".equals(name)) //$NON-NLS-1$
+		{
+			return application.getRuntimeProperties().get("NG2"); //$NON-NLS-1$
+		}
 		return application.getClientProperty(name);
 	}
 
@@ -606,6 +617,25 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		{
 			ComponentFactory.overrideStyle(originalStyleName, newStyleName);
 		}
+	}
+
+	/**
+	 * Get the media url that can be used to server a media in NGClient.
+	 *
+	 * @sample
+	 * application.getMediaURL('solution.css');
+	 *
+	 * @param mediaName Name of the media
+	 */
+	@JSFunction
+	@ServoyClientSupport(ng = true, wc = false, sc = false)
+	public String getMediaURL(String mediaName)
+	{
+		if (application instanceof INGClientApplication)
+		{
+			return ((INGClientApplication)application).getMediaURL(mediaName);
+		}
+		return null;
 	}
 
 	/**
@@ -970,6 +1000,41 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 			return ((IRefreshValueList)element).refreshValueList(propertyName);
 		}
 		return false;
+	}
+
+
+	/**
+	 * Runs at method at the given delay in milliseconds.
+	 *
+	 * This is like a simple scheduler to quickly run something after a bit of delay
+	 *
+	 * @param function The function to call
+	 * @param delay The millis that has to elapse before the function is called.
+	 *
+	 */
+	@JSFunction
+	public void executeLater(Function function, int delay)
+	{
+		executeLater(function, delay, null);
+	}
+
+	/**
+	 * Runs at method at the given delay in milliseconds with the arguments given to the method.
+	 *
+	 * This is like a simple scheduler to quickly run something after a bit of delay
+	 *
+	 * @param function The function to call
+	 * @param delay The millis that has to elapse before the function is called.
+	 * @param arguments The arguments that are given to the function when called.
+	 *
+	 */
+	@JSFunction
+	public void executeLater(Function function, int delay, Object[] arguments)
+	{
+		final FunctionDefinition fd = new FunctionDefinition(function);
+		application.getScheduledExecutor().schedule(() -> {
+			fd.executeAsync((IClientPluginAccess)application.getPluginAccess(), arguments);
+		}, delay, TimeUnit.MILLISECONDS);
 	}
 
 	// Return -1L if str is not an index or the index value as lower 32
@@ -2120,7 +2185,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		}
 		else if (msg instanceof NativeError)
 		{
-			application.output(msg.toString() + '\n' + ((NativeError)msg).getStackDelegated((NativeError)msg), level);
+			application.output(msg.toString() + '\n' + ((NativeError)msg).getStackDelegated(), level);
 		}
 		else if (msg instanceof Scriptable)
 		{
@@ -2820,6 +2885,26 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 			return null;
 		}
 		return dialogName.replace(' ', '_').replace(':', '_');
+	}
+
+	/**
+	 * This generates a browser function for the given function string that can be executed in the browser
+	 * The resulting object can be assigned into a config/property object that is then assigned to a component
+	 * The component will receive this function as a real function object.
+	 *
+	 * This is a more dynamic variant of the spec property "clientfunction" https://wiki.servoy.com/display/DOCS/Property+Types
+	 *
+	 * @sample
+	 * var options = { myfunction: application.generateBrowserFunction("function(param) { return param + 1 }") };
+	 * elements.component.setOptions(options);
+	 *
+	 * @return An object that can be assignd to a javascript/json object that is send to the client
+	 */
+	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
+	@JSFunction
+	public Object generateBrowserFunction(String functionString)
+	{
+		return application.generateBrowserFunction(functionString);
 	}
 
 	/**
@@ -3565,6 +3650,50 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	public void js_setErrorCapture(boolean cap)
 	{
 		isCapturingErrors = cap;
+	}
+
+	/**
+	 * Get a JSLogger instance which offers an API for logging with arguments.
+	 * Available logging levels are (in order): fatal, error, warn, info, debug and trace.
+	 * The argument should be the name of a logger that is configured in myServoyInstallationDir/application_server/log4j.xml.
+	 * A new logger can be configured in log4j.xml by adding the following line:
+	 * <Logger name="myLogger" level="INFO"/>
+	 *
+	 * @sample
+	 * var log = application.getLogger("myLogger");
+	 * application.output("is logging level 'warn' enabled? " + log.isWarnEnabled); // if false, next line won't log
+	 * log.warn.log("this logger logs {} {} {}", "all", "my", "arguments");
+	 *
+	 *
+	 * @param loggerName the name of the logger, as configured in log4j.xml
+	 * @return a new JSLogger instance
+	 */
+	@JSFunction
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
+	public JSLogger getLogger(String loggerName)
+	{
+		return new JSLogger(loggerName);
+	}
+
+	/**
+	 * Get a JSLogger instance which offers an API for logging with arguments.
+	 * Available logging levels are (in order): fatal, error, warn, info, debug and trace.
+	 * If no loggerName is given to this method, it returns the default logger (LoggerFactory.getLogger(Debug.class))
+	 * NOTE: the default logging level of the the default logger is 'warn', so info, debug and trace events are not logged.
+	 *
+	 * @sample
+	 * var log = application.getLogger(); // returns the default logger.
+	 * application.output("is logging level 'warn' enabled? " + log.isWarnEnabled); // if false, next line won't log
+	 * log.warn.log("this logger logs {} {} {}", "all", "my", "arguments");
+	 *
+	 *
+	 * @return a new JSLogger instance
+	 */
+	@JSFunction
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
+	public JSLogger getLogger()
+	{
+		return new JSLogger();
 	}
 
 	/**

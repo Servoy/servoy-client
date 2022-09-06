@@ -778,4 +778,9 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 			}
 		}
 	}
+
+	public Locale getLocale()
+	{
+		return application.getLocale();
+	}
 }

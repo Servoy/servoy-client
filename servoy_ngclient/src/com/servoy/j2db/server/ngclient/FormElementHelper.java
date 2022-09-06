@@ -167,7 +167,8 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 			cache.put(parentElement.getPersistIfAvailable().getUUID(), map);
 		}
 		FormComponentCache fcCache = map.get(pd.getName());
-		if (fcCache == null || fcCache.created < frm.getLastModified() || fcCache.created < parentElement.getForm().getLastModified())
+		if (fcCache == null || fcCache.created < frm.getLastModified() || fcCache.created < parentElement.getForm().getLastModified() ||
+			!frm.getUUID().toString().equals(fcCache.frmUUID))
 		{
 			final List<FormElement> list = generateFormComponentElements(parentElement, pd, json, frm, fs);
 			fcCache = generateFormComponentCacheObject(parentElement, pd, frm, fs, list);
@@ -195,7 +196,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 			}
 		};
 		String template = FormLayoutGenerator.generateFormComponent(frm, fs, cache);
-		return new FormComponentCache(list, template);
+		return new FormComponentCache(list, template, frm.getUUID().toString());
 	}
 
 	private static List<FormElement> generateFormComponentElements(INGFormElement parent, PropertyDescription pd, JSONObject json, Form frm,
@@ -678,6 +679,10 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		{
 			for (IPersist persist : changes)
 			{
+				if (persist instanceof IBasicWebObject)
+				{
+					formComponentElementsForDesign.remove(persist.getParent().getUUID());
+				}
 				persistWrappers.remove(persist);
 			}
 		}
@@ -1079,12 +1084,14 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 		private final String template;
 
 		private final String uuid;
+		private final String frmUUID;
 
 		private final long created = System.currentTimeMillis();
 
-		public FormComponentCache(List<FormElement> list, String template)
+		public FormComponentCache(List<FormElement> list, String template, String frmUUID)
 		{
 			this.list = list;
+			this.frmUUID = frmUUID;
 			String templateHit = template.replace("\"", "\\\"");
 			String uuidHit = null;
 			// first look if the template cache has entries for this

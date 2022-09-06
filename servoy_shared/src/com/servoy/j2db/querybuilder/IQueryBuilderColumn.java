@@ -111,14 +111,14 @@ public interface IQueryBuilderColumn extends IQueryBuilderPart
 	 * Operator: like
 	 * @see #eq
 	 */
-	IQueryBuilderCondition like(String pattern);
+	IQueryBuilderCondition like(Object pattern);
 
 	/**
 	 * Compare column with a value or another column.
 	 * Operator: like, with escape character
 	 * @see #eq
 	 */
-	IQueryBuilderCondition like(String pattern, char escape);
+	IQueryBuilderCondition like(Object pattern, char escape);
 
 	/**
 	 * Create a negated condition.

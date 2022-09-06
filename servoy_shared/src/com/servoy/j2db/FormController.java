@@ -780,7 +780,7 @@ public class FormController extends BasicFormController
 	 */
 	//this method first overloaded setVisible but setVisible is not always called and had differences between jdks
 	@Override
-	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables)
+	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables, boolean executePreHideSteps)
 	{
 		if (isFormVisible == visible || executingOnLoad) return true;
 		if (formModel == null)
@@ -789,7 +789,7 @@ public class FormController extends BasicFormController
 			return true;
 		}
 
-		boolean notifyVisible = super.notifyVisible(visible, invokeLaterRunnables);
+		boolean notifyVisible = super.notifyVisible(visible, invokeLaterRunnables, executePreHideSteps);
 
 		if (notifyVisible)
 		{
@@ -985,7 +985,7 @@ public class FormController extends BasicFormController
 								ControllerUndoManager cum = null;
 								if (nav != null)
 								{
-									nav.notifyVisible(true, invokeLaterRunnables);
+									nav.notifyVisible(true, invokeLaterRunnables, true);
 									cum = nav.getUndoManager();
 								}
 								if (application.getCmdManager() instanceof ICmdManagerInternal)
@@ -993,13 +993,13 @@ public class FormController extends BasicFormController
 									((ICmdManagerInternal)application.getCmdManager()).setControllerUndoManager(cum);
 								}
 								FormController old_nav = navigatorSupport.setNavigator(nav);
-								if (old_nav != null) old_nav.notifyVisible(false, invokeLaterRunnables);
+								if (old_nav != null) old_nav.notifyVisible(false, invokeLaterRunnables, true);
 							}
 							else
 							{
 								// Form deleted??
 								FormController old_nav = navigatorSupport.setNavigator(null);
-								if (old_nav != null) old_nav.notifyVisible(false, invokeLaterRunnables);
+								if (old_nav != null) old_nav.notifyVisible(false, invokeLaterRunnables, true);
 							}
 						}
 						catch (Exception ex)
@@ -1014,14 +1014,14 @@ public class FormController extends BasicFormController
 						if (sliderDef != null)
 						{
 							fm.leaseFormPanel(sliderDef.getName());
-							currentFC.notifyVisible(true, invokeLaterRunnables);
+							currentFC.notifyVisible(true, invokeLaterRunnables, true);
 						}
 					}
 				}
 				else if (form_id != Form.NAVIGATOR_IGNORE)//if is ignore leave previous,if not remove
 				{
 					FormController old_nav = navigatorSupport.setNavigator(null);
-					if (old_nav != null) old_nav.notifyVisible(false, invokeLaterRunnables);
+					if (old_nav != null) old_nav.notifyVisible(false, invokeLaterRunnables, true);
 				}
 			}
 		}
@@ -1231,7 +1231,7 @@ public class FormController extends BasicFormController
 		}
 
 		List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-		boolean ok = notifyVisible(visibleExternal, invokeLaterRunnables);
+		boolean ok = notifyVisible(visibleExternal, invokeLaterRunnables, true);
 		Utils.invokeLater(application, invokeLaterRunnables);
 		if (!ok)
 		{

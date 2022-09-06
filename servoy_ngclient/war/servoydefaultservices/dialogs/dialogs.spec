@@ -3,6 +3,15 @@
 	"displayName": "Servoy Dialogs plugin",
 	"version": 1,
 	"definition": "servoydefaultservices/dialogs/dialogs.js",
+	 "ng2Config": {
+       "packageName": "@servoy/dialogs",
+       "moduleName": "DialogModule",
+       "serviceName": "DialogService",
+       "entryPoint": "projects/dialogs",
+       "dependencies": {
+            "csslibrary" : ["~@angular/material/prebuilt-themes/indigo-pink.css"]
+        }
+    },
 	"libraries": 
 	[
 		
@@ -14,7 +23,7 @@
 		},
 		{
 			"name": "bootbox",
-			"version": "4.3.0",
+			"version": "5.4.0",
 			"url": "servoydefaultservices/dialogs/bootbox.js",
 			"mimetype": "text/javascript"
 		},
@@ -24,7 +33,14 @@
 			"version": "1",
 			"url": "servoydefaultservices/dialogs/dialogs.css",
 			"mimetype": "text/css"
-		}
+		},
+		
+		{
+            "name": "bootboxlocales",
+            "version": "5.5.3",
+            "url": "servoydefaultservices/dialogs/bootbox.locales.js",
+            "mimetype": "text/javascript"
+        }
 	],
 
 	"model": 

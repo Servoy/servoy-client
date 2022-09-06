@@ -64,6 +64,8 @@ import com.servoy.j2db.util.Settings;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBSelect")
 public class QBSelect extends QBTableClause implements IQueryBuilder
 {
+	private static final char QUOTE = '\'';
+
 	private final ITableAndRelationProvider tableProvider;
 
 	private QBResult result;
@@ -331,8 +333,10 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 *  </pre> with prepared statement value 200.
 	 *  <p>
 	 *  Inlined values can be used in situations where prepared statement expressions give sql problems, for example in some group-by clauses.
-	 *
+	 *  <p>
 	 *  Note that using the same query with different inlined values effectively disables prepared statement caching for the query and may have a negative performance impact.
+	 *  <p>
+	 *  In case of a string will the value be validated, values that contain a single quote will not be inlined.
 	 *
 	 * @sample
 	 * 	var query = datasources.db.example_data.order_details.createSelect();
@@ -362,6 +366,37 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	{
 		return number == null ? null : new QueryColumnValue(
 			columnForType == null ? number : getAsRightType(number, columnForType.getColumnType(), columnForType.getFlags()), null, true);
+	}
+
+	/**
+	 * Create an inlined (quoted) value.
+	 *
+	 * @sampleas inline(Number)
+	 *
+	 * @param string value to inline
+	 */
+	@JSFunction
+	public Object inline(String string)
+	{
+		if (string == null)
+		{
+			return null;
+		}
+		if (validateInlineString(string))
+		{
+			return new QueryColumnValue(new StringBuilder().append(QUOTE).append(string).append(QUOTE).toString(), null, true);
+		}
+		// not valid, make it a parameterized query
+		return new QueryColumnValue(string, null, false);
+	}
+
+	/**
+	 * Validate whether the string is safe to be put in a query, protecting from sql injection.
+	 */
+	private static boolean validateInlineString(String string)
+	{
+		// if it does not contain a quote or escape we are safe
+		return string == null || (string.indexOf(QUOTE) == -1 && string.indexOf('\\') == -1);
 	}
 
 	/**
@@ -492,13 +527,13 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * 	var query = datasources.db.example_data.order_details.createSelect();
 	 *
 	 * // case expressions can be added to the result of the query
-	 * 	query.result.add(query.case.when(query.columns.quantity.ge(1000)).then('BIG').elseValue('small'));
+	 * 	query.result.add(query.case.when(query.columns.quantity.ge(1000)).then('BIG').else('small'));
 	 *
 	 *  // they can also be used in conditions
 	 * 	query.where.add(query.case
 	 * 		.when(query.columns.discount.gt(10)).then(50)
 	 * 		.when(query.columns.quantity.le(20)).then(70)
-	 * 		.elseValue(100)
+	 * 		.else(100)
 	 * 	.multiply(query.columns.unitprice).lt(10000));
 	 */
 	@JSReadonlyProperty(property = "case")

@@ -29,3 +29,6 @@ Web-Component: True
 
 Name: listformcomponent/listformcomponent.spec
 Web-Component: True
+
+Name: responsivecontainer/responsivecontainer.spec
+Web-Layout: True

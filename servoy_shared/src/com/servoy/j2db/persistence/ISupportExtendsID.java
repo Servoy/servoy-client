@@ -25,7 +25,7 @@ import java.util.Map;
  * @author lvostinar
  *
  */
-public interface ISupportExtendsID
+public interface ISupportExtendsID extends IPersist
 {
 	/**
 	 * The selected parent (extended element) for the element (form).

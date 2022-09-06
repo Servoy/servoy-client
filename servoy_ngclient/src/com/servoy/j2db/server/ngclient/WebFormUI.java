@@ -38,6 +38,8 @@ import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.BooleanPropertyType;
 import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.specification.property.types.VisiblePropertyType;
+import org.sablo.websocket.CurrentWindow;
+import org.sablo.websocket.IWindow;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.FormController;
@@ -167,11 +169,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 			}
 
 			WebFormComponent component = ComponentFactory.createComponent(getApplication(), dataAdapterList, fe, this, getController().getForm());
-
-			if (component != null)
-			{
-				contributeComponentToElementsScope(elementsScope, fe, componentSpec, component);
-			}
+			contributeComponentToElementsScope(elementsScope, fe, componentSpec, component);
 		}
 
 		DefaultNavigatorWebComponent nav = (DefaultNavigatorWebComponent)getComponent(DefaultNavigator.NAME_PROP_VALUE);
@@ -570,6 +568,8 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		}
 		clearComponents();
 		cleanupListeners();
+		IWindow window = CurrentWindow.safeGet();
+		if (window != null) window.unregisterContainer(this);
 	}
 
 	@Override
@@ -715,9 +715,24 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		}
 		if (retValue) setVisible(visible);
 
-		// childFormsThatWereNotified is given here to avoid double calling for example onHide on the same form if the form's onHide returns false the first time
+		// childFormsThatWereNotified is given here to avoid double calling for example onHide on the same form if the form's onHide returns false the first time;
+		// I think this call is only useful for visible = true so onShow (to propagate data?); in case of hide I think childFormsThatWereNotified will already contain forms that DAL would want to hide (SVY-8406)
 		dataAdapterList.notifyVisible(visible, invokeLaterRunnables, childFormsThatWereNotified);
+
 		return retValue;
+	}
+
+	@Override
+	public boolean executePreHideSteps()
+	{
+		for (WebComponent component : getComponents())
+		{
+			if (!((WebFormComponent)component).executePreHideSteps())
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override

@@ -397,12 +397,14 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 		finally
 		{
 			int counter = 0;
+			long timePerQuery = (System.currentTimeMillis() - startTime) / array.length;
 			for (QueryData queryData : array)
 			{
+				long time = System.currentTimeMillis() - timePerQuery;
 				QuerySet set = getSQLQuerySet(server_name, queryData.getSqlSelect(), queryData.getFilters(), queryData.getStartRow(),
 					queryData.getRowsToRetrieve(), false, false);
 				informListeners(PerformanceTiming.getTypeString(queryData.getType()) + " Combined Query[" + (counter++) + '/' + array.length + ']', server_name,
-					set.getSelect().getSql(), transaction_id, startTime, set.getSelect().getParameters());
+					set.getSelect().getSql(), transaction_id, time, set.getSelect().getParameters());
 			}
 		}
 	}
@@ -599,8 +601,8 @@ public class ProfileDataServer extends AbstractDelegateDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#insertDataSet(java.lang.String, com.servoy.j2db.dataprocessing.IDataSet, java.lang.String, java.lang.String, java.lang.String, java.lang.String, int[], String[])
 	 */
 	@Override
-	public ITable insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid, ColumnType[] columnTypes,
-		String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException
+	public InsertResult insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid,
+		ColumnType[] columnTypes, String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException
 	{
 		long startTime = System.currentTimeMillis();
 		try

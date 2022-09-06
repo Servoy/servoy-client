@@ -33,9 +33,13 @@ import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.IOUtils;
 import org.sablo.security.ContentSecurityPolicyConfig;
+import org.sablo.websocket.WebsocketSessionManager;
+
+import com.servoy.j2db.util.Debug;
 
 /**
  * @author jcompagner
@@ -47,6 +51,7 @@ import org.sablo.security.ContentSecurityPolicyConfig;
 public class AngularIndexPageFilter implements Filter
 {
 	public static final String SOLUTIONS_PATH = "solution/";
+	public static final String CLIENT_ENDPOINT = "client";
 	private String indexPage = null;
 
 	@Override
@@ -75,13 +80,37 @@ public class AngularIndexPageFilter implements Filter
 		String solutionName = getSolutionNameFromURI(requestURI);
 		if ("GET".equalsIgnoreCase(request.getMethod()) && solutionName != null)
 		{
+
 			if ((requestURI.endsWith("/") || requestURI.endsWith("/" + solutionName) || requestURI.toLowerCase().endsWith("/index.html")))
 			{
+
+				String clientnr = AngularIndexPageWriter.getClientNr(requestURI, request);
+				INGClientWebsocketSession wsSession = null;
+				HttpSession httpSession = request.getSession(false);
+				if (clientnr != null && httpSession != null)
+				{
+					wsSession = (INGClientWebsocketSession)WebsocketSessionManager.getSession(CLIENT_ENDPOINT, httpSession, Integer.parseInt(clientnr));
+				}
+				if (AngularIndexPageWriter.handleMaintenanceMode(request, response, wsSession))
+				{
+					return;
+				}
 				request.getSession();
 
 				ContentSecurityPolicyConfig contentSecurityPolicyConfig = addcontentSecurityPolicyHeader(request, response, false); // for NG2 remove the unsafe-eval
-				AngularIndexPageWriter.writeIndexPage(this.indexPage, request, response, solutionName,
+				if (this.indexPage != null) AngularIndexPageWriter.writeIndexPage(this.indexPage, request, response, solutionName,
 					contentSecurityPolicyConfig == null ? null : contentSecurityPolicyConfig.getNonce());
+				else
+				{
+					response.setCharacterEncoding("UTF-8");
+					response.setContentType("text/html");
+					String indexHtml = "<html><body>No NGClient2 resources exported</body></html>";
+					response.setContentLengthLong(indexHtml.length());
+					response.getWriter().write(indexHtml);
+					Debug.error(
+						"Trying to service NGClient2, but no resouces are generatd for that in the exporter (-NG2 flag) or an error happend when exporting");
+
+				}
 				return;
 			}
 			else if (requestURI.toLowerCase().endsWith("/startup.js"))

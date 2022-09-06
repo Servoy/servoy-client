@@ -122,18 +122,33 @@ namespace ngclient.propertyTypes {
 				this.addDataWatchesToRow(i, viewPort, internalState, componentScope, propertyContextCreator, simpleRowValue);
 			}
 		}
-	
-		private removeDataWatchesFromRow(idx: number, internalState: InternalStateForViewport) {
+
+		private removeSmartChangeNotifiers(cellValue: any) {
+			if (cellValue && cellValue[$sabloConverters.INTERNAL_IMPL] && cellValue[$sabloConverters.INTERNAL_IMPL].setChangeNotifier)
+				cellValue[$sabloConverters.INTERNAL_IMPL].setChangeNotifier(undefined);
+		}
+
+		private removeDataWatchesFromRow(idx: number, internalState: InternalStateForViewport, viewPort: any[], simpleRowValue: boolean) {
+			// remove dumb watches
 			if (internalState.unwatchData && internalState.unwatchData[idx]) {
 				for (let j = internalState.unwatchData[idx].length - 1; j >= 0; j--)
 					internalState.unwatchData[idx][j]();
 				delete internalState.unwatchData[idx];
 			}
+		
+			// also remove smart change notifiers just in case components hang on to obsolete values and change stuff in them
+			if (simpleRowValue) {
+				removeSmartChangeNotifiers(viewPort[idx]);
+			} else {
+				let columnName;
+				for (columnName in viewPort[idx])
+					if (columnName !== $foundsetTypeConstants.ROW_ID_COL_KEY) removeSmartChangeNotifiers(viewPort[idx][columnName]);
+			}
 		}
 	
-		public removeDataWatchesFromRows(rowCount: number, internalState: InternalStateForViewport) {
-			for (let i = rowCount - 1; i >= 0; i--) {
-				this.removeDataWatchesFromRow(i, internalState);
+		public removeDataWatchesFromRows(internalState: InternalStateForViewport, viewPort: any[], simpleRowValue: boolean/*not key/value pairs in each row*/) {
+			for (let i = viewPort.length - 1; i >= 0; i--) {
+				this.removeDataWatchesFromRow(i, internalState, viewPort, simpleRowValue);
 			}
 		}
 		

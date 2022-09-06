@@ -60,7 +60,7 @@ namespace ngclient.propertyTypes {
 						iS.modelUnwatch[unW]();
 					iS.modelUnwatch = null;
 				}
-				if (value[ComponentType.MODEL_VIEWPORT]) this.viewportModule.removeDataWatchesFromRows(value[ComponentType.MODEL_VIEWPORT].length, iS);
+				if (value[ComponentType.MODEL_VIEWPORT]) this.viewportModule.removeDataWatchesFromRows(iS, value[ComponentType.MODEL_VIEWPORT], false);
 			}
 		}
 	

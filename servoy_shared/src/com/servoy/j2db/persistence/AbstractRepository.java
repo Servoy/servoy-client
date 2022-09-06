@@ -39,7 +39,7 @@ import com.servoy.j2db.util.UUID;
  */
 public abstract class AbstractRepository extends AbstractPersistFactory implements IDeveloperRepository
 {
-	public static final int repository_version = 54;
+	public static final int repository_version = 56;
 
 	/**
 	 * subclass to check for the owner for debugging.
@@ -620,8 +620,14 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 				return IPersistVisitor.CONTINUE_TRAVERSAL;
 			}
 		});
-
-		parent.addChild(persist);
+		if (parent instanceof WebComponent && persist instanceof IChildWebObject)
+		{
+			((WebComponent)parent).insertChild((IChildWebObject)persist);
+		}
+		else
+		{
+			parent.addChild(persist);
+		}
 	}
 
 	public abstract IRootObject createNewRootObject(String name, int objectTypeId, int newElementID, UUID uuid) throws RepositoryException;

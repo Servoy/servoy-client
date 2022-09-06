@@ -244,7 +244,7 @@ public class DebugHeadlessClient extends HeadlessClient implements IDebugHeadles
 
 		Set<IFormController>[] scopesAndFormsToReload = DebugUtils.getScopesAndFormsToReload(this, changes);
 
-		refreshI18NMessages();
+		refreshI18NMessages(true);
 		for (IFormController controller : scopesAndFormsToReload[0])
 		{
 			if (controller.getForm() instanceof FlattenedForm)

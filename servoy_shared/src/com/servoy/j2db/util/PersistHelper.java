@@ -49,7 +49,6 @@ import com.servoy.j2db.persistence.FlattenedLayoutContainer;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFlattenedPersistWrapper;
 import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportChilds;
 import com.servoy.j2db.persistence.ISupportExtendsID;
@@ -68,10 +67,6 @@ public class PersistHelper
 {
 	public static final String COLOR_RGBA_DEF = "rgba"; //$NON-NLS-1$
 	public static final Color COLOR_TRANSPARENT = new Color(0, 0, 0, 0);
-
-	private static final Object NULL = new Object();
-	private static final IntHashMap<Object> superPersistCache = new IntHashMap<Object>();
-	private static boolean useCache = false;
 
 	private PersistHelper()
 	{
@@ -562,8 +557,15 @@ public class PersistHelper
 			{
 				if (getCompositeFontMethod == null)
 				{
-					Class< ? > fontManager = Class.forName("sun.font.FontManager"); //$NON-NLS-1$
-					getCompositeFontMethod = fontManager.getMethod("getCompositeFontUIResource", new Class[] { Font.class }); //$NON-NLS-1$
+					if ("true".equals(System.getProperty("servoy.use.compositefont"))) //$NON-NLS-1$ //$NON-NLS-2$
+					{
+						Class< ? > fontManager = Class.forName("sun.font.FontManager"); //$NON-NLS-1$
+						getCompositeFontMethod = fontManager.getMethod("getCompositeFontUIResource", new Class[] { Font.class }); //$NON-NLS-1$
+					}
+					else
+					{
+						getCompositeFontMethod = Boolean.FALSE;
+					}
 				}
 			}
 			catch (Exception e)
@@ -897,7 +899,7 @@ public class PersistHelper
 			ISupportExtendsID superp = (ISupportExtendsID)PersistHelper.getSuperPersist(p);
 			if (superp == null)
 			{
-				return (IPersist)p;
+				return p;
 			}
 			p = superp;
 		}
@@ -916,52 +918,37 @@ public class PersistHelper
 		final int extendsID = persist.getExtendsID();
 		if (extendsID > 0)
 		{
-			if (useCache)
+			try
 			{
-				synchronized (superPersistCache)
+				Form form = (Form)((AbstractBase)persist).getAncestor(IRepository.FORMS);
+				if (form != null)
 				{
-					Object cache = superPersistCache.get(((IPersist)persist).getID());
-					if (cache instanceof IPersist) return (IPersist)cache;
-					else if (cache == NULL) return null;
-				}
-			}
-			Form form = (Form)((AbstractBase)persist).getAncestor(IRepository.FORMS);
-			if (form != null)
-			{
-				form = form.getExtendsForm();
-				while (form != null)
-				{
-					IPersist superPersist = (IPersist)form.acceptVisitor(new IPersistVisitor()
-					{
-						public Object visit(IPersist o)
-						{
-							if (o instanceof ISupportExtendsID && (extendsID == o.getID() || extendsID == ((ISupportExtendsID)o).getExtendsID()))
-							{
-								return o;
-							}
-							return CONTINUE_TRAVERSAL;
-						}
-					});
-					if (superPersist != null)
-					{
-						if (useCache)
-						{
-							synchronized (superPersistCache)
-							{
-								superPersistCache.put(((IPersist)persist).getID(), superPersist);
-							}
-						}
-						return superPersist;
-					}
 					form = form.getExtendsForm();
+					while (form != null)
+					{
+						IPersist superPersist = form.getSuperPersist(extendsID);
+//						IPersist superPersist = (IPersist)form.acceptVisitor(new IPersistVisitor()
+//						{
+//							public Object visit(IPersist o)
+//							{
+//								if (o instanceof ISupportExtendsID && (extendsID == o.getID() || extendsID == ((ISupportExtendsID)o).getExtendsID()))
+//								{
+//									return o;
+//								}
+//								return CONTINUE_TRAVERSAL;
+//							}
+//						});
+						if (superPersist != null)
+						{
+							return superPersist;
+						}
+						form = form.getExtendsForm();
+					}
 				}
 			}
-			if (useCache)
+			finally
 			{
-				synchronized (superPersistCache)
-				{
-					superPersistCache.put(((IPersist)persist).getID(), NULL);
-				}
+//				System.err.println("getting super persist for " + persist.getID() + " extends: " + extendsID + " time " + (System.currentTimeMillis() - time));
 			}
 		}
 		return null;
@@ -1000,7 +987,7 @@ public class PersistHelper
 
 	public static boolean isOverrideOrphanElement(ISupportExtendsID persist)
 	{
-		IPersist parentPersist = (IPersist)persist;
+		IPersist parentPersist = persist;
 		if (parentPersist instanceof ISupportExtendsID && ((ISupportExtendsID)parentPersist).getExtendsID() == IRepository.UNRESOLVED_ELEMENT)
 		{
 			return true;
@@ -1057,7 +1044,7 @@ public class PersistHelper
 	public static List<AbstractBase> getOverrideHierarchy(ISupportExtendsID persist)
 	{
 		List<AbstractBase> overrideHierarchy = new ArrayList<AbstractBase>(3);
-		IPersist superPersist = (IPersist)persist;
+		IPersist superPersist = persist;
 		while (superPersist instanceof ISupportExtendsID)
 		{
 			overrideHierarchy.add((AbstractBase)superPersist);
@@ -1210,28 +1197,5 @@ public class PersistHelper
 		}
 		return null;
 
-	}
-
-	public static void enableSuperPersistCaching(boolean enable)
-	{
-		if (useCache != enable)
-		{
-			useCache = enable;
-			if (!enable)
-			{
-				synchronized (superPersistCache)
-				{
-					superPersistCache.clear();
-				}
-			}
-		}
-	}
-
-	public static void flushSuperPersistCache()
-	{
-		synchronized (superPersistCache)
-		{
-			superPersistCache.clear();
-		}
 	}
 }

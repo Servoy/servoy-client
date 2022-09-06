@@ -171,7 +171,7 @@ public class RhinoConversion
 			try
 			{
 				final boolean[] initializing = new boolean[] { true };
-				newObject = new NativeArray(MAX_NATIVE_ARRAY_LENGTH)
+				newObject = new NativeArray(MAX_NATIVE_ARRAY_LENGTH) // see comment on this constant
 				{
 					@Override
 					public void put(int index, Scriptable start, Object value)
@@ -207,11 +207,14 @@ public class RhinoConversion
 					public void delete(int index)
 					{
 						super.delete(index);
-						if (index < ((List)webComponentValue).size())
+						if (!initializing[0])
 						{
-							((List)webComponentValue).remove(index);
+							if (index < ((List)webComponentValue).size())
+							{
+								((List)webComponentValue).remove(index);
+							}
+							if (webObjectContext != null && pd != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
 						}
-						if (webObjectContext != null && pd != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
 					}
 				};
 
@@ -274,8 +277,11 @@ public class RhinoConversion
 					public void delete(String name)
 					{
 						super.delete(name);
-						((Map)webComponentValue).remove(name);
-						if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
+						if (!initializing[0])
+						{
+							((Map)webComponentValue).remove(name);
+							if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
+						}
 					}
 				};
 
@@ -333,8 +339,11 @@ public class RhinoConversion
 					public void delete(String name)
 					{
 						super.delete(name);
-						json.remove(name);
-						if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
+						if (!initializing[0])
+						{
+							json.remove(name);
+							if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
+						}
 					}
 				};
 				ScriptRuntime.setBuiltinProtoAndParent((NativeObject)newObject, startScriptable,
@@ -374,7 +383,7 @@ public class RhinoConversion
 			try
 			{
 				final boolean[] initializing = new boolean[] { true };
-				newObject = new NativeArray(MAX_NATIVE_ARRAY_LENGTH)
+				newObject = new NativeArray(MAX_NATIVE_ARRAY_LENGTH) // see comment on this constant
 				{
 					private final JSONConverter converter = new JSONConverter();
 
@@ -404,8 +413,11 @@ public class RhinoConversion
 					public void delete(int index)
 					{
 						super.delete(index);
-						array.remove(index);
-						if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
+						if (!initializing[0])
+						{
+							array.remove(index);
+							if (webObjectContext != null) webObjectContext.getUnderlyingWebObject().markPropertyAsChangedByRef(pd.getName());
+						}
 					}
 				};
 

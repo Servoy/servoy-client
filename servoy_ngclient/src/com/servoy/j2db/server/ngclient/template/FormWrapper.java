@@ -375,6 +375,7 @@ public class FormWrapper
 		properties.remove(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSGAINEDMETHODID.getPropertyName());
 		properties.remove(StaticContentSpecLoader.PROPERTY_ONELEMENTFOCUSLOSTMETHODID.getPropertyName());
 		properties.remove(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID.getPropertyName());
+		properties.remove(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID.getPropertyName());
 		properties.remove(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID.getPropertyName());
 		properties.remove(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID.getPropertyName());
 		properties.remove(StaticContentSpecLoader.PROPERTY_ONRESIZEMETHODID.getPropertyName());
@@ -417,10 +418,10 @@ public class FormWrapper
 	{
 		Map<String, Boolean> names = new HashMap<String, Boolean>();
 		names.putAll(formComponentCSSPositionElementNames);
-		List<IFormElement> persists = form.getFlattenedObjects(PositionComparator.XY_PERSIST_COMPARATOR);
+		List<IFormElement> persists = form.getFlattenedObjects(null);
 		for (IFormElement persist : persists)
 		{
-			if (form.getUseCssPosition() || CSSPositionUtils.isInAbsoluteLayoutMode(persist))
+			if (form.getUseCssPosition().booleanValue() || CSSPositionUtils.isInAbsoluteLayoutMode(persist))
 			{
 				FormElement formElement = FormElementHelper.INSTANCE.getFormElement(persist, context.getSolution(), null, design);
 				String name = formElement.getDesignId() != null ? formElement.getDesignId() : formElement.getName();
