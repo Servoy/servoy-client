@@ -672,7 +672,7 @@ public class NGClient extends AbstractApplication
 			{
 				future.get(); // blocking
 			}
-			catch (InterruptedException | RuntimeException e)
+			catch (InterruptedException | RuntimeException e) // RuntimeException includes CancellationException as well
 			{
 				Debug.trace(e);
 			}
