@@ -1408,6 +1408,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	/**
 	 * Gets the HTTP server url.
 	 *
+	 * This url will end with a / so don't append to this server url something that starts with a / again
+	 * because RFC 3986 says that the path of a url (the part after the domain[:poort]) can not start with 2 slashes.
+	 *
 	 * @description-mc
 	 * Gets the application server URL for mobile client to connect to.
 	 *

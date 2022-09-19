@@ -673,8 +673,11 @@ public abstract class BasicFormController
 	 */
 	public boolean executePreHideSteps()
 	{
+		IBasicFormUI formUI = getFormUI();
+		if (formUI == null) return true; // this form was already hidden and destroyed, probably by FlattenedSolution.clearLoginSolution(IActiveSolutionHandler, IServiceProvider) - which does not care about the UI nesting order of visible forms when hiding and destroying them; nor does it update the WebFormComponent.visibleForms member of parent visible forms if it hides/destroys a child before doing it on parent
+
 		// first go check in depth - to any child forms in UI
-		boolean canHide = getFormUI().executePreHideSteps();
+		boolean canHide = formUI.executePreHideSteps();
 		if (canHide)
 		{
 			// if children allowed hide, see if stopIfEditing wants to block hide for this form

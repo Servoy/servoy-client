@@ -672,7 +672,7 @@ public class NGClient extends AbstractApplication
 			{
 				future.get(); // blocking
 			}
-			catch (InterruptedException | RuntimeException e)
+			catch (InterruptedException | RuntimeException e) // RuntimeException includes CancellationException as well
 			{
 				Debug.trace(e);
 			}
@@ -811,6 +811,7 @@ public class NGClient extends AbstractApplication
 		boolean isCloseSolution = super.closeSolution(force, args);
 		if (isCloseSolution)
 		{
+			getClientFunctions().clear();
 			getRuntimeProperties().put(IServiceProvider.RT_VALUELIST_CACHE, null);
 
 			if (args == null || args.length < 1)
