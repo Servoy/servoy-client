@@ -155,4 +155,6 @@ public interface IApplicationServerSingleton
 	Pair<Boolean, String> upgradeLicense(String companyName, String licensecode, String licenses);
 
 	String getServerUUID();
+
+	void startServices() throws Exception;
 }
