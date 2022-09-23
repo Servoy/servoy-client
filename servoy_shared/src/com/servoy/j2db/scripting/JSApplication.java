@@ -514,6 +514,25 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
+	 * Removes a user property.
+	 * @param name Name of the user property
+	 */
+	@JSFunction
+	public void removeUserProperty(String name)
+	{
+		application.removeUserProperty(name);
+	}
+
+	/**
+	 * Removes all user properties.
+	 */
+	@JSFunction
+	public void removeAllUserProperties()
+	{
+		application.removeAllUserProperties();
+	}
+
+	/**
 	 *
 	 * @param name Name of the UI property
 	 * @param value New value of the UI property

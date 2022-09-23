@@ -1708,6 +1708,17 @@ public class J2DBClient extends ClientState
 		((Settings)getSettings()).setUserProperty(Settings.USER, name, value);
 	}
 
+	public void removeUserProperty(String name)
+	{
+		if (name == null) return;
+		((Settings)getSettings()).removeUserProperty(Settings.USER, name);
+	}
+
+	public void removeAllUserProperties()
+	{
+		((Settings)getSettings()).removeAllUserProperties(Settings.USER);
+	}
+
 	public Object getClientProperty(Object name)
 	{
 		if (name == null) return null;
