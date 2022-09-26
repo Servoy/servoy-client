@@ -96,7 +96,8 @@ public class ArgumentType
 		if (columnType == IColumnTypes.DATETIME) return Date;
 		if (columnType == IColumnTypes.INTEGER || columnType == IColumnTypes.NUMBER) return Number;
 		if (columnType == IColumnTypes.TEXT) return String;
-		if (typeSuggestion != null) return valueOf(typeSuggestion);
+		if (columnType != IColumnTypes.MEDIA && typeSuggestion != null) return valueOf(typeSuggestion);
+		if (columnType == IColumnTypes.MEDIA && Array.getName().equals(typeSuggestion)) return valueOf(typeSuggestion);
 		return Object;
 	}
 }
