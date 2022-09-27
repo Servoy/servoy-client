@@ -44,6 +44,7 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  *
  */
+@SuppressWarnings("nls")
 public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInternal>
 	implements IClassPropertyType<IRecordInternal>, IFormElementToTemplateJSON<IRecordInternal, IRecordInternal>
 {
@@ -127,8 +128,12 @@ public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInterna
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.object();
 		writer.key("recordhash").value(addReference(sabloValue));
-		if (sabloValue != null) writer.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(
-			sabloValue.getPKHashKey() + "_" + sabloValue.getParentFoundSet().getRecordIndex(sabloValue));
+		if (sabloValue != null)
+		{
+			writer.key(FoundsetTypeSabloValue.FOUNDSET_ID).value(sabloValue.getParentFoundSet().getID());
+			writer.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(
+				sabloValue.getPKHashKey() + "_" + sabloValue.getParentFoundSet().getRecordIndex(sabloValue));
+		}
 		writer.key("svyType").value(getName());
 		writer.endObject();
 		return writer;
