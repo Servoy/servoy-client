@@ -1272,6 +1272,24 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			else userProps[key] = value;
 			webStorage.local.set("userProperties", JSON.stringify(userProps))
 		},
+		removeUserProperty: function(key) {
+			const userProps = getUserProperties();
+			delete userProps[key];
+			webStorage.local.set("userProperties", JSON.stringify(userProps))
+		},
+		removeAllUserProperties: function() {
+			const userProps = getUserProperties();
+			const userPropsToDelete = [];
+			Object.keys(userProps).forEach(prop => {
+				if (prop.includes('user.properties.')) {
+					userPropsToDelete.push(prop);
+				}
+			});
+			userPropsToDelete.forEach(key => {
+				delete userProps[key];
+			});
+			webStorage.local.set("userProperties", JSON.stringify(userProps))
+		},
 		getUIProperty: function(key) {
 			return $svyUIProperties.getUIProperty(key);
 		},

@@ -44,6 +44,7 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  *
  */
+@SuppressWarnings("nls")
 public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInternal>
 	implements IClassPropertyType<IRecordInternal>, IFormElementToTemplateJSON<IRecordInternal, IRecordInternal>
 {
@@ -92,14 +93,22 @@ public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInterna
 					}
 				}
 				Collection<PropertyDescription> properties = webObject.getSpecification().getProperties(FoundsetPropertyType.INSTANCE);
+				// FIXME: why do we check here only the root properties of webObject's model (PD)? what if the record is from a foundset property that is nested inside objects/arrays?
+				// actually the following loop I think is more a fallback, as normally, client sent records will have a foundsetId and would be identified above
+				// this searches in all foundset properties for a record based on it's index hint and pk hash; can we remove this loop completely?
+				// so if the record was on client due to toJSON then it does have 'recordhash' which is treated after this loop; if it originates in a client side record representation
+				// that normally would send the foundsetId as well...
 				for (PropertyDescription foundsetPd : properties)
 				{
 					FoundsetTypeSabloValue fsSablo = (FoundsetTypeSabloValue)webObject.getProperty(foundsetPd.getName());
-					int recordIndex = fsSablo.getFoundset().getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
-					if (recordIndex != -1)
+					if (fsSablo != null && fsSablo.getFoundset() != null)
 					{
-						record = fsSablo.getFoundset().getRecord(recordIndex);
-						break;
+						int recordIndex = fsSablo.getFoundset().getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
+						if (recordIndex != -1)
+						{
+							record = fsSablo.getFoundset().getRecord(recordIndex);
+							break;
+						}
 					}
 				}
 			}
@@ -119,8 +128,12 @@ public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInterna
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.object();
 		writer.key("recordhash").value(addReference(sabloValue));
-		if (sabloValue != null) writer.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(
-			sabloValue.getPKHashKey() + "_" + sabloValue.getParentFoundSet().getRecordIndex(sabloValue));
+		if (sabloValue != null)
+		{
+			writer.key(FoundsetTypeSabloValue.FOUNDSET_ID).value(sabloValue.getParentFoundSet().getID());
+			writer.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(
+				sabloValue.getPKHashKey() + "_" + sabloValue.getParentFoundSet().getRecordIndex(sabloValue));
+		}
 		writer.key("svyType").value(getName());
 		writer.endObject();
 		return writer;

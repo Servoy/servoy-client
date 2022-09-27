@@ -355,6 +355,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	public Object toRhinoValue(ValueListTypeSabloValue webComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext,
 		Scriptable startScriptable)
 	{
+		if (webComponentValue == null) return null;
 		return new DefaultScope(startScriptable)
 		{
 			private static final String NAME = "name";
@@ -394,6 +395,23 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 					return;
 				}
 				super.put(name, start, value);
+			}
+
+			@Override
+			public String toString()
+			{
+				if (webComponentValue == null) return null;
+				return webComponentValue.getValueList().getName();
+			}
+
+			@Override
+			public Object getDefaultValue(Class< ? > typeHint)
+			{
+				if (typeHint.equals(String.class))
+				{
+					return toString();
+				}
+				return super.getDefaultValue(typeHint);
 			}
 		};
 	}

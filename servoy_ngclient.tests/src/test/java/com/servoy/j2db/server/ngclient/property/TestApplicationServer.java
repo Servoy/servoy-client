@@ -433,4 +433,10 @@ final class TestApplicationServer implements IApplicationServerSingleton
 	{
 		return "1";
 	}
+
+	@Override
+	public void startServices() throws Exception
+	{
+		// TODO Auto-generated method stub
+	}
 }

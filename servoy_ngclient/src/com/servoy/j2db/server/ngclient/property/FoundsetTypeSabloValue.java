@@ -446,6 +446,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 	public void updateFoundset(IFoundSetInternal newFoundset)
 	{
+		if (newFoundset != null && newFoundset.getDataSource() == null) newFoundset = null;
 		if (newFoundset != foundset)
 		{
 			int oldServerSize = (foundset != null ? foundset.getSize() : 0);
