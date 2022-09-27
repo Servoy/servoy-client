@@ -77,7 +77,7 @@ public class ThemeResourceLoader
 
 	public static byte[] getCustomProperties()
 	{
-		return load("custom_servoy_theme_properties.less", ClientVersion.getPureVersion()).getBytes(Charset.forName("UTF-8"));
+		return load("custom_servoy_theme_properties.less", getLatestVersion()).getBytes(Charset.forName("UTF-8"));
 	}
 
 	public static byte[] getNG2CustomProperties()
@@ -88,6 +88,11 @@ public class ThemeResourceLoader
 	public static String getLatestNG2Version()
 	{
 		return Arrays.stream(VERSIONS).filter(version -> version.contains("_ng2")).findFirst().orElse(null);
+	}
+
+	public static String getLatestVersion()
+	{
+		return Arrays.stream(VERSIONS).filter(version -> !version.contains("_ng2") && !version.contains("latest")).findFirst().orElse(null);
 	}
 
 	public static String getLatestThemeProperties()
