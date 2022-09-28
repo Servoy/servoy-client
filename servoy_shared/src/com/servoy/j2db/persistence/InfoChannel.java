@@ -36,4 +36,5 @@ public interface InfoChannel extends ILogLevel
 
 	public void clientInfo(String message, int priority);
 
+	public void displayWarningMessage(String title, String message, boolean scrollableDialog);
 }
