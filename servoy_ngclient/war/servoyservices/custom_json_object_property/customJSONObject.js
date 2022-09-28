@@ -243,7 +243,7 @@ angular.module('custom_json_object_property', ['webSocketModule'])
 				} else if (serverJSONValue && serverJSONValue[INITIALIZE]) {
 					// only content version update - this happens when a full object value is set on this property client side; it goes to server
 					// and then server sends back the version and we initialize / prepare the existing newValue for being watched/handle child conversions
-					initializeNewValue(currentClientValue, serverJSONValue[CONTENT_VERSION]); // here we can count on not having any 'smart' values cause if we had
+					if (currentClientValue/*client might have changed it meanwhile again*/) initializeNewValue(currentClientValue, serverJSONValue[CONTENT_VERSION]); // here we can count on not having any 'smart' values cause if we had
 					// updates would have been received with this initialize as well (to initialize child elements as well to have the setChangeNotifier and internal things)
 				} else if (!serverJSONValue || !serverJSONValue[NO_OP]) newValue = null; // anything else would not be supported...	// TODO how to handle null values (special watches/complete object set from client)? if null is on server and something is set on client or the other way around?
 			} finally {
