@@ -199,10 +199,16 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 			return null;
 		}
 
-		if (foundset.isValidRelation(dataProviderID))
-		{
-			return getRelatedFoundSet(dataProviderID);
-		}
+		// this relaxes the way related foundsets are loaded through a ViewRecord
+		// if there is a hit then we just assume it is fine, only when nothing is returned
+		// we will test if this was a valid relation for this viewrecord.
+		// this is because the where arguments could be fine for this viewrecord for that relation
+		// because this is a quick ViewFoundset that replaces a actual Foundset but on the same datasource (So same whereargs)
+		// but that datasource is compartibale
+		IFoundSetInternal rfs = getRelatedFoundSet(dataProviderID);
+		if (rfs == null) foundset.isValidRelation(dataProviderID);
+		else return rfs;
+
 		return Scriptable.NOT_FOUND;
 	}
 
