@@ -677,7 +677,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 
 	/**
 	 * Checks if the column is uuid and if so tries to convert the given value to a uuid.
-	 * 
+	 *
 	 * @param datasource
 	 * @param dataprovider
 	 * @param application
@@ -812,6 +812,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 	@Override
 	public IDataProvider[] getDependedDataProviders()
 	{
+		if (this.fallbackValueList != null) return this.fallbackValueList.getDependedDataProviders();
 		return null;
 	}
 
