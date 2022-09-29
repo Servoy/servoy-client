@@ -321,6 +321,16 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			{
 				newFoundset = record.getParentFoundSet();
 			}
+			else if (parentDAL != null && parentDAL.getForm() != null)
+			{
+				// when formUI is initialized / attachToBaseObject() is called,
+				// the formModel (foundset) is not yet initialized in the WebFormController
+				// so it will return null, but later, after form manager calls init() on it
+				// it will have it; this attempt to get it from the form directly is only for access from Rhino to this foundset
+				// property's "foundset" before the form is visible, so before dataProviderOrRecordChanged()
+				// is called with an actual record from which we can get the foundset
+				newFoundset = parentDAL.getForm().getFoundSet();
+			}
 		}
 		else if (!DataSourceUtils.isDatasourceUri(foundsetSelector))
 		{
@@ -1374,4 +1384,15 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 		return hasAllowAccessForEnabled;
 	}
+
+	public IFoundSetInternal checkForExistingFormFoundsetBeforeFormIsVisibleAndGetIt()
+	{
+		// if this is supposed to work with a form foundset, and controler.init()
+		// was called (so form might have a foundset) but form is not yet visible
+		// so dataProviderOrRecordChanged() was not yet called with a record, do
+		// check form foundset again
+		if (foundset == null && FORM_FOUNDSET_SELECTOR.equals(foundsetSelector)) updateFoundset((IRecordInternal)null);
+		return foundset;
+	}
+
 }
