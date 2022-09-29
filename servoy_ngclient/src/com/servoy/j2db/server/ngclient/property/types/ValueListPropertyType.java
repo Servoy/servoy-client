@@ -400,14 +400,14 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			@Override
 			public String toString()
 			{
-				if (webComponentValue == null) return null;
+				if (webComponentValue == null || webComponentValue.getValueList() == null) return null;
 				return webComponentValue.getValueList().getName();
 			}
 
 			@Override
 			public Object getDefaultValue(Class< ? > typeHint)
 			{
-				if (typeHint.equals(String.class))
+				if (String.class.equals(typeHint))
 				{
 					return toString();
 				}
