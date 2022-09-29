@@ -398,6 +398,22 @@ public abstract class JarManager
 					try
 					{
 						File jarFile = new File(dir, fileName);
+						if (jarFile.length() == 0)
+						{
+							// 0 byte jar, delete it, this is very likely an updated enviroment where a plugin or bean was removed from.
+							try
+							{
+								Debug.warn(
+									"Bean/Plugin/Jar removed/cleaned up because it was a 0 byte file, very likely caused by an upgrade and this bean/plugin was removed " +
+										jarFile.getAbsolutePath());
+								jarFile.delete();
+							}
+							catch (Exception e)
+							{
+								// just ignore if this can't be deleted.
+							}
+							continue;
+						}
 						if (isSubDir)
 						{
 							ExtensionResource ext = new ExtensionResource(jarFile.toURI().toURL(), fileName, jarFile.lastModified());
