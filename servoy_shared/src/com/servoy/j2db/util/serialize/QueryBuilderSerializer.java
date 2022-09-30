@@ -35,13 +35,11 @@ import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryTable1;
 import com.servoy.j2db.querybuilder.impl.QBFactory;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
-import com.servoy.j2db.util.visitor.IVisitor;
 import com.servoy.j2db.util.visitor.VisitOnceDelegateVisitor;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
-import com.thoughtworks.xstream.core.util.HierarchicalStreams;
 import com.thoughtworks.xstream.io.ExtendedHierarchicalStreamWriterHelper;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
@@ -51,9 +49,9 @@ import com.thoughtworks.xstream.mapper.Mapper;
 
 /**
  * Responsible for serializing QBSelect objects
- * 
+ *
  * @author rgansevles
- * 
+ *
  * @since 6.1
  */
 public class QueryBuilderSerializer extends AbstractSerializer
@@ -197,17 +195,16 @@ public class QueryBuilderSerializer extends AbstractSerializer
 
 			// If the xml was from before adding dataSource to QueryTable, the query will contain QueryTable1 objects, these need to be replaced
 			// with QueryTable with resolved dataSource.
-			query.acceptVisitor(new VisitOnceDelegateVisitor(new IVisitor()
+			if (query != null)
 			{
-				public Object visit(Object obj)
-				{
+				query.acceptVisitor(new VisitOnceDelegateVisitor(obj -> {
 					if (obj instanceof QueryTable1)
 					{
 						return ((QueryTable1)obj).addDataSource(queryBuilderFactory.resolveDataSource(queryDataSource, ((QueryTable1)obj).getName()));
 					}
 					return obj;
-				}
-			}));
+				}));
+			}
 
 			returnValue = queryBuilderFactory.createSelect(dataSource, alias, query);
 		}
@@ -263,8 +260,7 @@ public class QueryBuilderSerializer extends AbstractSerializer
 			this.mapper = mapper;
 		}
 
-		public boolean canConvert(@SuppressWarnings("rawtypes")
-		Class type)
+		public boolean canConvert(@SuppressWarnings("rawtypes") Class type)
 		{
 			return ReplacedObject.getDomainClasses(domain).contains(type);
 		}
@@ -298,12 +294,40 @@ public class QueryBuilderSerializer extends AbstractSerializer
 		public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context)
 		{
 			reader.moveDown();
-			Class< ? > type = HierarchicalStreams.readClassType(reader, mapper);
+			Class< ? > type = readClassType(reader, mapper);
 			Object o = context.convertAnother(null, type);
 			reader.moveUp();
 
 			Class< ? > realClass = mapper.realClass(reader.getNodeName());
 			return new ReplacedObject(domain, realClass, o).readResolve();
 		}
+
+		private static Class readClassType(HierarchicalStreamReader reader, Mapper mapper)
+		{
+			String classAttribute = readClassAttribute(reader, mapper);
+			if (classAttribute == null)
+			{
+				return mapper.realClass(reader.getNodeName());
+			}
+
+			return mapper.realClass(classAttribute);
+		}
+
+		public static String readClassAttribute(HierarchicalStreamReader reader, Mapper mapper)
+		{
+			String attributeName = mapper.aliasForSystemAttribute("resolves-to");
+			String classAttribute = attributeName == null ? null : reader.getAttribute(attributeName);
+			if (classAttribute == null)
+			{
+				attributeName = mapper.aliasForSystemAttribute("class");
+				if (attributeName != null)
+				{
+					classAttribute = reader.getAttribute(attributeName);
+				}
+			}
+
+			return classAttribute;
+		}
+
 	}
 }
