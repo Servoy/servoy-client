@@ -221,6 +221,7 @@ public class QueryBuilderSerializer extends AbstractSerializer
 	 */
 	private XStream getXstream()
 	{
+		if (true) throw new RuntimeException("Test exception for running tests in Jenkins");
 		if (xStream == null)
 		{
 			xStream = new XStream(new DomDriver());
