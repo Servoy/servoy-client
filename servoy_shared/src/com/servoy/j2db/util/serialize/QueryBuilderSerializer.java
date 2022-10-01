@@ -224,6 +224,9 @@ public class QueryBuilderSerializer extends AbstractSerializer
 		if (xStream == null)
 		{
 			xStream = new XStream(new DomDriver());
+			xStream.allowTypesByWildcard(new String[] { QueryTable.class.getPackage().getName() + ".**"
+			});
+
 			xStream.registerConverter(new ReplacedObjectConverter(xStream.getMapper(), AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN));
 			for (Class< ? extends IWriteReplace> cls : ReplacedObject.getDomainClasses(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN))
 			{
