@@ -416,7 +416,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 				{
 					// wrapped property is now no longer record linked so we only send one value to be duplicated
 					// this could be the result of initialization or it could for example get changed from Rhino
-					getFoundsetValue().removeViewportDataChangeMonitor(viewPortChangeMonitor);
+					foundsetPropValue.removeViewportDataChangeMonitor(viewPortChangeMonitor);
 					if (idForFoundset != null)
 					{
 						foundsetPropValue.setRecordDataLinkedPropertyIDToColumnDP(idForFoundset, null);
