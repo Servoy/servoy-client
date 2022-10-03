@@ -495,7 +495,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 		writer.object();
 		writer.key(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME).value(forFoundsetPropertyName);
-		if (idForFoundset != null) writer.key(ID_FOR_FOUNDSET).value(idForFoundset == null ? JSONObject.NULL : idForFoundset);
+		if (idForFoundset != null) writer.key(ID_FOR_FOUNDSET).value(idForFoundset);
 		idForFoundsetChanged = false;
 
 		PushToServerEnum pushToServer = BrowserConverterContext.getPushToServerValue(dataConverterContext);
@@ -509,8 +509,10 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			// single value; not record dependent
 			DataConversion dataConversions = new DataConversion();
 			dataConversions.pushNode(FoundsetLinkedPropertyType.SINGLE_VALUE);
-			FullValueToJSONConverter.INSTANCE.toJSONValue(writer, FoundsetLinkedPropertyType.SINGLE_VALUE, wrappedSabloValue, wrappedPropertyDescription,
-				dataConversions, dataConverterContext);
+			if (getFoundset() != null)
+				FullValueToJSONConverter.INSTANCE.toJSONValue(writer, FoundsetLinkedPropertyType.SINGLE_VALUE, wrappedSabloValue, wrappedPropertyDescription,
+					dataConversions, dataConverterContext);
+			else writer.key(FoundsetLinkedPropertyType.SINGLE_VALUE).value(JSONObject.NULL);
 			JSONUtils.writeClientConversions(writer, dataConversions);
 		}
 		else
@@ -551,6 +553,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			Debug.warn("Trying to get changes from an uninitialized foundset linked property: " + wrappedPropertyDescription);
 			return writer;
 		}
+
+		if (getFoundset() == null) return fullToJSON(writer, key, clientConversion, wrappedPropertyDescription, dataConverterContext);
 
 		clientConversion.convert(FoundsetLinkedPropertyType.CONVERSION_NAME);
 		JSONUtils.addKeyIfPresent(writer, key);

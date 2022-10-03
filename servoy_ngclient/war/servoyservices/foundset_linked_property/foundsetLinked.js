@@ -98,7 +98,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 						function (newViewportSize) {
 							if (newViewportSize === iS.singleValueState.initialVPSize) return;
 							iS.singleValueState.initialVPSize = -1;
-							if (!angular.isDefined(newViewportSize)) newViewportSize = 0;
+							if (!angular.isDefined(newViewportSize) || newViewportSize === null) newViewportSize = 0;
 							
 							componentScope.$evalAsync(function() {
 								$viewportModule.removeDataWatchesFromRows(iS, value, true);
@@ -128,7 +128,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 		
 		// *** BEGIN we need the following in addBackWatches that is also called by updateAngularScope, that is why they are stored in internalState (iS)
 		iS.singleValueState.generateWholeViewportFromOneValue = function(internalState, vpSize) {
-			if (angular.isUndefined(vpSize)) vpSize = 0;
+			if (angular.isUndefined(vpSize) || vpSize === null) vpSize = 0;
 			var wholeViewport = [];
 			internalState.singleValueState.conversionInfos = conversionInfo ? [] : undefined; 
 			
