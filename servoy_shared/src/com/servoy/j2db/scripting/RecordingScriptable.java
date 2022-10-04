@@ -24,7 +24,10 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.IdFunctionObject;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.NativeDate;
+import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Symbol;
+import org.mozilla.javascript.SymbolScriptable;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.dataprocessing.IRecordInternal;
@@ -37,7 +40,7 @@ import com.servoy.j2db.util.ScopesUtils;
  * @author rgansevles
  *
  */
-public class RecordingScriptable implements Scriptable, IDelegate<Scriptable>, Wrapper
+public class RecordingScriptable implements Scriptable, IDelegate<Scriptable>, Wrapper, SymbolScriptable
 {
 	private final static ThreadLocal<List<UsedDataProviderTracker>> recordedThreadLocal = new ThreadLocal<List<UsedDataProviderTracker>>();
 
@@ -310,5 +313,37 @@ public class RecordingScriptable implements Scriptable, IDelegate<Scriptable>, W
 	public void setPrototype(Scriptable prototype)
 	{
 		scriptable.setPrototype(prototype);
+	}
+
+	@Override
+	public Object get(Symbol key, Scriptable start)
+	{
+		return ensureSymbolScriptable().get(key, getStart(start));
+	}
+
+	@Override
+	public boolean has(Symbol key, Scriptable start)
+	{
+		return ensureSymbolScriptable().has(key, getStart(start));
+	}
+
+	@Override
+	public void put(Symbol key, Scriptable start, Object value)
+	{
+		ensureSymbolScriptable().put(key, getStart(start), value);
+	}
+
+	@Override
+	public void delete(Symbol key)
+	{
+		ensureSymbolScriptable().delete(key);
+	}
+
+	protected SymbolScriptable ensureSymbolScriptable()
+	{
+		if (!(scriptable instanceof SymbolScriptable))
+			throw ScriptRuntime.typeErrorById(
+				"msg.object.not.symbolscriptable", ScriptRuntime.typeof(scriptable));
+		return (SymbolScriptable)scriptable;
 	}
 }

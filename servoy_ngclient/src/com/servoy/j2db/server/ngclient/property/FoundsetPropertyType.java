@@ -53,6 +53,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -207,6 +208,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 					try
 					{
 						IFoundSetInternal foundset = webComponentValue.getFoundset();
+						if (foundset == null) foundset = webComponentValue.checkForExistingFormFoundsetBeforeFormIsVisibleAndGetIt();
 						if (foundset != null) return cx.getWrapFactory().wrap(cx, start, foundset, foundset.getClass());
 						return foundset;
 					}
@@ -252,6 +254,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 			return Scriptable.NOT_FOUND;
 		}
 
+		@SuppressWarnings("nls")
 		@Override
 		public void put(String name, Scriptable start, Object val)
 		{
@@ -279,11 +282,13 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 						{
 							webComponentValue.updateFoundset((IFoundSetInternal)value);
 						}
-						else throw new RuntimeException("illegal value '" + value +
-							"' to set on the foundset property with foundsetSelector/datasource: " + webComponentValue.foundsetSelector +
-							", foundset is either pinned to form's foundset or to a related foundset " + pd.getName());
+						else Debug.error("Error Setting foundset value through scripting (servoy scripting or server side api scripting", new RuntimeException(
+							"illegal value '" + value + "' to set on the foundset property with foundsetSelector/datasource: " + foundsetSelector + '(' +
+								webComponentValue.foundsetSelector + "), foundset (" + ((IFoundSetInternal)value).getDataSource() +
+								") is either pinned to form's foundset or to a related foundset " + pd.getName()));
 					}
-					else throw new RuntimeException("illegal value '" + value + "' to set on the foundset property " + pd.getName());
+					else Debug.error("Error Setting foundset value through scripting (servoy scripting or server side api scripting",
+						new RuntimeException("illegal value '" + value + "' to set on the foundset property " + pd.getName()));
 					break;
 				}
 				case DATAPROVIDERS_KEY_FOR_RHINO :
@@ -302,7 +307,8 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 						}
 						webComponentValue.notifyDataProvidersUpdated();
 					}
-					else throw new RuntimeException("illegal value '" + value + "' to set on the dataprovides property " + pd.getName());
+					else Debug.error("Error Setting foundset value through scripting (servoy scripting or server side api scripting",
+						new RuntimeException("illegal value '" + value + "' to set on the dataprovides property " + pd.getName()));
 					break;
 				}
 			}

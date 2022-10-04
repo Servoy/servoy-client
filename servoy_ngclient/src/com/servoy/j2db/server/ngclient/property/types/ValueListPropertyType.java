@@ -47,6 +47,7 @@ import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.ValueListFactory;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.ValueList;
+import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.solutionmodel.JSValueList;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
@@ -250,17 +251,20 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	{
 		if (rhinoValue == null || RhinoConversion.isUndefinedOrNotFound(rhinoValue)) return null;
 
+		// we expect that the toString of the scriptable rhino value is always the valuelist name
+		Object value = rhinoValue instanceof DefaultScope ? rhinoValue.toString() : rhinoValue;
+
 		if (previousComponentValue == null)
 		{
-			return rhinoValue instanceof String ? createValuelistSabloValueByNameFromRhino((String)rhinoValue, pd, webObjectContext) : null;
+			return value instanceof String ? createValuelistSabloValueByNameFromRhino((String)value, pd, webObjectContext) : null;
 		}
 
 		if (!previousComponentValue.isInitialized())
 		{
-			if (rhinoValue instanceof String)
+			if (value instanceof String)
 			{
 				// weird; but we are going to create a new value anyway so it doesn't matter much
-				return createValuelistSabloValueByNameFromRhino((String)rhinoValue, pd, webObjectContext);
+				return createValuelistSabloValueByNameFromRhino((String)value, pd, webObjectContext);
 			}
 			else
 			{
@@ -276,7 +280,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		int type = -1;
 		IValueList list = previousComponentValue.getValueList();
 
-		if (list.getName().equals(rhinoValue))
+		if (list.getName().equals(value))
 		{
 			// no need to create a new value if we have the same valuelist name
 			return previousComponentValue;
@@ -286,7 +290,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		IValueList newVl = null;
 
 		// see if it's a component.setValuelistItems (legacy) equivalent
-		if (list != null && list instanceof CustomValueList && (rhinoValue instanceof JSDataSet || rhinoValue instanceof IDataSet))
+		if (list != null && list instanceof CustomValueList && (value instanceof JSDataSet || value instanceof IDataSet))
 		{
 			// here we create a NEW, separate (runtime) custom valuelist instance for this component only (no longer the 'global' custom valuelist with that name that can be affected by application.setValuelistItems(...))
 			INGApplication application = previousComponentValue.getDataAdapterList().getApplication();
@@ -295,37 +299,37 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			{
 				format = ((CustomValueList)list).getFormat();
 				type = ((CustomValueList)list).getValueType();
-				newVl = ValueListFactory.fillRealValueList(application, valuelist, IValueListConstants.CUSTOM_VALUES, format, type, rhinoValue);
+				newVl = ValueListFactory.fillRealValueList(application, valuelist, IValueListConstants.CUSTOM_VALUES, format, type, value);
 
 				if (newVl != null)
 				{
-					previousComponentValue.setNewCustomValuelistInstance(newVl, rhinoValue);
+					previousComponentValue.setNewCustomValuelistInstance(newVl, value);
 					newValue = previousComponentValue;
 				}
 				else
 				{
 					// should never happen; ValueListFactory.fillRealValueList seems to always return non-null
 					Debug.error("Assignment to Valuelist typed property '" + pd.getName() + "' of component '" + webObjectContext +
-						"' failed for an unknown reason; dataset: " + rhinoValue, new RuntimeException());
+						"' failed for an unknown reason; dataset: " + value, new RuntimeException());
 					newValue = previousComponentValue; // just keep old value
 				}
 			}
 			else
 			{
 				Debug.error("Assignment to Valuelist typed property '" + pd.getName() + "' of component '" + webObjectContext +
-					"' failed. Assigning a dataset is ONLY allowed for custom valuelists; dataset: " + rhinoValue, new RuntimeException());
+					"' failed. Assigning a dataset is ONLY allowed for custom valuelists; dataset: " + value, new RuntimeException());
 				newValue = previousComponentValue;
 			}
 		}
-		else if (rhinoValue instanceof String)
+		else if (value instanceof String)
 		{
 			// the Rhino value is a different valuelist name; create a full new one
-			newValue = createValuelistSabloValueByNameFromRhino((String)rhinoValue, pd, webObjectContext);
+			newValue = createValuelistSabloValueByNameFromRhino((String)value, pd, webObjectContext);
 		}
 		else
 		{
 			Debug.error("Assignment to Valuelist typed property '" + pd.getName() + "' of component '" + webObjectContext +
-				"' failed. Assigning this value is not supported: " + rhinoValue, new RuntimeException());
+				"' failed. Assigning this value is not supported: " + value, new RuntimeException());
 			newValue = previousComponentValue; // whatever was set here is not supported; so keep the previous value
 		}
 
@@ -335,6 +339,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 	private ValueListTypeSabloValue createValuelistSabloValueByNameFromRhino(String valuelistId, PropertyDescription pd, IWebObjectContext webObjectContext)
 	{
+		if (valuelistId == null) return null;
 		ValuelistPropertyDependencies propertyDependencies = getDependenciesToOtherProperties(pd, webObjectContext);
 
 		return new ValueListTypeSabloValue(valuelistId, pd, propertyDependencies, false, false, NGComponentDALContext.getDataAdapterList(webObjectContext));
@@ -354,25 +359,67 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	public Object toRhinoValue(ValueListTypeSabloValue webComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext,
 		Scriptable startScriptable)
 	{
-		if (webComponentValue != null)
+		if (webComponentValue == null) return null;
+		return new DefaultScope(startScriptable)
 		{
-			if (webComponentValue.getValueList() != null)
+			private static final String NAME = "name";
+			private static final String DATASET = "dataset";
+
+			@Override
+			public Object get(String name, Scriptable start)
 			{
+				if (webComponentValue != null && webComponentValue.getValueList() != null)
+				{
+					if (NAME.equals(name))
+					{
+						return webComponentValue.getValueList().getName();
+					}
+					if (DATASET.equals(name))
+					{
+						JSDataSet dataset = new JSDataSet();
+						dataset.js_addColumn("display_values");
+						dataset.js_addColumn("real_values");
+						IValueList valueList = webComponentValue.getValueList();
+						for (int i = 0; i < valueList.getSize(); i++)
+						{
+							dataset.js_addRow(new Object[] { valueList.getElementAt(i), valueList.getRealElementAt(i) });
+						}
+						return dataset;
+					}
+				}
+				return super.get(name, start);
+			}
+
+			@Override
+			public void put(String name, Scriptable start, Object value)
+			{
+				if (NAME.equals(name) || DATASET.equals(name))
+				{
+					toSabloComponentValue(value, webComponentValue, pd, webObjectContext);
+					return;
+				}
+				super.put(name, start, value);
+			}
+
+			@Override
+			// This is depended on that the toString() will return the valuelist name if that is set!
+			// the ValueListPropertyType expect this but also in scripting.
+			public String toString()
+			{
+				if (webComponentValue == null || webComponentValue.getValueList() == null) return null;
 				return webComponentValue.getValueList().getName();
 			}
-			else
-			{
-				// should never happen
-				String warnMsg;
-				if (!webComponentValue.isInitialized())
-					warnMsg = "Trying to get vl. name from an uninitialized valuelist property (this is not allowed): " + pd + " of " + webObjectContext;
-				else warnMsg = "Trying to get vl. name from an initialize valuelist property failed for an unknown reason: " + pd + " of " + webObjectContext; // this should happen even less then never :)
 
-				Debug.warn(warnMsg);
-				throw new RuntimeException(warnMsg);
+			@Override
+			public Object getDefaultValue(Class< ? > typeHint)
+			{
+				if (String.class.equals(typeHint) || typeHint == null)
+				{
+					return toString();
+				}
+				return super.getDefaultValue(typeHint);
 			}
-		}
-		return null;
+		};
 	}
 
 	@Override

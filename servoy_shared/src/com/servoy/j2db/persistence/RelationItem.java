@@ -16,12 +16,15 @@
  */
 package com.servoy.j2db.persistence;
 
+import static java.util.Arrays.stream;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.util.UUID;
 
 
@@ -35,24 +38,29 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 
 	private static final long serialVersionUID = 1L;
 
-	public static final int[] RELATION_OPERATORS = new int[] {
-		// standard set
-		ISQLCondition.EQUALS_OPERATOR, ISQLCondition.GT_OPERATOR, ISQLCondition.LT_OPERATOR, ISQLCondition.GTE_OPERATOR, ISQLCondition.LTE_OPERATOR, ISQLCondition.NOT_OPERATOR, ISQLCondition.IN_OPERATOR, ISQLCondition.LIKE_OPERATOR, ISQLCondition.NOT_LIKE_OPERATOR,
-		// case insensitive
-		ISQLCondition.EQUALS_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER, ISQLCondition.NOT_OPERATOR |
-			ISQLCondition.CASEINSENTITIVE_MODIFIER, ISQLCondition.LIKE_OPERATOR |
-				ISQLCondition.CASEINSENTITIVE_MODIFIER, ISQLCondition.NOT_LIKE_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER,
-		// or null
-		ISQLCondition.EQUALS_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.GT_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.LT_OPERATOR |
-			ISQLCondition.ORNULL_MODIFIER, ISQLCondition.GTE_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.LTE_OPERATOR |
-				ISQLCondition.ORNULL_MODIFIER, ISQLCondition.NOT_OPERATOR | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.IN_OPERATOR |
-					ISQLCondition.ORNULL_MODIFIER, ISQLCondition.LIKE_OPERATOR |
-						ISQLCondition.ORNULL_MODIFIER, ISQLCondition.NOT_LIKE_OPERATOR | ISQLCondition.ORNULL_MODIFIER,
-		// case insensitive or null
-		ISQLCondition.EQUALS_OPERATOR | ISQLCondition.CASEINSENTITIVE_MODIFIER | ISQLCondition.ORNULL_MODIFIER, ISQLCondition.NOT_OPERATOR |
-			ISQLCondition.CASEINSENTITIVE_MODIFIER | ISQLCondition.ORNULL_MODIFIER,
-		//
-	};
+	public static final int[] RELATION_OPERATORS; // all valid operators (including modifier mask) for relations
+
+	static
+	{
+		int[] basicOperators = new int[] { IBaseSQLCondition.EQUALS_OPERATOR, IBaseSQLCondition.GT_OPERATOR, IBaseSQLCondition.LT_OPERATOR, IBaseSQLCondition.GTE_OPERATOR, //
+			IBaseSQLCondition.LTE_OPERATOR, IBaseSQLCondition.NOT_OPERATOR, IBaseSQLCondition.IN_OPERATOR, IBaseSQLCondition.LIKE_OPERATOR, IBaseSQLCondition.NOT_LIKE_OPERATOR,
+		};
+		// ignore-case modifier can only be applied to a subset of the operators
+		int[] ignoreCaseOperators = new int[] { IBaseSQLCondition.EQUALS_OPERATOR, IBaseSQLCondition.NOT_OPERATOR, IBaseSQLCondition.LIKE_OPERATOR, IBaseSQLCondition.NOT_LIKE_OPERATOR,
+		};
+
+		List<Integer> relationOperators = new ArrayList<>();
+		stream(basicOperators).forEach(relationOperators::add);
+		stream(ignoreCaseOperators).map(op -> op | IBaseSQLCondition.CASEINSENSITIVE_MODIFIER).forEach(relationOperators::add);
+		int[] baseOperators = relationOperators.stream().mapToInt(Integer::intValue).toArray();
+		// from here we add the option for the modifier or-null and remove-when-null
+		stream(baseOperators).map(op -> op | IBaseSQLCondition.ORNULL_MODIFIER).forEach(relationOperators::add);
+		stream(baseOperators).map(op -> op | IBaseSQLCondition.REMOVE_WHEN_NULL_MODIFIER).forEach(relationOperators::add);
+		stream(baseOperators).map(op -> op | IBaseSQLCondition.ORNULL_MODIFIER | IBaseSQLCondition.REMOVE_WHEN_NULL_MODIFIER).forEach(relationOperators::add);
+
+		RELATION_OPERATORS = relationOperators.stream().mapToInt(Integer::intValue).toArray();
+	}
+
 
 	private static final Pattern[] OPERATOR_PATTERNS = new Pattern[IBaseSQLCondition.OPERATOR_STRINGS.length];
 
@@ -136,7 +144,7 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 			// no modifiers
 			return IBaseSQLCondition.OPERATOR_STRINGS[op];
 		}
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < IBaseSQLCondition.ALL_MODIFIERS.length; i++)
 		{
 			if ((op & IBaseSQLCondition.ALL_MODIFIERS[i]) != 0)
@@ -147,7 +155,6 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 		sb.append(IBaseSQLCondition.OPERATOR_STRINGS[op & IBaseSQLCondition.OPERATOR_MASK]);
 		return sb.toString();
 	}
-
 
 	/**
 	 * Swap the operator, leave the modifier in place

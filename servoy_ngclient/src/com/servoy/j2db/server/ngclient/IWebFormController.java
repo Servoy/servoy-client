@@ -55,4 +55,9 @@ public interface IWebFormController extends IFormController
 	public DesignModeCallbacks getDesignModeCallbacks();
 
 	public void pushParentReadOnly(boolean parentReadOnly);
+
+	default public boolean executePreHideSteps()
+	{
+		return true;
+	}
 }

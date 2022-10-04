@@ -91,8 +91,14 @@ public interface IFoundSetInternal extends IFoundSet, IFireCollectable
 
 	public int getRecordIndex(String pkHash, int hintStart);
 
+	/**
+	 * Gets the unique id of the foundset. The foundset does not have an id until this method is called the first time on it.
+	 */
 	public int getID();
 
+	/**
+	 * Same as {@link #getID()} but it will not assign an id if it wasn't set before. If it does not have an ID it will return 0.
+	 */
 	public int getIDInternal();
 
 	public boolean isInitialized();

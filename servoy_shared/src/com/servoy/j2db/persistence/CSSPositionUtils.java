@@ -43,7 +43,7 @@ public final class CSSPositionUtils
 	{
 		if (persist instanceof BaseComponent)
 		{
-			AbstractContainer container = getParentContainer((BaseComponent)persist);
+			AbstractContainer container = getParentContainer(persist);
 			setLocationEx((BaseComponent)persist, (BaseComponent)persist, x, y, container.getSize());
 		}
 		else
@@ -128,7 +128,7 @@ public final class CSSPositionUtils
 	{
 		if (persist instanceof BaseComponent)
 		{
-			AbstractContainer container = getParentContainer((BaseComponent)persist);
+			AbstractContainer container = getParentContainer(persist);
 			setSizeEx((BaseComponent)persist, (BaseComponent)persist, width, height, container.getSize());
 		}
 		else
@@ -198,14 +198,14 @@ public final class CSSPositionUtils
 
 	public static Point getLocation(ISupportBounds persist)
 	{
-		if (useCSSPosition(persist))
+		if (useCSSPosition(persist) && persist instanceof ISupportCSSPosition)
 		{
-			CSSPosition position = ((BaseComponent)persist).getCssPosition();
+			CSSPosition position = ((ISupportCSSPosition)persist).getCssPosition();
 			if (position == null)
 			{
 				position = new CSSPosition("0", "-1", "-1", "0", "0", "0");
 			}
-			AbstractContainer container = getParentContainer((BaseComponent)persist);
+			AbstractContainer container = getParentContainer(persist);
 			return getLocation(position, container.getSize());
 		}
 		return persist.getLocation();
@@ -242,15 +242,15 @@ public final class CSSPositionUtils
 	{
 		if (useCSSPosition(persist))
 		{
-			CSSPosition position = ((BaseComponent)persist).getCssPosition();
+			CSSPosition position = ((ISupportCSSPosition)persist).getCssPosition();
 			if (position == null)
 			{
 				position = new CSSPosition("0", "-1", "-1", "0", "0", "0");
 			}
-			AbstractContainer container = getParentContainer((BaseComponent)persist);
+			AbstractContainer container = getParentContainer(persist);
 			return getSize(position, container.getSize());
 		}
-		return persist.getSize();
+		return persist instanceof ISupportBounds ? persist.getSize() : null;
 	}
 
 	public static Dimension getSize(CSSPosition position, Dimension parentSize)
@@ -272,7 +272,7 @@ public final class CSSPositionUtils
 		return new Dimension(width, height);
 	}
 
-	public static CSSPosition adjustCSSPosition(BaseComponent baseComponent, int x, int y, int width, int height)
+	public static CSSPosition adjustCSSPosition(ISupportCSSPosition baseComponent, int x, int y, int width, int height)
 	{
 		CSSPosition position = baseComponent.getCssPosition();
 		CSSPosition adjustedPosition = (position == null) ? new CSSPosition("0", "-1", "-1", "0", "0", "0")
@@ -508,12 +508,14 @@ public final class CSSPositionUtils
 
 	public static boolean useCSSPosition(Object persist)
 	{
+		if (persist instanceof CSSPositionLayoutContainer && ((CSSPositionLayoutContainer)persist).getCssPosition() != null) return true;
+
 		if (persist instanceof BaseComponent && ((BaseComponent)persist).getParent() instanceof Form &&
 			((Form)((BaseComponent)persist).getParent()).getUseCssPosition().booleanValue())
 		{
 			return true;
 		}
-		if (persist instanceof BaseComponent && CSSPositionUtils.isInAbsoluteLayoutMode((IPersist)persist))
+		if (persist instanceof BaseComponent && CSSPositionUtils.isInAbsoluteLayoutMode((BaseComponent)persist))
 		{
 			return true;
 		}
@@ -526,19 +528,23 @@ public final class CSSPositionUtils
 		return false;
 	}
 
-	public static AbstractContainer getParentContainer(BaseComponent component)
+	public static AbstractContainer getParentContainer(ISupportSize component)
 	{
-		IPersist currentComponent = component;
-		while (currentComponent != null)
+		if (component instanceof IPersist)
 		{
-			ISupportChilds realParent = PersistHelper.getRealParent(currentComponent);
-			if (realParent instanceof AbstractContainer)
+			IPersist currentComponent = (IPersist)component;
+			while (currentComponent != null)
 			{
-				return (AbstractContainer)realParent;
+				ISupportChilds realParent = PersistHelper.getRealParent(currentComponent);
+				if (realParent instanceof AbstractContainer)
+				{
+					return (AbstractContainer)realParent;
+				}
+				currentComponent = currentComponent.getParent();
 			}
-			currentComponent = currentComponent.getParent();
 		}
 		return null;
+
 	}
 
 	public static void convertToCSSPosition(Form form)

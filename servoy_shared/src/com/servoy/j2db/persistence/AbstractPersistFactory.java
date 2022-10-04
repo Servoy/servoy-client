@@ -137,6 +137,10 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 				object = new LayoutContainer(parent, elementId, uuid);
 				break;
 
+			case IRepository.CSSPOS_LAYOUTCONTAINERS :
+				object = new CSSPositionLayoutContainer(parent, elementId, uuid);
+				break;
+
 			case IRepository.GRAPHICALCOMPONENTS :
 				object = new GraphicalComponent(parent, elementId, uuid);
 				break;

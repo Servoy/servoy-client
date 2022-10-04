@@ -97,4 +97,14 @@ public interface IBasicFormUI extends IFormUI
 	 */
 	void prepareForSave(boolean looseFocus);
 
+	/**
+	 *  Called by the Form Controller when the form wants to hide itself.
+	 *  The UI should go over all the components and ask if they can be hidden.
+	 *  FormContainer component should relay this to the visible nested form(s).
+	 */
+	default boolean executePreHideSteps()
+	{
+		return true;
+	}
+
 }

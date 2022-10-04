@@ -611,7 +611,7 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 					recomputeTabSequence();
 				}
 			}
-			controller.notifyVisible(visible, invokeLaterRunnables);
+			controller.notifyVisible(visible, invokeLaterRunnables, true);
 		}
 	}
 
@@ -646,9 +646,8 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 			showFoundSet(allTabs.get(0).getPanel(), parentState, getDefaultSort());
 		}
 		ITagResolver resolver = getTagResolver(parentState);
-		for (int i = 0; i < allTabs.size(); i++)
+		for (WebTabHolder element : allTabs)
 		{
-			WebTabHolder element = allTabs.get(i);
 			if (element.refreshTagStrings(resolver))
 			{
 				getStylePropertyChanges().setChanged();
@@ -687,9 +686,8 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 
 		ITagResolver resolver = getTagResolver(parentState);
 		//refresh tab text
-		for (int i = 0; i < allTabs.size(); i++)
+		for (WebTabHolder element : allTabs)
 		{
-			WebTabHolder element = allTabs.get(i);
 			if (element.getPanel() == flp)
 			{
 				element.refreshTagStrings(resolver);
@@ -948,9 +946,8 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 
 	public boolean removeAllTabs()
 	{
-		for (int i = 0; i < allTabs.size(); i++)
+		for (WebTabHolder comp : allTabs)
 		{
-			WebTabHolder comp = allTabs.get(i);
 			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 			boolean ok = comp.getPanel().notifyVisible(false, invokeLaterRunnables);
 			Utils.invokeLater(application, invokeLaterRunnables);
@@ -981,9 +978,8 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 
 	public void setTabIndex(String name)
 	{
-		for (int i = 0; i < allTabs.size(); i++)
+		for (WebTabHolder holder : allTabs)
 		{
-			WebTabHolder holder = allTabs.get(i);
 			if (Utils.stringSafeEquals(holder.getPanel().getName(), name))
 			{
 				setActiveTabPanel(holder.getPanel());
@@ -1012,9 +1008,8 @@ public class WebAccordionPanel extends WebMarkupContainer implements ITabPanel, 
 
 	public void setReadOnly(boolean b)
 	{
-		for (int i = 0; i < allTabs.size(); i++)
+		for (WebTabHolder holder : allTabs)
 		{
-			WebTabHolder holder = allTabs.get(i);
 			holder.getPanel().setReadOnly(b);
 		}
 	}

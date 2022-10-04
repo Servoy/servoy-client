@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +34,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebLayoutSpecification;
 import org.sablo.specification.WebObjectSpecification;
+import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.impl.ClientService;
@@ -40,8 +42,11 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
+import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.BaseComponent;
+import com.servoy.j2db.persistence.CSSPosition;
+import com.servoy.j2db.persistence.CSSPositionLayoutContainer;
 import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
@@ -132,19 +137,19 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		if (o == skip) return IPersistVisitor.CONTINUE_TRAVERSAL;
 		if (!isSecurityVisible(o))
 			return IPersistVisitor.CONTINUE_TRAVERSAL;
+		if (part != null && (o instanceof IFormElement || o instanceof CSSPositionLayoutContainer))
+		{
+			int startPos = form.getPartStartYPos(part.getID());
+			int endPos = part.getHeight();
+			Point location = CSSPositionUtils.getLocation(o instanceof IFormElement ? (IFormElement)o : (CSSPositionLayoutContainer)o);
+			if (location != null && (startPos > location.y || endPos <= location.y))
+			{
+				return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
+			}
+		}
 		if (o instanceof IFormElement)
 		{
 			FormElement fe = null;
-			if (part != null)
-			{
-				int startPos = form.getPartStartYPos(part.getID());
-				int endPos = part.getHeight();
-				Point location = CSSPositionUtils.getLocation((IFormElement)o);
-				if (location != null && (startPos > location.y || endPos <= location.y))
-				{
-					return IPersistVisitor.CONTINUE_TRAVERSAL;
-				}
-			}
 			if (cache != null)
 			{
 				// this is for form component elements finding
@@ -239,7 +244,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.object();
 			LayoutContainer layoutContainer = (LayoutContainer)o;
 
-			writeLayoutContainer(writer, layoutContainer, formUI, designer);
+			writeLayoutContainer(writer, layoutContainer, formUI, form, designer);
 
 			writer.key("children");
 			writer.array();
@@ -349,7 +354,13 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 					attributes.put("svy-types-properties", String.join(",", typeAndPropertyNames[1]));
 				}
 				attributes.put("svy-priority",
-					form.isResponsiveLayout() ? String.valueOf(((ISupportBounds)o).getLocation().x) : String.valueOf(((BaseComponent)o).getFormIndex()));
+					form.isResponsiveLayout() || o.getAncestor(IRepository.CSSPOS_LAYOUTCONTAINERS) != null
+						? String.valueOf(((ISupportBounds)o).getLocation().x) : String.valueOf(((BaseComponent)o).getFormIndex()));
+				String directEditPropertyName = getDirectEditProperty(fe);
+				if (directEditPropertyName != null)
+				{
+					attributes.put("directEditPropertyName", directEditPropertyName);
+				}
 			}
 			if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
 			{
@@ -359,11 +370,6 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 					elementName = "svy_" + o.getUUID().toString();
 				}
 				attributes.put("data-cy", form.getName() + "." + elementName);
-			}
-			String directEditPropertyName = getDirectEditProperty(fe);
-			if (directEditPropertyName != null)
-			{
-				attributes.put("directEditPropertyName", directEditPropertyName);
 			}
 			attributes.forEach((key, value) -> {
 				writer.key(StringEscapeUtils.escapeEcmaScript(key));
@@ -406,7 +412,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		}
 	}
 
-	public static void writeLayoutContainer(JSONWriter writer, LayoutContainer layoutContainer, WebFormUI formUI, boolean designer)
+	public static void writeLayoutContainer(JSONWriter writer, LayoutContainer layoutContainer, WebFormUI formUI, Form form, boolean designer)
 	{
 		WebLayoutSpecification spec = null;
 		if (layoutContainer.getPackageName() != null)
@@ -418,10 +424,17 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				spec = pkg.getSpecification(layoutContainer.getSpecName());
 			}
 		}
+		if (layoutContainer instanceof CSSPositionLayoutContainer)
+		{
+			CSSPosition cssPosition = ((CSSPositionLayoutContainer)layoutContainer).getCssPosition();
+			if (cssPosition != null) AngularFormGenerator.writeCSSPosition(writer, ((CSSPositionLayoutContainer)layoutContainer), form, designer, cssPosition);
+		}
+
 		writer.key("layout");
 		writer.value(true);
 		writer.key("cssPositionContainer");
-		writer.value(CSSPositionUtils.isCSSPositionContainer(layoutContainer));
+		boolean cssPositionContainer = CSSPositionUtils.isCSSPositionContainer(layoutContainer);
+		writer.value(cssPositionContainer);
 		String tagType = layoutContainer.getTagType();
 		if (spec != null && spec.getDirectives().size() > 0)
 		{
@@ -433,6 +446,10 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.value("svyResponsive" + tagType);
 		}
 		String styleClasses = layoutContainer.getCssClasses();
+		if (layoutContainer instanceof CSSPositionLayoutContainer)
+		{
+			styleClasses = styleClasses != null ? styleClasses + " svy-responsivecontainer" : "svy-responsivecontainer";
+		}
 		if (styleClasses != null)
 		{
 			writer.key("styleclass");
@@ -445,14 +462,18 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.endArray();
 		}
 		Map<String, String> attributes = new HashMap<String, String>(layoutContainer.getMergedAttributes());
+		// properties in the .spec file for layouts are seen as "attributes to add to html tag"
+		// except for "class" and "size" that are special - treatead separately below
 		if (spec != null)
 		{
 			for (String propertyName : spec.getAllPropertiesNames())
 			{
+				if (IContentSpecConstantsBase.PROPERTY_SIZE.equals(propertyName) || "class".equals(propertyName)) continue;
+
 				PropertyDescription pd = spec.getProperty(propertyName);
 				if (pd.getDefaultValue() != null && !attributes.containsKey(propertyName))
 				{
-					attributes.put(propertyName, pd.getDefaultValue().toString());
+					attributes.put(propertyName, pd.getDefaultValue().toString()); // they should be already strings in the spec files!
 				}
 			}
 		}
@@ -477,19 +498,45 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				attributes.put("svy-name", layoutContainer.getName());
 			}
 			attributes.put("svy-priority", String.valueOf(layoutContainer.getLocation().x));
-			String designClass = spec.getDesignStyleClass() != null && spec.getDesignStyleClass().length() > 0 ? spec.getDesignStyleClass()
-				: "customDivDesign";
-			if ("customDivDesign".equals(designClass) && FormLayoutStructureGenerator.hasSameDesignClassAsParent(layoutContainer, spec))
+			if (spec != null)
 			{
-				designClass = FormLayoutStructureGenerator.isEvenLayoutContainer(layoutContainer) ? "customDivDesignOdd" : "customDivDesignEven";
+				String designClass = spec.getDesignStyleClass() != null && spec.getDesignStyleClass().length() > 0 ? spec.getDesignStyleClass()
+					: "customDivDesign";
+				if ("customDivDesign".equals(designClass) && FormLayoutStructureGenerator.hasSameDesignClassAsParent(layoutContainer, spec))
+				{
+					designClass = FormLayoutStructureGenerator.isEvenLayoutContainer(layoutContainer) ? "customDivDesignOdd" : "customDivDesignEven";
+				}
+				attributes.put("designclass", designClass);
 			}
-			attributes.put("designclass", designClass);
 
 			attributes.put("svy-title", FormLayoutStructureGenerator.getLayouContainerTitle(layoutContainer));
 		}
 		writer.key("attributes");
 		writer.object();
 		attributes.remove("class");
+		if (cssPositionContainer)
+		{
+			// client side needs to know height in this case
+			Dimension sizePropValue = layoutContainer.hasProperty(IContentSpecConstantsBase.PROPERTY_SIZE) ? layoutContainer.getSize() : null;
+			if (sizePropValue != null)
+			{
+				DimensionPropertyType.INSTANCE.toJSON(writer, IContentSpecConstantsBase.PROPERTY_SIZE, sizePropValue, null, null, null);
+			}
+			else if (spec != null)
+			{
+				// use default value from. spec if available
+				PropertyDescription pd = spec.getProperty(IContentSpecConstantsBase.PROPERTY_SIZE);
+				if (pd.getDefaultValue() != null)
+				{
+					writer.key(IContentSpecConstantsBase.PROPERTY_SIZE).value(pd.getDefaultValue());
+				}
+				else
+				{
+					// no default in spec, property not set in form designer => use default from AbstractContainer.getSize()
+					DimensionPropertyType.INSTANCE.toJSON(writer, IContentSpecConstantsBase.PROPERTY_SIZE, layoutContainer.getSize(), null, null, null);
+				}
+			}
+		}
 		attributes.forEach((key, value) -> {
 			writer.key(key);
 			writer.value(value);

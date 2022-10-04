@@ -44,4 +44,8 @@ public interface IJSApplication
 	public String getUserProperty(String name);
 
 	public void setUserProperty(String name, String value);
+
+	public void removeUserProperty(String name);
+
+	public void removeAllUserProperties();
 }

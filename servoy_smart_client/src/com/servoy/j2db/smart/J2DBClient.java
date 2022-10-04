@@ -180,7 +180,6 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.plugins.IClientPluginAccess;
-import com.servoy.j2db.plugins.PluginManager;
 import com.servoy.j2db.preference.ApplicationPreferences;
 import com.servoy.j2db.preference.GeneralPanel;
 import com.servoy.j2db.preference.LFPreferencePanel;
@@ -1207,7 +1206,7 @@ public class J2DBClient extends ClientState
 				if (isShutDown()) return;
 
 				getPluginManager().init();
-				((PluginManager)getPluginManager()).initClientPlugins(J2DBClient.this, (IClientPluginAccess)getPluginAccess());
+				getPluginManager().initClientPlugins(J2DBClient.this, (IClientPluginAccess)getPluginAccess());
 				((FoundSetManager)getFoundSetManager()).setColumnManangers(getPluginManager().getColumnValidatorManager(),
 					getPluginManager().getColumnConverterManager(), getPluginManager().getUIConverterManager());
 			}
@@ -1707,6 +1706,17 @@ public class J2DBClient extends ClientState
 	{
 		if (name == null) return;
 		((Settings)getSettings()).setUserProperty(Settings.USER, name, value);
+	}
+
+	public void removeUserProperty(String name)
+	{
+		if (name == null) return;
+		((Settings)getSettings()).removeUserProperty(Settings.USER, name);
+	}
+
+	public void removeAllUserProperties()
+	{
+		((Settings)getSettings()).removeAllUserProperties(Settings.USER);
 	}
 
 	public Object getClientProperty(Object name)

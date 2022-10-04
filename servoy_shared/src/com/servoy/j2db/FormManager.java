@@ -378,7 +378,7 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 		{
 			fc.getFormUI().setComponentVisible(false);
 			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-			fc.notifyVisible(false, invokeLaterRunnables);
+			fc.notifyVisible(false, invokeLaterRunnables, true);
 			Utils.invokeLater(application, invokeLaterRunnables);
 		}
 
@@ -573,7 +573,7 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 				if (fp != null && !containerSwitch)
 				{
 					List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-					boolean ok = fp.notifyVisible(false, invokeLaterRunnables);
+					boolean ok = fp.notifyVisible(false, invokeLaterRunnables, true);
 					Utils.invokeLater(application, invokeLaterRunnables);
 
 					// solution closed in onhide method of previous form?
@@ -643,7 +643,7 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 
 				//show panel as main
 				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-				fp.notifyVisible(true, invokeLaterRunnables);
+				fp.notifyVisible(true, invokeLaterRunnables, true);
 
 				// only enable command when it is the default container
 				//if (getMainContainer(null) == currentContainer)
@@ -907,7 +907,7 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 						{
 							getCurrentContainer().show(fp1.getName());
 							List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-							fp1.notifyVisible(true, invokeLaterRunnables);
+							fp1.notifyVisible(true, invokeLaterRunnables, true);
 							invokeLaterRunnables.add(new Runnable()
 							{
 								public void run()

@@ -667,7 +667,7 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 					recomputeTabSequence();
 				}
 			}
-			controller.notifyVisible(visible, invokeLaterRunnables);
+			controller.notifyVisible(visible, invokeLaterRunnables, true);
 		}
 	}
 
@@ -698,9 +698,8 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 			showFoundSet(allTabs.get(0).getPanel(), parentState, getDefaultSort());
 		}
 		ITagResolver resolver = getTagResolver(parentState);
-		for (int i = 0; i < allTabs.size(); i++)
+		for (WebTabHolder element : allTabs)
 		{
-			WebTabHolder element = allTabs.get(i);
 			if (element.refreshTagStrings(resolver))
 			{
 				getStylePropertyChanges().setChanged();
@@ -743,9 +742,8 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 
 		ITagResolver resolver = getTagResolver(parentState);
 		//refresh tab text
-		for (int i = 0; i < allTabs.size(); i++)
+		for (WebTabHolder element : allTabs)
 		{
-			WebTabHolder element = allTabs.get(i);
 			if (element.getPanel() == flp)
 			{
 				element.refreshTagStrings(resolver);
@@ -1015,9 +1013,8 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 
 	public boolean removeAllTabs()
 	{
-		for (int i = 0; i < allTabs.size(); i++)
+		for (WebTabHolder comp : allTabs)
 		{
-			WebTabHolder comp = allTabs.get(i);
 			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 			boolean ok = comp.getPanel().notifyVisible(false, invokeLaterRunnables);
 			Utils.invokeLater(application, invokeLaterRunnables);
@@ -1058,9 +1055,8 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 
 	public void setTabIndex(String name)
 	{
-		for (int i = 0; i < allTabs.size(); i++)
+		for (WebTabHolder holder : allTabs)
 		{
-			WebTabHolder holder = allTabs.get(i);
 			if (Utils.stringSafeEquals(holder.getPanel().getName(), name))
 			{
 				setActiveTabPanel(holder.getPanel());
@@ -1090,9 +1086,8 @@ public class WebTabPanel extends WebMarkupContainer implements ITabPanel, IDispl
 
 	public void setReadOnly(boolean b)
 	{
-		for (int i = 0; i < allTabs.size(); i++)
+		for (WebTabHolder holder : allTabs)
 		{
-			WebTabHolder holder = allTabs.get(i);
 			holder.getPanel().setReadOnly(b);
 		}
 	}

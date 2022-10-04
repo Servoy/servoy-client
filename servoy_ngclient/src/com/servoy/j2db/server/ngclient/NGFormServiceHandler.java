@@ -244,7 +244,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 							relationName = NGClientWindow.getCurrentWindow().isVisibleAllowed(formName, args.optString("relation", null), null);
 						}
 					}
-					ok = controller.notifyVisible(isVisible, invokeLaterRunnables); // can only return false (deny) in case of hide; show is always allowed
+					ok = controller.notifyVisible(isVisible, invokeLaterRunnables, true); // can only return false (deny) in case of hide; show is always allowed
 					if (ok && parentForm != null)
 					{
 						if (!isVisible && containerComponent != null)

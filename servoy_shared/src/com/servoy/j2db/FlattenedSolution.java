@@ -850,7 +850,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				List<IFormController> cachedFormControllers = ((IApplication)app).getFormManager().getCachedFormControllers();
 				for (IFormController fc : cachedFormControllers)
 				{
-					fc.notifyVisible(false, new ArrayList<>());
+					fc.notifyVisible(false, new ArrayList<>(), true);
 					fc.destroy();
 				}
 			}

@@ -175,13 +175,13 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 				{
 					if (currentNavigator != null)
 					{
-						currentNavigator.notifyVisible(false, invokeLaterRunnables);
+						currentNavigator.notifyVisible(false, invokeLaterRunnables, true);
 					}
 					Form navigator = application.getFlattenedSolution().getForm(form_id);
 					if (navigator != null)
 					{
 						IFormController navigatorController = getApplication().getFormManager().getForm(navigator.getName());
-						navigatorController.notifyVisible(true, invokeLaterRunnables);
+						navigatorController.notifyVisible(true, invokeLaterRunnables, true);
 					}
 				}
 				else
@@ -196,7 +196,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			}
 			else if (form_id != Form.NAVIGATOR_IGNORE)
 			{
-				if (currentNavigator != null) currentNavigator.notifyVisible(false, invokeLaterRunnables);
+				if (currentNavigator != null) currentNavigator.notifyVisible(false, invokeLaterRunnables, true);
 			}
 			window.setNavigator(form_id);
 		}
@@ -258,17 +258,23 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			lastState = state;
 			executeOnRecordSelect = true;
 		}
-
-		IDataAdapterList dataAdapterList = getFormUI().getDataAdapterList();
-		for (IRecordInternal r : state)
-			dataAdapterList.setRecord(r, true);
-
-
-		if (executeOnRecordSelect)
+		try
 		{
-			// do this at the end because dataRenderer.refreshRecord(state) will update selection
-			// for related tabs - and we should execute js code after they have been updated
-			executeOnRecordSelect();
+			IDataAdapterList dataAdapterList = getFormUI().getDataAdapterList();
+			for (IRecordInternal r : state)
+				dataAdapterList.setRecord(r, true);
+
+
+			if (executeOnRecordSelect)
+			{
+				// do this at the end because dataRenderer.refreshRecord(state) will update selection
+				// for related tabs - and we should execute js code after they have been updated
+				executeOnRecordSelect();
+			}
+		}
+		catch (RuntimeException re)
+		{
+			throw new RuntimeException("Something goes wrong with setting the recod on the form: " + getName(), re); //$NON-NLS-1$
 		}
 
 	}
@@ -714,7 +720,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	}
 
 	@Override
-	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables)
+	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables, boolean executePreHideSteps)
 	{
 		if (isFormVisible == visible) return true;
 
@@ -729,7 +735,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			};
 			invokeLaterRunnables.add(run);
 		}
-		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables);
+		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables, executePreHideSteps);
 
 		if (notifyVisibleSuccess)
 		{

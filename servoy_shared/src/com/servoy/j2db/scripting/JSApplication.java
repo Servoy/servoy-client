@@ -477,6 +477,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Get a persistent user property.
+	 * <br>
+	 * In NGClient this is stored in the locale storage of the browser, so it will be persisted over restarts as long as the user didn't clear the data.
 	 *
 	 * @sample var value = application.getUserProperty('showOrders');
 	 *
@@ -492,6 +494,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Sets a user property for this client: <br>
+	 * In NGClient this is stored in the locale storage of the browser, so it will be persisted over restarts as long as the user didn't clear the data.
+	 * <br>
 	 * For headless clients(including Batch Processors and Authentication clients) the user property is stored in memory and will be lost upon client restart.
 	 * <br>
 	 * For Web Client the user property will be stored in a persistent cookie
@@ -507,6 +511,25 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	public void setUserProperty(String name, String value)
 	{
 		application.setUserProperty(name, value);
+	}
+
+	/**
+	 * Removes a user property.
+	 * @param name Name of the user property
+	 */
+	@JSFunction
+	public void removeUserProperty(String name)
+	{
+		application.removeUserProperty(name);
+	}
+
+	/**
+	 * Removes all user properties.
+	 */
+	@JSFunction
+	public void removeAllUserProperties()
+	{
+		application.removeAllUserProperties();
 	}
 
 	/**
@@ -1404,6 +1427,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	/**
 	 * Gets the HTTP server url.
 	 *
+	 * This url will end with a / so don't append to this server url something that starts with a / again
+	 * because RFC 3986 says that the path of a url (the part after the domain[:poort]) can not start with 2 slashes.
+	 *
 	 * @description-mc
 	 * Gets the application server URL for mobile client to connect to.
 	 *
@@ -2181,7 +2207,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		}
 		else if (msg instanceof NativeError)
 		{
-			application.output(msg.toString() + '\n' + ((NativeError)msg).getStackDelegated((NativeError)msg), level);
+			application.output(msg.toString() + '\n' + ((NativeError)msg).getStackDelegated(), level);
 		}
 		else if (msg instanceof Scriptable)
 		{

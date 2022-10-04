@@ -9,7 +9,7 @@ $scope.api.setViewportMetaForMobileAwareSites = function(viewportDefType)
 	var viewportContent;
 	switch (viewportDefType) {
 		case $scope.model.VIEWPORT_MOBILE_DENY_ZOOM:
-			viewportContent = "width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0";
+			viewportContent = "width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover";
 			break;
 		case $scope.model.VIEWPORT_MOBILE_DENY_ZOOM_OUT:
 			viewportContent = "width=device-width, initial-scale=1.0, minimum-scale=1.0";

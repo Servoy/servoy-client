@@ -1983,7 +1983,8 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 		// check to see if the relation is compatible with the datasource (must be a global relation on the appropriate table)
 		if (relation == null || !relation.isGlobal())
 		{
-			throw new RuntimeException("relation not found or invalid; namedFoundset only supports global relations");
+			throw new RuntimeException(
+				"relation " + relation != null ? relation.getName() : "<null>" + " not found or invalid; namedFoundset only supports global relations");
 		}
 		else
 		{
@@ -3931,6 +3932,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 * @return a JSWebComponent object
 	 */
+	@Override
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
 	public JSWebComponent newWebComponent(String name, String type)

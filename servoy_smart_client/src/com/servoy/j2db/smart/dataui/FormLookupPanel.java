@@ -226,7 +226,7 @@ public class FormLookupPanel extends EnablePanel implements IFormLookupPanel
 		{
 			IFormUIInternal ui = (IFormUIInternal)childs[0];
 			FormController child = ui.getController();
-			return child.notifyVisible(visible, invokeLaterRunnables);
+			return child.notifyVisible(visible, invokeLaterRunnables, true);
 		}
 		return true;
 	}

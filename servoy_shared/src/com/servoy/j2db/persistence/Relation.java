@@ -17,6 +17,10 @@
 package com.servoy.j2db.persistence;
 
 
+import static com.servoy.base.query.IBaseSQLCondition.EQUALS_OPERATOR;
+import static com.servoy.base.query.IBaseSQLCondition.IN_OPERATOR;
+import static com.servoy.base.query.IBaseSQLCondition.NOT_OPERATOR;
+import static com.servoy.base.query.IBaseSQLCondition.OPERATOR_MASK;
 import static com.servoy.j2db.persistence.Column.mapToDefaultType;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
@@ -795,6 +799,18 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 					"Boolean".equals(((AbstractBase)primary[i]).getSerializableRuntimeProperty(IScriptProvider.TYPE))) //$NON-NLS-1$
 				{
 					continue; // allow boolean var to number mappings
+				}
+				if (primaryType == IColumnTypes.MEDIA && primary[i] instanceof AbstractBase &&
+					"Array".equals(((AbstractBase)primary[i]).getSerializableRuntimeProperty(IScriptProvider.TYPE))) //$NON-NLS-1$
+				{
+					int maskedOp = operators[i] & OPERATOR_MASK;
+					if (maskedOp == EQUALS_OPERATOR || maskedOp == NOT_OPERATOR || maskedOp == IN_OPERATOR)
+					{
+						continue; // allow arrays, we cannot check the array element type
+					}
+					return Messages.getString("servoy.relation.error.unsupportedKindForOperator", //$NON-NLS-1$
+						new Object[] { ((AbstractBase)primary[i]).getSerializableRuntimeProperty(IScriptProvider.TYPE), RelationItem
+							.getOperatorAsString(operators[i]) });
 				}
 				if (primaryType != foreignType)
 				{

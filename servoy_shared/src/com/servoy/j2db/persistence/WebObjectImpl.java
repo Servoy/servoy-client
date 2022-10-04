@@ -711,6 +711,15 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		}
 	}
 
+	private void fireChildRemoved(IChildWebObject childWebObject)
+	{
+		ChangeHandler changeHandler = webObject.getRootObject().getChangeHandler();
+		if (changeHandler != null)
+		{
+			changeHandler.fireIPersistRemoved(childWebObject);
+		}
+	}
+
 	@Override
 	public void reload(boolean keepPersistMappedProperties)
 	{
@@ -730,6 +739,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 
 		if (arePersistMappedPropertiesLoaded)
 		{
+			ArrayList<IChildWebObject> removedPersistMappedProperties = new ArrayList<IChildWebObject>();
 			if (arg != null)
 			{
 				try
@@ -746,8 +756,22 @@ public class WebObjectImpl extends WebObjectBasicImpl
 					// delete all old properties that are no longer present in the new JSON
 					for (String obsoleteKey : obsoletePersistMappedPropertyNames)
 					{
-						persistMappedProperties.remove(obsoleteKey);
+						Object wo = persistMappedProperties.remove(obsoleteKey);
 						persistMappedPropetiesByUUID = null;
+						if (wo != null)
+						{
+							if (wo.getClass().isArray())
+							{
+								for (IChildWebObject t : (IChildWebObject[])wo)
+								{
+									if (t != null) removedPersistMappedProperties.add(t);
+								}
+							}
+							else
+							{
+								removedPersistMappedProperties.add((IChildWebObject)wo);
+							}
+						}
 					}
 				}
 				finally
@@ -757,8 +781,13 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			}
 			else
 			{
+				removedPersistMappedProperties.addAll(getAllPersistMappedProperties());
 				persistMappedProperties.clear();
 			}
+			// should we fire this from more places ?
+			removedPersistMappedProperties.forEach((IChildWebObject p) -> {
+				fireChildRemoved(p);
+			});
 		}
 
 		updateParentJSON();

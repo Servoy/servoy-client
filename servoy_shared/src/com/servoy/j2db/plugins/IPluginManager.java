@@ -60,5 +60,5 @@ public interface IPluginManager extends IManager
 	public void addClientExtension(String clientPluginClassName, URL extension, URL[] supportLibs) throws PluginException;
 
 
-	<T> T getPluginInstance(Class<T> pluginClass);
+	<T> T getServerPluginByInstance(Class<T> pluginClass);
 }

@@ -329,7 +329,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				if (fc != null && !newForms.contains(oldForm) && visibleChildForms.containsKey(fc))
 				{
 					List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-					fc.notifyVisible(false, invokeLaterRunnables);
+					fc.notifyVisible(false, invokeLaterRunnables, true);
 					Utils.invokeLater(getApplication(), invokeLaterRunnables);
 					removeVisibleChildForm(fc, true);
 				}
@@ -355,7 +355,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 						}
 						updateParentContainer(newFormController, newVisibleForm.getRight(), formController.isFormVisible());
 						List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-						newFormController.notifyVisible(formController.isFormVisible(), invokeLaterRunnables);
+						newFormController.notifyVisible(formController.isFormVisible(), invokeLaterRunnables, true);
 						Utils.invokeLater(getApplication(), invokeLaterRunnables);
 					}
 				}
@@ -1235,7 +1235,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			if (!relatedController.isDestroyed())
 			{
 				updateParentContainer(relatedController, childFormsCopy.get(relatedController), b);
-				if (!childFormsThatWereAlreadyNotified.contains(relatedController)) relatedController.notifyVisible(b, invokeLaterRunnables);
+				if (!childFormsThatWereAlreadyNotified.contains(relatedController)) relatedController.notifyVisible(b, invokeLaterRunnables, false);
 			}
 		}
 		if (!b)

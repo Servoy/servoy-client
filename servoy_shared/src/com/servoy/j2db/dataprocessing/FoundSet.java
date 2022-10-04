@@ -312,7 +312,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 
 	/**
-	 * Same as {@link #getID()} but it will not assign an id if it wasn't set before.
+	 * Same as {@link #getID()} but it will not assign an id if it wasn't set before. If it does not have an ID it will return 0.
 	 */
 	public int getIDInternal()
 	{
@@ -2591,10 +2591,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		queryForMorePKs(pksAndRecordsCopy, rowCount, -1, true);
 	}
 
-	/*
+	/**
 	 * Fill the pks from pksAndRecordsCopy starting at originalPKRowcount.
+	 *
+	 * @return the number of records added
 	 */
-	protected void queryForMorePKs(PksAndRecordsHolder pksAndRecordsCopy, int originalPKRowcount, int maxResult, boolean fireChanges)
+	protected int queryForMorePKs(PksAndRecordsHolder pksAndRecordsCopy, int originalPKRowcount, int maxResult, boolean fireChanges)
 	{
 		try
 		{
@@ -2686,10 +2688,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 			pksAndRecordsCopy.setDbIndexLastPk(dbIndexLastPk);
 
+			int newSize = getCorrectedSizeForFires();
 			if (fireChanges && newpks.getRowCount() != 0)
 			{
-				fireFoundSetEvent(size, getCorrectedSizeForFires(), FoundSetEvent.CHANGE_INSERT);
+				fireFoundSetEvent(size, newSize, FoundSetEvent.CHANGE_INSERT);
 			}
+			return newSize - size;
 		}
 		catch (ServoyException ex)
 		{
@@ -2865,10 +2869,16 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (row >= rowCount - 1)
 		{
 			int hint = ((row / fsm.config.pkChunkSize()) + 2) * fsm.config.pkChunkSize();
+			int nQueried = 0;
+			if (hadMoreRows)
+			{
+				nQueried = queryForMorePKs(pksAndRecordsCopy, rowCount, hint, true);
+			}
 
 			String dataSource = getDataSource();
 			String inmemDataSourceName = DataSourceUtils.getInmemDataSourceName(dataSource);
-			if (inmemDataSourceName != null //
+			if (nQueried <= 0 //
+				&& inmemDataSourceName != null //
 				&& nextChunkLoadState != MethodCallState.DONE // When all chunks are loaded switch to queries (for example after sort)
 				&& fsm.hasFoundsetTrigger(dataSource, PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID))
 			{
@@ -2894,12 +2904,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					fireFoundSetEvent(rowCount, rowCount + total - 1, FoundSetEvent.CHANGE_INSERT);
 				}
 			}
-
-			else if (hadMoreRows)
-			{
-				queryForMorePKs(pksAndRecordsCopy, rowCount, hint, true);
-			}
 		}
+
 		IRecordInternal state = pksAndRecordsCopy.getCachedRecords().get(row);
 		if (state == null && !findMode)
 		{
@@ -5226,8 +5232,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			Relation relation = fsm.getApplication().getFlattenedSolution().getRelation(relationName);
 			if (relation != null)
 			{
-				Placeholder ph = creationSqlSelect.getPlaceholder(
-					SQLGenerator.createRelationKeyPlaceholderKey(creationSqlSelect.getTable(), relation.getName()));
+				Placeholder ph = SQLGenerator.getRelationPlaceholder(creationSqlSelect, relation.getName());
 				if (ph == null || !ph.isSet() || ph.getValue() == null || ((Object[])ph.getValue()).length == 0)
 				{
 					Debug.trace(
@@ -7187,6 +7192,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 		}
 		return select;
+	}
+
+	public boolean addFoundSetFilterParam(QBSelect query, String filterName)
+	{
+		return this.js_addFoundSetFilterParam(query, filterName);
 	}
 
 	public boolean hadMoreRows()

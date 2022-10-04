@@ -537,6 +537,15 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 					Debug.error(e);
 				}
 			}
+			if (this.fallbackValueList != null)
+			{
+				IDataProvider[] fallbackDPs = this.fallbackValueList.getDependedDataProviders();
+				if (fallbackDPs != null)
+				{
+					if (fallbackDPs.length == 0) return fallbackDPs;
+					dataProviders.addAll(Arrays.asList(fallbackDPs));
+				}
+			}
 			return dataProviders.toArray(new IDataProvider[0]);
 
 		}

@@ -1015,6 +1015,16 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						}
 					} 
 					
+					scope.getRowStyleClassDataprovider = function(rowID) {
+						for ( let i = 0; i < scope.foundset.viewPort.rows.length; i++ ) {
+							if (scope.foundset.viewPort.rows[i][$foundsetTypeConstants.ROW_ID_COL_KEY] == rowID)
+							{
+								return scope.rowStyleClassDataprovider && i < scope.rowStyleClassDataprovider.length ? scope.rowStyleClassDataprovider[i] : '';
+							}
+						}
+						return '';					
+					}
+
 					scope.onKeydown = function(event, rowID) { 
 						const keycode = event.originalEvent.keyCode;
 						if (!getFoundset().multiSelect && keycode == 38 || keycode == 40) {
@@ -1247,7 +1257,7 @@ angular.module('servoy',['sabloApp','servoyformat','servoytooltip','servoyfileup
 						}
 						if (scope.rowStyleClassDataprovider)
 						{
-							clone.attr("ng-class", "rowStyleClassDataprovider[" + index +"]");
+							clone.attr("ng-class", "getRowStyleClassDataprovider(rowID)");
 						}
 						$compile(clone)(row);
 						

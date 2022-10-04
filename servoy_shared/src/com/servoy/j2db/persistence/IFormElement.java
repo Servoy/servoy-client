@@ -21,7 +21,7 @@ package com.servoy.j2db.persistence;
  * An element which can be placed on a form
  * @author jblok
  */
-public interface IFormElement extends ISupportBounds, ISupportName, ISupportUpdateableName, IPersist, ISupportExtendsID
+public interface IFormElement extends ISupportBounds, ISupportName, ISupportUpdateableName, IPersist, ISupportExtendsID, ISupportCSSPosition
 {
 	public void setFormIndex(int arg);
 
