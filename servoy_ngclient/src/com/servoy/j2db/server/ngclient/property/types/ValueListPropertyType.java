@@ -253,15 +253,17 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 		if (previousComponentValue == null)
 		{
-			return rhinoValue instanceof String ? createValuelistSabloValueByNameFromRhino((String)rhinoValue, pd, webObjectContext) : null;
+			// we expect that the toString of the scriptable rhino value is always the valuelistname
+			return rhinoValue instanceof String || rhinoValue instanceof DefaultScope
+				? createValuelistSabloValueByNameFromRhino(rhinoValue.toString(), pd, webObjectContext) : null;
 		}
 
 		if (!previousComponentValue.isInitialized())
 		{
-			if (rhinoValue instanceof String)
+			if (rhinoValue instanceof String || rhinoValue instanceof DefaultScope)
 			{
 				// weird; but we are going to create a new value anyway so it doesn't matter much
-				return createValuelistSabloValueByNameFromRhino((String)rhinoValue, pd, webObjectContext);
+				return createValuelistSabloValueByNameFromRhino(rhinoValue.toString(), pd, webObjectContext);
 			}
 			else
 			{
@@ -318,10 +320,10 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 				newValue = previousComponentValue;
 			}
 		}
-		else if (rhinoValue instanceof String)
+		else if (rhinoValue instanceof String || rhinoValue instanceof DefaultScope)
 		{
 			// the Rhino value is a different valuelist name; create a full new one
-			newValue = createValuelistSabloValueByNameFromRhino((String)rhinoValue, pd, webObjectContext);
+			newValue = createValuelistSabloValueByNameFromRhino(rhinoValue.toString(), pd, webObjectContext);
 		}
 		else
 		{
@@ -336,6 +338,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 	private ValueListTypeSabloValue createValuelistSabloValueByNameFromRhino(String valuelistId, PropertyDescription pd, IWebObjectContext webObjectContext)
 	{
+		if (valuelistId == null) return null;
 		ValuelistPropertyDependencies propertyDependencies = getDependenciesToOtherProperties(pd, webObjectContext);
 
 		return new ValueListTypeSabloValue(valuelistId, pd, propertyDependencies, false, false, NGComponentDALContext.getDataAdapterList(webObjectContext));
@@ -398,6 +401,8 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			}
 
 			@Override
+			// This is depended on that the toString() will return the valuelist name if that is set!
+			// the ValueListPropertyType expect this but also in scripting.
 			public String toString()
 			{
 				if (webComponentValue == null || webComponentValue.getValueList() == null) return null;
@@ -407,7 +412,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			@Override
 			public Object getDefaultValue(Class< ? > typeHint)
 			{
-				if (String.class.equals(typeHint))
+				if (String.class.equals(typeHint) || typeHint == null)
 				{
 					return toString();
 				}
