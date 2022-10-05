@@ -40,7 +40,7 @@ public class ThemeResourceLoader
 	public static final String CUSTOM_PROPERTIES_NG2_LESS = "custom_servoy_theme_properties_ng2.less";
 	public static final String PROPERTIES_LESS = "servoy_theme_properties.less";
 	public static final String THEME_LESS = "servoy_theme.less";
-	public static final String[] VERSIONS = new String[] { "latest", "2022.3.0_ng2", "2022.3.0", "2021.3.0_ng2", "2020.6.0", "2019.12.0", "2019.6.0", "2019.3.0", "8.4.0" };
+	public static final String[] VERSIONS = new String[] { "latest", "2022.3.0", "2021.3.0", "2020.6.0", "2019.12.0", "2019.6.0", "2019.3.0", "8.4.0" };
 
 	private static SortedMap<Version, String> themePropertyResource = new TreeMap<>();
 	private static SortedMap<Version, String> themeResource = new TreeMap<>();
@@ -87,7 +87,7 @@ public class ThemeResourceLoader
 
 	public static String getLatestNG2Version()
 	{
-		return Arrays.stream(VERSIONS).filter(version -> version.contains("_ng2")).findFirst().orElse(null);
+		return getLatestVersion() + "_ng2";
 	}
 
 	public static String getLatestVersion()
@@ -127,6 +127,10 @@ public class ThemeResourceLoader
 	private static String getResource(String maxVersion, SortedMap<Version, String> versionToResource)
 	{
 		Version version = new Version(maxVersion);
+		if ("latest_ng2".equals(maxVersion))
+		{
+			version = new Version(getLatestNG2Version());
+		}
 		// first get the exact version
 		String resource = versionToResource.get(version);
 		if (resource == null)
@@ -208,12 +212,17 @@ public class ThemeResourceLoader
 		public int compareTo(Version o)
 		{
 			if (ng2 != o.ng2) return ng2 ? -1 : 1;
-			if (ng2 && o.ng2) return 0;
 			if (major > o.major) return 1;
 			if (major < o.major) return -1;
 			if (minor > o.minor) return 1;
 			if (minor < o.minor) return -1;
 			return micro - o.micro;
+		}
+
+		@Override
+		public String toString()
+		{
+			return major + "." + minor + "." + micro + (ng2 ? "_ng2" : "");
 		}
 	}
 }
