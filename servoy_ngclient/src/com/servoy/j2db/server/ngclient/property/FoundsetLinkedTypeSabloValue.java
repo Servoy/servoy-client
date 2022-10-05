@@ -509,10 +509,18 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			// single value; not record dependent
 			DataConversion dataConversions = new DataConversion();
 			dataConversions.pushNode(FoundsetLinkedPropertyType.SINGLE_VALUE);
-			if (getFoundset() != null)
+			if (getFoundsetValue() != null)
+			{
+				// normal situation
 				FullValueToJSONConverter.INSTANCE.toJSONValue(writer, FoundsetLinkedPropertyType.SINGLE_VALUE, wrappedSabloValue, wrappedPropertyDescription,
 					dataConversions, dataConverterContext);
-			else writer.key(FoundsetLinkedPropertyType.SINGLE_VALUE).value(JSONObject.NULL);
+			}
+			else
+			{
+				// if the foundset property value that this prop. is supposed to use is set to null, we have nothing more to do then send null (it will generate a 0 sized array on the client anyway);
+				// in attachToBaseObject we didn't even call attach for the wrapped sablo value so, to avoid exceptions, just send null single value to client
+				writer.key(FoundsetLinkedPropertyType.SINGLE_VALUE).value(JSONObject.NULL);
+			}
 			JSONUtils.writeClientConversions(writer, dataConversions);
 		}
 		else
@@ -554,7 +562,9 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			return writer;
 		}
 
-		if (getFoundset() == null) return fullToJSON(writer, key, clientConversion, wrappedPropertyDescription, dataConverterContext);
+		// if the foundset property value that this prop. is supposed to use is set to null, we have nothing more to do then send null (it will generate a 0 sized array on the client anyway);
+		// in attachToBaseObject we didn't even call then attach for the wrapped sablo value so, to avoid exceptions, fullToJSON will just send null single value to client
+		if (getFoundsetValue() == null) return fullToJSON(writer, key, clientConversion, wrappedPropertyDescription, dataConverterContext);
 
 		clientConversion.convert(FoundsetLinkedPropertyType.CONVERSION_NAME);
 		JSONUtils.addKeyIfPresent(writer, key);
