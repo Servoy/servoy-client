@@ -17,12 +17,14 @@
 
 package com.servoy.j2db.persistence;
 
+import java.awt.Dimension;
 import java.awt.Point;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.json.JSONObject;
 import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebLayoutSpecification;
@@ -125,19 +127,30 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 		String tag = getTypedProperty(StaticContentSpecLoader.PROPERTY_TAGTYPE);
 		if (tag == null)
 		{
-			Map<String, PackageSpecification<WebLayoutSpecification>> layouts = WebComponentSpecProvider.getSpecProviderState().getLayoutSpecifications();
-			if (layouts != null && getPackageName() != null && layouts.get(getPackageName()) != null)
+			String defaultValue = (String)getDefaultValue(StaticContentSpecLoader.PROPERTY_TAGTYPE);
+			if (defaultValue != null)
 			{
-				WebLayoutSpecification spec = layouts.get(getPackageName()).getSpecification(getSpecName());
-				if (spec != null && spec.getProperty(StaticContentSpecLoader.PROPERTY_TAGTYPE.getPropertyName()) != null &&
-					spec.getProperty(StaticContentSpecLoader.PROPERTY_TAGTYPE.getPropertyName()).hasDefault())
-				{
-					return (String)spec.getProperty(StaticContentSpecLoader.PROPERTY_TAGTYPE.getPropertyName()).getDefaultValue();
-				}
+				return defaultValue;
 			}
 			return "div";
 		}
 		return tag;
+	}
+	
+	@Override
+	public java.awt.Dimension getSize()
+	{
+		Dimension size = getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE);
+		if (size == null)
+		{
+			JSONObject defaultValue = (JSONObject)getDefaultValue(StaticContentSpecLoader.PROPERTY_SIZE);
+			if (defaultValue != null)
+			{
+				return new java.awt.Dimension(defaultValue.optInt("width"), defaultValue.optInt("height"));
+			}
+			return super.getSize();
+		}
+		return size;
 	}
 
 	public <T> Object getDefaultValue(TypedProperty<T> propType)
