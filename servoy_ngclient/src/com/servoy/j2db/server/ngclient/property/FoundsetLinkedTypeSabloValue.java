@@ -416,7 +416,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 				{
 					// wrapped property is now no longer record linked so we only send one value to be duplicated
 					// this could be the result of initialization or it could for example get changed from Rhino
-					getFoundsetValue().removeViewportDataChangeMonitor(viewPortChangeMonitor);
+					foundsetPropValue.removeViewportDataChangeMonitor(viewPortChangeMonitor);
 					if (idForFoundset != null)
 					{
 						foundsetPropValue.setRecordDataLinkedPropertyIDToColumnDP(idForFoundset, null);
@@ -495,7 +495,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 		writer.object();
 		writer.key(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME).value(forFoundsetPropertyName);
-		if (idForFoundset != null) writer.key(ID_FOR_FOUNDSET).value(idForFoundset == null ? JSONObject.NULL : idForFoundset);
+		if (idForFoundset != null) writer.key(ID_FOR_FOUNDSET).value(idForFoundset);
 		idForFoundsetChanged = false;
 
 		PushToServerEnum pushToServer = BrowserConverterContext.getPushToServerValue(dataConverterContext);
@@ -509,8 +509,18 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			// single value; not record dependent
 			DataConversion dataConversions = new DataConversion();
 			dataConversions.pushNode(FoundsetLinkedPropertyType.SINGLE_VALUE);
-			FullValueToJSONConverter.INSTANCE.toJSONValue(writer, FoundsetLinkedPropertyType.SINGLE_VALUE, wrappedSabloValue, wrappedPropertyDescription,
-				dataConversions, dataConverterContext);
+			if (getFoundsetValue() != null)
+			{
+				// normal situation
+				FullValueToJSONConverter.INSTANCE.toJSONValue(writer, FoundsetLinkedPropertyType.SINGLE_VALUE, wrappedSabloValue, wrappedPropertyDescription,
+					dataConversions, dataConverterContext);
+			}
+			else
+			{
+				// if the foundset property value that this prop. is supposed to use is set to null, we have nothing more to do then send null (it will generate a 0 sized array on the client anyway);
+				// in attachToBaseObject we didn't even call attach for the wrapped sablo value so, to avoid exceptions, just send null single value to client
+				writer.key(FoundsetLinkedPropertyType.SINGLE_VALUE).value(JSONObject.NULL);
+			}
 			JSONUtils.writeClientConversions(writer, dataConversions);
 		}
 		else
@@ -551,6 +561,10 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			Debug.warn("Trying to get changes from an uninitialized foundset linked property: " + wrappedPropertyDescription);
 			return writer;
 		}
+
+		// if the foundset property value that this prop. is supposed to use is set to null, we have nothing more to do then send null (it will generate a 0 sized array on the client anyway);
+		// in attachToBaseObject we didn't even call then attach for the wrapped sablo value so, to avoid exceptions, fullToJSON will just send null single value to client
+		if (getFoundsetValue() == null) return fullToJSON(writer, key, clientConversion, wrappedPropertyDescription, dataConverterContext);
 
 		clientConversion.convert(FoundsetLinkedPropertyType.CONVERSION_NAME);
 		JSONUtils.addKeyIfPresent(writer, key);

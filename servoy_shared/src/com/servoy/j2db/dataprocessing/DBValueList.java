@@ -561,6 +561,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 	@Override
 	public IDataProvider[] getDependedDataProviders()
 	{
+		if (this.fallbackValueList != null) return this.fallbackValueList.getDependedDataProviders();
 		return null;
 	}
 }

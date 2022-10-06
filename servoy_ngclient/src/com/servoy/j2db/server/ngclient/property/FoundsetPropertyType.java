@@ -208,6 +208,7 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 					try
 					{
 						IFoundSetInternal foundset = webComponentValue.getFoundset();
+						if (foundset == null) foundset = webComponentValue.checkForExistingFormFoundsetBeforeFormIsVisibleAndGetIt();
 						if (foundset != null) return cx.getWrapFactory().wrap(cx, start, foundset, foundset.getClass());
 						return foundset;
 					}
