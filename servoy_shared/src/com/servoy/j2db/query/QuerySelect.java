@@ -78,7 +78,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		{
 			for (IQuerySelectValue column : getColumns())
 			{
-				names.add(column.getColumn().getName());
+				names.add(column.getColumn().getAliasOrName());
 			}
 		}
 		return names.toArray(new String[names.size()]);

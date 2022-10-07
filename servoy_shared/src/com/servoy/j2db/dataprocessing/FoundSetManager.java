@@ -17,11 +17,14 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.base.util.DataSourceUtilsBase.getDBServernameTablename;
 import static com.servoy.j2db.dataprocessing.FoundSetManager.TriggerExecutionMode.BreakOnFalse;
 import static com.servoy.j2db.dataprocessing.FoundSetManager.TriggerExecutionMode.ExecuteEach;
 import static com.servoy.j2db.dataprocessing.FoundSetManager.TriggerExecutionMode.ReturnFirst;
 import static com.servoy.j2db.query.AbstractBaseQuery.searchOne;
 import static com.servoy.j2db.util.DataSourceUtils.getDataSourceServerName;
+import static com.servoy.j2db.util.DataSourceUtils.getDataSourceTableName;
+import static com.servoy.j2db.util.DataSourceUtils.getViewDataSourceName;
 import static com.servoy.j2db.util.Errors.catchExceptions;
 import static com.servoy.j2db.util.Utils.arrayMerge;
 import static com.servoy.j2db.util.Utils.iterate;
@@ -68,7 +71,6 @@ import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
-import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.ClientState;
 import com.servoy.j2db.FlattenedSolution;
@@ -1031,9 +1033,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		ITable table = dataSource.startsWith(DataSourceUtils.VIEW_DATASOURCE_SCHEME_COLON) ? viewDataSources.get(dataSource) : inMemDataSources.get(dataSource);
 		if (table == null)
 		{
-			// when it is a db:/server/table data source
-			String[] servernameTablename = DataSourceUtilsBase.getDBServernameTablename(dataSource);
-			if (servernameTablename != null && servernameTablename[0] != null)
+			// when it is a db:/server/table data source, note that the table is optional in the datasource string
+			String[] servernameTablename = getDBServernameTablename(dataSource);
+			if (servernameTablename != null && servernameTablename[0] != null && servernameTablename[1] != null)
 			{
 				try
 				{
@@ -1056,7 +1058,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				{
 					try
 					{
-						insertToDataSource(DataSourceUtils.getDataSourceTableName(dataSource), new BufferedDataSet(), null, null, true, false,
+						insertToDataSource(getDataSourceTableName(dataSource), new BufferedDataSet(), null, null, true, false,
 							IServer.INMEM_SERVER);
 					}
 					catch (Exception e)
@@ -1071,7 +1073,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				Optional<ServoyJSONObject> columnDefintion;
 				if (!viewDataSources.containsKey(dataSource) && (columnDefintion = getColumnDefintion(dataSource)).isPresent())
 				{
-					Table tbl = new Table(IServer.VIEW_SERVER, DataSourceUtils.getViewDataSourceName(dataSource), true, ITable.VIEW, null, null);
+					Table tbl = new Table(IServer.VIEW_SERVER, getViewDataSourceName(dataSource), true, ITable.VIEW, null, null);
 					tbl.setDataSource(dataSource);
 					DatabaseUtils.deserializeInMemoryTable(application.getFlattenedSolution().getPersistFactory(), tbl, columnDefintion.get());
 					tbl.setExistInDB(true);
@@ -1080,7 +1082,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 					try
 					{
-						executeFoundsetTriggerReturnFirst(tbl, new Object[] { DataSourceUtils.getViewDataSourceName(dataSource) },
+						executeFoundsetTriggerReturnFirst(tbl, new Object[] { getViewDataSourceName(dataSource) },
 							StaticContentSpecLoader.PROPERTY_ONFOUNDSETLOADMETHODID, false, null); // can't entity methods, not supported on view foundsets
 					}
 					catch (ServoyException e)
@@ -1657,7 +1659,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			getTable(dataSource);
 		}
 		// if it is a view foundset then just return the view foundset datasource, its always 1 per datasource
-		if (DataSourceUtils.getViewDataSourceName(dataSource) != null)
+		if (getViewDataSourceName(dataSource) != null)
 		{
 			ViewFoundSet vfs = viewFoundSets.get(dataSource);
 			if (vfs == null) throw new IllegalStateException("The view datasource " + dataSource +
@@ -1750,7 +1752,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			// make sure inmem table is created
 			getTable(dataSource);
 		}
-		if (DataSourceUtils.getViewDataSourceName(dataSource) != null)
+		if (getViewDataSourceName(dataSource) != null)
 		{
 			ViewFoundSet vfs = viewFoundSets.get(dataSource);
 			if (vfs == null) throw new IllegalStateException("The view datasource " + dataSource +
@@ -3717,7 +3719,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		List<String> viewFoundsetDataSourceNames = new ArrayList<>(viewDataSources.size());
 		for (String dataSource : viewDataSources.keySet())
 		{
-			viewFoundsetDataSourceNames.add(DataSourceUtils.getViewDataSourceName(dataSource));
+			viewFoundsetDataSourceNames.add(getViewDataSourceName(dataSource));
 		}
 		return viewFoundsetDataSourceNames;
 	}

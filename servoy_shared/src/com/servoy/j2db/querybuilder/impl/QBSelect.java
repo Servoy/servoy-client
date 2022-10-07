@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import static com.servoy.j2db.util.keyword.Ident.generateNormalizedNonReservedOSName;
+
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -36,7 +38,6 @@ import com.servoy.j2db.persistence.IRelation;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.ITableAndRelationProvider;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.AndCondition;
 import com.servoy.j2db.query.AndOrCondition;
@@ -129,26 +130,58 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		return scriptableParent;
 	}
 
-	Table getTable(String dataSource)
+	/*
+	 * Get the table, returns null when the datasource does not refer to a physical table or the table cannot be found
+	 */
+	ITable getTable(String dataSource)
 	{
 		if (dataSource == null)
 		{
 			throw new RuntimeException("Cannot access table in query without dataSource");
 		}
-		ITable tbl;
+
 		try
 		{
-			tbl = tableProvider.getTable(dataSource);
+			// Return null when not found
+			return tableProvider.getTable(dataSource);
 		}
 		catch (RepositoryException e)
 		{
 			throw new RuntimeException(e);
 		}
-		if (!(tbl instanceof Table))
+	}
+
+	@Override
+	protected String[] getColumnNames() throws RepositoryException
+	{
+		String[] columnNames = super.getColumnNames();
+		if (columnNames.length > 0)
 		{
-			throw new RuntimeException("Cannot resolve datasource '" + dataSource + "'");
+			return columnNames;
 		}
-		return (Table)tbl;
+		// Column names cannot be retrieved from the datasource, fall back to the columns in the query
+		return getQuery().getColumnNames();
+	}
+
+	@Override
+	protected QBColumn createColumn(String name) throws RepositoryException
+	{
+		if (getTable() != null)
+		{
+			return super.createColumn(name);
+		}
+
+		// Column names cannot be retrieved from the datasource, fall back to the columns in the query
+		for (IQuerySelectValue qcol : query.getColumns())
+		{
+			if (name.equals(qcol.getAliasOrName()) ||
+				(qcol.getColumn() != null && name.equals(generateNormalizedNonReservedOSName(qcol.getColumn().getName()))))
+			{
+				return new QBColumn(getRoot(), this, qcol.getColumn());
+			}
+		}
+
+		throw new RepositoryException("Cannot find query column '" + name + "' in data source '" + getDataSource() + "'");
 	}
 
 	IRelation getRelation(String name)
@@ -572,7 +605,12 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 			}
 			else
 			{
-				queryTable = new QueryTable(getTable().getSQLName(), getTable().getDataSource(), getTable().getCatalog(), getTable().getSchema(), tableAlias);
+				ITable table = getTable();
+				if (table == null)
+				{
+					throw new RuntimeException("Cannot find table for datasource '" + getDataSource() + "'");
+				}
+				queryTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema(), tableAlias);
 			}
 		}
 		return queryTable;

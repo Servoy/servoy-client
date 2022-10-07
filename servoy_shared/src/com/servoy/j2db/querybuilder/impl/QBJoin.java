@@ -28,8 +28,8 @@ import org.mozilla.javascript.annotations.JSSetter;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.DerivedTable;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLTableJoin;
@@ -119,7 +119,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 		ITableReference foreignTableReference = join.getForeignTableReference();
 		if (foreignTableReference instanceof TableExpression)
 		{
-			Table joinTable = getRoot().getTable(foreignTableReference.getTable().getDataSource());
+			ITable joinTable = getRoot().getTable(foreignTableReference.getTable().getDataSource());
 			if (joinTable == null)
 			{
 				throw new RepositoryException("Cannot find table with in data source '" + foreignTableReference.getTable().getDataSource() + "'");
@@ -149,7 +149,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 		if (foreignTableReference instanceof TableExpression)
 		{
 
-			Table joinTable = getRoot().getTable(foreignTableReference.getTable().getDataSource());
+			ITable joinTable = getRoot().getTable(foreignTableReference.getTable().getDataSource());
 			if (joinTable == null)
 			{
 				throw new RepositoryException("Cannot find column '" + name + "' in data source '" + foreignTableReference.getTable().getDataSource() + "'");

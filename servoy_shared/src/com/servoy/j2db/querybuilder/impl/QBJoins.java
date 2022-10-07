@@ -29,8 +29,8 @@ import com.servoy.base.query.IQueryConstants;
 import com.servoy.j2db.dataprocessing.SQLGenerator;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.IRelation;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AndCondition;
 import com.servoy.j2db.query.DerivedTable;
 import com.servoy.j2db.query.ISQLSelect;
@@ -227,7 +227,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		{
 			try
 			{
-				Table foreignTable = root.getTable(relation.getForeignDataSource());
+				ITable foreignTable = root.getTable(relation.getForeignDataSource());
 				if (foreignTable == null)
 				{
 					Debug.log("foreign table for relation '" + relationName + "' not found");
@@ -398,7 +398,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		}
 		if (join == null)
 		{
-			Table foreignTable = root.getTable(dataSource);
+			ITable foreignTable = root.getTable(dataSource);
 			join = addJoin(new QueryJoin(name, parent.getQueryTable(),
 				new TableExpression(
 					new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema(), alias)),

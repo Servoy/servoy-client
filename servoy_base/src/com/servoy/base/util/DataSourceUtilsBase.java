@@ -30,7 +30,7 @@ public class DataSourceUtilsBase
 	 * Get the server and table name from the datasource (when is is a db datasource)
 	 *
 	 * @param dataSource the dataSource
-	 * @return the server and table name (or null if not a db datasource)
+	 * @return the server and table name (or null if not a db datasource), server and table name are optional in the dataSource format and may be null in the result array
 	 */
 	public static String[] getDBServernameTablename(String dataSource)
 	{

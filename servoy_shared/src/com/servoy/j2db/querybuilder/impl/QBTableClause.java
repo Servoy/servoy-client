@@ -25,8 +25,8 @@ import org.mozilla.javascript.annotations.JSFunction;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderTableClause;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
@@ -44,7 +44,7 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 
 	private QBJoins joins;
 
-	private Table table;
+	private ITable table;
 	private final Map<String, QBColumn> columns = new HashMap<String, QBColumn>();
 
 	private QBColumns builderColumns;
@@ -119,7 +119,8 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 
 	protected String[] getColumnNames() throws RepositoryException
 	{
-		return getTable().getDataProviderIDs();
+		ITable tbl = getTable();
+		return tbl == null ? new String[0] : tbl.getDataProviderIDs();
 	}
 
 	/**
@@ -157,7 +158,8 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 
 	protected QBColumn createColumn(String name) throws RepositoryException
 	{
-		Column col = getTable().getColumn(name);
+		ITable tbl = getTable();
+		Column col = tbl == null ? null : tbl.getColumn(name);
 		if (col == null)
 		{
 			throw new RepositoryException("Cannot find column '" + name + "' in data source '" + dataSource + "'");
@@ -190,7 +192,10 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 		return queryBuilderTableClause.getColumn(name);
 	}
 
-	Table getTable()
+	/*
+	 * Get the table, returns null when the datasource does not refer to a physical table or the table cannot be found
+	 */
+	protected ITable getTable()
 	{
 		if (table == null)
 		{

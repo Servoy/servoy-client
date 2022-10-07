@@ -17,11 +17,12 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import java.util.Iterator;
+import static com.servoy.j2db.util.Utils.iterate;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderGroupby;
@@ -102,10 +103,13 @@ public class QBGroupBy extends QBPart implements IQueryBuilderGroupby
 	@JSFunction
 	public QBGroupBy addPk() throws RepositoryException
 	{
-		Iterator<String> rowIdentColumnNames = getParent().getTable().getRowIdentColumnNames();
-		while (rowIdentColumnNames.hasNext())
+		ITable table = getParent().getTable();
+		if (table != null)
 		{
-			add(rowIdentColumnNames.next());
+			for (String columnName : iterate(table.getRowIdentColumnNames()))
+			{
+				add(columnName);
+			}
 		}
 		return this;
 	}
