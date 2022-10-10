@@ -19,6 +19,9 @@ package com.servoy.j2db.dataprocessing;
 
 import static com.servoy.j2db.dataprocessing.FireCollector.getFireCollector;
 import static com.servoy.j2db.query.AbstractBaseQuery.acceptVisitor;
+import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
+import static com.servoy.j2db.util.DataSourceUtils.createDBTableDataSource;
+import static com.servoy.j2db.util.DataSourceUtils.getDataSourceServerName;
 
 import java.lang.ref.WeakReference;
 import java.rmi.RemoteException;
@@ -65,7 +68,6 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
-import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.DerivedTable;
@@ -850,7 +852,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			try
 			{
 				boolean previousRefresh = refresh;
-				String serverName = DataSourceUtils.getDataSourceServerName(select.getTable().getDataSource());
+				String serverName = getDataSourceServerName(select.getTable().getDataSource());
 				String transaction_id = manager.getTransactionID(serverName);
 
 				HashMap<SQLStatement, ViewRecord> statementToRecord = new HashMap<>();
@@ -987,7 +989,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 					for (SQLStatement statement : statements)
 					{
-						manager.notifyDataChange(DataSourceUtils.createDBTableDataSource(statement.getServerName(), statement.getTableName()),
+						manager.notifyDataChange(createDBTableDataSource(statement.getServerName(), statement.getTableName()),
 							statement.getPKsRow(0), ISQLActionTypes.UPDATE_ACTION, statement.getChangedColumns());
 					}
 
@@ -1071,7 +1073,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 	private void loadAllRecordsImpl() throws ServoyException
 	{
-		String serverName = DataSourceUtils.getDataSourceServerName(select.getTable().getDataSource());
+		String serverName = getDataSourceServerName(select.getTable().getDataSource());
 		String transaction_id = manager.getTransactionID(serverName);
 		try
 		{
@@ -1405,10 +1407,14 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@JSFunction
 	public QBSelect getQuery()
 	{
-		QuerySelect query = AbstractBaseQuery.deepClone(this.select, true);
+		QuerySelect query = deepClone(this.select, true);
 		IApplication application = manager.getApplication();
+		String serverName = getDataSourceServerName(select.getTable().getDataSource());
+		// Use the server from the original query but leave the table null. The QueryBuilder will use columns from the query.result in that case.
+		String queryDataSource = createDBTableDataSource(serverName, null);
+
 		return new QBSelect(manager, manager.getScopesScopeProvider(), application.getFlattenedSolution(), application.getScriptEngine().getSolutionScope(),
-			select.getTable().getDataSource(), null, query);
+			queryDataSource, null, query);
 	}
 
 	@Override
@@ -1420,7 +1426,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public QuerySelect getCurrentStateQuery(boolean reduceSearch, boolean clone) throws ServoyException
 	{
-		return clone ? AbstractBaseQuery.deepClone(this.select, true) : this.select;
+		return clone ? deepClone(this.select, true) : this.select;
 	}
 
 	@Override
@@ -1943,7 +1949,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public IFoundSetInternal copy(boolean unrelate) throws ServoyException
 	{
-		ViewFoundSet viewFoundSetCopy = new ViewFoundSet(datasource, AbstractBaseQuery.deepClone(this.select, true), manager, chunkSize);
+		ViewFoundSet viewFoundSetCopy = new ViewFoundSet(datasource, deepClone(this.select, true), manager, chunkSize);
 		manager.registerViewFoundSet(viewFoundSetCopy, true);
 		return viewFoundSetCopy;
 	}
@@ -2549,7 +2555,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 												records.get(rowIndexes.get(0).intValue()).getValue(columnNames.get(pkColumn))));
 										}
 										ISQLSelect updateSelect = queryBuilder.build();
-										String serverName = DataSourceUtils.getDataSourceServerName(select.getTable().getDataSource());
+										String serverName = getDataSourceServerName(select.getTable().getDataSource());
 										String transaction_id = manager.getTransactionID(serverName);
 										IDataSet updatedDS = manager.getApplication().getDataServer().performQuery(manager.getApplication().getClientID(),
 											serverName, transaction_id, updateSelect, null, manager.getTableFilterParams(serverName, updateSelect), true, 0,
