@@ -33,7 +33,8 @@
     			   relationName: relation,
     			   active: false,
     			   disabled: false,
-    			   foreground: fg };
+    			   foreground: fg,
+    			   toolTipText: tooltip};
     	   if ($scope.model.tabs.length == 1 || !$scope.model.tabIndex)
     	   {
 //    		   java.lang.System.out.println(new Date().getTime() + " : tabIndex = 1 (server side add first tab or tabIndex previously undefined); " + $scope.model.tabIndex);

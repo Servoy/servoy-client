@@ -255,6 +255,7 @@ class PersistBasedFormElementImpl
 			tabMap.put("foreground", tab.getForeground());
 			putAndConvertProperty("name", tab.getName(), tabMap, fs, tabSpecProperties.getProperty("name"), propertyPath);
 			putAndConvertProperty("mnemonic", tab.getMnemonic(), tabMap, fs, tabSpecProperties.getProperty("mnemonic"), propertyPath);
+			putAndConvertProperty("toolTipText", tab.getToolTipText(), tabMap, fs, tabSpecProperties.getProperty("toolTipText"), propertyPath);
 			int containsFormID = tab.getContainsFormID();
 			// TODO should this be resolved way later on?
 			// if solution model then this form can change..
