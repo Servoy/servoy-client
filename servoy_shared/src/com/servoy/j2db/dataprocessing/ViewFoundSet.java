@@ -2681,6 +2681,56 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	/**
+	 * Get a duplicate of the viewfoundset. This is a full copy of the view foundset.
+	 *
+	 * @sample
+	 * var dupFoundset = %%prefix%%foundset.duplicateFoundSet();
+	 *
+	 * @return foundset duplicate.
+	 */
+	@JSFunction
+	public ViewFoundSet duplicateFoundSet() throws ServoyException
+	{
+		return (ViewFoundSet)copy(false);
+	}
+
+	/**
+	 * Get foundset name. If foundset is not named foundset will return null.
+	 *
+	 * @sample
+	 * var name = foundset.getName()
+	 *
+	 * @return name.
+	 */
+	@JSFunction
+	public String getName()
+	{
+		String name = this.datasource;
+		if (name != null)
+		{
+			name = DataSourceUtils.getViewDataSourceName(datasource);
+		}
+		return name;
+	}
+
+	/**
+	 * Get the record index. Will return -1 if the record can't be found.
+	 *
+	 * @sample var index = %%prefix%%foundset.getRecordIndex(record);
+	 *
+	 * @param record Record
+	 *
+	 * @return int index.
+	 */
+	@JSFunction
+	public int getRecordIndex(ViewRecord record)
+	{
+		int recordIndex = getRecordIndex((IRecord)record);
+		if (recordIndex == -1) return -1;
+		return recordIndex + 1;
+	}
+
+	/**
 	 * Check whether the foundset has record changes.
 	 * @return true if the foundset has any edited records, false otherwise
 	 */
