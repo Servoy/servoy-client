@@ -21,9 +21,12 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.beans.IntrospectionException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.json.JSONException;
@@ -38,7 +41,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * @author gboros
  */
-public class WebComponent extends BaseComponent implements IWebComponent
+public class WebComponent extends BaseComponent implements IWebComponent, ISupportInheritedChildren
 {
 
 	private static final long serialVersionUID = 1L;
@@ -73,6 +76,9 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	}
 
 	protected transient WebObjectBasicImpl webObjectImpl;
+
+	private Set<ISupportInheritedChildren> superPersistListeners;
+	private boolean isListeningToParent;
 
 	protected WebComponent(ISupportChilds parent, int element_id, UUID uuid)
 	{
@@ -440,5 +446,59 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	public String toString()
 	{
 		return getClass().getSimpleName() + " -> " + webObjectImpl.toString(); //$NON-NLS-1$
+	}
+
+	@Override
+	public Optional<Set<ISupportInheritedChildren>> getListeners()
+	{
+		return superPersistListeners != null ? Optional.of(superPersistListeners) : Optional.empty();
+	}
+
+	@Override
+	public void setListeningToParent(boolean listening)
+	{
+		isListeningToParent = true;
+	}
+
+	@Override
+	public boolean isListeningToParent()
+	{
+		return isListeningToParent;
+	}
+
+	@Override
+	public void addSuperListener(ISupportInheritedChildren listener)
+	{
+		ISupportInheritedChildren.super.addSuperListener(listener);
+		if (superPersistListeners == null) superPersistListeners = new HashSet<>();
+		superPersistListeners.add(listener);
+	}
+
+	@Override
+	public void addChild(IPersist obj)
+	{
+		super.addChild(obj);
+
+		if (getExtendsID() > 0)
+		{
+			//for extended the list of uuids is already sorted
+			insertBeforeUUID(obj.getUUID(), null);
+		}
+		else if (getListeners().isPresent())
+		{
+			List<IPersist> children = getAllObjectsAsList();
+			Collections.sort(children, new Comparator<IPersist>()
+			{
+				@Override
+				public int compare(IPersist o1, IPersist o2)
+				{
+					return ((IChildWebObject)o1).getIndex() - ((IChildWebObject)o2).getIndex();
+				}
+			});
+			int index = children.indexOf(obj);
+			IPersist next = index < children.size() - 1 ? children.get(index + 1) : null;
+			//create the list of uuids
+			getListeners().ifPresent(listeners -> listeners.forEach(l -> l.insertBeforeUUID(obj.getUUID(), next)));
+		}
 	}
 }

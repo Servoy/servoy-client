@@ -33,10 +33,7 @@ import com.servoy.j2db.util.UUID;
  */
 public interface ISupportInheritedChildren extends ISupportChilds, ISupportExtendsID
 {
-	default Optional<Set<ISupportInheritedChildren>> getListeners()
-	{
-		return Optional.empty();
-	}
+	Optional<Set<ISupportInheritedChildren>> getListeners();
 
 	default int indexOf(IPersist singleSelection)
 	{
@@ -44,7 +41,19 @@ public interface ISupportInheritedChildren extends ISupportChilds, ISupportExten
 		return uuids != null ? uuids.indexOf(singleSelection.getUUID().toString()) : -1;
 	}
 
-	void addSuperListener(ISupportInheritedChildren listener);
+	default void addSuperListener(ISupportInheritedChildren listener)
+	{
+		if (getListeners().isPresent() && getListeners().get().contains(listener)) return;
+		if (getExtendsID() > 0 && !isListeningToParent())
+		{
+			setListeningToParent(true);
+			ISupportChilds realParent = getRealParent();
+			if (realParent instanceof ISupportInheritedChildren)
+			{
+				((ISupportInheritedChildren)realParent).addSuperListener(this);
+			}
+		}
+	}
 
 	default boolean removeSuperListener(ISupportInheritedChildren listener)
 	{
@@ -172,6 +181,10 @@ public interface ISupportInheritedChildren extends ISupportChilds, ISupportExten
 		}
 		return null;
 	}
+
+	void setListeningToParent(boolean listening);
+
+	boolean isListeningToParent();
 
 	Object getCustomProperty(String[] strings);
 

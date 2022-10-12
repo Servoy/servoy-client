@@ -2267,7 +2267,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	@Override
 	public ISupportChilds getRealParent()
 	{
-		return getParent();
+		return getExtendsForm();
 	}
 
 	/*

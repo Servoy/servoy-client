@@ -43,7 +43,8 @@ public abstract class AbstractContainer extends AbstractBase
 {
 
 	private static final long serialVersionUID = 1L;
-	private final Set<ISupportInheritedChildren> superPersistListeners = new HashSet<>();
+	private Set<ISupportInheritedChildren> superPersistListeners;
+	private boolean isListeningToParent = false;
 
 	protected AbstractContainer(int type, ISupportChilds parent, int element_id, UUID uuid)
 	{
@@ -475,12 +476,26 @@ public abstract class AbstractContainer extends AbstractBase
 	@Override
 	public Optional<Set<ISupportInheritedChildren>> getListeners()
 	{
-		return !superPersistListeners.isEmpty() ? Optional.of(superPersistListeners) : Optional.empty();
+		return superPersistListeners != null && !superPersistListeners.isEmpty() ? Optional.of(superPersistListeners) : Optional.empty();
+	}
+
+	@Override
+	public void setListeningToParent(boolean listening)
+	{
+		isListeningToParent = listening;
+	}
+
+	@Override
+	public boolean isListeningToParent()
+	{
+		return isListeningToParent;
 	}
 
 	@Override
 	public void addSuperListener(ISupportInheritedChildren listener)
 	{
+		ISupportInheritedChildren.super.addSuperListener(listener);
+		if (superPersistListeners == null) superPersistListeners = new HashSet<>();
 		superPersistListeners.add(listener);
 	}
 

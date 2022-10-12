@@ -409,7 +409,7 @@ public class Inheritance_UUIDSList_Test extends AbstractSolutionTest
 		row_0.setLocation(new Point(11, 11));
 		child2.addChild(row_0);
 		flattened_child2.reload();
-		//assertTrue(parent.getListeners().isPresent());
+		assertTrue(parent.getListeners().isPresent());
 		assertTrue(child.getListeners().isPresent());
 		assertEquals(3, flattened_child2.getAllObjectsAsList().size());
 		assertNotNull(child2.getSortedChildren());
