@@ -106,6 +106,7 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 	public Object get(String name, Scriptable start)
 	{
 		Object value = getAsSabloValue(name);
+
 		if (wrappedValue instanceof List)
 		{
 			if (name.equals("length")) return value;
@@ -125,6 +126,10 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 		}
 
 		PropertyDescription propDesc = propertyDescription.getProperty(name);
+
+		// remember, a Scriptable.NOT_FOUND return value will make Rhino go search the prototype (it could even be a getter/setter defined in the prototype for a prop. that is (and server side code does not want it sent to client) or is not defined in .spec)
+		if (value == null && wrappedValue instanceof Map && !((Map<String, Object>)wrappedValue).containsKey(name)) return Scriptable.NOT_FOUND;
+
 		return propDesc != null ? NGConversions.INSTANCE.convertSabloComponentToRhinoValue(value, propDesc, webObjectContext, start) : Scriptable.NOT_FOUND;
 	}
 
