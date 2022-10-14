@@ -1851,14 +1851,14 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * if (myForm.selectionMode == JSForm.SELECTION_MODE_MULTI) myForm.selectionMode = JSForm.SELECTION_MODE_DEFAULT;
 	 */
 	@JSGetter
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
 	public int getSelectionMode()
 	{
 		return getForm().getSelectionMode();
 	}
 
 	@JSSetter
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
 	public void setSelectionMode(int arg)
 	{
 		checkModification();

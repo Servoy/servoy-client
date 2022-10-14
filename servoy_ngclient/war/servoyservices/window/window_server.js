@@ -66,9 +66,9 @@ var MenuItem = {
 	
 	get methodArguments()
 	{
-		if (menuArgumentsInternal == undefined)
+		if (!menuArgumentsInternal || !menuArgumentsInternal[this.id])
 			return null;
-		return menuArgumentsInternal[this.id];
+		return menuArgumentsInternal[this.id][1];
 	},
 	
 	setSelected: function(selected)

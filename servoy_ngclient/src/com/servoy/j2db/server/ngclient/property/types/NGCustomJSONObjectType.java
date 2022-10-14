@@ -273,8 +273,13 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 				}
 
 				// create the new change-aware-map based on the converted sub-properties
-				ChangeAwareMap<SabloT, SabloWT> retVal = wrapAndKeepRhinoPrototype(rhinoObjectCopy, rhinoNativeObject.getPrototype(), previousSpecialMap, pd,
-					new WrappingContext(webObjectContext.getUnderlyingWebObject(), pd.getName()), customObjectContext);
+				ChangeAwareMap<SabloT, SabloWT> retVal = wrapAndKeepRhinoPrototype(rhinoObjectCopy,
+					rhinoNativeObject /*
+										 * keep initial native obj. AS a prototype in the future RhinoMapOrArrayWrapper that will be created for Rhino
+										 * access/change detection; it can be used there to store/get properties that are not defined in the .spec file and
+										 * might be used as server-side impl. details - not to be sent to client
+										 */,
+					previousSpecialMap, pd, new WrappingContext(webObjectContext.getUnderlyingWebObject(), pd.getName()), customObjectContext);
 
 				// after it is returned it and it's sub-properties will at some point get "attached" (ISmartPropertyValue)
 				return retVal;
