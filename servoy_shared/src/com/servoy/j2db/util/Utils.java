@@ -114,6 +114,7 @@ import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.FormElementGroup;
 import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.persistence.IFlattenedPersistWrapper;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -155,6 +156,10 @@ public final class Utils
 		if (element instanceof Form)
 		{
 			return false;
+		}
+		if (context instanceof IFlattenedPersistWrapper)
+		{
+			context = ((IFlattenedPersistWrapper)context).getWrappedPersist();
 		}
 		if (context instanceof Form && element instanceof IPersist && (((IPersist)element).getAncestor(IRepository.FORMS) != context))
 		{

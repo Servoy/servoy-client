@@ -21,7 +21,6 @@ Require-Bundle: servoy_shared,
  servoy_headless_client,
  org.apache.tomcat,
  slf4j.api,
- org.apache.commons.io,
  org.jsoup,
  org.freemarker.freemarker,
  org.apache.commons.lang3,
@@ -29,13 +28,14 @@ Require-Bundle: servoy_shared,
  de.inetsoftware.jlessc,
  org.apache.commons.commons-fileupload,
  tus-java-server
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: .
 Bundle-Vendor: Servoy
 Import-Package: javax.servlet;version="[4.0.0,5.0.0)",
  javax.servlet.annotation;version="[4.0.0,5.0.0)",
  javax.servlet.http;version="[4.0.0,5.0.0)",
  javax.websocket,
- javax.websocket.server
+ javax.websocket.server,
+ org.apache.commons.io;version="2.11.0"
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: servoy_ngclient

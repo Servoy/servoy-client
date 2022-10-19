@@ -17,12 +17,14 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import static com.servoy.j2db.util.Utils.iterate;
+
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLSelect;
@@ -66,10 +68,13 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	@JSFunction
 	public QBResult addPk() throws RepositoryException
 	{
-		Iterator<String> rowIdentColumnNames = getParent().getTable().getRowIdentColumnNames();
-		while (rowIdentColumnNames.hasNext())
+		ITable table = getParent().getTable();
+		if (table != null)
 		{
-			add(rowIdentColumnNames.next());
+			for (String columnName : iterate(table.getRowIdentColumnNames()))
+			{
+				add(columnName);
+			}
 		}
 		return this;
 	}

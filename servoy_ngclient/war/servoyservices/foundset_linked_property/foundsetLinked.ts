@@ -61,7 +61,7 @@ namespace ngclient.propertyTypes {
 					}, (newViewportSize) => {
 								if (newViewportSize === iS.singleValueState.initialVPSize) return;
 								iS.singleValueState.initialVPSize = -1;
-								if (!angular.isDefined(newViewportSize)) newViewportSize = 0;
+                                if (!angular.isDefined(newViewportSize) || newViewportSize === null) newViewportSize = 0;
 								
 								componentScope.$evalAsync(() => {
 									this.viewportModule.removeDataWatchesFromRows(iS, value, true);
@@ -91,7 +91,7 @@ namespace ngclient.propertyTypes {
 			
 			// *** BEGIN we need the following in addBackWatches that is also called by updateAngularScope, that is why they are stored in internalState (iS)
 			iS.singleValueState.generateWholeViewportFromOneValue = function(internalState: FSLinkedInternalState, vpSize) {
-				if (angular.isUndefined(vpSize)) vpSize = 0;
+                if (angular.isUndefined(vpSize) || vpSize === null) vpSize = 0;
 				const wholeViewport = [];
 				if (conversionInfoFromServer) {
 					// we got from server the conversion type for this single value; as we generate a viewport of that value we must give the ViewportService code

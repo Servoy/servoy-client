@@ -41,6 +41,7 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
+import com.servoy.base.util.TagParser;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormAndTableDataProviderLookup;
 import com.servoy.j2db.IApplication;
@@ -388,7 +389,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			}
 			else
 			{
-				map.put("displayValue", displayValue != null ? dataAdapterListToUse.getApplication().getI18NMessageIfPrefixed(displayValue.toString()) : "");
+				map.put("displayValue",
+					displayValue != null ? TagParser.processTags(displayValue.toString(), dataAdapterListToUse, dataAdapterListToUse.getApplication()) : "");
 			}
 			array.add(map);
 		}
@@ -403,7 +405,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			else
 			{
 				map.put("displayValue",
-					dpDisplayValue != null ? dataAdapterListToUse.getApplication().getI18NMessageIfPrefixed(dpDisplayValue.toString()) : "");
+					dpDisplayValue != null ? TagParser.processTags(displayValue.toString(), dataAdapterListToUse, dataAdapterListToUse.getApplication()) : "");
 			}
 			array.add(map);
 		}

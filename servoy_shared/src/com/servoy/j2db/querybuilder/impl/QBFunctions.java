@@ -30,7 +30,6 @@ import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
-import com.servoy.j2db.querybuilder.IQueryBuilderFunction;
 import com.servoy.j2db.querybuilder.IQueryBuilderFunctions;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Utils;
@@ -420,7 +419,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 */
 	@JSFunction
 	@Override
-	public IQueryBuilderFunction round(Object arg, int decimals)
+	public QBFunction round(Object arg, int decimals)
 	{
 		return new QBFunction(getRoot(), getParent(), QueryFunctionType.round,
 			new IQuerySelectValue[] { createOperand(arg), createOperand(Integer.valueOf(decimals)) });

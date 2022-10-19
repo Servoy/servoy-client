@@ -258,17 +258,23 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			lastState = state;
 			executeOnRecordSelect = true;
 		}
-
-		IDataAdapterList dataAdapterList = getFormUI().getDataAdapterList();
-		for (IRecordInternal r : state)
-			dataAdapterList.setRecord(r, true);
-
-
-		if (executeOnRecordSelect)
+		try
 		{
-			// do this at the end because dataRenderer.refreshRecord(state) will update selection
-			// for related tabs - and we should execute js code after they have been updated
-			executeOnRecordSelect();
+			IDataAdapterList dataAdapterList = getFormUI().getDataAdapterList();
+			for (IRecordInternal r : state)
+				dataAdapterList.setRecord(r, true);
+
+
+			if (executeOnRecordSelect)
+			{
+				// do this at the end because dataRenderer.refreshRecord(state) will update selection
+				// for related tabs - and we should execute js code after they have been updated
+				executeOnRecordSelect();
+			}
+		}
+		catch (RuntimeException re)
+		{
+			throw new RuntimeException("Something goes wrong with setting the recod on the form: " + getName(), re); //$NON-NLS-1$
 		}
 
 	}

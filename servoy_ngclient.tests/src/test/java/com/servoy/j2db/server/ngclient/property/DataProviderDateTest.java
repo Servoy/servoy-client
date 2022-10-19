@@ -1577,6 +1577,30 @@ public class DataProviderDateTest
 		/*
 		 * (non-Javadoc)
 		 *
+		 * @see com.servoy.j2db.IApplication#removeUserProperty(java.lang.String)
+		 */
+		@Override
+		public void removeUserProperty(String name)
+		{
+
+
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see com.servoy.j2db.IApplication#removeAllUserProperties()
+		 */
+		@Override
+		public void removeAllUserProperties()
+		{
+
+
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
 		 * @see com.servoy.j2db.IApplication#getUserPropertyNames()
 		 */
 		@Override

@@ -431,7 +431,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 				{
 					// wrapped property is now no longer record linked so we only send one value to be duplicated
 					// this could be the result of initialization or it could for example get changed from Rhino
-					getFoundsetValue().removeViewportDataChangeMonitor(viewPortChangeMonitor);
+					foundsetPropValue.removeViewportDataChangeMonitor(viewPortChangeMonitor);
 					if (idForFoundset != null)
 					{
 						foundsetPropValue.setRecordDataLinkedPropertyIDToColumnDP(idForFoundset, null);
@@ -509,18 +509,28 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 		writer.object();
 		writer.key(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME).value(forFoundsetPropertyName);
-		if (idForFoundset != null) writer.key(ID_FOR_FOUNDSET).value(idForFoundset == null ? JSONObject.NULL : idForFoundset);
+		if (idForFoundset != null) writer.key(ID_FOR_FOUNDSET).value(idForFoundset);
 		idForFoundsetChanged = false;
 
 		if (viewPortChangeMonitor == null)
 		{
 			// single value; not record dependent
-			IJSONStringWithClientSideType wrappedJSONValue = JSONUtils.FullValueToJSONConverter.INSTANCE.getConvertedValueWithClientType(wrappedSabloValue,
-				wrappedPropertyDescription,
-				dataConverterContext, false);
+			if (getFoundsetValue() != null)
+			{
+				// normal situation
+				IJSONStringWithClientSideType wrappedJSONValue = JSONUtils.FullValueToJSONConverter.INSTANCE.getConvertedValueWithClientType(wrappedSabloValue,
+					wrappedPropertyDescription,
+					dataConverterContext, false);
 
-			writer.key(FoundsetLinkedPropertyType.SINGLE_VALUE).value(wrappedJSONValue); // write it even if it's null (the prop doesn't want to write itself); we need a value to be generated on client in the viewport
-			if (wrappedJSONValue.getClientSideType() != null) writer.key(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value(wrappedJSONValue.getClientSideType());
+				writer.key(FoundsetLinkedPropertyType.SINGLE_VALUE).value(wrappedJSONValue); // write it even if it's null (the prop doesn't want to write itself); we need a value to be generated on client in the viewport
+				if (wrappedJSONValue.getClientSideType() != null) writer.key(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value(wrappedJSONValue.getClientSideType());
+			}
+			else
+			{
+				// if the foundset property value that this prop. is supposed to use is set to null, we have nothing more to do then send null (it will generate a 0 sized array on the client anyway);
+				// in attachToBaseObject we didn't even call attach for the wrapped sablo value so, to avoid exceptions, just send null single value to client
+				writer.key(FoundsetLinkedPropertyType.SINGLE_VALUE).value(JSONObject.NULL);
+			}
 		}
 		else
 		{
@@ -557,6 +567,10 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			Debug.warn("Trying to get changes from an uninitialized foundset linked property: " + wrappedPropertyDescription);
 			return writer;
 		}
+
+		// if the foundset property value that this prop. is supposed to use is set to null, we have nothing more to do then send null (it will generate a 0 sized array on the client anyway);
+		// in attachToBaseObject we didn't even call then attach for the wrapped sablo value so, to avoid exceptions, fullToJSON will just send null single value to client
+		if (getFoundsetValue() == null) return fullToJSON(writer, key, clientConversion, wrappedPropertyDescription, dataConverterContext);
 
 		JSONUtils.addKeyIfPresent(writer, key);
 

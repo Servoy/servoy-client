@@ -53,7 +53,7 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 
 	private static final JSONConverter converter = new JSONConverter();
 
-	private MapPropertyType()
+	protected MapPropertyType()
 	{
 	}
 

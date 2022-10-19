@@ -241,6 +241,7 @@
 			"disabled": "boolean",
 			"imageMediaID": "media",
 			"mnemonic": "string",
+			"toolTipText" : "tagstring", 
 			"isActive": { "type": "boolean", "default": false, "tags": { "scope": "private" }, "pushToServer": "shallow" }
 		}
 	}

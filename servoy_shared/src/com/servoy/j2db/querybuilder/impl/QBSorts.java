@@ -17,11 +17,12 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import java.util.Iterator;
+import static com.servoy.j2db.util.Utils.iterate;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderSort;
@@ -53,16 +54,19 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderSorts#addPk()
 	 * @sample
-	 * 
+	 *
 	 * query.sort.addPk()
 	 */
 	@JSFunction
 	public QBSorts addPk() throws RepositoryException
 	{
-		Iterator<String> rowIdentColumnNames = getParent().getTable().getRowIdentColumnNames();
-		while (rowIdentColumnNames.hasNext())
+		ITable table = getParent().getTable();
+		if (table != null)
 		{
-			add(getParent().getColumn(rowIdentColumnNames.next()).asc());
+			for (String columnName : iterate(table.getRowIdentColumnNames()))
+			{
+				add(getParent().getColumn(columnName).asc());
+			}
 		}
 		return this;
 	}
@@ -70,7 +74,7 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderSorts#clear()
 	 * @sample
-	 * 
+	 *
 	 * query.sort.clear()
 	 */
 	@JSFunction
@@ -84,7 +88,7 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderSorts#add(IQueryBuilderSort)
 	 * @sample
 	 * query.sort.add(query.columns.orderid.desc)
-	 * 
+	 *
 	 * @param sort the sort to add
 	 */
 	public QBSorts js_add(QBSort sort) throws RepositoryException
@@ -102,7 +106,7 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderSorts#add(IQueryBuilderColumn)
 	 * @sample
 	 * query.sort.add(query.columns.orderid)
-	 * 
+	 *
 	 * @param columnSortAsc column to sort by
 	 */
 	public QBSorts js_add(QBColumn columnSortAsc) throws RepositoryException
@@ -114,7 +118,7 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderSorts#add(IQueryBuilderColumn)
 	 * @sample
 	 * query.sort.add(query.columns.orderid)
-	 * 
+	 *
 	 * @param functionSortAsc function to add
 	 */
 	public QBSorts js_add(QBFunction functionSortAsc) throws RepositoryException

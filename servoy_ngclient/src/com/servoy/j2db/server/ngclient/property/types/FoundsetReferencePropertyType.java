@@ -38,7 +38,7 @@ import com.servoy.j2db.util.Debug;
 /**
  * This is meant to replace FoundsetReferencePropertyTypeOld as that sends too much server side information to the client - and it's not always needed. (not sure it is ever really needed)
  * The idea is that you can send an unique string hash to the client representing a foundset value (that will probably be stored as a value in the service/component
- * model model as well as a FoundsetPropertyType) and then you can send that back to server through the same property type (for example as an argument to server side
+ * model model as well as a FoundsetPropertyType) and then you can send that back to server through this property type (for example as an argument to server side
  * scripting of that service/component) and on the server you get the real foundset it represents.
  *
  * @author acostescu

@@ -5,14 +5,14 @@ Bundle-SymbolicName: servoy_ngclient.tests
 Bundle-Version: 2022.12.0.3820_rc
 Bundle-Vendor: Servoy
 Fragment-Host: servoy_ngclient
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.apache.commons.io;version="2.11.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: com.servoy.j2db.server.ngclient.component.spec,
  com.servoy.j2db.server.ngclient.property
 Require-Bundle: org.junit,
  org.skyscreamer.jsonassert,
  org.apache.logging.log4j.core,
- org.apache.logging.log4j.api,
- org.apache.logging.log4j.slf4j18-impl
+ org.apache.logging.log4j.api
 Automatic-Module-Name: servoy_ngclient.tests
 Import-Package: com.servoy.j2db.util,
  org.sablo.websocket.utils

@@ -462,7 +462,8 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 						relationName: relation,
 						active: false,
 						disabled: false,
-						foreground: fg };
+						foreground: fg,
+						toolTipText: tooltip };
 				$scope.model.tabIndex = $scope.getTabIndex($scope.getSelectedTab());
 				return true;
 			}
