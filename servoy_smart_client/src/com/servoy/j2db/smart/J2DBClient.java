@@ -1716,7 +1716,7 @@ public class J2DBClient extends ClientState
 
 	public void removeAllUserProperties()
 	{
-		((Settings)getSettings()).removeAllUserProperties(Settings.USER);
+		((Settings)getSettings()).removeAllUserProperties();
 	}
 
 	public Object getClientProperty(Object name)
