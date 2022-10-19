@@ -774,7 +774,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 				Date newValue = NGDatePropertyType.NG_INSTANCE.fromJSON(newJSONValue, hasNoDateConversion);
 				if (oldUIValue != null)
 				{
-					String format = fieldFormat.parsedFormat.getEditFormat() != null ? fieldFormat.parsedFormat.getEditFormat()
+					String format = fieldFormat.parsedFormat.hasEditFormat() ? fieldFormat.parsedFormat.getEditFormat()
 						: fieldFormat.parsedFormat.getDisplayFormat();
 					SimpleDateFormat sdf = new SimpleDateFormat(format);
 					if (!hasNoDateConversion) sdf.setTimeZone(dataAdapterList.getApplication().getTimeZone());
