@@ -3002,11 +3002,25 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID);
 	}
 
+
 	@JSSetter
 	public void setOnHide(IBaseSMMethod method)
 	{
 		setEventHandler(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID, method);
 	}
+
+	@JSGetter
+	public JSMethod getOnBeforeHide()
+	{
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID);
+	}
+
+	@JSSetter
+	public void setOnBeforeHide(IBaseSMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID, method);
+	}
+
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnInvertRecordsCmdMethodID()
