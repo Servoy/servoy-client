@@ -164,8 +164,8 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 						};
 						delete serverJSONValue[$foundsetTypeConstants.FOR_FOUNDSET_PROPERTY];
 					}
-					var executeHandler = function(type, args, row, name, model) {		
-						if ($uiBlocker.shouldBlockDuplicateEvents(name, model, type, row))
+					var executeHandler = function(type, args, row, name, model, ignoreNGBlockDuplicateEvents) {		
+						if (!ignoreNGBlockDuplicateEvents && $uiBlocker.shouldBlockDuplicateEvents(name, model, type, row))
 						{
 							// reject execution
 							console.log("rejecting execution of: "+type +" on "+name +" row "+row);
@@ -261,10 +261,12 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 						for (var key in serverJSONValue.handlers) 
 						{
 							var handler = serverJSONValue.handlers[key];
-							(function(key) {
+							(function(key, handler) {
 								var eventHandler = function (args,rowId)
 								{
-									return executeHandler(key, args, rowId, serverJSONValue.name, serverJSONValue.model);
+									var ignoreNGBlockDuplicateEvents = handler['ignoreNGBlockDuplicateEvents'] !== undefined ?
+										handler['ignoreNGBlockDuplicateEvents'] : false;
+									return executeHandler(key, args, rowId, serverJSONValue.name, serverJSONValue.model, ignoreNGBlockDuplicateEvents);
 								}
 								var wrapper = function() {
 									return eventHandler(arguments, null);
@@ -275,7 +277,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 									}
 								};
 								serverJSONValue.handlers[key] = wrapper;
-							})(key);
+							})(key, handler);
 						}
 					}
 
