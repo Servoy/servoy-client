@@ -40,6 +40,7 @@ import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportCSSPosition;
+import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
@@ -127,18 +128,6 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		writer.key("height");
 		writer.value(form.getSize().getHeight());
 		writer.endObject();
-		String styleClasses = form.getStyleClass();
-		if (styleClasses != null)
-		{
-			writer.key("styleclass");
-			String[] classes = styleClasses.split(" ");
-			writer.array();
-			for (String cls : classes)
-			{
-				writer.value(cls);
-			}
-			writer.endArray();
-		}
 		writer.key("children");
 		// write the default form value object.
 		writer.array();
@@ -161,6 +150,32 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		{
 			// write the remaining (not already written) properties of the form using FormWrapper
 			Map<String, Object> properties = formWrapper.getProperties();
+			Object styleclass = properties.get(IContentSpecConstants.PROPERTY_STYLECLASS);
+			if (form.isResponsiveLayout())
+			{
+				if (styleclass == null) styleclass = "";
+				int scrollBars = form.getScrollbars();
+				String overflowX = "svy-overflowx-auto"; //$NON-NLS-1$
+				if (!isDesigner)
+				{
+					if ((scrollBars & ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER)
+						overflowX = "svy-overflowx-hidden"; //$NON-NLS-1$
+					else if ((scrollBars & ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS)
+						overflowX = "svy-overflowx-scroll"; //$NON-NLS-1$
+				}
+				styleclass += " " + overflowX;
+				String overflowY = "svy-overflowy-auto"; //$NON-NLS-1$
+				if (!isDesigner)
+				{
+					if ((scrollBars & ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER) == ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER)
+						overflowY = "svy-overflowy-hidden"; //$NON-NLS-1$
+					else if ((scrollBars & ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS)
+						overflowY = "svy-overflowy-scroll"; //$NON-NLS-1$
+				}
+				styleclass += " " + overflowY;
+				properties.put(IContentSpecConstants.PROPERTY_STYLECLASS, styleclass);
+			}
+
 			properties.forEach((key, value) -> {
 				if (finalContainerProperties == null || !finalContainerProperties.containsKey(key))
 				{

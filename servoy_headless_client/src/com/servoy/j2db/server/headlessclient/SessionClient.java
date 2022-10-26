@@ -1163,10 +1163,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 			List<String> userPropertiesToDelete = new ArrayList<>();
 			for (Map.Entry<String, String> entry : userProperties.entrySet())
 			{
-				if (entry.getKey().contains(Settings.USER))
-				{
-					userPropertiesToDelete.add(entry.getKey());
-				}
+				userPropertiesToDelete.add(entry.getKey());
 			}
 			if (userPropertiesToDelete.size() > 0)
 			{

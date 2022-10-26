@@ -114,8 +114,6 @@ public class NGClient extends AbstractApplication
 	public static final String APPLICATION_SERVER_SERVICE = "applicationServerService";
 	private static final String SABLO_LOADING_INDICATOR = "$sabloLoadingIndicator";
 
-	public static final String USER_PROP_PREFIX = "user.properties.";
-
 	private final INGClientWebsocketSession wsSession;
 
 	private transient volatile ServoyScheduledExecutor scheduledExecutorService;
@@ -1107,7 +1105,7 @@ public class NGClient extends AbstractApplication
 	@Override
 	public String getUserProperty(String name)
 	{
-		String defaultUserProperty = getDefaultUserProperties().get(USER_PROP_PREFIX + name);
+		String defaultUserProperty = getDefaultUserProperties().get(name);
 		if (defaultUserProperty != null) return defaultUserProperty;
 
 		Map<String, String> userProperties = getUserProperties();
@@ -1117,9 +1115,9 @@ public class NGClient extends AbstractApplication
 			return null;
 		}
 
-		if (userProperties.containsKey(USER_PROP_PREFIX + name))
+		if (userProperties.containsKey(name))
 		{
-			return userProperties.get(USER_PROP_PREFIX + name);
+			return userProperties.get(name);
 		}
 		else
 		{
@@ -1132,37 +1130,37 @@ public class NGClient extends AbstractApplication
 	@Override
 	public void setUserProperty(String name, String value)
 	{
-		getDefaultUserProperties().remove(USER_PROP_PREFIX + name);
+		getDefaultUserProperties().remove(name);
 		Map<String, String> userProperties = getUserProperties();
 
 		if (userProperties == null) return;
 
 		if (value == null)
 		{
-			userProperties.remove(USER_PROP_PREFIX + name);
+			userProperties.remove(name);
 		}
 		else
 		{
-			userProperties.put(USER_PROP_PREFIX + name, value);
+			userProperties.put(name, value);
 		}
 
 		getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setUserProperty",
-			new Object[] { USER_PROP_PREFIX + name, value });
+			new Object[] { name, value });
 
 	}
 
 	@Override
 	public void removeUserProperty(String name)
 	{
-		getDefaultUserProperties().remove(USER_PROP_PREFIX + name);
+		getDefaultUserProperties().remove(name);
 		Map<String, String> userProperties = getUserProperties();
 
 		if (userProperties == null) return;
 
-		userProperties.remove(USER_PROP_PREFIX + name);
+		userProperties.remove(name);
 
 		getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("removeUserProperty",
-			new Object[] { USER_PROP_PREFIX + name });
+			new Object[] { name });
 
 	}
 
@@ -1177,10 +1175,7 @@ public class NGClient extends AbstractApplication
 
 		for (Map.Entry<String, String> entry : userProperties.entrySet())
 		{
-			if (entry.getKey().contains(USER_PROP_PREFIX))
-			{
-				userPropertiesToDelete.add(entry.getKey());
-			}
+			userPropertiesToDelete.add(entry.getKey());
 		}
 
 		if (userPropertiesToDelete.size() > 0)
