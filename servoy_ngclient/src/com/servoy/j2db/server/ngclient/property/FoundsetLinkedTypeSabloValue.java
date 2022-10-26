@@ -570,7 +570,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 		// if the foundset property value that this prop. is supposed to use is set to null, we have nothing more to do then send null (it will generate a 0 sized array on the client anyway);
 		// in attachToBaseObject we didn't even call then attach for the wrapped sablo value so, to avoid exceptions, fullToJSON will just send null single value to client
-		if (getFoundsetValue() == null) return fullToJSON(writer, key, clientConversion, wrappedPropertyDescription, dataConverterContext);
+		if (getFoundsetValue() == null) return fullToJSON(writer, key, wrappedPropertyDescription, dataConverterContext);
 
 		JSONUtils.addKeyIfPresent(writer, key);
 

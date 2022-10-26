@@ -24,7 +24,6 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.scripting.JSUpload;
 
@@ -37,9 +36,6 @@ public class JSUploadPropertyType extends DefaultPropertyType<JSUpload> implemen
 	public static final JSUploadPropertyType INSTANCE = new JSUploadPropertyType();
 	public static final String TYPE_NAME = "JSUpload"; //$NON-NLS-1$
 
-	/*
-	 * @see org.sablo.specification.property.IPropertyType#getName()
-	 */
 	@Override
 	public String getName()
 	{
@@ -61,7 +57,7 @@ public class JSUploadPropertyType extends DefaultPropertyType<JSUpload> implemen
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, JSUpload sabloValue, PropertyDescription propertyDescription, DataConversion clientConversion,
+	public JSONWriter toJSON(JSONWriter writer, String key, JSUpload sabloValue, PropertyDescription propertyDescription,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		// not needed

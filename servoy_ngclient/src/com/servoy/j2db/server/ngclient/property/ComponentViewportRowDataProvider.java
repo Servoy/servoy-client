@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient.property;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.json.JSONException;
@@ -75,8 +76,7 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 			// full row
 			componentTypeSabloValue.getRecordBasedProperties().forEach(propertyName -> populateCellData(propertyName, w, dynamicClientSideTypesForProperties));
 		}
-		if (dynamicClientSideTypesForProperties.size() == 0) dynamicClientSideTypesForProperties = null;
-		types.registerClientSideType(dynamicClientSideTypesForProperties);
+		types.registerClientSideType((dynamicClientSideTypesForProperties.size() == 0) ? null : dynamicClientSideTypesForProperties);
 
 		w.endObject();
 	}

@@ -45,6 +45,7 @@ import com.servoy.j2db.server.ngclient.property.types.DataproviderTypeSabloValue
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyJSONObject;
+import com.servoy.j2db.util.WrappedObjectReference;
 
 /**
  * @author jcompagner
@@ -122,7 +123,7 @@ public class FoundsetLinkedTest extends AbstractSolutionTest
 		ds.addRow(new Object[] { Integer.valueOf(16), "value3", "value4" });
 		ds.addRow(new Object[] { Integer.valueOf(17), "value1", "value2" });
 		ds.addRow(new Object[] { Integer.valueOf(18), "value3", "value4" });
-		client.getFoundSetManager().createDataSourceFromDataSet("test", ds, null, new String[] { "pk" }, false);
+		client.getFoundSetManager().insertToDataSource("test", ds, null, new WrappedObjectReference<>(new String[] { "pk" }), true, false);
 
 		ConcurrentHashMap<String, IServer> serverProxies = new ConcurrentHashMap<String, IServer>();
 		serverProxies.put("_sv_inmem", DUMMY_ISERVER);

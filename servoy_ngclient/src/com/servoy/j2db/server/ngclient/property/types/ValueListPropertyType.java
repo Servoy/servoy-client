@@ -36,7 +36,6 @@ import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
-import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.FlattenedSolution;
@@ -498,10 +497,8 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	}
 
 	@Override
-	public JSONWriter toDesignerDefaultJSONValue(JSONWriter writer, String key, DataConversion dataConversion) throws JSONException
+	public JSONWriter toDesignerDefaultJSONValue(JSONWriter writer, String key) throws JSONException
 	{
-		dataConversion.pushNode(key);
-		dataConversion.convert(TYPE_NAME);
 		writer.key(key);
 		writer.object();
 		writer.key("hasRealValues");
@@ -515,9 +512,8 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			map.put("displayValue", "Item" + (i + 1));
 			array.add(map);
 		}
-		JSONUtils.toBrowserJSONFullValue(writer, null, array, null, null, null);
+		JSONUtils.toBrowserJSONFullValue(writer, null, array, null, null);
 		writer.endObject();
-		dataConversion.popNode();
 		return writer;
 	}
 

@@ -512,7 +512,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			Dimension sizePropValue = layoutContainer.hasProperty(IContentSpecConstantsBase.PROPERTY_SIZE) ? layoutContainer.getSize() : null;
 			if (sizePropValue != null)
 			{
-				DimensionPropertyType.INSTANCE.toJSON(writer, IContentSpecConstantsBase.PROPERTY_SIZE, sizePropValue, null, null, null);
+				DimensionPropertyType.INSTANCE.toJSON(writer, IContentSpecConstantsBase.PROPERTY_SIZE, sizePropValue, null, null);
 			}
 			else if (spec != null)
 			{
@@ -525,7 +525,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				else
 				{
 					// no default in spec, property not set in form designer => use default from AbstractContainer.getSize()
-					DimensionPropertyType.INSTANCE.toJSON(writer, IContentSpecConstantsBase.PROPERTY_SIZE, layoutContainer.getSize(), null, null, null);
+					DimensionPropertyType.INSTANCE.toJSON(writer, IContentSpecConstantsBase.PROPERTY_SIZE, layoutContainer.getSize(), null, null);
 				}
 			}
 		}

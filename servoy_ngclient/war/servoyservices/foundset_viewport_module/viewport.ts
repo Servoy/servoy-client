@@ -124,8 +124,8 @@ namespace ngclient.propertyTypes {
 		}
 
 		private removeSmartChangeNotifiers(cellValue: any) {
-			if (cellValue && cellValue[$sabloConverters.INTERNAL_IMPL] && cellValue[$sabloConverters.INTERNAL_IMPL].setChangeNotifier)
-				cellValue[$sabloConverters.INTERNAL_IMPL].setChangeNotifier(undefined);
+			if (cellValue && cellValue[this.sabloConverters.INTERNAL_IMPL] && cellValue[this.sabloConverters.INTERNAL_IMPL].setChangeNotifier)
+				cellValue[this.sabloConverters.INTERNAL_IMPL].setChangeNotifier(undefined);
 		}
 
 		private removeDataWatchesFromRow(idx: number, internalState: InternalStateForViewport, viewPort: any[], simpleRowValue: boolean) {
@@ -138,11 +138,11 @@ namespace ngclient.propertyTypes {
 		
 			// also remove smart change notifiers just in case components hang on to obsolete values and change stuff in them
 			if (simpleRowValue) {
-				removeSmartChangeNotifiers(viewPort[idx]);
+				this.removeSmartChangeNotifiers(viewPort[idx]);
 			} else {
 				let columnName;
 				for (columnName in viewPort[idx])
-					if (columnName !== $foundsetTypeConstants.ROW_ID_COL_KEY) removeSmartChangeNotifiers(viewPort[idx][columnName]);
+					if (columnName !== this.foundsetTypeConstants.ROW_ID_COL_KEY) this.removeSmartChangeNotifiers(viewPort[idx][columnName]);
 			}
 		}
 	

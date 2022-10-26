@@ -41,11 +41,15 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
+import org.sablo.IWebObjectContext;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
-import org.sablo.websocket.utils.DataConversion;
+import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
+import org.sablo.specification.property.BrowserConverterContext;
+import org.sablo.websocket.utils.JSONUtils.IJSONStringWithClientSideType;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IBeanManager;
@@ -78,6 +82,7 @@ import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.NGRuntimeWindowManager;
 import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.server.ngclient.property.types.NGDatePropertyType;
@@ -134,22 +139,16 @@ public class DataProviderDateTest
 		TestDataproviderTypeSabloValue value = createSabloValue(true, null, null);
 		value.browserUpdateReceived(THREE_AT_NIGHT_PLUS1, null);
 		Assert.assertEquals(NGDatePropertyType.NG_INSTANCE.fromJSON(THREE_AT_NIGHT_PLUS13, false), value.getValue());
-		JSONWriter writer = new JSONStringer();
-		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
-		writer.endObject();
-		JSONObject json = new JSONObject(writer.toString());
-		Assert.assertEquals("2021-11-15T03:00", json.getString("mydate"));
-
+		value.checkThatToJSONGenerates("2021-11-15T03:00", "date");
 
 		value = createSabloValue(true, null, null);
 		value.browserUpdateReceived(THREE_IN_AFTERNOON_PLUS1, null);
 		Assert.assertEquals(NGDatePropertyType.NG_INSTANCE.fromJSON("2021-11-14T15:00:00.000+13:00", false), value.getValue());
-		writer = new JSONStringer();
+		JSONWriter writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
-		json = new JSONObject(writer.toString());
+		JSONObject json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-14T15:00", json.getString("mydate"));
 	}
 
@@ -167,23 +166,12 @@ public class DataProviderDateTest
 		TestDataproviderTypeSabloValue value = createSabloValue(true, THREE_IN_AFTERNOON_PLUS13, null);
 		value.browserUpdateReceived(THREE_AT_NIGHT_PLUS1, null);
 		Assert.assertEquals(NGDatePropertyType.NG_INSTANCE.fromJSON(THREE_AT_NIGHT_PLUS13, false), value.getValue());
-		JSONWriter writer = new JSONStringer();
-		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
-		writer.endObject();
-		JSONObject json = new JSONObject(writer.toString());
-		Assert.assertEquals("2021-11-15T03:00", json.getString("mydate"));
-
+		value.checkThatToJSONGenerates("2021-11-15T03:00", "date");
 
 		value = createSabloValue(true, THREE_IN_AFTERNOON_PLUS13, null);
 		value.browserUpdateReceived(THREE_IN_AFTERNOON_PLUS1, null);
 		Assert.assertEquals(NGDatePropertyType.NG_INSTANCE.fromJSON("2021-11-14T15:00:00.000+13:00", false), value.getValue());
-		writer = new JSONStringer();
-		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
-		writer.endObject();
-		json = new JSONObject(writer.toString());
-		Assert.assertEquals("2021-11-14T15:00", json.getString("mydate"));
+		value.checkThatToJSONGenerates("2021-11-14T15:00", "date");
 	}
 
 	@Test
@@ -194,7 +182,7 @@ public class DataProviderDateTest
 		Assert.assertEquals(NGDatePropertyType.NG_INSTANCE.fromJSON(THREE_IN_AFTERNOON_PLUS13, false), value.getValue());
 		JSONWriter writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		JSONObject json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-15T15:00", json.getString("mydate"));
@@ -205,7 +193,7 @@ public class DataProviderDateTest
 		Assert.assertEquals(NGDatePropertyType.NG_INSTANCE.fromJSON("2021-11-14T15:00:00.000+13:00", false), value.getValue());
 		writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-14T15:00", json.getString("mydate"));
@@ -215,7 +203,7 @@ public class DataProviderDateTest
 		Assert.assertEquals(NGDatePropertyType.NG_INSTANCE.fromJSON("2021-11-14T03:00:00.000+13:00", false), value.getValue());
 		writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-14T03:00", json.getString("mydate"));
@@ -229,7 +217,7 @@ public class DataProviderDateTest
 		Assert.assertEquals(NGDatePropertyType.NG_INSTANCE.fromJSON(THREE_IN_AFTERNOON_PLUS13, false), value.getValue());
 		JSONWriter writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		JSONObject json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-15T15:00+13:00", json.getString("mydate"));
@@ -239,7 +227,7 @@ public class DataProviderDateTest
 		Assert.assertEquals(NGDatePropertyType.NG_INSTANCE.fromJSON(THREE_AT_NIGHT_PLUS13, false), value.getValue());
 		writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-15T03:00+13:00", json.getString("mydate"));
@@ -251,7 +239,7 @@ public class DataProviderDateTest
 		TestDataproviderTypeSabloValue value = createSabloValue(false, THREE_IN_AFTERNOON_PLUS13, "dd-MM-yyy");
 		JSONWriter writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		JSONObject json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-15T15:00+13:00", json.getString("mydate"));
@@ -262,7 +250,7 @@ public class DataProviderDateTest
 
 		writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-16T15:00+13:00", json.getString("mydate"));
@@ -274,7 +262,7 @@ public class DataProviderDateTest
 		TestDataproviderTypeSabloValue value = createSabloValue(false, THREE_IN_AFTERNOON_PLUS13, "dd-MM-yyy");
 		JSONWriter writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		JSONObject json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-15T15:00+13:00", json.getString("mydate"));
@@ -285,7 +273,7 @@ public class DataProviderDateTest
 
 		writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-16T15:00+13:00", json.getString("mydate"));
@@ -297,7 +285,7 @@ public class DataProviderDateTest
 		TestDataproviderTypeSabloValue value = createSabloValue(false, THREE_IN_AFTERNOON_PLUS13, null);
 		JSONWriter writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		JSONObject json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-15T15:00+13:00", json.getString("mydate"));
@@ -309,7 +297,7 @@ public class DataProviderDateTest
 
 		writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-17T03:00+13:00", json.getString("mydate"));
@@ -321,7 +309,7 @@ public class DataProviderDateTest
 		TestDataproviderTypeSabloValue value = createSabloValue(false, THREE_IN_AFTERNOON_PLUS13, null);
 		JSONWriter writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		JSONObject json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-15T15:00+13:00", json.getString("mydate"));
@@ -332,7 +320,7 @@ public class DataProviderDateTest
 
 		writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-16T15:00+13:00", json.getString("mydate"));
@@ -344,7 +332,7 @@ public class DataProviderDateTest
 		TestDataproviderTypeSabloValue value = createSabloValue(false, THREE_AT_NIGHT_PLUS13, "dd-MM-yyy");
 		JSONWriter writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		JSONObject json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-15T03:00+13:00", json.getString("mydate"));
@@ -355,7 +343,7 @@ public class DataProviderDateTest
 
 		writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-16T03:00+13:00", json.getString("mydate"));
@@ -367,7 +355,7 @@ public class DataProviderDateTest
 		TestDataproviderTypeSabloValue value = createSabloValue(false, THREE_AT_NIGHT_PLUS13, "dd-MM-yyy");
 		JSONWriter writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		JSONObject json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-15T03:00+13:00", json.getString("mydate"));
@@ -378,7 +366,7 @@ public class DataProviderDateTest
 
 		writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-16T03:00+13:00", json.getString("mydate"));
@@ -390,7 +378,7 @@ public class DataProviderDateTest
 		TestDataproviderTypeSabloValue value = createSabloValue(false, THREE_AT_NIGHT_PLUS13, "dd-MM-yyy HH:mm");
 		JSONWriter writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		JSONObject json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-15T03:00+13:00", json.getString("mydate"));
@@ -401,7 +389,7 @@ public class DataProviderDateTest
 
 		writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-15T15:00+13:00", json.getString("mydate"));
@@ -413,7 +401,7 @@ public class DataProviderDateTest
 		TestDataproviderTypeSabloValue value = createSabloValue(true, THREE_AT_NIGHT_PLUS13, "dd-MM-yyy HH:mm");
 		JSONWriter writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		JSONObject json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-15T03:00", json.getString("mydate"));
@@ -428,7 +416,7 @@ public class DataProviderDateTest
 
 		writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-15T15:00", json.getString("mydate"));
@@ -440,7 +428,7 @@ public class DataProviderDateTest
 		TestDataproviderTypeSabloValue value = createSabloValue(false, THREE_AT_NIGHT_PLUS13, "HH");
 		JSONWriter writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		JSONObject json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-15T03:00+13:00", json.getString("mydate"));
@@ -451,7 +439,7 @@ public class DataProviderDateTest
 
 		writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-14T15:00+13:00", json.getString("mydate"));
@@ -463,7 +451,7 @@ public class DataProviderDateTest
 		TestDataproviderTypeSabloValue value = createSabloValue(false, THREE_IN_AFTERNOON_PLUS13, "HH");
 		JSONWriter writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		JSONObject json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-15T15:00+13:00", json.getString("mydate"));
@@ -474,7 +462,7 @@ public class DataProviderDateTest
 
 		writer = new JSONStringer();
 		writer.object();
-		value.toJSON(writer, "mydate", new DataConversion(), null);
+		DataproviderPropertyType.INSTANCE.toJSON(writer, "mydate", value, null, null);
 		writer.endObject();
 		json = new JSONObject(writer.toString());
 		Assert.assertEquals("2021-11-16T03:00+13:00", json.getString("mydate"));
@@ -483,6 +471,8 @@ public class DataProviderDateTest
 	private static class TestDataproviderTypeSabloValue extends DataproviderTypeSabloValue
 	{
 
+		private BaseWebObject webObject;
+
 		public TestDataproviderTypeSabloValue(String dataProviderID, IDataAdapterList dataAdapterList, IServoyDataConverterContext servoyDataConverterContext,
 			PropertyDescription dpPD, String format)
 		{
@@ -490,6 +480,20 @@ public class DataProviderDateTest
 			this.typeOfDP = dpPD;
 			if (format != null)
 				this.fieldFormat = ComponentFormat.getComponentFormat(format, IColumnTypes.DATETIME, servoyDataConverterContext.getApplication());
+		}
+
+		@Override
+		public void attachToBaseObject(IChangeListener changeNotifier, IWebObjectContext webObjectCntxt)
+		{
+			webObject = webObjectCntxt.getUnderlyingWebObject();
+			super.attachToBaseObject(changeNotifier, webObjectCntxt);
+		}
+
+		public void checkThatToJSONGenerates(String expectedJSONRepresentation, String expectedType)
+		{
+			IJSONStringWithClientSideType jsonAndType = this.toJSON(new BrowserConverterContext(webObject, PushToServerEnum.reject));
+			Assert.assertEquals(expectedJSONRepresentation, jsonAndType.toJSONString());
+			Assert.assertEquals(expectedType, jsonAndType.getClientSideType().toJSONString());
 		}
 
 		public void setInitialValue(Date date)

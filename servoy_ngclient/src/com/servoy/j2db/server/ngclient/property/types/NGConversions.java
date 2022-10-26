@@ -247,7 +247,7 @@ public class NGConversions
 
 	public static interface IDesignerDefaultWriter
 	{
-		JSONWriter toDesignerDefaultJSONValue(JSONWriter writer, String key, DataConversion dataConversion) throws JSONException;
+		JSONWriter toDesignerDefaultJSONValue(JSONWriter writer, String key) throws JSONException;
 	}
 
 	/**

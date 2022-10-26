@@ -71,7 +71,8 @@ module.exports = function(config) {
             require('@chiragrupani/karma-chromium-edge-launcher'),
             require('karma-coverage'),
             require('karma-junit-reporter'),
-            require('karma-ng-html2js-preprocessor')
+            require('karma-ng-html2js-preprocessor'),
+            require('karma-firefox-launcher')
         ],
 		singleRun: true,
 		//autoWatch : true,
