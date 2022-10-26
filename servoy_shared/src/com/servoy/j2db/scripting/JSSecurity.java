@@ -49,6 +49,7 @@ import com.servoy.j2db.scripting.info.FORMSECURITY;
 import com.servoy.j2db.scripting.info.TABLESECURITY;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -1409,7 +1410,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 			}
 			if (i == groupsDataSet.getRowCount())
 			{
-				Debug.log("Could not log in user for unknown group '" + group + "'"); //$NON-NLS-1$//$NON-NLS-2$
+				Debug.log("Could not log in user for unknown group '" + group + "'", ILogLevel.WARNING); //$NON-NLS-1$//$NON-NLS-2$
 				return false;
 			}
 		}
