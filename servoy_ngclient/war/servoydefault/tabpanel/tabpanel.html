@@ -3,7 +3,7 @@
       <uib-tab-heading  svy-mnemonic='tab.mnemonic'>
       	<img ng-show="tab.imageMediaID"  ng-src='{{tab.imageMediaID}}'/>
         <span svy-background='model.background' svy-foreground='tab.foreground == null ? model.foreground : tab.foreground'
-        	  ng-bind='tab.text'></span>
+        	  ng-bind-html='tab.text| htmlFilter| trustAsHtml:svyServoyapi.trustAsHtml()'></span>
       </uib-tab-heading>
       <div ng-include="getForm(tab)" sablo-tabseq='1' sablo-tabseq-config="{container: true}" ng-style='getTabsHeight()' style="position:absolute;top:40px;left:0;right:0;bottom:0;overflow:auto;"></div>
     </uib-tab>
