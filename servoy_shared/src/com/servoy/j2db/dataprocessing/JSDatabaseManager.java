@@ -3780,6 +3780,30 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
+	 * Enable/disable the automatic prefetching of related foundsets for sibling records.
+	 * <p>
+	 * For example, when orders from a record in a customer foundset are retrieved, already the orders of a few sibling records are also prefetched.
+	 * This is the default behaviour and in most situations this better for performance in user interfaces.
+	 * <p>
+	 * In some situations performance can be better if this property is set to false to prevent queries for data that is never used.
+	 *
+	 * @sample
+	 * databaseManager.disableRelatedSiblingsPrefetch = false; // disable
+	 *
+	 * // test if enabled
+	 * if(databaseManager.disableRelatedSiblingsPrefetch) application.output('prefetching of sibling related foundsets is enabled')
+	 */
+	public boolean js_getDisableRelatedSiblingsPrefetch()
+	{
+		return ((FoundSetManager)application.getFoundSetManager()).isDisableRelatedSiblingsPrefetch();
+	}
+
+	public void js_setDisableRelatedSiblingsPrefetch(boolean disableRelatedSiblingsPrefetch)
+	{
+		((FoundSetManager)application.getFoundSetManager()).setDisableRelatedSiblingsPrefetch(disableRelatedSiblingsPrefetch);
+	}
+
+	/**
 	 * Set autosave, if false then no saves will happen by the ui (not including deletes!).
 	 * Until you call databaseManager.saveData() or setAutoSave(true)
 	 *

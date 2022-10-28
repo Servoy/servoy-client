@@ -617,7 +617,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 					IFoundSetInternal parent = state.getParentFoundSet();
 					int currIndex = parent.getRecordIndex(state);
-					if (currIndex >= 0 && parent instanceof FoundSet)
+					if (!disableRelatedSiblingsPrefetch && currIndex >= 0 && parent instanceof FoundSet)
 					{
 						int relatedChunkSize = config.chunkSize() / 3;
 						Object[] siblingRecords = ((FoundSet)parent).getPksAndRecords().getCachedRecords().toArray(); // take a snapshot of cachedRecords
@@ -2944,6 +2944,18 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public void setNullColumnValidatorEnabled(boolean enable)
 	{
 		nullColumnValidatorEnabled = enable;
+	}
+
+	private boolean disableRelatedSiblingsPrefetch = false;
+
+	public boolean isDisableRelatedSiblingsPrefetch()
+	{
+		return disableRelatedSiblingsPrefetch;
+	}
+
+	public void setDisableRelatedSiblingsPrefetch(boolean disableRelatedSiblingsPrefetch)
+	{
+		this.disableRelatedSiblingsPrefetch = disableRelatedSiblingsPrefetch;
 	}
 
 	public Object[] insertToDataSource(String name, IDataSet dataSet, ColumnType[] columnTypes, WrappedObjectReference<String[]> pkNames, boolean create,
