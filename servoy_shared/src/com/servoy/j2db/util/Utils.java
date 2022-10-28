@@ -16,6 +16,9 @@
  */
 package com.servoy.j2db.util;
 
+import static java.lang.System.arraycopy;
+import static java.lang.reflect.Array.newInstance;
+
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -77,6 +80,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SimpleTimeZone;
 import java.util.StringTokenizer;
+import java.util.function.Function;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -248,23 +252,23 @@ public final class Utils
 		T[] res;
 		if (src == null)
 		{
-			res = (T[])java.lang.reflect.Array.newInstance(toAdd.getClass().getComponentType(), position + n);
-			System.arraycopy(toAdd, 0, res, position, Math.min(toAdd.length, n));
+			res = (T[])newInstance(toAdd.getClass().getComponentType(), position + n);
+			arraycopy(toAdd, 0, res, position, Math.min(toAdd.length, n));
 		}
 		else
 		{
-			res = (T[])java.lang.reflect.Array.newInstance(src.getClass().getComponentType(), Math.max(src.length, position) + n);
+			res = (T[])newInstance(src.getClass().getComponentType(), Math.max(src.length, position) + n);
 			if (position > 0 && src.length > 0)
 			{
-				System.arraycopy(src, 0, res, 0, Math.min(src.length, position));
+				arraycopy(src, 0, res, 0, Math.min(src.length, position));
 			}
 			if (position < src.length)
 			{
-				System.arraycopy(src, position, res, position + n, src.length - position);
+				arraycopy(src, position, res, position + n, src.length - position);
 			}
 			if (toAdd != null)
 			{
-				System.arraycopy(toAdd, 0, res, position, Math.min(toAdd.length, n));
+				arraycopy(toAdd, 0, res, position, Math.min(toAdd.length, n));
 			}
 		}
 		return res;
@@ -304,12 +308,12 @@ public final class Utils
 		T[] res;
 		if (array == null)
 		{
-			res = (T[])java.lang.reflect.Array.newInstance(element == null ? Object.class : element.getClass(), 1);
+			res = (T[])newInstance(element == null ? Object.class : element.getClass(), 1);
 		}
 		else
 		{
-			res = (T[])java.lang.reflect.Array.newInstance(array.getClass().getComponentType(), array.length + 1);
-			System.arraycopy(array, 0, res, append ? 0 : 1, array.length);
+			res = (T[])newInstance(array.getClass().getComponentType(), array.length + 1);
+			arraycopy(array, 0, res, append ? 0 : 1, array.length);
 		}
 		res[append ? res.length - 1 : 0] = element;
 		return res;
@@ -342,13 +346,44 @@ public final class Utils
 		}
 
 		// both arrays filled and lowerArray is longer than upperArray
-		T[] mergedArgs = (T[])java.lang.reflect.Array.newInstance(upperAarray.getClass().getComponentType(), lowerAarray.length);
+		T[] mergedArgs = (T[])newInstance(upperAarray.getClass().getComponentType(), lowerAarray.length);
 
-		System.arraycopy(upperAarray, 0, mergedArgs, 0, upperAarray.length);
-		System.arraycopy(lowerAarray, upperAarray.length, mergedArgs, upperAarray.length, lowerAarray.length - upperAarray.length);
+		arraycopy(upperAarray, 0, mergedArgs, 0, upperAarray.length);
+		arraycopy(lowerAarray, upperAarray.length, mergedArgs, upperAarray.length, lowerAarray.length - upperAarray.length);
 		return mergedArgs;
 	}
 
+	/**
+	 * Map a function to elements of an array, only create a copy if something really changes,
+	 *  otherwise just return the original array.
+	 */
+	public static <T> T[] arrayMap(T[] array, Function<T, T> mapper)
+	{
+		if (array == null || array.length == 0)
+		{
+			return array;
+		}
+
+		T[] mappedArray = null;
+		for (int i = 0; i < array.length; i++)
+		{
+			T wrapped = mapper.apply(array[i]);
+			if (mappedArray != null || wrapped != array[i])
+			{
+				if (mappedArray == null)
+				{
+					mappedArray = (T[])newInstance(array.getClass().getComponentType(), array.length);
+					if (i > 0)
+					{
+						arraycopy(array, 0, mappedArray, 0, i);
+					}
+				}
+				mappedArray[i] = wrapped;
+			}
+		}
+
+		return mappedArray == null ? array : mappedArray;
+	}
 
 	public static <T> List<T> asList(Iterator< ? extends T> it)
 	{
@@ -363,7 +398,7 @@ public final class Utils
 	public static <T> T[] asArray(Iterator< ? extends T> it, Class<T> clazz)
 	{
 		List<T> lst = asList(it);
-		return lst.toArray((T[])java.lang.reflect.Array.newInstance(clazz, lst.size()));
+		return lst.toArray((T[])newInstance(clazz, lst.size()));
 	}
 
 	public static <T> Iterator<T> asSortedIterator(Iterator< ? extends T> it, Comparator< ? super T> comparator)
@@ -393,8 +428,8 @@ public final class Utils
 			throw new IllegalArgumentException("arraySub: " + beginIndex + '>' + endIndex); //$NON-NLS-1$
 		}
 
-		T[] res = (T[])java.lang.reflect.Array.newInstance(array.getClass().getComponentType(), endIndex - beginIndex);
-		System.arraycopy(array, beginIndex, res, 0, endIndex - beginIndex);
+		T[] res = (T[])newInstance(array.getClass().getComponentType(), endIndex - beginIndex);
+		arraycopy(array, beginIndex, res, 0, endIndex - beginIndex);
 		return res;
 	}
 

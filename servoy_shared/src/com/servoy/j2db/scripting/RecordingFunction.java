@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.scripting;
 
+import static com.servoy.j2db.scripting.RecordingCallback.wrapCallbacksIfNeeded;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
@@ -23,25 +25,32 @@ import org.mozilla.javascript.Scriptable;
 /**
  * Function delegate that wraps objects returned from function calls when needed.
  * Used to determine dependencies for calculations.
- * 
+ *
  * @author rgansevles
  *
  */
 public class RecordingFunction extends RecordingScriptable implements Function
 {
-	public RecordingFunction(String functionName, Function function)
+	RecordingFunction(String functionName, Function function)
 	{
 		super(functionName, function);
 	}
 
 	public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 	{
-		return RecordingScriptable.wrapIfNeeded(null, null,
-			((Function)scriptable).call(cx, scope, (Scriptable)RecordingScriptable.unwrapScriptable(thisObj), args));
+		return wrapIfNeeded(null, null,
+			((Function)scriptable).call(cx, scope, (Scriptable)unwrapScriptable(thisObj), wrapCallbacksIfNeeded(args)));
 	}
 
 	public Scriptable construct(Context cx, Scriptable scope, Object[] args)
 	{
 		return ((Function)scriptable).construct(cx, scope, args);
 	}
+
+	static Function wrapFunctionIfNeeded(String functionName, Function function)
+	{
+		if (function == null || function instanceof RecordingFunction) return function;
+		return new RecordingFunction(functionName, function);
+	}
+
 }
