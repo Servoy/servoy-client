@@ -3788,7 +3788,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * In some situations performance can be better if this property is set to false to prevent queries for data that is never used.
 	 *
 	 * @sample
-	 * databaseManager.disableRelatedSiblingsPrefetch = false; // disable
+	 * databaseManager.disableRelatedSiblingsPrefetch = true; // disable
 	 *
 	 * // test if enabled
 	 * if(databaseManager.disableRelatedSiblingsPrefetch) application.output('prefetching of sibling related foundsets is enabled')
