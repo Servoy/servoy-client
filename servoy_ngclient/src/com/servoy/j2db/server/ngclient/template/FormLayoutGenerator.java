@@ -106,6 +106,21 @@ public class FormLayoutGenerator
 		return seq;
 	}
 
+	public static final Comparator<IPersist> FORM_INDEX_WITH_HIERARCHY_AND_TABSEQUENCE_COMPARATOR = new Comparator<IPersist>()
+	{
+		@Override
+		public int compare(IPersist o1, IPersist o2)
+		{
+			int result = FlattenedForm.FORM_INDEX_WITH_HIERARCHY_COMPARATOR.compare((IFormElement)o1, (IFormElement)o2);
+			if (result == 0)
+			{
+				result = TabSeqComparator.compareTabSeq(getTabSeq((IFormElement)o1), o1,
+					getTabSeq((IFormElement)o2), o2);
+			}
+			return result;
+		}
+	};
+
 	public static String generateFormComponent(Form form, FlattenedSolution fs, IFormElementCache cache)
 	{
 		StringWriter out = new StringWriter();
@@ -114,26 +129,15 @@ public class FormLayoutGenerator
 		if (!form.isResponsiveLayout())
 		{
 			List<IPersist> components = fs.getFlattenedForm(form).getAllObjectsAsList();
-			List<IFormElement> formElements = new ArrayList<>();
+			List<IPersist> formElements = new ArrayList<>();
 			for (IPersist persist : components)
 			{
 				if (persist instanceof IFormElement)
 				{
-					formElements.add((IFormElement)persist);
+					formElements.add(persist);
 				}
 			}
-			Collections.sort(formElements, new Comparator<IFormElement>()
-			{
-				public int compare(IFormElement o1, IFormElement o2)
-				{
-					int result = FlattenedForm.FORM_INDEX_WITH_HIERARCHY_COMPARATOR.compare(o1, o2);
-					if (result == 0)
-					{
-						result = TabSeqComparator.compareTabSeq(getTabSeq(o1), o1, getTabSeq(o2), o2);
-					}
-					return result;
-				};
-			});
+			Collections.sort(formElements, FORM_INDEX_WITH_HIERARCHY_AND_TABSEQUENCE_COMPARATOR);
 			componentsIterator = formElements.iterator();
 		}
 		else

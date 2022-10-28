@@ -65,6 +65,7 @@ import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignerDefaultWriter;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
+import com.servoy.j2db.server.ngclient.template.FormLayoutGenerator;
 import com.servoy.j2db.server.ngclient.template.FormLayoutStructureGenerator;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.util.Settings;
@@ -221,12 +222,14 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 							}
 							else
 							{
-								for (FormElement element : fccc.getFormComponentElements())
+								List<IPersist> formElements = fccc.getFormComponentElements().stream().map(element -> element.getPersistIfAvailable())
+									.sorted(FormLayoutGenerator.FORM_INDEX_WITH_HIERARCHY_AND_TABSEQUENCE_COMPARATOR).toList();
+								for (IPersist persistOfElement : formElements)
 								{
-									IFormElement persistOfElement = (IFormElement)element.getPersistIfAvailable();
 									persistOfElement.acceptVisitor(new ChildrenJSONGenerator(writer, context, null, null, null, this.form, false, designer),
-										FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
+										FormLayoutGenerator.FORM_INDEX_WITH_HIERARCHY_AND_TABSEQUENCE_COMPARATOR);
 								}
+
 							}
 							writer.endArray();
 						}
