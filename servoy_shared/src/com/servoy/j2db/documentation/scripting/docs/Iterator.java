@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.documentation.scripting.docs;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
@@ -36,6 +38,7 @@ public class Iterator
 	 *
 	 * @return the next IterableValue
 	 */
+	@JSFunction
 	public IterableValue next()
 	{
 		return null;
