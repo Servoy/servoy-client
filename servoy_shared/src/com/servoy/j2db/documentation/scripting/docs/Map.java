@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.documentation.scripting.docs;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
@@ -87,7 +89,8 @@ public class Map
 	 *
 	 * @param key
 	 */
-	public boolean js_delete(Object key)
+	@JSFunction
+	public boolean delete(Object key)
 	{
 		return true;
 	}
@@ -113,7 +116,7 @@ public class Map
 	 * @param thisArgument
 	 *
 	 */
-	public void js_forEach(Function calback, Object thisArgument)
+	public void js_forEach(Function callback, Object thisArgument)
 	{
 		return;
 	}
