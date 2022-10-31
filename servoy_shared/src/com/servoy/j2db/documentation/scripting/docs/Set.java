@@ -97,7 +97,7 @@ public class Set
 	}
 
 	/**
-	 * returns a decimal code of the char in the string.
+	 * The forEach() method executes a provided function once for each value in the Set object, in insertion order.
 	 *
 	 * @sample set.forEach(function(keyValuePair) {});
 	 *
@@ -111,7 +111,7 @@ public class Set
 	}
 
 	/**
-	 * returns a string that appends the parameter string to the string.
+	 * The has() method returns a boolean indicating whether an element with the specified value exists in a Set object or not.
 	 *
 	 * @sample var containsKey = set.has(key);
 	 *

@@ -108,7 +108,7 @@ public class Map
 	}
 
 	/**
-	 * returns a decimal code of the char in the string.
+	 * The forEach() method executes a provided function once for each value in the Map object, in insertion order.
 	 *
 	 * @sample map.forEach(function(keyValuePair) {});
 	 *
@@ -122,7 +122,7 @@ public class Map
 	}
 
 	/**
-	 * returns a string that appends the parameter string to the string.
+	 * The has() method returns a boolean indicating whether an element with the specified key exists in a Map object or not.
 	 *
 	 * @sample var containsKey = map.has(key);
 	 *
