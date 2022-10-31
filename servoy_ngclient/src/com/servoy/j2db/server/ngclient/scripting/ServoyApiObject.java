@@ -295,6 +295,10 @@ public class ServoyApiObject
 	 * This is similar as calling foundset.js_addFoundSetFilterParam, but the main difference is that this
 	 * works also on related foundsets.
 	 *
+	 * @param foundset The foundset to add the filter param/query to
+	 * @param query The query repesenting the filter
+	 * @param filterName a name given to this foundset filter
+	 *
 	 * @see Foundset.js_addFoundSetFilterParam
 	 */
 	@JSFunction
