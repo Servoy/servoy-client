@@ -126,7 +126,7 @@ public class ScriptEngine implements IScriptSupport
 				cx.setApplicationClassLoader(application.getBeanManager().getClassLoader(), false);
 				cx.setWrapFactory(new ServoyWrapFactory(application));
 
-				String version = application.getSettings().getProperty("servoy.javascript.version"); //$NON-NLS-1$
+				String version = application.getSettings().getProperty("servoy.javascript.version", Integer.toString(Context.VERSION_ES6)); //$NON-NLS-1$
 
 				if (version != null && version.length() > 0)
 				{

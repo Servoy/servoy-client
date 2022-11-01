@@ -16,7 +16,9 @@
  */
 package com.servoy.j2db.scripting;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.mozilla.javascript.Scriptable;
@@ -35,12 +37,14 @@ import com.servoy.j2db.util.ScopesUtils;
 
 /**
  * Keep track of used data when calculating a calculation value.
- * 
+ *
  * @author rgansevles
  *
  */
 public class UsedDataProviderTracker
 {
+	private final static ThreadLocal<List<UsedDataProviderTracker>> recordedThreadLocal = new ThreadLocal<>();
+
 	private final FlattenedSolution flattenedSolution;
 
 	Set<String> usedGlobals = null;
@@ -254,6 +258,43 @@ public class UsedDataProviderTracker
 			usedGlobals = new HashSet<String>();
 		}
 		usedGlobals.add(name);
+	}
+
+	void push()
+	{
+		List<UsedDataProviderTracker> stack = recordedThreadLocal.get();
+		if (stack == null)
+		{
+			stack = new ArrayList<UsedDataProviderTracker>();
+			recordedThreadLocal.set(stack);
+		}
+		stack.add(this);
+	}
+
+	static UsedDataProviderTracker pop()
+	{
+		List<UsedDataProviderTracker> stack = recordedThreadLocal.get();
+		if (stack == null || stack.size() <= 0)
+		{
+			// should never happen
+			throw new IllegalStateException("Cannot pop calculation recording tracker"); //$NON-NLS-1$
+		}
+		UsedDataProviderTracker obj = stack.remove(stack.size() - 1);
+		if (stack.size() == 0)
+		{
+			recordedThreadLocal.remove();
+		}
+		return obj;
+	}
+
+	static UsedDataProviderTracker peek()
+	{
+		List<UsedDataProviderTracker> stack = recordedThreadLocal.get();
+		if (stack != null && stack.size() > 0)
+		{
+			return stack.get(stack.size() - 1);
+		}
+		return null;
 	}
 
 	@Override

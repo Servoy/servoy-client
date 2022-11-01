@@ -29,6 +29,8 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.IServerInternal;
+import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.ITableListener;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.util.DataSourceUtils;
@@ -49,6 +51,7 @@ public class DBDataSourceServer extends DefaultJavaScope implements LazyInitScop
 	private volatile IApplication application;
 
 	private final String serverName;
+	private ITableListener tableListener;
 
 	DBDataSourceServer(IApplication application, String serverName)
 	{
@@ -70,6 +73,31 @@ public class DBDataSourceServer extends DefaultJavaScope implements LazyInitScop
 				{
 					put(tableName, this, new JSDataSource(application, DataSourceUtils.createDBTableDataSource(serverName, tableName)));
 				}
+			}
+			if (server instanceof IServerInternal)
+			{
+				tableListener = new ITableListener.TableListener()
+				{
+					@Override
+					public void tablesRemoved(IServerInternal server, ITable[] tables, boolean deleted)
+					{
+						for (ITable table : tables)
+						{
+							DBDataSourceServer.this.remove(table.getName());
+						}
+					}
+
+					@Override
+					public void tablesAdded(IServerInternal server, String[] tableNames)
+					{
+						for (String tableName : tableNames)
+						{
+							DBDataSourceServer.this.put(tableName, DBDataSourceServer.this,
+								new JSDataSource(application, DataSourceUtils.createDBTableDataSource(serverName, tableName)));
+						}
+					}
+				};
+				((IServerInternal)server).addTableListener(tableListener);
 			}
 		}
 		catch (RemoteException e)
@@ -194,7 +222,23 @@ public class DBDataSourceServer extends DefaultJavaScope implements LazyInitScop
 	@Override
 	public void destroy()
 	{
+		if (tableListener != null && application.getRepository() != null)
+		{
+			try
+			{
+				IServer server = application.getRepository().getServer(serverName);
+				if (server instanceof IServerInternal)
+				{
+					((IServerInternal)server).removeTableListener(tableListener);
+				}
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);
+			}
+		}
 		application = null;
+		tableListener = null;
 		super.destroy();
 	}
 

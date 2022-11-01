@@ -405,7 +405,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			else
 			{
 				map.put("displayValue",
-					dpDisplayValue != null ? TagParser.processTags(displayValue.toString(), dataAdapterListToUse, dataAdapterListToUse.getApplication()) : "");
+					dpDisplayValue != null ? TagParser.processTags(dpDisplayValue.toString(), dataAdapterListToUse, dataAdapterListToUse.getApplication())
+						: "");
 			}
 			array.add(map);
 		}
