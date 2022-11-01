@@ -372,7 +372,8 @@ namespace ngclient.propertyTypes {
 				delete this[foundsetTypeConstants.FOR_FOUNDSET_PROPERTY];
 			}
 			const executeHandler = (handlerName, args, row, name, model) => {		
-				if (uiBlocker.shouldBlockDuplicateEvents(name, model, handlerName, row))
+				const handlerSpec = typesRegistry.getComponentSpecification(this.componentDirectiveName)?.getHandler(handlerName);
+				if ((!handlerSpec || !handlerSpec.ignoreNGBlockDuplicateEvents) && uiBlocker.shouldBlockDuplicateEvents(name, model, handlerName, row))
 				{
 					// reject execution
 					log.info("rejecting duplicate event execution of: " + handlerName + " on " + name + " row " + row);
@@ -380,7 +381,6 @@ namespace ngclient.propertyTypes {
 				}
 				
 				const promiseAndCmsid = sabloService.createDeferedEvent();
-				const handlerSpec = typesRegistry.getComponentSpecification(this.componentDirectiveName)?.getHandler(handlerName);
 				
 				const newargs = sabloUtils.getEventArgs(args, handlerName, handlerSpec); // converts args for being sent to server
 				internalState.requests.push({ handlerExec: {

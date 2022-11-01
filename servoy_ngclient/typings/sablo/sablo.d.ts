@@ -387,7 +387,7 @@ declare namespace sablo {
         getPropertyPushToServer(propertyName:string): IPushToServerEnum;
 
         getPropertyDescriptions(): { [propertyName: string]: IPropertyDescription };
-        getHandler(handlerName:string): IWebObjectFunction;
+        getHandler(handlerName:string): IEventHandler;
         getApiFunction(apiFunctionName:string): IWebObjectFunction;
 
     }
@@ -409,6 +409,14 @@ declare namespace sablo {
 
     }
     
+    /** The type definition with client side conversion types for a handler.  */
+    interface IEventHandler extends IWebObjectFunction {
+
+        /** if the handler is supposed to ignore the blocking of duplicates - when that is enabled via client or ui properties of component */
+        ignoreNGBlockDuplicateEvents?: boolean;
+
+    }
+
     /** The type definition with client side conversion types for a handler or api function.  */
     interface IWebObjectFunction {
 

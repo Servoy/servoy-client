@@ -81,7 +81,7 @@ public class FormElementContext
 
 	public Collection<WebObjectFunctionDefinitionWrapper> getHandlersDefinitions()
 	{
-		return formElement.getHandlersDefinitions();
+		return formElement.getHandlerDefinitions();
 	}
 
 	public FormElement getFormElement()

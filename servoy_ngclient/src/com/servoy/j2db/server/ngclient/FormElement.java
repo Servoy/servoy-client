@@ -646,7 +646,7 @@ public final class FormElement implements INGFormElement
 		return label;
 	}
 
-	public Collection<WebObjectFunctionDefinitionWrapper> getHandlersDefinitions()
+	public Collection<WebObjectFunctionDefinitionWrapper> getHandlerDefinitions()
 	{
 		return getHandlers(true, WebObjectFunctionDefinitionWrapper.class);
 	}
