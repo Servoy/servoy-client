@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 -->
 
-${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$log,$propertyWatchUtils,$applicationService,$q,$templateCache,$compile, $uiBlocker) {
+${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$timeout,$formService,$windowService,$log,$propertyWatchUtils,$applicationService,$q,$templateCache,$compile,$uiBlocker,$typesRegistry,$sabloUtils) {
 	if ($log.debugEnabled) $log.debug("svy * ftl; form '${name}' - scope create: " + $scope.$id);
 
 	var beans = {
@@ -55,11 +55,14 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 	$scope.${part.name}Style = ${part.style};
 	</#list>
 
-	var getExecutor = function(beanName, eventType, ignoreNGBlockDuplicateEvents) {
+	var getExecutor = function(beanName, eventType) {
 		var callExecutor = function(args, rowId) {
 			if ($scope.model && $scope.model[beanName])
 			{
-				if(!ignoreNGBlockDuplicateEvents && $uiBlocker.shouldBlockDuplicateEvents("${name}_" + beanName, $scope.model[beanName], eventType, rowId))
+                const componentSpec = $typesRegistry.getComponentSpecification($sabloUtils.getInDepthProperty(formState, "componentSpecNames", beanName));
+                const handlerSpec = componentSpec?.getHandler(eventType);
+
+				if ((!handlerSpec || !handlerSpec.ignoreNGBlockDuplicateEvents) && $uiBlocker.shouldBlockDuplicateEvents("${name}_" + beanName, $scope.model[beanName], eventType, rowId))
 				{
 					// reject execution
 					console.log("Prevented duplicate  execution of: "+eventType +" on "+beanName);
@@ -122,7 +125,7 @@ ${registerMethod}("${name}", function($scope,$servoyInternal,$sabloApplication,$
 
 	$scope.handlers = {
 	<#list baseComponents as bc>
-		'${bc.name}': {"svy_servoyApi":servoyApi('${bc.name}')<#list bc.handlersDefinitions as handler>,${handler.name}:getExecutor('${bc.name}', '${handler.name}', ${handler.ignoreNGBlockDuplicateEvents?c})</#list>}<#if bc_has_next>,</#if>
+		'${bc.name}': {"svy_servoyApi":servoyApi('${bc.name}')<#list bc.handlers as handler>,${handler}:getExecutor('${bc.name}', '${handler}')</#list>}<#if bc_has_next>,</#if>
 	</#list>
 	}
 

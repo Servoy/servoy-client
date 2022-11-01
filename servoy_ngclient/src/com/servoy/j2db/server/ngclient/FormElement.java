@@ -236,10 +236,8 @@ public final class FormElement implements INGFormElement
 	protected void convertFromPersistPrimitivesToFormElementValues(FlattenedSolution fs, Map<String, PropertyDescription> specProperties,
 		Map<String, WebObjectFunctionDefinition> eventProperties, Map<String, Object> properties, PropertyPath propertyPath)
 	{
-		Iterator<String> keys = properties.keySet().iterator();
-		while (keys.hasNext())
+		for (String key : properties.keySet())
 		{
-			String key = keys.next();
 			Object value = properties.get(key);
 			if (!(value instanceof Number || value instanceof String || value instanceof Byte || value instanceof Character))
 			{
@@ -646,11 +644,6 @@ public final class FormElement implements INGFormElement
 		return label;
 	}
 
-	public Collection<WebObjectFunctionDefinitionWrapper> getHandlerDefinitions()
-	{
-		return getHandlers(true, WebObjectFunctionDefinitionWrapper.class);
-	}
-
 	/**
 	 * returns the handler names that are not private and have a value attached to them.
 	 *
@@ -658,12 +651,12 @@ public final class FormElement implements INGFormElement
 	 */
 	public Collection<String> getHandlers()
 	{
-		return getHandlers(true, String.class);
+		return getHandlers(true);
 	}
 
-	public <T> Collection<T> getHandlers(boolean skipPrivate, Class<T> clazz)
+	public Collection<String> getHandlers(boolean skipPrivate)
 	{
-		List<T> handlers = new ArrayList<>();
+		List<String> handlers = new ArrayList<>();
 		Form mainForm = getForm();
 		if (isFormComponentChild())
 		{
@@ -685,21 +678,20 @@ public final class FormElement implements INGFormElement
 			if (skipPrivate && entry.getValue().isPrivate()) continue;
 			String eventName = entry.getKey();
 			@SuppressWarnings("unchecked")
-			T item = clazz == WebObjectFunctionDefinitionWrapper.class ? (T)new WebObjectFunctionDefinitionWrapper(entry.getValue()) : (T)eventName;
 			Object eventValue = getPropertyValue(eventName);
 			if (eventValue != null && !(eventValue instanceof Integer && (((Integer)eventValue).intValue() == -1 || ((Integer)eventValue).intValue() == 0)))
 			{
-				handlers.add(item);
+				handlers.add(eventName);
 			}
 			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
 				(mainForm.getOnElementFocusGainedMethodID() > 0))
 			{
-				handlers.add(item);
+				handlers.add(eventName);
 			}
 			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
 				(mainForm.getOnElementFocusLostMethodID() > 0))
 			{
-				handlers.add(item);
+				handlers.add(eventName);
 			}
 		}
 		return handlers;
