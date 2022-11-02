@@ -237,7 +237,20 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 					data = data.replaceAll(parts[i],"");
 				}
 			}
-		}		
+		}
+        var formatDecimalSeparatorPos = format.indexOf('\.');
+        if (formatDecimalSeparatorPos > -1) {
+            var dataDecimalSeparatorPos = data.indexOf(numeral.localeData().delimiters.decimal);
+            if( dataDecimalSeparatorPos > -1) {
+                var decimalLen = format.length - formatDecimalSeparatorPos - 1;
+                var adjustedData = data.toString().substring(0, dataDecimalSeparatorPos + 1);
+                var decimal = data.toString().substring(dataDecimalSeparatorPos + 1);
+                if( decimal.length > decimalLen) {
+                    adjustedData += decimal.substring(0, decimalLen);
+                    data = adjustedData;
+                }
+            }
+        }		
 		var ret = numeral(data).value();
 		ret *= multFactor;
 		return ret
