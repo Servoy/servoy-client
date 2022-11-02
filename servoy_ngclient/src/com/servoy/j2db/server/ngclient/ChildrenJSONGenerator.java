@@ -59,6 +59,7 @@ import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.TabPanel;
+import com.servoy.j2db.persistence.TabSeqComparator;
 import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.server.ngclient.FormElementHelper.FormComponentCache;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
@@ -89,6 +90,21 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			if (o1 instanceof IFormElement) return 1;
 			if (o2 instanceof IFormElement) return -1;
 			return o1.getID() - o2.getID();
+		}
+	};
+
+	public static final Comparator<IPersist> FORM_INDEX_WITH_HIERARCHY_AND_TABSEQUENCE_COMPARATOR = new Comparator<IPersist>()
+	{
+		@Override
+		public int compare(IPersist o1, IPersist o2)
+		{
+			int result = FORM_INDEX_WITH_HIERARCHY_COMPARATOR.compare(o1, o2);
+			if (result == 0)
+			{
+				result = TabSeqComparator.compareTabSeq(FormLayoutGenerator.getTabSeq((IFormElement)o1), o1,
+					FormLayoutGenerator.getTabSeq((IFormElement)o2), o2);
+			}
+			return result;
 		}
 	};
 	private final JSONWriter writer;
@@ -223,11 +239,11 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 							else
 							{
 								List<IPersist> formElements = fccc.getFormComponentElements().stream().map(element -> element.getPersistIfAvailable())
-									.sorted(FormLayoutGenerator.FORM_INDEX_WITH_HIERARCHY_AND_TABSEQUENCE_COMPARATOR).toList();
+									.sorted(FORM_INDEX_WITH_HIERARCHY_AND_TABSEQUENCE_COMPARATOR).toList();
 								for (IPersist persistOfElement : formElements)
 								{
 									persistOfElement.acceptVisitor(new ChildrenJSONGenerator(writer, context, null, null, null, this.form, false, designer),
-										FormLayoutGenerator.FORM_INDEX_WITH_HIERARCHY_AND_TABSEQUENCE_COMPARATOR);
+										FORM_INDEX_WITH_HIERARCHY_AND_TABSEQUENCE_COMPARATOR);
 								}
 
 							}
