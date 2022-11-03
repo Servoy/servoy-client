@@ -493,8 +493,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 	function testForNumbersOnly(e, keyChar, vElement, vFindMode, vCheckNumbers, vSvyFormat, skipMaxLength) {
 		if (!vFindMode && vCheckNumbers) {
 			if ($utils.testEnterKey(e) && e.target.tagName.toUpperCase() == 'INPUT') {
-				//do not looses focus, just apply the format and push value
-				$(e.target).change()
+				// enter key is pressed
 			} else if (vSvyFormat.type == "INTEGER") {
 				var currentLanguageNumeralSymbols = numeral.localeData();
 				
