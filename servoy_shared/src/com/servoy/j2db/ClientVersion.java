@@ -28,8 +28,8 @@ public abstract class ClientVersion
 	// these fields are private intentionally, to prevent final class member copy in other classes!
 	private static final int majorVersion = 2022;
 	private static final int middleVersion = 9;
-	private static final int minorVersion = 1;
-	private static final int releaseNumber = 3804;
+	private static final int minorVersion = 2;
+	private static final int releaseNumber = 3805;
 	private static final String versionPostfix = "";
 	private static final boolean lts = false;
 
