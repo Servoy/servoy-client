@@ -146,6 +146,8 @@ public class PerformanceData
 			timingThatEnded.setEndTime();
 			addTiming(timingThatEnded, timingThatEnded.getIntervalTimeMS(),
 				timingThatEnded.getRunningTimeMS(), nrecords);
+			// make sure when this is ended the sub timings are all cleared so they are not all kept in memory (until the last one is done, this can take a while with long running tasks)
+			timingThatEnded.getSubTimings().clear();
 		}
 		return;
 	}
