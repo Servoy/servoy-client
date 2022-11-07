@@ -312,6 +312,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		AngularFormGenerator.writePosition(writer, o, form, webComponent, designer);
 		writer.key("model");
 		writer.object();
+		DataConversion dataConversion = new DataConversion();
 		if (formUI != null)
 		{
 			// there is a existing form, take the current properties from that.
@@ -321,13 +322,12 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				TypedData<Map<String, Object>> templateProperties = fe.propertiesForTemplateJSON();
 				// remove from the templates properties all the properties that are current "live" in the component
 				templateProperties.content.keySet().removeAll(properties.content.keySet());
-				DataConversion dataConversion = new DataConversion();
+
 				// write the template properties that are left
 				JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType, dataConversion,
 					new FormElementContext(fe));
 				// write the actual values
 				webComponent.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, properties, dataConversion);
-				JSONUtils.writeClientConversions(writer, dataConversion);
 			}
 			else
 			{
@@ -336,7 +336,12 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		}
 		else
 		{
-			fe.propertiesAsTemplateJSON(writer, new FormElementContext(fe, context, null), false);
+			TypedData<Map<String, Object>> templateProperties = fe.propertiesForTemplateJSON();
+
+			JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType,
+				dataConversion, new FormElementContext(fe, context, null));
+			if (designer) writer.key("svyVisible").value(fe.isVisible());
+
 			if (designer && Utils.isInheritedFormElement(o, form))
 			{
 				writer.key("svyInheritedElement");
@@ -345,15 +350,14 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		}
 		if (designer)
 		{
-			DataConversion dataConversion = new DataConversion();
 			fe.getWebComponentSpec().getProperties().values().forEach(pd -> {
 				if (pd.getType() instanceof IDesignerDefaultWriter)
 					((IDesignerDefaultWriter)pd.getType()).toDesignerDefaultJSONValue(writer, pd.getName(), dataConversion);
 			});
-			if (!dataConversion.getConversions().isEmpty())
-			{
-				JSONUtils.writeClientConversions(writer, dataConversion);
-			}
+		}
+		if (!dataConversion.getConversions().isEmpty())
+		{
+			JSONUtils.writeClientConversions(writer, dataConversion);
 		}
 		if (o instanceof BaseComponent)
 		{
