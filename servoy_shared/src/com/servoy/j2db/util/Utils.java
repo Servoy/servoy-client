@@ -2625,10 +2625,11 @@ public final class Utils
 			FileInputStream fis = null;
 			try
 			{
-				int length = (int)f.length();
+				long length = f.length();
 				fis = new FileInputStream(f);
 				FileChannel fc = fis.getChannel();
 				if (size > length || size < 0) size = length;
+				if (size > Integer.MAX_VALUE) throw new IllegalArgumentException("Can't read in a file that is bigger than 2GB " + f); //$NON-NLS-1$
 				ByteBuffer bb = ByteBuffer.allocate((int)size);
 				fc.read(bb);
 				bb.rewind();
