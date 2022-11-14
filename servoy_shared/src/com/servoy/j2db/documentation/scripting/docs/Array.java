@@ -24,7 +24,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 /**
  * Dummy class for listing methods for JavaScript types in a manner that
  * suits our documentation generator.
- * 
+ *
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "Array", scriptingName = "Array")
@@ -49,7 +49,7 @@ public class Array
 	 * Get the length of the array.
 	 *
 	 * @sample array.length
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/length
 	 */
 	public Number js_getLength()
@@ -65,7 +65,7 @@ public class Array
 	 * Constructs a new default array
 	 *
 	 * @sample var array = new Array();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array
 	 */
 	public void jsConstructor_Array()
@@ -76,9 +76,9 @@ public class Array
 	 * Constructs a new array with specified size.
 	 *
 	 * @sample var array = new Array(number);
-	 * 
-	 * @param number 
-	 * 
+	 *
+	 * @param number
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array
 	 */
 	public void jsConstructor_Array(Number number)
@@ -87,12 +87,12 @@ public class Array
 
 	/**
 	 * Constructs a new array that contains the given values.
-	 * 
+	 *
 	 * @sample var array = new Array(value1,value2);
-	 * 
+	 *
 	 * @param value1
 	 * @param value2
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array
 	 */
 	public void jsConstructor_Array(Object value1, Object value2)
@@ -102,11 +102,11 @@ public class Array
 	/**
 	 * @clonedesc jsConstructor_Array(Object, Object)
 	 * @sampleas jsConstructor_Array(Object, Object)
-	 * 
+	 *
 	 * @param value1
 	 * @param value2
 	 * @param valueN
-	 * 
+	 *
 	 */
 	public void jsConstructor_Array(Object value1, Object value2, Object valueN)
 	{
@@ -116,9 +116,9 @@ public class Array
 	 * Returns a new array comprised of this array joined with other array(s) and/or value(s).
 	 *
 	 * @sample array.concat();
-	 * 
-	 * @param value1 
-	 *  
+	 *
+	 * @param value1
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/concat
 	 */
 	public Array js_concat(Object value1)
@@ -129,10 +129,10 @@ public class Array
 	/**
 	 * @clonedesc js_concat(Object)
 	 * @sampleas js_concat(Object)
-	 * 
-	 * @param value1 
+	 *
+	 * @param value1
 	 * @param value2
-	 *  
+	 *
 	 */
 	public Array js_concat(Object value1, Object value2)
 	{
@@ -142,13 +142,54 @@ public class Array
 	/**
 	 * @clonedesc js_concat(Object)
 	 * @sampleas js_concat(Object)
-	 * 
-	 * @param value1 
-	 * @param value2 
+	 *
+	 * @param value1
+	 * @param value2
 	 * @param valueN
-	 *  
+	 *
 	 */
 	public Array js_concat(Object value1, Object value2, Object valueN)
+	{
+		return null;
+	}
+
+	/**
+	 *  Shallow copies part of an array to another location in the same array and returns it without modifying its length
+	 *
+	 * @sample array.copyWithin(2);
+	 *
+	 * @param target Zero-based index at which to copy the sequence to. If negative, target will be counted from the end.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/copyWithin
+	 */
+	public Array js_copyWithin(int target)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_copyWithin(int)
+	 * @sampleas js_copyWithin(int)
+	 *
+	 * @param target Zero-based index at which to copy the sequence to. If negative, target will be counted from the end.
+	 * @param start Zero-based index at which to start copying elements from. If negative, start will be counted from the end. If start is omitted, copyWithin will copy from index 0.
+	 *
+	 */
+	public Array js_copyWithin(int target, int start)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_copyWithin(int)
+	 * @sampleas js_copyWithin(int)
+	 *
+	 * @param target Zero-based index at which to copy the sequence to. If negative, target will be counted from the end.
+	 * @param start Zero-based index at which to start copying elements from. If negative, start will be counted from the end. If start is omitted, copyWithin will copy from index 0.
+	 * @param end Zero-based index at which to end copying elements from. copyWithin copies up to but not including end. If negative, end will be counted from the end.
+	 *
+	 */
+	public Array js_copyWithin(int target, int start, int end)
 	{
 		return null;
 	}
@@ -161,11 +202,11 @@ public class Array
 	 * function isNumber(value) { return typeof value == 'number'; }
 	 * var a1 = [1, 2, 3];
 	 * application.output(a1.every(isNumber));
-	 * var a2 = [1, '2', 3]; 
+	 * var a2 = [1, '2', 3];
 	 * application.output(a2.every(isNumber));
 	 *
-	 * @param callback  
-	 * 
+	 * @param callback
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/every
 	 */
 	public Boolean js_every(Function callback)
@@ -177,11 +218,52 @@ public class Array
 	 * @clonedesc js_every(Function)
 	 * @sampleas js_every(Function)
 	 *
-	 * @param callback 
+	 * @param callback
 	 * @param thisObject
-	 * 
+	 *
 	 */
 	public Boolean js_every(Function callback, Array thisObject)
+	{
+		return null;
+	}
+
+	/**
+	 *  Changes all elements in an array to a static value, from a start index (default 0) to an end index (default array.length). It returns the modified array.
+	 *
+	 * @sample array.fill('test');
+	 *
+	 * @param value Value to fill the array with.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/fill
+	 */
+	public Array js_fill(Object value)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_fill(Object)
+	 * @sampleas js_fill(Object)
+	 *
+	 * @param value Value to fill the array with.
+	 * @param start Zero-based index at which to start filling.
+	 *
+	 */
+	public Array js_fill(Object value, int start)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_fill(Object)
+	 * @sampleas js_fill(Object)
+	 *
+	 * @param value Value to fill the array with.
+	 * @param start Zero-based index at which to start filling.
+	 * @param end Zero-based index at which to end filling.
+	 *
+	 */
+	public Array js_fill(Object value, int start, int end)
 	{
 		return null;
 	}
@@ -195,8 +277,8 @@ public class Array
 	 * var a2 = a1.filter(function(item) { return typeof item == 'number'; });
 	 * application.output(a2);
 	 *
-	 * @param callback  
-	 * 
+	 * @param callback
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/filter
 	 */
 	public Array js_filter(Function callback)
@@ -208,9 +290,9 @@ public class Array
 	 * @clonedesc js_filter(Function)
 	 * @sampleas js_filter(Function)
 	 *
-	 * @param callback 
+	 * @param callback
 	 * @param thisObject
-	 * 
+	 *
 	 */
 	public Array js_filter(Function callback, Array thisObject)
 	{
@@ -225,11 +307,11 @@ public class Array
 	 * function printThemOut(element, index, array) {
 	 * 		application.output("a[" + index + "] = " + element);
 	 * }
-	 * var a = ['a', 'b', 'c'];	
+	 * var a = ['a', 'b', 'c'];
 	 * a.forEach(printThemOut);
 	 *
-	 * @param callback  
-	 * 
+	 * @param callback
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/forEach
 	 */
 	public void js_forEach(Function callback)
@@ -240,12 +322,69 @@ public class Array
 	 * @clonedesc js_forEach(Function)
 	 * @sampleas js_forEach(Function)
 	 *
-	 * @param callback 
-	 * @param thisObject 
-	 * 
+	 * @param callback
+	 * @param thisObject
+	 *
 	 */
 	public void js_forEach(Function callback, Object thisObject)
 	{
+	}
+
+	/**
+	 * Creates a new, shallow-copied Array instance from an iterable or array-like object.
+	 *
+	 * @sample
+	 * var a = Array.from([1, 2, 3]);
+	 *
+	 * @param value An iterable or array-like object to convert to an array.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from
+	 */
+	public Array js_from(Object value)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_from(Object)
+	 * @sampleas js_from(Object)
+	 *
+	 * @param value An iterable or array-like object to convert to an array.
+	 * @param mapFunction Map function to call on every element of the array. If provided, every value to be added to the array is first passed through this function, and mapFunction's return value is added to the array instead.
+	 * @param thisObject Value to use as this when executing mapFunction.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/of
+	 */
+	public Array js_from(Object value, Function mapFunction, Object thisObject)
+	{
+		return null;
+	}
+
+	/**
+	 * Determines whether an array includes a certain value among its entries, returning true or false as appropriate.
+	 *
+	 * @sample array.includes('test');
+	 *
+	 * @param searchElement The value to search for.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/includes
+	 */
+	public Boolean js_includes(Object searchElement)
+	{
+		return null;
+	}
+
+	/**
+	 * @clonedesc js_includes(Object)
+	 * @sampleas js_includes(Object)
+	 *
+	 * @param searchElement The value to search for.
+	 * @param start Zero-based index at which to start searching.
+	 *
+	 */
+	public Boolean js_includes(Object searchElement, int start)
+	{
+		return null;
 	}
 
 	/**
@@ -257,8 +396,8 @@ public class Array
 	 * application.output(a.indexOf('b', 2));
 	 * application.output(a.indexOf('z'));
 	 *
-	 * @param searchElement  
-	 * 
+	 * @param searchElement
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/indexOf
 	 */
 	public Number js_indexOf(Object searchElement)
@@ -270,9 +409,9 @@ public class Array
 	 * @clonedesc js_indexOf(Object)
 	 * @sampleas js_indexOf(Object)
 	 *
-	 * @param searchElement 
+	 * @param searchElement
 	 * @param fromIndex
-	 * 
+	 *
 	 */
 	public Number js_indexOf(Object searchElement, Number fromIndex)
 	{
@@ -286,8 +425,8 @@ public class Array
 	 * var words = new Array("limit","lines","finish","complete","In","Out");
 	 * var jwords = words.join(";");
 	 *
-	 * @param delimiter 
-	 * 
+	 * @param delimiter
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/join
 	 */
 	public String js_join(String delimiter)
@@ -304,8 +443,8 @@ public class Array
 	 * application.output(a.lastIndexOf('b', 4));
 	 * application.output(a.lastIndexOf('z'));
 	 *
-	 * @param searchElement  
-	 * 
+	 * @param searchElement
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/lastIndexOf
 	 */
 	public Number js_lastIndexOf(Object searchElement)
@@ -317,9 +456,9 @@ public class Array
 	 * @clonedesc js_lastIndexOf(Object)
 	 * @sampleas js_lastIndexOf(Object)
 	 *
-	 * @param searchElement 
+	 * @param searchElement
 	 * @param fromIndex
-	 * 
+	 *
 	 */
 	public Number js_lastIndexOf(Object searchElement, Number fromIndex)
 	{
@@ -331,12 +470,12 @@ public class Array
 	 * The callback function is invoked with three arguments: the element value, the element index, the array being traversed.
 	 *
 	 * @sample
-	 * var a = ['a', 'b', 'c'];	
-	 * var a2 = a.map(function(item) { return item.toUpperCase(); });	
+	 * var a = ['a', 'b', 'c'];
+	 * var a2 = a.map(function(item) { return item.toUpperCase(); });
 	 * application.output(a2);
 	 *
-	 * @param callback 
-	 * 
+	 * @param callback
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/map
 	 */
 	public Array js_map(Object callback)
@@ -348,11 +487,26 @@ public class Array
 	 * @clonedesc js_map(Object)
 	 * @sampleas js_map(Object)
 	 *
-	 * @param callback 
+	 * @param callback
 	 * @param thisObject
-	 * 
+	 *
 	 */
 	public Array js_map(Object callback, Array thisObject)
+	{
+		return null;
+	}
+
+	/**
+	 * Ccreates a new Array instance from a variable number of arguments.
+	 *
+	 * @sample
+	 * var a = Array.of(1, 2, 3);
+	 *
+	 * @param value
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/of
+	 */
+	public Array js_of(Object... value)
 	{
 		return null;
 	}
@@ -363,7 +517,7 @@ public class Array
 	 * @sample
 	 * var words = new Array("limit","lines","finish","complete","In","Out");
 	 * var lastword = words.pop();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/pop
 	 */
 	public Object js_pop()
@@ -372,14 +526,14 @@ public class Array
 	}
 
 	/**
-	 * Mutates an array by appending the given elements and returning the new length of the array. 
+	 * Mutates an array by appending the given elements and returning the new length of the array.
 	 *
 	 * @sample
 	 * var words = new Array("limit","lines","finish","complete");
 	 * words.push("In","Out");
 	 *
 	 * @param value1
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/push
 	 */
 	public Number js_push(Object value1)
@@ -393,7 +547,7 @@ public class Array
 	 *
 	 * @param value1
 	 * @param value2
-	 * 
+	 *
 	 */
 	public Number js_push(Object value1, Object value2)
 	{
@@ -407,7 +561,7 @@ public class Array
 	 * @param value1
 	 * @param value2
 	 * @param valueN
-	 * 
+	 *
 	 */
 	public Number js_push(Object value1, Object value2, Object valueN)
 	{
@@ -420,7 +574,7 @@ public class Array
 	 * @sample
 	 * var words = new Array("limit","lines","finish","complete","In","Out");
 	 * words.reverse();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/reverse
 	 */
 	public Array js_reverse()
@@ -434,14 +588,14 @@ public class Array
 	 * @sample
 	 * var words = new Array("limit","lines","finish","complete","In","Out");
 	 * words.shift();
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/shift
 	 */
 	public Object js_shift()
 	{
 		return null;
 	}
-	
+
 	/**
 	 * Reduces the array to a single value by executing a provided function for each value of the array (from left-to-right).
 	 *
@@ -476,8 +630,8 @@ public class Array
 	 * var words = new Array("limit","lines","finish","complete","In","Out");
 	 * var nwords1 = words.slice(3, 5);
 	 *
-	 * @param begin  
-	 * 
+	 * @param begin
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/slice
 	 */
 	public Array js_slice(Object begin)
@@ -489,9 +643,9 @@ public class Array
 	 * @clonedesc js_slice(Object)
 	 * @sampleas js_slice(Object)
 	 *
-	 * @param begin 
+	 * @param begin
 	 * @param end
-	 * 
+	 *
 	 */
 	public Array js_slice(Object begin, Object end)
 	{
@@ -503,14 +657,14 @@ public class Array
 	 * The callback function is invoked with three arguments: the element value, the element index, the array being traversed.
 	 *
 	 * @sample
-	 * function isNumber(value) { return typeof value == 'number'; }  
-	 * var a1 = [1, 2, 3];    
-	 * application.output(a1.some(isNumber)); 
-	 * var a2 = [1, '2', 3];  
+	 * function isNumber(value) { return typeof value == 'number'; }
+	 * var a1 = [1, 2, 3];
+	 * application.output(a1.some(isNumber));
+	 * var a2 = [1, '2', 3];
 	 * application.output(a2.some(isNumber));
 	 *
-	 * @param callback  
-	 * 
+	 * @param callback
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/some
 	 */
 	public Boolean js_some(Function callback)
@@ -522,9 +676,9 @@ public class Array
 	 * @clonedesc js_some(Function)
 	 * @sampleas js_some(Function)
 	 *
-	 * @param callback 
+	 * @param callback
 	 * @param thisObject
-	 * 
+	 *
 	 */
 	public Boolean js_some(Function callback, Array thisObject)
 	{
@@ -536,8 +690,8 @@ public class Array
 	 *
 	 * @sample
 	 * var words = new Array("limit","lines","finish","complete","In","Out");
-	 * words.sort(); 
-	 * 
+	 * words.sort();
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/sort
 	 */
 	public Array js_sort()
@@ -549,8 +703,8 @@ public class Array
 	 * @clonedesc js_sort()
 	 * @sampleas js_sort()
 	 *
-	 * @param function 
-	 * 
+	 * @param function
+	 *
 	 */
 	public Array js_sort(Function function)
 	{
@@ -564,9 +718,9 @@ public class Array
 	 * var words = new Array("limit","lines","finish","complete","In","Out");
 	 * var nwords1 = words.splice(3, 2, "done", "On");
 	 *
-	 * @param arrayIndex 
-	 * @param length 
-	 * 
+	 * @param arrayIndex
+	 * @param length
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/splice
 	 */
 	public Array js_splice(Object arrayIndex, Object length)
@@ -578,10 +732,10 @@ public class Array
 	 * @clonedesc js_splice(Object, Object)
 	 * @sampleas js_splice(Object, Object)
 	 *
-	 * @param arrayIndex 
-	 * @param length 
+	 * @param arrayIndex
+	 * @param length
 	 * @param value1
-	 * 
+	 *
 	 */
 	public Array js_splice(Object arrayIndex, Object length, Object value1)
 	{
@@ -592,11 +746,11 @@ public class Array
 	 * @clonedesc js_splice(Object, Object)
 	 * @sampleas js_splice(Object, Object)
 	 *
-	 * @param arrayIndex 
-	 * @param length 
+	 * @param arrayIndex
+	 * @param length
 	 * @param value1
 	 * @param value2
-	 * 
+	 *
 	 */
 	public Array js_splice(Object arrayIndex, Object length, Object value1, Object value2)
 	{
@@ -607,12 +761,12 @@ public class Array
 	 * @clonedesc js_splice(Object, Object)
 	 * @sampleas js_splice(Object, Object)
 	 *
-	 * @param arrayIndex 
-	 * @param length 
+	 * @param arrayIndex
+	 * @param length
 	 * @param value1
 	 * @param value2
 	 * @param valueN
-	 * 
+	 *
 	 */
 	public Array js_splice(Object arrayIndex, Object length, Object value1, Object value2, Object valueN)
 	{
@@ -626,10 +780,10 @@ public class Array
 	 * var words = new Array("finish","complete","In","Out");
 	 * words.unshift("limit","lines");
 	 *
-	 * @param value1 
-	 * @param value2 
-	 * @param valueN 
-	 * 
+	 * @param value1
+	 * @param value2
+	 * @param valueN
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/unshift
 	 */
 	public Number js_unshift(Object value1, Object value2, Object valueN)
@@ -644,9 +798,9 @@ public class Array
 	 * var a = [1, 2, 3];
 	 * application.output(Array.isArray(a)); //prints true
 	 * application.output(Array.isArray(23)); //prints false
-	 * 
+	 *
 	 * @param obj
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/isArray
 	 */
 	public Boolean js_isArray(Object obj)
