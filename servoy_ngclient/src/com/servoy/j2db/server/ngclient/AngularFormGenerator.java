@@ -67,11 +67,6 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 	private final boolean isDesigner;
 	private final LayoutContainer zoomedInContainer;
 
-	/**
-	 * @param client
-	 * @param form
-	 * @param realFormName
-	 */
 	public AngularFormGenerator(NGClient client, Form form, String realFormName, boolean isDesigner)
 	{
 		this.client = client;
@@ -216,13 +211,13 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 			if (zoomedInContainer != null)
 			{
 				zoomedInContainer.acceptVisitor(new ChildrenJSONGenerator(writer,
-					getAContext(), form, null,
+					servoyDataConverterContext, form, null,
 					null, form, true, isDesigner), PositionComparator.XY_PERSIST_COMPARATOR);
 			}
 			else
 			{
 				form.acceptVisitor(new ChildrenJSONGenerator(writer,
-					getAContext(), form, null,
+					servoyDataConverterContext, form, null,
 					null, form, true, isDesigner), PositionComparator.XY_PERSIST_COMPARATOR);
 			}
 
@@ -308,11 +303,6 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		return stringWriter.toString();
 	}
 
-
-	/**
-	 * @param writer
-	 * @param o
-	 */
 	@SuppressWarnings("nls")
 	public static void writePosition(JSONWriter writer, IPersist o, Form form, WebFormComponent webComponent, boolean isDesigner)
 	{
@@ -417,13 +407,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		}
 	}
 
-	/**
-	 * @param writer
-	 * @param o
-	 * @param form
-	 * @param isDesigner
-	 * @param position
-	 */
+	@SuppressWarnings("nls")
 	public static void writeCSSPosition(JSONWriter writer, ISupportCSSPosition o, Form form, boolean isDesigner, CSSPosition position)
 	{
 		writer.key("position");
@@ -512,4 +496,5 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 	{
 		return false;
 	}
+
 }

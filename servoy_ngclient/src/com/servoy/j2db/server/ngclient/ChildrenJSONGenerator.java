@@ -37,7 +37,6 @@ import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.TypedData;
-import org.sablo.websocket.impl.ClientService;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
@@ -100,11 +99,6 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 	private final boolean designer;
 	private static final String TAG_DIRECT_EDIT = "directEdit";
 
-	/**
-	 * @param writer
-	 * @param client
-	 * @param cachedFormController
-	 */
 	public ChildrenJSONGenerator(JSONWriter writer, ServoyDataConverterContext context, Object skip, IFormElementCache cache, Part part, Form form,
 		boolean mainFormGeneration, boolean designer)
 	{
@@ -273,7 +267,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		writer.key("name");
 		String name = designer ? fe.getDesignId() : fe.getName();
 		writer.value(name);
-		writer.key("type");
+		writer.key("specName");
 		if (o instanceof TabPanel)
 		{
 			// special support for TabPanel so that we have a specific tabpanel,tablesspanel,accordion and splitpane
@@ -283,12 +277,12 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			else if (orient == TabPanel.ACCORDION_PANEL) type = "servoydefault-accordion";
 			else if (orient == TabPanel.HIDE || (orient == TabPanel.DEFAULT_ORIENTATION && ((TabPanel)o).hasOneTab()))
 				type = "servoydefault-tablesspanel";
-			writer.value(ClientService.convertToJSName(type));
+			writer.value(type);
 		}
 		else
 		{
 			// hack for now to map it to the types that we know are there, so that we can test responsive without really already having to have bootstrap components.
-			writer.value(ClientService.convertToJSName(FormTemplateGenerator.getComponentTypeName((IFormElement)o)));
+			writer.value(FormTemplateGenerator.getComponentTypeName((IFormElement)o));
 		}
 		WebFormComponent webComponent = (formUI != null) ? formUI.getWebComponent(fe.getName()) : null;
 
@@ -551,4 +545,5 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		}
 		return null;
 	}
+
 }
