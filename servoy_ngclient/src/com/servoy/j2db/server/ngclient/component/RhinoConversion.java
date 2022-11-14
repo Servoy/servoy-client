@@ -42,6 +42,7 @@ import org.sablo.specification.PropertyDescription;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
+import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyJSONObject;
@@ -130,6 +131,10 @@ public class RhinoConversion
 		if (propertyValue instanceof CharSequence)
 		{
 			return propertyValue.toString();
+		}
+		if (propertyValue instanceof RelatedFoundSet)
+		{
+			return ((RelatedFoundSet)propertyValue).getRelationName();
 		}
 		return propertyValue;
 	}

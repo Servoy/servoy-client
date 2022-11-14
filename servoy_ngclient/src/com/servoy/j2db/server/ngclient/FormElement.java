@@ -785,6 +785,12 @@ public final class FormElement implements INGFormElement
 		return null;
 	}
 
+
+	public boolean isVisible()
+	{
+		return isVisible;
+	}
+
 	@Override
 	public String toString()
 	{

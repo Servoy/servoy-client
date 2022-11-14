@@ -406,8 +406,15 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 					initialPreferredViewPortSize = Utils.getAsInteger(obj.get(FoundsetPropertyTypeConfig.INITIAL_PREFERRED_VIEWPORT_SIZE, obj));
 				if (obj.has(FoundsetPropertyTypeConfig.SEND_SELECTION_VIEWPORT_INITIALLY, obj))
 					sendSelectionViewportInitially = Utils.getAsBoolean(obj.get(FoundsetPropertyTypeConfig.SEND_SELECTION_VIEWPORT_INITIALLY, obj));
-				if (obj.has(FoundsetPropertyTypeConfig.FOUNDSET_DEFINITION_LISTENER, obj))
-					foundsetDefinitionListener = Utils.getAsBoolean(obj.get(FoundsetPropertyTypeConfig.FOUNDSET_DEFINITION_LISTENER, obj));
+				if (previousComponentValue != null)
+				{
+					foundsetDefinitionListener = previousComponentValue.getSpecFoundsetDefinitionListener();
+				}
+				else
+				{
+					// should not happen, we should always use value from spec
+					foundsetDefinitionListener = FoundsetPropertyTypeConfig.DEFAULT_FOUNDSET_DEFINITION_LISTENER;
+				}
 			}
 		}
 		else if (rhinoValue instanceof IFoundSetInternal)

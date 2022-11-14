@@ -808,11 +808,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 	private <KT, VT> KT getKeyForValue(Map<KT, VT> map, VT value)
 	{
-		// TODO should we keep the maps that use this method hashed both ways? would that improve performance a lot by avoiding this reverse lookup?
-		Iterator<Entry<KT, VT>> it = map.entrySet().iterator();
-		while (it.hasNext())
+		for (Entry<KT, VT> entry : map.entrySet())
 		{
-			Entry<KT, VT> entry = it.next();
 			if (Utils.equalObjects(value, entry.getValue()))
 			{
 				return entry.getKey();
@@ -824,13 +821,10 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	protected void populateRowData(IRecordInternal record, Set<String> columnNames, JSONWriter w, IBrowserConverterContext browserConverterContext,
 		ViewportClientSideTypes types) throws JSONException
 	{
-		Iterator<Entry<String, String>> it = dataproviders.entrySet().iterator();
-
 		List<Pair<String/* forColumn */, JSONString/* type */>> typesOfColumns = null;
 
-		while (it.hasNext())
+		for (Entry<String, String> entry : dataproviders.entrySet())
 		{
-			Entry<String, String> entry = it.next();
 			String dataProvider = entry.getValue();
 			if (columnNames == null || columnNames.contains(dataProvider))
 			{
@@ -1355,10 +1349,9 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		// allowEditTag is either a String or an array of Strings representing 'blocked by' property name(s) that should not block the given property (the spec makes specific exceptions in the property itself for the other props. that should not block it)
 		if (allowEditTag instanceof JSONArray)
 		{
-			Iterator<Object> iterator = ((JSONArray)allowEditTag).iterator();
-			while (iterator.hasNext())
+			for (Object element : ((JSONArray)allowEditTag))
 			{
-				if (iterator.next().equals(propertyTypeName))
+				if (element.equals(propertyTypeName))
 				{
 					hasAllowAccessForEnabled = true;
 					break;
@@ -1383,4 +1376,12 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		return foundset;
 	}
 
+	public boolean getSpecFoundsetDefinitionListener()
+	{
+		if (this.specConfig != null)
+		{
+			return this.specConfig.foundsetDefinitionListener;
+		}
+		return FoundsetPropertyTypeConfig.DEFAULT_FOUNDSET_DEFINITION_LISTENER;
+	}
 }

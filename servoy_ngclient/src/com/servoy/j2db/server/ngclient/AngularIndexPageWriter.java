@@ -388,6 +388,7 @@ public class AngularIndexPageWriter
 		setDirectiveOverride(contentSecurityPolicyConfig, "style-src", settings);
 		setDirectiveOverride(contentSecurityPolicyConfig, "img-src", settings);
 		setDirectiveOverride(contentSecurityPolicyConfig, "font-src", settings);
+		setDirectiveOverride(contentSecurityPolicyConfig, "form-action", settings);
 
 		return contentSecurityPolicyConfig;
 
