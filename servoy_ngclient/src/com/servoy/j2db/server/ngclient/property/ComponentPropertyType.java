@@ -49,6 +49,7 @@ import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.WebObjectFunctionDefinitionWrapper;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.server.ngclient.property.types.II18NPropertyType;
@@ -275,12 +276,13 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		}
 
 		writer.key("handlers").object();
-		for (String handleMethodName : componentFormElementContext.getFormElement().getHandlers())
+		for (WebObjectFunctionDefinitionWrapper handlerDef : componentFormElementContext.getFormElement().getHandlersDefinitions())
 		{
-			writer.key(handleMethodName);
+			writer.key(handlerDef.getName());
 			JSONObject handlerInfo = new JSONObject();
 			handlerInfo.put("formName", componentFormElementContext.getFormElement().getForm().getName());
 			handlerInfo.put("beanName", componentFormElementContext.getName());
+			handlerInfo.put("ignoreNGBlockDuplicateEvents", handlerDef.getIgnoreNGBlockDuplicateEvents());
 			writer.value(handlerInfo);
 		}
 		writer.endObject();

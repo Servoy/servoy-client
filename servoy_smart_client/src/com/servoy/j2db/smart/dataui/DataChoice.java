@@ -23,7 +23,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -31,7 +30,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
 import java.text.Format;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,8 +94,6 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.editlist.IEditListEditor;
 import com.servoy.j2db.util.editlist.JEditList;
 import com.servoy.j2db.util.model.ComboModelListModelWrapper;
-
-import sun.java2d.SunGraphics2D;
 
 /**
  * Runtime swing radio/check box choice component
@@ -1285,9 +1281,8 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 		super.setVisible(flag);
 		if (labels != null)
 		{
-			for (int i = 0; i < labels.size(); i++)
+			for (ILabel label : labels)
 			{
-				ILabel label = labels.get(i);
 				label.setComponentVisible(flag);
 			}
 		}
@@ -1346,9 +1341,8 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 			enclosedComponent.setEnabled(b);
 			if (labels != null)
 			{
-				for (int i = 0; i < labels.size(); i++)
+				for (ILabel label : labels)
 				{
-					ILabel label = labels.get(i);
 					label.setComponentEnabled(b);
 				}
 			}
@@ -1547,36 +1541,36 @@ public class DataChoice extends EnableScrollPanel implements IDisplayData, IFiel
 	@Override
 	public void paint(Graphics g)
 	{
-		// If we have regular SunGraphics2D object, just forward to superclass.
-		if (g instanceof SunGraphics2D)
-		{
-			super.paint(g);
-		}
-		else
-		{
-			// If we are on Mac OS, we paint first to image buffer and then
-			// to actual graphics. This is because the Aqua L&F on Mac does
-			// not paint properly on graphics object that are not instances
-			// of SunGraphics2D.
-			if (Utils.isAppleMacOS())
-			{
-				// Create buffered image and send it to be painted by superclass.
-				int width = this.getWidth();
-				int height = this.getHeight();
-				BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-				Graphics2D gr1 = (Graphics2D)img.getGraphics().create();
-				super.paint(gr1);
-				gr1.dispose();
-
-				// Paint the image to the graphics that we received.
-				Graphics2D g2d = (Graphics2D)g;
-				g2d.drawRenderedImage(img, null);
-			}
-			// If we are not on Mac OS, just forward to superclass.
-			else
-			{
-				super.paint(g);
-			}
-		}
+//		// If we have regular SunGraphics2D object, just forward to superclass.
+//		if (g instanceof SunGraphics2D)
+//		{
+//			super.paint(g);
+//		}
+//		else
+//		{
+//			// If we are on Mac OS, we paint first to image buffer and then
+//			// to actual graphics. This is because the Aqua L&F on Mac does
+//			// not paint properly on graphics object that are not instances
+//			// of SunGraphics2D.
+//			if (Utils.isAppleMacOS())
+//			{
+//				// Create buffered image and send it to be painted by superclass.
+//				int width = this.getWidth();
+//				int height = this.getHeight();
+//				BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+//				Graphics2D gr1 = (Graphics2D)img.getGraphics().create();
+//				super.paint(gr1);
+//				gr1.dispose();
+//
+//				// Paint the image to the graphics that we received.
+//				Graphics2D g2d = (Graphics2D)g;
+//				g2d.drawRenderedImage(img, null);
+//			}
+//			// If we are not on Mac OS, just forward to superclass.
+//			else
+//			{
+		super.paint(g);
+//			}
+//		}
 	}
 }

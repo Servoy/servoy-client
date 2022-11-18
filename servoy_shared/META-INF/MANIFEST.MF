@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Servoy Shared Plug-in
 Bundle-SymbolicName: servoy_shared;singleton:=true
 Bundle-Version: 2022.12.0.3820_rc
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: Servoy
 Bundle-ClassPath: .,
  lib/annotations-1.0.jar,

@@ -236,10 +236,8 @@ public final class FormElement implements INGFormElement
 	protected void convertFromPersistPrimitivesToFormElementValues(FlattenedSolution fs, Map<String, PropertyDescription> specProperties,
 		Map<String, WebObjectFunctionDefinition> eventProperties, Map<String, Object> properties, PropertyPath propertyPath)
 	{
-		Iterator<String> keys = properties.keySet().iterator();
-		while (keys.hasNext())
+		for (String key : properties.keySet())
 		{
-			String key = keys.next();
 			Object value = properties.get(key);
 			if (!(value instanceof Number || value instanceof String || value instanceof Byte || value instanceof Character))
 			{
@@ -786,6 +784,12 @@ public final class FormElement implements INGFormElement
 			return CSSPositionUtils.getLocation((ISupportBounds)persistImpl.getPersist());
 		}
 		return null;
+	}
+
+
+	public boolean isVisible()
+	{
+		return isVisible;
 	}
 
 	@Override

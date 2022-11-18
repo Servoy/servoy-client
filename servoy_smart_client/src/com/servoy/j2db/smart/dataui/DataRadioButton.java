@@ -23,11 +23,9 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,8 +33,6 @@ import javax.swing.JRadioButton;
 import javax.swing.event.ListDataListener;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.text.Document;
-
-import sun.java2d.SunGraphics2D;
 
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.IApplication;
@@ -62,7 +58,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Runtime swing radio box component
- * 
+ *
  * @author lvostinar
  *
  */
@@ -458,9 +454,8 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 			super.setEnabled(enabled && !readonly);
 			if (labels != null)
 			{
-				for (int i = 0; i < labels.size(); i++)
+				for (ILabel label : labels)
 				{
-					ILabel label = labels.get(i);
 					label.setComponentEnabled(b);
 				}
 			}
@@ -550,9 +545,8 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 		super.setVisible(flag);
 		if (labels != null)
 		{
-			for (int i = 0; i < labels.size(); i++)
+			for (ILabel label : labels)
 			{
-				ILabel label = labels.get(i);
 				label.setComponentVisible(flag);
 			}
 		}
@@ -637,7 +631,7 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 
 	}
 
-	// If component not shown or not added yet 
+	// If component not shown or not added yet
 	// and request focus is called it should wait for the component
 	// to be created.
 	boolean wantFocus = false;
@@ -705,7 +699,7 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 	/**
 	 * If the check-box is linked to a non-null integer table column, it must force null to become 0 (it is normally shown as unchecked for null) so that the
 	 * user does not need to check/uncheck it for save. This tells the check-box if it is linked to an allowNull field or not. By default allowNull = true.
-	 * 
+	 *
 	 * @param allowNull true if it should allow null values for integer data-providers (for unchecked) and false if it should change null value to value 0.
 	 */
 	public void setAllowNull(boolean allowNull)
@@ -721,36 +715,36 @@ public class DataRadioButton extends JRadioButton implements IFieldComponent, ID
 	@Override
 	public void paint(Graphics g)
 	{
-		// If we have regular SunGraphics2D object, just forward to superclass.
-		if (g instanceof SunGraphics2D)
-		{
-			super.paint(g);
-		}
-		else
-		{
-			// If we are on Mac OS, we paint first to image buffer and then
-			// to actual graphics. This is because the Aqua L&F on Mac does
-			// not paint properly on graphics object that are not instances
-			// of SunGraphics2D.
-			if (Utils.isAppleMacOS())
-			{
-				// Create buffered image and send it to be painted by superclass.
-				int width = this.getWidth();
-				int height = this.getHeight();
-				BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-				Graphics2D gr1 = (Graphics2D)img.getGraphics().create();
-				super.paint(gr1);
-				gr1.dispose();
-
-				// Paint the image to the graphics that we received.
-				Graphics2D g2d = (Graphics2D)g;
-				g2d.drawRenderedImage(img, null);
-			}
-			// If we are not on Mac OS, just forward to superclass.
-			else
-			{
-				super.paint(g);
-			}
-		}
+//		// If we have regular SunGraphics2D object, just forward to superclass.
+//		if (g instanceof SunGraphics2D)
+//		{
+//			super.paint(g);
+//		}
+//		else
+//		{
+//			// If we are on Mac OS, we paint first to image buffer and then
+//			// to actual graphics. This is because the Aqua L&F on Mac does
+//			// not paint properly on graphics object that are not instances
+//			// of SunGraphics2D.
+//			if (Utils.isAppleMacOS())
+//			{
+//				// Create buffered image and send it to be painted by superclass.
+//				int width = this.getWidth();
+//				int height = this.getHeight();
+//				BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+//				Graphics2D gr1 = (Graphics2D)img.getGraphics().create();
+//				super.paint(gr1);
+//				gr1.dispose();
+//
+//				// Paint the image to the graphics that we received.
+//				Graphics2D g2d = (Graphics2D)g;
+//				g2d.drawRenderedImage(img, null);
+//			}
+//			// If we are not on Mac OS, just forward to superclass.
+//			else
+//			{
+		super.paint(g);
+//			}
+//		}
 	}
 }

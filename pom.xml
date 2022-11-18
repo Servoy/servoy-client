@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<prerequisites>
-		<maven>3.6.3</maven>
+		<maven>3.8.6</maven>
 	</prerequisites>
 	<artifactId>servoy-client</artifactId>
 	<version>2022.12.0.3820_rc</version>
@@ -11,11 +11,11 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho.version>2.6.0</tycho.version>
-		<rhino.version>1.7.14.s1</rhino.version>
+		<tycho.version>2.7.5</tycho.version>
+		<rhino.version>1.7.14.s3</rhino.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
 	</properties>
 
 	<repositories>

@@ -4394,6 +4394,7 @@ public abstract class BasicFormController
 		 *
 		 * @sample %%prefix%%controller.sortDialog('columnA desc,columnB asc');
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
 		public void js_sortDialog()
 		{
 			checkDestroyed();
@@ -4406,6 +4407,7 @@ public abstract class BasicFormController
 		 *
 		 * @param sortString the specified columns (and sort order)
 		 */
+		@ServoyClientSupport(ng = false, mc = false, wc = false, sc = true)
 		public void js_sortDialog(String sortString)
 		{
 			checkDestroyed();

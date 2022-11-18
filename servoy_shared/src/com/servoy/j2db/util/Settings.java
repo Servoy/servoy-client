@@ -808,16 +808,13 @@ public final class Settings extends SortedProperties
 		this.remove(prefix + (name.length() > 255 ? name.substring(0, 255) : name));
 	}
 
-	public void removeAllUserProperties(String prefix)
+	public void removeAllUserProperties()
 	{
 		Map<Object, Object> userProperties = this.getAsProperties();
 		List<String> userPropertiesToDelete = new ArrayList<>();
 		for (Map.Entry<Object, Object> entry : userProperties.entrySet())
 		{
-			if (((String)entry.getKey()).contains(prefix))
-			{
-				userPropertiesToDelete.add((String)entry.getKey());
-			}
+			userPropertiesToDelete.add((String)entry.getKey());
 		}
 		if (userPropertiesToDelete.size() > 0)
 		{

@@ -2920,6 +2920,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * var options = { myfunction: application.generateBrowserFunction("function(param) { return param + 1 }") };
 	 * elements.component.setOptions(options);
 	 *
+	 * @param functionString The function string of a js function that should be running in the clients browser.
+	 *
 	 * @return An object that can be assignd to a javascript/json object that is send to the client
 	 */
 	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)

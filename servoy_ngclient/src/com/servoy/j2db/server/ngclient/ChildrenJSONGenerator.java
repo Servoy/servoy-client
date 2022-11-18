@@ -59,12 +59,14 @@ import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.TabPanel;
+import com.servoy.j2db.persistence.TabSeqComparator;
 import com.servoy.j2db.persistence.WebComponent;
 import com.servoy.j2db.server.ngclient.FormElementHelper.FormComponentCache;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignerDefaultWriter;
 import com.servoy.j2db.server.ngclient.property.types.PropertyPath;
+import com.servoy.j2db.server.ngclient.template.FormLayoutGenerator;
 import com.servoy.j2db.server.ngclient.template.FormLayoutStructureGenerator;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.util.Settings;
@@ -88,6 +90,21 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			if (o1 instanceof IFormElement) return 1;
 			if (o2 instanceof IFormElement) return -1;
 			return o1.getID() - o2.getID();
+		}
+	};
+
+	public static final Comparator<IPersist> FORM_INDEX_WITH_HIERARCHY_AND_TABSEQUENCE_COMPARATOR = new Comparator<IPersist>()
+	{
+		@Override
+		public int compare(IPersist o1, IPersist o2)
+		{
+			int result = FORM_INDEX_WITH_HIERARCHY_COMPARATOR.compare(o1, o2);
+			if (result == 0)
+			{
+				result = TabSeqComparator.compareTabSeq(FormLayoutGenerator.getTabSeq((IFormElement)o1), o1,
+					FormLayoutGenerator.getTabSeq((IFormElement)o2), o2);
+			}
+			return result;
 		}
 	};
 	private final JSONWriter writer;
@@ -221,12 +238,14 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 							}
 							else
 							{
-								for (FormElement element : fccc.getFormComponentElements())
+								List<IPersist> formElements = fccc.getFormComponentElements().stream().map(element -> element.getPersistIfAvailable())
+									.sorted(FORM_INDEX_WITH_HIERARCHY_AND_TABSEQUENCE_COMPARATOR).toList();
+								for (IPersist persistOfElement : formElements)
 								{
-									IFormElement persistOfElement = (IFormElement)element.getPersistIfAvailable();
 									persistOfElement.acceptVisitor(new ChildrenJSONGenerator(writer, context, null, null, null, this.form, false, designer),
-										FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
+										FORM_INDEX_WITH_HIERARCHY_AND_TABSEQUENCE_COMPARATOR);
 								}
+
 							}
 							writer.endArray();
 						}
@@ -293,6 +312,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		AngularFormGenerator.writePosition(writer, o, form, webComponent, designer);
 		writer.key("model");
 		writer.object();
+		DataConversion dataConversion = new DataConversion();
 		if (formUI != null)
 		{
 			// there is a existing form, take the current properties from that.
@@ -302,13 +322,12 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				TypedData<Map<String, Object>> templateProperties = fe.propertiesForTemplateJSON();
 				// remove from the templates properties all the properties that are current "live" in the component
 				templateProperties.content.keySet().removeAll(properties.content.keySet());
-				DataConversion dataConversion = new DataConversion();
+
 				// write the template properties that are left
 				JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType, dataConversion,
 					new FormElementContext(fe));
 				// write the actual values
 				webComponent.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, properties, dataConversion);
-				JSONUtils.writeClientConversions(writer, dataConversion);
 			}
 			else
 			{
@@ -317,7 +336,12 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		}
 		else
 		{
-			fe.propertiesAsTemplateJSON(writer, new FormElementContext(fe, context, null), false);
+			TypedData<Map<String, Object>> templateProperties = fe.propertiesForTemplateJSON();
+
+			JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType,
+				dataConversion, new FormElementContext(fe, context, null));
+			if (designer) writer.key("svyVisible").value(fe.isVisible());
+
 			if (designer && Utils.isInheritedFormElement(o, form))
 			{
 				writer.key("svyInheritedElement");
@@ -326,15 +350,14 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		}
 		if (designer)
 		{
-			DataConversion dataConversion = new DataConversion();
 			fe.getWebComponentSpec().getProperties().values().forEach(pd -> {
 				if (pd.getType() instanceof IDesignerDefaultWriter)
 					((IDesignerDefaultWriter)pd.getType()).toDesignerDefaultJSONValue(writer, pd.getName(), dataConversion);
 			});
-			if (!dataConversion.getConversions().isEmpty())
-			{
-				JSONUtils.writeClientConversions(writer, dataConversion);
-			}
+		}
+		if (!dataConversion.getConversions().isEmpty())
+		{
+			JSONUtils.writeClientConversions(writer, dataConversion);
 		}
 		if (o instanceof BaseComponent)
 		{

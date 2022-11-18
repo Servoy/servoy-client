@@ -53,7 +53,7 @@ public class TableScope extends LazyCompilationScope
 		super(parent, engine, scriptLookup);
 		this.table = (Table)table;
 		this.solution = solution;
-		setFunctionParentScriptable(RecordingScriptable.wrapIfNeeded(null, this));
+		setFunctionParentScriptable(new RecordingScriptable(this));
 	}
 
 	@Override
@@ -186,7 +186,7 @@ public class TableScope extends LazyCompilationScope
 			tracker = usedDataProviderTracker.get();
 			if (tracker != null)
 			{
-				((RecordingScriptable)getFunctionParentScriptable()).pushRecordingTracker(tracker);
+				tracker.push();
 				setUsedDataProviderTracker(null);
 			}
 
@@ -202,7 +202,7 @@ public class TableScope extends LazyCompilationScope
 		{
 			if (tracker != null)
 			{
-				((RecordingScriptable)getFunctionParentScriptable()).popRecordingTracker();
+				UsedDataProviderTracker.pop();
 			}
 			callStack.remove(callStackName);
 			if (callStack.size() == 0)
