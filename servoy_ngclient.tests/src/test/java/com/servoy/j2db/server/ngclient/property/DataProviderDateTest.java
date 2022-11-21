@@ -75,6 +75,7 @@ import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.INGFormManager;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.IWebFormController;
+import com.servoy.j2db.server.ngclient.MediaResourcesServlet.MediaInfo;
 import com.servoy.j2db.server.ngclient.NGRuntimeWindowManager;
 import com.servoy.j2db.server.ngclient.ServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
@@ -2010,6 +2011,30 @@ public class DataProviderDateTest
 		public Map<String, String> getClientFunctions()
 		{
 
+			return null;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see com.servoy.j2db.server.ngclient.INGApplication#getMedia(java.lang.String)
+		 */
+		@Override
+		public MediaInfo getMedia(String dynamicID)
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see com.servoy.j2db.server.ngclient.INGApplication#createMediaInfo(byte[])
+		 */
+		@Override
+		public MediaInfo createMediaInfo(byte[] sabloValue)
+		{
+			// TODO Auto-generated method stub
 			return null;
 		}
 

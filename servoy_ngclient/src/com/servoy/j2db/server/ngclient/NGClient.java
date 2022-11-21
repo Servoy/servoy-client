@@ -1,5 +1,7 @@
 package com.servoy.j2db.server.ngclient;
 
+import static com.servoy.j2db.util.UUID.randomUUID;
+
 import java.awt.Dimension;
 import java.awt.print.PageFormat;
 import java.io.IOException;
@@ -17,6 +19,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledExecutorService;
@@ -94,6 +98,7 @@ import com.servoy.j2db.util.AppendingStringBuffer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IGetLastAccessed;
 import com.servoy.j2db.util.IGetStatusLine;
+import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.RendererParentWrapper;
 import com.servoy.j2db.util.SecuritySupport;
@@ -812,6 +817,8 @@ public class NGClient extends AbstractApplication
 		if (isCloseSolution)
 		{
 			getClientFunctions().clear();
+			mediaInfos.values().stream().forEach(info -> info.destroy());
+			mediaInfos.clear();
 			getRuntimeProperties().put(IServiceProvider.RT_VALUELIST_CACHE, null);
 
 			if (args == null || args.length < 1)
@@ -1353,9 +1360,30 @@ public class NGClient extends AbstractApplication
 		}
 	}
 
+	private final ConcurrentMap<String, MediaInfo> mediaInfos = new ConcurrentHashMap<>(3);
+
+	public MediaInfo createMediaInfo(byte[] mediaBytes, String fileName, String contentType, String contentDisposition)
+	{
+		MediaInfo mediaInfo = new MediaInfo(randomUUID().toString(), fileName, contentType == null ? MimeTypes.getContentType(mediaBytes, null) : contentType,
+			contentDisposition, mediaBytes);
+		mediaInfos.put(mediaInfo.getName(), mediaInfo);
+		return mediaInfo;
+	}
+
+	public MediaInfo createMediaInfo(byte[] mediaBytes)
+	{
+		return createMediaInfo(mediaBytes, null, null, null);
+	}
+
+	@Override
+	public MediaInfo getMedia(String dynamicID)
+	{
+		return mediaInfos.get(dynamicID);
+	}
+
 	public String serveResource(String filename, byte[] bs, String mimetype, String contentDisposition)
 	{
-		MediaInfo mediaInfo = MediaResourcesServlet.createMediaInfo(bs, filename, mimetype, contentDisposition);
+		MediaInfo mediaInfo = createMediaInfo(bs, filename, mimetype, contentDisposition);
 		return mediaInfo.getURL(getWebsocketSession().getSessionKey().getClientnr());
 	}
 

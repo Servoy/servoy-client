@@ -225,7 +225,7 @@ public class ServoyApiObject
 	@JSFunction
 	public String getMediaUrl(byte[] bytes)
 	{
-		MediaResourcesServlet.MediaInfo mediaInfo = MediaResourcesServlet.createMediaInfo(bytes);
+		MediaResourcesServlet.MediaInfo mediaInfo = app.createMediaInfo(bytes);
 		return mediaInfo.getURL(app.getWebsocketSession().getSessionKey().getClientnr());
 	}
 
