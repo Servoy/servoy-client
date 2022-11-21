@@ -26,7 +26,6 @@ import java.util.Set;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.Symbol;
-import org.mozilla.javascript.SymbolKey;
 import org.mozilla.javascript.SymbolScriptable;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
@@ -359,17 +358,15 @@ public final class RhinoMapOrArrayWrapper implements Scriptable, SymbolScriptabl
 	@Override
 	public Object get(Symbol key, Scriptable start)
 	{
-		if (SymbolKey.IS_CONCAT_SPREADABLE.equals(key))
-		{
-			return Boolean.TRUE;
-		}
+		// let our proto handle it
 		return Scriptable.NOT_FOUND;
 	}
 
 	@Override
 	public boolean has(Symbol key, Scriptable start)
 	{
-		return SymbolKey.IS_CONCAT_SPREADABLE.equals(key);
+		// let our proto handle it
+		return false;
 	}
 
 	@Override
