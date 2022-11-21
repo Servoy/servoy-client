@@ -247,10 +247,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				if (dataSource == null)
 				{
-					Iterator<RowManager> it = rowManagers.values().iterator();
-					while (it.hasNext())
+					for (RowManager element : rowManagers.values())
 					{
-						RowManager element = it.next();
 						element.flushAllCachedRows();
 						fireTableEvent(element.getSQLSheet().getTable());
 					}
@@ -1635,11 +1633,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		List<TableFilter> serverFilters = tableFilterParams.get(serverName);
 		if (serverFilters == null) return false;
 
-		Iterator<TableFilter> serverFiltersIte = serverFilters.iterator();
 		TableFilter tableFilter;
-		while (serverFiltersIte.hasNext())
+		for (TableFilter serverFilter : serverFilters)
 		{
-			tableFilter = serverFiltersIte.next();
+			tableFilter = serverFilter;
 			if (tableName.equals(tableFilter.getTableName())) return true;
 		}
 
@@ -2030,7 +2027,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 			catch (ServoyException e)
 			{
-				Debug.error(e);
+				if (DataSourceUtils.getViewDataSourceName(t.getDataSource()) != null)
+				{
+					Debug.debug(e);
+				}
+				else
+				{
+					Debug.error(e);
+				}
 			}
 		}
 		return list;
@@ -2715,10 +2719,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	 */
 	public void clearAllDeleteSets()
 	{
-		Iterator<RowManager> it = rowManagers.values().iterator();
-		while (it.hasNext())
+		for (RowManager element : rowManagers.values())
 		{
-			it.next().clearDeleteSet();
+			element.clearDeleteSet();
 		}
 
 	}
