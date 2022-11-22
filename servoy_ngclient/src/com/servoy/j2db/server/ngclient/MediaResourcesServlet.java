@@ -17,8 +17,6 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import static com.servoy.j2db.util.UUID.randomUUID;
-
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
@@ -27,9 +25,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -100,33 +96,6 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 	public static final String DYNAMIC_DATA_ACCESS = "dynamic";
 
 	private static File tempDir;
-	private static final ConcurrentHashMap<String, MediaInfo> dynamicMediasMap = new ConcurrentHashMap<>();
-
-	public static MediaInfo createMediaInfo(byte[] mediaBytes, String fileName, String contentType, String contentDisposition)
-	{
-		MediaInfo mediaInfo = new MediaInfo(randomUUID().toString(), fileName, contentType == null ? MimeTypes.getContentType(mediaBytes, null) : contentType,
-			contentDisposition, mediaBytes);
-		dynamicMediasMap.put(mediaInfo.getName(), mediaInfo);
-		return mediaInfo;
-	}
-
-	public static MediaInfo createMediaInfo(byte[] mediaBytes)
-	{
-		return createMediaInfo(mediaBytes, null, null, null);
-	}
-
-	private static void cleanupDynamicMediasMap(boolean forceAll)
-	{
-		long now = System.currentTimeMillis();
-		for (MediaInfo mediaInfo : dynamicMediasMap.values())
-		{
-			if (forceAll || now - mediaInfo.getLastAccessedTimeStamp() > 3600000)
-			{
-				mediaInfo.destroy();
-				dynamicMediasMap.remove(mediaInfo.getName());
-			}
-		}
-	}
 
 	@Override
 	public void init(ServletConfig context) throws ServletException
@@ -153,7 +122,6 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 	public void destroy()
 	{
 		super.destroy();
-		cleanupDynamicMediasMap(true);
 		if (tempDir != null)
 		{
 			deleteAll(tempDir);
@@ -227,14 +195,18 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 
 	private boolean sendDynamicData(HttpServletRequest request, HttpServletResponse response, String dynamicID, int clientnr) throws IOException
 	{
-		if (getSession(request, clientnr) != null && dynamicMediasMap.containsKey(dynamicID))
+		INGClientWebsocketSession session = getSession(request, clientnr);
+		if (session != null)
 		{
-			MediaInfo mediaInfo = dynamicMediasMap.get(dynamicID);
-			mediaInfo.touch();
-			cleanupDynamicMediasMap(false);
-			if (HTTPUtils.checkAndSetUnmodified(request, response, mediaInfo.getLastModifiedTimeStamp())) return true;
+			MediaInfo mediaInfo = session.getClient().getMedia(dynamicID);
+			if (mediaInfo != null)
+			{
+				mediaInfo.touch();
+				if (HTTPUtils.checkAndSetUnmodified(request, response, mediaInfo.getLastModifiedTimeStamp())) return true;
 
-			return sendData(response, mediaInfo.getData(), mediaInfo.getContentType(), mediaInfo.getFileName(), mediaInfo.getContentDisposition());
+				return sendData(response, mediaInfo.getData(), mediaInfo.getContentType(), mediaInfo.getFileName(), mediaInfo.getContentDisposition());
+			}
+
 		}
 
 		return false;
@@ -418,12 +390,10 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 						upload.setHeaderEncoding(reqEncoding);
 						long maxUpload = Utils.getAsLong(settings.getProperty("servoy.webclient.maxuploadsize", "0"), false);
 						if (maxUpload > 0) upload.setFileSizeMax(maxUpload * 1000);
-						Iterator<FileItem> iterator = upload.parseRequest(req).iterator();
 						final List<FileUploadData> aFileUploadData = new ArrayList<FileUploadData>();
 						List<FileItem> formFields = new ArrayList<>();
-						while (iterator.hasNext())
+						for (FileItem item : upload.parseRequest(req))
 						{
-							FileItem item = iterator.next();
 							if (item.isFormField())
 							{
 								formFields.add(item);

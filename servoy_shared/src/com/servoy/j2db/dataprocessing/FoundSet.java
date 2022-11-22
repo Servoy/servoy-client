@@ -5532,16 +5532,19 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	String getSerializedQuery()
 	{
 		QuerySelect currentQuery = pksAndRecords.getQuerySelectForReading();
-		String serverName = DataSourceUtils.getDataSourceServerName(getDataSource());
-		ArrayList<TableFilter> tableFilterParams = fsm.getTableFilterParams(serverName, currentQuery);
-		try
-		{
-			QuerySet qs = fsm.getDataServer().getSQLQuerySet(serverName, currentQuery, tableFilterParams, 0, -1, true, true);
-			return qs.getSelect().getSql();
-		}
-		catch (RepositoryException | RemoteException e)
-		{
-			Debug.error("Can't get a serialized state from " + currentQuery, e); //$NON-NLS-1$
+		if (currentQuery != null)
+		{ // this could be find mode
+			String serverName = DataSourceUtils.getDataSourceServerName(getDataSource());
+			ArrayList<TableFilter> tableFilterParams = fsm.getTableFilterParams(serverName, currentQuery);
+			try
+			{
+				QuerySet qs = fsm.getDataServer().getSQLQuerySet(serverName, currentQuery, tableFilterParams, 0, -1, true, true);
+				return qs.getSelect().getSql();
+			}
+			catch (RepositoryException | RemoteException e)
+			{
+				Debug.error("Can't get a serialized state from " + currentQuery, e); //$NON-NLS-1$
+			}
 		}
 		return ""; //$NON-NLS-1$
 	}

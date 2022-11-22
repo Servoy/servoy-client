@@ -33,6 +33,7 @@ import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.ViewFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
@@ -225,7 +226,7 @@ public class ServoyApiObject
 	@JSFunction
 	public String getMediaUrl(byte[] bytes)
 	{
-		MediaResourcesServlet.MediaInfo mediaInfo = MediaResourcesServlet.createMediaInfo(bytes);
+		MediaResourcesServlet.MediaInfo mediaInfo = app.createMediaInfo(bytes);
 		return mediaInfo.getURL(app.getWebsocketSession().getSessionKey().getClientnr());
 	}
 
@@ -249,10 +250,13 @@ public class ServoyApiObject
 			throw new ServoyException(ServoyException.CLIENT_NOT_AUTHORIZED);
 		}
 		List<String> listOfPrimaryKeyNames = new ArrayList<String>();
-		app.getFoundSetManager().getTable(datasource).getRowIdentColumnNames().forEachRemaining(listOfPrimaryKeyNames::add);
+		ITable table = app.getFoundSetManager().getTable(datasource);
+		if (table != null)
+		{
+			table.getRowIdentColumnNames().forEachRemaining(listOfPrimaryKeyNames::add);
+		}
 
 		return listOfPrimaryKeyNames.toArray(new String[0]);
-
 	}
 
 	/**
