@@ -41,6 +41,7 @@ import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportCSSPosition;
 import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.LayoutContainer;
@@ -432,14 +433,15 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		{
 			writer.key("left").value(CSSPositionUtils.getCSSValue(position.left));
 		}
-		if (CSSPositionUtils.isSet(position.top))
+		String top = position.top;
+		String bottom = position.bottom;
+		if (!isDesigner && !Utils.getAsBoolean(((Form)o.getAncestor(IRepository.FORMS)).isFormComponent()))
 		{
-			String top = position.top;
-			if (!isDesigner)
+			Point location = CSSPositionUtils.getLocation(o);
+			Part prt = form.getPartAt(location.y);
+			if (prt != null)
 			{
-				Point location = CSSPositionUtils.getLocation(o);
-				Part prt = form.getPartAt(location.y);
-				if (prt != null)
+				if (CSSPositionUtils.isSet(position.top))
 				{
 					int topStart = form.getPartStartYPos(prt.getID());
 					if (topStart > 0)
@@ -459,12 +461,35 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 						}
 					}
 				}
+				if (CSSPositionUtils.isSet(position.bottom))
+				{
+					int extraHeight = form.getSize().height - prt.getHeight();
+					if (extraHeight > 0)
+					{
+						if (bottom.endsWith("px"))
+						{
+							bottom = bottom.substring(0, bottom.length() - 2);
+						}
+						int bottomInteger = Utils.getAsInteger(bottom, -1);
+						if (bottomInteger != -1)
+						{
+							bottom = String.valueOf(bottomInteger - extraHeight);
+						}
+						else
+						{
+							bottom = "calc(" + bottom + "-" + extraHeight + "px)";
+						}
+					}
+				}
 			}
+		}
+		if (CSSPositionUtils.isSet(position.top))
+		{
 			writer.key("top").value(CSSPositionUtils.getCSSValue(top));
 		}
 		if (CSSPositionUtils.isSet(position.bottom))
 		{
-			writer.key("bottom").value(CSSPositionUtils.getCSSValue(position.bottom));
+			writer.key("bottom").value(CSSPositionUtils.getCSSValue(bottom));
 		}
 		if (CSSPositionUtils.isSet(position.right))
 		{

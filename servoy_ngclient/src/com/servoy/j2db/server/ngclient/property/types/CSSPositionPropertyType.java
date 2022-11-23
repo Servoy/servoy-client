@@ -40,6 +40,7 @@ import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDesignValueConverter;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
@@ -135,7 +136,7 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 			{
 				// adjust the top for parts.
 				IPersist persist = formElement.getPersistIfAvailable();
-				if (persist instanceof BaseComponent)
+				if (persist instanceof BaseComponent && !Utils.getAsBoolean(((Form)persist.getAncestor(IRepository.FORMS)).isFormComponent()))
 				{
 					AbstractContainer parentContainer = CSSPositionUtils.getParentContainer((BaseComponent)persist);
 					Point location = CSSPositionUtils.getLocation(object, parentContainer.getSize());
