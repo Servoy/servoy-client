@@ -32,6 +32,7 @@ public interface IPerformanceRegistry
 
 	public static final int UNLIMITED_ENTRIES = -1;
 	public static final int OFF = 0;
+	public static final int LOGGING_ONLY = -2;
 
 	PerformanceData getPerformanceData(String context);
 
