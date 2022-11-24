@@ -437,7 +437,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		String bottom = position.bottom;
 		if (!isDesigner && !Utils.getAsBoolean(((Form)o.getAncestor(IRepository.FORMS)).isFormComponent()))
 		{
-			Point location = CSSPositionUtils.getLocation(o);
+			Point location = CSSPositionUtils.getLocation(o, form);
 			Part prt = form.getPartAt(location.y);
 			if (prt != null)
 			{

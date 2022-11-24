@@ -198,6 +198,11 @@ public final class CSSPositionUtils
 
 	public static Point getLocation(ISupportBounds persist)
 	{
+		return getLocation(persist, null);
+	}
+
+	public static Point getLocation(ISupportBounds persist, AbstractContainer container)
+	{
 		if (useCSSPosition(persist) && persist instanceof ISupportCSSPosition)
 		{
 			CSSPosition position = ((ISupportCSSPosition)persist).getCssPosition();
@@ -205,7 +210,7 @@ public final class CSSPositionUtils
 			{
 				position = new CSSPosition("0", "-1", "-1", "0", "0", "0");
 			}
-			AbstractContainer container = getParentContainer(persist);
+			if (container == null) container = getParentContainer(persist);
 			return getLocation(position, container.getSize());
 		}
 		return persist.getLocation();

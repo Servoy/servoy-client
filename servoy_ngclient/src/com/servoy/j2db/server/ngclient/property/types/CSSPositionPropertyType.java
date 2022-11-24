@@ -33,7 +33,6 @@ import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.persistence.AbstractContainer;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.CSSPositionUtils;
@@ -138,9 +137,9 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 				IPersist persist = formElement.getPersistIfAvailable();
 				if (persist instanceof BaseComponent && !Utils.getAsBoolean(((Form)persist.getAncestor(IRepository.FORMS)).isFormComponent()))
 				{
-					AbstractContainer parentContainer = CSSPositionUtils.getParentContainer((BaseComponent)persist);
-					Point location = CSSPositionUtils.getLocation(object, parentContainer.getSize());
 					Form form = fs.getFlattenedForm(context);
+					Point location = CSSPositionUtils.getLocation(object, form.getSize());
+
 					Part part = form.getPartAt(location.y);
 					if (part != null)
 					{
