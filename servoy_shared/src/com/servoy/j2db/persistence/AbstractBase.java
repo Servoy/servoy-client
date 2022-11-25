@@ -164,10 +164,8 @@ public abstract class AbstractBase implements IPersist
 			try
 			{
 				startBufferUseForProperties();
-				Iterator<Entry<String, Object>> iterator = newProperties.entrySet().iterator();
-				while (iterator.hasNext())
+				for (Entry<String, Object> next : newProperties.entrySet())
 				{
-					Entry<String, Object> next = iterator.next();
 					Object v = next.getValue();
 					if (v instanceof ServoyJSONObject)
 					{
@@ -817,6 +815,10 @@ public abstract class AbstractBase implements IPersist
 	{
 	};
 
+	public static final RuntimeProperty<Boolean> AClone = new RuntimeProperty<Boolean>()
+	{
+	};
+
 	public static final SerializableRuntimeProperty<HashMap<UUID, Integer>> UUIDToIDMapProperty = new SerializableRuntimeProperty<HashMap<UUID, Integer>>()
 	{
 		private static final long serialVersionUID = 1L;
@@ -863,7 +865,18 @@ public abstract class AbstractBase implements IPersist
 		if (newParent != null) newParent.addChild(cloned);
 		fillClone(cloned);
 		setRuntimeProperty(Cloned, Boolean.TRUE);
+		cloned.setRuntimeProperty(AClone, Boolean.TRUE);
 		return cloned;
+	}
+
+	public boolean isCloned()
+	{
+		return getRuntimeProperty(Cloned) != null && getRuntimeProperty(Cloned).booleanValue();
+	}
+
+	public boolean isAClone()
+	{
+		return getRuntimeProperty(AClone) != null && getRuntimeProperty(AClone).booleanValue();
 	}
 
 	protected void fillClone(AbstractBase cloned)
@@ -925,10 +938,8 @@ public abstract class AbstractBase implements IPersist
 			if (deep && allobjects != null)
 			{
 				clone.allobjects = new CopyOnWriteArrayList<IPersist>();
-				Iterator<IPersist> it = Collections.unmodifiableList(this.allobjects).iterator();
-				while (it.hasNext())
+				for (IPersist element : Collections.unmodifiableList(this.allobjects))
 				{
-					IPersist element = it.next();
 					if (element instanceof IPersistCloneable)
 					{
 						((IPersistCloneable)element).cloneObj((ISupportChilds)clone, deep, validator, changeChildNames, changeChildNames, flattenOverrides);

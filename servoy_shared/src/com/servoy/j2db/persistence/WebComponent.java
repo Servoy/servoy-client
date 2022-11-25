@@ -331,31 +331,6 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		if (cloned instanceof WebComponent)
 			((WebComponent)cloned).webObjectImpl = sabloLoaded ? new WebObjectImpl((WebComponent)cloned) : new WebObjectBasicImpl((WebComponent)cloned);
 		super.fillClone(cloned);
-		if (getRootObject().getChangeHandler() != null)
-		{
-			// we initialize the custom types
-			cloned.acceptVisitor(new IPersistVisitor()
-			{
-				@Override
-				public Object visit(IPersist o)
-				{
-					return IPersistVisitor.CONTINUE_TRAVERSAL;
-				}
-			});
-			// hack for cache, we put back the custom types
-			this.acceptVisitor(new IPersistVisitor()
-			{
-				@Override
-				public Object visit(IPersist o)
-				{
-					if (o instanceof WebCustomType)
-					{
-						getRootObject().getChangeHandler().fireIPersistChanged(o);
-					}
-					return IPersistVisitor.CONTINUE_TRAVERSAL;
-				}
-			});
-		}
 	}
 
 	@Override
