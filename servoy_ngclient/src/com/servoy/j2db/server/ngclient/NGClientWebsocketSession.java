@@ -180,7 +180,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	@Override
 	protected IEventDispatcher createEventDispatcher()
 	{
-		return new NGEventDispatcher(client);
+		return client == null ? null : new NGEventDispatcher(client);
 	}
 
 	@Override
