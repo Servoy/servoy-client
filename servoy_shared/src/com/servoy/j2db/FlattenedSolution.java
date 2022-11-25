@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -161,6 +162,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	private volatile ConcurrentMap<Bean, Object> beanDesignInstances;
 
 	private volatile ISolutionModelPersistIndex index;
+
+	private VariantsHandler variantsHandler;
 
 	/**
 	 * @param cacheFlattenedForms turn flattened form caching on when flushFlattenedFormCache() will also be called.
@@ -563,6 +566,20 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return persistFactory;
 	}
 
+
+	/**
+	 * @return
+	 */
+	public VariantsHandler getVariantsHandler()
+	{
+		if (variantsHandler == null)
+		{
+			variantsHandler = new VariantsHandler(this);
+		}
+		return variantsHandler;
+	}
+
+
 	public Style createStyleCopy(Style style)
 	{
 		if (mainSolution == null && loginFlattenedSolution == null) return null;
@@ -867,10 +884,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	private void combineServerProxies(ConcurrentMap<String, IServer> orgs, ConcurrentMap<String, IServer> additional) throws RemoteException
 	{
-		Iterator<IServer> it = additional.values().iterator();
-		while (it.hasNext())
+		for (IServer addObject : additional.values())
 		{
-			IServer addObject = it.next();
 			IServer orgObject = orgs.get(addObject.getName());
 			if (addObject instanceof ServerProxy)
 			{
@@ -1274,11 +1289,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		{
 			// first add the implicit list to the current list, this has only effect of combineIfExisting is true (false would mean overriden and then it is already adjusted)
 			securityAccess.getRight().addAll(sp.getRight());
-			// then merge or override the flags per element
-			Iterator<Map.Entry<Object, Integer>> iterator = sp.getLeft().entrySet().iterator();
-			while (iterator.hasNext())
+			for (Entry<Object, Integer> entry : sp.getLeft().entrySet())
 			{
-				Map.Entry<Object, Integer> entry = iterator.next();
 				Object elementUID = entry.getKey();
 				int newValue = entry.getValue().intValue();
 				Integer currentValue = securityAccess.getLeft().get(elementUID);
@@ -1568,11 +1580,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		{
 			dataProvidersMap = new HashMap<String, IDataProvider>(16, 0.9f);
 
-			//1) first the columns
-			Iterator<Column> columns = table.getColumns().iterator();
-			while (columns.hasNext())
+			for (Column col : table.getColumns())
 			{
-				Column col = columns.next();
 				ColumnInfo ci = col.getColumnInfo();
 				if (ci != null && ci.isExcluded())
 				{

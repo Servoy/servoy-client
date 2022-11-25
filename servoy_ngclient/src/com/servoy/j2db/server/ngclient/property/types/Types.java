@@ -87,6 +87,7 @@ public class Types
 		TypesRegistry.addType(NGTabSeqPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(RecordPropertyType.INSTANCE);
 		TypesRegistry.addType(FunctionRefType.INSTANCE);
+		TypesRegistry.addType(VariantPropertyType.INSTANCE);
 
 		// TODO allow bean developer through a sort of plug point to contribute these kind of types themselfes
 		TypesRegistry.addType(FoundsetPropertyType.INSTANCE);

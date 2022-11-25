@@ -325,7 +325,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 
 				// write the template properties that are left
 				JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType, dataConversion,
-					new FormElementContext(fe));
+					new FormElementContext(fe, context, null));
 				// write the actual values
 				webComponent.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, properties, dataConversion);
 			}
