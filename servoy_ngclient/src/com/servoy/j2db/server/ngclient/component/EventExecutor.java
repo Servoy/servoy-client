@@ -25,6 +25,7 @@ import org.json.JSONObject;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.WebComponent;
+import org.sablo.specification.IFunctionParameters;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
@@ -149,10 +150,10 @@ public class EventExecutor
 				{
 					// try to convert the received arguments
 					WebObjectFunctionDefinition propertyDesc = component.getSpecification().getHandler(eventType);
-					List<PropertyDescription> parameters = propertyDesc.getParameters();
-					if (i < parameters.size())
+					IFunctionParameters parameters = propertyDesc.getParameters();
+					if (i < parameters.getDefinedArgsCount())
 					{
-						PropertyDescription parameterPropertyDescription = parameters.get(i);
+						PropertyDescription parameterPropertyDescription = parameters.getParameterDefinition(i);
 
 
 						ValueReference<Boolean> returnValueAdjustedIncommingValueForIndex = new ValueReference<Boolean>(Boolean.FALSE);

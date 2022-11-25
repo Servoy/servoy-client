@@ -28,7 +28,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONString;
 import org.sablo.services.server.FormServiceHandler;
-import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.IFunctionParameters;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
@@ -483,7 +483,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 									{
 										// verify if component is accessible due to security options
 										webComponent.checkMethodExecutionSecurityAccess(functionSpec);
-	
+
 										if (!runtimeComponent.getComponent().isVisible() || !form.getController().isFormVisible())
 										{
 											List<String> allowAccessProperties = null;
@@ -495,7 +495,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 													allowAccessProperties = Arrays.asList(allowAccess.split(","));
 												}
 											}
-	
+
 											if (!runtimeComponent.getComponent().isVisible())
 											{
 												boolean allowAccessComponentVisibility = false;
@@ -507,7 +507,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 															runtimeComponent.getComponent().isVisibilityProperty(p);
 													}
 												}
-	
+
 												if (!allowAccessComponentVisibility)
 												{
 													log.warn(
@@ -525,20 +525,20 @@ public class NGFormServiceHandler extends FormServiceHandler
 												}
 											}
 										}
-	
-										List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
-	
+
+										IFunctionParameters argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
+
 										// apply conversion
 										Object[] arrayOfJavaConvertedMethodArgs = new Object[methodArguments.length()];
 										for (int i = 0; i < methodArguments.length(); i++)
 										{
 											arrayOfJavaConvertedMethodArgs[i] = JSONUtils.fromJSON(null, methodArguments.get(i),
-												(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null,
+												(argumentPDs != null && argumentPDs.getDefinedArgsCount() > i) ? argumentPDs.getParameterDefinition(i) : null,
 												new BrowserConverterContext(webComponent, PushToServerEnum.allow), new ValueReference<Boolean>(false));
 										}
-	
+
 										Object retVal = runtimeComponent.executeScopeFunction(functionSpec, arrayOfJavaConvertedMethodArgs);
-	
+
 										if (functionSpec != null && functionSpec.getReturnType() != null)
 										{
 											retVal = new TypedData<Object>(retVal, functionSpec.getReturnType()); // this means that when this return value is sent to client it will be converted to browser JSON correctly - if we give it the type
@@ -549,13 +549,15 @@ public class NGFormServiceHandler extends FormServiceHandler
 								else
 								{
 									log.warn("callServerSideApi for unknown bean '" + args.getString("beanname") + "' of form '" + formName + "'");
-									throw new RuntimeException("callServerSideApi for unknown bean '" + args.getString("beanname") + "' of form '" + formName + "'");
+									throw new RuntimeException(
+										"callServerSideApi for unknown bean '" + args.getString("beanname") + "' of form '" + formName + "'");
 								}
 							}
 							else
 							{
 								log.warn("callServerSideApi for unknown bean '" + args.getString("beanname") + "' of form '" + formName + "'");
-								throw new RuntimeException("callServerSideApi for unknown bean '" + args.getString("beanname") + "' of form '" + formName + "'");
+								throw new RuntimeException(
+									"callServerSideApi for unknown bean '" + args.getString("beanname") + "' of form '" + formName + "'");
 							}
 						}
 						else

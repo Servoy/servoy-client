@@ -25,7 +25,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.jar.JarFile;
@@ -40,6 +39,7 @@ import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.debug.Debugger;
 import org.sablo.BaseWebObject;
 import org.sablo.IWebObjectContext;
+import org.sablo.specification.IFunctionParameters;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
@@ -237,14 +237,14 @@ public class WebServiceScriptable implements Scriptable
 			{
 				// find spec for method
 				IWebObjectContext serviceWebObject = (IWebObjectContext)application.getWebsocketSession().getClientService(serviceSpecification.getName());
-				List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
+				IFunctionParameters argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
 
 				// convert arguments to Rhino
 				Object[] array = new Object[arrayOfSabloJavaMethodArgs.length];
 				for (int i = 0; i < arrayOfSabloJavaMethodArgs.length; i++)
 				{
 					array[i] = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(arrayOfSabloJavaMethodArgs[i],
-						(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null, serviceWebObject, this);
+						(argumentPDs != null && argumentPDs.getDefinedArgsCount() > i) ? argumentPDs.getParameterDefinition(i) : null, serviceWebObject, this);
 				}
 				Object retValue = ((Function)object).call(context, scopeObject, scopeObject, array);
 

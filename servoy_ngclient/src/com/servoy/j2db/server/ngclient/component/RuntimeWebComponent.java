@@ -34,6 +34,7 @@ import org.mozilla.javascript.Scriptable;
 import org.sablo.Container;
 import org.sablo.IEventHandler;
 import org.sablo.WebComponent;
+import org.sablo.specification.IFunctionParameters;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
@@ -193,14 +194,14 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 			try
 			{
 				// find spec for method
-				List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
+				IFunctionParameters argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
 
 				// convert arguments to Rhino
 				Object[] array = new Object[arrayOfSabloJavaMethodArgs.length];
 				for (int i = 0; i < arrayOfSabloJavaMethodArgs.length; i++)
 				{
 					array[i] = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(arrayOfSabloJavaMethodArgs[i],
-						(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null, component, this);
+						(argumentPDs != null && argumentPDs.getDefinedArgsCount() > i) ? argumentPDs.getParameterDefinition(i) : null, component, this);
 				}
 				context.putThreadLocal(SERVER_SIDE_SCRIPT_EXECUTE, Boolean.TRUE);
 				try

@@ -32,7 +32,7 @@ import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
 import org.sablo.WebComponent;
 import org.sablo.eventthread.WebsocketSessionWindows;
-import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.IFunctionParameters;
 import org.sablo.specification.SpecProviderState;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
@@ -1443,14 +1443,14 @@ public class NGClient extends AbstractApplication
 					}
 					else
 					{
-						List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
+						IFunctionParameters argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
 
 						// apply conversion
 						Object[] arrayOfJavaConvertedMethodArgs = new Object[methodArguments.length()];
 						for (int i = 0; i < methodArguments.length(); i++)
 						{
 							arrayOfJavaConvertedMethodArgs[i] = JSONUtils.fromJSON(null, methodArguments.get(i),
-								(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null,
+								(argumentPDs != null && argumentPDs.getDefinedArgsCount() > i) ? argumentPDs.getParameterDefinition(i) : null,
 								new BrowserConverterContext(serviceWebObject, PushToServerEnum.allow), new ValueReference<Boolean>(false));
 						}
 
