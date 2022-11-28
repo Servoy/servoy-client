@@ -48,6 +48,8 @@ import org.sablo.websocket.TypedData;
 import org.sablo.websocket.WebsocketSessionManager;
 import org.sablo.websocket.impl.ClientService;
 import org.sablo.websocket.utils.JSONUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
@@ -1225,9 +1227,12 @@ public class NGClient extends AbstractApplication
 		return runtimeWindowManager;
 	}
 
+	protected static final Logger SHUTDOWNLOGGER = LoggerFactory.getLogger("SHUTDOWNLOGGER"); //$NON-NLS-1$
+
 	@Override
 	public synchronized void shutDown(boolean force)
 	{
+		SHUTDOWNLOGGER.debug("In shutdown for client: " + getWebsocketSession().getSessionKey()); //$NON-NLS-1$
 		super.shutDown(force);
 		if (isShutDown())
 		{

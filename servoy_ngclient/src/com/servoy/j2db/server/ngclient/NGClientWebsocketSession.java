@@ -467,18 +467,22 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	{
 		if (!getClient().isShutDown()) try
 		{
+			SHUTDOWNLOGGER.debug("Shutting down client with id " + getSessionKey()); //$NON-NLS-1$
 			getClient().invokeAndWait(() -> {
 				getClient().shutDown(true);
 			}, 5);
+			SHUTDOWNLOGGER.debug("Client shutdown client with id " + getSessionKey()); //$NON-NLS-1$
 		}
 		catch (TimeoutException e)
 		{
 			if (!getClient().isShutDown())
 			{
+				SHUTDOWNLOGGER.debug("Timeout happend for shutdown client with id " + getSessionKey()); //$NON-NLS-1$
 				// client shutdown timeout, maybe long running tasks.
 				IEventDispatcher dispatcher = executor;
 				if (dispatcher != null)
 				{
+					SHUTDOWNLOGGER.debug("dispatch thread interrupted for and called shutdown again client with id " + getSessionKey()); //$NON-NLS-1$
 					// just try to interrupt the event thread is that is still alive to force an exception.
 					dispatcher.interruptEventThread();
 					// now try again but don't wait for it.
@@ -486,6 +490,14 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						getClient().shutDown(true);
 					});
 				}
+				else
+				{
+					SHUTDOWNLOGGER.debug("no dispatch thread anymore for client with id " + getSessionKey()); //$NON-NLS-1$
+				}
+			}
+			else
+			{
+				SHUTDOWNLOGGER.debug("Client shutdown client with id " + getSessionKey() + " but it was already shutdowned"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 		super.sessionExpired();
