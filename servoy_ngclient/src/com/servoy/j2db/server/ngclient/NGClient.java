@@ -21,6 +21,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -660,6 +661,18 @@ public class NGClient extends AbstractApplication
 	@Override
 	public void invokeAndWait(Runnable r)
 	{
+		try
+		{
+			invokeAndWait(r, -1);
+		}
+		catch (TimeoutException e)
+		{
+			// can be ignored never happens when -1 is passed in.
+		}
+	}
+
+	public void invokeAndWait(Runnable r, long timeoutInMinutes) throws TimeoutException
+	{
 		if (wsSession.getEventDispatcher().isEventDispatchThread())
 		{
 			r.run();
@@ -670,7 +683,11 @@ public class NGClient extends AbstractApplication
 			wsSession.getEventDispatcher().addEvent(future);
 			try
 			{
-				future.get(); // blocking
+				if (timeoutInMinutes > 0)
+				{
+					future.get(timeoutInMinutes, TimeUnit.MINUTES);
+				}
+				else future.get(); // blocking
 			}
 			catch (InterruptedException | RuntimeException e) // RuntimeException includes CancellationException as well
 			{

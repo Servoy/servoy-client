@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import org.json.JSONObject;
@@ -464,10 +465,29 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	@Override
 	public void sessionExpired()
 	{
-		if (!getClient().isShutDown())
+		if (!getClient().isShutDown()) try
+		{
 			getClient().invokeAndWait(() -> {
 				getClient().shutDown(true);
-			});
+			}, 5);
+		}
+		catch (TimeoutException e)
+		{
+			if (!getClient().isShutDown())
+			{
+				// client shutdown timeout, maybe long running tasks.
+				IEventDispatcher dispatcher = executor;
+				if (dispatcher != null)
+				{
+					// just try to interrupt the event thread is that is still alive to force an exception.
+					dispatcher.interruptEventThread();
+					// now try again but don't wait for it.
+					getClient().invokeLater(() -> {
+						getClient().shutDown(true);
+					});
+				}
+			}
+		}
 		super.sessionExpired();
 	}
 
