@@ -482,9 +482,9 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				IEventDispatcher dispatcher = executor;
 				if (dispatcher != null)
 				{
-					SHUTDOWNLOGGER.debug("dispatch thread interrupted for and called shutdown again client with id " + getSessionKey()); //$NON-NLS-1$
 					// just try to interrupt the event thread is that is still alive to force an exception.
-					dispatcher.interruptEventThread();
+					String stack = dispatcher.interruptEventThread();
+					SHUTDOWNLOGGER.debug("dispatch thread interrupted for and called shutdown again client with id " + getSessionKey() + " stack: \n" + stack); //$NON-NLS-1$
 					// now try again but don't wait for it.
 					getClient().invokeLater(() -> {
 						getClient().shutDown(true);

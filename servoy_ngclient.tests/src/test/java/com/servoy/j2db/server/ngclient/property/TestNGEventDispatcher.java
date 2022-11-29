@@ -115,8 +115,9 @@ public class TestNGEventDispatcher implements IEventDispatcher
 	 * @see org.sablo.eventthread.IEventDispatcher#interruptEventThread()
 	 */
 	@Override
-	public void interruptEventThread()
+	public String interruptEventThread()
 	{
+		return "";
 	}
 
 }
