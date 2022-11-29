@@ -1989,5 +1989,17 @@ public class DataProviderDateTest
 			return null;
 		}
 
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see com.servoy.j2db.server.ngclient.INGApplication#shutDown(boolean)
+		 */
+		@Override
+		public void shutDown(boolean force)
+		{
+			// TODO Auto-generated method stub
+
+		}
+
 	}
 }
