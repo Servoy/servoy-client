@@ -20,8 +20,9 @@ package com.servoy.j2db.server.ngclient.eventthread;
 import org.sablo.eventthread.Event;
 import org.sablo.eventthread.EventDispatcher;
 import org.sablo.websocket.CurrentWindow;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.NGClientWebsocketSession;
@@ -34,7 +35,9 @@ import com.servoy.j2db.server.ngclient.NGClientWebsocketSession;
  */
 public class NGEventDispatcher extends EventDispatcher
 {
-	private final IServiceProvider client;
+	protected static final Logger SHUTDOWNLOGGER = LoggerFactory.getLogger("SHUTDOWNLOGGER"); //$NON-NLS-1$
+
+	private final INGApplication client;
 
 	public NGEventDispatcher(INGApplication client)
 	{
@@ -45,7 +48,7 @@ public class NGEventDispatcher extends EventDispatcher
 	@Override
 	protected Event createEvent(Runnable event, int eventLevel)
 	{
-		return new NGEvent((INGApplication)client, event, eventLevel);
+		return new NGEvent(client, event, eventLevel);
 	}
 
 	@Override
@@ -59,6 +62,14 @@ public class NGEventDispatcher extends EventDispatcher
 		finally
 		{
 			J2DBGlobals.setServiceProvider(null);
+
+			SHUTDOWNLOGGER.debug("Event dispatcher terminted for client: " + client.getWebsocketSession().getSessionKey()); //$NON-NLS-1$
+
+			if (!client.isShutDown())
+			{
+				SHUTDOWNLOGGER.debug("Client was not shutdown, calling it now: " + client.getWebsocketSession().getSessionKey()); //$NON-NLS-1$
+				client.shutDown(true);
+			}
 		}
 	}
 
