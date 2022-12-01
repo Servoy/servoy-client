@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.rmi.RemoteException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -91,7 +92,6 @@ import com.servoy.j2db.scripting.info.NGCONSTANTS;
 import com.servoy.j2db.scripting.info.UICONSTANTS;
 import com.servoy.j2db.scripting.info.WEBCONSTANTS;
 import com.servoy.j2db.scripting.solutionmodel.ICSSPosition;
-import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IScriptRenderMethodsWithOptionalProps;
 import com.servoy.j2db.ui.ISupportValueList;
@@ -3674,7 +3674,15 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	@ServoyClientSupport(ng = true, wc = true, sc = true, mc = false)
 	public String getServerUUID()
 	{
-		return ApplicationServerRegistry.get().getServerUUID();
+		try
+		{
+			return application.getApplicationServer().getClientHost().getServerId();
+		}
+		catch (RemoteException e)
+		{
+			Debug.error(e);
+		}
+		return "";
 	}
 
 
