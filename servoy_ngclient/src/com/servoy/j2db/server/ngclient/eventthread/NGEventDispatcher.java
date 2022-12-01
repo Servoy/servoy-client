@@ -63,11 +63,13 @@ public class NGEventDispatcher extends EventDispatcher
 		{
 			J2DBGlobals.setServiceProvider(null);
 
-			SHUTDOWNLOGGER.debug("Event dispatcher terminted for client: " + client.getWebsocketSession().getSessionKey()); //$NON-NLS-1$
+			if (SHUTDOWNLOGGER.isDebugEnabled())
+				SHUTDOWNLOGGER.debug("Event dispatcher terminated for client: " + client.getWebsocketSession().getSessionKey()); //$NON-NLS-1$
 
 			if (!client.isShutDown())
 			{
-				SHUTDOWNLOGGER.debug("Client was not shutdown, calling it now: " + client.getWebsocketSession().getSessionKey()); //$NON-NLS-1$
+				if (SHUTDOWNLOGGER.isDebugEnabled())
+					SHUTDOWNLOGGER.debug("Client was not shutdown, calling it now: " + client.getWebsocketSession().getSessionKey()); //$NON-NLS-1$
 				client.shutDown(true);
 			}
 		}

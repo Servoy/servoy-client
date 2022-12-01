@@ -462,29 +462,31 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	 *
 	 * @see org.sablo.websocket.BaseWebsocketSession#sessionExpired()
 	 */
+	@SuppressWarnings("nls")
 	@Override
 	public void sessionExpired()
 	{
 		if (!getClient().isShutDown()) try
 		{
-			SHUTDOWNLOGGER.debug("Shutting down client with id " + getSessionKey()); //$NON-NLS-1$
+			if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("Shutting down client with id " + getSessionKey());
 			getClient().invokeAndWait(() -> {
 				getClient().shutDown(true);
 			}, 5);
-			SHUTDOWNLOGGER.debug("Client shutdown client with id " + getSessionKey()); //$NON-NLS-1$
+			if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("Client shutdown client with id " + getSessionKey());
 		}
 		catch (TimeoutException e)
 		{
 			if (!getClient().isShutDown())
 			{
-				SHUTDOWNLOGGER.debug("Timeout happend for shutdown client with id " + getSessionKey()); //$NON-NLS-1$
+				if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("Timeout happend for shutdown client with id " + getSessionKey());
 				// client shutdown timeout, maybe long running tasks.
 				IEventDispatcher dispatcher = executor;
 				if (dispatcher != null)
 				{
 					// just try to interrupt the event thread is that is still alive to force an exception.
 					String stack = dispatcher.interruptEventThread();
-					SHUTDOWNLOGGER.debug("dispatch thread interrupted for and called shutdown again client with id " + getSessionKey() + " stack: \n" + stack); //$NON-NLS-1$
+					if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER
+						.debug("dispatch thread interrupted for and called shutdown again client with id " + getSessionKey() + " stack: \n" + stack);
 					// now try again but don't wait for it.
 					getClient().invokeLater(() -> {
 						getClient().shutDown(true);
@@ -492,12 +494,13 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				}
 				else
 				{
-					SHUTDOWNLOGGER.debug("no dispatch thread anymore for client with id " + getSessionKey()); //$NON-NLS-1$
+					if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("no dispatch thread anymore for client with id " + getSessionKey());
 				}
 			}
 			else
 			{
-				SHUTDOWNLOGGER.debug("Client shutdown client with id " + getSessionKey() + " but it was already shutdowned"); //$NON-NLS-1$ //$NON-NLS-2$
+				if (SHUTDOWNLOGGER.isDebugEnabled())
+					SHUTDOWNLOGGER.debug("Client shutdown client with id " + getSessionKey() + " but it was already shutdowned");
 			}
 		}
 		super.sessionExpired();

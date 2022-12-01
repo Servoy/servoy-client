@@ -1232,7 +1232,7 @@ public class NGClient extends AbstractApplication
 	@Override
 	public synchronized void shutDown(boolean force)
 	{
-		SHUTDOWNLOGGER.debug("In shutdown for client: " + getWebsocketSession().getSessionKey()); //$NON-NLS-1$
+		if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("In shutdown for client: " + getWebsocketSession().getSessionKey()); //$NON-NLS-1$
 		super.shutDown(force);
 		if (isShutDown())
 		{
