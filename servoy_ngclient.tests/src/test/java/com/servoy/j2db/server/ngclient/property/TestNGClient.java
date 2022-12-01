@@ -469,6 +469,12 @@ public class TestNGClient extends NGClient
 					{
 						return null;
 					}
+
+					@Override
+					public String getServerId() throws RemoteException
+					{
+						return "";
+					}
 				};
 			}
 

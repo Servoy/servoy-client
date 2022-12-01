@@ -69,4 +69,6 @@ public interface INGApplication extends INGClientApplication
 	 * @return
 	 */
 	MediaInfo createMediaInfo(byte[] sabloValue);
+
+	void shutDown(boolean force);
 }
