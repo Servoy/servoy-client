@@ -598,9 +598,9 @@ public class EditRecordList
 							// when the trigger throws an exception, the record must move from editedRecords to failedRecords so that in
 							//    scripting the failed records can be examined (the thrown value is retrieved via record.exception.getValue())
 							editRecordsLock.unlock();
-							boolean validationErrors = false;
 							try
 							{
+								boolean validationErrors = false;
 								JSRecordMarkers validateObject = fsm.validateRecord(record, null);
 								if (validateObject != null && validateObject.isHasErrors()) // throws ServoyException when trigger method throws exception
 								{
@@ -621,23 +621,23 @@ public class EditRecordList
 									}
 									recordTested.remove(record);
 								}
+								if (!validationErrors)
+								{
+									RowUpdateInfo rowUpdateInfo = getRecordUpdateInfo(record);
+									if (rowUpdateInfo != null)
+									{
+										rowUpdateInfo.setRecord(record);
+										rowUpdates.add(rowUpdateInfo);
+									}
+									else
+									{
+										recordTested.remove(record);
+									}
+								}
 							}
 							finally
 							{
 								editRecordsLock.lock();
-							}
-							if (!validationErrors)
-							{
-								RowUpdateInfo rowUpdateInfo = getRecordUpdateInfo(record);
-								if (rowUpdateInfo != null)
-								{
-									rowUpdateInfo.setRecord(record);
-									rowUpdates.add(rowUpdateInfo);
-								}
-								else
-								{
-									recordTested.remove(record);
-								}
 							}
 						}
 						catch (ServoyException e)
@@ -1592,10 +1592,8 @@ public class EditRecordList
 			map = fsEventMap;
 			fsEventMap = null;
 		}
-		Iterator<Entry<FoundSet, int[]>> it = map.entrySet().iterator();
-		while (it.hasNext())
+		for (Entry<FoundSet, int[]> entry : map.entrySet())
 		{
-			Map.Entry<FoundSet, int[]> entry = it.next();
 			int[] indexen = entry.getValue();
 			FoundSet fs = entry.getKey();
 			if (indexen[0] < 0 && indexen[1] < 0)
