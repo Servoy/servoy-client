@@ -54,13 +54,13 @@ public class JSTable implements IReturnedTypesProvider, Wrapper, IJavaScriptType
 	}
 
 	/**
-	 * Returns the table name.
+	 * Returns the table name as defined in the database.
 	 *
 	 * @sample
 	 * var jsTable = databaseManager.getTable('udm', 'campaigns')
-	 * var tableNameForDisplay = jsTable.getSQLName()
+	 * var tableNameForQuery = jsTable.getSQLName()
 	 *
-	 * @return String table name.
+	 * @return String table sql name.
 	 */
 	public String js_getSQLName()
 	{

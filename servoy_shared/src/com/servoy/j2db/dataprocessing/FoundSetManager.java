@@ -18,10 +18,12 @@ package com.servoy.j2db.dataprocessing;
 
 
 import static com.servoy.base.util.DataSourceUtilsBase.getDBServernameTablename;
+import static com.servoy.j2db.Messages.isI18NTable;
 import static com.servoy.j2db.dataprocessing.FoundSetManager.TriggerExecutionMode.BreakOnFalse;
 import static com.servoy.j2db.dataprocessing.FoundSetManager.TriggerExecutionMode.ExecuteEach;
 import static com.servoy.j2db.dataprocessing.FoundSetManager.TriggerExecutionMode.ReturnFirst;
 import static com.servoy.j2db.query.AbstractBaseQuery.searchOne;
+import static com.servoy.j2db.util.DataSourceUtils.createDBTableDataSource;
 import static com.servoy.j2db.util.DataSourceUtils.getDataSourceServerName;
 import static com.servoy.j2db.util.DataSourceUtils.getDataSourceTableName;
 import static com.servoy.j2db.util.DataSourceUtils.getViewDataSourceName;
@@ -32,7 +34,10 @@ import static com.servoy.j2db.util.Utils.parseJSExpressions;
 import static com.servoy.j2db.util.Utils.stream;
 import static java.lang.Boolean.TRUE;
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -56,7 +61,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.jabsorb.serializer.MarshallException;
@@ -336,9 +340,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	 * @param dataSource
 	 * @param columnName when not null, only return true if the table has the column
 	 */
-	private boolean mustRefresh(ITable table, String dataSource, TableFilterdefinition tableFilterdefinition)
+	private boolean mustRefresh(ITable table, String dataSource, List<TableFilterdefinition> tableFilterdefinitions)
 	{
-		if (tableFilterdefinition != null && !tableFilterdefinition.affects(table))
+		if (tableFilterdefinitions != null && tableFilterdefinitions.stream().noneMatch(tableFilterdefinition -> tableFilterdefinition.affects(table)))
 		{
 			// table not affected
 			return false;
@@ -368,7 +372,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	 * @param skipStopEdit If true then stop edit will not be called
 	 * @return affected tables
 	 */
-	private Collection<ITable> refreshFoundSetsFromDB(String dataSource, TableFilterdefinition tableFilterdefinition, boolean skipStopEdit)
+	private Collection<ITable> refreshFoundSetsFromDB(String dataSource, List<TableFilterdefinition> tableFilterdefinitions, boolean skipStopEdit)
 	{
 		Set<ITable> affectedTables = new HashSet<ITable>();
 
@@ -379,10 +383,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		for (FoundSet fs : fslist)
 		{
-			refreshFoundSet(fs, dataSource, tableFilterdefinition, skipStopEdit, affectedTables);
+			refreshFoundSet(fs, dataSource, tableFilterdefinitions, skipStopEdit, affectedTables);
 		}
 
-		namedFoundSets.values().forEach(foundset -> refreshFoundSet(foundset, dataSource, tableFilterdefinition, skipStopEdit, affectedTables));
+		namedFoundSets.values().forEach(foundset -> refreshFoundSet(foundset, dataSource, tableFilterdefinitions, skipStopEdit, affectedTables));
 
 		// Can't just clear substates!! if used in portal then everything is out of sync
 //		if(server_name == null && table_name == null)
@@ -396,7 +400,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				try
 				{
-					if (mustRefresh(relatedFoundSet.getTable(), dataSource, tableFilterdefinition))
+					if (mustRefresh(relatedFoundSet.getTable(), dataSource, tableFilterdefinitions))
 					{
 						//element.refreshFromDB(false);
 						// this call is somewhat different then a complete refresh from db.
@@ -417,11 +421,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return affectedTables;
 	}
 
-	private void refreshFoundSet(FoundSet fs, String dataSource, TableFilterdefinition tableFilterdefinition, boolean skipStopEdit, Set<ITable> affectedTables)
+	private void refreshFoundSet(FoundSet fs, String dataSource, List<TableFilterdefinition> tableFilterdefinitions, boolean skipStopEdit,
+		Set<ITable> affectedTables)
 	{
 		try
 		{
-			if (mustRefresh(fs.getTable(), dataSource, tableFilterdefinition))
+			if (mustRefresh(fs.getTable(), dataSource, tableFilterdefinitions))
 			{
 				if (fs.isInitialized())
 				{
@@ -444,14 +449,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 	}
 
-	private Collection<ITable> getFilterUpdateAffectedTables(String dataSource, TableFilterdefinition tableFilterdefinition)
+	private Collection<ITable> refreshFoundSetsFromDBforFilterAndGetAffectedTables(String dataSource, List<TableFilterdefinition> tableFilterdefinitions)
 	{
-		Collection<ITable> affectedtableList = refreshFoundSetsFromDB(dataSource, tableFilterdefinition, false);
+		Collection<ITable> affectedtableList = refreshFoundSetsFromDB(dataSource, tableFilterdefinitions, false);
 
 		// also add tables that have listeners but no foundsets
 		for (ITable tableKey : tableListeners.keySet())
 		{
-			if (!affectedtableList.contains(tableKey) && mustRefresh(tableKey, dataSource, tableFilterdefinition))
+			if (!affectedtableList.contains(tableKey) && mustRefresh(tableKey, dataSource, tableFilterdefinitions))
 			{
 				affectedtableList.add(tableKey);
 			}
@@ -1278,33 +1283,89 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return value;
 	}
 
-	public boolean addTableFilterParam(String filterName, String serverName, ITable table, TableFilterdefinition tableFilterdefinition) throws ServoyException
+	public void setTableFilters(String filterName, String serverName, List<TableFilterRequest> tableFilterRequests, boolean removeOld)
 	{
-		TableFilter filter = new TableFilter(filterName, serverName, table == null ? null : table.getName(), table == null ? null : table.getSQLName(),
-			tableFilterdefinition);
+		boolean refreshI18NMessages = false;
+		Set<Pair<String, TableFilterdefinition>> toRefresh = new HashSet<>();
 
-		List<TableFilter> params = tableFilterParams.get(serverName);
-		if (params == null)
+		List<TableFilter> existingParams = tableFilterParams.get(serverName);
+
+		// get the new filters if requested (tableFilterRequests can be null)
+		List<TableFilter> newParams = null;
+		if (tableFilterRequests != null)
 		{
-			tableFilterParams.put(serverName, params = new ArrayList<TableFilter>());
-		}
-
-		if (!filter.isContainedIn(params)) // do not add the same filter, will add same AND-condition anyway
-		{
-			params.add(filter);
-
-			for (ITable affectedtable : getFilterUpdateAffectedTables(getDataSource(table), tableFilterdefinition))
+			newParams = new ArrayList<TableFilter>(tableFilterRequests.size());
+			for (TableFilterRequest tableFilterRequest : tableFilterRequests)
 			{
-				fireTableEvent(affectedtable);
+				TableFilter filter = new TableFilter(filterName, serverName, tableFilterRequest.table == null ? null : tableFilterRequest.table.getName(),
+					tableFilterRequest.table == null ? null : tableFilterRequest.table.getSQLName(), tableFilterRequest.tableFilterdefinition);
+
+				newParams.add(filter);
+				if (existingParams == null || !existingParams.contains(filter))
+				{
+					toRefresh.add(new Pair<>(getDataSource(tableFilterRequest.table), tableFilterRequest.tableFilterdefinition));
+					//	affectedtables.addAll(getFilterUpdateAffectedTables(getDataSource(tableFilterRequest.table), tableFilterRequest.tableFilterdefinition));
+					refreshI18NMessages |= isI18NTable(serverName, filter.getTableName(), application);
+				}
+				// else filter is not changed
 			}
 		}
 
-		if (Messages.isI18NTable(serverName, table != null ? table.getName() : null, application))
+		// remove old filters by filterName
+		if (removeOld && filterName != null && existingParams != null)
+		{
+			if (newParams != null)
+			{ // new filters must not be removed
+				existingParams.removeAll(newParams);
+			}
+
+			for (Iterator<TableFilter> oldParamsIt = existingParams.iterator(); oldParamsIt.hasNext();)
+			{
+				TableFilter oldFilter = oldParamsIt.next();
+				if (filterName.equals(oldFilter.getName()))
+				{
+					oldParamsIt.remove();
+
+					toRefresh.add(new Pair<>(createDBTableDataSource(serverName, oldFilter.getTableName()), oldFilter.getTableFilterdefinition()));
+					refreshI18NMessages |= isI18NTable(serverName, oldFilter.getTableName(), application);
+				}
+			}
+			if (existingParams.isEmpty())
+			{
+				tableFilterParams.remove(serverName);
+			}
+		}
+
+		if (newParams != null)
+		{
+			if (existingParams == null || existingParams.isEmpty())
+			{
+				tableFilterParams.put(serverName, newParams);
+			}
+			else
+			{
+				existingParams.addAll(newParams);
+			}
+		}
+
+		// fire events after all filters are adjusted
+		Set<ITable> firedTables = new HashSet<ITable>();
+		toRefresh.stream().collect(groupingBy(Pair::getLeft, mapping(Pair::getRight, toList())))
+			.forEach((dataSource, tableFilterdefinitions) -> {
+				for (ITable affectedtable : refreshFoundSetsFromDBforFilterAndGetAffectedTables(dataSource, tableFilterdefinitions))
+				{
+					if (firedTables.add(affectedtable))
+					{
+						fireTableEvent(affectedtable);
+					}
+				}
+			});
+
+
+		if (refreshI18NMessages)
 		{
 			((ClientState)application).refreshI18NMessages(false);
 		}
-
-		return true;
 	}
 
 	public boolean updateTableFilterParam(String serverName, String filterName, ITable table, TableFilterdefinition tableFilterdefinition)
@@ -1317,12 +1378,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				{
 					f.setTableFilterDefinition(tableFilterdefinition);
 
-					for (ITable affectedtable : getFilterUpdateAffectedTables(getDataSource(table), tableFilterdefinition))
+					for (ITable affectedtable : refreshFoundSetsFromDBforFilterAndGetAffectedTables(getDataSource(table), asList(tableFilterdefinition)))
 					{
 						fireTableEvent(affectedtable);
 					}
 
-					if (Messages.isI18NTable(serverName, table != null ? table.getName() : null, application))
+					if (isI18NTable(serverName, table != null ? table.getName() : null, application))
 					{
 						((ClientState)application).refreshI18NMessages(false);
 					}
@@ -1361,10 +1422,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				}
 				else
 				{
-					dataSource = DataSourceUtils.createDBTableDataSource(filter.getServerName(), filter.getTableName());
+					dataSource = createDBTableDataSource(filter.getServerName(), filter.getTableName());
 				}
 
-				for (ITable affectedtable : getFilterUpdateAffectedTables(dataSource, filter.getTableFilterdefinition()))
+				for (ITable affectedtable : refreshFoundSetsFromDBforFilterAndGetAffectedTables(dataSource, asList(filter.getTableFilterdefinition())))
 				{
 					if (firedTables.add(affectedtable))
 					{
@@ -1412,7 +1473,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			.filter(Objects::nonNull) //
 			.filter(FoundSetManager::tableHasTenantColumn) //
 			.collect(toList());
-		Set<String> tenantDatasourcesInuse = tenantTablesInuse.stream().map(ITable::getDataSource).collect(Collectors.toSet());
+		Set<String> tenantDatasourcesInuse = tenantTablesInuse.stream().map(ITable::getDataSource).collect(toSet());
 
 		// refresh foundsets that use any of these datasources, make sure all foundsets are collected to prevent ConcurrentModificationExceptions
 		allFoundsets.stream()
@@ -2160,7 +2221,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				String server_name = foundSet.getSQLSheet().getServerName();
 				String table_name = foundSet.getSQLSheet().getTable().getName();
-				RowManager rm = rowManagers.get(DataSourceUtils.createDBTableDataSource(server_name, table_name));
+				RowManager rm = rowManagers.get(createDBTableDataSource(server_name, table_name));
 				//process
 				Set<Object> keySet = pkhashkeys.keySet();
 				Set<Object> ids = new HashSet<Object>(keySet);//make copy because it is not serialized in developer and set is emptied
@@ -2797,6 +2858,18 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 	}
 
+
+	public static class TableFilterRequest
+	{
+		private final ITable table;
+		private final TableFilterdefinition tableFilterdefinition;
+
+		public TableFilterRequest(ITable table, TableFilterdefinition tableFilterdefinition)
+		{
+			this.table = table;
+			this.tableFilterdefinition = tableFilterdefinition;
+		}
+	}
 
 	/**
 	 * Container class for related foundset arguments and the hash

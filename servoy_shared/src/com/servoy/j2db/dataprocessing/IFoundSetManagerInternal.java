@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.dataprocessing.FoundSetManager.TableFilterRequest;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IScriptProvider;
@@ -162,10 +163,9 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public DataproviderTableFilterdefinition createDataproviderTableFilterdefinition(ITable table, String dataprovider, String operator, Object val)
 		throws ServoyException;
 
-	public boolean addTableFilterParam(String filterName, String serverName, ITable table, TableFilterdefinition tableFilterdefinition) throws ServoyException;
+	public void setTableFilters(String filterName, String serverName, List<TableFilterRequest> tableFilterRequests, boolean removeOld);
 
-	public boolean updateTableFilterParam(String serverName, String filterName, ITable table, TableFilterdefinition tableFilterdefinition)
-		throws ServoyException;
+	public boolean updateTableFilterParam(String serverName, String filterName, ITable table, TableFilterdefinition tableFilterdefinition);
 
 	public ArrayList<TableFilter> getTableFilterParams(String serverName, IQueryElement sql);
 

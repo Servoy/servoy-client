@@ -17,20 +17,29 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.base.util.DataSourceUtilsBase.getDBServernameTablename;
+import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
+import static java.util.Arrays.asList;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
+
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentMap;
 
@@ -45,10 +54,10 @@ import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.scripting.api.IJSDatabaseManager;
 import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.base.scripting.api.IJSRecord;
-import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.ClientState;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.dataprocessing.FoundSetManager.TableFilterRequest;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
@@ -131,7 +140,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, JSRecordMarker.class, JSRecordMarkers.class, Record.class, FoundSet.class, JSTable.class, //
 					QBSelect.class, QBAggregate.class, QBCase.class, QBCaseWhen.class, QBColumn.class, QBColumns.class, QBCondition.class, //
 					QBFunction.class, QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBWhereCondition.class, QBResult.class, //
-					QBSearchedCaseExpression.class, QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, QBFunctions.class, QUERY_COLUMN_TYPES.class, ViewFoundSet.class, ViewRecord.class };
+					QBSearchedCaseExpression.class, QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, QBFunctions.class, QUERY_COLUMN_TYPES.class, ViewFoundSet.class, ViewRecord.class, JSTableFilter.class };
 			}
 		});
 	}
@@ -217,7 +226,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Adds a filter to all the foundsets based on a table.
 	 * Note: if null is provided as the tablename the filter will be applied on all tables with the dataprovider name.
 	 * A dataprovider can have multiple filters defined, they will all be applied.
-	 * returns true if the tablefilter could be applied.
+	 * returns true if the table filter could be applied.
 	 *
 	 * @sample
 	 * // Best way to call this in a global solution startup method, but filters may be added/removed at any time.
@@ -225,6 +234,11 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * // filter on messages table where messagesid>10, the filter has a name so it can be removed using databaseManager.removeTableFilterParam()
 	 * var success = databaseManager.addTableFilterParam('admin', 'messages', 'messagesid', '>', 10, 'higNumberedMessagesRule')
+	 *
+	 * // a filter can be created based on a query
+	 * var query = datasources.db.admin.messages.createSelect()
+	 * query.where.add(query.columns.messagesid.gt(10))
+	 * var success = databaseManager.addTableFilterParam(query, 'higNumberedMessagesRule')
 	 *
 	 * // all tables that have the companyid column should be filtered
 	 * var success = databaseManager.addTableFilterParam('crm', null, 'companyidid', '=', currentcompanyid)
@@ -250,7 +264,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null), prefix with "sql:" to allow the value to be interpreted as a custom query.
 	 * @param value The specified filter value.
 	 *
-	 * @return true if the tablefilter could be applied.
+	 * @return true if the table filter could be applied.
 	 */
 	public boolean js_addTableFilterParam(String serverName, String tableName, String dataprovider, String operator, Object value) throws ServoyException
 	{
@@ -258,25 +272,55 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Adds a filter based on a query to all the foundsets based on a table.
+	 * Create a table filter that can be applied to all the foundsets based on a table.
+	 * Multiple filters can be applied at the same time using databaseManager.setTableFilters().
 	 *
-	 * Filters on tables touched in the query will not be applied to the query filter.
-	 * For example, when a table filter exists on the order_details table,
-	 * a query filter with a join from orders to order_details will be applied to queries on the orders table,
-	 * but the filter condition on the orders_details table will not be included.
+	 * Note: if null is provided as the tablename the filter will be applied on all tables with the dataprovider name.
+	 * A dataprovider can have multiple filters defined, they will all be applied.
 	 *
-	 * returns true if the tablefilter could be applied.
+	 * @sample
+	 * // Best way to call this in a global solution startup method, but filters may be added/removed at any time.
+	 * // Note that multiple filters can be added to the same dataprovider, they will all be applied.
 	 *
+	 * // filter on messages table where messagesid>10, the filter has a name so it can be removed using databaseManager.removeTableFilterParam()
+	 * var filter = databaseManager.createTableFilterParam('admin', 'messages', 'messagesid', '>', 10)
 	 *
-	 * @sampleas js_addTableFilterParam(QBSelect,String)
+	 * // a filter can be created based on a query
+	 * var query = datasources.db.admin.messages.createSelect()
+	 * query.where.add(query.columns.messagesid.gt(10))
+	 * var filter = databaseManager.createTableFilterParam(query)
 	 *
-	 * @param query condition to filter on.
+	 * // all tables that have the companyid column should be filtered
+	 * var filter = databaseManager.createTableFilterParam('crm', null, 'companyidid', '=', currentcompanyid)
 	 *
-	 * @return true if the tablefilter could be applied.
+	 * // some filters with in-conditions
+	 * var filter = databaseManager.createTableFilterParam('crm', 'products', 'productcode', 'in', [120, 144, 200])
+	 * // use "sql:in" in stead of "in" to allow the value to be interpreted as a custom query
+	 * var filter = databaseManager.createTableFilterParam('crm', 'orders', 'countrycode', 'sql:in', 'select country code from countries where region = "Europe"')
+	 *
+	 * // you can use modifiers in the operator as well, filter on companies where companyname is null or equals-ignore-case 'servoy'
+	 * var filter = databaseManager.createTableFilterParam('crm', 'companies', 'companyname', '#^||=', 'servoy')
+	 *
+	 * // the value may be null, this will result in 'column is null' sql condition.
+	 * var filter = databaseManager.createTableFilterParam('crm', 'companies', 'verified', '=', null)
+	 *
+	 * // if you want to add a filter for a column (created by you) in the i18n table
+	 * var filter = databaseManager.createTableFilterParam('database', 'your_i18n_table', 'message_variant', 'in', [1, 2])
+	 *
+	 * // apply multiple filters at the same time, previous filters with the same name are removed:
+	 * var success = databaseManager.setTableFilters('myfilters', [filter1, filter2])
+	 *
+	 * @param serverName The name of the database server connection for the specified table name.
+	 * @param tableName The name of the specified table.
+	 * @param dataprovider A specified dataprovider column name.
+	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null), prefix with "sql:" to allow the value to be interpreted as a custom query.
+	 * @param value The specified filter value.
+	 *
+	 * @return table filter.
 	 */
-	public boolean js_addTableFilterParam(QBSelect query) throws ServoyException
+	public JSTableFilter js_createTableFilterParam(String serverName, String tableName, String dataprovider, String operator, Object value)
 	{
-		return js_addTableFilterParam(query, null);
+		return createTableFilterInternal(serverName, tableName, dataprovider, operator, value);
 	}
 
 	/**
@@ -287,7 +331,49 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * a query filter with a join from orders to order_details will be applied to queries on the orders table,
 	 * but the filter condition on the orders_details table will not be included.
 	 *
-	 * returns true if the tablefilter could be applied.
+	 * returns true if the table filter could be applied.
+	 *
+	 *
+	 * @sampleas js_addTableFilterParam(QBSelect,String)
+	 *
+	 * @param query condition to filter on.
+	 *
+	 * @return true if the table filter could be applied.
+	 */
+	public boolean js_addTableFilterParam(QBSelect query) throws ServoyException
+	{
+		return js_addTableFilterParam(query, null);
+	}
+
+	/**
+	 * Create a table filter that can be applied to all the foundsets based on a table.
+	 * Multiple filters can be applied at the same time using databaseManager.setTableFilters().
+	 *
+	 * Filters on tables touched in the query will not be applied to the query filter.
+	 * For example, when a table filter exists on the order_details table,
+	 * a query filter with a join from orders to order_details will be applied to queries on the orders table,
+	 * but the filter condition on the orders_details table will not be included.
+	 *
+	 * @sampleas js_createTableFilterParam(String, String, String, String, Object)
+	 *
+	 * @param query condition to filter on.
+	 *
+	 * @return table filter.
+	 */
+	public JSTableFilter js_createTableFilterParam(QBSelect query) throws ServoyException
+	{
+		return createTableFilterInternal(query);
+	}
+
+	/**
+	 * Adds a filter based on a query to all the foundsets based on a table.
+	 *
+	 * Filters on tables touched in the query will not be applied to the query filter.
+	 * For example, when a table filter exists on the order_details table,
+	 * a query filter with a join from orders to order_details will be applied to queries on the orders table,
+	 * but the filter condition on the orders_details table will not be included.
+	 *
+	 * returns true if the table filter could be applied.
 	 *
 	 *
 	 * @sample
@@ -305,18 +391,16 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param query condition to filter on.
 	 * @param filterName The specified name of the database table filter.
 	 *
-	 * @return true if the tablefilter could be applied.
+	 * @return true if the table filter could be applied.
 	 */
 	public boolean js_addTableFilterParam(QBSelect query, String filterName) throws ServoyException
 	{
 		checkAuthorized();
 
-		IFoundSetManagerInternal foundSetManager = application.getFoundSetManager();
-		ITable table = foundSetManager.getTable(query.getDataSource());
-
-		return foundSetManager.addTableFilterParam(filterName, table.getServerName(), table,
-			// make a deep clone and clone Table as well in case the same table is used in a new query.
-			new QueryTableFilterdefinition(AbstractBaseQuery.deepClone(query.build(), true)));
+		JSTableFilter tableFilter = createTableFilterInternal(query);
+		application.getFoundSetManager().setTableFilters(filterName, tableFilter.getTable().getServerName(),
+			asList(new TableFilterRequest(tableFilter.getTable(), tableFilter.getTableFilterdefinition())), false);
+		return true;
 	}
 
 	/**
@@ -329,13 +413,32 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null), prefix with "sql:" to allow the value to be interpreted as a custom query.
 	 * @param value The specified filter value.
 	 *
-	 * @return true if the tablefilter could be applied.
+	 * @return true if the table filter could be applied.
 	 */
 	public boolean js_addTableFilterParam(String datasource, String dataprovider, String operator, Object value) throws ServoyException
 	{
-		String[] ds = DataSourceUtilsBase.getDBServernameTablename(datasource);
+		String[] ds = getDBServernameTablename(datasource);
 		if (ds == null) throw new RuntimeException("Datasource is invalid:  " + datasource); //$NON-NLS-1$
 		return addTableFilterParamInternal(ds[0], ds[1], dataprovider, operator, value, null);
+	}
+
+	/**
+	 * @clonedesc js_createTableFilterParam(String, String, String, String, Object)
+	 *
+	 * @sampleas js_createTableFilterParam(String, String, String, String, Object)
+	 *
+	 * @param datasource The datasource
+	 * @param dataprovider A specified dataprovider column name.
+	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null), prefix with "sql:" to allow the value to be interpreted as a custom query.
+	 * @param value The specified filter value.
+	 *
+	 * @return table filter.
+	 */
+	public JSTableFilter js_createTableFilterParam(String datasource, String dataprovider, String operator, Object value)
+	{
+		String[] ds = getDBServernameTablename(datasource);
+		if (ds == null) throw new RuntimeException("Datasource is invalid:  " + datasource); //$NON-NLS-1$
+		return createTableFilterInternal(ds[0], ds[1], dataprovider, operator, value);
 	}
 
 	/**
@@ -349,7 +452,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param value The specified filter value.
 	 * @param filterName The specified name of the database table filter.
 	 *
-	 * @return true if the tablefilter could be applied.
+	 * @return true if the table filter could be applied.
 	 */
 	public boolean js_addTableFilterParam(String datasource, String dataprovider, String operator, Object value, String filterName) throws ServoyException
 	{
@@ -364,7 +467,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	private boolean addTableFilterParam5args(String datasourceOrServerName, String dataproviderOrTablename, String operatorOrDataprovider,
 		Object valueOrOperator, Object filterNameOrValue) throws ServoyException
 	{
-		String[] ds = DataSourceUtilsBase.getDBServernameTablename(datasourceOrServerName);
+		String[] ds = getDBServernameTablename(datasourceOrServerName);
 		if (ds == null)
 		{
 			// datasourceOrServerName=serverName, dataproviderOrTablename=tableName, operatorOrDataprovider=dataprovider, valueOrOperator=operator, filterNameOrValue=value
@@ -396,7 +499,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param value The specified filter value.
 	 * @param filterName The specified name of the database table filter.
 	 *
-	 * @return true if the tablefilter could be applied.
+	 * @return true if the table filter could be applied.
 	 */
 	public boolean js_addTableFilterParam(String serverName, String tableName, String dataprovider, String operator, Object value, String filterName)
 		throws ServoyException
@@ -404,10 +507,93 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		return addTableFilterParamInternal(serverName, tableName, dataprovider, operator, value, filterName);
 	}
 
+	/**
+	 * Apply multiples table filters to all the foundsets that arte affected by the filters.
+	 * After all filters have been applied / updated, foundset changes will be applied in the client.
+	 *
+	 * The filters that have been applied with the same filter name will be removed and replaced with the new set of filters.
+	 *
+	 * @sample
+	 *
+	 * // Create a number of filters
+	 * var query1_nl = datasources.db.crm.companies.createSelect()
+	 * query.where.add(query1_nl.columns.countrycode.eq('nl'))
+	 * var filter1_nl = databaseManager.createTableFilterParam(query1_nl)
+	 *
+	 * // apply multiple filters at the same time, previous filters with the same name are removed:
+	 * var success = databaseManager.setTableFilters('myfilters', [filter1, filter2])
+	 *
+	 * // update one of the filters:
+	 * var query1_us = datasources.db.crm.companies.createSelect()
+	 * query1_us.where.add(query1_us.columns.countrycode.eq('us'))
+	 * var filter1_2 = databaseManager.createTableFilterParam(query1_us)
+	 *
+	 * var success = databaseManager.setTableFilters('myfilters', [filter1_2, filter2])
+	 *
+	 * // filters can be removed by setting them to an empty list:
+	 * var success = databaseManager.setTableFilters('myfilters', [])
+	 *
+	 * @param filterName The name of the filter that should be removed.
+	 * @param tableFilters list of filters to be applied.
+	 *
+	 * @return true if the table filters could be applied.
+	 */
+	public boolean js_setTableFilters(String filterName, JSTableFilter[] tableFilters) throws ServoyException
+	{
+		checkAuthorized();
+
+		// group by serverName
+		Map<String, List<TableFilterRequest>> tableFilterRequests = stream(tableFilters).collect(
+			groupingBy(JSTableFilter::getServerName, mapping(tf -> new TableFilterRequest(tf.getTable(), tf.getTableFilterdefinition()), toList())));
+
+		try
+		{
+			// loop over all servers so that previously set filters are removed when tableFilters is empty
+			IFoundSetManagerInternal foundSetManager = application.getFoundSetManager();
+			for (String serverName : js_getServerNames())
+			{
+				foundSetManager.setTableFilters(filterName, serverName, tableFilterRequests.remove(serverName), true);
+			}
+
+			for (Entry<String, List<TableFilterRequest>> entry : tableFilterRequests.entrySet())
+			{
+				// filter on a server that is not in server proxies (yet)
+				foundSetManager.setTableFilters(filterName, entry.getKey(), entry.getValue(), true);
+			}
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
+			return false;
+		}
+
+		return true;
+	}
+
 	private boolean addTableFilterParamInternal(String serverName, String tableName, String dataprovider, String operator, Object value, String filterName)
 		throws ServoyException
 	{
 		checkAuthorized();
+
+		JSTableFilter tableFilter = createTableFilterInternal(serverName, tableName, dataprovider, operator, value);
+		try
+		{
+			if (tableFilter != null)
+			{
+				application.getFoundSetManager().setTableFilters(filterName, serverName,
+					asList(new TableFilterRequest(tableFilter.getTable(), tableFilter.getTableFilterdefinition())), false);
+				return true;
+			}
+		}
+		catch (Exception ex)
+		{
+			Debug.error(ex);
+		}
+		return false;
+	}
+
+	private JSTableFilter createTableFilterInternal(String serverName, String tableName, String dataprovider, String operator, Object value)
+	{
 		try
 		{
 			if (value instanceof Wrapper)
@@ -417,9 +603,11 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			IServer server = application.getSolution().getServer(serverName);
 			if (server == null)
 			{
-				application.reportJSError("Table filter not applied to unknown server '" + serverName + "', tableName = '" + tableName + "', dataprovider = '" +
-					dataprovider + "', operator = '" + operator + "', value = '" + value + "', filterName = '" + filterName + "'", null);
-				return false;
+				application.reportJSError(
+					"Table filter not created for unknown server '" + serverName + "'" + formatNonempty(tableName, ", tableName = '{}'" +
+						", dataprovider = '" + dataprovider + "', operator = '" + operator + "', value = '" + value + "'"),
+					null);
+				return null;
 			}
 			ITable table = null;
 			if (tableName != null)
@@ -427,10 +615,10 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				table = server.getTable(tableName);
 				if (table == null)
 				{
-					application.reportJSError("Table filter not applied to unknown table: serverName = '" + serverName + "', tableName = '" + tableName +
-						"', dataprovider = '" + dataprovider + "', operator = '" + operator + "', value = '" + value + "', filterName = '" + filterName + "'",
+					application.reportJSError("Table filter not created for unknown table: serverName = '" + serverName + "', tableName = '" + tableName +
+						"', dataprovider = '" + dataprovider + "', operator = '" + operator + "', value = '" + value + "'",
 						null);
-					return false;
+					return null;
 				}
 			}
 			// else table remains null: apply to all tables with that column
@@ -439,19 +627,37 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				table, dataprovider, operator, value);
 			if (dataproviderTableFilterdefinition == null)
 			{
-				application.reportJSError("Table filter not created, column not found in table or operator invalid, filterName = '" + filterName +
-					"', serverName = '" + serverName + "', table = '" + table + "', dataprovider = '" + dataprovider + "', operator = '" + operator + "'",
+				application.reportJSError(
+					"Table filter not created, column not found in table or operator invalid, serverName = '" + serverName + "'" +
+						formatNonempty(tableName, ", tableName = '{}'") + ", dataprovider = '" + dataprovider + "', operator = '" + operator + "'",
 					null);
-				return false;
+				return null;
 			}
 
-			return (((FoundSetManager)application.getFoundSetManager()).addTableFilterParam(filterName, serverName, table, dataproviderTableFilterdefinition));
+			return new JSTableFilter(serverName, table, dataproviderTableFilterdefinition);
 		}
 		catch (Exception ex)
 		{
 			Debug.error(ex);
 		}
-		return false;
+		return null;
+	}
+
+	private JSTableFilter createTableFilterInternal(QBSelect query) throws ServoyException
+	{
+		ITable table = application.getFoundSetManager().getTable(query.getDataSource());
+		return new JSTableFilter(table.getServerName(), table,
+			// make a deep clone and clone Table as well in case the same table is used in a new query.
+			new QueryTableFilterdefinition(deepClone(query.getQuery(), true)));
+	}
+
+	private static String formatNonempty(Object value, String pattern)
+	{
+		if (value == null)
+		{
+			return "";
+		}
+		return MessageFormat.format(pattern, value);
 	}
 
 	/**
@@ -470,7 +676,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 		try
 		{
-			return (((FoundSetManager)application.getFoundSetManager()).removeTableFilterParam(serverName, filterName));
+			application.getFoundSetManager().setTableFilters(filterName, serverName, null, true);
+			return true;
 		}
 		catch (Exception ex)
 		{
@@ -482,6 +689,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	/**
 	 * Updates a previously defined table filter. Server/Table should not be changed.
 	 *
+	 * @deprecated use databaseManager.setTableFilters()
+	 *
 	 * @sample var success = databaseManager.updateTableFilterParam('admin', 'higNumberedMessagesRule', query)
 	 *
 	 * @param serverName The name of the database server connection.
@@ -490,6 +699,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @return true if the filter could be updated.
 	 */
+	@Deprecated
 	public boolean js_updateTableFilterParam(String serverName, String filterName, QBSelect query) throws ServoyException
 	{
 		if (serverName == null || filterName == null) return false;
@@ -501,7 +711,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 		return foundSetManager.updateTableFilterParam(table.getServerName(), filterName, table,
 			// make a deep clone and clone Table as well in case the same table is used in a new query.
-			new QueryTableFilterdefinition(AbstractBaseQuery.deepClone(query.build(), true)));
+			new QueryTableFilterdefinition(deepClone(query.build(), true)));
 	}
 
 	/**
@@ -510,6 +720,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sample
 	 *	databaseManager.updateTableFilterParam('database', 'myfilter', 'your_i18n_table', 'message_variant', 'in', [1, 2])
 	 *
+	 * @deprecated use databaseManager.setTableFilters()
+	 *
 	 * @param serverName The name of the database server connection for the specified table name.
 	 * @param filterName The name of the filter that should be updated.
 	 * @param tableName The name of the specified table.
@@ -517,8 +729,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null), prefix with "sql:" to allow the value to be interpreted as a custom query.
 	 * @param value The specified filter value.
 	 *
-	 * @return true if the tablefilter could be updated.
+	 * @return true if the table filter could be updated.
 	 */
+	@Deprecated
 	public boolean js_updateTableFilterParam(String serverName, String filterName, String tableName, String dataprovider, String operator, Object value)
 		throws ServoyException
 	{
@@ -831,7 +1044,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			if (getInOneQuery && columnMap.size() > 0)
 			{
 				// large foundset, query the columns in 1 go
-				QuerySelect sqlSelect = AbstractBaseQuery.deepClone(fs.getQuerySelectForReading());
+				QuerySelect sqlSelect = deepClone(fs.getQuerySelectForReading());
 				ArrayList<IQuerySelectValue> cols = new ArrayList<IQuerySelectValue>(columnMap.size());
 				ArrayList<String> distinctColumns = new ArrayList<String>(columnMap.size());
 				for (String dpname : dpnames)
@@ -1745,7 +1958,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			if (rowManager != null)
 			{
 				List<String> calcNames = calcnames == null ? unstoredOnly ? rowManager.getSQLSheet().getUnStoredCalculationNames()
-					: rowManager.getSQLSheet().getAllCalculationNames() : Arrays.asList(calcnames);
+					: rowManager.getSQLSheet().getAllCalculationNames() : asList(calcnames);
 				rowManager.clearCalcs(null, calcNames);
 			}
 		}
@@ -2301,7 +2514,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		else
 		{
 			// get the sql without any filters
-			sqlSelect = AbstractBaseQuery.deepClone(sqlSelect);
+			sqlSelect = deepClone(sqlSelect);
 			sqlSelect.clearCondition(SQLGenerator.CONDITION_FILTER);
 			sqlSelect.removeUnusedJoins(false, true);
 			tableFilterParams = null;
@@ -2402,7 +2615,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				if ((fs.hadMoreRows() || fs.getSize() > fsm.config.pkChunkSize()) && !fsm.getEditRecordList().hasEditedRecords(fs))
 				{
 					// large foundset, query the column in 1 go
-					QuerySelect sqlSelect = AbstractBaseQuery.deepClone(fs.getQuerySelectForReading());
+					QuerySelect sqlSelect = deepClone(fs.getQuerySelectForReading());
 					ArrayList<IQuerySelectValue> cols = new ArrayList<IQuerySelectValue>(1);
 					cols.add(column.queryColumn(sqlSelect.getTable()));
 					sqlSelect.setColumns(cols);
@@ -3092,7 +3305,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				editRecordList.startEditing(record, false);
 			}
 			IRecord[] editedRecords = editRecordList.getEditedRecords((IFoundSetInternal)foundset);
-			return editRecordList.stopEditing(true, Arrays.asList(editedRecords)) == ISaveConstants.STOPPED;
+			return editRecordList.stopEditing(true, asList(editedRecords)) == ISaveConstants.STOPPED;
 		}
 		return false;
 	}
@@ -3114,7 +3327,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		{
 			EditRecordList editRecordList = application.getFoundSetManager().getEditRecordList();
 			IRecordInternal[] failedRecords = editRecordList.getFailedRecords();
-			if (Arrays.asList(failedRecords).contains(record))
+			if (asList(failedRecords).contains(record))
 			{
 				editRecordList.startEditing((IRecordInternal)record, false);
 			}
@@ -3163,7 +3376,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 			if (failedRecords.length != 0)
 			{
-				HashSet<IRecordInternal> failedSet = new HashSet<IRecordInternal>(Arrays.asList(failedRecords));
+				HashSet<IRecordInternal> failedSet = new HashSet<IRecordInternal>(asList(failedRecords));
 
 				for (IRecordInternal record : records)
 				{
@@ -3174,7 +3387,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				}
 			}
 
-			return editRecordList.stopEditing(true, Arrays.asList(records)) == ISaveConstants.STOPPED;
+			return editRecordList.stopEditing(true, asList(records)) == ISaveConstants.STOPPED;
 		}
 		return false;
 	}
@@ -3964,8 +4177,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		if (foundset != null)
 		{
 			List<IRecordInternal> records = new ArrayList<IRecordInternal>();
-			records.addAll(Arrays.asList(application.getFoundSetManager().getEditRecordList().getEditedRecords(foundset)));
-			records.addAll(Arrays.asList(application.getFoundSetManager().getEditRecordList().getFailedRecords(foundset)));
+			records.addAll(asList(application.getFoundSetManager().getEditRecordList().getEditedRecords(foundset)));
+			records.addAll(asList(application.getFoundSetManager().getEditRecordList().getFailedRecords(foundset)));
 			if (records.size() > 0) application.getFoundSetManager().getEditRecordList().rollbackRecords(records);
 		}
 	}
@@ -4309,7 +4522,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			}
 			else if (values[2].getClass().isArray())
 			{
-				al = Arrays.asList((Object[])values[2]);
+				al = asList((Object[])values[2]);
 			}
 		}
 		return copyMatchingFields(src, (IRecordInternal)dest, overwrite, al.toArray());
@@ -4326,7 +4539,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		List<Object> al = new ArrayList<Object>();
 		if (names != null)
 		{
-			al = Arrays.asList(names);
+			al = asList(names);
 		}
 		try
 		{
