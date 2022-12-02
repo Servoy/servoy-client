@@ -383,14 +383,13 @@ namespace ngclient.propertyTypes {
         }
 
         public updateAngularScope(clientValue: FoundsetValue, componentScope: angular.IScope): void {
-            this.removeAllWatches(clientValue);
-            if (componentScope) this.addBackWatches(clientValue, componentScope);
-
             if (clientValue) {
+                this.removeAllWatches(clientValue);
+
                 const internalState: FoundsetTypeInternalState = clientValue[this.sabloConverters.INTERNAL_IMPL];
-                if (internalState) {
-                    this.viewportModule.updateAngularScope(clientValue[FoundsetType.VIEW_PORT][FoundsetType.ROWS], internalState, componentScope, false);
-                }
+                if (internalState) this.viewportModule.updateAngularScope(clientValue[FoundsetType.VIEW_PORT][FoundsetType.ROWS], internalState, componentScope, false);
+
+                if (componentScope) this.addBackWatches(clientValue, componentScope);
             }
         }
 
@@ -424,7 +423,15 @@ namespace ngclient.propertyTypes {
         
         
         constructor(public readonly webSocket: sablo.IWebSocket,
-                        public readonly componentScope: angular.IScope, public readonly changeListeners: Array<(values: any) => void> = []) {}
+                        public componentScope: angular.IScope, public readonly changeListeners: Array<(values: any) => void> = []) {}
+                        
+        getComponentScope() {
+            return this.componentScope;
+        }        
+
+        updateAngularScope(newComponentScope: angular.IScope) {
+            this.componentScope = newComponentScope;
+        }
         
         setChangeNotifier(changeNotifier: () => void): void {
             this.changeNotifier = changeNotifier;
@@ -612,7 +619,7 @@ namespace ngclient.propertyTypes {
             r[FoundsetType.VALUE_KEY] = this.__internalState.sabloConverters.convertFromClientToServer(
                 r[FoundsetType.VALUE_KEY],
                 this.__internalState.viewportModule.getClientSideTypeFor(rowID, columnID, this.__internalState, this.viewPort.rows),
-                oldValue, this.__internalState.componentScope, this.__internalState.propertyContextCreator.withPushToServerFor(undefined)); // if clientSideType would be null we still want to call it for default conversions
+                oldValue, this.__internalState.getComponentScope(), this.__internalState.propertyContextCreator.withPushToServerFor(undefined)); // if clientSideType would be null we still want to call it for default conversions
 
             req['viewportDataChanged'] = r;
 

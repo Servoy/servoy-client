@@ -162,14 +162,10 @@ namespace ngclient.propertyTypes {
 		}
 
 		public updateAngularScope(clientValue: ComponentValue, componentScope: angular.IScope): void {
-			this.removeAllWatches(clientValue);
 			if (clientValue) {
+    			this.removeAllWatches(clientValue);
+
                 const internalState: ComponentTypeInternalState = clientValue[this.sabloConverters.INTERNAL_IMPL];
-
-    			if (componentScope) {
-                    this.addBackWatches(clientValue, componentScope, internalState?.getModelPropertyChangeNotifierGenerator());  
-                }
-
 				if (internalState) {
 					// update scope for non-foundset linked (or all in case comp. is not foundset linked) model properties
 					const staticClientSideTypes = this.typesRegistry.getComponentSpecification(clientValue.componentDirectiveName);
@@ -184,6 +180,8 @@ namespace ngclient.propertyTypes {
 					// update scope for any foundset linked properties in the viewport
 					this.viewportModule.updateAngularScope(clientValue[ComponentType.MODEL_VIEWPORT], internalState, componentScope, false);
 				}
+
+    			if (componentScope) this.addBackWatches(clientValue, componentScope, internalState?.getModelPropertyChangeNotifierGenerator());  
 			}
 		}
 
@@ -217,8 +215,16 @@ namespace ngclient.propertyTypes {
         
         
         constructor(public readonly webSocket: sablo.IWebSocket,
-                        public readonly componentScope: angular.IScope, public readonly changeListeners: Array<(values: any) => void> = []) {}
+                        public componentScope: angular.IScope, public readonly changeListeners: Array<(values: any) => void> = []) {}
         
+        getComponentScope() {
+            return this.componentScope;
+        }
+
+        updateAngularScope(newComponentScope: angular.IScope) {
+            this.componentScope = newComponentScope;
+        }
+
         setChangeNotifier(changeNotifier: () => void): void {
             this.changeNotifier = changeNotifier;
         }
@@ -304,7 +310,7 @@ namespace ngclient.propertyTypes {
             const containerSize = {width: 0, height: 0};
     
             return this.sabloApplication.getComponentPropertyChange(newPropertyValue, oldPropertyValue,
-                    this.getClientSideTypeOfModelProp(propertyName), propertyName, this.componentScope,
+                    this.getClientSideTypeOfModelProp(propertyName), propertyName, this.getComponentScope(),
                     this.propertyContextCreator.withPushToServerFor(propertyName), this.getModelPropertyChangeNotifierGenerator());
         }
 

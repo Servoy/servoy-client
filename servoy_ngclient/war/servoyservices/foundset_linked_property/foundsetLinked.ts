@@ -189,14 +189,13 @@ namespace ngclient.propertyTypes {
 		}
 
 		public updateAngularScope(clientValue: FoundsetLinkedValue, componentScope: angular.IScope) {
-			this.removeAllWatches(clientValue);
-			if (componentScope) this.addBackWatches(clientValue, componentScope);
-
 			if (clientValue) {
+                this.removeAllWatches(clientValue);
+
 				const internalState: FSLinkedInternalState = clientValue[this.sabloConverters.INTERNAL_IMPL];
-				if (internalState) {
-					this.viewportModule.updateAngularScope(clientValue, internalState, componentScope, true);
-				}
+				if (internalState) this.viewportModule.updateAngularScope(clientValue, internalState, componentScope, true);
+
+                if (componentScope) this.addBackWatches(clientValue, componentScope);
 			}
 		}
 
@@ -237,8 +236,16 @@ namespace ngclient.propertyTypes {
         
         
         constructor(public readonly webSocket: sablo.IWebSocket,
-                        public readonly componentScope: angular.IScope, public readonly changeListeners: Array<(values: any) => void> = []) {}
+                        public componentScope: angular.IScope, public readonly changeListeners: Array<(values: any) => void> = []) {}
         
+        getComponentScope() {
+            return this.componentScope;
+        }        
+
+        updateAngularScope(newComponentScope: angular.IScope) {
+            this.componentScope = newComponentScope;
+        }
+
         setChangeNotifier(changeNotifier: () => void): void {
             this.changeNotifier = changeNotifier;
         }

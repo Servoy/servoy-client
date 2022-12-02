@@ -386,6 +386,8 @@ namespace ngclient.propertyTypes {
 		 * This will not remove/add viewport watches (use removeDataWatchesFromRows/addDataWatchesToRows for that) - it will just forward 'updateAngularScope' to viewport values that need it.
 		 */
 		public updateAngularScope(viewPort: any[], internalState: InternalStateForViewport, componentScope: angular.IScope, simpleRowValue: boolean/*not key/value pairs in each row*/) {
+            internalState.updateAngularScope(componentScope);
+
 			for (let i = viewPort.length - 1; i >= 0; i--) {
 				const clientSideTypes = internalState.viewportTypes ? internalState.viewportTypes[i] : undefined;
 				if (clientSideTypes) {
@@ -442,8 +444,16 @@ namespace ngclient.propertyTypes {
         
         
         constructor(public readonly webSocket: sablo.IWebSocket,
-                        public readonly componentScope: angular.IScope, public readonly changeListeners: Array<(values: any) => void> = []) {}
+                        public componentScope: angular.IScope, public readonly changeListeners: Array<(values: any) => void> = []) {}
         
+        getComponentScope() {
+            return this.componentScope;
+        }        
+
+        updateAngularScope(newComponentScope: angular.IScope) {
+            this.componentScope = newComponentScope;
+        }
+
         setChangeNotifier(changeNotifier: () => void): void {
             this.changeNotifier = changeNotifier;
         }
