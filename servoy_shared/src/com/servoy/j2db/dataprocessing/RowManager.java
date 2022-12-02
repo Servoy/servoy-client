@@ -800,37 +800,42 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 						{
 							row.setRawValue(dataProviderID, modificationValue);
 						}
-						if (newdata[i] instanceof BlobMarkerValue)
+					}
+				}
+				for (int i = 0; i < olddata.length; i++)
+				{
+					String dataProviderID = req.get(i);
+					Column c = table.getColumn(dataProviderID);
+					if (newdata[i] instanceof BlobMarkerValue)
+					{
+						// if it is a blob marker then it isn't something that is changed
+						// because that would be a byte[]
+						continue;
+					}
+					if (!Utils.equalObjects(olddata[i], newdata[i]))
+					{
+						if (sheet.isUsedByAggregate(dataProviderID))
 						{
-							// if it is a blob marker then it isn't something that is changed
-							// because that would be a byte[]
-							continue;
+							aggregatesToRemove.addAll(sheet.getAggregateName(dataProviderID));
 						}
-						if (!Utils.equalObjects(olddata[i], newdata[i]))
+						Object robj = c.getAsRightType(newdata[i]);
+						if (robj == null) robj = ValueFactory.createNullValue(c.getType());
+						((QueryUpdate)sqlUpdate).addValue(c.queryColumn(((QueryUpdate)sqlUpdate).getTable()), robj);
+						if (changedColumns == null)
 						{
-							if (sheet.isUsedByAggregate(dataProviderID))
+							changedColumns = new ArrayList<String>(olddata.length - i);
+						}
+						changedColumns.add(c.getName());
+						if (oracleServer && !usesLobs)
+						{
+							int type = c.getType();
+							if (type == Types.BLOB && robj instanceof byte[] && ((byte[])robj).length > 4000)
 							{
-								aggregatesToRemove.addAll(sheet.getAggregateName(dataProviderID));
+								usesLobs = true;
 							}
-							Object robj = c.getAsRightType(newdata[i]);
-							if (robj == null) robj = ValueFactory.createNullValue(c.getType());
-							((QueryUpdate)sqlUpdate).addValue(c.queryColumn(((QueryUpdate)sqlUpdate).getTable()), robj);
-							if (changedColumns == null)
+							else if (type == Types.CLOB && robj instanceof String && ((String)robj).length() > 4000)
 							{
-								changedColumns = new ArrayList<String>(olddata.length - i);
-							}
-							changedColumns.add(c.getName());
-							if (oracleServer && !usesLobs)
-							{
-								int type = c.getType();
-								if (type == Types.BLOB && robj instanceof byte[] && ((byte[])robj).length > 4000)
-								{
-									usesLobs = true;
-								}
-								else if (type == Types.CLOB && robj instanceof String && ((String)robj).length() > 4000)
-								{
-									usesLobs = true;
-								}
+								usesLobs = true;
 							}
 						}
 					}
@@ -956,7 +961,9 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			}
 			return new RowUpdateInfo(row, statement, dbPKReturnValues, aggregatesToRemove);
 		}
-		catch (RemoteException e)
+		catch (
+
+		RemoteException e)
 		{
 			throw new RepositoryException(e);
 		}
@@ -1000,6 +1007,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			{
 				runnables.add(new Runnable()
 				{
+
 					public void run()
 					{
 						FireCollector collector = FireCollector.getFireCollector();
@@ -1466,13 +1474,9 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					String whereArgsHash = ((RelatedFoundSet)sourceFoundset).getWhereArgsHash();
 					List<CalculationDependency> calculationDependencies = new ArrayList<CalculationDependency>();
 
-					// go over each row to see if there are calcs depending on the RFS(whereArgs)
-					Iterator<Map.Entry<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>>> it = pkRowMap
-						.entrySet()
-						.iterator();
-					while (it.hasNext())
+					for (Entry<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>> entry : pkRowMap
+						.entrySet())
 					{
-						Entry<String, SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>>> entry = it.next();
 						String pkHash = entry.getKey();
 						SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>> sr = entry.getValue();
 						synchronized (sr)
