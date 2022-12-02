@@ -192,6 +192,16 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 		}
 	};
 
+	function updateFireChanges(internalState, componentScope) {
+		internalState.fireChanges = function(foundsetChanges: foundsetType.ChangeEvent) {
+			for(let i = 0; i < internalState.changeListeners.length; i++) {
+				$webSocket.setIMHDTScopeHintInternal(componentScope);
+				internalState.changeListeners[i](foundsetChanges);
+				$webSocket.setIMHDTScopeHintInternal(undefined);
+			}
+		}
+	}
+
 	$sabloConverters.registerCustomPropertyHandler('foundset', {
 		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, propertyContext) {
 			let newValue = currentClientValue;
@@ -538,13 +548,8 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 							internalState.changeListeners.splice(index, 1);
 						}
 					}
-					internalState.fireChanges = function(foundsetChanges: foundsetType.ChangeEvent) {
-						for(let i = 0; i < internalState.changeListeners.length; i++) {
-							$webSocket.setIMHDTScopeHintInternal(componentScope);
-							internalState.changeListeners[i](foundsetChanges);
-							$webSocket.setIMHDTScopeHintInternal(undefined);
-						}
-					}
+                    updateFireChanges(internalState, componentScope);
+
 					// PRIVATE STATE AND IMPL for $sabloConverters (so something components shouldn't use)
 					// $sabloConverters setup
 					internalState.setChangeNotifier = function(changeNotifier) {
@@ -580,14 +585,16 @@ angular.module('foundset_custom_property', ['webSocketModule'])
 		},
 
 		updateAngularScope: function(clientValue, componentScope) {
-			removeAllWatches(clientValue);
-			if (componentScope) addBackWatches(clientValue, componentScope);
-
 			if (clientValue) {
+				removeAllWatches(clientValue);
+
 				const internalState = clientValue[$sabloConverters.INTERNAL_IMPL];
 				if (internalState) {
+                    updateFireChanges(internalState, componentScope);
 					$viewportModule.updateAngularScope(clientValue[VIEW_PORT][ROWS], internalState, componentScope, false);
 				}
+
+				if (componentScope) addBackWatches(clientValue, componentScope);
 			}
 		},
 
