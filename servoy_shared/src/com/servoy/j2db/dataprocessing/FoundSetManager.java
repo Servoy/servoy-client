@@ -1297,14 +1297,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			newParams = new ArrayList<TableFilter>(tableFilterRequests.size());
 			for (TableFilterRequest tableFilterRequest : tableFilterRequests)
 			{
-				TableFilter filter = new TableFilter(filterName, serverName, tableFilterRequest.table == null ? null : tableFilterRequest.table.getName(),
+				String tableName = tableFilterRequest.table == null ? null : tableFilterRequest.table.getName();
+				TableFilter filter = new TableFilter(filterName, serverName, tableName,
 					tableFilterRequest.table == null ? null : tableFilterRequest.table.getSQLName(), tableFilterRequest.tableFilterdefinition);
 
 				newParams.add(filter);
 				if (existingParams == null || !existingParams.contains(filter))
 				{
-					toRefresh.add(new Pair<>(getDataSource(tableFilterRequest.table), tableFilterRequest.tableFilterdefinition));
-					//	affectedtables.addAll(getFilterUpdateAffectedTables(getDataSource(tableFilterRequest.table), tableFilterRequest.tableFilterdefinition));
+					toRefresh.add(new Pair<>(createDBTableDataSource(serverName, tableName), tableFilterRequest.tableFilterdefinition));
 					refreshI18NMessages |= isI18NTable(serverName, filter.getTableName(), application);
 				}
 				// else filter is not changed
@@ -1360,7 +1360,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					}
 				}
 			});
-
 
 		if (refreshI18NMessages)
 		{
