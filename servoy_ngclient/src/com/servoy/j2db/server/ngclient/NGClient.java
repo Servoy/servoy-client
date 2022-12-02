@@ -1650,7 +1650,7 @@ public class NGClient extends AbstractApplication
 	{
 		if (performanceData != null) return performanceData.startSubAction(serviceName + "." + functionName, System.currentTimeMillis(),
 			(apiFunction == null || apiFunction.getBlockEventProcessing()) ? IDataServer.METHOD_CALL : IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT,
-			getClientID());
+			getClientID(), getSolutionName());
 		return null;
 	}
 
