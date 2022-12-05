@@ -29,7 +29,10 @@ angular.module( 'formcomponent_property', ['webSocketModule'] )
 		}
 
 		var formComponentPropertyType: sablo.IType<any> = {
+
 			fromServerToClient: function(serverJSONValue: any, currentClientValue: any, componentScope: angular.IScope, propertyContext: sablo.IPropertyContext) {
+                if (!serverJSONValue) return null;
+
 				let realValue = currentClientValue;
 				if ( realValue == null ) {
 					realValue = serverJSONValue;

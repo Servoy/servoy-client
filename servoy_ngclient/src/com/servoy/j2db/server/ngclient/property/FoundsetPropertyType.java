@@ -466,6 +466,8 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 				sabloValueThatRequestedThisDataToBeWritten);
 		}
 
+		if (clientSideTypesForViewport != null) clientSideTypesForViewport.writeClientSideTypes(w, JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY);
+
 		w.key("startIndex").value(Integer.valueOf(op.startIndex)).key("endIndex").value(Integer.valueOf(op.endIndex)).key("type").value(
 			Integer.valueOf(op.type)).endObject();
 

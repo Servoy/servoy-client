@@ -136,7 +136,7 @@ namespace ngclient.propertyTypes {
 				if (!done) {
 					this.log.error("Can't interpret component server update correctly: " + JSON.stringify(serverJSONValue, undefined, 2));
 				}
-			} else if (!angular.isDefined(serverJSONValue) || !serverJSONValue[ComponentType.NO_OP]) {
+			} else if (!serverJSONValue || !serverJSONValue[ComponentType.NO_OP]) {
 				// full contents received
 				if (serverJSONValue) {
 					newValue = new ComponentValue(serverJSONValue, currentClientValue, componentScope, propertyContext,
@@ -146,7 +146,7 @@ namespace ngclient.propertyTypes {
 
                     const internalState: ComponentTypeInternalState = newValue[this.sabloConverters.INTERNAL_IMPL];
                     modelPropChangedNotifierGenerator = internalState.getModelPropertyChangeNotifierGenerator(); 
-				} else newValue = undefined;
+				} else newValue = null;
 			}
 
 			// restore/add model watch

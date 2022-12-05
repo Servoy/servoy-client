@@ -113,6 +113,8 @@ namespace ngclient.propertyTypes {
 		}
 	
 		public fromServerToClient(serverJSONValue: any, currentClientValue: FoundsetLinkedValue, componentScope: angular.IScope, propertyContext: sablo.IPropertyContext): FoundsetLinkedValue {
+            if (serverJSONValue === null) return null;
+
 			// foundset linked properties always have a value both on client and on server (if wrapped value is null, foundset linked prop. will be an array of null values in sync with the foundset prop's viewport)
 			const newValue = (currentClientValue ? currentClientValue : new FoundsetLinkedValue(this.sabloConverters, componentScope, this.webSocket, propertyContext));
 
@@ -165,7 +167,10 @@ namespace ngclient.propertyTypes {
 					}
 					
 					if (angular.isDefined(wholeViewport)) updateWholeViewportFunc(newValue, internalState, wholeViewport, conversionInfos, componentScope);
-					else if (!didSomething) this.log.error("Can't interpret foundset linked prop. server update correctly: " + JSON.stringify(serverJSONValue, undefined, 2));
+					else if (!didSomething && !serverJSONValue.forFoundset)
+                        // it is possible in form designer (not real client) that serverSentData.forFoundset is the only thing that is received
+                        // multiple times, due to multiple calls to toTemplateJSON on server; so allow that without logging an error
+                         this.log.error("Can't interpret foundset linked prop. server update correctly: " + JSON.stringify(serverJSONValue, undefined, 2));
 				}
 				
 				if (serverJSONValue[this.foundsetLinkedTypeConstants.ID_FOR_FOUNDSET] === null) {

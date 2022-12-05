@@ -206,12 +206,13 @@ namespace ngclient.propertyTypes {
 		private expandTypeInfoAndApplyConversions(serverConversionInfo: object, defaultColumnTypes: sablo.IWebObjectSpecification, rowsToBeConverted: any[],
 		                             startIdxInViewportForRowsToBeConverted: number, oldViewportRows: any[],  internalState: InternalStateForViewport, componentScope: angular.IScope,
 		                             propertyContextCreator: sablo.IPropertyContextCreator, simpleRowValue: boolean, fullRowUpdates: boolean): any[] {
-		                                                                                                                             
-			if (serverConversionInfo && rowsToBeConverted) {
+
+			if (rowsToBeConverted) { // if it's a simpleRowValue without serverConversionInfo we don't need to alter what we received at all
 				rowsToBeConverted.forEach((rowData, index) => {
 					if (simpleRowValue) {
                         // without columns, so a foundset linked prop's rows
-                        let cellConversion = this.getCellTypeFromServer(serverConversionInfo, index); // this is the whole row in this case (only one cell)
+                        // foundsetLinked viewport; rowCreator should be undefined here so we ignore it
+                        let cellConversion = serverConversionInfo ? this.getCellTypeFromServer(serverConversionInfo, index) : undefined; // this is the whole row in this case (only one cell)
                         // defaultColumnTypes should be null here because it's not a component prop's viewport so no need to check for it
                         
                         rowsToBeConverted[index] = this.sabloConverters.convertFromServerToClient(rowsToBeConverted[index],
@@ -222,7 +223,7 @@ namespace ngclient.propertyTypes {
                         // with columns; so a foundset prop's rows or a component type prop's rows
                         let rowConversions = (fullRowUpdates || !internalState.viewportTypes ? undefined : internalState.viewportTypes[startIdxInViewportForRowsToBeConverted + index]);
                         Object.keys(rowData).forEach(columnName => {
-                            let cellConversion: sablo.IType<any> = this.getCellTypeFromServer(serverConversionInfo, index, columnName);
+                            let cellConversion: sablo.IType<any> = serverConversionInfo ? this.getCellTypeFromServer(serverConversionInfo, index, columnName) : undefined;
                             if (!cellConversion && defaultColumnTypes) cellConversion = defaultColumnTypes.getPropertyType(columnName);
                             
                             // ignore null or undefined type of cell; otherwise remember it in expanded

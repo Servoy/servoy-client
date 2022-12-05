@@ -127,16 +127,17 @@ public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInterna
 		throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
-		writer.object();
-		writer.key("recordhash").value(addReference(sabloValue));
 		if (sabloValue != null)
 		{
+			writer.object();
+			writer.key("recordhash").value(addReference(sabloValue));
 			writer.key(FoundsetTypeSabloValue.FOUNDSET_ID).value(sabloValue.getParentFoundSet().getID());
 			writer.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(
 				sabloValue.getPKHashKey() + "_" + sabloValue.getParentFoundSet().getRecordIndex(sabloValue));
+//			writer.key("svyType").value(getName()); // I don't think this is used anywhere
+			writer.endObject();
 		}
-		writer.key("svyType").value(getName());
-		writer.endObject();
+		else writer.value(null);
 		return writer;
 	}
 
