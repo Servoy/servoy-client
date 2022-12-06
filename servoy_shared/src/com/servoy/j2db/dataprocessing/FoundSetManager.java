@@ -2070,6 +2070,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 							}
 							list.add(sc);
 						}
+						else
+						{
+							Debug.warn("Invalid sort column: " + columnName + " on table " + t.getDataSource() + ". Will be ignored.");
+						}
 					}
 				}
 			}
