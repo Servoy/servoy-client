@@ -71,7 +71,7 @@ public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundS
 			Integer refID = Integer.valueOf(((Number)newValue).intValue());
 			if (newValue.equals(refID))
 			{
-				ref = getReference(refID); // this will find it if it was previously sent to client via this property type and was not garbage collected meanwhile
+				ref = getReference(refID, dataConverterContext); // this will find it if it was previously sent to client via this property type and was not garbage collected meanwhile
 				if (ref == null)
 				{
 					// otherwise see if the foundset manager knows of a foundset that uses this ID
@@ -100,7 +100,7 @@ public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundS
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
-		writer.value(addReference(value));
+		writer.value(addReference(value, dataConverterContext));
 		return writer;
 	}
 

@@ -63,14 +63,14 @@ public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInterna
 
 	@Override
 	public IRecordInternal fromJSON(Object newJSONValue, IRecordInternal previousSabloValue, PropertyDescription pd,
-		IBrowserConverterContext dataConverterContext,
+		IBrowserConverterContext converterContext,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		IRecordInternal record = null;
 		if (newJSONValue instanceof JSONObject)
 		{
 			JSONObject jsonRecord = (JSONObject)newJSONValue;
-			BaseWebObject webObject = dataConverterContext.getWebObject();
+			BaseWebObject webObject = converterContext.getWebObject();
 			if (webObject != null && jsonRecord.has(FoundsetTypeSabloValue.ROW_ID_COL_KEY))
 			{
 				String rowIDValue = jsonRecord.optString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
@@ -114,7 +114,7 @@ public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInterna
 			}
 			if (record == null && jsonRecord.has("recordhash")) //$NON-NLS-1$
 			{
-				record = getReference(jsonRecord.optString("recordhash")); //$NON-NLS-1$
+				record = getReference(jsonRecord.optString("recordhash"), converterContext); //$NON-NLS-1$
 			}
 
 		}
@@ -123,11 +123,11 @@ public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInterna
 
 	@Override
 	public JSONWriter toJSON(JSONWriter writer, String key, IRecordInternal sabloValue, PropertyDescription pd, DataConversion clientConversion,
-		IBrowserConverterContext dataConverterContext) throws JSONException
+		IBrowserConverterContext converterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.object();
-		writer.key("recordhash").value(addReference(sabloValue));
+		writer.key("recordhash").value(addReference(sabloValue, converterContext));
 		if (sabloValue != null)
 		{
 			writer.key(FoundsetTypeSabloValue.FOUNDSET_ID).value(sabloValue.getParentFoundSet().getID());

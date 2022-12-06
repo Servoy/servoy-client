@@ -75,17 +75,17 @@ public class JSEventType extends UUIDReferencePropertyType<JSEvent> implements I
 	}
 
 	@Override
-	public JSEvent fromJSON(Object newJSONValue, JSEvent previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
+	public JSEvent fromJSON(Object newJSONValue, JSEvent previousSabloValue, PropertyDescription pd, IBrowserConverterContext converterContext,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		JSEvent event = null;
 		if (newJSONValue instanceof JSONObject)
 		{
 			JSONObject jsonObject = (JSONObject)newJSONValue;
-			event = getReference(jsonObject.optString("jseventhash")); //$NON-NLS-1$
+			event = getReference(jsonObject.optString("jseventhash"), converterContext); //$NON-NLS-1$
 			if (event == null)
 			{
-				BaseWebObject webObject = dataConverterContext.getWebObject();
+				BaseWebObject webObject = converterContext.getWebObject();
 				event = new JSEvent();
 				fillJSEvent(event, jsonObject, webObject, null);
 			}
@@ -206,7 +206,7 @@ public class JSEventType extends UUIDReferencePropertyType<JSEvent> implements I
 
 	@Override
 	public JSONWriter toJSON(JSONWriter writer, String key, JSEvent sabloValue, PropertyDescription pd, DataConversion clientConversion,
-		IBrowserConverterContext dataConverterContext) throws JSONException
+		IBrowserConverterContext converterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{
@@ -218,7 +218,7 @@ public class JSEventType extends UUIDReferencePropertyType<JSEvent> implements I
 			JSONUtils.addKeyIfPresent(writer, key);
 			writer.object();
 			writer.key("svyType").value("JSEvent");
-			writer.key("jseventhash").value(addReference(sabloValue));
+			writer.key("jseventhash").value(addReference(sabloValue, converterContext));
 			writer.endObject();
 		}
 		return writer;
