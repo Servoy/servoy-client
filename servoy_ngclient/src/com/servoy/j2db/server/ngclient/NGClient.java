@@ -45,10 +45,10 @@ import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.util.ValueReference;
+import org.sablo.websocket.ClientToServerCallReturnValue;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IServerService;
-import org.sablo.websocket.TypedData;
 import org.sablo.websocket.WebsocketSessionManager;
 import org.sablo.websocket.impl.ClientService;
 import org.sablo.websocket.utils.JSONUtils;
@@ -1504,7 +1504,8 @@ public class NGClient extends AbstractApplication
 					Object retVal = webServiceScriptable.executeScopeFunction(functionSpec, arrayOfJavaConvertedMethodArgs);
 					if (functionSpec != null && functionSpec.getReturnType() != null)
 					{
-						retVal = new TypedData<Object>(retVal, functionSpec.getReturnType()); // this means that when this return value is sent to client it will be converted to browser JSON correctly - if we give it the type
+						retVal = new ClientToServerCallReturnValue(retVal, functionSpec.getReturnType(),
+							new BrowserConverterContext(serviceWebObject, PushToServerEnum.reject), true); // this means that when this return value is sent to client it will be converted to browser JSON correctly - if we give it the type and context
 					}
 					return retVal;
 				}
