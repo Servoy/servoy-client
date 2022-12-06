@@ -1008,7 +1008,7 @@ public abstract class AbstractBase implements IPersist
 
 	public static <T, P> T selectByProperty(Iterator<T> iterator, TypedProperty<P> property, P value)
 	{
-		if (value == null || (value instanceof String && ((String)value).trim().length() == 0)) return null;
+		if (iterator == null || value == null || (value instanceof String && ((String)value).trim().length() == 0)) return null;
 
 		while (iterator.hasNext())
 		{
