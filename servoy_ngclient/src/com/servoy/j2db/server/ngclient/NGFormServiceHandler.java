@@ -35,8 +35,8 @@ import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.util.ValueReference;
+import org.sablo.websocket.ClientToServerCallReturnValue;
 import org.sablo.websocket.CurrentWindow;
-import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
@@ -511,7 +511,8 @@ public class NGFormServiceHandler extends FormServiceHandler
 
 							if (functionSpec != null && functionSpec.getReturnType() != null)
 							{
-								retVal = new TypedData<Object>(retVal, functionSpec.getReturnType()); // this means that when this return value is sent to client it will be converted to browser JSON correctly - if we give it the type
+								retVal = new ClientToServerCallReturnValue(retVal, functionSpec.getReturnType(),
+									new BrowserConverterContext(webComponent, PushToServerEnum.reject), true); // this means that when this return value is sent to client it will be converted to browser JSON correctly - if we give it the type and context
 							}
 							return retVal;
 						}

@@ -57,17 +57,17 @@ public class JSDNDEventType extends UUIDReferencePropertyType<JSDNDEvent> implem
 	}
 
 	@Override
-	public JSDNDEvent fromJSON(Object newJSONValue, JSDNDEvent previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
+	public JSDNDEvent fromJSON(Object newJSONValue, JSDNDEvent previousSabloValue, PropertyDescription pd, IBrowserConverterContext converterContext,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
 		JSDNDEvent event = null;
 		if (newJSONValue instanceof JSONObject)
 		{
 			JSONObject jsonObject = (JSONObject)newJSONValue;
-			event = getReference(jsonObject.optString("jseventhash")); //$NON-NLS-1$
+			event = getReference(jsonObject.optString("jseventhash"), converterContext); //$NON-NLS-1$
 			if (event == null)
 			{
-				BaseWebObject webObject = dataConverterContext.getWebObject();
+				BaseWebObject webObject = converterContext.getWebObject();
 				event = new JSDNDEvent();
 				JSEventType.fillJSEvent(event, jsonObject, webObject, null);
 			}
@@ -79,7 +79,7 @@ public class JSDNDEventType extends UUIDReferencePropertyType<JSDNDEvent> implem
 
 	@Override
 	public JSONWriter toJSON(JSONWriter writer, String key, JSDNDEvent sabloValue, PropertyDescription pd, DataConversion clientConversion,
-		IBrowserConverterContext dataConverterContext) throws JSONException
+		IBrowserConverterContext converterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{
@@ -91,7 +91,7 @@ public class JSDNDEventType extends UUIDReferencePropertyType<JSDNDEvent> implem
 			JSONUtils.addKeyIfPresent(writer, key);
 			writer.object();
 			writer.key("svyType").value("JSEvent");
-			writer.key("jseventhash").value(addReference(sabloValue));
+			writer.key("jseventhash").value(addReference(sabloValue, converterContext));
 			writer.endObject();
 		}
 		return writer;
