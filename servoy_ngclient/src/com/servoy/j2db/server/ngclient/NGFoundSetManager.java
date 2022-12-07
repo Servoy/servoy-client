@@ -28,8 +28,8 @@ import org.sablo.specification.property.ChangeAwareList;
 import org.sablo.specification.property.ChangeAwareMap;
 import org.sablo.specification.property.CustomJSONObjectType;
 import org.sablo.specification.property.types.TypesRegistry;
+import org.sablo.websocket.ClientToServerCallReturnValue;
 import org.sablo.websocket.IServerService;
-import org.sablo.websocket.TypedData;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
@@ -141,7 +141,7 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 				{
 					IFoundSetInternal relatedFoundset = (IFoundSetInternal)o;
 					PropertyDescription foundsetRefProperty = new PropertyDescriptionBuilder().withType(FoundsetReferencePropertyTypeOld.INSTANCE).build();
-					return new TypedData<IFoundSetInternal>(relatedFoundset, foundsetRefProperty);
+					return new ClientToServerCallReturnValue(relatedFoundset, foundsetRefProperty, null, true);
 				}
 			}
 		}
