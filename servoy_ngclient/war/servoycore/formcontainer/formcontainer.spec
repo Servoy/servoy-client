@@ -14,7 +14,7 @@
 			"relationName": "relation",
 			"waitForData" : { "type" :"boolean", "default":true, "tags": { "doc": "When <code>true</code>, the form is rendered when all its latest data is loaded from the server. When <code>false</code>, the form is rendered faster, but could show stale data (not a problem when the form shown does not show dynamic data)" }},
 			"styleClass" : { "type" :"styleclass"},
-			"height" : {"type":"int", "default":0, "tags": { "doc" : "Minimum height of the form container, should be used for responsive forms."}},
+			"height" : {"type":"string", "default": "0", "tags": { "doc" : "Minimum height of the form container, should be used for responsive forms. Can be 100% (to take parent container height) or a number (in pixels)."}},
 			"tabSeq" : {"type" :"tabseq", "tags": { "scope" :"design","doc" : "Tab sequence number of form containers is used for all nested components in the main form." }},
 	    	"visible" : "visible"
 	},

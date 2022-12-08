@@ -24,6 +24,7 @@ import org.sablo.specification.WebObjectFunctionDefinition;
 
 import com.servoy.j2db.INGClientApplication;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.server.ngclient.MediaResourcesServlet.MediaInfo;
 import com.servoy.j2db.util.Pair;
 
 /**
@@ -56,4 +57,18 @@ public interface INGApplication extends INGClientApplication
 	String registerClientFunction(String code);
 
 	Map<String, String> getClientFunctions();
+
+	/**
+	 * @param dynamicID
+	 * @return
+	 */
+	MediaInfo getMedia(String dynamicID);
+
+	/**
+	 * @param sabloValue
+	 * @return
+	 */
+	MediaInfo createMediaInfo(byte[] sabloValue);
+
+	void shutDown(boolean force);
 }

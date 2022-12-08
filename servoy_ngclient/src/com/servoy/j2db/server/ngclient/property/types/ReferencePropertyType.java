@@ -24,61 +24,120 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import org.sablo.BaseWebObject;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.types.DefaultPropertyType;
+
+import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.J2DBGlobals;
+import com.servoy.j2db.server.ngclient.IContextProvider;
 
 /**
  * @author gboros
- *
  */
+@SuppressWarnings("nls")
 public abstract class ReferencePropertyType<T, RT> extends DefaultPropertyType<T>
 {
-	private final ReferenceQueue<T> garbageCollectedRefQueue = new ReferenceQueue<>();
-	private final WeakHashMap<T, RT> refsToIDs = new WeakHashMap<>();
 
-	private final Map<RT, WeakReference<T>> allWeakRefsByID = new HashMap<RT, WeakReference<T>>();
-	private final Map<WeakReference<T>, RT> allIDsByWeakRef = new HashMap<WeakReference<T>, RT>();
+	private static String WEAK_REFS_PER_CLIENT_FOR_PROPERTY_TYPE = "weakRefsPerClientForPT";
 
-	protected RT addReference(T ref)
+	/**
+	 * {@link ReferencePropertyType} uses this to keep references separated between running clients - so that you can't end up with one client's refs
+	 * inside another client.
+	 */
+	private static class WeakRefs<T, RT>
 	{
-		cleanGarbageCollectedReferences();
+
+		private final ReferenceQueue<T> garbageCollectedRefQueue = new ReferenceQueue<>();
+		private final WeakHashMap<T, RT> refsToIDs = new WeakHashMap<>();
+
+		private final Map<RT, WeakReference<T>> allWeakRefsByID = new HashMap<RT, WeakReference<T>>();
+		private final Map<WeakReference<T>, RT> allIDsByWeakRef = new HashMap<WeakReference<T>, RT>();
+
+	}
+
+	// this is just a fallback and should never be used I think; a ref property type trying to work without an application? maybe before an app is available? template values?
+	private WeakRefs<T, RT> globalWeakRefsForPT;
+
+	@SuppressWarnings("unchecked")
+	private WeakRefs<T, RT> getWeakRefs(IBrowserConverterContext converterContext)
+	{
+		// we try to keep weak refs separate per client - in the client's runtime properties map
+		BaseWebObject webObject = (converterContext != null ? converterContext.getWebObject() : null);
+
+		IServiceProvider app = null;
+		if (webObject instanceof IContextProvider)
+			// webObject is probably a WebFromComponent or ServoyClientService
+			app = ((IContextProvider)webObject).getDataConverterContext().getApplication();
+		if (app == null) app = J2DBGlobals.getServiceProvider();
+		Map<Object, Object> applicationRuntimeProperties = (app != null ? app.getRuntimeProperties() : null);
+
+		WeakRefs<T, RT> weakRefsToUse = null;
+		if (applicationRuntimeProperties != null)
+		{
+			weakRefsToUse = ((WeakRefs<T, RT>)applicationRuntimeProperties.get(WEAK_REFS_PER_CLIENT_FOR_PROPERTY_TYPE));
+			if (weakRefsToUse == null)
+			{
+				weakRefsToUse = new WeakRefs<T, RT>();
+				applicationRuntimeProperties.put(WEAK_REFS_PER_CLIENT_FOR_PROPERTY_TYPE, weakRefsToUse);
+			}
+		}
+
+		if (weakRefsToUse == null)
+		{
+			// this should never happen I think; a ref property type trying to work without an application? maybe somehow before an app is available?
+			if (globalWeakRefsForPT == null) globalWeakRefsForPT = new WeakRefs<T, RT>();
+			weakRefsToUse = globalWeakRefsForPT;
+		}
+
+		return weakRefsToUse;
+	}
+
+	protected RT addReference(T ref, IBrowserConverterContext converterContext)
+	{
+		WeakRefs<T, RT> weakRefsToUse = getWeakRefs(converterContext);
+
+		cleanGarbageCollectedReferences(weakRefsToUse);
 		if (ref == null) return null;
-		RT refID = refsToIDs.get(ref);
+		RT refID = weakRefsToUse.refsToIDs.get(ref);
 		if (refID == null)
 		{
 			refID = createUniqueIdentifier(ref);
 		}
 		else
 		{
-			WeakReference<T> weakReference = allWeakRefsByID.get(refID);
+			WeakReference<T> weakReference = weakRefsToUse.allWeakRefsByID.get(refID);
 			if (weakReference != null) weakReference.clear();
 		}
-		WeakReference<T> weakRef = new WeakReference<T>(ref, garbageCollectedRefQueue);
-		allWeakRefsByID.put(refID, weakRef);
-		refsToIDs.put(ref, refID);
-		allIDsByWeakRef.put(weakRef, refID);
+		WeakReference<T> weakRef = new WeakReference<T>(ref, weakRefsToUse.garbageCollectedRefQueue);
+		weakRefsToUse.allWeakRefsByID.put(refID, weakRef);
+		weakRefsToUse.refsToIDs.put(ref, refID);
+		weakRefsToUse.allIDsByWeakRef.put(weakRef, refID);
 		return refID;
 	}
 
 	protected abstract RT createUniqueIdentifier(T ref);
 
-	protected T getReference(RT refID)
+	protected T getReference(RT refID, IBrowserConverterContext converterContext)
 	{
-		cleanGarbageCollectedReferences();
+		WeakRefs<T, RT> weakRefsToUse = getWeakRefs(converterContext);
+
+		cleanGarbageCollectedReferences(weakRefsToUse);
 		if (refID != null)
 		{
-			WeakReference<T> ref = allWeakRefsByID.get(refID);
+			WeakReference<T> ref = weakRefsToUse.allWeakRefsByID.get(refID);
 			return ref != null ? ref.get() : null;
 		}
 		return null;
 	}
 
-	private void cleanGarbageCollectedReferences()
+	private void cleanGarbageCollectedReferences(WeakRefs<T, RT> weakRefsToUse)
 	{
 		Reference< ? extends T> ref;
-		while ((ref = garbageCollectedRefQueue.poll()) != null)
+		while ((ref = weakRefsToUse.garbageCollectedRefQueue.poll()) != null)
 		{
-			RT refId = allIDsByWeakRef.remove(ref);
-			allWeakRefsByID.remove(refId);
+			RT refId = weakRefsToUse.allIDsByWeakRef.remove(ref);
+			weakRefsToUse.allWeakRefsByID.remove(refId);
 			// no need to clear here refsToUUIDs, as it is a weak hash-map and when T key is garbage collected it clears itself anyway
 		}
 	}

@@ -5,6 +5,7 @@
 	"icon": "servoydefault/label/label.png",
 	"definition": "servoydefault/label/label.js",
 	"libraries": [],
+    "styleVariantCategory": "label",
 	"model":
 	{
 	        "background" : "color", 

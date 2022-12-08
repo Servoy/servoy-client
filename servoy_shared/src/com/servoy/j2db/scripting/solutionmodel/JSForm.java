@@ -3009,6 +3009,11 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 		setEventHandler(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID, method);
 	}
 
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getOnBeforeHideMethodID()
+	 *
+	 * @sampleas getOnShow()
+	 */
 	@JSGetter
 	public JSMethod getOnBeforeHide()
 	{
@@ -3248,7 +3253,8 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 * @sample
 	 * form.onShow = form.newMethod('function onShow(firstShow, event) { application.output("onShow intercepted on " + event.getFormName() + ". first show? " + firstShow); return false; }');
-	 * form.onHide = form.newMethod('function onHide(event) { application.output("onHide blocked on " + event.getFormName()); return false; }');
+	 * form.onHide = form.newMethod('function onHide(event) { application.output("Hide called but this should not block, use onbefore hdie for that" + event.getFormName());}');
+	 * form.onBeforeHide = form.newMethod('function onHide(event) { application.output("onBeforeHide blocked on " + event.getFormName()); return false; }');
 	 */
 	@JSGetter
 	public JSMethod getOnShow()

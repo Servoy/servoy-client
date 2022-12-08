@@ -47,6 +47,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -525,10 +526,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			if (cachedRecords == pksAndRecords.getCachedRecords())
 			{
 				pks = pksAndRecords.getPks();
-				Iterator<Map.Entry<Integer, IRecordInternal>> it = newRecords.entrySet().iterator();
-				while (it.hasNext())
+				for (Entry<Integer, IRecordInternal> entry : newRecords.entrySet())
 				{
-					Map.Entry<Integer, IRecordInternal> entry = it.next();
 					int newRecordIndex = entry.getKey().intValue();
 					IRecordInternal newRecord = entry.getValue();
 					if (newRecordIndex == 0)
@@ -2548,6 +2547,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		else
 		{
+			initialized = true;
+
 			if (pksAndRecords.getPks().getRowCount() > 0) getRecord(0);
 
 			fireDifference(sizeBefore, sizeAfter, changes);
@@ -4941,11 +4942,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			Map<String, AndCondition> conditions = sqlSelect.getConditions();
 			if (conditions != null)
 			{
-				Iterator<String> conditionNamesIte = conditions.keySet().iterator();
 				String conditionName;
-				while (conditionNamesIte.hasNext())
+				for (String element : conditions.keySet())
 				{
-					conditionName = conditionNamesIte.next();
+					conditionName = element;
 					if (conditionName != null &&
 						(conditionName.equals(SQLGenerator.CONDITION_SEARCH) || !conditionName.startsWith(SQLGenerator.SERVOY_CONDITION_PREFIX)))
 					{
@@ -5532,16 +5532,19 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	String getSerializedQuery()
 	{
 		QuerySelect currentQuery = pksAndRecords.getQuerySelectForReading();
-		String serverName = DataSourceUtils.getDataSourceServerName(getDataSource());
-		ArrayList<TableFilter> tableFilterParams = fsm.getTableFilterParams(serverName, currentQuery);
-		try
-		{
-			QuerySet qs = fsm.getDataServer().getSQLQuerySet(serverName, currentQuery, tableFilterParams, 0, -1, true, true);
-			return qs.getSelect().getSql();
-		}
-		catch (RepositoryException | RemoteException e)
-		{
-			Debug.error("Can't get a serialized state from " + currentQuery, e); //$NON-NLS-1$
+		if (currentQuery != null)
+		{ // this could be find mode
+			String serverName = DataSourceUtils.getDataSourceServerName(getDataSource());
+			ArrayList<TableFilter> tableFilterParams = fsm.getTableFilterParams(serverName, currentQuery);
+			try
+			{
+				QuerySet qs = fsm.getDataServer().getSQLQuerySet(serverName, currentQuery, tableFilterParams, 0, -1, true, true);
+				return qs.getSelect().getSql();
+			}
+			catch (RepositoryException | RemoteException e)
+			{
+				Debug.error("Can't get a serialized state from " + currentQuery, e); //$NON-NLS-1$
+			}
 		}
 		return ""; //$NON-NLS-1$
 	}

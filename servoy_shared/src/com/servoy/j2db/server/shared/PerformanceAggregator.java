@@ -89,7 +89,8 @@ public class PerformanceAggregator
 	public void addTiming(String action, long interval_ms, long total_ms, int type,
 		Queue<PerformanceTiming> subActionTimings, int nrecords)
 	{
-		if (this.registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.OFF) return;
+		if (this.registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.OFF ||
+			this.registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.LOGGING_ONLY) return;
 
 		PerformanceTimingAggregate time;
 		lock.readLock().lock();

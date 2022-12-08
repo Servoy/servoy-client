@@ -1,5 +1,7 @@
 package com.servoy.j2db.server.ngclient;
 
+import static com.servoy.j2db.util.UUID.randomUUID;
+
 import java.awt.Dimension;
 import java.awt.print.PageFormat;
 import java.io.IOException;
@@ -17,10 +19,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -43,15 +48,19 @@ import org.sablo.util.ValueReference;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IServerService;
-import org.sablo.websocket.TypedData;
 import org.sablo.websocket.WebsocketSessionManager;
 import org.sablo.websocket.impl.ClientService;
 import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.JSONUtils.EmbeddableJSONWriter;
+import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBasicFormManager;
 import com.servoy.j2db.IDataRendererFactory;
+import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
@@ -94,6 +103,7 @@ import com.servoy.j2db.util.AppendingStringBuffer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IGetLastAccessed;
 import com.servoy.j2db.util.IGetStatusLine;
+import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.RendererParentWrapper;
 import com.servoy.j2db.util.SecuritySupport;
@@ -142,10 +152,13 @@ public class NGClient extends AbstractApplication
 
 	private URL serverURL;
 
-	public NGClient(INGClientWebsocketSession wsSession) throws Exception
+	private final IDesignerCallback designerCallback;
+
+	public NGClient(INGClientWebsocketSession wsSession, IDesignerCallback designerCallback) throws Exception
 	{
 		super(new WebCredentials());
 
+		this.designerCallback = designerCallback;
 		this.wsSession = wsSession;
 		getWebsocketSession().registerServerService(APPLICATION_SERVER_SERVICE, this);
 		getWebsocketSession().registerServerService(I18NService.NAME, new I18NService(this));
@@ -293,6 +306,10 @@ public class NGClient extends AbstractApplication
 			}
 		}
 		scope.setLocked(true);
+		if (designerCallback != null)
+		{
+			designerCallback.addScriptObjects(null, scriptEngine.getSolutionScope());
+		}
 		return scriptEngine;
 	}
 
@@ -662,6 +679,18 @@ public class NGClient extends AbstractApplication
 	@Override
 	public void invokeAndWait(Runnable r)
 	{
+		try
+		{
+			invokeAndWait(r, -1);
+		}
+		catch (TimeoutException e)
+		{
+			// can be ignored never happens when -1 is passed in.
+		}
+	}
+
+	public void invokeAndWait(Runnable r, long timeoutInMinutes) throws TimeoutException
+	{
 		if (wsSession.getEventDispatcher().isEventDispatchThread())
 		{
 			r.run();
@@ -672,7 +701,11 @@ public class NGClient extends AbstractApplication
 			wsSession.getEventDispatcher().addEvent(future);
 			try
 			{
-				future.get(); // blocking
+				if (timeoutInMinutes > 0)
+				{
+					future.get(timeoutInMinutes, TimeUnit.MINUTES);
+				}
+				else future.get(); // blocking
 			}
 			catch (InterruptedException | RuntimeException e) // RuntimeException includes CancellationException as well
 			{
@@ -814,6 +847,8 @@ public class NGClient extends AbstractApplication
 		if (isCloseSolution)
 		{
 			getClientFunctions().clear();
+			mediaInfos.values().stream().forEach(info -> info.destroy());
+			mediaInfos.clear();
 			getRuntimeProperties().put(IServiceProvider.RT_VALUELIST_CACHE, null);
 
 			if (args == null || args.length < 1)
@@ -1254,9 +1289,12 @@ public class NGClient extends AbstractApplication
 		return runtimeWindowManager;
 	}
 
+	protected static final Logger SHUTDOWNLOGGER = LoggerFactory.getLogger("SHUTDOWNLOGGER"); //$NON-NLS-1$
+
 	@Override
 	public synchronized void shutDown(boolean force)
 	{
+		if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("In shutdown for client: " + getWebsocketSession().getSessionKey()); //$NON-NLS-1$
 		super.shutDown(force);
 		if (isShutDown())
 		{
@@ -1355,9 +1393,30 @@ public class NGClient extends AbstractApplication
 		}
 	}
 
+	private final ConcurrentMap<String, MediaInfo> mediaInfos = new ConcurrentHashMap<>(3);
+
+	public MediaInfo createMediaInfo(byte[] mediaBytes, String fileName, String contentType, String contentDisposition)
+	{
+		MediaInfo mediaInfo = new MediaInfo(randomUUID().toString(), fileName, contentType == null ? MimeTypes.getContentType(mediaBytes, null) : contentType,
+			contentDisposition, mediaBytes);
+		mediaInfos.put(mediaInfo.getName(), mediaInfo);
+		return mediaInfo;
+	}
+
+	public MediaInfo createMediaInfo(byte[] mediaBytes)
+	{
+		return createMediaInfo(mediaBytes, null, null, null);
+	}
+
+	@Override
+	public MediaInfo getMedia(String dynamicID)
+	{
+		return mediaInfos.get(dynamicID);
+	}
+
 	public String serveResource(String filename, byte[] bs, String mimetype, String contentDisposition)
 	{
-		MediaInfo mediaInfo = MediaResourcesServlet.createMediaInfo(bs, filename, mimetype, contentDisposition);
+		MediaInfo mediaInfo = createMediaInfo(bs, filename, mimetype, contentDisposition);
 		return mediaInfo.getURL(getWebsocketSession().getSessionKey().getClientnr());
 	}
 
@@ -1457,7 +1516,10 @@ public class NGClient extends AbstractApplication
 						Object retVal = webServiceScriptable.executeScopeFunction(functionSpec, arrayOfJavaConvertedMethodArgs);
 						if (functionSpec != null && functionSpec.getReturnType() != null)
 						{
-							retVal = new TypedData<Object>(retVal, functionSpec.getReturnType()); // this means that when this return value is sent to client it will be converted to browser JSON correctly - if we give it the type
+							EmbeddableJSONWriter w = new EmbeddableJSONWriter(true);
+							FullValueToJSONConverter.INSTANCE.toJSONValue(w, null, retVal, functionSpec.getReturnType(),
+								new BrowserConverterContext(serviceWebObject, PushToServerEnum.reject));
+							retVal = w;
 						}
 						return retVal;
 					}
@@ -1605,7 +1667,7 @@ public class NGClient extends AbstractApplication
 	{
 		if (performanceData != null) return performanceData.startSubAction(serviceName + "." + functionName, System.currentTimeMillis(),
 			(apiFunction == null || apiFunction.getBlockEventProcessing()) ? IDataServer.METHOD_CALL : IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT,
-			getClientID());
+			getClientID(), getSolutionName());
 		return null;
 	}
 

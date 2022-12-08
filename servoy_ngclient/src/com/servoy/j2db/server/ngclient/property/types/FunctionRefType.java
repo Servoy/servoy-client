@@ -52,18 +52,18 @@ public class FunctionRefType extends UUIDReferencePropertyType<Function>
 		if (newJSONValue instanceof JSONObject)
 		{
 			JSONObject jsonFunction = (JSONObject)newJSONValue;
-			return getReference(jsonFunction.optString(FUNCTION_HASH));
+			return getReference(jsonFunction.optString(FUNCTION_HASH), context);
 		}
 		return null;
 	}
 
 	@Override
 	public JSONWriter toJSON(JSONWriter writer, String key, Function sabloValue, PropertyDescription propertyDescription,
-		IBrowserConverterContext dataConverterContext) throws JSONException
+		IBrowserConverterContext converterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.object();
-		writer.key(FUNCTION_HASH).value(addReference(sabloValue));
+		writer.key(FUNCTION_HASH).value(addReference(sabloValue, converterContext));
 		writer.key("svyType").value(getName()); // TODO is this "svyType" used anywhere? can it be removed?
 		writer.endObject();
 		return writer;

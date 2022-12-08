@@ -21,6 +21,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.server.shared.PerformanceData;
 
@@ -32,19 +33,19 @@ public class FunctionWrapper implements Function
 {
 	private final Function function;
 	private final PerformanceData performanceData;
-	private final String clientID;
+	private final IApplication application;
 	private final String name;
 
 	/**
 	 * @param function always seems to be NativeFunction instance as both Codegen.createFunctionObject and Interpreter.createFunctionObject return NativeFunction instances.
 	 * And that is what cx.compileFunction(...) ends up calling.
 	 */
-	public FunctionWrapper(Function function, String name, PerformanceData performanceData, String clientID)
+	public FunctionWrapper(Function function, String name, PerformanceData performanceData, IApplication application)
 	{
 		this.function = function;
 		this.performanceData = performanceData;
 		this.name = name;
-		this.clientID = clientID;
+		this.application = application;
 	}
 
 	/**
@@ -67,7 +68,8 @@ public class FunctionWrapper implements Function
 
 	public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 	{
-		Integer pfId = performanceData.startAction(name, System.currentTimeMillis(), IDataServer.METHOD_CALL, clientID);
+		Integer pfId = performanceData.startAction(name, System.currentTimeMillis(), IDataServer.METHOD_CALL, application.getClientID(),
+			application.getSolutionName());
 		try
 		{
 			return function.call(cx, fixStart(scope), fixStart(thisObj), args);
@@ -76,7 +78,7 @@ public class FunctionWrapper implements Function
 		{
 			if (pfId != null)
 			{
-				performanceData.endAction(pfId, clientID);
+				performanceData.endAction(pfId, application.getClientID());
 			}
 		}
 	}

@@ -36,8 +36,9 @@ import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.CurrentWindow;
-import org.sablo.websocket.TypedData;
 import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.JSONUtils.EmbeddableJSONWriter;
+import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.ExitScriptException;
@@ -538,10 +539,12 @@ public class NGFormServiceHandler extends FormServiceHandler
 										}
 
 										Object retVal = runtimeComponent.executeScopeFunction(functionSpec, arrayOfJavaConvertedMethodArgs);
-
 										if (functionSpec != null && functionSpec.getReturnType() != null)
 										{
-											retVal = new TypedData<Object>(retVal, functionSpec.getReturnType()); // this means that when this return value is sent to client it will be converted to browser JSON correctly - if we give it the type
+											EmbeddableJSONWriter w = new EmbeddableJSONWriter(true);
+											FullValueToJSONConverter.INSTANCE.toJSONValue(w, null, retVal, functionSpec.getReturnType(),
+												new BrowserConverterContext(webComponent, PushToServerEnum.reject));
+											retVal = w;
 										}
 										return retVal;
 									}

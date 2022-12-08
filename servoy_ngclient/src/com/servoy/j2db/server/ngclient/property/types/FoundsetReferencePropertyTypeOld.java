@@ -55,7 +55,7 @@ public class FoundsetReferencePropertyTypeOld extends UUIDReferencePropertyType<
 		if (newValue instanceof JSONObject)
 		{
 			JSONObject jsonFoundset = (JSONObject)newValue;
-			return getReference(jsonFoundset.optString("foundsethash"));
+			return getReference(jsonFoundset.optString("foundsethash"), dataConverterContext);
 		}
 		return null;
 	}
@@ -66,7 +66,7 @@ public class FoundsetReferencePropertyTypeOld extends UUIDReferencePropertyType<
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.object();
-		writer.key("foundsethash").value(addReference(value));
+		writer.key("foundsethash").value(addReference(value, dataConverterContext));
 		writer.key("foundsetdatasource").value(value.getDataSource());
 		writer.key("foundsetpk").value(value.getTable().getRowIdentColumnNames().next());
 		writer.key("svyType").value(getName());

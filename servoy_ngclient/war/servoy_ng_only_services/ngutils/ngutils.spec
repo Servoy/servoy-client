@@ -56,12 +56,12 @@
 			"returns": "string"
 		},
 		"addClassToDOMElement": {
-			"parameters": [{ "name": "jQuerySelector", "type": "string" }, { "name": "className", "type": "string" }],
+			"parameters": [{ "name": "cssSelector", "type": "string" }, { "name": "className", "type": "string" }],
 			"blockEventProcessing": false,
 			"async": true
 		},
 		"removeClassFromDOMElement": {
-			"parameters": [{ "name": "jQuerySelector", "type": "string" }, { "name": "className", "type": "string" }],
+			"parameters": [{ "name": "cssSelector", "type": "string" }, { "name": "className", "type": "string" }],
 			"blockEventProcessing": false,
 			"async": true
 		},

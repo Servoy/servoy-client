@@ -90,4 +90,7 @@ public interface IJSDeveloperSolutionModel
 	 */
 	void js_openForm(Object form);
 
+//	JSONArray js_getExistingVariants(String variantCategoryName);
+//
+//	void js_setVariantsFor(String variantCategoryName, String jsonArrayString);
 }

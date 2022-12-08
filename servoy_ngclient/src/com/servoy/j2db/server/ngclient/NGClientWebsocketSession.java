@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import org.json.JSONObject;
@@ -54,6 +55,7 @@ import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.persistence.Form;
@@ -85,11 +87,13 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	private int clientType = 1;
 
+	IDesignerCallback designerCallback;
+
 	private static final class WindowServiceSpecification extends WebObjectSpecification
 	{
 		private WindowServiceSpecification()
 		{
-			super(NGRuntimeWindowManager.WINDOW_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, "", null, null, null);
+			super(NGRuntimeWindowManager.WINDOW_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, null, "", null, null, null);
 			WebObjectFunctionDefinition destroy = new WebObjectFunctionDefinition("destroyController");
 			destroy.addParameter(new PropertyDescriptionBuilder().withName("name").withType(TypesRegistry.getType(StringPropertyType.TYPE_NAME)).build());
 			destroy.setAsync(true);
@@ -103,7 +107,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		@SuppressWarnings("nls")
 		private TypesRegistryServiceSpecification()
 		{
-			super(TypesRegistryService.TYPES_REGISTRY_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, "", null, null, null);
+			super(TypesRegistryService.TYPES_REGISTRY_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, null, "", null, null, null);
 			WebObjectFunctionDefinition apiCallDef = new WebObjectFunctionDefinition("addComponentClientSideSpecs");
 			apiCallDef
 				.addParameter(new PropertyDescriptionBuilder().withName("toBeSent").withType(TypesRegistry.getType(ObjectPropertyType.TYPE_NAME)).build());
@@ -124,7 +128,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	{
 		private ClientFunctionsServiceSpecification()
 		{
-			super(CLIENT_FUNCTION_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, "", null, null, null);
+			super(CLIENT_FUNCTION_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, null, "", null, null, null);
 			WebObjectFunctionDefinition reload = new WebObjectFunctionDefinition("reloadClientFunctions");
 			reload.setAsync(true);
 			reload.setPreDataServiceCall(true);
@@ -138,7 +142,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	private NGClient client;
 
-	public NGClientWebsocketSession(WebsocketSessionKey sessionKey)
+	public NGClientWebsocketSession(WebsocketSessionKey sessionKey, IDesignerCallback designerCallback)
 	{
 		super(sessionKey);
 		registerClientService(new ServoyClientService(NGRuntimeWindowManager.WINDOW_SERVICE, WINDOWS_SERVICE_SPEC, this, false));
@@ -151,7 +155,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	{
 		if (client == null)
 		{
-			setClient(new NGClient(this));
+			setClient(new NGClient(this, designerCallback));
 		}
 	}
 
@@ -202,7 +206,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	@Override
 	protected IEventDispatcher createEventDispatcher()
 	{
-		return new NGEventDispatcher(client);
+		return client == null ? null : new NGEventDispatcher(client);
 	}
 
 	@Override
@@ -486,13 +490,47 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	 *
 	 * @see org.sablo.websocket.BaseWebsocketSession#sessionExpired()
 	 */
+	@SuppressWarnings("nls")
 	@Override
 	public void sessionExpired()
 	{
-		if (!getClient().isShutDown())
+		if (!getClient().isShutDown()) try
+		{
+			if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("Shutting down client with id " + getSessionKey());
 			getClient().invokeAndWait(() -> {
 				getClient().shutDown(true);
-			});
+			}, 5);
+			if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("Client shutdown client with id " + getSessionKey());
+		}
+		catch (TimeoutException e)
+		{
+			if (!getClient().isShutDown())
+			{
+				if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("Timeout happend for shutdown client with id " + getSessionKey());
+				// client shutdown timeout, maybe long running tasks.
+				IEventDispatcher dispatcher = executor;
+				if (dispatcher != null)
+				{
+					// just try to interrupt the event thread is that is still alive to force an exception.
+					String stack = dispatcher.interruptEventThread();
+					if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER
+						.debug("dispatch thread interrupted for and called shutdown again client with id " + getSessionKey() + " stack: \n" + stack);
+					// now try again but don't wait for it.
+					getClient().invokeLater(() -> {
+						getClient().shutDown(true);
+					});
+				}
+				else
+				{
+					if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("no dispatch thread anymore for client with id " + getSessionKey());
+				}
+			}
+			else
+			{
+				if (SHUTDOWNLOGGER.isDebugEnabled())
+					SHUTDOWNLOGGER.debug("Client shutdown client with id " + getSessionKey() + " but it was already shutdowned");
+			}
+		}
 		super.sessionExpired();
 	}
 

@@ -151,7 +151,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		{
 			int startPos = form.getPartStartYPos(part.getID());
 			int endPos = part.getHeight();
-			Point location = CSSPositionUtils.getLocation(o instanceof IFormElement ? (IFormElement)o : (CSSPositionLayoutContainer)o);
+			Point location = CSSPositionUtils.getLocation(((ISupportBounds)o), form);
 			if (location != null && (startPos > location.y || endPos <= location.y))
 			{
 				return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
@@ -316,7 +316,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				templateProperties.content.keySet().removeAll(properties.content.keySet());
 				// write the template properties that are left
 				JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType,
-					new FormElementContext(fe));
+					new FormElementContext(fe, context, null));
 				// write the actual values
 				webComponent.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, properties);
 			}

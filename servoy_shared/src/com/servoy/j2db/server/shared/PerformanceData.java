@@ -60,13 +60,13 @@ public class PerformanceData
 		this.aggregator = aggregator;
 	}
 
-	public Integer startAction(String action, long start_ms, int type, String clientUUID)
+	public Integer startAction(String action, long start_ms, int type, String clientUUID, String customObject)
 	{
 		if (registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.OFF) return null;
 		PerformanceTiming startedTimingPerClientForThisInstance = startedTimingPerClientForThisInstanceTL.get();
 		if (startedTimingPerClientForThisInstance == null)
 		{
-			startedTimingPerClientForThisInstance = new PerformanceTiming(action, type, start_ms, clientUUID, registry, log, id, this.aggregator);
+			startedTimingPerClientForThisInstance = new PerformanceTiming(action, type, customObject, start_ms, clientUUID, registry, log, id, this.aggregator);
 			startedTimingPerClientForThisInstanceTL.set(startedTimingPerClientForThisInstance);
 			startedTimings.put(startedTimingPerClientForThisInstance.getID(), startedTimingPerClientForThisInstance);
 			PerformanceTiming sharedTopTimingOfClient = sharedTopTimingOfClientTL.get();
@@ -75,7 +75,7 @@ public class PerformanceData
 		}
 		else
 		{
-			return startedTimingPerClientForThisInstance.startAction(action, start_ms, type, clientUUID);
+			return startedTimingPerClientForThisInstance.startAction(action, start_ms, type, clientUUID, customObject);
 		}
 	}
 
@@ -141,7 +141,8 @@ public class PerformanceData
 			if (log != null && log.isInfoEnabled())
 			{
 				log.info(timingThatEnded.getClientUUID() + '|' + timingThatEnded.getAction() + '|' +
-					timingThatEnded.getRunningTimeMS() + '|' + timingThatEnded.getIntervalTimeMS());
+					timingThatEnded.getRunningTimeMS() + '|' + timingThatEnded.getIntervalTimeMS() + '|' + timingThatEnded.getTypeString() + '|' +
+					timingThatEnded.getCustomObject());
 			}
 			timingThatEnded.setEndTime();
 			addTiming(timingThatEnded, timingThatEnded.getIntervalTimeMS(),
@@ -157,14 +158,14 @@ public class PerformanceData
 		this.aggregator.addTiming(timing.getAction(), interval_ms, total_ms, timing.getType(), timing.getSubTimings(), nrecords);
 	}
 
-	public Pair<Integer, Integer> startSubAction(String action, long start_ms, int type, String clientUUID)
+	public Pair<Integer, Integer> startSubAction(String action, long start_ms, int type, String clientUUID, String customObject)
 	{
 		if (registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.OFF) return null;
 
 		PerformanceTiming lastStartedTiming = startedTimingPerClientForThisInstanceTL.get();
 		if (lastStartedTiming == null) return null; // probably a Servoy internal service API call that gets called outside any user method; ignore
 
-		Integer subTimingUUID = lastStartedTiming.startAction(action, start_ms, type, clientUUID); // this call will go to (recursively) last started action on this client's stack
+		Integer subTimingUUID = lastStartedTiming.startAction(action, start_ms, type, clientUUID, customObject); // this call will go to (recursively) last started action on this client's stack
 		return new Pair<>(lastStartedTiming.getID(), subTimingUUID);
 	}
 

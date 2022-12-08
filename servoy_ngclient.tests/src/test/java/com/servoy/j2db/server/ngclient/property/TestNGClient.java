@@ -92,7 +92,7 @@ public class TestNGClient extends NGClient
 	 */
 	TestNGClient(TestRepository tr, NGClientWebsocketSession session) throws Exception
 	{
-		super(session);
+		super(session, null);
 		this.tr = tr;
 		((NGClientWebsocketSession)getWebsocketSession()).setClient(this);
 	}
@@ -468,6 +468,12 @@ public class TestNGClient extends NGClient
 					public Date getServerTime(String client_id) throws RemoteException
 					{
 						return null;
+					}
+
+					@Override
+					public String getServerId() throws RemoteException
+					{
+						return "";
 					}
 				};
 			}

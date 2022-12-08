@@ -44,4 +44,6 @@ public interface IClientHost extends Remote
 	 * @throws RemoteException
 	 */
 	public Date getServerTime(String client_id) throws RemoteException;
+
+	public String getServerId() throws RemoteException;
 }

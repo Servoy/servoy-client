@@ -196,7 +196,7 @@ public class PartWrapper
 		}
 		for (IFormElement persist : persists)
 		{
-			Point location = CSSPositionUtils.getLocation(persist);
+			Point location = CSSPositionUtils.getLocation(persist, context);
 			if (startPos <= location.y && endPos > location.y && persist instanceof BaseComponent)
 			{
 				if (isSecurityVisible(persist, converterContext.getSolution(), context)) baseComponents.add((BaseComponent)persist);

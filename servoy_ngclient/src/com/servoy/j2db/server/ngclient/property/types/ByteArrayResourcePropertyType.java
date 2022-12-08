@@ -26,6 +26,7 @@ import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.server.ngclient.IContextProvider;
+import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.util.Debug;
 
@@ -62,19 +63,18 @@ public class ByteArrayResourcePropertyType extends DefaultPropertyType<byte[]> i
 		if (sabloValue != null)
 		{
 			writer.object();
-			MediaResourcesServlet.MediaInfo mediaInfo = MediaResourcesServlet.createMediaInfo(sabloValue);
-			int clientnr = -1;
 			if (dataConverterContext != null && dataConverterContext.getWebObject() instanceof IContextProvider)
 			{
-				clientnr = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication().getWebsocketSession()
-					.getSessionKey().getClientnr();
+				INGApplication application = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication();
+				MediaResourcesServlet.MediaInfo mediaInfo = application.createMediaInfo(sabloValue);
+				int clientnr = application.getWebsocketSession().getSessionKey().getClientnr();
+				writer.key("url").value(mediaInfo.getURL(clientnr, true));
+				writer.key("contentType").value(mediaInfo.getContentType()); //$NON-NLS-1$
 			}
 			else
 			{
 				Debug.error("Cannot generate url for byte property due to missing application info: " + pd.getName());
 			}
-			writer.key("url").value(mediaInfo.getURL(clientnr, true));
-			writer.key("contentType").value(mediaInfo.getContentType()); //$NON-NLS-1$
 			writer.endObject();
 		}
 		else

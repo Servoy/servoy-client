@@ -626,7 +626,7 @@ public class ScriptEngine implements IScriptSupport
 				}
 			}
 			methodName = scopeName + "." + methodName;
-			return new FunctionWrapper(f, methodName, performanceData, application.getClientID());
+			return new FunctionWrapper(f, methodName, performanceData, application);
 		}
 		return f;
 	}

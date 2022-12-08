@@ -25,6 +25,8 @@ import java.util.Set;
 
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.Symbol;
+import org.mozilla.javascript.SymbolScriptable;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.CustomJSONArrayType;
@@ -40,7 +42,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * @author jcompagner
  */
-public final class RhinoMapOrArrayWrapper implements Scriptable
+public final class RhinoMapOrArrayWrapper implements Scriptable, SymbolScriptable
 {
 	private final Object wrappedValue;
 	private final PropertyDescription propertyDescription;
@@ -351,6 +353,39 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 			return result;
 		}
 		return new Object[0];
+	}
+
+	@Override
+	public Object get(Symbol key, Scriptable start)
+	{
+		// let our proto handle it
+		return Scriptable.NOT_FOUND;
+	}
+
+	@Override
+	public boolean has(Symbol key, Scriptable start)
+	{
+		// let our proto handle it
+		return false;
+	}
+
+	@Override
+	public void delete(Symbol key)
+	{
+		// All symbols are read-only
+	}
+
+	public void put(Symbol symbol, Scriptable start, Object value)
+	{
+		// this is impl of NativeJavaObject
+		// what todo do here exactly? just put it in the map if possible? what if it is a list?
+		// We could be asked to modify the value of a property in the
+		// prototype. Since we can't add a property to a Java object,
+		// we modify it in the prototype rather than copy it down.
+		if (prototype instanceof SymbolScriptable)
+		{
+			((SymbolScriptable)prototype).put(symbol, prototype, value);
+		}
 	}
 
 	@Override

@@ -541,7 +541,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 					performanceData = perfRegistry.getPerformanceData(getApplication().getSolutionName());
 					perfId = performanceData != null
 						? performanceData.startSubAction("showDialog(" + windowName + "->" + formName + ")", System.currentTimeMillis(), //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
-							IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT, clientID)
+							IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT, clientID, getApplication().getSolutionName())
 						: null;
 				}
 				try

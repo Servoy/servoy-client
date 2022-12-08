@@ -37,6 +37,7 @@ public class PerformanceTiming extends PerformanceData
 	private final static AtomicInteger ID_GEN = new AtomicInteger();
 	private final Integer id;
 	private final String action;
+	private final String customObject;
 	private final int type;
 	private final String clientUUID;
 	private final AtomicLong start_ms = new AtomicLong(0);
@@ -45,14 +46,15 @@ public class PerformanceTiming extends PerformanceData
 
 	private final ConcurrentLinkedQueue<PerformanceTiming> subTimings = new ConcurrentLinkedQueue<>();
 
-	public PerformanceTiming(String action, int type, long start_ms, String clientUUID, IPerformanceRegistry registry, Logger log, String id,
-		PerformanceAggregator aggregator)
+	public PerformanceTiming(String action, int type, String customObject, long start_ms, String clientUUID, IPerformanceRegistry registry, Logger log,
+		String id, PerformanceAggregator aggregator)
 	{
 		super(registry, log, id, aggregator);
 
 		this.id = Integer.valueOf(ID_GEN.getAndIncrement());
 		this.action = action;
 		this.type = type;
+		this.customObject = customObject;
 		this.start_ms.set(start_ms);
 		this.clientUUID = clientUUID;
 	}
@@ -134,6 +136,10 @@ public class PerformanceTiming extends PerformanceData
 				return "User management"; //$NON-NLS-1$
 			case IDataServer.META_DATA_QUERY :
 				return "Meta data"; //$NON-NLS-1$
+			case IDataServer.METHOD_CALL :
+				return "Function"; //$NON-NLS-1$
+			case IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT :
+				return "Function_userinput"; //$NON-NLS-1$
 		}
 		return "Unknown"; //$NON-NLS-1$
 	}
@@ -165,7 +171,6 @@ public class PerformanceTiming extends PerformanceData
 		interval_ms.set(System.currentTimeMillis());
 	}
 
-
 	public void setEndTime()
 	{
 		end_ms.set(System.currentTimeMillis());
@@ -174,6 +179,11 @@ public class PerformanceTiming extends PerformanceData
 	public Queue<PerformanceTiming> getSubTimings()
 	{
 		return subTimings;
+	}
+
+	public String getCustomObject()
+	{
+		return customObject;
 	}
 
 }
