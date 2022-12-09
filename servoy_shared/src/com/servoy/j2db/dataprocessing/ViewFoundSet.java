@@ -1759,6 +1759,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 				manager.getSortOptions(sort.getColumn())))
 			.collect(Collectors.toList()));
 		if (!defer) this.loadAllRecordsImpl();
+		else hasMore = false;
 
 	}
 
