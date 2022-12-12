@@ -75,6 +75,16 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 			if (componentScope) iS.modelUnwatch = watchModel(value.componentDirectiveName, value.model, childChangedNotifierGenerator, componentScope);
 		}
 	};
+	
+	function updateFireChanges(internalState, componentScope) {
+        internalState.fireChanges = function(viewportChanges) {
+            for(var i = 0; i < internalState.viewportChangeListeners.length; i++) {
+                $webSocket.setIMHDTScopeHintInternal(componentScope);
+                internalState.viewportChangeListeners[i](viewportChanges);
+                $webSocket.setIMHDTScopeHintInternal(undefined);
+            }
+        }
+    }
 
 	$sabloConverters.registerCustomPropertyHandler('component', {
 		fromServerToClient: function (serverJSONValue, currentClientValue, componentScope, propertyContext) {
@@ -215,13 +225,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 							internalState.viewportChangeListeners.splice(index, 1);
 						}
 					}
-					internalState.fireChanges = function(viewportChanges) {
-						for(var i = 0; i < internalState.viewportChangeListeners.length; i++) {
-							$webSocket.setIMHDTScopeHintInternal(componentScope);
-							internalState.viewportChangeListeners[i](viewportChanges);
-							$webSocket.setIMHDTScopeHintInternal(undefined);
-						}
-					}
+                    updateFireChanges(internalState, componentScope);
 
 					internalState.modelUnwatch = null;
 
@@ -333,12 +337,12 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 		},
 
 		updateAngularScope: function(clientValue, componentScope) {
-			removeAllWatches(clientValue);
-			if (componentScope) addBackWatches(clientValue, componentScope,	getBeanPropertyChangeNotifierGenerator(clientValue));
-
 			if (clientValue) {
+                removeAllWatches(clientValue);
 				var internalState = clientValue[$sabloConverters.INTERNAL_IMPL];
 				if (internalState) {
+                    updateFireChanges(internalState, componentScope);
+
 					var conversionInfo = internalState[$sabloConverters.TYPES_KEY];
 					if (conversionInfo) {
 						var beanModel = clientValue[MODEL_KEY];
@@ -349,6 +353,7 @@ angular.module('component_custom_property', ['webSocketModule', 'servoyApp', 'fo
 
 					$viewportModule.updateAngularScope(clientValue[MODEL_VIEWPORT], internalState, componentScope, false);
 				}
+                if (componentScope) addBackWatches(clientValue, componentScope,	getBeanPropertyChangeNotifierGenerator(clientValue));
 			}
 		},
 

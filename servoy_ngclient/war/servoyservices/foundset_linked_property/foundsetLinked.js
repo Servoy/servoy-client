@@ -15,8 +15,18 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 
 	var PUSH_TO_SERVER = "w"; // value is undefined when we shouldn't send changes to server, false if it should be shallow watched and true if it should be deep watched
 
+    function updateFireChanges(internalState, componentScope) {
+        internalState.fireChanges = function(values) {
+            for (var i = 0; i < internalState.changeListeners.length; i++) {
+                $webSocket.setIMHDTScopeHintInternal(componentScope);
+                internalState.changeListeners[i](values);
+                $webSocket.setIMHDTScopeHintInternal(undefined);
+            }
+        }
+    }
+
 	/** Initializes internal state of a new value */
-	function initializeNewValue(newValue, oldValue) {
+	function initializeNewValue(newValue, oldValue, componentScope) {
 		$sabloConverters.prepareInternalState(newValue);
 		var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
 
@@ -53,13 +63,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 				internalState.changeListeners.splice(index, 1);
 			}
 		}
-		internalState.fireChanges = function(values) {
-			for (var i = 0; i < internalState.changeListeners.length; i++) {
-				$webSocket.setIMHDTScopeHintInternal(componentScope);
-				internalState.changeListeners[i](values);
-				$webSocket.setIMHDTScopeHintInternal(undefined);
-			}
-		}
+        updateFireChanges(internalState, componentScope);
 	}
 	
 	function getUpdateWholeViewportFunc(propertyContext) {
@@ -155,7 +159,7 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 				var didSomething = false;
 				var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
 				if (!angular.isDefined(internalState)) {
-					initializeNewValue(newValue, currentClientValue);
+					initializeNewValue(newValue, currentClientValue, componentScope);
 					internalState = newValue[$sabloConverters.INTERNAL_IMPL];
 				}
 
@@ -231,14 +235,16 @@ angular.module('foundset_linked_property', ['webSocketModule', 'servoyApp', 'fou
 		},
 
 		updateAngularScope: function(clientValue, componentScope) {
-			removeAllWatches(clientValue);
-			if (componentScope) addBackWatches(clientValue, componentScope);
-
 			if (clientValue) {
+                removeAllWatches(clientValue);
+
 				var internalState = clientValue[$sabloConverters.INTERNAL_IMPL];
 				if (internalState) {
+                    updateFireChanges(internalState, componentScope);
 					$viewportModule.updateAngularScope(clientValue, internalState, componentScope, true);
 				}
+
+                if (componentScope) addBackWatches(clientValue, componentScope);
 			}
 		},
 
