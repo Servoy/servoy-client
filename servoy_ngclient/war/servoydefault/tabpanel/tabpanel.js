@@ -99,7 +99,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 	    	  		{
 	    	  			if (newValue)
 	    	  			{
-	    	  				$scope.svyServoyapi.formWillShow($scope.model.selectedTab.containsFormId,$scope.model.selectedTab.relationName);
+	    	  				$scope.svyServoyapi.formWillShow($scope.model.selectedTab.containsFormId,$scope.model.selectedTab.relationName, $scope.getTabIndex($scope.model.selectedTab) - 1);
 	    	  			}
 	    	  			else
 	    	  			{
@@ -185,7 +185,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 			}
 			
 			function setFormVisible(tab,event) {
-				if (tab.containsFormId) $scope.svyServoyapi.formWillShow(tab.containsFormId, tab.relationName);
+				if (tab.containsFormId) $scope.svyServoyapi.formWillShow(tab.containsFormId, tab.relationName, $scope.getTabIndex(tab) - 1);
 				if ($log.debugEnabled) $log.debug("svy * selectedTab = '" + tab.containsFormId + "' -- " + new Date().getTime());
 				var oldSelected = $scope.model.selectedTab;
 				$scope.model.selectedTab = tab;
@@ -264,7 +264,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 							var formInWait = $scope.model.selectedTab.containsFormId;
 							$scope.waitingForServerVisibility[formInWait] = true;
 							var currentSelectedTab = $scope.model.selectedTab;
-							var promise =  $scope.svyServoyapi.hideForm($scope.model.selectedTab.containsFormId,null,null,tab.containsFormId, tab.relationName);
+							var promise =  $scope.svyServoyapi.hideForm($scope.model.selectedTab.containsFormId,null,null,tab.containsFormId, tab.relationName, $scope.getTabIndex(tab) - 1);
 							if ($log.debugEnabled) $log.debug("svy * Will hide previously selected form (tab): " + $scope.model.selectedTab.containsFormId);
 							promise.then(function(ok) {
 								if ($log.debugEnabled) $log.debug("svy * Previously selected form (tab) hide completed with '" + ok + "': " + $scope.model.selectedTab.containsFormId);
@@ -275,7 +275,7 @@ angular.module('servoydefaultTabpanel',['servoy']).directive('servoydefaultTabpa
 									if ($log.debugEnabled) $log.debug("svy * Tab '" + tab.containsFormId + "': no longer active, ignore making it visible");
 									// it could be that the server was sending the correct state in the mean time already at the same time 
 									// we try to hide it. just call show again to be sure.
-									if (currentSelectedTab == $scope.model.selectedTab && $scope.model.selectedTab.active) $scope.svyServoyapi.formWillShow($scope.model.selectedTab.containsFormId,$scope.model.selectedTab.relationName);
+									if (currentSelectedTab == $scope.model.selectedTab && $scope.model.selectedTab.active) $scope.svyServoyapi.formWillShow($scope.model.selectedTab.containsFormId,$scope.model.selectedTab.relationName, $scope.getTabIndex($scope.model.selectedTab) - 1);
 									return;
 								}
 								if (ok) {
