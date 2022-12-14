@@ -40,6 +40,7 @@ public class ThemeResourceLoader
 	public static final String CUSTOM_PROPERTIES_NG2_LESS = "custom_servoy_theme_properties_ng2.less";
 	public static final String PROPERTIES_LESS = "servoy_theme_properties.less";
 	public static final String THEME_LESS = "servoy_theme.less";
+	public static final String VARIANTS_JSON = "variants.json";
 	public static final String[] VERSIONS = new String[] { "latest", "2022.3.0", "2021.3.0", "2020.6.0", "2019.12.0", "2019.6.0", "2019.3.0", "8.4.0" };
 
 	private static SortedMap<Version, String> themePropertyResource = new TreeMap<>();
@@ -73,6 +74,11 @@ public class ThemeResourceLoader
 	public static byte[] getDefaultNG2SolutionLess()
 	{
 		return load("default_solution_ng2.less", ClientVersion.getPureVersion()).getBytes(Charset.forName("UTF-8"));
+	}
+
+	public static byte[] getVariantsFile()
+	{
+		return load("variants.json", ClientVersion.getPureVersion()).getBytes(Charset.forName("UTF-8"));
 	}
 
 	public static byte[] getCustomProperties()

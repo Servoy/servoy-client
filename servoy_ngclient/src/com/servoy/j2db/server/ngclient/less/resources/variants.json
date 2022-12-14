@@ -1,0 +1,63 @@
+{
+	"BtnPrimary": {
+	   "category": "button", 
+	   "displayName" : "Button",
+	   "classes" : [ "btn-primary"]   
+	},
+	"BtnSuccess": {
+		  "category": "button", 
+		  "displayName" : "Button",
+		  "classes" : [ "btn-success" ]   
+	   },
+	"BtnDanger": {
+	   "category": "button", 
+	   "displayName" : "Button",
+	   "classes" : [ "btn-danger" ]   
+	},
+	"BtnWarning": {
+	   "category": "button", 
+	   "displayName" : "Button",
+	   "classes" : [ "btn-warning" ]   
+	},
+	"BtnInfo": {
+	   "category": "button", 
+	   "displayName" : "Button",
+	   "classes" : [ "btn-info" ]   
+	},
+	"BtnDefault": {
+	   "category": "button", 
+	   "displayName" : "Default",
+	   "classes" : [ "btn-default" ]   
+	},
+	"LblPrimary": {
+	   "category": "label", 
+	   "displayName": "Label", 
+	   "classes" : [ "label-primary"]   
+	},
+	"LblSuccess": {
+	   "category": "label",
+	   "displayName": "Label", 
+	   "classes" : [ "label-success" ]   
+	},
+	"LblDanger": {
+	   "category": "label",
+	   "displayName" : "Label",
+	   "classes" : [ "label-danger" ]   
+	},
+	"LblWarning": {
+	   "category": "label",
+	   "displayName" : "Label",
+	   "classes" : [ "label-warning" ]   
+	},
+	"LblInfo": {
+	   "category": "label",
+	   "displayName" : "Label",
+	   "classes" : [ "label-info"]   
+	},
+	"LblDefault": {
+	   "category": "label",
+	   "displayName" : "Label",
+	   "classes" : [ "label-default" ]   
+	}
+ }
+ 
