@@ -5720,7 +5720,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	}
 
 	/*
-	 * Select by these pks if possible, otherwise select the first record
+	 * Select by these pks if possible, otherwise select keep the current index or the first record
 	 */
 	private void trySelectingPks(Object[][] selectedPKs, int newSize)
 	{
@@ -5730,7 +5730,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			selectedPKsRecPresent = selectedPKs.length == 1 ? selectRecord(selectedPKs[0]) : selectRecords(selectedPKs);
 		}
 
-		if (!selectedPKsRecPresent)
+		if (!selectedPKsRecPresent && !(getSelectedIndex() >= 0 && getSelectedIndex() < newSize))
 		{
 			if (fsm.getApplication().isEventDispatchThread())
 			{
