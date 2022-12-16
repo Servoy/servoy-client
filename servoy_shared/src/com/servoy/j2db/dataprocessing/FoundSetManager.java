@@ -3025,7 +3025,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		nullColumnValidatorEnabled = enable;
 	}
 
-	private boolean alwaysFollowPkSelection = true;
+	private boolean alwaysFollowPkSelection = false;
 
 	public boolean isAlwaysFollowPkSelection()
 	{

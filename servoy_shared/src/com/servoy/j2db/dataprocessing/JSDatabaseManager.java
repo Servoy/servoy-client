@@ -3995,11 +3995,11 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	/**
 	 * Enable/disable the foundset behaviour to keep selection to the first row always, even if updates from other clients are received that add new records before the current first record.
 	 *
-	 * If set to true [default], a foundset with selection on first record will keep the selected index to 1, but may change the selected record when a new record is received from another client.
-	 * If set to false, the selected index may change but the selected record will be kept if possible.
+	 * If set to false [default], a foundset with selection on first record will keep the selected index to 1, but may change the selected record when a new record is received from another client.
+	 * If set to true, the selected index may change but the selected record will be kept if possible.
 	 *
 	 * @sample
-	 * databaseManager.alwaysFollowPkSelection = false; // disable
+	 * databaseManager.alwaysFollowPkSelection = true; // enable
 	 *
 	 * // test if enabled
 	 * if(databaseManager.alwaysFollowPkSelection) application.output('alwaysFollowPkSelection enabled')
