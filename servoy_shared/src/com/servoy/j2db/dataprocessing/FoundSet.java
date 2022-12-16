@@ -597,7 +597,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		// move to correct position if we know
 		if (selectedIndex == -1)
 		{
-			trySelectingPks(selectedPKs, newSize);
+			trySelectingPks(selectedPKs, newSize, false);
 		}
 		else
 		{
@@ -2133,7 +2133,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		fireDifference(sizeBefore, newSize, changes);
 
 		// try to preserve selection after load by query; if not possible select first record
-		trySelectingPks(selectedPKs, newSize);
+		trySelectingPks(selectedPKs, newSize, true);
 
 		return true;
 	}
@@ -2549,7 +2549,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			fireDifference(sizeBefore, sizeAfter, changes);
 
 			// try to preserve selection after load pk list; if not possible select first record
-			trySelectingPks(selectedPKs, getSize());
+			trySelectingPks(selectedPKs, getSize(), true);
 		}
 		return true;
 	}
@@ -5714,7 +5714,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		int newSize = getRawSize();
 		fireDifference(oldSize, newSize, changes);
 
-		trySelectingPks(selectedPKs, newSize);
+		trySelectingPks(selectedPKs, newSize, false);
 
 		return true;
 	}
@@ -5722,7 +5722,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/*
 	 * Select by these pks if possible, otherwise select keep the current index or the first record
 	 */
-	private void trySelectingPks(Object[][] selectedPKs, int newSize)
+	private void trySelectingPks(Object[][] selectedPKs, int newSize, boolean index0WhenNotFound)
 	{
 		boolean selectedPKsRecPresent = false;
 		if (selectedPKs != null)
@@ -5730,7 +5730,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			selectedPKsRecPresent = selectedPKs.length == 1 ? selectRecord(selectedPKs[0]) : selectRecords(selectedPKs);
 		}
 
-		if (!selectedPKsRecPresent && !(getSelectedIndex() >= 0 && getSelectedIndex() < newSize))
+		if (!selectedPKsRecPresent && (index0WhenNotFound || !(getSelectedIndex() >= 0 && getSelectedIndex() < newSize)))
 		{
 			if (fsm.getApplication().isEventDispatchThread())
 			{
@@ -5826,7 +5826,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		int newSize = getSize();
 		fireDifference(oldSize, newSize, changes);
 
-		trySelectingPks(selectedPKs, newSize);
+		trySelectingPks(selectedPKs, newSize, true);
 	}
 
 	public boolean isRecordEditable(int rowIndex)
