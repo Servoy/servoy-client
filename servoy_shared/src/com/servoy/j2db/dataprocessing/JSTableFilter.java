@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.dataprocessing;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.scripting.IJavaScriptType;
@@ -33,6 +35,7 @@ public class JSTableFilter implements IJavaScriptType
 	private final ITable table;
 	private final TableFilterdefinition tableFilterdefinition;
 	private final String serverName;
+	private boolean dataBroadcast;
 
 	public JSTableFilter(String serverName, ITable table, TableFilterdefinition tableFilterdefinition)
 	{
@@ -79,6 +82,24 @@ public class JSTableFilter implements IJavaScriptType
 		return table == null ? null : table.getName();
 	}
 
+
+	/** RAGTEST doc
+	 * Returns the table name.
+	 *
+	 * @sample
+	 * var filter = databaseManager.createTableFilterParam('admin', 'messages', 'messagesid', '>', 10)
+	 * var tableName = filter.tableName // messages
+	 *
+	 * @return String table name.
+	 */
+	@JSFunction
+	public JSTableFilter dataBroadcast(boolean dataBroadcast)
+	{
+		this.dataBroadcast = dataBroadcast;
+		return this;
+	}
+
+
 	/**
 	 * @return the tableFilterdefinition
 	 */
@@ -86,4 +107,13 @@ public class JSTableFilter implements IJavaScriptType
 	{
 		return tableFilterdefinition;
 	}
+
+	/**
+	 * @return the dataBroadcast
+	 */
+	public boolean getDataBroadcast()
+	{
+		return dataBroadcast;
+	}
+
 }

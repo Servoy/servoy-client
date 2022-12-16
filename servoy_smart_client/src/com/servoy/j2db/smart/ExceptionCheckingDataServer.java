@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 import com.servoy.j2db.dataprocessing.Blob;
+import com.servoy.j2db.dataprocessing.BroadcastFilter;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.ISQLStatement;
@@ -792,4 +793,17 @@ public class ExceptionCheckingDataServer implements IDataServer
 		}
 	}
 
+	@Override
+	public void setBroadcastFilters(String clientId, String serverName, BroadcastFilter[] broadcastFilters) throws RemoteException
+	{
+		try
+		{
+			delegate.setBroadcastFilters(clientId, serverName, broadcastFilters);
+		}
+		catch (RemoteException e)
+		{
+			checkException(e);
+			throw e;
+		}
+	}
 }

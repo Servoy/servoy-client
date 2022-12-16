@@ -29,25 +29,27 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
  */
 public class TableFilter implements IWriteReplace
 {
-
 	private final String name;
 	private final String serverName;
 	private final String tableName;
 	private final String tableSQLName;
 	private TableFilterdefinition tableFilterdefinition;
+	private final boolean broadcastFilter;
 
 	public TableFilter(String name, String serverName, String tableName, String tableSQLName, String dataprovider, int operator, Object value)
 	{
-		this(name, serverName, tableName, tableSQLName, new DataproviderTableFilterdefinition(dataprovider, operator, value));
+		this(name, serverName, tableName, tableSQLName, new DataproviderTableFilterdefinition(dataprovider, operator, value), false);
 	}
 
-	public TableFilter(String name, String serverName, String tableName, String tableSQLName, TableFilterdefinition tableFilterdefinition)
+	public TableFilter(String name, String serverName, String tableName, String tableSQLName, TableFilterdefinition tableFilterdefinition,
+		boolean broadcastFilter)
 	{
 		this.name = name;
 		this.serverName = serverName;
 		this.tableName = tableName;
 		this.tableSQLName = tableSQLName;
 		this.tableFilterdefinition = tableFilterdefinition;
+		this.broadcastFilter = broadcastFilter;
 	}
 
 	public String getServerName()
@@ -81,6 +83,15 @@ public class TableFilter implements IWriteReplace
 	public void setTableFilterDefinition(TableFilterdefinition tableFilterDefinition)
 	{
 		this.tableFilterdefinition = tableFilterDefinition;
+	}
+
+	// RAGTEST in contained / equals?
+	/**
+	 * @return the broadcastFilter
+	 */
+	public boolean isBroadcastFilter()
+	{
+		return broadcastFilter;
 	}
 
 	public boolean isContainedIn(Iterable<TableFilter> filters)
@@ -180,7 +191,7 @@ public class TableFilter implements IWriteReplace
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
 		return new ReplacedObject(QueryData.DATAPROCESSING_SERIALIZE_DOMAIN, getClass(),
-			new Object[] { name, serverName, tableName, tableSQLName, tableFilterdefinition });
+			new Object[] { name, serverName, tableName, tableSQLName, tableFilterdefinition, Integer.valueOf(broadcastFilter ? 1 : 0) });
 	}
 
 	public TableFilter(ReplacedObject s)
@@ -202,6 +213,7 @@ public class TableFilter implements IWriteReplace
 		{
 			tableFilterdefinition = (TableFilterdefinition)members[i++];
 		}
+		broadcastFilter = members.length - i >= 1 && ((Integer)members[i++]).intValue() == 1;
 	}
 
 }

@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.servoy.j2db.dataprocessing.datasource.JSConnectionDefinition;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -151,6 +152,12 @@ public class ServerProxy implements IServer, Serializable
 	public List<String> getTableNames(boolean hideTempTables) throws RepositoryException, RemoteException
 	{
 		return server.getTableNames(hideTempTables);
+	}
+
+	@Override
+	public List<Pair<String, String>> getTenantColumns() throws RepositoryException, RemoteException
+	{
+		return server.getTenantColumns();
 	}
 
 	public String getName() throws RemoteException

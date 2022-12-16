@@ -63,7 +63,7 @@ public final class ClientInfo implements Serializable
 	private int solutionReleaseNumber = -1;
 	private int openSolutionId = -1;
 	private List<String> infos = new ArrayList<String>();//to make it possible for developer to give a client a meaning full name/description in the admin page
-	private Object[] tenantValue;
+	private Object[] tenantValue; // RAGTEST weg
 
 	private String solutionIntendedToBeLoaded;
 

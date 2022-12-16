@@ -227,7 +227,7 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	public void removeFoundSet(FoundSet foundset);
 
-	public void refreshFoundsetsForTenantTables();
+	//public void refreshFoundsetsForTenantTables();
 
 	/**
 	 * @param record

@@ -733,6 +733,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 //					}
 //					}
 				default :
+					// RAGTEST Broadcast table filters
 					if (ci.hasFlag(IBaseColumn.TENANT_COLUMN))
 					{
 						Object[] tenantValue = application.getTenantValue();

@@ -17,7 +17,6 @@
 package com.servoy.j2db.scripting;
 
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -32,6 +31,7 @@ import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.ClientInfo;
+import com.servoy.j2db.dataprocessing.FoundSetManager.TableFilterRequest;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -43,6 +43,7 @@ import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.NameComparator;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.info.FORMSECURITY;
@@ -50,6 +51,7 @@ import com.servoy.j2db.scripting.info.TABLESECURITY;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ILogLevel;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -125,7 +127,10 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public static final int ACCESSIBLE = IRepository.ACCESSIBLE;
 
+	private static final String TENANT_FILTER = "_svy_tenant_id_table_filter";
+
 	private volatile IApplication application;
+
 
 	public JSSecurity(IApplication application)
 	{
@@ -169,11 +174,40 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	@JSFunction
 	public void setTenantValue(Object value)
 	{
-		ClientInfo clientInfo = application.getClientInfo();
-		clientInfo.setTenantValue(toArray(value));
+		//ClientInfo clientInfo = application.getClientInfo();
+		//	clientInfo.setTenantValue(toArray(value));
+
 		try
 		{
-			application.getClientHost().pushClientInfo(clientInfo.getClientId(), clientInfo);
+			// get tenant columns
+			Solution solution = application.getFlattenedSolution().getSolution();
+			for (IServer server : solution.getServerProxies().values())
+			{
+				//	List<BroadcastFilter> broadcastFilters = new ArrayList<>();
+				List<TableFilterRequest> tableFilterRequests = null;
+				for (Pair<String, String> tenantColumn : server.getTenantColumns())
+				{
+					String tableName = tenantColumn.getLeft();
+					String columnName = tenantColumn.getRight();
+					ITable table = server.getTable(tableName);
+
+					if (tableFilterRequests == null) tableFilterRequests = new ArrayList<>();
+					//	broadcastFilters.add())new BroadcastFilter(server.getName(), tableName, columnName, RagtestFilterType.IN, toArray(value));
+					if (value != null)
+					{
+						tableFilterRequests.add(
+							new TableFilterRequest(table,
+								application.getFoundSetManager().createDataproviderTableFilterdefinition(table, columnName, "=", value),
+								true));
+					}
+				}
+				if (tableFilterRequests != null)
+				{
+					application.getFoundSetManager().setTableFilters(TENANT_FILTER, server.getName(), tableFilterRequests, true);
+				}
+			}
+
+			//	application.getClientHost().pushClientInfo(clientInfo.getClientId(), clientInfo);
 		}
 		catch (Exception e)
 		{
@@ -181,9 +215,16 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 		}
 
 		// flush all foundsets that are based on tenant columns
-		application.getFoundSetManager().refreshFoundsetsForTenantTables();
-
+		// RAGTEST dit gaat via setTableFilters
+		//	application.getFoundSetManager().refreshFoundsetsForTenantTables();
 	}
+
+//	private TableFilter createTenantFilter(ITable table, Column tenantColumn, Object[] tenantValue) throws ServoyException
+//	{
+//		Object convertedTenantValue = convertFilterValue(table, tenantColumn, tenantValue);
+//		return new TableFilter("_svy_tenant_id_table_filter", table.getServerName(), table.getName(), table.getSQLName(), tenantColumn.getDataProviderID(),
+//			IBaseSQLCondition.IN_OPERATOR, convertedTenantValue);
+//	}
 
 	/**
 	 * Retrieve the tenant value for this Client, this value will be used as the value for all tables that have a column marked as a tenant column.
@@ -197,26 +238,8 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	@JSFunction
 	public Object[] getTenantValue()
 	{
+		// RAGTEST broadcast table filters
 		return application.getClientInfo().getTenantValue();
-	}
-
-	private static Object[] toArray(Object value)
-	{
-		if (value == null)
-		{
-			return null;
-		}
-
-		if (value.getClass().isArray())
-		{
-			int length = Array.getLength(value);
-			Object[] array = new Object[length];
-			System.arraycopy(value, 0, array, 0, length);
-			return array;
-		}
-
-		// single value
-		return new Object[] { value };
 	}
 
 	/**

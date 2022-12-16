@@ -19,6 +19,7 @@ package com.servoy.j2db.plugins;
 
 import java.rmi.RemoteException;
 
+import com.servoy.j2db.dataprocessing.BroadcastFilter;
 import com.servoy.j2db.dataprocessing.IDataSet;
 
 /**
@@ -49,7 +50,7 @@ public interface IDataNotifyService
 	 * @param dataSource
 	 * @throws RemoteException
 	 */
-	public void flushCachedDatabaseData(String dataSource, Object[] tenantValue);
+	public void flushCachedDatabaseData(String dataSource, Object[] tenantValue, BroadcastFilter[] clientBroadcastFilters);
 
 	/**
 	 * Tell the system to trigger a data notification on the given table for the given pk set.
@@ -61,7 +62,7 @@ public interface IDataNotifyService
 	 * @param insertColumnData
 	 * @throws RemoteException
 	 */
-	public void notifyDataChange(String server_name, String table_name, IDataSet pks, int action, Object[] insertColumnData, Object[] tenantValue)
+	public void notifyDataChange(String server_name, String table_name, IDataSet pks, int action, Object[] insertColumnData, Object[] tenantValue,
+		BroadcastFilter[] clientBroadcastFilters)
 		throws RemoteException;
-
 }

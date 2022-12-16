@@ -63,6 +63,7 @@ public class HeadlessClient extends SessionClient
 				if (clientInfo != null)
 				{
 					clientInfo.setTenantValue(null);
+					// RAGTEST remove broadcastfilters	clientInfo.setBroadcastFilterMap(null);
 					getClientHost().pushClientInfo(clientInfo.getClientId(), clientInfo);
 				}
 			}

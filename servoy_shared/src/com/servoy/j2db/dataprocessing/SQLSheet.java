@@ -295,6 +295,7 @@ public class SQLSheet
 					}
 					else
 					{
+						//RAGTEST --- array relatie newrecord
 						if (creationArgs != null && creationArgs.length != 0 && fcols != null) //created via relation, so fill the foreign key with foreign value
 						{
 							for (int j = 0; j < fcols.length; j++)

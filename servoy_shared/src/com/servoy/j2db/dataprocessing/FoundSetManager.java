@@ -27,7 +27,6 @@ import static com.servoy.j2db.util.DataSourceUtils.createDBTableDataSource;
 import static com.servoy.j2db.util.DataSourceUtils.getDataSourceServerName;
 import static com.servoy.j2db.util.DataSourceUtils.getDataSourceTableName;
 import static com.servoy.j2db.util.DataSourceUtils.getViewDataSourceName;
-import static com.servoy.j2db.util.Errors.catchExceptions;
 import static com.servoy.j2db.util.Utils.arrayMerge;
 import static com.servoy.j2db.util.Utils.iterate;
 import static com.servoy.j2db.util.Utils.parseJSExpressions;
@@ -37,10 +36,10 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Array;
 import java.rmi.RemoteException;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -82,6 +81,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.component.ComponentFactory;
+import com.servoy.j2db.dataprocessing.BroadcastFilter.RagtestFilterType;
 import com.servoy.j2db.dataprocessing.IDataServer.InsertResult;
 import com.servoy.j2db.dataprocessing.SQLSheet.ConverterInfo;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
@@ -1289,6 +1289,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		Set<Pair<String, TableFilterdefinition>> toRefresh = new HashSet<>();
 
 		List<TableFilter> existingParams = tableFilterParams.get(serverName);
+		boolean hasBroadcastFilter = stream(existingParams).anyMatch(TableFilter::isBroadcastFilter);
 
 		// get the new filters if requested (tableFilterRequests can be null)
 		List<TableFilter> newParams = null;
@@ -1299,7 +1300,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				String tableName = tableFilterRequest.table == null ? null : tableFilterRequest.table.getName();
 				TableFilter filter = new TableFilter(filterName, serverName, tableName,
-					tableFilterRequest.table == null ? null : tableFilterRequest.table.getSQLName(), tableFilterRequest.tableFilterdefinition);
+					tableFilterRequest.table == null ? null : tableFilterRequest.table.getSQLName(), tableFilterRequest.tableFilterdefinition,
+					tableFilterRequest.broadcastFilter);
 
 				newParams.add(filter);
 				if (existingParams == null || !existingParams.contains(filter))
@@ -1338,6 +1340,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		if (newParams != null)
 		{
+			hasBroadcastFilter |= stream(newParams).anyMatch(TableFilter::isBroadcastFilter);
+
 			if (existingParams == null || existingParams.isEmpty())
 			{
 				tableFilterParams.put(serverName, newParams);
@@ -1345,6 +1349,29 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			else
 			{
 				existingParams.addAll(newParams);
+			}
+		}
+
+		if (hasBroadcastFilter)
+		{
+			// update the broadcast filtes for the client
+			BroadcastFilter[] broadcastFilters = stream(tableFilterParams.get(serverName))
+				.filter(TableFilter::isBroadcastFilter)
+				.map(this::createBroadcastFilter)
+				.filter(Objects::nonNull)
+				.toArray(BroadcastFilter[]::new);
+
+//		ClientInfo clientInfo = application.getClientInfo();
+//		clientInfo.setBroadcastFilters(serverName, broadcastFilters);
+			try
+			{
+				getDataServer().setBroadcastFilters(application.getClientID(), serverName, broadcastFilters);
+				//application.getClientHost().pushClientInfo(clientInfo.getClientId(), clientInfo);
+			}
+			catch (RemoteException e)
+			{
+				// RAGTEST Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 
@@ -1366,6 +1393,45 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			((ClientState)application).refreshI18NMessages(false);
 		}
 	}
+
+	/**
+	 * @param tf
+	 * @return
+	 */
+	private BroadcastFilter createBroadcastFilter(TableFilter tf)
+	{
+		if (tf.getTableFilterdefinition() instanceof DataproviderTableFilterdefinition)
+		{
+			DataproviderTableFilterdefinition dptf = (DataproviderTableFilterdefinition)tf.getTableFilterdefinition();
+			if (dptf.getOperator() == IBaseSQLCondition.EQUALS_OPERATOR || dptf.getOperator() == IBaseSQLCondition.IN_OPERATOR)
+			{
+				return new BroadcastFilter(tf.getTableName(), dptf.getDataprovider(), RagtestFilterType.IN, toArray(dptf.getValue()));
+			}
+		}
+		// Not supported for databroadcast
+		// RAGTEST log?
+		return null;
+	}
+
+	private static Object[] toArray(Object value)
+	{
+		if (value == null)
+		{
+			return null;
+		}
+
+		if (value.getClass().isArray())
+		{
+			int length = Array.getLength(value);
+			Object[] array = new Object[length];
+			System.arraycopy(value, 0, array, 0, length);
+			return array;
+		}
+
+		// single value
+		return new Object[] { value };
+	}
+
 
 	public boolean updateTableFilterParam(String serverName, String filterName, ITable table, TableFilterdefinition tableFilterdefinition)
 	{
@@ -1457,47 +1523,47 @@ public class FoundSetManager implements IFoundSetManagerInternal
 							))))));
 	}
 
-	public void refreshFoundsetsForTenantTables()
-	{
-		List<IFoundSetInternal> allFoundsets = getAllFoundsets();
-		List<ITable> tenantTablesInuse = allFoundsets.stream() //
-			.map(IFoundSetInternal::getQuerySelectForReading) //
-			.filter(Objects::nonNull) //
-			.map(query -> AbstractBaseQuery.<BaseQueryTable> search(query, new TypePredicate<>(BaseQueryTable.class))) //
-			.flatMap(List::stream) //
-			.map(BaseQueryTable::getDataSource) //
-			.filter(Objects::nonNull) //
-			.distinct() //
-			.map(datasource -> catchExceptions(() -> getTable(datasource))) //
-			.filter(Objects::nonNull) //
-			.filter(FoundSetManager::tableHasTenantColumn) //
-			.collect(toList());
-		Set<String> tenantDatasourcesInuse = tenantTablesInuse.stream().map(ITable::getDataSource).collect(toSet());
-
-		// refresh foundsets that use any of these datasources, make sure all foundsets are collected to prevent ConcurrentModificationExceptions
-		allFoundsets.stream()
-			.filter(fs -> usesDatasource(fs.getQuerySelectForReading(), tenantDatasourcesInuse)) //
-			.forEach(catchExceptions(fs -> {
-				if (fs.isInitialized())
-				{
-					if (fs instanceof RelatedFoundSet)
-					{
-						((RelatedFoundSet)fs).invalidateFoundset(true);
-					}
-					else if (fs instanceof ViewFoundSet)
-				{
-					((ViewFoundSet)fs).loadAllRecords();
-				}
-					else if (fs instanceof FoundSet)
-				{
-					((FoundSet)fs).refreshFromDB(false);
-				}
-				}
-			}));
-
-		getEditRecordList().fireEvents();
-		tenantTablesInuse.stream().forEach(table -> catchExceptions(() -> fireTableEvent(table)));
-	}
+//	public void refreshFoundsetsForTenantTables()
+//	{
+//		List<IFoundSetInternal> allFoundsets = getAllFoundsets();
+//		List<ITable> tenantTablesInuse = allFoundsets.stream() //
+//			.map(IFoundSetInternal::getQuerySelectForReading) //
+//			.filter(Objects::nonNull) //
+//			.map(query -> AbstractBaseQuery.<BaseQueryTable> search(query, new TypePredicate<>(BaseQueryTable.class))) //
+//			.flatMap(List::stream) //
+//			.map(BaseQueryTable::getDataSource) //
+//			.filter(Objects::nonNull) //
+//			.distinct() //
+//			.map(datasource -> catchExceptions(() -> getTable(datasource))) //
+//			.filter(Objects::nonNull) //
+//			.filter(FoundSetManager::tableHasTenantColumn) //
+//			.collect(toList());
+//		Set<String> tenantDatasourcesInuse = tenantTablesInuse.stream().map(ITable::getDataSource).collect(toSet());
+//
+//		// refresh foundsets that use any of these datasources, make sure all foundsets are collected to prevent ConcurrentModificationExceptions
+//		allFoundsets.stream()
+//			.filter(fs -> usesDatasource(fs.getQuerySelectForReading(), tenantDatasourcesInuse)) //
+//			.forEach(catchExceptions(fs -> {
+//				if (fs.isInitialized())
+//				{
+//					if (fs instanceof RelatedFoundSet)
+//					{
+//						((RelatedFoundSet)fs).invalidateFoundset(true);
+//					}
+//					else if (fs instanceof ViewFoundSet)
+//				{
+//					((ViewFoundSet)fs).loadAllRecords();
+//				}
+//					else if (fs instanceof FoundSet)
+//				{
+//					((FoundSet)fs).refreshFromDB(false);
+//				}
+//				}
+//			}));
+//
+//		getEditRecordList().fireEvents();
+//		tenantTablesInuse.stream().forEach(table -> catchExceptions(() -> fireTableEvent(table)));
+//	}
 
 	private static boolean usesDatasource(ISQLSelect select, Set<String> tenantDatasourcesInuse)
 	{
@@ -1546,8 +1612,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	public ArrayList<TableFilter> getTableFilterParams(String serverName, IQueryElement sql)
 	{
 		final List<TableFilter> serverFilters = tableFilterParams.get(serverName);
-		Object tenantValue[] = application.getTenantValue();
-		if (serverFilters == null && tenantValue == null)
+		//Object tenantValue[] = application.getTenantValue();
+		// RAGTEST broadcast table filters
+		if (serverFilters == null)//&& tenantValue == null)
 		{
 			return null;
 		}
@@ -1570,13 +1637,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 						throw new RuntimeException("Could not find table '" + qTable.getDataSource() + "' for table filters");
 					}
 
-					if (tenantValue != null)
-					{
-						for (Column tenantColumn : table.getTenantColumns())
-						{
-							addFilter(filters, createTenantFilter(table, tenantColumn, tenantValue));
-						}
-					}
+//					if (tenantValue != null)
+//					{
+//						for (Column tenantColumn : table.getTenantColumns())
+//						{
+//							addFilter(filters, createTenantFilter(table, tenantColumn, tenantValue));
+//						}
+//					}
 
 					for (TableFilter filter : iterate(serverFilters))
 					{
@@ -1614,12 +1681,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return filters[0];
 	}
 
-	private TableFilter createTenantFilter(ITable table, Column tenantColumn, Object[] tenantValue) throws ServoyException
-	{
-		Object convertedTenantValue = convertFilterValue(table, tenantColumn, tenantValue);
-		return new TableFilter("_svy_tenant_id_table_filter", table.getServerName(), table.getName(), table.getSQLName(), tenantColumn.getDataProviderID(),
-			IBaseSQLCondition.IN_OPERATOR, convertedTenantValue);
-	}
+	// RAGTEST weg
+//	private TableFilter createTenantFilter(ITable table, Column tenantColumn, Object[] tenantValue) throws ServoyException
+//	{
+//		Object convertedTenantValue = convertFilterValue(table, tenantColumn, tenantValue);
+//		return new TableFilter("_svy_tenant_id_table_filter", table.getServerName(), table.getName(), table.getSQLName(), tenantColumn.getDataProviderID(),
+//			IBaseSQLCondition.IN_OPERATOR, convertedTenantValue);
+//	}
 
 	private static void addFilter(ArrayList<TableFilter>[] filters, TableFilter filter)
 	{
@@ -2866,11 +2934,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		private final ITable table;
 		private final TableFilterdefinition tableFilterdefinition;
+		private final boolean broadcastFilter;
 
-		public TableFilterRequest(ITable table, TableFilterdefinition tableFilterdefinition)
+		public TableFilterRequest(ITable table, TableFilterdefinition tableFilterdefinition, boolean broadcastFilter)
 		{
 			this.table = table;
 			this.tableFilterdefinition = tableFilterdefinition;
+			this.broadcastFilter = broadcastFilter;
 		}
 	}
 

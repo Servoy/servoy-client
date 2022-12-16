@@ -247,6 +247,14 @@ public interface IDataServer extends Remote
 
 	public boolean releaseLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys) throws RemoteException, RepositoryException;
 
+
+	/**
+	 * @param clientId
+	 * @param serverName
+	 * @param broadcastFilters
+	 */
+	public void setBroadcastFilters(String clientId, String serverName, BroadcastFilter[] broadcastFilters) throws RemoteException;
+
 	/**
 	 * Log a message on the server
 	 *
@@ -279,4 +287,5 @@ public interface IDataServer extends Remote
 			return generatedPks;
 		}
 	}
+
 }

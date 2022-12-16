@@ -57,6 +57,12 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 		return dataserver;
 	}
 
+	@Override
+	public void setBroadcastFilters(String clientId, String serverName, BroadcastFilter[] broadcastFilters) throws RemoteException
+	{
+		dataserver.setBroadcastFilters(clientId, serverName, broadcastFilters);
+	}
+
 	/**
 	 * @param msg
 	 * @throws RemoteException

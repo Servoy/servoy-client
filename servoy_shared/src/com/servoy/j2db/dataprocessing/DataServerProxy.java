@@ -265,6 +265,12 @@ public class DataServerProxy implements IDataServer
 		return ds.notifyDataChange(client_id, server_name, tableName, pks, action, transaction_id);
 	}
 
+	@Override
+	public void setBroadcastFilters(String clientId, String serverName, BroadcastFilter[] broadcastFilters) throws RemoteException
+	{
+		ds.setBroadcastFilters(clientId, getMappedServerName(serverName), broadcastFilters);
+	}
+
 	/**
 	 * Log a message on the server
 	 *

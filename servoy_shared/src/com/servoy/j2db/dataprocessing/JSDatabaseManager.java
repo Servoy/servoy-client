@@ -399,7 +399,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 		JSTableFilter tableFilter = createTableFilterInternal(query);
 		application.getFoundSetManager().setTableFilters(filterName, tableFilter.getTable().getServerName(),
-			asList(new TableFilterRequest(tableFilter.getTable(), tableFilter.getTableFilterdefinition())), false);
+			asList(new TableFilterRequest(tableFilter.getTable(), tableFilter.getTableFilterdefinition(), false)), false);
 		return true;
 	}
 
@@ -544,7 +544,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 		// group by serverName
 		Map<String, List<TableFilterRequest>> tableFilterRequests = stream(tableFilters).collect(
-			groupingBy(JSTableFilter::getServerName, mapping(tf -> new TableFilterRequest(tf.getTable(), tf.getTableFilterdefinition()), toList())));
+			groupingBy(JSTableFilter::getServerName,
+				mapping(tf -> new TableFilterRequest(tf.getTable(), tf.getTableFilterdefinition(), tf.getDataBroadcast()), toList())));
 
 		try
 		{
@@ -581,7 +582,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			if (tableFilter != null)
 			{
 				application.getFoundSetManager().setTableFilters(filterName, serverName,
-					asList(new TableFilterRequest(tableFilter.getTable(), tableFilter.getTableFilterdefinition())), false);
+					asList(new TableFilterRequest(tableFilter.getTable(), tableFilter.getTableFilterdefinition(), false)), false);
 				return true;
 			}
 		}
