@@ -427,8 +427,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @param flushRelatedFS
 	 * @param skipStopEdit
 	 */
-	protected void refreshFromDBInternal(QuerySelect sqlSelect, boolean dropSort, int rowsToRetrieve, boolean keepPkOrder,
-		boolean skipStopEdit) throws ServoyException
+	protected void refreshFromDBInternal(QuerySelect sqlSelect, boolean dropSort, int rowsToRetrieveHint, boolean keepPkOrder, boolean skipStopEdit)
+		throws ServoyException
 	{
 		if (fsm.getDataServer() == null)
 		{
@@ -437,15 +437,15 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		SafeArrayList<IRecordInternal> cachedRecords;
 		IDataSet pks;
-		Object[] selectedPK;
 		synchronized (pksAndRecords)
 		{
 			cachedRecords = pksAndRecords.getCachedRecords();
 			pks = pksAndRecords.getPks();
-			selectedPK = (pks != null && getSelectedIndex() >= 0 && getSelectedIndex() < pks.getRowCount()) ? pks.getRow(getSelectedIndex()) : null;
 		}
 
-		Map<Integer, IRecordInternal> newRecords = new HashMap<Integer, IRecordInternal>();
+		Object[][] selectedPKs = getSelectedPksForKeepingSelection(pks, true);
+
+		Map<Integer, IRecordInternal> newRecords = new HashMap<>();
 		EditRecordList editRecordList = getFoundSetManager().getEditRecordList();
 		IRecordInternal[] array = editRecordList.getEditedRecords(this);
 		for (IRecordInternal editingRecord : array)
@@ -455,7 +455,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				synchronized (pksAndRecords)
 				{
 					int newRecordIndex = cachedRecords.indexOf(editingRecord);
-					if (newRecordIndex == -1) newRecordIndex = 0;//incase some has called startEdit before new/duplicateRecords was completed.
+					if (newRecordIndex == -1) newRecordIndex = 0;// in case some has called startEdit before new/duplicateRecords was completed.
 					newRecords.put(Integer.valueOf(newRecordIndex), editingRecord);
 					cachedRecords.set(newRecordIndex, null);
 				}
@@ -474,8 +474,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		IDataSet oldPKs = pks;
 
+		int rowsToRetrieve = calculateRowsToRetrieve(rowsToRetrieveHint, selectedPKs);
+
 		IFoundSetChanges changes = null;
-		//cache pks
 		String transaction_id = fsm.getTransactionID(sheet);
 		long time = System.currentTimeMillis();
 		try
@@ -589,23 +590,18 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			}
 		}
 
-		//let the List know the model changed
-		fireDifference(oldSize, getSize(), changes);
+		// let the List know the model changed
+		int newSize = getSize();
+		fireDifference(oldSize, newSize, changes);
 
-		//move to correct position if we know
-		if (selectedIndex != -1 || !selectRecord(selectedPK))
+		// move to correct position if we know
+		if (selectedIndex == -1)
 		{
-			if (pks != null && pks.getRowCount() > 0 && selectedIndex == -1)
-			{
-				if (!(getSelectedIndex() >= 0 && getSelectedIndex() < pks.getRowCount()))
-				{
-					setSelectedIndex(0);
-				}
-			}
-			else
-			{
-				setSelectedIndex(selectedIndex);
-			}
+			trySelectingPks(selectedPKs, newSize);
+		}
+		else
+		{
+			setSelectedIndex(selectedIndex);
 		}
 	}
 
@@ -2084,7 +2080,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		IDataSet pks = pksAndRecords.getPks();
-		Object[] selectedPK = (pks != null && getSelectedIndex() >= 0 && getSelectedIndex() < pks.getRowCount()) ? pks.getRow(getSelectedIndex()) : null;
+
+		Object[][] selectedPKs = getSelectedPksForKeepingSelection(pks, true);
 
 		int sizeBefore = getSize();
 		if (sizeBefore > 1)
@@ -2111,12 +2108,14 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		initialized = true;
 
-		//do query with sqlSelect
+		int rowsToRetrieve = calculateRowsToRetrieve(fsm.config.pkChunkSize(), selectedPKs);
+
+		// do query with sqlSelect
 		String transaction_id = fsm.getTransactionID(sheet);
 		IDataSet pk_data;
 		try
 		{
-			pk_data = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.config.pkChunkSize(), IDataServer.CUSTOM_QUERY);
+			pk_data = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, rowsToRetrieve, IDataServer.CUSTOM_QUERY);
 		}
 		catch (RemoteException e)
 		{
@@ -2130,16 +2129,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		IFoundSetChanges changes = pksAndRecords.setPksAndQuery(pk_data, pk_data.getRowCount(), sqlSelect);
 		clearInternalState(true);
 
-		fireDifference(sizeBefore, getSize(), changes);
+		int newSize = getSize();
+		fireDifference(sizeBefore, newSize, changes);
 
 		// try to preserve selection after load by query; if not possible select first record
-		if (selectedPK != null)
-		{
-			if (!selectRecord(selectedPK))
-			{
-				setSelectedIndex(getSize() > 0 ? 0 : -1);
-			}
-		}
+		trySelectingPks(selectedPKs, newSize);
 
 		return true;
 	}
@@ -2485,7 +2479,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		IDataSet pks = pksAndRecords.getPks();
-		Object[] selectedPK = (pks != null && getSelectedIndex() >= 0 && getSelectedIndex() < pks.getRowCount()) ? pks.getRow(getSelectedIndex()) : null;
+
+		Object[][] selectedPKs = getSelectedPksForKeepingSelection(pks, true);
 
 		int sizeBefore = getSize();
 		if (sizeBefore > 1)
@@ -2554,13 +2549,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			fireDifference(sizeBefore, sizeAfter, changes);
 
 			// try to preserve selection after load pk list; if not possible select first record
-			if (selectedPK != null)
-			{
-				if (!selectRecord(selectedPK))
-				{
-					setSelectedIndex(getSize() > 0 ? 0 : -1);
-				}
-			}
+			trySelectingPks(selectedPKs, getSize());
 		}
 		return true;
 	}
@@ -5673,7 +5662,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 * @throws ServoyException
 	 * @throws RepositoryException
 	 */
-	protected boolean reloadWithCurrentQuery(int rowsToRetrieve, boolean isSorting) throws ServoyException
+	protected boolean reloadWithCurrentQuery(int rowsToRetrieveHint, boolean isSorting) throws ServoyException
 	{
 		QuerySelect sqlSelect;
 		IDataSet pks;
@@ -5683,16 +5672,14 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			pks = pksAndRecords.getPks();
 		}
 
-		//always keep selection when reloading
-		Object[][] selectedPKs = null;
-		int[] selectedIndexes = getSelectedIndexes();
-		if (pks != null && selectedIndexes != null && shouldKeepSelectionForPK(selectedIndexes, !isSorting))
-		{
-			selectedPKs = stream(selectedIndexes).mapToObj(pks::getRow).toArray(Object[][]::new);
-		}
+		// try to keep selection when reloading
+		Object[][] selectedPKs = getSelectedPksForKeepingSelection(pks, !isSorting);
+
 		IFoundSetChanges changes = null;
 		int oldSize = getRawSize();
-		//cache pks
+
+		int rowsToRetrieve = calculateRowsToRetrieve(rowsToRetrieveHint, selectedPKs);
+
 		String transaction_id = fsm.getTransactionID(sheet);
 		try
 		{
@@ -5727,6 +5714,16 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		int newSize = getRawSize();
 		fireDifference(oldSize, newSize, changes);
 
+		trySelectingPks(selectedPKs, newSize);
+
+		return true;
+	}
+
+	/*
+	 * Select by these pks if possible, otherwise select the first record
+	 */
+	private void trySelectingPks(Object[][] selectedPKs, int newSize)
+	{
 		boolean selectedPKsRecPresent = false;
 		if (selectedPKs != null)
 		{
@@ -5744,8 +5741,32 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				fsm.getApplication().invokeLater(() -> setSelectedIndex(newSize > 0 ? 0 : -1));
 			}
 		}
+	}
 
-		return true;
+	/*
+	 * if we want to keep the selected pk, query some more to make the change bigger that the pk is loaded again
+	 */
+	private int calculateRowsToRetrieve(int rowsToRetrieveHint, Object[][] selectedPKs)
+	{
+		if (selectedPKs != null)
+		{
+			// round up to next 200 (selection + 50)
+			return (1 + (getSelectedIndex() + rowsToRetrieveHint / 4) / rowsToRetrieveHint) * rowsToRetrieveHint;
+		}
+		return rowsToRetrieveHint;
+	}
+
+	private Object[][] getSelectedPksForKeepingSelection(IDataSet pks, boolean allowConfigOverride)
+	{
+		if (pks != null)
+		{
+			int[] selectedIndexes = getSelectedIndexes();
+			if (selectedIndexes != null && selectedIndexes.length > 0 && shouldKeepSelectionForPK(selectedIndexes, allowConfigOverride))
+			{
+				return stream(selectedIndexes).mapToObj(pks::getRow).toArray(Object[][]::new);
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -5778,13 +5799,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			if (pks != null)
 			{
 				rowCount = pks.getRowCount();
-				int[] selectedIndexes = getSelectedIndexes();
 
-				//if single selected and first record is selected we ignore selection
-				if (selectedIndexes != null && shouldKeepSelectionForPK(selectedIndexes, false))
-				{
-					selectedPKs = stream(selectedIndexes).mapToObj(pks::getRow).toArray(Object[][]::new);
-				}
+				// if single selected and first record is selected we ignore selection
+				selectedPKs = getSelectedPksForKeepingSelection(pks, false);
 			}
 		}
 		int oldSize = getSize();
@@ -5809,16 +5826,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		int newSize = getSize();
 		fireDifference(oldSize, newSize, changes);
 
-		boolean selectedPKsRecPresent = false;
-		if (selectedPKs != null)
-		{
-			selectedPKsRecPresent = selectedPKs.length == 1 ? selectRecord(selectedPKs[0]) : selectRecords(selectedPKs);
-		}
-
-		if (!selectedPKsRecPresent)
-		{
-			setSelectedIndex(newSize > 0 ? 0 : -1);
-		}
+		trySelectingPks(selectedPKs, newSize);
 	}
 
 	public boolean isRecordEditable(int rowIndex)
