@@ -27,6 +27,7 @@ import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.IDesignValueConverter;
+import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
@@ -85,7 +86,7 @@ public class NGColorPropertyType extends ColorPropertyType implements IDesignToF
 	}
 
 	@Override
-	public Color fromDesignValue(Object newValue, PropertyDescription propertyDescription)
+	public Color fromDesignValue(Object newValue, PropertyDescription propertyDescription, IPersist persit)
 	{
 		try
 		{
