@@ -88,6 +88,7 @@ public class Types
 		TypesRegistry.addType(RecordPropertyType.INSTANCE);
 		TypesRegistry.addType(FunctionRefType.INSTANCE);
 		TypesRegistry.addType(VariantPropertyType.INSTANCE);
+		TypesRegistry.addType(NGStyleClassPropertyType.NG_INSTANCE);
 
 		// TODO allow bean developer through a sort of plug point to contribute these kind of types themselfes
 		TypesRegistry.addType(FoundsetPropertyType.INSTANCE);

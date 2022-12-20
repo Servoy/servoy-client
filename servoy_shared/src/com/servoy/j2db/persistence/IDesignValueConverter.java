@@ -34,7 +34,7 @@ public interface IDesignValueConverter<JT>
 	 *
 	 * @return the java-world value that the persist property will have - corresponding to the given designValue.
 	 */
-	JT fromDesignValue(Object designValue, PropertyDescription propertyDescription);
+	JT fromDesignValue(Object designValue, PropertyDescription propertyDescription, IPersist persist);
 
 	/**
 	 * Converts from the jave-world persist property value to the design json value that will be stored in the .frm file.</br>
