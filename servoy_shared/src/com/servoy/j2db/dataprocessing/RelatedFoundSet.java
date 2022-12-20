@@ -1070,7 +1070,7 @@ public abstract class RelatedFoundSet extends FoundSet
 				getPksAndRecords().setSkipOptimizeChangeFires(skipOptimizeQuery);
 				try
 				{
-					reloadWithCurrentQuery(Math.max(getSelectedIndex(), fsm.config.chunkSize()) + fsm.config.chunkSize(), false, true);
+					reloadWithCurrentQuery(2 * fsm.config.chunkSize(), false);
 				}
 				finally
 				{
