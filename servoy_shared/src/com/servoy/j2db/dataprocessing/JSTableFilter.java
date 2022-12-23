@@ -51,6 +51,8 @@ public class JSTableFilter implements IJavaScriptType
 	 * var filter = databaseManager.createTableFilterParam('admin', 'messages', 'messagesid', '>', 10)
 	 * var serverName = filter.serverName // admin
 	 *
+	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_setTableFilters(String, JSTableFilter[])
+	 *
 	 * @return String server name.
 	 */
 	@JSReadonlyProperty
@@ -74,6 +76,8 @@ public class JSTableFilter implements IJavaScriptType
 	 * var filter = databaseManager.createTableFilterParam('admin', 'messages', 'messagesid', '>', 10)
 	 * var tableName = filter.tableName // messages
 	 *
+	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_setTableFilters(String, JSTableFilter[])
+	 *
 	 * @return String table name.
 	 */
 	@JSReadonlyProperty
@@ -82,23 +86,26 @@ public class JSTableFilter implements IJavaScriptType
 		return table == null ? null : table.getName();
 	}
 
-
-	/** RAGTEST doc
-	 * Returns the table name.
+	/** Set the dataBroadcast flag.
+	 * <p>
+	 * When the dataBroadcast flag is set, this filter will be used server-side to reduce databroadcast events
+	 * for clients having a databroadcast filter set for the same column with a different value.
+	 * <p>
+	 * Note that the dataBroadcast flag is *only* supported for simple filters, only for operator 'in' or '='.
 	 *
 	 * @sample
-	 * var filter = databaseManager.createTableFilterParam('admin', 'messages', 'messagesid', '>', 10)
-	 * var tableName = filter.tableName // messages
+	 * var filter = databaseManager.createTableFilterParam('example', 'orders', 'clusterid', '=', 10).dataBroadcast(true)
 	 *
-	 * @return String table name.
+	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_setTableFilters(String, JSTableFilter[])
+	 *
+	 * @return filter.
 	 */
 	@JSFunction
-	public JSTableFilter dataBroadcast(boolean dataBroadcast)
+	public JSTableFilter dataBroadcast(boolean broadcast)
 	{
-		this.dataBroadcast = dataBroadcast;
+		this.dataBroadcast = broadcast;
 		return this;
 	}
-
 
 	/**
 	 * @return the tableFilterdefinition

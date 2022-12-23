@@ -50,7 +50,7 @@ public interface IDataNotifyService
 	 * @param dataSource
 	 * @throws RemoteException
 	 */
-	public void flushCachedDatabaseData(String dataSource, Object[] tenantValue, BroadcastFilter[] clientBroadcastFilters);
+	public void flushCachedDatabaseData(String dataSource, BroadcastFilter[] clientBroadcastFilters);
 
 	/**
 	 * Tell the system to trigger a data notification on the given table for the given pk set.
@@ -60,9 +60,10 @@ public interface IDataNotifyService
 	 * @param pks
 	 * @param action
 	 * @param insertColumnData
+	 * @param broadcastFilters
 	 * @throws RemoteException
 	 */
-	public void notifyDataChange(String server_name, String table_name, IDataSet pks, int action, Object[] insertColumnData, Object[] tenantValue,
-		BroadcastFilter[] clientBroadcastFilters)
+	public void notifyDataChange(String server_name, String table_name, IDataSet pks, int action, Object[] insertColumnData, BroadcastFilter[] broadcastFilters)
 		throws RemoteException;
+
 }

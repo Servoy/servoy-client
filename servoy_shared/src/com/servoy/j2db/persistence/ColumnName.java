@@ -15,29 +15,26 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
 
-package com.servoy.j2db.dataprocessing;
+package com.servoy.j2db.persistence;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
- * Server-side filters used for data broadcast
+ * Simple container for table and column name.
  *
  * @author rgansevles
  *
  */
-public class BroadcastFilter implements Serializable
+public class ColumnName implements Serializable
 {
 	private final String tableName;
-	private final BroadcastFilterOperator filterType;
 	private final String columnName;
-	private final Object[] filterValue;
 
-	public BroadcastFilter(String tableName, String columnName, BroadcastFilterOperator filterType, Object[] filterValue)
+	public ColumnName(String tableName, String columnName)
 	{
 		this.tableName = tableName;
 		this.columnName = columnName;
-		this.filterType = filterType;
-		this.filterValue = filterValue;
 	}
 
 	/**
@@ -49,14 +46,6 @@ public class BroadcastFilter implements Serializable
 	}
 
 	/**
-	 * @return the filterType
-	 */
-	public BroadcastFilterOperator getFilterType()
-	{
-		return filterType;
-	}
-
-	/**
 	 * @return the columnName
 	 */
 	public String getColumnName()
@@ -64,17 +53,27 @@ public class BroadcastFilter implements Serializable
 		return columnName;
 	}
 
-	/**
-	 * @return the filterValue
-	 */
-	public Object[] getFilterValue()
+	@Override
+	public int hashCode()
 	{
-		return filterValue;
+		return Objects.hash(columnName, tableName);
 	}
 
-	// Currently only one operator supported
-	public enum BroadcastFilterOperator
+	@Override
+	public boolean equals(Object obj)
 	{
-		IN // used for 'in' and '=' filters
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		ColumnName other = (ColumnName)obj;
+		return Objects.equals(columnName, other.columnName) && Objects.equals(tableName, other.tableName);
 	}
+
+	@Override
+	public String toString()
+	{
+		return "ColumnName [tableName=" + tableName + ", columnName=" + columnName + "]";
+	}
+
+
 }

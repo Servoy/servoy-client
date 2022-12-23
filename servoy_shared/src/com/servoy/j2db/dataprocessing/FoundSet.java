@@ -31,7 +31,6 @@ import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONSEA
 import static com.servoy.j2db.util.Utils.iterate;
 import static com.servoy.j2db.util.Utils.stream;
 import static java.util.Arrays.asList;
-import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.ref.WeakReference;

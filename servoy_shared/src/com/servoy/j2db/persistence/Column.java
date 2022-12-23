@@ -35,6 +35,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 import java.util.Date;
+import java.util.Objects;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
@@ -45,7 +46,9 @@ import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.dataprocessing.BroadcastFilter;
 import com.servoy.j2db.dataprocessing.IDataServer;
+import com.servoy.j2db.dataprocessing.TableFilter;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.dataprocessing.ValueFactory.NullValue;
 import com.servoy.j2db.query.ColumnType;
@@ -733,16 +736,16 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 //					}
 //					}
 				default :
-					// RAGTEST Broadcast table filters
-					if (ci.hasFlag(IBaseColumn.TENANT_COLUMN))
-					{
-						Object[] tenantValue = application.getTenantValue();
-						if (tenantValue != null && tenantValue.length > 0)
-						{
-							return tenantValue[0];
-						}
-					}
-					return null;
+					// If we have a simple table filter (one that can also be used as broadcast filter), take the (first) value from it
+					// Note that security.setTenantValue() generates such a table filter.
+					return application.getFoundSetManager().getTableFilters(getTable().getServerName(), getTable().getName()).stream()
+						.map(TableFilter::createBroadcastFilter)
+						.filter(Objects::nonNull)
+						.filter(bcFilter -> getName().equals(bcFilter.getColumnName()))
+						.map(BroadcastFilter::getFilterValue)
+						.filter(values -> values != null && values.length > 0)
+						.map(values -> values[0])
+						.findFirst().orElse(null);
 			}
 		}
 		return null;

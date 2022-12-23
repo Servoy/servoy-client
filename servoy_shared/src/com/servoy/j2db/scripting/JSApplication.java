@@ -2201,6 +2201,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 */
 	public void js_output(Object msg, int level)
 	{
+		System.err.println(msg);
 		if (msg instanceof Object[])
 		{
 			application.output(Utils.getScriptableString((Object[])msg), level);

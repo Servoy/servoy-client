@@ -117,6 +117,11 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
+			public void clearBroadcastFilters(String clientId) throws RemoteException
+			{
+			}
+
+			@Override
 			public void setServerMaintenanceMode(boolean maintenanceMode) throws RemoteException
 			{
 			}

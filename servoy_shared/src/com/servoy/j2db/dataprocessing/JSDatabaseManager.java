@@ -19,8 +19,8 @@ package com.servoy.j2db.dataprocessing;
 
 import static com.servoy.base.util.DataSourceUtilsBase.getDBServernameTablename;
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
+import static com.servoy.j2db.util.Utils.stream;
 import static java.util.Arrays.asList;
-import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
@@ -532,6 +532,12 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * // filters can be removed by setting them to an empty list:
 	 * var success = databaseManager.setTableFilters('myfilters', [])
+	 *
+	 * // use the databroadCast flag on a filter to reduce databroadcast events
+	 * // for clients having a databroadcast filter set for the same column with a different value.
+	 * // Note that the dataBroadcast flag is *only* supported for simple filters, only for operator 'in' or '='.
+	 * var filter = databaseManager.createTableFilterParam('example', 'orders', 'clusterid', '=', 10).dataBroadcast(true)
+	 * var success = databaseManager.setTableFilters('clusterfilter', [filter])
 	 *
 	 * @param filterName The name of the filter that should be removed.
 	 * @param tableFilters list of filters to be applied.

@@ -271,6 +271,12 @@ public class DataServerProxy implements IDataServer
 		ds.setBroadcastFilters(clientId, getMappedServerName(serverName), broadcastFilters);
 	}
 
+	@Override
+	public void clearBroadcastFilters(String clientId) throws RemoteException
+	{
+		ds.clearBroadcastFilters(clientId);
+	}
+
 	/**
 	 * Log a message on the server
 	 *

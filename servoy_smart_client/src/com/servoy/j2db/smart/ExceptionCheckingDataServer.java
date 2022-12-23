@@ -806,4 +806,19 @@ public class ExceptionCheckingDataServer implements IDataServer
 			throw e;
 		}
 	}
+
+	@Override
+	public void clearBroadcastFilters(String clientId) throws RemoteException
+	{
+		try
+		{
+			delegate.clearBroadcastFilters(clientId);
+		}
+		catch (RemoteException e)
+		{
+			checkException(e);
+			throw e;
+		}
+	}
+
 }

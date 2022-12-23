@@ -18,7 +18,6 @@ package com.servoy.j2db.server.headlessclient;
 
 import javax.servlet.ServletRequest;
 
-import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -58,13 +57,11 @@ public class HeadlessClient extends SessionClient
 		{
 			try
 			{
-				// always reset for headless client the tenant value.
-				ClientInfo clientInfo = getClientInfo();
-				if (clientInfo != null)
+				// always reset for headless client the broadcast filters.
+				String clientID = getClientID();
+				if (clientID != null)
 				{
-					clientInfo.setTenantValue(null);
-					// RAGTEST remove broadcastfilters	clientInfo.setBroadcastFilterMap(null);
-					getClientHost().pushClientInfo(clientInfo.getClientId(), clientInfo);
+					getDataServer().clearBroadcastFilters(clientID);
 				}
 			}
 			catch (Exception e)

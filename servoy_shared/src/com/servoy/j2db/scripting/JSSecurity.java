@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
@@ -34,7 +35,9 @@ import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.FoundSetManager.TableFilterRequest;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
+import com.servoy.j2db.dataprocessing.TableFilter;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.ColumnName;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -51,7 +54,6 @@ import com.servoy.j2db.scripting.info.TABLESECURITY;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ILogLevel;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -174,57 +176,38 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	@JSFunction
 	public void setTenantValue(Object value)
 	{
-		//ClientInfo clientInfo = application.getClientInfo();
-		//	clientInfo.setTenantValue(toArray(value));
-
 		try
 		{
 			// get tenant columns
 			Solution solution = application.getFlattenedSolution().getSolution();
 			for (IServer server : solution.getServerProxies().values())
 			{
-				//	List<BroadcastFilter> broadcastFilters = new ArrayList<>();
 				List<TableFilterRequest> tableFilterRequests = null;
-				for (Pair<String, String> tenantColumn : server.getTenantColumns())
+				for (ColumnName tenantColumn : server.getTenantColumns())
 				{
-					String tableName = tenantColumn.getLeft();
-					String columnName = tenantColumn.getRight();
-					ITable table = server.getTable(tableName);
+					ITable table = server.getTable(tenantColumn.getTableName());
 
 					if (tableFilterRequests == null) tableFilterRequests = new ArrayList<>();
-					//	broadcastFilters.add())new BroadcastFilter(server.getName(), tableName, columnName, RagtestFilterType.IN, toArray(value));
 					if (value != null)
 					{
-						tableFilterRequests.add(
-							new TableFilterRequest(table,
-								application.getFoundSetManager().createDataproviderTableFilterdefinition(table, columnName, "=", value),
-								true));
+						tableFilterRequests.add(new TableFilterRequest(table,
+							application.getFoundSetManager().createDataproviderTableFilterdefinition(table, tenantColumn.getColumnName(), "=", value),
+							true));
 					}
+					// else filter will be removed if it exists for this server
 				}
 				if (tableFilterRequests != null)
 				{
 					application.getFoundSetManager().setTableFilters(TENANT_FILTER, server.getName(), tableFilterRequests, true);
 				}
 			}
-
-			//	application.getClientHost().pushClientInfo(clientInfo.getClientId(), clientInfo);
 		}
 		catch (Exception e)
 		{
 			Debug.error(e);
 		}
-
-		// flush all foundsets that are based on tenant columns
-		// RAGTEST dit gaat via setTableFilters
-		//	application.getFoundSetManager().refreshFoundsetsForTenantTables();
 	}
 
-//	private TableFilter createTenantFilter(ITable table, Column tenantColumn, Object[] tenantValue) throws ServoyException
-//	{
-//		Object convertedTenantValue = convertFilterValue(table, tenantColumn, tenantValue);
-//		return new TableFilter("_svy_tenant_id_table_filter", table.getServerName(), table.getName(), table.getSQLName(), tenantColumn.getDataProviderID(),
-//			IBaseSQLCondition.IN_OPERATOR, convertedTenantValue);
-//	}
 
 	/**
 	 * Retrieve the tenant value for this Client, this value will be used as the value for all tables that have a column marked as a tenant column.
@@ -238,8 +221,11 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	@JSFunction
 	public Object[] getTenantValue()
 	{
-		// RAGTEST broadcast table filters
-		return application.getClientInfo().getTenantValue();
+		return application.getFoundSetManager().getTableFilters(TENANT_FILTER).stream()
+			.map(TableFilter::createBroadcastFilter)
+			.filter(Objects::nonNull)
+			.map(bf -> bf.getFilterValue())
+			.findAny().orElse(null);
 	}
 
 	/**

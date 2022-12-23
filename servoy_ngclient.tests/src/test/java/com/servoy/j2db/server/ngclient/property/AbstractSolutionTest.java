@@ -85,6 +85,7 @@ import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.PersistIndexCache;
 import com.servoy.j2db.dataprocessing.datasource.JSConnectionDefinition;
 import com.servoy.j2db.persistence.ChangeHandler;
+import com.servoy.j2db.persistence.ColumnName;
 import com.servoy.j2db.persistence.IItemChangeListener;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -107,7 +108,6 @@ import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindo
 import com.servoy.j2db.server.ngclient.property.types.Types;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -185,7 +185,7 @@ public abstract class AbstractSolutionTest
 			return Collections.emptySet();
 		}
 
-		public List<Pair<String, String>> getTenantColumns() throws RepositoryException, RemoteException
+		public List<ColumnName> getTenantColumns() throws RepositoryException, RemoteException
 		{
 			return Collections.emptyList();
 		}

@@ -16,6 +16,11 @@
  */
 package com.servoy.j2db.dataprocessing;
 
+import static com.servoy.j2db.util.Utils.iterate;
+import static com.servoy.j2db.util.Utils.toArray;
+
+import com.servoy.base.query.IBaseSQLCondition;
+import com.servoy.j2db.dataprocessing.BroadcastFilter.BroadcastFilterOperator;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.serialize.IWriteReplace;
 import com.servoy.j2db.util.serialize.ReplacedObject;
@@ -85,7 +90,6 @@ public class TableFilter implements IWriteReplace
 		this.tableFilterdefinition = tableFilterDefinition;
 	}
 
-	// RAGTEST in contained / equals?
 	/**
 	 * @return the broadcastFilter
 	 */
@@ -96,7 +100,7 @@ public class TableFilter implements IWriteReplace
 
 	public boolean isContainedIn(Iterable<TableFilter> filters)
 	{
-		for (TableFilter tf : Utils.iterate(filters))
+		for (TableFilter tf : iterate(filters))
 		{
 			// do not use filters.contains(this) here, equality on the value (possible an array) would be incorrect
 			if (tf != null && /**/Utils.stringSafeEquals(tf.getName(), getName()) && //
@@ -124,6 +128,26 @@ public class TableFilter implements IWriteReplace
 		}
 
 		return false;
+	}
+
+	/**
+	 * Create a broadcast filter from this table filter.
+	 *
+	 * Only create it if it is a simple filter that compares values.
+	 */
+	public BroadcastFilter createBroadcastFilter()
+	{
+		if (tableFilterdefinition instanceof DataproviderTableFilterdefinition)
+		{
+			DataproviderTableFilterdefinition dptf = (DataproviderTableFilterdefinition)tableFilterdefinition;
+			if (dptf.getOperator() == IBaseSQLCondition.EQUALS_OPERATOR || dptf.getOperator() == IBaseSQLCondition.IN_OPERATOR)
+			{
+				return new BroadcastFilter(tableName, dptf.getDataprovider(), BroadcastFilterOperator.IN, toArray(dptf.getValue()));
+			}
+		}
+
+		// Not supported for databroadcast
+		return null;
 	}
 
 	@Override

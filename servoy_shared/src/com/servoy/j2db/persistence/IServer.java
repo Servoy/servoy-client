@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.servoy.j2db.dataprocessing.datasource.JSConnectionDefinition;
-import com.servoy.j2db.util.Pair;
 
 /**
  * Remote interface to a database server
@@ -46,8 +45,7 @@ public interface IServer extends Remote
 
 	public List<String> getTableNames(boolean hideTempTables) throws RepositoryException, RemoteException;
 
-	// RAGTEST getTenantColumns (geen gebruik pair??)
-	public List<Pair<String, String>> getTenantColumns() throws RepositoryException, RemoteException;
+	public List<ColumnName> getTenantColumns() throws RepositoryException, RemoteException;
 
 	public Collection<Procedure> getProcedures() throws RepositoryException, RemoteException;
 
