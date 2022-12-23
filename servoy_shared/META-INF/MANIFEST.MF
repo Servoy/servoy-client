@@ -239,7 +239,7 @@ Export-Package: com.servoy.j2db,
  org.xhtmlrenderer.util
 Import-Package: javax.servlet;version="[4.0.0,5.0.0)",
  javax.servlet.http;version="[4.0.0,5.0.0)",
- org.apache.commons.io;version="2.11.0",
+ org.apache.commons.io;version="2.8.0",
  org.sablo,
  org.sablo.specification,
  org.sablo.specification.property,

@@ -3975,7 +3975,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Enable/disable the default null validator for non null columns, makes it possible todo the checks later on when saving, when for example autosave is disabled.
+	 * Enable/disable the default null validator for non null columns, makes it possible to do the checks later on when saving, when for example autosave is disabled.
 	 *
 	 * @sample
 	 * databaseManager.nullColumnValidatorEnabled = false;//disable
@@ -3991,6 +3991,28 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public void js_setNullColumnValidatorEnabled(boolean enable)
 	{
 		((FoundSetManager)application.getFoundSetManager()).setNullColumnValidatorEnabled(enable);
+	}
+
+	/**
+	 * Enable/disable the foundset behaviour to keep selection to the first row always, even if updates from other clients are received that add new records before the current first record.
+	 *
+	 * If set to false [default], a foundset with selection on first record will keep the selected index to 1, but may change the selected record when a new record is received from another client.
+	 * If set to true, the selected index may change but the selected record will be kept if possible.
+	 *
+	 * @sample
+	 * databaseManager.alwaysFollowPkSelection = true; // enable
+	 *
+	 * // test if enabled
+	 * if(databaseManager.alwaysFollowPkSelection) application.output('alwaysFollowPkSelection enabled')
+	 */
+	public boolean js_getAlwaysFollowPkSelection()
+	{
+		return ((FoundSetManager)application.getFoundSetManager()).isAlwaysFollowPkSelection();
+	}
+
+	public void js_setAlwaysFollowPkSelection(boolean alwaysFollowPkSelection)
+	{
+		((FoundSetManager)application.getFoundSetManager()).setAlwaysFollowPkSelection(alwaysFollowPkSelection);
 	}
 
 	/**

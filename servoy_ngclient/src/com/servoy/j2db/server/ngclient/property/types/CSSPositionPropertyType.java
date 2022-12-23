@@ -255,7 +255,7 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 	 * @see com.servoy.j2db.persistence.IDesignValueConverter#fromDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
 	 */
 	@Override
-	public CSSPosition fromDesignValue(Object designValue, PropertyDescription propertyDescription)
+	public CSSPosition fromDesignValue(Object designValue, PropertyDescription propertyDescription, IPersist persit)
 	{
 		try
 		{

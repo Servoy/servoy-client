@@ -33,6 +33,7 @@ import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.IDesignValueConverter;
+import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
@@ -110,7 +111,7 @@ public class NGPointPropertyType extends PointPropertyType implements IDesignToF
 	 * @see org.sablo.specification.property.IDesignValueConverter#fromDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
 	 */
 	@Override
-	public Point fromDesignValue(Object newValue, PropertyDescription propertyDescription)
+	public Point fromDesignValue(Object newValue, PropertyDescription propertyDescription, IPersist persit)
 	{
 		try
 		{

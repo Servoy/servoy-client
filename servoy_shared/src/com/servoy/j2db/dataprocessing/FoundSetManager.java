@@ -3095,6 +3095,18 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		nullColumnValidatorEnabled = enable;
 	}
 
+	private boolean alwaysFollowPkSelection = false;
+
+	public boolean isAlwaysFollowPkSelection()
+	{
+		return alwaysFollowPkSelection;
+	}
+
+	public void setAlwaysFollowPkSelection(boolean alwaysFollowPkSelection)
+	{
+		this.alwaysFollowPkSelection = alwaysFollowPkSelection;
+	}
+
 	private boolean disableRelatedSiblingsPrefetch = false;
 
 	public boolean isDisableRelatedSiblingsPrefetch()
