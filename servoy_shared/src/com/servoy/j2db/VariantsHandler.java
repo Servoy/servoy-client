@@ -80,7 +80,13 @@ public class VariantsHandler
 	public JSONArray getVariantsForCategory(String category)
 	{
 		Media media = fs.getMedia("variants.json");
-		if (media != null && media.getLastModifiedTime() != lastModified) loadVariants();
+		if (media == null && categoryToVariants.size() > 0)
+		{
+			// variants changed, or module references
+			categoryToVariants.clear();
+			nameToClasses.clear();
+		}
+		else if (media != null && media.getLastModifiedTime() != lastModified) loadVariants();
 		JSONArray jsonArray = categoryToVariants.get(category);
 		if (jsonArray == null) jsonArray = new JSONArray();
 		return jsonArray;
@@ -89,7 +95,13 @@ public class VariantsHandler
 	public JSONArray getVariantClasses(String variantName)
 	{
 		Media media = fs.getMedia("variants.json");
-		if (media != null && media.getLastModifiedTime() != lastModified) loadVariants();
+		if (media == null && categoryToVariants.size() > 0)
+		{
+			// variants changed, or module references
+			categoryToVariants.clear();
+			nameToClasses.clear();
+		}
+		else if (media != null && media.getLastModifiedTime() != lastModified) loadVariants();
 		JSONArray jsonArray = nameToClasses.get(variantName);
 		if (jsonArray == null) jsonArray = new JSONArray();
 		return jsonArray;
