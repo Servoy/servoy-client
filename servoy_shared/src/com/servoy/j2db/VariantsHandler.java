@@ -42,36 +42,46 @@ public class VariantsHandler
 	public VariantsHandler(FlattenedSolution fs)
 	{
 		this.fs = fs;
-		loadVariants();
+		loadIfNeeded();
 	}
 
-	private void loadVariants()
+	private void loadIfNeeded()
 	{
-		categoryToVariants.clear();
-		nameToClasses.clear();
 		Media media = fs.getMedia("variants.json");
-		if (media != null)
+		if (media == null && categoryToVariants.size() > 0)
 		{
-			lastModified = media.getLastModifiedTime();
-			String json = new String(media.getMediaData(), Charset.forName("UTF-8"));
-			var jsonObject = new JSONObject(json);
-			Iterator<String> keys = jsonObject.keys();
-			while (keys.hasNext())
+			// variants changed, or module references
+			categoryToVariants.clear();
+			nameToClasses.clear();
+			lastModified = -1;
+		}
+		else if (media != null && media.getLastModifiedTime() != lastModified)
+		{
+			categoryToVariants.clear();
+			nameToClasses.clear();
+			if (media != null)
 			{
-				String name = keys.next();
-				var variantObject = jsonObject.getJSONObject(name);
-				variantObject.put("name", name);
-
-				nameToClasses.put(name, variantObject.getJSONArray("classes"));
-				var category = variantObject.getString("category");
-
-				JSONArray jsonArray = categoryToVariants.get(category);
-				if (jsonArray == null)
+				lastModified = media.getLastModifiedTime();
+				String json = new String(media.getMediaData(), Charset.forName("UTF-8"));
+				var jsonObject = new JSONObject(json);
+				Iterator<String> keys = jsonObject.keys();
+				while (keys.hasNext())
 				{
-					jsonArray = new JSONArray();
-					categoryToVariants.put(category, jsonArray);
+					String name = keys.next();
+					var variantObject = jsonObject.getJSONObject(name);
+					variantObject.put("name", name);
+
+					nameToClasses.put(name, variantObject.getJSONArray("classes"));
+					var category = variantObject.getString("category");
+
+					JSONArray jsonArray = categoryToVariants.get(category);
+					if (jsonArray == null)
+					{
+						jsonArray = new JSONArray();
+						categoryToVariants.put(category, jsonArray);
+					}
+					jsonArray.put(variantObject);
 				}
-				jsonArray.put(variantObject);
 			}
 		}
 	}
@@ -79,8 +89,7 @@ public class VariantsHandler
 
 	public JSONArray getVariantsForCategory(String category)
 	{
-		Media media = fs.getMedia("variants.json");
-		if (media != null && media.getLastModifiedTime() != lastModified) loadVariants();
+		loadIfNeeded();
 		JSONArray jsonArray = categoryToVariants.get(category);
 		if (jsonArray == null) jsonArray = new JSONArray();
 		return jsonArray;
@@ -88,8 +97,7 @@ public class VariantsHandler
 
 	public JSONArray getVariantClasses(String variantName)
 	{
-		Media media = fs.getMedia("variants.json");
-		if (media != null && media.getLastModifiedTime() != lastModified) loadVariants();
+		loadIfNeeded();
 		JSONArray jsonArray = nameToClasses.get(variantName);
 		if (jsonArray == null) jsonArray = new JSONArray();
 		return jsonArray;
