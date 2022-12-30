@@ -99,7 +99,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	protected transient IRepository repository = null;
 
 	//local reference to dataserver
-	private transient DataServerProxy dataServer;
+	private transient IDataServer dataServer;
 
 	//local reference to client host
 	private transient IClientHost clientHost;
@@ -775,12 +775,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			{
 				if (dataServer == null)
 				{
-					// always create a proxy so we can keep track of broadcast filters
-					IDataServer ds = createDataServer();
-					if (ds != null)
-					{
-						dataServer = new DataServerProxy(ds, getClientID());
-					}
+					dataServer = createDataServer();
 				}
 			}
 			catch (Exception ex)
@@ -1316,10 +1311,11 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			getRuntimeProperties().put(IServiceProvider.RT_JSFOUNDSET_FUNCTIONS, null);
 			getRuntimeProperties().put(IServiceProvider.RT_JSRECORD_FUNCTIONS, null);
 
-			// drop any temp tables for this client
+			// clear broadcast filters and drop any temp tables for this client
 			IDataServer ds = getDataServer();
 			if (ds != null)
 			{
+				ds.clearBroadcastFilters(getClientID());
 				ds.dropTemporaryTable(getClientID(), null, null);
 			}
 		}
@@ -1330,7 +1326,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		finally
 		{
 			isClosing = false;
-			if (solutionClosed) dataServer.clear();
+			if (solutionClosed && dataServer instanceof DataServerProxy) dataServer = ((DataServerProxy)dataServer).getEnclosingDataServer();
 			// just set the solutionClosed boolean to false again here, now the solution should be null.
 			solutionClosed = false;
 		}
@@ -1626,6 +1622,17 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	//server-to-desktop activation
 	public abstract void activateSolutionMethod(String globalMethodName, StartupArguments argumentsScope);
+
+	public synchronized DataServerProxy getDataServerProxy()
+	{
+		IDataServer ds = getDataServer();
+		if (ds != null && !(ds instanceof DataServerProxy))
+		{
+			dataServer = new DataServerProxy(ds, getClientID());
+			ds = dataServer;
+		}
+		return (DataServerProxy)ds;
+	}
 
 	private transient boolean isHandlingError = false;
 

@@ -117,6 +117,12 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
+			public BroadcastFilter[] getBroadcastFilters(String clientId, String serverName) throws RemoteException
+			{
+				return null;
+			}
+
+			@Override
 			public void clearBroadcastFilters(String clientId) throws RemoteException
 			{
 			}

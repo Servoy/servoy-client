@@ -808,6 +808,20 @@ public class ExceptionCheckingDataServer implements IDataServer
 	}
 
 	@Override
+	public BroadcastFilter[] getBroadcastFilters(String clientId, String serverName) throws RemoteException
+	{
+		try
+		{
+			return delegate.getBroadcastFilters(clientId, serverName);
+		}
+		catch (RemoteException e)
+		{
+			checkException(e);
+			throw e;
+		}
+	}
+
+	@Override
 	public void clearBroadcastFilters(String clientId) throws RemoteException
 	{
 		try

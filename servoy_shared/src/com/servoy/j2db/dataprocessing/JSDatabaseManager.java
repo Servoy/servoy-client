@@ -3158,7 +3158,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			return false;
 		}
 
-		DataServerProxy pds = (DataServerProxy)application.getDataServer();
+		DataServerProxy pds = application.getDataServerProxy();
 		if (pds == null)
 		{
 			// no dataserver access yet?

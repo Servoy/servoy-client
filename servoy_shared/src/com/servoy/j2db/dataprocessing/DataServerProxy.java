@@ -50,7 +50,6 @@ public class DataServerProxy implements IDataServer
 	private final String clientId;
 
 	private final Map<String, String> mappedServers = new HashMap<String, String>();
-	private final Map<String, BroadcastFilter[]> clientBroadcastFilters = new HashMap<>(); // mapped server name -> broadcastFilters
 
 	public DataServerProxy(IDataServer ds, String clientId)
 	{
@@ -61,13 +60,11 @@ public class DataServerProxy implements IDataServer
 	public void switchServer(String sourceName, String destinationName) throws RemoteException
 	{
 		// move broadcast filters, if any
-		BroadcastFilter[] sourceBroadcastFilters = clientBroadcastFilters.get(sourceName);
-		if (sourceBroadcastFilters != null)
+		BroadcastFilter[] broadcastFilters = ds.getBroadcastFilters(clientId, sourceName);
+		if (broadcastFilters != null)
 		{
 			ds.setBroadcastFilters(clientId, sourceName, null);
-			ds.setBroadcastFilters(clientId, destinationName, sourceBroadcastFilters);
-			clientBroadcastFilters.remove(sourceName);
-			clientBroadcastFilters.put(destinationName, sourceBroadcastFilters);
+			ds.setBroadcastFilters(clientId, destinationName, broadcastFilters);
 		}
 
 		if (sourceName.equals(mappedServers.get(destinationName)))
@@ -77,19 +74,6 @@ public class DataServerProxy implements IDataServer
 		else
 		{
 			mappedServers.put(sourceName, destinationName);
-		}
-	}
-
-	public void clear()
-	{
-		mappedServers.clear();
-		try
-		{
-			clearBroadcastFilters(clientId);
-		}
-		catch (RemoteException e)
-		{
-			Debug.error("Error clearing broadcast filters", e);
 		}
 	}
 
@@ -280,6 +264,11 @@ public class DataServerProxy implements IDataServer
 		ds.addClientAsTableUser(clientId, getMappedServerName(serverName), table_name);
 	}
 
+	public IDataServer getEnclosingDataServer()
+	{
+		return ds;
+	}
+
 	public boolean notifyDataChange(String _ignoredClientId, String server_name, String tableName, IDataSet pks, int action, String transaction_id)
 		throws RemoteException
 	{
@@ -290,22 +279,18 @@ public class DataServerProxy implements IDataServer
 	@Override
 	public void setBroadcastFilters(String _ignoredClientId, String serverName, BroadcastFilter[] broadcastFilters) throws RemoteException
 	{
-		String mappedServerName = getMappedServerName(serverName);
-		if (broadcastFilters == null || broadcastFilters.length == 0)
-		{
-			clientBroadcastFilters.remove(mappedServerName);
-		}
-		else
-		{
-			clientBroadcastFilters.put(mappedServerName, broadcastFilters);
-		}
-		ds.setBroadcastFilters(clientId, mappedServerName, broadcastFilters);
+		ds.setBroadcastFilters(clientId, getMappedServerName(serverName), broadcastFilters);
+	}
+
+	@Override
+	public BroadcastFilter[] getBroadcastFilters(String _ignoredClientId, String serverName) throws RemoteException
+	{
+		return ds.getBroadcastFilters(clientId, getMappedServerName(serverName));
 	}
 
 	@Override
 	public void clearBroadcastFilters(String _ignoredClientId) throws RemoteException
 	{
-		clientBroadcastFilters.clear();
 		ds.clearBroadcastFilters(clientId);
 	}
 

@@ -55,6 +55,7 @@ import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.ClientInfo;
+import com.servoy.j2db.dataprocessing.DataServerProxy;
 import com.servoy.j2db.dataprocessing.IClientHost;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
@@ -1691,6 +1692,18 @@ public class DataProviderDateTest
 		public boolean isShutDown()
 		{
 			return false;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see com.servoy.j2db.IApplication#getDataServerProxy()
+		 */
+		@Override
+		public DataServerProxy getDataServerProxy()
+		{
+
+			return null;
 		}
 
 		/*
