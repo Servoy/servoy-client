@@ -26,7 +26,6 @@ import java.util.ResourceBundle;
 import com.servoy.base.persistence.constants.IBaseApplicationTypes;
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.dataprocessing.ClientInfo;
-import com.servoy.j2db.dataprocessing.DataServerProxy;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.plugins.IPluginAccess;
 import com.servoy.j2db.plugins.IPluginManager;
@@ -444,13 +443,6 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * @return the shutdown status
 	 */
 	public boolean isShutDown();
-
-	/**
-	 * Delivers a proxied version of IDataServer interface for use with switchServer.
-	 * Which is also be returned from getDataServer() then as well, after the call.
-	 * @return the proxy
-	 */
-	public DataServerProxy getDataServerProxy();
 
 	/**
 	 * Get the window manager

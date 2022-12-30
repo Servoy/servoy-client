@@ -99,7 +99,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	protected transient IRepository repository = null;
 
 	//local reference to dataserver
-	private transient IDataServer dataServer;
+	private transient DataServerProxy dataServer;
 
 	//local reference to client host
 	private transient IClientHost clientHost;
@@ -775,7 +775,12 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			{
 				if (dataServer == null)
 				{
-					dataServer = createDataServer();
+					// always create a proxy so we can keep track of broadcast filters
+					IDataServer ds = createDataServer();
+					if (ds != null)
+					{
+						dataServer = new DataServerProxy(ds, getClientID());
+					}
 				}
 			}
 			catch (Exception ex)
@@ -1289,7 +1294,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				}
 				catch (Exception e1)
 				{
-					Debug.error(e1);// incase connection to server is dead
+					Debug.error(e1); // in case connection to server is dead
 				}
 			}
 
@@ -1325,7 +1330,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		finally
 		{
 			isClosing = false;
-			if (solutionClosed && dataServer instanceof DataServerProxy) dataServer = ((DataServerProxy)dataServer).getEnclosingDataServer();
+			if (solutionClosed) dataServer.clear();
 			// just set the solutionClosed boolean to false again here, now the solution should be null.
 			solutionClosed = false;
 		}
@@ -1621,17 +1626,6 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	//server-to-desktop activation
 	public abstract void activateSolutionMethod(String globalMethodName, StartupArguments argumentsScope);
-
-	public synchronized DataServerProxy getDataServerProxy()
-	{
-		IDataServer ds = getDataServer();
-		if (ds != null && !(ds instanceof DataServerProxy))
-		{
-			dataServer = new DataServerProxy(ds);
-			ds = dataServer;
-		}
-		return (DataServerProxy)ds;
-	}
 
 	private transient boolean isHandlingError = false;
 

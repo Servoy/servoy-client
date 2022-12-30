@@ -3158,15 +3158,24 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			return false;
 		}
 
-		DataServerProxy pds = application.getDataServerProxy();
+		DataServerProxy pds = (DataServerProxy)application.getDataServer();
 		if (pds == null)
 		{
 			// no dataserver access yet?
 			return false;
 		}
 
-		pds.switchServer(sourceName, destinationName);
-		((FoundSetManager)application.getFoundSetManager()).flushCachedDatabaseData(null);//flush all
+		try
+		{
+			pds.switchServer(sourceName, destinationName);
+		}
+		catch (RemoteException e)
+		{
+			Debug.error(e);
+			return false;
+		}
+
+		((FoundSetManager)application.getFoundSetManager()).flushCachedDatabaseData(null); // flush all
 		((FoundSetManager)application.getFoundSetManager()).registerClientTables(sourceName); // register existing used tables to server
 
 		if (sourceName.equals(application.getSolution().getI18nServerName()))

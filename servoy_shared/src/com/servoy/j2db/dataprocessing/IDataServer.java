@@ -249,6 +249,8 @@ public interface IDataServer extends Remote
 
 
 	/**
+	 * Set broadcast filters for this client.
+	 *
 	 * @param clientId
 	 * @param serverName
 	 * @param broadcastFilters
@@ -256,6 +258,8 @@ public interface IDataServer extends Remote
 	public void setBroadcastFilters(String clientId, String serverName, BroadcastFilter[] broadcastFilters) throws RemoteException;
 
 	/**
+	 * Clear all broadcast filters for this client.
+	 *
 	 * @param clientId
 	 */
 	public void clearBroadcastFilters(String clientId) throws RemoteException;
