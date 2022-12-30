@@ -1071,18 +1071,6 @@ public class DataProviderDateTest
 			return null;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see com.servoy.j2db.IServiceProvider#getTenantValue()
-		 */
-		@Override
-		public Object[] getTenantValue()
-		{
-
-			return null;
-		}
-
 		@Override
 		public Locale getLocale()
 		{
@@ -1703,7 +1691,6 @@ public class DataProviderDateTest
 		@Override
 		public boolean isShutDown()
 		{
-
 			return false;
 		}
 

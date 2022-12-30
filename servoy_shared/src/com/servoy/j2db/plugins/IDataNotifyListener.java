@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.plugins;
 
+import com.servoy.j2db.dataprocessing.BroadcastFilter;
 import com.servoy.j2db.dataprocessing.IDataSet;
 
 /**
@@ -30,7 +31,7 @@ public interface IDataNotifyListener
 	/**
 	 * @param dataSource
 	 */
-	void flushCachedDatabaseData(String dataSource, Object[] tenantValue);
+	void flushCachedDatabaseData(String dataSource, BroadcastFilter[] broadcastFilters);
 
 	/**
 	 * @param server_name
@@ -38,7 +39,8 @@ public interface IDataNotifyListener
 	 * @param pks
 	 * @param action
 	 * @param insertColumnData
+	 * @param broadcastFilters
 	 */
-	void notifyDataChange(String server_name, String table_name, IDataSet pks, int action, Object[] insertColumnData, Object[] tenantValue);
+	void notifyDataChange(String server_name, String table_name, IDataSet pks, int action, Object[] insertColumnData, BroadcastFilter[] broadcastFilters);
 
 }

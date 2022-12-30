@@ -163,7 +163,7 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public DataproviderTableFilterdefinition createDataproviderTableFilterdefinition(ITable table, String dataprovider, String operator, Object val)
 		throws ServoyException;
 
-	public void setTableFilters(String filterName, String serverName, List<TableFilterRequest> tableFilterRequests, boolean removeOld);
+	public void setTableFilters(String filterName, String serverName, List<TableFilterRequest> tableFilterRequests, boolean removeOld) throws ServoyException;
 
 	public boolean updateTableFilterParam(String serverName, String filterName, ITable table, TableFilterdefinition tableFilterdefinition);
 
@@ -176,6 +176,10 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public boolean removeTableFilterParam(String serverName, String filterName);
 
 	public boolean hasTableFilter(String serverName, String tableName);
+
+	public List<TableFilter> getTableFilters(String serverName, String tableName);
+
+	public List<TableFilter> getTableFilters(String filterName);
 
 	public Collection<String> getInMemDataSourceNames();
 
@@ -226,8 +230,6 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public Collection<String> getViewFoundsetDataSourceNames();
 
 	public void removeFoundSet(FoundSet foundset);
-
-	public void refreshFoundsetsForTenantTables();
 
 	/**
 	 * @param record

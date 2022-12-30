@@ -31,7 +31,6 @@ import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONSEA
 import static com.servoy.j2db.util.Utils.iterate;
 import static com.servoy.j2db.util.Utils.stream;
 import static java.util.Arrays.asList;
-import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.ref.WeakReference;
@@ -7012,7 +7011,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					QuerySelect select = AbstractBaseQuery.deepClone(((QueryTableFilterdefinition)filter.getTableFilterdefinition()).getQuerySelect());
 					select.relinkTable(select.getTable(), creationSqlSelect.getTable());
 					foundSetFilters.add(new TableFilter(filter.getName(), sheet.getServerName(), sheet.getTable().getName(), sheet.getTable().getSQLName(),
-						new QueryTableFilterdefinition(select)));
+						new QueryTableFilterdefinition(select), false));
 				}
 				else
 				{
@@ -7106,7 +7105,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		TableFilter filter = new TableFilter(filterName, sheet.getServerName(), sheet.getTable().getName(), sheet.getTable().getSQLName(),
-			tableFilterdefinition);
+			tableFilterdefinition, false);
 
 		if (filter.isContainedIn(foundSetFilters))
 		{

@@ -19,8 +19,8 @@ package com.servoy.j2db.dataprocessing;
 
 import static com.servoy.base.util.DataSourceUtilsBase.getDBServernameTablename;
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
+import static com.servoy.j2db.util.Utils.stream;
 import static java.util.Arrays.asList;
-import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
@@ -399,7 +399,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 		JSTableFilter tableFilter = createTableFilterInternal(query);
 		application.getFoundSetManager().setTableFilters(filterName, tableFilter.getTable().getServerName(),
-			asList(new TableFilterRequest(tableFilter.getTable(), tableFilter.getTableFilterdefinition())), false);
+			asList(new TableFilterRequest(tableFilter.getTable(), tableFilter.getTableFilterdefinition(), false)), false);
 		return true;
 	}
 
@@ -533,6 +533,12 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * // filters can be removed by setting them to an empty list:
 	 * var success = databaseManager.setTableFilters('myfilters', [])
 	 *
+	 * // use the databroadCast flag on a filter to reduce databroadcast events
+	 * // for clients having a databroadcast filter set for the same column with a different value.
+	 * // Note that the dataBroadcast flag is *only* supported for simple filters, only for operator 'in' or '='.
+	 * var filter = databaseManager.createTableFilterParam('example', 'orders', 'clusterid', '=', 10).dataBroadcast(true)
+	 * var success = databaseManager.setTableFilters('clusterfilter', [filter])
+	 *
 	 * @param filterName The name of the filter that should be removed.
 	 * @param tableFilters list of filters to be applied.
 	 *
@@ -544,7 +550,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 		// group by serverName
 		Map<String, List<TableFilterRequest>> tableFilterRequests = stream(tableFilters).collect(
-			groupingBy(JSTableFilter::getServerName, mapping(tf -> new TableFilterRequest(tf.getTable(), tf.getTableFilterdefinition()), toList())));
+			groupingBy(JSTableFilter::getServerName,
+				mapping(tf -> new TableFilterRequest(tf.getTable(), tf.getTableFilterdefinition(), tf.getDataBroadcast()), toList())));
 
 		try
 		{
@@ -581,7 +588,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			if (tableFilter != null)
 			{
 				application.getFoundSetManager().setTableFilters(filterName, serverName,
-					asList(new TableFilterRequest(tableFilter.getTable(), tableFilter.getTableFilterdefinition())), false);
+					asList(new TableFilterRequest(tableFilter.getTable(), tableFilter.getTableFilterdefinition(), false)), false);
 				return true;
 			}
 		}
@@ -3158,8 +3165,17 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			return false;
 		}
 
-		pds.switchServer(sourceName, destinationName);
-		((FoundSetManager)application.getFoundSetManager()).flushCachedDatabaseData(null);//flush all
+		try
+		{
+			pds.switchServer(sourceName, destinationName);
+		}
+		catch (RemoteException e)
+		{
+			Debug.error(e);
+			return false;
+		}
+
+		((FoundSetManager)application.getFoundSetManager()).flushCachedDatabaseData(null); // flush all
 		((FoundSetManager)application.getFoundSetManager()).registerClientTables(sourceName); // register existing used tables to server
 
 		if (sourceName.equals(application.getSolution().getI18nServerName()))
