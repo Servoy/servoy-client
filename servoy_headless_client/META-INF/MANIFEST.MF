@@ -8,7 +8,6 @@ Bundle-ClassPath: .
 Require-Bundle: org.eclipse.dltk.javascript.rhino,
  servoy_shared,
  servoy_smart_client,
- slf4j.api,
  org.jsoup,
  com.github.ua-parser.uap-java
 Bundle-Vendor: Servoy
@@ -22,5 +21,6 @@ Export-Package: com.servoy.j2db.server.headlessclient,
  com.servoy.j2db.server.headlessclient.util,
  com.servoy.j2db.server.headlessclient.yui
 Import-Package: javax.servlet;version="[4.0.0,5.0.0)",
- javax.servlet.http;version="[4.0.0,5.0.0)"
+ javax.servlet.http;version="[4.0.0,5.0.0)",
+ org.slf4j;version="2.0.6"
 Automatic-Module-Name: servoy_headless_client
