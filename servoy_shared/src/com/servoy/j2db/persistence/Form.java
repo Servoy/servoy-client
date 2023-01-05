@@ -2350,6 +2350,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	public void childAdded(IPersist obj)
 	{
 		super.childAdded(obj);
+		setLastModified(System.currentTimeMillis());
 		superPersistCache = null;
 	}
 
@@ -2357,6 +2358,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	public void childRemoved(IPersist obj)
 	{
 		super.childRemoved(obj);
+		setLastModified(System.currentTimeMillis());
 		superPersistCache = null;
 	}
 }
