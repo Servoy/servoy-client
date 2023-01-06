@@ -16,8 +16,13 @@
  */
 package com.servoy.base.query;
 
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Base condition class for AndCondition and OrCondition.
@@ -27,17 +32,30 @@ import java.util.List;
  */
 public abstract class BaseAndOrCondition<C extends IBaseSQLCondition> implements IBaseSQLCondition
 {
-	protected List<C> conditions;
+	private static final String[] EMPTY_STRINGS = new String[0];
 
+	protected HashMap<String, List<C>> conditions = null; // named conditions
 
 	public BaseAndOrCondition()
 	{
-		this.conditions = new ArrayList<C>();
 	}
 
 	public BaseAndOrCondition(List<C> conditions)
 	{
-		this.conditions = new ArrayList<>(conditions);
+		if (conditions != null && !conditions.isEmpty())
+		{
+			this.conditions = new HashMap<>();
+			this.conditions.put(null, new ArrayList<>(conditions));
+		}
+	}
+
+	public BaseAndOrCondition(HashMap<String, List<C>> conditions)
+	{
+		if (conditions != null && !conditions.isEmpty())
+		{
+			this.conditions = new HashMap<>();
+			this.conditions.putAll(conditions);
+		}
 	}
 
 	public void addCondition(C condition)
@@ -48,17 +66,114 @@ public abstract class BaseAndOrCondition<C extends IBaseSQLCondition> implements
 		}
 		if (getClass() == condition.getClass())
 		{
-			conditions.addAll(((BaseAndOrCondition)condition).getConditions());
+			Map<String, List<C>> map = ((BaseAndOrCondition)condition).getConditions();
+			if (map != null & map.keySet().size() == 1 && map.keySet().iterator().next() == null)
+				// an anonymous conditions
+				map.values().forEach(list -> list.forEach(BaseAndOrCondition.this::addCondition));
+			return;
+		}
+
+		conditions = addToConditionMap(conditions, null, condition);
+	}
+
+	public List<C> getConditions(String name)
+	{
+		if (conditions == null)
+		{
+			return null;
+		}
+		return conditions.get(name);
+	}
+
+	public String[] getConditionNames()
+	{
+		if (conditions == null)
+		{
+			return EMPTY_STRINGS;
+		}
+		return conditions.keySet().toArray(EMPTY_STRINGS);
+	}
+
+	static <C extends IBaseSQLCondition> HashMap<String, List<C>> setInConditionMap(HashMap<String, List<C>> map, String name, C c)
+	{
+		HashMap<String, List<C>> retval = map;
+		if (c == null)
+		{
+			if (retval != null)
+			{
+				retval.remove(name);
+				if (retval.size() == 0)
+				{
+					return null;
+				}
+			}
 		}
 		else
 		{
-			conditions.add(condition);
+			if (retval == null)
+			{
+				retval = new HashMap<>();
+			}
+			List<C> list = retval.get(name);
+			if (list == null)
+			{
+				list = new ArrayList<C>();
+				list.add(c);
+			}
+			retval.put(name, list);
+
 		}
+		return retval;
 	}
 
-	public List<C> getConditions()
+	static <C extends IBaseSQLCondition> HashMap<String, List<C>> addToConditionMap(HashMap<String, List<C>> map, String name, C c)
+	{
+		HashMap<String, List<C>> retval = map;
+		if (c != null)
+		{
+			List<C> list = null;
+			if (retval == null)
+			{
+				retval = new HashMap<>();
+			}
+			else
+			{
+				list = retval.get(name);
+			}
+
+			if (list == null)
+			{
+				list = new ArrayList<C>();
+				retval.put(name, list);
+			}
+			list.add(c);
+		}
+		return retval;
+	}
+
+	public void setCondition(String name, C c)
+	{
+		conditions = setInConditionMap(conditions, name, c);
+	}
+
+	public void addCondition(String name, C c)
+	{
+		conditions = addToConditionMap(conditions, name, c);
+	}
+
+	public void clear()
+	{
+		conditions = null;
+	}
+
+	public Map<String, List<C>> getConditions()
 	{
 		return conditions;
+	}
+
+	public List<C> getAllConditions()
+	{
+		return conditions == null ? emptyList() : conditions.values().stream().flatMap(List::stream).collect(toList());
 	}
 
 	public abstract C negate();
@@ -75,6 +190,7 @@ public abstract class BaseAndOrCondition<C extends IBaseSQLCondition> implements
 		return result;
 	}
 
+	// RAGTEST overal equals en tostring
 	@Override
 	public boolean equals(Object obj)
 	{

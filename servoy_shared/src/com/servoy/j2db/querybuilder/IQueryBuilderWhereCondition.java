@@ -19,7 +19,6 @@ package com.servoy.j2db.querybuilder;
 
 import com.servoy.j2db.persistence.RepositoryException;
 
-
 /**
  *  Where clause for a query, conditions can be added by name.
  *
@@ -38,19 +37,11 @@ public interface IQueryBuilderWhereCondition extends IQueryBuilderLogicalConditi
 	 */
 	IQueryBuilderWhereCondition add(String name, IQueryBuilderCondition condition) throws RepositoryException;
 
-
-	/**
-	 * Get the names for the conditions in the query where-clause.
-	 */
-	String[] conditionnames();
-
 	/**
 	 * Remove a named condition from the AND or OR condition list.
 	 * <pre>
 	 * query.where().remove("mycond");
 	 * </pre>
-	 *
-	 * @param name The condition name
 	 */
 	IQueryBuilderWhereCondition remove(String name);
 
@@ -59,10 +50,4 @@ public interface IQueryBuilderWhereCondition extends IQueryBuilderLogicalConditi
 	 */
 	IQueryBuilderWhereCondition clear();
 
-	/**
-	 * Get a named condition in the query where-clause.
-	 *
-	 * @param name The condition name
-	 */
-	IQueryBuilderCondition getCondition(String name);
 }

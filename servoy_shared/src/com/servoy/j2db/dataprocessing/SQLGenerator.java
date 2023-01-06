@@ -548,7 +548,7 @@ public class SQLGenerator
 			// NOTE: elements in joinCondition MUST be CompareConditions (expected in QueryGenerator and SQLGenerator.createConditionFromFindState)
 			joinCondition.addCondition(new CompareCondition(RelationItem.swapOperator(operators[x]), foreignColumn, value));
 		}
-		if (joinCondition.getConditions().size() == 0)
+		if (joinCondition.getConditions() == null)
 		{
 			throw new RepositoryException("Missing join condition in relation " + relation.getName()); //$NON-NLS-1$
 		}
@@ -981,7 +981,7 @@ public class SQLGenerator
 		if (sqlSelect instanceof QuerySelect && ((QuerySelect)sqlSelect).getCondition(CONDITION_SEARCH) != null)
 		{
 			// all named conditions in QuerySelecta are AND-ed, if one always results to false, skip the query
-			for (IBaseSQLCondition condition : ((QuerySelect)sqlSelect).getCondition(CONDITION_SEARCH).getConditions())
+			for (IBaseSQLCondition condition : ((QuerySelect)sqlSelect).getCondition(CONDITION_SEARCH).getAllConditions())
 			{
 				boolean skipQuery = false;
 				if (condition instanceof SetCondition && ((SetCondition)condition).isAndCondition())
@@ -1291,10 +1291,10 @@ public class SQLGenerator
 	 */
 	public static Placeholder getRelationPlaceholder(QuerySelect querySelect, String relationName)
 	{
-		AndCondition relationCondition = querySelect.getCondition(SQLGenerator.CONDITION_RELATION);
-		if (relationCondition != null && !relationCondition.getConditions().isEmpty())
+		List<ISQLCondition> relationCondition = querySelect.getCondition().getConditions(SQLGenerator.CONDITION_RELATION);
+		if (relationCondition != null && !relationCondition.isEmpty())
 		{
-			ISQLCondition firstCondition = relationCondition.getConditions().iterator().next();
+			ISQLCondition firstCondition = relationCondition.iterator().next();
 			if (firstCondition instanceof SetCondition)
 			{
 				SetCondition setCondition = (SetCondition)firstCondition;

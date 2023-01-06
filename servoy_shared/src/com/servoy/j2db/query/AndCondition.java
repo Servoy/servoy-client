@@ -16,8 +16,11 @@
  */
 package com.servoy.j2db.query;
 
-import java.util.ArrayList;
+import static java.util.stream.Collectors.toList;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.stream.Collector;
 
 import com.servoy.j2db.util.serialize.ReplacedObject;
@@ -41,6 +44,11 @@ public final class AndCondition extends AndOrCondition
 		super(conditions);
 	}
 
+	public AndCondition(HashMap<String, List<ISQLCondition>> conditions)
+	{
+		super(conditions);
+	}
+
 	@Override
 	public String getInfix()
 	{
@@ -50,11 +58,16 @@ public final class AndCondition extends AndOrCondition
 	@Override
 	public ISQLCondition negate()
 	{
-		// apply De Morgan's laws
-		List<ISQLCondition> nconditions = new ArrayList<ISQLCondition>(conditions.size());
-		for (int i = 0; i < conditions.size(); i++)
+		if (conditions == null)
 		{
-			nconditions.add(conditions.get(i).negate());
+			return new OrCondition();
+		}
+
+		// apply De Morgan's laws
+		HashMap<String, List<ISQLCondition>> nconditions = new HashMap<>(conditions.size());
+		for (Entry<String, List<ISQLCondition>> entry : conditions.entrySet())
+		{
+			nconditions.put(entry.getKey(), entry.getValue().stream().map(ISQLCondition::negate).collect(toList()));
 		}
 		return new OrCondition(nconditions);
 	}
@@ -95,5 +108,4 @@ public final class AndCondition extends AndOrCondition
 	{
 		super(so);
 	}
-
 }

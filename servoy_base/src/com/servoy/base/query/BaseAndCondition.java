@@ -17,12 +17,15 @@
 
 package com.servoy.base.query;
 
-import java.util.ArrayList;
+import static java.util.stream.Collectors.toList;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 /**
  * And-condition for mobile and regular clients.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -37,6 +40,11 @@ public class BaseAndCondition extends BaseAndOrCondition<IBaseSQLCondition>
 		super(conditions);
 	}
 
+	public BaseAndCondition(HashMap<String, List<IBaseSQLCondition>> conditions)
+	{
+		super(conditions);
+	}
+
 	@Override
 	public String getInfix()
 	{
@@ -46,17 +54,22 @@ public class BaseAndCondition extends BaseAndOrCondition<IBaseSQLCondition>
 	@Override
 	public IBaseSQLCondition negate()
 	{
-		// apply De Morgan's laws
-		List<IBaseSQLCondition> nconditions = new ArrayList<IBaseSQLCondition>(conditions.size());
-		for (int i = 0; i < conditions.size(); i++)
+		if (conditions == null)
 		{
-			nconditions.add(conditions.get(i).negate());
+			return new BaseOrCondition();
+		}
+
+		// apply De Morgan's laws
+		HashMap<String, List<IBaseSQLCondition>> nconditions = new HashMap<>(conditions.size());
+		for (Entry<String, List<IBaseSQLCondition>> entry : conditions.entrySet())
+		{
+			nconditions.put(entry.getKey(), entry.getValue().stream().map(IBaseSQLCondition::negate).collect(toList()));
 		}
 		return new BaseOrCondition(nconditions);
 	}
 
 	/**
-	 * Combine 2 conditions in an AndCondition. 
+	 * Combine 2 conditions in an AndCondition.
 	 * @param c1
 	 * @param c2
 	 * @return

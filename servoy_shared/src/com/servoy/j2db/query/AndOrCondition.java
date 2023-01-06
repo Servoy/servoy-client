@@ -17,6 +17,7 @@
 package com.servoy.j2db.query;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collector;
@@ -38,6 +39,11 @@ public abstract class AndOrCondition extends BaseAndOrCondition<ISQLCondition> i
 	}
 
 	public AndOrCondition(List<ISQLCondition> conditions)
+	{
+		super(conditions);
+	}
+
+	public AndOrCondition(HashMap<String, List<ISQLCondition>> conditions)
 	{
 		super(conditions);
 	}
@@ -66,9 +72,7 @@ public abstract class AndOrCondition extends BaseAndOrCondition<ISQLCondition> i
 		return collector;
 	}
 
-
 	///////// serialization ////////////////
-
 
 	public Object writeReplace()
 	{
@@ -78,6 +82,27 @@ public abstract class AndOrCondition extends BaseAndOrCondition<ISQLCondition> i
 
 	public AndOrCondition(ReplacedObject s)
 	{
-		conditions = (List)s.getObject();
+		conditions = (HashMap<String, List<ISQLCondition>>)s.getObject(); // RAGTEST ouden
 	}
+
+//	public Object writeReplace()
+//	{
+//		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
+//		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), name == null ? conditions : new Object[] { conditions, name });
+//	}
+//
+//	public AndOrCondition(ReplacedObject s)
+//	{
+//		if (s.getObject() instanceof List)
+//		{
+//			conditions = (List<ISQLCondition>)s.getObject();
+//		}
+//		else
+//		{
+//			int i = 0;
+//			Object[] members = (Object[])s.getObject();
+//			conditions = (List<ISQLCondition>)members[i++];
+//			name = (String)members[i++];
+//		}
+//	}
 }

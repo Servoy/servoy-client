@@ -1095,7 +1095,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			AndCondition searchCondition = query.getCondition(SQLGenerator.CONDITION_SEARCH);
 			if (searchCondition != null)
 			{
-				for (ISQLCondition condition : searchCondition.getConditions())
+				for (ISQLCondition condition : searchCondition.getAllConditions())
 				{
 					if (!SQLGenerator.isDynamicPKSetCondition(condition))
 					{
@@ -4927,20 +4927,15 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			sizeBefore = getSize();
 			sqlSelect = pksAndRecords.getQuerySelectForReading();
 
-			Map<String, AndCondition> conditions = sqlSelect.getConditions();
-			if (conditions != null)
+			for (String conditionName : sqlSelect.getConditionNames())
 			{
-				String conditionName;
-				for (String element : conditions.keySet())
+				if (conditionName != null &&
+					(conditionName.equals(SQLGenerator.CONDITION_SEARCH) || !conditionName.startsWith(SQLGenerator.SERVOY_CONDITION_PREFIX)))
 				{
-					conditionName = element;
-					if (conditionName != null &&
-						(conditionName.equals(SQLGenerator.CONDITION_SEARCH) || !conditionName.startsWith(SQLGenerator.SERVOY_CONDITION_PREFIX)))
-					{
-						invertConditionNames.add(conditionName);
-					}
+					invertConditionNames.add(conditionName);
 				}
 			}
+
 			if (invertConditionNames.size() == 0)
 			{
 				changes = pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, sqlSelect);
@@ -4950,7 +4945,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				sqlSelect = pksAndRecords.getQuerySelectForModification();
 				for (String inverConditionName : invertConditionNames)
 				{
-					sqlSelect.setCondition(inverConditionName, conditions.get(inverConditionName).negate());
+					sqlSelect.setCondition(inverConditionName, sqlSelect.getCondition(inverConditionName).negate());
 				}
 				clearOmit(sqlSelect);
 				// set pks here in case a refresh comes along
