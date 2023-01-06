@@ -313,48 +313,50 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		writer.key("model");
 		writer.object();
 		DataConversion dataConversion = new DataConversion();
-		if (formUI != null)
-		{
-			// there is a existing form, take the current properties from that.
-			if (webComponent != null)
-			{
-				TypedData<Map<String, Object>> properties = webComponent.getProperties();
-				TypedData<Map<String, Object>> templateProperties = fe.propertiesForTemplateJSON();
-				// remove from the templates properties all the properties that are current "live" in the component
-				templateProperties.content.keySet().removeAll(properties.content.keySet());
 
-				// write the template properties that are left
-				JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType, dataConversion,
-					new FormElementContext(fe, context, null));
-				// write the actual values
-				webComponent.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, properties, dataConversion);
-			}
-			else
+		if (designer || webComponent == null)
+		{
+			// can webcomponnt be null in actual client ?
+			TypedData<Map<String, Object>> templateProperties = fe.propertiesForTemplateJSON();
+
+			if (designer)
 			{
-				System.err.println("null");
+				fe.getWebComponentSpec().getProperties().values().forEach(pd -> {
+					if (pd.getType() instanceof IDesignerDefaultWriter)
+					{
+						((IDesignerDefaultWriter)pd.getType()).toDesignerDefaultJSONValue(writer, pd.getName(), dataConversion);
+						templateProperties.content.keySet().remove(pd.getName());
+					}
+				});
+			}
+
+			JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType,
+				dataConversion, new FormElementContext(fe, context, null));
+			if (designer)
+			{
+				writer.key("svyVisible").value(fe.isVisible());
+
+				if (Utils.isInheritedFormElement(o, form))
+				{
+					writer.key("svyInheritedElement");
+					writer.value(true);
+				}
 			}
 		}
 		else
 		{
+			TypedData<Map<String, Object>> properties = webComponent.getProperties();
 			TypedData<Map<String, Object>> templateProperties = fe.propertiesForTemplateJSON();
+			// remove from the templates properties all the properties that are current "live" in the component
+			templateProperties.content.keySet().removeAll(properties.content.keySet());
 
-			JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType,
-				dataConversion, new FormElementContext(fe, context, null));
-			if (designer) writer.key("svyVisible").value(fe.isVisible());
+			// write the template properties that are left
+			JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType, dataConversion,
+				new FormElementContext(fe, context, null));
+			// write the actual values
+			webComponent.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, properties, dataConversion);
+		}
 
-			if (designer && Utils.isInheritedFormElement(o, form))
-			{
-				writer.key("svyInheritedElement");
-				writer.value(true);
-			}
-		}
-		if (designer)
-		{
-			fe.getWebComponentSpec().getProperties().values().forEach(pd -> {
-				if (pd.getType() instanceof IDesignerDefaultWriter)
-					((IDesignerDefaultWriter)pd.getType()).toDesignerDefaultJSONValue(writer, pd.getName(), dataConversion);
-			});
-		}
 		if (!dataConversion.getConversions().isEmpty())
 		{
 			JSONUtils.writeClientConversions(writer, dataConversion);
