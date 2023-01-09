@@ -50,7 +50,7 @@ angular.module('servoycoreFormcontainer',['servoy']).directive('servoycoreFormco
 					if (oldValue) {
 						formWillShowCalled = newValue;
 						$scope.svyServoyapi.hideForm(oldValue,null,null,newValue,$scope.model.relationName,null).then(function(ok) {
-							realContainedForm = $scope.model.containedForm;
+							realContainedForm = newValue;
 						})
 					}
 					else if (newValue) {
@@ -77,7 +77,7 @@ angular.module('servoycoreFormcontainer',['servoy']).directive('servoycoreFormco
 			$scope.getContainerStyle = function() {
                 var style = {position:"relative"}
 				var height = 0;
-				if ($scope.model.height)
+				if ($scope.model.height && $scope.model.height !== '0')
 				{
 					height = $scope.model.height
 				}
