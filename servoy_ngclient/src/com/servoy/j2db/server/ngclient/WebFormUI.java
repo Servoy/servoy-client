@@ -561,11 +561,6 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	public void destroy()
 	{
 		if (dataAdapterList != null) dataAdapterList.destroy();
-		Collection<WebComponent> componentsList = new ArrayList<WebComponent>(getComponents());
-		for (WebComponent c : componentsList)
-		{
-			c.dispose();
-		}
 		clearComponents();
 		cleanupListeners();
 		IWindow window = CurrentWindow.safeGet();

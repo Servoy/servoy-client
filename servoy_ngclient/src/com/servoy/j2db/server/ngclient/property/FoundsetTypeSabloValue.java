@@ -1222,7 +1222,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	@Override
 	public String toString()
 	{
-		return "Foundset '" + (foundset != null ? foundset.getDataSource() : null) + " on property '" + propertyName +
+		return "FoundsetPT:  '" + (foundset != null ? foundset.getDataSource() : null) + " on property '" + propertyName +
 			"': foundset type property on component " +
 			(webObjectContext != null ? webObjectContext.getUnderlyingWebObject().getName() : "- not yet attached -");
 	}

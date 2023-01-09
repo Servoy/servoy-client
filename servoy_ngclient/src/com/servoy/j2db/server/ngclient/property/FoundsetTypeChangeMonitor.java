@@ -660,6 +660,12 @@ public class FoundsetTypeChangeMonitor
 		return true;
 	}
 
+	@Override
+	public String toString()
+	{
+		return "FTCM: " + propertyValue;
+	}
+
 //	protected static class RecordChangeDescriptor implements JSONWritable
 //	{
 //
