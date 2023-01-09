@@ -19,8 +19,6 @@ package com.servoy.j2db.scripting;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import org.mozilla.javascript.Callable;
@@ -278,6 +276,10 @@ public abstract class DefaultScope implements Scriptable, IDestroyable
 
 	public void destroy()
 	{
+		this.allIndex.values().stream().filter(object -> object instanceof IDestroyable).map(object -> (IDestroyable)object)
+			.forEach(destroyable -> destroyable.destroy());
+		this.allVars.values().stream().filter(object -> object instanceof IDestroyable).map(object -> (IDestroyable)object)
+			.forEach(destroyable -> destroyable.destroy());
 		this.allIndex.clear();
 		this.allVars.clear();
 		this.parent = null;
@@ -307,10 +309,8 @@ public abstract class DefaultScope implements Scriptable, IDestroyable
 	public int removeIndexByValue(Object o)
 	{
 		Integer found = null;
-		Iterator<Entry<Integer, Object>> it = allIndex.entrySet().iterator();
-		while (it.hasNext())
+		for (Entry<Integer, Object> entry : allIndex.entrySet())
 		{
-			Map.Entry<Integer, Object> entry = it.next();
 			if (entry.getValue().equals(o))
 			{
 				Integer key = entry.getKey();

@@ -711,7 +711,7 @@ public final class FormElement implements INGFormElement
 		{
 			if (writeAsValue) propertyWriter.object();
 			JSONUtils.writeData(FormElementToJSON.INSTANCE, propertyWriter, propertiesTypedData.content, propertiesTypedData.contentType, context);
-			if (inDesigner) propertyWriter.key("svyVisible").value(isVisible);
+			if (inDesigner) propertyWriter.key("svyVisible").value(isVisible); // see fe.writeFormElement(...) which does the same
 			if (writeAsValue) propertyWriter.endObject();
 			return propertyWriter;
 		}

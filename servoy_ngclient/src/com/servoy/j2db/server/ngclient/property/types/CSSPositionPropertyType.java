@@ -250,7 +250,7 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 	}
 
 	@Override
-	public CSSPosition fromDesignValue(Object designValue, PropertyDescription propertyDescription)
+	public CSSPosition fromDesignValue(Object designValue, PropertyDescription propertyDescription, IPersist persit)
 	{
 		try
 		{

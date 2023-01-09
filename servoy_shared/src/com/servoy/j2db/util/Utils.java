@@ -83,6 +83,7 @@ import java.util.StringTokenizer;
 import java.util.function.Function;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
@@ -383,6 +384,28 @@ public final class Utils
 		}
 
 		return mappedArray == null ? array : mappedArray;
+	}
+
+	/**
+	 * If the value is an array, return a copy, otherwise return an array with the value as single element.
+	 */
+	public static Object[] toArray(Object value)
+	{
+		if (value == null)
+		{
+			return null;
+		}
+
+		if (value.getClass().isArray())
+		{
+			int length = Array.getLength(value);
+			Object[] array = new Object[length];
+			System.arraycopy(value, 0, array, 0, length);
+			return array;
+		}
+
+		// single value
+		return new Object[] { value };
 	}
 
 	public static <T> List<T> asList(Iterator< ? extends T> it)
@@ -3134,13 +3157,38 @@ public final class Utils
 	}
 
 	/**
-	 * Stream from collection.
-	 *
-	 * @param collection when null, return empty stream
+	 * Iterate over array.
+	 * <pre>
+	 * for (T o: Utils.iterate(array))
+	 * {
+	 *     o. ....
+	 * }
+	 * </pre>
+	 * @param array when null, iterate over empty list
 	 */
-	public static <T> Stream<T> stream(Collection<T> collection)
+	public static <T> Iterable<T> iterate(T[] array)
 	{
-		return collection == null ? Stream.empty() : collection.stream();
+		return array == null ? Collections.<T> emptyList() : Arrays.asList(array);
+	}
+
+	/**
+	 * Stream from array.
+	 *
+	 * @param array when null, return empty stream
+	 */
+	public static <T> Stream<T> stream(T[] array)
+	{
+		return array == null ? Stream.empty() : Arrays.stream(array);
+	}
+
+	/**
+	 * Stream from array.
+	 *
+	 * @param array when null, return empty stream
+	 */
+	public static IntStream stream(int[] array)
+	{
+		return array == null ? IntStream.empty() : Arrays.stream(array);
 	}
 
 	/**
@@ -3165,6 +3213,16 @@ public final class Utils
 		return iterable == null
 			? Stream.empty()
 			: StreamSupport.stream(iterable.spliterator(), false);
+	}
+
+	/**
+	 * Stream from collection.
+	 *
+	 * @param collection when null, return empty stream
+	 */
+	public static <T> Stream<T> stream(Collection<T> collection)
+	{
+		return collection == null ? Stream.empty() : collection.stream();
 	}
 
 	/**

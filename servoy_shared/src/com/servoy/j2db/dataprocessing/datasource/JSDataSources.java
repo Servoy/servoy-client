@@ -134,6 +134,16 @@ public class JSDataSources implements IDestroyable
 			mem.destroy();
 			mem = null;
 		}
+		if (view != null)
+		{
+			view.destroy();
+			view = null;
+		}
+		if (sp != null)
+		{
+			sp.destroy();
+			sp = null;
+		}
 		application = null;
 	}
 }

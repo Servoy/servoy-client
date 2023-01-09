@@ -32,6 +32,7 @@ import org.sablo.specification.property.types.DimensionPropertyType;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.IDesignValueConverter;
+import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
@@ -105,7 +106,7 @@ public class NGDimensionPropertyType extends DimensionPropertyType implements ID
 	}
 
 	@Override
-	public Dimension fromDesignValue(Object newValue, PropertyDescription propertyDescription)
+	public Dimension fromDesignValue(Object newValue, PropertyDescription propertyDescription, IPersist persit)
 	{
 		try
 		{

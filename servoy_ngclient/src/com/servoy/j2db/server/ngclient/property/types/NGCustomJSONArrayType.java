@@ -40,6 +40,7 @@ import org.sablo.websocket.utils.JSONUtils;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.IDesignValueConverter;
+import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.WebObjectImpl;
 import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.solutionmodel.JSNGWebComponent;
@@ -339,7 +340,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 	}
 
 	@Override
-	public Object fromDesignValue(Object designValue, PropertyDescription propertyDescription)
+	public Object fromDesignValue(Object designValue, PropertyDescription propertyDescription, IPersist persit)
 	{
 		if (designValue instanceof JSONArray)
 		{
@@ -348,7 +349,7 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 			Object[] java_arr = new Object[arr.length()];
 			for (int i = 0; i < arr.length(); i++)
 			{
-				java_arr[i] = WebObjectImpl.convertToJavaType(elementPD, arr.opt(i));
+				java_arr[i] = WebObjectImpl.convertToJavaType(elementPD, arr.opt(i), persit);
 			}
 			return java_arr;
 		}

@@ -268,7 +268,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 							PropertyDescription property = legacySpec.getProperty(key);
 							if (property != null && property.getType() instanceof IDesignValueConverter)
 							{
-								val = ((IDesignValueConverter)property.getType()).fromDesignValue(val, property);
+								val = ((IDesignValueConverter)property.getType()).fromDesignValue(val, property, element);
 							}
 							else
 							{
@@ -795,10 +795,8 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				Map<TabSeqProperty, List<TabSeqProperty>> listFormComponentMap = new HashMap<TabSeqProperty, List<TabSeqProperty>>();
 				List<TabSeqProperty> listFormComponentElements = null;
 				TabSeqProperty listFormComponentTabSeq = null;
-				Iterator<IFormElement> iterator = flattenedForm.getFlattenedObjects(null).iterator();
-				while (iterator.hasNext())
+				for (IFormElement formElement : flattenedForm.getFlattenedObjects(null))
 				{
-					IFormElement formElement = iterator.next();
 					if (FormTemplateGenerator.isWebcomponentBean(formElement))
 					{
 						String componentType = FormTemplateGenerator.getComponentTypeName(formElement);

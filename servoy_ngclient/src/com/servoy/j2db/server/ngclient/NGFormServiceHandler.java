@@ -56,6 +56,7 @@ import com.servoy.j2db.server.ngclient.property.FoundsetLinkedTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.Utils;
 
 
@@ -613,7 +614,13 @@ public class NGFormServiceHandler extends FormServiceHandler
 				return null;
 			}
 		}
-		return super.executeEvent(obj);
+		Object retValue = super.executeEvent(obj);
+		if (getApplication().getFoundSetManager() != null && getApplication().getFoundSetManager().hasTransaction())
+		{
+			log.warn("Transaction still active after event was executed: " + ServoyJSONObject.toString(obj, false, false, false) +
+				". This is highly discouraged and transaction will be rolled back in future releases.");
+		}
+		return retValue;
 	}
 
 

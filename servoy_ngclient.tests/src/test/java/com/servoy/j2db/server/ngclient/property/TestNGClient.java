@@ -30,6 +30,7 @@ import java.util.Set;
 import com.servoy.j2db.ClientLogin;
 import com.servoy.j2db.Credentials;
 import com.servoy.j2db.dataprocessing.Blob;
+import com.servoy.j2db.dataprocessing.BroadcastFilter;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.BufferedDataSetInternal;
 import com.servoy.j2db.dataprocessing.ClientInfo;
@@ -109,6 +110,22 @@ public class TestNGClient extends NGClient
 		{
 
 			private final HashMap<String, IDataSet> dataSetMap = new HashMap<String, IDataSet>();
+
+			@Override
+			public void setBroadcastFilters(String clientId, String serverName, BroadcastFilter[] broadcastFilters) throws RemoteException
+			{
+			}
+
+			@Override
+			public BroadcastFilter[] getBroadcastFilters(String clientId, String serverName) throws RemoteException
+			{
+				return null;
+			}
+
+			@Override
+			public void clearBroadcastFilters(String clientId) throws RemoteException
+			{
+			}
 
 			@Override
 			public void setServerMaintenanceMode(boolean maintenanceMode) throws RemoteException

@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.dataprocessing;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.scripting.IJavaScriptType;
@@ -33,6 +35,7 @@ public class JSTableFilter implements IJavaScriptType
 	private final ITable table;
 	private final TableFilterdefinition tableFilterdefinition;
 	private final String serverName;
+	private boolean dataBroadcast;
 
 	public JSTableFilter(String serverName, ITable table, TableFilterdefinition tableFilterdefinition)
 	{
@@ -47,6 +50,8 @@ public class JSTableFilter implements IJavaScriptType
 	 * @sample
 	 * var filter = databaseManager.createTableFilterParam('admin', 'messages', 'messagesid', '>', 10)
 	 * var serverName = filter.serverName // admin
+	 *
+	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_setTableFilters(String, JSTableFilter[])
 	 *
 	 * @return String server name.
 	 */
@@ -71,12 +76,35 @@ public class JSTableFilter implements IJavaScriptType
 	 * var filter = databaseManager.createTableFilterParam('admin', 'messages', 'messagesid', '>', 10)
 	 * var tableName = filter.tableName // messages
 	 *
+	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_setTableFilters(String, JSTableFilter[])
+	 *
 	 * @return String table name.
 	 */
 	@JSReadonlyProperty
 	public String getTableName()
 	{
 		return table == null ? null : table.getName();
+	}
+
+	/** Set the dataBroadcast flag.
+	 * <p>
+	 * When the dataBroadcast flag is set, this filter will be used server-side to reduce databroadcast events
+	 * for clients having a databroadcast filter set for the same column with a different value.
+	 * <p>
+	 * Note that the dataBroadcast flag is *only* supported for simple filters, only for operator 'in' or '='.
+	 *
+	 * @sample
+	 * var filter = databaseManager.createTableFilterParam('example', 'orders', 'clusterid', '=', 10).dataBroadcast(true)
+	 *
+	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_setTableFilters(String, JSTableFilter[])
+	 *
+	 * @return filter.
+	 */
+	@JSFunction
+	public JSTableFilter dataBroadcast(boolean broadcast)
+	{
+		this.dataBroadcast = broadcast;
+		return this;
 	}
 
 	/**
@@ -86,4 +114,13 @@ public class JSTableFilter implements IJavaScriptType
 	{
 		return tableFilterdefinition;
 	}
+
+	/**
+	 * @return the dataBroadcast
+	 */
+	public boolean getDataBroadcast()
+	{
+		return dataBroadcast;
+	}
+
 }

@@ -153,6 +153,12 @@ public class ServerProxy implements IServer, Serializable
 		return server.getTableNames(hideTempTables);
 	}
 
+	@Override
+	public List<ColumnName> getTenantColumns() throws RepositoryException, RemoteException
+	{
+		return server.getTenantColumns();
+	}
+
 	public String getName() throws RemoteException
 	{
 		if (serverName == null)

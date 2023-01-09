@@ -49,6 +49,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IDesignValueConverter;
+import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
@@ -496,7 +497,7 @@ public class BorderPropertyType extends DefaultPropertyType<Border>
 	 * @see org.sablo.specification.property.IDesignValueConverter#fromDesignValue(java.lang.Object, org.sablo.specification.PropertyDescription)
 	 */
 	@Override
-	public Object fromDesignValue(Object newValue, PropertyDescription propertyDescription)
+	public Object fromDesignValue(Object newValue, PropertyDescription propertyDescription, IPersist persit)
 	{
 		if (!IContentSpecConstants.PROPERTY_BORDERTYPE.equals(propertyDescription.getName()))
 		{

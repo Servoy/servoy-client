@@ -37,7 +37,6 @@ public interface IServer extends Remote
 	public static final String SERVOY_UPPERCASE_PREFIX = "SERVOY";
 	public static final String VIEW_SERVER = "_sv_view"; //$NON-NLS-1$
 
-
 	public ITable getTable(String tableName) throws RepositoryException, RemoteException;
 
 	public ITable getTableBySqlname(String tableSQLName) throws RepositoryException, RemoteException;
@@ -45,6 +44,8 @@ public interface IServer extends Remote
 	public List<String> getTableAndViewNames(boolean hideTemporary) throws RepositoryException, RemoteException;
 
 	public List<String> getTableNames(boolean hideTempTables) throws RepositoryException, RemoteException;
+
+	public List<ColumnName> getTenantColumns() throws RepositoryException, RemoteException;
 
 	public Collection<Procedure> getProcedures() throws RepositoryException, RemoteException;
 

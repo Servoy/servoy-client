@@ -397,7 +397,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 					// they are also handled separately at runtime; maybe we should actually return defaults from spec here for non-persist mappped properties as well
 					// in the future and remove the code from designer and runtime for them...
 
-				value = convertToJavaType(childPd, value);
+				value = convertToJavaType(childPd, value, webObject);
 				return value;
 			}
 		}
@@ -431,7 +431,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 						childPd = ((WebObjectSpecification)propertyDescription).getHandler(propertyName).getAsPropertyDescription();
 					if (childPd != null)
 					{
-						object = convertToJavaType(childPd, object);
+						object = convertToJavaType(childPd, object, webObject);
 					}
 				}
 			}
@@ -440,13 +440,13 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		return null;
 	}
 
-	public static Object convertToJavaType(PropertyDescription childPd, Object val)
+	public static Object convertToJavaType(PropertyDescription childPd, Object val, IPersist persist)
 	{
 		Object value = val;
 		IDesignValueConverter< ? > converter = null;
 		if (value != null && childPd != null && (converter = getConverter(childPd)) != null)
 		{
-			value = converter.fromDesignValue(value, childPd);
+			value = converter.fromDesignValue(value, childPd, persist);
 		}
 		return (value != JSONObject.NULL) ? value : null;
 	}

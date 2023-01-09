@@ -47,6 +47,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.IChildWebObject;
 import com.servoy.j2db.persistence.IDesignValueConverter;
+import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.solutionmodel.JSNGWebComponent;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
@@ -450,7 +451,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	}
 
 	@Override
-	public Object fromDesignValue(Object designValue, PropertyDescription propertyDescription)
+	public Object fromDesignValue(Object designValue, PropertyDescription propertyDescription, IPersist persit)
 	{
 		return designValue;
 	}

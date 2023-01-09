@@ -17,7 +17,7 @@ angular.module('servoydefaultRectangle', [ 'servoy' ]).directive('servoydefaultR
 				}
 				if ($scope.model.borderType.borderStyle) {
 					$scope.model.borderType.borderStyle.borderWidth = $scope.model.lineSize + "px";
-					$scope.model.borderType.borderStyle.borderColor = $scope.model.foreground ? $scope.model.foreground : "#000000";
+					if ($scope.model.foreground) $scope.model.borderType.borderStyle.borderColor = $scope.model.foreground;
 				}
 
 				if ($scope.model.roundedRadius) {
@@ -47,8 +47,8 @@ angular.module('servoydefaultRectangle', [ 'servoy' ]).directive('servoydefaultR
 						$svyProperties.setCssProperty(element, "backgroundColor", $scope.model.transparent ? "transparent" : $scope.model.background);
 						break;
 					case "foreground":
-						if ($scope.model.borderType && $scope.model.borderType.borderStyle) {
-							$scope.model.borderType.borderStyle.borderColor = $scope.model.foreground ? $scope.model.foreground : "#000000";
+						if ($scope.model.borderType && $scope.model.borderType.borderStyle && $scope.model.foreground ) {
+							$scope.model.borderType.borderStyle.borderColor = $scope.model.foreground;
 						}
 						setupRectangle();
 						$svyProperties.setBorder(element, $scope.model.borderType);

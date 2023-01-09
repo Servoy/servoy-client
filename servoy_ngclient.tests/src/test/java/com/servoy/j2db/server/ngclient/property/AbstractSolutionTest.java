@@ -80,6 +80,7 @@ import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.PersistIndexCache;
 import com.servoy.j2db.dataprocessing.datasource.JSConnectionDefinition;
 import com.servoy.j2db.persistence.ChangeHandler;
+import com.servoy.j2db.persistence.ColumnName;
 import com.servoy.j2db.persistence.IItemChangeListener;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -165,6 +166,11 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 		public Collection<Procedure> getProcedures() throws RepositoryException, RemoteException
 		{
 			return Collections.emptySet();
+		}
+
+		public List<ColumnName> getTenantColumns() throws RepositoryException, RemoteException
+		{
+			return Collections.emptyList();
 		}
 
 		@Override
