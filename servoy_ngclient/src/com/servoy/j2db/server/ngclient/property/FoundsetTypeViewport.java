@@ -415,4 +415,11 @@ public class FoundsetTypeViewport
 		this.initialSelectionViewportCentered = initialSelectionViewportCentered;
 	}
 
+
+	@Override
+	public String toString()
+	{
+		return "FTVP: " + foundset;
+	}
+
 }
