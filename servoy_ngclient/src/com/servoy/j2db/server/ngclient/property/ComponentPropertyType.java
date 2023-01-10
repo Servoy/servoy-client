@@ -43,7 +43,10 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.ChildWebComponent;
+import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.server.ngclient.AngularFormGenerator;
+import com.servoy.j2db.server.ngclient.ChildrenJSONGenerator;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
@@ -262,7 +265,15 @@ public class ComponentPropertyType extends DefaultPropertyType<ComponentTypeSabl
 		FormElement fe = componentFormElementContext.getFormElement();
 		if (forFoundsetPropertyType != null) writer.key(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME).value(forFoundsetPropertyType);
 
-		writer.key(COMPONENT_SPEC_NAME).value(fe.getTypeName()); // this is currently the spec.getName() which can also be used client-side to identify the client-side-types for this component
+		writer.key(COMPONENT_SPEC_NAME); // this is currently the spec.getName() which can also be used client-side to identify the client-side-types for this component
+		IPersist persist = formElementValue.element.getPersistIfAvailable();
+		if (persist instanceof TabPanel)
+		{
+			// special case for default/legacy tab panels (same persist can mean 1 of 2 spec files and 1 of 4 client side element types)
+			ChildrenJSONGenerator.handleTabpanelSpecNameAndElementName(writer, persist);
+		}
+		else writer.value(fe.getTypeName());
+
 		writer.key("name").value(componentFormElementContext.getName());
 
 		if (fe.getPropertyValue("componentIndex") != null)
@@ -273,7 +284,7 @@ public class ComponentPropertyType extends DefaultPropertyType<ComponentTypeSabl
 		{
 			writer.key("headerIndex").value(fe.getPropertyValue("headerIndex"));
 		}
-		AngularFormGenerator.writePosition(writer, formElementValue.element.getPersistIfAvailable(),
+		AngularFormGenerator.writePosition(writer, persist,
 			componentFormElementContext.getContext().getForm().getForm(), null, formElementValue.element.isInDesigner());
 
 		writer.key("model");
