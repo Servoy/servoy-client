@@ -250,7 +250,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 				if (duplicate.getColumn().getTable() == baseTable)
 				{
 					BaseQueryTable colTable = column.getTable();
-					name = (colTable.getAlias() != null ? colTable.getAlias() : colTable.getName()) + '.' + name;
+					name = (colTable.getAlias() != null ? colTable.getAlias() : colTable.getName()) + '_' + name;
 					nameToSelect.put(name, selectValue);
 					selectToName.put(selectValue, name);
 				}
@@ -259,7 +259,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 					nameToSelect.put(name, selectValue);
 					selectToName.put(selectValue, name);
 					BaseQueryTable colTable = duplicate.getColumn().getTable();
-					name = (colTable.getAlias() != null ? colTable.getAlias() : colTable.getName()) + '.' + name;
+					name = (colTable.getAlias() != null ? colTable.getAlias() : colTable.getName()) + '_' + name;
 					nameToSelect.put(name, selectValue);
 					selectToName.put(selectValue, name);
 				}
