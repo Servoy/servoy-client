@@ -535,13 +535,14 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					}	
 				} else {
 					dpValue = formState.model[beanname][property];
-					
-					if (!typeOfDP && dpValue instanceof Date) {
-                        typeOfDP = $typesRegistry.getAlreadyRegisteredType("svy_date");
-                    }
 				}
-				
-                // apply default conversion if needed as we don't search for/generate client side type, property context etc. for props nested with . and [
+			
+                // the old value could be just null and the type system doesn't know this is a Date type (if it is a 'date' DataproviderType on server)
+                // have special support for it by checking the instanceof so we always map on the DateType for javascript Dates;
+                // Dataprovider type on server will know to expect date based on DP type
+                if (dpValue instanceof Date) typeOfDP = $typesRegistry.getAlreadyRegisteredType("svy_date");
+
+                // apply default or date conversion if needed as we don't search for/generate client side type, property context etc. for props nested with . and [
                 // see TODO above if the lack of type/property context causes problems
 				changes[property] = $sabloConverters.convertFromClientToServer(dpValue, typeOfDP, undefined, undefined, undefined);
 			}
