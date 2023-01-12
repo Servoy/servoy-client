@@ -225,7 +225,7 @@ declare namespace sablo {
      * Client side types are those types that require client side conversions to/from server.
      */
     interface ITypesRegistry {
-        
+        getAlreadyRegisteredType(typeName: string): IType<any>;
         getTypeFactoryRegistry(): ITypeFactoryRegistry;
         registerGlobalType(typeName: string, theType: IType<any>, onlyIfNotAlreadyRegistered: boolean): void;
 

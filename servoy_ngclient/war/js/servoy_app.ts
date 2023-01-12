@@ -495,7 +495,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			const changes = {};
 			const componentSpecification = $typesRegistry.getComponentSpecification(formState.componentSpecNames[beanname]);
 
-			let typeOfDP = $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesDynamicClientSideTypes(), formname, beanname, property); // try to get dynamic client side type if set
+			let typeOfDP: sablo.IType<any> = $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesDynamicClientSideTypes(), formname, beanname, property); // try to get dynamic client side type if set
 			if (!typeOfDP) {
 				typeOfDP = componentSpecification?.getPropertyType(property);
 			}
@@ -535,11 +535,15 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					}	
 				} else {
 					dpValue = formState.model[beanname][property];
+					
+					if (!typeOfDP && dpValue instanceof Date) {
+                        typeOfDP = $typesRegistry.getAlreadyRegisteredType("svy_date");
+                    }
 				}
 				
                 // apply default conversion if needed as we don't search for/generate client side type, property context etc. for props nested with . and [
                 // see TODO above if the lack of type/property context causes problems
-				changes[property] = $sabloConverters.convertFromClientToServer(dpValue, undefined, undefined, undefined, undefined);
+				changes[property] = $sabloConverters.convertFromClientToServer(dpValue, typeOfDP, undefined, undefined, undefined);
 			}
 			
 			var dpChange = {formname: formname, beanname: beanname, property: property, changes: changes};
