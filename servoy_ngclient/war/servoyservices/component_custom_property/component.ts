@@ -465,10 +465,17 @@ namespace ngclient.propertyTypes {
 
 				apply: (property, modelOfComponent, rowId) => {
 					/** rowId is only needed if the component is linked to a foundset */
+
+					// TODO I think this should reuse servoy_app.ts -> pushDPChange to handle nested DPs properly as well (same as ng2 code now does)
 					if (!modelOfComponent) modelOfComponent = this[ComponentType.MODEL_KEY]; // if it's not linked to foundset componentModel will be undefined
 					let propertyValue = modelOfComponent[property];
 
 					let clientSideType: sablo.IType<any> = internalState.getClientSideType(property, rowId);
+					
+	                // the old value could be just null and the type system doesn't know this is a Date type (if it is a 'date' DataproviderType on server)
+                    // have special support for it by checking the instanceof so we always map on the DateType for javascript Dates;
+                    // Dataprovider type on server will know to expect date based on DP type
+                    if (!clientSideType && propertyValue instanceof Date) clientSideType = typesRegistry.getAlreadyRegisteredType("svy_date");
 					
 					propertyValue = sabloConverters.convertFromClientToServer(propertyValue, clientSideType, undefined, componentScope,
 					{
