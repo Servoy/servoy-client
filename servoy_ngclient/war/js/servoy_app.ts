@@ -52,7 +52,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 
 	function sendChanges(now, prev, formname, beanname, propertyName) {
 		$sabloApplication.getFormStateWithData(formname).then(function (formState) {
-			var dynamicTypes = $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesDynamicClientSideTypes(), formname, beanname);
+			let dynamicTypes = $sabloUtils.getInDepthProperty($sabloApplication.getFormStatesDynamicClientSideTypes(), formname, beanname);
 			
 			const formScope = formState.getScope();
 			const componentModel = formState.model[beanname];
@@ -61,8 +61,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 					(propertyName: string) => { return componentModel ? componentModel[propertyName] : undefined },
 					componentSpecification); 
 
-			var changes;
-			var propertyType: sablo.IType<any>;
+			let changes;
+			let propertyType: sablo.IType<any>;
 			if (angular.isDefined(propertyName)) {
 				// a component property; get it's type (either static or dynamic)
 				propertyType = dynamicTypes[propertyName]; // try dynamic types for non-viewport props.
@@ -78,15 +78,15 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			if (Object.getOwnPropertyNames(changes).length > 0) {
 				// if this is a simple property change without any special conversions then push the old value.
 				if (angular.isDefined(propertyName) && !propertyType) {
-					var oldvalues = {};
+					let oldvalues = {};
 					oldvalues[propertyName] = $sabloConverters.convertFromClientToServer(prev, undefined, undefined, formScope, propertyContextCreator.withPushToServerFor(propertyName)); // just for any default conversions
-					$sabloApplication.callService('formService', 'dataPush', {formname:formname,beanname:beanname,changes:changes,oldvalues:oldvalues}, true)
+					$sabloApplication.callService('formService', 'dataPush', { formname: formname, beanname: beanname, changes: changes, oldvalues: oldvalues }, true);
 				}
 				else {
-					$sabloApplication.callService('formService', 'dataPush', {formname:formname,beanname:beanname,changes:changes}, true)
+					$sabloApplication.callService('formService', 'dataPush', { formname: formname, beanname: beanname, changes: changes }, true);
 				}
 			}
-		})
+		}).catch((e) => $log.error(e));
 	}
 	
 	function applyBeanData(beanModel, beanLayout, beanData, containerSize, changeNotifierGenerator, componentSpecName: string, dynamicPropertyTypesHolder: object,
