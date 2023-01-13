@@ -22,6 +22,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.dltk.rhino.dbgp.ContextualScope;
+import org.mozilla.javascript.Callable;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.Scriptable;
@@ -184,7 +186,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		if (_fp == null)
 		{
 			Debug.warn("Error accessing a form " + formName + "  that is already destroyed for getting: " + name);
-			throw new ExitScriptException("killing current script, client/solution already terminated");
+			throw new ExitScriptException("Form scope already destroyed, throwing ExitScriptException to kill the execution on this scope");
 		}
 
 		_fp.touch();
@@ -230,6 +232,10 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 				Thread.currentThread().getName() + ": For form " + _fp + " the foundset/elements were asked for but that was not (or was no longer) set. ",
 				new RuntimeException());
 			if (name.equals("foundset")) return _fp.getFormModel();
+		}
+		if (object instanceof FormScopeWrapper wrapper)
+		{
+			return ((IFormController)_fp.getApplication().getFormManager().getForm(wrapper.name)).getFormScope();
 		}
 		return object;
 	}
@@ -452,11 +458,6 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.scripting.ScriptVariableScope#put(java.lang.String, org.mozilla.javascript.Scriptable, java.lang.Object)
-	 */
 	@Override
 	public void put(String name, Scriptable arg1, Object value)
 	{
@@ -464,7 +465,11 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		{
 			throw new RuntimeException("Setting of foundset object is not possible on form: " + _fp.getName()); //$NON-NLS-1$
 		}
-		super.put(name, arg1, value);
+		if (value instanceof FormScope fs)
+		{
+			super.put(name, arg1, new FormScopeWrapper(fs.formName));
+		}
+		else super.put(name, arg1, value);
 	}
 
 	/**
@@ -525,6 +530,21 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		}
 
 	}
+}
 
+class FormScopeWrapper implements Callable
+{
+	final String name;
 
+	FormScopeWrapper(String name)
+	{
+		this.name = name;
+	}
+
+	@Override
+	public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+	{
+		// just a method to be a native rhino thing. (so it is not wrapped)
+		return null;
+	}
 }
