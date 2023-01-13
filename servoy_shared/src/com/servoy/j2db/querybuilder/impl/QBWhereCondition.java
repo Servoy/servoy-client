@@ -52,7 +52,7 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 	public AndOrCondition getQueryCondition(boolean create)
 	{
 		QuerySelect query = getRoot().getQuery(create);
-		return query == null ? null : query.getWhere();
+		return query == null ? null : query.getCondition();
 	}
 
 	/**

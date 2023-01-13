@@ -259,7 +259,7 @@ public class SQLGenerator
 					{
 						public Object visit(Object o)
 						{
-							if (o instanceof OrCondition && ((OrCondition)o).getConditions().size() > 1)
+							if (o instanceof OrCondition && ((OrCondition)o).getAllConditions().size() > 1)
 							{
 								hasOr[0] = true;
 								return new VisitorResult(o, false);
@@ -549,7 +549,7 @@ public class SQLGenerator
 			// NOTE: elements in joinCondition MUST be CompareConditions (expected in QueryGenerator and SQLGenerator.createConditionFromFindState)
 			joinCondition.addCondition(new CompareCondition(RelationItem.swapOperator(operators[x]), foreignColumn, value));
 		}
-		if (joinCondition.getConditions() == null)
+		if (joinCondition.isEmpty())
 		{
 			throw new RepositoryException("Missing join condition in relation " + relation.getName()); //$NON-NLS-1$
 		}

@@ -18,13 +18,11 @@
 package com.servoy.j2db.querybuilder.impl;
 
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
-
-import java.util.List;
+import static com.servoy.j2db.query.AndCondition.and;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.query.AndCondition;
 import com.servoy.j2db.query.AndOrCondition;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
@@ -38,6 +36,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBLogicalCondition")
 public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogicalCondition
 {
+	private static final String CONDITION_ANONYMOUS = "<anonymous>"; // When no condition name is given
 	private static final String[] EMPTY_STRINGS = new String[0];
 
 	QBLogicalCondition(QBSelect root, QBTableClause parent, AndOrCondition queryCondition)
@@ -74,8 +73,7 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 
 	public QBLogicalCondition add(IQueryBuilderCondition condition)
 	{
-		getQueryCondition().addCondition(((QBCondition)condition).getQueryCondition());
-		return this;
+		return add(null, condition);
 	}
 
 	/** RAGTEST doc
@@ -94,7 +92,7 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 
 	public QBLogicalCondition add(String name, IQueryBuilderCondition condition)
 	{
-		getQueryCondition().addCondition(name, ((QBCondition)condition).getQueryCondition());
+		getQueryCondition().addCondition(name == null ? CONDITION_ANONYMOUS : name, ((QBCondition)condition).getQueryCondition());
 		return this;
 	}
 
@@ -133,9 +131,7 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 		AndOrCondition condition = getQueryCondition(false);
 		if (condition != null)
 		{
-			condition.setCondition(
-//				name == null ? CONDITION_ANONYMOUS :
-				name, null);
+			condition.setCondition(name == null ? CONDITION_ANONYMOUS : name, null);
 		}
 		return this;
 	}
@@ -170,18 +166,9 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 		AndOrCondition queryCondition = getQueryCondition(false);
 		if (queryCondition != null)
 		{
-			List<ISQLCondition> conditions = queryCondition.getConditions(name);
-			if (conditions != null && !conditions.isEmpty())
+			ISQLCondition condition = and(queryCondition.getConditions(name == null ? CONDITION_ANONYMOUS : name));
+			if (condition != null)
 			{
-				ISQLCondition condition;
-				if (conditions.size() == 1)
-				{
-					condition = conditions.get(0);
-				}
-				else
-				{
-					condition = new AndCondition(conditions);
-				}
 				return new QBCondition(getRoot(), getParent(), deepClone(condition));
 			}
 		}

@@ -467,6 +467,14 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	}
 
 	/**
+	 * The where clause, never null, may be empty
+	 */
+	public AndCondition getCondition()
+	{
+		return condition;
+	}
+
+	/**
 	 * The where clause, return null in case of empty
 	 */
 	public AndCondition getWhere()
