@@ -437,7 +437,7 @@ public class DebugUtils
 									{
 										WebComponent webComponent = (WebComponent)o;
 										WebObjectSpecification spec = specProviderState == null ? null
-											: specProviderState.getWebComponentSpecification(webComponent.getTypeName());
+											: specProviderState.getWebObjectSpecification(webComponent.getTypeName());
 										if (spec != null)
 										{
 											Collection<PropertyDescription> properties = spec.getProperties(RelationPropertyType.INSTANCE);
@@ -484,7 +484,7 @@ public class DebugUtils
 							{
 								WebComponent webComponent = (WebComponent)o;
 								WebObjectSpecification spec = specProviderState == null ? null
-									: specProviderState.getWebComponentSpecification(webComponent.getTypeName());
+									: specProviderState.getWebObjectSpecification(webComponent.getTypeName());
 								if (spec != null)
 								{
 									Collection<PropertyDescription> properties = spec.getProperties(ValueListPropertyType.INSTANCE);

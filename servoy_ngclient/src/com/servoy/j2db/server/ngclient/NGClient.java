@@ -37,7 +37,7 @@ import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
 import org.sablo.WebComponent;
 import org.sablo.eventthread.WebsocketSessionWindows;
-import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.IFunctionParameters;
 import org.sablo.specification.SpecProviderState;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
@@ -45,13 +45,14 @@ import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.ClientToServerCallReturnValue;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IServerService;
 import org.sablo.websocket.WebsocketSessionManager;
 import org.sablo.websocket.impl.ClientService;
 import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.JSONUtils.EmbeddableJSONWriter;
+import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,10 +117,12 @@ import com.servoy.j2db.util.Utils;
 public class NGClient extends AbstractApplication
 	implements INGApplication, IChangeListener, IServerService, IGetStatusLine, IGetLastAccessed, IPerformanceDataProvider
 {
+
 	private static final long serialVersionUID = 1L;
 
 	public static final String APPLICATION_SERVICE = "$applicationService";
 	public static final String APPLICATION_SERVER_SERVICE = "applicationServerService";
+	private static final String SABLO_LOADING_INDICATOR = "$sabloLoadingIndicator";
 
 	private final INGClientWebsocketSession wsSession;
 
@@ -291,7 +294,7 @@ public class NGClient extends AbstractApplication
 	protected IExecutingEnviroment createScriptEngine()
 	{
 		IExecutingEnviroment scriptEngine = super.createScriptEngine();
-		WebObjectSpecification[] serviceSpecifications = WebServiceSpecProvider.getSpecProviderState().getAllWebComponentSpecifications();
+		WebObjectSpecification[] serviceSpecifications = WebServiceSpecProvider.getSpecProviderState().getAllWebObjectSpecifications();
 		PluginScope scope = (PluginScope)scriptEngine.getSolutionScope().get("plugins", scriptEngine.getSolutionScope());
 		scope.setLocked(false);
 		for (WebObjectSpecification serviceSpecification : serviceSpecifications)
@@ -733,7 +736,7 @@ public class NGClient extends AbstractApplication
 
 	protected void runWhileShowingLoadingIndicator(Runnable r)
 	{
-		IClientService s = getWebsocketSession().getClientService("$sabloLoadingIndicator");
+		IClientService s = getWebsocketSession().getClientService(SABLO_LOADING_INDICATOR);
 		s.executeAsyncNowServiceCall("showLoading", null);
 		r.run();
 		s.executeAsyncNowServiceCall("hideLoading", null);
@@ -786,7 +789,7 @@ public class NGClient extends AbstractApplication
 			SpecProviderState specProviderState = WebServiceSpecProvider.getSpecProviderState();
 			if (specProviderState != null)
 			{
-				WebObjectSpecification[] serviceSpecifications = specProviderState.getAllWebComponentSpecifications();
+				WebObjectSpecification[] serviceSpecifications = specProviderState.getAllWebObjectSpecifications();
 				for (WebObjectSpecification serviceSpecification : serviceSpecifications)
 				{
 					WebObjectFunctionDefinition apiFunction = serviceSpecification.getApiFunction("cleanup");
@@ -1490,30 +1493,43 @@ public class NGClient extends AbstractApplication
 					{
 						functionSpec = (serviceSpec != null ? serviceSpec.getApiFunction(serviceMethodName) : null);
 					}
-					List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
 
-					// apply conversion
-					Object[] arrayOfJavaConvertedMethodArgs = new Object[methodArguments.length()];
-					for (int i = 0; i < methodArguments.length(); i++)
+					if (functionSpec == null)
 					{
-						arrayOfJavaConvertedMethodArgs[i] = JSONUtils.fromJSON(null, methodArguments.get(i),
-							(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null,
-							new BrowserConverterContext(serviceWebObject, PushToServerEnum.allow), new ValueReference<Boolean>(false));
+						Debug.warn("callServerSideApi for unknown function '" + serviceMethodName + "' of service '" + serviceScriptingName + "'.");
+						throw new RuntimeException("trying to call a function '" + serviceMethodName + "' that does not exist in .spec of service: " +
+							serviceSpec.getName());
 					}
+					else
+					{
+						IFunctionParameters argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
 
-					Object retVal = webServiceScriptable.executeScopeFunction(functionSpec, arrayOfJavaConvertedMethodArgs);
-					if (functionSpec != null && functionSpec.getReturnType() != null)
-					{
-						retVal = new ClientToServerCallReturnValue(retVal, functionSpec.getReturnType(),
-							new BrowserConverterContext(serviceWebObject, PushToServerEnum.reject), true); // this means that when this return value is sent to client it will be converted to browser JSON correctly - if we give it the type and context
+						// apply conversion
+						Object[] arrayOfJavaConvertedMethodArgs = new Object[methodArguments.length()];
+						for (int i = 0; i < methodArguments.length(); i++)
+						{
+							arrayOfJavaConvertedMethodArgs[i] = JSONUtils.fromJSON(null, methodArguments.get(i),
+								(argumentPDs != null && argumentPDs.getDefinedArgsCount() > i) ? argumentPDs.getParameterDefinition(i) : null,
+								new BrowserConverterContext(serviceWebObject, PushToServerEnum.allow), new ValueReference<Boolean>(false));
+						}
+
+						Object retVal = webServiceScriptable.executeScopeFunction(functionSpec, arrayOfJavaConvertedMethodArgs);
+						if (functionSpec != null && functionSpec.getReturnType() != null)
+						{
+							EmbeddableJSONWriter w = new EmbeddableJSONWriter(true);
+							FullValueToJSONConverter.INSTANCE.toJSONValue(w, null, retVal, functionSpec.getReturnType(),
+								new BrowserConverterContext(serviceWebObject, PushToServerEnum.reject));
+							retVal = w;
+						}
+						return retVal;
 					}
-					return retVal;
 				}
 				else
 				{
 					Debug.warn("callServerSideApi for unknown service '" + serviceScriptingName + "'");
+					throw new RuntimeException("callServerSideApi for unknown service '" + serviceScriptingName + "'; called method: " +
+						args.getString("methodName"));
 				}
-				break;
 			}
 		}
 

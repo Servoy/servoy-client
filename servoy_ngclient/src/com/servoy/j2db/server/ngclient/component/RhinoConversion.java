@@ -65,8 +65,7 @@ public class RhinoConversion
 	 * Default conversion used to convert from Rhino property types that do not explicitly implement component <-> Rhino conversions. <BR/><BR/>
 	 * Values of types that don't implement the sablo <-> rhino conversions are by default accessible directly.
 	 */
-	@SuppressWarnings("unchecked")
-	public static Object defaultFromRhino(Object propertyValue, Object oldValue) // PropertyDescription / IWebObjectContext ... can be made available here if needed
+	public static Object defaultFromRhino(Object propertyValue) // PropertyDescription / IWebObjectContext ... can be made available here if needed
 	{
 		// convert simple values to json values
 		if (isUndefinedOrNotFound(propertyValue))
@@ -81,7 +80,6 @@ public class RhinoConversion
 		if (propertyValue instanceof NativeObject)
 		{
 			Map<String, Object> map = new HashMap<>();
-			Map<String, Object> oldMap = (oldValue instanceof Map) ? (Map<String, Object>)oldValue : null;
 			NativeObject no = (NativeObject)propertyValue;
 			Object[] ids = no.getIds();
 			for (Object id2 : ids)
@@ -100,7 +98,7 @@ public class RhinoConversion
 					value = no.get(((Number)id2).intValue(), no);
 				}
 				String id = String.valueOf(id2);
-				map.put(id, defaultFromRhino(value, oldMap != null ? oldMap.get(id) : null));
+				map.put(id, defaultFromRhino(value));
 			}
 			return map;
 		}
@@ -108,13 +106,11 @@ public class RhinoConversion
 		{
 			List<Object> list = new ArrayList<Object>();
 
-			List<Object> oldList = (oldValue instanceof List) ? (List<Object>)oldValue : null;
-
 			final NativeArray no = (NativeArray)propertyValue;
 			final long naLength = no.getLength();
 			for (int id = 0; id < naLength; id++)
 			{
-				list.add(defaultFromRhino(no.get(id, no), oldList != null && oldList.size() > id ? oldList.get(id) : null));
+				list.add(defaultFromRhino(no.get(id, no)));
 
 			}
 			return list;
@@ -188,7 +184,7 @@ public class RhinoConversion
 						super.put(index, start, value);
 						if (!initializing[0])
 						{
-							value = defaultFromRhino(value, null);
+							value = defaultFromRhino(value);
 
 							if (index < ((List)webComponentValue).size())
 							{
@@ -273,7 +269,7 @@ public class RhinoConversion
 						super.put(name, start, value);
 						if (!initializing[0])
 						{
-							value = defaultFromRhino(value, null);
+							value = defaultFromRhino(value);
 							if (!Utils.equalObjects(((Map)webComponentValue).get(name), value))
 							{
 								((Map)webComponentValue).put(name, value);

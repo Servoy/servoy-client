@@ -17,17 +17,21 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.json.JSONException;
+import org.json.JSONString;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.BrowserConverterContext;
-import org.sablo.websocket.utils.DataConversion;
-import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
+import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.JSONUtils.IJSONStringWithClientSideType;
 
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.util.Pair;
 
 /**
  * This class provides viewport data for a component's record - related properties. It is used when combining component properties with foundset properties.
@@ -52,38 +56,53 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 	}
 
 	@Override
-	protected void populateRowData(IRecordInternal record, Set<String> propertyNames, JSONWriter w, DataConversion clientConversionInfo, String generatedRowId)
+	protected void populateRowData(IRecordInternal record, Set<String> propertyNames, JSONWriter w, String generatedRowId, ViewportClientSideTypes types)
 		throws JSONException
 	{
 		w.object();
 		dal.setRecordQuietly(record);
 
+		List<Pair<String/* propertyName */, JSONString/* dynamicClientSideType */>> dynamicClientSideTypesForProperties = new ArrayList<>();
 		if (propertyNames != null)
 		{
 			for (String propertyName : propertyNames)
 			{
 				// cell update
-				populateCellData(propertyName, w, clientConversionInfo);
+				populateCellData(propertyName, w, dynamicClientSideTypesForProperties);
 			}
 		}
 		else
 		{
 			// full row
-			componentTypeSabloValue.getRecordBasedProperties().forEach(propertyName -> populateCellData(propertyName, w, clientConversionInfo));
+			componentTypeSabloValue.getRecordBasedProperties().forEach(propertyName -> populateCellData(propertyName, w, dynamicClientSideTypesForProperties));
 		}
+		types.registerClientSideType((dynamicClientSideTypesForProperties.size() == 0) ? null : dynamicClientSideTypesForProperties);
+
 		w.endObject();
 	}
 
-	private void populateCellData(String propertyName, JSONWriter w, DataConversion clientConversionInfo) throws JSONException
+	private void populateCellData(String propertyName, JSONWriter w,
+		List<Pair<String/* propertyName */, JSONString/* dynamicClientSideType */>> dynamicClientSideTypesForProperties) throws JSONException
 	{
 		PropertyDescription t = component.getSpecification().getProperty(propertyName);
 		Object val = component.getRawPropertyValue(propertyName);
 		if (t != null && val != null)
 		{
-			clientConversionInfo.pushNode(propertyName);
-			FullValueToJSONConverter.INSTANCE.toJSONValue(w, propertyName, val, t, clientConversionInfo,
-				new BrowserConverterContext(component, t.getPushToServer()));
-			clientConversionInfo.popNode();
+			// write values and only write client side types that are dynamic (client side already knows the client side types that are static for this component sent via ClientSideTypesState)
+			IJSONStringWithClientSideType jsonValueRepresentationForWrappedValue = JSONUtils.FullValueToJSONConverter.INSTANCE.getConvertedValueWithClientType(
+				val, t,
+				new BrowserConverterContext(component, t.getPushToServer()), true);
+
+			if (jsonValueRepresentationForWrappedValue != null)
+			{
+				w.key(propertyName);
+				w.value(jsonValueRepresentationForWrappedValue);
+				if (jsonValueRepresentationForWrappedValue.getClientSideType() != null)
+				{
+					dynamicClientSideTypesForProperties.add(new Pair<>(propertyName,
+						jsonValueRepresentationForWrappedValue.getClientSideType()));
+				}
+			}
 		}
 	}
 

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.junit.Assert;
 import org.junit.Test;
@@ -94,9 +95,10 @@ public class TabPanelTest extends AbstractSolutionTest
 		jsonWriter.object();
 		form.getFormUI().writeAllComponentsProperties(jsonWriter, FullValueToJSONConverter.INSTANCE);
 		jsonWriter.endObject();
-		JSONAssert.assertEquals(
-			"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"tabpanel\":{\"enabled\":true,\"svyMarkupId\":\"s554517c05b68828168c38c67974bf993\",\"tabs\":{\"vEr\":3,\"w\":false,\"v\":[{\"rt\":\"servoydefault-tabpanel.tab\",\"vEr\":3,\"w\":false,\"v\":{\"relationName\":\"-1\",\"text\":\"tab1\",\"active\":true,\"containsFormId\":\"f2\",\"toolTipText\":\"\",\"disabled\":false}},{\"rt\":\"servoydefault-tabpanel.tab\",\"vEr\":3,\"w\":false,\"v\":{\"relationName\":\"-1\",\"text\":\"tab2\",\"active\":false,\"containsFormId\":\"f3\",\"toolTipText\":\"\",\"disabled\":false}},{\"rt\":\"servoydefault-tabpanel.tab\",\"vEr\":3,\"w\":false,\"v\":{\"relationName\":\"-1\",\"text\":\"tab3\",\"active\":false,\"containsFormId\":\"f4\",\"toolTipText\":\"\",\"disabled\":false}}],\"svy_types\":{\"2\":\"JSON_obj\",\"1\":\"JSON_obj\",\"0\":\"JSON_obj\"}}},\"svy_types\":{\"tabpanel\":{\"tabs\":\"JSON_arr\"}}}",
-			stringWriter.toString(), true);
+
+		JSONAssert.assertEquals(new JSONObject(
+			"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"tabpanel\":{\"enabled\":true,\"tabs\":{\"vEr\":3,\"v\":[{\"vEr\":3,\"v\":{\"relationName\":\"-1\",\"active\":true,\"disabled\":false,\"text\":\"tab1\",\"containsFormId\":\"f2\",\"toolTipText\":\"\"}},{\"vEr\":3,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab2\",\"containsFormId\":\"f3\",\"toolTipText\":\"\"}},{\"vEr\":3,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab3\",\"containsFormId\":\"f4\",\"toolTipText\":\"\"}}]},\"svyMarkupId\":\"s554517c05b68828168c38c67974bf993\"}}"),
+			new JSONObject(stringWriter.toString()), true);
 		webComponent.setProperty("tabIndex", "tab2");
 
 		stringWriter = new StringWriter();
@@ -105,10 +107,9 @@ public class TabPanelTest extends AbstractSolutionTest
 		form.getFormUI().writeAllComponentsProperties(jsonWriter, FullValueToJSONConverter.INSTANCE);
 		jsonWriter.endObject();
 
-		System.err.println(stringWriter.toString());
-		JSONAssert.assertEquals(
-			"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"tabpanel\":{\"enabled\":true,\"svyMarkupId\":\"s554517c05b68828168c38c67974bf993\",\"tabIndex\":\"tab2\",\"tabs\":{\"vEr\":4,\"w\":false,\"v\":[{\"rt\":\"servoydefault-tabpanel.tab\",\"vEr\":4,\"w\":false,\"v\":{\"relationName\":\"-1\",\"text\":\"tab1\",\"active\":true,\"containsFormId\":\"f2\",\"toolTipText\":\"\",\"disabled\":false}},{\"rt\":\"servoydefault-tabpanel.tab\",\"vEr\":4,\"w\":false,\"v\":{\"relationName\":\"-1\",\"text\":\"tab2\",\"active\":false,\"containsFormId\":\"f3\",\"toolTipText\":\"\",\"disabled\":false}},{\"rt\":\"servoydefault-tabpanel.tab\",\"vEr\":4,\"w\":false,\"v\":{\"relationName\":\"-1\",\"text\":\"tab3\",\"active\":false,\"containsFormId\":\"f4\",\"toolTipText\":\"\",\"disabled\":false}}],\"svy_types\":{\"2\":\"JSON_obj\",\"1\":\"JSON_obj\",\"0\":\"JSON_obj\"}}},\"svy_types\":{\"tabpanel\":{\"tabs\":\"JSON_arr\"}}}",
-			stringWriter.toString(), true);
+		JSONAssert.assertEquals(new JSONObject(
+			"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"tabpanel\":{\"enabled\":true,\"tabs\":{\"vEr\":4,\"v\":[{\"vEr\":4,\"v\":{\"relationName\":\"-1\",\"active\":true,\"disabled\":false,\"text\":\"tab1\",\"containsFormId\":\"f2\",\"toolTipText\":\"\"}},{\"vEr\":4,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab2\",\"containsFormId\":\"f3\",\"toolTipText\":\"\"}},{\"vEr\":4,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab3\",\"containsFormId\":\"f4\",\"toolTipText\":\"\"}}]},\"svyMarkupId\":\"s554517c05b68828168c38c67974bf993\",\"tabIndex\":\"tab2\"}}"),
+			new JSONObject(stringWriter.toString()), true);
 
 		webComponent.setProperty("tabIndex", Integer.valueOf(3));
 
@@ -118,9 +119,8 @@ public class TabPanelTest extends AbstractSolutionTest
 		form.getFormUI().writeAllComponentsProperties(jsonWriter, FullValueToJSONConverter.INSTANCE);
 		jsonWriter.endObject();
 
-		System.err.println(stringWriter.toString());
-		JSONAssert.assertEquals(
-			"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"tabpanel\":{\"enabled\":true,\"svyMarkupId\":\"s554517c05b68828168c38c67974bf993\",\"tabIndex\":3,\"tabs\":{\"vEr\":5,\"w\":false,\"v\":[{\"rt\":\"servoydefault-tabpanel.tab\",\"vEr\":5,\"w\":false,\"v\":{\"relationName\":\"-1\",\"text\":\"tab1\",\"active\":true,\"containsFormId\":\"f2\",\"toolTipText\":\"\",\"disabled\":false}},{\"rt\":\"servoydefault-tabpanel.tab\",\"vEr\":5,\"w\":false,\"v\":{\"relationName\":\"-1\",\"text\":\"tab2\",\"active\":false,\"containsFormId\":\"f3\",\"toolTipText\":\"\",\"disabled\":false}},{\"rt\":\"servoydefault-tabpanel.tab\",\"vEr\":5,\"w\":false,\"v\":{\"relationName\":\"-1\",\"text\":\"tab3\",\"active\":false,\"containsFormId\":\"f4\",\"toolTipText\":\"\",\"disabled\":false}}],\"svy_types\":{\"2\":\"JSON_obj\",\"1\":\"JSON_obj\",\"0\":\"JSON_obj\"}}},\"svy_types\":{\"tabpanel\":{\"tabs\":\"JSON_arr\"}}}",
-			stringWriter.toString(), true);
+		JSONAssert.assertEquals(new JSONObject(
+			"{\"\":{\"enabled\":true,\"visible\":true,\"findmode\":false},\"tabpanel\":{\"enabled\":true,\"tabs\":{\"vEr\":5,\"v\":[{\"vEr\":5,\"v\":{\"relationName\":\"-1\",\"active\":true,\"disabled\":false,\"text\":\"tab1\",\"containsFormId\":\"f2\",\"toolTipText\":\"\"}},{\"vEr\":5,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab2\",\"containsFormId\":\"f3\",\"toolTipText\":\"\"}},{\"vEr\":5,\"v\":{\"relationName\":\"-1\",\"active\":false,\"disabled\":false,\"text\":\"tab3\",\"containsFormId\":\"f4\",\"toolTipText\":\"\"}}]},\"svyMarkupId\":\"s554517c05b68828168c38c67974bf993\",\"tabIndex\":3}}"),
+			new JSONObject(stringWriter.toString()), true);
 	}
 }

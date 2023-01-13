@@ -61,7 +61,7 @@ public class FoundsetTypeChangeMonitor
 
 	protected static final int SEND_HAD_MORE_ROWS = 0b100000000;
 
-	protected static final int SEND_PUSH_TO_SERVER = 0b1000000000;
+	// 0b1000000000 used to be PUSH_TO_SERVER that is now no longer needed/used;
 
 	protected static final int SEND_USER_SET_SELECTION = 0b10000000000;
 
@@ -73,7 +73,7 @@ public class FoundsetTypeChangeMonitor
 
 	protected IChangeListener changeNotifier;
 
-	protected int changeFlags = 0 | SEND_PUSH_TO_SERVER; // we want to automatically send push-to-server value as well the first time we are aware of a foundset (which will call changeNotifier.valueChanged() at that time), because the toTemplate... does not send that to client and is only followed by changesToJSON, not fullToJSON
+	protected int changeFlags = 0;
 	protected List<Pair<Integer, Boolean>> handledRequestIds = new ArrayList<>();
 	protected final FoundsetTypeViewportDataChangeMonitor viewPortDataChangeMonitor;
 	private final List<ViewportDataChangeMonitor< ? >> viewPortDataChangeMonitors = new ArrayList<>();
@@ -229,15 +229,6 @@ public class FoundsetTypeChangeMonitor
 	{
 		allChanged();
 		if (propertyValue.getDataAdapterList() != null) propertyValue.getDataAdapterList().setFindMode(newFindMode);
-	}
-
-	/**
-	 * Called when the dataProviders that this foundset type provides changed.
-	 */
-	public void dataProvidersChanged()
-	{
-		// this normally happens only before initial send of initial form data so it isn't very useful; will we allow dataProviders to change later on?
-		if (propertyValue.viewPort.size > 0) allChanged();
 	}
 
 	public void shrinkClientViewport(final int relativeFirstRowToOldViewport, final int relativeLastRowToOldViewport, int oldSize)
@@ -494,11 +485,6 @@ public class FoundsetTypeChangeMonitor
 		return (changeFlags & SEND_ALL) != 0;
 	}
 
-	public boolean shouldSendPushToServer()
-	{
-		return (changeFlags & SEND_PUSH_TO_SERVER) != 0;
-	}
-
 	public boolean shouldSendSelectedIndexes()
 	{
 		return (changeFlags & SEND_SELECTED_INDEXES) != 0;
@@ -672,6 +658,12 @@ public class FoundsetTypeChangeMonitor
 			return propertyValue.getDataAdapterList().getForm().isFormVisible();
 		}
 		return true;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "FTCM: " + propertyValue;
 	}
 
 //	protected static class RecordChangeDescriptor implements JSONWritable

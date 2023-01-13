@@ -57,7 +57,7 @@ import com.servoy.j2db.server.ngclient.property.types.Types;
  * @author Diana
  *
  */
-public class RhinoDefaultConversionsTest
+public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 {
 
 	private static final String DEFAULT_CONVERSIONS_PROP = "defaultConversionsProp";
@@ -121,7 +121,7 @@ public class RhinoDefaultConversionsTest
 			rhinoContext.evaluateString(someRhinoScope, "a.getTime()", "dummy js file name from junit tests", 0, null));
 
 		// fromRhino
-		javaVal = RhinoConversion.defaultFromRhino(rhinoVal, null);
+		javaVal = RhinoConversion.defaultFromRhino(rhinoVal);
 		assertSame("Converted to and from date is again a java date", Date.class, javaVal.getClass());
 		assertEquals("Converted to and from date is equal to original", date, javaVal);
 
@@ -135,9 +135,9 @@ public class RhinoDefaultConversionsTest
 			RhinoConversion.defaultToRhino(JSONObject.NULL, objectPD, component, someRhinoScope));
 
 		// fromRhino
-		assertNull("Scriptable.NOT_FOUND to java null", RhinoConversion.defaultFromRhino(Scriptable.NOT_FOUND, null));
-		assertNull("Undefined.instance to java null", RhinoConversion.defaultFromRhino(Undefined.instance, null));
-		assertNull("Undefined.SCRIPTABLE_UNDEFINED to java null", RhinoConversion.defaultFromRhino(Undefined.SCRIPTABLE_UNDEFINED, null));
+		assertNull("Scriptable.NOT_FOUND to java null", RhinoConversion.defaultFromRhino(Scriptable.NOT_FOUND));
+		assertNull("Undefined.instance to java null", RhinoConversion.defaultFromRhino(Undefined.instance));
+		assertNull("Undefined.SCRIPTABLE_UNDEFINED to java null", RhinoConversion.defaultFromRhino(Undefined.SCRIPTABLE_UNDEFINED));
 	}
 
 	private Object toRhinoPlusRhinoInternalThing(Object sabloVal)
@@ -175,7 +175,7 @@ public class RhinoDefaultConversionsTest
 		// from Rhino
 
 		// from for what was previously to
-		javaVal = RhinoConversion.defaultFromRhino(rhinoVal, map);
+		javaVal = RhinoConversion.defaultFromRhino(rhinoVal);
 		assertTrue("From rhino should be a Map", javaVal instanceof Map);
 		assertEquals("Check key1 in java", "Just some text", ((Map)javaVal).get("key1"));
 		assertEquals("Check key2 in java", Integer.valueOf(456), ((Map)javaVal).get("key2"));
@@ -186,9 +186,7 @@ public class RhinoDefaultConversionsTest
 		// from for new native object in Rhino
 		javaVal = RhinoConversion.defaultFromRhino(
 			rhinoContext.evaluateString(someRhinoScope, "(function z() { return { key5: 'aha', key6: 475, key7: false, key8: new Date() } }) ()",
-				"dummy js file name from junit tests", 0,
-				null),
-			map);
+				"dummy js file name from junit tests", 0, null));
 		assertTrue("From rhino should be a Map", javaVal instanceof Map);
 		assertEquals("Check key5 in java", "aha", ((Map)javaVal).get("key5"));
 		assertEquals("Check key6 in java", Integer.valueOf(475), ((Map)javaVal).get("key6"));
@@ -238,7 +236,7 @@ public class RhinoDefaultConversionsTest
 		// from Rhino
 
 		// from for what was previously to
-		javaVal = RhinoConversion.defaultFromRhino(rhinoVal, array);
+		javaVal = RhinoConversion.defaultFromRhino(rhinoVal);
 		assertTrue("From rhino should be a List", javaVal instanceof List);
 		assertEquals("Check index 0 in java", "Just some text", ((List)javaVal).get(0));
 		assertEquals("Check index 1 in java", Integer.valueOf(456), ((List)javaVal).get(1));
@@ -252,7 +250,7 @@ public class RhinoDefaultConversionsTest
 			.defaultFromRhino(rhinoContext.evaluateString(someRhinoScope,
 				"(function z() { var g = new Array(); g.push('aha'); g.push(475); g.push(removed[0]); g.push(true); return g; }) ()",
 				"dummy js file name from junit tests", 0,
-				null), array);
+				null));
 		assertTrue("From rhino should be a List", javaVal instanceof List);
 		assertEquals("Check index 0 in java", "aha", ((List)javaVal).get(0));
 		assertEquals("Check index 1 in java", Integer.valueOf(475), ((List)javaVal).get(1));
@@ -264,7 +262,7 @@ public class RhinoDefaultConversionsTest
 			.defaultFromRhino(rhinoContext.evaluateString(someRhinoScope,
 				"(function z() { return ['aha', 475, removed[0], true]; }) ()",
 				"dummy js file name from junit tests", 0,
-				null), array);
+				null));
 		assertTrue("From rhino should be a List", javaVal instanceof List);
 		assertEquals("Check index 0 in java", "aha", ((List)javaVal).get(0));
 		assertEquals("Check index 1 in java", Integer.valueOf(475), ((List)javaVal).get(1));
@@ -310,7 +308,7 @@ public class RhinoDefaultConversionsTest
 		rhinoContext.evaluateString(someRhinoScope, "a[8] = \"are you ok?\"; a[15] = 2589; ", "dummy js file name from junit tests", 0, null);
 
 		// from for what was previously to
-		javaVal = RhinoConversion.defaultFromRhino(rhinoVal, array);
+		javaVal = RhinoConversion.defaultFromRhino(rhinoVal);
 		assertTrue("From rhino should be a List", javaVal instanceof List);
 		assertEquals("Check index 0 in java", "Just some text", ((List)javaVal).get(0));
 		assertEquals("Check index 1 in java", Integer.valueOf(456), ((List)javaVal).get(1));
@@ -349,7 +347,7 @@ public class RhinoDefaultConversionsTest
 		assertEquals("[0=Hello World, 1=4, 2=3.5, 3=true, 4=Dis is a longe string, 5=35.983564, 6=false]",
 			((NativeObject)convertedNativeObject).entrySet().toString());
 
-		final Object convertedMap = RhinoConversion.defaultFromRhino(convertedNativeObject, null);
+		final Object convertedMap = RhinoConversion.defaultFromRhino(convertedNativeObject);
 		assertTrue(convertedMap instanceof Map);
 		assertEquals("{0=Hello World, 1=4, 2=3.5, 3=true, 4=Dis is a longe string, 5=35.983564, 6=false}", convertedMap.toString());
 		assertEquals(map.toString(), convertedMap.toString());
@@ -384,7 +382,7 @@ public class RhinoDefaultConversionsTest
 		// from Rhino
 
 		// from for what was previously to
-		javaVal = RhinoConversion.defaultFromRhino(rhinoVal, jsonObj);
+		javaVal = RhinoConversion.defaultFromRhino(rhinoVal);
 		assertTrue("From rhino should be a Map", javaVal instanceof Map);
 		assertEquals("Check key1 in java", "Just some text", ((Map)javaVal).get("key1"));
 		assertEquals("Check key2 in java", Integer.valueOf(456), ((Map)javaVal).get("key2"));
@@ -428,7 +426,7 @@ public class RhinoDefaultConversionsTest
 		// from Rhino
 
 		// from for what was previously to
-		javaVal = RhinoConversion.defaultFromRhino(rhinoVal, jsonArray);
+		javaVal = RhinoConversion.defaultFromRhino(rhinoVal);
 		assertTrue("From rhino should be a List", javaVal instanceof List);
 		assertEquals("Check index 0 in java", "Just some text", ((List)javaVal).get(0));
 		assertEquals("Check index 1 in java", Integer.valueOf(456), ((List)javaVal).get(1));
@@ -700,8 +698,7 @@ public class RhinoDefaultConversionsTest
 		sabloVal = (Map)RhinoConversion.defaultFromRhino(
 			rhinoContext.evaluateString(someRhinoScope, "var a; (function z() { a = { key5: 'aha', key6: 475 }; return a; }) ()",
 				"dummy js file name from junit tests", 0,
-				null),
-			null);
+				null));
 		component.setProperty(DEFAULT_CONVERSIONS_PROP, sabloVal);
 
 		assertEquals("Check key5 in java", "aha", sabloVal.get("key5"));

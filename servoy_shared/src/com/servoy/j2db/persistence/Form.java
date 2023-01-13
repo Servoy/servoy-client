@@ -732,7 +732,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param validator the name validator
 	 * @param name the name of the new variable
-	 * @param variableType the type of the variable
+	 * @param variableType the type of the variable; must be one of {@link Column#allDefinedTypes}
 	 * @return the new form variable
 	 * @throws RepositoryException
 	 */

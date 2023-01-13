@@ -112,7 +112,7 @@ public final class FormElement implements INGFormElement
 		boolean willTurnIntoErrorBean;
 		if (inDesigner && persist instanceof Bean && !DefaultNavigator.NAME_PROP_VALUE.equals(persist.getName()))
 		{
-			WebObjectSpecification pd = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(((Bean)persist).getBeanClassName());
+			WebObjectSpecification pd = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(((Bean)persist).getBeanClassName());
 			willTurnIntoErrorBean = pd != null && usesPersistTypedProperties(pd);
 		}
 		else
@@ -169,7 +169,7 @@ public final class FormElement implements INGFormElement
 		if (form instanceof FlattenedForm) this.form = form;
 		else this.form = fs.getFlattenedForm(form);
 
-		if (WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(componentTypeString) == null)
+		if (WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(componentTypeString) == null)
 		{
 			this.componentType = FormElement.ERROR_BEAN;
 		}
@@ -414,7 +414,7 @@ public final class FormElement implements INGFormElement
 		SpecProviderState componentsSpecProviderState = WebComponentSpecProvider.getSpecProviderState();
 		try
 		{
-			spec = componentsSpecProviderState.getWebComponentSpecification(componentType);
+			spec = componentsSpecProviderState.getWebObjectSpecification(componentType);
 		}
 		catch (RuntimeException re)
 		{
@@ -426,7 +426,7 @@ public final class FormElement implements INGFormElement
 			String errorMessage = "Component spec for " + componentType + " not found; for persist: " + persistImpl +
 				", please check your component spec file(s).";
 			Debug.error(errorMessage);
-			return componentsSpecProviderState.getWebComponentSpecification(FormElement.ERROR_BEAN);
+			return componentsSpecProviderState.getWebObjectSpecification(FormElement.ERROR_BEAN);
 			//if (throwException) throw new IllegalStateException(errorMessage);
 		}
 		return spec;
@@ -595,6 +595,12 @@ public final class FormElement implements INGFormElement
 		return form;
 	}
 
+	@Override
+	public FormElement getRootFormElement()
+	{
+		return this;
+	}
+
 	public boolean isLegacy()
 	{
 		return persistImpl != null && persistImpl.isLegacy();
@@ -638,11 +644,6 @@ public final class FormElement implements INGFormElement
 		return label;
 	}
 
-	public Collection<WebObjectFunctionDefinitionWrapper> getHandlersDefinitions()
-	{
-		return getHandlers(true, WebObjectFunctionDefinitionWrapper.class);
-	}
-
 	/**
 	 * returns the handler names that are not private and have a value attached to them.
 	 *
@@ -650,12 +651,12 @@ public final class FormElement implements INGFormElement
 	 */
 	public Collection<String> getHandlers()
 	{
-		return getHandlers(true, String.class);
+		return getHandlers(true);
 	}
 
-	public <T> Collection<T> getHandlers(boolean skipPrivate, Class<T> clazz)
+	public Collection<String> getHandlers(boolean skipPrivate)
 	{
-		List<T> handlers = new ArrayList<>();
+		List<String> handlers = new ArrayList<>();
 		Form mainForm = getForm();
 		if (isFormComponentChild())
 		{
@@ -677,21 +678,20 @@ public final class FormElement implements INGFormElement
 			if (skipPrivate && entry.getValue().isPrivate()) continue;
 			String eventName = entry.getKey();
 			@SuppressWarnings("unchecked")
-			T item = clazz == WebObjectFunctionDefinitionWrapper.class ? (T)new WebObjectFunctionDefinitionWrapper(entry.getValue()) : (T)eventName;
 			Object eventValue = getPropertyValue(eventName);
 			if (eventValue != null && !(eventValue instanceof Integer && (((Integer)eventValue).intValue() == -1 || ((Integer)eventValue).intValue() == 0)))
 			{
-				handlers.add(item);
+				handlers.add(eventName);
 			}
 			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSGAINEDMETHODID.getPropertyName()) &&
 				(mainForm.getOnElementFocusGainedMethodID() > 0))
 			{
-				handlers.add(item);
+				handlers.add(eventName);
 			}
 			else if (Utils.equalObjects(eventName, StaticContentSpecLoader.PROPERTY_ONFOCUSLOSTMETHODID.getPropertyName()) &&
 				(mainForm.getOnElementFocusLostMethodID() > 0))
 			{
-				handlers.add(item);
+				handlers.add(eventName);
 			}
 		}
 		return handlers;
@@ -710,9 +710,8 @@ public final class FormElement implements INGFormElement
 		try
 		{
 			if (writeAsValue) propertyWriter.object();
-			JSONUtils.writeDataWithConversions(FormElementToJSON.INSTANCE, propertyWriter, propertiesTypedData.content, propertiesTypedData.contentType,
-				context);
-			if (inDesigner) propertyWriter.key("svyVisible").value(isVisible);
+			JSONUtils.writeData(FormElementToJSON.INSTANCE, propertyWriter, propertiesTypedData.content, propertiesTypedData.contentType, context);
+			if (inDesigner) propertyWriter.key("svyVisible").value(isVisible); // see fe.writeFormElement(...) which does the same
 			if (writeAsValue) propertyWriter.endObject();
 			return propertyWriter;
 		}

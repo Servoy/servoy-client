@@ -26,10 +26,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeoutException;
 
+import org.json.JSONString;
 import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.eventthread.EventDispatcher;
-import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.BaseWindow;
@@ -37,6 +37,9 @@ import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IToJSONWriter;
 import org.sablo.websocket.IWebsocketEndpoint;
+import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.JSONUtils.EmbeddableJSONWriter;
+import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +47,7 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.Solution;
-import com.servoy.j2db.server.ngclient.endpoint.INGClientWebsocketEndpoint;
+import com.servoy.j2db.server.ngclient.endpoint.NGClientSideWindowState;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.WeakHashSet;
@@ -80,10 +83,19 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		return (INGClientWebsocketSession)super.getSession();
 	}
 
+	/**
+	 * Gives the opportunity of creatin their own type of ClientSideWindowState to subclasses.
+	 */
 	@Override
-	public INGClientWebsocketEndpoint getEndpoint()
+	protected NGClientSideWindowState createClientSideWindowState()
 	{
-		return (INGClientWebsocketEndpoint)super.getEndpoint();
+		return new NGClientSideWindowState(this);
+	}
+
+	@Override
+	protected NGClientSideWindowState getClientSideWindowState()
+	{
+		return (NGClientSideWindowState)super.getClientSideWindowState();
 	}
 
 	public INGApplication getClient()
@@ -141,18 +153,18 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	}
 
 	@Override
-	protected Object invokeApi(WebComponent receiver, WebObjectFunctionDefinition apiFunction, Object[] arguments, PropertyDescription argumentTypes,
-		Map<String, Object> callContributions)
+	protected Object invokeApi(WebComponent receiver, WebObjectFunctionDefinition apiFunction, Object[] arguments,
+		Map<String, JSONString> callContributions)
 	{
-		Map<String, Object> call = new HashMap<>();
-		if (callContributions != null) call.putAll(callContributions);
+		Map<String, JSONString> newCallContributions = new HashMap<>();
+		if (callContributions != null) newCallContributions.putAll(callContributions); // probably always null
 
 		IWebFormUI formUI = receiver.findParent(IWebFormUI.class);
 		IWebFormController form = formUI.getController();
 
 		if (!isDelayedApiCall(apiFunction))
 		{
-			if (!isAsyncApiCall(apiFunction) && !getEndpoint().isFormAttachedToDOM(form.getName()))
+			if (!isAsyncApiCall(apiFunction) && !getClientSideWindowState().isFormAttachedToDOM(form.getName()))
 			{
 				log.warn("You are calling a component sync api method (to browser) in form '" + form.getName() +
 					"' before the form is available in browser's DOM. This should be avoided. (Component : " + receiver.getName() + " , api: " +
@@ -164,7 +176,12 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		if (receiver instanceof WebFormComponent && ((WebFormComponent)receiver).getComponentContext() != null)
 		{
 			ComponentContext componentContext = ((WebFormComponent)receiver).getComponentContext();
-			call.put("propertyPath", componentContext.getPropertyPath());
+
+			// write the path to JSON
+			EmbeddableJSONWriter ejw = new JSONUtils.EmbeddableJSONWriter(true);
+			JSONUtils.defaultToJSONValue(FullValueToJSONConverter.INSTANCE, ejw, null, componentContext.getPropertyPath(), null, null);
+
+			newCallContributions.put("propertyPath", ejw);
 		}
 
 		Pair<Integer, Integer> perfId = getClient().onStartSubAction(receiver.getSpecification().getName(), apiFunction.getName(), apiFunction, arguments);
@@ -172,7 +189,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		try
 		{
 			// actual call
-			return super.invokeApi(receiver, apiFunction, arguments, argumentTypes, call);
+			return super.invokeApi(receiver, apiFunction, arguments, newCallContributions);
 		}
 		finally
 		{
@@ -249,13 +266,13 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	{
 		if (form == null) return;
 		String formName = realInstanceName == null ? form.getName() : realInstanceName;
-		if (testForValidForm && !allowedForms.containsKey(formName) && getEndpoint().getFormUrl(formName) == null)
+		if (testForValidForm && !allowedForms.containsKey(formName) && getClientSideWindowState().getFormUrl(formName) == null)
 		{
 			throw new IllegalStateException("Can't show form: " + formName + " because it is not allowed in the client");
 		}
 		IFormHTMLAndJSGenerator generator = getSession().getFormHTMLAndJSGenerator(form, formName);
 		String formUrl = getRealFormURLAndSeeIfItIsACopy(form, formName).getLeft();
-		boolean nowSentToClient = getEndpoint().addFormIfAbsent(formName, formUrl);
+		boolean nowSentToClient = getClientSideWindowState().addFormIfAbsent(formName, formUrl);
 		if (nowSentToClient)
 		{
 			IWebFormController cachedFormController = getSession().getClient().getFormManager().getCachedFormController(formName);
@@ -277,14 +294,14 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		}
 		else
 		{
-			formUrl = getEndpoint().getFormUrl(formName);
+			formUrl = getClientSideWindowState().getFormUrl(formName);
 			if (Debug.isDebugEnabled()) Debug.debug("touchForm(" + async + ") - formAlreadyPresent: " + form.getName());
 		}
 
 		// if sync wait until we got response from client as it is loaded
 		if (!async)
 		{
-			if (!getEndpoint().isFormAttachedToDOM(formName))
+			if (!getClientSideWindowState().isFormAttachedToDOM(formName))
 			{
 				if (!nowSentToClient)
 				{
@@ -335,11 +352,11 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 			final String htmlTemplate = (needsToGenerateTemplates ? formTemplateGenerator.generateHTMLTemplate() : "");
 
 			// update endpoint URL if needed
-			String previousURL = getEndpoint().getFormUrl(realFormName);
+			String previousURL = getClientSideWindowState().getFormUrl(realFormName);
 			if (previousURL != null && !realUrl.equals(previousURL))
 			{
-				getEndpoint().formDestroyed(realFormName);
-				getEndpoint().addFormIfAbsent(realFormName, realUrl);
+				getClientSideWindowState().formDestroyed(realFormName);
+				getClientSideWindowState().addFormIfAbsent(realFormName, realUrl);
 			}
 
 			CurrentWindow.runForWindow(this, new Runnable()
@@ -378,7 +395,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	public boolean hasFormChangedSinceLastSendToClient(Form flattenedForm, String realName)
 	{
 		boolean changed = true;
-		String clientUsedFormURL = getEndpoint().getFormUrl(realName);
+		String clientUsedFormURL = getClientSideWindowState().getFormUrl(realName);
 		if (clientUsedFormURL == null)
 		{
 			// need to add the session id to the default, because all urls will have that (also the one from the end point)
@@ -433,8 +450,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	@Override
 	public boolean hasForm(String realName)
 	{
-		INGClientWebsocketEndpoint endpoint = getEndpoint();
-		return endpoint != null && endpoint.getFormUrl(realName) != null;
+		return getEndpoint() != null && getClientSideWindowState().getFormUrl(realName) != null;
 	}
 
 	protected String getDefaultFormURLStart(Form form, String name)
@@ -445,7 +461,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	public void destroyForm(String name)
 	{
 		getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("destroyController", new Object[] { name });
-		getEndpoint().formDestroyed(name);
+		getClientSideWindowState().formDestroyed(name);
 	}
 
 	/**
@@ -453,12 +469,12 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	 */
 	public void setFormResolved(String formName, boolean resolved)
 	{
-		String formUrl = getEndpoint().getFormUrl(formName);
+		String formUrl = getClientSideWindowState().getFormUrl(formName);
 		if (formUrl != null)
 		{
 			synchronized (formUrl)
 			{
-				getEndpoint().setAttachedToDOM(formName, resolved);
+				getClientSideWindowState().setAttachedToDOM(formName, resolved);
 				if (Debug.isDebugEnabled())
 					Debug.debug((resolved ? "formIsNowMarkedAsResolvedOnServer(" : "formIsNowMarkedAsUNResolvedOnServer(") + formUrl + "): " + formName);
 				if (resolved) getSession().getEventDispatcher().resume(formUrl);
@@ -476,12 +492,12 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		if (controller == null) return false;
 
 		String formName = controller.getName();
-		String formUrl = getEndpoint().getFormUrl(formName);
+		String formUrl = getClientSideWindowState().getFormUrl(formName);
 		if (formUrl != null)
 		{
 			synchronized (formUrl)
 			{
-				return getEndpoint().isFormAttachedToDOM(formName);
+				return getClientSideWindowState().isFormAttachedToDOM(formName);
 			}
 		}
 		return false;

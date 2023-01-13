@@ -24,12 +24,14 @@ import java.util.WeakHashMap;
 import org.json.JSONObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyDescriptionBuilder;
+import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.ChangeAwareList;
 import org.sablo.specification.property.ChangeAwareMap;
 import org.sablo.specification.property.CustomJSONObjectType;
 import org.sablo.specification.property.types.TypesRegistry;
-import org.sablo.websocket.ClientToServerCallReturnValue;
 import org.sablo.websocket.IServerService;
+import org.sablo.websocket.utils.JSONUtils.EmbeddableJSONWriter;
+import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
@@ -148,7 +150,11 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 				{
 					IFoundSetInternal relatedFoundset = (IFoundSetInternal)o;
 					PropertyDescription foundsetRefProperty = new PropertyDescriptionBuilder().withType(FoundsetReferencePropertyTypeOld.INSTANCE).build();
-					return new ClientToServerCallReturnValue(relatedFoundset, foundsetRefProperty, null, true);
+
+					EmbeddableJSONWriter w = new EmbeddableJSONWriter(true);
+					FullValueToJSONConverter.INSTANCE.toJSONValue(w, null, relatedFoundset, foundsetRefProperty,
+						BrowserConverterContext.NULL_WEB_OBJECT_WITH_NO_PUSH_TO_SERVER);
+					return w;
 				}
 			}
 		}

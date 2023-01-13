@@ -26,7 +26,6 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 /**
@@ -59,7 +58,7 @@ public class FunctionRefType extends UUIDReferencePropertyType<Function>
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, Function sabloValue, PropertyDescription propertyDescription, DataConversion clientConversion,
+	public JSONWriter toJSON(JSONWriter writer, String key, Function sabloValue, PropertyDescription propertyDescription,
 		IBrowserConverterContext converterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);

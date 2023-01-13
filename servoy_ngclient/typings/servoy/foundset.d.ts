@@ -2,9 +2,9 @@
 /// <reference path="./component.d.ts" />
 
 declare namespace foundsetType {
-    
+
     type ChangeListener = (changeEvent: ChangeEvent) => void;
-    
+
     /**
      * Besides working like a normal IPromise that you can use to get notified when some action is done
      * (success/error/finally), chain etc., this promise also contains field "requestInfo" which can be set
@@ -14,7 +14,7 @@ declare namespace foundsetType {
      * @since 2021.09
      */
     interface RequestInfoPromise<T> extends angular.IPromise<T> {
-    
+
         /**
          * You can assign any value to it. The value that you assign - if any - will be given back in the
          * event object of any listener that will be triggered as a result of the promise's action. So in
@@ -28,12 +28,12 @@ declare namespace foundsetType {
          * was triggered by that loadRecordsAsync)
          */
         requestInfo?: any;
-    
+
     }
 
     interface FoundsetPropertyValue {
-        
-        /** 
+
+        /**
          * An identifier that allows you to use this foundset via the 'foundsetRef' type;
          * when a 'foundsetRef' type sends a foundset from server to client (for example
          * as a return value of callServerSideApi) it will translate to this identifier
@@ -49,7 +49,7 @@ declare namespace foundsetType {
          * in case of large DB tables)
          */
         serverSize: number, 
-        
+
         /**
          * this is the data you need to have loaded on client (just request what you need via provided
          * loadRecordsAsync or loadExtraRecordsAsync)
@@ -59,25 +59,25 @@ declare namespace foundsetType {
             size: number,
             rows: object[]
         },
-        
+
         /**
          * array of selected records in foundset; indexes can be out of current
          * viewPort as well
          */
         selectedRowIndexes: number[],
-        
+
         /**
          * sort string of the foundset, the same as the one used in scripting for
          * foundset.sort and foundset.getCurrentSort. Example: 'orderid asc'.
          */
         sortColumns: string,
-        
+
         /**
          * the multiselect mode of the server's foundset; if this is false,
          * selectedRowIndexes can only have one item in it
          */
         multiSelect: boolean,
-        
+
         /**
          * if the foundset is large and on server-side only part of it is loaded (so
          * there are records in the foundset beyond 'serverSize') this is set to true;
@@ -86,7 +86,7 @@ declare namespace foundsetType {
          * records in the foundset)
          */
         hasMoreRows: boolean,
-        
+
         /** 
          * columnFormats is only present if you specify
          * "provideColumnFormats": true inside the .spec file for this foundset property;
@@ -95,8 +95,8 @@ declare namespace foundsetType {
          * browser yourself; keys are the dataprovider names and values are objects that contain
          * the format contents
          */
-        columnFormats: object, 
-        
+        columnFormats?: object, 
+
         /**
          * Request a change of viewport bounds from the server; the requested data will be loaded
          * asynchronously in 'viewPort'
@@ -111,7 +111,7 @@ declare namespace foundsetType {
          *                   for more information about determining if a listener event was caused by this call.
          */
         loadRecordsAsync(startIndex: number, size: number): RequestInfoPromise<any>;
-        
+
         /**
          * Request more records for your viewPort; if the argument is positive more records will be
          * loaded at the end of the 'viewPort', when negative more records will be loaded at the beginning
@@ -132,7 +132,7 @@ declare namespace foundsetType {
          *                   for more information about determining if a listener event was caused by this call.
          */
         loadExtraRecordsAsync(negativeOrPositiveCount: number, dontNotifyYet: boolean): RequestInfoPromise<any>;
-        
+
         /**
          * Request a shrink of the viewport; if the argument is positive the beginning of the viewport will
          * shrink, when it is negative then the end of the viewport will shrink - asynchronously.
@@ -152,14 +152,14 @@ declare namespace foundsetType {
          *                   for more information about determining if a listener event was caused by this call.
          */
         loadLessRecordsAsync(negativeOrPositiveCount: number, dontNotifyYet: boolean): RequestInfoPromise<any>;
-        
+
         /**
          * If you queue multiple loadExtraRecordsAsync and loadLessRecordsAsync by using dontNotifyYet = true
          * then you can - in the end - send all these requests to server (if any are queued) by calling
          * this method. If no requests are queued, it calling this method will have no effect.
          */
         notifyChanged(): void;
-        
+
         /**
          * Sort the foundset by the dataproviders/columns identified by sortColumns.
          *
@@ -181,7 +181,7 @@ declare namespace foundsetType {
          *                   for more information about determining if a listener event was caused by this call.
          */
         sort(sortColumns: Array<{ name: string, direction: ("asc" | "desc") }>): RequestInfoPromise<any>;
-        
+
         /**
          * Request a selection change of the selected row indexes. Returns a promise that is resolved
          * when the client receives the updated selection from the server. If successful, the array
@@ -199,7 +199,7 @@ declare namespace foundsetType {
          *                   for more information about determining if a listener event was caused by this call.
          */
         requestSelectionUpdate(selectedRowIdxs: number[]): RequestInfoPromise<any>;
-        
+
         /**
          * Sets the preferred viewPort options hint on the server for this foundset, so that the next
          * (initial or new) load will automatically return that many rows, even without any of the loadXYZ
@@ -227,7 +227,25 @@ declare namespace foundsetType {
          */
         setPreferredViewportSize(preferredSize: number, sendViewportWithSelection: boolean,
                                     centerViewportOnSelected: boolean): void;
-        
+
+        /**
+         * It will send a data update for a cell (a column in a row) in the foundset to the server.
+         * Please make sure to adjust the viewport value as well not just call this method.
+         *
+         * This method is useful if you do not want to add angular watches on data (so calculated pushToServer for the foundset property is set to just 'allow').
+         * Then server will accept data changes from this property, but there are no automatic watches to detect the changes so the component must call
+         * this method instead - when it wants to change the data in a cell.
+         * 
+         * @param rowID the _svyRowId (so $foundsetTypeConstants.ROW_ID_COL_KEY) column of the client side row
+         * @param columnID the name of the column to be updated on server (in that row).
+         * @param newValue the new data in that cell
+         * @param oldValue the old data that used to be in that cell
+         * @return (first versions of this method didn't return anything; more recent ones return this) a $q promise that will get resolved when the new cell value
+         *                   update is done server-side (resolved if ok, rejected if it failed). As with any promise you can register success, error
+         *                   and finally callbacks.
+         */
+        updateViewportRecord(rowID: string, columnID: string, newValue: any, oldValue: any): RequestInfoPromise<any>;
+
         /**
          * Receives a client side rowID (taken from myFoundsetProp.viewPort.rows[idx]
          * [$foundsetTypeConstants.ROW_ID_COL_KEY]) and gives a Record reference, an object
@@ -249,30 +267,13 @@ declare namespace foundsetType {
          * This method has been added in Servoy 8.3.
          */
         getRecordRefByRowID(rowId: string): void;
-        
-        /**
-         * It will send a data update for a cell (ros & column) in the foundset to the server.
-         * Please make sure to adjust the viewport value as well not just call this method.
-         *
-         * This method is useful if you do not want to add angular watches on data (so calculated
-         * pushToServer for the foundset property is set to just 'allow'). Then server will accept
-         * data changes from this property, but there are no automatic watches to detect the changes
-         * so the component must call this method instead - when it wants to change the data in a cell.
-         *
-         * @param rowID the _svyRowId (so $foundsetTypeConstants.ROW_ID_COL_KEY) column of the client side row
-         * @param columnID the name of the column to be updated on server (in that row).
-         * @param newValue the new data in that cell
-         * @param oldValue the old data that used to be in that cell
-         */
-        updateViewportRecord(rowID: string, columnID: string, newValue: any, oldValue: any): void;
-    
+
         /**
          * Adds a change listener that will get triggered when server sends changes for this foundset.
          * 
-         * @see $webSocket.addIncomingMessageHandlingDoneTask if you need your code to execute after all
-         *      properties that were linked to this foundset get their changes applied you can use
-         *      $webSocket.addIncomingMessageHandlingDoneTask.
+         * @see $webSocket.addIncomingMessageHandlingDoneTask if you need your code to execute after all properties that were linked to this foundset get their changes applied you can use $webSocket.addIncomingMessageHandlingDoneTask.
          * @param changeListener the listener to register.
+         * @return a listener unregister function
          */
         addChangeListener(changeListener : ChangeListener) : () => void;
         removeChangeListener(changeListener : ChangeListener) : void;
@@ -282,7 +283,7 @@ declare namespace foundsetType {
     interface FoundsetTypeConstants {
         ROW_ID_COL_KEY: string,
         FOR_FOUNDSET_PROPERTY: string,
-    
+
         // listener notification constants follow; prefixed just to separate them a bit from other constants
         NOTIFY_REQUEST_INFOS: string,
         NOTIFY_FULL_VALUE_CHANGED: string,
@@ -300,13 +301,13 @@ declare namespace foundsetType {
         NOTIFY_VIEW_PORT_ROW_UPDATES_OLD_VIEWPORTSIZE: string,
         NOTIFY_VIEW_PORT_ROW_UPDATES: string,
         NOTIFY_FOUNDSET_DEFINITION_CHANGE: string,
-    
+
         // row update types for listener notifications, in case NOTIFY_VIEW_PORT_ROW_UPDATES_RECEIVED is triggered
         ROWS_CHANGED: number,
         ROWS_INSERTED: number,
         ROWS_DELETED: number
     }
-    
+
     interface ChangeEvent extends componentType.ChangeEvent {
 
         /**
@@ -332,19 +333,19 @@ declare namespace foundsetType {
          *     below is actually a shallow-copy of the old value's properties/keys; this can help
          *     in some component implementations
          */
-        fullValueChanged: { oldValue: object, newValue: object },
-
+        fullValueChanged?: { oldValue: object, newValue: object },
+     
         // the following keys appear if each of these got updated from server; the names of those
         // constants suggest what it was that changed; oldValue and newValue are the values for what changed
         // (e.g. new server size and old server size) so not the whole foundset property new/old value
-        serverFoundsetSizeChanged: { oldValue: number, newValue: number },
-        hasMoreRowsChanged:  { oldValue: boolean, newValue: boolean },
-        multiSelectChanged:  { oldValue: boolean, newValue: boolean },
-        columnFormatsChanged:  { oldValue: object, newValue: object },
-        sortColumnsChanged:  { oldValue: string, newValue: string },
-        selectedRowIndexesChanged:  { oldValue: number[], newValue: number[] },
-        viewPortStartIndexChanged:  { oldValue: number, newValue: number },
-        viewPortSizeChanged:  { oldValue: number, newValue: number }
+        serverFoundsetSizeChanged?: { oldValue: number, newValue: number },
+        hasMoreRowsChanged?:  { oldValue: boolean, newValue: boolean },
+        multiSelectChanged?:  { oldValue: boolean, newValue: boolean },
+        columnFormatsChanged?:  { oldValue: object, newValue: object },
+        sortColumnsChanged?:  { oldValue: string, newValue: string },
+        selectedRowIndexesChanged?:  { oldValue: number[], newValue: number[] },
+        viewPortStartIndexChanged?:  { oldValue: number, newValue: number },
+        viewPortSizeChanged?:  { oldValue: number, newValue: number }
 
     }
 

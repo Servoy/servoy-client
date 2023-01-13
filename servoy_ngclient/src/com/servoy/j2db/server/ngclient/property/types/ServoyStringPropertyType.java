@@ -25,7 +25,6 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.StringPropertyType;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
@@ -56,8 +55,8 @@ public class ServoyStringPropertyType extends StringPropertyType
 	}
 
 	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd, FormElementContext formElementContext)
+		throws JSONException
 	{
 		if (formElementValue == null) return writer;
 
@@ -71,8 +70,8 @@ public class ServoyStringPropertyType extends StringPropertyType
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, String sabloValue, PropertyDescription pd, DataConversion clientConversion,
-		IBrowserConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, String sabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+		throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		String value = sabloValue;

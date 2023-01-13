@@ -31,25 +31,27 @@ import org.mozilla.javascript.Scriptable;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
-import org.sablo.specification.property.CustomJSONPropertyType;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.ISupportsGranularUpdates;
+import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.TypedData;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.ChildWebComponent;
+import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.server.ngclient.AngularFormGenerator;
+import com.servoy.j2db.server.ngclient.ChildrenJSONGenerator;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
-import com.servoy.j2db.server.ngclient.WebObjectFunctionDefinitionWrapper;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.server.ngclient.property.types.II18NPropertyType;
@@ -67,15 +69,16 @@ import com.servoy.j2db.util.Debug;
  *
  * @author acostescu
  */
-public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeSabloValue>
+public class ComponentPropertyType extends DefaultPropertyType<ComponentTypeSabloValue>
 	implements IDesignToFormElement<JSONObject, ComponentTypeFormElementValue, ComponentTypeSabloValue>,
 	IFormElementToTemplateJSON<ComponentTypeFormElementValue, ComponentTypeSabloValue>,
 	IFormElementToSabloComponent<ComponentTypeFormElementValue, ComponentTypeSabloValue>, IConvertedPropertyType<ComponentTypeSabloValue>,
 	ISabloComponentToRhino<ComponentTypeSabloValue>, ISupportsGranularUpdates<ComponentTypeSabloValue>, ITemplateValueUpdaterType<ComponentTypeSabloValue>,
-	II18NPropertyType<ComponentTypeSabloValue>
+	II18NPropertyType<ComponentTypeSabloValue>, IPropertyWithClientSideConversions<ComponentTypeSabloValue>
 {
 
-	public static final ComponentPropertyType INSTANCE = new ComponentPropertyType(null);
+
+	public static final ComponentPropertyType INSTANCE = new ComponentPropertyType();
 
 	public static final String TYPE_NAME = ChildWebComponent.COMPONENT_PROPERTY_TYPE_NAME;
 
@@ -96,13 +99,26 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 
 	public static final String PROPERTY_NAME_KEY = "pn";
 	public static final String VALUE_KEY = "v";
+
+	/**
+	 * Used for update that come from the browser.
+	 *
+	 * Key for a rowId that identifies the row of a property inside the child component for the foundset linked DP of the
+	 * component (that is linked to another property of type foundset inside the component itself).<br/></br>
+	 *
+	 * So for example you have a list form component that has in each cell a editable table component (which could work for example on a related foundset).
+	 * Then this key identifies the row in the related foundset for the column in the editable table that was changed on client.
+	 */
+	protected static final String ROW_ID_OF_PROP_INSIDE_COMPONENT = "_svyRowIdOfProp";
+
+	private static final String COMPONENT_SPEC_NAME = "componentDirectiveName";
 	// END keys and values used in JSON
 
 	protected long uniqueId = 1;
 
-	public ComponentPropertyType(PropertyDescription definition)
+	public ComponentPropertyType()
 	{
-		super(TYPE_NAME, definition);
+		super();
 	}
 
 	@Override
@@ -204,7 +220,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 
 	@Override
 	public JSONWriter toTemplateJSONValue(final JSONWriter writer, String key, ComponentTypeFormElementValue formElementValue, PropertyDescription pd,
-		DataConversion conversionMarkers, final FormElementContext formElementContext) throws JSONException
+		final FormElementContext formElementContext) throws JSONException
 	{
 		if (formElementValue == null) return writer;
 
@@ -214,8 +230,6 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		{
 			return writer;
 		}
-
-		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
 		// create children of component as specified by this property
 		final FormElementContext feContext = new FormElementContext(formElementValue.element, formElementContext.getContext(), null);
@@ -232,7 +246,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 				// TODO here we could remove record based props from fe.propertiesForTemplateJSON(); but normally record based props will not write any value in template anyway
 				TypedData<Map<String, Object>> modelProperties = feContext.getFormElement().propertiesForTemplateJSON();
 				writer.object();
-				JSONUtils.writeDataWithConversions(FormElementToJSON.INSTANCE, writer, modelProperties.content, modelProperties.contentType, feContext);
+				JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, modelProperties.content, modelProperties.contentType, feContext);
 				writer.endObject();
 			}
 
@@ -248,19 +262,29 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		boolean writeViewportIfFoundsetBased)
 		throws JSONException
 	{
+		FormElement fe = componentFormElementContext.getFormElement();
 		if (forFoundsetPropertyType != null) writer.key(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME).value(forFoundsetPropertyType);
-		writer.key("componentDirectiveName").value(componentFormElementContext.getFormElement().getTypeName());
+
+		writer.key(COMPONENT_SPEC_NAME); // this is currently the spec.getName() which can also be used client-side to identify the client-side-types for this component
+		IPersist persist = formElementValue.element.getPersistIfAvailable();
+		if (persist instanceof TabPanel)
+		{
+			// special case for default/legacy tab panels (same persist can mean 1 of 2 spec files and 1 of 4 client side element types)
+			ChildrenJSONGenerator.handleTabpanelSpecNameAndElementName(writer, persist);
+		}
+		else writer.value(fe.getTypeName());
+
 		writer.key("name").value(componentFormElementContext.getName());
 
-		if (componentFormElementContext.getFormElement().getPropertyValue("componentIndex") != null)
+		if (fe.getPropertyValue("componentIndex") != null)
 		{
-			writer.key("componentIndex").value(componentFormElementContext.getFormElement().getPropertyValue("componentIndex"));
+			writer.key("componentIndex").value(fe.getPropertyValue("componentIndex"));
 		}
-		if (componentFormElementContext.getFormElement().getPropertyValue("headerIndex") != null)
+		if (fe.getPropertyValue("headerIndex") != null)
 		{
-			writer.key("headerIndex").value(componentFormElementContext.getFormElement().getPropertyValue("headerIndex"));
+			writer.key("headerIndex").value(fe.getPropertyValue("headerIndex"));
 		}
-		AngularFormGenerator.writePosition(writer, formElementValue.element.getPersistIfAvailable(),
+		AngularFormGenerator.writePosition(writer, persist,
 			componentFormElementContext.getContext().getForm().getForm(), null, formElementValue.element.isInDesigner());
 
 		writer.key("model");
@@ -270,19 +294,17 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		}
 		catch (JSONException | IllegalArgumentException e)
 		{
-			Debug.error("Problem detected when handling a component's (" + componentFormElementContext.getFormElement().getTagname() + ") properties / events.",
-				e);
+			Debug.error("Problem detected when handling a component's (" + fe.getTagname() + ") properties / events.", e);
 			throw e;
 		}
 
 		writer.key("handlers").object();
-		for (WebObjectFunctionDefinitionWrapper handlerDef : componentFormElementContext.getFormElement().getHandlersDefinitions())
+		for (String handleMethodName : fe.getHandlers())
 		{
-			writer.key(handlerDef.getName());
+			writer.key(handleMethodName);
 			JSONObject handlerInfo = new JSONObject();
-			handlerInfo.put("formName", componentFormElementContext.getFormElement().getForm().getName());
+			handlerInfo.put("formName", fe.getForm().getName());
 			handlerInfo.put("beanName", componentFormElementContext.getName());
-			handlerInfo.put("ignoreNGBlockDuplicateEvents", handlerDef.getIgnoreNGBlockDuplicateEvents());
 			writer.value(handlerInfo);
 		}
 		writer.endObject();
@@ -335,38 +357,38 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	}
 
 	@Override
-	public JSONWriter initialToJSON(JSONWriter writer, String key, ComponentTypeSabloValue sabloValue, PropertyDescription pd, DataConversion clientConversion,
+	public JSONWriter initialToJSON(JSONWriter writer, String key, ComponentTypeSabloValue sabloValue, PropertyDescription pd,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		// this sends a diff update between the value it has in the template and the initial data requested after runtime components were created or during a page refresh.
 		if (sabloValue != null)
 		{
 			JSONUtils.addKeyIfPresent(writer, key);
-			sabloValue.initialToJSON(writer, clientConversion, this);
+			sabloValue.initialToJSON(writer, this);
 		}
 		return writer;
 	}
 
 	@Override
-	public JSONWriter changesToJSON(JSONWriter writer, String key, ComponentTypeSabloValue sabloValue, PropertyDescription pd, DataConversion clientConversion,
+	public JSONWriter changesToJSON(JSONWriter writer, String key, ComponentTypeSabloValue sabloValue, PropertyDescription pd,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{
 			JSONUtils.addKeyIfPresent(writer, key);
-			sabloValue.changesToJSON(writer, clientConversion, this);
+			sabloValue.changesToJSON(writer, this);
 		}
 		return writer;
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, ComponentTypeSabloValue sabloValue, PropertyDescription pd, DataConversion clientConversion,
+	public JSONWriter toJSON(JSONWriter writer, String key, ComponentTypeSabloValue sabloValue, PropertyDescription pd,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{
 			JSONUtils.addKeyIfPresent(writer, key);
-			sabloValue.fullToJSON(writer, clientConversion, this);
+			sabloValue.fullToJSON(writer, this);
 		}
 		return writer;
 	}
@@ -374,7 +396,7 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 	@Override
 	public boolean isValueAvailableInRhino(ComponentTypeSabloValue webComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext)
 	{
-		return false;
+		return webComponentValue != null && webComponentValue.getChildComponent() != null;
 	}
 
 	@Override
@@ -410,4 +432,13 @@ public class ComponentPropertyType extends CustomJSONPropertyType<ComponentTypeS
 		if (currentValue != null) currentValue.resetI18nValue();
 		return currentValue;
 	}
+
+	@Override
+	public boolean writeClientSideTypeName(JSONWriter w, String keyToAddTo, PropertyDescription pd)
+	{
+		JSONUtils.addKeyIfPresent(w, keyToAddTo);
+		w.value(TYPE_NAME);
+		return true;
+	}
+
 }

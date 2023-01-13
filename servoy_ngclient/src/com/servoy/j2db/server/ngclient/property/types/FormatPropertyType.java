@@ -35,7 +35,6 @@ import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,8 +131,7 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 	@Override
 	// @formatter:off
 	public JSONWriter toJSON(JSONWriter writer, String key, FormatTypeSabloValue formatValue,
-		PropertyDescription pdd/* if this arg is needed in the future please also handle it in foundset property type! that uses null */,
-		DataConversion cc/* if this arg is needed in the future please also handle it in foundset property type! then that will need to handle client side conversions as well */,
+		PropertyDescription ppdd/* if this arg is needed in the future please also handle it in foundset property type! that uses null */,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	// @formatter:on
 	{
@@ -148,11 +146,10 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 			return writer;
 		}
 
-		return writeComponentFormatToJSON(writer, key, formatValue.getComponentFormat(), cc, dataConverterContext);
+		return writeComponentFormatToJSON(writer, key, formatValue.getComponentFormat(), dataConverterContext);
 	}
 
-	public JSONWriter writeComponentFormatToJSON(JSONWriter writer, String key, ComponentFormat format, DataConversion dataConversions,
-		IBrowserConverterContext dataConverterContext)
+	public JSONWriter writeComponentFormatToJSON(JSONWriter writer, String key, ComponentFormat format, IBrowserConverterContext dataConverterContext)
 	{
 		Map<String, Object> map = new HashMap<>();
 		String type = Column.getDisplayTypeString(format.uiType);
@@ -212,7 +209,7 @@ public class FormatPropertyType extends DefaultPropertyType<FormatTypeSabloValue
 		if (isAllUppercase) map.put("uppercase", Boolean.valueOf(isAllUppercase));
 		else if (isAllLowercase) map.put("lowercase", Boolean.valueOf(isAllLowercase));
 
-		return JSONUtils.toBrowserJSONFullValue(writer, key, map, null, dataConversions, null); // here dataConversions is not used I think, could be null
+		return JSONUtils.toBrowserJSONFullValue(writer, key, map, null, null);
 	}
 
 	@Override

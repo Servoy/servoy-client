@@ -38,7 +38,6 @@ import org.sablo.IPropertyDescriptionProvider;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
@@ -433,6 +432,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	// valuelist should parse the same way as the dataprovider, so if use local date is set also send the valuelist stuff over as local times without the timezone
 	private Object convertDate(Object o)
 	{
+		// TODO shouldn't we reuse NGDatePropertyType somehow here? also shouldn't we send client side type (so that browser can convert it back to a Date, not keep it as String? - have to check how components work currently with this)
 		if (o instanceof Date)
 		{
 			OffsetDateTime offsetDT = OffsetDateTime.ofInstant(((Date)o).toInstant(), ZoneId.systemDefault());
@@ -553,8 +553,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		previousRecord = record;
 	}
 
-	public void toJSON(JSONWriter writer, String key, DataConversion clientConversion, IBrowserConverterContext dataConverterContext)
-		throws IllegalArgumentException, JSONException
+	public void toJSON(JSONWriter writer, String key, IBrowserConverterContext dataConverterContext) throws IllegalArgumentException, JSONException
 	{
 		if (!initialized)
 		{
@@ -567,8 +566,6 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			writer.value(null);
 			return;
 		}
-		if (clientConversion != null) clientConversion.convert(ValueListPropertyType.TYPE_NAME);
-		DataConversion clientConversionsInsideValuelist = new DataConversion();
 		if (key != null) writer.key(key);
 
 		if (displayValue != NULL_VALUE)
@@ -581,7 +578,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 				handledIDForResponse = null;
 			}
 			writer.key(DISPLAYVALUE);
-			JSONUtils.toBrowserJSONFullValue(writer, null, displayValue, null, clientConversionsInsideValuelist, dataConverterContext);
+			JSONUtils.toBrowserJSONFullValue(writer, null, (displayValue instanceof Date) ? convertDate(displayValue) : displayValue, null,
+				dataConverterContext);
 			writer.endObject();
 
 			displayValue = NULL_VALUE;
@@ -605,16 +603,16 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			writer.key("hasRealValues");
 			writer.value(valueList.hasRealValues());
 			writer.key("values");
-			JSONUtils.toBrowserJSONFullValue(writer, null, newJavaValueForJSON, null, clientConversionsInsideValuelist, dataConverterContext);
+			JSONUtils.toBrowserJSONFullValue(writer, null, newJavaValueForJSON, null, dataConverterContext);
 			writer.endObject();
 		}
 
 		changeMonitor.clearChanges();
 	}
 
-	public void changesToJSON(JSONWriter writer, String key, DataConversion clientConversion, IBrowserConverterContext dataConverterContext)
+	public void changesToJSON(JSONWriter writer, String key, IBrowserConverterContext dataConverterContext)
 	{
-		if (changeMonitor.isChanged()) toJSON(writer, key, clientConversion, dataConverterContext); // sends whole value but only if it was actually changed
+		if (changeMonitor.isChanged()) toJSON(writer, key, dataConverterContext); // sends whole value but only if it was actually changed
 	}
 
 	private void revertFilter()

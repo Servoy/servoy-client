@@ -21,19 +21,25 @@ import org.json.JSONException;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGApplication;
 
 /**
+ * A type for string representation of JS code set on the server that is meant to run directly on client/inside the browser.
+ *
+ * In NG1 it remains to operate just like a TagStringPropertyType - and client will call JS eval on the property's string value.</br>
+ * But in NG2 this is smarter and avoids the need to an eval client-side; it just sends an UUID and generates a script file (identified based on that UUID on client)
+ * from the actual function string (prop. value).
+ *
  * @author jcompagner
  * @since 2021.03
  */
 @SuppressWarnings("nls")
-public class ClientFunctionPropertyType extends TagStringPropertyType
+public class ClientFunctionPropertyType extends TagStringPropertyType implements IPropertyWithClientSideConversions<BasicTagStringTypeSabloValue>
 {
 	public static final ClientFunctionPropertyType CLIENT_FUNCTION_INSTANCE = new ClientFunctionPropertyType();
 	public static final String CLIENT_FUNCTION_TYPE_NAME = "clientfunction";
@@ -60,7 +66,7 @@ public class ClientFunctionPropertyType extends TagStringPropertyType
 
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, BasicTagStringTypeSabloValue object, PropertyDescription pd, DataConversion clientConversion,
+	public JSONWriter toJSON(JSONWriter writer, String key, BasicTagStringTypeSabloValue object, PropertyDescription pd,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (object != null)
@@ -68,21 +74,32 @@ public class ClientFunctionPropertyType extends TagStringPropertyType
 			INGApplication application = object.getDataAdapterList().getApplication();
 			if (application.getRuntimeProperties().containsKey("NG2"))
 			{
-				clientConversion.convert("clientfunction");
 				JSONUtils.addKeyIfPresent(writer, key);
 				String uuid = application.registerClientFunction(object.getTagReplacedValue());
 				writer.value(uuid);
 				return writer;
 			}
 		}
-		return super.toJSON(writer, key, object, pd, clientConversion, dataConverterContext);
+		return super.toJSON(writer, key, object, pd, dataConverterContext);
 	}
 
 	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd, FormElementContext formElementContext)
+		throws JSONException
 	{
 		// should not be called, to template is not supported
 		return writer;
 	}
+
+	@Override
+	public boolean writeClientSideTypeName(JSONWriter w, String keyToAddTo, PropertyDescription pd)
+	{
+		// we don't (currently) have here the application instance, so we can't not send the type for NG1; but NG1 has a dummy impl. of client side type
+		// that will not do anything with the value, just return it unconverted as it comes from the server;
+		// NG2 does need the client-side conversion
+		JSONUtils.addKeyIfPresent(w, keyToAddTo);
+		w.value(CLIENT_FUNCTION_TYPE_NAME);
+		return true;
+	}
+
 }

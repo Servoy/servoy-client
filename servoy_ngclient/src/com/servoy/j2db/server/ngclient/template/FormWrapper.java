@@ -32,7 +32,6 @@ import javax.swing.border.Border;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONStringer;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.websocket.utils.JSONUtils;
@@ -291,12 +290,9 @@ public class FormWrapper
 	{
 		getBaseComponents();
 		Map<String, Object> properties = getProperties();
-		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), properties, null, null).endObject().toString(); // null types as we don't have a spec file for forms
+		return JSONUtils.writeDataAsFullToJSON(properties, null, null); // null types as we don't have a .spec file for forms
 	}
 
-	/**
-	 * @return
-	 */
 	public Map<String, Object> getProperties()
 	{
 		Map<String, Object> properties = form.getFlattenedPropertiesMap(); // a copy of form properties
@@ -397,10 +393,8 @@ public class FormWrapper
 		for (FormElement fe : getAbsoluteLayoutElements())
 		{
 			sizes.put(fe.getName(), ((LayoutContainer)fe.getPersistIfAvailable().getParent()).getSize());
-
 		}
-		return JSONUtils.writeDataWithConversions(new JSONStringer().object(), sizes, null, null).endObject().toString();
-
+		return JSONUtils.writeDataAsFullToJSON(sizes, null, null);
 	}
 
 	public List<FormElement> getAbsoluteLayoutElements()

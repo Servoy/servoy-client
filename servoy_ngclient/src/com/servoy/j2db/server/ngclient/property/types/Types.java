@@ -76,6 +76,7 @@ public class Types
 		TypesRegistry.addType(FindModePropertyType.INSTANCE);
 		TypesRegistry.addType(ReadonlyPropertyType.INSTANCE);
 
+		TypesRegistry.addType(NGObjectPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGEnabledPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGColorPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGDatePropertyType.NG_INSTANCE);
@@ -90,7 +91,7 @@ public class Types
 		TypesRegistry.addType(VariantPropertyType.INSTANCE);
 		TypesRegistry.addType(NGStyleClassPropertyType.NG_INSTANCE);
 
-		// TODO allow bean developer through a sort of plug point to contribute these kind of types themselfes
+		// TODO allow bean developer through a sort of plug point to contribute these kind of types themselves
 		TypesRegistry.addType(FoundsetPropertyType.INSTANCE);
 		TypesRegistry.addType(ComponentPropertyType.INSTANCE);
 

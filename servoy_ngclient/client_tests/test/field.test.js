@@ -7,7 +7,7 @@ describe('servoydefaultTextfield component', function() {
 	var $timeout
 	var startEditCalls ={};
     var applyCalls = {}
-	var handlersMock = {			
+	var handlersMock = {		
     		myTextfield: {
 				svy_servoyApi: {
 					formWillShow: function(formname,relationname,formIndex) {

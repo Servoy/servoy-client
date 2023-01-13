@@ -86,7 +86,7 @@ public class FormLayoutGenerator
 		if (o instanceof IBasicWebComponent)
 		{
 			String componentType = FormTemplateGenerator.getComponentTypeName(o);
-			WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(
+			WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(
 				componentType);
 			if (spec != null)
 			{

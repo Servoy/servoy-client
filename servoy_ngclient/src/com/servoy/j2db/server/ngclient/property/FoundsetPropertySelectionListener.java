@@ -72,4 +72,10 @@ final class FoundsetPropertySelectionListener implements ListSelectionListener
 		this.ignoreSelectionChanges = false;
 	}
 
+	@Override
+	public String toString()
+	{
+		return "FPSL: CM:" + changeMonitor + ", VP:" + viewPort;
+	}
+
 }

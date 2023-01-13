@@ -37,8 +37,6 @@ import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.TypedData;
-import org.sablo.websocket.impl.ClientService;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
@@ -117,11 +115,6 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 	private final boolean designer;
 	private static final String TAG_DIRECT_EDIT = "directEdit";
 
-	/**
-	 * @param writer
-	 * @param client
-	 * @param cachedFormController
-	 */
 	public ChildrenJSONGenerator(JSONWriter writer, ServoyDataConverterContext context, Object skip, IFormElementCache cache, Part part, Form form,
 		boolean mainFormGeneration, boolean designer)
 	{
@@ -290,75 +283,65 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		writer.key("name");
 		String name = designer ? fe.getDesignId() : fe.getName();
 		writer.value(name);
-		writer.key("type");
+		writer.key("specName");
 		if (o instanceof TabPanel)
 		{
-			// special support for TabPanel so that we have a specific tabpanel,tablesspanel,accordion and splitpane
-			String type = "servoydefault-tabpanel";
-			int orient = ((TabPanel)o).getTabOrientation();
-			if (orient == TabPanel.SPLIT_HORIZONTAL || orient == TabPanel.SPLIT_VERTICAL) type = "servoydefault-splitpane";
-			else if (orient == TabPanel.ACCORDION_PANEL) type = "servoydefault-accordion";
-			else if (orient == TabPanel.HIDE || (orient == TabPanel.DEFAULT_ORIENTATION && ((TabPanel)o).hasOneTab()))
-				type = "servoydefault-tablesspanel";
-			writer.value(ClientService.convertToJSName(type));
+			handleTabpanelSpecNameAndElementName(writer, o);
 		}
 		else
 		{
 			// hack for now to map it to the types that we know are there, so that we can test responsive without really already having to have bootstrap components.
-			writer.value(ClientService.convertToJSName(FormTemplateGenerator.getComponentTypeName((IFormElement)o)));
+			writer.value(FormTemplateGenerator.getComponentTypeName((IFormElement)o));
 		}
 		WebFormComponent webComponent = (formUI != null) ? formUI.getWebComponent(fe.getName()) : null;
 
 		AngularFormGenerator.writePosition(writer, o, form, webComponent, designer);
 		writer.key("model");
 		writer.object();
-		DataConversion dataConversion = new DataConversion();
-		if (formUI != null)
-		{
-			// there is a existing form, take the current properties from that.
-			if (webComponent != null)
-			{
-				TypedData<Map<String, Object>> properties = webComponent.getProperties();
-				TypedData<Map<String, Object>> templateProperties = fe.propertiesForTemplateJSON();
-				// remove from the templates properties all the properties that are current "live" in the component
-				templateProperties.content.keySet().removeAll(properties.content.keySet());
 
-				// write the template properties that are left
-				JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType, dataConversion,
-					new FormElementContext(fe, context, null));
-				// write the actual values
-				webComponent.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, properties, dataConversion);
-			}
-			else
+		if (designer || webComponent == null)
+		{
+			// can webcomponnt be null in actual client ?
+			TypedData<Map<String, Object>> templateProperties = fe.propertiesForTemplateJSON();
+
+			if (designer)
 			{
-				System.err.println("null");
+				fe.getWebComponentSpec().getProperties().values().forEach(pd -> {
+					if (pd.getType() instanceof IDesignerDefaultWriter)
+					{
+						((IDesignerDefaultWriter)pd.getType()).toDesignerDefaultJSONValue(writer, pd.getName());
+						templateProperties.content.keySet().remove(pd.getName());
+					}
+				});
+			}
+
+			JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType,
+				new FormElementContext(fe, context, null));
+			if (designer)
+			{
+				writer.key("svyVisible").value(fe.isVisible()); // see fe.propertiesAsTemplateJSON(JSONWriter writer, FormElementContext context, boolean writeAsValue) which does the same
+
+				if (Utils.isInheritedFormElement(o, form))
+				{
+					writer.key("svyInheritedElement");
+					writer.value(true);
+				}
 			}
 		}
 		else
 		{
+			TypedData<Map<String, Object>> properties = webComponent.getProperties();
 			TypedData<Map<String, Object>> templateProperties = fe.propertiesForTemplateJSON();
+			// remove from the templates properties all the properties that are current "live" in the component
+			templateProperties.content.keySet().removeAll(properties.content.keySet());
 
+			// write the template properties that are left
 			JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType,
-				dataConversion, new FormElementContext(fe, context, null));
-			if (designer) writer.key("svyVisible").value(fe.isVisible());
+				new FormElementContext(fe, context, null));
+			// write the actual values
+			webComponent.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, properties);
+		}
 
-			if (designer && Utils.isInheritedFormElement(o, form))
-			{
-				writer.key("svyInheritedElement");
-				writer.value(true);
-			}
-		}
-		if (designer)
-		{
-			fe.getWebComponentSpec().getProperties().values().forEach(pd -> {
-				if (pd.getType() instanceof IDesignerDefaultWriter)
-					((IDesignerDefaultWriter)pd.getType()).toDesignerDefaultJSONValue(writer, pd.getName(), dataConversion);
-			});
-		}
-		if (!dataConversion.getConversions().isEmpty())
-		{
-			JSONUtils.writeClientConversions(writer, dataConversion);
-		}
 		if (o instanceof BaseComponent)
 		{
 			writer.key("servoyAttributes");
@@ -433,6 +416,25 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			}
 			writer.endArray();
 		}
+	}
+
+	public static void handleTabpanelSpecNameAndElementName(JSONWriter writer, IPersist o)
+	{
+		// special support for TabPanel so that we have a specific tabpanel, tablesspanel, accordion and splitpane
+
+		// default splitpane has a different .spec file (but still TabPanelPersist)
+		// default tabpanel, tablesspanel, accordion all share the tabpanel spec file but with different element/tag names on client
+
+		String elementTypeForClient = null;
+		String specName = "servoydefault-tabpanel";
+		int orient = ((TabPanel)o).getTabOrientation();
+		if (orient == TabPanel.SPLIT_HORIZONTAL || orient == TabPanel.SPLIT_VERTICAL) specName = "servoydefault-splitpane";
+		else if (orient == TabPanel.ACCORDION_PANEL) elementTypeForClient = "servoydefault-accordion";
+		else if (orient == TabPanel.HIDE || (orient == TabPanel.DEFAULT_ORIENTATION && ((TabPanel)o).hasOneTab()))
+			elementTypeForClient = "servoydefault-tablesspanel";
+
+		writer.value(specName);
+		if (elementTypeForClient != null) writer.key("elType").value(elementTypeForClient);
 	}
 
 	public static void writeLayoutContainer(JSONWriter writer, LayoutContainer layoutContainer, WebFormUI formUI, Form form, boolean designer)
@@ -543,7 +545,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			Dimension sizePropValue = layoutContainer.hasProperty(IContentSpecConstantsBase.PROPERTY_SIZE) ? layoutContainer.getSize() : null;
 			if (sizePropValue != null)
 			{
-				DimensionPropertyType.INSTANCE.toJSON(writer, IContentSpecConstantsBase.PROPERTY_SIZE, sizePropValue, null, null, null);
+				DimensionPropertyType.INSTANCE.toJSON(writer, IContentSpecConstantsBase.PROPERTY_SIZE, sizePropValue, null, null);
 			}
 			else if (spec != null)
 			{
@@ -556,7 +558,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				else
 				{
 					// no default in spec, property not set in form designer => use default from AbstractContainer.getSize()
-					DimensionPropertyType.INSTANCE.toJSON(writer, IContentSpecConstantsBase.PROPERTY_SIZE, layoutContainer.getSize(), null, null, null);
+					DimensionPropertyType.INSTANCE.toJSON(writer, IContentSpecConstantsBase.PROPERTY_SIZE, layoutContainer.getSize(), null, null);
 				}
 			}
 		}
@@ -579,4 +581,5 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		}
 		return null;
 	}
+
 }

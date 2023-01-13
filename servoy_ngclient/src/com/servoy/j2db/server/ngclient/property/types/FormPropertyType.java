@@ -28,7 +28,6 @@ import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.CurrentWindow;
-import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
@@ -97,8 +96,8 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, Object sabloValue, PropertyDescription pd, DataConversion clientConversion,
-		IBrowserConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, Object sabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+		throws JSONException
 	{
 		if (key != null)
 		{
@@ -196,8 +195,8 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 	}
 
 	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd, FormElementContext formElementContext)
+		throws JSONException
 	{
 		if (formElementValue == null) return writer;
 

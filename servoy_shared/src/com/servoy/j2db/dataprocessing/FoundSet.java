@@ -5953,31 +5953,31 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		SafeArrayList<IRecordInternal> cachedRecords = getPksAndRecords().getCachedRecords();
 		PKDataSet pks = getPksAndRecords().getPks();
-		int start = (hintStart < 0 || hintStart > pks.getRowCount()) ? 0 : hintStart;
 
+		// an effort to find the record faster follows:
+		// first look directly at hint (which is the record's index when it was sent to browser initially; meanwhile it might have changed)
+		if (checkThatRecordPKHashMatches(pkHash, cachedRecords, pks, startHint)) return startHint;
+
+		// then start a bit above hint and go to 0
+		int start = (hintStart < 0 || hintStart > pks.getRowCount()) ? 0 : hintStart;
 		for (int i = start; --i >= 0;)
-		{
-			String recordPkHash = null;
-			IRecordInternal record = cachedRecords.get(i);
-			if (record != null) recordPkHash = record.getPKHashKey();
-			else recordPkHash = RowManager.createPKHashKey(pks.getRow(i));
-			if (pkHash.equals(recordPkHash))
-			{
-				return i;
-			}
-		}
+			if (i != startHint && checkThatRecordPKHashMatches(pkHash, cachedRecords, pks, i)) return i;
+
+		// check the rest of them
 		for (int i = start; i < pks.getRowCount(); i++)
-		{
-			String recordPkHash = null;
-			IRecordInternal record = cachedRecords.get(i);
-			if (record != null) recordPkHash = record.getPKHashKey();
-			else recordPkHash = RowManager.createPKHashKey(pks.getRow(i));
-			if (pkHash.equals(recordPkHash))
-			{
-				return i;
-			}
-		}
+			if (checkThatRecordPKHashMatches(pkHash, cachedRecords, pks, i)) return i;
+
 		return -1;
+	}
+
+	private boolean checkThatRecordPKHashMatches(String pkHash, SafeArrayList<IRecordInternal> cachedRecords, PKDataSet pks, int i)
+	{
+		String recordPkHash = null;
+		IRecordInternal record = cachedRecords.get(i);
+		if (record != null) recordPkHash = record.getPKHashKey();
+		else recordPkHash = RowManager.createPKHashKey(pks.getRow(i));
+
+		return pkHash.equals(recordPkHash);
 	}
 
 	/**

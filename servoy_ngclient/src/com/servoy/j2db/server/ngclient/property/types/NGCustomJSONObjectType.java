@@ -41,7 +41,6 @@ import org.sablo.specification.property.CustomJSONObjectType;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IWrappingContext;
 import org.sablo.specification.property.WrappingContext;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
@@ -151,40 +150,29 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Map<String, FormElementT> formElementValue, PropertyDescription pd,
-		DataConversion conversionMarkers, FormElementContext formElementContext) throws JSONException
+		FormElementContext formElementContext) throws JSONException
 	{
 		// only send template in designer
 		if (formElementValue == null || formElementContext == null || formElementContext.getFormElement() == null ||
 			!formElementContext.getFormElement().isInDesigner()) return writer;
 
 		JSONUtils.addKeyIfPresent(writer, key);
-		if (conversionMarkers != null) conversionMarkers.convert(CustomJSONObjectType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
 		writer.object().key(CONTENT_VERSION).value(1).key(VALUE).object();
-		DataConversion arrayConversionMarkers = new DataConversion();
 		for (Entry<String, FormElementT> e : formElementValue.entrySet())
 		{
-			arrayConversionMarkers.pushNode(e.getKey());
 			NGConversions.INSTANCE.convertFormElementToTemplateJSONValue(writer, e.getKey(), e.getValue(),
-				getCustomJSONTypeDefinition().getProperty(e.getKey()), arrayConversionMarkers, formElementContext);
-			arrayConversionMarkers.popNode();
+				getCustomJSONTypeDefinition().getProperty(e.getKey()), formElementContext);
 		}
-		writer.endObject();
-		if (arrayConversionMarkers.getConversions().size() > 0)
-		{
-			writer.key(JSONUtils.TYPES_KEY).object();
-			JSONUtils.writeConversions(writer, arrayConversionMarkers.getConversions());
-			writer.endObject();
-		}
-		writer.endObject();
+		writer.endObject().endObject();
 		return writer;
 	}
 
 	@Override
 	public JSONWriter initialToJSON(JSONWriter writer, String key, ChangeAwareMap<SabloT, SabloWT> changeAwareMap, PropertyDescription pd,
-		DataConversion conversionMarkers, IBrowserConverterContext dataConverterContext) throws JSONException
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		return toJSON(writer, key, changeAwareMap, conversionMarkers, true, InitialToJSONConverter.INSTANCE, dataConverterContext);
+		return toJSON(writer, key, changeAwareMap, true, InitialToJSONConverter.INSTANCE, dataConverterContext);
 	}
 
 	@Override

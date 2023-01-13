@@ -18,7 +18,6 @@ import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyType;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.persistence.AbstractBase;
@@ -59,7 +58,7 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 
 	public WebFormComponent(String name, FormElement fe, IDataAdapterList dataAdapterList)
 	{
-		super(name, WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(fe.getTypeName()), true);
+		super(name, WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(fe.getTypeName()), true);
 
 		this.formElement = fe;
 		this.dataAdapterList = dataAdapterList;
@@ -407,13 +406,12 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	}
 
 	@Override
-	protected boolean writeComponentProperties(JSONWriter w, IToJSONConverter<IBrowserConverterContext> converter, String nodeName,
-		DataConversion clientDataConversions) throws JSONException
+	protected boolean writeComponentProperties(JSONWriter w, IToJSONConverter<IBrowserConverterContext> converter, String nodeName) throws JSONException
 	{
 		try
 		{
 			isWritingComponentProperties = true;
-			return super.writeComponentProperties(w, converter, nodeName, clientDataConversions);
+			return super.writeComponentProperties(w, converter, nodeName);
 		}
 		finally
 		{

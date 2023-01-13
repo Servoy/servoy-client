@@ -27,8 +27,6 @@ import java.util.Map;
 import org.json.JSONWriter;
 import org.sablo.Container;
 import org.sablo.websocket.TypedData;
-import org.sablo.websocket.utils.DataConversion;
-import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
@@ -70,11 +68,6 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 	private final boolean isDesigner;
 	private final LayoutContainer zoomedInContainer;
 
-	/**
-	 * @param client
-	 * @param form
-	 * @param realFormName
-	 */
 	public AngularFormGenerator(NGClient client, Form form, String realFormName, boolean isDesigner)
 	{
 		this.client = client;
@@ -142,16 +135,16 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		Map<String, Object> containerProperties = null;
 		if (cachedFormController != null && cachedFormController.getFormUI() instanceof Container)
 		{
+			// write the properties of the formUI itself using an already present form controller
 			Container con = (Container)cachedFormController.getFormUI();
-			DataConversion dataConversion = new DataConversion();
 			TypedData<Map<String, Object>> typedProperties = con.getProperties();
-			con.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, typedProperties, dataConversion);
-			JSONUtils.writeClientConversions(writer, dataConversion);
+			con.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, typedProperties);
 			containerProperties = typedProperties.content;
 		}
 		final Map<String, Object> finalContainerProperties = containerProperties;
 		if (formWrapper != null)
 		{
+			// write the remaining (not already written) properties of the form using FormWrapper
 			Map<String, Object> properties = formWrapper.getProperties();
 			Object styleclass = properties.get(IContentSpecConstants.PROPERTY_STYLECLASS);
 			if (form.isResponsiveLayout())
@@ -215,22 +208,24 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		writer.endObject();
 		if (form.isResponsiveLayout())
 		{
+			// write form contents (layout / components)
 			if (zoomedInContainer != null)
 			{
 				zoomedInContainer.acceptVisitor(new ChildrenJSONGenerator(writer,
-					getAContext(), form, null,
+					servoyDataConverterContext, form, null,
 					null, form, true, isDesigner), PositionComparator.XY_PERSIST_COMPARATOR);
 			}
 			else
 			{
 				form.acceptVisitor(new ChildrenJSONGenerator(writer,
-					getAContext(), form, null,
+					servoyDataConverterContext, form, null,
 					null, form, true, isDesigner), PositionComparator.XY_PERSIST_COMPARATOR);
 			}
 
 		}
 		else
 		{
+			// write form contents (part / components)
 			Iterator<Part> it = form.getParts();
 			while (it.hasNext())
 			{
@@ -309,11 +304,6 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		return stringWriter.toString();
 	}
 
-
-	/**
-	 * @param writer
-	 * @param o
-	 */
 	@SuppressWarnings("nls")
 	public static void writePosition(JSONWriter writer, IPersist o, Form form, WebFormComponent webComponent, boolean isDesigner)
 	{
@@ -418,13 +408,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		}
 	}
 
-	/**
-	 * @param writer
-	 * @param o
-	 * @param form
-	 * @param isDesigner
-	 * @param position
-	 */
+	@SuppressWarnings("nls")
 	public static void writeCSSPosition(JSONWriter writer, ISupportCSSPosition o, Form form, boolean isDesigner, CSSPosition position)
 	{
 		writer.key("position");
@@ -537,4 +521,5 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 	{
 		return false;
 	}
+
 }

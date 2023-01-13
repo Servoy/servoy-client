@@ -32,6 +32,7 @@ import javax.swing.event.TableModelListener;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONString;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IChangeListener;
@@ -43,14 +44,12 @@ import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.ArrayOperation;
 import org.sablo.specification.property.BrowserConverterContext;
-import org.sablo.specification.property.CustomJSONPropertyType;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.types.EnabledPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
-import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
+import org.sablo.websocket.utils.JSONUtils.IJSONStringWithClientSideType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,15 +96,21 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 	public static final String FORM_FOUNDSET_SELECTOR = "";
 
-	protected static final Logger log = LoggerFactory.getLogger(CustomJSONPropertyType.class.getCanonicalName());
-	protected static final String PUSH_TO_SERVER = "w";
+	protected static final Logger log = LoggerFactory.getLogger(FoundsetPropertyType.class.getCanonicalName());
 
 	/**
 	 * Column that is always automatically sent for each record in a foundset's viewport. It's value
 	 * uniquely identifies that record.
 	 */
 	public static final String ROW_ID_COL_KEY = "_svyRowId";
-	public static final String ROW_ID_COL_KEY_PARTIAL_UPDATE = "_svyRowId_p"; // when writing foundset row updates to client, if we send full row (all columns), then ROW_ID_COL_KEY is used; but if we send only partial (some columns) updates for that row, the pk is only written again using ROW_ID_COL_KEY_PARTIAL_UPDATE if one of the written columns is a pk; this is for a client-side viewport 'if' that needs to differentiate between the two
+
+	/**
+	 * This key/column should be stored as $foundsetTypeConstants.ROW_ID_COL_KEY in the actual client side row, but this key is sent from server when the foundset property is sending
+	 * just a partial update, but some of the columns that did change are also pks so they do affect the pk hash; client uses this to distiguish between a full
+	 * update of a row and a partial update of a row; so if update has $foundsetTypeConstants.ROW_ID_COL_KEY it will consider it to be a full update,
+	 * and if it has either ROW_ID_COL_KEY_PARTIAL_UPDATE or no rowID then it is a partial update of a row (only some of the columns in that row have changed).
+	 */
+	public static final String ROW_ID_COL_KEY_PARTIAL_UPDATE = "_svyRowId_p";
 
 
 	public static final String DATAPROVIDER_KEY = "dp";
@@ -260,15 +265,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 //			dataProviders: 'dataprovider[]'
 //		}
 		updateFoundset((IRecordInternal)null);
-		if (designJSONValue != null)
-		{
-			JSONObject designValue = (JSONObject)designJSONValue;
-			JSONObject dataProvidersJSON = designValue.optJSONObject(FoundsetPropertyType.DATAPROVIDERS_KEY_FOR_DESIGN);
-			if (dataProvidersJSON != null)
-			{
-				changeMonitor.dataProvidersChanged();
-			}
-		}
 
 		// register parent record changed listener
 		if (parentDAL != null)
@@ -565,20 +561,13 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		}
 	}
 
-	public JSONWriter toJSON(JSONWriter destinationJSON, DataConversion conversionMarkers, IBrowserConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter destinationJSON, IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		// TODO conversion markers should never be null I think, but it did happen (due to JSONUtils.toJSONValue(JSONWriter writer, Object value, IForJsonConverter forJsonConverter, ConversionLocation toDestinationType); will create a case for that
-		if (conversionMarkers != null) conversionMarkers.convert(FoundsetPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
-
 		rowDataProvider.initializeIfNeeded(dataConverterContext);
 
 		destinationJSON.object();
 
 		PushToServerEnum pushToServer = BrowserConverterContext.getPushToServerValue(dataConverterContext);
-		if (pushToServer == PushToServerEnum.shallow || pushToServer == PushToServerEnum.deep)
-		{
-			destinationJSON.key(PUSH_TO_SERVER).value(pushToServer == PushToServerEnum.shallow ? false : true);
-		}
 
 		destinationJSON.key(SERVER_SIZE).value(getFoundset() != null ? getFoundset().getSize() : 0);
 		if (getFoundset() != null) destinationJSON.key(FOUNDSET_ID).value(getFoundset().getID());
@@ -614,7 +603,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 				for (Entry<String, ComponentFormat> columnFormat : columnFormats.entrySet())
 				{
-					formatPropertyType.writeComponentFormatToJSON(destinationJSON, columnFormat.getKey(), columnFormat.getValue(), null, dataConverterContext);
+					formatPropertyType.writeComponentFormatToJSON(destinationJSON, columnFormat.getKey(), columnFormat.getValue(), dataConverterContext);
 				}
 			} // else just an empty object if fine (but we do write it because when changing dataproviders from scripting it could change from something to null and the client should know about it)
 			destinationJSON.endObject();
@@ -632,16 +621,13 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 //	    ]
 		if (getFoundset() != null)
 		{
-			DataConversion clientConversionInfo = new DataConversion();
 
 			destinationJSON.key(ROWS);
-			clientConversionInfo.pushNode(ROWS);
-			rowDataProvider.writeRowData(viewPort.getStartIndex(), viewPort.getStartIndex() + viewPort.getSize() - 1, getFoundset(), destinationJSON,
-				clientConversionInfo);
-			clientConversionInfo.popNode();
+			ViewportClientSideTypes clientSideTypesForViewport = rowDataProvider.writeRowData(viewPort.getStartIndex(),
+				viewPort.getStartIndex() + viewPort.getSize() - 1, getFoundset(), destinationJSON);
 
-			// conversion info for websocket traffic (for example Date objects will turn into long)
-			JSONUtils.writeClientConversions(destinationJSON, clientConversionInfo);
+			// conversion info for websocket traffic (for example Date objects will turn into long or String to be usable in JSON and client-side needs to know about this)
+			if (clientSideTypesForViewport != null) clientSideTypesForViewport.writeClientSideTypes(destinationJSON, JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY);
 		}
 		else
 		{
@@ -672,14 +658,11 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 	}
 
-	public JSONWriter changesToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers, IBrowserConverterContext dataConverterContext)
-		throws JSONException
+	public JSONWriter changesToJSON(JSONWriter destinationJSON, IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		if (changeMonitor.shouldSendAll()) return toJSON(destinationJSON, conversionMarkers, dataConverterContext);
+		if (changeMonitor.shouldSendAll()) return toJSON(destinationJSON, dataConverterContext);
 		else
 		{
-			if (conversionMarkers != null) conversionMarkers.convert(FoundsetPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
-
 			rowDataProvider.initializeIfNeeded(dataConverterContext);
 
 			boolean somethingChanged = false;
@@ -701,16 +684,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				if (!somethingChanged) destinationJSON.object();
 				destinationJSON.key(UPDATE_PREFIX + FOUNDSET_DEFINITION).value(true);
 				somethingChanged = true;
-			}
-			if (changeMonitor.shouldSendPushToServer())
-			{
-				PushToServerEnum pushToServer = BrowserConverterContext.getPushToServerValue(dataConverterContext);
-				if (pushToServer == PushToServerEnum.shallow || pushToServer == PushToServerEnum.deep)
-				{
-					if (!somethingChanged) destinationJSON.object();
-					destinationJSON.key(UPDATE_PREFIX + PUSH_TO_SERVER).value(pushToServer == PushToServerEnum.shallow ? false : true);
-					somethingChanged = true;
-				}
 			}
 			if (changeMonitor.shouldSendFoundsetSort())
 			{
@@ -779,23 +752,15 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 						viewPortUpdateAdded = true;
 					}
 
-					DataConversion clientConversionInfo = new DataConversion();
-					clientConversionInfo.pushNode(UPDATE_PREFIX + ROWS);
 					destinationJSON.key(UPDATE_PREFIX + ROWS).array();
 
-					for (int i = 0; i < viewPortChanges.length; i++)
+					for (ArrayOperation viewPortChange : viewPortChanges)
 					{
-						clientConversionInfo.pushNode(String.valueOf(i));
-						FoundsetPropertyType.writeViewportOperationToJSON(viewPortChanges[i], rowDataProvider, foundset, viewPort.getStartIndex(),
-							destinationJSON, null, clientConversionInfo,
-							null);
-						clientConversionInfo.popNode();
+						FoundsetPropertyType.writeViewportOperationToJSON(viewPortChange, rowDataProvider, foundset, viewPort.getStartIndex(),
+							destinationJSON, null, null);
 					}
-					clientConversionInfo.popNode();
 					destinationJSON.endArray();
 
-					// conversion info for websocket traffic (for example Date objects will turn into long)
-					JSONUtils.writeClientConversions(destinationJSON, clientConversionInfo);
 					somethingChanged = true;
 				}
 				else changeMonitor.clearChanges(); // changes have to be cleared anyway
@@ -853,9 +818,11 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		return null;
 	}
 
-	protected void populateRowData(IRecordInternal record, Set<String> columnNames, JSONWriter w, DataConversion clientConversionInfo,
-		IBrowserConverterContext browserConverterContext) throws JSONException
+	protected void populateRowData(IRecordInternal record, Set<String> columnNames, JSONWriter w, IBrowserConverterContext browserConverterContext,
+		ViewportClientSideTypes types) throws JSONException
 	{
+		List<Pair<String/* forColumn */, JSONString/* type */>> typesOfColumns = null;
+
 		for (Entry<String, String> entry : dataproviders.entrySet())
 		{
 			String dataProvider = entry.getValue();
@@ -873,15 +840,27 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 				//					webObject));
 				//			}
 
-				clientConversionInfo.pushNode(entry.getKey());
 				if (value instanceof DbIdentValue)
 				{
 					value = ((DbIdentValue)value).getPkValue();
 				}
-				FullValueToJSONConverter.INSTANCE.toJSONValue(w, entry.getKey(), value, pd, clientConversionInfo, browserConverterContext);
-				clientConversionInfo.popNode();
+
+				w.key(entry.getKey());
+				IJSONStringWithClientSideType jsonValueRepresentationForWrappedValue = JSONUtils.FullValueToJSONConverter.INSTANCE
+					.getConvertedValueWithClientType(value, pd,
+						browserConverterContext, false);
+
+				w.value(jsonValueRepresentationForWrappedValue); // write it even if it is null
+				if (jsonValueRepresentationForWrappedValue != null && jsonValueRepresentationForWrappedValue.getClientSideType() != null)
+				{
+					Pair<String/* forColumn */, JSONString/* type */> cellType = new Pair<>(entry.getKey(),
+						jsonValueRepresentationForWrappedValue.getClientSideType());
+					if (typesOfColumns == null) typesOfColumns = new ArrayList<>();
+					typesOfColumns.add(cellType);
+				}
 			}
 		}
+		types.registerClientSideType(typesOfColumns);
 	}
 
 	private PropertyDescription getDataProviderPropertyDescription(String dataProvider)
@@ -1088,6 +1067,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 					}
 					else if (update.has(ViewportDataChangeMonitor.VIEWPORT_CHANGED))
 					{
+						boolean success = false;
 						if (PushToServerEnum.allow.compareTo(pushToServer) <= 0)
 						{
 							// {dataChanged: { ROW_ID_COL_KEY: rowIDValue, dataproviderName: value }}
@@ -1127,6 +1107,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 											try
 											{
 												record.setValue(dataProviderName, value);
+												success = true;
 											}
 											catch (IllegalArgumentException e)
 											{
@@ -1141,7 +1122,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 									finally
 									{
 										// if server denies the new value as invalid and doesn't change it, send it to the client so that it doesn't keep invalid value; the same if for example a double was rounded to an int
-										if (!Utils.equalObjects(record.getValue(dataProviderName), value) ||
+										if (!Utils.equalObjects(record.getValue(dataProviderName), value) || // TODO I think we can also use here !success instead of equalObjects(...)
 											returnValueAdjustedIncommingValueForRow.value.booleanValue())
 										{
 											changeMonitor.recordsUpdated(recordIndex, recordIndex, foundset.getSize(), viewPort,
@@ -1162,6 +1143,12 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 								") that doesn't define a suitable pushToServer value (allow/shallow/deep) tried to modify foundset dataprovider value serverside. Denying and sending back full viewport!");
 							changeMonitor.viewPortCompletelyChanged();
 						}
+
+						if (update.has(ID_KEY))
+						{
+							// it was called from client side public API "updateViewportRecord" that now returns a promise just like many of the other API calls; resolve/reject that
+							changeMonitor.requestIdHandled(update.getInt(ID_KEY), success);
+						} // else it was called from an angular watch - it doesn't have any defers client-side so no ID_KEY for message; no ID to send back then
 					}
 				}
 			}
@@ -1235,7 +1222,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	@Override
 	public String toString()
 	{
-		return "Foundset '" + (foundset != null ? foundset.getDataSource() : null) + " on property '" + propertyName +
+		return "FoundsetPT:  '" + (foundset != null ? foundset.getDataSource() : null) + " on property '" + propertyName +
 			"': foundset type property on component " +
 			(webObjectContext != null ? webObjectContext.getUnderlyingWebObject().getName() : "- not yet attached -");
 	}

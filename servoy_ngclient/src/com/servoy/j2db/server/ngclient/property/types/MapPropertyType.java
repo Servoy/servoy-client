@@ -29,7 +29,6 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
@@ -58,23 +57,12 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 	{
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.IPropertyType#getName()
-	 */
 	@Override
 	public String getName()
 	{
 		return TYPE_NAME;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.IPropertyConverter#fromJSON(java.lang.Object, java.lang.Object, org.sablo.specification.PropertyDescription,
-	 * java.lang.Object, org.sablo.util.ValueReference)
-	 */
 	@Override
 	public JSONObject fromJSON(Object newJSONValue, JSONObject previousSabloValue, PropertyDescription propertyDescription, IBrowserConverterContext context,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)
@@ -82,14 +70,8 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 		return newJSONValue instanceof JSONObject ? (JSONObject)newJSONValue : null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.sablo.specification.property.IPropertyConverter#toJSON(org.json.JSONWriter, java.lang.String, java.lang.Object,
-	 * org.sablo.specification.PropertyDescription, org.sablo.websocket.utils.DataConversion, java.lang.Object)
-	 */
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, JSONObject sabloValue, PropertyDescription propertyDescription, DataConversion clientConversion,
+	public JSONWriter toJSON(JSONWriter writer, String key, JSONObject sabloValue, PropertyDescription propertyDescription,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
@@ -100,16 +82,9 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 		return writer;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON#toTemplateJSONValue(org.json.JSONWriter, java.lang.String,
-	 * java.lang.Object, org.sablo.specification.PropertyDescription, org.sablo.websocket.utils.DataConversion,
-	 * com.servoy.j2db.server.ngclient.FormElementContext)
-	 */
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, JSONObject formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
+		FormElementContext formElementContext) throws JSONException
 	{
 		if (formElementValue != null)
 		{

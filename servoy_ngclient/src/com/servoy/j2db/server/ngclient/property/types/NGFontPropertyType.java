@@ -25,7 +25,6 @@ import org.mozilla.javascript.Scriptable;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.types.FontPropertyType;
-import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
@@ -62,11 +61,11 @@ public class NGFontPropertyType extends FontPropertyType implements IDesignToFor
 	}
 
 	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Font formElementValue, PropertyDescription pd, DataConversion browserConversionMarkers,
-		FormElementContext formElementContext) throws JSONException
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Font formElementValue, PropertyDescription pd, FormElementContext formElementContext)
+		throws JSONException
 	{
 		if (formElementValue == null) return writer;
-		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, null);
+		return toJSON(writer, key, formElementValue, pd, null);
 	}
 
 	@Override
@@ -79,7 +78,7 @@ public class NGFontPropertyType extends FontPropertyType implements IDesignToFor
 			try
 			{
 				writer.object();
-				toJSON(writer, pd.getName(), font, pd, new DataConversion(), null);
+				toJSON(writer, pd.getName(), font, pd, null);
 				writer.endObject();
 				return new JSONObject(writer.toString()).get(pd.getName());
 			}

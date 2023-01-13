@@ -28,7 +28,6 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.dnd.JSDNDEvent;
@@ -78,8 +77,8 @@ public class JSDNDEventType extends UUIDReferencePropertyType<JSDNDEvent> implem
 	private final WeakHashMap<Object, JSDNDEvent> sourceEventMap = new WeakHashMap<>();
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, JSDNDEvent sabloValue, PropertyDescription pd, DataConversion clientConversion,
-		IBrowserConverterContext converterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, JSDNDEvent sabloValue, PropertyDescription pd, IBrowserConverterContext converterContext)
+		throws JSONException
 	{
 		if (sabloValue != null)
 		{

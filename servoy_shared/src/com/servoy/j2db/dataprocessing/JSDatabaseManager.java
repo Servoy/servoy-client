@@ -4228,7 +4228,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @param record A JSRecord to rollback.
 	 *
-	 * @deprecated see JSRecord#revertChanges()
+	 * @deprecated see {@link Record#revertChanges()}
 	 */
 	@Deprecated
 	public void js_revertEditedRecords(IRecordInternal record) throws ServoyException

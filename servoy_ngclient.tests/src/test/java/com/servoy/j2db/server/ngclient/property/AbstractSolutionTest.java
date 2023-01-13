@@ -36,8 +36,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -60,13 +62,6 @@ import javax.websocket.Session;
 import javax.websocket.WebSocketContainer;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.config.Configurator;
-import org.apache.logging.log4j.core.config.builder.api.AppenderComponentBuilder;
-import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
-import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory;
-import org.apache.logging.log4j.core.config.builder.api.RootLoggerComponentBuilder;
-import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -101,8 +96,10 @@ import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.ValidatorSearchContext;
 import com.servoy.j2db.server.ngclient.DefaultComponentPropertiesProvider;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
+import com.servoy.j2db.server.ngclient.INGClientWindow;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.NGClientWebsocketSession;
+import com.servoy.j2db.server.ngclient.NGClientWindow;
 import com.servoy.j2db.server.ngclient.endpoint.NGClientEndpoint;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.property.types.Types;
@@ -117,22 +114,8 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  *
  */
-public abstract class AbstractSolutionTest
+public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 {
-	static
-	{
-		// tell log4j to print to console output
-		ConfigurationBuilder<BuiltConfiguration> builder = ConfigurationBuilderFactory.newConfigurationBuilder();
-
-		AppenderComponentBuilder console = builder.newAppender("stdout", "Console");
-		builder.add(console);
-
-		RootLoggerComponentBuilder rootLogger = builder.newRootLogger(Level.ERROR);
-		rootLogger.add(builder.newAppenderRef("stdout"));
-		builder.add(rootLogger);
-
-		Configurator.initialize(builder.build());
-	}
 
 	protected static IServer DUMMY_ISERVER = new IServer()
 	{
@@ -243,10 +226,10 @@ public abstract class AbstractSolutionTest
 		}
 	};
 
-	private static IPackageReader[] getReaders(File[] packages, IPackageReader customComponents)
+	private static IPackageReader[] getReaders(File[] packages, IPackageReader testWebObjects)
 	{
 		ArrayList<IPackageReader> readers = new ArrayList<>();
-		if (customComponents != null) readers.add(customComponents);
+		if (testWebObjects != null) readers.add(testWebObjects);
 		for (File f : packages)
 		{
 			if (f.exists())
@@ -271,7 +254,7 @@ public abstract class AbstractSolutionTest
 	};
 	protected Solution solution;
 	protected TestNGClient client;
-	protected NGClientEndpoint endpoint;
+	protected TestNGClientEndpoint endpoint;
 
 	public AbstractSolutionTest()
 	{
@@ -418,16 +401,19 @@ public abstract class AbstractSolutionTest
 
 		IPackageReader[] servicesReaders = null;
 		IPackageReader[] componentsReaders = null;
-		InMemPackageReader inMemPackageReader = getTestComponents();
+		InMemPackageReader inMemPackageReaderForTestComponents = getTestComponents();
+		InMemPackageReader inMemPackageReaderForTestServices = getTestServices();
 		if (f.isFile() && f.getName().startsWith("servoy_ngclient") && f.getName().endsWith(".jar"))
 		{
 			// it is running from bundles/jars
 			ZipFile zipFile = new ZipFile(f);
-			componentsReaders = inMemPackageReader != null
+			componentsReaders = inMemPackageReaderForTestComponents != null
 				? new IPackageReader[] { new ZipPackageReader(zipFile, "war/servoycore/"), new ZipPackageReader(zipFile,
-					"war/servoydefault/"), inMemPackageReader }
+					"war/servoydefault/"), inMemPackageReaderForTestComponents }
 				: new IPackageReader[] { new ZipPackageReader(zipFile, "war/servoycore/"), new ZipPackageReader(zipFile, "war/servoydefault/") };
-			servicesReaders = new IPackageReader[] { new ZipPackageReader(zipFile, "war/servoyservices/") };
+			servicesReaders = inMemPackageReaderForTestServices != null
+				? new IPackageReader[] { new ZipPackageReader(zipFile, "war/servoyservices/"), inMemPackageReaderForTestServices }
+				: new IPackageReader[] { new ZipPackageReader(zipFile, "war/servoyservices/") };
 		}
 		else
 		{
@@ -438,8 +424,8 @@ public abstract class AbstractSolutionTest
 				ngClientProjDir = ngClientProjDir.getParentFile();
 			}
 			componentsReaders = getReaders(new File[] { new File(ngClientProjDir.getAbsoluteFile() + "/war/servoycore/"), new File(
-				ngClientProjDir.getAbsoluteFile() + "/war/servoydefault/") }, inMemPackageReader); //in eclipse we .. out of bin, in jenkins we .. out of @dot
-			servicesReaders = getReaders(new File[] { new File(ngClientProjDir.getAbsoluteFile(), "/war/servoyservices/") }, null);
+				ngClientProjDir.getAbsoluteFile() + "/war/servoydefault/") }, inMemPackageReaderForTestComponents); //in eclipse we .. out of bin, in jenkins we .. out of @dot
+			servicesReaders = getReaders(new File[] { new File(ngClientProjDir.getAbsoluteFile(), "/war/servoyservices/") }, inMemPackageReaderForTestServices);
 		}
 
 		WebComponentSpecProvider.init(componentsReaders, DefaultComponentPropertiesProvider.instance);
@@ -459,20 +445,7 @@ public abstract class AbstractSolutionTest
 
 			HttpSession testHttpsession = new TestHttpsession();
 
-			endpoint = new NGClientEndpoint()
-			{
-				// for testing onstart of the NGClientEndpoint should not run
-				@Override
-				public void onStart()
-				{
-				}
-
-				@Override
-				protected HttpSession getHttpSession(Session session)
-				{
-					return testHttpsession;
-				}
-			};
+			endpoint = new TestNGClientEndpoint(testHttpsession);
 
 			NGClientWebsocketSession session = new NGClientWebsocketSession(new WebsocketSessionKey(testHttpsession.getId(), 1), null)
 			{
@@ -480,6 +453,22 @@ public abstract class AbstractSolutionTest
 				public void init(Map<String, List<String>> requestParams) throws Exception
 				{
 					// override default init, shouldnt make another client.
+				}
+
+				@Override
+				public INGClientWindow createWindow(int windowNr, String windowName)
+				{
+					return new NGClientWindow(this, windowNr, windowName)
+					{
+						@Override
+						public long getLastPingTime()
+						{
+							// prevent org.sablo.websocket.WebsocketSessionManager.pingEndpointsThread from closing test session & changing window instance (which could lead to lost api calls for example when debugging unit tests)
+							// because unit tests do not receive pings from client side / browser
+							return System.currentTimeMillis();
+						}
+					};
+
 				}
 
 				@Override
@@ -550,6 +539,48 @@ public abstract class AbstractSolutionTest
 	 * @throws IOException
 	 */
 	protected abstract InMemPackageReader getTestComponents() throws IOException;
+
+	/**
+	 * @return
+	 * @throws IOException
+	 */
+	protected InMemPackageReader getTestServices() throws IOException
+	{
+		return null;
+	}
+
+	public class TestNGClientEndpoint extends NGClientEndpoint
+	{
+		private final HttpSession testHttpsession;
+
+		/**
+		 * @param testHttpsession
+		 */
+		public TestNGClientEndpoint(HttpSession testHttpsession)
+		{
+			super();
+			this.testHttpsession = testHttpsession;
+		}
+
+		// for testing onstart of the NGClientEndpoint should not run
+		@Override
+		public void onStart()
+		{
+		}
+
+		@Override
+		protected HttpSession getHttpSession(Session session)
+		{
+			return testHttpsession;
+		}
+
+		@Override
+		public TestSession getSession()
+		{
+			return (TestSession)super.getSession();
+		}
+
+	}
 
 	private static class TestHttpsession implements HttpSession
 	{
@@ -656,8 +687,11 @@ public abstract class AbstractSolutionTest
 		}
 	}
 
-	private static class TestSession implements Session
+	public static class TestSession implements Session
 	{
+
+		private final TestBasic testBasic = new TestBasic();
+
 		@Override
 		public void setMaxTextMessageBufferSize(int arg0)
 		{
@@ -787,73 +821,9 @@ public abstract class AbstractSolutionTest
 		}
 
 		@Override
-		public Basic getBasicRemote()
+		public TestBasic getBasicRemote()
 		{
-			return new Basic()
-			{
-				@Override
-				public void setBatchingAllowed(boolean arg0) throws IOException
-				{
-				}
-
-				@Override
-				public void sendPong(ByteBuffer arg0) throws IOException, IllegalArgumentException
-				{
-				}
-
-				@Override
-				public void sendPing(ByteBuffer arg0) throws IOException, IllegalArgumentException
-				{
-				}
-
-				@Override
-				public boolean getBatchingAllowed()
-				{
-					return false;
-				}
-
-				@Override
-				public void flushBatch() throws IOException
-				{
-				}
-
-				@Override
-				public void sendText(String arg0, boolean arg1) throws IOException
-				{
-				}
-
-				@Override
-				public void sendText(String arg0) throws IOException
-				{
-				}
-
-				@Override
-				public void sendObject(Object arg0) throws IOException, EncodeException
-				{
-				}
-
-				@Override
-				public void sendBinary(ByteBuffer arg0, boolean arg1) throws IOException
-				{
-				}
-
-				@Override
-				public void sendBinary(ByteBuffer arg0) throws IOException
-				{
-				}
-
-				@Override
-				public Writer getSendWriter() throws IOException
-				{
-					return null;
-				}
-
-				@Override
-				public OutputStream getSendStream() throws IOException
-				{
-					return null;
-				}
-			};
+			return testBasic;
 		}
 
 		@Override
@@ -887,4 +857,82 @@ public abstract class AbstractSolutionTest
 		{
 		}
 	}
+
+	public static class TestBasic implements Basic
+	{
+		Queue<String> sentTexts = new LinkedList<String>();
+
+		@Override
+		public void setBatchingAllowed(boolean arg0) throws IOException
+		{
+		}
+
+		@Override
+		public void sendPong(ByteBuffer arg0) throws IOException, IllegalArgumentException
+		{
+		}
+
+		@Override
+		public void sendPing(ByteBuffer arg0) throws IOException, IllegalArgumentException
+		{
+		}
+
+		@Override
+		public boolean getBatchingAllowed()
+		{
+			return false;
+		}
+
+		@Override
+		public void flushBatch() throws IOException
+		{
+		}
+
+		@Override
+		public void sendText(String arg0, boolean arg1) throws IOException
+		{
+			sentTexts.add(arg0);
+		}
+
+		@Override
+		public void sendText(String arg0) throws IOException
+		{
+			sentTexts.add(arg0);
+		}
+
+		public Queue<String> getAndClearSentTextMessages()
+		{
+			Queue<String> tmp = sentTexts;
+			sentTexts = new LinkedList<String>();
+			return tmp;
+		}
+
+		@Override
+		public void sendObject(Object arg0) throws IOException, EncodeException
+		{
+		}
+
+		@Override
+		public void sendBinary(ByteBuffer arg0, boolean arg1) throws IOException
+		{
+		}
+
+		@Override
+		public void sendBinary(ByteBuffer arg0) throws IOException
+		{
+		}
+
+		@Override
+		public Writer getSendWriter() throws IOException
+		{
+			return null;
+		}
+
+		@Override
+		public OutputStream getSendStream() throws IOException
+		{
+			return null;
+		}
+	}
+
 }

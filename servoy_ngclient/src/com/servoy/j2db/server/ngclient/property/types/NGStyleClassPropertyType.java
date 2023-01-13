@@ -101,7 +101,7 @@ public class NGStyleClassPropertyType extends StyleClassPropertyType implements 
 			String returnValue = (String)designValue;
 			if (persist instanceof WebComponent && returnValue != null)
 			{
-				WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(
+				WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(
 					((WebComponent)persist).getTypeName());
 				returnValue = filterDefaultValues(returnValue, (String)propertyDescription.getDefaultValue(), (WebComponent)persist,
 					spec.getProperties(VariantPropertyType.INSTANCE));

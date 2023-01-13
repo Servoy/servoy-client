@@ -26,7 +26,6 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
@@ -61,7 +60,7 @@ public class VariantPropertyType extends DefaultPropertyType<String>
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String variantName, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
+		FormElementContext formElementContext) throws JSONException
 	{
 		if (variantName == null) return writer;
 
@@ -78,7 +77,7 @@ public class VariantPropertyType extends DefaultPropertyType<String>
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, String variantName, PropertyDescription pd, DataConversion clientConversion,
+	public JSONWriter toJSON(JSONWriter writer, String key, String variantName, PropertyDescription pd,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (variantName == null) return writer;

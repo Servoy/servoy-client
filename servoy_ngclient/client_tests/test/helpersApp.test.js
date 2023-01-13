@@ -12,7 +12,6 @@ describe('styles helpers', function() {
 		module('foundset_viewport_module');
 		module('foundset_custom_property');
 		module('servoyApp');
-		angular.module('pushToServerData', ['pushToServer']);
 		  
 		// 2. Define a new mock module. (don't need to mock the servoy module for tabpanel since it receives it's dependencies with attributes in the isolated scope)
 		// 3. Define a provider with the same name as the one you want to mock (in our case we want to mock 'servoy' dependency.

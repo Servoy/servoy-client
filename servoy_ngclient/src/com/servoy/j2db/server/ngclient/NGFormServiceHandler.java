@@ -28,16 +28,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONString;
 import org.sablo.services.server.FormServiceHandler;
-import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.IFunctionParameters;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.ClientToServerCallReturnValue;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.JSONUtils.EmbeddableJSONWriter;
+import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.ExitScriptException;
@@ -473,84 +474,100 @@ public class NGFormServiceHandler extends FormServiceHandler
 										functionSpec = (componentSpec != null ? componentSpec.getApiFunction(componentMethodName) : null);
 									}
 
-									// verify if component is accessible due to security options
-									if (functionSpec != null) webComponent.checkMethodExecutionSecurityAccess(functionSpec);
-
-									if (!runtimeComponent.getComponent().isVisible() || !form.getController().isFormVisible())
+									if (functionSpec == null)
 									{
-										List<String> allowAccessProperties = null;
-										if (functionSpec != null)
-										{
-											String allowAccess = functionSpec.getAllowAccess();
-											if (allowAccess != null)
-											{
-												allowAccessProperties = Arrays.asList(allowAccess.split(","));
-											}
-										}
+										log.warn("trying to call a function that does not exist in .spec of component '" +
+											webComponent.getName() + " with spec name: " + (componentSpec != null ? componentSpec.getName() : null));
+										throw new RuntimeException("trying to call a function that does not exist in .spec of component '" +
+											webComponent.getName() + " with spec name: " + (componentSpec != null ? componentSpec.getName() : null));
+									}
+									else
+									{
+										// verify if component is accessible due to security options
+										webComponent.checkMethodExecutionSecurityAccess(functionSpec);
 
-										if (!runtimeComponent.getComponent().isVisible())
+										if (!runtimeComponent.getComponent().isVisible() || !form.getController().isFormVisible())
 										{
-											boolean allowAccessComponentVisibility = false;
-											if (allowAccessProperties != null)
+											List<String> allowAccessProperties = null;
+											if (functionSpec != null)
 											{
-												for (String p : allowAccessProperties)
+												String allowAccess = functionSpec.getAllowAccess();
+												if (allowAccess != null)
 												{
-													allowAccessComponentVisibility = allowAccessComponentVisibility ||
-														runtimeComponent.getComponent().isVisibilityProperty(p);
+													allowAccessProperties = Arrays.asList(allowAccess.split(","));
 												}
 											}
 
-											if (!allowAccessComponentVisibility)
+											if (!runtimeComponent.getComponent().isVisible())
 											{
-												Debug.warn(
-													"callServerSideApi called on a none visible component: " + runtimeComponent +
-														" call stopped, returning null");
-												return null;
+												boolean allowAccessComponentVisibility = false;
+												if (allowAccessProperties != null)
+												{
+													for (String p : allowAccessProperties)
+													{
+														allowAccessComponentVisibility = allowAccessComponentVisibility ||
+															runtimeComponent.getComponent().isVisibilityProperty(p);
+													}
+												}
+
+												if (!allowAccessComponentVisibility)
+												{
+													log.warn(
+														"callServerSideApi called on a none visible component: " + runtimeComponent +
+															" call stopped, returning null");
+													return null; // TODO shouldn't we throw an exception here as well so that the client-side promise for this server side call would be rejected, not resolved?
+												}
+											}
+											else
+											{
+												if (allowAccessProperties == null || allowAccessProperties.indexOf("visible") == -1)
+												{
+													log.warn("callServerSideApi called on a none visible form: " + formName + " call stopped, returning null");
+													return null; // TODO shouldn't we throw an exception here as well so that the client-side promise for this server side call would be rejected, not resolved?
+												}
 											}
 										}
-										else
+
+										IFunctionParameters argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
+
+										// apply conversion
+										Object[] arrayOfJavaConvertedMethodArgs = new Object[methodArguments.length()];
+										for (int i = 0; i < methodArguments.length(); i++)
 										{
-											if (allowAccessProperties == null || allowAccessProperties.indexOf("visible") == -1)
-											{
-												Debug.warn("callServerSideApi called on a none visible form: " + formName + " call stopped, returning null");
-												return null;
-											}
+											arrayOfJavaConvertedMethodArgs[i] = JSONUtils.fromJSON(null, methodArguments.get(i),
+												(argumentPDs != null && argumentPDs.getDefinedArgsCount() > i) ? argumentPDs.getParameterDefinition(i) : null,
+												new BrowserConverterContext(webComponent, PushToServerEnum.allow), new ValueReference<Boolean>(false));
 										}
+
+										Object retVal = runtimeComponent.executeScopeFunction(functionSpec, arrayOfJavaConvertedMethodArgs);
+										if (functionSpec != null && functionSpec.getReturnType() != null)
+										{
+											EmbeddableJSONWriter w = new EmbeddableJSONWriter(true);
+											FullValueToJSONConverter.INSTANCE.toJSONValue(w, null, retVal, functionSpec.getReturnType(),
+												new BrowserConverterContext(webComponent, PushToServerEnum.reject));
+											retVal = w;
+										}
+										return retVal;
 									}
-
-									List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
-
-									// apply conversion
-									Object[] arrayOfJavaConvertedMethodArgs = new Object[methodArguments.length()];
-									for (int i = 0; i < methodArguments.length(); i++)
-									{
-										arrayOfJavaConvertedMethodArgs[i] = JSONUtils.fromJSON(null, methodArguments.get(i),
-											(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null,
-											new BrowserConverterContext(webComponent, PushToServerEnum.allow), new ValueReference<Boolean>(false));
-									}
-
-									Object retVal = runtimeComponent.executeScopeFunction(functionSpec, arrayOfJavaConvertedMethodArgs);
-
-									if (functionSpec != null && functionSpec.getReturnType() != null)
-									{
-										retVal = new ClientToServerCallReturnValue(retVal, functionSpec.getReturnType(),
-											new BrowserConverterContext(webComponent, PushToServerEnum.reject), true); // this means that when this return value is sent to client it will be converted to browser JSON correctly - if we give it the type and context
-									}
-									return retVal;
 								}
 								else
 								{
 									log.warn("callServerSideApi for unknown bean '" + args.getString("beanname") + "' of form '" + formName + "'");
+									throw new RuntimeException(
+										"callServerSideApi for unknown bean '" + args.getString("beanname") + "' of form '" + formName + "'");
 								}
 							}
 							else
 							{
 								log.warn("callServerSideApi for unknown bean '" + args.getString("beanname") + "' of form '" + formName + "'");
+								throw new RuntimeException(
+									"callServerSideApi for unknown bean '" + args.getString("beanname") + "' of form '" + formName + "'");
 							}
 						}
 						else
 						{
 							log.warn("callServerSideApi failed; null form UI for form controller of '" + formName + "'");
+							throw new RuntimeException("callServerSideApi failed; null form UI for form controller of '" + formName + "'");
 						}
 					}
 				}
