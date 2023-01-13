@@ -188,7 +188,7 @@ public class TestNGClient extends NGClient
 							for (int k = 0; k < set.getRowCount(); k++)
 							{
 								QuerySelect sqlSelect = (QuerySelect)array[i].getSqlSelect();
-								List<ISQLCondition> conditions = sqlSelect.getCondition().getAllConditions();
+								List<ISQLCondition> conditions = sqlSelect.getWhere().getAllConditions();
 								SetCondition setCondition = (SetCondition)conditions.get(0);
 								Object[][] value = (Object[][])((Placeholder)setCondition.getValues()).getValue();
 								if (set.getRow(k)[1].equals(value[0][0]))

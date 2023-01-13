@@ -16,7 +16,8 @@
  */
 package com.servoy.j2db.query;
 
-import static com.servoy.j2db.query.AndCondition.toAndCondition;
+import static com.servoy.j2db.query.AndCondition.and;
+import static com.servoy.j2db.query.OrCondition.or;
 import static com.servoy.j2db.util.Utils.stream;
 import static java.util.Arrays.asList;
 
@@ -40,8 +41,6 @@ import com.servoy.j2db.util.visitor.ObjectCountVisitor;
  */
 public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 {
-	private static final String[] EMPTY_STRINGS = new String[0];
-
 	private BaseQueryTable table;
 	private ArrayList<IQuerySelectValue> columns; // declare as ArrayList in stead of List -> must be sure that it is Serializable
 	private boolean distinct = false;
@@ -191,35 +190,26 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		}
 
 		List<ISQLCondition> clauses = condition.getConditions(name);
-		if (clauses == null)
+		if (clauses == null || clauses.isEmpty())
 		{
 			// nothing to OR against
-			addCondition(name, c);
+			setCondition(name, c);
 		}
 		else
 		{
 			if (clauses.size() == 1 && clauses.get(0) instanceof OrCondition)
 			{
+				// add to existing OR
 				((OrCondition)clauses.get(0)).addCondition(c);
 			}
-			else if (clauses.size() > 0 && BooleanCondition.FALSE_CONDITION.equals(clauses.get(0)))
+			else if (clauses.size() == 1 && BooleanCondition.FALSE_CONDITION.equals(clauses.get(0)))
 			{
 				// c OR FALSE is equivalent to c
-				clauses.set(0, c);
+				setCondition(name, c);
 			}
 			else
 			{
-				ISQLCondition orgCondition;
-				if (clauses.size() == 1)
-				{
-					orgCondition = clauses.get(0);
-				}
-				else
-				{
-					orgCondition = new AndCondition(clauses);
-				}
-
-				condition.setCondition(name, new AndCondition(asList(new OrCondition(asList(orgCondition, c)))));
+				condition.setCondition(name, or(c, and(clauses)));
 			}
 		}
 	}
@@ -248,7 +238,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		{
 			setHaving(c);
 		}
-		else if (c != null)
+		else
 		{
 			having.addCondition(c);
 		}
@@ -361,25 +351,22 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		this.lockMode = lockMode;
 	}
 
-	public AndCondition getCondition(String name)
+	public ISQLCondition getCondition(String name)
 	{
-		if (condition == null)
-		{
-			return null;
-		}
-		return stream(condition.getConditions(name)).collect(toAndCondition());
+		return and(getConditions(name));
+	}
+
+	public List<ISQLCondition> getConditions(String name)
+	{
+		return condition.getConditions(name);
 	}
 
 	public String[] getConditionNames()
 	{
-		if (condition == null)
-		{
-			return EMPTY_STRINGS;
-		}
 		return condition.getConditionNames();
 	}
 
-	public AndCondition getConditionClone(String name)
+	public ISQLCondition getConditionClone(String name)
 	{
 		return deepClone(getCondition(name));
 	}
@@ -476,52 +463,16 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	 */
 	public boolean hasAnyCondition()
 	{
-		return condition != null || having != null || joins != null;
+		return !condition.isEmpty() || having != null || joins != null;
 	}
 
 	/**
-	 * One condition to rule them all. Does not include having-conditions.
-	 *
-	 * @return
+	 * The where clause, return null in case of empty
 	 */
 	public AndCondition getWhere()
 	{
-//		ISQLCondition where = getConditionMapCondition(condition);
-//		if (where == null || where instanceof AndCondition)
-//		{
-//			return (AndCondition)where;
-//		}
-//		AndCondition and = new AndCondition();
-//		and.addCondition(where);
-		return condition;
+		return condition.isEmpty() ? null : condition;
 	}
-
-	public AndCondition getCondition()
-	{
-		return condition;
-	}
-
-//	static ISQLCondition getConditionMapCondition(Map<String, AndCondition> conditions)
-//	{
-//		if (conditions == null)
-//		{
-//			return null;
-//		}
-//
-//		if (conditions.size() == 1)
-//		{
-//			return conditions.values().iterator().next();
-//		}
-//
-//		AndCondition where = new AndCondition();
-//		Iterator<AndCondition> it = conditions.values().iterator();
-//		while (it.hasNext())
-//		{
-//			where.addCondition(it.next());
-//		}
-//
-//		return where;
-//	}
 
 	public ISQLCondition getWhereClone()
 	{
@@ -774,30 +725,12 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 			sb.append(columns.get(i).toString());
 		}
 		sb.append(" FROM ").append(table.toString()); //$NON-NLS-1$
-
-		if (condition != null)
-		{
-//	RAGTEST		Iterator<Entry<String, AndCondition>> it = condition.entrySet().iterator();
-//			for (int i = 0; it.hasNext(); i++)
-//			{
-//				if (i > 0)
-//				{
-//					sb.append(" [AND] "); //$NON-NLS-1$
-//				}
-//				Map.Entry<String, AndCondition> entry = it.next();
-//				sb.append(' ').append(entry.getKey() == null ? "" : entry.getKey().toString()).append(' ').append(entry.getValue().toString());
-//			}
-		}
-
+		sb.append(" WHERE ").append(condition.toString()); //$NON-NLS-1$
 		if (having != null)
 		{
 			sb.append(" HAVING ").append(having.toString()); //$NON-NLS-1$
 		}
-
-		for (int i = 0; joins != null && i < joins.size(); i++)
-		{
-			sb.append(' ').append(joins.get(i).toString());
-		}
+		stream(joins).forEach(join -> sb.append(' ').append(join.toString()));
 		if (sorts != null)
 		{
 			sb.append(" ORDER BY "); //$NON-NLS-1$
@@ -855,7 +788,20 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		this.distinct = (bits & 1) != 0;
 		this.plain_pk_select = (bits & 2) != 0;
 		this.lockMode = (bits / 4);
-		this.condition = (AndCondition)members[i++]; // RAGTEST oude
+
+		// condition used to be a HashMap<String, AndCondition>, now it is a AndCondition
+		Object cond = members[i++];
+		if (cond instanceof Map)
+		{
+			AndCondition c = new AndCondition();
+			((Map<String, AndCondition>)cond).entrySet().forEach(entry -> c.setCondition(entry.getKey(), entry.getValue()));
+			this.condition = c;
+		}
+		else
+		{
+			this.condition = (AndCondition)cond;
+		}
+
 		Object hv = members[i++];
 		if (hv instanceof Map && ((Map)hv).size() > 0)
 		{

@@ -39,7 +39,6 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogicalCondition
 {
 	private static final String[] EMPTY_STRINGS = new String[0];
-//	private static final String CONDITION_ANONYMOUS = "<anonymous>"; // When no condition name is given
 
 	QBLogicalCondition(QBSelect root, QBTableClause parent, AndOrCondition queryCondition)
 	{
@@ -95,9 +94,7 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 
 	public QBLogicalCondition add(String name, IQueryBuilderCondition condition)
 	{
-		getQueryCondition().addCondition(
-//			name == null ? CONDITION_ANONYMOUS :
-			name, ((QBCondition)condition).getQueryCondition());
+		getQueryCondition().addCondition(name, ((QBCondition)condition).getQueryCondition());
 		return this;
 	}
 

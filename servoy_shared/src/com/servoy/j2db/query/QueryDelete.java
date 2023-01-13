@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.query;
 
+import static com.servoy.j2db.query.AndCondition.and;
+
 import java.util.List;
 
 import com.servoy.base.query.BaseQueryTable;
@@ -43,6 +45,9 @@ public class QueryDelete extends AbstractBaseQuery implements ISQLUpdate
 
 	public void addCondition(ISQLCondition c)
 	{
+		condition = and(condition, c);
+
+
 		if (c == null)
 		{
 			return;

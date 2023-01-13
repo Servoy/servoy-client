@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.stream.IntStream;
 import java.util.stream.IntStream.Builder;
@@ -40,8 +41,8 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.AbstractBaseQuery;
-import com.servoy.j2db.query.AndOrCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
+import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QuerySelect;
@@ -933,9 +934,9 @@ public abstract class RelatedFoundSet extends FoundSet
 		}
 
 		// check if sql where is still the same, if there is search in it do nothing
-		AndOrCondition createCondition = creationSqlSelect.getCondition(SQLGenerator.CONDITION_RELATION);
-		AndOrCondition condition = getPksAndRecords().getQuerySelectForReading().getCondition(SQLGenerator.CONDITION_RELATION);
-		if ((createCondition == null && condition == null) || createCondition != null && createCondition.equals(condition)) // does not include placeholder values in comparison
+		ISQLCondition createCondition = creationSqlSelect.getCondition(SQLGenerator.CONDITION_RELATION);
+		ISQLCondition condition = getPksAndRecords().getQuerySelectForReading().getCondition(SQLGenerator.CONDITION_RELATION);
+		if (Objects.equals(createCondition, condition)) // does not include placeholder values in comparison
 		{
 			try
 			{

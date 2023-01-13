@@ -18,6 +18,7 @@ package com.servoy.j2db.query;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.servoy.base.query.BaseAbstractBaseQuery;
 import com.servoy.base.query.BaseQueryTable;
@@ -195,9 +196,7 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 	public Object writeReplace()
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
-		// RAGTEST oude serialize
-		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(),
-			new Object[] { table, columns, values, condition, null /* joins */, comment });
+		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { table, columns, values, condition, null, comment });
 	}
 
 	public QueryUpdate(ReplacedObject s)
@@ -205,9 +204,22 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 		Object[] members = (Object[])s.getObject();
 		int i = 0;
 		this.table = (QueryTable)members[i++];
-		this.columns = (List<QueryColumn>)members[i++];
-		this.values = (List<Object>)members[i++];
-		this.condition = (AndCondition)members[i++]; // RAGTEST oude
+		this.columns = (List)members[i++];
+		this.values = (List)members[i++];
+
+		// condition used to be a HashMap<String, AndCondition>, now it is a AndCondition
+		Object cond = members[i++];
+		if (cond instanceof Map)
+		{
+			AndCondition c = new AndCondition();
+			((Map<String, AndCondition>)cond).entrySet().forEach(entry -> c.setCondition(entry.getKey(), entry.getValue()));
+			this.condition = c;
+		}
+		else
+		{
+			this.condition = (AndCondition)cond;
+		}
+
 		/* this.joins = (List) members[i++]; */ i++;
 		if (i < members.length) // comment is a new field that was added, so it is optional now
 		{

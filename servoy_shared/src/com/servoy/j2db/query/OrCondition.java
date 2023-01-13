@@ -21,7 +21,6 @@ import static java.util.stream.Collectors.toList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.stream.Collector;
 
 import com.servoy.j2db.util.serialize.ReplacedObject;
 
@@ -93,11 +92,18 @@ public final class OrCondition extends AndOrCondition
 		return or;
 	}
 
-	public static Collector<ISQLCondition, ? , OrCondition> toOrCondition()
+	public static ISQLCondition or(List<ISQLCondition> conditions)
 	{
-		return AndOrCondition.collector(OrCondition::new);
+		if (conditions == null || conditions.isEmpty())
+		{
+			return null;
+		}
+		if (conditions.size() == 1)
+		{
+			return conditions.get(0);
+		}
+		return new OrCondition(conditions);
 	}
-
 
 	///////// serialization ////////////////
 

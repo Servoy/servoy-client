@@ -21,7 +21,6 @@ import static java.util.stream.Collectors.toList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.stream.Collector;
 
 import com.servoy.j2db.util.serialize.ReplacedObject;
 
@@ -94,12 +93,37 @@ public final class AndCondition extends AndOrCondition
 		return and;
 	}
 
-
-	public static Collector<ISQLCondition, ? , AndCondition> toAndCondition()
+	public static AndCondition and(AndCondition addTo, ISQLCondition c)
 	{
-		return AndOrCondition.collector(AndCondition::new);
+		if (c == null)
+		{
+			return addTo;
+		}
+		AndCondition and;
+		if (addTo != null)
+		{
+			and = addTo;
+		}
+		else
+		{
+			and = new AndCondition();
+		}
+		and.addCondition(c);
+		return and;
 	}
 
+	public static ISQLCondition and(List<ISQLCondition> conditions)
+	{
+		if (conditions == null || conditions.isEmpty())
+		{
+			return null;
+		}
+		if (conditions.size() == 1)
+		{
+			return conditions.get(0);
+		}
+		return new AndCondition(conditions);
+	}
 
 	///////// serialization ////////////////
 
@@ -108,4 +132,5 @@ public final class AndCondition extends AndOrCondition
 	{
 		super(so);
 	}
+
 }
