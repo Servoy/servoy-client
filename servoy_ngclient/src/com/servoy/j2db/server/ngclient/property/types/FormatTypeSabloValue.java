@@ -425,18 +425,19 @@ public class FormatTypeSabloValue implements ISmartSortOrderPrevalence, IHasUnde
 
 		if (dataproviderId != null && foundsetId != null)
 		{
-			ITable table = null;
 			Form form = ((IContextProvider)webObjectCntxt.getUnderlyingWebObject()).getDataConverterContext().getForm().getForm();
-			// always assume now that the the properties has the foundset property name.
-			FoundsetTypeSabloValue runtimeValOfFoundset = (FoundsetTypeSabloValue)webObjectCntxt.getUnderlyingWebObject().getProperty(
-				this.propertyDependencies.foundsetPropertyName);
-			if (runtimeValOfFoundset != null && runtimeValOfFoundset.getFoundset() != null &&
-				runtimeValOfFoundset.getFoundset().getDataSource().equals(foundsetId))
+			ITable table = FoundsetTypeSabloValue.getTableBasedOfFoundsetPropertyFromFoundsetIdentifier(foundsetId, application, form);
+			if (table == null)
 			{
-				table = runtimeValOfFoundset.getFoundset().getTable();
+				// always assume now that the the properties has the foundset property name.
+				FoundsetTypeSabloValue runtimeValOfFoundset = (FoundsetTypeSabloValue)webObjectCntxt.getParentContext().getProperty(
+					this.propertyDependencies.foundsetPropertyName);
+				if (runtimeValOfFoundset != null && runtimeValOfFoundset.getFoundset() != null &&
+					runtimeValOfFoundset.getFoundset().getDataSource().equals(foundsetId))
+				{
+					table = runtimeValOfFoundset.getFoundset().getTable();
+				}
 			}
-			if (table == null) table = FoundsetTypeSabloValue.getTableBasedOfFoundsetPropertyFromFoundsetIdentifier(foundsetId, application, form);
-
 			if (table != null)
 			{
 				dataProviderLookup = new FormAndTableDataProviderLookup(application.getFlattenedSolution(), form, table);
