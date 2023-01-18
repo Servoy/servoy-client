@@ -75,7 +75,7 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 	public Object fromJSON(Object newJSONValue, Object previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
-		// TODO shouldn't this just return always null? (never allow a form property to be set from the client?)
+		// TODO shouldn't this just return always null? (never allow a form property to be set from the client?) SVY-17855
 		if (newJSONValue instanceof JSONObject)
 		{
 			Iterator<String> it = ((JSONObject)newJSONValue).keys();
@@ -109,7 +109,8 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 			formName = (String)sabloValue;
 			if (dataConverterContext != null && dataConverterContext.getWebObject() instanceof IContextProvider)
 			{
-				FlattenedSolution flattenedSolution = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication().getFlattenedSolution();
+				FlattenedSolution flattenedSolution = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication()
+					.getFlattenedSolution();
 				Form form = flattenedSolution.getForm(formName);
 				// form name
 				if (form == null)
