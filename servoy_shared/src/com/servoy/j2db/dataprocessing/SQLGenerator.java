@@ -1292,7 +1292,7 @@ public class SQLGenerator
 	 */
 	public static Placeholder getRelationPlaceholder(QuerySelect querySelect, String relationName)
 	{
-		List<ISQLCondition> relationCondition = querySelect.getWhere().getConditions(SQLGenerator.CONDITION_RELATION);
+		List<ISQLCondition> relationCondition = querySelect.getConditions(SQLGenerator.CONDITION_RELATION);
 		if (relationCondition != null)
 		{
 			ISQLCondition firstCondition = relationCondition.iterator().next();
