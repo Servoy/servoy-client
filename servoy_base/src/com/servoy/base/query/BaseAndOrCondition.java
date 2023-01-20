@@ -45,7 +45,8 @@ public abstract class BaseAndOrCondition<C extends IBaseSQLCondition> implements
 		if (conditions != null && !conditions.isEmpty())
 		{
 			HashMap<String, List<C>> map = new HashMap<>();
-			map.put(null, conditions);
+			// do not use the original list, updates to it should not affect us
+			map.put(null, new ArrayList<>(conditions));
 			this.conditions = validateConditions(map);
 		}
 	}
@@ -54,6 +55,7 @@ public abstract class BaseAndOrCondition<C extends IBaseSQLCondition> implements
 	{
 		if (conditions != null && !conditions.isEmpty())
 		{
+			// do not use the original map, updates to it should not affect us
 			this.conditions = new HashMap<>(validateConditions(conditions));
 		}
 	}

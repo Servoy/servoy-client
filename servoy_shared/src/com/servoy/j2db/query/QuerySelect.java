@@ -475,14 +475,19 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	}
 
 	/**
-	 * The where clause, return null in case of empty
+	 * One condition to rule them all. Does not include having-conditions.
 	 */
 	public AndCondition getWhere()
 	{
-		return condition.isEmpty() ? null : condition;
+		if (condition.isEmpty())
+		{
+			return null;
+		}
+
+		return new AndCondition(condition.getAllConditions());
 	}
 
-	public ISQLCondition getWhereClone()
+	public AndCondition getWhereClone()
 	{
 		return deepClone(getWhere());
 	}
