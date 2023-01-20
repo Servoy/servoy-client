@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -54,6 +55,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.ColumnType;
+import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLQuery;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLUpdate;
@@ -185,9 +187,10 @@ public class TestNGClient extends NGClient
 							returnDataSet[i] = new BufferedDataSet();
 							for (int k = 0; k < set.getRowCount(); k++)
 							{
-								Object[][] value = (Object[][])((Placeholder)((SetCondition)((QuerySelect)array[i].getSqlSelect()).getConditions().values()
-									.iterator().next().getConditions().get(
-										0)).getValues()).getValue();
+								QuerySelect sqlSelect = (QuerySelect)array[i].getSqlSelect();
+								List<ISQLCondition> conditions = sqlSelect.getWhere().getAllConditions();
+								SetCondition setCondition = (SetCondition)conditions.get(0);
+								Object[][] value = (Object[][])((Placeholder)setCondition.getValues()).getValue();
 								if (set.getRow(k)[1].equals(value[0][0]))
 								{
 									returnDataSet[i].addRow(new Object[] { set.getRow(k)[0], set.getRow(k)[1], set.getRow(k)[2], set.getRow(k)[3] });

@@ -26,6 +26,7 @@ import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.cast;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.castfrom;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.upper;
+import static com.servoy.j2db.util.Utils.iterate;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.reflect.Array;
@@ -185,7 +186,7 @@ public class SQLGenerator
 			// remove all servoy conditions, except filter, search and relation
 			for (String conditionName : retval.getConditionNames())
 			{
-				if (conditionName.startsWith(SERVOY_CONDITION_PREFIX) &&
+				if (conditionName != null && conditionName.startsWith(SERVOY_CONDITION_PREFIX) &&
 					!(CONDITION_FILTER.equals(conditionName) || CONDITION_SEARCH.equals(conditionName) || CONDITION_RELATION.equals(conditionName)))
 				{
 					retval.setCondition(conditionName, null);
@@ -258,7 +259,7 @@ public class SQLGenerator
 					{
 						public Object visit(Object o)
 						{
-							if (o instanceof OrCondition && ((OrCondition)o).getConditions().size() > 1)
+							if (o instanceof OrCondition && ((OrCondition)o).getAllConditions().size() > 1)
 							{
 								hasOr[0] = true;
 								return new VisitorResult(o, false);
@@ -548,7 +549,7 @@ public class SQLGenerator
 			// NOTE: elements in joinCondition MUST be CompareConditions (expected in QueryGenerator and SQLGenerator.createConditionFromFindState)
 			joinCondition.addCondition(new CompareCondition(RelationItem.swapOperator(operators[x]), foreignColumn, value));
 		}
-		if (joinCondition.getConditions().size() == 0)
+		if (joinCondition.isEmpty())
 		{
 			throw new RepositoryException("Missing join condition in relation " + relation.getName()); //$NON-NLS-1$
 		}
@@ -978,10 +979,10 @@ public class SQLGenerator
 	 */
 	public static IDataSet getEmptyDataSetForDummyQuery(ISQLSelect sqlSelect)
 	{
-		if (sqlSelect instanceof QuerySelect && ((QuerySelect)sqlSelect).getCondition(CONDITION_SEARCH) != null)
+		if (sqlSelect instanceof QuerySelect)
 		{
-			// all named conditions in QuerySelecta are AND-ed, if one always results to false, skip the query
-			for (IBaseSQLCondition condition : ((QuerySelect)sqlSelect).getCondition(CONDITION_SEARCH).getConditions())
+			// all named conditions in QuerySelect are AND-ed, if one always results to false, skip the query
+			for (IBaseSQLCondition condition : iterate(((QuerySelect)sqlSelect).getConditions(CONDITION_SEARCH)))
 			{
 				boolean skipQuery = false;
 				if (condition instanceof SetCondition && ((SetCondition)condition).isAndCondition())
@@ -1291,10 +1292,10 @@ public class SQLGenerator
 	 */
 	public static Placeholder getRelationPlaceholder(QuerySelect querySelect, String relationName)
 	{
-		AndCondition relationCondition = querySelect.getCondition(SQLGenerator.CONDITION_RELATION);
-		if (relationCondition != null && !relationCondition.getConditions().isEmpty())
+		List<ISQLCondition> relationCondition = querySelect.getWhere().getConditions(SQLGenerator.CONDITION_RELATION);
+		if (relationCondition != null)
 		{
-			ISQLCondition firstCondition = relationCondition.getConditions().iterator().next();
+			ISQLCondition firstCondition = relationCondition.iterator().next();
 			if (firstCondition instanceof SetCondition)
 			{
 				SetCondition setCondition = (SetCondition)firstCondition;

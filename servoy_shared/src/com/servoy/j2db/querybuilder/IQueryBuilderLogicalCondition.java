@@ -17,10 +17,11 @@
 
 package com.servoy.j2db.querybuilder;
 
+import com.servoy.j2db.persistence.RepositoryException;
 
 /**
  * Logical condition (AND or OR clause) for building Servoy Query Objects.
- * 
+ *
  * @author rgansevles
  *
  * @since 6.1
@@ -29,11 +30,47 @@ package com.servoy.j2db.querybuilder;
 public interface IQueryBuilderLogicalCondition extends IQueryBuilderCondition
 {
 	/**
-	 * Add a condition to the AND or OR condition list.
+	 * Add a condition to the logical condition.
 	 * <pre>
 	 * query.where().add(query.getColumn("flag").eq(new Integer(1))).add(query.getColumn("value").isNull());
 	 * </pre>
 	 */
 	IQueryBuilderLogicalCondition add(IQueryBuilderCondition condition);
+
+	/**
+	 * Add a named condition to the logical condition.
+	 * <pre>
+	 * query.where().add("mycond", query.getColumn("flag").eq(new Integer(1))).add(query.getColumn("value").isNull());
+	 * </pre>
+	 */
+	IQueryBuilderLogicalCondition add(String name, IQueryBuilderCondition condition) throws RepositoryException;
+
+
+	/**
+	 * Get the names for the conditions in the logical condition.
+	 */
+	String[] conditionnames();
+
+	/**
+	 * Remove a named condition from the logical condition.
+	 * <pre>
+	 * query.where().remove("mycond");
+	 * </pre>
+	 *
+	 * @param name The condition name
+	 */
+	IQueryBuilderLogicalCondition remove(String name);
+
+	/**
+	 * Clear the conditions in the logical condition.
+	 */
+	IQueryBuilderLogicalCondition clear();
+
+	/**
+	 * Get a named condition in the logical condition.
+	 *
+	 * @param name The condition name
+	 */
+	IQueryBuilderCondition getCondition(String name);
 
 }

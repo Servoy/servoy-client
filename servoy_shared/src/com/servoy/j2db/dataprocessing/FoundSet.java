@@ -93,7 +93,6 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.query.AbstractBaseQuery;
-import com.servoy.j2db.query.AndCondition;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.CustomCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
@@ -1090,21 +1089,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public boolean js_hasConditions()
 	{
 		QuerySelect query = pksAndRecords.getQuerySelectForReading();
-		if (query != null)
-		{
-			AndCondition searchCondition = query.getCondition(SQLGenerator.CONDITION_SEARCH);
-			if (searchCondition != null)
-			{
-				for (ISQLCondition condition : searchCondition.getConditions())
-				{
-					if (!SQLGenerator.isDynamicPKSetCondition(condition))
-					{
-						return true;
-					}
-				}
-			}
-		}
-		return false;
+		return query != null &&
+			stream(query.getConditions(SQLGenerator.CONDITION_SEARCH)).anyMatch(condition -> !SQLGenerator.isDynamicPKSetCondition(condition));
 	}
 
 	/**
@@ -2092,8 +2078,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		if (relationName != null)
 		{
-			AndCondition fsRelatedCondition = pksAndRecords.getQuerySelectForReading().getCondition(SQLGenerator.CONDITION_RELATION);
-			AndCondition selectRelatedCondition = sqlSelect.getCondition(SQLGenerator.CONDITION_RELATION);
+			ISQLCondition fsRelatedCondition = pksAndRecords.getQuerySelectForReading().getCondition(SQLGenerator.CONDITION_RELATION);
+			ISQLCondition selectRelatedCondition = sqlSelect.getCondition(SQLGenerator.CONDITION_RELATION);
 			if (selectRelatedCondition != null && !selectRelatedCondition.equals(fsRelatedCondition))
 			{
 				// add the different relation condition as search
@@ -4927,20 +4913,15 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			sizeBefore = getSize();
 			sqlSelect = pksAndRecords.getQuerySelectForReading();
 
-			Map<String, AndCondition> conditions = sqlSelect.getConditions();
-			if (conditions != null)
+			for (String conditionName : sqlSelect.getConditionNames())
 			{
-				String conditionName;
-				for (String element : conditions.keySet())
+				if (conditionName != null &&
+					(conditionName.equals(SQLGenerator.CONDITION_SEARCH) || !conditionName.startsWith(SQLGenerator.SERVOY_CONDITION_PREFIX)))
 				{
-					conditionName = element;
-					if (conditionName != null &&
-						(conditionName.equals(SQLGenerator.CONDITION_SEARCH) || !conditionName.startsWith(SQLGenerator.SERVOY_CONDITION_PREFIX)))
-					{
-						invertConditionNames.add(conditionName);
-					}
+					invertConditionNames.add(conditionName);
 				}
 			}
+
 			if (invertConditionNames.size() == 0)
 			{
 				changes = pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, sqlSelect);
@@ -4950,7 +4931,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				sqlSelect = pksAndRecords.getQuerySelectForModification();
 				for (String inverConditionName : invertConditionNames)
 				{
-					sqlSelect.setCondition(inverConditionName, conditions.get(inverConditionName).negate());
+					sqlSelect.setCondition(inverConditionName, sqlSelect.getCondition(inverConditionName).negate());
 				}
 				clearOmit(sqlSelect);
 				// set pks here in case a refresh comes along

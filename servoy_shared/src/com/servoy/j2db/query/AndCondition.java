@@ -16,9 +16,11 @@
  */
 package com.servoy.j2db.query;
 
-import java.util.ArrayList;
+import static java.util.stream.Collectors.toList;
+
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collector;
+import java.util.Map.Entry;
 
 import com.servoy.j2db.util.serialize.ReplacedObject;
 
@@ -41,6 +43,11 @@ public final class AndCondition extends AndOrCondition
 		super(conditions);
 	}
 
+	public AndCondition(HashMap<String, List<ISQLCondition>> conditions)
+	{
+		super(conditions);
+	}
+
 	@Override
 	public String getInfix()
 	{
@@ -50,11 +57,16 @@ public final class AndCondition extends AndOrCondition
 	@Override
 	public ISQLCondition negate()
 	{
-		// apply De Morgan's laws
-		List<ISQLCondition> nconditions = new ArrayList<ISQLCondition>(conditions.size());
-		for (int i = 0; i < conditions.size(); i++)
+		if (conditions == null)
 		{
-			nconditions.add(conditions.get(i).negate());
+			return new OrCondition();
+		}
+
+		// apply De Morgan's laws
+		HashMap<String, List<ISQLCondition>> nconditions = new HashMap<>(conditions.size());
+		for (Entry<String, List<ISQLCondition>> entry : conditions.entrySet())
+		{
+			nconditions.put(entry.getKey(), entry.getValue().stream().map(ISQLCondition::negate).collect(toList()));
 		}
 		return new OrCondition(nconditions);
 	}
@@ -81,12 +93,37 @@ public final class AndCondition extends AndOrCondition
 		return and;
 	}
 
-
-	public static Collector<ISQLCondition, ? , AndCondition> toAndCondition()
+	public static AndCondition and(AndCondition addTo, ISQLCondition c)
 	{
-		return AndOrCondition.collector(AndCondition::new);
+		if (c == null)
+		{
+			return addTo;
+		}
+		AndCondition and;
+		if (addTo != null)
+		{
+			and = addTo;
+		}
+		else
+		{
+			and = new AndCondition();
+		}
+		and.addCondition(c);
+		return and;
 	}
 
+	public static ISQLCondition and(List<ISQLCondition> conditions)
+	{
+		if (conditions == null || conditions.isEmpty())
+		{
+			return null;
+		}
+		if (conditions.size() == 1)
+		{
+			return conditions.get(0);
+		}
+		return new AndCondition(conditions);
+	}
 
 	///////// serialization ////////////////
 

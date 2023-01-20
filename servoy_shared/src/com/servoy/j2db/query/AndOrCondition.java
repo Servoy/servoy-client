@@ -16,10 +16,8 @@
  */
 package com.servoy.j2db.query;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collector;
 
 import com.servoy.base.query.BaseAndOrCondition;
 import com.servoy.j2db.util.serialize.ReplacedObject;
@@ -42,6 +40,11 @@ public abstract class AndOrCondition extends BaseAndOrCondition<ISQLCondition> i
 		super(conditions);
 	}
 
+	public AndOrCondition(HashMap<String, List<ISQLCondition>> conditions)
+	{
+		super(conditions);
+	}
+
 	@Override
 	public Object shallowClone() throws CloneNotSupportedException
 	{
@@ -50,22 +53,8 @@ public abstract class AndOrCondition extends BaseAndOrCondition<ISQLCondition> i
 
 	public void acceptVisitor(IVisitor visitor)
 	{
-		conditions = AbstractBaseQuery.acceptVisitor(conditions, visitor);
+		conditions = validateConditions(AbstractBaseQuery.acceptVisitor(conditions, visitor));
 	}
-
-	static <T extends AndOrCondition> Collector<ISQLCondition, ArrayList<ISQLCondition>, T> collector(Function<ArrayList<ISQLCondition>, T> finisher)
-	{
-		Collector<ISQLCondition, ArrayList<ISQLCondition>, T> collector = Collector.of(
-			ArrayList::new,
-			ArrayList::add,
-			(left, right) -> {
-				left.addAll(right);
-				return left;
-			},
-			finisher);
-		return collector;
-	}
-
 
 	///////// serialization ////////////////
 
@@ -78,6 +67,17 @@ public abstract class AndOrCondition extends BaseAndOrCondition<ISQLCondition> i
 
 	public AndOrCondition(ReplacedObject s)
 	{
-		conditions = (List)s.getObject();
+		// conditions used to be a list, now it is a HashMap
+		Object o = s.getObject();
+		if (o instanceof List)
+		{
+			HashMap<String, List<ISQLCondition>> map = new HashMap<>();
+			map.put(null, (List<ISQLCondition>)o);
+			conditions = map;
+		}
+		else
+		{
+			conditions = (HashMap<String, List<ISQLCondition>>)o;
+		}
 	}
 }
