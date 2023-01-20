@@ -22,6 +22,7 @@ import static com.servoy.base.persistence.IBaseColumn.UUID_COLUMN;
 import static com.servoy.j2db.dataprocessing.SortColumn.ASCENDING;
 import static com.servoy.j2db.persistence.Column.mapToDefaultType;
 import static com.servoy.j2db.persistence.IColumnTypes.MEDIA;
+import static com.servoy.j2db.query.AbstractBaseQuery.acceptVisitor;
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.cast;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.castfrom;
@@ -255,7 +256,7 @@ public class SQLGenerator
 				{
 					// check if the search condition has an or-condition
 					final boolean[] hasOr = { false };
-					retval.getCondition(CONDITION_SEARCH).acceptVisitor(new IVisitor()
+					acceptVisitor(retval.getCondition(CONDITION_SEARCH), new IVisitor()
 					{
 						public Object visit(Object o)
 						{
