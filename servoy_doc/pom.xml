@@ -5,12 +5,12 @@
 
 	<parent>
 		<artifactId>servoy-client</artifactId>
-		<version>2022.3.3.3745_LTS</version>
+		<version>2022.3.4.3746_LTS</version>
 		<groupId>com.servoy</groupId>
 	</parent>
 
 	<groupId>com.servoy</groupId>
-	<version>2022.3.3.3745_LTS</version>
+	<version>2022.3.4.3746_LTS</version>
 	<artifactId>servoy-doc</artifactId>
 	<packaging>jar</packaging>
 
