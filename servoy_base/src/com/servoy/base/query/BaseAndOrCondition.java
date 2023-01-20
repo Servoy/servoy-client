@@ -17,14 +17,12 @@
 package com.servoy.base.query;
 
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Map.Entry;
 
 /**
  * Base condition class for AndCondition and OrCondition.
@@ -77,7 +75,11 @@ public abstract class BaseAndOrCondition<C extends IBaseSQLCondition> implements
 				// when there are no conditions the map should be null
 				throw new IllegalArgumentException("Empty conditions map");
 			}
-			conditions.forEach((name, list) -> {
+			for (Entry<String, List<C>> entry : conditions.entrySet())
+			{
+				String name = entry.getKey();
+				List<C> list = entry.getValue();
+
 				if (list == null)
 				{
 					throw new IllegalArgumentException("Null conditions list for name '" + name + "'");
@@ -87,11 +89,14 @@ public abstract class BaseAndOrCondition<C extends IBaseSQLCondition> implements
 					// If a named condition is made empty, the key should be removed
 					throw new IllegalArgumentException("Empty conditions list for name '" + name + "'");
 				}
-				if (list.stream().anyMatch(Objects::isNull))
+				for (C e : list)
 				{
-					throw new IllegalArgumentException("Conditions list contains null value for name '" + name + "'");
+					if (e == null)
+					{
+						throw new IllegalArgumentException("Conditions list contains null value for name '" + name + "'");
+					}
 				}
-			});
+			}
 		}
 		return conditions;
 	}
@@ -114,9 +119,17 @@ public abstract class BaseAndOrCondition<C extends IBaseSQLCondition> implements
 		{
 			Map<String, List<C>> map = ((BaseAndOrCondition)condition).conditions;
 			if (map != null & map.keySet().size() == 1 && map.keySet().iterator().next() == null)
+			{
 				// an anonymous conditions, add to current anonymous condition
-				map.values().forEach(list -> list.forEach(BaseAndOrCondition.this::addCondition));
-			return;
+				for (List<C> list : map.values())
+				{
+					for (C c : list)
+					{
+						addCondition(c);
+					}
+				}
+				return;
+			}
 		}
 
 		conditions = addToConditionMap(conditions, null, condition);
@@ -162,7 +175,17 @@ public abstract class BaseAndOrCondition<C extends IBaseSQLCondition> implements
 
 	public List<C> getAllConditions()
 	{
-		return conditions == null ? emptyList() : conditions.values().stream().flatMap(List::stream).collect(toList());
+		if (conditions == null)
+		{
+			return emptyList();
+		}
+
+		List<C> allConditions = new ArrayList<>();
+		for (List<C> list : conditions.values())
+		{
+			allConditions.addAll(list);
+		}
+		return allConditions;
 	}
 
 	public abstract C negate();
@@ -255,7 +278,6 @@ public abstract class BaseAndOrCondition<C extends IBaseSQLCondition> implements
 		return true;
 	}
 
-
 	@Override
 	public String toString()
 	{
@@ -264,23 +286,39 @@ public abstract class BaseAndOrCondition<C extends IBaseSQLCondition> implements
 
 		if (conditions != null)
 		{
-			sb.append(conditions.entrySet().stream().map(entry -> {
-				StringBuilder esb = new StringBuilder();
+			boolean first = true;
+			for (Entry<String, List<C>> entry : conditions.entrySet())
+			{
+				if (first)
+				{
+					first = false;
+					sb.append(", ");
+				}
 				if (entry.getKey() != null)
 				{
-					esb.append(entry.getKey()).append(": ");
+					sb.append(entry.getKey()).append(": ");
 				}
 				if (entry.getValue().size() > 1)
 				{
-					esb.append("[");
+					sb.append("[");
 				}
-				esb.append(entry.getValue().stream().map(C::toString).collect(joining(", ")));
+
+				first = true;
+				for (C c : entry.getValue())
+				{
+					if (first)
+					{
+						first = false;
+						sb.append(", ");
+					}
+					sb.append(c);
+				}
+
 				if (entry.getValue().size() > 1)
 				{
-					esb.append("]");
+					sb.append("]");
 				}
-				return esb.toString();
-			}).collect(joining(", ")));
+			}
 		}
 
 		return sb.append(')').toString();

@@ -16,8 +16,7 @@
  */
 package com.servoy.base.query;
 
-import static java.util.stream.Collectors.toList;
-
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -63,7 +62,13 @@ public final class BaseOrCondition extends BaseAndOrCondition<IBaseSQLCondition>
 		HashMap<String, List<IBaseSQLCondition>> nconditions = new HashMap<>(conditions.size());
 		for (Entry<String, List<IBaseSQLCondition>> entry : conditions.entrySet())
 		{
-			nconditions.put(entry.getKey(), entry.getValue().stream().map(IBaseSQLCondition::negate).collect(toList()));
+			List<IBaseSQLCondition> negatedList = new ArrayList<>();
+			for (IBaseSQLCondition c : entry.getValue())
+			{
+				negatedList.add(c.negate());
+			}
+
+			nconditions.put(entry.getKey(), negatedList);
 		}
 		return new BaseAndCondition(nconditions);
 	}
