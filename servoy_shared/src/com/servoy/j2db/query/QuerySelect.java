@@ -802,13 +802,17 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		this.plain_pk_select = (bits & 2) != 0;
 		this.lockMode = (bits / 4);
 
-		// condition used to be a HashMap<String, AndCondition>, now it is a AndCondition
+		// condition used to be a HashMap<String, AndCondition> or null, now it is a AndCondition
 		Object cond = members[i++];
 		if (cond instanceof Map)
 		{
 			AndCondition c = new AndCondition();
 			((Map<String, AndCondition>)cond).entrySet().forEach(entry -> c.setCondition(entry.getKey(), entry.getValue()));
 			this.condition = c;
+		}
+		else if (cond == null)
+		{
+			this.condition = new AndCondition();
 		}
 		else
 		{

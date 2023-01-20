@@ -62,7 +62,7 @@ public abstract class AndOrCondition extends BaseAndOrCondition<ISQLCondition> i
 	public Object writeReplace()
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
-		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), conditions);
+		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), conditions == null ? "" : conditions);
 	}
 
 	public AndOrCondition(ReplacedObject s)
@@ -77,7 +77,8 @@ public abstract class AndOrCondition extends BaseAndOrCondition<ISQLCondition> i
 		}
 		else
 		{
-			conditions = (HashMap<String, List<ISQLCondition>>)o;
+			// null not allowed as replaced object, we use an empty string in that case
+			conditions = "".equals(o) ? null : (HashMap<String, List<ISQLCondition>>)o;
 		}
 	}
 }
