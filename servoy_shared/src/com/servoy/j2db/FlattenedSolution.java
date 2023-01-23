@@ -579,6 +579,11 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return variantsHandler;
 	}
 
+	public PaletteCommonsHandler getPaletteCommonsHandler(String wsPath)
+	{
+		return PaletteCommonsHandler.getInstance(wsPath);
+	}
+
 
 	public Style createStyleCopy(Style style)
 	{
