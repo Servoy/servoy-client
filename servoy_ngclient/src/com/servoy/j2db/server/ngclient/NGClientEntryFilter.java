@@ -144,6 +144,7 @@ public class NGClientEntryFilter extends WebEntry
 	private String[] services;
 
 	private String group_id;
+	private boolean ng1Exported = true;
 
 	private final JSTemplateGenerator jsTemplateGenerator = new JSTemplateGenerator();
 
@@ -159,6 +160,15 @@ public class NGClientEntryFilter extends WebEntry
 		// when started in developer - init is done in the ResourceProvider filter
 		if (!ApplicationServerRegistry.get().isDeveloperStartup())
 		{
+			try
+			{
+				ng1Exported = fc.getServletContext().getResource("/js/servoy.js") != null;
+			}
+			catch (Exception e)
+			{
+				Debug.error("Exception during init checking if there are ng1 resources (/js/servoy.js)", e);
+			}
+
 			try (InputStream is = fc.getServletContext().getResourceAsStream("/WEB-INF/components.properties"))
 			{
 				Properties properties = new Properties();
@@ -290,6 +300,15 @@ public class NGClientEntryFilter extends WebEntry
 					String solutionName = getSolutionNameFromURI(uri);
 					if (solutionName != null)
 					{
+						// if ng1 is not exported, redirect to ng2
+						if (!ng1Exported && uri.endsWith(".html"))
+						{
+							String queryString = request.getQueryString();
+							if (queryString != null) uri += "?" + queryString;
+							uri = uri.replace(SOLUTIONS_PATH, AngularIndexPageWriter.SOLUTIONS_PATH);
+							response.sendRedirect(uri.toString());
+							return;
+						}
 						String clientnr = AngularIndexPageWriter.getClientNr(uri, request);
 						INGClientWebsocketSession wsSession = null;
 						HttpSession httpSession = request.getSession(false);

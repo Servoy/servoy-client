@@ -19,7 +19,9 @@ package com.servoy.j2db.scripting;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
@@ -276,14 +278,19 @@ public abstract class DefaultScope implements Scriptable, IDestroyable
 
 	public void destroy()
 	{
-		this.allIndex.values().stream().filter(object -> object instanceof IDestroyable).map(object -> (IDestroyable)object)
-			.forEach(destroyable -> destroyable.destroy());
-		this.allVars.values().stream().filter(object -> object instanceof IDestroyable).map(object -> (IDestroyable)object)
-			.forEach(destroyable -> destroyable.destroy());
+		List<IDestroyable> indexDestroybles = this.allIndex.values().stream().filter(object -> object instanceof IDestroyable)
+			.map(object -> (IDestroyable)object).collect(Collectors.toList());
+
+		List<IDestroyable> varDestroyables = this.allVars.values().stream().filter(object -> object instanceof IDestroyable).map(object -> (IDestroyable)object)
+			.collect(Collectors.toList());
+
 		this.allIndex.clear();
 		this.allVars.clear();
 		this.parent = null;
 		this.prototype = null;
+
+		indexDestroybles.forEach(destroyable -> destroyable.destroy());
+		varDestroyables.forEach(destroyable -> destroyable.destroy());
 	}
 
 	/**
