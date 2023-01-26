@@ -279,30 +279,30 @@ public class FoundsetTypeChangeMonitor
 		}
 	}
 
-	public void recordsDeleted(int firstRow, int lastRow, final FoundsetTypeViewport viewPort)
+	public void recordsDeleted(int firstDeletedRowInFoundset, int lastDeletedRowInFoundset, final FoundsetTypeViewport viewPort)
 	{
+		int oldChangeFlags = changeFlags;
+		if (lastDeletedRowInFoundset - firstDeletedRowInFoundset >= 0) foundSetSizeChanged();
+
 		int pkChunkSize = ((FoundSetManager)propertyValue.getApplication().getFoundSetManager()).pkChunkSize;
-		if (firstRow == pkChunkSize &&
+		if (firstDeletedRowInFoundset == pkChunkSize &&
 			propertyValue.getFoundset().getSize() == pkChunkSize &&
-			(viewPort.getStartIndex() + viewPort.getSize() - 1 <= lastRow))
+			(viewPort.getStartIndex() + viewPort.getSize() - 1 <= lastDeletedRowInFoundset))
 		{
 			// try to determine when foundset is changed by loadbyquery/loadallrecords, in this case we should not load the whole foundset based on old viewport data, we should reset the viewport to default values
 			viewPort.setPreferredViewportBounds();
 		}
 		else
 		{
-			int oldChangeFlags = changeFlags;
-
-			if (lastRow - firstRow >= 0) foundSetSizeChanged();
 			if (!shouldSendAll() && !shouldSendWholeViewPort())
 			{
 				int viewPortEndIdx = viewPort.getStartIndex() + viewPort.getSize() - 1;
 
 				int slideBy;
-				if (firstRow < viewPort.getStartIndex())
+				if (firstDeletedRowInFoundset < viewPort.getStartIndex())
 				{
 					// this will adjust the viewPort startIndex (and size if needed)
-					slideBy = firstRow - Math.min(viewPort.getStartIndex(), lastRow + 1);
+					slideBy = firstDeletedRowInFoundset - Math.min(viewPort.getStartIndex(), lastDeletedRowInFoundset + 1);
 				}
 				else
 				{
@@ -310,15 +310,16 @@ public class FoundsetTypeChangeMonitor
 					slideBy = 0;
 				}
 
-				if (belongsToInterval(firstRow, viewPort.getStartIndex(), viewPortEndIdx) ||
-					belongsToInterval(lastRow, viewPort.getStartIndex(), viewPortEndIdx) || belongsToInterval(viewPort.getStartIndex(), firstRow, lastRow))
+				if (belongsToInterval(firstDeletedRowInFoundset, viewPort.getStartIndex(), viewPortEndIdx) ||
+					belongsToInterval(lastDeletedRowInFoundset, viewPort.getStartIndex(), viewPortEndIdx) ||
+					belongsToInterval(viewPort.getStartIndex(), firstDeletedRowInFoundset, lastDeletedRowInFoundset))
 				{
 					// so either part of the viewport was deleted (firstRow or lastRow inside viewport bounds)
 					// or whole viewport was deleted ((firstRow or lastRow NOT inside viewport bounds) but viewport startIndex inside deleted bounds)
 					// so not only indexes need to be adjusted/checked but also the contents of the viewport...
 
-					int firstRowDeletedInViewport = Math.max(viewPort.getStartIndex(), firstRow);
-					int lastRowDeletedInViewport = Math.min(viewPortEndIdx, lastRow);
+					int firstRowDeletedInViewport = Math.max(viewPort.getStartIndex(), firstDeletedRowInFoundset);
+					int lastRowDeletedInViewport = Math.min(viewPortEndIdx, lastDeletedRowInFoundset);
 					final int relativeFirstRow = firstRowDeletedInViewport - viewPort.getStartIndex();
 					// number of deletes from current viewPort
 					final int relativeLastRow = lastRowDeletedInViewport - viewPort.getStartIndex();
@@ -351,14 +352,14 @@ public class FoundsetTypeChangeMonitor
 				{
 					viewPort.slideAndCorrect(slideBy);
 				}
-			}
-			else if (viewPort.getSize() > propertyValue.getFoundset().getSize())
+			} // else maybe client requested a loadRecords with specific bounds before this insert notification arrived and we should honor those viewport bounds, not alter them automatically
+			else if (viewPort.getStartIndex() + viewPort.getSize() > propertyValue.getFoundset().getSize())
 			{
-				// if it will already send the whole viewport then the size needs to be in sync with the foundset.
+				// if it will already send the whole viewport, the size still needs to be in sync with the foundset
 				viewPort.correctAndSetViewportBoundsInternal(viewPort.getStartIndex(), viewPort.getSize());
 			}
-			if (oldChangeFlags != changeFlags) notifyChange();
 		}
+		if (oldChangeFlags != changeFlags) notifyChange();
 	}
 
 	public void extendClientViewport(final int firstRow, int lastRow, int oldSize, final FoundsetTypeViewport viewPort)
@@ -385,36 +386,73 @@ public class FoundsetTypeChangeMonitor
 	 * @param lastRow the last row of the insertion.
 	 * @param viewPort the current viewPort.
 	 */
-	public void recordsInserted(final int firstRow, int lastRow, int oldSize, final FoundsetTypeViewport viewPort)
+	public void recordsInserted(final int firstInsertedRowInFoundset, int lastInsertedRowInFoundset, int oldViewportSize, final FoundsetTypeViewport viewPort)
 	{
 		int oldChangeFlags = changeFlags;
-		if (lastRow - firstRow >= 0) foundSetSizeChanged();
-		if (!shouldSendAll() && !shouldSendWholeViewPort())
-		{
-			int viewPortEndIdx = viewPort.getStartIndex() + viewPort.getSize() - 1;
-			if (viewPort.getStartIndex() <= firstRow && firstRow <= viewPortEndIdx)
-			{
-				final int lastViewPortInsert = Math.min(lastRow, viewPortEndIdx);
-				// add records that were inserted in viewPort
-				callAllViewportDataChangeMonitorsWrappedInFireCollector(new IVPDCMRunnable()
-				{
-					public void run(ViewportDataChangeMonitor< ? > vpdcm)
-					{
-						vpdcm.queueOperation(firstRow - viewPort.getStartIndex(), lastViewPortInsert - viewPort.getStartIndex(), oldSize,
-							ArrayOperation.INSERT);
+		if (lastInsertedRowInFoundset - firstInsertedRowInFoundset >= 0) foundSetSizeChanged();
 
-						// for insert operations that will push some rows out of the viewport we need to generate a delete operation as well (so that viewport data is correct afterwards)
-						int rowsInsertedInViewport = lastViewPortInsert - firstRow + 1;
-						int rowsThatSlidedOutOfViewport = oldSize + rowsInsertedInViewport - viewPort.getSize();
-						if (rowsThatSlidedOutOfViewport > 0)
-							vpdcm.queueOperation(viewPort.getSize(), viewPort.getSize() + rowsThatSlidedOutOfViewport - 1, oldSize, ArrayOperation.DELETE);
-					}
-				});
-			}
-			else if (viewPort.getStartIndex() > firstRow)
+		if (oldViewportSize == 0)
+		{
+			// reset to the preferred viewport size if that is set
+			viewPort.setPreferredViewportBounds();
+		}
+		else
+		{
+			int nrNewRecords = lastInsertedRowInFoundset - firstInsertedRowInFoundset + 1;
+			int foundsetSize = viewPort.foundset.getSize();
+
+			// if the size of the viewport is still smaller then the preferredViewPortSize
+			// and the foundset size allows for bigger viewport then size then update the bounds so that it
+			// adds the extra wanted records at the end
+			if (viewPort.size < viewPort.preferredViewPortSize && (foundsetSize - viewPort.startIndex) > viewPort.size &&
+				(foundsetSize - nrNewRecords) == (viewPort.startIndex + viewPort.size))
 			{
-				viewPort.slideAndCorrect(lastRow - firstRow + 1);
+				int oldStartIndex = viewPort.startIndex;
+				int newSize = Math.min(viewPort.preferredViewPortSize, (foundsetSize - viewPort.startIndex));
+
+				int insertStart = Math.max(viewPort.startIndex, firstInsertedRowInFoundset);
+				int insertEnd = Math.min(viewPort.startIndex + newSize - 1, lastInsertedRowInFoundset);
+
+				if (insertEnd >= insertStart && ((insertEnd - insertStart + 1) == (newSize - oldViewportSize)))
+				{
+					viewPort.correctAndSetViewportBoundsInternal(viewPort.startIndex, newSize);
+					if (oldStartIndex != viewPort.startIndex || oldViewportSize != viewPort.size) viewPortBoundsOnlyChanged();
+					// ONLY viewPortBoundsOnlyChanged() here, not full viewport changed, because, even though viewport data was added, a
+					// granular insert op. for, the new data in the viewport is generated in code below - vpdcm.queueOperation..., or
+					// if it is already marked to send all or send whole viewport, the data and bounds will be sent due to that anyway
+				}
 			}
+
+			if (!shouldSendAll() && !shouldSendWholeViewPort())
+			{
+				int viewPortEndIdx = viewPort.getStartIndex() + viewPort.getSize() - 1;
+				if (viewPort.getStartIndex() <= firstInsertedRowInFoundset && firstInsertedRowInFoundset <= viewPortEndIdx)
+				{
+					final int lastViewPortInsert = Math.min(lastInsertedRowInFoundset, viewPortEndIdx);
+					// add records that were inserted in viewPort
+					callAllViewportDataChangeMonitorsWrappedInFireCollector(new IVPDCMRunnable()
+					{
+						public void run(ViewportDataChangeMonitor< ? > vpdcm)
+						{
+							vpdcm.queueOperation(firstInsertedRowInFoundset - viewPort.getStartIndex(), lastViewPortInsert - viewPort.getStartIndex(),
+								oldViewportSize,
+								ArrayOperation.INSERT);
+
+							// for insert operations that will push some rows out of the viewport we need to generate a delete operation as well (so that viewport data is correct afterwards)
+							int rowsInsertedInViewport = lastViewPortInsert - firstInsertedRowInFoundset + 1;
+							int rowsThatSlidedOutOfViewport = oldViewportSize + rowsInsertedInViewport - viewPort.getSize();
+							if (rowsThatSlidedOutOfViewport > 0)
+								vpdcm.queueOperation(viewPort.getSize(), viewPort.getSize() + rowsThatSlidedOutOfViewport - 1, oldViewportSize,
+									ArrayOperation.DELETE);
+						}
+					});
+				}
+				else if (viewPort.getStartIndex() > firstInsertedRowInFoundset)
+				{
+					viewPort.slideAndCorrect(lastInsertedRowInFoundset - firstInsertedRowInFoundset + 1);
+				}
+			} // else maybe client requested a loadRecords with specific bounds before this insert notification arrived and we should honor those viewport bounds, not alter them automatically
+				// an insert should not be able to make viewport have invalid bounds, so no further corrections needed to viewport bounds
 		}
 
 		if (oldChangeFlags != changeFlags) notifyChange();

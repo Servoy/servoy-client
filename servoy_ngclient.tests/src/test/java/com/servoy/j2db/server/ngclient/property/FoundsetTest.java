@@ -34,9 +34,12 @@ import org.json.JSONWriter;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sablo.Container;
+import org.sablo.IChangeListener;
 import org.sablo.InMemPackageReader;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
+import org.sablo.specification.property.ArrayOperation;
 import org.sablo.specification.property.BrowserConverterContext;
+import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -598,6 +601,150 @@ public class FoundsetTest extends AbstractSolutionTest
 		foundSet.deleteRecord(0);
 		foundSet.deleteRecord(2);//last record is now at index 2
 		Assert.assertEquals(18, rawPropertyValue.getFoundset().getSize());
+	}
+
+	@Test
+	public void foundsetViewportAddExtendsOrNotDueToPreferredViewportSize() throws JSONException, ServoyException
+	{
+		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
+		Assert.assertNotNull(form);
+		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset");
+
+		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
+		IFoundSetInternal foundSet = rawPropertyValue.getFoundset();
+
+		viewPort.setPreferredViewportSize(30);
+		viewPort.setBounds(4, 3);
+		Assert.assertEquals(18, foundSet.getSize());
+
+
+		// new record before should shift right bounds; it will not grow in size automatically because it sees viewport was different then whole available rows even before
+		rawPropertyValue.changeMonitor.clearChanges();
+		foundSet.newRecord(1, false);
+
+		Assert.assertEquals(3, viewPort.size);
+		Assert.assertEquals(5, viewPort.startIndex);
+		Assert.assertEquals(19, foundSet.getSize());
+		Assert.assertTrue(viewPort.changeMonitor.shouldSendViewPortBounds());
+		Assert.assertFalse(viewPort.changeMonitor.shouldSendWholeViewPort());
+		Assert.assertFalse(viewPort.changeMonitor.hasViewportChanges());
+
+		// insert happens inside viewport; it will not shift, not grow in size, just generate a viewport insert + delete data op (the previous last row in viewport is now out of the viewport)
+		rawPropertyValue.changeMonitor.clearChanges();
+		foundSet.newRecord(6, false);
+
+		Assert.assertEquals(3, viewPort.size);
+		Assert.assertEquals(5, viewPort.startIndex);
+		Assert.assertEquals(20, foundSet.getSize());
+		Assert.assertEquals(false, viewPort.changeMonitor.shouldSendViewPortBounds());
+		Assert.assertEquals(false, viewPort.changeMonitor.shouldSendWholeViewPort());
+		ArrayOperation[] vpChanges = viewPort.changeMonitor.getViewPortChanges();
+		Assert.assertEquals(2, vpChanges.length);
+		Assert.assertEquals(ArrayOperation.INSERT, vpChanges[0].type);
+		Assert.assertEquals(1, vpChanges[0].startIndex);
+		Assert.assertEquals(1, vpChanges[0].endIndex);
+		Assert.assertEquals(ArrayOperation.DELETE, vpChanges[1].type);
+		Assert.assertEquals(3, vpChanges[1].startIndex);
+		Assert.assertEquals(3, vpChanges[1].endIndex);
+
+		// insert happens after viewport; it will not shift, not grow in size, just know the foundset size is changed
+		rawPropertyValue.changeMonitor.clearChanges();
+		foundSet.newRecord(10, false);
+
+		Assert.assertEquals(3, viewPort.size);
+		Assert.assertEquals(5, viewPort.startIndex);
+		Assert.assertEquals(21, foundSet.getSize());
+		Assert.assertFalse(viewPort.changeMonitor.shouldSendViewPortBounds());
+		Assert.assertFalse(viewPort.changeMonitor.shouldSendWholeViewPort());
+		Assert.assertFalse(viewPort.changeMonitor.hasViewportChanges());
+		Assert.assertTrue(viewPort.changeMonitor.shouldSendFoundsetSize());
+
+		// OK now scenarios where viewport took up all rows but preferred is higher - then it will grow
+
+		// insert happens after viewport; it will not shift, not grow in size, just know the foundset size is changed
+		viewPort.setBounds(0, 21);
+		rawPropertyValue.changeMonitor.clearChanges();
+		foundSet.newRecord(10, false);
+
+		Assert.assertEquals(22, viewPort.size);
+		Assert.assertEquals(0, viewPort.startIndex);
+		Assert.assertEquals(22, foundSet.getSize());
+		Assert.assertTrue(viewPort.changeMonitor.shouldSendViewPortBounds());
+		Assert.assertFalse(viewPort.changeMonitor.shouldSendWholeViewPort());
+		Assert.assertTrue(viewPort.changeMonitor.hasViewportChanges());
+		Assert.assertTrue(viewPort.changeMonitor.shouldSendFoundsetSize());
+		vpChanges = viewPort.changeMonitor.getViewPortChanges();
+		Assert.assertEquals(1, vpChanges.length);
+		Assert.assertEquals(ArrayOperation.INSERT, vpChanges[0].type);
+		Assert.assertEquals(10, vpChanges[0].startIndex);
+		Assert.assertEquals(10, vpChanges[0].endIndex);
+	}
+
+	@Test
+	public void foundsetViewportDeleteMustAdjustViewportSizeCorrectlyEvenIfItIsMarkedAsFullyChangedAlready() throws JSONException, ServoyException
+	{
+		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
+		Assert.assertNotNull(form);
+		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset");
+
+		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
+		IFoundSetInternal foundSet = rawPropertyValue.getFoundset();
+
+		viewPort.setPreferredViewportSize(30);
+		viewPort.setBounds(4, 14);
+		Assert.assertEquals(18, foundSet.getSize());
+
+		// a delete that affects viewport bounds should update viewport bounds (no leave them invalid) even if viewport was previously marked as fully changed
+		rawPropertyValue.changeMonitor.clearChanges();
+		rawPropertyValue.changeMonitor.viewPortCompletelyChanged();
+		foundSet.deleteRecord(3);
+
+		// this went wrong before fixes for SVY-17654; viewport remained out-of-bounds
+		Assert.assertEquals(13, viewPort.size);
+		Assert.assertEquals(4, viewPort.startIndex);
+		Assert.assertEquals(17, foundSet.getSize());
+		Assert.assertTrue(viewPort.changeMonitor.shouldSendWholeViewPort());
+		Assert.assertTrue(viewPort.changeMonitor.shouldSendFoundsetSize());
+	}
+
+	@Test
+	public void foundsetViewportInsertShouldFireChangeMonitor() throws JSONException, ServoyException
+	{
+		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
+		Assert.assertNotNull(form);
+		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset");
+
+		ValueReference<Boolean> valueChangeMotified = new ValueReference<>(Boolean.FALSE);
+		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
+		viewPort.changeMonitor.setChangeNotifier(new IChangeListener()
+		{
+
+			@Override
+			public void valueChanged()
+			{
+				valueChangeMotified.value = Boolean.TRUE;
+			}
+
+		});
+		IFoundSetInternal foundSet = rawPropertyValue.getFoundset();
+
+		viewPort.setPreferredViewportSize(30);
+		viewPort.setBounds(0, 18);
+		Assert.assertEquals(18, foundSet.getSize());
+
+		rawPropertyValue.changeMonitor.clearChanges();
+		rawPropertyValue.changeMonitor.viewPortCompletelyChanged(); // I want the change notifier to trigger only due to foundset size change needing to get to client
+		Assert.assertTrue(viewPort.changeMonitor.shouldSendWholeViewPort());
+		Assert.assertFalse(viewPort.changeMonitor.shouldSendViewPortBounds());
+		valueChangeMotified.value = Boolean.FALSE;
+
+		foundSet.newRecord(5, false);
+
+		Assert.assertEquals(19, viewPort.size);
+		Assert.assertEquals(0, viewPort.startIndex);
+		Assert.assertEquals(19, foundSet.getSize());
+		Assert.assertTrue(viewPort.changeMonitor.shouldSendFoundsetSize());
+		Assert.assertTrue(valueChangeMotified.value.booleanValue()); // due to foundset size change
 	}
 
 	@Test

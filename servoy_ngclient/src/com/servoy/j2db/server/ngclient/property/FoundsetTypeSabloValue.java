@@ -173,7 +173,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 		rowDataProvider = new FoundsetTypeRowDataProvider(this);
 		changeMonitor = new FoundsetTypeChangeMonitor(this, rowDataProvider);
-		viewPort = new FoundsetTypeViewport(changeMonitor, specConfig);
+		viewPort = new FoundsetTypeViewport(changeMonitor, specConfig, log);
 		// nothing to do here; foundset is not initialized until it's attached to a component
 		recordDataLinkedPropertyIDToColumnDP = new HashMap<String, String>();
 		// foundsetSelector as defined in component design json
