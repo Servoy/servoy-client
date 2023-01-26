@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import org.slf4j.Logger;
+
 import com.servoy.j2db.dataprocessing.FoundSetEvent;
 import com.servoy.j2db.dataprocessing.IFoundSetEventListener;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -30,13 +32,15 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 public class FoundsetTypeViewport
 {
 
+	private final Logger log;
+
 	protected int startIndex = 0;
 	protected int size = 0;
 	protected FoundsetTypeChangeMonitor changeMonitor;
 	protected IFoundSetInternal foundset;
 	protected IFoundSetEventListener foundsetEventListener;
 
-	private int preferredViewPortSize; // 50 by default; see constructor
+	protected int preferredViewPortSize; // 50 by default; see constructor
 	private boolean sendSelectionViewportInitially; // default is false; see constructor
 	private boolean initialSelectionViewportCentered = true; // see setInitialSelectionViewportCentered(...) below
 
@@ -48,12 +52,13 @@ public class FoundsetTypeViewport
 	 * Creates a new viewport object.
 	 * @param changeMonitor change monitor can be used to announce changes in viewport (bounds).
 	 */
-	public FoundsetTypeViewport(FoundsetTypeChangeMonitor changeMonitor, FoundsetPropertyTypeConfig specConfig)
+	public FoundsetTypeViewport(FoundsetTypeChangeMonitor changeMonitor, FoundsetPropertyTypeConfig specConfig, Logger log)
 	{
 		this.changeMonitor = changeMonitor;
 		this.preferredViewPortSize = specConfig.initialPreferredViewPortSize;
 		this.sendSelectionViewportInitially = specConfig.sendSelectionViewportInitially;
 		this.foundsetDefinitionListener = specConfig.foundsetDefinitionListener;
+		this.log = log;
 		// we don't define initialSelectionViewportCentered in .spec config yet because the component usually doesn't know on first show what it's desired page size is (that is normally based on UI space) - or some component might even not know if it's using paging or scrolling UI viewport
 		// but initialSelectionViewportCentered can still be altered by the component after it is shown in browser via a foundset type API call from client
 	}
@@ -182,8 +187,8 @@ public class FoundsetTypeViewport
 		}
 		else
 		{
-			this.startIndex = Math.max(positiveOrNegativeRecordNo + startIndex, 0);
-			this.size += (oldStartIndex - startIndex);
+			int wantedStartIndex = Math.max(positiveOrNegativeRecordNo + startIndex, 0);
+			correctAndSetViewportBoundsInternal(wantedStartIndex, size + (oldStartIndex - wantedStartIndex));
 			if (oldStartIndex != startIndex || oldSize != size) changeMonitor.extendClientViewport(this.startIndex, oldStartIndex - 1, oldSize, this);
 		}
 
@@ -307,42 +312,27 @@ public class FoundsetTypeViewport
 						// partial change only push the changes.
 						if (event.getChangeType() == FoundSetEvent.CHANGE_DELETE)
 						{
+							if (log.isTraceEnabled()) log.trace("Viewport '" + hashCode() + "' (start: " + startIndex + ", size: " + size +
+								") foundset listener - got DELETE (" + event.getFirstRow() + "," +
+								event.getLastRow() + "; foundset " + (foundset != null ? "size is now: " + foundset.getSize() : "is null."));
+
 							changeMonitor.recordsDeleted(event.getFirstRow(), event.getLastRow(), FoundsetTypeViewport.this);
+
+							if (log.isTraceEnabled()) log.trace("Viewport '" + hashCode() + "' has handled the DELETE; it is now (start: " + startIndex +
+								", size: " + size + "); foundset size: " + "; foundset " +
+								(foundset != null ? "size is now: " + foundset.getSize() : "is null."));
 						}
 						else if (event.getChangeType() == FoundSetEvent.CHANGE_INSERT)
 						{
-							if (size == 0)
-							{
-								// reset to the preferred viewport size if that is set
-								setPreferredViewportBounds();
-								changeMonitor.viewPortCompletelyChanged();
-								changeMonitor.foundSetSizeChanged();
-							}
-							else
-							{
-								int nrNewRecords = event.getLastRow() - event.getFirstRow() + 1;
-								int foundsetSize = foundset.getSize();
-								// if the size of the viewport is still smaller then the preferredViewPortSize
-								// and the foundset size allows for bigger viewport then size then update the bounds so that it is
-								// adds the extra wanted records at the end
-								int oldSize = size;
-								if (size < preferredViewPortSize && (foundsetSize - startIndex) > size && (foundsetSize - nrNewRecords) == (startIndex + size))
-								{
-									int oldStartIndex = startIndex;
-									int newSize = Math.min(preferredViewPortSize, (foundset.getSize() - startIndex));
+							if (log.isTraceEnabled()) log.trace("Viewport '" + hashCode() + "' (start: " + startIndex + ", size: " + size +
+								") foundset listener - got INSERT (" + event.getFirstRow() + "," +
+								event.getLastRow() + "; foundset size is now: " + "; foundset " +
+								(foundset != null ? "size is now: " + foundset.getSize() : "is null."));
 
-									int insertStart = Math.max(startIndex, event.getFirstRow());
-									int insertEnd = Math.min(startIndex + newSize - 1, event.getLastRow());
+							changeMonitor.recordsInserted(event.getFirstRow(), event.getLastRow(), size, FoundsetTypeViewport.this); // true - slide if first so that viewPort follows the first record
 
-									if (insertEnd >= insertStart && ((insertEnd - insertStart + 1) == (newSize - oldSize)))
-									{
-										correctAndSetViewportBoundsInternal(startIndex, newSize);
-										if (oldStartIndex != startIndex || oldSize != size) changeMonitor.viewPortBoundsOnlyChanged();
-									}
-								}
-
-								changeMonitor.recordsInserted(event.getFirstRow(), event.getLastRow(), oldSize, FoundsetTypeViewport.this); // true - slide if first so that viewPort follows the first record
-							}
+							if (log.isTraceEnabled()) log.trace("Viewport '" + hashCode() + "' has handled the INSERT; it is now (start: " + startIndex +
+								", size: " + size + "; foundset " + (foundset != null ? "size is now: " + foundset.getSize() : "is null."));
 						}
 						else if (event.getChangeType() == FoundSetEvent.CHANGE_UPDATE)
 						{

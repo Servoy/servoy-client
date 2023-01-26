@@ -721,7 +721,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		{
 			Debug.error("Foundset linked property (" + pd +
 				") that doesn't define a suitable pushToServer value (allow/shallow/deep) tried to update proxied value(s) serverside. Denying and sending back server value!");
-			if (viewPortChangeMonitor != null) viewPortChangeMonitor.shouldSendWholeViewport();
+			if (viewPortChangeMonitor != null) viewPortChangeMonitor.viewPortCompletelyChanged();
 			else changeMonitor.valueChanged();
 		}
 	}
