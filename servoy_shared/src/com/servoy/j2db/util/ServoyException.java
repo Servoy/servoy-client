@@ -128,6 +128,16 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 	public static final int UNEXPECTED_UPDATE_COUNT = 108;
 
 
+	/**
+	 * Exception code for MUST_ROLLBACK.
+	 *
+	 * This code is used when an update is not performed because of a previous sql-exception within a transaction.
+	 *
+	 * @sampleas js_getErrorCode()
+	 * @see #js_getErrorCode()
+	 */
+	public static final int MUST_ROLLBACK = 109;
+
 	// --------------------------------------------
 	//application error code should be in 300 range
 	// --------------------------------------------
@@ -519,6 +529,9 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 
 			case DATA_INTEGRITY_VIOLATION :
 				return "Column data not valid, null check or other database validation failed";
+
+			case MUST_ROLLBACK :
+				return Messages.getString("servoy.error.transaction.mustRollback");
 
 			default :
 				if (errorCode == 0 && getCause() != null)

@@ -832,6 +832,7 @@ public class EditRecordList
 			Map<FoundSet, List<Record>> foundsetToRecords = new HashMap<FoundSet, List<Record>>();
 			Map<FoundSet, List<String>> foundsetToAggregateDeletes = new HashMap<FoundSet, List<String>>();
 			List<Runnable> fires = new ArrayList<Runnable>(infos.length);
+			int mustRollbackCount = 0;
 			// Walk in reverse over it, so that related rows are update in there row manger before they are required by there parents.
 			for (int i = infos.length; --i >= 0;)
 			{
@@ -853,6 +854,11 @@ public class EditRecordList
 						if (retValue instanceof ServoyException)
 						{
 							((ServoyException)retValue).fillScriptStack();
+
+							if (((ServoyException)retValue).getErrorCode() == ServoyException.MUST_ROLLBACK)
+							{
+								mustRollbackCount++;
+							}
 						}
 						row.setLastException((Exception)retValue);
 						markRecordAsFailed(record);
@@ -967,6 +973,12 @@ public class EditRecordList
 						}
 					}
 				}
+			}
+
+			if (mustRollbackCount > 0)
+			{
+				log.error("Not all edit records were processed: " + mustRollbackCount +
+					" records failed because the transaction must be rolled back after a failure");
 			}
 
 			// run rowmanager fires in reverse order (original order because info's were processed in reverse order) -> first inserted record is fired first

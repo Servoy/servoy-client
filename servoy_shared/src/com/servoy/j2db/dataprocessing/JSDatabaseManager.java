@@ -2061,11 +2061,15 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * {
 	 * 	var record = array[i];
 	 * 	application.output(record.exception);
-	 * 	if (record.exception.getErrorCode() == ServoyException.RECORD_VALIDATION_FAILED)
+	 * 	if (record.exception.getErrorCode() === ServoyException.RECORD_VALIDATION_FAILED)
 	 * 	{
 	 * 		// exception thrown in pre-insert/update/delete event method
 	 * 		var thrown = record.exception.getValue()
 	 * 		application.output("Record validation failed: "+thrown)
+	 * 	}
+	 * 	else if (record.exception.getErrorCode() !== ServoyException.MUST_ROLLBACK)
+	 * 	{
+	 * 		// some other exception (ServoyException.MUST_ROLLBACK are records that were not saved because of previous errors in the transaction)
 	 * 	}
 	 * 	// find out the table of the record (similar to getEditedRecords)
 	 * 	var jstable = databaseManager.getTable(record);
@@ -3235,54 +3239,44 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		return application.getFoundSetManager().validateRecord((IRecordInternal)record, customObject);
 	}
 
-//	/**
-//	 * @param record The record to validate.
-//	 *
-//	 * @throws ServoyException
-//	 */
-//	@JSFunction
-//	public JSRecordMarkers validateRecord(ViewRecord record) throws ServoyException
-//	{
-//		return validateRecord(record, null);
-//	}
-//
-//	/**
-//	 * @param record The record to validate.
-//	 * @param state The extra state that is passed on the the validation methods.
-//	 *
-//	 * @throws ServoyException
-//	 */
-//	@JSFunction
-//	public JSRecordMarkers validateRecord(ViewRecord record, Object state) throws ServoyException
-//	{
-//		checkAuthorized();
-//		return application.getFoundSetManager().validateRecord(record, state);
-//	}
-
 	/**
 	 * Saves all outstanding (unsaved) data and exits the current record.
+	 * <br>
 	 * Optionally, by specifying a record or foundset, can save a single record or all records from foundset instead of all the data.
 	 * Since Servoy 8.3 saveData with null parameter does not call saveData() as fallback, it just returns false.
-	 *
-	 * NOTE: The fields focus may be lost in user interface in order to determine the edits.
-	 * 		 SaveData called from table events (like afterRecordInsert) is only partially supported depeding on how first saveData (that triggers the event) is called.
-	 * 		 If first saveData is called with no arguments, all saveData from table events are returning immediatelly with true value and records will be saved as part of first save.
-	 *       If first saveData is called with record(s) as arguments, saveData from table event will try to save record(s) from arguments that are different than those in first call.
-	 *       SaveData with no arguments inside table events will always return true without saving anything.
+	 * <p>
+	 * <b>NOTE</b>: The fields focus may be lost in user interface in order to determine the edits.
+	 * 		 saveData() called from table events (like afterRecordInsert) is only partially supported depending on how first saveData() (that triggers the event) is called.
+	 * 		 If first saveData() is called with no arguments, all saveData() from table events are returning immediately with true value and records will be saved as part of first save.
+	 *       If first saveData() is called with record(s) as arguments, saveData() from table event will try to save record(s) from arguments that are different than those in first call.
+	 *       saveData() with no arguments inside table events will always return true without saving anything.
+	 * <p>
+	 * <b>NOTE</b>: When saveData() is called within a transaction, records after a record that fails with some sql-exception will not be saved, but moved to the failed records.
+	 *       record.exception.getErrorCode() will return ServoyException.MUST_ROLLBACK for these records.
 	 *
 	 * @sample
-	 * databaseManager.saveData();
-	 * //databaseManager.saveData(foundset.getRecord(1));//save specific record
-	 * //databaseManager.saveData(foundset);//save all records from foundset
+	 * var saved = databaseManager.saveData()
+	 * // var saved = databaseManager.saveData(foundset.getRecord(1)) // save specific record
+	 * // var saved = databaseManager.saveData(foundset) // save all records from foundset
 	 *
 	 * // when creating many records in a loop do a batch save on an interval as every 10 records (to save on memory and roundtrips)
-	 * // for (var recordIndex = 1; recordIndex <= 5000; recordIndex++)
-	 * // {
-	 * //		foundset.newRecord();
-	 * //		someColumn = recordIndex;
-	 * //		anotherColumn = "Index is: " + recordIndex;
-	 * //		if (recordIndex % 10 == 0) databaseManager.saveData();
-	 * // }
+	 * var success = true
+	 * for (var recordIndex = 1; success && recordIndex <= 5000; recordIndex++)
+	 * {
+	 * 	foundset.newRecord()
+	 * 	someColumn = recordIndex
+	 * 	anotherColumn = "Index is: " + recordIndex
+	 * 	if (recordIndex % 10 == 0) success = databaseManager.saveData()
+	 * }
+	 *
+	 * // check the failed records
+	 * if (!success) {
+	 *   var failedRecords = databaseManager.getFailedRecords();
+	 *   for (var i = 0; i < failedRecords.length; i++) {
+	 *      var failedRecord = failedRecords[i]
+	 *      // failed[i].exception shows the error, failed[i].exception.getErrorCode() is one of the ServoyException.* values
+	 *   }
+	 * }
 	 *
 	 * @return true if the save was done without an error.
 	 */
@@ -3955,7 +3949,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	/**
 	 * Rollback a transaction started by databaseManager.startTransaction().
 	 * Note that when autosave is false, revertEditedRecords() will not handle deleted records, while rollbackTransaction() does.
-	 * Also, rollbackEditedRecords() is called before rolling back the transaction see rollbackTransaction(boolean) to controll that behavior
+	 * Also, rollbackEditedRecords() is called before rolling back the transaction see rollbackTransaction(boolean) to control that behavior
 	 * and saved records within the transactions are restored to the database values, so user input is lost, to control this see rollbackTransaction(boolean,boolean)
 	 *
 	 * @sampleas js_startTransaction()
@@ -3967,17 +3961,17 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 	/**
 	 * Start a database transaction.
-	 * If you want to avoid round trips to the server or avoid the posibility of blocking other clients
+	 * If you want to avoid round trips to the server or avoid the possibility of blocking other clients
 	 * because of your pending changes, you can use databaseManager.setAutoSave(false/true) and databaseManager.rollbackEditedRecords().
 	 *
-	 * startTransaction, commit/rollbackTransacton() does support rollbacking of record deletes which autoSave = false doesnt support.
+	 * startTransaction, commit/rollbackTransacton() does support rollback of record deletes which autoSave = false doesn't support.
 	 *
 	 * @sample
 	 * // starts a database transaction
 	 * databaseManager.startTransaction()
-	 * //Now let users input data
+	 * // Now let users input data
 	 *
-	 * //when data has been entered do a commit or rollback if the data entry is canceld or the the commit did fail.
+	 * // when data has been entered do a commit or rollback if the data entry is canceled or the the commit did fail.
 	 * if (cancel || !databaseManager.commitTransaction())
 	 * {
 	 * 	databaseManager.rollbackTransaction();
