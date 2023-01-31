@@ -293,12 +293,9 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		{
 			INGApplication application = servoyDataConverterContext.getApplication();
 			formatSabloValue = (FormatTypeSabloValue)webObjectContext.getProperty(formatPdName);
-			if (formatSabloValue != null && formatSabloValue.getFormatDesignValue() != null)
+			if (formatSabloValue != null)
 			{
-				// TODO why do we rely here on formatSabloValue.getFormatDesignValue() - which could also be absent in case the format property
-				// was created from DB table column format settings (but is really there!), not as an actual component's format prop...?!
-				// why not use directly formatSabloValue.getComponentFormat() - it should already be computed correctly I think
-				fieldFormat = ComponentFormat.getComponentFormat(formatSabloValue.getFormatDesignValue(), dataProviderID, dpLookup, application);
+				fieldFormat = formatSabloValue.getComponentFormat();
 			}
 		}
 
