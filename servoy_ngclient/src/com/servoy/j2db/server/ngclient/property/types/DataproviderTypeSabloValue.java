@@ -299,14 +299,11 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			}
 		}
 
-		if (fieldFormat != null)
+		// if UI converter is set on the format, use it to get the dp type
+		if (fieldFormat != null && fieldFormat.parsedFormat != null && fieldFormat.parsedFormat.getUIConverterName() != null)
 		{
 			typeOfDP = NGUtils.getDataProviderPropertyDescription(fieldFormat.uiType, getDataProviderConfig().hasParseHtml(),
 				fieldFormat.parsedFormat.useLocalDateTime());
-			if (record instanceof FindState)
-			{
-				((FindState)record).setFormat(dataProviderID, fieldFormat.parsedFormat);
-			}
 		}
 		else
 		{
@@ -316,6 +313,12 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 				getDataProviderConfig().hasParseHtml(),
 				formatSabloValue != null ? formatSabloValue.getComponentFormat().parsedFormat.useLocalDateTime() : false);
 		}
+		if (fieldFormat != null && record instanceof FindState)
+		{
+			((FindState)record).setFormat(dataProviderID, fieldFormat.parsedFormat);
+		}
+
+
 		if (dpPD.hasTag(TAG_TYPE_NAME))
 		{
 			IPropertyType< ? > specType = TypesRegistry.getType((String)dpPD.getTag(TAG_TYPE_NAME));
