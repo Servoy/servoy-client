@@ -139,7 +139,7 @@ public final class RhinoMapOrArrayWrapper implements Scriptable, SymbolScriptabl
 	{
 		if (wrappedValue instanceof List< ? >)
 		{
-			if (((List< ? >)wrappedValue).size() > index)
+			if (((List< ? >)wrappedValue).size() > index && index >= 0)
 			{
 				return ((List< ? >)wrappedValue).get(index);
 			}
