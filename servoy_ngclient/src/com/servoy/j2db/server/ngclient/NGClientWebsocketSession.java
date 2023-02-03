@@ -545,14 +545,18 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	 */
 	public static void sendInternalError(Throwable e)
 	{
-		Map<String, Object> internalError = new HashMap<>();
-		StringWriter sw = new StringWriter();
-		e.printStackTrace(new PrintWriter(sw));
-		String stackTrace = sw.toString();
-		if (ApplicationServerRegistry.get().isDeveloperStartup()) internalError.put("stack", stackTrace);
-		String htmlView = Settings.getInstance().getProperty("servoy.webclient.error.page");
-		if (htmlView != null) internalError.put("viewUrl", htmlView);
-		CurrentWindow.get().getSession().getClientService("$sessionService").executeAsyncServiceCall("setInternalServerError", new Object[] { internalError });
+		if (CurrentWindow.get().getEndpoint().hasSession())
+		{
+			Map<String, Object> internalError = new HashMap<>();
+			StringWriter sw = new StringWriter();
+			e.printStackTrace(new PrintWriter(sw));
+			String stackTrace = sw.toString();
+			if (ApplicationServerRegistry.get().isDeveloperStartup()) internalError.put("stack", stackTrace);
+			String htmlView = Settings.getInstance().getProperty("servoy.webclient.error.page");
+			if (htmlView != null) internalError.put("viewUrl", htmlView);
+			CurrentWindow.get().getSession().getClientService("$sessionService").executeAsyncServiceCall("setInternalServerError",
+				new Object[] { internalError });
+		}
 	}
 
 	@Override
