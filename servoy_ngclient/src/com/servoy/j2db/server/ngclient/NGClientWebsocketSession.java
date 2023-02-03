@@ -496,17 +496,17 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	{
 		if (!getClient().isShutDown()) try
 		{
-			if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("Shutting down client with id " + getSessionKey());
+			if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("[SessionExpired] Shutting down client with id " + getSessionKey());
 			getClient().invokeAndWait(() -> {
 				getClient().shutDown(true);
 			}, 5);
-			if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("Client shutdown client with id " + getSessionKey());
+			if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("[SessionExpired] Client shutdown client with id " + getSessionKey());
 		}
 		catch (TimeoutException e)
 		{
+			if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("[SessionExpired] Timeout happend for shutdown client with id " + getSessionKey());
 			if (!getClient().isShutDown())
 			{
-				if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("Timeout happend for shutdown client with id " + getSessionKey());
 				// client shutdown timeout, maybe long running tasks.
 				IEventDispatcher dispatcher = executor;
 				if (dispatcher != null)
@@ -514,7 +514,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					// just try to interrupt the event thread is that is still alive to force an exception.
 					String stack = dispatcher.interruptEventThread();
 					if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER
-						.debug("dispatch thread interrupted for and called shutdown again client with id " + getSessionKey() + " stack: \n" + stack);
+						.debug("[SessionExpired] dispatch thread interrupted; calling shutdown again (but later) for client with id " + getSessionKey() +
+							" stack: \n" + stack);
 					// now try again but don't wait for it.
 					getClient().invokeLater(() -> {
 						getClient().shutDown(true);
@@ -522,13 +523,15 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				}
 				else
 				{
-					if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("no dispatch thread anymore for client with id " + getSessionKey());
+					if (SHUTDOWNLOGGER.isDebugEnabled())
+						SHUTDOWNLOGGER.debug("[SessionExpired] no dispatch thread anymore for client with id " + getSessionKey());
 				}
 			}
 			else
 			{
 				if (SHUTDOWNLOGGER.isDebugEnabled())
-					SHUTDOWNLOGGER.debug("Client shutdown client with id " + getSessionKey() + " but it was already shutdowned");
+					SHUTDOWNLOGGER.debug("[SessionExpired] Client shutdown will not be called again on client with id " + getSessionKey() +
+						" because it was already shut down.");
 			}
 		}
 		super.sessionExpired();
