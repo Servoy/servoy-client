@@ -283,7 +283,7 @@ public class LookupListModel extends AbstractListModel
 			{
 				for (IQuerySelectValue column : queryColumns)
 				{
-					if (sortColumn.getName().trim().equalsIgnoreCase(column.getColumn().getName().trim()))
+					if (sortColumn.getName().trim().equalsIgnoreCase(column.getColumnName()))
 					{
 						sortColumnsForQuery.add(new QuerySort(column, sortColumn.getSortOrder() == SortColumn.ASCENDING,
 							application.getFoundSetManager().getSortOptions(sortColumn.getColumn())));

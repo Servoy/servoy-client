@@ -265,7 +265,7 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 
 				if (ccKey != null && ccKey.length > 0 && ccOperand2 != null && ccOperand2 instanceof Object[]) // be safe
 				{
-					String columnName = ccKey[0].getColumn().getName();
+					String columnName = ccKey[0].getColumnName();
 					Object[] values = (Object[])ccOperand2;
 
 					if (values.length > 1 && values[0] instanceof Comparable && values[1] instanceof Comparable &&

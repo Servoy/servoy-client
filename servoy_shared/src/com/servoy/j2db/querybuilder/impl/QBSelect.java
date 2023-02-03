@@ -174,10 +174,9 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		// Column names cannot be retrieved from the datasource, fall back to the columns in the query
 		for (IQuerySelectValue qcol : query.getColumns())
 		{
-			if (name.equals(qcol.getAliasOrName()) ||
-				(qcol.getColumn() != null && name.equals(generateNormalizedNonReservedOSName(qcol.getColumn().getName()))))
+			if (name.equals(qcol.getAliasOrName()) || name.equals(generateNormalizedNonReservedOSName(qcol.getColumnName())))
 			{
-				return new QBColumn(getRoot(), this, qcol.getColumn());
+				return new QBColumn(getRoot(), this, qcol);
 			}
 		}
 

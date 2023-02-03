@@ -22,6 +22,8 @@ import static com.servoy.j2db.query.AbstractBaseQuery.acceptVisitor;
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
 import static com.servoy.j2db.util.DataSourceUtils.createDBTableDataSource;
 import static com.servoy.j2db.util.DataSourceUtils.getDataSourceServerName;
+import static com.servoy.j2db.util.Utils.stream;
+import static java.util.Arrays.asList;
 
 import java.lang.ref.WeakReference;
 import java.rmi.RemoteException;
@@ -334,7 +336,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		{
 			for (IQuerySelectValue selectValue : queryPks)
 			{
-				if (selectValue.getColumn().getName().equals(realOrderedPks[i]))
+				if (Objects.equals(realOrderedPks[i], selectValue.getColumnName()))
 				{
 					retValue[i] = selectValue;
 					break;
@@ -602,7 +604,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		Collection<BaseQueryTable> tables = new ArrayList<>();
 		if (queryTableclause instanceof QBSelect)
 		{
-			tables = Arrays.asList(((QBSelect)queryTableclause).getQuery().getTable());
+			tables = asList(((QBSelect)queryTableclause).getQuery().getTable());
 		}
 		else if (queryTableclause instanceof QBJoin)
 		{
@@ -626,7 +628,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			}
 			else
 			{
-				tables = Arrays.asList(table);
+				tables = asList(table);
 			}
 		}
 
@@ -2483,15 +2485,14 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			{
 				if (e.getChangedColumnNames() != null)
 				{
-					if (this.columnInJoins.size() > 0 &&
-						Arrays.asList(e.getChangedColumnNames()).stream().anyMatch(colname -> this.columnInJoins.contains(colname)))
+					if (stream(e.getChangedColumnNames()).anyMatch(this.columnInJoins::contains))
 					{
 						fullRefresh = doRefresh();
 					}
 					if (!fullRefresh && monitorAggregates)
 					{
-						List<Object> names = Arrays.asList(e.getChangedColumnNames());
-						if (Arrays.asList(this.columns).stream().map(value -> value.getColumn().getName()).anyMatch(colname -> names.contains(colname)))
+						List<Object> names = asList(e.getChangedColumnNames());
+						if (stream(this.columns).map(IQuerySelectValue::getColumnName).anyMatch(names::contains))
 						{
 							fullRefresh = doRefresh();
 						}
@@ -2511,7 +2512,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 							{
 								for (IQuerySelectValue column : columns)
 								{
-									Object rowValue = row.getValue(column.getColumn().getName());
+									Object rowValue = row.getValue(column.getColumnName());
 									for (Integer rowIndex : rowIndexes)
 									{
 										ViewRecord viewRecord = records.get(rowIndex.intValue());
@@ -2530,15 +2531,14 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 									{
 										for (IQuerySelectValue selectValue : columns)
 										{
-											if (selectValue.getColumn().getName().equals(changedColumn))
+											if (Objects.equals(changedColumn, selectValue.getColumnName()))
 											{
 												changed.add(selectValue);
 												break;
 											}
 										}
 									}
-									columnsToQuery = new IQuerySelectValue[changed.size()];
-									if (changed.size() > 0) columnsToQuery = changed.toArray(columnsToQuery);
+									columnsToQuery = changed.toArray(new IQuerySelectValue[changed.size()]);
 								}
 								if (columnsToQuery.length > 0)
 								{
@@ -2547,12 +2547,12 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 										IQueryBuilder queryBuilder = manager.getQueryFactory().createSelect(ds);
 										for (IQuerySelectValue column : columnsToQuery)
 										{
-											queryBuilder.result().add(queryBuilder.getColumn(column.getColumn().getName()));
+											queryBuilder.result().add(queryBuilder.getColumn(column.getColumnName()));
 										}
 										for (IQuerySelectValue pkColumn : pkColumns)
 										{
 											// just get the pk value from the first record (should be the same for all, because those records all have the same pkhash)
-											queryBuilder.where().add(queryBuilder.getColumn(pkColumn.getColumn().getName()).eq(
+											queryBuilder.where().add(queryBuilder.getColumn(pkColumn.getColumnName()).eq(
 												records.get(rowIndexes.get(0).intValue()).getValue(columnNames.get(pkColumn))));
 										}
 										ISQLSelect updateSelect = queryBuilder.build();

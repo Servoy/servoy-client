@@ -133,7 +133,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 			List<String> columNames = new ArrayList<>();
 			for (IQuerySelectValue qcol : query.getColumns())
 			{
-				columNames.add(qcol.getAlias() == null ? generateNormalizedNonReservedOSName(qcol.getColumn().getName()) : qcol.getAlias());
+				columNames.add(qcol.getAlias() == null ? generateNormalizedNonReservedOSName(qcol.getColumnName()) : qcol.getAlias());
 			}
 			return columNames.toArray(new String[columNames.size()]);
 		}
@@ -170,8 +170,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 			QuerySelect query = ((DerivedTable)foreignTableReference).getQuery();
 			for (IQuerySelectValue qcol : query.getColumns())
 			{
-				if (name.equals(qcol.getAliasOrName()) ||
-					(qcol.getColumn() != null && name.equals(generateNormalizedNonReservedOSName(qcol.getColumn().getName()))))
+				if (name.equals(qcol.getAliasOrName()) || name.equals(generateNormalizedNonReservedOSName(qcol.getColumnName())))
 				{
 					return new QBColumn(getRoot(), this, new QueryColumn(foreignTableReference.getTable(), generateNormalizedNonReservedOSName(name)));
 				}

@@ -73,15 +73,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 	public String[] getColumnNames()
 	{
-		List<String> names = new ArrayList<String>();
-		if (getColumns() != null)
-		{
-			for (IQuerySelectValue column : getColumns())
-			{
-				names.add(column.getColumn().getAliasOrName());
-			}
-		}
-		return names.toArray(new String[names.size()]);
+		return stream(getColumns()).map(IQuerySelectValue::getAliasOrName).toArray(String[]::new);
 	}
 
 	public void addColumn(IQuerySelectValue c)
@@ -92,7 +84,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		}
 		if (columns == null)
 		{
-			columns = new ArrayList<IQuerySelectValue>();
+			columns = new ArrayList<>();
 		}
 		columns.add(c);
 	}
