@@ -17,6 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.j2db.dataprocessing.IDataServer.RAW_QUERY;
 import static com.servoy.j2db.dataprocessing.SQLGenerator.isDistinctAllowed;
 import static com.servoy.j2db.persistence.ColumnInfo.DATABASE_IDENTITY;
 import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONAFTERCREATEMETHODID;
@@ -28,6 +29,8 @@ import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONDEL
 import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONFINDMETHODID;
 import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID;
 import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONSEARCHMETHODID;
+import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
+import static com.servoy.j2db.query.ColumnType.getColumnTypes;
 import static com.servoy.j2db.util.Utils.iterate;
 import static com.servoy.j2db.util.Utils.stream;
 import static java.util.Arrays.asList;
@@ -102,6 +105,7 @@ import com.servoy.j2db.query.ISQLJoin;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryColumn;
+import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryCustomJoin;
 import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.QueryCustomSort;
@@ -240,10 +244,10 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		else
 		{
-			creationSqlSelect = AbstractBaseQuery.deepClone(pkSelect);
+			creationSqlSelect = deepClone(pkSelect);
 		}
 
-		pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, AbstractBaseQuery.deepClone(creationSqlSelect));
+		pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, deepClone(creationSqlSelect));
 		aggregateCache = new HashMap<String, Object>(6);
 		findMode = false;
 	}
@@ -883,7 +887,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 					QuerySelect querySelect = ((QueryTableFilterdefinition)f.getTableFilterdefinition()).getQuerySelect();
 					result.add(new Object[] { new QBSelect(fsm, fsm.getScopesScopeProvider(), fsm.getApplication().getFlattenedSolution(),
 						fsm.getApplication().getScriptEngine().getSolutionScope(), querySelect.getTable().getDataSource(), null,
-						AbstractBaseQuery.deepClone(querySelect, true)), f.getName() });
+						deepClone(querySelect, true)), f.getName() });
 				}
 			}
 		}
@@ -2168,7 +2172,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		QuerySelect originalQuery = pksAndRecords.getQuerySelectForReading();
 
-		QuerySelect sqlSelect = AbstractBaseQuery.deepClone(creationSqlSelect);
+		QuerySelect sqlSelect = deepClone(creationSqlSelect);
 		sqlSelect.clearCondition(SQLGenerator.CONDITION_RELATION);
 		sqlSelect.clearCondition(SQLGenerator.CONDITION_OMIT);
 
@@ -2507,7 +2511,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		// Load with pk set: remove all conditions (except foundset filters) and set pks as search-condition
-		QuerySelect sqlSelect = AbstractBaseQuery.deepClone(creationSqlSelect);
+		QuerySelect sqlSelect = deepClone(creationSqlSelect);
 
 		// Set a dynamic pk condition, when pks are added, these are added to the condition automatically.
 		sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, SQLGenerator.createDynamicPKSetConditionForFoundset(this, sqlSelect.getTable(), set));
@@ -2730,7 +2734,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		QuerySelect sqlSelect = fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), otherSQLSelect, null, true, null, lastSortColumns, true);
 		if (!initialized)
 		{
-			creationSqlSelect = AbstractBaseQuery.deepClone(sqlSelect);
+			creationSqlSelect = deepClone(sqlSelect);
 		}
 		IFoundSetChanges changes = null;
 		//cache pks
@@ -4647,7 +4651,6 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 			if (!partOfBiggerDelete)
 			{
-
 				try
 				{
 					// see EditRecordList.stopEditing
@@ -4671,21 +4674,55 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 				// check for related data
 				FlattenedSolution flattenedSolution = fsm.getApplication().getFlattenedSolution();
-				Iterator<Relation> it = flattenedSolution.getRelations(sheet.getTable(), true, false);
-				while (it.hasNext())
+				for (Relation relation : iterate(flattenedSolution.getRelations(sheet.getTable(), true, false)))
 				{
-					Relation rel = it.next();
-					if (Relation.isValid(rel, flattenedSolution) && !rel.getAllowParentDeleteWhenHavingRelatedRecords() &&
-						!rel.isExactPKRef(fsm.getApplication().getFlattenedSolution()) && !rel.isGlobal())
+					if (Relation.isValid(relation, flattenedSolution) && !relation.getAllowParentDeleteWhenHavingRelatedRecords() &&
+						!relation.isExactPKRef(flattenedSolution) && !relation.isGlobal())
 					{
-						IFoundSetInternal set = state.getRelatedFoundSet(rel.getName());
-						if (set != null && set.getSize() > 0)
+						boolean hasRelatedRecords;
+						if (state.isRelatedFoundSetLoaded(relation.getName(), null))
 						{
-							fsm.getApplication().reportJSError("Delete not granted due to AllowParentDeleteWhenHavingRelatedRecords size: " + set.getSize() +
-								" from record with PK: " + state.getPKHashKey() + " index in foundset: " + row + " blocked by relation: " + rel.getName(),
+							IFoundSetInternal set = state.getRelatedFoundSet(relation.getName(), null);
+							hasRelatedRecords = set != null && set.getSize() > 0;
+						}
+						else
+						{
+							// foundset not loaded, do an optimized query to find out if there are related records
+							QuerySelect relatedQuery = fsm.getRelatedFoundSetQuery(state, relation);
+							if (relatedQuery == null)
+							{
+								// Should never happen
+								Debug.error(
+									"Could not get related foundset query for relation '" + relationName + "' from record '" + state.getPKHashKey() + "'");
+								IFoundSetInternal set = state.getRelatedFoundSet(relation.getName());
+								hasRelatedRecords = set != null && set.getSize() > 0;
+							}
+							else
+							{
+								relatedQuery.setColumns(new ArrayList<IQuerySelectValue>(asList(new QueryColumnValue(Integer.valueOf(1), null, true))));
+
+								String transaction_id = fsm.getTransactionID(sheet);
+								try
+								{
+									// rowsToRetrieve=0, because we add 1 extra for the actual query, so we can rely on ds.hadMoreRows()
+									IDataSet ds = performQuery(transaction_id, relatedQuery, getColumnTypes(IColumnTypes.INTEGER), 0, 0, RAW_QUERY);
+									hasRelatedRecords = ds.hadMoreRows();
+								}
+								catch (RemoteException | ServoyException e)
+								{
+									hasRelatedRecords = true; // just to be safe
+									Debug.error(e);
+								}
+							}
+						}
+						if (hasRelatedRecords)
+						{
+							fsm.getApplication().reportJSError(
+								"Delete not granted due to AllowParentDeleteWhenHavingRelatedRecords and existing related records from record with PK: " +
+									state.getPKHashKey() + " index in foundset: " + row + " blocked by relation: " + relation.getName(),
 								null);
-							throw new ApplicationException(ServoyException.NO_PARENT_DELETE_WITH_RELATED_RECORDS, new Object[] { rel.getName() }).setContext(
-								this.toString());
+							throw new ApplicationException(ServoyException.NO_PARENT_DELETE_WITH_RELATED_RECORDS, new Object[] { relation.getName() })
+								.setContext(this.toString());
 						}
 					}
 				}
@@ -4694,15 +4731,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				// so only delete related data if the record is already in the db
 				if (state.existInDataSource())
 				{
-
 					// delete the related data
-					it = flattenedSolution.getRelations(sheet.getTable(), true, false);
-					while (it.hasNext())
+					for (Relation relation : iterate(flattenedSolution.getRelations(sheet.getTable(), true, false)))
 					{
-						Relation rel = it.next();
-						if (Relation.isValid(rel, flattenedSolution) && rel.getDeleteRelatedRecords() && !rel.isGlobal())//if completely global never delete do cascade delete
+						if (Relation.isValid(relation, flattenedSolution) && relation.getDeleteRelatedRecords() && !relation.isGlobal())//if completely global never delete do cascade delete
 						{
-							IFoundSetInternal set = state.getRelatedFoundSet(rel.getName());
+							IFoundSetInternal set = state.getRelatedFoundSet(relation.getName());
 							if (set != null)
 							{
 								Debug.trace("******************************* delete related set size: " + set.getSize() + " from record with PK: " + //$NON-NLS-1$//$NON-NLS-2$
@@ -5375,7 +5409,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			return fsm.getSQLGenerator().getPKSelectSqlSelect(this, sheet.getTable(), currentQuery, pksAndRecords.getCachedRecords(), reduceSearch, omittedPKs,
 				lastSortColumns, true);
 		}
-		return clone ? AbstractBaseQuery.deepClone(currentQuery, true) : currentQuery;
+		return clone ? deepClone(currentQuery, true) : currentQuery;
 	}
 
 	/**
@@ -5571,7 +5605,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		synchronized (pksAndRecords)
 		{
-			pksAndRecords.setPksAndQuery(pksAndRecords.getPks(), pksAndRecords.getDbIndexLastPk(), AbstractBaseQuery.deepClone(creationSqlSelect), true);
+			pksAndRecords.setPksAndQuery(pksAndRecords.getPks(), pksAndRecords.getDbIndexLastPk(), deepClone(creationSqlSelect), true);
 		}
 	}
 
@@ -6830,7 +6864,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				pksAndRecords.getQuerySelectForModification());
 		}
 		obj.findMode = false;
-		obj.creationSqlSelect = AbstractBaseQuery.deepClone(creationSqlSelect);
+		obj.creationSqlSelect = deepClone(creationSqlSelect);
 		if (foundSetFilters != null)
 		{
 			obj.foundSetFilters = new ArrayList<TableFilter>(foundSetFilters);
@@ -6859,7 +6893,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 				// make sure the references to the tables from the copies are correct
 				fs_sqlSelect.relinkTable(select.getTable(), fs_sqlSelect.getTable());
 
-				fs.creationSqlSelect = AbstractBaseQuery.deepClone(fs_sqlSelect);//reset the creation! because we just changed the sqlSelect
+				fs.creationSqlSelect = deepClone(fs_sqlSelect);//reset the creation! because we just changed the sqlSelect
 				fs.lastSortColumns = null;
 				if (fs.rowManager != null) fs.rowManager.register(fs);
 				fs.aggregateCache = new HashMap<String, Object>(6);
@@ -6989,7 +7023,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			fs.foundSetFilters.forEach(filter -> {
 				if (filter.getTableFilterdefinition() instanceof QueryTableFilterdefinition)
 				{
-					QuerySelect select = AbstractBaseQuery.deepClone(((QueryTableFilterdefinition)filter.getTableFilterdefinition()).getQuerySelect());
+					QuerySelect select = deepClone(((QueryTableFilterdefinition)filter.getTableFilterdefinition()).getQuerySelect());
 					select.relinkTable(select.getTable(), creationSqlSelect.getTable());
 					foundSetFilters.add(new TableFilter(filter.getName(), sheet.getServerName(), sheet.getTable().getName(), sheet.getTable().getSQLName(),
 						new QueryTableFilterdefinition(select), false));
@@ -7216,7 +7250,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public void clear()
 	{
 		omittedPKs = null;
-		QuerySelect sqlSelect = AbstractBaseQuery.deepClone(creationSqlSelect);
+		QuerySelect sqlSelect = deepClone(creationSqlSelect);
 		BufferedDataSet emptyPks = new BufferedDataSet();
 		if (sqlSelect != null)
 		{
@@ -7404,22 +7438,32 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		try
 		{
-			boolean distinctInMemory = !theQuery.isUnique();
+			boolean distinctInMemory;
 
-			if (!theQuery.isDistinct() && !distinctInMemory && hasTablefilterWithJoins(theQuery))
+			if (type == RAW_QUERY)
 			{
-				// table filters adds joins that cause duplicate results
-				if (theQuery.getColumns().size() == 1 && isDistinctAllowed(theQuery.getColumns(), theQuery.getSorts()))
+				// a raw query, just run it 'as is'
+				distinctInMemory = false;
+			}
+			else
+			{
+				distinctInMemory = !theQuery.isUnique();
+
+				if (!theQuery.isDistinct() && !distinctInMemory && hasTablefilterWithJoins(theQuery))
 				{
-					// we can set distinct
-					QuerySelect copy = (QuerySelect)theQuery.shallowClone();
-					copy.setDistinct(true);
-					theQuery = copy;
-				}
-				else
-				{
-					// cannot set distinct, make sure we filter out duplicate records
-					distinctInMemory = true;
+					// table filters adds joins that cause duplicate results
+					if (theQuery.getColumns().size() == 1 && isDistinctAllowed(theQuery.getColumns(), theQuery.getSorts()))
+					{
+						// we can set distinct
+						QuerySelect copy = (QuerySelect)theQuery.shallowClone();
+						copy.setDistinct(true);
+						theQuery = copy;
+					}
+					else
+					{
+						// cannot set distinct, make sure we filter out duplicate records
+						distinctInMemory = true;
+					}
 				}
 			}
 

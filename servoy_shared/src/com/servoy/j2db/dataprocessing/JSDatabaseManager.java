@@ -40,6 +40,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentMap;
 
@@ -547,6 +548,12 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public boolean js_setTableFilters(String filterName, JSTableFilter[] tableFilters) throws ServoyException
 	{
 		checkAuthorized();
+
+		if (stream(tableFilters).anyMatch(Objects::isNull))
+		{
+			Debug.warn("setTableFilters: invalid argument: null filter");
+			return false;
+		}
 
 		// group by serverName
 		Map<String, List<TableFilterRequest>> tableFilterRequests = stream(tableFilters).collect(

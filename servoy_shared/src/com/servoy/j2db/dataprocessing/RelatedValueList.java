@@ -35,12 +35,10 @@ import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
-import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
-import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
@@ -454,27 +452,13 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		}
 
 		FoundSetManager foundSetManager = (FoundSetManager)application.getFoundSetManager();
-		SQLGenerator sqlGenerator = foundSetManager.getSQLGenerator();
+		QuerySelect select = foundSetManager.getRelatedFoundSetQuery(parentState, relations[0]);
+		if (select == null)
+		{
+			return null;
+		}
+
 		IGlobalValueEntry scopesScopeProvider = foundSetManager.getScopesScopeProvider();
-
-		SQLSheet childSheet = sqlGenerator.getCachedTableSQLSheet(relations[0].getPrimaryDataSource());
-		// this returns quickly if it already has a sheet for that relation, but optimize further?
-		sqlGenerator.makeRelatedSQL(childSheet, relations[0]);
-
-		QuerySelect select = AbstractBaseQuery.deepClone((QuerySelect)childSheet.getRelatedSQLDescription(relations[0].getName()).getSQLQuery());
-
-		Object[] relationWhereArgs = foundSetManager.getRelationWhereArgs(parentState, relations[0], false);
-		if (relationWhereArgs == null)
-		{
-			return null;
-		}
-		TablePlaceholderKey placeHolderKey = SQLGenerator.createRelationKeyPlaceholderKey(select.getTable(), relations[0].getName());
-		if (!select.setPlaceholderValue(placeHolderKey, relationWhereArgs))
-		{
-			Debug.error(new RuntimeException("Could not set relation placeholder " + placeHolderKey + " in query " + select)); //$NON-NLS-1$//$NON-NLS-2$
-			return null;
-		}
-
 		FlattenedSolution fs = application.getFlattenedSolution();
 
 		BaseQueryTable lastTable = select.getTable();
@@ -496,7 +480,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		int returnValues = valueList.getReturnDataProviders();
 		int total = (showValues | returnValues);
 
-		ArrayList<IQuerySelectValue> columns = new ArrayList<IQuerySelectValue>();
+		ArrayList<IQuerySelectValue> columns = new ArrayList<>();
 		if ((total & 1) != 0)
 		{
 			columns.add(getQuerySelectValue(foreignTable, lastTable, valueList.getDataProviderID1()));
@@ -512,7 +496,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		select.setColumns(columns);
 		select.setDistinct(false); // not allowed in all situations
 
-		return new Pair<QuerySelect, BaseQueryTable>(select, lastTable);
+		return new Pair<>(select, lastTable);
 	}
 
 	@Override

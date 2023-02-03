@@ -22,6 +22,8 @@ import static com.servoy.j2db.Messages.isI18NTable;
 import static com.servoy.j2db.dataprocessing.FoundSetManager.TriggerExecutionMode.BreakOnFalse;
 import static com.servoy.j2db.dataprocessing.FoundSetManager.TriggerExecutionMode.ExecuteEach;
 import static com.servoy.j2db.dataprocessing.FoundSetManager.TriggerExecutionMode.ReturnFirst;
+import static com.servoy.j2db.dataprocessing.SQLGenerator.createRelationKeyPlaceholderKey;
+import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
 import static com.servoy.j2db.util.DataSourceUtils.createDBTableDataSource;
 import static com.servoy.j2db.util.DataSourceUtils.getDataSourceServerName;
 import static com.servoy.j2db.util.DataSourceUtils.getDataSourceTableName;
@@ -118,6 +120,7 @@ import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.SortOptions;
+import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
 import com.servoy.j2db.querybuilder.impl.QBFactory;
@@ -856,6 +859,34 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		if (isNull) return null; //optimize for null keys (multiple all null!) but not empty pk (db ident)
 
 		return array;
+	}
+
+
+	/**
+	 *  Get query for the relation from a record
+	 */
+	public QuerySelect getRelatedFoundSetQuery(IRecordInternal record, Relation relation) throws ServoyException
+	{
+		SQLSheet sheet = getSQLGenerator().getCachedTableSQLSheet(relation.getPrimaryDataSource());
+		// this returns quickly if it already has a sheet for that relation, but optimize further?
+		getSQLGenerator().makeRelatedSQL(sheet, relation);
+
+		SQLSheet relatedSheet = sheet.getRelatedSheet(relation, getSQLGenerator());
+		Object[] relationWhereArgs = getRelationWhereArgs(record, relation, false);
+		if (relatedSheet == null || relationWhereArgs == null)
+		{
+			return null;
+		}
+
+		QuerySelect relationSelect = (QuerySelect)deepClone(relatedSheet.getRelatedSQLDescription(relation.getName()).getSQLQuery());
+		TablePlaceholderKey placeHolderKey = createRelationKeyPlaceholderKey(relationSelect.getTable(), relation.getName());
+		if (!relationSelect.setPlaceholderValue(placeHolderKey, relationWhereArgs))
+		{
+			Debug.error(new RuntimeException("Could not set relation placeholder " + placeHolderKey + " in query " + relationSelect));
+			return null;
+		}
+
+		return relationSelect;
 	}
 
 	public void handleUserLoggedin()

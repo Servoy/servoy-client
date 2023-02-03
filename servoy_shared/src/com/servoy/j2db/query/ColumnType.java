@@ -90,7 +90,7 @@ public class ColumnType extends BaseColumnType implements IWriteReplace
 	 * @param types
 	 * @return
 	 */
-	public static ColumnType[] getColumnTypes(int[] types)
+	public static ColumnType[] getColumnTypes(int... types)
 	{
 		if (types == null)
 		{
