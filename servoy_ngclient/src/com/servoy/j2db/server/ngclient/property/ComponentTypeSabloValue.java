@@ -394,6 +394,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		}
 
 		addPropagatingPropertyChangeListener(WebFormUI.READONLY, webObjectContext.getProperty(WebFormUI.READONLY));
+		addPropagatingPropertyChangeListener("editable", webObjectContext.getProperty("editable"));
 
 		if (childComponent.hasChanges()) monitor.valueChanged();
 	}
@@ -662,10 +663,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 		// add to useful properties only those formElement properties that didn't get overridden at runtime (so form element value is still used)
 		boolean templateValuesRemoved = false;
-		Iterator<Entry<String, Object>> formElementPropertyIterator = formElementProperties.content.entrySet().iterator();
-		while (formElementPropertyIterator.hasNext())
+		for (Entry<String, Object> fePropEntry : formElementProperties.content.entrySet())
 		{
-			Entry<String, Object> fePropEntry = formElementPropertyIterator.next();
 			if (runtimeProperties.content.containsKey(fePropEntry.getKey()))
 			{
 				// it has a non-default runtime value; so template value will be ignored/not sent
