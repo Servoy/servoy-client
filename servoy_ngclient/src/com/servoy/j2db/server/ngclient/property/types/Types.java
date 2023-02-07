@@ -27,6 +27,7 @@ import org.sablo.specification.property.types.TypesRegistry;
 import com.servoy.j2db.server.ngclient.property.ComponentPropertyType;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedPropertyType;
 import com.servoy.j2db.server.ngclient.property.FoundsetPropertyType;
+import com.servoy.j2db.server.ngclient.property.FoundsetTreePropertyType;
 
 /**
  * @author Johan
@@ -93,6 +94,7 @@ public class Types
 
 		// TODO allow bean developer through a sort of plug point to contribute these kind of types themselves
 		TypesRegistry.addType(FoundsetPropertyType.INSTANCE);
+		TypesRegistry.addType(FoundsetTreePropertyType.INSTANCE);
 		TypesRegistry.addType(ComponentPropertyType.INSTANCE);
 
 		TypesRegistry.addTypeFactory(CustomJSONArrayType.TYPE_NAME, new IPropertyTypeFactory<PropertyDescription, Object>()

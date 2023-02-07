@@ -40,3 +40,6 @@ Web-Service: True
 
 Name: client_function_property/clientFunction.spec
 Web-Service: True
+
+Name: foundsettree_property/foundsettree.spec
+Web-Service: True
