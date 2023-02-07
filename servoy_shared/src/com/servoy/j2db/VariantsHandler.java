@@ -59,29 +59,27 @@ public class VariantsHandler
 		{
 			categoryToVariants.clear();
 			nameToClasses.clear();
-			if (media != null)
+
+			lastModified = media.getLastModifiedTime();
+			String json = new String(media.getMediaData(), Charset.forName("UTF-8"));
+			var jsonObject = new JSONObject(json);
+			Iterator<String> keys = jsonObject.keys();
+			while (keys.hasNext())
 			{
-				lastModified = media.getLastModifiedTime();
-				String json = new String(media.getMediaData(), Charset.forName("UTF-8"));
-				var jsonObject = new JSONObject(json);
-				Iterator<String> keys = jsonObject.keys();
-				while (keys.hasNext())
+				String name = keys.next();
+				var variantObject = jsonObject.getJSONObject(name);
+				variantObject.put("name", name);
+
+				nameToClasses.put(name, variantObject.getJSONArray("classes"));
+				var category = variantObject.getString("category");
+
+				JSONArray jsonArray = categoryToVariants.get(category);
+				if (jsonArray == null)
 				{
-					String name = keys.next();
-					var variantObject = jsonObject.getJSONObject(name);
-					variantObject.put("name", name);
-
-					nameToClasses.put(name, variantObject.getJSONArray("classes"));
-					var category = variantObject.getString("category");
-
-					JSONArray jsonArray = categoryToVariants.get(category);
-					if (jsonArray == null)
-					{
-						jsonArray = new JSONArray();
-						categoryToVariants.put(category, jsonArray);
-					}
-					jsonArray.put(variantObject);
+					jsonArray = new JSONArray();
+					categoryToVariants.put(category, jsonArray);
 				}
+				jsonArray.put(variantObject);
 			}
 		}
 	}
@@ -102,5 +100,11 @@ public class VariantsHandler
 		if (jsonArray == null) jsonArray = new JSONArray();
 		return jsonArray;
 
+	}
+
+	public boolean variantExists(String variantName)
+	{
+		loadIfNeeded();
+		return nameToClasses.containsKey(variantName);
 	}
 }
