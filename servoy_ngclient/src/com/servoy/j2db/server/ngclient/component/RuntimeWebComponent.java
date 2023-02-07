@@ -187,7 +187,13 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 	{
 		assert (functionSpec != null);
 
-		Object object = scopeObject.get(functionSpec.getName(), scopeObject);
+		Scriptable scope = scopeObject;
+		Object object = scope.get(functionSpec.getName(), scope);
+		if (!(object instanceof Function))
+		{
+			scope = (Scriptable)scopeObject.get("api", scopeObject);
+			object = scope.get(functionSpec.getName(), scope);
+		}
 		if (object instanceof Function)
 		{
 			Context context = Context.enter();
@@ -206,7 +212,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 				context.putThreadLocal(SERVER_SIDE_SCRIPT_EXECUTE, Boolean.TRUE);
 				try
 				{
-					Object retValue = ((Function)object).call(context, scopeObject, scopeObject, array);
+					Object retValue = ((Function)object).call(context, scope, scope, array);
 
 					PropertyDescription retValuePD = (functionSpec != null ? functionSpec.getReturnType() : null);
 					return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(retValue, null, retValuePD, component);
