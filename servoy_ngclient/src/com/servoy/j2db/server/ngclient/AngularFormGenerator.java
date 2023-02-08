@@ -211,7 +211,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 			// write form contents (layout / components)
 			if (zoomedInContainer != null)
 			{
-				zoomedInContainer.acceptVisitor(new ChildrenJSONGenerator(writer,
+				PersistHelper.getFlattenedPersist(flattenedSolution, form, zoomedInContainer).acceptVisitor(new ChildrenJSONGenerator(writer,
 					servoyDataConverterContext, form, null,
 					null, form, true, isDesigner), PositionComparator.XY_PERSIST_COMPARATOR);
 			}
