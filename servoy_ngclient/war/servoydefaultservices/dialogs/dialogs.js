@@ -156,7 +156,7 @@ angular.module('dialogs',['servoy'])
 					var buttonModel = {
 						      label: this.escapeString(buttonsText[i], true),
 						      callback: function(event) {
-						    	 dialogOpenedDeferred.resolve(event.target.innerHTML);
+						    	 dialogOpenedDeferred.resolve(event.target.innerText);
 						      }
 					}
 					if (i==0) buttonModel.className =  "btn-primary";
@@ -167,7 +167,7 @@ angular.module('dialogs',['servoy'])
 			var dialog = bootbox.dialog(dialogOptions);
 			dialog.on('keyup', function (event) {
       			if (event.key == "Enter") {
-					dialogOpenedDeferred.resolve(dialog.find(".btn-primary")[0].innerHTML);
+					dialogOpenedDeferred.resolve(dialog.find(".btn-primary")[0].innerText);
 					dialog.modal('hide');
 				}
     		});
