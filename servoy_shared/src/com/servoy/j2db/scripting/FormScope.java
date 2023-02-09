@@ -45,6 +45,7 @@ import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -178,6 +179,13 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		extendScopes = null;
 		setPrototype(null);
 		super.destroy();
+	}
+
+	@Override
+	protected void destroyChildren(List<IDestroyable> indexDestroybles, List<IDestroyable> varDestroyables)
+	{
+		// form scope shouldn't destroy any childeren, they can be destroyed at any time and the variables of a form scope don't need to be destroyed.
+		// they can be shared state like other scopes.
 	}
 
 	@Override

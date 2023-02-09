@@ -289,6 +289,15 @@ public abstract class DefaultScope implements Scriptable, IDestroyable
 		this.parent = null;
 		this.prototype = null;
 
+		destroyChildren(indexDestroybles, varDestroyables);
+	}
+
+	/**
+	 * @param indexDestroybles
+	 * @param varDestroyables
+	 */
+	protected void destroyChildren(List<IDestroyable> indexDestroybles, List<IDestroyable> varDestroyables)
+	{
 		indexDestroybles.forEach(destroyable -> destroyable.destroy());
 		varDestroyables.forEach(destroyable -> destroyable.destroy());
 	}
