@@ -40,6 +40,8 @@ import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
+import com.servoy.j2db.server.ngclient.NGClientWindow;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
@@ -129,6 +131,70 @@ public class ServoyApiObject
 				formController.setParentFormController(null);
 			}
 			Utils.invokeAndWait(app, invokeLaterRunnables);
+			return ret;
+		}
+		return false;
+	}
+
+	/**
+	 * Show a form directly on the server for instance when a tab will change on the client, so it won't need to do a round trip
+	 * for showing the form through the browser's component.
+	 *
+	 * @sample
+	 * servoyApi.showForm(formToHideName)
+	 *
+	 * @param nameOrUUID the form to show
+	 * @param parentForm the parent form
+	 * @param parentComponent the parent container
+	 * @param relationName the parent container
+	 * @return true if the form was marked as visible
+	 */
+	@JSFunction
+	public boolean showForm(String nameOrUUID, String parentForm, String parentComponent, String relationName)
+	{
+		String formName = nameOrUUID;
+		Form form = app.getFlattenedSolution().getForm(nameOrUUID);
+		if (form == null)
+		{
+			form = (Form)app.getFlattenedSolution().searchPersist(nameOrUUID);
+			if (form != null)
+			{
+				formName = form.getName();
+			}
+		}
+		IWebFormController formController = app.getFormManager().getForm(formName);
+		IWebFormController parentFormController = null;
+		WebFormComponent containerComponent = null;
+		if (parentForm != null)
+		{
+			parentFormController = app.getFormManager().getForm(parentForm);
+		}
+		if (parentForm != null && parentComponent != null)
+		{
+			containerComponent = parentFormController.getFormUI().getWebComponent(parentComponent);
+		}
+		if (formController != null)
+		{
+			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
+			boolean ret = formController.notifyVisible(true, invokeLaterRunnables, true);
+			if (ret)
+			{
+				if (parentFormController != null)
+				{
+					parentFormController.getFormUI().getDataAdapterList().addVisibleChildForm(formController, relationName, true);
+					if (containerComponent != null)
+					{
+						containerComponent.updateVisibleForm(parentFormController.getFormUI(), true, 0);
+					}
+				}
+
+			}
+			Utils.invokeAndWait(app, invokeLaterRunnables);
+
+			if (ret)
+			{
+				NGClientWindow.getCurrentWindow().touchForm(app.getFlattenedSolution().getFlattenedForm(form), formName, true, true);
+			}
 			return ret;
 		}
 		return false;
