@@ -50,6 +50,7 @@ import com.servoy.j2db.IDebugClient;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.server.ngclient.INGApplication;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
@@ -147,7 +148,7 @@ public class WebServiceScriptable implements Scriptable
 	 * Compiles the server side script, enabled debugging if possible.
 	 * It returns the $scope object
 	 */
-	public static Scriptable compileServerScript(URL serverScript, Scriptable model, INGApplication app)
+	public static Scriptable compileServerScript(URL serverScript, Scriptable model, INGApplication app, WebFormComponent component)
 	{
 		Scriptable scopeObject = null;
 		Context context = Context.enter();
@@ -175,7 +176,8 @@ public class WebServiceScriptable implements Scriptable
 				new NativeJavaObject(execScope, new ConsoleObject(app), ScriptObjectRegistry.getJavaMembers(ConsoleObject.class, execScope)));
 
 			execScope.put("servoyApi", execScope,
-				new NativeJavaObject(execScope, new ServoyApiObject(app), ScriptObjectRegistry.getJavaMembers(ServoyApiObject.class, execScope)));
+				new NativeJavaObject(execScope, new ServoyApiObject(app, component),
+					ScriptObjectRegistry.getJavaMembers(ServoyApiObject.class, execScope)));
 
 			getScript(context, serverScript, app).exec(context, execScope);
 			apiObject.setPrototype(model);
@@ -206,7 +208,7 @@ public class WebServiceScriptable implements Scriptable
 		URL serverScript = serviceSpecification.getServerScript(application.getRuntimeProperties().containsKey("NG2"));
 		if (serverScript != null)
 		{
-			scopeObject = compileServerScript(serverScript, this, application);
+			scopeObject = compileServerScript(serverScript, this, application, null);
 			apiObject = (Scriptable)scopeObject.get("api", scopeObject);
 		}
 	}

@@ -126,7 +126,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 
 		if (serverScript != null)
 		{
-			scopeObject = WebServiceScriptable.compileServerScript(serverScript, this, component.getDataConverterContext().getApplication());
+			scopeObject = WebServiceScriptable.compileServerScript(serverScript, this, component.getDataConverterContext().getApplication(), component);
 			apiObject = (Scriptable)scopeObject.get("api", scopeObject);
 			// add also the handlers object
 			try

@@ -39,6 +39,7 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
+import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.NGClientWindow;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
@@ -57,10 +58,12 @@ import com.servoy.j2db.util.Utils;
 public class ServoyApiObject
 {
 	private final INGApplication app;
+	private final WebFormComponent component;
 
-	public ServoyApiObject(INGApplication app)
+	public ServoyApiObject(INGApplication app, WebFormComponent component)
 	{
 		this.app = app;
+		this.component = component;
 	}
 
 	@JSFunction
@@ -144,13 +147,11 @@ public class ServoyApiObject
 	 * servoyApi.showForm(formToHideName)
 	 *
 	 * @param nameOrUUID the form to show
-	 * @param parentForm the parent form
-	 * @param parentComponent the parent container
 	 * @param relationName the parent container
 	 * @return true if the form was marked as visible
 	 */
 	@JSFunction
-	public boolean showForm(String nameOrUUID, String parentForm, String parentComponent, String relationName)
+	public boolean showForm(String nameOrUUID, String relationName)
 	{
 		String formName = nameOrUUID;
 		Form form = app.getFlattenedSolution().getForm(nameOrUUID);
@@ -164,14 +165,9 @@ public class ServoyApiObject
 		}
 		IWebFormController formController = app.getFormManager().getForm(formName);
 		IWebFormController parentFormController = null;
-		WebFormComponent containerComponent = null;
-		if (parentForm != null)
+		if (this.component != null)
 		{
-			parentFormController = app.getFormManager().getForm(parentForm);
-		}
-		if (parentForm != null && parentComponent != null)
-		{
-			containerComponent = parentFormController.getFormUI().getWebComponent(parentComponent);
+			parentFormController = this.component.findParent(IWebFormUI.class).getController();
 		}
 		if (formController != null)
 		{
@@ -182,9 +178,9 @@ public class ServoyApiObject
 				if (parentFormController != null)
 				{
 					parentFormController.getFormUI().getDataAdapterList().addVisibleChildForm(formController, relationName, true);
-					if (containerComponent != null)
+					if (component != null)
 					{
-						containerComponent.updateVisibleForm(parentFormController.getFormUI(), true, 0);
+						component.updateVisibleForm(parentFormController.getFormUI(), true, 0);
 					}
 				}
 
