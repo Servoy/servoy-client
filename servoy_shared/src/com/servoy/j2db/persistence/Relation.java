@@ -742,6 +742,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		ICacheDataproviders cachedDp = getCachedDataproviders(dataProviderHandler);
 		IDataProvider[] primary = cachedDp.getPrimaryDataProviders(dataProviderHandler);
 		Column[] foreign = cachedDp.getForeignColumns(dataProviderHandler);
+		int[] ops = getOperators();
 
 		if (primary != null && foreign != null)
 		{
@@ -803,14 +804,14 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 				if (primaryType == IColumnTypes.MEDIA && primary[i] instanceof AbstractBase &&
 					"Array".equals(((AbstractBase)primary[i]).getSerializableRuntimeProperty(IScriptProvider.TYPE))) //$NON-NLS-1$
 				{
-					int maskedOp = operators[i] & OPERATOR_MASK;
+					int maskedOp = ops[i] & OPERATOR_MASK;
 					if (maskedOp == EQUALS_OPERATOR || maskedOp == NOT_OPERATOR || maskedOp == IN_OPERATOR)
 					{
 						continue; // allow arrays, we cannot check the array element type
 					}
 					return Messages.getString("servoy.relation.error.unsupportedKindForOperator", //$NON-NLS-1$
 						new Object[] { ((AbstractBase)primary[i]).getSerializableRuntimeProperty(IScriptProvider.TYPE), RelationItem
-							.getOperatorAsString(operators[i]) });
+							.getOperatorAsString(ops[i]) });
 				}
 				if (primaryType != foreignType)
 				{
