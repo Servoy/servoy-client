@@ -2,10 +2,20 @@ angular.module('foundset_manager',['sabloApp'])
 .factory("foundset_manager",function($sabloApplication, $services, $q) {
 	var scope = $services.getServiceScope('foundset_manager');
 	
-	function getFoundSetFromScope(foundsethash) {
+	function getFoundSetFromScope(foundsethash, dataproviders) {
 		if(scope.model.foundsets) {
 			for(var i = 0; i < scope.model.foundsets.length; i++) {
 				if(scope.model.foundsets[i].foundsethash == foundsethash) {
+				    var hasDataproviders = true;
+				    if (dataproviders && scope.model.foundsets[i].dataproviders){
+				        for (var dataprovider in dataproviders){
+				            if (scope.model.foundsets[i].dataproviders.indexOf(dataprovider) < 0){
+				                hasDataproviders = false;
+				                break;
+				            }
+				        }
+				    }
+				    if (!hasDataproviders) continue;
 					return scope.model.foundsets[i].foundset;
 				}
 			}
@@ -16,11 +26,11 @@ angular.module('foundset_manager',['sabloApp'])
 	return {
 		getFoundSet: function(foundsethash, dataproviders, sort, childrelation) {
 			var deferred = $q.defer();
-			var foundset = getFoundSetFromScope(foundsethash);
+			var foundset = getFoundSetFromScope(foundsethash, dataproviders);
 			if(!foundset) {
 				if(!scope.model.foundsets) scope.model.foundsets = [];
 				var foundsetWatch = scope.$watchCollection('model.foundsets', function(newVal, oldVal){
-					var foundset = getFoundSetFromScope(foundsethash);
+					var foundset = getFoundSetFromScope(foundsethash, dataproviders);
 					if(foundset) {
 						foundsetWatch();
 						deferred.resolve(foundset);

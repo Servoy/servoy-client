@@ -18,7 +18,10 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 import org.json.JSONObject;
@@ -107,6 +110,11 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 				HashMap<String, Object> foundsetinfoMap = new HashMap<String, Object>();
 				foundsetinfoMap.put("foundset", value);
 				foundsetinfoMap.put("foundsethash", args.optString("foundsethash"));
+				JSONObject dataproviders = args.optJSONObject("dataproviders");
+				if (dataproviders != null)
+				{
+					foundsetinfoMap.put("dataproviders", new ChangeAwareList<>(Arrays.asList(dataproviders.keySet().toArray())));
+				}
 
 				String childrelation = args.optString("childrelation");
 				if (childrelation != null)
@@ -202,22 +210,25 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 	{
 		if (foundset != null)
 		{
-			FoundsetTypeSabloValue value = foundsetTypeSabloValueMap.remove(foundset);
+			List<FoundsetTypeSabloValue> values = foundsetTypeSabloValueMap.remove(foundset);
 			ChangeAwareList<ChangeAwareMap<String, Object>, Object> foundsets = (ChangeAwareList<ChangeAwareMap<String, Object>, Object>)((NGClient)getApplication())
 				.getWebsocketSession().getClientService(
 					"foundset_manager")
 				.getProperty("foundsets");
-			if (foundsets != null)
+			if (foundsets != null && values != null)
 			{
-				int i = 0;
-				for (; i < foundsets.size(); i++)
+				for (FoundsetTypeSabloValue value : values)
 				{
-					ChangeAwareMap<String, Object> foundsetInfoMap = foundsets.get(i);
-					if (foundsetInfoMap.containsValue(value)) break;
-				}
-				if (i < foundsets.size())
-				{
-					foundsets.remove(i);
+					int i = 0;
+					for (; i < foundsets.size(); i++)
+					{
+						ChangeAwareMap<String, Object> foundsetInfoMap = foundsets.get(i);
+						if (foundsetInfoMap.containsValue(value)) break;
+					}
+					if (i < foundsets.size())
+					{
+						foundsets.remove(i);
+					}
 				}
 			}
 		}
@@ -233,11 +244,38 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 		super.flushCachedItems();
 	}
 
-	private final WeakHashMap<IFoundSetInternal, FoundsetTypeSabloValue> foundsetTypeSabloValueMap = new WeakHashMap<IFoundSetInternal, FoundsetTypeSabloValue>();
+	private final WeakHashMap<IFoundSetInternal, List<FoundsetTypeSabloValue>> foundsetTypeSabloValueMap = new WeakHashMap<IFoundSetInternal, List<FoundsetTypeSabloValue>>();
 
 	private FoundsetTypeSabloValue getFoundsetTypeSabloValue(IFoundSetInternal foundset, JSONObject dataproviders)
 	{
-		FoundsetTypeSabloValue foundsetTypeSabloValue = foundsetTypeSabloValueMap.get(foundset);
+		List<FoundsetTypeSabloValue> foundsetTypeSabloValueList = foundsetTypeSabloValueMap.get(foundset);
+		if (foundsetTypeSabloValueList == null)
+		{
+			foundsetTypeSabloValueList = new ArrayList<FoundsetTypeSabloValue>();
+			foundsetTypeSabloValueMap.put(foundset, foundsetTypeSabloValueList);
+		}
+		FoundsetTypeSabloValue foundsetTypeSabloValue = null;
+		for (FoundsetTypeSabloValue value : foundsetTypeSabloValueList)
+		{
+			Set<String> dps = value.getDataproviders().keySet();
+			boolean compatibleDataproviders = true;
+			if (dataproviders != null)
+			{
+				for (String dpid : dataproviders.keySet())
+				{
+					if (!dps.contains(dpid))
+					{
+						compatibleDataproviders = false;
+						break;
+					}
+				}
+			}
+			if (compatibleDataproviders)
+			{
+				foundsetTypeSabloValue = value;
+				break;
+			}
+		}
 		if (foundsetTypeSabloValue == null)
 		{
 			foundsetTypeSabloValue = new FoundsetTypeSabloValue(new JSONObject(), null, null,
@@ -253,7 +291,7 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 				}
 			};
 			foundsetTypeSabloValue.updateFoundset(foundset);
-			foundsetTypeSabloValueMap.put(foundset, foundsetTypeSabloValue);
+			foundsetTypeSabloValueList.add(foundsetTypeSabloValue);
 		}
 		foundsetTypeSabloValue.initializeDataproviders(dataproviders);
 		foundsetTypeSabloValue.getViewPort().setBounds(0, foundsetTypeSabloValue.getFoundset().getSize());

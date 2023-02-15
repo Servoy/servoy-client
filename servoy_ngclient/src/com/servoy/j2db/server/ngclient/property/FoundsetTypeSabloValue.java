@@ -1384,4 +1384,12 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		}
 		return FoundsetPropertyTypeConfig.DEFAULT_FOUNDSET_DEFINITION_LISTENER;
 	}
+
+	/**
+	 * @return the dataproviders
+	 */
+	public Map<String, String> getDataproviders()
+	{
+		return dataproviders;
+	}
 }
