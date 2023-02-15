@@ -29,7 +29,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.IServiceProvider;
-import com.servoy.j2db.Messages;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
@@ -173,10 +172,8 @@ public class SQLSheet
 	{
 		Map< ? , Integer> columns = getDataProviderIDsColumnMap();
 		HashMap<String, Object> retval = new HashMap<String, Object>(5);
-		Iterator<String> it = getAllCalculationNames().iterator();
-		while (it.hasNext())
+		for (String dp : getAllCalculationNames())
 		{
-			String dp = it.next();
 			if (!columns.containsKey(dp))
 			{
 				retval.put(dp, Row.UNINITIALIZED);
@@ -387,7 +384,7 @@ public class SQLSheet
 				IColumnConverter conv = columnConverterManager.getConverter(converterInfo.converterName);
 				if (conv == null)
 				{
-					throw new IllegalStateException(Messages.getString("servoy.error.converterNotFound", new Object[] { converterInfo.converterName })); //$NON-NLS-1$
+					throw new IllegalStateException(application.getI18NMessage("servoy.error.converterNotFound", new Object[] { converterInfo.converterName })); //$NON-NLS-1$
 				}
 				try
 				{
@@ -395,7 +392,7 @@ public class SQLSheet
 				}
 				catch (Exception e)
 				{
-					throw new IllegalArgumentException(Messages.getString("servoy.record.error.settingDataprovider", //$NON-NLS-1$
+					throw new IllegalArgumentException(application.getI18NMessage("servoy.record.error.settingDataprovider", //$NON-NLS-1$
 						new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue }), e);
 				}
 
@@ -407,7 +404,7 @@ public class SQLSheet
 				int valueLen = Column.getObjectSize(convertedValue, variableInfo.type);
 				if (valueLen > 0 && variableInfo.length > 0 && valueLen > variableInfo.length) // insufficient space to save value
 				{
-					throw new IllegalArgumentException(Messages.getString("servoy.record.error.columnSizeTooSmall", //$NON-NLS-1$
+					throw new IllegalArgumentException(application.getI18NMessage("servoy.record.error.columnSizeTooSmall", //$NON-NLS-1$
 						new Object[] { dataProviderID, Integer.valueOf(variableInfo.length), convertedValue }));
 				}
 				// run the validators  (also done in FoundsetManager.validate(record))
@@ -421,7 +418,7 @@ public class SQLSheet
 							"' does have column validator  information, but either the validator '" + validatorInfo.getLeft() +
 							"'  is not available, is the validator installed? (default default_validators.jar in the plugins) or the validator information is incorrect.");
 
-						throw new IllegalStateException(Messages.getString("servoy.error.validatorNotFound", new Object[] { validatorInfo.getLeft() })); //$NON-NLS-1$
+						throw new IllegalStateException(application.getI18NMessage("servoy.error.validatorNotFound", new Object[] { validatorInfo.getLeft() })); //$NON-NLS-1$
 					}
 					if (validator instanceof IColumnValidator2)
 					{
@@ -435,7 +432,7 @@ public class SQLSheet
 							}
 							else
 							{
-								String msg = Messages.getString("servoy.record.error.validation", new Object[] { dataProviderID, convertedValue }); //$NON-NLS-1$
+								String msg = application.getI18NMessage("servoy.record.error.validation", new Object[] { dataProviderID, convertedValue }); //$NON-NLS-1$
 								throw new IllegalArgumentException(msg);
 							}
 						}
@@ -448,7 +445,7 @@ public class SQLSheet
 						}
 						catch (IllegalArgumentException e)
 						{
-							String msg = Messages.getString("servoy.record.error.validation", new Object[] { dataProviderID, convertedValue }); //$NON-NLS-1$
+							String msg = application.getI18NMessage("servoy.record.error.validation", new Object[] { dataProviderID, convertedValue }); //$NON-NLS-1$
 							if (e.getMessage() != null && e.getMessage().length() != 0) msg += ' ' + e.getMessage();
 							throw new IllegalArgumentException(msg);
 						}
@@ -484,7 +481,7 @@ public class SQLSheet
 			catch (Exception e)
 			{
 				Debug.error(e);
-				throw new IllegalArgumentException(Messages.getString("servoy.record.error.settingDataprovider", //$NON-NLS-1$
+				throw new IllegalArgumentException(application.getI18NMessage("servoy.record.error.settingDataprovider", //$NON-NLS-1$
 					new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type), convertedValue }));
 			}
 		}
@@ -529,7 +526,7 @@ public class SQLSheet
 					catch (Exception e)
 					{
 						Debug.error("Exception caught while running the column converter.", e);
-						throw new IllegalArgumentException(Messages.getString("servoy.record.error.gettingDataprovider", //$NON-NLS-1$
+						throw new IllegalArgumentException(application.getI18NMessage("servoy.record.error.gettingDataprovider", //$NON-NLS-1$
 							new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type) }), e);
 					}
 				}
@@ -538,7 +535,7 @@ public class SQLSheet
 					Debug.error("Column '" + dataProviderID +
 						"' does have column converter information, but either the converter '" + converterInfo.converterName +
 						"'  (type) is not available, is the converter installed? (default converters.jar in the plugins) or the converter information is incorrect.");
-					throw new IllegalArgumentException(Messages.getString("servoy.record.error.gettingDataprovider", //$NON-NLS-1$
+					throw new IllegalArgumentException(application.getI18NMessage("servoy.record.error.gettingDataprovider", //$NON-NLS-1$
 						new Object[] { dataProviderID, Column.getDisplayTypeString(variableInfo.type) }));
 				}
 			}
@@ -836,10 +833,8 @@ public class SQLSheet
 		StringBuilder sb = new StringBuilder();
 		sb.append("SQLSheet [" + sheetID + "]\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		int type = 0;
-		Iterator<SQLDescription> it = sql.iterator();
-		while (it.hasNext())
+		for (SQLDescription element : sql)
 		{
-			SQLDescription element = it.next();
 			sb.append("SQL [" + type + "] " + element + "\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			type++;
 		}
