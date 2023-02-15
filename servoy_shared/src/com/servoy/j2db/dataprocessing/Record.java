@@ -672,7 +672,8 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 			}
 			else
 			{
-				((FoundSetManager)parent.getFoundSetManager()).getApplication().handleException(null, new ApplicationException(ServoyException.RECORD_LOCKED));
+				((FoundSetManager)parent.getFoundSetManager()).getApplication().handleException(null,
+					new ApplicationException(ServoyException.NO_MODIFY_ACCESS));
 			}
 		}
 		catch (RuntimeException e)
