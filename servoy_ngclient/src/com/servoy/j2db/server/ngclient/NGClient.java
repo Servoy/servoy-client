@@ -36,6 +36,7 @@ import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
 import org.sablo.WebComponent;
+import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.eventthread.WebsocketSessionWindows;
 import org.sablo.specification.IFunctionParameters;
 import org.sablo.specification.SpecProviderState;
@@ -57,6 +58,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.ApplicationException;
+import com.servoy.j2db.ClientStub;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBasicFormManager;
 import com.servoy.j2db.IDataRendererFactory;
@@ -909,6 +911,30 @@ public class NGClient extends AbstractApplication
 		foundSetManager = new NGFoundSetManager(this, getFoundSetManagerConfig(), new SwingFoundSetFactory());
 		foundSetManager.init();
 	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.ClientState#createUserClient()
+	 */
+	@Override
+	protected void createUserClient()
+	{
+		userClient = new ClientStub(this)
+		{
+			@Override
+			public void shutDown()
+			{
+				// if shutdown from the server, just force interrupt the event thread.
+				IEventDispatcher eventDispatcher = getWebsocketSession().getEventDispatcher(false);
+				if (eventDispatcher != null) eventDispatcher.interruptEventThread();
+
+				invokeLater(() -> NGClient.this.shutDown(true));
+
+			}
+		};
+	}
+
 
 	@Override
 	public ScheduledExecutorService getScheduledExecutor()
