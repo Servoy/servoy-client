@@ -229,7 +229,9 @@ angular.module('servoydefaultCombobox', ['servoy', 'ui.select'])
 			//maybe to something like {realValue1:displayValue1, realValue2:displayValue2, ...}
 			for (i = 0; i < valuelist.length; i++) {
 				if ((realValue + '') === (valuelist[i].realValue + '')) {
-					return valuelist[i].displayValue;
+				    return valuelist[i].displayValue;
+				} else if (valuelist[i].realValue && realValue instanceof Date && realValue.getTime() == moment(valuelist[i].realValue).toDate().getTime()){
+				    return valuelist[i].displayValue;
 				}
 			}
 			var hasRealValues = false;
