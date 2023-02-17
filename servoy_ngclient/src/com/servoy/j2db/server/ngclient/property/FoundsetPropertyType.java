@@ -402,9 +402,10 @@ public class FoundsetPropertyType extends CustomJSONPropertyType<FoundsetTypeSab
 					initialPreferredViewPortSize = Utils.getAsInteger(obj.get(FoundsetPropertyTypeConfig.INITIAL_PREFERRED_VIEWPORT_SIZE, obj));
 				if (obj.has(FoundsetPropertyTypeConfig.SEND_SELECTION_VIEWPORT_INITIALLY, obj))
 					sendSelectionViewportInitially = Utils.getAsBoolean(obj.get(FoundsetPropertyTypeConfig.SEND_SELECTION_VIEWPORT_INITIALLY, obj));
-				if (previousComponentValue != null)
+				Object config = pd.getConfig();
+				if (config instanceof FoundsetPropertyTypeConfig)
 				{
-					foundsetDefinitionListener = previousComponentValue.getSpecFoundsetDefinitionListener();
+					foundsetDefinitionListener = ((FoundsetPropertyTypeConfig)config).foundsetDefinitionListener;
 				}
 				else
 				{
