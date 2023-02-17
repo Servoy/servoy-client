@@ -19,8 +19,10 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -125,6 +127,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	private Long handledIDForResponse; // when a filter(...) is requested, we must include the filter req. id (so that it can resolve the correct promise in case multiple filter calls are done quickly)
 
 	private boolean valuesRequested;
+	private boolean realAreDates;
 
 	// dataset of the runtime set custom valuelist
 	private Object customValueListDataSet;
@@ -373,7 +376,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 		List<Map<String, Object>> array = new ArrayList<>(size);
 		boolean displayAreDates = false;
-		boolean realAreDates = false;
+		realAreDates = false;
 		for (int i = 0; i < size; i++)
 		{
 			Map<String, Object> map = new HashMap<String, Object>();
@@ -443,6 +446,18 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			return offsetDT.toString();
 		}
 		return o;
+	}
+
+	private Date convertToDate(String dateText)
+	{
+		if (format != null && format.parsedFormat.useLocalDateTime())
+		{
+			return Date.from(LocalDateTime.parse(dateText, DateTimeFormatter.ISO_OFFSET_DATE_TIME).atZone(ZoneId.systemDefault()).toInstant());
+		}
+		else
+		{
+			return Date.from(OffsetDateTime.parse(dateText).toInstant());
+		}
 	}
 
 	private void logMaxSizeExceptionIfNecessary(String valueListName, int valuelistSize)
@@ -924,6 +939,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	{
 		this.handledIDForResponse = Long.valueOf(newJSONValue.getLong(ID_KEY));
 		Object realValue = newJSONValue.opt(DISPLAYVALUE);
+		if (this.realAreDates && realValue != null) realValue = this.convertToDate(realValue.toString());
 		displayValue = realValue;
 		int realValueIndex = valueList.realValueIndexOf(realValue);
 		if (realValueIndex != -1)
