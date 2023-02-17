@@ -106,6 +106,10 @@ angular.module('servoydefaultTypeahead', ['servoy'])
         							$scope.value = item.displayValue;
         							found = true;
         							break;
+        						} else if (item.realValue && $scope.model.dataProviderID instanceof Date && $scope.model.dataProviderID.getTime() == moment(item.realValue).toDate().getTime()){
+        						    $scope.value = item.displayValue;
+                                    found = true;
+                                    break;
         						}
         					}
 					}
