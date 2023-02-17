@@ -1376,15 +1376,6 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		return foundset;
 	}
 
-	public boolean getSpecFoundsetDefinitionListener()
-	{
-		if (this.specConfig != null)
-		{
-			return this.specConfig.foundsetDefinitionListener;
-		}
-		return FoundsetPropertyTypeConfig.DEFAULT_FOUNDSET_DEFINITION_LISTENER;
-	}
-
 	/**
 	 * @return the dataproviders
 	 */
