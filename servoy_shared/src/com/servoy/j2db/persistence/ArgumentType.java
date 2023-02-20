@@ -25,9 +25,10 @@ package com.servoy.j2db.persistence;
  */
 public class ArgumentType
 {
-	public static final ArgumentType String = new ArgumentType("String"); //$NON-NLS-1$
-	public static final ArgumentType Number = new ArgumentType("Number"); //$NON-NLS-1$
-	public static final ArgumentType Boolean = new ArgumentType("Boolean"); //$NON-NLS-1$
+	// CHECKME this is where the Capital-cased primitive types come from
+	public static final ArgumentType String = new ArgumentType("String", true); //$NON-NLS-1$
+	public static final ArgumentType Number = new ArgumentType("Number", true); //$NON-NLS-1$
+	public static final ArgumentType Boolean = new ArgumentType("Boolean", true); //$NON-NLS-1$
 	public static final ArgumentType Color = new ArgumentType("Color"); //$NON-NLS-1$
 	public static final ArgumentType Exception = new ArgumentType("Exception"); //$NON-NLS-1$
 	public static final ArgumentType JSRecord = new ArgumentType("JSRecord"); //$NON-NLS-1$
@@ -38,13 +39,23 @@ public class ArgumentType
 	public static final ArgumentType Array = new ArgumentType("Array"); //$NON-NLS-1$
 
 	private final String name;
+	private final Boolean primitive;
 
 	/**
 	 * @param string2
 	 */
 	private ArgumentType(String name)
 	{
+		this(name, false);
+	}
+
+	/**
+	 * @param string2
+	 */
+	private ArgumentType(String name, Boolean isPrimitive)
+	{
 		this.name = name;
+		this.primitive = isPrimitive;
 	}
 
 	/**
@@ -53,6 +64,11 @@ public class ArgumentType
 	public String getName()
 	{
 		return name;
+	}
+
+	public Boolean isPrimitive()
+	{
+		return this.primitive;
 	}
 
 	@Override
