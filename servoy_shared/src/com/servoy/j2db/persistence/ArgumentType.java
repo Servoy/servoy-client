@@ -36,6 +36,8 @@ public class ArgumentType
 	public static final ArgumentType Object = new ArgumentType("Object"); //$NON-NLS-1$
 	public static final ArgumentType Date = new ArgumentType("Date"); //$NON-NLS-1$
 	public static final ArgumentType Array = new ArgumentType("Array"); //$NON-NLS-1$
+	public static final ArgumentType ArrayString = new ArgumentType("Array<String>"); //$NON-NLS-1$
+	public static final ArgumentType ArrayNumber = new ArgumentType("Array<Number>"); //$NON-NLS-1$
 
 	private final String name;
 
@@ -80,6 +82,8 @@ public class ArgumentType
 		if (JSDataSet.getName().equals(type)) return JSDataSet;
 		if (Date.getName().equals(type)) return Date;
 		if (Array.getName().equals(type)) return Array;
+		if (ArrayString.getName().equals(type)) return ArrayString;
+		if (ArrayNumber.getName().equals(type)) return ArrayNumber;
 		return new ArgumentType(type);
 	}
 
@@ -88,7 +92,8 @@ public class ArgumentType
 	 */
 	public static boolean isGeneratedType(String type)
 	{
-		return Array.getName().equals(type) || Date.getName().equals(type) || Number.getName().equals(type) || String.getName().equals(type);
+		return Array.getName().equals(type) || Date.getName().equals(type) ||
+			Number.getName().equals(type) || String.getName().equals(type);
 	}
 
 	public static ArgumentType convertFromColumnType(int columnType, String typeSuggestion)
@@ -97,7 +102,9 @@ public class ArgumentType
 		if (columnType == IColumnTypes.INTEGER || columnType == IColumnTypes.NUMBER) return Number;
 		if (columnType == IColumnTypes.TEXT) return String;
 		if (columnType != IColumnTypes.MEDIA && typeSuggestion != null) return valueOf(typeSuggestion);
-		if (columnType == IColumnTypes.MEDIA && Array.getName().equals(typeSuggestion)) return valueOf(typeSuggestion);
+		if (columnType == IColumnTypes.MEDIA &&
+			(Array.getName().equals(typeSuggestion) || ArrayString.getName().equals(typeSuggestion) || ArrayNumber.getName().equals(typeSuggestion)))
+			return valueOf(typeSuggestion);
 		return Object;
 	}
 }
