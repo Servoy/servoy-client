@@ -85,11 +85,11 @@ public class ArgumentType
 	 */
 	public static ArgumentType valueOf(String type)
 	{
-		if (type == null || Object.getName().equals(type)) return Object;
-		if (String.getName().equals(type)) return String;
-		if (Number.getName().equals(type)) return Number;
+		if (type == null || Object.getName().equalsIgnoreCase(type)) return Object;
+		if (String.getName().equalsIgnoreCase(type)) return String;
+		if (Number.getName().equalsIgnoreCase(type)) return Number;
 		if ("int".equals(type)) return Number;
-		if (Boolean.getName().equals(type)) return Boolean;
+		if (Boolean.getName().equalsIgnoreCase(type)) return Boolean;
 		if (Color.getName().equals(type)) return Color;
 		if (Exception.getName().equals(type)) return Exception;
 		if (JSRecord.getName().equals(type)) return JSRecord;
@@ -98,8 +98,8 @@ public class ArgumentType
 		if (JSDataSet.getName().equals(type)) return JSDataSet;
 		if (Date.getName().equals(type)) return Date;
 		if (Array.getName().equals(type)) return Array;
-		if (ArrayString.getName().equals(type)) return ArrayString;
-		if (ArrayNumber.getName().equals(type)) return ArrayNumber;
+		if (ArrayString.getName().equalsIgnoreCase(type)) return ArrayString;
+		if (ArrayNumber.getName().equalsIgnoreCase(type)) return ArrayNumber;
 		return new ArgumentType(type);
 	}
 

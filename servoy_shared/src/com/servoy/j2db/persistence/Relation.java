@@ -737,6 +737,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		return foreignColumns;
 	}
 
+	@SuppressWarnings("nls")
 	public String checkKeyTypes(IDataProviderHandler dataProviderHandler) throws RepositoryException
 	{
 		ICacheDataproviders cachedDp = getCachedDataproviders(dataProviderHandler);
@@ -796,27 +797,38 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 				{
 					continue; // allow number to integer mappings
 				}
+				String typeProperty = ((AbstractBase)primary[i]).getSerializableRuntimeProperty(IScriptProvider.TYPE);
 				if (foreignType == IColumnTypes.INTEGER && primary[i] instanceof AbstractBase &&
-					"Boolean".equals(((AbstractBase)primary[i]).getSerializableRuntimeProperty(IScriptProvider.TYPE))) //$NON-NLS-1$
+					"Boolean".equals(typeProperty)) //$NON-NLS-1$
 				{
 					continue; // allow boolean var to number mappings
 				}
 				if (primaryType == IColumnTypes.MEDIA && primary[i] instanceof AbstractBase &&
-					"Array".equals(((AbstractBase)primary[i]).getSerializableRuntimeProperty(IScriptProvider.TYPE))) //$NON-NLS-1$
+					("Array".equals(typeProperty) || (typeProperty != null && typeProperty.startsWith("Array<"))))
 				{
 					int maskedOp = ops[i] & OPERATOR_MASK;
 					if (maskedOp == EQUALS_OPERATOR || maskedOp == NOT_OPERATOR || maskedOp == IN_OPERATOR)
 					{
-						continue; // allow arrays, we cannot check the array element type
+						boolean ok = true;
+						if (typeProperty != null && typeProperty.startsWith("Array<"))
+						{
+							ArgumentType componentType = ArgumentType.valueOf(typeProperty);
+							ok = (componentType == ArgumentType.ArrayString && foreignType == IColumnTypes.TEXT) ||
+								(componentType == ArgumentType.ArrayNumber && (foreignType == IColumnTypes.NUMBER || foreignType == IColumnTypes.INTEGER));
+						}
+						if (ok) continue; // allow arrays,
+						return Messages.getString("servoy.relation.error.typeDoesntMatch",
+							new Object[] { primary[i].getDataProviderID() + " (" + typeProperty + ")", foreign[i].getDataProviderID() + " (" +
+								Column.getDisplayTypeString(foreignType) + ")" });
 					}
-					return Messages.getString("servoy.relation.error.unsupportedKindForOperator", //$NON-NLS-1$
-						new Object[] { ((AbstractBase)primary[i]).getSerializableRuntimeProperty(IScriptProvider.TYPE), RelationItem
-							.getOperatorAsString(ops[i]) });
+					return Messages.getString("servoy.relation.error.unsupportedKindForOperator",
+						new Object[] { typeProperty, RelationItem.getOperatorAsString(ops[i]) });
 				}
 				if (primaryType != foreignType)
 				{
-					return Messages.getString("servoy.relation.error.typeDoesntMatch", //$NON-NLS-1$
-						new Object[] { primary[i].getDataProviderID(), foreign[i].getDataProviderID() });
+					return Messages.getString("servoy.relation.error.typeDoesntMatch",
+						new Object[] { primary[i].getDataProviderID() + " (" + Column.getDisplayTypeString(primaryType) + ")", foreign[i].getDataProviderID() +
+							" (" + Column.getDisplayTypeString(foreignType) + ")" });
 				}
 			}
 		}
