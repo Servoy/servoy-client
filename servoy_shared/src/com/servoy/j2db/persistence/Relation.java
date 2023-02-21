@@ -797,14 +797,13 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 				{
 					continue; // allow number to integer mappings
 				}
-				String typeProperty = ((AbstractBase)primary[i]).getSerializableRuntimeProperty(IScriptProvider.TYPE);
-				if (foreignType == IColumnTypes.INTEGER && primary[i] instanceof AbstractBase &&
-					"Boolean".equals(typeProperty)) //$NON-NLS-1$
+				String typeProperty = primary[i] instanceof AbstractBase ? ((AbstractBase)primary[i]).getSerializableRuntimeProperty(IScriptProvider.TYPE)
+					: null;
+				if (foreignType == IColumnTypes.INTEGER && "Boolean".equals(typeProperty)) //$NON-NLS-1$
 				{
 					continue; // allow boolean var to number mappings
 				}
-				if (primaryType == IColumnTypes.MEDIA && primary[i] instanceof AbstractBase &&
-					("Array".equals(typeProperty) || (typeProperty != null && typeProperty.startsWith("Array<"))))
+				if (primaryType == IColumnTypes.MEDIA && ("Array".equals(typeProperty) || (typeProperty != null && typeProperty.startsWith("Array<"))))
 				{
 					int maskedOp = ops[i] & OPERATOR_MASK;
 					if (maskedOp == EQUALS_OPERATOR || maskedOp == NOT_OPERATOR || maskedOp == IN_OPERATOR)
