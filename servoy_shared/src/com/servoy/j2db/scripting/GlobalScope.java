@@ -254,6 +254,6 @@ public class GlobalScope extends ScriptVariableScope
 	@Override
 	public String toString()
 	{
-		return "GlobalScope[name:" + scopeName + ",,destroyed:" + (application == null) + " values:" + allVars + ']';
+		return "GlobalScope[name:" + scopeName + ", destroyed:" + (application == null) + ", values:" + allVars.keySet() + ']';
 	}
 }
