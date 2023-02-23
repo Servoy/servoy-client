@@ -132,7 +132,21 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 				{
 					sourceName = name;
 				}
-				initValue = evalValue(name, str, sourceName, var.getLineNumberOffset());
+				try
+				{
+					// start already a context, to see which debugger is injected.
+					// if it is the ProfilingDebugger then make sure we just inject a nice name (scope + var)
+					Context cx = Context.enter();
+					if (cx.getDebugger() instanceof ProfilingDebugger)
+					{
+						sourceName = var.getScopeName() + "." + name;
+					}
+					initValue = evalValue(name, str, sourceName, var.getLineNumberOffset());
+				}
+				finally
+				{
+					Context.exit();
+				}
 			}
 			putWithoutFireChange(name, initValue);
 			if (Utils.mapGetKeyByValue(allIndex, name) == null)
