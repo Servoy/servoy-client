@@ -610,7 +610,6 @@ public class ScriptEngine implements IScriptSupport
 
 		// f below always seems to be NativeFunction instance as both Codegen.createFunctionObject and Interpreter.createFunctionObject return
 		// a NativeFunction instance; and that is what cx.compileFunction(...) ends up calling
-		System.err.println(sourceName);
 		Function f = cx.compileFunction(scope, declaration, sourceName, sp.getLineNumberOffset(), null);
 		if (!(sp instanceof ScriptCalculation))
 		{

@@ -94,6 +94,7 @@ import com.servoy.j2db.persistence.ServerSettings;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.ValidatorSearchContext;
+import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.server.ngclient.DefaultComponentPropertiesProvider;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.INGClientWindow;
@@ -394,6 +395,7 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 	@Before
 	public void buildSolution() throws Exception
 	{
+		System.setProperty(ScriptEngine.SERVOY_DISABLE_SCRIPT_COMPILE_PROPERTY, "true");
 		TestNGClient.initSettings();
 		Types.getTypesInstance().registerTypes();
 
