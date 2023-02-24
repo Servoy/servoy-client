@@ -65,6 +65,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.ContextFactory.Listener;
 import org.sablo.InMemPackageReader;
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.Package;
@@ -512,6 +515,20 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 			endpoint.start(new TestSession(), String.valueOf(session.getSessionKey().getClientnr()), "null", "42");
 
 			CurrentWindow.set(session.getWindows().iterator().next());
+
+			ContextFactory.getGlobal().addListener(new Listener()
+			{
+				@Override
+				public void contextCreated(Context cx)
+				{
+					cx.setOptimizationLevel(-1);
+				}
+
+				@Override
+				public void contextReleased(Context cx)
+				{
+				}
+			});
 		}
 		catch (RepositoryException e)
 		{
