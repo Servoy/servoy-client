@@ -89,6 +89,7 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 		WebComponentSpecProvider.init(new IPackageReader[] { new InMemPackageReader(manifest, components) }, null);
 
 		rhinoContext = Context.enter();
+		rhinoContext.setOptimizationLevel(-1);
 		someRhinoScope = rhinoContext.initStandardObjects();
 
 		component = new WebComponent("mycomponent", "testComponentName");
@@ -189,7 +190,7 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 				"dummy js file name from junit tests", 0, null));
 		assertTrue("From rhino should be a Map", javaVal instanceof Map);
 		assertEquals("Check key5 in java", "aha", ((Map)javaVal).get("key5"));
-		assertEquals("Check key6 in java", Integer.valueOf(475), ((Map)javaVal).get("key6"));
+		assertEquals("Check key6 in java", Double.valueOf(475), ((Map)javaVal).get("key6"));
 		assertEquals("Check key7 in java", false, ((Map)javaVal).get("key7"));
 		assertTrue("Check key8 in java", ((Map)javaVal).get("key8") instanceof Date);
 		assertNull("Check inexistent in java", ((Map)javaVal).get("inexistent"));
@@ -253,7 +254,7 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 				null));
 		assertTrue("From rhino should be a List", javaVal instanceof List);
 		assertEquals("Check index 0 in java", "aha", ((List)javaVal).get(0));
-		assertEquals("Check index 1 in java", Integer.valueOf(475), ((List)javaVal).get(1));
+		assertEquals("Check index 1 in java", Double.valueOf(475), ((List)javaVal).get(1));
 		assertEquals("Check index 2 in java", date, ((List)javaVal).get(2));
 		assertEquals("Check index 3 in java", true, ((List)javaVal).get(3));
 		assertEquals("Check length in java", 4, ((List)javaVal).size());
@@ -265,7 +266,7 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 				null));
 		assertTrue("From rhino should be a List", javaVal instanceof List);
 		assertEquals("Check index 0 in java", "aha", ((List)javaVal).get(0));
-		assertEquals("Check index 1 in java", Integer.valueOf(475), ((List)javaVal).get(1));
+		assertEquals("Check index 1 in java", Double.valueOf(475), ((List)javaVal).get(1));
 		assertEquals("Check index 2 in java", date, ((List)javaVal).get(2));
 		assertEquals("Check index 3 in java", true, ((List)javaVal).get(3));
 		assertEquals("Check length in java", 4, ((List)javaVal).size());
@@ -325,7 +326,7 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 		assertEquals("Check index 12 in java", null, ((List)javaVal).get(12));
 		assertEquals("Check index 13 in java", null, ((List)javaVal).get(13));
 		assertEquals("Check index 14 in java", null, ((List)javaVal).get(14));
-		assertEquals("Check index 15 in java", 2589, ((List)javaVal).get(15));
+		assertEquals("Check index 15 in java", 2589.0, ((List)javaVal).get(15));
 		assertEquals("Check length in java", 16, ((List)javaVal).size());
 	}
 
@@ -536,7 +537,7 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 
 		// ok now change the date from rhino and see that we get notified and the sablo value gets updated
 		rhinoContext.evaluateString(someRhinoScope, "a.childNumber = 543;", "dummy js file name from junit tests", 0, null);
-		assertEquals("Check childNumber change from Rhino", 543, jsonObject.get("childNumber"));
+		assertEquals("Check childNumber change from Rhino", 543.0, jsonObject.get("childNumber"));
 		assertTrue("We changed the date just now in the map; component should know it has changed", component.hasChanges());
 		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
 		assertFalse("Now it no longer has changes", component.hasChanges());
@@ -551,7 +552,7 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 
 		// ok now change something in the array and see that it does get updated and that it is marked as changed
 		rhinoContext.evaluateString(someRhinoScope, "a.childArray[5] = 987;", "dummy js file name from junit tests", 0, null);
-		assertEquals("Check childNumber of array change from Rhino", 987, ((JSONArray)jsonObject.get("childArray")).get(5));
+		assertEquals("Check childNumber of array change from Rhino", 987.0, ((JSONArray)jsonObject.get("childArray")).get(5));
 		assertTrue("We changed the date just now in the map; component should know it has changed", component.hasChanges());
 		assertTrue("Component should know map changed", component.getAndClearChanges().content.containsKey(DEFAULT_CONVERSIONS_PROP)); // also clears changes
 		assertFalse("Now it no longer has changes", component.hasChanges());
@@ -587,7 +588,7 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 
 		// change sub-key of 'object' type inside custom type
 		rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp.someSubKey = 15;", "dummy js file name from junit tests", 0, null);
-		assertEquals("Check to see that customType.objectType.someSubKey is correct", 15,
+		assertEquals("Check to see that customType.objectType.someSubKey is correct", 15.0,
 			rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp.someSubKey;", "dummy js file name from junit tests", 0, null));
 
 		// now the component should be aware that it's objectT/defaultConversionsSubProp has changes
@@ -619,7 +620,7 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 
 		// change sub-key of 'object' type inside custom type
 		rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp.someSubKey = 15;", "dummy js file name from junit tests", 0, null);
-		assertEquals("Check to see that customType.objectType.someSubKey is correct", 15,
+		assertEquals("Check to see that customType.objectType.someSubKey is correct", 15.0,
 			rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp.someSubKey;", "dummy js file name from junit tests", 0, null));
 
 		// now the component should be aware that it's objectT/defaultConversionsSubProp has changes
@@ -650,7 +651,7 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 
 		// change sub-key of 'object' type inside custom type
 		rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp[0] = 15;", "dummy js file name from junit tests", 0, null);
-		assertEquals("Check to see that customType.objectType.someSubKey is correct", 15,
+		assertEquals("Check to see that customType.objectType.someSubKey is correct", 15.0,
 			rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp[0];", "dummy js file name from junit tests", 0, null));
 
 		// now the component should be aware that it's objectT/defaultConversionsSubProp has changes
@@ -681,7 +682,7 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 
 		// change sub-key of 'object' type inside custom type
 		rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp[0] = 15;", "dummy js file name from junit tests", 0, null);
-		assertEquals("Check to see that customType.objectType.someSubKey is correct", 15,
+		assertEquals("Check to see that customType.objectType.someSubKey is correct", 15.0,
 			rhinoContext.evaluateString(someRhinoScope, "a.defaultConversionsSubProp[0];", "dummy js file name from junit tests", 0, null));
 
 		// now the component should be aware that it's objectT/defaultConversionsSubProp has changes
@@ -702,7 +703,7 @@ public class RhinoDefaultConversionsTest extends Log4JToConsoleTest
 		component.setProperty(DEFAULT_CONVERSIONS_PROP, sabloVal);
 
 		assertEquals("Check key5 in java", "aha", sabloVal.get("key5"));
-		assertEquals("Check key6 in java", Integer.valueOf(475), sabloVal.get("key6"));
+		assertEquals("Check key6 in java", Double.valueOf(475), sabloVal.get("key6"));
 
 		// TODO this is not currently supported (so it will fail similar to how custom object props or custom array props. fails as well in a similar scenario); see if it can be improved in the future; if it;s improved add similar tests for List, JSONArray, JSONObject as sablo values for 'object' typed property
 		// change original rhino NativeObject and see if sablo value is updated and component is aware of changes
