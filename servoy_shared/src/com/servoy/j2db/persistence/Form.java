@@ -2361,4 +2361,17 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		setLastModified(System.currentTimeMillis());
 		superPersistCache = null;
 	}
+
+	public boolean containsResponsiveLayout()
+	{
+		List<IPersist> children = getHierarchyChildren();
+		for (IPersist persist : children)
+		{
+			if (persist instanceof AbstractContainer)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 }

@@ -209,7 +209,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 							FormComponentCache fccc = FormElementHelper.INSTANCE.getFormComponentCache(fe, pd,
 								(JSONObject)propertyValue, frm,
 								context.getSolution());
-							if (isResponsive)
+							if (isResponsive || frm.containsResponsiveLayout())
 							{
 								// layout containers are not in the cache we need to generate manually the model
 								frm.acceptVisitor(new ChildrenJSONGenerator(writer, context, frm, new IFormElementCache()
