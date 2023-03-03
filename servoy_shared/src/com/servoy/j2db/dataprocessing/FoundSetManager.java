@@ -375,17 +375,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		Set<ITable> affectedTables = new HashSet<ITable>();
 
-		List<FoundSet> fslist = new ArrayList<FoundSet>(sharedDataSourceFoundSet.size() + separateFoundSets.size() + foundSets.size());
-		fslist.addAll(sharedDataSourceFoundSet.values());
-		fslist.addAll(separateFoundSets.values());
-		fslist.addAll(foundSets.keySet());
-
-		for (FoundSet fs : fslist)
-		{
-			refreshFoundSet(fs, dataSource, tableFilterdefinitions, skipStopEdit, affectedTables);
-		}
-
-		namedFoundSets.values().forEach(foundset -> refreshFoundSet(foundset, dataSource, tableFilterdefinitions, skipStopEdit, affectedTables));
+		asList(
+			sharedDataSourceFoundSet.values(),
+			separateFoundSets.values(),
+			foundSets.keySet(),
+			namedFoundSets.values())
+				.stream().flatMap(Collection::stream)
+				.forEach(foundset -> refreshFoundSet(foundset, dataSource, tableFilterdefinitions, skipStopEdit, affectedTables));
 
 		// Can't just clear substates!! if used in portal then everything is out of sync
 //		if(server_name == null && table_name == null)
