@@ -31,10 +31,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.NativeArray;
-import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
-import org.sablo.WebComponent;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.ISmartPropertyValue;
 import org.sablo.websocket.utils.JSONUtils;
@@ -48,7 +46,6 @@ import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.IRelation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.server.ngclient.IContextProvider;
-import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -77,23 +74,22 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 	public Map<String, FoundsetTreeBinding> bindings = new HashMap<String, FoundsetTreeBinding>();
 	private Object[] selectionPath;
 	private IChangeListener changeMonitor;
-	private IWebObjectContext webObjectContext;
 	private int levelVisible = 0;
 	private boolean levelVisibility;
+	private IFoundSetManagerInternal fsm;
 
 	@Override
 	public void attachToBaseObject(IChangeListener changeMonitor, IWebObjectContext webObjectContext)
 	{
 		this.changeMonitor = changeMonitor;
-		this.webObjectContext = webObjectContext;
-		this.autorefresh = Utils.getAsBoolean(this.webObjectContext.getProperty("autoRefresh"));
+		this.autorefresh = Utils.getAsBoolean(webObjectContext.getProperty("autoRefresh"));
+		this.fsm = ((IContextProvider)webObjectContext.getUnderlyingWebObject()).getDataConverterContext().getApplication().getFoundSetManager();
 	}
 
 	@Override
 	public void detach()
 	{
 		this.changeMonitor = null;
-		this.webObjectContext = null;
 		bindings.values().stream().forEach(binding -> {
 			binding.foundsets.stream().filter(ISwingFoundSet.class::isInstance).map(ISwingFoundSet.class::cast).forEach(foundset -> {
 				foundset.removeTableModelListener(this);
@@ -125,28 +121,20 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 			List<Map<String, Object>> relChildren = null;
 			if (foundsetAndRecordPK.length == 2)
 			{
-				BaseWebObject webObject = dataConverterContext.getWebObject();
-				if (webObject instanceof IContextProvider)
+				IFoundSetInternal foundset = fsm.findFoundset(Utils.getAsInteger(foundsetAndRecordPK[0]));
+				if (foundset != null)
 				{
-					IFoundSetManagerInternal fsm = ((IContextProvider)webObject).getDataConverterContext().getApplication().getFoundSetManager();
-					if (fsm != null)
+					FoundsetTreeBinding relatedBinding = bindings.get(foundset.getDataSource());
+					if (relatedBinding.relationInfos.size() > 0 && foundset.getSize() > 0)
 					{
-						IFoundSetInternal foundset = fsm.findFoundset(Utils.getAsInteger(foundsetAndRecordPK[0]));
-						if (foundset != null)
+						int recordIndex = foundset.getRecordIndex(foundsetAndRecordPK[1], 0);
+						if (recordIndex != -1)
 						{
-							FoundsetTreeBinding relatedBinding = bindings.get(foundset.getDataSource());
-							if (relatedBinding.relationInfos.size() > 0 && foundset.getSize() > 0)
+							IRecordInternal record = foundset.getRecord(recordIndex);
+							if (record != null)
 							{
-								int recordIndex = foundset.getRecordIndex(foundsetAndRecordPK[1], 0);
-								if (recordIndex != -1)
-								{
-									IRecordInternal record = foundset.getRecord(recordIndex);
-									if (record != null)
-									{
-										relChildren = getRelatedFoundsetData(this.getRelatedFoundsets(relatedBinding, record, true),
-											this.parentLevel);
-									}
-								}
+								relChildren = getRelatedFoundsetData(this.getRelatedFoundsets(relatedBinding, record, true),
+									this.parentLevel);
 							}
 						}
 					}
@@ -209,47 +197,38 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 			String[] foundsetAndRecordPK = id.split("_");
 			if (foundsetAndRecordPK.length == 2)
 			{
-				IWebFormUI formUI = webObjectContext.getUnderlyingWebObject() instanceof WebComponent
-					? ((WebComponent)webObjectContext.getUnderlyingWebObject()).findParent(IWebFormUI.class) : null;
-				if (formUI != null)
+				IFoundSetInternal foundset = fsm.findFoundset(Utils.getAsInteger(foundsetAndRecordPK[0]));
+				if (foundset != null)
 				{
-					IFoundSetManagerInternal fsm = formUI.getController().getApplication().getFoundSetManager();
-					if (fsm != null)
+					FoundsetTreeBinding binding = bindings.get(foundset.getDataSource());
+					if (foundset.getSize() > 0)
 					{
-						IFoundSetInternal foundset = fsm.findFoundset(Utils.getAsInteger(foundsetAndRecordPK[0]));
-						if (foundset != null)
+						int recordIndex = foundset.getRecordIndex(foundsetAndRecordPK[1], 0);
+						if (recordIndex != -1)
 						{
-							FoundsetTreeBinding binding = bindings.get(foundset.getDataSource());
-							if (foundset.getSize() > 0)
+							IRecordInternal record = foundset.getRecord(recordIndex);
+							if (binding.checkboxvaluedataprovider != null && record != null && record.startEditing())
 							{
-								int recordIndex = foundset.getRecordIndex(foundsetAndRecordPK[1], 0);
-								if (recordIndex != -1)
+								((ISwingFoundSet)record.getParentFoundSet()).removeTableModelListener(this);
+								record.setValue(binding.checkboxvaluedataprovider, value);
+								((ISwingFoundSet)record.getParentFoundSet()).addTableModelListener(this);
+							}
+							else
+							{
+								List<Object> checkedValues = binding.checkboxValues != null ? new ArrayList(Arrays.asList(binding.checkboxValues))
+									: new ArrayList<>();
+								if (value)
 								{
-									IRecordInternal record = foundset.getRecord(recordIndex);
-									if (binding.checkboxvaluedataprovider != null && record != null && record.startEditing())
+									if (!checkedValues.stream().anyMatch(item -> Utils.equalObjects(item, record.getPK()[0])))
 									{
-										((ISwingFoundSet)record.getParentFoundSet()).removeTableModelListener(this);
-										record.setValue(binding.checkboxvaluedataprovider, value);
-										((ISwingFoundSet)record.getParentFoundSet()).addTableModelListener(this);
-									}
-									else
-									{
-										List<Object> checkedValues = binding.checkboxValues != null ? new ArrayList(Arrays.asList(binding.checkboxValues))
-											: new ArrayList<>();
-										if (value)
-										{
-											if (!checkedValues.stream().anyMatch(item -> Utils.equalObjects(item, record.getPK()[0])))
-											{
-												checkedValues.add(record.getPK()[0]);
-											}
-										}
-										else
-										{
-											checkedValues.removeIf(item -> Utils.equalObjects(item, record.getPK()[0]));
-										}
-										binding.checkboxValues = checkedValues.toArray();
+										checkedValues.add(record.getPK()[0]);
 									}
 								}
+								else
+								{
+									checkedValues.removeIf(item -> Utils.equalObjects(item, record.getPK()[0]));
+								}
+								binding.checkboxValues = checkedValues.toArray();
 							}
 						}
 					}
@@ -364,24 +343,18 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 				List<SortColumn> sortColumns = null;
 				if (binding.childsortdataprovider != null)
 				{
-					IWebFormUI formUI = webObjectContext.getUnderlyingWebObject() instanceof WebComponent
-						? ((WebComponent)webObjectContext.getUnderlyingWebObject()).findParent(IWebFormUI.class) : null;
-					if (formUI != null)
+					IRelation relation = fsm.getRelation(relationName);
+					if (relation != null)
 					{
-						IFoundSetManagerInternal fsm = formUI.getController().getApplication().getFoundSetManager();
-						IRelation relation = fsm.getRelation(relationName);
-						if (relation != null)
+						Object sortString = record.getValue(binding.childsortdataprovider);
+						try
 						{
-							Object sortString = record.getValue(binding.childsortdataprovider);
-							try
-							{
-								sortColumns = fsm.getSortColumns(fsm.getTable(relation.getForeignDataSource()),
-									sortString != null ? sortString.toString() : null);
-							}
-							catch (RepositoryException e)
-							{
-								Debug.error(e);
-							}
+							sortColumns = fsm.getSortColumns(fsm.getTable(relation.getForeignDataSource()),
+								sortString != null ? sortString.toString() : null);
+						}
+						catch (RepositoryException e)
+						{
+							Debug.error(e);
 						}
 					}
 				}
