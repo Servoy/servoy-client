@@ -5667,6 +5667,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 
 		initialized = true;
+		mustQueryForUpdates = false;
 
 		if (clearInternalState)
 		{
@@ -7337,7 +7338,9 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	{
 		if (!hasAccess(IRepository.READ))
 		{
-			fireDifference(getSize(), 0, null);
+			int rawSize = getRawSize();
+			clear();
+			fireDifference(rawSize, 0, null);
 			throw new ApplicationException(ServoyException.NO_ACCESS, new Object[] { getSQLSheet().getTable().getName() });
 		}
 
