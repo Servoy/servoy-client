@@ -52,11 +52,11 @@ public interface ISMRelation extends IBaseSMRelation, ISMHasUUID
 	 */
 	public static final int RIGHT_OUTER_JOIN = IQueryConstants.RIGHT_OUTER_JOIN;
 
-	/**
-	 * @sameas INNER_JOIN
-	 * @see #INNER_JOIN
-	 */
-	public static final int FULL_JOIN = IQueryConstants.FULL_JOIN;
+//RAGTEST	/**
+//	 * @sameas INNER_JOIN
+//	 * @see #INNER_JOIN
+//	 */
+//	public static final int FULL_JOIN = IQueryConstants.FULL_JOIN;
 
 	/**
 	 * Removes the desired relation item from the specified relation.

@@ -50,11 +50,11 @@ public interface IQueryConstants
 	 */
 	public static final int RIGHT_OUTER_JOIN = 2;
 
-	/**
-	 * @sameas INNER_JOIN
-	 * @see #INNER_JOIN
-	 */
-	public static final int FULL_JOIN = 3;
+//RAGTEST niet supported in Hibernate 6?	/**
+//	 * @sameas INNER_JOIN
+//	 * @see #INNER_JOIN
+//	 */
+//	public static final int FULL_JOIN = 3;
 
 
 	/**

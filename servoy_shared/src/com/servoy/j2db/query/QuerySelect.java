@@ -516,19 +516,11 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 		IQuerySelectValue agregee;
 		int aggregateQuantifier;
-		if (selectCount.joins != null && (selectCount.distinct || distinctCount))
+		List<IQuerySelectValue> selectColumns = selectCount.getColumns();
+		if (selectCount.joins != null && (selectCount.distinct || distinctCount) && !selectColumns.isEmpty())
 		{
 			aggregateQuantifier = QueryAggregate.DISTINCT;
-			ArrayList<IQuerySelectValue> selectColumns = selectCount.getColumns();
-			IQuerySelectValue[] cols = selectColumns.toArray(new IQuerySelectValue[selectColumns.size()]);
-			if (cols.length == 1)
-			{
-				agregee = cols[0];
-			}
-			else
-			{
-				agregee = new QueryFunction(QueryFunctionType.concat, cols, null);
-			}
+			agregee = concatColumns(selectColumns);
 		}
 		else
 		{
@@ -539,6 +531,16 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		selectCount.setColumns(
 			new ArrayList<IQuerySelectValue>(asList(new QueryAggregate(QueryAggregate.COUNT, aggregateQuantifier, agregee, name, null, false))));
 		return selectCount;
+	}
+
+	private IQuerySelectValue concatColumns(List<IQuerySelectValue> values)
+	{
+		if (values.size() == 1)
+		{
+			return values.get(0);
+		}
+		// concat supports 2 arguments, go nested if there are more
+		return new QueryFunction(QueryFunctionType.concat, new IQuerySelectValue[] { values.get(0), concatColumns(values.subList(1, values.size())) }, null);
 	}
 
 	/**

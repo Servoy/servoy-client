@@ -41,11 +41,11 @@ public interface IQueryBuilderJoin extends IQueryBuilderTableClause
 	 */
 	static final int LEFT_OUTER_JOIN = IQueryConstants.LEFT_OUTER_JOIN;
 
-	/**
-	 * Constant for join types.
-	 * @see #on()
-	 */
-	static final int FULL_JOIN = IQueryConstants.FULL_JOIN;
+//	RAGTEST/**
+//	 * Constant for join types.
+//	 * @see #on()
+//	 */
+//	static final int FULL_JOIN = IQueryConstants.FULL_JOIN;
 
 	/**
 	 * Constant for join types.
