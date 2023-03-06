@@ -1155,7 +1155,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public String getStringValue(String name)
 	{
-		String stringValue = TagResolver.formatObject(getValueObject(record, name), getApplication());
+		String stringValue = TagResolver.formatObject(getValueObjectForTagResolver(record, name), getApplication());
 		ITable table = record != null ? record.getParentFoundSet().getTable() : null;
 		FormAndTableDataProviderLookup dataproviderLookup = formController != null ? new FormAndTableDataProviderLookup(
 			formController.getApplication().getFlattenedSolution(), formController.getForm(), table != null ? table : formController.getTable()) : null;
@@ -1179,6 +1179,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 //		return record.getValue(dataProviderId);
 		return com.servoy.j2db.dataprocessing.DataAdapterList.getValueObject(recordToUse, formController.getFormScope(), dataProviderId); // needed for tagString processing (so not just record values but also variables)
+	}
+
+	protected Object getValueObjectForTagResolver(IRecord recordToUse, String dataProviderId)
+	{
+		return getValueObject(recordToUse, dataProviderId);
 	}
 
 	public boolean isCountOrAvgOrSumAggregateDataProvider(IDataAdapter dataAdapter)

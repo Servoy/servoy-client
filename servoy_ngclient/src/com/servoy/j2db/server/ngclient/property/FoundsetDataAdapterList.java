@@ -22,6 +22,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.mozilla.javascript.Scriptable;
+
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
@@ -29,6 +31,7 @@ import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
+import com.servoy.j2db.util.Debug;
 
 /**
  * A data adapter list that can be used to work with records of a foundset typed property.<br/>
@@ -188,6 +191,26 @@ public class FoundsetDataAdapterList extends DataAdapterList
 	public void resumeNormalListeners()
 	{
 		this.onlyFireListenersForPropertyValue = null;
+	}
+
+	@Override
+	protected Object getValueObjectForTagResolver(IRecord recordToUse, String dataProviderId)
+	{
+		Object valueObject = super.getValueObjectForTagResolver(recordToUse, dataProviderId);
+		// log if the name is not valid for the foundset, valueObject is set to null when an invalid relation is used
+		if ((valueObject == Scriptable.NOT_FOUND || valueObject == null) && recordToUse != null)
+		{
+			boolean validDataprovider = false;
+			if (valueObject == null)
+			{
+				validDataprovider = ((IFoundSetInternal)recordToUse.getParentFoundSet()).isValidRelation(dataProviderId);
+			}
+			if (!validDataprovider)
+			{
+				Debug.warn("Invalid dataprovider " + dataProviderId + " set for foundset property type " + this.foundsetTypeSabloValue);
+			}
+		}
+		return valueObject;
 	}
 
 	@Override

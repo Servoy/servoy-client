@@ -1,5 +1,5 @@
-/* VERSION: 2022.3.0_ng2 */
-@import 'servoy_theme_properties.less?version=2022.3.0_ng2';
+/* VERSION: 2022.3.0 */
+@import 'servoy_theme_properties.less?version=2022.3.0';
 
 /* 12 Grid margin reset */
 div:not(.container):not(.container-fluid):not([class^="col-xs-"]):not([class^="col-sm-"]):not([class^="col-md-"]):not([class^="col-lg-"]) > .row {
@@ -25,31 +25,7 @@ html, body {
     outline: none;
 }
 
-/* Scrollbar Style */
-#webkit-scrollbar (@themed-scrollbar) when (@themed-scrollbar = true) {
-    ::-webkit-scrollbar {
-        width: 12px;
-        height: 12px;
-        padding: 0 5px;
-    }
-    
-    ::-webkit-scrollbar-track {
-        border-radius: 0px;
-        background: @scrollbar-bg;
-        border: 1px @border-style @border-color;
-        border-width: @scrollbar-border-width;
-    }
-    
-    ::-webkit-scrollbar-thumb {
-        border-radius: 10px;
-        background: @scrollbar-color;
-    }
-    ::-webkit-scrollbar-thumb:window-inactive {
-        background: #F8F8F8;
-    }
-}
 
-#webkit-scrollbar(@theme-scrollbar);
 
 /* Forms */
 /* TODO enable form bgs !?
@@ -193,7 +169,6 @@ html, body {
 .bts-combobox, .bts-combobox ~ .input-group-addon,
 .bts-select, .bts-select ~ .input-group-addon,
 .svy-calendar, .svy-calendar ~ .input-group-addon,
-.bts-calendar, .bts-calendar ~ .input-group-addon,
 .bts-calendar input, .bts-calendar input ~ .input-group-addon {
     box-shadow: none;
     color: @field-color;
@@ -205,117 +180,37 @@ html, body {
             transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
 }
 
-.svy-ngbdropdownitem 
-{ 
-    font-size: @field-font-size;
-}
 
 .svy-field, .svy-password,
 .svy-textarea, .bts-textarea,
 .svy-textfield, .bts-textbox,
 .svy-typeahead, .bts-typeahead,
-.svy-combobox, .bts-combobox,
 .bts-select, .bts-select ~ .input-group-addon,
 .svy-calendar, .svy-calendar ~ .input-group-addon,
-.bts-calendar, .bts-calendar ~ .input-group-addon,
 .bts-calendar input, .bts-calendar input ~ .input-group-addon {
     border-style: @border-style;
     border-color: @border-color;
     border-width: @field-border-width;
-    border-radius: @field-border-radius;
+    border-radius: 0;
 }
 
-/* Navbar input group */
-.input-group-btn:last-child > .btn  {
-    border-style: @border-style;
-    border-color: @border-color;
-    border-width: @field-border-width;
-    border-radius: @field-border-radius;
-    color: @field-color;
-    font-size: @field-font-size;
-    border-left: 0;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;   
-}
-
-/* Calendar add-on */
 .input-group-addon:last-child,
 .svy-calendar ~ .input-group-addon,
-.bts-calendar ~ .input-group-addon,
 .bts-calendar input ~ .input-group-addon {
     border-left: 0;
 }
 
-.bts-select ~ .input-group-addon,
-.svy-calendar ~ .input-group-addon,
-.bts-calendar ~ .input-group-addon,
+.bts-select, .bts-select ~ .input-group-addon,
+.svy-calendar, .svy-calendar ~ .input-group-addon,
 .bts-calendar input ~ .input-group-addon  {
     background-color: @field-addon-bg;
 }
 
-.svy-calendar ~ .input-group-text,
-.bts-calendar ~ .input-group-text,
-.bts-calendar input ~ .input-group-text {
-    border-style: @border-style;
-    border-color: @border-color;
-    border-width: @field-border-width;
-    border-radius: @field-border-radius;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;   
-    box-shadow: none;
-    color: @field-color;
-    font-size: @field-font-size;
-    -webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
-       -moz-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
-        -ms-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
-         -o-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
-            transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
-}
 
-.svy-calendar,
-.bts-calendar  {
-    & ~ .input-group-text {
-        border-left: 0;
-        background-color: @field-addon-bg;
-    }
-    
-    &:focus ~ .input-group-text {
-        border-color: @main-color;
-    }
-    
-    &.no-border ~ .input-group-text {
-        .no-border();
-    }
-    
-    &.border-primary ~ .input-group-text {
-        .border-primary();
-    }
-    
-    &.border-info ~ .input-group-text {
-        .border-info();
-    }
-    
-    &.border-success ~ .input-group-text {
-        .border-success();
-    }
-    
-    &.border-warning ~ .input-group-text {
-        .border-warning();
-    }
-    
-    &.border-danger ~ .input-group-text {
-        .border-danger();
-    }
-    
-    &.border-tertiary ~ .input-group-text {
-        .border-tertiary();
-    }
-    
-    &.form-invalid ~ .input-group-text {
-        .border-danger();
-    }
-
-}
+/*
+.input-group.date .input-group-addon {
+    background-color: @field-addon-bg;
+} */
 
 .svy-field:focus, .svy-password:focus,
 .svy-textarea:focus, .bts-textarea:focus,
@@ -325,8 +220,7 @@ html, body {
 .bts-combobox:focus, .bts-combobox:focus ~ .input-group-addon,
 .bts-select:focus, .bts-select:focus ~ .input-group-addon,
 .svy-calendar:focus, .svy-calendar:focus ~ .input-group-addon,
-.bts-calendar:focus, .bts-calendar:focus ~ .input-group-addon,
-.bts-calendar input:focus, .bts-calendar input:focus ~ .input-group-addon {
+.bts-calendar input:focus, .bts-calendar input:focus ~ .input-group-addon  {
     border-color: @main-color;
 }
 
@@ -338,114 +232,8 @@ fieldset[disabled] .form-control {
     border-color: @border-color;
 }
 
-.dropdown .dropdown-item.active, 
-.dropdown .dropdown-item:active {
-    background-color: @main-color;
-    color: @main-color-inverse;
-}
-
-
-/* Combobox */
-.svy-combobox-container,
-.bts-combobox-container {
-    border-radius: @field-border-radius;
-    
-    /* Combobox background */
-    &.form-primary > .svy-combobox,
-    &.form-primary > .bts-combobox {
-        .form-primary();
-    }
-    
-    &.form-info > .svy-combobox,
-    &.form-info > .bts-combobox {
-        .form-info();
-    }
-    
-    &.form-success > .svy-combobox,
-    &.form-success > .bts-combobox {
-        .form-success();
-    }
-    
-    &.form-warning > .svy-combobox,
-    &.form-warning > .bts-combobox {
-        .form-warning();
-    }
-
-    &.form-danger > .svy-combobox,
-    &.form-danger > .bts-combobox {
-        .form-danger();
-    }
-    
-    &.form-tertiary > .svy-combobox,
-    &.form-tertiary > .bts-combobox {
-        .form-tertiary();
-    }
-    
-    /* Combobox Border */
-    &.border-default {
-        border: 0;
-    }
-    
-    &.border-default > .svy-combobox,
-    &.border-default > .bts-combobox {
-        .border-default();
-    }
-
-    &.border-primary > .svy-combobox,
-    &.border-primary > .bts-combobox {
-        .border-primary();
-    }
-    
-    &.border-info > .svy-combobox,
-    &.border-info > .bts-combobox {
-        .border-info();
-    }
-    
-    &.border-success > .svy-combobox,
-    &.border-success > .bts-combobox {
-        .border-success();
-    }
-    
-    &.border-warning > .svy-combobox,
-    &.border-warning > .bts-combobox {
-        .border-warning();
-    }
-
-    &.border-danger > .svy-combobox,
-    &.border-danger > .bts-combobox {
-        .border-danger();
-    }
-    
-    &.border-tertiary > .svy-combobox,
-    &.border-tertiary > .bts-combobox {
-        .border-tertiary();
-    }
-
-}
-
-
-
-/* Combobox active */
-.bts-combobox-containerform-primary.show,
-.bts-combobox-containerform-primary.show > .bts-combobox,
-.bts-combobox-containerform-tertiary.show,
-.bts-combobox-containerform-tertiary.show > .bts-combobox,
-.bts-combobox-containerform-success.show,
-.bts-combobox-containerform-success.show > .bts-combobox,
-.bts-combobox-containerform-info.show,
-.bts-combobox-containerform-info.show > .bts-combobox,
-.bts-combobox-containerform-warning.show,
-.bts-combobox-containerform-warning.show > .bts-combobox,
-.bts-combobox-containerform-danger.show,
-.bts-combobox-containerform-danger.show > .bts-combobox {
-    background-color: initial;
-}
-
-
 /* Checkbox */
 /*** custom checkboxes ***/
-
-/*
 .svy-check label,
 .svy-checkgroup label,
 .svy-radiogroup label,
@@ -455,6 +243,7 @@ fieldset[disabled] .form-control {
     margin: 0;
     padding: 0;
 }
+
 .svy-check input[type=checkbox],
 .svy-check input[type=radio],
 .svy-checkgroup input[type=checkbox],
@@ -462,7 +251,7 @@ fieldset[disabled] .form-control {
 .bts-check input[type=checkbox],
 .bts-radiogroup input[type=checkbox],
 .bts-radiogroup input[type=radio] { 
-    /* to hide the checkbox itself *
+    /* to hide the checkbox itself */
     webkit-appearence: none;
     -webkit-appearance: none;
     -moz-appearance:    none;
@@ -470,6 +259,7 @@ fieldset[disabled] .form-control {
     width: 0;
     height: 0;
 }
+
 .svy-check input[type=checkbox] + span:before,
 .svy-check input[type=radio] + span:before,
 .svy-checkgroup input[type=checkbox] + span:before,
@@ -482,6 +272,7 @@ fieldset[disabled] .form-control {
     letter-spacing: 5px;
     color: @field-check-color;
 }
+
 .svy-check input[type=checkbox]:focus + span:before,
 .svy-check input[type=radio]:focus + span:before,
 .svy-checkgroup input[type=checkbox]:focus + span:before,
@@ -491,6 +282,7 @@ fieldset[disabled] .form-control {
 .bts-radiogroup input[type=radio]:focus + span:before {
     color: darken(@field-check-color, 15%);
 }
+
 input[type="radio"][disabled] + span, 
 input[type="checkbox"][disabled] + span, 
 input[type="radio"].disabled + span, 
@@ -499,6 +291,7 @@ fieldset[disabled] input[type="radio"] + span,
 fieldset[disabled] input[type="checkbox"] + span {
     cursor: not-allowed;
 }
+
 input[type="radio"][disabled] + span:before, 
 input[type="checkbox"][disabled] + span:before, 
 input[type="radio"].disabled + span:before, 
@@ -508,26 +301,30 @@ fieldset[disabled] input[type="checkbox"] + span:before {
     cursor: not-allowed;
     opacity: 0.6;
 }
+
 .svy-check input[type=checkbox] + span:before,
 .bts-check input[type=checkbox] + span:before,
 .svy-checkgroup input[type=checkbox] + span:before,
 .bts-radiogroup input[type=checkbox] + span:before { 
     content: "\e157";
 }
+
 .svy-check input[type=checkbox]:checked + span:before,
 .bts-check input[type=checkbox]:checked + span:before,
 .svy-checkgroup input[type=checkbox]:checked + span:before,
 .bts-radiogroup input[type=checkbox]:checked + span:before {
     content: "\e067";
 }
+
 .svy-radiogroup input[type=radio] + span:before,
 .bts-radiogroup input[type=radio] + span:before { 
     content: "\e157";
 }
+
 .svy-radiogroup input[type=radio]:checked + span:before,
 .bts-radiogroup input[type=radio]:checked + span:before {
     content: "\e165";
-} */
+}
 
 /* Calendar Field */
 
@@ -601,7 +398,7 @@ fieldset[disabled] input[type="checkbox"] + span:before {
 
 .bts-combobox .ui-select-toggle:hover,
 .svy-combobox .ui-select-toggle:hover {
-    /* background-color: @field-addon-bg; */
+    background-color: @field-addon-bg;
     border-color: @main-color;
 }
 
@@ -659,30 +456,14 @@ fieldset[disabled] input[type="checkbox"] + span:before {
 
 
 /* Dropdown field */
-.dropdown-menu > li > a,
-.dropdown-menu > .dropdown-item {
+.dropdown-menu > li > a {
     color: @text-color;
 }
 
 .dropdown-menu > .active > a, 
 .dropdown-menu > .active > a:hover, 
-.dropdown-menu > .active > a:focus,
-.dropdown-menu > .dropdown-item.active,
-.dropdown-menu > .dropdown-item:active,
-.dropdown-menu > .dropdown-item.active:focus,
-.dropdown-menu > .dropdown-item.active:hover {
-    /* background-color: @main-color;
-    color: @main-color-inverse; */
-    background-color: #e9ecef;
-}
-
-/* TODO there is a difference between typeahead and dropdown structure.
-Typeahead highlight the inner text element, while dropdown set the outer div as active.
-Can we make them look similar ?  */
-.dropdown-menu > .dropdown-item.svy-ngbdropdownitem.active,
-.dropdown-menu > .dropdown-item.svy-ngbdropdownitem.active:focus {
+.dropdown-menu > .active > a:focus {
     background-color: @main-color;
-    color: @main-color-inverse;
 }
 
 /* Bootstrap Select  
@@ -709,90 +490,90 @@ Can we make them look similar ?  */
 }
 
 /* Select2Tokenizer Servoy Extra */
-
-:root {
-    /* CSS variables used by the Tokenizer https://www.npmjs.com/package/ng-select2-component */
-    /* label */
-    --select2-label-text-color: @text-color;
-    /* --select2-required-color: red; */
-
-    /* selection */
-    --select2-selection-border-radius: @field-border-radius;
-    --select2-selection-background: @field-bg;
-    /* --select2-selection-disabled-background: #eee; */
-    --select2-selection-border-color: @border-color;
-    --select2-selection-focus-border-color: @main-color;
-    --select2-selection-text-color: @text-color;
-
-    /* selection: choice item (multiple) */
-    --select2-selection-choice-background: @main-color;
-    --select2-selection-choice-text-color: @main-color-inverse;
-    --select2-selection-choice-border-color: @border-color;
-    --select2-selection-choice-close-color: @main-color-inverse;
-    --select2-selection-choice-hover-close-color: @main-color-inverse;
-
-     /* placeholder */
-    /* --select2-placeholder-color: #999; */
-
-    /* reset */
-    /* --select2-reset-color: #999; */
-
-    /* arrow */
-    /* --select2-arrow-color: #888; */
-
-    /* dropdown panel */
-    --select2-dropdown-background: #fff;
-    --select2-dropdown-border-color: @border-color;
-
-    /* search field */
-    --select2-search-border-color: @border-color;
-    --select2-search-background: #fff;
-    --select2-search-border-radius: 0px;
-
-    /* dropdown option */
-    --select2-option-text-color: @text-color;
-    /* --select2-option-disabled-text-color: #999;
-    --select2-option-disabled-background: transparent; */
-    --select2-option-selected-text-color: @main-color-inverse;
-    --select2-option-selected-background: @main-color;
-    --select2-option-highlighted-text-color: @text-color;
-    --select2-option-highlighted-background: #e9ecef;
-    /* --select2-option-group-text-color: gray;
-    --select2-option-group-background: transparent; */
-
-    /* hint */
-    /* --select2-hint-text-color: #888; */
-
-    /* for Material ------------------------------------------
-    --select2-material-underline: #ddd;
-    --select2-material-underline-active: #5a419e;
-    --select2-material-underline-disabled: linear-gradient(to right, rgba(0, 0, 0, 0.26) 0, rgba(0, 0, 0, 0.26) 33%, transparent 0);
-    --select2-material-underline-invalid: red;
-    --select2-material-placeholder-color: rgba(0, 0, 0, 0.38);
-    --select2-material-selection-background: #ddd;
-    --select2-material-option-selected-background: rgba(0, 0, 0, 0.04);
-    --select2-material-option-highlighted-text-color: #000;
-    --select2-material-option-selected-text-color: #ff5722;
-    */
+.svy-select2-autotokenizer-dropdown .select2-results__option.select2-results__option--highlighted {
+    background-color: @main-color;
 }
 
 .svy-select2-autotokenizer .select2-container--default .select2-selection--multiple {
-    /* TODO should make this important !? */
+    background-color: @field-bg;
+    color: @field-color;
     border-style: @border-style;
+    border-color: @border-color;
     border-width: @field-border-width;
+    border-radius: 0;
+    cursor: text;
 }
 
-/* Checkbox icon for the select2tokenizer dropdown */
-.svy-select2-autotokenizer .select2-container-dropdown .select2-results__option[aria-selected]:before {
-    font-family: "FontAwesome", "Font Awesome 5 Free";
-    content: "\f0c8";
-    margin-right: 5px;
+.svy-select2-autotokenizer .select2-container--default.select2-container--focus .select2-selection--multiple {
+    outline: 1px;
+    outline-color: @main-color-light;
+    border-color: @main-color-light;
+    box-shadow: none;
+}
+
+.svy-select2-autotokenizer .select2-container .select2-selection--multiple .select2-selection__rendered {
+    /*display: flex;
+    align-items: center;
+    justify-content: flex-start; 
+    padding: 2px 5px; */
+}
+
+.svy-select2-autotokenizer-dropdown .svy-select2-autotokenizer.select2-sm .svy-select2-autotokenizer-container .select2-selection__choice, 
+.svy-select2-autotokenizer.select2-sm .svy-select2-autotokenizer-container .select2-search--inline .select2-search__field {
+    margin-bottom: 5px;
+}
+
+.svy-select2-autotokenizer .select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: @main-color; /* #76BB29; */
+    border: 0px solid @border-color;
+    border-radius: 30px;
+    cursor: default;
+    margin-top: 5px;
+    padding: 1px 15px 1px 10px;
+    color: @main-color-inverse;
+/*     display: flex;
+    align-items: center; */
+}
+
+.svy-select2-autotokenizer .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    color: @main-color-inverse;
+}
+
+.svy-select2-autotokenizer-dropdown .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    color: #4A4A4A;
+    cursor: pointer;
     font-weight: normal;
+    margin-right: 5px;
+    font-size: 0px;
 }
 
-.svy-select2-autotokenizer .select2-container-dropdown .select2-results__option[aria-selected=true]:before {
-    content: "\f14a";
+.svy-select2-autotokenizer-dropdown .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:before {
+    font-family: "FontAwesome", "Font Awesome 5 Free";
+    content: "\F15A";
+    color: #ffffff;
 }
+
+.svy-select2-autotokenizer-dropdown .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover:before {
+    font-family: "FontAwesome", "Font Awesome 5 Free";
+    content: "\F159";
+    /* color: #ffffff; */
+}
+
+.svy-select2-autotokenizer-dropdown .select2-results__option[aria-selected=true] {
+    background-color: @main-color;
+    color: @main-color-inverse;
+}
+
+.svy-select2-autotokenizer-dropdown .select2-results__option[aria-selected]:before {
+    font-family: 'Glyphicons Halflings';
+    content: "\e157";
+    margin-right: 5px;
+}
+
+.svy-select2-autotokenizer-dropdown .select2-results__option[aria-selected=true]:before {
+    content: "\e067";
+}
+
 
 /* Badge */
 .btn-filter .badge {
@@ -813,19 +594,19 @@ Can we make them look similar ?  */
 }
 
 /* TabPanel */
-.svy-tabpanel.nav-tabs,
-.bts-tabpanel.nav-tabs {
+.svy-tabpanel > .nav-tabs,
+.bts-tabpanel > .nav-tabs {
     border: 0;
     background-color: @tab-bg;
 }
 
-.svy-tabpanel.nav-tabs > li,
-.bts-tabpanel.nav-tabs > li {
+.svy-tabpanel > .nav-tabs > li,
+.bts-tabpanel > .nav-tabs > li {
     margin-bottom: 0;
 }
 
-.svy-tabpanel.nav-tabs > li > a,
-.bts-tabpanel.nav-tabs > li > a {
+.svy-tabpanel > .nav-tabs > li > a,
+.bts-tabpanel > .nav-tabs > li > a {
     background-color: @tab-bg;
     color: @tab-text-color;
     text-transform: @tab-text-transform;
@@ -836,12 +617,12 @@ Can we make them look similar ?  */
     border-radius: @tab-border-radius;
 }
 
-.svy-tabpanel.nav-tabs > li > .nav-link.active, 
-.svy-tabpanel.nav-tabs > li > .nav-link.active:hover, 
-.svy-tabpanel.nav-tabs > li > .nav-link.active:focus,
-.bts-tabpanel.nav-tabs > li > .nav-link.active, 
-.bts-tabpanel.nav-tabs > li > .nav-link.active:hover, 
-.bts-tabpanel.nav-tabs > li > .nav-link.active:focus {
+.svy-tabpanel > .nav-tabs > li.active > a, 
+.svy-tabpanel > .nav-tabs > li.active > a:hover, 
+.svy-tabpanel > .nav-tabs > li.active > a:focus,
+.bts-tabpanel > .nav-tabs > li.active > a, 
+.bts-tabpanel > .nav-tabs > li.active > a:hover, 
+.bts-tabpanel > .nav-tabs > li.active > a:focus {
     /* border: @tab-border;
     border-radius: @tab-border-radius; */
     background-color: @tab-active-bg;
@@ -852,24 +633,24 @@ Can we make them look similar ?  */
 }
 
 /* Tab Tertiary */
-.svy-tabpanel.bg-tertiary.nav-tabs,
-.bts-tabpanel.bg-tertiary.nav-tabs {
+.svy-tabpanel.bg-tertiary > .nav-tabs,
+.bts-tabpanel.bg-tertiary > .nav-tabs {
     background-color: @brand-tertiary;
     background-color: @brand-tertiary-inverse;
 }
 
-.svy-tabpanel.bg-tertiary.nav-tabs > li > a,
-.bts-tabpanel.bg-tertiary.nav-tabs > li > a {
+.svy-tabpanel.bg-tertiary > .nav-tabs > li > a,
+.bts-tabpanel.bg-tertiary > .nav-tabs > li > a {
     background-color: @brand-tertiary;
     background-color: @brand-tertiary-inverse;
 }
 
-.svy-tabpanel.bg-tertiary > .nav-tabs > li > .nav-link.active, 
-.svy-tabpanel.bg-tertiary > .nav-tabs > li > .nav-link.active:hover, 
-.svy-tabpanel.bg-tertiary > .nav-tabs > li > .nav-link.active:focus,
-.bts-tabpanel.bg-tertiary > .nav-tabs > li > .nav-link.active, 
-.bts-tabpanel.bg-tertiary > .nav-tabs > li > .nav-link.active:hover, 
-.bts-tabpanel.bg-tertiary > .nav-tabs > li > .nav-link.active:focus {
+.svy-tabpanel.bg-tertiary > .nav-tabs > li.active > a, 
+.svy-tabpanel.bg-tertiary > .nav-tabs > li.active > a:hover, 
+.svy-tabpanel.bg-tertiary > .nav-tabs > li.active > a:focus,
+.bts-tabpanel.bg-tertiary > .nav-tabs > li.active > a, 
+.bts-tabpanel.bg-tertiary > .nav-tabs > li.active > a:hover, 
+.bts-tabpanel.bg-tertiary > .nav-tabs > li.active > a:focus {
     background-color: @brand-tertiary;
     background-color: @brand-tertiary-inverse;
     border-color: @main-color;
@@ -1023,20 +804,14 @@ data-servoyextra-fontawesome > div {
 .navbar-collapse {
 }
 
-.bts-extra-navbar.navbar-default,
-.bts-extra-navbar.navbar-light {
+.bts-extra-navbar.navbar-default {
     background-color: @navbar-bg;
     color: @navbar-text-color;
     margin-bottom: 0;
     border: 0;
 }
 
-.bts-extra-navbar.bg-light {
-    background-color: @navbar-bg !important;
-}
-
-.bts-extra-navbar.navbar-default .navbar-brand,
-.bts-extra-navbar.navbar-light .navbar-brand {
+.bts-extra-navbar.navbar-default .navbar-brand {
     color: @navbar-text-color;
 }
 
@@ -1046,14 +821,7 @@ data-servoyextra-fontawesome > div {
 .bts-extra-navbar.navbar-default .navbar-default .navbar-nav > .active > a:focus,
 .bts-extra-navbar.navbar-default .navbar-nav > .open > a, 
 .bts-extra-navbar.navbar-default .navbar-nav > .open > a:hover, 
-.bts-extra-navbar.navbar-default .navbar-nav > .open > a:focus,
-.bts-extra-navbar.navbar-light .navbar-nav > li > a,
-.bts-extra-navbar.navbar-light .navbar-nav > .active > a, 
-.bts-extra-navbar.navbar-light .navbar-default .navbar-nav > .active > a:hover, 
-.bts-extra-navbar.navbar-light .navbar-default .navbar-nav > .active > a:focus,
-.bts-extra-navbar.navbar-light .navbar-nav > .open > a, 
-.bts-extra-navbar.navbar-light .navbar-nav > .open > a:hover, 
-.bts-extra-navbar.navbar-light .navbar-nav > .open > a:focus
+.bts-extra-navbar.navbar-default .navbar-nav > .open > a:focus
  {
     background-color: @navbar-bg;
     color: @navbar-text-color;
@@ -1064,13 +832,7 @@ data-servoyextra-fontawesome > div {
 .bts-extra-navbar.navbar-default .navbar-default .navbar-nav > .active > a:focus,
 .bts-extra-navbar.navbar-default .navbar-nav > .active.open > a, 
 .bts-extra-navbar.navbar-default .navbar-nav > .active.open > a:hover, 
-.bts-extra-navbar.navbar-default .navbar-nav > .active.open > a:focus,
-.bts-extra-navbar.navbar-light .navbar-nav > .active > a, 
-.bts-extra-navbar.navbar-light .navbar-nav > .active > a:hover, 
-.bts-extra-navbar.navbar-light .navbar-nav > .active > a:focus,
-.bts-extra-navbar.navbar-light .navbar-nav > .active.open > a, 
-.bts-extra-navbar.navbar-light .navbar-nav > .active.open > a:hover, 
-.bts-extra-navbar.navbar-light .navbar-nav > .active.open > a:focus {
+.bts-extra-navbar.navbar-default .navbar-nav > .active.open > a:focus {
     background-color: @navbar-active-bg;
     color: @navbar-active-text-color;
     border-color: @navbar-active-border-color;
@@ -1079,41 +841,28 @@ data-servoyextra-fontawesome > div {
 }
 
 .bts-extra-navbar.navbar-default .dropdown-menu,
-.bts-extra-navbar.navbar-default .navbar-nav .open .dropdown-menu > li > a,
-.bts-extra-navbar.navbar-light .dropdown-menu,
-.bts-extra-navbar.navbar-light .navbar-nav .open .dropdown-menu > li > a  {
+.bts-extra-navbar.navbar-default .navbar-nav .open .dropdown-menu > li > a {
     background-color: @navbar-bg;
     color: @navbar-text-color;
 }
 
 .bts-extra-navbar.navbar-default .navbar-nav .open .dropdown-menu > li > a:hover, 
-.bts-extra-navbar.navbar-default .navbar-nav .open .dropdown-menu > li > a:focus,
-.bts-extra-navbar.navbar-light .navbar-nav .open .dropdown-menu > li > a:hover, 
-.bts-extra-navbar.navbar-light .navbar-nav .open .dropdown-menu > li > a:focus {
+.bts-extra-navbar.navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
     background-color: @navbar-bg-highlighted;
 }
 
-.bts-extra-navbar.navbar-default .navbar-toggle,
-.bts-extra-navbar.navbar-light .navbar-toggle {
+.bts-extra-navbar.navbar-default .navbar-toggle {
     background-color: @navbar-bg;
     color: @navbar-text-color;
 }
 
 .bts-extra-navbar.navbar-default .navbar-toggle:hover, 
-.bts-extra-navbar.navbar-default .navbar-toggle:focus,
-.bts-extra-navbar.navbar-light .navbar-toggle:hover, 
-.bts-extra-navbar.navbar-light .navbar-toggle:focus {
+.bts-extra-navbar.navbar-default .navbar-toggle:focus {
     background-color: @navbar-bg-highlighted;
 }
 
-.bts-extra-navbar.navbar-default .navbar-toggle .icon-bar,
-.bts-extra-navbar.navbar-light .navbar-toggle .icon-bar {
+.bts-extra-navbar.navbar-default .navbar-toggle .icon-bar {
     background-color: @navbar-text-color;
-}
-
-.bts-extra-navbar.navbar-light .navbar-nav .nav-link:focus, 
-.bts-extra-navbar.navbar-light .navbar-nav .nav-link:hover {
-    color: @navbar-text-color;
 }
 
 /* Navbar static */
@@ -1356,16 +1105,10 @@ data-servoyextra-fontawesome > div {
     color: @field-color;
 }
 
-/**************************************************************
- **************************************************************
-                Servoy Bootstrap/Extra Table 
- **************************************************************
- **************************************************************/
-
-.svy-table tbody,
+/* Servoy Bootstrap/Extra Table */
+.svy-table,
 .bts-table {
     border: @table-border-width @border-style @border-color;
-    border-top: 0;
 }
 
 .svy-table.no-border,
@@ -1374,9 +1117,7 @@ data-servoyextra-fontawesome > div {
 }
 
 .svy-table.no-border thead,
-.bts-table.no-border thead,
-.svy-table.no-border tbody,
-.bts-table.no-border tbody {
+.bts-table.no-border thead {
     border: 0px;
 }
 
@@ -1400,9 +1141,9 @@ data-servoyextra-fontawesome > div {
     color: @table-row-odd-text-color;
 }
 
-.table > thead > tr > th, .table > tbody tr > th, 
+.table > thead > tr > th, .table > tbody > tr > th, 
 .table > tfoot > tr > th, .table > thead > tr > td, 
-.table > tbody tr > td, .table > tfoot > tr > td {
+.table > tbody > tr > td, .table > tfoot > tr > td {
     border-color: @border-color;
     border-top-width: @table-row-border-width;
 }
@@ -1413,7 +1154,6 @@ data-servoyextra-fontawesome > div {
     color: @table-row-selected-text-color;
 }
 
-/* Table border */
 .svy-table  th,
 .svy-table  td,
 .bts-table  th,
@@ -1421,7 +1161,6 @@ data-servoyextra-fontawesome > div {
     border-color: @border-color;
 }
 
-/* Table border header */
 .svy-table thead,
 .bts-table thead,
 .ui-grid-header-cell {
@@ -1432,38 +1171,14 @@ data-servoyextra-fontawesome > div {
     border-width: @table-border-width;
 }
 
-.svy-table thead {
-    border-top-width: 0;
-    border: 0;
-}
-
-.svy-table thead > tr > th:first-child {
-    border-left-width: 1px;
-    border-style: @border-style;
-    border-color: @border-color;
-}
-
-.svy-table thead > tr > th:last-child {
-    border-right-width: 1px;
-    border-style: @border-style;
-    border-color: @border-color;
-}
-
-.table > :not(:last-child) > :last-child > * {
-    border-color: @border-color;
-}
-
 .ui-grid-header-cell,
 .svy-table th,
 .bts-table th,
 .table > thead > tr > th {
+    border-width: @table-border-width;
     text-transform: @table-header-text-transform;
     font-weight: @table-header-font-style;
 /*  font-size: 12px; */
-}
-
-.ui-grid-header-cell {
-    border-width: @table-border-width;
 }
 
 /**************************************************************
@@ -1499,6 +1214,13 @@ data-servoyextra-fontawesome > div {
 .ag-table .ag-row-selected {
     background-color: @table-row-selected-bg-color;
     color: @table-row-selected-text-color;
+}
+
+/* Background color for checkboxSelection icon */
+.ag-table .ag-row-selected .ag-icon-checkbox-checked, 
+.ag-table .ag-row-selected .ag-icon-checkbox-indeterminate, 
+.ag-table .ag-row-selected .ag-icon-checkbox-unchecked {
+    background-color: @table-row-selected-bg-color;
 }
 
 .ag-table .ag-cell-inline-editing input,
@@ -1791,22 +1513,18 @@ data-servoyextra-fontawesome > div {
 /*****************************************/
 /***** Ag Grid Theme Input Fields  *******/
 /*****************************************/
-.ag-theme-servoy .ag-menu input,
-.ag-theme-servoy .ag-menu select,
-.ag-theme-servoy .ag-menu .ag-select,
-.ag-theme-servoy .ag-side-bar input,
-.ag-theme-servoy .ag-side-bar select,
-.ag-theme-servoy .ag-side-bar .ag-select {
+.ag-table.ag-theme-servoy .ag-menu input,
+.ag-table.ag-theme-servoy .ag-menu select,
+.ag-table.ag-theme-servoy .ag-side-bar input,
+.ag-table.ag-theme-servoy .ag-side-bar select {
     padding-left: 4px;
     .svy-field();
 }
 
-.ag-theme-servoy .ag-menu input:focus,
-.ag-theme-servoy .ag-menu select:focus,
-.ag-theme-servoy .ag-menu .ag-select:focus,
-.ag-theme-servoy .ag-side-bar input:focus,
-.ag-theme-servoy .ag-side-bar select:focus,
-.ag-theme-servoy .ag-side-bar .ag-select:focus {
+.ag-table.ag-theme-servoy .ag-menu input:focus,
+.ag-table.ag-theme-servoy .ag-menu select:focus,
+.ag-table.ag-theme-servoy .ag-side-bar input:focus,
+.ag-table.ag-theme-servoy .ag-side-bar select:focus {
     padding-left: 4px;
     border-color: @main-color;
     /* .svy-field:focus();  */
@@ -1843,75 +1561,65 @@ data-servoyextra-fontawesome > div {
 /*****************************************/
 /*****  AG Grid Theme Column Menu ********/
 /*****************************************/
-.ag-theme-servoy .ag-menu {
+.ag-table.ag-theme-servoy .ag-menu {
     background-color: @ngtable-menu-panel-bg;
     color: @ngtable-menu-panel-text-color;
     border-radius: @border-radius;
     border-color: @border-color;
 }
 
-.ag-theme-servoy .ag-tabs-header {
+.ag-table.ag-theme-servoy .ag-tab-header {
     background-color: @brand-tertiary;
     padding: 4px 0;
     min-width: 220px;
 }
 
-.ag-theme-servoy .ag-tabs-header .ag-tab {
+.ag-table.ag-theme-servoy .ag-tab-header .ag-tab {
     margin: 4px;
-    
-    > .ag-icon {
-        display: initial;
-    }
 }
 
-.ag-theme-servoy .ag-tabs-header .ag-tab.ag-tab-selected {
+.ag-table.ag-theme-servoy .ag-tab-header .ag-tab.ag-tab-selected {
     background-color: @brand-tertiary;
     color: @brand-primary;
     border: 0;
 }
 
-.ag-theme-servoy .ag-tabs-body {
+.ag-table.ag-theme-servoy .ag-tab-body {
     padding: 8px 0;
 }
 
 // The Column Menu List
-.ag-theme-servoy .ag-tabs-body .ag-menu-list {
+.ag-table.ag-theme-servoy .ag-tab-body .ag-menu-list {
     padding-top: 4px;
     padding-bottom: 4px;
 }
 
-.ag-theme-servoy .ag-menu .ag-menu-option-active {
+.ag-table.ag-theme-servoy .ag-menu .ag-menu-option-active {
     background: @body-bg;
     color: @main-color;
 }
 
 // The Column Filter
-.ag-theme-servoy .ag-filter-body-wrapper {
+.ag-table.ag-theme-servoy .ag-filter-body-wrapper {
     padding-bottom: 5px;
 }
 
-.ag-theme-servoy .ag-filter .ag-filter-apply-panel {
+.ag-table.ag-theme-servoy .ag-filter .ag-filter-apply-panel {
     border: 0;
 }
 
-.ag-theme-servoy .ag-menu .ag-primary-cols-filter-wrapper {
+.ag-table.ag-theme-servoy .ag-menu .ag-primary-cols-filter-wrapper {
     margin-left: 4px;
     margin-right: 0px;
 }
 
-.ag-theme-servoy .ag-primary-cols-header-panel .ag-primary-cols-filter-wrapper .ag-primary-cols-filter,
-.ag-theme-servoy .ag-side-bar .ag-column-select-header .ag-column-select-header-filter-wrapper input.ag-input-field-input,
-.ag-theme-servoy .ag-side-bar .ag-filter-toolpanel .ag-filter-toolpanel-search-input input.ag-input-field-input {
+.ag-table.ag-theme-servoy .ag-primary-cols-header-panel .ag-primary-cols-filter-wrapper .ag-primary-cols-filter {
     width: 100%;
     height: @ngtable-search-field-height;
 }
 
-.ag-theme-servoy .ag-side-bar .ag-filter-toolpanel .ag-filter-toolpanel-search-input input.ag-input-field-input {
-    margin-left: 10px;
-}
-
 // The Column List
-.ag-theme-servoy .ag-menu .ag-primary-cols-header-panel {
+.ag-table.ag-theme-servoy .ag-menu .ag-primary-cols-header-panel {
     height: auto;
     align-items: center;
     padding-bottom: 8px;
@@ -1922,12 +1630,12 @@ data-servoyextra-fontawesome > div {
     border-color: @border-color;
 }
 
-.ag-theme-servoy .ag-menu .ag-primary-cols-list-panel {
+.ag-table.ag-theme-servoy .ag-menu .ag-primary-cols-list-panel {
     padding-left: 10px;
     padding-right: 10px;
 }
 
-.ag-theme-servoy .ag-column-select-panel .ag-column-tool-panel-column .ag-column-select-checkbox {
+.ag-table.ag-theme-servoy .ag-column-select-panel .ag-column-tool-panel-column .ag-column-select-checkbox {
     margin-left: 0;
 }
 
@@ -1968,23 +1676,6 @@ data-servoyextra-fontawesome > div {
     border-bottom-left-radius: 0;
 }
 
-/* Ag Theme Servoy */
-.ag-theme-servoy .ag-select-list {
-    background: #fff;
-    border: 1px solid @border-color;
-    border-radius: 4px;
-}
-
-.ag-theme-servoy .ag-select-list .ag-select-list-item {
-    padding: 3px 20px;
-    color: @text-color;
-}
-
-.ag-theme-servoy .ag-select-list .ag-select-list-item.ag-active-item {
-    background: @main-color;
-    color: @main-color-inverse;
-}
-
 /* Ag Grid Theme Side Panel Filter */
 .ag-theme-servoy .ag-tool-panel-wrapper {
     border-left: 1px solid @border-color;
@@ -1994,45 +1685,47 @@ data-servoyextra-fontawesome > div {
     width: 100%;
 }
 
-.ag-theme-servoy .ag-tool-panel-wrapper .ag-filter-toolpanel .ag-filter-toolpanel-group-title-bar {
+.ag-theme-servoy .ag-tool-panel-wrapper .ag-filter-panel .ag-filter-toolpanel-header {
     padding: 10px;
 }
 
-.ag-theme-servoy .ag-filter-toolpanel .ag-filter-toolpanel-group-title-bar  {
+.ag-theme-servoy .ag-filter-panel .ag-header-cell-label {
+    display: flex;
+    /*float: left;*/
+    width: 100%;
     border-bottom: 1px solid @border-color;
 }
 
 
-.ag-theme-servoy .ag-filter-toolpanel .ag-filter-toolpanel-group .ag-filter-toolpanel-group-title {
+.ag-theme-servoy .ag-filter-panel .ag-header-cell-label .ag-header-cell-text {
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.ag-theme-servoy .ag-filter-toolpanel .ag-filter-toolpanel-group .ag-filter-toolpanel-group-item {
+.ag-theme-servoy .ag-filter-toolpanel-body.ag-filter .ag-filter-air {
     border-bottom: 1px solid @border-color;
     padding-bottom: 10px;
 }
 
-.ag-theme-servoy .ag-tool-panel-wrapper .ag-filter-toolpanel .ag-filter-body-wrapper > .ag-filter-body > .ag-input-wrapper > input,
-.ag-theme-servoy .ag-tool-panel-wrapper .ag-filter-toolpanel .ag-filter-body-wrapper > .ag-filter-select:first-child {
+.ag-theme-servoy .ag-tool-panel-wrapper .ag-filter-panel .ag-filter-body-wrapper > div:first-child > *,
+.ag-theme-servoy .ag-tool-panel-wrapper .ag-filter-panel .ag-filter-body-wrapper > .ag-filter-select:first-child {
     margin-top: 10px;
 }
 
-.ag-theme-servoy .ag-filter-body input.ag-filter-filter,
-.ag-theme-servoy .ag-filter-body-wrapper .ag-filter-select,
-.ag-theme-servoy .ag-filter-body input.ag-input-field-input {
+.ag-table.ag-theme-servoy .ag-filter-body .ag-filter-filter,
+.ag-table.ag-theme-servoy .ag-filter-body-wrapper .ag-filter-select {
     margin: 4px 10px;
     width: calc(100% - 20px);
     height: @ngtable-search-field-height;
 }
 
-.ag-theme-servoy .ag-filter-apply-panel {
+.ag-table.ag-theme-servoy .ag-filter-apply-panel {
     display: flex;
     justify-content: space-around;
     padding: 4px;
 }
 
-.ag-theme-servoy .ag-filter-apply-panel button {
+.ag-table.ag-theme-servoy .ag-filter-apply-panel button {
     webkit-appearance:none;
     -webkit-appearance: none;
     background: none;
@@ -2042,15 +1735,16 @@ data-servoyextra-fontawesome > div {
     border-radius: 4px;
 }
 
-.ag-theme-servoy .ag-filter-apply-panel button:first-child {
+.ag-table.ag-theme-servoy .ag-filter-apply-panel button:first-child {
     .btn-tertiary();
 }
 
-.ag-theme-servoy .ag-filter-apply-panel button:last-child {
+.ag-table.ag-theme-servoy .ag-filter-apply-panel button:last-child {
     .btn-primary();
 }
 
 /* Ag Grid Theme Side Panel Columns */
+
 
 .ag-theme-servoy .ag-column-drag {
     min-height: 10px;
@@ -2080,11 +1774,9 @@ data-servoyextra-fontawesome > div {
 }
 
 /* AG Grid Theme Side Tool panel */
-.ag-theme-servoy .ag-column-panel .ag-pivot-mode-panel,
-.ag-theme-servoy .ag-column-panel .ag-primary-cols-header-panel,
-.ag-theme-servoy .ag-column-panel .ag-column-select-header,
-.ag-theme-servoy .ag-filter-toolpanel .ag-filter-toolpanel-search,
-.ag-theme-servoy .ag-column-panel .ag-column-drop-vertical .ag-column-drop-list {
+.ag-table.ag-theme-servoy .ag-column-panel .ag-pivot-mode-panel,
+.ag-table.ag-theme-servoy .ag-column-panel .ag-primary-cols-header-panel,
+.ag-table.ag-theme-servoy .ag-column-panel .ag-column-drop-vertical .ag-column-drop-list {
     /* margin: 0 12px 8px 16px; */
     padding: 8px 10px;
     border-width: 0;
@@ -2093,23 +1785,23 @@ data-servoyextra-fontawesome > div {
     border-style: solid;
 }
 
-.ag-theme-servoy .ag-column-panel .ag-column-drop-vertical .ag-column-drop-list { 
+.ag-table.ag-theme-servoy .ag-column-panel .ag-column-drop-vertical .ag-column-drop-list { 
     border-bottom-width: 0;
 }
 
-.ag-theme-servoy .ag-column-panel .ag-primary-cols-list-panel {
+.ag-table.ag-theme-servoy .ag-column-panel .ag-primary-cols-list-panel {
     margin-top: 8px;
 }
 
-.ag-theme-servoy .ag-column-panel .ag-column-drop-vertical .ag-column-drop-icon {
+.ag-table.ag-theme-servoy .ag-column-panel .ag-column-drop-vertical .ag-column-drop-icon {
     margin-left: 16px;
 }
 
-.ag-theme-servoy .ag-column-panel .ag-primary-cols-header-panel {
+.ag-table.ag-theme-servoy .ag-column-panel .ag-primary-cols-header-panel {
     align-items: center;
 }
 
-.ag-theme-servoy .ag-primary-cols-header-panel a {
+.ag-table.ag-theme-servoy .ag-primary-cols-header-panel a {
     margin-left: 0;
     margin-right: 4px;
 }
@@ -2125,13 +1817,37 @@ data-servoyextra-fontawesome > div {
 /* Ag Group Theme Horizontal Panel Column Drop */
 .ag-theme-servoy .ag-column-drop-horizontal {
     background-color: @table-header-bg;
+    /* border: 1px solid @border-color; */
     border-bottom: 1px solid @border-color;
     padding: 5px;
 }
 
-/* Grouped item */
-.ag-theme-servoy .ag-column-drop-horizontal .ag-column-drag,
-.ag-theme-servoy .ag-column-drop-horizontal .ag-drag-handle  {
+.ag-theme-servoy .ag-column-drop-horizontal .ag-column-drop-cell {
+    margin-top: 4px;
+}
+
+.ag-table.ag-theme-servoy .ag-column-drop-horizontal > div:first-child {
+    float: left;
+    height: 100%;
+    line-height:32px;
+}
+
+.ag-table.ag-theme-servoy .ag-column-drop-horizontal .ag-right-arrow,
+.ag-table.ag-theme-servoy .ag-column-drop-horizontal .ag-icon-small-right {
+    padding: 0 4px;
+    display: none;
+}
+
+.ag-table.ag-theme-servoy .ag-column-drop-horizontal .ag-column-drop-cell .ag-column-drop-cell-button:after {
+    font-family: "Glyphicons Halflings", "FontAwesome", "Font Awesome 5 Free";
+    text-align: center;
+    padding-left: 10px;
+    padding-right: 10px;
+    content: "\e080";
+    /* vertical-align: middle; */
+}
+
+.ag-table.ag-theme-servoy .ag-column-drop-horizontal  .ag-column-drag {
     border: 1px @border-style @border-color;
     padding: 4px 6px 4px 16px;
     border-radius: @border-radius 0 0 @border-radius;
@@ -2140,40 +1856,25 @@ data-servoyextra-fontawesome > div {
     background-position: 4px 6px !important;
 }
 
-.ag-theme-servoy .ag-column-drop-horizontal .ag-column-drop-cell-text {
+.ag-table.ag-theme-servoy .ag-column-drop-horizontal  .ag-column-drop-cell-text {
     border: 1px @border-style @border-color;
     border-left: 0;
-    border-right: 0;
     padding: 4px 16px;
     padding-left: 0;
-    line-height: 20px;
-}
-
-.ag-theme-servoy .ag-column-drop-horizontal .ag-column-drop-cell-button {
-    border: 1px @border-style @border-color;
-    border-left: 0;
-    padding: 4px 6px;
-    padding-left: 0;
     border-radius: 0 @border-radius @border-radius 0;
-    line-height: 20px;
 }
 
-.ag-table.ag-theme-servoy .ag-column-drop-horizontal .ag-column-drop-cell:last-child {
-    margin-right: 4px;
-}
-
-/* Remove group button */
-.ag-theme-servoy .ag-column-drop-horizontal .ag-column-drop-cell-button > .ag-icon-cancel:before,
-.ag-table.ag-theme-servoy .ag-column-drop-vertical .ag-column-drop-cell .ag-column-drop-cell-button > .ag-icon-cancel:before {
-    border-radius: 50px;
-    background: @border-color;
-    padding: 1px;
-}
-
-.ag-theme-servoy .ag-column-drop-horizontal .ag-icon-group, 
-.ag-theme-servoy .ag-column-drop-horizontal .ag-icon-pivot {
+.ag-table.ag-theme-servoy .ag-column-drop-horizontal .ag-icon-group, 
+.ag-table.ag-theme-servoy .ag-column-drop-horizontal .ag-icon-pivot {
     margin-right: 12px;
 }
+
+/*
+.ag-table.ag-theme-servoy .ag-tool-panel-wrapper .ag-column-drop .ag-column-drop-cell {
+    padding-left: 10px;
+    /*line-height: 32px;*
+    display: block;
+} */
 
 /* Ag-Grid Theme Side Panel Column Drops */
 .ag-table.ag-theme-servoy .ag-column-drop-vertical {
@@ -2184,7 +1885,7 @@ data-servoyextra-fontawesome > div {
 .ag-table.ag-theme-servoy .ag-column-drop-vertical .ag-column-drop-cell {
     margin-top: 4px;
     border: 1px @border-style @border-color;
-    padding: 4px 6px;
+    padding: 4px 16px;
     padding-left: 0;
     border-radius: @border-radius;
 }
@@ -2194,9 +1895,17 @@ data-servoyextra-fontawesome > div {
     background-position: 4px 6px !important;
 }
 
-/* ag-column-drop-horizontal-list */
-.ag-table.ag-theme-servoy .ag-column-drop-empty-message,
-.ag-table.ag-theme-servoy .ag-column-drop-horizontal .ag-column-drop-horizontal-list:after,
+.ag-table.ag-theme-servoy .ag-column-drop-vertical .ag-column-drop-cell .ag-column-drop-cell-button {
+    margin-top: 2px;
+}
+
+/*
+.ag-table.ag-theme-servoy .ag-tool-panel .ag-column-drop .ag-column-drop-cell .ag-column-drop-cell-button {
+    float: initial;
+} */
+
+.ag-table.ag-theme-servoy .ag-column-drop-empty-message, 
+.ag-table.ag-theme-servoy .ag-column-drop-horizontal .ag-column-drop-cell:last-child:after,
 .ag-table.ag-theme-servoy .ag-column-drop-vertical .ag-column-drop-list:after {
     content: "Drop a column";
     border: 1px dashed @border-color;
@@ -2205,19 +1914,6 @@ data-servoyextra-fontawesome > div {
     padding: 4px 16px;
     display: inline;
     line-height: 20px;
-}
-
-.ag-table.ag-theme-servoy .ag-column-drop-horizontal .ag-column-drop-horizontal-cell:last-child:after {
-    font-family: agGridClassic;
-    line-height: 12px;
-    font-style: normal;
-    font-weight: 400;
-    font-variant: normal;
-    text-transform: none;
-    -webkit-font-smoothing: antialiased;
-    content: "\f12d";
-    margin-left: 4px;
-    font-size: 12px;
 }
 
 .ag-table.ag-theme-servoy .ag-column-drop-vertical .ag-column-drop-list:after {
@@ -2234,89 +1930,7 @@ data-servoyextra-fontawesome > div {
     margin-top: 4px;
 }
 
-/***************************************************************************************************************
-****************************************************************************************************************
-*
-* Ag Icons
-*
-****************************************************************************************************************
-****************************************************************************************************************/
-
-.ag-theme-servoy .ag-checkbox-input-wrapper {
-    font-family: "agGridClassic";
-    font-size: 12px;
-    line-height: 12px;
-    font-style: normal;
-    font-weight: normal;
-    font-variant: normal;
-    text-transform: none;
-    /* Better Font Rendering =========== */
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    width: 12px;
-    height: 12px;
-    background-color: var(--ag-checkbox-background-color);
-    border-radius: 0px;
-    display: inline-block;
-    vertical-align: middle;
-    flex: none;
-}
-.ag-theme-servoy .ag-checkbox-input-wrapper input, .ag-theme-bootstrap .ag-checkbox-input-wrapper input {
-    -webkit-appearance: none;
-    opacity: 0;
-    width: 100%;
-    height: 100%;
-}
-
-.ag-theme-servoy .ag-checkbox-input-wrapper:focus-within, .ag-theme-bootstrap .ag-checkbox-input-wrapper:active {
-    outline: none;
-}
-
-.ag-theme-servoy .ag-checkbox-input-wrapper.ag-disabled {
-    opacity: 0.5;
-}
-
-.ag-theme-servoy .ag-checkbox-input-wrapper::after {
-    content: "\f108";
-    color: #000;
-    color: var(--ag-checkbox-unchecked-color, var(--ag-foreground-color, inherit));
-    position: absolute;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-}
-
-.ag-theme-servoy .ag-checkbox-input-wrapper.ag-checked::after {
-    content: "\f106";
-    color: #000;
-    color: var(--ag-checkbox-checked-color, var(--ag-foreground-color, inherit));
-    position: absolute;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-}
-
-.ag-theme-servoy .ag-checkbox-input-wrapper.ag-indeterminate::after {
-    content: "\f107";
-    color: #000;
-    color: var(--ag-checkbox-indeterminate-color, var(--ag-checkbox-unchecked-color, var(--ag-foreground-color, inherit)));
-    position: absolute;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-}
-
-.ag-theme-servoy .ag-side-bar .ag-checkbox-input-wrapper {
-    margin-left: 10px;
-}
-
-/***************************************************************************************************************
-****************************************************************************************************************
-*
-* Ag Variations
-*
-****************************************************************************************************************
-****************************************************************************************************************/
+/* Ag Variations */
 
 .ag-table.no-border {
     border: 0;
@@ -2372,21 +1986,17 @@ data-servoyextra-fontawesome > div {
 * ------------------------------------------------------------------------------------------------------------------*/
 
 /* Popup */
-.yuimenu,
-.svy-popup-menu {
+.yuimenu {
     padding: 0;
     background: #FFF;
     border-radius: @border-radius; /* TODO shall it use a popup border radius instead !? */
 }
 
-.yuimenuitemlabel,
-.svy-popup-menu > li > a.dropdown-item {
+.yuimenuitemlabel {
     color: @text-color;
 }
 
-.yuimenuitemlabel a:hover, .yuimenuitemlabel a:focus,
-.svy-popup-menu > li > a.dropdown-item:focus,
-.svy-popup-menu > li > a.dropdown-item:hover {
+.yuimenuitemlabel a:hover, .yuimenuitemlabel a:focus {
     color: @text-color;
 }
 
@@ -2394,27 +2004,16 @@ data-servoyextra-fontawesome > div {
 .yuimenuitemlabel:hover,
 .yuimenuitemlabel-selected,
 .yuimenuitemlabel-selected:hover {
-    /* TODO */
     background-color: @popup-selected-bg;
 }
 
 .yuimenubaritemlabel:focus,
 .yuimenubaritemlabel:hover,
 .yuimenuitemlabel:hover,
-.yuimenuitemlabel:focus,
-.svy-popup-menu > li > a.dropdown-item:focus,
-.svy-popup-menu > li > a.dropdown-item:hover {
-    /* TODO */
-    /*
+.yuimenuitemlabel:focus {
     outline: none;
     text-decoration: initial;
     color: inherit;
-    */
-}
-
-.svy-popup-menu > li > a.dropdown-item:active {
-    background-color: @popup-selected-bg;
-    color: @popup-selected-text;
 }
 
 .yuimenubaritemlabel-selected, 
@@ -2425,7 +2024,6 @@ data-servoyextra-fontawesome > div {
 .yuimenuitemlabel-selected:hover,
 .yuimenuitemlabel-selected:focus,  
 .yuimenuitemlabel-selected:visited {
-    /* TODO */
     background-color: @popup-selected-bg;
     color: @popup-selected-text;
     text-decoration: inherit;
@@ -2439,9 +2037,35 @@ data-servoyextra-fontawesome > div {
 .yuimenubaritemlabel-disabled:hover,
 .yuimenuitemlabel-disabled:hover,
 .yuimenuitemlabel-disabled:focus {
-    /* TODO */
     color: @popup-disabled-color;
 }
+
+/* Scrollbar Style */
+
+#webkit-scrollbar (@themed-scrollbar) when (@themed-scrollbar = true) {
+    ::-webkit-scrollbar {
+        width: 12px;
+        height: 12px;
+        padding: 0 5px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        border-radius: 0px;
+        background: @scrollbar-bg;
+        border: 1px @border-style @border-color;
+        border-width: @scrollbar-border-width;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        background: @scrollbar-color;
+    }
+    ::-webkit-scrollbar-thumb:window-inactive {
+        background: #F8F8F8;
+    }
+}
+
+#webkit-scrollbar(@theme-scrollbar);
 
 /************************************************************************************
  Style Layout Containers
@@ -2526,32 +2150,32 @@ data-servoyextra-fontawesome > div {
 }
 
 .bg-primary {
-    background-color: @brand-primary !important;
+    background-color: @brand-primary;
     color: @brand-primary-inverse;
 }
 
 .bg-tertiary {
-    background-color: @brand-tertiary !important;
+    background-color: @brand-tertiary;
     color: @brand-tertiary-inverse;
 }
 
 .bg-success {
-    background-color: @brand-success !important;
+    background-color: @brand-success;
     color: @brand-success-inverse;
 }
 
 .bg-info {
-    background-color: @brand-info !important;
+    background-color: @brand-info;
     color: @brand-info-inverse;
 }
 
 .bg-warning {
-    background-color: @brand-warning !important;
+    background-color: @brand-warning;
     color: @brand-warning-inverse;
 }
 
 .bg-danger {
-    background-color: @brand-danger !important;
+    background-color: @brand-danger;
     color: @brand-danger-inverse;
 }
 
@@ -2721,63 +2345,56 @@ a.bg-danger:hover {
 /* Label Colors */
 .text-primary,
 .label-primary, 
-.btn.text-primary {
+.btn.text-primary,
+.bts-select.text-primary ~ .input-group-addon,
+.svy-calendar.text-primary ~ .input-group-addon,
+.bts-calendar input.text-primary, .bts-calendar input.text-primary ~ .input-group-addon {
     color: @brand-primary;  
 }
 
 .text-tertiary,
 .label-tertiary, 
-.btn.text-tertiary {
+.btn.text-tertiary,
+.bts-select.text-tertiary ~ .input-group-addon,
+.svy-calendar.text-tertiary ~ .input-group-addon,
+.bts-calendar input.text-tertiary, .bts-calendar input.text-tertiary ~ .input-group-addon {
     color: @text-tertiary;  
 }
 
 .text-success,
 .label-success, 
-.btn.text-success {
+.btn.text-success,
+.bts-select.text-success ~ .input-group-addon,
+.svy-calendar.text-success ~ .input-group-addon,
+.bts-calendar input.text-success, .bts-calendar input.text-success ~ .input-group-addon {
     color: @brand-success;  
 }
 
 .text-info,
 .label-info, 
-.btn.text-info {
+.btn.text-info,
+.bts-select.text-info ~ .input-group-addon,
+.svy-calendar.text-info ~ .input-group-addon,
+.bts-calendar input.text-info, .bts-calendar input.text-info ~ .input-group-addon {
     color: @brand-info; 
 }
 
 .text-warning,
 .label-warning, 
-.btn.text-warning {
+.btn.text-warning,
+.bts-select.text-warning ~ .input-group-addon,
+.svy-calendar.text-warning ~ .input-group-addon,
+.bts-calendar input.text-warning, .bts-calendar input.text-warning ~ .input-group-addon {
     color: @brand-warning;  
 }
 
 .text-danger,
 .label-danger, 
-.btn.text-danger {
+.btn.text-danger,
+.bts-select.text-danger ~ .input-group-addon,
+.svy-calendar.text-danger ~ .input-group-addon,
+.bts-calendar input.text-danger, .bts-calendar input.text-danger ~ .input-group-addon {
     color: @brand-danger;   
-}
-
-/* Have to use the important because of Bts4 using the important for text-brand*/
-.text-primary {
-    color: @brand-primary !important;
-}
-
-.text-tertiary {
-    color: @text-tertiary !important;
-}
-
-.text-success {
-    color: @brand-success !important;
-}
-
-.text-info {
-    color: @brand-info !important;
-}
-
-.text-warning {
-    color: @brand-warning !important;
-}
-
-.text-danger {
-    color: @brand-danger !important;
 }
 
 /************************************************************************************
@@ -3345,41 +2962,21 @@ fieldset[disabled] .btn-outline-default:focus, .btn-outline-default.disabled.foc
 .svy-typeahead.form-invalid, .bts-typeahead.form-invalid, 
 .bts-select.form-invalid, .bts-select.form-invalid ~ .input-group-addon, 
 .svy-calendar.form-invalid, .svy-calendar.form-invalid ~ .input-group-addon, 
-.bts-calendar.form-invalid, .bts-calendar.form-invalid ~ .input-group-addon, 
 .bts-calendar input.form-invalid, .bts-calendar input.form-invalid ~ .input-group-addon {
-    border: @field-border-width @border-style @brand-danger;
+    border: 1px solid @brand-danger;
     outline-color: @brand-danger;
 }
 
 .svy-field.ng-invalid, .svy-password.ng-invalid, 
 .svy-textarea.ng-invalid, .bts-textarea.ng-invalid, 
 .svy-textfield.ng-invalid, .bts-textbox.ng-invalid, 
-.svy-typeahead.ng-invalid, .bts-typeahead.ng-invalid,
-.svy-combobox-container.form-invalid .svy-combobox,
-.bts-combobox-container.form-invalid .bts-combobox,
+.svy-typeahead.ng-invalid, .bts-typeahead.ng-invalid, 
 .bts-select.ng-invalid, .bts-select.ng-invalid ~ .input-group-addon, 
 .svy-calendar.ng-invalid, .svy-calendar.ng-invalid ~ .input-group-addon, 
-.bts-calendar.form-invalid, .bts-calendar.form-invalid ~ .input-group-addon,
 .bts-calendar.ng-invalid input, .bts-calendar.ng-invalid input ~ .input-group-addon {
-    border: @field-border-width @border-style @brand-danger;
+    border: 1px solid @brand-danger;
     outline-color: @brand-danger;
 }
-
-/* Calendar invalid */
-.svy-calendar-container.form-invalid input.svy-calendar ~ .input-group-text,
-.bts-calendar-container.form-invalid input.bts-calendar ~ .input-group-text,
-.bts-calendar.form-invalid input ~ .input-group-text {
-    border: @field-border-width @border-style @brand-danger;
-    outline-color: @brand-danger;
-}
-
-.svy-calendar-container.ng-invalid input.svy-calendar ~ .input-group-text,
-.bts-calendar-container.form-invalid input.bts-calendar ~ .input-group-text,
-.bts-calendar.ng-invalid input ~ .input-group-text {
-    border: @field-border-width @border-style @brand-danger;
-    outline-color: @brand-danger;
-}
-
 
 .svy-check.form-invalid input[type=checkbox] + span:before, 
 .bts-check.form-invalid input[type=checkbox] + span:before, 
@@ -3734,7 +3331,7 @@ h6, .h6 {
 }
 
 .border-primary {
-    border-color: @brand-primary !important;
+    border-color: @brand-primary;
 }
 
 .border-tertiary {
@@ -3742,19 +3339,19 @@ h6, .h6 {
 }
 
 .border-info {
-    border-color: @brand-info !important;
+    border-color: @brand-info;
 }
 
 .border-success {
-    border-color: @brand-success !important;
+    border-color: @brand-success;
 }
 
 .border-warning {
-    border-color: @brand-warning !important;
+    border-color: @brand-warning;
 }
 
 .border-danger {
-    border-color: @brand-danger !important;
+    border-color: @brand-danger;
 }
 
 /* Clickable cursors */
