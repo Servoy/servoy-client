@@ -27,6 +27,8 @@ import java.io.Serializable;
  */
 public class BroadcastFilter implements Serializable
 {
+	private static final long serialVersionUID = 1L;
+
 	private final String tableName;
 	private final BroadcastFilterOperator filterType;
 	private final String columnName;
