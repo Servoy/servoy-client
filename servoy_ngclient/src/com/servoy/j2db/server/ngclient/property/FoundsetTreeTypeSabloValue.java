@@ -296,6 +296,7 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 					hasCheckbox = binding.checkboxValues != null;
 				}
 				recordData.put("hascheckbox", hasCheckbox);
+				recordData.put("checkboxautoselectschildren", binding.checkboxAutoselectsChildren);
 				if (hasCheckbox)
 				{
 					boolean checkboxValue = false;
@@ -434,6 +435,7 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 						relhasCheckbox = relatedBinding.checkboxValues != null;
 					}
 					relRecordData.put("hascheckbox", relhasCheckbox);
+					relRecordData.put("checkboxautoselectschildren", relatedBinding.checkboxAutoselectsChildren);
 					if (relhasCheckbox)
 					{
 						boolean checkboxValue = false;
@@ -692,6 +694,7 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 		public String childsortdataprovider;
 		public Object[] hasCheckboxValue;
 		public Object[] checkboxValues;
+		public boolean checkboxAutoselectsChildren = true;
 		// a cache for all foundsets loaded via this binding
 		public ArrayList<IFoundSetInternal> foundsets = new ArrayList<IFoundSetInternal>();
 
