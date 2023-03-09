@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.mozilla.javascript.Scriptable;
 
+import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
@@ -201,9 +202,29 @@ public class FoundsetDataAdapterList extends DataAdapterList
 		if ((valueObject == Scriptable.NOT_FOUND || valueObject == null) && recordToUse != null)
 		{
 			boolean validDataprovider = false;
-			if (valueObject == null)
+			int index = dataProviderId.lastIndexOf('.');
+			if (valueObject == null && index > 0 && index < dataProviderId.length() - 1) //check if is related value request
 			{
-				validDataprovider = ((IFoundSetInternal)recordToUse.getParentFoundSet()).isValidRelation(dataProviderId);
+				String partName = dataProviderId.substring(0, index);
+				String restName = dataProviderId.substring(index + 1);
+
+				IFoundSet foundSet = recordToUse.getRelatedFoundSet(partName);
+				if (foundSet != null)
+				{
+					//related data
+					int selected = foundSet.getSelectedIndex();
+					if (selected == -1 && foundSet.getSize() > 0) selected = 0;
+
+					IRecord state = foundSet.getRecord(selected);
+					if (state != null)
+					{
+						validDataprovider = state.has(restName);
+					}
+					if (!validDataprovider && foundSet.containsDataProvider(restName))
+					{
+						validDataprovider = foundSet.containsDataProvider(restName);
+					}
+				}
 			}
 			if (!validDataprovider)
 			{
