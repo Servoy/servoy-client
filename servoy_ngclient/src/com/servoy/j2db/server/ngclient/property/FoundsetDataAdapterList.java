@@ -204,24 +204,39 @@ public class FoundsetDataAdapterList extends DataAdapterList
 		if ((valueObject == Scriptable.NOT_FOUND || valueObject == null) && recordToUse != null)
 		{
 			boolean validDataprovider = false;
-			int index = dataProviderId.lastIndexOf('.');
-			if (valueObject == null && index > 0 && index < dataProviderId.length() - 1) //check if is related value request
+			if (valueObject == null)
 			{
-				String partName = dataProviderId.substring(0, index);
-				String restName = dataProviderId.substring(index + 1);
-
-				Relation[] relationSequence = getApplication().getFlattenedSolution().getRelationSequence(partName);
-				if (relationSequence != null && relationSequence.length > 0 && (relationSequence[0].isGlobal() ||
-					relationSequence[0].getPrimaryDataSource().equals(recordToUse.getParentFoundSet().getDataSource())))
+				int index = dataProviderId.lastIndexOf('.');
+				if (index > 0 && index < dataProviderId.length() - 1) //check if is related value request
 				{
-					ITable table = getApplication().getFlattenedSolution().getTable(relationSequence[relationSequence.length - 1].getForeignDataSource());
+					String partName = dataProviderId.substring(0, index);
+					String restName = dataProviderId.substring(index + 1);
+
+					Relation[] relationSequence = getApplication().getFlattenedSolution().getRelationSequence(partName);
+					if (relationSequence != null && relationSequence.length > 0 && (relationSequence[0].isGlobal() ||
+						relationSequence[0].getPrimaryDataSource().equals(recordToUse.getParentFoundSet().getDataSource())))
+					{
+						ITable table = getApplication().getFlattenedSolution().getTable(relationSequence[relationSequence.length - 1].getForeignDataSource());
+						try
+						{
+							validDataprovider = getApplication().getFlattenedSolution().getDataProviderForTable(table, restName) != null;
+						}
+						catch (RepositoryException ex)
+						{
+							Debug.error(ex);
+						}
+					}
+				}
+				else
+				{
 					try
 					{
-						validDataprovider = getApplication().getFlattenedSolution().getDataProviderForTable(table, restName) != null;
+						validDataprovider = getApplication().getFlattenedSolution()
+							.getDataProviderForTable(((IFoundSetInternal)recordToUse.getParentFoundSet()).getTable(), dataProviderId) != null;
 					}
-					catch (RepositoryException ex)
+					catch (RepositoryException e)
 					{
-						Debug.error(ex);
+						Debug.error(e);
 					}
 				}
 			}
