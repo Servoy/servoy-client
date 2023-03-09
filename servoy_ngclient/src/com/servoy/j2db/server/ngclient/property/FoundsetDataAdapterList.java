@@ -24,11 +24,13 @@ import java.util.Set;
 
 import org.mozilla.javascript.Scriptable;
 
-import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
+import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.Relation;
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
@@ -208,21 +210,18 @@ public class FoundsetDataAdapterList extends DataAdapterList
 				String partName = dataProviderId.substring(0, index);
 				String restName = dataProviderId.substring(index + 1);
 
-				IFoundSet foundSet = recordToUse.getRelatedFoundSet(partName);
-				if (foundSet != null)
+				Relation[] relationSequence = getApplication().getFlattenedSolution().getRelationSequence(partName);
+				if (relationSequence != null && relationSequence.length > 0 && (relationSequence[0].isGlobal() ||
+					relationSequence[0].getPrimaryDataSource().equals(recordToUse.getParentFoundSet().getDataSource())))
 				{
-					//related data
-					int selected = foundSet.getSelectedIndex();
-					if (selected == -1 && foundSet.getSize() > 0) selected = 0;
-
-					IRecord state = foundSet.getRecord(selected);
-					if (state != null)
+					ITable table = getApplication().getFlattenedSolution().getTable(relationSequence[relationSequence.length - 1].getForeignDataSource());
+					try
 					{
-						validDataprovider = state.has(restName);
+						validDataprovider = getApplication().getFlattenedSolution().getDataProviderForTable(table, restName) != null;
 					}
-					if (!validDataprovider && foundSet.containsDataProvider(restName))
+					catch (RepositoryException ex)
 					{
-						validDataprovider = foundSet.containsDataProvider(restName);
+						Debug.error(ex);
 					}
 				}
 			}
