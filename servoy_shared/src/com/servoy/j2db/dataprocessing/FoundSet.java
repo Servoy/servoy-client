@@ -194,6 +194,8 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	protected boolean initialized = false; //tells if the foundset has done one query and is ready to use
 
+	protected boolean disposed = false;
+
 	private final List<WeakReference<IRecordInternal>> allParents = new ArrayList<WeakReference<IRecordInternal>>(6);
 
 	private PrototypeState proto = null;
@@ -674,7 +676,26 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		rowManager.unregister(this);
 		clear();
 		getFoundSetManager().removeFoundSet(this);
+		disposed = true;
 		return true;
+	}
+
+	/**
+	 * Check if the foundset was disposed.
+	 * <br/><br/>
+	 * When the foundset.dispose() method was called successfully, a foundset can no longer be used.
+	 *
+	 * @sample
+	 * // check if the foundset was disposed.
+	 * if (%%prefix%%foundset.isDisposed())
+	 * {
+	 *    // foundset cannot be used anymore
+	 * }
+	 */
+	@JSFunction
+	public boolean isDisposed()
+	{
+		return disposed;
 	}
 
 	/**
@@ -2456,6 +2477,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (sheet.getTable() == null)
 		{
 			fsm.getApplication().reportJSError("couldn't load dataset on a foundset that has no table", null); //$NON-NLS-1$
+			return false;
+		}
+
+		if (disposed)
+		{
+			fsm.getApplication().reportJSError("couldn't load dataset on a disposed foundset", null); //$NON-NLS-1$
 			return false;
 		}
 
@@ -4461,6 +4488,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		if (table == null)
 		{
 			return;
+		}
+
+		if (disposed)
+		{
+			fsm.getApplication().reportJSError("cannot delete records for a disposed foundset", null); //$NON-NLS-1$
+			throw new ServoyException(ServoyException.INVALID_INPUT);
 		}
 
 		fireSelectionAdjusting();
@@ -7418,6 +7451,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	protected IDataSet performQuery(String transaction_id, QuerySelect query, ColumnType[] resultTypes, int startRow, int rowsToRetrieve, int type)
 		throws RemoteException, ServoyException
 	{
+		if (disposed)
+		{
+			fsm.getApplication().reportJSError("cannot query for a disposed foundset", null); //$NON-NLS-1$
+			throw new ServoyException(ServoyException.INVALID_INPUT);
+		}
+
 		if (!hasAccess(IRepository.READ))
 		{
 			int rawSize = getRawSize();

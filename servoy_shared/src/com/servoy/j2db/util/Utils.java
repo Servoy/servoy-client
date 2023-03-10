@@ -3204,7 +3204,7 @@ public final class Utils
 	}
 
 	/**
-	 * Stream iterable iterator.
+	 * Stream from iterable.
 	 *
 	 * @param iterable when null, return empty stream
 	 */
@@ -3223,6 +3223,31 @@ public final class Utils
 	public static <T> Stream<T> stream(Collection<T> collection)
 	{
 		return collection == null ? Stream.empty() : collection.stream();
+	}
+
+	/**
+	 * Remove an element from a collection, compare using object reference (not equals), removes only first element.
+	 *
+	 * @param collection
+	 * @param element element to remove
+	 *
+	 * @return true if removed, false if not removed
+	 */
+	public static <T> boolean removeFromCollection(Collection< ? extends T> collection, T element)
+	{
+		if (collection != null)
+		{
+			Iterator< ? extends T> iterator = collection.iterator();
+			while (iterator.hasNext())
+			{
+				if (iterator.next() == element)
+				{
+					iterator.remove();
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/**

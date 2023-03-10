@@ -39,7 +39,6 @@ import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.ServoyException;
-import com.servoy.j2db.util.Utils;
 
 /**
  * Scope for datasources.db.myserver.mytable or datasources.mem['dsname']
@@ -52,9 +51,10 @@ import com.servoy.j2db.util.Utils;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class JSDataSource implements IJavaScriptType, IDestroyable
 {
+	private static final String SINGLE_RECORD_NAMED_FOUNDSET = "__sv_singleRecordFoundset";
+
 	private volatile IApplication application;
 	private final String datasource;
-	private FoundSet singleRecordFoundsetCache;
 
 	public JSDataSource(IApplication application, String datasource)
 	{
@@ -113,7 +113,8 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	}
 
 	/**
-	 * An existing foundset under that name will be returned, or created if there is a definition (there is a form with a named foundset property with that name).
+	 * An existing foundset under that name will be returned, or created.
+	 * If there is a definition (there is a form with a named foundset property with that name), the initial sort from that form will be used.
 	 * If named foundset datasource does not match current datasource will not be returned (will return null instead).
 	 *
 	 * @sample
@@ -130,8 +131,27 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	@JSFunction
 	public IFoundSet getFoundSet(String name) throws ServoyException
 	{
-		IFoundSet foundset = application.getFoundSetManager().getNamedFoundSet(name);
-		return checkDataSourceEquality(foundset) ? foundset : null;
+		return application.getFoundSetManager().getNamedFoundSet(name, datasource);
+	}
+
+	/** Get all currently foundsets for this datasource.
+	 * <br></br>
+	 * This method can be used to loop over foundset and programatically dispose them to clean up resources quickly.
+	 *
+	 * @sample
+	 * var fslist = datasources.db.example_data.orders.getLoadedFoundSets()
+	 * fslist.forEach(function(fs) {
+	 *   if (shouldDispose(fs)) {
+	 * 		fs.dispose()
+	 *   }
+	 * })
+	 *
+	 * @return An array of foundsets loaded for this datasource.
+	 */
+	@JSFunction
+	public IFoundSet[] getLoadedFoundSets()
+	{
+		return application.getFoundSetManager().getAllLoadedFoundsets(datasource, false);
 	}
 
 	/**
@@ -151,24 +171,25 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	@JSFunction
 	public IJSRecord getRecord(Object pk) throws ServoyException
 	{
-		if (singleRecordFoundsetCache == null)
-		{
-			singleRecordFoundsetCache = (FoundSet)application.getFoundSetManager().getFoundSet(datasource);
-		}
+		FoundSet foundset = (FoundSet)application.getFoundSetManager().getNamedFoundSet(SINGLE_RECORD_NAMED_FOUNDSET, datasource);
 
 		IDataSet dataSet = new BufferedDataSet();
 
 		if ((pk instanceof Object[]))
+		{
 			dataSet.addRow((Object[])pk);
+		}
 		else
+		{
 			dataSet.addRow(new Object[] { pk });
+		}
 
-		if (!singleRecordFoundsetCache.js_loadRecords(dataSet))
+		if (!foundset.js_loadRecords(dataSet))
 		{
 			throw new ServoyException(ServoyException.INVALID_INPUT);
 		}
 
-		return singleRecordFoundsetCache.js_getRecord(1);
+		return foundset.js_getRecord(1);
 	}
 
 	/**
@@ -189,7 +210,7 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 		IFoundSet foundset = application.getFoundSetManager().getFoundSet(datasource);
 		foundset.loadByQuery(qbSelect);
 
-		return checkDataSourceEquality(foundset) ? foundset : null;
+		return foundset;
 	}
 
 	/**
@@ -211,7 +232,7 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 		IFoundSet foundset = application.getFoundSetManager().getFoundSet(datasource);
 		((FoundSet)foundset).loadByQuery(query, args);
 
-		return checkDataSourceEquality(foundset) ? foundset : null;
+		return foundset;
 	}
 
 	/**
@@ -246,18 +267,7 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 		IFoundSet foundset = application.getFoundSetManager().getFoundSet(datasource);
 		((FoundSet)foundset).js_loadRecords(dataSet);
 
-		return checkDataSourceEquality(foundset) ? foundset : null;
-	}
-
-	/**
-	 * check whether a foundset is not null and comes from this datasource
-	 *
-	 * @param foundset
-	 * @return true if not null and datasource matches
-	 */
-	private boolean checkDataSourceEquality(IFoundSet foundset)
-	{
-		return (foundset != null && Utils.equalObjects(foundset.getDataSource(), datasource));
+		return foundset;
 	}
 
 	/**

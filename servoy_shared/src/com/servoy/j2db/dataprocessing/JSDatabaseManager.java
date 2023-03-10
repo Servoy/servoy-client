@@ -3474,12 +3474,15 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param name The named foundset name
 	 *
 	 * @return An existing named(separate) foundset.
+	 *
+	 * @deprecated Use datasources.db.server_name.table_name.getFoundSet(name)
 	 */
+	@Deprecated
 	@JSFunction
 	public IJSFoundSet getNamedFoundSet(String name) throws ServoyException
 	{
 		checkAuthorized();
-		return (FoundSet)application.getFoundSetManager().getNamedFoundSet(name);
+		return (FoundSet)application.getFoundSetManager().getNamedFoundSet(name, null);
 	}
 
 	/**

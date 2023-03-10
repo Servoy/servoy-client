@@ -189,7 +189,9 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	 * Get the named foundset.
 	 * @since 8.2
 	 */
-	public IFoundSet getNamedFoundSet(String name) throws ServoyException;
+	public IFoundSetInternal getNamedFoundSet(String name, String datasource) throws ServoyException;
+
+	public IFoundSetInternal[] getAllLoadedFoundsets(String datasource, boolean includeViewFoundsets);
 
 	public IFoundSetInternal findFoundset(int id);
 
