@@ -18,6 +18,11 @@ package com.servoy.j2db;
 
 import static com.servoy.base.query.IQueryConstants.INNER_JOIN;
 import static com.servoy.base.query.IQueryConstants.LEFT_OUTER_JOIN;
+import static com.servoy.base.util.DataSourceUtilsBase.getDBServernameTablename;
+import static com.servoy.base.util.DataSourceUtilsBase.isCompleteDBbServerTable;
+import static com.servoy.j2db.util.DataSourceUtils.createDBTableDataSource;
+import static com.servoy.j2db.util.DataSourceUtils.getInmemDataSourceName;
+import static com.servoy.j2db.util.DataSourceUtils.isSameServer;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -40,7 +45,6 @@ import org.json.JSONObject;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.base.query.IBaseSQLCondition;
-import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
@@ -112,7 +116,6 @@ import com.servoy.j2db.query.QueryCompositeJoin;
 import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.server.shared.IFlattenedSolutionDebugListener;
-import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IteratorChain;
 import com.servoy.j2db.util.Pair;
@@ -1492,8 +1495,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				String ds = r.getForeignDataSource();
 				if (ds != null)
 				{
-					String[] st = DataSourceUtilsBase.getDBServernameTablename(ds);
-					if (st != null && st.length == 2)
+					String[] st = getDBServernameTablename(ds);
+					if (isCompleteDBbServerTable(st))
 					{
 						try
 						{
@@ -2379,7 +2382,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	public Iterator<Form> getForms(ITable basedOnTable, boolean sort)
 	{
 		return Solution.getForms(getIndex().getIterableFor(Form.class),
-			basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(), basedOnTable.getName()), sort);
+			basedOnTable == null ? null : createDBTableDataSource(basedOnTable.getServerName(), basedOnTable.getName()), sort);
 	}
 
 	public Iterator<Form> getForms(String datasource, boolean sort)
@@ -2673,7 +2676,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				return null;
 		}
 
-		if (destDataSource == null || !DataSourceUtils.isSameServer(callingTable.getDataSource(), destDataSource))
+		if (destDataSource == null || !isSameServer(callingTable.getDataSource(), destDataSource))
 		{
 			// do not create a cross-server relation
 			return null;
@@ -3099,7 +3102,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		try
 		{
 			if (dataSource == null) return null;
-			String[] snt = DataSourceUtilsBase.getDBServernameTablename(dataSource);
+			String[] snt = getDBServernameTablename(dataSource);
 			if (snt != null)
 			{
 				return getSolution().getServer(snt[0]).getTable(snt[1]);
@@ -3123,13 +3126,13 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	{
 		try
 		{
-			String[] snt = DataSourceUtilsBase.getDBServernameTablename(dataSource);
+			String[] snt = getDBServernameTablename(dataSource);
 			if (snt != null)
 			{
 				return getSolution().getServer(snt[0]);
 			}
 
-			String inMemTableName = DataSourceUtils.getInmemDataSourceName(dataSource);
+			String inMemTableName = getInmemDataSourceName(dataSource);
 			if (inMemTableName != null)
 			{
 				return getSolution().getServer(IServer.INMEM_SERVER);

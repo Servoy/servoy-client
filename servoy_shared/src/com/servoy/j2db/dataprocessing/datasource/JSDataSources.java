@@ -17,6 +17,10 @@
 
 package com.servoy.j2db.dataprocessing.datasource;
 
+import static com.servoy.base.util.DataSourceUtilsBase.isCompleteDBbServerTable;
+import static com.servoy.j2db.util.DataSourceUtils.getDBServernameTablename;
+import static com.servoy.j2db.util.DataSourceUtils.getInmemDataSourceName;
+
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.IApplication;
@@ -24,7 +28,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
-import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.IDestroyable;
 
 /**
@@ -138,12 +141,12 @@ public class JSDataSources implements IDestroyable
 	@JSFunction
 	public JSDataSource get(String datasource)
 	{
-		String[] stn = DataSourceUtils.getDBServernameTablename(datasource);
-		if (stn != null && stn.length == 2)
+		String[] stn = getDBServernameTablename(datasource);
+		if (isCompleteDBbServerTable(stn))
 		{
 			return new JSDataSource(application, datasource);
 		}
-		if (DataSourceUtils.getInmemDataSourceName(datasource) != null)
+		if (getInmemDataSourceName(datasource) != null)
 		{
 			return new JSDataSource(application, datasource);
 		}
