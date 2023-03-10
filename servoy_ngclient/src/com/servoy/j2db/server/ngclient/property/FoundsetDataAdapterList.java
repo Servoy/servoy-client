@@ -24,11 +24,13 @@ import java.util.Set;
 
 import org.mozilla.javascript.Scriptable;
 
-import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
+import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.Relation;
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
@@ -202,27 +204,39 @@ public class FoundsetDataAdapterList extends DataAdapterList
 		if ((valueObject == Scriptable.NOT_FOUND || valueObject == null) && recordToUse != null)
 		{
 			boolean validDataprovider = false;
-			int index = dataProviderId.lastIndexOf('.');
-			if (valueObject == null && index > 0 && index < dataProviderId.length() - 1) //check if is related value request
+			if (valueObject == null)
 			{
-				String partName = dataProviderId.substring(0, index);
-				String restName = dataProviderId.substring(index + 1);
-
-				IFoundSet foundSet = recordToUse.getRelatedFoundSet(partName);
-				if (foundSet != null)
+				int index = dataProviderId.lastIndexOf('.');
+				if (index > 0 && index < dataProviderId.length() - 1) //check if is related value request
 				{
-					//related data
-					int selected = foundSet.getSelectedIndex();
-					if (selected == -1 && foundSet.getSize() > 0) selected = 0;
+					String partName = dataProviderId.substring(0, index);
+					String restName = dataProviderId.substring(index + 1);
 
-					IRecord state = foundSet.getRecord(selected);
-					if (state != null)
+					Relation[] relationSequence = getApplication().getFlattenedSolution().getRelationSequence(partName);
+					if (relationSequence != null && relationSequence.length > 0 && (relationSequence[0].isGlobal() ||
+						relationSequence[0].getPrimaryDataSource().equals(recordToUse.getParentFoundSet().getDataSource())))
 					{
-						validDataprovider = state.has(restName);
+						ITable table = getApplication().getFlattenedSolution().getTable(relationSequence[relationSequence.length - 1].getForeignDataSource());
+						try
+						{
+							validDataprovider = getApplication().getFlattenedSolution().getDataProviderForTable(table, restName) != null;
+						}
+						catch (RepositoryException ex)
+						{
+							Debug.error(ex);
+						}
 					}
-					if (!validDataprovider && foundSet.containsDataProvider(restName))
+				}
+				else
+				{
+					try
 					{
-						validDataprovider = foundSet.containsDataProvider(restName);
+						validDataprovider = getApplication().getFlattenedSolution()
+							.getDataProviderForTable(((IFoundSetInternal)recordToUse.getParentFoundSet()).getTable(), dataProviderId) != null;
+					}
+					catch (RepositoryException e)
+					{
+						Debug.error(e);
 					}
 				}
 			}
