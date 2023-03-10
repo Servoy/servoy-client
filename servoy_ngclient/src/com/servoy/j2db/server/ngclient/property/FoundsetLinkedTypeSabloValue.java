@@ -484,9 +484,9 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 				if (wrappedSabloValue instanceof IDataLinkedPropertyValue)
 					((IDataLinkedPropertyValue)wrappedSabloValue).attachToBaseObject(changeMonitor, wrappedComponentContext);
-			}
 
-//			changeMonitor.valueChanged();
+				changeMonitor.valueChanged();
+			}
 		}
 		else
 		{
