@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.scripting.info;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
@@ -39,6 +40,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * // make one TYPE-AHEAD field show the pop-up when there is empty content in the field - overrides the application property set
 	 * forms.someForm.elements.typeAheadElement.putClientProperty(APP_UI_PROPERTY.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY, true);
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public static final String TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY = IApplication.TYPE_AHEAD_SHOW_POPUP_WHEN_EMPTY;
 
 	/**
@@ -56,6 +58,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * // make one TYPE-AHEAD field show the pop-up when gaining focus - overrides the application property set
 	 * forms.someForm.elements.typeAheadElement.putClientProperty(APP_UI_PROPERTY.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN, true);
 	 */
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
 	public static final String TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN = IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN;
 
 	/**
@@ -73,6 +76,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * // make one COMBOBOX field show the pop-up when gaining focus - overrides the application property set
 	 * forms.someForm.elements.comboboxElement.putClientProperty(APP_UI_PROPERTY.COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN, true);
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public static final String COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN = IApplication.COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN;
 
 	/**
@@ -88,6 +92,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * // make all COMBOBOX fields hide the search box when gaining focus
 	 * application.putClientProperty(APP_UI_PROPERTY.COMBOBOX_ENABLE_FILTER, false);
 	 */
+	@ServoyClientSupport(ng = true, wc = false, sc = false)
 	public static final String COMBOBOX_ENABLE_FILTER = IApplication.COMBOBOX_ENABLE_FILTER;
 
 	/**
@@ -105,6 +110,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * // make one date formatted field use add instead of roll - overrides the application property set
 	 * forms.someForm.elements.typeAheadElement.putClientProperty(APP_UI_PROPERTY.DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD, false);
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public static final String DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD = IApplication.DATE_FORMATTERS_ROLL_INSTEAD_OF_ADD;
 
 	/**
@@ -123,6 +129,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * // make one date formatted field use lenient mode - overrides the application property set
 	 * forms.someForm.elements.typeAheadElement.putClientProperty(APP_UI_PROPERTY.DATE_FORMATTERS_LENIENT, true);
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public static final String DATE_FORMATTERS_LENIENT = IApplication.DATE_FORMATTERS_LENIENT;
 
 	/**
@@ -159,6 +166,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.USE_SYSTEM_PRINT_DIALOG, true)
 	 */
+	@ServoyClientSupport(ng = false, wc = false, sc = true)
 	public static final String USE_SYSTEM_PRINT_DIALOG = IApplication.USE_SYSTEM_PRINT_DIALOG;
 
 	/**
@@ -168,6 +176,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.TOOLTIP_INITIAL_DELAY, 2000)
 	 */
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
 	public static final String TOOLTIP_INITIAL_DELAY = IApplication.TOOLTIP_INITIAL_DELAY;
 
 	/**
@@ -177,6 +186,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.TOOLTIP_DISMISS_DELAY, 4000)
 	 */
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
 	public static final String TOOLTIP_DISMISS_DELAY = IApplication.TOOLTIP_DISMISS_DELAY;
 
 	/**
@@ -191,6 +201,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.LEAVE_FIELDS_READONLY_IN_FIND_MODE, true)
 	 */
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
 	public static final String LEAVE_FIELDS_READONLY_IN_FIND_MODE = IApplication.LEAVE_FIELDS_READONLY_IN_FIND_MODE;
 
 	/**
@@ -209,6 +220,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.TABLEVIEW_WC_DEFAULT_SCROLLABLE, true)
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = false)
 	public static final String TABLEVIEW_WC_DEFAULT_SCROLLABLE = IApplication.TABLEVIEW_WC_DEFAULT_SCROLLABLE;
 
 	/**
@@ -223,10 +235,11 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS, true)
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = false)
 	public static final String TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS = IApplication.TABLEVIEW_WC_SCROLLABLE_KEEP_LOADED_ROWS;
 
 	/**
-	 * Property that can be set using application.putClientProperty().
+	 * Property that can be set using application.putClientProperty(). This property only works in NGClient (not in Titanium).
 	 *
 	 * If set to true, the tableview will be seens as fully readonly and NGClient will generate an optimized version (textfields are replaced)
 	 *
@@ -236,10 +249,11 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.TABLEVIEW_NG_OPTIMIZED_READONLY_MODE, true)
 	 */
+	@ServoyClientSupport(ng = true, wc = false, sc = false)
 	public static final String TABLEVIEW_NG_OPTIMIZED_READONLY_MODE = IApplication.TABLEVIEW_NG_OPTIMIZED_READONLY_MODE;
 
 	/**
-	 * Property that can be set using application.putClientProperty().
+	 * Property that can be set using application.putClientProperty(). This property only works in NGClient (not in Titanium).
 	 *
 	 * A number that defines the factor of what the next page size should be is in the tableview/listview/portal,
 	 * this value is used to get the initial size (numerOfVisibleRows * thisPageSize).
@@ -256,6 +270,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.TABLEVIEW_NG_PAGE_SIZE_FACTOR, 3)
 	 */
+	@ServoyClientSupport(ng = true, wc = false, sc = false)
 	public static final String TABLEVIEW_NG_PAGE_SIZE_FACTOR = IApplication.TABLEVIEW_NG_PAGE_SIZE_FACTOR;
 
 	/**
@@ -269,6 +284,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.NG_BLOCK_DUPLICATE_EVENTS, true)
 	 */
+	@ServoyClientSupport(ng = true, wc = false, sc = false)
 	public static final String NG_BLOCK_DUPLICATE_EVENTS = IApplication.BLOCK_DUPLICATE_EVENTS;
 
 	/**
@@ -283,6 +299,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.TABLEVIEW_WC_USE_KEY_NAVIGATION, false)
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = false)
 	public static final String TABLEVIEW_WC_USE_KEY_NAVIGATION = IApplication.TABLEVIEW_WC_USE_KEY_NAVIGATION;
 
 	/**
@@ -297,6 +314,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * @sample
 	 * element.putClientProperty(APP_UI_PROPERTY.ALLOW_JAVASCRIPT_LINK_INPUT, true)
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public static final String ALLOW_JAVASCRIPT_LINK_INPUT = IApplication.ALLOW_JAVASCRIPT_LINK_INPUT;
 
 	/**
@@ -316,6 +334,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * @sample
 	 * element.putClientProperty(APP_UI_PROPERTY.TRUST_DATA_AS_HTML, true)
 	 */
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
 	public static final String TRUST_DATA_AS_HTML = IApplication.TRUST_DATA_AS_HTML;
 
 	/**
@@ -334,6 +353,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * // change the editor configuration (add menubar, status bar and change toolbar)
 	 * element.putClientProperty(APP_UI_PROPERTY.HTML_EDITOR_CONFIGURATION, '{"menubar": "tools table format view insert edit", "statusbar" : true, "toolbar": "undo redo | styleselect | bold italic"}')
 	 */
+	@ServoyClientSupport(ng = true, wc = true, sc = false)
 	public static final String HTML_EDITOR_CONFIGURATION = IApplication.HTML_EDITOR_CONFIGURATION;
 
 	/**
@@ -357,6 +377,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.RELATED_NULL_SEARCH_ADD_PK_CONDITION, false)
 	 */
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
 	public static final String RELATED_NULL_SEARCH_ADD_PK_CONDITION = IApplication.RELATED_NULL_SEARCH_ADD_PK_CONDITION;
 
 	/**
@@ -370,6 +391,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.VALUELIST_MAX_ROWS, 1000)
 	 */
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
 	public static final String VALUELIST_MAX_ROWS = IApplication.VALUELIST_MAX_ROWS;
 
 	/**
@@ -384,6 +406,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.CALENDAR_NG_SHOW_ISO_WEEK_NUMBER, true)
 	 */
+	@ServoyClientSupport(ng = true, wc = false, sc = false)
 	public static final String CALENDAR_NG_SHOW_ISO_WEEK_NUMBER = IApplication.CALENDAR_NG_SHOW_ISO_WEEK_NUMBER;
 
 	public String getPrefix()
