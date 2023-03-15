@@ -31,6 +31,7 @@ import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Wrapper;
 import org.sablo.Container;
 import org.sablo.IEventHandler;
 import org.sablo.WebComponent;
@@ -147,6 +148,16 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 								IEventHandler eventHandler = RuntimeWebComponent.this.component.getEventHandler(name);
 								try
 								{
+									if (args != null)
+									{
+										for (int i = 0; i < args.length; i++)
+										{
+											if (args[i] instanceof Wrapper)
+											{
+												args[i] = ((Wrapper)args[i]).unwrap();
+											}
+										}
+									}
 									return eventHandler.executeEvent(args);
 								}
 								catch (Exception e)

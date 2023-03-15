@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient.scripting;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +38,7 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
+import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
@@ -44,6 +46,7 @@ import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.NGClientWindow;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
+import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
@@ -371,5 +374,24 @@ public class ServoyApiObject
 	public boolean addFoundSetFilterParam(FoundSet foundset, QBSelect query, String filterName)
 	{
 		return foundset.addFoundSetFilterParam(query, filterName);
+	}
+
+	/**
+	 * This will create a JSEvent filled with component information.
+	 *
+	 * @sample
+	 * var event = servoyApi.createJSEvent();
+	 *
+	 * @return the jsevent
+	 */
+	@JSFunction
+	public JSEvent createJSEvent()
+	{
+		JSEvent event = new JSEvent();
+		event.setTimestamp(new Date());
+		event.setSource(new RuntimeWebComponent(this.component, this.component.getSpecification()));
+		event.setFormName(this.component.findParent(IWebFormUI.class).getController().getName());
+		event.setElementName(this.component.getFormElement().getRawName());
+		return event;
 	}
 }
