@@ -468,11 +468,12 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				args[i] = $sabloConverters.convertFromClientToServer(args[i], apiSpec?.getArgumentType(i), undefined, undefined, $sabloUtils.PROPERTY_CONTEXT_FOR_OUTGOING_ARGS_AND_RETURN_VALUES);
 			}
 
-			return $sabloApplication.callService('formService', 'callServerSideApi', {formname:formname,beanname:beanname,methodName:methodName,args:args})
-						.then(function successCallback(serviceCallResult) {
-							return $sabloConverters.convertFromServerToClient(serviceCallResult, apiSpec?.returnType,
-							         undefined, undefined, undefined, null, $sabloUtils.PROPERTY_CONTEXT_FOR_INCOMMING_ARGS_AND_RETURN_VALUES);
-						});
+			const promise =  $sabloApplication.callService('formService', 'callServerSideApi', {formname:formname,beanname:beanname,methodName:methodName,args:args});
+						
+			return $webSocket.wrapPromiseToPropagateCustomRequestInfoInternal(promise, promise.then(function successCallback(serviceCallResult) {
+                            return $sabloConverters.convertFromServerToClient(serviceCallResult, apiSpec?.returnType,
+                                     undefined, undefined, undefined, null, $sabloUtils.PROPERTY_CONTEXT_FOR_INCOMMING_ARGS_AND_RETURN_VALUES);
+                        }));
 		},
 		
 		pushEditingStarted: function(formName, beanName, propertyName) {

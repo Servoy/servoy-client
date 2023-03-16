@@ -740,7 +740,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 			$formService.formWillShow( windowInstance.form.name, false );
 
 			$scope.cancel = function() {
-				var promise = $sabloApplication.callService( "$windowService", "windowClosing", { window: windowInstance.name }, false );
+				/*var promise = */$sabloApplication.callService( "$windowService", "windowClosing", { window: windowInstance.name }, false );
 				// close is handled server side
 				//		promise.then(function(ok) {
 				//			if (ok) {
