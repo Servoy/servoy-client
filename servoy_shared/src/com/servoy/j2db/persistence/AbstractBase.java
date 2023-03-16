@@ -1175,7 +1175,7 @@ public abstract class AbstractBase implements IPersist
 
 		String leaf = path[path.length - 1];
 		Object old = null;
-		if (isNotExtendingAnotherPersist && value == null)
+		if (value == null)
 		{
 			old = map.remove(leaf);
 			if (map.isEmpty() && path.length > 1)
