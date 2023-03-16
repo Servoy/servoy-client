@@ -243,6 +243,11 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_ATTRIBUTES, name }, value);
 	}
 
+	public void clearAttribute(String name)
+	{
+		clearCustomProperty(new String[] { IContentSpecConstants.PROPERTY_ATTRIBUTES, name });
+	}
+
 	@Override
 	public Map<String, String> getAttributes()
 	{
