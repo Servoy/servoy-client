@@ -29,6 +29,17 @@ declare namespace sablo {
     type MessageObjectHandler = (msg, scopesToDigest: ScopeSet) => angular.IPromise<any> | void;
     
     interface WSSession {
+        /**
+         * IMPORTANT!
+         * 
+         * If the returned value is a promise and if the caller is INTERNAL code that chains more .then() or other methods and returns the new promise
+         * to it's own callers, it MUST to wrap the new promise (returned by that then() for example) using $websocket.wrapPromiseToPropagateCustomRequestInfoInternal().
+         * 
+         * This is so that the promise that ends up in (3rd party or our own) components and service code - that can then set .requestInfo on it - ends up to be
+         * propagated into the promise that this callService(...) registered in "deferredEvents"; that is where any user set .requestInfo has to end up, because
+         * that is where getCurrentRequestInfo() gets it from. And that is where special code - like foundset listeners also get the current request info from to
+         * return it back to the user (component/service code).   
+         */
         callService<T>(serviceName:string, methodName:string, argsObject, async:boolean):angular.IPromise<T>;
         sendMessageObject:()=>void;
         onopen:(handler:(evt)=>void)=>void;
@@ -81,7 +92,29 @@ declare namespace sablo {
         unResolveFormState(formName:string): void;
         requestInitialData(formName:string, requestDataCallback:(initialFormData:any, formState:FormState)=>void): void;
         sendChanges(now, prev, formname:string, beanname:string, property:string): void;
+        /**
+         * IMPORTANT!
+         * 
+         * If the returned value is a promise and if the caller is INTERNAL code that chains more .then() or other methods and returns the new promise
+         * to it's own callers, it MUST to wrap the new promise (returned by that then() for example) using $websocket.wrapPromiseToPropagateCustomRequestInfoInternal().
+         * 
+         * This is so that the promise that ends up in (3rd party or our own) components and service code - that can then set .requestInfo on it - ends up to be
+         * propagated into the promise that this callService(...) registered in "deferredEvents"; that is where any user set .requestInfo has to end up, because
+         * that is where getCurrentRequestInfo() gets it from. And that is where special code - like foundset listeners also get the current request info from to
+         * return it back to the user (component/service code).   
+         */
         callService<T>(serviceName:string, methodName:string, argsObject, async:boolean): angular.IPromise<T>;
+        /**
+         * IMPORTANT!
+         * 
+         * If the returned value is a promise and if the caller is INTERNAL code that chains more .then() or other methods and returns the new promise
+         * to it's own callers, it MUST to wrap the new promise (returned by that then() for example) using $websocket.wrapPromiseToPropagateCustomRequestInfoInternal().
+         * 
+         * This is so that the promise that ends up in (3rd party or our own) components and service code - that can then set .requestInfo on it - ends up to be
+         * propagated into the promise that this callService(...) registered in "deferredEvents"; that is where any user set .requestInfo has to end up, because
+         * that is where getCurrentRequestInfo() gets it from. And that is where special code - like foundset listeners also get the current request info from to
+         * return it back to the user (component/service code).   
+         */
         callService<T>(serviceName:string, methodName:string, argsObject): angular.IPromise<T>;
         addToCurrentServiceCall(func:()=>void): void;
         getExecutor(formName:string):{on:(beanName:string, eventName:string, property:string, args, rowId:string)=>void};
@@ -181,7 +214,10 @@ declare namespace sablo {
         getPathname(): string,
         setQueryString(queryString: string): void,
         getQueryString(): string,
-        getCurrentRequestInfo(): any
+        getCurrentRequestInfo(): any,
+        
+        
+        wrapPromiseToPropagateCustomRequestInfoInternal(originalPromise: any/*angular.IPromise<any>*/, spawnedPromise: angular.IPromise<any>): angular.IPromise<any>;
     }
     
     interface ISabloDeferHelper {
@@ -386,6 +422,7 @@ declare namespace sablo {
          */
         getPropertyPushToServer(propertyName:string): IPushToServerEnum;
 
+        /** this can return null if no property descriptions needed to be sent to client (no special client side type nor pushToServer) */
         getPropertyDescriptions(): { [propertyName: string]: IPropertyDescription };
         getHandler(handlerName:string): IEventHandler;
         getApiFunction(apiFunctionName:string): IWebObjectFunction;

@@ -7,7 +7,7 @@
 /// <reference path="../../typings/servoy/component.d.ts" />
 /// <reference path="../../typings/servoy/foundset.d.ts" />
 
-angular.module('servoy', ['sabloApp', 'servoyformat', 'servoytooltip', 'servoyfileupload', 'servoyalltemplates', 'ui.bootstrap'])
+angular.module('servoy', ['sabloApp', 'servoyformat', 'servoytooltip', 'servoyfileupload', 'servoyalltemplates', 'ui.bootstrap', 'webSocketModule'])
     .config(["$provide", function($provide) {
         var decorator = function($delegate, $injector) {
             // this call can modify "args" (it converts them to be sent to server)
@@ -21,11 +21,15 @@ angular.module('servoy', ['sabloApp', 'servoyformat', 'servoytooltip', 'servoyfi
                 if (args && args.length) for (var i = 0; i < args.length; i++) {
                     args[i] = $sabloConverters.convertFromClientToServer(args[i], apiSpec?.getArgumentType(i), undefined, undefined, $injector.get("$sabloUtils").PROPERTY_CONTEXT_FOR_OUTGOING_ARGS_AND_RETURN_VALUES);
                 }
-                return $injector.get("$sabloApplication").callService('applicationServerService', 'callServerSideApi', { service: serviceName, methodName: methodName, args: args })
-                    .then(function successCallback(serviceCallResult) {
+
+                const promise = $injector.get("$sabloApplication").callService('applicationServerService', 'callServerSideApi', { service: serviceName, methodName: methodName, args: args });
+
+                return $injector.get("$webSocket").wrapPromiseToPropagateCustomRequestInfoInternal(promise, promise.then(function successCallback(serviceCallResult) {
                         return $sabloConverters.convertFromServerToClient(serviceCallResult, apiSpec?.returnType,
                             undefined, undefined, undefined, null, $injector.get("$sabloUtils").PROPERTY_CONTEXT_FOR_INCOMMING_ARGS_AND_RETURN_VALUES);
-                    }); // in case of a reject/errorCallback we just let it propagete to caller
+                    }));
+
+                    // in case of a reject/errorCallback we just let it propagete to caller
             };
             return $delegate;
         };
@@ -1813,7 +1817,7 @@ angular.module('servoy', ['sabloApp', 'servoyformat', 'servoytooltip', 'servoyfi
                 } else $timeout(fn, 0, doApply); // it could produce flicker, but better then nothing
             }
         }
-    }]).factory("$svyI18NService", ['$sabloApplication', '$q', function($sabloApplication: sablo.ISabloApplication, $q: angular.IQService) {
+    }]).factory("$svyI18NService", ['$sabloApplication', '$q', '$webSocket', function($sabloApplication: sablo.ISabloApplication, $q: angular.IQService, $webSocket: sablo.IWebSocket) {
         var cachedMessages = {};
         var cachedPromises: { [s: string]: { promise?: angular.IPromise<{}>; value?: any } } = {};
         var defaultTranslations = {};
@@ -1834,8 +1838,8 @@ angular.module('servoy', ['sabloApp', 'servoyformat', 'servoytooltip', 'servoyfi
                     }
                 }
                 if (serverKeysCounter > 0) {
-                    var promiseA = $sabloApplication.callService("i18nService", "getI18NMessages", serverKeys, false);
-                    var promiseB = promiseA.then(function(result: any) {
+                    const promise = $sabloApplication.callService("i18nService", "getI18NMessages", serverKeys, false);
+                    return $webSocket.wrapPromiseToPropagateCustomRequestInfoInternal(promise, promise.then(function(result: any) {
                         for (var key in result) {
                             cachedMessages[key] = result[key];
                             retValue[key] = result[key];
@@ -1843,8 +1847,7 @@ angular.module('servoy', ['sabloApp', 'servoyformat', 'servoytooltip', 'servoyfi
                         return retValue;
                     }, function(error) {
                         return $q.reject(error);
-                    });
-                    return promiseB;
+                    }))
                 }
                 else {
                     var defered = $q.defer()
@@ -1855,7 +1858,8 @@ angular.module('servoy', ['sabloApp', 'servoyformat', 'servoytooltip', 'servoyfi
             getI18NMessage: function(key) {
 
                 if (!cachedPromises[key]) {
-                    var promise = $sabloApplication.callService("i18nService", "getI18NMessages", { 0: key }, false).
+                    let promise = $sabloApplication.callService("i18nService", "getI18NMessages", { 0: key }, false);
+                    promise = $webSocket.wrapPromiseToPropagateCustomRequestInfoInternal(promise, promise.
                         then(
                             function(result) {
                                 if (promise['reject']) {
@@ -1875,7 +1879,7 @@ angular.module('servoy', ['sabloApp', 'servoyformat', 'servoytooltip', 'servoyfi
                                 }
                                 return $q.reject(error);
                             }
-                        )
+                        ));
                     cachedPromises[key] = {
                         promise: promise
                     };
