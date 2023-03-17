@@ -405,7 +405,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		}
 		try
 		{
-			refreshFromDB(false);
+			refreshFromDB(false, false);
 		}
 		catch (ServoyException e)
 		{
@@ -416,11 +416,12 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	/**
 	 * browse all part which can be used by subclasses this also acts as refresh and performs the pk query (again) can be called on any thread
 	 *
+	 * @param dropSort
 	 * @param skipStopEdit
 	 */
-	void refreshFromDB(boolean skipStopEdit) throws ServoyException
+	void refreshFromDB(boolean dropSort, boolean skipStopEdit) throws ServoyException
 	{
-		refreshFromDBInternal(null, true, fsm.config.pkChunkSize(), false, skipStopEdit);
+		refreshFromDBInternal(null, dropSort, fsm.config.pkChunkSize(), false, skipStopEdit);
 	}
 
 	/**
@@ -1367,7 +1368,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	 */
 	public boolean js_loadRecords(IDataSet dataset) throws ServoyException
 	{
-		return checkLoadRecordsAllowed(false, false) && loadExternalPKList(dataset);
+		return checkLoadRecordsAllowed(false, false) && loadExternalPKList(dataset, true);
 	}
 
 	/**
@@ -1521,7 +1522,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		List<Column> pkColumns = sheet.getTable() == null ? null : sheet.getTable().getRowIdentColumns();
 		if (pkColumns != null && pkColumns.size() == 1)
 		{
-			return loadExternalPKList(new BufferedDataSet(new String[] { pkColumns.get(0).getName() }, Collections.singletonList(new Object[] { pk })));
+			return loadExternalPKList(new BufferedDataSet(new String[] { pkColumns.get(0).getName() }, Collections.singletonList(new Object[] { pk })), true);
 		}
 
 		return false;
@@ -2454,6 +2455,11 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 	public boolean loadExternalPKList(IDataSet ds) throws ServoyException
 	{
+		return loadExternalPKList(ds, true);
+	}
+
+	public boolean loadExternalPKList(IDataSet ds, boolean dropSort) throws ServoyException
+	{
 		if (sheet.getTable() == null)
 		{
 			fsm.getApplication().reportJSError("couldn't load dataset on a foundset that has no table", null); //$NON-NLS-1$
@@ -2528,7 +2534,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			sqlSelect.getCondition(SQLGenerator.CONDITION_FILTER) != null) && set.getRowCount() > 0)
 		{
 			fireDifference(sizeBefore, sizeAfter, changes);
-			refreshFromDBInternal(null, true, set.getRowCount(), true, false); // some PKs in the set may not be valid for the current filters
+			refreshFromDBInternal(null, dropSort, set.getRowCount(), true, false); // some PKs in the set may not be valid for the current filters
 		}
 		else
 		{
@@ -4936,7 +4942,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 	public boolean showOmitted() throws ServoyException
 	{
 		if (omittedPKs == null) omittedPKs = new BufferedDataSet();
-		boolean b = loadExternalPKList(omittedPKs);
+		boolean b = loadExternalPKList(omittedPKs, false);
 		omittedPKs = null;
 		return b;
 	}
