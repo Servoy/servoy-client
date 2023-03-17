@@ -1866,7 +1866,7 @@ public abstract class BasicFormController
 				{
 					set = (IDataSet)data;
 				}
-				returnValue = ((FoundSet)formModel).loadExternalPKList(set);
+				returnValue = ((FoundSet)formModel).loadExternalPKList(set, true);
 				if (returnValue)
 				{
 					returnValue = setModel(formModel);

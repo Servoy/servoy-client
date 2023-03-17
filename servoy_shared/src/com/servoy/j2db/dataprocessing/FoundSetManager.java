@@ -264,7 +264,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					if (element != null)
 					{
 						element.flushAllCachedRows();
-						refreshFoundSetsFromDB(dataSource, null, false);
+						refreshFoundSetsFromDB(dataSource, null, false, false);
 						fireTableEvent(element.getSQLSheet().getTable());
 					}
 				}
@@ -331,7 +331,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public void refreshFoundSetsFromDB()
 	{
-		refreshFoundSetsFromDB(null, null, false);
+		refreshFoundSetsFromDB(null, null, false, false);
 	}
 
 	/**
@@ -372,7 +372,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	 * @param skipStopEdit If true then stop edit will not be called
 	 * @return affected tables
 	 */
-	private Collection<ITable> refreshFoundSetsFromDB(String dataSource, List<TableFilterdefinition> tableFilterdefinitions, boolean skipStopEdit)
+	private Collection<ITable> refreshFoundSetsFromDB(String dataSource, List<TableFilterdefinition> tableFilterdefinitions, boolean dropSort,
+		boolean skipStopEdit)
 	{
 		Set<ITable> affectedTables = new HashSet<ITable>();
 
@@ -384,7 +385,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				.stream().flatMap(Collection::stream)
 				.filter(FoundSet.class::isInstance)
 				.map(FoundSet.class::cast)
-				.forEach(foundset -> refreshFoundSet(foundset, dataSource, tableFilterdefinitions, skipStopEdit, affectedTables));
+				.forEach(foundset -> refreshFoundSet(foundset, dataSource, tableFilterdefinitions, dropSort, skipStopEdit, affectedTables));
 
 		// Can't just clear substates!! if used in portal then everything is out of sync
 //		if(server_name == null && table_name == null)
@@ -419,7 +420,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return affectedTables;
 	}
 
-	private void refreshFoundSet(FoundSet fs, String dataSource, List<TableFilterdefinition> tableFilterdefinitions, boolean skipStopEdit,
+	private void refreshFoundSet(FoundSet fs, String dataSource, List<TableFilterdefinition> tableFilterdefinitions, boolean dropSort, boolean skipStopEdit,
 		Set<ITable> affectedTables)
 	{
 		try
@@ -431,7 +432,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					fs.getPksAndRecords().setSkipOptimizeChangeFires(true);
 					try
 					{
-						fs.refreshFromDB(skipStopEdit);
+						fs.refreshFromDB(dropSort, skipStopEdit);
 					}
 					finally
 					{
@@ -449,7 +450,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	private Collection<ITable> refreshFoundSetsFromDBforFilterAndGetAffectedTables(String dataSource, List<TableFilterdefinition> tableFilterdefinitions)
 	{
-		Collection<ITable> affectedtableList = refreshFoundSetsFromDB(dataSource, tableFilterdefinitions, false);
+		Collection<ITable> affectedtableList = refreshFoundSetsFromDB(dataSource, tableFilterdefinitions, false, false);
 
 		// also add tables that have listeners but no foundsets
 		for (ITable tableKey : tableListeners.keySet())
@@ -2464,7 +2465,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			getEditRecordList().ignoreSave(true);
 			for (String dataSource : dataSourcesToRefresh)
 			{
-				refreshFoundSetsFromDB(dataSource, null, true);
+				refreshFoundSetsFromDB(dataSource, null, false, true);
 			}
 		}
 		finally
@@ -2627,7 +2628,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				inMemDataSources.put(dataSource, table);
 				fireTableEvent(table);
-				refreshFoundSetsFromDB(dataSource, null, false);
+				refreshFoundSetsFromDB(dataSource, null, true, false);
 				return dataSource;
 			}
 		}
@@ -3053,8 +3054,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	}
 
 	public Object[] insertToDataSource(String name, IDataSet dataSet, ColumnType[] columnTypes, WrappedObjectReference<String[]> pkNames, boolean create,
-		boolean skipOnLoad,
-		String server)
+		boolean skipOnLoad, String server)
 		throws ServoyException
 	{
 		if (name == null)
@@ -3277,7 +3277,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				if (create)
 				{
 					// only refresh when it is a new full load, when adding data to an existing table, it is only applicable to the (shared) foundset
-					refreshFoundSetsFromDB(dataSource, null, false);
+					refreshFoundSetsFromDB(dataSource, null, false, false);
 				}
 				return insertResult.getGeneratedPks();
 			}
