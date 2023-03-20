@@ -6,11 +6,11 @@ angular.module('dialogs',['servoy'])
 		 *
 		 * @example
 		 * //show dialog
-		 * var thePressedButton = plugins.dialogs.showErrorDialog('Title', 'Value not allowed','OK');
+		 * var thePressedButton = plugins.dialogs.showErrorDialog('Title', 'Value not allowed','OK', 'Cancel');
 		 *
 		 * @param dialogTitle Dialog title.
 		 * @param dialogMessage Dialog message.
-		 * @param buttonsText Array of button texts.
+		 * @param buttonsText variable arguments of button texts..
 		 * 
 		 * @return {string} pressed button or null if closed by escape key
 		 */
@@ -22,11 +22,11 @@ angular.module('dialogs',['servoy'])
 		 *
 		 * @example
 		 * //show dialog
-		 * var thePressedButton = plugins.dialogs.showInfoDialog('Title', 'Value not allowed','OK');
+		 * var thePressedButton = plugins.dialogs.showInfoDialog('Title', 'Value not allowed','OK', 'Cancel');
 		 *
 		 * @param dialogTitle Dialog title.
 		 * @param dialogMessage Dialog message.
-		 * @param buttonsText Array of button texts.
+		 * @param buttonsText variable arguments of button texts..
 		 */
 		showInfoDialog: function(dialogTitle,dialogMessage,buttonsText) {
 			return this.showDialog(dialogTitle,dialogMessage,buttonsText,'type-info');
@@ -36,11 +36,11 @@ angular.module('dialogs',['servoy'])
 		 *
 		 * @example
 		 * //show dialog
-		 * var thePressedButton = plugins.dialogs.showQuestionDialog('Title', 'Value not allowed','OK');
+		 * var thePressedButton = plugins.dialogs.showQuestionDialog('Title', 'Value not allowed','OK', 'Cancel');
 		 *
 		 * @param dialogTitle Dialog title.
 		 * @param dialogMessage Dialog message.
-		 * @param buttonsText Array of button texts.
+		 * @param buttonsText variable arguments of button texts..
 		 * 
 		 * @return {String}
 		 */

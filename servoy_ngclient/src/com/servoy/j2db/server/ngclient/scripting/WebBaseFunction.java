@@ -17,10 +17,16 @@
 
 package com.servoy.j2db.server.ngclient.scripting;
 
+import java.util.List;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.sablo.IWebObjectContext;
+import org.sablo.specification.IFunctionParameters;
 import org.sablo.specification.WebObjectFunctionDefinition;
+
+import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 
 /**
  * Base Javascript function to call a client-side function.
@@ -37,6 +43,31 @@ public abstract class WebBaseFunction implements Function
 	public WebBaseFunction(WebObjectFunctionDefinition definition)
 	{
 		this.definition = definition;
+	}
+
+	protected Object[] convertArguments(Object[] arguments, IWebObjectContext webObjectContext)
+	{
+		var args = arguments;
+		if (args != null && args.length > 0)
+		{
+			IFunctionParameters parameterTypes = definition.getParameters();
+
+			if (args.length == parameterTypes.getDefinedArgsCount() && parameterTypes.isVarArgs() && args[args.length - 1] instanceof List)
+			{
+				// this is a varargs method, but last argument is given like an Array.
+				// spread this array first as if it was a varargs in the arguments array, appending the param array into the arguments directly
+				List< ? > varArgsArray = (List< ? >)args[args.length - 1];
+				args = new Object[args.length + varArgsArray.size() - 1];
+				System.arraycopy(arguments, 0, args, 0, arguments.length - 1);
+				System.arraycopy(varArgsArray.toArray(), 0, args, arguments.length - 1, varArgsArray.size());
+			}
+			for (int i = 0; i < args.length; i++)
+			{
+				args[i] = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(args[i], null, parameterTypes.getParameterDefinitionTreatVarArgs(i),
+					webObjectContext);
+			}
+		}
+		return args;
 	}
 
 	@Override
