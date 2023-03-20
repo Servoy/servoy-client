@@ -22,7 +22,6 @@ import java.io.IOException;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IWebObjectContext;
-import org.sablo.specification.IFunctionParameters;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.websocket.IWebsocketSession;
@@ -48,17 +47,9 @@ public class WebServiceFunction extends WebBaseFunction
 	}
 
 	@Override
-	public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+	public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] arguments)
 	{
-		if (args != null && args.length > 0)
-		{
-			IFunctionParameters parameterTypes = definition.getParameters();
-			for (int i = 0; i < args.length; i++)
-			{
-				args[i] = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(args[i], null, parameterTypes.getParameterDefinitionTreatVarArgs(i),
-					(IWebObjectContext)session.getClientService(serviceName));
-			}
-		}
+		Object[] args = convertArguments(arguments, (IWebObjectContext)session.getClientService(serviceName));
 		try
 		{
 			PropertyDescription retPD = definition != null ? definition.getReturnType() : null;
