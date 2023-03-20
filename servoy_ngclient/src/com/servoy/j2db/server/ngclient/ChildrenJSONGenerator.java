@@ -47,6 +47,7 @@ import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.CSSPositionLayoutContainer;
 import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.FlattenedForm;
+import com.servoy.j2db.persistence.FlattenedLayoutContainer;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
@@ -256,11 +257,17 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.object();
 			LayoutContainer layoutContainer = (LayoutContainer)o;
 
+			if (layoutContainer instanceof FlattenedLayoutContainer)
+			{
+				layoutContainer = ((FlattenedLayoutContainer)layoutContainer).getWrappedPersist();
+			}
+
 			writeLayoutContainer(writer, layoutContainer, formUI, form, designer);
 
 			writer.key("children");
 			writer.array();
-			o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer), PositionComparator.XY_PERSIST_COMPARATOR);
+			o.acceptVisitor(new ChildrenJSONGenerator(writer, context, o, cache, null, this.form, false, designer),
+				PositionComparator.XY_PERSIST_COMPARATOR);
 			writer.endArray();
 			writer.endObject();
 			return IPersistVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;

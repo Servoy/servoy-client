@@ -2178,6 +2178,8 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		Object customProperty = getCustomProperty(new String[] { "layout", "responsive" });
 		if (customProperty instanceof Boolean) return ((Boolean)customProperty).booleanValue();
 		if (getExtendsForm() != null && getExtendsForm().isResponsiveLayout()) return true;
+		// if parent cssForm return false
+		if (getExtendsForm() != null && !getExtendsForm().isResponsiveLayout()) return false;
 		// backwards, always just return true if it has layout containers.
 		return getLayoutContainers().hasNext();
 	}
