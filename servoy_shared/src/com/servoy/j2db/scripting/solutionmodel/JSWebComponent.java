@@ -23,6 +23,7 @@ import org.json.JSONObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
@@ -328,8 +329,9 @@ public class JSWebComponent extends JSComponent<WebComponent> implements IJavaSc
 			}
 			else
 			{
-				String stringified = (String)ScriptableObject.callMethod(cx, (Scriptable)topLevelScope.get("JSON", topLevelScope), "stringify",
+				Object stringified = ScriptableObject.callMethod(cx, (Scriptable)topLevelScope.get("JSON", topLevelScope), "stringify",
 					new Object[] { value });
+				if (Undefined.isUndefined(stringified)) return JSONObject.NULL;
 				value = new JSONObject("{ \"a\" : " + stringified + " }").get("a");
 			}
 		}
