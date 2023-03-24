@@ -180,7 +180,7 @@ public class ServoyApiObject
 					parentFormController.getFormUI().getDataAdapterList().addVisibleChildForm(formController, relationName, true);
 					if (component != null)
 					{
-						component.updateVisibleForm(parentFormController.getFormUI(), true, 0);
+						component.updateVisibleForm(formController.getFormUI(), true, 0);
 					}
 				}
 
