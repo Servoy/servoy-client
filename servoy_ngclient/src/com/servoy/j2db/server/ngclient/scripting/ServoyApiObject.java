@@ -147,6 +147,22 @@ public class ServoyApiObject
 	 * servoyApi.showForm(formToHideName)
 	 *
 	 * @param nameOrUUID the form to show
+	 * @return true if the form was marked as visible
+	 */
+	@JSFunction
+	public boolean showForm(String nameOrUUID)
+	{
+		return this.showForm(nameOrUUID, null);
+	}
+
+	/**
+	 * Show a form directly on the server for instance when a tab will change on the client, so it won't need to do a round trip
+	 * for showing the form through the browser's component.
+	 *
+	 * @sample
+	 * servoyApi.showForm(formToHideName)
+	 *
+	 * @param nameOrUUID the form to show
 	 * @param relationName the parent container
 	 * @return true if the form was marked as visible
 	 */
@@ -189,6 +205,7 @@ public class ServoyApiObject
 
 			if (ret)
 			{
+				NGClientWindow.getCurrentWindow().registerAllowedForm(formName, this.component.getFormElement());
 				NGClientWindow.getCurrentWindow().touchForm(app.getFlattenedSolution().getFlattenedForm(form), formName, true, true);
 			}
 			return ret;
