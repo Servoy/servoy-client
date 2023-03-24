@@ -18,28 +18,29 @@ package com.servoy.j2db.dataprocessing;
 
 import java.util.List;
 
+import com.servoy.j2db.persistence.Column;
+
 /**
  * @author jcompagner
  *
  */
 public class RowUpdateInfo
 {
-
 	private final SQLStatement statement;
-	private final List dbPKReturnValues;
-	private final List aggregatesToRemove;
+	private final List<Column> dbPKReturnValues;
+	private final List<String> aggregatesToRemove;
 	private final Row row;
 	private Record record;
 
 	/**
-	 * @param row 
-	 * @param src 
+	 * @param row
+	 * @param src
 	 * @param statement
 	 * @param mustRequeryRow
 	 * @param dbPKReturnValues
 	 * @param aggregatesToRemove
 	 */
-	public RowUpdateInfo(Row row, SQLStatement statement, List dbPKReturnValues, List aggregatesToRemove)
+	public RowUpdateInfo(Row row, SQLStatement statement, List<Column> dbPKReturnValues, List<String> aggregatesToRemove)
 	{
 		this.row = row;
 		this.statement = statement;
@@ -66,7 +67,7 @@ public class RowUpdateInfo
 	/**
 	 * @return Returns the aggregatesToRemove.
 	 */
-	public List getAggregatesToRemove()
+	public List<String> getAggregatesToRemove()
 	{
 		return this.aggregatesToRemove;
 	}
@@ -74,7 +75,7 @@ public class RowUpdateInfo
 	/**
 	 * @return
 	 */
-	public List getPkReturnValues()
+	public List<Column> getPkReturnValues()
 	{
 		return dbPKReturnValues;
 	}
