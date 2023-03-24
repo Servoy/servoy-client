@@ -31,6 +31,7 @@ import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONFOU
 import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONSEARCHMETHODID;
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
 import static com.servoy.j2db.query.ColumnType.getColumnTypes;
+import static com.servoy.j2db.util.Debug.isDebugEnabled;
 import static com.servoy.j2db.util.Utils.iterate;
 import static com.servoy.j2db.util.Utils.stream;
 import static java.util.Arrays.asList;
@@ -4691,9 +4692,13 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 							QuerySelect relatedQuery = fsm.getRelatedFoundSetQuery(state, relation);
 							if (relatedQuery == null)
 							{
-								// Should never happen
-								Debug.error(
-									"Could not get related foundset query for relation '" + relationName + "' from record '" + state.getPKHashKey() + "'");
+								// This can happen when the relation has null columns
+								if (isDebugEnabled())
+								{
+									Debug.debug(
+										"Foundset not loaded but relation args are null, falling back to loading the relation to check existence of related records for relation '" +
+											relation.getName() + "' from record '" + state.getPKHashKey() + "' in datasource '" + getDataSource() + "'");
+								}
 								IFoundSetInternal set = state.getRelatedFoundSet(relation.getName());
 								hasRelatedRecords = set != null && set.getSize() > 0;
 							}
