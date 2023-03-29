@@ -184,7 +184,7 @@ public class String
 	/**
 	 * @clonedesc js_endsWith(String)
 	 * @sampleas js_endsWith(String)
-	 * 
+	 *
 	 * @param searchString The characters to be searched for at the end of str.
 	 * @param length If provided, it is used as the length of str. Defaults to str.length.
 	 *
@@ -437,6 +437,7 @@ public class String
 	 *
 	 * @param targetLength The length of the resulting string once the current str has been padded. If the value is less than or equal to str.length, then str is returned as-is.
 	 *
+	 * @return A String of the specified targetLength with spaces applied from the start.
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
 	 */
 	public String js_padStart(int targetLength)
@@ -452,6 +453,7 @@ public class String
 	 * @param targetLength The length of the resulting string once the current str has been padded. If the value is less than or equal to str.length, then str is returned as-is.
 	 * @param padString The string to pad the current str with. If padString is too long to stay within the targetLength, it will be truncated from the end. The default value is the unicode "space" character (U+0020).
 	 *
+	 * @return A String of the specified targetLength with padString applied from the start.
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
 	 */
 	public String js_padStart(int targetLength, String padString)
@@ -467,6 +469,7 @@ public class String
 	 *
 	 * @param targetLength The length of the resulting string once the current str has been padded. If the value is less than or equal to str.length, then str is returned as-is.
 	 *
+	 * @return A String of the specified targetLength with spaces applied at the end of the current str.
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padEnd
 	 */
 	public String js_padEnd(int targetLength)
@@ -482,6 +485,7 @@ public class String
 	 * @param targetLength The length of the resulting string once the current str has been padded. If the value is less than or equal to str.length, then str is returned as-is.
 	 * @param padString The string to pad the current str with. If padString is too long to stay within the targetLength, it will be truncated from the end. The default value is the unicode "space" character (U+0020).
 	 *
+	 * @return A String of the specified targetLength with the padString applied at the end of the current str.
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padEnd
 	 */
 	public String js_padEnd(int targetLength, String padString)
