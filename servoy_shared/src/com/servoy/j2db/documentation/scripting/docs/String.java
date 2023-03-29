@@ -29,6 +29,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 @ServoyClientSupport(mc = true, wc = true, sc = true, ng = true)
 public class String
 {
+
 	/**
 	 * Gives the length of the string.
 	 *
@@ -259,19 +260,43 @@ public class String
 	}
 
 	/**
-	 * returns a string created by using the specified sequence of Unicode values.
+	 * Static method that returns a string created from the specified sequence of UTF-16 code units.
 	 *
 	 * @sample
-	 * String.fromCharCode(num)
-	 * // String.fromCharCode(num1,num2,num3)
+	 * String.fromCharCode(0x2014); // returns "—"
+	 * String.fromCharCode(65, 66, 67); // returns "ABC"
 	 *
-	 * @return
+	 * @return A string of length N consisting of the N specified UTF-16 code units.
 	 *
-	 * @param num
+	 * @param num A sequence of numbers that are UTF-16 code units. The range is between 0 and 65535 (0xFFFF). Numbers greater than 0xFFFF are truncated. No validity checks are performed.
 	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/fromCharCode
 	 */
 	public String js_fromCharCode(Number... num)
+	{
+		return null;
+	}
+
+	/**
+	 * Static method that returns a string created by using the specified sequence of code points.
+	 *
+	 * String.fromCharCode() cannot return supplementary characters (i.e. code points 0x010000 – 0x10FFFF) by specifying their code point. Instead, it requires the UTF-16 surrogate pair for that. String.fromCodePoint(), on the other hand, can return 4-byte supplementary characters, as well as the more common 2-byte BMP characters, by specifying their code point (which is equivalent to the UTF-32 code unit).
+	 *
+	 * @sample
+	 * String.fromCodePoint(42); // "*"
+	 * String.fromCodePoint(65, 90); // "AZ"
+	 * String.fromCodePoint(0x2f804); // "\uD87E\uDC04"
+	 * String.fromCodePoint(-1); // RangeError
+	 * String.fromCodePoint(3.14); // RangeError
+	 *
+	 * @return A string created by using the specified sequence of code points.
+	 *
+	 * @param num A sequence of code points.
+	 * @throws RangeError is thrown if an invalid Unicode code point is given (e.g. "RangeError: NaN is not a valid code point").
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/fromCodePoint
+	 */
+	public String js_fromCodePoint(Number... num)
 	{
 		return null;
 	}
@@ -405,9 +430,10 @@ public class String
 	}
 
 	/**
-	 *  The padStart() method pads the current string with another string (multiple times, if needed) until the resulting string reaches the given length. The padding is applied from the start of the current string.
+	 * The padStart() method pads the current string with another string (multiple times, if needed) until the resulting string reaches the given length. The padding is applied from the start of the current string.
+	 * The default value used for padding is the unicode "space" character (U+0020) - if no padString argument is used.
 	 *
-	 * @sample string.padStart(10, '*');
+	 * @sample string.padStart(10);
 	 *
 	 * @param targetLength The length of the resulting string once the current str has been padded. If the value is less than or equal to str.length, then str is returned as-is.
 	 *
@@ -419,7 +445,7 @@ public class String
 	}
 
 	/**
-	 *  The padStart() method pads the current string with another string (multiple times, if needed) until the resulting string reaches the given length. The padding is applied from the start of the current string.
+	 * The padStart() method pads the current string with another string (multiple times, if needed) until the resulting string reaches the given length. The padding is applied from the start of the current string.
 	 *
 	 * @sample string.padStart(10, '*');
 	 *
@@ -434,7 +460,8 @@ public class String
 	}
 
 	/**
-	 *  The padEnd() method pads the current string with a given string (repeated, if needed) so that the resulting string reaches a given length. The padding is applied from the end of the current string.
+	 * The padEnd() method pads the current string with a given string (repeated, if needed) so that the resulting string reaches a given length. The padding is applied from the end of the current string.
+	 * The default value used for padding is the unicode "space" character (U+0020) - if no padString argument is used.
 	 *
 	 * @sample string.padEnd(10, '*');
 	 *
@@ -448,7 +475,7 @@ public class String
 	}
 
 	/**
-	 *  The padEnd() method pads the current string with a given string (repeated, if needed) so that the resulting string reaches a given length. The padding is applied from the end of the current string.
+	 * The padEnd() method pads the current string with a given string (repeated, if needed) so that the resulting string reaches a given length. The padding is applied from the end of the current string.
 	 *
 	 * @sample string.padEnd(10, '*');
 	 *
@@ -475,7 +502,7 @@ public class String
 	}
 
 	/**
-	 *  Removes whitespace from the beginning of a string and returns a new string, without modifying the original string
+	 * Removes whitespace from the beginning of a string and returns a new string, without modifying the original string.
 	 *
 	 * @sample string.trimStart();
 	 *
@@ -487,7 +514,7 @@ public class String
 	}
 
 	/**
-	 *  Removes whitespace from the ending of a string and returns a new string, without modifying the original string
+	 * Removes whitespace from the ending of a string and returns a new string, without modifying the original string.
 	 *
 	 * @sample string.trimEnd();
 	 *
@@ -687,7 +714,7 @@ public class String
 	/**
 	 * Determines whether a string begins with the characters of a specified string, returning true or false as appropriate.
 	 *
-	 *@sample
+	 * @sample
 	 *  var str1 = 'Cats are the best!';
 	 *  application.output(str1.startsWith('Cats'));
 	 *
@@ -701,9 +728,9 @@ public class String
 	}
 
 	/**
-	* @clonedesc js_startsWith(String)
-	* @sampleas js_startsWith(String)
-
+	 * @clonedesc js_startsWith(String)
+	 * @sampleas js_startsWith(String)
+	 * 
 	 * @param searchString The characters to be searched for at the start of this string.
 	 * @param position The position in this string at which to begin searching for searchString. Defaults to 0.
 	 *
