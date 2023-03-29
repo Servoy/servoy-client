@@ -1,5 +1,5 @@
-/* VERSION: 2022.3.0 */
-@import 'servoy_theme_properties.less?version=2022.3.0';
+/* VERSION: 2023.3.0 */
+@import 'servoy_theme_properties.less?version=2023.3.0';
 
 /* 12 Grid margin reset */
 div:not(.container):not(.container-fluid):not([class^="col-xs-"]):not([class^="col-sm-"]):not([class^="col-md-"]):not([class^="col-lg-"]) > .row {
@@ -32,6 +32,7 @@ html, body {
 .svy-form {
     background-color: @body-bg;
 }
+
 .svy-form-inverse {
     background-color: @body-bg-inverse;
 }
@@ -332,6 +333,7 @@ fieldset[disabled] input[type="checkbox"] + span:before {
 .bts-calendar input {
     border: 0;
 }
+
 /* Input Groups *
 .input-group .input-group-addon {
     background-color: @field-addon-bg;
@@ -345,6 +347,7 @@ fieldset[disabled] input[type="checkbox"] + span:before {
          -o-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
             transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
 }
+
 .svy-field:focus ~ .input-group-addon,
 .svy-textarea:focus ~ .input-group-addon, .bts-textarea:focus ~ .input-group-addon,
 .svy-textfield:focus ~ .input-group-addon, .bts-textbox:focus ~ .input-group-addon,
@@ -354,6 +357,7 @@ fieldset[disabled] input[type="checkbox"] + span:before {
 .bts-calendar input:focus ~ .input-group-addon  {
     border-color: @main-color;
 }
+
 .svy-field:focus ~ .input-group-addon,
 .svy-textarea:focus ~ .input-group-addon, .bts-textarea:focus ~ .input-group-addon,
 .svy-textfield:focus ~ .input-group-addon, .bts-textbox:focus ~ .input-group-addon,
@@ -363,6 +367,7 @@ fieldset[disabled] input[type="checkbox"] + span:before {
 .bts-calendar input:focus ~ .input-group-addon  {
     border-color: @main-color;
 }
+
 .svy-calendar input,
 .bts-calendar input,
 .table .input-group .input-group-addon {
@@ -1375,7 +1380,6 @@ data-servoyextra-fontawesome > div {
 .ag-table.ag-theme-servoy .ag-body-viewport .ag-row-group,
 .ag-table.ag-theme-servoy .ag-body-viewport .ag-cell-value,
 .ag-table.ag-theme-servoy .ag-body-viewport .ag-group-value {
-    line-height: @ngtable-cell-value-line-height;
     display: flex;
     align-items: center;
     /* white-space: normal; */
@@ -1480,9 +1484,11 @@ data-servoyextra-fontawesome > div {
     height: auto;
     width: auto;
 }
+
 .ag-theme-servoy .ag-icon-checkbox-checked:before {
     content: "\e067";
 }
+
 .ag-theme-servoy .ag-icon-checkbox-unchecked {
     font-family: 'Glyphicons Halflings';
     letter-spacing: 5px;
@@ -1493,9 +1499,11 @@ data-servoyextra-fontawesome > div {
     height: auto;
     width: auto;
 }
+
 .ag-theme-servoy .ag-icon-checkbox-unchecked:before {
     content: "\e157";
 }
+
 .ag-theme-servoy .ag-icon-checkbox-indeterminate {
     font-family: 'Glyphicons Halflings';
     letter-spacing: 5px;
@@ -1506,6 +1514,7 @@ data-servoyextra-fontawesome > div {
     height: auto;
     width: auto;
 }
+
 .ag-theme-servoy .ag-icon-checkbox-indeterminate:before {
     content: "\e157";
 } */
@@ -1545,7 +1554,7 @@ data-servoyextra-fontawesome > div {
     background-color: @ngtable-row-group-bg-level-0;
 }
 
-.ag-table.ag-theme-servoy .ag-row-group > .ag-cell {
+.ag-table.ag-theme-servoy .ag-cell-wrapper.ag-row-group {
     font-weight: @ngtable-row-group-cell-font-weight;
 }
 
