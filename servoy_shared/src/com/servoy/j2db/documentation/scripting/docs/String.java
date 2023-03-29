@@ -182,9 +182,9 @@ public class String
 	}
 
 	/**
-	* @clonedesc js_endsWith(String)
-	* @sampleas js_endsWith(String)
-
+	 * @clonedesc js_endsWith(String)
+	 * @sampleas js_endsWith(String)
+	 * 
 	 * @param searchString The characters to be searched for at the end of str.
 	 * @param length If provided, it is used as the length of str. Defaults to str.length.
 	 *
@@ -279,8 +279,9 @@ public class String
 
 	/**
 	 * Static method that returns a string created by using the specified sequence of code points.
-	 *
 	 * String.fromCharCode() cannot return supplementary characters (i.e. code points 0x010000 – 0x10FFFF) by specifying their code point. Instead, it requires the UTF-16 surrogate pair for that. String.fromCodePoint(), on the other hand, can return 4-byte supplementary characters, as well as the more common 2-byte BMP characters, by specifying their code point (which is equivalent to the UTF-32 code unit).
+	 *
+	 * RangeError is thrown if an invalid Unicode code point is given (e.g. "RangeError: NaN is not a valid code point").
 	 *
 	 * @sample
 	 * String.fromCodePoint(42); // "*"
@@ -292,7 +293,6 @@ public class String
 	 * @return A string created by using the specified sequence of code points.
 	 *
 	 * @param num A sequence of code points.
-	 * @throws RangeError is thrown if an invalid Unicode code point is given (e.g. "RangeError: NaN is not a valid code point").
 	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/fromCodePoint
 	 */
@@ -730,7 +730,7 @@ public class String
 	/**
 	 * @clonedesc js_startsWith(String)
 	 * @sampleas js_startsWith(String)
-	 * 
+	 *
 	 * @param searchString The characters to be searched for at the start of this string.
 	 * @param position The position in this string at which to begin searching for searchString. Defaults to 0.
 	 *
