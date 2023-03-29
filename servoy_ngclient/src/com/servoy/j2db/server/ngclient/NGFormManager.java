@@ -574,8 +574,8 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 	@Override
 	public IFormController showFormInCurrentContainer(String formName)
 	{
-		IBasicMainContainer currentContainer = getCurrentContainer();
-		return showFormInContainer(formName, currentContainer, null, false, currentContainer.getContainerName());
+		NGRuntimeWindow currentContainer = getCurrentContainer();
+		return showFormInContainer(formName, currentContainer, currentContainer.getTitle(), false, currentContainer.getContainerName());
 	}
 
 	@Override
@@ -639,7 +639,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 	}
 
 	@Override
-	public IBasicMainContainer getCurrentContainer()
+	public NGRuntimeWindow getCurrentContainer()
 	{
 		return ((INGApplication)application).getRuntimeWindowManager().getCurrentWindow();
 	}
@@ -674,7 +674,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 	{
 		// main containers should be the once without a parent  (so tabs in browser but no dialogs)
 		// so setTitle should also just set it on the current main window of the active endpoint
-		return ((NGRuntimeWindow)getCurrentContainer()).getParent() == null;
+		return getCurrentContainer().getParent() == null;
 	}
 
 	@Override

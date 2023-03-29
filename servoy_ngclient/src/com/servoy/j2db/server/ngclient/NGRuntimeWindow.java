@@ -295,11 +295,20 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			}
 
 			titleString = getApplication().getI18NMessageIfPrefixed(titleString);
+			IWebFormController formController = getController();
+			if (formController != null)
+			{
+				titleString = Text.processTags(titleString, formController.getFormUI().getDataAdapterList());
+			}
+			else
+			{
+				titleString = Text.processTags(titleString, TagResolver.createResolver(new PrototypeState(null)));
+			}
 
 			if (title != null && !title.trim().equals("") && !"<empty>".equals(title) && title != null) //$NON-NLS-1$ //$NON-NLS-2$
 			{
 				String nameString = getApplication().getI18NMessageIfPrefixed(title);
-				IWebFormController formController = getController();
+
 				if (formController != null)
 				{
 					String name2 = Text.processTags(nameString, formController.getFormUI().getDataAdapterList());
