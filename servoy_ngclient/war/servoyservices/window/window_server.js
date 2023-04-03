@@ -256,7 +256,7 @@ var Menu = {
 		} 
 		else if (x == undefined && y == undefined) 
 		{//show(component) or show(event)
-		   if (typeof component.getSource=== "function") {
+		   if (component instanceof JSEvent) {
                component = component.getSource();
            } 
 			command.elementId = component.svyMarkupId;
