@@ -41,7 +41,14 @@ var MenuItem = {
 	
 	setIcon: function(icon)
 	{
-		this.icon = icon;
+        if (icon && icon.slice(0, 2) === "fa")
+        {
+            this.fa_icon = icon;
+        }
+        else
+        {
+            this.icon = icon;
+        }   
 	},
 	
 	setMnemonic: function(mnemonic)
@@ -249,6 +256,9 @@ var Menu = {
 		} 
 		else if (x == undefined && y == undefined) 
 		{//show(component) or show(event)
+		   if (typeof component.getSource=== "function") {
+               component = component.getSource();
+           } 
 			command.elementId = component.svyMarkupId;
 			command.height = component.height;
 			command.positionTop = false;
@@ -294,7 +304,14 @@ var Menu = {
 	
 	setIcon: function(icon)
 	{
-		this.icon = icon;
+	  if (icon && icon.slice(0, 2) === "fa")
+        {
+            this.fa_icon = icon;
+        }
+        else
+        {
+            this.icon = icon;
+        }   
 	},
 	
 	setMnemonic: function(mnemonic)

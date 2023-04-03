@@ -2431,13 +2431,13 @@ data-servoyextra-fontawesome > div {
 }
 
 .yuimenuitemlabel,
-.svy-popup-menu > li > a.dropdown-item {
+.svy-popup-menu > li > a.dropdown-item:not(.disabled) {
     color: @text-color;
 }
 
 .yuimenuitemlabel a:hover, .yuimenuitemlabel a:focus,
 .svy-popup-menu > li > a.dropdown-item:focus,
-.svy-popup-menu > li > a.dropdown-item:hover {
+.svy-popup-menu > li > a.dropdown-item:has(a):hover {
     color: @text-color;
 }
 
