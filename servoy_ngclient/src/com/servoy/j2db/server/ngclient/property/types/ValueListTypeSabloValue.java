@@ -129,6 +129,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	private boolean valuesRequested;
 	private boolean realAreDates;
 
+	private boolean filterOnRealValues = false;
+	private boolean filterWithContains = false;
 	// dataset of the runtime set custom valuelist
 	private Object customValueListDataSet;
 
@@ -185,6 +187,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			webObjectContext.addPropertyChangeListener(propertyDependencies.dataproviderPropertyName, this);
 		if (propertyDependencies.foundsetPropertyName != null) webObjectContext.addPropertyChangeListener(propertyDependencies.foundsetPropertyName, this);
 		if (propertyDependencies.formatPropertyName != null) webObjectContext.addPropertyChangeListener(propertyDependencies.formatPropertyName, this);
+		if (propertyDependencies.configPropertyName != null) webObjectContext.addPropertyChangeListener(propertyDependencies.configPropertyName, this);
 
 		initializeIfPossibleAndNeeded(); // adds more listeners if needed (for example for underlying sablo value of a foundset linked value)
 	}
@@ -240,6 +243,13 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			newFormatString = ((componentFormat != null && componentFormat.parsedFormat != null) ? componentFormat.parsedFormat.getFormatString() : null);
 
 			if (formatSabloValue != null) formatSabloValue.addStateChangeListener(this); // this won't add it twice if it's already added (see javadoc of this call)
+		}
+		if (propertyDependencies.configPropertyName != null)
+		{
+			ValuelistConfigTypeSabloValue configSabloValue = ((ValuelistConfigTypeSabloValue)webObjectContext
+				.getProperty(propertyDependencies.configPropertyName));
+			this.filterOnRealValues = configSabloValue.useFilterOnRealValues();
+			this.filterWithContains = configSabloValue.useFilterWithContains();
 		}
 		if (propertyDependencies.dataproviderPropertyName != null)
 		{
@@ -514,7 +524,12 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			Object formatPropertyValue = webObjectContext.getProperty(propertyDependencies.formatPropertyName);
 			if (formatPropertyValue instanceof IHasUnderlyingState) ((IHasUnderlyingState)formatPropertyValue).removeStateChangeListener(this);
 		}
-
+		if (propertyDependencies.configPropertyName != null)
+		{
+			webObjectContext.removePropertyChangeListener(propertyDependencies.configPropertyName, this);
+			Object configPropertyValue = webObjectContext.getProperty(propertyDependencies.configPropertyName);
+			if (configPropertyValue instanceof IHasUnderlyingState) ((IHasUnderlyingState)configPropertyValue).removeStateChangeListener(this);
+		}
 		changeMonitor.setChangeNotifier(null);
 		webObjectContext = null;
 	}
@@ -704,8 +719,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 						useContains = Utils.getAsBoolean(legacy.getClientProperty(IApplication.VALUELIST_CONTAINS_SEARCH, legacy));
 					}
 				}
-				if (useContains && filterString != null) filterString = '%' + filterString;
-				filteredValuelist.fill(dataAdapterListToUse.getRecord(), dataproviderID, filterString, realValue, false);
+				if ((useContains || filterWithContains) && filterString != null) filterString = '%' + filterString;
+				filteredValuelist.fill(dataAdapterListToUse.getRecord(), dataproviderID, filterString, realValue, false, filterOnRealValues);
 				changeMonitor.notifyOfChange(); // in case fill really somehow did not result in the filteredValuelist listener doing a notify
 
 				valueList.addListDataListener(this);

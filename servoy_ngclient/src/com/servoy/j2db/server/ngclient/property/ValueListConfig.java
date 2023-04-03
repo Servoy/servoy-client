@@ -27,12 +27,13 @@ import com.servoy.j2db.util.Utils;
 public class ValueListConfig
 {
 	private final String dataprovider;
+	private final String configPropertyName;
 	private final String defaultValue;
 	private final int maxCount;
 	private final boolean logMax;
 	boolean lazyLoading = false;
 
-	public ValueListConfig(String dataprovider, String def, int maxCount, boolean logMax, boolean lazyLoading)
+	public ValueListConfig(String dataprovider, String def, int maxCount, boolean logMax, boolean lazyLoading, String configPropertyName)
 	{
 		super();
 		this.dataprovider = dataprovider;
@@ -40,6 +41,7 @@ public class ValueListConfig
 		this.maxCount = maxCount;
 		this.logMax = logMax;
 		this.lazyLoading = lazyLoading;
+		this.configPropertyName = configPropertyName;
 	}
 
 
@@ -72,4 +74,11 @@ public class ValueListConfig
 		return lazyLoading;
 	}
 
+	/**
+	 * @return the configPropertyName
+	 */
+	public String getConfigPropertyName()
+	{
+		return configPropertyName;
+	}
 }

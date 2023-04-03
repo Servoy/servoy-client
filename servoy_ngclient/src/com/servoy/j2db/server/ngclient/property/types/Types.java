@@ -127,5 +127,6 @@ public class Types
 
 		TypesRegistry.addType(DbIdentPropertyType.INSTANCE);
 		TypesRegistry.addType(DynamicClientFunctionPropertyType.INSTANCE);
+		TypesRegistry.addType(ValuelistConfigPropertyType.INSTANCE);
 	}
 }
