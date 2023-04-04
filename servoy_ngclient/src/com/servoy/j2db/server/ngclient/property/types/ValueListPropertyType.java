@@ -52,7 +52,6 @@ import com.servoy.j2db.scripting.solutionmodel.JSValueList;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElementContext;
-import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
@@ -60,7 +59,6 @@ import com.servoy.j2db.server.ngclient.component.RhinoConversion;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedPropertyType;
-import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.ICanBeLinkedToFoundset;
 import com.servoy.j2db.server.ngclient.property.NGComponentDALContext;
 import com.servoy.j2db.server.ngclient.property.ValueListConfig;
@@ -346,18 +344,8 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	{
 		if (valuelistId == null) return null;
 		ValuelistPropertyDependencies propertyDependencies = getDependenciesToOtherProperties(pd, webObjectContext);
-		IDataAdapterList dal = null;
-		if (propertyDependencies.foundsetPropertyName != null)
-		{
-			Object foundsetPropertySabloValue = webObjectContext.getProperty(propertyDependencies.foundsetPropertyName);
 
-			if (foundsetPropertySabloValue instanceof FoundsetTypeSabloValue)
-			{
-				dal = ((FoundsetTypeSabloValue)foundsetPropertySabloValue).getDataAdapterList();
-			}
-		}
-		if (dal == null) dal = NGComponentDALContext.getDataAdapterList(webObjectContext);
-		return new ValueListTypeSabloValue(valuelistId, pd, propertyDependencies, false, false, dal);
+		return new ValueListTypeSabloValue(valuelistId, pd, propertyDependencies, false, false, NGComponentDALContext.getDataAdapterList(webObjectContext));
 		// above both waitForDataproviderIfNull and waitForFormatIfNull are false because while in 'from Rhino' conversion, at this point, even if one would for example
 		// set a full custom object that contains this property with dependencies to other properties in that custom object - we don't know the order in which the other properties are set
 		// so we can check them; but that is not a problem because nothing is attached yet in this case (those flags are only used in attachToBaseObject) and when attach will be called, all
