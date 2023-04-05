@@ -75,6 +75,7 @@ import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.IHasUnderlyingState;
+import com.servoy.j2db.server.ngclient.property.NGComponentDALContext;
 import com.servoy.j2db.server.ngclient.property.ValueListConfig;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType.ValuelistPropertyDependencies;
@@ -106,7 +107,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	// values that we have from the start or before initialization
 	private final Object valuelistIdentifier;
 	private final PropertyDescription vlPD;
-	private final IDataAdapterList dataAdapterListToUse; // can be component DAL or, if we have a for: dataprovider in spec and that dataprovider is for: foundsetProperty it will be the DAL of that foundset property (through the courtesy of FoundsetLinkedPropertyType as future case SVY-11204)
+	private IDataAdapterList dataAdapterListToUse; // can be component DAL or, if we have a for: dataprovider in spec and that dataprovider is for: foundsetProperty it will be the DAL of that foundset property (through the courtesy of FoundsetLinkedPropertyType as future case SVY-11204)
 	private IWebObjectContext webObjectContext;
 
 	private final ValuelistPropertyDependencies propertyDependencies;
@@ -182,6 +183,9 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	{
 		changeMonitor.setChangeNotifier(changeNotifier);
 		this.webObjectContext = webObjectCntxt;
+
+		IDataAdapterList newDal = NGComponentDALContext.getDataAdapterList(webObjectContext);
+		if (newDal != null) this.dataAdapterListToUse = newDal; // it will probably never be null
 
 		if (propertyDependencies.dataproviderPropertyName != null)
 			webObjectContext.addPropertyChangeListener(propertyDependencies.dataproviderPropertyName, this);
