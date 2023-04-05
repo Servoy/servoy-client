@@ -61,7 +61,15 @@ angular.module('valuelist_property', ['webSocketModule'])
 							}, enumerable: false });
 						// clear the cache
 						internalState.realToDisplayCache = {};
-	
+						if (componentScope) {
+                            if (internalState.destroyDeregistener) {
+                                internalState.destroyDeregistener();
+                            }
+    						internalState.destroyDeregistener  = componentScope.$on('$destroy', () =>{
+                                $sabloDeferHelper.cancelAll(internalState);
+                                delete internalState.destroyDeregistener;
+                             }  );
+    	                }
 						Object.defineProperty(newValue, 'getDisplayValue', {
 							value: function(realValue) {
 								if (realValue != null && realValue != undefined) {
@@ -148,7 +156,16 @@ angular.module('valuelist_property', ['webSocketModule'])
 		},
 		
 		updateAngularScope: function(clientValue, componentScope) {
-			// nothing to do here
+            const internalState = clientValue[$sabloConverters.INTERNAL_IMPL];
+            if (internalState && componentScope) {
+                            if (internalState.destroyDeregistener) {
+                                internalState.destroyDeregistener();
+                            }
+                            internalState.destroyDeregistener  = componentScope.$on('$destroy', () =>{
+                                $sabloDeferHelper.cancelAll(internalState);
+                                delete internalState.destroyDeregistener;
+                             }  );
+            }  
 		}
 		
 	}, false);
