@@ -80,7 +80,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	public static final String COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN = IApplication.COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN;
 
 	/**
-	 * Property that can be set using application.putClientProperty(). It is used only in NGClient.
+	 * Property that can be set using application.putClientProperty(). It is used only in NGClient (not in Titanium Client).
 	 *
 	 * This is a global setting, it will affect all COMBOBOX fields. It must be set as soon as possible, ie. on solution open.
 	 * Value can be true/false/null.
@@ -402,6 +402,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 *
 	 * The value can be true/false
 	 * DEFAULT: false
+	 * NOTE: In Titanium Client this value is by default true and currently cannot be changed.
 	 *
 	 * @sample
 	 * application.putClientProperty(APP_UI_PROPERTY.CALENDAR_NG_SHOW_ISO_WEEK_NUMBER, true)
