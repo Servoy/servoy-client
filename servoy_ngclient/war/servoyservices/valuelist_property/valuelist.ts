@@ -90,7 +90,9 @@ angular.module('valuelist_property', ['webSocketModule'])
 										internalState.realToDisplayCache[key] = internalState.deferred[internalState.diplayValueReq[ID_KEY]].defer.promise.then(function(val) {
 											internalState.realToDisplayCache[key] = val;
 											return val;
-										});
+										}).catch(() => {
+                                           delete internalState.realToDisplayCache[key];
+                                        });
 										
 										if (internalState.changeNotifier) internalState.changeNotifier();
 										
