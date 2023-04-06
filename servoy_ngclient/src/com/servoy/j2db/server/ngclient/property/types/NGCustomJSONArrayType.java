@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -192,6 +193,16 @@ public class NGCustomJSONArrayType<SabloT, SabloWT> extends CustomJSONArrayType<
 				for (int i = 0; i < length; i++)
 				{
 					rhinoArrayCopy.add((SabloT)NGConversions.INSTANCE.convertRhinoToSabloComponentValue(nativeJavaArray.get(i, nativeJavaArray), null,
+						elementPD, componentOrService));
+				}
+			}
+			else if (rhinoValue.getClass().isArray()) // unwrapped already by caller from a NativeJavaArray
+			{
+				rhinoArrayCopy = new ArrayList<SabloT>();
+				int length = Array.getLength(rhinoValue);
+				for (int i = 0; i < length; i++)
+				{
+					rhinoArrayCopy.add((SabloT)NGConversions.INSTANCE.convertRhinoToSabloComponentValue(Array.get(rhinoValue, i), null,
 						elementPD, componentOrService));
 				}
 			}

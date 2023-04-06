@@ -58,7 +58,8 @@ public class DefaultNavigatorWebComponent extends WebFormComponent implements IF
 						index = foundset.getSize();
 					}
 					if (index != foundset.getSelectedIndex() + 1 &&
-						(dataAdapterList.getApplication().getFoundSetManager().getEditRecordList().stopEditing(false) & (ISaveConstants.STOPPED + ISaveConstants.AUTO_SAVE_BLOCKED)) != 0)
+						(dataAdapterList.getApplication().getFoundSetManager().getEditRecordList().stopEditing(false) &
+							(ISaveConstants.STOPPED + ISaveConstants.AUTO_SAVE_BLOCKED)) != 0)
 					{
 						foundset.setSelectedIndex(index - 1);
 					}

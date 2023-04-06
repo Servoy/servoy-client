@@ -32,6 +32,7 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONString;
 import org.json.JSONWriter;
 import org.sablo.IChangeListener;
 import org.sablo.IDirtyPropertyListener;
@@ -790,11 +791,11 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 								args[j] = jsargs.get(j);
 							}
 
-							Object result = null;
+							JSONString result = null;
 							String error = null;
 							try
 							{
-								result = childComponent.executeEvent(eventType, args);
+								result = childComponent.executeEvent(eventType, args); // FIXME here we know it's comming from client json/sablo/java and returning to client json; see SVY-18096
 							}
 							catch (ParseException pe)
 							{
@@ -815,14 +816,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 							{
 								if (error == null)
 								{
-									Object resultObject = result;
-									PropertyDescription objectType = null;
-									if (result instanceof TypedData)
-									{
-										resultObject = ((TypedData< ? >)result).content;
-										objectType = ((TypedData< ? >)result).contentType;
-									}
-									CurrentWindow.get().getSession().getSabloService().resolveDeferedEvent(cmsid, true, resultObject, objectType);
+									CurrentWindow.get().getSession().getSabloService().resolveDeferedEvent(cmsid, true, result, null);
 								}
 								else
 								{

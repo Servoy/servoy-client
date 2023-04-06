@@ -139,6 +139,10 @@ public class EventExecutor
 			{
 				if (newargs[i] instanceof JSONObject && "event".equals(((JSONObject)newargs[i]).optString("type")))
 				{
+					// FIXME I think (but we must check how existing things work to not break stuff) that this
+					// whole if branch can be a part of the JSEventType class that could implement IServerRhinoToRhino conversion;
+					// and this conversion has to be done before this method is even called... see SVY-18096
+
 					JSONObject json = (JSONObject)newargs[i];
 					JSEvent event = new JSEvent();
 					JSEventType.fillJSEvent(event, json, component, formController);
@@ -148,6 +152,9 @@ public class EventExecutor
 				}
 				else
 				{
+					// FIXME I think the convertSabloComponentToRhinoValue should only happen if args come from sablo/java value;
+					// and this conversion has to be done before this method is even called... see SVY-18096
+
 					// try to convert the received arguments
 					WebObjectFunctionDefinition propertyDesc = component.getSpecification().getHandler(eventType);
 					IFunctionParameters parameters = propertyDesc.getParameters();
