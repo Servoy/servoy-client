@@ -601,7 +601,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 	}
 
 	@Override
-	protected Object executeEvent(JSONObject obj) throws Exception
+	protected JSONString executeEvent(JSONObject obj) throws Exception
 	{
 		String formName = obj.optString("formname");
 		if (formName != null)
@@ -614,7 +614,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 				return null;
 			}
 		}
-		Object retValue = super.executeEvent(obj);
+		JSONString retValue = super.executeEvent(obj);
 		if (getApplication().getFoundSetManager() != null && getApplication().getFoundSetManager().hasTransaction())
 		{
 			log.warn("Transaction still active after event was executed: " + ServoyJSONObject.toString(obj, false, false, false) +

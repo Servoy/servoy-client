@@ -196,7 +196,14 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	public Object executeEvent(WebComponent webComponent, String event, int eventId, Object[] args)
 	{
 		Object jsRetVal = executor.executeEvent(webComponent, event, eventId, args);
-		return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(jsRetVal, null, null, (IWebObjectContext)webComponent); // TODO why do handlers not have complete definitions in spec - just like apis? - we don't know types here
+
+		// FIXME I think the convertRhinoToSabloComponentValue should only happen if
+		// call comes from sablo/java (not Rhino - we don't currently have a reverse of IServerRhinoToRhino);
+		// and this conversion has to be done before this method is even called... see SVY-18096
+
+		WebObjectFunctionDefinition handlerDef = (webComponent != null ? webComponent.getSpecification().getHandler(event) : null);
+		return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(jsRetVal, null, handlerDef != null ? handlerDef.getReturnType() : null,
+			(IWebObjectContext)webComponent);
 	}
 
 	/**

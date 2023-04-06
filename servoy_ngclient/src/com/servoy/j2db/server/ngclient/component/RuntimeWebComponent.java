@@ -158,7 +158,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 											}
 										}
 									}
-									return eventHandler.executeEvent(args);
+									return eventHandler.executeEvent(args); // FIXME here we know it's comming from rhino and returning to Rhino; see SVY-18096
 								}
 								catch (Exception e)
 								{
