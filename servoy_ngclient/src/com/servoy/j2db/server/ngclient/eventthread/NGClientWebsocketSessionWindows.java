@@ -210,4 +210,14 @@ public class NGClientWebsocketSessionWindows extends WebsocketSessionWindows imp
 		return false;
 	}
 
+	@Override
+	public String getRelationName(String uuidRelationName, INGFormElement element)
+	{
+		for (INGClientWindow window : getSession().getWindows())
+		{
+			return window.getRelationName(uuidRelationName, element);
+		}
+		return null;
+	}
+
 }

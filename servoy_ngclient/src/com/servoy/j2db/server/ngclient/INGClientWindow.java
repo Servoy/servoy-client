@@ -80,4 +80,10 @@ public interface INGClientWindow extends IWindow
 	 */
 	String isVisibleAllowed(String formName, String uuidRelationName, INGFormElement element) throws IllegalAccessException;
 
+	/**
+	 * @param uuidRelationName
+	 * @param element
+	 * @return the relationname for that uuid if it is registered for that element
+	 */
+	String getRelationName(String uuidRelationName, INGFormElement element);
 }

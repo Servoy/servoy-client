@@ -518,4 +518,13 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		}
 	}
 
+	@Override
+	public String getRelationName(String uuidRelationName, INGFormElement element)
+	{
+		if (uuidRelationName == null) return null;
+		WeakHashMap<INGFormElement, String> relationMap = allowedRelation.get(uuidRelationName);
+		if (relationMap != null && relationMap.containsKey(element)) return relationMap.get(element);
+		return uuidRelationName;
+	}
+
 }
