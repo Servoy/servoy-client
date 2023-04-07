@@ -33,6 +33,7 @@ import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.server.ngclient.DataAdapterList;
+import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
@@ -45,7 +46,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
  */
 public class ValuelistConfigPropertyType extends DefaultPropertyType<ValuelistConfigTypeSabloValue>
 	implements IConvertedPropertyType<ValuelistConfigTypeSabloValue>, IFormElementDefaultValueToSabloComponent<JSONObject, ValuelistConfigTypeSabloValue>,
-	ISabloComponentToRhino<ValuelistConfigTypeSabloValue>, IRhinoToSabloComponent<ValuelistConfigTypeSabloValue>
+	ISabloComponentToRhino<ValuelistConfigTypeSabloValue>, IRhinoToSabloComponent<ValuelistConfigTypeSabloValue>, ISupportTemplateValue<Object>
 {
 
 	public static final ValuelistConfigPropertyType INSTANCE = new ValuelistConfigPropertyType();
@@ -104,6 +105,12 @@ public class ValuelistConfigPropertyType extends DefaultPropertyType<ValuelistCo
 		Scriptable startScriptable)
 	{
 		return Scriptable.NOT_FOUND;
+	}
+
+	@Override
+	public boolean valueInTemplate(Object object, PropertyDescription pd, FormElementContext formElementContext)
+	{
+		return false;
 	}
 
 	@Override
