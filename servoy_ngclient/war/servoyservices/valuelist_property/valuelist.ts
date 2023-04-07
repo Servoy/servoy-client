@@ -158,16 +158,18 @@ angular.module('valuelist_property', ['webSocketModule'])
 		},
 		
 		updateAngularScope: function(clientValue, componentScope) {
-            const internalState = clientValue[$sabloConverters.INTERNAL_IMPL];
-            if (internalState && componentScope) {
-                            if (internalState.destroyDeregistener) {
-                                internalState.destroyDeregistener();
-                            }
-                            internalState.destroyDeregistener  = componentScope.$on('$destroy', () =>{
-                                $sabloDeferHelper.cancelAll(internalState);
-                                delete internalState.destroyDeregistener;
-                             }  );
-            }  
+            if (clientValue){
+                const internalState = clientValue[$sabloConverters.INTERNAL_IMPL];
+                if (internalState && componentScope) {
+                                if (internalState.destroyDeregistener) {
+                                    internalState.destroyDeregistener();
+                                }
+                                internalState.destroyDeregistener  = componentScope.$on('$destroy', () =>{
+                                    $sabloDeferHelper.cancelAll(internalState);
+                                    delete internalState.destroyDeregistener;
+                                 }  );
+                }  
+    		}
 		}
 		
 	}, false);
