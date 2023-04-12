@@ -17,9 +17,6 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 
 /**
@@ -31,9 +28,7 @@ import com.servoy.j2db.dataprocessing.IRecordInternal;
 public class FoundsetLinkedValueChangeHandler
 {
 
-	protected List<Runnable> changesWhileUpdatingFoundsetBasedDPFromClient;
 	private final FoundsetTypeSabloValue foundsetPropValue;
-	private boolean restoreSelectionToFoundsetDALWhenApplyFinishes;
 
 	public FoundsetLinkedValueChangeHandler(FoundsetTypeSabloValue foundsetPropValue)
 	{
@@ -47,81 +42,23 @@ public class FoundsetLinkedValueChangeHandler
 		IRecordInternal record = foundsetPropValue.getDataAdapterList().getRecord();
 		if (record != null)
 		{
-			Runnable queueChangeRunnable = queueCellChangeOnRecord(propertyName, record, viewPortChangeMonitor);
-
-			if (changesWhileUpdatingFoundsetBasedDPFromClient != null)
-			{
-				// if for example a dataProvider or tagstring property changes (does in its fromJSON a monitor.valueChanged())
-				// - for example an integer DP getting client update of 1.15 would want to send back 1.00 -
-				// it will end up here; we do want to send that back to the client but as the new value is not
-				// yet pushed to the record, we don't want the new value to be reverted by a DAL.setRecord() that happens when queuing changes for a specific record index
-				// so we need to handle this change at a later time
-				changesWhileUpdatingFoundsetBasedDPFromClient.add(queueChangeRunnable);
-			}
-			else
-			{
-				queueChangeRunnable.run();
-			}
+			queueCellChangeOnRecord(propertyName, record, viewPortChangeMonitor);
 		}
 	}
 
-	public void setApplyingDPValueFromClient(boolean applyInProgress)
-	{
-		if (applyInProgress)
-		{
-			changesWhileUpdatingFoundsetBasedDPFromClient = new ArrayList<>(); // we prevent a fromJSON on the dataprovider value that triggers valueChanged (so propertyFlaggedAsDirty) to re-apply (old) record values to DPs (effectively reverting the new value)
-			// this can happen for example with integer DPs that get a double value from the browser and they round/trunc thus need to resend the value to client
-			// we will execute the propertyFlaggedAsDirty code later, after DP value was applied
-			// TODO shouldn't we apply in one go? so apply directly the value to record instead of setting it first in the component DP property?
-		}
-		else
-		{
-			if (restoreSelectionToFoundsetDALWhenApplyFinishes)
-			{
-				restoreSelectionToFoundsetDALWhenApplyFinishes = false;
-				foundsetPropValue.setDataAdapterListToSelectedRecord();
-			}
-
-			if (changesWhileUpdatingFoundsetBasedDPFromClient != null)
-			{
-				for (Runnable r : changesWhileUpdatingFoundsetBasedDPFromClient)
-					r.run();
-				changesWhileUpdatingFoundsetBasedDPFromClient = null;
-			}
-		}
-	}
-
-	private Runnable queueCellChangeOnRecord(final String propertyName, final IRecordInternal record,
+	private void queueCellChangeOnRecord(final String propertyName, final IRecordInternal record,
 		final ViewportDataChangeMonitor< ? > viewPortChangeMonitor)
 	{
-		return new Runnable()
+		int idx = foundsetPropValue.getFoundset().getRecordIndex(record);
+		if (idx >= 0)
 		{
-
-			@Override
-			public void run()
+			FoundsetTypeViewport viewPort = foundsetPropValue.getViewPort();
+			int relativeIdx = idx - viewPort.getStartIndex();
+			if (relativeIdx >= 0 && relativeIdx < viewPort.getSize())
 			{
-				int idx = foundsetPropValue.getFoundset().getRecordIndex(record);
-				if (idx >= 0)
-				{
-					FoundsetTypeViewport viewPort = foundsetPropValue.getViewPort();
-					int relativeIdx = idx - viewPort.getStartIndex();
-					if (relativeIdx >= 0 && relativeIdx < viewPort.getSize())
-					{
-						viewPortChangeMonitor.queueCellChange(relativeIdx, viewPort.getSize(), propertyName);
-					}
-				}
+				viewPortChangeMonitor.queueCellChange(relativeIdx, viewPort.getSize(), propertyName);
 			}
-		};
-	}
-
-	protected boolean willRestoreSelectedRecordToFoundsetDALLater()
-	{
-		if (changesWhileUpdatingFoundsetBasedDPFromClient != null)
-		{
-			restoreSelectionToFoundsetDALWhenApplyFinishes = true;
-			return true; // if DP changes are being applied from client, restore foundset selection to FoundsetDAL after all the apply operation finished
 		}
-		return false;
 	}
 
 }

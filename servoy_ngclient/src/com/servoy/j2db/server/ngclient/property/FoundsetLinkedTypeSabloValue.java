@@ -782,9 +782,14 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 				}
 				finally
 				{
-					if (actualWrappedValueChangeHandlerForFoundsetLinked == null ||
-						!actualWrappedValueChangeHandlerForFoundsetLinked.willRestoreSelectedRecordToFoundsetDALLater())
+					if (!viewPortChangeMonitor.hasViewportChanges() && !viewPortChangeMonitor.shouldSendWholeViewport())
 						foundsetPropertyValue.setDataAdapterListToSelectedRecord();
+					// else the selected record will be restored later in toJSON via viewPortChangeMonitor.doneWritingChanges() and
+					// in some cases - for example if the viewport has updates due to a valuelist.filter() that just happened on another
+					// record then the selected one in the updatePropertyValueForRecord() above, we must not restore selection here, as that
+					// changesToJSON that will follow will want to send the result of that filter and not a full valuelist value that might
+					// result due to a restore of selected record in the FoundsetDataAdapterList followed by a switch to the
+					// record that .filter() was called on when writing changes toJSON...
 				}
 			}
 			else
@@ -834,12 +839,6 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	protected IWebObjectContext getDALWebObjectContext()
 	{
 		return webObjectContext;
-	}
-
-	public void setApplyingDPValueFromClient(boolean applyInProgress)
-	{
-		if (actualWrappedValueChangeHandlerForFoundsetLinked != null)
-			actualWrappedValueChangeHandlerForFoundsetLinked.setApplyingDPValueFromClient(applyInProgress);
 	}
 
 	protected boolean isLinkedToRecordDP(String columnDPName)

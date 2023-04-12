@@ -210,6 +210,7 @@ public abstract class AbstractMediaResourceServlet extends HttpServlet
 											fileData.put("", item.get());
 											foundsetPropertyValue.getDataAdapterList().pushChanges(webComponent, propertyName, fileData,
 												null);
+											foundsetPropertyValue.setDataAdapterListToSelectedRecord();
 											break;
 										}
 

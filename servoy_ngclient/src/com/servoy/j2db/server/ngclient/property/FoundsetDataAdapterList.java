@@ -61,12 +61,7 @@ public class FoundsetDataAdapterList extends DataAdapterList
 
 	public void setRecordQuietly(IRecord record)
 	{
-		setRecordQuietly(record, false);
-	}
-
-	public void setRecordQuietly(IRecord record, boolean skipIfAlreadySet)
-	{
-		if (skipIfAlreadySet && record == getRecord()) return;
+		if (record == getRecord()) return;
 
 		keepQuiet = true;
 		try
@@ -141,11 +136,11 @@ public class FoundsetDataAdapterList extends DataAdapterList
 		if (foundset != null && foundset.getSize() > 0)
 		{
 			IRecord selectedRecord = foundset.getRecord(foundset.getSelectedIndex());
-			setRecordQuietly(selectedRecord, true);
+			setRecordQuietly(selectedRecord);
 		}
 		else
 		{
-			setRecordQuietly(null, true); // to make sure DAL is not listening to records that are no longer in the foundset
+			setRecordQuietly(null); // to make sure DAL is not listening to records that are no longer in the foundset
 		}
 	}
 

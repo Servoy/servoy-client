@@ -487,7 +487,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			}
 
 			FoundsetDataAdapterList fsDAL = getDataAdapterList();
-			if (fsDAL != null) fsDAL.setRecordQuietly(null, true); // avoid the DAL listening to changes in obsolete Records from the previous foundset
+			if (fsDAL != null) fsDAL.setRecordQuietly(null); // avoid the DAL listening to changes in obsolete Records from the previous foundset
 			if (foundset != null && fsDAL != null) fsDAL.setFindMode(foundset.isInFindMode());
 
 			fireUnderlyingStateChangedListeners(); // some listening properties might be interested in the new underlying foundset itself
@@ -505,11 +505,11 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			if (foundset != null && foundset.getSize() > 0)
 			{
 				IRecord selectedRecord = foundset.getRecord(foundset.getSelectedIndex());
-				dataAdapterList.setRecordQuietly(selectedRecord, true);
+				dataAdapterList.setRecordQuietly(selectedRecord);
 			}
 			else
 			{
-				dataAdapterList.setRecordQuietly(null, true); // make sure DAL is not listening to records that are no longer there in the foundset
+				dataAdapterList.setRecordQuietly(null); // make sure DAL is not listening to records that are no longer there in the foundset
 			}
 		}
 	}
