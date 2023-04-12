@@ -76,7 +76,7 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 			// full row
 			componentTypeSabloValue.getRecordBasedProperties().forEach(propertyName -> populateCellData(propertyName, w, dynamicClientSideTypesForProperties));
 		}
-		types.registerClientSideType((dynamicClientSideTypesForProperties.size() == 0) ? null : dynamicClientSideTypesForProperties);
+		types.registerClientSideType(dynamicClientSideTypesForProperties);
 
 		w.endObject();
 	}
@@ -97,11 +97,8 @@ public class ComponentViewportRowDataProvider extends ViewportRowDataProvider
 			{
 				w.key(propertyName);
 				w.value(jsonValueRepresentationForWrappedValue);
-				if (jsonValueRepresentationForWrappedValue.getClientSideType() != null)
-				{
-					dynamicClientSideTypesForProperties.add(new Pair<>(propertyName,
-						jsonValueRepresentationForWrappedValue.getClientSideType()));
-				}
+				dynamicClientSideTypesForProperties.add(new Pair<>(propertyName,
+					jsonValueRepresentationForWrappedValue.getClientSideType()));
 			}
 		}
 	}

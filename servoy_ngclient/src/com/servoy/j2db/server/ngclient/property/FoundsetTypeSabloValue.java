@@ -822,6 +822,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		ViewportClientSideTypes types) throws JSONException
 	{
 		List<Pair<String/* forColumn */, JSONString/* type */>> typesOfColumns = null;
+		JSONString clientSideTypeOfCol;
 
 		for (Entry<String, String> entry : dataproviders.entrySet())
 		{
@@ -851,13 +852,11 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 						browserConverterContext, false);
 
 				w.value(jsonValueRepresentationForWrappedValue); // write it even if it is null
-				if (jsonValueRepresentationForWrappedValue != null && jsonValueRepresentationForWrappedValue.getClientSideType() != null)
-				{
-					Pair<String/* forColumn */, JSONString/* type */> cellType = new Pair<>(entry.getKey(),
-						jsonValueRepresentationForWrappedValue.getClientSideType());
-					if (typesOfColumns == null) typesOfColumns = new ArrayList<>();
-					typesOfColumns.add(cellType);
-				}
+				clientSideTypeOfCol = (jsonValueRepresentationForWrappedValue != null ? jsonValueRepresentationForWrappedValue.getClientSideType() : null);
+				Pair<String/* forColumn */, JSONString/* type */> cellType = new Pair<>(entry.getKey(),
+					clientSideTypeOfCol);
+				if (typesOfColumns == null) typesOfColumns = new ArrayList<>();
+				typesOfColumns.add(cellType);
 			}
 		}
 		types.registerClientSideType(typesOfColumns);

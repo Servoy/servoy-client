@@ -19,10 +19,10 @@ package com.servoy.j2db.server.ngclient.property;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 import org.json.JSONString;
 import org.json.JSONWriter;
@@ -31,7 +31,6 @@ import org.sablo.websocket.utils.JSONUtils.EmbeddableJSONWriter;
 import org.sablo.websocket.utils.JSONUtils.JSONStringWrapper;
 
 import com.servoy.j2db.util.Pair;
-import com.servoy.j2db.util.Utils;
 
 /**
  * The whole purpose of this class is to coalesce client side types that are to be sent to the client for a viewport into one per column or one globally - if you have the same type (or none) in all rows for a column or for all columns.<br/>
@@ -91,7 +90,7 @@ public class ViewportClientSideTypes
 
 	/**
 	 * We currently expect that ViewportRowDataProvider implementations call this method EXACTLY ONCE AND IN SEQUENCE FROM THE START OF INTERVAL for each row that they are asked to write to JSON (probably from "populateRowData").<br/>
-	 * Not calling this for a row of calling it in a different order will result in an IllegalArgumentException. This restriction can be removed if needed but currently this is what viewports do... (in a previous impl this restriction simplified implementation but that is no longer the case)
+	 * Not calling this for a row or calling it in a different order will result in an IllegalArgumentException. This restriction can be removed if needed but currently this is what viewports do... (in a previous impl this restriction simplified implementation but that is no longer the case)
 	 *
 	 * @param forRowIdx the row of the foundset the given clientSideTypes are for
 	 * @param clientSideTypesForRow an array of column names and client side type for that column in the given row "forRowIdx"; columnName can be null if that particular ViewportRowDataProvider doesn't use multiple columns; type can also be null if it does not have a client side type; the whole arg can be null if there is no type and no column name in the whole row
@@ -277,11 +276,9 @@ public class ViewportClientSideTypes
 		rootEjw.object();
 
 		// now we know main type/col. main types and column cell types; write column types without redundant info (no col type is same with main type, no cell types if not needed etc.)
-		Iterator<Entry<String, Pair<String, JSONString>>> it = colMainAndCellTypes.entrySet().iterator();
-		while (it.hasNext())
+		for (Entry<String, Pair<String, JSONString>> columnTypesEntry : colMainAndCellTypes.entrySet())
 		{
 			boolean colKeyWritten = false;
-			Entry<String, Pair<String, JSONString>> columnTypesEntry = it.next();
 			if (columnTypesEntry.getValue().getRight() != null)
 			{
 				// this col. wants to write cell types so it has more then 1 type in cells of this column
@@ -300,7 +297,7 @@ public class ViewportClientSideTypes
 				rootEjw.object().key(CELL_TYPES).value(columnTypesEntry.getValue().getRight());
 			}
 
-			if (!Utils.safeEquals(mainTypeWinnerEntry.getKey(), columnTypesEntry.getValue().getLeft()))
+			if (!Objects.equals(mainTypeWinnerEntry.getKey(), columnTypesEntry.getValue().getLeft()))
 			{
 				// so main viewport type is not equal to main column type = then we have to write the column type
 				if (!colTypesWritten)
