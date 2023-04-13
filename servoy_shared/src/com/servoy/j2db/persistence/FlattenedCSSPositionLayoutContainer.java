@@ -8,15 +8,15 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.UUID;
 
-public class FlattenedLayoutContainer extends LayoutContainer implements IFlattenedPersistWrapper<LayoutContainer>
+public class FlattenedCSSPositionLayoutContainer extends CSSPositionLayoutContainer implements IFlattenedPersistWrapper<LayoutContainer>
 {
 
 	private static final long serialVersionUID = 1L;
 
-	private final LayoutContainer layoutContainer;
+	private final CSSPositionLayoutContainer layoutContainer;
 	private final FlattenedForm flattenedForm;
 
-	public FlattenedLayoutContainer(FlattenedForm flattenedForm, LayoutContainer layoutContainer)
+	public FlattenedCSSPositionLayoutContainer(FlattenedForm flattenedForm, CSSPositionLayoutContainer layoutContainer)
 	{
 		super(layoutContainer.getParent(), layoutContainer.getID(), layoutContainer.getUUID());
 		this.layoutContainer = layoutContainer;

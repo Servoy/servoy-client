@@ -44,6 +44,8 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.CSSPosition;
+import com.servoy.j2db.persistence.CSSPositionLayoutContainer;
+import com.servoy.j2db.persistence.FlattenedCSSPositionLayoutContainer;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.FlattenedLayoutContainer;
 import com.servoy.j2db.persistence.Form;
@@ -679,11 +681,8 @@ public class PersistHelper
 		Font guessFont = null;
 		int maxPieces = 0, minMissingPieces = 999;
 		initFonts();
-		Iterator<Font> it = allFonts.values().iterator();
-		while (it.hasNext())
+		for (Font f : allFonts.values())
 		{
-			Font f = it.next();
-
 			String fontName = f.getName();
 			if (fontName.equalsIgnoreCase(aName)) return f;
 			if (fontName.equalsIgnoreCase(formatedName)) return f;
@@ -1175,7 +1174,13 @@ public class PersistHelper
 		{
 			flattenedPersist = flattenedSolution.getFlattenedForm(flattenedPersist);
 		}
-		if (flattenedPersist instanceof LayoutContainer && !(flattenedPersist instanceof FlattenedLayoutContainer))
+		if (flattenedPersist instanceof CSSPositionLayoutContainer && !(flattenedPersist instanceof FlattenedCSSPositionLayoutContainer))
+		{
+			FlattenedForm ff = flattenedSolution.getFlattenedForm(parent) instanceof FlattenedForm ? (FlattenedForm)flattenedSolution.getFlattenedForm(parent)
+				: flattenedSolution.createFlattenedForm(parent);
+			flattenedPersist = new FlattenedCSSPositionLayoutContainer(ff, (CSSPositionLayoutContainer)flattenedPersist);
+		}
+		else if (flattenedPersist instanceof LayoutContainer && !(flattenedPersist instanceof FlattenedLayoutContainer))
 		{
 			FlattenedForm ff = flattenedSolution.getFlattenedForm(parent) instanceof FlattenedForm ? (FlattenedForm)flattenedSolution.getFlattenedForm(parent)
 				: flattenedSolution.createFlattenedForm(parent);
