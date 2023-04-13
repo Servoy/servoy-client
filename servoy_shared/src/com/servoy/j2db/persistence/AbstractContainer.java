@@ -446,21 +446,6 @@ public abstract class AbstractContainer extends AbstractBase
 		return flattenedPersists;
 	}
 
-	public Iterator<LayoutContainer> getFormLayoutContainers()
-	{
-		List<LayoutContainer> flattenedPersists = new ArrayList<LayoutContainer>();
-		List<IPersist> children = getHierarchyChildren();
-		for (IPersist persist : children)
-		{
-			if (persist instanceof AbstractContainer)
-			{
-				if (persist instanceof LayoutContainer) flattenedPersists.add((LayoutContainer)persist);
-			}
-		}
-
-		return flattenedPersists.iterator();
-	}
-
 	/**
 	 * Search this containers containment hierarchy recursively for the given uuid.
 	 * @param searchFor

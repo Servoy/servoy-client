@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
@@ -2366,14 +2367,12 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	public boolean containsResponsiveLayout()
 	{
-		List<IPersist> children = getHierarchyChildren();
-		for (IPersist persist : children)
-		{
-			if (persist instanceof AbstractContainer)
-			{
-				return true;
-			}
-		}
-		return false;
+		return getLayoutContainers().hasNext() || getObjects(IRepository.CSSPOS_LAYOUTCONTAINERS).hasNext();
+	}
+
+	public Iterator<LayoutContainer> getAllLayoutContainers()
+	{
+		return getAllObjectsAsList().stream().filter(LayoutContainer.class::isInstance).map(LayoutContainer.class::cast).collect(Collectors.toList())
+			.iterator();
 	}
 }
