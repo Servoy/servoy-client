@@ -101,12 +101,12 @@ public class ComponentPropertyType extends DefaultPropertyType<ComponentTypeSabl
 	public static final String VALUE_KEY = "v";
 
 	/**
-	 * Used for update that come from the browser.
+	 * Used for an update that comes from the browser.
 	 *
 	 * Key for a rowId that identifies the row of a property inside the child component for the foundset linked DP of the
-	 * component (that is linked to another property of type foundset inside the component itself).<br/></br>
+	 * component (that is linked to another property of type foundset inside the child component itself).<br/></br>
 	 *
-	 * So for example you have a list form component that has in each cell a editable table component (which could work for example on a related foundset).
+	 * So for example you have a list form component that has in each cell an editable table component (which could work for example on a related foundset).
 	 * Then this key identifies the row in the related foundset for the column in the editable table that was changed on client.
 	 */
 	protected static final String ROW_ID_OF_PROP_INSIDE_COMPONENT = "_svyRowIdOfProp";

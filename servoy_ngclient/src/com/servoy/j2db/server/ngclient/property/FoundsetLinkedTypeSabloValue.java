@@ -782,14 +782,24 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 				}
 				finally
 				{
-					if (!viewPortChangeMonitor.hasViewportChanges() && !viewPortChangeMonitor.shouldSendWholeViewport())
+					if (!viewPortChangeMonitor.hasViewportChanges() && !viewPortChangeMonitor.shouldSendWholeViewport() &&
+						(actualWrappedValueChangeHandlerForFoundsetLinked == null ||
+							!actualWrappedValueChangeHandlerForFoundsetLinked.willRestoreSelectedRecordToFoundsetDALLater()))
+					{
 						foundsetPropertyValue.setDataAdapterListToSelectedRecord();
-					// else the selected record will be restored later in toJSON via viewPortChangeMonitor.doneWritingChanges() and
-					// in some cases - for example if the viewport has updates due to a valuelist.filter() that just happened on another
-					// record then the selected one in the updatePropertyValueForRecord() above, we must not restore selection here, as that
-					// changesToJSON that will follow will want to send the result of that filter and not a full valuelist value that might
-					// result due to a restore of selected record in the FoundsetDataAdapterList followed by a switch to the
-					// record that .filter() was called on when writing changes toJSON...
+						// if .hasViewportChanges() || .viewPortChangeMonitor.shouldSendWholeViewport(), the selected record will be restored later in toJSON
+						// via viewPortChangeMonitor.doneWritingChanges() and
+						// in some cases - for example if the viewport has updates due to a valuelist.filter() that just happened on another
+						// record then the selected one in the updatePropertyValueForRecord() above, we must not restore selection here, as that
+						// changesToJSON that will follow will want to send the result of that filter and not a full valuelist value that might
+						// result due to a restore of selected record in the FoundsetDataAdapterList followed by a switch to the
+						// record that .filter() was called on when writing changes toJSON...
+
+						// !isApplyingDPValueFromClient() is for the situation (that we have in unit tests and that I guess can happen although the DAL push will update the selection anyway later during the push)
+						// when a svyPush/apply comes for an not-yet-selected record; and we don't want to revert the record to selected one until after the value
+						// was also pushed to the not-yet-selected record via DAL; we call setDataAdapterListToSelectedRecord() later in that case,
+						// when setApplyingDPValueFromClient(false) gets called
+					}
 				}
 			}
 			else
@@ -845,6 +855,12 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	{
 		// FoundsetTypeChangeMonitor.recordsUpdated can end up notifying changes for actual dataproviders - we must check if they affect or not the foundset-linked-value
 		return foundsetLinkedUsesAllDPs || foundsetLinkedDPs.contains(columnDPName);
+	}
+
+	public void setApplyingDPValueFromClient(final boolean applyInProgress)
+	{
+		if (actualWrappedValueChangeHandlerForFoundsetLinked != null)
+			actualWrappedValueChangeHandlerForFoundsetLinked.setApplyingDPValueFromClient(applyInProgress);
 	}
 
 }

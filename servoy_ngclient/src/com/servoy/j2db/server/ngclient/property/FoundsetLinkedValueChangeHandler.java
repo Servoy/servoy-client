@@ -29,6 +29,8 @@ public class FoundsetLinkedValueChangeHandler
 {
 
 	private final FoundsetTypeSabloValue foundsetPropValue;
+	private boolean applyingDPValueFromClient;
+	private boolean restoreSelectionToFoundsetDALWhenApplyFinishes;
 
 	public FoundsetLinkedValueChangeHandler(FoundsetTypeSabloValue foundsetPropValue)
 	{
@@ -59,6 +61,32 @@ public class FoundsetLinkedValueChangeHandler
 				viewPortChangeMonitor.queueCellChange(relativeIdx, viewPort.getSize(), propertyName);
 			}
 		}
+	}
+
+	public void setApplyingDPValueFromClient(boolean applyingDPValueFromClient)
+	{
+		if (applyingDPValueFromClient) this.applyingDPValueFromClient = true;
+		else
+		{
+			this.applyingDPValueFromClient = false;
+
+			// see comment in FoundsetLinkedTypeSabloValue.updatePropertyValueForRecord(...) to see why we do this here; it is similar in case of foundset linked component type props - with DP props.
+			if (restoreSelectionToFoundsetDALWhenApplyFinishes)
+			{
+				restoreSelectionToFoundsetDALWhenApplyFinishes = false;
+				foundsetPropValue.setDataAdapterListToSelectedRecord();
+			}
+		}
+	}
+
+	public boolean willRestoreSelectedRecordToFoundsetDALLater()
+	{
+		if (applyingDPValueFromClient)
+		{
+			restoreSelectionToFoundsetDALWhenApplyFinishes = true;
+			return true; // if DP changes are being applied from client, restore foundset selection to FoundsetDAL after all the apply operation finished
+		}
+		return false;
 	}
 
 }

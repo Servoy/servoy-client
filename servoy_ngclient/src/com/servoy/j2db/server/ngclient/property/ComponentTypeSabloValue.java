@@ -887,33 +887,43 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 					Object value = changeAndApply.get(ComponentPropertyType.VALUE_KEY);
 					String rowIDOfPropInsideComponent = changeAndApply.optString(ComponentPropertyType.ROW_ID_OF_PROP_INSIDE_COMPONENT, null);
 
-					if (forFoundsetTypedPropertyName != null && recordBasedProperties.contains(propertyName))
+					try
 					{
-						// changes component record and sets value
-						String rowIDValue = changeAndApply.getString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
-						FoundsetTypeSabloValue foundsetValue = getFoundsetValue();
-						updatePropertyValueForRecord(foundsetValue, rowIDValue, propertyName, value);
+						if (forFoundsetTypedPropertyName != null && recordBasedProperties.contains(propertyName))
+						{
+							// changes component record and sets value
+							String rowIDValue = changeAndApply.getString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
+							if (foundsetLinkedPropOfComponentValueChangeHandler != null)
+								foundsetLinkedPropOfComponentValueChangeHandler.setApplyingDPValueFromClient(true);
+							FoundsetTypeSabloValue foundsetValue = getFoundsetValue();
+							updatePropertyValueForRecord(foundsetValue, rowIDValue, propertyName, value);
 
-						// apply change to record/dp
-						foundsetValue.getDataAdapterList().pushChanges(childComponent, propertyName, rowIDOfPropInsideComponent);
+							// apply change to record/dp
+							foundsetValue.getDataAdapterList().pushChanges(childComponent, propertyName, rowIDOfPropInsideComponent);
 
-						foundsetValue.setDataAdapterListToSelectedRecord();
+							foundsetValue.setDataAdapterListToSelectedRecord();
+						}
+						else
+						{
+							childComponent.putBrowserProperty(propertyName, value);
+							IWebFormUI formUI = getParentComponent().findParent(IWebFormUI.class);
+
+							// apply change to record/dp
+							formUI.getDataAdapterList().pushChanges(childComponent, propertyName, rowIDOfPropInsideComponent);
+						}
+
+
+						if (forFoundsetTypedPropertyName != null && !recordBasedProperties.contains(propertyName))
+						{
+							// a global or form var that in case of a foundset linked component will apply the value on the child component but, as it knows it is comming from the browser,
+							// the child component will not notify it as a changed value; we need that though as we need to resend that value for all rows back to client, not just currently selected one
+							childComponent.markPropertyAsChangedByRef(propertyName);
+						}
 					}
-					else
+					finally
 					{
-						childComponent.putBrowserProperty(propertyName, value);
-						IWebFormUI formUI = getParentComponent().findParent(IWebFormUI.class);
-
-						// apply change to record/dp
-						formUI.getDataAdapterList().pushChanges(childComponent, propertyName, rowIDOfPropInsideComponent);
-					}
-
-
-					if (forFoundsetTypedPropertyName != null && !recordBasedProperties.contains(propertyName))
-					{
-						// a global or form var that in case of a foundset linked component will apply the value on the child component but, as it knows it is comming from the browser,
-						// the child component will not notify it as a changed value; we need that though as we need to resend that value for all rows back to client, not just currently selected one
-						childComponent.markPropertyAsChangedByRef(propertyName);
+						if (foundsetLinkedPropOfComponentValueChangeHandler != null)
+							foundsetLinkedPropOfComponentValueChangeHandler.setApplyingDPValueFromClient(false);
 					}
 				}
 				else if (update.has("svyStartEdit"))
