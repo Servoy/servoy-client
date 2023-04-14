@@ -135,4 +135,18 @@ public interface IQueryBuilderResult extends IQueryBuilderPart
 	 * Clear the columns in the query result.
 	 */
 	IQueryBuilderResult clear();
+
+	/**
+	 * Remove a column by name from the query result.
+	 */
+	IQueryBuilderResult remove(String name) throws RepositoryException;
+
+	/**
+	 * Remove a column from the query result.
+	 * <pre>
+	 * query.result().remove(query.getColumn("value1"));
+	 * </pre>
+	 */
+	IQueryBuilderResult remove(IQueryBuilderColumn column) throws RepositoryException;
+
 }

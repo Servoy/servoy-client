@@ -65,10 +65,17 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		return true;
 	}
 
-
 	public ArrayList<IQuerySelectValue> getColumns()
 	{
 		return columns;
+	}
+
+	public IQuerySelectValue getColumn(String aliasOrName)
+	{
+		return stream(getColumns())
+			.filter(col -> col.getAliasOrName().equals(aliasOrName))
+			.findFirst()
+			.orElse(null);
 	}
 
 	public String[] getColumnNames()
@@ -87,6 +94,14 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 			columns = new ArrayList<>();
 		}
 		columns.add(c);
+	}
+
+	public void removeColumn(IQuerySelectValue c)
+	{
+		if (c != null && columns != null && columns.remove(c) && columns.isEmpty())
+		{
+			columns = null;
+		}
 	}
 
 	public void setTable(BaseQueryTable table)
@@ -561,17 +576,15 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 					// count may depend on related records or is marked as permanent
 					continue;
 				}
-				if (!(((ISQLTableJoin)join).getForeignTableReference() instanceof TableExpression))
+
+				ISQLTableJoin tableJoin = (ISQLTableJoin)join;
+
+				if (!(tableJoin.getForeignTableReference() instanceof TableExpression))
 				{
 					continue; // derived table
 				}
 
-				BaseQueryTable joinTable = ((ISQLTableJoin)join).getForeignTable();
-				ObjectCountVisitor selectCounter = new ObjectCountVisitor(joinTable, true);
-				ObjectCountVisitor joinCounter = new ObjectCountVisitor(joinTable, true);
-				acceptVisitor(selectCounter);
-				join.acceptVisitor(joinCounter);
-				if (selectCounter.getCount() == joinCounter.getCount())
+				if (!isJoinTableUsed(tableJoin))
 				{
 					// the table is not referenced outside the join; it may be removed
 					if (njoins == 1)
@@ -586,6 +599,19 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 				}
 			}
 		}
+	}
+
+	/**
+	 * Check whether the join is needed because its table is used somewhere in the query.
+	 */
+	public boolean isJoinTableUsed(ISQLTableJoin tableJoin)
+	{
+		BaseQueryTable joinTable = tableJoin.getForeignTable();
+		ObjectCountVisitor selectCounter = new ObjectCountVisitor(joinTable, true);
+		ObjectCountVisitor joinCounter = new ObjectCountVisitor(joinTable, true);
+		acceptVisitor(selectCounter);
+		tableJoin.acceptVisitor(joinCounter);
+		return selectCounter.getCount() > joinCounter.getCount();
 	}
 
 	/**

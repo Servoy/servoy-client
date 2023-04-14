@@ -34,6 +34,7 @@ import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.QueryFunction;
+import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderResult;
@@ -380,6 +381,43 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	protected QBResult doAddSubSelect(ISQLSelect select, String alias)
 	{
 		getParent().getQuery().addColumn(new QueryColumnValue(select, alias, false));
+		return this;
+	}
+
+
+	/**
+	 * Remove a column by name from the query result.
+	 * @sample
+	 * query.result.remove("custname")
+	 *
+	 * @param name name or alias of column to remove from the result
+	 */
+	@JSFunction
+	public QBResult remove(String name) throws RepositoryException
+	{
+		QuerySelect query = getParent().getQuery();
+		query.removeColumn(query.getColumn(name));
+		return this;
+	}
+
+	/**
+	 * remove a column from the query result.
+	 * @sample
+	 * query.result.remove(query.columns.custname)
+	 *
+	 * @param column column to remove from the result
+	 */
+	public QBResult js_remove(QBColumn column)
+	{
+		return remove(column);
+	}
+
+	public QBResult remove(IQueryBuilderColumn column)
+	{
+		if (column != null)
+		{
+			getParent().getQuery().removeColumn(((QBColumn)column).getQuerySelectValue());
+		}
 		return this;
 	}
 

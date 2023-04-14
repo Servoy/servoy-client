@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.WrappedException;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.query.IQueryConstants;
@@ -175,10 +176,17 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	public void delete(String name)
 	{
 		QBJoin queryJoin = getJoin(name);
-		super.delete(name);
 		if (queryJoin != null)
 		{
-			root.getQuery().removeJoin(queryJoin.getJoin());
+			QuerySelect query = root.getQuery();
+			ISQLTableJoin join = queryJoin.getJoin();
+			if (query.isJoinTableUsed(join))
+			{
+				throw new WrappedException(new RuntimeException("Cannot delete join '" + name + "' because it is still used in the query"));
+			}
+
+			super.delete(name);
+			query.removeJoin(join);
 		}
 	}
 
