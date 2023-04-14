@@ -20,7 +20,9 @@ package com.servoy.j2db.scripting;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.mozilla.javascript.Callable;
@@ -45,16 +47,21 @@ public abstract class DefaultScope implements Scriptable, IDestroyable
 	private volatile Scriptable parent;
 	private volatile Scriptable prototype;
 
-	protected volatile HashMap<String, Object> allVars; //name -> object
-	protected volatile HashMap<Integer, Object> allIndex; //index -> object
+	protected volatile Map<String, Object> allVars; //name -> object
+	protected volatile Map<Integer, Object> allIndex; //index -> object
 
 	protected boolean locked = false;
 
 	public DefaultScope(Scriptable parent)
 	{
+		this(parent, HashMap::new);
+	}
+
+	protected DefaultScope(Scriptable parent, Supplier<Map<String, Object>> allVarsSupplier)
+	{
 		this.parent = parent;
-		allVars = new HashMap<String, Object>();
-		allIndex = new HashMap<Integer, Object>();
+		this.allVars = allVarsSupplier.get();
+		this.allIndex = new HashMap<>();
 	}
 
 	/**

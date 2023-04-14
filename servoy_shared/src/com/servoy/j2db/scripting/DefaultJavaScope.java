@@ -20,6 +20,7 @@ package com.servoy.j2db.scripting;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import org.mozilla.javascript.MemberBox;
 import org.mozilla.javascript.NativeJavaMethod;
@@ -48,6 +49,12 @@ public abstract class DefaultJavaScope extends DefaultScope implements IJavaScri
 	protected DefaultJavaScope(Scriptable scriptParent, Map<String, NativeJavaMethod> jsFunctions)
 	{
 		super(scriptParent);
+		this.jsFunctions = jsFunctions;
+	}
+
+	protected DefaultJavaScope(Scriptable scriptParent, Supplier<Map<String, Object>> allVarsSupplier, Map<String, NativeJavaMethod> jsFunctions)
+	{
+		super(scriptParent, allVarsSupplier);
 		this.jsFunctions = jsFunctions;
 	}
 

@@ -18,6 +18,7 @@
 package com.servoy.j2db.querybuilder.impl;
 
 import static com.servoy.j2db.util.Utils.iterate;
+import static java.util.Arrays.stream;
 
 import java.util.ArrayList;
 
@@ -209,6 +210,23 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	public QBResult js_add(QBSearchedCaseExpression qcase, String alias)
 	{
 		return add(qcase, alias);
+	}
+
+	/**
+	 * Add all columns from a query or a join to the query result.
+	 * @sample
+	 * query.result.add(query.columns)
+	 * query.result.add(query.joins.orders_to_orderdetail.columns)
+	 *
+	 * @param columns columns to add to result
+	 */
+	public QBResult js_add(QBColumns columns)
+	{
+		stream(columns.getValues())
+			.filter(IQueryBuilderColumn.class::isInstance)
+			.map(IQueryBuilderColumn.class::cast)
+			.forEach(this::add);
+		return this;
 	}
 
 	public QBResult add(IQueryBuilderColumn column)
