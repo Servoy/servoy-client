@@ -138,7 +138,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	private static Class< ? >[] getAllReturnedTypesInternal()
 	{
-		return new Class< ? >[] { APPLICATION_TYPES.class, CLIENTDESIGN.class, DRAGNDROP.class, ELEMENT_TYPES.class, ICSSPosition.class, IScriptRenderMethodsWithOptionalProps.class, JSDNDEvent.class, JSEvent.class, JSRenderEvent.class, JSUpload.class, JSWindow.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, NGCONSTANTS.class };
+		return new Class< ? >[] { APPLICATION_TYPES.class, CLIENTDESIGN.class, DRAGNDROP.class, ELEMENT_TYPES.class, ICSSPosition.class, IScriptRenderMethodsWithOptionalProps.class, JSDNDEvent.class, JSEvent.class, JSRenderEvent.class, JSUpload.class, JSWindow.class, JSLogger.class, JSLogBuilder.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, NGCONSTANTS.class };
 	}
 
 	@Deprecated
