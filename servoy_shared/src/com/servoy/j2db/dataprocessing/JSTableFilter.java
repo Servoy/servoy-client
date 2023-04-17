@@ -98,6 +98,8 @@ public class JSTableFilter implements IJavaScriptType
 	 *
 	 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_setTableFilters(String, JSTableFilter[])
 	 *
+	 * @param broadcast Boolean set to true this is a databroadcast filtering filter. (default false)
+	 *
 	 * @return filter.
 	 */
 	@JSFunction
