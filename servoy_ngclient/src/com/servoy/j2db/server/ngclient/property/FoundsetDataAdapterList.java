@@ -61,7 +61,14 @@ public class FoundsetDataAdapterList extends DataAdapterList
 
 	public void setRecordQuietly(IRecord record)
 	{
-		if (record == getRecord()) return;
+		// if the record has not changed, avoid setting it again, to avoid unneeded code execution
+		// but
+		// if onlyFireListenersForPropertyValue is set (foundset linked props are being written to JSON), then
+		// only one of the properties (of possible multiple record related properties) is actually being updated
+		// by the setRecord(...) below, so when the next property will being written, if the record is the same (for example a foundset
+		// with size 1, multiple record dependent properties, then we still need to do stuff, so that the next
+		// property that is written toJSON will be updated as well to use the same - correct - record)
+		if (record == getRecord() && onlyFireListenersForPropertyValue == null) return;
 
 		keepQuiet = true;
 		try
