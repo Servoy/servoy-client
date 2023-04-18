@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -169,6 +168,10 @@ public class DatabaseUtils
 				@Override
 				public int compare(ColumnInfoDef o1, ColumnInfoDef o2)
 				{
+					if (o1.creationOrderIndex == o2.creationOrderIndex)
+					{
+						return o1.name.compareTo(o2.name);
+					}
 					return o1.creationOrderIndex - o2.creationOrderIndex;
 				}
 			});
@@ -206,10 +209,8 @@ public class DatabaseUtils
 			}
 		}
 
-		Iterator<Column> columns = t.getColumns().iterator();
-		while (columns.hasNext())
+		for (Column c : t.getColumns())
 		{
-			Column c = columns.next();
 			if (c.getColumnInfo() == null)
 			{
 				// only create servoy sequences when this was a new table and there is only 1 pk column
