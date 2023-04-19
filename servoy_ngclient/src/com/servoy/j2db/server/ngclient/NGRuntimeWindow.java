@@ -36,6 +36,7 @@ import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.info.NGCONSTANTS;
@@ -594,10 +595,17 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 		Map<String, Object> navigatorForm = getNavigatorProperties(currentForm);
 		NGClientWindow.getCurrentWindow().touchForm(currentForm.getForm(), currentForm.getName(), true, false);
+		boolean isLoginForm = false;
+		Solution solution = getApplication().getFlattenedSolution().getSolution();
+		if (solution != null)
+		{
+			isLoginForm = (solution.getSolutionType() == SolutionMetaData.LOGIN_SOLUTION || solution.getLoginFormID() == currentForm
+				.getForm().getID());
+		}
 		getApplication().getWebsocketSession()
 			.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE)
 			.executeAsyncServiceCall("switchForm",
-				new Object[] { getName(), mainForm, navigatorForm });
+				new Object[] { getName(), mainForm, navigatorForm, isLoginForm });
 		sendTitle(title);
 	}
 
