@@ -351,7 +351,9 @@ declare namespace sablo {
          * (for properties) Because some forms might become invisible and then visible again keeping the same data in the model, all properties are notified via this method if the angular scope
          * that they received in fromServerToClient is no longer available or if this property value should be linked to another(new) angular scope.
          * 
-         * @param clientValue the client side value of this property.
+         * @param clientValue the client side value of this property. Note: it is possible here that the clientValue exists but it is not initialized (has no internal state);
+         *                    that can happen for example if properties in .spec are scope: private and pushToServer: reject (which is default pushToServer), and those
+         *                    properties are only assigned on client - so they never go through either fromServerToClient(...) nor fromClientToServer(...) before updateAngularScope(...)
          * @param componentScope the new angular scope (can be null/undefined if form was hidden, in which case the property type should do any needed cleanup operations on previous scope).
          */
         updateAngularScope(clientValue: VT, componentScope: angular.IScope): void;
