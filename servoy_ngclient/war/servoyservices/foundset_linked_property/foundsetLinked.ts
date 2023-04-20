@@ -31,6 +31,7 @@ namespace ngclient.propertyTypes {
 		
 		private getUpdateWholeViewportFunc(propertyContext: sablo.IPropertyContext) {
 			return (propValue: any[], internalState: FSLinkedInternalState, wholeViewport: any[], conversionInfos, componentScope: angular.IScope) => {
+                const oldVal = propValue.slice(); // create shallow copy of old rows as ref. will be the same otherwise
 				const newViewportValues = this.viewportModule.updateWholeViewport(propValue, internalState, wholeViewport, conversionInfos, undefined, componentScope, internalState.propertyContextCreator, true);
 				
 				propValue.splice(0, propValue.length); // we want to keep the same main value reference; so clear all old items and add the new ones
@@ -38,7 +39,7 @@ namespace ngclient.propertyTypes {
 				
 				if (propValue && internalState && internalState.changeListeners.length > 0) {
 					const notificationParamForListeners = {};
-					notificationParamForListeners[this.foundsetTypeConstants.NOTIFY_VIEW_PORT_ROWS_COMPLETELY_CHANGED] = { oldValue: propValue, newValue: propValue }; // should we not set oldValue here? old one has changed into new one so basically we do not have old content anymore...
+					notificationParamForListeners[this.foundsetTypeConstants.NOTIFY_VIEW_PORT_ROWS_COMPLETELY_CHANGED] = { oldValue: oldVal, newValue: propValue }; // should we not set oldValue here? old one has changed into new one so basically we do not have old content anymore...
 					
 					if (this.log.debugEnabled && this.log.debugLevel === this.log.SPAM) this.log.debug("svy foundset linked * firing change listener: full viewport changed...");
 					// use previous (current) value as newValue might be undefined/null and the listeners would be the same anyway
