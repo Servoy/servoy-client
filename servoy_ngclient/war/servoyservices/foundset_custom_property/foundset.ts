@@ -284,7 +284,7 @@ namespace ngclient.propertyTypes {
                 
                 if (angular.isDefined(serverJSONValue[FoundsetType.UPDATE_PREFIX + FoundsetType.VIEW_PORT])) {
                     const viewPortUpdate = serverJSONValue[FoundsetType.UPDATE_PREFIX + FoundsetType.VIEW_PORT];
-                    
+
                     const internalState: FoundsetTypeInternalState = currentClientValue[this.sabloConverters.INTERNAL_IMPL];
                     const oldSize = currentClientValue[FoundsetType.VIEW_PORT][FoundsetType.SIZE];
 
@@ -297,16 +297,16 @@ namespace ngclient.propertyTypes {
                         currentClientValue[FoundsetType.VIEW_PORT][FoundsetType.SIZE] = viewPortUpdate[FoundsetType.SIZE];
                     }
                     if (angular.isDefined(viewPortUpdate[FoundsetType.ROWS])) {
-                        const oldRows = currentClientValue[FoundsetType.VIEW_PORT][FoundsetType.ROWS];
+                        const oldRows = currentClientValue[FoundsetType.VIEW_PORT][FoundsetType.ROWS].slice(); // create shallow copy of old rows as ref. will be the same otherwise
                         currentClientValue[FoundsetType.VIEW_PORT][FoundsetType.ROWS] = this.viewportModule.updateWholeViewport(currentClientValue[FoundsetType.VIEW_PORT][FoundsetType.ROWS], internalState, viewPortUpdate[FoundsetType.ROWS],
                                 viewPortUpdate[this.sabloConverters.CONVERSION_CL_SIDE_TYPE_KEY], undefined, componentScope, internalState.propertyContextCreator, false);
-                        
+
                         // new rows; make them RowValue instances - so that record ref type client-to-server conversion can work
                         const rows = currentClientValue[FoundsetType.VIEW_PORT][FoundsetType.ROWS];
                         for (let i = rows.length - 1; i >= 0; i--) {
                             rows[i] = new RowValue(rows[i], newValue);
                         }
-                        
+
                         if (hasListeners) notificationParamForListeners[this.foundsetTypeConstants.NOTIFY_VIEW_PORT_ROWS_COMPLETELY_CHANGED] = { oldValue : oldRows, newValue : currentClientValue[FoundsetType.VIEW_PORT][FoundsetType.ROWS] };
                     } else if (angular.isDefined(viewPortUpdate[FoundsetType.UPDATE_PREFIX + FoundsetType.ROWS])) {
                         this.viewportModule.updateViewportGranularly(currentClientValue[FoundsetType.VIEW_PORT][FoundsetType.ROWS], internalState, viewPortUpdate[FoundsetType.UPDATE_PREFIX + FoundsetType.ROWS], undefined, componentScope, internalState.propertyContextCreator, false,

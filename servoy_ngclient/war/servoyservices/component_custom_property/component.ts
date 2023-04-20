@@ -112,9 +112,9 @@ namespace ngclient.propertyTypes {
 
 				// if component is linked to a foundset, then record - dependent property values are sent over as as viewport representing values for the foundset property's viewport
 				if (wholeViewportUpdate) {
-					const oldRows = currentClientValue[ComponentType.MODEL_VIEWPORT];
+					const oldRows = currentClientValue[ComponentType.MODEL_VIEWPORT].slice(); // create shallow copy of old rows as ref. will be the same otherwise
 
-					currentClientValue[ComponentType.MODEL_VIEWPORT] = this.viewportModule.updateWholeViewport(oldRows,
+					currentClientValue[ComponentType.MODEL_VIEWPORT] = this.viewportModule.updateWholeViewport(currentClientValue[ComponentType.MODEL_VIEWPORT],
 							internalState, wholeViewportUpdate, beanUpdate[this.sabloConverters.CONVERSION_CL_SIDE_TYPE_KEY],
 							this.typesRegistry.getComponentSpecification(newValue.componentDirectiveName), componentScope,
 							internalState.propertyContextCreator, false);
