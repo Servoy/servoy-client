@@ -33,6 +33,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.server.shared.IApplicationServer;
+import com.servoy.j2db.util.ServoyException;
 
 /**
  * Interface for minimal service provider.
@@ -65,6 +66,15 @@ public interface IServiceProvider extends IEventDelegator, I18NProvider
 	 * Is the repository accessible?
 	 */
 	public boolean haveRepositoryAccess();
+
+	public default void checkAuthorized() throws ServoyException
+	{
+		if (!haveRepositoryAccess())
+		{
+			// no access to repository yet, have to log in first
+			throw new ServoyException(ServoyException.CLIENT_NOT_AUTHORIZED);
+		}
+	}
 
 	/**
 	 * Get the application server interface.

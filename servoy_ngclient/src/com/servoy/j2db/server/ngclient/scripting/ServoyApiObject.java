@@ -79,11 +79,7 @@ public class ServoyApiObject
 	 */
 	public ViewFoundSet getViewFoundSet(String name, QBSelect query) throws ServoyException
 	{
-		if (!app.haveRepositoryAccess())
-		{
-			// no access to repository yet, have to log in first
-			throw new ServoyException(ServoyException.CLIENT_NOT_AUTHORIZED);
-		}
+		app.checkAuthorized();
 		return app.getFoundSetManager().getViewFoundSet(name, query, false);
 	}
 
@@ -96,11 +92,7 @@ public class ServoyApiObject
 	@JSFunction
 	public QBSelect getQuerySelect(String dataSource) throws ServoyException, RepositoryException
 	{
-		if (!app.haveRepositoryAccess())
-		{
-			// no access to repository yet, have to log in first
-			throw new ServoyException(ServoyException.CLIENT_NOT_AUTHORIZED);
-		}
+		app.checkAuthorized();
 		return (QBSelect)app.getFoundSetManager().getQueryFactory().createSelect(dataSource);
 	}
 
@@ -326,11 +318,7 @@ public class ServoyApiObject
 	@JSFunction
 	public String[] getDatasourcePKs(String datasource) throws ServoyException
 	{
-		if (!app.haveRepositoryAccess())
-		{
-			// no access to repository yet, have to log in first
-			throw new ServoyException(ServoyException.CLIENT_NOT_AUTHORIZED);
-		}
+		app.checkAuthorized();
 		List<String> listOfPrimaryKeyNames = new ArrayList<String>();
 		ITable table = app.getFoundSetManager().getTable(datasource);
 		if (table != null)

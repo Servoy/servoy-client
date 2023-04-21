@@ -170,15 +170,6 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		}
 	}
 
-	private void checkAuthorized() throws ServoyException
-	{
-		if (application.getApplicationServerAccess() == null)
-		{
-			// no access to application yet, have to log in first
-			throw new ServoyException(ServoyException.CLIENT_NOT_AUTHORIZED);
-		}
-	}
-
 	/**
 	 * Get the names of the used client licenses (as strings in array).
 	 *
@@ -188,7 +179,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 */
 	public String[] js_getLicenseNames() throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		try
 		{
 			return application.getApplicationServerAccess().getLicenseNames();
@@ -222,7 +213,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 */
 	public int js_getActiveClientCount(boolean currentSolutionOnly) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		try
 		{
 			int sol_id = 0;
@@ -371,7 +362,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 */
 	public int js_getClientCountForInfo(String info) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		try
 		{
 			return application.getApplicationServerAccess().getClientCountForInfo(info);

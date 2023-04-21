@@ -74,6 +74,7 @@ import org.mozilla.javascript.Wrapper;
 import com.google.common.cache.CacheBuilder;
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.BaseColumnType;
+import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.ClientState;
@@ -97,6 +98,7 @@ import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.LiteralDataprovider;
+import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -3961,4 +3963,54 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			.mapToInt(tableNode -> tableNode.getTypedProperty(property))
 			.anyMatch(methodId -> methodId > 0);
 	}
+
+	public QuerySet getQuerySet(QuerySelect select, boolean includeFilters) throws RepositoryException
+	{
+		if (select.getColumns() == null || !includeFilters)
+		{
+			// Do not modify the input
+			select = deepClone(select);
+		}
+
+		String serverName = getDataSourceServerName(select.getTable().getDataSource());
+		ArrayList<TableFilter> tfParams = null;
+		if (includeFilters)
+		{
+			tfParams = getTableFilterParams(serverName, select);
+		}
+		else
+		{
+			// get the sql without any filters
+			select.clearCondition(SQLGenerator.CONDITION_FILTER);
+			select.removeUnusedJoins(false, true);
+		}
+
+		if (select.getColumns() == null)
+		{
+			// no columns, add pk
+			BaseQueryTable qTable = select.getTable();
+			ITable table = getTable(qTable.getDataSource());
+			List<Column> pks = table.getRowIdentColumns();
+			if (pks.isEmpty())
+			{
+				throw new RepositoryException(ServoyException.InternalCodes.PRIMARY_KEY_NOT_FOUND, new Object[] { table.getName() });
+			}
+
+			pks.stream()
+				.map(col -> col.queryColumn(qTable))
+				.forEach(select::addColumn);
+		}
+
+		try
+		{
+			return application.getDataServer().getSQLQuerySet(serverName, select, tfParams, 0, -1, true, true);
+		}
+		catch (RemoteException e)
+		{
+			Debug.error(e);
+		}
+
+		return null;
+	}
+
 }

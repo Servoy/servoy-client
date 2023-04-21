@@ -68,8 +68,6 @@ import com.servoy.j2db.persistence.IDataProvider;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
-import com.servoy.j2db.persistence.QuerySet;
-import com.servoy.j2db.persistence.QueryString;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
@@ -153,15 +151,6 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		this.application = application;
 	}
 
-	private void checkAuthorized() throws ServoyException
-	{
-		if (!application.haveRepositoryAccess())
-		{
-			// no access to repository yet, have to log in first
-			throw new ServoyException(ServoyException.CLIENT_NOT_AUTHORIZED);
-		}
-	}
-
 	/*
 	 * _____________________________________________________________ locking methods
 	 */
@@ -219,7 +208,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public boolean js_acquireLock(IFoundSetInternal foundset, Number recordIndex, String lockName) throws ServoyException
 	{
 		int _recordIndex = Utils.getAsInteger(recordIndex);
-		checkAuthorized();
+		application.checkAuthorized();
 		return ((FoundSetManager)application.getFoundSetManager()).acquireLock(foundset, _recordIndex - 1, lockName);
 	}
 
@@ -396,7 +385,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public boolean js_addTableFilterParam(QBSelect query, String filterName) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 
 		JSTableFilter tableFilter = createTableFilterInternal(query);
 		application.getFoundSetManager().setTableFilters(filterName, tableFilter.getTable().getServerName(),
@@ -547,7 +536,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public boolean js_setTableFilters(String filterName, JSTableFilter[] tableFilters) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 
 		if (stream(tableFilters).anyMatch(Objects::isNull))
 		{
@@ -587,7 +576,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	private boolean addTableFilterParamInternal(String serverName, String tableName, String dataprovider, String operator, Object value, String filterName)
 		throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 
 		JSTableFilter tableFilter = createTableFilterInternal(serverName, tableName, dataprovider, operator, value);
 		try
@@ -718,7 +707,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	{
 		if (serverName == null || filterName == null) return false;
 
-		checkAuthorized();
+		application.checkAuthorized();
 
 		IFoundSetManagerInternal foundSetManager = application.getFoundSetManager();
 		ITable table = foundSetManager.getTable(query.getDataSource());
@@ -749,7 +738,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public boolean js_updateTableFilterParam(String serverName, String filterName, String tableName, String dataprovider, String operator, Object value)
 		throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		try
 		{
 			if (value instanceof Wrapper)
@@ -890,7 +879,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 	public FoundSet convertFoundSet(Object foundset, Object related) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (foundset instanceof FoundSet && ((FoundSet)foundset).getTable() != null)
 		{
 			FoundSet fs_old = (FoundSet)foundset;
@@ -1529,7 +1518,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public String js_createDataSourceByQuery(String name, String server_name, String sql_query, Object[] arguments, int max_returned_rows, int[] types,
 		String[] pkNames) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (server_name == null) throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { "<null>" })); //$NON-NLS-1$
 
 		if (!checkQueryForSelect(sql_query))
@@ -1681,7 +1670,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		throws ServoyException
 	{
 		int _max_returned_rows = Utils.getAsInteger(max_returned_rows);
-		checkAuthorized();
+		application.checkAuthorized();
 
 		String serverName = DataSourceUtils.getDataSourceServerName(query.getDataSource());
 
@@ -1746,7 +1735,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public JSDataSet js_getDataSetByQuery(String server_name, String sql_query, Object[] arguments, Number max_returned_rows) throws ServoyException
 	{
 		int _max_returned_rows = Utils.getAsInteger(max_returned_rows);
-		checkAuthorized();
+		application.checkAuthorized();
 		if (server_name == null) throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { "<null>" })); //$NON-NLS-1$
 
 		if (!checkQueryForSelect(sql_query))
@@ -1848,7 +1837,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public JSDataSet js_getDataSetByQuery(QBSelect query, Boolean useTableFilters, Number max_returned_rows) throws ServoyException
 	{
 		int _max_returned_rows = Utils.getAsInteger(max_returned_rows);
-		checkAuthorized();
+		application.checkAuthorized();
 
 		String serverName = DataSourceUtils.getDataSourceServerName(query.getDataSource());
 
@@ -1879,7 +1868,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public Object js_executeStoredProcedure(String serverName, String procedureDeclaration, Object[] args, int[] inOutType, int maxNumberOfRowsToRetrieve)
 		throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		IClientPlugin cp = application.getPluginManager().getPlugin(IClientPlugin.class, "rawSQL"); //$NON-NLS-1$
 		if (cp != null)
 		{
@@ -1928,7 +1917,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@JSSignature(arguments = { FoundSet.class })
 	public int js_getFoundSetCount(Object foundset) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (foundset instanceof IFoundSetInternal)
 		{
 			return application.getFoundSetManager().getFoundSetCount((IFoundSetInternal)foundset);
@@ -1965,7 +1954,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public void js_flushCalculations(String datasource, boolean unstoredOnly, String[] calcnames) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (datasource != null)
 		{
 			RowManager rowManager = application.getFoundSetManager().getRowManager(datasource);
@@ -1995,7 +1984,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public void js_recalculate(Object foundsetOrRecord) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (foundsetOrRecord instanceof IRecordInternal)
 		{
 			IRecordInternal record = (IRecordInternal)foundsetOrRecord;
@@ -2051,7 +2040,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@JSSignature(arguments = { FoundSet.class })
 	public JSFoundSetUpdater js_getFoundSetUpdater(Object foundset) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (foundset instanceof FoundSet)
 		{
 			return new JSFoundSetUpdater(application, (FoundSet)foundset);
@@ -2317,7 +2306,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@Deprecated
 	public JSDataSet js_getChangedRecordData(Object r) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (r instanceof IRecordInternal)
 		{
 			IRecordInternal rec = ((IRecordInternal)r);
@@ -2345,75 +2334,29 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Returns the internal SQL which defines the specified (related)foundset.
 	 * Optionally, the foundset and table filter params can be excluded in the sql (includeFilters=false).
 	 * Make sure to set the applicable filters when the sql is used in a loadRecords() call.
-	 * When the founset is in find mode, the find conditions are included in the resulting query.
+	 * When the foundset is in find mode, the find conditions are included in the resulting query.
 	 *
 	 * @sample var sql = databaseManager.getSQL(foundset)
+	 *
+	 * @deprecated Replaced by {@link QBSelect#getSQL(boolean)} and {@link JSFoundset#getSQL(boolean)}.
 	 *
 	 * @param foundsetOrQBSelect The JSFoundset or QBSelect to get the sql for.
 	 * @param includeFilters include the foundset and table filters.
 	 *
 	 * @return String representing the sql of the JSFoundset.
 	 */
+	@Deprecated
 	public String js_getSQL(Object foundsetOrQBSelect, boolean includeFilters) throws ServoyException
 	{
-		checkAuthorized();
-		if (foundsetOrQBSelect instanceof IFoundSetInternal && ((IFoundSetInternal)foundsetOrQBSelect).getTable() != null)
+		application.checkAuthorized();
+		if (foundsetOrQBSelect instanceof IFoundSetScriptMethods)
 		{
-			try
-			{
-				QuerySet querySet = getQuerySet(((IFoundSetInternal)foundsetOrQBSelect).getCurrentStateQuery(true, false), includeFilters);
-				StringBuilder sql = new StringBuilder();
-				QueryString[] prepares = querySet.getPrepares();
-				for (int i = 0; prepares != null && i < prepares.length; i++)
-				{
-					// TODO parameters from updates and cleanups
-					// sql.append(updates[i].getSql());
-					// sql.append("\n"); //$NON-NLS-1$
-				}
-				sql.append(querySet.getSelect().getSql());
-				QueryString[] cleanups = querySet.getCleanups();
-				for (int i = 0; cleanups != null && i < cleanups.length; i++)
-				{
-					// TODO parameters from updates and cleanups
-					//sql.append("\n"); //$NON-NLS-1$
-					//sql.append(cleanups[i].getSql());
-				}
-				return sql.toString();
-			}
-			catch (Exception e)
-			{
-				Debug.error(e);
-			}
+			return ((IFoundSetScriptMethods)foundsetOrQBSelect).getSQL(includeFilters);
 		}
-		else if (foundsetOrQBSelect instanceof QBSelect)
+		if (foundsetOrQBSelect instanceof QBSelect)
 		{
-			try
-			{
-				QuerySelect select = ((QBSelect)foundsetOrQBSelect).build();
-				if (select.getColumns() == null)
-				{
-					// no columns, add pk
-					// note that QBSelect.build() already returns a clone
-					ITable table = application.getFoundSetManager().getTable(select.getTable().getDataSource());
-					Iterator<Column> pkIt = ((Table)table).getRowIdentColumns().iterator();
-					if (!pkIt.hasNext())
-					{
-						throw new RepositoryException(ServoyException.InternalCodes.PRIMARY_KEY_NOT_FOUND, new Object[] { table.getName() });
-					}
+			return ((QBSelect)foundsetOrQBSelect).getSQL(includeFilters);
 
-					while (pkIt.hasNext())
-					{
-						Column c = pkIt.next();
-						select.addColumn(c.queryColumn(select.getTable()));
-					}
-				}
-				QuerySet querySet = getQuerySet(select, includeFilters);
-				return querySet.getSelect().getSql();
-			}
-			catch (RemoteException e)
-			{
-				Debug.error(e);
-			}
 		}
 		return null;
 	}
@@ -2425,82 +2368,42 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @sample var sql = databaseManager.getSQL(foundset)
 	 *
+	 * @deprecated Replaced by {@link QBSelect#getSQL(boolean)} and {@link JSFoundset#getSQL(boolean)}.
+	 *
 	 * @param foundsetOrQBSelect The JSFoundset or QBSelect to get the sql for.
 	 *
 	 * @return String representing the sql of the JSFoundset.
 	 */
+	@Deprecated
 	public String js_getSQL(Object foundsetOrQBSelect) throws ServoyException
 	{
-		checkAuthorized();
 		return js_getSQL(foundsetOrQBSelect, true);
 	}
 
 	/**
 	 * Returns the internal SQL parameters, as an array, that are used to define the specified (related)foundset.
-	 * When the founset is in find mode, the arguments for the find conditions are included in the result.
+	 * When the foundset is in find mode, the arguments for the find conditions are included in the result.
 	 *
 	 * @sample var sqlParameterArray = databaseManager.getSQLParameters(foundset,false)
+	 *
+	 * @deprecated Replaced by {@link QBSelect#getSQLParameters(boolean)} and {@link JSFoundset#getSQLParameters(boolean)}.
 	 *
 	 * @param foundsetOrQBSelect The JSFoundset or QBSelect to get the sql parameters for.
 	 * @param includeFilters include the parameters for the filters.
 	 *
 	 * @return An Array with the sql parameter values.
 	 */
+	@Deprecated
 	public Object[] js_getSQLParameters(Object foundsetOrQBSelect, boolean includeFilters) throws ServoyException
 	{
-		checkAuthorized();
-		if (foundsetOrQBSelect instanceof IFoundSetInternal && ((IFoundSetInternal)foundsetOrQBSelect).getTable() != null)
+		application.checkAuthorized();
+		if (foundsetOrQBSelect instanceof IFoundSetScriptMethods)
 		{
-			try
-			{
-				// TODO parameters from updates and cleanups
-				QuerySet querySet = getQuerySet(((IFoundSetInternal)foundsetOrQBSelect).getCurrentStateQuery(true, false), includeFilters);
-				Object[][] qsParams = querySet.getSelect().getParameters();
-				if (qsParams == null || qsParams.length == 0)
-				{
-					return null;
-				}
-				return qsParams[0];
-			}
-			catch (Exception e)
-			{
-				Debug.error(e);
-			}
+			return ((IFoundSetScriptMethods)foundsetOrQBSelect).getSQLParameters(includeFilters);
 		}
-		else if (foundsetOrQBSelect instanceof QBSelect)
+		if (foundsetOrQBSelect instanceof QBSelect)
 		{
-			try
-			{
-				QuerySelect select = ((QBSelect)foundsetOrQBSelect).build();
-				if (select.getColumns() == null)
-				{
-					// no columns, add pk
-					// note that QBSelect.build() already returns a clone
-					ITable table = application.getFoundSetManager().getTable(select.getTable().getDataSource());
-					Iterator<Column> pkIt = ((Table)table).getRowIdentColumns().iterator();
-					if (!pkIt.hasNext())
-					{
-						throw new RepositoryException(ServoyException.InternalCodes.PRIMARY_KEY_NOT_FOUND, new Object[] { table.getName() });
-					}
-
-					while (pkIt.hasNext())
-					{
-						Column c = pkIt.next();
-						select.addColumn(c.queryColumn(select.getTable()));
-					}
-				}
-				QuerySet querySet = getQuerySet(select, includeFilters);
-				Object[][] qsParams = querySet.getSelect().getParameters();
-				if (qsParams == null || qsParams.length == 0)
-				{
-					return null;
-				}
-				return qsParams[0];
-			}
-			catch (RemoteException e)
-			{
-				Debug.error(e);
-			}
+			return ((QBSelect)foundsetOrQBSelect).getSQLParameters(includeFilters);
 		}
 		return null;
 	}
@@ -2511,33 +2414,16 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 *
 	 * @sample var sqlParameterArray = databaseManager.getSQLParameters(foundset,false)
 	 *
+	 * @deprecated Replaced by {@link QBSelect#getSQLParameters(boolean)} and {@link JSFoundset#getSQLParameters(boolean)}.
+	 *
 	 * @param foundsetOrQBSelect The JSFoundset or QBSelect to get the sql parameters for.
 	 *
 	 * @return An Array with the sql parameter values.
 	 */
+	@Deprecated
 	public Object[] js_getSQLParameters(Object foundsetOrQBSelect) throws ServoyException
 	{
-		checkAuthorized();
 		return js_getSQLParameters(foundsetOrQBSelect, true);
-	}
-
-	private QuerySet getQuerySet(QuerySelect sqlSelect, boolean includeFilters) throws RemoteException, ServoyException
-	{
-		String serverName = DataSourceUtils.getDataSourceServerName(sqlSelect.getTable().getDataSource());
-		ArrayList<TableFilter> tableFilterParams;
-		if (includeFilters)
-		{
-			tableFilterParams = ((FoundSetManager)application.getFoundSetManager()).getTableFilterParams(serverName, sqlSelect);
-		}
-		else
-		{
-			// get the sql without any filters
-			sqlSelect = deepClone(sqlSelect);
-			sqlSelect.clearCondition(SQLGenerator.CONDITION_FILTER);
-			sqlSelect.removeUnusedJoins(false, true);
-			tableFilterParams = null;
-		}
-		return application.getDataServer().getSQLQuerySet(serverName, sqlSelect, tableFilterParams, 0, -1, true, true);
 	}
 
 	/**
@@ -2562,7 +2448,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public boolean js_refreshRecordFromDatabase(Object foundset, int index) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		int idx = index;
 		if (foundset instanceof IFoundSetInternal && ((IFoundSetInternal)foundset).getTable() != null)
 		{
@@ -2620,7 +2506,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@Deprecated
 	public Object[] js_getFoundSetDataProviderAsArray(Object foundset, String dataprovider) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (foundset instanceof FoundSet && ((FoundSet)foundset).getSQLSheet().getTable() != null)
 		{
 			FoundSet fs = (FoundSet)foundset;
@@ -2796,7 +2682,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public boolean js_dataSourceExists(String dataSource) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		try
 		{
 			return application.getFoundSetManager().dataSourceExists(dataSource);
@@ -2896,7 +2782,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public JSTable js_getTable(String serverName, String tableName) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		try
 		{
 			if (serverName != null)
@@ -2945,7 +2831,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public boolean js_mergeRecords(IRecordInternal sourceRecord, IRecordInternal combinedDestinationRecord, String[] columnNames) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (sourceRecord != null && combinedDestinationRecord != null)
 		{
 			FoundSetManager fsm = (FoundSetManager)application.getFoundSetManager();
@@ -3105,7 +2991,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public int js_getTableCount(Object dataSource) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		ITable table = null;
 		if (dataSource instanceof IFoundSetInternal)
 		{
@@ -3145,7 +3031,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public boolean js_switchServer(String sourceName, String destinationName) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (IServer.REPOSITORY_SERVER.equals(sourceName)) return false;
 		if (IServer.REPOSITORY_SERVER.equals(destinationName)) return false;
 		if (((FoundSetManager)application.getFoundSetManager()).hasTransaction()) return false;
@@ -3242,7 +3128,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@JSFunction
 	public JSRecordMarkers validate(IJSRecord record, Object customObject) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		return application.getFoundSetManager().validateRecord((IRecordInternal)record, customObject);
 	}
 
@@ -3290,7 +3176,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@JSFunction
 	public boolean saveData() throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		EditRecordList editRecordList = application.getFoundSetManager().getEditRecordList();
 		IRecordInternal[] failedRecords = editRecordList.getFailedRecords();
 		for (IRecordInternal record : failedRecords)
@@ -3312,7 +3198,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@JSFunction
 	public boolean saveData(IJSFoundSet foundset) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (foundset != null)
 		{
 			EditRecordList editRecordList = application.getFoundSetManager().getEditRecordList();
@@ -3339,7 +3225,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@JSFunction
 	public boolean saveData(IJSRecord record) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (record != null)
 		{
 			EditRecordList editRecordList = application.getFoundSetManager().getEditRecordList();
@@ -3385,7 +3271,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@JSFunction
 	public boolean saveData(IRecordInternal[] records) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (records != null && records.length != 0)
 		{
 			EditRecordList editRecordList = application.getFoundSetManager().getEditRecordList();
@@ -3446,7 +3332,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@JSFunction
 	public IJSFoundSet getFoundSet(String dataSource) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		try
 		{
 			return (FoundSet)application.getFoundSetManager().getFoundSet(dataSource);
@@ -3481,7 +3367,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@JSFunction
 	public IJSFoundSet getNamedFoundSet(String name) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		return (FoundSet)application.getFoundSetManager().getNamedFoundSet(name, null);
 	}
 
@@ -3496,7 +3382,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public FoundSet js_getFoundSet(QBSelect query) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		try
 		{
 			return (FoundSet)application.getFoundSetManager().getFoundSet(query);
@@ -3510,7 +3396,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	/**
 	 * Returns a ViewFoundSet that was created by getViewFoundSet(name,query,register) with the registerd boolean "true".
 	 * So it is registered and remembered by the system to use in Forms.
-	 * You can't get ViewFounSet back that are not registered to the system, those are not remembered.
+	 * You can't get ViewFoundSet back that are not registered to the system, those are not remembered.
 	 *
 	 * @param name The name to lookup a ViewFoundSet for
 	 *
@@ -3518,7 +3404,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public ViewFoundSet js_getViewFoundSet(String name) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		return application.getFoundSetManager().getRegisteredViewFoundSet(name);
 	}
 
@@ -3546,7 +3432,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public ViewFoundSet js_getViewFoundSet(String name, QBSelect query) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		return application.getFoundSetManager().getViewFoundSet(name, query, false);
 	}
 
@@ -3582,7 +3468,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public ViewFoundSet js_getViewFoundSet(String name, QBSelect query, boolean register) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		ViewFoundSet viewFoundSet = application.getFoundSetManager().getViewFoundSet(name, query, register);
 		return viewFoundSet;
 	}
@@ -3597,7 +3483,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@Deprecated
 	public boolean js_registerViewFoundSet(ViewFoundSet viewFoundset) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		return application.getFoundSetManager().registerViewFoundSet(viewFoundset, false);
 	}
 
@@ -3619,7 +3505,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@Deprecated
 	public boolean js_unegisterViewFoundSet(String datasource) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		ViewFoundSet viewFoundset = application.getFoundSetManager().getRegisteredViewFoundSet(datasource);
 		if (viewFoundset != null)
 		{
@@ -3653,7 +3539,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public Object js_getNextSequence(String dataSource, String columnName) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		String serverName = getDataSourceServerName(dataSource);
 		if (serverName != null)
 		{
@@ -3681,7 +3567,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@Deprecated
 	public Object js_getNextSequence(String serverName, String tableName, String columnName) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		try
 		{
 			IServer server = application.getRepository().getServer(serverName);
@@ -3713,7 +3599,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public String[] js_getServerNames() throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		//we use flattensolution to be sure we also take the combined server proxies from modules (which are combined in flatten solution)
 		ConcurrentMap<String, IServer> sp = application.getFlattenedSolution().getSolution().getServerProxies();
 		if (sp != null)
@@ -3734,7 +3620,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@JSFunction
 	public String[] getDataModelClonesFrom(String serverName) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		try
 		{
 			IServer server = application.getSolution().getServer(serverName);
@@ -3763,7 +3649,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public String js_getDatabaseProductName(String serverName) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		try
 		{
 			IServer s = application.getSolution().getServer(serverName);
@@ -3793,7 +3679,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public String[] js_getTableNames(String serverName) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		return ((FoundSetManager)application.getFoundSetManager()).getTableNames(serverName);
 	}
 
@@ -3811,7 +3697,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public String[] js_getViewNames(String serverName) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		return ((FoundSetManager)application.getFoundSetManager()).getViewNames(serverName);
 	}
 
@@ -3826,7 +3712,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public boolean js_hasLocks(String lockName) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		return ((FoundSetManager)application.getFoundSetManager()).hasLocks(lockName);
 	}
 
@@ -3853,7 +3739,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public boolean js_releaseAllLocks() throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		return js_releaseAllLocks(null);
 	}
 
@@ -3868,7 +3754,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public boolean js_releaseAllLocks(String lockName) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		return ((FoundSetManager)application.getFoundSetManager()).releaseAllLocks(lockName);
 	}
 
@@ -3888,7 +3774,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public boolean js_commitTransaction(boolean saveFirst, boolean revertSavedRecords) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		IFoundSetManagerInternal fsm = application.getFoundSetManager();
 		return fsm.commitTransaction(saveFirst, revertSavedRecords);
 	}
@@ -3904,7 +3790,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public boolean js_commitTransaction(boolean saveFirst) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		IFoundSetManagerInternal fsm = application.getFoundSetManager();
 		return fsm.commitTransaction(saveFirst, true);
 	}
@@ -3933,7 +3819,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public void js_rollbackTransaction(boolean rollbackEdited) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		IFoundSetManagerInternal fsm = application.getFoundSetManager();
 		fsm.rollbackTransaction(rollbackEdited, true, true);
 	}
@@ -3951,7 +3837,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public void js_rollbackTransaction(boolean rollbackEdited, boolean revertSavedRecords) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		IFoundSetManagerInternal fsm = application.getFoundSetManager();
 		fsm.rollbackTransaction(rollbackEdited, true, revertSavedRecords);
 	}
@@ -3989,7 +3875,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public void js_startTransaction() throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		application.getFoundSetManager().startTransaction();
 	}
 
@@ -4202,7 +4088,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public void js_revertEditedRecords() throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		application.getFoundSetManager().getEditRecordList().rollbackRecords();
 	}
 
@@ -4215,7 +4101,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public void js_revertEditedRecords(IFoundSetInternal foundset) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (foundset != null)
 		{
 			List<IRecordInternal> records = new ArrayList<IRecordInternal>();
@@ -4237,7 +4123,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@Deprecated
 	public void js_revertEditedRecords(IRecordInternal record) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (record != null)
 		{
 			List<IRecordInternal> records = new ArrayList<IRecordInternal>();
@@ -4572,7 +4458,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 	public boolean copyMatchingFields(Object src, IRecordInternal dest, boolean overwrite, Object[] names) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (dest.getParentFoundSet().getSQLSheet() == null)
 		{
 			return false;
@@ -4761,7 +4647,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@Deprecated
 	public String js_createDataSource(Object[] args) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (args.length >= 3)
 		{
 			String name = String.valueOf(args[0]);

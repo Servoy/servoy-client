@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
 import static com.servoy.j2db.util.keyword.Ident.generateNormalizedNonReservedOSName;
 
 import java.sql.Time;
@@ -37,8 +38,8 @@ import com.servoy.j2db.persistence.IDataProviderHandler;
 import com.servoy.j2db.persistence.IRelation;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.ITableAndRelationProvider;
+import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.AndCondition;
 import com.servoy.j2db.query.AndOrCondition;
 import com.servoy.j2db.query.ExistsCondition;
@@ -56,6 +57,7 @@ import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Settings;
 
 /**
@@ -111,7 +113,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	{
 		// do not clone immutables because QueryTable is marked as immutable and a new instance of QueryTable is seen as a
 		// different table when this query is used in another query (like with subcondition)
-		return AbstractBaseQuery.deepClone(getQuery(), false);
+		return deepClone(getQuery(), false);
 	}
 
 	/**
@@ -577,6 +579,73 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	public QBCase qcase()
 	{
 		return new QBCase(getRoot(), this);
+	}
+
+	/**
+	 * Returns the internal SQL of the QBSelect.
+	 * Table filters are on by default.
+	 *
+	 * @sample var sql = query.getSQL(true)
+	 *
+	 * @return String representing the sql of the Query Builder.
+	 */
+	@JSFunction
+	public String getSQL() throws ServoyException
+	{
+		return getSQL(true);
+	}
+
+	/**
+	 * @clonedesc getSQL()
+	 *
+	 * @sampleas getSQL()
+	 *
+	 * @param includeFilters include the table filters [default true].
+	 *
+	 * @return String representing the sql of the Query Builder.
+	 */
+	@JSFunction
+	public String getSQL(boolean includeFilters) throws ServoyException
+	{
+		QuerySet querySet = tableProvider.getQuerySet(getQuery(), includeFilters);
+		return querySet.getSelect().getSql();
+	}
+
+	/**
+	 * Returns the parameters for the internal SQL of the QBSelect.
+	 * Table filters are on by default.
+	 *
+	 * @sample var parameters = query.getSQLParameters(true)
+	 *
+	 * @return An Array with the sql parameter values.
+	 */
+	@JSFunction
+	public Object[] getSQLParameters() throws ServoyException
+	{
+		return getSQLParameters(true);
+	}
+
+	/**
+	 * @clonedesc getSQLParameters()
+	 *
+	 * @sampleas getSQLParameters()
+	 *
+	 * @param includeFilters include the table filters [default true].
+	 *
+	 * @return An Array with the sql parameter values.
+	 */
+	@JSFunction
+	public Object[] getSQLParameters(boolean includeFilters) throws ServoyException
+	{
+		QuerySet querySet = tableProvider.getQuerySet(getQuery(), includeFilters);
+		// TODO parameters from updates and cleanups
+		Object[][] qsParams = querySet.getSelect().getParameters();
+		if (qsParams != null && qsParams.length > 0)
+		{
+			return qsParams[0];
+		}
+
+		return null;
 	}
 
 	public QuerySelect getQuery()

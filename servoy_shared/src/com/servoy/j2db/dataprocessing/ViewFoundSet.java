@@ -102,7 +102,7 @@ import com.servoy.j2db.util.visitor.SearchVisitor;
  * @since 8.4
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ViewFoundSet", scriptingName = "ViewFoundSet")
-public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, IConstantsObject
+public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, IFoundSetScriptMethods, IConstantsObject
 {
 
 	/**
@@ -497,45 +497,6 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		}
 		return null;
 	}
-
-	/**
-	 * Iterates over the records of a foundset taking into account inserts and deletes that may happen at the same time.
-	 * It will dynamically load all records in the foundset (using Servoy lazy loading mechanism). If callback function returns a non null value the traversal will be stopped and that value is returned.
-	 * If no value is returned all records of the foundset will be traversed. Foundset modifications( like sort, omit...) cannot be performed in the callback function.
-	 * If foundset is modified an exception will be thrown. This exception will also happen if a refresh happens because of a rollback call for records on this datasource when iterating.
-	 * When an exception is thrown from the callback function, the iteraion over the foundset will be stopped.
-	 *
-	 * @sample
-	 *  foundset.forEach(function(record,recordIndex,foundset) {
-	 *  	//handle the record here
-	 *  });
-	 *
-	 * @param callback The callback function to be called for each loaded record in the foundset. Can receive three parameters: the record to be processed, the index of the record in the foundset, and the foundset that is traversed.
-	 *
-	 * @return Object the return value of the callback
-	 *
-	 */
-	public Object js_forEach(Function callback)
-	{
-		return forEach(new CallJavaScriptCallBack(callback, manager.getApplication().getScriptEngine(), null));
-	}
-
-	/**
-	 * @clonedesc js_forEach(Function)
-	 *
-	 * @sampleas js_forEach(Function)
-	 *
-	 * @param callback The callback function to be called for each loaded record in the foundset. Can receive three parameters: the record to be processed, the index of the record in the foundset, and the foundset that is traversed.
-	 * @param thisObject What the this object should be in the callback function (default it is the foundset)
-	 *
-	 * @return Object the return value of the callback
-	 *
-	 */
-	public Object js_forEach(Function callback, Scriptable thisObject)
-	{
-		return forEach(new CallJavaScriptCallBack(callback, manager.getApplication().getScriptEngine(), thisObject));
-	}
-
 
 	/**
 	 * Databroadcast can be enabled per select table of a query, the select table can be the main QBSelect or on of it QBJoins
@@ -1273,7 +1234,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 	/**
 	 * Get the selected records.
-	 * When the viewfounset is in multiSelect mode (see property multiSelect), selection can be a more than 1 record.
+	 * When the viewfoundset is in multiSelect mode (see property multiSelect), selection can be a more than 1 record.
 	 *
 	 * @sample var selectedRecords = %%prefix%%foundset.getSelectedRecords();
 	 * @return Array current records.
@@ -1295,93 +1256,6 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		return selectedRecords.toArray(new ViewRecord[selectedRecords.size()]);
 	}
 
-	/**
-	 * Set the current record index.
-	 *
-	 * @sampleas js_getSelectedIndex()
-	 *
-	 * @param index int index to set (1-based)
-	 */
-	public void jsFunction_setSelectedIndex(int index)
-	{
-		if (index >= 1 && index <= getSize())
-		{
-			setSelectedIndex(index - 1);
-		}
-	}
-
-	/**
-	 * Get the current record index of the viewfoundset.
-	 *
-	 * @sample
-	 * //gets the current record index in the current viewfoundset
-	 * var current = %%prefix%%foundset.getSelectedIndex();
-	 * //sets the next record in the viewfoundset
-	 * %%prefix%%foundset.setSelectedIndex(current+1);
-	 * @return int current index (1-based)
-	 */
-	public int jsFunction_getSelectedIndex()
-	{
-		return getSelectedIndex() + 1;
-	}
-
-	/**
-	 * Get the indexes of the selected records.
-	 * When the viewfounset is in multiSelect mode (see property multiSelect), a selection can consist of more than one index.
-	 *
-	 * @sample
-	 * // modify selection to the first selected item and the following row only
-	 * var current = %%prefix%%foundset.getSelectedIndexes();
-	 * if (current.length > 1)
-	 * {
-	 * 	var newSelection = new Array();
-	 * 	newSelection[0] = current[0]; // first current selection
-	 * 	newSelection[1] = current[0] + 1; // and the next row
-	 * 	%%prefix%%foundset.setSelectedIndexes(newSelection);
-	 * }
-	 * @return Array current indexes (1-based)
-	 */
-	public Number[] jsFunction_getSelectedIndexes()
-	{
-		Number[] selected = null;
-		int[] selectedIndexes = getSelectedIndexes();
-		if (selectedIndexes != null && selectedIndexes.length > 0)
-		{
-			selected = new Number[selectedIndexes.length];
-			for (int i = 0; i < selectedIndexes.length; i++)
-			{
-				selected[i] = Integer.valueOf(selectedIndexes[i] + 1);
-			}
-		}
-
-		return selected;
-	}
-
-	/**
-	 * Set the selected records indexes.
-	 *
-	 * @sampleas js_getSelectedIndexes()
-	 *
-	 * @param indexes An array with indexes to set.
-	 */
-	public void jsFunction_setSelectedIndexes(Number[] indexes)
-	{
-		if (indexes == null || indexes.length == 0) return;
-		ArrayList<Integer> selectedIndexes = new ArrayList<Integer>();
-
-		Integer i;
-		for (Object index : indexes)
-		{
-			i = Integer.valueOf(Utils.getAsInteger(index));
-			if (selectedIndexes.indexOf(i) == -1) selectedIndexes.add(i);
-		}
-		int[] iSelectedIndexes = new int[selectedIndexes.size()];
-		for (int j = 0; j < selectedIndexes.size(); j++)
-		{
-			iSelectedIndexes[j] = selectedIndexes.get(j).intValue() - 1;
-		}
-		setSelectedIndexes(iSelectedIndexes);
-	}
 
 	@Override
 	public String getSort()

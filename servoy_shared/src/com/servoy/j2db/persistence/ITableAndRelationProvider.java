@@ -16,18 +16,20 @@
  */
 package com.servoy.j2db.persistence;
 
+import com.servoy.j2db.query.QuerySelect;
+
 /**
  * Table and relation lookup.
- * 
+ *
  * @author rgansevles
- * 
+ *
  * @since 6.1
  */
 public interface ITableAndRelationProvider
 {
 	/**
 	 * Get a table object interface for a datasource
-	 * 
+	 *
 	 * @param dataSource the datasource
 	 * @return the table interface
 	 */
@@ -46,4 +48,12 @@ public interface ITableAndRelationProvider
 	 * @param tableSQLName
 	 */
 	public String resolveDataSource(String serverDataSource, String tableSQLName);
+
+	/**
+	 * Get the QuerySet for a QuerySelect select.
+	 *
+	 * @param select the QuerySelect
+	 * @param includeFilters include table filters option
+	 */
+	public QuerySet getQuerySet(QuerySelect select, boolean includeFilters) throws RepositoryException;
 }

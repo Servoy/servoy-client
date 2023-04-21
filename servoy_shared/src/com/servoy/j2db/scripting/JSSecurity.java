@@ -245,7 +245,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public String js_getUserUID(String username) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		try
 		{
 			if (username == null || username.length() == 0)
@@ -289,7 +289,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	@Deprecated
 	public Object js_getGroupId(String groupName) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		int gid = getGroupId(groupName);
 		if (gid != -1)
 		{
@@ -360,7 +360,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public String js_getUserName(Object userUID) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		try
 		{
 			if (userUID == null)
@@ -500,7 +500,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public JSDataSet js_getUserGroups(Object userUID) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (userUID == null) return null;
 		String n_userUID = normalizeUID(userUID);
 
@@ -555,7 +555,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public boolean js_setPassword(Object a_userUID, String password) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (a_userUID == null) return false;
 		String userUID = normalizeUID(a_userUID);
 		try
@@ -590,7 +590,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public boolean js_setUserUID(Object a_userUID, String newUserUID) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (a_userUID == null) return false;
 		String userUID = normalizeUID(a_userUID);
 		try
@@ -623,7 +623,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public boolean js_checkPassword(Object a_userUID, String password) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (a_userUID == null) return false;
 
 		String userUID = normalizeUID(a_userUID);
@@ -671,7 +671,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public String js_createGroup(String groupName) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		try
 		{
 			int groupId = application.getUserManager().createGroup(application.getClientID(), groupName);
@@ -745,7 +745,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public Object js_createUser(String username, String password, Object userUID) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (username == null || username.length() == 0 || password == null || password.length() == 0) return null;
 
 		try
@@ -784,7 +784,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public boolean js_deleteUser(Object userUID) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (userUID == null) return false;
 
 		String n_userUID = normalizeUID(userUID);
@@ -810,7 +810,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public boolean js_deleteGroup(Object groupName) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (groupName == null) return false;
 
 		try
@@ -848,7 +848,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public boolean js_changeUserName(Object a_userUID, String username) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (a_userUID == null || username == null || username.length() == 0) return false;
 
 		String userUID = normalizeUID(a_userUID);
@@ -876,7 +876,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public boolean js_changeGroupName(Object oldGroupName, String newGroupName) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (oldGroupName == null || newGroupName == null || newGroupName.length() == 0 || newGroupName.equals(IRepository.ADMIN_GROUP) ||
 			oldGroupName.equals(IRepository.ADMIN_GROUP)) return false;
 
@@ -918,7 +918,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public JSDataSet js_getUsers(String groupName) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		try
 		{
 			IDataSet users = null;
@@ -948,7 +948,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public JSDataSet js_getGroups() throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		try
 		{
 			IDataSet groups = application.getUserManager().getGroups(application.getClientID());
@@ -975,7 +975,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public boolean js_addUserToGroup(Object a_userUID, Object groupName) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (a_userUID == null || groupName == null) return false;
 
 		String userUID = normalizeUID(a_userUID);
@@ -1013,7 +1013,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public boolean js_removeUserFromGroup(Object a_userUID, Object groupName) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		if (a_userUID == null || groupName == null) return false;
 		String userUID = normalizeUID(a_userUID);
 		try
@@ -1439,15 +1439,6 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 			application.clearLoginForm();
 		}
 		return true;
-	}
-
-	private void checkAuthorized() throws ServoyException
-	{
-		if (!application.haveRepositoryAccess())
-		{
-			// no access to repository yet, have to log in first
-			throw new ServoyException(ServoyException.CLIENT_NOT_AUTHORIZED);
-		}
 	}
 
 	/**
