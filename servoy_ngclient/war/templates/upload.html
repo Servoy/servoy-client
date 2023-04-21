@@ -3,13 +3,13 @@
 	<table class="svy-upload-table" ng-if="isFileSelected() && !isUploading">
 		<caption>{{::i18_selectedFiles}}</caption>
 		<thead><tr><th>{{::i18n_name}}</th><th></th></tr></thead>
-		<tr ng-repeat="f in getUploadFiles()"><td>{{f.name}}</td><td><div class="svy-btn svy-btn-danger" ng-click="doRemove(f)">{{::i18n_remove}}</div></td></tr>
+		<tr ng-repeat="f in getUploadFiles()"><td>{{f.name}}</td><td><div class="svy-btn svy-btn-danger svy-upload-btn-remove" ng-click="doRemove(f)">{{::i18n_remove}}</div></td></tr>
 	</table>
 	<div ng-if="!isFileSelected()"><span>{{::i18n_nothingSelected}}</span></div>
 	<br>
-	<div class="svy-btn svy-btn-primary" ngf-select ngf-accept="getAcceptFilter()" ng-model="uploadFiles" ngf-multiple="isMultiSelect()" ngf-keep="isMultiSelect() ? 'distinct' : false">{{::i18n_chooseFiles}}</div>
-   	<div ng-if="isFileSelected()" class="svy-btn svy-btn-success" ng-click="doUpload()">{{::i18n_upload}}</div>
-   	<div class="svy-btn svy-btn-info" ng-click="dismiss()">{{::i18n_cancel}}</div>
+	<div class="svy-btn svy-btn-primary svy-upload-btn-select" ngf-select ngf-accept="getAcceptFilter()" ng-model="uploadFiles" ngf-multiple="isMultiSelect()" ngf-keep="isMultiSelect() ? 'distinct' : false">{{::i18n_chooseFiles}}</div>
+   	<div ng-if="isFileSelected()" class="svy-btn svy-btn-success svy-upload-btn-upload" ng-click="doUpload()">{{::i18n_upload}}</div>
+   	<div class="svy-btn svy-btn-info svy-upload-btn-cancel" ng-click="dismiss()">{{::i18n_cancel}}</div>
    	<br><br>
    	<div class="svy-progress">
 	  <div class="svy-progress-bar" role="progressbar" aria-valuenow="{{getProgress('')}}" aria-valuemin="0" aria-valuemax="100" style="width: {{getProgress('%')}};">
