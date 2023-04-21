@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -356,7 +356,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		{
 			addEventDispatchThread();
 			checkForChanges();
-			synchronized (onBeginRequestLock)
+			synchronized (requestLock)
 			{
 				executeEvents();
 			}
@@ -414,11 +414,10 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		{
 			if (!wasLoginSolution)
 			{
-				Iterator<Map.Entry<Object, Object>> changedPropertiesIte = changedProperties.entrySet().iterator();
 				Map.Entry<Object, Object> changedEntry;
-				while (changedPropertiesIte.hasNext())
+				for (Entry<Object, Object> element : changedProperties.entrySet())
 				{
-					changedEntry = changedPropertiesIte.next();
+					changedEntry = element;
 					super.putClientProperty(changedEntry.getKey(), changedEntry.getValue());
 				}
 				changedProperties.clear();

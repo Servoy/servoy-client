@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -1027,31 +1029,29 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		return new Dimension(width, height);
 	}
 
-	protected final Object onBeginRequestLock = new Object();
+	protected final Lock requestLock = new ReentrantLock();
 
 	public void onBeginRequest(WebClientSession webClientSession)
 	{
 		Solution solution = getSolution();
 		if (solution != null)
 		{
-			synchronized (onBeginRequestLock)
+			requestLock.lock();
+			long solutionLastModifiedTime = webClientSession.getSolutionLastModifiedTime(solution);
+			if (solutionLastModifiedTime != -1 && solutionLastModifiedTime != solution.getLastModifiedTime())
 			{
-				long solutionLastModifiedTime = webClientSession.getSolutionLastModifiedTime(solution);
-				if (solutionLastModifiedTime != -1 && solutionLastModifiedTime != solution.getLastModifiedTime())
+				if (isClosing() || isShutDown())
 				{
-					if (isClosing() || isShutDown())
-					{
-						if (((WebRequest)RequestCycle.get().getRequest()).isAjax()) throw new AbortException();
-						else throw new RestartResponseException(Application.get().getHomePage());
-					}
-					refreshI18NMessages(true);
-					((IScriptSupport)getScriptEngine()).reload();
-					((WebFormManager)getFormManager()).reload();
-					MainPage page = (MainPage)((WebFormManager)getFormManager()).getMainContainer(null);
-					throw new RestartResponseException(page);
+					if (((WebRequest)RequestCycle.get().getRequest()).isAjax()) throw new AbortException();
+					else throw new RestartResponseException(Application.get().getHomePage());
 				}
-				executeEvents();
+				refreshI18NMessages(true);
+				((IScriptSupport)getScriptEngine()).reload();
+				((WebFormManager)getFormManager()).reload();
+				MainPage page = (MainPage)((WebFormManager)getFormManager()).getMainContainer(null);
+				throw new RestartResponseException(page);
 			}
+			executeEvents();
 		}
 	}
 
@@ -1069,6 +1069,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 			}
 		}
 		requestEvents.remove();
+		requestLock.unlock();
 	}
 
 	private void writeObject(ObjectOutputStream stream) throws IOException
