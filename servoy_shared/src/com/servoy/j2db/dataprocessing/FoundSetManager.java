@@ -110,7 +110,6 @@ import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
-import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.IQueryElement;
 import com.servoy.j2db.query.IQuerySelectValue;
@@ -873,14 +872,14 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		// this returns quickly if it already has a sheet for that relation, but optimize further?
 		getSQLGenerator().makeRelatedSQL(sheet, relation);
 
-		SQLSheet relatedSheet = sheet.getRelatedSheet(relation, getSQLGenerator());
 		Object[] relationWhereArgs = getRelationWhereArgs(record, relation, false);
-		if (relatedSheet == null || relationWhereArgs == null)
+		if (relationWhereArgs == null)
 		{
 			return null;
 		}
 
-		QuerySelect relationSelect = (QuerySelect)deepClone(relatedSheet.getRelatedSQLDescription(relation.getName()).getSQLQuery());
+		QuerySelect relationSelect = deepClone((QuerySelect)sheet.getRelatedSQLDescription(relation.getName()).getSQLQuery());
+
 		TablePlaceholderKey placeHolderKey = createRelationKeyPlaceholderKey(relationSelect.getTable(), relation.getName());
 		if (!relationSelect.setPlaceholderValue(placeHolderKey, relationWhereArgs))
 		{
@@ -1539,7 +1538,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					QuerySelect querySelect = ((QueryTableFilterdefinition)f.getTableFilterdefinition()).getQuerySelect();
 					result.add(new Object[] { new QBSelect(this, getScopesScopeProvider(), getApplication().getFlattenedSolution(),
 						getApplication().getScriptEngine().getSolutionScope(), querySelect.getTable().getDataSource(), null,
-						AbstractBaseQuery.deepClone(querySelect, true)), f.getName() });
+						deepClone(querySelect, true)), f.getName() });
 				}
 			}
 		}
