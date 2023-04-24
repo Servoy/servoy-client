@@ -841,7 +841,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		sb.append(row);
 		sb.append(']');
 
-		sb.append("  COLUMS: "); //$NON-NLS-1$
+		sb.append("  COLUMNS: "); //$NON-NLS-1$
 		String[] objects = parent.getSQLSheet().getColumnNames();
 		for (String element : objects)
 		{
@@ -865,7 +865,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 			}
 			if (rows.size() > 0)
 			{
-				sb.append("  EDITED_COLUMS: "); //$NON-NLS-1$
+				sb.append("  EDITED_COLUMNS: "); //$NON-NLS-1$
 				for (Object[] editedData : rows)
 				{
 					sb.append(editedData[0]);

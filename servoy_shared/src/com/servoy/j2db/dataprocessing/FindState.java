@@ -724,7 +724,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 	public String toString()
 	{
 		StringBuffer sb = new StringBuffer();
-		sb.append("FindRecord[COLUMS: {"); //$NON-NLS-1$
+		sb.append("FindRecord[COLUMNS: {"); //$NON-NLS-1$
 		Object[] objects = getIds();
 		if (objects != null)
 		{
