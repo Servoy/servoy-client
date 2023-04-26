@@ -18,6 +18,7 @@ package com.servoy.j2db.server.ngclient.property.types;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
+import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
@@ -29,13 +30,15 @@ import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGClientWindow;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.component.RhinoConversion;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 
 /**
  * @author jcompagner
  */
-public class RelationPropertyType extends DefaultPropertyType<RelatedFoundSet>
-	implements IPropertyConverterForBrowser<String>, IFormElementToTemplateJSON<String, RelatedFoundSet>
+public class RelationPropertyType extends DefaultPropertyType<String>
+	implements IPropertyConverterForBrowser<String>, IFormElementToTemplateJSON<String, String>, IRhinoToSabloComponent<String>
 {
 	public static RelationPropertyType INSTANCE = new RelationPropertyType();
 	public static final String TYPE_NAME = "relation";
@@ -99,5 +102,17 @@ public class RelationPropertyType extends DefaultPropertyType<RelatedFoundSet>
 	public Object parseConfig(JSONObject json)
 	{
 		return json;
+	}
+
+	@Override
+	public String toSabloComponentValue(Object rhinoValue, String previousComponentValue, PropertyDescription pd,
+		IWebObjectContext webObjectContext)
+	{
+		if (rhinoValue == null || RhinoConversion.isUndefinedOrNotFound(rhinoValue)) return null;
+		if (rhinoValue instanceof RelatedFoundSet)
+		{
+			return ((RelatedFoundSet)rhinoValue).getRelationName();
+		}
+		return (String)rhinoValue;
 	}
 }
