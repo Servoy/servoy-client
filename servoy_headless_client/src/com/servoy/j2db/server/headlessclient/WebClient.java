@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.http.Cookie;
@@ -1029,7 +1028,7 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		return new Dimension(width, height);
 	}
 
-	protected final Lock requestLock = new ReentrantLock();
+	protected final ReentrantLock requestLock = new ReentrantLock();
 
 	public void onBeginRequest(WebClientSession webClientSession)
 	{
@@ -1057,19 +1056,25 @@ public class WebClient extends SessionClient implements IWebClientApplication
 
 	public void onEndRequest(@SuppressWarnings("unused") WebClientSession webClientSession)
 	{
-		userRequestProperties.clear();
-		// just to make sure that on the end of the request there are really no more events waiting.
-		// if that is the case then copy them to the events for the next time (no much sense to do them now, everything is detached)
-		List<Runnable> list = requestEvents.get();
-		if (list.size() > 0)
+		try
 		{
-			synchronized (events)
+			userRequestProperties.clear();
+			// just to make sure that on the end of the request there are really no more events waiting.
+			// if that is the case then copy them to the events for the next time (no much sense to do them now, everything is detached)
+			List<Runnable> list = requestEvents.get();
+			if (list.size() > 0)
 			{
-				events.addAll(list);
+				synchronized (events)
+				{
+					events.addAll(list);
+				}
 			}
+			requestEvents.remove();
 		}
-		requestEvents.remove();
-		requestLock.unlock();
+		finally
+		{
+			if (requestLock.isHeldByCurrentThread()) requestLock.unlock();
+		}
 	}
 
 	private void writeObject(ObjectOutputStream stream) throws IOException
