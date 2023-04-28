@@ -132,7 +132,6 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		return (QBJoin)allVars.get(name);
 	}
 
-
 	@Override
 	public Object get(String name, Scriptable start)
 	{
@@ -243,7 +242,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 				}
 				join = addJoin(SQLGenerator.createJoin(root.getDataProviderHandler(), relation, parent.getQueryTable(),
 					new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema(), alias), true,
-					root.getGlobalScopeProvider()), relation.getForeignDataSource(), name);
+					root.getGlobalScopeProvider(), false), relation.getForeignDataSource(), name);
 			}
 			catch (RepositoryException e)
 			{

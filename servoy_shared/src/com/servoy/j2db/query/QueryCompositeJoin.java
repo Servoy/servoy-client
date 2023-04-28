@@ -158,6 +158,17 @@ public final class QueryCompositeJoin implements ISQLTableJoin
 		return super.clone();
 	}
 
+	@Override
+	public String getComment()
+	{
+		// Not supported on composite joins
+		return null;
+	}
+
+	public void setComment(String comment)
+	{
+		// Not supported on composite joins
+	}
 
 	public void acceptVisitor(IVisitor visitor)
 	{

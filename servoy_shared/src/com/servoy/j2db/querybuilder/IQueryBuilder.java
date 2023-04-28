@@ -137,6 +137,16 @@ public interface IQueryBuilder extends IQueryBuilderTableClause
 	IQueryBuilderCase qcase();
 
 	/**
+	 * Get the comment
+	 */
+	String getComment();
+
+	/**
+	 * Set the comment
+	*/
+	void setComment(String comment);
+
+	/**
 	 * Get or create a parameter for the query, this used to parameterize queries.
 	 * <pre>
 	 * query.where().add(query.getColumn("flag").eq(query.getParameter("myvar"));

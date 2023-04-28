@@ -143,6 +143,7 @@ public class SQLGenerator
 	private final Map<String, SQLSheet> cachedDataSourceSQLSheets = new HashMap<String, SQLSheet>(64); // dataSource -> sqlSheet
 	private final boolean relatedNullSearchAddPkConditionSystemSetting;
 	private final boolean enforcePkInSort;
+	private final boolean setRelationNameComment;
 
 /*
  * _____________________________________________________________ Declaration and definition of constructors
@@ -154,6 +155,7 @@ public class SQLGenerator
 			application.getSettings().getProperty("servoy.client.relatedNullSearchAddPkCondition", "true"));
 		// sort should always contain the pk, so that when sorting values are not unique the sorting result is stable
 		enforcePkInSort = Utils.getAsBoolean(application.getSettings().getProperty("servoy.foundset.sort.enforcepk", "true")); //$NON-NLS-1$//$NON-NLS-2$
+		setRelationNameComment = Utils.getAsBoolean(application.getSettings().getProperty("servoy.client.sql.setRelationComment", "true"));
 	}
 
 	private boolean relatedNullSearchAddPkCondition()
@@ -365,7 +367,7 @@ public class SQLGenerator
 					// join must be re-created as it is possible to have globals involved;
 					// first remove, then create it
 					ISQLTableJoin join = (ISQLTableJoin)sqlSelect.getJoin(primaryQtable, relation.getName());
-					if (join != null) sqlSelect.getJoins().remove(join);
+					if (join != null) sqlSelect.removeJoin(join);
 
 					if (join == null)
 					{
@@ -452,8 +454,14 @@ public class SQLGenerator
 	/**
 	 * Join clause for this relation.
 	 */
-	public static ISQLTableJoin createJoin(IDataProviderHandler flattenedSolution, IRelation relation, BaseQueryTable primaryTable, BaseQueryTable foreignTable,
+	public ISQLTableJoin createJoin(IDataProviderHandler flattenedSolution, IRelation relation, BaseQueryTable primaryTable, BaseQueryTable foreignTable,
 		boolean permanentJoin, final IGlobalValueEntry provider) throws RepositoryException
+	{
+		return createJoin(flattenedSolution, relation, primaryTable, foreignTable, permanentJoin, provider, setRelationNameComment);
+	}
+
+	public static ISQLTableJoin createJoin(IDataProviderHandler flattenedSolution, IRelation relation, BaseQueryTable primaryTable, BaseQueryTable foreignTable,
+		boolean permanentJoin, final IGlobalValueEntry provider, boolean setRelationNameComment) throws RepositoryException
 	{
 		if (relation instanceof AbstractBase)
 		{
@@ -556,7 +564,12 @@ public class SQLGenerator
 		{
 			throw new RepositoryException("Missing join condition in relation " + relation.getName()); //$NON-NLS-1$
 		}
-		return new QueryJoin(relation.getName(), primaryTable, foreignTable, joinCondition, relation.getJoinType(), permanentJoin);
+		QueryJoin queryJoin = new QueryJoin(relation.getName(), primaryTable, foreignTable, joinCondition, relation.getJoinType(), permanentJoin);
+		if (setRelationNameComment)
+		{
+			queryJoin.setComment("relation " + relation.getName());
+		}
+		return queryJoin;
 	}
 
 	static Object[][] createPKValuesArray(List<Column> pkColumns, IDataSet pks)
@@ -860,7 +873,7 @@ public class SQLGenerator
 					if (c instanceof AggregateVariable)
 					{
 						condition = createExistsCondition(application.getFlattenedSolution(), sqlSelect, or, rfs.getRelations(), columnTable, provider,
-							pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]));
+							pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), setRelationNameComment);
 					}
 					else
 					{
@@ -901,7 +914,8 @@ public class SQLGenerator
 	}
 
 	public static ISQLCondition createExistsCondition(IDataProviderHandler flattenedSolution, QuerySelect sqlSelect, ISQLCondition condition,
-		List<IRelation> relations, BaseQueryTable columnTable, IGlobalValueEntry provider, BaseQueryColumn[] pkQueryColumns) throws RepositoryException
+		List<IRelation> relations, BaseQueryTable columnTable, IGlobalValueEntry provider, BaseQueryColumn[] pkQueryColumns, boolean setRelationNameComment)
+		throws RepositoryException
 	{
 		// search on aggregate, change to exists-condition:
 		// exists (select 1 from innermain join related1 ... join relatedn where innermain.pk = main.pk having aggregate(relatedn))
@@ -936,7 +950,7 @@ public class SQLGenerator
 			ITable foreignTable = flattenedSolution.getTable(relation.getForeignDataSource());
 			QueryTable foreignQtable = new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(),
 				foreignTable.getSchema());
-			existsSelect.addJoin(createJoin(flattenedSolution, relation, prevTable, foreignQtable, true, provider));
+			existsSelect.addJoin(createJoin(flattenedSolution, relation, prevTable, foreignQtable, true, provider, setRelationNameComment));
 
 			prevTable = foreignQtable;
 		}

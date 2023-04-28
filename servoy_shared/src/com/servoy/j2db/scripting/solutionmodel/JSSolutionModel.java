@@ -45,7 +45,6 @@ import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFactory;
-import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AbstractContainer;
 import com.servoy.j2db.persistence.Bean;
@@ -609,7 +608,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 		{
 			try
 			{
-				if (((FoundSetManager)application.getFoundSetManager()).getSQLGenerator().getCachedTableSQLSheet(
+				if (application.getFoundSetManager().getSQLGenerator().getCachedTableSQLSheet(
 					rel.getForeignDataSource()).getRelatedSQLDescription(name) != null)
 				{
 					return false;

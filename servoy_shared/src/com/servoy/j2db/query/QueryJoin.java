@@ -44,6 +44,8 @@ public final class QueryJoin implements ISQLTableJoin
 	private int joinType;
 	private final boolean permanent;
 
+	protected String comment;
+
 	private transient Object origin; // origin, transient, only used in the client
 
 	/**
@@ -175,6 +177,22 @@ public final class QueryJoin implements ISQLTableJoin
 	}
 
 	/**
+	 * @return the comment
+	 */
+	public String getComment()
+	{
+		return comment;
+	}
+
+	/**
+	 * @param comment the comment to set
+	 */
+	public void setComment(String comment)
+	{
+		this.comment = comment;
+	}
+
+	/**
 	 * Invert the direction of this join.
 	 */
 	public void invert(String newName)
@@ -279,24 +297,27 @@ public final class QueryJoin implements ISQLTableJoin
 		{
 			sb.append('!');
 		}
-		sb.append(" FROM ").append(primaryTable.toString()); //$NON-NLS-1$
-		sb.append(" TO ").append(foreignTableReference.toString()); //$NON-NLS-1$
+		if (comment != null)
+		{
+			sb.append(" /* ").append(comment).append(" */");
+		}
+		sb.append(" FROM ").append(primaryTable.toString());
+		sb.append(" TO ").append(foreignTableReference.toString());
 		if (condition != null)
 		{
-			sb.append(" ON ").append(condition.toString()); //$NON-NLS-1$
+			sb.append(" ON ").append(condition.toString());
 		}
 		return sb.toString();
 	}
 
 	///////// serialization ////////////////
 
-
 	public Object writeReplace()
 	{
 		int joinTypeAndPermant = joinType | (permanent ? PERMANENT_MASK : 0);
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
 		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(),
-			new Object[] { name, primaryTable, foreignTableReference, condition, Integer.valueOf(joinTypeAndPermant) });
+			new Object[] { name, primaryTable, foreignTableReference, condition, Integer.valueOf(joinTypeAndPermant), comment });
 	}
 
 	public QueryJoin(ReplacedObject s)
@@ -319,6 +340,10 @@ public final class QueryJoin implements ISQLTableJoin
 		int joinTypeAndPermant = ((Integer)members[i++]).intValue();
 		joinType = joinTypeAndPermant & ~PERMANENT_MASK;
 		permanent = (joinTypeAndPermant & PERMANENT_MASK) != 0;
+		if (i < members.length) // comment is a new field that was added, so it is optional now
+		{
+			this.comment = (String)members[i++];
+		}
 	}
 
 }

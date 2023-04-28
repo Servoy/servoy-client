@@ -44,4 +44,8 @@ public interface ISQLTableJoin extends ISQLJoin
 	int getJoinType();
 
 	boolean isPermanent();
+
+	void setComment(String comment);
+
+	String getComment();
 }

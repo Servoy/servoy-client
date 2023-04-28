@@ -1571,7 +1571,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			RowManager rowManager = manager.getRowManager(getTable().getDataSource());
 			SQLSheet relatedSheet = rowManager == null ? null
 				: rowManager.getSQLSheet().getRelatedSheet(getFoundSetManager().getApplication().getFlattenedSolution().getRelation(parts[i]),
-					((FoundSetManager)getFoundSetManager()).getSQLGenerator());
+					getFoundSetManager().getSQLGenerator());
 			if (relatedSheet == null)
 			{
 				retval = getFoundSetManager().getGlobalRelatedFoundSet(parts[i]);

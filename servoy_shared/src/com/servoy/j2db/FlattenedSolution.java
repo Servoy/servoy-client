@@ -49,7 +49,6 @@ import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.IGlobalValueEntry;
-import com.servoy.j2db.dataprocessing.SQLGenerator;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.AbstractPersistFactory;
 import com.servoy.j2db.persistence.AbstractRepository;
@@ -2768,7 +2767,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 							foreignQTable = new QueryTable(relForeignTable.getSQLName(), relForeignTable.getDataSource(), relForeignTable.getCatalog(),
 								relForeignTable.getSchema());
 						}
-						lastJoin = SQLGenerator.createJoin(this, r, primaryQTable, foreignQTable, false, new IGlobalValueEntry()
+						lastJoin = foundSetManager.getSQLGenerator().createJoin(this, r, primaryQTable, foreignQTable, false, new IGlobalValueEntry()
 						{
 							public Object setDataProviderValue(String dpid, Object value)
 							{

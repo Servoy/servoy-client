@@ -90,6 +90,25 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 	}
 
 	/**
+	 * Specifies a comment of the join.
+	 * @sample
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.result.add(query.joins.orders_to_orderlines.columns.price)
+	 * query.joins.orders_to_orderlines.comment = 'Join comment'
+	 */
+	@JSGetter
+	public String getComment()
+	{
+		return join.getComment();
+	}
+
+	@JSSetter
+	public void setComment(String comment)
+	{
+		join.setComment(comment);
+	}
+
+	/**
 	 * Get the on clause for the join.
 	 * @sample
 	 * var query = datasources.db.example_data.person.createSelect();

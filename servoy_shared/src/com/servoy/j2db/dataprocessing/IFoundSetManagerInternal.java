@@ -145,6 +145,8 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	public IConverterManager<IColumnConverter> getColumnConverterManager();
 
+	public SQLGenerator getSQLGenerator();
+
 	/**
 	 * Gets the type of the column as it is used inside Servoy.<br/><br/>
 	 * If the column has a DB column converter defined (in table editor - column settings) it will give the type returned by that converter.<br/><br/>

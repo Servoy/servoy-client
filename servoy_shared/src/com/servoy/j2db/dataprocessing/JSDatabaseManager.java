@@ -913,14 +913,14 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					application.getFoundSetManager().getDefaultPKSortColumns(ft.getDataSource()));
 
 				QuerySelect sql = fs_old.getPksAndRecords().getQuerySelectForModification();
-				SQLSheet sheet_new = fs_old.getSQLSheet().getRelatedSheet(relation, ((FoundSetManager)application.getFoundSetManager()).getSQLGenerator());
+				SQLSheet sheet_new = fs_old.getSQLSheet().getRelatedSheet(relation, application.getFoundSetManager().getSQLGenerator());
 				if (sheet_new != null)
 				{
 					BaseQueryTable oldTable = sql.getTable();
 					ISQLTableJoin join = (ISQLTableJoin)sql.getJoin(oldTable, relation.getName());
 					if (join == null)
 					{
-						join = SQLGenerator.createJoin(application.getFlattenedSolution(), relation, oldTable,
+						join = application.getFoundSetManager().getSQLGenerator().createJoin(application.getFlattenedSolution(), relation, oldTable,
 							new QueryTable(ft.getSQLName(), ft.getDataSource(), ft.getCatalog(), ft.getSchema()), true, fs_old);
 						sql.addJoin(join);
 					}

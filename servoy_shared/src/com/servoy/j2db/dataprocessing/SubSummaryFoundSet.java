@@ -60,7 +60,7 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 		rowManager = ((FoundSetManager)fsm).getRowManager(fsm.getDataSource(table));
 //		rowManager.register(this); not needed in printing foundset
 
-		sheet = ((FoundSetManager)fsm).getSQLGenerator().getNewTableSQLSheet(fsm.getDataSource(table));
+		sheet = fsm.getSQLGenerator().getNewTableSQLSheet(fsm.getDataSource(table));
 		HashMap<String, Integer> columnIndexes = new HashMap<String, Integer>();
 		for (int i = 0; i < groupByFields.length; i++)
 		{

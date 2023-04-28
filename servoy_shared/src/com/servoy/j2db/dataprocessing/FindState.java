@@ -529,8 +529,8 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 						return null;
 					}
 					SQLSheet sheet = parent.getSQLSheet().getRelatedSheet(
-						((FoundSetManager)parent.getFoundSetManager()).getApplication().getFlattenedSolution().getRelation(partName),
-						((FoundSetManager)parent.getFoundSetManager()).getSQLGenerator());
+						parent.getFoundSetManager().getApplication().getFlattenedSolution().getRelation(partName),
+						parent.getFoundSetManager().getSQLGenerator());
 					rfs = ((FoundSetManager)parent.getFoundSetManager()).createRelatedFindFoundSet(this, partName, sheet);
 					((FoundSet)rfs).addParent(this);
 					((FoundSet)rfs).setFindMode();
@@ -694,8 +694,8 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 						}
 						if (existingJoin == null)
 						{
-							sqlSelect.addJoin(SQLGenerator.createJoin(parent.getFoundSetManager().getApplication().getFlattenedSolution(), relation,
-								selectTable, foreignQTable, false, provider));
+							sqlSelect.addJoin(parent.getFoundSetManager().getSQLGenerator().createJoin(
+								parent.getFoundSetManager().getApplication().getFlattenedSolution(), relation, selectTable, foreignQTable, false, provider));
 						}
 					}
 				}
