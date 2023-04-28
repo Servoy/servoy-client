@@ -28,6 +28,7 @@ import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.cast;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.castfrom;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.upper;
 import static com.servoy.j2db.util.Utils.iterate;
+import static com.servoy.j2db.util.Utils.stream;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.reflect.Array;
@@ -71,6 +72,7 @@ import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptCalculation;
+import com.servoy.j2db.persistence.SortingNullprecedence;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.AndCondition;
@@ -628,21 +630,32 @@ public class SQLGenerator
 
 	/**
 	 * Distinct is allowed if order by clause is a subset of the selected columns.
-	 *
-	 * @param sqlSelect
-	 * @return
 	 */
 	public static boolean isDistinctAllowed(List<IQuerySelectValue> columns, List<IQuerySort> orderByFields)
 	{
-		for (int i = 0; orderByFields != null && i < orderByFields.size(); i++)
-		{
-			IQuerySort sort = orderByFields.get(i);
-			if (!(sort instanceof QuerySort && columns.contains(((QuerySort)sort).getColumn())))
+		return stream(orderByFields).allMatch(sort -> {
+			if (sort instanceof QuerySort)
 			{
-				return false;
+				QuerySort qSort = (QuerySort)sort;
+				IQuerySelectValue column = qSort.getColumn();
+				if (!columns.contains(column))
+				{
+					return false;
+				}
+				// with ignoreCase the sql for the sort column is not the same as how the column appears in the select list
+				if (Column.mustApplyCaseinsensitiveModifier(qSort, column))
+				{
+					return false;
+				}
+				// with ascNullsFirst or ascNullsLast the sql for the sort column may not be the same as how the column appears in the select list
+				if (qSort.nullprecedence() != SortingNullprecedence.databaseDefault)
+				{
+					return false;
+				}
+				return true;
 			}
-		}
-		return true;
+			return false;
+		});
 	}
 
 	public static String getFindToolTip(IServiceProvider application)

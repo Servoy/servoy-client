@@ -52,7 +52,9 @@ import com.servoy.j2db.dataprocessing.TableFilter;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.dataprocessing.ValueFactory.NullValue;
 import com.servoy.j2db.query.ColumnType;
+import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.QueryColumn;
+import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.util.AliasKeyMap.ISupportAlias;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.TimezoneUtils;
@@ -749,6 +751,14 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * When the sorting is case insensitive, check whether is should be applied to the sql.
+	 */
+	public static boolean mustApplyCaseinsensitiveModifier(QuerySort querySort, IQuerySelectValue column)
+	{
+		return querySort.isIgnoreCase() && mapToDefaultType(column.getColumnType()) == TEXT && (column.getFlags() & UUID_COLUMN) == 0;
 	}
 
 	/**
