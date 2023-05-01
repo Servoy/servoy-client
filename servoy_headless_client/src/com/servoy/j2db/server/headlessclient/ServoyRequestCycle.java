@@ -40,9 +40,9 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * The {@link WebRequestCycle} implementation that for setting up the right thread locals and handling errors.
- * 
+ *
  * @author jcompagner
- * 
+ *
  * @since 6.1
  */
 public final class ServoyRequestCycle extends WebRequestCycle
@@ -71,6 +71,7 @@ public final class ServoyRequestCycle extends WebRequestCycle
 	protected void onBeginRequest()
 	{
 		WebClientSession webClientSession = (WebClientSession)getSession();
+		webClientSession.lockRequest();
 		WebClient webClient = webClientSession.getWebClient();
 		if (webClient != null)
 		{
@@ -91,20 +92,27 @@ public final class ServoyRequestCycle extends WebRequestCycle
 	@Override
 	protected void onEndRequest()
 	{
-		J2DBGlobals.setServiceProvider(null);
 		WebClientSession webClientSession = (WebClientSession)getSession();
-		WebClient webClient = webClientSession.getWebClient();
-		if (webClient != null)
+		try
 		{
-			try
+			J2DBGlobals.setServiceProvider(null);
+			WebClient webClient = webClientSession.getWebClient();
+			if (webClient != null)
 			{
-				webClient.onEndRequest(webClientSession);
+				try
+				{
+					webClient.onEndRequest(webClientSession);
+				}
+				finally
+				{
+					MDC.remove("clientid");
+					MDC.remove("solution");
+				}
 			}
-			finally
-			{
-				MDC.remove("clientid");
-				MDC.remove("solution");
-			}
+		}
+		finally
+		{
+			webClientSession.unlockRequest();
 		}
 	}
 
@@ -123,7 +131,7 @@ public final class ServoyRequestCycle extends WebRequestCycle
 			if (cp.isBrowserInternetExplorer() && cp.getBrowserVersionMajor() != -1 && cp.getBrowserVersionMajor() < 7)
 			{
 				// IE6 is no longer supported when anchoring is enabled.
-				boolean enableAnchoring = Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.webclient.enableAnchors", Boolean.TRUE.toString())); //$NON-NLS-1$ 
+				boolean enableAnchoring = Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.webclient.enableAnchors", Boolean.TRUE.toString())); //$NON-NLS-1$
 				if (enableAnchoring)
 				{
 					throw new RestartResponseException(new UnsupportedBrowserPage("Internet Explorer 6")); //$NON-NLS-1$

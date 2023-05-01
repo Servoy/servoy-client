@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -1028,14 +1027,11 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		return new Dimension(width, height);
 	}
 
-	protected final ReentrantLock requestLock = new ReentrantLock();
-
 	public void onBeginRequest(WebClientSession webClientSession)
 	{
 		Solution solution = getSolution();
 		if (solution != null)
 		{
-			requestLock.lock();
 			long solutionLastModifiedTime = webClientSession.getSolutionLastModifiedTime(solution);
 			if (solutionLastModifiedTime != -1 && solutionLastModifiedTime != solution.getLastModifiedTime())
 			{
@@ -1056,25 +1052,18 @@ public class WebClient extends SessionClient implements IWebClientApplication
 
 	public void onEndRequest(@SuppressWarnings("unused") WebClientSession webClientSession)
 	{
-		try
+		userRequestProperties.clear();
+		// just to make sure that on the end of the request there are really no more events waiting.
+		// if that is the case then copy them to the events for the next time (no much sense to do them now, everything is detached)
+		List<Runnable> list = requestEvents.get();
+		if (list.size() > 0)
 		{
-			userRequestProperties.clear();
-			// just to make sure that on the end of the request there are really no more events waiting.
-			// if that is the case then copy them to the events for the next time (no much sense to do them now, everything is detached)
-			List<Runnable> list = requestEvents.get();
-			if (list.size() > 0)
+			synchronized (events)
 			{
-				synchronized (events)
-				{
-					events.addAll(list);
-				}
+				events.addAll(list);
 			}
-			requestEvents.remove();
 		}
-		finally
-		{
-			if (requestLock.isHeldByCurrentThread()) requestLock.unlock();
-		}
+		requestEvents.remove();
 	}
 
 	private void writeObject(ObjectOutputStream stream) throws IOException
