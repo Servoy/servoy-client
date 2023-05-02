@@ -289,6 +289,22 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 					}
 					recordData.put("checked", checkboxValue);
 				}
+				if (binding.callbackinfoparamdataprovider != null)
+				{
+					recordData.put("callbackinfoParamValue", record.getValue(binding.callbackinfoparamdataprovider));
+				}
+				if (binding.checkboxChangeparamdataprovider != null)
+				{
+					recordData.put("methodToCallOnCheckBoxChangeParamValue", record.getValue(binding.checkboxChangeparamdataprovider));
+				}
+				if (binding.doubleclickparamdataprovider != null)
+				{
+					recordData.put("methodToCallOnDoubleClickParamValue", record.getValue(binding.doubleclickparamdataprovider));
+				}
+				if (binding.rightclickparamdataprovider != null)
+				{
+					recordData.put("methodToCallOnRightClickParamValue", record.getValue(binding.rightclickparamdataprovider));
+				}
 				newJavaValueForJSON.add(recordData);
 				ArrayList<IFoundSetInternal> relatedFoundsets = getRelatedFoundsets(binding, record, false);
 				if (relatedFoundsets.size() > 0)
@@ -668,6 +684,10 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 		public Object[] hasCheckboxValue;
 		public Object[] checkboxValues;
 		public boolean checkboxAutoselectsChildren = true;
+		public String callbackinfoparamdataprovider = null;
+		public String checkboxChangeparamdataprovider = null;
+		public String doubleclickparamdataprovider = null;
+		public String rightclickparamdataprovider = null;
 		// a cache for all foundsets loaded via this binding
 		public ArrayList<IFoundSetInternal> foundsets = new ArrayList<IFoundSetInternal>();
 
