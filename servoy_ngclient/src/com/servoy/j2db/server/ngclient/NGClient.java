@@ -851,6 +851,7 @@ public class NGClient extends AbstractApplication
 			getClientFunctions().clear();
 			mediaInfos.values().stream().forEach(info -> info.destroy());
 			mediaInfos.clear();
+			overrideStyleSheets.clear();
 			getRuntimeProperties().put(IServiceProvider.RT_VALUELIST_CACHE, null);
 
 			if (args == null || args.length < 1)
