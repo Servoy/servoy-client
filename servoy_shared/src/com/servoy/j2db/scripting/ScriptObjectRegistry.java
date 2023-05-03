@@ -130,7 +130,11 @@ public class ScriptObjectRegistry
 						{
 							// just try to make it.
 							so = (IScriptable)clz.newInstance();
-							ScriptObjectRegistry.registerScriptObjectForClass(clz, so);
+							if (so instanceof IReturnedTypesProvider) {
+								registerReturnedTypesProviderForClass(clz, (IReturnedTypesProvider)so);
+								so = scriptObjectRegistry.get(clz);
+							}
+							else ScriptObjectRegistry.registerScriptObjectForClass(clz, so);
 						}
 						catch (Exception e)
 						{
