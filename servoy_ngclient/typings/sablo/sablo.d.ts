@@ -366,6 +366,23 @@ declare namespace sablo {
      * websocket.ts implements this in it's sablo.propertyTypes.PropertyContext class.
      */
     interface IPropertyContext {
+        /**
+         * "true" is the property that uses this context is part (directly or in a nested fashion) of a service or component model.
+         * So if it's a property of that component.
+         * "false" if this context is for component/service api call/handler arguments or return values.
+         * 
+         * Some change-aware property types need to keep track of relocations within the model - if they are used as part of the model. But they need
+         * to differentiate between situations when they are relocated between the model or they are just being sent as arguments to handlers for example, remaining
+         * in the same location in the model as well.
+         */
+        readonly isInsideModel: boolean;
+    
+        /**
+         * Can be used to get other sibling properties of the property that this context is used for. If the property is in the root of the component/service model,
+         * then this getter will provide access to other properties in the root of the model. If the context is that of a custom object, this getter will first
+         * return sibling properties from the same custom object, and, if such a sibling is not found, forward to a parent property context (either another custom
+         * object or the root model property context).
+         */
         getProperty: IPropertyContextGetterMethod;
         getPushToServerCalculatedValue() : IPushToServerEnum;
     }
@@ -405,7 +422,7 @@ declare namespace sablo {
         newRootPropertyContextCreator(getProperty: IPropertyContextGetterMethod, webObjectSpec: IWebObjectSpecification): IPropertyContextCreator;
         newChildPropertyContextCreator(getProperty: IPropertyContextGetterMethod,
                 propertyDescriptions: { [propName: string]: sablo.IPropertyDescription },
-                computedParentPushToServer: IPushToServerEnum): IPropertyContextCreator;
+                computedParentPushToServer: IPushToServerEnum, isInsideModel: boolean): IPropertyContextCreator;
                 
     }
     

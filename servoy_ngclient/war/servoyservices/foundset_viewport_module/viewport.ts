@@ -235,7 +235,7 @@ namespace ngclient.propertyTypes {
                             rowData[columnName] = this.sabloConverters.convertFromServerToClient(rowsToBeConverted[index][columnName],
                                     cellConversion,
                                     oldViewportRows ? (oldViewportRows[startIdxInViewportForRowsToBeConverted + index] ? (oldViewportRows[startIdxInViewportForRowsToBeConverted + index][columnName]) : undefined) : undefined,
-                                    undefined /*dynamic types are already handled via serverConversionInfo here*/, undefined, componentScope, propertyContextCreator.withPushToServerFor(columnName));
+                                    undefined /*dynamic types are already handled via serverConversionInfo here*/, undefined, componentScope, propertyContextCreator.withPushToServerFor(columnName)); // FIXME see TiNG code in viewport.service.ts - that uses a IPropertyContextCreatorForRow that can also get properties from the same row of the model - but I think this never worked before on ng1 anyway
                         });
                         if (rowData[ViewportService.ROW_ID_COL_KEY_PARTIAL_UPDATE] !== undefined) {
                             // see comment of ROW_ID_COL_KEY_PARTIAL_UPDATE
