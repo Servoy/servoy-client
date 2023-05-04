@@ -512,7 +512,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				    getProperty: (propertyName: string) => { return componentModel ? componentModel[propertyName] : undefined },
 					getPushToServerCalculatedValue : () => {
 						return componentSpecification ? componentSpecification.getPropertyPushToServer(property) : $pushToServerUtils.reject;
-					}
+					},
+					isInsideModel: true
 				};
 				changes[property] = $sabloConverters.convertFromClientToServer(formState.model[beanname][property], typeOfDP, undefined, formScope, propertyContext);
 			} else {
