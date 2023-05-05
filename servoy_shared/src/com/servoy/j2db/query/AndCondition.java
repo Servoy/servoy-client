@@ -16,10 +16,13 @@
  */
 package com.servoy.j2db.query;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonMap;
 import static java.util.stream.Collectors.toList;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import com.servoy.j2db.util.serialize.ReplacedObject;
@@ -38,12 +41,17 @@ public final class AndCondition extends AndOrCondition
 		super();
 	}
 
+	public AndCondition(String name, ISQLCondition condition)
+	{
+		this(singletonMap(name, asList(condition)));
+	}
+
 	public AndCondition(List<ISQLCondition> conditions)
 	{
 		super(conditions);
 	}
 
-	public AndCondition(HashMap<String, List<ISQLCondition>> conditions)
+	public AndCondition(Map<String, List<ISQLCondition>> conditions)
 	{
 		super(conditions);
 	}

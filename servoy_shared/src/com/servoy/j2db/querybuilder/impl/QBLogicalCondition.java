@@ -23,6 +23,7 @@ import static com.servoy.j2db.query.AndCondition.and;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.query.AndCondition;
 import com.servoy.j2db.query.AndOrCondition;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
@@ -171,15 +172,19 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 	 * @sampleas conditionnames()
 	 */
 	@JSFunction
-	public QBCondition getCondition(String name)
+	public QBLogicalCondition getCondition(String name)
 	{
 		AndOrCondition queryCondition = getQueryCondition(false);
 		if (queryCondition != null)
 		{
-			ISQLCondition condition = and(queryCondition.getConditions(name == null ? CONDITION_ANONYMOUS : name));
+			ISQLCondition condition = deepClone(and(queryCondition.getConditions(name == null ? CONDITION_ANONYMOUS : name)));
 			if (condition != null)
 			{
-				return new QBCondition(getRoot(), getParent(), deepClone(condition));
+				if (!(condition instanceof AndOrCondition))
+				{
+					condition = new AndCondition(CONDITION_ANONYMOUS, condition);
+				}
+				return new QBLogicalCondition(getRoot(), getParent(), (AndOrCondition)condition);
 			}
 		}
 

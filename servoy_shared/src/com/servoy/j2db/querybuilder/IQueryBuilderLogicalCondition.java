@@ -71,6 +71,6 @@ public interface IQueryBuilderLogicalCondition extends IQueryBuilderCondition
 	 *
 	 * @param name The condition name
 	 */
-	IQueryBuilderCondition getCondition(String name);
+	IQueryBuilderLogicalCondition getCondition(String name);
 
 }

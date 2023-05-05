@@ -18,6 +18,7 @@ package com.servoy.j2db.query;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.servoy.base.query.BaseAndOrCondition;
 import com.servoy.j2db.util.serialize.ReplacedObject;
@@ -40,7 +41,7 @@ public abstract class AndOrCondition extends BaseAndOrCondition<ISQLCondition> i
 		super(conditions);
 	}
 
-	public AndOrCondition(HashMap<String, List<ISQLCondition>> conditions)
+	public AndOrCondition(Map<String, List<ISQLCondition>> conditions)
 	{
 		super(conditions);
 	}
