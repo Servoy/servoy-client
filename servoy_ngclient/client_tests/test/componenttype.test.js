@@ -67,7 +67,8 @@ describe("Test component_custom_property suite", function() {
     		componentType = typesRegistry.getAlreadyRegisteredType('component');
             propertyContext = {
                 getProperty: function(propertyName) { return componentModel[propertyName]; },
-                getPushToServerCalculatedValue: function() { return pushToServerUtils.reject; }
+                getPushToServerCalculatedValue: function() { return pushToServerUtils.reject; },
+                isInsideModel: true
             };
     
     		converted = sabloConverters.convertFromServerToClient(serverValue, componentType, undefined, undefined, undefined, $scope, propertyContext);
