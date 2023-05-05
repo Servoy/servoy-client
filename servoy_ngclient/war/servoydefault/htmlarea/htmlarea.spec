@@ -7,7 +7,12 @@
 	"libraries": [{"name":"tinymce", "version":"5.7.0", "url":"servoydefault/htmlarea/lib/tinymce/tinymce.min.js", "mimetype":"text/javascript", "group":false},{"name":"ui-tinymce", "version":"1", "url":"servoydefault/htmlarea/lib/ui-tinymce.js", "mimetype":"text/javascript"}],
 	"ng2Config": {
        "assets": [{
-                "glob" : "**/*",
+                "glob" : "**/*.js",
+                "input" : "node_modules/tinymce",
+                "output": "/tinymce/"
+            },
+            {
+                "glob" : "**/*.css",
                 "input" : "node_modules/tinymce",
                 "output": "/tinymce/"
             },
