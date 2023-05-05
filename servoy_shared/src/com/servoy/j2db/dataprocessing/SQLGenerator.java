@@ -148,14 +148,14 @@ public class SQLGenerator
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
-	public SQLGenerator(IApplication app)
+	public SQLGenerator(IApplication app, boolean setRelationNameComment)
 	{
 		application = app;
 		relatedNullSearchAddPkConditionSystemSetting = Utils.getAsBoolean(
 			application.getSettings().getProperty("servoy.client.relatedNullSearchAddPkCondition", "true"));
 		// sort should always contain the pk, so that when sorting values are not unique the sorting result is stable
 		enforcePkInSort = Utils.getAsBoolean(application.getSettings().getProperty("servoy.foundset.sort.enforcepk", "true")); //$NON-NLS-1$//$NON-NLS-2$
-		setRelationNameComment = Utils.getAsBoolean(application.getSettings().getProperty("servoy.client.sql.setRelationComment", "true"));
+		this.setRelationNameComment = setRelationNameComment;
 	}
 
 	private boolean relatedNullSearchAddPkCondition()

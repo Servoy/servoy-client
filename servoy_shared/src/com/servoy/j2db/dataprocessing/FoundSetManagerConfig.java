@@ -37,6 +37,7 @@ public class FoundSetManagerConfig
 	private final boolean verifyPKDatasetAgainstTableFilters;
 	private final boolean optimizedNotifyChange;
 	private final boolean optimizedChangeFires;
+	private final boolean setRelationNameComment;
 
 	public FoundSetManagerConfig(Properties settings)
 	{
@@ -49,6 +50,7 @@ public class FoundSetManagerConfig
 		verifyPKDatasetAgainstTableFilters = getAsBoolean(settings.getProperty("servoy.foundset.verifyPKDatasetAgainstTableFilters", "true")); // when false we do not trigger a query with fs.loadRecords(pk) icw table filters
 		optimizedNotifyChange = getAsBoolean(settings.getProperty("servoy.foundset.optimizedNotifyChange", "true")); // whether to use new optimized mechanism to call notifyChange on IRowListeners
 		optimizedChangeFires = getAsBoolean(settings.getProperty("servoy.foundset.optimizedChangeFires", "true")); // whether to use new optimized mechanism to call notifyChange on IRowListeners
+		setRelationNameComment = getAsBoolean(settings.getProperty("servoy.client.sql.setRelationComment", "true"));
 	}
 
 	public int pkChunkSize()
@@ -94,5 +96,10 @@ public class FoundSetManagerConfig
 	public boolean optimizedChangeFires()
 	{
 		return optimizedChangeFires;
+	}
+
+	public boolean setRelationNameComment()
+	{
+		return setRelationNameComment;
 	}
 }

@@ -17,6 +17,8 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
+
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
@@ -121,7 +123,7 @@ public abstract class RelatedFoundSet extends FoundSet
 			pkColumns.add(column.queryColumn(select.getTable()));
 		}
 		select.setColumns(pkColumns);
-		creationSqlSelect = AbstractBaseQuery.deepClone(select);
+		creationSqlSelect = deepClone(select);
 
 		if (aggregateData != null)
 		{
@@ -175,6 +177,10 @@ public abstract class RelatedFoundSet extends FoundSet
 
 		QuerySelect cleanSelect = fsm.getSQLGenerator().getPKSelectSqlSelect(fsm.getScopesScopeProvider(), sheet.getTable(), null, null, true, null,
 			sortColumns, false);
+		if (fsm.config.setRelationNameComment())
+		{
+			cleanSelect.setComment("relation " + relation.getName());
+		}
 
 		QuerySelect relationSelect = (QuerySelect)sheet.getRelatedSQLDescription(relation.getName()).getSQLQuery();
 		//don't select all columns in pk select
@@ -211,7 +217,7 @@ public abstract class RelatedFoundSet extends FoundSet
 			}
 			else
 			{
-				sqlSelect = AbstractBaseQuery.deepClone(cleanSelect);
+				sqlSelect = deepClone(cleanSelect);
 			}
 
 			if (!sqlSelect.setPlaceholderValue(placeHolderKey, whereArgs))
@@ -251,7 +257,7 @@ public abstract class RelatedFoundSet extends FoundSet
 			}
 			else
 			{
-				ISQLSelect selectStatement = AbstractBaseQuery.deepClone((ISQLSelect)sqlSelect);
+				ISQLSelect selectStatement = deepClone((ISQLSelect)sqlSelect);
 				// Note: put a clone of sqlSelect in the queryDatas list, we will compress later over multiple queries using pack().
 				// Clone is needed because packed queries may not be save to manipulate.
 				SQLStatement trackingInfo = null;
@@ -266,11 +272,16 @@ public abstract class RelatedFoundSet extends FoundSet
 						trackingInfo));
 				queryIndex.add(Integer.valueOf(i));
 
-				QuerySelect aggregateSelect = FoundSet.getAggregateSelect(sheet, sqlSelect);
+				QuerySelect aggregateSelect = getAggregateSelect(sheet, sqlSelect);
 				if (aggregateSelect != null)
 				{
+					if (fsm.config.setRelationNameComment())
+					{
+						aggregateSelect.setComment("aggregate relation " + relation.getName());
+					}
+
 					// Note: see note about clone above.
-					queryDatas.add(new QueryData(AbstractBaseQuery.deepClone((ISQLSelect)aggregateSelect),
+					queryDatas.add(new QueryData(deepClone(aggregateSelect),
 						fsm.getTableFilterParams(sheet.getServerName(), aggregateSelect), false, 0, 1, IDataServer.AGGREGATE_QUERY, null));
 					queryIndex.add(Integer.valueOf(i)); // same index for aggregates
 					aggregateSelects[i] = aggregateSelect;

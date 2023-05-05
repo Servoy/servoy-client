@@ -194,7 +194,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		foundsetfactory = factory;
 	}
 
-
 	@Override
 	public SortOptions getSortOptions(IColumn column)
 	{
@@ -981,7 +980,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		if (sqlGenerator == null)
 		{
-			sqlGenerator = new SQLGenerator(application);
+			sqlGenerator = new SQLGenerator(application, config.setRelationNameComment());
 		}
 		return sqlGenerator;
 	}
