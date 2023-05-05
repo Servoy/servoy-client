@@ -66,7 +66,8 @@ describe("Test foundset_custom_property suite", function() {
 			
             propertyContext = {
                 getProperty: function(propertyName) { return undefined; },
-                getPushToServerCalculatedValue: function() { return pushToServerUtils.shallow; }
+                getPushToServerCalculatedValue: function() { return pushToServerUtils.shallow; },
+                isInsideModel: true
             };
 		});
 
@@ -92,7 +93,8 @@ describe("Test foundset_custom_property suite", function() {
 			$compile(template)($scope);
             noWatchespropertyContext = {
                 getProperty: function(propertyName) { return undefined; },
-                getPushToServerCalculatedValue: function() { return pushToServerUtils.reject; }
+                getPushToServerCalculatedValue: function() { return pushToServerUtils.reject; },
+                isInsideModel: true
             };
 			realClientValue = sabloConverters.convertFromServerToClient(serverValue, foundsetType, undefined, undefined, undefined, $scope, noWatchespropertyContext);
 			realClientValue[iS].setChangeNotifier(function () { changeNotified = true });

@@ -73,7 +73,8 @@ describe("Test foundset_linked_property suite", function() {
 			
             propertyContext = {
                 getProperty: function(propertyName) { return ({ myfoundset: myfoundset })[propertyName]; },
-                getPushToServerCalculatedValue: function() { return pushToServerUtils.reject; }
+                getPushToServerCalculatedValue: function() { return pushToServerUtils.reject; },
+                isInsideModel: true
             };
 			
 			realClientValue = sabloConverters.convertFromServerToClient(serverValue, fslinkedType, undefined, undefined, undefined, $scope, propertyContext);
@@ -123,7 +124,8 @@ describe("Test foundset_linked_property suite", function() {
 			
             propertyContext = {
                 getProperty: function(propertyName) { return ({ myfoundset: myfoundset })[propertyName]; },
-                getPushToServerCalculatedValue: function() { return pushToServerUtils.shallow; }
+                getPushToServerCalculatedValue: function() { return pushToServerUtils.shallow; },
+                isInsideModel: true
             };
 
 			realClientValue = sabloConverters.convertFromServerToClient(serverValue, fslinkedType, undefined, undefined, undefined, $scope, propertyContext);
@@ -180,7 +182,8 @@ describe("Test foundset_linked_property suite", function() {
 			
 			propertyContext = {
                 getProperty: function(propertyName) { return ({ myfoundset: myfoundset })[propertyName]; },
-                getPushToServerCalculatedValue: function() { return pushToServerUtils.reject; }
+                getPushToServerCalculatedValue: function() { return pushToServerUtils.reject; },
+                isInsideModel: true
             };
 
 			serverValue = { forFoundset: "myfoundset" };
@@ -237,7 +240,8 @@ describe("Test foundset_linked_property suite", function() {
 			
             propertyContext = {
                 getProperty: function(propertyName) { return ({ myfoundset: myfoundset })[propertyName]; },
-                getPushToServerCalculatedValue: function() { return pushToServerUtils.shallow; }
+                getPushToServerCalculatedValue: function() { return pushToServerUtils.shallow; },
+                isInsideModel: true
             };
 
 			serverValue = { forFoundset: "myfoundset", w: false };
