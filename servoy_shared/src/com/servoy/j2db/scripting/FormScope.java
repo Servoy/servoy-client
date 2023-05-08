@@ -367,7 +367,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		return _fp;
 	}
 
-	private class ExtendsScope extends LazyCompilationScope implements Wrapper
+	private class ExtendsScope extends LazyCompilationScope implements Wrapper, IInstanceOf
 	{
 		public ExtendsScope(LazyCompilationScope parent, IExecutingEnviroment scriptEngine, ISupportScriptProviders methodLookup)
 		{
@@ -389,6 +389,23 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 				return obj;
 			}
 			return object;
+		}
+
+		@Override
+		public boolean has(String name, Scriptable start)
+		{
+			boolean contains = super.has(name, start);
+			if (!contains && getFunctionParentScriptable() != null)
+			{
+				return getFunctionParentScriptable().has(name, start);
+			}
+			return contains;
+		}
+
+		@Override
+		public boolean isInstance(String name)
+		{
+			return "RuntimeForm".equals(name);
 		}
 
 		/**
