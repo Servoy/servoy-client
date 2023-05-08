@@ -397,6 +397,9 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 			boolean contains = super.has(name, start);
 			if (!contains && getFunctionParentScriptable() != null)
 			{
+				Object obj = getFunctionParentScriptable().get(name, start);
+				// only return form variables not functions, they should be resolved by the (compile)scope.
+				if (obj instanceof Function) return false;
 				return getFunctionParentScriptable().has(name, start);
 			}
 			return contains;
