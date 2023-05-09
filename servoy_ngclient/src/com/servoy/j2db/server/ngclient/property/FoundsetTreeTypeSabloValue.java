@@ -438,6 +438,22 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 						}
 						relRecordData.put("checked", checkboxValue);
 					}
+					if (relatedBinding.callbackinfoparamdataprovider != null)
+					{
+						relRecordData.put("callbackinfoParamValue", relRecord.getValue(relatedBinding.callbackinfoparamdataprovider));
+					}
+					if (relatedBinding.checkboxChangeparamdataprovider != null)
+					{
+						relRecordData.put("methodToCallOnCheckBoxChangeParamValue", relRecord.getValue(relatedBinding.checkboxChangeparamdataprovider));
+					}
+					if (relatedBinding.doubleclickparamdataprovider != null)
+					{
+						relRecordData.put("methodToCallOnDoubleClickParamValue", relRecord.getValue(relatedBinding.doubleclickparamdataprovider));
+					}
+					if (relatedBinding.rightclickparamdataprovider != null)
+					{
+						relRecordData.put("methodToCallOnRightClickParamValue", relRecord.getValue(relatedBinding.rightclickparamdataprovider));
+					}
 					relRecordData.put("hasChildren", false);
 					if (this.selectionPath != null && this.selectionPath.length == parentlevel + 1 &&
 						Utils.equalObjects(this.selectionPath[this.selectionPath.length - 1], relRecord.getPK()[0]))
