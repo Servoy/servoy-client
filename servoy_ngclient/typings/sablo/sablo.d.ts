@@ -367,13 +367,19 @@ declare namespace sablo {
      */
     interface IPropertyContext {
         /**
-         * "true" is the property that uses this context is part (directly or in a nested fashion) of a service or component model.
-         * So if it's a property of that component.
-         * "false" if this context is for component/service api call/handler arguments or return values.
+         * "true" if the conversion that uses this context is for/part of (directly or in a nested fashion) a service or component model.
+         * So if a property of a component/service is being converted.
+         * 
+         * "false" if this context is for component/service api call/handler arguments or return value conversions.
+         * 
+         * IMPORTANT: if this property is <<false>>, and it's a client-to-server conversion, all smart properties should send themselves fully, as if they were
+         * fully changed, but without clearing their existing change flags afterwards (in case the value is also stored in a model and it was marked as having
+         * changes that need to be send to server from the model, and being used as an argument to a handler before that emit will happen on the model for example
+         * should not reset those flags...)
          * 
          * Some change-aware property types need to keep track of relocations within the model - if they are used as part of the model. But they need
-         * to differentiate between situations when they are relocated between the model or they are just being sent as arguments to handlers for example, remaining
-         * in the same location in the model as well.
+         * to differentiate between situations when they are relocated inside the model or they are just being sent as arguments to handlers for example, remaining
+         * in the same location in the model where they were before as well.
          */
         readonly isInsideModel: boolean;
     

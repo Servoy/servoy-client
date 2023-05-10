@@ -34,8 +34,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
     $qProvider.errorOnUnhandledRejections(false);
 	
 }]).factory('$servoyInternal', function ($rootScope: angular.IRootScopeService, webStorage, $anchorConstants, $webSocket: sablo.IWebSocket, $q:angular.IQService,
-		$solutionSettings:servoy.SolutionSettings, $window: angular.IWindowService, $sabloConverters:sablo.ISabloConverters,
-		$sabloUtils:sablo.ISabloUtils, $sabloApplication: sablo.ISabloApplication, $utils,$foundsetTypeConstants,$log: angular.ILogService, clientdesign,
+		$solutionSettings:servoy.SolutionSettings, $window: angular.IWindowService, $sabloConverters: sablo.ISabloConverters,
+		$sabloUtils: sablo.ISabloUtils, $sabloApplication: sablo.ISabloApplication, $utils,$foundsetTypeConstants,$log: angular.ILogService, clientdesign,
 		$typesRegistry: sablo.ITypesRegistry, $pushToServerUtils: sablo.IPushToServerUtils) {
 	
 	function getAllChanges(now: object, prev: object, dynamicTypes: object, beanLayout, parentSize, beanModel, useAnchoring, formname,
@@ -468,7 +468,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				args[i] = $sabloConverters.convertFromClientToServer(args[i], apiSpec?.getArgumentType(i), undefined, undefined, $sabloUtils.PROPERTY_CONTEXT_FOR_OUTGOING_ARGS_AND_RETURN_VALUES);
 			}
 
-			const promise =  $sabloApplication.callService('formService', 'callServerSideApi', {formname:formname,beanname:beanname,methodName:methodName,args:args});
+			const promise = $sabloApplication.callService('formService', 'callServerSideApi', {formname:formname,beanname:beanname,methodName:methodName,args:args});
 						
 			return $webSocket.wrapPromiseToPropagateCustomRequestInfoInternal(promise, promise.then(function successCallback(serviceCallResult) {
                             return $sabloConverters.convertFromServerToClient(serviceCallResult, apiSpec?.returnType,
@@ -2056,8 +2056,12 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 		}
 	}
 })
-.run(function($window, $sabloApplication:sablo.ISabloApplication) {
+.run(function($window, $sabloApplication: sablo.ISabloApplication, $sabloConverters: sablo.ISabloConverters, $sabloUtils: sablo.ISabloUtils, $webSocket: sablo.IWebSocket) {
 	$window.executeInlineScript = function(formname, script, params) {
-		return $sabloApplication.callService("formService", "executeInlineScript", {'formname' : formname, 'script' : script, 'params' : params}, false)
+		const promise = $sabloApplication.callService("formService", "executeInlineScript", {'formname' : formname, 'script' : script, 'params' : params}, false);
+        return $webSocket.wrapPromiseToPropagateCustomRequestInfoInternal(promise, promise.then(function successCallback(serviceCallResult) {
+                   return $sabloConverters.convertFromServerToClient(serviceCallResult, undefined,
+                            undefined, undefined, undefined, null, $sabloUtils.PROPERTY_CONTEXT_FOR_INCOMMING_ARGS_AND_RETURN_VALUES);
+               }));
 	}
 });
