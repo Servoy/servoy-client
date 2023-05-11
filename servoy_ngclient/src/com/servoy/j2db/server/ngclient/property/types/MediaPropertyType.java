@@ -168,7 +168,7 @@ public class MediaPropertyType extends DefaultPropertyType<Object> implements IW
 			url = "resources/" + MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS + "/" + media.getRootObject().getName() + "/" + media.getName();
 			Dimension imageSize = ImageLoader.getSize(media.getMediaData());
 			boolean paramsAdded = false;
-			if (imageSize != null)
+			if (imageSize != null && imageSize.height > 0 && imageSize.width > 0)
 			{
 				paramsAdded = true;
 				url += "?imageWidth=" + imageSize.width + "&imageHeight=" + imageSize.height;
