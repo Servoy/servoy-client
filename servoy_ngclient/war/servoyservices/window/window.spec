@@ -155,6 +155,14 @@
 	},
 	"internalApi":
     {
+         "formPopupClosed": {
+            "parameters":[
+                    {
+                        "name":"event",
+                        "type":"JSEvent"
+                    }
+                ]
+             }, 
         "clearPopupForm" :{
         },
         "cancelFormPopupInternal": {
@@ -226,7 +234,8 @@
 	  		"x": "int",
 	  		"y": "int",
 			"showBackdrop": "boolean",
-			"doNotCloseOnClickOutside": "boolean" 
+			"doNotCloseOnClickOutside": "boolean",
+			"onClose": "function",
 	  	}
 	  },
 	  "popupMenuShowCommand":{

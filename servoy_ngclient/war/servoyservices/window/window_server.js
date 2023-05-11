@@ -429,9 +429,17 @@ $scope.api.closeFormPopup = function(retval)
 		if ( $scope.scope && $scope.dataProviderID)
 		{
 			$scope.scope[$scope.dataProviderID] = retval;
-		}	
+		}
+		$scope.model.popupform.retval = retval;
 		$scope.api.cancelFormPopup();
 	}
+}
+
+$scope.formPopupClosed = function (event) {
+    if ($scope.model.popupform && $scope.model.popupform.onClose) {
+        $scope.model.popupform.onClose(event, $scope.model.popupform.retval);
+    }    
+    $scope.model.popupform = null;
 }
 
 $scope.clearPopupForm = function()
