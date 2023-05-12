@@ -17,6 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
@@ -402,7 +403,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			return false;
 		}
 		Object[] pk = row.getPK();
-		QuerySelect select = (QuerySelect)AbstractBaseQuery.deepClone(sheet.getSQL(SQLSheet.SELECT));
+		QuerySelect select = sheet.getSelectQuery();
 		if (!select.setPlaceholderValue(new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
 		{
 			Debug.error(new RuntimeException("Could not set placeholder " + new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
@@ -573,7 +574,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			}
 
 			IDataSet formdata = null;
-			QuerySelect select = (QuerySelect)sheet.getSQL(SQLSheet.SELECT);
+			QuerySelect select = sheet.getSelectQuery();
 			int maxRow = Math.min(row + sizeHint, pks.getRowCount());
 			// get the PK array
 			int ncols = pks.getColumnCount();
@@ -619,7 +620,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			{
 				Debug.error(
 					new RuntimeException("Could not set placeholder " + new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
-						" in query " + select + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$
+						" in query " + select + " -- continuing")); //$NON-NLS-1$//$NON-NLS-2$
 			}
 
 			long time = System.currentTimeMillis();
@@ -780,7 +781,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			{
 				statement_action = ISQLActionTypes.UPDATE_ACTION;
 				sqlDesc = sheet.getSQLDescription(SQLSheet.UPDATE);
-				sqlUpdate = (QueryUpdate)AbstractBaseQuery.deepClone(sqlDesc.getSQLQuery());
+				sqlUpdate = (QueryUpdate)deepClone(sqlDesc.getSQLQuery());
 				List<String> req = sqlDesc.getRequiredDataProviderIDs();
 				List<String> old = sqlDesc.getOldRequiredDataProviderIDs();
 
@@ -871,7 +872,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				List<Object> argsArray = new ArrayList<Object>();
 				statement_action = ISQLActionTypes.INSERT_ACTION;
 				sqlDesc = sheet.getSQLDescription(SQLSheet.INSERT);
-				sqlUpdate = (ISQLUpdate)AbstractBaseQuery.deepClone(sqlDesc.getSQLQuery());
+				sqlUpdate = (ISQLUpdate)deepClone(sqlDesc.getSQLQuery());
 				List<String> req = sqlDesc.getRequiredDataProviderIDs();
 				if (Debug.tracing()) Debug.trace(sqlUpdate.toString());
 				for (int i = 0; i < req.size(); i++)
@@ -942,7 +943,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			QuerySelect requerySelect = null;
 			if (mustRequeryRow)
 			{
-				requerySelect = (QuerySelect)AbstractBaseQuery.deepClone(sheet.getSQL(SQLSheet.SELECT));
+				requerySelect = sheet.getSelectQuery();
 				if (!requerySelect.setPlaceholderValue(new TablePlaceholderKey(requerySelect.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
 				{
 					Debug.error(new RuntimeException(
@@ -1165,7 +1166,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		r.flagExistInDB();//prevent it processed by any update, changed is false now
 		if (!partOfBiggerDelete)
 		{
-			QueryDelete sqlDelete = AbstractBaseQuery.deepClone((QueryDelete)sheet.getSQLDescription(SQLSheet.DELETE).getSQLQuery());
+			QueryDelete sqlDelete = deepClone((QueryDelete)sheet.getSQLDescription(SQLSheet.DELETE).getSQLQuery());
 			Object[] pk = r.getPK();
 			if (!sqlDelete.setPlaceholderValue(new TablePlaceholderKey(sqlDelete.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
 			{

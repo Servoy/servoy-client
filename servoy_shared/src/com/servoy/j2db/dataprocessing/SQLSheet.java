@@ -17,6 +17,8 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -741,6 +743,12 @@ public class SQLSheet
 	public SQLDescription getSQLDescription(int sqlType)
 	{
 		return sql.get(sqlType);
+	}
+
+	public QuerySelect getSelectQuery()
+	{
+		SQLDescription sqlDescription = getSQLDescription(SQLSheet.SELECT);
+		return sqlDescription == null ? null : deepClone((QuerySelect)sqlDescription.getSQLQuery());
 	}
 
 	public SQLDescription getRelatedSQLDescription(String relationName)

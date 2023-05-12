@@ -25,7 +25,6 @@ import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONAFT
 import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONAFTERFINDMETHODID;
 import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONAFTERSEARCHMETHODID;
 import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONCREATEMETHODID;
-import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONDELETEMETHODID;
 import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONFINDMETHODID;
 import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID;
 import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONSEARCHMETHODID;
@@ -4582,25 +4581,34 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 
 			if (!partOfBiggerDelete)
 			{
-				try
+//				try
+//				{
+				if (getFoundSetManager().getEditRecordList().addDeletedRecord(state))
 				{
-					// see EditRecordList.stopEditing
-					if (state.existInDataSource() &&
-						!executeFoundsetTriggerBreakOnFalse(new Object[] { state }, PROPERTY_ONDELETEMETHODID, true))
+					if (!(state instanceof PrototypeState))
 					{
-						// trigger returned false
-						Debug.log("Delete not granted for the table " + getTable()); //$NON-NLS-1$
-						throw new ApplicationException(ServoyException.DELETE_NOT_GRANTED);
+						removeRecordInternalEx(state, row);
 					}
+					getFoundSetManager().getEditRecordList().stopEditing(false, state);
 				}
-				catch (DataException e)
-				{
-					// trigger threw exception
-					state.getRawData().setLastException(e);
-					getFoundSetManager().getEditRecordList().markRecordAsFailed(state);
-					Debug.log("Delete not granted for the table " + getTable() + ", pre-delete trigger threw exception"); //$NON-NLS-1$ //$NON-NLS-2$
-					throw new ApplicationException(ServoyException.DELETE_NOT_GRANTED);
-				}
+				if (true) return; // RAGTEST
+				// see EditRecordList.stopEditing
+//					if (state.existInDataSource() &&
+//						!executeFoundsetTriggerBreakOnFalse(new Object[] { state }, PROPERTY_ONDELETEMETHODID, true))
+//					{
+//						// trigger returned false
+//						Debug.log("Delete not granted for the table " + getTable()); //$NON-NLS-1$
+//						throw new ApplicationException(ServoyException.DELETE_NOT_GRANTED);
+//					}
+//				}
+//				catch (DataException e)
+//				{
+//					// trigger threw exception
+//					state.getRawData().setLastException(e);
+//					getFoundSetManager().getEditRecordList().markRecordAsFailed(state);
+//					Debug.log("Delete not granted for the table " + getTable() + ", pre-delete trigger threw exception"); //$NON-NLS-1$ //$NON-NLS-2$
+//					throw new ApplicationException(ServoyException.DELETE_NOT_GRANTED);
+//				}
 
 
 				// check for related data
@@ -4656,6 +4664,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 								"Delete not granted due to AllowParentDeleteWhenHavingRelatedRecords and existing related records from record with PK: " +
 									state.getPKHashKey() + " index in foundset: " + row + " blocked by relation: " + relation.getName(),
 								null);
+							// RAGTEST validate in autosave=false
 							throw new ApplicationException(ServoyException.NO_PARENT_DELETE_WITH_RELATED_RECORDS, new Object[] { relation.getName() })
 								.setContext(this.toString());
 						}
@@ -6816,10 +6825,9 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		{
 			FoundSet fs = (FoundSet)clone();
 			QuerySelect fs_sqlSelect = fs.pksAndRecords.getQuerySelectForReading(); // no need for clone, just made one
-			SQLSheet.SQLDescription select_desc = sheet.getSQLDescription(SQLSheet.SELECT);
-			if (select_desc != null)
+			QuerySelect select = sheet.getSelectQuery();
+			if (select != null)
 			{
-				QuerySelect select = (QuerySelect)select_desc.getSQLQuery();
 				fs_sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, select.getConditionClone(SQLGenerator.CONDITION_SEARCH));
 				// Leave CONDITION_RELATION and CONDITION_FILTER as is in fs (when it is a related fs)
 				fs_sqlSelect.clearJoins();

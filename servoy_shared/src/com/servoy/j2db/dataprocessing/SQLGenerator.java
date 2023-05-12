@@ -130,6 +130,7 @@ public class SQLGenerator
 	public static final String SERVOY_CONDITION_PREFIX = "SV:"; //$NON-NLS-1$
 	public static final String CONDITION_FILTER = SERVOY_CONDITION_PREFIX + 'F';
 	public static final String CONDITION_OMIT = SERVOY_CONDITION_PREFIX + 'O';
+	public static final String CONDITION_DELETED = SERVOY_CONDITION_PREFIX + 'D';
 	public static final String CONDITION_RELATION = SERVOY_CONDITION_PREFIX + 'R';
 	public static final String CONDITION_SEARCH = SERVOY_CONDITION_PREFIX + 'S';
 	public static final String CONDITION_LOCK = SERVOY_CONDITION_PREFIX + 'L';
@@ -1516,18 +1517,22 @@ public class SQLGenerator
 			allQueryColumns.put(column, column.queryColumn(lockSelect.getTable()));
 		}
 
-		lockSelect.setColumns(new ArrayList<IQuerySelectValue>(allQueryColumns.values()));
+		lockSelect.setColumns(new ArrayList<>(allQueryColumns.values()));
 
 		// get the pk columns, make sure the order is in pk-order (alphabetical)
-		ArrayList<QueryColumn> pkQueryColumns = new ArrayList<>();
-		for (Column pkColumn : table.getRowIdentColumns())
-		{
-			pkQueryColumns.add(allQueryColumns.get(pkColumn));
-		}
+		QueryColumn[] pkQueryColumns = table.getRowIdentColumns().stream()
+			.map(allQueryColumns::get).toArray(QueryColumn[]::new);
+		Object[][] values = convertPKValuesForQueryCompare(pkValues, pkQueryColumns.length);
 
+		lockSelect.setCondition(CONDITION_LOCK, new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkQueryColumns, values, true));
+		return lockSelect;
+	}
+
+	public static Object[][] convertPKValuesForQueryCompare(Object[][] pkValues, int ncolumns)
+	{
 		// values is an array as wide as the columns, each element consists of the values for that column
-		Object[][] values = new Object[pkQueryColumns.size()][];
-		for (int k = 0; k < pkQueryColumns.size(); k++)
+		Object[][] values = new Object[ncolumns][];
+		for (int k = 0; k < ncolumns; k++)
 		{
 			values[k] = new Object[pkValues.length];
 			for (int r = 0; r < pkValues.length; r++)
@@ -1535,10 +1540,7 @@ public class SQLGenerator
 				values[k][r] = pkValues[r][k];
 			}
 		}
-		lockSelect.setCondition(CONDITION_LOCK,
-			new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), values, true));
-
-		return lockSelect;
+		return values;
 	}
 
 	private static ArrayList<IQuerySelectValue> makeQueryColumns(Iterator<Column> it, QueryTable queryTable, QueryInsert insert)

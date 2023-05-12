@@ -161,7 +161,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private WeakReference<IFoundSetInternal> noTableFoundSet;
 	private Map<String, RowManager> rowManagers; //dataSource -> RowManager... 1 per table
 	private Map<ITable, CopyOnWriteArrayList<ITableChangeListener>> tableListeners; //table -> ArrayList(tableListeners)
-	protected SQLGenerator sqlGenerator;
+	private SQLGenerator sqlGenerator;
 	private GlobalTransaction globalTransaction;
 	private IInfoListener infoListener;//we allow only one
 	private final IFoundSetFactory foundsetfactory;
@@ -3439,7 +3439,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			try
 			{
-				// if the first returns false it will stop the rest (inline with what we had)
+				// if the first returns false it will stop the rest (in line with what we had)
 				if (!executeFoundsetTriggerBreakOnFalse(table, args, StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID, true, scope))
 				{
 					recordMarkers.setOnBeforeInsertFailed();

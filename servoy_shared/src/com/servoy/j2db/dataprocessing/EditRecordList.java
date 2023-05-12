@@ -16,12 +16,16 @@
  */
 package com.servoy.j2db.dataprocessing;
 
+import static com.servoy.j2db.dataprocessing.SQLGenerator.convertPKValuesForQueryCompare;
 import static com.servoy.j2db.util.Utils.equalObjects;
+import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.Collections.reverse;
+import static java.util.Collections.synchronizedList;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toSet;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -43,9 +48,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.servoy.base.persistence.IBaseColumn;
+import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IPrepareForSave;
+import com.servoy.j2db.dataprocessing.FoundSetManager.TableFilterRequest;
 import com.servoy.j2db.dataprocessing.ValueFactory.BlobMarkerValue;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
@@ -59,7 +66,11 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.Placeholder;
+import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryInsert;
+import com.servoy.j2db.query.QuerySelect;
+import com.servoy.j2db.query.QueryTable;
+import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IntHashMap;
 import com.servoy.j2db.util.ServoyException;
@@ -72,8 +83,9 @@ import com.servoy.j2db.util.Utils;
  */
 public class EditRecordList
 {
-
 	protected static final Logger log = LoggerFactory.getLogger("com.servoy.j2db.dataprocessing.editedRecords"); //$NON-NLS-1$
+
+	private static final String DELETED_RECORDS_FILTER = "_svy_deleted_records_table_filter";
 
 	private final FoundSetManager fsm;
 
@@ -85,10 +97,12 @@ public class EditRecordList
 
 	private ConcurrentMap<FoundSet, int[]> fsEventMap;
 
+	// RAGTEST naar EditedRecords verhuizen? (niet als we failedrecords ook een EditedRecords() maken
 	private final ReentrantLock editRecordsLock = new ReentrantLock();
 
-	private final List<IRecordInternal> editedRecords = Collections.synchronizedList(new ArrayList<IRecordInternal>(32));
-	private final List<IRecordInternal> failedRecords = Collections.synchronizedList(new ArrayList<IRecordInternal>(2));
+	private final EditedRecords editedRecords = new EditedRecords();
+	// RAGTEST ?? private final EditedRecords failedRecords = new EditedRecords();
+	private final List<IRecordInternal> failedRecords = synchronizedList(new ArrayList<IRecordInternal>(2));
 	private final Map<IRecordInternal, List<IPrepareForSave>> recordTested = Collections.synchronizedMap(new HashMap<IRecordInternal, List<IPrepareForSave>>()); //tested for form.OnRecordEditStop event
 	private boolean preparingForSave;
 
@@ -210,9 +224,10 @@ public class EditRecordList
 		editRecordsLock.lock();
 		try
 		{
-			for (int i = editedRecords.size(); --i >= 0;)
+			IRecordInternal[] edited = editedRecords.getEdited();
+			for (int i = edited.length; --i >= 0;)
 			{
-				IRecordInternal record = editedRecords.get(i);
+				IRecordInternal record = edited[i];
 				if (recordFilter.test(record))
 				{
 					al.add(record);
@@ -263,23 +278,12 @@ public class EditRecordList
 		editRecordsLock.lock();
 		try
 		{
-			List<IRecordInternal> allEditing = new ArrayList<IRecordInternal>();
-			allEditing.addAll(editedRecords);
-			allEditing.addAll(failedRecords);
-			for (int i = allEditing.size(); --i >= 0;)
-			{
-				IRecordInternal record = allEditing.get(i);
-				if (record.getParentFoundSet() == foundset)
-				{
-					return true;
-				}
-			}
+			return editedRecords.contains(record -> record.getParentFoundSet() == foundset);
 		}
 		finally
 		{
 			editRecordsLock.unlock();
 		}
-		return false;
 	}
 
 
@@ -312,7 +316,7 @@ public class EditRecordList
 	 */
 	public int stopEditing(boolean javascriptStop, IRecord recordToSave)
 	{
-		return stopEditing(javascriptStop, Arrays.asList(new IRecord[] { recordToSave }));
+		return stopEditing(javascriptStop, asList(new IRecord[] { recordToSave }));
 	}
 
 	/**
@@ -368,6 +372,8 @@ public class EditRecordList
 	 */
 	private int stopEditingImpl(final boolean javascriptStop, List<IRecord> recordsToSave, int recursionDepth)
 	{
+		// RAGTEST voer delete uit
+		// RAGTEST check voor foundset event PROPERTY_ONDELETEMETHODID PROPERTY_ONAFTERDELETEMETHODID
 		if (recursionDepth > 50)
 		{
 			fsm.getApplication().reportJSError(
@@ -440,7 +446,7 @@ public class EditRecordList
 					try
 					{
 						stop = editedRecords.size() == 1 && recordsToSaveFinal != null && recordsToSaveFinal.size() == 1 &&
-							editedRecords.get(0) == recordsToSaveFinal.get(0);
+							editedRecords.getEdited()[0] == recordsToSaveFinal.get(0);
 					}
 					finally
 					{
@@ -544,21 +550,22 @@ public class EditRecordList
 				if (recordsToSave == null)
 				{
 					// if it is a save all, then first filter out all the duplicate rows.
-					for (int i = 0; i < editedRecords.size(); i++)
-					{
-						Row toTest = editedRecords.get(i).getRawData();
-						for (int j = editedRecords.size(); --j > i;)
-						{
-							if (editedRecords.get(j).getRawData() == toTest)
-							{
-								removeEditedRecord(editedRecords.get(j));
-							}
-						}
-					}
+//	RAGTEST				for (int i = 0; i < editedRecords.size(); i++)
+//					{
+//						Row toTest = editedRecords.get(i).getRawData();
+//						for (int j = editedRecords.size(); --j > i;)
+//						{
+//							if (editedRecords.get(j).getRawData() == toTest)
+//							{
+//								removeEditedRecord(editedRecords.get(j));
+//							}
+//						}
+//					}
 				}
 
 				Map<IRecordInternal, Integer> processed = new HashMap<IRecordInternal, Integer>();
-				for (IRecordInternal tmp = getFirstElement(editedRecords, recordsToSave); tmp != null; tmp = getFirstElement(editedRecords, recordsToSave))
+				for (IRecordInternal tmp = getFirstElement(editedRecords.getEdited(), recordsToSave); tmp != null; tmp = getFirstElement(
+					editedRecords.getEdited(), recordsToSave))
 				{
 					// check if we do not have an infinite recursive loop
 					Integer count = processed.get(tmp);
@@ -1230,13 +1237,14 @@ public class EditRecordList
 	 */
 	private void placeBackAlreadyProcessedRecords(List<RowUpdateInfo> rowUpdates)
 	{
-		rowUpdates.stream().map(update -> update.getRecord()).forEachOrdered(editedRecords::add);
+		// RAGTEST deletes?
+		rowUpdates.stream().map(update -> update.getRecord()).forEachOrdered(editedRecords::addEdited);
 	}
 
 	/**
 	 * Get the first element of a list, filter on subList when not null;
 	 */
-	private static IRecordInternal getFirstElement(List<IRecordInternal> records, List<IRecord> subList)
+	private static IRecordInternal getFirstElement(IRecordInternal[] records, List<IRecord> subList)
 	{
 		for (IRecordInternal record : records)
 		{
@@ -1342,11 +1350,11 @@ public class EditRecordList
 	{
 		if (preparingForSave) return;
 		// Test the edited records if they are changed or not.
-		Object[] editedRecordsArray = null;
+		IRecordInternal[] editedRecordsArray = null;
 		editRecordsLock.lock();
 		try
 		{
-			editedRecordsArray = editedRecords.toArray();
+			editedRecordsArray = editedRecords.getEdited();
 		}
 		finally
 		{
@@ -1392,11 +1400,11 @@ public class EditRecordList
 
 	void removeEditedRecords(FoundSet set)
 	{
-		Object[] editedRecordsArray = null;
+		IRecordInternal[] editedRecordsArray = null;
 		editRecordsLock.lock();
 		try
 		{
-			editedRecordsArray = editedRecords.toArray();
+			editedRecordsArray = editedRecords.getEdited();
 		}
 		finally
 		{
@@ -1435,14 +1443,14 @@ public class EditRecordList
 			return true;
 		}
 
-		boolean isEditing = record instanceof FindState;
-		if (!isEditing)
+		boolean canStartEditing = record instanceof FindState;
+		if (!canStartEditing)
 		{
 			if (record.existInDataSource())
 			{
 				if (hasAccess(record.getParentFoundSet().getSQLSheet().getTable(), IRepository.UPDATE))
 				{
-					isEditing = !record.isLocked();// enable only if not locked by someone else
+					canStartEditing = !record.isLocked(); // enable only if not locked by someone else
 				}
 				else
 				{
@@ -1454,7 +1462,7 @@ public class EditRecordList
 			{
 				if (hasAccess(record.getParentFoundSet().getSQLSheet().getTable(), IRepository.INSERT))
 				{
-					isEditing = true;
+					canStartEditing = true;
 				}
 				else
 				{
@@ -1463,11 +1471,11 @@ public class EditRecordList
 				}
 			}
 		}
-		if (isEditing)
+		if (canStartEditing)
 		{
-			if (mustFireEditRecordChange) isEditing = fireEditRecordStart(record);
+			if (mustFireEditRecordChange) canStartEditing = fireEditRecordStart(record);
 			// find states also to the global foundset manager??
-			if (isEditing)
+			if (canStartEditing)
 			{
 				int editRecordsSize = 0;
 				editRecordsLock.lock();
@@ -1479,7 +1487,7 @@ public class EditRecordList
 					// extra check if no other thread already added this record
 					if (!editedRecords.contains(record))
 					{
-						editedRecords.add(record);
+						editedRecords.addEdited(record);
 						editRecordsSize = editedRecords.size();
 					}
 					failedRecords.remove(record);
@@ -1496,12 +1504,141 @@ public class EditRecordList
 				}
 			}
 		}
-		return isEditing;
+		return canStartEditing;
 	}
 
-	/**
-	 *
-	 */
+	public boolean addDeletedRecord(IRecordInternal record)
+	{
+		if (record == null)
+		{
+			throw new IllegalArgumentException(fsm.getApplication().getI18NMessage("servoy.foundSet.error.editNullRecord")); //$NON-NLS-1$
+		}
+
+		editRecordsLock.lock();
+		try
+		{
+			if (editedRecords.containsDeleted(record))
+			{
+				return true;
+			}
+			//RAGTEST		recordTested.remove(record);
+		}
+		finally
+		{
+			editRecordsLock.unlock();
+		}
+
+		boolean canDeleteRecord = record instanceof FindState; // RAGTEST delete FindState?
+		if (!canDeleteRecord)
+		{
+			if (record.existInDataSource())
+			{
+				if (hasAccess(record.getParentFoundSet().getSQLSheet().getTable(), IRepository.DELETE))
+				{
+					canDeleteRecord = !record.isLocked();// enable only if not locked by someone else
+				}
+				else
+				{
+					// TODO throw exception??
+					//	Error handler ???
+				}
+			}
+//		}
+//		if (canDeleteRecord)
+//		{
+//			if (mustFireEditRecordChange) isEditing = fireEditRecordStart(record); // RAGTEST aparte fire fireEditDeleteStart?
+//			// find states also to the global foundset manager??
+			if (canDeleteRecord)
+			{
+				boolean fireChange = false;
+				editRecordsLock.lock();
+				try
+				{
+					// RAGTEST check logica
+					// RAGTEST in andere methods uit deletedRecords halen
+					// editRecordStop should be called for this record to match the editRecordStop call
+					recordTested.remove(record);
+
+					// extra check if no other thread already added this record
+					if (editedRecords.contains(record))
+					{
+						editedRecords.remove(record);
+						fireChange = editedRecords.size() == 0;
+					}
+					failedRecords.remove(record);
+					// reset the exception so that it is tried again.
+					record.getRawData().setLastException(null);
+
+					editedRecords.addDeleted(record);
+				}
+				finally
+				{
+					editRecordsLock.unlock();
+				}
+
+				setDeletedrecordsIntenalTableFilter();
+
+				if (fireChange)
+				{
+					// RAGTEST icm filter fire?
+					fireEditChange();
+				}
+			}
+		}
+		return canDeleteRecord;
+	}
+
+
+	private void setDeletedrecordsIntenalTableFilter()
+	{
+		try
+		{
+			Set<String> previousServersWithFilters = fsm.getTableFilters(DELETED_RECORDS_FILTER).stream().map(TableFilter::getServerName).collect(toSet());
+			Map<String, List<IRecordInternal>> groupedByServer = stream(editedRecords.getDeleted()).collect(groupingBy(
+				deletedRecord -> deletedRecord.getParentFoundSet().getTable().getServerName()));
+
+			groupedByServer.forEach((serverName, deletedPerServer) -> {
+				try
+				{
+					previousServersWithFilters.remove(serverName);
+
+					List<TableFilterRequest> tableFilterRequests = new ArrayList<>();
+
+					Map<ITable, List<IRecordInternal>> deletedPerTable = deletedPerServer.stream()
+						.collect(groupingBy(deletedRecord -> deletedRecord.getParentFoundSet().getTable()));
+
+					deletedPerTable.forEach((table, records) -> {
+						QuerySelect select = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
+
+						QueryColumn[] pkColumns = table.getRowIdentColumns().stream().map(column -> column.queryColumn(select.getTable()))
+							.toArray(QueryColumn[]::new);
+						Object[][] pkValues = convertPKValuesForQueryCompare(records.stream().map(IRecordInternal::getPK).toArray(Object[][]::new),
+							pkColumns.length);
+
+						select.setCondition(SQLGenerator.CONDITION_DELETED, new SetCondition(IBaseSQLCondition.NOT_OPERATOR, pkColumns, pkValues, true));
+						tableFilterRequests.add(new TableFilterRequest(table, new QueryTableFilterdefinition(select), false));
+					});
+
+					fsm.setTableFilters(DELETED_RECORDS_FILTER, serverName, tableFilterRequests, true);
+				}
+				catch (RepositoryException e)
+				{
+					Debug.error(e);
+				}
+			});
+
+			// Remove filters after last record from server is no longer marked as deleted
+			for (String remainingServerWithFilters : previousServersWithFilters)
+			{
+				fsm.setTableFilters(DELETED_RECORDS_FILTER, remainingServerWithFilters, null, true);
+			}
+		}
+		catch (RepositoryException e)
+		{
+			Debug.error(e);
+		}
+	}
+
 	public void clearSecuritySettings()
 	{
 		accessMap.clear();
@@ -1687,13 +1824,14 @@ public class EditRecordList
 
 	public void rollbackRecords()
 	{
+		// RAGTEST deletedRecords
 		ArrayList<IRecordInternal> array = new ArrayList<IRecordInternal>();
 		editRecordsLock.lock();
 		try
 		{
 			recordTested.clear();
 			array.addAll(failedRecords);
-			array.addAll(editedRecords);
+			array.addAll(asList(editedRecords.getAll()));
 		}
 		finally
 		{
@@ -1760,6 +1898,8 @@ public class EditRecordList
 			{
 				editRecordsLock.unlock();
 			}
+
+			setDeletedrecordsIntenalTableFilter();
 			fireEditChange();
 		}
 	}
@@ -1770,7 +1910,7 @@ public class EditRecordList
 		editRecordsLock.lock();
 		try
 		{
-			return editedRecords.toArray(new IRecordInternal[editedRecords.size()]);
+			return editedRecords.getEdited();
 		}
 		finally
 		{
@@ -1788,9 +1928,10 @@ public class EditRecordList
 		editRecordsLock.lock();
 		try
 		{
-			for (int i = editedRecords.size(); --i >= 0;)
+			List<IRecordInternal> edited = asList(editedRecords.getEdited());
+			for (int i = edited.size(); --i >= 0;)
 			{
-				IRecordInternal record = editedRecords.get(i);
+				IRecordInternal record = edited.get(i);
 				if (record.getParentFoundSet() == set)
 				{
 					List<IPrepareForSave> forms = recordTested.get(record);
