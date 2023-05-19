@@ -18,6 +18,8 @@ package com.servoy.j2db.dataprocessing;
 
 
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
+import static com.servoy.j2db.query.AbstractBaseQuery.setPlaceholderValue;
+import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
@@ -26,7 +28,6 @@ import java.lang.ref.ReferenceQueue;
 import java.rmi.RemoteException;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -55,7 +56,6 @@ import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
-import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.query.QueryColumn;
@@ -407,7 +407,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		if (!select.setPlaceholderValue(new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
 		{
 			Debug.error(new RuntimeException("Could not set placeholder " + new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
-				" in query " + select + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$
+				" in query " + select + " -- continuing")); //$NON-NLS-1$//$NON-NLS-2$
 		}
 		IDataSet formdata;
 		try
@@ -475,7 +475,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 						eventType = RowEvent.DELETE;
 						if (insertColumnDataOrChangedColumns != null)
 						{
-							List<String> pkdps = Arrays.asList(sheet.getPKColumnDataProvidersAsArray());
+							List<String> pkdps = asList(sheet.getPKColumnDataProvidersAsArray());
 							for (Object changedColumnName : insertColumnDataOrChangedColumns)
 							{
 								if (pkdps.contains(changedColumnName))
@@ -740,7 +740,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		}
 	}
 
-	RowUpdateInfo getRowUpdateInfo(Row row, boolean tracking) throws ServoyException
+	RowUpdateInfo getRowUpdateInfo(Row row, boolean tracking, String deletedRecordsFilterName) throws ServoyException
 	{
 		try
 		{
@@ -762,11 +762,24 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				return null;
 			}
 
-			if (!row.isChanged()) return null;
+			boolean deleted = !pkRowMap.containsKey(row.getPKHashKey());
+			boolean doesExistInDB = row.existInDB();
+
+			if (deleted)
+			{
+				if (!doesExistInDB)
+				{
+					return null;
+				}
+			}
+			else if (!row.isChanged())
+			{
+				return null;
+			}
 
 			boolean mustRequeryRow = false;
 
-			List<Column> dbPKReturnValues = new ArrayList<Column>();
+			List<Column> dbPKReturnValues = new ArrayList<>();
 			SQLSheet.SQLDescription sqlDesc = null;
 			int statement_action;
 			ISQLUpdate sqlUpdate = null;
@@ -774,105 +787,122 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			boolean oracleServer = SQLSheet.isOracleServer(server);
 			boolean usesLobs = false;
 			Table table = sheet.getTable();
-			boolean doesExistInDB = row.existInDB();
-			List<String> aggregatesToRemove = new ArrayList<String>(8);
+			List<String> aggregatesToRemove = new ArrayList<>(8);
 			List<String> changedColumns = null;
 			if (doesExistInDB)
 			{
-				statement_action = ISQLActionTypes.UPDATE_ACTION;
-				sqlDesc = sheet.getSQLDescription(SQLSheet.UPDATE);
-				sqlUpdate = (QueryUpdate)deepClone(sqlDesc.getSQLQuery());
-				List<String> req = sqlDesc.getRequiredDataProviderIDs();
+				if (deleted)
+				{
+					statement_action = ISQLActionTypes.DELETE_ACTION;
+					sqlDesc = sheet.getSQLDescription(SQLSheet.DELETE);
+					sqlUpdate = (QueryDelete)deepClone(sqlDesc.getSQLQuery());
+
+					aggregatesToRemove = sqlDesc.getOldRequiredDataProviderIDs().stream()
+						.filter(sheet::isUsedByAggregate)
+						.map(sheet::getAggregateName)
+						.flatMap(Collection::stream).collect(toList());
+				}
+				else
+				{
+					statement_action = ISQLActionTypes.UPDATE_ACTION;
+					sqlDesc = sheet.getSQLDescription(SQLSheet.UPDATE);
+					sqlUpdate = (QueryUpdate)deepClone(sqlDesc.getSQLQuery());
+					List<String> req = sqlDesc.getRequiredDataProviderIDs();
+
+					Object[] olddata = row.getRawOldColumnData();
+					if (olddata == null)//for safety only, nothing changed
+					{
+						return null;
+					}
+					Object[] newdata = row.getRawColumnData();
+					for (int i = 0; i < olddata.length; i++)
+					{
+						String dataProviderID = req.get(i);
+						Column c = table.getColumn(dataProviderID);
+						ColumnInfo ci = c.getColumnInfo();
+						if (ci != null && ci.isDBManaged())
+						{
+							mustRequeryRow = true;
+						}
+						else
+						{
+							Object modificationValue = c.getModificationValue(fsm.getApplication());
+							if (modificationValue != null)
+							{
+								row.setRawValue(dataProviderID, modificationValue);
+							}
+						}
+					}
+					for (int i = 0; i < olddata.length; i++)
+					{
+						String dataProviderID = req.get(i);
+						Column c = table.getColumn(dataProviderID);
+						if (newdata[i] instanceof BlobMarkerValue)
+						{
+							// if it is a blob marker then it isn't something that is changed
+							// because that would be a byte[]
+							continue;
+						}
+						if (!Utils.equalObjects(olddata[i], newdata[i]))
+						{
+							if (sheet.isUsedByAggregate(dataProviderID))
+							{
+								aggregatesToRemove.addAll(sheet.getAggregateName(dataProviderID));
+							}
+							Object robj = c.getAsRightType(newdata[i]);
+							if (robj == null) robj = ValueFactory.createNullValue(c.getType());
+							((QueryUpdate)sqlUpdate).addValue(c.queryColumn(sqlUpdate.getTable()), robj);
+							if (changedColumns == null)
+							{
+								changedColumns = new ArrayList<>(olddata.length - i);
+							}
+							changedColumns.add(c.getName());
+							if (oracleServer && !usesLobs)
+							{
+								int type = c.getType();
+								if (type == Types.BLOB && robj instanceof byte[] && ((byte[])robj).length > 4000)
+								{
+									usesLobs = true;
+								}
+								else if (type == Types.CLOB && robj instanceof String && ((String)robj).length() > 4000)
+								{
+									usesLobs = true;
+								}
+							}
+						}
+					}
+
+					if (changedColumns == null)//nothing changed after all
+					{
+						// clear the old data now else it will be kept and in a changed state.
+						row.flagExistInDB();
+						return null;
+					}
+				}
+
+				// add PK
 				List<String> old = sqlDesc.getOldRequiredDataProviderIDs();
-
-				Object[] olddata = row.getRawOldColumnData();
-				if (olddata == null)//for safety only, nothing changed
-				{
-					return null;
-				}
-				Object[] newdata = row.getRawColumnData();
-				for (int i = 0; i < olddata.length; i++)
-				{
-					String dataProviderID = req.get(i);
-					Column c = table.getColumn(dataProviderID);
-					ColumnInfo ci = c.getColumnInfo();
-					if (ci != null && ci.isDBManaged())
-					{
-						mustRequeryRow = true;
-					}
-					else
-					{
-						Object modificationValue = c.getModificationValue(fsm.getApplication());
-						if (modificationValue != null)
-						{
-							row.setRawValue(dataProviderID, modificationValue);
-						}
-					}
-				}
-				for (int i = 0; i < olddata.length; i++)
-				{
-					String dataProviderID = req.get(i);
-					Column c = table.getColumn(dataProviderID);
-					if (newdata[i] instanceof BlobMarkerValue)
-					{
-						// if it is a blob marker then it isn't something that is changed
-						// because that would be a byte[]
-						continue;
-					}
-					if (!Utils.equalObjects(olddata[i], newdata[i]))
-					{
-						if (sheet.isUsedByAggregate(dataProviderID))
-						{
-							aggregatesToRemove.addAll(sheet.getAggregateName(dataProviderID));
-						}
-						Object robj = c.getAsRightType(newdata[i]);
-						if (robj == null) robj = ValueFactory.createNullValue(c.getType());
-						((QueryUpdate)sqlUpdate).addValue(c.queryColumn(((QueryUpdate)sqlUpdate).getTable()), robj);
-						if (changedColumns == null)
-						{
-							changedColumns = new ArrayList<String>(olddata.length - i);
-						}
-						changedColumns.add(c.getName());
-						if (oracleServer && !usesLobs)
-						{
-							int type = c.getType();
-							if (type == Types.BLOB && robj instanceof byte[] && ((byte[])robj).length > 4000)
-							{
-								usesLobs = true;
-							}
-							else if (type == Types.CLOB && robj instanceof String && ((String)robj).length() > 4000)
-							{
-								usesLobs = true;
-							}
-						}
-					}
-				}
-
-				if (changedColumns == null)//nothing changed after all
-				{
-					// clear the old data now else it will be kept and in a changed state.
-					row.flagExistInDB();
-					return null;
-				}
-
-				//add PK
 				Object[] pkValues = new Object[old.size()];
 				for (int j = 0; j < old.size(); j++)
 				{
 					String dataProviderID = old.get(j);
-					pkValues[j] = row.getOldRequiredValue(dataProviderID);
+					Object value = row.getOldRequiredValue(dataProviderID);
+					if (value == null)
+					{
+						value = row.getValue(dataProviderID);
+					}
+					pkValues[j] = value;
 				}
 
 				// TODO: check for success
-				AbstractBaseQuery.setPlaceholderValue(sqlUpdate,
-					new TablePlaceholderKey(((QueryUpdate)sqlUpdate).getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pkValues);
+				setPlaceholderValue(sqlUpdate, new TablePlaceholderKey(sqlUpdate.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pkValues);
 			}
 			else
 			{
-				List<Object> argsArray = new ArrayList<Object>();
+				List<Object> argsArray = new ArrayList<>();
 				statement_action = ISQLActionTypes.INSERT_ACTION;
 				sqlDesc = sheet.getSQLDescription(SQLSheet.INSERT);
-				sqlUpdate = (ISQLUpdate)deepClone(sqlDesc.getSQLQuery());
+				sqlUpdate = (QueryInsert)deepClone(sqlDesc.getSQLQuery());
 				List<String> req = sqlDesc.getRequiredDataProviderIDs();
 				if (Debug.tracing()) Debug.trace(sqlUpdate.toString());
 				for (int i = 0; i < req.size(); i++)
@@ -883,7 +913,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 						aggregatesToRemove.addAll(sheet.getAggregateName(dataProviderID));
 					}
 					Column c = table.getColumn(dataProviderID);
-					QueryColumn queryColumn = c.queryColumn(((QueryInsert)sqlUpdate).getTable());
+					QueryColumn queryColumn = c.queryColumn(sqlUpdate.getTable());
 					ColumnInfo ci = c.getColumnInfo();
 					if (c.isDBIdentity())
 					{
@@ -928,9 +958,9 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 						}
 					}
 				}
-				AbstractBaseQuery.setPlaceholderValue(sqlUpdate,
-					new TablePlaceholderKey(((QueryInsert)sqlUpdate).getTable(), SQLGenerator.PLACEHOLDER_INSERT_KEY), argsArray.toArray());
+				setPlaceholderValue(sqlUpdate, new TablePlaceholderKey(sqlUpdate.getTable(), SQLGenerator.PLACEHOLDER_INSERT_KEY), argsArray.toArray());
 			}
+
 			Object[] pk = row.getPK();
 			IDataSet pks = new BufferedDataSet();
 			pks.addRow(pk);
@@ -948,12 +978,22 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				{
 					Debug.error(new RuntimeException(
 						"Could not set placeholder " + new TablePlaceholderKey(requerySelect.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
-							" in query " + requerySelect + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$
+							" in query " + requerySelect + " -- continuing")); //$NON-NLS-1$//$NON-NLS-2$
 				}
 			}
-			SQLStatement statement = new SQLStatement(statement_action, sheet.getServerName(), table.getName(), pks, tid, sqlUpdate,
-				fsm.getTableFilterParams(sheet.getServerName(), sqlUpdate), requerySelect);
-			if (doesExistInDB) statement.setExpectedUpdateCount(1); // check that the row is updated (skip check for insert)
+			ArrayList<TableFilter> tableFilterParams;
+			if (statement_action == ISQLActionTypes.DELETE_ACTION)
+			{
+				tableFilterParams = fsm.getTableFilterParams(sheet.getServerName(), sqlUpdate, asList(deletedRecordsFilterName));
+			}
+			else
+			{
+				tableFilterParams = fsm.getTableFilterParams(sheet.getServerName(), sqlUpdate);
+			}
+
+			SQLStatement statement = new SQLStatement(statement_action, sheet.getServerName(), table.getName(), pks, tid, sqlUpdate, tableFilterParams,
+				requerySelect);
+			if (doesExistInDB) statement.setExpectedUpdateCount(1); // check that the row is updated/deleted (skip check for insert)
 			if (changedColumns != null)
 			{
 				statement.setChangedColumns(changedColumns.toArray(new String[changedColumns.size()]));
@@ -968,9 +1008,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			}
 			return new RowUpdateInfo(row, statement, dbPKReturnValues, aggregatesToRemove);
 		}
-		catch (
-
-		RemoteException e)
+		catch (RemoteException e)
 		{
 			throw new RepositoryException(e);
 		}
@@ -1159,72 +1197,22 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		return sheet;
 	}
 
-	void deleteRow(IRowListener src, Row r, boolean tracking, boolean partOfBiggerDelete) throws ServoyException
+	void deleteRow(IRowListener src, Row r, boolean partOfBiggerDelete)
 	{
 		if (r.getRowManager() != this) throw new IllegalArgumentException("I'm not the row manager from row"); //$NON-NLS-1$
 
 		r.flagExistInDB();//prevent it processed by any update, changed is false now
+
+		SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>> removed;
+		synchronized (this)
+		{
+			removed = pkRowMap.remove(r.getPKHashKey());
+		}
 		if (!partOfBiggerDelete)
 		{
-			QueryDelete sqlDelete = deepClone((QueryDelete)sheet.getSQLDescription(SQLSheet.DELETE).getSQLQuery());
-			Object[] pk = r.getPK();
-			if (!sqlDelete.setPlaceholderValue(new TablePlaceholderKey(sqlDelete.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
-			{
-				Debug.error(
-					new RuntimeException("Could not set placeholder " + new TablePlaceholderKey(sqlDelete.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
-						" in query " + sqlDelete + "-- continuing")); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-
-			IDataSet pks = new BufferedDataSet();
-			pks.addRow(pk);
-			ISQLStatement[] stats_a = new ISQLStatement[1];
-			String tid = null;
-			GlobalTransaction gt = fsm.getGlobalTransaction();
-			if (gt != null)
-			{
-				tid = gt.getTransactionID(sheet.getServerName());
-			}
-
-			SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, sheet.getServerName(), sheet.getTable().getName(), pks, tid, sqlDelete,
-				fsm.getTableFilterParams(sheet.getServerName(), sqlDelete));
-			statement.setExpectedUpdateCount(1); // check that 1 record is deleted
-			stats_a[0] = statement;
-			if (tracking)
-			{
-				statement.setTrackingData(sheet.getColumnNames(), r.getRawColumnData() != null ? new Object[][] { r.getRawColumnData() } : null, null,
-					fsm.getApplication().getUserUID(), fsm.getTrackingInfo(), fsm.getApplication().getClientID());
-			}
-
-			try
-			{
-				Object[] results = fsm.getDataServer().performUpdates(fsm.getApplication().getClientID(), stats_a);
-				for (int i = 0; results != null && i < results.length; i++)
-				{
-					if (results[i] instanceof ServoyException)
-					{
-						throw (ServoyException)results[i];
-					}
-				}
-			}
-			catch (RemoteException e)
-			{
-				throw new RepositoryException(e);
-			}
-
-			SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>> removed;
-			synchronized (this)
-			{
-				removed = pkRowMap.remove(r.getPKHashKey());
-			}
 			fireDependingCalcs(removed, null, null);
 		}
-		else
-		{
-			synchronized (this)
-			{
-				pkRowMap.remove(r.getPKHashKey());
-			}
-		}
+
 		fireNotifyChange(src, r, r.getPKHashKey(), null, RowEvent.DELETE);
 	}
 

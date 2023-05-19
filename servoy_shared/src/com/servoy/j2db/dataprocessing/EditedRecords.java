@@ -20,9 +20,13 @@ package com.servoy.j2db.dataprocessing;
 import static java.util.Collections.synchronizedList;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+
+import com.servoy.j2db.query.QueryDelete;
 
 /**
  * RAGTEST doc
@@ -34,31 +38,8 @@ public class EditedRecords
 {
 // RAGTEST failedRecords?
 	// RAGTET failed delete?
-	private final List<EditingRecord> records = synchronizedList(new ArrayList<EditingRecord>(32));
-
-
-	private static class EditingRecord
-	{
-		EditingRecord(IRecordInternal record, EditType type)
-		{
-			this.record = record;
-			this.type = type;
-		}
-
-		final IRecordInternal record;
-		final EditType type;
-
-		@Override
-		public String toString()
-		{
-			return type + " " + record;
-		}
-	}
-
-	private enum EditType
-	{
-		edit, delete
-	}
+	private final List<EditingRecord> records = synchronizedList(new ArrayList<>(32));
+	private final Map<String, List<QueryDelete>> deleteQueries = new HashMap<>();
 
 	public void addEdited(IRecordInternal record)
 	{
@@ -94,9 +75,33 @@ public class EditedRecords
 		return getRecords(null).map(er -> er.record).anyMatch(recordFilter);
 	}
 
+	public void addDeleteQuery(String serverName, QueryDelete deleteQuery)
+	{
+		List<QueryDelete> list = deleteQueries.get(serverName);
+		if (list == null)
+		{
+			list = new ArrayList<>();
+			deleteQueries.put(serverName, list);
+		}
+		list.add(deleteQuery);
+	}
+
+	public void rmeoveDeleteQuery(String serverName, QueryDelete deleteQuery)
+	{
+		List<QueryDelete> list = deleteQueries.get(serverName);
+		if (list != null)
+		{
+			list.remove(deleteQuery);
+			if (list.isEmpty())
+			{
+				deleteQueries.remove(serverName);
+			}
+		}
+	}
+
 	public int size()
 	{
-		return records.size();
+		return records.size(); // RAGTEST empty als er wel delete queries zijn?
 	}
 
 	private Stream<EditingRecord> getRecords(EditType editType)
@@ -117,6 +122,11 @@ public class EditedRecords
 	public boolean remove(IRecordInternal record)
 	{
 		return records.removeIf(er -> record.equals(er.record));
+	}
+
+	public boolean removeEdited(IRecordInternal record)
+	{
+		return records.removeIf(er -> er.type == EditType.edit && record.equals(er.record));
 	}
 
 	public IRecordInternal[] getEdited()
@@ -144,5 +154,26 @@ public class EditedRecords
 		records.clear();
 	}
 
+	private enum EditType
+	{
+		edit, delete
+	}
+	private static class EditingRecord
+	{
+		EditingRecord(IRecordInternal record, EditType type)
+		{
+			this.record = record;
+			this.type = type;
+		}
+
+		final IRecordInternal record;
+		final EditType type;
+
+		@Override
+		public String toString()
+		{
+			return type + " " + record;
+		}
+	}
 
 }

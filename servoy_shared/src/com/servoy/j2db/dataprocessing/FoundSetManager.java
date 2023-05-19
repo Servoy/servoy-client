@@ -1310,7 +1310,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return value;
 	}
 
-	public void setTableFilters(String filterName, String serverName, List<TableFilterRequest> tableFilterRequests, boolean removeOld)
+	public void setTableFilters(String filterName, String serverName, List<TableFilterRequest> tableFilterRequests, boolean removeOld, boolean fire)
 		throws RepositoryException
 	{
 		boolean refreshI18NMessages = false;
@@ -1406,22 +1406,25 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 		}
 
-		// fire events after all filters are adjusted
-		Set<ITable> firedTables = new HashSet<ITable>();
-		toRefresh.stream().collect(groupingBy(Pair::getLeft, mapping(Pair::getRight, toList())))
-			.forEach((dataSource, tableFilterdefinitions) -> {
-				for (ITable affectedtable : refreshFoundSetsFromDBforFilterAndGetAffectedTables(dataSource, tableFilterdefinitions))
-				{
-					if (firedTables.add(affectedtable))
-					{
-						fireTableEvent(affectedtable);
-					}
-				}
-			});
-
-		if (refreshI18NMessages)
+		if (fire)
 		{
-			((ClientState)application).refreshI18NMessages(false);
+			// fire events after all filters are adjusted
+			Set<ITable> firedTables = new HashSet<ITable>();
+			toRefresh.stream().collect(groupingBy(Pair::getLeft, mapping(Pair::getRight, toList())))
+				.forEach((dataSource, tableFilterdefinitions) -> {
+					for (ITable affectedtable : refreshFoundSetsFromDBforFilterAndGetAffectedTables(dataSource, tableFilterdefinitions))
+					{
+						if (firedTables.add(affectedtable))
+						{
+							fireTableEvent(affectedtable);
+						}
+					}
+				});
+
+			if (refreshI18NMessages)
+			{
+				((ClientState)application).refreshI18NMessages(false);
+			}
 		}
 	}
 
@@ -1555,16 +1558,23 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	 */
 	public ArrayList<TableFilter> getTableFilterParams(String serverName, IQueryElement sql)
 	{
-		final List<TableFilter> serverFilters = tableFilterParams.get(serverName);
-		if (serverFilters == null)
+		return getTableFilterParams(serverName, sql, emptyList());
+	}
+
+	public ArrayList<TableFilter> getTableFilterParams(String serverName, IQueryElement sql, List<String> filtersToIgnore)
+	{
+		List<TableFilter> serverFilters = stream(tableFilterParams.get(serverName))
+			.filter(tf -> !filtersToIgnore.contains(tf.getName()))
+			.collect(toList());
+		if (serverFilters.isEmpty())
 		{
 			return null;
 		}
 
 		// get the sql table names in the query
-		final Set<String> tableSqlNames = new HashSet<String>();
+		Set<String> tableSqlNames = new HashSet<>();
 		// find the filters for the tables found in the query
-		final ArrayList<TableFilter>[] filters = new ArrayList[] { null };
+		ArrayList<TableFilter>[] filters = new ArrayList[] { null };
 		sql.acceptVisitor(o -> {
 			try
 			{

@@ -389,7 +389,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 		JSTableFilter tableFilter = createTableFilterInternal(query);
 		application.getFoundSetManager().setTableFilters(filterName, tableFilter.getTable().getServerName(),
-			asList(new TableFilterRequest(tableFilter.getTable(), tableFilter.getTableFilterdefinition(), false)), false);
+			asList(new TableFilterRequest(tableFilter.getTable(), tableFilter.getTableFilterdefinition(), false)), false, true);
 		return true;
 	}
 
@@ -555,13 +555,13 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			IFoundSetManagerInternal foundSetManager = application.getFoundSetManager();
 			for (String serverName : js_getServerNames())
 			{
-				foundSetManager.setTableFilters(filterName, serverName, tableFilterRequests.remove(serverName), true);
+				foundSetManager.setTableFilters(filterName, serverName, tableFilterRequests.remove(serverName), true, true);
 			}
 
 			for (Entry<String, List<TableFilterRequest>> entry : tableFilterRequests.entrySet())
 			{
 				// filter on a server that is not in server proxies (yet)
-				foundSetManager.setTableFilters(filterName, entry.getKey(), entry.getValue(), true);
+				foundSetManager.setTableFilters(filterName, entry.getKey(), entry.getValue(), true, true);
 			}
 		}
 		catch (Exception ex)
@@ -584,7 +584,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			if (tableFilter != null)
 			{
 				application.getFoundSetManager().setTableFilters(filterName, serverName,
-					asList(new TableFilterRequest(tableFilter.getTable(), tableFilter.getTableFilterdefinition(), false)), false);
+					asList(new TableFilterRequest(tableFilter.getTable(), tableFilter.getTableFilterdefinition(), false)), false, true);
 				return true;
 			}
 		}
@@ -679,7 +679,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 		try
 		{
-			application.getFoundSetManager().setTableFilters(filterName, serverName, null, true);
+			application.getFoundSetManager().setTableFilters(filterName, serverName, null, true, true);
 			return true;
 		}
 		catch (Exception ex)

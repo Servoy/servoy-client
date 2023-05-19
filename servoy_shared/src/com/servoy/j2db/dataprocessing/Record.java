@@ -17,9 +17,10 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static java.util.Arrays.asList;
+
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -444,7 +445,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		}
 		else if (parent != null) // make sure pk is updated
 		{
-			if (Arrays.asList(parent.getSQLSheet().getPKColumnDataProvidersAsArray()).indexOf(me.getName()) != -1)
+			if (asList(parent.getSQLSheet().getPKColumnDataProvidersAsArray()).indexOf(me.getName()) != -1)
 			{
 				((FoundSet)parent).updatePk(this);
 			}
@@ -1109,9 +1110,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	{
 		try
 		{
-			List<IRecordInternal> records = new ArrayList<IRecordInternal>();
-			records.add(this);
-			getParentFoundSet().getFoundSetManager().getEditRecordList().rollbackRecords(records);
+			getParentFoundSet().getFoundSetManager().getEditRecordList().rollbackRecords(asList(this));
 		}
 		catch (Exception e)
 		{

@@ -165,7 +165,8 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public DataproviderTableFilterdefinition createDataproviderTableFilterdefinition(ITable table, String dataprovider, String operator, Object val)
 		throws ServoyException;
 
-	public void setTableFilters(String filterName, String serverName, List<TableFilterRequest> tableFilterRequests, boolean removeOld) throws ServoyException;
+	public void setTableFilters(String filterName, String serverName, List<TableFilterRequest> tableFilterRequests, boolean removeOld, boolean fire)
+		throws ServoyException;
 
 	public boolean updateTableFilterParam(String serverName, String filterName, ITable table, TableFilterdefinition tableFilterdefinition);
 
