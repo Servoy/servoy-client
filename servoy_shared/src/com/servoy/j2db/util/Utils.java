@@ -651,6 +651,13 @@ public final class Utils
 	/*
 	 * public static String getAsMoney(String s) { NumberFormat nf = NumberFormat.getCurrencyInstance(); return nf.format(getAsDouble(s)); }
 	 */
+
+	public static boolean getAsBoolean(String s, boolean defaultValue)
+	{
+		if (s == null) return defaultValue;
+		return getAsBoolean(s);
+	}
+
 	/**
 	 * Try to parse the given string as a boolean
 	 *

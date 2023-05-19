@@ -194,6 +194,10 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 			return true;
 		}
 
+		public void flagValid() throws RemoteException
+		{
+		};
+
 		@Override
 		public String getDatabaseProductName() throws RepositoryException, RemoteException
 		{

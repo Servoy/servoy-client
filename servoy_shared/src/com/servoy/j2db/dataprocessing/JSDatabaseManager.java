@@ -933,10 +933,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 					// set the columns to be the PKs from the related table
 					ArrayList<IQuerySelectValue> pkColumns = new ArrayList<IQuerySelectValue>();
-					Iterator<Column> pks = sheet_new.getTable().getRowIdentColumns().iterator();
-					while (pks.hasNext())
+					for (Column column : sheet_new.getTable().getRowIdentColumns())
 					{
-						Column column = pks.next();
 						pkColumns.add(column.queryColumn(mainTable));
 					}
 					sql.setColumns(pkColumns);
@@ -2866,17 +2864,13 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				IServer server = application.getSolution().getServer(mainTable.getServerName());
 				if (server != null)
 				{
-					Iterator<String> it = server.getTableNames(false).iterator();
-					while (it.hasNext())
+					for (String tableName : server.getTableNames(false))
 					{
-						String tableName = it.next();
 						Table table = (Table)server.getTable(tableName);
 						if (table.getRowIdentColumnsCount() > 1) continue;//not supported
 
-						Iterator<Column> it2 = table.getColumns().iterator();
-						while (it2.hasNext())
+						for (Column c : table.getColumns())
 						{
-							Column c = it2.next();
 							if (c.getColumnInfo() != null)
 							{
 								if (mainTableForeignType.equalsIgnoreCase(c.getColumnInfo().getForeignType()))
@@ -3047,7 +3041,19 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		}
 		try
 		{
-			if (server == null || !server.isValid()) return false;
+			if (server == null) return false;
+			// if the server is invalid, and you want to switch to it, we try to make it valid again.
+			if (!server.isValid())
+			{
+				server.flagValid();
+				server.getTableNames(true);
+
+				if (!server.isValid())
+				{
+					Debug.warn("Server " + server.getName() + " was still invalid after trying to load tables when switching to it from " + sourceName); //$NON-NLS-1$ //$NON-NLS-2$
+					return false;
+				}
+			}
 		}
 		catch (RemoteException e)
 		{
@@ -4478,10 +4484,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 			if (dest.startEditing())
 			{
-				Iterator<Column> it = dest_table.getColumns().iterator();
-				while (it.hasNext())
+				for (Column c : dest_table.getColumns())
 				{
-					Column c = it.next();
 					ColumnInfo ci = c.getColumnInfo();
 					if (ci != null && ci.isExcluded())
 					{

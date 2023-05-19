@@ -191,6 +191,12 @@ public class ServerProxy implements IServer, Serializable
 		return valid;
 	}
 
+	@Override
+	public void flagValid() throws RemoteException
+	{
+		server.flagValid();
+	}
+
 	public void combineTables(ServerProxy sp)
 	{
 		if (sp == null || sp == this) return;
