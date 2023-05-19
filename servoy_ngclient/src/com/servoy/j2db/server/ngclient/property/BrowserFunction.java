@@ -20,7 +20,7 @@ package com.servoy.j2db.server.ngclient.property;
 import com.servoy.j2db.server.ngclient.INGApplication;
 
 /**
- * Reference to a browserside functon.
+ * Reference to a browser-side function.
  *
  * @author jcompagner
  * @since 2022.06

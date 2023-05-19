@@ -2915,6 +2915,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * The component will receive this function as a real function object.
 	 *
 	 * This is a more dynamic variant of the spec property "clientfunction" https://wiki.servoy.com/display/DOCS/Property+Types
+	 * You do not need to use this for properties/arguments/return values that are declared to have "clientfunction" type in the .spec file, but rather for
+	 * when you want to give it inside plain 'object' typed values.
 	 *
 	 * @sample
 	 * var options = { myfunction: application.generateBrowserFunction("function(param) { return param + 1 }") };

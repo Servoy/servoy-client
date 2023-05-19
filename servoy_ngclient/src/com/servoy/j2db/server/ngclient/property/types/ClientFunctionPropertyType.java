@@ -26,6 +26,7 @@ import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.server.ngclient.FormElementContext;
+import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGApplication;
 
 /**
@@ -71,7 +72,11 @@ public class ClientFunctionPropertyType extends TagStringPropertyType implements
 	{
 		if (object != null)
 		{
-			INGApplication application = object.getDataAdapterList().getApplication();
+			INGApplication application = null;
+
+			if (object.getDataAdapterList() != null) application = object.getDataAdapterList().getApplication();
+			else application = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication();
+
 			if (application.getRuntimeProperties().containsKey("NG2"))
 			{
 				JSONUtils.addKeyIfPresent(writer, key);
