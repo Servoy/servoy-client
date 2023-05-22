@@ -1010,12 +1010,13 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 *
 	 * // Find customers in the city of Berlin AND in the postal code 12209...
 	 * // OR customers in the city of San Francisco AND in the postal code 94117
+	 *
 	 * @sample
 	 * if (%%prefix%%foundset.find()) // Enter find mode    city = 'Berlin';
 	 * {
 	 * 	city = 'Berlin';   // Assign a search criteria
 	 * 	postalcode = '12209';
-	 * 	foundset.newRecord();   // Create a new search record
+	 * 	%%prefix%%foundset.newRecord();   // Create a new search record
 	 * 	city = 'San Francisco';
 	 *  postalcode = '94117';
 	 * 	%%prefix%%foundset.search();      // Execute the query and load the records
