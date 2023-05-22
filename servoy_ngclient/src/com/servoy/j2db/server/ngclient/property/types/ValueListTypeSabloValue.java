@@ -704,7 +704,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 						useContains = Utils.getAsBoolean(legacy.getClientProperty(IApplication.VALUELIST_CONTAINS_SEARCH, legacy));
 					}
 				}
-				if (useContains && filterString != null) filterString = '%' + filterString;
+				if (useContains && filterString != null && !"".equals(filterString)) filterString = '%' + filterString;
 				filteredValuelist.fill(dataAdapterListToUse.getRecord(), dataproviderID, filterString, realValue, false);
 				changeMonitor.notifyOfChange(); // in case fill really somehow did not result in the filteredValuelist listener doing a notify
 
