@@ -17,8 +17,12 @@
 
 package com.servoy.j2db.ui.runtime;
 
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
+
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.solutionmodel.ICSSPosition;
 
 /**
  * @author lvostinar
@@ -27,7 +31,24 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeWebComponent", scriptingName = "RuntimeWebComponent", extendsComponent = "Component")
 @ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 public interface IRuntimeWebComponent extends IBaseRuntimeComponent
-
 {
+	/**
+	 * CSS position is a replacement for anchoring system making it more intuitive to place a component.
+	 * CSS position should be set on form, an absolute position form can either work with anchoring or with css position.
+	 *
+	 * This property is only available when the form in is css positioning mode, in responsive mode components don't have this property.
+	 *
+	 * This is only working in NGClient.
+	 *
+	 * @sample
+	 * var label = form.newLabel('Label', -1);
+	 * label.cssPosition.r("10").b("10").w("20%").h("30px")
+	 */
+	@JSGetter
+	@ServoyClientSupport(ng = true, wc = false, sc = false, mc = false)
+	public ICSSPosition getCssPosition();
 
+	@JSSetter
+	@ServoyClientSupport(ng = true, wc = false, sc = false, mc = false)
+	public void setCssPosition(ICSSPosition cssPosition);
 }
