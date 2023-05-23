@@ -41,8 +41,7 @@ public interface IRuntimeWebComponent extends IBaseRuntimeComponent
 	 * This is only working in NGClient.
 	 *
 	 * @sample
-	 * var label = form.newLabel('Label', -1);
-	 * label.cssPosition.r("10").b("10").w("20%").h("30px")
+	 * elements.button.cssPosition.r("10").b("10").w("20%").h("30px")
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = true, wc = false, sc = false, mc = false)
