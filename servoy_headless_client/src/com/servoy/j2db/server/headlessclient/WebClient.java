@@ -29,8 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -1029,14 +1027,11 @@ public class WebClient extends SessionClient implements IWebClientApplication
 		return new Dimension(width, height);
 	}
 
-	protected final Lock requestLock = new ReentrantLock();
-
 	public void onBeginRequest(WebClientSession webClientSession)
 	{
 		Solution solution = getSolution();
 		if (solution != null)
 		{
-			requestLock.lock();
 			long solutionLastModifiedTime = webClientSession.getSolutionLastModifiedTime(solution);
 			if (solutionLastModifiedTime != -1 && solutionLastModifiedTime != solution.getLastModifiedTime())
 			{
@@ -1069,7 +1064,6 @@ public class WebClient extends SessionClient implements IWebClientApplication
 			}
 		}
 		requestEvents.remove();
-		requestLock.unlock();
 	}
 
 	private void writeObject(ObjectOutputStream stream) throws IOException

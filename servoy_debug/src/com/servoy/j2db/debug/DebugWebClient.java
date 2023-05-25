@@ -356,10 +356,7 @@ public class DebugWebClient extends WebClient implements IDebugWebClient
 		{
 			addEventDispatchThread();
 			checkForChanges();
-			synchronized (requestLock)
-			{
-				executeEvents();
-			}
+			executeEvents();
 		}
 	}
 
