@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -81,6 +82,8 @@ public class WebClientSession extends WebSession
 	private final boolean hideLoadingIndicator;
 
 	private transient ICrypt crypt;
+
+	private final ReentrantLock requestLock = new ReentrantLock();
 
 	public static WebClientSession get()
 	{
@@ -383,6 +386,15 @@ public class WebClientSession extends WebSession
 		super.invalidateNow();
 	}
 
+	void lockRequest()
+	{
+		requestLock.lock();
+	}
+
+	void unlockRequest()
+	{
+		if (requestLock.isHeldByCurrentThread()) requestLock.unlock();
+	}
 
 	/**
 	 * @return

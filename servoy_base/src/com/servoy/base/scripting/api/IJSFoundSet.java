@@ -269,21 +269,14 @@ public interface IJSFoundSet
 	 * 	%%prefix%%foundset.search()
 	 * }
 	 *
-	 *
-	 * Multiple Find Records for Logical OR
-	 *
-	 * It's important to note that when in Find Mode, a foundset will initially contain one record object.
-	 * However, multiple record objects may be used to articulate search criteria.
-	 * This has the effect that the criteria described in each record are concatenated by a SQL OR.
-	 *
+	 * // Multiple Find Records for Logical OR
 	 * // Find customers in the city of Berlin AND in the postal code 12209...
 	 * // OR customers in the city of San Francisco AND in the postal code 94117
-	 * @sample
 	 * if (%%prefix%%foundset.find()) // Enter find mode    city = 'Berlin';
 	 * {
 	 * 	city = 'Berlin';   // Assign a search criteria
 	 * 	postalcode = '12209';
-	 * 	foundset.newRecord();   // Create a new search record
+	 * 	%%prefix%%foundset.newRecord();   // Create a new search record
 	 * 	city = 'San Francisco';
 	 *  postalcode = '94117';
 	 * 	%%prefix%%foundset.search();      // Execute the query and load the records

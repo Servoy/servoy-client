@@ -3469,6 +3469,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			Object rawValue = record instanceof ViewRecord ? record.getValue(column.getDataProviderID())
 				: record.getRawData().getRawValue(column.getDataProviderID());
 			if (isNullColumnValidatorEnabled() && !column.getAllowNull() && column.getDatabaseDefaultValue() == null &&
+				(column.getColumnInfo() == null || !column.getColumnInfo().isDBManaged()) &&
 				(rawValue == null || ("".equals(rawValue) && Column.mapToDefaultType(column.getType()) == IColumnTypes.TEXT)))
 			{
 				recordMarkers.report("i18n:servoy.record.error.null.not.allowed", column.getDataProviderID(), ILogLevel.ERROR, state,
