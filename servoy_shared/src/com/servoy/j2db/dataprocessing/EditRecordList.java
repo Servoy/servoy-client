@@ -1629,13 +1629,25 @@ public class EditRecordList
 	{
 		try
 		{
-			Set<String> previousServersWithFilters = fsm.getTableFilters(DELETED_RECORDS_FILTER).stream().map(TableFilter::getServerName).collect(toSet());
+			// get the servers that have a filter now
+			Set<String> serverNames = fsm.getTableFilters(DELETED_RECORDS_FILTER).stream().map(TableFilter::getServerName).collect(toSet());
+
+			// add the servers with deleted records
 			Map<String, List<IRecordInternal>> groupedByServer = stream(editedRecords.getDeleted()).collect(groupingBy(
 				deletedRecord -> deletedRecord.getParentFoundSet().getTable().getServerName()));
+			serverNames.addAll(groupedByServer.keySet());
 
-			groupedByServer.forEach((serverName, deletedPerServer) -> {
+			// add the servers with deleted foundsets
+			Map<String, List<IRecordInternal>> groupedByServer = stream(editedRecords.getDeleted()).collect(groupingBy(
+				deletedRecord -> deletedRecord.getParentFoundSet().getTable().getServerName()));
+			serverNames.addAll(groupedByServer.keySet());
+
+
+			serverNames.forEach(serverName -> {
 				try
 				{
+
+
 					previousServersWithFilters.remove(serverName);
 
 					Map<ITable, List<IRecordInternal>> deletedPerTable = deletedPerServer.stream()

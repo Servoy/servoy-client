@@ -143,7 +143,7 @@ public class EditedRecords
 
 	public void clear()
 	{
-		records.clear();
+		records.clear(); // RAGTEST queries ook ?
 	}
 
 	private enum EditType

@@ -1409,7 +1409,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		if (fire)
 		{
 			// fire events after all filters are adjusted
-			Set<ITable> firedTables = new HashSet<ITable>();
+			Set<ITable> firedTables = new HashSet<>();
 			toRefresh.stream().collect(groupingBy(Pair::getLeft, mapping(Pair::getRight, toList())))
 				.forEach((dataSource, tableFilterdefinitions) -> {
 					for (ITable affectedtable : refreshFoundSetsFromDBforFilterAndGetAffectedTables(dataSource, tableFilterdefinitions))
