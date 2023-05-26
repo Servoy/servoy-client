@@ -116,6 +116,8 @@ public interface IServerManagerInternal extends IServerManager
 
 	void removeGlobalColumnInfoProvider(IColumnInfoProvider cip);
 
+	void setGlobalColumnInfoProvidersForRuntimeClient(IServerInternal server, IDeveloperRepository rep, String clientId);
+
 	void setGlobalSequenceProvider(ISequenceProvider sm);
 
 	public boolean isServerDataModelCloneCycling(IServerInternal server);
