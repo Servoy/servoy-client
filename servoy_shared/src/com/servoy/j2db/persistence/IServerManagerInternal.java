@@ -116,7 +116,7 @@ public interface IServerManagerInternal extends IServerManager
 
 	void removeGlobalColumnInfoProvider(IColumnInfoProvider cip);
 
-	void setGlobalColumnInfoProviders(IServerInternal server, IDeveloperRepository rep, String clientId);
+	void setGlobalColumnInfoProvidersForRuntimeClient(IServerInternal server, IDeveloperRepository rep, String clientId);
 
 	void setGlobalSequenceProvider(ISequenceProvider sm);
 

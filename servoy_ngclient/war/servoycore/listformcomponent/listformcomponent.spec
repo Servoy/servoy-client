@@ -13,7 +13,7 @@
 		"containedForm": {"type":"formcomponent", "forFoundset":"foundset", "tags": { "wizard": "autoshow"}},
 		"pageLayout" : {"type" : "string" , "values" : ["cardview","listview"] , "initialValue" : "cardview" },
 		"responsivePageSize": { "type": "int", "tags": {"doc" : "This property sets the number of cells this component will generate when the this component is placed in a responsive form, ignored in absolute"}},
-		"responsiveRowHeight": { "type": "int", "default": 300, "tags": {"doc" : "This property sets the height of a row for the scrolling LFC if the containedForm is a responisive form, else it is ignored."}},
+		"responsiveHeight": { "type": "int", "default": 300, "tags": {"doc" : "This property sets the height of the listformcomponent when using scrolling mode in a responisive form."}},
 		"styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "default": "svy-listformcomponent" },
 		"rowStyleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }},
 		"rowStyleClassDataprovider": { "type": "dataprovider", "forFoundset": "foundset" },

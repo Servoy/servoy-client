@@ -17,6 +17,7 @@ if (!String.prototype.startsWith) {
 }
 
 var controllerProvider : angular.IControllerProvider;
+var minElectronVersion = '24.4.0';
 angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-components', 'webSocketModule','servoyWindowManager',
                              'ngSanitize', 'pascalprecht.translate']
 
@@ -1313,7 +1314,37 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 			document.getElementsByTagName('head')[0].appendChild(link);
 		}
 	}
-
+	function compareVersions(v1, v2) {
+            var v1tokens = v1.split('.').map(Number);
+            var v2tokens = v2.split('.').map(Number);
+        
+            for (var i = 0; i < v1tokens.length; ++i) {
+                if (v1tokens[i] > v2tokens[i]) {
+                    return 1;
+                }
+                if (v1tokens[i] === v2tokens[i]) {
+                    continue;
+                }
+                if (v2tokens.length === i) {
+                    return 1;
+                }
+                return -1; //get here only if previous tokens (if any) were ==
+            }
+            if (v1tokens.length !== v2tokens.length) {
+                return -1; //get here only if all tokens are equal but first version has less tokens
+            }
+            return 0;
+        }
+        function isNgdesktopWithTargetSupport(userAgent) {
+            var electronVersion = userAgent.match(/Electron\/([0-9\.]+)/);
+        
+            if (!electronVersion) {
+                return false;
+            }
+            
+            var compare = compareVersions(electronVersion[1], minElectronVersion);
+            return compare >= 0; // true if electronVersion >= minElectronVersion (24.4.0)
+        }
 	return {
 		setStyleSheets: function(paths) {
 			$solutionSettings.styleSheetPaths = paths;
@@ -1384,7 +1415,13 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				else  if (target === '_self' && targetOptions === 'no-history=true') {
 			        $window.location.replace(url)
 			    } else {
-			        $window.open(url,target,targetOptions);
+			        if (isNgdesktopWithTargetSupport($window.navigator.userAgent)) {
+                            var r = $window['require'];
+                            var ipcRenderer = r('electron').ipcRenderer;
+                            ipcRenderer.send('open-url-with-target', url, target, targetOptions);
+                        } else {
+                            $window.open(url, target, targetOptions);
+                        }
 			    }
 			}, timeout*1000)
 		},
