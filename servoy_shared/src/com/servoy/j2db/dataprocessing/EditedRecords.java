@@ -20,9 +20,7 @@ package com.servoy.j2db.dataprocessing;
 import static java.util.Collections.synchronizedList;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -39,7 +37,7 @@ public class EditedRecords
 // RAGTEST failedRecords?
 	// RAGTET failed delete?
 	private final List<EditingRecord> records = synchronizedList(new ArrayList<>(32));
-	private final Map<String, List<QueryDelete>> deleteQueries = new HashMap<>();
+	private final List<DeletingFoundset> deleteQueries = new ArrayList<>();
 
 	public void addEdited(IRecordInternal record)
 	{
@@ -75,29 +73,23 @@ public class EditedRecords
 		return getRecords(null).map(er -> er.record).anyMatch(recordFilter);
 	}
 
-	public void addDeleteQuery(String serverName, QueryDelete deleteQuery)
+	public void addDeleteQuery(IFoundSetInternal foundset, QueryDelete deleteQuery)
 	{
-		List<QueryDelete> list = deleteQueries.get(serverName);
-		if (list == null)
-		{
-			list = new ArrayList<>();
-			deleteQueries.put(serverName, list);
-		}
-		list.add(deleteQuery);
+		deleteQueries.add(new DeletingFoundset(foundset, deleteQuery));
 	}
 
-	public void rmeoveDeleteQuery(String serverName, QueryDelete deleteQuery)
-	{
-		List<QueryDelete> list = deleteQueries.get(serverName);
-		if (list != null)
-		{
-			list.remove(deleteQuery);
-			if (list.isEmpty())
-			{
-				deleteQueries.remove(serverName);
-			}
-		}
-	}
+//	public void rmeoveDeleteQuery(IFoundSetInternal foundset, QueryDelete deleteQuery)
+//	{
+//		List<QueryDelete> list = deleteQueries.get(foundset);
+//		if (list != null)
+//		{
+//			list.remove(deleteQuery);
+//			if (list.isEmpty())
+//			{
+//				deleteQueries.remove(foundset);
+//			}
+//		}
+//	}
 
 	public int size()
 	{
@@ -158,21 +150,40 @@ public class EditedRecords
 	{
 		edit, delete
 	}
+
 	private static class EditingRecord
 	{
+		final IRecordInternal record;
+		final EditType type;
+
 		EditingRecord(IRecordInternal record, EditType type)
 		{
 			this.record = record;
 			this.type = type;
 		}
 
-		final IRecordInternal record;
-		final EditType type;
-
 		@Override
 		public String toString()
 		{
 			return type + " " + record;
+		}
+	}
+
+	private static class DeletingFoundset
+	{
+		final IFoundSet foundSet;
+		final QueryDelete queryDelete;
+
+		DeletingFoundset(IFoundSet foundSet, QueryDelete queryDelete)
+		{
+			this.foundSet = foundSet;
+			this.queryDelete = queryDelete;
+		}
+
+		@Override
+		public String toString()
+		{
+			return "delete from fs: " + queryDelete;
 		}
 	}
 

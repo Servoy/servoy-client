@@ -3208,13 +3208,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		if (foundset != null)
 		{
 			EditRecordList editRecordList = application.getFoundSetManager().getEditRecordList();
-			IRecordInternal[] failedRecords = editRecordList.getFailedRecords((IFoundSetInternal)foundset);
-			for (IRecordInternal record : failedRecords)
-			{
-				editRecordList.startEditing(record, false);
-			}
-			IRecord[] editedRecords = editRecordList.getEditedRecords((IFoundSetInternal)foundset);
-			return editRecordList.stopEditing(true, asList(editedRecords)) == ISaveConstants.STOPPED;
+			return editRecordList.stopEditing(true, (FoundSet)foundset) == ISaveConstants.STOPPED;
 		}
 		return false;
 	}
@@ -3296,7 +3290,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				}
 			}
 
-			return editRecordList.stopEditing(true, asList(records)) == ISaveConstants.STOPPED;
+			return editRecordList.stopEditing(true, null, asList(records)) == ISaveConstants.STOPPED;
 		}
 		return false;
 	}
@@ -4107,6 +4101,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public void js_revertEditedRecords(IFoundSetInternal foundset) throws ServoyException
 	{
+		// RAGTEST ook foundset deleteall
 		application.checkAuthorized();
 		if (foundset != null)
 		{

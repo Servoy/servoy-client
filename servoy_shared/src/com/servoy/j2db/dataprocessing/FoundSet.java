@@ -4441,7 +4441,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			{
 				getFoundSetManager().getEditRecordList().removeEditedRecords(this);
 
-				//do sql delete all at once
+				// do sql delete all at once
 				QueryDelete delete_sql = new QueryDelete(sqlSelect.getTable());
 				delete_sql.setCondition(sqlSelect.getWhereClone());
 
@@ -4459,9 +4459,9 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				}
 
 				// RAGTEST verschil als fs wel/niet fully loaded is ?
-				getFoundSetManager().getEditRecordList().addDeleteQuery(table.getServerName(), delete_sql);
-
-				getFoundSetManager().getEditRecordList().stopEditing(false); // RAGTEST wat als er andere updates klaar staan?
+				// RAGTEST geef pks/records mee om te verwijderen uit editing list
+				getFoundSetManager().getEditRecordList().addDeleteQuery(this, delete_sql);
+				getFoundSetManager().getEditRecordList().stopEditing(false, this);
 
 				// RAGTEST
 //				String tid = fsm.getTransactionID(table.getServerName());

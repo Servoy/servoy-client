@@ -91,10 +91,10 @@ public class EditRecordList
 
 	private final FoundSetManager fsm;
 
-	private final List<IPrepareForSave> prepareForSaveListeners = new ArrayList<IPrepareForSave>(2);
-	private final List<IGlobalEditListener> editListeners = new ArrayList<IGlobalEditListener>();
+	private final List<IPrepareForSave> prepareForSaveListeners = new ArrayList<>(2);
+	private final List<IGlobalEditListener> editListeners = new ArrayList<>();
 
-	private final Map<ITable, Integer> accessMap = Collections.synchronizedMap(new HashMap<ITable, Integer>());//per table (could be per column in future)
+	private final Map<ITable, Integer> accessMap = Collections.synchronizedMap(new HashMap<>());//per table (could be per column in future)
 	private boolean autoSave = true;
 
 	private ConcurrentMap<FoundSet, int[]> fsEventMap;
@@ -104,8 +104,8 @@ public class EditRecordList
 
 	private final EditedRecords editedRecords = new EditedRecords();
 	// RAGTEST ?? private final EditedRecords failedRecords = new EditedRecords();
-	private final List<IRecordInternal> failedRecords = synchronizedList(new ArrayList<IRecordInternal>(2));
-	private final Map<IRecordInternal, List<IPrepareForSave>> recordTested = Collections.synchronizedMap(new HashMap<IRecordInternal, List<IPrepareForSave>>()); //tested for form.OnRecordEditStop event
+	private final List<IRecordInternal> failedRecords = synchronizedList(new ArrayList<>(2));
+	private final Map<IRecordInternal, List<IPrepareForSave>> recordTested = Collections.synchronizedMap(new HashMap<>()); //tested for form.OnRecordEditStop event
 	private boolean preparingForSave;
 
 	public EditRecordList(FoundSetManager fsm)
@@ -306,7 +306,7 @@ public class EditRecordList
 
 	public int stopEditing(boolean javascriptStop)
 	{
-		return stopEditing(javascriptStop, (List<IRecord>)null);
+		return stopEditing(javascriptStop, null, (List<IRecord>)null);
 	}
 
 	/**
@@ -318,7 +318,16 @@ public class EditRecordList
 	 */
 	public int stopEditing(boolean javascriptStop, IRecord recordToSave)
 	{
-		return stopEditing(javascriptStop, asList(recordToSave));
+		return stopEditing(javascriptStop, null, asList(recordToSave));
+	}
+
+	public int stopEditing(boolean javascriptStop, IFoundSet foundset)
+	{
+		for (IRecordInternal record : getFailedRecords(foundset))
+		{
+			startEditing(record, false);
+		}
+		return stopEditing(javascriptStop, foundset, asList(getEditedRecords(foundset)));
 	}
 
 	/**
@@ -329,9 +338,9 @@ public class EditRecordList
 	 * @return IRowChangeListener static final
 	 */
 	@SuppressWarnings("nls")
-	public int stopEditing(boolean javascriptStop, List<IRecord> recordsToSave)
+	public int stopEditing(boolean javascriptStop, IFoundSet foundset, List<IRecord> recordsToSave)
 	{
-		int stopped = stopEditingImpl(javascriptStop, recordsToSave, 0);
+		int stopped = stopEditingImpl(javascriptStop, foundset, recordsToSave, 0);
 		if ((stopped == ISaveConstants.VALIDATION_FAILED || stopped == ISaveConstants.SAVE_FAILED) && !javascriptStop)
 		{
 			IApplication application = fsm.getApplication();
@@ -372,7 +381,7 @@ public class EditRecordList
 	/**
 	 * This method should only be called through stopEditing(boolean,List<Record>) so that that can call onAutoSaveFailed.
 	 */
-	private int stopEditingImpl(final boolean javascriptStop, List<IRecord> recordsToSave, int recursionDepth)
+	private int stopEditingImpl(final boolean javascriptStop, IFoundSet foundset, List<IRecord> recordsToSave, int recursionDepth)
 	{
 		// RAGTEST voer delete uit
 		// RAGTEST check voor foundset event PROPERTY_ONDELETEMETHODID PROPERTY_ONAFTERDELETEMETHODID
@@ -457,7 +466,7 @@ public class EditRecordList
 					}
 					if (stop)
 					{
-						stopEditing(javascriptStop, recordsToSaveFinal);
+						stopEditing(javascriptStop, foundset, recordsToSaveFinal);
 					}
 					else
 					{
@@ -1048,10 +1057,10 @@ public class EditRecordList
 			fireEvents();
 		}
 
-		if (editedRecords.size() != editedRecordsSize && recordsToSave == null)
+		if (editedRecords.size() != editedRecordsSize && recordsToSave == null && foundset == null)
 		{
 			// records where changed by the after insert/update/delete table events, call stop edit again if this was not a specific record save.
-			return stopEditingImpl(javascriptStop, null, recursionDepth + 1);
+			return stopEditingImpl(javascriptStop, null, null, recursionDepth + 1);
 		}
 
 		return ISaveConstants.STOPPED;
@@ -1601,12 +1610,12 @@ public class EditRecordList
 	}
 
 	// RAGTEST geladen records al meegeven voor removeedited?
-	public void addDeleteQuery(String serverName, QueryDelete deleteQuery)
+	public void addDeleteQuery(IFoundSetInternal foundset, QueryDelete deleteQuery)
 	{
 		editRecordsLock.lock();
 		try
 		{
-			editedRecords.addDeleteQuery(serverName, deleteQuery);
+			editedRecords.addDeleteQuery(foundset, deleteQuery);
 		}
 		finally
 		{

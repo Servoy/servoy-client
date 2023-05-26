@@ -3550,7 +3550,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public int saveData(List<IRecord> recordsToSave)
 	{
-		return editRecordList.stopEditing(true, recordsToSave);
+		return editRecordList.stopEditing(true, null, recordsToSave);
 	}
 
 	@Override
