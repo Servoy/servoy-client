@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <base href="/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="favicon32x32.png" sizes="32x32" type="image/png"/>
+  <link rel="icon" href="favicon192x192.png" sizes="192x192" type="image/png"/>
+  <link rel="stylesheet" href="styles.css"></head>
+  <style>
+  	.svy-login-title {
+  		margin-top: 0;
+  		margin-bottom: 0;
+  		margin-left: 10px;
+  		color: inherit;
+  		font-family: inherit;
+  		font-weight: 500;
+  		line-height: 1.1;  
+	}
+	
+	.svy-login-form-wrap {
+	  width: 35%;
+	  margin: 30px auto;
+	  text-align: center;
+	  padding: 20px;
+	  border-radius: 4px;
+	  box-shadow: 0px 30px 50px 0px rgba(0, 0, 0, 0.2);
+	}
+	
+	.svy-login-text-danger {
+	  color: #a94442;
+	}
+	
+	.svy-login-form-group {
+	  margin-bottom: 15px;
+	}
+	
+	.svy-login-form-control {
+	  display: block;
+	  width: 100%;
+	  height: 34px;
+	  font-size: 14px;
+	  line-height: 1.42857143;
+	  color: #555;
+	  background-color: #fff;
+	  background-image: none;
+	  border: 1px solid #ccc;
+	  border-radius: 4px;
+	  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+	  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+	  -webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
+	  -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+	  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+	}
+	
+	.svy-login-form-control:focus {
+	  border-color: #66afe9;
+	  outline: 0;
+	  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+	          box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+	}
+	.svy-login-form-control::-moz-placeholder {
+	  color: #999;
+	  opacity: 1;
+	}
+	.svy-login-form-control:-ms-input-placeholder {
+	  color: #999;
+	}
+	.svy-login-form-control::-webkit-input-placeholder {
+	  color: #999;
+	}
+	
+	.svy-login-fieldset {
+	  min-width: 0;
+	  padding: 0;
+	  margin: 0;
+	  border: 0;
+	}
+  </style>
+</head>
+<body>
+<div class="svy-login-form-wrap">
+  	<div>
+  		<img src="templates/logo2.gif" class="img-responsive">
+ 	</div>
+  	<div class="panel panel-default">
+  	    <h2 class="svy-login-title">Please sign in</h2>
+    	<form   accept-charset="UTF-8" role="form" action="/solution/solutionName/index.html" method="post">
+		<fieldset class="svy-login-fieldset">
+    	  	<div class="svy-login-form-group">
+    		    <input class="svy-login-form-control" placeholder="Username" type="text" name="user" autocomplete="username">
+    		</div>
+    		<div class="svy-login-form-group">
+    			<input class="svy-login-form-control" placeholder="Password" type="password" name="password"  autocomplete="current-password">
+    		</div>
+    		<input type="hidden" name="solution" value="solutionName">
+    		<input class="svy-btn svy-btn-success svy-btn-block" type="submit" value="Login">
+    	</fieldset>
+      	</form>
+    </div>
+</div>
+</body>
+</html>

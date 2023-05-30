@@ -26,7 +26,11 @@ Require-Bundle: servoy_shared,
  org.apache.commons.commons-text,
  de.inetsoftware.jlessc,
  org.apache.commons.commons-fileupload,
- tus-java-server
+ tus-java-server,
+ com.fasterxml.jackson.core.jackson-annotations,
+ com.fasterxml.jackson.core.jackson-core,
+ com.fasterxml.jackson.core.jackson-databind,
+ wrapped.com.auth0.java-jwt
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: .
 Bundle-Vendor: Servoy

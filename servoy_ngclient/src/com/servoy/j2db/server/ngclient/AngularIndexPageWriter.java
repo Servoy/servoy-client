@@ -29,10 +29,13 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Writer;
+import java.util.Date;
 import java.util.Locale;
+import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -43,12 +46,17 @@ import org.sablo.security.ContentSecurityPolicyConfig;
 import org.sablo.util.HTTPUtils;
 import org.sablo.websocket.WebsocketSessionManager;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.JWTVerifier;
 import com.servoy.base.util.TagParser;
 import com.servoy.j2db.AbstractActiveSolutionHandler;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.MessagesResourceBundle;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
+import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.headlessclient.util.HCUtils;
@@ -66,6 +74,7 @@ import com.servoy.j2db.util.Settings;
 public class AngularIndexPageWriter
 {
 	public static final String SOLUTIONS_PATH = "/solution/";
+	private static final String JWT_Password = "jwt";
 
 	public static void writeStartupJs(HttpServletRequest request, HttpServletResponse response, String solutionName)
 		throws IOException, ServletException
@@ -459,5 +468,124 @@ public class AngularIndexPageWriter
 		}
 
 		return false;
+	}
+
+	public static boolean mustAuthenticate(HttpServletRequest request, HttpServletResponse response, String solutionName)
+		throws ServletException, IOException
+	{
+		boolean needToLogin = false;
+		String requestURI = request.getRequestURI();
+		if (solutionName != null &&
+			(!requestURI.contains("/designer") && (requestURI.endsWith("/") || requestURI.endsWith("/" + solutionName) ||
+				requestURI.toLowerCase().endsWith("/index.html"))))
+		{
+			Pair<FlattenedSolution, Boolean> _fs = getFlattenedSolution(solutionName, null, request, null);
+			FlattenedSolution fs = _fs.getLeft();
+
+			try
+			{
+				needToLogin = fs.getMainSolutionMetaData().getMustAuthenticate() && fs.getSolution().getLoginFormID() == 0 &&
+					fs.getSolution().getLoginSolutionName() == null;
+			}
+			catch (RepositoryException e)
+			{
+				throw new ServletException(e);
+			}
+		}
+		if (needToLogin)
+		{
+			if (request.getParameter("user") != null && request.getParameter("password") != null)
+			{
+				needToLogin = !checkUser(request, response, solutionName);
+				if (!needToLogin) return false;
+			}
+			if (request.getParameter("id_token") != null)
+			{
+				Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
+				JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(settings.getProperty(JWT_Password)))
+					.build();
+				try
+				{
+					jwtVerifier.verify(request.getParameter("id_token"));
+					needToLogin = false;
+				}
+				catch (JWTVerificationException ex)
+				{
+					//token verification failed, show login page
+				}
+			}
+			return needToLogin;
+		}
+		return false;
+	}
+
+	private static boolean checkUser(ServletRequest servletRequest, ServletResponse servletResponse, String solutionName) throws IOException
+	{
+		String url = "/solution/" + solutionName + "/index.html";
+		String user = servletRequest.getParameter("user").trim();
+		String password = servletRequest.getParameter("password").trim();
+		String uid;
+		uid = ApplicationServerRegistry.get().checkDefaultServoyAuthorisation(user, password);
+		if (uid != null)
+		{
+			String token = null;
+			try
+			{
+				String clientid = ApplicationServerRegistry.get().getClientId();
+				String[] groups = ApplicationServerRegistry.get().getUserManager().getUserGroups(clientid, uid);
+				Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
+				if (settings.getProperty(JWT_Password) == null)
+				{
+					settings.put(JWT_Password, "pwd" + Math.random());
+				}
+				Algorithm algorithm = Algorithm.HMAC256(settings.getProperty(JWT_Password));
+				token = JWT.create()
+					.withIssuer("svy")
+					.withClaim("uid", uid)
+					.withClaim("user", user)
+					.withArrayClaim("groups", groups)
+					.withExpiresAt(new Date(System.currentTimeMillis() + 60000))
+					.sign(algorithm);
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);
+			}
+
+			if (token != null)
+			{
+				url += "?id_token=" + token;
+				((HttpServletResponse)servletResponse).sendRedirect(url);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static void writeLoginPage(String page, HttpServletRequest request, HttpServletResponse response, String solutionName)
+		throws IOException
+	{
+		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
+		String loginHtml = page;
+		final String path = Settings.getInstance().getProperty("servoy.context.path", request.getContextPath() + '/');
+		StringBuilder sb = new StringBuilder();
+		sb.append("<base href=\"");
+		sb.append(path);
+		sb.append("\">");
+		sb.append("\n  <title>Login</title>");
+		loginHtml = loginHtml.replace("<base href=\"/\">", sb.toString());
+
+		String requestLanguage = request.getHeader("accept-language");
+		if (requestLanguage != null)
+		{
+			loginHtml = loginHtml.replace("lang=\"en\"", "lang=\"" + request.getLocale().getLanguage() + "\"");
+		}
+
+		loginHtml = loginHtml.replace("solutionName", solutionName);
+		response.setCharacterEncoding("UTF-8");
+		response.setContentType("text/html");
+		response.setContentLengthLong(loginHtml.length());
+		response.getWriter().write(loginHtml);
+		return;
 	}
 }

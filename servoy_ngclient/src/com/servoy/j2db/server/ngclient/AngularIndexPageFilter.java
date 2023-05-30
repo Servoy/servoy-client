@@ -78,6 +78,20 @@ public class AngularIndexPageFilter implements Filter
 		HttpServletResponse response = (HttpServletResponse)servletResponse;
 		String requestURI = request.getRequestURI();
 		String solutionName = getSolutionNameFromURI(requestURI);
+		try
+		{
+			if (solutionName != null && AngularIndexPageWriter.mustAuthenticate(request, response, solutionName))
+			{
+				String loginHtml = IOUtils.toString(getClass().getResourceAsStream("login.html"), Charset.forName("UTF-8"));
+				AngularIndexPageWriter.writeLoginPage(loginHtml, request, response, solutionName);
+				return;
+			}
+		}
+		catch (Exception e)
+		{
+			Debug.error(e.getMessage());
+			return;
+		}
 		if ("GET".equalsIgnoreCase(request.getMethod()) && solutionName != null)
 		{
 
