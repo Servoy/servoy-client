@@ -3690,6 +3690,20 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	}
 
 	/**
+	 * Get the record from the primary key values.
+	 *
+	 * @sample var record = %%prefix%%foundset.getRecord([1]);
+	 *
+	 * @param pk pk values as array
+	 *
+	 * @return Record record.
+	 */
+	public IJSRecord js_getRecord(Object... pk)
+	{
+		return (IJSRecord)getRecord(pk);
+	}
+
+	/**
 	 * Get the record index. Will return -1 if the record can't be found.
 	 *
 	 * @sample var index = %%prefix%%foundset.getRecordIndex(record);

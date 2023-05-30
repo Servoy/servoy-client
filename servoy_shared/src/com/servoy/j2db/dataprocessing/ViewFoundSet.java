@@ -1846,6 +1846,20 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		return getRecord(row - 1);
 	}
 
+	/**
+	 * Get the ViewRecord from the primary key values.
+	 *
+	 * @sample var record = %%prefix%%vfs.getRecord([1]);
+	 *
+	 * @param pk pk values as array
+	 *
+	 * @return ViewRecord record.
+	 */
+	public ViewRecord js_getRecord(Object... pk)
+	{
+		return (ViewRecord)getRecord(pk);
+	}
+
 	@Override
 	public ViewRecord getRecord(int row)
 	{
