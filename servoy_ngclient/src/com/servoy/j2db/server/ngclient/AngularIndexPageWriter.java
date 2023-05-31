@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
@@ -38,6 +39,7 @@ import java.util.Properties;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -52,6 +54,7 @@ import org.sablo.websocket.WebsocketSessionManager;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.servoy.base.util.TagParser;
 import com.servoy.j2db.AbstractActiveSolutionHandler;
@@ -67,6 +70,7 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.SecuritySupport;
 import com.servoy.j2db.util.Settings;
 
 /**
@@ -497,24 +501,75 @@ public class AngularIndexPageWriter
 		}
 		if (needToLogin)
 		{
-			if (request.getParameter("user") != null && request.getParameter("password") != null)
+			String user = request.getParameter("user");
+			String password = request.getParameter("password");
+			if (user != null && password != null)
 			{
-				needToLogin = !checkUser(request, response, solutionName);
+				needToLogin = !checkUser(request, response, solutionName, user, password);
 				if (!needToLogin) return false;
 			}
-			if (request.getParameter("id_token") != null)
+
+			String id_token = request.getParameter("id_token");
+			Cookie idCookie = null;
+			if (id_token == null)
+			{
+				idCookie = getCookie(request, "id_token");
+				if (idCookie != null)
+				{
+					id_token = idCookie.getValue();
+				}
+			}
+			if (id_token != null)
 			{
 				Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
 				JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(settings.getProperty(JWT_Password)))
 					.build();
 				try
 				{
-					jwtVerifier.verify(request.getParameter("id_token"));
+					jwtVerifier.verify(id_token);
 					needToLogin = false;
 				}
 				catch (JWTVerificationException ex)
 				{
 					//token verification failed, show login page
+					if (idCookie != null)
+					{
+						idCookie = new Cookie("id_token", "");
+						idCookie.setMaxAge(0);
+						idCookie.setPath("/");
+						idCookie.setDomain(request.getServerName());
+						response.addCookie(idCookie);
+					}
+
+					if (ex instanceof TokenExpiredException && user == null && password == null)
+					{
+						Cookie u = getCookie(request, "user");
+						if (u != null)
+						{
+							user = u.getValue();
+						}
+						Cookie p = getCookie(request, "password");
+						if (p != null)
+						{
+							try
+							{
+								password = SecuritySupport.decrypt(Settings.getInstance(), p.getValue());
+							}
+							catch (Exception e)
+							{
+								throw new ServletException(e.getMessage());
+							}
+						}
+						if (user != null && password != null)
+						{
+//							needToLogin = !checkUser(request, response, solutionName, user, password);
+//							if (!needToLogin)
+//							{
+//								//TODO redirect to index with new token
+//								return false;
+//							}
+						}
+					}
 				}
 			}
 			return needToLogin;
@@ -522,11 +577,15 @@ public class AngularIndexPageWriter
 		return false;
 	}
 
-	private static boolean checkUser(ServletRequest servletRequest, ServletResponse servletResponse, String solutionName) throws IOException
+	private static Cookie getCookie(HttpServletRequest request, String name)
+	{
+		return Arrays.stream(request.getCookies()).filter(c -> c.getName().equals(name)).findAny().orElse(null);
+	}
+
+	private static boolean checkUser(ServletRequest servletRequest, ServletResponse servletResponse, String solutionName, String user, String password)
+		throws IOException
 	{
 		String url = "/solution/" + solutionName + "/index.html";
-		String user = servletRequest.getParameter("user").trim();
-		String password = servletRequest.getParameter("password").trim();
 		String uid;
 		uid = ApplicationServerRegistry.get().checkDefaultServoyAuthorisation(user, password);
 		if (uid != null)
@@ -541,14 +600,7 @@ public class AngularIndexPageWriter
 				{
 					settings.put(JWT_Password, "pwd" + Math.random());
 				}
-				Algorithm algorithm = Algorithm.HMAC256(settings.getProperty(JWT_Password));
-				token = JWT.create()
-					.withIssuer("svy")
-					.withClaim("uid", uid)
-					.withClaim("user", user)
-					.withArrayClaim("groups", groups)
-					.withExpiresAt(new Date(System.currentTimeMillis() + 60000))
-					.sign(algorithm);
+				token = createToken(servletRequest, servletResponse, user, password, uid, groups, settings);
 			}
 			catch (Exception e)
 			{
@@ -563,6 +615,49 @@ public class AngularIndexPageWriter
 			}
 		}
 		return false;
+	}
+
+
+	public static String createToken(ServletRequest servletRequest, ServletResponse servletResponse, String user, String password, String uid, String[] groups,
+		Properties settings) throws Exception
+	{
+		String token;
+		Algorithm algorithm = Algorithm.HMAC256(settings.getProperty(JWT_Password));
+		token = JWT.create()
+			.withIssuer("svy")
+			.withClaim("uid", uid)
+			.withClaim("user", user)
+			.withArrayClaim("groups", groups)
+			.withExpiresAt(new Date(System.currentTimeMillis() + 60000))
+			.sign(algorithm);
+		Cookie id_token = new Cookie("id_token", token);
+		id_token.setMaxAge(60);
+		id_token.setDomain(servletRequest.getServerName());
+		HttpServletResponse response = (HttpServletResponse)servletResponse;
+		response.addCookie(id_token);
+		if ("on".equals(servletRequest.getParameter("remember")))
+		{
+			Cookie _user = new Cookie("user", user);
+			_user.setMaxAge(3600);
+			_user.setDomain(servletRequest.getServerName());
+			response.addCookie(_user);
+			Cookie _password = new Cookie("password", SecuritySupport.encrypt(Settings.getInstance(), password));
+			_password.setMaxAge(3600);
+			_password.setDomain(servletRequest.getServerName());
+			response.addCookie(_password);
+		}
+		else
+		{
+			Cookie _user = new Cookie("user", "");
+			_user.setMaxAge(0);
+			_user.setDomain(servletRequest.getServerName());
+			response.addCookie(_user);
+			Cookie _password = new Cookie("password", "");
+			_password.setMaxAge(0);
+			_password.setDomain(servletRequest.getServerName());
+			response.addCookie(_password);
+		}
+		return token;
 	}
 
 	public static void writeLoginPage(HttpServletRequest request, HttpServletResponse response, String solutionName)
