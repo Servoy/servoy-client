@@ -82,8 +82,7 @@ public class AngularIndexPageFilter implements Filter
 		{
 			if (solutionName != null && AngularIndexPageWriter.mustAuthenticate(request, response, solutionName))
 			{
-				String loginHtml = IOUtils.toString(getClass().getResourceAsStream("login.html"), Charset.forName("UTF-8"));
-				AngularIndexPageWriter.writeLoginPage(loginHtml, request, response, solutionName);
+				AngularIndexPageWriter.writeLoginPage(request, response, solutionName);
 				return;
 			}
 		}

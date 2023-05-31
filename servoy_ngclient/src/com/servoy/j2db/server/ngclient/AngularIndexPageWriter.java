@@ -27,8 +27,10 @@ import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
@@ -40,6 +42,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.sablo.security.ContentSecurityPolicyConfig;
@@ -562,11 +565,18 @@ public class AngularIndexPageWriter
 		return false;
 	}
 
-	public static void writeLoginPage(String page, HttpServletRequest request, HttpServletResponse response, String solutionName)
+	public static void writeLoginPage(HttpServletRequest request, HttpServletResponse response, String solutionName)
 		throws IOException
 	{
 		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
-		String loginHtml = page;
+		String loginHtml = null;
+		try (InputStream rs = AngularIndexPageWriter.class.getResourceAsStream("login.html"))
+		{
+			if (rs != null)
+			{
+				loginHtml = IOUtils.toString(rs, Charset.forName("UTF-8"));
+			}
+		}
 		final String path = Settings.getInstance().getProperty("servoy.context.path", request.getContextPath() + '/');
 		StringBuilder sb = new StringBuilder();
 		sb.append("<base href=\"");
