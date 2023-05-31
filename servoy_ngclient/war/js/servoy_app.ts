@@ -262,7 +262,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				}
 			}
 			
-			function setFindMode(beanData)
+			function setFindMode(beanData, frmName: string)
 			{
 				if (beanData['findmode'])
 				{
@@ -288,7 +288,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 								}
 							}
 							
-							$sabloApplication.callService("formService", "performFind", {'formname' : formname, 'clear' : true, 'reduce': true, 'showDialogOnNoResults':true},true);
+							$sabloApplication.callService("formService", "performFind", {'formname' : frmName, 'clear' : true, 'reduce': true, 'showDialogOnNoResults':true},true);
 						}
 						window.shortcut.add('ENTER', performFind);
 					}
@@ -319,7 +319,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						}
 						else if (beanData['findmode'] !== undefined)
 						{
-							setFindMode(beanData);
+							setFindMode(beanData, formname);
 						}
 
 					}
