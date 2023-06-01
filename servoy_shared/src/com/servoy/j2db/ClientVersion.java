@@ -18,7 +18,7 @@ package com.servoy.j2db;
 
 import java.net.URL;
 import java.time.Instant;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
@@ -107,8 +107,8 @@ public abstract class ClientVersion
 			}
 			else
 			{
-				OffsetDateTime date = OffsetDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
-				buildTime = date.format(DateTimeFormatter.RFC_1123_DATE_TIME);
+				LocalDateTime date = LocalDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
+				buildTime = date.format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm"));
 			}
 		}
 		return buildTime;
