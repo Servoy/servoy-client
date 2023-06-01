@@ -16,13 +16,11 @@
  */
 package com.servoy.j2db;
 
-import java.net.JarURLConnection;
 import java.net.URL;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.jar.JarFile;
 
 /**
  * Servoy version info class
@@ -120,17 +118,12 @@ public abstract class ClientVersion
 	{
 		try
 		{
-			URL resource = cl.getClassLoader().getResource("/META-INF/MANIFEST.MF");
-			long lastModified = resource.openConnection().getLastModified();
-			if (lastModified <= 0)
+			URL resource = cl.getClassLoader().getResource("/.svy_timestamp");
+			long lastModified = 0;
+			if (resource == null || (lastModified = resource.openConnection().getLastModified()) <= 0)
 			{
-				String rn = cl.getName().replace('.', '/') + ".class";
-
-				JarURLConnection j = (JarURLConnection)cl.getClassLoader().getResource(rn).openConnection();
-				try (JarFile jarFile = j.getJarFile())
-				{
-					return jarFile.getEntry("META-INF/MANIFEST.MF").getTime();
-				}
+				resource = cl.getClassLoader().getResource("/META-INF/MANIFEST.MF");
+				lastModified = resource.openConnection().getLastModified();
 			}
 			return lastModified;
 		}
