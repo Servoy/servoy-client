@@ -16,6 +16,13 @@
  */
 package com.servoy.j2db;
 
+import java.net.JarURLConnection;
+import java.net.URL;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.jar.JarFile;
 
 /**
  * Servoy version info class
@@ -32,6 +39,7 @@ public abstract class ClientVersion
 	private static final int releaseNumber = 3880;
 	private static final String versionPostfix = "rc";
 	private static final boolean lts = false;
+	private static String buildTime = null;
 
 	// make sure you keep this the same format, or make it work with extensions version comparing & xml schema
 	private static final String version = majorVersion + "." + middleVersion + "." + minorVersion + (versionPostfix != null ? " " + versionPostfix : "");
@@ -85,5 +93,50 @@ public abstract class ClientVersion
 	public static boolean isLts()
 	{
 		return lts;
+	}
+
+	/**
+	 * @return
+	 */
+	public static String getBuildDate()
+	{
+		if (buildTime == null)
+		{
+			long time = getTime(ClientVersion.class);
+			if (time <= 0)
+			{
+				buildTime = "Unknown";
+			}
+			else
+			{
+				OffsetDateTime date = OffsetDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
+				buildTime = date.format(DateTimeFormatter.RFC_1123_DATE_TIME);
+			}
+		}
+		return buildTime;
+	}
+
+	public static long getTime(Class< ? > cl)
+	{
+		try
+		{
+			URL resource = cl.getClassLoader().getResource("/META-INF/MANIFEST.MF");
+			long lastModified = resource.openConnection().getLastModified();
+			if (lastModified <= 0)
+			{
+				String rn = cl.getName().replace('.', '/') + ".class";
+
+				JarURLConnection j = (JarURLConnection)cl.getClassLoader().getResource(rn).openConnection();
+				try (JarFile jarFile = j.getJarFile())
+				{
+					return jarFile.getEntry("META-INF/MANIFEST.MF").getTime();
+				}
+			}
+			return lastModified;
+		}
+		catch (Exception e)
+		{
+			return -1;
+		}
 	}
 }
