@@ -100,7 +100,7 @@ public abstract class ClientVersion
 	{
 		if (buildTime == null)
 		{
-			long time = getTime(ClientVersion.class);
+			long time = getTime();
 			if (time <= 0)
 			{
 				buildTime = "Unknown";
@@ -114,15 +114,15 @@ public abstract class ClientVersion
 		return buildTime;
 	}
 
-	public static long getTime(Class< ? > cl)
+	private static long getTime()
 	{
 		try
 		{
-			URL resource = cl.getClassLoader().getResource("/.svy_timestamp");
+			URL resource = ClientVersion.class.getClassLoader().getResource("/.svy_timestamp");
 			long lastModified = 0;
 			if (resource == null || (lastModified = resource.openConnection().getLastModified()) <= 0)
 			{
-				resource = cl.getClassLoader().getResource("/META-INF/MANIFEST.MF");
+				resource = ClientVersion.class.getClassLoader().getResource("/META-INF/MANIFEST.MF");
 				lastModified = resource.openConnection().getLastModified();
 			}
 			return lastModified;
