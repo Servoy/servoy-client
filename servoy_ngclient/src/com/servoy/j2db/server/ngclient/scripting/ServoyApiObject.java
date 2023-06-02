@@ -30,6 +30,8 @@ import org.mozilla.javascript.annotations.JSFunction;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
+import com.servoy.j2db.dataprocessing.IFoundSetInternal;
+import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.ViewFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -188,6 +190,37 @@ public class ServoyApiObject
 			{
 				if (parentFormController != null)
 				{
+					IFoundSetInternal parentFs = parentFormController.getFormModel();
+					IRecordInternal selectedRecord = parentFs.getRecord(parentFs.getSelectedIndex());
+					if (selectedRecord != null)
+					{
+						try
+						{
+							formController.loadRecords(selectedRecord.getRelatedFoundSet(relationName));
+						}
+						catch (RuntimeException re)
+						{
+							throw new RuntimeException("Can't load records on form " + formController.getName() + ", of parent record: " +
+								selectedRecord + " with relation " + relationName + " for parent form  " + parentFormController + " and bean " +
+								component, re);
+						}
+					}
+					else
+					{
+						// no selected record, then use prototype so we can get global relations
+						try
+						{
+							formController.loadRecords(parentFs.getPrototypeState().getRelatedFoundSet(relationName));
+						}
+						catch (RuntimeException re)
+						{
+							throw new RuntimeException("Can't load records on form " + formController.getName() + ", of parent record: " +
+								selectedRecord + " with relation " + relationName + " for parent form  " + parentFormController + " and bean " +
+								component, re);
+						}
+
+					}
+
 					parentFormController.getFormUI().getDataAdapterList().addVisibleChildForm(formController, relationName, true);
 					if (component != null)
 					{
