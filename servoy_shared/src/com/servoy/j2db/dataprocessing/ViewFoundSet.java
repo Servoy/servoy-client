@@ -1849,13 +1849,13 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	/**
 	 * Get the ViewRecord from the primary key values.
 	 *
-	 * @sample var record = %%prefix%%vfs.getRecord([1]);
+	 * @sample var record = %%prefix%%vfs.getRecordByPk(1);  // or getRecordByPk(1,2) or ([1,2]) for multicolumn pk
 	 *
 	 * @param pk pk values as array
 	 *
 	 * @return ViewRecord record.
 	 */
-	public ViewRecord js_getRecord(Object... pk)
+	public ViewRecord js_getRecordByPk(Object... pk)
 	{
 		return (ViewRecord)getRecord(pk);
 	}
