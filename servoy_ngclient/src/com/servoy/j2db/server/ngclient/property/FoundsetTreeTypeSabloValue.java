@@ -586,7 +586,11 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 
 	private boolean addNodeID(IFoundSetInternal foundset, List<String> nodeids, Object[] pkarray, int index)
 	{
-		IRecordInternal record = foundset.getRecord(new Object[] { pkarray[index] });
+		IRecordInternal record = null;
+		if (pkarray != null && index < pkarray.length)
+		{
+			record = foundset.getRecord(new Object[] { pkarray[index] });
+		}
 		if (record != null)
 		{
 			nodeids.add(foundset.getID() + "_" + record.getPKHashKey());
