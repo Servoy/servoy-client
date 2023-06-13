@@ -252,8 +252,11 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		{
 			ValuelistConfigTypeSabloValue configSabloValue = ((ValuelistConfigTypeSabloValue)webObjectContext
 				.getProperty(propertyDependencies.configPropertyName));
-			this.filterOnRealValues = configSabloValue.useFilterOnRealValues();
-			this.filterWithContains = configSabloValue.useFilterWithContains();
+			if (configSabloValue != null)
+			{
+				this.filterOnRealValues = configSabloValue.useFilterOnRealValues();
+				this.filterWithContains = configSabloValue.useFilterWithContains();
+			}
 		}
 		if (propertyDependencies.dataproviderPropertyName != null)
 		{
