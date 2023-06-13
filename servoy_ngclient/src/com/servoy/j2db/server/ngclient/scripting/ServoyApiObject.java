@@ -26,6 +26,7 @@ import org.mozilla.javascript.IdScriptableObject;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.annotations.JSFunction;
+import org.sablo.Container;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.dataprocessing.FoundSet;
@@ -128,7 +129,14 @@ public class ServoyApiObject
 			boolean ret = formController.notifyVisible(false, invokeLaterRunnables, true);
 			if (ret)
 			{
-				formController.setParentFormController(null);
+				component.updateVisibleForm(formController.getFormUI(), false, 0);
+				Container parent = component.getParent();
+				while (parent != null && !(parent instanceof IWebFormUI))
+				{
+					parent = parent.getParent();
+				}
+				if (parent instanceof IWebFormUI parentUI)
+					parentUI.getDataAdapterList().removeVisibleChildForm(formController, true);
 			}
 			Utils.invokeAndWait(app, invokeLaterRunnables);
 			return ret;
@@ -141,7 +149,7 @@ public class ServoyApiObject
 	 * for showing the form through the browser's component.
 	 *
 	 * @sample
-	 * servoyApi.showForm(formToHideName)
+	 * servoyApi.showForm(formToShowName)
 	 *
 	 * @param nameOrUUID the form to show
 	 * @return true if the form was marked as visible
@@ -157,7 +165,7 @@ public class ServoyApiObject
 	 * for showing the form through the browser's component.
 	 *
 	 * @sample
-	 * servoyApi.showForm(formToHideName)
+	 * servoyApi.showForm(formToShowName)
 	 *
 	 * @param nameOrUUID the form to show
 	 * @param relationName the parent container
