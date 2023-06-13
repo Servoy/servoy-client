@@ -1390,9 +1390,20 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				setIcon(properties[$clientPropertyConstants.WINDOW_BRANDING_ICON_192], "192x192");
 			}
 		},
-		showMessage: function(message) {
-			$window.alert(message);
-		},
+        showMessage: function(message) {
+            const origin = $window.location.origin;
+            const title = origin.substring(origin.indexOf('://') + 3);
+            var modalInstance = $uibModal.open({
+                templateUrl: 'templates/alert.html',
+                controller: function ($scope, $uibModalInstance) {
+                    $scope.title = title;
+                    $scope.message = message;
+                    $scope.dismiss = function () {
+                        $uibModalInstance.close();
+                    };
+                }
+            });
+        },
 		showUrl:function(url,target,targetOptions,timeout){
 			if(!target) target ='_blank';
 			if(!timeout) timeout = 0;	    	 
