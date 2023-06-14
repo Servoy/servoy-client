@@ -129,7 +129,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public static final int ACCESSIBLE = IRepository.ACCESSIBLE;
 
-	private static final String TENANT_FILTER = "_svy_tenant_id_table_filter";
+	private static final String TENANT_FILTER = "_svy_tenant_id_table_filter"; //$NON-NLS-1$
 
 	private volatile IApplication application;
 
@@ -191,7 +191,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 					if (value != null)
 					{
 						tableFilterRequests.add(new TableFilterRequest(table,
-							application.getFoundSetManager().createDataproviderTableFilterdefinition(table, tenantColumn.getColumnName(), "=", value),
+							application.getFoundSetManager().createDataproviderTableFilterdefinition(table, tenantColumn.getColumnName(), "=", value), //$NON-NLS-1$
 							true));
 					}
 					// else filter will be removed if it exists for this server
@@ -402,12 +402,33 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * @param groupName name of the group to check
 	 *
 	 * @return dataset with groupnames
+	 *
+	 * @deprecated use hasPermission(permission);
 	 */
+	@Deprecated
 	public boolean js_isUserMemberOfGroup(String groupName) throws ServoyException
 	{
-		return application.getUserUID() != null ? js_isUserMemberOfGroup(groupName, application.getUserUID()) : false;
+		return js_hasPermission(groupName);
 	}
 
+	/**
+	 * Check if the current user has the given permission
+	 *
+	 * @sample
+	 * //check whatever user is part of the Administrators permission
+	 * if(security.hasPermission('Administrators'))
+	 * {
+	 * 	// do administration stuff
+	 * }
+	 *
+	 * @param permisson name of the permission
+	 *
+	 * @return true if it has the given permission
+	 */
+	public boolean js_hasPermission(String permisson) throws ServoyException
+	{
+		return application.getUserUID() != null ? js_isUserMemberOfGroup(permisson, application.getUserUID()) : false;
+	}
 
 	/**
 	 * Check whatever the user specified as parameter is part of the specified group.
@@ -423,11 +444,34 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * @param userUID UID of the user to check
 	 *
 	 * @return dataset with groupnames
+	 *
+	 * @deprecated use hasPermission(permission, user);
 	 */
+	@Deprecated
 	public boolean js_isUserMemberOfGroup(String groupName, Object userUID) throws ServoyException
 	{
+		return js_hasPermission(groupName, userUID);
+	}
+
+	/**
+	 * Check if the given user has the given permission
+	 *
+	 * @sample
+	 * //check whatever user is part of the Administrators permission
+	 * if(security.hasPermission('Administrators', security.getUserUID('admin')))
+	 * {
+	 * 	// do administration stuff
+	 * }
+	 *
+	 * @param permission name of the permission to check
+	 * @param userUID UID of the user to check
+	 *
+	 * @return true if it has that given permission
+	 */
+	public boolean js_hasPermission(String permission, Object userUID) throws ServoyException
+	{
 		JSDataSet userGroups = js_getUserGroups(userUID);
-		return userGroups != null ? Arrays.asList(userGroups.js_getColumnAsArray(2)).indexOf(groupName) > -1 : false;
+		return userGroups != null ? Arrays.asList(userGroups.js_getColumnAsArray(2)).indexOf(permission) > -1 : false;
 	}
 
 	/**
@@ -457,8 +501,33 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * }
 	 *
 	 * @return dataset with groupnames
+	 *
+	 * @deprecated use getPermissions()
 	 */
+	@Deprecated
 	public JSDataSet js_getUserGroups() throws ServoyException
+	{
+		return js_getPermissions();
+	}
+
+	/**
+	 * Get all the permissions of the current user.
+	 *
+	 * @sample
+	 * 	//set p to the user group for the current user
+	 * 	/** @type {JSDataSet} *&#47;
+	 * 	var p = security.getUserPermissions();
+	 *
+	 * 	for(k=1;k<=p.getMaxRowIndex();k++)
+	 * 	{
+	 * 		//print to the output debugger tab: "permission" and the permissons(s)
+	 * 		//the user has
+	 * 		application.output("permission: " + p.getValue(k,2));
+	 * 	}
+	 *
+	 * @return dataset with permissions
+	 */
+	public JSDataSet js_getUserPermissions() throws ServoyException
 	{
 		JSDataSet groups = null;
 		if (application.getUserUID() != null)
@@ -469,7 +538,19 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	}
 
 	/**
-	 * Get all the groups for given user UID.
+	 *  @deprecated use getPermissions(Object)
+	 * @param userUID
+	 * @return
+	 * @throws ServoyException
+	 */
+	@Deprecated
+	public JSDataSet js_getUserGroups(Object userUID) throws ServoyException
+	{
+		return js_getPermissions(userUID);
+	}
+
+	/**
+	 * Get all the permissions for given user UID.
 	 *
 	 * @sample
 	 * //get all the users in the security settings (Returns a JSDataset)
@@ -484,13 +565,13 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 *
 	 * 	//set p to the user group for the current user
 	 * 	/** @type {JSDataSet} *&#47;
-	 * 	var p = security.getUserGroups(dsUsers.getValue(i,1));
+	 * 	var p = security.getPermissions(dsUsers.getValue(i,1));
 	 *
 	 * 	for(k=1;k<=p.getMaxRowIndex();k++)
 	 * 	{
-	 * 		//print to the output debugger tab: "group" and the group(s)
-	 * 		//the user belongs to
-	 * 		application.output("group: " + p.getValue(k,2));
+	 * 		//print to the output debugger tab: "permission" and the permission(s)
+	 * 		//the user has
+	 * 		application.output("permission: " + p.getValue(k,2));
 	 * 	}
 	 * }
 	 *
@@ -498,7 +579,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 *
 	 * @return dataset with groupnames
 	 */
-	public JSDataSet js_getUserGroups(Object userUID) throws ServoyException
+	public JSDataSet js_getPermissions(Object userUID) throws ServoyException
 	{
 		application.checkAuthorized();
 		if (userUID == null) return null;
@@ -517,12 +598,12 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 			}
 			if (groups != null)
 			{
-				List rows = new ArrayList();
+				List<Object[]> rows = new ArrayList<>();
 				for (String element : groups)
 				{
 					// fetch the id.
 					int groupId = getGroupId(element);
-					rows.add(new Object[] { new Integer(groupId), element });
+					rows.add(new Object[] { Integer.valueOf(groupId), element });
 				}
 				return new JSDataSet(application, new BufferedDataSet(new String[] { "group_id", "group_name" }, rows)); //$NON-NLS-1$ //$NON-NLS-2$
 			}
@@ -553,6 +634,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 *
 	 * @return true if changed
 	 */
+	@SuppressWarnings("nls")
 	public boolean js_setPassword(Object a_userUID, String password) throws ServoyException
 	{
 		application.checkAuthorized();
@@ -668,7 +750,11 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * @param groupName the group name to create
 	 *
 	 * @return the created groupname
+	 *
+	 * @deprecated creating groups is not supported at runtime
 	 */
+	@SuppressWarnings("nls")
+	@Deprecated
 	public String js_createGroup(String groupName) throws ServoyException
 	{
 		application.checkAuthorized();
@@ -743,6 +829,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 *
 	 * @return the userUID the created userUID, will be same if provided
 	 */
+	@SuppressWarnings("nls")
 	public Object js_createUser(String username, String password, Object userUID) throws ServoyException
 	{
 		application.checkAuthorized();
@@ -782,6 +869,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 *
 	 * @return true if the user is successfully deleted.
 	 */
+	@SuppressWarnings("nls")
 	public boolean js_deleteUser(Object userUID) throws ServoyException
 	{
 		application.checkAuthorized();
@@ -807,7 +895,10 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 *
 	 * @param groupName the name of the group to delete
 	 * @return true if deleted
+	 * @deprecated adjusting groups is not supported  at runtime.
 	 */
+	@SuppressWarnings("nls")
+	@Deprecated
 	public boolean js_deleteGroup(Object groupName) throws ServoyException
 	{
 		application.checkAuthorized();
@@ -846,6 +937,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * @param username the new username
 	 * @return true if changed
 	 */
+	@SuppressWarnings("nls")
 	public boolean js_changeUserName(Object a_userUID, String username) throws ServoyException
 	{
 		application.checkAuthorized();
@@ -873,7 +965,11 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * @param oldGroupName the old name
 	 * @param newGroupName the new name
 	 * @return true if changed
+	 *
+	 * @deprecated adjusting groups is not supported  at runtime.
 	 */
+	@SuppressWarnings("nls")
+	@Deprecated
 	public boolean js_changeGroupName(Object oldGroupName, String newGroupName) throws ServoyException
 	{
 		application.checkAuthorized();
@@ -945,8 +1041,23 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 *
 	 * @sampleas js_createUser(String, String, Object)
 	 * @return dataset with all the groups
+	 *
+	 * @deprecated use getPermissions();
 	 */
+	@Deprecated
 	public JSDataSet js_getGroups() throws ServoyException
+	{
+		return js_getPermissions();
+	}
+
+	/**
+	 * Get all the permissions of the solution (returns a dataset).
+	 * first id column is deprecated!, use only the permission name column.
+	 *
+	 * @sampleas js_createUser(String, String, Object)
+	 * @return dataset with all the groups
+	 */
+	public JSDataSet js_getPermissions() throws ServoyException
 	{
 		application.checkAuthorized();
 		try
@@ -972,11 +1083,33 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * @param a_userUID the user UID to be added
 	 * @param groupName the group to add to
 	 * @return true if added
+	 *
+	 * @deprecated use addPermissinToUser(Object, Object)
 	 */
+	@Deprecated
 	public boolean js_addUserToGroup(Object a_userUID, Object groupName) throws ServoyException
 	{
+		return js_addPermissinToUser(a_userUID, groupName);
+	}
+
+	/**
+	 * Gives a user a permission
+	 * Note: this method can only be called by an admin.
+	 *
+	 * @sample
+	 * var userUID = security.getUserUID();
+	 * security.addPermissinToUser(userUID, 'permission');
+	 *
+	 * @param a_userUID the user UID to be added
+	 * @param permission the permission to add to
+	 * @return true if added
+	 *
+	 */
+	@SuppressWarnings("nls")
+	public boolean js_addPermissinToUser(Object a_userUID, Object permission) throws ServoyException
+	{
 		application.checkAuthorized();
-		if (a_userUID == null || groupName == null) return false;
+		if (a_userUID == null || permission == null) return false;
 
 		String userUID = normalizeUID(a_userUID);
 		try
@@ -984,19 +1117,20 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 			int userId = application.getUserManager().getUserIdByUID(application.getClientID(), userUID.toString());
 			if (userId != -1)
 			{
-				if (groupName instanceof Number)
+				if (permission instanceof Number)
 				{
-					return application.getUserManager().addUserToGroup(application.getClientID(), userId, ((Number)groupName).intValue());
+					return application.getUserManager().addUserToGroup(application.getClientID(), userId, ((Number)permission).intValue());
 				}
 				else
 				{
-					return application.getUserManager().addUserToGroup(application.getClientID(), userId, getGroupId(groupName.toString()));
+					return application.getUserManager().addUserToGroup(application.getClientID(), userId, getGroupId(permission.toString()));
 				}
 			}
 		}
 		catch (Exception e)
 		{
-			application.reportJSError("Can't add user " + a_userUID + " to group: " + groupName + ", only admin users can create/change security stuff", e);
+			application
+				.reportJSError("Can't give the user " + a_userUID + " a permission: " + permission + ", only admin users can create/change security stuff", e);
 		}
 		return false;
 	}
@@ -1010,30 +1144,50 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * @param a_userUID the user UID to be removed
 	 * @param groupName the group to remove from
 	 * @return true if removed
+	 *
+	 * @deprecated use removePermissionFromUser(Object, Object);
 	 */
+	@Deprecated
 	public boolean js_removeUserFromGroup(Object a_userUID, Object groupName) throws ServoyException
 	{
+		return js_removePermissionFromUser(a_userUID, groupName);
+	}
+
+	/**
+	 * Removes an permission from a user.
+	 * Note: this method can only be called by an admin.
+	 *
+	 * @sampleas js_createUser(String, String, Object)
+	 *
+	 * @param a_userUID the user UID to be removed
+	 * @param permission the permission to remove from
+	 * @return true if removed
+	 */
+	@SuppressWarnings("nls")
+	public boolean js_removePermissionFromUser(Object a_userUID, Object permission) throws ServoyException
+	{
 		application.checkAuthorized();
-		if (a_userUID == null || groupName == null) return false;
+		if (a_userUID == null || permission == null) return false;
 		String userUID = normalizeUID(a_userUID);
 		try
 		{
 			int userId = application.getUserManager().getUserIdByUID(application.getClientID(), userUID.toString());
 			if (userId != -1)
 			{
-				if (groupName instanceof Number)
+				if (permission instanceof Number)
 				{
-					return application.getUserManager().removeUserFromGroup(application.getClientID(), userId, ((Number)groupName).intValue());
+					return application.getUserManager().removeUserFromGroup(application.getClientID(), userId, ((Number)permission).intValue());
 				}
 				else
 				{
-					return application.getUserManager().removeUserFromGroup(application.getClientID(), userId, getGroupId(groupName.toString()));
+					return application.getUserManager().removeUserFromGroup(application.getClientID(), userId, getGroupId(permission.toString()));
 				}
 			}
 		}
 		catch (Exception e)
 		{
-			application.reportJSError("Can't remove user  " + a_userUID + " from group " + groupName + ", only admin users can create/change security stuff",
+			application.reportJSError(
+				"Can't remove from the user  " + a_userUID + " the permission " + permission + ", only admin users can create/change security stuff",
 				e);
 		}
 		return false;
@@ -1555,6 +1709,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 *
 	 * @param dataset the dataset with security settings
 	 */
+	@SuppressWarnings("nls")
 	public void js_setSecuritySettings(Object dataset) // uuid/server.tablename , integer(flags)
 	{
 		if (dataset instanceof JSDataSet)
@@ -1575,7 +1730,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 				Object[] row = ds.getRow(i);
 				if (row[0] != null && row[1] != null)
 				{
-					Integer val = new Integer(Utils.getAsInteger(row[1]));
+					Integer val = Integer.valueOf(Utils.getAsInteger(row[1]));
 					try
 					{
 						boolean matched = false;
@@ -1638,13 +1793,14 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * @param formname the formname to retieve the dataset for
 	 * @return dataset with element info
 	 */
+	@SuppressWarnings("nls")
 	public JSDataSet js_getElementUUIDs(String formname)// return dataset with name, uuid (note: null name is form uuid)
 	{
 		Form f = application.getFlattenedSolution().getForm(formname);
 		if (f == null) f = application.getFormManager().getPossibleForm(formname);
 		if (f != null)
 		{
-			List elements = new ArrayList();
+			List<Object[]> elements = new ArrayList<>();
 			elements.add(new Object[] { null, f.getUUID() });
 			Iterator< ? extends IPersist> it = f.isResponsiveLayout() ? f.getFlattenedObjects(NameComparator.INSTANCE).iterator() : f.getAllObjects();
 			while (it.hasNext())
