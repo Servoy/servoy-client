@@ -374,6 +374,16 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 			super(parent, scriptEngine, methodLookup);
 		}
 
+		@Override
+		public void put(String name, Scriptable start, Object value)
+		{
+			if (!(value instanceof Function) && (getFunctionParentScriptable() != null && getFunctionParentScriptable().has(name, start)))
+			{
+				getFunctionParentScriptable().put(name, start, value);
+			}
+			else super.put(name, start, value);
+		}
+
 		/**
 		 * @see com.servoy.j2db.scripting.LazyCompilationScope#get(java.lang.String, org.mozilla.javascript.Scriptable)
 		 */
@@ -381,7 +391,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		public Object get(String name, Scriptable start)
 		{
 			Object object = super.get(name, start);
-			if (object == Scriptable.NOT_FOUND && getFunctionParentScriptable() != null)
+			if ((object == null || object == Scriptable.NOT_FOUND) && getFunctionParentScriptable() != null)
 			{
 				Object obj = getFunctionParentScriptable().get(name, start);
 				// only return form variables not functions, they should be resolved by the (compile)scope.
