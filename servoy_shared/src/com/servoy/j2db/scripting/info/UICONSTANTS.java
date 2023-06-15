@@ -410,6 +410,20 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	@ServoyClientSupport(ng = true, wc = false, sc = false)
 	public static final String CALENDAR_NG_SHOW_ISO_WEEK_NUMBER = IApplication.CALENDAR_NG_SHOW_ISO_WEEK_NUMBER;
 
+	/**
+	 * Property that can be set using application.putClientProperty(). This property only works in Titanium.
+	 *
+	 * If set to true, the listformcomponent will use the old paging mode for display.
+	 *
+	 * The value can be true/false
+	 * DEFAULT: false
+	 *
+	 * @sample
+	 * application.putClientProperty(APP_UI_PROPERTY.LISTFORMCOMPONENT_PAGING_MODE, true)
+	 */
+	@ServoyClientSupport(ng = true, wc = false, sc = false)
+	public static final String LISTFORMCOMPONENT_PAGING_MODE = IApplication.LISTFORMCOMPONENT_PAGING_MODE;
+
 	public String getPrefix()
 	{
 		return "APP_UI_PROPERTY"; //$NON-NLS-1$
