@@ -13,10 +13,10 @@
 @secondary-color-dark: #364453;                 /* {"name":"Secondary color dark", "category":"General", "desc":"Changing the value will affect the 'Secondary color dark' of the theme!", "type":"color"} */
 
 /* Scrollbars */
-@theme-scrollbar: true;                         /* {"name":"Theme-scrollbar: if true - use custom scrollbar theme, if false - use the default browser webkit", "category":"General", "desc":"Changing the value will affect the 'Theme-scrollbar' of the theme!", "type":"custom"} */
-@scrollbar-bg: #FFF;                            /* {"name":"Scrollbar background color. Only when theme-scrollbar is true", "category":"General", "desc":"Changing the value will affect the 'Scrollbar background color' of the theme!", "type":"color"} */
-@scrollbar-color: #DBDBDB;                      /* {"name":"Scrollbar thumb color. Only when theme-scrollbar is true", "category":"General", "desc":"Changing the value will affect the 'Scrollbar thumb color' of the theme!", "type":"color"} */
-@scrollbar-border-width: 0 1px;                 /* {"name":"Scrollbar border width. Only when theme-scrollbar is true", "category":"General", "desc":"Changing the value will affect the 'Scrollbar border width' of the theme!", "type":"unit"} */
+@theme-scrollbar: true;                         /* {"name":"Theme scrollbar", "category":"General", "desc":"If true - use custom scrollbar theme, if false - use the default browser webkit.", "type":"custom"} */
+@scrollbar-bg: #FFF;                            /* {"name":"Scrollbar background color", "category":"General", "desc":" Only when theme-scrollbar is true.", "type":"color"} */
+@scrollbar-color: #DBDBDB;                      /* {"name":"Scrollbar thumb color", "category":"General", "desc":"Only when theme-scrollbar is true.", "type":"color"} */
+@scrollbar-border-width: 0 1px;                 /* {"name":"Scrollbar border width", "category":"General", "desc":"Only when theme-scrollbar is true", "type":"unit"} */
 
 /* Font & Font Sizes */
 @font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;   /* {"name":"Font family", "category":"General", "desc":"Changing the value will affect the 'Font family' of the theme!", "type":"custom"} */
@@ -32,7 +32,7 @@
 @font-size-h6 : 12px;                           /* {"name":"Font size h6", "category":"General", "desc":"Changing the value will affect the 'Font size h6' of the theme!", "type":"unit"} */
 
 /* Body bg */
-@body-bg: #FFF;                                 /* {"name":"Bogy bg", "category":"General", "desc":"Changing the value will affect the 'Bogy bg' of the theme!", "type":"color"} */
+@body-bg: #FFF;                                 /* {"name":"Body bg", "category":"General", "desc":"Changes the background for the bg class.\n Is also used as part of other less vars like Tab border color, dialogs, breadcrumb, grid menu panel.", "type":"color"} */
 @body-bg-inverse: #DDD;                         /* {"name":"Body bg inverse", "category":"General", "desc":"Changing the value will affect the 'Body bg inverse' of the theme!", "type":"color"} */
 
 /* TODO setup borders for colors */
@@ -70,7 +70,7 @@
 @sidenav-selected-color: @secondary-color-light;    /* {"name":"Sidenav selected color", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav selected color' of the theme!", "type":"color"} */
 @sidenav-selected-text-color: @sidenav-text-color;  /* {"name":"Sidenav selected text color", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav selected text color' of the theme!", "type":"color"} */
 @sidenav-selected-border-color: @main-color;        /* {"name":"Sidenav selected border color", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav selected border color' of the theme!", "type":"color"} */
-@sidenav-selected-border-width: 0px 0px 0px 0px;    /* {"name":"Sidenav border for selected top-level item top|right|bottom|left", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav border for selected top-level item' of the theme!", "type":"unit"} */
+@sidenav-selected-border-width: 0px 0px 0px 0px;    /* {"name":"Sidenav selected border width", "category":"Sidenav", "desc":"Sidenav border for selected top-level item top|right|bottom|left", "type":"unit"} */
 
 /* Sidenav Secondary color */
 @sidenav-secondary-color: @main-color;                          /* {"name":"Sidenav secondary color", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav secondary color' of the theme!", "type":"color"} */
@@ -81,7 +81,7 @@
 @sidenav-secondary-selected-color: @main-color-light;           /* {"name":"Sidenav secondary selected color", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav secondary selected color' of the theme!", "type":"color"} */
 @sidenav-secondary-selected-text-color: @main-color-inverse;    /* {"name":"Sidenav secondary selected text color", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav secondary selected text color' of the theme!", "type":"color"} */
 @sidenav-secondary-selected-border-color: @main-color-inverse;  /* {"name":"Sidenav secondary selected border color", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav secondary selected border color' of the theme!", "type":"color"} */
-@sidenav-secondary-selected-border-width: 0px 0px 0px 5px;      /* {"name":"Sidenav secondary border for selected top-level item top|right|bottom|left", "category":"Sidenav", "desc":"Changing the value will affect the 'Sidenav secondary border for selected top-level item' of the theme!", "type":"unit"} */
+@sidenav-secondary-selected-border-width: 0px 0px 0px 5px;      /* {"name":"Sidenav secondary selected border width", "category":"Sidenav", "desc":"Sidenav secondary border for selected top-level item top|right|bottom|left.", "type":"unit"} */
 
 /* START Navbar */
 @navbar-bg: @main-color;                                /* {"name":"Navbar background color", "category":"Navbar", "desc":"Changing the value will affect the 'Navbar background color' of the theme!", "type":"color"} */

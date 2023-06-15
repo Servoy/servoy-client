@@ -61,17 +61,17 @@ public class ContainerScope implements Scriptable
 				{
 					if ("setCSSStyle".equals(nm) && args.length == 2)
 					{
-						parent.getFormControler().getFormUI().addContainerCSSStyle(name, (String)args[0], (String)args[1]);
+						parent.getFormControler().getFormUI().addContainerCSSStyle(name, args[0].toString(), args[1].toString());
 					}
 					else if ("removeCSSStyle".equals(nm))
 					{
-						parent.getFormControler().getFormUI().removeContainerCSSStyle(name, (String)args[0]);
+						parent.getFormControler().getFormUI().removeContainerCSSStyle(name, args[0].toString());
 					}
 					else
 					{
 						for (Object object : args)
 						{
-							String cls = (String)object;
+							String cls = object != null ? object.toString() : null;
 							switch (nm)
 							{
 								case "addStyleClasses" :
