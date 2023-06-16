@@ -16,6 +16,11 @@
  */
 package com.servoy.j2db;
 
+import java.net.URL;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Servoy version info class
@@ -27,11 +32,12 @@ public abstract class ClientVersion
 {
 	// these fields are private intentionally, to prevent final class member copy in other classes!
 	private static final int majorVersion = 2023;
-	private static final int middleVersion = 6;
+	private static final int middleVersion = 9;
 	private static final int minorVersion = 0;
-	private static final int releaseNumber = 3880;
+	private static final int releaseNumber = 3900;
 	private static final String versionPostfix = "rc";
 	private static final boolean lts = false;
+	private static String buildTime = null;
 
 	// make sure you keep this the same format, or make it work with extensions version comparing & xml schema
 	private static final String version = majorVersion + "." + middleVersion + "." + minorVersion + (versionPostfix != null ? " " + versionPostfix : "");
@@ -85,5 +91,45 @@ public abstract class ClientVersion
 	public static boolean isLts()
 	{
 		return lts;
+	}
+
+	/**
+	 * @return
+	 */
+	public static String getBuildDate()
+	{
+		if (buildTime == null)
+		{
+			long time = getTime();
+			if (time <= 0)
+			{
+				buildTime = "Unknown";
+			}
+			else
+			{
+				OffsetDateTime date = OffsetDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
+				buildTime = date.format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm"));
+			}
+		}
+		return buildTime;
+	}
+
+	private static long getTime()
+	{
+		try
+		{
+			URL resource = ClientVersion.class.getClassLoader().getResource("/.svy_timestamp");
+			long lastModified = 0;
+			if (resource == null || (lastModified = resource.openConnection().getLastModified()) <= 0)
+			{
+				resource = ClientVersion.class.getClassLoader().getResource("/META-INF/MANIFEST.MF");
+				lastModified = resource.openConnection().getLastModified();
+			}
+			return lastModified;
+		}
+		catch (Exception e)
+		{
+			return -1;
+		}
 	}
 }

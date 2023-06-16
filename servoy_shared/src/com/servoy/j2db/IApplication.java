@@ -166,6 +166,11 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public static final String RELATED_NULL_SEARCH_ADD_PK_CONDITION = "relatedNullSearchAddPkCondition";//$NON-NLS-1$
 
 	/**
+	 * When Boolean.TRUE, the listformcomponent will use the old paging mode for display.
+	 */
+	public static final String LISTFORMCOMPONENT_PAGING_MODE = "ListFormComponent.pagingMode"; //$NON-NLS-1$
+
+	/**
 	 * Non-null name for the first (main) window.
 	 */
 	public static final String APP_WINDOW_NAME = "Application_frame";

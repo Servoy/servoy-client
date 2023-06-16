@@ -211,7 +211,7 @@ public class AngularIndexPageWriter
 		return;
 	}
 
-	private static Pair<FlattenedSolution, Boolean> getFlattenedSolution(String solutionName, String clientnr, HttpServletRequest request,
+	static Pair<FlattenedSolution, Boolean> getFlattenedSolution(String solutionName, String clientnr, HttpServletRequest request,
 		HttpServletResponse response)
 	{
 		INGClientWebsocketSession wsSession = null;

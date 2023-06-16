@@ -262,7 +262,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				}
 			}
 			
-			function setFindMode(beanData)
+			function setFindMode(beanData, frmName: string)
 			{
 				if (beanData['findmode'])
 				{
@@ -288,7 +288,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 								}
 							}
 							
-							$sabloApplication.callService("formService", "performFind", {'formname' : formname, 'clear' : true, 'reduce': true, 'showDialogOnNoResults':true},true);
+							$sabloApplication.callService("formService", "performFind", {'formname' : frmName, 'clear' : true, 'reduce': true, 'showDialogOnNoResults':true},true);
 						}
 						window.shortcut.add('ENTER', performFind);
 					}
@@ -319,7 +319,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						}
 						else if (beanData['findmode'] !== undefined)
 						{
-							setFindMode(beanData);
+							setFindMode(beanData, formname);
 						}
 
 					}
@@ -1390,9 +1390,20 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				setIcon(properties[$clientPropertyConstants.WINDOW_BRANDING_ICON_192], "192x192");
 			}
 		},
-		showMessage: function(message) {
-			$window.alert(message);
-		},
+        showMessage: function(message) {
+            const origin = $window.location.origin;
+            const title = origin.substring(origin.indexOf('://') + 3);
+            var modalInstance = $uibModal.open({
+                templateUrl: 'templates/alert.html',
+                controller: function ($scope, $uibModalInstance) {
+                    $scope.title = title;
+                    $scope.message = message;
+                    $scope.dismiss = function () {
+                        $uibModalInstance.close();
+                    };
+                }
+            });
+        },
 		showUrl:function(url,target,targetOptions,timeout){
 			if(!target) target ='_blank';
 			if(!timeout) timeout = 0;	    	 

@@ -40,6 +40,7 @@ import org.sablo.security.ContentSecurityPolicyConfig;
 import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
 
 /**
  * @author jcompagner
@@ -78,6 +79,32 @@ public class AngularIndexPageFilter implements Filter
 		HttpServletResponse response = (HttpServletResponse)servletResponse;
 		String requestURI = request.getRequestURI();
 		String solutionName = getSolutionNameFromURI(requestURI);
+		if (solutionName != null)
+		{
+			try
+			{
+				Pair<Boolean, String> showLogin = StatelessLoginHandler.mustAuthenticate(request, response, solutionName);
+				if (showLogin.getLeft().booleanValue())
+				{
+					StatelessLoginHandler.writeLoginPage(request, response, solutionName);
+					return;
+				}
+				if (showLogin.getRight() != null && request.getParameter("id_token") != null)
+				{
+					StringBuilder url = new StringBuilder(requestURI.subSequence(0, requestURI.indexOf(SOLUTIONS_PATH)) + SOLUTIONS_PATH);
+					url.append(solutionName);
+					url.append("/index.html?id_token=");
+					url.append(showLogin.getRight());
+					((HttpServletResponse)servletResponse).sendRedirect(url.toString());
+					return;
+				}
+			}
+			catch (Exception e)
+			{
+				Debug.error(e.getMessage());
+				return;
+			}
+		}
 		if ("GET".equalsIgnoreCase(request.getMethod()) && solutionName != null)
 		{
 

@@ -832,19 +832,19 @@ Can we make them look similar ?  */
 }
 
 /* TabPanel */
-.svy-tabpanel.nav-tabs,
-.bts-tabpanel.nav-tabs {
+.svy-tabpanel > .nav-tabs,
+.bts-tabpanel > .nav-tabs {
     border: 0;
     background-color: @tab-bg;
 }
 
-.svy-tabpanel.nav-tabs > li,
-.bts-tabpanel.nav-tabs > li {
+.svy-tabpanel > .nav-tabs > li,
+.bts-tabpanel > .nav-tabs > li {
     margin-bottom: 0;
 }
 
-.svy-tabpanel.nav-tabs > li > a,
-.bts-tabpanel.nav-tabs > li > a {
+.svy-tabpanel > .nav-tabs > li > a,
+.bts-tabpanel > .nav-tabs > li > a {
     background-color: @tab-bg;
     color: @tab-text-color;
     text-transform: @tab-text-transform;
@@ -855,12 +855,12 @@ Can we make them look similar ?  */
     border-radius: @tab-border-radius;
 }
 
-.svy-tabpanel.nav-tabs > li > .nav-link.active, 
-.svy-tabpanel.nav-tabs > li > .nav-link.active:hover, 
-.svy-tabpanel.nav-tabs > li > .nav-link.active:focus,
-.bts-tabpanel.nav-tabs > li > .nav-link.active, 
-.bts-tabpanel.nav-tabs > li > .nav-link.active:hover, 
-.bts-tabpanel.nav-tabs > li > .nav-link.active:focus {
+.svy-tabpanel > .nav-tabs > li > .nav-link.active, 
+.svy-tabpanel > .nav-tabs > li > .nav-link.active:hover, 
+.svy-tabpanel > .nav-tabs > li > .nav-link.active:focus,
+.bts-tabpanel > .nav-tabs > li > .nav-link.active, 
+.bts-tabpanel > .nav-tabs > li > .nav-link.active:hover, 
+.bts-tabpanel > .nav-tabs > li > .nav-link.active:focus {
     /* border: @tab-border;
     border-radius: @tab-border-radius; */
     background-color: @tab-active-bg;
@@ -871,14 +871,14 @@ Can we make them look similar ?  */
 }
 
 /* Tab Tertiary */
-.svy-tabpanel.bg-tertiary.nav-tabs,
-.bts-tabpanel.bg-tertiary.nav-tabs {
+.svy-tabpanel.bg-tertiary > .nav-tabs,
+.bts-tabpanel.bg-tertiary > .nav-tabs {
     background-color: @brand-tertiary;
     background-color: @brand-tertiary-inverse;
 }
 
-.svy-tabpanel.bg-tertiary.nav-tabs > li > a,
-.bts-tabpanel.bg-tertiary.nav-tabs > li > a {
+.svy-tabpanel.bg-tertiary > .nav-tabs > li > a,
+.bts-tabpanel.bg-tertiary > .nav-tabs > li > a {
     background-color: @brand-tertiary;
     background-color: @brand-tertiary-inverse;
 }

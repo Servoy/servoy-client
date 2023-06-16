@@ -441,10 +441,14 @@ public class RepositoryHelper
 	public static boolean hideForProperties(String name, Class< ? > persistClass, IPersist persist)
 	{
 		if (persist instanceof Form && Utils.getAsBoolean(((Form)persist).isFormComponent()) &&
-			(name.equals("borderType") || name.equals("defaultPageFormat") || name.equals("initialSort") || name.equals("navigatorID") ||
+			(name.equals("defaultPageFormat") || name.equals("initialSort") || name.equals("navigatorID") ||
 				name.equals("namedFoundSet") || name.equals("paperPrintScale") || name.equals("scrollbars") || name.equals("selectionMode") ||
 				name.equals("styleName") || name.equals("styleClass") || name.equals("titleText") || name.equals("transparent") || name.equals("view") ||
-				name.equals("showInMenu") || name.equals("encapsulation")))
+				name.equals("encapsulation")))
+		{
+			return true;
+		}
+		if (persist instanceof Form && name.equals("borderType") && ((Form)persist).getBorderType() == null)
 		{
 			return true;
 		}
@@ -493,6 +497,10 @@ public class RepositoryHelper
 			return true;
 		}
 		if (name.equals("containsFormID")) // handled in combined property table //$NON-NLS-1$
+		{
+			return true;
+		}
+		if (name.equals("showInMenu"))
 		{
 			return true;
 		}

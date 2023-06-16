@@ -62,13 +62,13 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	public static final String TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN = IApplication.TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN;
 
 	/**
-	 * Property that can be set using application.putClientProperty() or element.putClientProperty(). It is used only in Smart Client.
+	 * Property that can be set using application.putClientProperty() or element.putClientProperty(). It is used only in Smart Client and Titanium Client.
 	 *
 	 * If set on application it will affect all COMBOBOX fields. If set on an element it will affect only that COMBOBOX element/field (with priority over the application property).
 	 * Value can be true/false/null.
 	 *
-	 * If set to true, the affected COMBOBOX will show the pop-up when gaining focus.
-	 * DEFAULT: true.
+	 * If set to true, the affected COMBOBOX will show the pop-up when gaining focus (either from user input or API).
+	 * DEFAULT: true for Smart Client and false for Titanium Client (to be more compatible with NGClient).
 	 *
 	 * @sample
 	 * // make all COMBOBOX fields not show the pop-up when gaining focus
@@ -76,7 +76,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * // make one COMBOBOX field show the pop-up when gaining focus - overrides the application property set
 	 * forms.someForm.elements.comboboxElement.putClientProperty(APP_UI_PROPERTY.COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN, true);
 	 */
-	@ServoyClientSupport(ng = false, wc = false, sc = true)
+	@ServoyClientSupport(ng = true, wc = false, sc = true)
 	public static final String COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN = IApplication.COMBOBOX_SHOW_POPUP_ON_FOCUS_GAIN;
 
 	/**
@@ -409,6 +409,20 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 */
 	@ServoyClientSupport(ng = true, wc = false, sc = false)
 	public static final String CALENDAR_NG_SHOW_ISO_WEEK_NUMBER = IApplication.CALENDAR_NG_SHOW_ISO_WEEK_NUMBER;
+
+	/**
+	 * Property that can be set using application.putClientProperty(). This property only works in Titanium.
+	 *
+	 * If set to true, the listformcomponent will use the old paging mode for display.
+	 *
+	 * The value can be true/false
+	 * DEFAULT: false
+	 *
+	 * @sample
+	 * application.putClientProperty(APP_UI_PROPERTY.LISTFORMCOMPONENT_PAGING_MODE, true)
+	 */
+	@ServoyClientSupport(ng = true, wc = false, sc = false)
+	public static final String LISTFORMCOMPONENT_PAGING_MODE = IApplication.LISTFORMCOMPONENT_PAGING_MODE;
 
 	public String getPrefix()
 	{

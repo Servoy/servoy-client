@@ -157,6 +157,10 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 
 		if (!visible && retValue)
 		{
+			for (IWebFormUI formUI : visibleForms.keySet())
+			{
+				formUI.setParentContainer(null);
+			}
 			visibleForms.clear();
 		}
 		return retValue;

@@ -253,14 +253,6 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 				recordData.put("name", record.getValue(binding.textdataprovider));
 				recordData.put("datasource", root.getDataSource());
 				recordData.put("level", 1);
-				if (binding.imageurldataprovider != null)
-				{
-					recordData.put("image", record.getValue(binding.imageurldataprovider));
-				}
-				if (binding.tooltiptextdataprovider != null)
-				{
-					recordData.put("tooltip", record.getValue(binding.tooltiptextdataprovider));
-				}
 				boolean hasCheckbox = false;
 				if (binding.checkboxvaluedataprovider != null)
 				{
@@ -289,21 +281,12 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 					}
 					recordData.put("checked", checkboxValue);
 				}
-				if (binding.callbackinfoparamdataprovider != null)
+				if (binding.dataproviders != null)
 				{
-					recordData.put("callbackinfoParamValue", record.getValue(binding.callbackinfoparamdataprovider));
-				}
-				if (binding.checkboxChangeparamdataprovider != null)
-				{
-					recordData.put("methodToCallOnCheckBoxChangeParamValue", record.getValue(binding.checkboxChangeparamdataprovider));
-				}
-				if (binding.doubleclickparamdataprovider != null)
-				{
-					recordData.put("methodToCallOnDoubleClickParamValue", record.getValue(binding.doubleclickparamdataprovider));
-				}
-				if (binding.rightclickparamdataprovider != null)
-				{
-					recordData.put("methodToCallOnRightClickParamValue", record.getValue(binding.rightclickparamdataprovider));
+					for (String propertyid : binding.dataproviders.keySet())
+					{
+						recordData.put(propertyid, record.getValue(binding.dataproviders.get(propertyid)));
+					}
 				}
 				newJavaValueForJSON.add(recordData);
 				ArrayList<IFoundSetInternal> relatedFoundsets = getRelatedFoundsets(binding, record, false);
@@ -402,14 +385,6 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 					relRecordData.put("name", relRecord.getValue(relatedBinding.textdataprovider));
 					relRecordData.put("datasource", relatedFoundset.getDataSource());
 					relRecordData.put("level", parentlevel + 1);
-					if (relatedBinding.imageurldataprovider != null)
-					{
-						relRecordData.put("image", relRecord.getValue(relatedBinding.imageurldataprovider));
-					}
-					if (relatedBinding.tooltiptextdataprovider != null)
-					{
-						relRecordData.put("tooltip", relRecord.getValue(relatedBinding.tooltiptextdataprovider));
-					}
 					boolean relhasCheckbox = false;
 					if (relatedBinding.checkboxvaluedataprovider != null)
 					{
@@ -438,21 +413,12 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 						}
 						relRecordData.put("checked", checkboxValue);
 					}
-					if (relatedBinding.callbackinfoparamdataprovider != null)
+					if (relatedBinding.dataproviders != null)
 					{
-						relRecordData.put("callbackinfoParamValue", relRecord.getValue(relatedBinding.callbackinfoparamdataprovider));
-					}
-					if (relatedBinding.checkboxChangeparamdataprovider != null)
-					{
-						relRecordData.put("methodToCallOnCheckBoxChangeParamValue", relRecord.getValue(relatedBinding.checkboxChangeparamdataprovider));
-					}
-					if (relatedBinding.doubleclickparamdataprovider != null)
-					{
-						relRecordData.put("methodToCallOnDoubleClickParamValue", relRecord.getValue(relatedBinding.doubleclickparamdataprovider));
-					}
-					if (relatedBinding.rightclickparamdataprovider != null)
-					{
-						relRecordData.put("methodToCallOnRightClickParamValue", relRecord.getValue(relatedBinding.rightclickparamdataprovider));
+						for (String propertyid : relatedBinding.dataproviders.keySet())
+						{
+							relRecordData.put(propertyid, relRecord.getValue(relatedBinding.dataproviders.get(propertyid)));
+						}
 					}
 					relRecordData.put("hasChildren", false);
 					if (this.selectionPath != null && this.selectionPath.length == parentlevel + 1 &&
@@ -559,7 +525,11 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 
 	private boolean addNodeID(IFoundSetInternal foundset, List<String> nodeids, Object[] pkarray, int index)
 	{
-		IRecordInternal record = foundset.getRecord(new Object[] { pkarray[index] });
+		IRecordInternal record = null;
+		if (pkarray != null && index < pkarray.length)
+		{
+			record = foundset.getRecord(new Object[] { pkarray[index] });
+		}
 		if (record != null)
 		{
 			nodeids.add(foundset.getID() + "_" + record.getPKHashKey());
@@ -692,18 +662,13 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 	{
 		public String textdataprovider;
 		public Map<String, String> relationInfos = new HashMap<String, String>();
+		public Map<String, String> dataproviders = new HashMap<String, String>();
 		public String hascheckboxdataprovider;
 		public String checkboxvaluedataprovider;
-		public String tooltiptextdataprovider;
-		public String imageurldataprovider;
 		public String childsortdataprovider;
 		public Object[] hasCheckboxValue;
 		public Object[] checkboxValues;
 		public boolean checkboxAutoselectsChildren = true;
-		public String callbackinfoparamdataprovider = null;
-		public String checkboxChangeparamdataprovider = null;
-		public String doubleclickparamdataprovider = null;
-		public String rightclickparamdataprovider = null;
 		// a cache for all foundsets loaded via this binding
 		public ArrayList<IFoundSetInternal> foundsets = new ArrayList<IFoundSetInternal>();
 

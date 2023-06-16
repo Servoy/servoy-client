@@ -121,6 +121,7 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	 *
 	 * @sampleas js_getSequenceType()
 	 */
+	@Deprecated
 	public static final int SERVOY_SEQUENCE = ColumnInfo.SERVOY_SEQUENCE + 1; // added 1 to prevent clash with NONE
 	/**
 	 * @sameas SERVOY_SEQUENCE

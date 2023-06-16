@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.services.client.TypesRegistryService;
@@ -58,6 +60,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -319,6 +322,10 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 								: new String[] { args.getSolutionName(), args.getMethodName() },
 							args);
 
+						if (args.get("id_token") != null)
+						{
+							setUserId();
+						}
 						client.loadSolution(solutionName);
 
 						client.showInfoPanel();
@@ -329,6 +336,31 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						Debug.error("Failed to load the solution: " + solutionName, e);
 						sendInternalError(e);
 					}
+				}
+
+				public void setUserId()
+				{
+					String[] chunks = ((String)args.get("id_token")).split("\\.");
+					Base64.Decoder decoder = Base64.getUrlDecoder();
+					String payload = new String(decoder.decode(chunks[1]));
+					JSONObject token = new JSONObject(payload);
+					String userID = token.getString("uid");
+
+					ClientInfo ci = client.getClientInfo();
+					ci.setUserUid(userID);
+					ci.setUserName(token.getString("user"));
+					if (token.has("groups"))
+					{
+						JSONArray groups = token.getJSONArray("groups");
+						String[] gr = new String[groups.length()];
+						for (int i = 0; i < groups.length(); i++)
+						{
+							gr[i] = groups.getString(i);
+						}
+						ci.setUserGroups(gr);
+					}
+					//remove the token from the url
+					getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("replaceUrlState", null);
 				}
 			});
 		}
@@ -545,13 +577,15 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	 */
 	public static void sendInternalError(Throwable e)
 	{
-		if (CurrentWindow.get().getEndpoint().hasSession())
+		if (CurrentWindow.exists() && CurrentWindow.get().getEndpoint().hasSession())
 		{
-			Map<String, Object> internalError = new HashMap<>();
-			StringWriter sw = new StringWriter();
-			e.printStackTrace(new PrintWriter(sw));
-			String stackTrace = sw.toString();
-			if (ApplicationServerRegistry.get().isDeveloperStartup()) internalError.put("stack", stackTrace);
+			Map<String, String> internalError = new HashMap<>();
+			if (ApplicationServerRegistry.get().isDeveloperStartup())
+			{
+				StringWriter stackTrace = new StringWriter();
+				e.printStackTrace(new PrintWriter(stackTrace));
+				internalError.put("stack", stackTrace.toString());
+			}
 			String htmlView = Settings.getInstance().getProperty("servoy.webclient.error.page");
 			if (htmlView != null) internalError.put("viewUrl", htmlView);
 			CurrentWindow.get().getSession().getClientService("$sessionService").executeAsyncServiceCall("setInternalServerError",
