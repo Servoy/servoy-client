@@ -20,6 +20,7 @@ import static com.servoy.j2db.dataprocessing.SQLGenerator.convertPKValuesForQuer
 import static com.servoy.j2db.util.Utils.equalObjects;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.reverse;
 import static java.util.Collections.synchronizedList;
 import static java.util.stream.Collectors.groupingBy;
@@ -66,6 +67,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryDelete;
@@ -385,6 +387,7 @@ public class EditRecordList
 	{
 		// RAGTEST voer delete uit
 		// RAGTEST check voor foundset event PROPERTY_ONDELETEMETHODID PROPERTY_ONAFTERDELETEMETHODID
+		// RAGTEST get en verwijder delete queries voor foundsets (foundset = null, dan alle)
 		if (recursionDepth > 50)
 		{
 			fsm.getApplication().reportJSError(
@@ -689,13 +692,20 @@ public class EditRecordList
 					}
 					editedRecords.remove(tmp);
 				}
+
+
+				// Perform Foundset deletes
+
+				Map<ITable, List<QueryDelete>> deleteQueries = editedRecords.getDeleteQueries(foundset);
+
+
 			}
 			finally
 			{
 				editRecordsLock.unlock();
 			}
 
-			setDeletedrecordsIntenalTableFilter(false);
+			setDeletedrecordsInternalTableFilter(false);
 
 			if (failedCount > 0)
 			{
@@ -1418,6 +1428,20 @@ public class EditRecordList
 		}
 	}
 
+
+	public void removeDeleteQuery(QueryDelete deleteQuery)
+	{
+		editRecordsLock.lock();
+		try
+		{
+			editedRecords.removeDeleteQuery(deleteQuery);
+		}
+		finally
+		{
+			editRecordsLock.unlock();
+		}
+	}
+
 	void removeEditedRecords(FoundSet set)
 	{
 		IRecordInternal[] editedRecordsArray = null;
@@ -1597,7 +1621,7 @@ public class EditRecordList
 					editRecordsLock.unlock();
 				}
 
-				setDeletedrecordsIntenalTableFilter(false);
+				setDeletedrecordsInternalTableFilter(false);
 
 				if (fireChange)
 				{
@@ -1622,70 +1646,83 @@ public class EditRecordList
 			editRecordsLock.unlock();
 		}
 
-		setDeletedrecordsIntenalTableFilter(false);
+		setDeletedrecordsInternalTableFilter(false);
 	}
 
-	private void setDeletedrecordsIntenalTableFilter(boolean fire)
+	private void setDeletedrecordsInternalTableFilter(boolean fire)
 	{
-		try
-		{
-			// get the servers that have a filter now
-			Set<String> serverNames = fsm.getTableFilters(DELETED_RECORDS_FILTER).stream().map(TableFilter::getServerName).collect(toSet());
+		// get the servers that have a filter now
+		Set<String> serverNames = fsm.getTableFilters(DELETED_RECORDS_FILTER).stream().map(TableFilter::getServerName).collect(toSet());
 
-			// add the servers with deleted records
-			Map<String, List<IRecordInternal>> groupedByServer = stream(editedRecords.getDeleted()).collect(groupingBy(
-				deletedRecord -> deletedRecord.getParentFoundSet().getTable().getServerName()));
-			serverNames.addAll(groupedByServer.keySet());
+		// add the servers with deleted records
+		Map<String, List<IRecordInternal>> deletedRecordsPerServername = stream(editedRecords.getDeleted()).collect(groupingBy(
+			deletedRecord -> deletedRecord.getParentFoundSet().getTable().getServerName()));
+		serverNames.addAll(deletedRecordsPerServername.keySet());
 
-			// add the servers with deleted foundsets
-			Map<String, List<IRecordInternal>> groupedByServer = stream(editedRecords.getDeleted()).collect(groupingBy(
-				deletedRecord -> deletedRecord.getParentFoundSet().getTable().getServerName()));
-			serverNames.addAll(groupedByServer.keySet());
+		// add the servers with deleted queries
+		Map<String, List<Entry<ITable, List<QueryDelete>>>> deleteQueriesPerServername = editedRecords.getDeleteQueries().entrySet().stream()
+			.collect(groupingBy(entry -> entry.getKey().getServerName()));
+		serverNames.addAll(deleteQueriesPerServername.keySet());
 
-
-			serverNames.forEach(serverName -> {
-				try
-				{
-
-
-					previousServersWithFilters.remove(serverName);
-
-					Map<ITable, List<IRecordInternal>> deletedPerTable = deletedPerServer.stream()
-						.collect(groupingBy(deletedRecord -> deletedRecord.getParentFoundSet().getTable()));
-
-					List<TableFilterRequest> tableFilterRequests = deletedPerTable.entrySet().stream().map(entry -> {
-						ITable table = entry.getKey();
-						List<IRecordInternal> records = entry.getValue();
-						QuerySelect select = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
-
-						QueryColumn[] pkColumns = table.getRowIdentColumns().stream().map(column -> column.queryColumn(select.getTable()))
-							.toArray(QueryColumn[]::new);
-						Object[][] pkValues = convertPKValuesForQueryCompare(records.stream().map(IRecordInternal::getPK).toArray(Object[][]::new),
-							pkColumns.length);
-
-						select.setCondition(SQLGenerator.CONDITION_DELETED, new SetCondition(IBaseSQLCondition.NOT_OPERATOR, pkColumns, pkValues, true));
-						return new TableFilterRequest(table, new QueryTableFilterdefinition(select), false);
-					}).collect(toList());
-
-
-					fsm.setTableFilters(DELETED_RECORDS_FILTER, serverName, tableFilterRequests, true, fire);
-				}
-				catch (RepositoryException e)
-				{
-					Debug.error(e);
-				}
-			});
-
-			// Remove filters after last record from server is no longer marked as deleted
-			for (String remainingServerWithFilters : previousServersWithFilters)
+		serverNames.forEach(serverName -> {
+			try
 			{
-				fsm.setTableFilters(DELETED_RECORDS_FILTER, remainingServerWithFilters, null, true, fire);
+				List<TableFilterRequest> tableFilterRequests = new ArrayList<>();
+				tableFilterRequests.addAll(getTableFilterRequestsDeletedRecords(deletedRecordsPerServername.get(serverName)));
+				tableFilterRequests.addAll(getTableFilterRequestsDeleteQueries(deleteQueriesPerServername.get(serverName)));
+
+				fsm.setTableFilters(DELETED_RECORDS_FILTER, serverName, tableFilterRequests, true, fire);
 			}
-		}
-		catch (RepositoryException e)
+			catch (RepositoryException e)
+			{
+				Debug.error(e);
+			}
+		});
+	}
+
+	private static List<TableFilterRequest> getTableFilterRequestsDeletedRecords(List<IRecordInternal> deletedRecords)
+	{
+		if (deletedRecords == null)
 		{
-			Debug.error(e);
+			return emptyList();
 		}
+
+		Map<ITable, List<IRecordInternal>> deletedPerTable = deletedRecords.stream()
+			.collect(groupingBy(deletedRecord -> deletedRecord.getParentFoundSet().getTable()));
+
+		return deletedPerTable.entrySet().stream().map(entry -> {
+			ITable table = entry.getKey();
+			List<IRecordInternal> records = entry.getValue();
+			QuerySelect select = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
+
+			QueryColumn[] pkColumns = table.getRowIdentColumns().stream().map(column -> column.queryColumn(select.getTable()))
+				.toArray(QueryColumn[]::new);
+			Object[][] pkValues = convertPKValuesForQueryCompare(records.stream().map(IRecordInternal::getPK).toArray(Object[][]::new),
+				pkColumns.length);
+
+			select.setCondition(SQLGenerator.CONDITION_DELETED, new SetCondition(IBaseSQLCondition.NOT_OPERATOR, pkColumns, pkValues, true));
+			return new TableFilterRequest(table, new QueryTableFilterdefinition(select), false);
+		}).collect(toList());
+	}
+
+	private static List<TableFilterRequest> getTableFilterRequestsDeleteQueries(List<Entry<ITable, List<QueryDelete>>> deleteQueriesPerTable)
+	{
+		if (deleteQueriesPerTable == null)
+		{
+			return emptyList();
+		}
+
+		return deleteQueriesPerTable.stream().map(entry -> {
+			ITable table = entry.getKey();
+			List<QueryDelete> deleteQueries = entry.getValue();
+
+			QuerySelect select = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
+			deleteQueries.stream()
+				.map(deleteQuery -> (ISQLCondition)deleteQuery.getCondition().deepClone().relinkTable(deleteQuery.getTable(), select.getTable()))
+				.forEach(condition -> select.addCondition(SQLGenerator.CONDITION_DELETED, condition.negate()));
+
+			return new TableFilterRequest(table, new QueryTableFilterdefinition(select), false);
+		}).collect(toList());
 	}
 
 	public void clearSecuritySettings()
@@ -1948,7 +1985,7 @@ public class EditRecordList
 				editRecordsLock.unlock();
 			}
 
-			setDeletedrecordsIntenalTableFilter(true);
+			setDeletedrecordsInternalTableFilter(true);
 			fireEditChange();
 		}
 	}

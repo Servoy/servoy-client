@@ -84,9 +84,16 @@ public class SetCondition extends BaseSetCondition<IQuerySelectValue> implements
 		int[] negop = new int[operators.length];
 		for (int i = 0; i < operators.length; i++)
 		{
-			negop[i] = OPERATOR_NEGATED[operators[i] & IBaseSQLCondition.OPERATOR_MASK] | (operators[i] & ~IBaseSQLCondition.OPERATOR_MASK);
+			int operator = operators[i] & IBaseSQLCondition.OPERATOR_MASK;
+			int negatedOperator = OPERATOR_NEGATED[operator];
+
+			int mask = operators[i] & ~IBaseSQLCondition.OPERATOR_MASK;
+			int negatedMask = mask ^ ORNULL_MODIFIER; // XOR
+
+			negop[i] = negatedOperator | negatedMask;
 		}
 		return new SetCondition(negop, keys, values, !andCondition);
+// RAGTEST  !andCondition 			return new SetCondition(negop, keys, values, andCondition);
 	}
 
 
@@ -219,7 +226,8 @@ public class SetCondition extends BaseSetCondition<IQuerySelectValue> implements
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
 		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(),
-			new Object[] { Integer.valueOf(2) /* version */, operators, ReplacedObject.convertArray(keys, Object.class), values, Boolean.valueOf(andCondition) });
+			new Object[] { Integer.valueOf(2) /* version */, operators, ReplacedObject.convertArray(keys, Object.class), values, Boolean
+				.valueOf(andCondition) });
 		// Version 1: new Object[] { operators, ReplacedObject.convertArray(keys, Object.class), values, Boolean.valueOf(andCondition) }
 	}
 

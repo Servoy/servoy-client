@@ -18,12 +18,17 @@
 package com.servoy.j2db.dataprocessing;
 
 import static java.util.Collections.synchronizedList;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.query.QueryDelete;
 
 /**
@@ -90,6 +95,31 @@ public class EditedRecords
 //			}
 //		}
 //	}
+
+	/**
+	 * Get the delete queries grouped per table.
+	 */
+	public Map<ITable, List<QueryDelete>> getDeleteQueries()
+	{
+		return getDeleteQueries(null);
+	}
+
+	/**
+	 * Get the delete queries grouped per table for a foundset (or all if null).
+	 */
+	public Map<ITable, List<QueryDelete>> getDeleteQueries(IFoundSet foundset)
+	{
+		return deleteQueries.stream()
+			.filter(dq -> foundset == null || foundset == dq.foundSet)
+			.collect(
+				groupingBy(dq -> dq.foundSet.getTable(),
+					mapping(dq -> dq.queryDelete, toList())));
+	}
+
+	public void removeDeleteQuery(QueryDelete queryDelete)
+	{
+		deleteQueries.removeIf(dq -> dq.queryDelete == queryDelete);
+	}
 
 	public int size()
 	{
@@ -171,10 +201,10 @@ public class EditedRecords
 
 	private static class DeletingFoundset
 	{
-		final IFoundSet foundSet;
+		final IFoundSetInternal foundSet;
 		final QueryDelete queryDelete;
 
-		DeletingFoundset(IFoundSet foundSet, QueryDelete queryDelete)
+		DeletingFoundset(IFoundSetInternal foundSet, QueryDelete queryDelete)
 		{
 			this.foundSet = foundSet;
 			this.queryDelete = queryDelete;

@@ -4453,7 +4453,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				if ((element.getDeleteRelatedRecords() || !element.getAllowParentDeleteWhenHavingRelatedRecords()) && !element.isGlobal())
 				{
 					Debug.trace("Foundset deleted per-record because relation '" + element.getName() + "' requires some checks"); //$NON-NLS-1$ //$NON-NLS-2$
-					hasRelationsWithDelete = true;
+					//RAGTEST				hasRelationsWithDelete = true;
 					break;
 				}
 			}
@@ -4482,6 +4482,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				// RAGTEST verschil als fs wel/niet fully loaded is ?
 				// RAGTEST geef pks/records mee om te verwijderen uit editing list
 				getFoundSetManager().getEditRecordList().addDeleteQuery(this, delete_sql);
+				removeAllRecords();
 				getFoundSetManager().getEditRecordList().stopEditing(false, this);
 
 				// RAGTEST
@@ -4549,6 +4550,30 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		{
 			int correctedSize = getCorrectedSizeForFires();
 			if (correctedSize > -1) fireFoundSetEvent(0, correctedSize, FoundSetEvent.CHANGE_DELETE);
+		}
+	}
+
+	private void removeAllRecords()
+	{
+		EditRecordList editRecordList = getFoundSetManager().getEditRecordList();
+
+		int size = getSize();
+		if (size > 0)
+		{
+			pksAndRecords.setPks(null, 0);
+			setSelectedIndex(-1);
+
+			fireFoundSetEvent(0, size, FoundSetEvent.CHANGE_DELETE);
+
+			if (aggregateCache.size() > 0)
+			{
+				fireAggregateChangeWithEvents(null);
+			}
+			else
+			{
+				walkParents(editRecordList.getFoundsetEventMap());
+				editRecordList.fireEvents();
+			}
 		}
 	}
 

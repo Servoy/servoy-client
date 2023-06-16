@@ -1323,7 +1323,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		List<TableFilter> newParams = null;
 		if (tableFilterRequests != null)
 		{
-			newParams = new ArrayList<TableFilter>(tableFilterRequests.size());
+			newParams = new ArrayList<>(tableFilterRequests.size());
 			for (TableFilterRequest tableFilterRequest : tableFilterRequests)
 			{
 				String tableName = tableFilterRequest.table == null ? null : tableFilterRequest.table.getName();

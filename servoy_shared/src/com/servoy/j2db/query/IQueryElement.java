@@ -16,10 +16,11 @@
  */
 package com.servoy.j2db.query;
 
+import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseQueryElement;
 import com.servoy.j2db.util.serialize.IWriteReplace;
 import com.servoy.j2db.util.visitor.IVisitable;
-
+import com.servoy.j2db.util.visitor.ReplaceVisitor;
 
 /**
  * Common interface for all elements in the query structure.
@@ -29,4 +30,20 @@ import com.servoy.j2db.util.visitor.IVisitable;
  */
 public interface IQueryElement extends IBaseQueryElement, ISQLCloneable, IWriteReplace, IVisitable
 {
+	/**
+	 * Replace references to orgTable with newTable.
+	 */
+	default <T extends IQueryElement> T relinkTable(BaseQueryTable orgTable, BaseQueryTable newTable)
+	{
+		return (T)AbstractBaseQuery.acceptVisitor(this, new ReplaceVisitor(orgTable, newTable, true));
+	}
+
+	/**
+	 * Create a clone that can be modified without modifying the original
+	 */
+	default <T extends IQueryElement> T deepClone()
+	{
+		return (T)AbstractBaseQuery.deepClone(this);
+	}
+
 }

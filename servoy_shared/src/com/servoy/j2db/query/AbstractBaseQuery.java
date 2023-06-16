@@ -212,20 +212,6 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 		return AbstractBaseQuery.acceptVisitor(o, new ReplaceVisitor(orgTable, newTable, true));
 	}
 
-	/**
-	 * Replace references to orgTable with newTable.
-	 *
-	 * @param orgTable
-	 * @param newTable
-	 */
-	public boolean relinkTable(BaseQueryTable orgTable, BaseQueryTable newTable)
-	{
-		ReplaceVisitor replaceVisitor = new ReplaceVisitor(orgTable, newTable, true);
-		acceptVisitor(replaceVisitor);
-		return replaceVisitor.found();
-	}
-
-
 	public Placeholder getPlaceholder(TablePlaceholderKey key)
 	{
 		return getPlaceholder(this, key);
