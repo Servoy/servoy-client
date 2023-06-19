@@ -436,6 +436,9 @@ public class FormLayoutGenerator
 				writer.print(" svy-types='");
 				writer.print("[" + String.join(",", typeAndPropertyNames[0]) + "]");
 				writer.print("'");
+				writer.print(" svy-types-properties='");
+				writer.print("[" + String.join(",", typeAndPropertyNames[1]) + "]");
+				writer.print("'");
 			}
 			String directEditPropertyName = getDirectEditProperty(fe);
 			if (directEditPropertyName != null)
