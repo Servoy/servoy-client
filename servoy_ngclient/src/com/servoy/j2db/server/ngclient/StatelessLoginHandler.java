@@ -91,7 +91,7 @@ public class StatelessLoginHandler
 				if (!needToLogin.getLeft()) return needToLogin;
 			}
 
-			String id_token = request.getParameter(ID_TOKEN);
+			String id_token = request.getParameter(ID_TOKEN) != null ? request.getParameter(ID_TOKEN) : (String)request.getSession().getAttribute(ID_TOKEN);
 			Cookie idCookie = null;
 			if (id_token == null)
 			{
