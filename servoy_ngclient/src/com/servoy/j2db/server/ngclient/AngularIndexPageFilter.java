@@ -89,14 +89,9 @@ public class AngularIndexPageFilter implements Filter
 					StatelessLoginHandler.writeLoginPage(request, response, solutionName);
 					return;
 				}
-				if (showLogin.getRight() != null && request.getParameter("id_token") != null)
+				if (showLogin.getRight() != null)
 				{
-					StringBuilder url = new StringBuilder(requestURI.subSequence(0, requestURI.indexOf(SOLUTIONS_PATH)) + SOLUTIONS_PATH);
-					url.append(solutionName);
-					url.append("/index.html?id_token=");
-					url.append(showLogin.getRight());
-					((HttpServletResponse)servletResponse).sendRedirect(url.toString());
-					return;
+					((HttpServletRequest)servletRequest).getSession().setAttribute("id_token", showLogin.getRight());
 				}
 			}
 			catch (Exception e)
