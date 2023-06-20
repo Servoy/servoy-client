@@ -13,7 +13,7 @@
 		"containedForm": {"type":"formcomponent", "forFoundset":"foundset", "tags": { "wizard": "autoshow"}},
 		"pageLayout" : {"type" : "string" , "values" : ["cardview","listview"] , "initialValue" : "cardview" },
 		"responsivePageSize": { "type": "int", "tags": {"doc" : "This property sets the number of cells this component will generate when the this component is placed in a responsive form, ignored in absolute"}},
-		"responsiveHeight": { "type": "int", "default": 300, "tags": {"doc" : "This property sets the height of the listformcomponent when using scrolling mode in a responisive form."}},
+		"responsiveHeight": { "type": "int", "default": 300, "tags": {"doc" : "This property sets the height of the listformcomponent when using scrolling mode in a responisive form. Adding a listformcomponent in a flex-content layout and setting responsiveHeight property to 0, let the listformcomponent grow up to 100% height of parent element (see more on flex-layout here: https://github.com/Servoy/12grid/wiki/Flexbox-Layout ). Used with other containers than flex-content layout in order to grow the listformcomponent to 100% height, the parent element must have a known height."}},
 		"styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "default": "svy-listformcomponent" },
 		"rowStyleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }},
 		"rowStyleClassDataprovider": { "type": "dataprovider", "forFoundset": "foundset" },
