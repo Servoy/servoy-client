@@ -79,7 +79,8 @@ public class AngularIndexPageFilter implements Filter
 		HttpServletResponse response = (HttpServletResponse)servletResponse;
 		String requestURI = request.getRequestURI();
 		String solutionName = getSolutionNameFromURI(requestURI);
-		if ("GET".equalsIgnoreCase(request.getMethod()) && solutionName != null)
+		if (("GET".equalsIgnoreCase(request.getMethod()) || "POST".equalsIgnoreCase(request.getMethod()) && request.getParameter("user") != null) &&
+			solutionName != null)
 		{
 
 			if ((requestURI.endsWith("/") || requestURI.endsWith("/" + solutionName) || requestURI.toLowerCase().endsWith("/index.html")))
@@ -107,7 +108,7 @@ public class AngularIndexPageFilter implements Filter
 					}
 					if (showLogin.getRight() != null)
 					{
-						session.setAttribute("id_token", showLogin.getRight());
+						session.setAttribute(StatelessLoginHandler.ID_TOKEN, showLogin.getRight());
 					}
 				}
 				catch (Exception e)
