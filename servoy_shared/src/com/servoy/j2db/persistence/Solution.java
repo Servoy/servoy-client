@@ -23,13 +23,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.util.DataSourceUtilsBase;
@@ -53,7 +53,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	// iterating & changing this map's contents will happen in synchronize blocks (the easier way would
 	// be using the ConcurrentHashMap as before, but a bug in Terracotta does not allow ConcurrentHashMaps to be serialized/deserialized); when the bug is solved
 	// sync blocks can be reverted to using ConcurrentHashMap. See http://jira.terracotta.org/jira/browse/CDV-1377
-	public static final SerializableRuntimeProperty<HashMap<String, Style>> PRE_LOADED_STYLES = new SerializableRuntimeProperty<HashMap<String, Style>>()
+	public static final SerializableRuntimeProperty<ConcurrentHashMap<String, Style>> PRE_LOADED_STYLES = new SerializableRuntimeProperty<ConcurrentHashMap<String, Style>>()
 	{
 		private static final long serialVersionUID = 1L;
 	};
@@ -885,7 +885,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 
 	/*------------------------------------------------------------------------------------------------------------------------
 	 * LISTENERS
-	
+
 	public void iPersistChanged(IPersist persist)
 	{
 		getChangeHandler().fireIPersistChanged(persist);
@@ -1030,10 +1030,8 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	public Map<String, Solution> getReferencedModulesRecursive(Map<String, Solution> result) throws RepositoryException
 	{
 		List<RootObjectReference> referencedModules = getReferencedModules(null);
-		Iterator<RootObjectReference> iterator = referencedModules.iterator();
-		while (iterator.hasNext())
+		for (RootObjectReference moduleReference : referencedModules)
 		{
-			RootObjectReference moduleReference = iterator.next();
 			RootObjectMetaData metaData = moduleReference.getMetaData();
 			if (metaData != null)
 			{
