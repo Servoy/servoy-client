@@ -95,7 +95,7 @@ public class AngularIndexPageFilter implements Filter
 				{
 					return;
 				}
-				request.getSession();
+				HttpSession session = request.getSession();
 
 				try
 				{
@@ -107,7 +107,7 @@ public class AngularIndexPageFilter implements Filter
 					}
 					if (showLogin.getRight() != null)
 					{
-						((HttpServletRequest)servletRequest).getSession().setAttribute("id_token", showLogin.getRight());
+						session.setAttribute("id_token", showLogin.getRight());
 					}
 				}
 				catch (Exception e)
