@@ -152,7 +152,7 @@ public class StatelessLoginHandler
 
 	private static Cookie getCookie(HttpServletRequest request, String name)
 	{
-		return Arrays.stream(request.getCookies()).filter(c -> c.getName().equals(name)).findAny().orElse(null);
+		return request.getCookies() != null ? Arrays.stream(request.getCookies()).filter(c -> c.getName().equals(name)).findAny().orElse(null) : null;
 	}
 
 	private static void checkUser(ServletRequest servletRequest, ServletResponse servletResponse, String user, String password,
