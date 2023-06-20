@@ -51,7 +51,7 @@ import com.servoy.j2db.util.Settings;
  */
 public class StatelessLoginHandler
 {
-	private static final String ID_TOKEN = "id_token";
+	public static final String ID_TOKEN = "id_token";
 	private static final String GROUPS = "groups";
 	private static final String USER = "user";
 	private static final String UID = "uid";
