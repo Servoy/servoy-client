@@ -61,7 +61,7 @@ public class RuntimeRepository implements IRepository
 			if (name == null) name = solutionName;
 			return solutionAndmodules.get(name);
 		}
-		if (type == IRepository.STYLES)
+		if (type == IRepository.STYLES && name != null)
 		{
 			for (Solution m : solutionAndmodules.values())
 			{
