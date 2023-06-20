@@ -581,6 +581,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public Style createStyle(String name, String content)
 	{
+		if (name == null) return null;
 		if (mainSolution == null)
 		{
 			if (loginFlattenedSolution == null)
@@ -1962,6 +1963,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public void removeStyle(String name)
 	{
+		if (name == null) return;
 		if (user_created_styles != null && user_created_styles.containsKey(name))
 		{
 			Style style = user_created_styles.remove(name);
@@ -1975,6 +1977,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public synchronized Style getStyle(String name)
 	{
+		if (name == null) return null;
+
 		if (user_created_styles != null)
 		{
 			Style style = user_created_styles.get(name);
