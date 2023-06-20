@@ -79,33 +79,11 @@ public class AngularIndexPageFilter implements Filter
 		HttpServletResponse response = (HttpServletResponse)servletResponse;
 		String requestURI = request.getRequestURI();
 		String solutionName = getSolutionNameFromURI(requestURI);
-		if (solutionName != null)
-		{
-			try
-			{
-				Pair<Boolean, String> showLogin = StatelessLoginHandler.mustAuthenticate(request, response, solutionName);
-				if (showLogin.getLeft().booleanValue())
-				{
-					StatelessLoginHandler.writeLoginPage(request, response, solutionName);
-					return;
-				}
-				if (showLogin.getRight() != null)
-				{
-					((HttpServletRequest)servletRequest).getSession().setAttribute("id_token", showLogin.getRight());
-				}
-			}
-			catch (Exception e)
-			{
-				Debug.error(e.getMessage());
-				return;
-			}
-		}
 		if ("GET".equalsIgnoreCase(request.getMethod()) && solutionName != null)
 		{
 
 			if ((requestURI.endsWith("/") || requestURI.endsWith("/" + solutionName) || requestURI.toLowerCase().endsWith("/index.html")))
 			{
-
 				String clientnr = AngularIndexPageWriter.getClientNr(requestURI, request);
 				INGClientWebsocketSession wsSession = null;
 				HttpSession httpSession = request.getSession(false);
@@ -118,6 +96,25 @@ public class AngularIndexPageFilter implements Filter
 					return;
 				}
 				request.getSession();
+
+				try
+				{
+					Pair<Boolean, String> showLogin = StatelessLoginHandler.mustAuthenticate(request, response, solutionName);
+					if (showLogin.getLeft().booleanValue())
+					{
+						StatelessLoginHandler.writeLoginPage(request, response, solutionName);
+						return;
+					}
+					if (showLogin.getRight() != null)
+					{
+						((HttpServletRequest)servletRequest).getSession().setAttribute("id_token", showLogin.getRight());
+					}
+				}
+				catch (Exception e)
+				{
+					Debug.error(e.getMessage());
+					return;
+				}
 
 				ContentSecurityPolicyConfig contentSecurityPolicyConfig = addcontentSecurityPolicyHeader(request, response, false); // for NG2 remove the unsafe-eval
 				if (this.indexPage != null) AngularIndexPageWriter.writeIndexPage(this.indexPage, request, response, solutionName,
