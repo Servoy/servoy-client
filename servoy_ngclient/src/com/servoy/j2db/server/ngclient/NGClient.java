@@ -27,6 +27,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.servlet.http.HttpSession;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
@@ -1591,6 +1593,11 @@ public class NGClient extends AbstractApplication
 
 			if (doLogoutAndClearUserInfo)
 			{
+				HttpSession httpSession = getWebsocketSession().getHttpSession();
+				if (httpSession != null)
+				{
+					httpSession.removeAttribute(StatelessLoginHandler.ID_TOKEN);
+				}
 				if (getApplicationServerAccess() != null && getClientID() != null)
 				{
 					try
