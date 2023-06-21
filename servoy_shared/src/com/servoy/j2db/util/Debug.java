@@ -138,7 +138,7 @@ public class Debug
 	}
 
 	@SuppressWarnings("nls")
-	private static boolean insertClientInfo(boolean insert)
+	public static boolean insertClientInfo(boolean insert)
 	{
 		IServiceProvider serviceProvider = J2DBGlobals.getServiceProvider();
 		if (insert && serviceProvider != null)
