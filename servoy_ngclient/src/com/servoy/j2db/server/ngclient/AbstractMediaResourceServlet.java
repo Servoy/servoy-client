@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient;
 
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,8 +40,10 @@ import org.sablo.websocket.WebsocketSessionManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.scripting.JSMap;
 import com.servoy.j2db.scripting.JSUpload;
+import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.ngclient.property.ComponentTypeConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
@@ -165,7 +168,15 @@ public abstract class AbstractMediaResourceServlet extends HttpServlet
 						{
 							try
 							{
-								webComponent.executeEvent(propertyName, new Object[] { new JSUpload(item, fieldsMap) });
+								JSEvent event = new JSEvent();
+								event.setElementName(elementName);
+								event.setFormName(formName);
+								event.setName("file-upload");
+								event.setModifiers(0);
+								event.setSource(new RuntimeWebComponent(webComponent, webComponent.getSpecification()));
+								event.setTimestamp(new Date());
+								event.setType("file-upload");
+								webComponent.executeEvent(propertyName, new Object[] { new JSUpload(item, fieldsMap), event });
 							}
 							catch (Exception e)
 							{
