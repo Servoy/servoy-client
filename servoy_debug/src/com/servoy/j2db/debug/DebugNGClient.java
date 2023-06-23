@@ -221,10 +221,11 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	@Override
 	public void output(Object msg, int level)
 	{
-		super.output(msg, level);
 		if (level == ILogLevel.WARNING || level == ILogLevel.ERROR || level == ILogLevel.FATAL)
 		{
-			errorToDebugger(msg.toString(), null);
+			Runnable runable = () -> DebugUtils.errorToDebugger(getScriptEngine(), msg.toString(), null);
+			if (isEventDispatchThread()) runable.run();
+			else invokeLater(runable);
 		}
 		else
 		{
