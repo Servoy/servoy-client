@@ -27,12 +27,16 @@ import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
+import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.FormElementContext;
+import com.servoy.j2db.server.ngclient.INGApplication;
+import com.servoy.j2db.server.ngclient.property.BrowserFunction;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.util.Debug;
@@ -45,7 +49,8 @@ import com.servoy.j2db.util.serialize.JSONConverter;
  *
  */
 public class MapPropertyType extends DefaultPropertyType<JSONObject>
-	implements IConvertedPropertyType<JSONObject>, IFormElementToTemplateJSON<JSONObject, JSONObject>, IRhinoToSabloComponent<JSONObject>, IRhinoDesignConverter
+	implements IConvertedPropertyType<JSONObject>, IFormElementToTemplateJSON<JSONObject, JSONObject>, IRhinoToSabloComponent<JSONObject>,
+	IRhinoDesignConverter, IPropertyWithClientSideConversions<JSONObject>
 {
 
 	public static final MapPropertyType INSTANCE = new MapPropertyType();
@@ -136,6 +141,22 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 
 				v = Text.processTags((String)v, null);
 			}
+			else if (v instanceof BrowserFunction bf)
+			{
+				// this is a copy of what is in the class DynamicClientFunctionPropertyType.toJSON
+				INGApplication application = bf.getApplication();
+				if (application.getRuntimeProperties().containsKey("NG2")) //$NON-NLS-1$
+				{
+					JSONObject object = new JSONObject();
+					object.put(JSONUtils.VALUE_KEY, application.registerClientFunction(bf.getFunctionString()));
+					object.put(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY, DynamicClientFunctionPropertyType.CLIENT_SIDE_TYPE_NAME);
+					v = object;
+				}
+				else
+				{
+					v = bf.getFunctionString();
+				}
+			}
 			fixedJSONObject.put(jsonKey, v);
 		}
 		return fixedJSONObject;
@@ -203,5 +224,13 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 			Context.exit();
 		}
 		return frmJSONValue;
+	}
+
+	@Override
+	public boolean writeClientSideTypeName(JSONWriter w, String keyToAddTo, PropertyDescription pd)
+	{
+		JSONUtils.addKeyIfPresent(w, keyToAddTo);
+		w.value(TYPE_NAME);
+		return true;
 	}
 }
