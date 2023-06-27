@@ -19,7 +19,9 @@ package com.servoy.j2db.server.ngclient;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeoutException;
@@ -63,6 +65,9 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	private String formName;
 	private Integer navigatorID = null;
 
+	final List<NGRuntimeWindow> children = new ArrayList<>();
+
+
 	/**
 	 * @param application
 	 * @param windowName
@@ -73,6 +78,10 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	{
 		super(application, windowName, windowType, parentWindow);
 		this.history = new History(application, this);
+		if (parentWindow instanceof NGRuntimeWindow ngRW)
+		{
+			ngRW.children.add(this);
+		}
 	}
 
 	@Override
@@ -554,6 +563,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 							IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT, clientID, getApplication().getSolutionName())
 						: null;
 				}
+				String previousModalWindow = getApplication().getRuntimeWindowManager().setModalWindowName(getName());
 				try
 				{
 					getApplication().getWebsocketSession()
@@ -563,6 +573,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				}
 				finally
 				{
+					getApplication().getRuntimeWindowManager().setModalWindowName(previousModalWindow);
 					if (perfId != null) performanceData.endSubAction(perfId, clientID);
 				}
 
@@ -678,13 +689,19 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	@Override
 	public void destroy()
 	{
+		// this shouldn't be true, the window.destroy() should already have called hide() and returned false when it was not allowed to hide.
+		if (visible && !hide()) return;
 		super.destroy();
-		if (visible) hideUI();
 
 		IWebFormController controller = getController();
 		if (controller != null && controller.getFormUI().getParentWindowName() == getName())
 		{
 			controller.getFormUI().setParentWindowName(null);
+		}
+
+		if (this.initialParentWindow instanceof NGRuntimeWindow ngRW)
+		{
+			ngRW.children.remove(this);
 		}
 
 		getApplication().getWebsocketSession()
