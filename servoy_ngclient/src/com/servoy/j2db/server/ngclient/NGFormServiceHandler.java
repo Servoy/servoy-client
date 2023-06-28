@@ -242,15 +242,7 @@ public class NGFormServiceHandler extends FormServiceHandler
 							// else this form can only be allowed for the "null" component
 							relationName = NGClientWindow.getCurrentWindow().isVisibleAllowed(formName, args.optString("relation", null), null);
 						}
-					}
-					ok = controller.notifyVisible(isVisible, invokeLaterRunnables);
-					if (ok && parentForm != null)
-					{
-						if (!isVisible && containerComponent != null)
-						{
-							containerComponent.updateVisibleForm(controller.getFormUI(), isVisible, args.optInt("formIndex"));
-						}
-						if (isVisible && relationName != null)
+						if (parentForm != null && relationName != null)
 						{
 							IFoundSetInternal parentFs = parentForm.getFormModel();
 							IRecordInternal selectedRecord = parentFs.getRecord(parentFs.getSelectedIndex());
@@ -283,7 +275,14 @@ public class NGFormServiceHandler extends FormServiceHandler
 
 							}
 						}
-
+					}
+					ok = controller.notifyVisible(isVisible, invokeLaterRunnables);
+					if (ok && parentForm != null)
+					{
+						if (!isVisible && containerComponent != null)
+						{
+							containerComponent.updateVisibleForm(controller.getFormUI(), isVisible, args.optInt("formIndex"));
+						}
 						if (isVisible)
 						{
 							// was shown
