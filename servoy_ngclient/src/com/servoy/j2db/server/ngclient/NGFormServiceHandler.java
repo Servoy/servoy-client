@@ -246,47 +246,46 @@ public class NGFormServiceHandler extends FormServiceHandler
 							relationName = NGClientWindow.getCurrentWindow().isVisibleAllowed(formName, args.optString("relation", null), null);
 						}
 					}
-					ok = controller.notifyVisible(isVisible, invokeLaterRunnables, true); // can only return false (deny) in case of hide; show is always allowed
+					if (parentForm != null && relationName != null)
+					{
+						IFoundSetInternal parentFs = parentForm.getFormModel();
+						IRecordInternal selectedRecord = parentFs.getRecord(parentFs.getSelectedIndex());
+						if (selectedRecord != null)
+						{
+							try
+							{
+								controller.loadRecords(selectedRecord.getRelatedFoundSet(relationName));
+							}
+							catch (RuntimeException re)
+							{
+								throw new RuntimeException("Can't load records on form " + controller.getName() + ", of parent record: " +
+									selectedRecord + " with relation " + relationName + " for parent form  " + parentForm + " and bean " +
+									containerComponent, re);
+							}
+						}
+						else
+						{
+							// no selected record, then use prototype so we can get global relations
+							try
+							{
+								controller.loadRecords(parentFs.getPrototypeState().getRelatedFoundSet(relationName));
+							}
+							catch (RuntimeException re)
+							{
+								throw new RuntimeException("Can't load records on form " + controller.getName() + ", of parent record: " +
+									selectedRecord + " with relation " + relationName + " for parent form  " + parentForm + " and bean " +
+									containerComponent, re);
+							}
+
+						}
+					}
+					ok = controller.notifyVisible(isVisible, invokeLaterRunnables, true);
 					if (ok && parentForm != null)
 					{
 						if (!isVisible && containerComponent != null)
 						{
 							containerComponent.updateVisibleForm(controller.getFormUI(), isVisible, args.optInt("formIndex"));
 						}
-						if (isVisible && relationName != null)
-						{
-							IFoundSetInternal parentFs = parentForm.getFormModel();
-							IRecordInternal selectedRecord = parentFs.getRecord(parentFs.getSelectedIndex());
-							if (selectedRecord != null)
-							{
-								try
-								{
-									controller.loadRecords(selectedRecord.getRelatedFoundSet(relationName));
-								}
-								catch (RuntimeException re)
-								{
-									throw new RuntimeException("Can't load records on form " + controller.getName() + ", of parent record: " +
-										selectedRecord + " with relation " + relationName + " for parent form  " + parentForm + " and bean " +
-										containerComponent, re);
-								}
-							}
-							else
-							{
-								// no selected record, then use prototype so we can get global relations
-								try
-								{
-									controller.loadRecords(parentFs.getPrototypeState().getRelatedFoundSet(relationName));
-								}
-								catch (RuntimeException re)
-								{
-									throw new RuntimeException("Can't load records on form " + controller.getName() + ", of parent record: " +
-										selectedRecord + " with relation " + relationName + " for parent form  " + parentForm + " and bean " +
-										containerComponent, re);
-								}
-
-							}
-						}
-
 						if (isVisible)
 						{
 							// was shown
