@@ -154,7 +154,7 @@ public class Debug
 					String username = serviceProvider.getUserName();
 					if (username != null) MDC.put("username", username);
 					String useruuid = serviceProvider.getUserUID();
-					if (useruuid != null) MDC.put("useruuid", username);
+					if (useruuid != null) MDC.put("useruuid", useruuid);
 					ClientInfo clientInfo = serviceProvider.getClientInfo();
 					if (clientInfo != null)
 					{
