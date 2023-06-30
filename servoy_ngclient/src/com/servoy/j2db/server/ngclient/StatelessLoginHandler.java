@@ -20,14 +20,10 @@ package com.servoy.j2db.server.ngclient;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Properties;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -51,15 +47,15 @@ import com.servoy.j2db.util.Settings;
  */
 public class StatelessLoginHandler
 {
-	private static final String ID_TOKEN = "id_token";
-	private static final String GROUPS = "groups";
-	private static final String USER = "user";
-	private static final String UID = "uid";
-	private static final String JWT_Password = "jwt";
+	public static final String ID_TOKEN = "id_token"; //$NON-NLS-1$
+	private static final String GROUPS = "groups"; //$NON-NLS-1$
+	private static final String USER = "user"; //$NON-NLS-1$
+	private static final String UID = "uid"; //$NON-NLS-1$
+	private static final String JWT_Password = "jwt"; //$NON-NLS-1$
 	private static final int TOKEN_AGE_IN_SECONDS = 24 * 3600;
 
 	@SuppressWarnings("boxing")
-	public static Pair<Boolean, String> mustAuthenticate(HttpServletRequest request, HttpServletResponse response, String solutionName)
+	public static Pair<Boolean, String> mustAuthenticate(HttpServletRequest request, String solutionName)
 		throws ServletException
 	{
 		Pair<Boolean, String> needToLogin = new Pair<>(Boolean.FALSE, null);
@@ -87,20 +83,11 @@ public class StatelessLoginHandler
 			String password = request.getParameter("password");
 			if (user != null && password != null)
 			{
-				checkUser(request, response, user, password, needToLogin);
+				checkUser(user, password, needToLogin);
 				if (!needToLogin.getLeft()) return needToLogin;
 			}
 
-			String id_token = request.getParameter(ID_TOKEN);
-			Cookie idCookie = null;
-			if (id_token == null)
-			{
-				idCookie = getCookie(request, ID_TOKEN);
-				if (idCookie != null)
-				{
-					id_token = idCookie.getValue();
-				}
-			}
+			String id_token = request.getParameter(ID_TOKEN) != null ? request.getParameter(ID_TOKEN) : (String)request.getSession().getAttribute(ID_TOKEN);
 			if (id_token != null)
 			{
 				Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
@@ -125,7 +112,7 @@ public class StatelessLoginHandler
 							String[] _groups = decodedJWT.getClaim(GROUPS).asArray(String.class);
 							try
 							{
-								id_token = createToken(request, response, _user, _uid, _groups, true);
+								id_token = createToken(_user, _uid, _groups);
 								needToLogin.setLeft(Boolean.FALSE);
 								needToLogin.setRight(id_token);
 								return needToLogin;
@@ -136,27 +123,13 @@ public class StatelessLoginHandler
 							}
 						}
 					}
-					else if (idCookie != null)
-					{
-						idCookie = new Cookie(ID_TOKEN, "");
-						idCookie.setMaxAge(0);
-						idCookie.setPath("/");
-						idCookie.setDomain(request.getServerName());
-						response.addCookie(idCookie);
-					}
 				}
 			}
 		}
 		return needToLogin;
 	}
 
-	private static Cookie getCookie(HttpServletRequest request, String name)
-	{
-		return Arrays.stream(request.getCookies()).filter(c -> c.getName().equals(name)).findAny().orElse(null);
-	}
-
-	private static void checkUser(ServletRequest servletRequest, ServletResponse servletResponse, String user, String password,
-		Pair<Boolean, String> needToLogin)
+	private static void checkUser(String user, String password, Pair<Boolean, String> needToLogin)
 	{
 		String uid;
 		uid = ApplicationServerRegistry.get().checkDefaultServoyAuthorisation(user, password);
@@ -172,7 +145,7 @@ public class StatelessLoginHandler
 				{
 					settings.put(JWT_Password, "pwd" + Math.random());
 				}
-				token = createToken(servletRequest, servletResponse, user, uid, groups, "on".equals(servletRequest.getParameter("remember")));
+				token = createToken(user, uid, groups);
 			}
 			catch (Exception e)
 			{
@@ -191,7 +164,7 @@ public class StatelessLoginHandler
 	}
 
 
-	public static String createToken(ServletRequest servletRequest, ServletResponse servletResponse, String user, String uid, String[] groups, boolean remember)
+	public static String createToken(String user, String uid, String[] groups)
 		throws Exception
 	{
 		String token;
@@ -204,14 +177,6 @@ public class StatelessLoginHandler
 			.withArrayClaim(GROUPS, groups)
 			.withExpiresAt(new Date(System.currentTimeMillis() + TOKEN_AGE_IN_SECONDS * 1000))
 			.sign(algorithm);
-		if (remember)
-		{
-			Cookie id_token = new Cookie(ID_TOKEN, token);
-			id_token.setMaxAge(TOKEN_AGE_IN_SECONDS);
-			id_token.setDomain(servletRequest.getServerName());
-			HttpServletResponse response = (HttpServletResponse)servletResponse;
-			response.addCookie(id_token);
-		}
 		return token;
 	}
 

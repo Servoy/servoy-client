@@ -448,8 +448,10 @@ public class JSWindow implements IConstantsObject
 	}
 
 	/**
-	 * Frees the resources allocated by this window. If window is visible, it will close it first.
+	 * Frees the resources allocated by this window. If window is visible, it will close it first by calling hide()
+	 * and if that fails because it couldn't be hidden it will return false.
 	 * The window will no longer be available with application.getWindow('windowName') and will no longer be usable.
+	 *
 	 *
 	 * The main application window cannot be destroyed.
 	 *
@@ -463,9 +465,14 @@ public class JSWindow implements IConstantsObject
 	 * 	application.output("Window could not be destroyed");
 	 * }
 	 */
-	public void js_destroy()
+	public boolean js_destroy()
 	{
+		if (impl.isVisible() && !impl.hide())
+		{
+			return false;
+		}
 		impl.destroy();
+		return true;
 	}
 
 	/**

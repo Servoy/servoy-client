@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import java.util.Map;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
@@ -27,12 +28,20 @@ import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
+import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.types.DefaultPropertyType;
+import org.sablo.specification.property.types.ObjectPropertyType;
+import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.util.ValueReference;
+import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.FormElementContext;
+import com.servoy.j2db.server.ngclient.IContextProvider;
+import com.servoy.j2db.server.ngclient.INGApplication;
+import com.servoy.j2db.server.ngclient.property.BrowserFunction;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.util.Debug;
@@ -45,9 +54,9 @@ import com.servoy.j2db.util.serialize.JSONConverter;
  *
  */
 public class MapPropertyType extends DefaultPropertyType<JSONObject>
-	implements IConvertedPropertyType<JSONObject>, IFormElementToTemplateJSON<JSONObject, JSONObject>, IRhinoToSabloComponent<JSONObject>, IRhinoDesignConverter
+	implements IConvertedPropertyType<JSONObject>, IFormElementToTemplateJSON<JSONObject, JSONObject>, IRhinoToSabloComponent<JSONObject>,
+	IRhinoDesignConverter, IPropertyWithClientSideConversions<JSONObject>, ISupportTemplateValue<JSONObject>, IDesignMapValueConverter
 {
-
 	public static final MapPropertyType INSTANCE = new MapPropertyType();
 	public static final String TYPE_NAME = "map"; //$NON-NLS-1$
 
@@ -77,9 +86,16 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 		if (sabloValue != null)
 		{
 			writer.key(key);
-			writer.value(fixJSONObjectValueTypesAndI18N(sabloValue));
+			writer.value(fixJSONObjectValueTypesAndI18N(sabloValue, (JSONObject)propertyDescription.getTag("value_types"), //$NON-NLS-1$
+				dataConverterContext.getWebObject() instanceof IContextProvider prov ? prov.getDataConverterContext().getApplication() : null));
 		}
 		return writer;
+	}
+
+	@Override
+	public boolean valueInTemplate(JSONObject object, PropertyDescription pd, FormElementContext formElementContext)
+	{
+		return true;
 	}
 
 	@Override
@@ -89,17 +105,42 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 		if (formElementValue != null)
 		{
 			writer.key(key);
-			writer.value(fixJSONObjectValueTypesAndI18N(formElementValue));
+			writer.value(fixJSONObjectValueTypesAndI18N(formElementValue, (JSONObject)pd.getTag("value_types"), //$NON-NLS-1$
+				formElementContext.getContext() != null ? formElementContext.getContext().getApplication() : null));
 		}
 		return writer;
 	}
 
-	private JSONObject fixJSONObjectValueTypesAndI18N(JSONObject jsonObject)
+	@SuppressWarnings("nls")
+	private JSONObject fixJSONObjectValueTypesAndI18N(JSONObject jsonObject, JSONObject types, INGApplication application)
 	{
 		JSONObject fixedJSONObject = new JSONObject();
 		for (String jsonKey : jsonObject.keySet())
 		{
 			Object v = jsonObject.get(jsonKey);
+			Object type = types != null ? types.opt(jsonKey) : null;
+			if (type != null)
+			{
+				JSONObject subTypes = null;
+				if (type instanceof JSONObject jo)
+				{
+					subTypes = jo.optJSONObject("value_types");
+					type = jo.optString("type", null);
+				}
+				if (type instanceof CharSequence)
+				{
+					IPropertyType< ? > pt = TypesRegistry.getType(type.toString());
+					if (pt instanceof IDesignMapValueConverter mapValueConvertor)
+					{
+						if (application == null)
+						{
+							// this is a template thing just skip this value for now
+							continue;
+						}
+						v = mapValueConvertor.createJSONValue(v, application, subTypes);
+					}
+				}
+			}
 			if (v instanceof String)
 			{
 				String sV = (String)v;
@@ -136,10 +177,26 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 
 				v = Text.processTags((String)v, null);
 			}
+			else if (v instanceof BrowserFunction bf)
+			{
+				// this is a copy of what is in the class DynamicClientFunctionPropertyType.toJSON
+				if (application.getRuntimeProperties().containsKey("NG2")) //$NON-NLS-1$
+				{
+					JSONObject object = new JSONObject();
+					object.put(JSONUtils.VALUE_KEY, application.registerClientFunction(bf.getFunctionString()));
+					object.put(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY, DynamicClientFunctionPropertyType.CLIENT_SIDE_TYPE_NAME);
+					v = object;
+				}
+				else
+				{
+					v = bf.getFunctionString();
+				}
+			}
 			fixedJSONObject.put(jsonKey, v);
 		}
 		return fixedJSONObject;
 	}
+
 
 	@Override
 	public JSONObject toSabloComponentValue(Object rhinoValue, JSONObject previousComponentValue, PropertyDescription pd, IWebObjectContext webObjectContext)
@@ -203,5 +260,59 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 			Context.exit();
 		}
 		return frmJSONValue;
+	}
+
+	@Override
+	public boolean writeClientSideTypeName(JSONWriter w, String keyToAddTo, PropertyDescription pd)
+	{
+		JSONUtils.addKeyIfPresent(w, keyToAddTo);
+		w.value(ObjectPropertyType.TYPE_NAME);
+		return true;
+	}
+
+	@SuppressWarnings("nls")
+	@Override
+	public Object createJSONValue(Object v, INGApplication application, JSONObject subTypes)
+	{
+		JSONObject jsonObject = null;
+		if (v instanceof CharSequence cs)
+		{
+			String sV = cs.toString();
+			if (sV.length() > 1 && sV.startsWith("'") && sV.endsWith("'"))
+			{
+				sV = sV.substring(1, sV.length() - 1);
+			}
+			jsonObject = new JSONObject(sV);
+		}
+		else if (v instanceof JSONObject jo)
+		{
+			jsonObject = jo;
+		}
+		if (jsonObject != null)
+		{
+			JSONObject json = fixJSONObjectValueTypesAndI18N(jsonObject, subTypes, application);
+			JSONObject object = new JSONObject();
+			object.put(JSONUtils.VALUE_KEY, json);
+			object.put(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY, ObjectPropertyType.TYPE_NAME);
+			return object;
+		}
+		else if (v instanceof JSONArray array)
+		{
+			JSONArray fixedArray = new JSONArray();
+			for (int i = 0; i < array.length(); i++)
+			{
+				Object item = array.opt(i);
+				if (item instanceof JSONObject || item instanceof JSONArray)
+				{
+					item = createJSONValue(item, application, subTypes);
+				}
+				fixedArray.put(i, item);
+			}
+			JSONObject object = new JSONObject();
+			object.put(JSONUtils.VALUE_KEY, fixedArray);
+			object.put(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY, ObjectPropertyType.TYPE_NAME);
+			return object;
+		}
+		return v;
 	}
 }

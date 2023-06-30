@@ -79,38 +79,12 @@ public class AngularIndexPageFilter implements Filter
 		HttpServletResponse response = (HttpServletResponse)servletResponse;
 		String requestURI = request.getRequestURI();
 		String solutionName = getSolutionNameFromURI(requestURI);
-		if (solutionName != null)
-		{
-			try
-			{
-				Pair<Boolean, String> showLogin = StatelessLoginHandler.mustAuthenticate(request, response, solutionName);
-				if (showLogin.getLeft().booleanValue())
-				{
-					StatelessLoginHandler.writeLoginPage(request, response, solutionName);
-					return;
-				}
-				if (showLogin.getRight() != null && request.getParameter("id_token") != null)
-				{
-					StringBuilder url = new StringBuilder(requestURI.subSequence(0, requestURI.indexOf(SOLUTIONS_PATH)) + SOLUTIONS_PATH);
-					url.append(solutionName);
-					url.append("/index.html?id_token=");
-					url.append(showLogin.getRight());
-					((HttpServletResponse)servletResponse).sendRedirect(url.toString());
-					return;
-				}
-			}
-			catch (Exception e)
-			{
-				Debug.error(e.getMessage());
-				return;
-			}
-		}
-		if ("GET".equalsIgnoreCase(request.getMethod()) && solutionName != null)
+		if (("GET".equalsIgnoreCase(request.getMethod()) || "POST".equalsIgnoreCase(request.getMethod()) && request.getParameter("user") != null) &&
+			solutionName != null)
 		{
 
 			if ((requestURI.endsWith("/") || requestURI.endsWith("/" + solutionName) || requestURI.toLowerCase().endsWith("/index.html")))
 			{
-
 				String clientnr = AngularIndexPageWriter.getClientNr(requestURI, request);
 				INGClientWebsocketSession wsSession = null;
 				HttpSession httpSession = request.getSession(false);
@@ -122,7 +96,26 @@ public class AngularIndexPageFilter implements Filter
 				{
 					return;
 				}
-				request.getSession();
+				HttpSession session = request.getSession();
+
+				try
+				{
+					Pair<Boolean, String> showLogin = StatelessLoginHandler.mustAuthenticate(request, solutionName);
+					if (showLogin.getLeft().booleanValue())
+					{
+						StatelessLoginHandler.writeLoginPage(request, response, solutionName);
+						return;
+					}
+					if (showLogin.getRight() != null)
+					{
+						session.setAttribute(StatelessLoginHandler.ID_TOKEN, showLogin.getRight());
+					}
+				}
+				catch (Exception e)
+				{
+					Debug.error(e.getMessage());
+					return;
+				}
 
 				ContentSecurityPolicyConfig contentSecurityPolicyConfig = addcontentSecurityPolicyHeader(request, response, false); // for NG2 remove the unsafe-eval
 				if (this.indexPage != null) AngularIndexPageWriter.writeIndexPage(this.indexPage, request, response, solutionName,

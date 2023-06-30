@@ -29,7 +29,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -191,7 +193,13 @@ public class AngularIndexPageWriter
 			sb.append('/');
 			sb.append(clientnr);
 			sb.append("/main/startup.js?");
-			sb.append(HTTPUtils.generateQueryString(request.getParameterMap(), request.getCharacterEncoding()));
+			Map<String, String[]> parameterMap = request.getParameterMap();
+			if (request.getSession().getAttribute("id_token") != null)
+			{
+				parameterMap = new HashMap<>(request.getParameterMap());
+				parameterMap.put("id_token", new String[] { (String)request.getSession().getAttribute("id_token") });
+			}
+			sb.append(HTTPUtils.generateQueryString(parameterMap, request.getCharacterEncoding()));
 			sb.append("\"></script>");
 			indexHtml = indexHtml.replace("<base href=\"/\">", sb.toString());
 

@@ -248,7 +248,15 @@ public class WebServiceScriptable implements Scriptable
 					array[i] = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(arrayOfSabloJavaMethodArgs[i],
 						(argumentPDs != null && argumentPDs.getDefinedArgsCount() > i) ? argumentPDs.getParameterDefinition(i) : null, serviceWebObject, this);
 				}
-				Object retValue = ((Function)object).call(context, scopeObject, scopeObject, array);
+				Object retValue = null;
+				try
+				{
+					retValue = ((Function)object).call(context, scopeObject, scopeObject, array);
+				}
+				catch (Exception ex)
+				{
+					application.handleException(null, ex);
+				}
 
 				PropertyDescription retValuePD = (functionSpec != null ? functionSpec.getReturnType() : null);
 				return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(retValue, null, retValuePD, serviceWebObject);

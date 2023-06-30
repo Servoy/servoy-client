@@ -365,6 +365,22 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	}
 
 	@Override
+	public int hashCode()
+	{
+		return datasource.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (obj instanceof JSDataSource ds)
+		{
+			return ds.datasource.equals(datasource);
+		}
+		return false;
+	}
+
+	@Override
 	public String toString()
 	{
 		return getClass().getSimpleName() + '(' + datasource + ')';

@@ -359,8 +359,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						}
 						ci.setUserGroups(gr);
 					}
-					//remove the token from the url
-					getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("replaceUrlState", null);
 				}
 			});
 		}
@@ -391,6 +389,12 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	protected IServerService createFormService()
 	{
 		return new NGFormServiceHandler(this);
+	}
+
+	@Override
+	protected IServerService createConsoleLoggerService()
+	{
+		return new NGConsoleLoggerServiceHandler(this);
 	}
 
 	@Override

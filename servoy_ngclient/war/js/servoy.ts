@@ -11,7 +11,7 @@ angular.module('servoy', ['sabloApp', 'servoyformat', 'servoytooltip', 'servoyfi
     .config(["$provide", function($provide) {
         var decorator = function($delegate, $injector) {
             // this call can modify "args" (it converts them to be sent to server)
-            $delegate.callServerSideApi = function(serviceName, methodName, args) {
+            function callServerSideApiInternal(serviceName, methodName, args) {
                 const $typesRegistry: sablo.ITypesRegistry = $injector.get("$typesRegistry");
                 const $sabloConverters: sablo.ISabloConverters = $injector.get("$sabloConverters");
 
@@ -25,11 +25,30 @@ angular.module('servoy', ['sabloApp', 'servoyformat', 'servoytooltip', 'servoyfi
                 const promise = $injector.get("$sabloApplication").callService('applicationServerService', 'callServerSideApi', { service: serviceName, methodName: methodName, args: args });
 
                 return $injector.get("$webSocket").wrapPromiseToPropagateCustomRequestInfoInternal(promise, promise.then(function successCallback(serviceCallResult) {
-                        return $sabloConverters.convertFromServerToClient(serviceCallResult, apiSpec?.returnType,
-                            undefined, undefined, undefined, null, $injector.get("$sabloUtils").PROPERTY_CONTEXT_FOR_INCOMMING_ARGS_AND_RETURN_VALUES);
-                    }));
+                    return $sabloConverters.convertFromServerToClient(serviceCallResult, apiSpec?.returnType,
+                        undefined, undefined, undefined, null, $injector.get("$sabloUtils").PROPERTY_CONTEXT_FOR_INCOMMING_ARGS_AND_RETURN_VALUES);
+                }));
 
-                    // in case of a reject/errorCallback we just let it propagete to caller
+                // in case of a reject/errorCallback we just let it propagate to caller
+            };
+            function callResolveWhenReady(resolve){
+                if ($(document).find('svy-formload').length > 0) {
+                    resolve();
+                }
+                else{
+                    setTimeout(callResolveWhenReady, 200, resolve)
+                }
+            }
+            
+            $delegate.callServerSideApi = function(serviceName, methodName, args) {
+                if ($(document).find('svy-formload').length > 0) {
+                    return callServerSideApiInternal(serviceName, methodName, args);
+                }
+                else{
+                    return new Promise(resolve => setTimeout(callResolveWhenReady, 200, resolve)).then(function(){
+                         return callServerSideApiInternal(serviceName, methodName, args);
+                    });
+                }
             };
             return $delegate;
         };

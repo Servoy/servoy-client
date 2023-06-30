@@ -154,8 +154,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	private final Map<String, Set<String>> liveForms = new HashMap<String, Set<String>>();
 	private final Map<String, ChangedFormData> changedForms = new HashMap<String, ChangedFormData>();
 
-	private volatile HashMap<String, Style> all_styles; // concurrent modification exceptions can happen; see comments from Solution->PRE_LOADED_STYLES.
-	private volatile HashMap<String, Style> user_created_styles; // concurrent modification exceptions shouldn't happen with current implementation for this map; no need to sync
+	private volatile ConcurrentHashMap<String, Style> all_styles; // concurrent modification exceptions can happen; see comments from Solution->PRE_LOADED_STYLES.
+	private volatile ConcurrentHashMap<String, Style> user_created_styles; // concurrent modification exceptions shouldn't happen with current implementation for this map; no need to sync
 
 	private volatile SimplePersistFactory persistFactory;
 	private volatile IFlattenedSolutionDebugListener debugListener;
@@ -586,7 +586,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	{
 		if (mainSolution == null && loginFlattenedSolution == null) return null;
 
-		if (user_created_styles == null) user_created_styles = new HashMap<String, Style>();
+		if (user_created_styles == null) user_created_styles = new ConcurrentHashMap<String, Style>();
 		Style copy = user_created_styles.get(style.getName());
 		if (copy == null)
 		{
@@ -600,6 +600,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public Style createStyle(String name, String content)
 	{
+		if (name == null) return null;
 		if (mainSolution == null)
 		{
 			if (loginFlattenedSolution == null)
@@ -610,7 +611,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 
 		if (getAllStyles().containsKey(name) && !deletedStyles.contains(name)) throw new RuntimeException("Style with name '" + name + "' already exists"); //$NON-NLS-1$ //$NON-NLS-2$
-		if (user_created_styles == null) user_created_styles = new HashMap<String, Style>();
+		if (user_created_styles == null) user_created_styles = new ConcurrentHashMap<String, Style>();
 		if (user_created_styles.containsKey(name)) throw new RuntimeException("Style with name '" + name + "' already exists"); //$NON-NLS-1$ //$NON-NLS-2$
 
 		RootObjectMetaData rootObjectMetaData = new RootObjectMetaData(-1, UUID.randomUUID(), name, IRepository.STYLES, 1, 1);
@@ -769,21 +770,14 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 		flushAllCachedData();
 
-		getAllStyles();
+		Map<String, Style> allStyles = getAllStyles();
 
 		for (Solution s : modules)
 		{
-			HashMap<String, Style> modStyles = s.getSerializableRuntimeProperty(Solution.PRE_LOADED_STYLES);
+			ConcurrentHashMap<String, Style> modStyles = s.getSerializableRuntimeProperty(Solution.PRE_LOADED_STYLES);
 			if (modStyles != null)
 			{
-				synchronized (modStyles)
-				{
-					Map<String, Style> allStyles = getAllStyles();
-					synchronized (allStyles) // the two syncs should not cause deadlock because the module's lock is always acquired first (so another thread cannot come and do it backwards)
-					{
-						allStyles.putAll(modStyles);
-					}
-				}
+				allStyles.putAll(modStyles);
 			}
 			if (s.getChangeHandler() != null)
 			{
@@ -817,7 +811,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			if (all_styles == null)
 			{
 				// this should normally not happen, because when solutions are loaded this property is set (by the repository)
-				all_styles = new HashMap<String, Style>();
+				all_styles = new ConcurrentHashMap<String, Style>();
 				mainSolution.setSerializableRuntimeProperty(Solution.PRE_LOADED_STYLES, all_styles);
 			}
 		}
@@ -1980,6 +1974,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public void removeStyle(String name)
 	{
+		if (name == null) return;
 		if (user_created_styles != null && user_created_styles.containsKey(name))
 		{
 			Style style = user_created_styles.remove(name);
@@ -1993,6 +1988,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	public synchronized Style getStyle(String name)
 	{
+		if (name == null) return null;
+
 		if (user_created_styles != null)
 		{
 			Style style = user_created_styles.get(name);

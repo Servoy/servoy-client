@@ -300,6 +300,11 @@ public class FormComponentPropertyType extends DefaultPropertyType<Object> imple
 			PropertyDescription formDesc = new PropertyDescriptionBuilder().withName(SVY_FORM).withType(StringPropertyType.INSTANCE).build();
 			pdBuilder.withProperty(SVY_FORM, formDesc);
 			Form form = getForm(formName, fs);
+			if (form == null)
+			{
+				Debug.error("Can't find the form component " + formName + " for property " + property + " in solution " + fs.getName(), new RuntimeException());
+				return pdBuilder.build();
+			}
 			String testFormName = form.getName();
 			boolean nested = false;
 			if (form != null && !forms.add(testFormName))
