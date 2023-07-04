@@ -130,6 +130,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	public static final String ID_KEY = "id";
 
 	public static final String MULTI_SELECT = "multiSelect";
+	public static final String FIND_MODE = "findMode";
 	public static final String VIEW_PORT = "viewPort";
 	public static final String COLUMN_FORMATS = "columnFormats";
 	public static final String HAS_MORE_ROWS = "hasMoreRows";
@@ -575,6 +576,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		destinationJSON.key(SELECTED_ROW_INDEXES);
 		addSelectedIndexes(destinationJSON);
 		destinationJSON.key(MULTI_SELECT).value(getFoundset() != null ? getFoundset().isMultiSelect() : false);
+		destinationJSON.key(FIND_MODE).value(getFoundset() != null ? getFoundset().isInFindMode() : false);
 		destinationJSON.key(HAS_MORE_ROWS).value(getFoundset() != null ? getFoundset().hadMoreRows() : false);
 
 		writeColumnFormatsIfNeededAndAvailable(destinationJSON, dataConverterContext, false);
