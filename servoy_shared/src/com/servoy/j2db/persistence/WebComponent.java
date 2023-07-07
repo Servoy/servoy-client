@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.json.JSONException;
@@ -127,7 +128,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	@Override
 	public void updateJSON()
 	{
-		webObjectImpl.updateJSONFromPersistMappedPropeties();
+		webObjectImpl.updateJSONFromPersistMappedProperties();
 	}
 
 	@Override
@@ -159,6 +160,14 @@ public class WebComponent extends BaseComponent implements IWebComponent
 		if (webObjectImpl == null || hasPersistProperty(propertyName)) value = super.getProperty(propertyName);
 		if (value == null) value = webObjectImpl.getProperty(propertyName);
 		return value;
+	}
+
+
+	@Override
+	public void copyPropertiesMap(Map<String, Object> newProperties, boolean overwriteMap)
+	{
+		super.copyPropertiesMap(newProperties, overwriteMap);
+		//	webObjectImpl.updateJSONFromPersistMappedProperties();
 	}
 
 	@Override

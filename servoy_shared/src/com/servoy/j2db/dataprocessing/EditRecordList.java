@@ -77,6 +77,7 @@ import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IntHashMap;
+import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
@@ -541,8 +542,8 @@ public class EditRecordList
 			editRecordsLock.lock();
 			try
 			{
+				if (editedRecords.isEmpty()) return ISaveConstants.STOPPED;
 				editRecordListSize = editedRecords.size();
-				if (editRecordListSize == 0) return ISaveConstants.STOPPED;
 			}
 			finally
 			{
@@ -556,6 +557,8 @@ public class EditRecordList
 			}
 
 			int failedCount = 0;
+			List<Pair<IFoundSetInternal, QueryDelete>> failedDeletes = new ArrayList<>();
+
 			boolean justValidationErrors = false;
 			lastStopEditingException = null;
 			List<RowUpdateInfo> rowUpdates = new ArrayList<>(editRecordListSize);
@@ -696,20 +699,76 @@ public class EditRecordList
 
 				// Perform Foundset deletes
 
-				Map<ITable, List<QueryDelete>> deleteQueries = editedRecords.getDeleteQueries(foundset);
+				// RAGTEST kunnen deletes andere deletes triggeren? dan recursief of loopen?
 
 
+				for (Pair<IFoundSetInternal, QueryDelete> tmp = editedRecords.removeOneDeleteQuery(foundset); tmp != null; editedRecords
+					.removeOneDeleteQuery(foundset))
+				{
+					IFoundSetInternal fs = tmp.getLeft();
+					QueryDelete deleteQuery = tmp.getRight();
+
+
+					ITable table = fs.getTable();
+
+					setDeletedrecordsInternalTableFilter(false);
+
+
+					try
+					{
+
+
+						String tid = fsm.getTransactionID(table.getServerName());
+
+
+						// RAGTEST ignore delete TF of verwijder ze eerst (hoe te handelen met errors)
+
+
+						SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), null,
+							tid, deleteQuery, fsm.getTableFilterParams(table.getServerName(), deleteQuery));
+
+						Object[] results = fsm.getDataServer().performUpdates(fsm.getApplication().getClientID(), new ISQLStatement[] { statement });
+
+						for (int i = 0; results != null && i < results.length; i++)
+						{
+							if (results[i] instanceof ServoyException)
+							{
+								throw (ServoyException)results[i];
+							}
+						}
+
+					}
+					catch (ServoyException e)
+					{
+						log.debug("stopEditing(" + javascriptStop + ") encountered an exception - could be expected and treated by solution code or not", //$NON-NLS-1$//$NON-NLS-2$
+							e);
+						// trigger method threw exception
+						lastStopEditingException = e;
+						failedDeletes.add(tmp);
+						failedCount++;
+					}
+					catch (Exception e)
+					{
+						//		Debug.error("Not a normal Servoy/Db Exception generated in saving record: " + record + " removing the record", e); //$NON-NLS-1$ //$NON-NLS-2$
+						failedDeletes.add(tmp);
+						failedCount++;
+					}
+				}
 			}
 			finally
 			{
 				editRecordsLock.unlock();
 			}
 
-			setDeletedrecordsInternalTableFilter(false);
 
 			if (failedCount > 0)
 			{
+				failedDeletes.forEach(pair -> editedRecords.addDeleteQuery(pair.getLeft(), pair.getRight()));
+
 				placeBackAlreadyProcessedRecords(rowUpdates);
+
+				setDeletedrecordsInternalTableFilter(false);
+
 				if (lastStopEditingException == null && justValidationErrors)
 				{
 					return ISaveConstants.VALIDATION_FAILED;

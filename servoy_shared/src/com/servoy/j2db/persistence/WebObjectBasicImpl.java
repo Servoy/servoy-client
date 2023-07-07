@@ -162,7 +162,7 @@ public class WebObjectBasicImpl
 	{
 	}
 
-	public void updateJSONFromPersistMappedPropeties()
+	public void updateJSONFromPersistMappedProperties()
 	{
 	}
 

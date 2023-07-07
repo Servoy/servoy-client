@@ -23,6 +23,7 @@ import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -30,6 +31,7 @@ import java.util.stream.Stream;
 
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.query.QueryDelete;
+import com.servoy.j2db.util.Pair;
 
 /**
  * RAGTEST doc
@@ -110,7 +112,7 @@ public class EditedRecords
 	public Map<ITable, List<QueryDelete>> getDeleteQueries(IFoundSet foundset)
 	{
 		return deleteQueries.stream()
-			.filter(dq -> foundset == null || foundset == dq.foundSet)
+			.filter(df -> foundset == null || foundset == df.foundSet)
 			.collect(
 				groupingBy(dq -> dq.foundSet.getTable(),
 					mapping(dq -> dq.queryDelete, toList())));
@@ -119,6 +121,27 @@ public class EditedRecords
 	public void removeDeleteQuery(QueryDelete queryDelete)
 	{
 		deleteQueries.removeIf(dq -> dq.queryDelete == queryDelete);
+	}
+
+	public Pair<IFoundSetInternal, QueryDelete> removeOneDeleteQuery(IFoundSet foundset)
+	{
+		Iterator<DeletingFoundset> it = deleteQueries.iterator();
+		while (it.hasNext())
+		{
+			DeletingFoundset df = it.next();
+			if (foundset == null || foundset == df.foundSet)
+			{
+				it.remove();
+				return new Pair<>(df.foundSet, df.queryDelete);
+			}
+		}
+
+		return null;
+	}
+
+	public boolean isEmpty()
+	{
+		return records.isEmpty() && deleteQueries.isEmpty();
 	}
 
 	public int size()
