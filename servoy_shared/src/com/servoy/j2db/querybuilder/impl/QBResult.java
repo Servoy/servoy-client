@@ -20,6 +20,8 @@ package com.servoy.j2db.querybuilder.impl;
 import static com.servoy.j2db.util.Utils.iterate;
 import static java.util.Arrays.stream;
 
+import java.util.ArrayList;
+
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -256,7 +258,8 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	@JSFunction
 	public QBColumn[] getColumns()
 	{
-		return getParent().getQuery().getColumns().stream().map(selectValue -> {
+		ArrayList<IQuerySelectValue> columns = getParent().getQuery().getColumns();
+		return columns == null ? new QBColumn[0] : columns.stream().map(selectValue -> {
 
 			if (selectValue instanceof QueryAggregate)
 			{
