@@ -77,6 +77,9 @@
 		},
 		"scrollIntoView": {
             "parameters": [{ "name": "anchorSelector", "type": "string" }, { "name": "scrollIntoViewOptions", "type": "object", "optional": true }]
+        },
+        "removeArguments": {
+           
         }
 	},
 

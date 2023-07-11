@@ -271,7 +271,15 @@ angular.module('ngclientutils', [ 'servoy' ])
             } else {
             	$log.warn( 'cannot find anchor element ' + anchorSelector );                
             }
-		}
+		},
+		
+		/**
+         * This method removes the arguments from the client url. This is used for bookmark url to be correct or for back button behavior.
+         */
+        removeArguments: function()
+        {
+            window.history.replaceState({},'', location.pathname + location.hash);
+        }
 	}
 }])
 .directive('svyFormClassUpdate', function($services) {
