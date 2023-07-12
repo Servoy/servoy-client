@@ -86,7 +86,7 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 		if (sabloValue != null)
 		{
 			writer.key(key);
-			writer.value(fixJSONObjectValueTypesAndI18N(sabloValue, (JSONObject)propertyDescription.getTag("value_types"), //$NON-NLS-1$
+			writer.value(fixJSONObjectValueTypesAndI18N(sabloValue, (JSONObject)propertyDescription.getTag(PropertyDescription.VALUE_TYPES_TAG_FOR_PROP),
 				dataConverterContext.getWebObject() instanceof IContextProvider prov ? prov.getDataConverterContext().getApplication() : null));
 		}
 		return writer;
@@ -105,7 +105,7 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 		if (formElementValue != null)
 		{
 			writer.key(key);
-			writer.value(fixJSONObjectValueTypesAndI18N(formElementValue, (JSONObject)pd.getTag("value_types"), //$NON-NLS-1$
+			writer.value(fixJSONObjectValueTypesAndI18N(formElementValue, (JSONObject)pd.getTag(PropertyDescription.VALUE_TYPES_TAG_FOR_PROP),
 				formElementContext.getContext() != null ? formElementContext.getContext().getApplication() : null));
 		}
 		return writer;
@@ -124,7 +124,7 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 				JSONObject subTypes = null;
 				if (type instanceof JSONObject jo)
 				{
-					subTypes = jo.optJSONObject("value_types");
+					subTypes = jo.optJSONObject(PropertyDescription.VALUE_TYPES_TAG_FOR_PROP);
 					type = jo.optString("type", null);
 				}
 				if (type instanceof CharSequence)
