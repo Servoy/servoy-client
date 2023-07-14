@@ -103,15 +103,18 @@ public class PksAndRecordsHolder
 			changes = new FoundsetChanges();
 			// if there are currently already pks. and this is a pks set of 1 column try to generate a change object.
 			int smallestSize = Math.min(pks.getRowCount(), bufferedDataSet.getRowCount());
-			for (int i = 0; i < smallestSize; i++)
-			{
-				changes.record(i, Utils.equalObjects(pks.getRow(i)[0], bufferedDataSet.getRow(i)[0]));
-			}
+
 			if (pks.getRowCount() > bufferedDataSet.getRowCount())
 			{
 				changes.add(new FoundsetChange(FoundSetEvent.CHANGE_DELETE, bufferedDataSet.getRowCount(), pks.getRowCount() - 1));
 			}
-			else if (pks.getRowCount() < bufferedDataSet.getRowCount())
+
+			for (int i = 0; i < smallestSize; i++)
+			{
+				changes.record(i, Utils.equalObjects(pks.getRow(i)[0], bufferedDataSet.getRow(i)[0]));
+			}
+
+			if (pks.getRowCount() < bufferedDataSet.getRowCount())
 			{
 				changes.add(new FoundsetChange(FoundSetEvent.CHANGE_INSERT, pks.getRowCount(), bufferedDataSet.getRowCount() - 1));
 			}
