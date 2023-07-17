@@ -25,9 +25,10 @@ package com.servoy.j2db.persistence;
  */
 public class ArgumentType
 {
-	public static final ArgumentType String = new ArgumentType("String"); //$NON-NLS-1$
-	public static final ArgumentType Number = new ArgumentType("Number"); //$NON-NLS-1$
-	public static final ArgumentType Boolean = new ArgumentType("Boolean"); //$NON-NLS-1$
+	// CHECKME this is where the Capital-cased primitive types come from
+	public static final ArgumentType String = new ArgumentType("String", true); //$NON-NLS-1$
+	public static final ArgumentType Number = new ArgumentType("Number", true); //$NON-NLS-1$
+	public static final ArgumentType Boolean = new ArgumentType("Boolean", true); //$NON-NLS-1$
 	public static final ArgumentType Color = new ArgumentType("Color"); //$NON-NLS-1$
 	public static final ArgumentType Exception = new ArgumentType("Exception"); //$NON-NLS-1$
 	public static final ArgumentType JSRecord = new ArgumentType("JSRecord"); //$NON-NLS-1$
@@ -35,15 +36,28 @@ public class ArgumentType
 	public static final ArgumentType JSDataSet = new ArgumentType("JSDataSet"); //$NON-NLS-1$
 	public static final ArgumentType Object = new ArgumentType("Object"); //$NON-NLS-1$
 	public static final ArgumentType Date = new ArgumentType("Date"); //$NON-NLS-1$
+	public static final ArgumentType Array = new ArgumentType("Array"); //$NON-NLS-1$
+	public static final ArgumentType ArrayString = new ArgumentType("Array<String>"); //$NON-NLS-1$
+	public static final ArgumentType ArrayNumber = new ArgumentType("Array<Number>"); //$NON-NLS-1$
 
 	private final String name;
+	private final Boolean primitive;
 
 	/**
 	 * @param string2
 	 */
 	private ArgumentType(String name)
 	{
+		this(name, false);
+	}
+
+	/**
+	 * @param string2
+	 */
+	private ArgumentType(String name, Boolean isPrimitive)
+	{
 		this.name = name;
+		this.primitive = isPrimitive;
 	}
 
 	/**
@@ -52,6 +66,11 @@ public class ArgumentType
 	public String getName()
 	{
 		return name;
+	}
+
+	public Boolean isPrimitive()
+	{
+		return this.primitive;
 	}
 
 	@Override
@@ -66,11 +85,11 @@ public class ArgumentType
 	 */
 	public static ArgumentType valueOf(String type)
 	{
-		if (type == null || Object.getName().equals(type)) return Object;
-		if (String.getName().equals(type)) return String;
-		if (Number.getName().equals(type)) return Number;
+		if (type == null || Object.getName().equalsIgnoreCase(type)) return Object;
+		if (String.getName().equalsIgnoreCase(type)) return String;
+		if (Number.getName().equalsIgnoreCase(type)) return Number;
 		if ("int".equals(type)) return Number;
-		if (Boolean.getName().equals(type)) return Boolean;
+		if (Boolean.getName().equalsIgnoreCase(type)) return Boolean;
 		if (Color.getName().equals(type)) return Color;
 		if (Exception.getName().equals(type)) return Exception;
 		if (JSRecord.getName().equals(type)) return JSRecord;
@@ -78,6 +97,9 @@ public class ArgumentType
 		if (JSEvent.getName().equals(type)) return JSEvent;
 		if (JSDataSet.getName().equals(type)) return JSDataSet;
 		if (Date.getName().equals(type)) return Date;
+		if (Array.getName().equals(type)) return Array;
+		if (ArrayString.getName().equalsIgnoreCase(type)) return ArrayString;
+		if (ArrayNumber.getName().equalsIgnoreCase(type)) return ArrayNumber;
 		return new ArgumentType(type);
 	}
 
@@ -86,7 +108,8 @@ public class ArgumentType
 	 */
 	public static boolean isGeneratedType(String type)
 	{
-		return Date.getName().equals(type) || Number.getName().equals(type) || String.getName().equals(type);
+		return Array.getName().equals(type) || Date.getName().equals(type) ||
+			Number.getName().equals(type) || String.getName().equals(type);
 	}
 
 	public static ArgumentType convertFromColumnType(int columnType, String typeSuggestion)
@@ -95,6 +118,9 @@ public class ArgumentType
 		if (columnType == IColumnTypes.INTEGER || columnType == IColumnTypes.NUMBER) return Number;
 		if (columnType == IColumnTypes.TEXT) return String;
 		if (columnType != IColumnTypes.MEDIA && typeSuggestion != null) return valueOf(typeSuggestion);
+		if (columnType == IColumnTypes.MEDIA &&
+			(Array.getName().equals(typeSuggestion) || ArrayString.getName().equals(typeSuggestion) || ArrayNumber.getName().equals(typeSuggestion)))
+			return valueOf(typeSuggestion);
 		return Object;
 	}
 }

@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.dataprocessing.FoundSetManager.TableFilterRequest;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IScriptProvider;
@@ -31,8 +32,10 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.IQueryElement;
 import com.servoy.j2db.query.QuerySelect;
+import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.WrappedObjectReference;
 
 /**
  * Internal interface to extend the foundset manager
@@ -101,9 +104,11 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	/**
 	 * Insert data to a new or existing data source.
 	 *
+	 * @param pkNames gives the names of pk columns; if null and insertToDataSource finds a design-time in-mem table definition that does have pks, it will change this reference to the pks it finds.
 	 * @return generated values for db identity columns
 	 */
-	public Object[] insertToDataSource(String name, IDataSet dataSet, ColumnType[] columnTypes, String[] pkNames, boolean create, boolean skipOnLoad)
+	public Object[] insertToDataSource(String name, IDataSet dataSet, ColumnType[] columnTypes, WrappedObjectReference<String[]> pkNames, boolean create,
+		boolean skipOnLoad)
 		throws ServoyException;
 
 	public boolean removeDataSource(String uri) throws RepositoryException;
@@ -158,7 +163,9 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public DataproviderTableFilterdefinition createDataproviderTableFilterdefinition(ITable table, String dataprovider, String operator, Object val)
 		throws ServoyException;
 
-	public boolean addTableFilterParam(String filterName, String serverName, ITable table, TableFilterdefinition tableFilterdefinition) throws ServoyException;
+	public void setTableFilters(String filterName, String serverName, List<TableFilterRequest> tableFilterRequests, boolean removeOld) throws ServoyException;
+
+	public boolean updateTableFilterParam(String serverName, String filterName, ITable table, TableFilterdefinition tableFilterdefinition);
 
 	public ArrayList<TableFilter> getTableFilterParams(String serverName, IQueryElement sql);
 
@@ -169,6 +176,10 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public boolean removeTableFilterParam(String serverName, String filterName);
 
 	public boolean hasTableFilter(String serverName, String tableName);
+
+	public List<TableFilter> getTableFilters(String serverName, String tableName);
+
+	public List<TableFilter> getTableFilters(String filterName);
 
 	public Collection<String> getInMemDataSourceNames();
 
@@ -220,12 +231,13 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	public void removeFoundSet(FoundSet foundset);
 
-	public void refreshFoundsetsForTenantTables();
-
 	/**
 	 * @param record
 	 * @param state
 	 * @return
 	 */
 	public JSRecordMarkers validateRecord(IRecordInternal record, Object state);
+
+	public SortOptions getSortOptions(IColumn column);
+
 }

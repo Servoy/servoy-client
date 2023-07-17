@@ -38,7 +38,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.security.ContentSecurityPolicyConfig;
 import org.sablo.util.HTTPUtils;
@@ -68,14 +67,6 @@ public class AngularIndexPageWriter
 {
 	public static final String SOLUTIONS_PATH = "/solution/";
 
-	/**
-	 * @param request
-	 * @param servletResponse
-	 * @param solutionName
-	 * @throws IOException
-	 * @throws ServletException
-	 * @throws JSONException
-	 */
 	public static void writeStartupJs(HttpServletRequest request, HttpServletResponse response, String solutionName)
 		throws IOException, ServletException
 	{
@@ -397,6 +388,7 @@ public class AngularIndexPageWriter
 		setDirectiveOverride(contentSecurityPolicyConfig, "style-src", settings);
 		setDirectiveOverride(contentSecurityPolicyConfig, "img-src", settings);
 		setDirectiveOverride(contentSecurityPolicyConfig, "font-src", settings);
+		setDirectiveOverride(contentSecurityPolicyConfig, "form-action", settings);
 
 		return contentSecurityPolicyConfig;
 
@@ -448,6 +440,24 @@ public class AngularIndexPageWriter
 				}
 			}
 		}
+		return false;
+	}
+
+	protected static boolean handleMaintenanceMode(HttpServletRequest request, HttpServletResponse response, INGClientWebsocketSession wsSession)
+		throws IOException
+	{
+		boolean maintenanceMode = wsSession == null //
+			&& ApplicationServerRegistry.get().getDataServer().isInServerMaintenanceMode() //
+			// when there is a http session, let the new client go through, otherwise another
+			// client from the same browser may be killed by a load balancer
+			&& request.getSession(false) == null;
+		if (maintenanceMode)
+		{
+			response.getWriter().write("Server in maintenance mode");
+			response.setStatus(SC_SERVICE_UNAVAILABLE);
+			return true;
+		}
+
 		return false;
 	}
 }

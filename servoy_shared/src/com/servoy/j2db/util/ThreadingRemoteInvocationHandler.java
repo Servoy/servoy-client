@@ -34,7 +34,7 @@ import com.servoy.j2db.persistence.RepositoryException;
  */
 public class ThreadingRemoteInvocationHandler<T extends Remote> extends AbstractRemoteInvocationHandler<T>
 {
-	private static ExecutorService threadPool = Executors.newCachedThreadPool();
+	private static final ExecutorService threadPool = Executors.newCachedThreadPool();
 
 	private ThreadingRemoteInvocationHandler(T remote)
 	{
@@ -65,6 +65,7 @@ public class ThreadingRemoteInvocationHandler<T extends Remote> extends Abstract
 	 *
 	 * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
 	 */
+	@SuppressWarnings("nls")
 	public Object invoke(Object proxy, final Method method, final Object[] args) throws Throwable
 	{
 		final Object[] result = { null };
@@ -111,5 +112,10 @@ public class ThreadingRemoteInvocationHandler<T extends Remote> extends Abstract
 			throw throwable[0];
 		}
 		return result[0];
+	}
+
+	public static void shutdown()
+	{
+		threadPool.shutdownNow();
 	}
 }

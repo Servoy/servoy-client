@@ -16,6 +16,9 @@
  */
 package com.servoy.j2db.util;
 
+import static java.lang.System.arraycopy;
+import static java.lang.reflect.Array.newInstance;
+
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -73,11 +76,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SimpleTimeZone;
 import java.util.StringTokenizer;
+import java.util.function.Function;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
@@ -113,6 +119,7 @@ import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.FormElementGroup;
 import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.persistence.IFlattenedPersistWrapper;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -154,6 +161,10 @@ public final class Utils
 		if (element instanceof Form)
 		{
 			return false;
+		}
+		if (context instanceof IFlattenedPersistWrapper)
+		{
+			context = ((IFlattenedPersistWrapper)context).getWrappedPersist();
 		}
 		if (context instanceof Form && element instanceof IPersist && (((IPersist)element).getAncestor(IRepository.FORMS) != context))
 		{
@@ -242,23 +253,23 @@ public final class Utils
 		T[] res;
 		if (src == null)
 		{
-			res = (T[])java.lang.reflect.Array.newInstance(toAdd.getClass().getComponentType(), position + n);
-			System.arraycopy(toAdd, 0, res, position, Math.min(toAdd.length, n));
+			res = (T[])newInstance(toAdd.getClass().getComponentType(), position + n);
+			arraycopy(toAdd, 0, res, position, Math.min(toAdd.length, n));
 		}
 		else
 		{
-			res = (T[])java.lang.reflect.Array.newInstance(src.getClass().getComponentType(), Math.max(src.length, position) + n);
+			res = (T[])newInstance(src.getClass().getComponentType(), Math.max(src.length, position) + n);
 			if (position > 0 && src.length > 0)
 			{
-				System.arraycopy(src, 0, res, 0, Math.min(src.length, position));
+				arraycopy(src, 0, res, 0, Math.min(src.length, position));
 			}
 			if (position < src.length)
 			{
-				System.arraycopy(src, position, res, position + n, src.length - position);
+				arraycopy(src, position, res, position + n, src.length - position);
 			}
 			if (toAdd != null)
 			{
-				System.arraycopy(toAdd, 0, res, position, Math.min(toAdd.length, n));
+				arraycopy(toAdd, 0, res, position, Math.min(toAdd.length, n));
 			}
 		}
 		return res;
@@ -298,12 +309,12 @@ public final class Utils
 		T[] res;
 		if (array == null)
 		{
-			res = (T[])java.lang.reflect.Array.newInstance(element == null ? Object.class : element.getClass(), 1);
+			res = (T[])newInstance(element == null ? Object.class : element.getClass(), 1);
 		}
 		else
 		{
-			res = (T[])java.lang.reflect.Array.newInstance(array.getClass().getComponentType(), array.length + 1);
-			System.arraycopy(array, 0, res, append ? 0 : 1, array.length);
+			res = (T[])newInstance(array.getClass().getComponentType(), array.length + 1);
+			arraycopy(array, 0, res, append ? 0 : 1, array.length);
 		}
 		res[append ? res.length - 1 : 0] = element;
 		return res;
@@ -336,13 +347,66 @@ public final class Utils
 		}
 
 		// both arrays filled and lowerArray is longer than upperArray
-		T[] mergedArgs = (T[])java.lang.reflect.Array.newInstance(upperAarray.getClass().getComponentType(), lowerAarray.length);
+		T[] mergedArgs = (T[])newInstance(upperAarray.getClass().getComponentType(), lowerAarray.length);
 
-		System.arraycopy(upperAarray, 0, mergedArgs, 0, upperAarray.length);
-		System.arraycopy(lowerAarray, upperAarray.length, mergedArgs, upperAarray.length, lowerAarray.length - upperAarray.length);
+		arraycopy(upperAarray, 0, mergedArgs, 0, upperAarray.length);
+		arraycopy(lowerAarray, upperAarray.length, mergedArgs, upperAarray.length, lowerAarray.length - upperAarray.length);
 		return mergedArgs;
 	}
 
+	/**
+	 * Map a function to elements of an array, only create a copy if something really changes,
+	 *  otherwise just return the original array.
+	 */
+	public static <T> T[] arrayMap(T[] array, Function<T, T> mapper)
+	{
+		if (array == null || array.length == 0)
+		{
+			return array;
+		}
+
+		T[] mappedArray = null;
+		for (int i = 0; i < array.length; i++)
+		{
+			T wrapped = mapper.apply(array[i]);
+			if (mappedArray != null || wrapped != array[i])
+			{
+				if (mappedArray == null)
+				{
+					mappedArray = (T[])newInstance(array.getClass().getComponentType(), array.length);
+					if (i > 0)
+					{
+						arraycopy(array, 0, mappedArray, 0, i);
+					}
+				}
+				mappedArray[i] = wrapped;
+			}
+		}
+
+		return mappedArray == null ? array : mappedArray;
+	}
+
+	/**
+	 * If the value is an array, return a copy, otherwise return an array with the value as single element.
+	 */
+	public static Object[] toArray(Object value)
+	{
+		if (value == null)
+		{
+			return null;
+		}
+
+		if (value.getClass().isArray())
+		{
+			int length = Array.getLength(value);
+			Object[] array = new Object[length];
+			System.arraycopy(value, 0, array, 0, length);
+			return array;
+		}
+
+		// single value
+		return new Object[] { value };
+	}
 
 	public static <T> List<T> asList(Iterator< ? extends T> it)
 	{
@@ -357,7 +421,7 @@ public final class Utils
 	public static <T> T[] asArray(Iterator< ? extends T> it, Class<T> clazz)
 	{
 		List<T> lst = asList(it);
-		return lst.toArray((T[])java.lang.reflect.Array.newInstance(clazz, lst.size()));
+		return lst.toArray((T[])newInstance(clazz, lst.size()));
 	}
 
 	public static <T> Iterator<T> asSortedIterator(Iterator< ? extends T> it, Comparator< ? super T> comparator)
@@ -387,8 +451,8 @@ public final class Utils
 			throw new IllegalArgumentException("arraySub: " + beginIndex + '>' + endIndex); //$NON-NLS-1$
 		}
 
-		T[] res = (T[])java.lang.reflect.Array.newInstance(array.getClass().getComponentType(), endIndex - beginIndex);
-		System.arraycopy(array, beginIndex, res, 0, endIndex - beginIndex);
+		T[] res = (T[])newInstance(array.getClass().getComponentType(), endIndex - beginIndex);
+		arraycopy(array, beginIndex, res, 0, endIndex - beginIndex);
 		return res;
 	}
 
@@ -700,17 +764,15 @@ public final class Utils
 	/**
 	 * Compares two objects no matter if they are null
 	 *
+	 * @deprecated use Objects.equals
 	 * @param left object
 	 * @param right object
 	 * @return true if they are the same
 	 */
+	@Deprecated()
 	public static boolean safeEquals(Object left, Object right)
 	{
-		if (left == null)
-		{
-			return right == null;
-		}
-		return left.equals(right);
+		return Objects.equals(left, right);
 	}
 
 	/**
@@ -730,11 +792,11 @@ public final class Utils
 	}
 
 	/**
-	 * Format a given number of miliseconds in a formatted time
+	 * Format a given number of milliseconds in a formatted time
 	 *
-	 * Note:if the time (in milliseconds) is smaller than ~month, it is calulated without a timezone)
+	 * Note:if the time (in milliseconds) is smaller than ~month, it is calculated without a time zone)
 	 *
-	 * @param msec the miliseconds (current time can be get by 'new java.util.Date().getTime()')
+	 * @param msec the milliseconds (current time can be get by 'new java.util.Date().getTime()')
 	 * @param format the display format (format used from java.text.SimpleDateFormat!)
 	 * @return the formatted time
 	 * @see java.text.SimpleDateFormat
@@ -745,11 +807,11 @@ public final class Utils
 	}
 
 	/**
-	 * Format a given number of miliseconds in a formatted time
+	 * Format a given number of milliseconds in a formatted time
 	 *
-	 * Note:if the time (in milliseconds) is smaller than ~month, it is calulated without a timezone)
+	 * Note:if the time (in milliseconds) is smaller than ~month, it is calculated without a time zone)
 	 *
-	 * @param msec the miliseconds (current time can be get by 'new java.util.Date().getTime()')
+	 * @param msec the milliseconds (current time can be get by 'new java.util.Date().getTime()')
 	 * @param format the display format
 	 * @return the formatted time
 	 * @see java.text.SimpleDateFormat
@@ -893,7 +955,7 @@ public final class Utils
 	/**
 	 * Method for replacing part of a string with a string
 	 *
-	 * @param org the orginal string
+	 * @param org the original string
 	 * @param source the string to search
 	 * @param destination the string to replace
 	 * @return the result
@@ -1119,6 +1181,18 @@ public final class Utils
 			}
 		}
 		return buf.toString();
+	}
+
+	public static int indexOf(int[] array, int elem)
+	{
+		for (int i = 0; array != null && i < array.length; i++)
+		{
+			if (array[i] == elem)
+			{
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	/**
@@ -2574,10 +2648,11 @@ public final class Utils
 			FileInputStream fis = null;
 			try
 			{
-				int length = (int)f.length();
+				long length = f.length();
 				fis = new FileInputStream(f);
 				FileChannel fc = fis.getChannel();
 				if (size > length || size < 0) size = length;
+				if (size > Integer.MAX_VALUE) throw new IllegalArgumentException("Can't read in a file that is bigger than 2GB " + f); //$NON-NLS-1$
 				ByteBuffer bb = ByteBuffer.allocate((int)size);
 				fc.read(bb);
 				bb.rewind();
@@ -3082,13 +3157,38 @@ public final class Utils
 	}
 
 	/**
-	 * Stream from collection.
-	 *
-	 * @param collection when null, return empty stream
+	 * Iterate over array.
+	 * <pre>
+	 * for (T o: Utils.iterate(array))
+	 * {
+	 *     o. ....
+	 * }
+	 * </pre>
+	 * @param array when null, iterate over empty list
 	 */
-	public static <T> Stream<T> stream(Collection<T> collection)
+	public static <T> Iterable<T> iterate(T[] array)
 	{
-		return collection == null ? Stream.empty() : collection.stream();
+		return array == null ? Collections.<T> emptyList() : Arrays.asList(array);
+	}
+
+	/**
+	 * Stream from array.
+	 *
+	 * @param array when null, return empty stream
+	 */
+	public static <T> Stream<T> stream(T[] array)
+	{
+		return array == null ? Stream.empty() : Arrays.stream(array);
+	}
+
+	/**
+	 * Stream from array.
+	 *
+	 * @param array when null, return empty stream
+	 */
+	public static IntStream stream(int[] array)
+	{
+		return array == null ? IntStream.empty() : Arrays.stream(array);
 	}
 
 	/**
@@ -3113,6 +3213,16 @@ public final class Utils
 		return iterable == null
 			? Stream.empty()
 			: StreamSupport.stream(iterable.spliterator(), false);
+	}
+
+	/**
+	 * Stream from collection.
+	 *
+	 * @param collection when null, return empty stream
+	 */
+	public static <T> Stream<T> stream(Collection<T> collection)
+	{
+		return collection == null ? Stream.empty() : collection.stream();
 	}
 
 	/**

@@ -28,11 +28,14 @@ public interface IBaseColumn
 	// column flags
 	static final int NORMAL_COLUMN = 0;
 	static final int PK_COLUMN = 1;
-	static final int USER_ROWID_COLUMN = 2;
-	static final int UUID_COLUMN = 4;
-	static final int EXCLUDED_COLUMN = 8;
-	static final int TENANT_COLUMN = 16;
-	static final int NATIVE_COLUMN = 32;
+	static final int USER_ROWID_COLUMN = 1 << 1;
+	static final int UUID_COLUMN = 1 << 2;
+	static final int EXCLUDED_COLUMN = 1 << 3;
+	static final int TENANT_COLUMN = 1 << 4;
+	static final int NATIVE_COLUMN = 1 << 5;
+	static final int SORT_IGNORECASE = 1 << 6;
+	static final int SORT_ASC_NULLS_FIRST = 1 << 7;
+	static final int SORT_ASC_NULLS_LAST = 1 << 8;
 
 	static final int IDENT_COLUMNS = PK_COLUMN + USER_ROWID_COLUMN;
 	static final int NON_IDENT_COLUMNS = ~IDENT_COLUMNS;

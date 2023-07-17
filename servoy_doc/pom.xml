@@ -5,19 +5,19 @@
 
 	<parent>
 		<artifactId>servoy-client</artifactId>
-		<version>2022.3.5.3747_LTS</version>
+		<version>2023.3.2.3844</version>
 		<groupId>com.servoy</groupId>
 	</parent>
 
 	<groupId>com.servoy</groupId>
-	<version>2022.3.5.3747_LTS</version>
+	<version>2023.3.2.3844</version>
 	<artifactId>servoy-doc</artifactId>
 	<packaging>jar</packaging>
 
 	<properties>
 		<workspace_dir>${project.build.directory}/ws</workspace_dir>
 		<servoy-local.url>${project.baseUri}/target/repository/</servoy-local.url>
-		<doc.version>1.5.0</doc.version>
+		<doc.version>1.6.0</doc.version>
 	</properties>
 
 	<build>
@@ -45,7 +45,7 @@
 								<artifactItem>
 									<groupId>com.servoy</groupId>
 									<artifactId>org.eclipse.dltk.javascript.rhino</artifactId>
-									<version>${project.version}</version>
+									<version>${rhino.version}</version>
 									<type>zip</type>
 									<classifier>project</classifier>
 									<outputDirectory>${project.build.directory}/org.eclipse.dltk.javascript.rhino/</outputDirectory>
@@ -138,6 +138,7 @@
 									<type>eclipse-feature</type>
 								</dependency>
 							</dependencies>
+							<executionEnvironment>JavaSE-17</executionEnvironment>
 						</configuration>
 						<executions>
 							<execution>
@@ -279,6 +280,7 @@
 									<type>eclipse-feature</type>
 								</dependency>
 							</dependencies>
+							<executionEnvironment>JavaSE-17</executionEnvironment>
 						</configuration>
 						<executions>
 							<execution>

@@ -268,7 +268,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 							PropertyDescription property = legacySpec.getProperty(key);
 							if (property != null && property.getType() instanceof IDesignValueConverter)
 							{
-								val = ((IDesignValueConverter)property.getType()).fromDesignValue(val, property);
+								val = ((IDesignValueConverter)property.getType()).fromDesignValue(val, property, element);
 							}
 							else
 							{
@@ -795,14 +795,12 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				Map<TabSeqProperty, List<TabSeqProperty>> listFormComponentMap = new HashMap<TabSeqProperty, List<TabSeqProperty>>();
 				List<TabSeqProperty> listFormComponentElements = null;
 				TabSeqProperty listFormComponentTabSeq = null;
-				Iterator<IFormElement> iterator = flattenedForm.getFlattenedObjects(null).iterator();
-				while (iterator.hasNext())
+				for (IFormElement formElement : flattenedForm.getFlattenedObjects(null))
 				{
-					IFormElement formElement = iterator.next();
 					if (FormTemplateGenerator.isWebcomponentBean(formElement))
 					{
 						String componentType = FormTemplateGenerator.getComponentTypeName(formElement);
-						WebObjectSpecification specification = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(componentType);
+						WebObjectSpecification specification = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(componentType);
 						if (specification != null)
 						{
 							Collection<PropertyDescription> properties = specification.getProperties(NGTabSeqPropertyType.NG_INSTANCE);
@@ -937,7 +935,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 					else if (FormTemplateGenerator.isWebcomponentBean(element))
 					{
 						String nestedDomponentType = FormTemplateGenerator.getComponentTypeName(element);
-						WebObjectSpecification nestedSpecification = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(
+						WebObjectSpecification nestedSpecification = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(
 							nestedDomponentType);
 						if (nestedSpecification != null)
 						{
@@ -1019,7 +1017,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 			if (propertyName != null && element instanceof IBasicWebComponent)
 			{
 				String componentType = FormTemplateGenerator.getComponentTypeName((IBasicWebComponent)element);
-				WebObjectSpecification specification = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(componentType);
+				WebObjectSpecification specification = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(componentType);
 				if (specification != null)
 				{
 					PropertyDescription property = specification.getProperty(propertyName);

@@ -41,6 +41,17 @@ public interface IQuerySelectValue extends IBaseQuerySelectValue, IQueryElement
 
 	IQuerySelectValue asAlias(String alias);
 
+	default String getColumnName()
+	{
+		QueryColumn qcol = getColumn();
+		if (qcol != null)
+		{
+			return qcol.getName();
+		}
+
+		return null;
+	}
+
 	default String getAliasOrName()
 	{
 		String alias = getAlias();
@@ -49,10 +60,10 @@ public interface IQuerySelectValue extends IBaseQuerySelectValue, IQueryElement
 			return alias;
 		}
 
-		QueryColumn qcol = getColumn();
-		if (qcol != null)
+		String name = getColumnName();
+		if (name != null)
 		{
-			return qcol.getName();
+			return name;
 		}
 
 		return toString();

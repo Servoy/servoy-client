@@ -175,32 +175,32 @@ angular.module('ngclientutils', [ 'servoy' ])
 		
 		/**
 		 * Utility method for manipulating any DOM element's style classes. 
-		 * It will add the given class to the DOM element identified via the jQuery selector param.
+		 * It will add the given class to the DOM element identified via the css selector param.
 		 * 
 		 * NOTE: This operation is not persistent; it executes client-side only; so for example when the browser is reloaded (F5/Ctrl+F5) by the user classes added by this method are lost.
 		 * If you need this to be persistent - you can do that directly via server side scripting elements.myelement.addStyleClass(...) if the DOM element is a Servoy component. If the DOM element is
 		 * not a component then you probably lack something in terms of UI and you could build what you need as a new custom component or use another approach/set of components when building the UI.
 		 * 
-		 * @param {string} jQuerySelector the jQuery selector string that is used to find the DOM element.
+		 * @param {string} cssSelector the css selector string that is used to find the DOM element.
 		 * @param {string} className the class to be added to the element.
 		 */
-		addClassToDOMElement: function(jQuerySelector, className) {
-			$(jQuerySelector).addClass(className);
+		addClassToDOMElement: function(cssSelector, className) {
+			$(cssSelector).addClass(className);
 		},
 
 		/**
 		 * Utility method for manipulating any DOM element's style classes. 
-		 * It will remove the given class from the DOM element identified via the jQuery selector param.
+		 * It will remove the given class from the DOM element identified via the css selector param.
 		 * 
 		 * NOTE: This operation is not persistent; it executes client-side only; so for example when the browser is reloaded (F5/Ctrl+F5) by the user classes removed by this method are lost;
 		 * If you need this to be persistent - you can do that directly via server side scripting elements.myelement.removeStyleClass(...) if the DOM element is a Servoy component. If the DOM element it is
 		 * not a component then you probably lack something in terms of UI and you could build what you need as a new custom component or use another approach/set of components when building the UI.
 		 * 
-		 * @param {string} jQuerySelector the jQuery selector string that is used to find the DOM element.
+		 * @param {string} cssSelector the css selector string that is used to find the DOM element.
 		 * @param {string} className the class to be added to the element.
 		 */
-		removeClassFromDOMElement: function(jQuerySelector, className) {
-			$(jQuerySelector).removeClass(className);
+		removeClassFromDOMElement: function(cssSelector, className) {
+			$(cssSelector).removeClass(className);
 		},
 		
 		/**

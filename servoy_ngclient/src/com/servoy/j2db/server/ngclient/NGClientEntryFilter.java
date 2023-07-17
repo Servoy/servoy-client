@@ -6,7 +6,6 @@ import static com.servoy.j2db.server.ngclient.MediaResourcesServlet.FLATTENED_SO
 import static com.servoy.j2db.server.ngclient.WebsocketSessionFactory.CLIENT_ENDPOINT;
 import static com.servoy.j2db.util.Utils.getAsBoolean;
 import static java.util.Arrays.asList;
-import static javax.servlet.http.HttpServletResponse.SC_SERVICE_UNAVAILABLE;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -45,7 +44,6 @@ import org.sablo.IContributionEntryFilter;
 import org.sablo.IndexPageEnhancer;
 import org.sablo.WebEntry;
 import org.sablo.security.ContentSecurityPolicyConfig;
-import org.sablo.services.template.ModifiablePropertiesGenerator;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.util.HTTPUtils;
 import org.sablo.websocket.IWebsocketSessionFactory;
@@ -125,6 +123,12 @@ public class NGClientEntryFilter extends WebEntry
 		"sablo/lib/reconnecting-websocket.js", //
 		"sablo/js/websocket.js", //
 		"sablo/js/sablo_app.js", //
+		"sablo/js/types_registry.js", //
+
+		"sablo/types/array.js", //
+		"sablo/types/customJSONObject.js", //
+		"sablo/types/objectType.js", //
+
 		"sablo/sabloService.js" };
 	public static final String[] INDEX_SERVOY_JS = { //
 		"js/servoy.js", //
@@ -140,6 +144,7 @@ public class NGClientEntryFilter extends WebEntry
 	private String[] services;
 
 	private String group_id;
+	private boolean ng1Exported = true;
 
 	private final JSTemplateGenerator jsTemplateGenerator = new JSTemplateGenerator();
 
@@ -155,6 +160,15 @@ public class NGClientEntryFilter extends WebEntry
 		// when started in developer - init is done in the ResourceProvider filter
 		if (!ApplicationServerRegistry.get().isDeveloperStartup())
 		{
+			try
+			{
+				ng1Exported = fc.getServletContext().getResource("/js/servoy.js") != null;
+			}
+			catch (Exception e)
+			{
+				Debug.error("Exception during init checking if there are ng1 resources (/js/servoy.js)", e);
+			}
+
 			try (InputStream is = fc.getServletContext().getResourceAsStream("/WEB-INF/components.properties"))
 			{
 				Properties properties = new Properties();
@@ -286,6 +300,15 @@ public class NGClientEntryFilter extends WebEntry
 					String solutionName = getSolutionNameFromURI(uri);
 					if (solutionName != null)
 					{
+						// if ng1 is not exported, redirect to ng2
+						if (!ng1Exported && uri.endsWith(".html"))
+						{
+							String queryString = request.getQueryString();
+							if (queryString != null) uri += "?" + queryString;
+							uri = uri.replace(SOLUTIONS_PATH, AngularIndexPageWriter.SOLUTIONS_PATH);
+							response.sendRedirect(uri.toString());
+							return;
+						}
 						String clientnr = AngularIndexPageWriter.getClientNr(uri, request);
 						INGClientWebsocketSession wsSession = null;
 						HttpSession httpSession = request.getSession(false);
@@ -347,7 +370,7 @@ public class NGClientEntryFilter extends WebEntry
 									return;
 								}
 
-								if (handleMaintenanceMode(request, response, wsSession))
+								if (AngularIndexPageWriter.handleMaintenanceMode(request, response, wsSession))
 								{
 									return;
 								}
@@ -375,10 +398,9 @@ public class NGClientEntryFilter extends WebEntry
 						}
 					}
 				}
-
-				if (!uri.contains(ModifiablePropertiesGenerator.PUSH_TO_SERVER_BINDINGS_LIST))
-					Debug.log("No solution found for this request, calling the default filter: " + uri);
+				Debug.log("No solution found for this request, calling the default filter: " + uri);
 			}
+
 			super.doFilter(servletRequest, servletResponse, filterChain, null, null, null, null, null);
 		}
 		catch (RuntimeException | Error e)
@@ -420,23 +442,6 @@ public class NGClientEntryFilter extends WebEntry
 			}
 		}
 
-	}
-
-	private boolean handleMaintenanceMode(HttpServletRequest request, HttpServletResponse response, INGClientWebsocketSession wsSession) throws IOException
-	{
-		boolean maintenanceMode = wsSession == null //
-			&& ApplicationServerRegistry.get().getDataServer().isInServerMaintenanceMode() //
-			// when there is a http session, let the new client go through, otherwise another
-			// client from the same browser may be killed by a load balancer
-			&& request.getSession(false) == null;
-		if (maintenanceMode)
-		{
-			response.getWriter().write("Server in maintenance mode");
-			response.setStatus(SC_SERVICE_UNAVAILABLE);
-			return true;
-		}
-
-		return false;
 	}
 
 	private boolean handleForm(HttpServletRequest request, HttpServletResponse response, INGClientWebsocketSession wsSession, FlattenedSolution fs)

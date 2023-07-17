@@ -52,7 +52,6 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.plugins.ClientPluginAccessProvider;
 import com.servoy.j2db.plugins.IClientPluginAccess;
-import com.servoy.j2db.plugins.PluginManager;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.StartupArguments;
@@ -254,7 +253,7 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 	{
 		pluginManager = ApplicationServerRegistry.get().getPluginManager().createEfficientCopy(this);
 		pluginManager.init();
-		((PluginManager)pluginManager).initClientPlugins(this, (IClientPluginAccess)(pluginAccess = createClientPluginAccess()));
+		pluginManager.initClientPlugins(this, (IClientPluginAccess)(pluginAccess = createClientPluginAccess()));
 		((FoundSetManager)getFoundSetManager()).setColumnManangers(pluginManager.getColumnValidatorManager(), pluginManager.getColumnConverterManager(),
 			pluginManager.getUIConverterManager());
 	}
@@ -566,12 +565,6 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 		{
 			Debug.error(e);
 		}
-	}
-
-	@Override
-	public Object[] getTenantValue()
-	{
-		return getClientInfo().getTenantValue();
 	}
 
 	public ILAFManager getLAFManager()

@@ -104,5 +104,10 @@ public class FormElementExtension implements INGFormElement
 		return parentFormElementContext.getForm();
 	}
 
+	@Override
+	public FormElement getRootFormElement()
+	{
+		return parentFormElementContext.getRootFormElement();
+	}
 
 }

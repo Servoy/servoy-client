@@ -17,8 +17,8 @@
 package com.servoy.j2db.query;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.servoy.base.query.BaseAbstractBaseQuery;
 import com.servoy.base.query.BaseQueryTable;
@@ -33,14 +33,10 @@ import com.servoy.j2db.util.visitor.IVisitor;
  */
 public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 {
-	private static final String ANONYMOUS = "__ANONYMOUS_CONDITION__";
-
 	private BaseQueryTable table;
-	private List columns = new ArrayList();
-	private List values = new ArrayList();
-	private HashMap<String, AndCondition> conditions = null; // Map of AndCondition objects
-	private List joins; // joins in update statements are not supported by hibernate.
-
+	private List<QueryColumn> columns = new ArrayList<>();
+	private List<Object> values = new ArrayList<>();
+	private AndCondition condition = new AndCondition();
 
 	public QueryUpdate(BaseQueryTable table)
 	{
@@ -58,73 +54,45 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 		return (values.size() > 0);
 	}
 
-	public List getColumns()
+	public List<QueryColumn> getColumns()
 	{
 		return columns;
 	}
 
-	public List getValues()
+	public List<Object> getValues()
 	{
 		return values;
 	}
 
 	public void setCondition(ISQLCondition c)
 	{
-		setCondition(ANONYMOUS, c);
+		setCondition(null, c);
 	}
 
 	public void addCondition(ISQLCondition c)
 	{
-		addCondition(ANONYMOUS, c);
+		addCondition(null, c);
 	}
 
 	public void setCondition(String name, ISQLCondition c)
 	{
-		conditions = QuerySelect.setInConditionMap(conditions, name, c);
+		condition.setCondition(name, c);
 	}
 
 	public void addCondition(String name, ISQLCondition c)
 	{
-		conditions = QuerySelect.addToConditionMap(conditions, name, c);
+		condition.addCondition(name, c);
 	}
-
-//	public void setJoins(List jns)
-//	{
-//		int i;
-//		for (i = 0; jns != null && i < jns.size(); i++)
-//		{
-//			Object join = jns.get(i);
-//			if (!(join instanceof SQLJoin))
-//			{
-//				throw new IllegalArgumentException("Unknown join class "+join.getClass().getName()); //$NON-NLS-1$
-//			}
-//		}
-//		joins = i == 0 ? null : jns;
-//	}
-
-//	public void addJoin(SQLJoin join)
-//	{
-//		if (joins == null)
-//		{
-//			joins = new ArrayList();
-//		}
-//		joins.add(join);
-//	}
 
 	public ISQLCondition getCondition()
 	{
-		return QuerySelect.getConditionMapCondition(conditions);
+		return condition;
 	}
 
 	public ISQLCondition getConditionClone()
 	{
 		return AbstractBaseQuery.deepClone(getCondition());
 	}
-
-//	public List getJoins()
-//	{
-//		return joins;
-//	}
 
 	public BaseQueryTable getTable()
 	{
@@ -139,11 +107,10 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 
 	public void acceptVisitor(IVisitor visitor)
 	{
-		table = AbstractBaseQuery.acceptVisitor(table, visitor);
-		columns = AbstractBaseQuery.acceptVisitor(columns, visitor);
-		values = AbstractBaseQuery.acceptVisitor(values, visitor);
-		conditions = AbstractBaseQuery.acceptVisitor(conditions, visitor);
-		joins = AbstractBaseQuery.acceptVisitor(joins, visitor);
+		table = acceptVisitor(table, visitor);
+		columns = acceptVisitor(columns, visitor);
+		values = acceptVisitor(values, visitor);
+		condition = acceptVisitor(condition, visitor);
 	}
 
 	@Override
@@ -152,8 +119,7 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 		final int PRIME = 31;
 		int result = 1;
 		result = PRIME * result + ((this.columns == null) ? 0 : this.columns.hashCode());
-		result = PRIME * result + ((this.conditions == null) ? 0 : this.conditions.hashCode());
-		result = PRIME * result + ((this.joins == null) ? 0 : this.joins.hashCode());
+		result = PRIME * result + ((this.condition == null) ? 0 : this.condition.hashCode());
 		result = PRIME * result + ((this.table == null) ? 0 : this.table.hashCode());
 		result = PRIME * result + ((this.values == null) ? 0 : this.values.hashCode());
 		return result;
@@ -171,16 +137,11 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 			if (other.columns != null) return false;
 		}
 		else if (!this.columns.equals(other.columns)) return false;
-		if (this.conditions == null)
+		if (this.condition == null)
 		{
-			if (other.conditions != null) return false;
+			if (other.condition != null) return false;
 		}
-		else if (!this.conditions.equals(other.conditions)) return false;
-		if (this.joins == null)
-		{
-			if (other.joins != null) return false;
-		}
-		else if (!this.joins.equals(other.joins)) return false;
+		else if (!this.condition.equals(other.condition)) return false;
 		if (this.table == null)
 		{
 			if (other.table != null) return false;
@@ -221,13 +182,9 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 			sb.append(BaseAbstractBaseQuery.toString(values.get(i)));
 		}
 		sb.append(')');
-		if (conditions != null)
+		if (condition.getConditions() != null)
 		{
-			sb.append(" WHERE ").append(getCondition()); //$NON-NLS-1$
-		}
-		for (int i = 0; joins != null && i < joins.size(); i++)
-		{
-			sb.append(' ').append(joins.get(i).toString());
+			sb.append(" WHERE ").append(condition); //$NON-NLS-1$
 		}
 
 		return sb.toString();
@@ -239,7 +196,7 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 	public Object writeReplace()
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
-		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { table, columns, values, conditions, joins, comment });
+		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { table, columns, values, condition, null, comment });
 	}
 
 	public QueryUpdate(ReplacedObject s)
@@ -249,8 +206,25 @@ public class QueryUpdate extends AbstractBaseQuery implements ISQLUpdate
 		this.table = (QueryTable)members[i++];
 		this.columns = (List)members[i++];
 		this.values = (List)members[i++];
-		this.conditions = (HashMap<String, AndCondition>)members[i++];
-		this.joins = (List)members[i++];
+
+		// condition used to be a HashMap<String, AndCondition> or null, now it is a AndCondition
+		Object cond = members[i++];
+		if (cond instanceof Map)
+		{
+			AndCondition c = new AndCondition();
+			((Map<String, AndCondition>)cond).entrySet().forEach(entry -> c.setCondition(entry.getKey(), entry.getValue()));
+			this.condition = c;
+		}
+		else if (cond == null)
+		{
+			this.condition = new AndCondition();
+		}
+		else
+		{
+			this.condition = (AndCondition)cond;
+		}
+
+		/* this.joins = (List) members[i++]; */ i++;
 		if (i < members.length) // comment is a new field that was added, so it is optional now
 		{
 			this.comment = (String)members[i++];

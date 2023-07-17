@@ -25,8 +25,8 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -38,14 +38,15 @@ import com.servoy.j2db.util.Debug;
 /**
  * This is meant to replace FoundsetReferencePropertyTypeOld as that sends too much server side information to the client - and it's not always needed. (not sure it is ever really needed)
  * The idea is that you can send an unique string hash to the client representing a foundset value (that will probably be stored as a value in the service/component
- * model model as well as a FoundsetPropertyType) and then you can send that back to server through the same property type (for example as an argument to server side
+ * model model as well as a FoundsetPropertyType) and then you can send that back to server through this property type (for example as an argument to server side
  * scripting of that service/component) and on the server you get the real foundset it represents.
  *
  * @author acostescu
  */
 @SuppressWarnings("nls")
 public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundSetInternal, Integer> implements IPropertyConverterForBrowser<IFoundSetInternal>,
-	IClassPropertyType<IFoundSetInternal>, IRhinoToSabloComponent<IFoundSetInternal>, ISabloComponentToRhino<IFoundSetInternal>
+	IClassPropertyType<IFoundSetInternal>, IRhinoToSabloComponent<IFoundSetInternal>, ISabloComponentToRhino<IFoundSetInternal>,
+	IPropertyWithClientSideConversions<IFoundSetInternal>
 {
 
 	public static final FoundsetReferencePropertyType INSTANCE = new FoundsetReferencePropertyType();
@@ -96,8 +97,8 @@ public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundS
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, IFoundSetInternal value, PropertyDescription pd, DataConversion clientConversion,
-		IBrowserConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, IFoundSetInternal value, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+		throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.value(addReference(value, dataConverterContext));
@@ -139,6 +140,14 @@ public class FoundsetReferencePropertyType extends ReferencePropertyType<IFoundS
 			return (IFoundSetInternal)value;
 		}
 		return null;
+	}
+
+	@Override
+	public boolean writeClientSideTypeName(JSONWriter w, String keyToAddTo, PropertyDescription pd)
+	{
+		JSONUtils.addKeyIfPresent(w, keyToAddTo);
+		w.value(TYPE_NAME);
+		return true;
 	}
 
 }

@@ -35,20 +35,21 @@ import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.ArrayOperation;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.IBrowserConverterContext;
+import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.IPushToServerSpecialType;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
-import org.sablo.websocket.utils.JSONUtils.ChangesToJSONConverter;
-import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
+import org.sablo.websocket.utils.JSONUtils.IJSONStringWithClientSideType;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
+import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
+import com.servoy.j2db.server.ngclient.property.types.ISupportTemplateValue;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
@@ -67,8 +68,6 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	 * Non-record linked property change received from client...
 	 */
 	protected static final String PROPERTY_CHANGE = "propertyChange";
-
-	protected static final String PUSH_TO_SERVER = "w";
 
 	protected static final String ID_FOR_FOUNDSET = "idForFoundset";
 
@@ -142,7 +141,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 	private interface InitializingState<YT>
 	{
-		public YT initialize();
+		public YT initialize(IChangeListener monitor);
 	}
 
 	private class FormElementInitializingState implements InitializingState<YT>
@@ -157,10 +156,26 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			this.formElement = formElement;
 		}
 
-		public YT initialize()
+		public YT initialize(IChangeListener monitor)
 		{
-			return (YT)NGConversions.INSTANCE.convertFormElementToSabloComponentValue(formElementValue, wrappedPropertyDescription, formElement,
+			YT sabloVal = (YT)NGConversions.INSTANCE.convertFormElementToSabloComponentValue(formElementValue, wrappedPropertyDescription, formElement,
 				(WebFormComponent)webObjectContext.getUnderlyingWebObject(), (DataAdapterList)wrappedComponentContext.getDataAdapterList());
+
+			// if the wrapped type didn't want to be in template value, we have to notify a change on this prop. to tell
+			// the parent container to move this from template runtime values to runtime values - in order for it to be sent to browser;
+			// this is needed because valueInTemplate(...) call for foundset linked type always returns true (wants to be in template) while
+			// wrapped would generally return false (for example dataproviders want to be just runtime values) and expect to be sent to browser
+			// after being attached and calculating their initial value; without this if, a foundset linked dataprovider prop in the root of a
+			// component would not send it's value to browser initially if developer assigned to it at design time a form variable for example
+			IPropertyType< ? > wrappedType = wrappedPropertyDescription.getType();
+			if ((wrappedType instanceof ISupportTemplateValue) && // types that do not implement ISupportTemplateValue are considered to be in template
+				!((ISupportTemplateValue<YF>)wrappedType).valueInTemplate(formElementValue, wrappedPropertyDescription,
+					new FormElementContext(formElement.getRootFormElement())))
+			{
+				monitor.valueChanged();
+			}
+
+			return sabloVal;
 		}
 
 	}
@@ -175,7 +190,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			this.rhinoValue = rhinoValue;
 		}
 
-		public YT initialize()
+		public YT initialize(IChangeListener monitor)
 		{
 			// convert rhino to sablo using wrapped type - but give this conversion the correct IWebObjectContext (using the foundset property's DAL)
 			return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(rhinoValue, null, wrappedPropertyDescription, wrappedComponentContext);
@@ -258,7 +273,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			// can already be non-null if it was a default value or if for some reason the value was detached and re-attached to a component
 			if (wrappedSabloValue == null)
 			{
-				setWrappedSabloValue(initializingState.initialize());
+				setWrappedSabloValue(initializingState.initialize(monitor));
 			}
 			else if (wrappedSabloValue instanceof IHasUnderlyingState)
 				((IHasUnderlyingState)wrappedSabloValue).addStateChangeListener(getWrappedUnderlyingStateListener());
@@ -416,7 +431,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 				{
 					// wrapped property is now no longer record linked so we only send one value to be duplicated
 					// this could be the result of initialization or it could for example get changed from Rhino
-					getFoundsetValue().removeViewportDataChangeMonitor(viewPortChangeMonitor);
+					foundsetPropValue.removeViewportDataChangeMonitor(viewPortChangeMonitor);
 					if (idForFoundset != null)
 					{
 						foundsetPropValue.setRecordDataLinkedPropertyIDToColumnDP(idForFoundset, null);
@@ -469,9 +484,9 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 				if (wrappedSabloValue instanceof IDataLinkedPropertyValue)
 					((IDataLinkedPropertyValue)wrappedSabloValue).attachToBaseObject(changeMonitor, wrappedComponentContext);
-			}
 
-//			changeMonitor.valueChanged();
+				changeMonitor.valueChanged();
+			}
 		}
 		else
 		{
@@ -481,8 +496,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		}
 	}
 
-	public JSONWriter fullToJSON(JSONWriter writer, String key, DataConversion clientConversion, PropertyDescription wrappedPropertyDescription,
-		IBrowserConverterContext dataConverterContext) throws JSONException
+	public JSONWriter fullToJSON(JSONWriter writer, String key, PropertyDescription wrappedPropertyDescription, IBrowserConverterContext dataConverterContext)
+		throws JSONException
 	{
 		if (!wrappedValueInitialized)
 		{
@@ -490,28 +505,32 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			return writer;
 		}
 
-		clientConversion.convert(FoundsetLinkedPropertyType.CONVERSION_NAME);
 		JSONUtils.addKeyIfPresent(writer, key);
 
 		writer.object();
 		writer.key(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME).value(forFoundsetPropertyName);
-		if (idForFoundset != null) writer.key(ID_FOR_FOUNDSET).value(idForFoundset == null ? JSONObject.NULL : idForFoundset);
+		if (idForFoundset != null) writer.key(ID_FOR_FOUNDSET).value(idForFoundset);
 		idForFoundsetChanged = false;
-
-		PushToServerEnum pushToServer = BrowserConverterContext.getPushToServerValue(dataConverterContext);
-		if (pushToServer == PushToServerEnum.shallow || pushToServer == PushToServerEnum.deep)
-		{
-			writer.key(PUSH_TO_SERVER).value(pushToServer == PushToServerEnum.shallow ? false : true);
-		}
 
 		if (viewPortChangeMonitor == null)
 		{
 			// single value; not record dependent
-			DataConversion dataConversions = new DataConversion();
-			dataConversions.pushNode(FoundsetLinkedPropertyType.SINGLE_VALUE);
-			FullValueToJSONConverter.INSTANCE.toJSONValue(writer, FoundsetLinkedPropertyType.SINGLE_VALUE, wrappedSabloValue, wrappedPropertyDescription,
-				dataConversions, dataConverterContext);
-			JSONUtils.writeClientConversions(writer, dataConversions);
+			if (getFoundsetValue() != null)
+			{
+				// normal situation
+				IJSONStringWithClientSideType wrappedJSONValue = JSONUtils.FullValueToJSONConverter.INSTANCE.getConvertedValueWithClientType(wrappedSabloValue,
+					wrappedPropertyDescription,
+					dataConverterContext, false);
+
+				writer.key(FoundsetLinkedPropertyType.SINGLE_VALUE).value(wrappedJSONValue); // write it even if it's null (the prop doesn't want to write itself); we need a value to be generated on client in the viewport
+				if (wrappedJSONValue.getClientSideType() != null) writer.key(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value(wrappedJSONValue.getClientSideType());
+			}
+			else
+			{
+				// if the foundset property value that this prop. is supposed to use is set to null, we have nothing more to do then send null (it will generate a 0 sized array on the client anyway);
+				// in attachToBaseObject we didn't even call attach for the wrapped sablo value so, to avoid exceptions, just send null single value to client
+				writer.key(FoundsetLinkedPropertyType.SINGLE_VALUE).value(JSONObject.NULL);
+			}
 		}
 		else
 		{
@@ -530,20 +549,17 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	{
 		FoundsetTypeViewport foundsetPropertyViewPort = getFoundsetValue().getViewPort();
 
-		DataConversion clientConversionInfo = new DataConversion();
 
 		destinationJSON.key(FoundsetLinkedPropertyType.VIEWPORT_VALUE);
-		clientConversionInfo.pushNode(FoundsetLinkedPropertyType.VIEWPORT_VALUE);
-		viewPortChangeMonitor.getRowDataProvider().writeRowData(foundsetPropertyViewPort.getStartIndex(),
+		ViewportClientSideTypes clientSideTypesForViewport = viewPortChangeMonitor.getRowDataProvider().writeRowData(foundsetPropertyViewPort.getStartIndex(),
 			foundsetPropertyViewPort.getStartIndex() + foundsetPropertyViewPort.getSize() - 1, null, getFoundsetValue().getFoundset(), destinationJSON,
-			clientConversionInfo, wrappedSabloValue);
-		clientConversionInfo.popNode();
+			wrappedSabloValue);
 
-		// conversion info for websocket traffic (for example Date objects will turn into long)
-		JSONUtils.writeClientConversions(destinationJSON, clientConversionInfo);
+		// conversion info for websocket traffic (for example Date objects will turn into long or String to be usable in JSON)
+		if (clientSideTypesForViewport != null) clientSideTypesForViewport.writeClientSideTypes(destinationJSON, JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY);
 	}
 
-	public JSONWriter changesToJSON(JSONWriter writer, String key, DataConversion clientConversion, PropertyDescription wrappedPropertyDescription,
+	public JSONWriter changesToJSON(JSONWriter writer, String key, PropertyDescription wrappedPropertyDescription,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (!wrappedValueInitialized)
@@ -552,7 +568,10 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			return writer;
 		}
 
-		clientConversion.convert(FoundsetLinkedPropertyType.CONVERSION_NAME);
+		// if the foundset property value that this prop. is supposed to use is set to null, we have nothing more to do then send null (it will generate a 0 sized array on the client anyway);
+		// in attachToBaseObject we didn't even call then attach for the wrapped sablo value so, to avoid exceptions, fullToJSON will just send null single value to client
+		if (getFoundsetValue() == null) return fullToJSON(writer, key, wrappedPropertyDescription, dataConverterContext);
+
 		JSONUtils.addKeyIfPresent(writer, key);
 
 		writer.object();
@@ -564,12 +583,15 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 		if (viewPortChangeMonitor == null)
 		{
-			// single value; just send it's changes
-			DataConversion dataConversions = new DataConversion();
-			dataConversions.pushNode(FoundsetLinkedPropertyType.SINGLE_VALUE_UPDATE);
-			ChangesToJSONConverter.INSTANCE.toJSONValue(writer, FoundsetLinkedPropertyType.SINGLE_VALUE_UPDATE, wrappedSabloValue, wrappedPropertyDescription,
-				dataConversions, dataConverterContext);
-			JSONUtils.writeClientConversions(writer, dataConversions);
+			IJSONStringWithClientSideType wrappedJSONValue = JSONUtils.ChangesToJSONConverter.INSTANCE.getConvertedValueWithClientType(wrappedSabloValue,
+				wrappedPropertyDescription,
+				dataConverterContext, false);
+
+			if (wrappedJSONValue != null)
+			{
+				writer.key(FoundsetLinkedPropertyType.SINGLE_VALUE_UPDATE).value(wrappedJSONValue);
+				if (wrappedJSONValue.getClientSideType() != null) writer.key(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value(wrappedJSONValue.getClientSideType());
+			}
 		}
 		else
 		{
@@ -582,26 +604,18 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			}
 			else if (viewPortChangeMonitor.hasViewportChanges())
 			{
-				DataConversion clientConversionInfo = new DataConversion();
 				writer.key(FoundsetLinkedPropertyType.VIEWPORT_VALUE_UPDATE);
-				clientConversionInfo.pushNode(FoundsetLinkedPropertyType.VIEWPORT_VALUE_UPDATE);
 
 				ArrayOperation[] viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
 				viewPortChangeMonitor.clearChanges();
 
 				writer.array();
-				for (int i = 0; i < viewPortChanges.length; i++)
+				for (ArrayOperation viewPortChange : viewPortChanges)
 				{
-					clientConversionInfo.pushNode(String.valueOf(i));
-					FoundsetPropertyType.writeViewportOperationToJSON(viewPortChanges[i], viewPortChangeMonitor.getRowDataProvider(), getFoundset(),
-						getFoundsetValue().getViewPort().getStartIndex(), writer, null, clientConversionInfo, wrappedSabloValue);
-					clientConversionInfo.popNode();
+					FoundsetPropertyType.writeViewportOperationToJSON(viewPortChange, viewPortChangeMonitor.getRowDataProvider(), getFoundset(),
+						getFoundsetValue().getViewPort().getStartIndex(), writer, null, wrappedSabloValue);
 				}
 				writer.endArray();
-				clientConversionInfo.popNode();
-
-				// conversion info for websocket traffic (for example Date objects will turn into long)
-				JSONUtils.writeClientConversions(writer, clientConversionInfo);
 			}
 			else viewPortChangeMonitor.clearChanges(); // else there is no change to send but clear it anyway!
 
@@ -765,7 +779,9 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 				}
 				finally
 				{
-					foundsetPropertyValue.setDataAdapterListToSelectedRecord();
+					if (actualWrappedValueChangeHandlerForFoundsetLinked == null ||
+						!actualWrappedValueChangeHandlerForFoundsetLinked.willRestoreSelectedRecordToFoundsetDALLater())
+						foundsetPropertyValue.setDataAdapterListToSelectedRecord();
 				}
 			}
 			else

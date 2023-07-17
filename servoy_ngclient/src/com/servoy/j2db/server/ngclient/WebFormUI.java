@@ -40,7 +40,6 @@ import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.specification.property.types.VisiblePropertyType;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IWindow;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.FormController;
@@ -491,14 +490,13 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	}
 
 	@Override
-	public void writeAllComponentsChanges(JSONWriter w, String keyInParent, IToJSONConverter<IBrowserConverterContext> converter,
-		DataConversion clientDataConversions) throws JSONException
+	public void writeAllComponentsChanges(JSONWriter w, String keyInParent, IToJSONConverter<IBrowserConverterContext> converter) throws JSONException
 	{
 		try
 		{
 			getController().setRendering(true);
 			// converter here is always ChangesToJSONConverter except for some unit tests
-			super.writeAllComponentsChanges(w, keyInParent, converter, clientDataConversions);
+			super.writeAllComponentsChanges(w, keyInParent, converter);
 		}
 		finally
 		{
@@ -712,9 +710,24 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		}
 		if (retValue) setVisible(visible);
 
-		// childFormsThatWereNotified is given here to avoid double calling for example onHide on the same form if the form's onHide returns false the first time
+		// childFormsThatWereNotified is given here to avoid double calling for example onHide on the same form if the form's onHide returns false the first time;
+		// I think this call is only useful for visible = true so onShow (to propagate data?); in case of hide I think childFormsThatWereNotified will already contain forms that DAL would want to hide (SVY-8406)
 		dataAdapterList.notifyVisible(visible, invokeLaterRunnables, childFormsThatWereNotified);
+
 		return retValue;
+	}
+
+	@Override
+	public boolean executePreHideSteps()
+	{
+		for (WebComponent component : getComponents())
+		{
+			if (!((WebFormComponent)component).executePreHideSteps())
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override

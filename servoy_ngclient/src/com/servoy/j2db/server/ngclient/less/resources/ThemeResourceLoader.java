@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -40,7 +39,8 @@ public class ThemeResourceLoader
 	public static final String CUSTOM_PROPERTIES_NG2_LESS = "custom_servoy_theme_properties_ng2.less";
 	public static final String PROPERTIES_LESS = "servoy_theme_properties.less";
 	public static final String THEME_LESS = "servoy_theme.less";
-	public static final String[] VERSIONS = new String[] { "latest", "2022.3.0_ng2", "2022.3.0", "2021.3.0_ng2", "2020.6.0", "2019.12.0", "2019.6.0", "2019.3.0", "8.4.0" };
+	public static final String VARIANTS_JSON = "variants.json";
+	public static final String[] VERSIONS = new String[] { "latest", "2023.3.0", "2022.3.0", "2021.3.0", "2020.6.0", "2019.12.0", "2019.6.0", "2019.3.0", "8.4.0" };
 
 	private static SortedMap<Version, String> themePropertyResource = new TreeMap<>();
 	private static SortedMap<Version, String> themeResource = new TreeMap<>();
@@ -54,6 +54,8 @@ public class ThemeResourceLoader
 		themeResource.put(new Version("2021.3.0_ng2"), "servoy_theme_2021.3.0_ng2.less");
 		themeResource.put(new Version("2022.3.0"), "servoy_theme_2022.3.0.less");
 		themeResource.put(new Version("2022.3.0_ng2"), "servoy_theme_2022.3.0_ng2.less");
+		themeResource.put(new Version("2023.3.0"), "servoy_theme_2023.3.0.less");
+		themeResource.put(new Version("2023.3.0_ng2"), "servoy_theme_2023.3.0_ng2.less");
 
 		themePropertyResource.put(new Version("8.4.0"), "servoy_theme_properties_8.4.0.less");
 		themePropertyResource.put(new Version("2019.3.0"), "servoy_theme_properties_2019.3.0.less");
@@ -63,6 +65,8 @@ public class ThemeResourceLoader
 		themePropertyResource.put(new Version("2021.3.0_ng2"), "servoy_theme_properties_2021.3.0_ng2.less");
 		themePropertyResource.put(new Version("2022.3.0"), "servoy_theme_properties_2022.3.0.less");
 		themePropertyResource.put(new Version("2022.3.0_ng2"), "servoy_theme_properties_2022.3.0_ng2.less");
+		themePropertyResource.put(new Version("2023.3.0"), "servoy_theme_properties_2023.3.0.less");
+		themePropertyResource.put(new Version("2023.3.0_ng2"), "servoy_theme_properties_2023.3.0_ng2.less");
 	}
 
 	public static byte[] getDefaultSolutionLess()
@@ -75,9 +79,14 @@ public class ThemeResourceLoader
 		return load("default_solution_ng2.less", ClientVersion.getPureVersion()).getBytes(Charset.forName("UTF-8"));
 	}
 
+	public static byte[] getVariantsFile()
+	{
+		return load("variants.json", ClientVersion.getPureVersion()).getBytes(Charset.forName("UTF-8"));
+	}
+
 	public static byte[] getCustomProperties()
 	{
-		return load("custom_servoy_theme_properties.less", ClientVersion.getPureVersion()).getBytes(Charset.forName("UTF-8"));
+		return load("custom_servoy_theme_properties.less", getLatestVersion()).getBytes(Charset.forName("UTF-8"));
 	}
 
 	public static byte[] getNG2CustomProperties()
@@ -87,7 +96,12 @@ public class ThemeResourceLoader
 
 	public static String getLatestNG2Version()
 	{
-		return Arrays.stream(VERSIONS).filter(version -> version.contains("_ng2")).findFirst().orElse(null);
+		return getLatestVersion() + "_ng2";
+	}
+
+	public static String getLatestVersion()
+	{
+		return Arrays.stream(VERSIONS).filter(version -> !version.contains("_ng2") && !version.contains("latest")).findFirst().orElse(null);
 	}
 
 	public static String getLatestThemeProperties()
@@ -122,16 +136,17 @@ public class ThemeResourceLoader
 	private static String getResource(String maxVersion, SortedMap<Version, String> versionToResource)
 	{
 		Version version = new Version(maxVersion);
+		if ("latest_ng2".equals(maxVersion))
+		{
+			version = new Version(getLatestNG2Version());
+		}
 		// first get the exact version
 		String resource = versionToResource.get(version);
 		if (resource == null)
 		{
-			// not there now load the closest match
-			Iterator<Entry<Version, String>> iterator = versionToResource.entrySet().iterator();
 			Version last = null;
-			while (iterator.hasNext())
+			for (Entry<Version, String> next : versionToResource.entrySet())
 			{
-				Entry<Version, String> next = iterator.next();
 				if (next.getKey().compareTo(version) < 0)
 				{
 					last = next.getKey();
@@ -203,12 +218,17 @@ public class ThemeResourceLoader
 		public int compareTo(Version o)
 		{
 			if (ng2 != o.ng2) return ng2 ? -1 : 1;
-			if (ng2 && o.ng2) return 0;
 			if (major > o.major) return 1;
 			if (major < o.major) return -1;
 			if (minor > o.minor) return 1;
 			if (minor < o.minor) return -1;
 			return micro - o.micro;
+		}
+
+		@Override
+		public String toString()
+		{
+			return major + "." + minor + "." + micro + (ng2 ? "_ng2" : "");
 		}
 	}
 }

@@ -17,6 +17,7 @@
 package com.servoy.j2db.persistence;
 
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.util.Debug;
@@ -55,12 +56,16 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 
 	public String toHTML()
 	{
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("<b>"); //$NON-NLS-1$
 		sb.append(getName());
 		sb.append("</b> "); //$NON-NLS-1$
 		sb.append(AGGREGATE_TYPE_STRINGS[getType()]);
 		sb.append("( "); //$NON-NLS-1$
+		if (getAggregateQuantifier() == QueryAggregate.DISTINCT)
+		{
+			sb.append("distinct "); //$NON-NLS-1$
+		}
 		sb.append(getDataProviderIDToAggregate());
 		sb.append(" )"); //$NON-NLS-1$
 		return sb.toString();
@@ -123,6 +128,26 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 	public int getType()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_TYPE).intValue();
+	}
+
+	/**
+	 * Set the aggregateQuantifier
+	 *
+	 * @param arg the aggregateQuantifier
+	 */
+	public void setAggregateQuantifier(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_AGGREGATE_QUANTIFIER, arg);
+	}
+
+	/**
+	 * Get the aggregateQuantifier
+	 *
+	 * @return the aggregateQuantifier
+	 */
+	public int getAggregateQuantifier()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_AGGREGATE_QUANTIFIER).intValue();
 	}
 
 	/**
@@ -249,7 +274,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 
 	public int getFlags()
 	{
-		return Column.NORMAL_COLUMN;
+		return IBaseColumn.NORMAL_COLUMN;
 	}
 
 	/**
@@ -269,6 +294,7 @@ public class AggregateVariable extends AbstractBase implements IColumn, ISupport
 		{
 			AggregateVariable other = (AggregateVariable)obj;
 			return (getDataProviderID().equals(other.getDataProviderID()) && getType() == other.getType() &&
+				getAggregateQuantifier() == other.getAggregateQuantifier() &&
 				getDataProviderIDToAggregate().equals(other.getDataProviderIDToAggregate()));
 		}
 		return false;

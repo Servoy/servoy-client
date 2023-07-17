@@ -41,7 +41,7 @@ public class Object
 	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is
 	 */
-	public static boolean js_is(Object value1, Object value2)
+	public boolean js_is(Object value1, Object value2)
 	{
 		return false;
 	}
@@ -60,7 +60,7 @@ public class Object
 	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
 	 */
-	public static Object js_assign(Object target, Object... sources)
+	public Object js_assign(Object target, Object... sources)
 	{
 		return null;
 	}
@@ -84,7 +84,7 @@ public class Object
 	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create
 	 */
-	public static Object js_create(Object object)
+	public Object js_create(Object object)
 	{
 		return null;
 	}
@@ -101,7 +101,7 @@ public class Object
 	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create
 	 */
-	public static Object js_create(Object object, Object properties)
+	public Object js_create(Object object, Object properties)
 	{
 		return null;
 	}
@@ -133,7 +133,7 @@ public class Object
 	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperties
 	 */
-	public static Object js_defineProperties(Object object, Object properties)
+	public Object js_defineProperties(Object object, Object properties)
 	{
 		return null;
 	}
@@ -153,7 +153,7 @@ public class Object
 	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty
 	 */
-	public static Object js_defineProperty(Object object, Object property, Object descriptor)
+	public Object js_defineProperty(Object object, Object property, Object descriptor)
 	{
 		return null;
 	}
@@ -173,7 +173,7 @@ public class Object
 	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
 	 */
-	public static Object js_freeze(Object object)
+	public Object js_freeze(Object object)
 	{
 		return null;
 	}
@@ -192,7 +192,7 @@ public class Object
 	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyDescriptor
 	 */
-	public static Object js_getOwnPropertyDescriptor(Object object, Object property)
+	public Object js_getOwnPropertyDescriptor(Object object, Object property)
 	{
 		return null;
 	}
@@ -208,7 +208,7 @@ public class Object
 	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getOwnPropertyNames
 	 */
-	public static Object[] js_getOwnPropertyNames(Object object)
+	public String[] js_getOwnPropertyNames(Object object)
 	{
 		return null;
 	}
@@ -225,7 +225,7 @@ public class Object
 	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/getPrototypeOf
 	 */
-	public static Object js_getPrototypeOf(Object object)
+	public Object js_getPrototypeOf(Object object)
 	{
 		return null;
 	}
@@ -251,7 +251,7 @@ public class Object
 	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/isExtensible
 	 */
-	public static boolean js_isExtensible(Object object)
+	public boolean js_isExtensible(Object object)
 	{
 		return true;
 	}
@@ -270,7 +270,7 @@ public class Object
 	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/isFrozen
 	 */
-	public static boolean js_isFrozen(Object object)
+	public boolean js_isFrozen(Object object)
 	{
 		return false;
 	}
@@ -290,7 +290,7 @@ public class Object
 	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/isSealed
 	 */
-	public static boolean js_isSealed(Object object)
+	public boolean js_isSealed(Object object)
 	{
 		return false;
 	}
@@ -307,7 +307,7 @@ public class Object
 	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
 	 */
-	public static String[] js_keys(Object object)
+	public String[] js_keys(Object object)
 	{
 		return null;
 	}
@@ -330,7 +330,7 @@ public class Object
 	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/preventExtensions
 	 */
-	public static Object js_preventExtensions(Object object)
+	public Object js_preventExtensions(Object object)
 	{
 		return null;
 	}
@@ -452,6 +452,56 @@ public class Object
 	}
 
 	/**
+	 * Returns an array whose elements are strings corresponding to the enumerable string-keyed property values found directly upon object.
+	 *
+	 * @sample
+	 * const object1 = { a: 'somestring',  b: 42,  c: false};
+	 * Object.values(object1);
+	 *
+	 * @param object1 An object.
+	 * @return an array of a given object's own enumerable string-keyed property values.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/values
+	 */
+	public String[] js_values(Object object1)
+	{
+		return null;
+	}
+
+	/**
+	 * Returns an array whose elements are arrays corresponding to the enumerable string-keyed property key-value pairs found directly upon object.
+	 *
+	 * @sample
+	 * const object1 = { a: 'somestring',  b: 42,  c: false};
+	 * application.output(Object.entries(object1));
+	 *
+	 * @param object1 An object.
+	 * @return An array of the given object's own enumerable string-keyed property key-value pairs. Each key-value pair is an array with two elements: the first element is the property key (which is always a string), and the second element is the property value.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries
+	 */
+	public Object[] js_entries(Object object1)
+	{
+		return null;
+	}
+
+	/**
+	 * Transforms a list of key-value pairs into an object
+	 *
+	 * @sample
+	 * application.output(Object.fromEntries(entries));
+	 *
+	 * @param entries A list of objects. Each object is an array with two values, first value is the key second one is the value.
+	 * @return A new object whose properties are given by the entries of the array.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/fromEntries
+	 */
+	public Object js_fromEntries(Object[] entries)
+	{
+		return null;
+	}
+
+	/**
 	 * Seals an object, preventing new properties from being added to it and marking all existing properties as non-configurable.
 	 * Values of present properties can still be changed as long as they are writable.
 	 * @param object The object which should be sealed.
@@ -468,7 +518,7 @@ public class Object
 	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/seal
 	 */
-	public static Object js_seal(Object object)
+	public Object js_seal(Object object)
 	{
 		return null;
 	}

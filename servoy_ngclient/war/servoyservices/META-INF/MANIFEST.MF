@@ -11,6 +11,12 @@ Web-Service: True
 Name: foundset_custom_property/foundset.spec
 Web-Service: True
 
+Name: foundset_custom_property/foundsetRef.spec
+Web-Service: True
+
+Name: foundset_custom_property/record.spec
+Web-Service: True
+
 Name: foundset_viewport_module/viewport.spec
 Web-Service: True
 
@@ -20,12 +26,6 @@ Web-Service: True
 Name: foundset_linked_property/foundsetLinked.spec
 Web-Service: True
 
-Name: custom_json_array_property/array.spec
-Web-Service: True
-
-Name: custom_json_object_property/customJSONObject.spec
-Web-Service: True
-
 Name: foundset_manager/foundsetManager.spec
 Web-Service: True
 
@@ -33,4 +33,13 @@ Name: date_custom_property/date.spec
 Web-Service: True
 
 Name: formcomponent_property/formcomponent_property.spec
+Web-Service: True
+
+Name: dataset_property/dataset.spec
+Web-Service: True
+
+Name: client_function_property/clientFunction.spec
+Web-Service: True
+
+Name: foundsettree_property/foundsettree.spec
 Web-Service: True

@@ -19,9 +19,9 @@ package com.servoy.j2db.scripting;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
@@ -278,10 +278,28 @@ public abstract class DefaultScope implements Scriptable, IDestroyable
 
 	public void destroy()
 	{
+		List<IDestroyable> indexDestroybles = this.allIndex.values().stream().filter(object -> object instanceof IDestroyable)
+			.map(object -> (IDestroyable)object).collect(Collectors.toList());
+
+		List<IDestroyable> varDestroyables = this.allVars.values().stream().filter(object -> object instanceof IDestroyable).map(object -> (IDestroyable)object)
+			.collect(Collectors.toList());
+
 		this.allIndex.clear();
 		this.allVars.clear();
 		this.parent = null;
 		this.prototype = null;
+
+		destroyChildren(indexDestroybles, varDestroyables);
+	}
+
+	/**
+	 * @param indexDestroybles
+	 * @param varDestroyables
+	 */
+	protected void destroyChildren(List<IDestroyable> indexDestroybles, List<IDestroyable> varDestroyables)
+	{
+		indexDestroybles.forEach(destroyable -> destroyable.destroy());
+		varDestroyables.forEach(destroyable -> destroyable.destroy());
 	}
 
 	/**
@@ -307,10 +325,8 @@ public abstract class DefaultScope implements Scriptable, IDestroyable
 	public int removeIndexByValue(Object o)
 	{
 		Integer found = null;
-		Iterator<Entry<Integer, Object>> it = allIndex.entrySet().iterator();
-		while (it.hasNext())
+		for (Entry<Integer, Object> entry : allIndex.entrySet())
 		{
-			Map.Entry<Integer, Object> entry = it.next();
 			if (entry.getValue().equals(o))
 			{
 				Integer key = entry.getKey();

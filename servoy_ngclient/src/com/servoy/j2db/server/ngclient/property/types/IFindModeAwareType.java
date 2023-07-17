@@ -22,6 +22,7 @@ import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.server.ngclient.FormElement;
+import com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue;
 
 /**
  * Interface for types that might be interested in find mode state.
@@ -29,6 +30,8 @@ import com.servoy.j2db.server.ngclient.FormElement;
  * when in find mode.
  *
  * @author acostescu
+ *
+ * @see IFindModeAwarePropertyValue
  */
 public interface IFindModeAwareType<FormElementT, T> extends IPropertyType<T>
 {

@@ -22,7 +22,6 @@ import java.util.Set;
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.sablo.specification.property.IBrowserConverterContext;
-import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 
@@ -41,7 +40,7 @@ public final class FoundsetTypeRowDataProvider extends ViewportRowDataProvider
 	}
 
 	@Override
-	protected void populateRowData(IRecordInternal record, Set<String> columnNames, JSONWriter w, DataConversion clientConversionInfo, String generatedRowId)
+	protected void populateRowData(IRecordInternal record, Set<String> columnNames, JSONWriter w, String generatedRowId, ViewportClientSideTypes types)
 		throws JSONException
 	{
 		w.object();
@@ -59,7 +58,7 @@ public final class FoundsetTypeRowDataProvider extends ViewportRowDataProvider
 			w.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY_PARTIAL_UPDATE).value(generatedRowId);
 		}
 
-		foundsetPropertyValue.populateRowData(record, columnNames, w, clientConversionInfo, browserConverterContext);
+		foundsetPropertyValue.populateRowData(record, columnNames, w, browserConverterContext, types);
 
 		w.endObject();
 	}

@@ -237,7 +237,20 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 					data = data.replaceAll(parts[i],"");
 				}
 			}
-		}		
+		}
+        var formatDecimalSeparatorPos = format.indexOf('\.');
+        if (formatDecimalSeparatorPos > -1) {
+            var dataDecimalSeparatorPos = data.indexOf(numeral.localeData().delimiters.decimal);
+            if( dataDecimalSeparatorPos > -1) {
+                var decimalLen = format.length - formatDecimalSeparatorPos - 1;
+                var adjustedData = data.toString().substring(0, dataDecimalSeparatorPos + 1);
+                var decimal = data.toString().substring(dataDecimalSeparatorPos + 1);
+                if( decimal.length > decimalLen) {
+                    adjustedData += decimal.substring(0, decimalLen);
+                    data = adjustedData;
+                }
+            }
+        }		
 		var ret = numeral(data).value();
 		ret *= multFactor;
 		return ret
@@ -441,7 +454,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 		return false;				
 	}
 	
-	function numbersonly(e, decimal, decimalChar, groupingChar, currencyChar, percentChar, obj, mlength) {
+	function numbersonly(e, decimal, decimalChar, groupingChar, currencyChar, percentChar, obj, mlength, vSvyFormat) {
 		var key;
 		var keychar;
 
@@ -459,22 +472,37 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 		}
 
 		keychar = String.fromCharCode(key);
-		return numbersonlyForChar(keychar, decimal, decimalChar, groupingChar, currencyChar, percentChar, obj, mlength);
-
+		if (numbersonlyForChar(keychar, decimal, decimalChar, groupingChar, currencyChar, percentChar, obj, mlength) && vSvyFormat !== null) {
+			const value = obj[0] ? obj[0].value : obj.value;
+			if (value.includes(decimalChar) && window.getSelection().toString() !== value) {
+				const allowToConcat = value.indexOf(decimalChar);
+				if (e.target.selectionStart <= allowToConcat) {
+					return true;
+				}
+				if (vSvyFormat.edit) {
+					const maxDecimals = vSvyFormat.edit.split(decimalChar)[1].length;
+					if (value.split(decimalChar)[1].length >= maxDecimals) {
+						return false;
+					}
+				}	
+			}
+			return true;
+		} else {
+			return numbersonlyForChar(keychar, decimal, decimalChar, groupingChar, currencyChar, percentChar, obj, mlength);
+		}
 	}
 
 	function testForNumbersOnly(e, keyChar, vElement, vFindMode, vCheckNumbers, vSvyFormat, skipMaxLength) {
 		if (!vFindMode && vCheckNumbers) {
 			if ($utils.testEnterKey(e) && e.target.tagName.toUpperCase() == 'INPUT') {
-				//do not looses focus, just apply the format and push value
-				$(e.target).change()
+				// enter key is pressed
 			} else if (vSvyFormat.type == "INTEGER") {
 				var currentLanguageNumeralSymbols = numeral.localeData();
 				
 				if(keyChar == undefined) {
 					return numbersonly(e, false, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency
 							.symbol,
-							vSvyFormat.percent, vElement, skipMaxLength === true ? 0 : vSvyFormat.maxLength,);							
+							vSvyFormat.percent, vElement, skipMaxLength === true ? 0 : vSvyFormat.maxLength, null);							
 				}
 				else {
 					return numbersonlyForChar(keyChar, false, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency
@@ -486,7 +514,7 @@ angular.module('servoyformat', []).factory("$formatterUtils", ['$filter', '$loca
 				
 				if(keyChar == undefined) {
 					return numbersonly(e, true, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency.symbol,
-						vSvyFormat.percent, vElement, skipMaxLength === true ? 0 : vSvyFormat.maxLength);							
+						vSvyFormat.percent, vElement, skipMaxLength === true ? 0 : vSvyFormat.maxLength, vSvyFormat);							
 				}
 				else {
 					return numbersonlyForChar(keyChar, true, currentLanguageNumeralSymbols.delimiters.decimal, currentLanguageNumeralSymbols.delimiters.thousands, currentLanguageNumeralSymbols.currency.symbol,

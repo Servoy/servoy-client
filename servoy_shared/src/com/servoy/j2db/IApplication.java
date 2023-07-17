@@ -377,6 +377,18 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public void setUserProperty(String name, String value);
 
 	/**
+	 * remove an user property for the current session/user. Implementations should store this for the current session.
+	 *
+	 * @param name The name of the property to be remove.
+	 */
+	public void removeUserProperty(String name);
+
+	/**
+	 * remove all user properties for the current session/user. Implementations should store this for the current session.
+	 */
+	public void removeAllUserProperties();
+
+	/**
 	 * get all the user property names for the current session/user.
 	 */
 	public String[] getUserPropertyNames();

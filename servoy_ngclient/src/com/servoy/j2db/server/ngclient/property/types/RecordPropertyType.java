@@ -26,8 +26,8 @@ import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -44,8 +44,10 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  *
  */
-public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInternal>
-	implements IClassPropertyType<IRecordInternal>, IFormElementToTemplateJSON<IRecordInternal, IRecordInternal>
+@SuppressWarnings("nls")
+public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInternal> implements
+	IClassPropertyType<IRecordInternal>, IFormElementToTemplateJSON<IRecordInternal, IRecordInternal>,
+	IPropertyWithClientSideConversions<IRecordInternal>
 {
 	public static final RecordPropertyType INSTANCE = new RecordPropertyType();
 	public static final String TYPE_NAME = "record"; //$NON-NLS-1$
@@ -92,14 +94,22 @@ public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInterna
 					}
 				}
 				Collection<PropertyDescription> properties = webObject.getSpecification().getProperties(FoundsetPropertyType.INSTANCE);
+				// FIXME: why do we check here only the root properties of webObject's model (PD)? what if the record is from a foundset property that is nested inside objects/arrays?
+				// actually the following loop I think is more a fallback, as normally, client sent records will have a foundsetId and would be identified above
+				// this searches in all foundset properties for a record based on it's index hint and pk hash; can we remove this loop completely?
+				// so if the record was on client due to toJSON then it does have 'recordhash' which is treated after this loop; if it originates in a client side record representation
+				// that normally would send the foundsetId as well...
 				for (PropertyDescription foundsetPd : properties)
 				{
 					FoundsetTypeSabloValue fsSablo = (FoundsetTypeSabloValue)webObject.getProperty(foundsetPd.getName());
-					int recordIndex = fsSablo.getFoundset().getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
-					if (recordIndex != -1)
+					if (fsSablo != null && fsSablo.getFoundset() != null)
 					{
-						record = fsSablo.getFoundset().getRecord(recordIndex);
-						break;
+						int recordIndex = fsSablo.getFoundset().getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
+						if (recordIndex != -1)
+						{
+							record = fsSablo.getFoundset().getRecord(recordIndex);
+							break;
+						}
 					}
 				}
 			}
@@ -113,16 +123,21 @@ public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInterna
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, IRecordInternal sabloValue, PropertyDescription pd, DataConversion clientConversion,
-		IBrowserConverterContext converterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, IRecordInternal sabloValue, PropertyDescription pd, IBrowserConverterContext converterContext)
+		throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
-		writer.object();
-		writer.key("recordhash").value(addReference(sabloValue, converterContext));
-		if (sabloValue != null) writer.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(
-			sabloValue.getPKHashKey() + "_" + sabloValue.getParentFoundSet().getRecordIndex(sabloValue));
-		writer.key("svyType").value(getName());
-		writer.endObject();
+		if (sabloValue != null)
+		{
+			writer.object();
+			writer.key("recordhash").value(addReference(sabloValue, converterContext));
+			writer.key(FoundsetTypeSabloValue.FOUNDSET_ID).value(sabloValue.getParentFoundSet().getID());
+			writer.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(
+				sabloValue.getPKHashKey() + "_" + sabloValue.getParentFoundSet().getRecordIndex(sabloValue));
+//			writer.key("svyType").value(getName()); // I don't think this is used anywhere
+			writer.endObject();
+		}
+		else writer.value(null);
 		return writer;
 	}
 
@@ -134,9 +149,19 @@ public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInterna
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, IRecordInternal formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
+		FormElementContext formElementContext)
+		throws JSONException
 	{
 		if (formElementValue == null) return writer;
-		return toJSON(writer, key, formElementValue, pd, browserConversionMarkers, null);
+		return toJSON(writer, key, formElementValue, pd, null);
 	}
+
+	@Override
+	public boolean writeClientSideTypeName(JSONWriter w, String keyToAddTo, PropertyDescription pd)
+	{
+		JSONUtils.addKeyIfPresent(w, keyToAddTo);
+		w.value(TYPE_NAME);
+		return true;
+	}
+
 }

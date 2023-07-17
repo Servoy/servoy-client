@@ -180,7 +180,6 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.plugins.IClientPluginAccess;
-import com.servoy.j2db.plugins.PluginManager;
 import com.servoy.j2db.preference.ApplicationPreferences;
 import com.servoy.j2db.preference.GeneralPanel;
 import com.servoy.j2db.preference.LFPreferencePanel;
@@ -763,6 +762,7 @@ public class J2DBClient extends ClientState
 	protected J2DBClient()
 	{
 		this(true);
+
 	}
 
 	/**
@@ -779,6 +779,7 @@ public class J2DBClient extends ClientState
 		}
 		getClientInfo().setApplicationType(getApplicationType());
 		if (setSingletonServiceProvider) J2DBGlobals.setSingletonServiceProvider(this);
+		System.setProperty("servoy.use.compositefont", "true"); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	protected boolean getAppleScreenMenuBar()
@@ -1205,7 +1206,7 @@ public class J2DBClient extends ClientState
 				if (isShutDown()) return;
 
 				getPluginManager().init();
-				((PluginManager)getPluginManager()).initClientPlugins(J2DBClient.this, (IClientPluginAccess)getPluginAccess());
+				getPluginManager().initClientPlugins(J2DBClient.this, (IClientPluginAccess)getPluginAccess());
 				((FoundSetManager)getFoundSetManager()).setColumnManangers(getPluginManager().getColumnValidatorManager(),
 					getPluginManager().getColumnConverterManager(), getPluginManager().getUIConverterManager());
 			}
@@ -1705,6 +1706,17 @@ public class J2DBClient extends ClientState
 	{
 		if (name == null) return;
 		((Settings)getSettings()).setUserProperty(Settings.USER, name, value);
+	}
+
+	public void removeUserProperty(String name)
+	{
+		if (name == null) return;
+		((Settings)getSettings()).removeUserProperty(Settings.USER, name);
+	}
+
+	public void removeAllUserProperties()
+	{
+		((Settings)getSettings()).removeAllUserProperties();
 	}
 
 	public Object getClientProperty(Object name)
@@ -3394,7 +3406,7 @@ public class J2DBClient extends ClientState
 	@Override
 	protected void createFoundSetManager()
 	{
-		foundSetManager = new FoundSetManager(this, new SwingFoundSetFactory());
+		foundSetManager = new FoundSetManager(this, getFoundSetManagerConfig(), new SwingFoundSetFactory());
 		((FoundSetManager)foundSetManager).setInfoListener(this);
 		foundSetManager.init();
 		((FoundSetManager)foundSetManager).getEditRecordList().addEditListener(this);

@@ -32,6 +32,7 @@ import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONString;
 import org.json.JSONWriter;
 import org.sablo.IChangeListener;
 import org.sablo.IDirtyPropertyListener;
@@ -45,7 +46,6 @@ import org.sablo.specification.property.ISmartPropertyValue;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.TypedData;
 import org.sablo.websocket.TypedDataWithChangeInfo;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.ChangesToJSONConverter;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
@@ -505,7 +505,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		{
 			Pair<IDataLinkedPropertyValue, PropertyDescription> tmp = ((IWrapperDataLinkedType)propertyDescription.getType()).getWrappedDataLinkedValue(
 				propertyValue, propertyDescription);
-			return nestedPropertyFound(propertyValueToFind, tmp.getLeft(), tmp.getRight());
+			if (tmp != null) nestedPropertyFound(propertyValueToFind, tmp.getLeft(), tmp.getRight());
 		}
 
 		return false;
@@ -515,13 +515,10 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	 * Writes a diff update between the value it has in the template and the initial data requested after runtime components were created or during a page refresh.
 	 * @param componentPropertyType
 	 */
-	public JSONWriter initialToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers, ComponentPropertyType componentPropertyType)
-		throws JSONException
+	public JSONWriter initialToJSON(JSONWriter destinationJSON, ComponentPropertyType componentPropertyType) throws JSONException
 	{
 		if (forFoundsetTypedPropertyName != null && recordBasedProperties.areRecordBasedPropertiesChangedComparedToTemplate())
-			return fullToJSON(destinationJSON, conversionMarkers, componentPropertyType);
-
-		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
+			return fullToJSON(destinationJSON, componentPropertyType);
 
 		destinationJSON.object();
 		destinationJSON.key(ComponentPropertyType.PROPERTY_UPDATES_KEY);
@@ -535,10 +532,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		destinationJSON.key(ComponentPropertyType.MODEL_KEY);
 		destinationJSON.object();
 
-		DataConversion conversions = new DataConversion();
 		// send component model (when linked to foundset only props that are not record related)
-		childComponent.writeProperties(InitialToJSONConverter.INSTANCE, null, destinationJSON, allProps, conversions);
-		JSONUtils.writeClientConversions(destinationJSON, conversions);
+		childComponent.writeProperties(InitialToJSONConverter.INSTANCE, null, destinationJSON, allProps);
 
 		destinationJSON.endObject();
 
@@ -551,16 +546,13 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		return destinationJSON;
 	}
 
-	public JSONWriter changesToJSON(JSONWriter destinationJSON, DataConversion conversionMarkers, ComponentPropertyType componentPropertyType)
-		throws JSONException
+	public JSONWriter changesToJSON(JSONWriter destinationJSON, ComponentPropertyType componentPropertyType) throws JSONException
 	{
 		if (forFoundsetTypedPropertyName != null && recordBasedProperties.areRecordBasedPropertiesChanged())
 		{
 			// just send over the whole thing - viewport and model properties are not the same as they used to be
-			return fullToJSON(destinationJSON, conversionMarkers, componentPropertyType);
+			return fullToJSON(destinationJSON, componentPropertyType);
 		}
-
-		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
 		TypedDataWithChangeInfo changes = childComponent.getAndClearChanges();
 		removeRecordDependentProperties(changes);
@@ -581,10 +573,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			destinationJSON.key(ComponentPropertyType.MODEL_KEY);
 			destinationJSON.object();
 
-			DataConversion conversions = new DataConversion();
 			// send component model (when linked to foundset only props that are not record related)
-			childComponent.writeProperties(ChangesToJSONConverter.INSTANCE, FullValueToJSONConverter.INSTANCE, destinationJSON, changes, conversions);
-			JSONUtils.writeClientConversions(destinationJSON, conversions);
+			childComponent.writeProperties(ChangesToJSONConverter.INSTANCE, FullValueToJSONConverter.INSTANCE, destinationJSON, changes);
 
 			destinationJSON.endObject();
 		}
@@ -602,26 +592,17 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			{
 				ArrayOperation[] viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
 				viewPortChangeMonitor.clearChanges();
-				DataConversion clientConversionInfo = new DataConversion();
 
-				clientConversionInfo.pushNode(ComponentPropertyType.MODEL_VIEWPORT_CHANGES_KEY);
 				destinationJSON.key(ComponentPropertyType.MODEL_VIEWPORT_CHANGES_KEY).array();
 
 				FoundsetTypeSabloValue foundsetPropValue = getFoundsetValue();
-				for (int i = 0; i < viewPortChanges.length; i++)
+				for (ArrayOperation viewPortChange : viewPortChanges)
 				{
-					clientConversionInfo.pushNode(String.valueOf(i));
-					FoundsetPropertyType.writeViewportOperationToJSON(viewPortChanges[i], viewPortChangeMonitor.getRowDataProvider(),
+					FoundsetPropertyType.writeViewportOperationToJSON(viewPortChange, viewPortChangeMonitor.getRowDataProvider(),
 						foundsetPropValue.getFoundset(),
-						foundsetPropValue.getViewPort().getStartIndex(), destinationJSON, null, clientConversionInfo, null);
-					clientConversionInfo.popNode();
+						foundsetPropValue.getViewPort().getStartIndex(), destinationJSON, null, null);
 				}
-				clientConversionInfo.popNode();
 				destinationJSON.endArray();
-
-				// conversion info for websocket traffic (for example Date objects will turn into long)
-				JSONUtils.writeClientConversions(destinationJSON, clientConversionInfo);
-
 			}
 			viewPortChangeMonitor.doneWritingChanges();
 		}
@@ -646,19 +627,18 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 		{
 			FoundsetTypeViewport foundsetPropertyViewPort = getFoundsetValue().getViewPort();
 
-			DataConversion clientConversionInfo = new DataConversion();
-
 			viewPortChangeMonitor.clearChanges();
 
 			destinationJSON.key(ComponentPropertyType.MODEL_VIEWPORT_KEY);
-			clientConversionInfo.pushNode(ComponentPropertyType.MODEL_VIEWPORT_KEY);
-			viewPortChangeMonitor.getRowDataProvider().writeRowData(foundsetPropertyViewPort.getStartIndex(),
-				foundsetPropertyViewPort.getStartIndex() + foundsetPropertyViewPort.getSize() - 1, getFoundsetValue().getFoundset(), destinationJSON,
-				clientConversionInfo);
-			clientConversionInfo.popNode();
 
-			// conversion info for websocket traffic (for example Date objects will turn into long)
-			JSONUtils.writeClientConversions(destinationJSON, clientConversionInfo);
+			// types implementing IPropertyConverterForBrowserWithDynamicClientType that wrote a dynamic type will be returned by following call;
+			// static IPropertyWithClientSideConversions values are just written without including the type; this is because client already knows the IPropertyWithClientSideConversions client-side (sent via ClientSideTypesState)
+			ViewportClientSideTypes dynamicClientSideTypes = viewPortChangeMonitor.getRowDataProvider().writeRowData(foundsetPropertyViewPort.getStartIndex(),
+				foundsetPropertyViewPort.getStartIndex() + foundsetPropertyViewPort.getSize() - 1, getFoundsetValue().getFoundset(), destinationJSON);
+
+			// conversion info for websocket traffic (for example Date objects will turn into long or String to be usable in JSON and client-side needs to know about this)
+			if (dynamicClientSideTypes != null) dynamicClientSideTypes.writeClientSideTypes(destinationJSON, JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY);
+
 			viewPortChangeMonitor.doneWritingChanges();
 		}
 	}
@@ -668,10 +648,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	 * This is currently needed and can get called if the property is nested inside other complex properties (json object/array) that sometimes
 	 * might want/need to send again the entire content.
 	 */
-	public JSONWriter fullToJSON(final JSONWriter writer, DataConversion conversionMarkers, ComponentPropertyType componentPropertyType) throws JSONException
+	public JSONWriter fullToJSON(final JSONWriter writer, ComponentPropertyType componentPropertyType) throws JSONException
 	{
-		if (conversionMarkers != null) conversionMarkers.convert(ComponentPropertyType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
-
 		// create children of component as specified by this property
 		final FormElement fe = formElementValue.element;
 
@@ -712,12 +690,9 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 			public void writeComponentModel() throws JSONException
 			{
 				writer.object();
-				DataConversion dataConversion = new DataConversion();
-				JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, formElementProperties.content, formElementProperties.contentType, dataConversion,
-					formElementContext);
+				JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, formElementProperties.content, formElementProperties.contentType, formElementContext);
 				// always use full to JSON converter here; second arg. is null due to that
-				childComponent.writeProperties(JSONUtils.FullValueToJSONConverter.INSTANCE, null, writer, runtimeProperties, dataConversion);
-				JSONUtils.writeClientConversions(writer, dataConversion);
+				childComponent.writeProperties(JSONUtils.FullValueToJSONConverter.INSTANCE, null, writer, runtimeProperties);
 				writer.endObject();
 			}
 
@@ -790,7 +765,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 						boolean selectionOk = true;
 						if (update.has("rowId"))
 						{
-							String rowId = update.optString("rowId");
+							String rowId = update.optString("rowId", null);
 							if (rowId != null)
 							{
 								FoundsetTypeSabloValue foundsetValue = getFoundsetValue();
@@ -816,11 +791,11 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 								args[j] = jsargs.get(j);
 							}
 
-							Object result = null;
+							JSONString result = null;
 							String error = null;
 							try
 							{
-								result = childComponent.executeEvent(eventType, args);
+								result = childComponent.executeEvent(eventType, args); // FIXME here we know it's comming from client json/sablo/java and returning to client json; see SVY-18096
 							}
 							catch (ParseException pe)
 							{
@@ -841,14 +816,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 							{
 								if (error == null)
 								{
-									Object resultObject = result;
-									PropertyDescription objectType = null;
-									if (result instanceof TypedData)
-									{
-										resultObject = ((TypedData< ? >)result).content;
-										objectType = ((TypedData< ? >)result).contentType;
-									}
-									CurrentWindow.get().getSession().getSabloService().resolveDeferedEvent(cmsid, true, resultObject, objectType);
+									CurrentWindow.get().getSession().getSabloService().resolveDeferedEvent(cmsid, true, result, null);
 								}
 								else
 								{
@@ -899,15 +867,17 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 				}
 				else if (update.has("svyApply"))
 				{
-					// { svyApply: {
-					// 		rowId: rowId, // only when linked to foundset
-					// 		propertyName: property,
-					// 		propertyValue: propertyValue
-					// }}
+					// svyApply: {
+					//     _svyRowId?: string;
+					//     _svyRowIdOfProp?: string;
+					//     pn: string;
+					//     v: any;
+					// }
 					JSONObject changeAndApply = update.getJSONObject("svyApply");
 
 					String propertyName = changeAndApply.getString(ComponentPropertyType.PROPERTY_NAME_KEY);
 					Object value = changeAndApply.get(ComponentPropertyType.VALUE_KEY);
+					String rowIDOfPropInsideComponent = changeAndApply.optString(ComponentPropertyType.ROW_ID_OF_PROP_INSIDE_COMPONENT, null);
 
 					try
 					{
@@ -920,7 +890,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 							updatePropertyValueForRecord(foundsetValue, rowIDValue, propertyName, value);
 
 							// apply change to record/dp
-							foundsetValue.getDataAdapterList().pushChanges(childComponent, propertyName);
+							foundsetValue.getDataAdapterList().pushChanges(childComponent, propertyName, rowIDOfPropInsideComponent);
 
 							foundsetValue.setDataAdapterListToSelectedRecord();
 						}
@@ -930,7 +900,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 							IWebFormUI formUI = getParentComponent().findParent(IWebFormUI.class);
 
 							// apply change to record/dp
-							formUI.getDataAdapterList().pushChanges(childComponent, propertyName);
+							formUI.getDataAdapterList().pushChanges(childComponent, propertyName, rowIDOfPropInsideComponent);
 						}
 
 

@@ -23,19 +23,28 @@ import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.j2db.scripting.JSApplication;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.property.BrowserFunction;
 
 /**
+ * A type for string representation of JS code set on the server that is meant to run directly on client/inside the browser.
+ *
+ * It is similar to {@link ClientFunctionPropertyType} but it operates with BrowserFunction instances that are created via
+ * {@link JSApplication#generateBrowserFunction(String)}. Because it is an {@link IClassPropertyType}, it is able to convert
+ * properly when sending to client even when nested inside plain 'object' types.
+ *
  * @author jcompanger
  * @since 2022.06
  */
-public class DynamicClientFunctionPropertyType implements IClassPropertyType<BrowserFunction>
+public class DynamicClientFunctionPropertyType implements IClassPropertyType<BrowserFunction>, IPropertyWithClientSideConversions<BrowserFunction>
 {
+
+	private static final String CLIENT_SIDE_TYPE_NAME = "clientfunction"; //$NON-NLS-1$
 	public static final DynamicClientFunctionPropertyType INSTANCE = new DynamicClientFunctionPropertyType();
 
 	@Override
@@ -73,28 +82,37 @@ public class DynamicClientFunctionPropertyType implements IClassPropertyType<Bro
 
 	@Override
 	public JSONWriter toJSON(JSONWriter writer, String key, BrowserFunction sabloValue, PropertyDescription propertyDescription,
-		DataConversion clientConversion,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{
 			INGApplication application = sabloValue.getApplication();
+			JSONUtils.addKeyIfPresent(writer, key);
 			if (application.getRuntimeProperties().containsKey("NG2")) //$NON-NLS-1$
 			{
-				clientConversion.convert("clientfunction"); //$NON-NLS-1$
-				JSONUtils.addKeyIfPresent(writer, key);
 				String uuid = application.registerClientFunction(sabloValue.getFunctionString());
 				writer.value(uuid);
-				return writer;
+			}
+			else
+			{
+				writer.value(sabloValue.getFunctionString());
 			}
 		}
-		return null;
+		return writer;
 	}
 
 	@Override
 	public Class<BrowserFunction> getTypeClass()
 	{
 		return BrowserFunction.class;
+	}
+
+	@Override
+	public boolean writeClientSideTypeName(JSONWriter w, String keyToAddTo, PropertyDescription pd)
+	{
+		JSONUtils.addKeyIfPresent(w, keyToAddTo);
+		w.value(CLIENT_SIDE_TYPE_NAME);
+		return true;
 	}
 
 }

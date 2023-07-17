@@ -16,13 +16,15 @@
  */
 package com.servoy.j2db.query;
 
+import static com.servoy.j2db.query.AndCondition.and;
+import static com.servoy.j2db.query.OrCondition.or;
+import static com.servoy.j2db.util.Utils.stream;
+import static java.util.Arrays.asList;
+
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -39,13 +41,11 @@ import com.servoy.j2db.util.visitor.ObjectCountVisitor;
  */
 public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 {
-	private static final String[] EMPTY_STRINGS = new String[0];
-
 	private BaseQueryTable table;
 	private ArrayList<IQuerySelectValue> columns; // declare as ArrayList in stead of List -> must be sure that it is Serializable
 	private boolean distinct = false;
 	private boolean plain_pk_select = false;
-	private HashMap<String, AndCondition> conditions = null; // Map of AndCondition objects
+	private AndCondition condition = new AndCondition();
 	private ArrayList<ISQLJoin> joins;
 	private ArrayList<IQuerySort> sorts;
 	private ArrayList<IQuerySelectValue> groupBy;
@@ -73,15 +73,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 	public String[] getColumnNames()
 	{
-		List<String> names = new ArrayList<String>();
-		if (getColumns() != null)
-		{
-			for (IQuerySelectValue column : getColumns())
-			{
-				names.add(column.getColumn().getName());
-			}
-		}
-		return names.toArray(new String[names.size()]);
+		return stream(getColumns()).map(IQuerySelectValue::getAliasOrName).toArray(String[]::new);
 	}
 
 	public void addColumn(IQuerySelectValue c)
@@ -92,7 +84,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		}
 		if (columns == null)
 		{
-			columns = new ArrayList<IQuerySelectValue>();
+			columns = new ArrayList<>();
 		}
 		columns.add(c);
 	}
@@ -168,12 +160,12 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 	public void setCondition(String name, ISQLCondition c)
 	{
-		conditions = setInConditionMap(conditions, name, c);
+		condition.setCondition(name, c);
 	}
 
 	public void addCondition(String name, ISQLCondition c)
 	{
-		conditions = addToConditionMap(conditions, name, c);
+		condition.addCondition(name, c);
 	}
 
 	/**
@@ -189,44 +181,34 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 			return;
 		}
 
-		AndCondition condition = null;
-		if (conditions != null)
-		{
-			condition = conditions.get(name);
-		}
-		if (condition == null)
+		List<ISQLCondition> clauses = condition.getConditions(name);
+		if (clauses == null || clauses.isEmpty())
 		{
 			// nothing to OR against
-			addCondition(name, c);
+			setCondition(name, c);
 		}
 		else
 		{
-			List<ISQLCondition> clauses = condition.getConditions();
 			if (clauses.size() == 1 && clauses.get(0) instanceof OrCondition)
 			{
+				// add to existing OR
 				((OrCondition)clauses.get(0)).addCondition(c);
 			}
-			else if (clauses.size() > 0 && BooleanCondition.FALSE_CONDITION.equals(clauses.get(0)))
+			else if (clauses.size() == 1 && BooleanCondition.FALSE_CONDITION.equals(clauses.get(0)))
 			{
 				// c OR FALSE is equivalent to c
-				clauses.set(0, c);
+				setCondition(name, c);
 			}
 			else
 			{
-				// note that the values of the conditions map are always of type AndCondition
-				AndCondition newCondition = new AndCondition();
-				OrCondition or = new OrCondition();
-				or.addCondition(condition);
-				or.addCondition(c);
-				newCondition.addCondition(or);
-				conditions.put(name, newCondition);
+				condition.setCondition(name, or(c, and(clauses)));
 			}
 		}
 	}
 
-	public void clearConditions()
+	public void clearCondition()
 	{
-		conditions = null;
+		condition.clear();
 	}
 
 	public void setHaving(ISQLCondition c)
@@ -248,7 +230,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		{
 			setHaving(c);
 		}
-		else if (c != null)
+		else
 		{
 			having.addCondition(c);
 		}
@@ -361,27 +343,24 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		this.lockMode = lockMode;
 	}
 
-	public AndCondition getCondition(String name)
+	public ISQLCondition getCondition(String name)
 	{
-		if (conditions == null)
-		{
-			return null;
-		}
-		return conditions.get(name);
+		return and(getConditions(name));
+	}
+
+	public List<ISQLCondition> getConditions(String name)
+	{
+		return condition.getConditions(name);
 	}
 
 	public String[] getConditionNames()
 	{
-		if (conditions == null)
-		{
-			return EMPTY_STRINGS;
-		}
-		return conditions.keySet().toArray(EMPTY_STRINGS);
+		return condition.getConditionNames();
 	}
 
-	public AndCondition getConditionClone(String name)
+	public ISQLCondition getConditionClone(String name)
 	{
-		return AbstractBaseQuery.deepClone(getCondition(name));
+		return deepClone(getCondition(name));
 	}
 
 	public boolean isDistinct()
@@ -414,22 +393,22 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 	public ArrayList<ISQLJoin> getJoinsClone()
 	{
-		return AbstractBaseQuery.deepClone(joins);
+		return deepClone(joins);
 	}
 
 	public ArrayList<IQuerySelectValue> getColumnsClone()
 	{
-		return AbstractBaseQuery.deepClone(columns);
+		return deepClone(columns);
 	}
 
 	public ArrayList<IQuerySelectValue> getGroupByClone()
 	{
-		return AbstractBaseQuery.deepClone(groupBy);
+		return deepClone(groupBy);
 	}
 
 	public ArrayList<IQuerySort> getSortsClone()
 	{
-		return AbstractBaseQuery.deepClone(sorts);
+		return deepClone(sorts);
 	}
 
 	public ArrayList<IQuerySort> getSorts()
@@ -476,56 +455,33 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	 */
 	public boolean hasAnyCondition()
 	{
-		return conditions != null || having != null || joins != null;
+		return !condition.isEmpty() || having != null || joins != null;
+	}
+
+	/**
+	 * The where clause, never null, may be empty
+	 */
+	public AndCondition getCondition()
+	{
+		return condition;
 	}
 
 	/**
 	 * One condition to rule them all. Does not include having-conditions.
-	 *
-	 * @return
 	 */
 	public AndCondition getWhere()
 	{
-		ISQLCondition where = getConditionMapCondition(conditions);
-		if (where == null || where instanceof AndCondition)
-		{
-			return (AndCondition)where;
-		}
-		AndCondition and = new AndCondition();
-		and.addCondition(where);
-		return and;
-	}
-
-	public Map<String, AndCondition> getConditions()
-	{
-		return conditions;
-	}
-
-	static ISQLCondition getConditionMapCondition(Map<String, AndCondition> conditions)
-	{
-		if (conditions == null)
+		if (condition.isEmpty())
 		{
 			return null;
 		}
 
-		if (conditions.size() == 1)
-		{
-			return conditions.values().iterator().next();
-		}
-
-		AndCondition where = new AndCondition();
-		Iterator<AndCondition> it = conditions.values().iterator();
-		while (it.hasNext())
-		{
-			where.addCondition(it.next());
-		}
-
-		return where;
+		return new AndCondition(condition.getAllConditions());
 	}
 
-	public ISQLCondition getWhereClone()
+	public AndCondition getWhereClone()
 	{
-		return AbstractBaseQuery.deepClone(getWhere());
+		return deepClone(getWhere());
 	}
 
 	/**
@@ -540,7 +496,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 	public ISQLCondition getHavingClone()
 	{
-		return AbstractBaseQuery.deepClone(getHaving());
+		return deepClone(getHaving());
 	}
 
 	@Override
@@ -551,12 +507,12 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 
 	public QuerySelect getSelectCount(String name, boolean distinctCount)
 	{
-		QuerySelect selectCount = AbstractBaseQuery.deepClone(this);
+		QuerySelect selectCount = deepClone(this);
 
 		selectCount.clearSorts();
 
 		// remove unused joins
-		selectCount.removeUnusedJoins(true);
+		selectCount.removeUnusedJoins(true, true);
 
 		IQuerySelectValue agregee;
 		int aggregateQuantifier;
@@ -581,14 +537,14 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		}
 
 		selectCount.setColumns(
-			new ArrayList<IQuerySelectValue>(Arrays.asList(new QueryAggregate(QueryAggregate.COUNT, aggregateQuantifier, agregee, name, null, false))));
+			new ArrayList<IQuerySelectValue>(asList(new QueryAggregate(QueryAggregate.COUNT, aggregateQuantifier, agregee, name, null, false))));
 		return selectCount;
 	}
 
 	/**
 	 * Remove joins that whose foreign table is not referred to in this query.
 	 */
-	public void removeUnusedJoins(boolean keepInnerjoins)
+	public void removeUnusedJoins(boolean keepInnerjoins, boolean keepPermanent)
 	{
 		boolean updated = true;
 		while (joins != null && updated)
@@ -598,7 +554,9 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 			for (int i = 0; i < njoins && !updated; i++)
 			{
 				ISQLJoin join = joins.get(i);
-				if (!(join instanceof ISQLTableJoin) || (keepInnerjoins && ((ISQLTableJoin)join).hasInnerJoin()) || ((ISQLTableJoin)join).isPermanent())
+				if (!(join instanceof ISQLTableJoin) ||
+					(keepInnerjoins && ((ISQLTableJoin)join).hasInnerJoin()) ||
+					(keepPermanent && ((ISQLTableJoin)join).isPermanent()))
 				{
 					// count may depend on related records or is marked as permanent
 					continue;
@@ -677,71 +635,12 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 			.flatMap(this::getRealColumn); // recursive for nested derived tables
 	}
 
-	static HashMap<String, AndCondition> setInConditionMap(HashMap<String, AndCondition> map, String name, ISQLCondition c)
-	{
-		HashMap<String, AndCondition> retval = map;
-		if (c == null)
-		{
-			if (retval != null)
-			{
-				retval.remove(name);
-				if (retval.size() == 0)
-				{
-					return null;
-				}
-			}
-		}
-		else
-		{
-			AndCondition condition;
-			if (c instanceof AndCondition)
-			{
-				condition = (AndCondition)c;
-			}
-			else
-			{
-				condition = new AndCondition();
-				condition.addCondition(c);
-			}
-			if (retval == null)
-			{
-				retval = new HashMap<String, AndCondition>();
-			}
-			retval.put(name, condition);
-		}
-		return retval;
-	}
-
-	static HashMap<String, AndCondition> addToConditionMap(HashMap<String, AndCondition> map, String name, ISQLCondition c)
-	{
-		HashMap<String, AndCondition> retval = map;
-		if (c != null)
-		{
-			AndCondition condition = null;
-			if (retval == null)
-			{
-				retval = new HashMap<String, AndCondition>();
-			}
-			else
-			{
-				condition = retval.get(name);
-			}
-
-			if (condition == null)
-			{
-				condition = new AndCondition();
-				retval.put(name, condition);
-			}
-			condition.addCondition(c);
-		}
-		return retval;
-	}
 
 	public void acceptVisitor(IVisitor visitor)
 	{
 		table = AbstractBaseQuery.acceptVisitor(table, visitor);
 		columns = AbstractBaseQuery.acceptVisitor(columns, visitor);
-		conditions = AbstractBaseQuery.acceptVisitor(conditions, visitor);
+		condition = AbstractBaseQuery.acceptVisitor(condition, visitor);
 		having = AbstractBaseQuery.acceptVisitor(having, visitor);
 		joins = AbstractBaseQuery.acceptVisitor(joins, visitor);
 		sorts = AbstractBaseQuery.acceptVisitor(sorts, visitor);
@@ -755,7 +654,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((columns == null) ? 0 : columns.hashCode());
-		result = prime * result + ((conditions == null) ? 0 : conditions.hashCode());
+		result = prime * result + ((condition == null) ? 0 : condition.hashCode());
 		result = prime * result + ((having == null) ? 0 : having.hashCode());
 		result = prime * result + (distinct ? 1231 : 1237);
 		result = prime * result + ((groupBy == null) ? 0 : groupBy.hashCode());
@@ -780,11 +679,11 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 			if (other.columns != null) return false;
 		}
 		else if (!columns.equals(other.columns)) return false;
-		if (conditions == null)
+		if (condition == null)
 		{
-			if (other.conditions != null) return false;
+			if (other.condition != null) return false;
 		}
-		else if (!conditions.equals(other.conditions)) return false;
+		else if (!condition.equals(other.condition)) return false;
 		if (having == null)
 		{
 			if (other.having != null) return false;
@@ -831,30 +730,12 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 			sb.append(columns.get(i).toString());
 		}
 		sb.append(" FROM ").append(table.toString()); //$NON-NLS-1$
-
-		if (conditions != null)
-		{
-			Iterator<Entry<String, AndCondition>> it = conditions.entrySet().iterator();
-			for (int i = 0; it.hasNext(); i++)
-			{
-				if (i > 0)
-				{
-					sb.append(" [AND] "); //$NON-NLS-1$
-				}
-				Map.Entry<String, AndCondition> entry = it.next();
-				sb.append(' ').append(entry.getKey() == null ? "" : entry.getKey().toString()).append(' ').append(entry.getValue().toString());
-			}
-		}
-
+		sb.append(" WHERE ").append(condition.toString()); //$NON-NLS-1$
 		if (having != null)
 		{
 			sb.append(" HAVING ").append(having.toString()); //$NON-NLS-1$
 		}
-
-		for (int i = 0; joins != null && i < joins.size(); i++)
-		{
-			sb.append(' ').append(joins.get(i).toString());
-		}
+		stream(joins).forEach(join -> sb.append(' ').append(join.toString()));
 		if (sorts != null)
 		{
 			sb.append(" ORDER BY "); //$NON-NLS-1$
@@ -898,7 +779,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
 		return new ReplacedObject(QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { table, columns, new Byte(
-			(byte)(distinct ? 1 : 0 + (plain_pk_select ? 2 : 0) + (4 * lockMode))), conditions, having, joins, sorts, groupBy, comment });
+			(byte)(distinct ? 1 : 0 + (plain_pk_select ? 2 : 0) + (4 * lockMode))), condition, having, joins, sorts, groupBy, comment });
 	}
 
 	@SuppressWarnings("unchecked")
@@ -912,7 +793,24 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		this.distinct = (bits & 1) != 0;
 		this.plain_pk_select = (bits & 2) != 0;
 		this.lockMode = (bits / 4);
-		this.conditions = (HashMap<String, AndCondition>)members[i++];
+
+		// condition used to be a HashMap<String, AndCondition> or null, now it is a AndCondition
+		Object cond = members[i++];
+		if (cond instanceof Map)
+		{
+			AndCondition c = new AndCondition();
+			((Map<String, AndCondition>)cond).entrySet().forEach(entry -> c.setCondition(entry.getKey(), entry.getValue()));
+			this.condition = c;
+		}
+		else if (cond == null)
+		{
+			this.condition = new AndCondition();
+		}
+		else
+		{
+			this.condition = (AndCondition)cond;
+		}
+
 		Object hv = members[i++];
 		if (hv instanceof Map && ((Map)hv).size() > 0)
 		{

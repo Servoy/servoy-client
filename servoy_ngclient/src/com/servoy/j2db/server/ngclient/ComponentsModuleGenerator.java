@@ -43,32 +43,44 @@ import org.sablo.util.HTTPUtils;
 public class ComponentsModuleGenerator extends HttpServlet
 {
 
+	@SuppressWarnings("nls")
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
 		resp.setContentType("text/javascript");
 		HTTPUtils.checkAndSetUnmodified(req, resp, System.currentTimeMillis());
-		StringBuilder sb = generateComponentsModule(getAllNames(WebServiceSpecProvider.getSpecProviderState().getAllWebComponentSpecifications()),
-			getAllNames(WebComponentSpecProvider.getSpecProviderState().getAllWebComponentSpecifications()));
+		StringBuilder sb = generateComponentsModule(null, null);
 		resp.setContentLength(sb.length());
 		resp.getWriter().write(sb.toString());
 	}
 
-	private static Set<String> getAllNames(WebObjectSpecification[] allWebSpecifications)
+	private static Set<String> getAllNames(WebObjectSpecification[] allWebSpecifications, Set<String> namesToBeIncluded)
 	{
 		Set<String> names = new HashSet<>();
 		for (WebObjectSpecification webSpec : allWebSpecifications)
 		{
-			names.add(webSpec.getName());
+			// ignore these components, they have only titanium implmentation
+			if (webSpec.getDefinition() != null && (namesToBeIncluded == null || namesToBeIncluded.contains(webSpec.getName()))) names.add(webSpec.getName());
 		}
 		return names;
 	}
 
+	@SuppressWarnings("nls")
 	public static StringBuilder generateComponentsModule(Set<String> services, Set<String> components)
 	{
+		Set<String> servicesIncludingOnesServedFromJARSInWarDeployment = null;
+		if (services != null)
+		{
+			// sablo is served from a jar file inside the war so it is not part of the "services" above which do not contain resources served from jars inside the war file
+			// so add those needed services (array/custom object/object types for example) to this module so they are found by the system even in (default) optimized/wro grouped war mode
+			servicesIncludingOnesServedFromJARSInWarDeployment = new HashSet<>(services);
+			servicesIncludingOnesServedFromJARSInWarDeployment
+				.addAll(WebServiceSpecProvider.getSpecProviderState().getWebObjectSpecifications().get("sablo").getSpecifications().keySet());
+		}
+
 		StringBuilder sb = new StringBuilder("angular.module('servoy-components', [ ");
-		generateModules(sb, services != null ? services : getAllNames(WebServiceSpecProvider.getSpecProviderState().getAllWebComponentSpecifications()));
-		generateModules(sb, components != null ? components : getAllNames(WebComponentSpecProvider.getSpecProviderState().getAllWebComponentSpecifications()));
+		generateModules(sb, getAllNames(WebServiceSpecProvider.getSpecProviderState().getAllWebObjectSpecifications(), servicesIncludingOnesServedFromJARSInWarDeployment));
+		generateModules(sb, getAllNames(WebComponentSpecProvider.getSpecProviderState().getAllWebObjectSpecifications(), components));
 		sb.setLength(sb.length() - 1);
 		sb.append("]);");
 		return sb;

@@ -18,6 +18,7 @@ package com.servoy.j2db.dataprocessing;
 
 
 import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.ref.ReferenceQueue;
@@ -118,7 +119,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	void register(IRowListener fs)
 	{
 		boolean listenersByEqualValuesAdded = false;
-		if (fsm.optimizedNotifyChange && fs instanceof RelatedFoundSet)
+		if (fsm.config.optimizedNotifyChange() && fs instanceof RelatedFoundSet)
 		{
 			FlattenedSolution flattenedSolution = getFoundsetManager().getApplication().getFlattenedSolution();
 			RelatedFoundSet relatedFoundSet = (RelatedFoundSet)fs;
@@ -152,7 +153,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 
 	void unregister(IRowListener fs)
 	{
-		if (fsm.optimizedNotifyChange && fs instanceof RelatedFoundSet)
+		if (fsm.config.optimizedNotifyChange() && fs instanceof RelatedFoundSet)
 		{
 			FlattenedSolution flattenedSolution = getFoundsetManager().getApplication().getFlattenedSolution();
 			RelatedFoundSet relatedFoundSet = (RelatedFoundSet)fs;
@@ -202,55 +203,60 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		{
 			for (Object val : pk)
 			{
-				if (val instanceof DbIdentValue)
-				{
-					val = createPKHashKeyFromDBIdent((DbIdentValue)val);
-				}
-				else if (val instanceof QueryColumnValue)
-				{
-					val = ((QueryColumnValue)val).getValue();
-				}
-				String str;
-				if (val instanceof byte[])
-				{
-					str = Utils.encodeBASE64((byte[])val); // UUID
-				}
-				else if (val instanceof UUID)
-				{
-					// make sure UUID PKs are matched regardless of casing
-					str = val.toString().toLowerCase();
-				}
-				else if (val instanceof String && ((String)val).length() == 36 && ((String)val).split("-").length == 5) //$NON-NLS-1$
-				{
-					// make sure UUID PKs are matched regardless of casing (MSQ Sqlserver returns uppercase UUID strings for uniqueidentifier columns)
-					str = ((String)val).toLowerCase();
-				}
-				else if (val instanceof Date)
-				{
-					str = Long.toString(((Date)val).getTime());
-				}
-				else if (val instanceof Float && ((Float)val).longValue() == ((Float)val).floatValue())
-				{
-					str = Long.toString(((Float)val).longValue());
-				}
-				else if (val instanceof Double && ((Double)val).longValue() == ((Double)val).doubleValue())
-				{
-					str = Long.toString(((Double)val).longValue());
-				}
-				else
-				{
-					str = Utils.convertToString(val);
-				}
-				if (val != null)
-				{
-					sb.append(str.length());
-				}
+				String str = valueHash(val);
+				if (str != null) sb.append(str.length());
 				sb.append('.');
 				sb.append(str);
 				sb.append(';');
 			}
 		}
 		return sb.toString();
+	}
+
+	private static String valueHash(Object pkval)
+	{
+		Object val = pkval;
+		if (val instanceof DbIdentValue)
+		{
+			val = createPKHashKeyFromDBIdent((DbIdentValue)val);
+		}
+		else if (val instanceof QueryColumnValue)
+		{
+			val = ((QueryColumnValue)val).getValue();
+		}
+
+		if (val instanceof byte[])
+		{
+			return Utils.encodeBASE64((byte[])val); // UUID
+		}
+		if (val instanceof UUID)
+		{
+			// make sure UUID PKs are matched regardless of casing
+			return val.toString().toLowerCase();
+		}
+		if (val instanceof String && ((String)val).length() == 36 && ((String)val).split("-").length == 5) //$NON-NLS-1$
+		{
+			// make sure UUID PKs are matched regardless of casing (MSQ Sqlserver returns uppercase UUID strings for uniqueidentifier columns)
+			return ((String)val).toLowerCase();
+		}
+		if (val instanceof Date)
+		{
+			return Long.toString(((Date)val).getTime());
+		}
+		if (val instanceof Float && ((Float)val).longValue() == ((Float)val).floatValue())
+		{
+			return Long.toString(((Float)val).longValue());
+		}
+		if (val instanceof Double && ((Double)val).longValue() == ((Double)val).doubleValue())
+		{
+			return Long.toString(((Double)val).longValue());
+		}
+		if (val instanceof Object[])
+		{
+			return "[" + stream((Object[])val).map(el -> String.valueOf(valueHash(el))).sorted().collect(joining(",")) + "]";
+		}
+
+		return val == null ? null : Utils.convertToString(val);
 	}
 
 	/**
@@ -666,7 +672,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			retval.add(rowData);
 			if (sizeHint > 1)
 			{
-				int maxRow = Math.min(row + fsm.chunkSize, pks.getRowCount());
+				int maxRow = Math.min(row + fsm.config.chunkSize(), pks.getRowCount());
 				for (int r = row + 1; r < maxRow; r++)
 				{
 					Object[] data = pks.getRow(r);
@@ -691,7 +697,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	void fireNotifyChange(IRowListener skip, Row row, String pkHashKey, Object[] changedColumns, int eventType, boolean isAggregateChange, boolean skipFSM)
 	{
 		List<IRowListener> toNotify = new ArrayList<>();
-		if (eventType == RowEvent.INSERT && fsm.optimizedNotifyChange)
+		if (eventType == RowEvent.INSERT && fsm.config.optimizedNotifyChange())
 		{
 			FlattenedSolution flattenedSolution = getFoundsetManager().getApplication().getFlattenedSolution();
 			listenersByRelationEqualValues.entrySet().stream().forEach(entry -> {
@@ -946,7 +952,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			}
 			SQLStatement statement = new SQLStatement(statement_action, sheet.getServerName(), table.getName(), pks, tid, sqlUpdate,
 				fsm.getTableFilterParams(sheet.getServerName(), sqlUpdate), requerySelect);
-			if (doesExistInDB) statement.setExpectedUpdateCount(1); // check that the row is updated (skip check for inert)
+			if (doesExistInDB) statement.setExpectedUpdateCount(1); // check that the row is updated (skip check for insert)
 			if (changedColumns != null)
 			{
 				statement.setChangedColumns(changedColumns.toArray(new String[changedColumns.size()]));
@@ -1258,7 +1264,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			IDataSet dataset = fsm.getApplication()
 				.getDataServer()
 				.acquireLocks(client_id, sheet.getServerName(), sheet.getTable().getName(), ids, lockSelect,
-					transaction_id, getFoundsetManager().getTableFilterParams(sheet.getServerName(), lockSelect), getFoundsetManager().chunkSize);
+					transaction_id, getFoundsetManager().getTableFilterParams(sheet.getServerName(), lockSelect), getFoundsetManager().config.chunkSize());
 			if (dataset != null)
 			{
 				addLocks(ids, lockName);

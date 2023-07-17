@@ -1,0 +1,83 @@
+{
+    "BtnSuccess": {
+        "category": "button", 
+        "displayName": "Success",
+        "classes": [ "btn", "btn-success", "btn-lg", "font-weight-bold" ]   
+    },
+    "BtnPrimary": {
+       "category": "button", 
+       "displayName": "Primary",
+       "classes": [ "btn", "btn-primary" ]   
+    },
+     "BtnOutlineDefault": {
+       "category": "button", 
+       "displayName": "Outline",
+       "classes": [ "btn", "btn-outline", "btn-default" ]   
+    },
+     "BtnOutlineSuccess": {
+        "category": "button", 
+        "displayName": "Outline 2",
+        "classes": [ "border-success", "text-success", "border-default", "text-center" ]   
+    },
+     "BtnRoundPrimary": {
+        "category": "button", 
+        "displayName": "Round",
+        "classes": [ "btn", "btn-round", "btn-primary" ]   
+    },
+     "BtnRoundOutlinePrimary": {
+        "category": "button", 
+        "displayName": "Round 2",
+        "classes": [ "btn", "btn-round", "btn-outline-primary" ]   
+    },
+    "TxtPrimaryLarge": {
+        "category": "label", 
+        "displayName": "Primary Large",
+        "classes": [ "h2", "text-primary" ]   
+    },
+    "TxtPrimary": {
+        "category": "label", 
+        "displayName": "Primary",
+        "classes": [ "h3", "text-uppercase", "text-primary" ]   
+    },
+    "LabelH1": {
+        "category": "label", 
+        "displayName": "H1 label",
+        "classes": [ "h1", "font-weight-bold"]   
+    },
+     "LabelH2": {
+        "category": "label", 
+        "displayName": "H2 label",
+        "classes": [ "h2", "text-uppercase"]   
+    },
+    "LabelH3": {
+        "category": "label", 
+        "displayName": "H3 label",
+        "classes": [ "h3", "text-uppercase"]   
+    },
+    "LabelH4": {
+        "category": "label", 
+        "displayName": "H4 label",
+        "classes": [ "font-weight-bold", "h4" ]   
+    },
+    "TxtSmall": {
+        "category": "label", 
+        "displayName": "Small",
+        "classes": [ "h5", "text-tertiary" ]   
+    },
+    "TxtXSmall": {
+        "category": "label", 
+        "displayName": "XSmall",
+        "classes": [ "h6" ]   
+    },
+    "TxtActionSuccess": {
+        "category": "label", 
+        "displayName": "Action Success",
+        "classes": [ "text-success", "clickable", "text-center-vertical" ]   
+    },
+    "TxtXSmallBGDanger": {
+        "category": "label", 
+        "displayName": "Danger XS",
+        "classes": [ "h6", "text-center", "bg-danger", "btn-round" ]   
+    }
+ }
+ 

@@ -21,7 +21,6 @@ import java.util.Set;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
-import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.dataprocessing.FireCollector;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -33,6 +32,7 @@ import com.servoy.j2db.util.Debug;
  *
  * @author acostescu
  */
+@SuppressWarnings("nls")
 public abstract class ViewportRowDataProvider
 {
 
@@ -44,31 +44,32 @@ public abstract class ViewportRowDataProvider
 
 	/**
 	 * @param generatedRowId null if {@link #shouldGenerateRowIds()} returns false
+	 * @param types this can be used to register client-side conversion types for each cell - if needed. It is the responsibility of the caller to call
+	 * {@link ViewportClientSideTypes#nextRecordWillBe(int)} before calling this method - so that "populateRowData" can directly use {@link ViewportClientSideTypes#registerClientSideType(com.servoy.j2db.util.Pair...)}
 	 */
-	protected abstract void populateRowData(IRecordInternal record, Set<String> columnName, JSONWriter w, DataConversion clientConversionInfo,
-		String generatedRowId)
+	protected abstract void populateRowData(IRecordInternal record, Set<String> columnNames, JSONWriter w, String generatedRowId, ViewportClientSideTypes types)
 		throws JSONException;
 
 	protected abstract boolean shouldGenerateRowIds();
 
-	protected void writeRowData(int foundsetIndex, Set<String> columnNames, IFoundSetInternal foundset, JSONWriter w, DataConversion clientConversionInfo)
+	protected void writeRowData(int foundsetIndex, Set<String> columnNames, IFoundSetInternal foundset, JSONWriter w, ViewportClientSideTypes types)
 		throws JSONException
 	{
 		// write viewport row contents
 		IRecordInternal record = foundset.getRecord(foundsetIndex);
-		populateRowData(record, columnNames, w, clientConversionInfo, shouldGenerateRowIds() ? record.getPKHashKey() + "_" + foundsetIndex : null);
+		types.nextRecordWillBe(foundsetIndex);
+		populateRowData(record, columnNames, w, shouldGenerateRowIds() ? record.getPKHashKey() + "_" + foundsetIndex : null, types);
 	}
 
-	protected void writeRowData(int startIndex, int endIndex, IFoundSetInternal foundset, JSONWriter w, DataConversion clientConversionInfo)
-		throws JSONException
+	protected ViewportClientSideTypes writeRowData(int startIndex, int endIndex, IFoundSetInternal foundset, JSONWriter w) throws JSONException
 	{
-		writeRowData(startIndex, endIndex, null, foundset, w, clientConversionInfo, null);
+		return writeRowData(startIndex, endIndex, null, foundset, w, null);
 	}
 
-	protected void writeRowData(int startIndex, int endIndex, Set<String> columnNames, IFoundSetInternal foundset, JSONWriter w,
-		DataConversion clientConversionInfo,
+	protected ViewportClientSideTypes writeRowData(int startIndex, int endIndex, Set<String> columnNames, IFoundSetInternal foundset, JSONWriter w,
 		Object sabloValueThatRequestedThisDataToBeWritten) throws JSONException
 	{
+		ViewportClientSideTypes types = null;
 		w.array();
 		if (foundset != null)
 		{
@@ -85,17 +86,19 @@ public abstract class ViewportRowDataProvider
 				// turn change data/bounds of data that we are trying to write to JSON, we use fire collector; after we are done writing, any such handlers will be called
 				// and if they alter anything in the foundset, the foundset/other listeners will pick that up and generate a new change to be written to JSON...
 				FireCollector fireCollector = FireCollector.getFireCollector();
+
 				if (sabloValueThatRequestedThisDataToBeWritten != null)
 				{
+					// the DAL here is the FoundsetDAL which will always change record and fire listeners at each row write from each property that is being written
+					// so in case multiple FoundsetLinkedTypeSabloValue s would be registered to this foundset (so its DAL) it's no use updating all of them for every row - as only one of them is being actually written at that time
 					getDataAdapterList().onlyFireListenersForProperty(sabloValueThatRequestedThisDataToBeWritten);
 				}
 				try
 				{
+					types = new ViewportClientSideTypes(startIndex, endIndex);
 					for (int i = startIndex; i <= endIndex; i++)
 					{
-						clientConversionInfo.pushNode(String.valueOf(i - startIndex));
-						writeRowData(i, columnNames, foundset, w, clientConversionInfo);
-						clientConversionInfo.popNode();
+						writeRowData(i, columnNames, foundset, w, types);
 					}
 				}
 				finally
@@ -109,6 +112,7 @@ public abstract class ViewportRowDataProvider
 			}
 		}
 		w.endArray();
+		return types;
 	}
 
 	protected abstract FoundsetDataAdapterList getDataAdapterList();

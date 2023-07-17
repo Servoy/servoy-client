@@ -29,6 +29,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 @ServoyClientSupport(mc = true, wc = true, sc = true, ng = true)
 public class String
 {
+
 	/**
 	 * Gives the length of the string.
 	 *
@@ -124,6 +125,20 @@ public class String
 	}
 
 	/**
+	 * returns a non-negative integer that is the Unicode code point value at the given position. Note that this function does not give the nth code point in a string, but the code point starting at the specified string index.
+	 *
+	 * @sample string.codePointAt(integer_position);
+	 *
+	 * @param index
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/codePointAt
+	 */
+	public Number js_codePointAt(Number index)
+	{
+		return null;
+	}
+
+	/**
 	 * returns a string that appends the parameter string to the string.
 	 *
 	 * @sample string.concat(string);
@@ -167,9 +182,9 @@ public class String
 	}
 
 	/**
-	* @clonedesc js_endsWith(String)
-	* @sampleas js_endsWith(String)
-	
+	 * @clonedesc js_endsWith(String)
+	 * @sampleas js_endsWith(String)
+	 *
 	 * @param searchString The characters to be searched for at the end of str.
 	 * @param length If provided, it is used as the length of str. Defaults to str.length.
 	 *
@@ -245,19 +260,43 @@ public class String
 	}
 
 	/**
-	 * returns a string created by using the specified sequence of Unicode values.
+	 * Static method that returns a string created from the specified sequence of UTF-16 code units.
 	 *
 	 * @sample
-	 * String.fromCharCode(num)
-	 * // String.fromCharCode(num1,num2,num3)
+	 * String.fromCharCode(0x2014); // returns "â€”"
+	 * String.fromCharCode(65, 66, 67); // returns "ABC"
 	 *
-	 * @return
+	 * @return A string of length N consisting of the N specified UTF-16 code units.
 	 *
-	 * @param num
+	 * @param num A sequence of numbers that are UTF-16 code units. The range is between 0 and 65535 (0xFFFF). Numbers greater than 0xFFFF are truncated. No validity checks are performed.
 	 *
 	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/fromCharCode
 	 */
 	public String js_fromCharCode(Number... num)
+	{
+		return null;
+	}
+
+	/**
+	 * Static method that returns a string created by using the specified sequence of code points.
+	 * String.fromCharCode() cannot return supplementary characters (i.e. code points 0x010000 â€“ 0x10FFFF) by specifying their code point. Instead, it requires the UTF-16 surrogate pair for that. String.fromCodePoint(), on the other hand, can return 4-byte supplementary characters, as well as the more common 2-byte BMP characters, by specifying their code point (which is equivalent to the UTF-32 code unit).
+	 *
+	 * RangeError is thrown if an invalid Unicode code point is given (e.g. "RangeError: NaN is not a valid code point").
+	 *
+	 * @sample
+	 * String.fromCodePoint(42); // "*"
+	 * String.fromCodePoint(65, 90); // "AZ"
+	 * String.fromCodePoint(0x2f804); // "\uD87E\uDC04"
+	 * String.fromCodePoint(-1); // RangeError
+	 * String.fromCodePoint(3.14); // RangeError
+	 *
+	 * @return A string created by using the specified sequence of code points.
+	 *
+	 * @param num A sequence of code points.
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/fromCodePoint
+	 */
+	public String js_fromCodePoint(Number... num)
 	{
 		return null;
 	}
@@ -372,8 +411,8 @@ public class String
 	 * Compatibility Decomposition.
 	 *
 	 * @sample
-	 * var string1 = '\u00F1';           // ñ
-	 * var string2 = '\u006E\u0303';     // ñ
+	 * var string1 = '\u00F1';           // ï¿½
+	 * var string2 = '\u006E\u0303';     // ï¿½
 	 *
 	 * string1 = string1.normalize('NFD');
 	 * string2 = string2.normalize('NFD');
@@ -391,6 +430,70 @@ public class String
 	}
 
 	/**
+	 * The padStart() method pads the current string with another string (multiple times, if needed) until the resulting string reaches the given length. The padding is applied from the start of the current string.
+	 * The default value used for padding is the unicode "space" character (U+0020) - if no padString argument is used.
+	 *
+	 * @sample string.padStart(10);
+	 *
+	 * @param targetLength The length of the resulting string once the current str has been padded. If the value is less than or equal to str.length, then str is returned as-is.
+	 *
+	 * @return A String of the specified targetLength with spaces applied from the start.
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
+	 */
+	public String js_padStart(int targetLength)
+	{
+		return null;
+	}
+
+	/**
+	 * The padStart() method pads the current string with another string (multiple times, if needed) until the resulting string reaches the given length. The padding is applied from the start of the current string.
+	 *
+	 * @sample string.padStart(10, '*');
+	 *
+	 * @param targetLength The length of the resulting string once the current str has been padded. If the value is less than or equal to str.length, then str is returned as-is.
+	 * @param padString The string to pad the current str with. If padString is too long to stay within the targetLength, it will be truncated from the end. The default value is the unicode "space" character (U+0020).
+	 *
+	 * @return A String of the specified targetLength with padString applied from the start.
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
+	 */
+	public String js_padStart(int targetLength, String padString)
+	{
+		return null;
+	}
+
+	/**
+	 * The padEnd() method pads the current string with a given string (repeated, if needed) so that the resulting string reaches a given length. The padding is applied from the end of the current string.
+	 * The default value used for padding is the unicode "space" character (U+0020) - if no padString argument is used.
+	 *
+	 * @sample string.padEnd(10, '*');
+	 *
+	 * @param targetLength The length of the resulting string once the current str has been padded. If the value is less than or equal to str.length, then str is returned as-is.
+	 *
+	 * @return A String of the specified targetLength with spaces applied at the end of the current str.
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padEnd
+	 */
+	public String js_padEnd(int targetLength)
+	{
+		return null;
+	}
+
+	/**
+	 * The padEnd() method pads the current string with a given string (repeated, if needed) so that the resulting string reaches a given length. The padding is applied from the end of the current string.
+	 *
+	 * @sample string.padEnd(10, '*');
+	 *
+	 * @param targetLength The length of the resulting string once the current str has been padded. If the value is less than or equal to str.length, then str is returned as-is.
+	 * @param padString The string to pad the current str with. If padString is too long to stay within the targetLength, it will be truncated from the end. The default value is the unicode "space" character (U+0020).
+	 *
+	 * @return A String of the specified targetLength with the padString applied at the end of the current str.
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padEnd
+	 */
+	public String js_padEnd(int targetLength, String padString)
+	{
+		return null;
+	}
+
+	/**
 	 * Returns the string stripped of whitespace from both ends.
 	 *
 	 * @sample string.trim();
@@ -398,6 +501,30 @@ public class String
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/String/trim
 	 */
 	public String js_trim()
+	{
+		return null;
+	}
+
+	/**
+	 * Removes whitespace from the beginning of a string and returns a new string, without modifying the original string.
+	 *
+	 * @sample string.trimStart();
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/trimStart
+	 */
+	public String js_trimStart()
+	{
+		return null;
+	}
+
+	/**
+	 * Removes whitespace from the ending of a string and returns a new string, without modifying the original string.
+	 *
+	 * @sample string.trimEnd();
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/trimEnd
+	 */
+	public String js_trimEnd()
 	{
 		return null;
 	}
@@ -591,7 +718,7 @@ public class String
 	/**
 	 * Determines whether a string begins with the characters of a specified string, returning true or false as appropriate.
 	 *
-	 *@sample
+	 * @sample
 	 *  var str1 = 'Cats are the best!';
 	 *  application.output(str1.startsWith('Cats'));
 	 *
@@ -605,9 +732,9 @@ public class String
 	}
 
 	/**
-	* @clonedesc js_startsWith(String)
-	* @sampleas js_startsWith(String)
-	
+	 * @clonedesc js_startsWith(String)
+	 * @sampleas js_startsWith(String)
+	 *
 	 * @param searchString The characters to be searched for at the start of this string.
 	 * @param position The position in this string at which to begin searching for searchString. Defaults to 0.
 	 *

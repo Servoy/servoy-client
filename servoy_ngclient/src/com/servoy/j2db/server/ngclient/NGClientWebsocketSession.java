@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 
 import org.json.JSONObject;
 import org.sablo.eventthread.IEventDispatcher;
+import org.sablo.services.client.TypesRegistryService;
 import org.sablo.specification.Package.IPackageReader;
 import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.SpecProviderState;
@@ -40,6 +41,7 @@ import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebObjectSpecificationBuilder;
 import org.sablo.specification.WebServiceSpecProvider;
+import org.sablo.specification.property.types.ObjectPropertyType;
 import org.sablo.specification.property.types.StringPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.BaseWebsocketSession;
@@ -53,6 +55,7 @@ import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.persistence.Form;
@@ -84,11 +87,13 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	private int clientType = 1;
 
+	IDesignerCallback designerCallback;
+
 	private static final class WindowServiceSpecification extends WebObjectSpecification
 	{
 		private WindowServiceSpecification()
 		{
-			super(NGRuntimeWindowManager.WINDOW_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, "", null, null, null);
+			super(NGRuntimeWindowManager.WINDOW_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, null, "", null, null, null);
 			WebObjectFunctionDefinition destroy = new WebObjectFunctionDefinition("destroyController");
 			destroy.addParameter(new PropertyDescriptionBuilder().withName("name").withType(TypesRegistry.getType(StringPropertyType.TYPE_NAME)).build());
 			destroy.setAsync(true);
@@ -97,13 +102,33 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		}
 	}
 
-	private static final WindowServiceSpecification WINDOWS_SERVICE_SPEC = new WindowServiceSpecification();
+	private static final class TypesRegistryServiceSpecification extends WebObjectSpecification
+	{
+		@SuppressWarnings("nls")
+		private TypesRegistryServiceSpecification()
+		{
+			super(TypesRegistryService.TYPES_REGISTRY_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, null, "", null, null, null);
+			WebObjectFunctionDefinition apiCallDef = new WebObjectFunctionDefinition("addComponentClientSideSpecs");
+			apiCallDef
+				.addParameter(new PropertyDescriptionBuilder().withName("toBeSent").withType(TypesRegistry.getType(ObjectPropertyType.TYPE_NAME)).build());
+			apiCallDef.setAsync(true);
+			apiCallDef.setPreDataServiceCall(true);
+			addApiFunction(apiCallDef);
+
+			apiCallDef = new WebObjectFunctionDefinition("setServiceClientSideSpecs");
+			apiCallDef
+				.addParameter(new PropertyDescriptionBuilder().withName("toBeSent").withType(TypesRegistry.getType(ObjectPropertyType.TYPE_NAME)).build());
+			apiCallDef.setAsync(true);
+			apiCallDef.setPreDataServiceCall(true);
+			addApiFunction(apiCallDef);
+		}
+	}
 
 	private static final class ClientFunctionsServiceSpecification extends WebObjectSpecification
 	{
 		private ClientFunctionsServiceSpecification()
 		{
-			super(CLIENT_FUNCTION_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, "", null, null, null);
+			super(CLIENT_FUNCTION_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, null, "", null, null, null);
 			WebObjectFunctionDefinition reload = new WebObjectFunctionDefinition("reloadClientFunctions");
 			reload.setAsync(true);
 			reload.setPreDataServiceCall(true);
@@ -112,13 +137,16 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	}
 
 	private static final ClientFunctionsServiceSpecification CLIENT_FUNCTIONS_SERVICE_SPEC = new ClientFunctionsServiceSpecification();
+	private static final WindowServiceSpecification WINDOWS_SERVICE_SPEC = new WindowServiceSpecification();
+	private static final TypesRegistryServiceSpecification TYPES_REGISTRY_SERVICE_SPEC = new TypesRegistryServiceSpecification();
 
 	private NGClient client;
 
-	public NGClientWebsocketSession(WebsocketSessionKey sessionKey)
+	public NGClientWebsocketSession(WebsocketSessionKey sessionKey, IDesignerCallback designerCallback)
 	{
 		super(sessionKey);
 		registerClientService(new ServoyClientService(NGRuntimeWindowManager.WINDOW_SERVICE, WINDOWS_SERVICE_SPEC, this, false));
+		registerClientService(new ServoyClientService(TypesRegistryService.TYPES_REGISTRY_SERVICE, TYPES_REGISTRY_SERVICE_SPEC, this, false));
 		registerClientService(new ServoyClientService(CLIENT_FUNCTION_SERVICE, CLIENT_FUNCTIONS_SERVICE_SPEC, this, false));
 	}
 
@@ -127,7 +155,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	{
 		if (client == null)
 		{
-			setClient(new NGClient(this));
+			setClient(new NGClient(this, designerCallback));
 		}
 	}
 
@@ -178,7 +206,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	@Override
 	protected IEventDispatcher createEventDispatcher()
 	{
-		return new NGEventDispatcher(client);
+		return client == null ? null : new NGEventDispatcher(client);
 	}
 
 	@Override
@@ -451,7 +479,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	protected IClientService createClientService(String name)
 	{
 		SpecProviderState specProviderState = WebServiceSpecProvider.getSpecProviderState();
-		WebObjectSpecification spec = specProviderState == null ? null : specProviderState.getWebComponentSpecification(name);
+		WebObjectSpecification spec = specProviderState == null ? null : specProviderState.getWebObjectSpecification(name);
 		if (spec == null) spec = new WebObjectSpecificationBuilder().withName(name).withPackageType(IPackageReader.WEB_SERVICE).build();
 
 		return new ServoyClientService(name, spec, this, true);
@@ -468,17 +496,17 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	{
 		if (!getClient().isShutDown()) try
 		{
-			if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("Shutting down client with id " + getSessionKey());
+			if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("[SessionExpired] Shutting down client with id " + getSessionKey());
 			getClient().invokeAndWait(() -> {
 				getClient().shutDown(true);
 			}, 5);
-			if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("Client shutdown client with id " + getSessionKey());
+			if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("[SessionExpired] Client shutdown client with id " + getSessionKey());
 		}
 		catch (TimeoutException e)
 		{
+			if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("[SessionExpired] Timeout happend for shutdown client with id " + getSessionKey());
 			if (!getClient().isShutDown())
 			{
-				if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("Timeout happend for shutdown client with id " + getSessionKey());
 				// client shutdown timeout, maybe long running tasks.
 				IEventDispatcher dispatcher = executor;
 				if (dispatcher != null)
@@ -486,7 +514,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					// just try to interrupt the event thread is that is still alive to force an exception.
 					String stack = dispatcher.interruptEventThread();
 					if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER
-						.debug("dispatch thread interrupted for and called shutdown again client with id " + getSessionKey() + " stack: \n" + stack);
+						.debug("[SessionExpired] dispatch thread interrupted; calling shutdown again (but later) for client with id " + getSessionKey() +
+							" stack: \n" + stack);
 					// now try again but don't wait for it.
 					getClient().invokeLater(() -> {
 						getClient().shutDown(true);
@@ -494,13 +523,15 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				}
 				else
 				{
-					if (SHUTDOWNLOGGER.isDebugEnabled()) SHUTDOWNLOGGER.debug("no dispatch thread anymore for client with id " + getSessionKey());
+					if (SHUTDOWNLOGGER.isDebugEnabled())
+						SHUTDOWNLOGGER.debug("[SessionExpired] no dispatch thread anymore for client with id " + getSessionKey());
 				}
 			}
 			else
 			{
 				if (SHUTDOWNLOGGER.isDebugEnabled())
-					SHUTDOWNLOGGER.debug("Client shutdown client with id " + getSessionKey() + " but it was already shutdowned");
+					SHUTDOWNLOGGER.debug("[SessionExpired] Client shutdown will not be called again on client with id " + getSessionKey() +
+						" because it was already shut down.");
 			}
 		}
 		super.sessionExpired();
@@ -514,14 +545,18 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	 */
 	public static void sendInternalError(Throwable e)
 	{
-		Map<String, Object> internalError = new HashMap<>();
-		StringWriter sw = new StringWriter();
-		e.printStackTrace(new PrintWriter(sw));
-		String stackTrace = sw.toString();
-		if (ApplicationServerRegistry.get().isDeveloperStartup()) internalError.put("stack", stackTrace);
-		String htmlView = Settings.getInstance().getProperty("servoy.webclient.error.page");
-		if (htmlView != null) internalError.put("viewUrl", htmlView);
-		CurrentWindow.get().getSession().getClientService("$sessionService").executeAsyncServiceCall("setInternalServerError", new Object[] { internalError });
+		if (CurrentWindow.get().getEndpoint().hasSession())
+		{
+			Map<String, Object> internalError = new HashMap<>();
+			StringWriter sw = new StringWriter();
+			e.printStackTrace(new PrintWriter(sw));
+			String stackTrace = sw.toString();
+			if (ApplicationServerRegistry.get().isDeveloperStartup()) internalError.put("stack", stackTrace);
+			String htmlView = Settings.getInstance().getProperty("servoy.webclient.error.page");
+			if (htmlView != null) internalError.put("viewUrl", htmlView);
+			CurrentWindow.get().getSession().getClientService("$sessionService").executeAsyncServiceCall("setInternalServerError",
+				new Object[] { internalError });
+		}
 	}
 
 	@Override

@@ -3,18 +3,19 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<prerequisites>
-		<maven>3.6.3</maven>
+		<maven>3.8.6</maven>
 	</prerequisites>
 	<artifactId>servoy-client</artifactId>
-	<version>2022.3.5.3747_LTS</version>
+	<version>2023.3.2.3844</version>
 	<groupId>com.servoy</groupId>
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho.version>2.6.0</tycho.version>
+		<tycho.version>2.7.5</tycho.version>
+		<rhino.version>1.7.14.s3</rhino.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
 	</properties>
 
 	<repositories>
@@ -140,7 +141,7 @@
 							<type>eclipse-plugin</type>
 							<id>org.eclipse.dltk.javascript.rhino</id>
 							<restrictTo>
-								<version>${project.version}</version>
+								<version>${rhino.version}</version>
 							</restrictTo>
 						</filter>
 						<filter>

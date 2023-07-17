@@ -17,6 +17,10 @@
 package com.servoy.j2db.persistence;
 
 
+import static com.servoy.base.query.IBaseSQLCondition.EQUALS_OPERATOR;
+import static com.servoy.base.query.IBaseSQLCondition.IN_OPERATOR;
+import static com.servoy.base.query.IBaseSQLCondition.NOT_OPERATOR;
+import static com.servoy.base.query.IBaseSQLCondition.OPERATOR_MASK;
 import static com.servoy.j2db.persistence.Column.mapToDefaultType;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.toList;
@@ -733,11 +737,13 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		return foreignColumns;
 	}
 
+	@SuppressWarnings("nls")
 	public String checkKeyTypes(IDataProviderHandler dataProviderHandler) throws RepositoryException
 	{
 		ICacheDataproviders cachedDp = getCachedDataproviders(dataProviderHandler);
 		IDataProvider[] primary = cachedDp.getPrimaryDataProviders(dataProviderHandler);
 		Column[] foreign = cachedDp.getForeignColumns(dataProviderHandler);
+		int[] ops = getOperators();
 
 		if (primary != null && foreign != null)
 		{
@@ -791,15 +797,37 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 				{
 					continue; // allow number to integer mappings
 				}
-				if (foreignType == IColumnTypes.INTEGER && primary[i] instanceof AbstractBase &&
-					"Boolean".equals(((AbstractBase)primary[i]).getSerializableRuntimeProperty(IScriptProvider.TYPE))) //$NON-NLS-1$
+				String typeProperty = primary[i] instanceof AbstractBase ? ((AbstractBase)primary[i]).getSerializableRuntimeProperty(IScriptProvider.TYPE)
+					: null;
+				if (foreignType == IColumnTypes.INTEGER && "Boolean".equals(typeProperty)) //$NON-NLS-1$
 				{
 					continue; // allow boolean var to number mappings
 				}
+				if (primaryType == IColumnTypes.MEDIA && ("Array".equals(typeProperty) || (typeProperty != null && typeProperty.startsWith("Array<"))))
+				{
+					int maskedOp = ops[i] & OPERATOR_MASK;
+					if (maskedOp == EQUALS_OPERATOR || maskedOp == NOT_OPERATOR || maskedOp == IN_OPERATOR)
+					{
+						boolean ok = true;
+						if (typeProperty != null && typeProperty.startsWith("Array<"))
+						{
+							ArgumentType componentType = ArgumentType.valueOf(typeProperty);
+							ok = (componentType == ArgumentType.ArrayString && foreignType == IColumnTypes.TEXT) ||
+								(componentType == ArgumentType.ArrayNumber && (foreignType == IColumnTypes.NUMBER || foreignType == IColumnTypes.INTEGER));
+						}
+						if (ok) continue; // allow arrays,
+						return Messages.getString("servoy.relation.error.typeDoesntMatch",
+							new Object[] { primary[i].getDataProviderID() + " (" + typeProperty + ")", foreign[i].getDataProviderID() + " (" +
+								Column.getDisplayTypeString(foreignType) + ")" });
+					}
+					return Messages.getString("servoy.relation.error.unsupportedKindForOperator",
+						new Object[] { typeProperty, RelationItem.getOperatorAsString(ops[i]) });
+				}
 				if (primaryType != foreignType)
 				{
-					return Messages.getString("servoy.relation.error.typeDoesntMatch", //$NON-NLS-1$
-						new Object[] { primary[i].getDataProviderID(), foreign[i].getDataProviderID() });
+					return Messages.getString("servoy.relation.error.typeDoesntMatch",
+						new Object[] { primary[i].getDataProviderID() + " (" + Column.getDisplayTypeString(primaryType) + ")", foreign[i].getDataProviderID() +
+							" (" + Column.getDisplayTypeString(foreignType) + ")" });
 				}
 			}
 		}

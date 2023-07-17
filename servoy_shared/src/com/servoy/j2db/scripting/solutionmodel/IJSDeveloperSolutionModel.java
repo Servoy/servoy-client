@@ -23,7 +23,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 
 
 /**
- * Special interface in javascript only there in the developer that bridges between the runtime client and the developers workspace
+ * Special interface in javascript only there in the developer that bridges between the runtime client and the developers workspace.
  * @author emera
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "servoyDeveloper", scriptingName = "servoyDeveloper")
@@ -90,4 +90,7 @@ public interface IJSDeveloperSolutionModel
 	 */
 	void js_openForm(Object form);
 
+//	JSONArray js_getExistingVariants(String variantCategoryName);
+//
+//	void js_setVariantsFor(String variantCategoryName, String jsonArrayString);
 }

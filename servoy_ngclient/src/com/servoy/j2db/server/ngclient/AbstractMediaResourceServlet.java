@@ -31,6 +31,7 @@ import org.apache.commons.io.FileCleaningTracker;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.websocket.WebsocketSessionManager;
@@ -111,7 +112,8 @@ public abstract class AbstractMediaResourceServlet extends HttpServlet
 
 		if (formName != null && elementName != null && propertyName != null)
 		{
-			((NGClient)wsSession.getClient()).invokeLater(new Runnable()
+
+			wsSession.getEventDispatcher().addEvent(new Runnable()
 			{
 				@SuppressWarnings("nls")
 				@Override
@@ -222,7 +224,8 @@ public abstract class AbstractMediaResourceServlet extends HttpServlet
 						}
 					}
 				}
-			});
+			}, IEventDispatcher.EVENT_LEVEL_SYNC_API_CALL);
+
 			return true;
 		}
 		return false;

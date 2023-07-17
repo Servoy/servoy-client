@@ -19,6 +19,11 @@ package com.servoy.j2db.dataprocessing;
 
 import static com.servoy.j2db.dataprocessing.FireCollector.getFireCollector;
 import static com.servoy.j2db.query.AbstractBaseQuery.acceptVisitor;
+import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
+import static com.servoy.j2db.util.DataSourceUtils.createDBTableDataSource;
+import static com.servoy.j2db.util.DataSourceUtils.getDataSourceServerName;
+import static com.servoy.j2db.util.Utils.stream;
+import static java.util.Arrays.asList;
 
 import java.lang.ref.WeakReference;
 import java.rmi.RemoteException;
@@ -62,9 +67,9 @@ import com.servoy.j2db.persistence.IColumn;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
-import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.DerivedTable;
@@ -247,7 +252,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 				if (duplicate.getColumn().getTable() == baseTable)
 				{
 					BaseQueryTable colTable = column.getTable();
-					name = (colTable.getAlias() != null ? colTable.getAlias() : colTable.getName()) + '.' + name;
+					name = (colTable.getAlias() != null ? colTable.getAlias() : colTable.getName()) + '_' + name;
 					nameToSelect.put(name, selectValue);
 					selectToName.put(selectValue, name);
 				}
@@ -256,7 +261,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 					nameToSelect.put(name, selectValue);
 					selectToName.put(selectValue, name);
 					BaseQueryTable colTable = duplicate.getColumn().getTable();
-					name = (colTable.getAlias() != null ? colTable.getAlias() : colTable.getName()) + '.' + name;
+					name = (colTable.getAlias() != null ? colTable.getAlias() : colTable.getName()) + '_' + name;
 					nameToSelect.put(name, selectValue);
 					selectToName.put(selectValue, name);
 				}
@@ -331,7 +336,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		{
 			for (IQuerySelectValue selectValue : queryPks)
 			{
-				if (selectValue.getColumn().getName().equals(realOrderedPks[i]))
+				if (Objects.equals(realOrderedPks[i], selectValue.getColumnName()))
 				{
 					retValue[i] = selectValue;
 					break;
@@ -599,7 +604,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		Collection<BaseQueryTable> tables = new ArrayList<>();
 		if (queryTableclause instanceof QBSelect)
 		{
-			tables = Arrays.asList(((QBSelect)queryTableclause).getQuery().getTable());
+			tables = asList(((QBSelect)queryTableclause).getQuery().getTable());
 		}
 		else if (queryTableclause instanceof QBJoin)
 		{
@@ -623,7 +628,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			}
 			else
 			{
-				tables = Arrays.asList(table);
+				tables = asList(table);
 			}
 		}
 
@@ -849,7 +854,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			try
 			{
 				boolean previousRefresh = refresh;
-				String serverName = DataSourceUtils.getDataSourceServerName(select.getTable().getDataSource());
+				String serverName = getDataSourceServerName(select.getTable().getDataSource());
 				String transaction_id = manager.getTransactionID(serverName);
 
 				HashMap<SQLStatement, ViewRecord> statementToRecord = new HashMap<>();
@@ -986,7 +991,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 					for (SQLStatement statement : statements)
 					{
-						manager.notifyDataChange(DataSourceUtils.createDBTableDataSource(statement.getServerName(), statement.getTableName()),
+						manager.notifyDataChange(createDBTableDataSource(statement.getServerName(), statement.getTableName()),
 							statement.getPKsRow(0), ISQLActionTypes.UPDATE_ACTION, statement.getChangedColumns());
 					}
 
@@ -1070,7 +1075,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 	private void loadAllRecordsImpl() throws ServoyException
 	{
-		String serverName = DataSourceUtils.getDataSourceServerName(select.getTable().getDataSource());
+		String serverName = getDataSourceServerName(select.getTable().getDataSource());
 		String transaction_id = manager.getTransactionID(serverName);
 		try
 		{
@@ -1404,10 +1409,14 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@JSFunction
 	public QBSelect getQuery()
 	{
-		QuerySelect query = AbstractBaseQuery.deepClone(this.select, true);
+		QuerySelect query = deepClone(this.select, true);
 		IApplication application = manager.getApplication();
+		String serverName = getDataSourceServerName(select.getTable().getDataSource());
+		// Use the server from the original query but leave the table null. The QueryBuilder will use columns from the query.result in that case.
+		String queryDataSource = createDBTableDataSource(serverName, null);
+
 		return new QBSelect(manager, manager.getScopesScopeProvider(), application.getFlattenedSolution(), application.getScriptEngine().getSolutionScope(),
-			select.getTable().getDataSource(), null, query);
+			queryDataSource, null, query);
 	}
 
 	@Override
@@ -1419,7 +1428,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public QuerySelect getCurrentStateQuery(boolean reduceSearch, boolean clone) throws ServoyException
 	{
-		return clone ? AbstractBaseQuery.deepClone(this.select, true) : this.select;
+		return clone ? deepClone(this.select, true) : this.select;
 	}
 
 	@Override
@@ -1644,8 +1653,16 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public boolean isValidRelation(String name)
 	{
-		// TODO Auto-generated method stub
-		return false;
+		Relation[] relationSequence = getFoundSetManager().getApplication().getFlattenedSolution().getRelationSequence(name);
+		if (relationSequence != null && relationSequence.length > 0 && !relationSequence[0].isGlobal() &&
+			!relationSequence[0].getPrimaryDataSource().equals(getDataSource()))
+		{
+			getFoundSetManager().getApplication().reportJSWarning("An incorrect child relation (" + relationSequence[0].getName() +
+				") was accessed through a foundset (or a record of foundset) with datasource '" + getDataSource() + "'. The accessed relation actually has '" +
+				relationSequence[0].getPrimaryDataSource() +
+				"' as primary datasource. It will resolve for legacy reasons but please fix it as it is error prone.", new ServoyException());
+		}
+		return relationSequence != null;
 	}
 
 	/*
@@ -1655,10 +1672,66 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 * java.util.List)
 	 */
 	@Override
-	public IFoundSetInternal getRelatedFoundSet(IRecordInternal record, String relationName, List<SortColumn> defaultSortColumns) throws ServoyException
+	public IFoundSetInternal getRelatedFoundSet(IRecordInternal record, String fullRelationName, List<SortColumn> defaultSortColumns) throws ServoyException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		if (fullRelationName == null)
+		{
+			return null;
+		}
+		IFoundSetInternal retval = null;
+		IRecordInternal currentRecord = record;
+		String[] parts = fullRelationName.split("\\."); //$NON-NLS-1$
+		for (int i = 0; i < parts.length; i++)
+		{
+			// if this is a findstate and that is not the source record then leave the relation lookup to the findstate itself.
+			if (currentRecord instanceof FindState && i != 0)
+			{
+				String leftPart = parts[i];
+				for (int k = i + 1; k < parts.length; k++)
+				{
+					leftPart += "." + parts[k]; //$NON-NLS-1$
+				}
+				return currentRecord.getRelatedFoundSet(leftPart);
+			}
+
+			RowManager rowManager = manager.getRowManager(getTable().getDataSource());
+			SQLSheet relatedSheet = rowManager == null ? null
+				: rowManager.getSQLSheet().getRelatedSheet(getFoundSetManager().getApplication().getFlattenedSolution().getRelation(parts[i]),
+					((FoundSetManager)getFoundSetManager()).getSQLGenerator());
+			if (relatedSheet == null)
+			{
+				retval = getFoundSetManager().getGlobalRelatedFoundSet(parts[i]);
+			}
+			else
+			{
+				retval = ((FoundSetManager)getFoundSetManager()).getRelatedFoundSet(currentRecord, relatedSheet, parts[i], defaultSortColumns);
+				if (retval != null)
+				{
+					if (retval.getSize() == 0 && !currentRecord.existInDataSource())
+					{
+						Relation r = getFoundSetManager().getApplication().getFlattenedSolution().getRelation(parts[i]);
+						if (r != null && r.isExactPKRef(getFoundSetManager().getApplication().getFlattenedSolution()))//TODO add unique column test instead of pk requirement
+						{
+							((FoundSet)retval).newRecord(record.getRawData(), 0, true, false);
+						}
+					}
+					retval.addParent(currentRecord);
+				}
+			}
+			if (retval == null)
+			{
+				return null;
+			}
+			if (i < parts.length - 1)
+			{
+				currentRecord = retval.getRecord(retval.getSelectedIndex());
+				if (currentRecord == null)
+				{
+					return null;
+				}
+			}
+		}
+		return retval;
 	}
 
 	/*
@@ -1684,9 +1757,11 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		}
 		this.select.clearSorts();
 		if (sortColumns != null) this.select.setSorts((ArrayList< ? extends IQuerySort>)sortColumns.stream()
-			.map(sort -> new QuerySort(((Column)sort.getColumn()).queryColumn(this.select.getTable()), sort.getSortOrder() == SortColumn.ASCENDING))
+			.map(sort -> new QuerySort(((Column)sort.getColumn()).queryColumn(this.select.getTable()), sort.getSortOrder() == SortColumn.ASCENDING,
+				manager.getSortOptions(sort.getColumn())))
 			.collect(Collectors.toList()));
-		this.loadAllRecordsImpl();
+		if (!defer) this.loadAllRecordsImpl();
+		else hasMore = false;
 
 	}
 
@@ -1822,7 +1897,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 										column.getAllowNull());
 									if (column.getColumnInfo() != null)
 									{
-										DatabaseUtils.createNewColumnInfo(manager.getApplication().getFlattenedSolution().getPersistFactory(), newCol, false);
+										DatabaseUtils.createNewColumnInfo(
+											manager.getApplication().getFlattenedSolution().getPersistFactory().getNewElementID(null), newCol, false);
 										newCol.getColumnInfo().copyFrom(column.getColumnInfo());
 									}
 								}
@@ -1876,7 +1952,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public IFoundSetInternal copy(boolean unrelate) throws ServoyException
 	{
-		ViewFoundSet viewFoundSetCopy = new ViewFoundSet(datasource, AbstractBaseQuery.deepClone(this.select, true), manager, chunkSize);
+		ViewFoundSet viewFoundSetCopy = new ViewFoundSet(datasource, deepClone(this.select, true), manager, chunkSize);
 		manager.registerViewFoundSet(viewFoundSetCopy, true);
 		return viewFoundSetCopy;
 	}
@@ -2409,15 +2485,14 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			{
 				if (e.getChangedColumnNames() != null)
 				{
-					if (this.columnInJoins.size() > 0 &&
-						Arrays.asList(e.getChangedColumnNames()).stream().anyMatch(colname -> this.columnInJoins.contains(colname)))
+					if (stream(e.getChangedColumnNames()).anyMatch(this.columnInJoins::contains))
 					{
 						fullRefresh = doRefresh();
 					}
 					if (!fullRefresh && monitorAggregates)
 					{
-						List<Object> names = Arrays.asList(e.getChangedColumnNames());
-						if (Arrays.asList(this.columns).stream().map(value -> value.getColumn().getName()).anyMatch(colname -> names.contains(colname)))
+						List<Object> names = asList(e.getChangedColumnNames());
+						if (stream(this.columns).map(IQuerySelectValue::getColumnName).anyMatch(names::contains))
 						{
 							fullRefresh = doRefresh();
 						}
@@ -2437,7 +2512,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 							{
 								for (IQuerySelectValue column : columns)
 								{
-									Object rowValue = row.getValue(column.getColumn().getName());
+									Object rowValue = row.getValue(column.getColumnName());
 									for (Integer rowIndex : rowIndexes)
 									{
 										ViewRecord viewRecord = records.get(rowIndex.intValue());
@@ -2456,15 +2531,14 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 									{
 										for (IQuerySelectValue selectValue : columns)
 										{
-											if (selectValue.getColumn().getName().equals(changedColumn))
+											if (Objects.equals(changedColumn, selectValue.getColumnName()))
 											{
 												changed.add(selectValue);
 												break;
 											}
 										}
 									}
-									columnsToQuery = new IQuerySelectValue[changed.size()];
-									if (changed.size() > 0) columnsToQuery = changed.toArray(columnsToQuery);
+									columnsToQuery = changed.toArray(new IQuerySelectValue[changed.size()]);
 								}
 								if (columnsToQuery.length > 0)
 								{
@@ -2473,16 +2547,16 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 										IQueryBuilder queryBuilder = manager.getQueryFactory().createSelect(ds);
 										for (IQuerySelectValue column : columnsToQuery)
 										{
-											queryBuilder.result().add(queryBuilder.getColumn(column.getColumn().getName()));
+											queryBuilder.result().add(queryBuilder.getColumn(column.getColumnName()));
 										}
 										for (IQuerySelectValue pkColumn : pkColumns)
 										{
 											// just get the pk value from the first record (should be the same for all, because those records all have the same pkhash)
-											queryBuilder.where().add(queryBuilder.getColumn(pkColumn.getColumn().getName()).eq(
+											queryBuilder.where().add(queryBuilder.getColumn(pkColumn.getColumnName()).eq(
 												records.get(rowIndexes.get(0).intValue()).getValue(columnNames.get(pkColumn))));
 										}
 										ISQLSelect updateSelect = queryBuilder.build();
-										String serverName = DataSourceUtils.getDataSourceServerName(select.getTable().getDataSource());
+										String serverName = getDataSourceServerName(select.getTable().getDataSource());
 										String transaction_id = manager.getTransactionID(serverName);
 										IDataSet updatedDS = manager.getApplication().getDataServer().performQuery(manager.getApplication().getClientID(),
 											serverName, transaction_id, updateSelect, null, manager.getTableFilterParams(serverName, updateSelect), true, 0,
@@ -2605,6 +2679,56 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	public ViewRecord[] getFailedRecords()
 	{
 		return failedRecords.toArray(new ViewRecord[failedRecords.size()]);
+	}
+
+	/**
+	 * Get a duplicate of the viewfoundset. This is a full copy of the view foundset.
+	 *
+	 * @sample
+	 * var dupFoundset = %%prefix%%foundset.duplicateFoundSet();
+	 *
+	 * @return foundset duplicate.
+	 */
+	@JSFunction
+	public ViewFoundSet duplicateFoundSet() throws ServoyException
+	{
+		return (ViewFoundSet)copy(false);
+	}
+
+	/**
+	 * Get foundset name. If foundset is not named foundset will return null.
+	 *
+	 * @sample
+	 * var name = foundset.getName()
+	 *
+	 * @return name.
+	 */
+	@JSFunction
+	public String getName()
+	{
+		String name = this.datasource;
+		if (name != null)
+		{
+			name = DataSourceUtils.getViewDataSourceName(datasource);
+		}
+		return name;
+	}
+
+	/**
+	 * Get the record index. Will return -1 if the record can't be found.
+	 *
+	 * @sample var index = %%prefix%%foundset.getRecordIndex(record);
+	 *
+	 * @param record Record
+	 *
+	 * @return int index.
+	 */
+	@JSFunction
+	public int getRecordIndex(ViewRecord record)
+	{
+		int recordIndex = getRecordIndex((IRecord)record);
+		if (recordIndex == -1) return -1;
+		return recordIndex + 1;
 	}
 
 	/**

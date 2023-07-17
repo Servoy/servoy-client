@@ -33,7 +33,7 @@ import com.servoy.j2db.ui.IFormLookupPanel;
 
 /**
  * Web implementation of the {@link IFormLookupPanel}
- * 
+ *
  * @author jcompagner
  */
 public class WebTabFormLookup implements IFormLookupPanel
@@ -176,7 +176,7 @@ public class WebTabFormLookup implements IFormLookupPanel
 		{
 			IFormUIInternal ui = webForm;
 			FormController child = ui.getController();
-			return child.notifyVisible(b, invokeLaterRunnables);
+			return child.notifyVisible(b, invokeLaterRunnables, true);
 		}
 		return true;
 	}

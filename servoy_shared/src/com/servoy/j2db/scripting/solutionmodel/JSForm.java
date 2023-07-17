@@ -1851,14 +1851,14 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * if (myForm.selectionMode == JSForm.SELECTION_MODE_MULTI) myForm.selectionMode = JSForm.SELECTION_MODE_DEFAULT;
 	 */
 	@JSGetter
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
 	public int getSelectionMode()
 	{
 		return getForm().getSelectionMode();
 	}
 
 	@JSSetter
-	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
 	public void setSelectionMode(int arg)
 	{
 		checkModification();
@@ -1983,7 +1983,8 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 		// check to see if the relation is compatible with the datasource (must be a global relation on the appropriate table)
 		if (relation == null || !relation.isGlobal())
 		{
-			throw new RuntimeException("relation not found or invalid; namedFoundset only supports global relations");
+			throw new RuntimeException(
+				"relation " + relation != null ? relation.getName() : "<null>" + " not found or invalid; namedFoundset only supports global relations");
 		}
 		else
 		{
@@ -3001,11 +3002,30 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID);
 	}
 
+
 	@JSSetter
 	public void setOnHide(IBaseSMMethod method)
 	{
 		setEventHandler(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID, method);
 	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getOnBeforeHideMethodID()
+	 *
+	 * @sampleas getOnShow()
+	 */
+	@JSGetter
+	public JSMethod getOnBeforeHide()
+	{
+		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID);
+	}
+
+	@JSSetter
+	public void setOnBeforeHide(IBaseSMMethod method)
+	{
+		setEventHandler(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID, method);
+	}
+
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Form#getOnInvertRecordsCmdMethodID()
@@ -3233,7 +3253,8 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 * @sample
 	 * form.onShow = form.newMethod('function onShow(firstShow, event) { application.output("onShow intercepted on " + event.getFormName() + ". first show? " + firstShow); return false; }');
-	 * form.onHide = form.newMethod('function onHide(event) { application.output("onHide blocked on " + event.getFormName()); return false; }');
+	 * form.onHide = form.newMethod('function onHide(event) { application.output("Hide called but this should not block, use onbefore hdie for that" + event.getFormName());}');
+	 * form.onBeforeHide = form.newMethod('function onHide(event) { application.output("onBeforeHide blocked on " + event.getFormName()); return false; }');
 	 */
 	@JSGetter
 	public JSMethod getOnShow()
@@ -3931,6 +3952,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 * @return a JSWebComponent object
 	 */
+	@Override
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
 	public JSWebComponent newWebComponent(String name, String type)

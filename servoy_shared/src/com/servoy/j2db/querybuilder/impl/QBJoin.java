@@ -28,8 +28,8 @@ import org.mozilla.javascript.annotations.JSSetter;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.DerivedTable;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLTableJoin;
@@ -119,7 +119,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 		ITableReference foreignTableReference = join.getForeignTableReference();
 		if (foreignTableReference instanceof TableExpression)
 		{
-			Table joinTable = getRoot().getTable(foreignTableReference.getTable().getDataSource());
+			ITable joinTable = getRoot().getTable(foreignTableReference.getTable().getDataSource());
 			if (joinTable == null)
 			{
 				throw new RepositoryException("Cannot find table with in data source '" + foreignTableReference.getTable().getDataSource() + "'");
@@ -133,7 +133,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 			List<String> columNames = new ArrayList<>();
 			for (IQuerySelectValue qcol : query.getColumns())
 			{
-				columNames.add(qcol.getAlias() == null ? generateNormalizedNonReservedOSName(qcol.getColumn().getName()) : qcol.getAlias());
+				columNames.add(qcol.getAlias() == null ? generateNormalizedNonReservedOSName(qcol.getColumnName()) : qcol.getAlias());
 			}
 			return columNames.toArray(new String[columNames.size()]);
 		}
@@ -149,7 +149,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 		if (foreignTableReference instanceof TableExpression)
 		{
 
-			Table joinTable = getRoot().getTable(foreignTableReference.getTable().getDataSource());
+			ITable joinTable = getRoot().getTable(foreignTableReference.getTable().getDataSource());
 			if (joinTable == null)
 			{
 				throw new RepositoryException("Cannot find column '" + name + "' in data source '" + foreignTableReference.getTable().getDataSource() + "'");
@@ -170,8 +170,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 			QuerySelect query = ((DerivedTable)foreignTableReference).getQuery();
 			for (IQuerySelectValue qcol : query.getColumns())
 			{
-				if (name.equals(qcol.getAliasOrName()) ||
-					(qcol.getColumn() != null && name.equals(generateNormalizedNonReservedOSName(qcol.getColumn().getName()))))
+				if (name.equals(qcol.getAliasOrName()) || name.equals(generateNormalizedNonReservedOSName(qcol.getColumnName())))
 				{
 					return new QBColumn(getRoot(), this, new QueryColumn(foreignTableReference.getTable(), generateNormalizedNonReservedOSName(name)));
 				}

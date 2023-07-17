@@ -148,7 +148,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	 */
 	public DebugNGClient(INGClientWebsocketSession wsSession, IDesignerCallback designerCallback) throws Exception
 	{
-		super(wsSession);
+		super(wsSession, null);
 		this.designerCallback = designerCallback;
 		getWebsocketSession().registerServerService("developerService", new DeveloperServiceHandler(this));
 	}
@@ -199,7 +199,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	protected IExecutingEnviroment createScriptEngine()
 	{
 		RemoteDebugScriptEngine engine = new RemoteDebugScriptEngine(this);
-		WebObjectSpecification[] serviceSpecifications = WebServiceSpecProvider.getSpecProviderState().getAllWebComponentSpecifications();
+		WebObjectSpecification[] serviceSpecifications = WebServiceSpecProvider.getSpecProviderState().getAllWebObjectSpecifications();
 		PluginScope scope = (PluginScope)engine.getSolutionScope().get("plugins", engine.getSolutionScope());
 		scope.setLocked(false);
 		for (WebObjectSpecification serviceSpecification : serviceSpecifications)
@@ -340,7 +340,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 			for (IFormController controller : forms)
 			{
 				boolean isVisible = controller.isFormVisible();
-				if (isVisible) controller.notifyVisible(false, invokeLaterRunnables);
+				if (isVisible) controller.notifyVisible(false, invokeLaterRunnables, true);
 				if (controller.getFormModel() != null && !Utils.stringSafeEquals(controller.getDataSource(), controller.getFormModel().getDataSource()))
 				{
 					// for now we just destroy the form and recreate it with the other datasource;
@@ -364,7 +364,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 				{
 					if (!controller.isDestroyed()) ((WebFormController)controller).initFormUI();
 				}
-				if (isVisible) controller.notifyVisible(true, invokeLaterRunnables);
+				if (isVisible) controller.notifyVisible(true, invokeLaterRunnables, true);
 			}
 		}
 		if (reload)

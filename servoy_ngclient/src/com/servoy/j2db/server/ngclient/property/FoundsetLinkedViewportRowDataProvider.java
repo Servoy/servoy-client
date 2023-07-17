@@ -17,16 +17,19 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
+import java.util.Arrays;
 import java.util.Set;
 
 import org.json.JSONException;
+import org.json.JSONString;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
-import org.sablo.websocket.utils.DataConversion;
-import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
+import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.JSONUtils.IJSONStringWithClientSideType;
 
 import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.util.Pair;
 
 /**
  * Writes values for each record of the foundset viewport according to a {@link FoundsetLinkedPropertyType}'s wrapped type value.
@@ -40,6 +43,7 @@ public class FoundsetLinkedViewportRowDataProvider<YF, YT> extends ViewportRowDa
 	private final PropertyDescription pd;
 	private final FoundsetLinkedTypeSabloValue<YF, YT> sabloValue;
 	private IBrowserConverterContext browserConverterContext;
+	private final Pair<String/* forColumn */, JSONString/* type */> reuseablePairForCellType = new Pair<>(null, null); // just to avoid creating lots of objects when writing viewport to JSON
 
 	public FoundsetLinkedViewportRowDataProvider(FoundsetDataAdapterList dal, PropertyDescription pd, FoundsetLinkedTypeSabloValue<YF, YT> sabloValue)
 	{
@@ -49,12 +53,18 @@ public class FoundsetLinkedViewportRowDataProvider<YF, YT> extends ViewportRowDa
 	}
 
 	@Override
-	protected void populateRowData(IRecordInternal record, Set<String> columnNamesAlwaysNullSoIgnore, JSONWriter w, DataConversion clientConversionInfo,
-		String generatedRowId) throws JSONException
+	protected void populateRowData(IRecordInternal record, Set<String> columnNamesAlwaysNullSoIgnore, JSONWriter w, String generatedRowId,
+		ViewportClientSideTypes types) throws JSONException
 	{
 		// TODO we should change the order in which rows are populated for a foundset; the foundset itself should do dal.setRecordQuietly(record) then call all ViewportRowDataProvider to populate their data somehow
 		dal.setRecordQuietly(record);
-		FullValueToJSONConverter.INSTANCE.toJSONValue(w, null, sabloValue.getWrappedValue(), pd, clientConversionInfo, browserConverterContext);
+		IJSONStringWithClientSideType jsonValueRepresentationForWrappedValue = JSONUtils.FullValueToJSONConverter.INSTANCE.getConvertedValueWithClientType(
+			sabloValue.getWrappedValue(), pd,
+			browserConverterContext, false);
+
+		w.value(jsonValueRepresentationForWrappedValue); // write it even if it's null (we can't have undefined in a json array)
+		reuseablePairForCellType.setRight(jsonValueRepresentationForWrappedValue != null ? jsonValueRepresentationForWrappedValue.getClientSideType() : null);
+		types.registerClientSideType(Arrays.asList(reuseablePairForCellType));
 	}
 
 	@Override

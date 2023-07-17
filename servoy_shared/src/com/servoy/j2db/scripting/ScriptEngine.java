@@ -36,6 +36,9 @@ import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.Wrapper;
+import org.mozilla.javascript.debug.DebugFrame;
+import org.mozilla.javascript.debug.DebuggableScript;
+import org.mozilla.javascript.debug.Debugger;
 
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.ExitScriptException;
@@ -47,6 +50,7 @@ import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.dataprocessing.DataException;
 import com.servoy.j2db.dataprocessing.FoundSet;
+import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.JSDatabaseManager;
 import com.servoy.j2db.dataprocessing.Record;
@@ -126,7 +130,7 @@ public class ScriptEngine implements IScriptSupport
 				cx.setApplicationClassLoader(application.getBeanManager().getClassLoader(), false);
 				cx.setWrapFactory(new ServoyWrapFactory(application));
 
-				String version = application.getSettings().getProperty("servoy.javascript.version"); //$NON-NLS-1$
+				String version = application.getSettings().getProperty("servoy.javascript.version", Integer.toString(Context.VERSION_ES6)); //$NON-NLS-1$
 
 				if (version != null && version.length() > 0)
 				{
@@ -139,7 +143,16 @@ public class ScriptEngine implements IScriptSupport
 						Debug.error("Error parsing value of 'servoy.javascript.version' property to an integer value: " + version); //$NON-NLS-1$
 					}
 				}
+				// if there is no debugger yet (for a real debug client) then attach a profiling debugger when the profiler is enabled on the admin page.
+				PerformanceData performanceData;
+				if (cx.getDebugger() == null &&
+					(performanceData = application instanceof IPerformanceDataProvider
+						? ((IPerformanceDataProvider)application).getPerformanceData() : null) != null)
+				{
+					cx.setDebugger(new ProfilingDebugger(performanceData, application), null);
+				}
 			}
+
 		}
 
 		public void contextReleased(Context cx)
@@ -527,7 +540,14 @@ public class ScriptEngine implements IScriptSupport
 		else if (sp.getParent() instanceof Form)
 		{
 			Solution sol = (Solution)sp.getAncestor(IRepository.SOLUTIONS);
-			sourceName = sol.getName() + "/forms/" + ((Form)sp.getParent()).getName() + '/' + sourceName;
+			String fName = ((Form)sp.getParent()).getName();
+			if (scope instanceof FormScope fs)
+			{
+				String realFormName = fs.getScopeName();
+				if (realFormName.equals(fName)) sourceName = sol.getName() + "/forms/" + fName + '/' + sourceName;
+				else sourceName = sol.getName() + "/forms/" + realFormName + '(' + fName + ")/" + sourceName;
+			}
+			else sourceName = sol.getName() + "/forms/" + fName + '/' + sourceName;
 		}
 		else if (sp.getParent() instanceof TableNode)
 		{
@@ -602,32 +622,33 @@ public class ScriptEngine implements IScriptSupport
 				declaration.indexOf("controller.loadAllRecords") != -1));
 		}
 
-		String methodName = sp.getName();
-		PerformanceData performanceData = application instanceof IPerformanceDataProvider ? ((IPerformanceDataProvider)application).getPerformanceData() : null;
-		if (performanceData != null)
-		{
-			String scopeName = scope.getClassName();
-			if (scope instanceof LazyCompilationScope)
-			{
-				scopeName = ((LazyCompilationScope)scope).getScopeName();
-				scopeName = lookForSuperCalls(sp, scopeName);
-			}
-			else if (scope.getParentScope() instanceof LazyCompilationScope)
-			{
-				scopeName = ((LazyCompilationScope)scope.getParentScope()).getScopeName();
-				scopeName = lookForSuperCalls(sp, scopeName);
-			}
-			else if (scope instanceof FoundSet)
-			{
-				Scriptable parentScope = ((FoundSet)scope).getPrototype();
-				if (parentScope instanceof LazyCompilationScope)
-				{
-					scopeName = ((LazyCompilationScope)parentScope).getScopeName();
-				}
-			}
-			methodName = scopeName + "." + methodName;
-			return new FunctionWrapper(f, methodName, performanceData, application.getClientID());
-		}
+		// for now disabled the old way with a Wrapper, now we use the Debugger interface of rhino
+//		String methodName = sp.getName();
+//		PerformanceData performanceData = application instanceof IPerformanceDataProvider ? ((IPerformanceDataProvider)application).getPerformanceData() : null;
+//		if (performanceData != null)
+//		{
+//			String scopeName = scope.getClassName();
+//			if (scope instanceof LazyCompilationScope)
+//			{
+//				scopeName = ((LazyCompilationScope)scope).getScopeName();
+//				scopeName = lookForSuperCalls(sp, scopeName);
+//			}
+//			else if (scope.getParentScope() instanceof LazyCompilationScope)
+//			{
+//				scopeName = ((LazyCompilationScope)scope.getParentScope()).getScopeName();
+//				scopeName = lookForSuperCalls(sp, scopeName);
+//			}
+//			else if (scope instanceof FoundSet)
+//			{
+//				Scriptable parentScope = ((FoundSet)scope).getPrototype();
+//				if (parentScope instanceof LazyCompilationScope)
+//				{
+//					scopeName = ((LazyCompilationScope)parentScope).getScopeName();
+//				}
+//			}
+//			methodName = scopeName + "." + methodName;
+//			return new FunctionWrapper(f, methodName, performanceData, application);
+//		}
 		return f;
 	}
 
@@ -670,10 +691,6 @@ public class ScriptEngine implements IScriptSupport
 			}
 			Context cx = Context.enter();
 
-			// only search for nice strings needed in performance admin page if performance is actually enabled
-//			UUID pfUuid = null;
-//			PerformanceData performanceData = null;
-//			String clientID = application.getClientID();
 			try
 			{
 				if (application instanceof ISmartClientApplication)
@@ -697,32 +714,6 @@ public class ScriptEngine implements IScriptSupport
 						}
 					}
 				}
-//				String solutionName = application.getSolutionName();
-//				IPerformanceRegistry performanceRegistry = (application.getApplicationServerAccess() != null &&
-//					!(application instanceof ISmartClientApplication)
-//						? application.getApplicationServerAccess().getFunctionPerfomanceRegistry() : null);
-//				performanceData = performanceRegistry != null ? performanceRegistry.getPerformanceData(solutionName) : null;
-//				//run
-//				if (performanceData != null)
-//				{
-//					String methodName = null;
-//					methodName = f.getClassName();
-//					if (f instanceof NativeFunction) methodName = ((NativeFunction)f).getFunctionName();
-//					String scopeName = scope.getClassName();
-//					if (scope instanceof LazyCompilationScope) scopeName = ((LazyCompilationScope)scope).getScopeName();
-//					if (scope instanceof FoundSet)
-//					{
-//						Scriptable parentScope = ((FoundSet)scope).getPrototype();
-//						if (parentScope instanceof LazyCompilationScope)
-//						{
-//							scopeName = ((LazyCompilationScope)parentScope).getScopeName();
-//						}
-//					}
-//
-//					methodName = scopeName + "." + methodName; //$NON-NLS-1$
-//					//	application.addPerformanceTiming(server, sql, 0 - t1);
-//					pfUuid = performanceData.startAction(methodName, System.currentTimeMillis(), IDataServer.METHOD_CALL, clientID);
-//				}
 
 				retValue = f.call(cx, scope, thisObject, wrappedArgs);
 
@@ -783,10 +774,6 @@ public class ScriptEngine implements IScriptSupport
 				{
 					((ISmartClientApplication)application).setPaintTableImmediately(true);
 				}
-//				else if (pfUuid != null)
-//				{
-//					performanceData.endAction(pfUuid, clientID);
-//				}
 				Context.exit();
 			}
 			testClientUidChange(scope, userUidBefore);
@@ -990,6 +977,82 @@ public class ScriptEngine implements IScriptSupport
 			declaration = declaration.substring(docIndex);
 		}
 		return docStripper.matcher(declaration).replaceFirst(replacement);
+	}
+
+}
+
+final class ProfilingDebugger implements Debugger
+{
+	private final PerformanceData performanceData;
+	private final IApplication application;
+
+	public ProfilingDebugger(PerformanceData performanceData, IApplication application)
+	{
+		this.performanceData = performanceData;
+		this.application = application;
+	}
+
+	@Override
+	public void handleCompilationDone(Context cx, DebuggableScript fnOrScript, String source)
+	{
+	}
+
+	@Override
+	public DebugFrame getFrame(Context cx, DebuggableScript fnOrScript)
+	{
+		String functionName = fnOrScript.getFunctionName();
+		String sourceName = fnOrScript.getSourceName();
+		if (functionName != null && sourceName != null)
+		{
+			return new ProfilingDebugFrame(performanceData, application, sourceName);
+		}
+		return null;
+	}
+}
+
+final class ProfilingDebugFrame implements DebugFrame
+{
+	private final PerformanceData performanceData;
+	private final IApplication application;
+	private final String name;
+	private Integer pfId;
+
+	public ProfilingDebugFrame(PerformanceData performanceData, IApplication application, String name)
+	{
+		this.performanceData = performanceData;
+		this.application = application;
+		this.name = name;
+	}
+
+	@Override
+	public void onEnter(Context cx, Scriptable activation, Scriptable thisObj, Object[] args)
+	{
+		pfId = performanceData.startAction(name, System.currentTimeMillis(), IDataServer.METHOD_CALL, application.getClientID(),
+			application.getSolutionName());
+	}
+
+	@Override
+	public void onLineChange(Context cx, int lineNumber)
+	{
+	}
+
+	@Override
+	public void onExceptionThrown(Context cx, Throwable ex)
+	{
+	}
+
+	@Override
+	public void onExit(Context cx, boolean byThrow, Object resultOrException)
+	{
+		if (pfId != null)
+		{
+			performanceData.endAction(pfId, application.getClientID());
+		}
+	}
+
+	@Override
+	public void onDebuggerStatement(Context cx)
+	{
 	}
 
 }

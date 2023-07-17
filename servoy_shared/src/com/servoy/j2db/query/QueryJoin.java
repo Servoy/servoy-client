@@ -42,7 +42,7 @@ public final class QueryJoin implements ISQLTableJoin
 	private ITableReference foreignTableReference;
 	private AndCondition condition;
 	private int joinType;
-	private boolean permanent;
+	private final boolean permanent;
 
 	private transient Object origin; // origin, transient, only used in the client
 
@@ -74,23 +74,24 @@ public final class QueryJoin implements ISQLTableJoin
 	 *
 	 * @param name
 	 * @param primaryTable
-	 * @param tableReference
+	 * @param foreignTableReference
 	 * @param condition
 	 * @param joinType
 	 * @param permanent
 	 */
-	public QueryJoin(String name, BaseQueryTable primaryTable, ITableReference tableReference, ISQLCondition condition, int joinType, boolean permanent)
+	public QueryJoin(String name, BaseQueryTable primaryTable, ITableReference foreignTableReference, ISQLCondition condition, int joinType, boolean permanent)
 	{
 		this.name = name;
 		this.primaryTable = primaryTable;
-		this.foreignTableReference = tableReference;
+		this.foreignTableReference = foreignTableReference;
 		this.joinType = joinType;
 		this.permanent = permanent;
-		setCondition(condition);
+		this.condition = getAndCondition(condition, foreignTableReference);
 	}
 
-	private final void setCondition(ISQLCondition c)
+	private static AndCondition getAndCondition(ISQLCondition c, ITableReference foreignTableReference)
 	{
+		AndCondition condition;
 		if (c instanceof CompareCondition)
 		{
 			condition = new AndCondition();
@@ -99,8 +100,7 @@ public final class QueryJoin implements ISQLTableJoin
 		else if (c instanceof AndCondition)
 		{
 //			 subconditions of type COMPARE
-			List conditions = ((AndCondition)c).getConditions();
-			for (Object condition2 : conditions)
+			for (ISQLCondition condition2 : ((AndCondition)c).getAllConditions())
 			{
 				if (!(condition2 instanceof CompareCondition))
 				{
@@ -116,6 +116,7 @@ public final class QueryJoin implements ISQLTableJoin
 				"Expecting compare-condition in join on table " + foreignTableReference + ", receiving " + c.getClass().getName()); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
+		return condition;
 	}
 
 	public String getName()
@@ -147,12 +148,6 @@ public final class QueryJoin implements ISQLTableJoin
 	public boolean isPermanent()
 	{
 		return permanent;
-	}
-
-	@Override
-	public void setPermanent(boolean permanent)
-	{
-		this.permanent = permanent;
 	}
 
 	@Override
@@ -192,14 +187,20 @@ public final class QueryJoin implements ISQLTableJoin
 		// the primary keys must be swapped around
 		if (condition != null)
 		{
-			List conditions = condition.getConditions();
-			for (int i = 0; i < conditions.size(); i++)
+			for (List<ISQLCondition> conditions : condition.getConditions().values())
 			{
-				CompareCondition cond = (CompareCondition)conditions.get(i);
-				if ((cond.getOperator() & IBaseSQLCondition.OPERATOR_MASK) == IBaseSQLCondition.EQUALS_OPERATOR && cond.getOperand1() instanceof QueryColumn &&
-					cond.getOperand2() instanceof QueryColumn)
+				for (int i = 0; i < conditions.size(); i++)
 				{
-					conditions.set(i, new CompareCondition(cond.getOperator(), (QueryColumn)cond.getOperand2(), cond.getOperand1()));
+					if (conditions.get(i) instanceof CompareCondition)
+					{
+						CompareCondition cond = (CompareCondition)conditions.get(i);
+						if ((cond.getOperator() & IBaseSQLCondition.OPERATOR_MASK) == IBaseSQLCondition.EQUALS_OPERATOR &&
+							cond.getOperand1() instanceof QueryColumn &&
+							cond.getOperand2() instanceof QueryColumn)
+						{
+							conditions.set(i, new CompareCondition(cond.getOperator(), (QueryColumn)cond.getOperand2(), cond.getOperand1()));
+						}
+					}
 				}
 			}
 		}

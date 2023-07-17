@@ -53,7 +53,7 @@ public class ComponentFactory
 		WebFormComponent webComponent = new WebFormComponent(fe.getName(), fe, dataAdapterList);
 		if (parentToAddTo != null) parentToAddTo.add(webComponent);
 
-		String name = fe.getName();
+		String formElementName = fe.getName();
 		IPersist persist = fe.getPersistIfAvailable();
 		int elementSecurity = 0;
 		if (persist != null)
@@ -62,13 +62,12 @@ public class ComponentFactory
 			// FormComponent's child security is the security of the FormComponent
 			if (fe.isFormComponentChild())
 			{
-				String feName = fe.getName();
 				// form component children security access is currently dictated by the root form component component security settings; currently one only has the Security tab in form editors not in form component editors;
 				// for example if you have a form that contains a form component component A pointing to form component X that has in it a form component component B that points to form component Y
 				// then the children of both X and Y in this case have the same security settings as 'root' form component component which is A;
 
 				// so find the 'root' form component component persist and get it's access rights; this should always be found!
-				String formComponentName = feName.substring(0, feName.indexOf('$'));
+				String formComponentName = formElementName.substring(0, formElementName.indexOf('$'));
 				for (IPersist p : form.getFlattenedFormElementsAndLayoutContainers())
 				{
 					if (p instanceof IFormElement && formComponentName.equals(((IFormElement)p).getName()))
@@ -80,7 +79,7 @@ public class ComponentFactory
 					}
 				}
 				if (getItDirectlyBasedOnPersistAndForm) Debug.warn("'Root' form component including component on form " + form.getName() +
-					" was not found when trying to determine access rights for a child of a form component: " + name);
+					" was not found when trying to determine access rights for a child of a form component: " + formElementName);
 			}
 			else if (persist.getParent() instanceof Portal)
 			{
@@ -193,7 +192,7 @@ public class ComponentFactory
 				}
 				else
 				{
-					Debug.warn("Event handler for " + eventName + " with value '" + eventValue + "' not found (form " + form + ", form element " + name + ")");
+					Debug.warn("Event handler for " + eventName + " with value '" + eventValue + "' not found (form " + form + ", form element " + formElementName + ")");
 				}
 			}
 			else if (eventValue instanceof Number && ((Number)eventValue).intValue() > 0)

@@ -28,9 +28,9 @@ import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.ISupportsGranularUpdates;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
@@ -72,19 +72,20 @@ import com.servoy.j2db.util.Pair;
  *
  * @author acostescu
  */
-public class FoundsetLinkedPropertyType<YF, YT>
-	implements IYieldingType<FoundsetLinkedTypeSabloValue<YF, YT>, YT>, IFormElementToTemplateJSON<YF, FoundsetLinkedTypeSabloValue<YF, YT>>,
-	ISupportTemplateValue<YF>, IWrapperDataLinkedType<YF, FoundsetLinkedTypeSabloValue<YF, YT>>,
-	IFormElementToSabloComponent<YF, FoundsetLinkedTypeSabloValue<YF, YT>>, IConvertedPropertyType<FoundsetLinkedTypeSabloValue<YF, YT>>,
-	IFindModeAwareType<YF, FoundsetLinkedTypeSabloValue<YF, YT>>, ISabloComponentToRhino<FoundsetLinkedTypeSabloValue<YF, YT>>,
-	IRhinoToSabloComponent<FoundsetLinkedTypeSabloValue<YF, YT>>, ISupportsGranularUpdates<FoundsetLinkedTypeSabloValue<YF, YT>>
+public class FoundsetLinkedPropertyType<YF, YT> implements IYieldingType<FoundsetLinkedTypeSabloValue<YF, YT>, YT>,
+	IFormElementToTemplateJSON<YF, FoundsetLinkedTypeSabloValue<YF, YT>>, ISupportTemplateValue<YF>,
+	IWrapperDataLinkedType<YF, FoundsetLinkedTypeSabloValue<YF, YT>>, IFormElementToSabloComponent<YF, FoundsetLinkedTypeSabloValue<YF, YT>>,
+	IConvertedPropertyType<FoundsetLinkedTypeSabloValue<YF, YT>>, IFindModeAwareType<YF, FoundsetLinkedTypeSabloValue<YF, YT>>,
+	ISabloComponentToRhino<FoundsetLinkedTypeSabloValue<YF, YT>>, IRhinoToSabloComponent<FoundsetLinkedTypeSabloValue<YF, YT>>,
+	ISupportsGranularUpdates<FoundsetLinkedTypeSabloValue<YF, YT>>, IPropertyWithClientSideConversions<FoundsetLinkedTypeSabloValue<YF, YT>>
 {
 
 	protected static final String SINGLE_VALUE = "sv"; //$NON-NLS-1$
 	protected static final String SINGLE_VALUE_UPDATE = "svu"; //$NON-NLS-1$
 	protected static final String VIEWPORT_VALUE = "vp"; //$NON-NLS-1$
 	protected static final String VIEWPORT_VALUE_UPDATE = "vpu"; //$NON-NLS-1$
-	protected static final String CONVERSION_NAME = "fsLinked";
+
+	protected static final String CONVERSION_NAME = "fsLinked"; //$NON-NLS-1$
 
 	public static final String FOR_FOUNDSET_PROPERTY_NAME = "forFoundset"; //$NON-NLS-1$
 
@@ -117,8 +118,10 @@ public class FoundsetLinkedPropertyType<YF, YT>
 		FoundsetLinkedConfig config = ((FoundsetLinkedConfig)parameters.getConfig());
 		config.setWrappedPropertyDescription(new PropertyDescriptionBuilder().withName(propertyName).withType(wrappedType).withConfig(
 			((FoundsetLinkedConfig)parameters.getConfig()).wrappedConfig).withDefaultValue(parameters.defaultValue).withInitialValue(
-				parameters.initialValue).withHasDefault(parameters.defaultValue != null).withValues(parameters.values).withPushToServer(
-					parameters.pushToServer).withTags(parameters.tags).withOptional(parameters.optional).withDeprecated(parameters.deprecated).build());
+				parameters.initialValue)
+			.withHasDefault(parameters.defaultValue != null).withValues(parameters.values).withPushToServer(
+				parameters.pushToServer)
+			.withTags(parameters.tags).withOptional(parameters.optional).withDeprecated(parameters.deprecated).build());
 		return this;
 	}
 
@@ -167,25 +170,21 @@ public class FoundsetLinkedPropertyType<YF, YT>
 	}
 
 	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, YF formElementValue, PropertyDescription pd, DataConversion browserConversionMarkers,
-		FormElementContext formElementContext) throws JSONException
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, YF formElementValue, PropertyDescription pd, FormElementContext formElementContext)
+		throws JSONException
 	{
 		if (formElementValue == null) return writer;
 
-		browserConversionMarkers.convert(CONVERSION_NAME);
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.object();
 
 		writer.key(FoundsetLinkedPropertyType.FOR_FOUNDSET_PROPERTY_NAME).value(getConfig(pd).forFoundset);
 
-		if (wrappedType instanceof ISupportTemplateValue &&
+		if (!(wrappedType instanceof ISupportTemplateValue) || // types that do not implement ISupportTemplateValue are considered to be in template
 			((ISupportTemplateValue<YF>)wrappedType).valueInTemplate(formElementValue, getConfig(pd).wrappedPropertyDescription, formElementContext))
 		{
-			DataConversion dataConversions = new DataConversion();
-			dataConversions.pushNode(SINGLE_VALUE);
 			NGConversions.INSTANCE.convertFormElementToTemplateJSONValue(writer, SINGLE_VALUE, formElementValue, getConfig(pd).wrappedPropertyDescription,
-				browserConversionMarkers, formElementContext);
-			JSONUtils.writeClientConversions(writer, dataConversions);
+				formElementContext);
 		}
 
 		writer.endObject();
@@ -220,9 +219,9 @@ public class FoundsetLinkedPropertyType<YF, YT>
 
 	@Override
 	public JSONWriter toJSON(JSONWriter writer, String key, FoundsetLinkedTypeSabloValue<YF, YT> sabloValue, PropertyDescription pd,
-		DataConversion clientConversion, IBrowserConverterContext dataConverterContext) throws JSONException
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		if (sabloValue != null) sabloValue.fullToJSON(writer, key, clientConversion, getConfig(pd).wrappedPropertyDescription, dataConverterContext);
+		if (sabloValue != null) sabloValue.fullToJSON(writer, key, getConfig(pd).wrappedPropertyDescription, dataConverterContext);
 		else
 		{
 			JSONUtils.addKeyIfPresent(writer, key);
@@ -233,10 +232,9 @@ public class FoundsetLinkedPropertyType<YF, YT>
 
 	@Override
 	public JSONWriter changesToJSON(JSONWriter writer, String key, FoundsetLinkedTypeSabloValue<YF, YT> sabloValue, PropertyDescription pd,
-		DataConversion clientConversion, IBrowserConverterContext dataConverterContext) throws JSONException
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		return sabloValue != null ? sabloValue.changesToJSON(writer, key, clientConversion, getConfig(pd).wrappedPropertyDescription, dataConverterContext)
-			: writer;
+		return sabloValue != null ? sabloValue.changesToJSON(writer, key, getConfig(pd).wrappedPropertyDescription, dataConverterContext) : writer;
 	}
 
 	@Override
@@ -320,6 +318,14 @@ public class FoundsetLinkedPropertyType<YF, YT>
 		if (propertyValue != null && propertyValue.wrappedSabloValue instanceof IDataLinkedPropertyValue)
 			return new Pair(propertyValue.wrappedSabloValue, getConfig(pd).wrappedPropertyDescription);
 		return null;
+	}
+
+	@Override
+	public boolean writeClientSideTypeName(JSONWriter w, String keyToAddTo, PropertyDescription pd)
+	{
+		JSONUtils.addKeyIfPresent(w, keyToAddTo);
+		w.value(CONVERSION_NAME);
+		return true;
 	}
 
 }

@@ -25,6 +25,8 @@ import java.util.Set;
 
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.Symbol;
+import org.mozilla.javascript.SymbolScriptable;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.CustomJSONArrayType;
@@ -40,7 +42,7 @@ import com.servoy.j2db.util.Utils;
 /**
  * @author jcompagner
  */
-public final class RhinoMapOrArrayWrapper implements Scriptable
+public final class RhinoMapOrArrayWrapper implements Scriptable, SymbolScriptable
 {
 	private final Object wrappedValue;
 	private final PropertyDescription propertyDescription;
@@ -106,6 +108,7 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 	public Object get(String name, Scriptable start)
 	{
 		Object value = getAsSabloValue(name);
+
 		if (wrappedValue instanceof List)
 		{
 			if (name.equals("length")) return value;
@@ -125,6 +128,10 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 		}
 
 		PropertyDescription propDesc = propertyDescription.getProperty(name);
+
+		// remember, a Scriptable.NOT_FOUND return value will make Rhino go search the prototype (it could even be a getter/setter defined in the prototype for a prop. that is (and server side code does not want it sent to client) or is not defined in .spec)
+		if (value == null && wrappedValue instanceof Map && !((Map<String, Object>)wrappedValue).containsKey(name)) return Scriptable.NOT_FOUND;
+
 		return propDesc != null ? NGConversions.INSTANCE.convertSabloComponentToRhinoValue(value, propDesc, webObjectContext, start) : Scriptable.NOT_FOUND;
 	}
 
@@ -132,7 +139,7 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 	{
 		if (wrappedValue instanceof List< ? >)
 		{
-			if (((List< ? >)wrappedValue).size() > index)
+			if (((List< ? >)wrappedValue).size() > index && index >= 0)
 			{
 				return ((List< ? >)wrappedValue).get(index);
 			}
@@ -346,6 +353,39 @@ public final class RhinoMapOrArrayWrapper implements Scriptable
 			return result;
 		}
 		return new Object[0];
+	}
+
+	@Override
+	public Object get(Symbol key, Scriptable start)
+	{
+		// let our proto handle it
+		return Scriptable.NOT_FOUND;
+	}
+
+	@Override
+	public boolean has(Symbol key, Scriptable start)
+	{
+		// let our proto handle it
+		return false;
+	}
+
+	@Override
+	public void delete(Symbol key)
+	{
+		// All symbols are read-only
+	}
+
+	public void put(Symbol symbol, Scriptable start, Object value)
+	{
+		// this is impl of NativeJavaObject
+		// what todo do here exactly? just put it in the map if possible? what if it is a list?
+		// We could be asked to modify the value of a property in the
+		// prototype. Since we can't add a property to a Java object,
+		// we modify it in the prototype rather than copy it down.
+		if (prototype instanceof SymbolScriptable)
+		{
+			((SymbolScriptable)prototype).put(symbol, prototype, value);
+		}
 	}
 
 	@Override

@@ -61,7 +61,7 @@ import com.servoy.j2db.server.ngclient.property.types.Types;
  * @author acostescu
  */
 @SuppressWarnings("nls")
-public class CustomArrayAndObjectPropertyRhinoTest
+public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 {
 
 	@Before
@@ -137,7 +137,7 @@ public class CustomArrayAndObjectPropertyRhinoTest
 			assertTrue(((CustomJSONPropertyType< ? >)changes.contentType.getProperty(
 				"arrayT").getType()).getCustomJSONTypeDefinition().getType() instanceof CustomJSONObjectType);
 
-			JSONUtils.writeDataWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext);
+			JSONUtils.writeDataAsFullToJSON(changes.content, changes.contentType, allowingBrowserConverterContext); // just to see it doesn't err. out
 			// ok now that we called component.getChanges() no changes should be present any more
 
 			assertTrue(!chList.mustSendAll());
@@ -187,7 +187,7 @@ public class CustomArrayAndObjectPropertyRhinoTest
 
 			// ok clear changes
 			changes = component.getAndClearChanges();
-			JSONUtils.writeDataWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext);
+			JSONUtils.writeDataAsFullToJSON(changes.content, changes.contentType, allowingBrowserConverterContext); // just to see it doesn't err. out
 			assertEquals(1, changes.content.size());
 			assertEquals(0, component.getAndClearChanges().content.size());
 			assertTrue(!chList.mustSendAll());
@@ -230,10 +230,9 @@ public class CustomArrayAndObjectPropertyRhinoTest
 //		assertEquals(45, ((Map)((List)((Map)cal.get(0)).get("active")).get(1)).get("field"));
 
 			changes = component.getAndClearChanges();
-			String msg = JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext);
 			JSONAssert.assertEquals(
-				"{\"arrayT\":{\"vEr\":3,\"g\":[{\"op\":[0,0,0],\"d\":[{\"rt\":\"mycomponent.mytype007\",\"vEr\":5,\"v\":{\"active\":{\"vEr\":2,\"v\":[{\"rt\":\"mycomponent.activeType\",\"vEr\":2,\"v\":{\"field\":11,\"percent\":0.22}}],\"svy_types\":{\"0\":\"JSON_obj\"}}},\"svy_types\":{\"active\":\"JSON_arr\"}}],\"svy_types\":{\"0\":\"JSON_obj\"}}]},\"svy_types\":{\"arrayT\":\"JSON_arr\"}}",
-				msg, JSONCompareMode.NON_EXTENSIBLE);
+				"{\"arrayT\":{\"vEr\":3,\"g\":[{\"op\":[0,0,0],\"d\":[{\"vEr\":5,\"v\":{\"active\":{\"vEr\":2,\"v\":[{\"vEr\":2,\"v\":{\"field\":11,\"percent\":0.22}}]}}}]}]}}",
+				JSONUtils.writeChanges(changes.content, changes.contentType, allowingBrowserConverterContext), JSONCompareMode.NON_EXTENSIBLE);
 
 			((Map)((List)((Map)cal.get(0)).get("active")).get(0)).put("percent", 0.33);
 
@@ -241,10 +240,9 @@ public class CustomArrayAndObjectPropertyRhinoTest
 			assertEquals(1, chMap.getKeysWithUpdates().size());
 
 			changes = component.getAndClearChanges();
-			msg = JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, allowingBrowserConverterContext);
 			JSONAssert.assertEquals(
-				"{\"arrayT\":{\"vEr\":3,\"g\":[{\"op\":[0,0,0],\"d\":[{\"rt\":\"mycomponent.mytype007\",\"vEr\":5,\"u\":[{\"k\":\"active\",\"v\":{\"vEr\":2,\"g\":[{\"op\":[0,0,0],\"d\":[{\"rt\":\"mycomponent.activeType\",\"vEr\":2,\"u\":[{\"k\":\"percent\",\"v\":0.33}]}],\"svy_types\":{\"0\":\"JSON_obj\"}}]}}],\"svy_types\":{\"0\":{\"v\":\"JSON_arr\"}}}],\"svy_types\":{\"0\":\"JSON_obj\"}}]},\"svy_types\":{\"arrayT\":\"JSON_arr\"}}",
-				msg, JSONCompareMode.NON_EXTENSIBLE);
+				"{\"arrayT\":{\"vEr\":3,\"g\":[{\"op\":[0,0,0],\"d\":[{\"vEr\":5,\"u\":[{\"k\":\"active\",\"v\":{\"vEr\":2,\"g\":[{\"op\":[0,0,0],\"d\":[{\"vEr\":2,\"u\":[{\"k\":\"percent\",\"v\":0.33}]}]}]}}]}]}]}}",
+				JSONUtils.writeChanges(changes.content, changes.contentType, allowingBrowserConverterContext), JSONCompareMode.NON_EXTENSIBLE);
 
 			((List)((Map)cal.get(0)).get("active")).add(new HashMap<String, Object>());
 			((Map)((List)((Map)cal.get(0)).get("active")).get(1)).put("percent", 0.99);
@@ -381,7 +379,7 @@ public class CustomArrayAndObjectPropertyRhinoTest
 		assertEquals(null, sbr.get(5).get("c"));
 		assertEquals(6, sbr.size());
 	}
-	
+
 	public static void assertGranularOpIs(int startIndex, int endIndex, int opType, Set<String> columnNames, ArrayOperation opSeq)
 	{
 		assertEquals("startIndex check", startIndex, opSeq.startIndex);

@@ -5,57 +5,76 @@ describe("Test component_custom_property suite", function() {
 		module('foundset_viewport_module');
 		module('component_custom_property');
 		module('sabloApp');
-		angular.module('pushToServerData', ['pushToServer']);
 	});
 
 	var sabloConverters;
 	var foundsetTypeConstants;
+	var typesRegistry;
 	var $scope;
 	var serverValue;
 	var converted;
-	var componentModelGetter;
+	var propertyContext;
+	var componentType;
 
-	beforeEach(function(){
-        sessionStorage.removeItem('svy_session_lock');
-        inject(function(_$sabloConverters_, _$compile_, _$rootScope_, _$foundsetTypeConstants_, $propertyWatchesRegistry){
-		// The injector unwraps the underscores (_) from around the parameter
-		//names when matching
-		sabloConverters = _$sabloConverters_;
-		foundsetTypeConstants = _$foundsetTypeConstants_;
-		$scope = _$rootScope_.$new();
-		$compile = _$compile_;
-		serverValue = {
-				componentDirectiveName:'component',
-				handlers:{
-					onActionMethodID:"anyIDisGood"
-				},
-				model:{
-					text:"buitonn",
-					location: {x:1,y:2}
-				},
-				forFoundset : {
-					recordBasedProperties: ['dataProviderID']
-				}
-		};
-		serverValue[foundsetTypeConstants.FOR_FOUNDSET_PROPERTY] = "myFoundset";
-		var componentModel = {
-				myFoundset: { viewPort: { rows: [ {_svyRowId: 123},
-				                                  {_svyRowId: 321},
-				                                  {_svyRowId: 132},
-				                                  {_svyRowId: 231},
-				                                  {_svyRowId: 111},
-				                                  {_svyRowId: 222},
-				                                  {_svyRowId: 333} ] } }
-		}
-		componentModelGetter = function(prop) { return componentModel[prop]; };
-
-		var template = '<div></div>';
-		$compile(template)($scope);
-		$propertyWatchesRegistry.setAutoWatchPropertiesList("components",{"component" : { "text" : false, "recordDependentText" : true }});
-		converted = sabloConverters.convertFromServerToClient(serverValue,'component', $scope.model, $scope, componentModelGetter);
-		$scope.$digest();
-	   })
-    });
+	beforeEach(function() {
+		sessionStorage.removeItem('svy_session_lock');
+		inject(function(_$sabloConverters_, _$compile_, _$rootScope_, _$foundsetTypeConstants_, _$typesRegistry_) {
+    		// The injector unwraps the underscores (_) from around the parameter
+    		//names when matching
+    		sabloConverters = _$sabloConverters_;
+    		foundsetTypeConstants = _$foundsetTypeConstants_;
+    		typesRegistry = _$typesRegistry_;
+    		$scope = _$rootScope_.$new();
+    		$compile = _$compile_;
+    		serverValue = {
+    				componentDirectiveName:'component',
+    				handlers:{
+    					onActionMethodID:"anyIDisGood"
+    				},
+    				model:{
+    					text:"buitonn",
+    					location: {x:1,y:2}
+    				},
+    				foundsetConfig : {
+    					recordBasedProperties: ['dataProviderID']
+    				}
+    		};
+    		serverValue[foundsetTypeConstants.FOR_FOUNDSET_PROPERTY] = "myFoundset";
+    		var componentModel = {
+    				myFoundset: { viewPort: { rows: [ {_svyRowId: 123},
+    				                                  {_svyRowId: 321},
+    				                                  {_svyRowId: 132},
+    				                                  {_svyRowId: 231},
+    				                                  {_svyRowId: 111},
+    				                                  {_svyRowId: 222},
+    				                                  {_svyRowId: 333} ] } }
+    		}
+    
+    		var template = '<div></div>';
+    		$compile(template)($scope);
+    	
+            // see ClientSideTypesTest for what it can be
+    		typesRegistry.addComponentClientSideSpecs({
+                    component: {
+                        p: {
+                            "text": { "s": 2 },
+                            "recordDependentText": { "s": 3 },
+                            "justDateTypeV": "Date"
+                        }
+                    }
+                });
+    		
+    		componentType = typesRegistry.getAlreadyRegisteredType('component');
+            propertyContext = {
+                getProperty: function(propertyName) { return componentModel[propertyName]; },
+                getPushToServerCalculatedValue: function() { return pushToServerUtils.reject; },
+                isInsideModel: true
+            };
+    
+    		converted = sabloConverters.convertFromServerToClient(serverValue, componentType, undefined, undefined, undefined, $scope, propertyContext);
+    		$scope.$digest();
+		})
+	});
 
 	it("should add requests when we change the model", function() {
 		converted.model.text = "button";
@@ -107,9 +126,10 @@ describe("Test component_custom_property suite", function() {
 					}
 				}
 		};
-		var tmp = sabloConverters.convertFromServerToClient(updateValue,'component', serverValue, $scope, componentModelGetter);
-		expect(tmp).toBe(serverValue);
-		expect(serverValue.model.text).toBe('updatedButtonText');
+
+		var tmp = sabloConverters.convertFromServerToClient(updateValue, componentType, converted, undefined, undefined, $scope, propertyContext);
+		expect(tmp).toBe(converted);
+		expect(converted.model.text).toBe('updatedButtonText');
 	});
 
 	it("should handle viewport full updates, incremental updates and incremental client changes", function() {
@@ -117,22 +137,16 @@ describe("Test component_custom_property suite", function() {
 		var updateValue = {
 				propertyUpdates: {
 					model_vp : [
-					            { dataProviderID1:'book1', dataProviderID2: 1141240331660, recordDependentText: 'aha1' },
-					            { dataProviderID1:'book2', dataProviderID2: 1141240331661, recordDependentText: 'aha2' },
-					            { dataProviderID1:'book3', dataProviderID2: 1141240331662, recordDependentText: 'aha3' },
-					            { dataProviderID1:'book4', dataProviderID2: 1141240331663, recordDependentText: 'aha4' }
+					            { dataProviderID1:'book1', justDateTypeV: 1141240331660, dataProviderID2: 1141240331660, recordDependentText: 'aha1' },
+					            { dataProviderID1:'book2', justDateTypeV: 1141240331661, dataProviderID2: 1141240331661, recordDependentText: 'aha2' },
+					            { dataProviderID1:'book3', justDateTypeV: 1141240331662, dataProviderID2: 1141240331662, recordDependentText: 'aha3' },
+					            { dataProviderID1:'book4', justDateTypeV: 1141240331663, dataProviderID2: 1141240331663, recordDependentText: 'aha4' }
 					            ],
-					svy_types : {
-						model_vp: {
-							"0": { dataProviderID2: 'Date' },
-							"1": { dataProviderID2: 'Date' },
-							"2": { dataProviderID2: 'Date' },
-							"3": { dataProviderID2: 'Date' }
-						}
-					}
+					_T: { mT: null, "cT": { "dataProviderID2": {"_T": "Date"} } }
 				}
 		};
-		var tmp = sabloConverters.convertFromServerToClient(updateValue,'component', converted, $scope, componentModelGetter);
+
+		var tmp = sabloConverters.convertFromServerToClient(updateValue, componentType, converted, undefined, undefined, $scope, propertyContext);
 		expect(tmp).toBe(converted);
 		expect(converted.modelViewport[2].dataProviderID1).toBe('book3');
 		expect(typeof converted.modelViewport[2].dataProviderID2).toBe('object');
@@ -149,7 +163,7 @@ describe("Test component_custom_property suite", function() {
 		$scope.$digest();
 		expect(converted.__internalState.isChanged()).toBe(true);
 		
-		var result = sabloConverters.convertFromClientToServer(converted, 'component', undefined);
+		var result = sabloConverters.convertFromClientToServer(converted, componentType, converted, $scope, propertyContext);
 		
 		expect(result.length).toEqual(1);
 		expect(result[0]).toEqual({ viewportDataChanged: { _svyRowId: 123, dp: 'recordDependentText', value: 'modified aha1' } });
@@ -165,31 +179,27 @@ describe("Test component_custom_property suite", function() {
 				propertyUpdates: {
 					model_vp_ch : [ {
 						rows: [ {dataProviderID1:'book3 Modified', dataProviderID2: 1141240331669, recordDependentText:'modified aha3'} ],
+						_T: { mT: null, "cT": { "dataProviderID2": {"_T": "Date"} } },
 						startIndex: 2,
 						endIndex: 2,
 						type: CHANGE
 					}, {
 						rows: [ {dataProviderID1:'book1 Modified', dataProviderID2: 1141240331668} ],
+                        _T: { mT: null, "cT": { "dataProviderID2": {"_T": "Date"} } },
 						startIndex: 0,
 						endIndex: 0,
 						type: CHANGE
 					}, {
 						rows: [ { dataProviderID2: 1141240331667 } ],
+                        _T: { mT: "Date" },
 						startIndex: 1,
 						endIndex: 1,
 						type: CHANGE
-					} ],
-					svy_types : {
-						model_vp_ch: {
-							"0": { rows: { "0" : { dataProviderID2: 'Date' } } },
-							"1": { rows: { "0" : { dataProviderID2: 'Date' } } },
-							"2": { rows: { "0" : { dataProviderID2: 'Date' } } },
-						}
-					}
+					} ]
 				}
 		};
 		
-		var tmp = sabloConverters.convertFromServerToClient(updateValue,'component', converted, $scope, componentModelGetter);
+		var tmp = sabloConverters.convertFromServerToClient(updateValue, componentType, converted, undefined, undefined, $scope, propertyContext);
 		expect(tmp).toBe(converted);
 		expect(converted.modelViewport[2].dataProviderID1).toBe('book3 Modified');
 		expect(typeof converted.modelViewport[2].dataProviderID2).toBe('object');
@@ -207,17 +217,20 @@ describe("Test component_custom_property suite", function() {
 					
 					model_vp_ch : [ {
 						rows: [ {dataProviderID1:'book2.1 inserted', dataProviderID2: 1141240331670, recordDependentText:'aha2.1'} ],
+                        _T: { mT: null, "cT": { "dataProviderID2": {"_T": "Date"} } },
 						startIndex: 2,
 						endIndex: 2, // actually this means 'new viewport size' for INSERTS
 						type: INSERT
 					}, {
 						rows: [ {dataProviderID1:'book5 inserted', dataProviderID2: 1141240331671, recordDependentText:'aha5'} ],
+                        _T: { mT: null, "cT": { "dataProviderID2": {"_T": "Date"} } },
 						startIndex: 4,
 						endIndex: 4, // actually this means 'new viewport size' for INSERTS
 						type: INSERT
 					}, {
 						rows: [ {dataProviderID1:'book0.1 inserted', dataProviderID2: 1141240331672, recordDependentText:'aha0.1'},
 						        {dataProviderID1:'book0.2 inserted', dataProviderID2: 1141240331673, recordDependentText:'aha0.2'} ],
+                        _T: { mT: null, "cT": { "dataProviderID2": {"_T": "Date"} } },
 						startIndex: 0,
 						endIndex: 1, // actually this means 'new viewport size' for INSERTS
 						type: INSERT
@@ -228,24 +241,15 @@ describe("Test component_custom_property suite", function() {
 					}, {
 						// and they will get replaced with 1 new row
 						rows: [ {dataProviderID1:'book 6 replacing 1 and 2 inserted', dataProviderID2: 1141240331674, recordDependentText:'aha6'} ],
+                        _T: { mT: null, "cT": { "dataProviderID2": {"_T": "Date"} } },
 						startIndex: 6,
 						endIndex: 6, // so we delete the initial rows 'book1' and 'book2', and they will get replaced with 1 new row
 						type: INSERT
-					} ],
-					
-					svy_types : {
-						model_vp_ch: {
-							"0": { rows: { "0" : { dataProviderID2: 'Date' } } },
-							"1": { rows: { "0" : { dataProviderID2: 'Date' } } },
-							"2": { rows: { "0" : { dataProviderID2: 'Date' }, "1" : { dataProviderID2: 'Date' } } },
-							"3": null,
-							"4": { rows: { "0" : { dataProviderID2: 'Date' } } }
-						}
-					}
+					} ]
 				}
 		};
 		
-		var tmp = sabloConverters.convertFromServerToClient(updateValue, 'component', converted, $scope, componentModelGetter);
+		var tmp = sabloConverters.convertFromServerToClient(updateValue, componentType, converted, undefined, undefined, $scope, propertyContext);
 		
 		expect(tmp).toBe(converted);
 		expect(converted.modelViewport.length).toBe(7);
@@ -296,7 +300,7 @@ describe("Test component_custom_property suite", function() {
 		$scope.$digest();
 		expect(converted.__internalState.isChanged()).toBe(true);
 		
-		var result = sabloConverters.convertFromClientToServer(converted, 'component', undefined);
+		var result = sabloConverters.convertFromClientToServer(converted, componentType, converted, $scope, propertyContext);
 		expect(result.length).toEqual(1);
 
 		expect(result[0]).toEqual({ viewportDataChanged: { _svyRowId: 222, dp: 'recordDependentText', value: 'client modified aha4' } });
@@ -312,7 +316,8 @@ describe("Test component_custom_property suite", function() {
 					            ]
 				}
 		};
-		var converted = sabloConverters.convertFromServerToClient(updateValue, 'component', serverValue, $scope, componentModelGetter);
+
+		converted = sabloConverters.convertFromServerToClient(updateValue, componentType, converted, undefined, undefined, $scope, propertyContext);
 
 		expect(converted.modelViewport[1].dataProviderID).toBe('book2');
 
@@ -324,7 +329,7 @@ describe("Test component_custom_property suite", function() {
 				}
 		};
 
-		converted = sabloConverters.convertFromServerToClient(updateValue,'component', converted, $scope, componentModelGetter);
+		converted = sabloConverters.convertFromServerToClient(updateValue, componentType, converted, undefined, undefined, $scope, propertyContext);
 		expect(converted.model.text).toBe('updatedButtonText');
 
 	});
@@ -332,16 +337,6 @@ describe("Test component_custom_property suite", function() {
 	it("should handle an initial data with conversions ", function() {
 		var updateValue = {
 				propertyUpdates: {
-					svy_types : {
-						model_vp : [
-						            {
-						            	dataProviderID : 'Date'
-						            },
-						            {
-						            	dataProviderID : 'Date'
-						            }
-						            ]
-					},
 					model : {
 						format: {
 							display:"M/d/yy h:mm a",
@@ -351,22 +346,23 @@ describe("Test component_custom_property suite", function() {
 					model_vp : [
 					            {dataProviderID:1141240331660},
 					            {dataProviderID:1141240331661}
-					            ]
+					            ],
+                    _T: { mT: 'Date' }
 				}
 		};
-		var converted = sabloConverters.convertFromServerToClient(updateValue,'component', serverValue, $scope, componentModelGetter);
+		converted = sabloConverters.convertFromServerToClient(updateValue, componentType, converted, undefined, undefined, $scope, propertyContext);
 		expect(converted.modelViewport[0].dataProviderID.getTime()).toBe(1141240331660);
 	});
 
 	it("should send back nothing if update is falsy", function() {
-		var empty = sabloConverters.convertFromClientToServer(undefined,'component', undefined);
+		var empty = sabloConverters.convertFromClientToServer(undefined, componentType, undefined, $scope, propertyContext);
 		expect(empty).toEqual([]);
 	});
 
 	it("should send back update if update contains something", function() {
 		converted.model.text = "button";
 		$scope.$digest();
-		var result = sabloConverters.convertFromClientToServer(converted,'component', undefined);
+		var result = sabloConverters.convertFromClientToServer(converted, componentType, converted, $scope, propertyContext);
 		expect(result.length).toEqual(1);
 		
 		expect(result[0]).toEqual({propertyChanges:{text:'button'}});

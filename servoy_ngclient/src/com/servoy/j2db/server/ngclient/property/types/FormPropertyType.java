@@ -28,7 +28,6 @@ import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.CurrentWindow;
-import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
@@ -76,7 +75,6 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 	public Object fromJSON(Object newJSONValue, Object previousSabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
-		// TODO shouldn't this just return always null? (never allow a form property to be set from the client?)
 		if (newJSONValue instanceof JSONObject)
 		{
 			Iterator<String> it = ((JSONObject)newJSONValue).keys();
@@ -85,7 +83,7 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 				String key = it.next();
 				try
 				{
-					return ((JSONObject)newJSONValue).get(key);
+					newJSONValue = ((JSONObject)newJSONValue).get(key);
 				}
 				catch (JSONException e)
 				{
@@ -93,12 +91,29 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 				}
 			}
 		}
+		if (newJSONValue != null && CurrentWindow.get() instanceof INGClientWindow)
+		{
+			try
+			{
+				// check if component is allowed to show the form
+				if (dataConverterContext != null && dataConverterContext.getWebObject() instanceof WebFormComponent)
+					((INGClientWindow)CurrentWindow.get()).isVisibleAllowed(newJSONValue.toString(), null,
+						((WebFormComponent)dataConverterContext.getWebObject()).getFormElement());
+				// check if this form is allowed to be shown globally (via window service)
+				else((INGClientWindow)CurrentWindow.get()).isVisibleAllowed(newJSONValue.toString(), null, null);
+			}
+			catch (Exception ex)
+			{
+				Debug.error(ex);
+				return null;
+			}
+		}
 		return newJSONValue;
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, Object sabloValue, PropertyDescription pd, DataConversion clientConversion,
-		IBrowserConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, Object sabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+		throws JSONException
 	{
 		if (key != null)
 		{
@@ -110,7 +125,8 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 			formName = (String)sabloValue;
 			if (dataConverterContext != null && dataConverterContext.getWebObject() instanceof IContextProvider)
 			{
-				FlattenedSolution flattenedSolution = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication().getFlattenedSolution();
+				FlattenedSolution flattenedSolution = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication()
+					.getFlattenedSolution();
 				Form form = flattenedSolution.getForm(formName);
 				// form name
 				if (form == null)
@@ -196,8 +212,8 @@ public class FormPropertyType extends DefaultPropertyType<Object>
 	}
 
 	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd, FormElementContext formElementContext)
+		throws JSONException
 	{
 		if (formElementValue == null) return writer;
 

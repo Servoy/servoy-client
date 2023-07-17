@@ -6,11 +6,11 @@ angular.module('dialogs',['servoy'])
 		 *
 		 * @example
 		 * //show dialog
-		 * var thePressedButton = plugins.dialogs.showErrorDialog('Title', 'Value not allowed','OK');
+		 * var thePressedButton = plugins.dialogs.showErrorDialog('Title', 'Value not allowed','OK', 'Cancel');
 		 *
 		 * @param dialogTitle Dialog title.
 		 * @param dialogMessage Dialog message.
-		 * @param buttonsText Array of button texts.
+		 * @param buttonsText variable arguments of button texts..
 		 * 
 		 * @return {string} pressed button or null if closed by escape key
 		 */
@@ -22,11 +22,11 @@ angular.module('dialogs',['servoy'])
 		 *
 		 * @example
 		 * //show dialog
-		 * var thePressedButton = plugins.dialogs.showInfoDialog('Title', 'Value not allowed','OK');
+		 * var thePressedButton = plugins.dialogs.showInfoDialog('Title', 'Value not allowed','OK', 'Cancel');
 		 *
 		 * @param dialogTitle Dialog title.
 		 * @param dialogMessage Dialog message.
-		 * @param buttonsText Array of button texts.
+		 * @param buttonsText variable arguments of button texts..
 		 */
 		showInfoDialog: function(dialogTitle,dialogMessage,buttonsText) {
 			return this.showDialog(dialogTitle,dialogMessage,buttonsText,'type-info');
@@ -36,11 +36,11 @@ angular.module('dialogs',['servoy'])
 		 *
 		 * @example
 		 * //show dialog
-		 * var thePressedButton = plugins.dialogs.showQuestionDialog('Title', 'Value not allowed','OK');
+		 * var thePressedButton = plugins.dialogs.showQuestionDialog('Title', 'Value not allowed','OK', 'Cancel');
 		 *
 		 * @param dialogTitle Dialog title.
 		 * @param dialogMessage Dialog message.
-		 * @param buttonsText Array of button texts.
+		 * @param buttonsText variable arguments of button texts..
 		 * 
 		 * @return {String}
 		 */
@@ -68,6 +68,7 @@ angular.module('dialogs',['servoy'])
 					  closeButton: false,
 					  title: dialogTitle,
 					  message: dialogMessage,
+                      locale: navigator.language,
 					  value: initialValue
 					};
 			var dialog = bootbox.prompt(dialogOptions);
@@ -106,8 +107,10 @@ angular.module('dialogs',['servoy'])
 					  closeButton: false,
 					  title: dialogTitle,
 					  message: dialogMessage,
+                      locale: navigator.language,
 					  inputType: 'select',
-					  inputOptions: options
+					  inputOptions: options,
+                      value: options[0].value
 					};
 			var dialog = bootbox.prompt(dialogOptions);
 			$sabloTestability.block(true);
@@ -132,6 +135,7 @@ angular.module('dialogs',['servoy'])
 					  buttons: {
 					  },
 					  closeButton: false,
+                      locale : navigator.language,
 					  onEscape: function(){  dialogOpenedDeferred.resolve(null) }
 					};
 			if (dialogTitle) dialogOptions.title = dialogTitle;
@@ -152,7 +156,7 @@ angular.module('dialogs',['servoy'])
 					var buttonModel = {
 						      label: this.escapeString(buttonsText[i], true),
 						      callback: function(event) {
-						    	 dialogOpenedDeferred.resolve(event.target.innerHTML);
+						    	 dialogOpenedDeferred.resolve(event.target.innerText);
 						      }
 					}
 					if (i==0) buttonModel.className =  "btn-primary";
@@ -163,7 +167,7 @@ angular.module('dialogs',['servoy'])
 			var dialog = bootbox.dialog(dialogOptions);
 			dialog.on('keyup', function (event) {
       			if (event.key == "Enter") {
-					dialogOpenedDeferred.resolve(dialog.find(".btn-primary")[0].innerHTML);
+					dialogOpenedDeferred.resolve(dialog.find(".btn-primary")[0].innerText);
 					dialog.modal('hide');
 				}
     		});

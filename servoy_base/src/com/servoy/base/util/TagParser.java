@@ -84,6 +84,11 @@ public class TagParser
 						else if (resolver != null)
 						{
 							string = resolver.getStringValue(trimmed);
+							// once again, if this value is an i18n get it translated
+							if (i18nProvider != null)
+							{
+								string = i18nProvider.getI18NMessageIfPrefixed(string);
+							}
 						}
 
 						if (string != null)

@@ -20,13 +20,10 @@ package com.servoy.j2db.querybuilder.impl;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.query.AbstractBaseQuery;
-import com.servoy.j2db.query.AndCondition;
 import com.servoy.j2db.query.AndOrCondition;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderWhereCondition;
-import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * Where clause for a query, conditions can be added by name.
@@ -35,9 +32,6 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilderWhereCondition
 {
-	private static final String[] EMPTY_STRINGS = new String[0];
-	private static final String CONDITION_ANONYMOUS = "<anonymous>"; // When no condition name is given
-
 	QBWhereCondition(QBSelect select)
 	{
 		super(select, select, null);
@@ -46,7 +40,19 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 	@Override
 	public AndOrCondition getQueryCondition()
 	{
-		return getRoot().getQuery().getWhere();
+		return getQueryCondition(true);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.querybuilder.impl.QBCondition#getQueryCondition(boolean)
+	 */
+	@Override
+	public AndOrCondition getQueryCondition(boolean create)
+	{
+		QuerySelect query = getRoot().getQuery(create);
+		return query == null ? null : query.getCondition();
 	}
 
 	/**
@@ -55,13 +61,13 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 	@Override
 	public QBWhereCondition js_add(QBCondition condition)
 	{
-		return add(null, condition);
+		return (QBWhereCondition)super.js_add(condition);
 	}
 
 	@Override
 	public QBWhereCondition add(IQueryBuilderCondition condition)
 	{
-		return add(null, condition);
+		return (QBWhereCondition)super.add(condition);
 	}
 
 	/**
@@ -73,36 +79,16 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 	 * @param name the name of the condition
 	 * @param condition the condition to add
 	 */
+	@Override
 	public QBWhereCondition js_add(String name, QBCondition condition)
 	{
-		return add(name, condition);
+		return (QBWhereCondition)super.js_add(name, condition);
 	}
 
+	@Override
 	public QBWhereCondition add(String name, IQueryBuilderCondition condition)
 	{
-		getRoot().getQuery().addCondition(name == null ? CONDITION_ANONYMOUS : name, ((QBCondition)condition).getQueryCondition());
-		return this;
-	}
-
-	/**
-	 * Get the names for the conditions in the query where-clause.
-	 * @sample
-	 * var q = foundset.getQuery()
-	 * for (var c in q.where.conditionnames)
-	 * {
-	 * 	var cond = q.where.getCondition(c)
-	 * }
-	 */
-	@JSReadonlyProperty
-	public String[] conditionnames()
-	{
-		QuerySelect query = getRoot().getQuery(false);
-
-		if (query == null)
-		{
-			return EMPTY_STRINGS;
-		}
-		return query.getConditionNames();
+		return (QBWhereCondition)super.add(name, condition);
 	}
 
 	/**
@@ -114,15 +100,11 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.remove("mycond")
 	 */
+	@Override
 	@JSFunction
 	public QBWhereCondition remove(String name)
 	{
-		QuerySelect query = getRoot().getQuery(false);
-		if (query != null)
-		{
-			query.setCondition(name == null ? CONDITION_ANONYMOUS : name, null);
-		}
-		return this;
+		return (QBWhereCondition)super.remove(name);
 	}
 
 	/**
@@ -131,29 +113,11 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.clear()
 	 */
+	@Override
 	@JSFunction
 	public QBWhereCondition clear()
 	{
-		QuerySelect query = getRoot().getQuery(false);
-		if (query != null)
-		{
-			query.clearConditions();
-		}
-		return this;
+		return (QBWhereCondition)super.clear();
 	}
 
-	/**
-	 * Get a named condition in the query where-clause.
-	 *
-	 * @param name The condition name.
-	 *
-	 * @sampleas conditionnames()
-	 */
-	@JSFunction
-	public QBCondition getCondition(String name)
-	{
-		QuerySelect query = getRoot().getQuery(false);
-		AndCondition condition = query == null ? null : query.getCondition(name);
-		return condition == null ? null : new QBCondition(getRoot(), getParent(), AbstractBaseQuery.deepClone(condition));
-	}
 }

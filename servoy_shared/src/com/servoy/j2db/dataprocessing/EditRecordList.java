@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -708,7 +709,7 @@ public class EditRecordList
 			}
 
 			RowUpdateInfo[] infos = rowUpdates.toArray(new RowUpdateInfo[rowUpdates.size()]);
-			if (infos.length > 1 && !fsm.disableInsertsReorder)
+			if (infos.length > 1 && !fsm.config.disableInsertsReorder())
 			{
 				// search if there are new row pks used that are
 				// used in records before this record and sort it based on that.
@@ -776,7 +777,7 @@ public class EditRecordList
 			}
 
 			ISQLStatement[] statements;
-			if (fsm.statementBatching && infos.length > 1)
+			if (fsm.config.statementBatching() && infos.length > 1)
 			{
 				// Merge insert statements insert statements from all info's: multiple info's can share the same statement of the records are batched together on the statement level
 				List<ISQLStatement> mergedStatements = new ArrayList<ISQLStatement>(infos.length);
@@ -831,6 +832,7 @@ public class EditRecordList
 			Map<FoundSet, List<Record>> foundsetToRecords = new HashMap<FoundSet, List<Record>>();
 			Map<FoundSet, List<String>> foundsetToAggregateDeletes = new HashMap<FoundSet, List<String>>();
 			List<Runnable> fires = new ArrayList<Runnable>(infos.length);
+			int mustRollbackCount = 0;
 			// Walk in reverse over it, so that related rows are update in there row manger before they are required by there parents.
 			for (int i = infos.length; --i >= 0;)
 			{
@@ -852,6 +854,11 @@ public class EditRecordList
 						if (retValue instanceof ServoyException)
 						{
 							((ServoyException)retValue).fillScriptStack();
+
+							if (((ServoyException)retValue).getErrorCode() == ServoyException.MUST_ROLLBACK)
+							{
+								mustRollbackCount++;
+							}
 						}
 						row.setLastException((Exception)retValue);
 						markRecordAsFailed(record);
@@ -966,6 +973,12 @@ public class EditRecordList
 						}
 					}
 				}
+			}
+
+			if (mustRollbackCount > 0)
+			{
+				log.error("Not all edit records were processed: " + mustRollbackCount +
+					" records failed because the transaction must be rolled back after a failure");
 			}
 
 			// run rowmanager fires in reverse order (original order because info's were processed in reverse order) -> first inserted record is fired first
@@ -1133,7 +1146,7 @@ public class EditRecordList
 		{
 			return false;
 		}
-		if (statement1 instanceof SQLStatement && !Utils.safeEquals(((SQLStatement)statement1).getFilters(), ((SQLStatement)statement2).getFilters()))
+		if (statement1 instanceof SQLStatement && !Objects.equals(((SQLStatement)statement1).getFilters(), ((SQLStatement)statement2).getFilters()))
 		{
 			return false;
 		}
@@ -1158,13 +1171,13 @@ public class EditRecordList
 		}
 
 		// transaction
-		if (!Utils.safeEquals(statement1.getTransactionID(), statement2.getTransactionID()))
+		if (!Objects.equals(statement1.getTransactionID(), statement2.getTransactionID()))
 		{
 			return false;
 		}
 
-		// identitycolumn
-		if (statement1.usedIdentity() || statement2.usedIdentity())
+		// identitycolumn, supported when both statements are on the same column
+		if (!Objects.equals(statement1.getIdentityColumn(), statement2.getIdentityColumn()))
 		{
 			return false;
 		}

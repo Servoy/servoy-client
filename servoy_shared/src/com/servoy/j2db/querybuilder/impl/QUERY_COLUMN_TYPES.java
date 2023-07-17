@@ -23,20 +23,14 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
  * Script constants for Query Builder column types.
- * 
+ *
  * @author rgansevles
- * 
+ *
  * @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QUERY_COLUMN_TYPES implements IPrefixedConstantsObject, IQueryBuilderConstants
 {
-
-	public String getPrefix()
-	{
-		return "QUERY_COLUMN_TYPES"; //$NON-NLS-1$
-	}
-
 	@Override
 	public String toString()
 	{

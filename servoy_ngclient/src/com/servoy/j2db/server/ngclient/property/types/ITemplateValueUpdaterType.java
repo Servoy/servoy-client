@@ -22,11 +22,10 @@ import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
-import org.sablo.websocket.utils.DataConversion;
 
 /**
  * Types that implement this interface do send some useful contents in template JSON (either through {@link NGConversions.IFormElementToTemplateJSON},
- * or just the design value is useful large json) but at runtime - when the application/record/... becomes available the want to update that value without
+ * or just the design value is useful large json) but at runtime - when the application/record/... becomes available they want to update that value without
  * sending it again completely.<br/><br/>
  *
  * For example a "component" (child component) type sends in the template any child component properties that want to be in template, and at runtime (when initial
@@ -54,7 +53,7 @@ public interface ITemplateValueUpdaterType<T> extends IPropertyConverterForBrows
 	 * @return the writer for cascaded usage.
 	 * @throws JSONException if a JSON exception happens.
 	 */
-	JSONWriter initialToJSON(JSONWriter writer, String key, T sabloValue, PropertyDescription propertyDescription, DataConversion clientConversion,
+	JSONWriter initialToJSON(JSONWriter writer, String key, T sabloValue, PropertyDescription propertyDescription,
 		IBrowserConverterContext dataConverterContext) throws JSONException;
 
 }

@@ -94,21 +94,24 @@ public interface IBaseSQLCondition extends IBaseQueryElement
 
 	// modifiers included in the operator
 	public static final int ORNULL_MODIFIER = 0x100;
-	public static final int CASEINSENTITIVE_MODIFIER = 0x200;
+	public static final int CASEINSENSITIVE_MODIFIER = 0x200;
 	public static final int IS_SQL_MODIFIER = 0x400;
 	public static final int CAST_TO_MODIFIER = 0x800;
+	public static final int REMOVE_WHEN_NULL_MODIFIER = 0x1000;
 
 	public static final int[] ALL_MODIFIERS = new int[] { //
 		ORNULL_MODIFIER, //
-		CASEINSENTITIVE_MODIFIER, //
+		CASEINSENSITIVE_MODIFIER, //
 		IS_SQL_MODIFIER, //
-		CAST_TO_MODIFIER //
+		CAST_TO_MODIFIER, //
+		REMOVE_WHEN_NULL_MODIFIER //
 	};
 	public static final String[] MODIFIER_STRINGS = new String[] { //
 		"^||", // ORNULL_MODIFIER
-		"#", // CASEINSENTITIVE_MODIFIER
+		"#", // CASEINSENSITIVE_MODIFIER
 		"sql:", // IS_SQL_MODIFIER
-		"cast:" // CAST_TO_MODIFIER
+		"cast:", // CAST_TO_MODIFIER
+		"^!" // REMOVE_WHEN_NULL_MODIFIER
 	};
 
 	IBaseSQLCondition negate();

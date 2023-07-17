@@ -44,6 +44,4 @@ public interface ISQLTableJoin extends ISQLJoin
 	int getJoinType();
 
 	boolean isPermanent();
-
-	void setPermanent(boolean permanent);
 }

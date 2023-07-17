@@ -25,6 +25,7 @@ import org.json.JSONObject;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.WebComponent;
+import org.sablo.specification.IFunctionParameters;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
@@ -138,6 +139,10 @@ public class EventExecutor
 			{
 				if (newargs[i] instanceof JSONObject && "event".equals(((JSONObject)newargs[i]).optString("type")))
 				{
+					// FIXME I think (but we must check how existing things work to not break stuff) that this
+					// whole if branch can be a part of the JSEventType class that could implement IServerRhinoToRhino conversion;
+					// and this conversion has to be done before this method is even called... see SVY-18096
+
 					JSONObject json = (JSONObject)newargs[i];
 					JSEvent event = new JSEvent();
 					JSEventType.fillJSEvent(event, json, component, formController);
@@ -146,12 +151,16 @@ public class EventExecutor
 					newargs[i] = event;
 				}
 				else
-				{ //try to convert the received arguments
+				{
+					// FIXME I think the convertSabloComponentToRhinoValue should only happen if args come from sablo/java value;
+					// and this conversion has to be done before this method is even called... see SVY-18096
+
+					// try to convert the received arguments
 					WebObjectFunctionDefinition propertyDesc = component.getSpecification().getHandler(eventType);
-					List<PropertyDescription> parameters = propertyDesc.getParameters();
-					if (i < parameters.size())
+					IFunctionParameters parameters = propertyDesc.getParameters();
+					if (i < parameters.getDefinedArgsCount())
 					{
-						PropertyDescription parameterPropertyDescription = parameters.get(i);
+						PropertyDescription parameterPropertyDescription = parameters.getParameterDefinition(i);
 
 
 						ValueReference<Boolean> returnValueAdjustedIncommingValueForIndex = new ValueReference<Boolean>(Boolean.FALSE);

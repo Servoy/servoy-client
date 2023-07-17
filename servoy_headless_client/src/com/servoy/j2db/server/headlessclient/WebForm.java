@@ -102,7 +102,6 @@ import com.servoy.j2db.persistence.ISupportBounds;
 import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.TabPanel;
-import com.servoy.j2db.plugins.PluginManager;
 import com.servoy.j2db.printing.FormPreviewPanel;
 import com.servoy.j2db.printing.PageList;
 import com.servoy.j2db.printing.PrintPreview;
@@ -1415,7 +1414,7 @@ public class WebForm extends Panel
 			ClassLoader savedClassLoader = Thread.currentThread().getContextClassLoader();
 			try
 			{
-				Thread.currentThread().setContextClassLoader(((PluginManager)application.getPluginManager()).getClassLoader());
+				Thread.currentThread().setContextClassLoader(application.getPluginManager().getClassLoader());
 				factories = StreamPrintServiceFactory.lookupStreamPrintServiceFactories(flavor, "application/pdf"); //$NON-NLS-1$
 				if (factories == null || factories.length == 0)
 				{
@@ -1903,9 +1902,8 @@ public class WebForm extends Panel
 					((IDesignModeListener)component).setDesignMode(designModeFlag);
 				}
 				List<IBehavior> behaviors = component.getBehaviors();
-				for (int i = 0; i < behaviors.size(); i++)
+				for (IBehavior element : behaviors)
 				{
-					Object element = behaviors.get(i);
 					if (element instanceof IDesignModeListener)
 					{
 						((IDesignModeListener)element).setDesignMode(designModeFlag);

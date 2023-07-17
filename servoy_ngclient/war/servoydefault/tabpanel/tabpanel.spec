@@ -232,6 +232,7 @@
 
 	"types": {
 		"tab": {
+		    "_id": { "type": "string", "tags": { "scope": "private" }, "pushToServer": "reject" },
 			"name": { "type": "string", "tags": { "useAsCaptionInDeveloper" : true, "captionPriority" : 1 } },
 			"containsFormId": "form",
 			"text": { "type": "tagstring", "tags": { "useAsCaptionInDeveloper" : true, "captionPriority" : 2 } },

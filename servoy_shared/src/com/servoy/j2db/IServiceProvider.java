@@ -190,14 +190,6 @@ public interface IServiceProvider extends IEventDelegator, I18NProvider
 	 */
 	public String getClientID();
 
-
-	/**
-	 * Get the tenant value if that is set.
-	 *
-	 * @return Object the tenant value
-	 */
-	public Object[] getTenantValue();
-
 	/**
 	 * Get the client's locale.
 	 *

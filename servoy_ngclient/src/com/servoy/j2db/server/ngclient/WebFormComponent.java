@@ -18,7 +18,6 @@ import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IPropertyType;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.persistence.AbstractBase;
@@ -59,7 +58,7 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 
 	public WebFormComponent(String name, FormElement fe, IDataAdapterList dataAdapterList)
 	{
-		super(name, WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(fe.getTypeName()), true);
+		super(name, WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(fe.getTypeName()), true);
 
 		this.formElement = fe;
 		this.dataAdapterList = dataAdapterList;
@@ -126,7 +125,7 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	@Override
 	public String toString()
 	{
-		return "<'" + getName() + "' of parent " + getParent() + ">";
+		return "<Component:'" + getName() + "' of parent " + getParent() + ", with spec: " + getSpecification() + " >";
 	}
 
 	public void updateVisibleForm(IWebFormUI form, boolean visible, int formIndex)
@@ -153,7 +152,7 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 		{
 			IWebFormController fc = webUI.getController();
 			childFormsThatWereNotified.add(fc);
-			retValue = retValue && fc.notifyVisible(visible, invokeLaterRunnables);
+			retValue = retValue && fc.notifyVisible(visible, invokeLaterRunnables, false);
 		}
 
 		if (!visible && retValue)
@@ -165,6 +164,15 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 			visibleForms.clear();
 		}
 		return retValue;
+	}
+
+	public boolean executePreHideSteps()
+	{
+		for (IWebFormUI webUI : visibleForms.keySet())
+		{
+			if (!webUI.getController().executePreHideSteps()) return false;
+		}
+		return true;
 	}
 
 	public int getFormIndex(IWebFormUI form)
@@ -345,7 +353,7 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 						blockingChanges = Arrays.asList(allowAccess.split(",")).indexOf(WebFormUI.ENABLED) == -1;
 					}
 				}
-				if (blockingChanges) throw new RuntimeException("Security error. Component '" + getProperty("name") + "' is not accessible.");
+				if (blockingChanges) throw new RuntimeException("Security error. Component '" + this + "' is not accessible when calling: " + functionDef);
 			}
 		}
 	}
@@ -402,13 +410,12 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	}
 
 	@Override
-	protected boolean writeComponentProperties(JSONWriter w, IToJSONConverter<IBrowserConverterContext> converter, String nodeName,
-		DataConversion clientDataConversions) throws JSONException
+	protected boolean writeComponentProperties(JSONWriter w, IToJSONConverter<IBrowserConverterContext> converter, String nodeName) throws JSONException
 	{
 		try
 		{
 			isWritingComponentProperties = true;
-			return super.writeComponentProperties(w, converter, nodeName, clientDataConversions);
+			return super.writeComponentProperties(w, converter, nodeName);
 		}
 		finally
 		{
@@ -469,4 +476,5 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	{
 		return MARKUP_PROPERTY_ID.equals(property) || super.isVisible(property);
 	}
+
 }

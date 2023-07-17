@@ -17,13 +17,13 @@
 package com.servoy.j2db.scripting;
 
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
@@ -32,9 +32,12 @@ import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.ClientInfo;
+import com.servoy.j2db.dataprocessing.FoundSetManager.TableFilterRequest;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
+import com.servoy.j2db.dataprocessing.TableFilter;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.persistence.ColumnName;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -43,12 +46,14 @@ import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.NameComparator;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.info.FORMSECURITY;
 import com.servoy.j2db.scripting.info.TABLESECURITY;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -124,7 +129,10 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public static final int ACCESSIBLE = IRepository.ACCESSIBLE;
 
+	private static final String TENANT_FILTER = "_svy_tenant_id_table_filter";
+
 	private volatile IApplication application;
+
 
 	public JSSecurity(IApplication application)
 	{
@@ -168,21 +176,38 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	@JSFunction
 	public void setTenantValue(Object value)
 	{
-		ClientInfo clientInfo = application.getClientInfo();
-		clientInfo.setTenantValue(toArray(value));
 		try
 		{
-			application.getClientHost().pushClientInfo(clientInfo.getClientId(), clientInfo);
+			// get tenant columns
+			Solution solution = application.getFlattenedSolution().getSolution();
+			for (IServer server : solution.getServerProxies().values())
+			{
+				List<TableFilterRequest> tableFilterRequests = null;
+				for (ColumnName tenantColumn : server.getTenantColumns())
+				{
+					ITable table = server.getTable(tenantColumn.getTableName());
+
+					if (tableFilterRequests == null) tableFilterRequests = new ArrayList<>();
+					if (value != null)
+					{
+						tableFilterRequests.add(new TableFilterRequest(table,
+							application.getFoundSetManager().createDataproviderTableFilterdefinition(table, tenantColumn.getColumnName(), "=", value),
+							true));
+					}
+					// else filter will be removed if it exists for this server
+				}
+				if (tableFilterRequests != null)
+				{
+					application.getFoundSetManager().setTableFilters(TENANT_FILTER, server.getName(), tableFilterRequests, true);
+				}
+			}
 		}
 		catch (Exception e)
 		{
 			Debug.error(e);
 		}
-
-		// flush all foundsets that are based on tenant columns
-		application.getFoundSetManager().refreshFoundsetsForTenantTables();
-
 	}
+
 
 	/**
 	 * Retrieve the tenant value for this Client, this value will be used as the value for all tables that have a column marked as a tenant column.
@@ -196,26 +221,11 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	@JSFunction
 	public Object[] getTenantValue()
 	{
-		return application.getClientInfo().getTenantValue();
-	}
-
-	private static Object[] toArray(Object value)
-	{
-		if (value == null)
-		{
-			return null;
-		}
-
-		if (value.getClass().isArray())
-		{
-			int length = Array.getLength(value);
-			Object[] array = new Object[length];
-			System.arraycopy(value, 0, array, 0, length);
-			return array;
-		}
-
-		// single value
-		return new Object[] { value };
+		return application.getFoundSetManager().getTableFilters(TENANT_FILTER).stream()
+			.map(TableFilter::createBroadcastFilter)
+			.filter(Objects::nonNull)
+			.map(bf -> bf.getFilterValue())
+			.findAny().orElse(null);
 	}
 
 	/**
@@ -1409,7 +1419,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 			}
 			if (i == groupsDataSet.getRowCount())
 			{
-				Debug.log("Could not log in user for unknown group '" + group + "'"); //$NON-NLS-1$//$NON-NLS-2$
+				Debug.log("Could not log in user for unknown group '" + group + "'", ILogLevel.WARNING); //$NON-NLS-1$//$NON-NLS-2$
 				return false;
 			}
 		}

@@ -342,7 +342,7 @@ public class BaseSQLGenerator
 						case IColumnTypeConstants.TEXT :
 							if (hash)
 							{
-								modifier |= IBaseSQLCondition.CASEINSENTITIVE_MODIFIER;
+								modifier |= IBaseSQLCondition.CASEINSENSITIVE_MODIFIER;
 							}
 
 							if (operator == IBaseSQLCondition.EQUALS_OPERATOR)

@@ -17,11 +17,14 @@
 
 package com.servoy.j2db.dataprocessing.datasource;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.IDestroyable;
 
 /**
@@ -122,6 +125,32 @@ public class JSDataSources implements IDestroyable
 		return sp;
 	}
 
+	/**
+	 * Scope getter for a datasource node based on datasource string.
+	 *
+	 * @sample
+	 * datasources.get(datasource)
+	 *
+	 * @param datasource
+	 *
+	 * @return a JSDataSource based on parameter
+	 */
+	@JSFunction
+	public JSDataSource get(String datasource)
+	{
+		String[] stn = DataSourceUtils.getDBServernameTablename(datasource);
+		if (stn != null && stn.length == 2)
+		{
+			return new JSDataSource(application, datasource);
+		}
+		if (DataSourceUtils.getInmemDataSourceName(datasource) != null)
+		{
+			return new JSDataSource(application, datasource);
+		}
+		//TODO view
+		return null;
+	}
+
 	public void destroy()
 	{
 		if (db != null)
@@ -133,6 +162,16 @@ public class JSDataSources implements IDestroyable
 		{
 			mem.destroy();
 			mem = null;
+		}
+		if (view != null)
+		{
+			view.destroy();
+			view = null;
+		}
+		if (sp != null)
+		{
+			sp.destroy();
+			sp = null;
 		}
 		application = null;
 	}

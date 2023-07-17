@@ -25,7 +25,6 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 
@@ -63,7 +62,7 @@ public class RuntimeComponentPropertyType extends DefaultPropertyType<RuntimeWeb
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, RuntimeWebComponent sabloValue, PropertyDescription pd, DataConversion clientConversion,
+	public JSONWriter toJSON(JSONWriter writer, String key, RuntimeWebComponent sabloValue, PropertyDescription pd,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (key != null)

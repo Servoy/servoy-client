@@ -45,6 +45,7 @@ import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.CustomValueList;
 import com.servoy.j2db.dataprocessing.DataServerProxy;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
+import com.servoy.j2db.dataprocessing.FoundSetManagerConfig;
 import com.servoy.j2db.dataprocessing.IClient;
 import com.servoy.j2db.dataprocessing.IClientHost;
 import com.servoy.j2db.dataprocessing.IDataServer;
@@ -934,6 +935,10 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 	protected abstract void createFoundSetManager();
 
+	protected FoundSetManagerConfig getFoundSetManagerConfig()
+	{
+		return new FoundSetManagerConfig(getSettings());
+	}
 
 	public String getClientID()
 	{
@@ -960,12 +965,6 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			return null;
 		}
 		return clientInfo.getUserName();
-	}
-
-	@Override
-	public Object[] getTenantValue()
-	{
-		return getClientInfo().getTenantValue();
 	}
 
 	public void reportError(String msg, Object detail)
@@ -1290,7 +1289,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				}
 				catch (Exception e1)
 				{
-					Debug.error(e1);// incase connection to server is dead
+					Debug.error(e1); // in case connection to server is dead
 				}
 			}
 
@@ -1312,10 +1311,11 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			getRuntimeProperties().put(IServiceProvider.RT_JSFOUNDSET_FUNCTIONS, null);
 			getRuntimeProperties().put(IServiceProvider.RT_JSRECORD_FUNCTIONS, null);
 
-			// drop any temp tables for this client
+			// clear broadcast filters and drop any temp tables for this client
 			IDataServer ds = getDataServer();
 			if (ds != null)
 			{
+				ds.clearBroadcastFilters(getClientID());
 				ds.dropTemporaryTable(getClientID(), null, null);
 			}
 		}
@@ -1446,7 +1446,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			getClientHost().pushClientInfo(clientInfo.getClientId(), clientInfo);
 
 			loadSecuritySettings(solutionRoot);
-			getFormManager().clearLoginForm();
+
+			invokeLater(() -> getFormManager().clearLoginForm());
 		}
 		catch (Exception ex)
 		{
@@ -1627,7 +1628,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		IDataServer ds = getDataServer();
 		if (ds != null && !(ds instanceof DataServerProxy))
 		{
-			dataServer = new DataServerProxy(ds);
+			dataServer = new DataServerProxy(ds, getClientID());
 			ds = dataServer;
 		}
 		return (DataServerProxy)ds;

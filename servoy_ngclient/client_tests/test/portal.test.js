@@ -19,35 +19,38 @@ describe("Test portal suite", function() {
 
 	beforeEach(module('servoycorePortal'));
 
-	var sabloConverters;
-	var componentModelGetter;
+    var sabloConverters;
+    var typesRegistry;
+    var sabloApplication;
+	var propertyContext;
 	var scope;
 	var portalScope;
 	var element;
 	var serverValue;
-	beforeEach(inject(function(_$sabloConverters_, _$compile_, _$rootScope_, $timeout, $httpBackend , $propertyWatchesRegistry) {
+	var changed;
+	var beanDynamicTypesHolder = {};
+
+	beforeEach(inject(function(_$sabloConverters_, _$compile_, _$rootScope_, $timeout, $httpBackend , _$typesRegistry_, _$sabloApplication_) {
 		// The injector unwraps the underscores (_) from around the parameter
 		//names when matching
 		sabloConverters = _$sabloConverters_;
-		//$scope = _$rootScope_.$new();
+		typesRegistry = _$typesRegistry_;
+		sabloApplication = _$sabloApplication_;
 		scope = _$rootScope_.$new();
+		scope.model = {};
 		$compile = _$compile_;
 		serverValue = {
 			location: {
 				x: 1,
 				y: 1
 			},
+			
 			size: {
 				height: 200,
 				width: 201
 			},
 
-			svy_types : {
-				'relatedFoundset': 'foundset',
-				'childElements': 'JSON_arr'
-			},
 			childElements: {
-				svy_types : ['component', 'component'],
 				v: [{
 					componentDirectiveName: "servoydefault-button",
 					forFoundset: "relatedFoundset",
@@ -96,8 +99,12 @@ describe("Test portal suite", function() {
 				}]
 			},
 			relatedFoundset: {
+                serverSize: 8,
 				selectedRowIndexes: [],
+				serverSize: 3,
 				viewPort: {
+                    startIndex: 2,
+                    size: 3,
 					rows: [{
 						"_svyRowId": "5.10248;2.11;_0"
 					}, {
@@ -112,14 +119,23 @@ describe("Test portal suite", function() {
 		var template = "<data-servoycore-portal svy-model='model' svy-api='api' svy-handlers='handlers' svy-servoyApi='svy_servoyApi'></data-servoycore-portal>";
 		
 		element = $compile(template)(scope);
-		$propertyWatchesRegistry.setAutoWatchPropertiesList("components",{"servoydefault-button" : { "dataProviderID" : true,  "relatedFoundset":true}});
+        typesRegistry.addComponentClientSideSpecs({
+            "data-servoycore-portal": {
+                p: {
+                    relatedFoundset: { t: "foundset", s: 1 },
+                    childElements: { t: ["JSON_arr", "component"], s: 1 }
+                }
+            }
+        });
 		
-		converted = sabloConverters.convertFromServerToClient(serverValue, {
-			'relatedFoundset': 'foundset',
-			'childElements': 'JSON_arr'
-		}, scope.model, scope, null);
+		sabloApplication.applyBeanData(scope.model,
+		      serverValue,
+		      undefined, // container/form size not used in sablo
+		      function() { changed = true; }, 
+		      "data-servoycore-portal",
+		      beanDynamicTypesHolder,
+		      scope);
 
-		scope.model = converted;
 		scope.api = {};
 		scope.handlers = {};
 		scope.svy_servoyApi = {
@@ -160,12 +176,7 @@ describe("Test portal suite", function() {
 	it("should update the foundset if the relatedFoundset is changed", function() {
 		portalScope = scope.$$childHead;
 
-		var newServerValue = {
-				svy_types : {
-				'childElements': 'JSON_arr'
-			},
-			childElements: {
-				svy_types : ['component'],
+		var newServerValueForChildElement = {
 				v: [{
 					forFoundset: "relatedFoundset",
 					foundsetConfig: {
@@ -183,19 +194,16 @@ describe("Test portal suite", function() {
 					},
 					name: "svy_2"
 				}]
-			}
 		};
-
-		var newconverted = sabloConverters.convertFromServerToClient(newServerValue, {
-			'childElements': 'JSON_arr'
-		}, scope.model, scope, null);
+        
+		var newConvertedComp = sabloConverters.convertFromServerToClient(newServerValueForChildElement, typesRegistry.getComponentSpecification("data-servoycore-portal").getPropertyType("childElements"), undefined, undefined, scope, propertyContext);
 		scope.model.relatedFoundset.viewPort.rows[0] = {
 			"one": 1,
 			"_svyRowId": "5.11248;2.11;_0"
 		};
 		scope.$apply();
 
-		converted.childElements.push(newconverted.childElements[0]);
+		scope.model.childElements.push(newConvertedComp[0]);
 
 		scope.$apply();
 		expect(portalScope.model.childElements[1].name).toBe("svy_2");

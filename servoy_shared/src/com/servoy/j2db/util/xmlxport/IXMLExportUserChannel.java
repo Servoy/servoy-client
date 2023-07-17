@@ -48,6 +48,4 @@ public interface IXMLExportUserChannel extends InfoChannel
 	public boolean getExportAllTablesFromReferencedServers();
 
 	public String getTableMetaData(ITable table) throws IOException;
-
-	public void displayWarningMessage(String title, String message);
 }

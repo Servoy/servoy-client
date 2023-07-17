@@ -19,9 +19,12 @@ package com.servoy.j2db.documentation;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.scripting.IScriptObject;
 import com.servoy.j2db.scripting.ITypedScriptObject;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.HtmlUtils;
+import com.servoy.j2db.util.Text;
 
 @SuppressWarnings({ "nls", "deprecation" })
 public class XMLScriptObjectAdapter implements ITypedScriptObject
@@ -93,6 +96,21 @@ public class XMLScriptObjectAdapter implements ITypedScriptObject
 		}
 		if (original != null) return original.getParameterNames(methodName);
 		return null;
+	}
+
+	public String[] getParameterNames(String methodName, Class< ? >[] argTypes)
+	{
+		IParameter[] parameters = getParameters(methodName, argTypes);
+		String[] paramNames = null;
+		if (parameters != null)
+		{
+			paramNames = new String[parameters.length];
+			for (int i = 0; i < parameters.length; i++)
+			{
+				paramNames[i] = parameters[i].getName();
+			}
+		}
+		return paramNames;
 	}
 
 	public IParameter[] getParameters(String methodName, Class< ? >[] argTypes)
@@ -195,6 +213,66 @@ public class XMLScriptObjectAdapter implements ITypedScriptObject
 		}
 		if (original != null) return original.getToolTip(methodName);
 		return null;
+	}
+
+	/**
+	 * Combines the description with sample, parameters/parameter descriptions and return value/return value description.<br/>
+	 * CAN return null!
+	 */
+	public String getExtendedTooltip(String methodName, Class< ? >[] argTypes, ClientSupport csp, ITagResolver resolver)
+	{
+		Class< ? > returnType = getReturnedType(methodName, argTypes);
+		String returnDescription = getReturnDescription(methodName, argTypes);
+		IParameter[] parameters = getParameters(methodName, argTypes);
+		String extendedTooltip = getToolTip(methodName, argTypes, csp);
+		String sample = getSample(methodName, argTypes, csp);
+		boolean moreDetailsWereAdded = false;
+
+		if (sample != null)
+		{
+			if (!moreDetailsWereAdded) extendedTooltip += "\n";
+			moreDetailsWereAdded = true;
+			extendedTooltip += "\n<i>" + Text.processTags(HtmlUtils.escapeMarkup(sample).toString(), resolver).toString() + "</i>";
+		}
+		if (parameters != null)
+		{
+			if (!moreDetailsWereAdded) extendedTooltip += "\n";
+			moreDetailsWereAdded = true;
+			extendedTooltip += "\n";
+			String description;
+			for (IParameter parameter : parameters)
+			{
+				description = parameter.getDescription();
+				extendedTooltip = extendedTooltip + "\n <b>@param</b> {" + parameter.getType() + "} " + parameter.getName() + " " +
+					(description != null ? description : "");
+			}
+		}
+		if (returnType != null)
+		{
+			IFunctionDocumentation fdoc = objDoc.getFunction(methodName, argTypes);
+			if (fdoc == null || fdoc.getType() == IFunctionDocumentation.TYPE_FUNCTION)
+			{
+				if (!moreDetailsWereAdded) extendedTooltip += "\n";
+				moreDetailsWereAdded = true;
+				extendedTooltip = extendedTooltip + "\n <b>@return</b> {" + getReturnTypeString(returnType) + "} ";
+				if (returnDescription != null) extendedTooltip += returnDescription;
+			}
+		}
+
+		return extendedTooltip;
+	}
+
+	public static String getReturnTypeString(Class< ? > returnType)
+	{
+		if (returnType == null) return "*unknown*";
+		StringBuilder sb = new StringBuilder();
+		while (returnType.isArray())
+		{
+			sb.append("[]");
+			returnType = returnType.getComponentType();
+		}
+		sb.insert(0, DocumentationUtil.getJavaToJSTypeTranslator().translateJavaClassToJSTypeName(returnType));
+		return sb.toString();
 	}
 
 	public Class< ? > getReturnedType(String methodName, Class< ? >[] argTypes)

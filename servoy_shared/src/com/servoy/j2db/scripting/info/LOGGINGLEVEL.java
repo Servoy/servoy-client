@@ -22,18 +22,13 @@ import com.servoy.j2db.util.ILogLevel;
 
 /***
  * Script constants class for application.output logging levels
- * 
+ *
  *  @author lvostinar
  *  @see ILogLevel
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class LOGGINGLEVEL implements IPrefixedConstantsObject, ILogLevel
 {
-	public String getPrefix()
-	{
-		return "LOGGINGLEVEL";
-	}
-
 	@Override
 	public String toString()
 	{

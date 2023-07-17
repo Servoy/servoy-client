@@ -1,32 +1,24 @@
 angular.module( 'formcomponent_property', ['webSocketModule'] )
 	// Valuelist type -------------------------------------------
-	.run( function( $sabloConverters, $sabloUtils, $q, $sabloTestability, $sabloApplication ) {
+	.run( function( $sabloConverters: sablo.ISabloConverters, $typesRegistry: sablo.ITypesRegistryForSabloConverters, $componentTypeConstants ) {
 
 		/** Initializes internal state on a new array value */
 		function initializeNewValue( newValue ) {
-			var newInternalState = false; // TODO although unexpected (internal state to already be defined at this stage it can happen until SVY-8612 is implemented and property types change to use that
-			if ( !newValue.hasOwnProperty( $sabloConverters.INTERNAL_IMPL ) ) {
-				newInternalState = true;
-				$sabloConverters.prepareInternalState( newValue );
-			} // else: we don't try to redefine internal state if it's already defined
+			$sabloConverters.prepareInternalState( newValue );
 
 			var internalState = newValue[$sabloConverters.INTERNAL_IMPL];
 
-			if ( newInternalState ) {
-				// implement what $sabloConverters need to make this work
-				internalState.setChangeNotifier = function( changeNotifier ) {
-					internalState.changeNotifier = changeNotifier;
-				}
-				internalState.isChanged = function() {
-					var hasChanges = internalState.allChanged;
-					//				if (!hasChanges) for (var x in internalState.changedIndexes) { hasChanges = true; break; }
-					return hasChanges;
-				}
+			// implement what $sabloConverters need to make this work
+			internalState.setChangeNotifier = function( changeNotifier ) {
+				internalState.changeNotifier = changeNotifier;
+			}
+			internalState.isChanged = function() {
+				var hasChanges = internalState.allChanged;
+				return hasChanges;
+			}
 
-				// private impl
-				internalState.conversionInfo = [];
-				internalState.allChanged = false;
-			} // else don't reinitilize it - it's already initialized
+			// private impl
+			internalState.allChanged = false;
 		}
 
 		function getChangeNotifier( propertyValue ) {
@@ -36,55 +28,57 @@ angular.module( 'formcomponent_property', ['webSocketModule'] )
 			}
 		}
 
-		var formComponentProperty = {
-			fromServerToClient: function( serverJSONValue, currentClientValue, componentScope, componentModelGetter ) {
-				let conversionInfo = null;
+		var formComponentPropertyType: sablo.IType<any> = {
+
+			fromServerToClient: function(serverJSONValue: any, currentClientValue: any, componentScope: angular.IScope, propertyContext: sablo.IPropertyContext) {
+                if (!serverJSONValue) return null;
+
 				let realValue = currentClientValue;
 				if ( realValue == null ) {
 					realValue = serverJSONValue;
 					initializeNewValue( realValue );
 				}
-				if ( serverJSONValue[$sabloConverters.TYPES_KEY] ) {
-					conversionInfo = serverJSONValue[$sabloConverters.TYPES_KEY];
-					delete serverJSONValue[$sabloConverters.TYPES_KEY];
-				}
-				for ( let key in serverJSONValue ) {
-					let elem = serverJSONValue[key];
-
-					const internalState = realValue[$sabloConverters.INTERNAL_IMPL];
-					if (conversionInfo?.[key]) internalState.conversionInfo[key] = conversionInfo[key];
-					realValue[key] = elem = $sabloConverters.convertFromServerToClient( elem, conversionInfo?.[key], currentClientValue ? currentClientValue[key] : undefined, componentScope, componentModelGetter );
-
-					if ( elem && elem[$sabloConverters.INTERNAL_IMPL] && elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier ) {
-						// child is able to handle it's own change mechanism
-						elem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier( getChangeNotifier( realValue ) );
-					}
-					if ( key == "childElements" && elem ) {
-						for ( let i = 0; i < elem.length; i++ ) {
-							var comp = elem[i];
-							if ( comp && comp[$sabloConverters.INTERNAL_IMPL] && comp[$sabloConverters.INTERNAL_IMPL].setChangeNotifier ) {
-								// child is able to handle it's own change mechanism
-								comp[$sabloConverters.INTERNAL_IMPL].setChangeNotifier( getChangeNotifier( realValue ) );
-							}
+				
+				if (serverJSONValue.childElements) {
+					if (!realValue.childElements) realValue.childElements = [];
+					else realValue.childElements.length = serverJSONValue.childElements.length;
+						
+					for ( let idx = 0; idx < serverJSONValue.childElements.length; idx++ ) {
+						let childCompElem = serverJSONValue.childElements[idx];
+	
+						realValue.childElements[idx] = childCompElem = $sabloConverters.convertFromServerToClient( childCompElem, 
+								$typesRegistry.getAlreadyRegisteredType($componentTypeConstants.CHILD_COMPONENT_TYPE_NAME), currentClientValue && currentClientValue.childElements ? currentClientValue.childElements[idx] : undefined,
+								undefined, undefined, componentScope, propertyContext );
+	
+						if ( childCompElem && childCompElem[$sabloConverters.INTERNAL_IMPL] && childCompElem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier ) {
+							// child is able to handle it's own change mechanism
+							childCompElem[$sabloConverters.INTERNAL_IMPL].setChangeNotifier( getChangeNotifier( realValue ) );
 						}
 					}
 				}
+
 				return realValue;
 			},
 
-			fromClientToServer: function( newClientData, oldClientData ) {
+			fromClientToServer: function( newClientData, oldClientData, scope: angular.IScope, propertyContext: sablo.IPropertyContext ) {
 				if ( !newClientData ) return null;
 				// only childElements are pushed.
-				const internalState = newClientData[$sabloConverters.INTERNAL_IMPL]
-				let changes = $sabloConverters.convertFromClientToServer( newClientData["childElements"], internalState.conversionInfo["childElements"], oldClientData ? oldClientData["childElements"] : null );
+				let changes = null;
+				if (newClientData.childElements) {
+					changes = [];
+					for ( let idx = 0; idx < newClientData.childElements.length; idx++ ) {
+						changes[idx] = $sabloConverters.convertFromClientToServer( newClientData.childElements[idx],
+								$typesRegistry.getAlreadyRegisteredType($componentTypeConstants.CHILD_COMPONENT_TYPE_NAME), oldClientData && oldClientData.childElements ? oldClientData.childElements[idx] : null, scope, propertyContext );
+					}
+				}
 				return changes;
 
 			},
 
-			updateAngularScope: function( clientValue, componentScope ) {
+			updateAngularScope: function (clientValue: any, componentScope: angular.IScope): void {
 				// nothing to do here
 			}
 
 		}
-		$sabloConverters.registerCustomPropertyHandler( 'formcomponent', formComponentProperty );
+		$typesRegistry.registerGlobalType( 'formcomponent', formComponentPropertyType, false );
 	} )

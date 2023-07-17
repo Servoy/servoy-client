@@ -21,10 +21,11 @@ import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Objects;
 
 /**
  * This list remains sorted
- * 
+ *
  * @author jcompagner
  */
 public class SortedList<E> extends AbstractList<E>
@@ -198,7 +199,7 @@ public class SortedList<E> extends AbstractList<E>
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.util.AbstractList#clear()
 	 */
 	@Override
@@ -208,16 +209,45 @@ public class SortedList<E> extends AbstractList<E>
 		_data = new Object[_data.length];
 	}
 
-	public static final Comparator<Object> COMPARABLE_COMPARATOR = new ComparableComparator();
+	@Override
+	public boolean retainAll(Collection< ? > c)
+	{
+		Objects.requireNonNull(c);
+		boolean modified = false;
+		Iterator<E> it = iterator();
+		while (it.hasNext())
+		{
+			E currentValue = it.next();
+			Iterator< ? > collectionIT = c.iterator();
+			boolean found = false;
+			while (collectionIT.hasNext())
+			{
+				int cmp = _comp.compare(collectionIT.next(), currentValue);
+				if (cmp == 0)
+				{
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+			{
+				it.remove();
+				modified = true;
+			}
+		}
+		return modified;
+	}
 
-	public static class ComparableComparator implements Comparator<Object>
+	public static final Comparator<Comparable<Object>> COMPARABLE_COMPARATOR = new ComparableComparator();
+
+	public static class ComparableComparator implements Comparator<Comparable<Object>>
 	{
 		/*
 		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 		 */
-		public int compare(Object o1, Object o2)
+		public int compare(Comparable<Object> o1, Comparable<Object> o2)
 		{
-			return ((Comparable)o1).compareTo(o2);
+			return o1.compareTo(o2);
 		}
 	}
 }

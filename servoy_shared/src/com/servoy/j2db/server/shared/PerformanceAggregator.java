@@ -89,7 +89,8 @@ public class PerformanceAggregator
 	public void addTiming(String action, long interval_ms, long total_ms, int type,
 		Queue<PerformanceTiming> subActionTimings, int nrecords)
 	{
-		if (this.registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.OFF) return;
+		if (this.registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.OFF ||
+			this.registry.getMaxNumberOfEntriesPerContext() == IPerformanceRegistry.LOGGING_ONLY) return;
 
 		PerformanceTimingAggregate time;
 		lock.readLock().lock();
@@ -114,9 +115,9 @@ public class PerformanceAggregator
 		int maxEntriesToKeep = this.registry.getMaxNumberOfEntriesPerContext();
 		if (maxEntriesToKeep != IPerformanceRegistry.UNLIMITED_ENTRIES && aggregatesByAction.size() > (maxEntriesToKeep * 1.1)) // 10% more is allowed
 		{
-			int maxToRemoveForThisClient = aggregatesByAction.size() - maxEntriesToKeep;
 			SortedList<PerformanceTimingAggregate> sorted = getSortedList();
 			int size = sorted.size();
+			int maxToRemoveForThisClient = size - maxEntriesToKeep;
 			int counter = 0;
 			while (aggregatesByAction.size() > maxEntriesToKeep && counter++ < maxToRemoveForThisClient)
 			{

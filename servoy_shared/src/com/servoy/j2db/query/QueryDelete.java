@@ -16,7 +16,7 @@
  */
 package com.servoy.j2db.query;
 
-import java.util.List;
+import static com.servoy.j2db.query.AndCondition.and;
 
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.util.serialize.ReplacedObject;
@@ -32,26 +32,15 @@ public class QueryDelete extends AbstractBaseQuery implements ISQLUpdate
 {
 	private BaseQueryTable table;
 	private AndCondition condition;
-	private List joins; // joins in delete statements are not supported by hibernate.
-
 
 	public QueryDelete(BaseQueryTable table)
 	{
 		this.table = table;
 	}
 
-
 	public void addCondition(ISQLCondition c)
 	{
-		if (c == null)
-		{
-			return;
-		}
-		if (condition == null)
-		{
-			condition = new AndCondition();
-		}
-		condition.addCondition(c);
+		condition = and(condition, c);
 	}
 
 	public void setCondition(ISQLCondition c)
@@ -67,39 +56,10 @@ public class QueryDelete extends AbstractBaseQuery implements ISQLUpdate
 		}
 	}
 
-//	public void setJoins(List jns)
-//	{
-//		int i;
-//		for (i = 0; jns != null && i < jns.size(); i++)
-//		{
-//			Object join = jns.get(i);
-//			if (!(join instanceof SQLJoin))
-//			{
-//				throw new IllegalArgumentException("Unknown join class "+join.getClass().getName()); //$NON-NLS-1$
-//			}
-//		}
-//		joins = i == 0 ? null : jns;
-//	}
-
-
-//	public void addJoin(SQLJoin join)
-//	{
-//		if (joins == null)
-//		{
-//			joins = new ArrayList();
-//		}
-//		joins.add(join);
-//	}
-
 	public ISQLCondition getCondition()
 	{
 		return condition;
 	}
-
-//	public List getJoins()
-//	{
-//		return joins;
-//	}
 
 	public BaseQueryTable getTable()
 	{
@@ -114,9 +74,8 @@ public class QueryDelete extends AbstractBaseQuery implements ISQLUpdate
 
 	public void acceptVisitor(IVisitor visitor)
 	{
-		table = AbstractBaseQuery.acceptVisitor(table, visitor);
-		condition = AbstractBaseQuery.acceptVisitor(condition, visitor);
-		joins = AbstractBaseQuery.acceptVisitor(joins, visitor);
+		table = acceptVisitor(table, visitor);
+		condition = acceptVisitor(condition, visitor);
 	}
 
 	@Override
@@ -125,7 +84,6 @@ public class QueryDelete extends AbstractBaseQuery implements ISQLUpdate
 		final int PRIME = 31;
 		int result = 1;
 		result = PRIME * result + ((this.condition == null) ? 0 : this.condition.hashCode());
-		result = PRIME * result + ((this.joins == null) ? 0 : this.joins.hashCode());
 		result = PRIME * result + ((this.table == null) ? 0 : this.table.hashCode());
 		return result;
 	}
@@ -143,11 +101,6 @@ public class QueryDelete extends AbstractBaseQuery implements ISQLUpdate
 			if (other.condition != null) return false;
 		}
 		else if (!this.condition.equals(other.condition)) return false;
-		if (this.joins == null)
-		{
-			if (other.joins != null) return false;
-		}
-		else if (!this.joins.equals(other.joins)) return false;
 		if (this.table == null)
 		{
 			if (other.table != null) return false;
@@ -167,10 +120,6 @@ public class QueryDelete extends AbstractBaseQuery implements ISQLUpdate
 		{
 			sb.append(" WHERE ").append(condition.toString()); //$NON-NLS-1$
 		}
-		for (int i = 0; joins != null && i < joins.size(); i++)
-		{
-			sb.append(' ').append(joins.get(i).toString());
-		}
 		return sb.toString();
 	}
 
@@ -181,7 +130,7 @@ public class QueryDelete extends AbstractBaseQuery implements ISQLUpdate
 	public Object writeReplace()
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
-		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { table, condition, joins, comment });
+		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new Object[] { table, condition, null /* joins */, comment });
 	}
 
 	public QueryDelete(ReplacedObject s)
@@ -190,12 +139,11 @@ public class QueryDelete extends AbstractBaseQuery implements ISQLUpdate
 		int i = 0;
 		this.table = (QueryTable)members[i++];
 		this.condition = (AndCondition)members[i++];
-		this.joins = (List)members[i++];
+		/* this.joins = (List) members[i++]; */ i++;
 		if (i < members.length) // comment is a new field that was added, so it is optional now
 		{
 			this.comment = (String)members[i++];
 		}
 	}
-
 
 }

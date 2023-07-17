@@ -25,11 +25,11 @@ import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.CurrentWindow;
-import org.sablo.websocket.utils.DataConversion;
 
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGClientWindow;
+import com.servoy.j2db.server.ngclient.NGClientWindow;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoConversion;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
@@ -52,12 +52,18 @@ public class RelationPropertyType extends DefaultPropertyType<String>
 	public String fromJSON(Object newJSONValue, String previousSabloValue, PropertyDescription propertyDescription, IBrowserConverterContext context,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
+		if (newJSONValue instanceof String)
+		{
+			return NGClientWindow.getCurrentWindow().getRelationName((String)newJSONValue,
+				((WebFormComponent)context.getWebObject()).getFormElement());
+		}
+
 		// never allow to change
 		return previousSabloValue;
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, String sabloValue, PropertyDescription propertyDescription, DataConversion clientConversion,
+	public JSONWriter toJSON(JSONWriter writer, String key, String sabloValue, PropertyDescription propertyDescription,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (key != null)
@@ -75,8 +81,8 @@ public class RelationPropertyType extends DefaultPropertyType<String>
 	}
 
 	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd,
-		DataConversion browserConversionMarkers, FormElementContext formElementContext) throws JSONException
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd, FormElementContext formElementContext)
+		throws JSONException
 	{
 		if (formElementValue == null) return writer;
 

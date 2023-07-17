@@ -182,11 +182,9 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		Assert.assertEquals(1, changes.content.size());
 
-		String json = JSONUtils.writeChangesWithConversions(changes.content, changes.contentType, null);
-		JSONAssert.assertEquals(
-			"{\"tabs\":{\"vEr\":1,\"g\":[{\"op\":[0,0,0],\"d\":[{\"rt\":\"servoydefault-tabpanel.tab\",\"vEr\":1,\"u\":[{\"k\":\"text\",\"v\":\"a test\"}]}],\"svy_types\":{\"0\":\"JSON_obj\"}}]},\"svy_types\":{\"tabs\":\"JSON_arr\"}}",
-			json, true);
+		String json = JSONUtils.writeChanges(changes.content, changes.contentType, new BrowserConverterContext(wc, PushToServerEnum.allow));
 
+		JSONAssert.assertEquals("{\"tabs\":{\"vEr\":1,\"g\":[{\"op\":[0,0,0],\"d\":[{\"vEr\":1,\"u\":[{\"k\":\"text\",\"v\":\"a test\"}]}]}]}}", json, true);
 	}
 
 	@Test
@@ -213,9 +211,9 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		TypedData<Map<String, Object>> props = wc.getProperties();
 
-		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType, allowBrowserConverterContext);
+		String json = JSONUtils.writeDataAsFullToJSON(props.content, props.contentType, allowBrowserConverterContext);
 		JSONAssert.assertEquals(
-			"{\"atype\":{\"rt\":\"my-component.mytype\",\"vEr\":2,\"v\":{\"text\":\"OK\",\"name\":\"name\"}},\"svyMarkupId\":\"sf331d64ddc0c17747371b7740e3e3447\",\"svy_types\":{\"atype\":\"JSON_obj\"}}",
+			"{\"atype\":{\"vEr\":2,\"v\":{\"text\":\"OK\",\"name\":\"name\"}},\"svyMarkupId\":\"sf331d64ddc0c17747371b7740e3e3447\"}",
 			json, true);
 	}
 
@@ -261,9 +259,8 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		TypedData<Map<String, Object>> props = wc.getProperties();
 
-		String json = JSONUtils.writeDataWithConversions(props.content, props.contentType, null);
-		JSONAssert.assertEquals(
-			"{\"atype\":{\"rt\":\"my-component.mytype\",\"vEr\":2,\"v\":{\"form\":\"tabform\",\"name\":\"name\"}},\"svyMarkupId\":\"sf331d64ddc0c17747371b7740e3e3447\",\"svy_types\":{\"atype\":\"JSON_obj\"}}",
+		String json = JSONUtils.writeDataAsFullToJSON(props.content, props.contentType, new BrowserConverterContext(wc, PushToServerEnum.allow));
+		JSONAssert.assertEquals("{\"svyMarkupId\":\"sf331d64ddc0c17747371b7740e3e3447\",\"atype\":{\"vEr\":2,\"v\":{\"form\":\"tabform\",\"name\":\"name\"}}}",
 			json, true);
 	}
 

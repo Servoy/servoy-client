@@ -22,7 +22,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -56,7 +55,7 @@ import com.servoy.j2db.persistence.ISupportTabSeq;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
-import com.servoy.j2db.persistence.TabSeqComparator;
+import com.servoy.j2db.server.ngclient.ChildrenJSONGenerator;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IFormElementCache;
@@ -77,7 +76,7 @@ public class FormLayoutGenerator
 
 	private static final String TAG_DIRECT_EDIT = "directEdit";
 
-	private static int getTabSeq(IFormElement o)
+	public static int getTabSeq(IFormElement o)
 	{
 		int seq = 0;
 		if (o instanceof ISupportTabSeq)
@@ -87,7 +86,7 @@ public class FormLayoutGenerator
 		if (o instanceof IBasicWebComponent)
 		{
 			String componentType = FormTemplateGenerator.getComponentTypeName(o);
-			WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebComponentSpecification(
+			WebObjectSpecification spec = WebComponentSpecProvider.getSpecProviderState().getWebObjectSpecification(
 				componentType);
 			if (spec != null)
 			{
@@ -114,26 +113,15 @@ public class FormLayoutGenerator
 		if (!form.isResponsiveLayout())
 		{
 			List<IPersist> components = fs.getFlattenedForm(form).getAllObjectsAsList();
-			List<IFormElement> formElements = new ArrayList<>();
+			List<IPersist> formElements = new ArrayList<>();
 			for (IPersist persist : components)
 			{
 				if (persist instanceof IFormElement)
 				{
-					formElements.add((IFormElement)persist);
+					formElements.add(persist);
 				}
 			}
-			Collections.sort(formElements, new Comparator<IFormElement>()
-			{
-				public int compare(IFormElement o1, IFormElement o2)
-				{
-					int result = FlattenedForm.FORM_INDEX_WITH_HIERARCHY_COMPARATOR.compare(o1, o2);
-					if (result == 0)
-					{
-						result = TabSeqComparator.compareTabSeq(getTabSeq(o1), o1, getTabSeq(o2), o2);
-					}
-					return result;
-				};
-			});
+			Collections.sort(formElements, ChildrenJSONGenerator.FORM_INDEX_WITH_HIERARCHY_AND_TABSEQUENCE_COMPARATOR);
 			componentsIterator = formElements.iterator();
 		}
 		else

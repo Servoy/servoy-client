@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -799,6 +800,28 @@ public final class Settings extends SortedProperties
 		else
 		{
 			this.setProperty(prefix + (name.length() > 255 ? name.substring(0, 255) : name), (value.length() > 255 ? value.substring(0, 255) : value));
+		}
+	}
+
+	public void removeUserProperty(String prefix, String name)
+	{
+		this.remove(prefix + (name.length() > 255 ? name.substring(0, 255) : name));
+	}
+
+	public void removeAllUserProperties()
+	{
+		Map<Object, Object> userProperties = this.getAsProperties();
+		List<String> userPropertiesToDelete = new ArrayList<>();
+		for (Map.Entry<Object, Object> entry : userProperties.entrySet())
+		{
+			userPropertiesToDelete.add((String)entry.getKey());
+		}
+		if (userPropertiesToDelete.size() > 0)
+		{
+			for (String prop : userPropertiesToDelete)
+			{
+				this.remove(prop);
+			}
 		}
 	}
 

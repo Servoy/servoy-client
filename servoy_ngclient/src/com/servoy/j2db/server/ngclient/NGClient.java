@@ -1,5 +1,7 @@
 package com.servoy.j2db.server.ngclient;
 
+import static com.servoy.j2db.util.UUID.randomUUID;
+
 import java.awt.Dimension;
 import java.awt.print.PageFormat;
 import java.io.IOException;
@@ -17,6 +19,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledExecutorService;
@@ -32,8 +36,9 @@ import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.IChangeListener;
 import org.sablo.WebComponent;
+import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.eventthread.WebsocketSessionWindows;
-import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.IFunctionParameters;
 import org.sablo.specification.SpecProviderState;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
@@ -41,20 +46,23 @@ import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.ClientToServerCallReturnValue;
 import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IClientService;
 import org.sablo.websocket.IServerService;
 import org.sablo.websocket.WebsocketSessionManager;
 import org.sablo.websocket.impl.ClientService;
 import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.JSONUtils.EmbeddableJSONWriter;
+import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.ApplicationException;
+import com.servoy.j2db.ClientStub;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBasicFormManager;
 import com.servoy.j2db.IDataRendererFactory;
+import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
@@ -97,6 +105,7 @@ import com.servoy.j2db.util.AppendingStringBuffer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IGetLastAccessed;
 import com.servoy.j2db.util.IGetStatusLine;
+import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.RendererParentWrapper;
 import com.servoy.j2db.util.SecuritySupport;
@@ -110,10 +119,12 @@ import com.servoy.j2db.util.Utils;
 public class NGClient extends AbstractApplication
 	implements INGApplication, IChangeListener, IServerService, IGetStatusLine, IGetLastAccessed, IPerformanceDataProvider
 {
+
 	private static final long serialVersionUID = 1L;
 
 	public static final String APPLICATION_SERVICE = "$applicationService";
 	public static final String APPLICATION_SERVER_SERVICE = "applicationServerService";
+	private static final String SABLO_LOADING_INDICATOR = "$sabloLoadingIndicator";
 
 	private final INGClientWebsocketSession wsSession;
 
@@ -143,10 +154,13 @@ public class NGClient extends AbstractApplication
 
 	private URL serverURL;
 
-	public NGClient(INGClientWebsocketSession wsSession) throws Exception
+	private final IDesignerCallback designerCallback;
+
+	public NGClient(INGClientWebsocketSession wsSession, IDesignerCallback designerCallback) throws Exception
 	{
 		super(new WebCredentials());
 
+		this.designerCallback = designerCallback;
 		this.wsSession = wsSession;
 		getWebsocketSession().registerServerService(APPLICATION_SERVER_SERVICE, this);
 		getWebsocketSession().registerServerService(I18NService.NAME, new I18NService(this));
@@ -282,7 +296,7 @@ public class NGClient extends AbstractApplication
 	protected IExecutingEnviroment createScriptEngine()
 	{
 		IExecutingEnviroment scriptEngine = super.createScriptEngine();
-		WebObjectSpecification[] serviceSpecifications = WebServiceSpecProvider.getSpecProviderState().getAllWebComponentSpecifications();
+		WebObjectSpecification[] serviceSpecifications = WebServiceSpecProvider.getSpecProviderState().getAllWebObjectSpecifications();
 		PluginScope scope = (PluginScope)scriptEngine.getSolutionScope().get("plugins", scriptEngine.getSolutionScope());
 		scope.setLocked(false);
 		for (WebObjectSpecification serviceSpecification : serviceSpecifications)
@@ -294,6 +308,10 @@ public class NGClient extends AbstractApplication
 			}
 		}
 		scope.setLocked(true);
+		if (designerCallback != null)
+		{
+			designerCallback.addScriptObjects(null, scriptEngine.getSolutionScope());
+		}
 		return scriptEngine;
 	}
 
@@ -720,7 +738,7 @@ public class NGClient extends AbstractApplication
 
 	protected void runWhileShowingLoadingIndicator(Runnable r)
 	{
-		IClientService s = getWebsocketSession().getClientService("$sabloLoadingIndicator");
+		IClientService s = getWebsocketSession().getClientService(SABLO_LOADING_INDICATOR);
 		s.executeAsyncNowServiceCall("showLoading", null);
 		r.run();
 		s.executeAsyncNowServiceCall("hideLoading", null);
@@ -773,7 +791,7 @@ public class NGClient extends AbstractApplication
 			SpecProviderState specProviderState = WebServiceSpecProvider.getSpecProviderState();
 			if (specProviderState != null)
 			{
-				WebObjectSpecification[] serviceSpecifications = specProviderState.getAllWebComponentSpecifications();
+				WebObjectSpecification[] serviceSpecifications = specProviderState.getAllWebObjectSpecifications();
 				for (WebObjectSpecification serviceSpecification : serviceSpecifications)
 				{
 					WebObjectFunctionDefinition apiFunction = serviceSpecification.getApiFunction("cleanup");
@@ -830,6 +848,10 @@ public class NGClient extends AbstractApplication
 		boolean isCloseSolution = super.closeSolution(force, args);
 		if (isCloseSolution)
 		{
+			getClientFunctions().clear();
+			mediaInfos.values().stream().forEach(info -> info.destroy());
+			mediaInfos.clear();
+			overrideStyleSheets.clear();
 			getRuntimeProperties().put(IServiceProvider.RT_VALUELIST_CACHE, null);
 
 			if (args == null || args.length < 1)
@@ -887,9 +909,33 @@ public class NGClient extends AbstractApplication
 	@Override
 	protected void createFoundSetManager()
 	{
-		foundSetManager = new NGFoundSetManager(this, new SwingFoundSetFactory());
+		foundSetManager = new NGFoundSetManager(this, getFoundSetManagerConfig(), new SwingFoundSetFactory());
 		foundSetManager.init();
 	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.ClientState#createUserClient()
+	 */
+	@Override
+	protected void createUserClient()
+	{
+		userClient = new ClientStub(this)
+		{
+			@Override
+			public void shutDown()
+			{
+				// if shutdown from the server, just force interrupt the event thread.
+				IEventDispatcher eventDispatcher = getWebsocketSession().getEventDispatcher(false);
+				if (eventDispatcher != null) eventDispatcher.interruptEventThread();
+
+				invokeLater(() -> NGClient.this.shutDown(true));
+
+			}
+		};
+	}
+
 
 	@Override
 	public ScheduledExecutorService getScheduledExecutor()
@@ -900,7 +946,7 @@ public class NGClient extends AbstractApplication
 			{
 				if (scheduledExecutorService == null)
 				{
-					scheduledExecutorService = new ServoyScheduledExecutor(4, 1, "NGClient-" + getClientID())
+					scheduledExecutorService = new ServoyScheduledExecutor(16, 1, "NGClient-Pool-" + getClientID())
 					{
 						private IServiceProvider prev;
 
@@ -1160,7 +1206,50 @@ public class NGClient extends AbstractApplication
 			userProperties.put(name, value);
 		}
 
-		getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setUserProperty", new Object[] { name, value });
+		getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setUserProperty",
+			new Object[] { name, value });
+
+	}
+
+	@Override
+	public void removeUserProperty(String name)
+	{
+		getDefaultUserProperties().remove(name);
+		Map<String, String> userProperties = getUserProperties();
+
+		if (userProperties == null) return;
+
+		userProperties.remove(name);
+
+		getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("removeUserProperty",
+			new Object[] { name });
+
+	}
+
+	@Override
+	public void removeAllUserProperties()
+	{
+		Map<String, String> userProperties = getUserProperties();
+		List<String> userPropertiesToDelete = new ArrayList<>();
+
+		if (userProperties == null) return;
+
+
+		for (Map.Entry<String, String> entry : userProperties.entrySet())
+		{
+			userPropertiesToDelete.add(entry.getKey());
+		}
+
+		if (userPropertiesToDelete.size() > 0)
+		{
+			for (String prop : userPropertiesToDelete)
+			{
+				userProperties.remove(prop);
+			}
+		}
+
+		getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("removeAllUserProperties",
+			new Object[] { userProperties });
 
 	}
 
@@ -1331,9 +1420,30 @@ public class NGClient extends AbstractApplication
 		}
 	}
 
+	private final ConcurrentMap<String, MediaInfo> mediaInfos = new ConcurrentHashMap<>(3);
+
+	public MediaInfo createMediaInfo(byte[] mediaBytes, String fileName, String contentType, String contentDisposition)
+	{
+		MediaInfo mediaInfo = new MediaInfo(randomUUID().toString(), fileName, contentType == null ? MimeTypes.getContentType(mediaBytes, null) : contentType,
+			contentDisposition, mediaBytes);
+		mediaInfos.put(mediaInfo.getName(), mediaInfo);
+		return mediaInfo;
+	}
+
+	public MediaInfo createMediaInfo(byte[] mediaBytes)
+	{
+		return createMediaInfo(mediaBytes, null, null, null);
+	}
+
+	@Override
+	public MediaInfo getMedia(String dynamicID)
+	{
+		return mediaInfos.get(dynamicID);
+	}
+
 	public String serveResource(String filename, byte[] bs, String mimetype, String contentDisposition)
 	{
-		MediaInfo mediaInfo = MediaResourcesServlet.createMediaInfo(bs, filename, mimetype, contentDisposition);
+		MediaInfo mediaInfo = createMediaInfo(bs, filename, mimetype, contentDisposition);
 		return mediaInfo.getURL(getWebsocketSession().getSessionKey().getClientnr());
 	}
 
@@ -1410,30 +1520,43 @@ public class NGClient extends AbstractApplication
 					{
 						functionSpec = (serviceSpec != null ? serviceSpec.getApiFunction(serviceMethodName) : null);
 					}
-					List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
 
-					// apply conversion
-					Object[] arrayOfJavaConvertedMethodArgs = new Object[methodArguments.length()];
-					for (int i = 0; i < methodArguments.length(); i++)
+					if (functionSpec == null)
 					{
-						arrayOfJavaConvertedMethodArgs[i] = JSONUtils.fromJSON(null, methodArguments.get(i),
-							(argumentPDs != null && argumentPDs.size() > i) ? argumentPDs.get(i) : null,
-							new BrowserConverterContext(serviceWebObject, PushToServerEnum.allow), new ValueReference<Boolean>(false));
+						Debug.warn("callServerSideApi for unknown function '" + serviceMethodName + "' of service '" + serviceScriptingName + "'.");
+						throw new RuntimeException("trying to call a function '" + serviceMethodName + "' that does not exist in .spec of service: " +
+							serviceSpec.getName());
 					}
+					else
+					{
+						IFunctionParameters argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
 
-					Object retVal = webServiceScriptable.executeScopeFunction(functionSpec, arrayOfJavaConvertedMethodArgs);
-					if (functionSpec != null && functionSpec.getReturnType() != null)
-					{
-						retVal = new ClientToServerCallReturnValue(retVal, functionSpec.getReturnType(),
-							new BrowserConverterContext(serviceWebObject, PushToServerEnum.reject), true); // this means that when this return value is sent to client it will be converted to browser JSON correctly - if we give it the type and context
+						// apply conversion
+						Object[] arrayOfJavaConvertedMethodArgs = new Object[methodArguments.length()];
+						for (int i = 0; i < methodArguments.length(); i++)
+						{
+							arrayOfJavaConvertedMethodArgs[i] = JSONUtils.fromJSON(null, methodArguments.get(i),
+								(argumentPDs != null && argumentPDs.getDefinedArgsCount() > i) ? argumentPDs.getParameterDefinition(i) : null,
+								new BrowserConverterContext(serviceWebObject, PushToServerEnum.allow), new ValueReference<Boolean>(false));
+						}
+
+						Object retVal = webServiceScriptable.executeScopeFunction(functionSpec, arrayOfJavaConvertedMethodArgs);
+						if (functionSpec != null && functionSpec.getReturnType() != null)
+						{
+							EmbeddableJSONWriter w = new EmbeddableJSONWriter(true);
+							FullValueToJSONConverter.INSTANCE.toJSONValue(w, null, retVal, functionSpec.getReturnType(),
+								new BrowserConverterContext(serviceWebObject, PushToServerEnum.reject));
+							retVal = w;
+						}
+						return retVal;
 					}
-					return retVal;
 				}
 				else
 				{
 					Debug.warn("callServerSideApi for unknown service '" + serviceScriptingName + "'");
+					throw new RuntimeException("callServerSideApi for unknown service '" + serviceScriptingName + "'; called method: " +
+						args.getString("methodName"));
 				}
-				break;
 			}
 		}
 
@@ -1571,7 +1694,7 @@ public class NGClient extends AbstractApplication
 	{
 		if (performanceData != null) return performanceData.startSubAction(serviceName + "." + functionName, System.currentTimeMillis(),
 			(apiFunction == null || apiFunction.getBlockEventProcessing()) ? IDataServer.METHOD_CALL : IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT,
-			getClientID());
+			getClientID(), getSolutionName());
 		return null;
 	}
 

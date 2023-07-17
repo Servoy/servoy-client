@@ -19,7 +19,6 @@ package com.servoy.j2db.dataprocessing;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -106,7 +105,7 @@ public class LookupValueList implements IValueList
 		int maxRowsSetting = (application instanceof IApplication)
 			? Utils.getAsInteger(((IApplication)application).getClientProperty(IApplication.VALUELIST_MAX_ROWS)) : 0;
 		maxValuelistRows = (maxRowsSetting > 0 && maxRowsSetting <= 1000) ? maxRowsSetting
-			: ((FoundSetManager)application.getFoundSetManager()).pkChunkSize * 4;
+			: ((FoundSetManager)application.getFoundSetManager()).config.pkChunkSize() * 4;
 
 		table = application.getFoundSetManager().getTable(dataSource);
 
@@ -157,11 +156,10 @@ public class LookupValueList implements IValueList
 		public void tableChange(TableEvent e)
 		{
 			clear();
-			Iterator<ListDataListener> it = listeners.keySet().iterator();
 			ListDataEvent lde = new ListDataEvent(LookupValueList.this, ListDataEvent.CONTENTS_CHANGED, -1, -1);
-			while (it.hasNext())
+			for (ListDataListener element : listeners.keySet())
 			{
-				it.next().contentsChanged(lde);
+				element.contentsChanged(lde);
 			}
 		}
 	}
@@ -645,10 +643,20 @@ public class LookupValueList implements IValueList
 						Debug.error(e);
 					}
 				}
+				if (this.secondLookup != null)
+				{
+					IDataProvider[] fallbackDPs = this.secondLookup.getDependedDataProviders();
+					if (fallbackDPs != null)
+					{
+						if (fallbackDPs.length == 0) return fallbackDPs;
+						dataProviders.addAll(Arrays.asList(fallbackDPs));
+					}
+				}
 				return dataProviders.toArray(new IDataProvider[0]);
 			}
 			return new IDataProvider[0];
 		}
+		if (this.secondLookup != null) return this.secondLookup.getDependedDataProviders();
 		return null;
 	}
 }

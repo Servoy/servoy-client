@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.scripting;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -27,10 +28,11 @@ import com.servoy.j2db.ui.RenderableWrapper;
 
 /**
  * JSRenderEvent, used as argument to render callbacks.
- * 
- * @author gboros 
+ *
+ * @author gboros
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSRenderEvent")
+@ServoyClientSupport(mc = false, wc = true, sc = true, ng = false)
 public class JSRenderEvent implements IJavaScriptType
 {
 	private ISupportOnRenderCallback element;
@@ -45,7 +47,7 @@ public class JSRenderEvent implements IJavaScriptType
 	}
 
 
-	/** 
+	/**
 	 * @deprecated replaced by getRenderable()
 	 */
 	@Deprecated
@@ -59,8 +61,8 @@ public class JSRenderEvent implements IJavaScriptType
 	 * Returns the element that is being rendered.
 	 *
 	 * @sample event.getRenderable();
-	 * 
-	 * @return Renderable the element that is being rendered 
+	 *
+	 * @return Renderable the element that is being rendered
 	 */
 	public IScriptRenderMethodsWithOptionalProps js_getRenderable()
 	{
@@ -82,7 +84,7 @@ public class JSRenderEvent implements IJavaScriptType
 	 * // type the record returned from the call with JSDoc, fill in the right server/tablename
 	 * /** @type {JSRecord<db:/servername/tablename>} *&#47;
 	 * var record = event.getRecord();
-	 * 
+	 *
 	 * @return Record of the element that is being rendered
 	 */
 	public Record js_getRecord()
@@ -99,7 +101,7 @@ public class JSRenderEvent implements IJavaScriptType
 	 * Returns whether or not the element that is being rendered has focus.
 	 *
 	 * @sample event.hasFocus();
-	 * 
+	 *
 	 * @return true if the element that is being rendered has the focus, false otherwise
 	 */
 	public boolean js_hasFocus()
@@ -116,7 +118,7 @@ public class JSRenderEvent implements IJavaScriptType
 	 * Returns the record index of the element that is being rendered.
 	 *
 	 * @sample event.getRecordIndex()
-	 * 
+	 *
 	 * @return record index of the element that is being rendered
 	 */
 	public int js_getRecordIndex()
@@ -134,7 +136,7 @@ public class JSRenderEvent implements IJavaScriptType
 	 * Returns whatever or not the record of the element that is being rendered is selected.
 	 *
 	 * @sample event.isRecordSelected()
-	 * 
+	 *
 	 * @return true if the record of the element that is being rendered is selected
 	 */
 	public boolean js_isRecordSelected()

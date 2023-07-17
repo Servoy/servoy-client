@@ -17,7 +17,9 @@
 package com.servoy.base.query;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 /**
  * Query condition consisting of conditions to be OR-ed.
@@ -36,6 +38,12 @@ public final class BaseOrCondition extends BaseAndOrCondition<IBaseSQLCondition>
 		super(conditions);
 	}
 
+
+	public BaseOrCondition(HashMap<String, List<IBaseSQLCondition>> conditions)
+	{
+		super(conditions);
+	}
+
 	@Override
 	public String getInfix()
 	{
@@ -45,17 +53,28 @@ public final class BaseOrCondition extends BaseAndOrCondition<IBaseSQLCondition>
 	@Override
 	public IBaseSQLCondition negate()
 	{
-		// apply De Morgan's laws
-		List<IBaseSQLCondition> nconditions = new ArrayList<IBaseSQLCondition>(conditions.size());
-		for (int i = 0; i < conditions.size(); i++)
+		if (conditions == null)
 		{
-			nconditions.add(conditions.get(i).negate());
+			return new BaseAndCondition();
+		}
+
+		// apply De Morgan's laws
+		HashMap<String, List<IBaseSQLCondition>> nconditions = new HashMap<>(conditions.size());
+		for (Entry<String, List<IBaseSQLCondition>> entry : conditions.entrySet())
+		{
+			List<IBaseSQLCondition> negatedList = new ArrayList<>();
+			for (IBaseSQLCondition c : entry.getValue())
+			{
+				negatedList.add(c.negate());
+			}
+
+			nconditions.put(entry.getKey(), negatedList);
 		}
 		return new BaseAndCondition(nconditions);
 	}
 
 	/**
-	 * Combine 2 conditions in an OrCondition. 
+	 * Combine 2 conditions in an OrCondition.
 	 * @param c1
 	 * @param c2
 	 * @return

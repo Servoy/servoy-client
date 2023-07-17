@@ -708,7 +708,7 @@ public class MainPage extends WebPage implements IMainContainer, IAjaxIndicatorA
 								if (formUI.getController().isFormVisible())
 								{
 									List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-									formUI.getController().notifyVisible(false, invokeLaterRunnables);
+									formUI.getController().notifyVisible(false, invokeLaterRunnables, true);
 									Utils.invokeLater(client, invokeLaterRunnables);
 								}
 								formUI.setMainPage(null);

@@ -27,8 +27,6 @@ import java.util.Map;
 import org.json.JSONWriter;
 import org.sablo.Container;
 import org.sablo.websocket.TypedData;
-import org.sablo.websocket.utils.DataConversion;
-import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
@@ -41,6 +39,9 @@ import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.IRepository;
+import com.servoy.j2db.persistence.ISupportCSSPosition;
+import com.servoy.j2db.persistence.ISupportScrollbars;
 import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
@@ -67,11 +68,6 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 	private final boolean isDesigner;
 	private final LayoutContainer zoomedInContainer;
 
-	/**
-	 * @param client
-	 * @param form
-	 * @param realFormName
-	 */
 	public AngularFormGenerator(NGClient client, Form form, String realFormName, boolean isDesigner)
 	{
 		this.client = client;
@@ -99,13 +95,18 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		return "";
 	}
 
-	@SuppressWarnings("nls")
 	@Override
 	public String generateJS() throws IOException
 	{
+		return generateJS(getAContext());
+	}
+
+	@SuppressWarnings("nls")
+	public String generateJS(ServoyDataConverterContext servoyDataConverterContext) throws IOException
+	{
 		IWebFormController cachedFormController = client != null ? client.getFormManager().getCachedFormController(realFormName) : null;
 
-		FormTemplateObjectWrapper formTemplate = new FormTemplateObjectWrapper(getAContext(), true, false);
+		FormTemplateObjectWrapper formTemplate = new FormTemplateObjectWrapper(servoyDataConverterContext, true, false);
 		FormWrapper formWrapper = formTemplate.getFormWrapper(form);
 
 		// for this form it is really just some json.
@@ -123,18 +124,6 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		writer.key("height");
 		writer.value(form.getSize().getHeight());
 		writer.endObject();
-		String styleClasses = form.getStyleClass();
-		if (styleClasses != null)
-		{
-			writer.key("styleclass");
-			String[] classes = styleClasses.split(" ");
-			writer.array();
-			for (String cls : classes)
-			{
-				writer.value(cls);
-			}
-			writer.endArray();
-		}
 		writer.key("children");
 		// write the default form value object.
 		writer.array();
@@ -146,17 +135,43 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		Map<String, Object> containerProperties = null;
 		if (cachedFormController != null && cachedFormController.getFormUI() instanceof Container)
 		{
+			// write the properties of the formUI itself using an already present form controller
 			Container con = (Container)cachedFormController.getFormUI();
-			DataConversion dataConversion = new DataConversion();
 			TypedData<Map<String, Object>> typedProperties = con.getProperties();
-			con.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, typedProperties, dataConversion);
-			JSONUtils.writeClientConversions(writer, dataConversion);
+			con.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, typedProperties);
 			containerProperties = typedProperties.content;
 		}
 		final Map<String, Object> finalContainerProperties = containerProperties;
 		if (formWrapper != null)
 		{
+			// write the remaining (not already written) properties of the form using FormWrapper
 			Map<String, Object> properties = formWrapper.getProperties();
+			Object styleclass = properties.get(IContentSpecConstants.PROPERTY_STYLECLASS);
+			if (form.isResponsiveLayout())
+			{
+				if (styleclass == null) styleclass = "";
+				int scrollBars = form.getScrollbars();
+				String overflowX = "svy-overflowx-auto"; //$NON-NLS-1$
+				if (!isDesigner)
+				{
+					if ((scrollBars & ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_NEVER)
+						overflowX = "svy-overflowx-hidden"; //$NON-NLS-1$
+					else if ((scrollBars & ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.HORIZONTAL_SCROLLBAR_ALWAYS)
+						overflowX = "svy-overflowx-scroll"; //$NON-NLS-1$
+				}
+				styleclass += " " + overflowX;
+				String overflowY = "svy-overflowy-auto"; //$NON-NLS-1$
+				if (!isDesigner)
+				{
+					if ((scrollBars & ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER) == ISupportScrollbars.VERTICAL_SCROLLBAR_NEVER)
+						overflowY = "svy-overflowy-hidden"; //$NON-NLS-1$
+					else if ((scrollBars & ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS) == ISupportScrollbars.VERTICAL_SCROLLBAR_ALWAYS)
+						overflowY = "svy-overflowy-scroll"; //$NON-NLS-1$
+				}
+				styleclass += " " + overflowY;
+				properties.put(IContentSpecConstants.PROPERTY_STYLECLASS, styleclass);
+			}
+
 			properties.forEach((key, value) -> {
 				if (finalContainerProperties == null || !finalContainerProperties.containsKey(key))
 				{
@@ -193,22 +208,24 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		writer.endObject();
 		if (form.isResponsiveLayout())
 		{
+			// write form contents (layout / components)
 			if (zoomedInContainer != null)
 			{
-				zoomedInContainer.acceptVisitor(new ChildrenJSONGenerator(writer,
-					getAContext(), form, null,
+				PersistHelper.getFlattenedPersist(flattenedSolution, form, zoomedInContainer).acceptVisitor(new ChildrenJSONGenerator(writer,
+					servoyDataConverterContext, form, null,
 					null, form, true, isDesigner), PositionComparator.XY_PERSIST_COMPARATOR);
 			}
 			else
 			{
 				form.acceptVisitor(new ChildrenJSONGenerator(writer,
-					getAContext(), form, null,
+					servoyDataConverterContext, form, null,
 					null, form, true, isDesigner), PositionComparator.XY_PERSIST_COMPARATOR);
 			}
 
 		}
 		else
 		{
+			// write form contents (part / components)
 			Iterator<Part> it = form.getParts();
 			while (it.hasNext())
 			{
@@ -273,7 +290,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 					writer.array();
 
 					form.acceptVisitor(new ChildrenJSONGenerator(writer,
-						getAContext(), form,
+						servoyDataConverterContext, form,
 						null,
 						part, form, true, isDesigner), ChildrenJSONGenerator.FORM_INDEX_WITH_HIERARCHY_COMPARATOR);
 					writer.endArray();
@@ -287,11 +304,6 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		return stringWriter.toString();
 	}
 
-
-	/**
-	 * @param writer
-	 * @param o
-	 */
 	@SuppressWarnings("nls")
 	public static void writePosition(JSONWriter writer, IPersist o, Form form, WebFormComponent webComponent, boolean isDesigner)
 	{
@@ -306,73 +318,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 					position = (CSSPosition)runtimeValue;
 				}
 			}
-			writer.key("position");
-			writer.object();
-			if (CSSPositionUtils.isSet(position.left))
-			{
-				writer.key("left").value(CSSPositionUtils.getCSSValue(position.left));
-			}
-			if (CSSPositionUtils.isSet(position.top))
-			{
-				String top = position.top;
-				if (!isDesigner)
-				{
-					Point location = CSSPositionUtils.getLocation((BaseComponent)o);
-					Part prt = form.getPartAt(location.y);
-					if (prt != null)
-					{
-						int topStart = form.getPartStartYPos(prt.getID());
-						if (topStart > 0)
-						{
-							if (top.endsWith("px"))
-							{
-								top = top.substring(0, top.length() - 2);
-							}
-							int topInteger = Utils.getAsInteger(top, -1);
-							if (topInteger != -1)
-							{
-								top = String.valueOf(topInteger - topStart);
-							}
-							else
-							{
-								top = "calc(" + top + "-" + topStart + "px)";
-							}
-						}
-					}
-				}
-				writer.key("top").value(CSSPositionUtils.getCSSValue(top));
-			}
-			if (CSSPositionUtils.isSet(position.bottom))
-			{
-				writer.key("bottom").value(CSSPositionUtils.getCSSValue(position.bottom));
-			}
-			if (CSSPositionUtils.isSet(position.right))
-			{
-				writer.key("right").value(CSSPositionUtils.getCSSValue(position.right));
-			}
-			if (CSSPositionUtils.isSet(position.width))
-			{
-				if (CSSPositionUtils.isSet(position.left) && CSSPositionUtils.isSet(position.right))
-				{
-					writer.key("min-width").value(CSSPositionUtils.getCSSValue(position.width));
-				}
-				else
-				{
-					writer.key("width").value(CSSPositionUtils.getCSSValue(position.width));
-				}
-			}
-			if (CSSPositionUtils.isSet(position.height))
-			{
-				if (CSSPositionUtils.isSet(position.top) && CSSPositionUtils.isSet(position.bottom))
-				{
-					writer.key("min-height").value(CSSPositionUtils.getCSSValue(position.height));
-				}
-				else
-				{
-					writer.key("height").value(CSSPositionUtils.getCSSValue(position.height));
-				}
-			}
-			writer.endObject();
+			writeCSSPosition(writer, (BaseComponent)o, form, isDesigner, position);
 		}
 		else
 		{
@@ -462,6 +408,102 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		}
 	}
 
+	@SuppressWarnings("nls")
+	public static void writeCSSPosition(JSONWriter writer, ISupportCSSPosition o, Form form, boolean isDesigner, CSSPosition position)
+	{
+		writer.key("position");
+		writer.object();
+		if (CSSPositionUtils.isSet(position.left))
+		{
+			writer.key("left").value(CSSPositionUtils.getCSSValue(position.left));
+		}
+		String top = position.top;
+		String bottom = position.bottom;
+		if (!isDesigner && !Utils.getAsBoolean(((Form)o.getAncestor(IRepository.FORMS)).isFormComponent()))
+		{
+			Point location = CSSPositionUtils.getLocation(o, form);
+			Part prt = form.getPartAt(location.y);
+			if (prt != null)
+			{
+				if (CSSPositionUtils.isSet(position.top))
+				{
+					int topStart = form.getPartStartYPos(prt.getID());
+					if (topStart > 0)
+					{
+						if (top.endsWith("px"))
+						{
+							top = top.substring(0, top.length() - 2);
+						}
+						int topInteger = Utils.getAsInteger(top, -1);
+						if (topInteger != -1)
+						{
+							top = String.valueOf(topInteger - topStart);
+						}
+						else
+						{
+							top = "calc(" + top + "-" + topStart + "px)";
+						}
+					}
+				}
+				if (CSSPositionUtils.isSet(position.bottom))
+				{
+					int extraHeight = form.getSize().height - prt.getHeight();
+					if (extraHeight > 0)
+					{
+						if (bottom.endsWith("px"))
+						{
+							bottom = bottom.substring(0, bottom.length() - 2);
+						}
+						int bottomInteger = Utils.getAsInteger(bottom, -1);
+						if (bottomInteger != -1)
+						{
+							bottom = String.valueOf(bottomInteger - extraHeight);
+						}
+						else
+						{
+							bottom = "calc(" + bottom + "-" + extraHeight + "px)";
+						}
+					}
+				}
+			}
+		}
+		if (CSSPositionUtils.isSet(position.top))
+		{
+			writer.key("top").value(CSSPositionUtils.getCSSValue(top));
+		}
+		if (CSSPositionUtils.isSet(position.bottom))
+		{
+			writer.key("bottom").value(CSSPositionUtils.getCSSValue(bottom));
+		}
+		if (CSSPositionUtils.isSet(position.right))
+		{
+			writer.key("right").value(CSSPositionUtils.getCSSValue(position.right));
+		}
+		if (CSSPositionUtils.isSet(position.width))
+		{
+			if (CSSPositionUtils.isSet(position.left) && CSSPositionUtils.isSet(position.right))
+			{
+				writer.key("min-width").value(CSSPositionUtils.getCSSValue(position.width));
+			}
+			else
+			{
+				writer.key("width").value(CSSPositionUtils.getCSSValue(position.width));
+			}
+		}
+		if (CSSPositionUtils.isSet(position.height))
+		{
+			if (CSSPositionUtils.isSet(position.top) && CSSPositionUtils.isSet(position.bottom))
+			{
+				writer.key("min-height").value(CSSPositionUtils.getCSSValue(position.height));
+			}
+			else
+			{
+				writer.key("height").value(CSSPositionUtils.getCSSValue(position.height));
+			}
+		}
+		writer.endObject();
+	}
+
 	private ServoyDataConverterContext getAContext()
 	{
 		if (client != null)
@@ -479,5 +521,5 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 	{
 		return false;
 	}
-}
 
+}

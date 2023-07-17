@@ -41,13 +41,13 @@ import org.sablo.specification.property.CustomJSONObjectType;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IWrappingContext;
 import org.sablo.specification.property.WrappingContext;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.IChildWebObject;
 import com.servoy.j2db.persistence.IDesignValueConverter;
+import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.solutionmodel.JSNGWebComponent;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
@@ -150,40 +150,29 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Map<String, FormElementT> formElementValue, PropertyDescription pd,
-		DataConversion conversionMarkers, FormElementContext formElementContext) throws JSONException
+		FormElementContext formElementContext) throws JSONException
 	{
 		// only send template in designer
 		if (formElementValue == null || formElementContext == null || formElementContext.getFormElement() == null ||
 			!formElementContext.getFormElement().isInDesigner()) return writer;
 
 		JSONUtils.addKeyIfPresent(writer, key);
-		if (conversionMarkers != null) conversionMarkers.convert(CustomJSONObjectType.TYPE_NAME); // so that the client knows it must use the custom client side JS for what JSON it gets
 
 		writer.object().key(CONTENT_VERSION).value(1).key(VALUE).object();
-		DataConversion arrayConversionMarkers = new DataConversion();
 		for (Entry<String, FormElementT> e : formElementValue.entrySet())
 		{
-			arrayConversionMarkers.pushNode(e.getKey());
 			NGConversions.INSTANCE.convertFormElementToTemplateJSONValue(writer, e.getKey(), e.getValue(),
-				getCustomJSONTypeDefinition().getProperty(e.getKey()), arrayConversionMarkers, formElementContext);
-			arrayConversionMarkers.popNode();
+				getCustomJSONTypeDefinition().getProperty(e.getKey()), formElementContext);
 		}
-		writer.endObject();
-		if (arrayConversionMarkers.getConversions().size() > 0)
-		{
-			writer.key(JSONUtils.TYPES_KEY).object();
-			JSONUtils.writeConversions(writer, arrayConversionMarkers.getConversions());
-			writer.endObject();
-		}
-		writer.endObject();
+		writer.endObject().endObject();
 		return writer;
 	}
 
 	@Override
 	public JSONWriter initialToJSON(JSONWriter writer, String key, ChangeAwareMap<SabloT, SabloWT> changeAwareMap, PropertyDescription pd,
-		DataConversion conversionMarkers, IBrowserConverterContext dataConverterContext) throws JSONException
+		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		return toJSON(writer, key, changeAwareMap, conversionMarkers, true, InitialToJSONConverter.INSTANCE, dataConverterContext);
+		return toJSON(writer, key, changeAwareMap, true, InitialToJSONConverter.INSTANCE, dataConverterContext);
 	}
 
 	@Override
@@ -273,8 +262,13 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 				}
 
 				// create the new change-aware-map based on the converted sub-properties
-				ChangeAwareMap<SabloT, SabloWT> retVal = wrapAndKeepRhinoPrototype(rhinoObjectCopy, rhinoNativeObject.getPrototype(), previousSpecialMap, pd,
-					new WrappingContext(webObjectContext.getUnderlyingWebObject(), pd.getName()), customObjectContext);
+				ChangeAwareMap<SabloT, SabloWT> retVal = wrapAndKeepRhinoPrototype(rhinoObjectCopy,
+					rhinoNativeObject /*
+										 * keep initial native obj. AS a prototype in the future RhinoMapOrArrayWrapper that will be created for Rhino
+										 * access/change detection; it can be used there to store/get properties that are not defined in the .spec file and
+										 * might be used as server-side impl. details - not to be sent to client
+										 */,
+					previousSpecialMap, pd, new WrappingContext(webObjectContext.getUnderlyingWebObject(), pd.getName()), customObjectContext);
 
 				// after it is returned it and it's sub-properties will at some point get "attached" (ISmartPropertyValue)
 				return retVal;
@@ -457,7 +451,7 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 	}
 
 	@Override
-	public Object fromDesignValue(Object designValue, PropertyDescription propertyDescription)
+	public Object fromDesignValue(Object designValue, PropertyDescription propertyDescription, IPersist persit)
 	{
 		return designValue;
 	}

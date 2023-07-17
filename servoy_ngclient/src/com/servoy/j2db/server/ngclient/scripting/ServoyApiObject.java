@@ -28,21 +28,29 @@ import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.dataprocessing.FoundSet;
+import com.servoy.j2db.dataprocessing.FoundSetManager;
+import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.ViewFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
+import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
+import com.servoy.j2db.server.ngclient.NGClientWindow;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
+import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Provides utility methods for server side scripting.
+ * Provides utility methods for web object server side scripting to interact with the Servoy environment.
  * @author lvostinar
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ServoyApi", scriptingName = "servoyApi")
@@ -50,10 +58,12 @@ import com.servoy.j2db.util.Utils;
 public class ServoyApiObject
 {
 	private final INGApplication app;
+	private final WebFormComponent component;
 
-	public ServoyApiObject(INGApplication app)
+	public ServoyApiObject(INGApplication app, WebFormComponent component)
 	{
 		this.app = app;
+		this.component = component;
 	}
 
 	@JSFunction
@@ -118,12 +128,86 @@ public class ServoyApiObject
 		if (formController != null)
 		{
 			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-			boolean ret = formController.notifyVisible(false, invokeLaterRunnables);
+			boolean ret = formController.notifyVisible(false, invokeLaterRunnables, true);
 			if (ret)
 			{
 				formController.setParentFormController(null);
 			}
 			Utils.invokeAndWait(app, invokeLaterRunnables);
+			return ret;
+		}
+		return false;
+	}
+
+	/**
+	 * Show a form directly on the server for instance when a tab will change on the client, so it won't need to do a round trip
+	 * for showing the form through the browser's component.
+	 *
+	 * @sample
+	 * servoyApi.showForm(formToHideName)
+	 *
+	 * @param nameOrUUID the form to show
+	 * @return true if the form was marked as visible
+	 */
+	@JSFunction
+	public boolean showForm(String nameOrUUID)
+	{
+		return this.showForm(nameOrUUID, null);
+	}
+
+	/**
+	 * Show a form directly on the server for instance when a tab will change on the client, so it won't need to do a round trip
+	 * for showing the form through the browser's component.
+	 *
+	 * @sample
+	 * servoyApi.showForm(formToHideName)
+	 *
+	 * @param nameOrUUID the form to show
+	 * @param relationName the parent container
+	 * @return true if the form was marked as visible
+	 */
+	@JSFunction
+	public boolean showForm(String nameOrUUID, String relationName)
+	{
+		String formName = nameOrUUID;
+		Form form = app.getFlattenedSolution().getForm(nameOrUUID);
+		if (form == null)
+		{
+			form = (Form)app.getFlattenedSolution().searchPersist(nameOrUUID);
+			if (form != null)
+			{
+				formName = form.getName();
+			}
+		}
+		IWebFormController formController = app.getFormManager().getForm(formName);
+		IWebFormController parentFormController = null;
+		if (this.component != null)
+		{
+			parentFormController = this.component.findParent(IWebFormUI.class).getController();
+		}
+		if (formController != null)
+		{
+			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
+			boolean ret = formController.notifyVisible(true, invokeLaterRunnables, true);
+			if (ret)
+			{
+				if (parentFormController != null)
+				{
+					parentFormController.getFormUI().getDataAdapterList().addVisibleChildForm(formController, relationName, true);
+					if (component != null)
+					{
+						component.updateVisibleForm(formController.getFormUI(), true, 0);
+					}
+				}
+
+			}
+			Utils.invokeAndWait(app, invokeLaterRunnables);
+
+			if (ret)
+			{
+				NGClientWindow.getCurrentWindow().registerAllowedForm(formName, this.component.getFormElement());
+				NGClientWindow.getCurrentWindow().touchForm(app.getFlattenedSolution().getFlattenedForm(form), formName, true, true);
+			}
 			return ret;
 		}
 		return false;
@@ -221,7 +305,7 @@ public class ServoyApiObject
 	@JSFunction
 	public String getMediaUrl(byte[] bytes)
 	{
-		MediaResourcesServlet.MediaInfo mediaInfo = MediaResourcesServlet.createMediaInfo(bytes);
+		MediaResourcesServlet.MediaInfo mediaInfo = app.createMediaInfo(bytes);
 		return mediaInfo.getURL(app.getWebsocketSession().getSessionKey().getClientnr());
 	}
 
@@ -245,16 +329,58 @@ public class ServoyApiObject
 			throw new ServoyException(ServoyException.CLIENT_NOT_AUTHORIZED);
 		}
 		List<String> listOfPrimaryKeyNames = new ArrayList<String>();
-		app.getFoundSetManager().getTable(datasource).getRowIdentColumnNames().forEachRemaining(listOfPrimaryKeyNames::add);
+		ITable table = app.getFoundSetManager().getTable(datasource);
+		if (table != null)
+		{
+			table.getRowIdentColumnNames().forEachRemaining(listOfPrimaryKeyNames::add);
+		}
 
 		return listOfPrimaryKeyNames.toArray(new String[0]);
+	}
 
+	/**
+	 * Performs a sql query with a query builder object.
+	 * Will throw an exception if anything did go wrong when executing the query.
+	 * Will use any data filter defined on table.
+	 *
+	 * @sample
+	 *  var dataset = servoyApi.getDataSetByQuery(qbselect, 10);
+	 *
+	 * @param query QBSelect query.
+	 * @param max_returned_rows The maximum number of rows returned by the query.
+	 *
+	 * @return The JSDataSet containing the results of the query.
+	 */
+	@JSFunction
+	public JSDataSet getDataSetByQuery(QBSelect query, Number max_returned_rows)
+	{
+		int _max_returned_rows = Utils.getAsInteger(max_returned_rows);
+
+		String serverName = DataSourceUtils.getDataSourceServerName(query.getDataSource());
+
+		if (serverName == null)
+			throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { query.getDataSource() }));
+		QuerySelect select = query.build();
+
+		try
+		{
+			return new JSDataSet(app, ((FoundSetManager)app.getFoundSetManager()).getDataSetByQuery(serverName, select,
+				true, _max_returned_rows));
+		}
+		catch (ServoyException e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
 	 * Add a filter parameter that is permanent per user session to limit a specified foundset of records.
 	 * This is similar as calling foundset.js_addFoundSetFilterParam, but the main difference is that this
 	 * works also on related foundsets.
+	 *
+	 * @param foundset The foundset to add the filter param/query to
+	 * @param query The query repesenting the filter
+	 * @param filterName a name given to this foundset filter
 	 *
 	 * @see Foundset.js_addFoundSetFilterParam
 	 */

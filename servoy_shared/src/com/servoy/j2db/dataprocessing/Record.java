@@ -672,7 +672,8 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 			}
 			else
 			{
-				((FoundSetManager)parent.getFoundSetManager()).getApplication().handleException(null, new ApplicationException(ServoyException.RECORD_LOCKED));
+				((FoundSetManager)parent.getFoundSetManager()).getApplication().handleException(null,
+					new ApplicationException(ServoyException.NO_MODIFY_ACCESS));
 			}
 		}
 		catch (RuntimeException e)
@@ -1196,13 +1197,30 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	}
 
 	/**
+	 * Creates and returns a new validation object for this record, which allows for markers to be used outside the validation flow.
+	 * Will overwrite the current markers if present.
+	 * Can be set to null again if you checked the problems, will also be set to null when a save was successful.
+	 *
+	 * @sample var recordMarkers = record.createMarkers();
+	 *
+	 * @return A new validation object.
+	 */
+	@JSFunction
+	public JSRecordMarkers createMarkers()
+	{
+		this.recordMarkers = new JSRecordMarkers(this, this.parent.getFoundSetManager().getApplication());
+		return this.recordMarkers;
+	}
+
+
+	/**
 	 * Returns the validation object if there where validation failures for this record
-	 * Can be set to null again if you checked the problems, will also be set to null when a save was succesful.
+	 * Can be set to null again if you checked the problems, will also be set to null when a save was successful.
 	 *
 	 * @sample
 	 * var recordMarkers = record.recordMarkers;
 	 *
-	 * @return The last validtion object if the record was not validated.
+	 * @return The last validation object if the record was not validated.
 	 */
 	@JSGetter
 	public JSRecordMarkers getRecordMarkers()
@@ -1212,12 +1230,12 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 
 	/**
 	 * Returns the validation object if there where validation failures for this record
-	 * Can be set to null again if you checked the problems, will also be set to null when a save was succesful.
+	 * Can be set to null again if you checked the problems, will also be set to null when a save was successful.
 	 *
 	 * @sample
 	 * var recordMarkers = record.recordMarkers;
 	 *
-	 * @return The last validtion object if the record was not validated.
+	 * @return The last validation object if the record was not validated.
 	 */
 	@JSSetter
 	public void setRecordMarkers(JSRecordMarkers object)

@@ -27,4 +27,9 @@ public interface IParameterDocumentation
 	Class< ? > getType();
 
 	boolean isOptional();
+
+	/**
+	 * @return
+	 */
+	String getJSType();
 }

@@ -52,6 +52,7 @@ import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.RepositoryHelper;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
@@ -174,13 +175,13 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 				{
 					if (currentNavigator != null)
 					{
-						currentNavigator.notifyVisible(false, invokeLaterRunnables);
+						currentNavigator.notifyVisible(false, invokeLaterRunnables, true);
 					}
 					Form navigator = application.getFlattenedSolution().getForm(form_id);
 					if (navigator != null)
 					{
 						IFormController navigatorController = getApplication().getFormManager().getForm(navigator.getName());
-						navigatorController.notifyVisible(true, invokeLaterRunnables);
+						navigatorController.notifyVisible(true, invokeLaterRunnables, true);
 					}
 				}
 				else
@@ -195,7 +196,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			}
 			else if (form_id != Form.NAVIGATOR_IGNORE)
 			{
-				if (currentNavigator != null) currentNavigator.notifyVisible(false, invokeLaterRunnables);
+				if (currentNavigator != null) currentNavigator.notifyVisible(false, invokeLaterRunnables, true);
 			}
 			window.setNavigator(form_id);
 		}
@@ -257,17 +258,23 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			lastState = state;
 			executeOnRecordSelect = true;
 		}
-
-		IDataAdapterList dataAdapterList = getFormUI().getDataAdapterList();
-		for (IRecordInternal r : state)
-			dataAdapterList.setRecord(r, true);
-
-
-		if (executeOnRecordSelect)
+		try
 		{
-			// do this at the end because dataRenderer.refreshRecord(state) will update selection
-			// for related tabs - and we should execute js code after they have been updated
-			executeOnRecordSelect();
+			IDataAdapterList dataAdapterList = getFormUI().getDataAdapterList();
+			for (IRecordInternal r : state)
+				dataAdapterList.setRecord(r, true);
+
+
+			if (executeOnRecordSelect)
+			{
+				// do this at the end because dataRenderer.refreshRecord(state) will update selection
+				// for related tabs - and we should execute js code after they have been updated
+				executeOnRecordSelect();
+			}
+		}
+		catch (RuntimeException re)
+		{
+			throw new RuntimeException("Something goes wrong with setting the recod on the form: " + getName(), re); //$NON-NLS-1$
 		}
 
 	}
@@ -713,7 +720,7 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	}
 
 	@Override
-	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables)
+	public boolean notifyVisible(boolean visible, List<Runnable> invokeLaterRunnables, boolean executePreHideSteps)
 	{
 		if (isFormVisible == visible) return true;
 
@@ -728,7 +735,102 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 			};
 			invokeLaterRunnables.add(run);
 		}
-		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables);
+		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables, executePreHideSteps);
+
+		if (notifyVisibleSuccess)
+		{
+			for (WebComponent comp : getFormUI().getComponents())
+			{
+				RuntimeWebComponent runtimeComponent = getFormUI().getRuntimeWebComponent(comp.getName());
+				if (runtimeComponent != null)
+				{
+					WebObjectFunctionDefinition function = null;
+					if (visible)
+						function = comp.getSpecification().getInternalApiFunction("onShow");
+					else
+						function = comp.getSpecification().getInternalApiFunction("onHide");
+					if (function != null)
+					{
+						runtimeComponent.executeScopeFunction(function, new Object[0]);
+					}
+				}
+			}
+		}
+
+		if (visible && !isFormVisible)
+		{
+			// following loop is for legacy support: first touch (now) also the tabpanel forms.
+			// note: the show operation (visible = true in if above) of a form cannot be denied, so we can update things before the call to super.notifyVisible below
+			for (WebComponent comp : getFormUI().getComponents())
+			{
+				if ((comp instanceof WebFormComponent) && ((WebFormComponent)comp).getFormElement().getPersistIfAvailable() instanceof TabPanel)
+				{
+					Object visibleTabPanel = comp.getProperty("visible");
+					if (visibleTabPanel instanceof Boolean && !((Boolean)visibleTabPanel).booleanValue()) continue;
+
+					Object tabIndex = comp.getProperty("tabIndex");
+					Object tabs = comp.getProperty("tabs");
+					if (tabs instanceof List && ((List)tabs).size() > 0)
+					{
+						List tabsList = (List)tabs;
+						TabPanel tabpanel = (TabPanel)((WebFormComponent)comp).getFormElement().getPersistIfAvailable();
+						if (tabpanel.getTabOrientation() == TabPanel.SPLIT_HORIZONTAL || tabpanel.getTabOrientation() == TabPanel.SPLIT_VERTICAL)
+						{
+							for (Object element : tabsList)
+							{
+								Map<String, Object> tab = (Map<String, Object>)element;
+								if (tab != null)
+								{
+									String relationName = tab.get("relationName") != null ? tab.get("relationName").toString() : null;
+									Object tabForm = tab.get("containsFormId");
+									if (tabForm != null)
+									{
+										getFormUI().getDataAdapterList().addVisibleChildForm(getApplication().getFormManager().getForm(tabForm.toString()),
+											relationName, true);
+									}
+								}
+							}
+						}
+						else
+						{
+							Map<String, Object> visibleTab = null;
+							if (tabIndex instanceof Number && tabsList.size() > 0 && ((Number)tabIndex).intValue() <= tabsList.size())
+							{
+								int index = ((Number)tabIndex).intValue() - 1;
+								if (index < 0)
+								{
+									index = 0;
+								}
+								visibleTab = (Map<String, Object>)(tabsList.get(index));
+							}
+							else if (tabIndex instanceof String || tabIndex instanceof CharSequence)
+							{
+								for (Object element : tabsList)
+								{
+									Map<String, Object> tab = (Map<String, Object>)element;
+									if (Utils.equalObjects(tabIndex, tab.get("name")))
+									{
+										visibleTab = tab;
+										break;
+									}
+								}
+							}
+							if (visibleTab != null)
+							{
+								String relationName = visibleTab.get("relationName") != null ? visibleTab.get("relationName").toString() : null;
+								Object tabForm = visibleTab.get("containsFormId");
+								if (tabForm != null)
+								{
+									getFormUI().getDataAdapterList().addVisibleChildForm(getApplication().getFormManager().getForm(tabForm.toString()),
+										relationName, true);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
 		if (notifyVisibleSuccess) notifyVisibleOnChildren(visible, invokeLaterRunnables); // TODO should notifyVisibleSuccess be altered here? See WebFormUI/WebFormComponent notifyVisible calls.
 		return notifyVisibleSuccess;
 	}
@@ -800,11 +902,6 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		return new RuntimeWebComponent[0];
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.IWebFormController#pushParentReadOnly(boolean)
-	 */
 	@Override
 	public void pushParentReadOnly(boolean b)
 	{

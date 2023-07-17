@@ -38,4 +38,6 @@ public interface INGFormElement extends IPropertyDescriptionProvider
 
 	Form getForm();
 
+	FormElement getRootFormElement();
+
 }

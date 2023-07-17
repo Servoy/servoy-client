@@ -416,4 +416,10 @@ class PersistBasedFormElementImpl
 		return persist;
 	}
 
+	@SuppressWarnings("nls")
+	@Override
+	public String toString()
+	{
+		return "PersistWrapper[" + persist + "]";
+	}
 }

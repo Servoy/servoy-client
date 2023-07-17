@@ -45,6 +45,7 @@ import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.QueryTable;
+import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
@@ -147,7 +148,8 @@ public class LookupListModel extends AbstractListModel
 				columns.add(cSQLName);
 				if ((showValues & 1) != 0)
 				{
-					orderColumns.add(new QuerySort(cSQLName, true));
+					SortOptions sortOptions = application.getFoundSetManager().getSortOptions(table.getColumn(vl.getDataProviderID1()));
+					orderColumns.add(new QuerySort(cSQLName, true, sortOptions));
 				}
 			}
 			if ((total & 2) != 0)
@@ -166,7 +168,8 @@ public class LookupListModel extends AbstractListModel
 				}
 				if ((showValues & 2) != 0)
 				{
-					orderColumns.add(new QuerySort(cSQLName, true));
+					SortOptions sortOptions = application.getFoundSetManager().getSortOptions(table.getColumn(vl.getDataProviderID2()));
+					orderColumns.add(new QuerySort(cSQLName, true, sortOptions));
 				}
 			}
 			if ((total & 4) != 0)
@@ -185,7 +188,8 @@ public class LookupListModel extends AbstractListModel
 				}
 				if ((showValues & 4) != 0)
 				{
-					orderColumns.add(new QuerySort(cSQLName, true));
+					SortOptions sortOptions = application.getFoundSetManager().getSortOptions(table.getColumn(vl.getDataProviderID3()));
+					orderColumns.add(new QuerySort(cSQLName, true, sortOptions));
 				}
 			}
 
@@ -238,7 +242,7 @@ public class LookupListModel extends AbstractListModel
 			ArrayList<IQuerySort> orderColumns = new ArrayList<IQuerySort>();
 			IQuerySelectValue cSQLName = DBValueList.getQuerySelectValue(table, creationSQLParts.getTable(), dataProviderID);
 			columns.add(cSQLName);
-			orderColumns.add(new QuerySort(cSQLName, true));
+			orderColumns.add(new QuerySort(cSQLName, true, application.getFoundSetManager().getSortOptions(table.getColumn(dataProviderID))));
 
 			creationSQLParts.setColumns(columns);
 			creationSQLParts.setSorts(orderColumns);
@@ -279,9 +283,10 @@ public class LookupListModel extends AbstractListModel
 			{
 				for (IQuerySelectValue column : queryColumns)
 				{
-					if (sortColumn.getName().trim().equalsIgnoreCase(column.getColumn().getName().trim()))
+					if (sortColumn.getName().trim().equalsIgnoreCase(column.getColumnName()))
 					{
-						sortColumnsForQuery.add(new QuerySort(column, sortColumn.getSortOrder() == SortColumn.ASCENDING));
+						sortColumnsForQuery.add(new QuerySort(column, sortColumn.getSortOrder() == SortColumn.ASCENDING,
+							application.getFoundSetManager().getSortOptions(sortColumn.getColumn())));
 						break;
 					}
 				}

@@ -72,13 +72,6 @@ public class NGClientWebsocketSessionWindows extends WebsocketSessionWindows imp
 	}
 
 	@Override
-	public void unregisterContainer(Container container)
-	{
-		if (lastKnownWindow != null) lastKnownWindow.unregisterContainer(container);
-		else super.unregisterContainer(container);
-	}
-
-	@Override
 	public void registerContainer(Container container)
 	{
 		if (lastKnownWindow != null) lastKnownWindow.registerContainer(container);
@@ -215,6 +208,16 @@ public class NGClientWebsocketSessionWindows extends WebsocketSessionWindows imp
 			if (window.hasForm(realName)) return true;
 		}
 		return false;
+	}
+
+	@Override
+	public String getRelationName(String uuidRelationName, INGFormElement element)
+	{
+		for (INGClientWindow window : getSession().getWindows())
+		{
+			return window.getRelationName(uuidRelationName, element);
+		}
+		return null;
 	}
 
 }

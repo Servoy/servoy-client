@@ -732,7 +732,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param validator the name validator
 	 * @param name the name of the new variable
-	 * @param variableType the type of the variable
+	 * @param variableType the type of the variable; must be one of {@link Column#allDefinedTypes}
 	 * @return the new form variable
 	 * @throws RepositoryException
 	 */
@@ -1005,22 +1005,51 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
-	 * The method that is triggered when another form is being activated.
-	 * NOTE: If the onHide method returns false, the form can be prevented from hiding.
-	 * For example, when using onHide with showFormInDialog, the form will not close by clicking the dialog close box (X).
+	 * This method is triggered when the form gets hidden.
 	 *
-	 * @templatedescription Handle hide window
+	 * Return value is DEPRECATED: false return value should no longer be used. In the past, if the onHide method returned false, the form hide could be prevented from happening
+	 * in some cases (for example, when using onHide with showFormInDialog, the form will not close by clicking the dialog close box (X)). But that lead to
+	 * unexpected situations when the form being hidden had visible nested children it it (tab panels, splits etc.) because only the current form would
+	 * decide if hide could be denied, and all other forms, even if they returned false in their on-hide, would not be able to block the hide if this form allowed it.
+	 * So those nested forms might think that they are still visible even though they are not.
+	 *
+	 * Please use the new onBeforeHide method/handler instead if you want to prevent forms from hiding.
+	 *
+	 * @templatedescription Handle form's hide.
 	 * @templatename onHide
+	 * @templateparam JSEvent event the event that triggered the action
+	 * @templateaddtodo
+	 * @templatecode
+	 *
+	 */
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
+	public int getOnHideMethodID()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID).intValue();
+	}
+
+	/**
+	 * This method is triggered when the form wants to hide; this will be called before onHide, and should be used to return if this form can be hidden or not.
+	 * Before the form is really going to hide, this form and all the forms that this form is also showing in its ui hierarchy must allow the hide (return true in onBeforeHide - if present).
+	 * For example, when using onBeforeHide with showFormInDialog, the form will not close by clicking the dialog close box (X) if the main form in the dialog or any
+	 * of the other visible forms in tabpanels/containers are nested in the main are returning false.
+	 *
+	 * If the hide operation is allowed for all the forms that are in the affected visible hierarchy, then the onHide handler/method will get called on them as well afterwards.
+	 *
+	 * So this handler (on each form) can be used to validate input in the main form and/or any nested visible forms - that are getting ready to hide.
+	 *
+	 * @templatedescription Check if this form can be hidden, return false if this is not allowed.
+	 * @templatename onBeforeHide
 	 * @templatetype Boolean
 	 * @templateparam JSEvent event the event that triggered the action
 	 * @templateaddtodo
 	 * @templatecode
 	 * return true
 	 */
-	@ServoyClientSupport(mc = true, wc = true, sc = true)
-	public int getOnHideMethodID()
+	@ServoyClientSupport(mc = false, wc = false, sc = false, ng = true)
+	public int getOnBeforeHideMethodID()
 	{
-		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID).intValue();
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID).intValue();
 	}
 
 	/**
@@ -1118,6 +1147,16 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	public void setOnHideMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONHIDEMETHODID, arg);
+	}
+
+	/**
+	 * Set the onHideMethodID.
+	 *
+	 * @param arg The onHideMethodID to set
+	 */
+	public void setOnBeforeHideMethodID(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID, arg);
 	}
 
 	/**
@@ -2311,6 +2350,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	public void childAdded(IPersist obj)
 	{
 		super.childAdded(obj);
+		setLastModified(System.currentTimeMillis());
 		superPersistCache = null;
 	}
 
@@ -2318,6 +2358,20 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	public void childRemoved(IPersist obj)
 	{
 		super.childRemoved(obj);
+		setLastModified(System.currentTimeMillis());
 		superPersistCache = null;
+	}
+
+	public boolean containsResponsiveLayout()
+	{
+		List<IPersist> children = getHierarchyChildren();
+		for (IPersist persist : children)
+		{
+			if (persist instanceof AbstractContainer)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 }

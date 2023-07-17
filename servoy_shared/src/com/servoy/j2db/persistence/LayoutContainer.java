@@ -17,16 +17,19 @@
 
 package com.servoy.j2db.persistence;
 
+import java.awt.Dimension;
 import java.awt.Point;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.json.JSONObject;
 import org.sablo.specification.PackageSpecification;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.specification.WebLayoutSpecification;
 
+import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.UUID;
 
@@ -42,7 +45,12 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 
 	protected LayoutContainer(ISupportChilds parent, int element_id, UUID uuid)
 	{
-		super(IRepository.LAYOUTCONTAINERS, parent, element_id, uuid);
+		this(IRepository.LAYOUTCONTAINERS, parent, element_id, uuid);
+	}
+
+	protected LayoutContainer(int type, ISupportChilds parent, int element_id, UUID uuid)
+	{
+		super(type, parent, element_id, uuid);
 	}
 
 	/**
@@ -118,19 +126,45 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 		String tag = getTypedProperty(StaticContentSpecLoader.PROPERTY_TAGTYPE);
 		if (tag == null)
 		{
-			Map<String, PackageSpecification<WebLayoutSpecification>> layouts = WebComponentSpecProvider.getSpecProviderState().getLayoutSpecifications();
-			if (layouts != null && getPackageName() != null && layouts.get(getPackageName()) != null)
+			String defaultValue = (String)getDefaultValue(StaticContentSpecLoader.PROPERTY_TAGTYPE);
+			if (defaultValue != null)
 			{
-				WebLayoutSpecification spec = layouts.get(getPackageName()).getSpecification(getSpecName());
-				if (spec != null && spec.getProperty(StaticContentSpecLoader.PROPERTY_TAGTYPE.getPropertyName()) != null &&
-					spec.getProperty(StaticContentSpecLoader.PROPERTY_TAGTYPE.getPropertyName()).hasDefault())
-				{
-					return (String)spec.getProperty(StaticContentSpecLoader.PROPERTY_TAGTYPE.getPropertyName()).getDefaultValue();
-				}
+				return defaultValue;
 			}
 			return "div";
 		}
 		return tag;
+	}
+
+	@Override
+	public java.awt.Dimension getSize()
+	{
+		Dimension size = getTypedProperty(StaticContentSpecLoader.PROPERTY_SIZE);
+		if (size == null)
+		{
+			JSONObject defaultValue = (JSONObject)getDefaultValue(StaticContentSpecLoader.PROPERTY_SIZE);
+			if (defaultValue != null)
+			{
+				return new java.awt.Dimension(defaultValue.optInt("width"), defaultValue.optInt("height"));
+			}
+			return super.getSize();
+		}
+		return size;
+	}
+
+	public <T> Object getDefaultValue(TypedProperty<T> propType)
+	{
+		Map<String, PackageSpecification<WebLayoutSpecification>> layouts = WebComponentSpecProvider.getSpecProviderState().getLayoutSpecifications();
+		if (layouts != null && getPackageName() != null && layouts.get(getPackageName()) != null)
+		{
+			WebLayoutSpecification spec = layouts.get(getPackageName()).getSpecification(getSpecName());
+			if (spec != null && spec.getProperty(propType.getPropertyName()) != null &&
+				spec.getProperty(propType.getPropertyName()).hasDefault())
+			{
+				return spec.getProperty(propType.getPropertyName()).getDefaultValue();
+			}
+		}
+		return null;
 	}
 
 	public List<String> getAllowedChildren()

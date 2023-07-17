@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.ReentrantLock;
@@ -512,7 +513,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	@Override
 	protected void createFoundSetManager()
 	{
-		foundSetManager = new FoundSetManager(this, new SwingFoundSetFactory());
+		foundSetManager = new FoundSetManager(this, getFoundSetManagerConfig(), new SwingFoundSetFactory());
 		foundSetManager.init();
 	}
 
@@ -1010,7 +1011,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 			{
 				if (scheduledExecutorService == null)
 				{
-					scheduledExecutorService = new ServoyScheduledExecutor(4, 1,
+					scheduledExecutorService = new ServoyScheduledExecutor(16, 1,
 						IApplication.getApplicationTypeAsString(getApplicationType()) + '-' + getClientID())
 					{
 						private IServiceProvider prev;
@@ -1119,6 +1120,57 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 			else
 			{
 				getDefaultUserProperties().put(name.toString(), Utils.stringLimitLenght(value, 255).toString()); // clear
+			}
+		}
+	}
+
+	public void removeUserProperty(String a_name)
+	{
+		if (a_name == null) return;
+		CharSequence name = Utils.stringLimitLenght(a_name, 255);
+		if (session != null)
+		{
+			session.removeAttribute(Settings.USER + name);
+		}
+		else
+		{
+			getDefaultUserProperties().remove(a_name); // clear
+		}
+	}
+
+	public void removeAllUserProperties()
+	{
+		if (session != null)
+		{
+			Enumeration<String> userProperties = session.getAttributeNames();
+			List<String> userPropertiesToDelete = new ArrayList<>();
+			while (userProperties.hasMoreElements())
+			{
+				String prop = userProperties.nextElement();
+				userPropertiesToDelete.add(prop);
+			}
+			if (userPropertiesToDelete.size() > 0)
+			{
+				for (String prop : userPropertiesToDelete)
+				{
+					session.removeAttribute(prop);
+				}
+			}
+		}
+		else
+		{
+			Map<String, String> userProperties = getDefaultUserProperties();
+			List<String> userPropertiesToDelete = new ArrayList<>();
+			for (Map.Entry<String, String> entry : userProperties.entrySet())
+			{
+				userPropertiesToDelete.add(entry.getKey());
+			}
+			if (userPropertiesToDelete.size() > 0)
+			{
+				for (String prop : userPropertiesToDelete)
+				{
+					getDefaultUserProperties().remove(prop);
+				}
 			}
 		}
 	}

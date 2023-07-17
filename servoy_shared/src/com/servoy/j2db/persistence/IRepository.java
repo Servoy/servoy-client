@@ -96,6 +96,7 @@ public interface IRepository extends Remote
 	public static final int PARTS = IRepositoryConstants.PARTS;
 	public static final int RECTSHAPES = IRepositoryConstants.RECTSHAPES;
 	public static final int LAYOUTCONTAINERS = IRepositoryConstants.LAYOUTCONTAINERS;
+	public static final int CSSPOS_LAYOUTCONTAINERS = IRepositoryConstants.CSSPOS_LAYOUTCONTAINERS;
 	public static final int WEBCOMPONENTS = IRepositoryConstants.WEBCOMPONENTS;
 	public static final int WEBCUSTOMTYPES = IRepositoryConstants.WEBCUSTOMTYPES;
 

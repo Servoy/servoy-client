@@ -17,16 +17,18 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONString;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
+import org.sablo.specification.property.IPropertyConverterForBrowserWithDynamicClientType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
+import org.sablo.websocket.utils.JSONUtils.IJSONStringWithClientSideType;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.Form;
@@ -49,10 +51,11 @@ import com.servoy.j2db.util.ScopesUtils;
  * @author jcompagner
  *
  */
-public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTypeSabloValue> implements
-	IFormElementToSabloComponent<String, DataproviderTypeSabloValue>, IConvertedPropertyType<DataproviderTypeSabloValue>, ISupportTemplateValue<String>,
-	ISabloComponentToRhino<DataproviderTypeSabloValue>, IRhinoToSabloComponent<DataproviderTypeSabloValue>, IDataLinkedType<String, DataproviderTypeSabloValue>,
-	IFindModeAwareType<String, DataproviderTypeSabloValue>, ICanBeLinkedToFoundset<String, DataproviderTypeSabloValue>
+public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTypeSabloValue>
+	implements IFormElementToSabloComponent<String, DataproviderTypeSabloValue>, IConvertedPropertyType<DataproviderTypeSabloValue>,
+	ISupportTemplateValue<String>, ISabloComponentToRhino<DataproviderTypeSabloValue>, IRhinoToSabloComponent<DataproviderTypeSabloValue>,
+	IDataLinkedType<String, DataproviderTypeSabloValue>, IFindModeAwareType<String, DataproviderTypeSabloValue>,
+	ICanBeLinkedToFoundset<String, DataproviderTypeSabloValue>, IPropertyConverterForBrowserWithDynamicClientType<DataproviderTypeSabloValue>
 {
 
 	public static final DataproviderPropertyType INSTANCE = new DataproviderPropertyType();
@@ -141,12 +144,42 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, DataproviderTypeSabloValue sabloValue, PropertyDescription pd, DataConversion clientConversion,
+	public JSONString toJSONWithDynamicClientSideType(JSONWriter writer, DataproviderTypeSabloValue sabloValue,
+		PropertyDescription propertyDescription, IBrowserConverterContext dataConverterContext) throws JSONException
+	{
+		if (sabloValue != null)
+		{
+
+			IJSONStringWithClientSideType jsonValue = sabloValue.toJSON(dataConverterContext);
+
+			writer.value(jsonValue);
+			return jsonValue.getClientSideType();
+		}
+		else
+		{
+			writer.value(null);
+			return null;
+		}
+	}
+
+	@Override
+	public JSONWriter toJSON(JSONWriter writer, String key, DataproviderTypeSabloValue sabloValue, PropertyDescription propertyDescription,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		if (sabloValue != null)
 		{
-			sabloValue.toJSON(writer, key, clientConversion, dataConverterContext);
+			JSONUtils.addKeyIfPresent(writer, key);
+
+			IJSONStringWithClientSideType jsonValue = sabloValue.toJSON(dataConverterContext);
+
+			if (jsonValue.getClientSideType() != null)
+			{
+				JSONUtils.writeConvertedValueWithClientType(writer, null, jsonValue.getClientSideType(), () -> {
+					writer.value(jsonValue);
+					return null;
+				});
+			}
+			else writer.value(jsonValue);
 		}
 		else
 		{

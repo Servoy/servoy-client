@@ -23,10 +23,10 @@ import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.utils.DataConversion;
 import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.j2db.server.ngclient.IContextProvider;
+import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.util.Debug;
 
@@ -56,26 +56,25 @@ public class ByteArrayResourcePropertyType extends DefaultPropertyType<byte[]> i
 	}
 
 	@Override
-	public JSONWriter toJSON(JSONWriter writer, String key, byte[] sabloValue, PropertyDescription pd, DataConversion clientConversion,
-		IBrowserConverterContext dataConverterContext) throws JSONException
+	public JSONWriter toJSON(JSONWriter writer, String key, byte[] sabloValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
+		throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (sabloValue != null)
 		{
 			writer.object();
-			MediaResourcesServlet.MediaInfo mediaInfo = MediaResourcesServlet.createMediaInfo(sabloValue);
-			int clientnr = -1;
 			if (dataConverterContext != null && dataConverterContext.getWebObject() instanceof IContextProvider)
 			{
-				clientnr = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication().getWebsocketSession()
-					.getSessionKey().getClientnr();
+				INGApplication application = ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication();
+				MediaResourcesServlet.MediaInfo mediaInfo = application.createMediaInfo(sabloValue);
+				int clientnr = application.getWebsocketSession().getSessionKey().getClientnr();
+				writer.key("url").value(mediaInfo.getURL(clientnr, true));
+				writer.key("contentType").value(mediaInfo.getContentType()); //$NON-NLS-1$
 			}
 			else
 			{
 				Debug.error("Cannot generate url for byte property due to missing application info: " + pd.getName());
 			}
-			writer.key("url").value(mediaInfo.getURL(clientnr, true));
-			writer.key("contentType").value(mediaInfo.getContentType()); //$NON-NLS-1$
 			writer.endObject();
 		}
 		else

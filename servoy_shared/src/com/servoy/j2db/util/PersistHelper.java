@@ -557,8 +557,15 @@ public class PersistHelper
 			{
 				if (getCompositeFontMethod == null)
 				{
-					Class< ? > fontManager = Class.forName("sun.font.FontManager"); //$NON-NLS-1$
-					getCompositeFontMethod = fontManager.getMethod("getCompositeFontUIResource", new Class[] { Font.class }); //$NON-NLS-1$
+					if ("true".equals(System.getProperty("servoy.use.compositefont"))) //$NON-NLS-1$ //$NON-NLS-2$
+					{
+						Class< ? > fontManager = Class.forName("sun.font.FontManager"); //$NON-NLS-1$
+						getCompositeFontMethod = fontManager.getMethod("getCompositeFontUIResource", new Class[] { Font.class }); //$NON-NLS-1$
+					}
+					else
+					{
+						getCompositeFontMethod = Boolean.FALSE;
+					}
 				}
 			}
 			catch (Exception e)

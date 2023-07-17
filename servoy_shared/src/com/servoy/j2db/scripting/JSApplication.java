@@ -138,7 +138,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	private static Class< ? >[] getAllReturnedTypesInternal()
 	{
-		return new Class< ? >[] { APPLICATION_TYPES.class, CLIENTDESIGN.class, DRAGNDROP.class, ELEMENT_TYPES.class, ICSSPosition.class, IScriptRenderMethodsWithOptionalProps.class, JSDNDEvent.class, JSEvent.class, JSRenderEvent.class, JSUpload.class, JSWindow.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, NGCONSTANTS.class };
+		return new Class< ? >[] { APPLICATION_TYPES.class, CLIENTDESIGN.class, DRAGNDROP.class, ELEMENT_TYPES.class, ICSSPosition.class, IScriptRenderMethodsWithOptionalProps.class, JSDNDEvent.class, JSEvent.class, JSRenderEvent.class, JSUpload.class, JSWindow.class, JSLogger.class, JSLogBuilder.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, NGCONSTANTS.class };
 	}
 
 	@Deprecated
@@ -477,6 +477,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Get a persistent user property.
+	 * <br>
+	 * In NGClient this is stored in the locale storage of the browser, so it will be persisted over restarts as long as the user didn't clear the data.
 	 *
 	 * @sample var value = application.getUserProperty('showOrders');
 	 *
@@ -492,6 +494,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Sets a user property for this client: <br>
+	 * In NGClient this is stored in the locale storage of the browser, so it will be persisted over restarts as long as the user didn't clear the data.
+	 * <br>
 	 * For headless clients(including Batch Processors and Authentication clients) the user property is stored in memory and will be lost upon client restart.
 	 * <br>
 	 * For Web Client the user property will be stored in a persistent cookie
@@ -507,6 +511,25 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	public void setUserProperty(String name, String value)
 	{
 		application.setUserProperty(name, value);
+	}
+
+	/**
+	 * Removes a user property.
+	 * @param name Name of the user property
+	 */
+	@JSFunction
+	public void removeUserProperty(String name)
+	{
+		application.removeUserProperty(name);
+	}
+
+	/**
+	 * Removes all user properties.
+	 */
+	@JSFunction
+	public void removeAllUserProperties()
+	{
+		application.removeAllUserProperties();
 	}
 
 	/**
@@ -1404,6 +1427,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	/**
 	 * Gets the HTTP server url.
 	 *
+	 * This url will end with a / so don't append to this server url something that starts with a / again
+	 * because RFC 3986 says that the path of a url (the part after the domain[:poort]) can not start with 2 slashes.
+	 *
 	 * @description-mc
 	 * Gets the application server URL for mobile client to connect to.
 	 *
@@ -2181,7 +2207,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		}
 		else if (msg instanceof NativeError)
 		{
-			application.output(msg.toString() + '\n' + ((NativeError)msg).getStackDelegated((NativeError)msg), level);
+			application.output(msg.toString() + '\n' + ((NativeError)msg).getStackDelegated(), level);
 		}
 		else if (msg instanceof Scriptable)
 		{
@@ -2889,10 +2915,14 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * The component will receive this function as a real function object.
 	 *
 	 * This is a more dynamic variant of the spec property "clientfunction" https://wiki.servoy.com/display/DOCS/Property+Types
+	 * You do not need to use this for properties/arguments/return values that are declared to have "clientfunction" type in the .spec file, but rather for
+	 * when you want to give it inside plain 'object' typed values.
 	 *
 	 * @sample
 	 * var options = { myfunction: application.generateBrowserFunction("function(param) { return param + 1 }") };
 	 * elements.component.setOptions(options);
+	 *
+	 * @param functionString The function string of a js function that should be running in the clients browser.
 	 *
 	 * @return An object that can be assignd to a javascript/json object that is send to the client
 	 */
@@ -3646,6 +3676,50 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	public void js_setErrorCapture(boolean cap)
 	{
 		isCapturingErrors = cap;
+	}
+
+	/**
+	 * Get a JSLogger instance which offers an API for logging with arguments.
+	 * Available logging levels are (in order): fatal, error, warn, info, debug and trace.
+	 * The argument should be the name of a logger that is configured in myServoyInstallationDir/application_server/log4j.xml.
+	 * A new logger can be configured in log4j.xml by adding the following line:
+	 * <Logger name="myLogger" level="INFO"/>
+	 *
+	 * @sample
+	 * var log = application.getLogger("myLogger");
+	 * application.output("is logging level 'warn' enabled? " + log.isWarnEnabled); // if false, next line won't log
+	 * log.warn.log("this logger logs {} {} {}", "all", "my", "arguments");
+	 *
+	 *
+	 * @param loggerName the name of the logger, as configured in log4j.xml
+	 * @return a new JSLogger instance
+	 */
+	@JSFunction
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
+	public JSLogger getLogger(String loggerName)
+	{
+		return new JSLogger(loggerName);
+	}
+
+	/**
+	 * Get a JSLogger instance which offers an API for logging with arguments.
+	 * Available logging levels are (in order): fatal, error, warn, info, debug and trace.
+	 * If no loggerName is given to this method, it returns the default logger (LoggerFactory.getLogger(Debug.class))
+	 * NOTE: the default logging level of the the default logger is 'warn', so info, debug and trace events are not logged.
+	 *
+	 * @sample
+	 * var log = application.getLogger(); // returns the default logger.
+	 * application.output("is logging level 'warn' enabled? " + log.isWarnEnabled); // if false, next line won't log
+	 * log.warn.log("this logger logs {} {} {}", "all", "my", "arguments");
+	 *
+	 *
+	 * @return a new JSLogger instance
+	 */
+	@JSFunction
+	@ServoyClientSupport(ng = true, wc = true, sc = true)
+	public JSLogger getLogger()
+	{
+		return new JSLogger();
 	}
 
 	/**

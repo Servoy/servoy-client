@@ -76,6 +76,7 @@
 	  "foundsetinfo": {
 	  		"foundset": "foundset",
 	  		"foundsethash": "string",
+	  		"dataproviders": "string[]",
 	  		"childrelationinfo": "object" 
 	  }
 	}	
