@@ -274,6 +274,40 @@ angular.module('ngclientutils', [ 'servoy' ])
 		},
 		
 		/**
+		 * Move the scrollbar to top position of the given selector.
+		 * The target selector can be a Servoy Form, Layout Container or element in a responsive form or any element in a form.
+		 * You can use styleClass as selector.
+		 * For example: you can add 'scroll-element' to an element of the form.
+		 * Examples of usage: 
+		 * - plugins.ngclientutils.scrollIntoView(".toScroll-To");
+		 * - plugins.ngclientutils.scrollIntoView(".toScroll-To", 2);
+		 
+		 * @param selector {string} the selector to which the scrollbar should be moved to top.
+		 * @param index {number} argument used for selecting 1 container(if multiple containers), default is 0.
+		 */
+		scrollToTop: function(selector, index) {
+			var containerIdx = index >= 0 ? index : 0;
+			
+			// find container
+            var container = $(selector);
+            
+            // validate elements found
+            if (container.length <= index || index < 0) {
+				$log.warn(`index ${index} is outside the current bounds of the array`);
+				return;
+			} 
+            if (container.length === 0) {
+                $log.warn(`cannot find container with this selector ${selector}`);
+                return;
+            } else if (container.length > 1 && index === undefined) {
+                $log.warn(`multiple containers found with this selector ${selector}, default value of "index" is 0, you can change this behavior adding the second argument`);
+            }
+            
+            // move scrolling to top position
+            angular.element(container[containerIdx]).scrollTop(0, 0);
+        },
+		
+		/**
          * This method removes the arguments from the client url. This is used for bookmark url to be correct or for back button behavior.
          */
         removeArguments: function()

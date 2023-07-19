@@ -78,6 +78,9 @@
 		"scrollIntoView": {
             "parameters": [{ "name": "anchorSelector", "type": "string" }, { "name": "scrollIntoViewOptions", "type": "object", "optional": true }]
         },
+        "scrollToTop": {
+            "parameters": [{ "name": "selector", "type": "string" }, { "name": "index", "type": "number", "optional": true }]
+        },
         "removeArguments": {
            
         }
