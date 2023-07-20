@@ -15,6 +15,8 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.util.Collection;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
@@ -72,8 +74,28 @@ public class LabelForPropertyType extends DefaultPropertyType<String>
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (!Utils.stringIsEmpty(sabloValue) && dataConverterContext != null && dataConverterContext.getWebObject() instanceof WebComponent)
 		{
-			writer.value(ComponentFactory.getMarkupId(
-				((WebComponent)dataConverterContext.getWebObject()).findParent(IWebFormUI.class).getController().getName(), sabloValue));
+			WebComponent wc = (WebComponent)dataConverterContext.getWebObject();
+			String name = sabloValue;
+			if (wc.getName().contains("$containedForm")) //$NON-NLS-1$
+			{
+				name = wc.getName().substring(0, wc.getName().lastIndexOf("$") + 1) + name; //$NON-NLS-1$
+				boolean thisComponentExist = false;
+				Collection<WebComponent> allComponents = wc.findParent(IWebFormUI.class).getComponents();
+				for (WebComponent comp : allComponents)
+				{
+					if (comp.getName().equals(name))
+					{
+						thisComponentExist = true;
+						break;
+					}
+				}
+				if (!thisComponentExist)
+				{
+					name = sabloValue;
+				}
+			}
+			writer.value(ComponentFactory.getMarkupId(wc.findParent(IWebFormUI.class).getController().getName(), name));
+
 		}
 		else
 		{
