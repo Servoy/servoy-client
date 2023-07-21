@@ -52,6 +52,7 @@ public class FoundsetDataAdapterList extends DataAdapterList
 	private List<IDataLinkedPropertyRegistrationListener> dataLinkedPropertyRegistrationListeners;
 	private final FoundsetTypeSabloValue foundsetTypeSabloValue;
 	private Set<String> globalDataproviders;
+	private Set<String> formDataproviders;
 
 	public FoundsetDataAdapterList(IWebFormController formController, FoundsetTypeSabloValue foundsetTypeSabloValue)
 	{
@@ -152,15 +153,28 @@ public class FoundsetDataAdapterList extends DataAdapterList
 	@Override
 	public void valueChanged(ModificationEvent e)
 	{
-		// if this is a global modification event and we need to react on that one
-		// then just mark the foundset as fully changed.
-		if (globalDataproviders != null && e.getName() != null && globalDataproviders.contains(e.getName()))
+		boolean isGlobalDPChanged = globalDataproviders != null && e.getName() != null && globalDataproviders.contains(e.getName());
+		boolean isFormDPChanged = formDataproviders != null && e.getName() != null && formDataproviders.contains(e.getName());
+
+		if (isGlobalDPChanged || isFormDPChanged)
 		{
-			foundsetTypeSabloValue.changeMonitor.viewPortCompletelyChanged();
-			// it would be better if we could just mark the actual full column viewport as changed..
-			// then we need to have here or be abe to get the ViewportDataChangeMonitor of the FoundsetLinkedTypeSabloValue
-			// but then the clients also need to react on that specific change..
-			// or we call queuCellChange for every cell of that column (so for every row)
+			// make sure foundset linked properties with global/form variables (like tagstring) are sent
+			if (getForm().isFormVisible())
+			{
+				pushChangedValues(e.getName(), true);
+			}
+			// if this is a global modification event and we need to react on that one
+			// then just mark the foundset as fully changed.
+			// should we do it also for form variables changes? - that could cause a lot of 'viewPortCompletelyChanged' and
+			// can affect performance - skip it for now
+			if (isGlobalDPChanged)
+			{
+				foundsetTypeSabloValue.changeMonitor.viewPortCompletelyChanged();
+				// it would be better if we could just mark the actual full column viewport as changed..
+				// then we need to have here or be abe to get the ViewportDataChangeMonitor of the FoundsetLinkedTypeSabloValue
+				// but then the clients also need to react on that specific change..
+				// or we call queuCellChange for every cell of that column (so for every row)
+			}
 		}
 		else
 		{
@@ -183,6 +197,11 @@ public class FoundsetDataAdapterList extends DataAdapterList
 		{
 			if (globalDataproviders == null) globalDataproviders = new HashSet<String>(3);
 			globalDataproviders.add(dataprovider);
+		}
+		else if (isFormDataprovider(dataprovider))
+		{
+			if (formDataproviders == null) formDataproviders = new HashSet<String>(3);
+			formDataproviders.add(dataprovider);
 		}
 	}
 
