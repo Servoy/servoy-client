@@ -11,7 +11,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho.version>2.7.5</tycho.version>
+		<tycho.version>4.0.1</tycho.version>
 		<rhino.version>1.7.14.s5</rhino.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>17</maven.compiler.source>
@@ -103,7 +103,6 @@
 						</artifact>
 					</target>
 					<pomDependencies>consider</pomDependencies>
-					<resolver>p2</resolver>
 					<environments>
 						<environment>
 							<os>win32</os>
