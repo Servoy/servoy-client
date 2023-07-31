@@ -103,6 +103,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	 *
 	 * @return the value of the jsdoc text (comment) of the script variable
 	 */
+	@Override
 	public String getComment()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_COMMENT);
@@ -111,6 +112,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	/**
 	 * @param arg the jsdoc text value for the script variable
 	 */
+	@Override
 	public void setComment(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_COMMENT, arg);
@@ -401,5 +403,15 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	public boolean isEnum()
 	{
 		return getComment() != null && getComment().indexOf("@enum") != -1;
+	}
+
+	public String getKeyword()
+	{
+		return (String)getCustomProperty(new String[] { "keyword" });
+	}
+
+	public void setKeyword(String keyword)
+	{
+		putCustomProperty(new String[] { "keyword" }, keyword);
 	}
 }
