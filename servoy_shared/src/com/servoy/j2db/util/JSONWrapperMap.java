@@ -59,7 +59,7 @@ public class JSONWrapperMap<T> extends AbstractMap<String, T>
 		{
 			try
 			{
-				json = new ServoyJSONObject(source, !source.startsWith("{"));
+				json = new ServoyJSONObject(source, true);
 			}
 			catch (JSONException e)
 			{
