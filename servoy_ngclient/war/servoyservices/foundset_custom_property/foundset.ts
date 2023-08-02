@@ -495,6 +495,7 @@ namespace ngclient.propertyTypes {
         public selectedRowIndexes: number[];
         public sortColumns: string;
         public multiSelect: boolean;
+        public findMode: boolean;
         public hasMoreRows: boolean;
         public columnFormats?: Record<string, any>;
         

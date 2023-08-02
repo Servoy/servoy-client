@@ -79,6 +79,11 @@ declare namespace foundsetType {
         multiSelect: boolean,
 
         /**
+         * the findMode state of the server's foundset
+         */    
+        findMode: boolean;
+
+        /**
          * if the foundset is large and on server-side only part of it is loaded (so
          * there are records in the foundset beyond 'serverSize') this is set to true;
          * in this way you know you can load records even after 'serverSize' (requesting
