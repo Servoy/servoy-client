@@ -18,6 +18,7 @@ package com.servoy.j2db.util;
 
 import java.io.Serializable;
 import java.security.SecureRandom;
+import java.util.regex.Pattern;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IJavaScriptType;
@@ -25,6 +26,7 @@ import com.servoy.j2db.scripting.IJavaScriptType;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "UUID")
 public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptType
 {
+	private final static Pattern UUID_REGEX_PATTERN = Pattern.compile("^[{]?[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}[}]?$"); //$NON-NLS-1$
 
 	public UUID() // for json deserialisation
 	{
@@ -439,6 +441,21 @@ public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptTy
 	public byte[] js_toBytes()
 	{
 		return toBytes();
+	}
+
+	/**
+	 * Check if a string is UUID or not.
+	 *
+	 * @sample uuid.isValidUUID("0329F912-A985-42F1-BE5D-A3D1EF14536B");
+	 * @return true if the string is UUID, otherwise will return false.
+	 */
+	public static boolean isValidUUID(String str)
+	{
+		if (str == null)
+		{
+			return false;
+		}
+		return UUID_REGEX_PATTERN.matcher(str).matches();
 	}
 
 }
