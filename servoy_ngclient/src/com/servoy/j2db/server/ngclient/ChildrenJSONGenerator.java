@@ -483,7 +483,8 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.array();
 			for (String cls : classes)
 			{
-				writer.value(cls);
+				if (!cls.trim().isEmpty())
+					writer.value(cls);
 			}
 			writer.endArray();
 		}

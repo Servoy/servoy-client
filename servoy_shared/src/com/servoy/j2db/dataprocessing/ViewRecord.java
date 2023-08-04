@@ -43,6 +43,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
@@ -68,7 +69,16 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		this.foundset = foundset;
 		for (int i = 0; i < data.length; i++)
 		{
-			values.put(columnNames[i], data[i]);
+			if (i < columnNames.length)
+			{
+				values.put(columnNames[i], data[i]);
+			}
+			else
+			{
+				Debug.error("Error creating ViewRecord, column names length does not match the data length: " + Utils.getScriptableString(columnNames) + " , " +
+					Utils.getScriptableString(data));
+				break;
+			}
 		}
 		this.modificationListeners = Collections.synchronizedList(new ArrayList<IModificationListener>(3));
 		this.relatedFoundSets = new HashMap<String, SoftReference<IFoundSetInternal>>(3);

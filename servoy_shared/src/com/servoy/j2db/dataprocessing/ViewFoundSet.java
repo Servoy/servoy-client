@@ -1043,7 +1043,6 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			IDataSet ds = manager.getApplication().getDataServer().performQuery(manager.getApplication().getClientID(), serverName, transaction_id, select,
 				null, manager.getTableFilterParams(serverName, select), select.isUnique(), 0, currentChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
 			refresh = false;
-			ArrayList<IQuerySelectValue> cols = select.getColumns();
 			int currentSize = records.size();
 			List<ViewRecord> old = records;
 			records = new ArrayList<>(ds.getRowCount());
