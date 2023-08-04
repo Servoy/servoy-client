@@ -86,7 +86,7 @@
  	</div>
   	<div class="panel panel-default">
   	    <h2 class="svy-login-title">Please sign in</h2>
-    	<form   accept-charset="UTF-8" role="form" method="post">
+    	<form   accept-charset="UTF-8" role="form" name="login_form" method="post">
 		<fieldset class="svy-login-fieldset">
     	  	<div class="svy-login-form-group">
     		    <input class="svy-login-form-control" placeholder="Username" type="text" name="user" autocomplete="username">
@@ -94,6 +94,12 @@
     		<div class="svy-login-form-group">
     			<input class="svy-login-form-control" placeholder="Password" type="password" name="password"  autocomplete="current-password">
     		</div>
+    		<div class="checkbox">
+    	    	<label>
+    	    		<input name="remember" type="checkbox"> Remember me
+    	    	</label>
+    	    </div>
+    	    <input name="id_token" type="hidden"/>
     		<input class="svy-btn svy-btn-success svy-btn-block" type="submit" value="Login">
     	</fieldset>
       	</form>
