@@ -23,10 +23,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Locale.Builder;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TimeZone;
@@ -38,6 +36,7 @@ import org.mozilla.javascript.annotations.JSFunction;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.scripting.api.IJSI18N;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.INGClientApplication;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
@@ -95,6 +94,31 @@ public class JSI18N implements IJSI18N
 	public void setLocale(String language, String country)
 	{
 		application.setLocale(new Locale(language, country));
+	}
+
+	/**
+	 * This function overrides the default value of the locale first day of the week property.
+	 * This is used in the various calendar fields (default,bootstrap)
+	 *
+	 * @sample
+	 * // set the first day of the week to monday even if the locale in the browser (us) says i it is 0 (sunday)
+	 * i18n.setFirstDayOfTheWeek(1);
+	 *
+	 * @param weekday The weekday that should be shown as the first day (1 == monday)
+	 */
+	@SuppressWarnings("nls")
+	@ServoyClientSupport(ng = true, wc = false, sc = false, mc = false)
+	@JSFunction
+	public void setFirstDayOfTheWeek(int weekday)
+	{
+		if (application instanceof INGClientApplication ng && application.getRuntimeProperties().get("NG2") != null)
+		{
+			ng.setFirstDayOfTheWeek(weekday);
+		}
+		else
+		{
+			Debug.warn("Setting first day of the week not working for any other client then a TiNG Client");
+		}
 	}
 
 	/**
@@ -327,10 +351,8 @@ public class JSI18N implements IJSI18N
 			languages.put(element.getLanguage(), name);
 		}
 		ArrayList<Object[]> list = new ArrayList<Object[]>();
-		Iterator<Entry<String, String>> it = languages.entrySet().iterator();
-		while (it.hasNext())
+		for (Entry<String, String> entry : languages.entrySet())
 		{
-			Map.Entry<String, String> entry = it.next();
 			list.add(new Object[] { entry.getKey(), entry.getValue() });
 		}
 		BufferedDataSet set = new BufferedDataSet(new String[] { "language_key", "language_name" }, list); //$NON-NLS-1$ //$NON-NLS-2$
@@ -617,10 +639,8 @@ public class JSI18N implements IJSI18N
 		Object[][] rowData = new Object[defaultJarMessages.size()][3];
 
 		int k = 0;
-		Iterator<Entry<Object, Object>> it = defaultJarMessages.entrySet().iterator();
-		while (it.hasNext())
+		for (Entry<Object, Object> entry : defaultJarMessages.entrySet())
 		{
-			Map.Entry<Object, Object> entry = it.next();
 			Object key = entry.getKey();
 			rowData[k][0] = key;
 			rowData[k][1] = entry.getValue();
