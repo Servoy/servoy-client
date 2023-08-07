@@ -20,15 +20,12 @@ package com.servoy.j2db.server.shared;
 import java.util.Set;
 import java.util.TreeSet;
 
-import net.jcip.annotations.ThreadSafe;
-
 /**
  * This class represents a lock held by a client on the server.
  *
  * @author svanerk
  */
 
-@ThreadSafe
 public class Lock implements Comparable<Lock>, Cloneable
 {
 	private final String serverName; // The server name of the server in which the records live.

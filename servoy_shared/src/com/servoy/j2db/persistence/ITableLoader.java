@@ -18,7 +18,7 @@
 package com.servoy.j2db.persistence;
 
 import java.util.Collection;
-import java.util.LinkedHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author obuligan
@@ -26,7 +26,7 @@ import java.util.LinkedHashMap;
  */
 public interface ITableLoader
 {
-	boolean loadTables(LinkedHashMap<String, Table> loading_tables, IServerInternal server);
+	boolean loadTables(ConcurrentMap<String, Table> loading_tables, IServerInternal server);
 
 	void loadAllColumnInfo(Collection<Table> t, IServerInternal server) throws RepositoryException;
 }
