@@ -207,6 +207,7 @@ public class StatelessLoginHandler
 			{
 				//we check the local storage for the token only once (if both are null)
 				sb.append("\n     if (window.localStorage.getItem('servoy_token')) { ");
+				sb.append("\n    	document.body.style.display = 'none'; ");
 				sb.append("\n  	    document.login_form.id_token.value = JSON.parse(window.localStorage.getItem('servoy_token'));  ");
 				sb.append("\n    	document.login_form.remember.checked = true;  ");
 				sb.append("\n    	document.login_form.submit(); ");
