@@ -1573,8 +1573,19 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 * If the foundset is related, the relation-condition will be added to the query.
 	 * Tries to preserve selection based on primary key, otherwise first record is selected.
 	 *
+	 * The query of the QBSelect that is given is added as a "search" condition to the existing base query of the foundset.
+	 * This does mean that loadAllRecords() will revert this, because that will clear the search condition and go back to the base query of the foundset.
+	 * Some hold true for clear() that will remove the search condition and because of that the given query will also be removed.
+	 *
+	 * If you want to create more a "view" on your database that will always be kept by this foundset, so loadAllRecords() (with our withou first calliing clear()) will always
+	 * revert back to this set of data (and you can also search inside this data with find/search or adding another query on top of it.
+	 * Then have a look at datasources.db.server.table.getFoundset(query) because that will generate a foundset with the given query as the base query.
+	 *
 	 * @sample
-	 * %%prefix%%foundset.loadRecords(qbselect);
+	 * var qb = datasources.db.example_data.orders.createSelect();
+	 * qb.result.addPk();
+	 * qb.where.add(qb.columns.product_id.eq(1))
+	 * %%prefix%%foundset.loadRecords(qb);
 	 *
 	 * @param querybuilder the query builder
 	 * @return true if successful
