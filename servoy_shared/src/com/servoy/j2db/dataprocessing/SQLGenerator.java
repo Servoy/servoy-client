@@ -41,6 +41,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.mozilla.javascript.Wrapper;
 
@@ -132,6 +133,7 @@ public class SQLGenerator
 	public static final String CONDITION_OMIT = SERVOY_CONDITION_PREFIX + 'O';
 	public static final String CONDITION_RELATION = SERVOY_CONDITION_PREFIX + 'R';
 	public static final String CONDITION_SEARCH = SERVOY_CONDITION_PREFIX + 'S';
+	public static final String CONDITION_CLEAR = SERVOY_CONDITION_PREFIX + 'C';
 	public static final String CONDITION_LOCK = SERVOY_CONDITION_PREFIX + 'L';
 
 	public static final String SQL_QUERY_VALIDATION_MESSAGE = "A query must start with 'SELECT', optionally preceded by 'WITH' or 'DECLARE', and must contain 'FROM'";
@@ -730,10 +732,8 @@ public class SQLGenerator
 			SQLSheet sheet = state.getParentFoundSet().getSQLSheet();
 			Table table = sheet.getTable();
 
-			Iterator<Map.Entry<String, Object>> it = state.getColumnData().entrySet().iterator();
-			while (it.hasNext())
+			for (Entry<String, Object> elem : state.getColumnData().entrySet())
 			{
-				Map.Entry<String, Object> elem = it.next();
 				final String dataProviderID = elem.getKey();
 				Object raw = elem.getValue();
 				if (raw == null) continue;
@@ -1007,10 +1007,10 @@ public class SQLGenerator
 	 */
 	public static IDataSet getEmptyDataSetForDummyQuery(ISQLSelect sqlSelect)
 	{
-		if (sqlSelect instanceof QuerySelect)
+		if (sqlSelect instanceof QuerySelect && ((QuerySelect)sqlSelect).getWhere() != null)
 		{
-			// all named conditions in QuerySelect are AND-ed, if one always results to false, skip the query
-			for (IBaseSQLCondition condition : iterate(((QuerySelect)sqlSelect).getConditions(CONDITION_SEARCH)))
+			// go over all where conditions to check if this query would result in possible values or not.
+			for (IBaseSQLCondition condition : iterate(((QuerySelect)sqlSelect).getWhere().getAllConditions()))
 			{
 				boolean skipQuery = false;
 				if (condition instanceof SetCondition && ((SetCondition)condition).isAndCondition())
@@ -1145,10 +1145,8 @@ public class SQLGenerator
 		QueryUpdate update = new QueryUpdate(queryTable);
 
 		List<Column> columns = new ArrayList<Column>();
-		Iterator<Column> it1 = table.getColumns().iterator();
-		while (it1.hasNext())
+		for (Column c : table.getColumns())
 		{
-			Column c = it1.next();
 			ColumnInfo ci = c.getColumnInfo();
 			if (ci != null && ci.isExcluded())
 			{
@@ -1248,10 +1246,8 @@ public class SQLGenerator
 
 			//fill dataprovider map
 			List<String> dataProviderIDsDilivery = new ArrayList<String>();
-			Iterator<Column> it = rcolumns.iterator();
-			while (it.hasNext())
+			for (Column col : rcolumns)
 			{
-				Column col = it.next();
 				dataProviderIDsDilivery.add(col.getDataProviderID());
 			}
 

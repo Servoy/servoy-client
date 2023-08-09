@@ -630,6 +630,9 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	/**
 	 * Clear the foundset.
 	 *
+	 * This will set a special condition in the query that makes the query not return any results.
+	 * You can query for this state in the isCleared() call so you can call loadRecords() to remove that cleared state if needed.
+	 *
 	 * @sample
 	 * //Clear the foundset, including searches that may be on it
 	 * %%prefix%%foundset.clear();
@@ -643,6 +646,18 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		}
 		clear();
 		fireDifference(size, getSize(), null);
+	}
+
+	/**
+	 * Returns a boolean if this foundset is in a cleared state (has the clear condition that is added by a clear() call)
+	 *
+	 * @return boolea true if this foundset is cleared
+	 *
+	 * @since 2023.09
+	 */
+	public boolean js_isCleared()
+	{
+		return pksAndRecords.getQuerySelectForReading().getCondition(SQLGenerator.CONDITION_CLEAR) != null;
 	}
 
 	abstract boolean canDispose();
@@ -7235,7 +7250,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		BufferedDataSet emptyPks = new BufferedDataSet();
 		if (sqlSelect != null)
 		{
-			sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, SQLGenerator.createDynamicPKSetConditionForFoundset(this, sqlSelect.getTable(), emptyPks));
+			sqlSelect.setCondition(SQLGenerator.CONDITION_CLEAR, SQLGenerator.createDynamicPKSetConditionForFoundset(this, sqlSelect.getTable(), emptyPks));
 			sqlSelect.clearCondition(SQLGenerator.CONDITION_RELATION);
 		}
 		pksAndRecords.setPksAndQuery(emptyPks, 0, sqlSelect);
