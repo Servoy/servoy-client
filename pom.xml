@@ -12,7 +12,7 @@
 
 	<properties>
 		<tycho.version>2.7.5</tycho.version>
-		<rhino.version>1.7.14.s5</rhino.version>
+		<rhino.version>1.7.14.s6</rhino.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
