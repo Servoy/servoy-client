@@ -38,7 +38,6 @@ import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.scripting.api.IJSDataSet;
 import com.servoy.base.scripting.api.IJSFoundSet;
-import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.scripting.DefaultJavaScope;
@@ -82,27 +81,9 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		}
 		this.modificationListeners = Collections.synchronizedList(new ArrayList<IModificationListener>(3));
 		this.relatedFoundSets = new HashMap<String, SoftReference<IFoundSetInternal>>(3);
-		initJSFunctions(foundset != null ? foundset.getFoundSetManager().getApplication() : null);
 	}
 
-	private Map<String, NativeJavaMethod> jsFunctions;
-
-	@SuppressWarnings("unchecked")
-	private void initJSFunctions(IServiceProvider serviceProvider)
-	{
-		if (serviceProvider != null)
-		{
-			jsFunctions = (Map<String, NativeJavaMethod>)serviceProvider.getRuntimeProperties().get(IServiceProvider.RT_JSVIEWRECORD_FUNCTIONS);
-		}
-		if (jsFunctions == null)
-		{
-			jsFunctions = DefaultJavaScope.getJsFunctions(ViewRecord.class);
-			if (serviceProvider != null)
-			{
-				serviceProvider.getRuntimeProperties().put(IServiceProvider.RT_JSVIEWRECORD_FUNCTIONS, jsFunctions);
-			}
-		}
-	}
+	public static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(ViewRecord.class);
 
 	@Override
 	public Object setValue(String dataProviderID, Object value)

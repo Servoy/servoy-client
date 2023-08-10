@@ -71,24 +71,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 {
 	private static final long serialVersionUID = 1L;
 
-	private Map<String, NativeJavaMethod> jsFunctions;
-
-	@SuppressWarnings("unchecked")
-	private void initJSFunctions(IServiceProvider serviceProvider)
-	{
-		if (serviceProvider != null)
-		{
-			jsFunctions = (Map<String, NativeJavaMethod>)serviceProvider.getRuntimeProperties().get(IServiceProvider.RT_JSDATASET_FUNCTIONS);
-		}
-		if (jsFunctions == null)
-		{
-			jsFunctions = DefaultJavaScope.getJsFunctions(JSDataSet.class);
-			if (serviceProvider != null)
-			{
-				serviceProvider.getRuntimeProperties().put(IServiceProvider.RT_JSDATASET_FUNCTIONS, jsFunctions);
-			}
-		}
-	}
+	public static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(JSDataSet.class);
 
 	private static JSDataSet prototype = new JSDataSet();
 
@@ -100,7 +83,6 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	public JSDataSet() //only for use JS engine
 	{
 		this.application = null;
-		initJSFunctions(application);
 		this.set = new DataSetWithIndex(new BufferedDataSet());
 	}
 
@@ -112,7 +94,6 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	public JSDataSet(IServiceProvider application, int rows, String[] cols)
 	{
 		this.application = application;
-		initJSFunctions(application);
 		if (rows >= 0 && cols.length >= 0)
 		{
 			List<Object[]> emptyRows = new ArrayList<Object[]>(rows);
@@ -136,7 +117,6 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	public JSDataSet(IServiceProvider application, IDataSet set)
 	{
 		this.application = application;
-		initJSFunctions(application);
 		if (set instanceof IDataSetWithIndex)
 		{
 			this.set = (IDataSetWithIndex)set;
@@ -158,7 +138,6 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 	public JSDataSet(ServoyException e)
 	{
 		application = null;
-		initJSFunctions(application);
 		set = null;
 		exception = e;
 	}
@@ -416,10 +395,8 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 					return (row_col ? o1.getLeft() - o2.getLeft() : o1.getRight() - o2.getRight());
 				}
 			});
-			Iterator<Pair<Integer, Integer>> it = keys.iterator();
-			while (it.hasNext())
+			for (Pair<Integer, Integer> pair : keys)
 			{
-				Pair<Integer, Integer> pair = it.next();
 				Map<String, String> value = htmlAttributes.get(pair);
 				if (row_col)
 				{

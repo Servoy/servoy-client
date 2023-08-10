@@ -72,7 +72,6 @@ import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.base.scripting.api.IJSRecord;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.dataprocessing.FoundSetManager.GlobalFoundSetEventListener;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -147,27 +146,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 {
 	public static final String JS_FOUNDSET = "JSFoundSet"; //$NON-NLS-1$
 
-	/*
-	 * _____________________________________________________________ JavaScript stuff
-	 */
-	private Map<String, NativeJavaMethod> jsFunctions;
-
-	@SuppressWarnings("unchecked")
-	private void initJSFunctions(IServiceProvider serviceProvider)
-	{
-		if (serviceProvider != null)
-		{
-			jsFunctions = (Map<String, NativeJavaMethod>)serviceProvider.getRuntimeProperties().get(IServiceProvider.RT_JSFOUNDSET_FUNCTIONS);
-		}
-		if (jsFunctions == null)
-		{
-			jsFunctions = DefaultJavaScope.getJsFunctions(FoundSet.class);
-			if (serviceProvider != null)
-			{
-				serviceProvider.getRuntimeProperties().put(IServiceProvider.RT_JSFOUNDSET_FUNCTIONS, jsFunctions);
-			}
-		}
-	}
+	public static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(FoundSet.class);
 
 	protected final FoundSetManager fsm;
 	protected final RowManager rowManager;
@@ -227,7 +206,6 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		List<SortColumn> defaultSortColumns) throws ServoyException
 	{
 		fsm = (FoundSetManager)app;
-		initJSFunctions(fsm.getApplication());
 		if (sheet == null)
 		{
 			throw new IllegalArgumentException(app.getApplication().getI18NMessage("servoy.foundSet.error.sqlsheet")); //$NON-NLS-1$
