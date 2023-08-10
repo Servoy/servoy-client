@@ -53,6 +53,8 @@ import com.servoy.j2db.util.Utils;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ViewRecord", scriptingName = "ViewRecord")
 public final class ViewRecord implements IRecordInternal, Scriptable
 {
+	public static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(ViewRecord.class);
+
 	public static final String VIEW_RECORD = "ViewRecord"; //$NON-NLS-1$
 
 	private final Map<String, Object> values = new HashMap<>();
@@ -82,8 +84,6 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		this.modificationListeners = Collections.synchronizedList(new ArrayList<IModificationListener>(3));
 		this.relatedFoundSets = new HashMap<String, SoftReference<IFoundSetInternal>>(3);
 	}
-
-	public static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(ViewRecord.class);
 
 	@Override
 	public Object setValue(String dataProviderID, Object value)

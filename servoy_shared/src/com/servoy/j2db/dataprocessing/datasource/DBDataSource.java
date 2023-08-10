@@ -30,16 +30,16 @@ import com.servoy.j2db.util.Debug;
 
 /**
  * In scripting: <pre>datasources.db</pre>
- * 
+ *
  * @author rgansevles
- * 
+ *
  * @since 7.4
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class DBDataSource extends DefaultJavaScope
 {
-	private static Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(DBDataSource.class);
+	private static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(DBDataSource.class);
 	private volatile IApplication application;
 
 	DBDataSource(IApplication application)
