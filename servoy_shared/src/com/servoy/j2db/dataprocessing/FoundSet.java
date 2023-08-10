@@ -609,6 +609,10 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 * Clear the foundset.
 	 *
 	 * This will set a special condition in the query that makes the query not return any results.
+	 *
+	 * But if new Records are added to this foundset, then those records become the query pk set.
+	 * So it will then behave the same as loadRecord(pkset) of a pkset of those new records.
+	 *
 	 * You can query for this state in the isCleared() call so you can call loadRecords() to remove that cleared state if needed.
 	 *
 	 * @sample
@@ -4923,7 +4927,8 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			for (String conditionName : sqlSelect.getConditionNames())
 			{
 				if (conditionName != null &&
-					(conditionName.equals(SQLGenerator.CONDITION_SEARCH) || !conditionName.startsWith(SQLGenerator.SERVOY_CONDITION_PREFIX)))
+					((conditionName.equals(SQLGenerator.CONDITION_SEARCH) || conditionName.equals(SQLGenerator.CONDITION_CLEAR)) ||
+						!conditionName.startsWith(SQLGenerator.SERVOY_CONDITION_PREFIX)))
 				{
 					invertConditionNames.add(conditionName);
 				}

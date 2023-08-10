@@ -250,6 +250,15 @@ public class SQLGenerator
 
 			if (moreWhere != null)
 			{
+				// if this query is in a clear state move/set that condition as the SEARCH condition from now on.
+				// because we want to reduce or append to that search below.
+				ISQLCondition clearCondition = retval.getCondition(CONDITION_CLEAR);
+				if (clearCondition != null)
+				{
+					retval.clearCondition(CONDITION_CLEAR);
+					retval.addCondition(CONDITION_SEARCH, clearCondition);
+				}
+
 				if (reduce)
 				{
 					retval.addCondition(CONDITION_SEARCH, moreWhere);
