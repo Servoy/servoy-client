@@ -194,7 +194,8 @@ public class SQLGenerator
 			for (String conditionName : retval.getConditionNames())
 			{
 				if (conditionName != null && conditionName.startsWith(SERVOY_CONDITION_PREFIX) &&
-					!(CONDITION_FILTER.equals(conditionName) || CONDITION_SEARCH.equals(conditionName) || CONDITION_RELATION.equals(conditionName)))
+					!(CONDITION_FILTER.equals(conditionName) || CONDITION_CLEAR.equals(conditionName) || CONDITION_SEARCH.equals(conditionName) ||
+						CONDITION_RELATION.equals(conditionName)))
 				{
 					retval.setCondition(conditionName, null);
 				}
