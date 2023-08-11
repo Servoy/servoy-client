@@ -50,11 +50,6 @@ public interface IServiceProvider extends IEventDelegator, I18NProvider
 
 	public static final String RT_OPEN_METHOD_RESULT = "openMethodResult";
 
-	public static final String RT_JSDATASET_FUNCTIONS = "JSDataSetFunctions";
-	public static final String RT_JSFOUNDSET_FUNCTIONS = "JSFoundSetFunctions";
-	public static final String RT_JSRECORD_FUNCTIONS = "JSRecordFunctions";
-	public static final String RT_JSVIEWRECORD_FUNCTIONS = "JSViewRecordFunctions";
-
 	/**
 	 * Get the repository interface.
 	 *

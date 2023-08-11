@@ -16,13 +16,10 @@
  */
 package com.servoy.j2db.persistence;
 
-import net.jcip.annotations.ThreadSafe;
-
 /**
  * Interface for column sequence providers
  * @author jblok
  */
-@ThreadSafe
 public interface ISequenceProvider
 {
 	public Object getNextSequence(Column c, boolean update) throws RepositoryException;

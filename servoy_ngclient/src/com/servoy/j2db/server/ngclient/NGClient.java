@@ -1879,6 +1879,12 @@ public class NGClient extends AbstractApplication
 	}
 
 	@Override
+	public void setFirstDayOfTheWeek(int weekday)
+	{
+		putClientProperty(IApplication.FIRST_DAY_OF_WEEK, Integer.valueOf(weekday));
+	}
+
+	@Override
 	public String getMediaURL(String mediaName)
 	{
 		return MediaPropertyType.getMediaUrl(mediaName, getFlattenedSolution(), this);

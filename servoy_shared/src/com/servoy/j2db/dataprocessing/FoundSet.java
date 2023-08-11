@@ -72,7 +72,6 @@ import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.base.scripting.api.IJSRecord;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.dataprocessing.FoundSetManager.GlobalFoundSetEventListener;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -147,27 +146,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 {
 	public static final String JS_FOUNDSET = "JSFoundSet"; //$NON-NLS-1$
 
-	/*
-	 * _____________________________________________________________ JavaScript stuff
-	 */
-	private Map<String, NativeJavaMethod> jsFunctions;
-
-	@SuppressWarnings("unchecked")
-	private void initJSFunctions(IServiceProvider serviceProvider)
-	{
-		if (serviceProvider != null)
-		{
-			jsFunctions = (Map<String, NativeJavaMethod>)serviceProvider.getRuntimeProperties().get(IServiceProvider.RT_JSFOUNDSET_FUNCTIONS);
-		}
-		if (jsFunctions == null)
-		{
-			jsFunctions = DefaultJavaScope.getJsFunctions(FoundSet.class);
-			if (serviceProvider != null)
-			{
-				serviceProvider.getRuntimeProperties().put(IServiceProvider.RT_JSFOUNDSET_FUNCTIONS, jsFunctions);
-			}
-		}
-	}
+	public static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(FoundSet.class);
 
 	protected final FoundSetManager fsm;
 	protected final RowManager rowManager;
@@ -227,7 +206,6 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		List<SortColumn> defaultSortColumns) throws ServoyException
 	{
 		fsm = (FoundSetManager)app;
-		initJSFunctions(fsm.getApplication());
 		if (sheet == null)
 		{
 			throw new IllegalArgumentException(app.getApplication().getI18NMessage("servoy.foundSet.error.sqlsheet")); //$NON-NLS-1$
@@ -630,6 +608,13 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	/**
 	 * Clear the foundset.
 	 *
+	 * This will set a special condition in the query that makes the query not return any results.
+	 *
+	 * But if new Records are added to this foundset, then those records become the query pk set.
+	 * So it will then behave the same as loadRecord(pkset) of a pkset of those new records.
+	 *
+	 * You can query for this state in the isCleared() call so you can call loadRecords() to remove that cleared state if needed.
+	 *
 	 * @sample
 	 * //Clear the foundset, including searches that may be on it
 	 * %%prefix%%foundset.clear();
@@ -643,6 +628,18 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		}
 		clear();
 		fireDifference(size, getSize(), null);
+	}
+
+	/**
+	 * Returns a boolean if this foundset is in a cleared state (has the clear condition that is added by a clear() call)
+	 *
+	 * @return boolean true if this foundset is cleared
+	 *
+	 * @since 2023.09
+	 */
+	public boolean js_isCleared()
+	{
+		return pksAndRecords.getQuerySelectForReading().getCondition(SQLGenerator.CONDITION_CLEAR) != null;
 	}
 
 	abstract boolean canDispose();
@@ -1573,8 +1570,19 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 * If the foundset is related, the relation-condition will be added to the query.
 	 * Tries to preserve selection based on primary key, otherwise first record is selected.
 	 *
+	 * The query of the QBSelect that is given is added as a "search" condition to the existing base query of the foundset.
+	 * This does mean that loadAllRecords() will revert this, because that will clear the search condition and go back to the base query of the foundset.
+	 * Some hold true for clear() that will remove the search condition and because of that the given query will also be removed.
+	 *
+	 * If you want to create more a "view" on your database that will always be kept by this foundset, so loadAllRecords() (with our withou first calliing clear()) will always
+	 * revert back to this set of data (and you can also search inside this data with find/search or adding another query on top of it.
+	 * Then have a look at datasources.db.server.table.getFoundset(query) because that will generate a foundset with the given query as the base query.
+	 *
 	 * @sample
-	 * %%prefix%%foundset.loadRecords(qbselect);
+	 * var qb = datasources.db.example_data.orders.createSelect();
+	 * qb.result.addPk();
+	 * qb.where.add(qb.columns.product_id.eq(1))
+	 * %%prefix%%foundset.loadRecords(qb);
 	 *
 	 * @param querybuilder the query builder
 	 * @return true if successful
@@ -4919,7 +4927,8 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			for (String conditionName : sqlSelect.getConditionNames())
 			{
 				if (conditionName != null &&
-					(conditionName.equals(SQLGenerator.CONDITION_SEARCH) || !conditionName.startsWith(SQLGenerator.SERVOY_CONDITION_PREFIX)))
+					((conditionName.equals(SQLGenerator.CONDITION_SEARCH) || conditionName.equals(SQLGenerator.CONDITION_CLEAR)) ||
+						!conditionName.startsWith(SQLGenerator.SERVOY_CONDITION_PREFIX)))
 				{
 					invertConditionNames.add(conditionName);
 				}
@@ -7224,7 +7233,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		BufferedDataSet emptyPks = new BufferedDataSet();
 		if (sqlSelect != null)
 		{
-			sqlSelect.setCondition(SQLGenerator.CONDITION_SEARCH, SQLGenerator.createDynamicPKSetConditionForFoundset(this, sqlSelect.getTable(), emptyPks));
+			sqlSelect.setCondition(SQLGenerator.CONDITION_CLEAR, SQLGenerator.createDynamicPKSetConditionForFoundset(this, sqlSelect.getTable(), emptyPks));
 			sqlSelect.clearCondition(SQLGenerator.CONDITION_RELATION);
 		}
 		pksAndRecords.setPksAndQuery(emptyPks, 0, sqlSelect);

@@ -52,7 +52,7 @@ import com.servoy.j2db.util.ServoyException;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class SPDataSourceServer extends DefaultJavaScope implements LazyInitScope
 {
-	private static Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(SPDataSourceServer.class);
+	private static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(SPDataSourceServer.class);
 	private volatile IApplication application;
 
 	private final String serverName;

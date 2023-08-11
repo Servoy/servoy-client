@@ -44,9 +44,6 @@ import javax.swing.JFrame;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.LAFManager;
 
-import net.jcip.annotations.ThreadSafe;
-
-@ThreadSafe
 @SuppressWarnings("nls")
 public final class Settings extends SortedProperties
 {

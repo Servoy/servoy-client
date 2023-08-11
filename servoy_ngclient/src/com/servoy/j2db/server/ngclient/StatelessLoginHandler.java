@@ -49,7 +49,7 @@ public class StatelessLoginHandler
 {
 	public static final String ID_TOKEN = "id_token"; //$NON-NLS-1$
 	private static final String GROUPS = "groups"; //$NON-NLS-1$
-	private static final String USER = "user"; //$NON-NLS-1$
+	public static final String USER = "user"; //$NON-NLS-1$
 	private static final String UID = "uid"; //$NON-NLS-1$
 	private static final String JWT_Password = "jwt"; //$NON-NLS-1$
 	private static final int TOKEN_AGE_IN_SECONDS = 24 * 3600;
@@ -180,6 +180,7 @@ public class StatelessLoginHandler
 		return token;
 	}
 
+	@SuppressWarnings("nls")
 	public static void writeLoginPage(HttpServletRequest request, HttpServletResponse response, String solutionName)
 		throws IOException
 	{
@@ -198,6 +199,29 @@ public class StatelessLoginHandler
 		sb.append(path);
 		sb.append("\">");
 		sb.append("\n  <title>Login</title>");
+		if (request.getParameter("user") == null || request.getParameter("id_token") == null)
+		{
+			sb.append("\n  	 <script type='text/javascript'>");
+			sb.append("\n    window.addEventListener('load', () => { ");
+			if (request.getParameter("id_token") == null && request.getParameter("user") == null)
+			{
+				//we check the local storage for the token only once (if both are null)
+				sb.append("\n     if (window.localStorage.getItem('servoy_token')) { ");
+				sb.append("\n    	document.body.style.display = 'none'; ");
+				sb.append("\n  	    document.login_form.id_token.value = JSON.parse(window.localStorage.getItem('servoy_token'));  ");
+				sb.append("\n    	document.login_form.remember.checked = true;  ");
+				sb.append("\n    	document.login_form.submit(); ");
+				sb.append("\n     } ");
+			}
+			else
+			{
+				sb.append("\n     if (window.localStorage.getItem('servoy_username')) { ");
+				sb.append("\n  	    document.login_form.user.value = JSON.parse(window.localStorage.getItem('servoy_username'));  ");
+				sb.append("\n     } ");
+			}
+			sb.append("\n   }) ");
+			sb.append("\n  </script> ");
+		}
 		loginHtml = loginHtml.replace("<base href=\"/\">", sb.toString());
 
 		String requestLanguage = request.getHeader("accept-language");

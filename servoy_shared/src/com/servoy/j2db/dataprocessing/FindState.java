@@ -24,8 +24,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.mozilla.javascript.BaseFunction;
+import org.mozilla.javascript.NativeJavaMethod;
+import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
+import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.scripting.api.IJSDataSet;
@@ -40,6 +44,8 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
+import com.servoy.j2db.scripting.DefaultJavaScope;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.IDelegate;
@@ -54,6 +60,8 @@ import com.servoy.j2db.util.Utils;
  */
 public class FindState implements Scriptable, IRecordInternal, Serializable, IJSRecord
 {
+	public static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(FindState.class);
+
 	private final Map<String, Object> columndata;//actual find columndata
 	private final IFoundSetInternal parent;
 	private final Map<String, IFoundSetInternal> relatedStates;
@@ -250,6 +258,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 		return ISaveConstants.STOPPED;
 	}
 
+	@JSFunction
 	public boolean isEditing()
 	{
 		return isEditing;
@@ -348,6 +357,13 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 
 	public Object get(String name, Scriptable start)
 	{
+		if (FoundSet.isToplevelKeyword(name)) return Scriptable.NOT_FOUND;
+		Object mobj = jsFunctions.get(name);
+		if (mobj != null)
+		{
+			ScriptRuntime.setFunctionProtoAndParent((BaseFunction)mobj, start);
+			return mobj;
+		}
 		Object o = getValue(name);
 		if (o == null && !storeDataProvider(name))
 		{
@@ -416,6 +432,9 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 
 	public void put(String name, Scriptable start, Object val)
 	{
+		if ("foundset".equals(name) || "exception".equals(name)) return; //$NON-NLS-1$ //$NON-NLS-2$
+		if (jsFunctions.containsKey(name)) return;//dont allow to set
+
 		Object value = val;
 		if (value instanceof IDelegate)
 		{
@@ -747,11 +766,19 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 		return true;//return true to prevent async loading.
 	}
 
+	@JSFunction
+	public boolean isRelatedFoundSetLoaded(String relationName)
+	{
+		return true;
+	}
+
+	@JSFunction
 	public IJSDataSet getChangedData()
 	{
 		return null;
 	}
 
+	@JSFunction
 	public String getDataSource()
 	{
 		return parent.getDataSource();
@@ -762,26 +789,37 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 		return null;
 	}
 
+	@JSReadonlyProperty
 	public IJSFoundSet getFoundset()
 	{
 		return (IJSFoundSet)parent;
 	}
 
+	@JSFunction
 	public Object[] getPKs()
 	{
 		return null;
 	}
 
+	@JSFunction
 	public boolean hasChangedData()
 	{
 		return false;
 	}
 
+	@JSFunction
 	public boolean isNew()
 	{
 		return false;
 	}
 
+	@JSFunction
+	public JSRecordMarkers createMarkers()
+	{
+		return null;
+	}
+
+	@JSFunction
 	public void revertChanges()
 	{
 

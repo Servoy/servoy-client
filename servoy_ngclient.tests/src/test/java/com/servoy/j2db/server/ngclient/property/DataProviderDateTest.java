@@ -1235,6 +1235,16 @@ public class DataProviderDateTest
 		/*
 		 * (non-Javadoc)
 		 *
+		 * @see com.servoy.j2db.INGClientApplication#setFirstDayOfTheWeek(int)
+		 */
+		@Override
+		public void setFirstDayOfTheWeek(int weekday)
+		{
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
 		 * @see com.servoy.j2db.INGClientApplication#getMediaURL(java.lang.String)
 		 */
 		@Override
