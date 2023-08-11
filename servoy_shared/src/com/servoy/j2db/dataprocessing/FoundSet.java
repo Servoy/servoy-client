@@ -633,7 +633,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	/**
 	 * Returns a boolean if this foundset is in a cleared state (has the clear condition that is added by a clear() call)
 	 *
-	 * @return boolea true if this foundset is cleared
+	 * @return boolean true if this foundset is cleared
 	 *
 	 * @since 2023.09
 	 */

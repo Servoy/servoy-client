@@ -24,6 +24,7 @@ import static com.servoy.j2db.persistence.Column.mapToDefaultType;
 import static com.servoy.j2db.persistence.IColumnTypes.MEDIA;
 import static com.servoy.j2db.query.AbstractBaseQuery.acceptVisitor;
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
+import static com.servoy.j2db.query.OrCondition.or;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.cast;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.castfrom;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.upper;
@@ -174,7 +175,7 @@ public class SQLGenerator
  * _____________________________________________________________ The methods below belong to this class
  */
 
-	//SQL pk(s) select for foundset,concatenating those strings will always deliver a executable SQL
+	// SQL pk(s) select for foundset
 	// Note: removeUnusedJoins must be false when the resulting query is changed afterwards (like adding columns)
 	QuerySelect getPKSelectSqlSelect(IGlobalValueEntry provider, Table table, QuerySelect oldSQLQuery, List<IRecordInternal> findStates, boolean reduce,
 		IDataSet omitPKs, List<SortColumn> orderByFields, boolean removeUnusedJoins) throws ServoyException
@@ -190,7 +191,7 @@ public class SQLGenerator
 			retval = deepClone(oldSQLQuery);
 			retval.setGroupBy(null);
 			if (orderByFields != null) retval.clearSorts(); // will be generated based on foundset sorting
-			// remove all servoy conditions, except filter, search and relation
+			// remove all servoy conditions, except filter, clear, search and relation
 			for (String conditionName : retval.getConditionNames())
 			{
 				if (conditionName != null && conditionName.startsWith(SERVOY_CONDITION_PREFIX) &&
@@ -206,14 +207,14 @@ public class SQLGenerator
 			retval = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
 		}
 
-		//Example:-select pk1,pk2 from tablename1 where ((fieldname1 like '%abcd%') or ((fieldname2 like '%xyz%')) (retrieve max 200 rows)
+		// Example:-select pk1,pk2 from tablename1 where ((fieldname1 like '%abcd%') or ((fieldname2 like '%xyz%')) (retrieve max 200 rows)
 
 		ArrayList<IQuerySelectValue> pkQueryColumns = new ArrayList<IQuerySelectValue>(3);
 		ArrayList<Column> pkColumns = new ArrayList<Column>(3);
-		//getPrimaryKeys from table
+		// getPrimaryKeys from table
 		Iterator<Column> pks = table.getRowIdentColumns().iterator();
 
-		//make select
+		// make select
 		if (!pks.hasNext())
 		{
 			throw new RepositoryException(ServoyException.InternalCodes.PRIMARY_KEY_NOT_FOUND, new Object[] { table.getName() });
@@ -228,7 +229,7 @@ public class SQLGenerator
 
 		if (omitPKs != null && omitPKs.getRowCount() != 0)
 		{
-			//omit is rebuild each time
+			// omit is rebuild each time
 			retval.setCondition(CONDITION_OMIT,
 				createSetConditionFromPKs(IBaseSQLCondition.NOT_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), pkColumns, omitPKs));
 		}
@@ -244,7 +245,7 @@ public class SQLGenerator
 			{
 				if (obj instanceof FindState)
 				{
-					moreWhere = OrCondition.or(moreWhere, createConditionFromFindState((FindState)obj, retval, provider, pkQueryColumns));
+					moreWhere = or(moreWhere, createConditionFromFindState((FindState)obj, retval, provider, pkQueryColumns));
 				}
 			}
 
@@ -300,7 +301,7 @@ public class SQLGenerator
 			}
 		}
 
-		//make orderby
+		// make orderby
 		if (orderByFields != null || retval.getSorts() == null)
 		{
 			List<SortColumn> orderBy = orderByFields == null ? new ArrayList<SortColumn>(3) : orderByFields;
@@ -321,10 +322,10 @@ public class SQLGenerator
 			retval.removeUnusedJoins(false, true);
 		}
 
-		//1 do not remove sort or groupby test, will cause invalid queries
-		//1 this one causes error and can not be fixed,
-		//1 if (joinswherepart.length() != 0 && !sortIsRelated && groupbyKeyword == STRING_EMPTY && table.getPrimaryKeyCount() == 1)
-		//1 sql select distinct(s_contacts.contactsid) from s_contacts,s_companies where s_contacts.company_id = s_companies.company_id order by s_contacts.surname  ERROR:  For SELECT DISTINCT, ORDER BY expressions must appear in target list
+		// do not remove sort or groupby test, will cause invalid queries
+		// this one causes error and can not be fixed,
+		// if (joinswherepart.length() != 0 && !sortIsRelated && groupbyKeyword == STRING_EMPTY && table.getPrimaryKeyCount() == 1)
+		// sql select distinct(s_contacts.contactsid) from s_contacts,s_companies where s_contacts.company_id = s_companies.company_id order by s_contacts.surname  ERROR:  For SELECT DISTINCT, ORDER BY expressions must appear in target list
 
 		// retval may have set distinct and plainPKSelect flag based on previous sort columns, make sure to reset first
 		retval.setDistinct(false);
