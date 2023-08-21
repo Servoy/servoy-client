@@ -44,9 +44,9 @@ public interface INGApplication extends INGClientApplication
 
 	void changesWillBeSend();
 
-	Pair<Integer, Integer> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] arguments);
+	Pair<Long, Long> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] arguments);
 
-	void onStopSubAction(Pair<Integer, Integer> perfId);
+	void onStopSubAction(Pair<Long, Long> perfId);
 
 	void updateLastAccessed();
 

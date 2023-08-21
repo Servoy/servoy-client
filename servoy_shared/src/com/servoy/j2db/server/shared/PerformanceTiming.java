@@ -19,7 +19,6 @@ package com.servoy.j2db.server.shared;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
@@ -34,8 +33,9 @@ import com.servoy.j2db.dataprocessing.IDataServer;
  */
 public class PerformanceTiming extends PerformanceData
 {
-	private final static AtomicInteger ID_GEN = new AtomicInteger();
-	private final Integer id;
+	private final static AtomicLong ID_GEN = new AtomicLong();
+	private final Long id;
+	private final Long parentId;
 	private final String action;
 	private final String customObject;
 	private final int type;
@@ -46,12 +46,14 @@ public class PerformanceTiming extends PerformanceData
 
 	private final ConcurrentLinkedQueue<PerformanceTiming> subTimings = new ConcurrentLinkedQueue<>();
 
-	public PerformanceTiming(String action, int type, String customObject, long start_ms, String clientUUID, IPerformanceRegistry registry, Logger log,
-		String id, PerformanceAggregator aggregator)
+	public PerformanceTiming(String action, int type, Long parentId, String customObject, long start_ms, String clientUUID, IPerformanceRegistry registry,
+		Logger log,
+		String contextId, PerformanceAggregator aggregator)
 	{
-		super(registry, log, id, aggregator);
+		super(registry, log, contextId, aggregator);
 
-		this.id = Integer.valueOf(ID_GEN.getAndIncrement());
+		this.id = Long.valueOf(ID_GEN.getAndIncrement());
+		this.parentId = parentId;
 		this.action = action;
 		this.type = type;
 		this.customObject = customObject;
@@ -78,7 +80,8 @@ public class PerformanceTiming extends PerformanceData
 		subTimings.add(timing);
 	}
 
-	public Integer getID()
+	@Override
+	public Long getID()
 	{
 		return id;
 	}
@@ -186,4 +189,8 @@ public class PerformanceTiming extends PerformanceData
 		return customObject;
 	}
 
+	public Long getParentID()
+	{
+		return parentId;
+	}
 }

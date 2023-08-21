@@ -184,7 +184,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 			newCallContributions.put("propertyPath", ejw);
 		}
 
-		Pair<Integer, Integer> perfId = getClient().onStartSubAction(receiver.getSpecification().getName(), apiFunction.getName(), apiFunction, arguments);
+		Pair<Long, Long> perfId = getClient().onStartSubAction(receiver.getSpecification().getName(), apiFunction.getName(), apiFunction, arguments);
 
 		try
 		{
@@ -507,7 +507,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	public Object executeServiceCall(IClientService clientService, String functionName, Object[] arguments, WebObjectFunctionDefinition apiFunction,
 		IToJSONWriter<IBrowserConverterContext> pendingChangesWriter, boolean blockEventProcessing) throws IOException
 	{
-		Pair<Integer, Integer> perfId = getClient().onStartSubAction(clientService.getName(), functionName, apiFunction, arguments);
+		Pair<Long, Long> perfId = getClient().onStartSubAction(clientService.getName(), functionName, apiFunction, arguments);
 		try
 		{
 			return super.executeServiceCall(clientService, functionName, arguments, apiFunction, pendingChangesWriter, blockEventProcessing);
