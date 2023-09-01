@@ -7,9 +7,14 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 			api: "=svyApi",
 			svyServoyapi: "="
 		},
-		controller: function($scope, $element, $attrs) {
+		controller: function($scope, $element) {
 			var lastServerValueAsSeenByTinyMCEContent;
-
+            function setEditable(ed) {
+                if (!$scope.init) return;
+                var editable = $scope.model.editable && !$scope.model.readOnly && $scope.model.enabled;
+                editable ? ed.setMode('design') : ed.setMode('readonly')
+                ed.getBody().setAttribute('contenteditable', editable);
+            }
 			$scope.findMode = false;
 			$scope.tinyValue = !$scope.svyServoyapi.isInDesigner() && $scope.model.dataProviderID ? $scope.model.dataProviderID : '' ;
 			$scope.init = false;
@@ -21,15 +26,14 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 						ed.settings.height = "100%";
 						ed.on('init', function() {
 							$scope.init = true;
-							if($scope.model.editable){
-								ed.setMode('design');
+							setEditable(ed);
+							const editable = $scope.model.editable && !$scope.model.readOnly && $scope.model.enabled;
+							if(editable){
 								ed.settings.readonly = 0;				
 							}
 							else{
-								ed.setMode('readonly');
 								ed.settings.readonly = 1;
 							}							
-							ed.getBody().setAttribute('contenteditable', $scope.model.editable);
 							
 							if (!$scope.svyServoyapi.isInDesigner())
 							{
@@ -40,12 +44,20 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 							$svyProperties.setScrollbars($(ed.getBody()), $scope.model.scrollbars);
 						});
 						$scope.$watch('model.editable',function (newVal,oldVal){
-							if (!$scope.init) return;
 							if(oldVal != newVal){
-								newVal ? ed.setMode('design') : ed.setMode('readonly')
-								ed.getBody().setAttribute('contenteditable', newVal);
+								setEditable(ed);
 							}    			   		
 						})
+						$scope.$watch('model.enabled',function (newVal,oldVal){
+                            if(oldVal != newVal){
+                                setEditable(ed);
+                            }                       
+                        })
+                        $scope.$watch('model.readOnly',function (newVal,oldVal){
+                            if(oldVal != newVal){
+                                setEditable(ed);
+                            }                       
+                        })
 						$scope.$watch('model.dataProviderID', function(newVal, oldVal) {
 							if (!$scope.svyServoyapi.isInDesigner())
 							{

@@ -68,7 +68,7 @@ public class FunctionWrapper implements Function
 
 	public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 	{
-		Integer pfId = performanceData.startAction(name, System.currentTimeMillis(), IDataServer.METHOD_CALL, application.getClientID(),
+		Long pfId = performanceData.startAction(name, System.currentTimeMillis(), IDataServer.METHOD_CALL, application.getClientID(),
 			application.getSolutionName());
 		try
 		{

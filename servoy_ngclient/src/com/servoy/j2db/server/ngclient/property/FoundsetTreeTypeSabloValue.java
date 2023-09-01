@@ -435,7 +435,7 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 							if (this.levelVisibility && this.levelVisible >= parentlevel + 1)
 							{
 								List<Map<String, Object>> innerRelChildren = getRelatedFoundsetData(childRelatedFoundsets, parentlevel + 1);
-								if (relChildren.size() > 0)
+								if (innerRelChildren.size() > 0)
 								{
 									relRecordData.put("hasChildren", true);
 									relRecordData.put("children", innerRelChildren);

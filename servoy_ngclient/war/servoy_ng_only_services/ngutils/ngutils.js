@@ -279,32 +279,25 @@ angular.module('ngclientutils', [ 'servoy' ])
 		 * You can use styleClass as selector.
 		 * For example: you can add 'scroll-element' to an element of the form.
 		 * Examples of usage: 
-		 * - plugins.ngclientutils.scrollIntoView(".toScroll-To");
-		 * - plugins.ngclientutils.scrollIntoView(".toScroll-To", 2);
+		 * - plugins.ngclientutils.scrollToTop(".toScroll-To");
 		 
 		 * @param selector {string} the selector to which the scrollbar should be moved to top.
-		 * @param index {number} argument used for selecting 1 container(if multiple containers), default is 0.
 		 */
-		scrollToTop: function(selector, index) {
-			var containerIdx = index >= 0 ? index : 0;
-			
+		scrollToTop: function(selector) {
 			// find container
             var container = $(selector);
             
             // validate elements found
-            if (container.length <= index || index < 0) {
-				$log.warn(`index ${index} is outside the current bounds of the array`);
-				return;
-			} 
             if (container.length === 0) {
-                $log.warn(`cannot find container with this selector ${selector}`);
+                $log.warn(`cannot find container ${selector}`);
                 return;
-            } else if (container.length > 1 && index === undefined) {
-                $log.warn(`multiple containers found with this selector ${selector}, default value of "index" is 0, you can change this behavior adding the second argument`);
+            } else if (container.length > 1) {
+                $log.warn(`multiple containers found ${selector}`);
+                return;
             }
             
             // move scrolling to top position
-            angular.element(container[containerIdx]).scrollTop(0, 0);
+            $(window).scrollTop(container.offset().top)
         },
 		
 		/**
