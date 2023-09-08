@@ -39,6 +39,19 @@ import com.servoy.j2db.util.Utils;
 public final class CSSPositionUtils
 {
 
+	public static void setLocation(ISupportBounds persist, Point location)
+	{
+		if (persist instanceof BaseComponent)
+		{
+			AbstractContainer container = getParentContainer(persist);
+			setLocationEx((BaseComponent)persist, (BaseComponent)persist, location.x, location.y, container.getSize());
+		}
+		else
+		{
+			persist.setLocation(location);
+		}
+	}
+
 	public static void setLocation(ISupportBounds persist, int x, int y)
 	{
 		if (persist instanceof BaseComponent)
@@ -121,6 +134,19 @@ public final class CSSPositionUtils
 			{
 				persist.setProperty(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), p);
 			}
+		}
+	}
+
+	public static void setSize(ISupportBounds persist, Dimension size)
+	{
+		if (persist instanceof BaseComponent)
+		{
+			AbstractContainer container = getParentContainer(persist);
+			setSizeEx((BaseComponent)persist, (BaseComponent)persist, size.width, size.height, container.getSize());
+		}
+		else
+		{
+			persist.setSize(size);
 		}
 	}
 
