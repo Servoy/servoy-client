@@ -211,7 +211,7 @@ public class ColumnBasedValueList implements IValueList
 	@Override
 	public boolean hasRealValues()
 	{
-		return true;
+		return false;
 	}
 
 	/*
