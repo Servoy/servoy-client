@@ -5800,7 +5800,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		int oldSize = getSize();
 
 		PKDataSet pks2 = null;
-		if (pksAndRecordsHolderCopy.getPks().hadMoreRows())
+		if (pksAndRecordsHolderCopy.getPks() != null && pksAndRecordsHolderCopy.getPks().hadMoreRows())
 		{
 			queryForMorePKs(pksAndRecordsHolderCopy, rowCount, -1, false);
 			pks2 = pksAndRecordsHolderCopy.getPks();
@@ -5809,17 +5809,20 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		{
 			pks2 = pksAndRecordsHolderCopy.getPksClone();
 		}
-		pks2.sort(recordPKComparator);
-		IFoundSetChanges changes = null;
-		synchronized (pksAndRecords)
+		if (pks != null)
 		{
-			changes = pksAndRecords.setPksAndQuery(pks2, pksAndRecordsHolderCopy.getDbIndexLastPk(), pksAndRecords.getQuerySelectForReading(), true);
+			pks2.sort(recordPKComparator);
+			IFoundSetChanges changes = null;
+			synchronized (pksAndRecords)
+			{
+				changes = pksAndRecords.setPksAndQuery(pks2, pksAndRecordsHolderCopy.getDbIndexLastPk(), pksAndRecords.getQuerySelectForReading(), true);
+			}
+
+			int newSize = getSize();
+			fireDifference(oldSize, newSize, changes);
+
+			trySelectingPks(selectedPKs, newSize, true);
 		}
-
-		int newSize = getSize();
-		fireDifference(oldSize, newSize, changes);
-
-		trySelectingPks(selectedPKs, newSize, true);
 	}
 
 	public boolean isRecordEditable(int rowIndex)
