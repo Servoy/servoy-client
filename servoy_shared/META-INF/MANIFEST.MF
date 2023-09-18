@@ -2,16 +2,15 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy Shared Plug-in
 Bundle-SymbolicName: servoy_shared;singleton:=true
-Bundle-Version: 2023.9.0.3900_rc
+Bundle-Version: 2023.9.0.3901_rc2
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: Servoy
 Bundle-ClassPath: .,
- lib/annotations-1.0.jar,
  lib/dom4j.jar,
  lib/fs-commons.jar,
  lib/fs-parser.jar,
  lib/jcifs.jar,
-  lib/joda-time.jar,
+ lib/joda-time.jar,
  lib/minis.jar,
  lib/PBKDF2.jar,
  lib/prompt.jar,
@@ -243,5 +242,6 @@ Import-Package: javax.servlet;version="[4.0.0,5.0.0)",
  org.sablo.specification.property.types,
  org.sablo.websocket.utils,
  org.slf4j;version="2.0.6",
- org.w3c.dom
+ org.w3c.dom,
+ org.xhtmlrenderer.css.constants
 Automatic-Module-Name: servoy_shared
