@@ -132,6 +132,9 @@ public interface IDataServer extends Remote
 	public boolean notifyDataChange(String client_id, String server_name, String tableName, IDataSet pks, int action, String transaction_id)
 		throws RemoteException;
 
+	public boolean notifyDataChange(String client_id, boolean notifySelf, String server_name, String tableName, IDataSet pks, int action, String transaction_id)
+		throws RemoteException;
+
 	/**
 	 * Change or Add data in database
 	 *
