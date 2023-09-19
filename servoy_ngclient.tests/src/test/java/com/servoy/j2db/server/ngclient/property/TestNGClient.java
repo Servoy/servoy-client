@@ -297,6 +297,13 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
+			public boolean notifyDataChange(String client_id, boolean notifySelf, String server_name, String tableName, IDataSet pks, int action,
+				String transaction_id) throws RemoteException
+			{
+				return false;
+			}
+
+			@Override
 			public ITable insertQueryResult(String client_id, String queryServerName, String queryTid, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 				boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, String dataSource, String targetServerName, String targetTableName,
 				String targetTid, ColumnType[] columnTypes, String[] pkNames) throws ServoyException, RemoteException
