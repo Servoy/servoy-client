@@ -24,9 +24,10 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 /**
  * @author rgansevles
  */
+@Deprecated
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 @ServoyClientSupport(ng = true, wc = false, sc = false)
-public class NGCONSTANTS implements IPrefixedConstantsObject
+public class APP_NG_PROPERTY implements IPrefixedConstantsObject
 {
 
 	/**
@@ -34,19 +35,19 @@ public class NGCONSTANTS implements IPrefixedConstantsObject
 	 * will be kept for a limited time. If the user returns within that time the client session is continued.
 	 * <p>
 	 * This time can be configured at the server (60 seconds by default) and can overridden for the current ng-client session using
-	 * application.putClientProperty with NGCONSTANTS.WINDOW_TIMEOUT.
+	 * application.putClientProperty with APP_NG_PROPERTY.WINDOW_TIMEOUT.
 	 * <p>
 	 * The value is specified in seconds.
 	 *
 	 * @sample
 	 * // allow the user to return within 1 hour before the session is cleaned up
-	 * application.putClientProperty(NGCONSTANTS.WINDOW_TIMEOUT, 3600);
+	 * application.putClientProperty(APP_NG_PROPERTY.WINDOW_TIMEOUT, 3600);
 	 *
 	 * // get the current active timeout value, when not overriden via putClientProperty this will return the system value.
-	 * var timeout = application.getClientProperty(NGCONSTANTS.WINDOW_TIMEOUT);
+	 * var timeout = application.getClientProperty(APP_NG_PROPERTY.WINDOW_TIMEOUT);
 	 *
 	 * // reset the value to the system value.
-	 * application.putClientProperty(NGCONSTANTS.WINDOW_TIMEOUT, null);
+	 * application.putClientProperty(APP_NG_PROPERTY.WINDOW_TIMEOUT, null);
 	 */
 	public static final String WINDOW_TIMEOUT = "window.timeout"; //$NON-NLS-1$
 
@@ -56,7 +57,7 @@ public class NGCONSTANTS implements IPrefixedConstantsObject
 	 *
 	 * @sample
 	 * // set main window title onSolutionOpen
-	 * application.putClientProperty(NGCONSTANTS.WINDOW_BRANDING_TITLE, "My app title");
+	 * application.putClientProperty(APP_NG_PROPERTY.WINDOW_BRANDING_TITLE, "My app title");
 	 */
 	public static final String WINDOW_BRANDING_TITLE = "window.branding.title";
 
@@ -67,12 +68,12 @@ public class NGCONSTANTS implements IPrefixedConstantsObject
 	 *
 	 * @sample
 	 * // set image from the web app root onSolutionOpen
-	 * application.putClientProperty(NGCONSTANTS.WINDOW_BRANDING_ICON_32, "favicon32x32.png");
+	 * application.putClientProperty(APP_NG_PROPERTY.WINDOW_BRANDING_ICON_32, "favicon32x32.png");
 	 * // set base64 encoded image from solution onSolutionOpen
 	 * 	var img = solutionModel.getMedia("favicon32x32.png")
 	 *	var imgAsBase64 = new Packages.org.apache.commons.codec.binary.Base64().encodeAsString(img.bytes);
 	 *	var imgHref = "data:image/png;base64," + imgAsBase64;
-	 *	application.putClientProperty(NGCONSTANTS.WINDOW_BRANDING_ICON_32, imgHref);
+	 *	application.putClientProperty(APP_NG_PROPERTY.WINDOW_BRANDING_ICON_32, imgHref);
 	 */
 	public static final String WINDOW_BRANDING_ICON_32 = "window.branding.icon.32";
 
@@ -91,7 +92,7 @@ public class NGCONSTANTS implements IPrefixedConstantsObject
 	 * DEFAULT: true
 	 *
 	 * @sample
-	 * application.putClientProperty(NGCONSTANTS.FORM_BASED_BROWSER_HISTORY, false);
+	 * application.putClientProperty(APP_NG_PROPERTY.FORM_BASED_BROWSER_HISTORY, false);
 	 */
 	public static final String FORM_BASED_BROWSER_HISTORY = "servoy.ngclient.formbased_browser_history"; //$NON-NLS-1$
 
@@ -107,13 +108,13 @@ public class NGCONSTANTS implements IPrefixedConstantsObject
 	 * DEFAULT: false
 	 *
 	 * @sample
-	 * elements.typeahead.putClientProperty(NGCONSTANTS.VALUELIST_CONTAINS_SEARCH, true);
+	 * elements.typeahead.putClientProperty(APP_NG_PROPERTY.VALUELIST_CONTAINS_SEARCH, true);
 	 *
 	 */
 	public static final String VALUELIST_CONTAINS_SEARCH = IApplication.VALUELIST_CONTAINS_SEARCH;
 
 	public String getPrefix()
 	{
-		return "NGCONSTANTS"; //$NON-NLS-1$
+		return "APP_NG_PROPERTY"; //$NON-NLS-1$
 	}
 }

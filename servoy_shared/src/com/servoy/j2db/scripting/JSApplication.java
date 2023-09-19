@@ -85,6 +85,8 @@ import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPlugin;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.scripting.info.APPLICATION_TYPES;
+import com.servoy.j2db.scripting.info.APP_NG_PROPERTY;
+import com.servoy.j2db.scripting.info.APP_UI_PROPERTY;
 import com.servoy.j2db.scripting.info.CLIENTDESIGN;
 import com.servoy.j2db.scripting.info.ELEMENT_TYPES;
 import com.servoy.j2db.scripting.info.LOGGINGLEVEL;
@@ -138,7 +140,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	private static Class< ? >[] getAllReturnedTypesInternal()
 	{
-		return new Class< ? >[] { APPLICATION_TYPES.class, CLIENTDESIGN.class, DRAGNDROP.class, ELEMENT_TYPES.class, ICSSPosition.class, IScriptRenderMethodsWithOptionalProps.class, JSDimension.class, JSPoint.class, JSDNDEvent.class, JSEvent.class, JSRenderEvent.class, JSUpload.class, JSWindow.class, JSLogger.class, JSLogBuilder.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, NGCONSTANTS.class };
+		// keep APP_UI_PROPERTY.class and APP_NG_PROPERTY.class at the end of the array
+		// we remove these 2 types in SolutionExplorerTreeContentProvider
+		return new Class< ? >[] { APPLICATION_TYPES.class, CLIENTDESIGN.class, DRAGNDROP.class, ELEMENT_TYPES.class, ICSSPosition.class, IScriptRenderMethodsWithOptionalProps.class, JSDimension.class, JSPoint.class, JSDNDEvent.class, JSEvent.class, JSRenderEvent.class, JSUpload.class, JSWindow.class, JSLogger.class, JSLogBuilder.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, NGCONSTANTS.class, APP_UI_PROPERTY.class, APP_NG_PROPERTY.class };
 	}
 
 	@Deprecated
