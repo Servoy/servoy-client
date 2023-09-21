@@ -102,6 +102,9 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 	public final static RuntimeProperty<String> FORM_COMPONENT_UUID = new RuntimeProperty<String>()
 	{
 	};
+	public final static RuntimeProperty<String> FORM_COMPONENT_ElEMENT_NAME = new RuntimeProperty<String>()
+	{
+	};
 	public final static RuntimeProperty<Pair<Long, Map<TabSeqProperty, Integer>>> FORM_TAB_SEQUENCE = new RuntimeProperty<Pair<Long, Map<TabSeqProperty, Integer>>>()
 	{
 	};
@@ -250,6 +253,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				formName = ((AbstractBase)parent.getPersistIfAvailable()).getRuntimeProperty(FORM_COMPONENT_FORM_NAME);
 			}
 			((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_FORM_NAME, formName);
+			((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_ElEMENT_NAME, elementName);
 			((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_UUID, parent.getPersistIfAvailable().getUUID().toString());
 			JSONObject elementJson = json.optJSONObject(elementName);
 			if (elementJson != null)
