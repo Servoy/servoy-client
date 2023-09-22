@@ -755,7 +755,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return false;
 	}
 
-	private void pushChangedValues(String dataProvider, boolean fireChangeEvent)
+	protected void pushChangedValues(String dataProvider, boolean fireChangeEvent)
 	{
 		boolean isFormDP = isFormDataprovider(dataProvider);
 		boolean isGlobalDP = isGlobalDataprovider(dataProvider);

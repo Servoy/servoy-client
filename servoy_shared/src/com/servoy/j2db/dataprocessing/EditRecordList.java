@@ -869,7 +869,7 @@ public class EditRecordList
 
 				String oldKey = row.getPKHashKey();
 				Record record = rowUpdateInfo.getRecord();
-				if (idents != null && idents.length != 0 && idents[i] != null)
+				if (idents != null && i < idents.length && idents[i] != null)
 				{
 					Object retValue = idents[i];
 					if (retValue instanceof Exception)

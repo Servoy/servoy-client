@@ -28,9 +28,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
-import net.jcip.annotations.ThreadSafe;
-
-@ThreadSafe
 public class SortedProperties extends Properties
 {
 	@Override

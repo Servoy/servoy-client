@@ -1697,7 +1697,7 @@ public class NGClient extends AbstractApplication
 
 
 	@Override
-	public Pair<Integer, Integer> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] arguments)
+	public Pair<Long, Long> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] arguments)
 	{
 		if (performanceData != null) return performanceData.startSubAction(serviceName + "." + functionName, System.currentTimeMillis(),
 			(apiFunction == null || apiFunction.getBlockEventProcessing()) ? IDataServer.METHOD_CALL : IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT,
@@ -1706,7 +1706,7 @@ public class NGClient extends AbstractApplication
 	}
 
 	@Override
-	public void onStopSubAction(Pair<Integer, Integer> perfId)
+	public void onStopSubAction(Pair<Long, Long> perfId)
 	{
 		if (perfId != null)
 		{
@@ -1876,6 +1876,12 @@ public class NGClient extends AbstractApplication
 		}
 
 		return null;
+	}
+
+	@Override
+	public void setFirstDayOfTheWeek(int weekday)
+	{
+		putClientProperty(IApplication.FIRST_DAY_OF_WEEK, Integer.valueOf(weekday));
 	}
 
 	@Override

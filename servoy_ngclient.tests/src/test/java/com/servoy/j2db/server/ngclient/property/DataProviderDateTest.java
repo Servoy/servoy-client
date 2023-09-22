@@ -1235,6 +1235,16 @@ public class DataProviderDateTest
 		/*
 		 * (non-Javadoc)
 		 *
+		 * @see com.servoy.j2db.INGClientApplication#setFirstDayOfTheWeek(int)
+		 */
+		@Override
+		public void setFirstDayOfTheWeek(int weekday)
+		{
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
 		 * @see com.servoy.j2db.INGClientApplication#getMediaURL(java.lang.String)
 		 */
 		@Override
@@ -1958,7 +1968,7 @@ public class DataProviderDateTest
 		 * org.sablo.specification.WebObjectFunctionDefinition, java.lang.Object[])
 		 */
 		@Override
-		public Pair<Integer, Integer> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] arguments)
+		public Pair<Long, Long> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] arguments)
 		{
 
 			return null;
@@ -1970,7 +1980,7 @@ public class DataProviderDateTest
 		 * @see com.servoy.j2db.server.ngclient.INGApplication#onStopSubAction(com.servoy.j2db.util.Pair)
 		 */
 		@Override
-		public void onStopSubAction(Pair<Integer, Integer> perfId)
+		public void onStopSubAction(Pair<Long, Long> perfId)
 		{
 
 

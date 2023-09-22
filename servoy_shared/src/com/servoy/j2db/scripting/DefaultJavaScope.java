@@ -20,6 +20,8 @@ package com.servoy.j2db.scripting;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Supplier;
 
 import org.mozilla.javascript.MemberBox;
@@ -141,9 +143,13 @@ public abstract class DefaultJavaScope extends DefaultScope implements IJavaScri
 		return super.has(index, start);
 	}
 
+	private static final ConcurrentMap<Class< ? >, Map<String, NativeJavaMethod>> functionCache = new ConcurrentHashMap<>();
+
 	public static Map<String, NativeJavaMethod> getJsFunctions(Class< ? > clazz)
 	{
-		Map<String, NativeJavaMethod> jsFunctions = new HashMap<String, NativeJavaMethod>();
+		Map<String, NativeJavaMethod> jsFunctions = functionCache.get(clazz);
+		if (jsFunctions != null) return jsFunctions;
+		jsFunctions = new HashMap<String, NativeJavaMethod>();
 		try
 		{
 			for (Method method : clazz.getMethods())
@@ -194,7 +200,14 @@ public abstract class DefaultJavaScope extends DefaultScope implements IJavaScri
 		{
 			Debug.error(e);
 		}
+		Map<String, NativeJavaMethod> alreadyCreatedValue = functionCache.putIfAbsent(clazz, jsFunctions);
+		if (alreadyCreatedValue != null) return alreadyCreatedValue;
 		return jsFunctions;
+	}
+
+	public static void clearFunctionCache()
+	{
+		functionCache.values().forEach(map -> map.clear());
 	}
 
 }

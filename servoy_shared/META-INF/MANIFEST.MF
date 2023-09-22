@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy Shared Plug-in
 Bundle-SymbolicName: servoy_shared;singleton:=true
-Bundle-Version: 2023.9.0.3900_rc
+Bundle-Version: 2023.12.0.3920_rc
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: Servoy
 Bundle-ClassPath: .,
@@ -65,7 +65,6 @@ Export-Package: com.servoy.j2db,
  com.servoy.j2db.util.toolbar,
  com.servoy.j2db.util.visitor,
  com.servoy.j2db.util.xmlxport,
- net.jcip.annotations,
  org.apache.wicket,
  org.apache.wicket.ajax,
  org.apache.wicket.ajax.calldecorator,

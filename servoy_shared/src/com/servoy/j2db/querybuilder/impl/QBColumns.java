@@ -35,7 +35,7 @@ import com.servoy.j2db.scripting.DefaultJavaScope;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBColumns extends DefaultJavaScope
 {
-	private static Map<String, NativeJavaMethod> jsFunctions = getJsFunctions(QBColumns.class);
+	private final static Map<String, NativeJavaMethod> jsFunctions = getJsFunctions(QBColumns.class);
 
 	QBColumns(Scriptable scriptParent)
 	{

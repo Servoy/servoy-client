@@ -101,6 +101,7 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 		writer.key(FoundsetTypeSabloValue.SERVER_SIZE).value(0);
 		writer.key(FoundsetTypeSabloValue.SELECTED_ROW_INDEXES).array().endArray();
 		writer.key(FoundsetTypeSabloValue.MULTI_SELECT).value(false);
+		writer.key(FoundsetTypeSabloValue.FIND_MODE).value(false);
 		writer.key(FoundsetTypeSabloValue.HAS_MORE_ROWS).value(false);
 
 		// viewPort

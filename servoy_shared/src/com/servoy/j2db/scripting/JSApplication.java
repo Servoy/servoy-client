@@ -85,6 +85,8 @@ import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPlugin;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.scripting.info.APPLICATION_TYPES;
+import com.servoy.j2db.scripting.info.APP_NG_PROPERTY;
+import com.servoy.j2db.scripting.info.APP_UI_PROPERTY;
 import com.servoy.j2db.scripting.info.CLIENTDESIGN;
 import com.servoy.j2db.scripting.info.ELEMENT_TYPES;
 import com.servoy.j2db.scripting.info.LOGGINGLEVEL;
@@ -138,7 +140,9 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	private static Class< ? >[] getAllReturnedTypesInternal()
 	{
-		return new Class< ? >[] { APPLICATION_TYPES.class, CLIENTDESIGN.class, DRAGNDROP.class, ELEMENT_TYPES.class, ICSSPosition.class, IScriptRenderMethodsWithOptionalProps.class, JSDNDEvent.class, JSEvent.class, JSRenderEvent.class, JSUpload.class, JSWindow.class, JSLogger.class, JSLogBuilder.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, NGCONSTANTS.class };
+		// keep APP_UI_PROPERTY.class and APP_NG_PROPERTY.class at the end of the array
+		// we remove these 2 types in SolutionExplorerTreeContentProvider
+		return new Class< ? >[] { APPLICATION_TYPES.class, CLIENTDESIGN.class, DRAGNDROP.class, ELEMENT_TYPES.class, ICSSPosition.class, IScriptRenderMethodsWithOptionalProps.class, JSDimension.class, JSPoint.class, JSDNDEvent.class, JSEvent.class, JSRenderEvent.class, JSUpload.class, JSWindow.class, JSLogger.class, JSLogBuilder.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, NGCONSTANTS.class, APP_UI_PROPERTY.class, APP_NG_PROPERTY.class };
 	}
 
 	@Deprecated
@@ -2901,21 +2905,23 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
-	 * This generates a browser function for the given function string that can be executed in the browser
-	 * The resulting object can be assigned into a config/property object that is then assigned to a component
-	 * The component will receive this function as a real function object.
+	 * This generates a browser function for the given function string that can be executed in the browser by a component that needs a function for a certain property value.
+	 * The resulting object  should be assigned into a config/property object that is then assigned to a component
+	 * The component will receive this function as a real function object in TiNG (but still as a plain string that needs to be evalled in NG1)
 	 *
-	 * This is a more dynamic variant of the spec property "clientfunction" https://wiki.servoy.com/display/DOCS/Property+Types
+	 * This is needed because in TiNG  it is not allowed, because of the Content Security Policy (CSP) that is enforced, to eval(string) to get a function object (that then can be executed later on)
+	 *
+	 * This is a more dynamic variant of the spec property "clientfunction" https://docs.servoy.com/reference/servoycore/dev-api/property_types#clientfunction
 	 * You do not need to use this for properties/arguments/return values that are declared to have "clientfunction" type in the .spec file, but rather for
-	 * when you want to give it inside plain 'object' typed values.
+	 * when you want to give it inside plain 'object' typed values. From 2023.09 also map and json property types (even nested if configured in the spec correctly) are supported.
 	 *
 	 * @sample
 	 * var options = { myfunction: application.generateBrowserFunction("function(param) { return param + 1 }") };
-	 * elements.component.setOptions(options);
+	 * elements.component.options = options;
 	 *
 	 * @param functionString The function string of a js function that should be running in the clients browser.
 	 *
-	 * @return An object that can be assignd to a javascript/json object that is send to the client
+	 * @return An object that can be assignd to a property of an component or custom type. (nested in an object/map/json type)
 	 */
 	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 	@JSFunction

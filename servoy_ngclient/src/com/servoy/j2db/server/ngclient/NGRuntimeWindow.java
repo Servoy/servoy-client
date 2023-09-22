@@ -552,7 +552,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 					Debug.error(e);
 				}
 
-				Pair<Integer, Integer> perfId = null;
+				Pair<Long, Long> perfId = null;
 				PerformanceData performanceData = null;
 				String clientID = getApplication().getClientID();
 				if (perfRegistry != null)

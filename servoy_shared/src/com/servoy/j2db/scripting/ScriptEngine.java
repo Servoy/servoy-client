@@ -1015,7 +1015,7 @@ final class ProfilingDebugFrame implements DebugFrame
 	private final PerformanceData performanceData;
 	private final IApplication application;
 	private final String name;
-	private Integer pfId;
+	private Long pfId;
 
 	public ProfilingDebugFrame(PerformanceData performanceData, IApplication application, String name)
 	{

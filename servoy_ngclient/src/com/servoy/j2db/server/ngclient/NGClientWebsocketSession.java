@@ -340,7 +340,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 				public void setUserId()
 				{
-					String[] chunks = ((String)args.get("id_token")).split("\\.");
+					String id_token = (String)args.get("id_token");
+					String[] chunks = id_token.split("\\.");
 					Base64.Decoder decoder = Base64.getUrlDecoder();
 					String payload = new String(decoder.decode(chunks[1]));
 					JSONObject token = new JSONObject(payload);
@@ -358,6 +359,14 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 							gr[i] = groups.getString(i);
 						}
 						ci.setUserGroups(gr);
+					}
+					if ("on".equals(args.get("remember")))
+					{
+						JSONObject obj = new JSONObject();
+						obj.put("user", token.get("user"));
+						obj.put("token", id_token);
+						getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("rememberUser",
+							new Object[] { obj });
 					}
 				}
 			});

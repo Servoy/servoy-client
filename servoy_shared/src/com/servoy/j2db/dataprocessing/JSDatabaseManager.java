@@ -3372,13 +3372,24 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Returns a foundset object for a specified pk query.
+	 * Returns a foundset object for a specified pk base query. This creates a filtered "view" on top of the database table based on that query.
 	 *
-	 * @sampleas getFoundSet(String)
+	 * This foundset is different then when doing foundset.loadRecords(query) or datasources.db.server.table.loadRecords(query) because this is generated as a "view"
+	 * Which means that the foundset will always have this query as its  base, even when doing foundset.loadAllRecords() afterwards. Because this query is set as its "creation query"
+	 * JSFoundset.loadRecords(query) does set that query on the current foundset as a a "search" condition. which will be removed when doing a loadAllRecords().
+	 *
+	 *  So doing a clear() on a foundse created by this call will just add a "search" condition that results in no records found ( 1 = 2) and then loadAllRecords() will go back to this query.
+	 *  But in a foundset.loadRecord(query) then clear() will overwrite the "search" condition which is the given query so the query will be lost after that so loadAllRecords() will go back to all records in the table)
+	 *
+	 * @sample
+	 * var qb = datasources.db.example_data.orders.createSelect();
+	 * qb.result.addPk();
+	 * qb.where.add(qb.columns.product_id.eq(1))
+	 * %%prefix%%foundset.loadRecords(qb);
 	 *
 	 * @param query The query to get the JSFoundset for.
 	 *
-	 * @return A new JSFoundset for that query.
+	 * @return A new JSFoundset with that query as its base query.
 	 */
 	public FoundSet js_getFoundSet(QBSelect query) throws ServoyException
 	{

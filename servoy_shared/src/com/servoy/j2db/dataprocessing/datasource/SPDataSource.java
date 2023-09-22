@@ -35,7 +35,7 @@ import com.servoy.j2db.util.Debug;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class SPDataSource extends DefaultJavaScope
 {
-	private static Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(SPDataSource.class);
+	private static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(SPDataSource.class);
 	private volatile IApplication application;
 
 	SPDataSource(IApplication application)

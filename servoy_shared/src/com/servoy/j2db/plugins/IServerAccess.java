@@ -154,23 +154,34 @@ public interface IServerAccess extends IPluginAccess
 	public boolean notifyDataChange(String server_name, String table_name, IDataSet pks, int action, String transaction_id);
 
 	/**
+	 * End the timing that was started with {@link #addPerformanceTiming(String, String, long, String)}
+	 *
+	 * @param id the id that was returned by {@link #addPerformanceTiming(String, String, long, String)}
+	 * @since 8.0
+	 * @Deprecated
+	 */
+	@Deprecated
+	public void endPerformanceTiming(String context, Integer id, String clientId);
+
+
+	/**
 	 * Add performance timing data for an action. This is shown on the server admin page, performance section.
 	 * returns an ID that should be given to the {@link #endPerformanceTiming(String, Integer, String)} method in order to end the timing.
 	 *
 	 * @param context group
 	 * @param action
 	 * @param time_ms
-	 * @since 8.0
+	 * @since 2023.06
 	 */
-	public Integer addPerformanceTiming(String context, String action, long time_ms, String clientId);
+	public Long addPerformanceTiming(String context, String action, long time_ms, String clientId);
 
 	/**
 	 * End the timing that was started with {@link #addPerformanceTiming(String, String, long, String)}
 	 *
 	 * @param id the id that was returned by {@link #addPerformanceTiming(String, String, long, String)}
-	 * @since 8.0
+	 * @since 2023.06
 	 */
-	public void endPerformanceTiming(String context, Integer id, String clientId);
+	public void endPerformanceTiming(String context, Long id, String clientId);
 
 	/**
 	 * Add performance timing data for an action. This is shown on the server admin page, performance section.

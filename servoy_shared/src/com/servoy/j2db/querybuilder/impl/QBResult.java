@@ -30,10 +30,11 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.QueryAggregate;
-import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.QueryFunction;
+import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
+import com.servoy.j2db.query.QuerySearchedCaseExpression;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
@@ -258,25 +259,25 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	public QBColumn[] getColumns()
 	{
 		ArrayList<IQuerySelectValue> columns = getParent().getQuery().getColumns();
-		QBColumn[] result = new QBColumn[columns == null ? 0 : columns.size()];
-		for (int i = 0; i < result.length; i++)
-		{
-			IQuerySelectValue selectValue = columns.get(i);
-			if (selectValue instanceof QueryColumn)
+		return columns == null ? new QBColumn[0] : columns.stream().map(selectValue -> {
+
+			if (selectValue instanceof QueryAggregate)
 			{
-				result[i] = new QBColumn(getRoot(), getParent(), selectValue);
+				QueryAggregate queryAggregate = (QueryAggregate)selectValue;
+				return new QBAggregate(getRoot(), getParent(), selectValue, queryAggregate.getType(), queryAggregate.getQuantifier());
 			}
-			else if (selectValue instanceof QueryAggregate)
+			if (selectValue instanceof QueryFunction)
 			{
-				result[i] = new QBAggregate(getRoot(), getParent(), selectValue, ((QueryAggregate)selectValue).getType(),
-					((QueryAggregate)selectValue).getQuantifier());
+				QueryFunctionType function = ((QueryFunction)selectValue).getFunction();
+				return new QBFunction(getRoot(), getParent(), function, ((QueryFunction)selectValue).getArgs());
 			}
-			else if (selectValue instanceof QueryFunction)
+			if (selectValue instanceof QuerySearchedCaseExpression)
 			{
-				result[i] = new QBFunction(getRoot(), getParent(), ((QueryFunction)selectValue).getFunction(), ((QueryFunction)selectValue).getArgs());
+				return new QBSearchedCaseExpression(getRoot(), getParent(), ((QuerySearchedCaseExpression)selectValue));
 			}
-		}
-		return result;
+			return new QBColumn(getRoot(), getParent(), selectValue);
+
+		}).toArray(QBColumn[]::new);
 	}
 
 	/**

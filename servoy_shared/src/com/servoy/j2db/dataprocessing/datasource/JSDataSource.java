@@ -134,6 +134,34 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 		return application.getFoundSetManager().getNamedFoundSet(name, datasource);
 	}
 
+	/**
+	 * Returns a foundset object for a specified pk base query. This creates a filtered "view" on top of the database table based on that query.
+	 *
+	 * This foundset is different then when doing foundset.loadRecords(query) or datasources.db.server.table.loadRecords(query) because this is generated as a "view"
+	 * Which means that the foundset will always have this query as its  base, even when doing foundset.loadAllRecords() afterwards. Because this query is set as its "creation query"
+	 * JSFoundset.loadRecords(query) does set that query on the current foundset as a a "search" condition. which will be removed when doing a loadAllRecords().
+	 *
+	 *  So doing a clear() on a foundse created by this call will just add a "search" condition that results in no records found ( 1 = 2) and then loadAllRecords() will go back to this query.
+	 *  But in a foundset.loadRecord(query) then clear() will overwrite the "search" condition which is the given query so the query will be lost after that so loadAllRecords() will go back to all records in the table)
+	 *
+	 * @sample
+	 * var qb = datasources.db.example_data.orders.createSelect();
+	 * qb.result.addPk();
+	 * qb.where.add(qb.columns.product_id.eq(1))
+	 * %%prefix%%foundset.loadRecords(qb);
+	 *
+	 * @param select The query to get the JSFoundset for.
+	 *
+	 * @return A new JSFoundset with that query as its base query.
+	 *
+	 * @since 2023.09
+	 */
+	@JSFunction
+	public IFoundSet getFoundSet(QBSelect select) throws ServoyException
+	{
+		return application.getFoundSetManager().getFoundSet(select);
+	}
+
 	/** Get all currently foundsets for this datasource.
 	 * <br></br>
 	 * This method can be used to loop over foundset and programatically dispose them to clean up resources quickly.
@@ -193,11 +221,18 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	}
 
 	/**
-	 * get a new foundset containing records based on a QBSelect query.
+	 * get a new foundset containing records based on a QBSelect query that is given.
+	 *
+	 * This is just a shotcut for datasources.db.server.table.getFoundset() and then calling loadRecords(qbSelect) on the resulting foundset.
+	 * So it has the same behavior as JSFoundset.loadRecords(qbselect) that is that the given query is set as a "search" condition on the existing query of the foundset.
+	 * This means that if you do loadAllRecords() or calling clear() on it the qbselect conditon will also be removed.
+	 * loadAllRecords() will revert back to the foundsets original query (see {@link #getFoundSet(QBSelect)}
+	 * clear() will revert back to the original foundset query and add a "clear" condition to the query ( resulting in 1 = 2)
 	 *
 	 * @sample
 	 * var qb = datasources.db.example_data.orders.createSelect();
-	 * qb.result.add(qb.columns.orderid);
+	 * qb.result.addPk();
+	 * qb.where.add(q.columns.product_id.eq(1))
 	 * var fs = datasources.db.example_data.orders.loadRecords(qb);
 	 *
 	 * @param qbSelect a query builder object

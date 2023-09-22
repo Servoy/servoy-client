@@ -32,4 +32,9 @@ public interface INGClientApplication extends IApplication
 	String getClipboardContent();
 
 	String getMediaURL(String mediaName);
+
+	/**
+	 * @param weekday
+	 */
+	void setFirstDayOfTheWeek(int weekday);
 }

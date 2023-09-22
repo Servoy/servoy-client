@@ -384,6 +384,12 @@ public abstract class AbstractDelegateDataServer implements IDataServer, IDelega
 		return dataserver.notifyDataChange(client_id, server_name, tableName, pks, action, transaction_id);
 	}
 
+	public boolean notifyDataChange(String client_id, boolean notifySelf, String server_name, String tableName, IDataSet pks, int action, String transaction_id)
+		throws RemoteException
+	{
+		return dataserver.notifyDataChange(client_id, notifySelf, server_name, tableName, pks, action, transaction_id);
+	}
+
 	/**
 	 * @param clientId
 	 * @param statements

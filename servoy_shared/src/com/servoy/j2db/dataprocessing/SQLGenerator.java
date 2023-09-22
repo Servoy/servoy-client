@@ -24,6 +24,7 @@ import static com.servoy.j2db.persistence.Column.mapToDefaultType;
 import static com.servoy.j2db.persistence.IColumnTypes.MEDIA;
 import static com.servoy.j2db.query.AbstractBaseQuery.acceptVisitor;
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
+import static com.servoy.j2db.query.OrCondition.or;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.cast;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.castfrom;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.upper;
@@ -41,6 +42,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.mozilla.javascript.Wrapper;
 
@@ -133,6 +135,7 @@ public class SQLGenerator
 	public static final String CONDITION_DELETED = SERVOY_CONDITION_PREFIX + 'D';
 	public static final String CONDITION_RELATION = SERVOY_CONDITION_PREFIX + 'R';
 	public static final String CONDITION_SEARCH = SERVOY_CONDITION_PREFIX + 'S';
+	public static final String CONDITION_CLEAR = SERVOY_CONDITION_PREFIX + 'C';
 	public static final String CONDITION_LOCK = SERVOY_CONDITION_PREFIX + 'L';
 
 	public static final String SQL_QUERY_VALIDATION_MESSAGE = "A query must start with 'SELECT', optionally preceded by 'WITH' or 'DECLARE', and must contain 'FROM'";
@@ -173,7 +176,7 @@ public class SQLGenerator
  * _____________________________________________________________ The methods below belong to this class
  */
 
-	//SQL pk(s) select for foundset,concatenating those strings will always deliver a executable SQL
+	// SQL pk(s) select for foundset
 	// Note: removeUnusedJoins must be false when the resulting query is changed afterwards (like adding columns)
 	QuerySelect getPKSelectSqlSelect(IGlobalValueEntry provider, Table table, QuerySelect oldSQLQuery, List<IRecordInternal> findStates, boolean reduce,
 		IDataSet omitPKs, List<SortColumn> orderByFields, boolean removeUnusedJoins) throws ServoyException
@@ -189,11 +192,12 @@ public class SQLGenerator
 			retval = deepClone(oldSQLQuery);
 			retval.setGroupBy(null);
 			if (orderByFields != null) retval.clearSorts(); // will be generated based on foundset sorting
-			// remove all servoy conditions, except filter, search and relation
+			// remove all servoy conditions, except filter, clear, search and relation
 			for (String conditionName : retval.getConditionNames())
 			{
 				if (conditionName != null && conditionName.startsWith(SERVOY_CONDITION_PREFIX) &&
-					!(CONDITION_FILTER.equals(conditionName) || CONDITION_SEARCH.equals(conditionName) || CONDITION_RELATION.equals(conditionName)))
+					!(CONDITION_FILTER.equals(conditionName) || CONDITION_CLEAR.equals(conditionName) || CONDITION_SEARCH.equals(conditionName) ||
+						CONDITION_RELATION.equals(conditionName)))
 				{
 					retval.setCondition(conditionName, null);
 				}
@@ -204,14 +208,14 @@ public class SQLGenerator
 			retval = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
 		}
 
-		//Example:-select pk1,pk2 from tablename1 where ((fieldname1 like '%abcd%') or ((fieldname2 like '%xyz%')) (retrieve max 200 rows)
+		// Example:-select pk1,pk2 from tablename1 where ((fieldname1 like '%abcd%') or ((fieldname2 like '%xyz%')) (retrieve max 200 rows)
 
 		ArrayList<IQuerySelectValue> pkQueryColumns = new ArrayList<IQuerySelectValue>(3);
 		ArrayList<Column> pkColumns = new ArrayList<Column>(3);
-		//getPrimaryKeys from table
+		// getPrimaryKeys from table
 		Iterator<Column> pks = table.getRowIdentColumns().iterator();
 
-		//make select
+		// make select
 		if (!pks.hasNext())
 		{
 			throw new RepositoryException(ServoyException.InternalCodes.PRIMARY_KEY_NOT_FOUND, new Object[] { table.getName() });
@@ -226,7 +230,7 @@ public class SQLGenerator
 
 		if (omitPKs != null && omitPKs.getRowCount() != 0)
 		{
-			//omit is rebuild each time
+			// omit is rebuild each time
 			retval.setCondition(CONDITION_OMIT,
 				createSetConditionFromPKs(IBaseSQLCondition.NOT_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), pkColumns, omitPKs));
 		}
@@ -242,12 +246,21 @@ public class SQLGenerator
 			{
 				if (obj instanceof FindState)
 				{
-					moreWhere = OrCondition.or(moreWhere, createConditionFromFindState((FindState)obj, retval, provider, pkQueryColumns));
+					moreWhere = or(moreWhere, createConditionFromFindState((FindState)obj, retval, provider, pkQueryColumns));
 				}
 			}
 
 			if (moreWhere != null)
 			{
+				// if this query is in a clear state move/set that condition as the SEARCH condition from now on.
+				// because we want to reduce or append to that search below.
+				ISQLCondition clearCondition = retval.getCondition(CONDITION_CLEAR);
+				if (clearCondition != null)
+				{
+					retval.clearCondition(CONDITION_CLEAR);
+					retval.addCondition(CONDITION_SEARCH, clearCondition);
+				}
+
 				if (reduce)
 				{
 					retval.addCondition(CONDITION_SEARCH, moreWhere);
@@ -289,7 +302,7 @@ public class SQLGenerator
 			}
 		}
 
-		//make orderby
+		// make orderby
 		if (orderByFields != null || retval.getSorts() == null)
 		{
 			List<SortColumn> orderBy = orderByFields == null ? new ArrayList<SortColumn>(3) : orderByFields;
@@ -310,10 +323,10 @@ public class SQLGenerator
 			retval.removeUnusedJoins(false, true);
 		}
 
-		//1 do not remove sort or groupby test, will cause invalid queries
-		//1 this one causes error and can not be fixed,
-		//1 if (joinswherepart.length() != 0 && !sortIsRelated && groupbyKeyword == STRING_EMPTY && table.getPrimaryKeyCount() == 1)
-		//1 sql select distinct(s_contacts.contactsid) from s_contacts,s_companies where s_contacts.company_id = s_companies.company_id order by s_contacts.surname  ERROR:  For SELECT DISTINCT, ORDER BY expressions must appear in target list
+		// do not remove sort or groupby test, will cause invalid queries
+		// this one causes error and can not be fixed,
+		// if (joinswherepart.length() != 0 && !sortIsRelated && groupbyKeyword == STRING_EMPTY && table.getPrimaryKeyCount() == 1)
+		// sql select distinct(s_contacts.contactsid) from s_contacts,s_companies where s_contacts.company_id = s_companies.company_id order by s_contacts.surname  ERROR:  For SELECT DISTINCT, ORDER BY expressions must appear in target list
 
 		// retval may have set distinct and plainPKSelect flag based on previous sort columns, make sure to reset first
 		retval.setDistinct(false);
@@ -731,10 +744,8 @@ public class SQLGenerator
 			SQLSheet sheet = state.getParentFoundSet().getSQLSheet();
 			Table table = sheet.getTable();
 
-			Iterator<Map.Entry<String, Object>> it = state.getColumnData().entrySet().iterator();
-			while (it.hasNext())
+			for (Entry<String, Object> elem : state.getColumnData().entrySet())
 			{
-				Map.Entry<String, Object> elem = it.next();
 				final String dataProviderID = elem.getKey();
 				Object raw = elem.getValue();
 				if (raw == null) continue;
@@ -1008,10 +1019,10 @@ public class SQLGenerator
 	 */
 	public static IDataSet getEmptyDataSetForDummyQuery(ISQLSelect sqlSelect)
 	{
-		if (sqlSelect instanceof QuerySelect)
+		if (sqlSelect instanceof QuerySelect && ((QuerySelect)sqlSelect).getWhere() != null)
 		{
-			// all named conditions in QuerySelect are AND-ed, if one always results to false, skip the query
-			for (IBaseSQLCondition condition : iterate(((QuerySelect)sqlSelect).getConditions(CONDITION_SEARCH)))
+			// go over all where conditions to check if this query would result in possible values or not.
+			for (IBaseSQLCondition condition : iterate(((QuerySelect)sqlSelect).getWhere().getAllConditions()))
 			{
 				boolean skipQuery = false;
 				if (condition instanceof SetCondition && ((SetCondition)condition).isAndCondition())
@@ -1146,10 +1157,8 @@ public class SQLGenerator
 		QueryUpdate update = new QueryUpdate(queryTable);
 
 		List<Column> columns = new ArrayList<Column>();
-		Iterator<Column> it1 = table.getColumns().iterator();
-		while (it1.hasNext())
+		for (Column c : table.getColumns())
 		{
-			Column c = it1.next();
 			ColumnInfo ci = c.getColumnInfo();
 			if (ci != null && ci.isExcluded())
 			{
@@ -1249,10 +1258,8 @@ public class SQLGenerator
 
 			//fill dataprovider map
 			List<String> dataProviderIDsDilivery = new ArrayList<String>();
-			Iterator<Column> it = rcolumns.iterator();
-			while (it.hasNext())
+			for (Column col : rcolumns)
 			{
-				Column col = it.next();
 				dataProviderIDsDilivery.add(col.getDataProviderID());
 			}
 
