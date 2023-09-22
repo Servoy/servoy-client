@@ -198,6 +198,14 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
+	 * The height of the form in pixels.
+	 */
+	public int getHeight()
+	{
+		return getSize().height;
+	}
+
+	/**
 	 * Set the width.
 	 *
 	 * @param width
@@ -205,6 +213,23 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	public void setWidth(int width)
 	{
 		setSize(new Dimension(width, getSize().height));
+	}
+
+	/**
+	 * Set the height.
+	 *
+	 * @param height
+	 */
+	public void setHeight(int height)
+	{
+		if (getParts().hasNext())
+		{
+			getParts().next().setHeight(height);
+		}
+		else
+		{
+			setSize(new Dimension(getSize().width, height));
+		}
 	}
 
 	public int getMinWidth()

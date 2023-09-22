@@ -553,7 +553,7 @@ public class RepositoryHelper
 		if (element == null)
 		{
 			// no content spec (example: form.width), some properties are set via another property.
-			if (Form.class.isAssignableFrom(persistClass) && "width".equals(name)) //$NON-NLS-1$
+			if (Form.class.isAssignableFrom(persistClass) && ("width".equals(name) || "height".equals(name))) //$NON-NLS-1$ //$NON-NLS-2$
 			{
 				return true;
 			}
