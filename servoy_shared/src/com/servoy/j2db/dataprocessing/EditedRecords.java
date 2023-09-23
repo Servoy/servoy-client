@@ -42,7 +42,7 @@ import com.servoy.j2db.util.Pair;
 public class EditedRecords
 {
 // RAGTEST failedRecords?
-	// RAGTET failed delete?
+	// RAGTEST failed delete?
 	private final List<EditingRecord> records = synchronizedList(new ArrayList<>(32));
 	private final List<DeletingFoundset> deleteQueries = new ArrayList<>();
 
@@ -118,10 +118,10 @@ public class EditedRecords
 					mapping(dq -> dq.queryDelete, toList())));
 	}
 
-	public void removeDeleteQuery(QueryDelete queryDelete)
-	{
-		deleteQueries.removeIf(dq -> dq.queryDelete == queryDelete);
-	}
+// RAGTEST niet gebruikt	public void removeDeleteQuery(QueryDelete queryDelete)
+//	{
+//		deleteQueries.removeIf(dq -> dq.queryDelete == queryDelete);
+//	}
 
 	public Pair<IFoundSetInternal, QueryDelete> removeOneDeleteQuery(IFoundSet foundset)
 	{
@@ -196,7 +196,8 @@ public class EditedRecords
 
 	public void clear()
 	{
-		records.clear(); // RAGTEST queries ook ?
+		records.clear();
+		deleteQueries.clear();
 	}
 
 	private enum EditType

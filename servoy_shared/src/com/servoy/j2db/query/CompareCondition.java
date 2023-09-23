@@ -30,6 +30,17 @@ public final class CompareCondition extends SetCondition
 		super(new int[] { operator }, new IQuerySelectValue[] { operand1 }, new Object[][] { new Object[] { operand2 } }, true);
 	}
 
+	private CompareCondition(int operators[], IQuerySelectValue[] keys, Object values, boolean andCondition)
+	{
+		super(operators, keys, values, andCondition);
+	}
+
+	@Override
+	protected CompareCondition withOperators(int[] ops)
+	{
+		return new CompareCondition(ops, keys, values, andCondition);
+	}
+
 	public int getOperator()
 	{
 		return getOperators()[0];

@@ -762,10 +762,11 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				return null;
 			}
 
-			boolean deleted = !pkRowMap.containsKey(row.getPKHashKey());
+			boolean deleteRow = row.isFlaggedForDeletion();
+
 			boolean doesExistInDB = row.existInDB();
 
-			if (deleted)
+			if (deleteRow)
 			{
 				if (!doesExistInDB)
 				{
@@ -791,7 +792,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			List<String> changedColumns = null;
 			if (doesExistInDB)
 			{
-				if (deleted)
+				if (deleteRow)
 				{
 					statement_action = ISQLActionTypes.DELETE_ACTION;
 					sqlDesc = sheet.getSQLDescription(SQLSheet.DELETE);
@@ -810,7 +811,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					List<String> req = sqlDesc.getRequiredDataProviderIDs();
 
 					Object[] olddata = row.getRawOldColumnData();
-					if (olddata == null)//for safety only, nothing changed
+					if (olddata == null) // for safety only, nothing changed
 					{
 						return null;
 					}
@@ -872,7 +873,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 						}
 					}
 
-					if (changedColumns == null)//nothing changed after all
+					if (changedColumns == null) // nothing changed after all
 					{
 						// clear the old data now else it will be kept and in a changed state.
 						row.flagExistInDB();
@@ -1201,7 +1202,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	{
 		if (r.getRowManager() != this) throw new IllegalArgumentException("I'm not the row manager from row"); //$NON-NLS-1$
 
-		r.flagExistInDB();//prevent it processed by any update, changed is false now
+		r.flagExistInDB(); // prevent it processed by any update, changed is false now
 
 		SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>> removed;
 		synchronized (this)

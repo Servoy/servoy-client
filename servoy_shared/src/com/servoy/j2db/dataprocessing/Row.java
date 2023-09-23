@@ -61,6 +61,7 @@ public class Row
 
 	private final Map<String, Object> unstoredCalcCache; // dataProviderID -> Value
 	private boolean existInDB;
+	private boolean flaggedForDeletion;
 	private String pkHashKey;
 	private final WeakHashMap<IRowChangeListener, Object> listeners;
 
@@ -190,6 +191,21 @@ public class Row
 	public boolean existInDB()
 	{
 		return existInDB;
+	}
+
+	public void flagForDeletion()
+	{
+		flaggedForDeletion = true;
+	}
+
+	public void clearFlagForDeletion()
+	{
+		flaggedForDeletion = false;
+	}
+
+	public boolean isFlaggedForDeletion()
+	{
+		return flaggedForDeletion;
 	}
 
 	public boolean containsCalculation(String id)
@@ -510,7 +526,7 @@ public class Row
 		return;
 	}
 
-	//this makes it possible to validate the state before it is processed again due to some listner being fired
+	// this makes it possible to validate the state before it is processed again due to some listener being fired
 	void flagExistInDB()
 	{
 		if (!isRemoving)

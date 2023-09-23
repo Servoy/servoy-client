@@ -21,7 +21,7 @@ import java.util.Arrays;
 
 /**
  * Set-condition for mobile and regular clients.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -58,7 +58,7 @@ public class BaseSetCondition<K extends IBaseQuerySelectValue> implements IBaseS
 
 	/**
 	 * Constructor for all the same operators.
-	 * 
+	 *
 	 * @param operator
 	 * @param keys
 	 * @param values
@@ -71,7 +71,7 @@ public class BaseSetCondition<K extends IBaseQuerySelectValue> implements IBaseS
 
 	/**
 	 * Validate values and convert if neeed.
-	 * 
+	 *
 	 * @param keys
 	 * @param values
 	 */
@@ -165,14 +165,26 @@ public class BaseSetCondition<K extends IBaseQuerySelectValue> implements IBaseS
 		return operators;
 	}
 
+	@Override
 	public IBaseSQLCondition negate()
 	{
 		int[] negop = new int[operators.length];
 		for (int i = 0; i < operators.length; i++)
 		{
-			negop[i] = OPERATOR_NEGATED[operators[i] & IBaseSQLCondition.OPERATOR_MASK] | (operators[i] & ~IBaseSQLCondition.OPERATOR_MASK);
+			int operator = operators[i] & IBaseSQLCondition.OPERATOR_MASK;
+			int negatedOperator = OPERATOR_NEGATED[operator];
+
+			int mask = operators[i] & ~IBaseSQLCondition.OPERATOR_MASK;
+			int negatedMask = mask ^ ORNULL_MODIFIER; // XOR
+
+			negop[i] = negatedOperator | negatedMask;
 		}
-		return new BaseSetCondition(negop, keys, values, !andCondition);
+		return withOperators(negop);
+	}
+
+	protected BaseSetCondition<K> withOperators(int[] ops)
+	{
+		return new BaseSetCondition<>(ops, keys, values, andCondition);
 	}
 
 	private static int hashCode(int[] array)

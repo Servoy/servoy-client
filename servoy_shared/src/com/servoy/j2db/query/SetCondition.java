@@ -78,24 +78,18 @@ public class SetCondition extends BaseSetCondition<IQuerySelectValue> implements
 		return super.clone();
 	}
 
+
 	@Override
 	public ISQLCondition negate()
 	{
-		int[] negop = new int[operators.length];
-		for (int i = 0; i < operators.length; i++)
-		{
-			int operator = operators[i] & IBaseSQLCondition.OPERATOR_MASK;
-			int negatedOperator = OPERATOR_NEGATED[operator];
-
-			int mask = operators[i] & ~IBaseSQLCondition.OPERATOR_MASK;
-			int negatedMask = mask ^ ORNULL_MODIFIER; // XOR
-
-			negop[i] = negatedOperator | negatedMask;
-		}
-		return new SetCondition(negop, keys, values, !andCondition);
-// RAGTEST  !andCondition 			return new SetCondition(negop, keys, values, andCondition);
+		return (ISQLCondition)super.negate();
 	}
 
+	@Override
+	protected SetCondition withOperators(int[] ops)
+	{
+		return new SetCondition(ops, keys, values, andCondition);
+	}
 
 	public void acceptVisitor(IVisitor visitor)
 	{

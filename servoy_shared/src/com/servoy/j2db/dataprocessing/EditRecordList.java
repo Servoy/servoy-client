@@ -27,6 +27,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -154,7 +155,7 @@ public class EditRecordList
 		editRecordsLock.lock();
 		try
 		{
-			return editedRecords.size() + failedRecords.size() > 0;
+			return !editedRecords.isEmpty() || !failedRecords.isEmpty();
 		}
 		finally
 		{
@@ -457,12 +458,15 @@ public class EditRecordList
 				public void run()
 				{
 					// do not stop if the user is editing something else.
-					boolean stop;
+					boolean stop = false;
 					editRecordsLock.lock();
 					try
 					{
-						stop = editedRecords.size() == 1 && recordsToSaveFinal != null && recordsToSaveFinal.size() == 1 &&
-							editedRecords.getEdited()[0] == recordsToSaveFinal.get(0);
+						if (recordsToSaveFinal != null && recordsToSaveFinal.size() == 1)
+						{
+							IRecordInternal[] edited = editedRecords.getEdited();
+							stop = edited.length == 1 && edited[0] == recordsToSaveFinal.get(0);
+						}
 					}
 					finally
 					{
@@ -582,8 +586,9 @@ public class EditRecordList
 				}
 
 				Map<IRecordInternal, Integer> processed = new HashMap<>();
-				for (IRecordInternal tmp = getFirstElement(editedRecords.getAll(), recordsToSave); tmp != null; tmp = getFirstElement(editedRecords.getAll(),
-					recordsToSave))
+				for (IRecordInternal tmp = getFirstElement(editedRecords.getAll(), recordsToSave); //
+					tmp != null; //
+					tmp = getFirstElement(editedRecords.getAll(), recordsToSave))
 				{
 					// check if we do not have an infinite recursive loop
 					Integer count = processed.get(tmp);
@@ -702,41 +707,14 @@ public class EditRecordList
 				// RAGTEST kunnen deletes andere deletes triggeren? dan recursief of loopen?
 
 
-				for (Pair<IFoundSetInternal, QueryDelete> tmp = editedRecords.removeOneDeleteQuery(foundset); tmp != null; editedRecords
-					.removeOneDeleteQuery(foundset))
+				for (Pair<IFoundSetInternal, QueryDelete> tmp = editedRecords.removeOneDeleteQuery(foundset); //
+					tmp != null; //
+					tmp = editedRecords.removeOneDeleteQuery(foundset))
 				{
-					IFoundSetInternal fs = tmp.getLeft();
-					QueryDelete deleteQuery = tmp.getRight();
-
-
-					ITable table = fs.getTable();
-
-					setDeletedrecordsInternalTableFilter(false);
-
-
 					try
 					{
-
-
-						String tid = fsm.getTransactionID(table.getServerName());
-
-
-						// RAGTEST ignore delete TF of verwijder ze eerst (hoe te handelen met errors)
-
-
-						SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), null,
-							tid, deleteQuery, fsm.getTableFilterParams(table.getServerName(), deleteQuery));
-
-						Object[] results = fsm.getDataServer().performUpdates(fsm.getApplication().getClientID(), new ISQLStatement[] { statement });
-
-						for (int i = 0; results != null && i < results.length; i++)
-						{
-							if (results[i] instanceof ServoyException)
-							{
-								throw (ServoyException)results[i];
-							}
-						}
-
+						performDeleteForFoundset(tmp.getLeft(), tmp.getRight());
+						setDeletedrecordsInternalTableFilter(false);
 					}
 					catch (ServoyException e)
 					{
@@ -1135,6 +1113,32 @@ public class EditRecordList
 		return ISaveConstants.STOPPED;
 	}
 
+	private void performDeleteForFoundset(IFoundSetInternal fs, QueryDelete deleteQuery) throws ServoyException, RemoteException
+	{
+		ITable table = fs.getTable();
+
+		String tid = fsm.getTransactionID(table.getServerName());
+
+
+		// RAGTEST ignore delete TF of verwijder ze eerst (hoe te handelen met errors)
+
+
+		SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), null,
+			tid, deleteQuery, fsm.getTableFilterParams(table.getServerName(), deleteQuery));
+
+		Object[] results = fsm.getDataServer().performUpdates(fsm.getApplication().getClientID(), new ISQLStatement[] { statement });
+
+		for (int i = 0; results != null && i < results.length; i++)
+		{
+			if (results[i] instanceof ServoyException)
+			{
+				throw (ServoyException)results[i];
+			}
+		}
+
+
+	}
+
 	private <T> List<T> orderUpdatesForInsertOrder(List<T> rowData, Function<T, Row> rowFuction, boolean reverse)
 	{
 		if (rowData.size() <= 1 || fsm.config.disableInsertsReorder())
@@ -1401,8 +1405,14 @@ public class EditRecordList
 		RowManager rowManager = fsm.getRowManager(fsm.getDataSource(table));
 
 		Row rowData = state.getRawData();
-		boolean doesExistInDB = rowData.existInDB();
-		if (doesExistInDB && !hasAccess(table, IRepository.UPDATE))
+		if (rowData.isFlaggedForDeletion())
+		{
+			if (!hasAccess(table, IRepository.DELETE))
+			{
+				throw new ApplicationException(ServoyException.NO_DELETE_ACCESS, new Object[] { table.getName() });
+			}
+		}
+		else if (rowData.existInDB() && !hasAccess(table, IRepository.UPDATE))
 		{
 			throw new ApplicationException(ServoyException.NO_MODIFY_ACCESS, new Object[] { table.getName() });
 		}
@@ -1468,38 +1478,38 @@ public class EditRecordList
 
 	public void removeEditedRecord(IRecordInternal r)
 	{
-		int size;
+		boolean empty;
 		editRecordsLock.lock();
 		try
 		{
 			editedRecords.removeEdited(r);
 			recordTested.remove(r);
 			failedRecords.remove(r);
-			size = editedRecords.size();
+			empty = editedRecords.isEmpty();
 		}
 		finally
 		{
 			editRecordsLock.unlock();
 		}
-		if (size == 0)
+		if (empty)
 		{
 			fireEditChange();
 		}
 	}
 
 
-	public void removeDeleteQuery(QueryDelete deleteQuery)
-	{
-		editRecordsLock.lock();
-		try
-		{
-			editedRecords.removeDeleteQuery(deleteQuery);
-		}
-		finally
-		{
-			editRecordsLock.unlock();
-		}
-	}
+// RAGTEST niet gebruikt	public void removeDeleteQuery(QueryDelete deleteQuery)
+//	{
+//		editRecordsLock.lock();
+//		try
+//		{
+//			editedRecords.removeDeleteQuery(deleteQuery);
+//		}
+//		finally
+//		{
+//			editRecordsLock.unlock();
+//		}
+//	}
 
 	void removeEditedRecords(FoundSet set)
 	{
@@ -1591,7 +1601,7 @@ public class EditRecordList
 					if (!editedRecords.contains(record))
 					{
 						editedRecords.addEdited(record);
-						editRecordsSize = editedRecords.size();
+						editRecordsSize = editedRecords.size();// RAGTEST wat als alleen delete queries
 					}
 					failedRecords.remove(record);
 					// reset the exception so that it is tried again.
@@ -1667,12 +1677,13 @@ public class EditRecordList
 					if (editedRecords.contains(record))
 					{
 						editedRecords.remove(record);
-						fireChange = editedRecords.size() == 0; // RAGTEST check of uit editing state?
+						fireChange = editedRecords.isEmpty();
 					}
 					failedRecords.remove(record);
 					// reset the exception so that it is tried again.
 					record.getRawData().setLastException(null);
 
+					record.getRawData().flagForDeletion();
 					editedRecords.addDeleted(record);
 				}
 				finally
@@ -1846,20 +1857,20 @@ public class EditRecordList
 
 	protected void fireEditChange()
 	{
-		int editRecordsSize = 0;
-		int failedRecordsSize = 0;
+		boolean editRecordsEmpty;
+		boolean failedRecordsEmpty;
 		editRecordsLock.lock();
 		try
 		{
-			editRecordsSize = editedRecords.size();
-			failedRecordsSize = failedRecords.size();
+			editRecordsEmpty = editedRecords.isEmpty();
+			failedRecordsEmpty = failedRecords.isEmpty();
 		}
 		finally
 		{
 			editRecordsLock.unlock();
 		}
 
-		GlobalEditEvent e = new GlobalEditEvent(this, editRecordsSize > 0 || failedRecordsSize > 0);
+		GlobalEditEvent e = new GlobalEditEvent(this, !editRecordsEmpty || !failedRecordsEmpty);
 		Object[] array = editListeners.toArray();
 		for (Object element : array)
 		{
@@ -1867,7 +1878,7 @@ public class EditRecordList
 			listener.editChange(e);
 		}
 
-		if (editRecordsSize == 0)
+		if (editRecordsEmpty)
 		{
 			fsm.performActionIfRequired();
 		}
@@ -1969,8 +1980,7 @@ public class EditRecordList
 
 	public void rollbackRecords()
 	{
-		// RAGTEST deletedRecords
-		ArrayList<IRecordInternal> array = new ArrayList<IRecordInternal>();
+		List<IRecordInternal> array = new ArrayList<>();
 		editRecordsLock.lock();
 		try
 		{
@@ -2025,16 +2035,17 @@ public class EditRecordList
 
 				// TODO all fires in rollback should be accumulated and done here at once.
 
-				element.getRawData().rollbackFromOldValues();//we also rollback !existsInDB records, since they can be held in variables
+				element.getRawData().rollbackFromOldValues(); // we also rollback !existsInDB records, since they can be held in variables
 				if (!existsInDB[i])
 				{
 					element.getRawData().remove();
 				}
+				element.getRawData().clearFlagForDeletion();
 			}
 			editRecordsLock.lock();
 			try
 			{
-				if (editedRecords.size() > 0)
+				if (!editedRecords.isEmpty())
 				{
 					editedRecords.removeAll(array);
 				}
@@ -2054,7 +2065,7 @@ public class EditRecordList
 		removeUnChangedRecords(true, false);
 		editRecordsLock.lock();
 		try
-		{
+		{// RAGTEST bevat niet deleted, aparte api?
 			return editedRecords.getEdited();
 		}
 		finally

@@ -2189,6 +2189,45 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		return application.getFoundSetManager().getEditRecordList().getEditedRecords(foundset, true);
 	}
 
+	/** RAGTEST doc
+	 * Returns an array of edited records with outstanding (unsaved) data.
+	 *
+	 * NOTE: To return a dataset of outstanding (unsaved) edited data for each record, see JSRecord.getChangedData();
+	 * NOTE2: The fields focus may be lost in user interface in order to determine the edits.
+	 *
+	 * @sample
+	 * //This method can be used to loop through all outstanding changes in a foundset,
+	 * //the application.output line contains all the changed data, their tablename and primary key
+	 * var editr = databaseManager.getEditedRecords(foundset)
+	 * for (x=0;x<editr.length;x++)
+	 * {
+	 * 	var ds = editr[x].getChangedData();
+	 * 	var jstable = databaseManager.getTable(editr[x]);
+	 * 	var tableSQLName = jstable.getSQLName();
+	 * 	var pkrec = jstable.getRowIdentifierColumnNames().join(',');
+	 * 	var pkvals = new Array();
+	 * 	for (var j = 0; j < jstable.getRowIdentifierColumnNames().length; j++)
+	 * 	{
+	 * 		pkvals[j] = editr[x][jstable.getRowIdentifierColumnNames()[j]];
+	 * 	}
+	 * 	application.output('Table: '+tableSQLName +', PKs: '+ pkvals.join(',') +' ('+pkrec +')');
+	 * 	// Get a dataset with outstanding changes on a record
+	 * 	for( var i = 1 ; i <= ds.getMaxRowIndex() ; i++ )
+	 * 	{
+	 * 		application.output('Column: '+ ds.getValue(i,1) +', oldValue: '+ ds.getValue(i,2) +', newValue: '+ ds.getValue(i,3));
+	 * 	}
+	 * }
+	 * databaseManager.saveData(foundset);//save all records from foundset
+	 *
+	 * @param foundset return edited records in the foundset only.
+	 *
+	 * @return Array of outstanding/unsaved JSRecords.
+	 */
+	public IRecordInternal[] js_getDeletedRecords(IFoundSetInternal foundset)
+	{
+		return null; // RAGTEST TODO application.getFoundSetManager().getEditRecordList().getEditedRecords(foundset, true);
+	}
+
 	/**
 	 * Returns an array of edited records with outstanding (unsaved) data.
 	 *
@@ -4116,6 +4155,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		application.checkAuthorized();
 		if (foundset != null)
 		{
+			// RAGTEST ook getEditRecordList().getDeletedRecords(foundset)));
 			List<IRecordInternal> records = new ArrayList<IRecordInternal>();
 			records.addAll(asList(application.getFoundSetManager().getEditRecordList().getEditedRecords(foundset)));
 			records.addAll(asList(application.getFoundSetManager().getEditRecordList().getFailedRecords(foundset)));
