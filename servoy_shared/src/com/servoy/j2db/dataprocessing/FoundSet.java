@@ -6109,6 +6109,23 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 									if (Utils.equalObjects(pkHash, RowManager.createPKHashKey(omittedPKs.getRow(i))))
 									{
 										omittedPKs.removeRow(i);
+										QuerySelect sqlSelect = pksAndRecords.getQuerySelectForModification();
+										if (omittedPKs.getRowCount() > 0)
+										{
+											List<IQuerySelectValue> pkQueryColumns = sqlSelect.getColumns();
+											sqlSelect.setCondition(SQLGenerator.CONDITION_OMIT,
+												SQLGenerator.createSetConditionFromPKs(IBaseSQLCondition.NOT_OPERATOR,
+													pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), sheet.getTable().getRowIdentColumns(),
+													omittedPKs));
+										}
+										else
+										{
+											sqlSelect.clearCondition(SQLGenerator.CONDITION_OMIT);
+										}
+										synchronized (pksAndRecords)
+										{
+											pksAndRecords.setPksAndQuery(pksAndRecords.getPks(), pksAndRecords.getDbIndexLastPk(), sqlSelect, true);
+										}
 										break;
 									}
 								}
