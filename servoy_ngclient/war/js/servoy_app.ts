@@ -1345,6 +1345,16 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
             var compare = compareVersions(electronVersion[1], minElectronVersion);
             return compare >= 0; // true if electronVersion >= minElectronVersion (24.4.0)
         }
+		function getAbsoluteUrl(url) {
+			if (isRelativeUrl(url)) {
+				return new URL(url, $window.document.baseURI).href;
+			}
+			return url;
+		}
+		function isRelativeUrl(url) {
+			// Absolute URLs start with a protocol or are protocol-relative (start with //)
+			return !(/^(?:[a-z]+:)?\/\//i.test(url));
+		}
 	return {
 		setStyleSheets: function(paths) {
 			$solutionSettings.styleSheetPaths = paths;
@@ -1426,10 +1436,10 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				else  if (target === '_self' && targetOptions === 'no-history=true') {
 			        $window.location.replace(url)
 			    } else {
-			        if (isNgdesktopWithTargetSupport($window.navigator.userAgent)) {
+			        if (target === '_self' && isNgdesktopWithTargetSupport($window.navigator.userAgent)) {
                             var r = $window['require'];
                             var ipcRenderer = r('electron').ipcRenderer;
-                            ipcRenderer.send('open-url-with-target', url, target, targetOptions);
+                            ipcRenderer.send('open-url-with-target', getAbsoluteUrl(url));
                         } else {
                             $window.open(url, target, targetOptions);
                         }
