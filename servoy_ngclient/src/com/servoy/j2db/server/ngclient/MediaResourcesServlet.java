@@ -180,7 +180,7 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 			String encrypted = req.getParameter("blob");
 			try
 			{
-				String decrypt = SecuritySupport.decrypt(Settings.getInstance(), encrypted);
+				String decrypt = SecuritySupport.decrypt(encrypted);
 				found = clientnr != null && sendData(resp, MediaURLStreamHandler.getBlobLoaderMedia(getClient(req, Integer.parseInt(clientnr)), decrypt),
 					MediaURLStreamHandler.getBlobLoaderMimeType(decrypt), MediaURLStreamHandler.getBlobLoaderFileName(decrypt), null);
 			}

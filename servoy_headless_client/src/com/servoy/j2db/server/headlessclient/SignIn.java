@@ -180,7 +180,7 @@ public class SignIn extends WebPage
 					{
 						try
 						{
-							cookieValue = SecuritySupport.decrypt(Settings.getInstance(), cookieValue);
+							cookieValue = SecuritySupport.decrypt(cookieValue);
 						}
 						catch (Exception ex)
 						{
@@ -199,7 +199,7 @@ public class SignIn extends WebPage
 					{
 						try
 						{
-							cookieValue = SecuritySupport.encrypt(Settings.getInstance(), cookieValue);
+							cookieValue = SecuritySupport.encrypt(cookieValue);
 							super.save(key, cookieValue);
 						}
 						catch (Exception ex)
