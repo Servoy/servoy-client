@@ -1992,7 +1992,8 @@ public final class Utils
 			result = number.toString(16);
 			if (result.length() < 32)
 			{
-				for (int i = 1; i <= 32 - result.length(); i++)
+				int length = result.length();
+				for (int i = 1; i <= 32 - length; i++)
 					result = '0' + result;
 			}
 		}
