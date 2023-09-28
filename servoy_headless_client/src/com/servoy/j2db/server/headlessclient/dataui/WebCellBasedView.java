@@ -3034,7 +3034,7 @@ public class WebCellBasedView extends WebMarkupContainer implements IView, IPort
 				Object lastRenderedValue = ((RecordItemModel)innermostModel).getLastRenderedValue((Component)cell);
 				Object object = ((Component)cell).getDefaultModelObject();
 
-				if (!Utils.equalObjects(lastRenderedValue, object))
+				if (!Utils.equalObjects(lastRenderedValue, object) || (object == null && !((RecordItemModel)innermostModel).hasLastRenderedValue((Component)cell)))
 				{
 					spc.setValueChanged();
 				}
