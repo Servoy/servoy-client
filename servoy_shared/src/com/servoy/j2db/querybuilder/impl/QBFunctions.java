@@ -18,6 +18,7 @@
 package com.servoy.j2db.querybuilder.impl;
 
 import static com.servoy.j2db.persistence.IColumnTypes.TEXT;
+import static com.servoy.j2db.util.Utils.getCallerMethodName;
 import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
 import com.servoy.j2db.querybuilder.IQueryBuilderFunctions;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -153,11 +155,13 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 
 	protected IQuerySelectValue createOperand(Object value)
 	{
+		warnIgnoredNegatedColumn(value);
 		return getRoot().createOperand(value, null, 0);
 	}
 
 	protected IQuerySelectValue createOperand(Object value, int type)
 	{
+		warnIgnoredNegatedColumn(value);
 		return getRoot().createOperand(value, ColumnType.getColumnType(type), 0);
 	}
 
@@ -565,6 +569,14 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	private static boolean validateKeyword(String value, String... allowed)
 	{
 		return value != null && asList(allowed).contains(value.trim().toLowerCase());
+	}
+
+	private static void warnIgnoredNegatedColumn(Object value)
+	{
+		if (value instanceof QBColumn && ((QBColumn)value).negate)
+		{
+			Debug.warn("Function " + getCallerMethodName(2) + "() called on negated column, negation will be ignored");
+		}
 	}
 
 }
