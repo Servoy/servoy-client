@@ -113,17 +113,16 @@ public class EditedRecords
 	{
 		return deleteQueries.stream()
 			.filter(df -> foundset == null || foundset == df.foundSet)
-			.collect(
-				groupingBy(dq -> dq.foundSet.getTable(),
-					mapping(dq -> dq.queryDelete, toList())));
+			.collect(groupingBy(dq -> dq.foundSet.getTable(),
+				mapping(dq -> dq.queryDelete, toList())));
 	}
 
-// RAGTEST niet gebruikt	public void removeDeleteQuery(QueryDelete queryDelete)
-//	{
-//		deleteQueries.removeIf(dq -> dq.queryDelete == queryDelete);
-//	}
+	public boolean removeDeleteQuery(QueryDelete queryDelete)
+	{
+		return deleteQueries.removeIf(dq -> dq.queryDelete == queryDelete);
+	}
 
-	public Pair<IFoundSetInternal, QueryDelete> removeOneDeleteQuery(IFoundSet foundset)
+	public Pair<IFoundSetInternal, QueryDelete> getAndRemoveFirstDeleteQuery(IFoundSet foundset)
 	{
 		Iterator<DeletingFoundset> it = deleteQueries.iterator();
 		while (it.hasNext())

@@ -38,7 +38,6 @@ import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QuerySelect;
-import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.TableExpression;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderJoin;
@@ -241,8 +240,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 					return null;
 				}
 				join = addJoin(SQLGenerator.createJoin(root.getDataProviderHandler(), relation, parent.getQueryTable(),
-					new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema(), alias), true,
-					root.getGlobalScopeProvider(), false), relation.getForeignDataSource(), name);
+					foreignTable.queryTable(alias), true, root.getGlobalScopeProvider(), false), relation.getForeignDataSource(), name);
 			}
 			catch (RepositoryException e)
 			{
@@ -407,8 +405,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		{
 			ITable foreignTable = root.getTable(dataSource);
 			join = addJoin(new QueryJoin(name, parent.getQueryTable(),
-				new TableExpression(
-					new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema(), alias)),
+				new TableExpression(foreignTable.queryTable(alias)),
 				new AndCondition(), joinType, true), dataSource, name);
 		}
 		return join;

@@ -74,7 +74,6 @@ import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QueryInsert;
 import com.servoy.j2db.query.QuerySelect;
-import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IntHashMap;
@@ -707,14 +706,14 @@ public class EditRecordList
 				// RAGTEST kunnen deletes andere deletes triggeren? dan recursief of loopen?
 
 
-				for (Pair<IFoundSetInternal, QueryDelete> tmp = editedRecords.removeOneDeleteQuery(foundset); //
+				for (Pair<IFoundSetInternal, QueryDelete> tmp = editedRecords.getAndRemoveFirstDeleteQuery(foundset); //
 					tmp != null; //
-					tmp = editedRecords.removeOneDeleteQuery(foundset))
+					tmp = editedRecords.getAndRemoveFirstDeleteQuery(foundset))
 				{
 					try
 					{
-						performDeleteForFoundset(tmp.getLeft(), tmp.getRight());
 						setDeletedrecordsInternalTableFilter(false);
+						performDeleteForFoundset(tmp.getLeft(), tmp.getRight());
 					}
 					catch (ServoyException e)
 					{
@@ -1763,7 +1762,7 @@ public class EditRecordList
 		return deletedPerTable.entrySet().stream().map(entry -> {
 			ITable table = entry.getKey();
 			List<IRecordInternal> records = entry.getValue();
-			QuerySelect select = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
+			QuerySelect select = new QuerySelect(table.queryTable());
 
 			QueryColumn[] pkColumns = table.getRowIdentColumns().stream().map(column -> column.queryColumn(select.getTable()))
 				.toArray(QueryColumn[]::new);
@@ -1786,7 +1785,7 @@ public class EditRecordList
 			ITable table = entry.getKey();
 			List<QueryDelete> deleteQueries = entry.getValue();
 
-			QuerySelect select = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
+			QuerySelect select = new QuerySelect(table.queryTable());
 			deleteQueries.stream()
 				.map(deleteQuery -> (ISQLCondition)deleteQuery.getCondition().deepClone().relinkTable(deleteQuery.getTable(), select.getTable()))
 				.forEach(condition -> select.addCondition(SQLGenerator.CONDITION_DELETED, condition.negate()));
@@ -1992,12 +1991,20 @@ public class EditRecordList
 		{
 			editRecordsLock.unlock();
 		}
-		rollbackRecords(array);
+		rollbackRecords(array, true, null);
 	}
 
-	public void rollbackRecords(List<IRecordInternal> records)
+	/**
+	 * Rollback records and remove delete queries
+	 *
+	 * @param records
+	 * @param rolbackFoundsetDeletes
+	 * @param foundset when rolbackFoundsetDeletes roll back for all foundset (null) or a specific one (not null)
+	 */
+	public void rollbackRecords(List<IRecordInternal> records, boolean rolbackFoundsetDeletes, IFoundSetInternal foundset)
 	{
 		List<IRecordInternal> array = new ArrayList<>();
+		Map<ITable, List<QueryDelete>> deleteQueries = Map.of();
 		editRecordsLock.lock();
 		try
 		{
@@ -2007,13 +2014,18 @@ public class EditRecordList
 				if (failedRecords.remove(record)) array.add(record);
 				if (editedRecords.contains(record)) array.add(record);
 			}
+			if (rolbackFoundsetDeletes)
+			{
+				// when foundset is null this will get delete queries for all foundsets
+				deleteQueries = editedRecords.getDeleteQueries(foundset);
+			}
 		}
 		finally
 		{
 			editRecordsLock.unlock();
 		}
 
-		if (array.size() > 0)
+		if (!array.isEmpty())
 		{
 			// sort them as for insert, but then reversed, so related is deleted first
 			array = orderUpdatesForInsertOrder(array, IRecordInternal::getRawData, true);
@@ -2031,16 +2043,16 @@ public class EditRecordList
 
 			for (int i = 0; i < array.size(); i++)
 			{
-				IRecordInternal element = array.get(i);
+				Row row = array.get(i).getRawData();
 
 				// TODO all fires in rollback should be accumulated and done here at once.
 
-				element.getRawData().rollbackFromOldValues(); // we also rollback !existsInDB records, since they can be held in variables
+				row.rollbackFromOldValues(); // we also rollback !existsInDB records, since they can be held in variables
 				if (!existsInDB[i])
 				{
-					element.getRawData().remove();
+					row.remove();
 				}
-				element.getRawData().clearFlagForDeletion();
+				row.clearFlagForDeletion();
 			}
 			editRecordsLock.lock();
 			try
@@ -2054,7 +2066,24 @@ public class EditRecordList
 			{
 				editRecordsLock.unlock();
 			}
+		}
 
+		if (!deleteQueries.isEmpty())
+		{
+			editRecordsLock.lock();
+			try
+			{
+				// remove all delete queries
+				deleteQueries.values().forEach(it -> it.forEach(editedRecords::removeDeleteQuery));
+			}
+			finally
+			{
+				editRecordsLock.unlock();
+			}
+		}
+
+		if (!array.isEmpty() || !deleteQueries.isEmpty())
+		{
 			setDeletedrecordsInternalTableFilter(true);
 			fireEditChange();
 		}
@@ -2117,7 +2146,7 @@ public class EditRecordList
 			List<IPrepareForSave> forms = recordTested.get(record);
 			if (forms == null)
 			{
-				forms = new ArrayList<IPrepareForSave>();
+				forms = new ArrayList<>();
 				recordTested.put(record, forms);
 			}
 			if (!forms.contains(prepareForSave))
@@ -2140,7 +2169,7 @@ public class EditRecordList
 			autoSave = true;
 			preparingForSave = false;
 			isSavingAll = false;
-			savingRecords = new ArrayList<IRecord>();
+			savingRecords = new ArrayList<>();
 
 			editedRecords.clear();
 			failedRecords.clear();

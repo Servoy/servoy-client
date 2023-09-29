@@ -38,7 +38,6 @@ import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.IQuerySort;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
-import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SafeArrayList;
@@ -442,11 +441,10 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		int returnValues = valueList.getReturnDataProviders();
 		int total = (showValues | returnValues);
 
-		QuerySelect select = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
+		QuerySelect select = new QuerySelect(table.queryTable());
 
-		ArrayList<IQuerySort> orderColumns = new ArrayList<IQuerySort>();
-		ArrayList<IQuerySelectValue> columns = new ArrayList<IQuerySelectValue>();
-
+		ArrayList<IQuerySort> orderColumns = new ArrayList<>();
+		ArrayList<IQuerySelectValue> columns = new ArrayList<>();
 
 		boolean useDefinedSort = sortColumns != null && sortColumns.size() > 0;
 		if (useDefinedSort)

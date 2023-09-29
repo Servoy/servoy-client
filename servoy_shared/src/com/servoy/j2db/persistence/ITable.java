@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.servoy.j2db.dataprocessing.IndexInfo;
+import com.servoy.j2db.query.QueryTable;
 
 /**
  * Identifies a SQL server table obj.
@@ -276,4 +277,14 @@ public interface ITable
 	public Iterator<Column> getColumnsSortedByIndex(List<String> indexedNames);
 
 	public List<IndexInfo> getIndexes();
+
+	public default QueryTable queryTable()
+	{
+		return new QueryTable(getSQLName(), getDataSource(), getCatalog(), getSchema());
+	}
+
+	public default QueryTable queryTable(String alias)
+	{
+		return new QueryTable(getSQLName(), getDataSource(), getCatalog(), getSchema(), alias);
+	}
 }

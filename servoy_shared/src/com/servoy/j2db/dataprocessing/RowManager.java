@@ -63,7 +63,6 @@ import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QueryInsert;
 import com.servoy.j2db.query.QuerySelect;
-import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
 import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.query.TablePlaceholderKey;
@@ -1348,8 +1347,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	 */
 	Blob getBlob(Row row, int columnIndex) throws Exception
 	{
-		QuerySelect blobSelect = new QuerySelect(
-			new QueryTable(sheet.getTable().getSQLName(), sheet.getTable().getDataSource(), sheet.getTable().getCatalog(), sheet.getTable().getSchema()));
+		QuerySelect blobSelect = new QuerySelect(sheet.getTable().queryTable());
 
 		String blobColumnName = sheet.getColumnNames()[columnIndex];
 		Column blobColumn = sheet.getTable().getColumn(blobColumnName);

@@ -1091,7 +1091,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	{
 		try
 		{
-			getParentFoundSet().getFoundSetManager().getEditRecordList().rollbackRecords(asList(this));
+			getParentFoundSet().getFoundSetManager().getEditRecordList().rollbackRecords(asList(this), false, null);
 		}
 		catch (Exception e)
 		{

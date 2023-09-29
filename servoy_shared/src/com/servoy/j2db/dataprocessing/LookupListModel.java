@@ -44,7 +44,6 @@ import com.servoy.j2db.query.QueryFunction;
 import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
-import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
@@ -130,11 +129,11 @@ public class LookupListModel extends AbstractListModel
 				return;
 			}
 
-			creationSQLParts = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
+			creationSQLParts = new QuerySelect(table.queryTable());
 			creationSQLParts.setDistinct(true);
 
-			ArrayList<IQuerySelectValue> columns = new ArrayList<IQuerySelectValue>();
-			ArrayList<IQuerySort> orderColumns = new ArrayList<IQuerySort>();
+			ArrayList<IQuerySelectValue> columns = new ArrayList<>();
+			ArrayList<IQuerySort> orderColumns = new ArrayList<>();
 			if ((total & 1) != 0)
 			{
 				if (table.getColumn(vl.getDataProviderID1()) == null)
@@ -235,11 +234,11 @@ public class LookupListModel extends AbstractListModel
 				return;
 			}
 
-			creationSQLParts = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
+			creationSQLParts = new QuerySelect(table.queryTable());
 			creationSQLParts.setDistinct(true);
 
-			ArrayList<IQuerySelectValue> columns = new ArrayList<IQuerySelectValue>();
-			ArrayList<IQuerySort> orderColumns = new ArrayList<IQuerySort>();
+			ArrayList<IQuerySelectValue> columns = new ArrayList<>();
+			ArrayList<IQuerySort> orderColumns = new ArrayList<>();
 			IQuerySelectValue cSQLName = DBValueList.getQuerySelectValue(table, creationSQLParts.getTable(), dataProviderID);
 			columns.add(cSQLName);
 			orderColumns.add(new QuerySort(cSQLName, true, application.getFoundSetManager().getSortOptions(table.getColumn(dataProviderID))));

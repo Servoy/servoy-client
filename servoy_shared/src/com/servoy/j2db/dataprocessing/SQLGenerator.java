@@ -205,7 +205,7 @@ public class SQLGenerator
 		}
 		else
 		{
-			retval = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
+			retval = new QuerySelect(table.queryTable());
 		}
 
 		// Example:-select pk1,pk2 from tablename1 where ((fieldname1 like '%abcd%') or ((fieldname2 like '%xyz%')) (retrieve max 200 rows)
@@ -386,8 +386,7 @@ public class SQLGenerator
 					if (join == null)
 					{
 						ITable foreignTable = application.getFlattenedSolution().getTable(relation.getForeignDataSource());
-						foreignQtable = new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(),
-							foreignTable.getSchema());
+						foreignQtable = foreignTable.queryTable();
 					}
 					else
 					{
@@ -960,8 +959,7 @@ public class SQLGenerator
 		for (IRelation relation : relations)
 		{
 			ITable foreignTable = flattenedSolution.getTable(relation.getForeignDataSource());
-			QueryTable foreignQtable = new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(),
-				foreignTable.getSchema());
+			QueryTable foreignQtable = foreignTable.queryTable();
 			existsSelect.addJoin(createJoin(flattenedSolution, relation, prevTable, foreignQtable, true, provider, setRelationNameComment));
 
 			prevTable = foreignQtable;
@@ -1149,7 +1147,7 @@ public class SQLGenerator
 
 		if (cache) cachedDataSourceSQLSheets.put(dataSource, retval);//never remove this line, due to recursive behaviour, register a state when immediately!
 
-		QueryTable queryTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
+		QueryTable queryTable = table.queryTable();
 
 		QuerySelect select = new QuerySelect(queryTable);
 		QueryDelete delete = new QueryDelete(queryTable);
@@ -1240,11 +1238,11 @@ public class SQLGenerator
 				return;
 			}
 
-			//add primary keys if missing
-			QueryTable foreignQTable = new QueryTable(ft.getSQLName(), ft.getDataSource(), ft.getCatalog(), ft.getSchema());
+			// add primary keys if missing
+			QueryTable foreignQTable = ft.queryTable();
 			QuerySelect relatedSelect = new QuerySelect(foreignQTable);
 
-			List<String> parentRequiredDataProviderIDs = new ArrayList<String>();
+			List<String> parentRequiredDataProviderIDs = new ArrayList<>();
 			Column[] relcols = r.getForeignColumns(fs);
 			for (Column column : relcols)
 			{
@@ -1256,8 +1254,8 @@ public class SQLGenerator
 			Collection<Column> rcolumns = ft.getColumns();
 			relatedSelect.setColumns(makeQueryColumns(rcolumns.iterator(), foreignQTable, null));
 
-			//fill dataprovider map
-			List<String> dataProviderIDsDilivery = new ArrayList<String>();
+			// fill dataprovider map
+			List<String> dataProviderIDsDilivery = new ArrayList<>();
 			for (Column col : rcolumns)
 			{
 				dataProviderIDsDilivery.add(col.getDataProviderID());
@@ -1515,7 +1513,7 @@ public class SQLGenerator
 
 	public static QuerySelect createUpdateLockSelect(Table table, Object[][] pkValues, boolean lockInDb)
 	{
-		QuerySelect lockSelect = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
+		QuerySelect lockSelect = new QuerySelect(table.queryTable());
 		if (lockInDb) lockSelect.setLockMode(ISQLSelect.LOCK_MODE_LOCK_NOWAIT);
 
 		LinkedHashMap<Column, QueryColumn> allQueryColumns = new LinkedHashMap<>();
@@ -1629,7 +1627,7 @@ public class SQLGenerator
 			column = (Column)aggregee;
 		}
 
-		QuerySelect select = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
+		QuerySelect select = new QuerySelect(table.queryTable());
 		select.addColumn(new QueryAggregate(aggregateType,
 			(column == null) ? (IQuerySelectValue)new QueryColumnValue(aggregee, "n", aggregee instanceof Integer || QueryAggregate.ASTERIX.equals(aggregee)) //$NON-NLS-1$
 				: column.queryColumn(select.getTable()),

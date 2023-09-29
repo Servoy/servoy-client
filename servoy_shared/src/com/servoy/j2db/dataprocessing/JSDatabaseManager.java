@@ -921,7 +921,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					if (join == null)
 					{
 						join = application.getFoundSetManager().getSQLGenerator().createJoin(application.getFlattenedSolution(), relation, oldTable,
-							new QueryTable(ft.getSQLName(), ft.getDataSource(), ft.getCatalog(), ft.getSchema()), true, fs_old);
+							ft.queryTable(), true, fs_old);
 						sql.addJoin(join);
 					}
 
@@ -2914,9 +2914,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 							{
 								if (mainTableForeignType.equalsIgnoreCase(c.getColumnInfo().getForeignType()))
 								{
-									//update table set foreigntypecolumn = combinedDestinationRecordPK where foreigntypecolumn = sourceRecordPK
+									// update table set foreigntypecolumn = combinedDestinationRecordPK where foreigntypecolumn = sourceRecordPK
 
-									QueryTable qTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
+									QueryTable qTable = table.queryTable();
 									QueryUpdate qUpdate = new QueryUpdate(qTable);
 
 									QueryColumn qc = c.queryColumn(qTable);
@@ -2940,7 +2940,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 				IDataSet pks = new BufferedDataSet();
 				pks.addRow(new Object[] { sourceRecordPK });
-				QueryTable qTable = new QueryTable(mainTable.getSQLName(), mainTable.getDataSource(), mainTable.getCatalog(), mainTable.getSchema());
+				QueryTable qTable = mainTable.queryTable();
 				QueryDelete qDelete = new QueryDelete(qTable);
 				ISQLCondition condition = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkc.queryColumn(qTable), sourceRecordPK);
 				qDelete.setCondition(condition);
@@ -4151,15 +4151,14 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public void js_revertEditedRecords(IFoundSetInternal foundset) throws ServoyException
 	{
-		// RAGTEST ook foundset deleteall
 		application.checkAuthorized();
 		if (foundset != null)
 		{
-			// RAGTEST ook getEditRecordList().getDeletedRecords(foundset)));
-			List<IRecordInternal> records = new ArrayList<IRecordInternal>();
+			List<IRecordInternal> records = new ArrayList<>();
 			records.addAll(asList(application.getFoundSetManager().getEditRecordList().getEditedRecords(foundset)));
 			records.addAll(asList(application.getFoundSetManager().getEditRecordList().getFailedRecords(foundset)));
-			if (records.size() > 0) application.getFoundSetManager().getEditRecordList().rollbackRecords(records);
+			// if records is empty we still need to call rollbackRecords() in case of delete queries for the foundset
+			application.getFoundSetManager().getEditRecordList().rollbackRecords(records, true, foundset);
 		}
 	}
 
@@ -4176,11 +4175,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public void js_revertEditedRecords(IRecordInternal record) throws ServoyException
 	{
 		application.checkAuthorized();
-		if (record != null)
+		if (record instanceof IJSRecord)
 		{
-			List<IRecordInternal> records = new ArrayList<IRecordInternal>();
-			records.add(record);
-			application.getFoundSetManager().getEditRecordList().rollbackRecords(records);
+			((IJSRecord)record).revertChanges();
 		}
 	}
 
