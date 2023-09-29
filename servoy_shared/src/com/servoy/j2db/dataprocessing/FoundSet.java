@@ -4510,7 +4510,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 //						}
 //					}
 
-				if (!allFoundsetRecordsLoaded) // RAGTEST afhandelen andere case
+				//	if (!allFoundsetRecordsLoaded) // RAGTEST afhandelen andere case
 				{
 					fsm.flushCachedDatabaseData(fsm.getDataSource(table));
 				}

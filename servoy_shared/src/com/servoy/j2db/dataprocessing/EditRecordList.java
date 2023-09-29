@@ -17,6 +17,9 @@
 package com.servoy.j2db.dataprocessing;
 
 import static com.servoy.j2db.dataprocessing.SQLGenerator.convertPKValuesForQueryCompare;
+import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
+import static com.servoy.j2db.query.AbstractBaseQuery.relinkTable;
+import static com.servoy.j2db.query.BooleanCondition.FALSE_CONDITION;
 import static com.servoy.j2db.util.Utils.equalObjects;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
@@ -68,7 +71,6 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.persistence.Table;
-import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryDelete;
@@ -1589,8 +1591,8 @@ public class EditRecordList
 			// find states also to the global foundset manager??
 			if (canStartEditing)
 			{
-				int editRecordsSize = 0;
 				editRecordsLock.lock();
+				boolean wasEmpty = editedRecords.isEmpty();
 				try
 				{
 					// editRecordStop should be called for this record to match the editRecordStop call
@@ -1600,7 +1602,6 @@ public class EditRecordList
 					if (!editedRecords.contains(record))
 					{
 						editedRecords.addEdited(record);
-						editRecordsSize = editedRecords.size();// RAGTEST wat als alleen delete queries
 					}
 					failedRecords.remove(record);
 					// reset the exception so that it is tried again.
@@ -1610,7 +1611,7 @@ public class EditRecordList
 				{
 					editRecordsLock.unlock();
 				}
-				if (editRecordsSize == 1)
+				if (wasEmpty)
 				{
 					fireEditChange();
 				}
@@ -1787,8 +1788,8 @@ public class EditRecordList
 
 			QuerySelect select = new QuerySelect(table.queryTable());
 			deleteQueries.stream()
-				.map(deleteQuery -> (ISQLCondition)deleteQuery.getCondition().deepClone().relinkTable(deleteQuery.getTable(), select.getTable()))
-				.forEach(condition -> select.addCondition(SQLGenerator.CONDITION_DELETED, condition.negate()));
+				.map(deleteQuery -> relinkTable(deleteQuery.getTable(), select.getTable(), deepClone(deleteQuery.getCondition())))
+				.forEach(condition -> select.addCondition(SQLGenerator.CONDITION_DELETED, condition == null ? FALSE_CONDITION : condition.negate()));
 
 			return new TableFilterRequest(table, new QueryTableFilterdefinition(select), false);
 		}).collect(toList());

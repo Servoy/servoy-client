@@ -72,7 +72,7 @@ public class EditedRecords
 
 	public boolean contains(IRecord record)
 	{
-		return contains(record, null);
+		return record != null && contains(record, null);
 	}
 
 	public boolean contains(Predicate< ? super IRecord> recordFilter)

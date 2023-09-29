@@ -20,7 +20,6 @@ import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseQueryElement;
 import com.servoy.j2db.util.serialize.IWriteReplace;
 import com.servoy.j2db.util.visitor.IVisitable;
-import com.servoy.j2db.util.visitor.ReplaceVisitor;
 
 /**
  * Common interface for all elements in the query structure.
@@ -35,7 +34,7 @@ public interface IQueryElement extends IBaseQueryElement, ISQLCloneable, IWriteR
 	 */
 	default <T extends IQueryElement> T relinkTable(BaseQueryTable orgTable, BaseQueryTable newTable)
 	{
-		return (T)AbstractBaseQuery.acceptVisitor(this, new ReplaceVisitor(orgTable, newTable, true));
+		return (T)AbstractBaseQuery.relinkTable(orgTable, newTable, this);
 	}
 
 	/**
