@@ -108,7 +108,7 @@ public class SecuritySupport
 	}
 
 
-	public static Key getCryptKey(Settings settings) throws Exception
+	public static Key getCryptKey() throws Exception
 	{
 		if (passwordKeyStore == null)
 		{
@@ -140,29 +140,29 @@ public class SecuritySupport
 	}
 
 	@SuppressWarnings("nls")
-	public static String encrypt(Settings settings, String value) throws Exception
+	public static String encrypt(String value) throws Exception
 	{
 		if (value == null) return value;
 		Cipher cipher = Cipher.getInstance("DESede");
-		cipher.init(Cipher.ENCRYPT_MODE, SecuritySupport.getCryptKey(settings));
+		cipher.init(Cipher.ENCRYPT_MODE, SecuritySupport.getCryptKey());
 		return Utils.encodeBASE64(cipher.doFinal(value.getBytes()));
 	}
 
 	@SuppressWarnings("nls")
-	public static String decrypt(Settings settings, String value) throws Exception
+	public static String decrypt(String value) throws Exception
 	{
 		if (value == null) return value;
 		Cipher cipher = Cipher.getInstance("DESede");
-		cipher.init(Cipher.DECRYPT_MODE, SecuritySupport.getCryptKey(settings));
+		cipher.init(Cipher.DECRYPT_MODE, SecuritySupport.getCryptKey());
 		return new String(cipher.doFinal(Utils.decodeBASE64(value)));
 	}
 
 	@SuppressWarnings("nls")
-	public static String encryptUrlSafe(Settings settings, String value) throws Exception
+	public static String encryptUrlSafe(String value) throws Exception
 	{
 		if (value == null) return value;
 		Cipher cipher = Cipher.getInstance("DESede");
-		cipher.init(Cipher.ENCRYPT_MODE, SecuritySupport.getCryptKey(settings));
+		cipher.init(Cipher.ENCRYPT_MODE, SecuritySupport.getCryptKey());
 		return Base64.encodeBase64URLSafeString(cipher.doFinal(value.getBytes()));
 	}
 
@@ -226,5 +226,22 @@ public class SecuritySupport
 		sslKeyStore = null;
 		passwordKeyStore = null;
 		keySpec = null;
+	}
+
+	public static void main(String[] args) throws Exception
+	{
+		if (args.length < 2)
+		{
+			System.err.println("only supported with 'decyrpt value' or 'encrypt value'"); //$NON-NLS-1$
+			return;
+		}
+		if ("decrypt".equals(args[0])) //$NON-NLS-1$
+		{
+			System.out.println(decrypt(args[1]));
+		}
+		else if ("encrypt".equals(args[0])) //$NON-NLS-1$
+		{
+			System.out.println(encrypt(args[1]));
+		}
 	}
 }

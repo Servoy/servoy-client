@@ -227,16 +227,21 @@ html, body {
 }
 
 /* Navbar input group */
-.input-group-btn:last-child > .btn  {
-    border-style: @border-style;
+.input-group-btn .btn {
+	border-style: @border-style;
     border-color: @border-color;
     border-width: @field-border-width;
-    border-radius: @field-border-radius;
     color: @field-color;
     font-size: @field-font-size;
-    border-left: 0;
+    border-radius: 0;
+}
+.input-group-btn .btn:not(:first-child) {
+	border-left: 0;
+}
+.input-group-btn .btn:last-child {
+    border-radius: @field-border-radius;
     border-top-left-radius: 0;
-    border-bottom-left-radius: 0;   
+    border-bottom-left-radius: 0;
 }
 
 /* Calendar add-on */

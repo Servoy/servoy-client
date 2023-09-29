@@ -18,6 +18,7 @@ package com.servoy.j2db.dataprocessing;
 
 
 import static com.servoy.j2db.dataprocessing.IDataServer.RAW_QUERY;
+import static com.servoy.j2db.dataprocessing.RowManager.createPKHashKey;
 import static com.servoy.j2db.dataprocessing.SQLGenerator.isDistinctAllowed;
 import static com.servoy.j2db.persistence.ColumnInfo.DATABASE_IDENTITY;
 import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONAFTERCREATEMETHODID;
@@ -31,6 +32,7 @@ import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONSEA
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
 import static com.servoy.j2db.query.ColumnType.getColumnTypes;
 import static com.servoy.j2db.util.Debug.isDebugEnabled;
+import static com.servoy.j2db.util.Utils.equalObjects;
 import static com.servoy.j2db.util.Utils.iterate;
 import static com.servoy.j2db.util.Utils.stream;
 import static java.util.Arrays.asList;
@@ -552,7 +554,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				{
 					for (; i < pks.getRowCount(); i++)
 					{
-						if (Utils.equalObjects(pks.getRow(i), pk))
+						if (equalObjects(pks.getRow(i), pk))
 						{
 							pksAndRecords.getCachedRecords().set(i, record);
 							continue outer;
@@ -1811,7 +1813,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			boolean match = pkrow.length == pk.length;
 			for (int c = 0; c < pkrow.length; c++)
 			{
-				match = match && Utils.equalObjects(pk[c], pkrow[c]);
+				match = match && equalObjects(pk[c], pkrow[c]);
 			}
 			if (match)
 			{
@@ -2556,7 +2558,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				{
 					pkrow[j] = pkColumns.get(j).getAsRightType(row[j], true, false);
 				}
-				if (pkhashes.add(RowManager.createPKHashKey(pkrow))) // check for duplicate pks
+				if (pkhashes.add(createPKHashKey(pkrow))) // check for duplicate pks
 				{
 					pkRows.add(pkrow);
 				}
@@ -2648,7 +2650,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			if (pks != null && dbIndexLastPk > 0 && originalPKRowcount > 0)
 			{
 				correctedMaxResult = maxResult > 0 ? (maxResult + dbIndexLastPk - originalPKRowcount) : maxResult;
-				lastPkHash = RowManager.createPKHashKey(pks.getRow(originalPKRowcount - 1));
+				lastPkHash = createPKHashKey(pks.getRow(originalPKRowcount - 1));
 				// re-query the last pk
 				startRow = dbIndexLastPk - 1;
 			}
@@ -2673,7 +2675,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			{
 				for (int i = 0; offset == 0 && i < newpks.getRowCount(); i++)
 				{
-					if (lastPkHash.equals(RowManager.createPKHashKey(newpks.getRow(i))))
+					if (lastPkHash.equals(createPKHashKey(newpks.getRow(i))))
 					{
 						// found the last pk from the previous set
 						if (i != 0)
@@ -4238,7 +4240,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				if (gscope != null && gscope.has(scope.getRight(), gscope))
 				{
 					Object oldVal = gscope.put(scope.getRight(), value);
-					if (!Utils.equalObjects(oldVal, value))
+					if (!equalObjects(oldVal, value))
 					{
 						fireFoundSetEvent(0, getSize() - 1, FoundSetEvent.CHANGE_UPDATE);
 					}
@@ -4251,7 +4253,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				if (state != null)
 				{
 					Object currentValue = state.getValue(dataProviderID);
-					if (!Utils.equalObjects(currentValue, value))
+					if (!equalObjects(currentValue, value))
 					{
 						boolean editStarted = false;
 						if (!state.isEditing())
@@ -5058,14 +5060,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			QuerySelect sqlSelect = pksAndRecords.getQuerySelectForModification();
 
 			// replace the OMIT condition, keep sort (could be custom sort, different from lastSortColumns)
-			List<IQuerySelectValue> pkQueryColumns = sqlSelect.getColumns();
-			sqlSelect.setCondition(SQLGenerator.CONDITION_OMIT, SQLGenerator.createSetConditionFromPKs(IBaseSQLCondition.NOT_OPERATOR,
-				pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), sheet.getTable().getRowIdentColumns(), omittedPKs));
-
-			synchronized (pksAndRecords)
-			{
-				pksAndRecords.setPksAndQuery(pksAndRecords.getPks(), pksAndRecords.getDbIndexLastPk(), sqlSelect, true);
-			}
+			replaceOmitCondition();
 
 			for (IRecordInternal dsState : recordsToOmit)
 			{
@@ -6006,7 +6001,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		String recordPkHash = null;
 		IRecordInternal record = cachedRecords.get(i);
 		if (record != null) recordPkHash = record.getPKHashKey();
-		else recordPkHash = RowManager.createPKHashKey(pks.getRow(i));
+		else recordPkHash = createPKHashKey(pks.getRow(i));
 
 		return pkHash.equals(recordPkHash);
 	}
@@ -6086,7 +6081,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 													pksRow[p] = pkval;
 												}
 											}
-											equal = Utils.equalObjects(pk[p], pkval);
+											equal = equalObjects(pk[p], pkval);
 										}
 										if (equal)
 										{
@@ -6117,7 +6112,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 							for (int i = pks.getRowCount() - 1; i >= 0; i--)
 							{
 								Object[] pk = pks.getRow(i);
-								if (RowManager.createPKHashKey(pk).equals(pkHash))
+								if (createPKHashKey(pk).equals(pkHash))
 								{
 									if (e.getType() == RowEvent.UPDATE)
 									{
@@ -6126,7 +6121,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 									}
 									else if (e.getType() == RowEvent.DELETE)
 									{
-										removeRecordInternal(i);//does fireIntervalRemoved(this,i,i);
+										removeRecordInternal(i); // does fireIntervalRemoved(this,i,i);
 									}
 									break;
 								}
@@ -6135,9 +6130,10 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 							{
 								for (int i = 0; i < omittedPKs.getRowCount(); i++)
 								{
-									if (Utils.equalObjects(pkHash, RowManager.createPKHashKey(omittedPKs.getRow(i))))
+									if (equalObjects(pkHash, createPKHashKey(omittedPKs.getRow(i))))
 									{
 										omittedPKs.removeRow(i);
+										replaceOmitCondition();
 										break;
 									}
 								}
@@ -6162,7 +6158,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 						// row pk updated, adjust pksAndRecords admin
 						if (e.getOldPkHash() != null)
 						{
-							// oldPkHash iks only set when row was updated by this client
+							// oldPkHash is only set when row was updated by this client
 							pksAndRecords.rowPkUpdated(e.getOldPkHash(), row);
 						}
 				}
@@ -6171,6 +6167,27 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			{
 				isInNotify = false;
 			}
+		}
+	}
+
+	private void replaceOmitCondition()
+	{
+		QuerySelect sqlSelect = pksAndRecords.getQuerySelectForModification();
+		if (omittedPKs.getRowCount() > 0)
+		{
+			List<IQuerySelectValue> pkQueryColumns = sqlSelect.getColumns();
+			sqlSelect.setCondition(SQLGenerator.CONDITION_OMIT,
+				SQLGenerator.createSetConditionFromPKs(IBaseSQLCondition.NOT_OPERATOR,
+					pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), sheet.getTable().getRowIdentColumns(),
+					omittedPKs));
+		}
+		else
+		{
+			sqlSelect.clearCondition(SQLGenerator.CONDITION_OMIT);
+		}
+		synchronized (pksAndRecords)
+		{
+			pksAndRecords.setPksAndQuery(pksAndRecords.getPks(), pksAndRecords.getDbIndexLastPk(), sqlSelect, true);
 		}
 	}
 
@@ -7593,7 +7610,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			if (currentIndex >= 0)
 			{
 				IRecord tmpCurrentRecord = FoundSet.this.getRecord(currentIndex);
-				if (tmpCurrentRecord == null || !Utils.equalObjects(tmpCurrentRecord.getPK(), currentPK))
+				if (tmpCurrentRecord == null || !equalObjects(tmpCurrentRecord.getPK(), currentPK))
 				{
 					// something is changed in the foundset, recalculate
 					if (tmpCurrentRecord == null)
@@ -7649,7 +7666,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			{
 				for (Object[] array : list)
 				{
-					if (Utils.equalObjects(array, value))
+					if (equalObjects(array, value))
 					{
 						return true;
 					}

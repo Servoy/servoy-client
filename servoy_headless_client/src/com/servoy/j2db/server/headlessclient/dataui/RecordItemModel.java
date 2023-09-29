@@ -233,6 +233,17 @@ public abstract class RecordItemModel extends LoadableDetachableModel implements
 		return lrv;
 	}
 
+	public boolean hasLastRenderedValue(Component comp)
+	{
+		boolean hasValue = lastRenderedValues.containsKey(comp);
+		if (!hasValue && comp instanceof IDelegate< ? >) // for example WebDataCalendar actually stores it's last-rendered-value through it's child WebDataField, so it should get it that way as well
+		{
+			Object dlg = ((IDelegate< ? >)comp).getDelegate();
+			if (dlg instanceof Component && dlg != comp) hasValue = hasLastRenderedValue((Component)dlg);
+		}
+		return hasValue;
+	}
+
 	/**
 	 * @param obj
 	 * @param dataProviderID

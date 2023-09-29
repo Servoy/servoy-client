@@ -1999,7 +1999,8 @@ public final class Utils
 			result = number.toString(16);
 			if (result.length() < 32)
 			{
-				for (int i = 1; i <= 32 - result.length(); i++)
+				int length = result.length();
+				for (int i = 1; i <= 32 - length; i++)
 					result = '0' + result;
 			}
 		}
@@ -3613,5 +3614,24 @@ public final class Utils
 
 		}
 		return null; //theoretically we shouldn't be here
+	}
+
+	/**
+	 * Get the name of the calling method.
+	 *
+	 * @param n number of levels up (1 for direct caller, 2 for caller of caller, etc)
+	 *
+	 * @return method name, "<unkown>" if cannot be determined
+	 */
+	public static String getCallerMethodName(int n)
+	{
+		try
+		{
+			return Thread.currentThread().getStackTrace()[n + 2].getMethodName();
+		}
+		catch (Exception e)
+		{
+			return "<unknown>";
+		}
 	}
 }

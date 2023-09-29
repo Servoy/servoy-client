@@ -69,6 +69,7 @@ public class AngularIndexPageFilter implements Filter
 		{
 			throw new ServletException(e);
 		}
+		StatelessLoginHandler.init();
 //		if (indexPage == null) throw new ServletException("Couldn't read 'WEB-INF/angular-index.html' from the context to get the angular index page");
 	}
 

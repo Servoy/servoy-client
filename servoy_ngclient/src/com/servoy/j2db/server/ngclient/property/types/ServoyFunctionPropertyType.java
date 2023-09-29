@@ -57,7 +57,6 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IRhinoDesignConverter;
 import com.servoy.j2db.util.SecuritySupport;
-import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -187,13 +186,13 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 		if (parentScope instanceof FormScope && ((FormScope)parentScope).getFormController() != null)
 		{
 			String formName = ((FormScope)parentScope).getFormController().getName();
-			map.put("script", SecuritySupport.encrypt(Settings.getInstance(), "forms." + formName + "." + functionName + "()"));
+			map.put("script", SecuritySupport.encrypt("forms." + formName + "." + functionName + "()"));
 			map.put("formname", formName);
 		}
 		else if (parentScope instanceof GlobalScope)
 		{
 			map.put("script",
-				SecuritySupport.encrypt(Settings.getInstance(), "scopes." + ((GlobalScope)parentScope).getScopeName() + "." + functionName + "()"));
+				SecuritySupport.encrypt("scopes." + ((GlobalScope)parentScope).getScopeName() + "." + functionName + "()"));
 		}
 	}
 
@@ -202,19 +201,19 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 		if (script.startsWith(ScriptVariable.SCOPES_DOT_PREFIX) || script.startsWith(ScriptVariable.GLOBALS_DOT_PREFIX))
 		{
 			// scope method
-			map.put("script", SecuritySupport.encrypt(Settings.getInstance(), script + "()"));
+			map.put("script", SecuritySupport.encrypt(script + "()"));
 		}
 		else if (script.startsWith("entity."))
 		{
 			String formName = script.substring(7, script.indexOf('.', 7));
-			map.put("script", SecuritySupport.encrypt(Settings.getInstance(), script + "()"));
+			map.put("script", SecuritySupport.encrypt(script + "()"));
 			map.put("formname", formName);
 		}
 		else if (script.contains("."))
 		{
 			// form method: formname.formmethod
 			String formName = script.substring(0, script.indexOf('.'));
-			map.put("script", SecuritySupport.encrypt(Settings.getInstance(), "forms." + script + "()"));
+			map.put("script", SecuritySupport.encrypt("forms." + script + "()"));
 			map.put("formname", formName);
 		}
 		else

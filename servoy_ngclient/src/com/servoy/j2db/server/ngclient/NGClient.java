@@ -113,7 +113,6 @@ import com.servoy.j2db.util.RendererParentWrapper;
 import com.servoy.j2db.util.SecuritySupport;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyScheduledExecutor;
-import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -1461,7 +1460,7 @@ public class NGClient extends AbstractApplication
 				try
 				{
 					credentials.setUserName(args.optString("username"));
-					credentials.setPassword(args.optBoolean("encrypted") ? SecuritySupport.decrypt(Settings.getInstance(), args.optString("password"))
+					credentials.setPassword(args.optBoolean("encrypted") ? SecuritySupport.decrypt(args.optString("password"))
 						: args.optString("password"));
 					authenticate(null, null, new Object[] { credentials.getUserName(), credentials.getPassword() });
 					if (getClientInfo().getUserUid() != null)
@@ -1484,7 +1483,7 @@ public class NGClient extends AbstractApplication
 						{
 							JSONObject r = new JSONObject();
 							r.put("username", credentials.getUserName());
-							r.put("password", SecuritySupport.encrypt(Settings.getInstance(), credentials.getPassword()));
+							r.put("password", SecuritySupport.encrypt(credentials.getPassword()));
 							return r;
 						}
 						else return Boolean.TRUE;

@@ -20,7 +20,6 @@ package com.servoy.j2db.server.ngclient;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.json.JSONObject;
@@ -33,7 +32,6 @@ import org.jsoup.select.Elements;
 
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SecuritySupport;
-import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -54,19 +52,16 @@ public class HTMLTagsConverter
 
 		Document doc = Jsoup.parse(htmlContent);
 		Elements bodyElements = doc.body().getAllElements();
-		Iterator<Element> bodyElementsIte = bodyElements.iterator();
 		Element e;
 		Attributes attrs;
-		Iterator<Attribute> attrsIte;
 		Attribute attr;
-		while (bodyElementsIte.hasNext())
+		for (Element bodyElement : bodyElements)
 		{
-			e = bodyElementsIte.next();
+			e = bodyElement;
 			attrs = e.attributes();
-			attrsIte = attrs.asList().iterator();
-			while (attrsIte.hasNext())
+			for (Attribute element : attrs.asList())
 			{
-				attr = attrsIte.next();
+				attr = element;
 				if (scanTags.contains(attr.getKey()))
 				{
 					String replaceContent = attr.getValue();
@@ -85,7 +80,7 @@ public class HTMLTagsConverter
 						try
 						{
 							formName = context.getForm().getName();
-							script = SecuritySupport.encrypt(Settings.getInstance(), script);
+							script = SecuritySupport.encrypt(script);
 						}
 						catch (Exception ex)
 						{
@@ -119,7 +114,7 @@ public class HTMLTagsConverter
 							String blobpart = media.substring("servoy_blobloader?".length());
 							try
 							{
-								blobpart = SecuritySupport.encryptUrlSafe(Settings.getInstance(), blobpart);
+								blobpart = SecuritySupport.encryptUrlSafe(blobpart);
 								attr.setValue("resources/servoy_blobloader?blob=" + blobpart + "&clientnr=" +
 									context.getApplication().getWebsocketSession().getSessionKey().getClientnr());
 							}
@@ -205,7 +200,7 @@ public class HTMLTagsConverter
 	{
 		try
 		{
-			String javascript = SecuritySupport.decrypt(Settings.getInstance(), encryptedJavascript);
+			String javascript = SecuritySupport.decrypt(encryptedJavascript);
 			String browserParamWithArgument;
 			Object arg;
 			for (String browserArgument : getBrowserArguments(javascript))

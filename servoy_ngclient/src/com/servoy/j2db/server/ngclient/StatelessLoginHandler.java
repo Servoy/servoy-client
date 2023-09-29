@@ -41,6 +41,7 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author emera
@@ -51,7 +52,7 @@ public class StatelessLoginHandler
 	private static final String GROUPS = "groups"; //$NON-NLS-1$
 	public static final String USER = "user"; //$NON-NLS-1$
 	private static final String UID = "uid"; //$NON-NLS-1$
-	private static final String JWT_Password = "jwt"; //$NON-NLS-1$
+	private static final String JWT_Password = "servoy.jwt.logintoken.password"; //$NON-NLS-1$
 	private static final int TOKEN_AGE_IN_SECONDS = 24 * 3600;
 
 	@SuppressWarnings("boxing")
@@ -88,7 +89,7 @@ public class StatelessLoginHandler
 			}
 
 			String id_token = request.getParameter(ID_TOKEN) != null ? request.getParameter(ID_TOKEN) : (String)request.getSession().getAttribute(ID_TOKEN);
-			if (id_token != null)
+			if (!Utils.stringIsEmpty(id_token))
 			{
 				Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
 				JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(settings.getProperty(JWT_Password)))
@@ -140,11 +141,6 @@ public class StatelessLoginHandler
 			{
 				String clientid = ApplicationServerRegistry.get().getClientId();
 				String[] groups = ApplicationServerRegistry.get().getUserManager().getUserGroups(clientid, uid);
-				Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
-				if (settings.getProperty(JWT_Password) == null)
-				{
-					settings.put(JWT_Password, "pwd" + Math.random());
-				}
 				token = createToken(user, uid, groups);
 			}
 			catch (Exception e)
@@ -236,5 +232,27 @@ public class StatelessLoginHandler
 		response.setContentLengthLong(loginHtml.length());
 		response.getWriter().write(loginHtml);
 		return;
+	}
+
+	/**
+	 *
+	 */
+	public static void init()
+	{
+		Settings settings = Settings.getInstance();
+		if (settings.getProperty(JWT_Password) == null)
+		{
+			Debug.warn("A servoy property '" + JWT_Password + //$NON-NLS-1$
+				"' is added the the servoy properties file, this needs to be the same over redeploys, so make sure to add this in the servoy.properties that is used to deploy the WAR"); //$NON-NLS-1$
+			settings.put(JWT_Password, "pwd" + Math.random());
+			try
+			{
+				settings.save();
+			}
+			catch (Exception e)
+			{
+				Debug.error("Error saving the settings class to store the JWT_Password", e); //$NON-NLS-1$
+			}
+		}
 	}
 }
