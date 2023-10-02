@@ -457,11 +457,18 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 	@Override
 	public IFormController showFormInContainer(String formName, IBasicMainContainer container, String title, boolean closeAll, String dialogName)
 	{
+		if (formName == null) throw new IllegalArgumentException(application.getI18NMessage("servoy.formManager.error.SettingVoidForm")); //$NON-NLS-1$
+
 		if (loginForm != null && loginForm.getName() != formName)
 		{
-			return null;//not allowed to leave here...or show anything else than login form
+			NGRuntimeWindow currentContainer = getCurrentContainer();
+			if (!(currentContainer != container && container instanceof RuntimeWindow rw &&
+				(rw.getType() == JSWindow.MODAL_DIALOG || rw.getType() == JSWindow.DIALOG)))
+			{
+				Debug.warn("Trying to show a form " + formName + " when a login form " + loginForm.getName() + "  is shown, this is not allowed "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				return null;//not allowed to leave here...or show anything else than login form
+			}
 		}
-		if (formName == null) throw new IllegalArgumentException(application.getI18NMessage("servoy.formManager.error.SettingVoidForm")); //$NON-NLS-1$
 
 		IFormController currentMainShowingForm = container.getController();
 
@@ -471,6 +478,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		final Form f = possibleForms.get(formName);
 		if (f == null)
 		{
+			Debug.warn("Trying to show a form that is not found: " + formName); //$NON-NLS-1$
 			return null;
 		}
 
