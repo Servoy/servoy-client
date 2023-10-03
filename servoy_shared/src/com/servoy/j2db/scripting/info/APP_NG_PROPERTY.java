@@ -23,6 +23,7 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
  * @author rgansevles
+ * @deprecated replaced by NGCONSTANTS {@link NGCONSTANTS}
  */
 @Deprecated
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)

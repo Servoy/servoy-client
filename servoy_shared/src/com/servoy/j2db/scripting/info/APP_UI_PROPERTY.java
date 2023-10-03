@@ -21,6 +21,9 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
+/**
+ * @deprecated replaced by UICONSTANTS {@link UICONSTANTS}
+ */
 @Deprecated
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class APP_UI_PROPERTY implements IPrefixedConstantsObject
