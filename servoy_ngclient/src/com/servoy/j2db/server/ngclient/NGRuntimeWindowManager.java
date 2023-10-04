@@ -178,11 +178,14 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 			// if there is a modal window registered look if the current window about is not a parent of this one
 			// if it is return the modal window.
 			NGRuntimeWindow modal = getWindow(modalWindow);
-			RuntimeWindow parent = modal.getRuntimeParent();
-			while (parent != null)
+			if (modal != null)
 			{
-				if (parent == currentWindow) return modal;
-				parent = parent.getRuntimeParent();
+				RuntimeWindow parent = modal.getRuntimeParent();
+				while (parent != null)
+				{
+					if (parent == currentWindow) return modal;
+					parent = parent.getRuntimeParent();
+				}
 			}
 		}
 		return currentWindow;
