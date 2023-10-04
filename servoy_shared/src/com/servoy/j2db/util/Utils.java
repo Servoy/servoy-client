@@ -3583,4 +3583,65 @@ public final class Utils
 		}
 		return null; //theoretically we shouldn't be here
 	}
+
+	public static String getFindModeValueForMultipleValues(List<String> strValues)
+	{
+		if (strValues.size() > 6) // 128 combinations
+		{
+			// sql gets way too large, fall back to less precise sql
+			return '%' + Utils.stringJoin(strValues.iterator(), "%||%") + '%'; //$NON-NLS-1$
+		}
+
+		// create a condition that matches the values, for example values = [a,b], results in sql:
+		// where val = 'a\nb' -- just the 2 values
+		// or val like 'a\nb\n%' -- the first 2 values
+		// or val like '%\na\nb\n%' -- next to each other in the middle
+		// or val like '%\na\nb' -- the last 2 values
+		// or val like 'a\n%\nb' -- first a, last b
+		// or val like 'a\n%\nb\n%' -- start with a
+		// or val like '%\na\n%\nb\n%'-- a and b somewhere in the middle
+		// or val like '%\na\n%\nb' -- end with b
+		List<String> combinedValues = Utils.joinList(strValues, new String[] { "\n", "\n%\n" }); //$NON-NLS-1$ //$NON-NLS-2$
+		Iterator<String> iter = combinedValues.iterator();
+		StringBuilder stringRetval = new StringBuilder();
+		while (iter.hasNext())
+		{
+			String element = iter.next();
+			stringRetval.append(element);
+			stringRetval.append("||").append(element).append("\n%"); // element is first //$NON-NLS-1$ //$NON-NLS-2$
+			stringRetval.append("||%\n").append(element).append("\n%"); // element in the middle //$NON-NLS-1$ //$NON-NLS-2$
+			stringRetval.append("||%\n").append(element); // element at the end //$NON-NLS-1$
+			if (iter.hasNext())
+			{
+				stringRetval.append("||"); //$NON-NLS-1$
+			}
+		}
+		return stringRetval.toString();
+	}
+
+	/**
+	 * Join items of the list with separators.
+	 * @param list
+	 * @param separators
+	 * @return
+	 */
+	private static List<String> joinList(List<String> list, String[] separators)
+	{
+		if (list.size() <= 1)
+		{
+			return list;
+		}
+
+		String last = list.get(list.size() - 1);
+		List<String> joinedSubList = joinList(list.subList(0, list.size() - 1), separators);
+		List<String> retval = new ArrayList<String>(joinedSubList.size() * separators.length);
+		for (String s : joinedSubList)
+		{
+			for (String sep : separators)
+			{
+				retval.add(s + sep + last);
+			}
+		}
+		return retval;
+	}
 }

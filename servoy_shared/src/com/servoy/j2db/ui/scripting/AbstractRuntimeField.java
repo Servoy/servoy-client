@@ -20,7 +20,6 @@ package com.servoy.j2db.ui.scripting;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -47,7 +46,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Abstract scriptable field.
- * 
+ *
  * @author lvostinar
  */
 public abstract class AbstractRuntimeField<C extends IFieldComponent> extends AbstractRuntimeRendersupportComponent<C> implements IRuntimeField,
@@ -69,9 +68,8 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 		if (labels != null)
 		{
 			ArrayList<String> al = new ArrayList<String>(labels.size());
-			for (int i = 0; i < labels.size(); i++)
+			for (ILabel label : labels)
 			{
-				ILabel label = labels.get(i);
 				if (label.getName() != null && !"".equals(label.getName()) && !label.getName().startsWith(ComponentFactory.WEB_ID_PREFIX)) //$NON-NLS-1$
 				{
 					al.add(label.getName());
@@ -140,9 +138,8 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 				List<ILabel> labels = getComponent().getLabelsFor();
 				if (labels != null)
 				{
-					for (int i = 0; i < labels.size(); i++)
+					for (ILabel label : labels)
 					{
-						ILabel label = labels.get(i);
 						IScriptable scriptable = label.getScriptObject();
 						if (scriptable instanceof IRuntimeComponent)
 						{
@@ -181,10 +178,10 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 	}
 
 	/** Get the value for a choice on possibly multiple values.
-	 * 
+	 *
 	 * Multiple values are joined with newline.
 	 * In case of find mode a search-object is created for records with at least these values.
-	 * @param strValues 
+	 * @param strValues
 	 * @return
 	 */
 	public Object getChoiceValue(Object[] values, boolean keepPlainValue)
@@ -212,37 +209,7 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 		}
 
 		// find mode
-		if (strValues.size() > 6) // 128 combinations
-		{
-			// sql gets way too large, fall back to less precise sql
-			return '%' + Utils.stringJoin(strValues.iterator(), "%||%") + '%'; //$NON-NLS-1$
-		}
-
-		// create a condition that matches the values, for example values = [a,b], results in sql: 
-		// where val = 'a\nb' -- just the 2 values
-		// or val like 'a\nb\n%' -- the first 2 values
-		// or val like '%\na\nb\n%' -- next to each other in the middle
-		// or val like '%\na\nb' -- the last 2 values
-		// or val like 'a\n%\nb' -- first a, last b
-		// or val like 'a\n%\nb\n%' -- start with a
-		// or val like '%\na\n%\nb\n%'-- a and b somewhere in the middle
-		// or val like '%\na\n%\nb' -- end with b
-		List<String> combinedValues = joinList(strValues, new String[] { "\n", "\n%\n" }); //$NON-NLS-1$ //$NON-NLS-2$
-		Iterator<String> iter = combinedValues.iterator();
-		StringBuilder stringRetval = new StringBuilder();
-		while (iter.hasNext())
-		{
-			String element = iter.next();
-			stringRetval.append(element);
-			stringRetval.append("||").append(element).append("\n%"); // element is first //$NON-NLS-1$ //$NON-NLS-2$
-			stringRetval.append("||%\n").append(element).append("\n%"); // element in the middle //$NON-NLS-1$ //$NON-NLS-2$
-			stringRetval.append("||%\n").append(element); // element at the end //$NON-NLS-1$
-			if (iter.hasNext())
-			{
-				stringRetval.append("||"); //$NON-NLS-1$
-			}
-		}
-		return stringRetval.toString();
+		return Utils.getFindModeValueForMultipleValues(strValues);
 	}
 
 	/**
@@ -267,32 +234,6 @@ public abstract class AbstractRuntimeField<C extends IFieldComponent> extends Ab
 		else
 		{
 			retval.add(realVal);//keep plain
-		}
-		return retval;
-	}
-
-	/**
-	 * Join items of the list with separators.
-	 * @param list
-	 * @param separators
-	 * @return
-	 */
-	private static List<String> joinList(List<String> list, String[] separators)
-	{
-		if (list.size() <= 1)
-		{
-			return list;
-		}
-
-		String last = list.get(list.size() - 1);
-		List<String> joinedSubList = joinList(list.subList(0, list.size() - 1), separators);
-		List<String> retval = new ArrayList<String>(joinedSubList.size() * separators.length);
-		for (String s : joinedSubList)
-		{
-			for (String sep : separators)
-			{
-				retval.add(s + sep + last);
-			}
 		}
 		return retval;
 	}
