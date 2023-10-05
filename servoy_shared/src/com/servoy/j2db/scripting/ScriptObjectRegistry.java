@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Date;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -30,6 +31,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
 import com.servoy.j2db.dataprocessing.DataException;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.documentation.XMLScriptObjectAdapter;
 import com.servoy.j2db.util.Debug;
 
@@ -130,7 +132,8 @@ public class ScriptObjectRegistry
 						{
 							// just try to make it.
 							so = (IScriptable)clz.newInstance();
-							if (so instanceof IReturnedTypesProvider) {
+							if (so instanceof IReturnedTypesProvider)
+							{
 								registerReturnedTypesProviderForClass(clz, (IReturnedTypesProvider)so);
 								so = scriptObjectRegistry.get(clz);
 							}
@@ -166,6 +169,33 @@ public class ScriptObjectRegistry
 			}
 		}
 		return scriptObject;
+	}
+
+	public static ITypedScriptObject getScriptObjectByName(String scriptingName)
+	{
+		for (Entry<Class< ? >, IScriptable> entry : scriptObjectRegistry.entrySet())
+		{
+			if (entry.getValue() instanceof ITypedScriptObject tso)
+			{
+				// first check if the scripting name is the Simple class name
+				Class< ? > cls = entry.getKey();
+				if (cls.getSimpleName().equals(scriptingName))
+				{
+					return tso;
+				}
+				// else check the scripting name of the scriptable
+				else if (cls.isAnnotationPresent(ServoyDocumented.class))
+				{
+					ServoyDocumented sd = cls.getAnnotation(ServoyDocumented.class);
+					String name = sd.scriptingName() != null ? sd.scriptingName() : sd.publicName();
+					if (scriptingName.equals(name))
+					{
+						return tso;
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	public static Set<Class< ? >> getRegisteredClasses()
