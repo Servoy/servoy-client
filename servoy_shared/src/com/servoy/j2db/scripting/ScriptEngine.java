@@ -17,6 +17,7 @@
 package com.servoy.j2db.scripting;
 
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1001,7 +1002,19 @@ final class ProfilingDebugger implements Debugger
 	public DebugFrame getFrame(Context cx, DebuggableScript fnOrScript)
 	{
 		String functionName = fnOrScript.getFunctionName();
+		if (functionName == null)
+		{
+			int[] lineNumbers = fnOrScript.getLineNumbers();
+			Arrays.sort(lineNumbers);
+			functionName = "(anon:" + lineNumbers[0] + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+
+		}
 		String sourceName = fnOrScript.getSourceName();
+		if (!sourceName.endsWith(functionName))
+		{
+			sourceName += '/' + functionName;
+		}
+
 		if (functionName != null && sourceName != null)
 		{
 			return new ProfilingDebugFrame(performanceData, application, sourceName);
