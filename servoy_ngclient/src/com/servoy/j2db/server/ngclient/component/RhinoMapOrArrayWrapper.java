@@ -26,7 +26,6 @@ import java.util.Set;
 import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeArray;
-import org.mozilla.javascript.NativeJSON;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.Symbol;
@@ -120,7 +119,7 @@ public final class RhinoMapOrArrayWrapper implements Scriptable, SymbolScriptabl
 					@Override
 					public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 					{
-						return NativeJSON.stringify(cx, scope, new NativeArray(((List)wrappedValue).toArray()), null, 0);
+						return new NativeArray(((List)wrappedValue).toArray());
 					}
 				};
 			}
