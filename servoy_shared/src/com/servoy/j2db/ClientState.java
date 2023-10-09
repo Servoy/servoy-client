@@ -170,8 +170,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		{
 			if (preferredSolutionMethodArguments == null)
 			{
-				preferredSolutionMethodArguments = argumentsScope.getFirstArgument() != null ? new Object[] { argumentsScope.getFirstArgument() }
-					: new Object[0];
+				preferredSolutionMethodArguments = new Object[] { argumentsScope.getFirstArgument() };
 			}
 			Object[] new_preferedSolutionMethodArguments = new Object[preferredSolutionMethodArguments.length + 1];
 			System.arraycopy(preferredSolutionMethodArguments, 0, new_preferedSolutionMethodArguments, 0, preferredSolutionMethodArguments.length);
@@ -238,7 +237,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 						}
 						else
 						{
-							preferredSolutionMethodArguments = filteredArgs[2] != null ? new Object[] { filteredArgs[2] } : new Object[0];
+							preferredSolutionMethodArguments = new Object[] { filteredArgs[2] };
 						}
 						if (filteredArgs.length >= 4 && filteredArgs[3] != null && filteredArgs[3].startsWith("CI:")) //$NON-NLS-1$
 						{
