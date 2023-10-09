@@ -1005,8 +1005,15 @@ final class ProfilingDebugger implements Debugger
 		if (functionName == null)
 		{
 			int[] lineNumbers = fnOrScript.getLineNumbers();
-			Arrays.sort(lineNumbers);
-			functionName = "(anon:" + lineNumbers[0] + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+			if (lineNumbers != null && lineNumbers.length > 0)
+			{
+				Arrays.sort(lineNumbers);
+				functionName = "(anon:" + lineNumbers[0] + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			else
+			{
+				functionName = "(anon)"; //$NON-NLS-1$
+			}
 
 		}
 		String sourceName = fnOrScript.getSourceName();
