@@ -413,6 +413,21 @@ public class ExceptionCheckingDataServer implements IDataServer
 		}
 	}
 
+	@Override
+	public boolean notifyDataChange(String client_id, boolean notifySelf, String server_name, String tableName, IDataSet pks, int action, String transaction_id)
+		throws RemoteException
+	{
+		try
+		{
+			return delegate.notifyDataChange(client_id, notifySelf, server_name, tableName, pks, action, transaction_id);
+		}
+		catch (RemoteException e)
+		{
+			checkException(e);
+			throw e;
+		}
+	}
+
 	/**
 	 * @param clientId
 	 * @param statements
