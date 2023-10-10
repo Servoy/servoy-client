@@ -243,7 +243,7 @@ angular.module('ngclientutils', [ 'servoy' ])
 		/**
 		 * Set lang attribute on html tag.
 		 * 
-		 * @param {boolean} showConfirmation boolean for whether to show confirmation message
+		 * @param {string} lang of the html page
 		 */
 		setLangAttribute: function(lang)
 		{

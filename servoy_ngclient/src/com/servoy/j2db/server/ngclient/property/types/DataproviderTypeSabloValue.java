@@ -102,6 +102,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 {
 
 	private static final String TAG_TYPE_NAME = "typeName";
+	private static final String TAG_MULTIVALUES = "multivalues";
 
 	protected final String dataProviderID;
 
@@ -194,6 +195,10 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			// in case it has an UI converter, convert it from UI value into the record/scope value
 			return ComponentFormat.applyUIConverterFromObject(uiValue, dataProviderID, servoyDataConverterContext.getApplication().getFoundSetManager(),
 				fieldFormat);
+		}
+		else if (findMode && uiValue instanceof String && dpPD.getTag(TAG_MULTIVALUES) == Boolean.TRUE)
+		{
+			return Utils.getFindModeValueForMultipleValues(Arrays.asList(((String)uiValue).split("\\n")));
 		}
 		return uiValue; // ui value == record/scope value (no converter)
 	}
