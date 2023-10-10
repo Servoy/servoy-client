@@ -884,7 +884,7 @@ public class NGClient extends AbstractApplication
 						url.append("?m=").append(m);
 
 					}
-					if (a != null && a.length > 0)
+					if (a != null && a.length > 0 && a[0] != null)
 					{
 						url.append(m != null ? "&" : "?");
 						url.append("a=").append(a[0]);
