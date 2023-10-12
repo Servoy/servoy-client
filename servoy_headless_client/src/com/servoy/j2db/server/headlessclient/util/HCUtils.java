@@ -204,6 +204,7 @@ public class HCUtils
 	 */
 	public static boolean supportsContentSecurityPolicyLevel3(String userAgentHeader)
 	{
+		if (userAgentHeader == null) return false;
 		UserAgent userAgent = USER_AGENT_PARSER.parseUserAgent(userAgentHeader);
 		if (("Chrome".equals(userAgent.family) || "Chromium".equals(userAgent.family)) && parseInt(userAgent.major) >= 52)
 		{
