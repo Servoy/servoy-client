@@ -129,13 +129,8 @@ public class JSBase<T extends AbstractBase> implements ISMHasUUID
 				// inherited persist
 				try
 				{
-					IPersist parentPersist = persist;
-					while (PersistHelper.getSuperPersist((ISupportExtendsID)parentPersist) != null)
-					{
-						parentPersist = PersistHelper.getSuperPersist((ISupportExtendsID)parentPersist);
-					}
-
-					//first check if the override persist already exists, and return it in that case
+					IPersist parentPersist = PersistHelper.getBasePersist((ISupportExtendsID)persist);
+					// first check if the override persist already exists, and return it in that case
 					List<IPersist> children = PersistHelper.getHierarchyChildren((AbstractBase)parent.getSupportChild());
 					IPersist form = parent.getSupportChild() instanceof Form ? parent.getSupportChild()
 						: parent.getSupportChild().getAncestor(IRepository.FORMS);

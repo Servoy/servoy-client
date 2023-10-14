@@ -977,7 +977,10 @@ public class WebObjectImpl extends WebObjectBasicImpl
 					for (int i = customType.getIndex(); i < t.size(); i++)
 					{
 						IChildWebObject ct = t.get(i);
-						ct.setIndex(i);
+						if (ct != null)
+						{
+							ct.setIndex(i);
+						}
 					}
 					setProperty(customType.getJsonKey(), t.toArray(new IChildWebObject[t.size()]));
 				}
