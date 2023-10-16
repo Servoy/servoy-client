@@ -30,6 +30,10 @@ public interface INGFormManager extends IBasicFormManager
 
 	IWebFormController getForm(String name);
 
+	IWebFormController getForm(String name, WebFormComponent parent);
+
+	IWebFormController leaseFormPanel(String name, WebFormComponent parent);
+
 	IWebFormController getCachedFormController(String formName);
 
 	IWebFormController getCurrentForm();
