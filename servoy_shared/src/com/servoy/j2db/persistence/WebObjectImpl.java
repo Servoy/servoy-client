@@ -816,6 +816,12 @@ public class WebObjectImpl extends WebObjectBasicImpl
 				oldJsonClone = ((ServoyJSONObject)oldJson).clone();
 			}
 
+			JSONObject obj = webObject.getFlattenedJson();
+			if (obj != null && obj.has(key) && obj.get(key).equals(value))
+			{
+				return false;
+			}
+
 			if (remove)
 			{
 				removed = (jsonObject.remove(key) != null);
