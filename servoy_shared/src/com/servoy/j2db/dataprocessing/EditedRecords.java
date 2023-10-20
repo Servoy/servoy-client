@@ -158,7 +158,7 @@ public class EditedRecords
 		return getRecords(editType).anyMatch(er -> record.equals(er.record));
 	}
 
-	public boolean removeEverything(String datasource)
+	public boolean removeForDatasource(String datasource)
 	{
 		boolean hasRemoved = records.removeIf(er -> datasource.equals(er.record.getDataSource()));
 		hasRemoved |= deleteQueries.removeIf(dq -> datasource.equals(dq.queryDelete.getTable().getDataSource()));

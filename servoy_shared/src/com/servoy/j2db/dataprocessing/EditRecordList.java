@@ -286,7 +286,8 @@ public class EditRecordList
 		editRecordsLock.lock();
 		try
 		{
-			return editedRecords.contains(record -> record.getParentFoundSet() == foundset);
+			return failedRecords.stream().anyMatch(record -> record.getParentFoundSet() == foundset) ||
+				editedRecords.contains(record -> record.getParentFoundSet() == foundset);
 		}
 		finally
 		{
@@ -574,17 +575,18 @@ public class EditRecordList
 				if (recordsToSave == null)
 				{
 					// if it is a save all, then first filter out all the duplicate rows.
-//	RAGTEST				for (int i = 0; i < editedRecords.size(); i++)
-//					{
-//						Row toTest = editedRecords.get(i).getRawData();
-//						for (int j = editedRecords.size(); --j > i;)
-//						{
-//							if (editedRecords.get(j).getRawData() == toTest)
-//							{
-//								removeEditedRecord(editedRecords.get(j));
-//							}
-//						}
-//					}
+					IRecordInternal[] allEdited = editedRecords.getAll();
+					for (int i = 0; i < allEdited.length; i++)
+					{
+						Row toTest = allEdited[i].getRawData();
+						for (int j = allEdited.length; --j > i;)
+						{
+							if (allEdited[j].getRawData() == toTest)
+							{
+								removeEditedRecord(allEdited[j]);
+							}
+						}
+					}
 				}
 
 				Map<IRecordInternal, Integer> processed = new HashMap<>();
@@ -702,12 +704,6 @@ public class EditRecordList
 					}
 					editedRecords.remove(tmp);
 				}
-
-
-				// Perform Foundset deletes
-
-				// RAGTEST kunnen deletes andere deletes triggeren? dan recursief of loopen?
-
 
 				failedCount = executeDeleteQueries(javascriptStop, foundset, failedCount, failedDeletes);
 			}
@@ -1500,20 +1496,6 @@ public class EditRecordList
 		}
 	}
 
-
-// RAGTEST niet gebruikt	public void removeDeleteQuery(QueryDelete deleteQuery)
-//	{
-//		editRecordsLock.lock();
-//		try
-//		{
-//			editedRecords.removeDeleteQuery(deleteQuery);
-//		}
-//		finally
-//		{
-//			editRecordsLock.unlock();
-//		}
-//	}
-
 	void removeEditedRecords(FoundSet set)
 	{
 		IRecordInternal[] editedRecordsArray = null;
@@ -1543,7 +1525,7 @@ public class EditRecordList
 		editRecordsLock.lock();
 		try
 		{
-			editedRecordsChanged = editedRecords.removeEverything(datasource);
+			editedRecordsChanged = editedRecords.removeForDatasource(datasource);
 			hasRemovedRecords = failedRecords.removeIf(r -> datasource.equals(r.getDataSource()));
 			for (Iterator<Entry<IRecordInternal, List<IPrepareForSave>>> it = recordTested.entrySet().iterator(); it.hasNext();)
 			{

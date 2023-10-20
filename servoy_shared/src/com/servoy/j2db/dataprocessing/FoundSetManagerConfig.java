@@ -38,6 +38,7 @@ public class FoundSetManagerConfig
 	private final boolean optimizedNotifyChange;
 	private final boolean optimizedChangeFires;
 	private final boolean setRelationNameComment;
+	private final boolean ragtestDeleteRecordsInAutoSave;
 
 	public FoundSetManagerConfig(Properties settings)
 	{
@@ -51,6 +52,7 @@ public class FoundSetManagerConfig
 		optimizedNotifyChange = getAsBoolean(settings.getProperty("servoy.foundset.optimizedNotifyChange", "true")); // whether to use new optimized mechanism to call notifyChange on IRowListeners
 		optimizedChangeFires = getAsBoolean(settings.getProperty("servoy.foundset.optimizedChangeFires", "true")); // whether to use new optimized mechanism to call notifyChange on IRowListeners
 		setRelationNameComment = getAsBoolean(settings.getProperty("servoy.client.sql.setRelationComment", "true"));
+		ragtestDeleteRecordsInAutoSave = getAsBoolean(settings.getProperty("servoy.ragtest", "false"));
 	}
 
 	public int pkChunkSize()
@@ -102,4 +104,11 @@ public class FoundSetManagerConfig
 	{
 		return setRelationNameComment;
 	}
+
+	public boolean ragtestDeleteRecordsInAutoSave()
+	{
+		return ragtestDeleteRecordsInAutoSave;
+	}
+
+
 }
