@@ -22,6 +22,7 @@ import static com.servoy.j2db.dataprocessing.RowManager.createPKHashKey;
 import static com.servoy.j2db.dataprocessing.SQLGenerator.isDistinctAllowed;
 import static com.servoy.j2db.persistence.ColumnInfo.DATABASE_IDENTITY;
 import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONAFTERCREATEMETHODID;
+import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONAFTERDELETEMETHODID;
 import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONAFTERFINDMETHODID;
 import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONAFTERSEARCHMETHODID;
 import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONCREATEMETHODID;
@@ -4463,7 +4464,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				if ((element.getDeleteRelatedRecords() || !element.getAllowParentDeleteWhenHavingRelatedRecords()) && !element.isGlobal())
 				{
 					Debug.trace("Foundset deleted per-record because relation '" + element.getName() + "' requires some checks"); //$NON-NLS-1$ //$NON-NLS-2$
-					//RAGTEST				hasRelationsWithDelete = true;
+					hasRelationsWithDelete = true;
 					break;
 				}
 			}
@@ -4476,90 +4477,99 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				QueryDelete delete_sql = new QueryDelete(sqlSelect.getTable());
 				delete_sql.setCondition(sqlSelect.getWhereClone());
 
-				IDataSet deletePKs;
-				boolean allFoundsetRecordsLoaded = currentPKs != null && pksAndRecords.getCachedRecords().size() == getSize() && !hadMoreRows();
-				if (allFoundsetRecordsLoaded)
+				if (fsm.config.ragtestDeleteRecordsInAutoSave())
 				{
-					// clone because this will be used in a separate thread by performUpdates while it will be altered in this one (deletes all records at the end of the method)
-					deletePKs = currentPKs.clone();
+					performDeleteQueryDirectly(table, currentPKs, delete_sql);
 				}
 				else
 				{
-					deletePKs = new BufferedDataSet();
-					deletePKs.addRow(new Object[] { ValueFactory.createTableFlushValue() });
-				}
+					getFoundSetManager().getEditRecordList().addDeleteQuery(this, delete_sql);
+					removeAllRecords();
+					getFoundSetManager().getEditRecordList().stopEditing(false, this);
 
-				// RAGTEST verschil als fs wel/niet fully loaded is ?
-				// RAGTEST geef pks/records mee om te verwijderen uit editing list
-				getFoundSetManager().getEditRecordList().addDeleteQuery(this, delete_sql);
-				removeAllRecords();
-				getFoundSetManager().getEditRecordList().stopEditing(false, this);
-
-				// RAGTEST
-//				String tid = fsm.getTransactionID(table.getServerName());
-//				SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), deletePKs,
-//					tid, delete_sql, fsm.getTableFilterParams(table.getServerName(), delete_sql));
-//				try
-//				{
-//					Object[] results = fsm.getDataServer().performUpdates(fsm.getApplication().getClientID(), new ISQLStatement[] { statement });
-//					for (int i = 0; results != null && i < results.length; i++)
-//					{
-//						if (results[i] instanceof ServoyException)
-//						{
-//							throw (ServoyException)results[i];
-//						}
-//					}
-
-				//	if (!allFoundsetRecordsLoaded) // RAGTEST afhandelen andere case
-				{
 					fsm.flushCachedDatabaseData(fsm.getDataSource(table));
 				}
 
 				partOfBiggerDelete = true;
-//				}
-//				catch (ApplicationException aex)
-//				{
-//					if (allFoundsetRecordsLoaded || aex.getErrorCode() != ServoyException.RECORD_LOCKED)
-//					{
-//						throw aex;
-//					}
-//					// RAGTEST
-//					// a record was locked by another client, try per-record
-//					Debug.log("Could not delete all records in 1 statement (a record may be locked), trying per-record"); //$NON-NLS-1$
-//				}
-//				catch (RemoteException e)
-//				{
-//					throw new RepositoryException(e);
-//				}
 			}
 		}
 
-		// RAGTEST move to EditRecordList
 		// Need to get all the PKs, recursive delete may not actually remove the PK from the list because it is already being deleted.
-//		if (!partOfBiggerDelete)
-//		{
-//			PksAndRecordsHolder pksAndRecordsCopy;
-//			int rowCount;
-//			synchronized (pksAndRecords)
-//			{
-//				pksAndRecordsCopy = pksAndRecords.shallowCopy();
-//				IDataSet pks = pksAndRecordsCopy.getPks();
-//				rowCount = pks == null ? 0 : pks.getRowCount();
-//			}
-//			queryForMorePKs(pksAndRecordsCopy, rowCount, -1, false);
-//		}
+		if (!partOfBiggerDelete)
+		{
+			PksAndRecordsHolder pksAndRecordsCopy;
+			int rowCount;
+			synchronized (pksAndRecords)
+			{
+				pksAndRecordsCopy = pksAndRecords.shallowCopy();
+				IDataSet pks = pksAndRecordsCopy.getPks();
+				rowCount = pks == null ? 0 : pks.getRowCount();
+			}
+			queryForMorePKs(pksAndRecordsCopy, rowCount, -1, false);
+		}
 
 		try
 		{
-//			for (int i = getSize() - 1; i >= 0; i--)
-//			{
-//				deleteRecord(i, partOfBiggerDelete);
-//			}
+			for (int i = getSize() - 1; i >= 0; i--)
+			{
+				deleteRecord(i, partOfBiggerDelete);
+			}
 		}
 		finally
 		{
 			int correctedSize = getCorrectedSizeForFires();
 			if (correctedSize > -1) fireFoundSetEvent(0, correctedSize, FoundSetEvent.CHANGE_DELETE);
+		}
+	}
+
+	private void performDeleteQueryDirectly(Table table, IDataSet currentPKs, QueryDelete delete_sql)
+		throws ServoyException, ApplicationException, RepositoryException
+	{
+		boolean allFoundsetRecordsLoaded = currentPKs != null && pksAndRecords.getCachedRecords().size() == getSize() && !hadMoreRows();
+
+		IDataSet deletePKs;
+		if (allFoundsetRecordsLoaded)
+		{
+			// clone because this will be used in a separate thread by performUpdates while it will be altered in this one (deletes all records at the end of the method)
+			deletePKs = currentPKs.clone();
+		}
+		else
+		{
+			deletePKs = new BufferedDataSet();
+			deletePKs.addRow(new Object[] { ValueFactory.createTableFlushValue() });
+		}
+
+		String tid = fsm.getTransactionID(table.getServerName());
+		SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), deletePKs,
+			tid, delete_sql, fsm.getTableFilterParams(table.getServerName(), delete_sql));
+		try
+		{
+			Object[] results = fsm.getDataServer().performUpdates(fsm.getApplication().getClientID(), new ISQLStatement[] { statement });
+			for (int i = 0; results != null && i < results.length; i++)
+			{
+				if (results[i] instanceof ServoyException)
+				{
+					throw (ServoyException)results[i];
+				}
+			}
+
+			if (!allFoundsetRecordsLoaded)
+			{
+				fsm.flushCachedDatabaseData(fsm.getDataSource(table));
+			}
+		}
+		catch (ApplicationException aex)
+		{
+			if (allFoundsetRecordsLoaded || aex.getErrorCode() != ServoyException.RECORD_LOCKED)
+			{
+				throw aex;
+			}
+			// a record was locked by another client, try per-record
+			Debug.log("Could not delete all records in 1 statement (a record may be locked), trying per-record"); //$NON-NLS-1$
+		}
+		catch (RemoteException e)
+		{
+			throw new RepositoryException(e);
 		}
 	}
 
@@ -4760,25 +4770,32 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				}
 			}
 
+			Row data = state.getRawData();
 			if (state.existInDataSource())
 			{
-				if (getFoundSetManager().getEditRecordList().addDeletedRecord(state))
+				if (fsm.config.ragtestDeleteRecordsInAutoSave())
 				{
-					if (!(state instanceof PrototypeState))
-					{
-						removeRecordInternalEx(state, row);
-					}
-					getFoundSetManager().getEditRecordList().stopEditing(false, state);
+					performDeleteRecordDirectly(state, !partOfBiggerDelete);
 				}
+				else
+				{
+					if (getFoundSetManager().getEditRecordList().addDeletedRecord(state))
+					{
+						if (!(state instanceof PrototypeState))
+						{
+							removeRecordInternalEx(state, row);
+						}
+						getFoundSetManager().getEditRecordList().stopEditing(false, state);
+					}
 
-				rowManager.deleteRow(this, state.getRawData(), partOfBiggerDelete);
+					rowManager.deleteRow(this, data, false, false);
+				}
 			}
 			else
 			{
-				rowManager.clearRow(state.getRawData());
+				rowManager.clearRow(data);
 			}
 		}
-
 		if (!(state instanceof PrototypeState))
 		{
 			removeRecordInternalEx(state, row);
@@ -4787,7 +4804,25 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			{
 				state.getRawData().flagExistInDB();
 			}
+
 		}
+	}
+
+	private void performDeleteRecordDirectly(IRecordInternal state, boolean performActualDelete) throws ServoyException
+	{
+		Row row = state.getRawData();
+		rowManager.deleteRow(this, row, hasAccess(IRepository.TRACKING), performActualDelete);
+
+		executeFoundsetTrigger(new Object[] { state }, PROPERTY_ONAFTERDELETEMETHODID, false);
+
+		GlobalTransaction gt = fsm.getGlobalTransaction();
+		if (gt != null)
+		{
+			gt.addDeletedRecord(state);
+		}
+
+		// really remove the state from the edited records, can't be saved at all anymore after delete.
+		fsm.getEditRecordList().removeEditedRecord(state);
 	}
 
 	/**
@@ -4990,6 +5025,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			try
 			{
 				IDataSet pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.config.pkChunkSize(), IDataServer.FOUNDSET_LOAD_QUERY);
+
 				synchronized (pksAndRecords)
 				{
 					// optimistic locking, if the query has been changed in the mean time forget about the refresh
@@ -5021,7 +5057,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	{
 		if (sheet.getTable() == null)
 		{
-			getFoundSetManager().getApplication().reportJSWarning("omit fails because of an invalid table");
+			getFoundSetManager().getApplication().reportJSWarning("ommit fails because of an invalid table");
 			return false;
 		}
 
@@ -5032,7 +5068,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			if (row < 0 || row >= getSize())
 			{
 				success = false;
-				getFoundSetManager().getApplication().reportJSWarning("omit fails because of an invalid index " + row);
+				getFoundSetManager().getApplication().reportJSWarning("ommit fails because of an invalid index " + row);
 				continue;
 			}
 			IRecordInternal state = getRecord(row);

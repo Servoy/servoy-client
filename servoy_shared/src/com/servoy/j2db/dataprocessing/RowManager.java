@@ -1197,7 +1197,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		return sheet;
 	}
 
-	void deleteRow(IRowListener src, Row r, boolean partOfBiggerDelete)
+	void deleteRow(IRowListener src, Row r, boolean tracking, boolean performDelete) throws ServoyException
 	{
 		if (r.getRowManager() != this) throw new IllegalArgumentException("I'm not the row manager from row"); //$NON-NLS-1$
 
@@ -1208,10 +1208,56 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		{
 			removed = pkRowMap.remove(r.getPKHashKey());
 		}
-		if (!partOfBiggerDelete)
+		if (performDelete)
 		{
-			fireDependingCalcs(removed, null, null);
+			QueryDelete sqlDelete = (QueryDelete)sheet.getSQLDescription(SQLSheet.DELETE).getSQLQuery().deepClone();
+			Object[] pk = r.getPK();
+			if (!sqlDelete.setPlaceholderValue(new TablePlaceholderKey(sqlDelete.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pk))
+			{
+				Debug.error(
+					new RuntimeException("Could not set placeholder " + new TablePlaceholderKey(sqlDelete.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
+						" in query " + sqlDelete + "-- continuing")); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+
+			IDataSet pks = new BufferedDataSet();
+			pks.addRow(pk);
+			ISQLStatement[] stats_a = new ISQLStatement[1];
+			String tid = null;
+			GlobalTransaction gt = fsm.getGlobalTransaction();
+			if (gt != null)
+			{
+				tid = gt.getTransactionID(sheet.getServerName());
+			}
+
+			SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, sheet.getServerName(), sheet.getTable().getName(), pks, tid, sqlDelete,
+				fsm.getTableFilterParams(sheet.getServerName(), sqlDelete));
+			statement.setExpectedUpdateCount(1); // check that 1 record is deleted
+			stats_a[0] = statement;
+			if (tracking)
+			{
+				statement.setTrackingData(sheet.getColumnNames(), r.getRawColumnData() != null ? new Object[][] { r.getRawColumnData() } : null, null,
+					fsm.getApplication().getUserUID(), fsm.getTrackingInfo(), fsm.getApplication().getClientID());
+			}
+
+			try
+			{
+				Object[] results = fsm.getDataServer().performUpdates(fsm.getApplication().getClientID(), stats_a);
+				for (int i = 0; results != null && i < results.length; i++)
+				{
+					if (results[i] instanceof ServoyException)
+					{
+						throw (ServoyException)results[i];
+					}
+				}
+			}
+			catch (RemoteException e)
+			{
+				throw new RepositoryException(e);
+			}
+
 		}
+
+		fireDependingCalcs(removed, null, null);
 
 		fireNotifyChange(src, r, r.getPKHashKey(), null, RowEvent.DELETE);
 	}

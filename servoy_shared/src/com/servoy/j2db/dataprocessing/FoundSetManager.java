@@ -179,10 +179,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public final FoundSetManagerConfig config;
 
-	private final List<Runnable> fireRunabbles = new ArrayList<Runnable>();
+	private final List<Runnable> fireRunabbles = new ArrayList<>();
 
 	// tracking info used for logging
-	private final HashMap<String, Object> trackingInfoMap = new HashMap<String, Object>();
+	private final HashMap<String, Object> trackingInfoMap = new HashMap<>();
 	private int foundsetCounter = 1;
 
 	public FoundSetManager(IApplication app, FoundSetManagerConfig config, IFoundSetFactory factory)
@@ -303,7 +303,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return true;
 	}
 
-	private final List<Runnable> runOnEditOrTransactionStoppedActions = Collections.synchronizedList(new ArrayList<Runnable>(3));
+	private final List<Runnable> runOnEditOrTransactionStoppedActions = Collections.synchronizedList(new ArrayList<>(3));
 	private final AtomicBoolean isBusy = new AtomicBoolean(false);
 
 	void performActionIfRequired()

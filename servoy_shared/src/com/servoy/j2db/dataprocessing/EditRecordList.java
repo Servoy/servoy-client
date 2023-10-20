@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -708,31 +709,7 @@ public class EditRecordList
 				// RAGTEST kunnen deletes andere deletes triggeren? dan recursief of loopen?
 
 
-				for (Pair<IFoundSetInternal, QueryDelete> tmp = editedRecords.getAndRemoveFirstDeleteQuery(foundset); //
-					tmp != null; //
-					tmp = editedRecords.getAndRemoveFirstDeleteQuery(foundset))
-				{
-					try
-					{
-						setDeletedrecordsInternalTableFilter(false);
-						performDeleteForFoundset(tmp.getLeft(), tmp.getRight());
-					}
-					catch (ServoyException e)
-					{
-						log.debug("stopEditing(" + javascriptStop + ") encountered an exception - could be expected and treated by solution code or not", //$NON-NLS-1$//$NON-NLS-2$
-							e);
-						// trigger method threw exception
-						lastStopEditingException = e;
-						failedDeletes.add(tmp);
-						failedCount++;
-					}
-					catch (Exception e)
-					{
-						//		Debug.error("Not a normal Servoy/Db Exception generated in saving record: " + record + " removing the record", e); //$NON-NLS-1$ //$NON-NLS-2$
-						failedDeletes.add(tmp);
-						failedCount++;
-					}
-				}
+				failedCount = executeDeleteQueries(javascriptStop, foundset, failedCount, failedDeletes);
 			}
 			finally
 			{
@@ -1114,12 +1091,39 @@ public class EditRecordList
 		return ISaveConstants.STOPPED;
 	}
 
-	private void performDeleteForFoundset(IFoundSetInternal fs, QueryDelete deleteQuery) throws ServoyException, RemoteException
+	private int executeDeleteQueries(boolean javascriptStop, IFoundSet foundset, int failedCount, List<Pair<IFoundSetInternal, QueryDelete>> failedDeletes)
 	{
-		ITable table = fs.getTable();
+		for (Pair<IFoundSetInternal, QueryDelete> tmp = editedRecords.getAndRemoveFirstDeleteQuery(foundset); //
+			tmp != null; //
+			tmp = editedRecords.getAndRemoveFirstDeleteQuery(foundset))
+		{
+			try
+			{
+				setDeletedrecordsInternalTableFilter(false);
+				performDeleteForFoundset(tmp.getLeft().getTable(), tmp.getRight());
+			}
+			catch (ServoyException e)
+			{
+				log.debug("stopEditing(" + javascriptStop + ") encountered an exception - could be expected and treated by solution code or not", //$NON-NLS-1$//$NON-NLS-2$
+					e);
+				// trigger method threw exception
+				lastStopEditingException = e;
+				failedDeletes.add(tmp);
+				failedCount++;
+			}
+			catch (Exception e)
+			{
+				//		Debug.error("Not a normal Servoy/Db Exception generated in saving record: " + record + " removing the record", e); //$NON-NLS-1$ //$NON-NLS-2$
+				failedDeletes.add(tmp);
+				failedCount++;
+			}
+		}
+		return failedCount;
+	}
 
+	private void performDeleteForFoundset(ITable table, QueryDelete deleteQuery) throws ServoyException, RemoteException
+	{
 		String tid = fsm.getTransactionID(table.getServerName());
-
 
 		// RAGTEST ignore delete TF of verwijder ze eerst (hoe te handelen met errors)
 
@@ -1129,15 +1133,13 @@ public class EditRecordList
 
 		Object[] results = fsm.getDataServer().performUpdates(fsm.getApplication().getClientID(), new ISQLStatement[] { statement });
 
-		for (int i = 0; results != null && i < results.length; i++)
+		Optional<ServoyException> exceptionOpt = stream(results)
+			.filter(ServoyException.class::isInstance).map(ServoyException.class::cast)
+			.findAny();
+		if (exceptionOpt.isPresent())
 		{
-			if (results[i] instanceof ServoyException)
-			{
-				throw (ServoyException)results[i];
-			}
+			throw exceptionOpt.get();
 		}
-
-
 	}
 
 	private <T> List<T> orderUpdatesForInsertOrder(List<T> rowData, Function<T, Row> rowFuction, boolean reverse)

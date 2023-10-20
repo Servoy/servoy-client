@@ -32,17 +32,17 @@ public interface IQueryElement extends IBaseQueryElement, ISQLCloneable, IWriteR
 	/**
 	 * Replace references to orgTable with newTable.
 	 */
-	default <T extends IQueryElement> T relinkTable(BaseQueryTable orgTable, BaseQueryTable newTable)
+	default IQueryElement relinkTable(BaseQueryTable orgTable, BaseQueryTable newTable)
 	{
-		return (T)AbstractBaseQuery.relinkTable(orgTable, newTable, this);
+		return AbstractBaseQuery.relinkTable(orgTable, newTable, this);
 	}
 
 	/**
 	 * Create a clone that can be modified without modifying the original
 	 */
-	default <T extends IQueryElement> T deepClone()
+	default IQueryElement deepClone()
 	{
-		return (T)AbstractBaseQuery.deepClone(this);
+		return AbstractBaseQuery.deepClone(this);
 	}
 
 }
