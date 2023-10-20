@@ -1060,7 +1060,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		else
 		{
 			scope = record;
-			scopeID = record.getParentFoundSet().getDataSource();
+			scopeID = record.getDataSource();
 		}
 
 		JSONObject dpInfo = new JSONObject();

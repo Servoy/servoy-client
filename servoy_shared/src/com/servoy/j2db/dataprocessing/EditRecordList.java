@@ -190,7 +190,7 @@ public class EditRecordList
 
 	private static boolean applyDatasourceAndObjectFilter(IRecordInternal record, String datasource, NativeObject filter)
 	{
-		if (!record.getParentFoundSet().getDataSource().equals(datasource))
+		if (!record.getDataSource().equals(datasource))
 		{
 			return false;
 		}
@@ -596,7 +596,7 @@ public class EditRecordList
 					if (count != null && count.intValue() > 50)
 					{
 						fsm.getApplication().reportJSError(
-							"stopEditing max loop counter exceeded on " + tmp.getParentFoundSet().getDataSource() + "/" + tmp.getPKHashKey(),
+							"stopEditing max loop counter exceeded on " + tmp.getDataSource() + "/" + tmp.getPKHashKey(),
 							new RuntimeException());
 						return ISaveConstants.SAVE_FAILED;
 					}
@@ -1536,21 +1536,19 @@ public class EditRecordList
 
 	public boolean removeRecords(String datasource)
 	{
-		boolean hasRecords = false;
+		boolean hasRemovedRecords = false;
+		boolean editedRecordsChanged = false;
 		editRecordsLock.lock();
 		try
 		{
-			List<IRecordInternal> records = new ArrayList<IRecordInternal>();
-			records.addAll(editedRecords);
-			records.addAll(failedRecords);
-			for (IRecordInternal r : records)
+			editedRecordsChanged = editedRecords.removeEverything(datasource);
+			hasRemovedRecords = failedRecords.removeIf(r -> datasource.equals(r.getDataSource()));
+			for (Iterator<Entry<IRecordInternal, List<IPrepareForSave>>> it = recordTested.entrySet().iterator(); it.hasNext();)
 			{
-				if (Utils.equalObjects(datasource, r.getParentFoundSet().getDataSource()))
+				if (datasource.equals(it.next().getKey().getDataSource()))
 				{
-					hasRecords = true;
-					editedRecords.remove(r);
-					recordTested.remove(r);
-					failedRecords.remove(r);
+					it.remove();
+					hasRemovedRecords = true;
 				}
 			}
 		}
@@ -1558,7 +1556,13 @@ public class EditRecordList
 		{
 			editRecordsLock.unlock();
 		}
-		return hasRecords;
+
+		if (editedRecordsChanged)
+		{
+			setDeletedrecordsInternalTableFilter(true);
+		}
+
+		return editedRecordsChanged | hasRemovedRecords;
 	}
 
 	public boolean startEditing(IRecordInternal record, boolean mustFireEditRecordChange)

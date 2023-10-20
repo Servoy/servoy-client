@@ -84,7 +84,7 @@ public class GlobalTransaction
 
 					IRecordInternal record = entry.getKey();
 					Row row = record.getRawData();
-					collection.add(record.getParentFoundSet().getDataSource());
+					collection.add(record.getDataSource());
 
 					// it is possible that during the transaction the record's foundset did find/search operations or load by query, ....
 					// so the record might no longer be in the foundset; we can only put this record back to editing mode with changes if required by "revertSavedRecords" == false argument

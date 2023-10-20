@@ -235,7 +235,7 @@ public class FoundsetDataAdapterList extends DataAdapterList
 
 					Relation[] relationSequence = getApplication().getFlattenedSolution().getRelationSequence(partName);
 					if (relationSequence != null && relationSequence.length > 0 && (relationSequence[0].isGlobal() ||
-						relationSequence[0].getPrimaryDataSource().equals(recordToUse.getParentFoundSet().getDataSource())))
+						relationSequence[0].getPrimaryDataSource().equals(recordToUse.getDataSource())))
 					{
 						ITable table = getApplication().getFlattenedSolution().getTable(relationSequence[relationSequence.length - 1].getForeignDataSource());
 						try
