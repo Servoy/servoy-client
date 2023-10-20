@@ -45,6 +45,12 @@ public class XMLScriptObjectAdapter implements ITypedScriptObject
 		return original;
 	}
 
+	@Override
+	public IObjectDocumentation getObjectDocumentation()
+	{
+		return objDoc;
+	}
+
 	/**
 	 * @param allReturnedTypes
 	 */

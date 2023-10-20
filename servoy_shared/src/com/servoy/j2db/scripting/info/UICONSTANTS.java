@@ -426,7 +426,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 
 	public String getPrefix()
 	{
-		return "UICONSTANS"; //$NON-NLS-1$
+		return "UICONSTANTS"; //$NON-NLS-1$
 	}
 
 	@Override

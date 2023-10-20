@@ -21,6 +21,11 @@ import java.io.Serializable;
 
 public class Pair<L, R> implements Comparable<Pair<L, R>>, Serializable
 {
+	public static <L, R> Pair<L, R> create(L l, R r)
+	{
+		return new Pair<>(l, r);
+	}
+
 	private L left;
 	private R right;
 

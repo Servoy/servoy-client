@@ -506,7 +506,11 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		IWebFormController controller = getApplication().getFormManager().getForm(formName);
 		if (controller != null)
 		{
-			getApplication().getFormManager().showFormInContainer(formName, this, getTitle(), true, windowName);
+			IFormController showFormInContainer = getApplication().getFormManager().showFormInContainer(formName, this, getTitle(), true, windowName);
+			if (showFormInContainer == null)
+			{
+				return;
+			}
 			this.formName = formName;
 			controller.getFormUI().setParentWindowName(getName());
 			//show panel as main

@@ -72,7 +72,6 @@ import com.servoy.j2db.server.headlessclient.WebClientSession;
 import com.servoy.j2db.server.headlessclient.WebClientsApplication;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
-import com.servoy.j2db.server.shared.IFlattenedSolutionDebugListener;
 import com.servoy.j2db.server.shared.WebCredentials;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDeveloperURLStreamHandler;
@@ -651,34 +650,22 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 		{
 			throw new IllegalArgumentException("expecting WebClientSession for debug web client: " + webClientSession.getClass().getName()); // nullpointer when webClientSession is null
 		}
-		IFlattenedSolutionDebugListener debugListener = null;
 		if (debugWebClient != null && debugWebClient.getSolution() != null)
 		{
 			debugWebClient.shutDown(true);
 		}
-		if (debugWebClient != null && debugWebClient.getFlattenedSolution() != null)
-		{
-			debugListener = debugWebClient.getFlattenedSolution().getDebugListener();
-		}
 		debugWebClient = new DebugWebClient(req, credentials, method, objects, (currentSolution == null) ? null : currentSolution.getSolutionMetaData(),
 			designerCallback);
-		if (debugListener != null && debugWebClient.getFlattenedSolution() != null) debugWebClient.getFlattenedSolution().registerDebugListener(debugListener);
 		return debugWebClient;
 	}
 
 	public synchronized IDebugClient createDebugNGClient(Object wsSession) throws Exception
 	{
-		IFlattenedSolutionDebugListener debugListener = null;
-		if (debugNGClient != null && debugNGClient.getFlattenedSolution() != null)
-		{
-			debugListener = debugNGClient.getFlattenedSolution().getDebugListener();
-		}
 		if (debugNGClient != null && !debugNGClient.isShutDown())
 		{
 			debugNGClient.shutDown(true);
 		}
 		debugNGClient = new DebugNGClient((INGClientWebsocketSession)wsSession, designerCallback);
-		if (debugListener != null && debugNGClient.getFlattenedSolution() != null) debugNGClient.getFlattenedSolution().registerDebugListener(debugListener);
 		return debugNGClient;
 	}
 

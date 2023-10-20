@@ -115,7 +115,36 @@ public interface IPersist extends Serializable
 	 *
 	 * @return the ancestor
 	 */
-	public IPersist getAncestor(int typeId);
+	default IPersist getAncestor(int typeId)
+	{
+		if (getTypeID() == typeId)
+		{
+			return this;
+		}
+		if (getParent() == null)
+		{
+			return null;
+		}
+		return getParent().getAncestor(typeId);
+	}
+
+	/**
+	 * Find the first ancestor with the specified type, starting with self, null if none found
+	 *
+	 * @return the ancestor
+	 */
+	default <T> T getAncestor(Class< ? extends T> cls)
+	{
+		if (cls.isInstance(this))
+		{
+			return (T)this;
+		}
+		if (getParent() == null)
+		{
+			return null;
+		}
+		return getParent().getAncestor(cls);
+	}
 
 	/**
 	 * Returns the UUID

@@ -983,19 +983,6 @@ public abstract class AbstractBase implements IPersist
 		else uuid = uuidParam;
 	}
 
-	public IPersist getAncestor(int typeId)
-	{
-		if (getTypeID() == typeId)
-		{
-			return this;
-		}
-		if (parent == null)
-		{
-			return null;
-		}
-		return parent.getAncestor(typeId);
-	}
-
 	public MetaData getMetaData()
 	{
 		return null;

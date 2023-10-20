@@ -114,7 +114,6 @@ import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryCompositeJoin;
 import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QueryTable;
-import com.servoy.j2db.server.shared.IFlattenedSolutionDebugListener;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IteratorChain;
 import com.servoy.j2db.util.Pair;
@@ -158,7 +157,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	private volatile ConcurrentHashMap<String, Style> user_created_styles; // concurrent modification exceptions shouldn't happen with current implementation for this map; no need to sync
 
 	private volatile SimplePersistFactory persistFactory;
-	private volatile IFlattenedSolutionDebugListener debugListener;
 
 	private final ConcurrentMap<Form, FlattenedForm[]> flattenedFormCache;
 	private volatile ConcurrentMap<Bean, Object> beanDesignInstances;
@@ -2924,26 +2922,13 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				else
 				{
 					// only interested in the last line that altered the form.
-					changedFormData.infos.clear();
 					// the the forms that are currently live.
 					changedFormData.instances.addAll(liveForms.get(form.getName()));
 				}
-				if (debugListener != null)
-				{
-					debugListener.addDebugInfo(changedFormData.infos);
-				}
+
+				changedFormData.lastStack = Debug.getScriptStacktraceFromContext(""); //$NON-NLS-1$
 			}
 		}
-	}
-
-	public void registerDebugListener(IFlattenedSolutionDebugListener listener)
-	{
-		this.debugListener = listener;
-	}
-
-	public IFlattenedSolutionDebugListener getDebugListener()
-	{
-		return debugListener;
 	}
 
 	/**
@@ -2971,14 +2956,11 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 					}
 					sb.setLength(sb.length() - 1);
 					sb.append("]");
-					Set<Object> infos = changedForms.get(fName).infos;
-					if (infos != null && infos.size() == 2)
+					String stack = changedForms.get(fName).lastStack;
+					if (stack != null)
 					{
-						sb.append("\n\t\tat ");
-						sb.append(infos.toArray()[0] instanceof Integer ? infos.toArray()[1] : infos.toArray()[0]);
-						sb.append(":"); //$NON-NLS-1$
-						sb.append(infos.toArray()[0] instanceof Integer ? infos.toArray()[0] : infos.toArray()[1]);
-						sb.append("\n"); //$NON-NLS-1$
+						sb.append('\n');
+						sb.append(stack);
 					}
 					sb.append("\n\t"); //$NON-NLS-1$
 				}
@@ -3047,7 +3029,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	private static class ChangedFormData
 	{
-		private final Set<Object> infos = new HashSet<Object>();
+		private String lastStack;
 		private final Set<String> instances;
 
 		private ChangedFormData(Set<String> instances)

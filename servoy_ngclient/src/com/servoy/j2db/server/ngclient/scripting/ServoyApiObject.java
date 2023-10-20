@@ -86,6 +86,19 @@ public class ServoyApiObject
 		return app.getFoundSetManager().getViewFoundSet(name, query, false);
 	}
 
+	@JSFunction
+	/**
+	 * Creates a foundset.
+	 * @param query query builder used to get the data for the foundset
+	 * @return the foundset
+	 * @throws ServoyException
+	 */
+	public FoundSet getFoundSet(QBSelect query) throws ServoyException
+	{
+		app.checkAuthorized();
+		return (FoundSet)app.getFoundSetManager().getFoundSet(query);
+	}
+
 	/**
 	 * Get select query for dataSource
 	 * @param dataSource the dataSource

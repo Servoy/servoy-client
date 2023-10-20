@@ -70,6 +70,12 @@ public class BasicTagStringTypeSabloValue
 		writer.value(v != null ? v : "");
 	}
 
+	// this is used by rhino, stringify api
+	public Object toJSON(String value)
+	{
+		return getTagReplacedValue();
+	}
+
 	@Override
 	public boolean equals(Object obj)
 	{

@@ -30,13 +30,13 @@ import com.servoy.base.util.ITagResolver;
 public interface IFunctionDocumentation
 {
 	// type codes
-	public static final Integer TYPE_UNKNOWN = new Integer(0);
-	public static final Integer TYPE_FUNCTION = new Integer(1);
-	public static final Integer TYPE_PROPERTY = new Integer(2);
-	public static final Integer TYPE_CONSTANT = new Integer(3);
-	public static final Integer TYPE_EVENT = new Integer(4);
-	public static final Integer TYPE_COMMAND = new Integer(5);
-	public static final Integer TYPE_CONSTRUCTOR = new Integer(6);
+	public static final Integer TYPE_UNKNOWN = Integer.valueOf(0);
+	public static final Integer TYPE_FUNCTION = Integer.valueOf(1);
+	public static final Integer TYPE_PROPERTY = Integer.valueOf(2);
+	public static final Integer TYPE_CONSTANT = Integer.valueOf(3);
+	public static final Integer TYPE_EVENT = Integer.valueOf(4);
+	public static final Integer TYPE_COMMAND = Integer.valueOf(5);
+	public static final Integer TYPE_CONSTRUCTOR = Integer.valueOf(6);
 
 	// states
 	public static final int STATE_DOCUMENTED = 0;

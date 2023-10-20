@@ -2628,6 +2628,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				}
 			}
 
+			if (getEditRecordList().removeRecords(dataSource))
+			{
+				Debug.warn("createDataSourceFromQuery was called while there were edited records under datasource with same name: " + name +
+					". All old records were removed.");
+			}
+
 			table = application.getDataServer()
 				.insertQueryResult(application.getClientID(), serverName, queryTid, sqlSelect,
 					useTableFilters ? getTableFilterParams(serverName, sqlSelect) : null, false, 0, maxNumberOfRowsToRetrieve, IDataServer.CUSTOM_QUERY,

@@ -1534,6 +1534,33 @@ public class EditRecordList
 		}
 	}
 
+	public boolean removeRecords(String datasource)
+	{
+		boolean hasRecords = false;
+		editRecordsLock.lock();
+		try
+		{
+			List<IRecordInternal> records = new ArrayList<IRecordInternal>();
+			records.addAll(editedRecords);
+			records.addAll(failedRecords);
+			for (IRecordInternal r : records)
+			{
+				if (Utils.equalObjects(datasource, r.getParentFoundSet().getDataSource()))
+				{
+					hasRecords = true;
+					editedRecords.remove(r);
+					recordTested.remove(r);
+					failedRecords.remove(r);
+				}
+			}
+		}
+		finally
+		{
+			editRecordsLock.unlock();
+		}
+		return hasRecords;
+	}
+
 	public boolean startEditing(IRecordInternal record, boolean mustFireEditRecordChange)
 	{
 		if (record == null)
