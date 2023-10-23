@@ -45,7 +45,7 @@ public class PerformanceData
 
 	private final Logger log;
 
-	private final IPerformanceRegistry registry;
+	protected final IPerformanceRegistry registry;
 
 	private final PerformanceAggregator aggregator;
 
