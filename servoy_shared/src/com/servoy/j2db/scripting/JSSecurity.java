@@ -1089,7 +1089,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	@Deprecated
 	public boolean js_addUserToGroup(Object a_userUID, Object groupName) throws ServoyException
 	{
-		return js_addPermissinToUser(a_userUID, groupName);
+		return js_addPermissionToUser(a_userUID, groupName);
 	}
 
 	/**
@@ -1098,7 +1098,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 *
 	 * @sample
 	 * var userUID = security.getUserUID();
-	 * security.addPermissinToUser(userUID, 'permission');
+	 * security.addPermissionToUser(userUID, 'permission');
 	 *
 	 * @param a_userUID the user UID to be added
 	 * @param permission the permission to add to
@@ -1106,7 +1106,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 *
 	 */
 	@SuppressWarnings("nls")
-	public boolean js_addPermissinToUser(Object a_userUID, Object permission) throws ServoyException
+	public boolean js_addPermissionToUser(Object a_userUID, Object permission) throws ServoyException
 	{
 		application.checkAuthorized();
 		if (a_userUID == null || permission == null) return false;
