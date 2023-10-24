@@ -286,8 +286,16 @@ public class WebObjectImpl extends WebObjectBasicImpl
 				}
 				else
 				{
-					// it is a json property defined in spec, but it's not mapping to a persist
-					setOrRemoveJsonSubproperty(propertyName, convertFromJavaType(getChildPropertyDescription(propertyName), val), false);
+					if (propertyName.equals("valuelistID") && val == null) //$NON-NLS-1$
+					{
+						// reset to default
+						setOrRemoveJsonSubproperty(propertyName, convertFromJavaType(getChildPropertyDescription(propertyName), val), true);
+					}
+					else
+					{
+						// it is a json property defined in spec, but it's not mapping to a persist
+						setOrRemoveJsonSubproperty(propertyName, convertFromJavaType(getChildPropertyDescription(propertyName), val), false);
+					}
 					return true;
 				}
 			}
