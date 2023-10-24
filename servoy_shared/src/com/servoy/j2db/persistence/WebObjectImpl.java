@@ -817,7 +817,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 			}
 
 			JSONObject obj = webObject.getFlattenedJson();
-			if (obj != null && obj.has(key) && obj.get(key).equals(value))
+			if (obj != null && obj.has(key) && obj.get(key).equals(value) && !remove)
 			{
 				return false;
 			}
