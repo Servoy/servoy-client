@@ -502,12 +502,12 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 *
 	 * @return dataset with groupnames
 	 *
-	 * @deprecated use getPermissions()
+	 * @deprecated use getUserPermissions()
 	 */
 	@Deprecated
 	public JSDataSet js_getUserGroups() throws ServoyException
 	{
-		return js_getPermissions();
+		return js_getUserPermissions();
 	}
 
 	/**
@@ -532,7 +532,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 		JSDataSet groups = null;
 		if (application.getUserUID() != null)
 		{
-			groups = js_getUserGroups(application.getUserUID());
+			groups = js_getPermissions(application.getUserUID());
 		}
 		return (groups == null ? new JSDataSet(new ApplicationException(ServoyException.INCORRECT_LOGIN)) : groups);
 	}
