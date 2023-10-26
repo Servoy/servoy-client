@@ -30,7 +30,6 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderTableClause;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
-import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 
 /**
@@ -201,7 +200,6 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 		if (table == null)
 		{
 			table = getRoot().getTable(dataSource);
-			Debug.warn("Asking table in tableclause " + dataSource + " table " + table);
 		}
 		return table;
 	}

@@ -1076,8 +1076,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					}
 
 					table = server.getTable(servernameTablename[1]);
-
-					Debug.warn("Loaded table " + table + " from server " + server);
 				}
 				catch (RemoteException e)
 				{
