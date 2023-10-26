@@ -310,7 +310,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		return leaseFormPanel(formName, null);
 	}
 
-	@Override
 	public IWebFormController leaseFormPanel(String formName, WebFormComponent parent)
 	{
 		if (formName == null) return null;
