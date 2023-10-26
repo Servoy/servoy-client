@@ -283,10 +283,16 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 	@Override
 	public IWebFormController getForm(String name)
 	{
+		return getForm(name, null);
+	}
+
+	@Override
+	public IWebFormController getForm(String name, WebFormComponent parent)
+	{
 		IWebFormController fc = createdFormControllers.get(name);
 		if (fc == null)
 		{
-			fc = leaseFormPanel(name);
+			fc = leaseFormPanel(name, parent);
 		}
 		return fc;
 	}
@@ -300,6 +306,12 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 
 	@Override
 	public IWebFormController leaseFormPanel(String formName)
+	{
+		return leaseFormPanel(formName, null);
+	}
+
+	@Override
+	public IWebFormController leaseFormPanel(String formName, WebFormComponent parent)
 	{
 		if (formName == null) return null;
 
@@ -321,6 +333,10 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 				fp.init();
 				updateLeaseHistory(fp);
 				fp.setView(fp.getView());
+				if (parent != null)
+				{
+					fp.getFormUI().setParentContainer(parent);
+				}
 				fp.executeOnLoadMethod();
 			}
 			finally
