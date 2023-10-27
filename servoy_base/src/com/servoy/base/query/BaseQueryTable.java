@@ -210,11 +210,15 @@ public class BaseQueryTable implements IBaseQueryElement
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
 		BaseQueryTable other = (BaseQueryTable)obj;
-		if (alias == null)
+
+		if (!generatedAlias || !other.generatedAlias)
 		{
-			if (other.alias != null) return false;
+			if (alias == null)
+			{
+				if (other.alias != null) return false;
+			}
+			else if (!alias.equals(other.alias)) return false;
 		}
-		else if (!alias.equals(other.alias)) return false;
 		if (catalogName == null)
 		{
 			if (other.catalogName != null) return false;

@@ -77,7 +77,9 @@ public class PerformanceTiming extends PerformanceData
 		}
 
 		super.addTiming(timing, intervalMsSubAction2, totalMsSubAction2, nrecords);
-		subTimings.add(timing);
+		// if in log only we don't seem to need to subtimings that is later on used in the aggregator only which doesn't do anything in log only
+		if (this.registry.getMaxNumberOfEntriesPerContext() != IPerformanceRegistry.LOGGING_ONLY)
+			subTimings.add(timing);
 	}
 
 	@Override
