@@ -979,7 +979,7 @@ public class EditRecordList
 							property = StaticContentSpecLoader.PROPERTY_ONAFTERDELETEMETHODID;
 							break;
 						default :
-							property = StaticContentSpecLoader.PROPERTY_ONAFTERINSERTMETHODID;
+							property = StaticContentSpecLoader.PROPERTY_ONAFTERUPDATEMETHODID;
 					}
 					((FoundSet)rowUpdateInfoRecord.getParentFoundSet()).executeFoundsetTrigger(new Object[] { rowUpdateInfoRecord }, property, true);
 				}
@@ -2100,7 +2100,7 @@ public class EditRecordList
 
 		if (!array.isEmpty() || !deleteQueries.isEmpty())
 		{
-			setDeletedrecordsInternalTableFilter(true);
+			setDeletedrecordsInternalTableFilter(false);
 			fireEditChange();
 		}
 	}
