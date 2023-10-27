@@ -324,7 +324,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 
 	public int getFlags()
 	{
-		return IBaseColumn.NORMAL_COLUMN;
+		return ScriptVariable.getFlags(getComment());
 	}
 
 	//the repository element id can differ!
@@ -367,6 +367,26 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 		}
 		Wrapper wrapper = (Wrapper)NativeDate.jsConstructor(args);
 		return (Date)wrapper.unwrap();
+	}
+
+	public static int getFlags(String comment)
+	{
+		if (comment != null)
+		{
+			int index = comment.indexOf("*/");
+			if (index != -1)
+			{
+				int typeIndex = comment.lastIndexOf("@type", index);
+				if (typeIndex != -1)
+				{
+					if (comment.substring(typeIndex, comment.indexOf('\n', typeIndex)).indexOf("{UUID}") != -1)
+					{
+						return IBaseColumn.NORMAL_COLUMN | IBaseColumn.UUID_COLUMN;
+					}
+				}
+			}
+		}
+		return IBaseColumn.NORMAL_COLUMN;
 	}
 
 	/**
