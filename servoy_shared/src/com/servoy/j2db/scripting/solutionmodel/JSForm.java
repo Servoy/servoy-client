@@ -3470,7 +3470,8 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	}
 
 	/**
-	 * Set a design-time property of a form.
+	 * Set a design-time property of a form. Value should be primitive data (string, boolean or number).
+	 * Complex values should be stringified before call.
 	 *
 	 * @param key the property name
 	 * @param value the value to set
