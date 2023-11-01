@@ -22,7 +22,9 @@ import static com.servoy.j2db.util.keyword.Ident.generateNormalizedNonReservedOS
 
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
@@ -31,20 +33,26 @@ import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.BaseQueryTable;
+import com.servoy.j2db.IApplication;
+import com.servoy.j2db.dataprocessing.FoundSet;
+import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.IGlobalValueEntry;
+import com.servoy.j2db.dataprocessing.JSDataSet;
+import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IDataProviderHandler;
 import com.servoy.j2db.persistence.IRelation;
 import com.servoy.j2db.persistence.ITable;
-import com.servoy.j2db.persistence.ITableAndRelationProvider;
 import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.AndCondition;
 import com.servoy.j2db.query.AndOrCondition;
 import com.servoy.j2db.query.ExistsCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLCondition;
+import com.servoy.j2db.query.ISQLQuery;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.OrCondition;
 import com.servoy.j2db.query.Placeholder;
@@ -57,8 +65,11 @@ import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Settings;
+import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * @author rgansevles
@@ -69,7 +80,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 {
 	private static final char QUOTE = '\'';
 
-	private final ITableAndRelationProvider tableProvider;
+	private final IFoundSetManagerInternal foundsetManager;
 
 	private QBResult result;
 	private QBSorts sort;
@@ -90,18 +101,18 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 
 	private final boolean conversionLenient;
 
-	QBSelect(ITableAndRelationProvider tableProvider, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler,
+	QBSelect(IFoundSetManagerInternal foundsetManager, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler,
 		Scriptable scriptableParent, String dataSource, String alias)
 	{
 		super(dataSource, alias);
-		this.tableProvider = tableProvider;
+		this.foundsetManager = foundsetManager;
 		this.globalScopeProvider = globalScopeProvider;
 		this.dataProviderHandler = dataProviderHandler;
 		this.scriptableParent = scriptableParent;
 		this.conversionLenient = Boolean.parseBoolean(Settings.getInstance().getProperty("servoy.client.query.convert.lenient", "false"));
 	}
 
-	public QBSelect(ITableAndRelationProvider tableProvider, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler,
+	public QBSelect(IFoundSetManagerInternal tableProvider, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler,
 		Scriptable scriptableParent, String dataSource, String alias, QuerySelect querySelect)
 	{
 		this(tableProvider, globalScopeProvider, dataProviderHandler, scriptableParent, dataSource, alias);
@@ -145,7 +156,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		try
 		{
 			// Return null when not found
-			return tableProvider.getTable(dataSource);
+			return foundsetManager.getTable(dataSource);
 		}
 		catch (RepositoryException e)
 		{
@@ -187,7 +198,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 
 	IRelation getRelation(String name)
 	{
-		return tableProvider.getRelation(name);
+		return foundsetManager.getRelation(name);
 	}
 
 	IGlobalValueEntry getGlobalScopeProvider()
@@ -607,7 +618,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	@JSFunction
 	public String getSQL(boolean includeFilters) throws ServoyException
 	{
-		QuerySet querySet = tableProvider.getQuerySet(getQuery(), includeFilters);
+		QuerySet querySet = foundsetManager.getQuerySet(getQuery(), includeFilters);
 		return querySet.getSelect().getSql();
 	}
 
@@ -637,7 +648,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	@JSFunction
 	public Object[] getSQLParameters(boolean includeFilters) throws ServoyException
 	{
-		QuerySet querySet = tableProvider.getQuerySet(getQuery(), includeFilters);
+		QuerySet querySet = foundsetManager.getQuerySet(getQuery(), includeFilters);
 		// TODO parameters from updates and cleanups
 		Object[][] qsParams = querySet.getSelect().getParameters();
 		if (qsParams != null && qsParams.length > 0)
@@ -646,6 +657,163 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		}
 
 		return null;
+	}
+
+	/**
+	 * Returns a foundset object for a specified pk base query. Same as databaseManager.getFoundSet(QBSelect).
+	 *
+	 * @sample
+	 * var qb = datasources.db.example_data.orders.createSelect();
+	 * qb.result.addPk();
+	 * qb.where.add(qb.columns.product_id.eq(1))
+	 * var fs = qb.getFoundSet();
+	 *
+	 * @return A new JSFoundset with the query as its base query.
+	 */
+	@JSFunction
+	public FoundSet js_getFoundSet()
+	{
+		try
+		{
+			return (FoundSet)foundsetManager.getFoundSet(this);
+		}
+		catch (Exception e)
+		{
+			throw new RuntimeException("Can't get new foundset for: " + query, e); //$NON-NLS-1$
+		}
+	}
+
+	/**
+	 * Performs a sql query with a query builder object. Same as databaseManager.getDataSetByQuery.
+	 * Will throw an exception if anything did go wrong when executing the query.
+	 *
+	 * Using this variation of getDataSet any Tablefilter on the involved tables will be taken into account.
+	 *
+	 * @sample
+	 * // use the query from foundset and add a condition
+	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
+	 * var q = foundset.getQuery()
+	 * q.where.add(q.joins.orders_to_order_details.columns.discount.eq(2))
+	 * var maxReturnedRows = 10;//useful to limit number of rows
+	 * var ds = q.getDataSet( maxReturnedRows);
+	 *
+	 * // query: select PK from example.book_nodes where parent = 111 and(note_date is null or note_date > now)
+	 * var query = datasources.db.example_data.book_nodes.createSelect().result.addPk().root
+	 * query.where.add(query.columns.parent_id.eq(111))
+	 * 	.add(query.or
+	 * 	.add(query.columns.note_date.isNull)
+	 * 	.add(query.columns.note_date.gt(new Date())))
+	 * query.getDataSet(max_returned_rows)
+	 *
+	 * @param max_returned_rows The maximum number of rows returned by the query.
+	 *
+	 * @return The JSDataSet containing the results of the query.
+	 */
+	@JSFunction
+	public JSDataSet getDataSet(Number max_returned_rows) throws ServoyException
+	{
+		return getDataSet(max_returned_rows, Boolean.TRUE);
+	}
+
+	/**
+	 * Performs a sql query with a query builder object. Same as databaseManager.getDataSetByQuery.
+	 * Will throw an exception if anything did go wrong when executing the query.
+	 *
+	 * @sample
+	 * // use the query from a foundset and add a condition
+	 * /** @type {QBSelect<db:/example_data/orders>} *&#47;
+	 * var q = foundset.getQuery()
+	 * q.where.add(q.joins.orders_to_order_details.columns.discount.eq(2))
+	 * var maxReturnedRows = 10;//useful to limit number of rows
+	 * var ds = q.getDataSet(true, maxReturnedRows);
+	 *
+	 * // query: select PK from example.book_nodes where parent = 111 and(note_date is null or note_date > now)
+	 * var query = datasources.db.example_data.book_nodes.createSelect().result.addPk().root
+	 * query.where.add(query.columns.parent_id.eq(111))
+	 * 	.add(query.or
+	 * 	.add(query.columns.note_date.isNull)
+	 * 	.add(query.columns.note_date.gt(new Date())))
+	 * query.getDataSet(true, max_returned_rows)
+	 *
+	 * @param max_returned_rows The maximum number of rows returned by the query.
+	 * @param useTableFilters use table filters (default true).
+	 *
+	 * @return The JSDataSet containing the results of the query.
+	 */
+	@JSFunction
+	public JSDataSet getDataSet(Number max_returned_rows, Boolean useTableFilters) throws ServoyException
+	{
+		int _max_returned_rows = Utils.getAsInteger(max_returned_rows);
+
+		String serverName = DataSourceUtils.getDataSourceServerName(this.getDataSource());
+
+		if (serverName == null)
+			throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { this.getDataSource() }));
+		QuerySelect select = this.build();
+
+		if (!QBSelect.validateQueryArguments(select, foundsetManager.getApplication()))
+		{
+			return new JSDataSet(foundsetManager.getApplication());
+		}
+
+		try
+		{
+			return new JSDataSet(foundsetManager.getApplication(), foundsetManager.getDataSetByQuery(this,
+				!Boolean.FALSE.equals(useTableFilters), _max_returned_rows));
+		}
+		catch (ServoyException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static boolean validateQueryArguments(ISQLQuery select, IApplication application)
+	{
+		if (select != null)
+		{
+			if (select instanceof QuerySelect && ((QuerySelect)select).getColumns() == null)
+			{
+				application.reportJSError("Custom query: " + select + " not executed because no columns are specified to be selected", null);
+				return false;
+			}
+
+			final List<Placeholder> placeHolders = new ArrayList<Placeholder>();
+			AbstractBaseQuery.acceptVisitor(select, new IVisitor()
+			{
+				public Object visit(Object o)
+				{
+					if (o instanceof Placeholder)
+					{
+						placeHolders.add((Placeholder)o);
+					}
+					return o;
+				}
+			});
+
+			for (Placeholder placeholder : placeHolders)
+			{
+				if (!placeholder.isSet())
+				{
+					application.reportJSError("Custom query: " + select + //$NON-NLS-1$
+						" not executed because not all arguments have been set: " + placeholder.getKey(), null); //$NON-NLS-1$
+					return false;
+				}
+				Object value = placeholder.getValue();
+				if (value instanceof DbIdentValue && ((DbIdentValue)value).getPkValue() == null)
+				{
+					application.reportJSError("Custom query: " + select + //$NON-NLS-1$
+						" not executed because the arguments have a database ident value that is null, from a not yet saved record", null); //$NON-NLS-1$
+					return false;
+				}
+
+				if (value instanceof java.util.Date && !(value instanceof Timestamp) && !(value instanceof Time))
+				{
+					placeholder.setValue(new Timestamp(((java.util.Date)value).getTime()));
+				}
+			}
+		}
+
+		return true;
 	}
 
 	public QuerySelect getQuery()
