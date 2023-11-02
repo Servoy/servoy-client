@@ -26,6 +26,7 @@ import org.sablo.IWebObjectContext;
 import org.sablo.IllegalChangeFromClientException;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescriptionBuilder;
+import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
@@ -1027,7 +1028,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				}
 				if (onDataChangeCallback != null)
 				{
-					WebObjectFunctionDefinition call = createWebObjectFunction(onDataChangeCallback);
+					WebObjectApiFunctionDefinition call = createWebObjectFunction(onDataChangeCallback);
 					webComponent.invokeApi(call, new Object[] { event, returnValue, exception == null ? null : exception.getMessage() });
 				}
 			}
@@ -1089,9 +1090,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	 * @param onDataChangeCallback
 	 * @return
 	 */
-	static WebObjectFunctionDefinition createWebObjectFunction(String onDataChangeCallback)
+	static WebObjectApiFunctionDefinition createWebObjectFunction(String onDataChangeCallback)
 	{
-		WebObjectFunctionDefinition call = new WebObjectFunctionDefinition(onDataChangeCallback);
+		WebObjectApiFunctionDefinition call = new WebObjectApiFunctionDefinition(onDataChangeCallback);
 		call.addParameter(new PropertyDescriptionBuilder().withName("event").withType(TypesRegistry.getType("object")).build());
 		call.addParameter(new PropertyDescriptionBuilder().withName("returnValue").withType(TypesRegistry.getType("object")).build());
 		call.addParameter(new PropertyDescriptionBuilder().withName("exception").withConfig(TypesRegistry.getType("object")).build());

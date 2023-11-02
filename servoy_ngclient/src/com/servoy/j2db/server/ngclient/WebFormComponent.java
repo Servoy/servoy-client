@@ -14,6 +14,7 @@ import org.sablo.Container;
 import org.sablo.IEventHandler;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebComponentSpecProvider;
+import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
@@ -380,7 +381,7 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 			DataproviderConfig dataproviderConfig = DataAdapterList.getDataproviderConfig(this, key);
 			if (dataproviderConfig != null && dataproviderConfig.getOnDataChangeCallback() != null)
 			{
-				WebObjectFunctionDefinition function = DataAdapterList.createWebObjectFunction(dataproviderConfig.getOnDataChangeCallback());
+				WebObjectApiFunctionDefinition function = DataAdapterList.createWebObjectFunction(dataproviderConfig.getOnDataChangeCallback());
 				JSONObject event = EventExecutor.createEvent(dataproviderConfig.getOnDataChangeCallback(),
 					dataAdapterList.getForm().getFormModel().getSelectedIndex());
 				invokeApi(function, new Object[] { event, null, null });

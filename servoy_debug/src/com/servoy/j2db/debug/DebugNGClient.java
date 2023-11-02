@@ -30,7 +30,7 @@ import org.eclipse.dltk.rhino.dbgp.DBGPDebugFrame;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.eclipse.dltk.rhino.dbgp.DBGPStackManager;
 import org.sablo.eventthread.WebsocketSessionWindows;
-import org.sablo.specification.WebObjectFunctionDefinition;
+import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.CurrentWindow;
@@ -456,7 +456,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	}
 
 	@Override
-	public Pair<Long, Long> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] args)
+	public Pair<Long, Long> onStartSubAction(String serviceName, String functionName, WebObjectApiFunctionDefinition apiFunction, Object[] args)
 	{
 
 		Pair<Long, Long> result = super.onStartSubAction(serviceName, functionName, apiFunction, args);

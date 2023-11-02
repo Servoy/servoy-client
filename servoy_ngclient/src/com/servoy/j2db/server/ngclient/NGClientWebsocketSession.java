@@ -39,7 +39,7 @@ import org.sablo.services.client.TypesRegistryService;
 import org.sablo.specification.Package.IPackageReader;
 import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.SpecProviderState;
-import org.sablo.specification.WebObjectFunctionDefinition;
+import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebObjectSpecificationBuilder;
 import org.sablo.specification.WebServiceSpecProvider;
@@ -97,7 +97,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		private WindowServiceSpecification()
 		{
 			super(NGRuntimeWindowManager.WINDOW_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, null, "", null, null, null);
-			WebObjectFunctionDefinition destroy = new WebObjectFunctionDefinition("destroyController");
+			WebObjectApiFunctionDefinition destroy = new WebObjectApiFunctionDefinition("destroyController");
 			destroy.addParameter(new PropertyDescriptionBuilder().withName("name").withType(TypesRegistry.getType(StringPropertyType.TYPE_NAME)).build());
 			destroy.setAsync(true);
 			destroy.setPreDataServiceCall(true);
@@ -111,14 +111,14 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		private TypesRegistryServiceSpecification()
 		{
 			super(TypesRegistryService.TYPES_REGISTRY_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, null, "", null, null, null);
-			WebObjectFunctionDefinition apiCallDef = new WebObjectFunctionDefinition("addComponentClientSideSpecs");
+			WebObjectApiFunctionDefinition apiCallDef = new WebObjectApiFunctionDefinition("addComponentClientSideSpecs");
 			apiCallDef
 				.addParameter(new PropertyDescriptionBuilder().withName("toBeSent").withType(TypesRegistry.getType(ObjectPropertyType.TYPE_NAME)).build());
 			apiCallDef.setAsync(true);
 			apiCallDef.setPreDataServiceCall(true);
 			addApiFunction(apiCallDef);
 
-			apiCallDef = new WebObjectFunctionDefinition("setServiceClientSideSpecs");
+			apiCallDef = new WebObjectApiFunctionDefinition("setServiceClientSideSpecs");
 			apiCallDef
 				.addParameter(new PropertyDescriptionBuilder().withName("toBeSent").withType(TypesRegistry.getType(ObjectPropertyType.TYPE_NAME)).build());
 			apiCallDef.setAsync(true);
@@ -132,7 +132,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		private ClientFunctionsServiceSpecification()
 		{
 			super(CLIENT_FUNCTION_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, null, "", null, null, null);
-			WebObjectFunctionDefinition reload = new WebObjectFunctionDefinition("reloadClientFunctions");
+			WebObjectApiFunctionDefinition reload = new WebObjectApiFunctionDefinition("reloadClientFunctions");
 			reload.setAsync(true);
 			reload.setPreDataServiceCall(true);
 			addApiFunction(reload);
