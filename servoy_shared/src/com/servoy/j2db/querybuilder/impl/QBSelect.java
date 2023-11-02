@@ -35,7 +35,6 @@ import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.FoundSet;
-import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.IGlobalValueEntry;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
@@ -44,6 +43,7 @@ import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IDataProviderHandler;
 import com.servoy.j2db.persistence.IRelation;
 import com.servoy.j2db.persistence.ITable;
+import com.servoy.j2db.persistence.ITableAndRelationProvider;
 import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.AbstractBaseQuery;
@@ -80,7 +80,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 {
 	private static final char QUOTE = '\'';
 
-	private final IFoundSetManagerInternal foundsetManager;
+	private final ITableAndRelationProvider tableProvider;
 
 	private QBResult result;
 	private QBSorts sort;
@@ -101,18 +101,18 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 
 	private final boolean conversionLenient;
 
-	QBSelect(IFoundSetManagerInternal foundsetManager, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler,
+	QBSelect(ITableAndRelationProvider tableProvider, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler,
 		Scriptable scriptableParent, String dataSource, String alias)
 	{
 		super(dataSource, alias);
-		this.foundsetManager = foundsetManager;
+		this.tableProvider = tableProvider;
 		this.globalScopeProvider = globalScopeProvider;
 		this.dataProviderHandler = dataProviderHandler;
 		this.scriptableParent = scriptableParent;
 		this.conversionLenient = Boolean.parseBoolean(Settings.getInstance().getProperty("servoy.client.query.convert.lenient", "false"));
 	}
 
-	public QBSelect(IFoundSetManagerInternal tableProvider, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler,
+	public QBSelect(ITableAndRelationProvider tableProvider, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler,
 		Scriptable scriptableParent, String dataSource, String alias, QuerySelect querySelect)
 	{
 		this(tableProvider, globalScopeProvider, dataProviderHandler, scriptableParent, dataSource, alias);
@@ -156,7 +156,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		try
 		{
 			// Return null when not found
-			return foundsetManager.getTable(dataSource);
+			return tableProvider.getTable(dataSource);
 		}
 		catch (RepositoryException e)
 		{
@@ -198,7 +198,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 
 	IRelation getRelation(String name)
 	{
-		return foundsetManager.getRelation(name);
+		return tableProvider.getRelation(name);
 	}
 
 	IGlobalValueEntry getGlobalScopeProvider()
@@ -618,7 +618,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	@JSFunction
 	public String getSQL(boolean includeFilters) throws ServoyException
 	{
-		QuerySet querySet = foundsetManager.getQuerySet(getQuery(), includeFilters);
+		QuerySet querySet = tableProvider.getQuerySet(getQuery(), includeFilters);
 		return querySet.getSelect().getSql();
 	}
 
@@ -648,7 +648,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	@JSFunction
 	public Object[] getSQLParameters(boolean includeFilters) throws ServoyException
 	{
-		QuerySet querySet = foundsetManager.getQuerySet(getQuery(), includeFilters);
+		QuerySet querySet = tableProvider.getQuerySet(getQuery(), includeFilters);
 		// TODO parameters from updates and cleanups
 		Object[][] qsParams = querySet.getSelect().getParameters();
 		if (qsParams != null && qsParams.length > 0)
@@ -675,7 +675,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	{
 		try
 		{
-			return (FoundSet)foundsetManager.getFoundSet(this);
+			return (FoundSet)tableProvider.getFoundSet(this);
 		}
 		catch (Exception e)
 		{
@@ -751,14 +751,14 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 			throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { this.getDataSource() }));
 		QuerySelect select = this.build();
 
-		if (!QBSelect.validateQueryArguments(select, foundsetManager.getApplication()))
+		if (!QBSelect.validateQueryArguments(select, tableProvider.getApplication()))
 		{
-			return new JSDataSet(foundsetManager.getApplication());
+			return new JSDataSet(tableProvider.getApplication());
 		}
 
 		try
 		{
-			return new JSDataSet(foundsetManager.getApplication(), foundsetManager.getDataSetByQuery(this,
+			return new JSDataSet(tableProvider.getApplication(), tableProvider.getDataSetByQuery(this,
 				!Boolean.FALSE.equals(useTableFilters), _max_returned_rows));
 		}
 		catch (ServoyException e)

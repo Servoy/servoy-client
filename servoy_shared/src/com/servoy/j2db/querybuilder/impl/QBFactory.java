@@ -19,9 +19,9 @@ package com.servoy.j2db.querybuilder.impl;
 
 import org.mozilla.javascript.Scriptable;
 
-import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.IGlobalValueEntry;
 import com.servoy.j2db.persistence.IDataProviderHandler;
+import com.servoy.j2db.persistence.ITableAndRelationProvider;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
@@ -33,14 +33,14 @@ import com.servoy.j2db.querybuilder.IQueryBuilderFactory;
 public class QBFactory implements IQueryBuilderFactory
 {
 	private final Scriptable scriptableParent;
-	private final IFoundSetManagerInternal foundsetManager;
+	private final ITableAndRelationProvider tableProvider;
 	private final IGlobalValueEntry globalScopeProvider;
 	private final IDataProviderHandler dataProviderHandler;
 
-	public QBFactory(IFoundSetManagerInternal foundsetManager, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler,
+	public QBFactory(ITableAndRelationProvider tableProvider, IGlobalValueEntry globalScopeProvider, IDataProviderHandler dataProviderHandler,
 		Scriptable scriptableParent)
 	{
-		this.foundsetManager = foundsetManager;
+		this.tableProvider = tableProvider;
 		this.globalScopeProvider = globalScopeProvider;
 		this.dataProviderHandler = dataProviderHandler;
 		this.scriptableParent = scriptableParent;
@@ -48,7 +48,7 @@ public class QBFactory implements IQueryBuilderFactory
 
 	public QBSelect createSelect(String dataSource, String alias) throws RepositoryException
 	{
-		return new QBSelect(foundsetManager, globalScopeProvider, dataProviderHandler, scriptableParent, dataSource, alias);
+		return new QBSelect(tableProvider, globalScopeProvider, dataProviderHandler, scriptableParent, dataSource, alias);
 	}
 
 	public QBSelect createSelect(String dataSource) throws RepositoryException
@@ -58,7 +58,7 @@ public class QBFactory implements IQueryBuilderFactory
 
 	public QBSelect createSelect(String dataSource, String alias, QuerySelect querySelect)
 	{
-		return new QBSelect(foundsetManager, globalScopeProvider, dataProviderHandler, scriptableParent, dataSource, alias, querySelect);
+		return new QBSelect(tableProvider, globalScopeProvider, dataProviderHandler, scriptableParent, dataSource, alias, querySelect);
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class QBFactory implements IQueryBuilderFactory
 	 */
 	public String resolveDataSource(String serverDataSource, String tableSQLName)
 	{
-		String dataSource = foundsetManager.resolveDataSource(serverDataSource, tableSQLName);
+		String dataSource = tableProvider.resolveDataSource(serverDataSource, tableSQLName);
 		if (dataSource == null)
 		{
 			throw new RuntimeException("Could not resolve table sqlname = '" + tableSQLName + "' in server of datasource '" + serverDataSource + "'");
