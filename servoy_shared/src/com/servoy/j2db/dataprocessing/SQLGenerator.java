@@ -1703,7 +1703,9 @@ public class SQLGenerator
 		else
 		{
 			likeSelectValue = new QueryFunction(castfrom,
-				new IQuerySelectValue[] { selectValue, new QueryColumnValue("integer", null, true), new QueryColumnValue("string", null, true) }, null); //$NON-NLS-1$ //$NON-NLS-2$
+				new IQuerySelectValue[] { selectValue, new QueryColumnValue(IQueryConstants.TYPE_INTEGER, null,
+					true), new QueryColumnValue(IQueryConstants.TYPE_STRING, null, true) },
+				null);
 		}
 		return new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, likeSelectValue, value);
 	}

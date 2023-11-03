@@ -21,8 +21,8 @@ import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
 import static com.servoy.j2db.query.AbstractBaseQuery.relinkTable;
 import static com.servoy.j2db.query.BooleanCondition.FALSE_CONDITION;
 import static com.servoy.j2db.util.Utils.equalObjects;
+import static com.servoy.j2db.util.Utils.stream;
 import static java.util.Arrays.asList;
-import static java.util.Arrays.stream;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.reverse;
 import static java.util.Collections.synchronizedList;
@@ -30,7 +30,6 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -58,6 +56,9 @@ import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IPrepareForSave;
+import com.servoy.j2db.dataprocessing.EditedRecords.RAGTEST;
+import com.servoy.j2db.dataprocessing.EditedRecords.RagtestDeleteQuery;
+import com.servoy.j2db.dataprocessing.EditedRecords.RagtestEditedRecord;
 import com.servoy.j2db.dataprocessing.FoundSetManager.TableFilterRequest;
 import com.servoy.j2db.dataprocessing.ValueFactory.BlobMarkerValue;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
@@ -424,26 +425,22 @@ public class EditRecordList
 			recordsToSave.removeAll(savingRecords);
 		}
 
-		if (recordsToSave != null)
+		boolean hasFoundsetDeleteQueries = false;
+		if (recordsToSave != null || foundset != null)
 		{
-			boolean hasEditedRecords = false;
 			editRecordsLock.lock();
 			try
 			{
-				for (IRecord record : recordsToSave)
+				hasFoundsetDeleteQueries = foundset != null && !editedRecords.getDeleteQueries(foundset).isEmpty();
+				if (!hasFoundsetDeleteQueries && stream(recordsToSave).noneMatch(editedRecords::contains))
 				{
-					if (editedRecords.contains(record))
-					{
-						hasEditedRecords = true;
-						break;
-					}
+					return ISaveConstants.STOPPED;
 				}
 			}
 			finally
 			{
 				editRecordsLock.unlock();
 			}
-			if (!hasEditedRecords) return ISaveConstants.STOPPED;
 		}
 
 		// here we can't have a test if editedRecords is empty (and return stop)
@@ -506,7 +503,7 @@ public class EditRecordList
 				savingRecords.addAll(recordsToSave);
 			}
 
-			//remove any non referenced failed records
+			// remove any non referenced failed records
 			boolean fireChange = false;
 			editRecordsLock.lock();
 			try
@@ -549,7 +546,7 @@ public class EditRecordList
 			editRecordsLock.lock();
 			try
 			{
-				if (editedRecords.isEmpty()) return ISaveConstants.STOPPED;
+				if (!hasFoundsetDeleteQueries && editedRecords.isEmpty()) return ISaveConstants.STOPPED;
 				editRecordListSize = editedRecords.size();
 			}
 			finally
@@ -568,7 +565,7 @@ public class EditRecordList
 
 			boolean justValidationErrors = false;
 			lastStopEditingException = null;
-			List<RowUpdateInfo> rowUpdates = new ArrayList<>(editRecordListSize);
+			List<DatabaseUpdateInfo> dbUpdates = new ArrayList<>(editRecordListSize);
 			editRecordsLock.lock();
 			try
 			{
@@ -589,123 +586,40 @@ public class EditRecordList
 					}
 				}
 
-				Map<IRecordInternal, Integer> processed = new HashMap<>();
-				for (IRecordInternal tmp = getFirstElement(editedRecords.getAll(), recordsToSave); //
+				Map<IRecordInternal, Integer> processedRecords = new HashMap<>();
+
+				Predicate<RAGTEST> shouldProcessRagtest = shouldProcessRagtest(recordsToSave, foundset);
+				for (RAGTEST tmp = editedRecords.getAndRemoveFirstRagtest(shouldProcessRagtest); //
 					tmp != null; //
-					tmp = getFirstElement(editedRecords.getAll(), recordsToSave))
+					tmp = editedRecords.getAndRemoveFirstRagtest(shouldProcessRagtest(recordsToSave, foundset)))
 				{
-					// check if we do not have an infinite recursive loop
-					Integer count = processed.get(tmp);
-					if (count != null && count.intValue() > 50)
+					if (tmp instanceof RagtestEditedRecord)
 					{
-						fsm.getApplication().reportJSError(
-							"stopEditing max loop counter exceeded on " + tmp.getDataSource() + "/" + tmp.getPKHashKey(),
-							new RuntimeException());
-						return ISaveConstants.SAVE_FAILED;
+						IRecordInternal rec = ((RagtestEditedRecord)tmp).getRecord();
+						// check if we do not have an infinite recursive loop
+						Integer count = processedRecords.get(rec);
+						if (count != null && count.intValue() > 50)
+						{
+							fsm.getApplication().reportJSError(
+								"stopEditing max loop counter exceeded on " + rec.getDataSource() + "/" + rec.getPKHashKey(),
+								new RuntimeException());
+							return ISaveConstants.SAVE_FAILED;
+						}
+						processedRecords.put(rec, Integer.valueOf(count == null ? 1 : (count.intValue() + 1)));
 					}
-					processed.put(tmp, Integer.valueOf(count == null ? 1 : (count.intValue() + 1)));
 
-					if (tmp instanceof Record)
+					setDeletedrecordsInternalTableFilter(false);
+
+					if (tmp instanceof RagtestEditedRecord && !processEditedRecord(javascriptStop, dbUpdates, ((RagtestEditedRecord)tmp).getRecord()))
 					{
-						Record record = (Record)tmp;
-
-						// prevent multiple update for the same row (from multiple records)
-						for (int j = 0; j < rowUpdates.size(); j++)
-						{
-							if (rowUpdates.get(j).getRow() == record.getRawData())
-							{
-								// create a new rowUpdate that contains both updates
-								RowUpdateInfo removed = rowUpdates.remove(j);
-								recordTested.remove(record);
-								// do use the first record, that one must always be leading. (for fire of events)
-								record = removed.getRecord();
-								break;
-							}
-						}
-
-						try
-						{
-							// test for table events; this may execute table events if the user attached JS methods to them;
-							// the user might add/delete/edit records in the JS - thus invalidating a normal iterator (it)
-							// - edited record list changes; this is why an AllowListModificationIterator is used
-
-							// Note that the behaviour is different when trigger returns false or when it throws an exception.
-							// when the trigger returns false, record must stay in editedRecords.
-							//   this is needed because the trigger may be used as validation to keep the user in the record when autosave=true.
-							// when the trigger throws an exception, the record must move from editedRecords to failedRecords so that in
-							//    scripting the failed records can be examined (the thrown value is retrieved via record.exception.getValue())
-							editRecordsLock.unlock();
-							try
-							{
-								boolean validationErrors = false;
-								JSRecordMarkers validateObject = fsm.validateRecord(record, null);
-								if (validateObject != null && validateObject.isHasErrors()) // throws ServoyException when trigger method throws exception
-								{
-									Object[] genericExceptions = validateObject.getGenericExceptions();
-									if (genericExceptions.length > 0)
-									{
-										// compatible with old code, then those exceptions are caught below.
-										throw (Exception)genericExceptions[0];
-									}
-									// we always want to process all records, but mark this as a validation error so below the failed records are updated.
-									validationErrors = true;
-									// update the just failed boolean to true, if that is true and there is not really an exception then handleException of application is not called.
-									justValidationErrors = true;
-									failedCount++;
-									if (!failedRecords.contains(record))
-									{
-										failedRecords.add(record);
-									}
-									recordTested.remove(record);
-								}
-								if (!validationErrors)
-								{
-									RowUpdateInfo rowUpdateInfo = getRecordUpdateInfo(record);
-									if (rowUpdateInfo != null)
-									{
-										rowUpdateInfo.setRecord(record);
-										rowUpdates.add(rowUpdateInfo);
-									}
-									else
-									{
-										recordTested.remove(record);
-									}
-								}
-							}
-							finally
-							{
-								editRecordsLock.lock();
-							}
-						}
-						catch (ServoyException e)
-						{
-							log.debug("stopEditing(" + javascriptStop + ") encountered an exception - could be expected and treated by solution code or not", //$NON-NLS-1$//$NON-NLS-2$
-								e);
-							// trigger method threw exception
-							lastStopEditingException = e;
-							failedCount++;
-							record.getRawData().setLastException(e); //set latest
-							if (!failedRecords.contains(record))
-							{
-								failedRecords.add(record);
-							}
-							recordTested.remove(record);
-						}
-						catch (Exception e)
-						{
-							Debug.error("Not a normal Servoy/Db Exception generated in saving record: " + record + " removing the record", e); //$NON-NLS-1$ //$NON-NLS-2$
-							recordTested.remove(record);
-						}
+						failedCount++;
 					}
-					else
+					if (tmp instanceof RagtestDeleteQuery)
 					{
-						// find state
-						recordTested.remove(tmp);
+						dbUpdates.add(
+							getTableUpdateInfoForDeleteQuery(((RagtestDeleteQuery)tmp).getFoundset().getTable(), ((RagtestDeleteQuery)tmp).getQueryDelete()));
 					}
-					editedRecords.remove(tmp);
 				}
-
-				failedCount = executeDeleteQueries(javascriptStop, foundset, failedCount, failedDeletes);
 			}
 			finally
 			{
@@ -717,7 +631,7 @@ public class EditRecordList
 			{
 				failedDeletes.forEach(pair -> editedRecords.addDeleteQuery(pair.getLeft(), pair.getRight()));
 
-				placeBackAlreadyProcessedRecords(rowUpdates);
+				//RAGTEST placeBackAlreadyProcessedRecords(dbUpdates);
 
 				setDeletedrecordsInternalTableFilter(false);
 
@@ -738,7 +652,7 @@ public class EditRecordList
 				return ISaveConstants.SAVE_FAILED;
 			}
 
-			if (rowUpdates.isEmpty())
+			if (dbUpdates.isEmpty())
 			{
 				fireEditChange();
 				if (Debug.tracing())
@@ -750,10 +664,10 @@ public class EditRecordList
 
 			if (Debug.tracing())
 			{
-				Debug.trace("Updating/Inserting/Deleting " + rowUpdates.size() + " records: " + rowUpdates.toString()); //$NON-NLS-1$ //$NON-NLS-2$
+				Debug.trace("Updating/Inserting/Deleting " + dbUpdates.size() + " records: " + dbUpdates.toString()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 
-			List<RowUpdateInfo> infos = orderUpdatesForInsertOrder(rowUpdates, RowUpdateInfo::getRow, false);
+			List<DatabaseUpdateInfo> infos = dbUpdates;//RAGTEST orderUpdatesForInsertOrder(dbUpdates, RowUpdateInfo::getRow, false);
 
 			ISQLStatement[] statements;
 			if (fsm.config.statementBatching() && infos.size() > 1)
@@ -762,7 +676,7 @@ public class EditRecordList
 				List<ISQLStatement> mergedStatements = new ArrayList<>(infos.size());
 
 				ISQLStatement prevStatement = null;
-				for (RowUpdateInfo rowUpdateInfo : infos)
+				for (DatabaseUpdateInfo rowUpdateInfo : infos)
 				{
 					ISQLStatement statement = rowUpdateInfo.getISQLStatement();
 
@@ -783,7 +697,7 @@ public class EditRecordList
 			}
 			else
 			{
-				statements = infos.stream().map(RowUpdateInfo::getISQLStatement).toArray(ISQLStatement[]::new);
+				statements = infos.stream().map(DatabaseUpdateInfo::getISQLStatement).toArray(ISQLStatement[]::new);
 			}
 
 			// TODO if one statement fails in a transaction how do we know which one? and should we rollback all rows in these statements?
@@ -806,7 +720,7 @@ public class EditRecordList
 				Debug.error("Should be of same size!!"); //$NON-NLS-1$
 			}
 
-			List<RowUpdateInfo> infosToBePostProcessed = new ArrayList<>();
+			List<DatabaseUpdateInfo> infosToBePostProcessed = new ArrayList<>();
 
 			Map<FoundSet, List<Record>> foundsetToRecords = new HashMap<>();
 			Map<FoundSet, List<String>> foundsetToAggregateDeletes = new HashMap<>();
@@ -815,7 +729,7 @@ public class EditRecordList
 			// Walk in reverse over it, so that related rows are update in there row manger before they are required by there parents.
 			for (int i = infos.size(); --i >= 0;)
 			{
-				RowUpdateInfo rowUpdateInfo = infos.get(i);
+				RowUpdateInfo rowUpdateInfo = null;//RAGTEST TODO infos.get(i);
 				FoundSet foundSet = rowUpdateInfo.getFoundSet();
 				Row row = rowUpdateInfo.getRow();
 
@@ -1087,16 +1001,81 @@ public class EditRecordList
 		return ISaveConstants.STOPPED;
 	}
 
-	private int executeDeleteQueries(boolean javascriptStop, IFoundSet foundset, int failedCount, List<Pair<IFoundSetInternal, QueryDelete>> failedDeletes)
+	private boolean processEditedRecord(boolean javascriptStop, List<DatabaseUpdateInfo> dbUpdates, IRecordInternal rec)
 	{
-		for (Pair<IFoundSetInternal, QueryDelete> tmp = editedRecords.getAndRemoveFirstDeleteQuery(foundset); //
-			tmp != null; //
-			tmp = editedRecords.getAndRemoveFirstDeleteQuery(foundset))
+		boolean success = false;
+
+		if (rec instanceof Record)
 		{
+			Record record = (Record)rec;
+
+			// prevent multiple update for the same row (from multiple records)
+			for (int j = 0; j < dbUpdates.size(); j++)
+			{
+				if (dbUpdates.get(j) instanceof RowUpdateInfo && ((RowUpdateInfo)dbUpdates.get(j)).getRow() == record.getRawData())
+				{
+					// create a new rowUpdate that contains both updates
+					RowUpdateInfo removed = (RowUpdateInfo)dbUpdates.remove(j);
+					recordTested.remove(record);
+					// do use the first record, that one must always be leading. (for fire of events)
+					record = removed.getRecord();
+					break;
+				}
+			}
+
 			try
 			{
-				setDeletedrecordsInternalTableFilter(false);
-				performDeleteForFoundset(tmp.getLeft().getTable(), tmp.getRight());
+				// test for table events; this may execute table events if the user attached JS methods to them;
+				// the user might add/delete/edit records in the JS - thus invalidating a normal iterator (it)
+				// - edited record list changes; this is why an AllowListModificationIterator is used
+
+				// Note that the behavior is different when trigger returns false or when it throws an exception.
+				// when the trigger returns false, record must stay in editedRecords.
+				//   this is needed because the trigger may be used as validation to keep the user in the record when autosave=true.
+				// when the trigger throws an exception, the record must move from editedRecords to failedRecords so that in
+				//    scripting the failed records can be examined (the thrown value is retrieved via record.exception.getValue())
+				editRecordsLock.unlock();
+				try
+				{
+					boolean validationErrors = false;
+					JSRecordMarkers validateObject = fsm.validateRecord(record, null);
+					if (validateObject != null && validateObject.isHasErrors()) // throws ServoyException when trigger method throws exception
+					{
+						Object[] genericExceptions = validateObject.getGenericExceptions();
+						if (genericExceptions.length > 0)
+						{
+							// compatible with old code, then those exceptions are caught below.
+							throw (Exception)genericExceptions[0];
+						}
+						// we always want to process all records, but mark this as a validation error so below the failed records are updated.
+						validationErrors = true;
+						// update the just failed boolean to true, if that is true and there is not really an exception then handleException of application is not called.
+						//RAGTEST	justValidationErrors = true;
+						success = false;
+						if (!failedRecords.contains(record))
+						{
+							failedRecords.add(record);
+						}
+						recordTested.remove(record);
+					}
+					if (!validationErrors)
+					{
+						RowUpdateInfo rowUpdateInfo = getRecordUpdateInfo(record);
+						if (rowUpdateInfo != null)
+						{
+							rowUpdateInfo.setRecord(record);
+							dbUpdates.add(rowUpdateInfo);
+						}
+						else
+						{
+							recordTested.remove(record);
+						}
+					}
+				}
+				finally
+				{
+					editRecordsLock.lock();
+				}
 			}
 			catch (ServoyException e)
 			{
@@ -1104,38 +1083,51 @@ public class EditRecordList
 					e);
 				// trigger method threw exception
 				lastStopEditingException = e;
-				failedDeletes.add(tmp);
-				failedCount++;
+				success = false;
+				record.getRawData().setLastException(e); //set latest
+				if (!failedRecords.contains(record))
+				{
+					failedRecords.add(record);
+				}
+				recordTested.remove(record);
 			}
 			catch (Exception e)
 			{
-				//		Debug.error("Not a normal Servoy/Db Exception generated in saving record: " + record + " removing the record", e); //$NON-NLS-1$ //$NON-NLS-2$
-				failedDeletes.add(tmp);
-				failedCount++;
+				Debug.error("Not a normal Servoy/Db Exception generated in saving record: " + record + " removing the record", e); //$NON-NLS-1$ //$NON-NLS-2$
+				recordTested.remove(record);
 			}
 		}
-		return failedCount;
+		else
+		{
+			// find state
+			recordTested.remove(rec);
+		}
+		editedRecords.remove(rec);
+		return success;
 	}
 
-	private void performDeleteForFoundset(ITable table, QueryDelete deleteQuery) throws ServoyException, RemoteException
+	private Predicate<RAGTEST> shouldProcessRagtest(List<IRecord> subList, IFoundSet foundset)
+	{
+		return ragtest -> {
+			if (ragtest instanceof RagtestEditedRecord)
+			{
+				return subList == null || subList.contains(((RagtestEditedRecord)ragtest).getRecord());
+			}
+			if (ragtest instanceof RagtestDeleteQuery)
+			{
+				return foundset == null || foundset == ((RagtestDeleteQuery)ragtest).getFoundset();
+			}
+			return false;
+		};
+	}
+
+	private TableUpdateInfo getTableUpdateInfoForDeleteQuery(ITable table, QueryDelete deleteQuery) throws ServoyException
 	{
 		String tid = fsm.getTransactionID(table.getServerName());
-
-		// RAGTEST ignore delete TF of verwijder ze eerst (hoe te handelen met errors)
-
-
 		SQLStatement statement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), null,
 			tid, deleteQuery, fsm.getTableFilterParams(table.getServerName(), deleteQuery));
 
-		Object[] results = fsm.getDataServer().performUpdates(fsm.getApplication().getClientID(), new ISQLStatement[] { statement });
-
-		Optional<ServoyException> exceptionOpt = stream(results)
-			.filter(ServoyException.class::isInstance).map(ServoyException.class::cast)
-			.findAny();
-		if (exceptionOpt.isPresent())
-		{
-			throw exceptionOpt.get();
-		}
+		return new TableUpdateInfo(table, statement);
 	}
 
 	private <T> List<T> orderUpdatesForInsertOrder(List<T> rowData, Function<T, Row> rowFuction, boolean reverse)
@@ -1333,22 +1325,6 @@ public class EditRecordList
 		// RAGTEST deletes?
 		rowUpdates.stream().map(update -> update.getRecord()).forEachOrdered(editedRecords::addEdited);
 	}
-
-	/**
-	 * Get the first element of a list, filter on subList when not null;
-	 */
-	private static IRecordInternal getFirstElement(IRecordInternal[] records, List<IRecord> subList)
-	{
-		for (IRecordInternal record : records)
-		{
-			if (subList == null || subList.contains(record))
-			{
-				return record;
-			}
-		}
-		return null;
-	}
-
 
 	/**
 	 * Mark record as failed, move to failed records, remove from editedRecords if it was in there.

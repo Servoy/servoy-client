@@ -61,7 +61,7 @@ public final class QueryColumnValue implements IQuerySelectValue
 
 	public IQuerySelectValue withValue(Object newValue)
 	{
-		return new QueryColumnValue(newValue, alias, fixedvalue);
+		return new QueryColumnValue(newValue, alias, false /* force fixedvalue to false to prevent circumvent sql injection checks */);
 	}
 
 	public String getAlias()

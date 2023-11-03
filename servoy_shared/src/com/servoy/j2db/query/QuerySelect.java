@@ -548,7 +548,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		else
 		{
 			aggregateQuantifier = QueryAggregate.ALL;
-			agregee = new QueryColumnValue("*", null, true);
+			agregee = new QueryColumnValue(QueryAggregate.ASTERIX, null, true);
 		}
 
 		selectCount.setColumns(
