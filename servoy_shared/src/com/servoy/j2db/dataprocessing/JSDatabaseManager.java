@@ -3338,7 +3338,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * var qb = datasources.db.example_data.orders.createSelect();
 	 * qb.result.addPk();
 	 * qb.where.add(qb.columns.product_id.eq(1))
-	 * %%prefix%%foundset.loadRecords(qb);
+	 * var fs = databaseMananger.getFoundSet(qb);
 	 *
 	 * @param query The query to get the JSFoundset for.
 	 *
