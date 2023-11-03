@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.FoundSetManager.TableFilterRequest;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumn;
@@ -98,8 +97,6 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public int getFoundSetCount(IFoundSetInternal fs);
 
 	public EditRecordList getEditRecordList();
-
-	public IApplication getApplication();
 
 	/**
 	 * Insert data to a new or existing data source.

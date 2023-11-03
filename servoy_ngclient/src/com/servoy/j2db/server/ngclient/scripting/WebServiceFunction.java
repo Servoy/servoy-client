@@ -23,7 +23,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebObjectFunctionDefinition;
+import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.websocket.IWebsocketSession;
 
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
@@ -39,7 +39,7 @@ public class WebServiceFunction extends WebBaseFunction
 	private final IWebsocketSession session;
 	private final String serviceName;
 
-	public WebServiceFunction(IWebsocketSession session, WebObjectFunctionDefinition definition, String serviceName)
+	public WebServiceFunction(IWebsocketSession session, WebObjectApiFunctionDefinition definition, String serviceName)
 	{
 		super(definition);
 		this.session = session;

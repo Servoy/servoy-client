@@ -41,6 +41,7 @@ import org.sablo.BaseWebObject;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.IFunctionParameters;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IPropertyType;
@@ -283,7 +284,7 @@ public class WebServiceScriptable implements Scriptable
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		WebObjectFunctionDefinition apiFunction = serviceSpecification.getApiFunction(name);
+		WebObjectApiFunctionDefinition apiFunction = serviceSpecification.getApiFunction(name);
 		if (apiFunction == null)
 		{
 			apiFunction = serviceSpecification.getInternalApiFunction(name);

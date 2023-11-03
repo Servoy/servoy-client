@@ -72,14 +72,11 @@ import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.plugins.IClientPlugin;
-import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLCondition;
-import com.servoy.j2db.query.ISQLQuery;
 import com.servoy.j2db.query.ISQLTableJoin;
-import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.QueryDelete;
@@ -121,7 +118,6 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * Scriptable database manager object
@@ -1375,55 +1371,6 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		return true;
 	}
 
-	private boolean validateQueryArguments(ISQLQuery select)
-	{
-		if (select != null)
-		{
-			if (select instanceof QuerySelect && ((QuerySelect)select).getColumns() == null)
-			{
-				application.reportJSError("Custom query: " + select + " not executed because no columns are specified to be selected", null);
-				return false;
-			}
-
-			final List<Placeholder> placeHolders = new ArrayList<Placeholder>();
-			AbstractBaseQuery.acceptVisitor(select, new IVisitor()
-			{
-				public Object visit(Object o)
-				{
-					if (o instanceof Placeholder)
-					{
-						placeHolders.add((Placeholder)o);
-					}
-					return o;
-				}
-			});
-
-			for (Placeholder placeholder : placeHolders)
-			{
-				if (!placeholder.isSet())
-				{
-					application.reportJSError("Custom query: " + select + //$NON-NLS-1$
-						" not executed because not all arguments have been set: " + placeholder.getKey(), null); //$NON-NLS-1$
-					return false;
-				}
-				Object value = placeholder.getValue();
-				if (value instanceof DbIdentValue && ((DbIdentValue)value).getPkValue() == null)
-				{
-					application.reportJSError("Custom query: " + select + //$NON-NLS-1$
-						" not executed because the arguments have a database ident value that is null, from a not yet saved record", null); //$NON-NLS-1$
-					return false;
-				}
-
-				if (value instanceof java.util.Date && !(value instanceof Timestamp) && !(value instanceof Time))
-				{
-					placeholder.setValue(new Timestamp(((java.util.Date)value).getTime()));
-				}
-			}
-		}
-
-		return true;
-	}
-
 	/**
 	 * @clonedesc js_createDataSourceByQuery(String, String, String, Object[], int, int[])
 	 * @sampleas js_createDataSourceByQuery(String, String, String, Object[], int, int[])
@@ -1676,7 +1623,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { query.getDataSource() }));
 
 		QuerySelect select = query.build();
-		if (!validateQueryArguments(select))
+		if (!QBSelect.validateQueryArguments(select, application))
 		{
 			return null;
 		}
@@ -1843,7 +1790,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			throw new RuntimeException(new ServoyException(ServoyException.InternalCodes.SERVER_NOT_FOUND, new Object[] { query.getDataSource() }));
 		QuerySelect select = query.build();
 
-		if (!validateQueryArguments(select))
+		if (!QBSelect.validateQueryArguments(select, application))
 		{
 			return new JSDataSet(application);
 		}

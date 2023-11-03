@@ -24,7 +24,7 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.IFunctionParameters;
-import org.sablo.specification.WebObjectFunctionDefinition;
+import org.sablo.specification.WebObjectApiFunctionDefinition;
 
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 
@@ -38,9 +38,9 @@ public abstract class WebBaseFunction implements Function
 {
 	private Scriptable prototype;
 	private Scriptable parent;
-	protected final WebObjectFunctionDefinition definition;
+	protected final WebObjectApiFunctionDefinition definition;
 
-	public WebBaseFunction(WebObjectFunctionDefinition definition)
+	public WebBaseFunction(WebObjectApiFunctionDefinition definition)
 	{
 		this.definition = definition;
 	}

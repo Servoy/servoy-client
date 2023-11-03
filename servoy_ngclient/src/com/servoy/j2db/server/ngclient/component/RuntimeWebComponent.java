@@ -37,6 +37,7 @@ import org.sablo.IEventHandler;
 import org.sablo.WebComponent;
 import org.sablo.specification.IFunctionParameters;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IPropertyType;
@@ -109,7 +110,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 
 		if (webComponentSpec != null)
 		{
-			for (WebObjectFunctionDefinition def : webComponentSpec.getInternalApiFunctions().values())
+			for (WebObjectApiFunctionDefinition def : webComponentSpec.getInternalApiFunctions().values())
 			{
 				apiFunctions.put(def.getName(), new WebComponentFunction(component, def));
 			}
@@ -177,7 +178,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 
 		if (webComponentSpec != null)
 		{
-			for (WebObjectFunctionDefinition def : webComponentSpec.getApiFunctions().values())
+			for (WebObjectApiFunctionDefinition def : webComponentSpec.getApiFunctions().values())
 			{
 				Function func = null;
 				if (apiObject != null)
