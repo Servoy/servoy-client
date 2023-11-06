@@ -39,7 +39,14 @@ Import-Package: javax.servlet;version="[4.0.0,5.0.0)",
  javax.servlet.http;version="[4.0.0,5.0.0)",
  javax.websocket,
  javax.websocket.server,
+ org.apache.commons.codec.binary;version="1.16.0",
  org.apache.commons.io;version="2.8.0",
+ org.apache.hc.client5.http.classic.methods;version="5.2.1",
+ org.apache.hc.client5.http.impl.classic;version="5.2.1",
+ org.apache.hc.core5.http;version="5.2.3",
+ org.apache.hc.core5.http.io;version="5.2.3",
+ org.apache.hc.core5.http.io.entity;version="5.2.3",
+ org.apache.hc.core5.http.message;version="5.2.3",
  org.slf4j;version="2.0.6"
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: servoy_ngclient
