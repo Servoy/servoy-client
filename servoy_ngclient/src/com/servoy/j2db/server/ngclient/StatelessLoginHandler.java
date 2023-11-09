@@ -38,6 +38,7 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.json.JSONArray;
@@ -81,7 +82,7 @@ public class StatelessLoginHandler
 	private static final String JWT_Password = "servoy.jwt.logintoken.password";
 	private static final int TOKEN_AGE_IN_SECONDS = 24 * 3600;
 
-	public static final String CROWD_URL = "https://middleware-dev.unifiedui.servoy-cloud.eu/servoy-service/rest_ws/api/login_auth/validateAuthUser";
+	public static final String CLOUD_URL = "https://middleware-dev.unifiedui.servoy-cloud.eu/servoy-service/rest_ws/api/login_auth/validateAuthUser";
 
 	@SuppressWarnings({ "boxing" })
 	public static Pair<Boolean, String> mustAuthenticate(HttpServletRequest request, String solutionName)
@@ -165,7 +166,7 @@ public class StatelessLoginHandler
 		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 		{
 			CloseableHttpClient httpclient = HttpClients.createDefault();
-			HttpGet httpget = new HttpGet(CROWD_URL);
+			HttpGet httpget = new HttpGet(CLOUD_URL);
 
 			String auth = username + ":" + password;
 			byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("ISO-8859-1")));
@@ -184,7 +185,7 @@ public class StatelessLoginHandler
 					{
 						HttpEntity responseEntity = response.getEntity();
 						String responseString = EntityUtils.toString(responseEntity);
-						if (response.getCode() == 200)
+						if (response.getCode() == HttpStatus.SC_OK)
 						{
 
 							JSONObject loginTokenJSON = new JSONObject(responseString);
@@ -202,7 +203,7 @@ public class StatelessLoginHandler
 						}
 						else
 						{
-							Debug.error("couldn't not login the user because the response to servoycloud had an error: " + response.getCode() + " " +
+							Debug.error("could not login the user because the response to servoycloud had an error: " + response.getCode() + " " +
 								response.getReasonPhrase());
 							return null;
 						}
