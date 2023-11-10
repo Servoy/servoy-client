@@ -322,7 +322,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 								: new String[] { args.getSolutionName(), args.getMethodName() },
 							args);
 
-						if (args.get("id_token") != null)
+						if (args.get(StatelessLoginHandler.ID_TOKEN) != null)
 						{
 							setUserId();
 						}
@@ -340,19 +340,19 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 				public void setUserId()
 				{
-					String id_token = (String)args.get("id_token");
+					String id_token = (String)args.get(StatelessLoginHandler.ID_TOKEN);
 					String[] chunks = id_token.split("\\.");
 					Base64.Decoder decoder = Base64.getUrlDecoder();
 					String payload = new String(decoder.decode(chunks[1]));
 					JSONObject token = new JSONObject(payload);
-					String userID = token.getString("uid");
+					String userID = token.getString(StatelessLoginHandler.UID);
 
 					ClientInfo ci = client.getClientInfo();
 					ci.setUserUid(userID);
-					ci.setUserName(token.getString("user"));
-					if (token.has("groups"))
+					ci.setUserName(token.getString(StatelessLoginHandler.USERNAME));
+					if (token.has(StatelessLoginHandler.GROUPS))
 					{
-						JSONArray groups = token.getJSONArray("groups");
+						JSONArray groups = token.getJSONArray(StatelessLoginHandler.GROUPS);
 						String[] gr = new String[groups.length()];
 						for (int i = 0; i < groups.length(); i++)
 						{
@@ -363,8 +363,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					if ("on".equals(args.get("remember")))
 					{
 						JSONObject obj = new JSONObject();
-						obj.put("user", token.get("user"));
-						obj.put("token", id_token);
+						obj.put(StatelessLoginHandler.USERNAME, token.get(StatelessLoginHandler.USERNAME));
+						obj.put(StatelessLoginHandler.ID_TOKEN, id_token);
 						getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("rememberUser",
 							new Object[] { obj });
 					}

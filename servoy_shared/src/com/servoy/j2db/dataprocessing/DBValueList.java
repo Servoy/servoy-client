@@ -330,7 +330,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 						{
 							displayValue = handleRowData(valueList, concatShowValues, showValues, row, application);
 						}
-						addElement(displayValue != null ? displayValue.toString() : displayValue);
+						addElement(displayValue);
 						realValues.add(handleRowData(valueList, concatReturnValues, returnValues, row, application));
 					}
 				}

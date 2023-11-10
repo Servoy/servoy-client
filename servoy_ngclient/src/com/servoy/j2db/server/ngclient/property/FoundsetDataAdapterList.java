@@ -160,23 +160,15 @@ public class FoundsetDataAdapterList extends DataAdapterList
 
 		if (isGlobalDPChanged || isFormDPChanged)
 		{
-			// make sure foundset linked properties with global/form variables (like tagstring) are sent
-			if (getForm().isFormVisible())
-			{
-				pushChangedValues(e.getName(), true);
-			}
+			// make sure foundset linked properties with global/form variables (like tagstring) are sent; mark properties as changed even if form is not visible
+			pushChangedValues(e.getName(), true);
 			// if this is a global modification event and we need to react on that one
 			// then just mark the foundset as fully changed.
-			// should we do it also for form variables changes? - that could cause a lot of 'viewPortCompletelyChanged' and
-			// can affect performance - skip it for now
-			if (isGlobalDPChanged)
-			{
-				foundsetTypeSabloValue.changeMonitor.viewPortCompletelyChanged();
-				// it would be better if we could just mark the actual full column viewport as changed..
-				// then we need to have here or be abe to get the ViewportDataChangeMonitor of the FoundsetLinkedTypeSabloValue
-				// but then the clients also need to react on that specific change..
-				// or we call queuCellChange for every cell of that column (so for every row)
-			}
+			foundsetTypeSabloValue.changeMonitor.viewPortCompletelyChanged();
+			// it would be better if we could just mark the actual full column viewport as changed..
+			// then we need to have here or be abe to get the ViewportDataChangeMonitor of the FoundsetLinkedTypeSabloValue
+			// but then the clients also need to react on that specific change..
+			// or we call queuCellChange for every cell of that column (so for every row)
 		}
 		else
 		{
