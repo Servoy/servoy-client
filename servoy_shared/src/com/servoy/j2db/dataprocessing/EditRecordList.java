@@ -591,7 +591,7 @@ public class EditRecordList
 				Predicate<RAGTEST> shouldProcessRagtest = shouldProcessRagtest(recordsToSave, foundset);
 				for (RAGTEST tmp = editedRecords.getAndRemoveFirstRagtest(shouldProcessRagtest); //
 					tmp != null; //
-					tmp = editedRecords.getAndRemoveFirstRagtest(shouldProcessRagtest(recordsToSave, foundset)))
+					tmp = editedRecords.getAndRemoveFirstRagtest(shouldProcessRagtest))
 				{
 					if (tmp instanceof RagtestEditedRecord)
 					{
@@ -616,8 +616,17 @@ public class EditRecordList
 					}
 					if (tmp instanceof RagtestDeleteQuery)
 					{
-						dbUpdates.add(
-							getTableUpdateInfoForDeleteQuery(((RagtestDeleteQuery)tmp).getFoundset().getTable(), ((RagtestDeleteQuery)tmp).getQueryDelete()));
+						try
+						{
+							dbUpdates.add(
+								getTableUpdateInfoForDeleteQuery(((RagtestDeleteQuery)tmp).getFoundset().getTable(),
+									((RagtestDeleteQuery)tmp).getQueryDelete()));
+						}
+						catch (ServoyException e)
+						{
+							Debug.error(e);
+							return ISaveConstants.SAVE_FAILED;
+						}
 					}
 				}
 			}
@@ -625,7 +634,6 @@ public class EditRecordList
 			{
 				editRecordsLock.unlock();
 			}
-
 
 			if (failedCount > 0)
 			{
@@ -667,8 +675,7 @@ public class EditRecordList
 				Debug.trace("Updating/Inserting/Deleting " + dbUpdates.size() + " records: " + dbUpdates.toString()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 
-			List<DatabaseUpdateInfo> infos = dbUpdates;//RAGTEST orderUpdatesForInsertOrder(dbUpdates, RowUpdateInfo::getRow, false);
-
+			List<DatabaseUpdateInfo> infos = orderUpdatesForInsertOrder(dbUpdates, DatabaseUpdateInfo::getRow, false);
 			ISQLStatement[] statements;
 			if (fsm.config.statementBatching() && infos.size() > 1)
 			{
@@ -729,7 +736,9 @@ public class EditRecordList
 			// Walk in reverse over it, so that related rows are update in there row manger before they are required by there parents.
 			for (int i = infos.size(); --i >= 0;)
 			{
-				RowUpdateInfo rowUpdateInfo = null;//RAGTEST TODO infos.get(i);
+				DatabaseUpdateInfo dbUpdateInfo = infos.get(i);
+				if (!(dbUpdateInfo instanceof RowUpdateInfo)) continue;
+				RowUpdateInfo rowUpdateInfo = (RowUpdateInfo)dbUpdateInfo;
 				FoundSet foundSet = rowUpdateInfo.getFoundSet();
 				Row row = rowUpdateInfo.getRow();
 
@@ -811,8 +820,7 @@ public class EditRecordList
 				}
 				try
 				{
-					// RAGTEST bij delete?
-					ISQLStatement statement = rowUpdateInfo.getISQLStatement();
+					ISQLStatement statement = dbUpdateInfo.getISQLStatement();
 					row.getRowManager().rowUpdated(row, oldKey, foundSet, fires,
 						statement instanceof ITrackingSQLStatement ? ((ITrackingSQLStatement)statement).getChangedColumns() : null);
 				}
@@ -877,55 +885,60 @@ public class EditRecordList
 
 			// get the size of the edited records before the table events, so that we can look if those events did change records again.
 			editedRecordsSize = editedRecords.size();
-			for (RowUpdateInfo rowUpdateInfo : infosToBePostProcessed)
+			for (var dbUpdateInfo : infosToBePostProcessed)
 			{
-				Record rowUpdateInfoRecord = null;
-				try
+				if (dbUpdateInfo instanceof RowUpdateInfo)
 				{
-					rowUpdateInfoRecord = rowUpdateInfo.getRecord();
-					TypedProperty<Integer> property;
-					switch (rowUpdateInfo.getISQLStatement().getAction())
+					RowUpdateInfo rowUpdateInfo = (RowUpdateInfo)dbUpdateInfo;
+					Record rowUpdateInfoRecord = null;
+					try
 					{
-						case ISQLActionTypes.INSERT_ACTION :
-							property = StaticContentSpecLoader.PROPERTY_ONAFTERINSERTMETHODID;
-							break;
-						case ISQLActionTypes.DELETE_ACTION :
-							property = StaticContentSpecLoader.PROPERTY_ONAFTERDELETEMETHODID;
-							break;
-						default :
-							property = StaticContentSpecLoader.PROPERTY_ONAFTERUPDATEMETHODID;
-					}
-					((FoundSet)rowUpdateInfoRecord.getParentFoundSet()).executeFoundsetTrigger(new Object[] { rowUpdateInfoRecord }, property, true);
-				}
-				catch (ServoyException e)
-				{
-					if (e instanceof DataException && e.getCause() instanceof JavaScriptException)
-					{
-						// trigger method threw exception
-						log.debug("stopEditing(" + javascriptStop + ") encountered an exception - could be expected and treated by solution code or not", e); //$NON-NLS-1$//$NON-NLS-2$
-						lastStopEditingException = e;
-						failedCount++;
-						rowUpdateInfoRecord.getRawData().setLastException(e);
-						JSRecordMarkers vo = rowUpdateInfoRecord.getRecordMarkers() != null ? rowUpdateInfoRecord.getRecordMarkers()
-							: new JSRecordMarkers(rowUpdateInfoRecord, fsm.getApplication());
-						vo.addGenericException(e);
-						rowUpdateInfoRecord.setRecordMarkers(vo);
-						editRecordsLock.lock();
-						try
+						rowUpdateInfoRecord = rowUpdateInfo.getRecord();
+						TypedProperty<Integer> property;
+						switch (rowUpdateInfo.getISQLStatement().getAction())
 						{
-							if (!failedRecords.contains(rowUpdateInfoRecord))
+							case ISQLActionTypes.INSERT_ACTION :
+								property = StaticContentSpecLoader.PROPERTY_ONAFTERINSERTMETHODID;
+								break;
+							case ISQLActionTypes.DELETE_ACTION :
+								property = StaticContentSpecLoader.PROPERTY_ONAFTERDELETEMETHODID;
+								break;
+							default :
+								property = StaticContentSpecLoader.PROPERTY_ONAFTERUPDATEMETHODID;
+						}
+						((FoundSet)rowUpdateInfoRecord.getParentFoundSet()).executeFoundsetTrigger(new Object[] { rowUpdateInfoRecord }, property, true);
+					}
+					catch (ServoyException e)
+					{
+						if (e instanceof DataException && e.getCause() instanceof JavaScriptException)
+						{
+							// trigger method threw exception
+							log.debug("stopEditing(" + javascriptStop + ") encountered an exception - could be expected and treated by solution code or not", //$NON-NLS-1$//$NON-NLS-2$
+								e);
+							lastStopEditingException = e;
+							failedCount++;
+							rowUpdateInfoRecord.getRawData().setLastException(e);
+							JSRecordMarkers vo = rowUpdateInfoRecord.getRecordMarkers() != null ? rowUpdateInfoRecord.getRecordMarkers()
+								: new JSRecordMarkers(rowUpdateInfoRecord, fsm.getApplication());
+							vo.addGenericException(e);
+							rowUpdateInfoRecord.setRecordMarkers(vo);
+							editRecordsLock.lock();
+							try
 							{
-								failedRecords.add(rowUpdateInfoRecord);
+								if (!failedRecords.contains(rowUpdateInfoRecord))
+								{
+									failedRecords.add(rowUpdateInfoRecord);
+								}
+							}
+							finally
+							{
+								editRecordsLock.unlock();
 							}
 						}
-						finally
+						else
 						{
-							editRecordsLock.unlock();
+							fsm.getApplication().handleException("Failed to execute after update/insert/delete trigger.", e); //$NON-NLS-1$
 						}
-					}
-					else
-					{
-						fsm.getApplication().handleException("Failed to execute after update/insert/delete trigger.", e); //$NON-NLS-1$
 					}
 				}
 			}
@@ -1003,7 +1016,7 @@ public class EditRecordList
 
 	private boolean processEditedRecord(boolean javascriptStop, List<DatabaseUpdateInfo> dbUpdates, IRecordInternal rec)
 	{
-		boolean success = false;
+		boolean success = true;
 
 		if (rec instanceof Record)
 		{
@@ -1106,12 +1119,21 @@ public class EditRecordList
 		return success;
 	}
 
+	/* RAGTEST Doc */
 	private Predicate<RAGTEST> shouldProcessRagtest(List<IRecord> subList, IFoundSet foundset)
 	{
 		return ragtest -> {
 			if (ragtest instanceof RagtestEditedRecord)
 			{
-				return subList == null || subList.contains(((RagtestEditedRecord)ragtest).getRecord());
+				var record = ((RagtestEditedRecord)ragtest).getRecord();
+				if (subList == null || subList.contains(record))
+				{
+					return true;
+				}
+				if (record.getParentFoundSet() == foundset)
+				{
+					return true;
+				}
 			}
 			if (ragtest instanceof RagtestDeleteQuery)
 			{
@@ -1137,70 +1159,180 @@ public class EditRecordList
 			return rowData;
 		}
 
+		// split up in blocks of updates on records, delete-by-query (row == null) should be kept in original order;
+		List<List<T>> blocks = new ArrayList<>();
+		boolean prevHasNoRow = false;
+		for (T rd : rowData)
+		{
+			Row row = rowFuction.apply(rd);
+			if ((row == null != prevHasNoRow) || blocks.isEmpty())
+			{
+				blocks.add(new ArrayList<>());
+			}
+
+			blocks.get(blocks.size() - 1).add(rd);
+			prevHasNoRow = row == null;
+		}
+
+		blocks = blocks.stream().map(block -> orderUpdatesForInsertOrderBlock(block, rowFuction, reverse)).collect(toList());
+		if (reverse)
+		{
+			reverse(blocks);
+		}
+
+		return blocks.stream().flatMap(List::stream).collect(toList());
+	}
+
+	private <T> List<T> orderUpdatesForInsertOrderBlock(List<T> rowData, Function<T, Row> rowFuction, boolean reverse)
+	{
+		if (rowData.size() <= 1 || fsm.config.disableInsertsReorder())
+		{
+			return rowData;
+		}
+
 		// search if there are new row pks used that are
 		// used in records before this record and sort it based on that.
 		List<T> al = new ArrayList<>(rowData);
 		int prevI = -1;
-		outer : for (int i = al.size(); --i > 0;)
+		for (int i = al.size(); --i > 0;)
 		{
 			Row row = rowFuction.apply(al.get(i));
-			// only test for new rows and its pks.
-			if (row.existInDB()) continue;
-			String[] pkColumns = row.getRowManager().getSQLSheet().getPKColumnDataProvidersAsArray();
-			Object[] pk = row.getPK();
-			for (int j = 0; j < pk.length; j++)
-			{
-				Object pkObject = pk[j];
-				// special case if pk was db ident and that value was copied from another row.
-				if (pkObject instanceof DbIdentValue && ((DbIdentValue)pkObject).getRow() != row) continue;
-				for (int k = 0; k < i; k++)
-				{
-					Row otherRow = rowFuction.apply(al.get(k));
-					Object[] values = otherRow.getRawColumnData();
-					int[] pkIndexes = otherRow.getRowManager().getSQLSheet().getPKIndexes();
-					IntHashMap<String> pks = new IntHashMap<String>(pkIndexes.length, 1);
-					for (int pkIndex : pkIndexes)
-					{
-						pks.put(pkIndex, ""); //$NON-NLS-1$
-					}
-					for (int l = 0; l < values.length; l++)
-					{
-						// skip all pk column indexes (except from dbidents from other rows, this may need resort). Those shouldn't be resorted
-						if (!(values[l] instanceof DbIdentValue && ((DbIdentValue)values[l]).getRow() != otherRow) && pks.containsKey(l))
-							continue;
+			// dbupdates contains rowupdates and delete-queries
+			if (row == null) continue;
 
-						boolean same = values[l] == pkObject;
-						if (!same && values[l] != null)
-						{
-							Column pkColumn = row.getRowManager().getSQLSheet().getTable().getColumn(pkColumns[j]);
-							if (pkColumn.hasFlag(IBaseColumn.UUID_COLUMN))
-							{
-								// same uuids are the same even if not the same object
-								same = equalObjects(pkObject, values[l], 0, true);
-							}
-						}
-						if (same)
-						{
-							al.add(k, al.remove(i));
-							// watch out for endless loops when 2 records both with pk's point to each other...
-							if (prevI != i)
-							{
-								prevI = i;
-								i++;
-							}
-							continue outer;
-						}
-					}
-				}
+			var switched = false;
+			if (row.isFlaggedForDeletion())
+			{
+				switched = switchRowForDelete(row, rowFuction, al, i);
 			}
-
-			if (reverse)
+			else if (!row.existInDB())
 			{
-				reverse(al);
+				switched = switchRowForInsert(row, rowFuction, al, i);
+			}
+			// watch out for endless loops when 2 records both with pk's point to each other...
+			if (switched && prevI != i)
+			{
+				prevI = i;
+				i++;
 			}
 		}
 
+		if (reverse)
+		{
+			reverse(al);
+		}
+
 		return al;
+	}
+
+	/**
+	 * RAGTEST doc
+	 * @param <T>
+	 * @param row
+	 * @param rowFuction
+	 * @param al
+	 * @param i
+	 * @return
+	 */
+	private static <T> boolean switchRowForInsert(Row row, Function<T, Row> rowFuction, List<T> al, int i)
+	{
+		Table table = row.getRowManager().getSQLSheet().getTable();
+		String[] pkColumns = row.getRowManager().getSQLSheet().getPKColumnDataProvidersAsArray();
+		Object[] pk = row.getPK();
+		for (int j = 0; j < pk.length; j++)
+		{
+			Object pkObject = pk[j];
+			// special case if pk was db ident and that value was copied from another row.
+			if (pkObject instanceof DbIdentValue && ((DbIdentValue)pkObject).getRow() != row) continue;
+			for (int k = 0; k < i; k++)
+			{
+				Row otherRow = rowFuction.apply(al.get(k));
+				Object[] values = otherRow.getRawColumnData();
+				int[] pkIndexes = otherRow.getRowManager().getSQLSheet().getPKIndexes();
+				IntHashMap<String> pks = new IntHashMap<>(pkIndexes.length, 1);
+				for (int pkIndex : pkIndexes)
+				{
+					pks.put(pkIndex, ""); //$NON-NLS-1$
+				}
+				for (int l = 0; l < values.length; l++)
+				{
+					// skip all pk column indexes (except from dbidents from other rows, this may need resort). Those shouldn't be resorted
+					if (!(values[l] instanceof DbIdentValue && ((DbIdentValue)values[l]).getRow() != otherRow) && pks.containsKey(l))
+						continue;
+
+					if (isSame(table.getColumn(pkColumns[j]), pkObject, values[l]))
+					{
+						al.add(k, al.remove(i));
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * RAGTEST doc
+	 * @param <T>
+	 * @param row
+	 * @param rowFuction
+	 * @param al
+	 * @param i
+	 * @return
+	 */
+	private static <T> boolean switchRowForDelete(Row row, Function<T, Row> rowFuction, List<T> al, int i)
+	{
+		Object[] values = row.getRawColumnData();
+		int[] pkIndexes = row.getRowManager().getSQLSheet().getPKIndexes();
+		IntHashMap<String> pks = new IntHashMap<>(pkIndexes.length, 1);
+		for (int pkIndex : pkIndexes)
+		{
+			pks.put(pkIndex, ""); //$NON-NLS-1$
+		}
+
+		for (Object value : values)
+		{
+			// special case if pk was db ident and that value was copied from another row.
+			if (value instanceof DbIdentValue && ((DbIdentValue)value).getRow() != row) continue;
+			for (int k = 0; k < i; k++)
+			{
+				Row otherRow = rowFuction.apply(al.get(k));
+				Table table = otherRow.getRowManager().getSQLSheet().getTable();
+				String[] pkColumns = otherRow.getRowManager().getSQLSheet().getPKColumnDataProvidersAsArray();
+				Object[] pk = otherRow.getPK();
+
+				for (int l = 0; l < pk.length; l++)
+				{
+					// skip all pk column indexes (except from dbidents from other rows, this may need resort). Those shouldn't be resorted
+					if (!(pk[l] instanceof DbIdentValue && ((DbIdentValue)pk[l]).getRow() != otherRow) && pks.containsKey(l))
+						continue;
+
+					if (isSame(table.getColumn(pkColumns[l]), value, pk[l]))
+					{
+						al.add(k, al.remove(i));
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	private static boolean isSame(Column column, Object pkObject, Object value)
+	{
+		if (value == pkObject)
+		{
+			return true;
+		}
+		if (value != null)
+		{
+			if (column.hasFlag(IBaseColumn.UUID_COLUMN))
+			{
+				// same uuids are the same even if not the same object
+				return equalObjects(pkObject, value, 0, true);
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -1990,10 +2122,10 @@ public class EditRecordList
 	 * Rollback records and remove delete queries
 	 *
 	 * @param records
-	 * @param rolbackFoundsetDeletes
+	 * @param rollbackFoundsetDeletes
 	 * @param foundset when rolbackFoundsetDeletes roll back for all foundset (null) or a specific one (not null)
 	 */
-	public void rollbackRecords(List<IRecordInternal> records, boolean rolbackFoundsetDeletes, IFoundSetInternal foundset)
+	public void rollbackRecords(List<IRecordInternal> records, boolean rollbackFoundsetDeletes, IFoundSetInternal foundset)
 	{
 		List<IRecordInternal> array = new ArrayList<>();
 		Map<ITable, List<QueryDelete>> deleteQueries = Map.of();
@@ -2006,7 +2138,7 @@ public class EditRecordList
 				if (failedRecords.remove(record)) array.add(record);
 				if (editedRecords.contains(record)) array.add(record);
 			}
-			if (rolbackFoundsetDeletes)
+			if (rollbackFoundsetDeletes)
 			{
 				// when foundset is null this will get delete queries for all foundsets
 				deleteQueries = editedRecords.getDeleteQueries(foundset);

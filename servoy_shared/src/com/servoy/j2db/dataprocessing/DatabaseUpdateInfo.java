@@ -25,10 +25,10 @@ package com.servoy.j2db.dataprocessing;
  */
 public sealed interface DatabaseUpdateInfo permits RowUpdateInfo, TableUpdateInfo
 {
-
-	/**
-	 * @return
-	 */
 	ISQLStatement getISQLStatement();
 
+	default Row getRow()
+	{
+		return null;
+	}
 }
