@@ -819,9 +819,11 @@ public class ScriptEngine implements IScriptSupport
 			userUidBefore = application.getClientInfo().getUserUid();
 		}
 		Context cx = Context.enter();
+		int level = cx.getOptimizationLevel();
 		try
 		{
 			Object o = null;
+			cx.setOptimizationLevel(-1);
 			Function compileFunction = cx.compileFunction(scope, "function evalFunction(){}", "evalFunction", 0, null); //$NON-NLS-1$ //$NON-NLS-2$
 			if (compileFunction instanceof FunctionWrapper) compileFunction = ((FunctionWrapper)compileFunction).getWrappedFunction();
 
@@ -869,6 +871,7 @@ public class ScriptEngine implements IScriptSupport
 		}
 		finally
 		{
+			cx.setOptimizationLevel(level);
 			Context.exit();
 			testClientUidChange(scope, userUidBefore);
 		}
