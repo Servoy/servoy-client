@@ -75,6 +75,26 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 				$scope.svyServoyapi.apply('dataProviderID');
 			};
 			
+			function findModeEventListener(event) {
+				if(event.keyCode === 13) {
+					inputChanged(event);
+					event.stopPropagation();
+					setTimeout(function() {
+						// Create a new keyboard event with the "Enter" key
+						var enterKeyEvent = new KeyboardEvent("keydown", {
+							key: "Enter",
+							code: "Enter",
+							which: 13,
+							keyCode: 13,
+							bubbles: true,
+							cancelable: true
+						});
+						// Dispatch the event on the target element
+						$element.get(0).dispatchEvent(enterKeyEvent);
+					}, 0);
+				}
+			};
+
 			function correctDateValueToUse(newValue) {
 				// .date() throws exception if (newDate !== null && typeof newDate !== 'string' && !moment.isMoment(newDate) && !(newDate instanceof Date))
 				// because we do call this method quite fast using ngModel$viewValue that value might be NaN (used by angular JS) because ngModel code only
@@ -204,7 +224,9 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 			$scope.$watch('model.findmode', function() {
 				if ($scope.model.findmode) {
 					theDateTimePicker.destroy();
+					child.children("input").on("keydown", findModeEventListener);
 				} else {
+					child.children("input").off("keydown", findModeEventListener);
 					$element.off("dp.error");
 					var opts = {
 								widgetParent: $(document.body),
