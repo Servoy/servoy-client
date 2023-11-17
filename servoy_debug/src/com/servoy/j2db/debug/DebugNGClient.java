@@ -363,7 +363,15 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 				}
 				else
 				{
-					if (!controller.isDestroyed()) ((WebFormController)controller).initFormUI();
+					if (!controller.isDestroyed())
+					{
+						((WebFormController)controller).initFormUI();
+						// do not completely destroy the controller but execute onload as well, this could contain some initialization code
+						if (isVisible)
+						{
+							((WebFormController)controller).forceExecuteOnLoadMethod();
+						}
+					}
 				}
 				if (isVisible) controller.notifyVisible(true, invokeLaterRunnables, true);
 			}

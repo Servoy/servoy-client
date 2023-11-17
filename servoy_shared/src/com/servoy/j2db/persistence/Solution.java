@@ -916,9 +916,9 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	}
 
 	/**
-	 * Sets the Authenticator that should be used, can be NONE for now authencation at all (mustAuthenticate = false before).
-	 * DEFAULT (mustAuthenciate =true before) to use a Login Form or default servoy login form and user authentication.
-	 * SERVOY_CLOUD use  the login form and use Servoy Cloud as the authentication.
+	 * Sets the Authenticator that should be used, can be NONE for now authentication at all (mustAuthenticate = false before).
+	 * DEFAULT (mustAuthenticate = true before) to use a Login Form or default Servoy login form and user authentication.
+	 * SERVOY_CLOUD use the login form and use Servoy Cloud as the authentication.
 	 *
 	 */
 	// Needed for solution properties editing
@@ -944,8 +944,8 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	}
 
 	/**
-	 * Sets the Authenticator that should be used, can be NONE for now authencation at all (mustAuthenticate = false before).
-	 * DEFAULT (mustAuthenciate =true before) to use a Login Form or default servoy login form and user authentication.
+	 * Sets the Authenticator that should be used, can be NONE for now authentication at all (mustAuthenticate = false before).
+	 * DEFAULT (mustAuthenticate = true before) to use a Login Form or default Servoy login form and user authentication.
 	 * SERVOY_CLOUD use  the login form and use Servoy Cloud as the authentication.
 	 *
 	 * @return the enum of the authenticator that is used.

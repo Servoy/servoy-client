@@ -833,4 +833,14 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 	{
 		applyReadOnly(b);
 	}
+
+	/**
+	 *
+	 */
+	public void forceExecuteOnLoadMethod()
+	{
+		this.didOnload = false;
+		super.executeOnLoadMethod();
+
+	}
 }

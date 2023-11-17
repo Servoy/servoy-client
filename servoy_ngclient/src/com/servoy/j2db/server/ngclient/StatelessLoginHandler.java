@@ -367,44 +367,35 @@ public class StatelessLoginHandler
 		sb.append(path);
 		sb.append("\">");
 		sb.append("\n  <title>Login</title>");
-		if (request.getParameter(USERNAME) == null || request.getParameter(ID_TOKEN) == null)
+		sb.append("\n  <title>Login</title>");
+		if (request.getParameter(ID_TOKEN) == null && request.getParameter(USERNAME) == null)
 		{
+			//we check the local storage for the token or username only once (if both are null)
 			sb.append("\n  	 <script type='text/javascript'>");
 			sb.append("\n    window.addEventListener('load', () => { ");
-			if (request.getParameter(ID_TOKEN) == null && request.getParameter(USERNAME) == null)
-			{
-				//we check the local storage for the token only once (if both are null)
-				sb.append("\n     if (window.localStorage.getItem('servoy_id_token')) { ");
-				sb.append("\n    	document.body.style.display = 'none'; ");
-				sb.append("\n  	    document.login_form.id_token.value = JSON.parse(window.localStorage.getItem('servoy_id_token'));  ");
-				sb.append("\n    	document.login_form.remember.checked = true;  ");
-				sb.append("\n    	document.login_form.submit(); ");
-				sb.append("\n     } ");
-			}
-			else
-			{
-				if (request.getParameter(USERNAME) != null)
-				{
-					sb.append("\n  	    document.login_form.username.value = '");
-					sb.append(request.getParameter(USERNAME));
-					sb.append("'");
-					sb.append("\n  	    if (document.getElementById('errorlabel')) document.getElementById('errorlabel').style.display='block';");
-				}
-				else
-				{
-					sb.append("\n     if (window.localStorage.getItem('servoy_username')) { ");
-					sb.append("\n  	    document.login_form.username.value = JSON.parse(window.localStorage.getItem('servoy_username'));  ");
-					sb.append("\n     } ");
-				}
-			}
+			sb.append("\n     if (window.localStorage.getItem('servoy_id_token')) { ");
+			sb.append("\n    	document.body.style.display = 'none'; ");
+			sb.append("\n  	    document.login_form.id_token.value = JSON.parse(window.localStorage.getItem('servoy_id_token'));  ");
+			sb.append("\n    	document.login_form.remember.checked = true;  ");
+			sb.append("\n    	document.login_form.submit(); ");
+			sb.append("\n     } ");
+			sb.append("\n     if (window.localStorage.getItem('servoy_username')) { ");
+			sb.append("\n  	    document.login_form.username.value = JSON.parse(window.localStorage.getItem('servoy_username'));  ");
+			sb.append("\n     } ");
 			sb.append("\n   }) ");
 			sb.append("\n  </script> ");
+
 		}
 		else if (request.getParameter(USERNAME) != null)
 		{
+			sb.append("\n  	 <script type='text/javascript'>");
+			sb.append("\n    window.addEventListener('load', () => { ");
 			sb.append("\n  	    document.login_form.username.value = '");
 			sb.append(request.getParameter(USERNAME));
 			sb.append("'");
+			sb.append("\n  	    if (document.getElementById('errorlabel')) document.getElementById('errorlabel').style.display='block';");
+			sb.append("\n   }) ");
+			sb.append("\n  </script> ");
 		}
 
 

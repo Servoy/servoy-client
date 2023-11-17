@@ -129,7 +129,7 @@ public abstract class BasicFormController
 
 	private boolean didOnShowOnce = false;
 	private boolean didOnShowCall = false;
-	private boolean didOnload;
+	protected boolean didOnload;
 	protected boolean executingOnLoad;
 
 	private int lastAdjusting = -1;
