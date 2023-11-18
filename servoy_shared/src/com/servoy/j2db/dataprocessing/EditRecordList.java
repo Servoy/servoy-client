@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.dataprocessing;
 
+import static com.google.common.collect.Streams.concat;
 import static com.servoy.j2db.dataprocessing.SQLGenerator.convertPKValuesForQueryCompare;
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
 import static com.servoy.j2db.query.AbstractBaseQuery.relinkTable;
@@ -2128,7 +2129,7 @@ public class EditRecordList
 	public void rollbackRecords(List<IRecordInternal> records, boolean rollbackFoundsetDeletes, IFoundSetInternal foundset)
 	{
 		List<IRecordInternal> array = new ArrayList<>();
-		Map<ITable, List<QueryDelete>> deleteQueries = Map.of();
+		List<IFoundSetInternal> foundsetsWithRevertingDeletes;
 		editRecordsLock.lock();
 		try
 		{
@@ -2138,15 +2139,17 @@ public class EditRecordList
 				if (failedRecords.remove(record)) array.add(record);
 				if (editedRecords.contains(record)) array.add(record);
 			}
-			if (rollbackFoundsetDeletes)
-			{
-				// when foundset is null this will get delete queries for all foundsets
-				deleteQueries = editedRecords.getDeleteQueries(foundset);
-			}
+
+			foundsetsWithRevertingDeletes = removeDeletesForRevert(records, rollbackFoundsetDeletes, foundset);
 		}
 		finally
 		{
 			editRecordsLock.unlock();
+		}
+
+		if (!foundsetsWithRevertingDeletes.isEmpty())
+		{
+			setDeletedrecordsInternalTableFilter(false);
 		}
 
 		if (!array.isEmpty())
@@ -2192,25 +2195,52 @@ public class EditRecordList
 			}
 		}
 
-		if (!deleteQueries.isEmpty())
-		{
-			editRecordsLock.lock();
-			try
+		foundsetsWithRevertingDeletes.forEach(fs -> {
+			if (fs instanceof FoundSet)
 			{
-				// remove all delete queries
-				deleteQueries.values().forEach(it -> it.forEach(editedRecords::removeDeleteQuery));
+				try
+				{
+					((FoundSet)fs).refreshFromDB(false, true);
+				}
+				catch (ServoyException e)
+				{
+					Debug.error("Error refreshing foundset", e);
+				}
 			}
-			finally
-			{
-				editRecordsLock.unlock();
-			}
-		}
+		});
 
-		if (!array.isEmpty() || !deleteQueries.isEmpty())
+		if (!array.isEmpty() || !foundsetsWithRevertingDeletes.isEmpty())
 		{
-			setDeletedrecordsInternalTableFilter(false);
 			fireEditChange();
 		}
+	}
+
+	/** RAGTEST doc
+	 * @param records
+	 * @param deleteQueries
+	 * @return
+	 */
+	private List<IFoundSetInternal> removeDeletesForRevert(List<IRecordInternal> records, boolean rollbackFoundsetDeletes, IFoundSetInternal foundset)
+	{
+		List<RagtestDeleteQuery> deleteQueries = emptyList();
+		if (rollbackFoundsetDeletes)
+		{
+			// when foundset is null this will get delete queries for all foundsets
+			deleteQueries = editedRecords.getRagtestDeleteQueries(foundset);
+		}
+		List<IFoundSetInternal> foundsetsWithRevertingDeletes = concat(
+			stream(records)
+				.filter(editedRecords::containsDeleted)
+				.map(IRecordInternal::getParentFoundSet),
+			deleteQueries.stream()
+				.map(RagtestDeleteQuery::getFoundset))
+					.distinct().toList();
+
+		// remove all deletes
+		stream(records).forEach(editedRecords::removeDeleted);
+		deleteQueries.forEach(dq -> editedRecords.removeDeleteQuery(dq.getQueryDelete()));
+
+		return foundsetsWithRevertingDeletes;
 	}
 
 	public IRecordInternal[] getEditedRecords()

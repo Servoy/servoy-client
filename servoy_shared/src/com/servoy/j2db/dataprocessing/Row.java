@@ -33,6 +33,7 @@ import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.SortedList;
 import com.servoy.j2db.util.StringComparator;
@@ -644,7 +645,7 @@ public class Row
 		return parent.lockedByMyself(this);
 	}
 
-	void rollbackFromDB() throws Exception
+	void rollbackFromDB() throws ServoyException
 	{
 		parent.rollbackFromDB(this, true, ROLLBACK_MODE.OVERWRITE_CHANGES);
 	}

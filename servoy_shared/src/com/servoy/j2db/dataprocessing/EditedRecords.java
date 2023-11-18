@@ -89,7 +89,7 @@ public class EditedRecords
 		return getDeleteQueries(null);
 	}
 
-	/**
+	/** RAGTEST nodig (getRagtestDeleteQueries)?
 	 * Get the delete queries grouped per table for a foundset (or all if null).
 	 */
 	public Map<ITable, List<QueryDelete>> getDeleteQueries(IFoundSet foundset)
@@ -100,6 +100,16 @@ public class EditedRecords
 				mapping(dq -> dq.queryDelete, toList())));
 	}
 
+	/** RAGTEST doc
+	 * Get the delete queries grouped per table for a foundset (or all if null).
+	 */
+	public List<RagtestDeleteQuery> getRagtestDeleteQueries(IFoundSet foundset)
+	{
+		return getDeletingFoundsets()
+			.filter(df -> foundset == null || foundset == df.foundSet)
+			.map(df -> new RagtestDeleteQuery(df.foundSet, df.queryDelete))
+			.collect(toList());
+	}
 
 	public boolean removeDeleteQuery(QueryDelete queryDelete)
 	{
@@ -164,12 +174,17 @@ public class EditedRecords
 
 	public boolean remove(IRecordInternal record)
 	{
-		return edited.removeIf(er -> er instanceof EditingRecord && record.equals(((EditingRecord)er).record));
+		return edited.removeIf(isEditingRecord(record, null));
 	}
 
 	public boolean removeEdited(IRecordInternal record)
 	{
-		return edited.removeIf(er -> er instanceof EditingRecord & ((EditingRecord)er).type == EditType.edit && record.equals(((EditingRecord)er).record));
+		return edited.removeIf(isEditingRecord(record, EditType.edit));
+	}
+
+	public boolean removeDeleted(IRecordInternal record)
+	{
+		return edited.removeIf(isEditingRecord(record, EditType.delete));
 	}
 
 	public IRecordInternal[] getEdited()
@@ -205,6 +220,11 @@ public class EditedRecords
 	private Stream<EditingRecord> getEditingRecords()
 	{
 		return edited.stream().filter(EditingRecord.class::isInstance).map(EditingRecord.class::cast);
+	}
+
+	private static Predicate< ? super EditingRecordOrDeletingFoundset> isEditingRecord(IRecordInternal record, EditType editType)
+	{
+		return er -> er instanceof EditingRecord && (editType == null || ((EditingRecord)er).type == editType) && record.equals(((EditingRecord)er).record);
 	}
 
 	public enum EditType

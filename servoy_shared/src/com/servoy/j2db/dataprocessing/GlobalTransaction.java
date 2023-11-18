@@ -93,6 +93,7 @@ public class GlobalTransaction
 					// so only use record if not orphaned
 					if (!revertSavedRecords)
 					{
+						// RAGTEST rollback deletes
 						// TODO should we also check somehow that the foundset itself is still in use?
 						IFoundSetInternal pfs = record.getParentFoundSet();
 						if (pfs != null)

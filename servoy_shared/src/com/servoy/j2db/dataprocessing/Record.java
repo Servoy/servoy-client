@@ -1072,7 +1072,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 			getRawData().rollbackFromDB();
 			getRawData().setLastException(null);
 		}
-		catch (Exception e)
+		catch (ServoyException e)
 		{
 			throw new RuntimeException(e);
 		}
@@ -1089,14 +1089,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	@JSFunction
 	public void revertChanges()
 	{
-		try
-		{
-			getParentFoundSet().getFoundSetManager().getEditRecordList().rollbackRecords(asList(this), false, null);
-		}
-		catch (Exception e)
-		{
-			throw new RuntimeException(e);
-		}
+		getParentFoundSet().getFoundSetManager().getEditRecordList().rollbackRecords(asList(this), false, null);
 	}
 
 	/**
@@ -1113,14 +1106,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	@Deprecated
 	public boolean js_save()
 	{
-		try
-		{
-			return getParentFoundSet().getFoundSetManager().getEditRecordList().stopEditing(true, this) == ISaveConstants.STOPPED;
-		}
-		catch (Exception e)
-		{
-			throw new RuntimeException(e);
-		}
+		return getParentFoundSet().getFoundSetManager().getEditRecordList().stopEditing(true, this) == ISaveConstants.STOPPED;
 	}
 
 	/**

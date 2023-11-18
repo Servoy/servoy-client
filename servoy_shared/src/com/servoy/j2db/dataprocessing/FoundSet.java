@@ -4908,7 +4908,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				{
 					if (existInDataSource)
 					{
-						state.stopEditing();
+						editRecordList.stopEditing(true, state);
 					}
 					else
 					{
