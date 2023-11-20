@@ -366,8 +366,6 @@ public class StatelessLoginHandler
 		sb.append("<base href=\"");
 		sb.append(path);
 		sb.append("\">");
-		sb.append("\n  <title>Login</title>");
-		sb.append("\n  <title>Login</title>");
 		if (request.getParameter(ID_TOKEN) == null && request.getParameter(USERNAME) == null)
 		{
 			//we check the local storage for the token or username only once (if both are null)
