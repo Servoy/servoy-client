@@ -26,7 +26,7 @@
 	        "location" : {"type" :"point", "pushToServer": "deep"}, 
 	        "margin" : {"type" :"insets", "tags": { "scope" :"design" }}, 
 	        "placeholderText" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
-	        "readOnly" : { "type" : "protected", "for" : ["readOnly"]}, 
+	        "readOnly" : { "type" : "readOnly", "oppositeOf" : "editable"},
 	        "selectOnEnter" : {"type" :"boolean", "tags": { "scope" :"design" }}, 
 	        "size" : {"type" :"dimension",  "default" : {"width":140, "height":20}, "pushToServer": "deep"}, 
 	        "styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "values" :["form-control", "input-sm", "svy-padding-xs", "svy-line-height-normal"]}, 
