@@ -25,12 +25,12 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.property.types.DimensionPropertyType;
 import org.sablo.specification.property.types.IntPropertyType;
-import org.sablo.specification.property.types.ObjectPropertyType;
 import org.sablo.specification.property.types.PointPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 
 import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.server.ngclient.property.types.CSSPositionPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.ServoyAttributesPropertyType;
 
 /**
  * @author lvostinar
@@ -57,7 +57,7 @@ public class DefaultComponentPropertiesProvider implements IDefaultComponentProp
 				TypesRegistry.getType(CSSPositionPropertyType.TYPE_NAME)).build());
 		properties.put(IContentSpecConstants.PROPERTY_ATTRIBUTES,
 			new PropertyDescriptionBuilder().withName(IContentSpecConstants.PROPERTY_ATTRIBUTES).withType(
-				TypesRegistry.getType(ObjectPropertyType.TYPE_NAME)).build());
+				TypesRegistry.getType(ServoyAttributesPropertyType.TYPE_NAME)).build());
 		return properties;
 	}
 }

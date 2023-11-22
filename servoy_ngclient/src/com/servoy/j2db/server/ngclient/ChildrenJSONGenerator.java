@@ -48,6 +48,7 @@ import com.servoy.j2db.persistence.CSSPositionLayoutContainer;
 import com.servoy.j2db.persistence.CSSPositionUtils;
 import com.servoy.j2db.persistence.FlattenedForm;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IContentSpecConstants;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
@@ -299,7 +300,11 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		AngularFormGenerator.writePosition(writer, o, form, webComponent, designer);
 		writer.key("model");
 		writer.object();
-
+		Map<String, String> attributes = null;
+		if (o instanceof BaseComponent)
+		{
+			attributes = new HashMap<String, String>(((BaseComponent)fe.getPersistIfAvailable()).getMergedAttributes());
+		}
 		if (designer || webComponent == null)
 		{
 			// can webcomponnt be null in actual client ?
@@ -315,7 +320,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 					}
 				});
 			}
-
+			templateProperties.content.keySet().remove(IContentSpecConstants.PROPERTY_ATTRIBUTES);
 			JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType,
 				new FormElementContext(fe, context, null));
 			if (designer)
@@ -335,6 +340,16 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			TypedData<Map<String, Object>> templateProperties = fe.propertiesForTemplateJSON();
 			// remove from the templates properties all the properties that are current "live" in the component
 			templateProperties.content.keySet().removeAll(properties.content.keySet());
+			templateProperties.content.keySet().remove(IContentSpecConstants.PROPERTY_ATTRIBUTES);
+			if (properties.content.containsKey(IContentSpecConstants.PROPERTY_ATTRIBUTES))
+			{
+				properties.content = new HashMap<String, Object>(properties.content);
+				if (attributes != null)
+				{
+					attributes.putAll((Map<String, String>)properties.content.get(IContentSpecConstants.PROPERTY_ATTRIBUTES));
+				}
+				properties.content.keySet().remove(IContentSpecConstants.PROPERTY_ATTRIBUTES);
+			}
 
 			// write the template properties that are left
 			JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType,
@@ -347,7 +362,6 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		{
 			writer.key("servoyAttributes");
 			writer.object();
-			Map<String, String> attributes = new HashMap<String, String>(((BaseComponent)fe.getPersistIfAvailable()).getMergedAttributes());
 			if (designer)
 			{
 				attributes.put("svy-id", fe.getDesignId());
