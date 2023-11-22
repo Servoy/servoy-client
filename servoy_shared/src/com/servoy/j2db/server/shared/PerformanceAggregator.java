@@ -33,7 +33,7 @@ import com.servoy.j2db.util.UUID;
  */
 public class PerformanceAggregator
 {
-	public static final int DEFAULT_MAX_ENTRIES_TO_KEEP_IN_PRODUCTION = 500;
+	public static final int DEFAULT_MAX_ENTRIES_TO_KEEP_IN_PRODUCTION = 100;
 
 	private final ConcurrentMap<String, PerformanceTimingAggregate> aggregatesByAction;
 
