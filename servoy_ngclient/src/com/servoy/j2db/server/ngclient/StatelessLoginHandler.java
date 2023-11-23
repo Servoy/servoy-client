@@ -82,7 +82,7 @@ public class StatelessLoginHandler
 	private static final String JWT_Password = "servoy.jwt.logintoken.password";
 	private static final int TOKEN_AGE_IN_SECONDS = 24 * 3600;
 
-	public static final String CLOUD_URL = "https://middleware-dev.unifiedui.servoy-cloud.eu/servoy-service/rest_ws/api/login_auth/validateAuthUser";
+	public static final String CLOUD_URL = "https://middleware-prod.unifiedui.servoy-cloud.eu/servoy-service/rest_ws/api/login_auth/validateAuthUser";
 
 	@SuppressWarnings({ "boxing" })
 	public static Pair<Boolean, String> mustAuthenticate(HttpServletRequest request, String solutionName)
@@ -366,8 +366,6 @@ public class StatelessLoginHandler
 		sb.append("<base href=\"");
 		sb.append(path);
 		sb.append("\">");
-		sb.append("\n  <title>Login</title>");
-		sb.append("\n  <title>Login</title>");
 		if (request.getParameter(ID_TOKEN) == null && request.getParameter(USERNAME) == null)
 		{
 			//we check the local storage for the token or username only once (if both are null)

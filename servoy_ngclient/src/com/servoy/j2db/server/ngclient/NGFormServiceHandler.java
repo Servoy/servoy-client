@@ -69,6 +69,7 @@ import com.servoy.j2db.util.Utils;
 public class NGFormServiceHandler extends FormServiceHandler
 {
 	private final INGClientWebsocketSession websocketSession;
+	private Boolean isNG1;
 
 	public NGFormServiceHandler(INGClientWebsocketSession websocketSession)
 	{
@@ -623,7 +624,6 @@ public class NGFormServiceHandler extends FormServiceHandler
 		return retValue;
 	}
 
-
 	@Override
 	protected JSONString requestData(String formName) throws JSONException
 	{
@@ -634,20 +634,43 @@ public class NGFormServiceHandler extends FormServiceHandler
 	@Override
 	public int getMethodEventThreadLevel(String methodName, JSONObject arguments, int dontCareLevel)
 	{
-		if ("formLoaded".equals(methodName) || "formUnloaded".equals(methodName))
-		{
-			return EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST; // allow it to run on dispatch thread even if some API call is waiting (suspended)
-		}
-		else if ("formvisibility".equals(methodName) && arguments.optBoolean("visible"))
-		{
-			// only allow formvisibilty (to true) when the form is not loaded yet, or it is not in a changing state (DAL.setRecord)
-			// if DAL.setRecord is happening then we need to postpone it.
-			String formName = arguments.optString("formname");
+		if (isNG1 == null && websocketSession.getClient() != null) isNG1 = Boolean.valueOf(!websocketSession.getClient().getRuntimeProperties().containsKey("NG2")); //$NON-NLS-1$
 
-			IWebFormController cachedFormController = getApplication().getFormManager().getCachedFormController(formName);
-			if (cachedFormController == null || !cachedFormController.getFormUI().isChanging())
+		if (isNG1.booleanValue())
+		{
+			// in NG1 we have that situation where a call to a sync api method of a component
+			// from a form that is not yet fully shown will load/show that form in a hidden div
+			// just for calling that method on a real component;
+			//
+			// Titanium client blocks that - it gives an error instead of trying to call sync APIs
+			// on components from forms that are not fully visible
+			//
+			// so for NG1, a deadlock could occur if a form's onLoad/onShow handler would call
+			// such a sync component API call on that same form; then the handler waits for the
+			// sync call to execute, and the sync call waits for the form to be fully loaded before
+			// executing the sync API call
+			//
+			// that is why we give higher execution level here to load/show/unload; so that they execute
+			// on server even while the sync-call-to-client is waiting for a response (although this does
+			// generate the regression in SVY-18716 for NG1...)
+			//
+			// see SVY-7659, SVY-10866 and SVY-11302
+
+			if ("formLoaded".equals(methodName) || "formUnloaded".equals(methodName))
 			{
-				return EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST;
+				return EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST; // allow it to run on dispatch thread even if some API call is waiting (suspended)
+			}
+			else if ("formvisibility".equals(methodName) && arguments.optBoolean("visible"))
+			{
+				// only allow formvisibilty (to true) when the form is not loaded yet, or it is not in a changing state (DAL.setRecord)
+				// if DAL.setRecord is happening then we need to postpone it.
+				String formName = arguments.optString("formname");
+
+				IWebFormController cachedFormController = getApplication().getFormManager().getCachedFormController(formName);
+				if (cachedFormController == null || !cachedFormController.getFormUI().isChanging())
+				{
+					return EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST;
+				}
 			}
 		}
 		return super.getMethodEventThreadLevel(methodName, arguments, dontCareLevel);
