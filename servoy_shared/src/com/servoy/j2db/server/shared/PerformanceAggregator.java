@@ -35,6 +35,8 @@ public class PerformanceAggregator
 {
 	public static final int DEFAULT_MAX_ENTRIES_TO_KEEP_IN_PRODUCTION = 100;
 
+	public static final int DEFAULT_MAX_SQL_ENTRIES_TO_KEEP_IN_PRODUCTION = 500;
+
 	private final ConcurrentMap<String, PerformanceTimingAggregate> aggregatesByAction;
 
 	protected final IPerformanceRegistry registry;
@@ -51,8 +53,8 @@ public class PerformanceAggregator
 		}
 		else
 		{
-			aggregatesByAction = new ConcurrentHashMap<String, PerformanceTimingAggregate>(
-				maxEntriesToKeep > 0 ? maxEntriesToKeep : DEFAULT_MAX_ENTRIES_TO_KEEP_IN_PRODUCTION);
+			final int maxEntries = "sql".equals(registry.getId()) ? DEFAULT_MAX_SQL_ENTRIES_TO_KEEP_IN_PRODUCTION : DEFAULT_MAX_ENTRIES_TO_KEEP_IN_PRODUCTION; //$NON-NLS-1$
+			aggregatesByAction = new ConcurrentHashMap<String, PerformanceTimingAggregate>(maxEntriesToKeep > 0 ? maxEntriesToKeep : maxEntries);
 		}
 	}
 
