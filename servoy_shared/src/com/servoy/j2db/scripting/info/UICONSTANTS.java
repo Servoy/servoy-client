@@ -412,7 +412,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 
 	/**
 	 * Property that can be set using application.putClientProperty(). This property only works in Titanium.
-	 *
+	 * Property should be set onSolutionOpen or onLoad of the form (before form is shown in client).
 	 * If set to true, the listformcomponent will use the old paging mode for display.
 	 *
 	 * The value can be true/false
