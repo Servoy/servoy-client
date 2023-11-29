@@ -171,7 +171,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 					apiFunction.getName() + "). See: https://wiki.servoy.com/pages/viewpage.action?pageId=1869552#Specification(.specfile)-HiddenDivNote");
 			}
 			touchForm(form.getForm(), form.getName(), false, false);
-			pendingApiCallFormsOnNextResponse.add(formUI); // the form will be on client, make sure we send changes for it as well... if it would be delayed it might not even be present on client for a while, so we will send changes only when it is attached to dom and has delayed
+			pendingApiCallFormsOnNextResponse.add(formUI); // the form will be on client, make sure we send changes for it as well... if it would be delayed it might not even be present on client for a while, so we will send changes only when it is attached to DOM and has delayed
 		}
 		if (receiver instanceof WebFormComponent && ((WebFormComponent)receiver).getComponentContext() != null)
 		{
