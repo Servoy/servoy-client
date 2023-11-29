@@ -242,7 +242,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 				}
 				join = addJoin(SQLGenerator.createJoin(root.getDataProviderHandler(), relation, parent.getQueryTable(),
 					new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema(), alias), true,
-					root.getGlobalScopeProvider(), false), relation.getForeignDataSource(), name);
+					root.getGlobalScopeProvider(), false, name), relation.getForeignDataSource(), name);
 			}
 			catch (RepositoryException e)
 			{

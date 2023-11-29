@@ -470,11 +470,11 @@ public class SQLGenerator
 	public ISQLTableJoin createJoin(IDataProviderHandler flattenedSolution, IRelation relation, BaseQueryTable primaryTable, BaseQueryTable foreignTable,
 		boolean permanentJoin, final IGlobalValueEntry provider) throws RepositoryException
 	{
-		return createJoin(flattenedSolution, relation, primaryTable, foreignTable, permanentJoin, provider, setRelationNameComment);
+		return createJoin(flattenedSolution, relation, primaryTable, foreignTable, permanentJoin, provider, setRelationNameComment, relation.getName());
 	}
 
 	public static ISQLTableJoin createJoin(IDataProviderHandler flattenedSolution, IRelation relation, BaseQueryTable primaryTable, BaseQueryTable foreignTable,
-		boolean permanentJoin, final IGlobalValueEntry provider, boolean setRelationNameComment) throws RepositoryException
+		boolean permanentJoin, final IGlobalValueEntry provider, boolean setRelationNameComment, String name) throws RepositoryException
 	{
 		if (relation instanceof AbstractBase)
 		{
@@ -577,7 +577,7 @@ public class SQLGenerator
 		{
 			throw new RepositoryException("Missing join condition in relation " + relation.getName()); //$NON-NLS-1$
 		}
-		QueryJoin queryJoin = new QueryJoin(relation.getName(), primaryTable, foreignTable, joinCondition, relation.getJoinType(), permanentJoin);
+		QueryJoin queryJoin = new QueryJoin(name, primaryTable, foreignTable, joinCondition, relation.getJoinType(), permanentJoin);
 		if (setRelationNameComment)
 		{
 			queryJoin.setComment("relation " + relation.getName());
@@ -961,7 +961,7 @@ public class SQLGenerator
 			ITable foreignTable = flattenedSolution.getTable(relation.getForeignDataSource());
 			QueryTable foreignQtable = new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(),
 				foreignTable.getSchema());
-			existsSelect.addJoin(createJoin(flattenedSolution, relation, prevTable, foreignQtable, true, provider, setRelationNameComment));
+			existsSelect.addJoin(createJoin(flattenedSolution, relation, prevTable, foreignQtable, true, provider, setRelationNameComment, relation.getName()));
 
 			prevTable = foreignQtable;
 		}
