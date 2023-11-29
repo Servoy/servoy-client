@@ -560,6 +560,11 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 		return ret;
 	}
 
+	protected int selfIndexOf(Object elem)
+	{
+		return super.indexOf(elem);
+	}
+
 	/**
 	 * If a this valuelist has a fallback valuelist and the value is not found in this list
 	 * then the fallback valuelist will be queried and if found a value between -2 and greater negative value.

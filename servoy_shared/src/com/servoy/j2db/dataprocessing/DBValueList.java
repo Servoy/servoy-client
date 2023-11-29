@@ -345,7 +345,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 						{
 							Object val = handleRowData(valueList, displayFormat, concatShowValues, showValues, r, application);
 							Object rval = handleRowData(valueList, null, concatReturnValues, returnValues, r, application);
-							int index = indexOf(val);
+							int index = selfIndexOf(val);
 							if (index == -1 || !Utils.equalObjects(getRealElementAt(index), rval))
 							{
 								addElement(val);
