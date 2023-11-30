@@ -128,6 +128,17 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 		return "<Component:'" + getName() + "' of parent " + getParent() + ", with spec: " + getSpecification() + " >";
 	}
 
+	@Override
+	protected void checkForProtectedPropertiesThatMightBlockUpdatesOn(String property)
+	{
+		PropertyDescription pd = getPropertyDescription(property);
+		if (!(((Boolean)getParent().getProperty("findmode")).booleanValue() && pd != null &&
+			pd.getType().getName().equals(DataproviderPropertyType.TYPE_NAME)))
+		{
+			super.checkForProtectedPropertiesThatMightBlockUpdatesOn(property);
+		}
+	}
+
 	public void updateVisibleForm(IWebFormUI form, boolean visible, int formIndex)
 	{
 		if (!visible)
