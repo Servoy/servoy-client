@@ -639,9 +639,7 @@ public class EditRecordList
 			if (failedCount > 0)
 			{
 				failedDeletes.forEach(pair -> editedRecords.addDeleteQuery(pair.getLeft(), pair.getRight()));
-
-				//RAGTEST placeBackAlreadyProcessedRecords(dbUpdates);
-
+				placeBackAlreadyProcessedRecords(dbUpdates);
 				setDeletedrecordsInternalTableFilter(false);
 
 				if (lastStopEditingException == null && justValidationErrors)
@@ -1116,7 +1114,6 @@ public class EditRecordList
 			// find state
 			recordTested.remove(rec);
 		}
-		editedRecords.remove(rec);
 		return success;
 	}
 
@@ -1451,12 +1448,16 @@ public class EditRecordList
 	}
 
 	/**
-	 * @param rowUpdates
+	 * @param dbUpdates
 	 */
-	private void placeBackAlreadyProcessedRecords(List<RowUpdateInfo> rowUpdates)
+	private void placeBackAlreadyProcessedRecords(List<DatabaseUpdateInfo> dbUpdates)
 	{
-		// RAGTEST deletes?
-		rowUpdates.stream().map(update -> update.getRecord()).forEachOrdered(editedRecords::addEdited);
+		dbUpdates.stream()
+			.filter(RowUpdateInfo.class::isInstance)
+			.map(RowUpdateInfo.class::cast)
+			.map(update -> update.getRecord())
+			// RAGTEST addDeleted?
+			.forEachOrdered(editedRecords::addEdited);
 	}
 
 	/**

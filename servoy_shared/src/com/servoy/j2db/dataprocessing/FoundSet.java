@@ -4477,16 +4477,20 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				QueryDelete delete_sql = new QueryDelete(sqlSelect.getTable());
 				delete_sql.setCondition(sqlSelect.getWhereClone());
 
+				boolean allFoundsetRecordsLoaded = currentPKs != null && pksAndRecords.getCachedRecords().size() == getSize() && !hadMoreRows();
+
 				if (fsm.config.ragtestDeleteRecordsInAutoSave())
 				{
-					performDeleteQueryDirectly(table, currentPKs, delete_sql);
+					performDeleteQueryDirectly(table, currentPKs, delete_sql, allFoundsetRecordsLoaded);
 				}
 				else
 				{
 					getFoundSetManager().getEditRecordList().addDeleteQuery(this, delete_sql);
-					removeAllRecords();
 					getFoundSetManager().getEditRecordList().stopEditing(false, this);
+				}
 
+				if (!allFoundsetRecordsLoaded)
+				{
 					fsm.flushCachedDatabaseData(fsm.getDataSource(table));
 				}
 
@@ -4522,11 +4526,9 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		}
 	}
 
-	private void performDeleteQueryDirectly(Table table, IDataSet currentPKs, QueryDelete delete_sql)
+	private void performDeleteQueryDirectly(Table table, IDataSet currentPKs, QueryDelete delete_sql, boolean allFoundsetRecordsLoaded)
 		throws ServoyException, ApplicationException, RepositoryException
 	{
-		boolean allFoundsetRecordsLoaded = currentPKs != null && pksAndRecords.getCachedRecords().size() == getSize() && !hadMoreRows();
-
 		IDataSet deletePKs;
 		if (allFoundsetRecordsLoaded)
 		{
@@ -4552,11 +4554,6 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 					throw (ServoyException)results[i];
 				}
 			}
-
-			if (!allFoundsetRecordsLoaded)
-			{
-				fsm.flushCachedDatabaseData(fsm.getDataSource(table));
-			}
 		}
 		catch (ApplicationException aex)
 		{
@@ -4570,30 +4567,6 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		catch (RemoteException e)
 		{
 			throw new RepositoryException(e);
-		}
-	}
-
-	private void removeAllRecords()
-	{
-		EditRecordList editRecordList = getFoundSetManager().getEditRecordList();
-
-		int size = getSize();
-		if (size > 0)
-		{
-			pksAndRecords.setPks(null, 0);
-			setSelectedIndex(-1);
-
-			fireFoundSetEvent(0, size, FoundSetEvent.CHANGE_DELETE);
-
-			if (aggregateCache.size() > 0)
-			{
-				fireAggregateChangeWithEvents(null);
-			}
-			else
-			{
-				walkParents(editRecordList.getFoundsetEventMap());
-				editRecordList.fireEvents();
-			}
 		}
 	}
 
@@ -4773,22 +4746,23 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			Row data = state.getRawData();
 			if (state.existInDataSource())
 			{
+				boolean performActualDelete = !partOfBiggerDelete;
 				if (fsm.config.ragtestDeleteRecordsInAutoSave())
 				{
-					performDeleteRecordDirectly(state, !partOfBiggerDelete);
+					performDeleteRecordDirectly(state, performActualDelete);
 				}
 				else
 				{
-					if (getFoundSetManager().getEditRecordList().addDeletedRecord(state))
+					if (performActualDelete && getFoundSetManager().getEditRecordList().addDeletedRecord(state))
 					{
 						if (!(state instanceof PrototypeState))
 						{
 							removeRecordInternalEx(state, row);
+							getFoundSetManager().getEditRecordList().stopEditing(false, state);
 						}
-						getFoundSetManager().getEditRecordList().stopEditing(false, state);
 					}
 
-					rowManager.deleteRow(this, data, false, false);
+					rowManager.deleteRow(this, data, hasAccess(IRepository.TRACKING), false);
 				}
 			}
 			else
