@@ -37,14 +37,24 @@ public interface ISQLJoin extends IQueryElement
 		"full join" //$NON-NLS-1$
 	};
 
-	public abstract String getName();
+	String getName();
 
-	public abstract BaseQueryTable getPrimaryTable();
+	default String getRelationName()
+	{
+		return getName();
+	}
+
+	default String getAlias()
+	{
+		return getName();
+	}
+
+	BaseQueryTable getPrimaryTable();
 
 	/**
 	 * The object the join was created for (for example, a table filter)
 	 */
-	public abstract void setOrigin(Object origin);
+	void setOrigin(Object origin);
 
-	public abstract Object getOrigin();
+	Object getOrigin();
 }

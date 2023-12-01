@@ -40,6 +40,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.mozilla.javascript.Wrapper;
 
@@ -457,7 +458,7 @@ public class SQLGenerator
 	}
 
 	public static ISQLTableJoin createJoin(IDataProviderHandler flattenedSolution, IRelation relation, BaseQueryTable primaryTable, BaseQueryTable foreignTable,
-		boolean permanentJoin, final IGlobalValueEntry provider, String name) throws RepositoryException
+		boolean permanentJoin, final IGlobalValueEntry provider, String alias) throws RepositoryException
 	{
 		if (relation instanceof AbstractBase)
 		{
@@ -560,7 +561,7 @@ public class SQLGenerator
 		{
 			throw new RepositoryException("Missing join condition in relation " + relation.getName()); //$NON-NLS-1$
 		}
-		return new QueryJoin(name, primaryTable, foreignTable, joinCondition, relation.getJoinType(), permanentJoin);
+		return new QueryJoin(alias, primaryTable, foreignTable, joinCondition, relation.getJoinType(), permanentJoin);
 	}
 
 	static Object[][] createPKValuesArray(List<Column> pkColumns, IDataSet pks)
@@ -710,10 +711,8 @@ public class SQLGenerator
 			SQLSheet sheet = state.getParentFoundSet().getSQLSheet();
 			Table table = sheet.getTable();
 
-			Iterator<Map.Entry<String, Object>> it = state.getColumnData().entrySet().iterator();
-			while (it.hasNext())
+			for (Entry<String, Object> elem : state.getColumnData().entrySet())
 			{
-				Map.Entry<String, Object> elem = it.next();
 				final String dataProviderID = elem.getKey();
 				Object raw = elem.getValue();
 				if (raw == null) continue;
@@ -1124,10 +1123,8 @@ public class SQLGenerator
 		QueryUpdate update = new QueryUpdate(queryTable);
 
 		List<Column> columns = new ArrayList<Column>();
-		Iterator<Column> it1 = table.getColumns().iterator();
-		while (it1.hasNext())
+		for (Column c : table.getColumns())
 		{
-			Column c = it1.next();
 			ColumnInfo ci = c.getColumnInfo();
 			if (ci != null && ci.isExcluded())
 			{
@@ -1227,10 +1224,8 @@ public class SQLGenerator
 
 			//fill dataprovider map
 			List<String> dataProviderIDsDilivery = new ArrayList<String>();
-			Iterator<Column> it = rcolumns.iterator();
-			while (it.hasNext())
+			for (Column col : rcolumns)
 			{
-				Column col = it.next();
 				dataProviderIDsDilivery.add(col.getDataProviderID());
 			}
 
