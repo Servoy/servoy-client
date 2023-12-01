@@ -474,7 +474,7 @@ public class SQLGenerator
 	}
 
 	public static ISQLTableJoin createJoin(IDataProviderHandler flattenedSolution, IRelation relation, BaseQueryTable primaryTable, BaseQueryTable foreignTable,
-		boolean permanentJoin, final IGlobalValueEntry provider, boolean setRelationNameComment, String name) throws RepositoryException
+		boolean permanentJoin, final IGlobalValueEntry provider, boolean setRelationNameComment, String alias) throws RepositoryException
 	{
 		if (relation instanceof AbstractBase)
 		{
@@ -577,10 +577,19 @@ public class SQLGenerator
 		{
 			throw new RepositoryException("Missing join condition in relation " + relation.getName()); //$NON-NLS-1$
 		}
-		QueryJoin queryJoin = new QueryJoin(name, primaryTable, foreignTable, joinCondition, relation.getJoinType(), permanentJoin);
+		QueryJoin queryJoin = new QueryJoin(relation.getName(), primaryTable, foreignTable, joinCondition, relation.getJoinType(), permanentJoin, alias);
 		if (setRelationNameComment)
 		{
-			queryJoin.setComment("relation " + relation.getName());
+			String comment;
+			if (alias != null && !alias.equals(relation.getName()))
+			{
+				comment = "join " + alias + " (" + relation.getName() + ")";
+			}
+			else
+			{
+				comment = "relation " + relation.getName();
+			}
+			queryJoin.setComment(comment);
 		}
 		return queryJoin;
 	}
