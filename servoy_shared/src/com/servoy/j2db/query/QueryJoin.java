@@ -288,6 +288,7 @@ public final class QueryJoin implements ISQLTableJoin
 		final int PRIME = 31;
 		int result = 1;
 		result = PRIME * result + ((alias == null) ? 0 : alias.hashCode());
+		result = PRIME * result + ((comment == null) ? 0 : comment.hashCode());
 		result = PRIME * result + ((condition == null) ? 0 : condition.hashCode());
 		result = PRIME * result + ((foreignTableReference == null) ? 0 : foreignTableReference.hashCode());
 		result = PRIME * result + joinType;
@@ -309,6 +310,11 @@ public final class QueryJoin implements ISQLTableJoin
 			if (other.alias != null) return false;
 		}
 		else if (!alias.equals(other.alias)) return false;
+		if (comment == null)
+		{
+			if (other.comment != null) return false;
+		}
+		else if (!comment.equals(other.comment)) return false;
 		if (condition == null)
 		{
 			if (other.condition != null) return false;
