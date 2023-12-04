@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import static com.servoy.j2db.util.UUID.randomUUID;
 import static com.servoy.j2db.util.Utils.stream;
 
 import java.util.Map;
@@ -47,7 +48,6 @@ import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.UUID;
 
 /**
  * @author rgansevles
@@ -75,12 +75,13 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	{
 		allVars.clear();
 		QuerySelect query = root.getQuery(false);
-		if (query != null && parent == root)
+		if (query != null)
 		{
 			stream(query.getJoins())
 				.filter(ISQLTableJoin.class::isInstance).map(ISQLTableJoin.class::cast)
-				.forEach(queryJoin -> allVars.put(queryJoin.getName(),
-					new QBJoin(root, parent, queryJoin.getForeignTable().getDataSource(), queryJoin, queryJoin.getName())));
+				.filter(queryJoin -> parent.getQueryTable() == queryJoin.getPrimaryTable())
+				.forEach(queryJoin -> allVars.put(queryJoin.getAlias(),
+					new QBJoin(root, parent, queryJoin.getForeignTable().getDataSource(), queryJoin, queryJoin.getAlias())));
 		}
 		return true;
 	}
@@ -373,7 +374,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		QBJoin join = getJoin(alias);
 		if (join == null)
 		{
-			join = addJoin(new QueryJoin(alias, parent.getQueryTable(), new DerivedTable(subquery, alias), new AndCondition(), joinType, true),
+			join = addJoin(new QueryJoin(null, parent.getQueryTable(), new DerivedTable(subquery, alias), new AndCondition(), joinType, true, alias),
 				subqueryBuilder.getDataSource(), alias);
 		}
 		return join;
@@ -395,7 +396,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		QBJoin join;
 		if (alias == null)
 		{
-			name = UUID.randomUUID().toString();
+			name = randomUUID().toString();
 			join = null;
 		}
 		else
@@ -406,10 +407,10 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		if (join == null)
 		{
 			ITable foreignTable = root.getTable(dataSource);
-			join = addJoin(new QueryJoin(name, parent.getQueryTable(),
-				new TableExpression(
-					new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema(), alias)),
-				new AndCondition(), joinType, true), dataSource, name);
+			join = addJoin(
+				new QueryJoin(name, parent.getQueryTable(),
+					new TableExpression(foreignTable.queryTable(alias)), new AndCondition(), joinType, true, name),
+				dataSource, name);
 		}
 		return join;
 	}

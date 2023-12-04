@@ -2020,9 +2020,9 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		// find the join to this table
 		for (ISQLJoin join : iterate(sqlSelect.getJoins()))
 		{
-			if (join.getName() != null && join instanceof QueryJoin && ((QueryJoin)join).getForeignTable() == qTable)
+			if (join.getRelationName() != null && join instanceof QueryJoin && ((QueryJoin)join).getForeignTable() == qTable)
 			{
-				Relation relation = fsm.getRelation(join.getName());
+				Relation relation = fsm.getRelation(join.getRelationName());
 				if (relation != null && relation.getForeignDataSource().equals(qTable.getDataSource()))
 				{
 					List<Relation> subRelated = findQueryRelationSequence(sqlSelect, ((QueryJoin)join).getPrimaryTable());
