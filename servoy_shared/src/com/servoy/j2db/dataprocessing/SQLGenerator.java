@@ -451,7 +451,7 @@ public class SQLGenerator
 	/**
 	 * Join clause for this relation.
 	 */
-	public ISQLTableJoin createJoin(IDataProviderHandler flattenedSolution, IRelation relation, BaseQueryTable primaryTable, BaseQueryTable foreignTable,
+	public static ISQLTableJoin createJoin(IDataProviderHandler flattenedSolution, IRelation relation, BaseQueryTable primaryTable, BaseQueryTable foreignTable,
 		boolean permanentJoin, final IGlobalValueEntry provider) throws RepositoryException
 	{
 		return createJoin(flattenedSolution, relation, primaryTable, foreignTable, permanentJoin, provider, relation.getName());
