@@ -67,6 +67,14 @@ public class FindModeSabloValue implements IFindModeAwarePropertyValue
 		return writer;
 	}
 
+	/**
+	 * @return the findMode
+	 */
+	public Boolean getValue()
+	{
+		return findMode;
+	}
+
 	@Override
 	public void attachToBaseObject(IChangeListener changeMonitor, IWebObjectContext webObjectContext)
 	{
