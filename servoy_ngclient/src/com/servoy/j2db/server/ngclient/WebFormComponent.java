@@ -32,6 +32,7 @@ import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.INGWebObjectContext;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.FindModeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
@@ -132,12 +133,10 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	@Override
 	protected void checkForProtectedPropertiesThatMightBlockUpdatesOn(String property)
 	{
-		PropertyDescription pd = getPropertyDescription(property);
-		if (!(((Boolean)getParent().getProperty("findmode")).booleanValue() && pd != null &&
-			pd.getType().getName().equals(DataproviderPropertyType.TYPE_NAME)))
-		{
-			super.checkForProtectedPropertiesThatMightBlockUpdatesOn(property);
-		}
+		Object findmode = getParent().getProperty("findmode");
+		if (findmode instanceof FindModeSabloValue fmsv) findmode = fmsv.getValue();
+		if (findmode instanceof Boolean b && b.booleanValue()) return; // if in find mode allow it all
+		super.checkForProtectedPropertiesThatMightBlockUpdatesOn(property);
 	}
 
 	public void updateVisibleForm(IWebFormUI form, boolean visible, int formIndex)
