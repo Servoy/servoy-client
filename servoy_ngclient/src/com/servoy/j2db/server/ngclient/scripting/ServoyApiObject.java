@@ -419,6 +419,17 @@ public class ServoyApiObject
 	}
 
 	/**
+	 * Creates an empty JSDataSet
+	 *
+	 * @return an empty JSDataSet
+	 */
+	@JSFunction
+	public JSDataSet createEmptyDataSet()
+	{
+		return new JSDataSet(app);
+	}
+
+	/**
 	 * Add a filter parameter that is permanent per user session to limit a specified foundset of records.
 	 * This is similar as calling foundset.js_addFoundSetFilterParam, but the main difference is that this
 	 * works also on related foundsets.
