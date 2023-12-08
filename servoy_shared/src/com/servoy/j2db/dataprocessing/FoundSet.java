@@ -328,12 +328,8 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		// don't do it in refreshFromDb because then
 		// the omits can be cleared if there is a refresh
 		// from db coming from outside or a search that has no results.
-		browseAllInternal(true);
-	}
-
-	public void browseAllInternal() throws ServoyException
-	{
-		browseAllInternal(false);
+		clearOmit(null);
+		browseAllInternal();
 	}
 
 	/**
@@ -346,19 +342,9 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		return query.hasAnyCondition() || (sheet != null && fsm.getTableFilterParams(sheet.getServerName(), query) != null);
 	}
 
-	public void browseAllInternal(boolean clearOmit) throws ServoyException
+	public void browseAllInternal() throws ServoyException
 	{
 		if (sheet == null || sheet.getTable() == null) return;
-
-		if (!findMode && initialized && !mustQueryForUpdates && !currentQueryHasAnyCondition() && getSize() > 0)
-		{
-			return;//optimize
-		}
-
-		if (clearOmit)
-		{
-			clearOmit(null);
-		}
 
 		// do get the sql select with the omitted pks, else a find that didn't get anything will not
 		// just display the records without the omitted pks (when clear omit is false)
@@ -7134,7 +7120,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		foundSetFilters.add(filter);
 
 		resetFiltercondition(foundSetFilters);
-		initialized = false;//to enforce browse all
+		// Do not set initialized to false, this would trigger a load if the form happens to be touched anywhere
 		return true;
 	}
 
@@ -7170,7 +7156,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		if (found)
 		{
 			resetFiltercondition(originalFilters);
-			initialized = false;//to enforce browse all
+			// Do not set initialized to false, this would trigger a load if the form happens to be touched anywhere
 		}
 		return found;
 	}
