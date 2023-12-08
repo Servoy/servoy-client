@@ -29,9 +29,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Writer;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -76,8 +74,26 @@ public class AngularIndexPageWriter
 		String uri = request.getRequestURI();
 		String clientnr = getClientNr(uri, request);
 		Pair<FlattenedSolution, Boolean> pair = getFlattenedSolution(solutionName, clientnr, request, response);
+		StringBuilder sb = new StringBuilder();
+		generateStartupData(request, pair.getLeft(), sb);
+		response.setCharacterEncoding("UTF-8");
+		response.setContentType("application/javascript");
+		response.setContentLengthLong(sb.length());
+		response.getWriter().write(sb.toString());
+		if (pair.getRight().booleanValue()) pair.getLeft().close(null);
+	}
+
+
+	/**
+	 * @param request
+	 * @param pair
+	 * @return
+	 * @throws ServletException
+	 */
+	private static void generateStartupData(HttpServletRequest request, FlattenedSolution fs, StringBuilder sb) throws ServletException
+	{
 		JSONObject json = new JSONObject();
-		json.put("pathName", request.getRequestURI().replaceAll("[^/]*/[^/]*/startup.js$", "index.html"));
+		json.put("pathName", request.getContextPath() + "/solution/" + fs.getName() + "/");
 		json.put("querystring", HTTPUtils.generateQueryString(request.getParameterMap(), request.getCharacterEncoding()));
 		String ipaddr = request.getHeader("X-Forwarded-For"); // in case there is a forwarding proxy
 		if (ipaddr == null)
@@ -91,9 +107,9 @@ public class AngularIndexPageWriter
 			remoteHost = request.getRemoteHost();
 		}
 		json.put("hostaddr", remoteHost);
-		if (pair.getLeft() != null)
+		if (fs != null)
 		{
-			Solution solution = pair.getLeft().getSolution();
+			Solution solution = fs.getSolution();
 			json.put("orientation", solution.getTextOrientation());
 			JSONObject defaultTranslations = new JSONObject();
 			defaultTranslations.put("servoy.ngclient.reconnecting",
@@ -102,16 +118,8 @@ public class AngularIndexPageWriter
 
 		}
 
-		StringBuilder sb = new StringBuilder(256);
-
 		sb.append("window.svyData=");
 		sb.append(json.toString());
-
-		response.setCharacterEncoding("UTF-8");
-		response.setContentType("application/javascript");
-		response.setContentLengthLong(sb.length());
-		response.getWriter().write(sb.toString());
-		if (pair.getRight().booleanValue()) pair.getLeft().close(null);
 	}
 
 
@@ -188,19 +196,22 @@ public class AngularIndexPageWriter
 				sb.append(contentSecurityPolicyConfig.getNonce());
 				sb.append("' ");
 			}
-			sb.append("src=\"solution/");
-			sb.append(solutionName);
-			sb.append('/');
-			sb.append(clientnr);
-			sb.append("/main/startup.js?");
-			Map<String, String[]> parameterMap = request.getParameterMap();
-			if (request.getSession().getAttribute("id_token") != null)
-			{
-				parameterMap = new HashMap<>(request.getParameterMap());
-				parameterMap.put("id_token", new String[] { (String)request.getSession().getAttribute("id_token") });
-			}
-			sb.append(HTTPUtils.generateQueryString(parameterMap, request.getCharacterEncoding()));
-			sb.append("\"></script>");
+			sb.append(" type='application/javascript'>");
+			generateStartupData(request, fs, sb);
+			sb.append("</script>");
+//			sb.append("src=\"solution/");
+//			sb.append(solutionName);
+//			sb.append('/');
+//			sb.append(clientnr);
+//			sb.append("/main/startup.js?");
+//			Map<String, String[]> parameterMap = request.getParameterMap();
+//			if (request.getSession().getAttribute("id_token") != null)
+//			{
+//				parameterMap = new HashMap<>(request.getParameterMap());
+//				parameterMap.put("id_token", new String[] { (String)request.getSession().getAttribute("id_token") });
+//			}
+//			sb.append(HTTPUtils.generateQueryString(parameterMap, request.getCharacterEncoding()));
+//			sb.append("\"></script>");
 			indexHtml = indexHtml.replace("<base href=\"/\">", sb.toString());
 
 			String requestLanguage = request.getHeader("accept-language");
