@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.sablo.security.ContentSecurityPolicyConfig;
 import org.sablo.websocket.WebsocketSessionManager;
 
@@ -163,7 +164,7 @@ public class AngularIndexPageFilter implements Filter
 			String possibleSolutionName = uri.substring(solutionIndex + SOLUTIONS_PATH.length(), solutionEndIndex);
 			// skip all names that have a . in them
 			if (possibleSolutionName.contains(".")) return null;
-			return possibleSolutionName;
+			return StringEscapeUtils.escapeHtml4(possibleSolutionName);
 		}
 		return null;
 	}

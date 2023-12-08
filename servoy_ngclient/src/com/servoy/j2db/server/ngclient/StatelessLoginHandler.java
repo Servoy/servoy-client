@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -390,7 +391,7 @@ public class StatelessLoginHandler
 			sb.append("\n  	 <script type='text/javascript'>");
 			sb.append("\n    window.addEventListener('load', () => { ");
 			sb.append("\n  	    document.login_form.username.value = '");
-			sb.append(request.getParameter(USERNAME));
+			sb.append(StringEscapeUtils.escapeHtml4(request.getParameter(USERNAME)));
 			sb.append("'");
 			sb.append("\n  	    if (document.getElementById('errorlabel')) document.getElementById('errorlabel').style.display='block';");
 			sb.append("\n   }) ");
