@@ -103,7 +103,7 @@ public class AngularIndexPageFilter implements Filter
 
 				try
 				{
-					Pair<Boolean, String> showLogin = StatelessLoginHandler.mustAuthenticate(request, solutionName);
+					Pair<Boolean, String> showLogin = StatelessLoginHandler.mustAuthenticate(request, response, solutionName);
 					if (showLogin.getLeft().booleanValue())
 					{
 						StatelessLoginHandler.writeLoginPage(request, response, solutionName);

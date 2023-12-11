@@ -87,7 +87,7 @@ public class StatelessLoginHandler
 		"/servoy-service/rest_ws/api/login_auth/validateAuthUser";
 
 	@SuppressWarnings({ "boxing" })
-	public static Pair<Boolean, String> mustAuthenticate(HttpServletRequest request, String solutionName)
+	public static Pair<Boolean, String> mustAuthenticate(HttpServletRequest request, HttpServletResponse reponse, String solutionName)
 		throws ServletException
 	{
 		Pair<Boolean, String> needToLogin = new Pair<>(Boolean.FALSE, null);
@@ -96,7 +96,7 @@ public class StatelessLoginHandler
 			(!requestURI.contains("/designer") && (requestURI.endsWith("/") || requestURI.endsWith("/" + solutionName) ||
 				requestURI.toLowerCase().endsWith("/index.html"))))
 		{
-			Pair<FlattenedSolution, Boolean> _fs = AngularIndexPageWriter.getFlattenedSolution(solutionName, null, request, null);
+			Pair<FlattenedSolution, Boolean> _fs = AngularIndexPageWriter.getFlattenedSolution(solutionName, null, request, reponse);
 			FlattenedSolution fs = _fs.getLeft();
 			if (fs == null) return needToLogin;
 			try
