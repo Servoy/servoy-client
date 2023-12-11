@@ -40,6 +40,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.json.JSONObject;
 import org.sablo.security.ContentSecurityPolicyConfig;
 import org.sablo.util.HTTPUtils;
@@ -95,7 +96,7 @@ public class AngularIndexPageWriter
 	private static void generateStartupData(HttpServletRequest request, FlattenedSolution fs, StringBuilder sb) throws ServletException
 	{
 		JSONObject json = new JSONObject();
-		json.put("pathName", request.getContextPath() + "/solution/" + fs.getName() + "/");
+		json.put("pathName", StringEscapeUtils.escapeHtml4(request.getContextPath()) + "/solution/" + fs.getName() + "/");
 
 		Map<String, String[]> parameterMap = request.getParameterMap();
 		if (request.getSession().getAttribute(StatelessLoginHandler.ID_TOKEN) != null)
@@ -109,13 +110,13 @@ public class AngularIndexPageWriter
 		{
 			ipaddr = request.getRemoteAddr();
 		}
-		json.put("ipaddr", ipaddr);
+		json.put("ipaddr", StringEscapeUtils.escapeHtml4(ipaddr));
 		String remoteHost = request.getHeader("X-Forwarded-Host"); // in case there is a forwarding proxy
 		if (remoteHost == null)
 		{
 			remoteHost = request.getRemoteHost();
 		}
-		json.put("hostaddr", remoteHost);
+		json.put("hostaddr", StringEscapeUtils.escapeHtml4(remoteHost));
 		if (fs != null)
 		{
 			Solution solution = fs.getSolution();
