@@ -83,4 +83,10 @@ public class CSSPosition implements Serializable
 		buffer.append("}");
 		return buffer.toString();
 	}
+
+	public CSSPosition cloneForRuntime()
+	{
+		return new CSSPosition(top, right, bottom, left, width, height);
+	}
+
 }
