@@ -29,7 +29,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -94,7 +96,14 @@ public class AngularIndexPageWriter
 	{
 		JSONObject json = new JSONObject();
 		json.put("pathName", request.getContextPath() + "/solution/" + fs.getName() + "/");
-		json.put("querystring", HTTPUtils.generateQueryString(request.getParameterMap(), request.getCharacterEncoding()));
+
+		Map<String, String[]> parameterMap = request.getParameterMap();
+		if (request.getSession().getAttribute(StatelessLoginHandler.ID_TOKEN) != null)
+		{
+			parameterMap = new HashMap<>(request.getParameterMap());
+			parameterMap.put(StatelessLoginHandler.ID_TOKEN, new String[] { (String)request.getSession().getAttribute(StatelessLoginHandler.ID_TOKEN) });
+		}
+		json.put("querystring", HTTPUtils.generateQueryString(parameterMap, request.getCharacterEncoding()));
 		String ipaddr = request.getHeader("X-Forwarded-For"); // in case there is a forwarding proxy
 		if (ipaddr == null)
 		{

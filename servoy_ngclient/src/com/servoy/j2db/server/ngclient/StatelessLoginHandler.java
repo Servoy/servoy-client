@@ -98,7 +98,7 @@ public class StatelessLoginHandler
 		{
 			Pair<FlattenedSolution, Boolean> _fs = AngularIndexPageWriter.getFlattenedSolution(solutionName, null, request, null);
 			FlattenedSolution fs = _fs.getLeft();
-
+			if (fs == null) return needToLogin;
 			try
 			{
 				AUTHENTICATOR_TYPE authenticator = fs.getSolution().getAuthenticator();
