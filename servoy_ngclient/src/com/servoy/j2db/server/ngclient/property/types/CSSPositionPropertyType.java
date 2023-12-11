@@ -40,12 +40,14 @@ import com.servoy.j2db.persistence.IDesignValueConverter;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Part;
+import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.IContextProvider;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
 import com.servoy.j2db.util.Debug;
@@ -58,7 +60,7 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 	implements IClassPropertyType<CSSPosition>, IFormElementToTemplateJSON<CSSPosition, CSSPosition>, IDesignToFormElement<Object, CSSPosition, CSSPosition>,
-	IDesignValueConverter<CSSPosition>, ISabloComponentToRhino<CSSPosition>
+	IDesignValueConverter<CSSPosition>, ISabloComponentToRhino<CSSPosition>, IFormElementToSabloComponent<CSSPosition, CSSPosition>
 {
 
 	public static final CSSPositionPropertyType INSTANCE = new CSSPositionPropertyType();
@@ -118,6 +120,20 @@ public class CSSPositionPropertyType extends DefaultPropertyType<CSSPosition>
 	private boolean isSet(String value)
 	{
 		return value != null && !value.equals("-1") && !value.trim().isEmpty();
+	}
+
+
+	@Override
+	public CSSPosition toSabloComponentValue(CSSPosition formElementValue, PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
+		DataAdapterList dataAdapterList)
+	{
+		if (formElementValue == null) return null;
+
+		// else - "cssPosition" is a mutable object - and, as it can be modified at runtime (rhino access), and it's not a primitive,
+		// we want to make a copy of the value from FormElement for runtime, so that changing it in one client will not change it in
+		// another or directly in the Persist (so form designer etc.); that would be wrong
+
+		return formElementValue.cloneForRuntime();
 	}
 
 	private JSONWriter toJSON(JSONWriter writer, String key, CSSPosition object, PropertyDescription pd, FormElement formElement, FlattenedSolution fs,
