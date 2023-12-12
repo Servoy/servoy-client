@@ -120,6 +120,7 @@ public class AngularIndexPageWriter
 		throws IOException, ServletException
 	{
 		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
+		HTTPUtils.setNoCacheHeaders(response);
 		String uri = request.getRequestURI();
 		String clientnr = getClientNr(uri, request);
 		Pair<FlattenedSolution, Boolean> pair = getFlattenedSolution(solutionName, clientnr, request, response);
