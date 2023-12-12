@@ -44,6 +44,7 @@ import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.sablo.util.HTTPUtils;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -321,6 +322,7 @@ public class StatelessLoginHandler
 		throws IOException
 	{
 		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
+		HTTPUtils.setNoCacheHeaders(response);
 		Solution solution = null;
 		try
 		{
