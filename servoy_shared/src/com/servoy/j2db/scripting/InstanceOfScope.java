@@ -17,7 +17,6 @@
 package com.servoy.j2db.scripting;
 
 import org.mozilla.javascript.NativeJavaObject;
-import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
 
 /**
@@ -67,15 +66,12 @@ public class InstanceOfScope implements Scriptable
 		{
 			return ((IInstanceOf)instance).isInstance(name);
 		}
-		else if (instance instanceof NativeObject)
-		{
-			Scriptable proto = instance.getPrototype();
 
-			while (proto != null)
-			{
-				if (cls.isInstance(proto)) return true;
-				proto = proto.getPrototype();
-			}
+		Scriptable proto = instance.getPrototype();
+		while (proto != null)
+		{
+			if (cls.isInstance(proto)) return true;
+			proto = proto.getPrototype();
 		}
 		return cls.isInstance(instance);
 	}
