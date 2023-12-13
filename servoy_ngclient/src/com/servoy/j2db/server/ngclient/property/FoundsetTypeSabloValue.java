@@ -462,6 +462,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			boolean newMultiselect = (newFoundset != null ? newFoundset.isMultiSelect() : false);
 			boolean oldFindMode = (foundset != null ? foundset.isInFindMode() : false);
 			boolean newFindMode = (newFoundset != null ? newFoundset.isInFindMode() : false);
+			String oldSortString = (foundset != null ? foundset.getSort() : null);
+			String newSortString = (newFoundset != null ? newFoundset.getSort() : null);
 
 			if (foundset instanceof ISwingFoundSet)
 			{
@@ -475,6 +477,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			changeMonitor.checkHadMoreRows();
 			if (oldMultiselect != newMultiselect) changeMonitor.multiSelectChanged();
 			if (oldFindMode != newFindMode) changeMonitor.findModeChanged(newFindMode);
+			if (!Utils.equalObjects(oldSortString, newSortString)) changeMonitor.foundsetSortChanged();
 			if (updateColumnFormatsIfNeeded()) changeMonitor.columnFormatsUpdated();
 			changeMonitor.foundsetIDChanged();
 
