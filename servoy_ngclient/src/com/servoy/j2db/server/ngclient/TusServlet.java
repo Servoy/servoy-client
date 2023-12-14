@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -110,7 +111,7 @@ public class TusServlet extends AbstractMediaResourceServlet
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
 		tusFileUploadService.process(req, resp);
-		String uploadURI = req.getRequestURI();
+		String uploadURI = Paths.get(req.getRequestURI()).normalize().toString().replace('\\', '/');
 		UploadInfo uploadInfo = null;
 		try
 		{
