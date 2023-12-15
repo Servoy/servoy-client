@@ -1440,9 +1440,17 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
                             var r = $window['require'];
                             var ipcRenderer = r('electron').ipcRenderer;
                             ipcRenderer.send('open-url-with-target', getAbsoluteUrl(url));
-                        } else {
-                            $window.open(url, target, targetOptions);
-                        }
+                    }else if (target === '_blank' && !targetOptions && url.indexOf($window.location.hostname) >= 0) {
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.target = '_blank';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    }
+                    else {
+                        $window.open(url, target, targetOptions);
+                    }
 			    }
 			}, timeout*1000)
 		},
