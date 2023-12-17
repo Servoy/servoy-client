@@ -19,11 +19,13 @@ package com.servoy.j2db.dataprocessing;
 
 import static com.servoy.base.persistence.IBaseColumn.IDENT_COLUMNS;
 import static com.servoy.base.persistence.IBaseColumn.UUID_COLUMN;
+import static com.servoy.base.query.IQueryConstants.INNER_JOIN;
 import static com.servoy.j2db.dataprocessing.SortColumn.ASCENDING;
 import static com.servoy.j2db.persistence.Column.mapToDefaultType;
 import static com.servoy.j2db.persistence.IColumnTypes.MEDIA;
 import static com.servoy.j2db.query.AbstractBaseQuery.acceptVisitor;
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
+import static com.servoy.j2db.query.AndCondition.and;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.cast;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.castfrom;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.upper;
@@ -562,6 +564,19 @@ public class SQLGenerator
 			throw new RepositoryException("Missing join condition in relation " + relation.getName()); //$NON-NLS-1$
 		}
 		return new QueryJoin(alias, primaryTable, foreignTable, joinCondition, relation.getJoinType(), permanentJoin);
+	}
+
+	/**
+	 * Create a join between 2 tables with the same datasource.
+	 *
+	 * The join is a inner join on the pk columns.
+	 */
+	public static ISQLTableJoin createSelfJoin(ITable table, BaseQueryTable queryTable1, BaseQueryTable queryTable2)
+	{
+		ISQLCondition joinCondition = and(table.getRowIdentColumns().stream()
+			.map(pkColumn -> new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkColumn.queryColumn(queryTable1), pkColumn.queryColumn(queryTable2)))
+			.collect(toList()));
+		return new QueryJoin(null, queryTable1, queryTable2, joinCondition, INNER_JOIN, false, null);
 	}
 
 	static Object[][] createPKValuesArray(List<Column> pkColumns, IDataSet pks)

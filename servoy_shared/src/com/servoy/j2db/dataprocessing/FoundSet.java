@@ -1861,7 +1861,14 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 
 		QuerySelect sqlSelect = ((QBSelect)query).build(); // makes a clone
 		// The table of the creationSqlSelect and the query in pksAndRecords must always be the same object
+		BaseQueryTable originalTable = sqlSelect.getTable();
 		sqlSelect.relinkTable(sqlSelect.getTable(), creationSqlSelect.getTable());
+		if (!creationSqlSelect.getTable().equals(originalTable))
+		{
+			// The tables are on the same datasource, but not equal (for example, originalTable has an alias that
+			// is needed in a custom query part), in that case add a join to the original table
+			sqlSelect.addJoin(SQLGenerator.createSelfJoin(getTable(), sqlSelect.getTable(), originalTable));
+		}
 
 		if (sqlSelect.getColumns() == null)
 		{
