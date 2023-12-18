@@ -545,7 +545,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#year(Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#coalesce(Object...)
 	 * @param args arguments to coalesce
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
