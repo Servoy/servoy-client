@@ -393,7 +393,7 @@ public class StatelessLoginHandler
 			sb.append("\n  	 <script type='text/javascript'>");
 			sb.append("\n    window.addEventListener('load', () => { ");
 			sb.append("\n  	    document.login_form.username.value = '");
-			sb.append(StringEscapeUtils.escapeHtml4(StringEscapeUtils.escapeEcmaScript(request.getParameter(USERNAME))));
+			sb.append(StringEscapeUtils.escapeEcmaScript(request.getParameter(USERNAME)));
 			sb.append("'");
 			sb.append("\n  	    if (document.getElementById('errorlabel')) document.getElementById('errorlabel').style.display='block';");
 			sb.append("\n   }) ");
