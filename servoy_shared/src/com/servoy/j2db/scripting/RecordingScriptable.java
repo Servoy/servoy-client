@@ -19,10 +19,12 @@ package com.servoy.j2db.scripting;
 import static com.servoy.j2db.util.Utils.arrayMap;
 
 import org.mozilla.javascript.NativeDate;
+import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.util.IDelegate;
+import com.servoy.j2db.util.UUID;
 
 /**
  * Scriptable for recording access to delegate scriptable. Used to determine dependencies for calculations.
@@ -76,7 +78,8 @@ public class RecordingScriptable extends AbstractRecordingScriptable implements 
 	static Scriptable wrapScriptableIfNeeded(String scriptableName, Scriptable scriptable)
 	{
 		if (scriptable == null) return null;
-		if (scriptable instanceof NativeDate || scriptable instanceof RecordingScriptable) return scriptable;
+		if (scriptable instanceof NativeDate || scriptable instanceof RecordingScriptable ||
+			(scriptable instanceof NativeJavaObject njo && njo.unwrap() instanceof UUID)) return scriptable;
 		return new RecordingScriptable(scriptableName, scriptable);
 	}
 
