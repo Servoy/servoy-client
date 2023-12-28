@@ -405,7 +405,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 	 */
 	public boolean has(String dataprovider)
 	{
-		return true;
+		return has(dataprovider, this);
 	}
 
 	public boolean has(int index, Scriptable start)
@@ -416,7 +416,18 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 
 	public boolean has(String name, Scriptable start)
 	{
-		return true;//TODO: is this oke??
+		if (name == null) return false;
+
+		if ("foundset".equals(name) || "exception".equals(name) || jsFunctions.containsKey(name)) return true; //$NON-NLS-1$ //$NON-NLS-2$
+
+		if (FoundSet.isToplevelKeyword(name)) return false;
+
+		int columnIndex = parent.getSQLSheet().getColumnIndex(name);
+		if (columnIndex >= 0)
+		{
+			return true;
+		}
+		return false;
 	}
 
 	public boolean hasInstance(Scriptable instance)
