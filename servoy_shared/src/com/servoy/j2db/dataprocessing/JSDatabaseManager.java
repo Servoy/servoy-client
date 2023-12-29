@@ -302,7 +302,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null), prefix with "sql:" to allow the value to be interpreted as a custom query.
 	 * @param value The specified filter value.
 	 *
-	 * @return table filter.
+	 * @return table filter or null when no filter could be created.
 	 */
 	public JSTableFilter js_createTableFilterParam(String serverName, String tableName, String dataprovider, String operator, Object value)
 	{
@@ -494,10 +494,10 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Apply multiples table filters to all the foundsets that arte affected by the filters.
+	 * Apply multiple table filters to all the foundsets that are affected by the filters.
 	 * After all filters have been applied / updated, foundset changes will be applied in the client.
 	 *
-	 * The filters that have been applied with the same filter name will be removed and replaced with the new set of filters.
+	 * The filters that have been applied with the same filter name will be removed and replaced with the new set of filters (which may be empty).
 	 *
 	 * @sample
 	 *
@@ -506,15 +506,17 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * query.where.add(query1_nl.columns.countrycode.eq('nl'))
 	 * var filter1_nl = databaseManager.createTableFilterParam(query1_nl)
 	 *
+	 * var filter2 = databaseManager.createTableFilterParam('example', 'orders', 'clusterid', '=', 10).dataBroadcast(true)
+	 *
 	 * // apply multiple filters at the same time, previous filters with the same name are removed:
-	 * var success = databaseManager.setTableFilters('myfilters', [filter1, filter2])
+	 * var success = databaseManager.setTableFilters('myfilters', [filter1_nl, filter2])
 	 *
 	 * // update one of the filters:
 	 * var query1_us = datasources.db.crm.companies.createSelect()
 	 * query1_us.where.add(query1_us.columns.countrycode.eq('us'))
-	 * var filter1_2 = databaseManager.createTableFilterParam(query1_us)
+	 * var filter1_us = databaseManager.createTableFilterParam(query1_us)
 	 *
-	 * var success = databaseManager.setTableFilters('myfilters', [filter1_2, filter2])
+	 * var success = databaseManager.setTableFilters('myfilters', [filter1_us, filter2])
 	 *
 	 * // filters can be removed by setting them to an empty list:
 	 * var success = databaseManager.setTableFilters('myfilters', [])
@@ -525,7 +527,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * var filter = databaseManager.createTableFilterParam('example', 'orders', 'clusterid', '=', 10).dataBroadcast(true)
 	 * var success = databaseManager.setTableFilters('clusterfilter', [filter])
 	 *
-	 * @param filterName The name of the filter that should be removed.
+	 * @param filterName The name of the filter that should be set.
 	 * @param tableFilters list of filters to be applied.
 	 *
 	 * @return true if the table filters could be applied.
