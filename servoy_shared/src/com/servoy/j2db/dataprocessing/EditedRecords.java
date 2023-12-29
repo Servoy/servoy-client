@@ -270,7 +270,7 @@ public class EditedRecords
 
 	}
 
-	public final class RagtestEditedRecord implements RAGTEST
+	public final static class RagtestEditedRecord implements RAGTEST
 	{
 		private final IRecordInternal record;
 
@@ -285,7 +285,7 @@ public class EditedRecords
 		}
 	}
 
-	public final class RagtestDeleteQuery implements RAGTEST
+	public final static class RagtestDeleteQuery implements RAGTEST
 	{
 		private final IFoundSetInternal foundset;
 		private final QueryDelete queryDelete;
