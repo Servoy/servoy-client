@@ -380,7 +380,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		jsonWriter = new JSONWriter(stringWriter);
 		dynamicBeanRelatedFoundset.changesToJSON(jsonWriter, allowBrowserConverterContext2);
 		assertEquals(format(
-			"{\"upd_serverSize\":12,\"upd_foundsetId\":%d,\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}}",
+			"{\"upd_serverSize\":12,\"upd_foundsetId\":%d,\"upd_sortColumns\":\"\",\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}}",
 			dynamicBeanRelatedFoundset.getFoundset().getID()),
 			stringWriter.toString());
 

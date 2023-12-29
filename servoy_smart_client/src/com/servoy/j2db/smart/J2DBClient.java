@@ -576,10 +576,8 @@ public class J2DBClient extends ClientState
 
 		boolean toggleTracing = false;
 		StartupArguments arguments = new StartupArguments(args);
-		Iterator<Entry<String, Object>> iterator = arguments.entrySet().iterator();
-		while (iterator.hasNext())
+		for (Entry<String, Object> arg : arguments.entrySet())
 		{
-			Entry<String, Object> arg = iterator.next();
 			if (arg.getKey().startsWith("system.property."))
 			{
 				System.setProperty(arg.getKey().substring(16), (String)arg.getValue());
@@ -1850,10 +1848,8 @@ public class J2DBClient extends ClientState
 					SwingUtilities.updateComponentTreeUI(ap);
 				}
 
-				Iterator<Window> windows = dialogs.values().iterator();
-				while (windows.hasNext())
+				for (Window window : dialogs.values())
 				{
-					Window window = windows.next();
 					SwingUtilities.updateComponentTreeUI(window);
 				}
 			}
@@ -2200,11 +2196,8 @@ public class J2DBClient extends ClientState
 
 			if (frame != null) frame.setTitle(getDisplayApplicationName());
 
-			// delete all dialogs
-			Iterator<Window> it = dialogs.values().iterator();
-			while (it.hasNext())
+			for (Window element : dialogs.values())
 			{
-				Window element = it.next();
 				element.dispose();
 			}
 			dialogs = new HashMap<String, Window>();
@@ -3409,6 +3402,7 @@ public class J2DBClient extends ClientState
 		foundSetManager = new FoundSetManager(this, getFoundSetManagerConfig(), new SwingFoundSetFactory());
 		((FoundSetManager)foundSetManager).setInfoListener(this);
 		foundSetManager.init();
+		((FoundSetManager)foundSetManager).setDisableRelatedSiblingsPrefetch(false);
 		((FoundSetManager)foundSetManager).getEditRecordList().addEditListener(this);
 	}
 

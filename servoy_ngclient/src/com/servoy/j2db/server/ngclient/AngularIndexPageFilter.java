@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.sablo.security.ContentSecurityPolicyConfig;
 import org.sablo.websocket.WebsocketSessionManager;
 
@@ -80,7 +81,8 @@ public class AngularIndexPageFilter implements Filter
 		HttpServletResponse response = (HttpServletResponse)servletResponse;
 		String requestURI = request.getRequestURI();
 		String solutionName = getSolutionNameFromURI(requestURI);
-		if (("GET".equalsIgnoreCase(request.getMethod()) || "POST".equalsIgnoreCase(request.getMethod()) && request.getParameter("user") != null) &&
+		if (("GET".equalsIgnoreCase(request.getMethod()) ||
+			"POST".equalsIgnoreCase(request.getMethod()) && request.getParameter(StatelessLoginHandler.USERNAME) != null) &&
 			solutionName != null)
 		{
 
@@ -101,7 +103,7 @@ public class AngularIndexPageFilter implements Filter
 
 				try
 				{
-					Pair<Boolean, String> showLogin = StatelessLoginHandler.mustAuthenticate(request, solutionName);
+					Pair<Boolean, String> showLogin = StatelessLoginHandler.mustAuthenticate(request, response, solutionName);
 					if (showLogin.getLeft().booleanValue())
 					{
 						StatelessLoginHandler.writeLoginPage(request, response, solutionName);
@@ -162,7 +164,7 @@ public class AngularIndexPageFilter implements Filter
 			String possibleSolutionName = uri.substring(solutionIndex + SOLUTIONS_PATH.length(), solutionEndIndex);
 			// skip all names that have a . in them
 			if (possibleSolutionName.contains(".")) return null;
-			return possibleSolutionName;
+			return StringEscapeUtils.escapeHtml4(possibleSolutionName);
 		}
 		return null;
 	}

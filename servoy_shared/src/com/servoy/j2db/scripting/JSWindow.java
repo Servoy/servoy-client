@@ -22,6 +22,7 @@ import java.awt.Rectangle;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.BasicFormController.JSForm;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormController;
@@ -67,6 +68,7 @@ public class JSWindow implements IConstantsObject
 	 * var myWindow = application.createWindow("myName", JSWindow.WINDOW);
 	 * myWindow.show(forms.myForm);
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public final static int WINDOW = 2;
 
 	// For future implementation of case 286968

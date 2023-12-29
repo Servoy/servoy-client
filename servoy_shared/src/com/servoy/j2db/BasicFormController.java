@@ -2566,7 +2566,7 @@ public abstract class BasicFormController
 		 * if (currentWindow != null) {
 		 * 	currentWindow.title = 'We have a new title';
 		 * } else {
-		 * 	currentWindow = application.createWindow("Window Name", JSWindow.WINDOW, null);
+		 * 	currentWindow = application.createWindow("Window Name", JSWindow.DIALOG, null);
 		 * 	currentWindow(650, 700, 450, 350);
 		 * 	currentWindow = "Window Title";
 		 * 	controller.show(currentWindow);

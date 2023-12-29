@@ -17,19 +17,26 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.json.JSONException;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 
 import com.servoy.j2db.persistence.IContentSpecConstants;
+import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.IContextProvider;
+import com.servoy.j2db.server.ngclient.INGFormElement;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
+import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
 
 /**
  * @author lvostinar
  *
  */
-public class ServoyAttributesPropertyType extends NGObjectPropertyType
+public class ServoyAttributesPropertyType extends NGObjectPropertyType implements IFormElementToSabloComponent<Map<String, String>, Object>
 {
 	public final static ServoyAttributesPropertyType NG_INSTANCE = new ServoyAttributesPropertyType();
 	public static final String TYPE_NAME = "servoyattributes";
@@ -51,4 +58,17 @@ public class ServoyAttributesPropertyType extends NGObjectPropertyType
 		}
 		return super.toJSON(writer, key, sabloValue, propertyDescription, dataConverterContext);
 	}
+
+	@Override
+	public Object toSabloComponentValue(Map<String, String> formElementValue, PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
+		DataAdapterList dataAdapterList)
+	{
+		if (formElementValue == null) return null; // will probably never happen
+
+		// else - "attributes" is a map - and, as it can be modified at runtime and it's not a primitive, we want to make a copy
+		// of that map from FormElement for runtime, so that changing it in one client will not change it in another...
+
+		return new HashMap<>(formElementValue);
+	}
+
 }

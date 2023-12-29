@@ -2474,7 +2474,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * // create and show a window, with specified title, initial location and size
 	 * // type of the window can be one of JSWindow.DIALOG, JSWindow.MODAL_DIALOG, JSWindow.WINDOW (WINDOW does not work for NGClient)
 	 * // If parentWindow is not specified, the current window will be used as parent; parentWindow parameter is only used by dialogs
-	 * var win = application.createWindow("windowName", JSWindow.WINDOW);
+	 * var win = application.createWindow("windowName", JSWindow.DIALOG);
 	 * win.setInitialBounds(10, 10, 300, 300);
 	 * win.title = "This is a window";
 	 * controller.show(win);
@@ -2498,7 +2498,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @sample
 	 * // create and show a window, with specified title, initial location and size (WINDOW does not work for NGClient)
-	 * var win = application.createWindow("windowName", JSWindow.WINDOW);
+	 * var win = application.createWindow("windowName", JSWindow.DIALOG);
 	 * win.setInitialBounds(10, 10, 300, 300);
 	 * win.title = "This is a window";
 	 * controller.show(win);
@@ -2805,12 +2805,12 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Close all visible windows (except main application window). Returns true if operation was successful.
 	 *
 	 * @sample
-	 * var win = application.createWindow("aWindowName", JSWindow.WINDOW, null);
+	 * var win = application.createWindow("aWindowName", JSWindow.DIALOG, null);
 	 * win.setInitialBounds(10, 10, 300, 300);
 	 * win.title = "This is a window";
 	 * controller.show(win);
 	 *
-	 * var win2 = application.createWindow("anotherWindowName", JSWindow.WINDOW, null);
+	 * var win2 = application.createWindow("anotherWindowName", JSWindow.DIALOG, null);
 	 * win2.setInitialBounds(100, 100, 300, 300);
 	 * win2.title = "This is another window";
 	 * controller.show(win2);

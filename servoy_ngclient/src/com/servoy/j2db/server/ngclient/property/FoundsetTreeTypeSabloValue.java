@@ -31,6 +31,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.Scriptable;
 import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.property.IBrowserConverterContext;
@@ -347,14 +348,22 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 					if (relation != null)
 					{
 						Object sortString = record.getValue(binding.childsortdataprovider);
-						try
+						if (sortString != Scriptable.NOT_FOUND)
 						{
-							sortColumns = fsm.getSortColumns(fsm.getTable(relation.getForeignDataSource()),
-								sortString != null ? sortString.toString() : null);
+							try
+							{
+								sortColumns = fsm.getSortColumns(fsm.getTable(relation.getForeignDataSource()),
+									sortString != null ? sortString.toString() : null);
+							}
+							catch (RepositoryException e)
+							{
+								Debug.error(e);
+							}
 						}
-						catch (RepositoryException e)
+						else
 						{
-							Debug.error(e);
+							Debug.warn("Invalid sort dataprovider: " + binding.childsortdataprovider + ", column not found on table " +
+								relation.getForeignDataSource() + ". Will be ignored.");
 						}
 					}
 				}

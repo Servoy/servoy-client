@@ -393,17 +393,11 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		return joins;
 	}
 
-	public ISQLJoin getJoin(BaseQueryTable primaryTable, String name)
+	public ISQLJoin getJoin(BaseQueryTable primaryTable, String relationName)
 	{
-		for (int i = 0; joins != null && i < joins.size(); i++)
-		{
-			ISQLJoin join = joins.get(i);
-			if (name.equals(join.getName()) && primaryTable.equals(join.getPrimaryTable()))
-			{
-				return join;
-			}
-		}
-		return null;
+		return stream(joins)
+			.filter(join -> relationName.equals(join.getRelationName()) && primaryTable.equals(join.getPrimaryTable()))
+			.findAny().orElse(null);
 	}
 
 	public ArrayList<ISQLJoin> getJoinsClone()

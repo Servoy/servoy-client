@@ -634,7 +634,18 @@ public class NGFormServiceHandler extends FormServiceHandler
 	@Override
 	public int getMethodEventThreadLevel(String methodName, JSONObject arguments, int dontCareLevel)
 	{
-		if (isNG1 == null && websocketSession.getClient() != null) isNG1 = Boolean.valueOf(!websocketSession.getClient().getRuntimeProperties().containsKey("NG2")); //$NON-NLS-1$
+		if (isNG1 == null && websocketSession.getClient() != null)
+			isNG1 = Boolean.valueOf(!websocketSession.getClient().getRuntimeProperties().containsKey("NG2")); //$NON-NLS-1$
+
+		// I would really want to move this code that was added for SVY-11302 inside the if (isNG1.booleanValue()) below...
+		// so that events don't execute in an unexpected order due to modified prio that allows them to run
+		// while a sync call-to-client is in progress (SVY-18716)
+		// but I can't reproduce SVY-11302 and I don't know what really happened in there; so I don't know if it would hang in Titanium as well;
+		// so it remains as it was for now, even for Titanium unload...
+		if ("formUnloaded".equals(methodName))
+		{
+			return EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST; // allow it to run on dispatch thread even if some API call is waiting (suspended)
+		}
 
 		if (isNG1.booleanValue())
 		{
@@ -650,13 +661,13 @@ public class NGFormServiceHandler extends FormServiceHandler
 			// sync call to execute, and the sync call waits for the form to be fully loaded before
 			// executing the sync API call
 			//
-			// that is why we give higher execution level here to load/show/unload; so that they execute
+			// that is why we give higher execution level here to load/show; so that they execute
 			// on server even while the sync-call-to-client is waiting for a response (although this does
 			// generate the regression in SVY-18716 for NG1...)
 			//
-			// see SVY-7659, SVY-10866 and SVY-11302
+			// see SVY-7659, SVY-10866
 
-			if ("formLoaded".equals(methodName) || "formUnloaded".equals(methodName))
+			if ("formLoaded".equals(methodName))
 			{
 				return EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST; // allow it to run on dispatch thread even if some API call is waiting (suspended)
 			}

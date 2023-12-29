@@ -31,10 +31,10 @@ import java.time.format.DateTimeFormatter;
 public abstract class ClientVersion
 {
 	// these fields are private intentionally, to prevent final class member copy in other classes!
-	private static final int majorVersion = 2023;
-	private static final int middleVersion = 12;
+	private static final int majorVersion = 2024;
+	private static final int middleVersion = 3;
 	private static final int minorVersion = 0;
-	private static final int releaseNumber = 3920;
+	private static final int releaseNumber = 3940;
 	private static final String versionPostfix = "rc";
 	private static final boolean lts = false;
 	private static String buildTime = null;

@@ -19,11 +19,13 @@ package com.servoy.j2db.dataprocessing;
 
 import static com.servoy.base.persistence.IBaseColumn.IDENT_COLUMNS;
 import static com.servoy.base.persistence.IBaseColumn.UUID_COLUMN;
+import static com.servoy.base.query.IQueryConstants.INNER_JOIN;
 import static com.servoy.j2db.dataprocessing.SortColumn.ASCENDING;
 import static com.servoy.j2db.persistence.Column.mapToDefaultType;
 import static com.servoy.j2db.persistence.IColumnTypes.MEDIA;
 import static com.servoy.j2db.query.AbstractBaseQuery.acceptVisitor;
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
+import static com.servoy.j2db.query.AndCondition.and;
 import static com.servoy.j2db.query.OrCondition.or;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.cast;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.castfrom;
@@ -470,11 +472,11 @@ public class SQLGenerator
 	public ISQLTableJoin createJoin(IDataProviderHandler flattenedSolution, IRelation relation, BaseQueryTable primaryTable, BaseQueryTable foreignTable,
 		boolean permanentJoin, final IGlobalValueEntry provider) throws RepositoryException
 	{
-		return createJoin(flattenedSolution, relation, primaryTable, foreignTable, permanentJoin, provider, setRelationNameComment);
+		return createJoin(flattenedSolution, relation, primaryTable, foreignTable, permanentJoin, provider, setRelationNameComment, relation.getName());
 	}
 
 	public static ISQLTableJoin createJoin(IDataProviderHandler flattenedSolution, IRelation relation, BaseQueryTable primaryTable, BaseQueryTable foreignTable,
-		boolean permanentJoin, final IGlobalValueEntry provider, boolean setRelationNameComment) throws RepositoryException
+		boolean permanentJoin, final IGlobalValueEntry provider, boolean setRelationNameComment, String alias) throws RepositoryException
 	{
 		if (relation instanceof AbstractBase)
 		{
@@ -577,12 +579,34 @@ public class SQLGenerator
 		{
 			throw new RepositoryException("Missing join condition in relation " + relation.getName()); //$NON-NLS-1$
 		}
-		QueryJoin queryJoin = new QueryJoin(relation.getName(), primaryTable, foreignTable, joinCondition, relation.getJoinType(), permanentJoin);
+		QueryJoin queryJoin = new QueryJoin(relation.getName(), primaryTable, foreignTable, joinCondition, relation.getJoinType(), permanentJoin, alias);
 		if (setRelationNameComment)
 		{
-			queryJoin.setComment("relation " + relation.getName());
+			String comment;
+			if (alias != null && !alias.equals(relation.getName()))
+			{
+				comment = "join " + alias + " (" + relation.getName() + ")";
+			}
+			else
+			{
+				comment = "relation " + relation.getName();
+			}
+			queryJoin.setComment(comment);
 		}
 		return queryJoin;
+	}
+
+	/**
+	 * Create a join between 2 tables with the same datasource.
+	 *
+	 * The join is a inner join on the pk columns.
+	 */
+	public static ISQLTableJoin createSelfJoin(ITable table, BaseQueryTable queryTable1, BaseQueryTable queryTable2)
+	{
+		ISQLCondition joinCondition = and(table.getRowIdentColumns().stream()
+			.map(pkColumn -> new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkColumn.queryColumn(queryTable1), pkColumn.queryColumn(queryTable2)))
+			.collect(toList()));
+		return new QueryJoin(null, queryTable1, queryTable2, joinCondition, INNER_JOIN, false, null);
 	}
 
 	static Object[][] createPKValuesArray(List<Column> pkColumns, IDataSet pks)
@@ -960,7 +984,7 @@ public class SQLGenerator
 		{
 			ITable foreignTable = flattenedSolution.getTable(relation.getForeignDataSource());
 			QueryTable foreignQtable = foreignTable.queryTable();
-			existsSelect.addJoin(createJoin(flattenedSolution, relation, prevTable, foreignQtable, true, provider, setRelationNameComment));
+			existsSelect.addJoin(createJoin(flattenedSolution, relation, prevTable, foreignQtable, true, provider, setRelationNameComment, relation.getName()));
 
 			prevTable = foreignQtable;
 		}

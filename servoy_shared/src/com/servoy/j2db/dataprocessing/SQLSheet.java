@@ -511,8 +511,15 @@ public class SQLSheet
 
 			if ((variableInfo.flags & IBaseColumn.UUID_COLUMN) != 0)
 			{
+				if (value instanceof DbIdentValue dbident)
+				{
+					if (dbident.getPkValue() != null)
+					{
+						value = Utils.getAsUUID(dbident.getPkValue(), false);
+					}
+				}
 				// this is a UUID column, first convert to UUID (could be string or byte array (media)) - so we can get/use it as a valid uuid string
-				value = Utils.getAsUUID(value, false);
+				else value = Utils.getAsUUID(value, false);
 			}
 
 			ConverterInfo converterInfo = getColumnConverterInfo(columnIndex);

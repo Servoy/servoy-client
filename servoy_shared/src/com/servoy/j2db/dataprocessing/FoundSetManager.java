@@ -3050,7 +3050,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		this.alwaysFollowPkSelection = alwaysFollowPkSelection;
 	}
 
-	private boolean disableRelatedSiblingsPrefetch = false;
+	private boolean disableRelatedSiblingsPrefetch = true;
 
 	public boolean isDisableRelatedSiblingsPrefetch()
 	{

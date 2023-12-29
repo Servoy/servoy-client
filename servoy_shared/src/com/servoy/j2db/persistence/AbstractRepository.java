@@ -312,6 +312,8 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 				((AbstractScriptProvider)persist).getRuntimeProperty(IScriptProvider.COMMENT));
 			((AbstractScriptProvider)destPersist).setSerializableRuntimeProperty(IScriptProvider.TYPE,
 				((AbstractScriptProvider)persist).getSerializableRuntimeProperty(IScriptProvider.TYPE));
+			((AbstractScriptProvider)destPersist).setRuntimeProperty(IScriptProvider.METHOD_RETURN_TYPE,
+				((AbstractScriptProvider)persist).getRuntimeProperty(IScriptProvider.METHOD_RETURN_TYPE));
 		}
 
 		Map<String, Object> values = ((AbstractRepository)persist.getRootObject().getRepository()).getPersistAsValueMap(persist);
@@ -481,10 +483,9 @@ public abstract class AbstractRepository extends AbstractPersistFactory implemen
 		{
 			try
 			{
-				Iterator<RootObjectMetaData> iterator = loadRootObjectMetaDatas().iterator();
-				while (iterator.hasNext())
+				for (RootObjectMetaData element : loadRootObjectMetaDatas())
 				{
-					metadata = iterator.next();
+					metadata = element;
 					if (metadata.getRootObjectId() == rootObjectId)
 					{
 						getRootObjectCache().add(metadata, false);

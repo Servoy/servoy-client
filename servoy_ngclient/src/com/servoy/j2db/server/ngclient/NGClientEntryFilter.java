@@ -39,6 +39,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.json.JSONObject;
 import org.sablo.IContributionEntryFilter;
 import org.sablo.IndexPageEnhancer;
@@ -540,7 +541,7 @@ public class NGClientEntryFilter extends WebEntry
 		{
 			IMessagesRecorder recorder = ApplicationServerRegistry.get().getService(IMessagesRecorder.class);
 			int index = uri.lastIndexOf('/');
-			CharSequence message = recorder.getMessage(uri.substring(index + 1, uri.length() - 10));
+			CharSequence message = recorder.getMessage(StringEscapeUtils.escapeHtml4(uri.substring(index + 1, uri.length() - 10)));
 			if (message != null)
 			{
 				HTTPUtils.setNoCacheHeaders(response);

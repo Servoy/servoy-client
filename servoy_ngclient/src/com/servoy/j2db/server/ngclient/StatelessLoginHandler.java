@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -43,6 +44,7 @@ import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.sablo.util.HTTPUtils;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -86,7 +88,7 @@ public class StatelessLoginHandler
 		"/servoy-service/rest_ws/api/login_auth/validateAuthUser";
 
 	@SuppressWarnings({ "boxing" })
-	public static Pair<Boolean, String> mustAuthenticate(HttpServletRequest request, String solutionName)
+	public static Pair<Boolean, String> mustAuthenticate(HttpServletRequest request, HttpServletResponse reponse, String solutionName)
 		throws ServletException
 	{
 		Pair<Boolean, String> needToLogin = new Pair<>(Boolean.FALSE, null);
@@ -95,9 +97,9 @@ public class StatelessLoginHandler
 			(!requestURI.contains("/designer") && (requestURI.endsWith("/") || requestURI.endsWith("/" + solutionName) ||
 				requestURI.toLowerCase().endsWith("/index.html"))))
 		{
-			Pair<FlattenedSolution, Boolean> _fs = AngularIndexPageWriter.getFlattenedSolution(solutionName, null, request, null);
+			Pair<FlattenedSolution, Boolean> _fs = AngularIndexPageWriter.getFlattenedSolution(solutionName, null, request, reponse);
 			FlattenedSolution fs = _fs.getLeft();
-
+			if (fs == null) return needToLogin;
 			try
 			{
 				AUTHENTICATOR_TYPE authenticator = fs.getSolution().getAuthenticator();
@@ -320,6 +322,7 @@ public class StatelessLoginHandler
 		throws IOException
 	{
 		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
+		HTTPUtils.setNoCacheHeaders(response);
 		Solution solution = null;
 		try
 		{
@@ -390,7 +393,7 @@ public class StatelessLoginHandler
 			sb.append("\n  	 <script type='text/javascript'>");
 			sb.append("\n    window.addEventListener('load', () => { ");
 			sb.append("\n  	    document.login_form.username.value = '");
-			sb.append(request.getParameter(USERNAME));
+			sb.append(StringEscapeUtils.escapeEcmaScript(request.getParameter(USERNAME)));
 			sb.append("'");
 			sb.append("\n  	    if (document.getElementById('errorlabel')) document.getElementById('errorlabel').style.display='block';");
 			sb.append("\n   }) ");

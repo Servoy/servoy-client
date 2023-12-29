@@ -328,12 +328,8 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		// don't do it in refreshFromDb because then
 		// the omits can be cleared if there is a refresh
 		// from db coming from outside or a search that has no results.
-		browseAllInternal(true);
-	}
-
-	public void browseAllInternal() throws ServoyException
-	{
-		browseAllInternal(false);
+		clearOmit(null);
+		browseAllInternal();
 	}
 
 	/**
@@ -346,19 +342,9 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		return query.hasAnyCondition() || (sheet != null && fsm.getTableFilterParams(sheet.getServerName(), query) != null);
 	}
 
-	public void browseAllInternal(boolean clearOmit) throws ServoyException
+	public void browseAllInternal() throws ServoyException
 	{
 		if (sheet == null || sheet.getTable() == null) return;
-
-		if (!findMode && initialized && !mustQueryForUpdates && !currentQueryHasAnyCondition() && getSize() > 0)
-		{
-			return;//optimize
-		}
-
-		if (clearOmit)
-		{
-			clearOmit(null);
-		}
 
 		// do get the sql select with the omitted pks, else a find that didn't get anything will not
 		// just display the records without the omitted pks (when clear omit is false)
@@ -726,11 +712,11 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 * The filter is removed again using removeFoundSetFilterParam(name).
 	 *
 	 * @sample
-	 * var success = %%prefix%%foundset.addFoundSetFilterParam('customerid', '=', 'BLONP', 'custFilter');//possible to add multiple
-	 * // Named filters can be removed using %%prefix%%foundset.removeFoundSetFilterParam(filterName)
+	 * var success = foundset.addFoundSetFilterParam('customerid', '=', 'BLONP', 'custFilter'); // possible to add multiple
+	 * // Named filters can be removed using foundset.removeFoundSetFilterParam(filterName)
 	 *
 	 * // you can use modifiers in the operator as well, filter on companies where companyname is null or equals-ignore-case 'servoy'
-	 * var ok = %%prefix%%foundset.addFoundSetFilterParam('companyname', '#^||=', 'servoy')
+	 * var ok = foundset.addFoundSetFilterParam('companyname', '#^||=', 'servoy')
 	 *
 	 * // Filters with in-conditions can be used with arrays or with custom queries:
 	 * success = foundset.addFoundSetFilterParam("productcode", "in", [120, 144, 200]);
@@ -738,7 +724,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 * // use "sql:in" in stead of "in" to allow the value to be interpreted as a custom query
 	 * success = foundset.addFoundSetFilterParam("countrycode", "sql:in", "select country code from countries where region in ('Europe', 'Asia')");
 	 *
-	 * %%prefix%%foundset.loadAllRecords();//to make param(s) effective
+	 * foundset.loadAllRecords(); // to make param(s) effective
 	 *
 	 * // see https://wiki.servoy.com/display/DOCS/Using+Table+Filters
 	 *
@@ -801,10 +787,10 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 *             query.columns.shipcity.eq('Amersfoort'))
 	 *    .add(    query.columns.shipcity.eq('Amsterdam')));
 	 *
-	 * var success = %%prefix%%foundset.addFoundSetFilterParam(query, 'cityFilter'); // possible to add multiple
-	 * // Named filters can be removed using %%prefix%%foundset.removeFoundSetFilterParam(filterName)
+	 * var success = foundset.addFoundSetFilterParam(query, 'cityFilter'); // possible to add multiple
+	 * // Named filters can be removed using foundset.removeFoundSetFilterParam(filterName)
 	 *
-	 * %%prefix%%foundset.loadAllRecords(); // to make param(s) effective
+	 * foundset.loadAllRecords(); // to make param(s) effective
 	 *
 	 * @param query condition to filter on.
 	 *
@@ -826,12 +812,152 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	}
 
 	/**
+	 * Set multiple foundset filters at the same time.
+	 * After all filters have been applied / updated, the foundset will re reloaded immediately with the new filters applied.
+	 *
+	 * The filters that have been applied with the same filter name will be removed and replaced with the new set of filters (which may be empty).
+	 *
+	 * @sample
+	 *
+	 * // Create a number of filters
+	 * var filter1_10 = foundset.createTableFilterParam('customerid', '=', 10);
+	 *
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.shipcity.eq('Amersfoort'));
+	 * var filter2 = databaseManager.createTableFilterParam(query);
+	 *
+	 * // apply multiple filters at the same time, previous filters with the same name are removed:
+	 * var success = foundset.setTableFilters('myfilters', [filter1_10, filter2])
+	 *
+	 * // update one of the filters:
+	 * var filter1_11 = foundset.createTableFilterParam('customerid', '=', 11);
+	 *
+	 * var success = foundset.setTableFilters('myfilters', [filter1_11, filter2])
+	 *
+	 * // filters can be removed by setting them to an empty list:
+	 * var success = databaseManager.setTableFilters('myfilters', [])
+	 *
+	 * @param filterName The name of the filter that should be set.
+	 * @param tableFilters list of filters to be applied.
+	 *
+	 * @return true if the table filters could be applied.
+	 */
+	public boolean js_setFoundSetFilters(String filterName, JSTableFilter[] tableFilters) throws ServoyException
+	{
+		if (sheet.getTable() == null)
+		{
+			return false;
+		}
+
+		for (var tf : iterate(tableFilters))
+		{
+			if (Objects.isNull(tf))
+			{
+				Debug.warn("setFoundSetFilters: invalid argument: null filter");
+				return false;
+			}
+			if (!sheet.getTable().getDataSource().equals(tf.getTable().getDataSource()))
+			{
+				Debug.warn("setFoundSetFilters: invalid argument: datasource not for this foundset: " + tf.getTable().getDataSource());
+				return false;
+			}
+		}
+
+		EditRecordList editRecordList = fsm.getEditRecordList();
+		if (editRecordList.stopIfEditing(this) != ISaveConstants.STOPPED)
+		{
+			Debug.log("Couldn't add foundset filter param because foundset had edited records"); //$NON-NLS-1$
+			return false;
+		}
+
+		List<TableFilter> originalFilters = foundSetFilters == null ? null : new ArrayList<>(foundSetFilters);
+
+		removeFilterParamInternal(filterName);
+		if (tableFilters != null && tableFilters.length > 0)
+		{
+			if (foundSetFilters == null)
+			{
+				foundSetFilters = new ArrayList<>();
+			}
+
+			stream(tableFilters)
+				.map(tf -> new TableFilter(filterName, sheet.getServerName(), sheet.getTable().getName(), sheet.getTable().getSQLName(),
+					tf.getTableFilterdefinition(), false))
+				.forEach(foundSetFilters::add);
+		}
+
+		if (!Objects.equals(originalFilters, foundSetFilters))
+		{
+			resetFiltercondition(originalFilters);
+			browseAllInternal();
+		}
+
+		return true;
+	}
+
+	/**
+	 * Create a table filter that can be applied to the foundset.
+	 * Multiple filters can be applied at the same time using foundset.setTableFilters().
+	 *
+	 * @sample
+	 * // filter on messages table where messagesid>10
+	 * var filter = foundset.createTableFilterParam('messagesid', '>', 10)
+	 *
+	 * // some filters with in-conditions
+	 * var filter = foundset.createTableFilterParam('productcode', 'in', [120, 144, 200])
+	 * // use "sql:in" in stead of "in" to allow the value to be interpreted as a custom query
+	 * var filter = foundset.createTableFilterParam('countrycode', 'sql:in', 'select country code from countries where region = "Europe"')
+	 *
+	 * // you can use modifiers in the operator as well, filter on companies where companyname is null or equals-ignore-case 'servoy'
+	 * var filter = foundset.createTableFilterParam('companyname', '#^||=', 'servoy')
+	 *
+	 * // the value may be null, this will result in 'column is null' sql condition.
+	 * var filter = foundset.createTableFilterParam('verified', '=', null)
+	 *
+	 * // apply multiple filters at the same time, previous filters with the same name are removed:
+	 * var success = foundset.setTableFilters('myfilters', [filter1, filter2])
+	 *
+	 * @param dataprovider A specified dataprovider column name.
+	 * @param operator One of "=, <, >, >=, <=, !=, LIKE, or IN" optionally augmented with modifiers "#" (ignore case) or "^||" (or-is-null), prefix with "sql:" to allow the value to be interpreted as a custom query.
+	 * @param value The specified filter value.
+	 *
+	 * @return table filter or null when no filter could be created.
+	 */
+	public JSTableFilter js_createTableFilterParam(String dataprovider, String operator, Object value)
+	{
+		if (sheet.getTable() == null)
+		{
+			return null;
+		}
+
+		try
+		{
+			DataproviderTableFilterdefinition dataproviderTableFilterdefinition = fsm.createDataproviderTableFilterdefinition(
+				sheet.getTable(), dataprovider, operator, value);
+			if (dataproviderTableFilterdefinition != null)
+			{
+				return new JSTableFilter(sheet.getTable().getServerName(), sheet.getTable(), dataproviderTableFilterdefinition);
+			}
+
+			fsm.getApplication().reportJSError(
+				"Foundset filter not created, column not found in table or operator invalid, serverName = '" + sheet.getTable().getServerName() + "'" +
+					", tableName = '" + sheet.getTable().getName() + ", dataprovider = '" + dataprovider + "', operator = '" + operator + "'",
+				null);
+		}
+		catch (ServoyException ex)
+		{
+			Debug.error(ex);
+		}
+		return null;
+	}
+
+	/**
 	 * Remove a named foundset filter.
 	 * Use clear(), reloadWithFilters(), loadRecords() or loadAllRecords() to make the filter effective.
 	 *
 	 * @sample
-	 * var success = %%prefix%%foundset.removeFoundSetFilterParam('custFilter');// removes all filters with this name
-	 * %%prefix%%foundset.loadAllRecords();//to make param(s) effective
+	 * var success = foundset.removeFoundSetFilterParam('custFilter');// removes all filters with this name
+	 * foundset.loadAllRecords(); // to make param(s) effective
 	 *
 	 * @param name String filter name.
 	 *
@@ -1909,6 +2035,15 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		}
 
 		QuerySelect sqlSelect = ((QBSelect)query).build(); // makes a clone
+		// The table of the creationSqlSelect and the query in pksAndRecords must always be the same object
+		BaseQueryTable originalTable = sqlSelect.getTable();
+		sqlSelect.relinkTable(sqlSelect.getTable(), creationSqlSelect.getTable());
+		if (!creationSqlSelect.getTable().equals(originalTable))
+		{
+			// The tables are on the same datasource, but not equal (for example, originalTable has an alias that
+			// is needed in a custom query part), in that case add a join to the original table
+			sqlSelect.addJoin(SQLGenerator.createSelfJoin(getTable(), sqlSelect.getTable(), originalTable));
+		}
 
 		if (sqlSelect.getColumns() == null)
 		{
@@ -2020,9 +2155,9 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		// find the join to this table
 		for (ISQLJoin join : iterate(sqlSelect.getJoins()))
 		{
-			if (join.getName() != null && join instanceof QueryJoin && ((QueryJoin)join).getForeignTable() == qTable)
+			if (join.getRelationName() != null && join instanceof QueryJoin && ((QueryJoin)join).getForeignTable() == qTable)
 			{
-				Relation relation = fsm.getRelation(join.getName());
+				Relation relation = fsm.getRelation(join.getRelationName());
 				if (relation != null && relation.getForeignDataSource().equals(qTable.getDataSource()))
 				{
 					List<Relation> subRelated = findQueryRelationSequence(sqlSelect, ((QueryJoin)join).getPrimaryTable());
@@ -7172,7 +7307,11 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		foundSetFilters.add(filter);
 
 		resetFiltercondition(foundSetFilters);
-		initialized = false;//to enforce browse all
+		// Do not set initialized to false, this would trigger a load if the form happens to be touched anywhere
+		if (fsm.config.uninitializedFoundsetWhenFiltersAreAdded())
+		{
+			initialized = false;
+		}
 		return true;
 	}
 
@@ -7186,6 +7325,22 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		}
 
 		List<TableFilter> originalFilters = foundSetFilters == null ? null : new ArrayList<>(foundSetFilters);
+		boolean found = removeFilterParamInternal(filterName);
+
+		if (found)
+		{
+			resetFiltercondition(originalFilters);
+			// Do not set initialized to false, this would trigger a load if the form happens to be touched anywhere
+			if (fsm.config.uninitializedFoundsetWhenFiltersAreAdded())
+			{
+				initialized = false;
+			}
+		}
+		return found;
+	}
+
+	private boolean removeFilterParamInternal(String filterName)
+	{
 		boolean found = false;
 		if (foundSetFilters != null && filterName != null)
 		{
@@ -7203,12 +7358,6 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			{
 				foundSetFilters = null;
 			}
-		}
-
-		if (found)
-		{
-			resetFiltercondition(originalFilters);
-			initialized = false;//to enforce browse all
 		}
 		return found;
 	}

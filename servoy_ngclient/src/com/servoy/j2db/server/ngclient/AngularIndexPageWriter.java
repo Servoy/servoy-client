@@ -40,6 +40,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.json.JSONObject;
 import org.sablo.security.ContentSecurityPolicyConfig;
 import org.sablo.util.HTTPUtils;
@@ -76,37 +77,8 @@ public class AngularIndexPageWriter
 		String uri = request.getRequestURI();
 		String clientnr = getClientNr(uri, request);
 		Pair<FlattenedSolution, Boolean> pair = getFlattenedSolution(solutionName, clientnr, request, response);
-		JSONObject json = new JSONObject();
-		json.put("pathName", request.getRequestURI().replaceAll("[^/]*/[^/]*/startup.js$", "index.html"));
-		json.put("querystring", HTTPUtils.generateQueryString(request.getParameterMap(), request.getCharacterEncoding()));
-		String ipaddr = request.getHeader("X-Forwarded-For"); // in case there is a forwarding proxy
-		if (ipaddr == null)
-		{
-			ipaddr = request.getRemoteAddr();
-		}
-		json.put("ipaddr", ipaddr);
-		String remoteHost = request.getHeader("X-Forwarded-Host"); // in case there is a forwarding proxy
-		if (remoteHost == null)
-		{
-			remoteHost = request.getRemoteHost();
-		}
-		json.put("hostaddr", remoteHost);
-		if (pair.getLeft() != null)
-		{
-			Solution solution = pair.getLeft().getSolution();
-			json.put("orientation", solution.getTextOrientation());
-			JSONObject defaultTranslations = new JSONObject();
-			defaultTranslations.put("servoy.ngclient.reconnecting",
-				getSolutionDefaultMessage(solution, request.getLocale(), "servoy.ngclient.reconnecting"));
-			json.put("defaultTranslations", defaultTranslations);
-
-		}
-
-		StringBuilder sb = new StringBuilder(256);
-
-		sb.append("window.svyData=");
-		sb.append(json.toString());
-
+		StringBuilder sb = new StringBuilder();
+		generateStartupData(request, pair.getLeft(), sb);
 		response.setCharacterEncoding("UTF-8");
 		response.setContentType("application/javascript");
 		response.setContentLengthLong(sb.length());
@@ -115,11 +87,58 @@ public class AngularIndexPageWriter
 	}
 
 
+	/**
+	 * @param request
+	 * @param pair
+	 * @return
+	 * @throws ServletException
+	 */
+	private static void generateStartupData(HttpServletRequest request, FlattenedSolution fs, StringBuilder sb) throws ServletException
+	{
+		JSONObject json = new JSONObject();
+		json.put("pathName", StringEscapeUtils.escapeHtml4(request.getContextPath()) + "/solution/" + fs.getName() + "/");
+
+		Map<String, String[]> parameterMap = request.getParameterMap();
+		if (request.getSession().getAttribute(StatelessLoginHandler.ID_TOKEN) != null)
+		{
+			parameterMap = new HashMap<>(request.getParameterMap());
+			parameterMap.put(StatelessLoginHandler.ID_TOKEN, new String[] { (String)request.getSession().getAttribute(StatelessLoginHandler.ID_TOKEN) });
+		}
+		json.put("querystring", HTTPUtils.generateQueryString(parameterMap, request.getCharacterEncoding()));
+		String ipaddr = request.getHeader("X-Forwarded-For"); // in case there is a forwarding proxy
+		if (ipaddr == null)
+		{
+			ipaddr = request.getRemoteAddr();
+		}
+		json.put("ipaddr", StringEscapeUtils.escapeHtml4(ipaddr));
+		String remoteHost = request.getHeader("X-Forwarded-Host"); // in case there is a forwarding proxy
+		if (remoteHost == null)
+		{
+			remoteHost = request.getRemoteHost();
+		}
+		json.put("hostaddr", StringEscapeUtils.escapeHtml4(remoteHost));
+		if (fs != null)
+		{
+			Solution solution = fs.getSolution();
+			json.put("orientation", solution.getTextOrientation());
+			JSONObject defaultTranslations = new JSONObject();
+			defaultTranslations.put("servoy.ngclient.reconnecting",
+				getSolutionDefaultMessage(solution, request.getLocale(), "servoy.ngclient.reconnecting"));
+			json.put("defaultTranslations", defaultTranslations);
+
+		}
+
+		sb.append("window.svyData=");
+		sb.append(json.toString());
+	}
+
+
 	public static void writeIndexPage(String page, HttpServletRequest request, HttpServletResponse response, String solutionName,
 		String contentSecurityPolicyNonce)
 		throws IOException, ServletException
 	{
 		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
+		HTTPUtils.setNoCacheHeaders(response);
 		String uri = request.getRequestURI();
 		String clientnr = getClientNr(uri, request);
 		Pair<FlattenedSolution, Boolean> pair = getFlattenedSolution(solutionName, clientnr, request, response);
@@ -188,19 +207,22 @@ public class AngularIndexPageWriter
 				sb.append(contentSecurityPolicyConfig.getNonce());
 				sb.append("' ");
 			}
-			sb.append("src=\"solution/");
-			sb.append(solutionName);
-			sb.append('/');
-			sb.append(clientnr);
-			sb.append("/main/startup.js?");
-			Map<String, String[]> parameterMap = request.getParameterMap();
-			if (request.getSession().getAttribute("id_token") != null)
-			{
-				parameterMap = new HashMap<>(request.getParameterMap());
-				parameterMap.put("id_token", new String[] { (String)request.getSession().getAttribute("id_token") });
-			}
-			sb.append(HTTPUtils.generateQueryString(parameterMap, request.getCharacterEncoding()));
-			sb.append("\"></script>");
+			sb.append(" type='application/javascript'>");
+			generateStartupData(request, fs, sb);
+			sb.append("</script>");
+//			sb.append("src=\"solution/");
+//			sb.append(solutionName);
+//			sb.append('/');
+//			sb.append(clientnr);
+//			sb.append("/main/startup.js?");
+//			Map<String, String[]> parameterMap = request.getParameterMap();
+//			if (request.getSession().getAttribute("id_token") != null)
+//			{
+//				parameterMap = new HashMap<>(request.getParameterMap());
+//				parameterMap.put("id_token", new String[] { (String)request.getSession().getAttribute("id_token") });
+//			}
+//			sb.append(HTTPUtils.generateQueryString(parameterMap, request.getCharacterEncoding()));
+//			sb.append("\"></script>");
 			indexHtml = indexHtml.replace("<base href=\"/\">", sb.toString());
 
 			String requestLanguage = request.getHeader("accept-language");

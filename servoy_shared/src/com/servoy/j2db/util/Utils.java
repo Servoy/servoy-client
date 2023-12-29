@@ -321,6 +321,27 @@ public final class Utils
 	}
 
 	/**
+	 * Remove an element from an array. Element type will be preserved.
+	 *
+	 * @param array
+	 * @param position
+	 * @return the resulting array
+	 */
+	public static <T> T[] arrayRemoveElement(T[] array, int position)
+	{
+		T[] res = (T[])newInstance(array.getClass().getComponentType(), array.length - 1);
+		if (position > 0)
+		{
+			arraycopy(array, 0, res, 0, position);
+		}
+		if (position < array.length)
+		{
+			arraycopy(array, position + 1, res, position, array.length - position - 1);
+		}
+		return res;
+	}
+
+	/**
 	 * Merge two arrays in 1, the upperArray will be overlaid onto the lowerArray.
 	 *
 	 * <p>

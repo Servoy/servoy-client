@@ -66,6 +66,12 @@ public class DynamicClientFunctionPropertyType implements IClassPropertyType<Bro
 	}
 
 	@Override
+	public boolean isPrimitive()
+	{
+		return false;
+	}
+
+	@Override
 	public boolean isProtecting()
 	{
 		return false;

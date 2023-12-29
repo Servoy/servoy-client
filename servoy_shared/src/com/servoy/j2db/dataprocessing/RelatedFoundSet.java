@@ -18,13 +18,13 @@ package com.servoy.j2db.dataprocessing;
 
 
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
+import static java.util.Arrays.stream;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -116,10 +116,8 @@ public abstract class RelatedFoundSet extends FoundSet
 
 		//fix the select from related_SQL to relatedPK_SQL
 		ArrayList<IQuerySelectValue> pkColumns = new ArrayList<IQuerySelectValue>();
-		Iterator<Column> pkIt = sheet.getTable().getRowIdentColumns().iterator();
-		while (pkIt.hasNext())
+		for (Column column : sheet.getTable().getRowIdentColumns())
 		{
-			Column column = pkIt.next();
 			pkColumns.add(column.queryColumn(select.getTable()));
 		}
 		select.setColumns(pkColumns);
@@ -845,7 +843,12 @@ public abstract class RelatedFoundSet extends FoundSet
 			return (maskedOperator == IBaseSQLCondition.EQUALS_OPERATOR || maskedOperator == IBaseSQLCondition.GTE_OPERATOR ||
 				maskedOperator == IBaseSQLCondition.LTE_OPERATOR || maskedOperator == IBaseSQLCondition.LIKE_OPERATOR);
 		}
-
+		boolean isArray = whereArg instanceof Object[];
+		final Object finalObj = obj;
+		if (isArray && stream((Object[])whereArg).anyMatch(element -> Utils.equalObjects(element, finalObj, true)))
+		{
+			return (maskedOperator == IBaseSQLCondition.EQUALS_OPERATOR);
+		}
 		if ((operator & IBaseSQLCondition.ORNULL_MODIFIER) != 0 && Utils.equalObjects(obj, null))
 		{
 			return true;

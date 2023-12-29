@@ -283,7 +283,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		int type = -1;
 		IValueList list = previousComponentValue.getValueList();
 
-		if (list.getName().equals(value))
+		if (list != null && list.getName() != null && list.getName().equals(value))
 		{
 			// no need to create a new value if we have the same valuelist name
 			return previousComponentValue;
