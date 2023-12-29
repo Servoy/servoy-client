@@ -7130,6 +7130,10 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 
 		resetFiltercondition(foundSetFilters);
 		// Do not set initialized to false, this would trigger a load if the form happens to be touched anywhere
+		if (fsm.config.uninitializedFoundsetWhenFiltersAreAdded())
+		{
+			initialized = false;
+		}
 		return true;
 	}
 
@@ -7166,6 +7170,10 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		{
 			resetFiltercondition(originalFilters);
 			// Do not set initialized to false, this would trigger a load if the form happens to be touched anywhere
+			if (fsm.config.uninitializedFoundsetWhenFiltersAreAdded())
+			{
+				initialized = false;
+			}
 		}
 		return found;
 	}
