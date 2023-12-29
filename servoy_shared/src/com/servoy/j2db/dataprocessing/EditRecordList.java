@@ -611,11 +611,101 @@ public class EditRecordList
 
 					setDeletedrecordsInternalTableFilter(false);
 
-					if (tmp instanceof RagtestEditedRecord && !processEditedRecord(javascriptStop, dbUpdates, ((RagtestEditedRecord)tmp).getRecord()))
+					// tmp is a record to save/delete or a delete-query to perform
+					if (tmp instanceof RagtestEditedRecord)
 					{
-						failedCount++;
+						Record record = (Record)((RagtestEditedRecord)tmp).getRecord();
+
+						// prevent multiple update for the same row (from multiple records)
+						for (int j = 0; j < dbUpdates.size(); j++)
+						{
+							if (dbUpdates.get(j) instanceof RowUpdateInfo && ((RowUpdateInfo)dbUpdates.get(j)).getRow() == record.getRawData())
+							{
+								// create a new rowUpdate that contains both updates
+								RowUpdateInfo removed = (RowUpdateInfo)dbUpdates.remove(j);
+								recordTested.remove(record);
+								// do use the first record, that one must always be leading. (for fire of events)
+								record = removed.getRecord();
+								break;
+							}
+						}
+
+						try
+						{
+							// test for table events; this may execute table events if the user attached JS methods to them;
+							// the user might add/delete/edit records in the JS - thus invalidating a normal iterator (it)
+							// - edited record list changes; this is why an AllowListModificationIterator is used
+
+							// Note that the behavior is different when trigger returns false or when it throws an exception.
+							// when the trigger returns false, record must stay in editedRecords.
+							//   this is needed because the trigger may be used as validation to keep the user in the record when autosave=true.
+							// when the trigger throws an exception, the record must move from editedRecords to failedRecords so that in
+							//    scripting the failed records can be examined (the thrown value is retrieved via record.exception.getValue())
+							editRecordsLock.unlock();
+							try
+							{
+								boolean validationErrors = false;
+								JSRecordMarkers validateObject = fsm.validateRecord(record, null);
+								if (validateObject != null && validateObject.isHasErrors()) // throws ServoyException when trigger method throws exception
+								{
+									Object[] genericExceptions = validateObject.getGenericExceptions();
+									if (genericExceptions.length > 0)
+									{
+										// compartible with old code, then those exceptions are catched below.
+										throw (Exception)genericExceptions[0];
+									}
+									// we always want to process all records, but mark this as a validation error so below the failed records are updated.
+									validationErrors = true;
+									// update the just failed boolean to true, if that is true and there is not really an exception then handleException of application is not called.
+									justValidationErrors = true;
+									failedCount++;
+									if (!failedRecords.contains(record))
+									{
+										failedRecords.add(record);
+									}
+									recordTested.remove(record);
+								}
+								if (!validationErrors)
+								{
+									RowUpdateInfo rowUpdateInfo = getRecordUpdateInfo(record);
+									if (rowUpdateInfo != null)
+									{
+										rowUpdateInfo.setRecord(record);
+										dbUpdates.add(rowUpdateInfo);
+									}
+									else
+									{
+										recordTested.remove(record);
+									}
+								}
+							}
+							finally
+							{
+								editRecordsLock.lock();
+							}
+						}
+						catch (ServoyException e)
+						{
+							log.debug("stopEditing(" + javascriptStop + ") encountered an exception - could be expected and treated by solution code or not", //$NON-NLS-1$//$NON-NLS-2$
+								e);
+							// trigger method threw exception
+							lastStopEditingException = e;
+							failedCount++;
+							record.getRawData().setLastException(e); //set latest
+							if (!failedRecords.contains(record))
+							{
+								failedRecords.add(record);
+							}
+							recordTested.remove(record);
+						}
+						catch (Exception e)
+						{
+							Debug.error("Not a normal Servoy/Db Exception generated in saving record: " + record + " removing the record", e); //$NON-NLS-1$ //$NON-NLS-2$
+							recordTested.remove(record);
+						}
 					}
-					if (tmp instanceof RagtestDeleteQuery)
+
+					else if (tmp instanceof RagtestDeleteQuery)
 					{
 						try
 						{
@@ -1011,110 +1101,6 @@ public class EditRecordList
 		}
 
 		return ISaveConstants.STOPPED;
-	}
-
-	private boolean processEditedRecord(boolean javascriptStop, List<DatabaseUpdateInfo> dbUpdates, IRecordInternal rec)
-	{
-		boolean success = true;
-
-		if (rec instanceof Record)
-		{
-			Record record = (Record)rec;
-
-			// prevent multiple update for the same row (from multiple records)
-			for (int j = 0; j < dbUpdates.size(); j++)
-			{
-				if (dbUpdates.get(j) instanceof RowUpdateInfo && ((RowUpdateInfo)dbUpdates.get(j)).getRow() == record.getRawData())
-				{
-					// create a new rowUpdate that contains both updates
-					RowUpdateInfo removed = (RowUpdateInfo)dbUpdates.remove(j);
-					recordTested.remove(record);
-					// do use the first record, that one must always be leading. (for fire of events)
-					record = removed.getRecord();
-					break;
-				}
-			}
-
-			try
-			{
-				// test for table events; this may execute table events if the user attached JS methods to them;
-				// the user might add/delete/edit records in the JS - thus invalidating a normal iterator (it)
-				// - edited record list changes; this is why an AllowListModificationIterator is used
-
-				// Note that the behavior is different when trigger returns false or when it throws an exception.
-				// when the trigger returns false, record must stay in editedRecords.
-				//   this is needed because the trigger may be used as validation to keep the user in the record when autosave=true.
-				// when the trigger throws an exception, the record must move from editedRecords to failedRecords so that in
-				//    scripting the failed records can be examined (the thrown value is retrieved via record.exception.getValue())
-				editRecordsLock.unlock();
-				try
-				{
-					boolean validationErrors = false;
-					JSRecordMarkers validateObject = fsm.validateRecord(record, null);
-					if (validateObject != null && validateObject.isHasErrors()) // throws ServoyException when trigger method throws exception
-					{
-						Object[] genericExceptions = validateObject.getGenericExceptions();
-						if (genericExceptions.length > 0)
-						{
-							// compatible with old code, then those exceptions are caught below.
-							throw (Exception)genericExceptions[0];
-						}
-						// we always want to process all records, but mark this as a validation error so below the failed records are updated.
-						validationErrors = true;
-						// update the just failed boolean to true, if that is true and there is not really an exception then handleException of application is not called.
-						//RAGTEST	justValidationErrors = true;
-						success = false;
-						if (!failedRecords.contains(record))
-						{
-							failedRecords.add(record);
-						}
-						recordTested.remove(record);
-					}
-					if (!validationErrors)
-					{
-						RowUpdateInfo rowUpdateInfo = getRecordUpdateInfo(record);
-						if (rowUpdateInfo != null)
-						{
-							rowUpdateInfo.setRecord(record);
-							dbUpdates.add(rowUpdateInfo);
-						}
-						else
-						{
-							recordTested.remove(record);
-						}
-					}
-				}
-				finally
-				{
-					editRecordsLock.lock();
-				}
-			}
-			catch (ServoyException e)
-			{
-				log.debug("stopEditing(" + javascriptStop + ") encountered an exception - could be expected and treated by solution code or not", //$NON-NLS-1$//$NON-NLS-2$
-					e);
-				// trigger method threw exception
-				lastStopEditingException = e;
-				success = false;
-				record.getRawData().setLastException(e); //set latest
-				if (!failedRecords.contains(record))
-				{
-					failedRecords.add(record);
-				}
-				recordTested.remove(record);
-			}
-			catch (Exception e)
-			{
-				Debug.error("Not a normal Servoy/Db Exception generated in saving record: " + record + " removing the record", e); //$NON-NLS-1$ //$NON-NLS-2$
-				recordTested.remove(record);
-			}
-		}
-		else
-		{
-			// find state
-			recordTested.remove(rec);
-		}
-		return success;
 	}
 
 	/* RAGTEST Doc */
