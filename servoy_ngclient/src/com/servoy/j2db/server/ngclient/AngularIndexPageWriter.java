@@ -96,7 +96,7 @@ public class AngularIndexPageWriter
 	private static void generateStartupData(HttpServletRequest request, FlattenedSolution fs, StringBuilder sb) throws ServletException
 	{
 		JSONObject json = new JSONObject();
-		json.put("pathName", StringEscapeUtils.escapeHtml4(request.getContextPath()) + "/solution/" + fs.getName() + "/");
+		json.put("pathName", StringEscapeUtils.escapeJson(request.getContextPath()) + "/solution/" + fs.getName() + "/");
 
 		Map<String, String[]> parameterMap = request.getParameterMap();
 		if (request.getSession().getAttribute(StatelessLoginHandler.ID_TOKEN) != null)
@@ -104,19 +104,19 @@ public class AngularIndexPageWriter
 			parameterMap = new HashMap<>(request.getParameterMap());
 			parameterMap.put(StatelessLoginHandler.ID_TOKEN, new String[] { (String)request.getSession().getAttribute(StatelessLoginHandler.ID_TOKEN) });
 		}
-		json.put("querystring", HTTPUtils.generateQueryString(parameterMap, request.getCharacterEncoding()));
+		json.put("querystring", StringEscapeUtils.escapeJson(HTTPUtils.generateQueryString(parameterMap, request.getCharacterEncoding())));
 		String ipaddr = request.getHeader("X-Forwarded-For"); // in case there is a forwarding proxy
 		if (ipaddr == null)
 		{
 			ipaddr = request.getRemoteAddr();
 		}
-		json.put("ipaddr", StringEscapeUtils.escapeHtml4(ipaddr));
+		json.put("ipaddr", StringEscapeUtils.escapeJson(ipaddr));
 		String remoteHost = request.getHeader("X-Forwarded-Host"); // in case there is a forwarding proxy
 		if (remoteHost == null)
 		{
 			remoteHost = request.getRemoteHost();
 		}
-		json.put("hostaddr", StringEscapeUtils.escapeHtml4(remoteHost));
+		json.put("hostaddr", StringEscapeUtils.escapeJson(remoteHost));
 		if (fs != null)
 		{
 			Solution solution = fs.getSolution();
