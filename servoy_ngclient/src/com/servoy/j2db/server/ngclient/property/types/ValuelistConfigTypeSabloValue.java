@@ -25,16 +25,18 @@ public class ValuelistConfigTypeSabloValue
 {
 	private final String filterType;
 	private final String filterDestination;
+	private final boolean allowNewEntries;
 
 	public static final String STARTS_WITH = "STARTS_WITH";
 	public static final String CONTAINS = "CONTAINS";
 	public static final String DISPLAY_VALUE = "DISPLAY_VALUE";
 	public static final String DISPLAY_AND_REAL_VALUE = "DISPLAY_AND_REAL_VALUE";
 
-	public ValuelistConfigTypeSabloValue(String filterType, String filterDestination)
+	public ValuelistConfigTypeSabloValue(String filterType, String filterDestination, boolean allowNewEntries)
 	{
 		this.filterType = filterType;
 		this.filterDestination = filterDestination;
+		this.allowNewEntries = allowNewEntries;
 	}
 
 	public boolean useFilterOnRealValues()
@@ -61,5 +63,13 @@ public class ValuelistConfigTypeSabloValue
 	public String getFilterType()
 	{
 		return filterType;
+	}
+
+	/**
+	 * @return
+	 */
+	public boolean getAllowNewEntries()
+	{
+		return allowNewEntries;
 	}
 }

@@ -71,9 +71,10 @@ public class ValuelistConfigPropertyType extends DefaultPropertyType<ValuelistCo
 	public JSONWriter toJSON(JSONWriter writer, String key, ValuelistConfigTypeSabloValue sabloValue, PropertyDescription pd,
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		Map<String, String> map = new HashMap<>();
+		Map<String, Object> map = new HashMap<>();
 		map.put("filterType", sabloValue.getFilterType());
 		map.put("filterDestination", sabloValue.getFilterDestination());
+		map.put("allowNewEntries", sabloValue.getAllowNewEntries());
 		return JSONUtils.toBrowserJSONFullValue(writer, key, map, null, null);
 	}
 
@@ -83,14 +84,15 @@ public class ValuelistConfigPropertyType extends DefaultPropertyType<ValuelistCo
 		DataAdapterList dataAdapterList)
 	{
 		return new ValuelistConfigTypeSabloValue(formElementValue != null ? formElementValue.optString("filterType") : null,
-			formElementValue != null ? formElementValue.optString("filterDestination") : null);
+			formElementValue != null ? formElementValue.optString("filterDestination") : null,
+			formElementValue != null ? formElementValue.optBoolean("allowNewEntries", true) : true);
 	}
 
 	@Override
 	public ValuelistConfigTypeSabloValue toSabloComponentDefaultValue(PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
 		DataAdapterList dataAdapterList)
 	{
-		return new ValuelistConfigTypeSabloValue(null, null);
+		return new ValuelistConfigTypeSabloValue(null, null, true);
 	}
 
 
