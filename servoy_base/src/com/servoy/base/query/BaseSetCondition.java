@@ -258,7 +258,7 @@ public class BaseSetCondition<K extends IBaseQuerySelectValue> implements IBaseS
 				boolean added = false;
 				for (int m = 0; m < IBaseSQLCondition.ALL_MODIFIERS.length; m++)
 				{
-					if ((m & IBaseSQLCondition.ALL_MODIFIERS[m]) != 0)
+					if ((modifiers & IBaseSQLCondition.ALL_MODIFIERS[m]) != 0)
 					{
 						if (added)
 						{
