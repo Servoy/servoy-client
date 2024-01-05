@@ -132,6 +132,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 
 	private boolean filterOnRealValues = false;
 	private boolean filterWithContains = false;
+	private boolean allowNewEntries = true;
 	// dataset of the runtime set custom valuelist
 	private Object customValueListDataSet;
 
@@ -256,6 +257,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			{
 				this.filterOnRealValues = configSabloValue.useFilterOnRealValues();
 				this.filterWithContains = configSabloValue.useFilterWithContains();
+				this.allowNewEntries = configSabloValue.getAllowNewEntries();
 			}
 		}
 		if (propertyDependencies.dataproviderPropertyName != null)
@@ -638,7 +640,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			}
 
 			writer.key("hasRealValues");
-			writer.value(valueList.hasRealValues());
+			writer.value(valueList.hasRealValues() || !this.allowNewEntries);
 			writer.key("values");
 			JSONUtils.toBrowserJSONFullValue(writer, null, newJavaValueForJSON, null, dataConverterContext);
 			writer.endObject();
