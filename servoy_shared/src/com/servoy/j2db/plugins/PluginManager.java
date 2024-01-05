@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -200,12 +199,10 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		List<Extension<T>> extensions = new ArrayList<Extension<T>>();
 
 		ServiceLoader<IPlugin> pluginsLoader = ServiceLoader.load(IPlugin.class, getClassLoader());
-		Iterator<IPlugin> it = pluginsLoader.iterator();
-		while (it.hasNext())
+		for (IPlugin plugin : pluginsLoader)
 		{
 			try
 			{
-				IPlugin plugin = it.next();
 				CodeSource codeSource = plugin.getClass().getProtectionDomain().getCodeSource();
 				if (codeSource != null)
 				{
@@ -239,6 +236,13 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 				else
 				{
 					Debug.warn("Cannot find the jar for loaded plugin: " + plugin.getClass());
+				}
+				try
+				{
+					plugin.unload();
+				}
+				catch (PluginException e)
+				{
 				}
 			}
 			catch (ServiceConfigurationError e) // can be thrown by iterator.next() in case of malformed manifests or other reasons that make instantiating a service fail

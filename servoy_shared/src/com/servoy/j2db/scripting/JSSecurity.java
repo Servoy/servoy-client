@@ -176,6 +176,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	@JSFunction
 	public void setTenantValue(Object value)
 	{
+		int count = 0;
 		try
 		{
 			// get tenant columns
@@ -185,6 +186,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 				List<TableFilterRequest> tableFilterRequests = null;
 				for (ColumnName tenantColumn : server.getTenantColumns())
 				{
+					count++;
 					ITable table = server.getTable(tenantColumn.getTableName());
 
 					if (tableFilterRequests == null) tableFilterRequests = new ArrayList<>();
@@ -206,8 +208,15 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 		{
 			Debug.error(e);
 		}
+		if (count == 0)
+		{
+			Debug.warn("setTenantValue: No tenant columns found, value is ignored!");
+		}
+		else
+		{
+			Debug.log("setTenantValue: A tenant value was " + (value == null ? "cleared" : "set") + " for " + count + " tenant columns.");
+		}
 	}
-
 
 	/**
 	 * Retrieve the tenant value for this Client, this value will be used as the value for all tables that have a column marked as a tenant column.

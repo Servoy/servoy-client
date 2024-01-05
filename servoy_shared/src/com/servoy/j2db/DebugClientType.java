@@ -17,12 +17,10 @@
 
 package com.servoy.j2db;
 
-import com.servoy.j2db.IDebugClient;
-
 /**
  * Identifies a debug client type (currently one debug client can be contributed to developer per debug client type).
  * It's "debugClientTypeID" should match the typeId specified in the "servoy_debug.debugClientProvider".
- * 
+ *
  * @author acostescu
  */
 public abstract class DebugClientType<T extends IDebugClient>
