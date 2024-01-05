@@ -36,9 +36,9 @@ public final class CompareCondition extends SetCondition
 	}
 
 	@Override
-	protected CompareCondition withOperators(int[] ops)
+	protected CompareCondition withOperators(int[] ops, boolean ac)
 	{
-		return new CompareCondition(ops, keys, values, andCondition);
+		return new CompareCondition(ops, keys, values, ac);
 	}
 
 	public int getOperator()

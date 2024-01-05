@@ -179,12 +179,12 @@ public class BaseSetCondition<K extends IBaseQuerySelectValue> implements IBaseS
 
 			negop[i] = negatedOperator | negatedMask;
 		}
-		return withOperators(negop);
+		return withOperators(negop, !andCondition);
 	}
 
-	protected BaseSetCondition<K> withOperators(int[] ops)
+	protected BaseSetCondition<K> withOperators(int[] ops, boolean ac)
 	{
-		return new BaseSetCondition<>(ops, keys, values, andCondition);
+		return new BaseSetCondition<>(ops, keys, values, ac);
 	}
 
 	private static int hashCode(int[] array)

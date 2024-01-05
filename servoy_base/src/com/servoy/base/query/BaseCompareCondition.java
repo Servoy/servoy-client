@@ -53,8 +53,8 @@ public class BaseCompareCondition extends BaseSetCondition<IBaseQuerySelectValue
 	}
 
 	@Override
-	protected BaseCompareCondition withOperators(int[] ops)
+	protected BaseCompareCondition withOperators(int[] ops, boolean ac)
 	{
-		return new BaseCompareCondition(ops, keys, values, andCondition);
+		return new BaseCompareCondition(ops, keys, values, ac);
 	}
 }

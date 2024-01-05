@@ -83,9 +83,9 @@ public class SetCondition extends BaseSetCondition<IQuerySelectValue> implements
 	}
 
 	@Override
-	protected SetCondition withOperators(int[] ops)
+	protected SetCondition withOperators(int[] ops, boolean ac)
 	{
-		return new SetCondition(ops, keys, values, andCondition);
+		return new SetCondition(ops, keys, values, ac);
 	}
 
 	public void acceptVisitor(IVisitor visitor)
