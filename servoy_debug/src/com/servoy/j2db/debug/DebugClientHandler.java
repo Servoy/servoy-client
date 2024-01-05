@@ -488,8 +488,9 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 
 	public <T extends IDebugClient> T getDebugClient(DebugClientType<T> type)
 	{
+		@SuppressWarnings("unchecked")
 		T client = (T)customDebugClients.get(type);
-		if (client == null)
+		if (client == null || client.isShutDown())
 		{
 			client = createDebugClient(type);
 			if (client != null) customDebugClients.put(type, client);
