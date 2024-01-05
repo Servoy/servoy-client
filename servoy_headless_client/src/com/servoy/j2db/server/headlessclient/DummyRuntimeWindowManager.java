@@ -23,10 +23,11 @@ import java.util.List;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.scripting.RuntimeWindow;
+import com.servoy.j2db.util.Debug;
 
 /**
  * Dummy window manager implementation for non-gui apps.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -46,6 +47,7 @@ public class DummyRuntimeWindowManager extends RuntimeWindowManager
 	@Override
 	protected RuntimeWindow createWindowInternal(String windowName, int type, RuntimeWindow parent)
 	{
+		Debug.error("can't create a window in a none ui client"); //$NON-NLS-1$
 		return null;
 	}
 

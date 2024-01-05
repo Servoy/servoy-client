@@ -2488,7 +2488,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 */
 	public JSWindow js_createWindow(String windowName, int type)
 	{
-		return application.getRuntimeWindowManager().createWindow(replaceFailingCharacters(windowName), type, null).getJSWindow();
+		RuntimeWindow window = application.getRuntimeWindowManager().createWindow(replaceFailingCharacters(windowName), type, null);
+		return window != null ? window.getJSWindow() : null;
 	}
 
 	/**
@@ -2513,7 +2514,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 */
 	public JSWindow js_createWindow(String windowName, int type, JSWindow parentWindow)
 	{
-		return application.getRuntimeWindowManager().createWindow(replaceFailingCharacters(windowName), type, parentWindow).getJSWindow();
+		RuntimeWindow window = application.getRuntimeWindowManager().createWindow(replaceFailingCharacters(windowName), type, parentWindow);
+		return window != null ? window.getJSWindow() : null;
 	}
 
 	/**
