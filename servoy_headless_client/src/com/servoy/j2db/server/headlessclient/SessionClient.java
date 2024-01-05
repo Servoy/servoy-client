@@ -452,7 +452,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 			}
 		}
 
-		IServiceProvider provider = J2DBGlobals.getServiceProvider();
+		IServiceProvider provider = J2DBGlobals.getThreadServiceProvider();
 		if (provider != this)
 		{
 			// if this happens it is a webclient in developer..
