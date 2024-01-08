@@ -36,7 +36,7 @@ import com.servoy.j2db.ui.IComponent;
 
 /**
  * A default/dummy implementatation of {@link IMainContainer}
- * 
+ *
  * @author jcompagner
  */
 public class DummyMainContainer implements IMainContainer
@@ -63,6 +63,8 @@ public class DummyMainContainer implements IMainContainer
 
 	public void flushCachedItems()
 	{
+		if (history != null) history.clear();
+		f = null;
 	}
 
 	public FormController getNavigator()
@@ -249,6 +251,7 @@ public class DummyMainContainer implements IMainContainer
 	{
 		//ignore
 	}
+
 
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#getToolTipText()
