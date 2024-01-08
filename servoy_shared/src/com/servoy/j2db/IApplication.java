@@ -558,4 +558,19 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * @return
 	 */
 	public Object generateBrowserFunction(String functionString);
+
+	/**
+	 * @param ms
+	 */
+	default void sleep(int ms)
+	{
+		try
+		{
+			Thread.sleep(ms);
+		}
+		catch (InterruptedException e)
+		{
+			//ignore
+		}
+	}
 }
