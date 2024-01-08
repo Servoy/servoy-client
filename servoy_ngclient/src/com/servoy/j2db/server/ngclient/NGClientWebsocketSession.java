@@ -485,13 +485,14 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			}
 			if (compareList(lastSentStyleSheets, styleSheets)) return;
 			lastSentStyleSheets = new ArrayList<String>(styleSheets);
-			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheets", new Object[] { styleSheets.toArray(new String[0]) });
+			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncNowServiceCall("setStyleSheets",
+				new Object[] { styleSheets.toArray(new String[0]) });
 		}
 		else
 		{
 			if (lastSentStyleSheets != null && lastSentStyleSheets.size() > 0)
 			{
-				getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheets", new Object[] { });
+				getClientService(NGClient.APPLICATION_SERVICE).executeAsyncNowServiceCall("setStyleSheets", new Object[] { });
 			}
 			lastSentStyleSheets = null;
 		}
