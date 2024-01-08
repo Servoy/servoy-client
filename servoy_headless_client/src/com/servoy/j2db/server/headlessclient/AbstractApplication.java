@@ -415,7 +415,7 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 
 	private String getI18NMessage(String key, Object[] args, Locale locale)
 	{
-		if (key == null || key.length() == 0) return key;
+		if (key == null || key.length() == 0) return ""; //$NON-NLS-1$
 		Properties properties = getMessages(locale);
 		return getI18NMessage(key, args, properties, locale);
 	}
