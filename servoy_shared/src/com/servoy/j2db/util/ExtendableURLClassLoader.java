@@ -80,7 +80,7 @@ public class ExtendableURLClassLoader extends URLClassLoader
 	{
 		StringBuilder sb = new StringBuilder();
 		sb.append("ExtendableURLClassLoader: ");
-		sb.append(Arrays.toString(getURLs()));
+		sb.append(Arrays.toString(super.getURLs()));
 		if (getParent() != null)
 		{
 			sb.append(", parent: ");
