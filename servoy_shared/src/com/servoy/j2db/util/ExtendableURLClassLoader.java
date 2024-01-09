@@ -77,6 +77,6 @@ public class ExtendableURLClassLoader extends URLClassLoader
 	@Override
 	public String toString()
 	{
-		return "ExtendableURLClassLoader: " + getURLs();
+		return "ExtendableURLClassLoader: " + Arrays.toString(getURLs()); //$NON-NLS-1$
 	}
 }
