@@ -3113,8 +3113,8 @@ public abstract class BasicFormController
 
 		/**
 		 * Loads a (related) foundset into the form.
-		 * The form will no longer share the default foundset with forms of the same datasource, use loadAllRecords to restore the default foundset.
-		 * (this depends a bit on if the give foundset is a related foundset or not or if this form is configured to have a seperated foundset)
+		 * The form will no longer share the default foundset with forms of the same datasource, use controller.loadAllRecords() to restore the default foundset.
+		 * (restore to default foundset depends a bit on if the give foundset is a related foundset or not or if this form is configured to have a seperated foundset)
 		 * <br/><br/>
 		 * This will really change the foundset instance itself of the form, so no existing foundset is altered just the new foundset that is given is used..
 		 * This is different then doing foundset.loadRecords(foundset) because that just alters the current foundset and doesn't do anything with the foundset that is given.
