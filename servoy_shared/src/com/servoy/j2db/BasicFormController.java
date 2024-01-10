@@ -3070,6 +3070,10 @@ public abstract class BasicFormController
 		/**
 		 * Loads all accessible records from the datasource into the form foundset.
 		 * When the form contains a related foundset it will be replaced by a default foundset on same datasource.
+		 * Or when this form is not configured to have a seperate foundset it will also be related with the default shared foundset.
+		 *
+		 * So this is different then foundset.loadAllRecords() because that will just load all the records based on its filters of that foundset instance.
+		 * This controller.loadAllRecords() can result in a replacement of the current loaded foundset instance.
 		 *
 		 * Notes:
 		 * -the default foundset is always limited by filters, if databaseManager.addFoundSetFilterParam function is used.
@@ -3080,9 +3084,7 @@ public abstract class BasicFormController
 		 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_addTableFilterParam(String, String, String, String, Object, String)
 		 * @return true if successful
 		 *
-		 *  @deprecated  Should use {@link foundset#loadAllRecords()}
 		 */
-		@Deprecated
 		public boolean js_loadAllRecords() throws ServoyException
 		{
 			checkDestroyed();
@@ -3112,6 +3114,7 @@ public abstract class BasicFormController
 		/**
 		 * Loads a (related) foundset into the form.
 		 * The form will no longer share the default foundset with forms of the same datasource, use loadAllRecords to restore the default foundset.
+		 * (this depends a bit on if the give foundset is a related foundset or not or if this form is configured to have a seperated foundset)
 		 * <br/><br/>
 		 * This will really change the foundset instance itself of the form, so no existing foundset is altered just the new foundset that is given is used..
 		 * This is different then doing foundset.loadRecords(foundset) because that just alters the current foundset and doesn't do anything with the foundset that is given.
