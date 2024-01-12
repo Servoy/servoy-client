@@ -162,6 +162,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	private volatile ISolutionModelPersistIndex index;
 
+	private EncryptionHandler encryptionHandler;
+
 	/**
 	 * @param cacheFlattenedForms turn flattened form caching on when flushFlattenedFormCache() will also be called.
 	 */
@@ -561,6 +563,15 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			persistFactory = new SimplePersistFactory(getMaxID());
 		}
 		return persistFactory;
+	}
+
+	public synchronized EncryptionHandler getEncryptionHandler()
+	{
+		if (encryptionHandler == null)
+		{
+			encryptionHandler = new EncryptionHandler();
+		}
+		return encryptionHandler;
 	}
 
 	public Style createStyleCopy(Style style)

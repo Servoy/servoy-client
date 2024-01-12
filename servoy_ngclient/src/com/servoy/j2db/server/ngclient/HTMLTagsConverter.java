@@ -20,7 +20,6 @@ package com.servoy.j2db.server.ngclient;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.json.JSONObject;
@@ -31,15 +30,15 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.SecuritySupport;
-import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
  * Convert tags inside html content
  * @author gboros
  */
+@SuppressWarnings("nls")
 public class HTMLTagsConverter
 {
 	private static final Set<String> scanTags = new HashSet<>(Arrays.asList(
@@ -54,19 +53,16 @@ public class HTMLTagsConverter
 
 		Document doc = Jsoup.parse(htmlContent);
 		Elements bodyElements = doc.body().getAllElements();
-		Iterator<Element> bodyElementsIte = bodyElements.iterator();
 		Element e;
 		Attributes attrs;
-		Iterator<Attribute> attrsIte;
 		Attribute attr;
-		while (bodyElementsIte.hasNext())
+		for (Element bodyElement : bodyElements)
 		{
-			e = bodyElementsIte.next();
+			e = bodyElement;
 			attrs = e.attributes();
-			attrsIte = attrs.asList().iterator();
-			while (attrsIte.hasNext())
+			for (Attribute element : attrs.asList())
 			{
-				attr = attrsIte.next();
+				attr = element;
 				if (scanTags.contains(attr.getKey()))
 				{
 					String replaceContent = attr.getValue();
@@ -85,7 +81,7 @@ public class HTMLTagsConverter
 						try
 						{
 							formName = context.getForm().getName();
-							script = SecuritySupport.encrypt(Settings.getInstance(), script);
+							script = context.getSolution().getEncryptionHandler().encrypt(script);
 						}
 						catch (Exception ex)
 						{
@@ -119,7 +115,7 @@ public class HTMLTagsConverter
 							String blobpart = media.substring("servoy_blobloader?".length());
 							try
 							{
-								blobpart = SecuritySupport.encryptUrlSafe(Settings.getInstance(), blobpart);
+								blobpart = context.getSolution().getEncryptionHandler().encrypt(blobpart, true);
 								attr.setValue("resources/servoy_blobloader?blob=" + blobpart + "&clientnr=" +
 									context.getApplication().getWebsocketSession().getSessionKey().getClientnr());
 							}
@@ -201,11 +197,11 @@ public class HTMLTagsConverter
 		return 0;
 	}
 
-	public static String decryptInlineScript(String encryptedJavascript, JSONObject params)
+	public static String decryptInlineScript(String encryptedJavascript, JSONObject params, FlattenedSolution fs)
 	{
 		try
 		{
-			String javascript = SecuritySupport.decrypt(Settings.getInstance(), encryptedJavascript);
+			String javascript = fs.getEncryptionHandler().decrypt(encryptedJavascript);
 			String browserParamWithArgument;
 			Object arg;
 			for (String browserArgument : getBrowserArguments(javascript))
