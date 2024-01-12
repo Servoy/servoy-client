@@ -27,7 +27,6 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.CompareCondition;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLCondition;
-import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
@@ -330,7 +329,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	}
 
 	/**
-	 * Create an aggregate expression.
+	 * Create an aggregate count expression.
 	 * @sample
 	 * 	var query = datasources.db.example_data.orders.createSelect();
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
@@ -340,11 +339,11 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBAggregate count()
 	{
-		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.COUNT, QueryAggregate.ALL);
+		return getRoot().aggregates().count(this);
 	}
 
 	/**
-	 * Create an aggregate expression.
+	 * Create an aggregate average expression.
 	 * @sample
 	 * 	var query = datasources.db.example_data.orders.createSelect();
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
@@ -354,11 +353,11 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBAggregate avg()
 	{
-		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.AVG, QueryAggregate.ALL);
+		return getRoot().aggregates().avg(this);
 	}
 
 	/**
-	 * Create an aggregate expression.
+	 * Create an aggregate max expression.
 	 * @sample
 	 * 	var query = datasources.db.example_data.orders.createSelect();
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
@@ -368,11 +367,11 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBAggregate max()
 	{
-		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.MAX, QueryAggregate.ALL);
+		return getRoot().aggregates().max(this);
 	}
 
 	/**
-	 * Create an aggregate expression.
+	 * Create an aggregate min expression.
 	 * @sample
 	 * 	var query = datasources.db.example_data.orders.createSelect();
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
@@ -382,11 +381,11 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBAggregate min()
 	{
-		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.MIN, QueryAggregate.ALL);
+		return getRoot().aggregates().min(this);
 	}
 
 	/**
-	 * Create an aggregate expression.
+	 * Create an aggregate sum expression.
 	 * @sample
 	 * 	var query = datasources.db.example_data.orders.createSelect();
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
@@ -396,7 +395,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	@JSReadonlyProperty
 	public QBAggregate sum()
 	{
-		return new QBAggregate(getRoot(), getParent(), getQuerySelectValue(), QueryAggregate.SUM, QueryAggregate.ALL);
+		return getRoot().aggregates().sum(this);
 	}
 
 	/**

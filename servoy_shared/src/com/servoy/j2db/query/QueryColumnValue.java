@@ -77,6 +77,11 @@ public final class QueryColumnValue implements IQuerySelectValue
 		return fixedvalue;
 	}
 
+	public IQuerySelectValue withFixedvalue(boolean newFixedvalue)
+	{
+		return newFixedvalue == fixedvalue ? this : new QueryColumnValue(value, alias, newFixedvalue);
+	}
+
 	@Override
 	public BaseColumnType getColumnType()
 	{
