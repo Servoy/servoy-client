@@ -96,7 +96,7 @@ public class AngularIndexPageWriter
 	private static void generateStartupData(HttpServletRequest request, FlattenedSolution fs, StringBuilder sb) throws ServletException
 	{
 		JSONObject json = new JSONObject();
-		json.put("pathName", StringEscapeUtils.escapeJson(request.getContextPath()) + "/solution/" + fs.getName() + "/");
+		json.put("pathName", request.getContextPath() + "/solution/" + fs.getName() + "/");
 
 		Map<String, String[]> parameterMap = request.getParameterMap();
 		if (request.getSession().getAttribute(StatelessLoginHandler.ID_TOKEN) != null)

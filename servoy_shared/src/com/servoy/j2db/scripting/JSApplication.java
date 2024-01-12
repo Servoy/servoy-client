@@ -101,7 +101,6 @@ import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.ServoyException;
-import com.servoy.j2db.util.SwingHelper;
 import com.servoy.j2db.util.TimezoneUtils;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -3265,30 +3264,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 */
 	public void js_sleep(int ms)
 	{
-		try
-		{
-			long startTime = System.currentTimeMillis();
-			long stopTime = startTime + ms;
-
-			long timeToWait = ms;
-			while (timeToWait > 0)
-			{
-				if (timeToWait > 100)
-				{
-					SwingHelper.dispatchEvents(100);//make sure screen is updated (if there is a screen)
-				}
-				timeToWait = stopTime - System.currentTimeMillis();
-				if (timeToWait > 100)
-				{
-					Thread.sleep(100);
-					timeToWait -= 100;
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			Debug.error(e);
-		}
+		application.sleep(ms);
 	}
 
 	/**

@@ -74,9 +74,19 @@ public class ExtendableURLClassLoader extends URLClassLoader
 		return urls.contains(url);
 	}
 
+	@SuppressWarnings("nls")
 	@Override
 	public String toString()
 	{
-		return "ExtendableURLClassLoader: " + getURLs();
+		StringBuilder sb = new StringBuilder();
+		sb.append("ExtendableURLClassLoader: ");
+		sb.append(Arrays.toString(super.getURLs()));
+		if (getParent() != null)
+		{
+			sb.append(", parent: ");
+			sb.append(getParent());
+		}
+
+		return sb.toString();
 	}
 }

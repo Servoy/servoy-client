@@ -200,6 +200,8 @@ public class DebugHeadlessClient extends HeadlessClient implements IDebugHeadles
 			if (solution != null)
 			{
 				super.loadSolution(solution);
+				// now make sure all runnables are being executed
+				updateUI(1);
 			}
 		}
 	}

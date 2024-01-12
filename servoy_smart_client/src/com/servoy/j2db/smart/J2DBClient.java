@@ -371,6 +371,35 @@ public class J2DBClient extends ClientState
 		return "Servoy Client"; //$NON-NLS-1$
 	}
 
+	@Override
+	public void sleep(int ms)
+	{
+		try
+		{
+			long startTime = System.currentTimeMillis();
+			long stopTime = startTime + ms;
+
+			long timeToWait = ms;
+			while (timeToWait > 0)
+			{
+				if (timeToWait > 100)
+				{
+					SwingHelper.dispatchEvents(100);//make sure screen is updated (if there is a screen)
+				}
+				timeToWait = stopTime - System.currentTimeMillis();
+				if (timeToWait > 100)
+				{
+					Thread.sleep(100);
+					timeToWait -= 100;
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+	}
+
 	public void updateUI(int millisec)
 	{
 		int remainingTime = millisec;
