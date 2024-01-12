@@ -62,7 +62,6 @@ import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.MimeTypes;
-import com.servoy.j2db.util.SecuritySupport;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -180,9 +179,14 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 			String encrypted = req.getParameter("blob");
 			try
 			{
-				String decrypt = SecuritySupport.decrypt(encrypted);
-				found = clientnr != null && sendData(resp, MediaURLStreamHandler.getBlobLoaderMedia(getClient(req, Integer.parseInt(clientnr)), decrypt),
-					MediaURLStreamHandler.getBlobLoaderMimeType(decrypt), MediaURLStreamHandler.getBlobLoaderFileName(decrypt), null);
+				IApplication client = null;
+				if (clientnr != null && (client = getClient(req, Integer.parseInt(clientnr))) != null)
+				{
+					String decrypt = client.getFlattenedSolution().getEncryptionHandler().decrypt(encrypted);
+					found = sendData(resp, MediaURLStreamHandler.getBlobLoaderMedia(client, decrypt),
+						MediaURLStreamHandler.getBlobLoaderMimeType(decrypt), MediaURLStreamHandler.getBlobLoaderFileName(decrypt), null);
+				}
+
 			}
 			catch (Exception e)
 			{

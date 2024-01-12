@@ -165,6 +165,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	private VariantsHandler variantsHandler;
 
+	private EncryptionHandler encryptionHandler;
+
 	/**
 	 * @param cacheFlattenedForms turn flattened form caching on when flushFlattenedFormCache() will also be called.
 	 */
@@ -577,6 +579,15 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			variantsHandler = new VariantsHandler(this);
 		}
 		return variantsHandler;
+	}
+
+	public synchronized EncryptionHandler getEncryptionHandler()
+	{
+		if (encryptionHandler == null)
+		{
+			encryptionHandler = new EncryptionHandler();
+		}
+		return encryptionHandler;
 	}
 
 
