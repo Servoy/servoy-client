@@ -263,6 +263,18 @@ public interface IQueryBuilder extends IQueryBuilderTableClause
 	IQueryBuilderFunctions functions();
 
 	/**
+	 * Get the aggregates clause from a query, used for aggregates that are not tied to a column.
+	 * <pre>
+	 * // select val, count(*) from tab  group by val order by count(*) desc
+	 * query = queryFactory.createSelect(table.getDataSource());
+	 * query.result().add(query.getColumn(val.getName())).add(query.aggregates().count())
+	 *    .getParent().groupBy().add(val.getName())
+	 *    .getParent().sort().add(query.aggregates().count().desc());
+	 * </pre>
+	 */
+	IQueryBuilderAggregates aggregates();
+
+	/**
 	 * Build the query for performing query in the db
 	 */
 	ISQLSelect build() throws RepositoryException;
