@@ -85,6 +85,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	private QBSorts sort;
 	private QBGroupBy groupBy;
 	private QBFunctions functions;
+	private QBAggregates aggregates;
 	private QuerySelect query;
 	private QBWhereCondition where;
 	private QBLogicalCondition having;
@@ -531,7 +532,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * Get the functions clause from a query, used for functions that are not tied to a column.
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
-	 * query.where.add(query.columns.shipname.upper.eq(query.functions.upper('servoy'))) //$NON-NLS-1$
+	 * query.where.add(query.columns.shipname.upper.eq(query.functions.upper('servoy')))
 	 * foundset.loadRecords(query)
 	 */
 	@JSReadonlyProperty
@@ -542,6 +543,24 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 			functions = new QBFunctions(this);
 		}
 		return functions;
+	}
+
+	/**
+	 * Get the aggregates clause from a query, used for aggregates that are not tied to a column.
+	 * @sample
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.result.add(query.aggregates.count().add(query.columns.countryCode)
+	 * query.groupBy.add(query.columns.countryCode)
+	 * var ds = databaseManager.getDataSetByQuery(query, 100);
+	 */
+	@JSReadonlyProperty
+	public QBAggregates aggregates()
+	{
+		if (aggregates == null)
+		{
+			aggregates = new QBAggregates(this);
+		}
+		return aggregates;
 	}
 
 	/**
