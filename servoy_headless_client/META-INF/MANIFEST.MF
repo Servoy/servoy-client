@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy Headless Client Plug-in
 Bundle-SymbolicName: servoy_headless_client
-Bundle-Version: 2023.3.3.3845_LTS
+Bundle-Version: 2023.3.4.3846_LTS
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: .
 Require-Bundle: org.eclipse.dltk.javascript.rhino,
