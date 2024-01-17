@@ -150,6 +150,10 @@ public class EventExecutor
 					event.setName(RepositoryHelper.getDisplayName(eventType, BaseComponent.class));
 					newargs[i] = event;
 				}
+				else if (newargs[i] == JSONObject.NULL)
+				{
+					newargs[i] = null;
+				}
 				else
 				{
 					// FIXME I think the convertSabloComponentToRhinoValue should only happen if args come from sablo/java value;
