@@ -40,20 +40,20 @@ import com.servoy.j2db.query.QueryDelete;
  */
 public class EditedRecords
 {
-	private final List<EditingRecordOrDeletingFoundset> edited = synchronizedList(new ArrayList<>(32));
+	private final List<EditedRecordOrFoundset> edited = synchronizedList(new ArrayList<>(32));
 
 	public void addEdited(IRecordInternal record)
 	{
 		if (!contains(record, null))
 		{
-			edited.add(new EditingRecord(record, EditType.edit));
+			edited.add(new EditedRecord(record, EditType.edit));
 		}
 	}
 
 	public void addDeleted(IRecordInternal record)
 	{
 		remove(record);
-		edited.add(new EditingRecord(record, EditType.delete));
+		edited.add(new EditedRecord(record, EditType.delete));
 	}
 
 	public boolean containsEdited(IRecord record)
@@ -78,7 +78,7 @@ public class EditedRecords
 
 	public void addDeleteQuery(IFoundSetInternal foundset, QueryDelete deleteQuery)
 	{
-		edited.add(new DeletingFoundset(foundset, deleteQuery));
+		edited.add(new FoundsetDeletingQuery(foundset, deleteQuery));
 	}
 
 	/**
@@ -89,50 +89,36 @@ public class EditedRecords
 		return getDeleteQueries(null);
 	}
 
-	/** RAGTEST nodig (getRagtestDeleteQueries)?
+	/**
 	 * Get the delete queries grouped per table for a foundset (or all if null).
 	 */
 	public Map<ITable, List<QueryDelete>> getDeleteQueries(IFoundSet foundset)
 	{
-		return getDeletingFoundsets()
-			.filter(df -> foundset == null || foundset == df.foundSet)
-			.collect(groupingBy(dq -> dq.foundSet.getTable(),
+		return getFoundsetDeletingQueries(foundset)
+			.collect(groupingBy(dq -> dq.foundset.getTable(),
 				mapping(dq -> dq.queryDelete, toList())));
 	}
 
 	/** RAGTEST doc
 	 * Get the delete queries grouped per table for a foundset (or all if null).
 	 */
-	public List<RagtestDeleteQuery> getRagtestDeleteQueries(IFoundSet foundset)
+	public Stream<FoundsetDeletingQuery> getFoundsetDeletingQueries(IFoundSet foundset)
 	{
-		return getDeletingFoundsets()
-			.filter(df -> foundset == null || foundset == df.foundSet)
-			.map(df -> new RagtestDeleteQuery(df.foundSet, df.queryDelete))
-			.collect(toList());
+		return edited.stream().filter(FoundsetDeletingQuery.class::isInstance).map(FoundsetDeletingQuery.class::cast)
+			.filter(df -> foundset == null || foundset == df.foundset);
 	}
 
-	public boolean removeDeleteQuery(QueryDelete queryDelete)
+	public boolean removeDeleteQuery(FoundsetDeletingQuery foundsetDeletingQuery)
 	{
-		return edited.removeIf(df -> df instanceof DeletingFoundset && ((DeletingFoundset)df).queryDelete == queryDelete);
+		return edited.removeIf(df -> df == foundsetDeletingQuery);
 	}
 
-	public RAGTEST getAndRemoveFirstRagtest(Predicate< ? super RAGTEST> filter)
+	public EditedRecordOrFoundset getAndRemoveFirstRagtest(Predicate< ? super EditedRecordOrFoundset> filter)
 	{
-		Iterator<EditingRecordOrDeletingFoundset> it = edited.iterator();
+		Iterator<EditedRecordOrFoundset> it = edited.iterator();
 		while (it.hasNext())
 		{
-			EditingRecordOrDeletingFoundset e = it.next();
-
-			RAGTEST ragtest;
-			if (e instanceof EditingRecord)
-			{
-				ragtest = new RagtestEditedRecord(((EditingRecord)e).record);
-			}
-			else
-			{
-				ragtest = new RagtestDeleteQuery(((DeletingFoundset)e).foundSet, ((DeletingFoundset)e).queryDelete);
-			}
-
+			EditedRecordOrFoundset ragtest = it.next();
 			if (filter.test(ragtest))
 			{
 				it.remove();
@@ -152,7 +138,7 @@ public class EditedRecords
 		return edited.size(); // RAGTEST empty als er wel delete queries zijn?
 	}
 
-	private Stream<EditingRecord> getRecords(EditType editType)
+	private Stream<EditedRecord> getRecords(EditType editType)
 	{
 		return getEditingRecords().filter(er -> editType == null || er.type == editType);
 	}
@@ -169,7 +155,7 @@ public class EditedRecords
 
 	public void removeAll(List<IRecordInternal> array)
 	{
-		edited.removeIf(er -> er instanceof EditingRecord && array.contains(((EditingRecord)er).record));
+		edited.removeIf(er -> er instanceof EditedRecord && array.contains(((EditedRecord)er).record));
 	}
 
 	public boolean remove(IRecordInternal record)
@@ -202,7 +188,7 @@ public class EditedRecords
 		return toArray(getRecords(null));
 	}
 
-	private static IRecordInternal[] toArray(Stream<EditingRecord> editingRecords)
+	private static IRecordInternal[] toArray(Stream<EditedRecord> editingRecords)
 	{
 		return editingRecords.map(er -> er.record).toArray(IRecordInternal[]::new);
 	}
@@ -212,19 +198,14 @@ public class EditedRecords
 		edited.clear();
 	}
 
-	private Stream<DeletingFoundset> getDeletingFoundsets()
+	private Stream<EditedRecord> getEditingRecords()
 	{
-		return edited.stream().filter(DeletingFoundset.class::isInstance).map(DeletingFoundset.class::cast);
+		return edited.stream().filter(EditedRecord.class::isInstance).map(EditedRecord.class::cast);
 	}
 
-	private Stream<EditingRecord> getEditingRecords()
+	private static Predicate< ? super EditedRecordOrFoundset> isEditingRecord(IRecordInternal record, EditType editType)
 	{
-		return edited.stream().filter(EditingRecord.class::isInstance).map(EditingRecord.class::cast);
-	}
-
-	private static Predicate< ? super EditingRecordOrDeletingFoundset> isEditingRecord(IRecordInternal record, EditType editType)
-	{
-		return er -> er instanceof EditingRecord && (editType == null || ((EditingRecord)er).type == editType) && record.equals(((EditingRecord)er).record);
+		return er -> er instanceof EditedRecord && (editType == null || ((EditedRecord)er).type == editType) && record.equals(((EditedRecord)er).record);
 	}
 
 	public enum EditType
@@ -232,20 +213,31 @@ public class EditedRecords
 		edit, delete
 	}
 
-	private sealed interface EditingRecordOrDeletingFoundset permits EditingRecord, DeletingFoundset
+	/**
+	 * RAGTEST doc
+	 *
+	 * @author rgansevles
+	 *
+	 */
+	public sealed interface EditedRecordOrFoundset permits EditedRecord, FoundsetDeletingQuery
 	{
 		String getDataSource();
 	}
 
-	private static final class EditingRecord implements EditingRecordOrDeletingFoundset
+	public static final class EditedRecord implements EditedRecordOrFoundset
 	{
-		final IRecordInternal record;
-		final EditType type;
+		private final IRecordInternal record;
+		private final EditType type;
 
-		EditingRecord(IRecordInternal record, EditType type)
+		EditedRecord(IRecordInternal record, EditType type)
 		{
 			this.record = record;
 			this.type = type;
+		}
+
+		public IRecordInternal getRecord()
+		{
+			return record;
 		}
 
 		@Override
@@ -261,36 +253,12 @@ public class EditedRecords
 		}
 	}
 
-	/**
-	 * @author rob
-	 *
-	 */
-	public sealed interface RAGTEST permits RagtestEditedRecord, RagtestDeleteQuery
-	{
-
-	}
-
-	public final static class RagtestEditedRecord implements RAGTEST
-	{
-		private final IRecordInternal record;
-
-		private RagtestEditedRecord(IRecordInternal record)
-		{
-			this.record = record;
-		}
-
-		public IRecordInternal getRecord()
-		{
-			return record;
-		}
-	}
-
-	public final static class RagtestDeleteQuery implements RAGTEST
+	public static final class FoundsetDeletingQuery implements EditedRecordOrFoundset
 	{
 		private final IFoundSetInternal foundset;
 		private final QueryDelete queryDelete;
 
-		private RagtestDeleteQuery(IFoundSetInternal foundset, QueryDelete queryDelete)
+		private FoundsetDeletingQuery(IFoundSetInternal foundset, QueryDelete queryDelete)
 		{
 			this.foundset = foundset;
 			this.queryDelete = queryDelete;
@@ -305,30 +273,11 @@ public class EditedRecords
 		{
 			return foundset;
 		}
-	}
-
-	private static final class DeletingFoundset implements EditingRecordOrDeletingFoundset
-	{
-		final IFoundSetInternal foundSet;
-		final QueryDelete queryDelete;
-
-		DeletingFoundset(IFoundSetInternal foundSet, QueryDelete queryDelete)
-		{
-			this.foundSet = foundSet;
-			this.queryDelete = queryDelete;
-		}
 
 		@Override
 		public String getDataSource()
 		{
-			return foundSet.getDataSource();
-		}
-
-		@Override
-		public String toString()
-		{
-			return "delete from fs: " + queryDelete;
+			return foundset.getDataSource();
 		}
 	}
-
 }

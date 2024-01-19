@@ -30,6 +30,7 @@ import static java.util.Collections.synchronizedList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Stream.empty;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,6 +46,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.mozilla.javascript.JavaScriptException;
@@ -57,9 +59,9 @@ import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IPrepareForSave;
-import com.servoy.j2db.dataprocessing.EditedRecords.RAGTEST;
-import com.servoy.j2db.dataprocessing.EditedRecords.RagtestDeleteQuery;
-import com.servoy.j2db.dataprocessing.EditedRecords.RagtestEditedRecord;
+import com.servoy.j2db.dataprocessing.EditedRecords.EditedRecord;
+import com.servoy.j2db.dataprocessing.EditedRecords.EditedRecordOrFoundset;
+import com.servoy.j2db.dataprocessing.EditedRecords.FoundsetDeletingQuery;
 import com.servoy.j2db.dataprocessing.FoundSetManager.TableFilterRequest;
 import com.servoy.j2db.dataprocessing.ValueFactory.BlobMarkerValue;
 import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
@@ -432,7 +434,7 @@ public class EditRecordList
 			editRecordsLock.lock();
 			try
 			{
-				hasFoundsetDeleteQueries = foundset != null && !editedRecords.getDeleteQueries(foundset).isEmpty();
+				hasFoundsetDeleteQueries = foundset != null && !editedRecords.getFoundsetDeletingQueries(foundset).findAny().isEmpty();
 				if (!hasFoundsetDeleteQueries && stream(recordsToSave).noneMatch(editedRecords::contains))
 				{
 					return ISaveConstants.STOPPED;
@@ -589,14 +591,14 @@ public class EditRecordList
 
 				Map<IRecordInternal, Integer> processedRecords = new HashMap<>();
 
-				Predicate<RAGTEST> shouldProcessRagtest = shouldProcessRagtest(recordsToSave, foundset);
-				for (RAGTEST tmp = editedRecords.getAndRemoveFirstRagtest(shouldProcessRagtest); //
+				Predicate<EditedRecordOrFoundset> shouldProcessRecordOrFoundset = shouldProcessRecordOrFoundset(recordsToSave, foundset);
+				for (EditedRecordOrFoundset tmp = editedRecords.getAndRemoveFirstRagtest(shouldProcessRecordOrFoundset); //
 					tmp != null; //
-					tmp = editedRecords.getAndRemoveFirstRagtest(shouldProcessRagtest))
+					tmp = editedRecords.getAndRemoveFirstRagtest(shouldProcessRecordOrFoundset))
 				{
-					if (tmp instanceof RagtestEditedRecord)
+					if (tmp instanceof EditedRecord)
 					{
-						IRecordInternal rec = ((RagtestEditedRecord)tmp).getRecord();
+						IRecordInternal rec = ((EditedRecord)tmp).getRecord();
 						// check if we do not have an infinite recursive loop
 						Integer count = processedRecords.get(rec);
 						if (count != null && count.intValue() > 50)
@@ -612,9 +614,9 @@ public class EditRecordList
 					setDeletedrecordsInternalTableFilter(false);
 
 					// tmp is a record to save/delete or a delete-query to perform
-					if (tmp instanceof RagtestEditedRecord)
+					if (tmp instanceof EditedRecord)
 					{
-						Record record = (Record)((RagtestEditedRecord)tmp).getRecord();
+						Record record = (Record)((EditedRecord)tmp).getRecord();
 
 						// prevent multiple update for the same row (from multiple records)
 						for (int j = 0; j < dbUpdates.size(); j++)
@@ -705,13 +707,13 @@ public class EditRecordList
 						}
 					}
 
-					else if (tmp instanceof RagtestDeleteQuery)
+					else if (tmp instanceof FoundsetDeletingQuery)
 					{
 						try
 						{
 							dbUpdates.add(
-								getTableUpdateInfoForDeleteQuery(((RagtestDeleteQuery)tmp).getFoundset().getTable(),
-									((RagtestDeleteQuery)tmp).getQueryDelete()));
+								getTableUpdateInfoForDeleteQuery(((FoundsetDeletingQuery)tmp).getFoundset().getTable(),
+									((FoundsetDeletingQuery)tmp).getQueryDelete()));
 						}
 						catch (ServoyException e)
 						{
@@ -1104,12 +1106,12 @@ public class EditRecordList
 	}
 
 	/* RAGTEST Doc */
-	private Predicate<RAGTEST> shouldProcessRagtest(List<IRecord> subList, IFoundSet foundset)
+	private Predicate<EditedRecordOrFoundset> shouldProcessRecordOrFoundset(List<IRecord> subList, IFoundSet foundset)
 	{
-		return ragtest -> {
-			if (ragtest instanceof RagtestEditedRecord)
+		return editedRecordOrFoundset -> {
+			if (editedRecordOrFoundset instanceof EditedRecord)
 			{
-				var record = ((RagtestEditedRecord)ragtest).getRecord();
+				var record = ((EditedRecord)editedRecordOrFoundset).getRecord();
 				if (subList == null || subList.contains(record))
 				{
 					return true;
@@ -1119,9 +1121,9 @@ public class EditRecordList
 					return true;
 				}
 			}
-			if (ragtest instanceof RagtestDeleteQuery)
+			if (editedRecordOrFoundset instanceof FoundsetDeletingQuery)
 			{
-				return foundset == null || foundset == ((RagtestDeleteQuery)ragtest).getFoundset();
+				return foundset == null || foundset == ((FoundsetDeletingQuery)editedRecordOrFoundset).getFoundset();
 			}
 			return false;
 		};
@@ -1814,7 +1816,6 @@ public class EditRecordList
 		return canDeleteRecord;
 	}
 
-	// RAGTEST geladen records al meegeven voor removeedited?
 	public void addDeleteQuery(IFoundSetInternal foundset, QueryDelete deleteQuery)
 	{
 		editRecordsLock.lock();
@@ -2209,23 +2210,23 @@ public class EditRecordList
 	 */
 	private List<IFoundSetInternal> removeDeletesForRevert(List<IRecordInternal> records, boolean rollbackFoundsetDeletes, IFoundSetInternal foundset)
 	{
-		List<RagtestDeleteQuery> deleteQueries = emptyList();
+		Stream<FoundsetDeletingQuery> deleteQueries = empty();
 		if (rollbackFoundsetDeletes)
 		{
 			// when foundset is null this will get delete queries for all foundsets
-			deleteQueries = editedRecords.getRagtestDeleteQueries(foundset);
+			deleteQueries = editedRecords.getFoundsetDeletingQueries(foundset);
 		}
 		List<IFoundSetInternal> foundsetsWithRevertingDeletes = concat(
 			stream(records)
 				.filter(editedRecords::containsDeleted)
 				.map(IRecordInternal::getParentFoundSet),
-			deleteQueries.stream()
-				.map(RagtestDeleteQuery::getFoundset))
+			deleteQueries
+				.map(FoundsetDeletingQuery::getFoundset))
 					.distinct().toList();
 
 		// remove all deletes
 		stream(records).forEach(editedRecords::removeDeleted);
-		deleteQueries.forEach(dq -> editedRecords.removeDeleteQuery(dq.getQueryDelete()));
+		deleteQueries.forEach(editedRecords::removeDeleteQuery);
 
 		return foundsetsWithRevertingDeletes;
 	}
