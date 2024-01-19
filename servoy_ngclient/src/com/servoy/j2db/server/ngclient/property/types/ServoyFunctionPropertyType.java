@@ -56,7 +56,6 @@ import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IRhinoDesignConverter;
-import com.servoy.j2db.util.SecuritySupport;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -152,20 +151,20 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 		{
 			if (object instanceof String)
 			{
-				addScriptToMap((String)object, map);
+				addScriptToMap((String)object, map, fs);
 			}
 			else if (object instanceof NativeFunction)
 			{
-				nativeFunctionToJSON((NativeFunction)object, map);
+				nativeFunctionToJSON((NativeFunction)object, map, fs);
 			}
 			else if (object instanceof FunctionWrapper && ((FunctionWrapper)object).getWrappedFunction() instanceof NativeFunction)
 			{
-				nativeFunctionToJSON((NativeFunction)((FunctionWrapper)object).getWrappedFunction(), map);
+				nativeFunctionToJSON((NativeFunction)((FunctionWrapper)object).getWrappedFunction(), map, fs);
 			}
 			else if (object instanceof Map)
 			{
 				map = new HashMap<String, Object>((Map<String, Object>)object);
-				if (map.get("script") instanceof String) addScriptToMap((String)map.get("script"), map);
+				if (map.get("script") instanceof String) addScriptToMap((String)map.get("script"), map, fs);
 			}
 		}
 		catch (Exception ex)
@@ -175,7 +174,7 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 		return JSONUtils.toBrowserJSONFullValue(writer, key, map.size() == 0 ? null : map, null, null);
 	}
 
-	private void nativeFunctionToJSON(NativeFunction function, Map<String, Object> map) throws Exception
+	private void nativeFunctionToJSON(NativeFunction function, Map<String, Object> map, FlattenedSolution fs) throws Exception
 	{
 		String functionName = function.getFunctionName();
 		Scriptable parentScope = function.getParentScope();
@@ -186,34 +185,34 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 		if (parentScope instanceof FormScope && ((FormScope)parentScope).getFormController() != null)
 		{
 			String formName = ((FormScope)parentScope).getFormController().getName();
-			map.put("script", SecuritySupport.encrypt("forms." + formName + "." + functionName + "()"));
+			map.put("script", fs.getEncryptionHandler().encrypt("forms." + formName + "." + functionName + "()"));
 			map.put("formname", formName);
 		}
 		else if (parentScope instanceof GlobalScope)
 		{
 			map.put("script",
-				SecuritySupport.encrypt("scopes." + ((GlobalScope)parentScope).getScopeName() + "." + functionName + "()"));
+				fs.getEncryptionHandler().encrypt("scopes." + ((GlobalScope)parentScope).getScopeName() + "." + functionName + "()"));
 		}
 	}
 
-	private void addScriptToMap(String script, Map<String, Object> map) throws Exception
+	private void addScriptToMap(String script, Map<String, Object> map, FlattenedSolution fs) throws Exception
 	{
 		if (script.startsWith(ScriptVariable.SCOPES_DOT_PREFIX) || script.startsWith(ScriptVariable.GLOBALS_DOT_PREFIX))
 		{
 			// scope method
-			map.put("script", SecuritySupport.encrypt(script + "()"));
+			map.put("script", fs.getEncryptionHandler().encrypt(script + "()"));
 		}
 		else if (script.startsWith("entity."))
 		{
 			String formName = script.substring(7, script.indexOf('.', 7));
-			map.put("script", SecuritySupport.encrypt(script + "()"));
+			map.put("script", fs.getEncryptionHandler().encrypt(script + "()"));
 			map.put("formname", formName);
 		}
 		else if (script.contains("."))
 		{
 			// form method: formname.formmethod
 			String formName = script.substring(0, script.indexOf('.'));
-			map.put("script", SecuritySupport.encrypt("forms." + script + "()"));
+			map.put("script", fs.getEncryptionHandler().encrypt("forms." + script + "()"));
 			map.put("formname", formName);
 		}
 		else

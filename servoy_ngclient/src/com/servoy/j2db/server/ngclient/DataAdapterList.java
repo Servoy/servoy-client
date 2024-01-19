@@ -214,7 +214,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	@Override
 	public Object executeInlineScript(String script, JSONObject args, JSONArray appendingArgs)
 	{
-		String decryptedScript = HTMLTagsConverter.decryptInlineScript(script, args);
+		String decryptedScript = HTMLTagsConverter.decryptInlineScript(script, args, getApplication().getFlattenedSolution());
 		if (appendingArgs != null && decryptedScript.endsWith("()"))
 		{
 			// this is an executeInlineScript called from component/service client-side code
