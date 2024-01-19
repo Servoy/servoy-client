@@ -1533,23 +1533,23 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	/**
 	 * Login to be able to leave the solution loginForm.
 	 *
-	 * Example: Group names may be received from LDAP (Lightweight Directory Access Protocol) - a standard protocol used in web browsers and email applications to enable lookup queries that access a directory listing.
+	 * Example: Permissions names may be received from LDAP (Lightweight Directory Access Protocol) - a standard protocol used in web browsers and email applications to enable lookup queries that access a directory listing.
 	 *
 	 * @sample
-	 * var groups = ['Administrators']; //normally these groups are for example received from LDAP
+	 * var permissions = ['Administrators']; //normally these groups are for example received from LDAP
 	 * var user_uid = scopes.globals.email; //also this uid might be received from external authentication method
-	 * var ok =  security.login(scopes.globals.username, user_uid , groups)
+	 * var ok =  security.login(scopes.globals.username, user_uid , permissions)
 	 * if (!ok)
 	 * {
-	 * 	plugins.dialogs.showErrorDialog('Login failure',  'Already logged in? or no user_uid/groups specified?', 'OK')
+	 * 	plugins.dialogs.showErrorDialog('Login failure',  'Already logged in? or no user_uid/permissions specified?', 'OK')
 	 * }
 	 *
 	 * @param username the username, like 'JamesWebb'
 	 * @param a_userUID the user UID to process login for
-	 * @param groups the groups array
+	 * @param permissions the permissions array
 	 * @return true if loggedin
 	 */
-	public boolean js_login(String username, Object a_userUID, String[] groups)
+	public boolean js_login(String username, Object a_userUID, String[] permissions)
 	{
 		if (application.getUserManager() == null)
 		{
