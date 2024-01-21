@@ -26,8 +26,11 @@ import java.util.function.Predicate;
 
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
+import com.servoy.j2db.persistence.IPersist;
+import com.servoy.j2db.persistence.ISupportExtendsID;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.TypePredicate;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.serialize.IWriteReplace;
 import com.servoy.j2db.util.serialize.ReplacedObject;
 import com.servoy.j2db.util.visitor.DeepCloneVisitor;
@@ -280,6 +283,16 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 		return invalidRangeConditions;
 	}
 
+	public static Optional<IPersist> searchChild(Object o, UUID uuid)
+	{
+		return searchOne(o, new TypePredicate<>(IPersist.class, persist -> uuid.equals(persist.getUUID())));
+	}
+
+	public static Optional<ISupportExtendsID> searchForExtendsId(Object o, int extendsID)
+	{
+		return searchOne(o, new TypePredicate<>(ISupportExtendsID.class, supportExtendsID -> extendsID == supportExtendsID.getExtendsID()));
+	}
+
 	public static <T> List<T> search(Object o, Predicate<Object> filter)
 	{
 		SearchVisitor<T> search = new SearchVisitor<>(filter);
@@ -289,9 +302,8 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 
 	public static <T> Optional<T> searchOne(Object o, Predicate<Object> filter)
 	{
-		SearchVisitor<T> search = new SearchVisitor<>(filter);
-		acceptVisitor(o, search);
-		return search.getFound().stream().findAny();
+		List<T> found = search(o, filter);
+		return found.stream().findAny();
 	}
 
 	/**
