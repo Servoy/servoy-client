@@ -1559,7 +1559,8 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 		String userUID = normalizeUID(a_userUID);
 
-		if (groups == null || groups.length == 0 || username == null || username.length() == 0 || userUID == null || userUID.length() == 0) return false;
+		if (permissions == null || permissions.length == 0 || username == null || username.length() == 0 || userUID == null || userUID.length() == 0)
+			return false;
 
 
 		// check if the groups all exist
@@ -1574,15 +1575,15 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 			return false;
 		}
 
-		for (String group : groups)
+		for (String permission : permissions)
 		{
 			int i;
-			for (i = 0; i < groupsDataSet.getRowCount() && !groupsDataSet.getRow(i)[1].equals(group); i++)
+			for (i = 0; i < groupsDataSet.getRowCount() && !groupsDataSet.getRow(i)[1].equals(permission); i++)
 			{
 			}
 			if (i == groupsDataSet.getRowCount())
 			{
-				Debug.log("Could not log in user for unknown group '" + group + "'", ILogLevel.WARNING); //$NON-NLS-1$//$NON-NLS-2$
+				Debug.log("Could not log in user for unknown permission '" + permission + "'", ILogLevel.WARNING); //$NON-NLS-1$//$NON-NLS-2$
 				return false;
 			}
 		}
@@ -1596,7 +1597,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 		ci.setUserName(username);
 		ci.setUserUid(userUID);
-		ci.setUserGroups(groups);
+		ci.setUserGroups(permissions);
 		if (application.getSolution().getSolutionType() != SolutionMetaData.AUTHENTICATOR)
 		{
 			application.clearLoginForm();
