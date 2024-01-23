@@ -29,6 +29,7 @@ import org.mozilla.javascript.Scriptable;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.types.FunctionPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
@@ -63,9 +64,9 @@ import com.servoy.j2db.util.Utils;
  *
  */
 public class ServoyFunctionPropertyType extends FunctionPropertyType
-	implements IConvertedPropertyType<Object>, IFormElementToTemplateJSON<Object, Object>, IRhinoDesignConverter
+	implements IConvertedPropertyType<Object>, IFormElementToTemplateJSON<Object, Object>, IRhinoDesignConverter, IPropertyWithClientSideConversions<Object>
 {
-	public static final ServoyFunctionPropertyType INSTANCE = new ServoyFunctionPropertyType();
+	public static final ServoyFunctionPropertyType SERVOY_INSTANCE = new ServoyFunctionPropertyType();
 
 	private ServoyFunctionPropertyType()
 	{
@@ -261,6 +262,20 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 			return JSForm.getEventHandler(application, webComponent.getBaseComponent(false), (String)value, jsParent, pd.getName());
 		}
 		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sablo.specification.property.IPropertyWithClientSideConversions#writeClientSideTypeName(org.json.JSONWriter, java.lang.String,
+	 * org.sablo.specification.PropertyDescription)
+	 */
+	@Override
+	public boolean writeClientSideTypeName(JSONWriter w, String keyToAddTo, PropertyDescription pd)
+	{
+		JSONUtils.addKeyIfPresent(w, keyToAddTo);
+		w.value(TYPE_NAME);
+		return true;
 	}
 
 }
