@@ -1,7 +1,7 @@
 {
 
 	"name": "ngclientutils",
-	"displayName": "Servoy NG Client Utils plugin",
+	"displayName": "NG Utils",
 	"version": 1,
 	"definition": "servoy_ng_only_services/ngutils/ngutils.js",
 	"serverscript": "servoy_ng_only_services/ngutils/ngutils_server.js",
