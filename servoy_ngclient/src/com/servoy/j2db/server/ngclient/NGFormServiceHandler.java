@@ -27,6 +27,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONString;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Function;
 import org.sablo.services.server.FormServiceHandler;
 import org.sablo.specification.IFunctionParameters;
 import org.sablo.specification.WebObjectFunctionDefinition;
@@ -53,6 +55,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedTypeSabloValue;
+import com.servoy.j2db.server.ngclient.property.types.FunctionRefType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.InitialToJSONConverter;
 import com.servoy.j2db.util.Debug;
@@ -182,10 +185,31 @@ public class NGFormServiceHandler extends FormServiceHandler
 						return null;
 					}
 					getApplication().updateLastAccessed();
-					Object retVal = form.getDataAdapterList().executeInlineScript(args.optString("script"), args.optJSONObject("params"),
-						args.optJSONArray("params"));
-					// convert it from Rhino to sablo value; it will use the default conversion as we don't provide a PD/context/webobject
-					return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(retVal, null, null, null); // we don't return TypedData here as we rely on default to browser JSON conversion as well
+					if (args.optString("script").startsWith("hash:"))
+					{
+						Function reference = FunctionRefType.INSTANCE.getReference(args.optString("script").substring(5), getApplication());
+						if (reference != null)
+						{
+							Context context = Context.enter();
+							try
+							{
+								Object[] arguments = DataAdapterList.generateArguments(args.optJSONArray("params"), form.getController());
+								Object retVal = reference.call(context, reference.getParentScope(), reference.getParentScope(), arguments);
+								return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(retVal, null, null, null); // we don't return TypedData here as we rely on default to browser JSON conversion as well
+							}
+							finally
+							{
+								Context.exit();
+							}
+						}
+					}
+					else
+					{
+						Object retVal = form.getDataAdapterList().executeInlineScript(args.optString("script"), args.optJSONObject("params"),
+							args.optJSONArray("params"));
+						// convert it from Rhino to sablo value; it will use the default conversion as we don't provide a PD/context/webobject
+						return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(retVal, null, null, null); // we don't return TypedData here as we rely on default to browser JSON conversion as well
+					}
 				}
 				catch (Exception ex)
 				{
