@@ -657,4 +657,16 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		}
 		return null;
 	}
+
+	@SuppressWarnings("nls")
+	@Override
+	public String getLogInformation()
+	{
+		if (client != null)
+		{
+			return "clientid: " + client.getClientID() + ", httpsessionid: " + getHttpSession().getId() + ", serveruui: " +
+				ApplicationServerRegistry.get().getServerUUID();
+		}
+		return "";
+	}
 }
