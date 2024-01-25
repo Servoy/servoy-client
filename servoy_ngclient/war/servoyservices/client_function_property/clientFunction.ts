@@ -2,7 +2,7 @@ angular.module('client_function_property', ['webSocketModule'])
 // Date type -------------------------------------------
 .run(function ($typesRegistry: sablo.ITypesRegistry) {
 	// we are here in NG1 code
-	// "clientfunction" type is an enhancement only for NG2 (to avoid an eval on a tagstring prop)
+	// "clientfunction" or "function" type is an enhancement only for NG2 (to avoid an eval on a tagstring prop)
 	// in NG1 it remains and operates just like a "tagstring" property type serverside (and clientside it's just a string; probably the
 	// component/service will just do an eval on it)
 	// so we have nothing to convert here; this type is just added because server side sends type information for this property
@@ -22,4 +22,6 @@ angular.module('client_function_property', ['webSocketModule'])
 		}
 	
 	$typesRegistry.registerGlobalType('clientfunction', clientFunctionType, false);
+	$typesRegistry.registerGlobalType('function', clientFunctionType, false);
+	$typesRegistry.registerGlobalType('NativeFunction', clientFunctionType, false);
 })
