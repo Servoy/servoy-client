@@ -385,8 +385,7 @@ public abstract class AbstractBase implements IPersist
 
 		if (!isInPropertiesMap || value instanceof JSONObject)
 		{
-			if (!StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName().equals(propertyName) && this instanceof ISupportExtendsID &&
-				PersistHelper.isOverrideElement((ISupportExtendsID)this))
+			if (!StaticContentSpecLoader.PROPERTY_CUSTOMPROPERTIES.getPropertyName().equals(propertyName) && PersistHelper.isOverrideElement(this))
 			{
 				IPersist superPersist = PersistHelper.getSuperPersist((ISupportExtendsID)this);
 				if (superPersist != null)

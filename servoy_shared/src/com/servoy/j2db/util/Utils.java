@@ -124,7 +124,6 @@ import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportBounds;
-import com.servoy.j2db.persistence.ISupportExtendsID;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.ui.runtime.HasRuntimeClientProperty;
@@ -185,12 +184,8 @@ public final class Utils
 				}
 			}
 		}
-		if (element instanceof ISupportExtendsID)
-		{
-			return PersistHelper.isOverrideElement((ISupportExtendsID)element);
-		}
-		// child of this form, not of a inherited form
-		return false;
+
+		return PersistHelper.isOverrideElement(element);
 	}
 
 	/**
