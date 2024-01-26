@@ -21,7 +21,6 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Optional;
 
-import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -153,15 +152,16 @@ public interface IPersist extends Serializable
 	 */
 	default Optional<IPersist> searchChild(UUID uuid)
 	{
-		return AbstractBaseQuery.searchChild(this, uuid);
+		return Optional.ofNullable((IPersist)acceptVisitor(persist -> persist.getUUID().equals(uuid) ? persist : null));
 	}
 
 	/**
 	 *  Find the child (recursively) with the given extendsID.
 	 */
-	default Optional<ISupportExtendsID> searchForExtendsId(int extendsID)
+	default Optional<IPersist> searchForExtendsId(int extendsID)
 	{
-		return AbstractBaseQuery.searchForExtendsId(this, extendsID);
+		return Optional.ofNullable((IPersist)acceptVisitor(
+			persist -> (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() == extendsID) ? persist : null));
 	}
 
 	/**
