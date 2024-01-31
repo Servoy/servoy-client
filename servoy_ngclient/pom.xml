@@ -4,6 +4,9 @@
 	xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
+	<prerequisites>
+		<maven>3.9.0</maven>
+	</prerequisites>
 	<parent>
 		<groupId>com.servoy</groupId>
 		<artifactId>servoy-client</artifactId>
@@ -20,7 +23,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.1.1</version>
+				<version>3.6.1</version>
 				<executions>
 					<execution>
 						<id>copy_product_and_libs</id>
@@ -47,7 +50,7 @@
 			<plugin>
 				<groupId>com.github.eirslett</groupId>
 				<artifactId>frontend-maven-plugin</artifactId>
-				<version>1.12.0</version>
+				<version>1.15.0</version>
 				<executions>
 
 					<!-- 1. Install node and npm locally -->

@@ -4,6 +4,9 @@
     xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
+    <prerequisites>
+        <maven>3.9.0</maven>
+    </prerequisites>
     <parent>
         <groupId>com.servoy</groupId>
         <artifactId>servoy-client</artifactId>
@@ -36,7 +39,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.1.1</version>
+                <version>3.6.0</version>
                 <configuration>
                     <descriptors>
                         <descriptor>assembly.xml</descriptor>
