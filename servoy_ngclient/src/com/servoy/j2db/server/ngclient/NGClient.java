@@ -1518,10 +1518,6 @@ public class NGClient extends AbstractApplication
 					BaseWebObject serviceWebObject = (BaseWebObject)getWebsocketSession().getClientService(serviceSpec.getName());
 
 					WebObjectFunctionDefinition functionSpec = (serviceSpec != null ? serviceSpec.getInternalApiFunction(serviceMethodName) : null);
-					if (functionSpec == null)
-					{
-						functionSpec = (serviceSpec != null ? serviceSpec.getApiFunction(serviceMethodName) : null);
-					}
 
 					if (functionSpec == null)
 					{
