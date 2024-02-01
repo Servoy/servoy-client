@@ -1408,7 +1408,9 @@ public class NGClient extends AbstractApplication
 					WebObjectFunctionDefinition functionSpec = (serviceSpec != null ? serviceSpec.getInternalApiFunction(serviceMethodName) : null);
 					if (functionSpec == null)
 					{
-						functionSpec = (serviceSpec != null ? serviceSpec.getApiFunction(serviceMethodName) : null);
+						Debug.warn("callServerSideApi for unknown function '" + serviceMethodName + "' of service '" + serviceScriptingName + "'.");
+						throw new RuntimeException("trying to call a function '" + serviceMethodName + "' that does not exist in .spec of service: " +
+							serviceSpec.getName());
 					}
 					List<PropertyDescription> argumentPDs = (functionSpec != null ? functionSpec.getParameters() : null);
 
