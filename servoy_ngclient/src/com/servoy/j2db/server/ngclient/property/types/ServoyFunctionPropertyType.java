@@ -63,6 +63,7 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  *
  */
+@SuppressWarnings("nls")
 public class ServoyFunctionPropertyType extends FunctionPropertyType
 	implements IConvertedPropertyType<Object>, IFormElementToTemplateJSON<Object, Object>, IRhinoDesignConverter, IPropertyWithClientSideConversions<Object>
 {
@@ -94,7 +95,8 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 			}
 			return value;
 		}
-		return newValue;
+		// function property type should not be able to send anything to the server.
+		return null;
 	}
 
 	@Override
@@ -117,54 +119,36 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 			String[] components = object.toString().split("-"); //$NON-NLS-1$
 			if (components.length == 5)
 			{
-				String scriptString = null;
 				// this is a uuid
 				ScriptMethod sm = fs.getScriptMethod(object.toString());
 				if (sm != null)
 				{
-					ISupportChilds parent = sm.getParent();
-					if (parent instanceof Solution)
-					{
-						scriptString = "scopes." + sm.getScopeName() + "." + sm.getName();
-					}
-					else if (parent instanceof Form)
-					{
-						if (formComponent != null)
-						{
-							// use the real, runtime form
-							scriptString = formComponent.getDataAdapterList().getForm().getForm().getName() + "." + sm.getName();
-						}
-						else
-						{
-							scriptString = ((Form)parent).getName() + "." + sm.getName();
-						}
-					}
-					else if (parent instanceof TableNode && fe != null)
-					{
-						scriptString = "entity." + fe.getForm().getName() + "." + sm.getName();
-					}
-					object = scriptString;
+					object = sm;
 				}
 				else Debug.log("can't find a scriptmethod for: " + object);
 			}
 		}
 		try
 		{
-			if (object instanceof String)
+			if (object instanceof String s)
 			{
-				addScriptToMap((String)object, map, fs);
+				addScriptToMap(s, map, fs);
 			}
-			else if (object instanceof NativeFunction)
+			else if (object instanceof ScriptMethod sm)
 			{
-				nativeFunctionToJSON((NativeFunction)object, map, fs);
+				addScriptMethodToMap(sm, map, fs, fe, formComponent);
 			}
-			else if (object instanceof FunctionWrapper && ((FunctionWrapper)object).getWrappedFunction() instanceof NativeFunction)
+			else if (object instanceof NativeFunction nf)
 			{
-				nativeFunctionToJSON((NativeFunction)((FunctionWrapper)object).getWrappedFunction(), map, fs);
+				nativeFunctionToJSON(nf, map, fs);
 			}
-			else if (object instanceof Map)
+			else if (object instanceof FunctionWrapper fw && fw.getWrappedFunction() instanceof NativeFunction nf)
 			{
-				map = new HashMap<String, Object>((Map<String, Object>)object);
+				nativeFunctionToJSON(nf, map, fs);
+			}
+			else if (object instanceof Map mp)
+			{
+				map = new HashMap<String, Object>(mp);
 				if (map.get("script") instanceof String) addScriptToMap((String)map.get("script"), map, fs);
 			}
 		}
@@ -173,6 +157,40 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 			Debug.error(ex);
 		}
 		return JSONUtils.toBrowserJSONFullValue(writer, key, map.size() == 0 ? null : map, null, null);
+	}
+
+	/**
+	 * @param sm
+	 * @param map
+	 * @param fs
+	 * @param formComponent
+	 * @param fe
+	 * @throws Exception
+	 */
+	private void addScriptMethodToMap(ScriptMethod sm, Map<String, Object> map, FlattenedSolution fs, FormElement fe, WebFormComponent formComponent)
+		throws Exception
+	{
+		ISupportChilds parent = sm.getParent();
+		if (parent instanceof Solution)
+		{
+			map.put("script", fs.getEncryptionHandler().encrypt("scopes." + sm.getScopeName() + "." + sm.getName() + "()"));
+		}
+		else if (parent instanceof Form)
+		{
+			String formName = ((Form)parent).getName() + "." + sm.getName();
+			if (formComponent != null)
+			{
+				// use the real, runtime form
+				formName = formComponent.getDataAdapterList().getForm().getForm().getName();
+			}
+			map.put("script", fs.getEncryptionHandler().encrypt("forms." + formName + "." + sm.getName() + "()"));
+			map.put("formname", formName);
+		}
+		else if (parent instanceof TableNode && fe != null)
+		{
+			map.put("script", fs.getEncryptionHandler().encrypt("entity." + fe.getForm().getName() + "." + sm.getName() + "()"));
+			map.put("formname", fe.getForm().getName());
+		}
 	}
 
 	private void nativeFunctionToJSON(NativeFunction function, Map<String, Object> map, FlattenedSolution fs) throws Exception
@@ -198,27 +216,57 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 
 	private void addScriptToMap(String script, Map<String, Object> map, FlattenedSolution fs) throws Exception
 	{
+		Debug.warn("Function property is given a string: " + script + ", this is should not happen");
+		boolean generated = false;
 		if (script.startsWith(ScriptVariable.SCOPES_DOT_PREFIX) || script.startsWith(ScriptVariable.GLOBALS_DOT_PREFIX))
 		{
 			// scope method
-			map.put("script", fs.getEncryptionHandler().encrypt(script + "()"));
+			if (fs.getScriptMethod(script) != null)
+			{
+				map.put("script", fs.getEncryptionHandler().encrypt(script + "()"));
+				generated = true;
+			}
 		}
 		else if (script.startsWith("entity."))
 		{
 			String formName = script.substring(7, script.indexOf('.', 7));
-			map.put("script", fs.getEncryptionHandler().encrypt(script + "()"));
-			map.put("formname", formName);
+			Form form = fs.getForm(formName);
+			if (form != null)
+			{
+				String methodName = script.substring(formName.length() + 8);
+				Iterator<TableNode> tableNodes = fs.getTableNodes(form.getDataSource());
+				while (tableNodes.hasNext())
+				{
+					TableNode tableNode = tableNodes.next();
+					if (tableNode.getFoundsetMethod(methodName) != null)
+					{
+						map.put("script", fs.getEncryptionHandler().encrypt(script + "()"));
+						map.put("formname", formName);
+						generated = true;
+						break;
+					}
+				}
+			}
 		}
 		else if (script.contains("."))
 		{
 			// form method: formname.formmethod
 			String formName = script.substring(0, script.indexOf('.'));
-			map.put("script", fs.getEncryptionHandler().encrypt("forms." + script + "()"));
-			map.put("formname", formName);
+			Form form = fs.getForm(formName);
+			if (form != null && form.getScriptMethod(script.substring(formName.length() + 1)) != null)
+			{
+				map.put("script", fs.getEncryptionHandler().encrypt("forms." + script + "()"));
+				map.put("formname", formName);
+				generated = true;
+			}
 		}
 		else
 		{
 			Debug.log("Can't create a function callback for " + script);
+		}
+		if (!generated)
+		{
+			Debug.error("Can't create a function callback for " + script + " because it didn't match on any function");
 		}
 	}
 
