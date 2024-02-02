@@ -16,25 +16,23 @@
 */
 package com.servoy.j2db.util.visitor;
 
-
-
-/** Visitor class to for replacing all occurrences of one object with another one in a IVisitable object.
+/**
+ * Visitor class to for replacing all occurrences of one object with another one in a IVisitable object.
+ *
  * @see IVisitable
  * @author rgansevles
  *
- */public class ReplaceVisitor implements IVisitor
+ */
+public class ReplaceVisitor implements IVisitor
 {
+	private final Object org;
+	private final Object repl;
+	private final boolean useEquals;
 
-	private Object org;
-	private Object repl;
-	private boolean useEquals;
-	
-	// result
-	private boolean found = false;
-	
 	/**
 	 * @param org
 	 * @param repl
+	 * @param useEquals
 	 */
 	public ReplaceVisitor(Object org, Object repl, boolean useEquals)
 	{
@@ -42,9 +40,10 @@ package com.servoy.j2db.util.visitor;
 		this.repl = repl;
 		this.useEquals = useEquals;
 	}
+
 	public Object visit(Object o)
 	{
-		boolean match = false;
+		boolean match;
 		if (org == null)
 		{
 			match = o == null;
@@ -55,14 +54,8 @@ package com.servoy.j2db.util.visitor;
 		}
 		if (match)
 		{
-			found = true;
 			return repl;
 		}
 		return o;
-	}
-
-	public boolean found()
-	{
-		return found;
 	}
 }

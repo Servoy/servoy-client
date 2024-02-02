@@ -209,7 +209,7 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 	 */
 	public static <T> T relinkTable(BaseQueryTable orgTable, BaseQueryTable newTable, T o)
 	{
-		return AbstractBaseQuery.acceptVisitor(o, new ReplaceVisitor(orgTable, newTable, true));
+		return acceptVisitor(o, new ReplaceVisitor(orgTable, newTable, false));
 	}
 
 	/**
@@ -218,13 +218,10 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 	 * @param orgTable
 	 * @param newTable
 	 */
-	public boolean relinkTable(BaseQueryTable orgTable, BaseQueryTable newTable)
+	public void relinkTable(BaseQueryTable orgTable, BaseQueryTable newTable)
 	{
-		ReplaceVisitor replaceVisitor = new ReplaceVisitor(orgTable, newTable, true);
-		acceptVisitor(replaceVisitor);
-		return replaceVisitor.found();
+		acceptVisitor(new ReplaceVisitor(orgTable, newTable, false));
 	}
-
 
 	public Placeholder getPlaceholder(TablePlaceholderKey key)
 	{
