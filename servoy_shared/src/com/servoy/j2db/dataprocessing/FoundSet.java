@@ -827,12 +827,12 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 * var filter2 = databaseManager.createTableFilterParam(query);
 	 *
 	 * // apply multiple filters at the same time, previous filters with the same name are removed:
-	 * var success = foundset.setTableFilters('myfilters', [filter1_10, filter2])
+	 * var success = foundset.setFoundSetFilters('myfilters', [filter1_10, filter2])
 	 *
 	 * // update one of the filters:
 	 * var filter1_11 = foundset.createTableFilterParam('customerid', '=', 11);
 	 *
-	 * var success = foundset.setTableFilters('myfilters', [filter1_11, filter2])
+	 * var success = foundset.setFoundSetFilters('myfilters', [filter1_11, filter2])
 	 *
 	 * // filters can be removed by setting them to an empty list:
 	 * var success = databaseManager.setTableFilters('myfilters', [])
