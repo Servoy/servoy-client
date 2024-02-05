@@ -77,23 +77,10 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 	public Object fromJSON(Object newValue, Object previousValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
-		if (newValue instanceof JSONObject)
+		if (newValue instanceof JSONObject && ((JSONObject)newValue).has("script"))
 		{
-			Map<String, Object> value = new HashMap<String, Object>();
-			Iterator<String> it = ((JSONObject)newValue).keys();
-			while (it.hasNext())
-			{
-				String key = it.next();
-				try
-				{
-					value.put(key, ((JSONObject)newValue).get(key));
-				}
-				catch (JSONException ex)
-				{
-					Debug.error(ex);
-				}
-			}
-			return value;
+			// this is a jsonobject that is send by us, the script should be an encrypted string.
+			return newValue;
 		}
 		// function property type should not be able to send anything to the server.
 		return null;
@@ -130,26 +117,34 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 		}
 		try
 		{
-			if (object instanceof String s)
+			if (object instanceof String)
 			{
-				addScriptToMap(s, map, fs);
+				addScriptToMap((String)object, map, fs);
 			}
-			else if (object instanceof ScriptMethod sm)
+			else if (object instanceof ScriptMethod)
 			{
-				addScriptMethodToMap(sm, map, fs, fe, formComponent);
+				addScriptMethodToMap((ScriptMethod)object, map, fs, fe, formComponent);
 			}
-			else if (object instanceof NativeFunction nf)
+			else if (object instanceof NativeFunction)
 			{
-				nativeFunctionToJSON(nf, map, fs);
+				nativeFunctionToJSON((NativeFunction)object, map, fs);
 			}
-			else if (object instanceof FunctionWrapper fw && fw.getWrappedFunction() instanceof NativeFunction nf)
+			else if (object instanceof FunctionWrapper && ((FunctionWrapper)object).getWrappedFunction() instanceof NativeFunction)
 			{
-				nativeFunctionToJSON(nf, map, fs);
+				nativeFunctionToJSON((NativeFunction)((FunctionWrapper)object).getWrappedFunction(), map, fs);
 			}
-			else if (object instanceof Map mp)
+			else if (object instanceof JSONObject)
 			{
-				map = new HashMap<String, Object>(mp);
-				if (map.get("script") instanceof String) addScriptToMap((String)map.get("script"), map, fs);
+				JSONObject jo = (JSONObject)object;
+				map = new HashMap<String, Object>();
+				if (jo.has("script"))
+				{
+					map.put("script", jo.getString("script"));
+				}
+				if (jo.has("formname"))
+				{
+					map.put("formname", jo.getString("formname"));
+				}
 			}
 		}
 		catch (Exception ex)
