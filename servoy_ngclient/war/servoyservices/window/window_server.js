@@ -469,6 +469,10 @@ $scope.api.showFormPopup = function(component,form,dataproviderScope,dataprovide
 
 $scope.api.createShortcut = function(shortcut,callback,contextFilter,arguments,consumeEvent)
 {
+    if (Array.isArray(contextFilter) && !arguments) {
+        arguments = contextFilter;
+        contextFilter = null;
+    }
 	if (contextFilter == undefined)
 	{
 		contextFilter = null;
