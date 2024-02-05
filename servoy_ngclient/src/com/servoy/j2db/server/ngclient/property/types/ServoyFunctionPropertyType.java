@@ -17,9 +17,7 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -67,6 +65,9 @@ import com.servoy.j2db.util.Utils;
 public class ServoyFunctionPropertyType extends FunctionPropertyType
 	implements IConvertedPropertyType<Object>, IFormElementToTemplateJSON<Object, Object>, IRhinoDesignConverter, IPropertyWithClientSideConversions<Object>
 {
+	private static final String FORMNAME = "formname";
+	private static final String SCRIPT = "script";
+
 	public static final ServoyFunctionPropertyType SERVOY_INSTANCE = new ServoyFunctionPropertyType();
 
 	private ServoyFunctionPropertyType()
@@ -77,23 +78,10 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 	public Object fromJSON(Object newValue, Object previousValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
-		if (newValue instanceof JSONObject)
+		if (newValue instanceof JSONObject jo && (jo.has(SCRIPT) || jo.has(FunctionRefType.FUNCTION_HASH)))
 		{
-			Map<String, Object> value = new HashMap<String, Object>();
-			Iterator<String> it = ((JSONObject)newValue).keys();
-			while (it.hasNext())
-			{
-				String key = it.next();
-				try
-				{
-					value.put(key, ((JSONObject)newValue).get(key));
-				}
-				catch (JSONException ex)
-				{
-					Debug.error(ex);
-				}
-			}
-			return value;
+			// this is a jsonobject that is send by us, the script should be an encrypted string.
+			return newValue;
 		}
 		// function property type should not be able to send anything to the server.
 		return null;
@@ -103,17 +91,17 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 	public JSONWriter toJSON(JSONWriter writer, String key, Object object, PropertyDescription pd, IBrowserConverterContext dataConverterContext)
 		throws JSONException
 	{
-		return toJSON(writer, key, object, pd,
+		return toJSON(writer, key, object,
 			dataConverterContext.getWebObject() instanceof IContextProvider
 				? ((IContextProvider)dataConverterContext.getWebObject()).getDataConverterContext().getApplication().getFlattenedSolution() : null,
 			dataConverterContext.getWebObject() instanceof WebFormComponent ? ((WebFormComponent)dataConverterContext.getWebObject()).getFormElement() : null,
-			dataConverterContext.getWebObject() instanceof WebFormComponent ? (WebFormComponent)dataConverterContext.getWebObject() : null);
+			dataConverterContext.getWebObject() instanceof WebFormComponent ? (WebFormComponent)dataConverterContext.getWebObject() : null,
+			dataConverterContext);
 	}
 
-	public JSONWriter toJSON(JSONWriter writer, String key, Object object, PropertyDescription pd, FlattenedSolution fs, FormElement fe,
-		WebFormComponent formComponent) throws JSONException
+	private JSONWriter toJSON(JSONWriter writer, String key, Object object, FlattenedSolution fs, FormElement fe,
+		WebFormComponent formComponent, IBrowserConverterContext dataConverterContext) throws JSONException
 	{
-		Map<String, Object> map = new HashMap<>();
 		if (object != null && fs != null)
 		{
 			String[] components = object.toString().split("-"); //$NON-NLS-1$
@@ -132,31 +120,56 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 		{
 			if (object instanceof String s)
 			{
-				addScriptToMap(s, map, fs);
+				JSONUtils.addKeyIfPresent(writer, key);
+				writer.object();
+				addScriptToMap(s, writer, fs);
+				writer.endObject();
 			}
 			else if (object instanceof ScriptMethod sm)
 			{
-				addScriptMethodToMap(sm, map, fs, fe, formComponent);
+				JSONUtils.addKeyIfPresent(writer, key);
+				writer.object();
+				addScriptMethodToMap(sm, writer, fs, fe, formComponent);
+				writer.endObject();
 			}
 			else if (object instanceof NativeFunction nf)
 			{
-				nativeFunctionToJSON(nf, map, fs);
+				JSONUtils.addKeyIfPresent(writer, key);
+				writer.object();
+				nativeFunctionToJSON(nf, writer, fs, dataConverterContext);
+				writer.endObject();
 			}
 			else if (object instanceof FunctionWrapper fw && fw.getWrappedFunction() instanceof NativeFunction nf)
 			{
-				nativeFunctionToJSON(nf, map, fs);
+				JSONUtils.addKeyIfPresent(writer, key);
+				writer.object();
+				nativeFunctionToJSON(nf, writer, fs, dataConverterContext);
+				writer.endObject();
 			}
-			else if (object instanceof Map mp)
+			else if (object instanceof JSONObject jo && (jo.has(SCRIPT) || jo.has(FunctionRefType.FUNCTION_HASH)))
 			{
-				map = new HashMap<String, Object>(mp);
-				if (map.get("script") instanceof String) addScriptToMap((String)map.get("script"), map, fs);
+				JSONUtils.addKeyIfPresent(writer, key);
+				writer.object();
+				if (jo.has(SCRIPT))
+				{
+					writer.key(SCRIPT).value(jo.getString(SCRIPT));
+				}
+				if (jo.has(FORMNAME))
+				{
+					writer.key(FORMNAME).value(jo.getString(FORMNAME));
+				}
+				if (jo.has(FunctionRefType.FUNCTION_HASH))
+				{
+					writer.key(FunctionRefType.FUNCTION_HASH).value(jo.getString(FunctionRefType.FUNCTION_HASH));
+				}
+				writer.endObject();
 			}
 		}
 		catch (Exception ex)
 		{
 			Debug.error(ex);
 		}
-		return JSONUtils.toBrowserJSONFullValue(writer, key, map.size() == 0 ? null : map, null, null);
+		return writer;
 	}
 
 	/**
@@ -167,13 +180,13 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 	 * @param fe
 	 * @throws Exception
 	 */
-	private void addScriptMethodToMap(ScriptMethod sm, Map<String, Object> map, FlattenedSolution fs, FormElement fe, WebFormComponent formComponent)
+	private void addScriptMethodToMap(ScriptMethod sm, JSONWriter writer, FlattenedSolution fs, FormElement fe, WebFormComponent formComponent)
 		throws Exception
 	{
 		ISupportChilds parent = sm.getParent();
 		if (parent instanceof Solution)
 		{
-			map.put("script", fs.getEncryptionHandler().encrypt("scopes." + sm.getScopeName() + "." + sm.getName() + "()"));
+			writer.key(SCRIPT).value(fs.getEncryptionHandler().encrypt("scopes." + sm.getScopeName() + "." + sm.getName() + "()"));
 		}
 		else if (parent instanceof Form)
 		{
@@ -183,19 +196,28 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 				// use the real, runtime form
 				formName = formComponent.getDataAdapterList().getForm().getForm().getName();
 			}
-			map.put("script", fs.getEncryptionHandler().encrypt("forms." + formName + "." + sm.getName() + "()"));
-			map.put("formname", formName);
+			writer.key(SCRIPT).value(fs.getEncryptionHandler().encrypt("forms." + formName + "." + sm.getName() + "()"));
+			writer.key(FORMNAME).value(formName);
 		}
 		else if (parent instanceof TableNode && fe != null)
 		{
-			map.put("script", fs.getEncryptionHandler().encrypt("entity." + fe.getForm().getName() + "." + sm.getName() + "()"));
-			map.put("formname", fe.getForm().getName());
+			writer.key(SCRIPT).value(fs.getEncryptionHandler().encrypt("entity." + fe.getForm().getName() + "." + sm.getName() + "()"));
+			writer.key(FORMNAME).value(fe.getForm().getName());
 		}
 	}
 
-	private void nativeFunctionToJSON(NativeFunction function, Map<String, Object> map, FlattenedSolution fs) throws Exception
+	private void nativeFunctionToJSON(NativeFunction function, JSONWriter writer, FlattenedSolution fs, IBrowserConverterContext dataConverterContext)
+		throws Exception
 	{
-		String functionName = function.getFunctionName();
+		Object functionName = function.get("_methodname_", function);
+		functionName = functionName.equals(Scriptable.NOT_FOUND) ? null : functionName;
+
+		if (functionName == null)
+		{
+			// if function name is null then just save it as a FunctionRef
+			writer.key(FunctionRefType.FUNCTION_HASH).value(FunctionRefType.INSTANCE.addReference(function, dataConverterContext));
+		}
+
 		Scriptable parentScope = function.getParentScope();
 		while (parentScope != null && !(parentScope instanceof ScriptVariableScope))
 		{
@@ -204,17 +226,20 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 		if (parentScope instanceof FormScope && ((FormScope)parentScope).getFormController() != null)
 		{
 			String formName = ((FormScope)parentScope).getFormController().getName();
-			map.put("script", fs.getEncryptionHandler().encrypt("forms." + formName + "." + functionName + "()"));
-			map.put("formname", formName);
+			writer.key(FORMNAME).value(formName);
+			if (functionName != null)
+			{
+				writer.key(SCRIPT).value(fs.getEncryptionHandler().encrypt("forms." + formName + "." + functionName + "()"));
+			}
 		}
-		else if (parentScope instanceof GlobalScope)
+		else if (parentScope instanceof GlobalScope && functionName != null)
 		{
-			map.put("script",
+			writer.key(SCRIPT).value(
 				fs.getEncryptionHandler().encrypt("scopes." + ((GlobalScope)parentScope).getScopeName() + "." + functionName + "()"));
 		}
 	}
 
-	private void addScriptToMap(String script, Map<String, Object> map, FlattenedSolution fs) throws Exception
+	private void addScriptToMap(String script, JSONWriter writer, FlattenedSolution fs) throws Exception
 	{
 		Debug.warn("Function property is given a string: " + script + ", this is should not happen");
 		boolean generated = false;
@@ -223,7 +248,7 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 			// scope method
 			if (fs.getScriptMethod(script) != null)
 			{
-				map.put("script", fs.getEncryptionHandler().encrypt(script + "()"));
+				writer.key(SCRIPT).value(fs.getEncryptionHandler().encrypt(script + "()"));
 				generated = true;
 			}
 		}
@@ -240,8 +265,8 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 					TableNode tableNode = tableNodes.next();
 					if (tableNode.getFoundsetMethod(methodName) != null)
 					{
-						map.put("script", fs.getEncryptionHandler().encrypt(script + "()"));
-						map.put("formname", formName);
+						writer.key(SCRIPT).value(fs.getEncryptionHandler().encrypt(script + "()"));
+						writer.key(FORMNAME).value(formName);
 						generated = true;
 						break;
 					}
@@ -255,8 +280,8 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 			Form form = fs.getForm(formName);
 			if (form != null && form.getScriptMethod(script.substring(formName.length() + 1)) != null)
 			{
-				map.put("script", fs.getEncryptionHandler().encrypt("forms." + script + "()"));
-				map.put("formname", formName);
+				writer.key(SCRIPT).value(fs.getEncryptionHandler().encrypt("forms." + script + "()"));
+				writer.key(FORMNAME).value(formName);
 				generated = true;
 			}
 		}
@@ -276,8 +301,8 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 	{
 		if (formElementValue == null) return writer;
 
-		return toJSON(writer, key, formElementValue, pd, formElementContext != null ? formElementContext.getFlattenedSolution() : null,
-			formElementContext != null ? formElementContext.getFormElement() : null, null);
+		return toJSON(writer, key, formElementValue, formElementContext != null ? formElementContext.getFlattenedSolution() : null,
+			formElementContext != null ? formElementContext.getFormElement() : null, null, null);
 	}
 
 	@Override
