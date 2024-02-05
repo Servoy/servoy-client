@@ -69,7 +69,7 @@ public class Types
 			TitleStringPropertyType.NG_INSTANCE));
 		TypesRegistry.addType(
 			new FoundsetLinkedPropertyType<Object, ValueListTypeSabloValue>(ValueListPropertyType.INSTANCE.getName(), ValueListPropertyType.INSTANCE));
-		TypesRegistry.addType(ServoyFunctionPropertyType.INSTANCE);
+		TypesRegistry.addType(ServoyFunctionPropertyType.SERVOY_INSTANCE);
 		TypesRegistry.addType(ServoyStringPropertyType.INSTANCE);
 		TypesRegistry.addType(ByteArrayResourcePropertyType.INSTANCE);
 		TypesRegistry.addType(MediaDataproviderPropertyType.INSTANCE);
