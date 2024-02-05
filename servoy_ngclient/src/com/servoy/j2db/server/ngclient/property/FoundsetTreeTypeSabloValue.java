@@ -396,6 +396,15 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 			for (IFoundSetInternal relatedFoundset : relatedFoundsets)
 			{
 				FoundsetTreeBinding relatedBinding = bindings.get(relatedFoundset.getDataSource());
+				boolean listenerAttached = false;
+				if (relatedBinding.foundsets.contains(relatedFoundset))
+				{
+					listenerAttached = true;
+				}
+				if (listenerAttached)
+				{
+					((ISwingFoundSet)relatedFoundset).removeTableModelListener(this);
+				}
 				for (int j = 0; j < relatedFoundset.getSize(); j++)
 				{
 					Map<String, Object> relRecordData = new HashMap<String, Object>();
@@ -479,6 +488,10 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 
 					}
 					relChildren.add(relRecordData);
+				}
+				if (listenerAttached)
+				{
+					((ISwingFoundSet)relatedFoundset).addTableModelListener(this);
 				}
 			}
 		}
