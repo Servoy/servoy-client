@@ -194,7 +194,9 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 
 	public void setCssClasses(String cls)
 	{
-		putAttribute("class", cls);
+		String newCls = cls.trim();
+		newCls = newCls.replaceAll("\\s+", " ");
+		putAttribute("class", newCls);
 	}
 
 	/**
