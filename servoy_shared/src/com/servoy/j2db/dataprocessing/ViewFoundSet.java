@@ -48,9 +48,13 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListDataListener;
 import javax.swing.table.AbstractTableModel;
 
+import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Symbol;
+import org.mozilla.javascript.SymbolKey;
+import org.mozilla.javascript.SymbolScriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
@@ -60,6 +64,7 @@ import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.dataprocessing.FoundSet.FoundSetES6Iterator;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.DummyValidator;
@@ -102,7 +107,7 @@ import com.servoy.j2db.util.visitor.SearchVisitor;
  * @since 8.4
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ViewFoundSet", scriptingName = "ViewFoundSet")
-public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, IFoundSetScriptMethods, IConstantsObject
+public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, IFoundSetScriptMethods, IConstantsObject, SymbolScriptable
 {
 
 	/**
@@ -187,6 +192,10 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	public static final int MONITOR_AGGREGATES = 64;
 
 	public static final String VIEW_FOUNDSET = "ViewFoundSet";
+
+	private static Callable symbol_iterator = (Context cx, Scriptable scope, Scriptable thisObj, Object[] args) -> {
+		return new FoundSetES6Iterator(scope, ((ViewFoundSet)thisObj));
+	};
 
 	protected transient AlwaysRowSelectedSelectionModel selectionModel;
 	private transient TableAndListEventDelegate tableAndListEventDelegate;
@@ -2642,5 +2651,31 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	boolean isFailedRecord(ViewRecord viewRecord)
 	{
 		return failedRecords.contains(viewRecord);
+	}
+
+	public Object get(Symbol key, Scriptable start)
+	{
+		if (SymbolKey.ITERATOR.equals(key))
+		{
+			return symbol_iterator;
+		}
+		return Scriptable.NOT_FOUND;
+	}
+
+
+	public boolean has(Symbol key, Scriptable start)
+	{
+		return (SymbolKey.ITERATOR.equals(key));
+	}
+
+	public void put(Symbol key, Scriptable start, Object value)
+	{
+
+	}
+
+
+	public void delete(Symbol key)
+	{
+
 	}
 }

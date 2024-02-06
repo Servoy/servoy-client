@@ -58,12 +58,17 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.mozilla.javascript.BaseFunction;
+import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ES6Iterator;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Symbol;
+import org.mozilla.javascript.SymbolKey;
+import org.mozilla.javascript.SymbolScriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.annotations.JSFunction;
@@ -144,7 +149,7 @@ import com.servoy.j2db.util.Utils;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSFoundSet", scriptingName = "JSFoundSet")
-public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMethods, IRowListener, Scriptable, Cloneable, IJSFoundSet
+public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMethods, IRowListener, Scriptable, SymbolScriptable, Cloneable, IJSFoundSet
 {
 	public static final String JS_FOUNDSET = "JSFoundSet"; //$NON-NLS-1$
 
@@ -193,6 +198,10 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	private int multiSelectPinLevel;
 
 	private int foundsetID = 0;
+
+	private static Callable symbol_iterator = (Context cx, Scriptable scope, Scriptable thisObj, Object[] args) -> {
+		return new FoundSetES6Iterator(scope, ((FoundSet)thisObj));
+	};
 
 	public PrototypeState getPrototypeState()
 	{
@@ -6711,6 +6720,33 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		}
 	}
 
+
+	public Object get(Symbol key, Scriptable start)
+	{
+		if (SymbolKey.ITERATOR.equals(key))
+		{
+			return symbol_iterator;
+		}
+		return Scriptable.NOT_FOUND;
+	}
+
+
+	public boolean has(Symbol key, Scriptable start)
+	{
+		return (SymbolKey.ITERATOR.equals(key));
+	}
+
+	public void put(Symbol key, Scriptable start, Object value)
+	{
+
+	}
+
+
+	public void delete(Symbol key)
+	{
+
+	}
+
 	boolean mustAggregatesBeLoaded()
 	{
 		Map<String, QuerySelect> aggregate = sheet.getAggregates();
@@ -7796,6 +7832,58 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			return false;
 		}
 
+	}
+
+	public static final class FoundSetES6Iterator extends ES6Iterator
+	{
+		private final Iterator<Object> iterator;
+		private static final String ITERATOR_TAG = "FoundSetIterator";
+
+		FoundSetES6Iterator(Scriptable scope, Iterable dataModel)
+		{
+			super(scope, ITERATOR_TAG);
+			this.iterator = dataModel.iterator();
+		}
+
+		@Override
+		protected boolean isDone(Context cx, Scriptable scope)
+		{
+			return !iterator.hasNext();
+		}
+
+		@Override
+		protected Object nextValue(Context cx, Scriptable scope)
+		{
+			if (!iterator.hasNext())
+			{
+				return null;
+			}
+			return iterator.next();
+		}
+
+		@Override
+		public String getClassName()
+		{
+			return ITERATOR_TAG;
+		}
+
+		@Override
+		public Object get(String name, Scriptable start)
+		{
+			if (NEXT_METHOD.equals(name))
+			{
+				return new Callable()
+				{
+					@Override
+					public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+					{
+						return FoundSetES6Iterator.this.next(cx, scope);
+					}
+
+				};
+			}
+			return super.get(name, start);
+		}
 	}
 
 	enum MethodCallState
