@@ -103,7 +103,7 @@ public class StatelessLoginHandler
 			try
 			{
 				AUTHENTICATOR_TYPE authenticator = fs.getSolution().getAuthenticator();
-				needToLogin.setLeft(authenticator != AUTHENTICATOR_TYPE.NONE && fs.getSolution().getLoginFormID() == 0 &&
+				needToLogin.setLeft(authenticator != AUTHENTICATOR_TYPE.NONE && fs.getSolution().getLoginFormID() <= 0 &&
 					fs.getSolution().getLoginSolutionName() == null);
 				if (needToLogin.getLeft())
 				{
