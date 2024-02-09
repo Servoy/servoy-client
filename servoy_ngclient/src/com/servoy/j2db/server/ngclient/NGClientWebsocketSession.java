@@ -406,6 +406,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			clientProperties.put(IApplication.TRUST_DATA_AS_HTML,
 				Boolean.valueOf(Settings.getInstance().getProperty(Settings.TRUST_DATA_AS_HTML_SETTING, Boolean.FALSE.toString())));
 		}
+		clientProperties.put(Settings.TESTING_MODE,
+			Boolean.valueOf(Settings.getInstance().getProperty(Settings.TESTING_MODE, Boolean.FALSE.toString())));
 		getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setUIProperties", new Object[] { new JSONObject(clientProperties) });
 	}
 
