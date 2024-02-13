@@ -3323,8 +3323,8 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	}
 
 	/**
-	 * Omit selected record(s) (add it to omit records list), to be shown with loadOmittedRecords. T
-	 * his operation returns false only when foundset is in bad state (table not accessible or not having a valid selected record)
+	 * Omit selected record(s) (add it to omit records list), to be shown with loadOmittedRecords.
+	 * This operation returns false only when foundset is in bad state (table not accessible or not having a valid selected record)
 	 * or the record is in an edit state and can't be saved (autosave is false).
 	 *
 	 * Note: The omitted records list is discarded when these functions are executed: loadAllRecords, loadRecords(dataset), loadRecords(sqlstring), invertRecords()
@@ -3338,6 +3338,33 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	public boolean js_omitRecord()
 	{
 		return isInitialized() && omitState(getSelectedIndexes());
+	}
+
+	/**
+	 * Omit record sent as parameter (add it to omit records list), to be shown with loadOmittedRecords.
+	 * This operation returns false only when foundset is in bad state (table not accessible or not having a valid selected record)
+	 * or the record is in an edit state and can't be saved (autosave is false) or record not present in foundset.
+	 *
+	 * Note: The omitted records list is discarded when these functions are executed: loadAllRecords, loadRecords(dataset), loadRecords(sqlstring), invertRecords()
+	 *
+	 * @sample var success = %%prefix%%foundset.omitRecord(record);
+	 *
+	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_loadOmittedRecords()
+	 *
+	 * @return boolean true if record could be omitted.
+	 */
+	@JSFunction
+	public boolean omitRecord(IJSRecord record)
+	{
+		if (isInitialized())
+		{
+			int _index = getRecordIndex((IRecord)record);
+			if (_index >= 0)
+			{
+				return omitState(new int[] { _index });
+			}
+		}
+		return false;
 	}
 
 	/**
