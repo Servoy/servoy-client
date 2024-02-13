@@ -303,7 +303,7 @@ public final class CSSPositionUtils
 		return new Dimension(width, height);
 	}
 
-	public static CSSPosition adjustCSSPosition(ISupportCSSPosition baseComponent, int x, int y, int width, int height)
+	public static CSSPosition adjustCSSPosition(ISupportCSSPosition baseComponent, int x, int y, int width, int height, boolean move)
 	{
 		CSSPosition position = baseComponent.getCssPosition();
 		CSSPosition adjustedPosition = (position == null) ? new CSSPosition("0", "-1", "-1", "0", "0", "0")
@@ -325,7 +325,7 @@ public final class CSSPositionUtils
 			int oldLeft = percentageToPixels(position.left, containerSize.width);
 			int oldWidth = containerSize.width - percentageToPixels(position.right, containerSize.width) -
 				oldLeft;
-			if (oldWidth != width)
+			if (oldWidth != width && !move)
 			{
 				// a resize
 				if (oldLeft != x)
@@ -366,7 +366,7 @@ public final class CSSPositionUtils
 			int oldTop = percentageToPixels(position.top, containerSize.height);
 			int oldHeight = containerSize.height - percentageToPixels(position.bottom, containerSize.height) -
 				oldTop;
-			if (oldHeight != height)
+			if (oldHeight != height && !move)
 			{
 				// a resize
 				if (oldTop != y)
@@ -429,7 +429,7 @@ public final class CSSPositionUtils
 		int pixels = 0;
 		if (value.endsWith("%"))
 		{
-			pixels = Utils.getAsInteger(value.substring(0, value.length() - 1)) * size / 100;
+			pixels = (int)Math.round((double)Utils.getAsInteger(value.substring(0, value.length() - 1)) * size / 100);
 		}
 		else
 		{
@@ -532,7 +532,7 @@ public final class CSSPositionUtils
 		}
 		else if (oldValue.endsWith("%"))
 		{
-			return String.valueOf(100 * value / size) + "%";
+			return String.valueOf(Math.round((double)100 * value / size)) + "%";
 		}
 		return String.valueOf(value);
 	}
