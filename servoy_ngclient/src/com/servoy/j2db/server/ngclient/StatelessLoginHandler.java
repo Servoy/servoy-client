@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.rmi.RemoteException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
@@ -81,11 +82,15 @@ public class StatelessLoginHandler
 	public static final String GROUPS = "groups";
 	public static final String USERNAME = "username";
 	public static final String UID = "uid";
+	public static final String LAST_LOGIN = "last_login";
 	private static final String JWT_Password = "servoy.jwt.logintoken.password";
 	private static final int TOKEN_AGE_IN_SECONDS = 24 * 3600;
 
-	public static final String CLOUD_URL = System.getProperty("servoy.api.url", "https://middleware-prod.unifiedui.servoy-cloud.eu") +
+	private static final String BASE_CLOUD_URL = System.getProperty("servoy.api.url", "https://middleware-prod.unifiedui.servoy-cloud.eu");
+	public static final String CLOUD_URL = BASE_CLOUD_URL +
 		"/servoy-service/rest_ws/api/login_auth/validateAuthUser";
+	public static final String REFRESH_TOKEN_CLOUD_URL = BASE_CLOUD_URL +
+		"/servoy-service/rest_ws/api/login_auth/refreshPermissions";
 
 	@SuppressWarnings({ "boxing" })
 	public static Pair<Boolean, String> mustAuthenticate(HttpServletRequest request, HttpServletResponse reponse, String solutionName)
@@ -137,14 +142,9 @@ public class StatelessLoginHandler
 									decodedJWT.getClaims().containsKey(GROUPS))
 								{
 									String _user = decodedJWT.getClaim(USERNAME).toString();
-									String _uid = decodedJWT.getClaim(UID).asString();
-									String[] _groups = decodedJWT.getClaim(GROUPS).asArray(String.class);
 									try
 									{
-										id_token = createToken(_user, _uid, _groups);
-										needToLogin.setLeft(Boolean.FALSE);
-										needToLogin.setRight(id_token);
-										return needToLogin;
+										checkUser(_user, null, needToLogin, fs.getSolution(), decodedJWT);
 									}
 									catch (Exception e)
 									{
@@ -166,15 +166,28 @@ public class StatelessLoginHandler
 
 	private static void checkUser(String username, String password, Pair<Boolean, String> needToLogin, Solution solution)
 	{
+		checkUser(username, password, needToLogin, solution, null);
+	}
+
+	private static void checkUser(String username, String password, Pair<Boolean, String> needToLogin, Solution solution, DecodedJWT oldToken)
+	{
 		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 		{
 			CloseableHttpClient httpclient = HttpClients.createDefault();
-			HttpGet httpget = new HttpGet(CLOUD_URL);
+			HttpGet httpget = new HttpGet(oldToken != null ? REFRESH_TOKEN_CLOUD_URL : CLOUD_URL);
 
-			String auth = username + ":" + password;
-			byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("ISO-8859-1")));
-			String authHeader = "Basic " + new String(encodedAuth);
-			httpget.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
+			if (oldToken == null)
+			{
+				String auth = username + ":" + password;
+				byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("ISO-8859-1")));
+				String authHeader = "Basic " + new String(encodedAuth);
+				httpget.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
+			}
+			else
+			{
+				httpget.addHeader(USERNAME, oldToken.getClaim(USERNAME));
+				httpget.addHeader(LAST_LOGIN, oldToken.getClaim(LAST_LOGIN));
+			}
 			httpget.addHeader(HttpHeaders.ACCEPT, "application/json");
 			httpget.addHeader("uuid", solution.getUUID().toString());
 
@@ -250,8 +263,14 @@ public class StatelessLoginHandler
 			if (authenticator != null)
 			{
 				JSONObject json = new JSONObject();
-				json.put("username", username);
+				json.put(USERNAME, username);
 				json.put("password", password);
+				if (oldToken != null)
+				{
+					String payload = new String(java.util.Base64.getUrlDecoder().decode(oldToken.getPayload()));
+					JSONObject token = new JSONObject(payload);
+					json.put(LAST_LOGIN, token);
+				}
 
 				Credentials credentials = new Credentials(null, authenticator.getName(), null, json.toString());
 
@@ -281,23 +300,39 @@ public class StatelessLoginHandler
 		}
 		else
 		{
-			String uid = ApplicationServerRegistry.get().checkDefaultServoyAuthorisation(username, password);
-			if (uid != null)
+			try
 			{
-				try
+				String clientid = ApplicationServerRegistry.get().getClientId();
+				if (oldToken != null)
 				{
-					String clientid = ApplicationServerRegistry.get().getClientId();
-					String[] permissions = ApplicationServerRegistry.get().getUserManager().getUserGroups(clientid, uid);
-					String token = createToken(username, uid, permissions);
-					needToLogin.setLeft(Boolean.FALSE);
-					needToLogin.setRight(token);
-					return;
-				}
-				catch (Exception e)
-				{
-					Debug.error(e);
+					long passwordLastChagedTime = ApplicationServerRegistry.get().getUserManager().getPasswordLastSet(clientid,
+						oldToken.getClaim(UID).asString());
+					if (passwordLastChagedTime > oldToken.getClaim(LAST_LOGIN).asLong().longValue())
+					{
+						needToLogin.setLeft(Boolean.TRUE);
+						needToLogin.setRight(null);
+						return;
+					}
 				}
 
+				String uid = oldToken != null ? oldToken.getClaim(UID).asString()
+					: ApplicationServerRegistry.get().checkDefaultServoyAuthorisation(username, password);
+				if (uid != null)
+				{
+
+					String[] permissions = ApplicationServerRegistry.get().getUserManager().getUserGroups(clientid, uid);
+					if (permissions.length > 0 && (oldToken == null || Arrays.equals(oldToken.getClaim(GROUPS).asArray(String.class), permissions)))
+					{
+						String token = createToken(username, uid, permissions);
+						needToLogin.setLeft(Boolean.FALSE);
+						needToLogin.setRight(token);
+						return;
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);
 			}
 		}
 		needToLogin.setLeft(Boolean.TRUE);
@@ -314,6 +349,7 @@ public class StatelessLoginHandler
 			.withClaim(UID, uid)
 			.withClaim(USERNAME, username)
 			.withArrayClaim(GROUPS, groups)
+			.withClaim(LAST_LOGIN, Long.valueOf(System.currentTimeMillis()))
 			.withExpiresAt(new Date(System.currentTimeMillis() + TOKEN_AGE_IN_SECONDS * 1000))
 			.sign(algorithm);
 	}
@@ -388,6 +424,15 @@ public class StatelessLoginHandler
 			sb.append("\n  </script> ");
 
 		}
+		else if (!Utils.stringIsEmpty(request.getParameter(ID_TOKEN) != null ? request.getParameter(ID_TOKEN)
+			: (String)request.getSession().getAttribute(ID_TOKEN)))
+		{
+			sb.append("\n  	 <script type='text/javascript'>");
+			sb.append("\n    window.addEventListener('load', () => { ");
+			sb.append("\n     window.localStorage.removeItem('servoy_id_token');");
+			sb.append("\n   }) ");
+			sb.append("\n  </script> ");
+		}
 		else if (request.getParameter(USERNAME) != null)
 		{
 			sb.append("\n  	 <script type='text/javascript'>");
@@ -399,7 +444,6 @@ public class StatelessLoginHandler
 			sb.append("\n   }) ");
 			sb.append("\n  </script> ");
 		}
-
 
 		loginHtml = loginHtml.replace("<base href=\"/\">", sb.toString());
 
