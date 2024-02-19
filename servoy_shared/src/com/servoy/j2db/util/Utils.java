@@ -167,11 +167,8 @@ public final class Utils
 		}
 		if (context instanceof Form && element instanceof IPersist && (((IPersist)element).getAncestor(IRepository.FORMS) != context))
 		{
-			if (element instanceof IPersist && (((IPersist)element).getAncestor(IRepository.FORMS) != context))
-			{
-				// child of super-form, readonly
-				return true;
-			}
+			// child of super-form, readonly
+			return true;
 		}
 		if (element instanceof FormElementGroup)
 		{
