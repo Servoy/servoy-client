@@ -171,172 +171,193 @@ public class StatelessLoginHandler
 
 	private static void checkUser(String username, String password, Pair<Boolean, String> needToLogin, Solution solution, DecodedJWT oldToken)
 	{
+		boolean verified = false;
 		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 		{
-			CloseableHttpClient httpclient = HttpClients.createDefault();
-			HttpGet httpget = new HttpGet(oldToken != null ? REFRESH_TOKEN_CLOUD_URL : CLOUD_URL);
-
-			if (oldToken == null)
-			{
-				String auth = username + ":" + password;
-				byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("ISO-8859-1")));
-				String authHeader = "Basic " + new String(encodedAuth);
-				httpget.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
-			}
-			else
-			{
-				httpget.addHeader(USERNAME, oldToken.getClaim(USERNAME));
-				httpget.addHeader(LAST_LOGIN, oldToken.getClaim(LAST_LOGIN));
-			}
-			httpget.addHeader(HttpHeaders.ACCEPT, "application/json");
-			httpget.addHeader("uuid", solution.getUUID().toString());
-
-			try
-			{
-				String[] permissions = httpclient.execute(httpget, new HttpClientResponseHandler<String[]>()
-				{
-
-					@Override
-					public String[] handleResponse(ClassicHttpResponse response) throws HttpException, IOException
-					{
-						HttpEntity responseEntity = response.getEntity();
-						String responseString = EntityUtils.toString(responseEntity);
-						if (response.getCode() == HttpStatus.SC_OK)
-						{
-
-							JSONObject loginTokenJSON = new JSONObject(responseString);
-							JSONArray permissionsArray = loginTokenJSON.getJSONArray("permissions");
-							if (permissionsArray != null)
-							{
-								String[] prmsns = new String[permissionsArray.length()];
-								for (int i = 0; i < prmsns.length; i++)
-								{
-									prmsns[i] = permissionsArray.getString(i);
-								}
-								return prmsns;
-							}
-							return null;
-						}
-						else
-						{
-							Debug.error("could not login the user because the response to servoycloud had an error: " + response.getCode() + " " +
-								response.getReasonPhrase());
-							return null;
-						}
-					}
-				});
-				if (permissions != null)
-				{
-					String token = createToken(username, username, permissions);
-					needToLogin.setLeft(Boolean.FALSE);
-					needToLogin.setRight(token);
-					return;
-				}
-			}
-			catch (IOException e)
-			{
-				Debug.error("Can't validate user with the Servoy Cloud", e);
-			}
-
+			verified = checkCloudPermissions(username, password, needToLogin, solution, oldToken);
 		}
 		else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.AUTHENTICATOR)
 		{
-			String modulesNames = solution.getModulesNames();
-			IRepository localRepository = ApplicationServerRegistry.get().getLocalRepository();
-			Solution authenticator = null;
-			for (String moduleName : Utils.getTokenElements(modulesNames, ",", true))
-			{
-				try
-				{
-					Solution module = (Solution)localRepository.getActiveRootObject(moduleName, IRepository.SOLUTIONS);
-					if (module.getSolutionType() == SolutionMetaData.AUTHENTICATOR)
-					{
-						authenticator = module;
-						break;
-					}
-				}
-				catch (RemoteException | RepositoryException e)
-				{
-					Debug.error(e);
-				}
-			}
-			if (authenticator != null)
-			{
-				JSONObject json = new JSONObject();
-				json.put(USERNAME, username);
-				json.put("password", password);
-				if (oldToken != null)
-				{
-					String payload = new String(java.util.Base64.getUrlDecoder().decode(oldToken.getPayload()));
-					JSONObject token = new JSONObject(payload);
-					json.put(LAST_LOGIN, token);
-				}
-
-				Credentials credentials = new Credentials(null, authenticator.getName(), null, json.toString());
-
-				IApplicationServer applicationServer = ApplicationServerRegistry.getService(IApplicationServer.class);
-				try
-				{
-					ClientLogin login = applicationServer.login(credentials);
-					if (login != null)
-					{
-						String token = createToken(login.getUserName(), login.getUserUid(), login.getUserGroups());
-						needToLogin.setLeft(Boolean.FALSE);
-						needToLogin.setRight(token);
-						return;
-					}
-				}
-				catch (RemoteException | RepositoryException e)
-				{
-					Debug.error(e);
-				}
-
-			}
-			else
-			{
-				Debug.error("Trying to login in solution " + solution.getName() +
-					" with using an AUTHENCATOR solution, but the main solution doesn't have that as a module");
-			}
+			verified = checkAuthenticatorPermssions(username, password, needToLogin, solution, oldToken);
 		}
 		else
 		{
-			try
+			verified = checkDefaultLoginPermissions(username, password, needToLogin, oldToken);
+		}
+		if (!verified)
+		{
+			needToLogin.setLeft(Boolean.TRUE);
+			needToLogin.setRight(null);
+		}
+	}
+
+	private static boolean checkDefaultLoginPermissions(String username, String password, Pair<Boolean, String> needToLogin, DecodedJWT oldToken)
+	{
+		try
+		{
+			String clientid = ApplicationServerRegistry.get().getClientId();
+			if (oldToken != null)
 			{
-				String clientid = ApplicationServerRegistry.get().getClientId();
-				if (oldToken != null)
+				long passwordLastChagedTime = ApplicationServerRegistry.get().getUserManager().getPasswordLastSet(clientid,
+					oldToken.getClaim(UID).asString());
+				if (passwordLastChagedTime > oldToken.getClaim(LAST_LOGIN).asLong().longValue())
 				{
-					long passwordLastChagedTime = ApplicationServerRegistry.get().getUserManager().getPasswordLastSet(clientid,
-						oldToken.getClaim(UID).asString());
-					if (passwordLastChagedTime > oldToken.getClaim(LAST_LOGIN).asLong().longValue())
-					{
-						needToLogin.setLeft(Boolean.TRUE);
-						needToLogin.setRight(null);
-						return;
-					}
-				}
-
-				String uid = oldToken != null ? oldToken.getClaim(UID).asString()
-					: ApplicationServerRegistry.get().checkDefaultServoyAuthorisation(username, password);
-				if (uid != null)
-				{
-
-					String[] permissions = ApplicationServerRegistry.get().getUserManager().getUserGroups(clientid, uid);
-					if (permissions.length > 0 && (oldToken == null || Arrays.equals(oldToken.getClaim(GROUPS).asArray(String.class), permissions)))
-					{
-						String token = createToken(username, uid, permissions);
-						needToLogin.setLeft(Boolean.FALSE);
-						needToLogin.setRight(token);
-						return;
-					}
+					needToLogin.setLeft(Boolean.TRUE);
+					needToLogin.setRight(null);
+					return false;
 				}
 			}
-			catch (Exception e)
+
+			String uid = oldToken != null ? oldToken.getClaim(UID).asString()
+				: ApplicationServerRegistry.get().checkDefaultServoyAuthorisation(username, password);
+			if (uid != null)
+			{
+
+				String[] permissions = ApplicationServerRegistry.get().getUserManager().getUserGroups(clientid, uid);
+				if (permissions.length > 0 && (oldToken == null || Arrays.equals(oldToken.getClaim(GROUPS).asArray(String.class), permissions)))
+				{
+					String token = createToken(username, uid, permissions);
+					needToLogin.setLeft(Boolean.FALSE);
+					needToLogin.setRight(token);
+					return true;
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+		return false;
+	}
+
+	private static boolean checkAuthenticatorPermssions(String username, String password, Pair<Boolean, String> needToLogin, Solution solution,
+		DecodedJWT oldToken)
+	{
+		String modulesNames = solution.getModulesNames();
+		IRepository localRepository = ApplicationServerRegistry.get().getLocalRepository();
+		Solution authenticator = null;
+		for (String moduleName : Utils.getTokenElements(modulesNames, ",", true))
+		{
+			try
+			{
+				Solution module = (Solution)localRepository.getActiveRootObject(moduleName, IRepository.SOLUTIONS);
+				if (module.getSolutionType() == SolutionMetaData.AUTHENTICATOR)
+				{
+					authenticator = module;
+					break;
+				}
+			}
+			catch (RemoteException | RepositoryException e)
 			{
 				Debug.error(e);
 			}
 		}
-		needToLogin.setLeft(Boolean.TRUE);
-		needToLogin.setRight(null);
+		if (authenticator != null)
+		{
+			JSONObject json = new JSONObject();
+			json.put(USERNAME, username);
+			json.put("password", password);
+			if (oldToken != null)
+			{
+				String payload = new String(java.util.Base64.getUrlDecoder().decode(oldToken.getPayload()));
+				JSONObject token = new JSONObject(payload);
+				json.put(LAST_LOGIN, token);
+			}
+
+			Credentials credentials = new Credentials(null, authenticator.getName(), null, json.toString());
+
+			IApplicationServer applicationServer = ApplicationServerRegistry.getService(IApplicationServer.class);
+			try
+			{
+				ClientLogin login = applicationServer.login(credentials);
+				if (login != null)
+				{
+					String token = createToken(login.getUserName(), login.getUserUid(), login.getUserGroups());
+					needToLogin.setLeft(Boolean.FALSE);
+					needToLogin.setRight(token);
+					return true;
+				}
+			}
+			catch (RemoteException | RepositoryException e)
+			{
+				Debug.error(e);
+			}
+		}
+		else
+		{
+			Debug.error("Trying to login in solution " + solution.getName() +
+				" with using an AUTHENCATOR solution, but the main solution doesn't have that as a module");
+		}
+		return false;
+	}
+
+	private static boolean checkCloudPermissions(String username, String password, Pair<Boolean, String> needToLogin, Solution solution, DecodedJWT oldToken)
+	{
+		CloseableHttpClient httpclient = HttpClients.createDefault();
+		HttpGet httpget = new HttpGet(oldToken != null ? REFRESH_TOKEN_CLOUD_URL : CLOUD_URL);
+
+		if (oldToken == null)
+		{
+			String auth = username + ":" + password;
+			byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("ISO-8859-1")));
+			String authHeader = "Basic " + new String(encodedAuth);
+			httpget.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
+		}
+		else
+		{
+			httpget.addHeader(USERNAME, oldToken.getClaim(USERNAME));
+			httpget.addHeader(LAST_LOGIN, oldToken.getClaim(LAST_LOGIN));
+		}
+		httpget.addHeader(HttpHeaders.ACCEPT, "application/json");
+		httpget.addHeader("uuid", solution.getUUID().toString());
+
+		try
+		{
+			String[] permissions = httpclient.execute(httpget, new HttpClientResponseHandler<String[]>()
+			{
+
+				@Override
+				public String[] handleResponse(ClassicHttpResponse response) throws HttpException, IOException
+				{
+					HttpEntity responseEntity = response.getEntity();
+					String responseString = EntityUtils.toString(responseEntity);
+					if (response.getCode() == HttpStatus.SC_OK)
+					{
+
+						JSONObject loginTokenJSON = new JSONObject(responseString);
+						JSONArray permissionsArray = loginTokenJSON.getJSONArray("permissions");
+						if (permissionsArray != null)
+						{
+							String[] prmsns = new String[permissionsArray.length()];
+							for (int i = 0; i < prmsns.length; i++)
+							{
+								prmsns[i] = permissionsArray.getString(i);
+							}
+							return prmsns;
+						}
+						return null;
+					}
+					else
+					{
+						Debug.error("could not login the user because the response to servoycloud had an error: " + response.getCode() + " " +
+							response.getReasonPhrase());
+						return null;
+					}
+				}
+			});
+			if (permissions != null)
+			{
+				String token = createToken(username, username, permissions);
+				needToLogin.setLeft(Boolean.FALSE);
+				needToLogin.setRight(token);
+				return true;
+			}
+		}
+		catch (IOException e)
+		{
+			Debug.error("Can't validate user with the Servoy Cloud", e);
+		}
+		return false;
 	}
 
 
