@@ -47,14 +47,13 @@ import com.servoy.j2db.util.MimeTypes;
 @WebFilter(urlPatterns = { "/locales/*" }, dispatcherTypes = { DispatcherType.REQUEST, DispatcherType.FORWARD })
 public class NGLocalesFilter implements Filter
 {
-
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException
 	{
 		if (request.getParameter("localeid") != null)
 		{
 			// this code is a bit of copy of the IndexPageFilter locale handling part.
-			String requestURI = ((HttpServletRequest)request).getRequestURI();
+			String requestURI = ((HttpServletRequest)request).getServletPath();
 			Path normalize = Paths.get(requestURI).normalize();
 			Set<String> resourcePaths = request.getServletContext().getResourcePaths(normalize.getParent().toString().replace('\\', '/'));
 			if (resourcePaths != null)
