@@ -17,16 +17,22 @@
 
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.util.Collection;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 
+import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
+import com.servoy.j2db.server.ngclient.property.ComponentTypeConfig;
+import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 
 /**
  * @author lvostinar
@@ -69,7 +75,35 @@ public class RuntimeComponentPropertyType extends DefaultPropertyType<RuntimeWeb
 		{
 			writer.key(key);
 		}
-		writer.value(sabloValue.get("svyMarkupId", sabloValue));
+		Object id = sabloValue.get("svyMarkupId", sabloValue);
+		WebObjectSpecification spec = sabloValue.getComponent().getParent().getSpecification();
+		if (spec != null)
+		{
+			Collection<PropertyDescription> formComponentProperties = spec
+				.getProperties(FormComponentPropertyType.INSTANCE);
+			if (formComponentProperties != null)
+			{
+				for (PropertyDescription property : formComponentProperties)
+				{
+					if (property.getConfig() instanceof ComponentTypeConfig &&
+						((ComponentTypeConfig)property.getConfig()).forFoundset != null)
+					{
+						FoundsetTypeSabloValue foundsetPropertyValue = (FoundsetTypeSabloValue)sabloValue.getComponent()
+							.getParent().getProperty(((ComponentTypeConfig)property.getConfig()).forFoundset);
+						if (foundsetPropertyValue != null)
+						{
+							IFoundSetInternal foundset = foundsetPropertyValue.getFoundset();
+
+							id += "_" + foundset.getSelectedIndex();
+						}
+						break;
+					}
+
+				}
+			}
+		}
+
+		writer.value(id);
 		return writer;
 	}
 }
