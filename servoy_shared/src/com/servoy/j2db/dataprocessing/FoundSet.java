@@ -73,6 +73,7 @@ import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.scripting.api.IJSFoundSet;
@@ -6535,29 +6536,32 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	@JSReadonlyProperty
 	public String[] alldataproviders()
 	{
-		List<String> al = new ArrayList<String>();
+		List<String> al = new ArrayList<>();
 		Table table = (Table)getTable();
 		if (table != null)
 		{
 			try
 			{
-				Iterator<Column> columnsIt = table.getColumnsSortedByName();
-				while (columnsIt.hasNext())
+				for (Column column : iterate(table.getColumnsSortedByName()))
 				{
-					IColumn c = columnsIt.next();
-					al.add(c.getDataProviderID());
+					if (!column.hasFlag(IBaseColumn.EXCLUDED_COLUMN))
+					{
+						al.add(column.getDataProviderID());
+					}
 				}
-				Iterator<AggregateVariable> aggIt = fsm.getApplication().getFlattenedSolution().getAggregateVariables(table, true);
-				while (aggIt.hasNext())
+
+				FlattenedSolution flattenedSolution = fsm.getApplication().getFlattenedSolution();
+				for (AggregateVariable av : iterate(flattenedSolution.getAggregateVariables(table, true)))
 				{
-					AggregateVariable av = aggIt.next();
 					al.add(av.getDataProviderID());
 				}
-				Iterator<ScriptCalculation> scriptIt = fsm.getApplication().getFlattenedSolution().getScriptCalculations(table, true);
-				while (scriptIt.hasNext())
+
+				for (ScriptCalculation sc : iterate(flattenedSolution.getScriptCalculations(table, true)))
 				{
-					ScriptCalculation sc = scriptIt.next();
-					if (al.contains(sc.getDataProviderID())) al.remove(sc.getDataProviderID());
+					if (al.contains(sc.getDataProviderID()))
+					{
+						al.remove(sc.getDataProviderID());
+					}
 					al.add(sc.getDataProviderID());
 				}
 			}

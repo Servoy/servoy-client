@@ -41,7 +41,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -137,7 +136,6 @@ public class SQLGenerator
 	public static final String CONDITION_RELATION = SERVOY_CONDITION_PREFIX + 'R';
 	public static final String CONDITION_SEARCH = SERVOY_CONDITION_PREFIX + 'S';
 	public static final String CONDITION_CLEAR = SERVOY_CONDITION_PREFIX + 'C';
-	public static final String CONDITION_LOCK = SERVOY_CONDITION_PREFIX + 'L';
 
 	public static final String SQL_QUERY_VALIDATION_MESSAGE = "A query must start with 'SELECT', optionally preceded by 'WITH' or 'DECLARE', and must contain 'FROM'";
 
@@ -1205,8 +1203,7 @@ public class SQLGenerator
 			pkQueryColumns.add(column.queryColumn(queryTable));
 		}
 
-		Iterator<Column> it2 = columns.iterator();
-		select.setColumns(makeQueryColumns(it2, queryTable, insert));
+		select.setColumns(makeQueryColumns(columns, queryTable, insert));
 		SetCondition pkSelect = new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]),
 			new Placeholder(new TablePlaceholderKey(queryTable, PLACEHOLDER_PRIMARY_KEY)), true);
 
@@ -1214,7 +1211,7 @@ public class SQLGenerator
 		delete.setCondition(deepClone(pkSelect));
 		update.setCondition(deepClone(pkSelect));
 
-		//fill dataprovider map
+		// fill dataprovider map
 		List<String> dataProviderIDsDilivery = new ArrayList<String>();
 		for (Column col : columns)
 		{
@@ -1257,14 +1254,14 @@ public class SQLGenerator
 			{
 				return;
 			}
-			ITable ft = fs.getTable(r.getForeignDataSource());
-			if (ft == null)
+			ITable foreignTable = fs.getTable(r.getForeignDataSource());
+			if (foreignTable == null)
 			{
 				return;
 			}
 
-			//add primary keys if missing
-			QueryTable foreignQTable = new QueryTable(ft.getSQLName(), ft.getDataSource(), ft.getCatalog(), ft.getSchema());
+			// add primary keys if missing
+			QueryTable foreignQTable = foreignTable.queryTable();
 			QuerySelect relatedSelect = new QuerySelect(foreignQTable);
 
 			List<String> parentRequiredDataProviderIDs = new ArrayList<String>();
@@ -1276,10 +1273,10 @@ public class SQLGenerator
 
 			relatedSelect.setCondition(CONDITION_RELATION, createRelatedCondition(application, r, foreignQTable));
 
-			Collection<Column> rcolumns = ft.getColumns();
-			relatedSelect.setColumns(makeQueryColumns(rcolumns.iterator(), foreignQTable, null));
+			Collection<Column> rcolumns = foreignTable.getColumns();
+			relatedSelect.setColumns(makeQueryColumns(rcolumns, foreignQTable, null));
 
-			//fill dataprovider map
+			// fill dataprovider map
 			List<String> dataProviderIDsDilivery = new ArrayList<String>();
 			for (Column col : rcolumns)
 			{
@@ -1536,49 +1533,44 @@ public class SQLGenerator
 		return value != null && value.matches("(?si)\\s*(\\b(with|declare)\\b.*)?\\bselect\\b.*\\bfrom\\b.*");
 	}
 
-	public static QuerySelect createUpdateLockSelect(Table table, Object[][] pkValues, boolean lockInDb)
+	public static QuerySelect createUpdateLockSelect(QuerySelect tableSelectQuery, Collection<Object[]> pks, boolean lockInDb)
 	{
-		QuerySelect lockSelect = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
-		if (lockInDb) lockSelect.setLockMode(ISQLSelect.LOCK_MODE_LOCK_NOWAIT);
-
-		LinkedHashMap<Column, QueryColumn> allQueryColumns = new LinkedHashMap<>();
-		for (Column column : table.getColumns())
+		if (pks.isEmpty())
 		{
-			allQueryColumns.put(column, column.queryColumn(lockSelect.getTable()));
+			return null;
 		}
 
-		lockSelect.setColumns(new ArrayList<IQuerySelectValue>(allQueryColumns.values()));
-
-		// get the pk columns, make sure the order is in pk-order (alphabetical)
-		ArrayList<QueryColumn> pkQueryColumns = new ArrayList<>();
-		for (Column pkColumn : table.getRowIdentColumns())
+		QuerySelect lockSelect = deepClone(tableSelectQuery);
+		if (lockInDb)
 		{
-			pkQueryColumns.add(allQueryColumns.get(pkColumn));
+			lockSelect.setLockMode(ISQLSelect.LOCK_MODE_LOCK_NOWAIT);
 		}
+
+		List<Object[]> pklist = new ArrayList<>(pks);
+		int pkSize = pklist.get(0).length;
 
 		// values is an array as wide as the columns, each element consists of the values for that column
-		Object[][] values = new Object[pkQueryColumns.size()][];
-		for (int k = 0; k < pkQueryColumns.size(); k++)
+		Object[][] values = new Object[pkSize][];
+		for (int k = 0; k < pkSize; k++)
 		{
-			values[k] = new Object[pkValues.length];
-			for (int r = 0; r < pkValues.length; r++)
+			values[k] = new Object[pklist.size()];
+			for (int r = 0; r < pklist.size(); r++)
 			{
-				values[k][r] = pkValues[r][k];
+				values[k][r] = pklist.get(r)[k];
 			}
 		}
-		lockSelect.setCondition(CONDITION_LOCK,
-			new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), values, true));
 
+		lockSelect.setPlaceholderValueChecked(new TablePlaceholderKey(lockSelect.getTable(), PLACEHOLDER_PRIMARY_KEY), values);
 		return lockSelect;
 	}
 
-	private static ArrayList<IQuerySelectValue> makeQueryColumns(Iterator<Column> it, QueryTable queryTable, QueryInsert insert)
+	private static ArrayList<IQuerySelectValue> makeQueryColumns(Collection<Column> columns, QueryTable queryTable, QueryInsert insert)
 	{
-		ArrayList<IQuerySelectValue> queryColumns = new ArrayList<IQuerySelectValue>();
-		List<QueryColumn> insertColumns = new ArrayList<QueryColumn>();
-		while (it.hasNext())
+		ArrayList<IQuerySelectValue> queryColumns = new ArrayList<>();
+		List<QueryColumn> insertColumns = new ArrayList<>();
+
+		for (Column column : columns)
 		{
-			Column column = it.next();
 			ColumnInfo ci = column.getColumnInfo();
 			if (ci != null && ci.isExcluded())
 			{
