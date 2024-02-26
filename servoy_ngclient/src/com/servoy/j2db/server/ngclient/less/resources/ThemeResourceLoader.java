@@ -36,7 +36,6 @@ import com.servoy.j2db.util.Utils;
 public class ThemeResourceLoader
 {
 	public static final String CUSTOM_PROPERTIES_LESS = "custom_servoy_theme_properties.less";
-	public static final String CUSTOM_PROPERTIES_NG2_LESS = "custom_servoy_theme_properties_ng2.less";
 	public static final String PROPERTIES_LESS = "servoy_theme_properties.less";
 	public static final String THEME_LESS = "servoy_theme.less";
 	public static final String VARIANTS_JSON = "variants.json";
@@ -74,22 +73,12 @@ public class ThemeResourceLoader
 		return load("default_solution.less", ClientVersion.getPureVersion()).getBytes(Charset.forName("UTF-8"));
 	}
 
-	public static byte[] getDefaultNG2SolutionLess()
-	{
-		return load("default_solution_ng2.less", ClientVersion.getPureVersion()).getBytes(Charset.forName("UTF-8"));
-	}
-
 	public static byte[] getVariantsFile()
 	{
 		return load("variants.json", ClientVersion.getPureVersion()).getBytes(Charset.forName("UTF-8"));
 	}
 
 	public static byte[] getCustomProperties()
-	{
-		return load("custom_servoy_theme_properties.less", getLatestVersion()).getBytes(Charset.forName("UTF-8"));
-	}
-
-	public static byte[] getNG2CustomProperties()
 	{
 		return load("custom_servoy_theme_properties.less", getLatestNG2Version()).getBytes(Charset.forName("UTF-8"));
 	}
