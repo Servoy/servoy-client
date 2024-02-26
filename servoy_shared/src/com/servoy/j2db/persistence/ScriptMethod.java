@@ -35,6 +35,7 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 
 	private static final long serialVersionUID = 1L;
 
+	private transient Boolean isDeeplink;
 	private transient Boolean isPrivate;
 	private transient Boolean isProtected;
 	private transient Boolean isConstructor;
@@ -83,6 +84,7 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 	public void setDeclaration(String declaration)
 	{
 		super.setDeclaration(declaration);
+		isDeeplink = null;
 		isPrivate = null;
 		isProtected = null;
 		isPublic = null;
@@ -111,6 +113,26 @@ public class ScriptMethod extends AbstractScriptProvider implements IPersistClon
 	public void setScopeName(String scopeName)
 	{
 		super.setScopeName(scopeName);
+	}
+
+	public boolean isDeeplink()
+	{
+		Boolean deepLink = isDeeplink;
+		if (deepLink == null)
+		{
+			String declaration = getDeclaration();
+			if (declaration == null)
+			{
+				deepLink = Boolean.FALSE;
+			}
+			else
+			{
+				int index = declaration.indexOf("*/");
+				deepLink = Boolean.valueOf(index != -1 && declaration.lastIndexOf("@deeplink", index) != -1);
+			}
+			isDeeplink = deepLink;
+		}
+		return deepLink.booleanValue();
 	}
 
 	/**

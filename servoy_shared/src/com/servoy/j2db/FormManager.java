@@ -58,8 +58,6 @@ import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.util.AllowNullMap;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Pair;
-import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.AppletController;
@@ -318,8 +316,7 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 				// avoid stack overflows when an execute method URL is used to open the solution, and that method does call JSSecurity login
 				((ClientState)application).resetPreferedSolutionMethodNameToCall();
 
-				Pair<String, String> scope = ScopesUtils.getVariableScope(preferedSolutionMethodName);
-				Object result = application.getScriptEngine().getScopesScope().executeGlobalFunction(scope.getLeft(), scope.getRight(), args, false, false);
+				Object result = application.getScriptEngine().getScopesScope().executeDeeplink(preferedSolutionMethodName, args);
 				if (application.getSolution().getSolutionType() == SolutionMetaData.AUTHENTICATOR)
 				{
 					application.getRuntimeProperties().put(IServiceProvider.RT_OPEN_METHOD_RESULT, result);
@@ -1186,10 +1183,8 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 		ArrayList<IForm> al = new ArrayList<IForm>();
 		FormController currentForm = getCurrentMainShowingFormController();
 		if (currentForm != null && ifRootFormInFind(currentForm)) al.add(currentForm);
-		Iterator<FormController> it = createdFormControllers.values().iterator();
-		while (it.hasNext())
+		for (FormController fc : createdFormControllers.values())
 		{
-			FormController fc = it.next();
 			if (fc != currentForm && ifRootFormInFind(fc))
 			{
 				al.add(fc);
