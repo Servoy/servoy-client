@@ -22,10 +22,12 @@ import java.util.Stack;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
-import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.DelegateModificationSubject;
 import com.servoy.j2db.dataprocessing.IModificationSubject;
+import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ScopesUtils;
 
@@ -38,11 +40,11 @@ import com.servoy.j2db.util.ScopesUtils;
  */
 public class ScopesScope extends DefaultScope
 {
-	private volatile IServiceProvider application;
+	private volatile IApplication application;
 	private final IExecutingEnviroment scriptEngine;
 	private final DelegateModificationSubject delegateModificationSubject = new DelegateModificationSubject();
 
-	public ScopesScope(Scriptable parent, IExecutingEnviroment scriptEngine, IServiceProvider application)
+	public ScopesScope(Scriptable parent, IExecutingEnviroment scriptEngine, IApplication application)
 	{
 		super(parent);
 		this.scriptEngine = scriptEngine;
@@ -177,6 +179,39 @@ public class ScopesScope extends DefaultScope
 			return null;
 		}
 		return gs.get(baseName);
+	}
+
+	@SuppressWarnings("nls")
+	public Object executeDeeplink(String methodName, Object[] args) throws Exception
+	{
+		Pair<String, String> variableAndScope = ScopesUtils.getVariableScope(methodName);
+
+		GlobalScope gs = getGlobalScope(variableAndScope.getLeft());
+		if (gs == null)
+		{
+			return null;
+		}
+
+		Object function = gs.get(variableAndScope.getRight());
+		if (function instanceof Function)
+		{
+			// a headless client (authenciator) can call any method
+			if (application.getApplicationType() == IApplication.HEADLESS_CLIENT)
+			{
+				return scriptEngine.executeFunction((Function)function, gs, gs, args, false, false);
+			}
+			ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(variableAndScope.getLeft(), variableAndScope.getRight());
+			if (application.getSettings().getProperty("servoy.legacy.deeplinks", "false").equals("true") ||
+				scriptMethod != null && scriptMethod.isDeeplink())
+			{
+				return scriptEngine.executeFunction((Function)function, gs, gs, args, false, false);
+			}
+			else
+			{
+				Debug.error("Trying to call a non deeplink (no @deeplink annotation) method: " + methodName);
+			}
+		}
+		return null;
 	}
 
 	public Object executeGlobalFunction(String scopeName, String methodName, Object[] args, boolean focusEvent, boolean throwException) throws Exception

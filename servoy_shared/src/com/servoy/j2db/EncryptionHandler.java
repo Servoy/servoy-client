@@ -42,60 +42,87 @@ public class EncryptionHandler
 {
 	private static final String CRYPT_METHOD = "AES/CBC/PKCS5Padding";
 
-	private final SecretKey secret;
+	private final SecretKey secretString;
+	private final IvParameterSpec ivString;
 
-	private final IvParameterSpec ivParameterSpec;
+	private final SecretKey secretScript;
+	private final IvParameterSpec ivScript;
 
 	public EncryptionHandler()
 	{
-		SecretKey key = null;
+		SecretKey key1 = null, key2 = null;
 		try
 		{
 			KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
 			keyGenerator.init(256);
-			key = keyGenerator.generateKey();
+			key1 = keyGenerator.generateKey();
+			key2 = keyGenerator.generateKey();
 		}
 		catch (NoSuchAlgorithmException e)
 		{
 			Debug.error("Falling back to default script encryption", e);
 		}
-		secret = key;
+		secretString = key1;
+		secretScript = key2;
 
 		byte[] iv = new byte[16];
 		new SecureRandom().nextBytes(iv);
-		ivParameterSpec = new IvParameterSpec(iv);
+		ivString = new IvParameterSpec(iv);
+		new SecureRandom().nextBytes(iv);
+		ivScript = new IvParameterSpec(iv);
 	}
 
-	public String encrypt(String value, boolean urlSafe) throws Exception
+	public String encryptString(String value) throws Exception
+	{
+		return encryptString(value, false);
+	}
+
+	public String encryptString(String value, boolean urlSafe) throws Exception
 	{
 		if (value == null) return value;
-		if (secret == null)
+		if (secretString == null)
 		{
 			if (urlSafe) return SecuritySupport.encryptUrlSafe(Settings.getInstance(), value);
 			return SecuritySupport.encrypt(Settings.getInstance(), value);
 		}
 		Cipher cipher = Cipher.getInstance(CRYPT_METHOD);
-		cipher.init(Cipher.ENCRYPT_MODE, secret, ivParameterSpec);
+		cipher.init(Cipher.ENCRYPT_MODE, secretString, ivString);
 		byte[] bytes = cipher.doFinal(value.getBytes());
 		if (urlSafe) return Base64.encodeBase64URLSafeString(bytes);
-		else Base64.encodeBase64String(bytes).trim();
 
 		return Utils.encodeBASE64(bytes);
 	}
 
-	public String encrypt(String value) throws Exception
-	{
-		return encrypt(value, false);
-	}
-
-	public String decrypt(String value) throws Exception
+	public String decryptString(String value) throws Exception
 	{
 		if (value == null) return value;
-		if (secret == null) return SecuritySupport.decrypt(Settings.getInstance(), value);
+		if (secretString == null) return SecuritySupport.decrypt(Settings.getInstance(), value);
 		Cipher cipher = Cipher.getInstance(CRYPT_METHOD);
-		cipher.init(Cipher.DECRYPT_MODE, secret, ivParameterSpec);
+		cipher.init(Cipher.DECRYPT_MODE, secretString, ivString);
 		return new String(cipher.doFinal(Utils.decodeBASE64(value)));
 	}
 
+	public String encryptScript(String value) throws Exception
+	{
+		if (value == null) return value;
+		if (secretScript == null)
+		{
+			return SecuritySupport.encrypt(Settings.getInstance(), value);
+		}
+		Cipher cipher = Cipher.getInstance(CRYPT_METHOD);
+		cipher.init(Cipher.ENCRYPT_MODE, secretScript, ivScript);
+		byte[] bytes = cipher.doFinal(value.getBytes());
+
+		return Utils.encodeBASE64(bytes);
+	}
+
+	public String decryptScript(String value) throws Exception
+	{
+		if (value == null) return value;
+		if (secretScript == null) return SecuritySupport.decrypt(Settings.getInstance(), value);
+		Cipher cipher = Cipher.getInstance(CRYPT_METHOD);
+		cipher.init(Cipher.DECRYPT_MODE, secretScript, ivScript);
+		return new String(cipher.doFinal(Utils.decodeBASE64(value)));
+	}
 
 }

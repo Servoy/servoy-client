@@ -260,7 +260,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 					// avoid stack overflows when an execute method URL is used to open the solution, and that method does call JSSecurity login
 					((ClientState)application).resetPreferedSolutionMethodNameToCall();
 
-					Object result = application.getScriptEngine().getScopesScope().executeGlobalFunction(scope.getLeft(), scope.getRight(), args, false, false);
+					Object result = application.getScriptEngine().getScopesScope().executeDeeplink(preferedSolutionMethodName, args);
 					if (application.getSolution().getSolutionType() == SolutionMetaData.AUTHENTICATOR)
 					{
 						application.getRuntimeProperties().put(IServiceProvider.RT_OPEN_METHOD_RESULT, result);

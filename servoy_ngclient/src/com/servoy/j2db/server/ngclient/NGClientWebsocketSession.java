@@ -271,8 +271,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						{
 							try
 							{
-								client.getScriptEngine().getScopesScope().executeGlobalFunction(null, method,
-									(args.toJSMap().isEmpty() ? null : new Object[] { firstArgument, args.toJSMap() }), false, false);
+								client.getScriptEngine().getScopesScope().executeDeeplink(method,
+									(args.toJSMap().isEmpty() ? null : new Object[] { firstArgument, args.toJSMap() }));
 							}
 							catch (Exception e1)
 							{
