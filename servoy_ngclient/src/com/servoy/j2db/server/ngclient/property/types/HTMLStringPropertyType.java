@@ -20,6 +20,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
@@ -68,7 +69,8 @@ public class HTMLStringPropertyType extends DefaultPropertyType<String> implemen
 		IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
-		if (HtmlUtils.startsWithHtml(sabloValue))
+		// only convert html if it is not allowed to be pushed (input fields shouldn't convert the html)
+		if (HtmlUtils.startsWithHtml(sabloValue) && dataConverterContext.getComputedPushToServerValue() == PushToServerEnum.reject)
 		{
 			writer.value(HTMLTagsConverter.convert(sabloValue, ((WebFormComponent)dataConverterContext.getWebObject()).getDataConverterContext(),
 				((Boolean)pd.getConfig()).booleanValue()));

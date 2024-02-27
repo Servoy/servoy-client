@@ -26,6 +26,7 @@ import org.mozilla.javascript.Scriptable;
 import org.sablo.BaseWebObject;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
 import org.sablo.specification.property.types.DefaultPropertyType;
@@ -188,7 +189,9 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 		// just some static string
 		{
 			String staticValue = newDesignValue;
-			if (htmlParsingAllowed && HtmlUtils.startsWithHtml(staticValue)) // htmlParsingAllowed is a security feature so that browsers cannot change tagStrings to something that is then able to execute random server-side javascript
+			// only convert html if it is not allowed to be pushed (input fields shouldn't convert the html)
+			// very likely tagstrings are put on labels which are in reject, but to be sure
+			if (htmlParsingAllowed && propertyDescription.getPushToServer() == PushToServerEnum.reject && HtmlUtils.startsWithHtml(staticValue)) // htmlParsingAllowed is a security feature so that browsers cannot change tagStrings to something that is then able to execute random server-side javascript
 			{
 				staticValue = HTMLTagsConverter.convert(staticValue, component.getDataConverterContext(), false);
 			}
