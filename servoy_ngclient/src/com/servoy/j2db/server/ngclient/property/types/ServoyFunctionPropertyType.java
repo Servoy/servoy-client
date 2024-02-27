@@ -168,7 +168,7 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 		ISupportChilds parent = sm.getParent();
 		if (parent instanceof Solution)
 		{
-			map.put("script", fs.getEncryptionHandler().encrypt("scopes." + sm.getScopeName() + "." + sm.getName() + "()"));
+			map.put("script", fs.getEncryptionHandler().encryptScript("scopes." + sm.getScopeName() + "." + sm.getName() + "()"));
 		}
 		else if (parent instanceof Form)
 		{
@@ -178,12 +178,12 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 				// use the real, runtime form
 				formName = formComponent.getDataAdapterList().getForm().getForm().getName();
 			}
-			map.put("script", fs.getEncryptionHandler().encrypt("forms." + formName + "." + sm.getName() + "()"));
+			map.put("script", fs.getEncryptionHandler().encryptScript("forms." + formName + "." + sm.getName() + "()"));
 			map.put("formname", formName);
 		}
 		else if (parent instanceof TableNode && fe != null)
 		{
-			map.put("script", fs.getEncryptionHandler().encrypt("entity." + fe.getForm().getName() + "." + sm.getName() + "()"));
+			map.put("script", fs.getEncryptionHandler().encryptScript("entity." + fe.getForm().getName() + "." + sm.getName() + "()"));
 			map.put("formname", fe.getForm().getName());
 		}
 	}
@@ -199,13 +199,13 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 		if (parentScope instanceof FormScope && ((FormScope)parentScope).getFormController() != null)
 		{
 			String formName = ((FormScope)parentScope).getFormController().getName();
-			map.put("script", fs.getEncryptionHandler().encrypt("forms." + formName + "." + functionName + "()"));
+			map.put("script", fs.getEncryptionHandler().encryptScript("forms." + formName + "." + functionName + "()"));
 			map.put("formname", formName);
 		}
 		else if (parentScope instanceof GlobalScope)
 		{
 			map.put("script",
-				fs.getEncryptionHandler().encrypt("scopes." + ((GlobalScope)parentScope).getScopeName() + "." + functionName + "()"));
+				fs.getEncryptionHandler().encryptScript("scopes." + ((GlobalScope)parentScope).getScopeName() + "." + functionName + "()"));
 		}
 	}
 
@@ -218,7 +218,7 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 			// scope method
 			if (fs.getScriptMethod(script) != null)
 			{
-				map.put("script", fs.getEncryptionHandler().encrypt(script + "()"));
+				map.put("script", fs.getEncryptionHandler().encryptScript(script + "()"));
 				generated = true;
 			}
 		}
@@ -235,7 +235,7 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 					TableNode tableNode = tableNodes.next();
 					if (tableNode.getFoundsetMethod(methodName) != null)
 					{
-						map.put("script", fs.getEncryptionHandler().encrypt(script + "()"));
+						map.put("script", fs.getEncryptionHandler().encryptScript(script + "()"));
 						map.put("formname", formName);
 						generated = true;
 						break;
@@ -250,7 +250,7 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 			Form form = fs.getForm(formName);
 			if (form != null && form.getScriptMethod(script.substring(formName.length() + 1)) != null)
 			{
-				map.put("script", fs.getEncryptionHandler().encrypt("forms." + script + "()"));
+				map.put("script", fs.getEncryptionHandler().encryptScript("forms." + script + "()"));
 				map.put("formname", formName);
 				generated = true;
 			}

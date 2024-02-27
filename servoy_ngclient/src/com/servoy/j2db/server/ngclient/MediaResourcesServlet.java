@@ -214,7 +214,7 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 				IApplication client = null;
 				if (clientnr != null && (client = getClient(req, Integer.parseInt(clientnr))) != null)
 				{
-					String decrypt = client.getFlattenedSolution().getEncryptionHandler().decrypt(encrypted);
+					String decrypt = client.getFlattenedSolution().getEncryptionHandler().decryptString(encrypted);
 					found = sendData(resp, MediaURLStreamHandler.getBlobLoaderMedia(client, decrypt),
 						MediaURLStreamHandler.getBlobLoaderMimeType(decrypt), MediaURLStreamHandler.getBlobLoaderFileName(decrypt), null);
 				}
