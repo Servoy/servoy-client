@@ -22,7 +22,7 @@ import java.util.Stack;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
-import com.servoy.j2db.IServiceProvider;
+import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.DelegateModificationSubject;
 import com.servoy.j2db.dataprocessing.IModificationSubject;
 import com.servoy.j2db.persistence.ScriptMethod;
@@ -40,11 +40,11 @@ import com.servoy.j2db.util.ScopesUtils;
  */
 public class ScopesScope extends DefaultScope
 {
-	private volatile IServiceProvider application;
+	private volatile IApplication application;
 	private final IExecutingEnviroment scriptEngine;
 	private final DelegateModificationSubject delegateModificationSubject = new DelegateModificationSubject();
 
-	public ScopesScope(Scriptable parent, IExecutingEnviroment scriptEngine, IServiceProvider application)
+	public ScopesScope(Scriptable parent, IExecutingEnviroment scriptEngine, IApplication application)
 	{
 		super(parent);
 		this.scriptEngine = scriptEngine;
@@ -195,6 +195,11 @@ public class ScopesScope extends DefaultScope
 		Object function = gs.get(variableAndScope.getRight());
 		if (function instanceof Function)
 		{
+			// a headless client (authenciator) can call any method
+			if (application.getApplicationType() == IApplication.HEADLESS_CLIENT)
+			{
+				return scriptEngine.executeFunction((Function)function, gs, gs, args, false, false);
+			}
 			ScriptMethod scriptMethod = application.getFlattenedSolution().getScriptMethod(variableAndScope.getLeft(), variableAndScope.getRight());
 			if (application.getSettings().getProperty("servoy.legacy.deeplinks", "false").equals("true") ||
 				scriptMethod != null && scriptMethod.isDeeplink())
