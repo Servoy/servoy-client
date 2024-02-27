@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient.property.types;
 import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
@@ -110,7 +111,9 @@ public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implem
 		String oldTagReplacedValue = tagReplacedValue;
 		tagReplacedValue = Text.processTags(getDesignValue(), getDataAdapterList()); // shouldn't this be done after HTMLTagsConverter.convert?
 
-		if (HtmlUtils.startsWithHtml(tagReplacedValue))
+		// only convert html if it is not allowed to be pushed (input fields shouldn't convert the html)
+		// very likely tagstrings are put on labels which are in reject, but to be sure
+		if (HtmlUtils.startsWithHtml(tagReplacedValue) && pd.getPushToServer() == PushToServerEnum.reject)
 		{
 			tagReplacedValue = HTMLTagsConverter.convert(tagReplacedValue, dataConverterContext, false);
 		}
