@@ -180,8 +180,8 @@ public class SolutionLoader extends WebPage
 						{
 							try
 							{
-								sc.getScriptEngine().getScopesScope().executeGlobalFunction(null, method,
-									(argumentsScope.toJSMap().isEmpty() ? null : new Object[] { firstArgument, argumentsScope.toJSMap() }), false, false);
+								sc.getScriptEngine().getScopesScope().executeDeeplink(method,
+									(argumentsScope.toJSMap().isEmpty() ? null : new Object[] { firstArgument, argumentsScope.toJSMap() }));
 							}
 							catch (Exception e1)
 							{

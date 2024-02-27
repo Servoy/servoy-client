@@ -81,7 +81,8 @@ public class HTMLTagsConverter
 						try
 						{
 							formName = context.getForm().getName();
-							script = context.getSolution().getEncryptionHandler().encrypt(script);
+							// this is legacy behavior, should be trusted content!
+							script = context.getSolution().getEncryptionHandler().encryptScript(script);
 						}
 						catch (Exception ex)
 						{
@@ -115,7 +116,7 @@ public class HTMLTagsConverter
 							String blobpart = media.substring("servoy_blobloader?".length());
 							try
 							{
-								blobpart = context.getSolution().getEncryptionHandler().encrypt(blobpart, true);
+								blobpart = context.getSolution().getEncryptionHandler().encryptString(blobpart, true);
 								attr.setValue("resources/servoy_blobloader?blob=" + blobpart + "&clientnr=" +
 									context.getApplication().getWebsocketSession().getSessionKey().getClientnr());
 							}
@@ -201,7 +202,7 @@ public class HTMLTagsConverter
 	{
 		try
 		{
-			String javascript = fs.getEncryptionHandler().decrypt(encryptedJavascript);
+			String javascript = fs.getEncryptionHandler().decryptScript(encryptedJavascript);
 			String browserParamWithArgument;
 			Object arg;
 			for (String browserArgument : getBrowserArguments(javascript))
