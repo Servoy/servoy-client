@@ -19,7 +19,8 @@ Require-Bundle: servoy_shared,
  sablo,
  org.eclipse.dltk.javascript.rhino,
  servoy_headless_client,
- org.apache.tomcat
+ org.apache.tomcat,
+ wrapped.org.apache.httpcomponents.client5.httpclient5
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: .
 Bundle-Vendor: Servoy
