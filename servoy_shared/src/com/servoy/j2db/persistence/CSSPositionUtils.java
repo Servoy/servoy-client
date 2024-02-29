@@ -251,9 +251,13 @@ public final class CSSPositionUtils
 			// not set, we should calculate it then
 			int right = percentageToPixels(position.right, parentSize.width);
 			int width = percentageToPixels(position.width, parentSize.width);
-			if (width >= 0)
+			if (right >= 0 && width >= 0)
 			{
 				left = parentSize.width - right - width;
+			}
+			else
+			{
+				left = 0;
 			}
 		}
 		if (top == -1)
@@ -261,9 +265,13 @@ public final class CSSPositionUtils
 			// not set, we should calculate it then
 			int height = percentageToPixels(position.height, parentSize.height);
 			int bottom = percentageToPixels(position.bottom, parentSize.height);
-			if (height >= 0)
+			if (height >= 0 && bottom >= 0)
 			{
 				top = parentSize.height - height - bottom;
+			}
+			else
+			{
+				top = 0;
 			}
 		}
 		return new Point(left, top);
@@ -344,9 +352,13 @@ public final class CSSPositionUtils
 			else
 			{
 				// a move
-				adjustedPosition.right = pixelsToPercentage(
-					percentageToPixels(position.right, containerSize.width) + percentageToPixels(position.left, containerSize.width) - x, containerSize.width,
-					position.right);
+				if (CSSPositionUtils.isSet(position.right))
+				{
+					adjustedPosition.right = pixelsToPercentage(
+						percentageToPixels(position.right, containerSize.width) + percentageToPixels(position.left, containerSize.width) - x,
+						containerSize.width,
+						position.right);
+				}
 				adjustedPosition.left = pixelsToPercentage(x, containerSize.width, position.left);
 			}
 		}
@@ -384,10 +396,13 @@ public final class CSSPositionUtils
 			}
 			else
 			{
-				adjustedPosition.bottom = pixelsToPercentage(
-					percentageToPixels(position.bottom, containerSize.height) + percentageToPixels(position.top, containerSize.height) - y,
-					containerSize.height,
-					position.bottom);
+				if (CSSPositionUtils.isSet(position.bottom))
+				{
+					adjustedPosition.bottom = pixelsToPercentage(
+						percentageToPixels(position.bottom, containerSize.height) + percentageToPixels(position.top, containerSize.height) - y,
+						containerSize.height,
+						position.bottom);
+				}
 				adjustedPosition.top = pixelsToPercentage(y, containerSize.height, position.top);
 			}
 		}
