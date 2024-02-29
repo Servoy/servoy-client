@@ -16,6 +16,8 @@
  */
 package com.servoy.j2db.scripting;
 
+import java.util.Objects;
+
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 
@@ -27,10 +29,10 @@ import com.servoy.j2db.plugins.IClientPluginAccess;
 
 /**
  * Function definition, use to retrieve form and method name from a javascript Function object
- * 
+ *
  * This class should be used to hold on to function objects in plugins that are later called by using the method
  * {@link #executeSync(IClientPluginAccess, Object[])} which is a short cut to {@link IClientPluginAccess#executeMethod(String, String, Object[], boolean)}
- * 
+ *
  */
 public class FunctionDefinition
 {
@@ -269,7 +271,7 @@ public class FunctionDefinition
 	 * method name. And exception that {@link IClientPluginAccess#executeMethod(String, String, Object[], boolean)} will throw will be catched and {@link IClientPluginAccess#handleException(String, Exception)}
 	 * will be called with the Exception object. If you want the exception object call {@link IClientPluginAccess#executeMethod(String, String, Object[], boolean)} directly.
 	 * <b>The method is called asynchronously in the user-interface thread.
-	 * 
+	 *
 	 * @param access The IClientPluginAccess object to call
 	 * @param arguments The arguments to give to the method calls
 	 */
@@ -281,10 +283,10 @@ public class FunctionDefinition
 	/**
 	 * Helper method that calls the {@link IClientPluginAccess#executeMethod(String, String, Object[], boolean)} for you with the right formname/context and
 	 * method name.
-	 * 
+	 *
 	 * @param access The IClientPluginAccess object to call
 	 * @param arguments The arguments to give to the method calls
-	 * 
+	 *
 	 * @return The object that the method returns.
 	 */
 	public Object executeSync(IClientPluginAccess access, Object[] arguments)
@@ -312,5 +314,22 @@ public class FunctionDefinition
 	public String toString()
 	{
 		return "Function(" + toMethodString() + ')'; //$NON-NLS-1$
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (obj instanceof FunctionDefinition fd)
+		{
+			return Objects.equals(fd.methodName, methodName) && Objects.equals(fd.contextName, contextName);
+		}
+		return false;
+	}
+
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(methodName, contextName);
 	}
 }
