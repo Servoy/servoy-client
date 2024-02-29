@@ -1,0 +1,23 @@
+name: Ensignia
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  sbom:
+    name: Ensignia Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ensigniasec/ensignia-action@v0.0.2
+
+      - name: Generate SBOM
+        run: syft -q packages dir:./ -o spdx-json > build.spdx-sbom.json
+
+      - name: Upload SBOM
+        run: sigctl submit ./build.spdx-sbom.json
