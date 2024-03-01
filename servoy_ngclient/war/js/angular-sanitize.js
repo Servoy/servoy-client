@@ -1,5 +1,5 @@
 /**
- * @license XLTS for AngularJS v1.9.0
+ * @license XLTS for AngularJS v1.9.3
  * (c) 2022 XLTS.dev All Rights Reserved. https://xlts.dev/angularjs
  * License: Obtain a commercial license from XLTS.dev before using this software.
  */
@@ -694,7 +694,7 @@ function sanitizeText(chars) {
 // define ngSanitize module and register $sanitize service
 angular.module('ngSanitize', [])
   .provider('$sanitize', $SanitizeProvider)
-  .info({ angularVersion: '1.9.0' });
+  .info({ angularVersion: '1.9.3' });
 
 /**
  * @ngdoc filter

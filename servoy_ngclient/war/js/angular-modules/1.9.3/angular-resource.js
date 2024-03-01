@@ -1,5 +1,5 @@
 /**
- * @license XLTS for AngularJS v1.9.0
+ * @license XLTS for AngularJS v1.9.3
  * (c) 2022 XLTS.dev All Rights Reserved. https://xlts.dev/angularjs
  * License: Obtain a commercial license from XLTS.dev before using this software.
  */
@@ -502,7 +502,7 @@ function shallowClearAndCopy(src, dst) {
  *
  */
 angular.module('ngResource', ['ng']).
-  info({ angularVersion: '1.9.0' }).
+  info({ angularVersion: '1.9.3' }).
   provider('$resource', function ResourceProvider() {
     var PROTOCOL_AND_IPV6_REGEX = /^https?:\/\/\[[^\]]*][^/]*/;
 
@@ -661,7 +661,14 @@ angular.module('ngResource', ['ng']).
 
           // strip trailing slashes and set the url (unless this behavior is specifically disabled)
           if (self.defaults.stripTrailingSlashes) {
-            url = url.replace(/\/+$/, '') || '/';
+            // For IPv6 URLs, we would have temporarily stripped the part of
+            // the URL before the path at this point. For example, URL:
+            // https://[::1234]///
+            // would have become:
+            // ///
+            // now. Therefore, we need to handle the case of `url` consisting of
+            // only slashes.
+            url = url.replace(/(^|[^/])\/+$/, '$1') || '/';
           }
 
           // Collapse `/.` if found in the last URL path segment before the query.

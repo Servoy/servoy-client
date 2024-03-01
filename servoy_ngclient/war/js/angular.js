@@ -1,7 +1,7 @@
 /*!
  * @license XLTS for AngularJS License Agreement
  * (c) 2022 XLTS.dev All Rights Reserved. https://xlts.dev/angularjs
- * v1.9.0
+ * v1.9.3
  */
 /*!
  * @license AngularJS
@@ -104,7 +104,7 @@ function isValidObjectMaxDepth(maxDepth) {
 function minErr(module, ErrorConstructor) {
   ErrorConstructor = ErrorConstructor || Error;
 
-  var url = 'https://errors.angularjs.xlts.dev/1.9.0/';
+  var url = 'https://errors.angularjs.xlts.dev/1.9.3/';
   var regex = url.replace('.', '\\.') + '[\\s\\S]*';
   var errRegExp = new RegExp(regex, 'g');
 
@@ -1143,7 +1143,7 @@ function copy(source, destination, maxDepth) {
         return new source.constructor(source.valueOf());
 
       case '[object RegExp]':
-        var re = new RegExp(source.source, source.toString().match(/[^/]*$/)[0]);
+        var re = new RegExp(source.source, source.toString().match(/\/([^/]*)$/)[1]);
         re.lastIndex = source.lastIndex;
         return re;
 
@@ -1949,7 +1949,7 @@ function bootstrap(element, modules, config) {
       throw ngMinErr(
           'btstrpd',
           'App already bootstrapped with this element \'{0}\'',
-          tag.replace(/</,'&lt;').replace(/>/,'&gt;'));
+          tag.replace(/</g,'&lt;').replace(/>/g,'&gt;'));
     }
 
     modules = modules || [];
@@ -2212,13 +2212,13 @@ function getBlockNodes(nodes) {
   for (var i = 1; node !== endNode && (node = node.nextSibling); i++) {
     if (blockNodes || nodes[i] !== node) {
       if (!blockNodes) {
-        blockNodes = jqLite(slice.call(nodes, 0, i));
+        blockNodes = slice.call(nodes, 0, i);
       }
       blockNodes.push(node);
     }
   }
 
-  return blockNodes || nodes;
+  return blockNodes ? jqLite(blockNodes) : nodes;
 }
 
 
@@ -2861,11 +2861,11 @@ var version = {
 
   // These placeholder strings will be replaced by grunt's `build` task.
   // They need to be double- or single-quoted.
-  full: '1.9.0',
+  full: '1.9.3',
   major: 1,
   minor: 9,
-  dot: 0,
-  codeName: 'crossly-blocking'
+  dot: 3,
+  codeName: 'sublinear-dismantling'
 };
 
 
@@ -3016,7 +3016,7 @@ function publishExternalAPI(angular) {
       });
     }
   ])
-  .info({ angularVersion: '1.9.0' });
+  .info({ angularVersion: '1.9.3' });
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -9473,8 +9473,8 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
 
       // first check if there are spaces because it's not the same pattern
       var trimmedSrcset = trim(value);
-      //                (   999x   ,|   999w   ,|   ,|,   )
-      var srcPattern = /(\s+\d+x\s*,|\s+\d+w\s*,|\s+,|,\s+)/;
+      //                (   999x  ,|   999w  ,|  ,|,  )
+      var srcPattern = /(\s\d+x\s*,|\s\d+w\s*,|\s,|,\s)/;
       var pattern = /\s/.test(trimmedSrcset) ? srcPattern : /(,)/;
 
       // split srcset into tuple of uri and descriptor except for the last item
@@ -10022,7 +10022,7 @@ function $CompileProvider($provide, $$sanitizeUriProvider) {
           sibling.parentNode.removeChild(sibling);
         }
         if (notLiveList && sibling === nodeList[idx + 1]) {
-          nodeList.splice(idx + 1, 1);
+          splice.call(nodeList, idx + 1, 1);
         }
       }
     }
@@ -25444,8 +25444,8 @@ var ISO_DATE_REGEXP = /^\d{4,}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+(?:[+-
 //   7. Path
 //   8. Query
 //   9. Fragment
-//                 1111111111111111 222   333333    44444        55555555555555555555555     666     77777777     8888888     999
-var URL_REGEXP = /^[a-z][a-z\d.+-]*:\/*(?:[^:@]+(?::[^@]+)?@)?(?:[^\s:/?#]+|\[[a-f\d:]+])(?::\d+)?(?:\/[^?#]*)?(?:\?[^#]*)?(?:#.*)?$/i;
+//                 1111111111111111 222   3333333    44444        55555555555555555555555     666     77777777     8888888     999
+var URL_REGEXP = /^[a-z][a-z\d.+-]*:\/*(?:[^:@/]*(?::[^@]+)?@)?(?:[^\s:/?#]+|\[[a-f\d:]+])(?::\d+)?(?:\/[^?#]*)?(?:\?[^#]*)?(?:#.*)?$/i;
 // eslint-disable-next-line max-len
 var EMAIL_REGEXP = /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/;
 var NUMBER_REGEXP = /^\s*(-|\+)?(\d+|(\d*(\.\d*)))([eE][+-]?\d+)?\s*$/;
@@ -28659,9 +28659,9 @@ var ngClassEvenDirective = classDirective('Even', 1);
  * during the compilation of the template it deletes the `ngCloak` element attribute, making
  * the compiled element visible.
  *
- * For the best result, the `angular.js` script must be loaded in the head section of the html
- * document; alternatively, the css rule above must be included in the external stylesheet of the
- * application.
+ * For the best result, the bundle that contains the `angular.js` script must be loaded in the head
+ * section of the html document; alternatively, the css rule above must be included in the external
+ * stylesheet of the application.
  *
  * @element ANY
  *
@@ -29041,6 +29041,7 @@ var ngControllerDirective = [function() {
                 eval('1+2'); // eslint-disable-line no-eval
               } catch (e) {
                 this.evilError = e.message;
+                throw e;
               }
             };
           });
