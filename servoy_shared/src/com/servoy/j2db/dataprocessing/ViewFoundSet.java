@@ -64,7 +64,6 @@ import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.dataprocessing.FoundSet.FoundSetES6Iterator;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.DummyValidator;
@@ -194,7 +193,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	public static final String VIEW_FOUNDSET = "ViewFoundSet";
 
 	private static Callable symbol_iterator = (Context cx, Scriptable scope, Scriptable thisObj, Object[] args) -> {
-		return new FoundSetES6Iterator(scope, ((ViewFoundSet)thisObj));
+		return new IterableES6Iterator(scope, ((ViewFoundSet)thisObj));
 	};
 
 	protected transient AlwaysRowSelectedSelectionModel selectionModel;

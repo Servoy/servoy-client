@@ -60,7 +60,6 @@ import java.util.StringTokenizer;
 import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ES6Iterator;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.NativeJavaMethod;
@@ -201,7 +200,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	private int foundsetID = 0;
 
 	private static Callable symbol_iterator = (Context cx, Scriptable scope, Scriptable thisObj, Object[] args) -> {
-		return new FoundSetES6Iterator(scope, ((FoundSet)thisObj));
+		return new IterableES6Iterator(scope, ((FoundSet)thisObj));
 	};
 
 	public PrototypeState getPrototypeState()
@@ -7863,58 +7862,6 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			return false;
 		}
 
-	}
-
-	public static final class FoundSetES6Iterator extends ES6Iterator
-	{
-		private final Iterator<Object> iterator;
-		private static final String ITERATOR_TAG = "FoundSetIterator";
-
-		FoundSetES6Iterator(Scriptable scope, Iterable dataModel)
-		{
-			super(scope, ITERATOR_TAG);
-			this.iterator = dataModel.iterator();
-		}
-
-		@Override
-		protected boolean isDone(Context cx, Scriptable scope)
-		{
-			return !iterator.hasNext();
-		}
-
-		@Override
-		protected Object nextValue(Context cx, Scriptable scope)
-		{
-			if (!iterator.hasNext())
-			{
-				return null;
-			}
-			return iterator.next();
-		}
-
-		@Override
-		public String getClassName()
-		{
-			return ITERATOR_TAG;
-		}
-
-		@Override
-		public Object get(String name, Scriptable start)
-		{
-			if (NEXT_METHOD.equals(name))
-			{
-				return new Callable()
-				{
-					@Override
-					public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
-					{
-						return FoundSetES6Iterator.this.next(cx, scope);
-					}
-
-				};
-			}
-			return super.get(name, start);
-		}
 	}
 
 	enum MethodCallState

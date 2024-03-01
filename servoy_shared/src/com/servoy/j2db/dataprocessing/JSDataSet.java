@@ -48,7 +48,6 @@ import org.mozilla.javascript.Wrapper;
 import com.servoy.base.scripting.api.IJSDataSet;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
-import com.servoy.j2db.dataprocessing.FoundSet.FoundSetES6Iterator;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumn;
@@ -81,7 +80,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Symb
 	private static JSDataSet prototype = new JSDataSet();
 
 	private static Callable symbol_iterator = (Context cx, Scriptable scope, Scriptable thisObj, Object[] args) -> {
-		return new FoundSetES6Iterator(scope, ((JSDataSet)thisObj).set.getRows());
+		return new IterableES6Iterator(scope, ((JSDataSet)thisObj).set.getRows());
 	};
 
 	private IDataSetWithIndex set;
