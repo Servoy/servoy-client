@@ -61,6 +61,7 @@ import org.json.JSONObject;
 import org.sablo.util.HTTPUtils;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTCreator.Builder;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
@@ -130,7 +131,7 @@ public class StatelessLoginHandler
 				{
 					String user = request.getParameter(USERNAME);
 					String password = request.getParameter("password");
-					if (user != null && password != null)
+					if (!Utils.stringIsEmpty(user) && !Utils.stringIsEmpty(password))
 					{
 						checkUser(user, password, needToLogin, fs.getSolution());
 						if (!needToLogin.getLeft()) return needToLogin;
@@ -157,7 +158,7 @@ public class StatelessLoginHandler
 								if (decodedJWT.getClaims().containsKey(USERNAME) && decodedJWT.getClaims().containsKey(UID) &&
 									decodedJWT.getClaims().containsKey(GROUPS))
 								{
-									String _user = decodedJWT.getClaim(USERNAME).toString();
+									String _user = decodedJWT.getClaim(USERNAME).asString();
 									try
 									{
 										checkUser(_user, null, needToLogin, fs.getSolution(), decodedJWT);
@@ -430,7 +431,7 @@ public class StatelessLoginHandler
 				String[] permissions = ApplicationServerRegistry.get().getUserManager().getUserGroups(clientid, uid);
 				if (permissions.length > 0 && (oldToken == null || Arrays.equals(oldToken.getClaim(GROUPS).asArray(String.class), permissions)))
 				{
-					String token = createToken(username, uid, permissions);
+					String token = createToken(username, uid, permissions, Long.valueOf(System.currentTimeMillis()));
 					needToLogin.setLeft(Boolean.FALSE);
 					needToLogin.setRight(token);
 					return true;
@@ -486,7 +487,7 @@ public class StatelessLoginHandler
 				ClientLogin login = applicationServer.login(credentials);
 				if (login != null)
 				{
-					String token = createToken(login.getUserName(), login.getUserUid(), login.getUserGroups());
+					String token = createToken(login.getUserName(), login.getUserUid(), login.getUserGroups(), Long.valueOf(System.currentTimeMillis()));
 					needToLogin.setLeft(Boolean.FALSE);
 					needToLogin.setRight(token);
 					return true;
@@ -518,22 +519,38 @@ public class StatelessLoginHandler
 		}
 		else
 		{
-			httpget.addHeader(USERNAME, oldToken.getClaim(USERNAME));
-			httpget.addHeader(LAST_LOGIN, oldToken.getClaim(LAST_LOGIN));
+			httpget.addHeader(USERNAME, oldToken.getClaim(USERNAME).asString());
+			httpget.addHeader(LAST_LOGIN, oldToken.getClaim(LAST_LOGIN).asString());
 		}
 		httpget.addHeader(HttpHeaders.ACCEPT, "application/json");
 		httpget.addHeader("uuid", solution.getUUID().toString());
 
 		try (CloseableHttpClient httpclient = HttpClients.createDefault())
 		{
-			String[] permissions = getArrayProperty(httpclient, httpget, "permissions",
-				"could not login the user because the response to servoycloud had an error: ");
-			if (permissions != null)
+			Pair<Integer, JSONObject> res = httpclient.execute(httpget, new ResponseHandler("login_auth"));
+			if (res.getLeft().intValue() == HttpStatus.SC_OK)
 			{
-				String token = createToken(username, username, permissions);
-				needToLogin.setLeft(Boolean.FALSE);
-				needToLogin.setRight(token);
-				return true;
+				JSONObject loginTokenJSON = res.getRight();
+				if (loginTokenJSON != null && loginTokenJSON.has("permissions"))
+				{
+					String[] permissions = null;
+					JSONArray permissionsArray = loginTokenJSON.getJSONArray("permissions");
+					if (permissionsArray != null)
+					{
+						permissions = new String[permissionsArray.length()];
+						for (int i = 0; i < permissions.length; i++)
+						{
+							permissions[i] = permissionsArray.getString(i);
+						}
+					}
+					if (permissions != null)
+					{
+						String token = createToken(username, username, permissions, loginTokenJSON.optString("lastLogin"));
+						needToLogin.setLeft(Boolean.FALSE);
+						needToLogin.setRight(token);
+						return true;
+					}
+				}
 			}
 		}
 		catch (IOException e)
@@ -580,18 +597,25 @@ public class StatelessLoginHandler
 	}
 
 
-	public static String createToken(String username, String uid, String[] groups)
+	public static String createToken(String username, String uid, String[] groups, Object lastLogin)
 	{
 		Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
 		Algorithm algorithm = Algorithm.HMAC256(settings.getProperty(JWT_Password));
-		return JWT.create()
+		Builder builder = JWT.create()
 			.withIssuer("svy")
 			.withClaim(UID, uid)
 			.withClaim(USERNAME, username)
 			.withArrayClaim(GROUPS, groups)
-			.withClaim(LAST_LOGIN, Long.valueOf(System.currentTimeMillis()))
-			.withExpiresAt(new Date(System.currentTimeMillis() + TOKEN_AGE_IN_SECONDS * 1000))
-			.sign(algorithm);
+			.withExpiresAt(new Date(System.currentTimeMillis() + TOKEN_AGE_IN_SECONDS * 1000));
+		if (lastLogin instanceof String)
+		{
+			builder = builder.withClaim(LAST_LOGIN, (String)lastLogin);
+		}
+		if (lastLogin instanceof Long)
+		{
+			builder = builder.withClaim(LAST_LOGIN, (Long)lastLogin);
+		}
+		return builder.sign(algorithm);
 	}
 
 	public static void writeLoginPage(HttpServletRequest request, HttpServletResponse response, String solutionName)
