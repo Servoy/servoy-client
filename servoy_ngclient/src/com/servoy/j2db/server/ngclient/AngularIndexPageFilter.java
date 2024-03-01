@@ -136,6 +136,10 @@ public class AngularIndexPageFilter implements Filter
 				}
 				return;
 			}
+			else if (solutionName != null && StatelessLoginHandler.handlePossibleCloudRequest(request, response, solutionName))
+			{
+				return;
+			}
 			else if (requestURI.toLowerCase().endsWith("/startup.js"))
 			{
 				AngularIndexPageWriter.writeStartupJs(request, (HttpServletResponse)servletResponse, solutionName);

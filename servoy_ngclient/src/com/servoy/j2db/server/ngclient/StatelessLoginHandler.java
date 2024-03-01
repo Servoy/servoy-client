@@ -17,21 +17,17 @@
 
 package com.servoy.j2db.server.ngclient;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
@@ -56,6 +52,7 @@ import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.hc.core5.net.URIBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sablo.util.HTTPUtils;
@@ -203,14 +200,13 @@ public class StatelessLoginHandler
 							String endpoint = segments[segments.length - 1].replace(".html", "");
 							if (Arrays.asList(endpoints).contains(endpoint))
 							{
-								Map<String, String> bodyParams = extractParameters(request);
-								if (!bodyParams.isEmpty())
+								if ("POST".equalsIgnoreCase(request.getMethod()))
 								{
-									res = executeCloudPostRequest(httpclient, solution, endpoint, bodyParams);
+									res = executeCloudPostRequest(httpclient, solution, endpoint, request);
 								}
 								else
 								{
-									res = executeCloudGetRequest(httpclient, solution, endpoint);
+									res = executeCloudGetRequest(httpclient, solution, endpoint, request);
 								}
 
 								if (res != null)
@@ -300,17 +296,22 @@ public class StatelessLoginHandler
 	}
 
 	private static Pair<Integer, JSONObject> executeCloudPostRequest(CloseableHttpClient httpclient, Solution solution, String endpoint,
-		Map<String, String> params)
+		HttpServletRequest request)
 	{
 		HttpPost httppost = new HttpPost(CLOUD_REST_API_POST + endpoint);
 		httppost.addHeader(HttpHeaders.ACCEPT, "application/json");
 		httppost.addHeader("uuid", solution.getUUID().toString());
-		httppost.addHeader("origin", ""); //TODO add server url
 		List<NameValuePair> postParameters = new ArrayList<>();
-		for (Entry<String, String> param : params.entrySet())
+		Map<String, String[]> parameters = request.getParameterMap();
+		for (Map.Entry<String, String[]> entry : parameters.entrySet())
 		{
-			postParameters.add(new BasicNameValuePair(param.getKey(), param.getValue()));
+			String[] values = entry.getValue();
+			for (String value : values)
+			{
+				postParameters.add(new BasicNameValuePair(entry.getKey(), value));
+			}
 		}
+		postParameters.add(new BasicNameValuePair("serverUrl", getServerURL(request))); //TODO param or header?
 		httppost.setEntity(new UrlEncodedFormEntity(postParameters));
 
 		try
@@ -322,6 +323,21 @@ public class StatelessLoginHandler
 			Debug.error("Can't get the rest api endpoints", e);
 		}
 		return null;
+	}
+
+	private static String getServerURL(HttpServletRequest req)
+	{
+		String scheme = req.getScheme();
+		String serverName = req.getServerName();
+		int serverPort = req.getServerPort();
+		StringBuilder url = new StringBuilder();
+		url.append(scheme).append("://").append(serverName);
+		if (serverPort != 80 && serverPort != 443)
+		{
+			url.append(":").append(serverPort);
+		}
+		url.append(getPath(req));
+		return url.toString();
 	}
 
 	private static String[] getCloudRestApiEndpoints(ServletContext servletContext, CloseableHttpClient httpclient, Solution solution)
@@ -360,21 +376,33 @@ public class StatelessLoginHandler
 		return endpoints;
 	}
 
-	private static Pair<Integer, JSONObject> executeCloudGetRequest(CloseableHttpClient httpclient, Solution solution, String endpoint)
+	private static Pair<Integer, JSONObject> executeCloudGetRequest(CloseableHttpClient httpclient, Solution solution, String endpoint,
+		HttpServletRequest request)
 	{
-		HttpGet httpget = new HttpGet(CLOUD_REST_API_GET + endpoint);
-		httpget.addHeader(HttpHeaders.ACCEPT, "application/json");
-		httpget.addHeader("uuid", solution.getUUID().toString());
-
-		//TODO check request query string params
 		try
 		{
-			Pair<Integer, JSONObject> res = httpclient.execute(httpget, new ResponseHandler(endpoint));
-			return res;
+			URIBuilder uriBuilder = new URIBuilder(CLOUD_REST_API_GET + endpoint);
+			if (request != null)
+			{
+				Map<String, String[]> parameters = request.getParameterMap();
+				for (Map.Entry<String, String[]> entry : parameters.entrySet())
+				{
+					String[] values = entry.getValue();
+					for (String value : values)
+					{
+						uriBuilder.setParameter(entry.getKey(), value);
+					}
+				}
+			}
+			HttpGet httpget = new HttpGet(uriBuilder.build());
+			httpget.addHeader(HttpHeaders.ACCEPT, "application/json");
+			httpget.addHeader("uuid", solution.getUUID().toString());
+
+			return httpclient.execute(httpget, new ResponseHandler(endpoint));
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
-			Debug.error("Can't get the rest api endpoints", e);
+			Debug.error("Can't execute cloud get request", e);
 		}
 		return null;
 	}
@@ -637,7 +665,7 @@ public class StatelessLoginHandler
 		{
 			try (CloseableHttpClient httpClient = HttpClients.createDefault())
 			{
-				Pair<Integer, JSONObject> result = executeCloudGetRequest(httpClient, solution, "login");
+				Pair<Integer, JSONObject> result = executeCloudGetRequest(httpClient, solution, "login", null);
 				if (result != null)
 				{
 					int status = result.getLeft().intValue();
@@ -749,33 +777,6 @@ public class StatelessLoginHandler
 			path += servletPath.substring(1, lastSlashIndex + 1);
 		}
 		return path;
-	}
-
-	private static Map<String, String> extractParameters(HttpServletRequest request) throws IOException
-	{
-		StringBuilder requestBody = new StringBuilder();
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(request.getInputStream())))
-		{
-			String line;
-			while ((line = reader.readLine()) != null)
-			{
-				requestBody.append(line);
-			}
-		}
-
-		Map<String, String> params = new HashMap<>();
-		String[] parameters = requestBody.toString().split("&");
-		for (String parameter : parameters)
-		{
-			String[] keyValue = parameter.split("=");
-			if (!Utils.stringIsEmpty(keyValue[0]))
-			{
-				String paramName = keyValue[0];
-				String paramValue = keyValue.length > 1 ? keyValue[1] : "";
-				params.put(paramName, paramValue);
-			}
-		}
-		return params;
 	}
 
 	/**
