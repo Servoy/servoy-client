@@ -89,9 +89,11 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class StatelessLoginHandler
 {
+	public static final String PASSWORD = "password";
 	public static final String ID_TOKEN = "id_token";
 	public static final String GROUPS = "groups";
 	public static final String USERNAME = "username";
+	public static final String REMEMBER = "remember";
 	public static final String UID = "uid";
 	public static final String LAST_LOGIN = "last_login";
 	private static final String JWT_Password = "servoy.jwt.logintoken.password";
@@ -127,10 +129,10 @@ public class StatelessLoginHandler
 				if (needToLogin.getLeft())
 				{
 					String user = request.getParameter(USERNAME);
-					String password = request.getParameter("password");
+					String password = request.getParameter(PASSWORD);
 					if (!Utils.stringIsEmpty(user) && !Utils.stringIsEmpty(password))
 					{
-						checkUser(user, password, needToLogin, fs.getSolution());
+						checkUser(user, password, needToLogin, fs.getSolution(), null, "on".equals(request.getParameter(REMEMBER)));
 						if (!needToLogin.getLeft()) return needToLogin;
 					}
 
@@ -156,9 +158,11 @@ public class StatelessLoginHandler
 									decodedJWT.getClaims().containsKey(GROUPS))
 								{
 									String _user = decodedJWT.getClaim(USERNAME).asString();
+									Boolean rememberUser = decodedJWT.getClaims().containsKey(REMEMBER) ? //
+										decodedJWT.getClaim(REMEMBER).asBoolean() : Boolean.FALSE;
 									try
 									{
-										checkUser(_user, null, needToLogin, fs.getSolution(), decodedJWT);
+										checkUser(_user, null, needToLogin, fs.getSolution(), decodedJWT, rememberUser);
 									}
 									catch (Exception e)
 									{
@@ -407,25 +411,21 @@ public class StatelessLoginHandler
 		return null;
 	}
 
-	private static void checkUser(String username, String password, Pair<Boolean, String> needToLogin, Solution solution)
-	{
-		checkUser(username, password, needToLogin, solution, null);
-	}
-
-	private static void checkUser(String username, String password, Pair<Boolean, String> needToLogin, Solution solution, DecodedJWT oldToken)
+	private static void checkUser(String username, String password, Pair<Boolean, String> needToLogin, Solution solution, DecodedJWT oldToken,
+		Boolean rememberUser)
 	{
 		boolean verified = false;
 		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 		{
-			verified = checkCloudPermissions(username, password, needToLogin, solution, oldToken);
+			verified = checkCloudPermissions(username, password, needToLogin, solution, oldToken, rememberUser);
 		}
 		else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.AUTHENTICATOR)
 		{
-			verified = checkAuthenticatorPermssions(username, password, needToLogin, solution, oldToken);
+			verified = checkAuthenticatorPermssions(username, password, needToLogin, solution, oldToken, rememberUser);
 		}
 		else
 		{
-			verified = checkDefaultLoginPermissions(username, password, needToLogin, oldToken);
+			verified = checkDefaultLoginPermissions(username, password, needToLogin, oldToken, rememberUser);
 		}
 		if (!verified)
 		{
@@ -434,7 +434,8 @@ public class StatelessLoginHandler
 		}
 	}
 
-	private static boolean checkDefaultLoginPermissions(String username, String password, Pair<Boolean, String> needToLogin, DecodedJWT oldToken)
+	private static boolean checkDefaultLoginPermissions(String username, String password, Pair<Boolean, String> needToLogin, DecodedJWT oldToken,
+		Boolean rememberUser)
 	{
 		try
 		{
@@ -459,7 +460,7 @@ public class StatelessLoginHandler
 				String[] permissions = ApplicationServerRegistry.get().getUserManager().getUserGroups(clientid, uid);
 				if (permissions.length > 0 && (oldToken == null || Arrays.equals(oldToken.getClaim(GROUPS).asArray(String.class), permissions)))
 				{
-					String token = createToken(username, uid, permissions, Long.valueOf(System.currentTimeMillis()));
+					String token = createToken(username, uid, permissions, Long.valueOf(System.currentTimeMillis()), rememberUser);
 					needToLogin.setLeft(Boolean.FALSE);
 					needToLogin.setRight(token);
 					return true;
@@ -474,7 +475,7 @@ public class StatelessLoginHandler
 	}
 
 	private static boolean checkAuthenticatorPermssions(String username, String password, Pair<Boolean, String> needToLogin, Solution solution,
-		DecodedJWT oldToken)
+		DecodedJWT oldToken, Boolean rememberUser)
 	{
 		String modulesNames = solution.getModulesNames();
 		IRepository localRepository = ApplicationServerRegistry.get().getLocalRepository();
@@ -499,7 +500,7 @@ public class StatelessLoginHandler
 		{
 			JSONObject json = new JSONObject();
 			json.put(USERNAME, username);
-			json.put("password", password);
+			json.put(PASSWORD, password);
 			if (oldToken != null)
 			{
 				String payload = new String(java.util.Base64.getUrlDecoder().decode(oldToken.getPayload()));
@@ -515,7 +516,8 @@ public class StatelessLoginHandler
 				ClientLogin login = applicationServer.login(credentials);
 				if (login != null)
 				{
-					String token = createToken(login.getUserName(), login.getUserUid(), login.getUserGroups(), Long.valueOf(System.currentTimeMillis()));
+					String token = createToken(login.getUserName(), login.getUserUid(), login.getUserGroups(), Long.valueOf(System.currentTimeMillis()),
+						rememberUser);
 					needToLogin.setLeft(Boolean.FALSE);
 					needToLogin.setRight(token);
 					return true;
@@ -534,7 +536,8 @@ public class StatelessLoginHandler
 		return false;
 	}
 
-	private static boolean checkCloudPermissions(String username, String password, Pair<Boolean, String> needToLogin, Solution solution, DecodedJWT oldToken)
+	private static boolean checkCloudPermissions(String username, String password, Pair<Boolean, String> needToLogin, Solution solution, DecodedJWT oldToken,
+		Boolean rememberUser)
 	{
 		HttpGet httpget = new HttpGet(oldToken != null ? REFRESH_TOKEN_CLOUD_URL : CLOUD_URL);
 
@@ -573,7 +576,7 @@ public class StatelessLoginHandler
 					}
 					if (permissions != null)
 					{
-						String token = createToken(username, username, permissions, loginTokenJSON.optString("lastLogin"));
+						String token = createToken(username, username, permissions, loginTokenJSON.optString("lastLogin"), rememberUser);
 						needToLogin.setLeft(Boolean.FALSE);
 						needToLogin.setRight(token);
 						return true;
@@ -625,7 +628,7 @@ public class StatelessLoginHandler
 	}
 
 
-	public static String createToken(String username, String uid, String[] groups, Object lastLogin)
+	public static String createToken(String username, String uid, String[] groups, Object lastLogin, Boolean rememberUser)
 	{
 		Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
 		Algorithm algorithm = Algorithm.HMAC256(settings.getProperty(JWT_Password));
@@ -642,6 +645,10 @@ public class StatelessLoginHandler
 		if (lastLogin instanceof Long)
 		{
 			builder = builder.withClaim(LAST_LOGIN, (Long)lastLogin);
+		}
+		if (Boolean.TRUE.equals(rememberUser))
+		{
+			builder = builder.withClaim(REMEMBER, rememberUser);
 		}
 		return builder.sign(algorithm);
 	}

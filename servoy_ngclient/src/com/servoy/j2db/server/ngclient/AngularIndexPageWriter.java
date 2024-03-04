@@ -99,10 +99,14 @@ public class AngularIndexPageWriter
 		json.put("pathName", request.getContextPath() + "/solution/" + fs.getName() + "/");
 
 		Map<String, String[]> parameterMap = request.getParameterMap();
-		if (request.getSession().getAttribute(StatelessLoginHandler.ID_TOKEN) != null)
+		if (parameterMap.containsKey(StatelessLoginHandler.USERNAME) || parameterMap.containsKey(StatelessLoginHandler.ID_TOKEN) ||
+			parameterMap.containsKey(StatelessLoginHandler.PASSWORD))
 		{
 			parameterMap = new HashMap<>(request.getParameterMap());
-			parameterMap.put(StatelessLoginHandler.ID_TOKEN, new String[] { (String)request.getSession().getAttribute(StatelessLoginHandler.ID_TOKEN) });
+			parameterMap.remove(StatelessLoginHandler.USERNAME);
+			parameterMap.remove(StatelessLoginHandler.PASSWORD);
+			parameterMap.remove(StatelessLoginHandler.REMEMBER);
+			parameterMap.remove(StatelessLoginHandler.ID_TOKEN);
 		}
 		json.put("querystring", StringEscapeUtils.escapeJson(HTTPUtils.generateQueryString(parameterMap, request.getCharacterEncoding())));
 		String ipaddr = request.getHeader("X-Forwarded-For"); // in case there is a forwarding proxy
