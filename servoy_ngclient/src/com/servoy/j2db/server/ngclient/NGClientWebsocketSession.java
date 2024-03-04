@@ -337,7 +337,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 								: new String[] { args.getSolutionName(), args.getMethodName() },
 							args);
 
-						if (args.get(StatelessLoginHandler.ID_TOKEN) != null)
+						if (getHttpSession().getAttribute(StatelessLoginHandler.ID_TOKEN) != null)
 						{
 							setUserId();
 						}
@@ -355,7 +355,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 				public void setUserId()
 				{
-					String id_token = (String)args.get(StatelessLoginHandler.ID_TOKEN);
+					String id_token = (String)getHttpSession().getAttribute(StatelessLoginHandler.ID_TOKEN);
 					String[] chunks = id_token.split("\\.");
 					Base64.Decoder decoder = Base64.getUrlDecoder();
 					String payload = new String(decoder.decode(chunks[1]));
@@ -375,7 +375,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						}
 						ci.setUserGroups(gr);
 					}
-					if ("on".equals(args.get("remember")))
+					if (token.optBoolean("remember", false))
 					{
 						JSONObject obj = new JSONObject();
 						obj.put(StatelessLoginHandler.USERNAME, token.get(StatelessLoginHandler.USERNAME));
