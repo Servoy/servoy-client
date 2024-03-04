@@ -54,6 +54,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
+import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.headlessclient.util.HCUtils;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
@@ -106,9 +107,13 @@ public class AngularIndexPageWriter
 			parameterMap.remove(StatelessLoginHandler.USERNAME);
 			parameterMap.remove(StatelessLoginHandler.PASSWORD);
 			parameterMap.remove(StatelessLoginHandler.REMEMBER);
-			parameterMap.remove(StatelessLoginHandler.ID_TOKEN);
+			if (!parameterMap.containsKey(StartupArguments.PARAM_KEY_METHOD) && !parameterMap.containsKey("m"))
+			{
+				parameterMap.remove(StatelessLoginHandler.ID_TOKEN);
+			}
 		}
 		json.put("querystring", StringEscapeUtils.escapeJson(HTTPUtils.generateQueryString(parameterMap, request.getCharacterEncoding())));
+
 		String ipaddr = request.getHeader("X-Forwarded-For"); // in case there is a forwarding proxy
 		if (ipaddr == null)
 		{
