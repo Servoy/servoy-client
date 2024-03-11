@@ -22,7 +22,6 @@ import java.net.URL;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.sql.Connection;
-import java.util.Date;
 
 import javax.servlet.http.HttpServlet;
 
@@ -428,10 +427,4 @@ public interface IServerAccess extends IPluginAccess
 	 * @since 5.0
 	 */
 	public void releaseLocks(String clientId);
-
-	/**
-	 * Get the date of war creation.
-	 * @return date
-	 */
-	public Date getServerBuildDate();
 }
