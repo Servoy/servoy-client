@@ -185,7 +185,12 @@ public class NGCustomJSONObjectType<SabloT, SabloWT, FormElementT> extends Custo
 			Set<String> nullifyWholeValueIfTheValueForAnyOfTheseIsNull = null;
 			for (Entry<String, FormElementT> e : formElementValue.entrySet())
 			{
-				Object v = NGConversions.INSTANCE.convertFormElementToSabloComponentValue(e.getValue(), getCustomJSONTypeDefinition().getProperty(e.getKey()),
+				PropertyDescription subpropPD = getCustomJSONTypeDefinition().getProperty(e.getKey());
+
+				if (subpropPD == null) log.error(
+					"subprop. PD is null... subProp: '" + e.getKey() + "', value: " + e.getValue() + ", customType: " + getCustomJSONTypeDefinition()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+				Object v = NGConversions.INSTANCE.convertFormElementToSabloComponentValue(e.getValue(), subpropPD,
 					new FormElementExtension(formElement, formElementValue, getCustomJSONTypeDefinition()), component, dal);
 				if (v != null) map.put(e.getKey(), (SabloT)v);
 				else
