@@ -19,11 +19,7 @@ package com.servoy.j2db.server.ngclient;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
@@ -50,39 +46,31 @@ public class NGLocalesFilter implements Filter
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException
 	{
-		if (request.getParameter("localeid") != null)
+		String localeId = request.getParameter("localeid");
+		if (localeId != null)
 		{
 			// this code is a bit of copy of the IndexPageFilter locale handling part.
 			String requestURI = ((HttpServletRequest)request).getServletPath();
-			Path normalize = Paths.get(requestURI).normalize();
-			Set<String> resourcePaths = request.getServletContext().getResourcePaths(normalize.getParent().toString().replace('\\', '/'));
-			if (resourcePaths != null)
+			String normalize = Paths.get(requestURI).normalize().toString().replace('\\', '/');
+			InputStream resourceAsStream = request.getServletContext().getResourceAsStream(normalize);
+			if (resourceAsStream == null)
 			{
-				String[] locales = generateLocaleIds(request.getParameter("localeid"));
-				List<String> listFiles = resourcePaths.stream().filter((name) -> {
-					for (String locale : locales)
-					{
-						if (name.contains(locale)) return true;
-					}
-					return false;
-				}).collect(Collectors.toList());
-				if (listFiles != null && listFiles.size() > 0)
+				String[] locales = generateLocaleIds(localeId);
+				for (String locale : locales)
 				{
-					if (listFiles.size() > 1)
-					{
-						listFiles.sort((a, b) -> {
-							return b.length() - a.length();
-						});
-					}
-					String contentType = MimeTypes.guessContentTypeFromName(requestURI);
-					if (contentType != null) response.setContentType(contentType);
-					InputStream resourceAsStream = request.getServletContext().getResourceAsStream(listFiles.get(0));
-					try (InputStream is = resourceAsStream)
-					{
-						IOUtils.copy(is, response.getOutputStream());
-					}
-					return;
+					resourceAsStream = request.getServletContext().getResourceAsStream(normalize.replace(localeId, locale));
+					if (resourceAsStream != null) break;
 				}
+			}
+			if (resourceAsStream != null)
+			{
+				String contentType = MimeTypes.guessContentTypeFromName(requestURI);
+				if (contentType != null) response.setContentType(contentType);
+				try (InputStream is = resourceAsStream)
+				{
+					IOUtils.copy(is, response.getOutputStream());
+				}
+				return;
 			}
 		}
 		chain.doFilter(request, response);
@@ -99,9 +87,9 @@ public class NGLocalesFilter implements Filter
 		if (languageAndCountry.length == 1)
 		{
 			String country = locale.toUpperCase();
-			return new String[] { locale + '.', locale + '_' + country + '.', locale + '-' + country + '.' };
+			return new String[] { locale + '_' + country, locale + '-' + country, locale, "en" };
 		}
-		return new String[] { locale.replace('-', '_') + '.', locale.replace('_', '-') + '.', languageAndCountry[0] + '.' };
+		return new String[] { locale.replace('-', '_'), locale.replace('_', '-'), languageAndCountry[0], "en" };
 	}
 
 }
