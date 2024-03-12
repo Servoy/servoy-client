@@ -17,15 +17,11 @@
 
 package com.servoy.j2db.server.shared;
 
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.Properties;
-
-import javax.servlet.ServletContext;
 
 import com.servoy.j2db.util.Debug;
 
@@ -36,30 +32,22 @@ public class ServerDeployDate
 {
 	public static Date WAR_DATE = new Date();
 
-	public static void readDate(ServletContext sc)
+	public static void readDate(Properties properties)
 	{
-		try
+		if (properties != null && properties.getProperty("serverBuildDate") != null)
 		{
-			URL url = sc.getResource("/WEB-INF/deploy.properties");
-			if (url != null)
+			try
 			{
-				try (InputStreamReader isr = new InputStreamReader(url.openStream()))
-				{
-					Properties properties = new Properties();
-					properties.load(isr);
-					if (properties.getProperty("serverBuildDate") != null)
-					{
-						Long time = Long.valueOf(properties.getProperty("serverBuildDate"));
-						ZoneId zone = ZoneId.of(properties.getProperty("zoneId"));
-						OffsetDateTime date = OffsetDateTime.ofInstant(Instant.ofEpochMilli(time.longValue()), zone);
-						WAR_DATE = new Date(date.toInstant().toEpochMilli());
-					}
-				}
+				Long time = Long.valueOf(properties.getProperty("serverBuildDate"));
+				ZoneId zone = ZoneId.of(properties.getProperty("zoneId"));
+				OffsetDateTime date = OffsetDateTime.ofInstant(Instant.ofEpochMilli(time.longValue()), zone);
+				WAR_DATE = new Date(date.toInstant().toEpochMilli());
+			}
+			catch (Exception ex)
+			{
+				Debug.error("Could not read war created date: ", ex);
 			}
 		}
-		catch (Exception ex)
-		{
-			Debug.error(ex);
-		}
 	}
+
 }
