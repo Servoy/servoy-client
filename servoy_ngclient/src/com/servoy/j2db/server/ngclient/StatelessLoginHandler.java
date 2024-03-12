@@ -91,13 +91,13 @@ public class StatelessLoginHandler
 {
 	public static final String PASSWORD = "password";
 	public static final String ID_TOKEN = "id_token";
-	public static final String GROUPS = "groups";
+	public static final String PERMISSIONS = "permissions";
 	public static final String USERNAME = "username";
 	public static final String REMEMBER = "remember";
 	public static final String UID = "uid";
 	public static final String LAST_LOGIN = "last_login";
 	private static final String JWT_Password = "servoy.jwt.logintoken.password";
-	private static final int TOKEN_AGE_IN_SECONDS = 24 * 3600;
+	private static final int TOKEN_AGE_IN_SECONDS = 2 * 3600;
 
 	private static final String BASE_CLOUD_URL = System.getProperty("servoy.api.url", "https://middleware-prod.unifiedui.servoy-cloud.eu");
 	private static final String CLOUD_REST_API_GET = BASE_CLOUD_URL + "/servoy-service/rest_ws/api/auth_endpoint/getEndpointUI/";
@@ -155,7 +155,7 @@ public class StatelessLoginHandler
 							{
 								DecodedJWT decodedJWT = JWT.decode(id_token);
 								if (decodedJWT.getClaims().containsKey(USERNAME) && decodedJWT.getClaims().containsKey(UID) &&
-									decodedJWT.getClaims().containsKey(GROUPS))
+									decodedJWT.getClaims().containsKey(PERMISSIONS))
 								{
 									String _user = decodedJWT.getClaim(USERNAME).asString();
 									Boolean rememberUser = decodedJWT.getClaims().containsKey(REMEMBER) ? //
@@ -458,7 +458,7 @@ public class StatelessLoginHandler
 			{
 
 				String[] permissions = ApplicationServerRegistry.get().getUserManager().getUserGroups(clientid, uid);
-				if (permissions.length > 0 && (oldToken == null || Arrays.equals(oldToken.getClaim(GROUPS).asArray(String.class), permissions)))
+				if (permissions.length > 0 && (oldToken == null || Arrays.equals(oldToken.getClaim(PERMISSIONS).asArray(String.class), permissions)))
 				{
 					String token = createToken(username, uid, permissions, Long.valueOf(System.currentTimeMillis()), rememberUser);
 					needToLogin.setLeft(Boolean.FALSE);
@@ -636,7 +636,7 @@ public class StatelessLoginHandler
 			.withIssuer("svy")
 			.withClaim(UID, uid)
 			.withClaim(USERNAME, username)
-			.withArrayClaim(GROUPS, groups)
+			.withArrayClaim(PERMISSIONS, groups)
 			.withExpiresAt(new Date(System.currentTimeMillis() + TOKEN_AGE_IN_SECONDS * 1000));
 		if (lastLogin instanceof String)
 		{
