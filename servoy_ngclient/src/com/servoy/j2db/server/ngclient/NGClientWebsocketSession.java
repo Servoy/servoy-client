@@ -365,9 +365,9 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					ClientInfo ci = client.getClientInfo();
 					ci.setUserUid(userID);
 					ci.setUserName(token.getString(StatelessLoginHandler.USERNAME));
-					if (token.has(StatelessLoginHandler.GROUPS))
+					if (token.has(StatelessLoginHandler.PERMISSIONS))
 					{
-						JSONArray groups = token.getJSONArray(StatelessLoginHandler.GROUPS);
+						JSONArray groups = token.getJSONArray(StatelessLoginHandler.PERMISSIONS);
 						String[] gr = new String[groups.length()];
 						for (int i = 0; i < groups.length(); i++)
 						{
