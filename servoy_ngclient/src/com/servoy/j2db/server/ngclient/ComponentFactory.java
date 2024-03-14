@@ -81,6 +81,8 @@ public class ComponentFactory
 				{
 					Debug.warn("'Root' form component component on form " + form.getName() +
 						" was not found when trying to determine access rights for a child of this form component component: " + formElementName);
+					elementSecurity = IRepository.IMPLICIT_FORM_NO_ACCESS;
+					getItDirectlyBasedOnPersistAndForm = false;
 				}
 			}
 			else if (persist.getParent() instanceof Portal)

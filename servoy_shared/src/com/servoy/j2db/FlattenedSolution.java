@@ -1331,7 +1331,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 		else
 		{
-			// if the value is not the implicit value and an implicit value is asked for and it was registered that it should have an implicit value then return the implict value
+			// if the value is not the implicit value and an implicit value is asked for and it was registered that it should have
+			// an implicit value then return the implicit value
 			// so this is in implicit mode where the element was not configured in all the groups..
 			if (i.intValue() != implicitValue && (implicitValue == IRepository.IMPLICIT_FORM_ACCESS || implicitValue == IRepository.IMPLICIT_TABLE_ACCESS) &&
 				securityAccess.getRight().contains(element_id)) return implicitValue;
