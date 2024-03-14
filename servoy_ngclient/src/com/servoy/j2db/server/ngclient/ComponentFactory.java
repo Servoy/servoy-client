@@ -22,6 +22,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
@@ -67,7 +68,8 @@ public class ComponentFactory
 				// then the children of both X and Y in this case have the same security settings as 'root' form component component which is A;
 
 				// so find the 'root' form component component persist and get it's access rights; this should always be found!
-				String formComponentName = formElementName.substring(0, formElementName.indexOf('$'));
+				String formComponentName = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_FORM_NAME);
+
 				for (IPersist p : form.getFlattenedFormElementsAndLayoutContainers())
 				{
 					if (p instanceof IFormElement && formComponentName.equals(((IFormElement)p).getName()))
@@ -192,7 +194,8 @@ public class ComponentFactory
 				}
 				else
 				{
-					Debug.warn("Event handler for " + eventName + " with value '" + eventValue + "' not found (form " + form + ", form element " + formElementName + ")");
+					Debug.warn("Event handler for " + eventName + " with value '" + eventValue + "' not found (form " + form + ", form element " +
+						formElementName + ")");
 				}
 			}
 			else if (eventValue instanceof Number && ((Number)eventValue).intValue() > 0)
