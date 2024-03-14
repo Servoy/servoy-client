@@ -22,6 +22,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
@@ -62,24 +63,26 @@ public class ComponentFactory
 			// FormComponent's child security is the security of the FormComponent
 			if (fe.isFormComponentChild())
 			{
-				// form component children security access is currently dictated by the root form component component security settings; currently one only has the Security tab in form editors not in form component editors;
+				// form component children security access is currently dictated by the root form component component security settings;
+				// currently one only has the Security tab in form editors not in form component editors;
 				// for example if you have a form that contains a form component component A pointing to form component X that has in it a form component component B that points to form component Y
 				// then the children of both X and Y in this case have the same security settings as 'root' form component component which is A;
 
 				// so find the 'root' form component component persist and get it's access rights; this should always be found!
-				String formComponentName = formElementName.substring(0, formElementName.indexOf('$'));
-				for (IPersist p : form.getFlattenedFormElementsAndLayoutContainers())
+				String formComponentUUID = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_UUID);
+				IPersist formComponentComponent = (formComponentUUID != null ? form.findChild(UUID.fromString(formComponentUUID)) : null);
+
+				if (formComponentComponent instanceof IFormElement)
 				{
-					if (p instanceof IFormElement && formComponentName.equals(((IFormElement)p).getName()))
-					{
-						elementSecurity = application.getFlattenedSolution().getSecurityAccess(p.getUUID(),
-							form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
-						getItDirectlyBasedOnPersistAndForm = false;
-						break;
-					}
+					elementSecurity = application.getFlattenedSolution().getSecurityAccess(formComponentComponent.getUUID(),
+						form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
+					getItDirectlyBasedOnPersistAndForm = false;
 				}
-				if (getItDirectlyBasedOnPersistAndForm) Debug.warn("'Root' form component including component on form " + form.getName() +
-					" was not found when trying to determine access rights for a child of a form component: " + formElementName);
+				else
+				{
+					Debug.warn("'Root' form component component on form " + form.getName() +
+						" was not found when trying to determine access rights for a child of this form component component: " + formElementName);
+				}
 			}
 			else if (persist.getParent() instanceof Portal)
 			{
@@ -192,7 +195,8 @@ public class ComponentFactory
 				}
 				else
 				{
-					Debug.warn("Event handler for " + eventName + " with value '" + eventValue + "' not found (form " + form + ", form element " + formElementName + ")");
+					Debug.warn("Event handler for " + eventName + " with value '" + eventValue + "' not found (form " + form + ", form element " +
+						formElementName + ")");
 				}
 			}
 			else if (eventValue instanceof Number && ((Number)eventValue).intValue() > 0)
