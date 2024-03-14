@@ -24,7 +24,6 @@ import org.sablo.specification.WebObjectSpecification;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Portal;
@@ -72,7 +71,7 @@ public class ComponentFactory
 				String formComponentUUID = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_UUID);
 				IPersist formComponentComponent = (formComponentUUID != null ? form.findChild(UUID.fromString(formComponentUUID)) : null);
 
-				if (formComponentComponent instanceof IFormElement)
+				if (formComponentComponent != null)
 				{
 					elementSecurity = application.getFlattenedSolution().getSecurityAccess(formComponentComponent.getUUID(),
 						form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
