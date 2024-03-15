@@ -22,8 +22,8 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Portal;
@@ -68,22 +68,29 @@ public class ComponentFactory
 				// then the children of both X and Y in this case have the same security settings as 'root' form component component which is A;
 
 				// so find the 'root' form component component persist and get it's access rights; this should always be found!
-				String formComponentUUID = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_UUID);
-				IPersist formComponentComponent = (formComponentUUID != null ? form.findChild(UUID.fromString(formComponentUUID)) : null);
+				// TODO switch this to using ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_UUID) instead of form element name, but make that work with deeply nested form components in form components as well
+				String[] nestingPathInsideFormComponents = formElementName.split("\\$"); // because we use the name to find parent form element, and elements themselves can have "$" in their name (we use it as a separator as well for path inside form components), we need to take into account that the actual name ofthe root form component component could contain $
+				int i = 0;
+				String formComponentName = ""; // find the root form component component name (it might or might not have $ in it, so we can't just see $ as a separator and take the first part - up to the first $)
 
-				if (formComponentComponent != null)
+				while (getItDirectlyBasedOnPersistAndForm && i < nestingPathInsideFormComponents.length)
 				{
-					elementSecurity = application.getFlattenedSolution().getSecurityAccess(formComponentComponent.getUUID(),
-						form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
-					getItDirectlyBasedOnPersistAndForm = false;
+					formComponentName += nestingPathInsideFormComponents[i];
+					for (IPersist p : form.getFlattenedFormElementsAndLayoutContainers())
+					{
+						if (p instanceof IFormElement && formComponentName.equals(((IFormElement)p).getName()))
+						{
+							elementSecurity = application.getFlattenedSolution().getSecurityAccess(p.getUUID(),
+								form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
+							getItDirectlyBasedOnPersistAndForm = false;
+							break;
+						}
+					}
+					formComponentName += "$";
+					i++;
 				}
-				else
-				{
-					Debug.warn("'Root' form component component on form " + form.getName() +
-						" was not found when trying to determine access rights for a child of this form component component: " + formElementName);
-					elementSecurity = IRepository.IMPLICIT_FORM_NO_ACCESS;
-					getItDirectlyBasedOnPersistAndForm = false;
-				}
+				if (getItDirectlyBasedOnPersistAndForm) Debug.warn("'Root' form component component on form " + form.getName() +
+					" was not found when trying to determine access rights for a child of this form component component: " + formElementName);
 			}
 			else if (persist.getParent() instanceof Portal)
 			{
