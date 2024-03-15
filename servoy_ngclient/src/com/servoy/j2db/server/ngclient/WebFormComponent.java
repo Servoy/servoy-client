@@ -23,6 +23,7 @@ import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
@@ -36,7 +37,6 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IDesignToFormElement;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementDefaultValueToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
-import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -328,20 +328,31 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 		// FormComponent's child security is the security of the FormComponent
 		if (formElement.isFormComponentChild())
 		{
+			String feName = formElement.getName();
 			// form component children security access is currently dictated by the root form component component security settings; currently one only has the Security tab in form editors not in form component editors;
 			// for example if you have a form that contains a form component component A pointing to form component X that has in it a form component component B that points to form component Y
 			// then the children of both X and Y in this case have the same security settings as 'root' form component component which is A;
 
 			// so find the 'root' form component component persist and get it's access rights; this should always be found!
-			IPersist childPersist = formElement.getPersistIfAvailable();
-			String formComponentUUID = null;
-			if (childPersist != null) formComponentUUID = ((AbstractBase)childPersist).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_UUID);
-			persist = (formComponentUUID != null ? formElementForm.findChild(UUID.fromString(formComponentUUID)) : null);
+			// TODO switch this to using ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_UUID) instead of form element name, but make that work with deeply nested form components in form components as well
+			String[] nestingPathInsideFormComponents = feName.split("\\$"); // because we use the name to find parent form element, and elements themselves can have "$" in their name (we use it as a separator as well for path inside form components), we need to take into account that the actual name ofthe root form component component could contain $
+			int i = 0;
+			String formComponentName = ""; // find the root form component component name (it might or might not have $ in it, so we can't just see $ as a separator and take the first part - up to the first $)
 
-			if (persist == null) // should NEVER happen unless it's a bug somewhere
-				throw new RuntimeException(
-					"Handler execution unexpected problem (" + functionDef + "): 'Root' form component component on form " + formElementForm.getName() +
-						" was not found when trying to determine access rights for a child of this form component component: " + formElement.getName());
+			while (persist == null && i < nestingPathInsideFormComponents.length)
+			{
+				formComponentName += nestingPathInsideFormComponents[i];
+				for (IPersist p : formElementForm.getFlattenedFormElementsAndLayoutContainers())
+				{
+					if (p instanceof IFormElement && formComponentName.equals(((IFormElement)p).getName()))
+					{
+						persist = p;
+						break;
+					}
+				}
+				formComponentName += "$";
+				i++;
+			}
 		}
 		else
 		{
