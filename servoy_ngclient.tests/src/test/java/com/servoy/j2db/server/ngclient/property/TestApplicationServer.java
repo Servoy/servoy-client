@@ -155,13 +155,6 @@ final class TestApplicationServer implements IApplicationServerSingleton
 	}
 
 	@Override
-	public int getUsedRMIRegistryPort()
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	public long getStartTime()
 	{
 		// TODO Auto-generated method stub

@@ -83,8 +83,6 @@ public interface IApplicationServerSingleton
 
 	IWebClientSessionFactory getWebClientSessionFactory();
 
-	int getUsedRMIRegistryPort();
-
 	Map<String, HttpServlet> getWebServices();
 
 	int getWebServerPort();
