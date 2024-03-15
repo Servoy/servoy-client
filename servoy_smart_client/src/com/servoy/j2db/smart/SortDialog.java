@@ -33,7 +33,6 @@ import javax.swing.JPanel;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.Messages;
-import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.property.SortEditor;
@@ -141,7 +140,6 @@ public class SortDialog extends JEscapeDialog implements ActionListener
 	private void copy()
 	{
 		List<SortColumn> list = sortEditor.getData();
-		RemoteRunnerChecker.getInstance().setClipboardContent(FoundSetManager.getSortColumnsAsString(list));
 	}
 
 	private void ok()

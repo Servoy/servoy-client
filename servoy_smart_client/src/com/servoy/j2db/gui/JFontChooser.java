@@ -50,9 +50,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import com.servoy.j2db.Messages;
-import com.servoy.j2db.smart.RemoteRunnerChecker;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.gui.IPropertyEditorDialog;
 import com.servoy.j2db.util.gui.JEscapeDialog;
 
@@ -310,11 +308,7 @@ public class JFontChooser extends JComponent implements ActionListener, ListSele
 
 	private void copy()
 	{
-		if (font != null)
-		{
-			String sfont = PersistHelper.createFontString(font);
-			RemoteRunnerChecker.getInstance().setClipboardContent("'" + sfont + "'"); //$NON-NLS-1$ //$NON-NLS-2$
-		}
+
 	}
 
 	/**

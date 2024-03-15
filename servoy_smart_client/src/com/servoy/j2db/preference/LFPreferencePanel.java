@@ -23,7 +23,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +44,6 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.gui.JFontChooser;
 import com.servoy.j2db.smart.J2DBClient;
-import com.servoy.j2db.smart.RemoteRunnerChecker;
 import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.SortedList;
@@ -102,11 +100,7 @@ public class LFPreferencePanel extends PreferencePanel implements ItemListener, 
 		}
 
 		String font = _application.getSettings().getProperty("font");
-		if (RemoteRunnerChecker.getInstance().isRunningWebStart())
-		{
-			URL webstartbase = _application.getServerURL();
-			font = _application.getSettings().getProperty(webstartbase.getHost() + webstartbase.getPort() + "_font", font);
-		}
+
 
 		_selectedFont = PersistHelper.createFont(font);
 		lnfBox = new JComboBox(_dcbm);
@@ -125,15 +119,8 @@ public class LFPreferencePanel extends PreferencePanel implements ItemListener, 
 		}
 		DefaultComboBoxModel modelThemes = new DefaultComboBoxModel(sl.toArray());
 		String n = ""; //$NON-NLS-1$
-		if (RemoteRunnerChecker.getInstance().isRunningWebStart())
-		{
-			URL webstartbase = _application.getServerURL();
-			n = _application.getSettings().getProperty(webstartbase.getHost() + webstartbase.getPort() + "_lnf.theme", ""); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-		else
-		{
-			n = _application.getSettings().getProperty("lnf.theme", ""); //$NON-NLS-1$//$NON-NLS-2$
-		}
+
+		n = _application.getSettings().getProperty("lnf.theme", ""); //$NON-NLS-1$//$NON-NLS-2$
 		int indx = n.lastIndexOf('.');
 		if (indx != -1) n = n.substring(indx + 1);
 		modelThemes.setSelectedItem(n);
@@ -251,11 +238,7 @@ public class LFPreferencePanel extends PreferencePanel implements ItemListener, 
 			_current = selected;
 		}
 		String clientPrefix = "";
-		if (RemoteRunnerChecker.getInstance().isRunningWebStart())
-		{
-			URL webstartbase = _application.getServerURL();
-			clientPrefix = webstartbase.getHost() + webstartbase.getPort() + "_"; //$NON-NLS-1$
-		}
+
 		if (themeClassName != null)
 		{
 			if (!themeClassName.equals(currentTheme))

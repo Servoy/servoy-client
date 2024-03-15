@@ -15,7 +15,6 @@ Export-Package: com.servoy.j2db.server.ngclient,
  com.servoy.j2db.server.ngclient.template,
  com.servoy.j2db.server.ngclient.utils
 Require-Bundle: servoy_shared,
- servoy_smart_client,
  sablo,
  org.eclipse.dltk.javascript.rhino,
  servoy_headless_client,

@@ -19,16 +19,16 @@ package com.servoy.j2db.smart.dataui;
 
 import java.awt.Color;
 
+import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import com.l2fprod.common.swing.JOutlookBar;
 import com.servoy.j2db.ui.IComponent;
 
 /**
  * @author lvostinar
  *
  */
-public class ComponentAccordionPanel extends JOutlookBar implements IComponent
+public class ComponentAccordionPanel extends JPanel implements IComponent
 {
 	public ComponentAccordionPanel()
 	{
@@ -52,15 +52,9 @@ public class ComponentAccordionPanel extends JOutlookBar implements IComponent
 
 	private Color foreground = null;
 
-	@Override
 	public Color getForegroundAt(int index)
 	{
-		Color superForeground = super.getForegroundAt(index);
-		if (superForeground == null)
-		{
-			superForeground = foreground;
-		}
-		return superForeground;
+		return getForeground();
 	}
 
 	@Override
@@ -72,7 +66,6 @@ public class ComponentAccordionPanel extends JOutlookBar implements IComponent
 
 	int alignment = SwingConstants.LEFT;
 
-	@Override
 	public void setAllTabsAlignment(int arg0)
 	{
 		if (arg0 < 0)
@@ -80,20 +73,11 @@ public class ComponentAccordionPanel extends JOutlookBar implements IComponent
 			arg0 = SwingConstants.LEFT;
 		}
 		alignment = arg0;
-		super.setAllTabsAlignment(arg0);
 	}
 
 
-	@Override
 	public int getAlignmentAt(int index)
 	{
-		if (alignment >= 0)
-		{
-			return alignment;
-		}
-		else
-		{
-			return super.getAlignmentAt(index);
-		}
+		return alignment;
 	}
 }

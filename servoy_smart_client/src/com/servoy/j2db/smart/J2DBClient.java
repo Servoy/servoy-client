@@ -247,7 +247,6 @@ import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IFormUI;
 import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.util.Ad;
-import com.servoy.j2db.util.BrowserLauncher;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ExtendableURLStreamHandlerFactory;
 import com.servoy.j2db.util.OrientationApplier;
@@ -589,19 +588,6 @@ public class J2DBClient extends ClientState
 			}
 		}
 
-		String remoteRunnerClassName = System.getProperty("com.servoy.remote.checker");
-		if (remoteRunnerClassName != null)
-		{
-			try
-			{
-				Class< ? > clazz = Class.forName(remoteRunnerClassName);
-				RemoteRunnerChecker.setInstance((IRemoteRunner)clazz.newInstance());
-			}
-			catch (Throwable t)
-			{
-				System.err.println("Error setting the remote runner check for " + remoteRunnerClassName);
-			}
-		}
 
 		boolean toggleTracing = false;
 		StartupArguments arguments = new StartupArguments(args);
@@ -799,8 +785,7 @@ public class J2DBClient extends ClientState
 	{
 		super();
 		//security check: when run as this class instance it must run under webstart for security!
-		if (getClass() == J2DBClient.class &&
-			!(RemoteRunnerChecker.getInstance().isRunningWebStart() && RemoteRunnerChecker.getInstance().getWebStartURL() != null))
+		if (getClass() == J2DBClient.class)
 		{
 			throw new IllegalStateException();
 		}
@@ -1595,13 +1580,6 @@ public class J2DBClient extends ClientState
 			String defaultLAFClassName = UIManager.getSystemLookAndFeelClassName();
 			String lnf = settings.getProperty("selectedlnf", defaultLAFClassName);
 
-			boolean isRunningWebStart = RemoteRunnerChecker.getInstance().isRunningWebStart();
-			URL webstartbase = null;
-			if (isRunningWebStart)
-			{
-				webstartbase = getServerURL();
-				lnf = settings.getProperty(webstartbase.getHost() + webstartbase.getPort() + "_selectedlnf", lnf);
-			}
 
 			// Users may have set the lnf to spaces in the properties file
 			if (lnf.trim().length() == 0)
@@ -1633,10 +1611,6 @@ public class J2DBClient extends ClientState
 
 
 			String font = settings.getProperty("font");
-			if (isRunningWebStart)
-			{
-				font = settings.getProperty(webstartbase.getHost() + webstartbase.getPort() + "_font", font);
-			}
 			Font dfltFont = PersistHelper.createFont(font);
 			if (dfltFont == null)
 			{
@@ -1816,11 +1790,6 @@ public class J2DBClient extends ClientState
 					{
 						UIManager.setLookAndFeel(laf);
 						String themeName = getSettings().getProperty("lnf.theme", "com.servoy.j2db.util.gui.DefaultTheme"); //$NON-NLS-1$ //$NON-NLS-2$
-						if (RemoteRunnerChecker.getInstance().isRunningWebStart())
-						{
-							URL webstartbase = getServerURL();
-							themeName = settings.getProperty(webstartbase.getHost() + webstartbase.getPort() + "_lnf.theme", themeName); //$NON-NLS-1$
-						}
 
 						if (themeName != null && themeName.length() != 0)
 						{
@@ -3877,7 +3846,7 @@ public class J2DBClient extends ClientState
 	@Override
 	public boolean isRunningRemote()
 	{
-		return RemoteRunnerChecker.getInstance().isRunningWebStart();
+		return false;
 	}
 
 	@Override
@@ -3895,7 +3864,7 @@ public class J2DBClient extends ClientState
 				Debug.error(e);
 			}
 		}
-		return RemoteRunnerChecker.getInstance().getWebStartURL();
+		return null;
 	}
 
 	private JDialog disconnectDialog;
@@ -4305,32 +4274,7 @@ public class J2DBClient extends ClientState
 
 	public boolean showURL(String url, String target, String target_options, int timeout, boolean closeDialogs)
 	{
-		// mail to doesn't work in showUrl through webstart
-		if (RemoteRunnerChecker.getInstance().isRunningWebStart() && url.toLowerCase().startsWith("http"))
-		{
-			try
-			{
-				return RemoteRunnerChecker.getInstance().showURL(new URL(url));
-			}
-			catch (Exception ex)
-			{
-				Debug.error(ex);
-				// Service is not supported?
-			}
-		}
-
-		try
-		{
-			BrowserLauncher.openURL(url);
-			return true;
-		}
-		catch (Throwable e)//catch all for apple mac
-		{
-			Debug.error(e);
-			RemoteRunnerChecker.getInstance().setClipboardContent(url);
-			reportWarningInStatus("If running in client this url is shown in browser: " + url + " ,the url is pasted on your clipboard");
-			return false;
-		}
+		return false;
 	}
 
 	public Dimension getScreenSize()
@@ -4444,12 +4388,11 @@ public class J2DBClient extends ClientState
 
 	public void setClipboardContent(String string)
 	{
-		RemoteRunnerChecker.getInstance().setClipboardContent(string);
 	}
 
 	public String getClipboardString()
 	{
-		return RemoteRunnerChecker.getInstance().getClipboardString();
+		return "";
 	}
 
 	private KeyEventDispatcher dispatcher = null;

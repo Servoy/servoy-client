@@ -64,8 +64,6 @@ import javax.swing.text.MaskFormatter;
 import javax.swing.text.NavigationFilter;
 import javax.swing.text.NumberFormatter;
 
-import org.jdesktop.xswingx.PromptSupport;
-
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.ControllerUndoManager;
 import com.servoy.j2db.IApplication;
@@ -1564,9 +1562,8 @@ public class DataField extends JFormattedTextField
 		super.setVisible(flag);
 		if (labels != null)
 		{
-			for (int i = 0; i < labels.size(); i++)
+			for (ILabel label : labels)
 			{
-				ILabel label = labels.get(i);
 				label.setComponentVisible(flag);
 			}
 		}
@@ -1591,9 +1588,8 @@ public class DataField extends JFormattedTextField
 			super.setEnabled(b);
 			if (labels != null)
 			{
-				for (int i = 0; i < labels.size(); i++)
+				for (ILabel label : labels)
 				{
-					ILabel label = labels.get(i);
 					label.setComponentEnabled(b);
 				}
 			}
@@ -2333,8 +2329,5 @@ public class DataField extends JFormattedTextField
 	@Override
 	public void setPlaceholderText(String text)
 	{
-		PromptSupport.uninstall(this);
-		PromptSupport.setPrompt(application.getI18NMessageIfPrefixed(text), this);
-		repaint();
 	}
 }
