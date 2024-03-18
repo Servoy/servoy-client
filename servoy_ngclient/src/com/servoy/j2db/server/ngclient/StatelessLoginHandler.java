@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -89,6 +91,7 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class StatelessLoginHandler
 {
+	private static final String SVYLOGIN_PATH = "svylogin";
 	public static final String PASSWORD = "password";
 	public static final String ID_TOKEN = "id_token";
 	public static final String PERMISSIONS = "permissions";
@@ -184,8 +187,8 @@ public class StatelessLoginHandler
 
 	public static boolean handlePossibleCloudRequest(HttpServletRequest request, HttpServletResponse response, String solutionName) throws ServletException
 	{
-		if (solutionName != null && (request.getSession(false) == null ||
-			request.getSession().getAttribute(StatelessLoginHandler.ID_TOKEN) == null))
+		Path path = Paths.get(request.getRequestURI()).normalize();
+		if (solutionName != null && path.getNameCount() > 2 && SVYLOGIN_PATH.equals(path.getName(2).toString()))
 		{
 			Pair<FlattenedSolution, Boolean> _fs = AngularIndexPageWriter.getFlattenedSolution(solutionName, null, request, response);
 			FlattenedSolution fs = _fs.getLeft();
@@ -200,8 +203,7 @@ public class StatelessLoginHandler
 						String[] endpoints = getCloudRestApiEndpoints(request.getServletContext(), httpclient, solution);
 						if (endpoints != null)
 						{
-							String[] segments = request.getRequestURI().split("/");
-							String endpoint = segments[segments.length - 1].replace(".html", "");
+							String endpoint = path.getName(path.getNameCount() - 1).toString().replace(".html", "");
 							if (Arrays.asList(endpoints).contains(endpoint))
 							{
 								if ("POST".equalsIgnoreCase(request.getMethod()))
@@ -250,32 +252,40 @@ public class StatelessLoginHandler
 			}
 			else if (json.has("error"))
 			{
-				try (InputStream rs = StatelessLoginHandler.class.getResourceAsStream("error.html"))
+				String error = json.optString("error", "");
+				if (error.startsWith("<html>"))
 				{
-					html = IOUtils.toString(rs, Charset.forName("UTF-8"));
+					html = error;
 				}
-				if (solution != null)
+				else
 				{
-					Solution sol = solution;
-					I18NTagResolver i18nProvider = new I18NTagResolver(request.getLocale(), sol);
-					html = TagParser.processTags(html, new ITagResolver()
+					try (InputStream rs = StatelessLoginHandler.class.getResourceAsStream("error.html"))
 					{
-						@Override
-						public String getStringValue(String name)
+						html = IOUtils.toString(rs, Charset.forName("UTF-8"));
+					}
+					if (solution != null)
+					{
+						Solution sol = solution;
+						I18NTagResolver i18nProvider = new I18NTagResolver(request.getLocale(), sol);
+						html = TagParser.processTags(html, new ITagResolver()
 						{
-							if ("solutionTitle".equals(name))
+							@Override
+							public String getStringValue(String name)
 							{
-								String titleText = sol.getTitleText();
-								if (titleText == null) titleText = sol.getName();
-								return i18nProvider.getI18NMessageIfPrefixed(titleText);
+								if ("solutionTitle".equals(name))
+								{
+									String titleText = sol.getTitleText();
+									if (titleText == null) titleText = sol.getName();
+									return i18nProvider.getI18NMessageIfPrefixed(titleText);
+								}
+								if ("error".equals(name))
+								{
+									return i18nProvider.getI18NMessageIfPrefixed(json.getString("error"));
+								}
+								return name;
 							}
-							if ("error".equals(name))
-							{
-								return i18nProvider.getI18NMessageIfPrefixed(json.getString("error"));
-							}
-							return name;
-						}
-					}, null);
+						}, null);
+					}
 				}
 			}
 
@@ -777,11 +787,12 @@ public class StatelessLoginHandler
 	private static String getPath(HttpServletRequest request)
 	{
 		String path = Settings.getInstance().getProperty("servoy.context.path", request.getContextPath() + '/');
-		String servletPath = request.getServletPath();
-		int lastSlashIndex = servletPath.lastIndexOf('/');
-		if (lastSlashIndex != -1 && lastSlashIndex < servletPath.length() - 1)
+		Path p = Paths.get(request.getServletPath()).normalize();
+		int i = 0;
+		while (i < p.getNameCount() - 1 && !SVYLOGIN_PATH.equals(p.getName(i).toString()))
 		{
-			path += servletPath.substring(1, lastSlashIndex + 1);
+			path += p.getName(i) + "/";
+			i++;
 		}
 		return path;
 	}
