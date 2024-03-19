@@ -38,8 +38,6 @@ import javax.swing.ImageIcon;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.ClientState;
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.IBeanManager;
-import com.servoy.j2db.ILAFManager;
 import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
@@ -77,7 +75,6 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 
 	private transient ICmdManager cmdManager;
 	protected final WebCredentials credentials;
-	private transient IBeanManager beanManager;
 
 	private final HashMap<String, String> defaultUserProperties = new HashMap<String, String>();
 
@@ -251,15 +248,6 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 				}
 			}
 		}
-	}
-
-	public IBeanManager getBeanManager()
-	{
-		if (beanManager == null)
-		{
-			beanManager = ApplicationServerRegistry.get().getBeanManager();
-		}
-		return beanManager;
 	}
 
 	@Override
@@ -579,11 +567,6 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 		{
 			Debug.error(e);
 		}
-	}
-
-	public ILAFManager getLAFManager()
-	{
-		return null;
 	}
 
 

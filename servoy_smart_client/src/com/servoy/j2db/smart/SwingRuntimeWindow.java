@@ -38,7 +38,6 @@ import com.servoy.j2db.FormManager;
 import com.servoy.j2db.FormWindow;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.ISmartClientApplication;
-import com.servoy.j2db.LAFManager;
 import com.servoy.j2db.gui.FormDialog;
 import com.servoy.j2db.plugins.ISmartRuntimeWindow;
 import com.servoy.j2db.scripting.JSWindow;
@@ -831,16 +830,6 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 				{
 					if (wrappedWindow == null) return; // already destroyed (test client probably)
 					((RootPaneContainer)wrappedWindow).getRootPane().requestFocus();
-					if (LAFManager.isUsingAppleLAF())
-					{
-						getApplication().invokeLater(new Runnable()
-						{
-							public void run()
-							{
-								((Component)fp.getFormUI()).repaint();
-							}
-						});
-					}
 				}
 			});
 
@@ -1089,7 +1078,7 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.RuntimeWindow#setCSSClass(java.lang.String)
 	 */
 	@Override

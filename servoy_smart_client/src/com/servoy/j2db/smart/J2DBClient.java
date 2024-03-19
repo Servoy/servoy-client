@@ -124,14 +124,11 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.plaf.InputMapUIResource;
-import javax.swing.plaf.metal.MetalLookAndFeel;
-import javax.swing.plaf.metal.MetalTheme;
 import javax.swing.text.DefaultFormatter;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.MaskFormatter;
 
 import com.servoy.j2db.ApplicationException;
-import com.servoy.j2db.BeanManager;
 import com.servoy.j2db.ClientRepository;
 import com.servoy.j2db.ClientState;
 import com.servoy.j2db.Credentials;
@@ -139,16 +136,13 @@ import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IBasicFormManager;
-import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.IDataRendererFactory;
 import com.servoy.j2db.IFormManagerInternal;
-import com.servoy.j2db.ILAFManager;
 import com.servoy.j2db.IMessagesCallback;
 import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.IProvideFormName;
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.J2DBGlobals;
-import com.servoy.j2db.LAFManager;
 import com.servoy.j2db.MediaURLStreamHandler;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.MessagesResourceBundle;
@@ -182,7 +176,6 @@ import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.preference.ApplicationPreferences;
 import com.servoy.j2db.preference.GeneralPanel;
-import com.servoy.j2db.preference.LFPreferencePanel;
 import com.servoy.j2db.preference.LocalePreferences;
 import com.servoy.j2db.preference.PreferencePanel;
 import com.servoy.j2db.preference.ServicePanel;
@@ -304,8 +297,6 @@ public class J2DBClient extends ClientState
 	 * Managers
 	 */
 	private CmdManager cmdManager;
-	private volatile IBeanManager beanManager;
-	private volatile ILAFManager lafManager;
 	private RuntimeWindowManager jsWindowManager;
 
 	protected Icon empty;
@@ -1200,11 +1191,6 @@ public class J2DBClient extends ClientState
 		}
 	}
 
-	protected ILAFManager createLAFManager()
-	{
-		return new LAFManager();
-	}
-
 	@Override
 	protected void createPluginManager()
 	{
@@ -1228,11 +1214,6 @@ public class J2DBClient extends ClientState
 	protected SmartClientPluginAccessProvider createClientPluginAccessProvider()
 	{
 		return new SmartClientPluginAccessProvider(this);
-	}
-
-	protected IBeanManager createBeanManager()
-	{
-		return new BeanManager();
 	}
 
 	protected CmdManager createCmdManager()
@@ -1545,11 +1526,6 @@ public class J2DBClient extends ClientState
 		}
 	}
 
-	public ILAFManager getLAFManager()
-	{
-		return lafManager;
-	}
-
 	/**
 	 * Set the look and feel (platform dep. or indep.)
 	 */
@@ -1576,38 +1552,6 @@ public class J2DBClient extends ClientState
 
 			// in case we use alloy
 			System.setProperty("alloy.isLookAndFeelFrameDecoration", "true");
-
-			String defaultLAFClassName = UIManager.getSystemLookAndFeelClassName();
-			String lnf = settings.getProperty("selectedlnf", defaultLAFClassName);
-
-
-			// Users may have set the lnf to spaces in the properties file
-			if (lnf.trim().length() == 0)
-			{
-				lnf = defaultLAFClassName;
-			}
-
-			lafManager = createLAFManager();
-
-			lafManager.init();
-
-			// test if selected lnf is loaded through the lafManager
-			List<LookAndFeelInfo> lst = lafManager.getLAFInfos(this);
-			boolean found = false;
-			for (LookAndFeelInfo info : lst)
-			{
-				if (info.getClassName().equals(lnf))
-				{
-					found = true;
-					break;
-				}
-			}
-			if (!found)
-			{
-				lnf = defaultLAFClassName;
-			}
-
-			putClientProperty(LookAndFeelInfo.class.getName(), lnf);
 
 
 			String font = settings.getProperty("font");
@@ -1781,31 +1725,6 @@ public class J2DBClient extends ClientState
 		try
 		{
 			boolean mustSetFont = true;
-			if (LookAndFeelInfo.class.getName().equals(name))
-			{
-				LookAndFeel laf = lafManager.createInstance(value.toString());
-				if (laf != null)
-				{
-					if (laf instanceof MetalLookAndFeel)
-					{
-						UIManager.setLookAndFeel(laf);
-						String themeName = getSettings().getProperty("lnf.theme", "com.servoy.j2db.util.gui.DefaultTheme"); //$NON-NLS-1$ //$NON-NLS-2$
-
-						if (themeName != null && themeName.length() != 0)
-						{
-							MetalTheme theme = lafManager.createThemeInstance(themeName);
-							if (theme != null)
-							{
-								MetalLookAndFeel.setCurrentTheme(theme);
-								mustSetFont = false;
-							}
-						}
-					}
-					UIManager.setLookAndFeel(laf);// yes, this is the second time if there is a methalTHeme but this is only it works
-					replaceCtrlShortcutsWithMacShortcuts();
-				}
-			}
-
 			UIDefaults uiDefaults = UIManager.getDefaults();
 			if (Font.class.getName().equals(name) && mustSetFont)
 			{
@@ -1891,15 +1810,6 @@ public class J2DBClient extends ClientState
 	 * URL(WebStart.getWebStartURL(),"docs/help/client.hs");//developer/server.hs? // HelpSet hs = new HelpSet(null, hsURL); // hb = hs.createHelpBroker(); // }
 	 * // hb.setDisplayed(true); // } // catch (Exception ex) // { // Debug.error("Help not found\n" + ex); // return; // } }
 	 */
-
-	public IBeanManager getBeanManager()
-	{
-		if (beanManager == null)
-		{
-			beanManager = createBeanManager();
-		}
-		return beanManager;
-	}
 
 	public ICmdManager getCmdManager()
 	{
@@ -3070,7 +2980,6 @@ public class J2DBClient extends ClientState
 	protected void loadPreferecesPanels(ApplicationPreferences appPrefs)
 	{
 		appPrefs.addPreferenceTab(createGeneralPanel());
-		appPrefs.addPreferenceTab(new LFPreferencePanel(this));
 		appPrefs.addPreferenceTab(new LocalePreferences(this));
 		addServicePreferencesTab(appPrefs);
 	}

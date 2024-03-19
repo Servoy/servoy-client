@@ -235,13 +235,6 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public ICmdManager getCmdManager();
 
 	/**
-	 * Get the bean manager (used to control beans).
-	 *
-	 * @return IBeanManager
-	 */
-	public IBeanManager getBeanManager();
-
-	/**
 	 * Get the plugin manager (used to control plugins).
 	 *
 	 * @return IPluginManager
@@ -285,13 +278,6 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * @param title to show
 	 */
 	public void setTitle(String title);
-
-	/**
-	 * Get the Look and Feel manager (used to set the laf on the application).
-	 *
-	 * @return ILAFManager
-	 */
-	public ILAFManager getLAFManager();
 
 	/**
 	 * Output something on the out stream. (if running in debugger view output tab)

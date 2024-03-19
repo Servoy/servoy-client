@@ -176,7 +176,6 @@ import com.servoy.j2db.util.ServoyStyleSheet;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.XMLDecoder;
 import com.servoy.j2db.util.gui.MyImageIcon;
 
 /**
@@ -844,50 +843,7 @@ public class ComponentFactory
 	 */
 	public static Object getBeanInstanceFromXML(IApplication application, String beanClassName, String beanXML) throws Exception
 	{
-		Object retValue = null;
-		ClassLoader bcl = application.getBeanManager().getClassLoader();
-		ClassLoader saveCL = null;
-		if (bcl != null)
-		{
-			if (!application.isRunningRemote())
-			{
-				//must create an temp instace to get it to work
-				retValue = bcl.loadClass(beanClassName).newInstance();
-
-				//TODO:remove if sun bug 4676532 is fixed (jdk 1.5)
-				saveCL = Thread.currentThread().getContextClassLoader();
-				Thread.currentThread().setContextClassLoader(bcl);
-			}
-		}
-		if (beanXML != null && beanXML.startsWith("<?xml"))
-		{
-			try
-			{
-				if (Thread.currentThread().getContextClassLoader() == null ||
-					Thread.currentThread().getContextClassLoader() == ClassLoader.getSystemClassLoader())
-				{
-					Thread.currentThread().setContextClassLoader(ComponentFactory.class.getClassLoader());
-				}
-				XMLDecoder decoder = new XMLDecoder(beanXML);
-				retValue = decoder.readObject();
-				decoder.close();
-			}
-			catch (Throwable e)
-			{
-				Debug.error(e);
-			}
-		}
-		else if (retValue == null)
-		{
-			if (bcl != null) retValue = bcl.loadClass(beanClassName).newInstance();
-			else retValue = ComponentFactory.class.getClassLoader().loadClass(beanClassName).newInstance();
-		}
-
-		if (!application.isRunningRemote())
-		{
-			Thread.currentThread().setContextClassLoader(saveCL);
-		}
-		return retValue;
+		return null;
 	}
 
 	public static void updateBeanWithItsXML(final Bean bean, final Object beanDesignInstance)
@@ -2164,10 +2120,8 @@ public class ComponentFactory
 			provider.getRuntimeProperties().put(PARSED_STYLES, null);
 		}
 
-		Iterator<IconHolder> it = lstIcons.values().iterator();
-		while (it.hasNext())
+		for (IconHolder ih : lstIcons.values())
 		{
-			IconHolder ih = it.next();
 			Icon icon = ih.icon.get();
 			if (icon instanceof ImageIcon)
 			{

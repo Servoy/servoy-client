@@ -54,12 +54,10 @@ import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.IDataRendererFactory;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IFormManagerInternal;
-import com.servoy.j2db.ILAFManager;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.ISessionClient;
 import com.servoy.j2db.J2DBGlobals;
@@ -540,16 +538,6 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 			reportError(Messages.getString("servoy.client.error.finding.dataservice"), ex); //$NON-NLS-1$
 			return false;
 		}
-	}
-
-	protected ILAFManager createLAFManager()
-	{
-		return ApplicationServerRegistry.get().getLafManager();
-	}
-
-	protected IBeanManager createBeanManager()
-	{
-		return ApplicationServerRegistry.get().getBeanManager();
 	}
 
 	/*

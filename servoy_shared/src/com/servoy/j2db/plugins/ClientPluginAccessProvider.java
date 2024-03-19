@@ -39,7 +39,6 @@ import org.mozilla.javascript.Function;
 import com.servoy.j2db.ClientVersion;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IFormManager;
 import com.servoy.j2db.J2DBGlobals;
@@ -168,11 +167,6 @@ public class ClientPluginAccessProvider implements IClientPluginAccess
 	public ICmdManager getCmdManager()
 	{
 		return application.getCmdManager();
-	}
-
-	public IBeanManager getBeanManager()
-	{
-		return application.getBeanManager();
 	}
 
 	public ISolutionModel getSolutionModel()

@@ -23,10 +23,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import javax.servlet.http.HttpServlet;
 
-import com.servoy.j2db.IBeanManager;
-import com.servoy.j2db.IBeanManagerInternal;
 import com.servoy.j2db.IDebugClientHandler;
-import com.servoy.j2db.ILAFManagerInternal;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.persistence.AbstractRepository;
 import com.servoy.j2db.persistence.IDeveloperRepository;
@@ -68,12 +65,6 @@ public interface IApplicationServerSingleton
 	IDebugClientHandler getDebugClientHandler();
 
 	IPluginManagerInternal getPluginManager();
-
-	ILAFManagerInternal getLafManager();
-
-	IBeanManagerInternal getBeanManager();
-
-	IBeanManager createBeanManager(ClassLoader pluginClassloader);
 
 	IUserManager getUserManager();
 

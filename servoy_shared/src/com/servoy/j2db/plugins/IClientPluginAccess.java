@@ -31,7 +31,6 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.IFormManager;
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.dataprocessing.IDatabaseManager;
@@ -187,13 +186,6 @@ public interface IClientPluginAccess extends IPluginAccess, IUIBlocker, ILogLeve
 	 * @return ICmdManager
 	 */
 	public ICmdManager getCmdManager();
-
-	/**
-	 * Get the bean manager (used to control beans).
-	 *
-	 * @return IBeanManager
-	 */
-	public IBeanManager getBeanManager();
 
 	/**
 	 * Get the solution model to inspect and modify the solution objects.
