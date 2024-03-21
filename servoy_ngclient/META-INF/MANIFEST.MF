@@ -19,9 +19,7 @@ Require-Bundle: servoy_shared,
  sablo,
  org.eclipse.dltk.javascript.rhino,
  servoy_headless_client,
- org.apache.tomcat,
- wrapped.org.apache.httpcomponents.client5.httpclient5,
- wrapped.org.apache.httpcomponents.core5.httpcore5
+ org.apache.tomcat
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: .
 Bundle-Vendor: Servoy
@@ -49,11 +47,13 @@ Import-Package: com.auth0.jwt;version="[4.4.0,5.0.0)",
  org.apache.commons.text;version="1.11.0",
  org.apache.commons.text.translate;version="1.11.0",
  org.apache.hc.client5.http.classic.methods;version="5.2.1",
+ org.apache.hc.client5.http.entity;version="[5.3.0,6.0.0]",
  org.apache.hc.client5.http.impl.classic;version="5.2.1",
  org.apache.hc.core5.http;version="5.2.3",
  org.apache.hc.core5.http.io;version="5.2.3",
  org.apache.hc.core5.http.io.entity;version="5.2.3",
  org.apache.hc.core5.http.message;version="5.2.3",
+ org.apache.hc.core5.net;version="[5.2.0,6.0.0]",
  org.jsoup;version="1.17.1",
  org.jsoup.nodes;version="1.17.1",
  org.jsoup.select;version="1.17.1",
