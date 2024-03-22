@@ -796,7 +796,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				{
 					statement_action = ISQLActionTypes.DELETE_ACTION;
 					sqlDesc = sheet.getSQLDescription(SQLSheet.DELETE);
-					sqlUpdate = (QueryDelete)deepClone(sqlDesc.getSQLQuery());
+					sqlUpdate = deepClone((ISQLUpdate)sqlDesc.getSQLQuery());
 
 					aggregatesToRemove = sqlDesc.getOldRequiredDataProviderIDs().stream()
 						.filter(sheet::isUsedByAggregate)
@@ -807,7 +807,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				{
 					statement_action = ISQLActionTypes.UPDATE_ACTION;
 					sqlDesc = sheet.getSQLDescription(SQLSheet.UPDATE);
-					sqlUpdate = (QueryUpdate)deepClone(sqlDesc.getSQLQuery());
+					QueryUpdate queryUpdate = deepClone((QueryUpdate)sqlDesc.getSQLQuery());
+					sqlUpdate = queryUpdate;
 					List<String> req = sqlDesc.getRequiredDataProviderIDs();
 
 					Object[] olddata = row.getRawOldColumnData();
@@ -852,7 +853,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 							}
 							Object robj = c.getAsRightType(newdata[i]);
 							if (robj == null) robj = ValueFactory.createNullValue(c.getType());
-							((QueryUpdate)sqlUpdate).addValue(c.queryColumn(sqlUpdate.getTable()), robj);
+							queryUpdate.addValue(c.queryColumn(sqlUpdate.getTable()), robj);
 							if (changedColumns == null)
 							{
 								changedColumns = new ArrayList<>(olddata.length - i);
@@ -895,15 +896,15 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					pkValues[j] = value;
 				}
 
-				setPlaceholderValueChecked(sqlUpdate,
-					new TablePlaceholderKey(((QueryUpdate)sqlUpdate).getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pkValues);
+				setPlaceholderValueChecked(sqlUpdate, new TablePlaceholderKey(sqlUpdate.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pkValues);
 			}
 			else
 			{
 				List<Object> argsArray = new ArrayList<>();
 				statement_action = ISQLActionTypes.INSERT_ACTION;
 				sqlDesc = sheet.getSQLDescription(SQLSheet.INSERT);
-				sqlUpdate = (QueryInsert)deepClone(sqlDesc.getSQLQuery());
+				QueryInsert queryInsert = deepClone((QueryInsert)sqlDesc.getSQLQuery());
+				sqlUpdate = queryInsert;
 				List<String> req = sqlDesc.getRequiredDataProviderIDs();
 				if (Debug.tracing()) Debug.trace(sqlUpdate.toString());
 				for (int i = 0; i < req.size(); i++)
@@ -935,7 +936,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 							// The database has a default value, and the value is null, and this is an insert...
 							// Remove the column from the query entirely and make sure the default value is requeried from the db.
 							mustRequeryRow = true;
-							((QueryInsert)sqlUpdate).removeColumn(queryColumn);
+							queryInsert.removeColumn(queryColumn);
 						}
 						else
 						{

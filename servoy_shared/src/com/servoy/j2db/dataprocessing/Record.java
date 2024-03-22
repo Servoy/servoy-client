@@ -404,7 +404,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	public void completeFire(ModificationEvent me)
 	{
 		// Test if this record is in edit state for stopping it below if necessary
-		boolean isEditting = parent != null ? parent.getFoundSetManager().getEditRecordList().isEditing() : false;
+		boolean isEditing = parent != null ? parent.getFoundSetManager().getEditRecordList().isEditing() : false;
 		me.setRecord(this);
 		Object[] array = modificationListeners.toArray();
 		for (Object element : array)
@@ -413,7 +413,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		}
 		// If it wasn't editing and now it is (see RelookupdAdapter modification) then stop it now so that every change
 		// is recorded in one go and stored in one update
-		if (!isEditting && isEditing())
+		if (!isEditing && isEditing())
 		{
 			try
 			{

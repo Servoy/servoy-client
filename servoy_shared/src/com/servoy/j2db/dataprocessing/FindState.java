@@ -320,7 +320,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 		{
 			((IModificationListener)element).valueChanged(me);
 		}
-		// If it wasn't editting and now it is (see RelookupdAdapter modification) then stop it now so that every change
+		// If it wasn't editing and now it is (see RelookupdAdapter modification) then stop it now so that every change
 		// is recorded in one go and stored in one update
 		if (!editState && isEditing())
 		{

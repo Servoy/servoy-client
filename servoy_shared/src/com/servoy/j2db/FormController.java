@@ -1293,8 +1293,8 @@ public class FormController extends BasicFormController
 	{
 		if (form.getOnPreviousRecordCmdMethodID() == 0)
 		{
-			int edittingStoppedFlag = application.getFoundSetManager().getEditRecordList().stopEditing(false);
-			if (ISaveConstants.STOPPED != edittingStoppedFlag && ISaveConstants.AUTO_SAVE_BLOCKED != edittingStoppedFlag)
+			int editingStoppedFlag = application.getFoundSetManager().getEditRecordList().stopEditing(false);
+			if (ISaveConstants.STOPPED != editingStoppedFlag && ISaveConstants.AUTO_SAVE_BLOCKED != editingStoppedFlag)
 			{
 				return;
 			}

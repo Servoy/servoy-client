@@ -26,12 +26,10 @@ import static com.servoy.j2db.util.Utils.stream;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.reverse;
-import static java.util.Collections.synchronizedList;
 import static java.util.Collections.synchronizedMap;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
-import static java.util.stream.Stream.empty;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -112,8 +110,6 @@ public class EditRecordList
 	private final ReentrantLock editRecordsLock = new ReentrantLock();
 
 	private final EditedRecords editedRecords = new EditedRecords();
-	// RAGTEST ?? private final EditedRecords failedRecords = new EditedRecords();
-	private final List<IRecordInternal> failedRecords = synchronizedList(new ArrayList<>(2));
 	private final Map<IRecordInternal, List<IPrepareForSave>> recordTested = synchronizedMap(new HashMap<>()); // tested for form.OnRecordEditStop event
 	private boolean preparingForSave;
 
@@ -127,7 +123,7 @@ public class EditRecordList
 		editRecordsLock.lock();
 		try
 		{
-			return failedRecords.toArray(new IRecordInternal[failedRecords.size()]);
+			return editedRecords.getFailed();
 		}
 		finally
 		{
@@ -152,15 +148,12 @@ public class EditRecordList
 		}
 	}
 
-	/**
-	 * @return
-	 */
 	public boolean isEditing()
 	{
 		editRecordsLock.lock();
 		try
 		{
-			return !editedRecords.isEmpty() || !failedRecords.isEmpty();
+			return !editedRecords.isEmpty();
 		}
 		finally
 		{
@@ -168,10 +161,6 @@ public class EditRecordList
 		}
 	}
 
-	/**
-	 * @param set
-	 * @return
-	 */
 	public IRecordInternal[] getEditedRecords(IFoundSet set)
 	{
 		return getEditedRecords(set, false);
@@ -258,9 +247,10 @@ public class EditRecordList
 		editRecordsLock.lock();
 		try
 		{
-			for (int i = failedRecords.size(); --i >= 0;)
+			IRecordInternal[] failedRecords = editedRecords.getFailed();
+			for (int i = failedRecords.length; --i >= 0;)
 			{
-				IRecordInternal record = failedRecords.get(i);
+				IRecordInternal record = failedRecords[i];
 				if (record.getParentFoundSet() == set)
 				{
 					al.add(record);
@@ -289,8 +279,7 @@ public class EditRecordList
 		editRecordsLock.lock();
 		try
 		{
-			return failedRecords.stream().anyMatch(record -> record.getParentFoundSet() == foundset) ||
-				editedRecords.contains(record -> record.getParentFoundSet() == foundset);
+			return editedRecords.contains(record -> record.getParentFoundSet() == foundset);
 		}
 		finally
 		{
@@ -362,12 +351,12 @@ public class EditRecordList
 				if (sm != null)
 				{
 					// the validation failed in a none javascript stop (so this was an autosave failure)
-					List<JSRecordMarkers> failedMarkers = failedRecords.stream().map(record -> record.getRecordMarkers()).collect(toList());
+					Object[] failedMarkers = Stream.of(editedRecords.getFailed()).map(record -> record.getRecordMarkers()).toArray();
 					try
 					{
 						application.getScriptEngine().getScopesScope()
 							.executeGlobalFunction(sm.getScopeName(), sm.getName(),
-								Utils.arrayMerge((new Object[] { failedMarkers.toArray() }),
+								Utils.arrayMerge((new Object[] { failedMarkers }),
 									Utils.parseJSExpressions(
 										solution.getFlattenedMethodArguments(IContentSpecConstants.PROPERTY_ONAUTOSAVEDFAILEDMETHODID))),
 								false, false);
@@ -488,7 +477,7 @@ public class EditRecordList
 			return ISaveConstants.AUTO_SAVE_BLOCKED;
 		}
 
-		int editedRecordsSize;
+		int editedRecordsModCount;
 		try
 		{
 			int p = prepareForSave(true);
@@ -509,7 +498,7 @@ public class EditRecordList
 			editRecordsLock.lock();
 			try
 			{
-				failedRecords.removeIf(rec -> rec.getParentFoundSet() == null || rec.getParentFoundSet().getRecordIndex(rec) == -1);
+				editedRecords.removeFailedIf(rec -> rec.getParentFoundSet() == null || rec.getParentFoundSet().getRecordIndex(rec) == -1);
 			}
 			finally
 			{
@@ -520,7 +509,7 @@ public class EditRecordList
 			// remove the unchanged, really calculate when it is a real stop (autosave = true or it is a javascript stop)
 			removeUnChangedRecords(autoSave || javascriptStop, true);
 
-			//check if anything left
+			// check if anything left
 			int editRecordListSize;
 			editRecordsLock.lock();
 			try
@@ -533,7 +522,7 @@ public class EditRecordList
 				editRecordsLock.unlock();
 			}
 
-			//cannot stop, its blocked
+			// cannot stop, its blocked
 			if (!autoSave && !javascriptStop)
 			{
 				return ISaveConstants.AUTO_SAVE_BLOCKED;
@@ -637,10 +626,7 @@ public class EditRecordList
 									// update the just failed boolean to true, if that is true and there is not really an exception then handleException of application is not called.
 									justValidationErrors = true;
 									failedCount++;
-									if (!failedRecords.contains(record))
-									{
-										failedRecords.add(record);
-									}
+									editedRecords.addFailed(record);
 									recordTested.remove(record);
 								}
 								if (!validationErrors)
@@ -670,10 +656,7 @@ public class EditRecordList
 							lastStopEditingException = e;
 							failedCount++;
 							record.getRawData().setLastException(e); // set latest
-							if (!failedRecords.contains(record))
-							{
-								failedRecords.add(record);
-							}
+							editedRecords.addFailed(record);
 							recordTested.remove(record);
 						}
 						catch (Exception e)
@@ -731,7 +714,7 @@ public class EditRecordList
 				performActionIfRequired();
 				if (Debug.tracing())
 				{
-					Debug.trace("no records to update anymore, failed: " + failedRecords.size()); //$NON-NLS-1$
+					Debug.trace("no records to update anymore, failed: " + editedRecords.getFailed().length); //$NON-NLS-1$
 				}
 				return ISaveConstants.STOPPED;
 			}
@@ -901,10 +884,7 @@ public class EditRecordList
 					editRecordsLock.lock();
 					try
 					{
-						if (!failedRecords.contains(record))
-						{
-							failedRecords.add(record);
-						}
+						editedRecords.addFailed(record);
 					}
 					finally
 					{
@@ -948,7 +928,7 @@ public class EditRecordList
 			}
 
 			// get the size of the edited records before the table events, so that we can look if those events did change records again.
-			editedRecordsSize = editedRecords.size();
+			editedRecordsModCount = editedRecords.getModCount();
 			for (var dbUpdateInfo : infosToBePostProcessed)
 			{
 				if (dbUpdateInfo instanceof RowUpdateInfo rowUpdateInfo)
@@ -988,10 +968,7 @@ public class EditRecordList
 							editRecordsLock.lock();
 							try
 							{
-								if (!failedRecords.contains(rowUpdateInfoRecord))
-								{
-									failedRecords.add(rowUpdateInfoRecord);
-								}
+								editedRecords.addFailed(rowUpdateInfoRecord);
 							}
 							finally
 							{
@@ -1056,7 +1033,7 @@ public class EditRecordList
 			fireEvents();
 		}
 
-		if (editedRecords.size() != editedRecordsSize && recordsToSave == null && foundset == null)
+		if (editedRecords.getModCount() != editedRecordsModCount && recordsToSave == null && foundset == null)
 		{
 			// records where changed by the after insert/update/delete table events, call stop edit again if this was not a specific record save.
 			return stopEditingImpl(javascriptStop, null, null, recursionDepth + 1);
@@ -1071,6 +1048,10 @@ public class EditRecordList
 		return editedRecordOrFoundset -> {
 			if (editedRecordOrFoundset instanceof EditedRecord editedRecord)
 			{
+				if (editedRecord.isFailed())
+				{
+					return false;
+				}
 				var record = editedRecord.getRecord();
 				if (subList == null || subList.contains(record))
 				{
@@ -1417,11 +1398,7 @@ public class EditRecordList
 		editRecordsLock.lock();
 		try
 		{
-			editedRecords.remove(record);
-			if (!failedRecords.contains(record))
-			{
-				failedRecords.add(record);
-			}
+			editedRecords.addFailed(record);
 			recordTested.remove(record);
 		}
 		finally
@@ -1531,14 +1508,13 @@ public class EditRecordList
 		}
 	}
 
-	public void removeEditedRecord(IRecordInternal r)
+	public void removeEditedRecord(IRecordInternal record)
 	{
 		editRecordsLock.lock();
 		try
 		{
-			editedRecords.removeEdited(r);
-			recordTested.remove(r);
-			failedRecords.remove(r);
+			editedRecords.remove(record);
+			recordTested.remove(record);
 		}
 		finally
 		{
@@ -1578,7 +1554,6 @@ public class EditRecordList
 		try
 		{
 			editedRecordsChanged = editedRecords.removeForDatasource(datasource);
-			hasRemovedRecords = failedRecords.removeIf(r -> datasource.equals(r.getDataSource()));
 			for (Iterator<Entry<IRecordInternal, List<IPrepareForSave>>> it = recordTested.entrySet().iterator(); it.hasNext();)
 			{
 				if (datasource.equals(it.next().getKey().getDataSource()))
@@ -1665,11 +1640,11 @@ public class EditRecordList
 					recordTested.remove(record);
 
 					// extra check if no other thread already added this record
+					editedRecords.removeFailed(record);
 					if (!editedRecords.contains(record))
 					{
 						editedRecords.addEdited(record);
 					}
-					failedRecords.remove(record);
 					// reset the exception so that it is tried again.
 					record.getRawData().setLastException(null);
 				}
@@ -1731,16 +1706,10 @@ public class EditRecordList
 					// editRecordStop should be called for this record to match the editRecordStop call
 					recordTested.remove(record);
 
-					// extra check if no other thread already added this record
-					if (editedRecords.contains(record))
-					{
-						editedRecords.remove(record);
-					}
-					failedRecords.remove(record);
 					// reset the exception so that it is tried again.
 					record.getRawData().setLastException(null);
-
 					record.getRawData().flagForDeletion();
+
 					editedRecords.addDeleted(record);
 				}
 				finally
@@ -1909,18 +1878,7 @@ public class EditRecordList
 
 	protected void performActionIfRequired()
 	{
-		boolean editRecordsEmpty;
-		editRecordsLock.lock();
-		try
-		{
-			editRecordsEmpty = editedRecords.isEmpty();
-		}
-		finally
-		{
-			editRecordsLock.unlock();
-		}
-
-		if (editRecordsEmpty)
+		if (!isEditing())
 		{
 			fsm.performActionIfRequired();
 		}
@@ -1937,10 +1895,10 @@ public class EditRecordList
 
 	public void fireEvents()
 	{
-		Map<FoundSet, int[]> map = null;
+		Map<FoundSet, int[]> map;
 		synchronized (this)
 		{
-			if (fsEventMap == null || isSavingAll || savingRecords.size() > 0) return;
+			if (fsEventMap == null || isSavingAll || !savingRecords.isEmpty()) return;
 			map = fsEventMap;
 			fsEventMap = null;
 		}
@@ -2017,7 +1975,6 @@ public class EditRecordList
 		try
 		{
 			recordTested.clear();
-			array.addAll(failedRecords);
 			array.addAll(asList(editedRecords.getAll()));
 		}
 		finally
@@ -2044,7 +2001,6 @@ public class EditRecordList
 			for (IRecordInternal record : records)
 			{
 				recordTested.remove(record);
-				if (failedRecords.remove(record)) array.add(record);
 				if (editedRecords.contains(record)) array.add(record);
 			}
 
@@ -2128,17 +2084,17 @@ public class EditRecordList
 	 */
 	private List<IFoundSetInternal> removeDeletesForRevert(List<IRecordInternal> records, boolean rollbackFoundsetDeletes, IFoundSetInternal foundset)
 	{
-		Stream<FoundsetDeletingQuery> deleteQueries = empty();
+		List<FoundsetDeletingQuery> deleteQueries = emptyList();
 		if (rollbackFoundsetDeletes)
 		{
 			// when foundset is null this will get delete queries for all foundsets
-			deleteQueries = editedRecords.getFoundsetDeletingQueries(foundset);
+			deleteQueries = editedRecords.getFoundsetDeletingQueries(foundset).collect(toList());
 		}
 		List<IFoundSetInternal> foundsetsWithRevertingDeletes = concat(
 			stream(records)
 				.filter(editedRecords::containsDeleted)
 				.map(IRecordInternal::getParentFoundSet),
-			deleteQueries
+			deleteQueries.stream()
 				.map(FoundsetDeletingQuery::getFoundset))
 					.distinct().toList();
 
@@ -2232,7 +2188,6 @@ public class EditRecordList
 			savingRecords = new ArrayList<>();
 
 			editedRecords.clear();
-			failedRecords.clear();
 			recordTested.clear();
 		}
 		finally

@@ -5327,7 +5327,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		{
 			if ((fsm.getEditRecordList().stopIfEditing(this) & (ISaveConstants.VALIDATION_FAILED + ISaveConstants.SAVE_FAILED)) != 0)
 			{
-				//we cannot allow finds when there are editting records...it possible to start (related!)find on table which whould possible not include editing records
+				//we cannot allow finds when there are editing records...it possible to start (related!)find on table which whould possible not include editing records
 				if (Debug.tracing())
 				{
 					Debug.trace("new record failed because there where records in edit mode and auto save is false"); //$NON-NLS-1$

@@ -39,13 +39,17 @@ import com.servoy.j2db.query.QueryDelete;
  */
 public class EditedRecords
 {
+	protected transient int modCount = 0;
+
 	private final List<EditedRecordOrFoundset> edited = synchronizedList(new ArrayList<>(32));
 
 	public void addEdited(IRecordInternal record)
 	{
-		if (!contains(record, null))
+		if (!contains(record, EditType.edit))
 		{
+			remove(record);
 			edited.add(new EditedRecord(record, EditType.edit));
+			modCount++;
 		}
 	}
 
@@ -53,6 +57,14 @@ public class EditedRecords
 	{
 		remove(record);
 		edited.add(new EditedRecord(record, EditType.delete));
+		modCount++;
+	}
+
+	public void addFailed(IRecordInternal record)
+	{
+		remove(record);
+		edited.add(new EditedRecord(record, EditType.failed));
+		modCount++;
 	}
 
 	public boolean containsEdited(IRecord record)
@@ -78,6 +90,7 @@ public class EditedRecords
 	public void addDeleteQuery(IFoundSetInternal foundset, QueryDelete deleteQuery)
 	{
 		edited.add(new FoundsetDeletingQuery(foundset, deleteQuery));
+		modCount++;
 	}
 
 	/**
@@ -109,7 +122,7 @@ public class EditedRecords
 
 	public boolean removeDeleteQuery(FoundsetDeletingQuery foundsetDeletingQuery)
 	{
-		return edited.removeIf(df -> df == foundsetDeletingQuery);
+		return modCount(edited.removeIf(df -> df == foundsetDeletingQuery));
 	}
 
 	public EditedRecordOrFoundset getAndRemoveFirstEditedRecordOrFoundset(Predicate< ? super EditedRecordOrFoundset> filter)
@@ -121,6 +134,7 @@ public class EditedRecords
 			if (filter.test(first))
 			{
 				it.remove();
+				modCount++;
 				return first;
 			}
 		}
@@ -134,7 +148,12 @@ public class EditedRecords
 
 	public int size()
 	{
-		return edited.size(); // RAGTEST empty als er wel delete queries zijn?
+		return edited.size();
+	}
+
+	public int getModCount()
+	{
+		return modCount;
 	}
 
 	private Stream<EditedRecord> getRecords(EditType editType)
@@ -149,27 +168,38 @@ public class EditedRecords
 
 	public boolean removeForDatasource(String datasource)
 	{
-		return edited.removeIf(e -> datasource.equals(e.getDataSource()));
+		return modCount(edited.removeIf(e -> datasource.equals(e.getDataSource())));
 	}
 
-	public void removeAll(List<IRecordInternal> array)
+	public boolean removeAll(List<IRecordInternal> array)
 	{
-		edited.removeIf(er -> er instanceof EditedRecord editedRecord && array.contains(editedRecord.record));
+		return modCount(edited.removeIf(er -> er instanceof EditedRecord editedRecord && array.contains(editedRecord.record)));
 	}
 
 	public boolean remove(IRecordInternal record)
 	{
-		return edited.removeIf(isEditingRecord(record, null));
+		return modCount(edited.removeIf(isEditingRecord(record, null)));
 	}
 
 	public boolean removeEdited(IRecordInternal record)
 	{
-		return edited.removeIf(isEditingRecord(record, EditType.edit));
+		return modCount(edited.removeIf(isEditingRecord(record, EditType.edit)));
 	}
 
 	public boolean removeDeleted(IRecordInternal record)
 	{
-		return edited.removeIf(isEditingRecord(record, EditType.delete));
+		return modCount(edited.removeIf(isEditingRecord(record, EditType.delete)));
+	}
+
+	public boolean removeFailed(IRecordInternal record)
+	{
+		return modCount(edited.removeIf(isEditingRecord(record, EditType.failed)));
+	}
+
+	public boolean removeFailedIf(Predicate< ? super IRecordInternal> filter)
+	{
+		return modCount(edited
+			.removeIf(er -> er instanceof EditedRecord editedRecord && (editedRecord.type == EditType.failed) && filter.test(editedRecord.record)));
 	}
 
 	public IRecordInternal[] getEdited()
@@ -180,6 +210,11 @@ public class EditedRecords
 	public IRecordInternal[] getDeleted()
 	{
 		return toArray(getRecords(EditType.delete));
+	}
+
+	public IRecordInternal[] getFailed()
+	{
+		return toArray(getRecords(EditType.failed));
 	}
 
 	public IRecordInternal[] getAll()
@@ -194,7 +229,20 @@ public class EditedRecords
 
 	public void clear()
 	{
-		edited.clear();
+		if (!edited.isEmpty())
+		{
+			edited.clear();
+			modCount++;
+		}
+	}
+
+	private boolean modCount(boolean b)
+	{
+		if (b)
+		{
+			modCount++;
+		}
+		return b;
 	}
 
 	private Stream<EditedRecord> getEditingRecords()
@@ -207,9 +255,9 @@ public class EditedRecords
 		return er -> er instanceof EditedRecord editedRecord && (editType == null || editedRecord.type == editType) && record.equals(editedRecord.record);
 	}
 
-	public enum EditType
+	private enum EditType
 	{
-		edit, delete
+		edit, delete, failed
 	}
 
 	/**
@@ -240,6 +288,21 @@ public class EditedRecords
 		public String getDataSource()
 		{
 			return record.getDataSource();
+		}
+
+		public boolean isEdit()
+		{
+			return type == EditType.edit;
+		}
+
+		public boolean isDelete()
+		{
+			return type == EditType.delete;
+		}
+
+		public boolean isFailed()
+		{
+			return type == EditType.failed;
 		}
 
 		@Override
