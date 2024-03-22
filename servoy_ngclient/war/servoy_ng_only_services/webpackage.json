@@ -1,0 +1,6 @@
+{
+    "name":"servoyngonlyservices",
+    "displayName":"Core NG Only Services",
+    "packageType": "Web-Service",
+    "description": "It contains core provided services - for common functionality that one might need (for example 'ngclientutils' can be used in order to interact with the browser). The services in this package are always available; they do not need to be explicitly added to solutions."
+}

@@ -91,7 +91,7 @@ public class ClientFunctionPropertyType extends TagStringPropertyType
 	}
 
 	@Override
-	public Object createJSONValue(Object value, INGApplication application, JSONObject subTypes)
+	public Object createJSONValue(Object value, INGApplication application, JSONObject subTypes, IBrowserConverterContext dataConverterContext)
 	{
 		if (value instanceof CharSequence && application.getRuntimeProperties().containsKey("NG2"))
 		{

@@ -56,8 +56,6 @@ import javax.swing.text.Caret;
 import javax.swing.text.Document;
 import javax.swing.text.Keymap;
 
-import org.jdesktop.xswingx.PromptSupport;
-
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IModeManager;
@@ -880,9 +878,8 @@ public class DataTextArea extends EnableScrollPanel
 		super.setVisible(flag);
 		if (labels != null)
 		{
-			for (int i = 0; i < labels.size(); i++)
+			for (ILabel label : labels)
 			{
-				ILabel label = labels.get(i);
 				label.setComponentVisible(flag);
 			}
 		}
@@ -916,9 +913,8 @@ public class DataTextArea extends EnableScrollPanel
 			super.setEnabled(b);
 			if (labels != null)
 			{
-				for (int i = 0; i < labels.size(); i++)
+				for (ILabel label : labels)
 				{
-					ILabel label = labels.get(i);
 					label.setComponentEnabled(b);
 				}
 			}
@@ -1253,9 +1249,6 @@ public class DataTextArea extends EnableScrollPanel
 	@Override
 	public void setPlaceholderText(String text)
 	{
-		PromptSupport.uninstall(enclosedComponent);
-		PromptSupport.setPrompt(application.getI18NMessageIfPrefixed(text), enclosedComponent);
-		repaint();
 	}
 
 	@Override

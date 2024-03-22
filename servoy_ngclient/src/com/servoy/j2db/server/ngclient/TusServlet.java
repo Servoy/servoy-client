@@ -77,6 +77,7 @@ public class TusServlet extends AbstractMediaResourceServlet
 			}
 		}
 		tusFileUploadService = new TusFileUploadService().withUploadURI(config.getServletContext().getContextPath() + "/tus/upload/[0-9]+/.+/.+/.+/");
+		tusFileUploadService.withUploadExpirationPeriod(Long.valueOf(15 * 60 * 1000L)); // 15 minutes
 		if (fileUploadDir != null)
 		{
 			try
@@ -148,6 +149,14 @@ public class TusServlet extends AbstractMediaResourceServlet
 			catch (IOException | TusException e)
 			{
 				Debug.error(e);
+			}
+			try
+			{
+				// call clean up so expired stuff will be removed.
+				this.tusFileUploadService.cleanup();
+			}
+			catch (IOException e)
+			{
 			}
 		}
 	}

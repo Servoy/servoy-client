@@ -19,12 +19,20 @@ package com.servoy.j2db.server.ngclient;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,6 +41,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -40,13 +50,17 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.hc.core5.net.URIBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sablo.util.HTTPUtils;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTCreator.Builder;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
@@ -77,15 +91,24 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class StatelessLoginHandler
 {
+	private static final String SVYLOGIN_PATH = "svylogin";
+	public static final String PASSWORD = "password";
 	public static final String ID_TOKEN = "id_token";
-	public static final String GROUPS = "groups";
+	public static final String PERMISSIONS = "permissions";
 	public static final String USERNAME = "username";
+	public static final String REMEMBER = "remember";
 	public static final String UID = "uid";
+	public static final String LAST_LOGIN = "last_login";
 	private static final String JWT_Password = "servoy.jwt.logintoken.password";
-	private static final int TOKEN_AGE_IN_SECONDS = 24 * 3600;
+	private static final int TOKEN_AGE_IN_SECONDS = 2 * 3600;
 
-	public static final String CLOUD_URL = System.getProperty("servoy.api.url", "https://middleware-prod.unifiedui.servoy-cloud.eu") +
+	private static final String BASE_CLOUD_URL = System.getProperty("servoy.api.url", "https://middleware-prod.unifiedui.servoy-cloud.eu");
+	private static final String CLOUD_REST_API_GET = BASE_CLOUD_URL + "/servoy-service/rest_ws/api/auth_endpoint/getEndpointUI/";
+	private static final String CLOUD_REST_API_POST = BASE_CLOUD_URL + "/servoy-service/rest_ws/api/auth_endpoint/submitForm/";
+	public static final String CLOUD_URL = BASE_CLOUD_URL +
 		"/servoy-service/rest_ws/api/login_auth/validateAuthUser";
+	public static final String REFRESH_TOKEN_CLOUD_URL = BASE_CLOUD_URL +
+		"/servoy-service/rest_ws/api/login_auth/refreshPermissions";
 
 	@SuppressWarnings({ "boxing" })
 	public static Pair<Boolean, String> mustAuthenticate(HttpServletRequest request, HttpServletResponse reponse, String solutionName)
@@ -93,9 +116,10 @@ public class StatelessLoginHandler
 	{
 		Pair<Boolean, String> needToLogin = new Pair<>(Boolean.FALSE, null);
 		String requestURI = request.getRequestURI();
-		if (solutionName != null &&
-			(!requestURI.contains("/designer") && (requestURI.endsWith("/") || requestURI.endsWith("/" + solutionName) ||
-				requestURI.toLowerCase().endsWith("/index.html"))))
+		if (requestURI.contains("/designer")) return needToLogin;
+
+		if (solutionName != null && (requestURI.endsWith("/") ||
+			requestURI.endsWith("/" + solutionName) || requestURI.toLowerCase().endsWith("/index.html")))
 		{
 			Pair<FlattenedSolution, Boolean> _fs = AngularIndexPageWriter.getFlattenedSolution(solutionName, null, request, reponse);
 			FlattenedSolution fs = _fs.getLeft();
@@ -103,15 +127,15 @@ public class StatelessLoginHandler
 			try
 			{
 				AUTHENTICATOR_TYPE authenticator = fs.getSolution().getAuthenticator();
-				needToLogin.setLeft(authenticator != AUTHENTICATOR_TYPE.NONE && fs.getSolution().getLoginFormID() == 0 &&
+				needToLogin.setLeft(authenticator != AUTHENTICATOR_TYPE.NONE && fs.getSolution().getLoginFormID() <= 0 &&
 					fs.getSolution().getLoginSolutionName() == null);
 				if (needToLogin.getLeft())
 				{
 					String user = request.getParameter(USERNAME);
-					String password = request.getParameter("password");
-					if (user != null && password != null)
+					String password = request.getParameter(PASSWORD);
+					if (!Utils.stringIsEmpty(user) && !Utils.stringIsEmpty(password))
 					{
-						checkUser(user, password, needToLogin, fs.getSolution());
+						checkUser(user, password, needToLogin, fs.getSolution(), null, "on".equals(request.getParameter(REMEMBER)));
 						if (!needToLogin.getLeft()) return needToLogin;
 					}
 
@@ -134,17 +158,14 @@ public class StatelessLoginHandler
 							{
 								DecodedJWT decodedJWT = JWT.decode(id_token);
 								if (decodedJWT.getClaims().containsKey(USERNAME) && decodedJWT.getClaims().containsKey(UID) &&
-									decodedJWT.getClaims().containsKey(GROUPS))
+									decodedJWT.getClaims().containsKey(PERMISSIONS))
 								{
-									String _user = decodedJWT.getClaim(USERNAME).toString();
-									String _uid = decodedJWT.getClaim(UID).asString();
-									String[] _groups = decodedJWT.getClaim(GROUPS).asArray(String.class);
+									String _user = decodedJWT.getClaim(USERNAME).asString();
+									Boolean rememberUser = decodedJWT.getClaims().containsKey(REMEMBER) ? //
+										decodedJWT.getClaim(REMEMBER).asBoolean() : Boolean.FALSE;
 									try
 									{
-										id_token = createToken(_user, _uid, _groups);
-										needToLogin.setLeft(Boolean.FALSE);
-										needToLogin.setRight(id_token);
-										return needToLogin;
+										checkUser(_user, null, needToLogin, fs.getSolution(), decodedJWT, rememberUser);
 									}
 									catch (Exception e)
 									{
@@ -164,158 +185,482 @@ public class StatelessLoginHandler
 		return needToLogin;
 	}
 
-	private static void checkUser(String username, String password, Pair<Boolean, String> needToLogin, Solution solution)
+	public static boolean handlePossibleCloudRequest(HttpServletRequest request, HttpServletResponse response, String solutionName) throws ServletException
 	{
-		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
+		Path path = Paths.get(request.getRequestURI()).normalize();
+		if (solutionName != null && path.getNameCount() > 2 && SVYLOGIN_PATH.equals(path.getName(2).toString()))
 		{
-			CloseableHttpClient httpclient = HttpClients.createDefault();
-			HttpGet httpget = new HttpGet(CLOUD_URL);
-
-			String auth = username + ":" + password;
-			byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("ISO-8859-1")));
-			String authHeader = "Basic " + new String(encodedAuth);
-			httpget.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
-			httpget.addHeader(HttpHeaders.ACCEPT, "application/json");
-			httpget.addHeader("uuid", solution.getUUID().toString());
-
+			Pair<FlattenedSolution, Boolean> _fs = AngularIndexPageWriter.getFlattenedSolution(solutionName, null, request, response);
+			FlattenedSolution fs = _fs.getLeft();
 			try
 			{
-				String[] permissions = httpclient.execute(httpget, new HttpClientResponseHandler<String[]>()
+				if (fs.getSolution().getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 				{
-
-					@Override
-					public String[] handleResponse(ClassicHttpResponse response) throws HttpException, IOException
+					try (CloseableHttpClient httpclient = HttpClients.createDefault())
 					{
-						HttpEntity responseEntity = response.getEntity();
-						String responseString = EntityUtils.toString(responseEntity);
-						if (response.getCode() == HttpStatus.SC_OK)
+						Solution solution = fs.getSolution();
+						Pair<Integer, JSONObject> res = null;
+						String[] endpoints = getCloudRestApiEndpoints(request.getServletContext(), httpclient, solution);
+						if (endpoints != null)
 						{
-
-							JSONObject loginTokenJSON = new JSONObject(responseString);
-							JSONArray permissionsArray = loginTokenJSON.getJSONArray("permissions");
-							if (permissionsArray != null)
+							String endpoint = path.getName(path.getNameCount() - 1).toString().replace(".html", "");
+							if (Arrays.asList(endpoints).contains(endpoint))
 							{
-								String[] prmsns = new String[permissionsArray.length()];
-								for (int i = 0; i < prmsns.length; i++)
+								if ("POST".equalsIgnoreCase(request.getMethod()))
 								{
-									prmsns[i] = permissionsArray.getString(i);
+									res = executeCloudPostRequest(httpclient, solution, endpoint, request);
 								}
-								return prmsns;
+								else
+								{
+									res = executeCloudGetRequest(httpclient, solution, endpoint, request);
+								}
+
+								if (res != null)
+								{
+									writeResponse(request, response, solution, res);
+									return true;
+								}
 							}
-							return null;
-						}
-						else
-						{
-							Debug.error("could not login the user because the response to servoycloud had an error: " + response.getCode() + " " +
-								response.getReasonPhrase());
-							return null;
 						}
 					}
-				});
-				if (permissions != null)
+					catch (IOException e)
+					{
+						Debug.error("Can't access the Servoy Cloud api", e);
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				throw new ServletException(e.getMessage());
+			}
+		}
+		return false;
+
+	}
+
+	private static void writeResponse(HttpServletRequest request, HttpServletResponse response, Solution solution, Pair<Integer, JSONObject> res)
+		throws IOException, UnsupportedEncodingException
+	{
+		String html = null;
+		int status = res.getLeft().intValue();
+		JSONObject json = res.getRight();
+		if (json != null)
+		{
+			if (status == HttpStatus.SC_OK && json.has("html"))
+			{
+				html = json.getString("html");
+			}
+			else if (json.has("error"))
+			{
+				String error = json.optString("error", "");
+				if (error.startsWith("<html>"))
 				{
-					String token = createToken(username, username, permissions);
-					needToLogin.setLeft(Boolean.FALSE);
-					needToLogin.setRight(token);
-					return;
+					html = error;
+				}
+				else
+				{
+					try (InputStream rs = StatelessLoginHandler.class.getResourceAsStream("error.html"))
+					{
+						html = IOUtils.toString(rs, Charset.forName("UTF-8"));
+					}
+					if (solution != null)
+					{
+						Solution sol = solution;
+						I18NTagResolver i18nProvider = new I18NTagResolver(request.getLocale(), sol);
+						html = TagParser.processTags(html, new ITagResolver()
+						{
+							@Override
+							public String getStringValue(String name)
+							{
+								if ("solutionTitle".equals(name))
+								{
+									String titleText = sol.getTitleText();
+									if (titleText == null) titleText = sol.getName();
+									return i18nProvider.getI18NMessageIfPrefixed(titleText);
+								}
+								if ("error".equals(name))
+								{
+									return i18nProvider.getI18NMessageIfPrefixed(json.getString("error"));
+								}
+								return name;
+							}
+						}, null);
+					}
+				}
+			}
+
+			if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
+			StringBuilder sb = new StringBuilder();
+			sb.append("<base href=\"");
+			sb.append(getPath(request));
+			sb.append("\">");
+			html = html.replace("<base href=\"/\">", sb.toString());
+
+			String requestLanguage = request.getHeader("accept-language");
+			if (requestLanguage != null)
+			{
+				html = html.replace("lang=\"en\"", "lang=\"" + request.getLocale().getLanguage() + "\"");
+			}
+
+			response.setCharacterEncoding("UTF-8");
+			response.setContentType("text/html");
+			response.setContentLengthLong(html.length());
+			response.getWriter().write(html);
+		}
+	}
+
+	private static Pair<Integer, JSONObject> executeCloudPostRequest(CloseableHttpClient httpclient, Solution solution, String endpoint,
+		HttpServletRequest request)
+	{
+		HttpPost httppost = new HttpPost(CLOUD_REST_API_POST + endpoint);
+		httppost.addHeader(HttpHeaders.ACCEPT, "application/json");
+		httppost.addHeader("uuid", solution.getUUID().toString());
+		List<NameValuePair> postParameters = new ArrayList<>();
+		Map<String, String[]> parameters = request.getParameterMap();
+		for (Map.Entry<String, String[]> entry : parameters.entrySet())
+		{
+			String[] values = entry.getValue();
+			for (String value : values)
+			{
+				postParameters.add(new BasicNameValuePair(entry.getKey(), value));
+			}
+		}
+		postParameters.add(new BasicNameValuePair("serverUrl", getServerURL(request))); //TODO param or header?
+		httppost.setEntity(new UrlEncodedFormEntity(postParameters));
+
+		try
+		{
+			return httpclient.execute(httppost, new ResponseHandler(endpoint));
+		}
+		catch (IOException e)
+		{
+			Debug.error("Can't get the rest api endpoints", e);
+		}
+		return null;
+	}
+
+	private static String getServerURL(HttpServletRequest req)
+	{
+		String scheme = req.getScheme();
+		String serverName = req.getServerName();
+		int serverPort = req.getServerPort();
+		StringBuilder url = new StringBuilder();
+		url.append(scheme).append("://").append(serverName);
+		if (serverPort != 80 && serverPort != 443)
+		{
+			url.append(":").append(serverPort);
+		}
+		url.append(getPath(req));
+		return url.toString();
+	}
+
+	private static String[] getCloudRestApiEndpoints(ServletContext servletContext, CloseableHttpClient httpclient, Solution solution)
+	{
+		String[] endpoints = (String[])servletContext.getAttribute("endpoints");
+		if (endpoints != null)
+		{
+			long expire = Utils.getAsLong(servletContext.getAttribute("endpoints_expire"));
+			if (expire < System.currentTimeMillis())
+			{
+				endpoints = null;
+			}
+		}
+		if (endpoints == null)
+		{
+			HttpGet httpget = new HttpGet(CLOUD_REST_API_GET);
+			httpget.addHeader(HttpHeaders.ACCEPT, "application/json");
+			httpget.addHeader("uuid", solution.getUUID().toString());
+			try
+			{
+				endpoints = getArrayProperty(httpclient, httpget, "endpoints",
+					"Error when getting the endpoints from the servoycloud: ");
+				if (endpoints != null)
+				{
+					servletContext.setAttribute("endpoints", endpoints);
+					servletContext.setAttribute("endpoints_expire", Long.valueOf(System.currentTimeMillis() + 10 * 60 * 1000));
 				}
 			}
 			catch (IOException e)
 			{
-				Debug.error("Can't validate user with the Servoy Cloud", e);
+				Debug.error("Can't get the rest api endpoints", e);
+				servletContext.setAttribute("endpoints", null);
 			}
+		}
 
+		return endpoints;
+	}
+
+	private static Pair<Integer, JSONObject> executeCloudGetRequest(CloseableHttpClient httpclient, Solution solution, String endpoint,
+		HttpServletRequest request)
+	{
+		try
+		{
+			URIBuilder uriBuilder = new URIBuilder(CLOUD_REST_API_GET + endpoint);
+			if (request != null)
+			{
+				Map<String, String[]> parameters = request.getParameterMap();
+				for (Map.Entry<String, String[]> entry : parameters.entrySet())
+				{
+					String[] values = entry.getValue();
+					for (String value : values)
+					{
+						uriBuilder.setParameter(entry.getKey(), value);
+					}
+				}
+			}
+			HttpGet httpget = new HttpGet(uriBuilder.build());
+			httpget.addHeader(HttpHeaders.ACCEPT, "application/json");
+			httpget.addHeader("uuid", solution.getUUID().toString());
+
+			return httpclient.execute(httpget, new ResponseHandler(endpoint));
+		}
+		catch (Exception e)
+		{
+			Debug.error("Can't execute cloud get request", e);
+		}
+		return null;
+	}
+
+	private static void checkUser(String username, String password, Pair<Boolean, String> needToLogin, Solution solution, DecodedJWT oldToken,
+		Boolean rememberUser)
+	{
+		boolean verified = false;
+		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
+		{
+			verified = checkCloudPermissions(username, password, needToLogin, solution, oldToken, rememberUser);
 		}
 		else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.AUTHENTICATOR)
 		{
-			String modulesNames = solution.getModulesNames();
-			IRepository localRepository = ApplicationServerRegistry.get().getLocalRepository();
-			Solution authenticator = null;
-			for (String moduleName : Utils.getTokenElements(modulesNames, ",", true))
+			verified = checkAuthenticatorPermssions(username, password, needToLogin, solution, oldToken, rememberUser);
+		}
+		else
+		{
+			verified = checkDefaultLoginPermissions(username, password, needToLogin, oldToken, rememberUser);
+		}
+		if (!verified)
+		{
+			needToLogin.setLeft(Boolean.TRUE);
+			needToLogin.setRight(null);
+		}
+	}
+
+	private static boolean checkDefaultLoginPermissions(String username, String password, Pair<Boolean, String> needToLogin, DecodedJWT oldToken,
+		Boolean rememberUser)
+	{
+		try
+		{
+			String clientid = ApplicationServerRegistry.get().getClientId();
+			if (oldToken != null)
 			{
-				try
+				long passwordLastChagedTime = ApplicationServerRegistry.get().getUserManager().getPasswordLastSet(clientid,
+					oldToken.getClaim(UID).asString());
+				if (passwordLastChagedTime > oldToken.getClaim(LAST_LOGIN).asLong().longValue())
 				{
-					Solution module = (Solution)localRepository.getActiveRootObject(moduleName, IRepository.SOLUTIONS);
-					if (module.getSolutionType() == SolutionMetaData.AUTHENTICATOR)
-					{
-						authenticator = module;
-						break;
-					}
-				}
-				catch (RemoteException | RepositoryException e)
-				{
-					Debug.error(e);
+					needToLogin.setLeft(Boolean.TRUE);
+					needToLogin.setRight(null);
+					return false;
 				}
 			}
-			if (authenticator != null)
+
+			String uid = oldToken != null ? oldToken.getClaim(UID).asString()
+				: ApplicationServerRegistry.get().checkDefaultServoyAuthorisation(username, password);
+			if (uid != null)
 			{
-				JSONObject json = new JSONObject();
-				json.put("username", username);
-				json.put("password", password);
 
-				Credentials credentials = new Credentials(null, authenticator.getName(), null, json.toString());
-
-				IApplicationServer applicationServer = ApplicationServerRegistry.getService(IApplicationServer.class);
-				try
+				String[] permissions = ApplicationServerRegistry.get().getUserManager().getUserGroups(clientid, uid);
+				if (permissions.length > 0 && (oldToken == null || Arrays.equals(oldToken.getClaim(PERMISSIONS).asArray(String.class), permissions)))
 				{
-					ClientLogin login = applicationServer.login(credentials);
-					if (login != null)
-					{
-						String token = createToken(login.getUserName(), login.getUserUid(), login.getUserGroups());
-						needToLogin.setLeft(Boolean.FALSE);
-						needToLogin.setRight(token);
-						return;
-					}
+					String token = createToken(username, uid, permissions, Long.valueOf(System.currentTimeMillis()), rememberUser);
+					needToLogin.setLeft(Boolean.FALSE);
+					needToLogin.setRight(token);
+					return true;
 				}
-				catch (RemoteException | RepositoryException e)
-				{
-					Debug.error(e);
-				}
-
 			}
-			else
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+		return false;
+	}
+
+	private static boolean checkAuthenticatorPermssions(String username, String password, Pair<Boolean, String> needToLogin, Solution solution,
+		DecodedJWT oldToken, Boolean rememberUser)
+	{
+		String modulesNames = solution.getModulesNames();
+		IRepository localRepository = ApplicationServerRegistry.get().getLocalRepository();
+		Solution authenticator = null;
+		for (String moduleName : Utils.getTokenElements(modulesNames, ",", true))
+		{
+			try
 			{
-				Debug.error("Trying to login in solution " + solution.getName() +
-					" with using an AUTHENCATOR solution, but the main solution doesn't have that as a module");
+				Solution module = (Solution)localRepository.getActiveRootObject(moduleName, IRepository.SOLUTIONS);
+				if (module.getSolutionType() == SolutionMetaData.AUTHENTICATOR)
+				{
+					authenticator = module;
+					break;
+				}
+			}
+			catch (RemoteException | RepositoryException e)
+			{
+				Debug.error(e);
+			}
+		}
+		if (authenticator != null)
+		{
+			JSONObject json = new JSONObject();
+			json.put(USERNAME, username);
+			json.put(PASSWORD, password);
+			if (oldToken != null)
+			{
+				String payload = new String(java.util.Base64.getUrlDecoder().decode(oldToken.getPayload()));
+				JSONObject token = new JSONObject(payload);
+				json.put(LAST_LOGIN, token);
+			}
+
+			Credentials credentials = new Credentials(null, authenticator.getName(), null, json.toString());
+
+			IApplicationServer applicationServer = ApplicationServerRegistry.getService(IApplicationServer.class);
+			try
+			{
+				ClientLogin login = applicationServer.login(credentials);
+				if (login != null)
+				{
+					String token = createToken(login.getUserName(), login.getUserUid(), login.getUserGroups(), Long.valueOf(System.currentTimeMillis()),
+						rememberUser);
+					needToLogin.setLeft(Boolean.FALSE);
+					needToLogin.setRight(token);
+					return true;
+				}
+			}
+			catch (RemoteException | RepositoryException e)
+			{
+				Debug.error(e);
 			}
 		}
 		else
 		{
-			String uid = ApplicationServerRegistry.get().checkDefaultServoyAuthorisation(username, password);
-			if (uid != null)
-			{
-				try
-				{
-					String clientid = ApplicationServerRegistry.get().getClientId();
-					String[] permissions = ApplicationServerRegistry.get().getUserManager().getUserGroups(clientid, uid);
-					String token = createToken(username, uid, permissions);
-					needToLogin.setLeft(Boolean.FALSE);
-					needToLogin.setRight(token);
-					return;
-				}
-				catch (Exception e)
-				{
-					Debug.error(e);
-				}
+			Debug.error("Trying to login in solution " + solution.getName() +
+				" with using an AUTHENCATOR solution, but the main solution doesn't have that as a module");
+		}
+		return false;
+	}
 
+	private static boolean checkCloudPermissions(String username, String password, Pair<Boolean, String> needToLogin, Solution solution, DecodedJWT oldToken,
+		Boolean rememberUser)
+	{
+		HttpGet httpget = new HttpGet(oldToken != null ? REFRESH_TOKEN_CLOUD_URL : CLOUD_URL);
+
+		if (oldToken == null)
+		{
+			String auth = username + ":" + password;
+			byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("ISO-8859-1")));
+			String authHeader = "Basic " + new String(encodedAuth);
+			httpget.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
+		}
+		else
+		{
+			httpget.addHeader(USERNAME, oldToken.getClaim(USERNAME).asString());
+			httpget.addHeader(LAST_LOGIN, oldToken.getClaim(LAST_LOGIN).asString());
+		}
+		httpget.addHeader(HttpHeaders.ACCEPT, "application/json");
+		httpget.addHeader("uuid", solution.getUUID().toString());
+
+		try (CloseableHttpClient httpclient = HttpClients.createDefault())
+		{
+			Pair<Integer, JSONObject> res = httpclient.execute(httpget, new ResponseHandler("login_auth"));
+			if (res.getLeft().intValue() == HttpStatus.SC_OK)
+			{
+				JSONObject loginTokenJSON = res.getRight();
+				if (loginTokenJSON != null && loginTokenJSON.has("permissions"))
+				{
+					String[] permissions = null;
+					JSONArray permissionsArray = loginTokenJSON.getJSONArray("permissions");
+					if (permissionsArray != null)
+					{
+						permissions = new String[permissionsArray.length()];
+						for (int i = 0; i < permissions.length; i++)
+						{
+							permissions[i] = permissionsArray.getString(i);
+						}
+					}
+					if (permissions != null)
+					{
+						String token = createToken(username, username, permissions, loginTokenJSON.optString("lastLogin"), rememberUser);
+						needToLogin.setLeft(Boolean.FALSE);
+						needToLogin.setRight(token);
+						return true;
+					}
+				}
 			}
 		}
-		needToLogin.setLeft(Boolean.TRUE);
-		needToLogin.setRight(null);
+		catch (IOException e)
+		{
+			Debug.error("Can't validate user with the Servoy Cloud", e);
+		}
+		return false;
+	}
+
+	private static String[] getArrayProperty(CloseableHttpClient httpclient, HttpGet httpget, String property, String error) throws IOException
+	{
+		String[] permissions = httpclient.execute(httpget, new HttpClientResponseHandler<String[]>()
+		{
+
+			@Override
+			public String[] handleResponse(ClassicHttpResponse response) throws HttpException, IOException
+			{
+				HttpEntity responseEntity = response.getEntity();
+				String responseString = EntityUtils.toString(responseEntity);
+				if (response.getCode() == HttpStatus.SC_OK)
+				{
+					JSONObject loginTokenJSON = new JSONObject(responseString);
+					JSONArray permissionsArray = loginTokenJSON.getJSONArray(property);
+					if (permissionsArray != null)
+					{
+						String[] prmsns = new String[permissionsArray.length()];
+						for (int i = 0; i < prmsns.length; i++)
+						{
+							prmsns[i] = permissionsArray.getString(i);
+						}
+						return prmsns;
+					}
+					return null;
+				}
+				else
+				{
+					Debug.error(error + response.getCode() + " " +
+						response.getReasonPhrase());
+					return null;
+				}
+			}
+		});
+		return permissions;
 	}
 
 
-	public static String createToken(String username, String uid, String[] groups)
+	public static String createToken(String username, String uid, String[] groups, Object lastLogin, Boolean rememberUser)
 	{
 		Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
 		Algorithm algorithm = Algorithm.HMAC256(settings.getProperty(JWT_Password));
-		return JWT.create()
+		Builder builder = JWT.create()
 			.withIssuer("svy")
 			.withClaim(UID, uid)
 			.withClaim(USERNAME, username)
-			.withArrayClaim(GROUPS, groups)
-			.withExpiresAt(new Date(System.currentTimeMillis() + TOKEN_AGE_IN_SECONDS * 1000))
-			.sign(algorithm);
+			.withArrayClaim(PERMISSIONS, groups)
+			.withExpiresAt(new Date(System.currentTimeMillis() + TOKEN_AGE_IN_SECONDS * 1000));
+		if (lastLogin instanceof String)
+		{
+			builder = builder.withClaim(LAST_LOGIN, (String)lastLogin);
+		}
+		if (lastLogin instanceof Long)
+		{
+			builder = builder.withClaim(LAST_LOGIN, (Long)lastLogin);
+		}
+		if (Boolean.TRUE.equals(rememberUser))
+		{
+			builder = builder.withClaim(REMEMBER, rememberUser);
+		}
+		return builder.sign(algorithm);
 	}
 
 	public static void writeLoginPage(HttpServletRequest request, HttpServletResponse response, String solutionName)
@@ -333,7 +678,23 @@ public class StatelessLoginHandler
 			Debug.error("Can't load solution " + solutionName, e);
 		}
 		String loginHtml = null;
-		if (solution != null)
+		if (solution != null && solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
+		{
+			try (CloseableHttpClient httpClient = HttpClients.createDefault())
+			{
+				Pair<Integer, JSONObject> result = executeCloudGetRequest(httpClient, solution, "login", null);
+				if (result != null)
+				{
+					int status = result.getLeft().intValue();
+					JSONObject res = result.getRight();
+					if (status == HttpStatus.SC_OK && res != null)
+					{
+						loginHtml = res.optString("html", null);
+					}
+				}
+			}
+		}
+		if (solution != null && loginHtml == null)
 		{
 			Media media = solution.getMedia("login.html");
 			if (media != null) loginHtml = new String(media.getMediaData(), Charset.forName("UTF-8"));
@@ -365,10 +726,9 @@ public class StatelessLoginHandler
 			}, i18nProvider);
 		}
 
-		final String path = Settings.getInstance().getProperty("servoy.context.path", request.getContextPath() + '/');
 		StringBuilder sb = new StringBuilder();
 		sb.append("<base href=\"");
-		sb.append(path);
+		sb.append(getPath(request));
 		sb.append("\">");
 		if (request.getParameter(ID_TOKEN) == null && request.getParameter(USERNAME) == null)
 		{
@@ -388,6 +748,15 @@ public class StatelessLoginHandler
 			sb.append("\n  </script> ");
 
 		}
+		else if (!Utils.stringIsEmpty(request.getParameter(ID_TOKEN) != null ? request.getParameter(ID_TOKEN)
+			: (String)request.getSession().getAttribute(ID_TOKEN)))
+		{
+			sb.append("\n  	 <script type='text/javascript'>");
+			sb.append("\n    window.addEventListener('load', () => { ");
+			sb.append("\n     window.localStorage.removeItem('servoy_id_token');");
+			sb.append("\n   }) ");
+			sb.append("\n  </script> ");
+		}
 		else if (request.getParameter(USERNAME) != null)
 		{
 			sb.append("\n  	 <script type='text/javascript'>");
@@ -399,7 +768,6 @@ public class StatelessLoginHandler
 			sb.append("\n   }) ");
 			sb.append("\n  </script> ");
 		}
-
 
 		loginHtml = loginHtml.replace("<base href=\"/\">", sb.toString());
 
@@ -414,6 +782,19 @@ public class StatelessLoginHandler
 		response.setContentLengthLong(loginHtml.length());
 		response.getWriter().write(loginHtml);
 		return;
+	}
+
+	private static String getPath(HttpServletRequest request)
+	{
+		String path = Settings.getInstance().getProperty("servoy.context.path", request.getContextPath() + '/');
+		Path p = Paths.get(request.getServletPath()).normalize();
+		int i = 0;
+		while (i < p.getNameCount() - 1 && !SVYLOGIN_PATH.equals(p.getName(i).toString()))
+		{
+			path += p.getName(i) + "/";
+			i++;
+		}
+		return path;
 	}
 
 	/**
@@ -435,6 +816,42 @@ public class StatelessLoginHandler
 			{
 				Debug.error("Error saving the settings class to store the JWT_Password", e); //$NON-NLS-1$
 			}
+		}
+	}
+
+
+	/**
+	 * @author emera
+	 */
+	public static class ResponseHandler implements HttpClientResponseHandler<Pair<Integer, JSONObject>>
+	{
+		private final String endpoint;
+
+		public ResponseHandler(String endpoint)
+		{
+			this.endpoint = endpoint;
+		}
+
+		@Override
+		public Pair<Integer, JSONObject> handleResponse(ClassicHttpResponse response) throws HttpException, IOException
+		{
+			HttpEntity responseEntity = response.getEntity();
+			if (responseEntity != null)
+			{
+				Pair<Integer, JSONObject> pair = new Pair<>(Integer.valueOf(response.getCode()), null);
+				String responseString = EntityUtils.toString(responseEntity);
+				if (responseString.startsWith("{"))
+				{
+					pair.setRight(new JSONObject(responseString));
+				}
+				return pair;
+			}
+			else
+			{
+				Debug.error("Could not access rest api endpoint " + endpoint + " " + response.getCode() + " " +
+					response.getReasonPhrase());
+			}
+			return null;
 		}
 	}
 

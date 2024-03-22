@@ -276,8 +276,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						{
 							try
 							{
-								client.getScriptEngine().getScopesScope().executeGlobalFunction(null, method,
-									(args.toJSMap().isEmpty() ? null : new Object[] { firstArgument, args.toJSMap() }), false, false);
+								client.getScriptEngine().getScopesScope().executeDeeplink(method,
+									(args.toJSMap().isEmpty() ? null : new Object[] { firstArgument, args.toJSMap() }));
 							}
 							catch (Exception e1)
 							{
@@ -337,7 +337,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 								: new String[] { args.getSolutionName(), args.getMethodName() },
 							args);
 
-						if (args.get(StatelessLoginHandler.ID_TOKEN) != null)
+						if (getHttpSession().getAttribute(StatelessLoginHandler.ID_TOKEN) != null)
 						{
 							setUserId();
 						}
@@ -355,7 +355,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 				public void setUserId()
 				{
-					String id_token = (String)args.get(StatelessLoginHandler.ID_TOKEN);
+					String id_token = (String)getHttpSession().getAttribute(StatelessLoginHandler.ID_TOKEN);
 					String[] chunks = id_token.split("\\.");
 					Base64.Decoder decoder = Base64.getUrlDecoder();
 					String payload = new String(decoder.decode(chunks[1]));
@@ -365,9 +365,9 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					ClientInfo ci = client.getClientInfo();
 					ci.setUserUid(userID);
 					ci.setUserName(token.getString(StatelessLoginHandler.USERNAME));
-					if (token.has(StatelessLoginHandler.GROUPS))
+					if (token.has(StatelessLoginHandler.PERMISSIONS))
 					{
-						JSONArray groups = token.getJSONArray(StatelessLoginHandler.GROUPS);
+						JSONArray groups = token.getJSONArray(StatelessLoginHandler.PERMISSIONS);
 						String[] gr = new String[groups.length()];
 						for (int i = 0; i < groups.length(); i++)
 						{
@@ -375,7 +375,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						}
 						ci.setUserGroups(gr);
 					}
-					if ("on".equals(args.get("remember")))
+					if (token.optBoolean("remember", false))
 					{
 						JSONObject obj = new JSONObject();
 						obj.put(StatelessLoginHandler.USERNAME, token.get(StatelessLoginHandler.USERNAME));
@@ -406,6 +406,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			clientProperties.put(IApplication.TRUST_DATA_AS_HTML,
 				Boolean.valueOf(Settings.getInstance().getProperty(Settings.TRUST_DATA_AS_HTML_SETTING, Boolean.FALSE.toString())));
 		}
+		clientProperties.put(Settings.TESTING_MODE,
+			Boolean.valueOf(Settings.getInstance().getProperty(Settings.TESTING_MODE, Boolean.FALSE.toString())));
 		getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setUIProperties", new Object[] { new JSONObject(clientProperties) });
 	}
 
@@ -656,5 +658,17 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			return new MessageLogger(this, window.getNr());
 		}
 		return null;
+	}
+
+	@SuppressWarnings("nls")
+	@Override
+	public String getLogInformation()
+	{
+		if (client != null)
+		{
+			return "clientid: " + client.getClientID() + ", httpsessionid: " + getHttpSession().getId() + ", serveruui: " +
+				ApplicationServerRegistry.get().getServerUUID();
+		}
+		return "";
 	}
 }

@@ -487,6 +487,7 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 				}
 			};
 
+			session.setHttpSession(testHttpsession);
 			WebsocketSessionManager.addSession(session);
 
 			NGClientWebsocketSessionWindows windows = new NGClientWebsocketSessionWindows(session);

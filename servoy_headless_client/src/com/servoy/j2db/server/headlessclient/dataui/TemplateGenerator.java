@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Stack;
 import java.util.StringTokenizer;
@@ -1108,10 +1109,8 @@ public class TemplateGenerator
 		{
 			ArrayList<Pair<String, String>> selectorValuePairs = new ArrayList<Pair<String, String>>();
 
-			Iterator<Map.Entry<String, TextualStyle>> iter = entrySet().iterator();
-			while (iter.hasNext())
+			for (Entry<String, TextualStyle> selectorTextualStyle : entrySet())
 			{
-				Map.Entry<String, TextualStyle> selectorTextualStyle = iter.next();
 				selectorValuePairs.add(new Pair<String, String>(selectorTextualStyle.getKey(), selectorTextualStyle.getValue().toString("")));
 			}
 
@@ -1122,10 +1121,8 @@ public class TemplateGenerator
 		public String toString()
 		{
 			StringBuffer cssString = new StringBuffer();
-			Iterator<TextualStyle> iter = values().iterator();
-			while (iter.hasNext())
+			for (Object element_style : values())
 			{
-				Object element_style = iter.next();
 				cssString.append(element_style.toString());
 			}
 			return cssString.toString();
@@ -1269,10 +1266,8 @@ public class TemplateGenerator
 		public String getValuesAsString(String pSelector)
 		{
 			StringBuffer retval = new StringBuffer();
-			Iterator<String> it = order.iterator();
-			while (it.hasNext())
+			for (String name : order)
 			{
-				String name = it.next();
 				String[] cssValues = null;
 				List<String> values = stackedValues.get(name);
 				if (values != null && values.size() > 1)
@@ -1400,10 +1395,8 @@ public class TemplateGenerator
 		public String getOnlyProperties()
 		{
 			StringBuffer retval = new StringBuffer();
-			Iterator<String> it = order.iterator();
-			while (it.hasNext())
+			for (String name : order)
 			{
-				String name = it.next();
 				String val = getProperty(name);
 				retval.append(name);
 				retval.append(": ");
@@ -1432,10 +1425,8 @@ public class TemplateGenerator
 
 		public void copyAllFrom(TextualStyle source)
 		{
-			Iterator<String> it = source.order.iterator();
-			while (it.hasNext())
+			for (String name : source.order)
 			{
-				String name = it.next();
 				String val = source.getProperty(name);
 				setProperty(name, val);
 			}
@@ -1987,7 +1978,7 @@ public class TemplateGenerator
 		boolean isComponent = false;
 		try
 		{
-			Class< ? > beanClazz = ApplicationServerRegistry.get().getBeanManager().getClassLoader().loadClass(bean.getBeanClassName());
+			Class< ? > beanClazz = ApplicationServerRegistry.get().getPluginManager().getClassLoader().loadClass(bean.getBeanClassName());
 			isComponent = Component.class.isAssignableFrom(beanClazz);
 		}
 		catch (Throwable e)
@@ -2172,10 +2163,12 @@ public class TemplateGenerator
 
 			html.append("\t<div id='splitter_").append(tabPanelMarkupId).append("' servoy:id='splitter' style='").append(leftPanelStyle).append( //$NON-NLS-1$  //$NON-NLS-2$
 				"'><div id='websplit_left_").append(tabPanelMarkupId).append("' servoy:id='websplit_left' style='").append(leftPanelStyle).append("' ").append( //$NON-NLS-1$  //$NON-NLS-2$ //$NON-NLS-3$
-					"><div servoy:id='webform'").append(getCSSClassParameter("webform")).append("></div></div></div>"); //$NON-NLS-1$
+					"><div servoy:id='webform'") //$NON-NLS-1$
+				.append(getCSSClassParameter("webform")).append("></div></div></div>");
 			html.append("<div id='websplit_right_").append(tabPanelMarkupId).append("' servoy:id='websplit_right' style='").append(rightPanelStyle).append( //$NON-NLS-1$//$NON-NLS-2$
 				"' ").append( //$NON-NLS-1$
-					"><div servoy:id='webform'").append(getCSSClassParameter("webform")).append("></div></div>"); //$NON-NLS-1$
+					"><div servoy:id='webform'") //$NON-NLS-1$
+				.append(getCSSClassParameter("webform")).append("></div></div>");
 		}
 		else
 		{

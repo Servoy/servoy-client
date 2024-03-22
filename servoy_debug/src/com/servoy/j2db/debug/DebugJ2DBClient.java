@@ -61,13 +61,11 @@ import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.FormWindow;
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.IBrowserLauncher;
 import com.servoy.j2db.IDebugJ2DBClient;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IFormManagerInternal;
-import com.servoy.j2db.ILAFManager;
 import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.Messages;
@@ -920,12 +918,6 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 	}
 
 	@Override
-	protected ILAFManager createLAFManager()
-	{
-		return ApplicationServerRegistry.get().getLafManager();
-	}
-
-	@Override
 	protected SmartClientPluginAccessProvider createClientPluginAccessProvider()
 	{
 		return new SmartClientPluginAccessProvider(this)
@@ -961,12 +953,6 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 			dataServer = new ProfileDataServer(new ValidatingDelegateDataServer(dataServer, this));
 		}
 		return dataServer;
-	}
-
-	@Override
-	protected IBeanManager createBeanManager()
-	{
-		return ApplicationServerRegistry.get().getBeanManager();
 	}
 
 	@Override
@@ -1465,11 +1451,10 @@ public class DebugJ2DBClient extends J2DBClient implements IDebugJ2DBClient
 					if (font != null) changedProperties.put(Font.class.getName(), PersistHelper.createFont(font));
 				}
 
-				Iterator<Map.Entry<Object, Object>> changedPropertiesIte = changedProperties.entrySet().iterator();
 				Map.Entry<Object, Object> changedEntry;
-				while (changedPropertiesIte.hasNext())
+				for (Entry<Object, Object> element : changedProperties.entrySet())
 				{
-					changedEntry = changedPropertiesIte.next();
+					changedEntry = element;
 					super.putClientProperty(changedEntry.getKey(), changedEntry.getValue());
 				}
 				changedProperties.clear();

@@ -42,7 +42,8 @@ public class StartupArguments extends HashMap<String, Object>
 
 	public static final char PARAM_KEY_VALUE_SEPARATOR = ':';
 
-	private static final Set<String> excludeKeys = new HashSet<String>(Arrays.asList(new String[] { "clientnr", "windownr", "windowname", "connectNr" }));
+	private static final Set<String> excludeKeys = new HashSet<String>(
+		Arrays.asList(new String[] { "clienttype", "clientnr", "windownr", "windowname", "connectNr" }));
 
 	public StartupArguments()
 	{

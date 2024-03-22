@@ -33,8 +33,6 @@ import javax.swing.JPanel;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.Messages;
-import com.servoy.j2db.smart.RemoteRunnerChecker;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.gui.JEscapeDialog;
 
 /**
@@ -126,12 +124,6 @@ public class CustomColorChooserDialog extends JEscapeDialog implements ActionLis
 
 	private void copy()
 	{
-		Color c = chooserPane.getColor();
-		if (c != null)
-		{
-			String scolor = PersistHelper.createColorString(c);
-			RemoteRunnerChecker.getInstance().setClipboardContent(scolor);
-		}
 	}
 
 	public void ok()

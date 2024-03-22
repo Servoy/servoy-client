@@ -1,5 +1,5 @@
 /**
- * @license XLTS for AngularJS v1.9.0
+ * @license XLTS for AngularJS v1.9.3
  * (c) 2022 XLTS.dev All Rights Reserved. https://xlts.dev/angularjs
  * License: Obtain a commercial license from XLTS.dev before using this software.
  */
@@ -784,6 +784,8 @@ MessageFormatParser.prototype.ruleInAngularExpression = function ruleInAngularEx
       this.expressionFn = this.$parse(this.text.substring(this.expressionStartIndex, this.index));
       // Needed to pretend to be $interpolate for tests copied from interpolateSpec.js
       this.expressionFn['exp'] = this.text.substring(this.expressionStartIndex, this.index);
+      // TODO(gkalpak): Remove this self-assignment; it doesn't seem to do anything.
+      // eslint-disable-next-line no-self-assign
       this.expressionFn['expressions'] = this.expressionFn['expressions'];
       this.rule = null;
       return;
@@ -812,6 +814,8 @@ MessageFormatParser.prototype.ruleInAngularExpression = function ruleInAngularEx
       this.expressionFn = this.$parse(this.text.substring(this.expressionStartIndex, match.index));
       // Needed to pretend to be $interpolate for tests copied from interpolateSpec.js
       this.expressionFn['exp'] = this.text.substring(this.expressionStartIndex, match.index);
+      // TODO(gkalpak): Remove this self-assignment; it doesn't seem to do anything.
+      // eslint-disable-next-line no-self-assign
       this.expressionFn['expressions'] = this.expressionFn['expressions'];
       this.rule = null;
       this.rule = this.rulePluralOrSelect;
@@ -841,6 +845,8 @@ MessageFormatParser.prototype.ruleInAngularExpression = function ruleInAngularEx
   this.expressionFn = this.$parse(this.text.substring(this.expressionStartIndex, this.index));
   // Needed to pretend to be $interpolate for tests copied from interpolateSpec.js
   this.expressionFn['exp'] = this.text.substring(this.expressionStartIndex, this.index);
+  // TODO(gkalpak): Remove this self-assignment; it doesn't seem to do anything.
+  // eslint-disable-next-line no-self-assign
   this.expressionFn['expressions'] = this.expressionFn['expressions'];
   this.rule = null;
 };
@@ -1061,7 +1067,7 @@ var toJson;
 var $$stringify;
 
 var ngModule = window['angular']['module']('ngMessageFormat', ['ng']);
-ngModule['info']({ 'angularVersion': '1.9.0' });
+ngModule['info']({ 'angularVersion': '1.9.3' });
 ngModule['factory']('$$messageFormat', $$MessageFormatFactory);
 ngModule['config'](['$provide', function($provide) {
   $interpolateMinErr = window['angular']['$interpolateMinErr'];

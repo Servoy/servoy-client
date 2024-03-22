@@ -38,8 +38,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JPasswordField;
 import javax.swing.TransferHandler;
 
-import org.jdesktop.xswingx.PromptSupport;
-
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
@@ -742,8 +740,5 @@ public class DataPassword extends JPasswordField
 	@Override
 	public void setPlaceholderText(String text)
 	{
-		PromptSupport.uninstall(this);
-		PromptSupport.setPrompt(application.getI18NMessageIfPrefixed(text), this);
-		repaint();
 	}
 }

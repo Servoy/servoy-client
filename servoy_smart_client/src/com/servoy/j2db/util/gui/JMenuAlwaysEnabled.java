@@ -19,11 +19,9 @@ package com.servoy.j2db.util.gui;
 import javax.swing.Action;
 import javax.swing.JMenu;
 
-import com.servoy.j2db.LAFManager;
-
 /**
  * Class to overcome the not back enabled menu on mac
- * 
+ *
  * @author jcompagner
  */
 public class JMenuAlwaysEnabled extends JMenu
@@ -58,23 +56,4 @@ public class JMenuAlwaysEnabled extends JMenu
 		super(s, b);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.swing.JMenuItem#setEnabled(boolean)
-	 */
-	@Override
-	public void setEnabled(boolean b)
-	{
-		if (!b && LAFManager.isUsingAppleLAF())
-		{
-			RuntimeException re = new RuntimeException();
-			StackTraceElement[] e = re.getStackTrace();
-			if (e[1].getClassName().indexOf("apple.laf") != -1) //$NON-NLS-1$
-			{
-				return;
-			}
-		}
-		super.setEnabled(b);
-	}
 }

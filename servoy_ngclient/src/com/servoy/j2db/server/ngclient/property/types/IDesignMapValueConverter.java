@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import org.json.JSONObject;
+import org.sablo.specification.property.IBrowserConverterContext;
 
 import com.servoy.j2db.server.ngclient.INGApplication;
 
@@ -34,6 +35,6 @@ public interface IDesignMapValueConverter
 	 * @param subTypes
 	 * @return
 	 */
-	Object createJSONValue(Object v, INGApplication application, JSONObject subTypes);
+	Object createJSONValue(Object v, INGApplication application, JSONObject subTypes, IBrowserConverterContext dataConverterContext);
 
 }

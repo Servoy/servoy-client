@@ -21,22 +21,26 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Function;
+import org.sablo.BaseWebObject;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IClassPropertyType;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
+
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 
 /**
  * @author gboros
  *
  */
 public class FunctionRefType extends UUIDReferencePropertyType<Function>
-	implements IPropertyConverterForBrowser<Function>, IClassPropertyType<Function>
+	implements IPropertyConverterForBrowser<Function>, IClassPropertyType<Function>, IPropertyWithClientSideConversions<Function>
 {
 
-	private static final String FUNCTION_HASH = "functionhash"; //$NON-NLS-1$
+	public static final String FUNCTION_HASH = "functionhash"; //$NON-NLS-1$
 
 	public static final FunctionRefType INSTANCE = new FunctionRefType();
 	public static final String TYPE_NAME = "NativeFunction"; //$NON-NLS-1$
@@ -57,12 +61,19 @@ public class FunctionRefType extends UUIDReferencePropertyType<Function>
 		return null;
 	}
 
+	@SuppressWarnings("nls")
 	@Override
 	public JSONWriter toJSON(JSONWriter writer, String key, Function sabloValue, PropertyDescription propertyDescription,
 		IBrowserConverterContext converterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		writer.object();
+		BaseWebObject webObject = converterContext.getWebObject();
+		if (webObject instanceof WebFormComponent wfc)
+		{
+			String name = wfc.getDataAdapterList().getForm().getName();
+			writer.key("formname").value(name);
+		}
 		writer.key(FUNCTION_HASH).value(addReference(sabloValue, converterContext));
 		writer.key("svyType").value(getName()); // TODO is this "svyType" used anywhere? can it be removed?
 		writer.endObject();
@@ -79,6 +90,14 @@ public class FunctionRefType extends UUIDReferencePropertyType<Function>
 	public Class<Function> getTypeClass()
 	{
 		return Function.class;
+	}
+
+	@Override
+	public boolean writeClientSideTypeName(JSONWriter w, String keyToAddTo, PropertyDescription pd)
+	{
+		JSONUtils.addKeyIfPresent(w, keyToAddTo);
+		w.value(TYPE_NAME);
+		return true;
 	}
 
 }

@@ -54,6 +54,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.plugins.PluginManager;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLQuery;
@@ -633,5 +634,6 @@ public class TestNGClient extends NGClient
 	@Override
 	protected void createPluginManager()
 	{
+		pluginManager = new PluginManager(getClass().getClassLoader());
 	}
 }

@@ -2,15 +2,17 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
+	<prerequisites>
+		<maven>3.9.0</maven>
+	</prerequisites>
 	<parent>
 		<artifactId>servoy-client</artifactId>
-		<version>2024.3.0.3940_rc</version>
+		<version>2024.6.0.3980_rc</version>
 		<groupId>com.servoy</groupId>
 	</parent>
 
 	<groupId>com.servoy</groupId>
-	<version>2024.3.0.3940_rc</version>
+	<version>2024.6.0.3980_rc</version>
 	<artifactId>servoy-doc</artifactId>
 	<packaging>jar</packaging>
 

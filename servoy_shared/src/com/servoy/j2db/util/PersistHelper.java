@@ -991,7 +991,7 @@ public class PersistHelper
 		{
 			return true;
 		}
-		while (parentPersist instanceof ISupportExtendsID && isOverrideElement(((ISupportExtendsID)parentPersist)))
+		while (isOverrideElement(parentPersist))
 		{
 			parentPersist = getSuperPersist(((ISupportExtendsID)parentPersist));
 			if (parentPersist == null)
@@ -1002,9 +1002,14 @@ public class PersistHelper
 		return false;
 	}
 
-	public static boolean isOverrideElement(ISupportExtendsID persist)
+	public static boolean isOverrideElement(Object object)
 	{
-		return ((AbstractBase)persist).hasProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) && persist.getExtendsID() > 0;
+		if (object instanceof AbstractBase && object instanceof ISupportExtendsID)
+		{
+			return ((AbstractBase)object).hasProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID.getPropertyName()) &&
+				((ISupportExtendsID)object).getExtendsID() > 0;
+		}
+		return false;
 	}
 
 	/**
@@ -1022,8 +1027,8 @@ public class PersistHelper
 			}
 			for (IPersist child : Utils.iterate(p.getAllObjects()))
 			{
-				if (child instanceof ISupportExtendsID && !PersistHelper.isOverrideElement((ISupportExtendsID)child))
-				{ // is is an etra child element compared to it's super child elements
+				if (child instanceof ISupportExtendsID && !PersistHelper.isOverrideElement(child))
+				{ // is is an extra child element compared to its super child elements
 					return true;
 				}
 				else if (((AbstractBase)child).hasOverrideProperties())

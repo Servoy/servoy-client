@@ -47,7 +47,7 @@ public class ServoyClassResolver implements IClassResolver
 		Class< ? > cls = loadedClasses.get(classname);
 		if (cls != null) return cls;
 
-		ClassLoader classLoader = ApplicationServerRegistry.get().getBeanManager().getClassLoader();
+		ClassLoader classLoader = ApplicationServerRegistry.get().getPluginManager().getClassLoader();
 		try
 		{
 			cls = classLoader.loadClass(classname);
@@ -83,7 +83,7 @@ public class ServoyClassResolver implements IClassResolver
 		try
 		{
 			// Try the classloader for the wicket jar/bundle
-			ClassLoader classLoader = ApplicationServerRegistry.get().getBeanManager().getClassLoader();
+			ClassLoader classLoader = ApplicationServerRegistry.get().getPluginManager().getClassLoader();
 			Enumeration<URL> resources = classLoader.getResources(name);
 			loadResources(resources, loadedFiles);
 			if (classLoader != ClientState.class.getClassLoader())

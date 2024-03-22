@@ -162,13 +162,13 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 			if (col2 != null && col2.getColumnInfo() != null)
 			{
 				displayFormats[1] = col2.getColumnInfo().getDefaultFormat();
-				hasDisplayFormats = displayFormats[1] != null;
+				hasDisplayFormats = hasDisplayFormats || displayFormats[1] != null;
 			}
 			Column col3 = table.getColumn(valueList.getDataProviderID3());
 			if (col3 != null && col3.getColumnInfo() != null)
 			{
 				displayFormats[2] = col3.getColumnInfo().getDefaultFormat();
-				hasDisplayFormats = displayFormats[2] != null;
+				hasDisplayFormats = hasDisplayFormats || displayFormats[2] != null;
 			}
 
 			return hasDisplayFormats ? displayFormats : null;

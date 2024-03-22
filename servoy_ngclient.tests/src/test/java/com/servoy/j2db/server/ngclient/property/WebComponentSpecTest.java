@@ -116,7 +116,7 @@ public class WebComponentSpecTest extends Log4JToConsoleTest
 	@Test
 	public void testLibsWithAngularEnry() throws JSONException
 	{
-		String property = "{name:'test',definition:'/test.js', libraries:[{name:'angular-animate', version:'1.5.8', url:'js/angular-modules/1.9.0/angular-animate.js', mimetype:'text/javascript'},{name:'something', version:'1', url:'/something.js', mimetype:'text/javascript'}],model: {}}";
+		String property = "{name:'test',definition:'/test.js', libraries:[{name:'angular-animate', version:'1.5.8', url:'js/angular-modules/1.9.3/angular-animate.js', mimetype:'text/javascript'},{name:'something', version:'1', url:'/something.js', mimetype:'text/javascript'}],model: {}}";
 
 		String manifest = "Manifest-Version: 1.0\nAnt-Version: Apache Ant 1.8.4\nCreated-By: 1.7.0_05-b06 (Oracle Corporation)\n\nName: mycomponent.spec\nWeb-Component: True\n";
 
@@ -131,14 +131,14 @@ public class WebComponentSpecTest extends Log4JToConsoleTest
 		Assert.assertTrue(((Collection< ? >)contributions[0]).size() == 0);
 		Assert.assertTrue(((Collection< ? >)contributions[1]).size() == 3);
 
-		Assert.assertTrue(contributions[1].toString(), ((Collection< ? >)contributions[1]).contains("js/angular-modules/1.9.0/angular-animate.js"));
+		Assert.assertTrue(contributions[1].toString(), ((Collection< ? >)contributions[1]).contains("js/angular-modules/1.9.3/angular-animate.js"));
 
 		contributions = IndexPageEnhancer.getAllContributions(null, null, null, NGClientEntryFilter.CONTRIBUTION_ENTRY_FILTER);
 
 		Assert.assertTrue(((Collection< ? >)contributions[0]).size() == 0);
 		Assert.assertTrue(((Collection< ? >)contributions[1]).size() == 3);
 
-		Assert.assertTrue(contributions[1].toString(), ((Collection< ? >)contributions[1]).contains("js/angular-modules/1.9.0/angular-animate.js"));
+		Assert.assertTrue(contributions[1].toString(), ((Collection< ? >)contributions[1]).contains("js/angular-modules/1.9.3/angular-animate.js"));
 
 	}
 

@@ -17,11 +17,10 @@
 package com.servoy.j2db.dataprocessing;
 
 
-
 /**
  * Delegating modification listener.
- * 
- * @author rgansevless
+ *
+ * @author rgansevles
  * @since Servoy 6.1
  */
 public class DelegateModificationSubject extends ModificationSubject implements IModificationListener

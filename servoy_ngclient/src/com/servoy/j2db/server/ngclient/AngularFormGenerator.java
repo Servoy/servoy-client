@@ -235,6 +235,8 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 					writer.object();
 					writer.key("part");
 					writer.value(true);
+					writer.key("name");
+					writer.value(PartWrapper.getName(part));
 					writer.key("classes");
 					writer.array();
 					writer.value("svy-" + PartWrapper.getName(part));

@@ -54,6 +54,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
+import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.headlessclient.util.HCUtils;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
@@ -99,12 +100,22 @@ public class AngularIndexPageWriter
 		json.put("pathName", request.getContextPath() + "/solution/" + fs.getName() + "/");
 
 		Map<String, String[]> parameterMap = request.getParameterMap();
-		if (request.getSession().getAttribute(StatelessLoginHandler.ID_TOKEN) != null)
+		if (parameterMap.containsKey(StatelessLoginHandler.USERNAME) || parameterMap.containsKey(StatelessLoginHandler.ID_TOKEN) ||
+			parameterMap.containsKey(StatelessLoginHandler.PASSWORD))
 		{
 			parameterMap = new HashMap<>(request.getParameterMap());
-			parameterMap.put(StatelessLoginHandler.ID_TOKEN, new String[] { (String)request.getSession().getAttribute(StatelessLoginHandler.ID_TOKEN) });
+			parameterMap.remove(StatelessLoginHandler.USERNAME);
+			parameterMap.remove(StatelessLoginHandler.PASSWORD);
+			parameterMap.remove(StatelessLoginHandler.REMEMBER);
+			if (!parameterMap.containsKey(StartupArguments.PARAM_KEY_METHOD) && !parameterMap.containsKey("m") ||
+				request.getSession().getAttribute(StatelessLoginHandler.ID_TOKEN) != null &&
+					request.getSession().getAttribute(StatelessLoginHandler.ID_TOKEN).equals(parameterMap.get(StatelessLoginHandler.ID_TOKEN)))
+			{
+				parameterMap.remove(StatelessLoginHandler.ID_TOKEN);
+			}
 		}
 		json.put("querystring", StringEscapeUtils.escapeJson(HTTPUtils.generateQueryString(parameterMap, request.getCharacterEncoding())));
+
 		String ipaddr = request.getHeader("X-Forwarded-For"); // in case there is a forwarding proxy
 		if (ipaddr == null)
 		{

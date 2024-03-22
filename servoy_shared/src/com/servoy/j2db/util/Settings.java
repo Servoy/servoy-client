@@ -42,7 +42,6 @@ import javax.crypto.Cipher;
 import javax.swing.JFrame;
 
 import com.servoy.j2db.J2DBGlobals;
-import com.servoy.j2db.LAFManager;
 
 @SuppressWarnings("nls")
 public final class Settings extends SortedProperties
@@ -79,6 +78,8 @@ public final class Settings extends SortedProperties
 	public static final String USER_HOME = "servoy.user.home";
 
 	public static final String DISABLE_SERVER_LOG_FORWARDING_TO_DEBUG_CLIENT_CONSOLE = "servoy.developer.disableServerLogForwardingToDebugClientConsole"; //$NON-NLS-1$
+
+	public static final String TESTING_MODE = "servoy.ngclient.testingMode";
 
 	private boolean loadedFromServer = false;
 	private File file;
@@ -182,39 +183,6 @@ public final class Settings extends SortedProperties
 		if (currentDateFormat != null)
 		{
 			setProperty("locale.dateformat", currentDateFormat); //$NON-NLS-1$
-		}
-		if (currentUseSystemPrintDialog != null)
-		{
-			setProperty("useSystemPrintDialog", currentUseSystemPrintDialog); //$NON-NLS-1$
-		}
-
-		boolean pushLnfToMac = Utils.getAsBoolean(getProperty("pushLnfToMac", "false")); //$NON-NLS-1$ //$NON-NLS-2$
-		if (!LAFManager.isUsingAppleLAF() || pushLnfToMac)
-		{
-			String lnf = getProperty("selectedlnf"); //$NON-NLS-1$
-			String theme = getProperty("lnf.theme"); //$NON-NLS-1$
-			String font = getProperty("font"); //$NON-NLS-1$
-			// keep the lnf the user has selected
-			if (lnf != null && getProperty(base.getHost() + base.getPort() + "_selectedlnf") == null) //$NON-NLS-1$
-			{
-				setProperty(base.getHost() + base.getPort() + "_selectedlnf", lnf); //$NON-NLS-1$
-			}
-			if (theme != null && getProperty(base.getHost() + base.getPort() + "_lnf.theme") == null) //$NON-NLS-1$
-			{
-				setProperty(base.getHost() + base.getPort() + "_lnf.theme", theme); //$NON-NLS-1$
-			}
-			if (font != null && getProperty(base.getHost() + base.getPort() + "_font") == null) //$NON-NLS-1$
-			{
-				setProperty(base.getHost() + base.getPort() + "_font", font); //$NON-NLS-1$
-			}
-		}
-		else if (currentLnf != null)
-		{
-			setProperty("selectedlnf", currentLnf); //$NON-NLS-1$
-		}
-		else
-		{
-			remove("selectedlnf"); //$NON-NLS-1$
 		}
 		applySystemProperties();
 		setDecimalPrecision();

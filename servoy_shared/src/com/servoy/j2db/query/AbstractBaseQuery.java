@@ -209,7 +209,7 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 	 */
 	public static <T> T relinkTable(BaseQueryTable orgTable, BaseQueryTable newTable, T o)
 	{
-		return AbstractBaseQuery.acceptVisitor(o, new ReplaceVisitor(orgTable, newTable, true));
+		return acceptVisitor(o, new ReplaceVisitor(orgTable, newTable, false));
 	}
 
 	public Placeholder getPlaceholder(TablePlaceholderKey key)
@@ -222,9 +222,22 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 		return AbstractBaseQuery.<Placeholder> searchOne(visitable, new TypePredicate<>(Placeholder.class, o -> key.equals(o.getKey()))).orElse(null);
 	}
 
+	public void setPlaceholderValueChecked(TablePlaceholderKey key, Object value)
+	{
+		setPlaceholderValueChecked(this, key, value);
+	}
+
 	public boolean setPlaceholderValue(TablePlaceholderKey key, Object value)
 	{
 		return setPlaceholderValue(this, key, value);
+	}
+
+	public static void setPlaceholderValueChecked(IVisitable visitable, TablePlaceholderKey key, Object value)
+	{
+		if (!setPlaceholderValue(visitable, key, value))
+		{
+			throw new RuntimeException("Could not set placeholder " + key + " in " + visitable.getClass().getSimpleName() + " " + visitable.toString());
+		}
 	}
 
 	public static boolean setPlaceholderValue(IVisitable visitable, TablePlaceholderKey key, Object value)
@@ -275,9 +288,8 @@ public abstract class AbstractBaseQuery implements ISQLQuery
 
 	public static <T> Optional<T> searchOne(Object o, Predicate<Object> filter)
 	{
-		SearchVisitor<T> search = new SearchVisitor<>(filter);
-		acceptVisitor(o, search);
-		return search.getFound().stream().findAny();
+		List<T> found = search(o, filter);
+		return found.stream().findAny();
 	}
 
 	/**

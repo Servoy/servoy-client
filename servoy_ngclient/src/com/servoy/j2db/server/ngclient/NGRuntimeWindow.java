@@ -66,7 +66,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	private Integer navigatorID = null;
 
 	final List<NGRuntimeWindow> children = new ArrayList<>();
-
+	String previousModalWindow = null;
 
 	/**
 	 * @param application
@@ -470,6 +470,8 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		// resume
 		if (windowType == JSWindow.MODAL_DIALOG && getApplication().getWebsocketSession().getEventDispatcher() != null)
 		{
+			// set current window right after we close the old one
+			getApplication().getRuntimeWindowManager().setModalWindowName(previousModalWindow);
 			final IEventDispatcher eventDispatcher = getApplication().getWebsocketSession().getEventDispatcher();
 			if (eventDispatcher.isEventDispatchThread())
 			{
@@ -567,7 +569,8 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 							IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT, clientID, getApplication().getSolutionName())
 						: null;
 				}
-				String previousModalWindow = getApplication().getRuntimeWindowManager().setModalWindowName(getName());
+				previousModalWindow = getApplication().getRuntimeWindowManager().setModalWindowName(getName());
+				String finalValuePreviousModalWindow = previousModalWindow;
 				try
 				{
 					getApplication().getWebsocketSession()
@@ -577,7 +580,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				}
 				finally
 				{
-					getApplication().getRuntimeWindowManager().setModalWindowName(previousModalWindow);
+					getApplication().getRuntimeWindowManager().setModalWindowName(finalValuePreviousModalWindow);
 					if (perfId != null) performanceData.endSubAction(perfId, clientID);
 				}
 

@@ -17,10 +17,7 @@
 package com.servoy.j2db.smart.cmd;
 
 
-import javax.swing.Action;
 import javax.swing.Icon;
-
-import com.servoy.j2db.LAFManager;
 
 /**
  * @author jcompagner
@@ -47,18 +44,5 @@ public abstract class MnemonicCheckAction extends MessageTextAction
 	public MnemonicCheckAction(String name, String key, Icon icon)
 	{
 		super(name, key, icon);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.swing.AbstractAction#putValue(java.lang.String, java.lang.Object)
-	 */
-	@Override
-	public void putValue(String key, Object newValue)
-	{
-		if (Action.MNEMONIC_KEY.equals(key) && LAFManager.isUsingAppleLAF()) return;
-
-		super.putValue(key, newValue);
 	}
 }

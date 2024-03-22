@@ -18,17 +18,11 @@ package com.servoy.j2db.smart.cmd;
 
 
 import java.awt.event.KeyEvent;
-import java.io.File;
-import java.net.URL;
 
 import javax.swing.KeyStroke;
 import javax.swing.undo.UndoableEdit;
 
 import com.servoy.j2db.ISmartClientApplication;
-import com.servoy.j2db.J2DBGlobals;
-import com.servoy.j2db.smart.RemoteRunnerChecker;
-import com.servoy.j2db.util.BrowserLauncher;
-import com.servoy.j2db.util.Debug;
 
 /**
  * @author jblok
@@ -58,30 +52,6 @@ public class CmdHelp extends AbstractCmd
 	@Override
 	public UndoableEdit doIt(java.util.EventObject ae)
 	{
-		if (RemoteRunnerChecker.getInstance().isRunningWebStart())
-		{
-			try
-			{
-				URL url = new URL(application.getServerURL(), "/client_manual/index.htm"); //$NON-NLS-1$
-				RemoteRunnerChecker.getInstance().showURL(url);
-			}
-			catch (Exception ex)
-			{
-				Debug.error(ex);
-			}
-		}
-		else
-		{
-			try
-			{
-				String user_dir = application.getSettings().getProperty(J2DBGlobals.SERVOY_APPLICATION_SERVER_DIRECTORY_KEY);
-				BrowserLauncher.openURL(new File(user_dir, "server/webapps/ROOT/client_manual/index.htm").getCanonicalFile().toURI().toURL().toString()); //$NON-NLS-1$
-			}
-			catch (Throwable e)//catch all for apple mac
-			{
-				Debug.error(e);
-			}
-		}
 		return null;
 	}
 

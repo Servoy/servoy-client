@@ -52,9 +52,7 @@ import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.websocket.utils.JSONUtils.IJSONStringWithClientSideType;
 
 import com.servoy.j2db.FlattenedSolution;
-import com.servoy.j2db.IBeanManager;
 import com.servoy.j2db.IDataRendererFactory;
-import com.servoy.j2db.ILAFManager;
 import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.component.ComponentFormat;
@@ -1341,18 +1339,6 @@ public class DataProviderDateTest
 		/*
 		 * (non-Javadoc)
 		 *
-		 * @see com.servoy.j2db.IApplication#getBeanManager()
-		 */
-		@Override
-		public IBeanManager getBeanManager()
-		{
-
-			return null;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 *
 		 * @see com.servoy.j2db.IApplication#getPluginManager()
 		 */
 		@Override
@@ -1432,18 +1418,6 @@ public class DataProviderDateTest
 		{
 
 
-		}
-
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see com.servoy.j2db.IApplication#getLAFManager()
-		 */
-		@Override
-		public ILAFManager getLAFManager()
-		{
-
-			return null;
 		}
 
 		/*

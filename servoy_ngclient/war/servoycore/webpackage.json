@@ -1,0 +1,6 @@
+{
+    "name":"servoycore",
+    "displayName":"Servoy Core Components",
+    "packageType": "Web-Component",
+    "description": "A set of core components for Servoy's NG & Titanium Clients. These components are always available; they do not need to be explicitly added to solutions.\nMany of these components have a tight internal integration with the core product."
+}

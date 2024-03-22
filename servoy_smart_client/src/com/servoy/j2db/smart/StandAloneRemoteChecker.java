@@ -24,7 +24,6 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.net.URL;
 
-import com.servoy.j2db.util.BrowserLauncher;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -116,7 +115,6 @@ public class StandAloneRemoteChecker implements IRemoteRunner
 	@Override
 	public boolean showURL(URL url) throws Exception
 	{
-		BrowserLauncher.openURL(url.toExternalForm());
 		return true;
 	}
 }

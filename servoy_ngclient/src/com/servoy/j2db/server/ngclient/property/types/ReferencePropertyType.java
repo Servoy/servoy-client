@@ -60,16 +60,8 @@ public abstract class ReferencePropertyType<T, RT> extends DefaultPropertyType<T
 	private WeakRefs<T, RT> globalWeakRefsForPT;
 
 	@SuppressWarnings("unchecked")
-	private WeakRefs<T, RT> getWeakRefs(IBrowserConverterContext converterContext)
+	private WeakRefs<T, RT> getWeakRefs(IServiceProvider app)
 	{
-		// we try to keep weak refs separate per client - in the client's runtime properties map
-		BaseWebObject webObject = (converterContext != null ? converterContext.getWebObject() : null);
-
-		IServiceProvider app = null;
-		if (webObject instanceof IContextProvider)
-			// webObject is probably a WebFromComponent or ServoyClientService
-			app = ((IContextProvider)webObject).getDataConverterContext().getApplication();
-		if (app == null) app = J2DBGlobals.getServiceProvider();
 		Map<Object, Object> applicationRuntimeProperties = (app != null ? app.getRuntimeProperties() : null);
 
 		WeakRefs<T, RT> weakRefsToUse = null;
@@ -93,9 +85,23 @@ public abstract class ReferencePropertyType<T, RT> extends DefaultPropertyType<T
 		return weakRefsToUse;
 	}
 
+	private IServiceProvider getApplication(IBrowserConverterContext converterContext)
+	{
+		// we try to keep weak refs separate per client - in the client's runtime properties map
+		BaseWebObject webObject = (converterContext != null ? converterContext.getWebObject() : null);
+
+		IServiceProvider app = null;
+		if (webObject instanceof IContextProvider)
+			// webObject is probably a WebFromComponent or ServoyClientService
+			app = ((IContextProvider)webObject).getDataConverterContext().getApplication();
+		if (app == null) app = J2DBGlobals.getServiceProvider();
+		return app;
+
+	}
+
 	protected RT addReference(T ref, IBrowserConverterContext converterContext)
 	{
-		WeakRefs<T, RT> weakRefsToUse = getWeakRefs(converterContext);
+		WeakRefs<T, RT> weakRefsToUse = getWeakRefs(getApplication(converterContext));
 
 		cleanGarbageCollectedReferences(weakRefsToUse);
 		if (ref == null) return null;
@@ -118,9 +124,9 @@ public abstract class ReferencePropertyType<T, RT> extends DefaultPropertyType<T
 
 	protected abstract RT createUniqueIdentifier(T ref);
 
-	protected T getReference(RT refID, IBrowserConverterContext converterContext)
+	public T getReference(RT refID, IServiceProvider serviceProvider)
 	{
-		WeakRefs<T, RT> weakRefsToUse = getWeakRefs(converterContext);
+		WeakRefs<T, RT> weakRefsToUse = getWeakRefs(serviceProvider);
 
 		cleanGarbageCollectedReferences(weakRefsToUse);
 		if (refID != null)
@@ -129,6 +135,11 @@ public abstract class ReferencePropertyType<T, RT> extends DefaultPropertyType<T
 			return ref != null ? ref.get() : null;
 		}
 		return null;
+	}
+
+	protected T getReference(RT refID, IBrowserConverterContext converterContext)
+	{
+		return getReference(refID, getApplication(converterContext));
 	}
 
 	private void cleanGarbageCollectedReferences(WeakRefs<T, RT> weakRefsToUse)

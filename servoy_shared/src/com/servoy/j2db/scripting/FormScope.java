@@ -29,6 +29,7 @@ import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.FormController.RuntimeSupportScriptProviders;
 import com.servoy.j2db.IFormController;
@@ -255,7 +256,11 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		Iterator<Column> columns = table.getColumnsSortedByName();
 		while (columns.hasNext())
 		{
-			al.add(columns.next().getDataProviderID());
+			Column column = columns.next();
+			if (!column.hasFlag(IBaseColumn.EXCLUDED_COLUMN))
+			{
+				al.add(column.getDataProviderID());
+			}
 		}
 		Iterator<AggregateVariable> aggs;
 

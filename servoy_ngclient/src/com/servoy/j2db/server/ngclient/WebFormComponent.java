@@ -334,14 +334,24 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 			// then the children of both X and Y in this case have the same security settings as 'root' form component component which is A;
 
 			// so find the 'root' form component component persist and get it's access rights; this should always be found!
-			String formComponentName = feName.substring(0, feName.indexOf('$'));
-			for (IPersist p : formElementForm.getFlattenedFormElementsAndLayoutContainers())
+			// TODO switch this to using ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_UUID) instead of form element name, but make that work with deeply nested form components in form components as well
+			String[] nestingPathInsideFormComponents = feName.split("\\$"); // because we use the name to find parent form element, and elements themselves can have "$" in their name (we use it as a separator as well for path inside form components), we need to take into account that the actual name ofthe root form component component could contain $
+			int i = 0;
+			String formComponentName = ""; // find the root form component component name (it might or might not have $ in it, so we can't just see $ as a separator and take the first part - up to the first $)
+
+			while (persist == null && i < nestingPathInsideFormComponents.length)
 			{
-				if (p instanceof IFormElement && formComponentName.equals(((IFormElement)p).getName()))
+				formComponentName += nestingPathInsideFormComponents[i];
+				for (IPersist p : formElementForm.getFlattenedFormElementsAndLayoutContainers())
 				{
-					persist = p;
-					break;
+					if (p instanceof IFormElement && formComponentName.equals(((IFormElement)p).getName()))
+					{
+						persist = p;
+						break;
+					}
 				}
+				formComponentName += "$";
+				i++;
 			}
 		}
 		else

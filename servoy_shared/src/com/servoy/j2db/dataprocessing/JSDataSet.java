@@ -33,12 +33,16 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
 import org.mozilla.javascript.BaseFunction;
+import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Symbol;
+import org.mozilla.javascript.SymbolKey;
+import org.mozilla.javascript.SymbolScriptable;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.base.scripting.api.IJSDataSet;
@@ -67,13 +71,17 @@ import com.servoy.j2db.util.WrappedObjectReference;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSDataSet")
-public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Serializable, IJSDataSet
+public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, SymbolScriptable, Serializable, IJSDataSet
 {
 	private static final long serialVersionUID = 1L;
 
 	public static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(JSDataSet.class);
 
 	private static JSDataSet prototype = new JSDataSet();
+
+	private static Callable symbol_iterator = (Context cx, Scriptable scope, Scriptable thisObj, Object[] args) -> {
+		return new IterableES6Iterator(scope, ((JSDataSet)thisObj).set.getRows());
+	};
 
 	private IDataSetWithIndex set;
 	private ServoyException exception;
@@ -1643,6 +1651,32 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Seri
 			colNamesSorted[column.getValue().intValue() - 1] = column.getKey();
 		}
 		return colNamesSorted;
+	}
+
+	public Object get(Symbol key, Scriptable start)
+	{
+		if (SymbolKey.ITERATOR.equals(key))
+		{
+			return symbol_iterator;
+		}
+		return Scriptable.NOT_FOUND;
+	}
+
+
+	public boolean has(Symbol key, Scriptable start)
+	{
+		return (SymbolKey.ITERATOR.equals(key));
+	}
+
+	public void put(Symbol key, Scriptable start, Object value)
+	{
+
+	}
+
+
+	public void delete(Symbol key)
+	{
+
 	}
 
 	private class DataModel extends AbstractTableModel

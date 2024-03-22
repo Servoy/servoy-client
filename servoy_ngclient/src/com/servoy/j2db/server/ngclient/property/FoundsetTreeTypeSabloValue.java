@@ -91,18 +91,28 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 	public void detach()
 	{
 		this.changeMonitor = null;
-		bindings.values().stream().forEach(binding -> {
-			binding.foundsets.stream().filter(ISwingFoundSet.class::isInstance).map(ISwingFoundSet.class::cast).forEach(foundset -> {
-				foundset.removeTableModelListener(this);
-			});
-		});
+		this.removeAllRoots();
 		this.bindings.clear();
-		this.roots.clear();
 	}
 
 	public void flagChanged()
 	{
-		this.changeMonitor.valueChanged();
+		if (this.changeMonitor != null)
+		{
+			this.changeMonitor.valueChanged();
+		}
+	}
+
+	public void removeAllRoots()
+	{
+		bindings.values().stream().forEach(binding -> {
+			binding.foundsets.stream().filter(ISwingFoundSet.class::isInstance).map(ISwingFoundSet.class::cast).forEach(foundset -> {
+				foundset.removeTableModelListener(this);
+			});
+			binding.foundsets.clear();
+		});
+		this.roots.clear();
+		this.flagChanged();
 	}
 
 	public void toJSON(JSONWriter writer, String key, IBrowserConverterContext dataConverterContext) throws IllegalArgumentException, JSONException
@@ -126,7 +136,7 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 				if (foundset != null)
 				{
 					FoundsetTreeBinding relatedBinding = bindings.get(foundset.getDataSource());
-					if (relatedBinding.relationInfos.size() > 0 && foundset.getSize() > 0)
+					if (relatedBinding != null && relatedBinding.relationInfos.size() > 0 && foundset.getSize() > 0)
 					{
 						int recordIndex = foundset.getRecordIndex(foundsetAndRecordPK[1], 0);
 						if (recordIndex != -1)
@@ -386,6 +396,15 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 			for (IFoundSetInternal relatedFoundset : relatedFoundsets)
 			{
 				FoundsetTreeBinding relatedBinding = bindings.get(relatedFoundset.getDataSource());
+				boolean listenerAttached = false;
+				if (relatedBinding.foundsets.contains(relatedFoundset))
+				{
+					listenerAttached = true;
+				}
+				if (listenerAttached)
+				{
+					((ISwingFoundSet)relatedFoundset).removeTableModelListener(this);
+				}
 				for (int j = 0; j < relatedFoundset.getSize(); j++)
 				{
 					Map<String, Object> relRecordData = new HashMap<String, Object>();
@@ -469,6 +488,10 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 
 					}
 					relChildren.add(relRecordData);
+				}
+				if (listenerAttached)
+				{
+					((ISwingFoundSet)relatedFoundset).addTableModelListener(this);
 				}
 			}
 		}

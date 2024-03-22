@@ -18,17 +18,13 @@
 package com.servoy.j2db.server.ngclient.property;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ScheduledExecutorService;
 
 import javax.servlet.http.HttpServlet;
 
-import com.servoy.j2db.IBeanManager;
-import com.servoy.j2db.IBeanManagerInternal;
 import com.servoy.j2db.IDebugClientHandler;
-import com.servoy.j2db.ILAFManagerInternal;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.persistence.AbstractRepository;
 import com.servoy.j2db.persistence.IDeveloperRepository;
@@ -44,7 +40,6 @@ import com.servoy.j2db.server.shared.IBatchManager;
 import com.servoy.j2db.server.shared.IServerStatus;
 import com.servoy.j2db.server.shared.IUserManager;
 import com.servoy.j2db.server.shared.IWebClientSessionFactory;
-import com.servoy.j2db.util.JarManager.ExtensionResource;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.xmlxport.IXMLExportUserChannel;
 import com.servoy.j2db.util.xmlxport.IXMLExporter;
@@ -155,13 +150,6 @@ final class TestApplicationServer implements IApplicationServerSingleton
 	}
 
 	@Override
-	public int getUsedRMIRegistryPort()
-	{
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	public long getStartTime()
 	{
 		// TODO Auto-generated method stub
@@ -217,13 +205,6 @@ final class TestApplicationServer implements IApplicationServerSingleton
 	}
 
 	@Override
-	public ILAFManagerInternal getLafManager()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public ScheduledExecutorService getExecutor()
 	{
 		// TODO Auto-generated method stub
@@ -256,55 +237,6 @@ final class TestApplicationServer implements IApplicationServerSingleton
 	{
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public IBeanManagerInternal getBeanManager()
-	{
-		return new IBeanManagerInternal()
-		{
-
-			@Override
-			public void init()
-			{
-			}
-
-			@Override
-			public void flushCachedItems()
-			{
-			}
-
-			@Override
-			public ClassLoader getClassLoader()
-			{
-				return TestApplicationServer.class.getClassLoader();
-			}
-
-			@Override
-			public Object createInstance(String clazzName) throws Exception
-			{
-				return null;
-			}
-
-			@Override
-			public Map<String, List<ExtensionResource>> getLoadedBeanDefs()
-			{
-				return null;
-			}
-
-			@Override
-			public File getBeansDir()
-			{
-				return null;
-			}
-
-
-			@Override
-			public void dispose()
-			{
-
-			}
-		};
 	}
 
 	@Override
@@ -347,13 +279,6 @@ final class TestApplicationServer implements IApplicationServerSingleton
 	@Override
 	public IXMLExporter createXMLExporter(AbstractRepository repository, IUserManager ssm, IXMLExportUserChannel userChannel, Properties properties,
 		IDataServer sqlEngine, String clientID, IXMLExportI18NHelper i18nHelper)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public IBeanManager createBeanManager(ClassLoader pluginClassloader)
 	{
 		// TODO Auto-generated method stub
 		return null;

@@ -58,16 +58,21 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.mozilla.javascript.BaseFunction;
+import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Symbol;
+import org.mozilla.javascript.SymbolKey;
+import org.mozilla.javascript.SymbolScriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.base.scripting.api.IJSFoundSet;
@@ -144,7 +149,7 @@ import com.servoy.j2db.util.Utils;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSFoundSet", scriptingName = "JSFoundSet")
-public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMethods, IRowListener, Scriptable, Cloneable, IJSFoundSet
+public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMethods, IRowListener, Scriptable, SymbolScriptable, Cloneable, IJSFoundSet
 {
 	public static final String JS_FOUNDSET = "JSFoundSet"; //$NON-NLS-1$
 
@@ -193,6 +198,10 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	private int multiSelectPinLevel;
 
 	private int foundsetID = 0;
+
+	private static Callable symbol_iterator = (Context cx, Scriptable scope, Scriptable thisObj, Object[] args) -> {
+		return new IterableES6Iterator(scope, ((FoundSet)thisObj));
+	};
 
 	public PrototypeState getPrototypeState()
 	{
@@ -827,12 +836,12 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 * var filter2 = databaseManager.createTableFilterParam(query);
 	 *
 	 * // apply multiple filters at the same time, previous filters with the same name are removed:
-	 * var success = foundset.setTableFilters('myfilters', [filter1_10, filter2])
+	 * var success = foundset.setFoundSetFilters('myfilters', [filter1_10, filter2])
 	 *
 	 * // update one of the filters:
 	 * var filter1_11 = foundset.createTableFilterParam('customerid', '=', 11);
 	 *
-	 * var success = foundset.setTableFilters('myfilters', [filter1_11, filter2])
+	 * var success = foundset.setFoundSetFilters('myfilters', [filter1_11, filter2])
 	 *
 	 * // filters can be removed by setting them to an empty list:
 	 * var success = databaseManager.setTableFilters('myfilters', [])
@@ -3314,8 +3323,8 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	}
 
 	/**
-	 * Omit selected record(s) (add it to omit records list), to be shown with loadOmittedRecords. T
-	 * his operation returns false only when foundset is in bad state (table not accessible or not having a valid selected record)
+	 * Omit selected record(s) (add it to omit records list), to be shown with loadOmittedRecords.
+	 * This operation returns false only when foundset is in bad state (table not accessible or not having a valid selected record)
 	 * or the record is in an edit state and can't be saved (autosave is false).
 	 *
 	 * Note: The omitted records list is discarded when these functions are executed: loadAllRecords, loadRecords(dataset), loadRecords(sqlstring), invertRecords()
@@ -3329,6 +3338,33 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	public boolean js_omitRecord()
 	{
 		return isInitialized() && omitState(getSelectedIndexes());
+	}
+
+	/**
+	 * Omit record sent as parameter (add it to omit records list), to be shown with loadOmittedRecords.
+	 * This operation returns false only when foundset is in bad state (table not accessible or not having a valid selected record)
+	 * or the record is in an edit state and can't be saved (autosave is false) or record not present in foundset.
+	 *
+	 * Note: The omitted records list is discarded when these functions are executed: loadAllRecords, loadRecords(dataset), loadRecords(sqlstring), invertRecords()
+	 *
+	 * @sample var success = %%prefix%%foundset.omitRecord(record);
+	 *
+	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_loadOmittedRecords()
+	 *
+	 * @return boolean true if record could be omitted.
+	 */
+	@JSFunction
+	public boolean omitRecord(IJSRecord record)
+	{
+		if (isInitialized())
+		{
+			int _index = getRecordIndex((IRecord)record);
+			if (_index >= 0)
+			{
+				return omitState(new int[] { _index });
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -6538,29 +6574,32 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	@JSReadonlyProperty
 	public String[] alldataproviders()
 	{
-		List<String> al = new ArrayList<String>();
+		List<String> al = new ArrayList<>();
 		Table table = (Table)getTable();
 		if (table != null)
 		{
 			try
 			{
-				Iterator<Column> columnsIt = table.getColumnsSortedByName();
-				while (columnsIt.hasNext())
+				for (Column column : iterate(table.getColumnsSortedByName()))
 				{
-					IColumn c = columnsIt.next();
-					al.add(c.getDataProviderID());
+					if (!column.hasFlag(IBaseColumn.EXCLUDED_COLUMN))
+					{
+						al.add(column.getDataProviderID());
+					}
 				}
-				Iterator<AggregateVariable> aggIt = fsm.getApplication().getFlattenedSolution().getAggregateVariables(table, true);
-				while (aggIt.hasNext())
+
+				FlattenedSolution flattenedSolution = fsm.getApplication().getFlattenedSolution();
+				for (AggregateVariable av : iterate(flattenedSolution.getAggregateVariables(table, true)))
 				{
-					AggregateVariable av = aggIt.next();
 					al.add(av.getDataProviderID());
 				}
-				Iterator<ScriptCalculation> scriptIt = fsm.getApplication().getFlattenedSolution().getScriptCalculations(table, true);
-				while (scriptIt.hasNext())
+
+				for (ScriptCalculation sc : iterate(flattenedSolution.getScriptCalculations(table, true)))
 				{
-					ScriptCalculation sc = scriptIt.next();
-					if (al.contains(sc.getDataProviderID())) al.remove(sc.getDataProviderID());
+					if (al.contains(sc.getDataProviderID()))
+					{
+						al.remove(sc.getDataProviderID());
+					}
 					al.add(sc.getDataProviderID());
 				}
 			}
@@ -6748,6 +6787,33 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				}
 			}
 		}
+	}
+
+
+	public Object get(Symbol key, Scriptable start)
+	{
+		if (SymbolKey.ITERATOR.equals(key))
+		{
+			return symbol_iterator;
+		}
+		return Scriptable.NOT_FOUND;
+	}
+
+
+	public boolean has(Symbol key, Scriptable start)
+	{
+		return (SymbolKey.ITERATOR.equals(key));
+	}
+
+	public void put(Symbol key, Scriptable start, Object value)
+	{
+
+	}
+
+
+	public void delete(Symbol key)
+	{
+
 	}
 
 	boolean mustAggregatesBeLoaded()

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy NG Client Plug-in
 Bundle-SymbolicName: servoy_ngclient;singleton:=true
-Bundle-Version: 2024.3.0.3940_rc
+Bundle-Version: 2024.6.0.3980_rc
 Export-Package: com.servoy.j2db.server.ngclient,
  com.servoy.j2db.server.ngclient.component,
  com.servoy.j2db.server.ngclient.endpoint,
@@ -15,11 +15,12 @@ Export-Package: com.servoy.j2db.server.ngclient,
  com.servoy.j2db.server.ngclient.template,
  com.servoy.j2db.server.ngclient.utils
 Require-Bundle: servoy_shared,
- servoy_smart_client,
  sablo,
  org.eclipse.dltk.javascript.rhino,
  servoy_headless_client,
- org.apache.tomcat
+ org.apache.tomcat,
+ wrapped.org.apache.httpcomponents.client5.httpclient5,
+ wrapped.org.apache.httpcomponents.core5.httpcore5
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ClassPath: .
 Bundle-Vendor: Servoy

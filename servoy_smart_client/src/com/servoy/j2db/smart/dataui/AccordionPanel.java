@@ -19,29 +19,25 @@ package com.servoy.j2db.smart.dataui;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
-import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.event.ChangeListener;
 
-import com.l2fprod.common.swing.JOutlookBar;
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.EnablePanel;
 import com.servoy.j2db.util.ITabPaneAlike;
-import com.servoy.j2db.util.Utils;
 
 /**
  * Swing accordion panel implementation.
- * 
+ *
  * @author lvostinar
  * @since 6.1
  *
  */
-public class AccordionPanel extends JOutlookBar implements ITabPaneAlike
+public class AccordionPanel extends JPanel implements ITabPaneAlike
 {
 
 	private final IApplication application;
@@ -87,14 +83,6 @@ public class AccordionPanel extends JOutlookBar implements ITabPaneAlike
 
 	public void setReadOnly(boolean b)
 	{
-		for (int i = 0; i < getTabCount(); i++)
-		{
-			Component comp = getComponentAt(i);
-			if (comp instanceof EnablePanel)
-			{
-				((EnablePanel)comp).setReadOnly(b);
-			}
-		}
 		readOnly = b;
 	}
 
@@ -105,74 +93,27 @@ public class AccordionPanel extends JOutlookBar implements ITabPaneAlike
 
 	public int getTabIndex(Component component)
 	{
-		for (int i = 0; i < getTabCount(); i++)
-		{
-			Component comp = getComponentAt(i);
-			if (comp == component)
-			{
-				return i;
-			}
-		}
 		return -1;
 	}
 
 	public String getNameAt(int index)
 	{
-		Component c = getComponentAt(index);
-		if (c != null) return c.getName();
 		return null;
 	}
 
 	public String getFormNameAt(int index)
 	{
-		Component c = getComponentAt(index);
-		if (c != null) return ((FormLookupPanel)c).getFormName();
 		return null;
 	}
 
 	public boolean removeTabAtPos(int index)
 	{
-		Component comp = getComponentAt(index);
-		if (comp instanceof FormLookupPanel)
-		{
-			List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-			boolean ok = ((FormLookupPanel)comp).notifyVisible(false, invokeLaterRunnables);
-			Utils.invokeLater(application, invokeLaterRunnables);
-			if (!ok) return false;
-		}
-		super.removeTabAt(index);
 		return true;
 	}
 
 	public boolean removeAllTabs()
 	{
-		for (int i = 0; i < getTabCount(); i++)
-		{
-			Component comp = getComponentAt(i);
-			if (comp instanceof FormLookupPanel)
-			{
-				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
-				boolean ok = ((FormLookupPanel)comp).notifyVisible(false, invokeLaterRunnables);
-				Utils.invokeLater(application, invokeLaterRunnables);
-				if (!ok) return false;
-			}
-		}
-		try
-		{
-			super.removeAll();
-		}
-		catch (Exception ex1)
-		{
-			// do it one more time to be sure...
-			try
-			{
-				super.removeAll();
-			}
-			catch (Exception ex2)
-			{
-				Debug.error("Error removing all tabs", ex2); //$NON-NLS-1$
-			}
-		}
+
 		return true;
 	}
 
@@ -181,43 +122,22 @@ public class AccordionPanel extends JOutlookBar implements ITabPaneAlike
 	public void setOpaque(boolean isOpaque)
 	{
 		super.setOpaque(isOpaque);
-		// Also propagate the change to all tabs.
-		for (int i = 0; i < getTabCount(); i++)
-		{
-			Component comp = getComponentAt(i);
-			if (comp instanceof EnablePanel)
-			{
-				((EnablePanel)comp).setOpaque(isOpaque);
-			}
-		}
 	}
 
 	public void addTab(String name, String text, Icon icon, Component flp, String tip)
 	{
-		super.addTab(text, icon, flp, tip);
-		// Propagate the current opacity to the new tab.
-		if (flp instanceof JComponent)
-		{
-			JComponent jFLP = (JComponent)flp;
-			jFLP.setOpaque(isOpaque());
-		}
+
 	}
 
 	public void insertTab(String name, String text, Icon icon, Component flp, String tip, int index)
 	{
-		super.insertTab(text, icon, flp, tip, index);
-		// Propagate the current opacity to the new tab.
-		if (flp instanceof JComponent)
-		{
-			JComponent jFLP = (JComponent)flp;
-			jFLP.setOpaque(isOpaque());
-		}
+
 	}
 
 	@Override
 	public boolean isEnabledAt(int index)
 	{
-		return super.isEnabledAt(index) && isEnabled();
+		return isEnabled();
 	}
 
 	@Override
@@ -232,25 +152,15 @@ public class AccordionPanel extends JOutlookBar implements ITabPaneAlike
 
 	int alignment = SwingConstants.LEFT;
 
-	@Override
 	public void setAllTabsAlignment(int arg0)
 	{
 		alignment = arg0;
-		super.setAllTabsAlignment(arg0);
 	}
 
 
-	@Override
 	public int getAlignmentAt(int index)
 	{
-		if (alignment >= 0)
-		{
-			return alignment;
-		}
-		else
-		{
-			return super.getAlignmentAt(index);
-		}
+		return alignment;
 	}
 
 	private Color foreground = null;
@@ -258,12 +168,7 @@ public class AccordionPanel extends JOutlookBar implements ITabPaneAlike
 	@Override
 	public Color getForegroundAt(int index)
 	{
-		Color superForeground = super.getForegroundAt(index);
-		if (superForeground == null)
-		{
-			superForeground = foreground;
-		}
-		return superForeground;
+		return null;
 	}
 
 	@Override
@@ -271,6 +176,222 @@ public class AccordionPanel extends JOutlookBar implements ITabPaneAlike
 	{
 		foreground = fg;
 		super.setForeground(fg);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.util.ITabPaneAlike#setEnabledAt(int, boolean)
+	 */
+	@Override
+	public void setEnabledAt(int index, boolean enabled)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.util.ITabPaneAlike#setTabPlacement(int)
+	 */
+	@Override
+	public void setTabPlacement(int tabPlacement)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.util.ITabPaneAlike#addChangeListener(javax.swing.event.ChangeListener)
+	 */
+	@Override
+	public void addChangeListener(ChangeListener l)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.util.ITabPaneAlike#getSelectedComponent()
+	 */
+	@Override
+	public Component getSelectedComponent()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.util.ITabPaneAlike#setSelectedIndex(int)
+	 */
+	@Override
+	public void setSelectedIndex(int i)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.util.ITabPaneAlike#getSelectedIndex()
+	 */
+	@Override
+	public int getSelectedIndex()
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.util.ITabPaneAlike#getTabCount()
+	 */
+	@Override
+	public int getTabCount()
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.util.ITabPaneAlike#setForegroundAt(int, java.awt.Color)
+	 */
+	@Override
+	public void setForegroundAt(int index, Color fg)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.util.ITabPaneAlike#setBackgroundAt(int, java.awt.Color)
+	 */
+	@Override
+	public void setBackgroundAt(int index, Color bg)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.util.ITabPaneAlike#setTitleAt(int, java.lang.String)
+	 */
+	@Override
+	public void setTitleAt(int index, String text)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.util.ITabPaneAlike#getTitleAt(int)
+	 */
+	@Override
+	public String getTitleAt(int index)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.util.ITabPaneAlike#setMnemonicAt(int, int)
+	 */
+	@Override
+	public void setMnemonicAt(int index, int mnemonic)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.util.ITabPaneAlike#getMnemonicAt(int)
+	 */
+	@Override
+	public int getMnemonicAt(int index)
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.util.ITabPaneAlike#getBackgroundAt(int)
+	 */
+	@Override
+	public Color getBackgroundAt(int index)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.util.ITabPaneAlike#setTabLayoutPolicy(int)
+	 */
+	@Override
+	public void setTabLayoutPolicy(int scroll_tab_layout)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.util.ITabPaneAlike#setSelectedComponent(java.awt.Component)
+	 */
+	@Override
+	public void setSelectedComponent(Component component)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.util.ITabPaneAlike#setToolTipTextAt(int, java.lang.String)
+	 */
+	@Override
+	public void setToolTipTextAt(int index, String text)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.util.ITabPaneAlike#getToolTipTextAt(int)
+	 */
+	@Override
+	public String getToolTipTextAt(int index)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

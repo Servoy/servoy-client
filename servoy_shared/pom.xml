@@ -4,10 +4,13 @@
     xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
+    <prerequisites>
+        <maven>3.9.0</maven>
+    </prerequisites>
     <parent>
         <groupId>com.servoy</groupId>
         <artifactId>servoy-client</artifactId>
-        <version>2024.3.0.3940_rc</version>
+        <version>2024.6.0.3980_rc</version>
     </parent>
     <artifactId>servoy_shared</artifactId>
     <packaging>eclipse-plugin</packaging>
@@ -36,7 +39,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.1.1</version>
+                <version>3.6.0</version>
                 <configuration>
                     <descriptors>
                         <descriptor>assembly.xml</descriptor>

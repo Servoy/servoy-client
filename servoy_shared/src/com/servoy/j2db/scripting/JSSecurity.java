@@ -523,7 +523,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * Get all the permissions of the current user.
 	 *
 	 * @sample
-	 * 	//set p to the user group for the current user
+	 * 	//set p to the user permissions for the current user
 	 * 	/** @type {JSDataSet} *&#47;
 	 * 	var p = security.getUserPermissions();
 	 *
@@ -565,14 +565,14 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * //get all the users in the security settings (Returns a JSDataset)
 	 * var dsUsers = security.getUsers()
 	 *
-	 * //loop through each user to get their group
+	 * //loop through each user to get their permissions
 	 * //The getValue call is (row,column) where column 1 == id and 2 == name
 	 * for(var i=1 ; i<=dsUsers.getMaxRowIndex() ; i++)
 	 * {
 	 * 	//print to the output debugger tab: "user: " and the username
 	 * 	application.output("user:" + dsUsers.getValue(i,2));
 	 *
-	 * 	//set p to the user group for the current user
+	 * 	//set p to the user permissions for the current user
 	 * 	/** @type {JSDataSet} *&#47;
 	 * 	var p = security.getPermissions(dsUsers.getValue(i,1));
 	 *
@@ -584,9 +584,9 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * 	}
 	 * }
 	 *
-	 * @param userUID to retrieve the user groups
+	 * @param userUID to retrieve the user permissions
 	 *
-	 * @return dataset with groupnames
+	 * @return dataset with permissions names
 	 */
 	public JSDataSet js_getPermissions(Object userUID) throws ServoyException
 	{
@@ -672,8 +672,6 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	/**
 	 * Set a new userUID for the given userUID.
 	 * Note: this method can only be called by an admin.
-	 *
-	 * @sampleas js_createGroup(String)
 	 *
 	 * @param a_userUID the userUID to set the new user UID for
 	 * @param newUserUID the new user UID
@@ -794,7 +792,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	}
 
 	/**
-	 * Creates a new user, returns new uid (or null when group couldn't be created or user alreay exist).
+	 * Creates a new user, returns new uid (or null when permission couldn't be created or user alreay exist).
 	 * Note: this method can only be called by an admin.
 	 *
 	 * @sample
@@ -803,31 +801,31 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 * var uid = security.createUser('myusername', 'mypassword');
 	 * if (uid) //test if user was created
 	 * {
-	 * 	// Get all the groups
-	 * 	var set = security.getGroups();
+	 * 	// Get all the permissions
+	 * 	var set = security.getPermissions();
 	 * 	for(var p = 1 ; p <= set.getMaxRowIndex() ; p++)
 	 * 	{
-	 * 		// output name of the group
+	 * 		// output name of the permission
 	 * 		application.output(set.getValue(p, 2));
-	 * 		// add user to group
-	 * 		security.addUserToGroup(uid, set.getValue(p,2));
+	 * 		// add permission to user
+	 * 		security.addPermissionToUser(uid, set.getValue(p,2));
 	 * 	}
-	 * 	// if not remove user, remove user from all the groups
+	 * 	// if not remove user, remove user from all the permissions
 	 * 	if(!removeUser)
 	 * 	{
-	 * 		// get now all the groups that that users has (all if above did go well)
-	 * 		var set =security.getUserGroups(uid);
+	 * 		// get now all the permissions that that users has (all if above did go well)
+	 * 		var set =security.getPermissions(uid);
 	 * 		for(var p = 1;p<=set.getMaxRowIndex();p++)
 	 * 		{
-	 * 			// output name of the group
+	 * 			// output name of the permission
 	 * 			application.output(set.getValue(p, 2));
-	 * 			// remove the user from the group
-	 * 			security.removeUserFromGroup(uid, set.getValue(p,2));
+	 * 			// remove permission from user
+	 * 			security.removePermissionFromUser(uid, set.getValue(p,2));
 	 * 		}
 	 * 	}
 	 * 	else
 	 * 	{
-	 * 		// delete the user (the user will be removed from the groups)
+	 * 		// delete the user (the user will be removed from the permissions)
 	 * 		security.deleteUser(uid);
 	 * 	}
 	 * }
@@ -1533,23 +1531,23 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	/**
 	 * Login to be able to leave the solution loginForm.
 	 *
-	 * Example: Group names may be received from LDAP (Lightweight Directory Access Protocol) - a standard protocol used in web browsers and email applications to enable lookup queries that access a directory listing.
+	 * Example: Permissions names may be received from LDAP (Lightweight Directory Access Protocol) - a standard protocol used in web browsers and email applications to enable lookup queries that access a directory listing.
 	 *
 	 * @sample
-	 * var groups = ['Administrators']; //normally these groups are for example received from LDAP
+	 * var permissions = ['Administrators']; //normally these groups are for example received from LDAP
 	 * var user_uid = scopes.globals.email; //also this uid might be received from external authentication method
-	 * var ok =  security.login(scopes.globals.username, user_uid , groups)
+	 * var ok =  security.login(scopes.globals.username, user_uid , permissions)
 	 * if (!ok)
 	 * {
-	 * 	plugins.dialogs.showErrorDialog('Login failure',  'Already logged in? or no user_uid/groups specified?', 'OK')
+	 * 	plugins.dialogs.showErrorDialog('Login failure',  'Already logged in? or no user_uid/permissions specified?', 'OK')
 	 * }
 	 *
 	 * @param username the username, like 'JamesWebb'
 	 * @param a_userUID the user UID to process login for
-	 * @param groups the groups array
+	 * @param permissions the permissions array
 	 * @return true if loggedin
 	 */
-	public boolean js_login(String username, Object a_userUID, String[] groups)
+	public boolean js_login(String username, Object a_userUID, String[] permissions)
 	{
 		if (application.getUserManager() == null)
 		{
@@ -1559,7 +1557,8 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 		String userUID = normalizeUID(a_userUID);
 
-		if (groups == null || groups.length == 0 || username == null || username.length() == 0 || userUID == null || userUID.length() == 0) return false;
+		if (permissions == null || permissions.length == 0 || username == null || username.length() == 0 || userUID == null || userUID.length() == 0)
+			return false;
 
 
 		// check if the groups all exist
@@ -1574,15 +1573,15 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 			return false;
 		}
 
-		for (String group : groups)
+		for (String permission : permissions)
 		{
 			int i;
-			for (i = 0; i < groupsDataSet.getRowCount() && !groupsDataSet.getRow(i)[1].equals(group); i++)
+			for (i = 0; i < groupsDataSet.getRowCount() && !groupsDataSet.getRow(i)[1].equals(permission); i++)
 			{
 			}
 			if (i == groupsDataSet.getRowCount())
 			{
-				Debug.log("Could not log in user for unknown group '" + group + "'", ILogLevel.WARNING); //$NON-NLS-1$//$NON-NLS-2$
+				Debug.log("Could not log in user for unknown permission '" + permission + "'", ILogLevel.WARNING); //$NON-NLS-1$//$NON-NLS-2$
 				return false;
 			}
 		}
@@ -1596,7 +1595,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 		ci.setUserName(username);
 		ci.setUserUid(userUID);
-		ci.setUserGroups(groups);
+		ci.setUserGroups(permissions);
 		if (application.getSolution().getSolutionType() != SolutionMetaData.AUTHENTICATOR)
 		{
 			application.clearLoginForm();

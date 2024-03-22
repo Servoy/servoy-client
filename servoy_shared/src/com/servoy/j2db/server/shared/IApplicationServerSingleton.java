@@ -23,10 +23,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import javax.servlet.http.HttpServlet;
 
-import com.servoy.j2db.IBeanManager;
-import com.servoy.j2db.IBeanManagerInternal;
 import com.servoy.j2db.IDebugClientHandler;
-import com.servoy.j2db.ILAFManagerInternal;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.persistence.AbstractRepository;
 import com.servoy.j2db.persistence.IDeveloperRepository;
@@ -69,12 +66,6 @@ public interface IApplicationServerSingleton
 
 	IPluginManagerInternal getPluginManager();
 
-	ILAFManagerInternal getLafManager();
-
-	IBeanManagerInternal getBeanManager();
-
-	IBeanManager createBeanManager(ClassLoader pluginClassloader);
-
 	IUserManager getUserManager();
 
 	IBatchManager getBatchManager();
@@ -82,8 +73,6 @@ public interface IApplicationServerSingleton
 	boolean isDeveloperStartup();
 
 	IWebClientSessionFactory getWebClientSessionFactory();
-
-	int getUsedRMIRegistryPort();
 
 	Map<String, HttpServlet> getWebServices();
 

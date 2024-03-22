@@ -50,14 +50,13 @@ public class Row
 	public enum ROLLBACK_MODE
 	{
 		OVERWRITE_CHANGES, UPDATE_CHANGES, KEEP_CHANGES
-
 	}
 
 	public static final Object UNINITIALIZED = new Object();
 
 	private Exception lastException;
 	private final RowManager parent;
-	private volatile Object[] columndata;//actual columndata
+	private volatile Object[] columndata; // actual columndata
 	private volatile Object[] oldValues;
 
 	private final Map<String, Object> unstoredCalcCache; // dataProviderID -> Value
@@ -68,7 +67,7 @@ public class Row
 
 	private static Object dummy = new Object();
 
-	private final ConcurrentMap<String, Thread> calculatingThreads = new ConcurrentHashMap<String, Thread>(4);
+	private final ConcurrentMap<String, Thread> calculatingThreads = new ConcurrentHashMap<>(4);
 
 	void register(IRowChangeListener r)
 	{
@@ -106,7 +105,7 @@ public class Row
 	Row(RowManager parent, Object[] columndata, Map<String, Object> cc, boolean existInDB)
 	{
 		this.parent = parent;
-		this.columndata = columndata;
+		this.columndata = validateColumnData(columndata, parent.getSQLSheet().getColumnNames().length);
 		this.existInDB = existInDB;
 		unstoredCalcCache = cc;
 		listeners = new WeakHashMap<IRowChangeListener, Object>();
@@ -657,20 +656,19 @@ public class Row
 
 	void setRollbackData(Object[] array, ROLLBACK_MODE mode)
 	{
-		Map<String, Object> changedColumns = new HashMap<String, Object>();
 		String[] columnNames = getRowManager().getSQLSheet().getColumnNames();
+		validateColumnData(array, columnNames.length);
+
+		Map<String, Object> changedColumns = new HashMap<>();
 		synchronized (this)
 		{
 			if (mode == ROLLBACK_MODE.OVERWRITE_CHANGES || oldValues == null)
 			{
-				if (columnNames != null && array.length == columnNames.length)
+				for (int i = 0; i < array.length; i++)
 				{
-					for (int i = 0; i < array.length; i++)
+					if (!Utils.equalObjects(array[i], columndata[i]))
 					{
-						if (!Utils.equalObjects(array[i], columndata[i]))
-						{
-							changedColumns.put(columnNames[i], array[i]);
-						}
+						changedColumns.put(columnNames[i], array[i]);
 					}
 				}
 				columndata = array;
@@ -710,6 +708,15 @@ public class Row
 			}
 		}
 		fireChanges(changedColumns);
+	}
+
+	private static Object[] validateColumnData(Object[] array, int length)
+	{
+		if (array != null && array.length != length)
+		{
+			throw new IllegalArgumentException("Row rollback data has unexpected size  (" + array.length + "/" + length + ")");
+		}
+		return array;
 	}
 
 	void rollbackFromOldValues()

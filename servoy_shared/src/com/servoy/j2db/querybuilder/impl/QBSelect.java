@@ -689,7 +689,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * @return A new JSFoundset with the query as its base query.
 	 */
 	@JSFunction
-	public FoundSet js_getFoundSet()
+	public FoundSet getFoundSet()
 	{
 		try
 		{

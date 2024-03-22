@@ -171,8 +171,7 @@ public class RepositoryHelper
 
 	public static void initClone(IPersist clone, IPersist original, boolean flattenOverrides)
 	{
-		if (flattenOverrides && original instanceof ISupportExtendsID && PersistHelper.isOverrideElement((ISupportExtendsID)original) &&
-			(!(original instanceof Form)))
+		if (flattenOverrides && PersistHelper.isOverrideElement(original) && (!(original instanceof Form)))
 		{
 			// copy all properties from element hierarchy into copy, make copy non-override
 			List<AbstractBase> overrideHierarchy = PersistHelper.getOverrideHierarchy((ISupportExtendsID)original);

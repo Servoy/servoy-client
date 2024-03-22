@@ -34,6 +34,7 @@ import static com.servoy.j2db.util.Utils.parseJSExpressions;
 import static com.servoy.j2db.util.Utils.removeFromCollection;
 import static com.servoy.j2db.util.Utils.stream;
 import static java.lang.Boolean.TRUE;
+import static java.lang.Boolean.parseBoolean;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
@@ -2168,7 +2169,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 /*
  * _____________________________________________________________ locking methods
  */
-	//index == -1 is (current) selected record,< -1 is all records
+	// index == -1 is (current) selected record,< -1 is all records
 	public boolean acquireLock(IFoundSet fs, int index, String lockName)
 	{
 		if (fs instanceof IFoundSetInternal)
@@ -2178,19 +2179,19 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				return false;
 			}
-			Map<Object, Object[]> pkhashkeys = new HashMap<Object, Object[]>();
+			Map<String, Object[]> pkhashkeys = new HashMap<>();
 			if (index == -1)
 			{
 				int idx = foundSet.getSelectedIndex();
 				if (idx >= 0 && idx < foundSet.getSize())
 				{
 					IRecordInternal rec = foundSet.getRecord(idx);
-					if (rec == null || rec.getRawData() == null) return false;//just for safety
+					if (rec == null || rec.getRawData() == null) return false; // just for safety
 					if (!rec.getRawData().lockedByMyself()) pkhashkeys.put(rec.getPKHashKey(), rec.getPK());
 				}
 				else
 				{
-					return false;//wrong index
+					return false; // wrong index
 				}
 			}
 			else if (index < -1)
@@ -2198,7 +2199,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				for (int i = 0; i < foundSet.getSize(); i++)
 				{
 					IRecordInternal rec = foundSet.getRecord(i);
-					if (rec == null || rec.getRawData() == null) return false;//just for safety
+					if (rec == null || rec.getRawData() == null) return false; // just for safety
 					if (!rec.getRawData().lockedByMyself()) pkhashkeys.put(rec.getPKHashKey(), rec.getPK());
 				}
 			}
@@ -2207,46 +2208,42 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				if (index < foundSet.getSize())
 				{
 					IRecordInternal rec = foundSet.getRecord(index);
-					if (rec == null || rec.getRawData() == null) return false;//just for safety
+					if (rec == null || rec.getRawData() == null) return false; // just for safety
 					if (!rec.getRawData().lockedByMyself()) pkhashkeys.put(rec.getPKHashKey(), rec.getPK());
 				}
 				else
 				{
-					return false;//wrong index
+					return false; // wrong index
 				}
 			}
 			else
 			{
-				return false;//unknown index
+				return false; // unknown index
 			}
 
-			if (pkhashkeys.size() == 0) //optimize
+			RowManager rm = rowManagers.get(foundSet.getDataSource());
+			if (rm != null)
 			{
-				return true;
-			}
-
-			Table table = (Table)foundSet.getTable();
-			if (table != null)
-			{
-				String server_name = foundSet.getSQLSheet().getServerName();
-				String table_name = foundSet.getSQLSheet().getTable().getName();
-				RowManager rm = rowManagers.get(createDBTableDataSource(server_name, table_name));
-				//process
-				Set<Object> keySet = pkhashkeys.keySet();
-				Set<Object> ids = new HashSet<Object>(keySet);//make copy because it is not serialized in developer and set is emptied
-				QuerySelect lockSelect = SQLGenerator.createUpdateLockSelect(table, pkhashkeys.values().toArray(new Object[pkhashkeys.size()][]),
-					hasTransaction() && Boolean.parseBoolean(application.getSettings().getProperty("servoy.record.lock.lockInDB", "false"))); //$NON-NLS-1$ //$NON-NLS-2$
-				if (rm != null)
+				QuerySelect tableSelectQuery = (QuerySelect)rm.getSQLSheet().getSQL(SQLSheet.SELECT);
+				QuerySelect lockSelect = SQLGenerator.createUpdateLockSelect(tableSelectQuery, pkhashkeys.values(),
+					hasTransaction() && parseBoolean(application.getSettings().getProperty("servoy.record.lock.lockInDB", "false"))); //$NON-NLS-1$ //$NON-NLS-2$
+				if (lockSelect == null)
 				{
-					if (rm.acquireLock(application.getClientID(), lockSelect, lockName, ids))
+					// no pks
+					return true;
+				}
+
+				Set<Object> ids = new HashSet<>(pkhashkeys.keySet()); // make copy because it is not serialized in developer and set is emptied
+				if (rm.acquireLock(application.getClientID(), lockSelect, lockName, ids))
+				{
+					if (infoListener != null)
 					{
-						if (infoListener != null) infoListener.showLocksStatus(true);
-						// success
-						return true;
+						infoListener.showLocksStatus(true);
 					}
+					// success
+					return true;
 				}
 			}
-
 		}
 		return false;
 	}

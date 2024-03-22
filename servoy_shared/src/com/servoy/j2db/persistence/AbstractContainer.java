@@ -367,6 +367,7 @@ public abstract class AbstractContainer extends AbstractBase
 		//set all the required properties
 
 		obj.setName(name);
+		CSSPositionUtils.setSize(obj, 300, 300);
 
 		addChild(obj);
 		return obj;

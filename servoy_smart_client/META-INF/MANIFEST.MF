@@ -2,23 +2,12 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy Smart Client Plug-in
 Bundle-SymbolicName: servoy_smart_client
-Bundle-Version: 2024.3.0.3940_rc
+Bundle-Version: 2024.6.0.3980_rc
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-Vendor: Servoy
 Require-Bundle: servoy_shared,
  org.eclipse.dltk.javascript.rhino
-Export-Package: com.l2fprod.common,
- com.l2fprod.common.demo,
- com.l2fprod.common.swing,
- com.l2fprod.common.swing.border,
- com.l2fprod.common.swing.plaf,
- com.l2fprod.common.swing.plaf.aqua,
- com.l2fprod.common.swing.plaf.basic,
- com.l2fprod.common.swing.plaf.metal,
- com.l2fprod.common.swing.plaf.motif,
- com.l2fprod.common.swing.plaf.windows,
- com.l2fprod.common.util,
- com.servoy.j2db,
+Export-Package: com.servoy.j2db,
  com.servoy.j2db.gui,
  com.servoy.j2db.gui.editlist,
  com.servoy.j2db.preference,
@@ -34,8 +23,5 @@ Export-Package: com.l2fprod.common,
  com.servoy.j2db.util.gui,
  com.servoy.j2db.util.rtf,
  com.servoy.j2db.util.wizard
-Bundle-ClassPath: lib/BrowserLauncher2.jar,
- lib/l2fprod-common-outlookbar.jar,
- lib/MRJAdapter.jar,
- .
+Bundle-ClassPath: .
 Automatic-Module-Name: servoy_smart_client
