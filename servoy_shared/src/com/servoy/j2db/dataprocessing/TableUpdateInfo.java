@@ -19,7 +19,7 @@ package com.servoy.j2db.dataprocessing;
 import com.servoy.j2db.persistence.ITable;
 
 /**
- * RAGTEST doc
+ * Update (delete statement) to be performed on a table.
  *
  * @author rgansevles
  *

@@ -33,10 +33,9 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.query.QueryDelete;
 
 /**
- * RAGTEST doc
+ * Keep track of the new, updated or deleted records and delete queries to be performed when saving to the database.
  *
  * @author rgansevles
- *
  */
 public class EditedRecords
 {
@@ -99,8 +98,8 @@ public class EditedRecords
 				mapping(dq -> dq.queryDelete, toList())));
 	}
 
-	/** RAGTEST doc
-	 * Get the delete queries grouped per table for a foundset (or all if null).
+	/**
+	 * Get the delete queries for a foundset (or all if null).
 	 */
 	public Stream<FoundsetDeletingQuery> getFoundsetDeletingQueries(IFoundSet foundset)
 	{
@@ -113,16 +112,16 @@ public class EditedRecords
 		return edited.removeIf(df -> df == foundsetDeletingQuery);
 	}
 
-	public EditedRecordOrFoundset getAndRemoveFirstRagtest(Predicate< ? super EditedRecordOrFoundset> filter)
+	public EditedRecordOrFoundset getAndRemoveFirstEditedRecordOrFoundset(Predicate< ? super EditedRecordOrFoundset> filter)
 	{
 		Iterator<EditedRecordOrFoundset> it = edited.iterator();
 		while (it.hasNext())
 		{
-			EditedRecordOrFoundset ragtest = it.next();
-			if (filter.test(ragtest))
+			EditedRecordOrFoundset first = it.next();
+			if (filter.test(first))
 			{
 				it.remove();
-				return ragtest;
+				return first;
 			}
 		}
 		return null;
@@ -155,7 +154,7 @@ public class EditedRecords
 
 	public void removeAll(List<IRecordInternal> array)
 	{
-		edited.removeIf(er -> er instanceof EditedRecord && array.contains(((EditedRecord)er).record));
+		edited.removeIf(er -> er instanceof EditedRecord editedRecord && array.contains(editedRecord.record));
 	}
 
 	public boolean remove(IRecordInternal record)
@@ -205,7 +204,7 @@ public class EditedRecords
 
 	private static Predicate< ? super EditedRecordOrFoundset> isEditingRecord(IRecordInternal record, EditType editType)
 	{
-		return er -> er instanceof EditedRecord && (editType == null || ((EditedRecord)er).type == editType) && record.equals(((EditedRecord)er).record);
+		return er -> er instanceof EditedRecord editedRecord && (editType == null || editedRecord.type == editType) && record.equals(editedRecord.record);
 	}
 
 	public enum EditType
@@ -214,10 +213,7 @@ public class EditedRecords
 	}
 
 	/**
-	 * RAGTEST doc
-	 *
-	 * @author rgansevles
-	 *
+	 * Common interface for EditedRecord and FoundsetDeletingQuery
 	 */
 	public sealed interface EditedRecordOrFoundset permits EditedRecord, FoundsetDeletingQuery
 	{

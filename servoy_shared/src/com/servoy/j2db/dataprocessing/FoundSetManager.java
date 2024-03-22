@@ -273,7 +273,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		};
 	}
 
-	//triggered by server call
+	// triggered by server call
 	public void flushCachedDatabaseDataFromRemote(String dataSource)
 	{
 		runOnEditOrTransactionStoppedActions.add(createFlushAction(dataSource));
