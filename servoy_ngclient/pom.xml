@@ -7,10 +7,10 @@
 	<parent>
 		<groupId>com.servoy</groupId>
 		<artifactId>servoy-client</artifactId>
-		<version>2022.3.7.3749_LTS</version>
+		<version>2022.3.8.3750_LTS</version>
 	</parent>
 	<artifactId>servoy_ngclient</artifactId>
-	<version>2022.3.7.3749_LTS</version>
+	<version>2022.3.8.3750_LTS</version>
 	<packaging>eclipse-plugin</packaging>
 	<properties>
 	        <test.script>test</test.script>
