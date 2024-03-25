@@ -69,7 +69,7 @@ public class HTMLStringPropertyType extends DefaultPropertyType<String> implemen
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
 		// only convert html if it is not allowed to be pushed (input fields shouldn't convert the html)
-		if (HtmlUtils.startsWithHtml(sabloValue) && dataConverterContext.getPushToServerValue() == PushToServerEnum.reject)
+		if (HtmlUtils.startsWithHtml(sabloValue) && dataConverterContext.getComputedPushToServerValue() == PushToServerEnum.reject)
 		{
 			writer.value(HTMLTagsConverter.convert(sabloValue, ((WebFormComponent)dataConverterContext.getWebObject()).getDataConverterContext(),
 				((Boolean)pd.getConfig()).booleanValue()));
