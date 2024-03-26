@@ -145,14 +145,18 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 							public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 							{
 								IEventHandler eventHandler = RuntimeWebComponent.this.component.getEventHandler(name);
-								try
+								if (eventHandler != null)
 								{
-									return eventHandler.executeEvent(args); // FIXME here we know it's comming from rhino and returning to Rhino; see SVY-18096
+									try
+									{
+										return eventHandler.executeEvent(args); // FIXME here we know it's comming from rhino and returning to Rhino; see SVY-18096
+									}
+									catch (Exception e)
+									{
+										throw new RuntimeException(e);
+									}
 								}
-								catch (Exception e)
-								{
-									throw new RuntimeException(e);
-								}
+								return null;
 							}
 						});
 					}
