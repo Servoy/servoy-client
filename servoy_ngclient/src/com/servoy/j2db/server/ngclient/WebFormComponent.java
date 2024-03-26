@@ -118,7 +118,8 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 		IEventHandler handler = super.getEventHandler(eventType);
 		if (handler == null)
 		{
-			throw new IllegalArgumentException("Unknown event '" + eventType + "' for component " + this);
+			// directly log it here so its only a server side message
+			log.warn("Unknown event '" + eventType + "' for component " + this, new IllegalArgumentException());
 		}
 		return handler;
 	}
