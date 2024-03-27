@@ -73,7 +73,7 @@ public class BasicTagStringTypeSabloValue
 	// this is used by rhino, stringify api
 	public Object toJSON(String value)
 	{
-		return getTagReplacedValue();
+		return getTagReplacedValueForRhino();
 	}
 
 	@Override
