@@ -120,7 +120,7 @@ public abstract class BaseAndOrCondition<C extends IBaseSQLCondition> implements
 		if (getClass() == condition.getClass())
 		{
 			Map<String, List<C>> map = ((BaseAndOrCondition)condition).conditions;
-			if (map != null & map.keySet().size() == 1 && map.keySet().iterator().next() == null)
+			if (map != null && map.keySet().size() == 1 && map.keySet().iterator().next() == null)
 			{
 				// an anonymous conditions, add to current anonymous condition
 				for (List<C> list : map.values())
