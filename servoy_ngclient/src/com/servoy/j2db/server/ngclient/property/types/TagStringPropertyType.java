@@ -162,7 +162,11 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 		TagStringConfig config = (TagStringConfig)propertyDescription.getConfig();
 		boolean wouldLikeToParseTags = component == null ? false : wouldLikeToParseTags(config, component.getFormElement()); // this setting is decided at design/form-element time and won't change even if the value gets changed from rhino
 
-		DataAdapterList dal = (wouldLikeToParseTags ? dataAdapterList : null);
+		// If "wouldLikeToParseTags && !config.useParsedValueInRhino()" is true, we will never have a null previous value when converting from Rhino
+		// because - see an if below - then even for null design values we still instantiate a BasicTagStringTypeSabloValue that keeps the DAL - so we can still reach DAL in that conversion.
+		// The "&& !config.useParsedValueInRhino()" is an optimization; because if config.useParsedValueInRhino() is true, then no new value set from Rhino or scripting will be able to handle tags any more - so there's no need to hang on to DAL (if this changes, you can remove this check)
+		// and, as that is almost always the case, lots of null texts can avoid creating a BasicTagStringTypeSabloValue.
+		boolean needsToKeepDALEvenForSimpleStringValues = (wouldLikeToParseTags && !config.useParsedValueInRhino());
 
 		// I think we do this translate of "i18n:..." key here right away in order for the translation to be able to have tags (%%abc%%) in it working (so because we do this here not later, those tags will be translated as well later)
 		String newDesignValue = designValue != null && designValue.startsWith("i18n:") ? application.getI18NMessage(designValue.toString().substring(5))
@@ -170,7 +174,8 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 
 		if (newDesignValue == null)
 		{
-			sabloValue = wouldLikeToParseTags ? new BasicTagStringTypeSabloValue(null, dal) : null;
+			// see comment above from needsToKeepDALEvenForSimpleStringValues
+			sabloValue = needsToKeepDALEvenForSimpleStringValues ? new BasicTagStringTypeSabloValue(null, dataAdapterList) : null;
 		}
 		else if (tagParsingAllowed && wouldLikeToParseTags && newDesignValue.contains("%%")) // tagParsingAllowed is a security feature so that browsers cannot change tagStrings to something that is then able to show random server-side data
 		{
@@ -178,12 +183,12 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 			// data links are required; register them to DAL; normally DAL can't be null here
 			if (designValue != newDesignValue || designValue.contains("%%i18n:"))
 			{
-				sabloValue = new I18NTagStringTypeSabloValue(newDesignValue, dal, component.getDataConverterContext(), propertyDescription,
+				sabloValue = new I18NTagStringTypeSabloValue(newDesignValue, dataAdapterList, component.getDataConverterContext(), propertyDescription,
 					component.getFormElement(), designValue);
 			}
 			else
 			{
-				sabloValue = new TagStringTypeSabloValue(newDesignValue, dal, component.getDataConverterContext(), propertyDescription,
+				sabloValue = new TagStringTypeSabloValue(newDesignValue, dataAdapterList, component.getDataConverterContext(), propertyDescription,
 					component.getFormElement());
 			}
 		}
@@ -201,11 +206,11 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 			// no data links required
 			if (designValue != newDesignValue || designValue.contains("%%i18n:"))
 			{
-				sabloValue = new BasicI18NTagStringTypeSabloValue(staticValue, dal, designValue);
+				sabloValue = new BasicI18NTagStringTypeSabloValue(staticValue, dataAdapterList, designValue);
 			}
 			else
 			{
-				sabloValue = new BasicTagStringTypeSabloValue(staticValue, dal);
+				sabloValue = new BasicTagStringTypeSabloValue(staticValue, dataAdapterList);
 			}
 		}
 
