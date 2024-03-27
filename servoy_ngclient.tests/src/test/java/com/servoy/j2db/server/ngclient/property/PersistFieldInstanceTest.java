@@ -204,8 +204,9 @@ public class PersistFieldInstanceTest extends AbstractSolutionTest
 
 		Map<String, Object> type = (Map<String, Object>)wc.getProperty("atype");
 		Assert.assertEquals("name", type.get("name"));
-		Assert.assertEquals("OK", ((BasicTagStringTypeSabloValue)type.get("text")).getDesignValue()); // it gets automatically translated to a static string
-		Assert.assertEquals("OK", ((BasicTagStringTypeSabloValue)type.get("text")).getTagReplacedValue());
+		Assert.assertEquals("OK", ((BasicTagStringTypeSabloValue)type.get("text")).getOperatingDesignValue()); // it gets automatically translated to a static string
+		Assert.assertEquals("OK",
+			((BasicTagStringTypeSabloValue)type.get("text")).getTagReplacedValueForClient(allowBrowserConverterContext.getComputedPushToServerValue()));
 
 		Assert.assertEquals(0, wc.getAndClearChanges().content.size());
 

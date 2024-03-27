@@ -162,16 +162,15 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 		TagStringConfig config = (TagStringConfig)propertyDescription.getConfig();
 		boolean wouldLikeToParseTags = component == null ? false : wouldLikeToParseTags(config, component.getFormElement()); // this setting is decided at design/form-element time and won't change even if the value gets changed from rhino
 
-		// if "wouldLikeToParseTags && !config.useParsedValueInRhino()" is true, we will never have a null previous value so we can still reach DAL
-		// the "&& !config.useParsedValueInRhino()" is an optimization; because if config.useParsedValueInRhino() is true, then no new value set from Rhino or scripting will be able to handle tags any more - so there's no need to hang on to DAL (if this changes, you can remove this check)
-		boolean needsToKeepDAL = (wouldLikeToParseTags && !config.useParsedValueInRhino());
-		DataAdapterList dal = (needsToKeepDAL ? dataAdapterList : null);
+		DataAdapterList dal = (wouldLikeToParseTags ? dataAdapterList : null);
 
+		// I think we do this translate of "i18n:..." key here right away in order for the translation to be able to have tags (%%abc%%) in it working (so because we do this here not later, those tags will be translated as well later)
 		String newDesignValue = designValue != null && designValue.startsWith("i18n:") ? application.getI18NMessage(designValue.toString().substring(5))
 			: designValue;
+
 		if (newDesignValue == null)
 		{
-			sabloValue = needsToKeepDAL ? new BasicTagStringTypeSabloValue(null, dal) : null;
+			sabloValue = wouldLikeToParseTags ? new BasicTagStringTypeSabloValue(null, dal) : null;
 		}
 		else if (tagParsingAllowed && wouldLikeToParseTags && newDesignValue.contains("%%")) // tagParsingAllowed is a security feature so that browsers cannot change tagStrings to something that is then able to show random server-side data
 		{
@@ -346,8 +345,8 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 	{
 		if (webComponentValue == null) return null;
 
-		if (((TagStringConfig)pd.getConfig()).useParsedValueInRhino()) return webComponentValue.getTagReplacedValue();
-		else return webComponentValue.getDesignValue();
+		if (((TagStringConfig)pd.getConfig()).useParsedValueInRhino()) return webComponentValue.getTagReplacedValueForRhino();
+		else return webComponentValue.getDesignValueBeforeInitialI18NConversion();
 	}
 
 	@Override
@@ -355,8 +354,9 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 	{
 		if (value instanceof II18NValue)
 		{
-			String i18nKey = ((II18NValue)value).getI18NKey();
-			BasicTagStringTypeSabloValue sabloComponentValue = TagStringPropertyType.INSTANCE.toSabloComponentValue(i18nKey, pd, component.getFormElement(),
+			String designValueBeforeInitialI18NConversion = ((II18NValue)value).getI18NKey();
+			BasicTagStringTypeSabloValue sabloComponentValue = TagStringPropertyType.INSTANCE.toSabloComponentValue(designValueBeforeInitialI18NConversion, pd,
+				component.getFormElement(),
 				component, ((II18NValue)value).getDataAdapterList());
 			return sabloComponentValue;
 		}
