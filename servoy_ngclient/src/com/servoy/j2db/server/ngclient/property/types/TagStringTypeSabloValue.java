@@ -21,6 +21,7 @@ import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
+import org.sablo.specification.property.IBrowserConverterContext;
 
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
@@ -42,13 +43,23 @@ import com.servoy.j2db.util.Utils;
 public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implements IDataLinkedPropertyValue
 {
 
-	protected String tagReplacedValue;
+	protected String tagReplacedValueBeforeHTMLConvert; // we keep this separate, not just the tagReplacedValueAfter... below in order to use it for change detection in updateTagReplacedValue()
+
+	protected String tagReplacedValueAfterHTMLConvertForClient; // HTML conversion needs to be done or not based on computedPushToServer that unfortunately is available only in to/from client JSON conversion; so we might not have it from the start (if value is instantiated either from a formelement -> sablo or rhino -> sablo conversion)
+	boolean htmlConvertForClientWasHandled = false;
+
+	protected String tagReplacedValueAfterHTMLConvertForRhino;
+	boolean htmlConvertForRhinoWasHandled = false;
+
 	protected IChangeListener changeMonitor;
 	protected IServoyDataConverterContext dataConverterContext;
 	protected final TargetDataLinks dataLinks;
 	private final PropertyDescription pd;
 	private final FormElement formElement;
 
+	/**
+	 * @param computedPushToServer give this argument only if the caller has access to a {@link IBrowserConverterContext#getComputedPushToServerValue()}. Otherwise give null.
+	 */
 	public TagStringTypeSabloValue(String designValue, DataAdapterList dataAdapterList, IServoyDataConverterContext dataConverterContext,
 		PropertyDescription pd, FormElement formElement)
 	{
@@ -57,15 +68,44 @@ public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implem
 		this.dataConverterContext = dataConverterContext;
 		this.pd = pd;
 		this.formElement = formElement;
-		dataLinks = ((TagStringPropertyType)pd.getType()).getDataLinks(getDesignValue(), pd, dataConverterContext.getSolution(), formElement);
+		dataLinks = ((TagStringPropertyType)pd.getType()).getDataLinks(getOperatingDesignValue(), pd, dataConverterContext.getSolution(), formElement);
 
 		updateTagReplacedValue();
 	}
 
 	@Override
-	public String getTagReplacedValue()
+	public String getTagReplacedValueForRhino()
 	{
-		return tagReplacedValue;
+		if (!htmlConvertForRhinoWasHandled)
+		{
+			if (HtmlUtils.startsWithHtml(tagReplacedValueBeforeHTMLConvert))
+			{
+				tagReplacedValueAfterHTMLConvertForRhino = HTMLTagsConverter.convert(tagReplacedValueBeforeHTMLConvert, dataConverterContext, false);
+			}
+			else tagReplacedValueAfterHTMLConvertForRhino = tagReplacedValueBeforeHTMLConvert;
+
+			htmlConvertForRhinoWasHandled = true;
+		}
+		return tagReplacedValueAfterHTMLConvertForRhino;
+	}
+
+	@Override
+	public String getTagReplacedValueForClient(PushToServerEnum computedPushToServer)
+	{
+		if (!htmlConvertForClientWasHandled)
+		{
+			// only convert html if it is not allowed to be pushed (input fields shouldn't convert the html)
+			// very likely tagstrings are put on labels which are in reject, but to be sure
+			if (HtmlUtils.startsWithHtml(tagReplacedValueBeforeHTMLConvert) && computedPushToServer == PushToServerEnum.reject)
+			{
+				tagReplacedValueAfterHTMLConvertForClient = HTMLTagsConverter.convert(tagReplacedValueBeforeHTMLConvert, dataConverterContext, false);
+			}
+			else tagReplacedValueAfterHTMLConvertForClient = tagReplacedValueBeforeHTMLConvert;
+
+			htmlConvertForClientWasHandled = true;
+		}
+
+		return tagReplacedValueAfterHTMLConvertForClient;
 	}
 
 	@Override
@@ -79,6 +119,8 @@ public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implem
 	public void detach()
 	{
 		getDataAdapterList().removeDataLinkedProperty(this);
+		htmlConvertForClientWasHandled = false; // if it gets re-attached to a different place, it may be that computedPushToServer is different and we use that to determine if we do hml convert or not
+		// htmlConvertForRhinoWasHandled flag should not be affected by this as it doesn't care about computedPushToServer
 	}
 
 	@Override
@@ -90,36 +132,35 @@ public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implem
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.server.ngclient.property.types.BasicTagStringTypeSabloValue#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj)
 	{
 		if (obj instanceof TagStringTypeSabloValue)
 		{
 			TagStringTypeSabloValue value = (TagStringTypeSabloValue)obj;
-			return value.pd == pd && value.formElement == formElement && Utils.equalObjects(value.getDesignValue(), getDesignValue());
+			return value.pd == pd && value.formElement == formElement &&
+				Utils.equalObjects(value.getDesignValueBeforeInitialI18NConversion(), getDesignValueBeforeInitialI18NConversion());
 		}
 		return false;
 	}
 
 	protected boolean updateTagReplacedValue()
 	{
-		String oldTagReplacedValue = tagReplacedValue;
-		tagReplacedValue = Text.processTags(getDesignValue(), getDataAdapterList()); // shouldn't this be done after HTMLTagsConverter.convert?
+		String oldTagReplacedValueBeforeHTMLConvert = tagReplacedValueBeforeHTMLConvert;
+		tagReplacedValueBeforeHTMLConvert = Text.processTags(getOperatingDesignValue(), getDataAdapterList()); // shouldn't this be done after HTMLTagsConverter.convert?
 
-		// only convert html if it is not allowed to be pushed (input fields shouldn't convert the html)
-		// very likely tagstrings are put on labels which are in reject, but to be sure
-		if (HtmlUtils.startsWithHtml(tagReplacedValue) && pd.getPushToServer() == PushToServerEnum.reject)
+		boolean changed = ((oldTagReplacedValueBeforeHTMLConvert != tagReplacedValueBeforeHTMLConvert) &&
+			(oldTagReplacedValueBeforeHTMLConvert == null || !oldTagReplacedValueBeforeHTMLConvert.equals(tagReplacedValueBeforeHTMLConvert)));
+
+		if (changed)
 		{
-			tagReplacedValue = HTMLTagsConverter.convert(tagReplacedValue, dataConverterContext, false);
+			// do the HTML conversions once again - when needed
+			htmlConvertForClientWasHandled = false;
+			htmlConvertForRhinoWasHandled = false;
 		}
 
 		// changed or not
-		return ((oldTagReplacedValue != tagReplacedValue) && (oldTagReplacedValue == null || !oldTagReplacedValue.equals(tagReplacedValue)));
+		return changed;
 	}
 
 }

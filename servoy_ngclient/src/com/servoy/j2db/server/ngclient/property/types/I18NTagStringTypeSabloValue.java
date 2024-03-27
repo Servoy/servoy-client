@@ -29,19 +29,26 @@ import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
  */
 public class I18NTagStringTypeSabloValue extends TagStringTypeSabloValue implements II18NValue
 {
-	private final String i18nKey;
+	private final String designValueBeforeInitialI18NConversion;
 
 	public I18NTagStringTypeSabloValue(String designValue, DataAdapterList dataAdapterList, IServoyDataConverterContext dataConverterContext,
-		PropertyDescription pd, FormElement formElement, String i18nKey)
+		PropertyDescription pd, FormElement formElement, String designValueBeforeInitialI18NConversion)
 	{
 		super(designValue, dataAdapterList, dataConverterContext, pd, formElement);
-		this.i18nKey = i18nKey;
+		this.designValueBeforeInitialI18NConversion = designValueBeforeInitialI18NConversion;
 	}
+
+	@Override
+	public String getDesignValueBeforeInitialI18NConversion()
+	{
+		return designValueBeforeInitialI18NConversion;
+	}
+
 
 	@Override
 	public String getI18NKey()
 	{
-		return i18nKey;
+		return designValueBeforeInitialI18NConversion;
 	}
 
 	@Override

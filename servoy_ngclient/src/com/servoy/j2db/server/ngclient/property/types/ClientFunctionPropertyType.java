@@ -80,7 +80,7 @@ public class ClientFunctionPropertyType extends TagStringPropertyType implements
 			if (application.getRuntimeProperties().containsKey("NG2"))
 			{
 				JSONUtils.addKeyIfPresent(writer, key);
-				String uuid = application.registerClientFunction(object.getTagReplacedValue());
+				String uuid = application.registerClientFunction(object.getTagReplacedValueForClient(dataConverterContext.getComputedPushToServerValue()));
 				writer.value(uuid);
 				return writer;
 			}
