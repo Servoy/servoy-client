@@ -35,6 +35,12 @@ public class BasicI18NTagStringTypeSabloValue extends BasicTagStringTypeSabloVal
 	}
 
 	@Override
+	public String getDesignValueBeforeInitialI18NConversion()
+	{
+		return i18nKey;
+	}
+
+	@Override
 	public String getI18NKey()
 	{
 		return i18nKey;
