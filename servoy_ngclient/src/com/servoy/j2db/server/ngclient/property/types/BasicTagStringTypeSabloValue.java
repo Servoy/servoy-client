@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.property.types;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
+import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -43,12 +44,25 @@ public class BasicTagStringTypeSabloValue
 		this.dataAdapterList = dataAdapterList;
 	}
 
-	public String getDesignValue()
+	public String getDesignValueBeforeInitialI18NConversion()
 	{
 		return designValue;
 	}
 
-	public String getTagReplacedValue()
+	public String getOperatingDesignValue()
+	{
+		return designValue;
+	}
+
+	public String getTagReplacedValueForRhino()
+	{
+		return designValue;
+	}
+
+	/**
+	 * @param computedPushToServer can be used by extending classes
+	 */
+	public String getTagReplacedValueForClient(PushToServerEnum computedPushToServer)
 	{
 		return designValue;
 	}
@@ -66,7 +80,7 @@ public class BasicTagStringTypeSabloValue
 	public void toJSON(JSONWriter writer, String key, IBrowserConverterContext dataConverterContext) throws JSONException
 	{
 		JSONUtils.addKeyIfPresent(writer, key);
-		String v = getTagReplacedValue();
+		String v = getTagReplacedValueForClient(dataConverterContext.getComputedPushToServerValue());
 		writer.value(v != null ? v : "");
 	}
 
