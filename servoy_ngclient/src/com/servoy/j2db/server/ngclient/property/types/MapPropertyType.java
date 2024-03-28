@@ -234,7 +234,9 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 			sabloValue = new JSONObject();
 			for (Map.Entry< ? , ? > entry : ((Map< ? , ? >)rhinoValue).entrySet())
 			{
-				sabloValue.put(entry.getKey().toString(), entry.getValue());
+				Object value = entry.getValue();
+				if (value instanceof Map) value = toSabloComponentValue(value, null, pd, webObjectContext);
+				sabloValue.put(entry.getKey().toString(), value);
 			}
 		}
 
