@@ -1213,7 +1213,7 @@ public class EditRecordList
 		// Copy insert values into the target insert placeholder
 		for (int i = 0; i < valTarget.length; i++)
 		{
-			valTarget[i] = Utils.arrayJoin(valSrc[i], valTarget[i]);
+			valTarget[i] = Utils.arrayJoin(valTarget[i], valSrc[i]);
 		}
 
 		// Copy the pks into the target pks
