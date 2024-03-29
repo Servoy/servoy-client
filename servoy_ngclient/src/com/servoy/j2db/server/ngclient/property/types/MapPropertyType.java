@@ -144,6 +144,8 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 							continue;
 						}
 						v = mapValueConvertor.createJSONValue(v, application, subTypes, dataConverterContext);
+						fixedJSONObject.put(jsonKey, v);
+						continue;
 					}
 				}
 			}
@@ -217,6 +219,11 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 				object.put(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY, FunctionRefType.TYPE_NAME);
 				v = object;
 
+			}
+			else if (v instanceof JSONObject)
+			{
+				// should the types still be like this? this is nested.
+				v = createJSONValue(v, application, types, dataConverterContext);
 			}
 			fixedJSONObject.put(jsonKey, v);
 		}
