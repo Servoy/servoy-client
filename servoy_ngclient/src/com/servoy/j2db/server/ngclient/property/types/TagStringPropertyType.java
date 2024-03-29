@@ -351,7 +351,7 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 		if (webComponentValue == null) return null;
 
 		if (((TagStringConfig)pd.getConfig()).useParsedValueInRhino()) return webComponentValue.getTagReplacedValueForRhino();
-		else return webComponentValue.getDesignValueBeforeInitialI18NConversion();
+		else return webComponentValue.getOperatingDesignValue();
 	}
 
 	@Override
