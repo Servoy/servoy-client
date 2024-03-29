@@ -33,6 +33,8 @@ import org.mozilla.javascript.Undefined;
 
 import com.servoy.j2db.scripting.JSMap;
 import com.servoy.j2db.scripting.ServoyNativeArray;
+import com.servoy.j2db.util.ServoyJSONArray;
+import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.Utils;
 
 
@@ -49,7 +51,7 @@ public class NativeObjectSerializer extends AbstractSerializer
 
 	private static Class[] _serializableClasses = new Class[] { NativeObject.class, NativeObject[].class, NativeArray.class, ServoyNativeArray.class };
 
-	private static Class[] _JSONClasses = new Class[] { JSONObject.class, JSONArray.class };
+	private static Class[] _JSONClasses = new Class[] { JSONObject.class, JSONArray.class, ServoyJSONObject.class, ServoyJSONArray.class };
 
 	public NativeObjectSerializer()
 	{
