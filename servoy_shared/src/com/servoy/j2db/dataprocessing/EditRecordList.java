@@ -1591,6 +1591,10 @@ public class EditRecordList
 			try
 			{
 				recordTested.remove(record);
+				if (editedRecords.removeFailed(record))
+				{
+					editedRecords.addEdited(record);
+				}
 			}
 			finally
 			{
@@ -2125,7 +2129,7 @@ public class EditRecordList
 	 */
 	public IRecordInternal[] getUnmarkedEditedRecords(IFoundSetInternal set, IPrepareForSave prepareForSave)
 	{
-		List<IRecordInternal> al = new ArrayList<IRecordInternal>();
+		List<IRecordInternal> al = new ArrayList<>();
 		editRecordsLock.lock();
 		try
 		{
