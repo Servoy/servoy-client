@@ -119,7 +119,8 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 		IEventHandler handler = super.getEventHandler(eventType);
 		if (handler == null)
 		{
-			throw new IllegalArgumentException("Unknown event '" + eventType + "' for component " + this);
+			// directly log it here so its only a server side message
+			log.warn("Unknown event '" + eventType + "' for component " + this, new IllegalArgumentException());
 		}
 		return handler;
 	}
@@ -300,13 +301,21 @@ public class WebFormComponent extends Container implements IContextProvider, ING
 	private Form findCorrectFormEvenForServoyFormComponentChildren()
 	{
 		Form formElementForm = null;
-		IPersist persist = formElement.getPersistIfAvailable();
-		if (persist instanceof AbstractBase)
+		IWebFormUI parent = this.findParent(IWebFormUI.class);
+		if (parent != null)
 		{
-			String formName = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_FORM_NAME);
-			if (formName != null)
+			formElementForm = parent.getController().getForm();
+		}
+		if (formElementForm == null)
+		{
+			IPersist persist = formElement.getPersistIfAvailable();
+			if (persist instanceof AbstractBase)
 			{
-				formElementForm = dataAdapterList.getApplication().getFormManager().getForm(formName).getForm();
+				String formName = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_FORM_NAME);
+				if (formName != null)
+				{
+					formElementForm = dataAdapterList.getApplication().getFormManager().getForm(formName).getForm();
+				}
 			}
 		}
 		if (formElementForm == null)

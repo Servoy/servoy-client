@@ -666,8 +666,9 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	{
 		if (client != null)
 		{
-			return "clientid: " + client.getClientID() + ", httpsessionid: " + getHttpSession().getId() + ", serveruui: " +
-				ApplicationServerRegistry.get().getServerUUID();
+			return "clientid: " + client.getClientID() +
+				", httpsessionid: " + (getHttpSession() == null ? "<NONE>" : getHttpSession().getId()) +
+				", serveruuid: " + ApplicationServerRegistry.get().getServerUUID();
 		}
 		return "";
 	}
