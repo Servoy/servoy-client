@@ -102,7 +102,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 	public final static RuntimeProperty<String> FORM_COMPONENT_UUID = new RuntimeProperty<String>()
 	{
 	};
-	public final static RuntimeProperty<String> FORM_COMPONENT_ElEMENT_NAME = new RuntimeProperty<String>()
+	public final static RuntimeProperty<String> FORM_COMPONENT_ELEMENT_NAME = new RuntimeProperty<String>()
 	{
 	};
 	public final static RuntimeProperty<Pair<Long, Map<TabSeqProperty, Integer>>> FORM_TAB_SEQUENCE = new RuntimeProperty<Pair<Long, Map<TabSeqProperty, Integer>>>()
@@ -253,7 +253,7 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 				formName = ((AbstractBase)parent.getPersistIfAvailable()).getRuntimeProperty(FORM_COMPONENT_FORM_NAME);
 			}
 			((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_FORM_NAME, formName);
-			((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_ElEMENT_NAME, elementName);
+			((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_ELEMENT_NAME, elementName);
 			((AbstractBase)element).setRuntimeProperty(FORM_COMPONENT_UUID, parent.getPersistIfAvailable().getUUID().toString());
 			JSONObject elementJson = json.optJSONObject(elementName);
 			if (elementJson != null)
@@ -322,14 +322,6 @@ public class FormElementHelper implements IFormElementCache, ISolutionImportList
 	{
 		String name = parent.getDesignId() != null ? parent.getDesignId() : parent.getName();
 		return name != null ? name + '$' + pd.getName() + '$' : null;
-	}
-
-	private boolean isSecurityVisible(IPersist persist, FlattenedSolution fs, Form form)
-	{
-		int access = fs.getSecurityAccess(persist.getUUID(),
-			form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
-		boolean b_visible = ((access & IRepository.VIEWABLE) != 0);
-		return b_visible;
 	}
 
 	public FormElement getFormElement(IFormElement formElement, FlattenedSolution fs, PropertyPath propertyPath, final boolean designer)

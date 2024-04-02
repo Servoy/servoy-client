@@ -97,7 +97,7 @@ public class LabelForPropertyType extends DefaultPropertyType<String>
 						if (comp instanceof WebFormComponent wfcomp && wfcomp.getFormElement().getPersistIfAvailable() instanceof AbstractBase abchild)
 						{
 							// check the element name of the form component itself. (so this is the plain name you see in the designer
-							String elementName = abchild.getRuntimeProperty(FormElementHelper.FORM_COMPONENT_ElEMENT_NAME);
+							String elementName = abchild.getRuntimeProperty(FormElementHelper.FORM_COMPONENT_ELEMENT_NAME);
 							if (name.equals(elementName))
 							{
 								// if that name equals to what we want then this could possible it.
