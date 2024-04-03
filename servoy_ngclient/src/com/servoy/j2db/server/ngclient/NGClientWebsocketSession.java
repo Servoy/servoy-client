@@ -400,7 +400,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	private void sendUIProperties()
 	{
 		Map<String, Object> clientProperties = client.getClientSideUIProperties();
-		if (!clientProperties.containsValue(IApplication.TRUST_DATA_AS_HTML))
+		if (!clientProperties.containsKey(IApplication.TRUST_DATA_AS_HTML))
 		{
 			// set default trustDataAsHtml based on system setting
 			clientProperties.put(IApplication.TRUST_DATA_AS_HTML,
