@@ -4919,21 +4919,29 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				rowManager.clearRow(state.getRawData());
 			}
 		}
+
 		if (!(state instanceof PrototypeState))
 		{
 			removeRecordInternalEx(state, row);
-			// delete the row data so it won't be updated by other foundsets also having records to this rowdata.
 			if (state != null && state.getRawData() != null)
 			{
-				state.getRawData().flagExistInDB();
+				Row rawData = state.getRawData();
+				if (rawData.existInDB())
+				{
+					// delete the row old data so it won't be updated by other foundsets also having records to this rowdata.
+					rawData.flagExistInDB();
+				}
+				else
+				{
+					rawData.remove();
+				}
 			}
-
 		}
 	}
 
 	/**
 	 * Execute the foundset trigger for specified TableNode property.
-	 * When multiple tiggers exist, stop when 1 returns false.
+	 * When multiple triggers exist, stop when 1 returns false.
 	 *
 	 * @param args
 	 * @param property TableNode property
