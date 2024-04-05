@@ -4926,15 +4926,14 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			if (state != null && state.getRawData() != null)
 			{
 				Row rawData = state.getRawData();
-				if (rawData.existInDB())
+				rawData.unregister(state);
+				if (!rawData.existInDB())
 				{
-					// delete the row old data so it won't be updated by other foundsets also having records to this rowdata.
-					rawData.flagExistInDB();
-				}
-				else
-				{
+					// If the record exists in other foundsets, remove it from those
 					rawData.remove();
 				}
+				// delete the row old data so it won't be updated by other foundsets also having records to this rowdata.
+				rawData.flagExistInDB();
 			}
 		}
 	}
