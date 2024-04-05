@@ -144,6 +144,8 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 							continue;
 						}
 						v = mapValueConvertor.createJSONValue(v, application, subTypes, dataConverterContext);
+						fixedJSONObject.put(jsonKey, v);
+						continue;
 					}
 				}
 			}
@@ -218,6 +220,11 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 				v = object;
 
 			}
+			else if (v instanceof JSONObject)
+			{
+				// should the types still be like this? this is nested.
+				v = createJSONValue(v, application, types, dataConverterContext);
+			}
 			fixedJSONObject.put(jsonKey, v);
 		}
 		return fixedJSONObject;
@@ -234,7 +241,9 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 			sabloValue = new JSONObject();
 			for (Map.Entry< ? , ? > entry : ((Map< ? , ? >)rhinoValue).entrySet())
 			{
-				sabloValue.put(entry.getKey().toString(), entry.getValue());
+				Object value = entry.getValue();
+				if (value instanceof Map) value = toSabloComponentValue(value, null, pd, webObjectContext);
+				sabloValue.put(entry.getKey().toString(), value);
 			}
 		}
 

@@ -42,6 +42,7 @@ import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
 import com.servoy.j2db.persistence.CSSPosition;
 import com.servoy.j2db.persistence.CSSPositionLayoutContainer;
@@ -273,6 +274,19 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 	public boolean isSecurityVisible(IPersist persist)
 	{
 		if (context.getApplication() == null || persist.getUUID() == null || !(persist instanceof IFormElement)) return true;
+		String elementName = ((AbstractBase)persist).getRuntimeProperty(FormElementHelper.FORM_COMPONENT_ELEMENT_NAME);
+		Form frm = persist.getAncestor(Form.class);
+		if (frm != null && elementName != null)
+		{
+			for (IPersist p : frm.getFlattenedFormElementsAndLayoutContainers())
+			{
+				if (p instanceof IFormElement && Utils.equalObjects(((IFormElement)p).getName(), elementName))
+				{
+					persist = p;
+					break;
+				}
+			}
+		}
 		int access = context.getApplication().getFlattenedSolution().getSecurityAccess(persist.getUUID(),
 			form.getImplicitSecurityNoRights() ? IRepository.IMPLICIT_FORM_NO_ACCESS : IRepository.IMPLICIT_FORM_ACCESS);
 		boolean b_visible = ((access & IRepository.VIEWABLE) != 0);
