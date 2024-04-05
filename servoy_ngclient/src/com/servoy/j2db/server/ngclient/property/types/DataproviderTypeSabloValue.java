@@ -879,7 +879,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		{
 			v = ComponentFormat.applyUIConverterToObject(v, dataProviderID, servoyDataConverterContext.getApplication().getFoundSetManager(), fieldFormat);
 		}
-		if (v != uiValue && (v == null || !v.equals(uiValue)))
+		if (v != uiValue && (v == null || !Utils.equalObjects(v, uiValue)))
 		{
 			uiValue = v;
 			// if we detect that the new server value (it's representation on client) is no longer what the client has showing, we must update the client's value
