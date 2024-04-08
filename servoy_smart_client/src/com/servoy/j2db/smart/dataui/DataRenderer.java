@@ -17,7 +17,6 @@
 package com.servoy.j2db.smart.dataui;
 
 
-import java.applet.Applet;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
@@ -37,6 +36,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.JComponent;
 import javax.swing.JList;
@@ -234,14 +234,6 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 			dataAdapterList.destroy();
 			dataAdapterList = null;
 		}
-		Component[] comps = getComponents();
-		for (Component element : comps)
-		{
-			if (element instanceof Applet)
-			{
-				((Applet)element).destroy();
-			}
-		}
 		removeAll();
 	}
 
@@ -278,23 +270,6 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 			//we just forward the call
 			dataAdapterList.notifyVisible(b, invokeLaterRunnables);
 		}
-		Component[] comps = getComponents();
-		for (Component element : comps)
-		{
-			if (element instanceof Applet)
-			{
-				if (b)
-				{
-					((Applet)element).setVisible(true);
-					((Applet)element).start();
-				}
-				else
-				{
-					((Applet)element).stop();
-					((Applet)element).setVisible(false);
-				}
-			}
-		}
 	}
 
 	private final HashSet<IDisplay> globalFields = new HashSet<IDisplay>();
@@ -307,10 +282,8 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 
 		//make it really fields only
 		HashMap<IPersist, IDisplay> f = new HashMap<IPersist, IDisplay>();
-		Iterator<Map.Entry<IPersist, IDisplay>> it = fieldComponents.entrySet().iterator();
-		while (it.hasNext())
+		for (Entry<IPersist, IDisplay> element : fieldComponents.entrySet())
 		{
-			Map.Entry<IPersist, IDisplay> element = it.next();
 			if (element.getValue() instanceof IDisplayData)
 			{
 				String id = ((IDisplayData)element.getValue()).getDataProviderID();
@@ -482,7 +455,8 @@ public class DataRenderer extends StyledEnablePanel implements ListCellRenderer,
 								val,
 								strRowBGColorProvider,
 								Utils.arrayMerge((new Object[] { new Integer(index), new Boolean(isSelected), null, null, Boolean.FALSE }),
-									Utils.parseJSExpressions(rowBGColorArgs)), null);
+									Utils.parseJSExpressions(rowBGColorArgs)),
+								null);
 						}
 						else
 						{

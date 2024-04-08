@@ -17,8 +17,6 @@
 package com.servoy.j2db;
 
 
-import java.applet.Applet;
-import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.Rectangle;
 import java.awt.print.PrinterJob;
@@ -58,9 +56,7 @@ import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.SolutionScope;
 import com.servoy.j2db.util.AllowNullMap;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.UIUtils;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.gui.AppletController;
 
 /**
  * This class keeps track of all the forms and handles the window menu
@@ -80,7 +76,6 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 
 	protected final ConcurrentMap<String, FormController> createdFormControllers; // formName -> FormController
 
-	private final AppletController appletContext; //incase we use applets on form
 
 	private volatile boolean destroyed;
 
@@ -96,7 +91,6 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 		currentContainer = mainContainer;
 		this.mainContainer = mainContainer;
 		createdFormControllers = new ConcurrentHashMap<String, FormController>();
-		appletContext = new AppletController(app);
 	}
 
 
@@ -1154,19 +1148,6 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 
 	public abstract IFormUIInternal getFormUI(FormController formController);
 
-	public void initializeApplet(Applet applet, Dimension initialSize)
-	{
-		try
-		{
-			UIUtils.initializeApplet(appletContext, applet, initialSize);
-		}
-		catch (Throwable e)
-		{
-			//its not made active
-			Debug.error(e);
-			applet.destroy();//call to leave invalid
-		}
-	}
 
 	/**
 	 * There could be one or more forms currently in find mode. Normally you only have one visible set of related forms in find mode at a time. In order to stop

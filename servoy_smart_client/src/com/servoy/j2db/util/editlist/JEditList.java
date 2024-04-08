@@ -17,7 +17,6 @@
 package com.servoy.j2db.util.editlist;
 
 
-import java.applet.Applet;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -523,7 +522,7 @@ public class JEditList extends JList implements CellEditorListener, ISkinnable, 
 					// focus remains inside the table
 					return;
 				}
-				else if ((c instanceof Window) || (c instanceof Applet && c.getParent() == null))
+				else if ((c instanceof Window))
 				{
 					if (c == SwingUtilities.getRoot(JEditList.this))
 					{
