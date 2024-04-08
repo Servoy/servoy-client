@@ -112,7 +112,6 @@ import javax.swing.JRootPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.LookAndFeel;
-import javax.swing.RepaintManager;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
@@ -259,7 +258,6 @@ import com.servoy.j2db.util.gui.ActionRadioMenuItem;
 import com.servoy.j2db.util.gui.IPropertyEditorDialog;
 import com.servoy.j2db.util.gui.JDK131ProgressBar;
 import com.servoy.j2db.util.gui.JMenuAlwaysEnabled;
-import com.servoy.j2db.util.gui.OverlapRepaintManager;
 import com.servoy.j2db.util.rmi.IRMIClientSocketFactoryFactory;
 import com.servoy.j2db.util.rmi.IReconnectListener;
 import com.servoy.j2db.util.toolbar.IToolbarPanel;
@@ -1156,18 +1154,6 @@ public class J2DBClient extends ClientState
 			initStreamHandlerFactory();
 
 			super.applicationInit();
-
-			// repaint manager that handles repaint for overlapping components properly (if a component
-			// below other components is repainted, the components on top of it will be repainted too)
-			RepaintManager current = RepaintManager.currentManager(frame);
-			if (!(current instanceof OverlapRepaintManager))
-			{
-				if (current != null && current.getClass() != RepaintManager.class)
-				{
-					Debug.log("Overwriting a none default RepaintManager: " + current.getClass() + " with our overlay repaint manager");
-				}
-				RepaintManager.setCurrentManager(new OverlapRepaintManager());
-			}
 
 			// Add the windows listener
 			WindowListener l = new WindowAdapter()
