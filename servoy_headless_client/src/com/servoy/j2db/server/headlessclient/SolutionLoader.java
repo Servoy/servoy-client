@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db.server.headlessclient;
 
-import java.rmi.RemoteException;
 import java.util.Iterator;
 
 import javax.servlet.http.HttpSession;
@@ -59,25 +58,17 @@ public class SolutionLoader extends WebPage
 	{
 		SolutionMetaData theReq = null;
 
-		try
+		if (ApplicationServerRegistry.get().getDataServer().isInServerMaintenanceMode())
 		{
-			if (ApplicationServerRegistry.get().getDataServer().isInServerMaintenanceMode())
-			{
-				// do this before redirect & register client - where it is usually detected, because when clustered
-				// this should result in a valid switch to another server in the cluster by the load balancer; if we wait until
-				// after redirect, a page expired will happen on the other server
+			// do this before redirect & register client - where it is usually detected, because when clustered
+			// this should result in a valid switch to another server in the cluster by the load balancer; if we wait until
+			// after redirect, a page expired will happen on the other server
 
 //			throw new AbortWithHttpStatusException(HttpServletResponse.SC_SERVICE_UNAVAILABLE, false); this works, but doesn't show maintenance error page for non-clustered case
 
-				Session.get().invalidate();
-				RequestCycle.get().setRedirect(false);
-				throw new RestartResponseException(new ServoyServerInMaintenanceMode());
-			}
-		}
-		catch (RemoteException e)
-		{
-			// will not happen
-			throw new RuntimeException(e);
+			Session.get().invalidate();
+			RequestCycle.get().setRedirect(false);
+			throw new RestartResponseException(new ServoyServerInMaintenanceMode());
 		}
 
 		FeedbackPanel feedback = new FeedbackPanel("feedback");

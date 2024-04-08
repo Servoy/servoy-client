@@ -459,46 +459,39 @@ public class LookupListModel extends AbstractListModel
 
 		generateWherePart(txt, valueList, select, qTable, alsoFilterOnRealValues);
 
-		try
+		FoundSetManager foundSetManager = ((FoundSetManager)application.getFoundSetManager());
+		String transaction_id = foundSetManager.getTransactionID(table.getServerName());
+		ArrayList<TableFilter> tableFilterParams = foundSetManager.getTableFilterParams(table.getServerName(), select);
+		if (nameFilter != null) //apply name as filter on column valuelist_name in creationSQLParts
 		{
-			FoundSetManager foundSetManager = ((FoundSetManager)application.getFoundSetManager());
-			String transaction_id = foundSetManager.getTransactionID(table.getServerName());
-			ArrayList<TableFilter> tableFilterParams = foundSetManager.getTableFilterParams(table.getServerName(), select);
-			if (nameFilter != null) //apply name as filter on column valuelist_name in creationSQLParts
+			if (tableFilterParams == null)
 			{
-				if (tableFilterParams == null)
-				{
-					tableFilterParams = new ArrayList<TableFilter>();
-				}
-				tableFilterParams.add(nameFilter);
+				tableFilterParams = new ArrayList<TableFilter>();
 			}
+			tableFilterParams.add(nameFilter);
+		}
 
-			SQLStatement trackingInfo = null;
-			if (foundSetManager.getEditRecordList().hasAccess(table, IRepository.TRACKING_VIEWS))
-			{
-				trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), qTable.getName(), null, null);
-				trackingInfo.setTrackingData(select.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
-					foundSetManager.getTrackingInfo(), application.getClientID());
-			}
-			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, select, null,
-				tableFilterParams, true, 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
-			String[] displayFormat = (lookup instanceof LookupValueList) ? ((LookupValueList)lookup).getDisplayFormat() : null;
-			for (int i = 0; i < set.getRowCount(); i++)
-			{
-				Object[] row = processRow(set.getRow(i));
-				DisplayString display = CustomValueList.handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application);
-				if (display != null)
-				{
-					alDisplay.add(display);
-					alReal.add(CustomValueList.handleRowData(valueList, concatReturnValues, returnValues, row, application));
-				}
-			}
-			hadMoreRows = set.hadMoreRows();
-		}
-		catch (RemoteException e)
+		SQLStatement trackingInfo = null;
+		if (foundSetManager.getEditRecordList().hasAccess(table, IRepository.TRACKING_VIEWS))
 		{
-			throw new RepositoryException(e);
+			trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), qTable.getName(), null, null);
+			trackingInfo.setTrackingData(select.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
+				foundSetManager.getTrackingInfo(), application.getClientID());
 		}
+		IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, select, null,
+			tableFilterParams, true, 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
+		String[] displayFormat = (lookup instanceof LookupValueList) ? ((LookupValueList)lookup).getDisplayFormat() : null;
+		for (int i = 0; i < set.getRowCount(); i++)
+		{
+			Object[] row = processRow(set.getRow(i));
+			DisplayString display = CustomValueList.handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application);
+			if (display != null)
+			{
+				alDisplay.add(display);
+				alReal.add(CustomValueList.handleRowData(valueList, concatReturnValues, returnValues, row, application));
+			}
+		}
+		hadMoreRows = set.hadMoreRows();
 	}
 
 	/**
@@ -628,45 +621,38 @@ public class LookupListModel extends AbstractListModel
 			if (sorts != null) sqlParts.setSorts(sorts);
 		}
 
-		try
+		FoundSetManager foundSetManager = ((FoundSetManager)application.getFoundSetManager());
+		String transaction_id = foundSetManager.getTransactionID(table.getServerName());
+		ArrayList<TableFilter> tableFilterParams = foundSetManager.getTableFilterParams(table.getServerName(), sqlParts);
+		if (nameFilter != null) //apply name as filter on column valuelist_name in creationSQLParts
 		{
-			FoundSetManager foundSetManager = ((FoundSetManager)application.getFoundSetManager());
-			String transaction_id = foundSetManager.getTransactionID(table.getServerName());
-			ArrayList<TableFilter> tableFilterParams = foundSetManager.getTableFilterParams(table.getServerName(), sqlParts);
-			if (nameFilter != null) //apply name as filter on column valuelist_name in creationSQLParts
+			if (tableFilterParams == null)
 			{
-				if (tableFilterParams == null)
-				{
-					tableFilterParams = new ArrayList<TableFilter>();
-				}
-				tableFilterParams.add(nameFilter);
+				tableFilterParams = new ArrayList<TableFilter>();
 			}
-			SQLStatement trackingInfo = null;
-			if (foundSetManager.getEditRecordList().hasAccess(table, IRepository.TRACKING_VIEWS))
-			{
-				trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), table.getName(), null, null);
-				trackingInfo.setTrackingData(sqlParts.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
-					foundSetManager.getTrackingInfo(), application.getClientID());
-			}
-			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, sqlParts, null,
-				tableFilterParams, !sqlParts.isUnique(), 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
-			String[] displayFormat = (lookup instanceof LookupValueList) ? ((LookupValueList)lookup).getDisplayFormat() : null;
-			for (int i = 0; i < set.getRowCount(); i++)
-			{
-				Object[] row = processRow(set.getRow(i));
-				DisplayString display = CustomValueList.handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application);
-				if (display != null)
-				{
-					alDisplay.add(display);
-					alReal.add(CustomValueList.handleRowData(valueList, concatReturnValues, returnValues, row, application));
-				}
-			}
-			hadMoreRows = set.hadMoreRows();
+			tableFilterParams.add(nameFilter);
 		}
-		catch (RemoteException e)
+		SQLStatement trackingInfo = null;
+		if (foundSetManager.getEditRecordList().hasAccess(table, IRepository.TRACKING_VIEWS))
 		{
-			throw new RepositoryException(e);
+			trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), table.getName(), null, null);
+			trackingInfo.setTrackingData(sqlParts.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
+				foundSetManager.getTrackingInfo(), application.getClientID());
 		}
+		IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, sqlParts, null,
+			tableFilterParams, !sqlParts.isUnique(), 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
+		String[] displayFormat = (lookup instanceof LookupValueList) ? ((LookupValueList)lookup).getDisplayFormat() : null;
+		for (int i = 0; i < set.getRowCount(); i++)
+		{
+			Object[] row = processRow(set.getRow(i));
+			DisplayString display = CustomValueList.handleDisplayData(valueList, displayFormat, concatShowValues, showValues, row, application);
+			if (display != null)
+			{
+				alDisplay.add(display);
+				alReal.add(CustomValueList.handleRowData(valueList, concatReturnValues, returnValues, row, application));
+			}
+		}
+		hadMoreRows = set.hadMoreRows();
 	}
 
 	/**
@@ -692,43 +678,36 @@ public class LookupListModel extends AbstractListModel
 			sqlParts.clearCondition(SQLGenerator.CONDITION_SEARCH);
 		}
 
-		try
+		FoundSetManager foundSetManager = ((FoundSetManager)application.getFoundSetManager());
+		String transaction_id = foundSetManager.getTransactionID(table.getServerName());
+		ArrayList<TableFilter> tableFilterParams = foundSetManager.getTableFilterParams(table.getServerName(), sqlParts);
+		if (nameFilter != null) //apply name as filter on column valuelist_name in creationSQLParts
 		{
-			FoundSetManager foundSetManager = ((FoundSetManager)application.getFoundSetManager());
-			String transaction_id = foundSetManager.getTransactionID(table.getServerName());
-			ArrayList<TableFilter> tableFilterParams = foundSetManager.getTableFilterParams(table.getServerName(), sqlParts);
-			if (nameFilter != null) //apply name as filter on column valuelist_name in creationSQLParts
+			if (tableFilterParams == null)
 			{
-				if (tableFilterParams == null)
-				{
-					tableFilterParams = new ArrayList<TableFilter>();
-				}
-				tableFilterParams.add(nameFilter);
+				tableFilterParams = new ArrayList<TableFilter>();
 			}
+			tableFilterParams.add(nameFilter);
+		}
 
-			SQLStatement trackingInfo = null;
-			if (foundSetManager.getEditRecordList().hasAccess(table, IRepository.TRACKING_VIEWS))
-			{
-				trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), table.getName(), null, null);
-				trackingInfo.setTrackingData(sqlParts.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
-					foundSetManager.getTrackingInfo(), application.getClientID());
-			}
-			IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, sqlParts, null,
-				tableFilterParams, !sqlParts.isUnique(), 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
-			for (int i = 0; i < set.getRowCount(); i++)
-			{
-				Object[] row = set.getRow(i);
-				if (row[0] != null && !"".equals(row[0])) //$NON-NLS-1$
-				{
-					alReal.add(row[0]);
-				}
-			}
-			hadMoreRows = set.hadMoreRows();
-		}
-		catch (RemoteException e)
+		SQLStatement trackingInfo = null;
+		if (foundSetManager.getEditRecordList().hasAccess(table, IRepository.TRACKING_VIEWS))
 		{
-			throw new RepositoryException(e);
+			trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, table.getServerName(), table.getName(), null, null);
+			trackingInfo.setTrackingData(sqlParts.getColumnNames(), new Object[][] { }, new Object[][] { }, application.getUserUID(),
+				foundSetManager.getTrackingInfo(), application.getClientID());
 		}
+		IDataSet set = application.getDataServer().performQuery(application.getClientID(), table.getServerName(), transaction_id, sqlParts, null,
+			tableFilterParams, !sqlParts.isUnique(), 0, 100, IDataServer.VALUELIST_QUERY, trackingInfo);
+		for (int i = 0; i < set.getRowCount(); i++)
+		{
+			Object[] row = set.getRow(i);
+			if (row[0] != null && !"".equals(row[0])) //$NON-NLS-1$
+			{
+				alReal.add(row[0]);
+			}
+		}
+		hadMoreRows = set.hadMoreRows();
 	}
 
 	/**

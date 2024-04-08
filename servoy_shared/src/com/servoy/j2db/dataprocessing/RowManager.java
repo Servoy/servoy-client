@@ -410,23 +410,15 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			Debug.error(new RuntimeException("Could not set placeholder " + new TablePlaceholderKey(select.getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY) + //$NON-NLS-1$
 				" in query " + select + "-- continuing")); //$NON-NLS-1$//$NON-NLS-2$
 		}
-		IDataSet formdata;
-		try
+		String transaction_id = null;
+		GlobalTransaction gt = fsm.getGlobalTransaction();
+		if (gt != null)
 		{
-			String transaction_id = null;
-			GlobalTransaction gt = fsm.getGlobalTransaction();
-			if (gt != null)
-			{
-				transaction_id = gt.getTransactionID(sheet.getServerName());
-			}
-			formdata = fsm.getDataServer()
-				.performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select, null,
-					fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, 1, false);
+			transaction_id = gt.getTransactionID(sheet.getServerName());
 		}
-		catch (RemoteException e)
-		{
-			throw new RepositoryException(e);
-		}
+		IDataSet formdata = fsm.getDataServer()
+			.performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select, null,
+				fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, 1, false);
 
 		// construct Rows
 		boolean found = formdata.getRowCount() >= 1;
@@ -625,27 +617,20 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			}
 
 			long time = System.currentTimeMillis();
-			try
+			SQLStatement trackingInfo = null;
+			if (fsm.getEditRecordList().hasAccess(sheet.getTable(), IRepository.TRACKING_VIEWS))
 			{
-				SQLStatement trackingInfo = null;
-				if (fsm.getEditRecordList().hasAccess(sheet.getTable(), IRepository.TRACKING_VIEWS))
-				{
-					trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, sheet.getServerName(), sheet.getTable().getName(), pks, null);
-					trackingInfo.setTrackingData(sheet.getColumnNames(), new Object[][] { }, new Object[][] { }, fsm.getApplication().getUserUID(),
-						fsm.getTrackingInfo(), fsm.getApplication().getClientID());
-				}
-				formdata = fsm.getDataServer()
-					.performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select, null /* use types as reported by the db */,
-						fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, nvals, IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
-				if (Debug.tracing())
-				{
-					Debug.trace(Thread.currentThread().getName() + ": getting RowData time: " + (System.currentTimeMillis() - time) + ", SQL: " + //$NON-NLS-1$ //$NON-NLS-2$
-						select.toString());
-				}
+				trackingInfo = new SQLStatement(ISQLActionTypes.SELECT_ACTION, sheet.getServerName(), sheet.getTable().getName(), pks, null);
+				trackingInfo.setTrackingData(sheet.getColumnNames(), new Object[][] { }, new Object[][] { }, fsm.getApplication().getUserUID(),
+					fsm.getTrackingInfo(), fsm.getApplication().getClientID());
 			}
-			catch (RemoteException e)
+			formdata = fsm.getDataServer()
+				.performQuery(fsm.getApplication().getClientID(), sheet.getServerName(), transaction_id, select, null /* use types as reported by the db */,
+					fsm.getTableFilterParams(sheet.getServerName(), select), false, 0, nvals, IDataServer.FOUNDSET_LOAD_QUERY, trackingInfo);
+			if (Debug.tracing())
 			{
-				throw new RepositoryException(e);
+				Debug.trace(Thread.currentThread().getName() + ": getting RowData time: " + (System.currentTimeMillis() - time) + ", SQL: " + //$NON-NLS-1$ //$NON-NLS-2$
+					select.toString());
 			}
 
 			//construct Rows
@@ -1195,20 +1180,13 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					fsm.getApplication().getUserUID(), fsm.getTrackingInfo(), fsm.getApplication().getClientID());
 			}
 
-			try
+			Object[] results = fsm.getDataServer().performUpdates(fsm.getApplication().getClientID(), stats_a);
+			for (int i = 0; results != null && i < results.length; i++)
 			{
-				Object[] results = fsm.getDataServer().performUpdates(fsm.getApplication().getClientID(), stats_a);
-				for (int i = 0; results != null && i < results.length; i++)
+				if (results[i] instanceof ServoyException)
 				{
-					if (results[i] instanceof ServoyException)
-					{
-						throw (ServoyException)results[i];
-					}
+					throw (ServoyException)results[i];
 				}
-			}
-			catch (RemoteException e)
-			{
-				throw new RepositoryException(e);
 			}
 
 			SoftReferenceWithData<Row, Pair<Map<String, List<CalculationDependency>>, CalculationDependencyData>> removed;

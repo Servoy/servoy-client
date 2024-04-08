@@ -115,66 +115,66 @@ public class TestNGClient extends NGClient
 			private final HashMap<String, IDataSet> dataSetMap = new HashMap<String, IDataSet>();
 
 			@Override
-			public void setBroadcastFilters(String clientId, String serverName, BroadcastFilter[] broadcastFilters) throws RemoteException
+			public void setBroadcastFilters(String clientId, String serverName, BroadcastFilter[] broadcastFilters)
 			{
 			}
 
 			@Override
-			public BroadcastFilter[] getBroadcastFilters(String clientId, String serverName) throws RemoteException
+			public BroadcastFilter[] getBroadcastFilters(String clientId, String serverName)
 			{
 				return null;
 			}
 
 			@Override
-			public void clearBroadcastFilters(String clientId) throws RemoteException
+			public void clearBroadcastFilters(String clientId)
 			{
 			}
 
 			@Override
-			public void setServerMaintenanceMode(boolean maintenanceMode) throws RemoteException
+			public void setServerMaintenanceMode(boolean maintenanceMode)
 			{
 			}
 
 			@Override
-			public void logMessage(String msg) throws RemoteException
+			public void logMessage(String msg)
 			{
 			}
 
 			@Override
-			public boolean isInServerMaintenanceMode() throws RemoteException
+			public boolean isInServerMaintenanceMode()
 			{
 				return false;
 			}
 
 			@Override
 			public boolean releaseLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys)
-				throws RemoteException, RepositoryException
+				throws RepositoryException
 			{
 				return false;
 			}
 
 			@Override
 			public IDataSet acquireLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys, QuerySelect lockSelect,
-				String transaction_id, ArrayList<TableFilter> filters, int chunkSize) throws RemoteException, RepositoryException
+				String transaction_id, ArrayList<TableFilter> filters, int chunkSize) throws RepositoryException
 			{
 				return null;
 			}
 
 			@Override
-			public String startTransaction(String clientId, String server_name) throws RepositoryException, RemoteException
+			public String startTransaction(String clientId, String server_name) throws RepositoryException
 			{
 				return null;
 			}
 
 			@Override
-			public Object[] performUpdates(String clientId, ISQLStatement[] statements) throws ServoyException, RemoteException
+			public Object[] performUpdates(String clientId, ISQLStatement[] statements) throws ServoyException
 			{
 				return statements;
 			}
 
 			@Override
 			public IDataSet[] performQuery(String client_id, String server_name, String transaction_id, QueryData[] array)
-				throws ServoyException, RemoteException
+				throws ServoyException
 			{
 				if (array.length > 0)
 				{
@@ -207,7 +207,7 @@ public class TestNGClient extends NGClient
 
 			@Override
 			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-				int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException
+				int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException
 			{
 				return dataSetMap.values().iterator().next(); // don't know the
 																// datasource,
@@ -219,14 +219,14 @@ public class TestNGClient extends NGClient
 			@Override
 			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 				ArrayList<TableFilter> filters, boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp)
-				throws ServoyException, RemoteException
+				throws ServoyException
 			{
 				return dataSetMap.get(sqlSelect.getTable().getDataSource());
 			}
 
 			@Override
 			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-				int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
+				int startRow, int rowsToRetrieve, int type) throws ServoyException
 			{
 				return dataSetMap.values().iterator().next(); // don't know the
 																// datasource,
@@ -239,7 +239,7 @@ public class TestNGClient extends NGClient
 			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 				ArrayList<TableFilter> filters,
 				boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo)
-				throws ServoyException, RemoteException
+				throws ServoyException
 			{
 				return dataSetMap.get(sqlSelect.getTable().getDataSource());
 			}
@@ -247,7 +247,7 @@ public class TestNGClient extends NGClient
 			@Override
 			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 				ArrayList<TableFilter> filters,
-				boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
+				boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException
 			{
 				IDataSet set = dataSetMap.get(sqlSelect.getTable().getDataSource());
 
@@ -267,7 +267,7 @@ public class TestNGClient extends NGClient
 
 			@Override
 			public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-				int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+				int startRow, int rowsToRetrieve) throws ServoyException
 			{
 				return dataSetMap.values().iterator().next(); // don't know the
 																// datasource,
@@ -278,14 +278,14 @@ public class TestNGClient extends NGClient
 
 			@Override
 			public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
-				ArrayList<TableFilter> filters, boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+				ArrayList<TableFilter> filters, boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException
 			{
 				return dataSetMap.get(sqlSelect.getTable().getDataSource());
 			}
 
 			@Override
 			public IDataSet performCustomQuery(String client_id, String server_name, String driverTableName, String transaction_id, ISQLSelect sqlSelect,
-				ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+				ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve) throws ServoyException
 			{
 				return dataSetMap.get(sqlSelect.getTable().getDataSource());
 			}
@@ -299,7 +299,7 @@ public class TestNGClient extends NGClient
 
 			@Override
 			public boolean notifyDataChange(String client_id, boolean notifySelf, String server_name, String tableName, IDataSet pks, int action,
-				String transaction_id) throws RemoteException
+				String transaction_id)
 			{
 				return false;
 			}
@@ -307,14 +307,14 @@ public class TestNGClient extends NGClient
 			@Override
 			public ITable insertQueryResult(String client_id, String queryServerName, String queryTid, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 				boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, String dataSource, String targetServerName, String targetTableName,
-				String targetTid, ColumnType[] columnTypes, String[] pkNames) throws ServoyException, RemoteException
+				String targetTid, ColumnType[] columnTypes, String[] pkNames) throws ServoyException
 			{
 				return null;
 			}
 
 			@Override
 			public InsertResult insertDataSet(String client_id, IDataSet set, final String dataSource, String serverName, String tableName, String tid,
-				ColumnType[] columnTypes, String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException
+				ColumnType[] columnTypes, String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException
 			{
 				dataSetMap.put(dataSource, set);
 				Table table = new Table(serverName, serverName, true, ITable.TABLE, null, null);
@@ -333,7 +333,7 @@ public class TestNGClient extends NGClient
 
 			@Override
 			public QuerySet getSQLQuerySet(String serverName, ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve,
-				boolean forceQualifyColumns, boolean disableUseArrayForIn) throws RepositoryException, RemoteException
+				boolean forceQualifyColumns, boolean disableUseArrayForIn) throws RepositoryException
 			{
 				QuerySet qs = new QuerySet();
 				qs.setSelect(new QueryString("select from test", false));
@@ -342,51 +342,51 @@ public class TestNGClient extends NGClient
 
 			@Override
 			public Object getNextSequence(String serverName, String tableName, String columnName, int columnInfoID, String columnInfoServer)
-				throws RepositoryException, RemoteException
+				throws RepositoryException
 			{
 				return null;
 			}
 
 			@Override
 			public Blob getBlob(String clientId, String serverName, ISQLSelect blobSelect, ArrayList<TableFilter> filters, String tid)
-				throws RepositoryException, RemoteException
+				throws RepositoryException
 			{
 				return null;
 			}
 
 			@Override
-			public boolean endTransactions(String client_id, String[] transaction_id, boolean commit) throws RepositoryException, RemoteException
+			public boolean endTransactions(String client_id, String[] transaction_id, boolean commit) throws RepositoryException
 			{
 				return false;
 			}
 
 			@Override
-			public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RemoteException, RepositoryException
+			public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RepositoryException
 			{
 			}
 
 			@Override
 			public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, ISQLUpdate sqlUpdate,
-				ArrayList<TableFilter> filters) throws RemoteException
+				ArrayList<TableFilter> filters)
 			{
 				return null;
 			}
 
 			@Override
 			public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, String sql,
-				Object[] questiondata) throws RemoteException, RepositoryException
+				Object[] questiondata) throws RepositoryException
 			{
 				return null;
 			}
 
 			@Override
-			public void addClientAsTableUser(String client_id, String serverName, String tableName) throws RemoteException, RepositoryException
+			public void addClientAsTableUser(String client_id, String serverName, String tableName) throws RepositoryException
 			{
 			}
 
 			@Override
 			public IDataSet[] executeProcedure(String clientId, String server_name, String tid, Procedure procedure, Object[] arguments)
-				throws RepositoryException, RemoteException
+				throws RepositoryException
 			{
 				return null;
 			}
@@ -410,7 +410,7 @@ public class TestNGClient extends NGClient
 	 * @see com.servoy.j2db.ClientState#createRepository()
 	 */
 	@Override
-	protected IRepository createRepository() throws RemoteException
+	protected IRepository createRepository()
 	{
 		return tr;
 	}
@@ -422,84 +422,84 @@ public class TestNGClient extends NGClient
 		{
 
 			@Override
-			public ClientLogin login(Credentials credentials) throws RemoteException, RepositoryException
+			public ClientLogin login(Credentials credentials) throws RepositoryException
 			{
 				return null;
 			}
 
 			@Override
-			public SolutionMetaData[] getSolutionDefinitions(int solutionTypeFilter) throws RemoteException, RepositoryException
+			public SolutionMetaData[] getSolutionDefinitions(int solutionTypeFilter) throws RepositoryException
 			{
 				return null;
 			}
 
 			@Override
-			public SolutionMetaData getSolutionDefinition(String solutionName, int solutionTypeFilter) throws RemoteException, RepositoryException
+			public SolutionMetaData getSolutionDefinition(String solutionName, int solutionTypeFilter) throws RepositoryException
 			{
 				return (SolutionMetaData)tr.getRootObjectMetaData(solutionName, IRepository.SOLUTIONS);
 			}
 
 			@Override
-			public Remote getRemoteService(String cid, String rmiLookupName) throws RemoteException
+			public Remote getRemoteService(String cid, String rmiLookupName)
 			{
 				return null;
 			}
 
 			@Override
-			public SolutionMetaData[] getLoginSolutionDefinitions(SolutionMetaData solutionMetaData) throws RemoteException, RepositoryException
+			public SolutionMetaData[] getLoginSolutionDefinitions(SolutionMetaData solutionMetaData) throws RepositoryException
 			{
 				return null;
 			}
 
 			@Override
-			public Solution getLoginSolution(SolutionMetaData mainSolution, SolutionMetaData loginSolution) throws RemoteException, RepositoryException
+			public Solution getLoginSolution(SolutionMetaData mainSolution, SolutionMetaData loginSolution) throws RepositoryException
 			{
 				return null;
 			}
 
 			@Override
-			public String getClientID(String user_uid, String password) throws RemoteException
+			public String getClientID(String user_uid, String password)
 			{
 				return null;
 			}
 
 			@Override
-			public IClientHost getClientHost() throws RemoteException
+			public IClientHost getClientHost()
 			{
 
 				return new IClientHost()
 				{
 					@Override
-					public void unregister(String client_id) throws RemoteException
+					public void unregister(String client_id)
 					{
 					}
 
 					@Override
-					public Object[] register(IClient c, ClientInfo clientInfo) throws RemoteException
+					public Object[] register(IClient c, ClientInfo clientInfo)
 					{
 						return new Object[] { "uuid", new Integer(IClientManager.REGISTER_OK) };
 					}
 
 					@Override
-					public boolean isRegistered(String client_id) throws RemoteException
+					public boolean isRegistered(String client_id)
 					{
 						return true;
 					}
 
 					@Override
-					public void pushClientInfo(String clientId, ClientInfo clientInfo) throws RemoteException
+					public void pushClientInfo(String clientId, ClientInfo clientInfo)
 					{
 
 					}
 
 					@Override
-					public Date getServerTime(String client_id) throws RemoteException
+					public Date getServerTime(String client_id)
 					{
 						return null;
 					}
 
 					@Override
-					public String getServerId() throws RemoteException
+					public String getServerId()
 					{
 						return "";
 					}
@@ -507,42 +507,42 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public IApplicationServerAccess getApplicationServerAccess(String clientId) throws RemoteException
+			public IApplicationServerAccess getApplicationServerAccess(String clientId)
 			{
 				return new IApplicationServerAccess()
 				{
 
 					@Override
-					public void logout(String clientId) throws RemoteException, RepositoryException
+					public void logout(String clientId) throws RepositoryException
 					{
 					}
 
 					@Override
-					public IUserManager getUserManager(String clientId) throws RemoteException
-					{
-						return null;
-					}
-
-					@Override
-					public ITeamRepository getTeamRepository() throws RemoteException
+					public IUserManager getUserManager(String clientId)
 					{
 						return null;
 					}
 
 					@Override
-					public IRepository getRepository() throws RemoteException
+					public ITeamRepository getTeamRepository()
 					{
 						return null;
 					}
 
 					@Override
-					public String[] getLicenseNames() throws RemoteException
+					public IRepository getRepository()
 					{
 						return null;
 					}
 
 					@Override
-					public IPerformanceRegistry getFunctionPerfomanceRegistry() throws RemoteException
+					public String[] getLicenseNames()
+					{
+						return null;
+					}
+
+					@Override
+					public IPerformanceRegistry getFunctionPerfomanceRegistry()
 					{
 						return new IPerformanceRegistry()
 						{
@@ -603,19 +603,19 @@ public class TestNGClient extends NGClient
 					}
 
 					@Override
-					public IDataServer getDataServer() throws RemoteException
+					public IDataServer getDataServer()
 					{
 						return null;
 					}
 
 					@Override
-					public int getClientCountForInfo(String info) throws RemoteException
+					public int getClientCountForInfo(String info)
 					{
 						return 0;
 					}
 
 					@Override
-					public int getActiveClientCount(int solution_id) throws RemoteException
+					public int getActiveClientCount(int solution_id)
 					{
 						return 0;
 					}
@@ -623,7 +623,7 @@ public class TestNGClient extends NGClient
 			}
 
 			@Override
-			public long[] getActiveRootObjectsLastModified(int[] rootObjectIds) throws RemoteException, RepositoryException
+			public long[] getActiveRootObjectsLastModified(int[] rootObjectIds) throws RepositoryException
 			{
 				return null;
 			}

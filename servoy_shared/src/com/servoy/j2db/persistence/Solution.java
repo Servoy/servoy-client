@@ -18,7 +18,6 @@ package com.servoy.j2db.persistence;
 
 
 import java.awt.Dimension;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -321,15 +320,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		}
 		else
 		{
-			String[] serverNames;
-			try
-			{
-				serverNames = repository.getDuplicateServerNames(stn[0]);
-			}
-			catch (RemoteException e)
-			{
-				throw new RepositoryException("Could not get relations", e); //$NON-NLS-1$
-			}
+			String[] serverNames = repository.getDuplicateServerNames(stn[0]);
 			if (serverNames.length == 1)
 			{
 				// no duplicates or an inmem table
@@ -1126,19 +1117,14 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 			RootObjectMetaData metaData = moduleReference.getMetaData();
 			if (metaData != null)
 			{
-				try
+
+				Solution module = (Solution)getRepository().getActiveRootObject(metaData.getRootObjectId());
+				if (!result.containsKey(metaData.getName()))
 				{
-					Solution module = (Solution)getRepository().getActiveRootObject(metaData.getRootObjectId());
-					if (!result.containsKey(metaData.getName()))
-					{
-						result.put(metaData.getName(), module);
-						module.getReferencedModulesRecursive(result);
-					}
+					result.put(metaData.getName(), module);
+					module.getReferencedModulesRecursive(result);
 				}
-				catch (RemoteException e)
-				{
-					throw new RepositoryException(e);
-				}
+
 			}
 		}
 		return result;

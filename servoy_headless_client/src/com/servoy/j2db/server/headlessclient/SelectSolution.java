@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db.server.headlessclient;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,14 +38,13 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServerSingleton;
-import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
  * A special wicket {@link WebPage} that displays the solution that can be loaded if the property servoy.allowSolutionBrowsing is not set to false.
- * 
+ *
  * @author jcompagner,jblok
  */
 public class SelectSolution extends WebPage
@@ -60,43 +58,36 @@ public class SelectSolution extends WebPage
 
 	/**
 	 * Constructor that is invoked when page is invoked without a session.
-	 * 
+	 *
 	 * @param parameters Page parameters
 	 */
 	public SelectSolution() throws RepositoryException
 	{
 		List<Solution> data = new ArrayList<Solution>();
-		try
+		IApplicationServerSingleton as = ApplicationServerRegistry.get();
+		if (as.isDeveloperStartup())
 		{
-			IApplicationServerSingleton as = ApplicationServerRegistry.get();
-			if (as.isDeveloperStartup())
+			data.add(as.getDebugClientHandler().getDebugSmartClient().getCurrent());
+		}
+		else
+		{
+			if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.allowSolutionBrowsing", "true")))
 			{
-				data.add(as.getDebugClientHandler().getDebugSmartClient().getCurrent());
-			}
-			else
-			{
-				if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.allowSolutionBrowsing", "true")))
+				RootObjectMetaData[] smds = as.getLocalRepository().getRootObjectMetaDatasForType(IRepository.SOLUTIONS);
+				int solutionType;
+				for (RootObjectMetaData element : smds)
 				{
-					RootObjectMetaData[] smds = as.getLocalRepository().getRootObjectMetaDatasForType(IRepository.SOLUTIONS);
-					int solutionType;
-					for (RootObjectMetaData element : smds)
+					solutionType = ((SolutionMetaData)element).getSolutionType();
+					if ((solutionType & (SolutionMetaData.SOLUTION + SolutionMetaData.WEB_CLIENT_ONLY)) > 0)
 					{
-						solutionType = ((SolutionMetaData)element).getSolutionType();
-						if ((solutionType & (SolutionMetaData.SOLUTION + SolutionMetaData.WEB_CLIENT_ONLY)) > 0)
+						Solution solution = (Solution)as.getLocalRepository().getActiveRootObject(element.getRootObjectId());
+						if (solution != null)
 						{
-							Solution solution = (Solution)as.getLocalRepository().getActiveRootObject(element.getRootObjectId());
-							if (solution != null)
-							{
-								data.add(solution);
-							}
+							data.add(solution);
 						}
 					}
 				}
 			}
-		}
-		catch (RemoteException e)
-		{
-			Debug.error(e);
 		}
 
 		add(new ListView<Solution>("solutions", data)

@@ -47,7 +47,7 @@ import com.servoy.j2db.util.Debug;
  * @since 6.0
  *
  */
-public class SerializingRemoteInvocationHandler<T extends Remote> extends AbstractRemoteInvocationHandler<T>
+public class SerializingRemoteInvocationHandler<T> extends AbstractRemoteInvocationHandler<T>
 {
 	private final IApplication application;
 
@@ -67,7 +67,7 @@ public class SerializingRemoteInvocationHandler<T extends Remote> extends Abstra
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends Remote> T createSerializingSerializingInvocationHandler(IApplication application, T obj, Class< ? >[] interfaces)
+	public static <T> T createSerializingSerializingInvocationHandler(IApplication application, T obj, Class< ? >[] interfaces)
 	{
 		if (obj == null)
 		{

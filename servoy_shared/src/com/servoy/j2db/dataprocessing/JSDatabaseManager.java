@@ -2485,11 +2485,6 @@ public class JSDatabaseManager implements IJSDatabaseManager
 							sqlSelect, null, fsm.getTableFilterParams(sheet.getServerName(), sqlSelect), false, 0, -1, IDataServer.FOUNDSET_LOAD_QUERY,
 							trackingInfo);
 					}
-					catch (RemoteException e)
-					{
-						Debug.error(e);
-						return new Object[0];
-					}
 					catch (ServoyException e)
 					{
 						Debug.error(e);
@@ -3019,15 +3014,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			return false;
 		}
 
-		try
-		{
-			pds.switchServer(sourceName, destinationName);
-		}
-		catch (RemoteException e)
-		{
-			Debug.error(e);
-			return false;
-		}
+		pds.switchServer(sourceName, destinationName);
 
 		((FoundSetManager)application.getFoundSetManager()).flushCachedDatabaseData(null); // flush all
 		((FoundSetManager)application.getFoundSetManager()).registerClientTables(sourceName); // register existing used tables to server

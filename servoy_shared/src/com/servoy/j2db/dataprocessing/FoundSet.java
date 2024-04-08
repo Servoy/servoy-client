@@ -4690,10 +4690,6 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 					// a record was locked by another client, try per-record
 					Debug.log("Could not delete all records in 1 statement (a record may be locked), trying per-record"); //$NON-NLS-1$
 				}
-				catch (RemoteException e)
-				{
-					throw new RepositoryException(e);
-				}
 			}
 		}
 
@@ -5695,7 +5691,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				QuerySet qs = fsm.getDataServer().getSQLQuerySet(serverName, currentQuery, tableFilterParams, 0, -1, true, true);
 				return qs.getSelect().getSql();
 			}
-			catch (RepositoryException | RemoteException e)
+			catch (RepositoryException e)
 			{
 				Debug.error("Can't get a serialized state from " + currentQuery, e); //$NON-NLS-1$
 			}
