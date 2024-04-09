@@ -200,7 +200,16 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	private int foundsetID = 0;
 
 	private static Callable symbol_iterator = (Context cx, Scriptable scope, Scriptable thisObj, Object[] args) -> {
-		return new IterableES6Iterator(scope, ((FoundSet)thisObj));
+		FoundSet iterable = null;
+		if (thisObj instanceof Wrapper)
+		{
+			iterable = (FoundSet)((Wrapper)thisObj).unwrap();
+		}
+		else
+		{
+			iterable = ((FoundSet)thisObj);
+		}
+		return new IterableES6Iterator(scope, iterable);
 	};
 
 	public PrototypeState getPrototypeState()
