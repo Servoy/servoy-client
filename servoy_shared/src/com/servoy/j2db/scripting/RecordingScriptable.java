@@ -18,6 +18,9 @@ package com.servoy.j2db.scripting;
 
 import static com.servoy.j2db.util.Utils.arrayMap;
 
+import java.util.Collections;
+import java.util.Iterator;
+
 import org.mozilla.javascript.NativeDate;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
@@ -32,7 +35,7 @@ import com.servoy.j2db.util.UUID;
  * @author rgansevles
  *
  */
-public class RecordingScriptable extends AbstractRecordingScriptable implements Wrapper
+public class RecordingScriptable extends AbstractRecordingScriptable implements Wrapper, Iterable
 {
 	public RecordingScriptable(Scriptable scriptable)
 	{
@@ -55,6 +58,35 @@ public class RecordingScriptable extends AbstractRecordingScriptable implements 
 			return scriptable.getPrototype();
 		}
 		return scriptable instanceof Wrapper ? ((Wrapper)scriptable).unwrap() : scriptable;
+	}
+
+	public Iterator iterator()
+	{
+		if (scriptable instanceof Iterable)
+		{
+			Iterator scriptingIterator = ((Iterable)scriptable).iterator();
+			return new Iterator()
+			{
+				@Override
+				public boolean hasNext()
+				{
+					return scriptingIterator.hasNext();
+				}
+
+				@Override
+				public Object next()
+				{
+					Object next = scriptingIterator.next();
+					if (next instanceof Scriptable)
+					{
+						next = wrapScriptableIfNeeded(null, (Scriptable)next);
+					}
+					return next;
+				}
+
+			};
+		}
+		return Collections.emptyIterator();
 	}
 
 	static Object unwrapScriptable(Object obj)
