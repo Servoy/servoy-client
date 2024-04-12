@@ -69,6 +69,14 @@ public class Row
 
 	private final ConcurrentMap<String, Thread> calculatingThreads = new ConcurrentHashMap<>(4);
 
+	void unregister(IRowChangeListener r)
+	{
+		synchronized (listeners)
+		{
+			listeners.remove(r);
+		}
+	}
+
 	void register(IRowChangeListener r)
 	{
 		synchronized (listeners)
@@ -82,23 +90,24 @@ public class Row
 	{
 		synchronized (listeners)
 		{
-			return listeners.size() != 0;
+			return !listeners.isEmpty();
+		}
+	}
+
+	private IRowChangeListener[] getRowListeners()
+	{
+		synchronized (listeners)
+		{
+			return listeners.keySet().toArray(new IRowChangeListener[listeners.size()]);
 		}
 	}
 
 	void fireNotifyChange(String name, Object value, FireCollector collector)
 	{
 		ModificationEvent e = new ModificationEvent(name, value, this);
-		Object[] array;
-		synchronized (listeners)
+		for (IRowChangeListener listener : getRowListeners())
 		{
-			array = listeners.keySet().toArray();
-		}
-
-		for (Object element2 : array)
-		{
-			IRowChangeListener element = (IRowChangeListener)element2;
-			element.notifyChange(e, collector);
+			listener.notifyChange(e, collector);
 		}
 	}
 
@@ -529,15 +538,12 @@ public class Row
 	// this makes it possible to validate the state before it is processed again due to some listener being fired
 	void flagExistInDB()
 	{
-		if (!isRemoving)
+		existInDB = true;
+		synchronized (this)
 		{
-			existInDB = true;
-			synchronized (this)
-			{
-				oldValues = null;//dump any old shit
-			}
-			softReferenceAllByteArrays();
+			oldValues = null; // dump any old shit
 		}
+		softReferenceAllByteArrays();
 	}
 
 	void clearExistInDB()
@@ -906,21 +912,11 @@ public class Row
 		}
 	}
 
-	private boolean isRemoving = false;
-
 	public void remove()
 	{
-		isRemoving = true;
-		Object[] array;
-		synchronized (listeners)
+		for (IRowChangeListener listener : getRowListeners())
 		{
-			array = listeners.keySet().toArray();
-		}
-
-		for (Object element2 : array)
-		{
-			IRowChangeListener element = (IRowChangeListener)element2;
-			element.rowRemoved();
+			listener.rowRemoved();
 		}
 	}
 }

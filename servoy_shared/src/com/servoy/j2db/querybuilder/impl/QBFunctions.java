@@ -577,7 +577,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	{
 		if (value instanceof QBColumn && ((QBColumn)value).negate)
 		{
-			Debug.warn("Function " + getCallerMethodName(2) + "() called on negated column, negation will be ignored");
+			Debug.warn("Function " + getCallerMethodName(2) + "() called on negated column (" + value + ") , negation will be ignored");
 		}
 	}
 

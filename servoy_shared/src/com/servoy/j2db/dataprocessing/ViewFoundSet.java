@@ -26,7 +26,6 @@ import static com.servoy.j2db.util.Utils.stream;
 import static java.util.Arrays.asList;
 
 import java.lang.ref.WeakReference;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -972,7 +971,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 					}
 				}
 			}
-			catch (ServoyException | RemoteException e)
+			catch (ServoyException e)
 			{
 				Debug.error(e);
 			}
@@ -1046,42 +1045,35 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	{
 		String serverName = getDataSourceServerName(select.getTable().getDataSource());
 		String transaction_id = manager.getTransactionID(serverName);
-		try
+		IDataSet ds = manager.getApplication().getDataServer().performQuery(manager.getApplication().getClientID(), serverName, transaction_id, select,
+			null, manager.getTableFilterParams(serverName, select), select.isUnique(), 0, currentChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
+		refresh = false;
+		int currentSize = records.size();
+		List<ViewRecord> old = records;
+		records = new ArrayList<>(ds.getRowCount());
+		pkByDatasourceCache.clear();
+
+		String[] colNames = columnNames.values().toArray(new String[columnNames.size()]);
+
+		try (FireCollector fireCollector = getFireCollector())
 		{
-			IDataSet ds = manager.getApplication().getDataServer().performQuery(manager.getApplication().getClientID(), serverName, transaction_id, select,
-				null, manager.getTableFilterParams(serverName, select), select.isUnique(), 0, currentChunkSize, IDataServer.FOUNDSET_LOAD_QUERY);
-			refresh = false;
-			int currentSize = records.size();
-			List<ViewRecord> old = records;
-			records = new ArrayList<>(ds.getRowCount());
-			pkByDatasourceCache.clear();
-
-			String[] colNames = columnNames.values().toArray(new String[columnNames.size()]);
-
-			try (FireCollector fireCollector = getFireCollector())
+			for (int i = 0; i < ds.getRowCount(); i++)
 			{
-				for (int i = 0; i < ds.getRowCount(); i++)
+				Object[] rowData = ds.getRow(i);
+				if (i < currentSize)
 				{
-					Object[] rowData = ds.getRow(i);
-					if (i < currentSize)
-					{
-						ViewRecord current = old.get(i);
-						records.add(current);
-						current.updateValues(colNames, rowData);
-					}
-					else
-					{
-						records.add(new ViewRecord(colNames, rowData, this));
-					}
+					ViewRecord current = old.get(i);
+					records.add(current);
+					current.updateValues(colNames, rowData);
+				}
+				else
+				{
+					records.add(new ViewRecord(colNames, rowData, this));
 				}
 			}
-			hasMore = ds.hadMoreRows();
-			fireDifference(currentSize, records.size());
 		}
-		catch (RemoteException e)
-		{
-			throw new RepositoryException(e);
-		}
+		hasMore = ds.hadMoreRows();
+		fireDifference(currentSize, records.size());
 	}
 
 	@Override

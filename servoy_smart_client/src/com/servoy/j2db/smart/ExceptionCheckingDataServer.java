@@ -89,13 +89,13 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 */
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+		boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException
 	{
 		try
 		{
 			return delegate.performQuery(client_id, server_name, transaction_id, sqlSelect, resultTypes, filters, distinctInMemory, startRow, rowsToRetrieve);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -117,13 +117,13 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#performQuery(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Object[], int, int)
 	 */
 	public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-		int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+		int startRow, int rowsToRetrieve) throws ServoyException
 	{
 		try
 		{
 			return delegate.performQuery(client_id, server_name, driverTableName, transaction_id, sql, questiondata, startRow, rowsToRetrieve);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -147,14 +147,14 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 */
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
+		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException
 	{
 		try
 		{
 			return delegate.performQuery(client_id, server_name, transaction_id, sqlSelect, resultTypes, filters, distinctInMemory, startRow, rowsToRetrieve,
 				type);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -179,14 +179,14 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 */
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo) throws ServoyException, RemoteException
+		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo) throws ServoyException
 	{
 		try
 		{
 			return delegate.performQuery(client_id, server_name, transaction_id, sqlSelect, resultTypes, filters, distinctInMemory, startRow, rowsToRetrieve,
 				type, trackingInfo);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -209,13 +209,13 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#performQuery(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Object[], int, int, int)
 	 */
 	public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-		int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
+		int startRow, int rowsToRetrieve, int type) throws ServoyException
 	{
 		try
 		{
 			return delegate.performQuery(client_id, server_name, driverTableName, transaction_id, sql, questiondata, startRow, rowsToRetrieve, type);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -239,14 +239,14 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 */
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException
+		boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException
 	{
 		try
 		{
 			return delegate.performQuery(client_id, server_name, transaction_id, sqlSelect, resultTypes, filters, distinctInMemory, startRow, rowsToRetrieve,
 				updateIdleTimestamp);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -269,14 +269,14 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#performQuery(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Object[], int, int, boolean)
 	 */
 	public IDataSet performQuery(String client_id, String server_name, String driverTableName, String transaction_id, String sql, Object[] questiondata,
-		int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException
+		int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException
 	{
 		try
 		{
 			return delegate.performQuery(client_id, server_name, driverTableName, transaction_id, sql, questiondata, startRow, rowsToRetrieve,
 				updateIdleTimestamp);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -298,13 +298,13 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#performCustomQuery(java.lang.String, java.lang.String, java.lang.String, java.lang.String, com.servoy.j2db.query.ISQLSelect, java.util.ArrayList, int, int)
 	 */
 	public IDataSet performCustomQuery(String client_id, String server_name, String driverTableName, String transaction_id, ISQLSelect sqlSelect,
-		ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+		ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve) throws ServoyException
 	{
 		try
 		{
 			return delegate.performCustomQuery(client_id, server_name, driverTableName, transaction_id, sqlSelect, filters, startRow, rowsToRetrieve);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -321,13 +321,13 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 * @throws RemoteException
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#performQuery(java.lang.String, java.lang.String, java.lang.String, com.servoy.j2db.dataprocessing.QueryData[])
 	 */
-	public IDataSet[] performQuery(String client_id, String server_name, String transaction_id, QueryData[] array) throws ServoyException, RemoteException
+	public IDataSet[] performQuery(String client_id, String server_name, String transaction_id, QueryData[] array) throws ServoyException
 	{
 		try
 		{
 			return delegate.performQuery(client_id, server_name, transaction_id, array);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -348,13 +348,13 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#createSQLStatement(int, java.lang.String, java.lang.String, java.lang.Object[], java.lang.String, java.lang.String, java.lang.Object[])
 	 */
 	public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, String sql,
-		Object[] questiondata) throws RemoteException, RepositoryException
+		Object[] questiondata) throws RepositoryException
 	{
 		try
 		{
 			return delegate.createSQLStatement(action, server_name, tableName, pkColumnData, tid, sql, questiondata);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -375,13 +375,13 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#createSQLStatement(int, java.lang.String, java.lang.String, java.lang.Object[], java.lang.String, com.servoy.j2db.query.ISQLUpdate, java.util.ArrayList)
 	 */
 	public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, ISQLUpdate sqlUpdate,
-		ArrayList<TableFilter> filters) throws RemoteException, RepositoryException
+		ArrayList<TableFilter> filters) throws RepositoryException
 	{
 		try
 		{
 			return delegate.createSQLStatement(action, server_name, tableName, pkColumnData, tid, sqlUpdate, filters);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -436,13 +436,13 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 * @throws RemoteException
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#performUpdates(java.lang.String, com.servoy.j2db.dataprocessing.ISQLStatement[])
 	 */
-	public Object[] performUpdates(String clientId, ISQLStatement[] statements) throws ServoyException, RemoteException
+	public Object[] performUpdates(String clientId, ISQLStatement[] statements) throws ServoyException
 	{
 		try
 		{
 			return delegate.performUpdates(clientId, statements);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -461,13 +461,13 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#getBlob(java.lang.String, java.lang.String, com.servoy.j2db.query.ISQLSelect, java.util.ArrayList, java.lang.String)
 	 */
 	public Blob getBlob(String clientId, String serverName, ISQLSelect blobSelect, ArrayList<TableFilter> filters, String tid)
-		throws RepositoryException, RemoteException
+		throws RepositoryException
 	{
 		try
 		{
 			return delegate.getBlob(clientId, serverName, blobSelect, filters, tid);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -482,13 +482,13 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 * @throws RemoteException
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#startTransaction(java.lang.String, java.lang.String)
 	 */
-	public String startTransaction(String clientId, String server_name) throws RepositoryException, RemoteException
+	public String startTransaction(String clientId, String server_name) throws RepositoryException
 	{
 		try
 		{
 			return delegate.startTransaction(clientId, server_name);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -504,13 +504,13 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 * @throws RemoteException
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#endTransactions(java.lang.String, java.lang.String[], boolean)
 	 */
-	public boolean endTransactions(String client_id, String[] transaction_id, boolean commit) throws RepositoryException, RemoteException
+	public boolean endTransactions(String client_id, String[] transaction_id, boolean commit) throws RepositoryException
 	{
 		try
 		{
 			return delegate.endTransactions(client_id, transaction_id, commit);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -529,13 +529,13 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#getNextSequence(java.lang.String, java.lang.String, java.lang.String, int, java.lang.String)
 	 */
 	public Object getNextSequence(String serverName, String tableName, String columnName, int columnInfoID, String columnInfoServer)
-		throws RepositoryException, RemoteException
+		throws RepositoryException
 	{
 		try
 		{
 			return delegate.getNextSequence(serverName, tableName, columnName, columnInfoID, columnInfoServer);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -559,13 +559,13 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 */
 	public InsertResult insertDataSet(String client_id, IDataSet set, String dataSource, String serverName, String tableName, String tid,
 		ColumnType[] columnTypes,
-		String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException, RemoteException
+		String[] pkNames, HashMap<String, ColumnInfoDef> columnInfoDefinitions) throws ServoyException
 	{
 		try
 		{
 			return delegate.insertDataSet(client_id, set, dataSource, serverName, tableName, tid, columnTypes, pkNames, columnInfoDefinitions);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -595,14 +595,14 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 */
 	public ITable insertQueryResult(String client_id, String queryServerName, String queryTid, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, String dataSource, String targetServerName, String targetTableName,
-		String targetTid, ColumnType[] columnTypes, String[] pkNames) throws ServoyException, RemoteException
+		String targetTid, ColumnType[] columnTypes, String[] pkNames) throws ServoyException
 	{
 		try
 		{
 			return delegate.insertQueryResult(client_id, queryServerName, queryTid, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve, type,
 				dataSource, targetServerName, targetTableName, targetTid, columnTypes, pkNames);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -617,13 +617,13 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 * @throws RepositoryException
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#dropTemporaryTable(java.lang.String, java.lang.String, java.lang.String)
 	 */
-	public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RemoteException, RepositoryException
+	public void dropTemporaryTable(String client_id, String serverName, String tableName) throws RepositoryException
 	{
 		try
 		{
 			delegate.dropTemporaryTable(client_id, serverName, tableName);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -638,13 +638,13 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 * @throws RepositoryException
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#addClientAsTableUser(java.lang.String, java.lang.String, java.lang.String)
 	 */
-	public void addClientAsTableUser(String client_id, String serverName, String tableName) throws RemoteException, RepositoryException
+	public void addClientAsTableUser(String client_id, String serverName, String tableName) throws RepositoryException
 	{
 		try
 		{
 			delegate.addClientAsTableUser(client_id, serverName, tableName);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -665,13 +665,13 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#getSQLQuerySet(java.lang.String, com.servoy.j2db.query.ISQLQuery, java.util.ArrayList, int, int, boolean, boolean)
 	 */
 	public QuerySet getSQLQuerySet(String serverName, ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve,
-		boolean forceQualifyColumns, boolean disableUseArrayForIn) throws RepositoryException, RemoteException
+		boolean forceQualifyColumns, boolean disableUseArrayForIn) throws RepositoryException
 	{
 		try
 		{
 			return delegate.getSQLQuerySet(serverName, sqlQuery, filters, startRow, rowsToRetrieve, forceQualifyColumns, disableUseArrayForIn);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -690,13 +690,13 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#executeProcedure(java.lang.String, java.lang.String, java.lang.String, com.servoy.j2db.persistence.Procedure, java.lang.Object[])
 	 */
 	public IDataSet[] executeProcedure(String clientId, String server_name, String tid, Procedure procedure, Object[] arguments)
-		throws RepositoryException, RemoteException
+		throws RepositoryException
 	{
 		try
 		{
 			return delegate.executeProcedure(clientId, server_name, tid, procedure, arguments);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -718,13 +718,13 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#acquireLocks(java.lang.String, java.lang.String, java.lang.String, java.util.Set, com.servoy.j2db.query.QuerySelect, java.lang.String, java.util.ArrayList, int)
 	 */
 	public IDataSet acquireLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys, QuerySelect lockSelect, String transaction_id,
-		ArrayList<TableFilter> filters, int chunkSize) throws RemoteException, RepositoryException
+		ArrayList<TableFilter> filters, int chunkSize) throws RepositoryException
 	{
 		try
 		{
 			return delegate.acquireLocks(client_id, server_name, table_name, pkhashkeys, lockSelect, transaction_id, filters, chunkSize);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -741,13 +741,13 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 * @throws RepositoryException
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#releaseLocks(java.lang.String, java.lang.String, java.lang.String, java.util.Set)
 	 */
-	public boolean releaseLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys) throws RemoteException, RepositoryException
+	public boolean releaseLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys) throws RepositoryException
 	{
 		try
 		{
 			return delegate.releaseLocks(client_id, server_name, table_name, pkhashkeys);
 		}
-		catch (ServoyException | RemoteException e)
+		catch (ServoyException e)
 		{
 			checkException(e);
 			throw e;
@@ -759,17 +759,9 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 * @throws RemoteException
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#logMessage(java.lang.String)
 	 */
-	public void logMessage(String msg) throws RemoteException
+	public void logMessage(String msg)
 	{
-		try
-		{
-			delegate.logMessage(msg);
-		}
-		catch (RemoteException e)
-		{
-			checkException(e);
-			throw e;
-		}
+		delegate.logMessage(msg);
 	}
 
 	/**
@@ -777,17 +769,9 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 * @throws RemoteException
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#isInServerMaintenanceMode()
 	 */
-	public boolean isInServerMaintenanceMode() throws RemoteException
+	public boolean isInServerMaintenanceMode()
 	{
-		try
-		{
-			return delegate.isInServerMaintenanceMode();
-		}
-		catch (RemoteException e)
-		{
-			checkException(e);
-			throw e;
-		}
+		return delegate.isInServerMaintenanceMode();
 	}
 
 	/**
@@ -795,59 +779,27 @@ public class ExceptionCheckingDataServer implements IDataServer
 	 * @throws RemoteException
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#setServerMaintenanceMode(boolean)
 	 */
-	public void setServerMaintenanceMode(boolean maintenanceMode) throws RemoteException
+	public void setServerMaintenanceMode(boolean maintenanceMode)
 	{
-		try
-		{
-			delegate.setServerMaintenanceMode(maintenanceMode);
-		}
-		catch (RemoteException e)
-		{
-			checkException(e);
-			throw e;
-		}
+		delegate.setServerMaintenanceMode(maintenanceMode);
 	}
 
 	@Override
-	public void setBroadcastFilters(String clientId, String serverName, BroadcastFilter[] broadcastFilters) throws RemoteException
+	public void setBroadcastFilters(String clientId, String serverName, BroadcastFilter[] broadcastFilters)
 	{
-		try
-		{
-			delegate.setBroadcastFilters(clientId, serverName, broadcastFilters);
-		}
-		catch (RemoteException e)
-		{
-			checkException(e);
-			throw e;
-		}
+		delegate.setBroadcastFilters(clientId, serverName, broadcastFilters);
 	}
 
 	@Override
-	public BroadcastFilter[] getBroadcastFilters(String clientId, String serverName) throws RemoteException
+	public BroadcastFilter[] getBroadcastFilters(String clientId, String serverName)
 	{
-		try
-		{
-			return delegate.getBroadcastFilters(clientId, serverName);
-		}
-		catch (RemoteException e)
-		{
-			checkException(e);
-			throw e;
-		}
+		return delegate.getBroadcastFilters(clientId, serverName);
 	}
 
 	@Override
-	public void clearBroadcastFilters(String clientId) throws RemoteException
+	public void clearBroadcastFilters(String clientId)
 	{
-		try
-		{
-			delegate.clearBroadcastFilters(clientId);
-		}
-		catch (RemoteException e)
-		{
-			checkException(e);
-			throw e;
-		}
+		delegate.clearBroadcastFilters(clientId);
 	}
 
 }

@@ -152,7 +152,7 @@ public class DBDataSourceServer extends DefaultJavaScope implements LazyInitScop
 				return tableNames != null ? tableNames.toArray(new String[tableNames.size()]) : new String[] { };
 			}
 		}
-		catch (RemoteException | RepositoryException e)
+		catch (RepositoryException e)
 		{
 			Debug.error(e);
 		}
@@ -177,10 +177,6 @@ public class DBDataSourceServer extends DefaultJavaScope implements LazyInitScop
 			{
 				return new DBDataSourceServer(application, server.getConfig().getDataModelCloneFrom());
 			}
-		}
-		catch (RemoteException e)
-		{
-			Debug.error(e);
 		}
 		catch (RepositoryException e)
 		{
@@ -212,7 +208,7 @@ public class DBDataSourceServer extends DefaultJavaScope implements LazyInitScop
 				return new JSConnectionDefinition(server, application.getClientID());
 			}
 		}
-		catch (RemoteException | RepositoryException e)
+		catch (RepositoryException e)
 		{
 			Debug.error("Can't define a client connection definiton for " + serverName, e); //$NON-NLS-1$
 		}

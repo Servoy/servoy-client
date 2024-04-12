@@ -21,7 +21,6 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -253,59 +252,52 @@ public class RepositoryHelper
 		{
 			while (tk.hasMoreTokens())
 			{
-				try
+				String moduleDescriptor = tk.nextToken();
+				SolutionMetaData metaData;
+				int releaseNumber = 0;
+				int i = moduleDescriptor.indexOf(':');
+				String name;
+				UUID uuid;
+				if (i != -1)
 				{
-					String moduleDescriptor = tk.nextToken();
-					SolutionMetaData metaData;
-					int releaseNumber = 0;
-					int i = moduleDescriptor.indexOf(':');
-					String name;
-					UUID uuid;
-					if (i != -1)
-					{
-						releaseNumber = Integer.parseInt(moduleDescriptor.substring(i + 1));
-						moduleDescriptor = moduleDescriptor.substring(0, i);
-					}
+					releaseNumber = Integer.parseInt(moduleDescriptor.substring(i + 1));
+					moduleDescriptor = moduleDescriptor.substring(0, i);
+				}
 
-					if (moduleDescriptor.indexOf('-') != -1)
+				if (moduleDescriptor.indexOf('-') != -1)
+				{
+					// A uuid reference.
+					uuid = UUID.fromString(moduleDescriptor);
+					metaData = (SolutionMetaData)developerRepository.getRootObjectMetaData(uuid);
+					if (metaData == null)
 					{
-						// A uuid reference.
-						uuid = UUID.fromString(moduleDescriptor);
-						metaData = (SolutionMetaData)developerRepository.getRootObjectMetaData(uuid);
-						if (metaData == null)
-						{
-							continue;
-						}
-						name = metaData.getName();
+						continue;
+					}
+					name = metaData.getName();
+				}
+				else
+				{
+					// A module name; for backwards compatibility.
+					name = moduleDescriptor;
+					metaData = (SolutionMetaData)developerRepository.getRootObjectMetaData(name, IRepository.SOLUTIONS);
+					if (metaData == null)
+					{
+						continue;
+					}
+					uuid = metaData.getRootObjectUuid();
+				}
+				if (referencedModules.get(uuid) == null && (loadImportHooks || !SolutionMetaData.isImportHook(metaData)))
+				{
+					referencedModules.put(uuid, new RootObjectReference(name, uuid, metaData, releaseNumber));
+					Solution sol = (Solution)developerRepository.getRootObject(metaData.getRootObjectId(), releaseNumber);
+					if (sol != null)
+					{
+						loadObjectMetaDatas(sol.getModulesNames(), referencedModules, loadImportHooks);
 					}
 					else
 					{
-						// A module name; for backwards compatibility.
-						name = moduleDescriptor;
-						metaData = (SolutionMetaData)developerRepository.getRootObjectMetaData(name, IRepository.SOLUTIONS);
-						if (metaData == null)
-						{
-							continue;
-						}
-						uuid = metaData.getRootObjectUuid();
+						throw new RepositoryException("Solution with uuid " + uuid + " and name " + name + " was not found.");
 					}
-					if (referencedModules.get(uuid) == null && (loadImportHooks || !SolutionMetaData.isImportHook(metaData)))
-					{
-						referencedModules.put(uuid, new RootObjectReference(name, uuid, metaData, releaseNumber));
-						Solution sol = (Solution)developerRepository.getRootObject(metaData.getRootObjectId(), releaseNumber);
-						if (sol != null)
-						{
-							loadObjectMetaDatas(sol.getModulesNames(), referencedModules, loadImportHooks);
-						}
-						else
-						{
-							throw new RepositoryException("Solution with uuid " + uuid + " and name " + name + " was not found.");
-						}
-					}
-				}
-				catch (RemoteException e)
-				{
-					throw new RepositoryException(e);
 				}
 			}
 		}

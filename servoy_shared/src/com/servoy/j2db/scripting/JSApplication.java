@@ -16,14 +16,11 @@
  */
 package com.servoy.j2db.scripting;
 
-import java.applet.Applet;
-import java.applet.AudioClip;
 import java.awt.Rectangle;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.rmi.RemoteException;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -1963,22 +1960,6 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public void js_playSound(final String url)
 	{
-		application.getScheduledExecutor().execute(new Runnable()
-		{
-			public void run()
-			{
-				try
-				{
-					URL u = new URL(url);
-					AudioClip clip = Applet.newAudioClip(u);
-					clip.play();
-				}
-				catch (Exception e)
-				{
-					Debug.error(e);
-				}
-			}
-		});
 	}
 
 	/**

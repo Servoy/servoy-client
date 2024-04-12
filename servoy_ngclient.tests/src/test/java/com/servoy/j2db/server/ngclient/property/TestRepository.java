@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.server.ngclient.property;
 
-import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -88,14 +87,14 @@ public class TestRepository extends AbstractRepository
 	}
 
 	@Override
-	public long[] getActiveRootObjectsLastModified(int[] rootObjectIds) throws RemoteException, RepositoryException
+	public long[] getActiveRootObjectsLastModified(int[] rootObjectIds) throws RepositoryException
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public byte[] getMediaBlob(int blob_id) throws RemoteException, RepositoryException
+	public byte[] getMediaBlob(int blob_id) throws RepositoryException
 	{
 		// TODO Auto-generated method stub
 		return null;

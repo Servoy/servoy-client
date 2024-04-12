@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db.persistence;
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -141,29 +140,22 @@ public abstract class AbstractRootObject extends AbstractBase implements IRootOb
 	{
 		if (name == null) return null;
 		String lowerCaseBame = Utils.toEnglishLocaleLowerCase(name);
-		try
-		{
-			IServer server = null;
-			Map<String, IServer> proxies = getServerProxies();
+		IServer server = null;
+		Map<String, IServer> proxies = getServerProxies();
 
-			server = proxies.get(lowerCaseBame);
-			if (server == null)
-			{
-				// fetch a server that is not pre-loaded (could be  referred to in custom query)
-				server = getRepository().getServer(lowerCaseBame);
-				if (server != null && !(server instanceof IServerInternal))
-				{
-					//wrap
-					server = new ServerProxy(server);
-					proxies.put(lowerCaseBame, server);
-				}
-			}
-			return server;
-		}
-		catch (RemoteException e)
+		server = proxies.get(lowerCaseBame);
+		if (server == null)
 		{
-			throw new RepositoryException(e);
+			// fetch a server that is not pre-loaded (could be  referred to in custom query)
+			server = getRepository().getServer(lowerCaseBame);
+			if (server != null && !(server instanceof IServerInternal))
+			{
+				//wrap
+				server = new ServerProxy(server);
+				proxies.put(lowerCaseBame, server);
+			}
 		}
+		return server;
 	}
 
 	public ConcurrentMap<String, IServer> getServerProxies()

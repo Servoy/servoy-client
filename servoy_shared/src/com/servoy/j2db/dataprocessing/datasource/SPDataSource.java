@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.dataprocessing.datasource;
 
-import java.rmi.RemoteException;
 import java.util.Map;
 
 import org.mozilla.javascript.NativeJavaMethod;
@@ -54,10 +53,6 @@ public class SPDataSource extends DefaultJavaScope
 			{
 				put(serverName, this, new SPDataSourceServer(application, serverName));
 			}
-		}
-		catch (RemoteException e)
-		{
-			Debug.error(e);
 		}
 		catch (RepositoryException e)
 		{

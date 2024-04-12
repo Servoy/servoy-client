@@ -200,7 +200,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	private int foundsetID = 0;
 
 	private static Callable symbol_iterator = (Context cx, Scriptable scope, Scriptable thisObj, Object[] args) -> {
-		return new IterableES6Iterator(scope, ((FoundSet)thisObj));
+		return new IterableES6Iterator(scope, ((Iterable)thisObj));
 	};
 
 	public PrototypeState getPrototypeState()
@@ -4735,10 +4735,6 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			// a record was locked by another client, try per-record
 			Debug.log("Could not delete all records in 1 statement (a record may be locked), trying per-record"); //$NON-NLS-1$
 		}
-		catch (RemoteException e)
-		{
-			throw new RepositoryException(e);
-		}
 	}
 
 	public void deleteRecord(int row) throws ServoyException
@@ -4941,15 +4937,22 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				rowManager.clearRow(data);
 			}
 		}
+
 		if (!(state instanceof PrototypeState))
 		{
 			removeRecordInternalEx(state, row);
-			// delete the row data so it won't be updated by other foundsets also having records to this rowdata.
 			if (state != null && state.getRawData() != null)
 			{
-				state.getRawData().flagExistInDB();
+				Row rawData = state.getRawData();
+				rawData.unregister(state);
+				if (!rawData.existInDB())
+				{
+					// If the record exists in other foundsets, remove it from those
+					rawData.remove();
+				}
+				// delete the row old data so it won't be updated by other foundsets also having records to this rowdata.
+				rawData.flagExistInDB();
 			}
-
 		}
 	}
 
@@ -4959,7 +4962,6 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		rowManager.deleteRow(this, row, hasAccess(IRepository.TRACKING), performActualDelete);
 
 		executeFoundsetTrigger(new Object[] { state }, PROPERTY_ONAFTERDELETEMETHODID, false);
-
 		GlobalTransaction gt = fsm.getGlobalTransaction();
 		if (gt != null)
 		{
@@ -4972,7 +4974,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 
 	/**
 	 * Execute the foundset trigger for specified TableNode property.
-	 * When multiple tiggers exist, stop when 1 returns false.
+	 * When multiple triggers exist, stop when 1 returns false.
 	 *
 	 * @param args
 	 * @param property TableNode property
@@ -5727,7 +5729,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				QuerySet qs = fsm.getDataServer().getSQLQuerySet(serverName, currentQuery, tableFilterParams, 0, -1, true, true);
 				return qs.getSelect().getSql();
 			}
-			catch (RepositoryException | RemoteException e)
+			catch (RepositoryException e)
 			{
 				Debug.error("Can't get a serialized state from " + currentQuery, e); //$NON-NLS-1$
 			}

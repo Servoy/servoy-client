@@ -154,6 +154,11 @@ public final class Utils
 	public static final int PLATFORM_MAC = 2;
 	public static final int PLATFORM_LINUX = 3;
 
+	//Client architecture
+	public static final int ARCH_OTHER = 0;
+	public static final int ARCH_X64 = 1;
+	public static final int ARCH_ARM64 = 2;
+
 
 	public static boolean isInheritedFormElement(Object element, IPersist context)
 	{
@@ -2888,6 +2893,11 @@ public final class Utils
 		return getPlatform() == PLATFORM_LINUX;
 	}
 
+	public static boolean isArmArchitecture()
+	{
+		return getArchitecture() == ARCH_ARM64;
+	}
+
 	public static boolean isValidEmailAddress(String email)
 	{
 		return (email != null
@@ -2911,6 +2921,24 @@ public final class Utils
 		}
 		return ok;
 	}
+
+	public static int getArchitecture()
+	{
+		return getArchitecture(System.getProperty("os.arch")); //$NON-NLS-1$
+	}
+
+	@SuppressWarnings("nls")
+	public static int getArchitecture(String osarch)
+	{
+		if (osarch != null)
+		{
+			String lc = osarch.toLowerCase();
+			if (lc.contains("arm64") || lc.contains("aarch64")) return ARCH_ARM64;
+			if (lc.contains("x86") || lc.contains("amd64") || lc.contains("x86_64")) return ARCH_X64;
+		}
+		return ARCH_OTHER;
+	}
+
 
 	public static int getPlatform()
 	{

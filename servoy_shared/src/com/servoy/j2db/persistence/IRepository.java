@@ -17,8 +17,6 @@
 package com.servoy.j2db.persistence;
 
 
-import java.rmi.Remote;
-import java.rmi.RemoteException;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
@@ -30,7 +28,7 @@ import com.servoy.j2db.util.UUID;
  *
  * @author jblok
  */
-public interface IRepository extends Remote
+public interface IRepository
 {
 	/**
 	 * Max length for root object names.
@@ -135,28 +133,28 @@ public interface IRepository extends Remote
 	 * Get all the defined server interfaces.
 	 *
 	 * @return String[] all the server names
-	 * @throws RemoteException
+	
 	 * @throws RepositoryException
 	 */
-	public String[] getServerNames(boolean sort) throws RemoteException, RepositoryException;
+	public String[] getServerNames(boolean sort) throws RepositoryException;
 
 	/**
 	 * Get the named server interface.
 	 * <p>
 	 * <b>NOTE: NEVER call this method from client code, always use solution.getServer(name), databaseManager.switchServer() is based on this!<b>
 	 *
-	 * @throws RemoteException
+	
 	 * @throws RepositoryException
 	 */
-	public IServer getServer(String name) throws RemoteException, RepositoryException;
+	public IServer getServer(String name) throws RepositoryException;
 
 	/**
 	 * Get the names of the server that are valid for the name.
 	 *
-	 * @throws RemoteException
+	
 	 * @throws RepositoryException
 	 */
-	public String[] getDuplicateServerNames(String name) throws RemoteException, RepositoryException;
+	public String[] getDuplicateServerNames(String name) throws RepositoryException;
 
 	/**
 	 * Get the server proxies for offline loading
@@ -165,55 +163,55 @@ public interface IRepository extends Remote
 	 * @param release the solution release
 	 * @param alreadyKnownServerNames list of names which are already known and dont have to be returned (can be null)
 	 * @return the server proxies
-	 * @throws RemoteException
+	
 	 * @throws RepositoryException
 	 */
-	public ConcurrentMap<String, IServer> getServerProxies(RootObjectMetaData[] metas) throws RemoteException, RepositoryException;
+	public ConcurrentMap<String, IServer> getServerProxies(RootObjectMetaData[] metas) throws RepositoryException;
 
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL.
 	 *
 	 * @exclude
 	 */
-	public RootObjectMetaData getRootObjectMetaData(int rootObjectId) throws RemoteException, RepositoryException;
+	public RootObjectMetaData getRootObjectMetaData(int rootObjectId) throws RepositoryException;
 
-	public RootObjectMetaData getRootObjectMetaData(UUID uuid) throws RemoteException, RepositoryException;
+	public RootObjectMetaData getRootObjectMetaData(UUID uuid) throws RepositoryException;
 
-	public RootObjectMetaData getRootObjectMetaData(String name, int objectTypeId) throws RemoteException, RepositoryException;
+	public RootObjectMetaData getRootObjectMetaData(String name, int objectTypeId) throws RepositoryException;
 
-	public RootObjectMetaData[] getRootObjectMetaDatas() throws RemoteException, RepositoryException;
+	public RootObjectMetaData[] getRootObjectMetaDatas() throws RepositoryException;
 
-	public RootObjectMetaData[] getRootObjectMetaDatasForType(int objectTypeId) throws RemoteException, RepositoryException;
+	public RootObjectMetaData[] getRootObjectMetaDatasForType(int objectTypeId) throws RepositoryException;
 
 	/**
 	 * Get a root object.
 	 *
 	 * @param id the id
 	 * @return Root object
-	 * @throws RemoteException
+	
 	 * @throws RepositoryException
 	 */
-	public IRootObject getActiveRootObject(int id) throws RemoteException, RepositoryException;
+	public IRootObject getActiveRootObject(int id) throws RepositoryException;
 
-	public IRootObject getActiveRootObject(String name, int objectTypeId) throws RemoteException, RepositoryException;
+	public IRootObject getActiveRootObject(String name, int objectTypeId) throws RepositoryException;
 
 	/**
 	 * Get the update sequences of the active solutions.
 	 *
 	 * @param rootObjectIds the solution ids
 	 * @return the update seqences of the specified solution
-	 * @throws RemoteException
+	
 	 * @throws RepositoryException
 	 */
-	public long[] getActiveRootObjectsLastModified(int[] rootObjectIds) throws RemoteException, RepositoryException;
+	public long[] getActiveRootObjectsLastModified(int[] rootObjectIds) throws RepositoryException;
 
 	/**
 	 * FOR INTERNAL USE ONLY, DO NOT CALL. Should only be called from Media Object!
 	 *
 	 * @exclude
 	 */
-	public byte[] getMediaBlob(int blob_id) throws RemoteException, RepositoryException;
+	public byte[] getMediaBlob(int blob_id) throws RepositoryException;
 
-	public List<RootObjectReference> getActiveSolutionModuleMetaDatas(int solutionId) throws RemoteException, RepositoryException;
+	public List<RootObjectReference> getActiveSolutionModuleMetaDatas(int solutionId) throws RepositoryException;
 
 }

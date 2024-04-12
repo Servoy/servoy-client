@@ -1525,16 +1525,9 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				// this happens when the repository server is used in a solution while user tables in repository is disabled
 				if (dataServer != null)
 				{
-					try
-					{
-						// log on the server
-						dataServer.logMessage("Client could not load solution " + solutionMetaData.getName() +
-							", probably because repository server is used, see admin setting " + Settings.ALLOW_CLIENT_REPOSITORY_ACCESS_SETTING);
-					}
-					catch (RemoteException e)
-					{
-						// bummer
-					}
+					// log on the server
+					dataServer.logMessage("Client could not load solution " + solutionMetaData.getName() +
+						", probably because repository server is used, see admin setting " + Settings.ALLOW_CLIENT_REPOSITORY_ACCESS_SETTING);
 				}
 				reportError(Messages.getString("servoy.foundSet.error.noAccess"), ex); //$NON-NLS-1$
 			}

@@ -17,7 +17,6 @@
 package com.servoy.j2db.dataprocessing;
 
 
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -223,23 +222,16 @@ public class GlobalTransaction
 
 	public synchronized String getTransactionID(String serverName) throws RepositoryException
 	{
-		try
+		//check if transaction exist for a server
+		String tid = serverTransactions.get(serverName);
+		if (tid == null)
 		{
-			//check if transaction exist for a server
-			String tid = serverTransactions.get(serverName);
-			if (tid == null)
-			{
-				//create
-				tid = dataServer.startTransaction(clientID, serverName);
-				//store
-				serverTransactions.put(serverName, tid);
-			}
-			return tid;
+			//create
+			tid = dataServer.startTransaction(clientID, serverName);
+			//store
+			serverTransactions.put(serverName, tid);
 		}
-		catch (RemoteException e)
-		{
-			throw new RepositoryException(e);
-		}
+		return tid;
 	}
 
 	public void addTransactionEndListener(ITransactable l)

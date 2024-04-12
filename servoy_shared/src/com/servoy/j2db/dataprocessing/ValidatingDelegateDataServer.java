@@ -134,7 +134,7 @@ public class ValidatingDelegateDataServer extends AbstractDelegateDataServer
 	 */
 	@Override
 	public IDataSet acquireLocks(String client_id, String server_name, String table_name, Set<Object> pkhashkeys, QuerySelect lockSelect, String transaction_id,
-		ArrayList<TableFilter> filters, int chunkSize) throws RemoteException, RepositoryException
+		ArrayList<TableFilter> filters, int chunkSize) throws RepositoryException
 	{
 		validateQuery(lockSelect);
 		return super.acquireLocks(client_id, server_name, table_name, pkhashkeys, lockSelect, transaction_id, filters, chunkSize);
@@ -157,7 +157,7 @@ public class ValidatingDelegateDataServer extends AbstractDelegateDataServer
 	@Override
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+		boolean distinctInMemory, int startRow, int rowsToRetrieve) throws ServoyException
 	{
 		validateQuery(sqlSelect);
 		return super.performQuery(client_id, server_name, transaction_id, sqlSelect, resultTypes, filters, distinctInMemory, startRow, rowsToRetrieve);
@@ -181,7 +181,7 @@ public class ValidatingDelegateDataServer extends AbstractDelegateDataServer
 	@Override
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException, RemoteException
+		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type) throws ServoyException
 	{
 		validateQuery(sqlSelect);
 		return super.performQuery(client_id, server_name, transaction_id, sqlSelect, resultTypes, filters, distinctInMemory, startRow, rowsToRetrieve, type);
@@ -206,7 +206,7 @@ public class ValidatingDelegateDataServer extends AbstractDelegateDataServer
 	@Override
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo) throws ServoyException, RemoteException
+		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, ITrackingSQLStatement trackingInfo) throws ServoyException
 	{
 		validateQuery(sqlSelect);
 		return super.performQuery(client_id, server_name, transaction_id, sqlSelect, resultTypes, filters, distinctInMemory, startRow, rowsToRetrieve, type,
@@ -231,7 +231,7 @@ public class ValidatingDelegateDataServer extends AbstractDelegateDataServer
 	@Override
 	public IDataSet performQuery(String client_id, String server_name, String transaction_id, ISQLSelect sqlSelect, ColumnType[] resultTypes,
 		ArrayList<TableFilter> filters,
-		boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException, RemoteException
+		boolean distinctInMemory, int startRow, int rowsToRetrieve, boolean updateIdleTimestamp) throws ServoyException
 	{
 		validateQuery(sqlSelect);
 		return super.performQuery(client_id, server_name, transaction_id, sqlSelect, resultTypes, filters, distinctInMemory, startRow, rowsToRetrieve,
@@ -254,7 +254,7 @@ public class ValidatingDelegateDataServer extends AbstractDelegateDataServer
 	 */
 	@Override
 	public IDataSet performCustomQuery(String client_id, String server_name, String driverTableName, String transaction_id, ISQLSelect sqlSelect,
-		ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve) throws ServoyException, RemoteException
+		ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve) throws ServoyException
 	{
 		validateQuery(sqlSelect);
 		return super.performCustomQuery(client_id, server_name, driverTableName, transaction_id, sqlSelect, filters, startRow, rowsToRetrieve);
@@ -271,7 +271,7 @@ public class ValidatingDelegateDataServer extends AbstractDelegateDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#performQuery(java.lang.String, java.lang.String, java.lang.String, com.servoy.j2db.dataprocessing.QueryData[])
 	 */
 	@Override
-	public IDataSet[] performQuery(String client_id, String server_name, String transaction_id, QueryData[] array) throws ServoyException, RemoteException
+	public IDataSet[] performQuery(String client_id, String server_name, String transaction_id, QueryData[] array) throws ServoyException
 	{
 		validateQuery(array);
 		return super.performQuery(client_id, server_name, transaction_id, array);
@@ -292,7 +292,7 @@ public class ValidatingDelegateDataServer extends AbstractDelegateDataServer
 	 */
 	@Override
 	public ISQLStatement createSQLStatement(int action, String server_name, String tableName, Object[] pkColumnData, String tid, ISQLUpdate sqlUpdate,
-		ArrayList<TableFilter> filters) throws RemoteException, RepositoryException
+		ArrayList<TableFilter> filters) throws RepositoryException
 	{
 		validateQuery(sqlUpdate);
 		return super.createSQLStatement(action, server_name, tableName, pkColumnData, tid, sqlUpdate, filters);
@@ -307,7 +307,7 @@ public class ValidatingDelegateDataServer extends AbstractDelegateDataServer
 	 * @see com.servoy.j2db.dataprocessing.IDataServer#performUpdates(java.lang.String, com.servoy.j2db.dataprocessing.ISQLStatement[])
 	 */
 	@Override
-	public Object[] performUpdates(String clientId, ISQLStatement[] statements) throws ServoyException, RemoteException
+	public Object[] performUpdates(String clientId, ISQLStatement[] statements) throws ServoyException
 	{
 		validateQuery(statements);
 		return super.performUpdates(clientId, statements);
@@ -326,7 +326,7 @@ public class ValidatingDelegateDataServer extends AbstractDelegateDataServer
 	 */
 	@Override
 	public Blob getBlob(String clientId, String serverName, ISQLSelect blobSelect, ArrayList<TableFilter> filters, String tid)
-		throws RepositoryException, RemoteException
+		throws RepositoryException
 	{
 		validateQuery(blobSelect);
 		return super.getBlob(clientId, serverName, blobSelect, filters, tid);
@@ -356,7 +356,7 @@ public class ValidatingDelegateDataServer extends AbstractDelegateDataServer
 	@Override
 	public ITable insertQueryResult(String client_id, String queryServerName, String queryTid, ISQLSelect sqlSelect, ArrayList<TableFilter> filters,
 		boolean distinctInMemory, int startRow, int rowsToRetrieve, int type, String dataSource, String targetServerName, String targetTableName,
-		String targetTid, ColumnType[] columnTypes, String[] pkNames) throws ServoyException, RemoteException
+		String targetTid, ColumnType[] columnTypes, String[] pkNames) throws ServoyException
 	{
 		validateQuery(sqlSelect);
 		return super.insertQueryResult(client_id, queryServerName, queryTid, sqlSelect, filters, distinctInMemory, startRow, rowsToRetrieve, type, dataSource,
@@ -378,7 +378,7 @@ public class ValidatingDelegateDataServer extends AbstractDelegateDataServer
 	 */
 	@Override
 	public QuerySet getSQLQuerySet(String serverName, ISQLQuery sqlQuery, ArrayList<TableFilter> filters, int startRow, int rowsToRetrieve,
-		boolean forceQualifyColumns, boolean disableUseArrayForIn) throws RepositoryException, RemoteException
+		boolean forceQualifyColumns, boolean disableUseArrayForIn) throws RepositoryException
 	{
 		validateQuery(sqlQuery);
 		return super.getSQLQuerySet(serverName, sqlQuery, filters, startRow, rowsToRetrieve, forceQualifyColumns, disableUseArrayForIn);

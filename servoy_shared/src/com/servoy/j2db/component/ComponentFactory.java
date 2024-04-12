@@ -17,7 +17,6 @@
 package com.servoy.j2db.component;
 
 
-import java.applet.Applet;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -65,7 +64,6 @@ import org.xhtmlrenderer.css.constants.CSSName;
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormController;
-import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IForm;
 import com.servoy.j2db.IScriptExecuter;
@@ -2363,10 +2361,6 @@ public class ComponentFactory
 					new Object[] { ComponentFactory.getWebID(form, bean), form.getName(), form.getStyleName() });
 			}
 			testReturnTypesForBean(application, obj);
-			if (obj instanceof Applet)
-			{
-				((FormManager)application.getFormManager()).initializeApplet((Applet)obj, bean.getSize());
-			}
 
 			if (obj == null)
 			{

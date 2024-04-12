@@ -16,7 +16,6 @@
  */
 package com.servoy.j2db.persistence;
 
-import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Map;
 
@@ -69,5 +68,5 @@ public interface IDeveloperRepository extends IRepository, IPersistFactory
 
 	public void updateRootObject(IRootObject rootObject) throws RepositoryException;
 
-	public IServer getServer(String name) throws RemoteException, RepositoryException;
+	public IServer getServer(String name) throws RepositoryException;
 }

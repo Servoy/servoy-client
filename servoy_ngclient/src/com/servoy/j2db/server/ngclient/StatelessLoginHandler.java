@@ -501,7 +501,7 @@ public class StatelessLoginHandler
 					break;
 				}
 			}
-			catch (RemoteException | RepositoryException e)
+			catch (RepositoryException e)
 			{
 				Debug.error(e);
 			}
@@ -673,7 +673,7 @@ public class StatelessLoginHandler
 		{
 			solution = (Solution)ApplicationServerRegistry.get().getLocalRepository().getActiveRootObject(solutionName, IRepository.SOLUTIONS);
 		}
-		catch (RemoteException | RepositoryException e)
+		catch (RepositoryException e)
 		{
 			Debug.error("Can't load solution " + solutionName, e);
 		}

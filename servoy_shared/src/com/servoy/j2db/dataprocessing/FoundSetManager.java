@@ -1014,15 +1014,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			RowManager rm = rowManagers.get(dataSource);
 			if (rm == null)
 			{
-				try
-				{
-					// first time this client uses this table
-					getDataServer().addClientAsTableUser(application.getClientID(), t.getServerName(), t.getName());
-				}
-				catch (RemoteException e)
-				{
-					throw new RepositoryException(e);
-				}
+				// first time this client uses this table
+				getDataServer().addClientAsTableUser(application.getClientID(), t.getServerName(), t.getName());
 				rm = new RowManager(this, getSQLGenerator().getCachedTableSQLSheet(dataSource));
 				rowManagers.put(dataSource, rm);
 			}
@@ -1397,14 +1390,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				})
 				.filter(Objects::nonNull)
 				.toArray(BroadcastFilter[]::new);
-			try
-			{
-				getDataServer().setBroadcastFilters(application.getClientID(), serverName, broadcastFilters);
-			}
-			catch (RemoteException e)
-			{
-				throw new RepositoryException(e);
-			}
+			getDataServer().setBroadcastFilters(application.getClientID(), serverName, broadcastFilters);
 		}
 
 		if (fire)
@@ -2276,12 +2262,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					Debug.error(e);
 					return false;
 				}
-				catch (RemoteException e)
-				{
-					Debug.error(e);//TODO:put error code in app
-					allReleased = false;
-					hasLocks = true;
-				}
 			}
 			if (infoListener != null && !hasLocks && lockName != null)
 			{
@@ -2565,21 +2545,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		IDataServer ds = application.getDataServer();
 		String transaction_id = getTransactionID(serverName);
-		IDataSet set = null;
-		try
+		long time = System.currentTimeMillis();
+		IDataSet set = ds.performCustomQuery(application.getClientID(), serverName, "<user_query>", transaction_id, sqlSelect,
+			includeFilters ? getTableFilterParams(serverName, sqlSelect) : null, 0, maxNumberOfRowsToRetrieve);
+		if (Debug.tracing())
 		{
-			long time = System.currentTimeMillis();
-			set = ds.performCustomQuery(application.getClientID(), serverName, "<user_query>", transaction_id, sqlSelect,
-				includeFilters ? getTableFilterParams(serverName, sqlSelect) : null, 0, maxNumberOfRowsToRetrieve);
-			if (Debug.tracing())
-			{
-				Debug.trace(
-					"Custom query, time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + " SQL: " + sqlSelect); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-			}
-		}
-		catch (RemoteException e)
-		{
-			throw new RepositoryException(e);
+			Debug.trace(
+				"Custom query, time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + " SQL: " + sqlSelect); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 		}
 		return set;
 	}
@@ -2592,62 +2564,55 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			return null;
 		}
 
-		try
+		String queryTid = getTransactionID(serverName);
+
+		String dataSource = DataSourceUtils.createInmemDataSource(name);
+		ITable table = inMemDataSources.get(dataSource);
+		GlobalTransaction gt = getGlobalTransaction();
+		String targetTid = null;
+		String targetServerName = table == null ? IServer.INMEM_SERVER : table.getServerName();
+		if (gt != null)
 		{
-			String queryTid = getTransactionID(serverName);
-
-			String dataSource = DataSourceUtils.createInmemDataSource(name);
-			ITable table = inMemDataSources.get(dataSource);
-			GlobalTransaction gt = getGlobalTransaction();
-			String targetTid = null;
-			String targetServerName = table == null ? IServer.INMEM_SERVER : table.getServerName();
-			if (gt != null)
+			targetTid = gt.getTransactionID(targetServerName);
+		}
+		if (table != null)
+		{
+			// temp table was used before, delete all data in it
+			FoundSet foundSet = (FoundSet)getSharedFoundSet(dataSource);
+			foundSet.removeLastFound();
+			try
 			{
-				targetTid = gt.getTransactionID(targetServerName);
+				QueryDelete delete = new QueryDelete(
+					new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema(), true));
+				SQLStatement deleteStatement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), null, targetTid,
+					delete, null);
+				application.getDataServer().performUpdates(application.getClientID(), new ISQLStatement[] { deleteStatement });
 			}
-			if (table != null)
+			catch (Exception e)
 			{
-				// temp table was used before, delete all data in it
-				FoundSet foundSet = (FoundSet)getSharedFoundSet(dataSource);
-				foundSet.removeLastFound();
-				try
-				{
-					QueryDelete delete = new QueryDelete(
-						new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema(), true));
-					SQLStatement deleteStatement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), null, targetTid,
-						delete, null);
-					application.getDataServer().performUpdates(application.getClientID(), new ISQLStatement[] { deleteStatement });
-				}
-				catch (Exception e)
-				{
-					Debug.log(e);
-					table = null;
-				}
-			}
-
-			if (getEditRecordList().removeRecords(dataSource))
-			{
-				Debug.warn("createDataSourceFromQuery was called while there were edited records under datasource with same name: " + name +
-					". All old records were removed.");
-			}
-
-			table = application.getDataServer()
-				.insertQueryResult(application.getClientID(), serverName, queryTid, sqlSelect,
-					useTableFilters ? getTableFilterParams(serverName, sqlSelect) : null, false, 0, maxNumberOfRowsToRetrieve, IDataServer.CUSTOM_QUERY,
-					dataSource,
-					table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */,
-					targetTid, ColumnType.getColumnTypes(types), pkNames);
-			if (table != null)
-			{
-				inMemDataSources.put(dataSource, table);
-				fireTableEvent(table);
-				refreshFoundSetsFromDB(dataSource, null, true, false);
-				return dataSource;
+				Debug.log(e);
+				table = null;
 			}
 		}
-		catch (RemoteException e)
+
+		if (getEditRecordList().removeRecords(dataSource))
 		{
-			throw new RepositoryException(e);
+			Debug.warn("createDataSourceFromQuery was called while there were edited records under datasource with same name: " + name +
+				". All old records were removed.");
+		}
+
+		table = application.getDataServer()
+			.insertQueryResult(application.getClientID(), serverName, queryTid, sqlSelect,
+				useTableFilters ? getTableFilterParams(serverName, sqlSelect) : null, false, 0, maxNumberOfRowsToRetrieve, IDataServer.CUSTOM_QUERY,
+				dataSource,
+				table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */,
+				targetTid, ColumnType.getColumnTypes(types), pkNames);
+		if (table != null)
+		{
+			inMemDataSources.put(dataSource, table);
+			fireTableEvent(table);
+			refreshFoundSetsFromDB(dataSource, null, true, false);
+			return dataSource;
 		}
 		return null;
 	}
@@ -3208,96 +3173,89 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			replaceValuesWithSerializedString(dataSet, columnsThatNeedToStringSerialize);
 		}
 
-		try
+		ITable table = IServer.VIEW_SERVER.equals(server) ? viewDataSources.get(dataSource) : inMemDataSources.get(dataSource);
+
+		if (table == null && !create)
 		{
-			ITable table = IServer.VIEW_SERVER.equals(server) ? viewDataSources.get(dataSource) : inMemDataSources.get(dataSource);
+			throw new RepositoryException("Appending to non-existing datasource: " + dataSource);
+		}
 
-			if (table == null && !create)
+		GlobalTransaction gt = getGlobalTransaction();
+		String tid = null;
+		String serverName = server == null ? (table == null ? IServer.INMEM_SERVER : table.getServerName()) : server;
+		if (gt != null)
+		{
+			tid = gt.getTransactionID(serverName);
+		}
+
+		if (create && table != null)
+		{
+			// temp table was used before, delete all data in it
+			FoundSet foundSet = (FoundSet)getSharedFoundSet(dataSource);
+			foundSet.removeLastFound();
+			try
 			{
-				throw new RepositoryException("Appending to non-existing datasource: " + dataSource);
+				QueryDelete delete = new QueryDelete(
+					new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema(), true));
+				SQLStatement deleteStatement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), null, tid, delete,
+					null);
+				application.getDataServer().performUpdates(application.getClientID(), new ISQLStatement[] { deleteStatement });
 			}
-
-			GlobalTransaction gt = getGlobalTransaction();
-			String tid = null;
-			String serverName = server == null ? (table == null ? IServer.INMEM_SERVER : table.getServerName()) : server;
-			if (gt != null)
+			catch (Exception e)
 			{
-				tid = gt.getTransactionID(serverName);
+				Debug.log(e);
+				table = null;
 			}
-
-			if (create && table != null)
+			RowManager element = rowManagers.get(dataSource);
+			if (element != null)
 			{
-				// temp table was used before, delete all data in it
-				FoundSet foundSet = (FoundSet)getSharedFoundSet(dataSource);
-				foundSet.removeLastFound();
-				try
-				{
-					QueryDelete delete = new QueryDelete(
-						new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema(), true));
-					SQLStatement deleteStatement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), null, tid, delete,
-						null);
-					application.getDataServer().performUpdates(application.getClientID(), new ISQLStatement[] { deleteStatement });
-				}
-				catch (Exception e)
-				{
-					Debug.log(e);
-					table = null;
-				}
-				RowManager element = rowManagers.get(dataSource);
-				if (element != null)
-				{
-					element.flushAllCachedRows();
-				}
-			}
-
-			InsertResult insertResult = application.getDataServer()
-				.insertDataSet(application.getClientID(), fixedDataSet, dataSource,
-					table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */, tid,
-					fixedColumnTypes == null ? null : fixedColumnTypes.toArray(new ColumnType[fixedColumnTypes.size()]) /* inferred from dataset when null */,
-					actualPkNames.o, columnInfoDefinitions);
-			if (insertResult != null)
-			{
-				table = insertResult.getTable();
-				// if the given dataset is not the dataset that is "fixed" (columns/typing fixed to the in mem design definition) and it has rows,
-				// then call insertDataSet again so the data is inserted with the columns defined in the the dataset
-
-				// we did check above that the dataSet column count matches the settable columns the foundset is supposed to have,
-				// but they could be in a different order
-				// TODO then the FoundsetDataSet that is created based on the foundset will not work correctly with indexes inside the foundset...
-				// do we want to fix that somehow or the caller should just make sure it calls it with the correct column order?
-				if (dataSet != fixedDataSet && dataSet.getRowCount() > 0)
-				{
-					insertResult = application.getDataServer()
-						.insertDataSet(application.getClientID(), dataSet, dataSource, table.getServerName(), table.getName(), tid,
-							columnTypes/* will be inferred by called method from dataset if null */,
-							actualPkNames.o, columnInfoDefinitions);
-				}
-				if (IServer.INMEM_SERVER.equals(serverName))
-				{
-					inMemDataSources.put(dataSource, table);
-				}
-				else
-				{
-					viewDataSources.put(dataSource, table);
-				}
-				fireTableEvent(table);
-				if (!skipOnLoad && dataSet.getRowCount() == 0 && onLoadMethodId > 0)
-				{
-					IFoundSetInternal sharedFoundSet = getSharedFoundSet(dataSource);
-					executeFoundsetTriggerReturnFirst(sharedFoundSet.getTable(), new Object[] { DataSourceUtils.getInmemDataSourceName(dataSource) },
-						StaticContentSpecLoader.PROPERTY_ONFOUNDSETLOADMETHODID, false, (Scriptable)sharedFoundSet);
-				}
-				if (create)
-				{
-					// only refresh when it is a new full load, when adding data to an existing table, it is only applicable to the (shared) foundset
-					refreshFoundSetsFromDB(dataSource, null, false, false);
-				}
-				return insertResult.getGeneratedPks();
+				element.flushAllCachedRows();
 			}
 		}
-		catch (RemoteException e)
+
+		InsertResult insertResult = application.getDataServer()
+			.insertDataSet(application.getClientID(), fixedDataSet, dataSource,
+				table == null ? IServer.INMEM_SERVER : table.getServerName(), table == null ? null : table.getName() /* create temp table when null */, tid,
+				fixedColumnTypes == null ? null : fixedColumnTypes.toArray(new ColumnType[fixedColumnTypes.size()]) /* inferred from dataset when null */,
+				actualPkNames.o, columnInfoDefinitions);
+		if (insertResult != null)
 		{
-			throw new RepositoryException(e);
+			table = insertResult.getTable();
+			// if the given dataset is not the dataset that is "fixed" (columns/typing fixed to the in mem design definition) and it has rows,
+			// then call insertDataSet again so the data is inserted with the columns defined in the the dataset
+
+			// we did check above that the dataSet column count matches the settable columns the foundset is supposed to have,
+			// but they could be in a different order
+			// TODO then the FoundsetDataSet that is created based on the foundset will not work correctly with indexes inside the foundset...
+			// do we want to fix that somehow or the caller should just make sure it calls it with the correct column order?
+			if (dataSet != fixedDataSet && dataSet.getRowCount() > 0)
+			{
+				insertResult = application.getDataServer()
+					.insertDataSet(application.getClientID(), dataSet, dataSource, table.getServerName(), table.getName(), tid,
+						columnTypes/* will be inferred by called method from dataset if null */,
+						actualPkNames.o, columnInfoDefinitions);
+			}
+			if (IServer.INMEM_SERVER.equals(serverName))
+			{
+				inMemDataSources.put(dataSource, table);
+			}
+			else
+			{
+				viewDataSources.put(dataSource, table);
+			}
+			fireTableEvent(table);
+			if (!skipOnLoad && dataSet.getRowCount() == 0 && onLoadMethodId > 0)
+			{
+				IFoundSetInternal sharedFoundSet = getSharedFoundSet(dataSource);
+				executeFoundsetTriggerReturnFirst(sharedFoundSet.getTable(), new Object[] { DataSourceUtils.getInmemDataSourceName(dataSource) },
+					StaticContentSpecLoader.PROPERTY_ONFOUNDSETLOADMETHODID, false, (Scriptable)sharedFoundSet);
+			}
+			if (create)
+			{
+				// only refresh when it is a new full load, when adding data to an existing table, it is only applicable to the (shared) foundset
+				refreshFoundSetsFromDB(dataSource, null, false, false);
+			}
+			return insertResult.getGeneratedPks();
 		}
 		return null;
 	}
@@ -3352,20 +3310,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			return false;
 		}
-		try
+		ITable table = inMemDataSources.remove(uri);
+		if (table != null)
 		{
-			ITable table = inMemDataSources.remove(uri);
-			if (table != null)
-			{
-				sharedDataSourceFoundSet.remove(uri);
-				application.getDataServer().dropTemporaryTable(application.getClientID(), table.getServerName(), table.getName());
-				getSQLGenerator().removeCache(uri);
-				return true;
-			}
-		}
-		catch (RemoteException e)
-		{
-			throw new RepositoryException(e);
+			sharedDataSourceFoundSet.remove(uri);
+			application.getDataServer().dropTemporaryTable(application.getClientID(), table.getServerName(), table.getName());
+			getSQLGenerator().removeCache(uri);
+			return true;
 		}
 		return false;
 	}
@@ -3395,18 +3346,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			if (serverName == null || serverName.equals(getDataSourceServerName(datasource)))
 			{
 				ITable t = getTable(datasource);
-				try
+				if (Debug.tracing())
 				{
-					if (Debug.tracing())
-					{
-						Debug.trace("Registering table '" + t.getServerName() + ". " + t.getName() + "' for client '" + application.getClientID() + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$//$NON-NLS-4$
-					}
-					getDataServer().addClientAsTableUser(application.getClientID(), t.getServerName(), t.getName());
+					Debug.trace("Registering table '" + t.getServerName() + ". " + t.getName() + "' for client '" + application.getClientID() + "'"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$//$NON-NLS-4$
 				}
-				catch (RemoteException e)
-				{
-					throw new RepositoryException(e);
-				}
+				getDataServer().addClientAsTableUser(application.getClientID(), t.getServerName(), t.getName());
 			}
 		}
 	}
@@ -4013,16 +3957,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				.forEach(select::addColumn);
 		}
 
-		try
-		{
-			return application.getDataServer().getSQLQuerySet(serverName, select, tfParams, 0, -1, true, true);
-		}
-		catch (RemoteException e)
-		{
-			Debug.error(e);
-		}
-
-		return null;
+		return application.getDataServer().getSQLQuerySet(serverName, select, tfParams, 0, -1, true, true);
 	}
 
 }

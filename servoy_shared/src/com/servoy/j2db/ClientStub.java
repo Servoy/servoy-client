@@ -17,7 +17,6 @@
 package com.servoy.j2db;
 
 
-import java.rmi.RemoteException;
 import java.util.Stack;
 
 import com.servoy.j2db.dataprocessing.DataServerProxy;
@@ -243,7 +242,7 @@ public class ClientStub implements IClient
 	}
 
 	@Override
-	public String getClientStatusLine() throws RemoteException
+	public String getClientStatusLine()
 	{
 		if (client instanceof IGetStatusLine)
 		{
@@ -253,7 +252,7 @@ public class ClientStub implements IClient
 		return null;
 	}
 
-	public long getLastAccessedTime() throws RemoteException
+	public long getLastAccessedTime()
 	{
 		if (client instanceof IGetLastAccessed)
 		{

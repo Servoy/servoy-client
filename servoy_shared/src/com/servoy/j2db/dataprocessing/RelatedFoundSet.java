@@ -22,7 +22,6 @@ import static java.util.Arrays.stream;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -325,11 +324,6 @@ public abstract class RelatedFoundSet extends FoundSet
 			{
 				testException(clientID, re);
 				throw re;
-			}
-			catch (RemoteException e)
-			{
-				testException(clientID, e.getCause());
-				throw new RepositoryException(e);
 			}
 		}
 
