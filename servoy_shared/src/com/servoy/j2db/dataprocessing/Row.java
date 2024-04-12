@@ -66,6 +66,7 @@ public class Row
 	private final WeakHashMap<IRowChangeListener, Object> listeners;
 
 	private static Object dummy = new Object();
+	private static final IRowChangeListener[] EMPTY_LISTENERS = new IRowChangeListener[0];
 
 	private final ConcurrentMap<String, Thread> calculatingThreads = new ConcurrentHashMap<>(4);
 
@@ -98,7 +99,8 @@ public class Row
 	{
 		synchronized (listeners)
 		{
-			return listeners.keySet().toArray(new IRowChangeListener[listeners.size()]);
+			// Cannot use listeners.size() here because some keys may have been removed from the WeakHashMap
+			return listeners.keySet().toArray(EMPTY_LISTENERS);
 		}
 	}
 
