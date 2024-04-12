@@ -76,12 +76,7 @@ public class RecordingScriptable extends AbstractRecordingScriptable implements 
 				@Override
 				public Object next()
 				{
-					Object next = scriptingIterator.next();
-					if (next instanceof Scriptable)
-					{
-						next = wrapScriptableIfNeeded(null, (Scriptable)next);
-					}
-					return next;
+					return wrapIfNeeded(null, null, scriptingIterator.next());
 				}
 
 			};
