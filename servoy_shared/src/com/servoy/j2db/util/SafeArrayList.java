@@ -116,6 +116,11 @@ public class SafeArrayList<E> implements Collection<E>, List<E>, RandomAccess, C
 
 		if (index > s)
 		{
+			if (obj == null)
+			{
+				return null;
+			}
+			
 			for (int fill = s; fill <= index; fill++)
 			{
 				list.add(null);
