@@ -443,7 +443,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 						}
 						else
 						{
-							top = "calc(" + top + "-" + topStart + "px)";
+							top = "calc(" + top + " - " + topStart + "px)";
 						}
 					}
 				}
@@ -463,7 +463,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 						}
 						else
 						{
-							bottom = "calc(" + bottom + "-" + extraHeight + "px)";
+							bottom = "calc(" + bottom + " - " + extraHeight + "px)";
 						}
 					}
 				}
