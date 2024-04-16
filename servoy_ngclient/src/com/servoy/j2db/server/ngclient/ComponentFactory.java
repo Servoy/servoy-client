@@ -17,9 +17,16 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+
 import org.sablo.Container;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectSpecification;
+import org.sablo.specification.property.CustomJSONPropertyType;
+import org.sablo.specification.property.ICustomType;
+import org.sablo.specification.property.IPropertyType;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.AbstractBase;
@@ -141,7 +148,20 @@ public class ComponentFactory
 		}
 
 		boolean foundOnDataChangeInDPConfigFromSpec[] = new boolean[] { false };
-		componentSpec.getProperties(DataproviderPropertyType.INSTANCE, true).forEach((propertyFromSpec) -> {
+
+		Collection<PropertyDescription> properties = new ArrayList<PropertyDescription>();
+		properties.addAll(componentSpec.getProperties(DataproviderPropertyType.INSTANCE, true));
+		Map<String, ICustomType< ? >> declaredCustomObjectTypes = componentSpec.getDeclaredCustomObjectTypes();
+		for (IPropertyType< ? > pt : declaredCustomObjectTypes.values())
+		{
+			if (pt instanceof CustomJSONPropertyType< ? >)
+			{
+				PropertyDescription customJSONSpec = ((CustomJSONPropertyType< ? >)pt).getCustomJSONTypeDefinition();
+				properties.addAll(customJSONSpec.getProperties(DataproviderPropertyType.INSTANCE, true));
+			}
+		}
+
+		properties.forEach((propertyFromSpec) -> {
 			// the property type found here is for a 'dataprovider' property from the spec file of this component
 			Object configOfDPOrFoundsetLinkedDP = propertyFromSpec.getConfig();
 			DataproviderConfig dpConfig;
