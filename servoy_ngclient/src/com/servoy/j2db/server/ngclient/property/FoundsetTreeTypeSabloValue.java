@@ -113,6 +113,7 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 		});
 		this.roots.clear();
 		this.flagChanged();
+		this.parentID = null;
 	}
 
 	public void toJSON(JSONWriter writer, String key, IBrowserConverterContext dataConverterContext) throws IllegalArgumentException, JSONException
@@ -668,7 +669,7 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 		if (this.autorefresh && this.initialized)
 		{
 			IFoundSetInternal foundset = (IFoundSetInternal)e.getSource();
-			if (foundset instanceof RelatedFoundSet)
+			if (foundset instanceof RelatedFoundSet && !this.roots.contains(foundset))
 			{
 				List<IRecordInternal> parentRecords = ((RelatedFoundSet)foundset).getParents();
 				if (parentRecords != null && parentRecords.size() > 0)
