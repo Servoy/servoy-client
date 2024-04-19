@@ -17,7 +17,6 @@
 package com.servoy.j2db.printing;
 
 
-import java.util.Iterator;
 import java.util.List;
 
 import com.servoy.j2db.dataprocessing.FireCollector;
@@ -81,10 +80,8 @@ public class PageNumberState implements IRecordInternal
 
 	void initPagePositionAndSize(PageDefinition pd)
 	{
-		Iterator<DataRendererDefinition> it = pd.getPanels().iterator();
-		while (it.hasNext())
+		for (DataRendererDefinition drd : pd.getPanels())
 		{
-			DataRendererDefinition drd = it.next();
 			if (drd != null && drd.getPart() != null && drd.getPart().getPartType() == Part.BODY)
 			{
 				IRecordInternal rec = drd.getState();
@@ -208,7 +205,13 @@ public class PageNumberState implements IRecordInternal
 
 	public boolean existInDataSource()
 	{
-		return true;//the delegate is always a stored record
+		return true; // the delegate is always a stored record
+	}
+
+	@Override
+	public boolean isFlaggedForDeletion()
+	{
+		return false;
 	}
 
 	@Deprecated

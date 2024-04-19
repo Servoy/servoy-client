@@ -89,6 +89,13 @@ public interface IRecord extends IRecordDeprecated
 	 */
 	public boolean existInDataSource();
 
+	/** RAGTEST doc
+	 * Check if this is a new not yet saved record
+	 *
+	 * @return exists in datasource status
+	 */
+	public boolean isFlaggedForDeletion();
+
 	/**
 	 * Check to see if locked
 	 *

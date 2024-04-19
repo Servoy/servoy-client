@@ -583,7 +583,13 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 
 	public boolean existInDataSource()
 	{
-		return true;//pretend to be stored, we never want to store this
+		return true; // pretend to be stored, we never want to store this
+	}
+
+	@Override
+	public boolean isFlaggedForDeletion()
+	{
+		return false;
 	}
 
 	@Deprecated
@@ -608,7 +614,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 		{
 			String partName = dataProviderID.substring(0, index);
 			String restName = dataProviderID.substring(index + 1);
-			IFoundSetInternal foundSet = getRelatedFoundSet(partName);//check substate, will return null if not found
+			IFoundSetInternal foundSet = getRelatedFoundSet(partName); // check substate, will return null if not found
 			if (foundSet != null)
 			{
 				FindState state = (FindState)foundSet.getRecord(0);
@@ -665,9 +671,8 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 	 */
 	public void notifyChange(ModificationEvent e, FireCollector col)
 	{
-		//not needed here
+		// not needed here
 	}
-
 
 	/**
 	 * Find all processable related find states and create joins. A find state is processable when it has changed or when a related find state has changed.
@@ -772,9 +777,12 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 
 	public boolean isRelatedFoundSetLoaded(String relationName, String restName)
 	{
-		return true;//return true to prevent async loading.
+		return true; // return true to prevent async loading.
 	}
 
+	/**
+	 * @param relationName
+	 */
 	@JSFunction
 	public boolean isRelatedFoundSetLoaded(String relationName)
 	{
@@ -823,6 +831,12 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 	}
 
 	@JSFunction
+	public boolean isDeleted()
+	{
+		return false;
+	}
+
+	@JSFunction
 	public JSRecordMarkers createMarkers()
 	{
 		return null;
@@ -831,7 +845,6 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 	@JSFunction
 	public void revertChanges()
 	{
-
 	}
 
 	public void rowRemoved()

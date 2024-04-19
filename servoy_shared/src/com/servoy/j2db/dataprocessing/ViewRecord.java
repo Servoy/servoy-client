@@ -262,6 +262,12 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	}
 
 	@Override
+	public boolean isFlaggedForDeletion()
+	{
+		return false;
+	}
+
+	@Override
 	public boolean isLocked()
 	{
 		return false;

@@ -4650,7 +4650,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 
 				boolean allFoundsetRecordsLoaded = currentPKs != null && pksAndRecords.getCachedRecords().size() == getSize() && !hadMoreRows();
 
-				if (fsm.config.ragtestDeleteRecordsInAutoSave())
+				if (fsm.config.deleteWithAutosaveOff())
 				{
 					performDeleteQueryDirectly(table, currentPKs, delete_sql, allFoundsetRecordsLoaded);
 				}
@@ -4882,7 +4882,6 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 								"Delete not granted due to AllowParentDeleteWhenHavingRelatedRecords and existing related records from record with PK: " +
 									state.getPKHashKey() + " index in foundset: " + row + " blocked by relation: " + relation.getName(),
 								null);
-							// RAGTEST validate in autosave=false
 							throw new ApplicationException(ServoyException.NO_PARENT_DELETE_WITH_RELATED_RECORDS, new Object[] { relation.getName() })
 								.setContext(this.toString());
 						}
@@ -4914,7 +4913,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			if (state.existInDataSource())
 			{
 				boolean performActualDelete = !partOfBiggerDelete;
-				if (fsm.config.ragtestDeleteRecordsInAutoSave())
+				if (fsm.config.deleteWithAutosaveOff())
 				{
 					performDeleteRecordDirectly(state, performActualDelete);
 				}
@@ -4924,7 +4923,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 					{
 						if (!(state instanceof PrototypeState))
 						{
-							removeRecordInternalEx(state, row);
+							removeRecordInternalEx(state, false, row);
 							getFoundSetManager().getEditRecordList().stopEditing(false, state);
 						}
 					}
@@ -4937,13 +4936,13 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				rowManager.clearRow(data);
 			}
 		}
-
 		if (!(state instanceof PrototypeState))
 		{
-			removeRecordInternalEx(state, row);
+			/* RAGTEST nodig ?? */ removeRecordInternalEx(state, fsm.config.deleteWithAutosaveOff(), row);
 			if (state != null && state.getRawData() != null)
 			{
 				Row rawData = state.getRawData();
+				// RAGTEST check of dit goed werkt als de data nog niet echt gedelete is
 				rawData.unregister(state);
 				if (!rawData.existInDB())
 				{
@@ -5037,13 +5036,12 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	protected void removeRecordInternal(int row)
 	{
 		IRecordInternal state = pksAndRecords.getCachedRecords().get(row); // if state was not cached no need to query for it here
-		removeRecordInternalEx(state, row);
+		removeRecordInternalEx(state, true, row);
 	}
 
-	private void removeRecordInternalEx(IRecordInternal state, int row)
+	private void removeRecordInternalEx(IRecordInternal state, boolean javascriptStop, int row)
 	{
-		//state can be null in case the row is already deleted in the database, but the pk is present in this foundset
-
+		// state can be null in case the row is already deleted in the database, but the pk is present in this foundset
 		EditRecordList editRecordList = getFoundSetManager().getEditRecordList();
 		if (state != null)
 		{
@@ -5055,7 +5053,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				{
 					if (existInDataSource)
 					{
-						editRecordList.stopEditing(true, state);
+						editRecordList.stopEditing(javascriptStop, state);
 					}
 					else
 					{
@@ -5240,14 +5238,13 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				omittedPKs.addRow(dsState.getPK());
 			}
 
-			QuerySelect sqlSelect = pksAndRecords.getQuerySelectForModification();
-
 			// replace the OMIT condition, keep sort (could be custom sort, different from lastSortColumns)
 			replaceOmitCondition();
 
 			for (IRecordInternal dsState : recordsToOmit)
 			{
-				removeRecordInternalEx(dsState, pksAndRecords.getCachedRecords().indexOf(dsState));
+				// RAGTEST test dit met delete-undo
+				removeRecordInternalEx(dsState, true, pksAndRecords.getCachedRecords().indexOf(dsState));
 			}
 		}
 

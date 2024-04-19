@@ -305,7 +305,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 			return parent.setDataProviderValue(dataProviderID, managebleValue);
 		}
 
-		//check if is related value request
+		// check if is related value request
 		int index = dataProviderID.indexOf('.');
 		if (index > 0)
 		{
@@ -320,7 +320,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		return null;
 	}
 
-	//called by DisplaysAdapter or CellAdapter
+	// called by DisplaysAdapter or CellAdapter
 	public boolean startEditing()
 	{
 		return startEditing(true);
@@ -331,7 +331,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		return getParentFoundSet().getFoundSetManager().getEditRecordList().startEditing(this, mustFireEditRecordChange);
 	}
 
-	//called by DataAdapterList, return changed
+	// called by DataAdapterList, return changed
 	public int stopEditing()
 	{
 		return getParentFoundSet().getFoundSetManager().getEditRecordList().stopEditing(false, this);
@@ -340,6 +340,11 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	public boolean existInDataSource()
 	{
 		return row.existInDB();
+	}
+
+	public boolean isFlaggedForDeletion()
+	{
+		return row.isFlaggedForDeletion();
 	}
 
 	@Deprecated
@@ -1006,6 +1011,21 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	public boolean isNew()
 	{
 		return getRawData() != null && !existInDataSource();
+	}
+
+	/**
+	 * RAGTEST doc
+	 * Returns true if the current record is a new record or false otherwise. New record means not saved to database.
+	 *
+	 * @sample
+	 * var isNew = foundset.getSelectedRecord().isNew();
+	 *
+	 * @return true if the current record is a new record, false otherwise;
+	 */
+	@JSFunction
+	public boolean isDeleted()
+	{
+		return getRawData() != null && getRawData().isFlaggedForDeletion();
 	}
 
 	/**

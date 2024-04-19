@@ -4329,11 +4329,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		else
 		{
 			EditRecordList el = application.getFoundSetManager().getEditRecordList();
-			// fist test quickly for this foundset only.
-			IRecordInternal[] editedRecords = el.getEditedRecords(foundset, true);
-			for (IRecordInternal editedRecord : editedRecords)
+			// firt test quickly for this foundset only.
+			for (IRecordInternal record : el.getEditedRecords(foundset, true))
 			{
-				IRecordInternal record = editedRecord;
 				if (record.getRawData() != null && !record.existInDataSource())
 				{
 					return true;
@@ -4341,10 +4339,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			}
 			// if not found then look if other foundsets had record(s) that are new that also are in this foundset.
 			String ds = foundset.getDataSource();
-			editedRecords = el.getEditedRecords();
-			for (IRecordInternal editedRecord : editedRecords)
+			for (IRecordInternal record : el.getEditedRecords())
 			{
-				IRecordInternal record = editedRecord;
 				if (record.getRawData() != null && !record.existInDataSource())
 				{
 					if (record.getParentFoundSet().getDataSource().equals(ds))

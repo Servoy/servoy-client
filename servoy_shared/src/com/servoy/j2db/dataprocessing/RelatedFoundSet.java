@@ -796,13 +796,13 @@ public abstract class RelatedFoundSet extends FoundSet
 				if (remove)
 				{
 					retval = false;
-					//row is not longer part of this related foundset, so remove in myself
+					// row is not longer part of this related foundset, so remove in myself
 					for (int ii = pks.getRowCount() - 1; ii >= 0; ii--)
 					{
 						Object[] pk = pks.getRow(ii);
 						if (RowManager.createPKHashKey(pk).equals(pkHash))
 						{
-							removeRecordInternal(ii);//does fireIntervalRemoved(this,ii,ii);
+							removeRecordInternal(ii); // does fireIntervalRemoved(this, ii, ii);
 							break;
 						}
 					}

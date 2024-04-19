@@ -106,7 +106,6 @@ public class EditRecordList
 
 	private ConcurrentMap<FoundSet, int[]> fsEventMap;
 
-	// RAGTEST naar EditedRecords verhuizen? (niet als we failedrecords ook een EditedRecords() maken
 	private final ReentrantLock editRecordsLock = new ReentrantLock();
 
 	private final EditedRecords editedRecords = new EditedRecords();
@@ -382,9 +381,6 @@ public class EditRecordList
 	 */
 	private int stopEditingImpl(final boolean javascriptStop, IFoundSet foundset, List<IRecord> recordsToSave, int recursionDepth)
 	{
-		// RAGTEST voer delete uit
-		// RAGTEST check voor foundset event PROPERTY_ONDELETEMETHODID PROPERTY_ONAFTERDELETEMETHODID
-		// RAGTEST get en verwijder delete queries voor foundsets (foundset = null, dan alle)
 		if (recursionDepth > 50)
 		{
 			fsm.getApplication().reportJSError(
@@ -1042,7 +1038,9 @@ public class EditRecordList
 		return ISaveConstants.STOPPED;
 	}
 
-	/* RAGTEST Doc */
+	/*
+	 * Return a function for the loop to check if the EditedRecordOrFoundset should be processed in the save-loop.
+	 */
 	private Predicate<EditedRecordOrFoundset> shouldProcessRecordOrFoundset(List<IRecord> subList, IFoundSet foundset)
 	{
 		return editedRecordOrFoundset -> {
@@ -1152,14 +1150,10 @@ public class EditRecordList
 		return al;
 	}
 
-	/**
-	 * RAGTEST doc
-	 * @param <T>
-	 * @param row
-	 * @param rowFuction
-	 * @param al
-	 * @param i
-	 * @return
+	/*
+	 * Determine if the rows need to be switched around when sorting while doing inserts.
+	 *
+	 * Main records must be saved before the detail records.
 	 */
 	private static <T> boolean switchRowForInsert(Row row, Function<T, Row> rowFuction, List<T> al, int i)
 	{
@@ -1198,14 +1192,10 @@ public class EditRecordList
 		return false;
 	}
 
-	/**
-	 * RAGTEST doc
-	 * @param <T>
-	 * @param row
-	 * @param rowFuction
-	 * @param al
-	 * @param i
-	 * @return
+	/*
+	 * Determine if the rows need to be switched around when sorting while doing deletes.
+	 *
+	 * Detail records must be deleted before the main records.
 	 */
 	private static <T> boolean switchRowForDelete(Row row, Function<T, Row> rowFuction, List<T> al, int i)
 	{
@@ -1691,7 +1681,7 @@ public class EditRecordList
 			{
 				if (hasAccess(record.getParentFoundSet().getSQLSheet().getTable(), IRepository.DELETE))
 				{
-					canDeleteRecord = !record.isLocked();// enable only if not locked by someone else
+					canDeleteRecord = !record.isLocked(); // enable only if not locked by someone else
 				}
 				else
 				{
@@ -2114,8 +2104,8 @@ public class EditRecordList
 		removeUnChangedRecords(true, false);
 		editRecordsLock.lock();
 		try
-		{// RAGTEST bevat niet deleted, aparte api?
-			return editedRecords.getEdited();
+		{
+			return editedRecords.getAll();
 		}
 		finally
 		{
