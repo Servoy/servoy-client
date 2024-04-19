@@ -17,6 +17,8 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.j2db.util.Utils.stream;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +26,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Stream;
 
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.Messages;
@@ -111,6 +114,11 @@ public class Row
 		{
 			listener.notifyChange(e, collector);
 		}
+	}
+
+	public Stream<IRecordInternal> getRegisterdRecords()
+	{
+		return stream(getRowListeners()).filter(IRecordInternal.class::isInstance).map(IRecordInternal.class::cast);
 	}
 
 	Row(RowManager parent, Object[] columndata, Map<String, Object> cc, boolean existInDB)

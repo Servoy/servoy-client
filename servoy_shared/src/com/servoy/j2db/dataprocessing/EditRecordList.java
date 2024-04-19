@@ -32,6 +32,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -82,7 +83,6 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IntHashMap;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
@@ -525,7 +525,6 @@ public class EditRecordList
 			}
 
 			int failedCount = 0;
-			List<Pair<IFoundSetInternal, QueryDelete>> failedDeletes = new ArrayList<>();
 
 			boolean justValidationErrors = false;
 			lastStopEditingException = null;
@@ -671,8 +670,17 @@ public class EditRecordList
 						}
 						catch (ServoyException e)
 						{
-							Debug.error(e);
-							return ISaveConstants.SAVE_FAILED;
+							log.debug("stopEditing(" + javascriptStop + ") encountered an exception - could be expected and treated by solution code or not", //$NON-NLS-1$//$NON-NLS-2$
+								e);
+							// trigger method threw exception
+							lastStopEditingException = e;
+							failedCount++;
+							editedRecords.addDeleteQuery(foundsetDeletingQuery.getFoundset(), foundsetDeletingQuery.getQueryDelete(),
+								foundsetDeletingQuery.getAffectedFoundsets());
+						}
+						catch (Exception e)
+						{
+							Debug.error("Not a normal Servoy/Db Exception generated in deleting recors", e);
 						}
 					}
 				}
@@ -684,7 +692,6 @@ public class EditRecordList
 
 			if (failedCount > 0)
 			{
-				failedDeletes.forEach(pair -> editedRecords.addDeleteQuery(pair.getLeft(), pair.getRight()));
 				placeBackAlreadyProcessedRecords(dbUpdates);
 				setDeletedrecordsInternalTableFilter(false);
 
@@ -1704,7 +1711,11 @@ public class EditRecordList
 					record.getRawData().setLastException(null);
 					record.getRawData().flagForDeletion();
 
-					editedRecords.addDeleted(record);
+					List<IFoundSetInternal> affectedFoundsets = record.getRawData()
+						.getRegisterdRecords()
+						.map(IRecordInternal::getParentFoundSet)
+						.toList();
+					editedRecords.addDeleted(record, affectedFoundsets);
 				}
 				finally
 				{
@@ -1719,12 +1730,12 @@ public class EditRecordList
 		return canDeleteRecord;
 	}
 
-	public void addDeleteQuery(IFoundSetInternal foundset, QueryDelete deleteQuery)
+	public void addDeleteQuery(IFoundSetInternal foundset, QueryDelete deleteQuery, Collection<IFoundSetInternal> affectedFoundsets)
 	{
 		editRecordsLock.lock();
 		try
 		{
-			editedRecords.addDeleteQuery(foundset, deleteQuery);
+			editedRecords.addDeleteQuery(foundset, deleteQuery, affectedFoundsets);
 		}
 		finally
 		{
@@ -1987,7 +1998,7 @@ public class EditRecordList
 	 */
 	public void rollbackRecords(List<IRecordInternal> records, boolean rollbackFoundsetDeletes, IFoundSetInternal foundset)
 	{
-		List<IRecordInternal> array = new ArrayList<>();
+		List<IRecordInternal> revertedRecords = new ArrayList<>();
 		List<IFoundSetInternal> foundsetsWithRevertingDeletes;
 		editRecordsLock.lock();
 		try
@@ -1995,7 +2006,7 @@ public class EditRecordList
 			for (IRecordInternal record : records)
 			{
 				recordTested.remove(record);
-				if (editedRecords.contains(record)) array.add(record);
+				if (editedRecords.contains(record)) revertedRecords.add(record);
 			}
 
 			foundsetsWithRevertingDeletes = removeDeletesForRevert(records, rollbackFoundsetDeletes, foundset);
@@ -2010,25 +2021,25 @@ public class EditRecordList
 			setDeletedrecordsInternalTableFilter(false);
 		}
 
-		if (!array.isEmpty())
+		if (!revertedRecords.isEmpty())
 		{
 			// sort them as for insert, but then reversed, so related is deleted first
-			array = orderUpdatesForInsertOrder(array, IRecordInternal::getRawData, true);
+			revertedRecords = orderUpdatesForInsertOrder(revertedRecords, IRecordInternal::getRawData, true);
 
 			// The "existsInDB" property sometimes changes while iterating over the array
 			// below (for example when we have several Records that point to the same Row
 			// and the Row is not yet stored in the database). So we memorize the initial
 			// values of "existsInDB" and we use them while iterating over the array.
 
-			boolean[] existsInDB = new boolean[array.size()];
-			for (int i = 0; i < array.size(); i++)
+			boolean[] existsInDB = new boolean[revertedRecords.size()];
+			for (int i = 0; i < revertedRecords.size(); i++)
 			{
-				existsInDB[i] = array.get(i).existInDataSource();
+				existsInDB[i] = revertedRecords.get(i).existInDataSource();
 			}
 
-			for (int i = 0; i < array.size(); i++)
+			for (int i = 0; i < revertedRecords.size(); i++)
 			{
-				Row row = array.get(i).getRawData();
+				Row row = revertedRecords.get(i).getRawData();
 
 				// TODO all fires in rollback should be accumulated and done here at once.
 
@@ -2044,7 +2055,7 @@ public class EditRecordList
 			{
 				if (!editedRecords.isEmpty())
 				{
-					editedRecords.removeAll(array);
+					editedRecords.removeAll(revertedRecords);
 				}
 			}
 			finally
@@ -2067,7 +2078,7 @@ public class EditRecordList
 			}
 		});
 
-		if (!array.isEmpty() || !foundsetsWithRevertingDeletes.isEmpty())
+		if (!revertedRecords.isEmpty() || !foundsetsWithRevertingDeletes.isEmpty())
 		{
 			performActionIfRequired();
 		}
@@ -2084,12 +2095,14 @@ public class EditRecordList
 			// when foundset is null this will get delete queries for all foundsets
 			deleteQueries = editedRecords.getFoundsetDeletingQueries(foundset).collect(toList());
 		}
+
 		List<IFoundSetInternal> foundsetsWithRevertingDeletes = concat(
 			stream(records)
 				.filter(editedRecords::containsDeleted)
-				.map(IRecordInternal::getParentFoundSet),
+				.map(editedRecords::getAffectedFoundsets),
 			deleteQueries.stream()
-				.map(FoundsetDeletingQuery::getFoundset))
+				.map(FoundsetDeletingQuery::getAffectedFoundsets))
+					.flatMap(Collection::stream)
 					.distinct().toList();
 
 		// remove all deletes

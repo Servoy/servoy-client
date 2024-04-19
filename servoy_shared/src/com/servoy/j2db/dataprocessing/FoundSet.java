@@ -4627,18 +4627,16 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				throw new ApplicationException(ServoyException.NO_DELETE_ACCESS, new Object[] { table.getName() });
 			}
 
-			boolean hasRelationsWithDelete = false;
-			Iterator<Relation> it = fsm.getApplication().getFlattenedSolution().getRelations(table, true, false);
-			while (it.hasNext())
-			{
-				Relation element = it.next();
-				if ((element.getDeleteRelatedRecords() || !element.getAllowParentDeleteWhenHavingRelatedRecords()) && !element.isGlobal())
-				{
-					Debug.trace("Foundset deleted per-record because relation '" + element.getName() + "' requires some checks"); //$NON-NLS-1$ //$NON-NLS-2$
-					hasRelationsWithDelete = true;
-					break;
-				}
-			}
+			boolean hasRelationsWithDelete = stream(fsm.getApplication().getFlattenedSolution().getRelations(table, true, false))
+				.anyMatch(relation -> {
+					if ((relation.getDeleteRelatedRecords() || !relation.getAllowParentDeleteWhenHavingRelatedRecords()) && !relation.isGlobal())
+					{
+						Debug.trace("Foundset deleted per-record because relation '" + relation.getName() + "' requires some checks"); //$NON-NLS-1$ //$NON-NLS-2$
+						return true;
+					}
+
+					return false;
+				});
 
 			if (!hasRelationsWithDelete)
 			{
@@ -4656,7 +4654,12 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				}
 				else
 				{
-					getFoundSetManager().getEditRecordList().addDeleteQuery(this, delete_sql);
+					List<IFoundSetInternal> affectedFoundsets = stream(getFoundSetManager().getAllLoadedFoundsets(getDataSource(), true))
+						.filter(fs ->
+						// if this foundset is related, other foundsets on the same relation are not affected (no overlap)
+						(fs == this || getRelationName() == null || !getRelationName().equals(fs.getRelationName())))
+						.collect(toList());
+					getFoundSetManager().getEditRecordList().addDeleteQuery(this, delete_sql, affectedFoundsets);
 					getFoundSetManager().getEditRecordList().stopEditing(false, this);
 				}
 
