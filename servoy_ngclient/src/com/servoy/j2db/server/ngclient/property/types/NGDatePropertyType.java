@@ -44,7 +44,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 public class NGDatePropertyType extends DatePropertyType implements IDesignToFormElement<Long, Date, Date>, IFormElementToTemplateJSON<Date, Date>
 {
 
-	private static final String SVY_DATE_CLIENT_SIDE_TYPE_NAME = "svy_date";
+	public static final String SVY_DATE_CLIENT_SIDE_TYPE_NAME = "svy_date";
 	public final static NGDatePropertyType NG_INSTANCE = new NGDatePropertyType();
 
 	@Override
@@ -94,6 +94,13 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 	{
 		// NOTE: pd and dataConverterContext can be null if call come from 'object' type / JSONUtils.defaultToJSONValue(...) conversions which rely on this Date type
 		JSONUtils.addKeyIfPresent(writer, key);
+		String sDate = toStringDate(value, pd);
+
+		return writer.value(sDate);
+	}
+
+	public static String toStringDate(Date value, PropertyDescription pd)
+	{
 		String sDate;
 		OffsetDateTime offsetDT;
 		// java.sqlDate  seems to only be created by variable assignment where we make a new sql.Date() of a js date.
@@ -141,8 +148,7 @@ public class NGDatePropertyType extends DatePropertyType implements IDesignToFor
 				}
 			}
 		}
-
-		return writer.value(sDate);
+		return sDate;
 	}
 
 	public static boolean hasNoDateConversion(PropertyDescription pd)
