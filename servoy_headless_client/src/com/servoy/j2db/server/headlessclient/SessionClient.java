@@ -80,6 +80,7 @@ import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.scripting.JSBlobLoaderBuilder;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRendererFactory;
 import com.servoy.j2db.server.headlessclient.dataui.WebItemFactory;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
@@ -999,6 +1000,12 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	public Object generateBrowserFunction(String functionString)
 	{
 		return functionString;
+	}
+
+	@Override
+	public JSBlobLoaderBuilder createUrlBlobloaderBuilder(String dataprovider)
+	{
+		return null;
 	}
 
 	@Override

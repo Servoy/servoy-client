@@ -30,6 +30,7 @@ import com.servoy.j2db.dataprocessing.DataServerProxy;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.plugins.IPluginAccess;
 import com.servoy.j2db.plugins.IPluginManager;
+import com.servoy.j2db.scripting.JSBlobLoaderBuilder;
 import com.servoy.j2db.server.shared.IUserManager;
 import com.servoy.j2db.ui.ItemFactory;
 import com.servoy.j2db.util.ILogLevel;
@@ -536,4 +537,10 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * @return
 	 */
 	public Object generateBrowserFunction(String functionString);
+
+	/**
+	 * @param dataprovider
+	 * @return
+	 */
+	public JSBlobLoaderBuilder createUrlBlobloaderBuilder(String dataprovider);
 }

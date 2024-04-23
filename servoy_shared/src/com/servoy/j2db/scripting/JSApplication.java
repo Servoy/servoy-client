@@ -2888,7 +2888,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * The resulting object can be assigned into a config/property object that is then assigned to a component
 	 * The component will receive this function as a real function object.
 	 *
-	 * This is a more dynamic variant of the spec property "clientfunction" https://wiki.servoy.com/display/DOCS/Property+Types
+	 * This is a more dynamic variant of the spec property "clientfunction" https://docs.servoy.com/reference/servoy-developer/property_types#clientfunction
 	 *
 	 * @sample
 	 * var options = { myfunction: application.generateBrowserFunction("function(param) { return param + 1 }") };
@@ -2901,6 +2901,21 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	public Object generateBrowserFunction(String functionString)
 	{
 		return application.generateBrowserFunction(functionString);
+	}
+
+
+	/**
+	 * Creates a blob loader url that can be send to the browser where the browser can download the value of the given dataprovider.
+	 * The dataprovider is mandatory but also a datasource or server/tablename combination should be give if it points to a database column.
+	 * The create() method will return the url that can be send to the browser inside a piece of html
+	 *
+	 *  @param {String} dataprovider the dataprovider where the value should be send to the browser for (global variable or datasource column)
+	 */
+	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
+	@JSFunction
+	public JSBlobLoaderBuilder createUrlBlobloaderBuilder(String dataprovider)
+	{
+		return application.createUrlBlobloaderBuilder(dataprovider);
 	}
 
 	/**
