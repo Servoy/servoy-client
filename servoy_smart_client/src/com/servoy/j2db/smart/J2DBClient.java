@@ -188,6 +188,7 @@ import com.servoy.j2db.preference.PreferencePanel;
 import com.servoy.j2db.preference.ServicePanel;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.JSBlobLoaderBuilder;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.shared.IApplicationServer;
@@ -434,6 +435,12 @@ public class J2DBClient extends ClientState
 		return functionString;
 	}
 
+	@Override
+	public JSBlobLoaderBuilder createUrlBlobloaderBuilder(String dataprovider)
+	{
+		return null;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 *
@@ -576,10 +583,8 @@ public class J2DBClient extends ClientState
 
 		boolean toggleTracing = false;
 		StartupArguments arguments = new StartupArguments(args);
-		Iterator<Entry<String, Object>> iterator = arguments.entrySet().iterator();
-		while (iterator.hasNext())
+		for (Entry<String, Object> arg : arguments.entrySet())
 		{
-			Entry<String, Object> arg = iterator.next();
 			if (arg.getKey().startsWith("system.property."))
 			{
 				System.setProperty(arg.getKey().substring(16), (String)arg.getValue());
@@ -1850,10 +1855,8 @@ public class J2DBClient extends ClientState
 					SwingUtilities.updateComponentTreeUI(ap);
 				}
 
-				Iterator<Window> windows = dialogs.values().iterator();
-				while (windows.hasNext())
+				for (Window window : dialogs.values())
 				{
-					Window window = windows.next();
 					SwingUtilities.updateComponentTreeUI(window);
 				}
 			}
@@ -2200,11 +2203,8 @@ public class J2DBClient extends ClientState
 
 			if (frame != null) frame.setTitle(getDisplayApplicationName());
 
-			// delete all dialogs
-			Iterator<Window> it = dialogs.values().iterator();
-			while (it.hasNext())
+			for (Window element : dialogs.values())
 			{
-				Window element = it.next();
 				element.dispose();
 			}
 			dialogs = new HashMap<String, Window>();
