@@ -55,8 +55,8 @@ public class JSBlobLoaderBuilder
 	/**
 	 *  Sets the server name of the dataprovider.
 	 *
-	 * @param {String} servername
-	 * @param {String} tablename
+	 * @param servername The servername for this dataprovider
+	 * @param tablename The tablename for this dataprovider
 	 * @return return the builder itself
 	 */
 	@JSFunction
@@ -70,7 +70,7 @@ public class JSBlobLoaderBuilder
 	/**
 	 *  Sets the datasource (server/table combination) of the dataprovider.
 	 *
-	 * @param {String} datasource
+	 * @param datasource The datasource for this dataprovider
 	 * @return return the builder itself
 	 */
 	@JSFunction
@@ -83,7 +83,7 @@ public class JSBlobLoaderBuilder
 	/**
 	 *  Sets the rowid (single pk) of the table
 	 *
-	 * @param {Object} rowid
+	 * @param rowid The rowid, can be a single value or an array of values
 	 * @return return the builder itself
 	 */
 	@JSFunction
@@ -96,7 +96,7 @@ public class JSBlobLoaderBuilder
 	/**
 	 *  Sets the rowids (composite pk) of the table
 	 *
-	 * @param {Object[]} rowid
+	 * @param rowid The rowid, can be a single value or an array of values
 	 * @return return the builder itself
 	 */
 	@JSFunction
@@ -108,8 +108,9 @@ public class JSBlobLoaderBuilder
 
 	/**
 	 *  Sets the filename of the data of the dataprovider.
+	 *  If set then this will set the Content-disposition header to attachment; filename=filename
 	 *
-	 * @param {String} filename
+	 * @param filename The filename of the data
 	 * @return return the builder itself
 	 */
 	@JSFunction
@@ -121,8 +122,9 @@ public class JSBlobLoaderBuilder
 
 	/**
 	 *  Sets the mimetype of the data of the dataprovider.
+	 *  This will be set in the content type header of the response for this data
 	 *
-	 * @param {String} mimetype
+	 * @param mimetype the mime type of the data (set as the content type header)
 	 * @return return the builder itself
 	 */
 	@JSFunction
@@ -133,6 +135,11 @@ public class JSBlobLoaderBuilder
 	}
 
 
+	/**
+	 * Creates the blobloader url string that can be used in custom html or send to the browser as a redirect url for direct download.
+	 *
+	 * @return the blobloader url pointing to the data of the given dataprovider
+	 */
 	@SuppressWarnings("nls")
 	@JSFunction
 	public String create()

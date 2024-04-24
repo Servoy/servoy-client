@@ -2943,7 +2943,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @sample var bloburl = application.createUrlBlobloaderBuilder("picture_data").datasource("db:/example_data/pictures").rowid().create();
 	 *
-	 *  @param {String} dataprovider the dataprovider where the value should be send to the browser for (global variable or datasource column)
+	 *  @param dataprovider the dataprovider where the value should be send to the browser for (global variable or datasource column)
 	 *
 	 *  @deprecated use clientutils.createUrlBlobloaderBuilder instead
 	 */
