@@ -2894,6 +2894,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * var options = { myfunction: application.generateBrowserFunction("function(param) { return param + 1 }") };
 	 * elements.component.setOptions(options);
 	 *
+	 * @param functionString The function string of a js function that should be running in the clients browser.
+	 *
 	 * @return An object that can be assignd to a javascript/json object that is send to the client
 	 */
 	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
@@ -2909,7 +2911,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * The dataprovider is mandatory but also a datasource or server/tablename combination should be give if it points to a database column.
 	 * The create() method will return the url that can be send to the browser inside a piece of html
 	 *
-	 *  @param {String} dataprovider the dataprovider where the value should be send to the browser for (global variable or datasource column)
+	 *  @param dataprovider the dataprovider where the value should be send to the browser for (global variable or datasource column)
 	 */
 	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 	@JSFunction
