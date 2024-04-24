@@ -2891,7 +2891,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * This is needed because in TiNG  it is not allowed, because of the Content Security Policy (CSP) that is enforced, to eval(string) to get a function object (that then can be executed later on)
 	 *
-	 * This is a more dynamic variant of the spec property "clientfunction" https://docs.servoy.com/reference/servoycore/dev-api/property_types#clientfunction
+	 * This is a more dynamic variant of the spec property "clientfunction"  https://docs.servoy.com/reference/servoy-developer/property_types#clientfunction
 	 * You do not need to use this for properties/arguments/return values that are declared to have "clientfunction" type in the .spec file, but rather for
 	 * when you want to give it inside plain 'object' typed values. From 2023.09 also map and json property types (even nested if configured in the spec correctly) are supported.
 	 *
@@ -2908,6 +2908,23 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	public Object generateBrowserFunction(String functionString)
 	{
 		return application.generateBrowserFunction(functionString);
+	}
+
+
+	/**
+	 * Creates a blob loader url that can be send to the browser where the browser can download the value of the given dataprovider.
+	 * The dataprovider is mandatory but also a datasource or server/tablename combination should be give if it points to a database column.
+	 * The create() method will return the url that can be send to the browser inside a piece of html
+	 *
+	 * @sample var bloburl = application.createUrlBlobloaderBuilder("picture_data").datasource("db:/example_data/pictures").rowid(pk).create();
+	 *
+	 *  @param {String} dataprovider the dataprovider where the value should be send to the browser for (global variable or datasource column)
+	 */
+	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
+	@JSFunction
+	public JSBlobLoaderBuilder createUrlBlobloaderBuilder(String dataprovider)
+	{
+		return application.createUrlBlobloaderBuilder(dataprovider);
 	}
 
 	/**
