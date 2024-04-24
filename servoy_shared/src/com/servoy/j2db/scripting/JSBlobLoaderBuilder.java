@@ -20,6 +20,7 @@ package com.servoy.j2db.scripting;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.INGClientApplication;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -27,6 +28,7 @@ import com.servoy.j2db.util.Debug;
  * @since 2022.03.9
  */
 @SuppressWarnings("hiding")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSBlobLoaderBuilder")
 public class JSBlobLoaderBuilder
 {
 	private final INGClientApplication application;
