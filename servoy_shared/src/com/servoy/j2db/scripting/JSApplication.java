@@ -2939,7 +2939,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * The dataprovider is mandatory but also a datasource or server/tablename combination should be give if it points to a database column.
 	 * The create() method will return the url that can be send to the browser inside a piece of html
 	 *
-	 *  @param {String} dataprovider the dataprovider where the value should be send to the browser for (global variable or datasource column)
+	 *  @param dataprovider the dataprovider where the value should be send to the browser for (global variable or datasource column)
 	 */
 	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 	@JSFunction
