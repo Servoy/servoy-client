@@ -180,6 +180,7 @@ public class ScriptEngine implements IScriptSupport
 
 	private final JSApplication jsApplication;
 	private final JSUtils jsUtils;
+	private final JSClientUtils jsClientUtils;
 	private final JSSecurity jssec;
 	private final JSDatabaseManager jsdbm;
 	private final JSDataSources jsds;
@@ -195,6 +196,7 @@ public class ScriptEngine implements IScriptSupport
 
 		jsApplication = new JSApplication(application);
 		jsUtils = new JSUtils(application);
+		jsClientUtils = new JSClientUtils(application);
 		jssec = new JSSecurity(application);
 		jsdbm = new JSDatabaseManager(application);
 		jsds = new JSDataSources(application);
@@ -270,6 +272,9 @@ public class ScriptEngine implements IScriptSupport
 
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_UTILS, tmpSolutionScope,
 				new NativeJavaObject(tmpSolutionScope, jsUtils, new InstanceJavaMembers(tmpSolutionScope, JSUtils.class)));
+
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_CLIENTUTILS, tmpSolutionScope,
+				new NativeJavaObject(tmpSolutionScope, jsClientUtils, new InstanceJavaMembers(tmpSolutionScope, JSClientUtils.class)));
 
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_SECURITY, tmpSolutionScope,
 				new NativeJavaObject(tmpSolutionScope, jssec, new InstanceJavaMembers(tmpSolutionScope, JSSecurity.class)));
@@ -435,6 +440,7 @@ public class ScriptEngine implements IScriptSupport
 		jsds.destroy();
 		jssec.destroy();
 		jsUtils.destroy();
+		jsClientUtils.destroy();
 		i18n.destroy();
 		historyProvider.destroy();
 		pluginScope.destroy();
