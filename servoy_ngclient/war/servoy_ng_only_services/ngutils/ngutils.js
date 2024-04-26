@@ -221,11 +221,13 @@ angular.module('ngclientutils', [ 'servoy' ])
 		printDocument: function(url)
 		{
 			var objFra = document.createElement('iframe');   
-	        objFra.style.visibility = "hidden";    
-	        objFra.src = url;                      
-	        document.body.appendChild(objFra);  
-	        objFra.contentWindow.focus();      
-	        objFra.contentWindow.print();
+	        objFra.style.visibility = "hidden";
+	        document.body.appendChild(objFra); 
+	        objFra.onload = function() {
+	            objFra.contentWindow.focus();
+                objFra.contentWindow.print();
+            };
+            objFra.src = url;  
 		},
 		
 		/**
