@@ -82,6 +82,7 @@ import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.JSBlobLoaderBuilder;
 import com.servoy.j2db.scripting.PluginScope;
 import com.servoy.j2db.scripting.info.NGCONSTANTS;
 import com.servoy.j2db.server.headlessclient.AbstractApplication;
@@ -1752,6 +1753,12 @@ public class NGClient extends AbstractApplication
 	public Object generateBrowserFunction(String functionString)
 	{
 		return new BrowserFunction(functionString, this);
+	}
+
+	@Override
+	public JSBlobLoaderBuilder createUrlBlobloaderBuilder(String dataprovider)
+	{
+		return new JSBlobLoaderBuilder(this, dataprovider, getWebsocketSession().getSessionKey().getClientnr());
 	}
 
 

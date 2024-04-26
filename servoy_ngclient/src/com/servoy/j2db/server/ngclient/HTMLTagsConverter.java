@@ -111,24 +111,12 @@ public class HTMLTagsConverter
 					else if (replaceContent.startsWith(mediaPrefix))
 					{
 						String media = replaceContent.substring(mediaPrefix.length());
-						if (media.startsWith("/servoy_blobloader?"))
+						if (!media.startsWith("/servoy_blobloader?"))
 						{
-							String blobpart = media.substring("servoy_blobloader?".length());
-							try
-							{
-								blobpart = context.getSolution().getEncryptionHandler().encryptString(blobpart, true);
-								attr.setValue("resources/servoy_blobloader?blob=" + blobpart + "&clientnr=" +
-									context.getApplication().getWebsocketSession().getSessionKey().getClientnr());
-							}
-							catch (Exception e1)
-							{
-								Debug.error("could not encrypt blobloaderpart: " + blobpart);
-							}
+							attr.setValue("resources/fs/" + context.getSolution().getName() + media + "?clientnr=" +
+								context.getApplication().getWebsocketSession().getSessionKey().getClientnr());
+							changed = true;
 						}
-						else attr.setValue("resources/fs/" + context.getSolution().getName() + media + "?clientnr=" +
-							context.getApplication().getWebsocketSession().getSessionKey().getClientnr());
-
-						changed = true;
 					}
 				}
 			}

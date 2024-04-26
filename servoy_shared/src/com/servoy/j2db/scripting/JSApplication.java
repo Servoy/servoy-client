@@ -634,9 +634,12 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * application.getMediaURL('solution.css');
 	 *
 	 * @param mediaName Name of the media
+	 *
+	 * @deprecated use clientutils.getMediaURL(mediaName) instead
 	 */
 	@JSFunction
 	@ServoyClientSupport(ng = true, wc = false, sc = false)
+	@Deprecated
 	public String getMediaURL(String mediaName)
 	{
 		if (application instanceof INGClientApplication)
@@ -2891,7 +2894,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * This is needed because in TiNG  it is not allowed, because of the Content Security Policy (CSP) that is enforced, to eval(string) to get a function object (that then can be executed later on)
 	 *
-	 * This is a more dynamic variant of the spec property "clientfunction" https://docs.servoy.com/reference/servoycore/dev-api/property_types#clientfunction
+	 * This is a more dynamic variant of the spec property "clientfunction"  https://docs.servoy.com/reference/servoy-developer/property_types#clientfunction
 	 * You do not need to use this for properties/arguments/return values that are declared to have "clientfunction" type in the .spec file, but rather for
 	 * when you want to give it inside plain 'object' typed values. From 2023.09 also map and json property types (even nested if configured in the spec correctly) are supported.
 	 *
@@ -2902,12 +2905,35 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @param functionString The function string of a js function that should be running in the clients browser.
 	 *
 	 * @return An object that can be assignd to a property of an component or custom type. (nested in an object/map/json type)
+	 *
+	 * @deprecated use clientutils.generateBrowserFunction instead
 	 */
 	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public Object generateBrowserFunction(String functionString)
 	{
 		return application.generateBrowserFunction(functionString);
+	}
+
+
+	/**
+	 * Creates a blob loader url that can be send to the browser where the browser can download the value of the given dataprovider.
+	 * The dataprovider is mandatory but also a datasource or server/tablename combination should be give if it points to a database column.
+	 * The create() method will return the url that can be send to the browser inside a piece of html
+	 *
+	 * @sample var bloburl = application.createUrlBlobloaderBuilder("picture_data").datasource("db:/example_data/pictures").rowid().create();
+	 *
+	 *  @param dataprovider the dataprovider where the value should be send to the browser for (global variable or datasource column)
+	 *
+	 *  @deprecated use clientutils.createUrlBlobloaderBuilder instead
+	 */
+	@Deprecated
+	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
+	@JSFunction
+	public JSBlobLoaderBuilder createUrlBlobloaderBuilder(String dataprovider)
+	{
+		return application.createUrlBlobloaderBuilder(dataprovider);
 	}
 
 	/**

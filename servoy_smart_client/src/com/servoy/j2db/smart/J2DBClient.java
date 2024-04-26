@@ -180,6 +180,7 @@ import com.servoy.j2db.preference.PreferencePanel;
 import com.servoy.j2db.preference.ServicePanel;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.JSBlobLoaderBuilder;
 import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.shared.IApplicationServer;
@@ -449,6 +450,12 @@ public class J2DBClient extends ClientState
 	public Object generateBrowserFunction(String functionString)
 	{
 		return functionString;
+	}
+
+	@Override
+	public JSBlobLoaderBuilder createUrlBlobloaderBuilder(String dataprovider)
+	{
+		return null;
 	}
 
 	/*

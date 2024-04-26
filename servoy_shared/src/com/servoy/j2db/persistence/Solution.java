@@ -1507,9 +1507,8 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	}
 
 	/**
-	 * The type of a solution; can be "Normal" (non-module), "Module", "Web client only", "Smart client only",
-	 * "Login", "Authenticator", "Pre-import hook module", "Post-import hook module", "Mobile".
-	 * These constants are defined in SolutionMetaData class.
+	 * The type of a solution; can be "Normal" (non-module), "Module", "Web client only (deprecated)", "Smart client only (deprecated)",
+	 * "Login", "Authenticator", "Pre-import hook module", "Post-import hook module", "Mobile", "Mobile shared module", "NG Client", "NG Module", "Service".
 	 */
 	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
 	public int getSolutionType()

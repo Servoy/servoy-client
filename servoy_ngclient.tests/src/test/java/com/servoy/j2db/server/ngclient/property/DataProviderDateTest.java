@@ -71,6 +71,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.plugins.IPluginAccess;
 import com.servoy.j2db.plugins.IPluginManager;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.JSBlobLoaderBuilder;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGClientWebsocketSession;
@@ -822,6 +823,12 @@ public class DataProviderDateTest
 		public Object generateBrowserFunction(String functionString)
 		{
 			return functionString;
+		}
+
+		@Override
+		public JSBlobLoaderBuilder createUrlBlobloaderBuilder(String dataprovider)
+		{
+			return null;
 		}
 
 		@Override
