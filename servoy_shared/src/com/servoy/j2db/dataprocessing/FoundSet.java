@@ -4945,7 +4945,6 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			if (state != null && state.getRawData() != null)
 			{
 				Row rawData = state.getRawData();
-				// RAGTEST check of dit goed werkt als de data nog niet echt gedelete is
 				rawData.unregister(state);
 				if (!rawData.existInDB())
 				{

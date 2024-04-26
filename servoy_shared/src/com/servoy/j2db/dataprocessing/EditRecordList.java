@@ -1702,8 +1702,6 @@ public class EditRecordList
 				editRecordsLock.lock();
 				try
 				{
-					// RAGTEST check logica
-					// RAGTEST in andere methods uit deletedRecords halen
 					// editRecordStop should be called for this record to match the editRecordStop call
 					recordTested.remove(record);
 
