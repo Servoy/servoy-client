@@ -23,7 +23,7 @@ import java.security.SecureRandom;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.GCMParameterSpec;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -42,10 +42,10 @@ public class EncryptionHandler
 	private static final String CRYPT_METHOD = "AES/GCM/NoPadding";
 
 	private final SecretKey secretString;
-	private final IvParameterSpec ivString;
+	private final GCMParameterSpec gcmParameterSpecStr;
 
 	private final SecretKey secretScript;
-	private final IvParameterSpec ivScript;
+	private final GCMParameterSpec gcmParameterSpecScript;
 
 	public EncryptionHandler()
 	{
@@ -66,9 +66,9 @@ public class EncryptionHandler
 
 		byte[] iv = new byte[16];
 		new SecureRandom().nextBytes(iv);
-		ivString = new IvParameterSpec(iv);
+		gcmParameterSpecStr = new GCMParameterSpec(128, iv);
 		new SecureRandom().nextBytes(iv);
-		ivScript = new IvParameterSpec(iv);
+		gcmParameterSpecScript = new GCMParameterSpec(128, iv);
 	}
 
 	public String encryptString(String value) throws Exception
@@ -85,7 +85,7 @@ public class EncryptionHandler
 			return SecuritySupport.encrypt(value);
 		}
 		Cipher cipher = Cipher.getInstance(CRYPT_METHOD);
-		cipher.init(Cipher.ENCRYPT_MODE, secretString, ivString);
+		cipher.init(Cipher.ENCRYPT_MODE, secretString, gcmParameterSpecStr);
 		byte[] bytes = cipher.doFinal(value.getBytes());
 		if (urlSafe) return Base64.encodeBase64URLSafeString(bytes);
 
@@ -97,7 +97,7 @@ public class EncryptionHandler
 		if (value == null) return value;
 		if (secretString == null) return SecuritySupport.decrypt(value);
 		Cipher cipher = Cipher.getInstance(CRYPT_METHOD);
-		cipher.init(Cipher.DECRYPT_MODE, secretString, ivString);
+		cipher.init(Cipher.DECRYPT_MODE, secretString, gcmParameterSpecStr);
 		return new String(cipher.doFinal(Utils.decodeBASE64(value)));
 	}
 
@@ -109,7 +109,7 @@ public class EncryptionHandler
 			return SecuritySupport.encrypt(value);
 		}
 		Cipher cipher = Cipher.getInstance(CRYPT_METHOD);
-		cipher.init(Cipher.ENCRYPT_MODE, secretScript, ivScript);
+		cipher.init(Cipher.ENCRYPT_MODE, secretScript, gcmParameterSpecScript);
 		byte[] bytes = cipher.doFinal(value.getBytes());
 
 		return Utils.encodeBASE64(bytes);
@@ -120,7 +120,7 @@ public class EncryptionHandler
 		if (value == null) return value;
 		if (secretScript == null) return SecuritySupport.decrypt(value);
 		Cipher cipher = Cipher.getInstance(CRYPT_METHOD);
-		cipher.init(Cipher.DECRYPT_MODE, secretScript, ivScript);
+		cipher.init(Cipher.DECRYPT_MODE, secretScript, gcmParameterSpecScript);
 		return new String(cipher.doFinal(Utils.decodeBASE64(value)));
 	}
 
