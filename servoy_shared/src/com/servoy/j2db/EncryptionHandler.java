@@ -23,7 +23,7 @@ import java.security.SecureRandom;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.GCMParameterSpec;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -40,12 +40,13 @@ import com.servoy.j2db.util.Utils;
 public class EncryptionHandler
 {
 	private static final String CRYPT_METHOD = "AES/GCM/NoPadding";
+	private static final int GCM_TAG_LENGTH = 128;
 
 	private final SecretKey secretString;
-	private final IvParameterSpec ivString;
+	private final GCMParameterSpec ivString;
 
 	private final SecretKey secretScript;
-	private final IvParameterSpec ivScript;
+	private final GCMParameterSpec ivScript;
 
 	public EncryptionHandler()
 	{
@@ -64,11 +65,11 @@ public class EncryptionHandler
 		secretString = key1;
 		secretScript = key2;
 
-		byte[] iv = new byte[16];
+		byte[] iv = new byte[12];
 		new SecureRandom().nextBytes(iv);
-		ivString = new IvParameterSpec(iv);
+		ivString = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
 		new SecureRandom().nextBytes(iv);
-		ivScript = new IvParameterSpec(iv);
+		ivScript = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
 	}
 
 	public String encryptString(String value) throws Exception
