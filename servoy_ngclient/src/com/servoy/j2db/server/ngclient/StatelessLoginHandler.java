@@ -556,7 +556,7 @@ public class StatelessLoginHandler
 			String auth = username + ":" + password;
 			byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("ISO-8859-1")));
 			String authHeader = "Basic " + new String(encodedAuth);
-			httpget.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
+			httpget.setHeader(HttpHeaders.AUTHORIZATION, sanitizeHeader(authHeader));
 		}
 		else
 		{
