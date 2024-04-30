@@ -39,7 +39,7 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class EncryptionHandler
 {
-	private static final String CRYPT_METHOD = "AES/CBC/PKCS5Padding";
+	private static final String CRYPT_METHOD = "AES/GCM/NoPadding";
 
 	private final SecretKey secretString;
 	private final IvParameterSpec ivString;
