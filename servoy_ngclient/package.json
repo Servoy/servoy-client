@@ -4,7 +4,7 @@
 	"dependencies": {
 		"@chiragrupani/karma-chromium-edge-launcher": "^2.3.1",
 		"jasmine-core": "~5.1.1",
-		"karma": "^6.4.2",
+		"karma": "^6.4.3",
 		"karma-chrome-launcher": "~3.2.0",
 		"karma-coverage": "^2.2.1",
 		"karma-firefox-launcher": "~2.1.2",
