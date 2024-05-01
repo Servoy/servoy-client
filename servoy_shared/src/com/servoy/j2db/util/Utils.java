@@ -1948,7 +1948,7 @@ public final class Utils
 	 * Hashes the given string with the PKCS/PBKDF2 algoritme see http://en.wikipedia.org/wiki/PBKDF2 for more information
 	 *
 	 * @param textString The string to hash
-	 * @param iterations Number of hash iterations to be done (should be higher then 1000)
+	 * @param iterations Number of hash iterations to be done (should be higher then 10000)
 	 * @return the hash of the string
 	 */
 	@SuppressWarnings("nls")
@@ -1956,17 +1956,17 @@ public final class Utils
 	{
 		try
 		{
-			SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+			SecureRandom sr = SecureRandom.getInstanceStrong();
 			byte[] salt = new byte[8];
 			sr.nextBytes(salt);
-			PBKDF2Parameters p = new PBKDF2Parameters("HmacSHA1", "ISO-8859-1", salt, iterations);
+			PBKDF2Parameters p = new PBKDF2Parameters("HmacSHA256", "ISO-8859-1", salt, iterations);
 			PBKDF2Engine e = new PBKDF2Engine(p);
 			p.setDerivedKey(e.deriveKey(textString));
 			return new PBKDF2HexFormatter().toString(p);
 		}
 		catch (NoSuchAlgorithmException e)
 		{
-			Debug.error("No SHA1 algorime found under the name SHA1PRNG", e);
+			Debug.error("No SHA256 algorime found under for strong instance", e);
 		}
 		return null;
 	}
@@ -1981,17 +1981,27 @@ public final class Utils
 		return false;
 	}
 
+	@SuppressWarnings("nls")
 	public static boolean validatePBKDF2Hash(String password, String hash)
 	{
-		PBKDF2Parameters p = new PBKDF2Parameters();
-		p.setHashAlgorithm("HmacSHA1");
-		p.setHashCharset("ISO-8859-1");
-		if (new PBKDF2HexFormatter().fromString(p, hash))
+		if (hash == null || password == null) return false;
+		if (hash.length() > 65)
 		{
-			return false;
+			// this is SHA256
+			PBKDF2Parameters p = new PBKDF2Parameters();
+			p.setHashAlgorithm("HmacSHA256");
+			p.setHashCharset("ISO-8859-1");
+			PBKDF2Engine e = new PBKDF2Engine(p);
+			return !new PBKDF2HexFormatter().fromString(p, hash) && e.verifyKey(password);
 		}
-		PBKDF2Engine e = new PBKDF2Engine(p);
-		return e.verifyKey(password);
+		else
+		{
+			PBKDF2Parameters p = new PBKDF2Parameters();
+			p.setHashAlgorithm("HmacSHA1");
+			p.setHashCharset("ISO-8859-1");
+			PBKDF2Engine e = new PBKDF2Engine(p);
+			return !new PBKDF2HexFormatter().fromString(p, hash) && e.verifyKey(password);
+		}
 	}
 
 
