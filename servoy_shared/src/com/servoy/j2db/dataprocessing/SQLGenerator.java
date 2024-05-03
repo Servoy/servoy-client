@@ -607,23 +607,24 @@ public class SQLGenerator
 		return new QueryJoin(null, queryTable1, queryTable2, joinCondition, INNER_JOIN, false, null);
 	}
 
-	static Object[][] createPKValuesArray(List<Column> pkColumns, IDataSet pks)
+	static Object[][] createPKValuesArray(List<Column> pkColumns, Collection<Object[]> pks)
 	{
 		Object[][] pkValues = new Object[pkColumns.size()][];
 
 		for (int k = 0; k < pkColumns.size(); k++)
 		{
-			pkValues[k] = new Object[pks.getRowCount()];
+			pkValues[k] = new Object[pks.size()];
 		}
 
-		for (int r = 0; r < pks.getRowCount(); r++)
+		int r = 0;
+		for (Object[] row : pks)
 		{
-			Object[] row = pks.getRow(r);
 			for (int k = 0; k < row.length; k++)
 			{
 				Column c = pkColumns.get(k);
 				pkValues[k][r] = c.getAsRightType(row[k]);
 			}
+			r++;
 		}
 		return pkValues;
 	}
@@ -636,8 +637,7 @@ public class SQLGenerator
 	 */
 	static BufferedDataSet createPKValuesDataSet(List<Column> pkColumns, Object[][] pkValues)
 	{
-		List<Object[]> rows = new ArrayList<Object[]>();
-
+		List<Object[]> rows = new ArrayList<>();
 
 		if (pkValues != null && pkValues.length > 0 && pkValues[0] != null)
 		{
@@ -671,7 +671,7 @@ public class SQLGenerator
 			return null;
 		}
 
-		return new SetCondition(operator, pkQuerycolumns, createPKValuesArray(pkColumns, pks),
+		return new SetCondition(operator, pkQuerycolumns, createPKValuesArray(pkColumns, pks.getRows()),
 			(operator & IBaseSQLCondition.OPERATOR_MASK) == IBaseSQLCondition.EQUALS_OPERATOR);
 	}
 
@@ -1008,7 +1008,7 @@ public class SQLGenerator
 
 		// Dynamic PK condition, the special placeholder will be updated when the foundset pk set changes
 		Placeholder placeHolder = new Placeholder(new TablePlaceholderKey(queryTable, SQLGenerator.PLACEHOLDER_FOUNDSET_PKS));
-		placeHolder.setValue(new DynamicPkValuesArray(rowIdentColumns, pks.clone()));
+		placeHolder.setValue(new DynamicPkValuesArray(rowIdentColumns, pks.getRows()));
 		return new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkQueryColumns, placeHolder, true);
 	}
 
@@ -1066,7 +1066,7 @@ public class SQLGenerator
 						if (value instanceof Placeholder)
 						{
 							Object phval = ((Placeholder)value).getValue();
-							skipQuery = phval instanceof DynamicPkValuesArray && ((DynamicPkValuesArray)phval).getPKs().getRowCount() == 0; // cleared foundset
+							skipQuery = phval instanceof DynamicPkValuesArray && ((DynamicPkValuesArray)phval).isEmpty(); // cleared foundset
 						}
 						else if (value instanceof Object[][])
 						{
