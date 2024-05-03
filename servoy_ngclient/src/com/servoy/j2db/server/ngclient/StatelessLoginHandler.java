@@ -314,7 +314,7 @@ public class StatelessLoginHandler
 	{
 		HttpPost httppost = new HttpPost(CLOUD_REST_API_POST + endpoint);
 		httppost.addHeader(HttpHeaders.ACCEPT, "application/json");
-		httppost.addHeader("uuid", solution.getUUID().toString());
+		httppost.addHeader("uuid", sanitizeHeader(solution.getUUID().toString()));
 		List<NameValuePair> postParameters = new ArrayList<>();
 		Map<String, String[]> parameters = request.getParameterMap();
 		for (Map.Entry<String, String[]> entry : parameters.entrySet())
@@ -369,7 +369,7 @@ public class StatelessLoginHandler
 		{
 			HttpGet httpget = new HttpGet(CLOUD_REST_API_GET);
 			httpget.addHeader(HttpHeaders.ACCEPT, "application/json");
-			httpget.addHeader("uuid", solution.getUUID().toString());
+			httpget.addHeader("uuid", sanitizeHeader(solution.getUUID().toString()));
 			try
 			{
 				endpoints = getArrayProperty(httpclient, httpget, "endpoints",
@@ -410,7 +410,7 @@ public class StatelessLoginHandler
 			}
 			HttpGet httpget = new HttpGet(uriBuilder.build());
 			httpget.addHeader(HttpHeaders.ACCEPT, "application/json");
-			httpget.addHeader("uuid", solution.getUUID().toString());
+			httpget.addHeader("uuid", sanitizeHeader(solution.getUUID().toString()));
 
 			return httpclient.execute(httpget, new ResponseHandler(endpoint));
 		}
@@ -556,15 +556,15 @@ public class StatelessLoginHandler
 			String auth = username + ":" + password;
 			byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("ISO-8859-1")));
 			String authHeader = "Basic " + new String(encodedAuth);
-			httpget.setHeader(HttpHeaders.AUTHORIZATION, authHeader);
+			httpget.setHeader(HttpHeaders.AUTHORIZATION, sanitizeHeader(authHeader));
 		}
 		else
 		{
-			httpget.addHeader(USERNAME, oldToken.getClaim(USERNAME).asString());
-			httpget.addHeader(LAST_LOGIN, oldToken.getClaim(LAST_LOGIN).asString());
+			httpget.addHeader(USERNAME, sanitizeHeader(oldToken.getClaim(USERNAME).asString()));
+			httpget.addHeader(LAST_LOGIN, sanitizeHeader(oldToken.getClaim(LAST_LOGIN).asString()));
 		}
 		httpget.addHeader(HttpHeaders.ACCEPT, "application/json");
-		httpget.addHeader("uuid", solution.getUUID().toString());
+		httpget.addHeader("uuid", sanitizeHeader(solution.getUUID().toString()));
 
 		try (CloseableHttpClient httpclient = HttpClients.createDefault())
 		{
@@ -914,5 +914,11 @@ public class StatelessLoginHandler
 		{
 		}
 	}
+
+	private static String sanitizeHeader(String headerValue)
+	{
+		return headerValue.replaceAll("[\n\r]+", " ");
+	}
+
 
 }
