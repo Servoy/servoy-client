@@ -35,6 +35,16 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ClientUtils", scriptingName = "clientutils")
 public class JSClientUtils
 {
+	static
+	{
+		ScriptObjectRegistry.registerReturnedTypesProviderForClass(JSClientUtils.class, new IReturnedTypesProvider()
+		{
+			public Class< ? >[] getAllReturnedTypes()
+			{
+				return new Class< ? >[] { JSBlobLoaderBuilder.class };
+			}
+		});
+	}
 
 	private volatile IApplication application;
 
@@ -77,7 +87,7 @@ public class JSClientUtils
 	 *
 	 * @sample var bloburl = clientutils.createUrlBlobloaderBuilder("picture_data").datasource("db:/example_data/pictures").rowid(pk).create();
 	 *
-	 *  @param {String} dataprovider the dataprovider where the value should be send to the browser for (global variable or datasource column)
+	 *  @param dataprovider the dataprovider where the value should be send to the browser for (global variable or datasource column)
 	 */
 	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 	@JSFunction
