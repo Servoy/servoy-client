@@ -35,6 +35,16 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ClientUtils", scriptingName = "clientutils")
 public class JSClientUtils
 {
+	static
+	{
+		ScriptObjectRegistry.registerReturnedTypesProviderForClass(JSClientUtils.class, new IReturnedTypesProvider()
+		{
+			public Class< ? >[] getAllReturnedTypes()
+			{
+				return new Class< ? >[] { JSBlobLoaderBuilder.class };
+			}
+		});
+	}
 
 	private volatile IApplication application;
 
