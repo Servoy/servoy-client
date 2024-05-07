@@ -2939,7 +2939,13 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	/**
 	 * Creates a blob loader url that can be send to the browser where the browser can download the value of the given dataprovider.
 	 * The dataprovider is mandatory but also a datasource or server/tablename combination should be give if it points to a database column.
-	 * The create() method will return the url that can be send to the browser inside a piece of html
+	 * The build() method will return the url that can be send to the browser inside a piece of html
+	 *
+	 * @sample
+	 * var tableName = 'pictures';
+	 * var columnName = 'picture_media';
+	 * var mimeType = 'application/pdf';
+	 * var url = application.createUrlBlobloaderBuilder(columnName).serverAndTable("example_data",tableName).rowid(picture_id).filename(file_name).mimetype(mimeType).build();
 	 *
 	 * @sample var bloburl = application.createUrlBlobloaderBuilder("picture_data").datasource("db:/example_data/pictures").rowid().create();
 	 *
