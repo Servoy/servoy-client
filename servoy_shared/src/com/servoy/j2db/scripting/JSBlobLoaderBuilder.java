@@ -134,13 +134,13 @@ public class JSBlobLoaderBuilder
 
 
 	/**
-	 * Creates the blobloader url string that can be used in custom html or send to the browser as a redirect url for direct download.
+	 * Builds the blobloader url string that can be used in custom html or send to the browser as a redirect url for direct download.
 	 *
 	 * @return the blobloader url pointing to the data of the given dataprovider
 	 */
 	@SuppressWarnings("nls")
 	@JSFunction
-	public String create()
+	public String build()
 	{
 		StringBuilder sb = new StringBuilder();
 		if (datasource != null)
