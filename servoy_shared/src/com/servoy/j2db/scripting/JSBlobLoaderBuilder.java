@@ -31,6 +31,7 @@ import com.servoy.j2db.util.Debug;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSBlobLoaderBuilder")
 public class JSBlobLoaderBuilder
 {
+
 	private final INGClientApplication application;
 	private final String dataprovider;
 	private final int clientnr;
@@ -41,10 +42,6 @@ public class JSBlobLoaderBuilder
 	private Object[] rowid;
 	private String filename;
 
-	/**
-	 * @param application
-	 * @param dataprovider
-	 */
 	public JSBlobLoaderBuilder(INGClientApplication application, String dataprovider, int clientnr)
 	{
 		this.application = application;
@@ -53,10 +50,10 @@ public class JSBlobLoaderBuilder
 	}
 
 	/**
-	 *  Sets the server name of the dataprovider.
+	 * Sets the server name and table name of the builder's column dataprovider.
 	 *
-	 * @param servername The servername for this dataprovider
-	 * @param tablename The tablename for this dataprovider
+	 * @param servername The servername for this builder's column dataprovider.
+	 * @param tablename The tablename for this builder's column dataprovider.
 	 * @return return the builder itself
 	 */
 	@JSFunction
@@ -68,9 +65,9 @@ public class JSBlobLoaderBuilder
 	}
 
 	/**
-	 *  Sets the datasource (server/table combination) of the dataprovider.
+	 * Sets the datasource (server/table combination) of the builder's column dataprovider.
 	 *
-	 * @param datasource The datasource for this dataprovider
+	 * @param datasource The datasource for this builder's column dataprovider.
 	 * @return return the builder itself
 	 */
 	@JSFunction
@@ -81,7 +78,7 @@ public class JSBlobLoaderBuilder
 	}
 
 	/**
-	 *  Sets the rowid (single pk) of the table
+	 * Sets the rowid (single pk or composite pk) of the table.
 	 *
 	 * @param rowid The rowid, can be a single value or an array of values
 	 * @return return the builder itself
@@ -94,9 +91,9 @@ public class JSBlobLoaderBuilder
 	}
 
 	/**
-	 *  Sets the rowids (composite pk) of the table
+	 * Sets the rowids (single pk or composite pk) of the table.
 	 *
-	 * @param rowid The rowid, can be a single value or an array of values
+	 * @param rowid The rowid; can be a single value or an array of values.
 	 * @return return the builder itself
 	 */
 	@JSFunction
@@ -107,10 +104,10 @@ public class JSBlobLoaderBuilder
 	}
 
 	/**
-	 *  Sets the filename of the data of the dataprovider.
-	 *  If set then this will set the Content-disposition header to attachment; filename=filename
+	 * Sets the filename of the data in the dataprovider.
+	 * If set, then this will set the Content-disposition header to attachment; filename=filename
 	 *
-	 * @param filename The filename of the data
+	 * @param filename The filename for the data.
 	 * @return return the builder itself
 	 */
 	@JSFunction
@@ -121,8 +118,8 @@ public class JSBlobLoaderBuilder
 	}
 
 	/**
-	 *  Sets the mimetype of the data of the dataprovider.
-	 *  This will be set in the content type header of the response for this data
+	 * Sets the mimetype of the data in the dataprovider.
+	 * This will be set in the content type header of the response for this data.
 	 *
 	 * @param mimetype the mime type of the data (set as the content type header)
 	 * @return return the builder itself
@@ -134,9 +131,8 @@ public class JSBlobLoaderBuilder
 		return this;
 	}
 
-
 	/**
-	 * Builds the blobloader url string that can be used in custom html or send to the browser as a redirect url for direct download.
+	 * Builds the blobloader url string that can be used in custom html or send to the browser as a redirect url for direct downloads.
 	 *
 	 * @return the blobloader url pointing to the data of the given dataprovider
 	 */
