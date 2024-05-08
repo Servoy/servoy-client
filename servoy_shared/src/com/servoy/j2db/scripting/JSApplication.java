@@ -2938,17 +2938,25 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 
 	/**
-	 * Creates a blob loader url that can be send to the browser where the browser can download the value of the given dataprovider.
-	 * The dataprovider is mandatory but also a datasource or server/tablename combination should be give if it points to a database column.
-	 * The build() method will return the url that can be send to the browser inside a piece of html
+	 * Creates a blob loader url that can be sent to the browser so that it can download the value of the given dataprovider.
+	 * The dataprovider is mandatory, but also a datasource or server/tablename combination should be given if it points to a database column.<br/><br/>
+	 *
+	 * The build() method will return the url that can be sent to the browser inside a piece of html.
 	 *
 	 * @sample
-	 * var tableName = 'pictures';
-	 * var columnName = 'picture_media';
+	 * // server/table column
+	 * var tableName = 'pdf_documents';
+	 * var columnName = 'invoice_doc';
 	 * var mimeType = 'application/pdf';
-	 * var url = application.createUrlBlobloaderBuilder(columnName).serverAndTable("example_data",tableName).rowid(picture_id).filename(file_name).mimetype(mimeType).build();
+	 * var bloburl1 = application.createUrlBlobloaderBuilder(columnName).serverAndTable("example_data", tableName).rowid(doc_id).filename(file_name).mimetype(mimeType).build();
 	 *
-	 *  @param dataprovider the dataprovider where the value should be send to the browser for (global variable or datasource column)
+	 * // datasource based column
+	 * var bloburl2 = application.createUrlBlobloaderBuilder("invoice_doc").datasource("db:/example_data/pdf_documents").rowid(doc_id).build();
+	 *
+	 * // global var
+	 * var bloburl2 = application.createUrlBlobloaderBuilder("scopes.sc1.profilePhoto").filename("profilePhoto.png").mimetype("application/png").build();
+	 *
+	 * @param dataprovider the dataprovider who's value should be sent to the browser (it can be a global scope variable or a datasource column)
 	 */
 	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 	@JSFunction
