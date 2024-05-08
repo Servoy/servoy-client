@@ -138,7 +138,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	private static Class< ? >[] getAllReturnedTypesInternal()
 	{
-		return new Class< ? >[] { APPLICATION_TYPES.class, CLIENTDESIGN.class, DRAGNDROP.class, ELEMENT_TYPES.class, ICSSPosition.class, IScriptRenderMethodsWithOptionalProps.class, JSDNDEvent.class, JSEvent.class, JSRenderEvent.class, JSUpload.class, JSWindow.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, NGCONSTANTS.class };
+		return new Class< ? >[] { APPLICATION_TYPES.class, CLIENTDESIGN.class, DRAGNDROP.class, ELEMENT_TYPES.class, ICSSPosition.class, IScriptRenderMethodsWithOptionalProps.class, JSBlobLoaderBuilder.class, JSDNDEvent.class, JSEvent.class, JSRenderEvent.class, JSUpload.class, JSWindow.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, NGCONSTANTS.class };
 	}
 
 	@Deprecated
@@ -2886,11 +2886,12 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	/**
 	 * This generates a browser function for the given function string that can be executed in the browser by a component that needs a function for a certain property value.
 	 * The resulting object should be assigned into a config/property object (where the property it typed as 'object' in the .spec) that is then assigned to a component.
-	 * The component will receive this function as a real function object in TiNG (but still as a plain string that needs to be evalled in NG1).
+	 * The component will receive this function as a real function object in TiNG (but still as a plain string that needs to be evalled in NG1).<br/><br/>
 	 *
-	 * This is needed because in TiNG it is not allowed - due to the Content Security Policy (CSP) that is enforced - to eval(string) in order to get a function object (that then can be executed later on).
+	 * This is needed because in TiNG it is not allowed - due to the Content Security Policy (CSP) that is enforced - to eval(string) in order to get a function object (that then can be executed later on).<br/><br/>
 	 *
-	 * This is a more dynamic variant of the .spec property type "clientfunction": https://docs.servoy.com/reference/servoy-developer/property_types#clientfunction
+	 * This is a more dynamic variant of the .spec property type "clientfunction": https://docs.servoy.com/reference/servoy-developer/property_types#clientfunction<br/><br/>
+	 *
 	 * You do not need to use this for properties/arguments/return values that are declared to have "clientfunction" type in the .spec file, but rather for
 	 * when you want to give it inside plain 'object' typed values.
 	 *
@@ -2912,16 +2913,22 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * Creates a blob loader url that can be sent to the browser so that it can download the value of the given dataprovider.
-	 * The dataprovider is mandatory, but also a datasource or server/tablename combination should be given if it points to a database column.
+	 * The dataprovider is mandatory, but also a datasource or server/tablename combination should be given if it points to a database column.<br/><br/>
+	 *
 	 * The build() method will return the url that can be sent to the browser inside a piece of html.
 	 *
 	 * @sample
-	 * var tableName = 'pictures';
-	 * var columnName = 'picture_media';
+	 * // server/table column
+	 * var tableName = 'pdf_documents';
+	 * var columnName = 'invoice_doc';
 	 * var mimeType = 'application/pdf';
-	 * var url = application.createUrlBlobloaderBuilder(columnName).serverAndTable("example_data", tableName).rowid(picture_id).filename(file_name).mimetype(mimeType).build();
+	 * var bloburl1 = application.createUrlBlobloaderBuilder(columnName).serverAndTable("example_data", tableName).rowid(doc_id).filename(file_name).mimetype(mimeType).build();
 	 *
-	 * @sample var bloburl = application.createUrlBlobloaderBuilder("picture_data").datasource("db:/example_data/pictures").rowid().create();
+	 * // datasource based column
+	 * var bloburl2 = application.createUrlBlobloaderBuilder("invoice_doc").datasource("db:/example_data/pdf_documents").rowid(doc_id).build();
+	 *
+	 * // global var
+	 * var bloburl2 = application.createUrlBlobloaderBuilder("scopes.sc1.profilePhoto").filename("profilePhoto.png").mimetype("application/png").build();
 	 *
 	 * @param dataprovider the dataprovider who's value should be sent to the browser (it can be a global scope variable or a datasource column)
 	 */

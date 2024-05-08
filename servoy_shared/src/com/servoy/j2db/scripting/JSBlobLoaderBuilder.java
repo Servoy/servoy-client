@@ -19,7 +19,9 @@ package com.servoy.j2db.scripting;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.INGClientApplication;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.Debug;
 
 /**
@@ -27,6 +29,8 @@ import com.servoy.j2db.util.Debug;
  * @since 2022.03.9
  */
 @SuppressWarnings("hiding")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSBlobLoaderBuilder")
+@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 public class JSBlobLoaderBuilder
 {
 
@@ -115,8 +119,8 @@ public class JSBlobLoaderBuilder
 	}
 
 	/**
-	 * Sets the filename of the data in the dataprovider.
-	 * If set, then this will set the Content-disposition header to attachment; filename=filename
+	 * Sets the filename of the data in the dataprovider.<br/>
+	 * If given, it will set the Content-disposition header to: attachment; filename=filename
 	 *
 	 * @param filename The filename for the data.
 	 * @return return the builder itself
@@ -129,7 +133,7 @@ public class JSBlobLoaderBuilder
 	}
 
 	/**
-	 * Sets the mimetype of the data in the dataprovider.
+	 * Sets the mimetype of the data in the dataprovider.<br/>
 	 * This will be set in the content type header of the response for this data.
 	 *
 	 * @param mimetype the mime type of the data (set as the content type header)
