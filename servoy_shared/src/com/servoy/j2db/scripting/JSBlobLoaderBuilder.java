@@ -29,6 +29,20 @@ import com.servoy.j2db.util.Debug;
 @SuppressWarnings("hiding")
 public class JSBlobLoaderBuilder
 {
+
+	public static final String MIMETYPE_ARG = "mimetype="; //$NON-NLS-1$
+	public static final String FILENAME_ARG = "filename="; //$NON-NLS-1$
+	public static final String MULTIPLE_ROWID_ARG_PREFIX = "rowid"; //$NON-NLS-1$
+	public static final String ROWID_ARG = MULTIPLE_ROWID_ARG_PREFIX + '=';
+	public static final String GLOBAL_ARG = "global="; //$NON-NLS-1$
+	public static final String DATAPROVIDER_ARG = "dataprovider="; //$NON-NLS-1$
+	public static final String TABLENAME_ARG = "tablename="; //$NON-NLS-1$
+	public static final String SERVERNAME_ARG = "servername="; //$NON-NLS-1$
+	public static final String DATASOURCE_ARG = "datasource="; //$NON-NLS-1$
+
+	public static final String ENCRYPTED_CLIENTNR_ARG = "&clientnr="; //$NON-NLS-1$
+	public static final String ENCRYPTED_BLOB_PREFIX_ARG = "blob="; //$NON-NLS-1$
+
 	private final INGClientApplication application;
 	private final String dataprovider;
 	private final int clientnr;
@@ -142,40 +156,46 @@ public class JSBlobLoaderBuilder
 	@JSFunction
 	public String build()
 	{
+		boolean isGlobalDP = true;
+
 		StringBuilder sb = new StringBuilder();
 		if (datasource != null)
 		{
-			sb.append("datasource=").append(datasource).append("&");
+			sb.append(DATASOURCE_ARG).append(datasource).append('&');
+			isGlobalDP = false;
 		}
 		else if (servername != null && tablename != null)
 		{
-			sb.append("servername=").append(servername).append("&").append("tablename=").append(tablename).append("&");
+			sb.append(SERVERNAME_ARG).append(servername).append('&').append(TABLENAME_ARG).append(tablename).append('&');
+			isGlobalDP = false;
 		}
 
-		sb.append("dataprovider=").append(dataprovider).append("&");
+		if (isGlobalDP) sb.append(GLOBAL_ARG).append(dataprovider).append('&');
+		else sb.append(DATAPROVIDER_ARG).append(dataprovider).append('&');
+
 		if (rowid != null)
 		{
 			if (rowid.length == 1)
-				sb.append("rowid=").append(rowid[0]).append("&");
+				sb.append(ROWID_ARG).append(rowid[0]).append('&');
 			else for (int i = 0; i < rowid.length; i++)
 			{
-				sb.append("rowid").append(i).append("=").append(rowid[i]).append("&");
+				sb.append(MULTIPLE_ROWID_ARG_PREFIX).append(i).append("=").append(rowid[i]).append('&');
 			}
 		}
 		if (filename != null)
 		{
-			sb.append("filename=").append(filename).append("&");
+			sb.append(FILENAME_ARG).append(filename).append('&');
 		}
 		if (mimetype != null)
 		{
-			sb.append("mimetype=").append(mimetype).append("&");
+			sb.append(MIMETYPE_ARG).append(mimetype).append('&');
 		}
 
 		String blobpart = sb.toString();
 		try
 		{
 			blobpart = application.getFlattenedSolution().getEncryptionHandler().encryptString(blobpart, true);
-			blobpart = "resources/servoy_blobloader?blob=" + blobpart + "&clientnr=" + clientnr;
+			blobpart = "resources/servoy_blobloader?" + ENCRYPTED_BLOB_PREFIX_ARG + blobpart + ENCRYPTED_CLIENTNR_ARG + clientnr;
 		}
 		catch (Exception e1)
 		{
