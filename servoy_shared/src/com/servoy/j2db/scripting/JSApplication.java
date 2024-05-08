@@ -138,7 +138,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	private static Class< ? >[] getAllReturnedTypesInternal()
 	{
-		return new Class< ? >[] { APPLICATION_TYPES.class, CLIENTDESIGN.class, DRAGNDROP.class, ELEMENT_TYPES.class, ICSSPosition.class, IScriptRenderMethodsWithOptionalProps.class, JSDNDEvent.class, JSEvent.class, JSRenderEvent.class, JSUpload.class, JSWindow.class, JSLogger.class, JSLogBuilder.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, NGCONSTANTS.class };
+		return new Class< ? >[] { APPLICATION_TYPES.class, CLIENTDESIGN.class, DRAGNDROP.class, ELEMENT_TYPES.class, ICSSPosition.class, IScriptRenderMethodsWithOptionalProps.class, JSBlobLoaderBuilder.class, JSDNDEvent.class, JSEvent.class, JSRenderEvent.class, JSUpload.class, JSWindow.class, JSLogger.class, JSLogBuilder.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, NGCONSTANTS.class };
 	}
 
 	@Deprecated
@@ -2910,21 +2910,24 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
-	 * This generates a browser function for the given function string that can be executed in the browser
-	 * The resulting object can be assigned into a config/property object that is then assigned to a component
-	 * The component will receive this function as a real function object.
+	 * This generates a browser function for the given function string that can be executed in the browser by a component that needs a function for a certain property value.
+	 * The resulting object should be assigned into a config/property object (where the property it typed as 'object' in the .spec) that is then assigned to a component.
+	 * The component will receive this function as a real function object in TiNG (but still as a plain string that needs to be evalled in NG1).<br/><br/>
 	 *
-	 * This is a more dynamic variant of the spec property "clientfunction" https://docs.servoy.com/reference/servoy-developer/property_types#clientfunction
+	 * This is needed because in TiNG it is not allowed - due to the Content Security Policy (CSP) that is enforced - to eval(string) in order to get a function object (that then can be executed later on).<br/><br/>
+	 *
+	 * This is a more dynamic variant of the .spec property type "clientfunction": https://docs.servoy.com/reference/servoy-developer/property_types#clientfunction<br/><br/>
+	 *
 	 * You do not need to use this for properties/arguments/return values that are declared to have "clientfunction" type in the .spec file, but rather for
 	 * when you want to give it inside plain 'object' typed values.
 	 *
 	 * @sample
 	 * var options = { myfunction: application.generateBrowserFunction("function(param) { return param + 1 }") };
-	 * elements.component.setOptions(options);
+	 * elements.component.options = options;
 	 *
-	 * @param functionString The function string of a js function that should be running in the clients browser.
+	 * @param functionString The javascript function (given as a string) that should be running in the client's browser.
 	 *
-	 * @return An object that can be assignd to a javascript/json object that is send to the client
+	 * @return An object that can be assigned to a property of an component or custom type. (but which is then nested/part of an object type)
 	 */
 	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 	@JSFunction

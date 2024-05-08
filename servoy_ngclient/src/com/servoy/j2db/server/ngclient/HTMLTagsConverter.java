@@ -29,6 +29,8 @@ import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.util.Debug;
@@ -41,6 +43,9 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class HTMLTagsConverter
 {
+
+	protected static final Logger log = LoggerFactory.getLogger(HTMLTagsConverter.class.getCanonicalName());
+
 	private static final Set<String> scanTags = new HashSet<>(Arrays.asList(
 		new String[] { "src", "href", "background", "onsubmit", "onreset", "onselect", "onclick", "ondblclick", "onfocus", "onblur", "onchange", "onkeydown", "onkeypress", "onkeyup", "onmousedown", "onmousemove", "onmouseout", "onmouseover", "onmouseup" })); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$ //$NON-NLS-9$ //$NON-NLS-10$ //$NON-NLS-11$ //$NON-NLS-12$ //$NON-NLS-13$ //$NON-NLS-14$ //$NON-NLS-15$ //$NON-NLS-16$ //$NON-NLS-17$ //$NON-NLS-18$ //$NON-NLS-19$
 	private static final String javascriptPrefix = "javascript:"; //$NON-NLS-1$
@@ -116,6 +121,34 @@ public class HTMLTagsConverter
 							attr.setValue("resources/fs/" + context.getSolution().getName() + media + "?clientnr=" +
 								context.getApplication().getWebsocketSession().getSessionKey().getClientnr());
 							changed = true;
+						}
+						else
+						{
+							// DEPRECATED
+							// media:///servoy_blobloader?... URLs are no longer translated automatically in order to improve solution sec.
+
+							// if this is still needed in solutions, the solution needs to call on purpose application.createUrlBlobloaderBuilder(...) and use
+							// that in order to get an usable encrypted URL that the client can be given
+
+							// for example if it is already encrypted with application.createUrlBlobloaderBuilder(...), it will be something like
+							//    "resources/servoy_blobloader?blob=hBCfMyaV-.._CC&clientnr=2"
+							//     so notice that even the "media:///" prefix is missing - so it will not even enter the if (replaceContent.startsWith(mediaPrefix)) above
+							// and if it was not encrypted (deprecated usage) it will be something like
+							//     "media:///servoy_blobloader?servername=...&tablename=...&dataprovider=...&rowid1=...&filename=..."
+							//     so it reaches this branch of code; in this case we do not translate, and even strip it out
+							//     completely in order to avoid an unusable URL reaching the client (that contains in it dataprovider, datasource etc.)
+
+							attr.setValue("");
+							changed = true;
+							log.warn(
+								"Automatic blobloader URL encryption was deprecated and will no longer work!" +
+									" Please use application.createUrlBlobloaderBuilder(...) in your solution in order to get the" +
+									" encrypted blobloader URLs that you need, instead of manually assembling the blobloader URL args" +
+									" and waiting for them to be automatically encrypted afterwards. Solution '" +
+									(context != null && context.getSolution() != null ? context.getSolution().getName() : "?") +
+									"' uses the following deprecated blobloader URL in form '" +
+									(context != null && context.getForm() != null ? context.getForm().getName() : "?") +
+									"': '" + replaceContent + "'.");
 						}
 					}
 				}

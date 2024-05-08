@@ -37,6 +37,7 @@ import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.persistence.Media;
+import com.servoy.j2db.scripting.JSBlobLoaderBuilder;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.SafeArrayList;
@@ -44,7 +45,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * Class to handle the media:///<name> or media:///blob_loader?x=y urls
- * 
+ *
  * @author jblok
  */
 public class MediaURLStreamHandler extends URLStreamHandler
@@ -343,9 +344,9 @@ public class MediaURLStreamHandler extends URLStreamHandler
 			while (tk.hasMoreTokens())
 			{
 				String token = tk.nextToken();
-				if (token.startsWith("global=")) //$NON-NLS-1$
+				if (token.startsWith(JSBlobLoaderBuilder.GLOBAL_ARG))
 				{
-					String globalName = token.substring("global=".length()); //$NON-NLS-1$
+					String globalName = token.substring(JSBlobLoaderBuilder.GLOBAL_ARG.length());
 					Object obj = application.getScriptEngine().getScopesScope().get(null, globalName);
 					if (obj instanceof byte[])
 					{
@@ -359,23 +360,23 @@ public class MediaURLStreamHandler extends URLStreamHandler
 					return null;
 				}
 
-				if (token.startsWith("servername=")) //$NON-NLS-1$
+				if (token.startsWith(JSBlobLoaderBuilder.SERVERNAME_ARG))
 				{
-					serverName = token.substring("servername=".length()); //$NON-NLS-1$
+					serverName = token.substring(JSBlobLoaderBuilder.SERVERNAME_ARG.length());
 				}
-				else if (token.startsWith("tablename=")) //$NON-NLS-1$
+				else if (token.startsWith(JSBlobLoaderBuilder.TABLENAME_ARG))
 				{
-					tableName = token.substring("tablename=".length()); //$NON-NLS-1$
+					tableName = token.substring(JSBlobLoaderBuilder.TABLENAME_ARG.length());
 				}
-				else if (token.startsWith("datasource=")) //$NON-NLS-1$
+				else if (token.startsWith(JSBlobLoaderBuilder.DATASOURCE_ARG))
 				{
-					datasource = token.substring("datasource=".length()); //$NON-NLS-1$
+					datasource = token.substring(JSBlobLoaderBuilder.DATASOURCE_ARG.length());
 				}
-				else if (token.startsWith("dataprovider=")) //$NON-NLS-1$
+				else if (token.startsWith(JSBlobLoaderBuilder.DATAPROVIDER_ARG))
 				{
-					dataProvider = token.substring("dataprovider=".length()); //$NON-NLS-1$
+					dataProvider = token.substring(JSBlobLoaderBuilder.DATAPROVIDER_ARG.length());
 				}
-				else if (token.startsWith("rowid")) //$NON-NLS-1$
+				else if (token.startsWith(JSBlobLoaderBuilder.MULTIPLE_ROWID_ARG_PREFIX))
 				{
 					int index = Utils.getAsInteger(token.substring(5, 6));//get id
 					if (index > 0)
@@ -395,7 +396,7 @@ public class MediaURLStreamHandler extends URLStreamHandler
 
 			if (application.getFoundSetManager().getTable(datasource) == null)
 			{
-				throw new IOException(Messages.getString("servoy.exception.serverAndTableNotFound", DataSourceUtils.getDBServernameTablename(datasource))); //$NON-NLS-1$	
+				throw new IOException(Messages.getString("servoy.exception.serverAndTableNotFound", DataSourceUtils.getDBServernameTablename(datasource))); //$NON-NLS-1$
 			}
 			FoundSet fs = (FoundSet)application.getFoundSetManager().getNewFoundSet(datasource);
 
@@ -437,9 +438,9 @@ public class MediaURLStreamHandler extends URLStreamHandler
 		while (tk.hasMoreTokens())
 		{
 			String token = tk.nextToken();
-			if (token.startsWith("mimetype=")) //$NON-NLS-1$
+			if (token.startsWith(JSBlobLoaderBuilder.MIMETYPE_ARG))
 			{
-				return token.substring("mimetype=".length()); //$NON-NLS-1$
+				return token.substring(JSBlobLoaderBuilder.MIMETYPE_ARG.length());
 			}
 		}
 		return null;
@@ -457,9 +458,9 @@ public class MediaURLStreamHandler extends URLStreamHandler
 		while (tk.hasMoreTokens())
 		{
 			String token = tk.nextToken();
-			if (token.startsWith("filename=")) //$NON-NLS-1$
+			if (token.startsWith(JSBlobLoaderBuilder.FILENAME_ARG))
 			{
-				return token.substring("filename=".length()); //$NON-NLS-1$
+				return token.substring(JSBlobLoaderBuilder.FILENAME_ARG.length());
 			}
 		}
 		return null;
