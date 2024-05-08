@@ -2884,19 +2884,23 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
-	 * This generates a browser function for the given function string that can be executed in the browser
-	 * The resulting object can be assigned into a config/property object that is then assigned to a component
-	 * The component will receive this function as a real function object.
+	 * This generates a browser function for the given function string that can be executed in the browser by a component that needs a function for a certain property value.
+	 * The resulting object should be assigned into a config/property object (where the property it typed as 'object' in the .spec) that is then assigned to a component.
+	 * The component will receive this function as a real function object in TiNG (but still as a plain string that needs to be evalled in NG1).
 	 *
-	 * This is a more dynamic variant of the spec property "clientfunction" https://docs.servoy.com/reference/servoy-developer/property_types#clientfunction
+	 * This is needed because in TiNG it is not allowed - due to the Content Security Policy (CSP) that is enforced - to eval(string) in order to get a function object (that then can be executed later on).
+	 *
+	 * This is a more dynamic variant of the .spec property type "clientfunction": https://docs.servoy.com/reference/servoy-developer/property_types#clientfunction
+	 * You do not need to use this for properties/arguments/return values that are declared to have "clientfunction" type in the .spec file, but rather for
+	 * when you want to give it inside plain 'object' typed values.
 	 *
 	 * @sample
 	 * var options = { myfunction: application.generateBrowserFunction("function(param) { return param + 1 }") };
-	 * elements.component.setOptions(options);
+	 * elements.component.options = options;
 	 *
-	 * @param functionString The function string of a js function that should be running in the clients browser.
+	 * @param functionString The javascript function (given as a string) that should be running in the client's browser.
 	 *
-	 * @return An object that can be assignd to a javascript/json object that is send to the client
+	 * @return An object that can be assigned to a property of an component or custom type. (but which is then nested/part of an object type)
 	 */
 	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 	@JSFunction
@@ -2907,17 +2911,19 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 
 	/**
-	 * Creates a blob loader url that can be send to the browser where the browser can download the value of the given dataprovider.
-	 * The dataprovider is mandatory but also a datasource or server/tablename combination should be give if it points to a database column.
-	 * The build() method will return the url that can be send to the browser inside a piece of html
+	 * Creates a blob loader url that can be sent to the browser so that it can download the value of the given dataprovider.
+	 * The dataprovider is mandatory, but also a datasource or server/tablename combination should be given if it points to a database column.
+	 * The build() method will return the url that can be sent to the browser inside a piece of html.
 	 *
 	 * @sample
 	 * var tableName = 'pictures';
 	 * var columnName = 'picture_media';
 	 * var mimeType = 'application/pdf';
-	 * var url = application.createUrlBlobloaderBuilder(columnName).serverAndTable("example_data",tableName).rowid(picture_id).filename(file_name).mimetype(mimeType).build();
+	 * var url = application.createUrlBlobloaderBuilder(columnName).serverAndTable("example_data", tableName).rowid(picture_id).filename(file_name).mimetype(mimeType).build();
 	 *
-	 *  @param dataprovider the dataprovider where the value should be send to the browser for (global variable or datasource column)
+	 * @sample var bloburl = application.createUrlBlobloaderBuilder("picture_data").datasource("db:/example_data/pictures").rowid().create();
+	 *
+	 * @param dataprovider the dataprovider who's value should be sent to the browser (it can be a global scope variable or a datasource column)
 	 */
 	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 	@JSFunction
