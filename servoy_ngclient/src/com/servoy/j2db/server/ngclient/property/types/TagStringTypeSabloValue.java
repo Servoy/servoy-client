@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient.property.types;
 import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.IBrowserConverterContext;
 
 import com.servoy.j2db.dataprocessing.IRecordInternal;
