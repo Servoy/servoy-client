@@ -94,9 +94,7 @@ public class TagStringTypeSabloValue extends BasicTagStringTypeSabloValue implem
 	{
 		if (!htmlConvertForClientWasHandled)
 		{
-			// only convert html if it is not allowed to be pushed (input fields shouldn't convert the html)
-			// very likely tagstrings are put on labels which are in reject, but to be sure
-			if (HtmlUtils.startsWithHtml(tagReplacedValueBeforeHTMLConvert) && computedPushToServer == PushToServerEnum.reject)
+			if (HtmlUtils.startsWithHtml(tagReplacedValueBeforeHTMLConvert))
 			{
 				tagReplacedValueAfterHTMLConvertForClient = HTMLTagsConverter.convert(tagReplacedValueBeforeHTMLConvert, dataConverterContext, false);
 			}
