@@ -48,7 +48,7 @@ public class EditedRecords
 
 	public void addEdited(IRecordInternal record)
 	{
-		if (!contains(record, EditType.edit))
+		if (!containsRecord(record, EditType.edit))
 		{
 			remove(record);
 			edited.put(record.getRagtestKey(), new EditedRecord(record, EditType.edit, emptySet()));
@@ -72,12 +72,12 @@ public class EditedRecords
 
 	public boolean containsEdited(IRecordInternal record)
 	{
-		return contains(record, EditType.edit);
+		return containsRecord(record, EditType.edit);
 	}
 
 	public boolean containsDeleted(IRecordInternal record)
 	{
-		return contains(record, EditType.delete);
+		return containsRecord(record, EditType.delete);
 	}
 
 	public Collection<IFoundSetInternal> getAffectedFoundsets(IRecord record)
@@ -90,7 +90,7 @@ public class EditedRecords
 
 	public boolean contains(IRecordInternal record)
 	{
-		return record != null && contains(record, null);
+		return record != null && containsRecord(record, null);
 	}
 
 	public boolean contains(Predicate< ? super IRecord> recordFilter)
@@ -100,7 +100,8 @@ public class EditedRecords
 
 	public void addDeleteQuery(IFoundSetInternal foundset, QueryDelete deleteQuery, Collection<IFoundSetInternal> affectedFoundsets)
 	{
-		edited.put(new RagtestKey(deleteQuery, foundset), new FoundsetDeletingQuery(foundset, deleteQuery, affectedFoundsets));
+		var foundsetDeletingQuery = new FoundsetDeletingQuery(foundset, deleteQuery, affectedFoundsets);
+		edited.put(foundsetDeletingQuery.getKey(), foundsetDeletingQuery);
 		modCount++;
 	}
 
@@ -141,7 +142,7 @@ public class EditedRecords
 
 	public boolean removeDeleteQuery(FoundsetDeletingQuery foundsetDeletingQuery)
 	{
-		return increaseModCountIf(edited.values().removeIf(df -> df == foundsetDeletingQuery));
+		return increaseModCountIf(edited.remove(foundsetDeletingQuery.getKey()) != null);
 	}
 
 	public EditedRecordOrFoundset getAndRemoveFirstEditedRecordOrFoundset(Predicate< ? super EditedRecordOrFoundset> filter)
@@ -180,7 +181,7 @@ public class EditedRecords
 		return getEditingRecords().filter(er -> editType == null || er.type == editType);
 	}
 
-	private boolean contains(IRecordInternal record, EditType editType)
+	private boolean containsRecord(IRecordInternal record, EditType editType)
 	{
 		EditedRecord editedRecord = (EditedRecord)edited.get(record.getRagtestKey());
 		return editedRecord != null && editedRecord.type == editType;
@@ -203,20 +204,17 @@ public class EditedRecords
 
 	public boolean removeEdited(IRecordInternal record)
 	{
-// RAGTEST todo
-		return increaseModCountIf(edited.values().removeIf(isEditingRecord(record, EditType.edit)));
+		return removeRecord(record, EditType.edit);
 	}
 
 	public boolean removeDeleted(IRecordInternal record)
 	{
-		// RAGTEST todo
-		return increaseModCountIf(edited.values().removeIf(isEditingRecord(record, EditType.delete)));
+		return removeRecord(record, EditType.delete);
 	}
 
 	public boolean removeFailed(IRecordInternal record)
 	{
-		// RAGTEST todo
-		return increaseModCountIf(edited.values().removeIf(isEditingRecord(record, EditType.failed)));
+		return removeRecord(record, EditType.failed);
 	}
 
 	public boolean removeFailedIf(Predicate< ? super IRecordInternal> filter)
@@ -273,9 +271,17 @@ public class EditedRecords
 		return edited.values().stream().filter(EditedRecord.class::isInstance).map(EditedRecord.class::cast);
 	}
 
-	private static Predicate< ? super EditedRecordOrFoundset> isEditingRecord(IRecordInternal record, EditType editType)
+	private boolean removeRecord(IRecordInternal record, EditType editType)
 	{
-		return er -> er instanceof EditedRecord editedRecord && (editType == null || editedRecord.type == editType) && record.equals(editedRecord.record);
+		RagtestKey key = record.getRagtestKey();
+		EditedRecord editedRecord = (EditedRecord)edited.get(key);
+		if (editedRecord != null && editedRecord.type == editType)
+		{
+			edited.remove(key);
+			modCount++;
+			return true;
+		}
+		return false;
 	}
 
 	private enum EditType
@@ -347,12 +353,14 @@ public class EditedRecords
 		private final IFoundSetInternal foundset;
 		private final QueryDelete queryDelete;
 		private final WeakHashSet<IFoundSetInternal> affectedFoundsets;
+		private final RagtestKey key;
 
 		private FoundsetDeletingQuery(IFoundSetInternal foundset, QueryDelete queryDelete, Collection<IFoundSetInternal> affectedFoundsets)
 		{
 			this.foundset = foundset;
 			this.queryDelete = queryDelete;
 			this.affectedFoundsets = new WeakHashSet<>(affectedFoundsets);
+			this.key = new RagtestKey(queryDelete, foundset);
 		}
 
 		QueryDelete getQueryDelete()
@@ -368,6 +376,11 @@ public class EditedRecords
 		Collection<IFoundSetInternal> getAffectedFoundsets()
 		{
 			return affectedFoundsets;
+		}
+
+		RagtestKey getKey()
+		{
+			return key;
 		}
 
 		@Override
