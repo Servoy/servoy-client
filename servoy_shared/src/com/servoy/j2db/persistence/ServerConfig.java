@@ -102,14 +102,15 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	private final String dialectClass;
 	private final List<String> quoteList;
 	private final boolean clientOnlyConnections;
+	private final String initializationString;
 
 	public ServerConfig(String serverName, String userName, String password, String serverUrl, Map<String, String> connectionProperties, String driver,
 		String catalog, String schema, int maxActive, int maxIdle, int maxPreparedStatementsIdle, int connectionValidationType, String validationQuery,
 		String dataModelCloneFrom, boolean enabled, boolean skipSysTables, boolean prefixTables, boolean queryProcedures, int idleTimeout,
-		Integer selectINValueCountLimit, String dialectClass, List<String> quoteList, boolean clientOnlyConnections)
+		Integer selectINValueCountLimit, String dialectClass, List<String> quoteList, boolean clientOnlyConnections, String initializationString)
 	{
 		this.clientOnlyConnections = clientOnlyConnections;
-		this.serverName = Utils.toEnglishLocaleLowerCase(serverName);//safety for when stored in columnInfo
+		this.serverName = Utils.toEnglishLocaleLowerCase(serverName); // safety for when stored in columnInfo
 		this.userName = userName;
 		this.password = password;
 		this.serverUrl = serverUrl;
@@ -129,6 +130,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		this.selectINValueCountLimit = selectINValueCountLimit;
 		this.dialectClass = dialectClass;
 		this.quoteList = quoteList;
+		this.initializationString = initializationString;
 
 		if (driver == null || serverUrl == null)
 		{
@@ -278,6 +280,11 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	public List<String> getQuoteList()
 	{
 		return quoteList;
+	}
+
+	public String getInitializationString()
+	{
+		return initializationString;
 	}
 
 	public Builder newBuilder()
@@ -503,29 +510,30 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 
 	public static final class Builder
 	{
-		String serverName;
-		String userName;
-		String password;
-		String serverUrl;
-		Map<String, String> connectionProperties;
-		String driver;
-		String catalog;
-		String schema;
-		int maxActive = MAX_ACTIVE_DEFAULT;
-		int maxIdle = MAX_IDLE_DEFAULT;
-		int maxPreparedStatementsIdle = MAX_PREPSTATEMENT_IDLE_DEFAULT;
-		int connectionValidationType = VALIDATION_TYPE_DEFAULT;
-		String validationQuery;
-		String dataModelCloneFrom;
-		boolean enabled = true;
-		boolean skipSysTables;
-		boolean queryProcedures = QUERY_PROCEDURES_DEFAULT;
-		boolean prefixTables = PREFIX_TABLES_DEFAULT;
-		int idleTimeout = -1;
-		Integer selectINValueCountLimit;
-		String dialectClass;
-		List<String> quoteList = emptyList();
-		boolean clientOnlyConnections;
+		private String serverName;
+		private String userName;
+		private String password;
+		private String serverUrl;
+		private Map<String, String> connectionProperties;
+		private String driver;
+		private String catalog;
+		private String schema;
+		private int maxActive = MAX_ACTIVE_DEFAULT;
+		private int maxIdle = MAX_IDLE_DEFAULT;
+		private int maxPreparedStatementsIdle = MAX_PREPSTATEMENT_IDLE_DEFAULT;
+		private int connectionValidationType = VALIDATION_TYPE_DEFAULT;
+		private String validationQuery;
+		private String dataModelCloneFrom;
+		private boolean enabled = true;
+		private boolean skipSysTables;
+		private boolean queryProcedures = QUERY_PROCEDURES_DEFAULT;
+		private boolean prefixTables = PREFIX_TABLES_DEFAULT;
+		private int idleTimeout = -1;
+		private Integer selectINValueCountLimit;
+		private String dialectClass;
+		private List<String> quoteList = emptyList();
+		private boolean clientOnlyConnections;
+		private String initializationString;
 
 		public Builder()
 		{
@@ -556,6 +564,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 			this.dialectClass = serverConfig.dialectClass;
 			this.quoteList = serverConfig.quoteList;
 			this.clientOnlyConnections = serverConfig.clientOnlyConnections;
+			this.initializationString = serverConfig.initializationString;
 		}
 
 		public Builder setServerName(String serverName)
@@ -696,6 +705,12 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 			return this;
 		}
 
+		public Builder setInitializationString(String initializationString)
+		{
+			this.initializationString = initializationString;
+			return this;
+		}
+
 		public ServerConfig build()
 		{
 			return new ServerConfig(
@@ -721,7 +736,8 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 				selectINValueCountLimit,
 				dialectClass,
 				quoteList,
-				clientOnlyConnections);
+				clientOnlyConnections,
+				initializationString);
 		}
 	}
 }
