@@ -17,8 +17,6 @@
 
 package com.servoy.j2db.serverconfigtemplates;
 
-import static java.util.Collections.emptyList;
-
 import com.servoy.j2db.persistence.ServerConfig;
 
 /**
@@ -29,8 +27,13 @@ public class FoxProTemplate extends ServerTemplateDefinition
 {
 	public FoxProTemplate()
 	{
-		super(new ServerConfig("new_dbf", "", "", "jdbc:DBF:/C:/TEMP?lockType=VFP&versionNumber=DB2K&delayedClose=0", null, "com.hxtt.sql.dbf.DBFDriver", null,
-			null, ServerConfig.MAX_ACTIVE_DEFAULT, ServerConfig.MAX_IDLE_DEFAULT, 0 /* disable PS pool */, ServerConfig.VALIDATION_TYPE_DEFAULT, null, null,
-			true, false, false, false, -1, null, null, emptyList(), false));
+		super(new ServerConfig.Builder()
+			.setServerName("new_dbf")
+			.setUserName("")
+			.setPassword("")
+			.setServerUrl("jdbc:DBF:/C:/TEMP?lockType=VFP&versionNumber=DB2K&delayedClose=0")
+			.setDriver("com.hxtt.sql.dbf.DBFDriver")
+			.setMaxPreparedStatementsIdle(0) /* disable PS pool */
+			.build());
 	}
 }

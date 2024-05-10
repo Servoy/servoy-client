@@ -30,8 +30,13 @@ public class PostgresTemplate extends ServerTemplateDefinition
 
 	public PostgresTemplate()
 	{
-		super(new ServerConfig("new_postgresql", "DBA", "", "jdbc:postgresql://localhost:5432/<database_name>", null, "org.postgresql.Driver", null, null, true,
-			false, null, null));
+		super(new ServerConfig.Builder()
+			.setServerName("new_postgresql")
+			.setUserName("DBA")
+			.setPassword("")
+			.setServerUrl("jdbc:postgresql://localhost:5432/<database_name>")
+			.setDriver("org.postgresql.Driver")
+			.build());
 	}
 
 	@Override

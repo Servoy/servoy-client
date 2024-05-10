@@ -30,9 +30,13 @@ public class MSSQLTemplate extends ServerTemplateDefinition
 
 	public MSSQLTemplate()
 	{
-		super(
-			new ServerConfig("new_mssql", "sa", "", "jdbc:sqlserver://localhost:1433;DatabaseName=<database_name>;SelectMethod=direct;sendTimeAsDateTime=false",
-				null, "com.microsoft.sqlserver.jdbc.SQLServerDriver", null, null, true, false, null, null));
+		super(new ServerConfig.Builder()
+			.setServerName("new_mssql")
+			.setUserName("sa")
+			.setPassword("")
+			.setServerUrl("jdbc:sqlserver://localhost:1433;DatabaseName=<database_name>;SelectMethod=direct;sendTimeAsDateTime=false")
+			.setDriver("com.microsoft.sqlserver.jdbc.SQLServerDriver")
+			.build());
 	}
 
 	@Override
