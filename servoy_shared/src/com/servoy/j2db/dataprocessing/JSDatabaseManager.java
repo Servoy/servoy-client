@@ -3167,12 +3167,12 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		if (record != null)
 		{
 			EditRecordList editRecordList = application.getFoundSetManager().getEditRecordList();
-			IRecordInternal[] failedRecords = editRecordList.getFailedRecords();
+			IRecordInternal[] failedRecords = editRecordList.getFailedRecords(); // RAGTEST functie containsFailed?
 			if (asList(failedRecords).contains(record))
 			{
 				editRecordList.startEditing((IRecordInternal)record, false);
 			}
-			return editRecordList.stopEditing(true, (IRecord)record) == ISaveConstants.STOPPED;
+			return editRecordList.stopEditing(true, (IRecordInternal)record) == ISaveConstants.STOPPED;
 		}
 		return false;
 	}

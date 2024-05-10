@@ -49,4 +49,12 @@ public interface IRecordInternal extends IRecord, IRowChangeListener
 	public void setRecordMarkers(JSRecordMarkers object);
 
 	public JSRecordMarkers getRecordMarkers();
+
+	/**
+	 * RAGTEST doc
+	 */
+	default RagtestKey getRagtestKey()
+	{
+		return new RagtestKey(this);
+	}
 }

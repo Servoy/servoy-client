@@ -288,7 +288,7 @@ public class EditRecordList
 
 
 	private boolean isSavingAll = false;
-	private List<IRecord> savingRecords = new ArrayList<IRecord>();
+	private List<IRecordInternal> savingRecords = new ArrayList<>();
 	private Exception lastStopEditingException;
 
 	private boolean ignoreSave;
@@ -304,7 +304,7 @@ public class EditRecordList
 
 	public int stopEditing(boolean javascriptStop)
 	{
-		return stopEditing(javascriptStop, null, (List<IRecord>)null);
+		return stopEditing(javascriptStop, null, (List<IRecordInternal>)null);
 	}
 
 	/**
@@ -314,7 +314,7 @@ public class EditRecordList
 	 * @param recordToSave null means all records
 	 * @return IRowChangeListener static final
 	 */
-	public int stopEditing(boolean javascriptStop, IRecord recordToSave)
+	public int stopEditing(boolean javascriptStop, IRecordInternal recordToSave)
 	{
 		return stopEditing(javascriptStop, null, asList(recordToSave));
 	}
@@ -336,7 +336,7 @@ public class EditRecordList
 	 * @return IRowChangeListener static final
 	 */
 	@SuppressWarnings("nls")
-	public int stopEditing(boolean javascriptStop, IFoundSet foundset, List<IRecord> recordsToSave)
+	public int stopEditing(boolean javascriptStop, IFoundSet foundset, List<IRecordInternal> recordsToSave)
 	{
 		int stopped = stopEditingImpl(javascriptStop, foundset, recordsToSave, 0);
 		if ((stopped == ISaveConstants.VALIDATION_FAILED || stopped == ISaveConstants.SAVE_FAILED) && !javascriptStop)
@@ -379,7 +379,7 @@ public class EditRecordList
 	/**
 	 * This method should only be called through stopEditing(boolean,List<Record>) so that that can call onAutoSaveFailed.
 	 */
-	private int stopEditingImpl(final boolean javascriptStop, IFoundSet foundset, List<IRecord> recordsToSave, int recursionDepth)
+	private int stopEditingImpl(final boolean javascriptStop, IFoundSet foundset, List<IRecordInternal> recordsToSave, int recursionDepth)
 	{
 		if (recursionDepth > 50)
 		{
@@ -433,7 +433,7 @@ public class EditRecordList
 		// here we can't have a test if editedRecords is empty (and return stop)
 		// because for just globals or findstates (or deleted records)
 		// we need to pass prepareForSave.
-		final List<IRecord> recordsToSaveFinal = recordsToSave;
+		final List<IRecordInternal> recordsToSaveFinal = recordsToSave;
 		if (!fsm.getApplication().isEventDispatchThread())
 		{
 			// only the event dispatch thread can stop an current edit.
@@ -1048,7 +1048,7 @@ public class EditRecordList
 	/*
 	 * Return a function for the loop to check if the EditedRecordOrFoundset should be processed in the save-loop.
 	 */
-	private Predicate<EditedRecordOrFoundset> shouldProcessRecordOrFoundset(List<IRecord> subList, IFoundSet foundset)
+	private Predicate<EditedRecordOrFoundset> shouldProcessRecordOrFoundset(List<IRecordInternal> subList, IFoundSet foundset)
 	{
 		return editedRecordOrFoundset -> {
 			if (editedRecordOrFoundset instanceof EditedRecord editedRecord)

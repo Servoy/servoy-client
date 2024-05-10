@@ -529,6 +529,18 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		return foundset;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.dataprocessing.IRecordInternal#getRagtestKey()
+	 */
+	@Override
+	public RagtestKey getRagtestKey()
+	{
+// RAGTEST check of dit met equals moet
+		return new RagtestKey(getPK()[0]);
+	}
+
 	@Override
 	public boolean equals(Object obj)
 	{

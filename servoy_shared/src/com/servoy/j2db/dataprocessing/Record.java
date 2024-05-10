@@ -790,6 +790,17 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		return retval.toString();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.dataprocessing.IRecordInternal#getRagtestKey()
+	 */
+	@Override
+	public RagtestKey getRagtestKey()
+	{
+		return new RagtestKey(row, parent);
+	}
+
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */

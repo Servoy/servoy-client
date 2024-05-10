@@ -51,6 +51,17 @@ public class PrototypeState extends Record
 		return isEditing;//true is needed for search in navigator
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.dataprocessing.Record#getRagtestKey()
+	 */
+	@Override
+	public RagtestKey getRagtestKey()
+	{
+		return new RagtestKey(parent);
+	}
+
 	@Override
 	public boolean equals(Object obj)
 	{
