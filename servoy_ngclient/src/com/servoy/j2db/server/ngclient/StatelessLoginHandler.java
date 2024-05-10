@@ -24,10 +24,8 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -42,7 +40,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -50,10 +47,9 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.net.URIBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -314,19 +310,20 @@ public class StatelessLoginHandler
 	{
 		HttpPost httppost = new HttpPost(CLOUD_REST_API_POST + endpoint);
 		httppost.addHeader(HttpHeaders.ACCEPT, "application/json");
+		httppost.addHeader(HttpHeaders.CONTENT_TYPE, "application/json");
 		httppost.addHeader("uuid", sanitizeHeader(solution.getUUID().toString()));
-		List<NameValuePair> postParameters = new ArrayList<>();
+		JSONObject postParameters = new JSONObject();
 		Map<String, String[]> parameters = request.getParameterMap();
 		for (Map.Entry<String, String[]> entry : parameters.entrySet())
 		{
 			String[] values = entry.getValue();
 			for (String value : values)
 			{
-				postParameters.add(new BasicNameValuePair(entry.getKey(), value));
+				postParameters.put(entry.getKey(), value);
 			}
 		}
-		postParameters.add(new BasicNameValuePair("serverUrl", getServerURL(request))); //TODO param or header?
-		httppost.setEntity(new UrlEncodedFormEntity(postParameters));
+		postParameters.put("serverUrl", getServerURL(request));
+		httppost.setEntity(new StringEntity(postParameters.toString()));
 
 		try
 		{
