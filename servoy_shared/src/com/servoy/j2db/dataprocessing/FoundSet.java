@@ -4222,11 +4222,13 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		{
 			Object obj;
 			TableScope tableScope = (TableScope)fsm.getScriptEngine().getTableScope(sheet.getTable());
+			tableScope.setArguments(vargs);
 			current = tableScope.setUsedDataProviderTracker(usedDataProviderTracker);
 			Scriptable previous = tableScope.getPrototype();
 			try
 			{
-				obj = tableScope.getCalculationValue(dataProviderID, tableScope, state, vargs);
+				tableScope.setPrototype((Scriptable)state);//make sure its set correctly
+				obj = tableScope.getCalculationValue(dataProviderID, tableScope);
 				if (obj instanceof Byte)//fix for postgress
 				{
 					obj = Integer.valueOf(((Byte)obj).intValue());

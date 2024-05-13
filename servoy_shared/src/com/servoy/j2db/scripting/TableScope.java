@@ -29,7 +29,7 @@ import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.Messages;
-import com.servoy.j2db.dataprocessing.IRecordInternal;
+import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Relation;
@@ -42,8 +42,8 @@ import com.servoy.j2db.util.Debug;
  */
 public class TableScope extends LazyCompilationScope
 {
+	private final static ThreadLocal<Object[]> values = new ThreadLocal<Object[]>();
 	private final static ThreadLocal<UsedDataProviderTracker> usedDataProviderTracker = new ThreadLocal<UsedDataProviderTracker>();
-	private final static ThreadLocal<List<String>> callStackCache = new ThreadLocal<List<String>>();
 
 	private final Table table;
 	private final FlattenedSolution solution;
@@ -62,6 +62,12 @@ public class TableScope extends LazyCompilationScope
 		return "TableScope(" + table.getDataSource() + ')'; //$NON-NLS-1$
 	}
 
+	public void setArguments(Object[] vargs)
+	{
+		Object[] array = getThreadLocalArray();
+		array[1] = vargs;
+	}
+
 	public UsedDataProviderTracker setUsedDataProviderTracker(UsedDataProviderTracker usedDataProviderTracker)
 	{
 		UsedDataProviderTracker current = TableScope.usedDataProviderTracker.get();
@@ -74,6 +80,35 @@ public class TableScope extends LazyCompilationScope
 			TableScope.usedDataProviderTracker.set(usedDataProviderTracker);
 		}
 		return current;
+	}
+
+	private Object[] getThreadLocalArray()
+	{
+		Object[] array = values.get();
+		if (array == null)
+		{
+			array = new Object[3];
+			values.set(array);
+		}
+		return array;
+	}
+
+	@Override
+	public Scriptable getPrototype()
+	{
+		Object[] array = getThreadLocalArray();
+		if (array[0] != null)
+		{
+			return (Scriptable)array[0];
+		}
+		return super.getPrototype();
+	}
+
+	@Override
+	public void setPrototype(Scriptable prototype)
+	{
+		getThreadLocalArray()[0] = prototype;
+		super.setPrototype(prototype);
 	}
 
 	/**
@@ -113,23 +148,31 @@ public class TableScope extends LazyCompilationScope
 		return o;
 	}
 
-	private synchronized Object getCalculationValue(Function calculation, String name, IRecordInternal record, Object[] vargs)
+	private Object getCalculationValue(Function calculation, String name)
 	{
-		// if record is not set we can't return then anything
-		if (record == null)
+		Scriptable proto = getPrototype();
+		// if this happens record is not set as prototype.. (for example debugger)
+		// we can't return then anything.
+		if (proto == null)
 		{
 			return null;
 		}
 
-		List<String> callStack = callStackCache.get();
+		Object[] array = getThreadLocalArray();
+		List<String> callStack = (List<String>)array[2];
 		if (callStack == null)
 		{
 			callStack = new ArrayList<String>();
-			callStackCache.set(callStack);
+			array[2] = callStack;
 		}
 
-		setPrototype((Scriptable)record);
-		String callStackName = name + '_' + record.getRawData().getPKHashKey();
+		Record record = null;
+		String callStackName = name;
+		if (proto instanceof Record)
+		{
+			record = (Record)proto;
+			callStackName = callStackName + '_' + record.getRawData().getPKHashKey();
+		}
 		UsedDataProviderTracker tracker = null;
 		try
 		{
@@ -139,7 +182,11 @@ public class TableScope extends LazyCompilationScope
 			//now we decide if we try to return from row cache or calculate again
 			if (contains)
 			{
-				return record.getRawData().getValue(name);
+				if (record != null)
+				{
+					return record.getRawData().getValue(name);
+				}
+				throw new RuntimeException(Messages.getString("servoy.error.cycleDetected", new Object[] { name, table.getName(), callStack })); //$NON-NLS-1$
 			}
 			tracker = usedDataProviderTracker.get();
 			if (tracker != null)
@@ -148,7 +195,7 @@ public class TableScope extends LazyCompilationScope
 				setUsedDataProviderTracker(null);
 			}
 
-			Object o = scriptEngine.executeFunction(calculation, this, getFunctionParentScriptable(), vargs, false, false);
+			Object o = scriptEngine.executeFunction(calculation, this, getFunctionParentScriptable(), (Object[])array[1], false, false);
 			if (o instanceof Undefined && record != null) o = record.getRawData().getValue(name);//record value trick
 			return o;
 		}
@@ -166,17 +213,17 @@ public class TableScope extends LazyCompilationScope
 			if (callStack.size() == 0)
 			{
 				// clear the thread locals.
-				callStackCache.remove();
+				values.remove();
 			}
 		}
 	}
 
-	public Object getCalculationValue(String calcName, Scriptable start, IRecordInternal record, Object[] vargs)
+	public Object getCalculationValue(String calcName, Scriptable start)
 	{
 		Object o = super.get(calcName, start);
 		if (o instanceof Function)
 		{
-			return getCalculationValue((Function)o, calcName, record, vargs);
+			return getCalculationValue((Function)o, calcName);
 		}
 		return o;
 	}
