@@ -1051,11 +1051,15 @@ public class EditRecordList
 			Row row = rowFuction.apply(al.get(i));
 			// only test for new rows and its pks.
 			if (row.existInDB()) continue;
-			String[] pkColumns = row.getRowManager().getSQLSheet().getPKColumnDataProvidersAsArray();
+			SQLSheet sqlSheet = row.getRowManager().getSQLSheet();
+			String[] pkColumns = sqlSheet.getPKColumnDataProvidersAsArray();
 			Object[] pk = row.getPK();
 			for (int j = 0; j < pk.length; j++)
 			{
 				Object pkObject = pk[j];
+				Column pkColumn = sqlSheet.getTable().getColumn(pkColumns[j]);
+				boolean isUUIDColumn = pkColumn.hasFlag(IBaseColumn.UUID_COLUMN);
+
 				// special case if pk was db ident and that value was copied from another row.
 				if (pkObject instanceof DbIdentValue && ((DbIdentValue)pkObject).getRow() != row) continue;
 				for (int k = 0; k < i; k++)
@@ -1077,8 +1081,9 @@ public class EditRecordList
 						boolean same = values[l] == pkObject;
 						if (!same && values[l] != null)
 						{
-							Column pkColumn = row.getRowManager().getSQLSheet().getTable().getColumn(pkColumns[j]);
-							if (pkColumn.hasFlag(IBaseColumn.UUID_COLUMN))
+							if (isUUIDColumn &&
+								// optimize: Numbers are never uuids
+								!(values[l] instanceof Number))
 							{
 								// same uuids are the same even if not the same object
 								same = equalObjects(pkObject, values[l], 0, true);
