@@ -22,6 +22,7 @@ import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
 import static com.servoy.j2db.query.AbstractBaseQuery.relinkTable;
 import static com.servoy.j2db.query.BooleanCondition.FALSE_CONDITION;
 import static com.servoy.j2db.util.Utils.equalObjects;
+import static com.servoy.j2db.util.Utils.isInArray;
 import static com.servoy.j2db.util.Utils.stream;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -1202,18 +1203,6 @@ public class EditRecordList
 						return true;
 					}
 				}
-			}
-		}
-		return false;
-	}
-
-	private static boolean isInArray(int[] ints, int i)
-	{
-		for (int el : ints)
-		{
-			if (el == i)
-			{
-				return true;
 			}
 		}
 		return false;
