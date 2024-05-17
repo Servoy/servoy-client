@@ -214,7 +214,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 		}
 		else
 		{
-			Debug.log("setTenantValue: A tenant value was " + (value == null ? "cleared" : "set") + " for " + count + " tenant columns.");
+			Debug.debug("setTenantValue: A tenant value was " + (value == null ? "cleared" : "set") + " for " + count + " tenant columns.");
 		}
 	}
 
