@@ -48,7 +48,7 @@ public class EditedRecords
 
 	public void addEdited(IRecordInternal record)
 	{
-		if (!containsRecord(record, EditType.edit))
+		if (record != null && !containsRecord(record, EditType.edit))
 		{
 			remove(record);
 			edited.put(record.getRagtestKey(), new EditedRecord(record, EditType.edit, emptySet()));
@@ -58,16 +58,22 @@ public class EditedRecords
 
 	public void addDeleted(IRecordInternal record, Collection<IFoundSetInternal> affectedFoundsets)
 	{
-		remove(record);
-		edited.put(record.getRagtestKey(), new EditedRecord(record, EditType.delete, affectedFoundsets));
-		modCount++;
+		if (record != null)
+		{
+			remove(record);
+			edited.put(record.getRagtestKey(), new EditedRecord(record, EditType.delete, affectedFoundsets));
+			modCount++;
+		}
 	}
 
 	public void addFailed(IRecordInternal record)
 	{
-		remove(record);
-		edited.put(record.getRagtestKey(), new EditedRecord(record, EditType.failed, emptySet()));
-		modCount++;
+		if (record != null)
+		{
+			remove(record);
+			edited.put(record.getRagtestKey(), new EditedRecord(record, EditType.failed, emptySet()));
+			modCount++;
+		}
 	}
 
 	public boolean containsEdited(IRecordInternal record)
@@ -183,6 +189,10 @@ public class EditedRecords
 
 	private boolean containsRecord(IRecordInternal record, EditType editType)
 	{
+		if (record == null)
+		{
+			return false;
+		}
 		EditedRecord editedRecord = (EditedRecord)edited.get(record.getRagtestKey());
 		return editedRecord != null && editedRecord.type == editType;
 	}
@@ -199,7 +209,7 @@ public class EditedRecords
 
 	public boolean remove(IRecordInternal record)
 	{
-		return edited.remove(record.getRagtestKey()) != null;
+		return record != null && edited.remove(record.getRagtestKey()) != null;
 	}
 
 	public boolean removeEdited(IRecordInternal record)
@@ -273,13 +283,16 @@ public class EditedRecords
 
 	private boolean removeRecord(IRecordInternal record, EditType editType)
 	{
-		RagtestKey key = record.getRagtestKey();
-		EditedRecord editedRecord = (EditedRecord)edited.get(key);
-		if (editedRecord != null && editedRecord.type == editType)
+		if (record != null)
 		{
-			edited.remove(key);
-			modCount++;
-			return true;
+			RagtestKey key = record.getRagtestKey();
+			EditedRecord editedRecord = (EditedRecord)edited.get(key);
+			if (editedRecord != null && editedRecord.type == editType)
+			{
+				edited.remove(key);
+				modCount++;
+				return true;
+			}
 		}
 		return false;
 	}

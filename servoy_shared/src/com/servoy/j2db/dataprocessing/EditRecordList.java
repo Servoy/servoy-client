@@ -139,7 +139,7 @@ public class EditRecordList
 		editRecordsLock.lock();
 		try
 		{
-			return editedRecords.contains(record);
+			return editedRecords.containsEdited(record);
 		}
 		finally
 		{
@@ -1640,12 +1640,9 @@ public class EditRecordList
 					// editRecordStop should be called for this record to match the editRecordStop call
 					recordTested.remove(record);
 
-					// extra check if no other thread already added this record
 					editedRecords.removeFailed(record);
-					if (!editedRecords.contains(record))
-					{
-						editedRecords.addEdited(record);
-					}
+					editedRecords.addEdited(record);
+
 					// reset the exception so that it is tried again.
 					record.getRawData().setLastException(null);
 				}
