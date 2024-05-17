@@ -18,6 +18,7 @@
 package com.servoy.j2db.persistence;
 
 import static com.servoy.base.persistence.IBaseColumn.TENANT_COLUMN;
+import static com.servoy.j2db.util.Utils.toEnglishLocaleLowerCase;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -30,7 +31,6 @@ import java.util.stream.Collectors;
 
 import com.servoy.j2db.util.AliasKeyMap;
 import com.servoy.j2db.util.SortedList;
-import com.servoy.j2db.util.Utils;
 
 /**
  * Base class for database tables and in memory tables.
@@ -179,7 +179,12 @@ public abstract class AbstractTable implements ITable, Serializable
 	public Column getColumn(String colname, boolean ignoreCase)
 	{
 		if (colname == null) return null;
-		return columns.get(ignoreCase ? Utils.toEnglishLocaleLowerCase(colname) : colname);
+		Column column = columns.get(colname);
+		if (column == null && ignoreCase)
+		{
+			column = columns.get(toEnglishLocaleLowerCase(colname));
+		}
+		return column;
 	}
 
 	public Column getColumn(String colname)
@@ -207,18 +212,18 @@ public abstract class AbstractTable implements ITable, Serializable
 	{
 		if (oldName != null && newName != null && !oldName.equals(newName))
 		{
-			if (columns.containsKey(Utils.toEnglishLocaleLowerCase(newName)))
+			if (columns.containsKey(toEnglishLocaleLowerCase(newName)))
 			{
 				throw new RepositoryException("A column on table " + getName() + " with name/dataProviderID " + newName + " already exists"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
 
 			validator.checkName(newName, -1, new ValidatorSearchContext(this, IRepository.COLUMNS), true);
-			Column c = columns.get(Utils.toEnglishLocaleLowerCase(oldName));
+			Column c = columns.get(toEnglishLocaleLowerCase(oldName));
 			if (c != null)
 			{
 				c.setSQLName(newName);
-				columns.remove(Utils.toEnglishLocaleLowerCase(oldName));
-				columns.put(Utils.toEnglishLocaleLowerCase(newName), c);
+				columns.remove(toEnglishLocaleLowerCase(oldName));
+				columns.put(toEnglishLocaleLowerCase(newName), c);
 				fireIColumnChanged(c);
 			}
 		}

@@ -1248,13 +1248,12 @@ public class EditRecordList
 		{
 			return true;
 		}
-		if (value != null)
+		if (value != null && column.hasFlag(IBaseColumn.UUID_COLUMN) &&
+			// optimize, no equals for types that are no uuid RAGTEST
+			!(value instanceof Number || pkObject instanceof Number))
 		{
-			if (column.hasFlag(IBaseColumn.UUID_COLUMN))
-			{
-				// same uuids are the same even if not the same object
-				return equalObjects(pkObject, value, 0, true);
-			}
+			// same uuids are the same even if not the same object
+			return equalObjects(pkObject, value, 0, true);
 		}
 		return false;
 	}
