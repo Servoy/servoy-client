@@ -571,7 +571,10 @@ public class EditRecordList
 						processedRecords.put(rec, Integer.valueOf(count == null ? 1 : (count.intValue() + 1)));
 					}
 
-					setDeletedrecordsInternalTableFilter(false);
+					if (isDeleteRecordOrQuery(tmp))
+					{
+						setDeletedrecordsInternalTableFilter(false);
+					}
 
 					// tmp is a record to save/delete or a delete-query to perform
 					if (tmp instanceof EditedRecord editedRecord)
@@ -1045,6 +1048,16 @@ public class EditRecordList
 		return ISaveConstants.STOPPED;
 	}
 
+	private boolean isDeleteRecordOrQuery(EditedRecordOrFoundset editedRecordOrFoundset)
+	{
+		if (editedRecordOrFoundset instanceof EditedRecord editedRecord)
+		{
+			return editedRecord.isDelete();
+		}
+
+		return editedRecordOrFoundset instanceof FoundsetDeletingQuery;
+	}
+
 	/*
 	 * Return a function for the loop to check if the EditedRecordOrFoundset should be processed in the save-loop.
 	 */
@@ -1084,7 +1097,7 @@ public class EditRecordList
 		return new TableUpdateInfo(table, statement);
 	}
 
-	private <T> List<T> orderUpdatesForInsertOrder(List<T> rowData, Function<T, Row> rowFuction, boolean reverse)
+	private <T> List<T> orderUpdatesForInsertOrder(List<T> rowData, Function<T, Row> rowFunction, boolean reverse)
 	{
 		if (rowData.size() <= 1 || fsm.config.disableInsertsReorder())
 		{
@@ -1096,7 +1109,7 @@ public class EditRecordList
 		boolean prevHasNoRow = false;
 		for (T rd : rowData)
 		{
-			Row row = rowFuction.apply(rd);
+			Row row = rowFunction.apply(rd);
 			if ((row == null != prevHasNoRow) || blocks.isEmpty())
 			{
 				blocks.add(new ArrayList<>());
@@ -1106,7 +1119,7 @@ public class EditRecordList
 			prevHasNoRow = row == null;
 		}
 
-		blocks = blocks.stream().map(block -> orderUpdatesForInsertOrderBlock(block, rowFuction, reverse)).collect(toList());
+		blocks = blocks.stream().map(block -> orderUpdatesForInsertOrderBlock(block, rowFunction, reverse)).collect(toList());
 		if (reverse)
 		{
 			reverse(blocks);
@@ -1115,7 +1128,7 @@ public class EditRecordList
 		return blocks.stream().flatMap(List::stream).collect(toList());
 	}
 
-	private <T> List<T> orderUpdatesForInsertOrderBlock(List<T> rowData, Function<T, Row> rowFuction, boolean reverse)
+	private <T> List<T> orderUpdatesForInsertOrderBlock(List<T> rowData, Function<T, Row> rowFunction, boolean reverse)
 	{
 		if (rowData.size() <= 1 || fsm.config.disableInsertsReorder())
 		{
@@ -1128,18 +1141,18 @@ public class EditRecordList
 		int prevI = -1;
 		for (int i = al.size(); --i > 0;)
 		{
-			Row row = rowFuction.apply(al.get(i));
+			Row row = rowFunction.apply(al.get(i));
 			// dbupdates contains rowupdates and delete-queries
 			if (row == null) continue;
 
 			var switched = false;
 			if (row.isFlaggedForDeletion())
 			{
-				switched = switchRowForDelete(row, rowFuction, al, i);
+				switched = switchRowForDelete(row, rowFunction, al, i);
 			}
 			else if (!row.existInDB())
 			{
-				switched = switchRowForInsert(row, rowFuction, al, i);
+				switched = switchRowForInsert(row, rowFunction, al, i);
 			}
 			// watch out for endless loops when 2 records both with pk's point to each other...
 			if (switched && prevI != i)
@@ -1162,7 +1175,7 @@ public class EditRecordList
 	 *
 	 * Main records must be saved before the detail records.
 	 */
-	private static <T> boolean switchRowForInsert(Row row, Function<T, Row> rowFuction, List<T> al, int i)
+	private static <T> boolean switchRowForInsert(Row row, Function<T, Row> rowFunction, List<T> al, int i)
 	{
 		Table table = row.getRowManager().getSQLSheet().getTable();
 		String[] pkColumns = row.getRowManager().getSQLSheet().getPKColumnDataProvidersAsArray();
@@ -1174,18 +1187,13 @@ public class EditRecordList
 			if (pkObject instanceof DbIdentValue dbIdentValue && dbIdentValue.getRow() != row) continue;
 			for (int k = 0; k < i; k++)
 			{
-				Row otherRow = rowFuction.apply(al.get(k));
+				Row otherRow = rowFunction.apply(al.get(k));
 				Object[] values = otherRow.getRawColumnData();
 				int[] pkIndexes = otherRow.getRowManager().getSQLSheet().getPKIndexes();
-				IntHashMap<String> pks = new IntHashMap<>(pkIndexes.length, 1);
-				for (int pkIndex : pkIndexes)
-				{
-					pks.put(pkIndex, ""); //$NON-NLS-1$
-				}
 				for (int l = 0; l < values.length; l++)
 				{
 					// skip all pk column indexes (except from dbidents from other rows, this may need resort). Those shouldn't be resorted
-					if (!(values[l] instanceof DbIdentValue dbIdentValue && dbIdentValue.getRow() != otherRow) && pks.containsKey(l))
+					if (!(values[l] instanceof DbIdentValue dbIdentValue && dbIdentValue.getRow() != otherRow) && isInArray(pkIndexes, l))
 						continue;
 
 					if (isSame(table.getColumn(pkColumns[j]), pkObject, values[l]))
@@ -1199,12 +1207,24 @@ public class EditRecordList
 		return false;
 	}
 
+	private static boolean isInArray(int[] ints, int i)
+	{
+		for (int el : ints)
+		{
+			if (el == i)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/*
 	 * Determine if the rows need to be switched around when sorting while doing deletes.
 	 *
 	 * Detail records must be deleted before the main records.
 	 */
-	private static <T> boolean switchRowForDelete(Row row, Function<T, Row> rowFuction, List<T> al, int i)
+	private static <T> boolean switchRowForDelete(Row row, Function<T, Row> rowFunction, List<T> al, int i)
 	{
 		Object[] values = row.getRawColumnData();
 		int[] pkIndexes = row.getRowManager().getSQLSheet().getPKIndexes();
@@ -1220,7 +1240,7 @@ public class EditRecordList
 			if (value instanceof DbIdentValue dbIdentValue && dbIdentValue.getRow() != row) continue;
 			for (int k = 0; k < i; k++)
 			{
-				Row otherRow = rowFuction.apply(al.get(k));
+				Row otherRow = rowFunction.apply(al.get(k));
 				Table table = otherRow.getRowManager().getSQLSheet().getTable();
 				String[] pkColumns = otherRow.getRowManager().getSQLSheet().getPKColumnDataProvidersAsArray();
 				Object[] pk = otherRow.getPK();
