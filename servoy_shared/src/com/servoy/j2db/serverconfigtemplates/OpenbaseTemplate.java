@@ -27,7 +27,12 @@ public class OpenbaseTemplate extends ServerTemplateDefinition
 {
 	public OpenbaseTemplate()
 	{
-		super(new ServerConfig("new_openbase", "admin", "", "jdbc:openbase://localhost/<database_name>", null, "com.openbase.jdbc.ObDriver", null, null, true,
-			false, null, null));
+		super(new ServerConfig.Builder()
+			.setServerName("new_openbase")
+			.setUserName("admin")
+			.setPassword("")
+			.setServerUrl("jdbc:openbase://localhost/<database_name>")
+			.setDriver("com.openbase.jdbc.ObDriver")
+			.build());
 	}
 }

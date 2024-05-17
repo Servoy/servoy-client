@@ -461,7 +461,7 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 				}
 				catch (FileUploadException ex)
 				{
-					ex.printStackTrace();
+					Debug.error(ex);
 					throw new ServletException(ex.toString());
 				}
 			}

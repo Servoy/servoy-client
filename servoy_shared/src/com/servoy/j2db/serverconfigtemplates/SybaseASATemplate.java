@@ -27,7 +27,12 @@ public class SybaseASATemplate extends ServerTemplateDefinition
 {
 	public SybaseASATemplate()
 	{
-		super(new ServerConfig("new_sybase", "dba", "", "jdbc:sybase:Tds:localhost:2638?ServiceName=<database_name>&CHARSET=utf8", null,
-			"com.sybase.jdbc3.jdbc.SybDriver", null, null, true, false, null, null));
+		super(new ServerConfig.Builder()
+			.setServerName("new_sybase")
+			.setUserName("dba")
+			.setPassword("")
+			.setServerUrl("jdbc:sybase:Tds:localhost:2638?ServiceName=<database_name>&CHARSET=utf8")
+			.setDriver("com.sybase.jdbc3.jdbc.SybDriver")
+			.build());
 	}
 }

@@ -281,7 +281,7 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 			}
 			return array;
 		}
-		else if (value.getClass().isArray())
+		else if (value != null && value.getClass().isArray())
 		{
 			JSONArray array = new JSONArray();
 			for (int i = 0; i < Array.getLength(value); i++)

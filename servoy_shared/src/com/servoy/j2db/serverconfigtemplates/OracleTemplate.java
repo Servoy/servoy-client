@@ -27,7 +27,12 @@ public class OracleTemplate extends ServerTemplateDefinition
 {
 	public OracleTemplate()
 	{
-		super(new ServerConfig("new_oracle", "scott", "tiger", "jdbc:oracle:thin:@localhost:1521:<orcl_sid>", null, "oracle.jdbc.driver.OracleDriver", null,
-			null, true, false, null, null));
+		super(new ServerConfig.Builder()
+			.setServerName("new_oracle")
+			.setUserName("scott")
+			.setPassword("tiger")
+			.setServerUrl("jdbc:oracle:thin:@localhost:1521:<orcl_sid>")
+			.setDriver("oracle.jdbc.driver.OracleDriver")
+			.build());
 	}
 }

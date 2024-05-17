@@ -120,7 +120,7 @@ public class TusServlet extends AbstractMediaResourceServlet
 		}
 		catch (IOException | TusException e)
 		{
-			e.printStackTrace();
+			Debug.error(e);
 		}
 
 		if (uploadInfo != null && !uploadInfo.isUploadInProgress())

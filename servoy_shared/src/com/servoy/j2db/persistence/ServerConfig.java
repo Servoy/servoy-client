@@ -87,8 +87,8 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	private final String driver;
 	private final String catalog;
 	private final String schema;
-	private int maxActive;
-	private int maxIdle;
+	private final int maxActive;
+	private final int maxIdle;
 	private final int maxPreparedStatementsIdle;
 	private final int connectionValidationType;
 	private final String validationQuery;
@@ -97,19 +97,20 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 	private final boolean skipSysTables;
 	private final boolean queryProcedures;
 	private final boolean prefixTables;
-	private int idleTimeout;
+	private final int idleTimeout;
 	private final Integer selectINValueCountLimit;
 	private final String dialectClass;
 	private final List<String> quoteList;
 	private final boolean clientOnlyConnections;
+	private final String initializationString;
 
 	public ServerConfig(String serverName, String userName, String password, String serverUrl, Map<String, String> connectionProperties, String driver,
 		String catalog, String schema, int maxActive, int maxIdle, int maxPreparedStatementsIdle, int connectionValidationType, String validationQuery,
 		String dataModelCloneFrom, boolean enabled, boolean skipSysTables, boolean prefixTables, boolean queryProcedures, int idleTimeout,
-		Integer selectINValueCountLimit, String dialectClass, List<String> quoteList, boolean clientOnlyConnections)
+		Integer selectINValueCountLimit, String dialectClass, List<String> quoteList, boolean clientOnlyConnections, String initializationString)
 	{
 		this.clientOnlyConnections = clientOnlyConnections;
-		this.serverName = Utils.toEnglishLocaleLowerCase(serverName);//safety for when stored in columnInfo
+		this.serverName = Utils.toEnglishLocaleLowerCase(serverName); // safety for when stored in columnInfo
 		this.userName = userName;
 		this.password = password;
 		this.serverUrl = serverUrl;
@@ -129,6 +130,7 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		this.selectINValueCountLimit = selectINValueCountLimit;
 		this.dialectClass = dialectClass;
 		this.quoteList = quoteList;
+		this.initializationString = initializationString;
 
 		if (driver == null || serverUrl == null)
 		{
@@ -144,28 +146,16 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		else this.schema = schema;
 	}
 
-	public ServerConfig(String serverName, String userName, String password, String serverUrl, Map<String, String> connectionProperties, String driver,
-		String catalog, String schema, boolean enabled, boolean skipSysTables, Integer selectINValueCountLimit, String dialectClass)
-	{
-		this(serverName, userName, password, serverUrl, connectionProperties, driver, catalog, schema, MAX_ACTIVE_DEFAULT, MAX_IDLE_DEFAULT,
-			MAX_PREPSTATEMENT_IDLE_DEFAULT, VALIDATION_TYPE_DEFAULT, null, null, enabled, skipSysTables, PREFIX_TABLES_DEFAULT, QUERY_PROCEDURES_DEFAULT, -1,
-			selectINValueCountLimit, dialectClass, emptyList(), false);
-	}
-
 	public ServerConfig getNamedCopy(String newServerName)
 	{
 		if (serverName.equals(newServerName)) return this;
-		return new ServerConfig(newServerName, userName, password, serverUrl, connectionProperties, driver, catalog, schema, maxActive, maxIdle,
-			maxPreparedStatementsIdle, connectionValidationType, validationQuery, dataModelCloneFrom, enabled, skipSysTables, prefixTables, queryProcedures,
-			idleTimeout, selectINValueCountLimit, dialectClass, quoteList, clientOnlyConnections);
+		return new Builder(this).setServerName(newServerName).build();
 	}
 
 	public ServerConfig getEnabledCopy(boolean newEnabled)
 	{
 		if (enabled == newEnabled) return this;
-		return new ServerConfig(serverName, userName, password, serverUrl, connectionProperties, driver, catalog, schema, maxActive, maxIdle,
-			maxPreparedStatementsIdle, connectionValidationType, validationQuery, dataModelCloneFrom, newEnabled, skipSysTables, prefixTables, queryProcedures,
-			idleTimeout, selectINValueCountLimit, dialectClass, quoteList, clientOnlyConnections);
+		return new Builder(this).setEnabled(newEnabled).build();
 	}
 
 	public String getServerName()
@@ -292,28 +282,14 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		return quoteList;
 	}
 
-	/**
-	 * Should only be called from Server so that exiting connection data source gets updated as well
-	 */
-	public void setMaxActive(int maxActive)
+	public String getInitializationString()
 	{
-		this.maxActive = maxActive;
+		return initializationString;
 	}
 
-	/**
-	 * Should only be called from Server so that exiting connection data source gets updated as well
-	 */
-	public void setMaxIdle(int maxIdle)
+	public Builder newBuilder()
 	{
-		this.maxIdle = maxIdle;
-	}
-
-	/**
-	 * Should only be called from Server so that exiting connection data source gets updated as well
-	 */
-	public void setIdleTimeout(int idleTimeout)
-	{
-		this.idleTimeout = idleTimeout;
+		return new Builder(this);
 	}
 
 	// used for sorting in ServerManager (TreeMap)
@@ -502,9 +478,6 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 		return map;
 	}
 
-	/**
-	 *
-	 */
 	public static void clearTemplates()
 	{
 		TEMPLATES.clear();
@@ -533,5 +506,238 @@ public class ServerConfig implements Serializable, Comparable<ServerConfig>
 			.append(", selectINValueCountLimit=").append(selectINValueCountLimit) //
 			.append(", dialectClass=").append(dialectClass) //
 			.append("]").toString();
+	}
+
+	public static final class Builder
+	{
+		private String serverName;
+		private String userName;
+		private String password;
+		private String serverUrl;
+		private Map<String, String> connectionProperties;
+		private String driver;
+		private String catalog;
+		private String schema;
+		private int maxActive = MAX_ACTIVE_DEFAULT;
+		private int maxIdle = MAX_IDLE_DEFAULT;
+		private int maxPreparedStatementsIdle = MAX_PREPSTATEMENT_IDLE_DEFAULT;
+		private int connectionValidationType = VALIDATION_TYPE_DEFAULT;
+		private String validationQuery;
+		private String dataModelCloneFrom;
+		private boolean enabled = true;
+		private boolean skipSysTables;
+		private boolean queryProcedures = QUERY_PROCEDURES_DEFAULT;
+		private boolean prefixTables = PREFIX_TABLES_DEFAULT;
+		private int idleTimeout = -1;
+		private Integer selectINValueCountLimit;
+		private String dialectClass;
+		private List<String> quoteList = emptyList();
+		private boolean clientOnlyConnections;
+		private String initializationString;
+
+		public Builder()
+		{
+		}
+
+		public Builder(ServerConfig serverConfig)
+		{
+			this.serverName = serverConfig.serverName;
+			this.userName = serverConfig.userName;
+			this.password = serverConfig.password;
+			this.serverUrl = serverConfig.serverUrl;
+			this.connectionProperties = serverConfig.connectionProperties;
+			this.driver = serverConfig.driver;
+			this.catalog = serverConfig.catalog;
+			this.schema = serverConfig.schema;
+			this.maxActive = serverConfig.maxActive;
+			this.maxIdle = serverConfig.maxIdle;
+			this.maxPreparedStatementsIdle = serverConfig.maxPreparedStatementsIdle;
+			this.connectionValidationType = serverConfig.connectionValidationType;
+			this.validationQuery = serverConfig.validationQuery;
+			this.dataModelCloneFrom = serverConfig.dataModelCloneFrom;
+			this.enabled = serverConfig.enabled;
+			this.skipSysTables = serverConfig.skipSysTables;
+			this.queryProcedures = serverConfig.queryProcedures;
+			this.prefixTables = serverConfig.prefixTables;
+			this.idleTimeout = serverConfig.idleTimeout;
+			this.selectINValueCountLimit = serverConfig.selectINValueCountLimit;
+			this.dialectClass = serverConfig.dialectClass;
+			this.quoteList = serverConfig.quoteList;
+			this.clientOnlyConnections = serverConfig.clientOnlyConnections;
+			this.initializationString = serverConfig.initializationString;
+		}
+
+		public Builder setServerName(String serverName)
+		{
+			this.serverName = serverName;
+			return this;
+		}
+
+		public Builder setUserName(String userName)
+		{
+			this.userName = userName;
+			return this;
+		}
+
+		public Builder setPassword(String password)
+		{
+			this.password = password;
+			return this;
+		}
+
+		public Builder setServerUrl(String serverUrl)
+		{
+			this.serverUrl = serverUrl;
+			return this;
+		}
+
+		public Builder setConnectionProperties(Map<String, String> connectionProperties)
+		{
+			this.connectionProperties = connectionProperties;
+			return this;
+		}
+
+		public Builder setDriver(String driver)
+		{
+			this.driver = driver;
+			return this;
+		}
+
+		public Builder setCatalog(String catalog)
+		{
+			this.catalog = catalog;
+			return this;
+		}
+
+		public Builder setSchema(String schema)
+		{
+			this.schema = schema;
+			return this;
+		}
+
+		public Builder setMaxActive(int maxActive)
+		{
+			this.maxActive = maxActive;
+			return this;
+		}
+
+		public Builder setMaxIdle(int maxIdle)
+		{
+			this.maxIdle = maxIdle;
+			return this;
+		}
+
+		public Builder setMaxPreparedStatementsIdle(int maxPreparedStatementsIdle)
+		{
+			this.maxPreparedStatementsIdle = maxPreparedStatementsIdle;
+			return this;
+		}
+
+		public Builder setConnectionValidationType(int connectionValidationType)
+		{
+			this.connectionValidationType = connectionValidationType;
+			return this;
+		}
+
+		public Builder setValidationQuery(String validationQuery)
+		{
+			this.validationQuery = validationQuery;
+			return this;
+		}
+
+		public Builder setDataModelCloneFrom(String dataModelCloneFrom)
+		{
+			this.dataModelCloneFrom = dataModelCloneFrom;
+			return this;
+		}
+
+		public Builder setEnabled(boolean enabled)
+		{
+			this.enabled = enabled;
+			return this;
+		}
+
+		public Builder setSkipSysTables(boolean skipSysTables)
+		{
+			this.skipSysTables = skipSysTables;
+			return this;
+		}
+
+		public Builder setQueryProcedures(boolean queryProcedures)
+		{
+			this.queryProcedures = queryProcedures;
+			return this;
+		}
+
+		public Builder setPrefixTables(boolean prefixTables)
+		{
+			this.prefixTables = prefixTables;
+			return this;
+		}
+
+		public Builder setIdleTimeout(int idleTimeout)
+		{
+			this.idleTimeout = idleTimeout;
+			return this;
+		}
+
+		public Builder setSelectINValueCountLimit(Integer selectINValueCountLimit)
+		{
+			this.selectINValueCountLimit = selectINValueCountLimit;
+			return this;
+		}
+
+		public Builder setDialectClass(String dialectClass)
+		{
+			this.dialectClass = dialectClass;
+			return this;
+		}
+
+		public Builder setQuoteList(List<String> quoteList)
+		{
+			this.quoteList = quoteList;
+			return this;
+		}
+
+		public Builder setClientOnlyConnections(boolean clientOnlyConnections)
+		{
+			this.clientOnlyConnections = clientOnlyConnections;
+			return this;
+		}
+
+		public Builder setInitializationString(String initializationString)
+		{
+			this.initializationString = initializationString;
+			return this;
+		}
+
+		public ServerConfig build()
+		{
+			return new ServerConfig(
+				serverName,
+				userName,
+				password,
+				serverUrl,
+				connectionProperties,
+				driver,
+				catalog,
+				schema,
+				maxActive,
+				maxIdle,
+				maxPreparedStatementsIdle,
+				connectionValidationType,
+				validationQuery,
+				dataModelCloneFrom,
+				enabled,
+				skipSysTables,
+				queryProcedures,
+				prefixTables,
+				idleTimeout,
+				selectINValueCountLimit,
+				dialectClass,
+				quoteList,
+				clientOnlyConnections,
+				initializationString);
+		}
 	}
 }

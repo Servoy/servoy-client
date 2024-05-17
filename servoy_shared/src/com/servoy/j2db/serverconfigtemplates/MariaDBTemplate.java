@@ -27,7 +27,12 @@ public class MariaDBTemplate extends ServerTemplateDefinition
 {
 	public MariaDBTemplate()
 	{
-		super(new ServerConfig("new_mariadb", "root", "", "jdbc:mariadb://localhost/<database_name>", null, "org.mariadb.jdbc.Driver", null, null, true, false,
-			null, null));
+		super(new ServerConfig.Builder()
+			.setServerName("new_mariadb")
+			.setUserName("root")
+			.setPassword("")
+			.setServerUrl("jdbc:mariadb://localhost/<database_name>")
+			.setDriver("org.mariadb.jdbc.Driver")
+			.build());
 	}
 }

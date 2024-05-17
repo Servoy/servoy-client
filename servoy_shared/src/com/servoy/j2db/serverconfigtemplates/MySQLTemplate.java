@@ -27,7 +27,12 @@ public class MySQLTemplate extends ServerTemplateDefinition
 {
 	public MySQLTemplate()
 	{
-		super(new ServerConfig("new_mysql", "root", "", "jdbc:mysql://localhost/<database_name>", null, "com.mysql.cj.jdbc.Driver", null, null, true, false,
-			null, null));
+		super(new ServerConfig.Builder()
+			.setServerName("new_mysql")
+			.setUserName("root")
+			.setPassword("")
+			.setServerUrl("jdbc:mysql://localhost/<database_name>")
+			.setDriver("com.mysql.cj.jdbc.Driver")
+			.build());
 	}
 }
