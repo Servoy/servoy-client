@@ -474,6 +474,22 @@ public final class Utils
 		return res;
 	}
 
+	/**
+	 * Int array lookup function, optimal for small arrays (like pk indexes)
+	 */
+	public static boolean isInArray(int[] ints, int i)
+	{
+		for (int el : ints)
+		{
+			if (el == i)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+
 	/*
 	 * _____________________________________________________________ Declaration of attributes
 	 */

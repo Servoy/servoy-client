@@ -17,6 +17,7 @@
 package com.servoy.j2db.dataprocessing;
 
 import static com.servoy.j2db.util.Utils.equalObjects;
+import static com.servoy.j2db.util.Utils.isInArray;
 import static java.util.Arrays.stream;
 import static java.util.Collections.reverse;
 
@@ -61,7 +62,6 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryInsert;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.IntHashMap;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
@@ -1061,32 +1061,29 @@ public class EditRecordList
 				boolean isUUIDColumn = pkColumn.hasFlag(IBaseColumn.UUID_COLUMN);
 
 				// special case if pk was db ident and that value was copied from another row.
-				if (pkObject instanceof DbIdentValue && ((DbIdentValue)pkObject).getRow() != row) continue;
+				if (pkObject instanceof DbIdentValue dbIdentValue && dbIdentValue.getRow() != row) continue;
 				for (int k = 0; k < i; k++)
 				{
 					Row otherRow = rowFuction.apply(al.get(k));
 					Object[] values = otherRow.getRawColumnData();
 					int[] pkIndexes = otherRow.getRowManager().getSQLSheet().getPKIndexes();
-					IntHashMap<String> pks = new IntHashMap<String>(pkIndexes.length, 1);
-					for (int pkIndex : pkIndexes)
-					{
-						pks.put(pkIndex, ""); //$NON-NLS-1$
-					}
+
 					for (int l = 0; l < values.length; l++)
 					{
+						Object value = values[l];
 						// skip all pk column indexes (except from dbidents from other rows, this may need resort). Those shouldn't be resorted
-						if (!(values[l] instanceof DbIdentValue && ((DbIdentValue)values[l]).getRow() != otherRow) && pks.containsKey(l))
+						if (!(value instanceof DbIdentValue dbIdentValue && dbIdentValue.getRow() != otherRow) && isInArray(pkIndexes, l))
 							continue;
 
-						boolean same = values[l] == pkObject;
-						if (!same && values[l] != null)
+						boolean same = value == pkObject;
+						if (!same && value != null)
 						{
 							if (isUUIDColumn &&
 								// optimize: Numbers are never uuids
-								!(values[l] instanceof Number))
+								!(value instanceof Number))
 							{
 								// same uuids are the same even if not the same object
-								same = equalObjects(pkObject, values[l], 0, true);
+								same = equalObjects(pkObject, value, 0, true);
 							}
 						}
 						if (same)
