@@ -393,6 +393,41 @@ public class MapPropertyType extends DefaultPropertyType<JSONObject>
 					object.put(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY, NGDatePropertyType.SVY_DATE_CLIENT_SIDE_TYPE_NAME);
 					item = object;
 				}
+				else if (item instanceof BrowserFunction bf)
+				{
+					// this is a copy of what is in the class DynamicClientFunctionPropertyType.toJSON
+					if (application.getRuntimeProperties().containsKey("NG2")) //$NON-NLS-1$
+					{
+						JSONObject object = new JSONObject();
+						object.put(JSONUtils.VALUE_KEY, application.registerClientFunction(bf.getFunctionString()));
+						object.put(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY, DynamicClientFunctionPropertyType.CLIENT_SIDE_TYPE_NAME);
+						item = object;
+					}
+					else
+					{
+						item = bf.getFunctionString();
+					}
+				}
+				else if (item instanceof Function func && dataConverterContext != null)
+				{
+					// this is a copy of what is in the class FunctionRefType.toJSON
+					JSONObject value = new JSONObject();
+					BaseWebObject webObject = dataConverterContext.getWebObject();
+					if (webObject instanceof WebFormComponent wfc)
+					{
+						String name = wfc.getDataAdapterList().getForm().getName();
+						value.put("formname", name);
+					}
+					value.put(FunctionRefType.FUNCTION_HASH, FunctionRefType.INSTANCE.addReference(func, dataConverterContext));
+					value.put("svyType", FunctionRefType.TYPE_NAME);
+
+
+					JSONObject object = new JSONObject();
+					object.put(JSONUtils.VALUE_KEY, value);
+					object.put(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY, FunctionRefType.TYPE_NAME);
+					item = object;
+
+				}
 				fixedArray.put(i, item);
 			}
 			JSONObject object = new JSONObject();
