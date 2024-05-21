@@ -196,18 +196,18 @@ public class JSONValueToJsonTest extends Log4JToConsoleTest
 	@Test
 	public void testObjectTypeWithDatesToJson() throws JSONException
 	{
-		Map mapObj = new HashMap();
-		mapObj.put("key1", "aaa");
-		mapObj.put("key2", new Date(90, 1, 1));
-		mapObj.put("key3", new Object[] { "bbb", "ccc", new Date(100, 10, 10) });
-
 		StringWriter stringWriter = new StringWriter();
 		JSONWriter jsonWriter = new JSONWriter(stringWriter);
-
 		TimeZone default1 = TimeZone.getDefault();
 		try
 		{
 			TimeZone.setDefault(TimeZone.getTimeZone("Europe/Bucharest"));
+			Map mapObj = new HashMap();
+			mapObj.put("key1", "aaa");
+			mapObj.put("key2", new Date(90, 1, 1));
+			mapObj.put("key3", new Object[] { "bbb", "ccc", new Date(100, 10, 10) });
+
+
 			jsonWriter.object();
 			NGObjectPropertyType.NG_INSTANCE.toJSON(jsonWriter, "myobject", mapObj, MY_OBJECT_PD, null);
 			jsonWriter.endObject();
@@ -226,24 +226,26 @@ public class JSONValueToJsonTest extends Log4JToConsoleTest
 	@Test
 	public void testNestedObjectTypeWithDatesToJson() throws JSONException
 	{
-		Map mapObj = new HashMap();
-		Map mapObj2 = new HashMap();
-		mapObj.put("key1", mapObj2);
-		mapObj2.put("key1", "aaa");
-		mapObj2.put("key2", new Date(90, 1, 1));
-		mapObj2.put("key3", new Object[] { "bbb", "ccc", new Date(100, 10, 10) });
-		List list = new ArrayList();
-		list.add(new Date(100, 10, 10));
-		list.add(new Date(101, 11, 11));
-		list.add("bbb");
-		mapObj2.put("key4", list);
+		TimeZone default1 = TimeZone.getDefault();
 		StringWriter stringWriter = new StringWriter();
 		JSONWriter jsonWriter = new JSONWriter(stringWriter);
-
-		TimeZone default1 = TimeZone.getDefault();
 		try
 		{
 			TimeZone.setDefault(TimeZone.getTimeZone("Europe/Bucharest"));
+
+			Map mapObj = new HashMap();
+			Map mapObj2 = new HashMap();
+			mapObj.put("key1", mapObj2);
+			mapObj2.put("key1", "aaa");
+			mapObj2.put("key2", new Date(90, 1, 1));
+			mapObj2.put("key3", new Object[] { "bbb", "ccc", new Date(100, 10, 10) });
+			List list = new ArrayList();
+			list.add(new Date(100, 10, 10));
+			list.add(new Date(101, 11, 11));
+			list.add("bbb");
+			mapObj2.put("key4", list);
+
+
 			jsonWriter.object();
 			NGObjectPropertyType.NG_INSTANCE.toJSON(jsonWriter, "myobject", mapObj, MY_OBJECT_PD, null);
 			jsonWriter.endObject();
@@ -355,22 +357,21 @@ public class JSONValueToJsonTest extends Log4JToConsoleTest
 	@Test
 	public void testMapTypeWithDatesToJson() throws JSONException
 	{
-		JSONObject jsonObj = new JSONObject();
-		jsonObj.put("key1", "aaa");
-		jsonObj.put("key2", new Date(90, 1, 1));
-		JSONArray arr = new JSONArray();
-		arr.put(new Date(100, 10, 10));
-		arr.put(JSONObject.NULL);
-		arr.put(false);
-		jsonObj.put("key3", arr);
-
+		TimeZone default1 = TimeZone.getDefault();
 		StringWriter stringWriter = new StringWriter();
 		JSONWriter jsonWriter = new JSONWriter(stringWriter);
-
-		TimeZone default1 = TimeZone.getDefault();
 		try
 		{
 			TimeZone.setDefault(TimeZone.getTimeZone("Europe/Bucharest"));
+
+			JSONObject jsonObj = new JSONObject();
+			jsonObj.put("key1", "aaa");
+			jsonObj.put("key2", new Date(90, 1, 1));
+			JSONArray arr = new JSONArray();
+			arr.put(new Date(100, 10, 10));
+			arr.put(JSONObject.NULL);
+			arr.put(false);
+			jsonObj.put("key3", arr);
 			jsonWriter.object();
 			MapPropertyType.INSTANCE.toJSON(jsonWriter, "myobject", jsonObj, MY_OBJECT_PD, context);
 			jsonWriter.endObject();
@@ -389,28 +390,29 @@ public class JSONValueToJsonTest extends Log4JToConsoleTest
 	@Test
 	public void testNestedMapTypeWithDatesToJson() throws JSONException
 	{
-		JSONObject jsonObj = new JSONObject();
-		JSONObject jsonObj2 = new JSONObject();
-		jsonObj.put("key1", jsonObj2);
-		jsonObj2.put("key1", "aaa");
-		jsonObj2.put("key2", new Date(90, 1, 1));
-		JSONArray arr = new JSONArray();
-		arr.put("bbb");
-		arr.put(new Date(100, 10, 10));
-		arr.put(new Date(101, 11, 11));
-		jsonObj2.put("key3", arr);
-		arr = new JSONArray();
-		arr.put(new Date(100, 10, 10));
-		arr.put(new Date(101, 11, 11));
-		arr.put("bbb");
-		jsonObj2.put("key4", arr);
+		TimeZone default1 = TimeZone.getDefault();
 		StringWriter stringWriter = new StringWriter();
 		JSONWriter jsonWriter = new JSONWriter(stringWriter);
-
-		TimeZone default1 = TimeZone.getDefault();
 		try
 		{
 			TimeZone.setDefault(TimeZone.getTimeZone("Europe/Bucharest"));
+			JSONObject jsonObj = new JSONObject();
+			JSONObject jsonObj2 = new JSONObject();
+			jsonObj.put("key1", jsonObj2);
+			jsonObj2.put("key1", "aaa");
+			jsonObj2.put("key2", new Date(90, 1, 1));
+			JSONArray arr = new JSONArray();
+			arr.put("bbb");
+			arr.put(new Date(100, 10, 10));
+			arr.put(new Date(101, 11, 11));
+			jsonObj2.put("key3", arr);
+			arr = new JSONArray();
+			arr.put(new Date(100, 10, 10));
+			arr.put(new Date(101, 11, 11));
+			arr.put("bbb");
+			jsonObj2.put("key4", arr);
+
+
 			jsonWriter.object();
 			MapPropertyType.INSTANCE.toJSON(jsonWriter, "myobject", jsonObj, MY_OBJECT_PD, context);
 			jsonWriter.endObject();
