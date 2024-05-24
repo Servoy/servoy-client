@@ -1501,6 +1501,10 @@ public class NGClient extends AbstractApplication
 				break;
 			case "callServerSideApi" :
 			{
+				if (getScriptEngine() == null)
+				{
+					return null;
+				}
 				String serviceScriptingName = args.getString("service");
 				PluginScope scope = (PluginScope)getScriptEngine().getSolutionScope().get("plugins", getScriptEngine().getSolutionScope());
 				Object service = scope.get(serviceScriptingName, scope);
