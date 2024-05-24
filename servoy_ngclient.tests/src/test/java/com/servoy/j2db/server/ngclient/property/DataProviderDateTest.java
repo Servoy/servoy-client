@@ -22,6 +22,7 @@ import java.awt.print.PageFormat;
 import java.net.URL;
 import java.rmi.Remote;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -817,7 +818,7 @@ public class DataProviderDateTest
 
 	}
 
-	private static class ServiceProvider implements INGApplication
+	public static class ServiceProvider implements INGApplication
 	{
 		@Override
 		public Object generateBrowserFunction(String functionString)
@@ -1137,8 +1138,9 @@ public class DataProviderDateTest
 		@Override
 		public Map getRuntimeProperties()
 		{
-
-			return null;
+			Map map = new HashMap<>();
+			map.put("NG2", Boolean.TRUE);
+			return map;
 		}
 
 		/*
@@ -2009,8 +2011,7 @@ public class DataProviderDateTest
 		@Override
 		public String registerClientFunction(String code)
 		{
-
-			return null;
+			return code;
 		}
 
 
