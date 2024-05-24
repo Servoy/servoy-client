@@ -1376,7 +1376,7 @@ public class SQLGenerator
 	 * @param filter
 	 * @return
 	 */
-	public static QueryFilter createTableFiltercondition(BaseQueryTable qTable, Table table, TableFilter filter)
+	public static QueryFilter createTableFiltercondition(BaseQueryTable qTable, ITable table, TableFilter filter)
 	{
 		if (filter.getTableFilterdefinition() == null)
 		{
@@ -1403,7 +1403,7 @@ public class SQLGenerator
 
 	}
 
-	private static QueryFilter createTableFiltercondition(BaseQueryTable qTable, Table table, QuerySelect filterQuery)
+	private static QueryFilter createTableFiltercondition(BaseQueryTable qTable, ITable table, QuerySelect filterQuery)
 	{
 		QuerySelect filterQueryClone = deepClone(filterQuery);
 		filterQueryClone.relinkTable(filterQueryClone.getTable(), qTable);
@@ -1415,7 +1415,7 @@ public class SQLGenerator
 		return new QueryFilter(filterQueryClone.getJoins(), pkColumns, filterQueryClone.getWhere());
 	}
 
-	public static QueryFilter createTableFiltercondition(BaseQueryTable qTable, Table table, DataproviderTableFilterdefinition filterdefinition)
+	public static QueryFilter createTableFiltercondition(BaseQueryTable qTable, ITable table, DataproviderTableFilterdefinition filterdefinition)
 	{
 		Column c = table.getColumn(filterdefinition.getDataprovider());
 		if (c == null)

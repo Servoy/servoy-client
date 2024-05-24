@@ -19,6 +19,7 @@ package com.servoy.j2db.dataprocessing;
 
 import static com.servoy.j2db.dataprocessing.IDataServer.RAW_QUERY;
 import static com.servoy.j2db.dataprocessing.RowManager.createPKHashKey;
+import static com.servoy.j2db.dataprocessing.SQLGenerator.createTableFiltercondition;
 import static com.servoy.j2db.dataprocessing.SQLGenerator.isDistinctAllowed;
 import static com.servoy.j2db.persistence.ColumnInfo.DATABASE_IDENTITY;
 import static com.servoy.j2db.persistence.StaticContentSpecLoader.PROPERTY_ONAFTERCREATEMETHODID;
@@ -43,6 +44,7 @@ import java.lang.ref.WeakReference;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -105,10 +107,12 @@ import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.CustomCondition;
+import com.servoy.j2db.query.IQueryElement;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.IQuerySort;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLJoin;
+import com.servoy.j2db.query.ISQLQuery;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryColumn;
@@ -142,6 +146,7 @@ import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
+import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * The foundset of a form, also handles the locking with the AppServer based on tablepks, and is the formmodel itself!
@@ -4659,6 +4664,11 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 						// if this foundset is related, other foundsets on the same relation are not affected (no overlap)
 						(fs == this || getRelationName() == null || !getRelationName().equals(fs.getRelationName())))
 						.collect(toList());
+
+
+					addTableFilterconditions(delete_sql, fsm.getTableFilterParams(table.getServerName(), delete_sql));
+
+
 					getFoundSetManager().getEditRecordList().addDeleteQuery(this, delete_sql, affectedFoundsets);
 					getFoundSetManager().getEditRecordList().stopEditing(false, this);
 				}
@@ -4698,6 +4708,100 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			int correctedSize = getCorrectedSizeForFires();
 			if (correctedSize > -1) fireFoundSetEvent(0, correctedSize, FoundSetEvent.CHANGE_DELETE);
 		}
+	}
+
+
+	/**  RAGTEST implement
+	 * return the filters as conditions to the query. The map is per element (main select or join element) that the condition is to be applied to)
+	 *
+	 * @param query
+	 * @param filters
+	 * @throws RepositoryException
+	 */
+	private void addTableFilterconditions(ISQLQuery query, List<TableFilter> filters) throws RepositoryException
+	{
+		if (filters == null || filters.size() == 0)
+		{
+			// nothing to filter
+			return;
+		}
+
+		// collect all elements in the query based on a query (queries and joins), note: queries may be included in an Exists-condition
+		List<IQueryElement> elements = new ArrayList<>();
+		IVisitor visitor = o -> {
+			if (o instanceof ISQLQuery || o instanceof QueryJoin) // Note: QueryCustomJoin will add its joins in the recursion
+			{
+				elements.add((IQueryElement)o);
+			}
+			return o;
+		};
+		query.acceptVisitor(visitor);
+		visitor.visit(query); // check main query as well
+
+		Map<IQueryElement, Collection<QueryFilter>> elementFilters = null;
+		// for each element, find the filters that are applicable
+		for (IQueryElement element : elements)
+		{
+			BaseQueryTable qTable = null;
+			if (element instanceof QueryJoin)
+			{
+				qTable = ((QueryJoin)element).getForeignTable();
+			}
+			else if (element instanceof ISQLQuery)
+			{
+				qTable = ((ISQLQuery)element).getTable();
+			}
+
+			if (qTable == null || qTable.getName() == null)
+			{
+				// custom query or derived table
+				continue;
+			}
+
+			// Note: the same table (with different aliases) may occur multiple times (self join), in that case the filter must be
+			// applied twice, to both aliases
+			List<QueryFilter> elementFilter = null;
+			// apply the applicable filters
+			for (TableFilter tableFilter : filters)
+			{
+				if (tableFilter.getTableName() == null)
+				{
+					// should not happen, here the real table filter must be filled in, also if filter was created with null tableName
+					throw new IllegalStateException("Unexpected table filter without table name");
+				}
+				ITable table = fsm.getTable(tableFilter.getDataSource());
+
+				// table not found, should never happen
+				if (table == null)
+				{
+					throw new IllegalStateException("Could not find table '" + tableFilter.getTableName() + "' for table filter " + tableFilter);
+				}
+				if (table.getSQLName() == null)
+				{
+					// Should not happen
+					throw new IllegalStateException("Table '" + table.getName() + "' with null sql name for table filter " + tableFilter);
+				}
+
+				QueryFilter filtercondition = createTableFiltercondition(qTable, table, tableFilter);
+				if (filtercondition != null)
+				{
+					if (elementFilter == null)
+					{
+						elementFilter = new ArrayList<>();
+					}
+					elementFilter.add(filtercondition);
+				}
+			}
+			if (elementFilter != null)
+			{
+				if (elementFilters == null)
+				{
+					elementFilters = new HashMap<>();
+				}
+				elementFilters.put(element, elementFilter);
+			}
+		}
+		//RAGTEST	return elementFilters;
 	}
 
 	private void performDeleteQueryDirectly(Table table, IDataSet currentPKs, QueryDelete delete_sql, boolean allFoundsetRecordsLoaded)
@@ -7335,7 +7439,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		}
 
 		// create condition to check filter
-		QueryFilter filtercondition = SQLGenerator.createTableFiltercondition(creationSqlSelect.getTable(), sheet.getTable(),
+		QueryFilter filtercondition = createTableFiltercondition(creationSqlSelect.getTable(), sheet.getTable(),
 			dataproviderTableFilterdefinition);
 		if (filtercondition == null)
 		{
@@ -7467,7 +7571,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	{
 		for (TableFilter tf : iterate(filters))
 		{
-			QueryFilter filtercondition = SQLGenerator.createTableFiltercondition(select.getTable(), sheet.getTable(), tf);
+			QueryFilter filtercondition = createTableFiltercondition(select.getTable(), sheet.getTable(), tf);
 			select.addCondition(SQLGenerator.CONDITION_FILTER, filtercondition.getCondition());
 			for (ISQLJoin join : iterate(filtercondition.getJoins()))
 			{
