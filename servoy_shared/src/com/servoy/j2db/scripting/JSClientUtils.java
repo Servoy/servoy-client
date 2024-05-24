@@ -97,13 +97,19 @@ public class JSClientUtils
 	 * var tableName = 'pdf_documents';
 	 * var columnName = 'invoice_doc';
 	 * var mimeType = 'application/pdf';
-	 * var bloburl1 = clientutils.createUrlBlobloaderBuilder(columnName).serverAndTable("example_data", tableName).rowid(doc_id).filename(file_name).mimetype(mimeType).build();
+	 * var bloburl1 = clientutils.createUrlBlobloaderBuilder(columnName)
+	 *                     .serverAndTable("example_data", tableName).rowid(doc_id)
+	 *                     .filename(file_name).mimetype(mimeType).build();
 	 *
 	 * // datasource based column
-	 * var bloburl2 = clientutils.createUrlBlobloaderBuilder("invoice_doc").datasource("db:/example_data/pdf_documents").rowid(doc_id).build();
+	 * var bloburl2 = clientutils.createUrlBlobloaderBuilder("invoice_doc")
+	 *                     .datasource("db:/example_data/pdf_documents").rowid(doc_id)
+	 *                     .build();
 	 *
 	 * // global var
-	 * var bloburl2 = clientutils.createUrlBlobloaderBuilder("scopes.sc1.profilePhoto").filename("profilePhoto.png").mimetype("application/png").build();
+	 * var bloburl2 = clientutils.createUrlBlobloaderBuilder("scopes.sc1.profilePhoto")
+	 *                     .filename("profilePhoto.png").mimetype("application/png")
+	 *                     .build();
 	 *
 	 * @param dataprovider the dataprovider who's value should be sent to the browser (it can be a global scope variable or a datasource column)
 	 */
