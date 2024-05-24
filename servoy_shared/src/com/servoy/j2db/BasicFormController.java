@@ -2273,7 +2273,7 @@ public abstract class BasicFormController
 	{
 		if (formModel != null && formModel.getTable() == null || !(formModel instanceof FoundSet))
 		{
-			getApplication().reportJSWarning("ommit fails because of an invalid table on form " + getName());
+			getApplication().reportJSWarning("omit fails because of an invalid table on form " + getName());
 			return false;
 		}
 		checkInitialized();

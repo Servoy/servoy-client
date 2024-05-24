@@ -30,6 +30,7 @@ import com.servoy.j2db.dataprocessing.Row;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.ObjectKey;
 
 /**
  * Special state for part showing page number info
@@ -300,4 +301,9 @@ public class PageNumberState implements IRecordInternal
 		return null;
 	}
 
+	@Override
+	public ObjectKey getKey()
+	{
+		return new ObjectKey(this);
+	}
 }

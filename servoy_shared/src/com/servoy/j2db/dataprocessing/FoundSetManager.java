@@ -3495,10 +3495,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return editRecordList.stopEditing(false);
 	}
 
-//	RAGTEST public int saveData(List<IRecord> recordsToSave)
-//	{
-//		return editRecordList.stopEditing(true, null, recordsToSave);
-//	}
+	public int saveData(List<IRecord> recordsToSave)
+	{
+		return editRecordList.stopEditing(true, null, recordsToSave.stream().map(IRecordInternal.class::cast).toList());
+	}
 
 	@Override
 	public IRecord[] getFailedRecords()

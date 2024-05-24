@@ -51,10 +51,8 @@ public interface IRecordInternal extends IRecord, IRowChangeListener
 	public JSRecordMarkers getRecordMarkers();
 
 	/**
-	 * RAGTEST doc
+	 * returns a key whose equals matches the logic of equals of the record,
+	 * so record1.equals(record2) must match record1.getKey().equals(record2.getKey())
 	 */
-	default RagtestKey getRagtestKey()
-	{
-		return new RagtestKey(this);
-	}
+	Object getKey();
 }

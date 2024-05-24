@@ -2126,7 +2126,7 @@ public class EditRecordList
 		editRecordsLock.lock();
 		try
 		{
-			return editedRecords.getAll();
+			return editedRecords.getEdited();
 		}
 		finally
 		{

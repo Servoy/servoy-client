@@ -55,6 +55,7 @@ import com.servoy.j2db.scripting.UsedDataProviderTracker.UsedRelation;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
+import com.servoy.j2db.util.ObjectKey;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
@@ -439,7 +440,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	}
 
 	/*
-	 * _____________________________________________________________ Scriptable impementation
+	 * _____________________________________________________________ Scriptable implementation
 	 */
 	public void delete(int index)
 	{
@@ -680,7 +681,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	}
 
 	/*
-	 * _____________________________________________________________ Related states impementation
+	 * _____________________________________________________________ Related states implementation
 	 */
 
 	/**
@@ -790,15 +791,10 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		return retval.toString();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.dataprocessing.IRecordInternal#getRagtestKey()
-	 */
 	@Override
-	public RagtestKey getRagtestKey()
+	public ObjectKey getKey()
 	{
-		return new RagtestKey(row, parent);
+		return new ObjectKey(row, parent);
 	}
 
 	/**

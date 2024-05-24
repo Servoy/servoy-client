@@ -15,28 +15,33 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
 
-package com.servoy.j2db.dataprocessing;
-
-import static java.util.Arrays.deepHashCode;
+package com.servoy.j2db.util;
 
 /**
- * RAGTEST doc
- * @author rob
+ * A key based on the object reference equality of a number of values.
+ *
+ * @author rgansevles
  *
  */
-public class RagtestKey
+public class ObjectKey
 {
-	private final Object[] fields;
+	private final Object[] values;
 
-	public RagtestKey(Object... fields)
+	public ObjectKey(Object... values)
 	{
-		this.fields = fields;
+		this.values = values;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return deepHashCode(fields);
+		int prime = 31;
+		int result = 1;
+		for (Object value : values)
+		{
+			result = prime * result + (value == null ? 0 : value.hashCode());
+		}
+		return result;
 	}
 
 	@Override
@@ -45,20 +50,18 @@ public class RagtestKey
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
-		RagtestKey other = (RagtestKey)obj;
-		if (this.fields.length != other.fields.length)
+		ObjectKey other = (ObjectKey)obj;
+		if (this.values.length != other.values.length)
 		{
 			return false;
 		}
-		for (int i = 0; i < fields.length; i++)
+		for (int i = 0; i < values.length; i++)
 		{
-			if (fields[i] != other.fields[i])
+			if (values[i] != other.values[i])
 			{
 				return false;
 			}
 		}
-
 		return true;
 	}
-
 }

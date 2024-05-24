@@ -33,6 +33,7 @@ import java.util.stream.Stream;
 
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.query.QueryDelete;
+import com.servoy.j2db.util.ObjectKey;
 import com.servoy.j2db.util.WeakHashSet;
 
 /**
@@ -44,14 +45,14 @@ public class EditedRecords
 {
 	protected transient int modCount = 0;
 
-	private final LinkedHashMap<RagtestKey, EditedRecordOrFoundset> edited = new LinkedHashMap<>(32);
+	private final LinkedHashMap<Object, EditedRecordOrFoundset> edited = new LinkedHashMap<>(32);
 
 	public void addEdited(IRecordInternal record)
 	{
 		if (record != null && !containsRecord(record, EditType.edit))
 		{
 			remove(record);
-			edited.put(record.getRagtestKey(), new EditedRecord(record, EditType.edit, emptySet()));
+			edited.put(record.getKey(), new EditedRecord(record, EditType.edit, emptySet()));
 			modCount++;
 		}
 	}
@@ -61,7 +62,7 @@ public class EditedRecords
 		if (record != null)
 		{
 			remove(record);
-			edited.put(record.getRagtestKey(), new EditedRecord(record, EditType.delete, affectedFoundsets));
+			edited.put(record.getKey(), new EditedRecord(record, EditType.delete, affectedFoundsets));
 			modCount++;
 		}
 	}
@@ -71,7 +72,7 @@ public class EditedRecords
 		if (record != null)
 		{
 			remove(record);
-			edited.put(record.getRagtestKey(), new EditedRecord(record, EditType.failed, emptySet()));
+			edited.put(record.getKey(), new EditedRecord(record, EditType.failed, emptySet()));
 			modCount++;
 		}
 	}
@@ -193,8 +194,8 @@ public class EditedRecords
 		{
 			return false;
 		}
-		EditedRecord editedRecord = (EditedRecord)edited.get(record.getRagtestKey());
-		return editedRecord != null && editedRecord.type == editType;
+		EditedRecord editedRecord = (EditedRecord)edited.get(record.getKey());
+		return editedRecord != null && (editType == null || editedRecord.type == editType);
 	}
 
 	public boolean removeForDatasource(String datasource)
@@ -204,12 +205,12 @@ public class EditedRecords
 
 	public boolean removeAll(List<IRecordInternal> array)
 	{
-		return increaseModCountIf(array.stream().map(IRecordInternal::getRagtestKey).map(edited::remove).filter(Objects::nonNull).count() > 0);
+		return increaseModCountIf(array.stream().map(IRecordInternal::getKey).map(edited::remove).filter(Objects::nonNull).count() > 0);
 	}
 
 	public boolean remove(IRecordInternal record)
 	{
-		return record != null && edited.remove(record.getRagtestKey()) != null;
+		return record != null && edited.remove(record.getKey()) != null;
 	}
 
 	public boolean removeEdited(IRecordInternal record)
@@ -285,7 +286,7 @@ public class EditedRecords
 	{
 		if (record != null)
 		{
-			RagtestKey key = record.getRagtestKey();
+			Object key = record.getKey();
 			EditedRecord editedRecord = (EditedRecord)edited.get(key);
 			if (editedRecord != null && editedRecord.type == editType)
 			{
@@ -366,14 +367,14 @@ public class EditedRecords
 		private final IFoundSetInternal foundset;
 		private final QueryDelete queryDelete;
 		private final WeakHashSet<IFoundSetInternal> affectedFoundsets;
-		private final RagtestKey key;
+		private final ObjectKey key;
 
 		private FoundsetDeletingQuery(IFoundSetInternal foundset, QueryDelete queryDelete, Collection<IFoundSetInternal> affectedFoundsets)
 		{
 			this.foundset = foundset;
 			this.queryDelete = queryDelete;
 			this.affectedFoundsets = new WeakHashSet<>(affectedFoundsets);
-			this.key = new RagtestKey(queryDelete, foundset);
+			this.key = new ObjectKey(queryDelete, foundset);
 		}
 
 		QueryDelete getQueryDelete()
@@ -391,7 +392,7 @@ public class EditedRecords
 			return affectedFoundsets;
 		}
 
-		RagtestKey getKey()
+		ObjectKey getKey()
 		{
 			return key;
 		}

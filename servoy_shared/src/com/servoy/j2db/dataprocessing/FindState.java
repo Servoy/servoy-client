@@ -48,6 +48,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.IDelegate;
+import com.servoy.j2db.util.ObjectKey;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
@@ -897,5 +898,11 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 	public JSRecordMarkers getRecordMarkers()
 	{
 		return null;
+	}
+
+	@Override
+	public ObjectKey getKey()
+	{
+		return new ObjectKey(this);
 	}
 }

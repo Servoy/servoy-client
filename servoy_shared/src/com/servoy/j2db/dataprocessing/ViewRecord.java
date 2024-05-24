@@ -18,10 +18,10 @@
 package com.servoy.j2db.dataprocessing;
 
 import static com.servoy.j2db.dataprocessing.FireCollector.getFireCollector;
+import static java.util.Collections.synchronizedList;
 
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,8 +81,8 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 				break;
 			}
 		}
-		this.modificationListeners = Collections.synchronizedList(new ArrayList<IModificationListener>(3));
-		this.relatedFoundSets = new HashMap<String, SoftReference<IFoundSetInternal>>(3);
+		this.modificationListeners = synchronizedList(new ArrayList<>(3));
+		this.relatedFoundSets = new HashMap<>(3);
 	}
 
 	@Override
@@ -100,7 +100,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 			// it really did change register this to the changes:
 			if (changes == null)
 			{
-				changes = new HashMap<String, Object>(3);
+				changes = new HashMap<>(3);
 				foundset.addEditedRecord(this);
 			}
 			else if (foundset.isFailedRecord(this))
@@ -529,16 +529,10 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		return foundset;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.dataprocessing.IRecordInternal#getRagtestKey()
-	 */
 	@Override
-	public RagtestKey getRagtestKey()
+	public Object getKey()
 	{
-// RAGTEST check of dit met equals moet
-		return new RagtestKey(getPK()[0]);
+		return getPK()[0];
 	}
 
 	@Override
@@ -547,7 +541,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		if (obj == this) return true;
 		if (obj != null && obj.getClass() == getClass())
 		{
-			return getPK()[0].equals(((ViewRecord)obj).getPK()[0]);
+			return getKey().equals(((ViewRecord)obj).getKey());
 		}
 		return false;
 	}
@@ -555,7 +549,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	@Override
 	public int hashCode()
 	{
-		return getPK()[0].hashCode();
+		return getKey().hashCode();
 	}
 
 	@Override
@@ -564,8 +558,7 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 		return "ViewRecord[" + values + ']';
 	}
 
-
-	// Scriptable impementation
+	// Scriptable implementation
 	private Scriptable prototype;
 	private Scriptable parentScope;
 

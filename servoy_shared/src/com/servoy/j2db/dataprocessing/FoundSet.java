@@ -5204,7 +5204,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	{
 		if (sheet.getTable() == null)
 		{
-			getFoundSetManager().getApplication().reportJSWarning("ommit fails because of an invalid table");
+			getFoundSetManager().getApplication().reportJSWarning("omit fails because of an invalid table");
 			return false;
 		}
 
@@ -5215,7 +5215,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			if (row < 0 || row >= getSize())
 			{
 				success = false;
-				getFoundSetManager().getApplication().reportJSWarning("ommit fails because of an invalid index " + row);
+				getFoundSetManager().getApplication().reportJSWarning("omit fails because of an invalid index " + row);
 				continue;
 			}
 			IRecordInternal state = getRecord(row);
