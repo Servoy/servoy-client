@@ -52,11 +52,13 @@ import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
+import com.servoy.j2db.scripting.info.UICONSTANTS;
 import com.servoy.j2db.server.ngclient.BodyPortal;
 import com.servoy.j2db.server.ngclient.DefaultNavigator;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.FormElementHelper.FormComponentCache;
+import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.property.ComponentTypeConfig;
 import com.servoy.j2db.server.ngclient.property.types.BorderPropertyType;
@@ -293,15 +295,37 @@ public class FormWrapper
 		return JSONUtils.writeDataAsFullToJSON(properties, null, null); // null types as we don't have a .spec file for forms
 	}
 
+	@SuppressWarnings("nls")
 	public Map<String, Object> getProperties()
 	{
 		Map<String, Object> properties = form.getFlattenedPropertiesMap(); // a copy of form properties
 		properties.put("size", form.getSize()); // form.getSize() computes the form height from form parts so do call it instead of relying on the height from size taken from raw form.getPropertiesMap() - where the height is not kept in sync in developer - we have to call getSize()
 		properties.put("designSize", form.getSize());
-		properties.put("addMinSize", !form.isResponsiveLayout() && (form.getView() == IForm.RECORD_VIEW || form.getView() == IForm.LOCKED_RECORD_VIEW));
+		if (!form.isResponsiveLayout() && (form.getView() == IForm.RECORD_VIEW || form.getView() == IForm.LOCKED_RECORD_VIEW))
+		{
+			// backwards compartible with ng1
+			properties.put("addMinSize", Boolean.TRUE);
+
+			Boolean useMinWidth = form.getUseMinWidth();
+			Boolean useMinHeight = form.getUseMinHeight();
+			INGApplication application = context.getApplication();
+			if (useMinWidth == null && application != null)
+			{
+				Object clientProperty = application.getClientProperty(UICONSTANTS.DEFAULT_FORM_USE_MIN_WIDTH);
+				if (clientProperty instanceof Boolean cp) useMinWidth = cp;
+			}
+			if (useMinHeight == null && application != null)
+			{
+				Object clientProperty = application.getClientProperty(UICONSTANTS.DEFAULT_FORM_USE_MIN_HEIGHT);
+				if (clientProperty instanceof Boolean cp) useMinHeight = cp;
+			}
+
+			properties.put("useMinWidth", useMinWidth != null ? useMinWidth : Boolean.TRUE);
+			properties.put("useMinHeight", useMinHeight != null ? useMinHeight : Boolean.TRUE);
+		}
 		properties.put("hasExtraParts", Boolean.valueOf(FormElementHelper.INSTANCE.hasExtraParts(form)));
 		HashMap<String, Boolean> absolute = new HashMap<>(formComponentsLayout);
-		absolute.put("", !form.isResponsiveLayout());
+		absolute.put("", Boolean.valueOf(!form.isResponsiveLayout()));
 		for (FormElement fe : getAbsoluteLayoutElements())
 		{
 			absolute.put(fe.getName(), Boolean.TRUE);

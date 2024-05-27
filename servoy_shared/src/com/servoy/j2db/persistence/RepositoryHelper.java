@@ -547,12 +547,14 @@ public class RepositoryHelper
 		return false;
 	}
 
+	@SuppressWarnings("nls")
 	public static boolean shouldShow(String name, Element element, Class< ? > persistClass, int displayType)
 	{
 		if (element == null)
 		{
 			// no content spec (example: form.width), some properties are set via another property.
-			if (Form.class.isAssignableFrom(persistClass) && ("width".equals(name) || "height".equals(name))) //$NON-NLS-1$ //$NON-NLS-2$
+			if (Form.class.isAssignableFrom(persistClass) &&
+				("width".equals(name) || "height".equals(name) || "useMinWidth".equals(name) || "useMinHeight".equals(name))) //$NON-NLS-1$ //$NON-NLS-2$
 			{
 				return true;
 			}
@@ -570,11 +572,11 @@ public class RepositoryHelper
 		{
 			return false;
 		}
-		if (name.equals("locked")) //$NON-NLS-1$
+		if (name.equals("locked"))
 		{
 			return false;
 		}
-		if (name.equals("beanClassName")) //$NON-NLS-1$
+		if (name.equals("beanClassName"))
 		{
 			return false;
 		}
@@ -582,12 +584,12 @@ public class RepositoryHelper
 		{
 			return false;
 		}
-		if (name.equals("relationName") && //$NON-NLS-1$
+		if (name.equals("relationName") &&
 			!(DocsInsetList.class.isAssignableFrom(persistClass) || Portal.class.isAssignableFrom(persistClass) || Tab.class.isAssignableFrom(persistClass)))
 		{
 			return false;
 		}
-		if (name.equals("selectedTabColor")) //$NON-NLS-1$
+		if (name.equals("selectedTabColor"))
 		{
 			return false;//not correctly impl by sun //TODO
 		}
@@ -783,9 +785,20 @@ public class RepositoryHelper
 
 	public static String getDisplayName(String displayName, Class< ? > persistClass)
 	{
-		if (displayName.equals("extendsID") && Form.class.isAssignableFrom(persistClass)) //$NON-NLS-1$
+		if (persistClass != null && Form.class.isAssignableFrom(persistClass))
 		{
-			return "extendsForm"; //$NON-NLS-1$
+			if (displayName.equals("extendsID")) //$NON-NLS-1$
+			{
+				return "extendsForm"; //$NON-NLS-1$
+			}
+			if (displayName.equals("height")) //$NON-NLS-1$
+			{
+				return "minHeight"; //$NON-NLS-1$
+			}
+			if (displayName.equals("width")) //$NON-NLS-1$
+			{
+				return "minWidth"; //$NON-NLS-1$
+			}
 		}
 		if (displayName.endsWith("CmdMethodID")) //$NON-NLS-1$
 		{
