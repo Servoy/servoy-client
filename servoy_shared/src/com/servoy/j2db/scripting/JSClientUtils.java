@@ -32,7 +32,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @since 2024.3.1
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ClientUtils", scriptingName = "clientutils")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Client Utils", scriptingName = "clientutils")
 public class JSClientUtils
 {
 	static
@@ -85,20 +85,31 @@ public class JSClientUtils
 	 * Creates a blob loader url that can be sent to the browser so that it can download the value of the given dataprovider.
 	 * The dataprovider is mandatory, but also a datasource or server/tablename combination should be given if it points to a database column.<br/><br/>
 	 *
-	 * The build() method will return the url that can be sent to the browser inside a piece of html.
+	 * The .build() method of the returned builder will return the url that can be sent to the browser inside a piece of html.<br/><br/>
+	 *
+	 * The blob loader URL can be used in HTMl Areas for example in order to display images stored in the database, or to provide a clickable
+	 * download link for that content as a file. In the other situations, the mimetype indicates to the browser what the type of file is and the browser
+	 * might use that information in order to open the file in the appropriate application directly. The filename is suggested/given to the user when
+	 * saving/downloading the file.
 	 *
 	 * @sample
 	 * // server/table column
 	 * var tableName = 'pdf_documents';
 	 * var columnName = 'invoice_doc';
 	 * var mimeType = 'application/pdf';
-	 * var bloburl1 = clientutils.createUrlBlobloaderBuilder(columnName).serverAndTable("example_data", tableName).rowid(doc_id).filename(file_name).mimetype(mimeType).build();
+	 * var bloburl1 = clientutils.createUrlBlobloaderBuilder(columnName)
+	 *                     .serverAndTable("example_data", tableName).rowid(doc_id)
+	 *                     .filename(file_name).mimetype(mimeType).build();
 	 *
 	 * // datasource based column
-	 * var bloburl2 = clientutils.createUrlBlobloaderBuilder("invoice_doc").datasource("db:/example_data/pdf_documents").rowid(doc_id).build();
+	 * var bloburl2 = clientutils.createUrlBlobloaderBuilder("invoice_doc")
+	 *                     .datasource("db:/example_data/pdf_documents").rowid(doc_id)
+	 *                     .build();
 	 *
 	 * // global var
-	 * var bloburl3 = clientutils.createUrlBlobloaderBuilder("scopes.sc1.profilePhoto").filename("profilePhoto.png").mimetype("application/png").build();
+	 * var bloburl2 = clientutils.createUrlBlobloaderBuilder("scopes.sc1.profilePhoto")
+	 *                     .filename("profilePhoto.png").mimetype("application/png")
+	 *                     .build();
 	 *
 	 * @param dataprovider the dataprovider who's value should be sent to the browser (it can be a global scope variable or a datasource column)
 	 */
