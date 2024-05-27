@@ -228,4 +228,6 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_ONVALIDATEMETHODID = "onValidateMethodID";
 	public static final String PROPERTY_ONAUTOSAVEDFAILEDMETHODID = "onAutoSaveFailedMethodID";
 	public static final String PROPERTY_ONBEFORELOGINMETHODID = "onBeforeLoginMethodID";
+	public static final String PROPERTY_USE_MIN_HEIGHT = "useMinHeight";
+	public static final String PROPERTY_USE_MIN_WIDTH = "useMinWidth";
 }

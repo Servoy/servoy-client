@@ -232,6 +232,30 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		}
 	}
 
+	public Boolean getUseMinWidth()
+	{
+		Object customProperty = getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_USE_MIN_WIDTH });
+		if (customProperty instanceof Boolean) return (Boolean)customProperty;
+		return null;
+	}
+
+	public void setUseMinWidth(Boolean useMinWidth)
+	{
+		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_USE_MIN_WIDTH }, useMinWidth);
+	}
+
+	public Boolean getUseMinHeight()
+	{
+		Object customProperty = getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_USE_MIN_HEIGHT });
+		if (customProperty instanceof Boolean) return (Boolean)customProperty;
+		return null;
+	}
+
+	public void setUseMinHeight(Boolean useMinHeight)
+	{
+		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_USE_MIN_HEIGHT }, useMinHeight);
+	}
+
 	public int getMinWidth()
 	{
 		int minWidth = 0;
