@@ -566,6 +566,11 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			chainedRelatedFoundsetSelectionMonitor.unregisterListeners();
 			chainedRelatedFoundsetSelectionMonitor = null;
 		}
+		if (dataAdapterList != null)
+		{
+			dataAdapterList.destroy();
+			dataAdapterList = null;
+		}
 	}
 
 	public JSONWriter toJSON(JSONWriter destinationJSON, IBrowserConverterContext dataConverterContext) throws JSONException
