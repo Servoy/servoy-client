@@ -365,7 +365,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 			if (dataLinkedPropertyRegistrationListener != null)
 			{
-				dal.removeDataLinkedPropertyRegistrationListener(dataLinkedPropertyRegistrationListener);
+				if (dal != null) dal.removeDataLinkedPropertyRegistrationListener(dataLinkedPropertyRegistrationListener);
 				dataLinkedPropertyRegistrationListener = null;
 			}
 		}
