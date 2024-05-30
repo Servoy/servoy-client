@@ -1425,6 +1425,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * For a NGClient this will be the url that the user sees in the browser url bar.
 	 * For Headless pure server based clients this will just be http://localhost[:port]
 	 *
+	 * this can throw an exception if the server url couldn't be get from the client, for example if the user already closed its tab or another network problem.
+	 *
 	 * This url will end with a / so don't append to this server url something that starts with a / again
 	 * because RFC 3986 says that the path of a url (the part after the domain[:poort]) can not start with 2 slashes.
 	 *
