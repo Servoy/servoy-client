@@ -216,12 +216,12 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		if (webObjectCntxt != null) computeFormatPropertiesForThisDP();
 		// register data link and find mode listeners as needed
 		dataLinks = ((DataproviderPropertyType)dpPD.getType()).getDataLinks(dataProviderID,
-			servoyDataConverterContext.getForm() != null ? servoyDataConverterContext.getForm().getForm() : null);
+			servoyDataConverterContext.getForm() != null ? servoyDataConverterContext.getForm().getForm() : null, servoyDataConverterContext.getSolution());
 		dataAdapterList.addDataLinkedProperty(this, dataLinks);
 
 		// they weren't cached in form element; get them again
 		boolean isFindModeAware = ((DataproviderPropertyType)dpPD.getType()).isFindModeAware(dataProviderID,
-			servoyDataConverterContext.getForm() != null ? servoyDataConverterContext.getForm().getForm() : null);
+			servoyDataConverterContext.getForm() != null ? servoyDataConverterContext.getForm().getForm() : null, servoyDataConverterContext.getSolution());
 		if (isFindModeAware) dataAdapterList.addFindModeAwareProperty(this);
 
 		DataproviderConfig config = (DataproviderConfig)dpPD.getConfig();
