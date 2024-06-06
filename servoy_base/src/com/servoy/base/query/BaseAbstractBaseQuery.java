@@ -17,9 +17,6 @@
 
 package com.servoy.base.query;
 
-import java.util.Arrays;
-
-
 /**
  * @author rgansevles
  *
@@ -62,16 +59,30 @@ public class BaseAbstractBaseQuery
 			Object[][] array = (Object[][])value1;
 			for (int i = 0; i < array.length; i++)
 			{
-				if (!Arrays.equals(array[i], ((Object[][])value2)[i]))
+				// We can't do Arrays.equals here, because the array[i][0] could be an array agan
+				// then Array.equals only does Object.equals
+				// soe we need to do it our self (see also below)
+				if (!arrayEquals(array[i], ((Object[][])value2)[i]))
 				{
 					return false;
 				}
 			}
 			return true;
 		}
-		if (value1 instanceof Object[] && value2 instanceof Object[])
+		if (value1 instanceof Object[] ar1 && value2 instanceof Object[] ar2)
 		{
-			return Arrays.equals((Object[])value1, (Object[])value2);
+			int length = ar1.length;
+			if (ar2.length != length)
+				return false;
+
+			for (int i = 0; i < length; i++)
+			{
+				// Same as above, no Array.equals because this could be an array in array.
+				// we need todo this our self until it ends up at value1.equals(value2) below
+				if (!arrayEquals(ar1[i], ar2[i]))
+					return false;
+			}
+			return true;
 		}
 		return value1.equals(value2);
 	}
@@ -163,11 +174,11 @@ public class BaseAbstractBaseQuery
 	/**
 	 * Converts an array of bytes into an array of characters representing the hexidecimal values of each byte in order. The returned array will be double the
 	 * length of the passed array, as it takes two characters to represent any given byte.
-	 * 
+	 *
 	 * @param data a byte[] to convert to Hex characters
 	 * @return A char[] containing hexidecimal characters
 	 */
-	public static char[] /* Hex. */encodeHex(byte[] data)
+	public static char[] /* Hex. */ encodeHex(byte[] data)
 	{
 		int l = data.length;
 
