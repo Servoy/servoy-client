@@ -747,11 +747,11 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 		for (int i = 0; columns != null && i < columns.size(); i++)
 		{
 			sb.append(i == 0 ? ' ' : ',');
-			sb.append(columns.get(i).toString());
+			sb.append(columns.get(i).getColumnName());
 		}
 		sb.append(" FROM ").append(table.toString()); //$NON-NLS-1$
-		sb.append(" WHERE ").append(condition.toString()); //$NON-NLS-1$
-		if (having != null)
+		if (condition != null && !condition.isEmpty()) sb.append(" WHERE ").append(condition.toString()); //$NON-NLS-1$
+		if (having != null && !having.isEmpty())
 		{
 			sb.append(" HAVING ").append(having.toString()); //$NON-NLS-1$
 		}
@@ -769,7 +769,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 			}
 
 		}
-		if (groupBy != null)
+		if (groupBy != null && !groupBy.isEmpty())
 		{
 			sb.append(" GROUP BY "); //$NON-NLS-1$
 			for (int i = 0; groupBy != null && i < groupBy.size(); i++)

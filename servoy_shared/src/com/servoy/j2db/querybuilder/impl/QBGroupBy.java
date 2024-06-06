@@ -128,4 +128,10 @@ public class QBGroupBy extends QBPart implements IQueryBuilderGroupby
 		getParent().getQuery().clearGroupBy();
 		return this;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "QBGroupBy(Helper class for creating group by clauses)";
+	}
 }

@@ -154,4 +154,10 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	{
 		return getRoot().createOperand(value, getColumnType(type), 0);
 	}
+
+	@Override
+	public String toString()
+	{
+		return "QBAggregates(Helper class for creating aggregates)";
+	}
 }

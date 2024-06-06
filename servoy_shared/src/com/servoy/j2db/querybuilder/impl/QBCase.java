@@ -99,4 +99,10 @@ public class QBCase extends QBPart implements IQueryBuilderCase
 
 		return new QuerySearchedCaseExpression(qWhenThen, root.createOperand(elseValue, null, 0), null);
 	}
+
+	@Override
+	public String toString()
+	{
+		return "QBCase(Helper class for creating case expressions)";
+	}
 }

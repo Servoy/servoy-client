@@ -191,4 +191,9 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 		return null;
 	}
 
+	@Override
+	public String toString()
+	{
+		return "QBLogicalCondition " + getQueryCondition().toString();
+	}
 }

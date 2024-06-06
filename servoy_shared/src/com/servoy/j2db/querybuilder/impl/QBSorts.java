@@ -131,4 +131,9 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 		return add(columnSortAsc.asc());
 	}
 
+	@Override
+	public String toString()
+	{
+		return "QBSorts(Helper class for creating functions)";
+	}
 }

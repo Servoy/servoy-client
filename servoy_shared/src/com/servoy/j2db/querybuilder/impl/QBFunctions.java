@@ -579,4 +579,10 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 		}
 	}
 
+	@Override
+	public String toString()
+	{
+		return "QBFunctions(Helper class for creating functions)";
+	}
+
 }
