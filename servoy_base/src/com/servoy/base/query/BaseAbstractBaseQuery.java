@@ -54,21 +54,6 @@ public class BaseAbstractBaseQuery
 		{
 			return value2 == null;
 		}
-		if (value1 instanceof Object[][] && value2 instanceof Object[][] && ((Object[][])value1).length == ((Object[][])value2).length)
-		{
-			Object[][] array = (Object[][])value1;
-			for (int i = 0; i < array.length; i++)
-			{
-				// We can't do Arrays.equals here, because the array[i][0] could be an array agan
-				// then Array.equals only does Object.equals
-				// soe we need to do it our self (see also below)
-				if (!arrayEquals(array[i], ((Object[][])value2)[i]))
-				{
-					return false;
-				}
-			}
-			return true;
-		}
 		if (value1 instanceof Object[] ar1 && value2 instanceof Object[] ar2)
 		{
 			int length = ar1.length;
@@ -77,8 +62,9 @@ public class BaseAbstractBaseQuery
 
 			for (int i = 0; i < length; i++)
 			{
-				// Same as above, no Array.equals because this could be an array in array.
-				// we need todo this our self until it ends up at value1.equals(value2) below
+				// We can't do Arrays.equals here, because the array[i][0] could be an array agan
+				// then Array.equals only does Object.equals
+				// so we need to do it our self and only really equal the final item arrays.
 				if (!arrayEquals(ar1[i], ar2[i]))
 					return false;
 			}
