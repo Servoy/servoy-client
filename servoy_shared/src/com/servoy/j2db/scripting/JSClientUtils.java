@@ -69,7 +69,7 @@ public class JSClientUtils
 	 * var options = { myfunction: clientutils.generateBrowserFunction("function(param) { return param + 1 }") };
 	 * elements.component.options = options;
 	 *
-	 * @param functionString The javascript function (given as a string) that should be running in the client's browser.
+	 * @param functionString The javascript function (given as a string - DON'T USE a javascript function with toString or a String constructor) that should be running in the client's browser.
 	 *
 	 * @return An object that can be assigned to a property of an component or custom type. (but which is then nested/part of an object type)
 	 */
