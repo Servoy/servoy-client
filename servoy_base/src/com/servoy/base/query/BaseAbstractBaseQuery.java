@@ -54,8 +54,10 @@ public class BaseAbstractBaseQuery
 		{
 			return value2 == null;
 		}
-		if (value1 instanceof Object[] ar1 && value2 instanceof Object[] ar2)
+		if (value1 instanceof Object[] && value2 instanceof Object[])
 		{
+			Object[] ar1 = (Object[])value1;
+			Object[] ar2 = (Object[])value1;
 			int length = ar1.length;
 			if (ar2.length != length)
 				return false;
