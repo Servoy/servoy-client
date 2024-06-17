@@ -139,6 +139,19 @@ public class JSClientUtils
 		return null;
 	}
 
+	/**
+	* This method is making the HTML document to be displayed in full screen mode.
+	* 
+	* @sample
+	* clienutils.requestFullscreen();
+	*/
+	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
+	@JSFunction
+	public void requestFullscreen()
+	{
+		application.getRuntimeWindowManager().getCurrentWindow().requestFullscreen();
+	}
+
 	public void destroy()
 	{
 		this.application = null;

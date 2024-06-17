@@ -378,4 +378,15 @@ public class WebRuntimeWindow extends RuntimeWindow implements IWebRuntimeWindow
 	{
 		// ignored
 	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.scripting.RuntimeWindow#setFullscreen()
+	 */
+	@Override
+	public void requestFullscreen()
+	{
+		// ignored
+	}
 }
