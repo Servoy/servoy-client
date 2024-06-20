@@ -509,7 +509,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	 */
 	private void initContainerScopeIfNeeded(IWebFormController fc)
 	{
-		if (fc.getForm().isResponsiveLayout())
+		if (fc.getForm().isResponsiveLayout() || fc.getForm().containsResponsiveLayout())
 		{
 			FormScope formScope = fc.getFormScope();
 			ContainersScope containersScope = new ContainersScope(fc);
