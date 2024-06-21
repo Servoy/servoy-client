@@ -20,6 +20,8 @@ package com.servoy.j2db.dataprocessing;
 import static com.servoy.j2db.query.AbstractBaseQuery.setPlaceholderValue;
 import static com.servoy.j2db.query.AbstractBaseQuery.setPlaceholderValueChecked;
 import static java.util.Arrays.stream;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
@@ -40,6 +42,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Stream;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Streams;
@@ -121,27 +124,27 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 	void register(IRowListener fs)
 	{
 		boolean listenersByEqualValuesAdded = false;
-		if (fsm.config.optimizedNotifyChange() && fs instanceof RelatedFoundSet)
+		if (fsm.config.optimizedNotifyChange() && fs instanceof RelatedFoundSet relatedFoundSet)
 		{
 			FlattenedSolution flattenedSolution = getFoundsetManager().getApplication().getFlattenedSolution();
-			RelatedFoundSet relatedFoundSet = (RelatedFoundSet)fs;
 			Relation relation = flattenedSolution.getRelation(relatedFoundSet.getRelationName());
-
-			if (relation != null && Relation.isValid(relation, flattenedSolution))
+			if (Relation.isValid(relation, flattenedSolution))
 			{
 				Object[] eqArgs = relatedFoundSet.getWhereArgs(true);
 				if (eqArgs != null && !stream(eqArgs).anyMatch(DbIdentValue.class::isInstance))
 				{
-					ConcurrentSoftvaluesMultimap<String, RelatedFoundSet> listenersByEqualValues = listenersByRelationEqualValues.get(relation.getName());
+					var listenersByEqualValues = listenersByRelationEqualValues.get(relation.getName());
 					if (listenersByEqualValues == null)
 					{
-						listenersByEqualValues = new ConcurrentSoftvaluesMultimap<String, RelatedFoundSet>();
-						ConcurrentSoftvaluesMultimap<String, RelatedFoundSet> prevValue = listenersByRelationEqualValues.putIfAbsent(relation.getName(),
-							listenersByEqualValues);
+						listenersByEqualValues = new ConcurrentSoftvaluesMultimap<>();
+						var prevValue = listenersByRelationEqualValues.putIfAbsent(relation.getName(), listenersByEqualValues);
 						if (prevValue != null) listenersByEqualValues = prevValue;
 					}
 
-					listenersByEqualValues.add(createPKHashKey(eqArgs), relatedFoundSet);
+					for (List<Object> expandedEqArgs : expandWhereargsInvalues(eqArgs))
+					{
+						listenersByEqualValues.add(createPKHashKey(expandedEqArgs.toArray()), relatedFoundSet);
+					}
 					listenersByEqualValuesAdded = true;
 				}
 			}
@@ -151,6 +154,51 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 		{
 			listeners.put(fs, dummy);
 		}
+	}
+
+	/**
+	 * Expand the where-args with multiple values into all possible combinations.
+	 *
+	 * For example, a relation with col1 = 42 AND col2 IN [ 5, 6 ].
+	 * The whereArgs are [42, [5, 6]].
+	 * This expands into [42, 5] and [42, 6].
+	 *
+	 * @param whereArgs
+	 */
+	static List<List<Object>> expandWhereargsInvalues(Object[] whereArgs)
+	{
+		return expandWhereargsInvalues(whereArgs, 0);
+	}
+
+	private static List<List<Object>> expandWhereargsInvalues(Object[] whereArgs, int idx)
+	{
+		if (idx >= whereArgs.length)
+		{
+			return singletonList(emptyList());
+		}
+
+		List<List<Object>> expandedValues = new ArrayList<>();
+		for (List<Object> expandedArgsRest : expandWhereargsInvalues(whereArgs, idx + 1))
+		{
+			Stream<Object> argStream;
+			if (whereArgs[idx] instanceof Object[] inValues)
+			{
+				argStream = stream(inValues); // multiple in-values
+			}
+			else
+			{
+				argStream = Stream.of(whereArgs[idx]); // single value
+			}
+
+			argStream.map(arg -> {
+				List<Object> expandedArgs = new ArrayList<>();
+				expandedArgs.add(arg);
+				expandedArgs.addAll(expandedArgsRest);
+				return expandedArgs;
+			}).forEach(expandedValues::add);
+		}
+
+		return expandedValues;
 	}
 
 	void unregister(IRowListener fs)
@@ -694,7 +742,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 				if (!columns.isEmpty())
 				{
 					Object[] eqArgs = columns.stream().map(column -> row.getValue(column.getDataProviderID())).toArray();
-					String eqHash = RowManager.createPKHashKey(eqArgs);
+					String eqHash = createPKHashKey(eqArgs);
 					toNotify.addAll(entry.getValue().get(eqHash));
 				}
 			});
