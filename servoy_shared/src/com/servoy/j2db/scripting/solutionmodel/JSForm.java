@@ -2048,8 +2048,11 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * forms['newForm1'].controller.show();
 	 * myForm.width = 120;
 	 * forms['newForm1'].controller.recreateUI();
+	 *
+	 * @deprecated use getMinWidth()
 	 */
 	@JSGetter
+	@Deprecated
 	public int getWidth()
 	{
 		return getForm().getWidth();
@@ -2060,6 +2063,91 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	{
 		checkModification();
 		getForm().setWidth(width);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getWidth()
+	 *
+	 * @sample
+	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * forms['newForm1'].controller.show();
+	 * myForm.minWidth = 120;
+	 * forms['newForm1'].controller.recreateUI();
+	 *
+	 */
+	@JSGetter
+	public int getMinWidth()
+	{
+		return getForm().getWidth();
+	}
+
+	@JSSetter
+	public void setMinWidth(int width)
+	{
+		checkModification();
+		getForm().setWidth(width);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getHeight()
+	 *
+	 * @sample
+	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * forms['newForm1'].controller.show();
+	 * myForm.minHeight = 400;
+	 * forms['newForm1'].controller.recreateUI();
+	 */
+	@JSGetter
+	public int getMinHeight()
+	{
+		return getForm().getHeight();
+	}
+
+	@JSSetter
+	public void setMinHeight(int height)
+	{
+		checkModification();
+		getForm().setHeight(height);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getUseMinWidth()
+	 *
+	 * @sample
+	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * myForm.useMinWidth = true;
+	 */
+	@JSGetter
+	public Boolean getUseMinWidth()
+	{
+		return getForm().getUseMinWidth();
+	}
+
+	@JSSetter
+	public void setUseMinWidth(Boolean use)
+	{
+		checkModification();
+		getForm().setUseMinWidth(use);
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.persistence.Form#getUseMinHeight()
+	 *
+	 * @sample
+	 * var myForm = solutionModel.newForm('newForm1', myDatasource, null, true, 800, 600);
+	 * myForm.useMinHeight = true;
+	 */
+	@JSGetter
+	public Boolean getUseMinHeight()
+	{
+		return getForm().getUseMinHeight();
+	}
+
+	@JSSetter
+	public void setUseMinHeight(Boolean use)
+	{
+		checkModification();
+		getForm().setUseMinHeight(use);
 	}
 
 	/**

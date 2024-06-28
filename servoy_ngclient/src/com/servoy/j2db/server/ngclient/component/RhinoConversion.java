@@ -441,7 +441,7 @@ public class RhinoConversion
 					Object value = null;
 					try
 					{
-						value = array.get(i);
+						value = array.opt(i);
 					}
 					catch (JSONException e)
 					{

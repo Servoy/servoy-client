@@ -322,4 +322,6 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 	}
 
 	public abstract void setCSSClass(String cssClassName);
+
+	public abstract void requestFullscreen();
 }

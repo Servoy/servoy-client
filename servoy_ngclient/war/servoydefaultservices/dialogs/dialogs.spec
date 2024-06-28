@@ -117,6 +117,12 @@
 					"name": "initialValue",
 					"type": "string",
 					"optional": "true"
+				},
+
+				{
+					"name": "inputType",
+					"type": "string",
+					"optional": "true"
 				}
 			]
 		},

@@ -411,6 +411,12 @@ public class EditRecordList
 			// make a copy to be sure that removeAll is supported
 			recordsToSave = new ArrayList<>(recordsToSave);
 			recordsToSave.removeAll(savingRecords);
+			if (javascriptStop && recordsToSave.size() == 0)
+			{
+				fsm.getApplication()
+					.reportJSWarning(
+						"Saving the same records from nested save call is not supported, you can only save different records than the ones being saved.");
+			}
 		}
 
 		boolean hasFoundsetDeleteQueries = false;

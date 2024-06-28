@@ -3080,6 +3080,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Saves all outstanding (unsaved) data and exits the current record.
 	 * <br>
 	 * Optionally, by specifying a record or foundset, can save a single record or all records from foundset instead of all the data.
+	 * You can call saveData for a record or foundset inside a Table Event (save all will not work), and that will only save the records that are currently not being saved (to avoid infinite cycles).
 	 * Since Servoy 8.3 saveData with null parameter does not call saveData() as fallback, it just returns false.
 	 * <p>
 	 * <b>NOTE</b>: The fields focus may be lost in user interface in order to determine the edits.

@@ -232,6 +232,44 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		}
 	}
 
+	/**
+	 * If true then the min-with css property will be set for this form so it has a default minimum width
+	 *
+	 * Can return null so that the default system value should be used.
+	 *
+	 * @return true if it should use the min-width in the browser
+	 */
+	public Boolean getUseMinWidth()
+	{
+		Object customProperty = getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_USE_MIN_WIDTH });
+		if (customProperty instanceof Boolean) return (Boolean)customProperty;
+		return null;
+	}
+
+	public void setUseMinWidth(Boolean useMinWidth)
+	{
+		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_USE_MIN_WIDTH }, useMinWidth);
+	}
+
+	/**
+	 * If true then the min-height css property will be set for this form so it has a default minimum height.
+	 *
+	 * Can return null so that the default system value should be used.
+	 *
+	 * @return true if it should use the min-height in the browser
+	 */
+	public Boolean getUseMinHeight()
+	{
+		Object customProperty = getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_USE_MIN_HEIGHT });
+		if (customProperty instanceof Boolean) return (Boolean)customProperty;
+		return null;
+	}
+
+	public void setUseMinHeight(Boolean useMinHeight)
+	{
+		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_USE_MIN_HEIGHT }, useMinHeight);
+	}
+
 	public int getMinWidth()
 	{
 		int minWidth = 0;

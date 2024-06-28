@@ -142,12 +142,18 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		Set<String> variables = new HashSet<String>(64);
 		List<Integer> existingIDs = new ArrayList<Integer>();
 		//first fill in the map to be sure is complete, can we improve this ?
+		boolean responsiveLayout = false;
 		for (Form f : allForms)
 		{
-			boolean responsiveLayout = f.isResponsiveLayout();
+			responsiveLayout = responsiveLayout || f.isResponsiveLayout() || f.containsResponsiveLayout();
+			if (responsiveLayout) break;
+		}
+		for (Form f : allForms)
+		{
 			for (IPersist persist : f.getAllObjectsAsList())
 			{
-				if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0 && responsiveLayout)
+				if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0 &&
+					responsiveLayout)
 				{
 					IPersist p = PersistHelper.getSuperPersist((ISupportExtendsID)persist);
 					if (p != null)
@@ -159,10 +165,10 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 		}
 		for (Form f : allForms)
 		{
-			boolean responsiveLayout = f.isResponsiveLayout();
 			for (IPersist persist : f.getAllObjectsAsList())
 			{
-				if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0 && responsiveLayout)
+				if (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() > 0 &&
+					responsiveLayout)
 				{
 					IPersist p = PersistHelper.getSuperPersist((ISupportExtendsID)persist);
 					if (p != null && !p.getParent().getUUID().equals(getUUID()))

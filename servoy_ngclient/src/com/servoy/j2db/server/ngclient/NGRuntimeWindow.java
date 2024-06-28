@@ -730,4 +730,12 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			.executeAsyncServiceCall("setCSSClassName",
 				new Object[] { getName(), cssClassName });
 	}
+
+	@Override
+	public void requestFullscreen()
+	{
+		getApplication().getWebsocketSession()
+			.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE)
+			.executeAsyncServiceCall("requestFullscreen", new Object[] { this.getName() });
+	}
 }

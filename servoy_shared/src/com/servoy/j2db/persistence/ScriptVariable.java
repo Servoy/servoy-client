@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.StringTokenizer;
 
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.NativeDate;
 import org.mozilla.javascript.Wrapper;
 
@@ -365,8 +366,16 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 			}
 			args = al.toArray();
 		}
-		Wrapper wrapper = (Wrapper)NativeDate.jsConstructor(args);
-		return (Date)wrapper.unwrap();
+		Context cx = Context.enter();
+		try
+		{
+			Wrapper wrapper = (Wrapper)NativeDate.jsConstructor(cx, args);
+			return (Date)wrapper.unwrap();
+		}
+		finally
+		{
+			Context.exit();
+		}
 	}
 
 	public static int getFlags(String comment)

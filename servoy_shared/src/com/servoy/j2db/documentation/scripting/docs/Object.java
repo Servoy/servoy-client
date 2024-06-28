@@ -522,4 +522,26 @@ public class Object
 	{
 		return null;
 	}
+
+	/**
+	 * Sets the prototype of a specified object to another object or null.
+	 *
+	 * @sample
+	 * const obj = {};
+	 * const parent = { foo: 'bar' };
+	 *
+	 * application.output(obj.foo);
+	 * // Expected output: undefined
+	 * Object.setPrototypeOf(obj, parent);
+	 * application.output(obj.foo);
+	 * // Expected output: "bar"
+	 *
+	 * @param obj The object which is to have its prototype set.
+	 * @param prototype The object's new prototype (an object or null).
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/setPrototypeOf
+	 */
+	public void js_setPrototypeOf(Object obj, Object prototype)
+	{
+	}
 }

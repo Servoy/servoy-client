@@ -21,9 +21,12 @@ import static com.servoy.base.util.DataSourceUtilsBase.isCompleteDBbServerTable;
 import static com.servoy.j2db.util.DataSourceUtils.getDBServernameTablename;
 import static com.servoy.j2db.util.DataSourceUtils.getInmemDataSourceName;
 
+import org.mozilla.javascript.Wrapper;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.IApplication;
+import com.servoy.j2db.dataprocessing.IFoundSet;
+import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
@@ -126,6 +129,32 @@ public class JSDataSources implements IDestroyable
 			sp = new SPDataSource(application);
 		}
 		return sp;
+	}
+
+	/**
+	 * Scope getter for a datasource node based on a JSFoundset/JSRecord/ViewFoundset/ViewRecord
+	 *
+	 * @sample
+	 * datasources.get(recordOrFoundset)
+	 *
+	 * @param datasource
+	 *
+	 * @return a JSDataSource based on parameter
+	 */
+	@JSFunction
+	public JSDataSource get(Object recordOrFoundset)
+	{
+		var unwrapped = recordOrFoundset instanceof Wrapper w ? w.unwrap() : recordOrFoundset;
+		String datasource = null;
+		if (unwrapped instanceof IFoundSet fs)
+		{
+			datasource = fs.getDataSource();
+		}
+		else if (unwrapped instanceof IRecord r && r.getParentFoundSet() != null)
+		{
+			datasource = r.getParentFoundSet().getDataSource();
+		}
+		return get(datasource);
 	}
 
 	/**

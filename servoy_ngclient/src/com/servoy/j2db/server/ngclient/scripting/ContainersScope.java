@@ -59,14 +59,14 @@ public class ContainersScope implements Scriptable
 	{
 		super();
 		this.fc = fc;
-		fillNames(fc.getForm().getLayoutContainers(), namesToLayout, fc.getApplication().getFlattenedSolution());
+		fillNames(fc.getForm().getAllLayoutContainers(), namesToLayout, fc.getApplication().getFlattenedSolution());
 		findFormComponentContainers(fc.getForm().getWebComponents(), namesToLayout, fc.getApplication().getFlattenedSolution());
 	}
 
 	public static Set<String> getAllLayoutNames(Form form, FlattenedSolution fs)
 	{
 		Map<String, List<String>> names = new HashMap<>();
-		fillNames(form.getLayoutContainers(), names, fs);
+		fillNames(form.getAllLayoutContainers(), names, fs);
 		return names.keySet();
 	}
 

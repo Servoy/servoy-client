@@ -51,7 +51,7 @@ public class SolutionMetaData extends RootObjectMetaData
 
 	// this list does not contain the deprecated types
 	public static final String[] currentSolutionTypeNames = { "Module", "Pre-import hook module", "Post-import hook module", "NG Client", "NG Module", "Service" };//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
-	public static final int[] currentSolutionTypes = { SOLUTION, MODULE, PRE_IMPORT_HOOK, POST_IMPORT_HOOK, NG_CLIENT_ONLY, NG_MODULE, SERVICE };
+	public static final int[] currentSolutionTypes = { MODULE, PRE_IMPORT_HOOK, POST_IMPORT_HOOK, NG_CLIENT_ONLY, NG_MODULE, SERVICE };
 
 	private int solutionType;
 

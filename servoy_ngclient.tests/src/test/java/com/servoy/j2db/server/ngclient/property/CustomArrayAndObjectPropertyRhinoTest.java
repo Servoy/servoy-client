@@ -27,11 +27,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
@@ -54,6 +57,8 @@ import org.sablo.websocket.utils.JSONUtils;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 
+import com.servoy.j2db.server.ngclient.INGApplication;
+import com.servoy.j2db.server.ngclient.property.DataProviderDateTest.ServiceProvider;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.Types;
 
@@ -332,6 +337,226 @@ public class CustomArrayAndObjectPropertyRhinoTest extends Log4JToConsoleTest
 		PropertyDescription normalArrayPD = component.getSpecification().getProperty("normalArrayWithConfig");
 
 		checkNormalArraysAndCustomObjectsWithNullValues(component, normalArrayPD);
+	}
+
+	@Test
+	public void shouldCorrectlytoJSONDatesAndFunctionsforObjectType() throws Exception
+	{
+		WebComponent component = new WebComponent("mycomponent", "test");
+		BrowserConverterContext allowDataConverterContext = new BrowserConverterContext(component, PushToServerEnum.allow);
+
+		// custom types are always a Map of values..
+		Map<String, Object> customType1 = new HashMap<>();
+		customType1.put("key1", "aaa");
+		customType1.put("key2", 123);
+		customType1.put("key3", true);
+
+		Map<String, Object> customType2 = new HashMap<>();
+		customType2.put("myproperty", customType1);
+
+		component.setProperty("unknownvalue", customType2);
+
+		TypedData<Map<String, Object>> properties = component.getProperties();
+
+		String msg = JSONUtils.writeDataAsFullToJSON(properties.content, properties.contentType, allowDataConverterContext);
+		assertEquals("Simple object toJSON",
+			msg,
+			"{\"name\":\"test\",\"unknownvalue\":{\"vEr\":2,\"v\":{\"myproperty\":{\"key1\":\"aaa\",\"key2\":123,\"key3\":true}}}}");
+
+		customType1 = new HashMap<>();
+		customType1.put("key1", "aaa");
+		customType1.put("key2", null);
+		customType1.put("key3", new Object[] { "bbb", "ccc", null });
+		customType2.put("myproperty", customType1);
+
+		component.setProperty("unknownvalue", customType2);
+
+		properties = component.getProperties();
+
+		msg = JSONUtils.writeDataAsFullToJSON(properties.content, properties.contentType, allowDataConverterContext);
+		assertEquals("Simple object type with null toJSON",
+			msg,
+			"{\"name\":\"test\",\"unknownvalue\":{\"vEr\":4,\"v\":{\"myproperty\":{\"key1\":\"aaa\",\"key2\":null,\"key3\":[\"bbb\",\"ccc\",null]}}}}");
+
+		TimeZone default1 = TimeZone.getDefault();
+		try
+		{
+			TimeZone.setDefault(TimeZone.getTimeZone("Europe/Bucharest"));
+			customType1 = new HashMap<>();
+			customType1.put("key1", "aaa");
+			customType1.put("key2", new Date(90, 1, 1));
+			customType1.put("key3", new Object[] { "bbb", "ccc", new Date(100, 10, 10) });
+
+			customType2.put("myproperty", customType1);
+
+			component.setProperty("unknownvalue", customType2);
+			properties = component.getProperties();
+
+			msg = JSONUtils.writeDataAsFullToJSON(properties.content, properties.contentType, allowDataConverterContext);
+		}
+		finally
+		{
+			TimeZone.setDefault(default1);
+		}
+
+		assertEquals("Simple object type with date toJSON",
+			msg,
+			"{\"name\":\"test\",\"unknownvalue\":{\"vEr\":6,\"v\":{\"myproperty\":{\"_T\":\"object\",\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_T\":\"svy_date\",\"_V\":\"1990-02-01T00:00+02:00\"},\"key3\":{\"_T\":\"object\",\"_V\":[\"bbb\",\"ccc\",{\"_T\":\"svy_date\",\"_V\":\"2000-11-10T00:00+02:00\"}]}}}}}}");
+
+		INGApplication application = new ServiceProvider();
+		customType1 = new HashMap();
+		customType1.put("key1", "aaa");
+		customType1.put("key2", new BrowserFunction("func1", application));
+		customType1.put("key3", new Object[] { "bbb", "ccc", new BrowserFunction("func2", application) });
+
+		customType2.put("myproperty", customType1);
+
+		component.setProperty("unknownvalue", customType2);
+
+		properties = component.getProperties();
+
+		msg = JSONUtils.writeDataAsFullToJSON(properties.content, properties.contentType, allowDataConverterContext);
+
+		assertEquals("Simple object type with client function toJSON",
+			msg,
+			"{\"name\":\"test\",\"unknownvalue\":{\"vEr\":8,\"v\":{\"myproperty\":{\"_T\":\"object\",\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_T\":\"clientfunction\",\"_V\":\"func1\"},\"key3\":{\"_T\":\"object\",\"_V\":[\"bbb\",\"ccc\",{\"_T\":\"clientfunction\",\"_V\":\"func2\"}]}}}}}}");
+
+		customType1 = new HashMap();
+		customType1.put("key1", "aaa");
+		customType1.put("key2", new BaseFunction());
+		customType1.put("key3", new Object[] { "bbb", "ccc", new BaseFunction() });
+
+		customType2.put("myproperty", customType1);
+
+		component.setProperty("unknownvalue", customType2);
+
+		properties = component.getProperties();
+
+		msg = JSONUtils.writeDataAsFullToJSON(properties.content, properties.contentType, allowDataConverterContext);
+
+		JSONObject json = new JSONObject(msg);
+		JSONObject firstHash = json.getJSONObject("unknownvalue").getJSONObject("v").getJSONObject("myproperty").getJSONObject("_V").getJSONObject("key2")
+			.getJSONObject("_V");
+		firstHash.put("functionhash", "dummyhash");
+		JSONObject secondHash = json.getJSONObject("unknownvalue").getJSONObject("v").getJSONObject("myproperty").getJSONObject("_V").getJSONObject("key3")
+			.getJSONArray("_V").getJSONObject(2)
+			.getJSONObject("_V");
+		secondHash.put("functionhash", "dummyhash");
+		assertEquals("Simple object type with server function toJSON",
+			json.toString(),
+			"{\"name\":\"test\",\"unknownvalue\":{\"vEr\":10,\"v\":{\"myproperty\":{\"_T\":\"object\",\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_T\":\"NativeFunction\",\"_V\":{\"functionhash\":\"dummyhash\",\"svyType\":\"NativeFunction\"}},\"key3\":{\"_T\":\"object\",\"_V\":[\"bbb\",\"ccc\",{\"_T\":\"NativeFunction\",\"_V\":{\"functionhash\":\"dummyhash\",\"svyType\":\"NativeFunction\"}}]}}}}}}");
+
+	}
+
+	@Test
+	public void shouldCorrectlytoJSONDatesAndFunctionsforObjectArrayType() throws Exception
+	{
+		WebComponent component = new WebComponent("mycomponent", "test");
+		BrowserConverterContext allowDataConverterContext = new BrowserConverterContext(component, PushToServerEnum.allow);
+
+		// custom types are always a Map of values..
+		Map<String, Object> customType1 = new HashMap<>();
+		customType1.put("key1", "aaa");
+		customType1.put("key2", 123);
+		customType1.put("key3", true);
+
+		Map<String, Object> customType2 = new HashMap<>();
+		customType2.put("myproperty", customType1);
+
+		component.setProperty("unknownvaluearray", new Object[] { customType2 });
+
+		TypedData<Map<String, Object>> properties = component.getProperties();
+
+		String msg = JSONUtils.writeDataAsFullToJSON(properties.content, properties.contentType, allowDataConverterContext);
+		assertEquals("Simple object toJSON",
+			msg,
+			"{\"unknownvaluearray\":{\"vEr\":2,\"v\":[{\"vEr\":2,\"v\":{\"myproperty\":{\"key1\":\"aaa\",\"key2\":123,\"key3\":true}}}]},\"name\":\"test\"}");
+
+		customType1 = new HashMap<>();
+		customType1.put("key1", "aaa");
+		customType1.put("key2", null);
+		customType1.put("key3", new Object[] { "bbb", "ccc", null });
+		customType2.put("myproperty", customType1);
+
+		component.setProperty("unknownvaluearray", new Object[] { customType2 });
+
+		properties = component.getProperties();
+
+		msg = JSONUtils.writeDataAsFullToJSON(properties.content, properties.contentType, allowDataConverterContext);
+		assertEquals("Simple object type with null toJSON",
+			msg,
+			"{\"unknownvaluearray\":{\"vEr\":4,\"v\":[{\"vEr\":2,\"v\":{\"myproperty\":{\"key1\":\"aaa\",\"key2\":null,\"key3\":[\"bbb\",\"ccc\",null]}}}]},\"name\":\"test\"}");
+
+		TimeZone default1 = TimeZone.getDefault();
+		try
+		{
+			TimeZone.setDefault(TimeZone.getTimeZone("Europe/Bucharest"));
+			customType1 = new HashMap<>();
+			customType1.put("key1", "aaa");
+			customType1.put("key2", new Date(90, 1, 1));
+			customType1.put("key3", new Object[] { "bbb", "ccc", new Date(100, 10, 10) });
+
+			customType2.put("myproperty", customType1);
+
+			component.setProperty("unknownvaluearray", new Object[] { customType2 });
+			properties = component.getProperties();
+
+			msg = JSONUtils.writeDataAsFullToJSON(properties.content, properties.contentType, allowDataConverterContext);
+		}
+		finally
+		{
+			TimeZone.setDefault(default1);
+		}
+
+		assertEquals("Simple object type with date toJSON",
+			msg,
+			"{\"unknownvaluearray\":{\"vEr\":6,\"v\":[{\"vEr\":2,\"v\":{\"myproperty\":{\"_T\":\"object\",\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_T\":\"svy_date\",\"_V\":\"1990-02-01T00:00+02:00\"},\"key3\":{\"_T\":\"object\",\"_V\":[\"bbb\",\"ccc\",{\"_T\":\"svy_date\",\"_V\":\"2000-11-10T00:00+02:00\"}]}}}}}]},\"name\":\"test\"}");
+
+		INGApplication application = new ServiceProvider();
+		customType1 = new HashMap();
+		customType1.put("key1", "aaa");
+		customType1.put("key2", new BrowserFunction("func1", application));
+		customType1.put("key3", new Object[] { "bbb", "ccc", new BrowserFunction("func2", application) });
+
+		customType2.put("myproperty", customType1);
+
+		component.setProperty("unknownvaluearray", new Object[] { customType2 });
+
+		properties = component.getProperties();
+
+		msg = JSONUtils.writeDataAsFullToJSON(properties.content, properties.contentType, allowDataConverterContext);
+
+		assertEquals("Simple object type with client function toJSON",
+			msg,
+			"{\"unknownvaluearray\":{\"vEr\":8,\"v\":[{\"vEr\":2,\"v\":{\"myproperty\":{\"_T\":\"object\",\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_T\":\"clientfunction\",\"_V\":\"func1\"},\"key3\":{\"_T\":\"object\",\"_V\":[\"bbb\",\"ccc\",{\"_T\":\"clientfunction\",\"_V\":\"func2\"}]}}}}}]},\"name\":\"test\"}");
+
+		customType1 = new HashMap();
+		customType1.put("key1", "aaa");
+		customType1.put("key2", new BaseFunction());
+		customType1.put("key3", new Object[] { "bbb", "ccc", new BaseFunction() });
+
+		customType2.put("myproperty", customType1);
+
+		component.setProperty("unknownvaluearray", new Object[] { customType2 });
+
+		properties = component.getProperties();
+
+		msg = JSONUtils.writeDataAsFullToJSON(properties.content, properties.contentType, allowDataConverterContext);
+
+		JSONObject json = new JSONObject(msg);
+		JSONObject firstHash = json.getJSONObject("unknownvaluearray").getJSONArray("v").getJSONObject(0).getJSONObject("v").getJSONObject("myproperty")
+			.getJSONObject("_V").getJSONObject("key2")
+			.getJSONObject("_V");
+		firstHash.put("functionhash", "dummyhash");
+		JSONObject secondHash = json.getJSONObject("unknownvaluearray").getJSONArray("v").getJSONObject(0).getJSONObject("v").getJSONObject("myproperty")
+			.getJSONObject("_V").getJSONObject("key3")
+			.getJSONArray("_V").getJSONObject(2)
+			.getJSONObject("_V");
+		secondHash.put("functionhash", "dummyhash");
+		assertEquals("Simple object type with server function toJSON",
+			json.toString(),
+			"{\"unknownvaluearray\":{\"vEr\":10,\"v\":[{\"vEr\":2,\"v\":{\"myproperty\":{\"_T\":\"object\",\"_V\":{\"key1\":\"aaa\",\"key2\":{\"_T\":\"NativeFunction\",\"_V\":{\"functionhash\":\"dummyhash\",\"svyType\":\"NativeFunction\"}},\"key3\":{\"_T\":\"object\",\"_V\":[\"bbb\",\"ccc\",{\"_T\":\"NativeFunction\",\"_V\":{\"functionhash\":\"dummyhash\",\"svyType\":\"NativeFunction\"}}]}}}}}]},\"name\":\"test\"}");
+
 	}
 
 	private void checkNormalArraysAndCustomObjectsWithNullValues(WebComponent component, PropertyDescription normalArrayPD)

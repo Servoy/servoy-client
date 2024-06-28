@@ -447,4 +447,10 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 		getParent().getQuery().setDistinct(distinct);
 		return this;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "QBResult(Helper class for definining the result columns of the query)";
+	}
 }

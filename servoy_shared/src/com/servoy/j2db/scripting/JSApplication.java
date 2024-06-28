@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.rmi.RemoteException;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -1419,6 +1420,11 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	/**
 	 * Gets the HTTP server url.
 	 *
+	 * For a NGClient this will be the url that the user sees in the browser url bar.
+	 * For Headless pure server based clients this will just be http://localhost[:port]
+	 *
+	 * this can throw an exception if the server url couldn't be get from the client, for example if the user already closed its tab or another network problem.
+	 *
 	 * This url will end with a / so don't append to this server url something that starts with a / again
 	 * because RFC 3986 says that the path of a url (the part after the domain[:poort]) can not start with 2 slashes.
 	 *
@@ -1432,16 +1438,22 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	@JSFunction
 	public String getServerURL()
 	{
-		String url = application.getServerURL().toString();
-		// if it doesn't end with / add it
-		// it is needed in a context (the urls should be http://hostname:port/context/)
-		// and it has to be the same in the developer
-		if (!url.endsWith("/")) //$NON-NLS-1$
+		URL serverURL = application.getServerURL();
+		if (serverURL != null)
 		{
-			url += '/';
-		}
+			String url = serverURL.toString();
+			// if it doesn't end with / add it
+			// it is needed in a context (the urls should be http://hostname:port/context/)
+			// and it has to be the same in the developer
+			if (!url.endsWith("/")) //$NON-NLS-1$
+			{
+				url += '/';
+			}
 
-		return url;
+			return url;
+		}
+		throw new IllegalStateException(
+			"getServerURL gives a null url back from the client, this information couldn't be accessed, browser tab already closed?"); //$NON-NLS-1$
 	}
 
 	/**
@@ -2906,7 +2918,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @param functionString The javascript function (given as a string) that should be running in the client's browser.
 	 *
 	 * @return An object that can be assigned to a property of an component or custom type. (but which is then nested/part of an object type)
-	 * 
+	 *
 	 * @deprecated use clientutils.generateBrowserFunction instead
 	 */
 	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)

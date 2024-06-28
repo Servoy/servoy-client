@@ -375,6 +375,16 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 									}
 									if ( this.storeBounds ) storage.set( sol + name + '.storedBounds.size', size )
 								},
+								requestFullscreen: function() {
+									const doc = document.documentElement as IHTMLElement;
+									if (doc.requestFullscreen) {
+										doc.requestFullscreen().catch(err => console.log(err));
+									} else if (doc.webkitRequestFullscreen) { /* Safari */
+										doc.webkitRequestFullscreen().catch(err => console.log(err));
+									} else if (doc.msRequestFullscreen) { /* IE11 */
+										doc.msRequestFullscreen().catch(err => console.log(err));
+									}
+								},
 								getSize: function() {
 									return win.size;
 								},
@@ -582,6 +592,11 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 					saveInSessionStorage(size, 'size');
 					if ( instances[name] ) {
 						instances[name].setSize( size );
+					}
+				},
+				requestFullscreen: function(name) {
+					if ( instances[name] ) {
+						instances[name].requestFullscreen();
 					}
 				},
 				getSize: function( name ) {
@@ -801,6 +816,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
         	                   $windowService.setUndecorated(window.name, window.undecorated);
 							   $windowService.setCSSClassName(window.name, window.cssClassName);
 							   $windowService.setSize(window.name, window.size);
+							   $windowService.requestFullscreen(window.name);
 							   $windowService.setInitialBounds(window.name, window.initialBounds);
 							   $windowService.setStoreBounds(window.name, window.storeBounds);
 							   $windowService.setLocation(window.name, window.location);
@@ -818,4 +834,9 @@ function evalControllerCodeWithoutClosure(controllerCode) {
 	if (controllerCode) {
 		eval(controllerCode);
 	}
+}
+
+interface IHTMLElement extends HTMLElement {
+	webkitRequestFullscreen?: () => Promise<void>;
+	msRequestFullscreen?: () => Promise<void>;
 }

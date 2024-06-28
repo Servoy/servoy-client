@@ -21,6 +21,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
+@SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class UICONSTANTS implements IPrefixedConstantsObject
 {
@@ -424,9 +425,45 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	@ServoyClientSupport(ng = true, wc = false, sc = false)
 	public static final String LISTFORMCOMPONENT_PAGING_MODE = IApplication.LISTFORMCOMPONENT_PAGING_MODE;
 
+
+	/**
+	 * Sets the default value (true/false) that should be used when showing a form in a container.
+	 * Default this is true when the forms useMinHeight property is unset,
+	 * that means the css minHeight is set for this form at runtime.
+	 *
+	 * You can set the default value to false for all forms that don't have that property set,
+	 * so that no minHeigth is generated for those forms.
+	 *
+	 * The value can be true/false
+	 * DEFAULT: true
+	 *
+	 * @sample
+	 * application.putClientProperty(UICONSTANTS.DEFAULT_FORM_USE_MIN_HEIGHT, false)
+	 */
+	@ServoyClientSupport(ng = true, wc = false, sc = false)
+	public static final String DEFAULT_FORM_USE_MIN_HEIGHT = "DEFAULT_FORM_USE_MIN_HEIGHT";
+
+
+	/**
+	 * Sets the default value (true/false) that should be used when showing a form in a container.
+	 * Default this is true when the forms useMinWidth property is unset,
+	 * that means the css minWidth is set for this form at runtime.
+	 *
+	 * You can set the default value to false for all forms that don't have that property set,
+	 * so that no minWidth is generated for those forms.
+	 *
+	 * The value can be true/false
+	 * DEFAULT: true
+	 *
+	 * @sample
+	 * application.putClientProperty(UICONSTANTS.DEFAULT_FORM_USE_MIN_WIDTH, false)
+	 */
+	@ServoyClientSupport(ng = true, wc = false, sc = false)
+	public static final String DEFAULT_FORM_USE_MIN_WIDTH = "DEFAULT_FORM_USE_MIN_WIDTH";
+
 	public String getPrefix()
 	{
-		return "UICONSTANTS"; //$NON-NLS-1$
+		return "UICONSTANTS";
 	}
 
 	@Override

@@ -1086,4 +1086,15 @@ public class SwingRuntimeWindow extends RuntimeWindow implements ISmartRuntimeWi
 	{
 		// ignored
 	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.scripting.RuntimeWindow#setFullscreen()
+	 */
+	@Override
+	public void requestFullscreen()
+	{
+		// ignored
+	}
 }
