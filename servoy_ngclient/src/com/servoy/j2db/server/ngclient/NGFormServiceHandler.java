@@ -497,10 +497,11 @@ public class NGFormServiceHandler extends FormServiceHandler
 
 									if (functionSpec == null)
 									{
-										log.warn("trying to call a function that does not exist in .spec of component '" +
-											webComponent.getName() + " with spec name: " + (componentSpec != null ? componentSpec.getName() : null));
-										throw new RuntimeException("trying to call a function that does not exist in .spec of component '" +
-											webComponent.getName() + " with spec name: " + (componentSpec != null ? componentSpec.getName() : null));
+										log.warn("trying to call a function '" + componentMethodName + "' that does not exist in .spec of component '" +
+											webComponent.getName() + "' with spec name: " + (componentSpec != null ? componentSpec.getName() : null));
+										throw new RuntimeException(
+											"trying to call a function '" + componentMethodName + "' that does not exist in .spec of component '" +
+												webComponent.getName() + "' with spec name: " + (componentSpec != null ? componentSpec.getName() : null));
 									}
 									else
 									{
