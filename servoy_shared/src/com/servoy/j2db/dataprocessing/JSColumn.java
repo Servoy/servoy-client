@@ -568,6 +568,22 @@ public class JSColumn implements IReturnedTypesProvider, IConstantsObject, IColu
 	}
 
 	/**
+	 * Get the raw title property of the column.
+	 *
+	 * @sample
+	 * var table = databaseManager.getTable('db:/example_data/orders')
+	 * var column = table.getColumn('customername')
+	 * var title = column.getRawTitle()
+	 *
+	 * @return String column title.
+	 */
+	public String js_getRawTitle()
+	{
+		ColumnInfo columnInfo = column.getColumnInfo();
+		return columnInfo != null ? columnInfo.getTitleText() : null;
+	}
+
+	/**
 	 * Get the JSTable of this column.
 	 *
 	 * @return table The JSTable of this column.
