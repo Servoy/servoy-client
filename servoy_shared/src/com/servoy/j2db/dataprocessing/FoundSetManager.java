@@ -218,10 +218,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				if (dataSource == null)
 				{
-					Iterator<RowManager> it = rowManagers.values().iterator();
-					while (it.hasNext())
+					for (RowManager element : rowManagers.values())
 					{
-						RowManager element = it.next();
 						element.flushAllCachedRows();
 						fireTableEvent(element.getSQLSheet().getTable());
 					}
@@ -1579,11 +1577,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		List<TableFilter> serverFilters = tableFilterParams.get(serverName);
 		if (serverFilters == null) return false;
 
-		Iterator<TableFilter> serverFiltersIte = serverFilters.iterator();
 		TableFilter tableFilter;
-		while (serverFiltersIte.hasNext())
+		for (TableFilter serverFilter : serverFilters)
 		{
-			tableFilter = serverFiltersIte.next();
+			tableFilter = serverFilter;
 			if (tableName.equals(tableFilter.getTableName())) return true;
 		}
 
@@ -2659,10 +2656,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	 */
 	public void clearAllDeleteSets()
 	{
-		Iterator<RowManager> it = rowManagers.values().iterator();
-		while (it.hasNext())
+		for (RowManager element : rowManagers.values())
 		{
-			it.next().clearDeleteSet();
+			element.clearDeleteSet();
 		}
 
 	}
@@ -3406,7 +3402,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	 */
 	public HashMap<String, Object> getTrackingInfo()
 	{
-		return trackingInfoMap;
+		// return a copy so that modifications after this doesn't affect the one that is returned
+		// also the caller can't suddenly change it.
+		return new HashMap<>(trackingInfoMap);
 	}
 
 	public IQueryBuilderFactory getQueryFactory()
