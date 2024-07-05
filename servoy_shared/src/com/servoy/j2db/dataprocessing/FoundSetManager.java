@@ -3541,7 +3541,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	 */
 	public HashMap<String, Object> getTrackingInfo()
 	{
-		return trackingInfoMap;
+		// return a copy so that modifications after this doesn't affect the one that is returned
+		// also the caller can't suddenly change it.
+		return new HashMap<>(trackingInfoMap);
 	}
 
 	public IQueryBuilderFactory getQueryFactory()
