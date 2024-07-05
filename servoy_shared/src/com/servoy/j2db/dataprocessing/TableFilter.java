@@ -19,6 +19,10 @@ package com.servoy.j2db.dataprocessing;
 import static com.servoy.base.util.DataSourceUtilsBase.createDBTableDataSource;
 import static com.servoy.j2db.util.Utils.iterate;
 import static com.servoy.j2db.util.Utils.toArray;
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
+
+import java.util.List;
 
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.dataprocessing.BroadcastFilter.BroadcastFilterOperator;
@@ -40,22 +44,30 @@ public class TableFilter implements IWriteReplace
 	private final String tableName;
 	private final String tableSQLName;
 	private TableFilterdefinition tableFilterdefinition;
+	private final List<TableFilter> ragtestFilters;
 	private final boolean broadcastFilter;
 
 	public TableFilter(String name, String serverName, String tableName, String tableSQLName, String dataprovider, int operator, Object value)
 	{
-		this(name, serverName, tableName, tableSQLName, new DataproviderTableFilterdefinition(dataprovider, operator, value), false);
+		this(name, serverName, tableName, tableSQLName, new DataproviderTableFilterdefinition(dataprovider, operator, value), emptyList(), false);
 	}
 
 	public TableFilter(String name, String serverName, String tableName, String tableSQLName, TableFilterdefinition tableFilterdefinition,
-		boolean broadcastFilter)
+		List<TableFilter> ragtestFilters, boolean broadcastFilter)
 	{
 		this.name = name;
 		this.serverName = serverName;
 		this.tableName = tableName;
 		this.tableSQLName = tableSQLName;
 		this.tableFilterdefinition = tableFilterdefinition;
+		this.ragtestFilters = ragtestFilters;
 		this.broadcastFilter = broadcastFilter;
+	}
+
+	public TableFilter(String name, String serverName, String tableName, String tableSQLName, TableFilterdefinition tableFilterdefinition,
+		boolean broadcastFilter)
+	{
+		this(name, serverName, tableName, tableSQLName, tableFilterdefinition, emptyList(), broadcastFilter);
 	}
 
 	public String getServerName()
@@ -97,11 +109,25 @@ public class TableFilter implements IWriteReplace
 	}
 
 	/**
+	 * @return the ragtestFilters
+	 */
+	public List<TableFilter> getRagtestFilters()
+	{
+		return ragtestFilters;
+	}
+
+	/**
 	 * @return the broadcastFilter
 	 */
 	public boolean isBroadcastFilter()
 	{
 		return broadcastFilter;
+	}
+
+	public TableFilter negate()
+	{
+		return new TableFilter(name, serverName, tableName, tableSQLName, tableFilterdefinition.negate(),
+			ragtestFilters.stream().map(TableFilter::negate).collect(toList()), broadcastFilter);
 	}
 
 	public boolean isContainedIn(Iterable<TableFilter> filters)
@@ -221,7 +247,7 @@ public class TableFilter implements IWriteReplace
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
 		return new ReplacedObject(QueryData.DATAPROCESSING_SERIALIZE_DOMAIN, getClass(),
-			new Object[] { name, serverName, tableName, tableSQLName, tableFilterdefinition, Integer.valueOf(broadcastFilter ? 1 : 0) });
+			new Object[] { name, serverName, tableName, tableSQLName, tableFilterdefinition, Integer.valueOf(broadcastFilter ? 1 : 0), ragtestFilters });
 	}
 
 	public TableFilter(ReplacedObject s)
@@ -244,6 +270,6 @@ public class TableFilter implements IWriteReplace
 			tableFilterdefinition = (TableFilterdefinition)members[i++];
 		}
 		broadcastFilter = members.length - i >= 1 && ((Integer)members[i++]).intValue() == 1;
+		ragtestFilters = members.length - i >= 1 ? (List<TableFilter>)members[i++] : emptyList();
 	}
-
 }

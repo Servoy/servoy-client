@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.dataprocessing;
 
+import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.util.serialize.IWriteReplace;
@@ -63,6 +64,12 @@ public class DataproviderTableFilterdefinition implements TableFilterdefinition,
 	public Object getValue()
 	{
 		return value;
+	}
+
+	@Override
+	public TableFilterdefinition negate()
+	{
+		return new DataproviderTableFilterdefinition(dataprovider, IBaseSQLCondition.negateOperator(operator), value);
 	}
 
 	@Override

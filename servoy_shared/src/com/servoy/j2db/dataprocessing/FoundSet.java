@@ -44,7 +44,6 @@ import java.lang.ref.WeakReference;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -107,12 +106,10 @@ import com.servoy.j2db.persistence.TableNode;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.CustomCondition;
-import com.servoy.j2db.query.IQueryElement;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.IQuerySort;
 import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLJoin;
-import com.servoy.j2db.query.ISQLQuery;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryColumn;
@@ -146,7 +143,6 @@ import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * The foundset of a form, also handles the locking with the AppServer based on tablepks, and is the formmodel itself!
@@ -465,40 +461,34 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		IFoundSetChanges changes = null;
 		String transaction_id = fsm.getTransactionID(sheet);
 		long time = System.currentTimeMillis();
-		try
+
+		QuerySelect theQuery = (sqlSelect == null) ? pksAndRecords.getQuerySelectForReading() : sqlSelect;
+		if (theQuery == null)
 		{
-			QuerySelect theQuery = (sqlSelect == null) ? pksAndRecords.getQuerySelectForReading() : sqlSelect;
-			if (theQuery == null)
+			// query has been cleared
+			pks = new BufferedDataSet();
+		}
+		else
+		{
+			pks = performQuery(transaction_id, theQuery, getRowIdentColumnTypes(), 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
+		}
+		synchronized (pksAndRecords)
+		{
+			// optimistic locking, if the query has been changed in the mean time forget about the refresh
+			if (sqlSelect != null || theQuery == null || theQuery == pksAndRecords.getQuerySelectForReading())
 			{
-				// query has been cleared
-				pks = new BufferedDataSet();
+				changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), theQuery);
+				cachedRecords = pksAndRecords.getCachedRecords();
 			}
 			else
 			{
-				pks = performQuery(transaction_id, theQuery, getRowIdentColumnTypes(), 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
-			}
-			synchronized (pksAndRecords)
-			{
-				// optimistic locking, if the query has been changed in the mean time forget about the refresh
-				if (sqlSelect != null || theQuery == null || theQuery == pksAndRecords.getQuerySelectForReading())
-				{
-					changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), theQuery);
-					cachedRecords = pksAndRecords.getCachedRecords();
-				}
-				else
-				{
-					Debug.log("refreshFromDBInternal: query was changed during refresh, not resetting old query"); //$NON-NLS-1$
-				}
-			}
-			if (Debug.tracing())
-			{
-				Debug.trace(Thread.currentThread().getName() + ": RefreshFrom DB time: " + (System.currentTimeMillis() - time) + " pks: " + pks.getRowCount() + //$NON-NLS-1$//$NON-NLS-2$
-					", SQL: " + theQuery); //$NON-NLS-1$
+				Debug.log("refreshFromDBInternal: query was changed during refresh, not resetting old query"); //$NON-NLS-1$
 			}
 		}
-		catch (RemoteException e)
+		if (Debug.tracing())
 		{
-			throw new RepositoryException(e);
+			Debug.trace(Thread.currentThread().getName() + ": RefreshFrom DB time: " + (System.currentTimeMillis() - time) + " pks: " + pks.getRowCount() + //$NON-NLS-1$//$NON-NLS-2$
+				", SQL: " + theQuery); //$NON-NLS-1$
 		}
 
 		initialized = true;
@@ -2301,16 +2291,8 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 
 		// do query with sqlSelect
 		String transaction_id = fsm.getTransactionID(sheet);
-		IDataSet pk_data;
-		try
-		{
-			pk_data = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, rowsToRetrieve, IDataServer.CUSTOM_QUERY);
-		}
-		catch (RemoteException e)
-		{
-			clear();
-			throw new RepositoryException(e);
-		}
+
+		IDataSet pk_data = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, rowsToRetrieve, IDataServer.CUSTOM_QUERY);
 
 		if (pk_data.getRowCount() > 0 && pk_data.getColumnCount() != sheet.getPKIndexes().length)
 			throw new IllegalArgumentException(fsm.getApplication().getI18NMessage("servoy.foundSet.query.error.incorrectNumberOfPKS")); //$NON-NLS-1$
@@ -2951,16 +2933,10 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		//cache pks
 		String transaction_id = fsm.getTransactionID(sheet);
 		long time = System.currentTimeMillis();
-		try
-		{
-			IDataSet pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.config.pkChunkSize(), IDataServer.FOUNDSET_LOAD_QUERY);
 
-			changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect);
-		}
-		catch (RemoteException e)
-		{
-			throw new RepositoryException(e);
-		}
+		IDataSet pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.config.pkChunkSize(), IDataServer.FOUNDSET_LOAD_QUERY);
+		changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect);
+
 		if (Debug.tracing())
 		{
 			Debug.trace(
@@ -4665,11 +4641,8 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 						(fs == this || getRelationName() == null || !getRelationName().equals(fs.getRelationName())))
 						.collect(toList());
 
-
-					addTableFilterconditions(delete_sql, fsm.getTableFilterParams(table.getServerName(), delete_sql));
-
-
-					getFoundSetManager().getEditRecordList().addDeleteQuery(this, delete_sql, affectedFoundsets);
+					getFoundSetManager().getEditRecordList().addDeleteQuery(this, delete_sql, fsm.getTableFilterParams(table.getServerName(), delete_sql),
+						affectedFoundsets);
 					getFoundSetManager().getEditRecordList().stopEditing(false, this);
 				}
 
@@ -4708,100 +4681,6 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			int correctedSize = getCorrectedSizeForFires();
 			if (correctedSize > -1) fireFoundSetEvent(0, correctedSize, FoundSetEvent.CHANGE_DELETE);
 		}
-	}
-
-
-	/**  RAGTEST implement
-	 * return the filters as conditions to the query. The map is per element (main select or join element) that the condition is to be applied to)
-	 *
-	 * @param query
-	 * @param filters
-	 * @throws RepositoryException
-	 */
-	private void addTableFilterconditions(ISQLQuery query, List<TableFilter> filters) throws RepositoryException
-	{
-		if (filters == null || filters.size() == 0)
-		{
-			// nothing to filter
-			return;
-		}
-
-		// collect all elements in the query based on a query (queries and joins), note: queries may be included in an Exists-condition
-		List<IQueryElement> elements = new ArrayList<>();
-		IVisitor visitor = o -> {
-			if (o instanceof ISQLQuery || o instanceof QueryJoin) // Note: QueryCustomJoin will add its joins in the recursion
-			{
-				elements.add((IQueryElement)o);
-			}
-			return o;
-		};
-		query.acceptVisitor(visitor);
-		visitor.visit(query); // check main query as well
-
-		Map<IQueryElement, Collection<QueryFilter>> elementFilters = null;
-		// for each element, find the filters that are applicable
-		for (IQueryElement element : elements)
-		{
-			BaseQueryTable qTable = null;
-			if (element instanceof QueryJoin)
-			{
-				qTable = ((QueryJoin)element).getForeignTable();
-			}
-			else if (element instanceof ISQLQuery)
-			{
-				qTable = ((ISQLQuery)element).getTable();
-			}
-
-			if (qTable == null || qTable.getName() == null)
-			{
-				// custom query or derived table
-				continue;
-			}
-
-			// Note: the same table (with different aliases) may occur multiple times (self join), in that case the filter must be
-			// applied twice, to both aliases
-			List<QueryFilter> elementFilter = null;
-			// apply the applicable filters
-			for (TableFilter tableFilter : filters)
-			{
-				if (tableFilter.getTableName() == null)
-				{
-					// should not happen, here the real table filter must be filled in, also if filter was created with null tableName
-					throw new IllegalStateException("Unexpected table filter without table name");
-				}
-				ITable table = fsm.getTable(tableFilter.getDataSource());
-
-				// table not found, should never happen
-				if (table == null)
-				{
-					throw new IllegalStateException("Could not find table '" + tableFilter.getTableName() + "' for table filter " + tableFilter);
-				}
-				if (table.getSQLName() == null)
-				{
-					// Should not happen
-					throw new IllegalStateException("Table '" + table.getName() + "' with null sql name for table filter " + tableFilter);
-				}
-
-				QueryFilter filtercondition = createTableFiltercondition(qTable, table, tableFilter);
-				if (filtercondition != null)
-				{
-					if (elementFilter == null)
-					{
-						elementFilter = new ArrayList<>();
-					}
-					elementFilter.add(filtercondition);
-				}
-			}
-			if (elementFilter != null)
-			{
-				if (elementFilters == null)
-				{
-					elementFilters = new HashMap<>();
-				}
-				elementFilters.put(element, elementFilter);
-			}
-		}
-		//RAGTEST	return elementFilters;
 	}
 
 	private void performDeleteQueryDirectly(Table table, IDataSet currentPKs, QueryDelete delete_sql, boolean allFoundsetRecordsLoaded)
@@ -4976,7 +4855,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 									IDataSet ds = performQuery(transaction_id, relatedQuery, getColumnTypes(IColumnTypes.INTEGER), 0, 0, RAW_QUERY);
 									hasRelatedRecords = ds.hadMoreRows();
 								}
-								catch (RemoteException | ServoyException e)
+								catch (ServoyException e)
 								{
 									hasRelatedRecords = true; // just to be safe
 									Debug.error(e);
@@ -5273,25 +5152,17 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		{
 			//cache pks
 			String transaction_id = fsm.getTransactionID(sheet);
-			try
-			{
-				IDataSet pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.config.pkChunkSize(), IDataServer.FOUNDSET_LOAD_QUERY);
 
-				synchronized (pksAndRecords)
-				{
-					// optimistic locking, if the query has been changed in the mean time forget about the refresh
-					if (sqlSelect != pksAndRecords.getQuerySelectForReading())
-					{
-						Debug.log("invert: query was changed during refresh, not resetting old query"); //$NON-NLS-1$
-						return;
-					}
-					changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect);
-				}
-			}
-			catch (RemoteException e)
+			IDataSet pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, fsm.config.pkChunkSize(), IDataServer.FOUNDSET_LOAD_QUERY);
+			synchronized (pksAndRecords)
 			{
-				changes = pksAndRecords.setPksAndQuery(new BufferedDataSet(), 0, sqlSelect);
-				throw new RepositoryException(e);
+				// optimistic locking, if the query has been changed in the mean time forget about the refresh
+				if (sqlSelect != pksAndRecords.getQuerySelectForReading())
+				{
+					Debug.log("invert: query was changed during refresh, not resetting old query"); //$NON-NLS-1$
+					return;
+				}
+				changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect);
 			}
 		}
 
@@ -5755,15 +5626,10 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			//cache pks
 			String transaction_id = fsm.getTransactionID(sheet);
 			long time = System.currentTimeMillis();
-			IDataSet findPKs = null;
-			try
-			{
-				findPKs = performQuery(transaction_id, findSqlSelect, getRowIdentColumnTypes(), 0, fsm.config.pkChunkSize(), IDataServer.FIND_BROWSER_QUERY);
-			}
-			catch (RemoteException e)
-			{
-				throw new RepositoryException(e);
-			}
+
+			IDataSet findPKs = performQuery(transaction_id, findSqlSelect, getRowIdentColumnTypes(), 0, fsm.config.pkChunkSize(),
+				IDataServer.FIND_BROWSER_QUERY);
+
 			if (Debug.tracing())
 			{
 				Debug.trace("Find executed, time: " + (System.currentTimeMillis() - time) + " thread: " + Thread.currentThread().getName() + ", sql: " + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
@@ -5983,24 +5849,17 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		int rowsToRetrieve = calculateRowsToRetrieve(rowsToRetrieveHint, selectedPKs);
 
 		String transaction_id = fsm.getTransactionID(sheet);
-		try
-		{
-			pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
 
-			synchronized (pksAndRecords)
-			{
-				// optimistic locking, if the query has been changed in the mean time forget about the refresh
-				if (sqlSelect != pksAndRecords.getQuerySelectForReading())
-				{
-					Debug.log("sort: query was changed during refresh, not resetting old query"); //$NON-NLS-1$
-					return false;
-				}
-				changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect, isSorting);
-			}
-		}
-		catch (RemoteException e)
+		pks = performQuery(transaction_id, sqlSelect, getRowIdentColumnTypes(), 0, rowsToRetrieve, IDataServer.FOUNDSET_LOAD_QUERY);
+		synchronized (pksAndRecords)
 		{
-			throw new RepositoryException(e);
+			// optimistic locking, if the query has been changed in the mean time forget about the refresh
+			if (sqlSelect != pksAndRecords.getQuerySelectForReading())
+			{
+				Debug.log("sort: query was changed during refresh, not resetting old query"); //$NON-NLS-1$
+				return false;
+			}
+			changes = pksAndRecords.setPksAndQuery(pks, pks.getRowCount(), sqlSelect, isSorting);
 		}
 
 		initialized = true;
@@ -7772,7 +7631,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 
 
 	protected IDataSet performQuery(String transaction_id, QuerySelect query, ColumnType[] resultTypes, int startRow, int rowsToRetrieve, int type)
-		throws RemoteException, ServoyException
+		throws ServoyException
 	{
 		if (disposed)
 		{

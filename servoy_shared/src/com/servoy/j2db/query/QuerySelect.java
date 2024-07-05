@@ -655,6 +655,15 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 			.flatMap(this::getRealColumn); // recursive for nested derived tables
 	}
 
+	public QuerySelect getNegatedCopy()
+	{
+		QuerySelect negatedCopy = deepClone(this);
+		for (String conditionName : negatedCopy.getConditionNames())
+		{
+			negatedCopy.setCondition(conditionName, negatedCopy.getCondition(conditionName).negate());
+		}
+		return negatedCopy;
+	}
 
 	public void acceptVisitor(IVisitor visitor)
 	{

@@ -61,6 +61,12 @@ public class QueryTableFilterdefinition implements TableFilterdefinition, IVisit
 	}
 
 	@Override
+	public TableFilterdefinition negate()
+	{
+		return new QueryTableFilterdefinition(querySelect.getNegatedCopy());
+	}
+
+	@Override
 	public int hashCode()
 	{
 		final int prime = 31;

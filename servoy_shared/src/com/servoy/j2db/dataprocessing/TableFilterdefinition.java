@@ -28,4 +28,6 @@ import com.servoy.j2db.persistence.ITable;
 public interface TableFilterdefinition
 {
 	boolean affects(ITable table);
+
+	TableFilterdefinition negate();
 }

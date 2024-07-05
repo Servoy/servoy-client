@@ -18,10 +18,12 @@
 package com.servoy.j2db.dataprocessing;
 
 import static java.util.Collections.emptySet;
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -52,7 +54,7 @@ public class EditedRecords
 		if (record != null && !containsRecord(record, EditType.edit))
 		{
 			remove(record);
-			edited.put(record.getKey(), new EditedRecord(record, EditType.edit, emptySet()));
+			edited.put(record.getKey(), EditedRecord.of(record, EditType.edit, emptySet()));
 			modCount++;
 		}
 	}
@@ -62,7 +64,7 @@ public class EditedRecords
 		if (record != null)
 		{
 			remove(record);
-			edited.put(record.getKey(), new EditedRecord(record, EditType.delete, affectedFoundsets));
+			edited.put(record.getKey(), EditedRecord.of(record, EditType.delete, affectedFoundsets));
 			modCount++;
 		}
 	}
@@ -72,7 +74,7 @@ public class EditedRecords
 		if (record != null)
 		{
 			remove(record);
-			edited.put(record.getKey(), new EditedRecord(record, EditType.failed, emptySet()));
+			edited.put(record.getKey(), EditedRecord.of(record, EditType.failed, emptySet()));
 			modCount++;
 		}
 	}
@@ -102,12 +104,13 @@ public class EditedRecords
 
 	public boolean contains(Predicate< ? super IRecord> recordFilter)
 	{
-		return getRecords(null).map(er -> er.record).anyMatch(recordFilter);
+		return getRecords(null).map(er -> er.getRecord()).anyMatch(recordFilter);
 	}
 
-	public void addDeleteQuery(IFoundSetInternal foundset, QueryDelete deleteQuery, Collection<IFoundSetInternal> affectedFoundsets)
+	public void addDeleteQuery(IFoundSetInternal foundset, QueryDelete deleteQuery, ArrayList<TableFilter> filters,
+		Collection<IFoundSetInternal> affectedFoundsets)
 	{
-		var foundsetDeletingQuery = new FoundsetDeletingQuery(foundset, deleteQuery, affectedFoundsets);
+		var foundsetDeletingQuery = FoundsetDeletingQuery.of(foundset, deleteQuery, filters, affectedFoundsets);
 		edited.put(foundsetDeletingQuery.getKey(), foundsetDeletingQuery);
 		modCount++;
 	}
@@ -123,7 +126,7 @@ public class EditedRecords
 	/**
 	 * Get the delete queries grouped per table.
 	 */
-	public Map<ITable, List<QueryDelete>> getDeleteQueries()
+	public Map<ITable, List<FoundsetDeletingQuery>> getDeleteQueries()
 	{
 		return getDeleteQueries(null);
 	}
@@ -131,11 +134,11 @@ public class EditedRecords
 	/**
 	 * Get the delete queries grouped per table for a foundset (or all if null).
 	 */
-	public Map<ITable, List<QueryDelete>> getDeleteQueries(IFoundSet foundset)
+	public Map<ITable, List<FoundsetDeletingQuery>> getDeleteQueries(IFoundSet foundset)
 	{
 		return getFoundsetDeletingQueries(foundset)
-			.collect(groupingBy(dq -> dq.foundset.getTable(),
-				mapping(dq -> dq.queryDelete, toList())));
+			.collect(groupingBy(dq -> dq.getFoundset().getTable(),
+				mapping(identity(), toList())));
 	}
 
 	/**
@@ -144,7 +147,7 @@ public class EditedRecords
 	public Stream<FoundsetDeletingQuery> getFoundsetDeletingQueries(IFoundSet foundset)
 	{
 		return edited.values().stream().filter(FoundsetDeletingQuery.class::isInstance).map(FoundsetDeletingQuery.class::cast)
-			.filter(df -> foundset == null || foundset == df.foundset);
+			.filter(df -> foundset == null || foundset == df.getFoundset());
 	}
 
 	public boolean removeDeleteQuery(FoundsetDeletingQuery foundsetDeletingQuery)
@@ -231,7 +234,7 @@ public class EditedRecords
 	public boolean removeFailedIf(Predicate< ? super IRecordInternal> filter)
 	{
 		return increaseModCountIf(edited.values()
-			.removeIf(er -> er instanceof EditedRecord editedRecord && (editedRecord.type == EditType.failed) && filter.test(editedRecord.record)));
+			.removeIf(er -> er instanceof EditedRecord editedRecord && (editedRecord.type == EditType.failed) && filter.test(editedRecord.getRecord())));
 	}
 
 	public IRecordInternal[] getEdited()
@@ -256,7 +259,7 @@ public class EditedRecords
 
 	private static IRecordInternal[] toArray(Stream<EditedRecord> editingRecords)
 	{
-		return editingRecords.map(er -> er.record).toArray(IRecordInternal[]::new);
+		return editingRecords.map(er -> er.getRecord()).toArray(IRecordInternal[]::new);
 	}
 
 	public void clear()
@@ -311,33 +314,25 @@ public class EditedRecords
 		String getDataSource();
 	}
 
-	static final class EditedRecord implements EditedRecordOrFoundset
+	record EditedRecord(IRecordInternal getRecord, EditType type, Collection<IFoundSetInternal> getAffectedFoundsets) implements EditedRecordOrFoundset
 	{
-		private final IRecordInternal record;
-		private final EditType type;
-		private final WeakHashSet<IFoundSetInternal> affectedFoundsets;
-
-		private EditedRecord(IRecordInternal record, EditType type, Collection<IFoundSetInternal> affectedFoundsets)
+		EditedRecord
 		{
-			this.record = record;
-			this.type = type;
-			this.affectedFoundsets = new WeakHashSet<>(affectedFoundsets);
+			if (!(getAffectedFoundsets instanceof WeakHashSet))
+			{
+				throw new IllegalArgumentException("affectedFoundsets must be WeakHashSet, use EditedRecord.of() factory method");
+			}
 		}
 
-		IRecordInternal getRecord()
+		static EditedRecord of(IRecordInternal record, EditType type, Collection<IFoundSetInternal> affectedFoundsets)
 		{
-			return record;
-		}
-
-		Collection<IFoundSetInternal> getAffectedFoundsets()
-		{
-			return affectedFoundsets;
+			return new EditedRecord(record, type, new WeakHashSet<>(affectedFoundsets));
 		}
 
 		@Override
 		public String getDataSource()
 		{
-			return record.getDataSource();
+			return getRecord().getDataSource();
 		}
 
 		boolean isEdit()
@@ -358,49 +353,24 @@ public class EditedRecords
 		@Override
 		public String toString()
 		{
-			return type + " " + record;
+			return type + " " + getRecord();
 		}
 	}
 
-	public static final class FoundsetDeletingQuery implements EditedRecordOrFoundset
+	public record FoundsetDeletingQuery(IFoundSetInternal getFoundset, QueryDelete getQueryDelete, ArrayList<TableFilter> getFilters,
+		Collection<IFoundSetInternal> getAffectedFoundsets, ObjectKey getKey) implements EditedRecordOrFoundset
 	{
-		private final IFoundSetInternal foundset;
-		private final QueryDelete queryDelete;
-		private final WeakHashSet<IFoundSetInternal> affectedFoundsets;
-		private final ObjectKey key;
-
-		private FoundsetDeletingQuery(IFoundSetInternal foundset, QueryDelete queryDelete, Collection<IFoundSetInternal> affectedFoundsets)
+		static FoundsetDeletingQuery of(IFoundSetInternal foundset, QueryDelete queryDelete, ArrayList<TableFilter> filters,
+			Collection<IFoundSetInternal> affectedFoundsets)
 		{
-			this.foundset = foundset;
-			this.queryDelete = queryDelete;
-			this.affectedFoundsets = new WeakHashSet<>(affectedFoundsets);
-			this.key = new ObjectKey(queryDelete, foundset);
-		}
-
-		QueryDelete getQueryDelete()
-		{
-			return queryDelete;
-		}
-
-		IFoundSetInternal getFoundset()
-		{
-			return foundset;
-		}
-
-		Collection<IFoundSetInternal> getAffectedFoundsets()
-		{
-			return affectedFoundsets;
-		}
-
-		ObjectKey getKey()
-		{
-			return key;
+			return new FoundsetDeletingQuery(foundset, queryDelete, filters, affectedFoundsets, new ObjectKey(queryDelete, foundset));
 		}
 
 		@Override
 		public String getDataSource()
 		{
-			return foundset.getDataSource();
+			return getFoundset().getDataSource();
 		}
 	}
+
 }

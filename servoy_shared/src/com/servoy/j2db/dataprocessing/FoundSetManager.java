@@ -115,6 +115,7 @@ import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.IQueryElement;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLJoin;
+import com.servoy.j2db.query.ISQLQuery;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryAggregate;
@@ -153,21 +154,21 @@ import com.servoy.j2db.util.xmlxport.TableDef;
 public class FoundSetManager implements IFoundSetManagerInternal
 {
 	private final IApplication application;
-	private ConcurrentMap<IFoundSetListener, IFoundSetInternal> separateFoundSets; //FoundSetListener -> FoundSet ... 1 foundset per listener
-	private Map<String, IFoundSetInternal> sharedDataSourceFoundSet; //dataSource -> FoundSet ... 1 foundset per data source
+	private ConcurrentMap<IFoundSetListener, IFoundSetInternal> separateFoundSets; // FoundSetListener -> FoundSet ... 1 foundset per listener
+	private Map<String, IFoundSetInternal> sharedDataSourceFoundSet; // dataSource -> FoundSet ... 1 foundset per data source
 	private Map<ViewFoundSet, Object> noneRegisteredVFS;
-	private Map<String, ViewFoundSet> viewFoundSets; //dataSource -> FoundSet ... 1 foundset per data source
+	private Map<String, ViewFoundSet> viewFoundSets; // dataSource -> FoundSet ... 1 foundset per data source
 	private ConcurrentMap<IFoundSetInternal, Boolean> foundSets;
 	private ConcurrentMap<Pair<String, String>, IFoundSetInternal> namedFoundSets;
 	private WeakReference<IFoundSetInternal> noTableFoundSet;
-	private Map<String, RowManager> rowManagers; //dataSource -> RowManager... 1 per table
-	private Map<ITable, CopyOnWriteArrayList<ITableChangeListener>> tableListeners; //table -> ArrayList(tableListeners)
+	private Map<String, RowManager> rowManagers; // dataSource -> RowManager... 1 per table
+	private Map<ITable, CopyOnWriteArrayList<ITableChangeListener>> tableListeners; // table -> ArrayList(tableListeners)
 	private SQLGenerator sqlGenerator;
 	private GlobalTransaction globalTransaction;
-	private IInfoListener infoListener;//we allow only one
+	private IInfoListener infoListener; // we allow only one
 	private final IFoundSetFactory foundsetfactory;
 	private boolean createEmptyFoundsets = false;
-	private Map<String, List<TableFilter>> tableFilterParams;//server -> ArrayList(TableFilter)
+	private Map<String, List<TableFilter>> tableFilterParams; // server -> ArrayList(TableFilter)
 	private Map<String, ITable> inMemDataSources; // dataSourceUri -> temp table
 	private Map<String, ITable> viewDataSources;
 	protected Map<String, ConcurrentMap<String, RelatedFoundSet>> cachedSubStates; // Map based on guava soft values cache
@@ -216,7 +217,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				Debug.error("Exception getting server settings", e);
 			}
-
 
 			ColumnInfo columnInfo = column.getColumnInfo();
 			if (columnInfo != null)
@@ -1323,7 +1323,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				String tableName = tableFilterRequest.table == null ? null : tableFilterRequest.table.getName();
 				TableFilter filter = new TableFilter(filterName, serverName, tableName,
 					tableFilterRequest.table == null ? null : tableFilterRequest.table.getSQLName(), tableFilterRequest.tableFilterdefinition,
-					tableFilterRequest.broadcastFilter);
+					tableFilterRequest.ragtestFilters, tableFilterRequest.broadcastFilter);
 
 				newParams.add(filter);
 				if (existingParams == null || !existingParams.contains(filter))
@@ -2839,13 +2839,20 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		private final ITable table;
 		private final TableFilterdefinition tableFilterdefinition;
+		private final List<TableFilter> ragtestFilters;
 		private final boolean broadcastFilter;
 
-		public TableFilterRequest(ITable table, TableFilterdefinition tableFilterdefinition, boolean broadcastFilter)
+		public TableFilterRequest(ITable table, TableFilterdefinition tableFilterdefinition, List<TableFilter> ragtestFilters, boolean broadcastFilter)
 		{
 			this.table = table;
 			this.tableFilterdefinition = tableFilterdefinition;
+			this.ragtestFilters = ragtestFilters;
 			this.broadcastFilter = broadcastFilter;
+		}
+
+		public TableFilterRequest(ITable table, TableFilterdefinition tableFilterdefinition, boolean broadcastFilter)
+		{
+			this(table, tableFilterdefinition, emptyList(), broadcastFilter);
 		}
 	}
 
