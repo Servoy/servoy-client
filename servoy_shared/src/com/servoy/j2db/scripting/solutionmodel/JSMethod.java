@@ -19,6 +19,7 @@ package com.servoy.j2db.scripting.solutionmodel;
 import java.io.CharArrayReader;
 
 import org.mozilla.javascript.CompilerEnvirons;
+import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.EvaluatorException;
@@ -265,6 +266,7 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 	static String parseName(String content)
 	{
 		CompilerEnvirons cenv = new CompilerEnvirons();
+		cenv.setLanguageVersion(Context.VERSION_ES6);
 		Parser parser = new Parser(cenv, new JSErrorReporter());
 		try
 		{
