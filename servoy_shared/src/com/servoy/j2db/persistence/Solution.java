@@ -43,7 +43,8 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
- * A solution also root object for meta data
+ * The servoy solution is equivalent to a "project". It is the unit that holds your UI and bussiness logic.<br/>
+ * A main solution can use modules (other solutions that are of the module type); in this way you can better organize your work.
  *
  * @author jblok
  */
@@ -967,7 +968,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	}
 	/*------------------------------------------------------------------------------------------------------------------------
 	 * LISTENERS
-
+	
 	public void iPersistChanged(IPersist persist)
 	{
 		getChangeHandler().fireIPersistChanged(persist);

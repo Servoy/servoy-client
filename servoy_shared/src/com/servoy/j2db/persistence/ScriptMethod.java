@@ -23,7 +23,7 @@ import com.servoy.j2db.util.UUID;
 
 
 /**
- * A script method
+ * A script method.
  *
  * @author jblok
  */

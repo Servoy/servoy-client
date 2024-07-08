@@ -22,8 +22,10 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Dummy class for listing methods for JavaScript types in a manner that
- * suits our documentation generator.
+ * The javascript Array implementation.<br/>
+ * It is a collection of items kept by index, providing typical array API. The index is a integer (>= 0) or a string representing such an integer.<br/><br/>
+ *
+ * For more information see: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array (MDN)</a>.
  *
  * @author gerzse
  */

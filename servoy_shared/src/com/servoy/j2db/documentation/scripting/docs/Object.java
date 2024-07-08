@@ -20,8 +20,10 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Dummy class for listing methods for JavaScript types in a manner that
- * suits our documentation generator.
+ * The Object type is used to store various keyed collections and more complex entities.<br/>
+ * Nearly all objects in JavaScript are instances of Object.<br/><br/>
+ *
+ * For more information see: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object">Object (MDN)</a>.
  *
  * @author gerzse
  */

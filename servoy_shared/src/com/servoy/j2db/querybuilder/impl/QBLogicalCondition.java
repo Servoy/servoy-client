@@ -31,7 +31,8 @@ import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * Logical clause for a query, conditions can be added by name.
+ * Logical clause for a query; conditions can be added by name.
+ *
  * @author rgansevles
  *
  */

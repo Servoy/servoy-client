@@ -20,9 +20,10 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Dummy class for listing methods for JavaScript types in a manner that
- * suits our documentation generator.
- * 
+ * The RegExp object is used for matching text with a pattern.<br/><br/>
+ *
+ * For more information see: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp">RegExp (MDN)</a>.
+ *
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "RegExp", scriptingName = "RegExp")
@@ -33,10 +34,10 @@ public class RegExp
 	 * Specifies if the "g" modifier is set.
 	 *
 	 * @sample
-	 * var str = 'Visit www.servoy.com';	
-	 * var patt1 = new RegExp('www');	
+	 * var str = 'Visit www.servoy.com';
+	 * var patt1 = new RegExp('www');
 	 * application.output(patt1.global);
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/RegExp/global Mozilla Developer Center documentation for global function
 	 */
 	public Boolean js_getGlobal()
@@ -52,10 +53,10 @@ public class RegExp
 	 * Specifies if the "i" modifier is set.
 	 *
 	 * @sample
-	 * var str = 'Visit www.servoy.com';	
-	 * var patt1 = new RegExp('www');	
+	 * var str = 'Visit www.servoy.com';
+	 * var patt1 = new RegExp('www');
 	 * application.output(patt1.ignoreCase);
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/RegExp/ignoreCase
 	 */
 	public Boolean js_getIgnoreCase()
@@ -71,13 +72,13 @@ public class RegExp
 	 * The string on which the pattern match is performed.
 	 *
 	 * @sample
-	 * var patt1 = new RegExp('www');	
-	 * var str = 'visit www.servoy.com';	
-	 * patt1.test(str);	
+	 * var patt1 = new RegExp('www');
+	 * var str = 'visit www.servoy.com';
+	 * patt1.test(str);
 	 * application.output(RegExp.input);
-	 * 
+	 *
 	 * @deprecated please refer to https://developer.mozilla.org/en/JavaScript/Reference/Deprecated_and_obsolete_features
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Deprecated_Features
 	 */
 	@Deprecated
@@ -95,11 +96,11 @@ public class RegExp
 	 * An integer specifying the index at which to start the next match.
 	 *
 	 * @sample
-	 * var str = 'The rain in Spain stays mainly in the plain';	
-	 * var patt1 = new RegExp('ain', 'g');	
-	 * patt1.test(str);	
+	 * var str = 'The rain in Spain stays mainly in the plain';
+	 * var patt1 = new RegExp('ain', 'g');
+	 * patt1.test(str);
 	 * application.output('Match found. index now at: ' + patt1.lastIndex);
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/RegExp/lastIndex
 	 */
 	public Number js_getLastIndex()
@@ -115,13 +116,13 @@ public class RegExp
 	 * The last matched characters.
 	 *
 	 * @sample
-	 * var str = 'The rain in Spain stays mainly in the plain';	
-	 * var patt1 = new RegExp('ain');	
-	 * patt1.test(str);	
+	 * var str = 'The rain in Spain stays mainly in the plain';
+	 * var patt1 = new RegExp('ain');
+	 * patt1.test(str);
 	 * application.output('Match found: ' + RegExp.lastMatch);
-	 * 
+	 *
 	 * @deprecated please refer to https://developer.mozilla.org/en/JavaScript/Reference/Deprecated_and_obsolete_features
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Deprecated_Features
 	 */
 	@Deprecated
@@ -139,13 +140,13 @@ public class RegExp
 	 * The last matched parenthesized substring.
 	 *
 	 * @sample
-	 * var str = 'Visit www.servoy.com (now)';	
-	 * var patt1 = new RegExp('(now)', 'g');	
-	 * patt1.test(str);	
+	 * var str = 'Visit www.servoy.com (now)';
+	 * var patt1 = new RegExp('(now)', 'g');
+	 * patt1.test(str);
 	 * application.output('Last parenthesized substring is: ' + RegExp.lastParen);
-	 * 
+	 *
 	 * @deprecated please refer to https://developer.mozilla.org/en/JavaScript/Reference/Deprecated_Features
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Deprecated_Features
 	 */
 	@Deprecated
@@ -163,13 +164,13 @@ public class RegExp
 	 * The substring in front of the characters most recently matched.
 	 *
 	 * @sample
-	 * var str = 'The rain in Spain stays mainly in the plain';	
-	 * var patt1 = new RegExp('ain');	
-	 * patt1.test(str);	
+	 * var str = 'The rain in Spain stays mainly in the plain';
+	 * var patt1 = new RegExp('ain');
+	 * patt1.test(str);
 	 * application.output('Text before match: ' + RegExp.leftContext);
-	 * 
+	 *
 	 * @deprecated please refer to https://developer.mozilla.org/en/JavaScript/Reference/Deprecated_Features
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Deprecated_Features
 	 */
 	@Deprecated
@@ -187,10 +188,10 @@ public class RegExp
 	 * Specifies if the "m" modifier is set.
 	 *
 	 * @sample
-	 * var str = 'Visit www.servoy.com';	
-	 * var patt1 = new RegExp('www','m');	
+	 * var str = 'Visit www.servoy.com';
+	 * var patt1 = new RegExp('www','m');
 	 * application.output(patt1.multiline);
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/RegExp/multiline
 	 */
 	public Boolean js_getMultiline()
@@ -206,13 +207,13 @@ public class RegExp
 	 * The substring after the characters most recently matched
 	 *
 	 * @sample
-	 * var str = 'The rain in Spain stays mainly in the plain';	
-	 * var patt1 = new RegExp('ain');	
-	 * patt1.test(str);	
+	 * var str = 'The rain in Spain stays mainly in the plain';
+	 * var patt1 = new RegExp('ain');
+	 * patt1.test(str);
 	 * application.output('Text after match: ' + RegExp.rightContext);
-	 * 
+	 *
 	 * @deprecated please refer to https://developer.mozilla.org/en/JavaScript/Reference/Deprecated_Features
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Deprecated_Features
 	 */
 	@Deprecated
@@ -230,10 +231,10 @@ public class RegExp
 	 * The text used for pattern matching.
 	 *
 	 * @sample
-	 * var str = 'Visit www.servoy.com';	
-	 * var patt1 = new RegExp('www.','g');	
+	 * var str = 'Visit www.servoy.com';
+	 * var patt1 = new RegExp('www.','g');
 	 * application.output('The regular expression is: ' + patt1.source);
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/RegExp/source
 	 */
 	public String js_getSource()
@@ -249,16 +250,16 @@ public class RegExp
 	 * Change the regular expression.
 	 *
 	 * @sample
-	 * var str='Visit www.servoy.com'; 
-	 * var patt=new RegExp('soft'); 
+	 * var str='Visit www.servoy.com';
+	 * var patt=new RegExp('soft');
 	 * application.output(patt.test(str)==true);
-	 * patt.compile('servoy');	
+	 * patt.compile('servoy');
 	 * application.output(patt.test(str)==true);
 	 *
 	 * @param regexp
-	 * 
+	 *
 	 * @deprecated use only the RegExp constructor (see also https://developer.mozilla.org/en/JavaScript/Reference/Deprecated_and_obsolete_features)
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/RegExp/source
 	 */
 	@Deprecated
@@ -275,9 +276,9 @@ public class RegExp
 	 * application.output(patt.exec(str));
 	 *
 	 * @param string
-	 * 
+	 *
 	 * @return A String representing the found value.
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/RegExp/exec
 	 */
 	public String js_exec(Object string)
@@ -289,16 +290,16 @@ public class RegExp
 	 * Search a string for a specified value. Returns true or false.
 	 *
 	 * @sample
-	 * var str='Visit www.servoy.com';	
-	 * var patt=new RegExp('soft'); 
-	 * application.output(patt.test(str)==true);	
-	 * patt.compile('servoy');	
+	 * var str='Visit www.servoy.com';
+	 * var patt=new RegExp('soft');
+	 * application.output(patt.test(str)==true);
+	 * patt.compile('servoy');
 	 * application.output(patt.test(str)==true)
 	 *
-	 * @param string 
-	 * 
+	 * @param string
+	 *
 	 * @return true if a match was found in the string. false otherwise.
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/RegExp/test
 	 */
 	public Boolean js_test(Object string)

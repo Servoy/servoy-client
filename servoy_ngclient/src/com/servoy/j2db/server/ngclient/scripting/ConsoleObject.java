@@ -28,7 +28,9 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Support for console logging in the serverside logic of web objects.
+ * It offers support for console logging inside serverside scripting logic of custom web components or custom web services (NG / Titanium).<br/>
+ * It is named 'console', similar to what is available in browser side scripting for such custom components/services.
+ *
  * @author gganea@servoy.com
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Console", scriptingName = "console")

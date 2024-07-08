@@ -41,7 +41,7 @@ import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.ServoyException;
 
 /**
- * Scope for datasources.db.myserver.mytable or datasources.mem['dsname']
+ * Scope for datasources.db.myserver.mytable or datasources.mem['dsname'].
  *
  * @author rgansevles
  *

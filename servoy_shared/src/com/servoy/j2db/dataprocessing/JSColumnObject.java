@@ -25,8 +25,8 @@ import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
 
 /**
- * Scriptable column object used when new columns are created.
- * The column can be modified, changes are applied in the server.synchronizeWithDB() call.
+ * A scripting object representing a data-source column that has now been created via JSTableObject.createNewColumn(...).<br/>
+ * It is a JSColumn that has a few extra methods - setters that can modify it; the changes will be applied only by a server.synchronizeWithDB() call.
  *
  * @author rgansevles
  *

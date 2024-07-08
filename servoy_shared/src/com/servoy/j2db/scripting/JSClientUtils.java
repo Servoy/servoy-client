@@ -25,8 +25,8 @@ import com.servoy.j2db.INGClientApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * This is a class that is on the root of scripting under "clientutils".
- * This provides some utility functions purely for interaction with the client, like generating urls or client side functions.
+ * The client utilities object. Available as "<code>clientutils.</code>" in scripting.<br/>
+ * This provides some utility functions purely for interaction with the client, like generating urls or using client side functions.
  *
  * @author jcompagner
  * @since 2024.3.1

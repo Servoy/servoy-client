@@ -59,7 +59,7 @@ import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
 /**
- * This class is passed as value by the JEditListModel(==FormModel) and represents 1 row
+ * JSRecord represents one row of a JSFoundset.
  *
  * @author jblok
  */

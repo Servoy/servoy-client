@@ -38,7 +38,8 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 
 /**
- * Scriptable Foundsetupdater object
+ * JSFoundSetUpdater is an utility class for performing updates on a foundset.
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)

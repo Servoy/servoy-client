@@ -22,8 +22,8 @@ import com.servoy.j2db.ui.runtime.IRuntimeAccordionPanel;
 
 /**
  * Scripting interface for RuntimeAccordionPanel.
- * Combines (deprecated) script methods and java api ({@link IRuntimeAccordionPanel});
- * 
+ * Combines (deprecated) script methods and java api ({@link IRuntimeAccordionPanel}).
+ *
  * @author lvostinar
  *
  */

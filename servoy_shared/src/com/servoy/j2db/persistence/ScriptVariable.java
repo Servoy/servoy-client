@@ -35,7 +35,7 @@ import com.servoy.j2db.util.Utils;
 
 
 /**
- * A so called script variable used as global under solution and as form variable used under form objects
+ * A script variable used either in a global scope under solution or as a form variable.
  *
  * @author jblok
  */
@@ -140,7 +140,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	}
 
 	/**
-	 * Set the variableType
+	 * Set the variableType.
 	 *
 	 * @param arg the variableType
 	 */

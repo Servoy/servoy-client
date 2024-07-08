@@ -24,7 +24,7 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 
 /**
- * Class defining drag and drop constants.
+ * Scope defining drag and drop constants.
  *
  * @author gboros
  */

@@ -19,7 +19,7 @@ package com.servoy.j2db.ui.runtime;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Interface for RuntimeChecks element
+ * Interface for RuntimeChecks element.
  *
  * @author lvostinar
  * @since 6.1

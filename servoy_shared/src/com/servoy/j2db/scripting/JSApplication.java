@@ -105,7 +105,7 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.SnapShot;
 
 /**
- * Application object from the SOM to handle all JS application calls
+ * Application object. Available as "<code>application.</code>" in scripting.
  *
  * @author jblok
  */

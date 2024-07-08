@@ -144,7 +144,11 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
- * The foundset of a form, also handles the locking with the AppServer based on tablepks, and is the formmodel itself!
+ * JSFoundSet is the data model for various UI components or forms that link directly (both ways) to a datasource (db table, view, in-mem...).<br/><br/>
+ *
+ * It eases the read-from-db/datasource and write-to-db/datasource, editing data, data input validations and so on.<br/>
+ * It's API supports common tasks like sorting, query based loading, working through relations etc.<br/>
+ * It will automatically handle loading of data in batches from the datasource and supports lazy loading/partial loading in the UI as well (if the UI components themselves (lists / tables / trees etc.) support that).
  *
  * @author jblok
  */

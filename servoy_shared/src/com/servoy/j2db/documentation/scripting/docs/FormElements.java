@@ -22,8 +22,8 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 
 /**
- * Helper class for easier documentation of our JavaScript API for forms.
- * 
+ * "elements" is a top level property of form scopes at runtime that gives access to all available elements on that form, by name.
+ *
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "elements", scriptingName = "elements")
@@ -32,15 +32,15 @@ public class FormElements
 {
 	/**
 	 * Get the names of all elements of the form, as an array.
-	 * 
+	 *
 	 * @sample
 	 * for (var i=0; i<%%prefix%%elements.allnames.length; i++)
 	 * {
 	 * 	var name = %%prefix%%elements.allnames[i];
 	 * 	var elem = %%prefix%%elements[name];
-	 * 	application.output(name + ": " + elem.getDataProviderID());	
+	 * 	application.output(name + ": " + elem.getDataProviderID());
 	 * }
-	 * 
+	 *
 	 * @special
 	 */
 	@JSReadonlyProperty
@@ -51,7 +51,7 @@ public class FormElements
 
 	/**
 	 * Get the number of elements of the form.
-	 * 
+	 *
 	 * @sample
 	 * for (var i=0; i<%%prefix%%elements.length; i++)
 	 * {
@@ -67,7 +67,7 @@ public class FormElements
 
 	/**
 	 * Get an element of the form by its name.
-	 * 
+	 *
 	 * @sampleas allnames()
 	 */
 	@JSReadonlyProperty
@@ -78,7 +78,7 @@ public class FormElements
 
 	/**
 	 * Get an element of the form by its index.
-	 * 
+	 *
 	 * @sampleas length()
 	 */
 	@JSReadonlyProperty

@@ -59,7 +59,8 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
- * JavaScript Object to handle security inside servoy
+ * Security object. Available as "<code>security.</code>" in scripting.<br/>
+ * It provides methods and constants for working with users / groups / permissions etc.
  *
  * @author jcompagner,seb,jblok
  */

@@ -19,10 +19,10 @@ package com.servoy.j2db.ui.runtime;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Interface for script button
- * 
- *  @author lvostinar
- *   @since 6.1
+ * Interface for script button.
+ *
+ * @author lvostinar
+ * @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeButton", extendsComponent = "RuntimeComponent")
 public interface IRuntimeButton extends IRuntimeBaseButton, HasRuntimeText

@@ -30,7 +30,8 @@ import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Add some info to a column
+ * Keeps information about a data-source (can be a DB table) column, information that is more then just the basic DB metadata.<br/>
+ * It holds Servoy specific information about that column as well.
  *
  * @author jblok
  */

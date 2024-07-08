@@ -20,10 +20,9 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Interface for all runtime components
+ * Interface for all runtime components.
  *
  * @author jcompagner, rgansevles
- *
  * @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeComponent", scriptingName = "RuntimeComponent", extendsComponent = "Component")

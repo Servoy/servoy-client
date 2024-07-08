@@ -24,8 +24,8 @@ import com.servoy.j2db.ui.IScriptDataLabelMethods;
 import com.servoy.j2db.ui.IStylePropertyChangesRecorder;
 
 /**
- * Scriptable data label(with dataprovider) component. 
- * 
+ * Scriptable data label (with data-provider) component.
+ *
  * @author lvostinar
  * @since 6.0
  */

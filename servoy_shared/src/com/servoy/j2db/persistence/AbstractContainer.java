@@ -78,6 +78,7 @@ public abstract class AbstractContainer extends AbstractBase
 
 	/**
 	 * The name of the form.
+	 * @sample "orderDetails"
 	 */
 	@ServoyClientSupport(mc = true, wc = true, sc = true)
 	public String getName()

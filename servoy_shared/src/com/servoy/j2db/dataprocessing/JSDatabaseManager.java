@@ -121,7 +121,9 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Scriptable database manager object
+ * The database manager object. Available as "<code>databaseManager.</code>" in scripting.<br/>
+ * It helps working with the database, foundsets and datasets.
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Database Manager", scriptingName = "databaseManager")

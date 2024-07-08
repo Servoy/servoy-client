@@ -31,7 +31,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.ServoyException;
 
 /**
- * This is the wrapper class exposed to javascript access.
+ * A window/dialog that shows a form.
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSWindow")
 public class JSWindow implements IConstantsObject

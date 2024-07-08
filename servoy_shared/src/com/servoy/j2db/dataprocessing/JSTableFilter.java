@@ -25,7 +25,7 @@ import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * Scriptable tablefilter object
+ * A table filter that can be created and used via a JSFoundset.
  *
  * @author rgansevles
  */

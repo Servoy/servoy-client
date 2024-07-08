@@ -34,7 +34,8 @@ import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.util.Debug;
 
 /**
- * Scriptable table object
+ * JSTable represents a DB Table object - when using the maintenance plugin or databaseManager.
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
