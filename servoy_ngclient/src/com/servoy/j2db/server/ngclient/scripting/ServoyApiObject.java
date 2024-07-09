@@ -161,6 +161,8 @@ public class ServoyApiObject
 	 * Show a form directly on the server for instance when a tab will change on the client, so it won't need to do a round trip
 	 * for showing the form through the browser's component.
 	 *
+	 * NOTE: Make sure this isn't called with a form name that can direclty come from the client, because this call allows all forms to be shown!
+	 *
 	 * @sample
 	 * servoyApi.showForm(formToShowName)
 	 *
@@ -176,6 +178,8 @@ public class ServoyApiObject
 	/**
 	 * Show a form directly on the server for instance when a tab will change on the client, so it won't need to do a round trip
 	 * for showing the form through the browser's component.
+	 *
+	 * NOTE: Make sure this isn't called with a form name that can direclty come from the client, because this call allows all forms to be shown!
 	 *
 	 * @sample
 	 * servoyApi.showForm(formToShowName)
