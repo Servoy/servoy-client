@@ -7,3 +7,6 @@ Bundle-SymbolicName: servoydefaultservices
 
 Name: dialogs/dialogs.spec
 Web-Service: True
+
+Name: window/window.spec
+Web-Service: True
