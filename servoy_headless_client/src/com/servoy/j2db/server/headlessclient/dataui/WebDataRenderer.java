@@ -177,15 +177,6 @@ public class WebDataRenderer extends Component implements IDataRenderer, IProvid
 		// ignore id can't be set in web
 	}
 
-	/**
-	 * @see com.servoy.j2db.ui.IComponent#getName()
-	 */
-	@Override
-	public String getName()
-	{
-		return getId();
-	}
-
 	public void destroy()
 	{
 		if (dataAdapterList != null)
