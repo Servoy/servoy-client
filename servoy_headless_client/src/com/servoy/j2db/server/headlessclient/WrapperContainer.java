@@ -19,9 +19,7 @@ package com.servoy.j2db.server.headlessclient;
 import java.util.Properties;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 
-import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.util.IDelegate;
@@ -29,9 +27,9 @@ import com.servoy.j2db.util.ISupplyFocusChildren;
 
 /**
  * @author jcompagner
- * 
+ *
  */
-public class WrapperContainer extends WebMarkupContainer implements IDelegate<Component>, IProviderStylePropertyChanges, ISupplyFocusChildren<Component>
+public class WrapperContainer extends Component implements IDelegate<Component>, IProviderStylePropertyChanges, ISupplyFocusChildren<Component>
 {
 
 	private final Component wrappedComponent;
@@ -45,7 +43,6 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 		super(id);
 		this.wrappedComponent = wrappedComponent;
 		add(wrappedComponent);
-		setOutputMarkupPlaceholderTag(true);
 	}
 
 	/**
@@ -54,16 +51,6 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 	public Component getDelegate()
 	{
 		return wrappedComponent;
-	}
-
-	/**
-	 * @see org.apache.wicket.Component#onAfterRender()
-	 */
-	@Override
-	protected void onAfterRender()
-	{
-		super.onAfterRender();
-		stylePropertyChanges.setRendered();
 	}
 
 	/**
@@ -100,7 +87,7 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 		}
 
 		/**
-		 * 
+		 *
 		 */
 		private void createChanges()
 		{
@@ -110,20 +97,20 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 				Properties componentChanges = ((IProviderStylePropertyChanges)wrappedComponent).getStylePropertyChanges().getChanges();
 				// remove the positions and sizes from the real component (should always stay 0,0)
 				Object left = componentChanges.remove("left"); //$NON-NLS-1$
-				if (left != null) changes.put("left", left); //$NON-NLS-1$ 
+				if (left != null) changes.put("left", left); //$NON-NLS-1$
 				Object top = componentChanges.remove("top"); //$NON-NLS-1$
-				if (top != null) changes.put("top", top); //$NON-NLS-1$ 
+				if (top != null) changes.put("top", top); //$NON-NLS-1$
 
 				// copy over the widths and heights
 				Object offsetWidth = ((IProviderStylePropertyChanges)wrappedComponent).getStylePropertyChanges().getJSProperty("offsetWidth"); //$NON-NLS-1$
-				if (offsetWidth != null) jsProperties.put("offsetWidth", offsetWidth); //$NON-NLS-1$ 
+				if (offsetWidth != null) jsProperties.put("offsetWidth", offsetWidth); //$NON-NLS-1$
 				Object offsetHeight = ((IProviderStylePropertyChanges)wrappedComponent).getStylePropertyChanges().getJSProperty("offsetHeight"); //$NON-NLS-1$
 				if (offsetHeight != null) jsProperties.put("offsetHeight", offsetHeight); //$NON-NLS-1$
 
 				Object width = componentChanges.remove("width"); //$NON-NLS-1$
-				if (width != null) changes.put("width", width); //$NON-NLS-1$ 
+				if (width != null) changes.put("width", width); //$NON-NLS-1$
 				Object height = componentChanges.remove("height"); //$NON-NLS-1$
-				if (height != null) changes.put("height", height); //$NON-NLS-1$ 
+				if (height != null) changes.put("height", height); //$NON-NLS-1$
 
 				changed = changes.size() > 0;
 			}
@@ -203,6 +190,6 @@ public class WrapperContainer extends WebMarkupContainer implements IDelegate<Co
 	@Override
 	public String getMarkupId()
 	{
-		return wrappedComponent.getMarkupId() + TemplateGenerator.WRAPPER_SUFFIX;
+		return wrappedComponent.getMarkupId() + "wrapper";
 	}
 }

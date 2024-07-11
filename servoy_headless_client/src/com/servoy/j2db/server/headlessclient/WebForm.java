@@ -32,7 +32,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.TreeMap;
 import java.util.WeakHashMap;
 
 import javax.print.Doc;
@@ -44,32 +43,12 @@ import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.MarkupContainer;
-import org.apache.wicket.Page;
-import org.apache.wicket.RequestCycle;
-import org.apache.wicket.Response;
-import org.apache.wicket.Session;
-import org.apache.wicket.behavior.AttributeAppender;
-import org.apache.wicket.behavior.IBehavior;
-import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.IMarkupCacheKeyProvider;
-import org.apache.wicket.markup.Markup;
-import org.apache.wicket.markup.MarkupStream;
-import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
-import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.protocol.http.request.WebClientInfo;
-import org.apache.wicket.request.ClientInfo;
-import org.apache.wicket.util.string.UrlUtils;
 import org.mozilla.javascript.JavaMembers;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
-import org.xhtmlrenderer.css.constants.CSSName;
 
 import com.servoy.j2db.ControllerUndoManager;
 import com.servoy.j2db.DesignModeCallbacks;
@@ -89,7 +68,6 @@ import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
-import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataui.IServoyAwareBean;
 import com.servoy.j2db.persistence.BaseComponent;
@@ -99,7 +77,6 @@ import com.servoy.j2db.persistence.IAnchorConstants;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ISupportAnchors;
 import com.servoy.j2db.persistence.ISupportBounds;
-import com.servoy.j2db.persistence.ISupportTextSetup;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.printing.FormPreviewPanel;
@@ -109,66 +86,45 @@ import com.servoy.j2db.scripting.ElementScope;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.scripting.RuntimeGroup;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
-import com.servoy.j2db.server.headlessclient.FormAnchorInfo.FormPartAnchorInfo;
 import com.servoy.j2db.server.headlessclient.dataui.ChangesRecorder;
-import com.servoy.j2db.server.headlessclient.dataui.FormLayoutProviderFactory;
-import com.servoy.j2db.server.headlessclient.dataui.IFormLayoutProvider;
-import com.servoy.j2db.server.headlessclient.dataui.IImageDisplay;
 import com.servoy.j2db.server.headlessclient.dataui.ISupportWebTabSeq;
 import com.servoy.j2db.server.headlessclient.dataui.IWebFormContainer;
-import com.servoy.j2db.server.headlessclient.dataui.RecordItemModel;
-import com.servoy.j2db.server.headlessclient.dataui.StyleAppendingModifier;
-import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 import com.servoy.j2db.server.headlessclient.dataui.WebAccordionPanel;
-import com.servoy.j2db.server.headlessclient.dataui.WebBaseButton;
-import com.servoy.j2db.server.headlessclient.dataui.WebBaseSelectBox;
 import com.servoy.j2db.server.headlessclient.dataui.WebBeanHolder;
 import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView;
-import com.servoy.j2db.server.headlessclient.dataui.WebDataCheckBoxChoice;
-import com.servoy.j2db.server.headlessclient.dataui.WebDataRadioChoice;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRenderer;
 import com.servoy.j2db.server.headlessclient.dataui.WebDataRendererFactory;
-import com.servoy.j2db.server.headlessclient.dataui.WebDefaultRecordNavigator;
 import com.servoy.j2db.server.headlessclient.dataui.WebImageBeanHolder;
 import com.servoy.j2db.server.headlessclient.dataui.WebRecordView;
 import com.servoy.j2db.server.headlessclient.dataui.WebSplitPane;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabFormLookup;
 import com.servoy.j2db.server.headlessclient.dataui.WebTabPanel;
-import com.servoy.j2db.ui.IButton;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportSimulateBounds;
-import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.ITabPanel;
-import com.servoy.j2db.ui.runtime.HasRuntimeEnabled;
-import com.servoy.j2db.ui.runtime.HasRuntimeReadOnly;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 import com.servoy.j2db.ui.scripting.RuntimePortal;
-import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.IStyleRule;
 import com.servoy.j2db.util.ISupplyFocusChildren;
-import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.gui.RoundedBorder;
 
 /**
  * @author jcompagner
  *
  */
-public class WebForm extends Panel
-	implements IFormUIInternal<Component>, IMarkupCacheKeyProvider, IProviderStylePropertyChanges, ISupportSimulateBounds, ISupportFormExecutionState
+public class WebForm extends Component
+	implements IFormUIInternal<Component>, IProviderStylePropertyChanges, ISupportSimulateBounds, ISupportFormExecutionState
 {
 	private static final long serialVersionUID = 1L;
 
 	private final String variation;
 	private final FormController formController;
 
-	private final StyleAppendingModifier hiddenBeforeShow = new StyleAppendingModifier(new Model<String>("visibility:hidden"));
 	private Point location;
 	private Dimension size;
 	private int formWidth = 0;
@@ -181,13 +137,12 @@ public class WebForm extends Panel
 	private Cursor cursor;
 	private boolean opaque;
 	private String tooltip;
-	private final WebMarkupContainer container;
+	private final Component container;
 	private boolean readonly;
 	private boolean enabled;
 //	private final List<Component> markedReadOnlyComponents;
 	private final List<Component> markedEnabledComponents;
 	private List<Component> tabSeqComponentList = new ArrayList<Component>();
-	private WebDefaultRecordNavigator defaultNavigator = null;
 
 	private boolean destroyed;
 	private IView view;
@@ -201,192 +156,14 @@ public class WebForm extends Panel
 	public WebForm(final FormController controller)
 	{
 		super("webform"); //$NON-NLS-1$
+		container = new Component("servoywebform");
 		markedEnabledComponents = new ArrayList<Component>();
-		TabIndexHelper.setUpTabIndexAttributeModifier(this, ISupportWebTabSeq.SKIP);
 		this.variation = "form::" + controller.getForm().getSolution().getName() + ":" + controller.getName() + "::form"; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 		this.formController = controller;
-		final IFormLayoutProvider layoutProvider = FormLayoutProviderFactory.getFormLayoutProvider(formController.getApplication(),
-			formController.getApplication().getSolution(), formController.getForm(), formController.getName());
-		TextualStyle panelStyle = layoutProvider.getLayoutForForm(0, false, true); // custom navigator is dropped inside tab panel.
-		add(new StyleAppendingModifier(panelStyle)
-		{
-			@Override
-			public boolean isEnabled(Component component)
-			{
-				// jquery accordion will handle the layout styling, cannot set our style
-				return ((component.findParent(IWebFormContainer.class) != null) &&
-					!(component.findParent(IWebFormContainer.class) instanceof WebAccordionPanel));
-			}
-		});
-
-		add(new StyleAppendingModifier(new Model<String>()
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public String getObject()
-			{
-				IWebFormContainer container = findParent(IWebFormContainer.class);
-				if (container != null && !(container instanceof WebAccordionPanel) && container.getBorder() instanceof TitledBorder)
-				{
-					int offset = ComponentFactoryHelper.getTitledBorderHeight(container.getBorder());
-					if (container instanceof WebTabPanel)
-					{
-						Iterator< ? extends Component> it = ((WebTabPanel)container).iterator();
-						while (it.hasNext())
-						{
-							Component comp = it.next();
-							if ("tablinks".equals(comp.getId()))
-							{
-								offset += 24; // this is a tabbed tabpanel, must add space for tabs
-								break;
-							}
-						}
-					}
-					return "top: " + offset + "px;";
-				}
-
-				return "";
-			}
-		}));
-
-		container = new WebMarkupContainer("servoywebform") //$NON-NLS-1$
-		{
-			@Override
-			protected void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag)
-			{
-				if (getBorder() instanceof TitledBorder)
-				{
-					getResponse().write(WebBaseButton.getTitledBorderOpenMarkup((TitledBorder)getBorder()));
-				}
-				super.onComponentTagBody(markupStream, openTag);
-				if (getBorder() instanceof TitledBorder)
-				{
-					getResponse().write(WebBaseButton.getTitledBorderCloseMarkup());
-				}
-			}
-		};
-		container.add(new StyleAppendingModifier(new Model<String>()
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public String getObject()
-			{
-				IWebFormContainer tabpanel = findParent(IWebFormContainer.class);
-				if (tabpanel != null)
-				{
-					return "min-width:0px;min-height:0px;";
-				}
-				return null;
-			}
-		}));
-//		container.add(new StyleAppendingModifier(new Model<String>()
-//		{
-//			private static final long serialVersionUID = 1L;
-//
-//			@Override
-//			public String getObject()
-//			{
-//				int offset = ((TitledBorder)getBorder()).getTitleFont().getSize() + 4;//add legend height
-//				return "top: " + offset + "px;";
-//			}
-//		})
-//		{
-//			@Override
-//			public boolean isEnabled(Component component)
-//			{
-//				if (getBorder() instanceof TitledBorder)
-//				{
-//					return super.isEnabled(component);
-//				}
-//				return false;
-//			}
-//		});
-		// we need to explicitly make the form transparent, to override the
-		// white color from the default CSS (the #webform class)
-		// case 349263
-		add(new StyleAppendingModifier(new Model<String>()
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public String getObject()
-			{
-				// in case of dialogs, tab/split/... panel, popup form (from window plugin), this component must
-				// also have proper rounded border and transparency when needed (it's style can be tweaked from overridden default styles
-				// see TemplateGenerator - bkcolor white)
-				String styleAddition = "";
-				if (getBorder() instanceof RoundedBorder)
-				{
-					float[] radius = ((RoundedBorder)getBorder()).getRadius();
-					StringBuilder builder = new StringBuilder();
-					builder.append("border-radius:");
-					for (int i = 0; i < 8; i++)
-					{
-						builder.append(radius[i]);
-						builder.append("px ");
-						if (i == 3) builder.append("/ ");
-					}
-					builder.append(";");
-					styleAddition = builder.toString();
-				}
-				IStyleRule formStyle = controller.getFormStyle();
-				boolean hasSemiTransparentBackground = false;
-				if (formStyle != null && formStyle.hasAttribute(CSSName.BACKGROUND_COLOR.toString()) &&
-					formStyle.getValue(CSSName.BACKGROUND_COLOR.toString()).contains(PersistHelper.COLOR_RGBA_DEF)) hasSemiTransparentBackground = true;
-				if (controller.getForm().getTransparent() || hasSemiTransparentBackground)
-				{
-					styleAddition += "background:transparent;"; //$NON-NLS-1$
-				}
-				return styleAddition;
-			}
-		}));
-		add(new AttributeAppender("class", new Model<String>()
-		{
-			private static final long serialVersionUID = 1332637522687352873L;
-
-			@Override
-			public String getObject()
-			{
-				return "yui-skin-sam";
-			}
-		}, " ")
-		{
-			@Override
-			public boolean isEnabled(Component component)
-			{
-				return (component instanceof WebForm && ((WebForm)component).isDesignMode());
-			}
-		});
-
-		add(hiddenBeforeShow);
-		hiddenBeforeShow.setEnabled(false);
-		// set fixed markup id so that element can always be found by markup id
-		container.setOutputMarkupId(true);
-		container.setMarkupId("form_" + ComponentFactory.stripIllegalCSSChars(formController.getName())); // same as in template generator //$NON-NLS-1$
-		TabIndexHelper.setUpTabIndexAttributeModifier(container, ISupportWebTabSeq.SKIP);
-		add(container);
 		readonly = false;
 		enabled = true;
-		setOutputMarkupId(true);
 	}
 
-	public String getContainerMarkupId()
-	{
-		return container.getMarkupId();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.apache.wicket.MarkupContainer#hasAssociatedMarkup()
-	 */
-	@Override
-	public boolean hasAssociatedMarkup()
-	{
-		return true;
-	}
 
 	public JSDataSet getFormContext()
 	{
@@ -398,7 +175,7 @@ public class WebForm extends Panel
 			new String[] { "containername", "formname", "tabpanel/splitpane/accordion/beanname", "tabname", "tabindex", "tabindex1based" }, //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$//$NON-NLS-6$
 			new ArrayList<Object[]>());
 		set.addRow(new Object[] { null, current.formController.getName(), null, null, null, null });
-		MarkupContainer parent = getParent();
+		Component parent = getParent();
 		while (parent != null)
 		{
 			if (parent instanceof WebSplitPane)
@@ -413,7 +190,7 @@ public class WebForm extends Panel
 			{
 				currentBeanName = ((IComponent)parent).getName();
 			}
-			else if (parent instanceof WebForm)
+			else if (parent instanceof WebForm wf)
 			{
 				if (currentTabPanel != null)
 				{
@@ -431,23 +208,23 @@ public class WebForm extends Panel
 					{
 						tabName = currentTabPanel.getTabNameAt(index); // js method so +1
 					}
-					current = (WebForm)parent;
+					current = wf;
 					set.addRow(0, new Object[] { null, current.formController.getName(), currentTabPanel.getName(), tabName, new Integer(index), new Integer(
 						index + 1) });
 				}
 				else if (currentBeanName != null)
 				{
-					current = (WebForm)parent;
+					current = wf;
 					set.addRow(0, new Object[] { null, current.formController.getName(), currentBeanName, null, null, null });
 				}
 				else if (currentSplitPane != null)
 				{
 					int idx = currentSplitPane.getLeftForm() != null && current.equals(((WebTabFormLookup)currentSplitPane.getLeftForm()).getWebForm()) ? 0 : 1;
-					current = (WebForm)parent;
+					current = wf;
 					set.addRow(0, new Object[] { null, current.formController.getName(), currentSplitPane.getName(), currentSplitPane.getTabNameAt(
 						idx), new Integer(idx + 1), new Integer(idx + 1) });
 				}
-				current = (WebForm)parent;
+				current = wf;
 				currentTabPanel = null;
 				currentBeanName = null;
 				currentSplitPane = null;
@@ -469,28 +246,6 @@ public class WebForm extends Panel
 		return new JSDataSet(formController.getApplication(), set);
 	}
 
-	/**
-	 * @see org.apache.wicket.markup.IMarkupCacheKeyProvider#getCacheKey(org.apache.wicket.MarkupContainer, java.lang.Class)
-	 */
-	public String getCacheKey(MarkupContainer container, Class containerClass)
-	{
-		return variation;
-	}
-
-	private transient Markup markup = null;
-
-	/**
-	 * @see org.apache.wicket.MarkupContainer#getAssociatedMarkupStream(boolean)
-	 */
-	@Override
-	public MarkupStream getAssociatedMarkupStream(boolean throwException)
-	{
-		if (markup == null)
-		{
-			markup = getApplication().getMarkupSettings().getMarkupCache().getMarkup(this, getClass(), false);
-		}
-		return new MarkupStream(markup);
-	}
 
 	public void setTabSeqComponents(List<Component> tabSequence)
 	{
@@ -537,18 +292,15 @@ public class WebForm extends Panel
 				{
 					((IWebFormContainer)comp).setTabSequenceIndex(tabIndex);
 					tabIndex = WebDataRendererFactory.getContainerGapIndex(tabIndex + WebDataRendererFactory.CONTAINER_RESERVATION_GAP, tabIndex);
-					TabIndexHelper.setUpTabIndexAttributeModifier(comp, ISupportWebTabSeq.SKIP);
 				}
 				else if (comp instanceof WebCellBasedView)
 				{
 					WebCellBasedView tableView = (WebCellBasedView)comp;
 					tableView.setTabSequenceIndex(tabIndex);
 					tabIndex += WebDataRendererFactory.MAXIMUM_TAB_INDEXES_ON_TABLEVIEW;
-					TabIndexHelper.setUpTabIndexAttributeModifier(comp, ISupportWebTabSeq.SKIP);
 				}
 				else
 				{
-					TabIndexHelper.setUpTabIndexAttributeModifier(comp, tabIndex);
 					tabIndex++;
 				}
 			}
@@ -604,26 +356,6 @@ public class WebForm extends Panel
 
 	private void checkIfDefaultOrSkipFocus(boolean defaultSequence, List<Component> tabSequence, Component c)
 	{
-		if (defaultSequence)
-		{
-			TabIndexHelper.setUpTabIndexAttributeModifier(c, ISupportWebTabSeq.DEFAULT);
-		}
-		else
-		{
-			boolean exists = false;
-			for (Component entry : tabSequence)
-			{
-				if (entry.equals(c))
-				{
-					exists = true;
-					break;
-				}
-			}
-			if (!exists)
-			{
-				TabIndexHelper.setUpTabIndexAttributeModifier(c, -1);
-			}
-		}
 	}
 
 	public List<Component> getTabSeqComponents()
@@ -631,23 +363,9 @@ public class WebForm extends Panel
 		return tabSeqComponentList;
 	}
 
-	public ISupplyFocusChildren<Component> getDefaultNavigator()
-	{
-		return defaultNavigator;
-	}
-
 	public boolean isTraversalPolicyEnabled()
 	{
 		return true;
-	}
-
-	/**
-	 * @see wicket.Component#getStyle()
-	 */
-	@Override
-	public String getVariation()
-	{
-		return variation;
 	}
 
 	/**
@@ -658,7 +376,6 @@ public class WebForm extends Panel
 		boolean addHeaders = true;
 		view = null;
 		final Form f = fp.getForm();
-		DataRendererRecordModel rendererModel = new DataRendererRecordModel();
 
 //		int viewType = f.getView();
 		if (viewType == IForm.LIST_VIEW || viewType == FormController.LOCKED_LIST_VIEW)
@@ -680,27 +397,20 @@ public class WebForm extends Panel
 				WebDataRenderer dr = (WebDataRenderer)dataRenderers[i];
 				if (dr != null)
 				{
-					dr.setDefaultModel(rendererModel);
 					container.add(dr);
 				}
 			}
 		}
 
-		defaultNavigator = null;
 		if (viewType == IForm.RECORD_VIEW || viewType == IForm.LOCKED_RECORD_VIEW)
 		{
 			view = new WebRecordView("View"); //$NON-NLS-1$
-			if (f.getNavigatorID() == Form.NAVIGATOR_DEFAULT)
-			{
-				defaultNavigator = new WebDefaultRecordNavigator(this);
-				((WebRecordView)view).add(defaultNavigator);
-			}
+
 
 			WebDataRenderer body = (WebDataRenderer)dataRenderers[FormController.FORM_EDITOR];//Body
 			if (body != null)
 			{
 				((WebRecordView)view).add(body);
-				body.setDefaultModel(rendererModel);
 				body.setParentView(view);
 			}
 			else
@@ -766,11 +476,11 @@ public class WebForm extends Panel
 
 		if (container.get("View") != null)
 		{
-			container.replace((WebMarkupContainer)view);
+			container.replace((Component)view);
 		}
 		else
 		{
-			container.add((WebMarkupContainer)view);
+			container.add((Component)view);
 		}
 		return view;
 	}
@@ -795,17 +505,7 @@ public class WebForm extends Panel
 	public void destroy()
 	{
 		this.destroyed = true;
-		if (getParent() != null && getRequestCycle() != null)
-		{
-			try
-			{
-				remove();
-			}
-			catch (Exception e)
-			{
-				Debug.log("error destroying the webform", e); //$NON-NLS-1$
-			}
-		}
+
 		jsChangeRecorder = null;
 	}
 
@@ -816,95 +516,6 @@ public class WebForm extends Panel
 	{
 		return destroyed;
 	}
-
-	/**
-	 * Visitor for the wicket component. It will mark the components readOnly property;
-	 *
-	 * @author Sisu
-	 *
-	 */
-	private static class WicketCompVisitorMarker implements IVisitor<Component>
-	{
-		private final boolean readonlyFlag;
-
-		public WicketCompVisitorMarker(boolean readonlyFlag)
-		{
-			this.readonlyFlag = readonlyFlag;
-		}
-
-		public Object component(Component component)
-		{
-//			if (component instanceof WebForm)
-//			{
-//				FormManager formManager = (FormManager)((WebForm)component).getController().getApplication().getFormManager();
-//				if (!formManager.isFormReadOnly(((WebForm)component).getController().getName()))
-//				{
-//					((WebForm)component).getController().setReadOnly(readonlyFlag);
-//				}
-//				return CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
-//			}
-//			else if (((IScriptableProvider)component).getScriptObject() instanceof HasRuntimeReadOnly)
-			if (((IScriptableProvider)component).getScriptObject() instanceof HasRuntimeReadOnly)
-			{
-				HasRuntimeReadOnly scriptable = (HasRuntimeReadOnly)((IScriptableProvider)component).getScriptObject();
-				scriptable.setReadOnly(readonlyFlag);
-			}
-
-//				if (!scriptable.isReadOnly() && readonlyFlag)
-//				{
-//					scriptable.setReadOnly(readonlyFlag);
-//					if (!markedList.contains(component))
-//					{
-//						markedList.add(component);
-//					}
-//				}
-//				else if (!readonlyFlag && markedList.contains(component))
-//				{
-//					scriptable.setReadOnly(readonlyFlag);
-//				}
-			return CONTINUE_TRAVERSAL;
-		}
-	}
-
-	private static class WicketCompVisitorMarker2 implements IVisitor<Component>
-	{
-		private final boolean enabledFlag;
-		private final List<Component> markedList;
-
-		public WicketCompVisitorMarker2(List<Component> markedList, boolean enabledFlag)
-		{
-			this.markedList = markedList;
-			this.enabledFlag = enabledFlag;
-		}
-
-		public Object component(Component component)
-		{
-			if (component instanceof WebForm)
-			{
-				((WebForm)component).getController().setComponentEnabled(enabledFlag);
-
-				return CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
-			}
-			else if (((IScriptableProvider)component).getScriptObject() instanceof HasRuntimeEnabled)
-			{
-				HasRuntimeEnabled scriptable = (HasRuntimeEnabled)((IScriptableProvider)component).getScriptObject();
-				if (scriptable.isEnabled() && !enabledFlag)
-				{
-					scriptable.setEnabled(enabledFlag);
-					if (!markedList.contains(component))
-					{
-						markedList.add(component);
-					}
-				}
-				else if (enabledFlag && markedList.contains(component))
-				{
-					scriptable.setEnabled(enabledFlag);
-				}
-			}
-			return CONTINUE_TRAVERSAL;
-		}
-	}
-
 
 	/*
 	 * (non-Javadoc)
@@ -923,26 +534,7 @@ public class WebForm extends Panel
 	public void setReadOnly(boolean b)
 	{
 		readonly = b;
-		visitChildren(IScriptableProvider.class, new WicketCompVisitorMarker(b));
-//		if (readonly != b)
-//		{
-//			readonly = b;
-//			visitChildren(IScriptableProvider.class, new WicketCompVisitorMarker(markedReadOnlyComponents, readonly));
-//			if (!readonly)
-//			{
-//				markedReadOnlyComponents.clear();
-//			}
-//		}
-//		else
-//		{
-//			visitChildren(WebForm.class, new WicketCompVisitorMarker(markedReadOnlyComponents, b));
-//		}
 	}
-
-//	public List<Component> getReadOnlyComponents()
-//	{
-//		return markedReadOnlyComponents;
-//	}
 
 	/**
 	 * @see com.servoy.j2db.IFormUIInternal#updateFormUI()
@@ -951,20 +543,6 @@ public class WebForm extends Panel
 	{
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.servoy.j2db.IFormUIInternal#touch()
-	 */
-	@Override
-	public void touch()
-	{
-		MainPage page = getMainPage();
-		if (page != null)
-		{
-			page.touch();
-		}
-	}
 
 	/**
 	 * @see com.servoy.j2db.IFormUIInternal#getController()
@@ -984,16 +562,15 @@ public class WebForm extends Panel
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#setComponentVisible(boolean)
 	 */
+	@Override
 	public void setComponentVisible(boolean visible)
 	{
-		if (getRequestCycle() != null)//can be called when not in cycle when in shutdown
-		{
-			setVisible(visible);
-		}
+		super.setComponentVisible(visible);
 	}
 
 	private Boolean enableChanged = Boolean.FALSE;
 
+	@Override
 	public void setComponentEnabled(final boolean b)
 	{
 		enableChanged = Boolean.TRUE;
@@ -1001,22 +578,17 @@ public class WebForm extends Panel
 		if (enabled != b)
 		{
 			enabled = b;
-			visitChildren(IScriptableProvider.class, new WicketCompVisitorMarker2(markedEnabledComponents, enabled));
 			if (enabled)
 			{
 				markedEnabledComponents.clear();
 			}
-		}
-		else
-		{
-			visitChildren(WebForm.class, new WicketCompVisitorMarker2(markedEnabledComponents, b));
 		}
 
 
 //		setEnabled(enabled);
 //		visitChildren(WebForm.class, new WicketCompVisitorMarker2(markedEnabledComponents, b));
 		//if form is in a tabpanel, mark parent tabpanel as changed
-		MarkupContainer parent = getParent();
+		Component parent = getParent();
 		if (parent instanceof WebTabPanel && ((WebTabPanel)parent).getOrient() != TabPanel.HIDE &&
 			((WebTabPanel)parent).getOrient() != TabPanel.SPLIT_HORIZONTAL && ((WebTabPanel)parent).getOrient() != TabPanel.SPLIT_VERTICAL)
 		{
@@ -1036,6 +608,7 @@ public class WebForm extends Panel
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#setLocation(java.awt.Point)
 	 */
+	@Override
 	public void setLocation(Point location)
 	{
 		this.location = location;
@@ -1044,6 +617,7 @@ public class WebForm extends Panel
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#setSize(java.awt.Dimension)
 	 */
+	@Override
 	public void setSize(Dimension size)
 	{
 		this.size = size;
@@ -1111,6 +685,7 @@ public class WebForm extends Panel
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#setForeground(java.awt.Color)
 	 */
+	@Override
 	public void setForeground(Color cfg)
 	{
 		this.cfg = cfg;
@@ -1119,6 +694,7 @@ public class WebForm extends Panel
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#setBackground(java.awt.Color)
 	 */
+	@Override
 	public void setBackground(Color cbg)
 	{
 		this.cbg = cbg;
@@ -1128,6 +704,7 @@ public class WebForm extends Panel
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#setFont(java.awt.Font)
 	 */
+	@Override
 	public void setFont(Font font)
 	{
 		this.font = font;
@@ -1136,6 +713,7 @@ public class WebForm extends Panel
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#setBorder(javax.swing.border.Border)
 	 */
+	@Override
 	public void setBorder(Border border)
 	{
 		this.border = border;
@@ -1144,6 +722,7 @@ public class WebForm extends Panel
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#setName(java.lang.String)
 	 */
+	@Override
 	public void setName(String name)
 	{
 		// ignore can't be set
@@ -1152,6 +731,7 @@ public class WebForm extends Panel
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#getName()
 	 */
+	@Override
 	public String getName()
 	{
 		return getId();
@@ -1161,6 +741,7 @@ public class WebForm extends Panel
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#setCursor(java.awt.Cursor)
 	 */
+	@Override
 	public void setCursor(Cursor cursor)
 	{
 		this.cursor = cursor;
@@ -1169,6 +750,7 @@ public class WebForm extends Panel
 	/**
 	 * @see com.servoy.j2db.ui.IFieldComponent#setOpaque(boolean)
 	 */
+	@Override
 	public void setOpaque(boolean opaque)
 	{
 		this.opaque = opaque;
@@ -1177,6 +759,7 @@ public class WebForm extends Panel
 	/**
 	 * @see com.servoy.j2db.ui.IFieldComponent#setToolTipText(java.lang.String)
 	 */
+	@Override
 	public void setToolTipText(String tooltip)
 	{
 		if (Utils.stringIsEmpty(tooltip))
@@ -1195,51 +778,6 @@ public class WebForm extends Panel
 		return "WebForm[controller:" + getController() + "]"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	class DataRendererRecordModel extends RecordItemModel
-	{
-		private static final long serialVersionUID = 1L;
-
-		/**
-		 * @see com.servoy.j2db.server.headlessclient.dataui.RecordItemModel#getRecord()
-		 */
-		@Override
-		protected IRecordInternal getRecord()
-		{
-			IFoundSetInternal fs = getController().getFoundSet();
-			if (fs != null)
-			{
-				int index = fs.getSelectedIndex();
-				if (index == -1)
-				{
-					return fs.getPrototypeState();
-				}
-				else
-				{
-					return fs.getRecord(index);
-				}
-			}
-			else
-			{
-				if (getController().getApplication() instanceof WebClient && ((WebClient)getController().getApplication()).isClosing())
-				{
-					// client is closing so foundset is cleared
-					return null;
-				}
-				if (getController().getApplication() instanceof SessionClient && ((SessionClient)getController().getApplication()).isShutDown())
-				{
-					// this is for batch processing
-					return null;
-				}
-				if (isDestroyed())
-				{
-					return null;
-				}
-				Debug.log("No foundset in form found!", new RuntimeException()); //$NON-NLS-1$
-				return null;
-			}
-		}
-	}
-
 	/**
 	 * @see com.servoy.j2db.IFormUIInternal#makeElementsScriptObject(org.mozilla.javascript.Scriptable, java.util.Map, com.servoy.j2db.ui.IDataRenderer[],
 	 *      com.servoy.j2db.IView)
@@ -1255,10 +793,10 @@ public class WebForm extends Panel
 			if (dr == null) continue;
 
 			Object[] comps = null;
-			if (dr instanceof WebMarkupContainer)
+			if (dr instanceof Component c)
 			{
-				comps = new Object[((WebMarkupContainer)dr).size()];
-				Iterator it = ((WebMarkupContainer)dr).iterator();
+				comps = new Object[c.size()];
+				Iterator it = c.iterator();
 				int j = 0;
 				while (it.hasNext())
 				{
@@ -1396,7 +934,7 @@ public class WebForm extends Panel
 		MainPage page = null;
 		if (printerJob == null)
 		{
-			page = (MainPage)findPage();
+			page = findPage();
 			if (page == null)
 			{
 				IMainContainer tmp = ((FormManager)application.getFormManager()).getCurrentContainer();
@@ -1449,21 +987,7 @@ public class WebForm extends Panel
 			// of "application/pdf" content-type; it only opens a blank page; to make it
 			// work, for Safari we will change "application/pdf" to "application/octet-stream" (seems to trigger download)
 			// BTW, "application/octet-stream" works for all browsers, but it is not that accurate
-			if (application.getApplicationType() != IApplication.HEADLESS_CLIENT) // if it's not batch processor/jsp, because if it is, then getClientInfo() gives NullPointerException
-			{
-				ClientInfo info = Session.get().getClientInfo();
-				if (info instanceof WebClientInfo)
-				{
-					String userAgent = ((WebClientInfo)info).getProperties().getNavigatorUserAgent();
-					if (userAgent != null && userAgent.toLowerCase().contains("safari")) //$NON-NLS-1$
-					{
-						contentType = "application/octet-stream"; //$NON-NLS-1$
-					}
-				}
-			}
 
-			String url = page.serveResource(formController.getName() + ".pdf", baos.toByteArray(), contentType, "attachment"); //$NON-NLS-1$ //$NON-NLS-2$
-			page.setShowURLCMD(url, "_self", null, 0, false); //$NON-NLS-1$
 		}
 		else
 		{
@@ -1547,36 +1071,43 @@ public class WebForm extends Panel
 		});
 	}
 
+	@Override
 	public Color getBackground()
 	{
 		return cbg;
 	}
 
+	@Override
 	public Border getBorder()
 	{
 		return border;
 	}
 
+	@Override
 	public Font getFont()
 	{
 		return font;
 	}
 
+	@Override
 	public Color getForeground()
 	{
 		return cfg;
 	}
 
+	@Override
 	public Point getLocation()
 	{
 		return location;
 	}
 
+	@Override
 	public Dimension getSize()
 	{
 		return size;
 	}
 
+	@Override
 	public boolean isOpaque()
 	{
 		return opaque;
@@ -1617,12 +1148,7 @@ public class WebForm extends Panel
 	public MainPage getMainPage()
 	{
 		if (mainPage != null) return mainPage;
-		Page page = findPage();
-		if (page instanceof MainPage)
-		{
-			return (MainPage)page;
-		}
-		return null;
+		return findPage();
 	}
 
 	public MainPage findMainPage()
@@ -1643,8 +1169,6 @@ public class WebForm extends Panel
 	}
 
 	private FormAnchorInfo formAnchorInfo;
-
-	private DesignModeBehavior designModeBehavior;
 
 	private boolean uiRecreated;
 
@@ -1673,82 +1197,6 @@ public class WebForm extends Panel
 			formAnchorInfo.bodyContainerId = formPart.getMarkupId();
 		}
 
-		// Find the id of the form navigator, if any.
-		visitChildren(Component.class, new IVisitor()
-		{
-			public Object component(Component component)
-			{
-				if (component instanceof WebDefaultRecordNavigator)
-				{
-					formAnchorInfo.navigatorWebId = component.getMarkupId();
-					return IVisitor.CONTINUE_TRAVERSAL;
-				}
-				else if (component instanceof WebTabPanel)
-				{
-					return IVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
-				}
-				else return IVisitor.CONTINUE_TRAVERSAL;
-			}
-		});
-
-		visitChildren(WebDataRenderer.class, new IVisitor()
-		{
-			public Object component(Component component)
-			{
-				WebDataRenderer formPart = (WebDataRenderer)component;
-
-				final FormPartAnchorInfo part = formAnchorInfo.addPart(formPart.getFormPartName(), formPart.getMarkupId(), formPart.getSize().height);
-
-				if (Part.getDisplayName(Part.BODY).equals(formPart.getFormPartName()))
-				{
-					Component parent = formPart.getParent();
-					formAnchorInfo.bodyContainerId = parent.getMarkupId();
-				}
-				formPart.visitChildren(ISupportWebBounds.class, new IVisitor()
-				{
-					public Object component(Component comp)
-					{
-						String id = comp.getId();
-						ISupportAnchors obj = elements.get(id);
-						if (obj != null)
-						{
-							int anchors = obj.getAnchors();
-							if (((anchors > 0 && anchors != IAnchorConstants.DEFAULT)) || (comp instanceof WebTabPanel) || (comp instanceof IButton))
-							{
-								Rectangle r = ((ISupportWebBounds)comp).getWebBounds();
-								if (r != null)
-								{
-									if (anchors == 0) anchors = IAnchorConstants.DEFAULT;
-
-									int hAlign = -1;
-									int vAlign = -1;
-									if (obj instanceof ISupportTextSetup)
-									{
-										ISupportTextSetup alignedObj = (ISupportTextSetup)obj;
-										hAlign = alignedObj.getHorizontalAlignment();
-										vAlign = alignedObj.getVerticalAlignment();
-									}
-
-									String imageDisplayURL = null;
-									boolean isRandomParamRemoved = false;
-									if (comp instanceof IImageDisplay)
-									{
-										Object[] aImageDisplayURL = WebBaseButton.getImageDisplayURL((IImageDisplay)comp, false);
-										imageDisplayURL = (String)aImageDisplayURL[0];
-										isRandomParamRemoved = ((Boolean)aImageDisplayURL[1]).booleanValue();
-									}
-									part.addAnchoredElement(comp.getMarkupId(), anchors, r, hAlign, vAlign, comp.getClass(), imageDisplayURL,
-										isRandomParamRemoved);
-								}
-
-							}
-						}
-						return IVisitor.CONTINUE_TRAVERSAL;
-					}
-				});
-				return IVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
-			}
-		});
 
 		return formAnchorInfo;
 	}
@@ -1775,6 +1223,7 @@ public class WebForm extends Panel
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#getToolTipText()
 	 */
+	@Override
 	public String getToolTipText()
 	{
 		return null;
@@ -1827,7 +1276,7 @@ public class WebForm extends Panel
 				Component first = getDefaultFirstComponent(currentContainer);
 				if (first == null)
 				{
-					Iterator< ? > it = ((MarkupContainer)currentContainer).iterator();
+					Iterator< ? > it = currentContainer.iterator();
 					while (it.hasNext())
 					{
 						Object o = it.next();
@@ -1848,15 +1297,15 @@ public class WebForm extends Panel
 		}
 	}
 
-	private Component getDefaultFirstComponent(MarkupContainer currentContainer)
+	private Component getDefaultFirstComponent(Component currentContainer)
 	{
 		Iterator< ? > it = currentContainer.iterator();
 		while (it.hasNext())
 		{
 			Object o = it.next();
-			if (o instanceof MarkupContainer)
+			if (o instanceof Component)
 			{
-				Component c = getDefaultFirstComponent((MarkupContainer)o);
+				Component c = getDefaultFirstComponent((Component)o);
 				if (c != null) return c;
 			}
 			else if (o instanceof Component && o instanceof IFieldComponent)
@@ -1875,221 +1324,12 @@ public class WebForm extends Panel
 	 */
 	public void setDesignMode(final DesignModeCallbacks callback)
 	{
-		final boolean designModeFlag = callback != null;
-
-		visitChildren(IComponent.class, new IVisitor<Component>()
-		{
-			public Object component(Component component)
-			{
-				if (designModeFlag)
-				{
-					if (component instanceof WebBaseSelectBox || component instanceof WebDataCheckBoxChoice || component instanceof WebDataRadioChoice)
-					{
-						compEditableStatusBeforeDesignMode.put((IFieldComponent)component, Boolean.valueOf(((IFieldComponent)component).isEditable()));
-						((IFieldComponent)component).setEditable(false);
-					}
-				}
-				else if (component instanceof IFieldComponent)
-				{
-					if (compEditableStatusBeforeDesignMode.containsKey(component))
-					{
-						((IFieldComponent)component).setEditable(compEditableStatusBeforeDesignMode.remove(component).booleanValue());
-					}
-				}
-
-				if (component instanceof IDesignModeListener)
-				{
-					((IDesignModeListener)component).setDesignMode(designModeFlag);
-				}
-				List<IBehavior> behaviors = component.getBehaviors();
-				for (IBehavior element : behaviors)
-				{
-					if (element instanceof IDesignModeListener)
-					{
-						((IDesignModeListener)element).setDesignMode(designModeFlag);
-					}
-				}
-				if (component instanceof ITabPanel)
-				{
-					return IVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
-				}
-				return IVisitor.CONTINUE_TRAVERSAL;
-			}
-		});
-
-		if (designModeBehavior == null)
-		{
-			designModeBehavior = new DesignModeBehavior();
-			add(designModeBehavior);
-		}
-
-		if (callback != null)
-		{
-			String[] selection = designModeSelection.get(callback);
-			designModeBehavior.setSelectedComponents(selection);
-		}
-		else
-		{
-			if (designModeBehavior != null)
-			{
-				String[] selectedComponentsNames = designModeBehavior.getSelectedComponentsNames();
-				if (selectedComponentsNames != null) designModeSelection.put(designModeBehavior.getDesignModeCallback(), selectedComponentsNames);
-			}
-		}
-		designModeBehavior.setDesignModeCallback(callback, formController);
-
-		// we need to recreate for both enabling and disabling of design mode
-		// for adding the client side js code when enabling, and for clearing the
-		// currently selected element when disabling
-		uiRecreated = true;
 	}
 
-	/**
-	 * @see org.apache.wicket.Component#onBeforeRender()
-	 */
-	@Override
-	protected void onBeforeRender()
-	{
-		super.onBeforeRender();
-		Component container = (Component)findParent(IWebFormContainer.class);
-		if (container == null)
-		{
-			container = getParent();
-		}
-		if (previousParent != null && previousParent != container)
-		{
-			// we show this form in another container, we must refresh the size
-			formWidth = 0;
-		}
-		previousParent = container;
-		//if recreateUI is called on a form in a tabpannel the tabs bar flickers if the background collor isnot the same as the form containing the tab pannel ... So the form in the  tab is shown after rearrageTabsInTabPanel() is done
-		if (isUIRecreated() && getParent() instanceof WebTabPanel)
-		{
-			hiddenBeforeShow.setEnabled(true);
-		}
-		else
-		{
-			hiddenBeforeShow.setEnabled(false);
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.apache.wicket.MarkupContainer#onRender(org.apache.wicket.markup.MarkupStream)
-	 */
-	@Override
-	protected void onRender(MarkupStream markupStream)
-	{
-		super.onRender(markupStream);
-		getStylePropertyChanges().setRendered();
-		enableChanged = Boolean.FALSE;
-	}
-
-	long lastModifiedTime = 0;
-
-	@SuppressWarnings("nls")
-	@Override
-	public void renderHead(HtmlHeaderContainer headercontainer)
-	{
-		super.renderHead(headercontainer);
-		Response response = headercontainer.getHeaderResponse().getResponse();
-		response.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
-
-		StringBuilder sb = new StringBuilder();
-		sb.append(UrlUtils.rewriteToContextRelative("servoy-webclient/formcss/", RequestCycle.get().getRequest()));
-		sb.append(formController.getForm().getSolution().getName());
-		sb.append("/");
-		sb.append(formController.getName());
-		sb.append("_t");
-		long prevLMT = lastModifiedTime;
-		if (lastModifiedTime == 0 || isUIRecreated())
-		{
-			lastModifiedTime = System.currentTimeMillis();
-		}
-		sb.append(Long.toString(lastModifiedTime));
-		sb.append("t.css");
-		response.write(RequestCycle.get().getOriginalResponse().encodeURL(sb));
-		response.write("\" id=\"formcss_");
-		response.write(formController.getName());
-		response.write(Long.toString(lastModifiedTime));
-		response.write("\"");
-		getResponse().println(" />");
-
-		if (isUIRecreated())
-		{
-			if (this.getParent() instanceof WebTabPanel)
-			{
-				String tabPanelId = this.getParent().getMarkupId();
-				String showWebFormjs = "$('#" + getMarkupId() + "').css('visibility','" + (isVisible() ? "inherit" : "hidden") + "');";
-				//show WebForm after rearrangeTabsInTabPanel() is done
-				String jsCall = "rearrageTabsInTabPanel('" + tabPanelId + "');" + showWebFormjs;
-
-				headercontainer.getHeaderResponse().renderOnLoadJavascript(jsCall);
-			}
-			StringBuffer cssRef = new StringBuffer();
-			cssRef.append("Servoy.Utils.removeFormCssLink('formcss_");
-			cssRef.append(formController.getName());
-			cssRef.append(prevLMT);
-			cssRef.append("');");
-			headercontainer.getHeaderResponse().renderJavascript(cssRef, null);
-		}
-
-		if (isFormInWindow())
-		{
-			List<Component> componentz = getTabSeqComponents();
-			int max = -1;
-			int min = Integer.MAX_VALUE;
-			String maxTabIndexElemId = null;
-			String minTabIndexElemId = null;
-			for (Component c : componentz)
-			{
-				int tabIndex = TabIndexHelper.getTabIndex(c);
-				if (tabIndex > max)
-				{
-					max = tabIndex;
-					maxTabIndexElemId = c.getMarkupId();
-				}
-				if (tabIndex != -1 && tabIndex < min)
-				{
-					min = tabIndex;
-					minTabIndexElemId = c.getMarkupId();
-				}
-			}
-			if (minTabIndexElemId != null && maxTabIndexElemId != null)
-			{
-				headercontainer.getHeaderResponse().renderOnLoadJavascript(
-					"Servoy.TabCycleHandling.registerListeners('" + minTabIndexElemId + "','" + maxTabIndexElemId + "');");
-			}
-		}
-
-		if (isFormInFormPopup())
-		{
-			TreeMap<String, String> tm = new TreeMap<String, String>();
-			for (Component c : getTabSeqComponents())
-			{
-				tm.put(String.valueOf(TabIndexHelper.getTabIndex(c)), c.getMarkupId());
-			}
-			StringBuffer stringBuffer = new StringBuffer();
-			stringBuffer.append("Servoy.TabCycleHandling.forceTabbingSequence([");
-			for (Map.Entry<String, String> entry : tm.entrySet())
-			{
-				stringBuffer.append("'" + entry.getValue() + "',");
-			}
-			stringBuffer.deleteCharAt(stringBuffer.length() - 1);
-			stringBuffer.append("]);");
-			headercontainer.getHeaderResponse().renderOnLoadJavascript(stringBuffer.toString());
-		}
-	}
 
 	private boolean isFormInFormPopup()
 	{
 		return findParent(IRepeatingView.class) != null;
-	}
-
-	public boolean isDesignMode()
-	{
-		return designModeBehavior != null && designModeBehavior.isEnabled(null);
 	}
 
 	/**
@@ -2101,7 +1341,6 @@ public class WebForm extends Panel
 		formController.getForm().setLastModified(System.currentTimeMillis());
 		// remove the markup from the cache for this webform.
 		//((ServoyMarkupCache)Application.get().getMarkupSettings().getMarkupCache()).removeFromCache(this);
-		markup = null;
 		uiRecreated = true;
 
 		IWebFormContainer webContainer = findParent(IWebFormContainer.class);
@@ -2159,25 +1398,6 @@ public class WebForm extends Panel
 				}
 				if (!uiRecreated)
 				{
-					if (designModeBehavior != null && designModeBehavior.isEnabled(WebForm.this))
-					{
-						Object retValue = visitChildren(IProviderStylePropertyChanges.class, new Component.IVisitor()
-						{
-							public Object component(Component component)
-							{
-								IStylePropertyChanges stylePropertyChanges = ((IProviderStylePropertyChanges)component).getStylePropertyChanges();
-								if (stylePropertyChanges.isValueChanged() || stylePropertyChanges.isChanged())
-								{
-									return Boolean.TRUE;
-								}
-								return IVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
-							}
-						});
-						if (retValue instanceof Boolean && ((Boolean)retValue).booleanValue())
-						{
-							return true;
-						}
-					}
 					return false;
 				}
 				return true;
@@ -2231,7 +1451,7 @@ public class WebForm extends Panel
 					if (navid == Form.NAVIGATOR_DEFAULT && formController.getForm().getView() != FormController.TABLE_VIEW &&
 						formController.getForm().getView() != FormController.LOCKED_TABLE_VIEW)
 					{
-						navigatorWidth = WebDefaultRecordNavigator.DEFAULT_WIDTH;
+						navigatorWidth = 0;
 					}
 					else if (navid != Form.NAVIGATOR_NONE)
 					{
@@ -2310,5 +1530,18 @@ public class WebForm extends Panel
 			((WebFormManager)getController().getBasicFormManager()).setCurrentContainer((IMainContainer)formExecutionState.mainContainer,
 				formExecutionState.mainContainerName);
 		}
+	}
+
+
+	@Override
+	public boolean isDesignMode()
+	{
+		return false;
+	}
+
+
+	@Override
+	public void touch()
+	{
 	}
 }

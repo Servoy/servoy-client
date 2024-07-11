@@ -41,7 +41,7 @@ import com.servoy.j2db.persistence.PositionComparator;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.headlessclient.dataui.AbstractFormLayoutProvider;
 import com.servoy.j2db.server.headlessclient.dataui.AnchoredFormLayoutProvider;
-import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
+import com.servoy.j2db.server.headlessclient.dataui.TextualStyle;
 import com.servoy.j2db.server.ngclient.BodyPortal;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.util.OrientationApplier;

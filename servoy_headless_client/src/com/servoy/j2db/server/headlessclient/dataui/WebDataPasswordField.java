@@ -21,7 +21,7 @@ import com.servoy.j2db.ui.scripting.RuntimeDataPassword;
 
 /**
  * Represents a password field in the webbrowser.
- * 
+ *
  * @author jcompagner
  */
 public class WebDataPasswordField extends WebDataField
@@ -35,15 +35,6 @@ public class WebDataPasswordField extends WebDataField
 	public WebDataPasswordField(IApplication application, RuntimeDataPassword scriptable, String id)
 	{
 		super(application, scriptable, id);
-	}
-
-	/**
-	 * @see wicket.markup.html.form.TextField#getInputType()
-	 */
-	@Override
-	protected String getInputType()
-	{
-		return "password";
 	}
 
 

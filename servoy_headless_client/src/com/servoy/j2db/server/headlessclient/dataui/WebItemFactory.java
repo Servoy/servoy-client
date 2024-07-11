@@ -18,13 +18,9 @@ package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.awt.Component;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
-
-import org.apache.wicket.MetaDataKey;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IScriptExecuter;
@@ -77,8 +73,6 @@ import com.servoy.j2db.ui.scripting.RuntimeTextArea;
 public class WebItemFactory implements ItemFactory
 {
 	private final IApplication application;
-
-	private static final Map<Object, MetaDataKey> metaDataKeys = new HashMap<Object, MetaDataKey>();
 
 	public WebItemFactory(IApplication application)
 	{
@@ -284,16 +278,16 @@ public class WebItemFactory implements ItemFactory
 	{
 		if (component instanceof org.apache.wicket.Component)
 		{
-			MetaDataKey metaDataKey = metaDataKeys.get(key);
-			if (metaDataKey == null)
-			{
-				metaDataKey = new MetaDataKey<Serializable>()
-				{
-					private static final long serialVersionUID = 1L;
-				};
-				metaDataKeys.put(key, metaDataKey);
-			}
-			((org.apache.wicket.Component)component).setMetaData(metaDataKey, value);
+//			MetaDataKey metaDataKey = metaDataKeys.get(key);
+//			if (metaDataKey == null)
+//			{
+//				metaDataKey = new MetaDataKey<Serializable>()
+//				{
+//					private static final long serialVersionUID = 1L;
+//				};
+//				metaDataKeys.put(key, metaDataKey);
+//			}
+//			((org.apache.wicket.Component)component).setMetaData(metaDataKey, value);
 		}
 	}
 
@@ -304,11 +298,11 @@ public class WebItemFactory implements ItemFactory
 	{
 		if (component instanceof org.apache.wicket.Component)
 		{
-			MetaDataKey metaDataKey = metaDataKeys.get(key);
-			if (metaDataKey != null)
-			{
-				return ((org.apache.wicket.Component)component).getMetaData(metaDataKey);
-			}
+//			MetaDataKey metaDataKey = metaDataKeys.get(key);
+//			if (metaDataKey != null)
+//			{
+//				return ((org.apache.wicket.Component)component).getMetaData(metaDataKey);
+//			}
 		}
 		return null;
 	}
@@ -320,7 +314,7 @@ public class WebItemFactory implements ItemFactory
 	 */
 	public IStylePropertyChangesRecorder createChangesRecorder()
 	{
-		return new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING);
+		return new ChangesRecorder();
 	}
 
 	/*

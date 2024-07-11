@@ -16,15 +16,14 @@
  */
 package com.servoy.j2db.server.headlessclient;
 
-import org.apache.wicket.markup.html.form.Form;
-
+import org.apache.wicket.Component;
 
 /**
  * HTML submit form
- * 
+ *
  * @author jcompagner
  */
-public final class ServoyForm extends Form
+public final class ServoyForm extends Component
 {
 	private static final long serialVersionUID = 1L;
 
@@ -36,15 +35,6 @@ public final class ServoyForm extends Form
 		super(id);
 	}
 
-	public String getHiddenField()
-	{
-		return getHiddenFieldId();
-	}
-
-	public String getJavascriptCssId()
-	{
-		return super.getJavascriptId();
-	}
 
 	@Override
 	public String getMarkupId()

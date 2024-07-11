@@ -89,7 +89,7 @@ public class SelectNGSolutionFilter implements Filter
 					List<Solution> ngCompatibleSolutions = new ArrayList<Solution>();
 					if (as.isDeveloperStartup())
 					{
-						Solution active = as.getDebugClientHandler().getDebugSmartClient().getCurrent();
+						Solution active = as.getDebugClientHandler().getDebugNGClient().getSolution();
 						if ((((SolutionMetaData)active.getMetaData()).getSolutionType() & (SolutionMetaData.SOLUTION | SolutionMetaData.NG_CLIENT_ONLY)) != 0)
 							ngCompatibleSolutions.add(active);
 					}

@@ -16,18 +16,16 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
+import java.util.Collections;
 import java.util.List;
 
-import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.navigation.paging.IPageable;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.version.undo.Change;
+import org.apache.wicket.Component;
 
 
 /**
  * @author gboros
  */
-public abstract class ServoyListView<T> extends ListView<T> implements IPageable
+public abstract class ServoyListView<T> extends Component
 {
 	private static final long serialVersionUID = 1L;
 
@@ -39,9 +37,13 @@ public abstract class ServoyListView<T> extends ListView<T> implements IPageable
 	/** Number of rows per page of the list view. */
 	private int rowsPerPage;
 
+	private int startIndex;
+
+	private int viewSize;
+
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param id
 	 *            See Component
 	 * @param model
@@ -49,15 +51,15 @@ public abstract class ServoyListView<T> extends ListView<T> implements IPageable
 	 * @param rowsPerPage
 	 *            Number of rows to show on a page
 	 */
-	public ServoyListView(final String id, final IModel< ? extends List< ? extends T>> model, int rowsPerPage)
+	public ServoyListView(final String id, int rowsPerPage)
 	{
-		super(id, model);
+		super(id);
 		this.rowsPerPage = rowsPerPage;
 	}
 
 	/**
 	 * Gets the index of the current page being displayed by this list view.
-	 * 
+	 *
 	 * @return Returns the currentPage.
 	 */
 	public final int getCurrentPage()
@@ -75,9 +77,14 @@ public abstract class ServoyListView<T> extends ListView<T> implements IPageable
 		return 0;
 	}
 
+	protected List getList()
+	{
+		return Collections.emptyList();
+	}
+
 	/**
 	 * Gets the number of pages in this list view.
-	 * 
+	 *
 	 * @return The number of pages in this list view
 	 */
 	public final int getPageCount()
@@ -87,7 +94,7 @@ public abstract class ServoyListView<T> extends ListView<T> implements IPageable
 
 	/**
 	 * Gets the maximum number of rows on each page.
-	 * 
+	 *
 	 * @return the maximum number of rows on each page.
 	 */
 	public final int getRowsPerPage()
@@ -97,7 +104,7 @@ public abstract class ServoyListView<T> extends ListView<T> implements IPageable
 
 	/**
 	 * Sets the maximum number of rows on each page.
-	 * 
+	 *
 	 * @param rowsPerPage
 	 *            the maximum number of rows on each page.
 	 */
@@ -110,32 +117,18 @@ public abstract class ServoyListView<T> extends ListView<T> implements IPageable
 				rowsPerPage = 0;
 			}
 
-			addStateChange(new RowsPerPageChange(this.rowsPerPage));
 			this.rowsPerPage = rowsPerPage;
 		}
 	}
 
-	/**
-	 * @see org.apache.wicket.markup.html.list.ListView#getViewSize()
-	 */
-	@Override
 	public int getViewSize()
 	{
-		if (isPageableMode)
-		{
-			if (getDefaultModelObject() != null)
-			{
-				super.setStartIndex(getCurrentPage() * getRowsPerPage());
-				super.setViewSize(getRowsPerPage());
-			}
-		}
-
-		return super.getViewSize();
+		return viewSize;
 	}
 
 	/**
 	 * Sets the current page that this list view should show.
-	 * 
+	 *
 	 * @param currentPage
 	 *            The currentPage to set.
 	 */
@@ -154,23 +147,22 @@ public abstract class ServoyListView<T> extends ListView<T> implements IPageable
 				currentPage = pageCount - 1;
 			}
 
-			addStateChange(new CurrentPageChange(this.currentPage));
 			this.currentPage = currentPage;
 		}
 	}
 
 
-	@Override
-	public ListView<T> setStartIndex(int startIndex)
+	public ServoyListView<T> setStartIndex(int startIndex)
 	{
-		return isPageableMode ? this : super.setStartIndex(startIndex);
+		this.startIndex = startIndex;
+		return this;
 	}
 
 
-	@Override
-	public ListView<T> setViewSize(int size) throws UnsupportedOperationException
+	public ServoyListView<T> setViewSize(int viewSize) throws UnsupportedOperationException
 	{
-		return isPageableMode ? this : super.setViewSize(size);
+		this.viewSize = viewSize;
+		return this;
 	}
 
 	public void setPageabeMode(boolean pageableMode)
@@ -182,85 +174,4 @@ public abstract class ServoyListView<T> extends ListView<T> implements IPageable
 	{
 		return isPageableMode;
 	}
-
-	/**
-	 * Records the changing of the current page.
-	 */
-	private class CurrentPageChange extends Change
-	{
-		private static final long serialVersionUID = 1L;
-
-		/** the former 'current' page. */
-		private final int currentPage;
-
-		/**
-		 * Construct.
-		 * 
-		 * @param currentPage
-		 *            the former 'current' page
-		 */
-		CurrentPageChange(int currentPage)
-		{
-			this.currentPage = currentPage;
-		}
-
-		/**
-		 * @see org.apache.wicket.version.undo.Change#undo()
-		 */
-		@Override
-		public void undo()
-		{
-			setCurrentPage(currentPage);
-		}
-
-		/**
-		 * @see java.lang.Object#toString()
-		 */
-		@Override
-		public String toString()
-		{
-			return "CurrentPageChange[currentPage: " + currentPage + "]";
-		}
-	}
-
-	/**
-	 * Records the changing of the number of rows per page.
-	 */
-	private class RowsPerPageChange extends Change
-	{
-		private static final long serialVersionUID = 1L;
-
-		/** the former number of rows per page. */
-		private final int rowsPerPage;
-
-		/**
-		 * Construct.
-		 * 
-		 * @param rowsPerPage
-		 *            the former number of rows per page
-		 */
-		RowsPerPageChange(int rowsPerPage)
-		{
-			this.rowsPerPage = rowsPerPage;
-		}
-
-		/**
-		 * @see org.apache.wicket.version.undo.Change#undo()
-		 */
-		@Override
-		public void undo()
-		{
-			setRowsPerPage(rowsPerPage);
-		}
-
-		/**
-		 * @see java.lang.Object#toString()
-		 */
-		@Override
-		public String toString()
-		{
-			return "RowsPerPageChange[component: " + getPath() + ", prefix: " + rowsPerPage + "]";
-		}
-	}
-
 }

@@ -23,15 +23,7 @@ import java.util.List;
 import javax.swing.JEditorPane;
 import javax.swing.SwingConstants;
 
-import org.apache.wicket.Application;
-import org.apache.wicket.RequestCycle;
-import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.protocol.http.WicketURLEncoder;
-import org.apache.wicket.util.crypt.ICrypt;
-import org.apache.wicket.util.string.AppendingStringBuffer;
-
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
@@ -45,99 +37,17 @@ import com.servoy.j2db.util.Utils;
  *
  * @author jcompagner
  */
-public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponent, ISupportScriptCallback, ISupportScroll
+public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponent, ISupportScroll
 {
 	private static final long serialVersionUID = 1L;
-
-	private InlineScriptExecutorBehavior inlineScriptExecutor;
 
 	public WebDataHtmlView(IApplication application, AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> scriptable, String id)
 	{
 		super(application, scriptable, id);
 		setHorizontalAlignment(SwingConstants.LEFT);
 		setVerticalAlignment(SwingConstants.TOP);
-		setEscapeModelStrings(false);
-		add(new ScrollBehavior(this));
 	}
 
-	/**
-	 * @see com.servoy.j2db.server.headlessclient.dataui.WebBaseSubmitLink#onSubmit()
-	 */
-	@Override
-	public void onSubmit()
-	{
-		super.onSubmit();
-
-		String scriptName = RequestCycle.get().getRequest().getParameter(getInputName());
-		WebForm wf = findParent(WebForm.class);
-		if (wf != null)
-		{
-			wf.getController().eval(scriptName);
-		}
-	}
-
-	/**
-	 * @see com.servoy.j2db.server.headlessclient.dataui.ISupportScriptCallback#getCallBackUrl(java.lang.String, boolean)
-	 */
-	@SuppressWarnings("nls")
-	public CharSequence getCallBackUrl(String scriptName, boolean testDoubleClick)
-	{
-		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX"));
-		if (useAJAX)
-		{
-			if (inlineScriptExecutor == null)
-			{
-				inlineScriptExecutor = new InlineScriptExecutorBehavior(this);
-				add(inlineScriptExecutor);
-			}
-
-			AppendingStringBuffer asb = new AppendingStringBuffer(80);
-			if (testDoubleClick)
-			{
-				asb.append("if (testDoubleClickId('");
-				asb.append(getMarkupId());
-				asb.append("')) { ");
-			}
-
-			asb.append("document.getElementById('").append(getMarkupId()).append("').focus();");
-			asb.append("window.setTimeout(function() { wicketAjaxGet('");
-			asb.append(inlineScriptExecutor.getCallbackUrl());
-
-			ICrypt urlCrypt = Application.get().getSecuritySettings().getCryptFactory().newCrypt();
-			asb.append("&snenc=");
-			String escapedScriptName = Utils.stringReplace(Utils.stringReplace(scriptName, "\\\'", "\'"), "&quot;", "\"");
-			asb.append(WicketURLEncoder.QUERY_INSTANCE.encode(urlCrypt.encryptUrlSafe(escapedScriptName)));
-
-			for (String browserArgument : inlineScriptExecutor.getBrowserArguments(scriptName))
-			{
-				asb.append("&").append(browserArgument).append("=' + ").append(browserArgument).append(" + '");
-			}
-
-			asb.append("');}, 0);");
-			if (testDoubleClick)
-			{
-				asb.append("} ");
-			}
-			asb.append("return false;");
-			return asb.toString();
-		}
-		else
-		{
-			return StripHTMLTagsConverter.getTriggerJavaScript(this, scriptName);
-		}
-	}
-
-	/**
-	 * @see wicket.markup.html.form.SubmitLink#onComponentTag(wicket.markup.ComponentTag)
-	 */
-	@SuppressWarnings("nls")
-	@Override
-	protected void onComponentTag(ComponentTag tag)
-	{
-		tag.put("id", getMarkupId());
-		// tabindexattributemodifier is disabled , we should output -1 all the time
-		tag.put("tabindex", -1);
-	}
 
 	/**
 	 * This is because in the super classes we add a container <span> tag to fix the horizontal/vertical
@@ -225,9 +135,8 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 			super.setComponentVisible(visible);
 			if (labels != null)
 			{
-				for (int i = 0; i < labels.size(); i++)
+				for (ILabel label : labels)
 				{
-					ILabel label = labels.get(i);
 					label.setComponentVisible(visible);
 				}
 			}
@@ -242,9 +151,8 @@ public class WebDataHtmlView extends WebDataSubmitLink implements IFieldComponen
 			super.setComponentEnabled(b);
 			if (labels != null)
 			{
-				for (int i = 0; i < labels.size(); i++)
+				for (ILabel label : labels)
 				{
-					ILabel label = labels.get(i);
 					label.setComponentEnabled(b);
 				}
 			}

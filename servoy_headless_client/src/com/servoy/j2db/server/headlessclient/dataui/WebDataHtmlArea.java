@@ -25,23 +25,12 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import javax.swing.JEditorPane;
 import javax.swing.border.Border;
 import javax.swing.text.Document;
 
-import org.apache.wicket.Page;
-import org.apache.wicket.RequestCycle;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.MarkupStream;
-import org.apache.wicket.markup.html.IHeaderResponse;
-import org.apache.wicket.markup.html.form.FormComponent;
-import org.apache.wicket.markup.html.form.TextArea;
-import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.util.convert.ConversionException;
+import org.apache.wicket.Component;
 
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.FormManager;
@@ -52,14 +41,12 @@ import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.server.headlessclient.MainPage;
-import com.servoy.j2db.server.headlessclient.TabIndexAttributeModifier;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportInputSelection;
-import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.ISupportScroll;
 import com.servoy.j2db.ui.ISupportSpecialClientProperty;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeField;
@@ -73,8 +60,8 @@ import com.servoy.j2db.util.Utils;
  * @author jblok
  */
 @SuppressWarnings("nls")
-public class WebDataHtmlArea extends FormComponent implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportInputSelection,
-	IOwnTabSequenceHandler, ISupportSpecialClientProperty, ISupportOnRender, ISupportScroll
+public class WebDataHtmlArea extends Component implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportInputSelection,
+	ISupportSpecialClientProperty, ISupportScroll
 {
 	public static final String htmlTextStartTags = "<html><body>";
 	public static final String htmlTextEndTags = "</body></html>";
@@ -84,119 +71,26 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 	private boolean needEntireState;
 	private Insets margin;
 	private String inputId;
-	private final TabIndexAttributeModifier tabIndexAttributeModifier;
 	private String configuration;
 
 	private final AbstractRuntimeField<IFieldComponent> scriptable;
 	private final IApplication application;
 	private final WebEventExecutor eventExecutor;
-	private final TextArea textArea;
-	private final AbstractServoyDefaultAjaxBehavior scrollBehavior;
+	private final Component textArea;
 
 	public WebDataHtmlArea(IApplication application, AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> scriptable, String id)
 	{
 		super(id);
 		this.application = application;
 		this.scriptable = scriptable;
-		setVersioned(false);
-		setOutputMarkupPlaceholderTag(true);
-		add(StyleAttributeModifierModel.INSTANCE);
-		add(TooltipAttributeModifier.INSTANCE);
 
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		eventExecutor = new WebEventExecutor(this, useAJAX);
 
-		textArea = new TextArea("editor_" + id)
-		{
-			@Override
-			protected Object convertValue(String[] value) throws ConversionException
-			{
-				String convert = (String)super.convertValue(value);
-				if (convert != null && !convert.startsWith(htmlTextStartTags))
-				{
-					// html editor takes away <html> tags making text incompatible with SC
-					convert = htmlTextStartTags + convert + htmlTextEndTags;
-				}
-				return convert;
-			}
-
-			@Override
-			public String getInputName()
-			{
-				if (inputId == null)
-				{
-					Page page = findPage();
-					if (page instanceof MainPage)
-					{
-						inputId = ((MainPage)page).nextInputNameId();
-					}
-					else
-					{
-						return super.getInputName();
-					}
-				}
-				return inputId;
-			}
-
-			@Override
-			protected String getModelValue()
-			{
-				return WebDataHtmlArea.this.getDefaultModelObjectAsString();
-			}
-
-			@Override
-			public void updateModel()
-			{
-				super.updateModel();
-				WebDataHtmlArea.this.setDefaultModelObject(super.getConvertedInput());
-			}
-		};
-		textArea.add(new ServoyAjaxFormComponentUpdatingBehavior("onsubmit")
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onUpdate(AjaxRequestTarget target)
-			{
-				WebEventExecutor.generateResponse(target, findPage());
-			}
-		});
+		textArea = new Component("editor_" + id);
 		add(textArea);
-		textArea.setOutputMarkupId(true);
-		tabIndexAttributeModifier = new TabIndexAttributeModifier(-1);
-		textArea.add(tabIndexAttributeModifier);
-		textArea.add(new StyleAppendingModifier(new Model<String>("visibility:hidden")));
-		add(scrollBehavior = new AbstractServoyDefaultAjaxBehavior()
-		{
-			@Override
-			protected void respond(AjaxRequestTarget target)
-			{
-				WebDataHtmlArea.this.setScroll(Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("locationX")),
-					Utils.getAsInteger(RequestCycle.get().getRequest().getParameter("locationY")));
-			}
-		});
 	}
 
-	/**
-	 * @see org.apache.wicket.Component#renderHead(org.apache.wicket.markup.html.internal.HtmlHeaderContainer)
-	 */
-	@Override
-	public void renderHead(final HtmlHeaderContainer container)
-	{
-		super.renderHead(container);
-		IHeaderResponse response = container.getHeaderResponse();
-		String defaultConfiguration = (String)application.getClientProperty(IApplication.HTML_EDITOR_CONFIGURATION);
-		String script = "Servoy.HTMLEdit.attach('" + getMarkupId() + "','" + textArea.getMarkupId() + "'," + (isEnabled() && !isReadOnly()) + "," +
-			(configuration != null ? configuration : null) + "," + (defaultConfiguration != null ? defaultConfiguration : null) + "," + scroll.x + "," +
-			scroll.y + ",'" + scrollBehavior.getCallbackUrl() + "');";
-		response.renderOnLoadJavascript(script);
-	}
-
-	@Override
-	public void handleOwnTabIndex(int newTabIndex)
-	{
-		tabIndexAttributeModifier.setTabIndex(newTabIndex);
-	}
 
 	public void setClientProperty(Object key, Object value)
 	{
@@ -242,11 +136,13 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 		return getLocation().y;
 	}
 
+	@Override
 	public void setLocation(Point location)
 	{
 		this.location = location;
 	}
 
+	@Override
 	public Point getLocation()
 	{
 		return location;
@@ -257,11 +153,13 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 	 */
 	private Dimension size = new Dimension(0, 0);
 
+	@Override
 	public Dimension getSize()
 	{
 		return size;
 	}
 
+	@Override
 	public void setSize(Dimension size)
 	{
 		this.size = size;
@@ -270,7 +168,7 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 	@Override
 	public String toString()
 	{
-		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$
+		return scriptable.toString("value:" + getValueObject()); //$NON-NLS-1$
 	}
 
 	public final AbstractRuntimeField<IFieldComponent> getScriptObject()
@@ -278,31 +176,11 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 		return scriptable;
 	}
 
-	/**
-	 * @see org.apache.wicket.Component#getLocale()
-	 */
-	@Override
-	public Locale getLocale()
-	{
-		return application.getLocale();
-	}
-
 	public IStylePropertyChanges getStylePropertyChanges()
 	{
 		return scriptable.getChangesRecorder();
 	}
 
-	@Override
-	protected void onRender(final MarkupStream markupStream)
-	{
-		super.onRender(markupStream);
-		getStylePropertyChanges().setRendered();
-		IModel< ? > model = getInnermostModel();
-		if (model instanceof RecordItemModel)
-		{
-			((RecordItemModel)model).updateRenderedValue(this);
-		}
-	}
 
 	private boolean editable;
 
@@ -355,6 +233,7 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 	private String dataProviderID;
 
 
+	@Override
 	public void setName(String n)
 	{
 		name = n;
@@ -362,6 +241,7 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 
 	private String name;
 
+	@Override
 	public String getName()
 	{
 		return name;
@@ -373,11 +253,13 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 	 */
 	private Border border;
 
+	@Override
 	public void setBorder(Border border)
 	{
 		this.border = border;
 	}
 
+	@Override
 	public Border getBorder()
 	{
 		return border;
@@ -387,6 +269,7 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 	/*
 	 * opaque---------------------------------------------------
 	 */
+	@Override
 	public void setOpaque(boolean opaque)
 	{
 		this.opaque = opaque;
@@ -394,6 +277,7 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 
 	private boolean opaque;
 
+	@Override
 	public boolean isOpaque()
 	{
 		return opaque;
@@ -417,6 +301,7 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 
 	private String tooltip;
 
+	@Override
 	public void setToolTipText(String tooltip)
 	{
 		this.tooltip = Utils.stringIsEmpty(tooltip) ? null : tooltip;
@@ -432,12 +317,9 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#getToolTipText()
 	 */
+	@Override
 	public String getToolTipText()
 	{
-		if (tooltip != null && getInnermostModel() instanceof RecordItemModel)
-		{
-			return Text.processTags(tooltip, resolver);
-		}
 		return tooltip;
 	}
 
@@ -445,6 +327,7 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 	/*
 	 * font---------------------------------------------------
 	 */
+	@Override
 	public void setFont(Font font)
 	{
 		this.font = font;
@@ -452,6 +335,7 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 
 	private Font font;
 
+	@Override
 	public Font getFont()
 	{
 		return font;
@@ -460,11 +344,13 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 
 	private Color background;
 
+	@Override
 	public void setBackground(Color cbg)
 	{
 		this.background = cbg;
 	}
 
+	@Override
 	public Color getBackground()
 	{
 		return background;
@@ -480,11 +366,13 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 		return labels;
 	}
 
+	@Override
 	public void setForeground(Color cfg)
 	{
 		this.foreground = cfg;
 	}
 
+	@Override
 	public Color getForeground()
 	{
 		return foreground;
@@ -493,6 +381,7 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 	/*
 	 * visible---------------------------------------------------
 	 */
+	@Override
 	public void setComponentVisible(boolean visible)
 	{
 		if (viewable || !visible)
@@ -500,9 +389,8 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 			setVisible(visible);
 			if (labels != null)
 			{
-				for (int i = 0; i < labels.size(); i++)
+				for (ILabel label : labels)
 				{
-					ILabel label = labels.get(i);
 					label.setComponentVisible(visible);
 				}
 			}
@@ -522,6 +410,7 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 	}
 
 
+	@Override
 	public void setComponentEnabled(final boolean b)
 	{
 		if (accessible || !b)
@@ -530,34 +419,11 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 			((ChangesRecorder)getStylePropertyChanges()).setChanged();
 			if (labels != null)
 			{
-				for (int i = 0; i < labels.size(); i++)
+				for (ILabel label : labels)
 				{
-					ILabel label = labels.get(i);
 					label.setComponentEnabled(b);
 				}
 			}
-		}
-	}
-
-	@Override
-	protected void onBeforeRender()
-	{
-		super.onBeforeRender();
-		fireOnRender(false);
-	}
-
-	public void fireOnRender(boolean force)
-	{
-		if (scriptable != null)
-		{
-			boolean isFocused = false;
-			IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
-			if (currentContainer instanceof MainPage)
-			{
-				isFocused = this.equals(((MainPage)currentContainer).getFocusedComponent());
-			}
-			if (force) scriptable.getRenderEventExecutor().setRenderStateChanged();
-			scriptable.getRenderEventExecutor().fireOnRender(isFocused);
 		}
 	}
 
@@ -654,6 +520,7 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 //		this.horizontalAlignment = horizontalAlignment;
 	}
 
+	@Override
 	public void setCursor(Cursor cursor)
 	{
 //		this.cursor = cursor;
@@ -661,7 +528,7 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 
 	public Object getValueObject()
 	{
-		return getDefaultModelObjectAsString();
+		return null;
 	}
 
 	public void setValueObject(Object value)
@@ -717,8 +584,6 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 			{
 				public void run()
 				{
-					WebEventExecutor.setSelectedIndex(WebDataHtmlArea.this, null, IEventExecutor.MODIFIERS_UNSPECIFIED);
-
 					eventExecutor.fireChangeCommand(previousValidValue == null ? oldVal : previousValidValue, newVal, false, WebDataHtmlArea.this);
 				}
 			});
@@ -785,35 +650,12 @@ public class WebDataHtmlArea extends FormComponent implements IFieldComponent, I
 		eventExecutor.setRightClickCmd(rightClickCmd, args);
 	}
 
-	@Override
-	public String getInputName()
-	{
-		if (inputId == null)
-		{
-			Page page = findPage();
-			if (page instanceof MainPage)
-			{
-				inputId = ((MainPage)page).nextInputNameId();
-			}
-			else
-			{
-				return super.getInputName();
-			}
-		}
-		return inputId;
-	}
-
 	public void selectAll()
 	{
 	}
 
 	public void replaceSelectedText(String s)
 	{
-		Page page = findPage();
-		if (page instanceof MainPage)
-		{
-			((MainPage)page).getPageContributor().addDynamicJavaScript("tinymce.activeEditor.selection.setContent('" + s + "'); tinyMCE.activeEditor.focus()");
-		}
 	}
 
 	public String getSelectedText()

@@ -432,7 +432,6 @@ public class FormController extends BasicFormController
 
 			IDataRenderer dr = application.getDataRenderFactory().getEmptyDataRenderer(ComponentFactory.getWebID(form, part), part.toString(), application,
 				(part.getPartType() == Part.BODY));
-			dr.initDragNDrop(this, form.getPartStartYPos(part.getID()));
 			dataRenderers[part.getPartType()] = dr;
 			dr.setName(part.toString());
 			part_panels.put(part, dr);

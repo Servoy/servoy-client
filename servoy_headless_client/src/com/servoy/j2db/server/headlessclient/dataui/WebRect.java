@@ -18,11 +18,6 @@ package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.awt.Color;
 
-import javax.swing.border.TitledBorder;
-
-import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.MarkupStream;
-
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.persistence.RectShape;
 import com.servoy.j2db.ui.IRect;
@@ -30,7 +25,7 @@ import com.servoy.j2db.ui.scripting.RuntimeRectangle;
 
 /**
  * Represents a rectangle in the browser, (a div with a 1 pixel border)
- * 
+ *
  * @author jcompagner
  */
 public class WebRect extends WebBaseLabel implements IRect
@@ -45,7 +40,6 @@ public class WebRect extends WebBaseLabel implements IRect
 	public WebRect(String id, IApplication application, RuntimeRectangle scriptable, int type)
 	{
 		super(application, scriptable, id);
-		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(null, TemplateGenerator.DEFAULT_LABEL_PADDING);
 		this.shapeType = type;
 		if (type != RectShape.BORDER_PANEL)
 		{
@@ -89,15 +83,5 @@ public class WebRect extends WebBaseLabel implements IRect
 	public int getFontSize()
 	{
 		return 0;
-	}
-
-	@Override
-	protected void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag)
-	{
-		if (shapeType == RectShape.BORDER_PANEL && border instanceof TitledBorder)
-		{
-			instrumentAndReplaceBody(markupStream, openTag, ""); //$NON-NLS-1$
-		}
-		else super.onComponentTagBody(markupStream, openTag);
 	}
 }

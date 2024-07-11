@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.MarkupContainer;
 import org.xhtmlrenderer.css.constants.CSSName;
 
 import com.servoy.j2db.ControllerUndoManager;
@@ -36,9 +35,7 @@ import com.servoy.j2db.IFormUIInternal;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.IDisplay;
-import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataui.IServoyAwareBean;
-import com.servoy.j2db.persistence.Bean;
 import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.GraphicalComponent;
@@ -48,7 +45,6 @@ import com.servoy.j2db.persistence.ISupportPrinting;
 import com.servoy.j2db.persistence.ISupportTabSeq;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Portal;
-import com.servoy.j2db.server.headlessclient.TabIndexHelper;
 import com.servoy.j2db.server.headlessclient.WebForm;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -57,16 +53,14 @@ import com.servoy.j2db.ui.IFormUI;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.util.IStyleRule;
 import com.servoy.j2db.util.IStyleSheet;
-import com.servoy.j2db.util.ISupplyFocusChildren;
 import com.servoy.j2db.util.OrientationApplier;
 import com.servoy.j2db.util.Pair;
-import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.TabSequenceHelper;
 import com.servoy.j2db.util.Utils;
 
 /**
  * The web implementation of the {@link IDataRendererFactory}
- * 
+ *
  * @author jcompagner
  */
 public class WebDataRendererFactory implements IDataRendererFactory<Component>
@@ -76,7 +70,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 	public static final int MAXIMUM_TAB_INDEXES_ON_TABLEVIEW = 500;
 
 	/**
-	 * 
+	 *
 	 */
 	public WebDataRendererFactory()
 	{
@@ -85,7 +79,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IDataRendererFactory#completeRenderers(com.servoy.j2db.IApplication, com.servoy.j2db.persistence.Form,
 	 * com.servoy.j2db.IScriptExecuter, java.util.Map, int, boolean, com.servoy.j2db.ControllerUndoManager)
 	 */
@@ -209,27 +203,11 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 						}
 						((IComponent)comp).setLocation(new Point((l.x /* +insets.left */), (l.y - start)));
 
-						if (form.getOnRecordEditStartMethodID() > 0 && comp instanceof IFieldComponent)
-						{
-							if (useAJAX && comp instanceof IDisplayData && ((IDisplayData)comp).getDataProviderID() != null &&
-								!ScopesUtils.isVariableScope(((IDisplayData)comp).getDataProviderID()))
-							{
-								StartEditOnFocusGainedEventBehavior.addNewBehaviour(comp);
-							}
-						}
 						// For some components, if anchoring is enabled, we need to add a wrapper <div> for anchoring to work:
 						// - some of the fields
 						// - buttons
 						// - beans
-						if (isAnchoringEnabled &&
-							(((obj instanceof Field) && WebAnchoringHelper.needsWrapperDivForAnchoring((Field)obj)) || (obj instanceof Bean) || ((obj instanceof GraphicalComponent) && ComponentFactory.isButton((GraphicalComponent)obj))))
-						{
-							panel.add(WebAnchoringHelper.getWrapperComponent(comp, obj, start, panel.getSize(), leftToRight, false));
-						}
-						else
-						{
-							panel.add(comp);
-						}
+						panel.add(comp);
 					}
 				}
 			}
@@ -301,7 +279,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IDataRendererFactory#getEmptyDataRenderer(java.lang.String, com.servoy.j2db.IApplication)
 	 */
 	public IDataRenderer getEmptyDataRenderer(String id, String name, IApplication application, boolean showSelection)
@@ -311,7 +289,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IDataRendererFactory#createPortalRenderer(com.servoy.j2db.IApplication, com.servoy.j2db.persistence.Portal,
 	 * com.servoy.j2db.persistence.Form, com.servoy.j2db.IScriptExecuter, boolean, com.servoy.j2db.ControllerUndoManager)
 	 */
@@ -323,14 +301,6 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 
 	public void extendTabSequence(List<Component> tabSequence, IFormUIInternal containerImpl)
 	{
-		WebForm wf = (WebForm)containerImpl;
-		ISupplyFocusChildren<Component> defaultNav = wf.getDefaultNavigator();
-		if (defaultNav != null)
-		{
-			Component[] fchilds = defaultNav.getFocusChildren();
-			for (Component element : fchilds)
-				tabSequence.add(element);
-		}
 	}
 
 	public void applyTabSequence(List<Component> tabSequence, IFormUIInternal containerImpl)
@@ -343,7 +313,6 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 	{
 		int localTabIndex = goodTabIndex;
 		wtp.setTabSequenceIndex(goodTabIndex >= 0 ? localTabIndex++ : ISupportWebTabSeq.SKIP);
-		TabIndexHelper.setUpTabIndexAttributeModifier((Component)wtp, ISupportWebTabSeq.SKIP);
 		IFormUI[] forms = wtp.getChildForms();
 		if (forms != null)
 		{
@@ -363,10 +332,8 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 	{
 		int localTabIndex = goodTabIndex;
 		List<Component> tabSeq = wf.getTabSeqComponents();
-		Iterator<Component> it = tabSeq.iterator();
-		while (it.hasNext())
+		for (Component oo : tabSeq)
 		{
-			Component oo = it.next();
 			if (oo instanceof IWebFormContainer)
 			{
 				localTabIndex = goDownContainer((IWebFormContainer)oo, goodTabIndex >= 0 ? localTabIndex : ISupportWebTabSeq.SKIP);
@@ -376,17 +343,12 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 				WebCellBasedView tableView = (WebCellBasedView)oo;
 				tableView.setTabSequenceIndex(goodTabIndex >= 0 ? localTabIndex : ISupportWebTabSeq.SKIP);
 				localTabIndex += MAXIMUM_TAB_INDEXES_ON_TABLEVIEW;
-				TabIndexHelper.setUpTabIndexAttributeModifier(oo, ISupportWebTabSeq.SKIP);
 			}
 			else
 			{
 				if (goodTabIndex >= 0)
 				{
 					localTabIndex = setMaxTabIndex(oo, localTabIndex);
-				}
-				else
-				{
-					TabIndexHelper.setUpTabIndexAttributeModifier(oo, ISupportWebTabSeq.SKIP);
 				}
 			}
 		}
@@ -395,10 +357,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 
 	private int setMaxTabIndex(Component comp, int newTabindex)
 	{
-		int oldTabIndex = TabIndexHelper.getTabIndex(comp);
-		int maxIndex = Math.max(newTabindex, oldTabIndex);
-		TabIndexHelper.setUpTabIndexAttributeModifier(comp, maxIndex);
-		return ++maxIndex;
+		return 0;
 	}
 
 	/**
@@ -449,7 +408,6 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 					WebCellBasedView tableView = (WebCellBasedView)comp;
 					tableView.setTabSequenceIndex(delta >= 0 ? counter : ISupportWebTabSeq.SKIP);
 					counter += MAXIMUM_TAB_INDEXES_ON_TABLEVIEW;
-					TabIndexHelper.setUpTabIndexAttributeModifier(comp, ISupportWebTabSeq.SKIP);
 				}
 				else
 				{
@@ -459,7 +417,6 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 					}
 					else
 					{
-						TabIndexHelper.setUpTabIndexAttributeModifier(comp, ISupportWebTabSeq.SKIP);
 					}
 				}
 			}
@@ -469,7 +426,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 				counter = getContainerGapIndex(counter, delta);
 			}
 
-			MarkupContainer parent = currentForm.getParent();
+			Component parent = currentForm.getParent();
 			while ((parent != null) && !(parent instanceof IWebFormContainer))
 				parent = parent.getParent();
 			if (parent != null)
@@ -480,7 +437,7 @@ public class WebDataRendererFactory implements IDataRendererFactory<Component>
 				}
 
 				currentTabPanel = (IWebFormContainer)parent;
-				MarkupContainer tabParent = ((Component)currentTabPanel).getParent();
+				Component tabParent = ((Component)currentTabPanel).getParent();
 				while ((tabParent != null) && !(tabParent instanceof WebForm))
 					tabParent = tabParent.getParent();
 				if (tabParent != null)

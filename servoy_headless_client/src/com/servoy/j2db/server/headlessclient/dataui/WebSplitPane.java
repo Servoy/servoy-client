@@ -31,16 +31,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.IRequestTarget;
-import org.apache.wicket.Page;
-import org.apache.wicket.RequestCycle;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.MarkupStream;
-import org.apache.wicket.markup.html.IHeaderResponse;
-import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
-import org.apache.wicket.model.Model;
 
 import com.servoy.j2db.BasicFormController;
 import com.servoy.j2db.FormController;
@@ -54,13 +44,8 @@ import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
-import com.servoy.j2db.persistence.TabPanel;
 import com.servoy.j2db.scripting.FormScope;
-import com.servoy.j2db.server.headlessclient.MainPage;
-import com.servoy.j2db.server.headlessclient.PageContributor;
 import com.servoy.j2db.server.headlessclient.WebForm;
-import com.servoy.j2db.server.headlessclient.yui.YUILoader;
-import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IFormLookupPanel;
 import com.servoy.j2db.ui.IFormUI;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
@@ -71,7 +56,6 @@ import com.servoy.j2db.ui.ISupportSimulateBounds;
 import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.RuntimeSplitPane;
-import com.servoy.j2db.util.IStyleSheet;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -79,8 +63,8 @@ import com.servoy.j2db.util.Utils;
  *
  * @author gboros
  */
-public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDisplayRelatedData, IProviderStylePropertyChanges, ISupportSecuritySettings,
-	ISupportWebBounds, ISupportWebTabSeq, ListSelectionListener, IWebFormContainer, ISupportSimulateBoundsProvider, IComponentToRequestAttacher
+public class WebSplitPane extends Component implements ISplitPane, IDisplayRelatedData, IProviderStylePropertyChanges, ISupportSecuritySettings,
+	ISupportWebBounds, ISupportWebTabSeq, ListSelectionListener, IWebFormContainer, ISupportSimulateBoundsProvider
 {
 	private final IApplication application;
 	private final int orient;
@@ -103,8 +87,8 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 
 	protected IRecordInternal parentData;
 	private final List<String> allRelationNames = new ArrayList<String>(2);
-	private final WebMarkupContainer splitter;
-	private final WebMarkupContainer[] splitComponents = new WebMarkupContainer[2];
+	private final Component splitter;
+	private final Component[] splitComponents = new Component[2];
 	private final WebTabHolder[] webTabs = new WebTabHolder[2];
 	private final boolean[] paneChanged = new boolean[] { false, false };
 
@@ -116,80 +100,22 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	private IScriptExecuter scriptExecutor;
 	private final RuntimeSplitPane scriptable;
 
-	private final AbstractServoyDefaultAjaxBehavior dividerUpdater = new AbstractServoyDefaultAjaxBehavior()
-	{
-		@Override
-		public void renderHead(IHeaderResponse response)
-		{
-			super.renderHead(response);
-			if (sizeChanged)
-			{
-				sizeChanged = false;
-				response.renderOnLoadJavascript("wicketAjaxGet('" + getCallbackUrl() + "&anchor=true')"); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-		}
-
-		@Override
-		protected void respond(AjaxRequestTarget target)
-		{
-			if (getComponent().getRequest().getParameter("location") != null) //$NON-NLS-1$
-			{
-				setDividerLocationInternal(Utils.getAsInteger(getComponent().getRequest().getParameter("location"))); //$NON-NLS-1$
-			}
-			if (getComponent().getRequest().getParameter("changed") != null && orient == TabPanel.SPLIT_HORIZONTAL) //$NON-NLS-1$
-			{
-				// rerender for tableview header
-				WebSplitPane.this.visitChildren(WebCellBasedView.class, new Component.IVisitor<WebCellBasedView>()
-				{
-					public Object component(WebCellBasedView component)
-					{
-						component.getStylePropertyChanges().setChanged();
-						return IVisitor.CONTINUE_TRAVERSAL_BUT_DONT_GO_DEEPER;
-					}
-				});
-			}
-			if (getComponent().getRequest().getParameter("anchor") != null) //$NON-NLS-1$
-			{
-				Page page = findPage();
-				if (page instanceof MainPage && ((MainPage)page).getController() != null)
-				{
-					if (Utils.getAsBoolean(((MainPage)page).getController().getApplication().getRuntimeProperties().get("enableAnchors"))) //$NON-NLS-1$
-					{
-						target.appendJavascript("layoutEntirePage();"); //$NON-NLS-1$
-					}
-				}
-
-				target.appendJavascript("Servoy.Resize.onWindowResize();"); //$NON-NLS-1$
-			}
-		}
-
-	};
-
 	public WebSplitPane(IApplication application, RuntimeSplitPane scriptable, String name, int orient)
 	{
 		super(name);
 		this.application = application;
 		this.orient = orient;
 
-		setOutputMarkupPlaceholderTag(true);
-		add(StyleAttributeModifierModel.INSTANCE);
-		add(TooltipAttributeModifier.INSTANCE);
-		add(dividerUpdater);
-
-		splitter = new WebMarkupContainer("splitter"); //$NON-NLS-1$
-		splitter.setOutputMarkupId(true);
-		splitComponents[0] = new WebMarkupContainer("websplit_left"); //$NON-NLS-1$
-		splitComponents[0].setOutputMarkupId(true);
-		splitComponents[1] = new WebMarkupContainer("websplit_right"); //$NON-NLS-1$
-		splitComponents[1].setOutputMarkupId(true);
-		splitComponents[0].add(new Label("webform", new Model<String>(""))); //$NON-NLS-1$ //$NON-NLS-2$
-		splitComponents[1].add(new Label("webform", new Model<String>(""))); //$NON-NLS-1$ //$NON-NLS-2$
+		splitter = new Component("splitter"); //$NON-NLS-1$
+		splitComponents[0] = new Component("websplit_left"); //$NON-NLS-1$
+		splitComponents[1] = new Component("websplit_right"); //$NON-NLS-1$
+		splitComponents[0].add(new Component("webform")); //$NON-NLS-1$
+		splitComponents[1].add(new Component("webform")); //$NON-NLS-1$
 
 		splitter.add(splitComponents[0]);
 		add(splitter);
 		add(splitComponents[1]);
 		this.scriptable = scriptable;
-		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(null, TemplateGenerator.DEFAULT_LABEL_PADDING);
 	}
 
 	public final RuntimeSplitPane getScriptObject()
@@ -197,85 +123,83 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		return scriptable;
 	}
 
+	@Override
 	public Color getBackground()
 	{
 		return background;
 	}
 
+	@Override
 	public Border getBorder()
 	{
 		return border;
 	}
 
+	@Override
 	public Font getFont()
 	{
 		return font;
 	}
 
+	@Override
 	public Color getForeground()
 	{
 		return foreground;
 	}
 
+	@Override
 	public Point getLocation()
 	{
 		return location;
 	}
 
+	@Override
 	public String getName()
 	{
 		return name;
 	}
 
+	@Override
 	public Dimension getSize()
 	{
 		return size;
 	}
 
+	@Override
 	public String getToolTipText()
 	{
 		return tooltip;
 	}
 
+	@Override
 	public boolean isOpaque()
 	{
 		return opaque;
 	}
 
+	@Override
 	public void setBackground(Color background)
 	{
 		this.background = background;
 	}
 
+	@Override
 	public void setBorder(Border border)
 	{
 		this.border = border;
 	}
 
+	@Override
 	public void setComponentEnabled(final boolean enabled)
 	{
 		if (accessible)
 		{
 			super.setEnabled(enabled);
-			visitChildren(IComponent.class, new IVisitor<Component>()
-			{
-				public Object component(Component component)
-				{
-					if (component instanceof IComponent)
-					{
-						((IComponent)component).setComponentEnabled(enabled);
-					}
-					else
-					{
-						component.setEnabled(enabled);
-					}
-					return CONTINUE_TRAVERSAL;
-				}
-			});
 			getStylePropertyChanges().setChanged();
 		}
 	}
 
+	@Override
 	public void setComponentVisible(boolean visible)
 	{
 		if (viewable)
@@ -284,35 +208,42 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		}
 	}
 
+	@Override
 	public void setCursor(Cursor cursor)
 	{
 	}
 
+	@Override
 	public void setFont(Font font)
 	{
 		this.font = font;
 	}
 
+	@Override
 	public void setForeground(Color foreground)
 	{
 		this.foreground = foreground;
 	}
 
+	@Override
 	public void setLocation(Point location)
 	{
 		this.location = location;
 	}
 
+	@Override
 	public void setName(String n)
 	{
 		name = n;
 	}
 
+	@Override
 	public void setOpaque(boolean opaque)
 	{
 		this.opaque = opaque;
 	}
 
+	@Override
 	public void setSize(Dimension size)
 	{
 		if (this.size != null)
@@ -328,6 +259,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		this.size = size;
 	}
 
+	@Override
 	public void setToolTipText(String tooltip)
 	{
 		this.tooltip = Utils.stringIsEmpty(tooltip) ? null : tooltip;
@@ -565,164 +497,6 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 		related.clear();
 	}
 
-	@Override
-	protected void onRender(MarkupStream markupStream)
-	{
-		super.onRender(markupStream);
-		getStylePropertyChanges().setRendered();
-	}
-
-	public StringBuilder getDividerLocationJSSetter(boolean forceLayoutIfAnchored)
-	{
-		String dim, pos;
-		if (orient == TabPanel.SPLIT_HORIZONTAL)
-		{
-			dim = "Width"; //$NON-NLS-1$
-			pos = "left"; //$NON-NLS-1$
-		}
-		else
-		{
-			dim = "Height"; //$NON-NLS-1$
-			pos = "top"; //$NON-NLS-1$
-		}
-
-		StringBuilder resizeScript = new StringBuilder("var dividerSize = ").append(dividerSize).append(";"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("var dividerLocation = ").append(dividerLocation).append(";"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("var newDividerLocation = dividerLocation;"); //$NON-NLS-1$
-		resizeScript.append("if(dividerLocation < 1) { newDividerLocation = (YAHOO.util.Dom.get('").append(getMarkupId()).append("').offset").append(dim) //$NON-NLS-1$//$NON-NLS-2$
-			.append(
-				"-")
-			.append(getDividerSize()).append(")*dividerLocation;}"); //$NON-NLS-1$
-		resizeScript.append("if(newDividerLocation < ").append(leftFormMinSize).append(") { newDividerLocation = ").append(leftFormMinSize).append(";};"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		resizeScript.append("if(dividerLocation != newDividerLocation) { wicketAjaxGet('").append(dividerUpdater.getCallbackUrl()).append( //$NON-NLS-1$
-			forceLayoutIfAnchored ? "&anchor=true" : "").append("&location=' + newDividerLocation);}"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		resizeScript.append("var splitter = YAHOO.util.Dom.get('").append(splitter.getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim.toLowerCase()).append("', newDividerLocation + dividerSize + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("var left = YAHOO.util.Dom.get('").append(splitComponents[0].getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("YAHOO.util.Dom.setStyle(left, '").append(dim.toLowerCase()).append("', newDividerLocation + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("var right = YAHOO.util.Dom.get('").append(splitComponents[1].getMarkupId()).append("');"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("YAHOO.util.Dom.setStyle(right, '").append(pos).append("', newDividerLocation + dividerSize + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$
-
-		return resizeScript;
-	}
-
-	public String getSplitScripting()
-	{
-		String dim, dim_o, pos;
-		if (orient == TabPanel.SPLIT_HORIZONTAL)
-		{
-			dim = "Width"; //$NON-NLS-1$
-			dim_o = "height"; //$NON-NLS-1$
-			pos = "left"; //$NON-NLS-1$
-		}
-		else
-		{
-			dim = "Height"; //$NON-NLS-1$
-			dim_o = "width"; //$NON-NLS-1$
-			pos = "top"; //$NON-NLS-1$
-		}
-
-		StringBuilder resizeScript = getDividerLocationJSSetter(false);
-		resizeScript.append("var resize = new YAHOO.util.Resize(splitter, { min").append(dim).append(": ").append(dividerSize + leftFormMinSize).append(", max") //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-			.append(dim).append(": splitter.offsetParent.offset").append(dim).append(" - ").append(rightFormMinSize).append(", ") //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-			.append(continuousLayout ? "" : "proxy: true, "); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("handles: ['").append(orient == TabPanel.SPLIT_HORIZONTAL ? "r" : "b").append("']});"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
-
-		String dividerBg = null;
-		if (!isOpaque())
-		{
-			dividerBg = IStyleSheet.COLOR_TRANSPARENT;
-		}
-		else if (background != null)
-		{
-			dividerBg = Integer.toHexString(background.getRGB());
-			dividerBg = "#" + dividerBg.substring(2, dividerBg.length()); //$NON-NLS-1$
-		}
-
-		dim = dim.toLowerCase();
-		resizeScript.append("var splitterDivs = splitter.getElementsByTagName('div');"); //$NON-NLS-1$
-		resizeScript.append(
-			"for(var x = 0; x < splitterDivs.length; x++) { if(splitterDivs[x].parentNode == splitter && splitterDivs[x].id.match('yui') != null) { ").append( //$NON-NLS-1$
-				"YAHOO.util.Dom.setStyle(splitterDivs[x], '") //$NON-NLS-1$
-			.append(dim).append("', '").append(dividerSize).append("px');") //$NON-NLS-1$//$NON-NLS-2$
-			.append(dividerBg != null ? "YAHOO.util.Dom.setStyle(splitterDivs[x], 'background-color', '" + dividerBg + "');" : "").append("break; } }; "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-
-		if (!continuousLayout)
-		{
-			resizeScript.append("YAHOO.util.Dom.setStyle(resize.getProxyEl(), '").append(dim_o).append("', '100%');"); //$NON-NLS-1$ //$NON-NLS-2$
-			resizeScript.append("resize.on('startResize', function(ev) {"); //$NON-NLS-1$
-			resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
-			resizeScript.append("YAHOO.util.Dom.setStyle(this.getProxyEl(), '").append(dim_o).append("', '100%');"); //$NON-NLS-1$ //$NON-NLS-2$
-			resizeScript.append("YAHOO.util.Dom.setStyle(this.getProxyEl(), 'border', 'none');"); //$NON-NLS-1$
-			resizeScript.append("YAHOO.util.Dom.setStyle(this.getProxyEl(), 'padding', 0);"); //$NON-NLS-1$
-			resizeScript.append(
-				"this.getProxyEl().innerHTML = '<div style = \"filter: alpha(opacity=50); opacity: 0.5; -moz-opacity: 0.5; position: absolute; left: 0; right: 0; top: 0; bottom: 0; border-") //$NON-NLS-1$
-				.append(orient == TabPanel.SPLIT_HORIZONTAL ? "right" : "bottom").append( //$NON-NLS-1$ //$NON-NLS-2$
-					":") //$NON-NLS-1$
-				.append(dividerSize).append("px solid ").append(dividerBg != null ? dividerBg : "#7D98B8").append("\"></div>';"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			resizeScript.append("});"); //$NON-NLS-1$
-
-		}
-
-		resizeScript.append("var dividerMoveTimer;"); //$NON-NLS-1$
-		resizeScript.append("resize.on('resize', function(ev) {"); //$NON-NLS-1$
-		resizeScript.append("var d = ev.").append(dim).append(";"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("var newLeftSize = parseInt(YAHOO.util.Dom.getStyle(splitter, '").append(dim).append("'), 10);"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("YAHOO.util.Dom.setStyle(left, '").append(dim).append("', (newLeftSize - ").append(dividerSize).append(") + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		resizeScript.append("YAHOO.util.Dom.setStyle(right, '").append(pos).append("', d + 'px');"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("clearTimeout(dividerMoveTimer);"); //$NON-NLS-1$
-		resizeScript.append("dividerMoveTimer = setTimeout(function() {wicketAjaxGet('").append(dividerUpdater.getCallbackUrl()).append("&anchor=true") //$NON-NLS-1$//$NON-NLS-2$
-			.append("&changed=true").append("&location=' + (newLeftSize - ").append(dividerSize).append("));}, 200);"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		resizeScript.append("});"); //$NON-NLS-1$
-
-		resizeScript.append("resize.on('endResize', function(ev) {"); //$NON-NLS-1$
-		resizeScript.append("var newLeftSize = parseInt(YAHOO.util.Dom.getStyle(splitter, '").append(dim).append("'), 10);"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("YAHOO.util.Dom.setStyle(splitter, '").append(dim_o).append("', '');"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("wicketAjaxGet('").append(dividerUpdater.getCallbackUrl()).append("&anchor=true").append("&changed=true") //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-			.append("&location=' + (newLeftSize - ").append(dividerSize).append("));"); //$NON-NLS-1$ //$NON-NLS-2$
-		resizeScript.append("});"); //$NON-NLS-1$
-
-		boolean useAnchors = Utils.getAsBoolean(application.getRuntimeProperties().get("enableAnchors")); //$NON-NLS-1$
-		if (useAnchors)
-		{
-			String splitId = getMarkupId();
-			resizeScript.append("\nif(typeof(splitPanes) != \"undefined\")\n").append("{\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			resizeScript.append("splitPanes['").append(splitId).append("'] = new Array();\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			resizeScript.append("splitPanes['").append(splitId).append("']['orient'] = '").append(orient == TabPanel.SPLIT_HORIZONTAL ? "h" : "v") //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
-				.append("';\n"); //$NON-NLS-1$
-			resizeScript.append("splitPanes['").append(splitId).append("']['resize'] = resize;\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			resizeScript.append("splitPanes['").append(splitId).append("']['splitter'] = splitter;\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			resizeScript.append("splitPanes['").append(splitId).append("']['left'] = left;\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			resizeScript.append("splitPanes['").append(splitId).append("']['right'] = right;\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			resizeScript.append("splitPanes['").append(splitId).append("']['currentSize'] = splitter.offsetParent.offset") //$NON-NLS-1$//$NON-NLS-2$
-				.append(orient == TabPanel.SPLIT_HORIZONTAL ? "Width" : "Height").append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			resizeScript.append("splitPanes['").append(splitId).append("']['resizeWeight'] = ").append(resizeWeight).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			resizeScript.append("splitPanes['").append(splitId).append("']['dividerSize'] = ").append(dividerSize).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			resizeScript.append("splitPanes['").append(splitId).append("']['leftMin'] = ").append(leftFormMinSize).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			resizeScript.append("splitPanes['").append(splitId).append("']['rightMin'] = ").append(rightFormMinSize).append(";\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			resizeScript.append("splitPanes['").append(splitId).append("']['callback'] = '").append(dividerUpdater.getCallbackUrl()).append("';\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			resizeScript.append("}\n"); //$NON-NLS-1$
-
-			// even the PageContributor may do the layout, it can happen that it is doing before
-			// we set the divider, as both the layout script & divider script are just added with wicket
-			// renderOnLoadJavascript, but we don't know the order they are added;
-			resizeScript.append("layoutEntirePage();\n"); //$NON-NLS-1$
-			resizeScript.append("Servoy.Resize.onWindowResize();\n"); //$NON-NLS-1$
-		}
-		return resizeScript.toString();
-	}
-
-	@Override
-	public void renderHead(HtmlHeaderContainer container)
-	{
-		super.renderHead(container);
-		IHeaderResponse headerResponse = container.getHeaderResponse();
-		YUILoader.renderResize(headerResponse);
-		headerResponse.renderOnLoadJavascript(getSplitScripting());
-	}
-
 	public int getAbsoluteFormLocationY()
 	{
 		WebDataRenderer parent = findParent(WebDataRenderer.class);
@@ -823,19 +597,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	{
 		if (locationPos < 0) return;
 		setDividerLocationInternal(locationPos);
-
-		IRequestTarget requestTarget = RequestCycle.get().getRequestTarget();
-		MainPage page = (MainPage)findPage();
-		if (requestTarget instanceof AjaxRequestTarget && page != null)
-		{
-			((PageContributor)page.getPageContributor()).addSplitPaneToUpdatedDivider(this);
-			if (page.getController() != null && Utils.getAsBoolean(page.getController().getApplication().getRuntimeProperties().get("enableAnchors"))) //$NON-NLS-1$
-			{
-				((AjaxRequestTarget)requestTarget).appendJavascript("layoutEntirePage();"); //$NON-NLS-1$
-			}
-			((AjaxRequestTarget)requestTarget).appendJavascript("Servoy.Resize.onWindowResize();"); //$NON-NLS-1$
-		}
-		else sizeChanged = true;
+		sizeChanged = true;
 	}
 
 	public double getDividerLocation()
@@ -979,7 +741,7 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 				if (!bNotifyVisibleForm) return false;
 			}
 
-			splitComponents[bLeftForm ? 0 : 1].replace(new Label("webform", new Model<String>("")));
+			splitComponents[bLeftForm ? 0 : 1].replace(new Component("webform"));
 			webTabs[bLeftForm ? 0 : 1] = null;
 			paneChanged[bLeftForm ? 0 : 1] = true;
 			return true;
@@ -1260,51 +1022,6 @@ public class WebSplitPane extends WebMarkupContainer implements ISplitPane, IDis
 	public void setHorizontalAlignment(int alignment)
 	{
 		// IGNORE
-	}
-
-	public boolean isParentContainerChanged()
-	{
-		final boolean[] isParentContainerChanged = { false };
-		visitParents(IProviderStylePropertyChanges.class, new IVisitor<Component>()
-		{
-			@Override
-			public Object component(Component component)
-			{
-				if (((IProviderStylePropertyChanges)component).getStylePropertyChanges().isChanged())
-				{
-					isParentContainerChanged[0] = true;
-					return IVisitor.STOP_TRAVERSAL;
-				}
-				return IVisitor.CONTINUE_TRAVERSAL;
-			}
-		});
-
-		return isParentContainerChanged[0];
-	}
-
-	public void attachComponents(AjaxRequestTarget target)
-	{
-		if (!((ChangesRecorder)scriptable.getChangesRecorder()).isChanged())
-		{
-			if (!isParentContainerChanged() && (paneChanged[0] || paneChanged[1]))
-			{
-				if (paneChanged[0] && paneChanged[1])
-				{
-					target.addComponent(WebSplitPane.this);
-				}
-				else if (paneChanged[0])
-				{
-					target.addComponent(splitComponents[0]);
-				}
-				else
-				{
-					target.addComponent(splitComponents[1]);
-				}
-				target.appendJavascript(getSplitScripting());
-			}
-		}
-		paneChanged[0] = false;
-		paneChanged[1] = false;
 	}
 
 	@Override

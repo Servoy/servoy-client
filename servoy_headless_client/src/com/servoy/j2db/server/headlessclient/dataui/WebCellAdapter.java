@@ -19,13 +19,7 @@ package com.servoy.j2db.server.headlessclient.dataui;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.apache.wicket.Component;
-import org.apache.wicket.MarkupContainer;
-import org.apache.wicket.markup.html.list.ListItem;
-
 import com.servoy.j2db.dataprocessing.IDataAdapter;
-import com.servoy.j2db.dataprocessing.IDisplayData;
-import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.persistence.Column;
@@ -35,16 +29,6 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
-import com.servoy.j2db.scripting.IScriptable;
-import com.servoy.j2db.scripting.IScriptableProvider;
-import com.servoy.j2db.server.headlessclient.MainPage;
-import com.servoy.j2db.server.headlessclient.WrapperContainer;
-import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView.CellContainer;
-import com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView.WebCellBasedViewListViewItem;
-import com.servoy.j2db.ui.IProviderStylePropertyChanges;
-import com.servoy.j2db.ui.ISupportOnRender;
-import com.servoy.j2db.ui.ISupportOnRenderCallback;
-import com.servoy.j2db.ui.scripting.AbstractRuntimeRendersupportComponent;
 
 /**
  * A {@link IDataAdapter} used in {@link WebCellBasedView} for there columns to handle valuechanged events to make sure that the right cells are set to changed.
@@ -95,76 +79,6 @@ public class WebCellAdapter implements IDataAdapter
 
 	public void valueChanged(ModificationEvent e)
 	{
-		MainPage mp = view.findParent(MainPage.class);
-		if (mp != null) mp.touch();
-
-		IRecord record = e.getRecord();
-		Iterator iterator = ((MarkupContainer)view.getTable()).iterator();
-		while (iterator.hasNext())
-		{
-			Object next = iterator.next();
-			if (next instanceof ListItem)
-			{
-				ListItem li = (ListItem)next;
-				Object modelObject = li.getModelObject();
-				if (record == null || modelObject == record)
-				{
-					boolean hasOnRender = false;
-					Iterator iterator2 = li.iterator();
-					while (iterator2.hasNext())
-					{
-						ArrayList<Object> cellDisplays = new ArrayList<Object>();
-						Object cell = iterator2.next();
-						cell = CellContainer.getContentsForCell((Component)cell);
-
-						if (cell instanceof WebCellBasedViewListViewItem)
-						{
-							Iterator listItemIte = ((WebCellBasedViewListViewItem)cell).iterator();
-							while (listItemIte.hasNext())
-							{
-								Object listItemDisplay = listItemIte.next();
-								if (listItemDisplay instanceof WrapperContainer)
-								{
-									listItemDisplay = ((WrapperContainer)listItemDisplay).getDelegate();
-								}
-								cellDisplays.add(listItemDisplay);
-							}
-						}
-						else
-						{
-							cellDisplays.add(cell);
-						}
-
-						for (Object cellDisplay : cellDisplays)
-						{
-							if (cellDisplay instanceof IProviderStylePropertyChanges && cellDisplay instanceof IDisplayData &&
-								((IDisplayData)cellDisplay).getDataProviderID() == dataprovider)
-							{
-								// only test if it is not already changed
-								view.checkForValueChanges(cellDisplay);
-
-								// do fire on render on all components for record change
-								if (cellDisplay instanceof ISupportOnRender && cellDisplay instanceof IScriptableProvider)
-								{
-									IScriptable so = ((IScriptableProvider)cellDisplay).getScriptObject();
-									if (so instanceof AbstractRuntimeRendersupportComponent &&
-										((ISupportOnRenderCallback)so).getRenderEventExecutor().hasRenderCallback())
-									{
-										String componentDataproviderID = ((AbstractRuntimeRendersupportComponent)so).getDataProviderID();
-										if (record != null || (e.getName() != null && e.getName().equals(componentDataproviderID)))
-										{
-											((ISupportOnRender)cellDisplay).fireOnRender(true);
-											hasOnRender = true;
-										}
-									}
-								}
-							}
-						}
-					}
-					if (record != null || (!hasOnRender && !canChangeValue(e))) break;
-				}
-			}
-		}
 	}
 
 
@@ -177,10 +91,8 @@ public class WebCellAdapter implements IDataAdapter
 			if (table instanceof Table)
 			{
 				Table tableObj = (Table)table;
-				Iterator<Column> columns = tableObj.getColumns().iterator();
-				while (columns.hasNext())
+				for (Column col : tableObj.getColumns())
 				{
-					Column col = columns.next();
 					ColumnInfo ci = col.getColumnInfo();
 					if (ci != null && ci.isExcluded())
 					{
@@ -213,15 +125,5 @@ public class WebCellAdapter implements IDataAdapter
 			}
 		}
 		return isDBDataproviderObj.booleanValue();
-	}
-
-	private boolean canChangeValue(ModificationEvent e)
-	{
-		IRecord record = e.getRecord();
-		if (record == null && isDBDataprovider()) // it is a change of a global or form variable, and the dataprovider is a db value
-		{
-			return false;
-		}
-		return true;
 	}
 }

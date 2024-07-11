@@ -33,7 +33,6 @@ import org.mozilla.javascript.RhinoException;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.IDebugWebClient;
 import com.servoy.j2db.IDesignerCallback;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IFormManagerInternal;
@@ -81,7 +80,6 @@ public class DebugHeadlessClient extends HeadlessClient implements IDebugHeadles
 		protected void makeSolutionSettings(Solution s)
 		{
 			IApplication app = getApplication();
-			if (app instanceof IDebugWebClient) ((IDebugWebClient)app).onSolutionOpen();
 			super.makeSolutionSettings(s);
 		}
 

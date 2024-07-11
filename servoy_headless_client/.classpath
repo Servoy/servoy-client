@@ -7,10 +7,6 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="/servoy_shared/lib/wiquery.jar" sourcepath="/servoy_shared/libsrc/wiquery-sources.jar"/>
-	<classpathentry kind="lib" path="/servoy_shared/lib/wicket-extentions.jar" sourcepath="/servoy_shared/libsrc/wicket-extentions-src.jar"/>
-	<classpathentry kind="lib" path="/servoy_shared/lib/wicket-calendar.jar" sourcepath="/servoy_shared/libsrc/wicket-calendar-src.jar"/>
 	<classpathentry kind="lib" path="/servoy_shared/lib/fs-parser.jar" sourcepath="/servoy_shared/libsrc/flyingsaucer-src.zip"/>
-	<classpathentry kind="lib" path="/servoy_shared/lib/minis.jar" sourcepath="/servoy_shared/libsrc/minis-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

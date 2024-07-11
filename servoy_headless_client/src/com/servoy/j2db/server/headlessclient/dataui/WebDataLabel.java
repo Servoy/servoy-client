@@ -16,30 +16,17 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
-import java.text.ParseException;
-
 import javax.swing.text.Document;
-
-import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.MarkupStream;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.util.convert.IConverter;
 
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
-import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDisplayTagText;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeRendersupportComponent;
 import com.servoy.j2db.ui.scripting.IFormatScriptComponent;
-import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.HtmlUtils;
-import com.servoy.j2db.util.Text;
-import com.servoy.j2db.util.Utils;
-import com.servoy.j2db.util.text.ServoyMaskFormatter;
 
 /**
 * Represents a label in the browser that displays data (has a dataprovider)
@@ -86,127 +73,6 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 		return null;
 	}
 
-	/**
-	 * @see org.apache.wicket.Component#onBeforeRender()
-	 */
-	@Override
-	protected void onBeforeRender()
-	{
-		super.onBeforeRender();
-
-		IModel< ? > model = getInnermostModel();
-		hasHTML = false;
-		if (needEntireState && model instanceof RecordItemModel)
-		{
-			if (dataProviderID != null)
-			{
-				Object val = getDefaultModelObject();
-				if (val instanceof byte[])
-				{
-					setIcon((byte[])val);
-				}
-				else if (icon != null)
-				{
-					setIcon(null);
-				}
-				else
-				{
-					ComponentFormat cf = getComponentFormat();
-					if (cf == null)
-					{
-						bodyText = Text.processTags((String)val, resolver);
-					}
-					else
-					{
-						try
-						{
-							bodyText = Text.processTags(
-								TagResolver.formatObject(val, application.getLocale(), cf.parsedFormat,
-									(cf.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null)),
-								resolver);
-						}
-						catch (ParseException e)
-						{
-							Debug.error(e);
-						}
-					}
-				}
-			}
-			else
-			{
-				bodyText = Text.processTags(tagText, resolver);
-			}
-			if (bodyText != null)
-			{
-				if (HtmlUtils.startsWithHtml(bodyText))
-				{
-					bodyText = StripHTMLTagsConverter.convertBodyText(this, bodyText, getScriptObject().trustDataAsHtml(),
-						application.getFlattenedSolution()).getBodyTxt();
-					hasHTML = true;
-				}
-				else
-				{
-					// convert the text (strip html if needed)
-					final IConverter converter = getConverter(String.class);
-					bodyText = converter.convertToString(bodyText, getLocale());
-				}
-			}
-		}
-		else
-		{
-			Object modelObject = getDefaultModelObject();
-			if (modelObject instanceof byte[])
-			{
-				setIcon((byte[])modelObject);
-			}
-			else if (icon != null)
-			{
-				setIcon(null);
-			}
-			else
-			{
-				ComponentFormat cf = getComponentFormat();
-				if (cf == null)
-				{
-					bodyText = Text.processTags(getDefaultModelObjectAsString(), resolver);
-				}
-				else
-				{
-					try
-					{
-						bodyText = TagResolver.formatObject(modelObject, application.getLocale(), cf.parsedFormat,
-							(cf.parsedFormat.getDisplayFormat() != null ? new ServoyMaskFormatter(cf.parsedFormat.getDisplayFormat(), true) : null));
-					}
-					catch (ParseException e)
-					{
-						Debug.error(e);
-					}
-				}
-				if (HtmlUtils.startsWithHtml(modelObject))
-				{
-					// ignore script/header contributions for now
-					bodyText = StripHTMLTagsConverter.convertBodyText(this, bodyText, getScriptObject().trustDataAsHtml(),
-						application.getFlattenedSolution()).getBodyTxt();
-					hasHTML = true;
-				}
-			}
-		}
-
-		if (model instanceof RecordItemModel)
-		{
-			((RecordItemModel)model).updateRenderedValue(this);
-		}
-	}
-
-	/**
-	 * @see com.servoy.j2db.server.headlessclient.dataui.WebBaseSubmitLink#onComponentTagBody(wicket.markup.MarkupStream, wicket.markup.ComponentTag)
-	 */
-	@Override
-	protected void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag)
-	{
-		instrumentAndReplaceBody(markupStream, openTag, bodyText);
-	}
-
 	/*
 	 * (non-Javadoc)
 	 *
@@ -215,7 +81,7 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 	@Override
 	protected boolean hasHtmlOrImage()
 	{
-		return hasHTML || super.hasHtmlOrImage() || getDefaultModelObject() instanceof byte[];
+		return hasHTML || super.hasHtmlOrImage() || getValueObject() instanceof byte[];
 	}
 
 	/*
@@ -242,34 +108,7 @@ public class WebDataLabel extends WebBaseLabel implements IDisplayData, IDisplay
 	 */
 	public void setValueObject(Object obj)
 	{
-		if (dataProviderID == null && needEntireState)
-		{
-			CharSequence current = Text.processTags(tagText, resolver);
-			// test for the page else this field is not yet attached to a page yet and must be rerendered anyway.
-			if (current != null && findPage() != null)
-			{
-				if (HtmlUtils.startsWithHtml(current))
-				{
-					current = StripHTMLTagsConverter.convertBodyText(this, current, getScriptObject().trustDataAsHtml(),
-						application.getFlattenedSolution()).getBodyTxt();
-				}
-				else
-				{
-					// convert the text (strip html if needed)
-					final IConverter converter = getConverter(String.class);
-					current = converter.convertToString(current, getLocale());
-				}
-			}
-			if (bodyText != null && current != null)
-			{
-				if (!Utils.equalObjects(bodyText.toString(), current.toString())) getScriptObject().getChangesRecorder().setChanged();
-			}
-			else if (current != null || bodyText != null) getScriptObject().getChangesRecorder().setChanged();
-		}
-		else
-		{
-			((ChangesRecorder)getScriptObject().getChangesRecorder()).testChanged(this, obj);
-		}
+		value = obj;
 	}
 
 	/**

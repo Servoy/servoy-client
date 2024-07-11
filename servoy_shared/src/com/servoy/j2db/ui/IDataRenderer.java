@@ -24,16 +24,15 @@ import java.util.List;
 import com.servoy.j2db.dataprocessing.DataAdapterList;
 import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
-import com.servoy.j2db.dnd.IFormDataDragNDrop;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.util.IDestroyable;
 
 /**
  * Form data renderer interface (normally runtime equivalent of a design part)
- * 
+ *
  * @author jblok
  */
-public interface IDataRenderer extends IContainer, IFormDataDragNDrop, IDestroyable, ISupportOnRenderWrapper
+public interface IDataRenderer extends IContainer, IDestroyable, ISupportOnRenderWrapper
 {
 	public void notifyVisible(boolean b, List<Runnable> invokeLaterRunnables);
 
