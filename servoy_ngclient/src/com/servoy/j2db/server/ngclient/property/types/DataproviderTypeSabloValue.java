@@ -38,6 +38,7 @@ import org.json.JSONException;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
+import org.sablo.IllegalChangeFromClientException;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.property.IBrowserConverterContext;
@@ -627,6 +628,30 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 	}
 
+	private void checkIfModifiable()
+	{
+		Collection<PropertyDescription> properties = webObjectContext.getProperties(TypesRegistry.getType(ModifiablePropertyType.TYPE_NAME));
+
+		for (PropertyDescription modifiable : properties)
+		{
+			// see whether format if "for" this property (dataprovider)
+			Object config = modifiable.getConfig();
+			if (dpPD.getName().equals(config))
+			{
+				// it is for our property
+				Object property = webObjectContext.getProperty(modifiable.getName());
+				if (property == null)
+				{
+					throw new IllegalChangeFromClientException(modifiable.getName(),
+						"Property '" + dpPD.getName() + "' is blocked because of the modifiable property '" + modifiable.getName() +
+							"' that blocks it because it has no value",
+						webObjectContext.getUnderlyingWebObject().getName(), dpPD.getName());
+				}
+			}
+		}
+		return;
+	}
+
 	private void computeShouldResolveValuelistConfig()
 	{
 		shouldResolveFromValuelistWithName = null;
@@ -792,6 +817,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 
 	public void browserUpdateReceived(Object newJSONValue, IBrowserConverterContext dataConverterContext)
 	{
+		checkIfModifiable();
 		Object oldUIValue = uiValue;
 
 		ValueReference<Boolean> serverSideValueIsNotTheSameAsClient = new ValueReference<>(Boolean.FALSE);
