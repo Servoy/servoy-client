@@ -630,6 +630,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 
 	private void checkIfModifiable()
 	{
+		if (webObjectContext == null) return;
 		Collection<PropertyDescription> properties = webObjectContext.getProperties(TypesRegistry.getType(ModifiablePropertyType.TYPE_NAME));
 
 		for (PropertyDescription modifiable : properties)
