@@ -77,12 +77,13 @@ public class WebDataTextArea extends Component implements IFieldComponent, IDisp
 
 	private final IApplication application;
 
-	private AbstractRuntimeField<IFieldComponent> scriptable;
+	private final AbstractRuntimeField<IFieldComponent> scriptable;
 
 	public WebDataTextArea(final IApplication application, final AbstractRuntimeField<IFieldComponent> scriptable, String id)
 	{
 		super(id);
 		this.application = application;
+		this.scriptable = scriptable;
 
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		eventExecutor = new WebEventExecutor(this, useAJAX);
