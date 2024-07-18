@@ -127,10 +127,10 @@ public class HTMLTagsConverter
 							// DEPRECATED
 							// media:///servoy_blobloader?... URLs are no longer translated automatically in order to improve solution sec.
 
-							// if this is still needed in solutions, the solution needs to call on purpose application.createUrlBlobloaderBuilder(...) and use
+							// if this is still needed in solutions, the solution needs to call on purpose clientutils.createUrlBlobloaderBuilder(...) and use
 							// that in order to get an usable encrypted URL that the client can be given
 
-							// for example if it is already encrypted with application.createUrlBlobloaderBuilder(...), it will be something like
+							// for example if it is already encrypted with clientutils.createUrlBlobloaderBuilder(...), it will be something like
 							//    "resources/servoy_blobloader?blob=hBCfMyaV-.._CC&clientnr=2"
 							//     so notice that even the "media:///" prefix is missing - so it will not even enter the if (replaceContent.startsWith(mediaPrefix)) above
 							// and if it was not encrypted (deprecated usage) it will be something like
@@ -142,7 +142,7 @@ public class HTMLTagsConverter
 							changed = true;
 							log.warn(
 								"Automatic blobloader URL encryption was deprecated and will no longer work!" +
-									" Please use application.createUrlBlobloaderBuilder(...) in your solution in order to get the" +
+									" Please use clientutils.createUrlBlobloaderBuilder(...) in your solution in order to get the" +
 									" encrypted blobloader URLs that you need, instead of manually assembling the blobloader URL args" +
 									" and waiting for them to be automatically encrypted afterwards. Solution '" +
 									(context != null && context.getSolution() != null ? context.getSolution().getName() : "?") +

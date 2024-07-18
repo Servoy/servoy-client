@@ -39,6 +39,19 @@ import com.servoy.j2db.util.Utils;
 public final class CSSPositionUtils
 {
 
+	public static void setLocation(ISupportBounds persist, Point location)
+	{
+		if (persist instanceof BaseComponent)
+		{
+			AbstractContainer container = getParentContainer(persist);
+			setLocationEx((BaseComponent)persist, (BaseComponent)persist, location.x, location.y, container.getSize());
+		}
+		else
+		{
+			persist.setLocation(location);
+		}
+	}
+
 	public static void setLocation(ISupportBounds persist, int x, int y)
 	{
 		if (persist instanceof BaseComponent)
@@ -121,6 +134,19 @@ public final class CSSPositionUtils
 			{
 				persist.setProperty(StaticContentSpecLoader.PROPERTY_LOCATION.getPropertyName(), p);
 			}
+		}
+	}
+
+	public static void setSize(ISupportBounds persist, Dimension size)
+	{
+		if (persist instanceof BaseComponent)
+		{
+			AbstractContainer container = getParentContainer(persist);
+			setSizeEx((BaseComponent)persist, (BaseComponent)persist, size.width, size.height, container.getSize());
+		}
+		else
+		{
+			persist.setSize(size);
 		}
 	}
 
@@ -225,9 +251,13 @@ public final class CSSPositionUtils
 			// not set, we should calculate it then
 			int right = percentageToPixels(position.right, parentSize.width);
 			int width = percentageToPixels(position.width, parentSize.width);
-			if (width >= 0)
+			if (right >= 0 && width >= 0)
 			{
 				left = parentSize.width - right - width;
+			}
+			else
+			{
+				left = 0;
 			}
 		}
 		if (top == -1)
@@ -235,9 +265,13 @@ public final class CSSPositionUtils
 			// not set, we should calculate it then
 			int height = percentageToPixels(position.height, parentSize.height);
 			int bottom = percentageToPixels(position.bottom, parentSize.height);
-			if (height >= 0)
+			if (height >= 0 && bottom >= 0)
 			{
 				top = parentSize.height - height - bottom;
+			}
+			else
+			{
+				top = 0;
 			}
 		}
 		return new Point(left, top);
@@ -277,7 +311,7 @@ public final class CSSPositionUtils
 		return new Dimension(width, height);
 	}
 
-	public static CSSPosition adjustCSSPosition(ISupportCSSPosition baseComponent, int x, int y, int width, int height)
+	public static CSSPosition adjustCSSPosition(ISupportCSSPosition baseComponent, int x, int y, int width, int height, boolean move)
 	{
 		CSSPosition position = baseComponent.getCssPosition();
 		CSSPosition adjustedPosition = (position == null) ? new CSSPosition("0", "-1", "-1", "0", "0", "0")
@@ -299,7 +333,7 @@ public final class CSSPositionUtils
 			int oldLeft = percentageToPixels(position.left, containerSize.width);
 			int oldWidth = containerSize.width - percentageToPixels(position.right, containerSize.width) -
 				oldLeft;
-			if (oldWidth != width)
+			if (oldWidth != width && !move)
 			{
 				// a resize
 				if (oldLeft != x)
@@ -318,9 +352,13 @@ public final class CSSPositionUtils
 			else
 			{
 				// a move
-				adjustedPosition.right = pixelsToPercentage(
-					percentageToPixels(position.right, containerSize.width) + percentageToPixels(position.left, containerSize.width) - x, containerSize.width,
-					position.right);
+				if (CSSPositionUtils.isSet(position.right))
+				{
+					adjustedPosition.right = pixelsToPercentage(
+						percentageToPixels(position.right, containerSize.width) + percentageToPixels(position.left, containerSize.width) - x,
+						containerSize.width,
+						position.right);
+				}
 				adjustedPosition.left = pixelsToPercentage(x, containerSize.width, position.left);
 			}
 		}
@@ -340,7 +378,7 @@ public final class CSSPositionUtils
 			int oldTop = percentageToPixels(position.top, containerSize.height);
 			int oldHeight = containerSize.height - percentageToPixels(position.bottom, containerSize.height) -
 				oldTop;
-			if (oldHeight != height)
+			if (oldHeight != height && !move)
 			{
 				// a resize
 				if (oldTop != y)
@@ -358,10 +396,13 @@ public final class CSSPositionUtils
 			}
 			else
 			{
-				adjustedPosition.bottom = pixelsToPercentage(
-					percentageToPixels(position.bottom, containerSize.height) + percentageToPixels(position.top, containerSize.height) - y,
-					containerSize.height,
-					position.bottom);
+				if (CSSPositionUtils.isSet(position.bottom))
+				{
+					adjustedPosition.bottom = pixelsToPercentage(
+						percentageToPixels(position.bottom, containerSize.height) + percentageToPixels(position.top, containerSize.height) - y,
+						containerSize.height,
+						position.bottom);
+				}
 				adjustedPosition.top = pixelsToPercentage(y, containerSize.height, position.top);
 			}
 		}
@@ -403,7 +444,7 @@ public final class CSSPositionUtils
 		int pixels = 0;
 		if (value.endsWith("%"))
 		{
-			pixels = Utils.getAsInteger(value.substring(0, value.length() - 1)) * size / 100;
+			pixels = (int)Math.round((double)Utils.getAsInteger(value.substring(0, value.length() - 1)) * size / 100);
 		}
 		else
 		{
@@ -506,7 +547,7 @@ public final class CSSPositionUtils
 		}
 		else if (oldValue.endsWith("%"))
 		{
-			return String.valueOf(100 * value / size) + "%";
+			return String.valueOf(Math.round((double)100 * value / size)) + "%";
 		}
 		return String.valueOf(value);
 	}

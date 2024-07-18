@@ -1345,6 +1345,16 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
             var compare = compareVersions(electronVersion[1], minElectronVersion);
             return compare >= 0; // true if electronVersion >= minElectronVersion (24.4.0)
         }
+		function getAbsoluteUrl(url) {
+			if (isRelativeUrl(url)) {
+				return new URL(url, $window.document.baseURI).href;
+			}
+			return url;
+		}
+		function isRelativeUrl(url) {
+			// Absolute URLs start with a protocol or are protocol-relative (start with //)
+			return !(/^(?:[a-z]+:)?\/\//i.test(url));
+		}
 	return {
 		setStyleSheets: function(paths) {
 			$solutionSettings.styleSheetPaths = paths;
@@ -1390,9 +1400,20 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				setIcon(properties[$clientPropertyConstants.WINDOW_BRANDING_ICON_192], "192x192");
 			}
 		},
-		showMessage: function(message) {
-			$window.alert(message);
-		},
+        showMessage: function(message) {
+            const origin = $window.location.origin;
+            const title = origin.substring(origin.indexOf('://') + 3);
+            var modalInstance = $uibModal.open({
+                templateUrl: 'templates/alert.html',
+                controller: function ($scope, $uibModalInstance) {
+                    $scope.title = title;
+                    $scope.message = message;
+                    $scope.dismiss = function () {
+                        $uibModalInstance.close();
+                    };
+                }
+            });
+        },
 		showUrl:function(url,target,targetOptions,timeout){
 			if(!target) target ='_blank';
 			if(!timeout) timeout = 0;	    	 
@@ -1415,13 +1436,21 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 				else  if (target === '_self' && targetOptions === 'no-history=true') {
 			        $window.location.replace(url)
 			    } else {
-			        if (isNgdesktopWithTargetSupport($window.navigator.userAgent)) {
+			        if (target === '_self' && isNgdesktopWithTargetSupport($window.navigator.userAgent)) {
                             var r = $window['require'];
                             var ipcRenderer = r('electron').ipcRenderer;
-                            ipcRenderer.send('open-url-with-target', url, target, targetOptions);
-                        } else {
-                            $window.open(url, target, targetOptions);
-                        }
+                            ipcRenderer.send('open-url-with-target', getAbsoluteUrl(url));
+                    }else if (target === '_blank' && !targetOptions && url.indexOf($window.location.hostname) >= 0) {
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.target = '_blank';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    }
+                    else {
+                        $window.open(url, target, targetOptions);
+                    }
 			    }
 			}, timeout*1000)
 		},

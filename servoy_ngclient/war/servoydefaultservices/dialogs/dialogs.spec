@@ -7,10 +7,7 @@
        "packageName": "@servoy/dialogs",
        "moduleName": "DialogModule",
        "serviceName": "DialogService",
-       "entryPoint": "projects/dialogs",
-       "dependencies": {
-            "csslibrary" : ["~@angular/material/prebuilt-themes/indigo-pink.css"]
-        }
+       "entryPoint": "projects/dialogs"
     },
 	"libraries": 
 	[

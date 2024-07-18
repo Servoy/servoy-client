@@ -84,7 +84,7 @@ import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue;
-import com.servoy.j2db.server.ngclient.property.INGWebObjectContext;
+import com.servoy.j2db.server.ngclient.property.NGComponentDALContext;
 import com.servoy.j2db.server.ngclient.property.ValueListConfig;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.server.ngclient.utils.NGUtils;
@@ -209,7 +209,10 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	{
 		this.changeMonitor = changeNotifier;
 		this.webObjectContext = webObjectCntxt;
-		if (webObjectCntxt instanceof INGWebObjectContext) this.dataAdapterList = ((INGWebObjectContext)webObjectCntxt).getDataAdapterList();
+
+		IDataAdapterList newDal = NGComponentDALContext.getDataAdapterList(webObjectContext);
+		if (newDal != null) this.dataAdapterList = newDal; // it will probably never be null
+
 		computeShouldResolveValuelistConfig();
 		if (webObjectCntxt != null) computeFormatPropertiesForThisDP();
 		// register data link and find mode listeners as needed
@@ -903,7 +906,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		{
 			v = ComponentFormat.applyUIConverterToObject(v, dataProviderID, servoyDataConverterContext.getApplication().getFoundSetManager(), fieldFormat);
 		}
-		if (v != uiValue && (v == null || !v.equals(uiValue)))
+		if (v != uiValue && (v == null || !Utils.equalObjects(v, uiValue)))
 		{
 			uiValue = v;
 			// if we detect that the new server value (it's representation on client) is no longer what the client has showing, we must update the client's value

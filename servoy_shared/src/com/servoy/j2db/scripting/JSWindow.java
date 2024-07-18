@@ -22,6 +22,7 @@ import java.awt.Rectangle;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
+import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.BasicFormController.JSForm;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IFormController;
@@ -47,7 +48,7 @@ public class JSWindow implements IConstantsObject
 	 */
 	public final static int DIALOG = 0;
 
-	/**c
+	/**
 	 * Window type constant that identifies a modal dialog type. Modal dialogs will not allow the user to interact with the parent window(s) until closed.
 	 * Dialogs will stay on top of parent windows and are less accessible through the OS window manager. In web-client dialogs will not
 	 * open in a separate browser window. NOTE: no code is executed in Smart Client after a modal dialog is shown (the show operation blocks) until this dialog closes.
@@ -67,6 +68,7 @@ public class JSWindow implements IConstantsObject
 	 * var myWindow = application.createWindow("myName", JSWindow.WINDOW);
 	 * myWindow.show(forms.myForm);
 	 */
+	@ServoyClientSupport(ng = false, wc = true, sc = true)
 	public final static int WINDOW = 2;
 
 	// For future implementation of case 286968
@@ -448,8 +450,10 @@ public class JSWindow implements IConstantsObject
 	}
 
 	/**
-	 * Frees the resources allocated by this window. If window is visible, it will close it first.
+	 * Frees the resources allocated by this window. If window is visible, it will close it first by calling hide()
+	 * and if that fails because it couldn't be hidden it will return false.
 	 * The window will no longer be available with application.getWindow('windowName') and will no longer be usable.
+	 *
 	 *
 	 * The main application window cannot be destroyed.
 	 *
@@ -463,9 +467,14 @@ public class JSWindow implements IConstantsObject
 	 * 	application.output("Window could not be destroyed");
 	 * }
 	 */
-	public void js_destroy()
+	public boolean js_destroy()
 	{
+		if (impl.isVisible() && !impl.hide())
+		{
+			return false;
+		}
 		impl.destroy();
+		return true;
 	}
 
 	/**

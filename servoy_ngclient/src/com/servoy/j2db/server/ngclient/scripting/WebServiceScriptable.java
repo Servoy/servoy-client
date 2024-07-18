@@ -41,6 +41,7 @@ import org.sablo.BaseWebObject;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.IFunctionParameters;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IPropertyType;
@@ -248,7 +249,15 @@ public class WebServiceScriptable implements Scriptable
 					array[i] = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(arrayOfSabloJavaMethodArgs[i],
 						(argumentPDs != null && argumentPDs.getDefinedArgsCount() > i) ? argumentPDs.getParameterDefinition(i) : null, serviceWebObject, this);
 				}
-				Object retValue = ((Function)object).call(context, scopeObject, scopeObject, array);
+				Object retValue = null;
+				try
+				{
+					retValue = ((Function)object).call(context, scopeObject, scopeObject, array);
+				}
+				catch (Exception ex)
+				{
+					application.handleException(null, ex);
+				}
 
 				PropertyDescription retValuePD = (functionSpec != null ? functionSpec.getReturnType() : null);
 				return NGConversions.INSTANCE.convertRhinoToSabloComponentValue(retValue, null, retValuePD, serviceWebObject);
@@ -275,7 +284,7 @@ public class WebServiceScriptable implements Scriptable
 	@Override
 	public Object get(String name, Scriptable start)
 	{
-		WebObjectFunctionDefinition apiFunction = serviceSpecification.getApiFunction(name);
+		WebObjectApiFunctionDefinition apiFunction = serviceSpecification.getApiFunction(name);
 		if (apiFunction == null)
 		{
 			apiFunction = serviceSpecification.getInternalApiFunction(name);

@@ -165,12 +165,6 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 	 */
 	public IFoundSet getFoundSet(String dataSource) throws ServoyException;
 
-	/**
-	 * Get a new foundset for the query.
-	 * @since 6.1
-	 */
-	public IFoundSet getFoundSet(IQueryBuilder query) throws ServoyException;
-
 
 	/**
 	 * Performs a sql query with a query builder object.
@@ -187,19 +181,6 @@ public interface IDatabaseManager extends ISaveConstants, ITableAndRelationProvi
 	 */
 	public IDataSet getDataSetByQuery(IQueryBuilder query, int max_returned_rows) throws ServoyException;
 
-	/**
-	 * Performs a sql query with a query builder object.
-	 * Will throw an exception if anything did go wrong when executing the query.
-	 *
-	 * @param query IQueryBuilder query.
-	 * @param useTableFilters use table filters (default true).
-	 * @param max_returned_rows The maximum number of rows returned by the query.
-	 *
-	 * @return The IDataSet containing the results of the query.
-	 *
-	 * @since 8.0
-	 */
-	public IDataSet getDataSetByQuery(IQueryBuilder query, boolean useTableFilters, int max_returned_rows) throws ServoyException;
 
 	/**
 	 * Gets the list of records that couldn't be saved.

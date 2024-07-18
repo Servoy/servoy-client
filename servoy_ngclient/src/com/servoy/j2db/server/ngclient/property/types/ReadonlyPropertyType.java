@@ -45,7 +45,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
  */
 public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue>
 	implements IConvertedPropertyType<ReadonlySabloValue>, IFormElementDefaultValueToSabloComponent<JSONObject, ReadonlySabloValue>,
-	ISabloComponentToRhino<ReadonlySabloValue>, IRhinoToSabloComponent<ReadonlySabloValue>, IFormElementToTemplateJSON<String, ReadonlySabloValue>
+	ISabloComponentToRhino<ReadonlySabloValue>, IRhinoToSabloComponent<ReadonlySabloValue>, IFormElementToTemplateJSON<Object, ReadonlySabloValue>
 {
 
 	public static final ReadonlyPropertyType INSTANCE = new ReadonlyPropertyType();
@@ -104,7 +104,7 @@ public class ReadonlyPropertyType extends DefaultPropertyType<ReadonlySabloValue
 	}
 
 	@Override
-	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, String formElementValue, PropertyDescription pd, FormElementContext formElementContext)
+	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd, FormElementContext formElementContext)
 		throws JSONException
 	{
 		// TODO this only works properly if opposite of prop. is inside the same nesting level (so if OppositeOf for example is a root property of the component and this property is nested in a custom object); this is unlikely but in order to fix that we'd need to receive as param a INGFormElement instead

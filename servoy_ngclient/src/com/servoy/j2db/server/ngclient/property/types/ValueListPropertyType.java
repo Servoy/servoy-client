@@ -105,6 +105,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		int max = Integer.MAX_VALUE;
 		boolean logMax = true;
 		boolean lazyLoading = false;
+		String configPropertyName = null;
 		if (json != null)
 		{
 			dataprovider = json.optString("for");
@@ -123,8 +124,9 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 					Debug.log(e);
 				}
 			}
+			configPropertyName = json.optString("config", null);
 		}
-		return new ValueListConfig(dataprovider, def, max, logMax, lazyLoading);
+		return new ValueListConfig(dataprovider, def, max, logMax, lazyLoading, configPropertyName);
 	}
 
 	@Override
@@ -235,7 +237,8 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 			}
 		}
 
-		return new ValuelistPropertyDependencies(dataproviderPropertyName, foundsetPropertyName, formatPropertyName, dataproviderResolveValuelist);
+		return new ValuelistPropertyDependencies(dataproviderPropertyName, foundsetPropertyName, formatPropertyName, dataproviderResolveValuelist,
+			config.getConfigPropertyName());
 	}
 
 	@Override
@@ -280,7 +283,7 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		int type = -1;
 		IValueList list = previousComponentValue.getValueList();
 
-		if (list.getName().equals(value))
+		if (list != null && list.getName() != null && list.getName().equals(value))
 		{
 			// no need to create a new value if we have the same valuelist name
 			return previousComponentValue;
@@ -485,14 +488,16 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 		public final String foundsetPropertyName;
 		public final String formatPropertyName;
 		public final boolean dataproviderResolveValuelist;
+		public final String configPropertyName;
 
 		public ValuelistPropertyDependencies(String dataproviderPropertyName, String foundsetPropertyName, String formatPropertyName,
-			boolean dataproviderResolveValuelist)
+			boolean dataproviderResolveValuelist, String configPropertyName)
 		{
 			this.dataproviderPropertyName = dataproviderPropertyName;
 			this.foundsetPropertyName = foundsetPropertyName;
 			this.formatPropertyName = formatPropertyName;
 			this.dataproviderResolveValuelist = dataproviderResolveValuelist;
+			this.configPropertyName = configPropertyName;
 		}
 	}
 

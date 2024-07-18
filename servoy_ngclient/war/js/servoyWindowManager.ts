@@ -14,8 +14,9 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 			link: function( scope, element, attrs ) {
 				var firstTimeFocus = true;
 				scope['lastElementFocused'] = function( e ) {
+					var firstTabIndex = parseInt( element.find( '#tabStart' ).attr( 'tabindex' ) );
 					var lastTabIndex = parseInt( element.find( '#tabStop' ).attr( 'tabindex' ) );
-					for(var i = 2; i < lastTabIndex; i++) {
+					for(var i = firstTabIndex + 1; i < lastTabIndex; i++) {
 						var newTarget = $( '[tabindex=' + i +']' );
 						// if there is no focusable element in the window, then newTarget == e.target,
 						// do a check here to avoid focus cycling
@@ -42,7 +43,7 @@ angular.module( 'servoyWindowManager', ['sabloApp'] )	// TODO Refactor so that w
 							}
 						}
 					} else {
-						for(var i = lastTabIndex - 1; i > 1; i--) {
+						for(var i = lastTabIndex - 1; i > firstTabIndex; i--) {
 							var newTarget = $( '[tabindex=' + i + ']' );
 							// if there is no focusable element in the window, then newTarget == e.target,
 							// do a check here to avoid focus cycling

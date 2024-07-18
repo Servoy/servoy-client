@@ -67,7 +67,7 @@ public class FormTemplateGenerator
 
 	public FormTemplateGenerator(IServoyDataConverterContext context, boolean useControllerProvider, boolean design)
 	{
-		cfg = new Configuration();
+		cfg = new Configuration(Configuration.VERSION_2_3_32);
 
 		cfg.setTemplateLoader(new ClassTemplateLoader(getClass(), "templates"));
 		cfg.setObjectWrapper(new FormTemplateObjectWrapper(context, useControllerProvider, design));

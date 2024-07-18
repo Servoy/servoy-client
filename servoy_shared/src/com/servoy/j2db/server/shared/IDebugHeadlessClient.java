@@ -18,6 +18,7 @@ package com.servoy.j2db.server.shared;
 
 import com.servoy.j2db.IDebugClient;
 import com.servoy.j2db.ISessionClient;
+import com.servoy.j2db.persistence.RepositoryException;
 
 /**
  * Session client extended with debug features
@@ -26,5 +27,5 @@ import com.servoy.j2db.ISessionClient;
  */
 public interface IDebugHeadlessClient extends ISessionClient, IDebugClient
 {
-
+	public void loadDebugSolution() throws RepositoryException;
 }

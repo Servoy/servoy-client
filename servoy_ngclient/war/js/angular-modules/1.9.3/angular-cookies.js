@@ -1,5 +1,5 @@
 /**
- * @license XLTS for AngularJS v1.9.0
+ * @license XLTS for AngularJS v1.9.3
  * (c) 2022 XLTS.dev All Rights Reserved. https://xlts.dev/angularjs
  * License: Obtain a commercial license from XLTS.dev before using this software.
  */
@@ -22,7 +22,7 @@
 
 
 angular.module('ngCookies', ['ng']).
-  info({ angularVersion: '1.9.0' }).
+  info({ angularVersion: '1.9.3' }).
   /**
    * @ngdoc provider
    * @name $cookiesProvider

@@ -221,7 +221,7 @@ public class FlattenedForm extends Form implements IFlattenedPersistWrapper<Form
 						}
 					}
 				}
-				if (ip instanceof ISupportExtendsID && PersistHelper.isOverrideElement((ISupportExtendsID)ip) && !existingIDs.contains(extendsID))
+				if (PersistHelper.isOverrideElement(ip) && !existingIDs.contains(extendsID))
 				{
 					existingIDs.add(extendsID);
 				}

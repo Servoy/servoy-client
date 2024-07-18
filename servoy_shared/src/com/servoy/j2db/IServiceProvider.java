@@ -33,6 +33,7 @@ import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.server.shared.IApplicationServer;
+import com.servoy.j2db.util.ServoyException;
 
 /**
  * Interface for minimal service provider.
@@ -49,11 +50,6 @@ public interface IServiceProvider extends IEventDelegator, I18NProvider
 
 	public static final String RT_OPEN_METHOD_RESULT = "openMethodResult";
 
-	public static final String RT_JSDATASET_FUNCTIONS = "JSDataSetFunctions";
-	public static final String RT_JSFOUNDSET_FUNCTIONS = "JSFoundSetFunctions";
-	public static final String RT_JSRECORD_FUNCTIONS = "JSRecordFunctions";
-	public static final String RT_JSVIEWRECORD_FUNCTIONS = "JSViewRecordFunctions";
-
 	/**
 	 * Get the repository interface.
 	 *
@@ -65,6 +61,15 @@ public interface IServiceProvider extends IEventDelegator, I18NProvider
 	 * Is the repository accessible?
 	 */
 	public boolean haveRepositoryAccess();
+
+	public default void checkAuthorized() throws ServoyException
+	{
+		if (!haveRepositoryAccess())
+		{
+			// no access to repository yet, have to log in first
+			throw new ServoyException(ServoyException.CLIENT_NOT_AUTHORIZED);
+		}
+	}
 
 	/**
 	 * Get the application server interface.

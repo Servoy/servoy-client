@@ -2,7 +2,7 @@
 @import 'servoy_theme_properties.less?version=2023.3.0_ng2';
 
 /* 12 Grid margin reset */
-div:not(.container):not(.container-fluid):not([class^="col-xs-"]):not([class^="col-sm-"]):not([class^="col-md-"]):not([class^="col-lg-"]) > .row {
+div:not(.container):not(.container-fluid):not([class^="col-xs-"]):not([class^="col-sm-"]):not([class^="col-md-"]):not([class^="col-lg-"]):not([class^="col-1"]):not([class^="col-2"]):not([class^="col-3"]):not([class^="col-4"]):not([class^="col-5"]):not([class^="col-6"]):not([class^="col-7"]):not([class^="col-8"]):not([class^="col-9"]):not([class^="col-10"]):not([class^="col-11"]):not([class^="col-12"]):not([class*=" col-xs-"]):not([class*=" col-sm-"]):not([class*=" col-md-"]):not([class*=" col-lg-"]):not([class*=" col-1"]):not([class*=" col-2"]):not([class*=" col-3"]):not([class*=" col-4"]):not([class*=" col-5"]):not([class*=" col-6"]):not([class*=" col-7"]):not([class*=" col-8"]):not([class*=" col-9"]):not([class*=" col-10"]):not([class*=" col-11"]):not([class*=" col-12"]) > .row {
     margin-right: 0;
     margin-left: 0;
 }
@@ -227,16 +227,21 @@ html, body {
 }
 
 /* Navbar input group */
-.input-group-btn:last-child > .btn  {
-    border-style: @border-style;
+.input-group-btn .btn {
+	border-style: @border-style;
     border-color: @border-color;
     border-width: @field-border-width;
-    border-radius: @field-border-radius;
     color: @field-color;
     font-size: @field-font-size;
-    border-left: 0;
+    border-radius: 0;
+}
+.input-group-btn .btn:not(:first-child) {
+	border-left: 0;
+}
+.input-group-btn .btn:last-child {
+    border-radius: @field-border-radius;
     border-top-left-radius: 0;
-    border-bottom-left-radius: 0;   
+    border-bottom-left-radius: 0;
 }
 
 /* Calendar add-on */
@@ -329,6 +334,12 @@ html, body {
 .bts-calendar:focus, .bts-calendar:focus ~ .input-group-addon,
 .bts-calendar input:focus, .bts-calendar input:focus ~ .input-group-addon {
     border-color: @main-color;
+}
+
+.bts-check:focus-within {
+    border-color: @main-color;
+    border-width: 1px;
+    border-style: solid;
 }
 
 .form-control[disabled], 
@@ -602,6 +613,11 @@ fieldset[disabled] input[type="checkbox"] + span:before {
     color: @main-color-inverse;
 }
 
+.tempus-dominus-widget.dark .date-container-days div:not(.no-highlight).active,
+.tempus-dominus-widget.light .date-container-days div:not(.no-highlight).active {
+	background-color: @main-color;
+}
+
 /* Combobox */
 .bts-combobox .ui-select-toggle,
 .svy-combobox .ui-select-toggle {
@@ -827,19 +843,19 @@ Can we make them look similar ?  */
 }
 
 /* TabPanel */
-.svy-tabpanel.nav-tabs,
-.bts-tabpanel.nav-tabs {
+.svy-tabpanel > .nav-tabs,
+.bts-tabpanel > .nav-tabs {
     border: 0;
     background-color: @tab-bg;
 }
 
-.svy-tabpanel.nav-tabs > li,
-.bts-tabpanel.nav-tabs > li {
+.svy-tabpanel > .nav-tabs > li,
+.bts-tabpanel > .nav-tabs > li {
     margin-bottom: 0;
 }
 
-.svy-tabpanel.nav-tabs > li > a,
-.bts-tabpanel.nav-tabs > li > a {
+.svy-tabpanel > .nav-tabs > li > a,
+.bts-tabpanel > .nav-tabs > li > a {
     background-color: @tab-bg;
     color: @tab-text-color;
     text-transform: @tab-text-transform;
@@ -850,12 +866,12 @@ Can we make them look similar ?  */
     border-radius: @tab-border-radius;
 }
 
-.svy-tabpanel.nav-tabs > li > .nav-link.active, 
-.svy-tabpanel.nav-tabs > li > .nav-link.active:hover, 
-.svy-tabpanel.nav-tabs > li > .nav-link.active:focus,
-.bts-tabpanel.nav-tabs > li > .nav-link.active, 
-.bts-tabpanel.nav-tabs > li > .nav-link.active:hover, 
-.bts-tabpanel.nav-tabs > li > .nav-link.active:focus {
+.svy-tabpanel > .nav-tabs > li > .nav-link.active, 
+.svy-tabpanel > .nav-tabs > li > .nav-link.active:hover, 
+.svy-tabpanel > .nav-tabs > li > .nav-link.active:focus,
+.bts-tabpanel > .nav-tabs > li > .nav-link.active, 
+.bts-tabpanel > .nav-tabs > li > .nav-link.active:hover, 
+.bts-tabpanel > .nav-tabs > li > .nav-link.active:focus {
     /* border: @tab-border;
     border-radius: @tab-border-radius; */
     background-color: @tab-active-bg;
@@ -866,14 +882,14 @@ Can we make them look similar ?  */
 }
 
 /* Tab Tertiary */
-.svy-tabpanel.bg-tertiary.nav-tabs,
-.bts-tabpanel.bg-tertiary.nav-tabs {
+.svy-tabpanel.bg-tertiary > .nav-tabs,
+.bts-tabpanel.bg-tertiary > .nav-tabs {
     background-color: @brand-tertiary;
     background-color: @brand-tertiary-inverse;
 }
 
-.svy-tabpanel.bg-tertiary.nav-tabs > li > a,
-.bts-tabpanel.bg-tertiary.nav-tabs > li > a {
+.svy-tabpanel.bg-tertiary > .nav-tabs > li > a,
+.bts-tabpanel.bg-tertiary > .nav-tabs > li > a {
     background-color: @brand-tertiary;
     background-color: @brand-tertiary-inverse;
 }
@@ -3398,7 +3414,7 @@ fieldset[disabled] .btn-outline-default:focus, .btn-outline-default.disabled.foc
 .svy-calendar.form-invalid, .svy-calendar.form-invalid ~ .input-group-addon, 
 .bts-calendar.form-invalid, .bts-calendar.form-invalid ~ .input-group-addon, 
 .bts-calendar input.form-invalid, .bts-calendar input.form-invalid ~ .input-group-addon {
-    border: @field-border-width @border-style @brand-danger;
+    border: 1px solid @brand-danger;
     outline-color: @brand-danger;
 }
 
@@ -3412,7 +3428,7 @@ fieldset[disabled] .btn-outline-default:focus, .btn-outline-default.disabled.foc
 .svy-calendar.ng-invalid, .svy-calendar.ng-invalid ~ .input-group-addon, 
 .bts-calendar.form-invalid, .bts-calendar.form-invalid ~ .input-group-addon,
 .bts-calendar.ng-invalid input, .bts-calendar.ng-invalid input ~ .input-group-addon {
-    border: @field-border-width @border-style @brand-danger;
+    border: 1px solid @brand-danger;
     outline-color: @brand-danger;
 }
 
@@ -3420,14 +3436,14 @@ fieldset[disabled] .btn-outline-default:focus, .btn-outline-default.disabled.foc
 .svy-calendar-container.form-invalid input.svy-calendar ~ .input-group-text,
 .bts-calendar-container.form-invalid input.bts-calendar ~ .input-group-text,
 .bts-calendar.form-invalid input ~ .input-group-text {
-    border: @field-border-width @border-style @brand-danger;
+    border: 1px solid @brand-danger;
     outline-color: @brand-danger;
 }
 
 .svy-calendar-container.ng-invalid input.svy-calendar ~ .input-group-text,
 .bts-calendar-container.form-invalid input.bts-calendar ~ .input-group-text,
 .bts-calendar.ng-invalid input ~ .input-group-text {
-    border: @field-border-width @border-style @brand-danger;
+    border: 1px solid @brand-danger;
     outline-color: @brand-danger;
 }
 

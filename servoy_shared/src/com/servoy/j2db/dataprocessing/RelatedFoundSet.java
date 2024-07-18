@@ -17,12 +17,14 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
+import static java.util.Arrays.stream;
+
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -114,14 +116,12 @@ public abstract class RelatedFoundSet extends FoundSet
 
 		//fix the select from related_SQL to relatedPK_SQL
 		ArrayList<IQuerySelectValue> pkColumns = new ArrayList<IQuerySelectValue>();
-		Iterator<Column> pkIt = sheet.getTable().getRowIdentColumns().iterator();
-		while (pkIt.hasNext())
+		for (Column column : sheet.getTable().getRowIdentColumns())
 		{
-			Column column = pkIt.next();
 			pkColumns.add(column.queryColumn(select.getTable()));
 		}
 		select.setColumns(pkColumns);
-		creationSqlSelect = AbstractBaseQuery.deepClone(select);
+		creationSqlSelect = deepClone(select);
 
 		if (aggregateData != null)
 		{
@@ -175,6 +175,10 @@ public abstract class RelatedFoundSet extends FoundSet
 
 		QuerySelect cleanSelect = fsm.getSQLGenerator().getPKSelectSqlSelect(fsm.getScopesScopeProvider(), sheet.getTable(), null, null, true, null,
 			sortColumns, false);
+		if (fsm.config.setRelationNameComment())
+		{
+			cleanSelect.setComment("relation " + relation.getName());
+		}
 
 		QuerySelect relationSelect = (QuerySelect)sheet.getRelatedSQLDescription(relation.getName()).getSQLQuery();
 		//don't select all columns in pk select
@@ -211,7 +215,7 @@ public abstract class RelatedFoundSet extends FoundSet
 			}
 			else
 			{
-				sqlSelect = AbstractBaseQuery.deepClone(cleanSelect);
+				sqlSelect = deepClone(cleanSelect);
 			}
 
 			if (!sqlSelect.setPlaceholderValue(placeHolderKey, whereArgs))
@@ -251,7 +255,7 @@ public abstract class RelatedFoundSet extends FoundSet
 			}
 			else
 			{
-				ISQLSelect selectStatement = AbstractBaseQuery.deepClone((ISQLSelect)sqlSelect);
+				ISQLSelect selectStatement = deepClone((ISQLSelect)sqlSelect);
 				// Note: put a clone of sqlSelect in the queryDatas list, we will compress later over multiple queries using pack().
 				// Clone is needed because packed queries may not be save to manipulate.
 				SQLStatement trackingInfo = null;
@@ -266,11 +270,16 @@ public abstract class RelatedFoundSet extends FoundSet
 						trackingInfo));
 				queryIndex.add(Integer.valueOf(i));
 
-				QuerySelect aggregateSelect = FoundSet.getAggregateSelect(sheet, sqlSelect);
+				QuerySelect aggregateSelect = getAggregateSelect(sheet, sqlSelect);
 				if (aggregateSelect != null)
 				{
+					if (fsm.config.setRelationNameComment())
+					{
+						aggregateSelect.setComment("aggregate relation " + relation.getName());
+					}
+
 					// Note: see note about clone above.
-					queryDatas.add(new QueryData(AbstractBaseQuery.deepClone((ISQLSelect)aggregateSelect),
+					queryDatas.add(new QueryData(deepClone(aggregateSelect),
 						fsm.getTableFilterParams(sheet.getServerName(), aggregateSelect), false, 0, 1, IDataServer.AGGREGATE_QUERY, null));
 					queryIndex.add(Integer.valueOf(i)); // same index for aggregates
 					aggregateSelects[i] = aggregateSelect;
@@ -834,7 +843,12 @@ public abstract class RelatedFoundSet extends FoundSet
 			return (maskedOperator == IBaseSQLCondition.EQUALS_OPERATOR || maskedOperator == IBaseSQLCondition.GTE_OPERATOR ||
 				maskedOperator == IBaseSQLCondition.LTE_OPERATOR || maskedOperator == IBaseSQLCondition.LIKE_OPERATOR);
 		}
-
+		boolean isArray = whereArg instanceof Object[];
+		final Object finalObj = obj;
+		if (isArray && stream((Object[])whereArg).anyMatch(element -> Utils.equalObjects(element, finalObj, true)))
+		{
+			return (maskedOperator == IBaseSQLCondition.EQUALS_OPERATOR);
+		}
 		if ((operator & IBaseSQLCondition.ORNULL_MODIFIER) != 0 && Utils.equalObjects(obj, null))
 		{
 			return true;

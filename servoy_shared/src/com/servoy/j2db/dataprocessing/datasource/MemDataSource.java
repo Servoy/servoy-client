@@ -81,6 +81,7 @@ public class MemDataSource extends DefaultJavaScope
 			// maybe added later; initialize in mem table
 			try
 			{
+				application.checkAuthorized();
 				application.getFoundSetManager().getTable(DataSourceUtils.createInmemDataSource(dsname));
 			}
 			catch (Exception ex)

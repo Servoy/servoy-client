@@ -16,18 +16,25 @@
  */
 package com.servoy.j2db.persistence;
 
+import com.servoy.j2db.IApplication;
+import com.servoy.j2db.dataprocessing.IDataSet;
+import com.servoy.j2db.dataprocessing.IFoundSet;
+import com.servoy.j2db.query.QuerySelect;
+import com.servoy.j2db.querybuilder.IQueryBuilder;
+import com.servoy.j2db.util.ServoyException;
+
 /**
  * Table and relation lookup.
- * 
+ *
  * @author rgansevles
- * 
+ *
  * @since 6.1
  */
 public interface ITableAndRelationProvider
 {
 	/**
 	 * Get a table object interface for a datasource
-	 * 
+	 *
 	 * @param dataSource the datasource
 	 * @return the table interface
 	 */
@@ -46,4 +53,34 @@ public interface ITableAndRelationProvider
 	 * @param tableSQLName
 	 */
 	public String resolveDataSource(String serverDataSource, String tableSQLName);
+
+	/**
+	 * Get the QuerySet for a QuerySelect select.
+	 *
+	 * @param select the QuerySelect
+	 * @param includeFilters include table filters option
+	 */
+	public QuerySet getQuerySet(QuerySelect select, boolean includeFilters) throws RepositoryException;
+
+	public IApplication getApplication();
+
+	/**
+	 * Get a new foundset for the query.
+	 * @since 6.1
+	 */
+	public IFoundSet getFoundSet(IQueryBuilder query) throws ServoyException;
+
+	/**
+	 * Performs a sql query with a query builder object.
+	 * Will throw an exception if anything did go wrong when executing the query.
+	 *
+	 * @param query IQueryBuilder query.
+	 * @param useTableFilters use table filters (default true).
+	 * @param max_returned_rows The maximum number of rows returned by the query.
+	 *
+	 * @return The IDataSet containing the results of the query.
+	 *
+	 * @since 8.0
+	 */
+	public IDataSet getDataSetByQuery(IQueryBuilder query, boolean useTableFilters, int max_returned_rows) throws ServoyException;
 }

@@ -103,6 +103,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	 *
 	 * @return the value of the jsdoc text (comment) of the script variable
 	 */
+	@Override
 	public String getComment()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_COMMENT);
@@ -111,6 +112,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	/**
 	 * @param arg the jsdoc text value for the script variable
 	 */
+	@Override
 	public void setComment(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_COMMENT, arg);
@@ -322,7 +324,7 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 
 	public int getFlags()
 	{
-		return IBaseColumn.NORMAL_COLUMN;
+		return ScriptVariable.getFlags(getComment());
 	}
 
 	//the repository element id can differ!
@@ -367,6 +369,26 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 		return (Date)wrapper.unwrap();
 	}
 
+	public static int getFlags(String comment)
+	{
+		if (comment != null)
+		{
+			int index = comment.indexOf("*/");
+			if (index != -1)
+			{
+				int typeIndex = comment.lastIndexOf("@type", index);
+				if (typeIndex != -1)
+				{
+					if (comment.substring(typeIndex, comment.indexOf('\n', typeIndex)).indexOf("{UUID}") != -1)
+					{
+						return IBaseColumn.NORMAL_COLUMN | IBaseColumn.UUID_COLUMN;
+					}
+				}
+			}
+		}
+		return IBaseColumn.NORMAL_COLUMN;
+	}
+
 	/**
 	 * @return
 	 */
@@ -401,5 +423,15 @@ public class ScriptVariable extends AbstractBase implements IVariable, IDataProv
 	public boolean isEnum()
 	{
 		return getComment() != null && getComment().indexOf("@enum") != -1;
+	}
+
+	public String getKeyword()
+	{
+		return (String)getCustomProperty(new String[] { "keyword" });
+	}
+
+	public void setKeyword(String keyword)
+	{
+		putCustomProperty(new String[] { "keyword" }, keyword);
 	}
 }

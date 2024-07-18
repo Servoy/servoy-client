@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient.scripting;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -25,10 +26,13 @@ import org.mozilla.javascript.IdScriptableObject;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.annotations.JSFunction;
+import org.sablo.Container;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.FoundSetManager;
+import com.servoy.j2db.dataprocessing.IFoundSetInternal;
+import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.ViewFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -37,6 +41,7 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
+import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
@@ -44,6 +49,7 @@ import com.servoy.j2db.server.ngclient.MediaResourcesServlet;
 import com.servoy.j2db.server.ngclient.NGClientWindow;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.component.RhinoMapOrArrayWrapper;
+import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
@@ -76,12 +82,21 @@ public class ServoyApiObject
 	 */
 	public ViewFoundSet getViewFoundSet(String name, QBSelect query) throws ServoyException
 	{
-		if (!app.haveRepositoryAccess())
-		{
-			// no access to repository yet, have to log in first
-			throw new ServoyException(ServoyException.CLIENT_NOT_AUTHORIZED);
-		}
+		app.checkAuthorized();
 		return app.getFoundSetManager().getViewFoundSet(name, query, false);
+	}
+
+	@JSFunction
+	/**
+	 * Creates a foundset.
+	 * @param query query builder used to get the data for the foundset
+	 * @return the foundset
+	 * @throws ServoyException
+	 */
+	public FoundSet getFoundSet(QBSelect query) throws ServoyException
+	{
+		app.checkAuthorized();
+		return (FoundSet)app.getFoundSetManager().getFoundSet(query);
 	}
 
 	/**
@@ -93,11 +108,7 @@ public class ServoyApiObject
 	@JSFunction
 	public QBSelect getQuerySelect(String dataSource) throws ServoyException, RepositoryException
 	{
-		if (!app.haveRepositoryAccess())
-		{
-			// no access to repository yet, have to log in first
-			throw new ServoyException(ServoyException.CLIENT_NOT_AUTHORIZED);
-		}
+		app.checkAuthorized();
 		return (QBSelect)app.getFoundSetManager().getQueryFactory().createSelect(dataSource);
 	}
 
@@ -131,7 +142,14 @@ public class ServoyApiObject
 			boolean ret = formController.notifyVisible(false, invokeLaterRunnables, true);
 			if (ret)
 			{
-				formController.setParentFormController(null);
+				component.updateVisibleForm(formController.getFormUI(), false, 0);
+				Container parent = component.getParent();
+				while (parent != null && !(parent instanceof IWebFormUI))
+				{
+					parent = parent.getParent();
+				}
+				if (parent instanceof IWebFormUI parentUI)
+					parentUI.getDataAdapterList().removeVisibleChildForm(formController, true);
 			}
 			Utils.invokeAndWait(app, invokeLaterRunnables);
 			return ret;
@@ -144,7 +162,7 @@ public class ServoyApiObject
 	 * for showing the form through the browser's component.
 	 *
 	 * @sample
-	 * servoyApi.showForm(formToHideName)
+	 * servoyApi.showForm(formToShowName)
 	 *
 	 * @param nameOrUUID the form to show
 	 * @return true if the form was marked as visible
@@ -160,7 +178,7 @@ public class ServoyApiObject
 	 * for showing the form through the browser's component.
 	 *
 	 * @sample
-	 * servoyApi.showForm(formToHideName)
+	 * servoyApi.showForm(formToShowName)
 	 *
 	 * @param nameOrUUID the form to show
 	 * @param relationName the parent container
@@ -179,7 +197,7 @@ public class ServoyApiObject
 				formName = form.getName();
 			}
 		}
-		IWebFormController formController = app.getFormManager().getForm(formName);
+		IWebFormController formController = app.getFormManager().getForm(formName, this.component);
 		IWebFormController parentFormController = null;
 		if (this.component != null)
 		{
@@ -193,6 +211,37 @@ public class ServoyApiObject
 			{
 				if (parentFormController != null)
 				{
+					IFoundSetInternal parentFs = parentFormController.getFormModel();
+					IRecordInternal selectedRecord = parentFs.getRecord(parentFs.getSelectedIndex());
+					if (selectedRecord != null)
+					{
+						try
+						{
+							formController.loadRecords(selectedRecord.getRelatedFoundSet(relationName));
+						}
+						catch (RuntimeException re)
+						{
+							throw new RuntimeException("Can't load records on form " + formController.getName() + ", of parent record: " +
+								selectedRecord + " with relation " + relationName + " for parent form  " + parentFormController + " and bean " +
+								component, re);
+						}
+					}
+					else
+					{
+						// no selected record, then use prototype so we can get global relations
+						try
+						{
+							formController.loadRecords(parentFs.getPrototypeState().getRelatedFoundSet(relationName));
+						}
+						catch (RuntimeException re)
+						{
+							throw new RuntimeException("Can't load records on form " + formController.getName() + ", of parent record: " +
+								selectedRecord + " with relation " + relationName + " for parent form  " + parentFormController + " and bean " +
+								component, re);
+						}
+
+					}
+
 					parentFormController.getFormUI().getDataAdapterList().addVisibleChildForm(formController, relationName, true);
 					if (component != null)
 					{
@@ -323,11 +372,7 @@ public class ServoyApiObject
 	@JSFunction
 	public String[] getDatasourcePKs(String datasource) throws ServoyException
 	{
-		if (!app.haveRepositoryAccess())
-		{
-			// no access to repository yet, have to log in first
-			throw new ServoyException(ServoyException.CLIENT_NOT_AUTHORIZED);
-		}
+		app.checkAuthorized();
 		List<String> listOfPrimaryKeyNames = new ArrayList<String>();
 		ITable table = app.getFoundSetManager().getTable(datasource);
 		if (table != null)
@@ -374,6 +419,17 @@ public class ServoyApiObject
 	}
 
 	/**
+	 * Creates an empty JSDataSet
+	 *
+	 * @return an empty JSDataSet
+	 */
+	@JSFunction
+	public JSDataSet createEmptyDataSet()
+	{
+		return new JSDataSet(app);
+	}
+
+	/**
 	 * Add a filter parameter that is permanent per user session to limit a specified foundset of records.
 	 * This is similar as calling foundset.js_addFoundSetFilterParam, but the main difference is that this
 	 * works also on related foundsets.
@@ -388,5 +444,24 @@ public class ServoyApiObject
 	public boolean addFoundSetFilterParam(FoundSet foundset, QBSelect query, String filterName)
 	{
 		return foundset.addFoundSetFilterParam(query, filterName);
+	}
+
+	/**
+	 * This will create a JSEvent filled with component information.
+	 *
+	 * @sample
+	 * var event = servoyApi.createJSEvent();
+	 *
+	 * @return the jsevent
+	 */
+	@JSFunction
+	public JSEvent createJSEvent()
+	{
+		JSEvent event = new JSEvent();
+		event.setTimestamp(new Date());
+		event.setSource(new RuntimeWebComponent(this.component, this.component.getSpecification()));
+		event.setFormName(this.component.findParent(IWebFormUI.class).getController().getName());
+		event.setElementName(this.component.getFormElement().getRawName());
+		return event;
 	}
 }

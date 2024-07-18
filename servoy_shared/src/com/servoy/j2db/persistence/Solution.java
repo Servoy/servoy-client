@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -50,6 +51,9 @@ import com.servoy.j2db.util.Utils;
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.SOLUTIONS)
 public class Solution extends AbstractRootObject implements ISupportChilds, ICloneable, ISupportUpdateableName, IMediaProvider, Comparable<Solution>
 {
+	private static final String[] AUTHENTICATOR_CUSTOM_PROPERTY_PATH = new String[] { "authenticator" }; //$NON-NLS-1$
+	private static final String AUTHENTICATOR_TYPE_PROPERTY = "type"; //$NON-NLS-1$
+
 	// iterating & changing this map's contents will happen in synchronize blocks (the easier way would
 	// be using the ConcurrentHashMap as before, but a bug in Terracotta does not allow ConcurrentHashMaps to be serialized/deserialized); when the bug is solved
 	// sync blocks can be reverted to using ConcurrentHashMap. See http://jira.terracotta.org/jira/browse/CDV-1377
@@ -72,6 +76,45 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	public final static int TEXT_ORIENTATION_LEFT_TO_RIGHT = 1;
 	public final static int TEXT_ORIENTATION_RIGHT_TO_LEFT = 2;
 	public final static int TEXT_ORIENTATION_LOCALE_SPECIFIC = 3;
+
+	public enum AUTHENTICATOR_TYPE
+	{
+		NONE(0),
+		DEFAULT(1),
+		SERVOY_CLOUD(2),
+		AUTHENTICATOR(3);
+
+		private final int value;
+
+		AUTHENTICATOR_TYPE(int value)
+		{
+			this.value = value;
+		}
+
+		/**
+		 * @return the value
+		 */
+		public int getValue()
+		{
+			return value;
+		}
+
+		public static AUTHENTICATOR_TYPE get(int value)
+		{
+			switch (value)
+			{
+				case 0 :
+					return NONE;
+				case 1 :
+					return DEFAULT;
+				case 2 :
+					return SERVOY_CLOUD;
+				case 3 :
+					return AUTHENTICATOR;
+			}
+			return null;
+		}
+	}
 
 	/*
 	 * IPersist Attributes
@@ -873,6 +916,55 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	}
 
 	/**
+	 * Sets the Authenticator that should be used, can be NONE for now authentication at all (mustAuthenticate = false before).
+	 * DEFAULT (mustAuthenticate = true before) to use a Login Form or default Servoy login form and user authentication.
+	 * SERVOY_CLOUD use the login form and use Servoy Cloud as the authentication.
+	 *
+	 */
+	// Needed for solution properties editing
+	public void setAuthenticator(AUTHENTICATOR_TYPE authenticator)
+	{
+		Map<String, Object> object = (Map<String, Object>)getCustomProperty(AUTHENTICATOR_CUSTOM_PROPERTY_PATH);
+		if (object == null)
+		{
+			object = new HashMap<String, Object>();
+		}
+		object.put(AUTHENTICATOR_TYPE_PROPERTY, Integer.valueOf(authenticator.getValue()));
+		putCustomProperty(AUTHENTICATOR_CUSTOM_PROPERTY_PATH, object);
+
+		// keep the old must authenticate property in sync so that the solutions metadata is also correct
+		if (authenticator == AUTHENTICATOR_TYPE.NONE)
+		{
+			setMustAuthenticate(false);
+		}
+		else if (authenticator == AUTHENTICATOR_TYPE.DEFAULT)
+		{
+			setMustAuthenticate(true);
+		}
+	}
+
+	/**
+	 * Sets the Authenticator that should be used, can be NONE for now authentication at all (mustAuthenticate = false before).
+	 * DEFAULT (mustAuthenticate = true before) to use a Login Form or default Servoy login form and user authentication.
+	 * SERVOY_CLOUD use  the login form and use Servoy Cloud as the authentication.
+	 *
+	 * @return the enum of the authenticator that is used.
+	 *
+	 */
+	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
+	public AUTHENTICATOR_TYPE getAuthenticator()
+	{
+		Map<String, Object> object = (Map<String, Object>)getCustomProperty(AUTHENTICATOR_CUSTOM_PROPERTY_PATH);
+		if (object == null)
+		{
+			if (getMustAuthenticate()) return AUTHENTICATOR_TYPE.DEFAULT;
+			return AUTHENTICATOR_TYPE.NONE;
+		}
+
+		return AUTHENTICATOR_TYPE.get(((Integer)object.get(AUTHENTICATOR_TYPE_PROPERTY)).intValue());
+	}
+
+	/**
 	 * Sets the mustAuthenticate.
 	 *
 	 * @return Returns a boolean
@@ -882,7 +974,6 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	{
 		getSolutionMetaData().setMustAuthenticate(mustAuthenticate);
 	}
-
 	/*------------------------------------------------------------------------------------------------------------------------
 	 * LISTENERS
 

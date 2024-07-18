@@ -16,6 +16,10 @@
  */
 package com.servoy.j2db.scripting.solutionmodel;
 
+import static com.servoy.base.util.DataSourceUtilsBase.getDBServernameTablename;
+import static com.servoy.base.util.DataSourceUtilsBase.isCompleteDBbServerTable;
+import static com.servoy.j2db.util.DataSourceUtils.createDBTableDataSource;
+
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.print.PageFormat;
@@ -37,12 +41,10 @@ import com.servoy.base.solutionmodel.IBaseSMComponent;
 import com.servoy.base.solutionmodel.IBaseSMForm;
 import com.servoy.base.solutionmodel.IBaseSMMethod;
 import com.servoy.base.solutionmodel.mobile.IMobileSolutionModel;
-import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.component.ComponentFactory;
-import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.AbstractContainer;
 import com.servoy.j2db.persistence.Bean;
@@ -75,7 +77,6 @@ import com.servoy.j2db.solutionmodel.ISMRelation;
 import com.servoy.j2db.solutionmodel.ISMUnits;
 import com.servoy.j2db.solutionmodel.ISolutionModel;
 import com.servoy.j2db.util.ComponentFactoryHelper;
-import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.PersistHelper;
@@ -159,7 +160,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	@JSFunction
 	public JSForm newForm(String name, String serverName, String tableName, String styleName, boolean show_in_menu, int width, int height)
 	{
-		return newForm(name, DataSourceUtils.createDBTableDataSource(serverName, tableName), styleName, show_in_menu, width, height);
+		return newForm(name, createDBTableDataSource(serverName, tableName), styleName, show_in_menu, width, height);
 	}
 
 	/**
@@ -607,7 +608,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 		{
 			try
 			{
-				if (((FoundSetManager)application.getFoundSetManager()).getSQLGenerator().getCachedTableSQLSheet(
+				if (application.getFoundSetManager().getSQLGenerator().getCachedTableSQLSheet(
 					rel.getForeignDataSource()).getRelatedSQLDescription(name) != null)
 				{
 					return false;
@@ -964,7 +965,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	@JSFunction
 	public JSForm[] getForms(String server, String tablename)
 	{
-		return getForms(DataSourceUtils.createDBTableDataSource(server, tablename));
+		return getForms(createDBTableDataSource(server, tablename));
 	}
 
 	/**
@@ -1533,8 +1534,8 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	public JSRelation js_newRelation(String name, String primaryServerName, String primaryTableName, String foreignServerName, String foreignTableName,
 		int joinType)
 	{
-		return newRelation(name, DataSourceUtils.createDBTableDataSource(primaryServerName, primaryTableName),
-			DataSourceUtils.createDBTableDataSource(foreignServerName, foreignTableName), joinType);
+		return newRelation(name, createDBTableDataSource(primaryServerName, primaryTableName),
+			createDBTableDataSource(foreignServerName, foreignTableName), joinType);
 	}
 
 	/**
@@ -1564,10 +1565,10 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	{
 		if (primaryDataSourceOrServer.indexOf(':') == -1)
 		{
-			return newRelation(name, DataSourceUtils.createDBTableDataSource(primaryDataSourceOrServer, primaryTableNameOrForeignServer),
+			return newRelation(name, createDBTableDataSource(primaryDataSourceOrServer, primaryTableNameOrForeignServer),
 				foreignDataSourceOrTable, joinType);
 		}
-		return newRelation(name, primaryDataSourceOrServer, DataSourceUtils.createDBTableDataSource(primaryTableNameOrForeignServer, foreignDataSourceOrTable),
+		return newRelation(name, primaryDataSourceOrServer, createDBTableDataSource(primaryTableNameOrForeignServer, foreignDataSourceOrTable),
 			joinType);
 	}
 
@@ -1682,8 +1683,8 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	{
 		String servername = null;
 		String tablename = null;
-		String[] names = DataSourceUtilsBase.getDBServernameTablename(datasource);
-		if (names != null && names.length == 2)
+		String[] names = getDBServernameTablename(datasource);
+		if (isCompleteDBbServerTable(names))
 		{
 			servername = names[0];
 			tablename = names[1];

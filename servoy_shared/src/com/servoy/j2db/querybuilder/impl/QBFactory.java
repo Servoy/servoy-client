@@ -63,7 +63,7 @@ public class QBFactory implements IQueryBuilderFactory
 
 	/**
 	 * Resolve the datasource for the table with given sql name, look in server of serverDataSource.
-	 * 
+	 *
 	 * @param serverDataSource
 	 * @param tableSQLName
 	 */

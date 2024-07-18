@@ -39,7 +39,6 @@ import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.ServoyException;
-import com.servoy.j2db.util.Utils;
 
 /**
  * Scope for datasources.db.myserver.mytable or datasources.mem['dsname']
@@ -52,9 +51,10 @@ import com.servoy.j2db.util.Utils;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class JSDataSource implements IJavaScriptType, IDestroyable
 {
+	private static final String SINGLE_RECORD_NAMED_FOUNDSET = "__sv_singleRecordFoundset";
+
 	private volatile IApplication application;
 	private final String datasource;
-	private FoundSet singleRecordFoundsetCache;
 
 	public JSDataSource(IApplication application, String datasource)
 	{
@@ -113,7 +113,8 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	}
 
 	/**
-	 * An existing foundset under that name will be returned, or created if there is a definition (there is a form with a named foundset property with that name).
+	 * An existing foundset under that name will be returned, or created.
+	 * If there is a definition (there is a form with a named foundset property with that name), the initial sort from that form will be used.
 	 * If named foundset datasource does not match current datasource will not be returned (will return null instead).
 	 *
 	 * @sample
@@ -130,8 +131,55 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	@JSFunction
 	public IFoundSet getFoundSet(String name) throws ServoyException
 	{
-		IFoundSet foundset = application.getFoundSetManager().getNamedFoundSet(name);
-		return checkDataSourceEquality(foundset) ? foundset : null;
+		return application.getFoundSetManager().getNamedFoundSet(name, datasource);
+	}
+
+	/**
+	 * Returns a foundset object for a specified pk base query. This creates a filtered "view" on top of the database table based on that query.
+	 *
+	 * This foundset is different then when doing foundset.loadRecords(query) or datasources.db.server.table.loadRecords(query) because this is generated as a "view"
+	 * Which means that the foundset will always have this query as its  base, even when doing foundset.loadAllRecords() afterwards. Because this query is set as its "creation query"
+	 * JSFoundset.loadRecords(query) does set that query on the current foundset as a a "search" condition. which will be removed when doing a loadAllRecords().
+	 *
+	 *  So doing a clear() on a foundse created by this call will just add a "search" condition that results in no records found ( 1 = 2) and then loadAllRecords() will go back to this query.
+	 *  But in a foundset.loadRecord(query) then clear() will overwrite the "search" condition which is the given query so the query will be lost after that so loadAllRecords() will go back to all records in the table)
+	 *
+	 * @sample
+	 * var qb = datasources.db.example_data.orders.createSelect();
+	 * qb.result.addPk();
+	 * qb.where.add(qb.columns.product_id.eq(1))
+	 * %%prefix%%foundset.loadRecords(qb);
+	 *
+	 * @param select The query to get the JSFoundset for.
+	 *
+	 * @return A new JSFoundset with that query as its base query.
+	 *
+	 * @since 2023.09
+	 */
+	@JSFunction
+	public IFoundSet getFoundSet(QBSelect select) throws ServoyException
+	{
+		return application.getFoundSetManager().getFoundSet(select);
+	}
+
+	/** Get all currently foundsets for this datasource.
+	 * <br></br>
+	 * This method can be used to loop over foundset and programatically dispose them to clean up resources quickly.
+	 *
+	 * @sample
+	 * var fslist = datasources.db.example_data.orders.getLoadedFoundSets()
+	 * fslist.forEach(function(fs) {
+	 *   if (shouldDispose(fs)) {
+	 * 		fs.dispose()
+	 *   }
+	 * })
+	 *
+	 * @return An array of foundsets loaded for this datasource.
+	 */
+	@JSFunction
+	public IFoundSet[] getLoadedFoundSets()
+	{
+		return application.getFoundSetManager().getAllLoadedFoundsets(datasource, false);
 	}
 
 	/**
@@ -151,32 +199,40 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	@JSFunction
 	public IJSRecord getRecord(Object pk) throws ServoyException
 	{
-		if (singleRecordFoundsetCache == null)
-		{
-			singleRecordFoundsetCache = (FoundSet)application.getFoundSetManager().getFoundSet(datasource);
-		}
+		FoundSet foundset = (FoundSet)application.getFoundSetManager().getNamedFoundSet(SINGLE_RECORD_NAMED_FOUNDSET, datasource);
 
 		IDataSet dataSet = new BufferedDataSet();
 
 		if ((pk instanceof Object[]))
+		{
 			dataSet.addRow((Object[])pk);
+		}
 		else
+		{
 			dataSet.addRow(new Object[] { pk });
+		}
 
-		if (!singleRecordFoundsetCache.js_loadRecords(dataSet))
+		if (!foundset.js_loadRecords(dataSet))
 		{
 			throw new ServoyException(ServoyException.INVALID_INPUT);
 		}
 
-		return singleRecordFoundsetCache.js_getRecord(1);
+		return foundset.js_getRecord(1);
 	}
 
 	/**
-	 * get a new foundset containing records based on a QBSelect query.
+	 * get a new foundset containing records based on a QBSelect query that is given.
+	 *
+	 * This is just a shotcut for datasources.db.server.table.getFoundset() and then calling loadRecords(qbSelect) on the resulting foundset.
+	 * So it has the same behavior as JSFoundset.loadRecords(qbselect) that is that the given query is set as a "search" condition on the existing query of the foundset.
+	 * This means that if you do loadAllRecords() or calling clear() on it the qbselect conditon will also be removed.
+	 * loadAllRecords() will revert back to the foundsets original query (see {@link #getFoundSet(QBSelect)}
+	 * clear() will revert back to the original foundset query and add a "clear" condition to the query ( resulting in 1 = 2)
 	 *
 	 * @sample
 	 * var qb = datasources.db.example_data.orders.createSelect();
-	 * qb.result.add(qb.columns.orderid);
+	 * qb.result.addPk();
+	 * qb.where.add(q.columns.product_id.eq(1))
 	 * var fs = datasources.db.example_data.orders.loadRecords(qb);
 	 *
 	 * @param qbSelect a query builder object
@@ -189,7 +245,7 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 		IFoundSet foundset = application.getFoundSetManager().getFoundSet(datasource);
 		foundset.loadByQuery(qbSelect);
 
-		return checkDataSourceEquality(foundset) ? foundset : null;
+		return foundset;
 	}
 
 	/**
@@ -211,7 +267,7 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 		IFoundSet foundset = application.getFoundSetManager().getFoundSet(datasource);
 		((FoundSet)foundset).loadByQuery(query, args);
 
-		return checkDataSourceEquality(foundset) ? foundset : null;
+		return foundset;
 	}
 
 	/**
@@ -246,18 +302,7 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 		IFoundSet foundset = application.getFoundSetManager().getFoundSet(datasource);
 		((FoundSet)foundset).js_loadRecords(dataSet);
 
-		return checkDataSourceEquality(foundset) ? foundset : null;
-	}
-
-	/**
-	 * check whether a foundset is not null and comes from this datasource
-	 *
-	 * @param foundset
-	 * @return true if not null and datasource matches
-	 */
-	private boolean checkDataSourceEquality(IFoundSet foundset)
-	{
-		return (foundset != null && Utils.equalObjects(foundset.getDataSource(), datasource));
+		return foundset;
 	}
 
 	/**
@@ -352,6 +397,22 @@ public class JSDataSource implements IJavaScriptType, IDestroyable
 	public void destroy()
 	{
 		application = null;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return datasource.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (obj instanceof JSDataSource ds)
+		{
+			return ds.datasource.equals(datasource);
+		}
+		return false;
 	}
 
 	@Override

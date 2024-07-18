@@ -1,10 +1,11 @@
 {
 
 	"name": "ngclientutils",
-	"displayName": "Servoy NG Client Utils plugin",
+	"displayName": "NG Utils",
 	"version": 1,
 	"definition": "servoy_ng_only_services/ngutils/ngutils.js",
 	"serverscript": "servoy_ng_only_services/ngutils/ngutils_server.js",
+	"doc": "servoy_ng_only_services/ngutils/ngutils_doc.js",
 	"libraries": [],
     "ng2Config": {
        "packageName": "@servoy/ngclientutils",
@@ -77,6 +78,12 @@
 		},
 		"scrollIntoView": {
             "parameters": [{ "name": "anchorSelector", "type": "string" }, { "name": "scrollIntoViewOptions", "type": "object", "optional": true }]
+        },
+        "scrollToTop": {
+            "parameters": [{ "name": "selector", "type": "string" }]
+        },
+        "removeArguments": {
+           
         }
 	},
 

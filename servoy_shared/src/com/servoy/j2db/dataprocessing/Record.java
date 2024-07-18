@@ -44,7 +44,6 @@ import com.servoy.base.scripting.api.IJSDataSet;
 import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.base.scripting.api.IJSRecord;
 import com.servoy.j2db.ApplicationException;
-import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.scripting.DefaultJavaScope;
@@ -72,24 +71,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	/*
 	 * _____________________________________________________________ JavaScript stuff
 	 */
-	private Map<String, NativeJavaMethod> jsFunctions;
-
-	@SuppressWarnings("unchecked")
-	private void initJSFunctions(IServiceProvider serviceProvider)
-	{
-		if (serviceProvider != null)
-		{
-			jsFunctions = (Map<String, NativeJavaMethod>)serviceProvider.getRuntimeProperties().get(IServiceProvider.RT_JSRECORD_FUNCTIONS);
-		}
-		if (jsFunctions == null)
-		{
-			jsFunctions = DefaultJavaScope.getJsFunctions(Record.class);
-			if (serviceProvider != null)
-			{
-				serviceProvider.getRuntimeProperties().put(IServiceProvider.RT_JSRECORD_FUNCTIONS, jsFunctions);
-			}
-		}
-	}
+	public static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(Record.class);
 
 	public static final ThreadLocal<Boolean> VALIDATE_CALCS = new ThreadLocal<Boolean>();
 
@@ -118,7 +100,6 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	private Record(IFoundSetInternal parent, Row r, boolean registerRow)
 	{
 		this.parent = parent;
-		initJSFunctions(parent != null ? parent.getFoundSetManager().getApplication() : null);
 		this.relatedFoundSets = new HashMap<String, SoftReference<IFoundSetInternal>>(3);
 		this.modificationListeners = Collections.synchronizedList(new ArrayList<IModificationListener>(3));
 		this.row = r;
@@ -841,7 +822,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		sb.append(row);
 		sb.append(']');
 
-		sb.append("  COLUMS: "); //$NON-NLS-1$
+		sb.append("  COLUMNS: "); //$NON-NLS-1$
 		String[] objects = parent.getSQLSheet().getColumnNames();
 		for (String element : objects)
 		{
@@ -865,7 +846,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 			}
 			if (rows.size() > 0)
 			{
-				sb.append("  EDITED_COLUMS: "); //$NON-NLS-1$
+				sb.append("  EDITED_COLUMNS: "); //$NON-NLS-1$
 				for (Object[] editedData : rows)
 				{
 					sb.append(editedData[0]);

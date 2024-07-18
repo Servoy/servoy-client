@@ -51,7 +51,7 @@ public class Ad
 		}
 		catch (Exception e)
 		{
-			Debug.error(e);
+			Debug.debug(e);
 		}
 		return retval;
 	}

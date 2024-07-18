@@ -367,6 +367,7 @@ public abstract class AbstractContainer extends AbstractBase
 		//set all the required properties
 
 		obj.setName(name);
+		CSSPositionUtils.setSize(obj, 300, 300);
 
 		addChild(obj);
 		return obj;
@@ -444,21 +445,6 @@ public abstract class AbstractContainer extends AbstractBase
 		}
 
 		return flattenedPersists;
-	}
-
-	public Iterator<LayoutContainer> getFormLayoutContainers()
-	{
-		List<LayoutContainer> flattenedPersists = new ArrayList<LayoutContainer>();
-		List<IPersist> children = getHierarchyChildren();
-		for (IPersist persist : children)
-		{
-			if (persist instanceof AbstractContainer)
-			{
-				if (persist instanceof LayoutContainer) flattenedPersists.add((LayoutContainer)persist);
-			}
-		}
-
-		return flattenedPersists.iterator();
 	}
 
 	/**

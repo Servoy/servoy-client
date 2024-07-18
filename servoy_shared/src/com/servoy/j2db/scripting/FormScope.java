@@ -29,6 +29,7 @@ import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
+import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.FormController.RuntimeSupportScriptProviders;
 import com.servoy.j2db.IFormController;
@@ -255,7 +256,11 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		Iterator<Column> columns = table.getColumnsSortedByName();
 		while (columns.hasNext())
 		{
-			al.add(columns.next().getDataProviderID());
+			Column column = columns.next();
+			if (!column.hasFlag(IBaseColumn.EXCLUDED_COLUMN))
+			{
+				al.add(column.getDataProviderID());
+			}
 		}
 		Iterator<AggregateVariable> aggs;
 
@@ -367,11 +372,21 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		return _fp;
 	}
 
-	private class ExtendsScope extends LazyCompilationScope implements Wrapper
+	private class ExtendsScope extends LazyCompilationScope implements Wrapper, IInstanceOf
 	{
 		public ExtendsScope(LazyCompilationScope parent, IExecutingEnviroment scriptEngine, ISupportScriptProviders methodLookup)
 		{
 			super(parent, scriptEngine, methodLookup);
+		}
+
+		@Override
+		public void put(String name, Scriptable start, Object value)
+		{
+			if (!(value instanceof Function) && (getFunctionParentScriptable() != null && getFunctionParentScriptable().has(name, start)))
+			{
+				getFunctionParentScriptable().put(name, start, value);
+			}
+			else super.put(name, start, value);
 		}
 
 		/**
@@ -381,7 +396,7 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 		public Object get(String name, Scriptable start)
 		{
 			Object object = super.get(name, start);
-			if (object == Scriptable.NOT_FOUND && getFunctionParentScriptable() != null)
+			if ((object == null || object == Scriptable.NOT_FOUND) && getFunctionParentScriptable() != null)
 			{
 				Object obj = getFunctionParentScriptable().get(name, start);
 				// only return form variables not functions, they should be resolved by the (compile)scope.
@@ -389,6 +404,26 @@ public class FormScope extends ScriptVariableScope implements Wrapper, Contextua
 				return obj;
 			}
 			return object;
+		}
+
+		@Override
+		public boolean has(String name, Scriptable start)
+		{
+			boolean contains = super.has(name, start);
+			if (!contains && getFunctionParentScriptable() != null)
+			{
+				Object obj = getFunctionParentScriptable().get(name, start);
+				// only return form variables not functions, they should be resolved by the (compile)scope.
+				if (obj instanceof Function) return false;
+				return getFunctionParentScriptable().has(name, start);
+			}
+			return contains;
+		}
+
+		@Override
+		public boolean isInstance(String name)
+		{
+			return "RuntimeForm".equals(name);
 		}
 
 		/**

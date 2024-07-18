@@ -46,7 +46,7 @@ import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescription;
-import org.sablo.specification.WebObjectFunctionDefinition;
+import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.websocket.utils.JSONUtils.IJSONStringWithClientSideType;
@@ -1242,6 +1242,16 @@ public class DataProviderDateTest
 		/*
 		 * (non-Javadoc)
 		 *
+		 * @see com.servoy.j2db.INGClientApplication#setFirstDayOfTheWeek(int)
+		 */
+		@Override
+		public void setFirstDayOfTheWeek(int weekday)
+		{
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
 		 * @see com.servoy.j2db.INGClientApplication#getMediaURL(java.lang.String)
 		 */
 		@Override
@@ -1965,7 +1975,7 @@ public class DataProviderDateTest
 		 * org.sablo.specification.WebObjectFunctionDefinition, java.lang.Object[])
 		 */
 		@Override
-		public Pair<Integer, Integer> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] arguments)
+		public Pair<Long, Long> onStartSubAction(String serviceName, String functionName, WebObjectApiFunctionDefinition apiFunction, Object[] arguments)
 		{
 
 			return null;
@@ -1977,7 +1987,7 @@ public class DataProviderDateTest
 		 * @see com.servoy.j2db.server.ngclient.INGApplication#onStopSubAction(com.servoy.j2db.util.Pair)
 		 */
 		@Override
-		public void onStopSubAction(Pair<Integer, Integer> perfId)
+		public void onStopSubAction(Pair<Long, Long> perfId)
 		{
 
 

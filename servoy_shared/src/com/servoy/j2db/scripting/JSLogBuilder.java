@@ -19,6 +19,8 @@ package com.servoy.j2db.scripting;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogBuilder;
+import org.mozilla.javascript.NativeError;
+import org.mozilla.javascript.UniqueTag;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -37,6 +39,8 @@ public class JSLogBuilder
 	private final LogBuilder builder;
 	private final Level logLevel; // This is only here so that users can call log.setLevel(log.info), which might be a violation of the principle of single responsibility
 
+	private NativeError nativeError = null;
+
 	JSLogBuilder(LogBuilder builder, Level logLevel)
 	{
 		this.builder = builder;
@@ -54,9 +58,16 @@ public class JSLogBuilder
 	 * @return the LogBuilder.
 	 */
 	@JSFunction
-	public JSLogBuilder withException(Throwable exception)
+	public JSLogBuilder withException(Object exception)
 	{
-		builder.withThrowable(exception);
+		if (exception instanceof Throwable t)
+		{
+			builder.withThrowable(t);
+		}
+		else if (exception instanceof NativeError ne)
+		{
+			nativeError = ne;
+		}
 		return this;
 	}
 
@@ -72,10 +83,23 @@ public class JSLogBuilder
 	 *
 	 * @see org.apache.logging.log4j.util.Unbox
 	 */
+	@SuppressWarnings("nls")
 	@JSFunction
 	public void log(Object message, Object... params)
 	{
-		this.builder.log(message != null ? Utils.getScriptableString(message) : "", params); //$NON-NLS-1$
+		String msg = message != null ? Utils.getScriptableString(message) : "";
+		if (nativeError != null)
+		{
+			Object name = nativeError.get("name", nativeError);
+			if (name == null || name instanceof UniqueTag) name = "";
+			else name += ": ";
+			Object errorMsg = nativeError.get("message", nativeError);
+			if (errorMsg == null || errorMsg instanceof UniqueTag) errorMsg = "";
+			else errorMsg = "\t" + errorMsg + "\n";
+			msg += "\n" + name + errorMsg + nativeError.getStackDelegated();
+		}
+		this.builder.log(msg, params);
+		nativeError = null;
 	}
 
 	/**
@@ -87,10 +111,21 @@ public class JSLogBuilder
 	 * log.warn.withException(myException).log();
 	 *
 	 */
+	@SuppressWarnings("nls")
 	@JSFunction
 	public void log()
 	{
-		this.builder.log();
+		if (nativeError != null)
+		{
+			Object name = nativeError.get("name", nativeError);
+			if (name == null || name instanceof UniqueTag) name = "";
+			else name += ": ";
+			Object msg = nativeError.get("message", nativeError);
+			if (msg == null || msg instanceof UniqueTag) msg = "<error>";
+			this.builder.log(name.toString() + msg + "\n" + nativeError.getStackDelegated());
+		}
+		else this.builder.log();
+		nativeError = null;
 	}
 
 	Level getLevel()

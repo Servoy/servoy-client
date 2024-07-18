@@ -36,6 +36,7 @@ import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.Symbol;
 import org.mozilla.javascript.TopLevel;
 import org.mozilla.javascript.Undefined;
+import org.mozilla.javascript.Wrapper;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 
@@ -43,6 +44,7 @@ import com.servoy.j2db.IFormController;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.scripting.FormScope;
+import com.servoy.j2db.server.ngclient.property.BrowserFunction;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.Utils;
@@ -319,13 +321,23 @@ public class RhinoConversion
 						super.put(name, start, value);
 						if (!initializing[0])
 						{
-							try
+							// special support for the BrowserFunction that hte JSONConvertor can't handle.
+							// it just should use the value as is the Map/JSONPropertyType will handle this
+							//. maybe in the end we should have a list of objects that should just pass through?
+							if (value instanceof Wrapper && ((Wrapper)value).unwrap() instanceof BrowserFunction)
 							{
-								value = converter.convertToJSONValue(value);
+								value = ((Wrapper)value).unwrap();
 							}
-							catch (Exception e)
+							else
 							{
-								Debug.error(e);
+								try
+								{
+									value = converter.convertToJSONValue(value);
+								}
+								catch (Exception e)
+								{
+									Debug.error(e);
+								}
 							}
 							if (!Utils.equalObjects(json.opt(name), value))
 							{

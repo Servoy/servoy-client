@@ -17,6 +17,7 @@
 package com.servoy.j2db.scripting;
 
 import com.servoy.j2db.documentation.ClientSupport;
+import com.servoy.j2db.documentation.IObjectDocumentation;
 import com.servoy.j2db.documentation.IParameter;
 
 public interface ITypedScriptObject extends IScriptObject
@@ -48,4 +49,9 @@ public interface ITypedScriptObject extends IScriptObject
 	public abstract String getReturnDescription(String methodName, Class< ? >[] argTypes);
 
 	public abstract Class< ? > getReturnedType(String methodName, Class< ? >[] argTypes);
+
+	public default IObjectDocumentation getObjectDocumentation()
+	{
+		return null;
+	}
 }

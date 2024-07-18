@@ -17,7 +17,6 @@
 package com.servoy.j2db.persistence;
 
 
-import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.query.ColumnType;
@@ -94,23 +93,7 @@ public class ScriptCalculation extends AbstractScriptProvider implements IDataPr
 	@SuppressWarnings("nls")
 	public int getFlags()
 	{
-		String declaration = getDeclaration();
-		if (declaration != null)
-		{
-			int index = declaration.indexOf("*/");
-			if (index != -1)
-			{
-				int typeIndex = declaration.lastIndexOf("@type", index);
-				if (typeIndex != -1)
-				{
-					if (declaration.substring(typeIndex, declaration.indexOf('\n', typeIndex)).indexOf("{UUID}") != -1)
-					{
-						return IBaseColumn.NORMAL_COLUMN | IBaseColumn.UUID_COLUMN;
-					}
-				}
-			}
-		}
-		return IBaseColumn.NORMAL_COLUMN;
+		return ScriptVariable.getFlags(getDeclaration());
 	}
 
 	public int getDataProviderType()

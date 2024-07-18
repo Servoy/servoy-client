@@ -454,9 +454,9 @@
                 }
 
                 widget.css({
-                    top: vertical === 'top' ? (rect.top - widget.height() - 15) : (rect.top + element.outerHeight()),
+                    top: vertical === 'top' ? (rect.top + window.scrollY - widget.height() - 15) : (rect.top + element.outerHeight()),
                     bottom: 'auto',
-                    left: horizontal === 'left' ? rect.left : (rect.left + rect.width - widget.width()),
+                    left: horizontal === 'left' ? (rect.left + window.scrollX) : (rect.left + rect.width + window.scrollX - widget.width() - 5),
                     right: 'auto'
                 });
             },

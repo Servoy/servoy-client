@@ -30,7 +30,7 @@ import org.eclipse.dltk.rhino.dbgp.DBGPDebugFrame;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.eclipse.dltk.rhino.dbgp.DBGPStackManager;
 import org.sablo.eventthread.WebsocketSessionWindows;
-import org.sablo.specification.WebObjectFunctionDefinition;
+import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.websocket.CurrentWindow;
@@ -221,10 +221,11 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	@Override
 	public void output(Object msg, int level)
 	{
-		super.output(msg, level);
 		if (level == ILogLevel.WARNING || level == ILogLevel.ERROR || level == ILogLevel.FATAL)
 		{
-			errorToDebugger(msg.toString(), null);
+			Runnable runable = () -> DebugUtils.errorToDebugger(getScriptEngine(), msg.toString(), null);
+			if (isEventDispatchThread()) runable.run();
+			else invokeLater(runable);
 		}
 		else
 		{
@@ -362,7 +363,15 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 				}
 				else
 				{
-					if (!controller.isDestroyed()) ((WebFormController)controller).initFormUI();
+					if (!controller.isDestroyed())
+					{
+						((WebFormController)controller).initFormUI();
+						// do not completely destroy the controller but execute onload as well, this could contain some initialization code
+						if (isVisible)
+						{
+							((WebFormController)controller).forceExecuteOnLoadMethod();
+						}
+					}
 				}
 				if (isVisible) controller.notifyVisible(true, invokeLaterRunnables, true);
 			}
@@ -455,10 +464,10 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	}
 
 	@Override
-	public Pair<Integer, Integer> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] args)
+	public Pair<Long, Long> onStartSubAction(String serviceName, String functionName, WebObjectApiFunctionDefinition apiFunction, Object[] args)
 	{
 
-		Pair<Integer, Integer> result = super.onStartSubAction(serviceName, functionName, apiFunction, args);
+		Pair<Long, Long> result = super.onStartSubAction(serviceName, functionName, apiFunction, args);
 		DBGPDebugFrame stackFrame = getStackFrame();
 
 		if (stackFrame instanceof ServoyDebugFrame)
@@ -488,7 +497,7 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	}
 
 	@Override
-	public void onStopSubAction(Pair<Integer, Integer> perfId)
+	public void onStopSubAction(Pair<Long, Long> perfId)
 	{
 		super.onStopSubAction(perfId);
 		DBGPDebugFrame stackFrame = getStackFrame();

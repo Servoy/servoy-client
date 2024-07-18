@@ -31,11 +31,13 @@ import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.Wrapper;
 import org.sablo.Container;
 import org.sablo.IEventHandler;
 import org.sablo.WebComponent;
 import org.sablo.specification.IFunctionParameters;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.IPropertyType;
@@ -108,7 +110,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 
 		if (webComponentSpec != null)
 		{
-			for (WebObjectFunctionDefinition def : webComponentSpec.getInternalApiFunctions().values())
+			for (WebObjectApiFunctionDefinition def : webComponentSpec.getInternalApiFunctions().values())
 			{
 				apiFunctions.put(def.getName(), new WebComponentFunction(component, def));
 			}
@@ -149,6 +151,16 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 								{
 									try
 									{
+										if (args != null)
+										{
+											for (int i = 0; i < args.length; i++)
+											{
+												if (args[i] instanceof Wrapper)
+												{
+													args[i] = ((Wrapper)args[i]).unwrap();
+												}
+											}
+										}
 										return eventHandler.executeEvent(args); // FIXME here we know it's comming from rhino and returning to Rhino; see SVY-18096
 									}
 									catch (Exception e)
@@ -170,7 +182,7 @@ public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshVal
 
 		if (webComponentSpec != null)
 		{
-			for (WebObjectFunctionDefinition def : webComponentSpec.getApiFunctions().values())
+			for (WebObjectApiFunctionDefinition def : webComponentSpec.getApiFunctions().values())
 			{
 				Function func = null;
 				if (apiObject != null)

@@ -20,4 +20,5 @@
 	   typeahead-on-focus="onFocus()"
        ng-blur="doSvyApply(null,null,$event)" id="{{::model.svyMarkupId}}"
        ng-focus="startEdit()"
+       ng-readonly="!model.findmode && (model.readOnly || !model.editable)"
        autocomplete="off"/>

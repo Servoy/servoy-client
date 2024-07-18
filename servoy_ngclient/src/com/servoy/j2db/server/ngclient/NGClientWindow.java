@@ -30,7 +30,7 @@ import org.json.JSONString;
 import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.eventthread.EventDispatcher;
-import org.sablo.specification.WebObjectFunctionDefinition;
+import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.BaseWindow;
 import org.sablo.websocket.CurrentWindow;
@@ -153,7 +153,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	}
 
 	@Override
-	protected Object invokeApi(WebComponent receiver, WebObjectFunctionDefinition apiFunction, Object[] arguments,
+	protected Object invokeApi(WebComponent receiver, WebObjectApiFunctionDefinition apiFunction, Object[] arguments,
 		Map<String, JSONString> callContributions)
 	{
 		Map<String, JSONString> newCallContributions = new HashMap<>();
@@ -171,7 +171,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 					apiFunction.getName() + "). See: https://wiki.servoy.com/pages/viewpage.action?pageId=1869552#Specification(.specfile)-HiddenDivNote");
 			}
 			touchForm(form.getForm(), form.getName(), false, false);
-			pendingApiCallFormsOnNextResponse.add(formUI); // the form will be on client, make sure we send changes for it as well... if it would be delayed it might not even be present on client for a while, so we will send changes only when it is attached to dom and has delayed
+			pendingApiCallFormsOnNextResponse.add(formUI); // the form will be on client, make sure we send changes for it as well... if it would be delayed it might not even be present on client for a while, so we will send changes only when it is attached to DOM and has delayed
 		}
 		if (receiver instanceof WebFormComponent && ((WebFormComponent)receiver).getComponentContext() != null)
 		{
@@ -184,7 +184,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 			newCallContributions.put("propertyPath", ejw);
 		}
 
-		Pair<Integer, Integer> perfId = getClient().onStartSubAction(receiver.getSpecification().getName(), apiFunction.getName(), apiFunction, arguments);
+		Pair<Long, Long> perfId = getClient().onStartSubAction(receiver.getSpecification().getName(), apiFunction.getName(), apiFunction, arguments);
 
 		try
 		{
@@ -504,10 +504,10 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	}
 
 	@Override
-	public Object executeServiceCall(IClientService clientService, String functionName, Object[] arguments, WebObjectFunctionDefinition apiFunction,
+	public Object executeServiceCall(IClientService clientService, String functionName, Object[] arguments, WebObjectApiFunctionDefinition apiFunction,
 		IToJSONWriter<IBrowserConverterContext> pendingChangesWriter, boolean blockEventProcessing) throws IOException
 	{
-		Pair<Integer, Integer> perfId = getClient().onStartSubAction(clientService.getName(), functionName, apiFunction, arguments);
+		Pair<Long, Long> perfId = getClient().onStartSubAction(clientService.getName(), functionName, apiFunction, arguments);
 		try
 		{
 			return super.executeServiceCall(clientService, functionName, arguments, apiFunction, pendingChangesWriter, blockEventProcessing);

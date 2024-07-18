@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bundle-Name:  NG Client only Servoy Plugins/Services
+Bundle-Name: Core NG only Services
 Bundle-SymbolicName: servoy_ng_only_services
 
 Name: ngutils/ngutils.spec

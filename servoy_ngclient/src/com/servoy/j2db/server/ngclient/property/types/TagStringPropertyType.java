@@ -15,7 +15,10 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -34,6 +37,7 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.FlattenedSolution;
+import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
@@ -262,7 +266,7 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 	{
 		final Set<String> dataProviders = new HashSet<>();
 		final boolean recordDP[] = new boolean[1];
-
+		List<Relation> relations = new ArrayList<Relation>();
 		Text.processTags(formElementValue, new ITagResolver()
 		{
 			@Override
@@ -273,7 +277,22 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 				{
 					dp = ScriptVariable.SCOPES_DOT_PREFIX + dp;
 				}
-
+				if (!ScopesUtils.isVariableScope(dp))
+				{
+					int index = name.lastIndexOf('.');
+					if (index > 0 && index < name.length() - 1) //check if is related value request
+					{
+						String partName = name.substring(0, index);
+						Relation[] relationSequence = flattenedSolution.getRelationSequence(partName);
+						if (relationSequence != null && relationSequence.length > 0)
+						{
+							// only one sequence is supported, do we need multiple?
+							relations.clear();
+							relations.addAll(Arrays.asList(relationSequence));
+							recordDP[0] = true;
+						}
+					}
+				}
 				dataProviders.add(dp);
 				// TODO Can't it be something special like record count or current record which are special cases and could still not depend on record...?
 				recordDP[0] = recordDP[0] || (!ScopesUtils.isVariableScope(dp) && formElement.getForm().getScriptVariable(dp) == null);
@@ -283,7 +302,8 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 		});
 
 		return dataProviders.size() == 0 ? TargetDataLinks.NOT_LINKED_TO_DATA
-			: new TargetDataLinks(dataProviders.toArray(new String[dataProviders.size()]), recordDP[0]);
+			: new TargetDataLinks(dataProviders.toArray(new String[dataProviders.size()]), recordDP[0],
+				relations.size() > 0 ? relations.toArray(new Relation[0]) : null);
 	}
 
 	@Override

@@ -26,6 +26,7 @@ import org.sablo.IWebObjectContext;
 import org.sablo.IllegalChangeFromClientException;
 import org.sablo.WebComponent;
 import org.sablo.specification.PropertyDescriptionBuilder;
+import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
@@ -216,39 +217,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		String decryptedScript = HTMLTagsConverter.decryptInlineScript(script, args, getApplication().getFlattenedSolution());
 		if (appendingArgs != null && decryptedScript.endsWith("()"))
 		{
-			// this is an executeInlineScript called from component/service client-side code
-			ArrayList<Object> javaArguments = new ArrayList<Object>();
-			Object argObj = null;
-			BrowserConverterContext dataConverterContext = new BrowserConverterContext((WebFormUI)formController.getFormUI(), PushToServerEnum.allow);
-			for (int i = 0; i < appendingArgs.length(); i++)
-			{
-				try
-				{
-					argObj = ServoyJSONObject.jsonNullToNull(appendingArgs.get(i));
-					if (argObj instanceof JSONObject)
-					{
-						String typeHint = ((JSONObject)argObj).optString("svyType", null); //$NON-NLS-1$
-						if (typeHint != null)
-						{
-							IPropertyType< ? > propertyType = TypesRegistry.getType(typeHint);
-							if (propertyType instanceof IPropertyConverterForBrowser< ? >)
-							{
-								javaArguments.add(((IPropertyConverterForBrowser< ? >)propertyType).fromJSON(argObj, null,
-									null /*
-											 * TODO this shouldn't be null! Make this better - maybe parse the type or just instantiate a property description
-											 * if we don't want full support for what can be defined in spec file as a type
-											 */, dataConverterContext, null));
-								continue;
-							}
-						}
-					}
-				}
-				catch (JSONException e)
-				{
-					Debug.error(e);
-				}
-				javaArguments.add(argObj);
-			}
+			Object[] javaArguments = generateArguments(appendingArgs, formController);
 
 			String functionName = decryptedScript.substring(0, decryptedScript.length() - 2);
 			int startIdx = functionName.lastIndexOf('.');
@@ -294,7 +263,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 			try
 			{
-				return formController.getApplication().getScriptEngine().executeFunction(f, scope, scope, javaArguments.toArray(), false, false);
+				return formController.getApplication().getScriptEngine().executeFunction(f, scope, scope, javaArguments, false, false);
 			}
 			catch (Exception ex)
 			{
@@ -304,6 +273,47 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		} // else this is a executeInlineScript called from within a piece of HTML that was treated before being sent to client using HTMLTagsConverter.convert(...); all that was needed (including args) was already done inside the HTMLTagsConverter.decryptInlineScript() call above
 
 		return decryptedScript != null ? formController.eval(decryptedScript) : null;
+	}
+
+	/**
+	 * @param arguments
+	 * @return
+	 */
+	public static Object[] generateArguments(JSONArray arguments, IWebFormController formController)
+	{
+		// this is an executeInlineScript called from component/service client-side code
+		ArrayList<Object> javaArguments = new ArrayList<Object>();
+		BrowserConverterContext dataConverterContext = new BrowserConverterContext((WebFormUI)formController.getFormUI(), PushToServerEnum.allow);
+		for (int i = 0; i < arguments.length(); i++)
+		{
+			Object argObj = ServoyJSONObject.jsonNullToNull(arguments.get(i));
+			try
+			{
+				if (argObj instanceof JSONObject)
+				{
+					String typeHint = ((JSONObject)argObj).optString("svyType", null); //$NON-NLS-1$
+					if (typeHint != null)
+					{
+						IPropertyType< ? > propertyType = TypesRegistry.getType(typeHint);
+						if (propertyType instanceof IPropertyConverterForBrowser< ? >)
+						{
+							javaArguments.add(((IPropertyConverterForBrowser< ? >)propertyType).fromJSON(argObj, null,
+								null /*
+										 * TODO this shouldn't be null! Make this better - maybe parse the type or just instantiate a property description if we
+										 * don't want full support for what can be defined in spec file as a type
+										 */, dataConverterContext, null));
+							continue;
+						}
+					}
+				}
+			}
+			catch (JSONException e)
+			{
+				Debug.error(e);
+			}
+			javaArguments.add(argObj);
+		}
+		return javaArguments.toArray();
 	}
 
 	private static boolean containsForm(IWebFormUI parent, IWebFormUI child)
@@ -1027,7 +1037,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				}
 				if (onDataChangeCallback != null)
 				{
-					WebObjectFunctionDefinition call = createWebObjectFunction(onDataChangeCallback);
+					WebObjectApiFunctionDefinition call = createWebObjectFunction(onDataChangeCallback);
 					webComponent.invokeApi(call, new Object[] { event, returnValue, exception == null ? null : exception.getMessage() });
 				}
 			}
@@ -1089,9 +1099,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	 * @param onDataChangeCallback
 	 * @return
 	 */
-	static WebObjectFunctionDefinition createWebObjectFunction(String onDataChangeCallback)
+	static WebObjectApiFunctionDefinition createWebObjectFunction(String onDataChangeCallback)
 	{
-		WebObjectFunctionDefinition call = new WebObjectFunctionDefinition(onDataChangeCallback);
+		WebObjectApiFunctionDefinition call = new WebObjectApiFunctionDefinition(onDataChangeCallback);
 		call.addParameter(new PropertyDescriptionBuilder().withName("event").withType(TypesRegistry.getType("object")).build());
 		call.addParameter(new PropertyDescriptionBuilder().withName("returnValue").withType(TypesRegistry.getType("object")).build());
 		call.addParameter(new PropertyDescriptionBuilder().withName("exception").withConfig(TypesRegistry.getType("object")).build());

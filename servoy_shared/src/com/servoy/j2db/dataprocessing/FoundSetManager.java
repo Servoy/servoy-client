@@ -31,8 +31,10 @@ import static com.servoy.j2db.util.DataSourceUtils.getViewDataSourceName;
 import static com.servoy.j2db.util.Utils.arrayMerge;
 import static com.servoy.j2db.util.Utils.iterate;
 import static com.servoy.j2db.util.Utils.parseJSExpressions;
+import static com.servoy.j2db.util.Utils.removeFromCollection;
 import static com.servoy.j2db.util.Utils.stream;
 import static java.lang.Boolean.TRUE;
+import static java.lang.Boolean.parseBoolean;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
@@ -73,6 +75,7 @@ import org.mozilla.javascript.Wrapper;
 import com.google.common.cache.CacheBuilder;
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.BaseColumnType;
+import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.ClientState;
@@ -96,6 +99,7 @@ import com.servoy.j2db.persistence.IScriptProvider;
 import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.LiteralDataprovider;
+import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -149,12 +153,12 @@ import com.servoy.j2db.util.xmlxport.TableDef;
 public class FoundSetManager implements IFoundSetManagerInternal
 {
 	private final IApplication application;
-	private ConcurrentMap<IFoundSetListener, FoundSet> separateFoundSets; //FoundSetListener -> FoundSet ... 1 foundset per listener
-	private Map<String, FoundSet> sharedDataSourceFoundSet; //dataSource -> FoundSet ... 1 foundset per data source
-	private Map<String, ViewFoundSet> viewFoundSets; //dataSource -> FoundSet ... 1 foundset per data source
+	private ConcurrentMap<IFoundSetListener, IFoundSetInternal> separateFoundSets; //FoundSetListener -> FoundSet ... 1 foundset per listener
+	private Map<String, IFoundSetInternal> sharedDataSourceFoundSet; //dataSource -> FoundSet ... 1 foundset per data source
 	private Map<ViewFoundSet, Object> noneRegisteredVFS;
-	private ConcurrentMap<FoundSet, Object> foundSets;
-	private ConcurrentMap<String, FoundSet> namedFoundSets;
+	private Map<String, ViewFoundSet> viewFoundSets; //dataSource -> FoundSet ... 1 foundset per data source
+	private ConcurrentMap<IFoundSetInternal, Boolean> foundSets;
+	private ConcurrentMap<Pair<String, String>, IFoundSetInternal> namedFoundSets;
 	private WeakReference<IFoundSetInternal> noTableFoundSet;
 	private Map<String, RowManager> rowManagers; //dataSource -> RowManager... 1 per table
 	private Map<ITable, CopyOnWriteArrayList<ITableChangeListener>> tableListeners; //table -> ArrayList(tableListeners)
@@ -190,7 +194,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		editRecordList = new EditRecordList(this);
 		foundsetfactory = factory;
 	}
-
 
 	@Override
 	public SortOptions getSortOptions(IColumn column)
@@ -375,17 +378,15 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		Set<ITable> affectedTables = new HashSet<ITable>();
 
-		List<FoundSet> fslist = new ArrayList<FoundSet>(sharedDataSourceFoundSet.size() + separateFoundSets.size() + foundSets.size());
-		fslist.addAll(sharedDataSourceFoundSet.values());
-		fslist.addAll(separateFoundSets.values());
-		fslist.addAll(foundSets.keySet());
-
-		for (FoundSet fs : fslist)
-		{
-			refreshFoundSet(fs, dataSource, tableFilterdefinitions, dropSort, skipStopEdit, affectedTables);
-		}
-
-		namedFoundSets.values().forEach(foundset -> refreshFoundSet(foundset, dataSource, tableFilterdefinitions, dropSort, skipStopEdit, affectedTables));
+		asList(
+			sharedDataSourceFoundSet.values(),
+			separateFoundSets.values(),
+			foundSets.keySet(),
+			namedFoundSets.values())
+				.stream().flatMap(Collection::stream)
+				.filter(FoundSet.class::isInstance)
+				.map(FoundSet.class::cast)
+				.forEach(foundset -> refreshFoundSet(foundset, dataSource, tableFilterdefinitions, dropSort, skipStopEdit, affectedTables));
 
 		// Can't just clear substates!! if used in portal then everything is out of sync
 //		if(server_name == null && table_name == null)
@@ -916,9 +917,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private void initMembers()
 	{
 		sharedDataSourceFoundSet = new ConcurrentHashMap<>(64);
-		separateFoundSets = CacheBuilder.newBuilder().weakKeys().initialCapacity(32).<IFoundSetListener, FoundSet> build().asMap();
-		foundSets = CacheBuilder.newBuilder().weakKeys().initialCapacity(64).<FoundSet, Object> build().asMap();
-		namedFoundSets = CacheBuilder.newBuilder().weakValues().initialCapacity(32).<String, FoundSet> build().asMap();
+		separateFoundSets = CacheBuilder.newBuilder().weakKeys().initialCapacity(32).<IFoundSetListener, IFoundSetInternal> build().asMap();
+		foundSets = CacheBuilder.newBuilder().weakKeys().initialCapacity(64).<IFoundSetInternal, Boolean> build().asMap();
+		namedFoundSets = CacheBuilder.newBuilder().weakValues().initialCapacity(32).<Pair<String, String>, IFoundSetInternal> build().asMap();
 		viewFoundSets = new ConcurrentHashMap<>(16);
 		noneRegisteredVFS = CacheBuilder.newBuilder().weakKeys().initialCapacity(8).<ViewFoundSet, Object> build().asMap();
 		noTableFoundSet = null;
@@ -980,7 +981,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		if (sqlGenerator == null)
 		{
-			sqlGenerator = new SQLGenerator(application);
+			sqlGenerator = new SQLGenerator(application, config.setRelationNameComment());
 		}
 		return sqlGenerator;
 	}
@@ -1495,6 +1496,15 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return removedFilters.size() > 0;
 	}
 
+	@Override
+	public IFoundSetInternal[] getAllLoadedFoundsets(String dataSource, boolean includeViewFoundsets)
+	{
+		return getAllFoundsetsStream()
+			.filter(fs -> includeViewFoundsets || fs instanceof FoundSet)
+			.filter(fs -> dataSource == null || dataSource.equals(fs.getDataSource()))
+			.toArray(IFoundSetInternal[]::new);
+	}
+
 	private Stream<IFoundSetInternal> getAllFoundsetsStream()
 	{
 		return Stream.concat(separateFoundSets.values().stream(), //
@@ -1720,11 +1730,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			return getNoTableFoundSet();
 		}
-		else
-		{
-			// make sure inmem table is created
-			getTable(dataSource);
-		}
+
+		// make sure inmem table is created
+		getTable(dataSource);
+
 		// if it is a view foundset then just return the view foundset datasource, its always 1 per datasource
 		if (getViewDataSourceName(dataSource) != null)
 		{
@@ -1733,35 +1742,27 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				" is not registered yet on the form manager, please use databaseManager.getViewFoundSet(name, query, register)  with the register boolean true, or get at design time view through datasources.view.xxx.getFoundSet() first before showing a form");
 			return vfs;
 		}
-		FoundSet foundset = null;
+
 		if (l.getSharedFoundsetName() != null)
 		{
-			foundset = namedFoundSets.get(l.getSharedFoundsetName());
+			return getNamedFoundSet(l.getSharedFoundsetName(), dataSource);
 		}
-		else
-		{
-			foundset = separateFoundSets.get(l);
-		}
+
+		IFoundSetInternal foundset = separateFoundSets.get(l);
 		if (foundset == null)
 		{
-			foundset = createSeparateFoundset(dataSource, l.getSharedFoundsetName() != null ? l.getSharedFoundsetName() : l, defaultSortColumns);
+			foundset = createFoundset(dataSource, null, defaultSortColumns);
+			separateFoundSets.put(l, foundset);
 		}
+
 		return foundset;
 	}
 
-	private FoundSet createSeparateFoundset(String datasource, Object key, List<SortColumn> defaultSortColumns) throws ServoyException
+	private IFoundSetInternal createFoundset(String datasource, QuerySelect pkSelect, List<SortColumn> defaultSortColumns) throws ServoyException
 	{
 		SQLSheet sheet = getSQLGenerator().getCachedTableSQLSheet(datasource);
-		FoundSet foundset = (FoundSet)foundsetfactory.createFoundSet(this, sheet, null, defaultSortColumns);
+		IFoundSetInternal foundset = foundsetfactory.createFoundSet(this, sheet, pkSelect, defaultSortColumns);
 		if (createEmptyFoundsets) foundset.clear();
-		if (key instanceof IFoundSetListener)
-		{
-			separateFoundSets.put((IFoundSetListener)key, foundset);
-		}
-		else
-		{
-			namedFoundSets.put(key.toString(), foundset);
-		}
 		// inform global foundset event listeners that a new foundset has been created
 		globalFoundSetEventListener.foundSetCreated(foundset);
 		return foundset;
@@ -1783,29 +1784,43 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	}
 
 	@Override
-	public IFoundSet getNamedFoundSet(String name) throws ServoyException
+	public IFoundSetInternal getNamedFoundSet(String name, String datasourceFromContext) throws ServoyException
 	{
 		if (name == null) throw new RuntimeException("can't ask for a named foundset with a null name");
-		FoundSet foundset = namedFoundSets.get(name);
+
+		Optional<Form> form = stream(application.getFlattenedSolution().getForms(false))
+			.filter(frm -> name.equals(frm.getSharedFoundsetName()))
+			.findAny();
+
+		String datasource = form.map(Form::getDataSource).orElse(datasourceFromContext);
+		if (datasource == null)
+		{
+			// datasourceFromContext was null and form was not found
+			Debug.warn("Named foundset '" + name + "' not found");
+			return null;
+		}
+
+		if (datasourceFromContext != null && !datasourceFromContext.equals(datasource))
+		{
+			Debug.warn("Named foundset '" + name + "' found for datasource '" + datasource + "' but requested datasource was '" + datasourceFromContext + "'");
+			return null;
+		}
+
+		String initialSort = form.map(Form::getInitialSort).orElse(null); // use from form, if found
+		Pair<String, String> key = new Pair<>(name, datasource);
+		IFoundSetInternal foundset = namedFoundSets.get(key);
 		if (foundset == null)
 		{
-			Iterator<Form> forms = application.getFlattenedSolution().getForms(false);
-			while (forms.hasNext())
-			{
-				Form form = forms.next();
-				if (name.equals(form.getSharedFoundsetName()))
-				{
-					foundset = createSeparateFoundset(form.getDataSource(), name, getSortColumns(form.getDataSource(), form.getInitialSort()));
-					break;
-				}
-			}
+			foundset = createFoundset(datasource, null, getSortColumns(datasource, initialSort));
+			namedFoundSets.put(key, foundset);
 		}
+
 		return foundset;
 	}
 
 	public String getFoundSetName(IFoundSet foundset)
 	{
-		return namedFoundSets.entrySet().stream().filter(entry -> entry.getValue() == foundset).findAny().map(Entry::getKey).orElse(null);
+		return namedFoundSets.entrySet().stream().filter(entry -> entry.getValue() == foundset).findAny().map(Entry::getKey).map(Pair::getLeft).orElse(null);
 	}
 
 	public IFoundSetInternal getSharedFoundSet(String dataSource, List<SortColumn> defaultSortColumns) throws ServoyException
@@ -1814,11 +1829,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			return getNoTableFoundSet();
 		}
-		else
-		{
-			// make sure inmem table is created
-			getTable(dataSource);
-		}
+
+		// make sure inmem table is created
+		getTable(dataSource);
+
 		if (getViewDataSourceName(dataSource) != null)
 		{
 			ViewFoundSet vfs = viewFoundSets.get(dataSource);
@@ -1827,15 +1841,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			return vfs;
 		}
 
-		FoundSet foundset = sharedDataSourceFoundSet.get(dataSource);
+		IFoundSetInternal foundset = sharedDataSourceFoundSet.get(dataSource);
 		if (foundset == null)
 		{
-			SQLSheet sheet = getSQLGenerator().getCachedTableSQLSheet(dataSource);
-			foundset = (FoundSet)foundsetfactory.createFoundSet(this, sheet, null, defaultSortColumns);
-			if (createEmptyFoundsets) foundset.clear();
+			foundset = createFoundset(dataSource, null, defaultSortColumns);
 			sharedDataSourceFoundSet.put(dataSource, foundset);
-			// inform global foundset event listeners that a new foundset has been created
-			globalFoundSetEventListener.foundSetCreated(foundset);
 		}
 		return foundset;
 	}
@@ -1876,12 +1886,9 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			return getNoTableFoundSet();
 		}
-		SQLSheet sheet = getSQLGenerator().getCachedTableSQLSheet(dataSource);
-		FoundSet foundset = (FoundSet)foundsetfactory.createFoundSet(this, sheet, pkSelect, defaultSortColumns);
-		if (createEmptyFoundsets) foundset.clear();
+
+		IFoundSetInternal foundset = createFoundset(dataSource, pkSelect, defaultSortColumns);
 		foundSets.put(foundset, TRUE);
-		// inform global foundset event listeners that a new foundset has been created
-		globalFoundSetEventListener.foundSetCreated(foundset);
 		return foundset;
 	}
 
@@ -1951,28 +1958,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			sharedDataSourceFoundSet.remove(foundset.getDataSource());
 		}
-		if (separateFoundSets.values().contains(foundset))
-		{
-			Iterator<Map.Entry<IFoundSetListener, FoundSet>> it = separateFoundSets.entrySet().iterator();
-			while (it.hasNext())
-			{
-				if (it.next().getValue() == foundset)
-				{
-					it.remove();
-					break;
-				}
-			}
-		}
-		Iterator<Entry<String, FoundSet>> it = namedFoundSets.entrySet().iterator();
-		while (it.hasNext())
-		{
-			Entry<String, FoundSet> entry = it.next();
-			if (foundset == entry.getValue())
-			{
-				it.remove();
-				break;
-			}
-		}
+		removeFromCollection(separateFoundSets.values(), foundset);
+		removeFromCollection(namedFoundSets.values(), foundset);
 	}
 
 /*
@@ -2172,7 +2159,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 /*
  * _____________________________________________________________ locking methods
  */
-	//index == -1 is (current) selected record,< -1 is all records
+	// index == -1 is (current) selected record,< -1 is all records
 	public boolean acquireLock(IFoundSet fs, int index, String lockName)
 	{
 		if (fs instanceof IFoundSetInternal)
@@ -2182,19 +2169,19 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				return false;
 			}
-			Map<Object, Object[]> pkhashkeys = new HashMap<Object, Object[]>();
+			Map<String, Object[]> pkhashkeys = new HashMap<>();
 			if (index == -1)
 			{
 				int idx = foundSet.getSelectedIndex();
 				if (idx >= 0 && idx < foundSet.getSize())
 				{
 					IRecordInternal rec = foundSet.getRecord(idx);
-					if (rec == null || rec.getRawData() == null) return false;//just for safety
+					if (rec == null || rec.getRawData() == null) return false; // just for safety
 					if (!rec.getRawData().lockedByMyself()) pkhashkeys.put(rec.getPKHashKey(), rec.getPK());
 				}
 				else
 				{
-					return false;//wrong index
+					return false; // wrong index
 				}
 			}
 			else if (index < -1)
@@ -2202,7 +2189,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				for (int i = 0; i < foundSet.getSize(); i++)
 				{
 					IRecordInternal rec = foundSet.getRecord(i);
-					if (rec == null || rec.getRawData() == null) return false;//just for safety
+					if (rec == null || rec.getRawData() == null) return false; // just for safety
 					if (!rec.getRawData().lockedByMyself()) pkhashkeys.put(rec.getPKHashKey(), rec.getPK());
 				}
 			}
@@ -2211,46 +2198,42 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				if (index < foundSet.getSize())
 				{
 					IRecordInternal rec = foundSet.getRecord(index);
-					if (rec == null || rec.getRawData() == null) return false;//just for safety
+					if (rec == null || rec.getRawData() == null) return false; // just for safety
 					if (!rec.getRawData().lockedByMyself()) pkhashkeys.put(rec.getPKHashKey(), rec.getPK());
 				}
 				else
 				{
-					return false;//wrong index
+					return false; // wrong index
 				}
 			}
 			else
 			{
-				return false;//unknown index
+				return false; // unknown index
 			}
 
-			if (pkhashkeys.size() == 0) //optimize
+			RowManager rm = rowManagers.get(foundSet.getDataSource());
+			if (rm != null)
 			{
-				return true;
-			}
-
-			Table table = (Table)foundSet.getTable();
-			if (table != null)
-			{
-				String server_name = foundSet.getSQLSheet().getServerName();
-				String table_name = foundSet.getSQLSheet().getTable().getName();
-				RowManager rm = rowManagers.get(createDBTableDataSource(server_name, table_name));
-				//process
-				Set<Object> keySet = pkhashkeys.keySet();
-				Set<Object> ids = new HashSet<Object>(keySet);//make copy because it is not serialized in developer and set is emptied
-				QuerySelect lockSelect = SQLGenerator.createUpdateLockSelect(table, pkhashkeys.values().toArray(new Object[pkhashkeys.size()][]),
-					hasTransaction() && Boolean.parseBoolean(application.getSettings().getProperty("servoy.record.lock.lockInDB", "false"))); //$NON-NLS-1$ //$NON-NLS-2$
-				if (rm != null)
+				QuerySelect tableSelectQuery = (QuerySelect)rm.getSQLSheet().getSQL(SQLSheet.SELECT);
+				QuerySelect lockSelect = SQLGenerator.createUpdateLockSelect(tableSelectQuery, pkhashkeys.values(),
+					hasTransaction() && parseBoolean(application.getSettings().getProperty("servoy.record.lock.lockInDB", "false"))); //$NON-NLS-1$ //$NON-NLS-2$
+				if (lockSelect == null)
 				{
-					if (rm.acquireLock(application.getClientID(), lockSelect, lockName, ids))
+					// no pks
+					return true;
+				}
+
+				Set<Object> ids = new HashSet<>(pkhashkeys.keySet()); // make copy because it is not serialized in developer and set is emptied
+				if (rm.acquireLock(application.getClientID(), lockSelect, lockName, ids))
+				{
+					if (infoListener != null)
 					{
-						if (infoListener != null) infoListener.showLocksStatus(true);
-						// success
-						return true;
+						infoListener.showLocksStatus(true);
 					}
+					// success
+					return true;
 				}
 			}
-
 		}
 		return false;
 	}
@@ -2630,6 +2613,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 					Debug.log(e);
 					table = null;
 				}
+			}
+
+			if (getEditRecordList().removeRecords(dataSource))
+			{
+				Debug.warn("createDataSourceFromQuery was called while there were edited records under datasource with same name: " + name +
+					". All old records were removed.");
 			}
 
 			table = application.getDataServer()
@@ -3048,7 +3037,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		this.alwaysFollowPkSelection = alwaysFollowPkSelection;
 	}
 
-	private boolean disableRelatedSiblingsPrefetch = false;
+	private boolean disableRelatedSiblingsPrefetch = true;
 
 	public boolean isDisableRelatedSiblingsPrefetch()
 	{
@@ -3068,8 +3057,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	}
 
 	public Object[] insertToDataSource(String name, IDataSet dataSet, ColumnType[] columnTypes, WrappedObjectReference<String[]> pkNames, boolean create,
-		boolean skipOnLoad,
-		String server)
+		boolean skipOnLoad, String server)
 		throws ServoyException
 	{
 		if (name == null)
@@ -3979,4 +3967,54 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			.mapToInt(tableNode -> tableNode.getTypedProperty(property))
 			.anyMatch(methodId -> methodId > 0);
 	}
+
+	public QuerySet getQuerySet(QuerySelect select, boolean includeFilters) throws RepositoryException
+	{
+		if (select.getColumns() == null || !includeFilters)
+		{
+			// Do not modify the input
+			select = deepClone(select);
+		}
+
+		String serverName = getDataSourceServerName(select.getTable().getDataSource());
+		ArrayList<TableFilter> tfParams = null;
+		if (includeFilters)
+		{
+			tfParams = getTableFilterParams(serverName, select);
+		}
+		else
+		{
+			// get the sql without any filters
+			select.clearCondition(SQLGenerator.CONDITION_FILTER);
+			select.removeUnusedJoins(false, true);
+		}
+
+		if (select.getColumns() == null)
+		{
+			// no columns, add pk
+			BaseQueryTable qTable = select.getTable();
+			ITable table = getTable(qTable.getDataSource());
+			List<Column> pks = table.getRowIdentColumns();
+			if (pks.isEmpty())
+			{
+				throw new RepositoryException(ServoyException.InternalCodes.PRIMARY_KEY_NOT_FOUND, new Object[] { table.getName() });
+			}
+
+			pks.stream()
+				.map(col -> col.queryColumn(qTable))
+				.forEach(select::addColumn);
+		}
+
+		try
+		{
+			return application.getDataServer().getSQLQuerySet(serverName, select, tfParams, 0, -1, true, true);
+		}
+		catch (RemoteException e)
+		{
+			Debug.error(e);
+		}
+
+		return null;
+	}
+
 }

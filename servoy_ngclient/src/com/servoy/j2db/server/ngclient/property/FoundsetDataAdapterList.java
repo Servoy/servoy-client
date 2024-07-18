@@ -62,12 +62,14 @@ public class FoundsetDataAdapterList extends DataAdapterList
 
 	public void setRecordQuietly(IRecord record)
 	{
-		setRecordQuietly(record, false);
-	}
-
-	public void setRecordQuietly(IRecord record, boolean skipIfAlreadySet)
-	{
-		if (skipIfAlreadySet && record == getRecord()) return;
+		// if the record has not changed, avoid setting it again, to avoid unneeded code execution
+		// but
+		// if onlyFireListenersForPropertyValue is set (foundset linked props are being written to JSON), then
+		// only one of the properties (of possible multiple record related properties) is actually being updated
+		// by the setRecord(...) below, so when the next property will being written, if the record is the same (for example a foundset
+		// with size 1, multiple record dependent properties, then we still need to do stuff, so that the next
+		// property that is written toJSON will be updated as well to use the same - correct - record)
+		if (record == getRecord() && onlyFireListenersForPropertyValue == null) return;
 
 		keepQuiet = true;
 		try
@@ -142,11 +144,11 @@ public class FoundsetDataAdapterList extends DataAdapterList
 		if (foundset != null && foundset.getSize() > 0)
 		{
 			IRecord selectedRecord = foundset.getRecord(foundset.getSelectedIndex());
-			setRecordQuietly(selectedRecord, true);
+			setRecordQuietly(selectedRecord);
 		}
 		else
 		{
-			setRecordQuietly(null, true); // to make sure DAL is not listening to records that are no longer in the foundset
+			setRecordQuietly(null); // to make sure DAL is not listening to records that are no longer in the foundset
 		}
 	}
 
@@ -158,23 +160,15 @@ public class FoundsetDataAdapterList extends DataAdapterList
 
 		if (isGlobalDPChanged || isFormDPChanged)
 		{
-			// make sure foundset linked properties with global/form variables (like tagstring) are sent
-			if (getForm().isFormVisible())
-			{
-				pushChangedValues(e.getName(), true);
-			}
+			// make sure foundset linked properties with global/form variables (like tagstring) are sent; mark properties as changed even if form is not visible
+			pushChangedValues(e.getName(), true);
 			// if this is a global modification event and we need to react on that one
 			// then just mark the foundset as fully changed.
-			// should we do it also for form variables changes? - that could cause a lot of 'viewPortCompletelyChanged' and
-			// can affect performance - skip it for now
-			if (isGlobalDPChanged)
-			{
-				foundsetTypeSabloValue.changeMonitor.viewPortCompletelyChanged();
-				// it would be better if we could just mark the actual full column viewport as changed..
-				// then we need to have here or be abe to get the ViewportDataChangeMonitor of the FoundsetLinkedTypeSabloValue
-				// but then the clients also need to react on that specific change..
-				// or we call queuCellChange for every cell of that column (so for every row)
-			}
+			foundsetTypeSabloValue.changeMonitor.viewPortCompletelyChanged();
+			// it would be better if we could just mark the actual full column viewport as changed..
+			// then we need to have here or be abe to get the ViewportDataChangeMonitor of the FoundsetLinkedTypeSabloValue
+			// but then the clients also need to react on that specific change..
+			// or we call queuCellChange for every cell of that column (so for every row)
 		}
 		else
 		{

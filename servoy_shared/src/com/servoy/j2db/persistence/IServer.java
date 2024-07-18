@@ -59,6 +59,8 @@ public interface IServer extends Remote
 
 	public boolean isValid() throws RemoteException;
 
+	public void flagValid() throws RemoteException;
+
 	public String getDatabaseProductName() throws RepositoryException, RemoteException;
 
 	public String getDatabaseType() throws RepositoryException, RemoteException;

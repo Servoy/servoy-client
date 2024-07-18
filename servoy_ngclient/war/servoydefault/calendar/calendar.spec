@@ -14,7 +14,7 @@
 	{
 	        "background" : "color", 
 	        "borderType" : {"type":"border","stringformat":true}, 
-	        "dataProviderID" : { "type":"dataprovider", "pushToServer": "allow", "tags": { "scope": "design" }, "ondatachange": { "onchange":"onDataChangeMethodID", "callback":"onDataChangeCallback"}, "displayTagsPropertyName" : "displaysTags"}, 
+	        "dataProviderID" : { "type":"dataprovider", "pushToServer": "allow", "tags": { "wizard": true, "scope": "design" }, "ondatachange": { "onchange":"onDataChangeMethodID", "callback":"onDataChangeCallback"}, "displayTagsPropertyName" : "displaysTags"}, 
 	        "displaysTags" : { "type" : "boolean", "tags": { "scope" : "design" } }, 
 	        "editable" : {"type":"boolean", "default":true}, 
 	        "enabled" : { "type": "enabled", "blockingOn": false, "default": true, "for": ["dataProviderID","onActionMethodID","onDataChangeMethodID","onFocusGainedMethodID","onFocusLostMethodID","onRightClickMethodID"] }, 

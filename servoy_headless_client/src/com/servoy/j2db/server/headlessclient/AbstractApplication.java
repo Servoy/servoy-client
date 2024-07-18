@@ -216,6 +216,7 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 	{
 		if (getClientInfo().getUserUid() != null)
 		{
+			boolean callServer = false;
 			if (getSolution() != null && getSolution().requireAuthentication())
 			{
 				if (closeSolution(false, solution_to_open_args)) // don't shutdown if already closing; wait for the first closeSolution to finish
@@ -228,6 +229,7 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 					{
 						credentials.clear();
 						getClientInfo().clearUserInfo();
+						callServer = true;
 					}
 				}
 			}
@@ -235,6 +237,18 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 			{
 				credentials.clear();
 				getClientInfo().clearUserInfo();
+				callServer = true;
+			}
+			if (callServer && getApplicationServerAccess() != null && getClientID() != null)
+			{
+				try
+				{
+					getApplicationServerAccess().logout(getClientID());
+				}
+				catch (Exception ex)
+				{
+					Debug.log("Error during logout", ex);
+				}
 			}
 		}
 	}
@@ -401,7 +415,7 @@ public abstract class AbstractApplication extends ClientState implements IApplic
 
 	private String getI18NMessage(String key, Object[] args, Locale locale)
 	{
-		if (key == null || key.length() == 0) return key;
+		if (key == null || key.length() == 0) return ""; //$NON-NLS-1$
 		Properties properties = getMessages(locale);
 		return getI18NMessage(key, args, properties, locale);
 	}

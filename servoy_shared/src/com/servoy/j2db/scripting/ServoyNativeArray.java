@@ -45,6 +45,7 @@ public class ServoyNativeArray extends NativeArray
 	@Override
 	public Object unwrap()
 	{
+		Class< ? > realComponentType = componentType;
 		Object[] ids = getIds();
 
 		for (Object id : ids)
@@ -67,11 +68,16 @@ public class ServoyNativeArray extends NativeArray
 					o = o instanceof Wrapper ? ((Wrapper)o).unwrap() : o;
 					while (al.size() <= index)
 						al.add(null);
+					if (!componentType.isInstance(o))
+					{
+						// javascript can mix types in arrays, so make sure it does not fail
+						realComponentType = Object.class;
+					}
 					al.set(index, o);
 				}
 			}
 		}
-		Object[] array = al.toArray((Object[])Array.newInstance(componentType, al.size()));
+		Object[] array = al.toArray((Object[])Array.newInstance(realComponentType, al.size()));
 		return array;
 	}
 }

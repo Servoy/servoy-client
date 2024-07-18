@@ -116,11 +116,15 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 							int doubleQuote = str.lastIndexOf('"');
 							if (doubleQuote < commentIndex)
 							{
-								int nextNewLine = str.indexOf('\n', commentIndex);
-								if (nextNewLine == -1 || str.lastIndexOf('\n') <= nextNewLine)
+								int closingBracket = str.lastIndexOf('}');
+								if (!str.trim().startsWith("{") || closingBracket < commentIndex)
 								{
-									str = str.substring(0, commentIndex).trim();
-									if (str.endsWith(";")) str = str.substring(0, str.length() - 1); //$NON-NLS-1$
+									int nextNewLine = str.indexOf('\n', commentIndex);
+									if (nextNewLine == -1 || str.lastIndexOf('\n') <= nextNewLine)
+									{
+										str = str.substring(0, commentIndex).trim();
+										if (str.endsWith(";")) str = str.substring(0, str.length() - 1); //$NON-NLS-1$
+									}
 								}
 							}
 						}

@@ -194,7 +194,9 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 
 	public void setCssClasses(String cls)
 	{
-		putAttribute("class", cls);
+		String newCls = cls.trim();
+		newCls = newCls.replaceAll("\\s+", " ");
+		putAttribute("class", newCls);
 	}
 
 	/**
@@ -241,6 +243,11 @@ public class LayoutContainer extends AbstractContainer implements ISupportBounds
 	public void putAttribute(String name, String value)
 	{
 		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_ATTRIBUTES, name }, value);
+	}
+
+	public void clearAttribute(String name)
+	{
+		clearCustomProperty(new String[] { IContentSpecConstants.PROPERTY_ATTRIBUTES, name });
 	}
 
 	@Override

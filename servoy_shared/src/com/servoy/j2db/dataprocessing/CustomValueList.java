@@ -240,7 +240,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 
 			if (values != null)
 			{
-				if (values.startsWith("\n") || values.startsWith("\r")) //$NON-NLS-1$ //$NON-NLS-2$
+				if (!allowEmptySelection && (values.startsWith("\n") || values.startsWith("\r"))) //$NON-NLS-1$ //$NON-NLS-2$
 				{
 					super.addElement(""); //$NON-NLS-1$
 				}
@@ -558,6 +558,11 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 			}
 		}
 		return ret;
+	}
+
+	protected int selfIndexOf(Object elem)
+	{
+		return super.indexOf(elem);
 	}
 
 	/**

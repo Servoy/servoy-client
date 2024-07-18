@@ -283,10 +283,16 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 	@Override
 	public IWebFormController getForm(String name)
 	{
+		return getForm(name, null);
+	}
+
+	@Override
+	public IWebFormController getForm(String name, WebFormComponent parent)
+	{
 		IWebFormController fc = createdFormControllers.get(name);
 		if (fc == null)
 		{
-			fc = leaseFormPanel(name);
+			fc = leaseFormPanel(name, parent);
 		}
 		return fc;
 	}
@@ -300,6 +306,11 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 
 	@Override
 	public IWebFormController leaseFormPanel(String formName)
+	{
+		return leaseFormPanel(formName, null);
+	}
+
+	public IWebFormController leaseFormPanel(String formName, WebFormComponent parent)
 	{
 		if (formName == null) return null;
 
@@ -321,6 +332,10 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 				fp.init();
 				updateLeaseHistory(fp);
 				fp.setView(fp.getView());
+				if (parent != null)
+				{
+					fp.getFormUI().setParentContainer(parent);
+				}
 				fp.executeOnLoadMethod();
 			}
 			finally
@@ -457,11 +472,18 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 	@Override
 	public IFormController showFormInContainer(String formName, IBasicMainContainer container, String title, boolean closeAll, String dialogName)
 	{
+		if (formName == null) throw new IllegalArgumentException(application.getI18NMessage("servoy.formManager.error.SettingVoidForm")); //$NON-NLS-1$
+
 		if (loginForm != null && loginForm.getName() != formName)
 		{
-			return null;//not allowed to leave here...or show anything else than login form
+			NGRuntimeWindow currentContainer = getCurrentContainer();
+			if (!(currentContainer != container && container instanceof RuntimeWindow rw &&
+				(rw.getType() == JSWindow.MODAL_DIALOG || rw.getType() == JSWindow.DIALOG)))
+			{
+				Debug.warn("Trying to show a form " + formName + " when a login form " + loginForm.getName() + "  is shown, this is not allowed "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				return null;//not allowed to leave here...or show anything else than login form
+			}
 		}
-		if (formName == null) throw new IllegalArgumentException(application.getI18NMessage("servoy.formManager.error.SettingVoidForm")); //$NON-NLS-1$
 
 		IFormController currentMainShowingForm = container.getController();
 
@@ -471,6 +493,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 		final Form f = possibleForms.get(formName);
 		if (f == null)
 		{
+			Debug.warn("Trying to show a form that is not found: " + formName); //$NON-NLS-1$
 			return null;
 		}
 
@@ -574,8 +597,8 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 	@Override
 	public IFormController showFormInCurrentContainer(String formName)
 	{
-		IBasicMainContainer currentContainer = getCurrentContainer();
-		return showFormInContainer(formName, currentContainer, null, false, currentContainer.getContainerName());
+		NGRuntimeWindow currentContainer = getCurrentContainer();
+		return showFormInContainer(formName, currentContainer, currentContainer.getTitle(), false, currentContainer.getContainerName());
 	}
 
 	@Override
@@ -639,7 +662,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 	}
 
 	@Override
-	public IBasicMainContainer getCurrentContainer()
+	public NGRuntimeWindow getCurrentContainer()
 	{
 		return ((INGApplication)application).getRuntimeWindowManager().getCurrentWindow();
 	}
@@ -674,7 +697,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 	{
 		// main containers should be the once without a parent  (so tabs in browser but no dialogs)
 		// so setTitle should also just set it on the current main window of the active endpoint
-		return ((NGRuntimeWindow)getCurrentContainer()).getParent() == null;
+		return getCurrentContainer().getParent() == null;
 	}
 
 	@Override

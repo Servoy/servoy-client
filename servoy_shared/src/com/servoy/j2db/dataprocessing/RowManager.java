@@ -17,6 +17,8 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.j2db.query.AbstractBaseQuery.setPlaceholderValue;
+import static com.servoy.j2db.query.AbstractBaseQuery.setPlaceholderValueChecked;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
@@ -862,8 +864,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					pkValues[j] = row.getOldRequiredValue(dataProviderID);
 				}
 
-				// TODO: check for success
-				AbstractBaseQuery.setPlaceholderValue(sqlUpdate,
+				setPlaceholderValueChecked(sqlUpdate,
 					new TablePlaceholderKey(((QueryUpdate)sqlUpdate).getTable(), SQLGenerator.PLACEHOLDER_PRIMARY_KEY), pkValues);
 			}
 			else
@@ -927,7 +928,7 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 						}
 					}
 				}
-				AbstractBaseQuery.setPlaceholderValue(sqlUpdate,
+				setPlaceholderValue(sqlUpdate,
 					new TablePlaceholderKey(((QueryInsert)sqlUpdate).getTable(), SQLGenerator.PLACEHOLDER_INSERT_KEY), argsArray.toArray());
 			}
 			Object[] pk = row.getPK();
@@ -1261,10 +1262,9 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 			{
 				transaction_id = gt.getTransactionID(sheet.getServerName());
 			}
-			IDataSet dataset = fsm.getApplication()
-				.getDataServer()
+			IDataSet dataset = fsm.getApplication().getDataServer()
 				.acquireLocks(client_id, sheet.getServerName(), sheet.getTable().getName(), ids, lockSelect,
-					transaction_id, getFoundsetManager().getTableFilterParams(sheet.getServerName(), lockSelect), getFoundsetManager().config.chunkSize());
+					transaction_id, getFoundsetManager().getTableFilterParams(sheet.getServerName(), lockSelect), ids.size());
 			if (dataset != null)
 			{
 				addLocks(ids, lockName);

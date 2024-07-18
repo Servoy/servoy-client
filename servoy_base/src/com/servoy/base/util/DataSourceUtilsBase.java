@@ -48,6 +48,16 @@ public class DataSourceUtilsBase
 	}
 
 	/**
+	 * Is the array returned from {@link #getDBServernameTablename(String)} complete?
+	 */
+	public static boolean isCompleteDBbServerTable(String[] dbServernameTablename)
+	{
+		return dbServernameTablename != null && dbServernameTablename.length == 2 &&
+			dbServernameTablename[0] != null && dbServernameTablename[0].length() > 0 &&
+			dbServernameTablename[1] != null && dbServernameTablename[1].length() > 0;
+	}
+
+	/**
 	 * Create the a database data source string from server and table
 	 *
 	 * @param serverName the serverName

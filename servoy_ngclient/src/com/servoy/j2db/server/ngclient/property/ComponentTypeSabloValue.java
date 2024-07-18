@@ -857,7 +857,15 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 						Object value = change.get(FoundsetTypeSabloValue.VALUE_KEY);
 
 						updatePropertyValueForRecord(foundsetPropertyValue, rowIDValue, propertyName, value);
-						foundsetPropertyValue.setDataAdapterListToSelectedRecord();
+
+						if (!viewPortChangeMonitor.hasViewportChanges() && !viewPortChangeMonitor.shouldSendWholeViewport())
+							foundsetPropertyValue.setDataAdapterListToSelectedRecord();
+						// else the selected record will be restored later in toJSON via viewPortChangeMonitor.doneWritingChanges() and
+						// in some cases - for example if the viewport has updates due to a valuelist.filter() that just happened on another
+						// record then the selected one in the updatePropertyValueForRecord() above, we must not restore selection here, as that
+						// changesToJSON that will follow will want to send the result of that filter and not a full valuelist value that might
+						// result due to a restore of selected record in the FoundsetDataAdapterList followed by a switch to the
+						// record that .filter() was called on when writing changes toJSON...
 					}
 					else
 					{
@@ -885,7 +893,8 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 						{
 							// changes component record and sets value
 							String rowIDValue = changeAndApply.getString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
-							foundsetLinkedPropOfComponentValueChangeHandler.setApplyingDPValueFromClient(true);
+							if (foundsetLinkedPropOfComponentValueChangeHandler != null)
+								foundsetLinkedPropOfComponentValueChangeHandler.setApplyingDPValueFromClient(true);
 							FoundsetTypeSabloValue foundsetValue = getFoundsetValue();
 							updatePropertyValueForRecord(foundsetValue, rowIDValue, propertyName, value);
 
@@ -961,6 +970,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 						dal = formUI.getDataAdapterList();
 					}
 
+					// the following line will also change the foundset selection to DAL's record
 					dal.startEdit(childComponent, propertyName, null); // TODO last arg should be here the foundsetLinked row Id in case the property is itself a foundset-linked DP; this should be done as part of case SVY-10500
 				}
 			}

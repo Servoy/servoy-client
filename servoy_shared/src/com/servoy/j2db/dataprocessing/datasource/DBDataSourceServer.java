@@ -47,7 +47,7 @@ import com.servoy.j2db.util.Debug;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class DBDataSourceServer extends DefaultJavaScope implements LazyInitScope
 {
-	private static Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(DBDataSourceServer.class);
+	private static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(DBDataSourceServer.class);
 	private volatile IApplication application;
 
 	private final String serverName;

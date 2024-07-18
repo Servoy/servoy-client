@@ -27,7 +27,6 @@ import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.dataprocessing.FoundSetManager;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IDataProvider;
@@ -37,7 +36,6 @@ import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptNameValidator;
-import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
@@ -91,7 +89,7 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 
 	/**
 	 * Returns an array of JSRelationItem objects representing the relation criteria defined for this relation.
-	 * 
+	 *
 	 * @sample
 	 * var criteria = relation.getRelationItems();
 	 * for (var i=0; i<criteria.length; i++)
@@ -102,7 +100,7 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 	 *	application.output('operator: ' + item.operator);
 	 *	application.output('foreign column: ' + item.foreignColumnName);
 	 * }
-	 * 
+	 *
 	 * @return An array of JSRelationItem instances representing the relation criteria of this relation.
 	 */
 	@JSFunction
@@ -122,21 +120,21 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 	}
 
 	/**
-	 * Creates a new relation item for this relation. The primary dataprovider, the foreign data provider 
+	 * Creates a new relation item for this relation. The primary dataprovider, the foreign data provider
 	 * and one relation operators (like '=' '!=' '>' '<') must be provided.
 	 *
-	 * @sample 
+	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.newRelationItem('another_parent_table_id', '=', 'another_child_table_parent_id');
 	 * // for literals use a prefix
 	 * relation.newRelationItem(JSRelationItem.LITERAL_PREFIX + "'hello'",'=', 'mytextfield');
 	 *
-	 * @param dataprovider The name of the primary dataprovider. 
+	 * @param dataprovider The name of the primary dataprovider.
 	 *
-	 * @param operator The operator used to relate the primary and the foreign dataproviders. 
+	 * @param operator The operator used to relate the primary and the foreign dataproviders.
 	 *
-	 * @param foreinColumnName The name of the foreign dataprovider. 
-	 * 
+	 * @param foreinColumnName The name of the foreign dataprovider.
+	 *
 	 * @return A JSRelationItem instance representing the newly added relation item.
 	 */
 	@JSFunction
@@ -176,7 +174,7 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 			else
 			{
 				primaryDataProvider = application.getFlattenedSolution().getDataProviderForTable(
-					(Table)application.getFoundSetManager().getTable(relation.getPrimaryDataSource()), dataprovider);
+					application.getFoundSetManager().getTable(relation.getPrimaryDataSource()), dataprovider);
 			}
 			if (primaryDataProvider == null)
 			{
@@ -184,7 +182,7 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 			}
 
 			IDataProvider dp = application.getFlattenedSolution().getDataProviderForTable(
-				(Table)application.getFoundSetManager().getTable(relation.getForeignDataSource()), foreinColumnName);
+				application.getFoundSetManager().getTable(relation.getForeignDataSource()), foreinColumnName);
 			if (!(dp instanceof Column))
 			{
 				throw new IllegalArgumentException("Foreign columnname " + foreinColumnName + " is not a valid column"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -202,7 +200,7 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 
 	/**
 	 * Removes the desired relation item from the specified relation.
-	 * 
+	 *
 	 * @sample
 	 * var relation = solutionModel.newRelation('myRelation', 'db:/myServer/parentTable', 'db:/myServer/childTable', JSRelation.INNER_JOIN);
 	 * relation.newRelationItem('someColumn1', '=', 'someColumn2');
@@ -215,9 +213,9 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 	 * 	application.output('operator: ' + item.operator);
 	 * 	application.output('foreign column: ' + item.foreignColumnName);
 	 * }
-	 * 
+	 *
 	 * @param primaryDataProviderID the primary data provider (column) name
-	 * @param operator the operator 
+	 * @param operator the operator
 	 * @param foreignColumnName the foreign column name
 	 */
 	@JSFunction
@@ -245,7 +243,7 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Relation#getAllowCreationRelatedRecords()
-	 * 
+	 *
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.allowCreationRelatedRecords = true;
@@ -265,7 +263,7 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Relation#getAllowParentDeleteWhenHavingRelatedRecords()
-	 * 
+	 *
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.allowParentDeleteWhenHavingRelatedRecords = false;
@@ -285,7 +283,7 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Relation#getDeleteRelatedRecords()
-	 * 
+	 *
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.deleteRelatedRecords = true;
@@ -305,7 +303,7 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 
 	/**
 	 * The name of the server where the foreign table is located.
-	 * 
+	 *
 	 * @deprecated As of release 5.1, replaced by foreignDataSource property.
 	 */
 	@Deprecated
@@ -316,7 +314,7 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 
 	/**
 	 * The name of the foreign table.
-	 * 
+	 *
 	 * @deprecated As of release 5.1, replaced by foreignDataSource property.
 	 */
 	@Deprecated
@@ -327,7 +325,7 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Relation#getForeignDataSource()
-	 * 
+	 *
 	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSRelation#getPrimaryDataSource()
 	 */
 	@JSGetter
@@ -357,7 +355,7 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Relation#getInitialSort()
-	 * 
+	 *
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.initialSort = 'another_child_table_text asc';
@@ -377,7 +375,7 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Relation#getJoinType()
-	 * 
+	 *
 	 * @sampleas com.servoy.j2db.solutionmodel.ISMRelation#INNER_JOIN
 	 */
 	@JSGetter
@@ -395,7 +393,7 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Relation#getName()
-	 * 
+	 *
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.name = 'anotherName';
@@ -424,9 +422,9 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 
 	/**
 	 * The name of the server where the primary table is located.
-	 * 
+	 *
 	 * @deprecated As of release 5.1, replaced by primaryDataSource property.
-	 * 
+	 *
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * relation.primaryTableName = 'another_parent_table';
@@ -442,7 +440,7 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 
 	/**
 	 * The name of the primary table.
-	 * 
+	 *
 	 * @deprecated As of release 5.1, replaced by primaryDataSource property.
 	 */
 	@Deprecated
@@ -453,7 +451,7 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 
 	/**
 	 * @clonedesc com.servoy.j2db.solutionmodel.ISMRelation#getPrimaryDataSource()
-	 * 
+	 *
 	 * @sampleas com.servoy.j2db.solutionmodel.ISMRelation#getForeignDataSource()
 	 */
 	@JSGetter
@@ -511,7 +509,7 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 
 	/**
 	 * Returns the UUID of the relation object
-	 * 
+	 *
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * application.output(relation.getUUID().toString())
@@ -523,13 +521,13 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	public final void checkModification()
 	{
 		try
 		{
-			if (((FoundSetManager)application.getFoundSetManager()).getSQLGenerator().getCachedTableSQLSheet(relation.getForeignDataSource()).getRelatedSQLDescription(
+			if (application.getFoundSetManager().getSQLGenerator().getCachedTableSQLSheet(relation.getForeignDataSource()).getRelatedSQLDescription(
 				relation.getName()) != null)
 			{
 				throw new RuntimeException("Cant modify a relation that is already used in the application: " + relation.getName()); //$NON-NLS-1$
@@ -559,7 +557,7 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -573,7 +571,7 @@ public class JSRelation implements IJSParent<Relation>, IConstantsObject, ISMRel
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override

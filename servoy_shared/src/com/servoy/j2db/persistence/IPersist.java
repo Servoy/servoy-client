@@ -19,6 +19,7 @@ package com.servoy.j2db.persistence;
 
 import java.io.Serializable;
 import java.util.Comparator;
+import java.util.Optional;
 
 import com.servoy.j2db.util.UUID;
 
@@ -115,7 +116,53 @@ public interface IPersist extends Serializable
 	 *
 	 * @return the ancestor
 	 */
-	public IPersist getAncestor(int typeId);
+	default IPersist getAncestor(int typeId)
+	{
+		if (getTypeID() == typeId)
+		{
+			return this;
+		}
+		if (getParent() == null)
+		{
+			return null;
+		}
+		return getParent().getAncestor(typeId);
+	}
+
+	/**
+	 * Find the first ancestor with the specified type, starting with self, null if none found
+	 *
+	 * @return the ancestor
+	 */
+	default <T> T getAncestor(Class< ? extends T> cls)
+	{
+		if (cls.isInstance(this))
+		{
+			return (T)this;
+		}
+		if (getParent() == null)
+		{
+			return null;
+		}
+		return getParent().getAncestor(cls);
+	}
+
+	/**
+	 *  Find the child (recursively) with the given UUID.
+	 */
+	default Optional<IPersist> searchChild(UUID uuid)
+	{
+		return Optional.ofNullable((IPersist)acceptVisitor(persist -> persist.getUUID().equals(uuid) ? persist : null));
+	}
+
+	/**
+	 *  Find the child (recursively) with the given extendsID.
+	 */
+	default Optional<IPersist> searchForExtendsId(int extendsID)
+	{
+		return Optional.ofNullable((IPersist)acceptVisitor(
+			persist -> (persist instanceof ISupportExtendsID && ((ISupportExtendsID)persist).getExtendsID() == extendsID) ? persist : null));
+	}
 
 	/**
 	 * Returns the UUID

@@ -330,7 +330,7 @@ public class LookupListModel extends AbstractListModel
 
 	public void fill(IRecordInternal parentState, String dataProviderID, String filter, boolean firstTime) throws ServoyException
 	{
-		fill(parentState, dataProviderID, filter, null, firstTime);
+		fill(parentState, dataProviderID, filter, null, firstTime, false);
 	}
 
 	/**
@@ -339,7 +339,8 @@ public class LookupListModel extends AbstractListModel
 	 * @throws RepositoryException
 	 * @throws RemoteException
 	 */
-	public void fill(IRecordInternal parentState, String dataProviderID, String filter, Object realValue, boolean firstTime) throws ServoyException
+	public void fill(IRecordInternal parentState, String dataProviderID, String filter, Object realValue, boolean firstTime, boolean alsoFilterOnRealValues)
+		throws ServoyException
 	{
 		int prevSize = alReal.size();
 
@@ -369,7 +370,7 @@ public class LookupListModel extends AbstractListModel
 			clist.fill(realState, fixedFilter, null);
 			if ("".equals(fixedFilter) && clist.isEmpty())
 			{
-				clist.fill(realState, fixedFilter, realValue);
+				clist.fill(realState, fixedFilter, alsoFilterOnRealValues ? fixedFilter : realValue);
 			}
 			for (int i = 0; i < clist.getSize(); i++)
 			{
@@ -400,6 +401,16 @@ public class LookupListModel extends AbstractListModel
 					alDisplay.add(display);
 					alReal.add(clist.getRealElementAt(i));
 				}
+				else if (alsoFilterOnRealValues)
+				{
+					Object real = clist.getRealElementAt(i);
+					if (real != null && ((procentStart && real.toString().toLowerCase().contains(txt)) ||
+						(!procentStart && real.toString().toLowerCase().startsWith(txt))))
+					{
+						alDisplay.add(display);
+						alReal.add(real);
+					}
+				}
 			}
 		}
 		else if (lookup instanceof LookupValueList)
@@ -411,11 +422,11 @@ public class LookupListModel extends AbstractListModel
 			}
 			if (((LookupValueList)lookup).getValueList().getDatabaseValuesType() == IValueListConstants.TABLE_VALUES)
 			{
-				fillDBValueListValues(txt);
+				fillDBValueListValues(txt, alsoFilterOnRealValues);
 			}
 			else
 			{
-				fillRelatedValueListValues(realState, txt);
+				fillRelatedValueListValues(realState, txt, alsoFilterOnRealValues);
 			}
 		}
 		else
@@ -430,7 +441,7 @@ public class LookupListModel extends AbstractListModel
 	 * @throws RemoteException
 	 * @throws Exception
 	 */
-	private void fillRelatedValueListValues(IRecordInternal parentState, String filter) throws ServoyException
+	private void fillRelatedValueListValues(IRecordInternal parentState, String filter, boolean alsoFilterOnRealValues) throws ServoyException
 	{
 		if (parentState == null) return;
 
@@ -446,7 +457,7 @@ public class LookupListModel extends AbstractListModel
 		QuerySelect select = pair.getLeft();
 		BaseQueryTable qTable = pair.getRight();
 
-		generateWherePart(txt, valueList, select, qTable);
+		generateWherePart(txt, valueList, select, qTable, alsoFilterOnRealValues);
 
 		try
 		{
@@ -537,7 +548,7 @@ public class LookupListModel extends AbstractListModel
 	 * @param select
 	 * @param qTable
 	 */
-	private boolean generateWherePart(String txt, ValueList valueList, QuerySelect select, BaseQueryTable qTable)
+	private boolean generateWherePart(String txt, ValueList valueList, QuerySelect select, BaseQueryTable qTable, boolean alsoFilterOnRealValues)
 	{
 		if (txt != null && !txt.equals("")) //$NON-NLS-1$
 		{
@@ -569,15 +580,15 @@ public class LookupListModel extends AbstractListModel
 			}
 			String likeValue = txt.toUpperCase() + '%';
 			OrCondition overallOr = new OrCondition();
-			if ((showValues & 1) != 0)
+			if ((showValues & 1) != 0 || (alsoFilterOnRealValues && (returnValues & 1) != 0))
 			{
 				addOrCondition(valueList.getDataProviderID1(), qTable, likeValue, displayValues, overallOr);
 			}
-			if ((showValues & 2) != 0)
+			if ((showValues & 2) != 0 || (alsoFilterOnRealValues && (returnValues & 2) != 0))
 			{
 				addOrCondition(valueList.getDataProviderID2(), qTable, likeValue, displayValues, overallOr);
 			}
-			if ((showValues & 4) != 0)
+			if ((showValues & 4) != 0 || (alsoFilterOnRealValues && (returnValues & 4) != 0))
 			{
 				addOrCondition(valueList.getDataProviderID3(), qTable, likeValue, displayValues, overallOr);
 			}
@@ -607,11 +618,11 @@ public class LookupListModel extends AbstractListModel
 	 * @throws RepositoryException
 	 * @throws RemoteException
 	 */
-	private void fillDBValueListValues(String filter) throws ServoyException
+	private void fillDBValueListValues(String filter, boolean alsoFilterOnRealValues) throws ServoyException
 	{
 		ValueList valueList = ((LookupValueList)lookup).getValueList();
 		QuerySelect sqlParts = AbstractBaseQuery.deepClone(creationSQLParts);
-		if (!generateWherePart(filter, valueList, sqlParts, sqlParts.getTable()))
+		if (!generateWherePart(filter, valueList, sqlParts, sqlParts.getTable(), alsoFilterOnRealValues))
 		{
 			ArrayList<IQuerySort> sorts = getSortColumnsForQuery(sqlParts);
 			if (sorts != null) sqlParts.setSorts(sorts);

@@ -45,6 +45,8 @@ public final class QueryJoin implements ISQLTableJoin
 	private int joinType;
 	private final boolean permanent;
 
+	protected String comment;
+
 	private transient Object origin; // origin, transient, only used in the client
 
 	/**
@@ -212,6 +214,22 @@ public final class QueryJoin implements ISQLTableJoin
 	}
 
 	/**
+	 * @return the comment
+	 */
+	public String getComment()
+	{
+		return comment;
+	}
+
+	/**
+	 * @param comment the comment to set
+	 */
+	public void setComment(String comment)
+	{
+		this.comment = comment;
+	}
+
+	/**
 	 * Invert the direction of this join.
 	 */
 	public void invert(String newName)
@@ -270,6 +288,7 @@ public final class QueryJoin implements ISQLTableJoin
 		final int PRIME = 31;
 		int result = 1;
 		result = PRIME * result + ((alias == null) ? 0 : alias.hashCode());
+		result = PRIME * result + ((comment == null) ? 0 : comment.hashCode());
 		result = PRIME * result + ((condition == null) ? 0 : condition.hashCode());
 		result = PRIME * result + ((foreignTableReference == null) ? 0 : foreignTableReference.hashCode());
 		result = PRIME * result + joinType;
@@ -291,6 +310,11 @@ public final class QueryJoin implements ISQLTableJoin
 			if (other.alias != null) return false;
 		}
 		else if (!alias.equals(other.alias)) return false;
+		if (comment == null)
+		{
+			if (other.comment != null) return false;
+		}
+		else if (!comment.equals(other.comment)) return false;
 		if (condition == null)
 		{
 			if (other.condition != null) return false;
@@ -336,24 +360,27 @@ public final class QueryJoin implements ISQLTableJoin
 		{
 			sb.append('!');
 		}
-		sb.append(" FROM ").append(primaryTable.toString()); //$NON-NLS-1$
-		sb.append(" TO ").append(foreignTableReference.toString()); //$NON-NLS-1$
+		if (comment != null)
+		{
+			sb.append(" /* ").append(comment).append(" */");
+		}
+		sb.append(" FROM ").append(primaryTable.toString());
+		sb.append(" TO ").append(foreignTableReference.toString());
 		if (condition != null)
 		{
-			sb.append(" ON ").append(condition.toString()); //$NON-NLS-1$
+			sb.append(" ON ").append(condition.toString());
 		}
 		return sb.toString();
 	}
 
 	///////// serialization ////////////////
 
-
 	public Object writeReplace()
 	{
 		int joinTypeAndPermant = joinType | (permanent ? PERMANENT_MASK : 0);
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
 		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(),
-			new Object[] { relationName, primaryTable, foreignTableReference, condition, Integer.valueOf(joinTypeAndPermant), alias });
+			new Object[] { relationName, primaryTable, foreignTableReference, condition, Integer.valueOf(joinTypeAndPermant), comment, alias });
 	}
 
 	public QueryJoin(ReplacedObject s)
@@ -376,6 +403,10 @@ public final class QueryJoin implements ISQLTableJoin
 		int joinTypeAndPermant = ((Integer)members[i++]).intValue();
 		joinType = joinTypeAndPermant & ~PERMANENT_MASK;
 		permanent = (joinTypeAndPermant & PERMANENT_MASK) != 0;
+		if (i < members.length) // comment is a new field that was added, so it is optional now
+		{
+			this.comment = (String)members[i++];
+		}
 		if (i < members.length) // alias is a new field that was added, so it is optional now
 		{
 			this.alias = (String)members[i++];

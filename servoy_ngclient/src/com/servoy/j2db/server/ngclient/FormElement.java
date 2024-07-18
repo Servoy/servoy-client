@@ -37,7 +37,7 @@ import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.SpecProviderState;
 import org.sablo.specification.WebComponentSpecProvider;
-import org.sablo.specification.WebObjectFunctionDefinition;
+import org.sablo.specification.WebObjectHandlerFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.property.ICustomType;
 import org.sablo.specification.property.IPropertyType;
@@ -212,7 +212,7 @@ public final class FormElement implements INGFormElement
 	 * This is part of 'Conversion 1' (see {@link NGConversions})
 	 */
 	protected void convertFromJSONToFormElementValues(FlattenedSolution fs, Map<String, PropertyDescription> specProperties, Map<String, Object> jsonMap,
-		Map<String, WebObjectFunctionDefinition> eventProperties, JSONObject propertyDesignJSONValues, PropertyPath propertyPath) throws JSONException
+		Map<String, WebObjectHandlerFunctionDefinition> eventProperties, JSONObject propertyDesignJSONValues, PropertyPath propertyPath) throws JSONException
 	{
 		Iterator keys = propertyDesignJSONValues.keys();
 		while (keys.hasNext())
@@ -234,7 +234,7 @@ public final class FormElement implements INGFormElement
 	 * persist property values are always assumed to not need "Conversion 1"
 	 */
 	protected void convertFromPersistPrimitivesToFormElementValues(FlattenedSolution fs, Map<String, PropertyDescription> specProperties,
-		Map<String, WebObjectFunctionDefinition> eventProperties, Map<String, Object> properties, PropertyPath propertyPath)
+		Map<String, WebObjectHandlerFunctionDefinition> eventProperties, Map<String, Object> properties, PropertyPath propertyPath)
 	{
 		for (String key : properties.keySet())
 		{
@@ -249,7 +249,7 @@ public final class FormElement implements INGFormElement
 	}
 
 	protected PropertyDescription getPropertyOrEvent(String key, Map<String, PropertyDescription> specProperties,
-		Map<String, WebObjectFunctionDefinition> eventProperties)
+		Map<String, WebObjectHandlerFunctionDefinition> eventProperties)
 	{
 		PropertyDescription pd = specProperties.get(key);
 		if (pd == null && eventProperties != null)
@@ -672,8 +672,8 @@ public final class FormElement implements INGFormElement
 			mainForm = getForm();
 		}
 		WebObjectSpecification componentSpec = getWebComponentSpec();
-		Set<Entry<String, WebObjectFunctionDefinition>> entries = componentSpec.getHandlers().entrySet();
-		for (Entry<String, WebObjectFunctionDefinition> entry : entries)
+		Set<Entry<String, WebObjectHandlerFunctionDefinition>> entries = componentSpec.getHandlers().entrySet();
+		for (Entry<String, WebObjectHandlerFunctionDefinition> entry : entries)
 		{
 			if (skipPrivate && entry.getValue().isPrivate()) continue;
 			String eventName = entry.getKey();

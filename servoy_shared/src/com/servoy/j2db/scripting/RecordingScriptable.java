@@ -18,11 +18,16 @@ package com.servoy.j2db.scripting;
 
 import static com.servoy.j2db.util.Utils.arrayMap;
 
+import java.util.Collections;
+import java.util.Iterator;
+
 import org.mozilla.javascript.NativeDate;
+import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.Wrapper;
 
 import com.servoy.j2db.util.IDelegate;
+import com.servoy.j2db.util.UUID;
 
 /**
  * Scriptable for recording access to delegate scriptable. Used to determine dependencies for calculations.
@@ -30,7 +35,7 @@ import com.servoy.j2db.util.IDelegate;
  * @author rgansevles
  *
  */
-public class RecordingScriptable extends AbstractRecordingScriptable implements Wrapper
+public class RecordingScriptable extends AbstractRecordingScriptable implements Wrapper, Iterable
 {
 	public RecordingScriptable(Scriptable scriptable)
 	{
@@ -55,6 +60,30 @@ public class RecordingScriptable extends AbstractRecordingScriptable implements 
 		return scriptable instanceof Wrapper ? ((Wrapper)scriptable).unwrap() : scriptable;
 	}
 
+	public Iterator iterator()
+	{
+		if (scriptable instanceof Iterable)
+		{
+			Iterator scriptingIterator = ((Iterable)scriptable).iterator();
+			return new Iterator()
+			{
+				@Override
+				public boolean hasNext()
+				{
+					return scriptingIterator.hasNext();
+				}
+
+				@Override
+				public Object next()
+				{
+					return wrapIfNeeded(null, null, scriptingIterator.next());
+				}
+
+			};
+		}
+		return Collections.emptyIterator();
+	}
+
 	static Object unwrapScriptable(Object obj)
 	{
 		if (obj instanceof IDelegate< ? >)
@@ -76,7 +105,8 @@ public class RecordingScriptable extends AbstractRecordingScriptable implements 
 	static Scriptable wrapScriptableIfNeeded(String scriptableName, Scriptable scriptable)
 	{
 		if (scriptable == null) return null;
-		if (scriptable instanceof NativeDate || scriptable instanceof RecordingScriptable) return scriptable;
+		if (scriptable instanceof NativeDate || scriptable instanceof RecordingScriptable ||
+			(scriptable instanceof NativeJavaObject njo && njo.unwrap() instanceof UUID)) return scriptable;
 		return new RecordingScriptable(scriptableName, scriptable);
 	}
 

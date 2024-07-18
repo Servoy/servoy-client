@@ -221,11 +221,13 @@ angular.module('ngclientutils', [ 'servoy' ])
 		printDocument: function(url)
 		{
 			var objFra = document.createElement('iframe');   
-	        objFra.style.visibility = "hidden";    
-	        objFra.src = url;                      
-	        document.body.appendChild(objFra);  
-	        objFra.contentWindow.focus();      
-	        objFra.contentWindow.print();
+	        objFra.style.visibility = "hidden";
+	        document.body.appendChild(objFra); 
+	        objFra.onload = function() {
+	            objFra.contentWindow.focus();
+                objFra.contentWindow.print();
+            };
+            objFra.src = url;  
 		},
 		
 		/**
@@ -271,7 +273,42 @@ angular.module('ngclientutils', [ 'servoy' ])
             } else {
             	$log.warn( 'cannot find anchor element ' + anchorSelector );                
             }
-		}
+		},
+		
+		/**
+		 * Move the scrollbar to top position of the given selector.
+		 * The target selector can be a Servoy Form, Layout Container or element in a responsive form or any element in a form.
+		 * You can use styleClass as selector.
+		 * For example: you can add 'scroll-element' to an element of the form.
+		 * Examples of usage: 
+		 * - plugins.ngclientutils.scrollToTop(".toScroll-To");
+		 
+		 * @param selector {string} the selector to which the scrollbar should be moved to top.
+		 */
+		scrollToTop: function(selector) {
+			// find container
+            var container = $(selector);
+            
+            // validate elements found
+            if (container.length === 0) {
+                $log.warn(`cannot find container ${selector}`);
+                return;
+            } else if (container.length > 1) {
+                $log.warn(`multiple containers found ${selector}`);
+                return;
+            }
+            
+            // move scrolling to top position
+            $(window).scrollTop(container.offset().top)
+        },
+		
+		/**
+         * This method removes the arguments from the client url. This is used for bookmark url to be correct or for back button behavior.
+         */
+        removeArguments: function()
+        {
+            window.history.replaceState({},'', location.pathname + location.hash);
+        }
 	}
 }])
 .directive('svyFormClassUpdate', function($services) {

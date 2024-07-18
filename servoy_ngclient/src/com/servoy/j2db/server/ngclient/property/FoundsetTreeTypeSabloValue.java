@@ -31,10 +31,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.NativeArray;
-import org.sablo.BaseWebObject;
+import org.mozilla.javascript.Scriptable;
 import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
-import org.sablo.WebComponent;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.ISmartPropertyValue;
 import org.sablo.websocket.utils.JSONUtils;
@@ -48,7 +47,6 @@ import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.persistence.IRelation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.server.ngclient.IContextProvider;
-import com.servoy.j2db.server.ngclient.IWebFormUI;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -77,35 +75,45 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 	public Map<String, FoundsetTreeBinding> bindings = new HashMap<String, FoundsetTreeBinding>();
 	private Object[] selectionPath;
 	private IChangeListener changeMonitor;
-	private IWebObjectContext webObjectContext;
 	private int levelVisible = 0;
 	private boolean levelVisibility;
+	private IFoundSetManagerInternal fsm;
 
 	@Override
 	public void attachToBaseObject(IChangeListener changeMonitor, IWebObjectContext webObjectContext)
 	{
 		this.changeMonitor = changeMonitor;
-		this.webObjectContext = webObjectContext;
-		this.autorefresh = Utils.getAsBoolean(this.webObjectContext.getProperty("autoRefresh"));
+		this.autorefresh = Utils.getAsBoolean(webObjectContext.getProperty("autoRefresh"));
+		this.fsm = ((IContextProvider)webObjectContext.getUnderlyingWebObject()).getDataConverterContext().getApplication().getFoundSetManager();
 	}
 
 	@Override
 	public void detach()
 	{
 		this.changeMonitor = null;
-		this.webObjectContext = null;
-		bindings.values().stream().forEach(binding -> {
-			binding.foundsets.stream().filter(ISwingFoundSet.class::isInstance).map(ISwingFoundSet.class::cast).forEach(foundset -> {
-				foundset.removeTableModelListener(this);
-			});
-		});
+		this.removeAllRoots();
 		this.bindings.clear();
-		this.roots.clear();
 	}
 
 	public void flagChanged()
 	{
-		this.changeMonitor.valueChanged();
+		if (this.changeMonitor != null)
+		{
+			this.changeMonitor.valueChanged();
+		}
+	}
+
+	public void removeAllRoots()
+	{
+		bindings.values().stream().forEach(binding -> {
+			binding.foundsets.stream().filter(ISwingFoundSet.class::isInstance).map(ISwingFoundSet.class::cast).forEach(foundset -> {
+				foundset.removeTableModelListener(this);
+			});
+			binding.foundsets.clear();
+		});
+		this.roots.clear();
+		this.flagChanged();
+		this.parentID = null;
 	}
 
 	public void toJSON(JSONWriter writer, String key, IBrowserConverterContext dataConverterContext) throws IllegalArgumentException, JSONException
@@ -125,28 +133,20 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 			List<Map<String, Object>> relChildren = null;
 			if (foundsetAndRecordPK.length == 2)
 			{
-				BaseWebObject webObject = dataConverterContext.getWebObject();
-				if (webObject instanceof IContextProvider)
+				IFoundSetInternal foundset = fsm.findFoundset(Utils.getAsInteger(foundsetAndRecordPK[0]));
+				if (foundset != null)
 				{
-					IFoundSetManagerInternal fsm = ((IContextProvider)webObject).getDataConverterContext().getApplication().getFoundSetManager();
-					if (fsm != null)
+					FoundsetTreeBinding relatedBinding = bindings.get(foundset.getDataSource());
+					if (relatedBinding != null && relatedBinding.relationInfos.size() > 0 && foundset.getSize() > 0)
 					{
-						IFoundSetInternal foundset = fsm.findFoundset(Utils.getAsInteger(foundsetAndRecordPK[0]));
-						if (foundset != null)
+						int recordIndex = foundset.getRecordIndex(foundsetAndRecordPK[1], 0);
+						if (recordIndex != -1)
 						{
-							FoundsetTreeBinding relatedBinding = bindings.get(foundset.getDataSource());
-							if (relatedBinding.relationInfos.size() > 0 && foundset.getSize() > 0)
+							IRecordInternal record = foundset.getRecord(recordIndex);
+							if (record != null)
 							{
-								int recordIndex = foundset.getRecordIndex(foundsetAndRecordPK[1], 0);
-								if (recordIndex != -1)
-								{
-									IRecordInternal record = foundset.getRecord(recordIndex);
-									if (record != null)
-									{
-										relChildren = getRelatedFoundsetData(this.getRelatedFoundsets(relatedBinding, record, true),
-											this.parentLevel);
-									}
-								}
+								relChildren = getRelatedFoundsetData(this.getRelatedFoundsets(relatedBinding, record, true),
+									this.parentLevel);
 							}
 						}
 					}
@@ -209,47 +209,38 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 			String[] foundsetAndRecordPK = id.split("_");
 			if (foundsetAndRecordPK.length == 2)
 			{
-				IWebFormUI formUI = webObjectContext.getUnderlyingWebObject() instanceof WebComponent
-					? ((WebComponent)webObjectContext.getUnderlyingWebObject()).findParent(IWebFormUI.class) : null;
-				if (formUI != null)
+				IFoundSetInternal foundset = fsm.findFoundset(Utils.getAsInteger(foundsetAndRecordPK[0]));
+				if (foundset != null)
 				{
-					IFoundSetManagerInternal fsm = formUI.getController().getApplication().getFoundSetManager();
-					if (fsm != null)
+					FoundsetTreeBinding binding = bindings.get(foundset.getDataSource());
+					if (foundset.getSize() > 0)
 					{
-						IFoundSetInternal foundset = fsm.findFoundset(Utils.getAsInteger(foundsetAndRecordPK[0]));
-						if (foundset != null)
+						int recordIndex = foundset.getRecordIndex(foundsetAndRecordPK[1], 0);
+						if (recordIndex != -1)
 						{
-							FoundsetTreeBinding binding = bindings.get(foundset.getDataSource());
-							if (foundset.getSize() > 0)
+							IRecordInternal record = foundset.getRecord(recordIndex);
+							if (binding.checkboxvaluedataprovider != null && record != null && record.startEditing())
 							{
-								int recordIndex = foundset.getRecordIndex(foundsetAndRecordPK[1], 0);
-								if (recordIndex != -1)
+								((ISwingFoundSet)record.getParentFoundSet()).removeTableModelListener(this);
+								record.setValue(binding.checkboxvaluedataprovider, value);
+								((ISwingFoundSet)record.getParentFoundSet()).addTableModelListener(this);
+							}
+							else
+							{
+								List<Object> checkedValues = binding.checkboxValues != null ? new ArrayList(Arrays.asList(binding.checkboxValues))
+									: new ArrayList<>();
+								if (value)
 								{
-									IRecordInternal record = foundset.getRecord(recordIndex);
-									if (binding.checkboxvaluedataprovider != null && record != null && record.startEditing())
+									if (!checkedValues.stream().anyMatch(item -> Utils.equalObjects(item, record.getPK()[0])))
 									{
-										((ISwingFoundSet)record.getParentFoundSet()).removeTableModelListener(this);
-										record.setValue(binding.checkboxvaluedataprovider, value);
-										((ISwingFoundSet)record.getParentFoundSet()).addTableModelListener(this);
-									}
-									else
-									{
-										List<Object> checkedValues = binding.checkboxValues != null ? new ArrayList(Arrays.asList(binding.checkboxValues))
-											: new ArrayList<>();
-										if (value)
-										{
-											if (!checkedValues.stream().anyMatch(item -> Utils.equalObjects(item, record.getPK()[0])))
-											{
-												checkedValues.add(record.getPK()[0]);
-											}
-										}
-										else
-										{
-											checkedValues.removeIf(item -> Utils.equalObjects(item, record.getPK()[0]));
-										}
-										binding.checkboxValues = checkedValues.toArray();
+										checkedValues.add(record.getPK()[0]);
 									}
 								}
+								else
+								{
+									checkedValues.removeIf(item -> Utils.equalObjects(item, record.getPK()[0]));
+								}
+								binding.checkboxValues = checkedValues.toArray();
 							}
 						}
 					}
@@ -274,14 +265,6 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 				recordData.put("name", record.getValue(binding.textdataprovider));
 				recordData.put("datasource", root.getDataSource());
 				recordData.put("level", 1);
-				if (binding.imageurldataprovider != null)
-				{
-					recordData.put("image", record.getValue(binding.imageurldataprovider));
-				}
-				if (binding.tooltiptextdataprovider != null)
-				{
-					recordData.put("tooltip", record.getValue(binding.tooltiptextdataprovider));
-				}
 				boolean hasCheckbox = false;
 				if (binding.checkboxvaluedataprovider != null)
 				{
@@ -310,21 +293,12 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 					}
 					recordData.put("checked", checkboxValue);
 				}
-				if (binding.callbackinfoparamdataprovider != null)
+				if (binding.dataproviders != null)
 				{
-					recordData.put("callbackinfoParamValue", record.getValue(binding.callbackinfoparamdataprovider));
-				}
-				if (binding.checkboxChangeparamdataprovider != null)
-				{
-					recordData.put("methodToCallOnCheckBoxChangeParamValue", record.getValue(binding.checkboxChangeparamdataprovider));
-				}
-				if (binding.doubleclickparamdataprovider != null)
-				{
-					recordData.put("methodToCallOnDoubleClickParamValue", record.getValue(binding.doubleclickparamdataprovider));
-				}
-				if (binding.rightclickparamdataprovider != null)
-				{
-					recordData.put("methodToCallOnRightClickParamValue", record.getValue(binding.rightclickparamdataprovider));
+					for (String propertyid : binding.dataproviders.keySet())
+					{
+						recordData.put(propertyid, record.getValue(binding.dataproviders.get(propertyid)));
+					}
 				}
 				newJavaValueForJSON.add(recordData);
 				ArrayList<IFoundSetInternal> relatedFoundsets = getRelatedFoundsets(binding, record, false);
@@ -381,15 +355,12 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 				List<SortColumn> sortColumns = null;
 				if (binding.childsortdataprovider != null)
 				{
-					IWebFormUI formUI = webObjectContext.getUnderlyingWebObject() instanceof WebComponent
-						? ((WebComponent)webObjectContext.getUnderlyingWebObject()).findParent(IWebFormUI.class) : null;
-					if (formUI != null)
+					IRelation relation = fsm.getRelation(relationName);
+					if (relation != null)
 					{
-						IFoundSetManagerInternal fsm = formUI.getController().getApplication().getFoundSetManager();
-						IRelation relation = fsm.getRelation(relationName);
-						if (relation != null)
+						Object sortString = record.getValue(binding.childsortdataprovider);
+						if (sortString != Scriptable.NOT_FOUND)
 						{
-							Object sortString = record.getValue(binding.childsortdataprovider);
 							try
 							{
 								sortColumns = fsm.getSortColumns(fsm.getTable(relation.getForeignDataSource()),
@@ -399,6 +370,11 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 							{
 								Debug.error(e);
 							}
+						}
+						else
+						{
+							Debug.warn("Invalid sort dataprovider: " + binding.childsortdataprovider + ", column not found on table " +
+								relation.getForeignDataSource() + ". Will be ignored.");
 						}
 					}
 				}
@@ -421,6 +397,15 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 			for (IFoundSetInternal relatedFoundset : relatedFoundsets)
 			{
 				FoundsetTreeBinding relatedBinding = bindings.get(relatedFoundset.getDataSource());
+				boolean listenerAttached = false;
+				if (relatedBinding.foundsets.contains(relatedFoundset))
+				{
+					listenerAttached = true;
+				}
+				if (listenerAttached)
+				{
+					((ISwingFoundSet)relatedFoundset).removeTableModelListener(this);
+				}
 				for (int j = 0; j < relatedFoundset.getSize(); j++)
 				{
 					Map<String, Object> relRecordData = new HashMap<String, Object>();
@@ -429,14 +414,6 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 					relRecordData.put("name", relRecord.getValue(relatedBinding.textdataprovider));
 					relRecordData.put("datasource", relatedFoundset.getDataSource());
 					relRecordData.put("level", parentlevel + 1);
-					if (relatedBinding.imageurldataprovider != null)
-					{
-						relRecordData.put("image", relRecord.getValue(relatedBinding.imageurldataprovider));
-					}
-					if (relatedBinding.tooltiptextdataprovider != null)
-					{
-						relRecordData.put("tooltip", relRecord.getValue(relatedBinding.tooltiptextdataprovider));
-					}
 					boolean relhasCheckbox = false;
 					if (relatedBinding.checkboxvaluedataprovider != null)
 					{
@@ -465,21 +442,12 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 						}
 						relRecordData.put("checked", checkboxValue);
 					}
-					if (relatedBinding.callbackinfoparamdataprovider != null)
+					if (relatedBinding.dataproviders != null)
 					{
-						relRecordData.put("callbackinfoParamValue", relRecord.getValue(relatedBinding.callbackinfoparamdataprovider));
-					}
-					if (relatedBinding.checkboxChangeparamdataprovider != null)
-					{
-						relRecordData.put("methodToCallOnCheckBoxChangeParamValue", relRecord.getValue(relatedBinding.checkboxChangeparamdataprovider));
-					}
-					if (relatedBinding.doubleclickparamdataprovider != null)
-					{
-						relRecordData.put("methodToCallOnDoubleClickParamValue", relRecord.getValue(relatedBinding.doubleclickparamdataprovider));
-					}
-					if (relatedBinding.rightclickparamdataprovider != null)
-					{
-						relRecordData.put("methodToCallOnRightClickParamValue", relRecord.getValue(relatedBinding.rightclickparamdataprovider));
+						for (String propertyid : relatedBinding.dataproviders.keySet())
+						{
+							relRecordData.put(propertyid, relRecord.getValue(relatedBinding.dataproviders.get(propertyid)));
+						}
 					}
 					relRecordData.put("hasChildren", false);
 					if (this.selectionPath != null && this.selectionPath.length == parentlevel + 1 &&
@@ -496,7 +464,7 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 							if (this.levelVisibility && this.levelVisible >= parentlevel + 1)
 							{
 								List<Map<String, Object>> innerRelChildren = getRelatedFoundsetData(childRelatedFoundsets, parentlevel + 1);
-								if (relChildren.size() > 0)
+								if (innerRelChildren.size() > 0)
 								{
 									relRecordData.put("hasChildren", true);
 									relRecordData.put("children", innerRelChildren);
@@ -521,6 +489,10 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 
 					}
 					relChildren.add(relRecordData);
+				}
+				if (listenerAttached)
+				{
+					((ISwingFoundSet)relatedFoundset).addTableModelListener(this);
 				}
 			}
 		}
@@ -697,7 +669,7 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 		if (this.autorefresh && this.initialized)
 		{
 			IFoundSetInternal foundset = (IFoundSetInternal)e.getSource();
-			if (foundset instanceof RelatedFoundSet)
+			if (foundset instanceof RelatedFoundSet && !this.roots.contains(foundset))
 			{
 				List<IRecordInternal> parentRecords = ((RelatedFoundSet)foundset).getParents();
 				if (parentRecords != null && parentRecords.size() > 0)
@@ -723,18 +695,13 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 	{
 		public String textdataprovider;
 		public Map<String, String> relationInfos = new HashMap<String, String>();
+		public Map<String, String> dataproviders = new HashMap<String, String>();
 		public String hascheckboxdataprovider;
 		public String checkboxvaluedataprovider;
-		public String tooltiptextdataprovider;
-		public String imageurldataprovider;
 		public String childsortdataprovider;
 		public Object[] hasCheckboxValue;
 		public Object[] checkboxValues;
 		public boolean checkboxAutoselectsChildren = true;
-		public String callbackinfoparamdataprovider = null;
-		public String checkboxChangeparamdataprovider = null;
-		public String doubleclickparamdataprovider = null;
-		public String rightclickparamdataprovider = null;
 		// a cache for all foundsets loaded via this binding
 		public ArrayList<IFoundSetInternal> foundsets = new ArrayList<IFoundSetInternal>();
 

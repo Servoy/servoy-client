@@ -85,6 +85,8 @@ import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.plugins.IClientPlugin;
 import com.servoy.j2db.plugins.IClientPluginAccess;
 import com.servoy.j2db.scripting.info.APPLICATION_TYPES;
+import com.servoy.j2db.scripting.info.APP_NG_PROPERTY;
+import com.servoy.j2db.scripting.info.APP_UI_PROPERTY;
 import com.servoy.j2db.scripting.info.CLIENTDESIGN;
 import com.servoy.j2db.scripting.info.ELEMENT_TYPES;
 import com.servoy.j2db.scripting.info.LOGGINGLEVEL;
@@ -99,7 +101,6 @@ import com.servoy.j2db.ui.scripting.AbstractRuntimeBaseComponent;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ILogLevel;
 import com.servoy.j2db.util.ServoyException;
-import com.servoy.j2db.util.SwingHelper;
 import com.servoy.j2db.util.TimezoneUtils;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
@@ -138,7 +139,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	private static Class< ? >[] getAllReturnedTypesInternal()
 	{
-		return new Class< ? >[] { APPLICATION_TYPES.class, CLIENTDESIGN.class, DRAGNDROP.class, ELEMENT_TYPES.class, ICSSPosition.class, IScriptRenderMethodsWithOptionalProps.class, JSBlobLoaderBuilder.class, JSDNDEvent.class, JSEvent.class, JSRenderEvent.class, JSUpload.class, JSWindow.class, JSLogger.class, JSLogBuilder.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, NGCONSTANTS.class };
+		return new Class< ? >[] { APPLICATION_TYPES.class, CLIENTDESIGN.class, DRAGNDROP.class, ELEMENT_TYPES.class, ICSSPosition.class, IScriptRenderMethodsWithOptionalProps.class, JSDimension.class, JSPoint.class, JSDNDEvent.class, JSEvent.class, JSRenderEvent.class, JSUpload.class, JSWindow.class, JSLogger.class, JSLogBuilder.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, NGCONSTANTS.class, APP_UI_PROPERTY.class, APP_NG_PROPERTY.class };
 	}
 
 	@Deprecated
@@ -170,15 +171,6 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		}
 	}
 
-	private void checkAuthorized() throws ServoyException
-	{
-		if (application.getApplicationServerAccess() == null)
-		{
-			// no access to application yet, have to log in first
-			throw new ServoyException(ServoyException.CLIENT_NOT_AUTHORIZED);
-		}
-	}
-
 	/**
 	 * Get the names of the used client licenses (as strings in array).
 	 *
@@ -188,7 +180,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 */
 	public String[] js_getLicenseNames() throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		try
 		{
 			return application.getApplicationServerAccess().getLicenseNames();
@@ -222,7 +214,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 */
 	public int js_getActiveClientCount(boolean currentSolutionOnly) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		try
 		{
 			int sol_id = 0;
@@ -371,7 +363,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 */
 	public int js_getClientCountForInfo(String info) throws ServoyException
 	{
-		checkAuthorized();
+		application.checkAuthorized();
 		try
 		{
 			return application.getApplicationServerAccess().getClientCountForInfo(info);
@@ -645,9 +637,12 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * application.getMediaURL('solution.css');
 	 *
 	 * @param mediaName Name of the media
+	 *
+	 * @deprecated use clientutils.getMediaURL(mediaName) instead
 	 */
 	@JSFunction
 	@ServoyClientSupport(ng = true, wc = false, sc = false)
+	@Deprecated
 	public String getMediaURL(String mediaName)
 	{
 		if (application instanceof INGClientApplication)
@@ -1427,6 +1422,11 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	/**
 	 * Gets the HTTP server url.
 	 *
+	 * For a NGClient this will be the url that the user sees in the browser url bar.
+	 * For Headless pure server based clients this will just be http://localhost[:port]
+	 *
+	 * this can throw an exception if the server url couldn't be get from the client, for example if the user already closed its tab or another network problem.
+	 *
 	 * This url will end with a / so don't append to this server url something that starts with a / again
 	 * because RFC 3986 says that the path of a url (the part after the domain[:poort]) can not start with 2 slashes.
 	 *
@@ -1440,16 +1440,22 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	@JSFunction
 	public String getServerURL()
 	{
-		String url = application.getServerURL().toString();
-		// if it doesn't end with / add it
-		// it is needed in a context (the urls should be http://hostname:port/context/)
-		// and it has to be the same in the developer
-		if (!url.endsWith("/")) //$NON-NLS-1$
+		URL serverURL = application.getServerURL();
+		if (serverURL != null)
 		{
-			url += '/';
-		}
+			String url = serverURL.toString();
+			// if it doesn't end with / add it
+			// it is needed in a context (the urls should be http://hostname:port/context/)
+			// and it has to be the same in the developer
+			if (!url.endsWith("/")) //$NON-NLS-1$
+			{
+				url += '/';
+			}
 
-		return url;
+			return url;
+		}
+		throw new IllegalStateException(
+			"getServerURL gives a null url back from the client, this information couldn't be accessed, browser tab already closed?"); //$NON-NLS-1$
 	}
 
 	/**
@@ -2481,7 +2487,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * // create and show a window, with specified title, initial location and size
 	 * // type of the window can be one of JSWindow.DIALOG, JSWindow.MODAL_DIALOG, JSWindow.WINDOW (WINDOW does not work for NGClient)
 	 * // If parentWindow is not specified, the current window will be used as parent; parentWindow parameter is only used by dialogs
-	 * var win = application.createWindow("windowName", JSWindow.WINDOW);
+	 * var win = application.createWindow("windowName", JSWindow.DIALOG);
 	 * win.setInitialBounds(10, 10, 300, 300);
 	 * win.title = "This is a window";
 	 * controller.show(win);
@@ -2495,7 +2501,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 */
 	public JSWindow js_createWindow(String windowName, int type)
 	{
-		return application.getRuntimeWindowManager().createWindow(replaceFailingCharacters(windowName), type, null).getJSWindow();
+		RuntimeWindow window = application.getRuntimeWindowManager().createWindow(replaceFailingCharacters(windowName), type, null);
+		return window != null ? window.getJSWindow() : null;
 	}
 
 	/**
@@ -2505,7 +2512,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 *
 	 * @sample
 	 * // create and show a window, with specified title, initial location and size (WINDOW does not work for NGClient)
-	 * var win = application.createWindow("windowName", JSWindow.WINDOW);
+	 * var win = application.createWindow("windowName", JSWindow.DIALOG);
 	 * win.setInitialBounds(10, 10, 300, 300);
 	 * win.title = "This is a window";
 	 * controller.show(win);
@@ -2520,7 +2527,8 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 */
 	public JSWindow js_createWindow(String windowName, int type, JSWindow parentWindow)
 	{
-		return application.getRuntimeWindowManager().createWindow(replaceFailingCharacters(windowName), type, parentWindow).getJSWindow();
+		RuntimeWindow window = application.getRuntimeWindowManager().createWindow(replaceFailingCharacters(windowName), type, parentWindow);
+		return window != null ? window.getJSWindow() : null;
 	}
 
 	/**
@@ -2812,12 +2820,12 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * Close all visible windows (except main application window). Returns true if operation was successful.
 	 *
 	 * @sample
-	 * var win = application.createWindow("aWindowName", JSWindow.WINDOW, null);
+	 * var win = application.createWindow("aWindowName", JSWindow.DIALOG, null);
 	 * win.setInitialBounds(10, 10, 300, 300);
 	 * win.title = "This is a window";
 	 * controller.show(win);
 	 *
-	 * var win2 = application.createWindow("anotherWindowName", JSWindow.WINDOW, null);
+	 * var win2 = application.createWindow("anotherWindowName", JSWindow.DIALOG, null);
 	 * win2.setInitialBounds(100, 100, 300, 300);
 	 * win2.title = "This is another window";
 	 * controller.show(win2);
@@ -2911,7 +2919,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	/**
 	 * This generates a browser function for the given function string that can be executed in the browser by a component that needs a function for a certain property value.
-	 * The resulting object should be assigned into a config/property object (where the property it typed as 'object' in the .spec) that is then assigned to a component.
+	 * The resulting object should be assigned into a config/property object (where the property it typed as 'object'/'json'/'map' in the .spec) that is then assigned to a component.
 	 * The component will receive this function as a real function object in TiNG (but still as a plain string that needs to be evalled in NG1).<br/><br/>
 	 *
 	 * This is needed because in TiNG it is not allowed - due to the Content Security Policy (CSP) that is enforced - to eval(string) in order to get a function object (that then can be executed later on).<br/><br/>
@@ -2919,7 +2927,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * This is a more dynamic variant of the .spec property type "clientfunction": https://docs.servoy.com/reference/servoy-developer/property_types#clientfunction<br/><br/>
 	 *
 	 * You do not need to use this for properties/arguments/return values that are declared to have "clientfunction" type in the .spec file, but rather for
-	 * when you want to give it inside plain 'object' typed values.
+	 * when you want to give it inside plain 'object' typed values. Starting with 2023.09, 'map' and 'json' property types (even nested if configured in the spec correctly) are supported.
 	 *
 	 * @sample
 	 * var options = { myfunction: application.generateBrowserFunction("function(param) { return param + 1 }") };
@@ -2928,9 +2936,12 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @param functionString The javascript function (given as a string) that should be running in the client's browser.
 	 *
 	 * @return An object that can be assigned to a property of an component or custom type. (but which is then nested/part of an object type)
+	 *
+	 * @deprecated use clientutils.generateBrowserFunction instead
 	 */
 	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public Object generateBrowserFunction(String functionString)
 	{
 		return application.generateBrowserFunction(functionString);
@@ -2957,7 +2968,10 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * var bloburl2 = application.createUrlBlobloaderBuilder("scopes.sc1.profilePhoto").filename("profilePhoto.png").mimetype("application/png").build();
 	 *
 	 * @param dataprovider the dataprovider who's value should be sent to the browser (it can be a global scope variable or a datasource column)
+	 *
+	 * @deprecated use clientutils.createUrlBlobloaderBuilder instead
 	 */
+	@Deprecated
 	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 	@JSFunction
 	public JSBlobLoaderBuilder createUrlBlobloaderBuilder(String dataprovider)
@@ -3300,30 +3314,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 */
 	public void js_sleep(int ms)
 	{
-		try
-		{
-			long startTime = System.currentTimeMillis();
-			long stopTime = startTime + ms;
-
-			long timeToWait = ms;
-			while (timeToWait > 0)
-			{
-				if (timeToWait > 100)
-				{
-					SwingHelper.dispatchEvents(100);//make sure screen is updated (if there is a screen)
-				}
-				timeToWait = stopTime - System.currentTimeMillis();
-				if (timeToWait > 100)
-				{
-					Thread.sleep(100);
-					timeToWait -= 100;
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			Debug.error(e);
-		}
+		application.sleep(ms);
 	}
 
 	/**

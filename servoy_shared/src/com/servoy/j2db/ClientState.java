@@ -1307,10 +1307,6 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 				scriptEngine = null;// delete current script engine
 			}
 
-			getRuntimeProperties().put(IServiceProvider.RT_JSDATASET_FUNCTIONS, null);
-			getRuntimeProperties().put(IServiceProvider.RT_JSFOUNDSET_FUNCTIONS, null);
-			getRuntimeProperties().put(IServiceProvider.RT_JSRECORD_FUNCTIONS, null);
-
 			// clear broadcast filters and drop any temp tables for this client
 			IDataServer ds = getDataServer();
 			if (ds != null)

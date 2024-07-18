@@ -18,6 +18,7 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
@@ -40,7 +41,8 @@ import com.servoy.j2db.server.ngclient.INGApplication;
  * @since 2021.03
  */
 @SuppressWarnings("nls")
-public class ClientFunctionPropertyType extends TagStringPropertyType implements IPropertyWithClientSideConversions<BasicTagStringTypeSabloValue>
+public class ClientFunctionPropertyType extends TagStringPropertyType
+	implements IPropertyWithClientSideConversions<BasicTagStringTypeSabloValue>, IDesignMapValueConverter
 {
 	public static final ClientFunctionPropertyType CLIENT_FUNCTION_INSTANCE = new ClientFunctionPropertyType();
 	public static final String CLIENT_FUNCTION_TYPE_NAME = "clientfunction";
@@ -86,6 +88,19 @@ public class ClientFunctionPropertyType extends TagStringPropertyType implements
 			}
 		}
 		return super.toJSON(writer, key, object, pd, dataConverterContext);
+	}
+
+	@Override
+	public Object createJSONValue(Object value, INGApplication application, JSONObject subTypes, IBrowserConverterContext dataConverterContext)
+	{
+		if (value instanceof CharSequence && application.getRuntimeProperties().containsKey("NG2"))
+		{
+			JSONObject object = new JSONObject();
+			object.put(JSONUtils.VALUE_KEY, application.registerClientFunction(value.toString()));
+			object.put(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY, DynamicClientFunctionPropertyType.CLIENT_SIDE_TYPE_NAME);
+			return object;
+		}
+		return value;
 	}
 
 	@Override

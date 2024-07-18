@@ -36,10 +36,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.sablo.security.ContentSecurityPolicyConfig;
 import org.sablo.websocket.WebsocketSessionManager;
 
 import com.servoy.j2db.util.Debug;
+import com.servoy.j2db.util.Pair;
 
 /**
  * @author jcompagner
@@ -68,6 +70,7 @@ public class AngularIndexPageFilter implements Filter
 		{
 			throw new ServletException(e);
 		}
+		StatelessLoginHandler.init();
 //		if (indexPage == null) throw new ServletException("Couldn't read 'WEB-INF/angular-index.html' from the context to get the angular index page");
 	}
 
@@ -78,12 +81,13 @@ public class AngularIndexPageFilter implements Filter
 		HttpServletResponse response = (HttpServletResponse)servletResponse;
 		String requestURI = request.getRequestURI();
 		String solutionName = getSolutionNameFromURI(requestURI);
-		if ("GET".equalsIgnoreCase(request.getMethod()) && solutionName != null)
+		if (("GET".equalsIgnoreCase(request.getMethod()) ||
+			"POST".equalsIgnoreCase(request.getMethod()) && request.getParameter(StatelessLoginHandler.USERNAME) != null) &&
+			solutionName != null)
 		{
 
 			if ((requestURI.endsWith("/") || requestURI.endsWith("/" + solutionName) || requestURI.toLowerCase().endsWith("/index.html")))
 			{
-
 				String clientnr = AngularIndexPageWriter.getClientNr(requestURI, request);
 				INGClientWebsocketSession wsSession = null;
 				HttpSession httpSession = request.getSession(false);
@@ -95,7 +99,26 @@ public class AngularIndexPageFilter implements Filter
 				{
 					return;
 				}
-				request.getSession();
+				HttpSession session = request.getSession();
+
+				try
+				{
+					Pair<Boolean, String> showLogin = StatelessLoginHandler.mustAuthenticate(request, response, solutionName);
+					if (showLogin.getLeft().booleanValue())
+					{
+						StatelessLoginHandler.writeLoginPage(request, response, solutionName);
+						return;
+					}
+					if (showLogin.getRight() != null)
+					{
+						session.setAttribute(StatelessLoginHandler.ID_TOKEN, showLogin.getRight());
+					}
+				}
+				catch (Exception e)
+				{
+					Debug.error(e.getMessage());
+					return;
+				}
 
 				ContentSecurityPolicyConfig contentSecurityPolicyConfig = addcontentSecurityPolicyHeader(request, response, false); // for NG2 remove the unsafe-eval
 				if (this.indexPage != null) AngularIndexPageWriter.writeIndexPage(this.indexPage, request, response, solutionName,
@@ -111,6 +134,10 @@ public class AngularIndexPageFilter implements Filter
 						"Trying to service NGClient2, but no resouces are generatd for that in the exporter (-NG2 flag) or an error happend when exporting");
 
 				}
+				return;
+			}
+			else if (solutionName != null && StatelessLoginHandler.handlePossibleCloudRequest(request, response, solutionName))
+			{
 				return;
 			}
 			else if (requestURI.toLowerCase().endsWith("/startup.js"))
@@ -141,7 +168,7 @@ public class AngularIndexPageFilter implements Filter
 			String possibleSolutionName = uri.substring(solutionIndex + SOLUTIONS_PATH.length(), solutionEndIndex);
 			// skip all names that have a . in them
 			if (possibleSolutionName.contains(".")) return null;
-			return possibleSolutionName;
+			return StringEscapeUtils.escapeHtml4(possibleSolutionName);
 		}
 		return null;
 	}

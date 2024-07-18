@@ -147,6 +147,11 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public static final String TRUST_DATA_AS_HTML = "trustDataAsHtml"; //$NON-NLS-1$
 
 	/**
+	 * When Boolean.TRUE, the element may show unsanitized data.
+	 */
+	public static final String FIRST_DAY_OF_WEEK = "firstDayOfWeek"; //$NON-NLS-1$
+
+	/**
 	 * The WebClient JSON configuration for the HTML Editor.
 	 */
 	public static final String HTML_EDITOR_CONFIGURATION = "config"; //$NON-NLS-1$
@@ -165,6 +170,11 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * When Boolean.TRUE, related find/search will only return records that have a related match, also in case of left outer joins. Default value is servoy property servoy.client.relatedNullSearchAddPkCondition/true.
 	 */
 	public static final String RELATED_NULL_SEARCH_ADD_PK_CONDITION = "relatedNullSearchAddPkCondition";//$NON-NLS-1$
+
+	/**
+	 * When Boolean.TRUE, the listformcomponent will use the old paging mode for display.
+	 */
+	public static final String LISTFORMCOMPONENT_PAGING_MODE = "ListFormComponent.pagingMode"; //$NON-NLS-1$
 
 	/**
 	 * Non-null name for the first (main) window.
@@ -549,10 +559,26 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * @return
 	 */
 	public Object generateBrowserFunction(String functionString);
+	
 
 	/**
 	 * @param dataprovider
 	 * @return
 	 */
 	public JSBlobLoaderBuilder createUrlBlobloaderBuilder(String dataprovider);
+
+	/**
+	 * @param ms
+	 */
+	default void sleep(int ms)
+	{
+		try
+		{
+			Thread.sleep(ms);
+		}
+		catch (InterruptedException e)
+		{
+			//ignore
+		}
+	}
 }

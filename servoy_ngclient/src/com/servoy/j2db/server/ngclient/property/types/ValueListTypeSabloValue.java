@@ -75,6 +75,7 @@ import com.servoy.j2db.server.ngclient.component.RuntimeWebComponent;
 import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.IHasUnderlyingState;
+import com.servoy.j2db.server.ngclient.property.NGComponentDALContext;
 import com.servoy.j2db.server.ngclient.property.ValueListConfig;
 import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetDataLinks;
 import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType.ValuelistPropertyDependencies;
@@ -106,7 +107,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	// values that we have from the start or before initialization
 	private final Object valuelistIdentifier;
 	private final PropertyDescription vlPD;
-	private final IDataAdapterList dataAdapterListToUse; // can be component DAL or, if we have a for: dataprovider in spec and that dataprovider is for: foundsetProperty it will be the DAL of that foundset property (through the courtesy of FoundsetLinkedPropertyType as future case SVY-11204)
+	private IDataAdapterList dataAdapterListToUse; // can be component DAL or, if we have a for: dataprovider in spec and that dataprovider is for: foundsetProperty it will be the DAL of that foundset property (through the courtesy of FoundsetLinkedPropertyType as future case SVY-11204)
 	private IWebObjectContext webObjectContext;
 
 	private final ValuelistPropertyDependencies propertyDependencies;
@@ -129,6 +130,9 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 	private boolean valuesRequested;
 	private boolean realAreDates;
 
+	private boolean filterOnRealValues = false;
+	private boolean filterWithContains = false;
+	private boolean allowNewEntries = true;
 	// dataset of the runtime set custom valuelist
 	private Object customValueListDataSet;
 
@@ -181,10 +185,14 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 		changeMonitor.setChangeNotifier(changeNotifier);
 		this.webObjectContext = webObjectCntxt;
 
+		IDataAdapterList newDal = NGComponentDALContext.getDataAdapterList(webObjectContext);
+		if (newDal != null) this.dataAdapterListToUse = newDal; // it will probably never be null
+
 		if (propertyDependencies.dataproviderPropertyName != null)
 			webObjectContext.addPropertyChangeListener(propertyDependencies.dataproviderPropertyName, this);
 		if (propertyDependencies.foundsetPropertyName != null) webObjectContext.addPropertyChangeListener(propertyDependencies.foundsetPropertyName, this);
 		if (propertyDependencies.formatPropertyName != null) webObjectContext.addPropertyChangeListener(propertyDependencies.formatPropertyName, this);
+		if (propertyDependencies.configPropertyName != null) webObjectContext.addPropertyChangeListener(propertyDependencies.configPropertyName, this);
 
 		initializeIfPossibleAndNeeded(); // adds more listeners if needed (for example for underlying sablo value of a foundset linked value)
 	}
@@ -240,6 +248,17 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			newFormatString = ((componentFormat != null && componentFormat.parsedFormat != null) ? componentFormat.parsedFormat.getFormatString() : null);
 
 			if (formatSabloValue != null) formatSabloValue.addStateChangeListener(this); // this won't add it twice if it's already added (see javadoc of this call)
+		}
+		if (propertyDependencies.configPropertyName != null)
+		{
+			ValuelistConfigTypeSabloValue configSabloValue = ((ValuelistConfigTypeSabloValue)webObjectContext
+				.getProperty(propertyDependencies.configPropertyName));
+			if (configSabloValue != null)
+			{
+				this.filterOnRealValues = configSabloValue.useFilterOnRealValues();
+				this.filterWithContains = configSabloValue.useFilterWithContains();
+				this.allowNewEntries = configSabloValue.getAllowNewEntries();
+			}
 		}
 		if (propertyDependencies.dataproviderPropertyName != null)
 		{
@@ -514,7 +533,12 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			Object formatPropertyValue = webObjectContext.getProperty(propertyDependencies.formatPropertyName);
 			if (formatPropertyValue instanceof IHasUnderlyingState) ((IHasUnderlyingState)formatPropertyValue).removeStateChangeListener(this);
 		}
-
+		if (propertyDependencies.configPropertyName != null)
+		{
+			webObjectContext.removePropertyChangeListener(propertyDependencies.configPropertyName, this);
+			Object configPropertyValue = webObjectContext.getProperty(propertyDependencies.configPropertyName);
+			if (configPropertyValue instanceof IHasUnderlyingState) ((IHasUnderlyingState)configPropertyValue).removeStateChangeListener(this);
+		}
 		changeMonitor.setChangeNotifier(null);
 		webObjectContext = null;
 	}
@@ -616,7 +640,7 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 			}
 
 			writer.key("hasRealValues");
-			writer.value(valueList.hasRealValues());
+			writer.value(valueList.hasRealValues() || !this.allowNewEntries);
 			writer.key("values");
 			JSONUtils.toBrowserJSONFullValue(writer, null, newJavaValueForJSON, null, dataConverterContext);
 			writer.endObject();
@@ -704,8 +728,8 @@ public class ValueListTypeSabloValue implements IDataLinkedPropertyValue, ListDa
 						useContains = Utils.getAsBoolean(legacy.getClientProperty(IApplication.VALUELIST_CONTAINS_SEARCH, legacy));
 					}
 				}
-				if (useContains && filterString != null && !"".equals(filterString)) filterString = '%' + filterString;
-				filteredValuelist.fill(dataAdapterListToUse.getRecord(), dataproviderID, filterString, realValue, false);
+				if ((useContains || filterWithContains) && filterString != null && !"".equals(filterString)) filterString = '%' + filterString;
+				filteredValuelist.fill(dataAdapterListToUse.getRecord(), dataproviderID, filterString, realValue, false, filterOnRealValues);
 				changeMonitor.notifyOfChange(); // in case fill really somehow did not result in the filteredValuelist listener doing a notify
 
 				valueList.addListDataListener(this);

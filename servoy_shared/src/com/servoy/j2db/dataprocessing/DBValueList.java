@@ -331,7 +331,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 						{
 							displayValue = handleRowData(valueList, concatShowValues, showValues, row, application);
 						}
-						addElement(displayValue != null ? displayValue.toString() : displayValue);
+						addElement(displayValue);
 						realValues.add(handleRowData(valueList, concatReturnValues, returnValues, row, application));
 					}
 				}
@@ -345,7 +345,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 						{
 							Object val = handleRowData(valueList, displayFormat, concatShowValues, showValues, r, application);
 							Object rval = handleRowData(valueList, null, concatReturnValues, returnValues, r, application);
-							int index = indexOf(val);
+							int index = selfIndexOf(val);
 							if (index == -1 || !Utils.equalObjects(getRealElementAt(index), rval))
 							{
 								addElement(val);

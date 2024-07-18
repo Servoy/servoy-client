@@ -816,6 +816,12 @@ public class WebObjectImpl extends WebObjectBasicImpl
 				oldJsonClone = ((ServoyJSONObject)oldJson).clone();
 			}
 
+			JSONObject obj = webObject.getFlattenedJson();
+			if (obj != null && obj.has(key) && obj.get(key).equals(value) && !remove)
+			{
+				return false;
+			}
+
 			if (remove)
 			{
 				removed = (jsonObject.remove(key) != null);
@@ -977,7 +983,10 @@ public class WebObjectImpl extends WebObjectBasicImpl
 					for (int i = customType.getIndex(); i < t.size(); i++)
 					{
 						IChildWebObject ct = t.get(i);
-						ct.setIndex(i);
+						if (ct != null)
+						{
+							ct.setIndex(i);
+						}
 					}
 					setProperty(customType.getJsonKey(), t.toArray(new IChildWebObject[t.size()]));
 				}

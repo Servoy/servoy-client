@@ -9,7 +9,7 @@
 	{
 	        "background" : "color", 
 	        "borderType" : {"type":"border","stringformat":true}, 
-	        "dataProviderID" : { "type":"dataprovider", "pushToServer": "allow", "tags": { "scope": "design" }, "ondatachange": { "onchange":"onDataChangeMethodID", "callback":"onDataChangeCallback"}, "displayTagsPropertyName" : "displaysTags"}, 
+	        "dataProviderID" : { "type":"dataprovider", "pushToServer": "allow", "tags": { "wizard": true, "scope": "design" }, "ondatachange": { "onchange":"onDataChangeMethodID", "callback":"onDataChangeCallback"}, "displayTagsPropertyName" : "displaysTags"}, 
 	        "displaysTags" : { "type" : "boolean", "tags": { "scope" : "design" } }, 
 	        "editable" : { "type": "protected", "blockingOn": false, "default": true,"for": ["dataProviderID","onDataChangeMethodID"] }, 
 	        "enabled" : { "type": "enabled", "blockingOn": false, "default": true, "for": ["dataProviderID","onActionMethodID","onDataChangeMethodID","onFocusGainedMethodID","onFocusLostMethodID","onRightClickMethodID"] }, 
@@ -21,7 +21,7 @@
 	        "location" : {"type" :"point", "pushToServer": "deep"}, 
 	        "margin" : {"type" :"insets", "tags": { "scope" :"design" }}, 
 	        "placeholderText" : { "type" : "tagstring", "displayTagsPropertyName" : "displaysTags" }, 
-	        "readOnly" : { "type" : "readOnly", "oppositeOf" : "editable"}, 
+	        "readOnly" : { "type": "protected", "blockingOn": true, "default": false,"for": ["dataProviderID","onDataChangeMethodID"], "tags": {"scope":"private"} }, 
 	        "selectOnEnter" : {"type" :"boolean", "tags": { "scope" :"design" }}, 
 	        "size" : {"type" :"dimension",  "default" : {"width":140, "height":20}, "pushToServer": "deep"}, 
 	        "styleClass" : { "type" :"styleclass", "tags": { "scope" :"design" }, "values" :["form-control", "input-sm", "svy-padding-xs"]}, 

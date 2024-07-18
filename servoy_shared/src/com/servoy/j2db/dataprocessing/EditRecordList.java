@@ -18,6 +18,7 @@ package com.servoy.j2db.dataprocessing;
 
 import static com.servoy.j2db.util.Utils.equalObjects;
 import static java.util.Arrays.stream;
+import static java.util.Collections.reverse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +32,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -681,19 +683,20 @@ public class EditRecordList
 				{
 					return ISaveConstants.VALIDATION_FAILED;
 				}
-				else
+
+				if (!(lastStopEditingException instanceof ServoyException))
 				{
-					if (!(lastStopEditingException instanceof ServoyException))
-					{
-						lastStopEditingException = new ApplicationException(ServoyException.SAVE_FAILED, lastStopEditingException);
-					}
-					if (!javascriptStop) fsm.getApplication().handleException(fsm.getApplication().getI18NMessage("servoy.formPanel.error.saveFormData"), //$NON-NLS-1$
-						lastStopEditingException);
-					return ISaveConstants.SAVE_FAILED;
+					lastStopEditingException = new ApplicationException(ServoyException.SAVE_FAILED, lastStopEditingException);
 				}
+				if (!javascriptStop)
+				{
+					fsm.getApplication().handleException(fsm.getApplication().getI18NMessage("servoy.formPanel.error.saveFormData"), //$NON-NLS-1$
+						lastStopEditingException);
+				}
+				return ISaveConstants.SAVE_FAILED;
 			}
 
-			if (rowUpdates.size() == 0)
+			if (rowUpdates.isEmpty())
 			{
 				fireEditChange();
 				if (Debug.tracing())
@@ -708,79 +711,13 @@ public class EditRecordList
 				Debug.trace("Updating/Inserting " + rowUpdates.size() + " records: " + rowUpdates.toString()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 
-			RowUpdateInfo[] infos = rowUpdates.toArray(new RowUpdateInfo[rowUpdates.size()]);
-			if (infos.length > 1 && !fsm.config.disableInsertsReorder())
-			{
-				// search if there are new row pks used that are
-				// used in records before this record and sort it based on that.
-				boolean changed = false;
-				List<RowUpdateInfo> al = new ArrayList<RowUpdateInfo>(Arrays.asList(infos));
-				int prevI = -1;
-				outer : for (int i = al.size(); --i > 0;)
-				{
-					Row row = al.get(i).getRow();
-					// only test for new rows and its pks.
-					if (row.existInDB()) continue;
-					String[] pkColumns = row.getRowManager().getSQLSheet().getPKColumnDataProvidersAsArray();
-					Object[] pk = row.getPK();
-					for (int j = 0; j < pk.length; j++)
-					{
-						Object pkObject = pk[j];
-						// special case if pk was db ident and that value was copied from another row.
-						if (pkObject instanceof DbIdentValue && ((DbIdentValue)pkObject).getRow() != row) continue;
-						for (int k = 0; k < i; k++)
-						{
-							RowUpdateInfo updateInfo = al.get(k);
-							Object[] values = updateInfo.getRow().getRawColumnData();
-							int[] pkIndexes = updateInfo.getFoundSet().getSQLSheet().getPKIndexes();
-							IntHashMap<String> pks = new IntHashMap<String>(pkIndexes.length, 1);
-							for (int pkIndex : pkIndexes)
-							{
-								pks.put(pkIndex, ""); //$NON-NLS-1$
-							}
-							for (int l = 0; l < values.length; l++)
-							{
-								// skip all pk column indexes (except from dbidents from other rows, this may need resort). Those shouldn't be resorted
-								if (!(values[l] instanceof DbIdentValue && ((DbIdentValue)values[l]).getRow() != updateInfo.getRow()) && pks.containsKey(l))
-									continue;
-
-								boolean same = values[l] == pkObject;
-								if (!same && values[l] != null)
-								{
-									Column pkColumn = row.getRowManager().getSQLSheet().getTable().getColumn(pkColumns[j]);
-									if (pkColumn.hasFlag(IBaseColumn.UUID_COLUMN))
-									{
-										// same uuids are the same even if not the same object
-										same = equalObjects(pkObject, values[l], 0, true);
-									}
-								}
-								if (same)
-								{
-									al.add(k, al.remove(i));
-									// watch out for endless loops when 2 records both with pk's point to each other...
-									if (prevI != i)
-									{
-										prevI = i;
-										i++;
-									}
-									changed = true;
-									continue outer;
-								}
-							}
-						}
-					}
-				}
-				if (changed)
-				{
-					infos = al.toArray(infos);
-				}
-			}
+			List<RowUpdateInfo> infos = orderUpdatesForInsertOrder(rowUpdates, RowUpdateInfo::getRow, false);
 
 			ISQLStatement[] statements;
-			if (fsm.config.statementBatching() && infos.length > 1)
+			if (fsm.config.statementBatching() && infos.size() > 1)
 			{
 				// Merge insert statements insert statements from all info's: multiple info's can share the same statement of the records are batched together on the statement level
-				List<ISQLStatement> mergedStatements = new ArrayList<ISQLStatement>(infos.length);
+				List<ISQLStatement> mergedStatements = new ArrayList<>(infos.size());
 
 				ISQLStatement prevStatement = null;
 				for (RowUpdateInfo rowUpdateInfo : infos)
@@ -804,7 +741,7 @@ public class EditRecordList
 			}
 			else
 			{
-				statements = stream(infos).map(RowUpdateInfo::getISQLStatement).toArray(ISQLStatement[]::new);
+				statements = infos.stream().map(RowUpdateInfo::getISQLStatement).toArray(ISQLStatement[]::new);
 			}
 
 			// TODO if one statement fails in a transaction how do we know which one? and should we rollback all rows in these statements?
@@ -822,27 +759,27 @@ public class EditRecordList
 				return ISaveConstants.SAVE_FAILED;
 			}
 
-			if (idents.length != infos.length)
+			if (idents.length != infos.size())
 			{
 				Debug.error("Should be of same size!!"); //$NON-NLS-1$
 			}
 
-			List<RowUpdateInfo> infosToBePostProcessed = new ArrayList<RowUpdateInfo>();
+			List<RowUpdateInfo> infosToBePostProcessed = new ArrayList<>();
 
-			Map<FoundSet, List<Record>> foundsetToRecords = new HashMap<FoundSet, List<Record>>();
-			Map<FoundSet, List<String>> foundsetToAggregateDeletes = new HashMap<FoundSet, List<String>>();
-			List<Runnable> fires = new ArrayList<Runnable>(infos.length);
+			Map<FoundSet, List<Record>> foundsetToRecords = new HashMap<>();
+			Map<FoundSet, List<String>> foundsetToAggregateDeletes = new HashMap<>();
+			List<Runnable> fires = new ArrayList<>(infos.size());
 			int mustRollbackCount = 0;
 			// Walk in reverse over it, so that related rows are update in there row manger before they are required by there parents.
-			for (int i = infos.length; --i >= 0;)
+			for (int i = infos.size(); --i >= 0;)
 			{
-				RowUpdateInfo rowUpdateInfo = infos[i];
+				RowUpdateInfo rowUpdateInfo = infos.get(i);
 				FoundSet foundSet = rowUpdateInfo.getFoundSet();
 				Row row = rowUpdateInfo.getRow();
 
 				String oldKey = row.getPKHashKey();
 				Record record = rowUpdateInfo.getRecord();
-				if (idents != null && idents.length != 0 && idents[i] != null)
+				if (idents != null && i < idents.length && idents[i] != null)
 				{
 					Object retValue = idents[i];
 					if (retValue instanceof Exception)
@@ -946,7 +883,7 @@ public class EditRecordList
 					}
 				}
 
-				infosToBePostProcessed.add(infos[i]);
+				infosToBePostProcessed.add(infos.get(i));
 
 				List<Record> lst = foundsetToRecords.get(foundSet);
 				if (lst == null)
@@ -963,15 +900,9 @@ public class EditRecordList
 				}
 				else
 				{
-					List<String> toMerge = rowUpdateInfo.getAggregatesToRemove();
-					for (int j = 0; j < toMerge.size(); j++)
-					{
-						String aggregate = toMerge.get(j);
-						if (!aggregates.contains(aggregate))
-						{
-							aggregates.add(aggregate);
-						}
-					}
+					rowUpdateInfo.getAggregatesToRemove().stream()
+						.filter(aggregate -> !aggregates.contains(aggregate))
+						.forEach(aggregates::add);
 				}
 			}
 
@@ -1104,6 +1035,79 @@ public class EditRecordList
 		return ISaveConstants.STOPPED;
 	}
 
+	private <T> List<T> orderUpdatesForInsertOrder(List<T> rowData, Function<T, Row> rowFuction, boolean reverse)
+	{
+		if (rowData.size() <= 1 || fsm.config.disableInsertsReorder())
+		{
+			return rowData;
+		}
+
+		// search if there are new row pks used that are
+		// used in records before this record and sort it based on that.
+		List<T> al = new ArrayList<>(rowData);
+		int prevI = -1;
+		outer : for (int i = al.size(); --i > 0;)
+		{
+			Row row = rowFuction.apply(al.get(i));
+			// only test for new rows and its pks.
+			if (row.existInDB()) continue;
+			String[] pkColumns = row.getRowManager().getSQLSheet().getPKColumnDataProvidersAsArray();
+			Object[] pk = row.getPK();
+			for (int j = 0; j < pk.length; j++)
+			{
+				Object pkObject = pk[j];
+				// special case if pk was db ident and that value was copied from another row.
+				if (pkObject instanceof DbIdentValue && ((DbIdentValue)pkObject).getRow() != row) continue;
+				for (int k = 0; k < i; k++)
+				{
+					Row otherRow = rowFuction.apply(al.get(k));
+					Object[] values = otherRow.getRawColumnData();
+					int[] pkIndexes = otherRow.getRowManager().getSQLSheet().getPKIndexes();
+					IntHashMap<String> pks = new IntHashMap<String>(pkIndexes.length, 1);
+					for (int pkIndex : pkIndexes)
+					{
+						pks.put(pkIndex, ""); //$NON-NLS-1$
+					}
+					for (int l = 0; l < values.length; l++)
+					{
+						// skip all pk column indexes (except from dbidents from other rows, this may need resort). Those shouldn't be resorted
+						if (!(values[l] instanceof DbIdentValue && ((DbIdentValue)values[l]).getRow() != otherRow) && pks.containsKey(l))
+							continue;
+
+						boolean same = values[l] == pkObject;
+						if (!same && values[l] != null)
+						{
+							Column pkColumn = row.getRowManager().getSQLSheet().getTable().getColumn(pkColumns[j]);
+							if (pkColumn.hasFlag(IBaseColumn.UUID_COLUMN))
+							{
+								// same uuids are the same even if not the same object
+								same = equalObjects(pkObject, values[l], 0, true);
+							}
+						}
+						if (same)
+						{
+							al.add(k, al.remove(i));
+							// watch out for endless loops when 2 records both with pk's point to each other...
+							if (prevI != i)
+							{
+								prevI = i;
+								i++;
+							}
+							continue outer;
+						}
+					}
+				}
+			}
+
+			if (reverse)
+			{
+				reverse(al);
+			}
+		}
+
+		return al;
+	}
+
 	/**
 	 * Check if these 2 insert statements can be merged into one batched on.
 	 * @throws RepositoryException
@@ -1209,7 +1213,7 @@ public class EditRecordList
 		// Copy insert values into the target insert placeholder
 		for (int i = 0; i < valTarget.length; i++)
 		{
-			valTarget[i] = Utils.arrayJoin(valSrc[i], valTarget[i]);
+			valTarget[i] = Utils.arrayJoin(valTarget[i], valSrc[i]);
 		}
 
 		// Copy the pks into the target pks
@@ -1406,6 +1410,33 @@ public class EditRecordList
 				removeEditedRecord(record);
 			}
 		}
+	}
+
+	public boolean removeRecords(String datasource)
+	{
+		boolean hasRecords = false;
+		editRecordsLock.lock();
+		try
+		{
+			List<IRecordInternal> records = new ArrayList<IRecordInternal>();
+			records.addAll(editedRecords);
+			records.addAll(failedRecords);
+			for (IRecordInternal r : records)
+			{
+				if (Utils.equalObjects(datasource, r.getParentFoundSet().getDataSource()))
+				{
+					hasRecords = true;
+					editedRecords.remove(r);
+					recordTested.remove(r);
+					failedRecords.remove(r);
+				}
+			}
+		}
+		finally
+		{
+			editRecordsLock.unlock();
+		}
+		return hasRecords;
 	}
 
 	public boolean startEditing(IRecordInternal record, boolean mustFireEditRecordChange)
@@ -1700,7 +1731,7 @@ public class EditRecordList
 
 	public void rollbackRecords(List<IRecordInternal> records)
 	{
-		ArrayList<IRecordInternal> array = new ArrayList<IRecordInternal>();
+		List<IRecordInternal> array = new ArrayList<>();
 		editRecordsLock.lock();
 		try
 		{
@@ -1715,12 +1746,17 @@ public class EditRecordList
 		{
 			editRecordsLock.unlock();
 		}
+
 		if (array.size() > 0)
 		{
+			// sort them as for insert, but then reversed, so related is deleted first
+			array = orderUpdatesForInsertOrder(array, IRecordInternal::getRawData, true);
+
 			// The "existsInDB" property sometimes changes while iterating over the array
 			// below (for example when we have several Records that point to the same Row
 			// and the Row is not yet stored in the database). So we memorize the initial
 			// values of "existsInDB" and we use them while iterating over the array.
+
 			boolean[] existsInDB = new boolean[array.size()];
 			for (int i = 0; i < array.size(); i++)
 			{

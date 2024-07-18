@@ -79,6 +79,7 @@ public class Types
 		TypesRegistry.addType(ReadonlyPropertyType.INSTANCE);
 
 		TypesRegistry.addType(NGObjectPropertyType.NG_INSTANCE);
+		TypesRegistry.addType(ServoyAttributesPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGEnabledPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGColorPropertyType.NG_INSTANCE);
 		TypesRegistry.addType(NGDatePropertyType.NG_INSTANCE);
@@ -128,5 +129,6 @@ public class Types
 
 		TypesRegistry.addType(DbIdentPropertyType.INSTANCE);
 		TypesRegistry.addType(DynamicClientFunctionPropertyType.INSTANCE);
+		TypesRegistry.addType(ValuelistConfigPropertyType.INSTANCE);
 	}
 }

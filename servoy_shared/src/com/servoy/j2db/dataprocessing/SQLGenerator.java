@@ -26,10 +26,12 @@ import static com.servoy.j2db.persistence.IColumnTypes.MEDIA;
 import static com.servoy.j2db.query.AbstractBaseQuery.acceptVisitor;
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
 import static com.servoy.j2db.query.AndCondition.and;
+import static com.servoy.j2db.query.OrCondition.or;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.cast;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.castfrom;
 import static com.servoy.j2db.query.QueryFunction.QueryFunctionType.upper;
 import static com.servoy.j2db.util.Utils.iterate;
+import static com.servoy.j2db.util.Utils.stream;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.reflect.Array;
@@ -39,7 +41,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -74,6 +75,7 @@ import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptCalculation;
+import com.servoy.j2db.persistence.SortingNullprecedence;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.AndCondition;
@@ -133,7 +135,7 @@ public class SQLGenerator
 	public static final String CONDITION_OMIT = SERVOY_CONDITION_PREFIX + 'O';
 	public static final String CONDITION_RELATION = SERVOY_CONDITION_PREFIX + 'R';
 	public static final String CONDITION_SEARCH = SERVOY_CONDITION_PREFIX + 'S';
-	public static final String CONDITION_LOCK = SERVOY_CONDITION_PREFIX + 'L';
+	public static final String CONDITION_CLEAR = SERVOY_CONDITION_PREFIX + 'C';
 
 	public static final String SQL_QUERY_VALIDATION_MESSAGE = "A query must start with 'SELECT', optionally preceded by 'WITH' or 'DECLARE', and must contain 'FROM'";
 
@@ -144,17 +146,19 @@ public class SQLGenerator
 	private final Map<String, SQLSheet> cachedDataSourceSQLSheets = new HashMap<String, SQLSheet>(64); // dataSource -> sqlSheet
 	private final boolean relatedNullSearchAddPkConditionSystemSetting;
 	private final boolean enforcePkInSort;
+	private final boolean setRelationNameComment;
 
 /*
  * _____________________________________________________________ Declaration and definition of constructors
  */
-	public SQLGenerator(IApplication app)
+	public SQLGenerator(IApplication app, boolean setRelationNameComment)
 	{
 		application = app;
 		relatedNullSearchAddPkConditionSystemSetting = Utils.getAsBoolean(
 			application.getSettings().getProperty("servoy.client.relatedNullSearchAddPkCondition", "true"));
 		// sort should always contain the pk, so that when sorting values are not unique the sorting result is stable
 		enforcePkInSort = Utils.getAsBoolean(application.getSettings().getProperty("servoy.foundset.sort.enforcepk", "true")); //$NON-NLS-1$//$NON-NLS-2$
+		this.setRelationNameComment = setRelationNameComment;
 	}
 
 	private boolean relatedNullSearchAddPkCondition()
@@ -171,7 +175,7 @@ public class SQLGenerator
  * _____________________________________________________________ The methods below belong to this class
  */
 
-	//SQL pk(s) select for foundset,concatenating those strings will always deliver a executable SQL
+	// SQL pk(s) select for foundset
 	// Note: removeUnusedJoins must be false when the resulting query is changed afterwards (like adding columns)
 	QuerySelect getPKSelectSqlSelect(IGlobalValueEntry provider, Table table, QuerySelect oldSQLQuery, List<IRecordInternal> findStates, boolean reduce,
 		IDataSet omitPKs, List<SortColumn> orderByFields, boolean removeUnusedJoins) throws ServoyException
@@ -187,11 +191,12 @@ public class SQLGenerator
 			retval = deepClone(oldSQLQuery);
 			retval.setGroupBy(null);
 			if (orderByFields != null) retval.clearSorts(); // will be generated based on foundset sorting
-			// remove all servoy conditions, except filter, search and relation
+			// remove all servoy conditions, except filter, clear, search and relation
 			for (String conditionName : retval.getConditionNames())
 			{
 				if (conditionName != null && conditionName.startsWith(SERVOY_CONDITION_PREFIX) &&
-					!(CONDITION_FILTER.equals(conditionName) || CONDITION_SEARCH.equals(conditionName) || CONDITION_RELATION.equals(conditionName)))
+					!(CONDITION_FILTER.equals(conditionName) || CONDITION_CLEAR.equals(conditionName) || CONDITION_SEARCH.equals(conditionName) ||
+						CONDITION_RELATION.equals(conditionName)))
 				{
 					retval.setCondition(conditionName, null);
 				}
@@ -202,14 +207,14 @@ public class SQLGenerator
 			retval = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
 		}
 
-		//Example:-select pk1,pk2 from tablename1 where ((fieldname1 like '%abcd%') or ((fieldname2 like '%xyz%')) (retrieve max 200 rows)
+		// Example:-select pk1,pk2 from tablename1 where ((fieldname1 like '%abcd%') or ((fieldname2 like '%xyz%')) (retrieve max 200 rows)
 
 		ArrayList<IQuerySelectValue> pkQueryColumns = new ArrayList<IQuerySelectValue>(3);
 		ArrayList<Column> pkColumns = new ArrayList<Column>(3);
-		//getPrimaryKeys from table
+		// getPrimaryKeys from table
 		Iterator<Column> pks = table.getRowIdentColumns().iterator();
 
-		//make select
+		// make select
 		if (!pks.hasNext())
 		{
 			throw new RepositoryException(ServoyException.InternalCodes.PRIMARY_KEY_NOT_FOUND, new Object[] { table.getName() });
@@ -224,7 +229,7 @@ public class SQLGenerator
 
 		if (omitPKs != null && omitPKs.getRowCount() != 0)
 		{
-			//omit is rebuild each time
+			// omit is rebuild each time
 			retval.setCondition(CONDITION_OMIT,
 				createSetConditionFromPKs(IBaseSQLCondition.NOT_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), pkColumns, omitPKs));
 		}
@@ -240,12 +245,21 @@ public class SQLGenerator
 			{
 				if (obj instanceof FindState)
 				{
-					moreWhere = OrCondition.or(moreWhere, createConditionFromFindState((FindState)obj, retval, provider, pkQueryColumns));
+					moreWhere = or(moreWhere, createConditionFromFindState((FindState)obj, retval, provider, pkQueryColumns));
 				}
 			}
 
 			if (moreWhere != null)
 			{
+				// if this query is in a clear state move/set that condition as the SEARCH condition from now on.
+				// because we want to reduce or append to that search below.
+				ISQLCondition clearCondition = retval.getCondition(CONDITION_CLEAR);
+				if (clearCondition != null)
+				{
+					retval.clearCondition(CONDITION_CLEAR);
+					retval.addCondition(CONDITION_SEARCH, clearCondition);
+				}
+
 				if (reduce)
 				{
 					retval.addCondition(CONDITION_SEARCH, moreWhere);
@@ -287,7 +301,7 @@ public class SQLGenerator
 			}
 		}
 
-		//make orderby
+		// make orderby
 		if (orderByFields != null || retval.getSorts() == null)
 		{
 			List<SortColumn> orderBy = orderByFields == null ? new ArrayList<SortColumn>(3) : orderByFields;
@@ -308,10 +322,10 @@ public class SQLGenerator
 			retval.removeUnusedJoins(false, true);
 		}
 
-		//1 do not remove sort or groupby test, will cause invalid queries
-		//1 this one causes error and can not be fixed,
-		//1 if (joinswherepart.length() != 0 && !sortIsRelated && groupbyKeyword == STRING_EMPTY && table.getPrimaryKeyCount() == 1)
-		//1 sql select distinct(s_contacts.contactsid) from s_contacts,s_companies where s_contacts.company_id = s_companies.company_id order by s_contacts.surname  ERROR:  For SELECT DISTINCT, ORDER BY expressions must appear in target list
+		// do not remove sort or groupby test, will cause invalid queries
+		// this one causes error and can not be fixed,
+		// if (joinswherepart.length() != 0 && !sortIsRelated && groupbyKeyword == STRING_EMPTY && table.getPrimaryKeyCount() == 1)
+		// sql select distinct(s_contacts.contactsid) from s_contacts,s_companies where s_contacts.company_id = s_companies.company_id order by s_contacts.surname  ERROR:  For SELECT DISTINCT, ORDER BY expressions must appear in target list
 
 		// retval may have set distinct and plainPKSelect flag based on previous sort columns, make sure to reset first
 		retval.setDistinct(false);
@@ -366,7 +380,7 @@ public class SQLGenerator
 					// join must be re-created as it is possible to have globals involved;
 					// first remove, then create it
 					ISQLTableJoin join = (ISQLTableJoin)sqlSelect.getJoin(primaryQtable, relation.getName());
-					if (join != null) sqlSelect.getJoins().remove(join);
+					if (join != null) sqlSelect.removeJoin(join);
 
 					if (join == null)
 					{
@@ -453,14 +467,14 @@ public class SQLGenerator
 	/**
 	 * Join clause for this relation.
 	 */
-	public static ISQLTableJoin createJoin(IDataProviderHandler flattenedSolution, IRelation relation, BaseQueryTable primaryTable, BaseQueryTable foreignTable,
+	public ISQLTableJoin createJoin(IDataProviderHandler flattenedSolution, IRelation relation, BaseQueryTable primaryTable, BaseQueryTable foreignTable,
 		boolean permanentJoin, final IGlobalValueEntry provider) throws RepositoryException
 	{
-		return createJoin(flattenedSolution, relation, primaryTable, foreignTable, permanentJoin, provider, relation.getName());
+		return createJoin(flattenedSolution, relation, primaryTable, foreignTable, permanentJoin, provider, setRelationNameComment, relation.getName());
 	}
 
 	public static ISQLTableJoin createJoin(IDataProviderHandler flattenedSolution, IRelation relation, BaseQueryTable primaryTable, BaseQueryTable foreignTable,
-		boolean permanentJoin, final IGlobalValueEntry provider, String alias) throws RepositoryException
+		boolean permanentJoin, final IGlobalValueEntry provider, boolean setRelationNameComment, String alias) throws RepositoryException
 	{
 		if (relation instanceof AbstractBase)
 		{
@@ -563,7 +577,21 @@ public class SQLGenerator
 		{
 			throw new RepositoryException("Missing join condition in relation " + relation.getName()); //$NON-NLS-1$
 		}
-		return new QueryJoin(alias, primaryTable, foreignTable, joinCondition, relation.getJoinType(), permanentJoin);
+		QueryJoin queryJoin = new QueryJoin(relation.getName(), primaryTable, foreignTable, joinCondition, relation.getJoinType(), permanentJoin, alias);
+		if (setRelationNameComment)
+		{
+			String comment;
+			if (alias != null && !alias.equals(relation.getName()))
+			{
+				comment = "join " + alias + " (" + relation.getName() + ")";
+			}
+			else
+			{
+				comment = "relation " + relation.getName();
+			}
+			queryJoin.setComment(comment);
+		}
+		return queryJoin;
 	}
 
 	/**
@@ -650,21 +678,32 @@ public class SQLGenerator
 
 	/**
 	 * Distinct is allowed if order by clause is a subset of the selected columns.
-	 *
-	 * @param sqlSelect
-	 * @return
 	 */
 	public static boolean isDistinctAllowed(List<IQuerySelectValue> columns, List<IQuerySort> orderByFields)
 	{
-		for (int i = 0; orderByFields != null && i < orderByFields.size(); i++)
-		{
-			IQuerySort sort = orderByFields.get(i);
-			if (!(sort instanceof QuerySort && columns.contains(((QuerySort)sort).getColumn())))
+		return stream(orderByFields).allMatch(sort -> {
+			if (sort instanceof QuerySort)
 			{
-				return false;
+				QuerySort qSort = (QuerySort)sort;
+				IQuerySelectValue column = qSort.getColumn();
+				if (!columns.contains(column))
+				{
+					return false;
+				}
+				// with ignoreCase the sql for the sort column is not the same as how the column appears in the select list
+				if (Column.mustApplyCaseinsensitiveModifier(qSort, column))
+				{
+					return false;
+				}
+				// with ascNullsFirst or ascNullsLast the sql for the sort column may not be the same as how the column appears in the select list
+				if (qSort.nullprecedence() != SortingNullprecedence.databaseDefault)
+				{
+					return false;
+				}
+				return true;
 			}
-		}
-		return true;
+			return false;
+		});
 	}
 
 	public static String getFindToolTip(IServiceProvider application)
@@ -867,7 +906,7 @@ public class SQLGenerator
 					if (c instanceof AggregateVariable)
 					{
 						condition = createExistsCondition(application.getFlattenedSolution(), sqlSelect, or, rfs.getRelations(), columnTable, provider,
-							pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]));
+							pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), setRelationNameComment);
 					}
 					else
 					{
@@ -908,7 +947,8 @@ public class SQLGenerator
 	}
 
 	public static ISQLCondition createExistsCondition(IDataProviderHandler flattenedSolution, QuerySelect sqlSelect, ISQLCondition condition,
-		List<IRelation> relations, BaseQueryTable columnTable, IGlobalValueEntry provider, BaseQueryColumn[] pkQueryColumns) throws RepositoryException
+		List<IRelation> relations, BaseQueryTable columnTable, IGlobalValueEntry provider, BaseQueryColumn[] pkQueryColumns, boolean setRelationNameComment)
+		throws RepositoryException
 	{
 		// search on aggregate, change to exists-condition:
 		// exists (select 1 from innermain join related1 ... join relatedn where innermain.pk = main.pk having aggregate(relatedn))
@@ -943,7 +983,7 @@ public class SQLGenerator
 			ITable foreignTable = flattenedSolution.getTable(relation.getForeignDataSource());
 			QueryTable foreignQtable = new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(),
 				foreignTable.getSchema());
-			existsSelect.addJoin(createJoin(flattenedSolution, relation, prevTable, foreignQtable, true, provider, relation.getName()));
+			existsSelect.addJoin(createJoin(flattenedSolution, relation, prevTable, foreignQtable, true, provider, setRelationNameComment, relation.getName()));
 
 			prevTable = foreignQtable;
 		}
@@ -1000,10 +1040,10 @@ public class SQLGenerator
 	 */
 	public static IDataSet getEmptyDataSetForDummyQuery(ISQLSelect sqlSelect)
 	{
-		if (sqlSelect instanceof QuerySelect)
+		if (sqlSelect instanceof QuerySelect && ((QuerySelect)sqlSelect).getWhere() != null)
 		{
-			// all named conditions in QuerySelect are AND-ed, if one always results to false, skip the query
-			for (IBaseSQLCondition condition : iterate(((QuerySelect)sqlSelect).getConditions(CONDITION_SEARCH)))
+			// go over all where conditions to check if this query would result in possible values or not.
+			for (IBaseSQLCondition condition : iterate(((QuerySelect)sqlSelect).getWhere().getAllConditions()))
 			{
 				boolean skipQuery = false;
 				if (condition instanceof SetCondition && ((SetCondition)condition).isAndCondition())
@@ -1163,8 +1203,7 @@ public class SQLGenerator
 			pkQueryColumns.add(column.queryColumn(queryTable));
 		}
 
-		Iterator<Column> it2 = columns.iterator();
-		select.setColumns(makeQueryColumns(it2, queryTable, insert));
+		select.setColumns(makeQueryColumns(columns, queryTable, insert));
 		SetCondition pkSelect = new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]),
 			new Placeholder(new TablePlaceholderKey(queryTable, PLACEHOLDER_PRIMARY_KEY)), true);
 
@@ -1172,7 +1211,7 @@ public class SQLGenerator
 		delete.setCondition(deepClone(pkSelect));
 		update.setCondition(deepClone(pkSelect));
 
-		//fill dataprovider map
+		// fill dataprovider map
 		List<String> dataProviderIDsDilivery = new ArrayList<String>();
 		for (Column col : columns)
 		{
@@ -1215,14 +1254,14 @@ public class SQLGenerator
 			{
 				return;
 			}
-			ITable ft = fs.getTable(r.getForeignDataSource());
-			if (ft == null)
+			ITable foreignTable = fs.getTable(r.getForeignDataSource());
+			if (foreignTable == null)
 			{
 				return;
 			}
 
-			//add primary keys if missing
-			QueryTable foreignQTable = new QueryTable(ft.getSQLName(), ft.getDataSource(), ft.getCatalog(), ft.getSchema());
+			// add primary keys if missing
+			QueryTable foreignQTable = foreignTable.queryTable();
 			QuerySelect relatedSelect = new QuerySelect(foreignQTable);
 
 			List<String> parentRequiredDataProviderIDs = new ArrayList<String>();
@@ -1234,10 +1273,10 @@ public class SQLGenerator
 
 			relatedSelect.setCondition(CONDITION_RELATION, createRelatedCondition(application, r, foreignQTable));
 
-			Collection<Column> rcolumns = ft.getColumns();
-			relatedSelect.setColumns(makeQueryColumns(rcolumns.iterator(), foreignQTable, null));
+			Collection<Column> rcolumns = foreignTable.getColumns();
+			relatedSelect.setColumns(makeQueryColumns(rcolumns, foreignQTable, null));
 
-			//fill dataprovider map
+			// fill dataprovider map
 			List<String> dataProviderIDsDilivery = new ArrayList<String>();
 			for (Column col : rcolumns)
 			{
@@ -1494,49 +1533,44 @@ public class SQLGenerator
 		return value != null && value.matches("(?si)\\s*(\\b(with|declare)\\b.*)?\\bselect\\b.*\\bfrom\\b.*");
 	}
 
-	public static QuerySelect createUpdateLockSelect(Table table, Object[][] pkValues, boolean lockInDb)
+	public static QuerySelect createUpdateLockSelect(QuerySelect tableSelectQuery, Collection<Object[]> pks, boolean lockInDb)
 	{
-		QuerySelect lockSelect = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
-		if (lockInDb) lockSelect.setLockMode(ISQLSelect.LOCK_MODE_LOCK_NOWAIT);
-
-		LinkedHashMap<Column, QueryColumn> allQueryColumns = new LinkedHashMap<>();
-		for (Column column : table.getColumns())
+		if (pks.isEmpty())
 		{
-			allQueryColumns.put(column, column.queryColumn(lockSelect.getTable()));
+			return null;
 		}
 
-		lockSelect.setColumns(new ArrayList<IQuerySelectValue>(allQueryColumns.values()));
-
-		// get the pk columns, make sure the order is in pk-order (alphabetical)
-		ArrayList<QueryColumn> pkQueryColumns = new ArrayList<>();
-		for (Column pkColumn : table.getRowIdentColumns())
+		QuerySelect lockSelect = deepClone(tableSelectQuery);
+		if (lockInDb)
 		{
-			pkQueryColumns.add(allQueryColumns.get(pkColumn));
+			lockSelect.setLockMode(ISQLSelect.LOCK_MODE_LOCK_NOWAIT);
 		}
+
+		List<Object[]> pklist = new ArrayList<>(pks);
+		int pkSize = pklist.get(0).length;
 
 		// values is an array as wide as the columns, each element consists of the values for that column
-		Object[][] values = new Object[pkQueryColumns.size()][];
-		for (int k = 0; k < pkQueryColumns.size(); k++)
+		Object[][] values = new Object[pkSize][];
+		for (int k = 0; k < pkSize; k++)
 		{
-			values[k] = new Object[pkValues.length];
-			for (int r = 0; r < pkValues.length; r++)
+			values[k] = new Object[pklist.size()];
+			for (int r = 0; r < pklist.size(); r++)
 			{
-				values[k][r] = pkValues[r][k];
+				values[k][r] = pklist.get(r)[k];
 			}
 		}
-		lockSelect.setCondition(CONDITION_LOCK,
-			new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkQueryColumns.toArray(new QueryColumn[pkQueryColumns.size()]), values, true));
 
+		lockSelect.setPlaceholderValueChecked(new TablePlaceholderKey(lockSelect.getTable(), PLACEHOLDER_PRIMARY_KEY), values);
 		return lockSelect;
 	}
 
-	private static ArrayList<IQuerySelectValue> makeQueryColumns(Iterator<Column> it, QueryTable queryTable, QueryInsert insert)
+	private static ArrayList<IQuerySelectValue> makeQueryColumns(Collection<Column> columns, QueryTable queryTable, QueryInsert insert)
 	{
-		ArrayList<IQuerySelectValue> queryColumns = new ArrayList<IQuerySelectValue>();
-		List<QueryColumn> insertColumns = new ArrayList<QueryColumn>();
-		while (it.hasNext())
+		ArrayList<IQuerySelectValue> queryColumns = new ArrayList<>();
+		List<QueryColumn> insertColumns = new ArrayList<>();
+
+		for (Column column : columns)
 		{
-			Column column = it.next();
 			ColumnInfo ci = column.getColumnInfo();
 			if (ci != null && ci.isExcluded())
 			{

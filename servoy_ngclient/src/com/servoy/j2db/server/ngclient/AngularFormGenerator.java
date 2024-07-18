@@ -235,6 +235,8 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 					writer.object();
 					writer.key("part");
 					writer.value(true);
+					writer.key("name");
+					writer.value(PartWrapper.getName(part));
 					writer.key("classes");
 					writer.array();
 					writer.value("svy-" + PartWrapper.getName(part));
@@ -441,7 +443,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 						}
 						else
 						{
-							top = "calc(" + top + "-" + topStart + "px)";
+							top = "calc(" + top + " - " + topStart + "px)";
 						}
 					}
 				}
@@ -461,7 +463,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 						}
 						else
 						{
-							bottom = "calc(" + bottom + "-" + extraHeight + "px)";
+							bottom = "calc(" + bottom + " - " + extraHeight + "px)";
 						}
 					}
 				}

@@ -15,6 +15,8 @@
  */
 package com.servoy.j2db.server.ngclient.property.types;
 
+import java.util.Collection;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
@@ -26,9 +28,12 @@ import org.sablo.specification.property.types.DefaultPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.server.ngclient.ComponentFactory;
 import com.servoy.j2db.server.ngclient.FormElementContext;
+import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.IWebFormUI;
+import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.util.Utils;
 
@@ -72,8 +77,50 @@ public class LabelForPropertyType extends DefaultPropertyType<String>
 		JSONUtils.addKeyIfPresent(writer, key);
 		if (!Utils.stringIsEmpty(sabloValue) && dataConverterContext != null && dataConverterContext.getWebObject() instanceof WebComponent)
 		{
-			writer.value(ComponentFactory.getMarkupId(
-				((WebComponent)dataConverterContext.getWebObject()).findParent(IWebFormUI.class).getController().getName(), sabloValue));
+			String name = sabloValue;
+			WebComponent wc = (WebComponent)dataConverterContext.getWebObject();
+			// first just look directly in the parent of this wc to see if it has there that component
+			WebComponent component = wc.getParent().getComponent(name);
+			IWebFormUI parentForm = wc.findParent(IWebFormUI.class);
+			if (component == null)
+			{
+				// if not try to find it really in the parent form, maybe this should be already default above (that parent in responsive can really be different then the above one i think)
+				component = parentForm.getWebComponent(name);
+				if (component == null && wc instanceof WebFormComponent wfc && wfc.getFormElement().getPersistIfAvailable() instanceof AbstractBase ab)
+				{
+					// get the parentUUID for this label for label it could potentially by on a form component
+					String parentUUID = ab.getRuntimeProperty(FormElementHelper.FORM_COMPONENT_UUID);
+					// component was not just found, go over all components of the form
+					Collection<WebComponent> components = parentForm.getComponents();
+					for (WebComponent comp : components)
+					{
+						if (comp instanceof WebFormComponent wfcomp && wfcomp.getFormElement().getPersistIfAvailable() instanceof AbstractBase abchild)
+						{
+							// check the element name of the form component itself. (so this is the plain name you see in the designer
+							String elementName = abchild.getRuntimeProperty(FormElementHelper.FORM_COMPONENT_ElEMENT_NAME);
+							if (name.equals(elementName))
+							{
+								// if that name equals to what we want then this could possible it.
+								component = comp;
+								// but check if they both belong to the same form component component parent. if not do continue
+								// if then another is found that has the same name and the same parent then that one is taken else the other hit will just be used
+								// (so the one from a different parent)
+								if (parentUUID == null || parentUUID.equals(abchild.getRuntimeProperty(FormElementHelper.FORM_COMPONENT_UUID)))
+								{
+									break;
+								}
+							}
+						}
+					}
+					if (component != null)
+					{
+						name = component.getName();
+					}
+				}
+			}
+
+			writer.value(ComponentFactory.getMarkupId(parentForm.getController().getName(), name));
+
 		}
 		else
 		{

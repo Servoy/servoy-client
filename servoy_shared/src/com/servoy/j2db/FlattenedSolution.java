@@ -18,6 +18,11 @@ package com.servoy.j2db;
 
 import static com.servoy.base.query.IQueryConstants.INNER_JOIN;
 import static com.servoy.base.query.IQueryConstants.LEFT_OUTER_JOIN;
+import static com.servoy.base.util.DataSourceUtilsBase.getDBServernameTablename;
+import static com.servoy.base.util.DataSourceUtilsBase.isCompleteDBbServerTable;
+import static com.servoy.j2db.util.DataSourceUtils.createDBTableDataSource;
+import static com.servoy.j2db.util.DataSourceUtils.getInmemDataSourceName;
+import static com.servoy.j2db.util.DataSourceUtils.isSameServer;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -40,12 +45,10 @@ import org.json.JSONObject;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.base.query.IBaseSQLCondition;
-import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.IGlobalValueEntry;
-import com.servoy.j2db.dataprocessing.SQLGenerator;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.AbstractPersistFactory;
 import com.servoy.j2db.persistence.AbstractRepository;
@@ -111,8 +114,6 @@ import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryCompositeJoin;
 import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QueryTable;
-import com.servoy.j2db.server.shared.IFlattenedSolutionDebugListener;
-import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IteratorChain;
 import com.servoy.j2db.util.Pair;
@@ -156,7 +157,6 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	private volatile ConcurrentHashMap<String, Style> user_created_styles; // concurrent modification exceptions shouldn't happen with current implementation for this map; no need to sync
 
 	private volatile SimplePersistFactory persistFactory;
-	private volatile IFlattenedSolutionDebugListener debugListener;
 
 	private final ConcurrentMap<Form, FlattenedForm[]> flattenedFormCache;
 	private volatile ConcurrentMap<Bean, Object> beanDesignInstances;
@@ -1331,7 +1331,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		}
 		else
 		{
-			// if the value is not the implicit value and an implicit value is asked for and it was registered that it should have an implicit value then return the implict value
+			// if the value is not the implicit value and an implicit value is asked for and it was registered that it should have
+			// an implicit value then return the implicit value
 			// so this is in implicit mode where the element was not configured in all the groups..
 			if (i.intValue() != implicitValue && (implicitValue == IRepository.IMPLICIT_FORM_ACCESS || implicitValue == IRepository.IMPLICIT_TABLE_ACCESS) &&
 				securityAccess.getRight().contains(element_id)) return implicitValue;
@@ -1497,8 +1498,8 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				String ds = r.getForeignDataSource();
 				if (ds != null)
 				{
-					String[] st = DataSourceUtilsBase.getDBServernameTablename(ds);
-					if (st != null && st.length == 2)
+					String[] st = getDBServernameTablename(ds);
+					if (isCompleteDBbServerTable(st))
 					{
 						try
 						{
@@ -2387,7 +2388,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	public Iterator<Form> getForms(ITable basedOnTable, boolean sort)
 	{
 		return Solution.getForms(getIndex().getIterableFor(Form.class),
-			basedOnTable == null ? null : DataSourceUtils.createDBTableDataSource(basedOnTable.getServerName(), basedOnTable.getName()), sort);
+			basedOnTable == null ? null : createDBTableDataSource(basedOnTable.getServerName(), basedOnTable.getName()), sort);
 	}
 
 	public Iterator<Form> getForms(String datasource, boolean sort)
@@ -2681,7 +2682,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				return null;
 		}
 
-		if (destDataSource == null || !DataSourceUtils.isSameServer(callingTable.getDataSource(), destDataSource))
+		if (destDataSource == null || !isSameServer(callingTable.getDataSource(), destDataSource))
 		{
 			// do not create a cross-server relation
 			return null;
@@ -2773,7 +2774,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 							foreignQTable = new QueryTable(relForeignTable.getSQLName(), relForeignTable.getDataSource(), relForeignTable.getCatalog(),
 								relForeignTable.getSchema());
 						}
-						lastJoin = SQLGenerator.createJoin(this, r, primaryQTable, foreignQTable, false, new IGlobalValueEntry()
+						lastJoin = foundSetManager.getSQLGenerator().createJoin(this, r, primaryQTable, foreignQTable, false, new IGlobalValueEntry()
 						{
 							public Object setDataProviderValue(String dpid, Object value)
 							{
@@ -2935,26 +2936,13 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				else
 				{
 					// only interested in the last line that altered the form.
-					changedFormData.infos.clear();
 					// the the forms that are currently live.
 					changedFormData.instances.addAll(liveForms.get(form.getName()));
 				}
-				if (debugListener != null)
-				{
-					debugListener.addDebugInfo(changedFormData.infos);
-				}
+
+				changedFormData.lastStack = Debug.getScriptStacktraceFromContext(""); //$NON-NLS-1$
 			}
 		}
-	}
-
-	public void registerDebugListener(IFlattenedSolutionDebugListener listener)
-	{
-		this.debugListener = listener;
-	}
-
-	public IFlattenedSolutionDebugListener getDebugListener()
-	{
-		return debugListener;
 	}
 
 	/**
@@ -2982,14 +2970,11 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 					}
 					sb.setLength(sb.length() - 1);
 					sb.append("]");
-					Set<Object> infos = changedForms.get(fName).infos;
-					if (infos != null && infos.size() == 2)
+					String stack = changedForms.get(fName).lastStack;
+					if (stack != null)
 					{
-						sb.append("\n\t\tat ");
-						sb.append(infos.toArray()[0] instanceof Integer ? infos.toArray()[1] : infos.toArray()[0]);
-						sb.append(":"); //$NON-NLS-1$
-						sb.append(infos.toArray()[0] instanceof Integer ? infos.toArray()[0] : infos.toArray()[1]);
-						sb.append("\n"); //$NON-NLS-1$
+						sb.append('\n');
+						sb.append(stack);
 					}
 					sb.append("\n\t"); //$NON-NLS-1$
 				}
@@ -3058,7 +3043,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 
 	private static class ChangedFormData
 	{
-		private final Set<Object> infos = new HashSet<Object>();
+		private String lastStack;
 		private final Set<String> instances;
 
 		private ChangedFormData(Set<String> instances)
@@ -3107,7 +3092,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		try
 		{
 			if (dataSource == null) return null;
-			String[] snt = DataSourceUtilsBase.getDBServernameTablename(dataSource);
+			String[] snt = getDBServernameTablename(dataSource);
 			if (snt != null)
 			{
 				return getSolution().getServer(snt[0]).getTable(snt[1]);
@@ -3131,13 +3116,13 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	{
 		try
 		{
-			String[] snt = DataSourceUtilsBase.getDBServernameTablename(dataSource);
+			String[] snt = getDBServernameTablename(dataSource);
 			if (snt != null)
 			{
 				return getSolution().getServer(snt[0]);
 			}
 
-			String inMemTableName = DataSourceUtils.getInmemDataSourceName(dataSource);
+			String inMemTableName = getInmemDataSourceName(dataSource);
 			if (inMemTableName != null)
 			{
 				return getSolution().getServer(IServer.INMEM_SERVER);

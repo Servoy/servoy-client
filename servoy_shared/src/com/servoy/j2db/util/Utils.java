@@ -124,7 +124,6 @@ import com.servoy.j2db.persistence.IFormElement;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.ISupportBounds;
-import com.servoy.j2db.persistence.ISupportExtendsID;
 import com.servoy.j2db.scripting.IScriptable;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.ui.runtime.HasRuntimeClientProperty;
@@ -168,11 +167,8 @@ public final class Utils
 		}
 		if (context instanceof Form && element instanceof IPersist && (((IPersist)element).getAncestor(IRepository.FORMS) != context))
 		{
-			if (element instanceof IPersist && (((IPersist)element).getAncestor(IRepository.FORMS) != context))
-			{
-				// child of super-form, readonly
-				return true;
-			}
+			// child of super-form, readonly
+			return true;
 		}
 		if (element instanceof FormElementGroup)
 		{
@@ -185,12 +181,8 @@ public final class Utils
 				}
 			}
 		}
-		if (element instanceof ISupportExtendsID)
-		{
-			return PersistHelper.isOverrideElement((ISupportExtendsID)element);
-		}
-		// child of this form, not of a inherited form
-		return false;
+
+		return PersistHelper.isOverrideElement(element);
 	}
 
 	/**
@@ -317,6 +309,27 @@ public final class Utils
 			arraycopy(array, 0, res, append ? 0 : 1, array.length);
 		}
 		res[append ? res.length - 1 : 0] = element;
+		return res;
+	}
+
+	/**
+	 * Remove an element from an array. Element type will be preserved.
+	 *
+	 * @param array
+	 * @param position
+	 * @return the resulting array
+	 */
+	public static <T> T[] arrayRemoveElement(T[] array, int position)
+	{
+		T[] res = (T[])newInstance(array.getClass().getComponentType(), array.length - 1);
+		if (position > 0)
+		{
+			arraycopy(array, 0, res, 0, position);
+		}
+		if (position < array.length)
+		{
+			arraycopy(array, position + 1, res, position, array.length - position - 1);
+		}
 		return res;
 	}
 
@@ -651,6 +664,13 @@ public final class Utils
 	/*
 	 * public static String getAsMoney(String s) { NumberFormat nf = NumberFormat.getCurrencyInstance(); return nf.format(getAsDouble(s)); }
 	 */
+
+	public static boolean getAsBoolean(String s, boolean defaultValue)
+	{
+		if (s == null) return defaultValue;
+		return getAsBoolean(s);
+	}
+
 	/**
 	 * Try to parse the given string as a boolean
 	 *
@@ -1928,7 +1948,7 @@ public final class Utils
 	 * Hashes the given string with the PKCS/PBKDF2 algoritme see http://en.wikipedia.org/wiki/PBKDF2 for more information
 	 *
 	 * @param textString The string to hash
-	 * @param iterations Number of hash iterations to be done (should be higher then 1000)
+	 * @param iterations Number of hash iterations to be done (should be higher then 10000)
 	 * @return the hash of the string
 	 */
 	@SuppressWarnings("nls")
@@ -1936,17 +1956,17 @@ public final class Utils
 	{
 		try
 		{
-			SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+			SecureRandom sr = SecureRandom.getInstanceStrong();
 			byte[] salt = new byte[8];
 			sr.nextBytes(salt);
-			PBKDF2Parameters p = new PBKDF2Parameters("HmacSHA1", "ISO-8859-1", salt, iterations);
+			PBKDF2Parameters p = new PBKDF2Parameters("HmacSHA256", "ISO-8859-1", salt, iterations);
 			PBKDF2Engine e = new PBKDF2Engine(p);
 			p.setDerivedKey(e.deriveKey(textString));
 			return new PBKDF2HexFormatter().toString(p);
 		}
 		catch (NoSuchAlgorithmException e)
 		{
-			Debug.error("No SHA1 algorime found under the name SHA1PRNG", e);
+			Debug.error("No SHA256 algorime found under for strong instance", e);
 		}
 		return null;
 	}
@@ -1961,17 +1981,27 @@ public final class Utils
 		return false;
 	}
 
+	@SuppressWarnings("nls")
 	public static boolean validatePBKDF2Hash(String password, String hash)
 	{
-		PBKDF2Parameters p = new PBKDF2Parameters();
-		p.setHashAlgorithm("HmacSHA1");
-		p.setHashCharset("ISO-8859-1");
-		if (new PBKDF2HexFormatter().fromString(p, hash))
+		if (hash == null || password == null) return false;
+		if (hash.length() > 65)
 		{
-			return false;
+			// this is SHA256
+			PBKDF2Parameters p = new PBKDF2Parameters();
+			p.setHashAlgorithm("HmacSHA256");
+			p.setHashCharset("ISO-8859-1");
+			PBKDF2Engine e = new PBKDF2Engine(p);
+			return !new PBKDF2HexFormatter().fromString(p, hash) && e.verifyKey(password);
 		}
-		PBKDF2Engine e = new PBKDF2Engine(p);
-		return e.verifyKey(password);
+		else
+		{
+			PBKDF2Parameters p = new PBKDF2Parameters();
+			p.setHashAlgorithm("HmacSHA1");
+			p.setHashCharset("ISO-8859-1");
+			PBKDF2Engine e = new PBKDF2Engine(p);
+			return !new PBKDF2HexFormatter().fromString(p, hash) && e.verifyKey(password);
+		}
 	}
 
 
@@ -3205,7 +3235,7 @@ public final class Utils
 	}
 
 	/**
-	 * Stream iterable iterator.
+	 * Stream from iterable.
 	 *
 	 * @param iterable when null, return empty stream
 	 */
@@ -3224,6 +3254,31 @@ public final class Utils
 	public static <T> Stream<T> stream(Collection<T> collection)
 	{
 		return collection == null ? Stream.empty() : collection.stream();
+	}
+
+	/**
+	 * Remove an element from a collection, compare using object reference (not equals), removes only first element.
+	 *
+	 * @param collection
+	 * @param element element to remove
+	 *
+	 * @return true if removed, false if not removed
+	 */
+	public static <T> boolean removeFromCollection(Collection< ? extends T> collection, T element)
+	{
+		if (collection != null)
+		{
+			Iterator< ? extends T> iterator = collection.iterator();
+			while (iterator.hasNext())
+			{
+				if (iterator.next() == element)
+				{
+					iterator.remove();
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -3583,6 +3638,26 @@ public final class Utils
 		}
 		return null; //theoretically we shouldn't be here
 	}
+
+	/**
+	 * Get the name of the calling method.
+	 *
+	 * @param n number of levels up (1 for direct caller, 2 for caller of caller, etc)
+	 *
+	 * @return method name, "<unkown>" if cannot be determined
+	 */
+	public static String getCallerMethodName(int n)
+	{
+		try
+		{
+			return Thread.currentThread().getStackTrace()[n + 2].getMethodName();
+		}
+		catch (Exception e)
+		{
+			return "<unknown>";
+		}
+	}
+
 
 	public static String getFindModeValueForMultipleValues(List<String> strValues)
 	{

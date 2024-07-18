@@ -18,6 +18,7 @@
 package com.servoy.j2db.querybuilder.impl;
 
 import static com.servoy.j2db.util.Utils.iterate;
+import static java.util.Arrays.stream;
 
 import java.util.ArrayList;
 
@@ -29,10 +30,12 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.QueryAggregate;
-import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.QueryFunction;
+import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
+import com.servoy.j2db.query.QuerySearchedCaseExpression;
+import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderResult;
@@ -211,6 +214,23 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 		return add(qcase, alias);
 	}
 
+	/**
+	 * Add all columns from a query or a join to the query result.
+	 * @sample
+	 * query.result.add(query.columns)
+	 * query.result.add(query.joins.orders_to_orderdetail.columns)
+	 *
+	 * @param columns columns to add to result
+	 */
+	public QBResult js_add(QBColumns columns)
+	{
+		stream(columns.getValues())
+			.filter(IQueryBuilderColumn.class::isInstance)
+			.map(IQueryBuilderColumn.class::cast)
+			.forEach(this::add);
+		return this;
+	}
+
 	public QBResult add(IQueryBuilderColumn column)
 	{
 		return add(column, null);
@@ -239,25 +259,25 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	public QBColumn[] getColumns()
 	{
 		ArrayList<IQuerySelectValue> columns = getParent().getQuery().getColumns();
-		QBColumn[] result = new QBColumn[columns == null ? 0 : columns.size()];
-		for (int i = 0; i < result.length; i++)
-		{
-			IQuerySelectValue selectValue = columns.get(i);
-			if (selectValue instanceof QueryColumn)
+		return columns == null ? new QBColumn[0] : columns.stream().map(selectValue -> {
+
+			if (selectValue instanceof QueryAggregate)
 			{
-				result[i] = new QBColumn(getRoot(), getParent(), selectValue);
+				QueryAggregate queryAggregate = (QueryAggregate)selectValue;
+				return new QBAggregate(getRoot(), getParent(), selectValue, queryAggregate.getType(), queryAggregate.getQuantifier());
 			}
-			else if (selectValue instanceof QueryAggregate)
+			if (selectValue instanceof QueryFunction)
 			{
-				result[i] = new QBAggregate(getRoot(), getParent(), selectValue, ((QueryAggregate)selectValue).getType(),
-					((QueryAggregate)selectValue).getQuantifier());
+				QueryFunctionType function = ((QueryFunction)selectValue).getFunction();
+				return new QBFunction(getRoot(), getParent(), function, ((QueryFunction)selectValue).getArgs());
 			}
-			else if (selectValue instanceof QueryFunction)
+			if (selectValue instanceof QuerySearchedCaseExpression)
 			{
-				result[i] = new QBFunction(getRoot(), getParent(), ((QueryFunction)selectValue).getFunction(), ((QueryFunction)selectValue).getArgs());
+				return new QBSearchedCaseExpression(getRoot(), getParent(), ((QuerySearchedCaseExpression)selectValue));
 			}
-		}
-		return result;
+			return new QBColumn(getRoot(), getParent(), selectValue);
+
+		}).toArray(QBColumn[]::new);
 	}
 
 	/**
@@ -362,6 +382,43 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	protected QBResult doAddSubSelect(ISQLSelect select, String alias)
 	{
 		getParent().getQuery().addColumn(new QueryColumnValue(select, alias, false));
+		return this;
+	}
+
+
+	/**
+	 * Remove a column by name from the query result.
+	 * @sample
+	 * query.result.remove("custname")
+	 *
+	 * @param name name or alias of column to remove from the result
+	 */
+	@JSFunction
+	public QBResult remove(String name) throws RepositoryException
+	{
+		QuerySelect query = getParent().getQuery();
+		query.removeColumn(query.getColumn(name));
+		return this;
+	}
+
+	/**
+	 * remove a column from the query result.
+	 * @sample
+	 * query.result.remove(query.columns.custname)
+	 *
+	 * @param column column to remove from the result
+	 */
+	public QBResult js_remove(QBColumn column)
+	{
+		return remove(column);
+	}
+
+	public QBResult remove(IQueryBuilderColumn column)
+	{
+		if (column != null)
+		{
+			getParent().getQuery().removeColumn(((QBColumn)column).getQuerySelectValue());
+		}
 		return this;
 	}
 

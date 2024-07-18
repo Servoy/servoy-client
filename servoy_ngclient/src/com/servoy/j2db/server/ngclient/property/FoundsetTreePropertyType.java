@@ -115,6 +115,18 @@ public class FoundsetTreePropertyType extends DefaultPropertyType<FoundsetTreeTy
 						webComponentValue.flagChanged();
 						return webComponentValue.roots;
 					}
+					if ("removeAllRoots".equals(name))
+					{
+						return new Callable()
+						{
+							@Override
+							public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
+							{
+								webComponentValue.removeAllRoots();
+								return null;
+							}
+						};
+					}
 					if ("getBinding".equals(name))
 					{
 						webComponentValue.flagChanged();

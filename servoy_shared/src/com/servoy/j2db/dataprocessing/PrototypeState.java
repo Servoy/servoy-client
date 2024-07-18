@@ -192,7 +192,7 @@ public class PrototypeState extends Record
 	@Override
 	public String toString()
 	{
-		StringBuilder sb = new StringBuilder("PrototypeState[] COLUMS: ");
+		StringBuilder sb = new StringBuilder("PrototypeState[] COLUMNS: ");
 		for (Object element : getIds())
 		{
 			sb.append(element);

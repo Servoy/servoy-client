@@ -27,6 +27,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.servlet.http.HttpSession;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mozilla.javascript.Context;
@@ -40,6 +42,7 @@ import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.eventthread.WebsocketSessionWindows;
 import org.sablo.specification.IFunctionParameters;
 import org.sablo.specification.SpecProviderState;
+import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.specification.WebObjectFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
@@ -112,7 +115,6 @@ import com.servoy.j2db.util.RendererParentWrapper;
 import com.servoy.j2db.util.SecuritySupport;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.ServoyScheduledExecutor;
-import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
@@ -883,7 +885,7 @@ public class NGClient extends AbstractApplication
 						url.append("?m=").append(m);
 
 					}
-					if (a != null && a.length > 0)
+					if (a != null && a.length > 0 && a[0] != null)
 					{
 						url.append(m != null ? "&" : "?");
 						url.append("a=").append(a[0]);
@@ -1460,7 +1462,7 @@ public class NGClient extends AbstractApplication
 				try
 				{
 					credentials.setUserName(args.optString("username"));
-					credentials.setPassword(args.optBoolean("encrypted") ? SecuritySupport.decrypt(Settings.getInstance(), args.optString("password"))
+					credentials.setPassword(args.optBoolean("encrypted") ? SecuritySupport.decrypt(args.optString("password"))
 						: args.optString("password"));
 					authenticate(null, null, new Object[] { credentials.getUserName(), credentials.getPassword() });
 					if (getClientInfo().getUserUid() != null)
@@ -1483,7 +1485,7 @@ public class NGClient extends AbstractApplication
 						{
 							JSONObject r = new JSONObject();
 							r.put("username", credentials.getUserName());
-							r.put("password", SecuritySupport.encrypt(Settings.getInstance(), credentials.getPassword()));
+							r.put("password", SecuritySupport.encrypt(credentials.getPassword()));
 							return r;
 						}
 						else return Boolean.TRUE;
@@ -1588,6 +1590,11 @@ public class NGClient extends AbstractApplication
 
 			if (doLogoutAndClearUserInfo)
 			{
+				HttpSession httpSession = getWebsocketSession().getHttpSession();
+				if (httpSession != null)
+				{
+					httpSession.removeAttribute(StatelessLoginHandler.ID_TOKEN);
+				}
 				if (getApplicationServerAccess() != null && getClientID() != null)
 				{
 					try
@@ -1687,7 +1694,7 @@ public class NGClient extends AbstractApplication
 
 
 	@Override
-	public Pair<Integer, Integer> onStartSubAction(String serviceName, String functionName, WebObjectFunctionDefinition apiFunction, Object[] arguments)
+	public Pair<Long, Long> onStartSubAction(String serviceName, String functionName, WebObjectApiFunctionDefinition apiFunction, Object[] arguments)
 	{
 		if (performanceData != null) return performanceData.startSubAction(serviceName + "." + functionName, System.currentTimeMillis(),
 			(apiFunction == null || apiFunction.getBlockEventProcessing()) ? IDataServer.METHOD_CALL : IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT,
@@ -1696,7 +1703,7 @@ public class NGClient extends AbstractApplication
 	}
 
 	@Override
-	public void onStopSubAction(Pair<Integer, Integer> perfId)
+	public void onStopSubAction(Pair<Long, Long> perfId)
 	{
 		if (perfId != null)
 		{
@@ -1872,6 +1879,12 @@ public class NGClient extends AbstractApplication
 		}
 
 		return null;
+	}
+
+	@Override
+	public void setFirstDayOfTheWeek(int weekday)
+	{
+		putClientProperty(IApplication.FIRST_DAY_OF_WEEK, Integer.valueOf(weekday));
 	}
 
 	@Override

@@ -1,12 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	<prerequisites>
+		<maven>3.9.0</maven>
+	</prerequisites>
 	<parent>
 		<groupId>com.servoy</groupId>
 		<artifactId>servoy-client</artifactId>
-		<version>2023.3.8.3850_LTS</version>
+		<version>2024.3.2.3945</version>
 	</parent>
 	<artifactId>servoy_ngclient.tests</artifactId>
-	<version>2023.3.8.3850_LTS</version>
+	<version>2024.3.2.3945</version>
 	<packaging>eclipse-test-plugin</packaging>
 </project>

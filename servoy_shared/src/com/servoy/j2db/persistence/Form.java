@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.servoy.base.persistence.constants.IFormConstants;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
@@ -197,6 +198,14 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
+	 * The height of the form in pixels.
+	 */
+	public int getHeight()
+	{
+		return getSize().height;
+	}
+
+	/**
 	 * Set the width.
 	 *
 	 * @param width
@@ -204,6 +213,61 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	public void setWidth(int width)
 	{
 		setSize(new Dimension(width, getSize().height));
+	}
+
+	/**
+	 * Set the height.
+	 *
+	 * @param height
+	 */
+	public void setHeight(int height)
+	{
+		if (getParts().hasNext())
+		{
+			getParts().next().setHeight(height);
+		}
+		else
+		{
+			setSize(new Dimension(getSize().width, height));
+		}
+	}
+
+	/**
+	 * If true then the min-with css property will be set for this form so it has a default minimum width
+	 *
+	 * Can return null so that the default system value should be used.
+	 *
+	 * @return true if it should use the min-width in the browser
+	 */
+	public Boolean getUseMinWidth()
+	{
+		Object customProperty = getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_USE_MIN_WIDTH });
+		if (customProperty instanceof Boolean) return (Boolean)customProperty;
+		return null;
+	}
+
+	public void setUseMinWidth(Boolean useMinWidth)
+	{
+		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_USE_MIN_WIDTH }, useMinWidth);
+	}
+
+	/**
+	 * If true then the min-height css property will be set for this form so it has a default minimum height.
+	 *
+	 * Can return null so that the default system value should be used.
+	 *
+	 * @return true if it should use the min-height in the browser
+	 */
+	public Boolean getUseMinHeight()
+	{
+		Object customProperty = getCustomProperty(new String[] { IContentSpecConstants.PROPERTY_USE_MIN_HEIGHT });
+		if (customProperty instanceof Boolean) return (Boolean)customProperty;
+		return null;
+	}
+
+	public void setUseMinHeight(Boolean useMinHeight)
+	{
+		putCustomProperty(new String[] { IContentSpecConstants.PROPERTY_USE_MIN_HEIGHT }, useMinHeight);
 	}
 
 	public int getMinWidth()
@@ -2370,14 +2434,12 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 
 	public boolean containsResponsiveLayout()
 	{
-		List<IPersist> children = getHierarchyChildren();
-		for (IPersist persist : children)
-		{
-			if (persist instanceof AbstractContainer)
-			{
-				return true;
-			}
-		}
-		return false;
+		return getLayoutContainers().hasNext() || getObjects(IRepository.CSSPOS_LAYOUTCONTAINERS).hasNext();
+	}
+
+	public Iterator<LayoutContainer> getAllLayoutContainers()
+	{
+		return getAllObjectsAsList().stream().filter(LayoutContainer.class::isInstance).map(LayoutContainer.class::cast).collect(Collectors.toList())
+			.iterator();
 	}
 }

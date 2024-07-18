@@ -1,5 +1,5 @@
 /**
- * @license XLTS for AngularJS v1.9.0
+ * @license XLTS for AngularJS v1.9.3
  * (c) 2022 XLTS.dev All Rights Reserved. https://xlts.dev/angularjs
  * License: Obtain a commercial license from XLTS.dev before using this software.
  */
@@ -23,7 +23,7 @@ var NG_ANIMATE_CLASSNAME = 'ng-animate';
 var NG_ANIMATE_CHILDREN_DATA = '$$ngAnimateChildren';
 
 // Detect proper transitionend/animationend event names.
-var CSS_PREFIX = '', TRANSITION_PROP, TRANSITIONEND_EVENT, ANIMATION_PROP, ANIMATIONEND_EVENT;
+var TRANSITION_PROP, TRANSITIONEND_EVENT, ANIMATION_PROP, ANIMATIONEND_EVENT;
 
 // If unprefixed events are not supported but webkit-prefixed are, use the latter.
 // Otherwise, just use W3C names, browsers not supporting them at all will just ignore them.
@@ -35,7 +35,6 @@ var CSS_PREFIX = '', TRANSITION_PROP, TRANSITIONEND_EVENT, ANIMATION_PROP, ANIMA
 // therefore there is no reason to test anymore for other vendor prefixes:
 // http://caniuse.com/#search=transition
 if ((window.ontransitionend === undefined) && (window.onwebkittransitionend !== undefined)) {
-  CSS_PREFIX = '-webkit-';
   TRANSITION_PROP = 'WebkitTransition';
   TRANSITIONEND_EVENT = 'webkitTransitionEnd transitionend';
 } else {
@@ -44,7 +43,6 @@ if ((window.ontransitionend === undefined) && (window.onwebkittransitionend !== 
 }
 
 if ((window.onanimationend === undefined) && (window.onwebkitanimationend !== undefined)) {
-  CSS_PREFIX = '-webkit-';
   ANIMATION_PROP = 'WebkitAnimation';
   ANIMATIONEND_EVENT = 'webkitAnimationEnd animationend';
 } else {
@@ -770,6 +768,20 @@ function computeCssStyles($window, element, properties) {
   var detectedStyles = $window.getComputedStyle(element) || {};
   forEach(properties, function(formalStyleName, actualStyleName) {
     var val = detectedStyles[formalStyleName];
+
+    // The [CSS Animations Level 2 spec][1] allows the value of `auto` for `animationDuration`.
+    // For regular animations (which is the only type of animations at the moment), `auto` is
+    // interpreted as `0s`. See also [here][2] for a related discussion of the CSS Working Group.
+    //
+    // [1]: https://www.w3.org/TR/css-animations-2/#animation-duration
+    // [2]: https://github.com/w3c/csswg-drafts/issues/6530
+    if (formalStyleName === 'animationDuration' && val === 'auto') {
+      val = '0s';
+    }
+    if (formalStyleName === 'animationIterationCount' && val === 'infinite') {
+      val = '1';
+    }
+
     if (val) {
       var c = val.charAt(0);
 
@@ -852,9 +864,6 @@ var $AnimateCssProvider = ['$animateProvider', /** @this */ function($animatePro
 
       if (!timings) {
         timings = computeCssStyles($window, node, properties);
-        if (timings.animationIterationCount === 'infinite') {
-          timings.animationIterationCount = 1;
-        }
       }
 
       // if a css animation has no duration we
@@ -4257,7 +4266,7 @@ angular.module('ngAnimate', [], function initAngularHelpers() {
   isFunction  = angular.isFunction;
   isElement   = angular.isElement;
 })
-  .info({ angularVersion: '1.9.0' })
+  .info({ angularVersion: '1.9.3' })
   .directive('ngAnimateSwap', ngAnimateSwapDirective)
 
   .directive('ngAnimateChildren', $$AnimateChildrenDirective)

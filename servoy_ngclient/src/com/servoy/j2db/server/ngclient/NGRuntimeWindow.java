@@ -19,7 +19,9 @@ package com.servoy.j2db.server.ngclient;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeoutException;
@@ -36,6 +38,7 @@ import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.TagResolver;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Solution;
+import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.JSWindow;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.info.NGCONSTANTS;
@@ -62,6 +65,9 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	private String formName;
 	private Integer navigatorID = null;
 
+	final List<NGRuntimeWindow> children = new ArrayList<>();
+	String previousModalWindow = null;
+
 	/**
 	 * @param application
 	 * @param windowName
@@ -72,6 +78,10 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	{
 		super(application, windowName, windowType, parentWindow);
 		this.history = new History(application, this);
+		if (parentWindow instanceof NGRuntimeWindow ngRW)
+		{
+			ngRW.children.add(this);
+		}
 	}
 
 	@Override
@@ -295,11 +305,20 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			}
 
 			titleString = getApplication().getI18NMessageIfPrefixed(titleString);
+			IWebFormController formController = getController();
+			if (formController != null)
+			{
+				titleString = Text.processTags(titleString, formController.getFormUI().getDataAdapterList());
+			}
+			else
+			{
+				titleString = Text.processTags(titleString, TagResolver.createResolver(new PrototypeState(null)));
+			}
 
 			if (title != null && !title.trim().equals("") && !"<empty>".equals(title) && title != null) //$NON-NLS-1$ //$NON-NLS-2$
 			{
 				String nameString = getApplication().getI18NMessageIfPrefixed(title);
-				IWebFormController formController = getController();
+
 				if (formController != null)
 				{
 					String name2 = Text.processTags(nameString, formController.getFormUI().getDataAdapterList());
@@ -451,6 +470,8 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		// resume
 		if (windowType == JSWindow.MODAL_DIALOG && getApplication().getWebsocketSession().getEventDispatcher() != null)
 		{
+			// set current window right after we close the old one
+			getApplication().getRuntimeWindowManager().setModalWindowName(previousModalWindow);
 			final IEventDispatcher eventDispatcher = getApplication().getWebsocketSession().getEventDispatcher();
 			if (eventDispatcher.isEventDispatchThread())
 			{
@@ -487,7 +508,11 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		IWebFormController controller = getApplication().getFormManager().getForm(formName);
 		if (controller != null)
 		{
-			getApplication().getFormManager().showFormInContainer(formName, this, getTitle(), true, windowName);
+			IFormController showFormInContainer = getApplication().getFormManager().showFormInContainer(formName, this, getTitle(), true, windowName);
+			if (showFormInContainer == null)
+			{
+				return;
+			}
 			this.formName = formName;
 			controller.getFormUI().setParentWindowName(getName());
 			//show panel as main
@@ -533,7 +558,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 					Debug.error(e);
 				}
 
-				Pair<Integer, Integer> perfId = null;
+				Pair<Long, Long> perfId = null;
 				PerformanceData performanceData = null;
 				String clientID = getApplication().getClientID();
 				if (perfRegistry != null)
@@ -544,6 +569,8 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 							IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT, clientID, getApplication().getSolutionName())
 						: null;
 				}
+				previousModalWindow = getApplication().getRuntimeWindowManager().setModalWindowName(getName());
+				String finalValuePreviousModalWindow = previousModalWindow;
 				try
 				{
 					getApplication().getWebsocketSession()
@@ -553,6 +580,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				}
 				finally
 				{
+					getApplication().getRuntimeWindowManager().setModalWindowName(finalValuePreviousModalWindow);
 					if (perfId != null) performanceData.endSubAction(perfId, clientID);
 				}
 
@@ -585,10 +613,17 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 
 		Map<String, Object> navigatorForm = getNavigatorProperties(currentForm);
 		NGClientWindow.getCurrentWindow().touchForm(currentForm.getForm(), currentForm.getName(), true, false);
+		boolean isLoginForm = false;
+		Solution solution = getApplication().getFlattenedSolution().getSolution();
+		if (solution != null)
+		{
+			isLoginForm = (solution.getSolutionType() == SolutionMetaData.LOGIN_SOLUTION || solution.getLoginFormID() == currentForm
+				.getForm().getID());
+		}
 		getApplication().getWebsocketSession()
 			.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE)
 			.executeAsyncServiceCall("switchForm",
-				new Object[] { getName(), mainForm, navigatorForm });
+				new Object[] { getName(), mainForm, navigatorForm, isLoginForm });
 		sendTitle(title);
 	}
 
@@ -661,13 +696,19 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	@Override
 	public void destroy()
 	{
+		// this shouldn't be true, the window.destroy() should already have called hide() and returned false when it was not allowed to hide.
+		if (visible && !hide()) return;
 		super.destroy();
-		if (visible) hideUI();
 
 		IWebFormController controller = getController();
 		if (controller != null && controller.getFormUI().getParentWindowName() == getName())
 		{
 			controller.getFormUI().setParentWindowName(null);
+		}
+
+		if (this.initialParentWindow instanceof NGRuntimeWindow ngRW)
+		{
+			ngRW.children.remove(this);
 		}
 
 		getApplication().getWebsocketSession()

@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.FoundSetManager.TableFilterRequest;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumn;
@@ -99,8 +98,6 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	public EditRecordList getEditRecordList();
 
-	public IApplication getApplication();
-
 	/**
 	 * Insert data to a new or existing data source.
 	 *
@@ -144,6 +141,8 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	public IConverterManager<IUIConverter> getUIConverterManager();
 
 	public IConverterManager<IColumnConverter> getColumnConverterManager();
+
+	public SQLGenerator getSQLGenerator();
 
 	/**
 	 * Gets the type of the column as it is used inside Servoy.<br/><br/>
@@ -189,7 +188,9 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	 * Get the named foundset.
 	 * @since 8.2
 	 */
-	public IFoundSet getNamedFoundSet(String name) throws ServoyException;
+	public IFoundSetInternal getNamedFoundSet(String name, String datasource) throws ServoyException;
+
+	public IFoundSetInternal[] getAllLoadedFoundsets(String datasource, boolean includeViewFoundsets);
 
 	public IFoundSetInternal findFoundset(int id);
 

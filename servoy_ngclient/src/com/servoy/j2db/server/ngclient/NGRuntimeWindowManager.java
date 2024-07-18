@@ -26,6 +26,7 @@ import org.sablo.websocket.CurrentWindow;
 import org.sablo.websocket.IEventDispatchAwareServerService;
 import org.sablo.websocket.IWebsocketEndpoint;
 
+import com.servoy.j2db.IBasicMainContainer;
 import com.servoy.j2db.RuntimeWindowManager;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.scripting.JSWindow;
@@ -41,6 +42,8 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 	public static final String WINDOW_SERVICE = "$windowService";
 
 	private String lastCurrentWindow = null;
+
+	private String modalWindow;
 
 	/**
 	 * @param application
@@ -170,6 +173,21 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 				currentWindow = (NGRuntimeWindow)getMainApplicationWindow();
 			}
 		}
+		else if (modalWindow != null)
+		{
+			// if there is a modal window registered look if the current window about is not a parent of this one
+			// if it is return the modal window.
+			NGRuntimeWindow modal = getWindow(modalWindow);
+			if (modal != null)
+			{
+				RuntimeWindow parent = modal.getRuntimeParent();
+				while (parent != null)
+				{
+					if (parent == currentWindow) return modal;
+					parent = parent.getRuntimeParent();
+				}
+			}
+		}
 		return currentWindow;
 	}
 
@@ -197,9 +215,22 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 			new Object[] { windowName, Integer.valueOf(type) });
 		if (parent == null && CurrentWindow.exists())
 		{
+			IBasicMainContainer currentContainer = null;
 			// try to always just set the current parent if it is null
 			// this way we can later on use this to set the window back.
-			parent = getWindow(String.valueOf(CurrentWindow.get().getNr()));
+			// first check if the current window name is set (else this could be a the startup)
+			if (this.getCurrentWindowName() != null)
+			{
+				currentContainer = getWindow(this.getCurrentWindowName());
+			}
+			if (currentContainer instanceof RuntimeWindow rw)
+			{
+				parent = rw;
+			}
+			else
+			{
+				parent = getWindow(String.valueOf(CurrentWindow.get().getNr()));
+			}
 		}
 		return new NGRuntimeWindow((INGApplication)application, windowName, type, parent);
 	}
@@ -220,6 +251,24 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 			mainApplicationWindow.setLocation(0, 0); //default values, that never change
 			setCurrentWindowName(windowName);
 		}
+	}
+
+	@Override
+	public boolean closeFormInWindow(String windowName, boolean closeAll)
+	{
+		NGRuntimeWindow window = null;
+		if (windowName != null && (window = getWindow(windowName)) != null)
+		{
+			for (int i = window.children.size(); --i >= 0;)
+			{
+				NGRuntimeWindow childWindow = window.children.get(i);
+				if (!closeFormInWindow(childWindow.getName(), closeAll))
+				{
+					return false;
+				}
+			}
+		}
+		return super.closeFormInWindow(windowName, closeAll);
 	}
 
 	public void destroy(boolean keepMainApplicationWindow)
@@ -262,6 +311,17 @@ public class NGRuntimeWindowManager extends RuntimeWindowManager implements IEve
 			}
 		}
 		return dontCareLevel;
+	}
+
+	/**
+	 * @param name
+	 * @return
+	 */
+	public String setModalWindowName(String modalWindow)
+	{
+		String prev = this.modalWindow;
+		this.modalWindow = modalWindow;
+		return prev;
 	}
 
 }

@@ -193,6 +193,19 @@ public class DebugHeadlessClient extends HeadlessClient implements IDebugHeadles
 		}
 	}
 
+	public void loadDebugSolution() throws RepositoryException
+	{
+		synchronized (activeSolutionRefreshLock)
+		{
+			if (solution != null)
+			{
+				super.loadSolution(solution);
+				// now make sure all runnables are being executed
+				updateUI(1);
+			}
+		}
+	}
+
 	@Override
 	public void shutDown(boolean force)
 	{

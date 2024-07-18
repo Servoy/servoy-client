@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2023 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -14,11 +14,27 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
-package com.servoy.j2db.server.shared;
 
-import java.util.Set;
+package com.servoy.j2db.server.ngclient.property.types;
 
-public interface IFlattenedSolutionDebugListener
+import org.json.JSONObject;
+import org.sablo.specification.property.IBrowserConverterContext;
+
+import com.servoy.j2db.server.ngclient.INGApplication;
+
+/**
+ * @author jcompagner
+ * @since 2023.09
+ */
+public interface IDesignMapValueConverter
 {
-	void addDebugInfo(Set<Object> infos);
+
+	/**
+	 * @param v
+	 * @param application
+	 * @param subTypes
+	 * @return
+	 */
+	Object createJSONValue(Object v, INGApplication application, JSONObject subTypes, IBrowserConverterContext dataConverterContext);
+
 }

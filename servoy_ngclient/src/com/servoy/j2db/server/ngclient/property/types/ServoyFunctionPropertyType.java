@@ -27,6 +27,7 @@ import org.mozilla.javascript.Scriptable;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.types.FunctionPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
@@ -62,7 +63,7 @@ import com.servoy.j2db.util.Utils;
  */
 @SuppressWarnings("nls")
 public class ServoyFunctionPropertyType extends FunctionPropertyType
-	implements IConvertedPropertyType<Object>, IFormElementToTemplateJSON<Object, Object>, IRhinoDesignConverter
+	implements IConvertedPropertyType<Object>, IFormElementToTemplateJSON<Object, Object>, IRhinoDesignConverter, IPropertyWithClientSideConversions<Object>
 {
 	private static final String FORMNAME = "formname";
 	private static final String SCRIPT = "script";
@@ -77,7 +78,7 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 	public Object fromJSON(Object newValue, Object previousValue, PropertyDescription pd, IBrowserConverterContext dataConverterContext,
 		ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
-		if (newValue instanceof JSONObject jo && jo.has(SCRIPT))
+		if (newValue instanceof JSONObject jo && (jo.has(SCRIPT) || jo.has(FunctionRefType.FUNCTION_HASH)))
 		{
 			// this is a jsonobject that is send by us, the script should be an encrypted string.
 			return newValue;
@@ -145,7 +146,7 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 				nativeFunctionToJSON(nf, writer, fs, dataConverterContext);
 				writer.endObject();
 			}
-			else if (object instanceof JSONObject jo && jo.has(SCRIPT))
+			else if (object instanceof JSONObject jo && (jo.has(SCRIPT) || jo.has(FunctionRefType.FUNCTION_HASH)))
 			{
 				JSONUtils.addKeyIfPresent(writer, key);
 				writer.object();
@@ -156,6 +157,10 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 				if (jo.has(FORMNAME))
 				{
 					writer.key(FORMNAME).value(jo.getString(FORMNAME));
+				}
+				if (jo.has(FunctionRefType.FUNCTION_HASH))
+				{
+					writer.key(FunctionRefType.FUNCTION_HASH).value(jo.getString(FunctionRefType.FUNCTION_HASH));
 				}
 				writer.endObject();
 			}
@@ -209,7 +214,8 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 
 		if (functionName == null)
 		{
-			functionName = function.getFunctionName();
+			// if function name is null then just save it as a FunctionRef
+			writer.key(FunctionRefType.FUNCTION_HASH).value(FunctionRefType.INSTANCE.addReference(function, dataConverterContext));
 		}
 
 		Scriptable parentScope = function.getParentScope();
@@ -329,6 +335,20 @@ public class ServoyFunctionPropertyType extends FunctionPropertyType
 			return JSForm.getEventHandler(application, webComponent.getBaseComponent(false), (String)value, jsParent, pd.getName());
 		}
 		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sablo.specification.property.IPropertyWithClientSideConversions#writeClientSideTypeName(org.json.JSONWriter, java.lang.String,
+	 * org.sablo.specification.PropertyDescription)
+	 */
+	@Override
+	public boolean writeClientSideTypeName(JSONWriter w, String keyToAddTo, PropertyDescription pd)
+	{
+		JSONUtils.addKeyIfPresent(w, keyToAddTo);
+		w.value(TYPE_NAME);
+		return true;
 	}
 
 }

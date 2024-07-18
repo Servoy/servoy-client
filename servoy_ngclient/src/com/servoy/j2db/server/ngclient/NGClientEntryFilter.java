@@ -39,6 +39,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.json.JSONObject;
 import org.sablo.IContributionEntryFilter;
 import org.sablo.IndexPageEnhancer;
@@ -92,13 +93,13 @@ public class NGClientEntryFilter extends WebEntry
 
 	public static final String ANGULAR_JS = "js/angular.js";
 	public static final String[][] ANGULAR_JS_MODULES = { //
-		{ "angular-animate", "js/angular-modules/1.9.0/angular-animate.js" }, //
-		{ "angular-aria", "js/angular-modules/1.9.0/angular-aria.js" }, //
-		{ "angular-cookies", "js/angular-modules/1.9.0/angular-cookies.js" }, //
-		{ "angular-message-format", "js/angular-modules/1.9.0/angular-message-format.js" }, //
-		{ "angular-messages", "js/angular-modules/1.9.0/angular-messages.js" }, //
-		{ "angular-resource", "js/angular-modules/1.9.0/angular-resource.js" }, //
-		{ "angular-touch", "js/angular-modules/1.9.0/angular-touch.js" } };
+		{ "angular-animate", "js/angular-modules/1.9.3/angular-animate.js" }, //
+		{ "angular-aria", "js/angular-modules/1.9.3/angular-aria.js" }, //
+		{ "angular-cookies", "js/angular-modules/1.9.3/angular-cookies.js" }, //
+		{ "angular-message-format", "js/angular-modules/1.9.3/angular-message-format.js" }, //
+		{ "angular-messages", "js/angular-modules/1.9.3/angular-messages.js" }, //
+		{ "angular-resource", "js/angular-modules/1.9.3/angular-resource.js" }, //
+		{ "angular-touch", "js/angular-modules/1.9.3/angular-touch.js" } };
 	public static final String BOOTSTRAP_CSS = "css/bootstrap/css/bootstrap.css";
 
 	public static final String[] INDEX_3RD_PARTY_CSS = { //
@@ -540,7 +541,7 @@ public class NGClientEntryFilter extends WebEntry
 		{
 			IMessagesRecorder recorder = ApplicationServerRegistry.get().getService(IMessagesRecorder.class);
 			int index = uri.lastIndexOf('/');
-			CharSequence message = recorder.getMessage(uri.substring(index + 1, uri.length() - 10));
+			CharSequence message = recorder.getMessage(StringEscapeUtils.escapeHtml4(uri.substring(index + 1, uri.length() - 10)));
 			if (message != null)
 			{
 				HTTPUtils.setNoCacheHeaders(response);

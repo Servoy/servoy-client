@@ -44,7 +44,7 @@ import com.servoy.j2db.server.ngclient.property.BrowserFunction;
 public class DynamicClientFunctionPropertyType implements IClassPropertyType<BrowserFunction>, IPropertyWithClientSideConversions<BrowserFunction>
 {
 
-	private static final String CLIENT_SIDE_TYPE_NAME = "clientfunction"; //$NON-NLS-1$
+	public static final String CLIENT_SIDE_TYPE_NAME = "clientfunction"; //$NON-NLS-1$
 	public static final DynamicClientFunctionPropertyType INSTANCE = new DynamicClientFunctionPropertyType();
 
 	@Override
@@ -63,6 +63,12 @@ public class DynamicClientFunctionPropertyType implements IClassPropertyType<Bro
 	public BrowserFunction defaultValue(PropertyDescription pd)
 	{
 		return null;
+	}
+
+	@Override
+	public boolean isPrimitive()
+	{
+		return false;
 	}
 
 	@Override
@@ -86,6 +92,7 @@ public class DynamicClientFunctionPropertyType implements IClassPropertyType<Bro
 	{
 		if (sabloValue != null)
 		{
+			// if making changes to this impl also check the MapPropertyType
 			INGApplication application = sabloValue.getApplication();
 			JSONUtils.addKeyIfPresent(writer, key);
 			if (application.getRuntimeProperties().containsKey("NG2")) //$NON-NLS-1$

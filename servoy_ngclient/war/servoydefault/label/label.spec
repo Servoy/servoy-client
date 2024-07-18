@@ -9,7 +9,7 @@
 	{
 	        "background" : "color", 
 	        "borderType" : {"type":"border","stringformat":true}, 
-	        "dataProviderID" : { "type":"dataprovider", "tags": { "scope": "design" }, "displayTagsPropertyName" : "displaysTags"}, 
+	        "dataProviderID" : { "type":"dataprovider", "tags": { "wizard": true, "scope": "design" }, "displayTagsPropertyName" : "displaysTags"}, 
 	        "displaysTags" : { "type" : "boolean", "tags": { "scope" : "design" } }, 
 	        "enabled" : { "type": "enabled", "blockingOn": false, "default": true, "for": ["onActionMethodID","onDoubleClickMethodID","onRightClickMethodID"] }, 
 	        "fontType" : {"type":"font","stringformat":true}, 

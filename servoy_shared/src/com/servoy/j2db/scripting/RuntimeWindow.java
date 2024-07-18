@@ -194,6 +194,11 @@ public abstract class RuntimeWindow implements IRuntimeWindow
 		return initialParentWindow != null ? initialParentWindow.getJSWindow() : null;
 	}
 
+	public RuntimeWindow getRuntimeParent()
+	{
+		return initialParentWindow;
+	}
+
 	public final boolean hide()
 	{
 		return hide(true);

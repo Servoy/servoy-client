@@ -346,7 +346,9 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 			resp.setContentLength(mediaData.length);
 			if (fileName != null)
 			{
-				resp.setHeader("Content-disposition", (contentDisposition == null ? "attachment" : contentDisposition) + "; filename=\"" + fileName + "\"");
+				resp.setHeader("Content-disposition",
+					sanitizeHeader((contentDisposition == null ? "attachment" : contentDisposition) + "; filename=\"" + fileName +
+						"\"; filename*=UTF-8''" + Rfc5987Util.encode(fileName, "UTF8") + ""));
 			}
 			ServletOutputStream outputStream = resp.getOutputStream();
 			outputStream.write(mediaData);
@@ -647,5 +649,10 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 		{
 			return System.currentTimeMillis();
 		}
+	}
+
+	private static String sanitizeHeader(String headerValue)
+	{
+		return headerValue.replaceAll("[\n\r]+", " ");
 	}
 }

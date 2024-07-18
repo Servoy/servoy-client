@@ -129,7 +129,7 @@ public abstract class BasicFormController
 
 	private boolean didOnShowOnce = false;
 	private boolean didOnShowCall = false;
-	private boolean didOnload;
+	protected boolean didOnload;
 	protected boolean executingOnLoad;
 
 	private int lastAdjusting = -1;
@@ -2566,7 +2566,7 @@ public abstract class BasicFormController
 		 * if (currentWindow != null) {
 		 * 	currentWindow.title = 'We have a new title';
 		 * } else {
-		 * 	currentWindow = application.createWindow("Window Name", JSWindow.WINDOW, null);
+		 * 	currentWindow = application.createWindow("Window Name", JSWindow.DIALOG, null);
 		 * 	currentWindow(650, 700, 450, 350);
 		 * 	currentWindow = "Window Title";
 		 * 	controller.show(currentWindow);
@@ -3070,6 +3070,10 @@ public abstract class BasicFormController
 		/**
 		 * Loads all accessible records from the datasource into the form foundset.
 		 * When the form contains a related foundset it will be replaced by a default foundset on same datasource.
+		 * Or when this form is not configured to have a seperate foundset it will also be related with the default shared foundset.
+		 *
+		 * So this is different then foundset.loadAllRecords() because that will just load all the records based on its filters of that foundset instance.
+		 * This controller.loadAllRecords() can result in a replacement of the current loaded foundset instance.
 		 *
 		 * Notes:
 		 * -the default foundset is always limited by filters, if databaseManager.addFoundSetFilterParam function is used.
@@ -3080,9 +3084,7 @@ public abstract class BasicFormController
 		 * @see com.servoy.j2db.dataprocessing.JSDatabaseManager#js_addTableFilterParam(String, String, String, String, Object, String)
 		 * @return true if successful
 		 *
-		 *  @deprecated  Should use {@link foundset#loadAllRecords()}
 		 */
-		@Deprecated
 		public boolean js_loadAllRecords() throws ServoyException
 		{
 			checkDestroyed();
@@ -3111,12 +3113,15 @@ public abstract class BasicFormController
 
 		/**
 		 * Loads a (related) foundset into the form.
-		 * The form will no longer share the default foundset with forms of the same datasource, use loadAllRecords to restore the default foundset.
+		 * The form will no longer share the default foundset with forms of the same datasource, use controller.loadAllRecords() to restore the default foundset.
+		 * (restore to default foundset depends a bit on if the give foundset is a related foundset or not or if this form is configured to have a seperated foundset)
 		 * <br/><br/>
 		 * This will really change the foundset instance itself of the form, so no existing foundset is altered just the new foundset that is given is used..
 		 * This is different then doing foundset.loadRecords(foundset) because that just alters the current foundset and doesn't do anything with the foundset that is given.
 		 * <br/><br/>
-		 * So controller.loadRecords(fs) does overwrite the foundset instance completely, foundset filters set previously on the forms foundset are gone, only the foundset filters on the given foundset are set.
+		 * controller.loadRecords( relation ) will always replace with related fs
+		 * [default]controller.loadRecords( fs )  will replace default fs with the given foundset, foundset filters set previously on the forms foundset are gone, only the foundset filters on the given foundset are set.
+		 * [separate/named]controller.loadRecords( fs ) will behave like foundset.loadRecords(fs) if the form has already a separate/named foundset but foundset filters set previously on the forms foundset are gone, only the foundset filters on the given foundset are set.
 		 * <br/><br/>
 		 * foundset.loadRecords(fs) will adjust the current forms foundset and the foundset filters that are set are kept and merged with the filters of the given foundset.
 		 *

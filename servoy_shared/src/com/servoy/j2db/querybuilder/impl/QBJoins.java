@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.WrappedException;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.query.IQueryConstants;
@@ -57,7 +58,7 @@ import com.servoy.j2db.util.Debug;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 {
-	private static Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(QBJoins.class);
+	private final static Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(QBJoins.class);
 
 	private final QBSelect root;
 	private final QBTableClause parent;
@@ -132,7 +133,6 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		return (QBJoin)allVars.get(name);
 	}
 
-
 	@Override
 	public Object get(String name, Scriptable start)
 	{
@@ -176,10 +176,17 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	public void delete(String name)
 	{
 		QBJoin queryJoin = getJoin(name);
-		super.delete(name);
 		if (queryJoin != null)
 		{
-			root.getQuery().removeJoin(queryJoin.getJoin());
+			QuerySelect query = root.getQuery();
+			ISQLTableJoin join = queryJoin.getJoin();
+			if (query.isJoinTableUsed(join))
+			{
+				throw new WrappedException(new RuntimeException("Cannot delete join '" + name + "' because it is still used in the query"));
+			}
+
+			super.delete(name);
+			query.removeJoin(join);
 		}
 	}
 
@@ -236,7 +243,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 				}
 				join = addJoin(SQLGenerator.createJoin(root.getDataProviderHandler(), relation, parent.getQueryTable(),
 					new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema(), alias), true,
-					root.getGlobalScopeProvider(), name), relation.getForeignDataSource(), name);
+					root.getGlobalScopeProvider(), false, name), relation.getForeignDataSource(), name);
 			}
 			catch (RepositoryException e)
 			{

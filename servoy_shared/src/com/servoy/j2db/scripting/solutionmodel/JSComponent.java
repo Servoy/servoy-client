@@ -522,7 +522,8 @@ public class JSComponent<T extends BaseComponent> extends JSBase<T> implements I
 		return Utils.parseJSExpression(getBaseComponent(false).getCustomDesignTimeProperty(key));
 	}
 
-	/** Set a design-time property of an element.
+	/** Set a design-time property of an element. Value should be primitive data (string, boolean or number).
+	 *	Complex values should be stringified before call.
 	 *
 	 * @param key the name of the property
 	 * @param value the value to store

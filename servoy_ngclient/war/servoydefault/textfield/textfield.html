@@ -9,6 +9,7 @@
 	   svy-focuslost='handlers.onFocusLostMethodID($event)'
 	   svy-enter='handlers.onActionMethodID($event)'
 	   ng-click="onClick($event)"
+	   ng-readonly="!model.findmode && (model.readOnly || !model.editable)"
 	   svy-rightclick='handlers.onRightClickMethodID($event)'
 	   svy-decimal-key-converter
 	   svy-attributes='model.attributes'/>

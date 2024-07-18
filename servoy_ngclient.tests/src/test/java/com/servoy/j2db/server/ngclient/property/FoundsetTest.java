@@ -18,6 +18,11 @@
 package com.servoy.j2db.server.ngclient.property;
 
 import static com.servoy.base.query.IQueryConstants.LEFT_OUTER_JOIN;
+import static java.lang.String.format;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.awt.Dimension;
 import java.io.IOException;
@@ -31,7 +36,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
 import org.json.JSONWriter;
-import org.junit.Assert;
 import org.junit.Test;
 import org.sablo.Container;
 import org.sablo.IChangeListener;
@@ -102,32 +106,23 @@ public class FoundsetTest extends AbstractSolutionTest
 	@Override
 	protected void fillTestSolution() throws ServoyException
 	{
-		try
-		{
-			Form form = solution.createNewForm(validator, null, "test", "mem:test", false, new Dimension(600, 400));
-			form.setNavigatorID(-1);
-			form.createNewPart(IBaseSMPart.BODY, 5);
-			WebComponent bean = form.createNewWebComponent("mycustombean", "my-component");
-			bean.setProperty("myfoundset", new ServoyJSONObject("{foundsetSelector:'',dataproviders:{firstname:'test1',lastname:'test2'}}", false));
-			bean.setProperty("myfoundsetWithAllow", new ServoyJSONObject("{foundsetSelector:'',dataproviders:{firstname:'test1',lastname:'test2'}}", false));
+		Form form = solution.createNewForm(validator, null, "test", "mem:test", false, new Dimension(600, 400));
+		form.setNavigatorID(-1);
+		form.createNewPart(IBaseSMPart.BODY, 5);
+		WebComponent bean = form.createNewWebComponent("mycustombean", "my-component");
+		bean.setProperty("myfoundset", new ServoyJSONObject("{foundsetSelector:'',dataproviders:{firstname:'test1',lastname:'test2'}}", false));
+		bean.setProperty("myfoundsetWithAllow", new ServoyJSONObject("{foundsetSelector:'',dataproviders:{firstname:'test1',lastname:'test2'}}", false));
 
-			WebComponent bean1 = form.createNewWebComponent("mydynamiccustombean", "my-dynamiccomponent");
-			bean1.setProperty("myfoundset",
-				new ServoyJSONObject("{foundsetSelector:'test_to_relatedtest', dataproviders:{dp1:'relatedtest1',dp2:'relatedtest2'}}", false));
-			bean1.setProperty("myfoundsetWithAllow",
-				new ServoyJSONObject("{foundsetSelector:'test_to_relatedtest', dataproviders:{dp1:'relatedtest1',dp2:'relatedtest2'}}", false));
+		WebComponent bean1 = form.createNewWebComponent("mydynamiccustombean", "my-dynamiccomponent");
+		bean1.setProperty("myfoundset",
+			new ServoyJSONObject("{foundsetSelector:'test_to_relatedtest', dataproviders:{dp1:'relatedtest1',dp2:'relatedtest2'}}", false));
+		bean1.setProperty("myfoundsetWithAllow",
+			new ServoyJSONObject("{foundsetSelector:'test_to_relatedtest', dataproviders:{dp1:'relatedtest1',dp2:'relatedtest2'}}", false));
 
-			WebComponent bean2 = form.createNewWebComponent("mycustomseparatefoundsetbean", "my-component");
-			bean2.setProperty("myfoundset", new ServoyJSONObject(
-				"{foundsetSelector: \"mem:testseparatefoundset\", loadAllRecords: true, dataproviders:{firstname:'test1',lastname:'test2'}}", false));
-		}
-		catch (JSONException e)
-		{
-			e.printStackTrace();
-			throw new ServoyException();
-		}
+		WebComponent bean2 = form.createNewWebComponent("mycustomseparatefoundsetbean", "my-component");
+		bean2.setProperty("myfoundset", new ServoyJSONObject(
+			"{foundsetSelector: \"mem:testseparatefoundset\", loadAllRecords: true, dataproviders:{firstname:'test1',lastname:'test2'}}", false));
 	}
-
 
 	@Override
 	protected void setupData() throws ServoyException
@@ -198,18 +193,18 @@ public class FoundsetTest extends AbstractSolutionTest
 	public void foundsetReadByDataprovidersPushToServerReject() throws JSONException
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		Assert.assertNotNull(form);
+		assertNotNull(form);
 		String full = NGUtils.formComponentPropertiesToString(form.getFormUI(), FullValueToJSONConverter.INSTANCE);
 
 		JSONObject object = new JSONObject(full);
 		JSONObject bean = object.getJSONObject("mycustombean");
 		JSONObject foundset = bean.getJSONObject("myfoundset");
-		Assert.assertEquals(18, foundset.getInt("serverSize"));
+		assertEquals(18, foundset.getInt("serverSize"));
 		JSONObject viewPort = foundset.getJSONObject("viewPort");
-		Assert.assertEquals(0, viewPort.getInt("startIndex"));
+		assertEquals(0, viewPort.getInt("startIndex"));
 		// 15 is default preferredViewPortSize
-		Assert.assertEquals(15, viewPort.getInt("size"));
-		Assert.assertEquals(15, viewPort.getJSONArray("rows").length());
+		assertEquals(15, viewPort.getInt("size"));
+		assertEquals(15, viewPort.getJSONArray("rows").length());
 
 		// fake incomming request for view port change.
 		endpoint.incoming(
@@ -221,25 +216,25 @@ public class FoundsetTest extends AbstractSolutionTest
 		object = new JSONObject(changes).getJSONObject("changes");
 		bean = object.getJSONObject("mycustombean");
 		foundset = bean.getJSONObject("myfoundset");
-		Assert.assertEquals(18, foundset.getInt("serverSize"));
+		assertEquals(18, foundset.getInt("serverSize"));
 		viewPort = foundset.getJSONObject("viewPort");
-		Assert.assertEquals(0, viewPort.getInt("startIndex"));
-		Assert.assertEquals(18, viewPort.getInt("size"));
+		assertEquals(0, viewPort.getInt("startIndex"));
+		assertEquals(18, viewPort.getInt("size"));
 		JSONArray rows = viewPort.getJSONArray("rows");
-		Assert.assertEquals(18, rows.length());
+		assertEquals(18, rows.length());
 
 		JSONArray handledClientReqIds = foundset.getJSONArray("handledClientReqIds");
-		Assert.assertEquals(1, handledClientReqIds.length());
-		Assert.assertEquals(4321, handledClientReqIds.getJSONObject(0).getInt("id"));
-		Assert.assertTrue(handledClientReqIds.getJSONObject(0).getBoolean("value"));
+		assertEquals(1, handledClientReqIds.length());
+		assertEquals(4321, handledClientReqIds.getJSONObject(0).getInt("id"));
+		assertTrue(handledClientReqIds.getJSONObject(0).getBoolean("value"));
 
 		JSONObject row0 = rows.getJSONObject(0);
-		Assert.assertEquals("value1", row0.getString("firstname"));
-		Assert.assertEquals("value2", row0.getString("lastname"));
+		assertEquals("value1", row0.getString("firstname"));
+		assertEquals("value2", row0.getString("lastname"));
 
 		JSONObject row1 = rows.getJSONObject(1);
-		Assert.assertEquals("value3", row1.getString("firstname"));
-		Assert.assertEquals("value4", row1.getString("lastname"));
+		assertEquals("value3", row1.getString("firstname"));
+		assertEquals("value4", row1.getString("lastname"));
 
 		// fake an update
 		endpoint.incoming(
@@ -247,25 +242,25 @@ public class FoundsetTest extends AbstractSolutionTest
 				row1.getString("_svyRowId") + "\",\"value\":\"value5\",\"dp\":\"lastname\"}}]}},\"service\":\"formService\"}",
 			true);
 
-		Assert.assertEquals("value4", form.getFormModel().getRecord(1).getValue("test2")); // not value 5 cause pushToServer is rejected!
+		assertEquals("value4", form.getFormModel().getRecord(1).getValue("test2")); // not value 5 cause pushToServer is rejected!
 	}
 
 	@Test
 	public void foundsetReadByDataprovidersPushToServerAllow() throws JSONException
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		Assert.assertNotNull(form);
+		assertNotNull(form);
 		String full = NGUtils.formComponentPropertiesToString(form.getFormUI(), FullValueToJSONConverter.INSTANCE);
 
 		JSONObject object = new JSONObject(full);
 		JSONObject bean = object.getJSONObject("mycustombean");
 		JSONObject foundset = bean.getJSONObject("myfoundsetWithAllow");
-		Assert.assertEquals(18, foundset.getInt("serverSize"));
+		assertEquals(18, foundset.getInt("serverSize"));
 		JSONObject viewPort = foundset.getJSONObject("viewPort");
-		Assert.assertEquals(0, viewPort.getInt("startIndex"));
+		assertEquals(0, viewPort.getInt("startIndex"));
 		// 15 is default preferredViewPortSize
-		Assert.assertEquals(15, viewPort.getInt("size"));
-		Assert.assertEquals(15, viewPort.getJSONArray("rows").length());
+		assertEquals(15, viewPort.getInt("size"));
+		assertEquals(15, viewPort.getJSONArray("rows").length());
 
 		// fake incomming request for view port change.
 		endpoint.incoming(
@@ -277,26 +272,26 @@ public class FoundsetTest extends AbstractSolutionTest
 		object = new JSONObject(changes).getJSONObject("changes");
 		bean = object.getJSONObject("mycustombean");
 		foundset = bean.getJSONObject("myfoundsetWithAllow");
-		Assert.assertEquals(18, foundset.getInt("serverSize"));
-		Assert.assertEquals(18, foundset.getInt("serverSize"));
+		assertEquals(18, foundset.getInt("serverSize"));
+		assertEquals(18, foundset.getInt("serverSize"));
 		JSONArray handledClientReqIds = foundset.getJSONArray("handledClientReqIds");
-		Assert.assertEquals(1, handledClientReqIds.length());
-		Assert.assertEquals(1234, handledClientReqIds.getJSONObject(0).getInt("id"));
-		Assert.assertTrue(handledClientReqIds.getJSONObject(0).getBoolean("value"));
+		assertEquals(1, handledClientReqIds.length());
+		assertEquals(1234, handledClientReqIds.getJSONObject(0).getInt("id"));
+		assertTrue(handledClientReqIds.getJSONObject(0).getBoolean("value"));
 
 		viewPort = foundset.getJSONObject("viewPort");
-		Assert.assertEquals(0, viewPort.getInt("startIndex"));
-		Assert.assertEquals(18, viewPort.getInt("size"));
+		assertEquals(0, viewPort.getInt("startIndex"));
+		assertEquals(18, viewPort.getInt("size"));
 		JSONArray rows = viewPort.getJSONArray("rows");
-		Assert.assertEquals(18, rows.length());
+		assertEquals(18, rows.length());
 
 		JSONObject row0 = rows.getJSONObject(0);
-		Assert.assertEquals("value1", row0.getString("firstname"));
-		Assert.assertEquals("value2", row0.getString("lastname"));
+		assertEquals("value1", row0.getString("firstname"));
+		assertEquals("value2", row0.getString("lastname"));
 
 		JSONObject row1 = rows.getJSONObject(1);
-		Assert.assertEquals("value3", row1.getString("firstname"));
-		Assert.assertEquals("value4", row1.getString("lastname"));
+		assertEquals("value3", row1.getString("firstname"));
+		assertEquals("value4", row1.getString("lastname"));
 
 		// fake an update
 		endpoint.incoming(
@@ -304,7 +299,7 @@ public class FoundsetTest extends AbstractSolutionTest
 				row1.getString("_svyRowId") + "\",\"value\":\"value5\",\"dp\":\"lastname\"}}]}},\"service\":\"formService\"}",
 			true);
 
-		Assert.assertEquals("value5", form.getFormModel().getRecord(1).getValue("test2"));
+		assertEquals("value5", form.getFormModel().getRecord(1).getValue("test2"));
 	}
 
 	@Test
@@ -317,17 +312,16 @@ public class FoundsetTest extends AbstractSolutionTest
 		property.browserUpdatesReceived(json, webComponent.getSpecification().getProperty("myfoundset"),
 			new BrowserConverterContext(webComponent, PushToServerEnum.allow));
 
-
-		Assert.assertNotNull(form);
+		assertNotNull(form);
 		String full = NGUtils.formComponentPropertiesToString(form.getFormUI(), FullValueToJSONConverter.INSTANCE);
 		JSONObject object = new JSONObject(full);
 		JSONObject bean = object.getJSONObject("mydynamiccustombean");
 		JSONObject foundset = bean.getJSONObject("myfoundset");
-		Assert.assertEquals(12, foundset.getInt("serverSize"));
+		assertEquals(12, foundset.getInt("serverSize"));
 		JSONObject viewPort = foundset.getJSONObject("viewPort");
-		Assert.assertEquals(0, viewPort.getInt("startIndex"));
-		Assert.assertEquals(12, viewPort.getInt("size"));
-		Assert.assertEquals(12, viewPort.getJSONArray("rows").length());
+		assertEquals(0, viewPort.getInt("startIndex"));
+		assertEquals(12, viewPort.getInt("size"));
+		assertEquals(12, viewPort.getJSONArray("rows").length());
 
 		// fake incomming request for view port change.
 		endpoint.incoming(
@@ -338,32 +332,32 @@ public class FoundsetTest extends AbstractSolutionTest
 		object = new JSONObject(changes).getJSONObject("changes");
 		bean = object.getJSONObject("mydynamiccustombean");
 		foundset = bean.getJSONObject("myfoundset");
-		Assert.assertEquals(12, foundset.getInt("serverSize"));
+		assertEquals(12, foundset.getInt("serverSize"));
 		viewPort = foundset.getJSONObject("viewPort");
-		Assert.assertEquals(0, viewPort.getInt("startIndex"));
-		Assert.assertEquals(3, viewPort.getInt("size"));
+		assertEquals(0, viewPort.getInt("startIndex"));
+		assertEquals(3, viewPort.getInt("size"));
 		JSONArray rows = viewPort.getJSONArray("rows");
-		Assert.assertEquals(3, rows.length());
+		assertEquals(3, rows.length());
 
 		JSONArray handledClientReqIds = foundset.getJSONArray("handledClientReqIds");
-		Assert.assertEquals(1, handledClientReqIds.length());
-		Assert.assertEquals(4312, handledClientReqIds.getJSONObject(0).getInt("id"));
-		Assert.assertTrue(handledClientReqIds.getJSONObject(0).getBoolean("value"));
+		assertEquals(1, handledClientReqIds.length());
+		assertEquals(4312, handledClientReqIds.getJSONObject(0).getInt("id"));
+		assertTrue(handledClientReqIds.getJSONObject(0).getBoolean("value"));
 
 		JSONObject row0 = rows.getJSONObject(0);
-		Assert.assertEquals("relatedvalue111", row0.getString("dp1"));
-		Assert.assertEquals("relatedvalue112", row0.getString("dp2"));
+		assertEquals("relatedvalue111", row0.getString("dp1"));
+		assertEquals("relatedvalue112", row0.getString("dp2"));
 
 		JSONObject row1 = rows.getJSONObject(1);
-		Assert.assertEquals("relatedvalue121", row1.getString("dp1"));
-		Assert.assertEquals("relatedvalue122", row1.getString("dp2"));
+		assertEquals("relatedvalue121", row1.getString("dp1"));
+		assertEquals("relatedvalue122", row1.getString("dp2"));
 	}
 
 	@Test
 	public void foundsetRelated() throws JSONException// change selected index in main foundset and related foundset should change
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		Assert.assertNotNull(form);
+		assertNotNull(form);
 		BrowserConverterContext allowBrowserConverterContext2 = new BrowserConverterContext(form.getFormUI().getWebComponent("mydynamiccustombean"),
 			PushToServerEnum.allow);
 
@@ -373,20 +367,21 @@ public class FoundsetTest extends AbstractSolutionTest
 		dynamicBeanRelatedFoundset.getViewPort().setBounds(1, 1);
 		customBeanFoundSet.getFoundset().setSelectedIndex(1);//selection is now 0, so set to 1 and then back again
 		customBeanFoundSet.getFoundset().setSelectedIndex(0);
-		Assert.assertEquals(12, dynamicBeanRelatedFoundset.getViewPort().getSize());
-		Assert.assertEquals(0, dynamicBeanRelatedFoundset.getViewPort().getStartIndex());
+		assertEquals(12, dynamicBeanRelatedFoundset.getViewPort().getSize());
+		assertEquals(0, dynamicBeanRelatedFoundset.getViewPort().getStartIndex());
 		dynamicBeanRelatedFoundset.getViewPort().setBounds(1, 1);
 		StringWriter stringWriter = new StringWriter();
 		JSONWriter jsonWriter = new JSONWriter(stringWriter);
 		dynamicBeanRelatedFoundset.addViewPort(jsonWriter);
-		Assert.assertEquals("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}",
+		assertEquals("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}",
 			stringWriter.toString());
 
 		stringWriter.getBuffer().setLength(0);
 		jsonWriter = new JSONWriter(stringWriter);
 		dynamicBeanRelatedFoundset.changesToJSON(jsonWriter, allowBrowserConverterContext2);
-		Assert.assertEquals(
-			"{\"upd_serverSize\":12,\"upd_foundsetId\":3,\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}}",
+		assertEquals(format(
+			"{\"upd_serverSize\":12,\"upd_foundsetId\":%d,\"upd_sortColumns\":\"\",\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}}",
+			dynamicBeanRelatedFoundset.getFoundset().getID()),
 			stringWriter.toString());
 
 		customBeanFoundSet.getFoundset().setSelectedIndex(1);
@@ -394,17 +389,17 @@ public class FoundsetTest extends AbstractSolutionTest
 		stringWriter.getBuffer().setLength(0);
 		jsonWriter = new JSONWriter(stringWriter);
 		dynamicBeanRelatedFoundset.changesToJSON(jsonWriter, allowBrowserConverterContext2);
-		Assert.assertEquals(
-			"{\"upd_serverSize\":4,\"upd_foundsetId\":4,\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":0,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.4;_0\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"}]}}",
+		assertEquals(format(
+			"{\"upd_serverSize\":4,\"upd_foundsetId\":%d,\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":0,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.4;_0\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"}]}}",
+			dynamicBeanRelatedFoundset.getFoundset().getID()),
 			stringWriter.toString());
-
 	}
 
 	@Test
 	public void setPreferredViewport() throws JSONException// change selected index in main foundset and related foundset should change
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		Assert.assertNotNull(form);
+		assertNotNull(form);
 		WebFormComponent wc1 = form.getFormUI().getWebComponent("mycustombean");
 		WebFormComponent wc2 = form.getFormUI().getWebComponent("mydynamiccustombean");
 		FoundsetTypeSabloValue customBeanFoundSet = (FoundsetTypeSabloValue)wc1.getRawPropertyValue("myfoundset");
@@ -415,38 +410,40 @@ public class FoundsetTest extends AbstractSolutionTest
 		dynamicBeanRelatedFoundset.getViewPort().setPreferredViewportSize(8);
 		customBeanFoundSet.getFoundset().setSelectedIndex(1);//selection is now 0, so set to 1 and then back again
 		customBeanFoundSet.getFoundset().setSelectedIndex(0);
-		Assert.assertEquals(8, dynamicBeanRelatedFoundset.getViewPort().getSize());
-		Assert.assertEquals(0, dynamicBeanRelatedFoundset.getViewPort().getStartIndex());
+		assertEquals(8, dynamicBeanRelatedFoundset.getViewPort().getSize());
+		assertEquals(0, dynamicBeanRelatedFoundset.getViewPort().getStartIndex());
 		StringWriter stringWriter = new StringWriter();
 		JSONWriter jsonWriter = new JSONWriter(stringWriter);
 		dynamicBeanRelatedFoundset.toJSON(jsonWriter, allowBrowserConverterContext2);
-		Assert.assertEquals(
-			"{\"serverSize\":12,\"foundsetId\":3,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":8,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"1.2;_1\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"},{\"_svyRowId\":\"1.3;_2\",\"dp1\":\"relatedvalue131\",\"dp2\":\"relatedvalue132\"},{\"_svyRowId\":\"1.5;_3\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"1.6;_4\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"},{\"_svyRowId\":\"1.7;_5\",\"dp1\":\"relatedvalue131\",\"dp2\":\"relatedvalue132\"},{\"_svyRowId\":\"1.9;_6\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"2.10;_7\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}}",
+		assertEquals(format(
+			"{\"serverSize\":12,\"foundsetId\":%d,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":8,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"1.2;_1\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"},{\"_svyRowId\":\"1.3;_2\",\"dp1\":\"relatedvalue131\",\"dp2\":\"relatedvalue132\"},{\"_svyRowId\":\"1.5;_3\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"1.6;_4\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"},{\"_svyRowId\":\"1.7;_5\",\"dp1\":\"relatedvalue131\",\"dp2\":\"relatedvalue132\"},{\"_svyRowId\":\"1.9;_6\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"2.10;_7\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}}",
+			dynamicBeanRelatedFoundset.getFoundset().getID()),
 			stringWriter.toString());
 
 		stringWriter = new StringWriter();
 		jsonWriter = new JSONWriter(stringWriter);
 		customBeanFoundSet.getFoundset().setSelectedIndex(1);//selection is now 0, so set to 1 and then back again
 		dynamicBeanRelatedFoundset.changesToJSON(jsonWriter, allowBrowserConverterContext2);
-		Assert.assertEquals(
-			"{\"upd_serverSize\":4,\"upd_foundsetId\":4,\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":0,\"size\":4,\"rows\":[{\"_svyRowId\":\"1.4;_0\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"},{\"_svyRowId\":\"1.8;_1\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"},{\"_svyRowId\":\"2.12;_2\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"},{\"_svyRowId\":\"2.16;_3\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"}]}}",
+		assertEquals(format(
+			"{\"upd_serverSize\":4,\"upd_foundsetId\":%d,\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":0,\"size\":4,\"rows\":[{\"_svyRowId\":\"1.4;_0\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"},{\"_svyRowId\":\"1.8;_1\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"},{\"_svyRowId\":\"2.12;_2\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"},{\"_svyRowId\":\"2.16;_3\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"}]}}",
+			dynamicBeanRelatedFoundset.getFoundset().getID()),
 			stringWriter.toString());
 
 		stringWriter = new StringWriter();
 		jsonWriter = new JSONWriter(stringWriter);
 		customBeanFoundSet.getFoundset().setSelectedIndex(0);
 		dynamicBeanRelatedFoundset.changesToJSON(jsonWriter, allowBrowserConverterContext2);
-		Assert.assertEquals(
-			"{\"upd_serverSize\":12,\"upd_foundsetId\":3,\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":0,\"size\":8,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"1.2;_1\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"},{\"_svyRowId\":\"1.3;_2\",\"dp1\":\"relatedvalue131\",\"dp2\":\"relatedvalue132\"},{\"_svyRowId\":\"1.5;_3\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"1.6;_4\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"},{\"_svyRowId\":\"1.7;_5\",\"dp1\":\"relatedvalue131\",\"dp2\":\"relatedvalue132\"},{\"_svyRowId\":\"1.9;_6\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"2.10;_7\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}}",
+		assertEquals(format(
+			"{\"upd_serverSize\":12,\"upd_foundsetId\":%d,\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":0,\"size\":8,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"1.2;_1\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"},{\"_svyRowId\":\"1.3;_2\",\"dp1\":\"relatedvalue131\",\"dp2\":\"relatedvalue132\"},{\"_svyRowId\":\"1.5;_3\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"1.6;_4\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"},{\"_svyRowId\":\"1.7;_5\",\"dp1\":\"relatedvalue131\",\"dp2\":\"relatedvalue132\"},{\"_svyRowId\":\"1.9;_6\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"2.10;_7\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}}",
+			dynamicBeanRelatedFoundset.getFoundset().getID()),
 			stringWriter.toString());
-
 	}
 
 	@Test
 	public void foundsetViewportChangeData() throws JSONException, ServoyException// change rows in/near viewport
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		Assert.assertNotNull(form);
+		assertNotNull(form);
 		WebFormComponent wc = form.getFormUI().getWebComponent("mycustombean");
 		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset");
 
@@ -457,11 +454,11 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.getFoundset().getRecord(0).startEditing();
 		rawPropertyValue.getFoundset().getRecord(0).setValue("test1", "not test1 any more");
 		rawPropertyValue.getFoundset().getRecord(0).stopEditing();
-		Assert.assertEquals(0, viewPort.changeMonitor.viewPortDataChangeMonitor.getViewPortChanges().length);
+		assertEquals(0, viewPort.changeMonitor.viewPortDataChangeMonitor.getViewPortChanges().length);
 		rawPropertyValue.getFoundset().getRecord(1).startEditing();
 		rawPropertyValue.getFoundset().getRecord(1).setValue("test2", "not test2 any more");
 		rawPropertyValue.getFoundset().getRecord(1).stopEditing();
-		Assert.assertEquals(1, viewPort.changeMonitor.viewPortDataChangeMonitor.getViewPortChanges().length);
+		assertEquals(1, viewPort.changeMonitor.viewPortDataChangeMonitor.getViewPortChanges().length);
 
 		// now simulate a send to client
 		rawPropertyValue.toJSON(new JSONStringer(), new BrowserConverterContext(wc, PushToServerEnum.allow));
@@ -469,18 +466,18 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.getFoundset().getRecord(0).startEditing();
 		rawPropertyValue.getFoundset().getRecord(0).setValue("test1", "not test1 any more nor not test1 any more");
 		rawPropertyValue.getFoundset().getRecord(0).stopEditing();
-		Assert.assertEquals(0, viewPort.changeMonitor.viewPortDataChangeMonitor.getViewPortChanges().length);
+		assertEquals(0, viewPort.changeMonitor.viewPortDataChangeMonitor.getViewPortChanges().length);
 		rawPropertyValue.getFoundset().getRecord(1).startEditing();
 		rawPropertyValue.getFoundset().getRecord(1).setValue("test2", "not test2 any more nor not test2 any more");
 		rawPropertyValue.getFoundset().getRecord(1).stopEditing();
-		Assert.assertEquals(1, viewPort.changeMonitor.viewPortDataChangeMonitor.getViewPortChanges().length);
+		assertEquals(1, viewPort.changeMonitor.viewPortDataChangeMonitor.getViewPortChanges().length);
 	}
 
 	@Test
 	public void foundsetViewportAllRecordChangedAndDeleted() throws JSONException, ServoyException// change rows in/near viewport
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		Assert.assertNotNull(form);
+		assertNotNull(form);
 		WebFormComponent wc = form.getFormUI().getWebComponent("mycustombean");
 		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset");
 		BrowserConverterContext allowBrowserConverterContext = new BrowserConverterContext(wc, PushToServerEnum.allow);
@@ -492,8 +489,8 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.toJSON(jsonWriter, allowBrowserConverterContext);
 
 
-		Assert.assertTrue(new JSONObject(
-			"{\"serverSize\":18,\"foundsetId\":2,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":18,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.3;_2\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.4;_3\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.5;_4\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.6;_5\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.7;_6\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.8;_7\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.9;_8\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.10;_9\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.11;_10\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.12;_11\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.13;_12\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.14;_13\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.15;_14\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.16;_15\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.17;_16\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.18;_17\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}")
+		assertTrue(new JSONObject(
+			"{\"serverSize\":18,\"foundsetId\":3,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":18,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.3;_2\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.4;_3\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.5;_4\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.6;_5\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.7;_6\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.8;_7\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.9;_8\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.10;_9\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.11;_10\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.12;_11\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.13;_12\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.14;_13\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.15;_14\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.16;_15\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.17;_16\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.18;_17\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}")
 				.similar(new JSONObject(stringWriter.toString())));
 
 		form.getFormModel().fireFoundSetChanged();
@@ -504,18 +501,17 @@ public class FoundsetTest extends AbstractSolutionTest
 		jsonWriter = new JSONWriter(stringWriter);
 		rawPropertyValue.toJSON(jsonWriter, allowBrowserConverterContext);
 
-		Assert.assertTrue(new JSONObject(
-			"{\"serverSize\":17,\"foundsetId\":2,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":17,\"rows\":[{\"_svyRowId\":\"1.2;_0\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.3;_1\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.4;_2\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.5;_3\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.6;_4\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.7;_5\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.8;_6\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.9;_7\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.10;_8\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.11;_9\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.12;_10\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.13;_11\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.14;_12\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.15;_13\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.16;_14\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.17;_15\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.18;_16\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}")
+		assertTrue(new JSONObject(format(
+			"{\"serverSize\":17,\"foundsetId\":%d,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":17,\"rows\":[{\"_svyRowId\":\"1.2;_0\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.3;_1\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.4;_2\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.5;_3\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.6;_4\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.7;_5\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.8;_6\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.9;_7\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.10;_8\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.11;_9\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.12;_10\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.13;_11\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.14;_12\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.15;_13\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.16;_14\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.17;_15\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.18;_16\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			rawPropertyValue.getFoundset().getID()))
 				.similar(new JSONObject(stringWriter.toString())));
-
-
 	}
 
 	@Test
 	public void foundsetViewportAllRecordDeleted() throws JSONException, ServoyException
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		Assert.assertNotNull(form);
+		assertNotNull(form);
 		WebFormComponent wc = form.getFormUI().getWebComponent("mycustombean");
 		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset");
 		BrowserConverterContext allowBrowserConverterContext = new BrowserConverterContext(wc, PushToServerEnum.allow);
@@ -545,7 +541,7 @@ public class FoundsetTest extends AbstractSolutionTest
 	public void foundsetViewportAddRemove() throws JSONException, ServoyException// add / remove rows in viewport, near viewport
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		Assert.assertNotNull(form);
+		assertNotNull(form);
 		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset");
 
 		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
@@ -553,27 +549,27 @@ public class FoundsetTest extends AbstractSolutionTest
 		viewPort.setBounds(1, 1);
 		IFoundSetInternal foundSet = rawPropertyValue.getFoundset();
 		foundSet.newRecord(1, false);
-		Assert.assertEquals(1, viewPort.size);
-		Assert.assertEquals(1, viewPort.startIndex);
-		Assert.assertEquals(19, rawPropertyValue.getFoundset().getSize());
+		assertEquals(1, viewPort.size);
+		assertEquals(1, viewPort.startIndex);
+		assertEquals(19, rawPropertyValue.getFoundset().getSize());
 		StringWriter stringWriter = new StringWriter();
 		JSONWriter jsonWriter = new JSONWriter(stringWriter);
 		rawPropertyValue.addViewPort(jsonWriter);
 
-		Assert.assertTrue(
+		assertTrue(
 			new JSONObject("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\".null;_1\",\"lastname\":null,\"firstname\":null}]}").similar(
 				new JSONObject(stringWriter.toString())));
 		foundSet.deleteRecord(1);
 
 
-		Assert.assertEquals(18, rawPropertyValue.getFoundset().getSize());
+		assertEquals(18, rawPropertyValue.getFoundset().getSize());
 
 		stringWriter.getBuffer().setLength(0);
 		jsonWriter = new JSONWriter(stringWriter);
 
 		rawPropertyValue.addViewPort(jsonWriter);
 
-		Assert.assertTrue(
+		assertTrue(
 			new JSONObject("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}").similar(
 				new JSONObject(stringWriter.toString())));
 		foundSet.newRecord(0, false);
@@ -583,18 +579,18 @@ public class FoundsetTest extends AbstractSolutionTest
 
 		rawPropertyValue.addViewPort(jsonWriter);
 
-		Assert.assertTrue(
+		assertTrue(
 			new JSONObject("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.1;_1\",\"lastname\":\"value2\",\"firstname\":\"value1\"}]}").similar(
 				new JSONObject(stringWriter.toString())));
 
 		foundSet.newRecord(3, false);
-		Assert.assertEquals(20, rawPropertyValue.getFoundset().getSize());
+		assertEquals(20, rawPropertyValue.getFoundset().getSize());
 		stringWriter.getBuffer().setLength(0);
 		jsonWriter = new JSONWriter(stringWriter);
 
 		rawPropertyValue.addViewPort(jsonWriter);
 
-		Assert.assertTrue(
+		assertTrue(
 			new JSONObject("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.1;_1\",\"lastname\":\"value2\",\"firstname\":\"value1\"}]}").similar(
 				new JSONObject(stringWriter.toString())));
 
@@ -602,14 +598,14 @@ public class FoundsetTest extends AbstractSolutionTest
 		//delete records added in this test
 		foundSet.deleteRecord(0);
 		foundSet.deleteRecord(2);//last record is now at index 2
-		Assert.assertEquals(18, rawPropertyValue.getFoundset().getSize());
+		assertEquals(18, rawPropertyValue.getFoundset().getSize());
 	}
 
 	@Test
 	public void foundsetViewportAddExtendsOrNotDueToPreferredViewportSize() throws JSONException, ServoyException
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		Assert.assertNotNull(form);
+		assertNotNull(form);
 		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset");
 
 		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
@@ -617,49 +613,49 @@ public class FoundsetTest extends AbstractSolutionTest
 
 		viewPort.setPreferredViewportSize(30);
 		viewPort.setBounds(4, 3);
-		Assert.assertEquals(18, foundSet.getSize());
+		assertEquals(18, foundSet.getSize());
 
 
 		// new record before should shift right bounds; it will not grow in size automatically because it sees viewport was different then whole available rows even before
 		rawPropertyValue.changeMonitor.clearChanges();
 		foundSet.newRecord(1, false);
 
-		Assert.assertEquals(3, viewPort.size);
-		Assert.assertEquals(5, viewPort.startIndex);
-		Assert.assertEquals(19, foundSet.getSize());
-		Assert.assertTrue(viewPort.changeMonitor.shouldSendViewPortBounds());
-		Assert.assertFalse(viewPort.changeMonitor.shouldSendWholeViewPort());
-		Assert.assertFalse(viewPort.changeMonitor.hasViewportChanges());
+		assertEquals(3, viewPort.size);
+		assertEquals(5, viewPort.startIndex);
+		assertEquals(19, foundSet.getSize());
+		assertTrue(viewPort.changeMonitor.shouldSendViewPortBounds());
+		assertFalse(viewPort.changeMonitor.shouldSendWholeViewPort());
+		assertFalse(viewPort.changeMonitor.hasViewportChanges());
 
 		// insert happens inside viewport; it will not shift, not grow in size, just generate a viewport insert + delete data op (the previous last row in viewport is now out of the viewport)
 		rawPropertyValue.changeMonitor.clearChanges();
 		foundSet.newRecord(6, false);
 
-		Assert.assertEquals(3, viewPort.size);
-		Assert.assertEquals(5, viewPort.startIndex);
-		Assert.assertEquals(20, foundSet.getSize());
-		Assert.assertEquals(false, viewPort.changeMonitor.shouldSendViewPortBounds());
-		Assert.assertEquals(false, viewPort.changeMonitor.shouldSendWholeViewPort());
+		assertEquals(3, viewPort.size);
+		assertEquals(5, viewPort.startIndex);
+		assertEquals(20, foundSet.getSize());
+		assertEquals(false, viewPort.changeMonitor.shouldSendViewPortBounds());
+		assertEquals(false, viewPort.changeMonitor.shouldSendWholeViewPort());
 		ArrayOperation[] vpChanges = viewPort.changeMonitor.getViewPortChanges();
-		Assert.assertEquals(2, vpChanges.length);
-		Assert.assertEquals(ArrayOperation.INSERT, vpChanges[0].type);
-		Assert.assertEquals(1, vpChanges[0].startIndex);
-		Assert.assertEquals(1, vpChanges[0].endIndex);
-		Assert.assertEquals(ArrayOperation.DELETE, vpChanges[1].type);
-		Assert.assertEquals(3, vpChanges[1].startIndex);
-		Assert.assertEquals(3, vpChanges[1].endIndex);
+		assertEquals(2, vpChanges.length);
+		assertEquals(ArrayOperation.INSERT, vpChanges[0].type);
+		assertEquals(1, vpChanges[0].startIndex);
+		assertEquals(1, vpChanges[0].endIndex);
+		assertEquals(ArrayOperation.DELETE, vpChanges[1].type);
+		assertEquals(3, vpChanges[1].startIndex);
+		assertEquals(3, vpChanges[1].endIndex);
 
 		// insert happens after viewport; it will not shift, not grow in size, just know the foundset size is changed
 		rawPropertyValue.changeMonitor.clearChanges();
 		foundSet.newRecord(10, false);
 
-		Assert.assertEquals(3, viewPort.size);
-		Assert.assertEquals(5, viewPort.startIndex);
-		Assert.assertEquals(21, foundSet.getSize());
-		Assert.assertFalse(viewPort.changeMonitor.shouldSendViewPortBounds());
-		Assert.assertFalse(viewPort.changeMonitor.shouldSendWholeViewPort());
-		Assert.assertFalse(viewPort.changeMonitor.hasViewportChanges());
-		Assert.assertTrue(viewPort.changeMonitor.shouldSendFoundsetSize());
+		assertEquals(3, viewPort.size);
+		assertEquals(5, viewPort.startIndex);
+		assertEquals(21, foundSet.getSize());
+		assertFalse(viewPort.changeMonitor.shouldSendViewPortBounds());
+		assertFalse(viewPort.changeMonitor.shouldSendWholeViewPort());
+		assertFalse(viewPort.changeMonitor.hasViewportChanges());
+		assertTrue(viewPort.changeMonitor.shouldSendFoundsetSize());
 
 		// OK now scenarios where viewport took up all rows but preferred is higher - then it will grow
 
@@ -668,25 +664,25 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.changeMonitor.clearChanges();
 		foundSet.newRecord(10, false);
 
-		Assert.assertEquals(22, viewPort.size);
-		Assert.assertEquals(0, viewPort.startIndex);
-		Assert.assertEquals(22, foundSet.getSize());
-		Assert.assertTrue(viewPort.changeMonitor.shouldSendViewPortBounds());
-		Assert.assertFalse(viewPort.changeMonitor.shouldSendWholeViewPort());
-		Assert.assertTrue(viewPort.changeMonitor.hasViewportChanges());
-		Assert.assertTrue(viewPort.changeMonitor.shouldSendFoundsetSize());
+		assertEquals(22, viewPort.size);
+		assertEquals(0, viewPort.startIndex);
+		assertEquals(22, foundSet.getSize());
+		assertTrue(viewPort.changeMonitor.shouldSendViewPortBounds());
+		assertFalse(viewPort.changeMonitor.shouldSendWholeViewPort());
+		assertTrue(viewPort.changeMonitor.hasViewportChanges());
+		assertTrue(viewPort.changeMonitor.shouldSendFoundsetSize());
 		vpChanges = viewPort.changeMonitor.getViewPortChanges();
-		Assert.assertEquals(1, vpChanges.length);
-		Assert.assertEquals(ArrayOperation.INSERT, vpChanges[0].type);
-		Assert.assertEquals(10, vpChanges[0].startIndex);
-		Assert.assertEquals(10, vpChanges[0].endIndex);
+		assertEquals(1, vpChanges.length);
+		assertEquals(ArrayOperation.INSERT, vpChanges[0].type);
+		assertEquals(10, vpChanges[0].startIndex);
+		assertEquals(10, vpChanges[0].endIndex);
 	}
 
 	@Test
 	public void foundsetViewportDeleteMustAdjustViewportSizeCorrectlyEvenIfItIsMarkedAsFullyChangedAlready() throws JSONException, ServoyException
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		Assert.assertNotNull(form);
+		assertNotNull(form);
 		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset");
 
 		FoundsetTypeViewport viewPort = rawPropertyValue.getViewPort();
@@ -694,7 +690,7 @@ public class FoundsetTest extends AbstractSolutionTest
 
 		viewPort.setPreferredViewportSize(30);
 		viewPort.setBounds(4, 14);
-		Assert.assertEquals(18, foundSet.getSize());
+		assertEquals(18, foundSet.getSize());
 
 		// a delete that affects viewport bounds should update viewport bounds (no leave them invalid) even if viewport was previously marked as fully changed
 		rawPropertyValue.changeMonitor.clearChanges();
@@ -702,18 +698,18 @@ public class FoundsetTest extends AbstractSolutionTest
 		foundSet.deleteRecord(3);
 
 		// this went wrong before fixes for SVY-17654; viewport remained out-of-bounds
-		Assert.assertEquals(13, viewPort.size);
-		Assert.assertEquals(4, viewPort.startIndex);
-		Assert.assertEquals(17, foundSet.getSize());
-		Assert.assertTrue(viewPort.changeMonitor.shouldSendWholeViewPort());
-		Assert.assertTrue(viewPort.changeMonitor.shouldSendFoundsetSize());
+		assertEquals(13, viewPort.size);
+		assertEquals(4, viewPort.startIndex);
+		assertEquals(17, foundSet.getSize());
+		assertTrue(viewPort.changeMonitor.shouldSendWholeViewPort());
+		assertTrue(viewPort.changeMonitor.shouldSendFoundsetSize());
 	}
 
 	@Test
 	public void foundsetViewportInsertShouldFireChangeMonitor() throws JSONException, ServoyException
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		Assert.assertNotNull(form);
+		assertNotNull(form);
 		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset");
 
 		ValueReference<Boolean> valueChangeMotified = new ValueReference<>(Boolean.FALSE);
@@ -732,41 +728,41 @@ public class FoundsetTest extends AbstractSolutionTest
 
 		viewPort.setPreferredViewportSize(30);
 		viewPort.setBounds(0, 18);
-		Assert.assertEquals(18, foundSet.getSize());
+		assertEquals(18, foundSet.getSize());
 
 		rawPropertyValue.changeMonitor.clearChanges();
 		rawPropertyValue.changeMonitor.viewPortCompletelyChanged(); // I want the change notifier to trigger only due to foundset size change needing to get to client
-		Assert.assertTrue(viewPort.changeMonitor.shouldSendWholeViewPort());
-		Assert.assertFalse(viewPort.changeMonitor.shouldSendViewPortBounds());
+		assertTrue(viewPort.changeMonitor.shouldSendWholeViewPort());
+		assertFalse(viewPort.changeMonitor.shouldSendViewPortBounds());
 		valueChangeMotified.value = Boolean.FALSE;
 
 		foundSet.newRecord(5, false);
 
-		Assert.assertEquals(19, viewPort.size);
-		Assert.assertEquals(0, viewPort.startIndex);
-		Assert.assertEquals(19, foundSet.getSize());
-		Assert.assertTrue(viewPort.changeMonitor.shouldSendFoundsetSize());
-		Assert.assertTrue(valueChangeMotified.value.booleanValue()); // due to foundset size change
+		assertEquals(19, viewPort.size);
+		assertEquals(0, viewPort.startIndex);
+		assertEquals(19, foundSet.getSize());
+		assertTrue(viewPort.changeMonitor.shouldSendFoundsetSize());
+		assertTrue(valueChangeMotified.value.booleanValue()); // due to foundset size change
 	}
 
 	@Test
 	public void foundsetChangeMonitorChangeFlags() throws ServoyException
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		Assert.assertNotNull(form);
+		assertNotNull(form);
 		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycustombean").getRawPropertyValue("myfoundset");
 
 		IFoundSetInternal foundSet = rawPropertyValue.getFoundset();
 		rawPropertyValue.changeMonitor.clearChanges();
 		foundSet.newRecord(0, false);
 
-		Assert.assertEquals(FoundsetTypeChangeMonitor.SEND_FOUNDSET_SIZE | FoundsetTypeChangeMonitor.SEND_SELECTED_INDEXES,
+		assertEquals(FoundsetTypeChangeMonitor.SEND_FOUNDSET_SIZE | FoundsetTypeChangeMonitor.SEND_SELECTED_INDEXES,
 			rawPropertyValue.changeMonitor.changeFlags);
 
 		rawPropertyValue.changeMonitor.clearChanges();
 		foundSet.deleteRecord(0);
 
-		Assert.assertEquals(FoundsetTypeChangeMonitor.SEND_FOUNDSET_SIZE | FoundsetTypeChangeMonitor.SEND_SELECTED_INDEXES,
+		assertEquals(FoundsetTypeChangeMonitor.SEND_FOUNDSET_SIZE | FoundsetTypeChangeMonitor.SEND_SELECTED_INDEXES,
 			rawPropertyValue.changeMonitor.changeFlags);
 	}
 
@@ -774,7 +770,7 @@ public class FoundsetTest extends AbstractSolutionTest
 	public void largeFoundsetUsageWithPreferredSize() throws Exception
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		Assert.assertNotNull(form);
+		assertNotNull(form);
 		WebFormComponent wc = form.getFormUI().getWebComponent("mycustomseparatefoundsetbean");
 
 		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset");
@@ -797,7 +793,7 @@ public class FoundsetTest extends AbstractSolutionTest
 	public void largeFoundsetUsage() throws JSONException
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		Assert.assertNotNull(form);
+		assertNotNull(form);
 		WebFormComponent wc = form.getFormUI().getWebComponent("mycustomseparatefoundsetbean");
 
 		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset");
@@ -809,7 +805,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		JSONWriter jsonWriter = new JSONWriter(stringWriter);
 		rawPropertyValue.toJSON(jsonWriter, allowBrowserConverterContext);
 
-		Assert.assertTrue(new JSONObject(
+		assertTrue(new JSONObject(
 			"{\"serverSize\":200,\"foundsetId\":1,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":true,\"viewPort\":{\"startIndex\":0,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.0;_0\",\"lastname\":\"value01\",\"firstname\":\"value00\"}]}}")
 				.similar(new JSONObject(stringWriter.toString())));
 
@@ -821,7 +817,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.changesToJSON(jsonWriter2, allowBrowserConverterContext);
 
 		// bounds is 0,1 we should only get size update, but no rows
-		Assert.assertEquals(new JSONObject("{\"upd_serverSize\":799}").toString(), new JSONObject(stringWriter2.toString()).toString());
+		assertEquals(new JSONObject("{\"upd_serverSize\":799}").toString(), new JSONObject(stringWriter2.toString()).toString());
 
 		viewPort.setBounds(0, 15);
 		rawPropertyValue.getFoundset().getRecord(200);
@@ -831,7 +827,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.changesToJSON(jsonWriter2_1, allowBrowserConverterContext);
 
 		// bounds is 0,15 we should get the rows now
-		Assert.assertEquals(new JSONObject(
+		assertEquals(new JSONObject(
 			"{\"upd_viewPort\":{\"startIndex\":0,\"size\":15,\"rows\":[{\"_svyRowId\":\"1.0;_0\",\"firstname\":\"value00\",\"lastname\":\"value01\"},{\"_svyRowId\":\"1.1;_1\",\"firstname\":\"value10\",\"lastname\":\"value11\"},{\"_svyRowId\":\"1.2;_2\",\"firstname\":\"value20\",\"lastname\":\"value21\"},{\"_svyRowId\":\"1.3;_3\",\"firstname\":\"value30\",\"lastname\":\"value31\"},{\"_svyRowId\":\"1.4;_4\",\"firstname\":\"value40\",\"lastname\":\"value41\"},{\"_svyRowId\":\"1.5;_5\",\"firstname\":\"value50\",\"lastname\":\"value51\"},{\"_svyRowId\":\"1.6;_6\",\"firstname\":\"value60\",\"lastname\":\"value61\"},{\"_svyRowId\":\"1.7;_7\",\"firstname\":\"value70\",\"lastname\":\"value71\"},{\"_svyRowId\":\"1.8;_8\",\"firstname\":\"value80\",\"lastname\":\"value81\"},{\"_svyRowId\":\"1.9;_9\",\"firstname\":\"value90\",\"lastname\":\"value91\"},{\"_svyRowId\":\"2.10;_10\",\"firstname\":\"value100\",\"lastname\":\"value101\"},{\"_svyRowId\":\"2.11;_11\",\"firstname\":\"value110\",\"lastname\":\"value111\"},{\"_svyRowId\":\"2.12;_12\",\"firstname\":\"value120\",\"lastname\":\"value121\"},{\"_svyRowId\":\"2.13;_13\",\"firstname\":\"value130\",\"lastname\":\"value131\"},{\"_svyRowId\":\"2.14;_14\",\"firstname\":\"value140\",\"lastname\":\"value141\"}]}}")
 				.toString(),
 			new JSONObject(stringWriter2_1.toString()).toString());
@@ -843,17 +839,17 @@ public class FoundsetTest extends AbstractSolutionTest
 		JSONWriter jsonWriter3 = new JSONWriter(stringWriter3);
 		rawPropertyValue.changesToJSON(jsonWriter3, allowBrowserConverterContext);
 
-		Assert.assertTrue(new JSONObject(
+		assertTrue(new JSONObject(
 			"{\"upd_serverSize\":943,\"upd_hasMoreRows\":false,\"upd_viewPort\":{\"startIndex\":800,\"size\":1,\"rows\":[{\"_svyRowId\":\"3.800;_800\",\"lastname\":\"value8001\",\"firstname\":\"value8000\"}]}}")
 				.similar(
 					new JSONObject(stringWriter3.toString())));
 	}
 
 	@Test
-	public void foundsetViewportBounds() throws JSONException
+	public void foundsetViewportBounds() throws Exception
 	{
 		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
-		Assert.assertNotNull(form);
+		assertNotNull(form);
 		WebFormComponent wc = form.getFormUI().getWebComponent("mycustombean");
 
 		FoundsetTypeSabloValue rawPropertyValue = (FoundsetTypeSabloValue)wc.getRawPropertyValue("myfoundset");
@@ -864,74 +860,56 @@ public class FoundsetTest extends AbstractSolutionTest
 		JSONWriter jsonWriter = new JSONWriter(stringWriter);
 		rawPropertyValue.toJSON(jsonWriter, allowBrowserConverterContext);
 
-		Assert.assertTrue(new JSONObject(
-			"{\"serverSize\":18,\"foundsetId\":2,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}")
+		assertTrue(new JSONObject(format(
+			"{\"serverSize\":18,\"foundsetId\":%d,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			rawPropertyValue.getFoundset().getID()))
 				.similar(new JSONObject(stringWriter.toString())));
 
-		try
-		{
-			rawPropertyValue.getFoundset().setSort("test1 asc");
-		}
-		catch (ServoyException e)
-		{
-			e.printStackTrace();
-		}
+
+		rawPropertyValue.getFoundset().setSort("test1 asc");
+
 		stringWriter = new StringWriter();
 		jsonWriter = new JSONWriter(stringWriter);
 		rawPropertyValue.toJSON(jsonWriter, allowBrowserConverterContext);
 
-		Assert.assertTrue(new JSONObject(
-			"{\"serverSize\":18,\"foundsetId\":2,\"sortColumns\":\"firstname asc\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}")
+		assertTrue(new JSONObject(format(
+			"{\"serverSize\":18,\"foundsetId\":%d,\"sortColumns\":\"firstname asc\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			rawPropertyValue.getFoundset().getID()))
 				.similar(new JSONObject(stringWriter.toString())));
 
-		try
-		{
-			rawPropertyValue.getFoundset().setSort("test2 desc,pk asc,test1 asc");
-		}
-		catch (ServoyException e)
-		{
-			e.printStackTrace();
-		}
+		rawPropertyValue.getFoundset().setSort("test2 desc,pk asc,test1 asc");
+
 		stringWriter = new StringWriter();
 		jsonWriter = new JSONWriter(stringWriter);
 		rawPropertyValue.toJSON(jsonWriter, allowBrowserConverterContext);
 
-		Assert.assertTrue(new JSONObject(
-			"{\"serverSize\":18,\"foundsetId\":2,\"sortColumns\":\"lastname desc\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}")
+		assertTrue(new JSONObject(format(
+			"{\"serverSize\":18,\"foundsetId\":%d,\"sortColumns\":\"lastname desc\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			rawPropertyValue.getFoundset().getID()))
 				.similar(
 					new JSONObject(stringWriter.toString())));
 
-		try
-		{
-			rawPropertyValue.getFoundset().setSort("test2 desc,test1 asc");
-		}
-		catch (ServoyException e)
-		{
-			e.printStackTrace();
-		}
+		rawPropertyValue.getFoundset().setSort("test2 desc,test1 asc");
+
 		stringWriter = new StringWriter();
 		jsonWriter = new JSONWriter(stringWriter);
 		rawPropertyValue.toJSON(jsonWriter, allowBrowserConverterContext);
 
-		Assert.assertTrue(new JSONObject(
-			"{\"serverSize\":18,\"foundsetId\":2,\"sortColumns\":\"lastname desc,firstname asc\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}")
+		assertTrue(new JSONObject(format(
+			"{\"serverSize\":18,\"foundsetId\":%d,\"sortColumns\":\"lastname desc,firstname asc\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			rawPropertyValue.getFoundset().getID()))
 				.similar(
 					new JSONObject(stringWriter.toString())));
 
-		try
-		{
-			rawPropertyValue.getFoundset().setSort("pk asc,test1 asc");
-		}
-		catch (ServoyException e)
-		{
-			e.printStackTrace();
-		}
+		rawPropertyValue.getFoundset().setSort("pk asc,test1 asc");
+
 		stringWriter = new StringWriter();
 		jsonWriter = new JSONWriter(stringWriter);
 		rawPropertyValue.toJSON(jsonWriter, allowBrowserConverterContext);
 
-		Assert.assertTrue(new JSONObject(
-			"{\"serverSize\":18,\"foundsetId\":2,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}")
+		assertTrue(new JSONObject(format(
+			"{\"serverSize\":18,\"foundsetId\":%d,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			rawPropertyValue.getFoundset().getID()))
 				.similar(
 					new JSONObject(stringWriter.toString())));
 
@@ -943,10 +921,10 @@ public class FoundsetTest extends AbstractSolutionTest
 		JSONWriter jsonWriter2 = new JSONWriter(stringWriter2);
 		rawPropertyValue.toJSON(jsonWriter2, allowBrowserConverterContext);
 
-		Assert.assertTrue(new JSONObject(
-			"{\"serverSize\":18,\"foundsetId\":2,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}")
-				.similar(
-					new JSONObject(stringWriter2.toString())));
+		assertTrue(new JSONObject(format(
+			"{\"serverSize\":18,\"foundsetId\":%d,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			rawPropertyValue.getFoundset().getID())).similar(
+				new JSONObject(stringWriter2.toString())));
 
 		viewPort.loadExtraRecords(-1);
 
@@ -954,7 +932,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		JSONWriter jsonWriter3 = new JSONWriter(stringWriter3);
 		rawPropertyValue.changesToJSON(jsonWriter3, allowBrowserConverterContext);
 
-		Assert.assertTrue(new JSONObject(
+		assertTrue(new JSONObject(
 			"{\"upd_viewPort\":{\"startIndex\":0,\"size\":2,\"upd_rows\":[{\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"}],\"startIndex\":0,\"endIndex\":0,\"type\":1}]}}")
 				.similar(
 					new JSONObject(stringWriter3.toString())));
@@ -965,7 +943,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		jsonWriter3 = new JSONWriter(stringWriter3);
 		rawPropertyValue.changesToJSON(jsonWriter3, allowBrowserConverterContext);
 
-		Assert.assertEquals(new JSONObject("{\"n\":true}").toString(), new JSONObject(stringWriter3.toString()).toString());
+		assertEquals(new JSONObject("{\"n\":true}").toString(), new JSONObject(stringWriter3.toString()).toString());
 
 		viewPort.loadExtraRecords(16);
 
@@ -973,7 +951,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		jsonWriter3 = new JSONWriter(stringWriter3);
 		rawPropertyValue.changesToJSON(jsonWriter3, allowBrowserConverterContext);
 
-		Assert.assertTrue(new JSONObject(
+		assertTrue(new JSONObject(
 			"{\"upd_viewPort\":{\"startIndex\":0,\"size\":18,\"upd_rows\":[{\"rows\":[{\"_svyRowId\":\"1.3;_2\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.4;_3\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.5;_4\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.6;_5\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.7;_6\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.8;_7\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.9;_8\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.10;_9\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.11;_10\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.12;_11\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.13;_12\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.14;_13\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.15;_14\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.16;_15\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.17;_16\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.18;_17\",\"lastname\":\"value4\",\"firstname\":\"value3\"}],\"startIndex\":2,\"endIndex\":17,\"type\":1}]}}")
 				.similar(
 					new JSONObject(stringWriter3.toString())));
@@ -984,7 +962,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		jsonWriter3 = new JSONWriter(stringWriter3);
 		rawPropertyValue.changesToJSON(jsonWriter3, allowBrowserConverterContext);
 
-		Assert.assertEquals("{\"n\":true}", stringWriter3.toString());
+		assertEquals("{\"n\":true}", stringWriter3.toString());
 	}
 
 }

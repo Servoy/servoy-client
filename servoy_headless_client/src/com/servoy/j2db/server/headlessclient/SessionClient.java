@@ -27,6 +27,7 @@ import java.rmi.RemoteException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -123,6 +124,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	private transient InfoChannel outputChannel;
 	private RuntimeWindowManager jsWindowManager;
 	private PerformanceData performanceData;
+	private HashMap<Object, Object> uiProperties;
 
 	private volatile boolean shuttingDown = false;
 
@@ -291,6 +293,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	{
 		if (super.closeSolution(force, args))
 		{
+			if (uiProperties != null) uiProperties = null;
 			reinitializeDefaultProperties();
 			return true;
 		}
@@ -453,7 +456,7 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 			}
 		}
 
-		IServiceProvider provider = J2DBGlobals.getServiceProvider();
+		IServiceProvider provider = J2DBGlobals.getThreadServiceProvider();
 		if (provider != this)
 		{
 			// if this happens it is a webclient in developer..
@@ -1184,12 +1187,17 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 
 	public boolean putClientProperty(Object name, Object val)
 	{
-		return false;
+		if (uiProperties == null)
+		{
+			uiProperties = new HashMap<Object, Object>();
+		}
+		uiProperties.put(name, val);
+		return true;
 	}
 
 	public Object getClientProperty(Object name)
 	{
-		return null;
+		return uiProperties != null ? uiProperties.get(name) : null;
 	}
 
 	/**

@@ -61,4 +61,14 @@ public interface IQueryBuilderJoin extends IQueryBuilderTableClause
 	 * </pre>
 	 */
 	IQueryBuilderLogicalCondition on();
+
+	/**
+	 * Get the comment
+	 */
+	String getComment();
+
+	/**
+	 * Set the comment
+	*/
+	void setComment(String comment);
 }

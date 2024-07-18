@@ -80,6 +80,8 @@ public final class Settings extends SortedProperties
 
 	public static final String DISABLE_SERVER_LOG_FORWARDING_TO_DEBUG_CLIENT_CONSOLE = "servoy.developer.disableServerLogForwardingToDebugClientConsole"; //$NON-NLS-1$
 
+	public static final String TESTING_MODE = "servoy.ngclient.testingMode";
+
 	private boolean loadedFromServer = false;
 	private File file;
 
@@ -410,7 +412,7 @@ public final class Settings extends SortedProperties
 		try
 		{
 			Cipher desCipher = Cipher.getInstance("DESede"); //$NON-NLS-1$
-			desCipher.init(Cipher.DECRYPT_MODE, SecuritySupport.getCryptKey(this));
+			desCipher.init(Cipher.DECRYPT_MODE, SecuritySupport.getCryptKey());
 
 			Iterator it = entrySet().iterator();
 			while (it.hasNext())
@@ -449,7 +451,7 @@ public final class Settings extends SortedProperties
 		{
 			SecuritySupport.clearCryptKey();
 			Cipher desCipher = Cipher.getInstance("DESede"); //$NON-NLS-1$
-			desCipher.init(Cipher.ENCRYPT_MODE, SecuritySupport.getCryptKey(this));
+			desCipher.init(Cipher.ENCRYPT_MODE, SecuritySupport.getCryptKey());
 
 			for (Map.Entry<Object, Object> entry : entrySet())
 			{

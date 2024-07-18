@@ -28,7 +28,7 @@ import com.servoy.j2db.util.UUID;
 /**
  * This is a security manager that not only allows solutions the use of security/user functionality, but also to modify users/groups & security rights.<BR>
  * Inspired by UserManager.
- * 
+ *
  * @author acostescu
  */
 public interface IUserManager extends ISolutionSecurityManager, Remote
@@ -74,6 +74,8 @@ public interface IUserManager extends ISolutionSecurityManager, Remote
 	public int createUser(String clientId, String userName, String password, String userUID, boolean alreadyHashed) throws ServoyException, RemoteException;
 
 	public boolean setPassword(String clientId, String userUID, String password, boolean hashPassword) throws ServoyException, RemoteException;
+
+	public long getPasswordLastSet(String clientId, String userUID) throws ServoyException, RemoteException;
 
 	public boolean setUserUID(String clientId, String oldUserUID, String newUserUID) throws ServoyException, RemoteException;
 

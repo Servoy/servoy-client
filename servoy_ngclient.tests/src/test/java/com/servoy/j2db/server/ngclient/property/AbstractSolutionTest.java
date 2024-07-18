@@ -194,6 +194,10 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 			return true;
 		}
 
+		public void flagValid() throws RemoteException
+		{
+		};
+
 		@Override
 		public String getDatabaseProductName() throws RepositoryException, RemoteException
 		{
@@ -483,6 +487,7 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 				}
 			};
 
+			session.setHttpSession(testHttpsession);
 			WebsocketSessionManager.addSession(session);
 
 			NGClientWebsocketSessionWindows windows = new NGClientWebsocketSessionWindows(session);

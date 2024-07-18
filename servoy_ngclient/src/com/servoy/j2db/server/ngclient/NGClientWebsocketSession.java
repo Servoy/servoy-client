@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,13 +32,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.services.client.TypesRegistryService;
 import org.sablo.specification.Package.IPackageReader;
 import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.SpecProviderState;
-import org.sablo.specification.WebObjectFunctionDefinition;
+import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebObjectSpecificationBuilder;
 import org.sablo.specification.WebServiceSpecProvider;
@@ -56,13 +58,16 @@ import org.sablo.websocket.WebsocketSessionManager;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDesignerCallback;
+import com.servoy.j2db.IFormController;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
+import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
+import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
@@ -94,7 +99,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		private WindowServiceSpecification()
 		{
 			super(NGRuntimeWindowManager.WINDOW_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, null, "", null, null, null);
-			WebObjectFunctionDefinition destroy = new WebObjectFunctionDefinition("destroyController");
+			WebObjectApiFunctionDefinition destroy = new WebObjectApiFunctionDefinition("destroyController");
 			destroy.addParameter(new PropertyDescriptionBuilder().withName("name").withType(TypesRegistry.getType(StringPropertyType.TYPE_NAME)).build());
 			destroy.setAsync(true);
 			destroy.setPreDataServiceCall(true);
@@ -108,14 +113,14 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		private TypesRegistryServiceSpecification()
 		{
 			super(TypesRegistryService.TYPES_REGISTRY_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, null, "", null, null, null);
-			WebObjectFunctionDefinition apiCallDef = new WebObjectFunctionDefinition("addComponentClientSideSpecs");
+			WebObjectApiFunctionDefinition apiCallDef = new WebObjectApiFunctionDefinition("addComponentClientSideSpecs");
 			apiCallDef
 				.addParameter(new PropertyDescriptionBuilder().withName("toBeSent").withType(TypesRegistry.getType(ObjectPropertyType.TYPE_NAME)).build());
 			apiCallDef.setAsync(true);
 			apiCallDef.setPreDataServiceCall(true);
 			addApiFunction(apiCallDef);
 
-			apiCallDef = new WebObjectFunctionDefinition("setServiceClientSideSpecs");
+			apiCallDef = new WebObjectApiFunctionDefinition("setServiceClientSideSpecs");
 			apiCallDef
 				.addParameter(new PropertyDescriptionBuilder().withName("toBeSent").withType(TypesRegistry.getType(ObjectPropertyType.TYPE_NAME)).build());
 			apiCallDef.setAsync(true);
@@ -129,7 +134,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		private ClientFunctionsServiceSpecification()
 		{
 			super(CLIENT_FUNCTION_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, null, "", null, null, null);
-			WebObjectFunctionDefinition reload = new WebObjectFunctionDefinition("reloadClientFunctions");
+			WebObjectApiFunctionDefinition reload = new WebObjectApiFunctionDefinition("reloadClientFunctions");
 			reload.setAsync(true);
 			reload.setPreDataServiceCall(true);
 			addApiFunction(reload);
@@ -291,7 +296,20 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						{
 							client.getClientFunctions().clear();
 							sendUIProperties();
-							client.getRuntimeWindowManager().getCurrentWindow().setController(currentForm);
+							if (client.getFormManager().isCurrentTheMainContainer())
+							{
+								client.getRuntimeWindowManager().getCurrentWindow().setController(currentForm);
+							}
+							else
+							{
+								// browser refresh while modal dialog is open
+								RuntimeWindow mainWindow = client.getRuntimeWindowManager().getMainApplicationWindow();
+								IFormController controller = mainWindow.getController();
+								if (controller != null)
+								{
+									((NGRuntimeWindow)mainWindow).setController(controller);
+								}
+							}
 							sendSolutionCSSURL(solution.getSolution());
 						}
 						finally
@@ -319,6 +337,10 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 								: new String[] { args.getSolutionName(), args.getMethodName() },
 							args);
 
+						if (getHttpSession().getAttribute(StatelessLoginHandler.ID_TOKEN) != null)
+						{
+							setUserId();
+						}
 						client.loadSolution(solutionName);
 
 						client.showInfoPanel();
@@ -328,6 +350,38 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					{
 						Debug.error("Failed to load the solution: " + solutionName, e);
 						sendInternalError(e);
+					}
+				}
+
+				public void setUserId()
+				{
+					String id_token = (String)getHttpSession().getAttribute(StatelessLoginHandler.ID_TOKEN);
+					String[] chunks = id_token.split("\\.");
+					Base64.Decoder decoder = Base64.getUrlDecoder();
+					String payload = new String(decoder.decode(chunks[1]));
+					JSONObject token = new JSONObject(payload);
+					String userID = token.getString(StatelessLoginHandler.UID);
+
+					ClientInfo ci = client.getClientInfo();
+					ci.setUserUid(userID);
+					ci.setUserName(token.getString(StatelessLoginHandler.USERNAME));
+					if (token.has(StatelessLoginHandler.PERMISSIONS))
+					{
+						JSONArray groups = token.getJSONArray(StatelessLoginHandler.PERMISSIONS);
+						String[] gr = new String[groups.length()];
+						for (int i = 0; i < groups.length(); i++)
+						{
+							gr[i] = groups.getString(i);
+						}
+						ci.setUserGroups(gr);
+					}
+					if (token.optBoolean("remember", false))
+					{
+						JSONObject obj = new JSONObject();
+						obj.put(StatelessLoginHandler.USERNAME, token.get(StatelessLoginHandler.USERNAME));
+						obj.put(StatelessLoginHandler.ID_TOKEN, id_token);
+						getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("rememberUser",
+							new Object[] { obj });
 					}
 				}
 			});
@@ -346,12 +400,14 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	private void sendUIProperties()
 	{
 		Map<String, Object> clientProperties = client.getClientSideUIProperties();
-		if (!clientProperties.containsValue(IApplication.TRUST_DATA_AS_HTML))
+		if (!clientProperties.containsKey(IApplication.TRUST_DATA_AS_HTML))
 		{
 			// set default trustDataAsHtml based on system setting
 			clientProperties.put(IApplication.TRUST_DATA_AS_HTML,
 				Boolean.valueOf(Settings.getInstance().getProperty(Settings.TRUST_DATA_AS_HTML_SETTING, Boolean.FALSE.toString())));
 		}
+		clientProperties.put(Settings.TESTING_MODE,
+			Boolean.valueOf(Settings.getInstance().getProperty(Settings.TESTING_MODE, Boolean.FALSE.toString())));
 		getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setUIProperties", new Object[] { new JSONObject(clientProperties) });
 	}
 
@@ -359,6 +415,12 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	protected IServerService createFormService()
 	{
 		return new NGFormServiceHandler(this);
+	}
+
+	@Override
+	protected IServerService createConsoleLoggerService()
+	{
+		return new NGConsoleLoggerServiceHandler(this);
 	}
 
 	@Override
@@ -425,13 +487,14 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			}
 			if (compareList(lastSentStyleSheets, styleSheets)) return;
 			lastSentStyleSheets = new ArrayList<String>(styleSheets);
-			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheets", new Object[] { styleSheets.toArray(new String[0]) });
+			getClientService(NGClient.APPLICATION_SERVICE).executeAsyncNowServiceCall("setStyleSheets",
+				new Object[] { styleSheets.toArray(new String[0]) });
 		}
 		else
 		{
 			if (lastSentStyleSheets != null && lastSentStyleSheets.size() > 0)
 			{
-				getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("setStyleSheets", new Object[] { });
+				getClientService(NGClient.APPLICATION_SERVICE).executeAsyncNowServiceCall("setStyleSheets", new Object[] { });
 			}
 			lastSentStyleSheets = null;
 		}
@@ -545,13 +608,15 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	 */
 	public static void sendInternalError(Throwable e)
 	{
-		if (CurrentWindow.get().getEndpoint().hasSession())
+		if (CurrentWindow.exists() && CurrentWindow.get().getEndpoint().hasSession())
 		{
-			Map<String, Object> internalError = new HashMap<>();
-			StringWriter sw = new StringWriter();
-			e.printStackTrace(new PrintWriter(sw));
-			String stackTrace = sw.toString();
-			if (ApplicationServerRegistry.get().isDeveloperStartup()) internalError.put("stack", stackTrace);
+			Map<String, String> internalError = new HashMap<>();
+			if (ApplicationServerRegistry.get().isDeveloperStartup())
+			{
+				StringWriter stackTrace = new StringWriter();
+				e.printStackTrace(new PrintWriter(stackTrace));
+				internalError.put("stack", stackTrace.toString());
+			}
 			String htmlView = Settings.getInstance().getProperty("servoy.webclient.error.page");
 			if (htmlView != null) internalError.put("viewUrl", htmlView);
 			CurrentWindow.get().getSession().getClientService("$sessionService").executeAsyncServiceCall("setInternalServerError",
@@ -593,5 +658,17 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 			return new MessageLogger(this, window.getNr());
 		}
 		return null;
+	}
+
+	@SuppressWarnings("nls")
+	@Override
+	public String getLogInformation()
+	{
+		if (client != null)
+		{
+			return "clientid: " + client.getClientID() + ", httpsessionid: " + getHttpSession().getId() + ", serveruui: " +
+				ApplicationServerRegistry.get().getServerUUID();
+		}
+		return "";
 	}
 }

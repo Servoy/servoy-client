@@ -149,7 +149,6 @@ public class DataproviderPropertyType extends DefaultPropertyType<DataproviderTy
 	{
 		if (sabloValue != null)
 		{
-
 			IJSONStringWithClientSideType jsonValue = sabloValue.toJSON(dataConverterContext);
 
 			writer.value(jsonValue);
