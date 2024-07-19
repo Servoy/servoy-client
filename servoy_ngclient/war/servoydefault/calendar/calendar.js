@@ -223,9 +223,9 @@ angular.module('servoydefaultCalendar', [ 'servoy' ]).directive('servoydefaultCa
 			
 			$scope.$watch('model.readOnly', function() {
 				if ($scope.model.readOnly) {
-					var opts = {...options};
-					opts.ignoreReadonly = false;
-					child.datetimepicker("options", opts);
+					child.datetimepicker("options", {ignoreReadonly: false});
+				} else {
+					child.datetimepicker("options", {ignoreReadonly: true});
 				}
 			});
 
