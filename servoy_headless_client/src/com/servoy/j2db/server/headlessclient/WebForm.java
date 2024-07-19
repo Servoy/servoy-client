@@ -795,13 +795,19 @@ public class WebForm extends Component
 			Object[] comps = null;
 			if (dr instanceof Component c)
 			{
-				comps = new Object[c.size()];
-				Iterator it = c.iterator();
+				ArrayList<Component> lst = new ArrayList<>();
+
+				Iterator<Component> it = c.iterator();
 				int j = 0;
 				while (it.hasNext())
 				{
-					comps[j++] = it.next();
+					Component comp = it.next();
+					if (comp instanceof IScriptableProvider)
+					{
+						lst.add(comp);
+					}
 				}
+				comps = lst.toArray();
 			}
 
 			counter = registerComponentsToScope(fs, es, counter, comps, hmChildrenJavaMembers, dr);

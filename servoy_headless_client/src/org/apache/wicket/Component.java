@@ -324,7 +324,7 @@ public class Component implements IComponent
 	@Override
 	public String getId()
 	{
-		return getName();
+		return name;
 	}
 
 	public void setEnabled(boolean enabled)
