@@ -29,4 +29,8 @@ import com.servoy.j2db.util.visitor.IVisitable;
  */
 public interface IQueryElement extends IBaseQueryElement, ISQLCloneable, IWriteReplace, IVisitable
 {
+	default String generateAlias(String name)
+	{
+		return IBaseQueryElement.generateAlias(name);
+	}
 }

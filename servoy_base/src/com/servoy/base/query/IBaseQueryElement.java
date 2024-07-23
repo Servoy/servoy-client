@@ -28,7 +28,7 @@ public interface IBaseQueryElement
 {
 	static final AtomicLong aliasCounter = new AtomicLong();
 
-	default String generateAlias(String name)
+	static String generateAlias(String name)
 	{
 		// Skip anything but letters and digits
 		StringBuilder aliasBuf = new StringBuilder();
