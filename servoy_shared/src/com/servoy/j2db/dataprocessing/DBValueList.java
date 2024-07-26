@@ -17,8 +17,12 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static com.servoy.j2db.dataprocessing.SQLGenerator.isDistinctAllowed;
+
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.servoy.base.persistence.constants.IValueListConstants;
 import com.servoy.base.query.BaseQueryTable;
@@ -36,6 +40,7 @@ import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.IQuerySort;
+import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
 import com.servoy.j2db.query.SortOptions;
@@ -176,7 +181,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		return null;
 	}
 
-	//update the list, contents may have changed, can this implemented more effective?
+	// update the list, contents may have changed, can this implemented more effective?
 	public void tableChange(TableEvent e)
 	{
 		try
@@ -197,7 +202,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		}
 		catch (Exception ex)
 		{
-			Debug.error(ex);//due to buggy swing ui on macosx 131 this is needed, thows nullp when filled and not selected
+			Debug.error(ex); // due to buggy swing ui on macosx 131 this is needed, thows nullp when filled and not selected
 		}
 	}
 
@@ -237,12 +242,12 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 				return;
 			}
 
-			if (valueList.getUseTableFilter())//apply name as filter on column valuelist_name
+			if (valueList.getUseTableFilter()) // apply name as filter on column valuelist_name
 			{
 				fs.addFilterParam("valueList.nameColumn", NAME_COLUMN, "=", valueList.getName()); //$NON-NLS-1$
 			}
 
-			fs.browseAllInternal();//we do nothing with related foundsets so don't touch these
+			fs.browseAllInternal(); // we do nothing with related foundsets so don't touch these
 
 			// browse all could trigger also a fill
 			if (isLoaded) return;
@@ -252,7 +257,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 			int returnValues = valueList.getReturnDataProviders();
 			int total = (showValues | returnValues);
 
-			//more than one value -> concat
+			// more than one value -> concat
 			boolean concatShowValues = willConcat(showValues);
 			boolean concatReturnValues = willConcat(returnValues);
 
@@ -261,7 +266,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 			try
 			{
 				startBundlingEvents();
-				//add empty row
+				// add empty row
 				if (valueList.getAddEmptyValue() == IValueListConstants.EMPTY_VALUE_ALWAYS)
 				{
 					addElement(""); //$NON-NLS-1$
@@ -277,11 +282,11 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 					fs.getSize() >= ((FoundSetManager)application.getFoundSetManager()).config.pkChunkSize() && !containsCalculation)
 				{
 					ArrayList<TableFilter> tableFilterParams = foundSetManager.getTableFilterParams(table.getServerName(), creationSQLParts);
-					if (valueList.getUseTableFilter()) //apply name as filter on column valuelist_name in creationSQLParts
+					if (valueList.getUseTableFilter()) // apply name as filter on column valuelist_name in creationSQLParts
 					{
 						if (tableFilterParams == null)
 						{
-							tableFilterParams = new ArrayList<TableFilter>();
+							tableFilterParams = new ArrayList<>();
 						}
 						tableFilterParams.add(new TableFilter("dbValueList.nameFilter", table.getServerName(), table.getName(), table.getSQLName(), NAME_COLUMN, //$NON-NLS-1$
 							IBaseSQLCondition.EQUALS_OPERATOR, valueList.getName()));
@@ -410,7 +415,7 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 		return dp != null && application.getFlattenedSolution().getScriptCalculation(dp, t) != null;
 	}
 
-	public static IQuerySelectValue getQuerySelectValue(ITable table, BaseQueryTable queryTable, String dataprovider)
+	public static QueryColumn getQueryColumn(ITable table, BaseQueryTable queryTable, String dataprovider)
 	{
 		if (dataprovider != null && table != null)
 		{
@@ -433,9 +438,9 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 	{
 		if (table == null) return null;
 
-		FoundSetManager foundSetManager = ((FoundSetManager)application.getFoundSetManager());
 		// do not add the default pk-sort, only add real configured sort columns on value list
-		List<SortColumn> sortColumns = valueList.getSortOptions() == null ? null : foundSetManager.getSortColumns(table, valueList.getSortOptions());
+		List<SortColumn> sortColumns = valueList.getSortOptions() == null ? null
+			: application.getFoundSetManager().getSortColumns(table, valueList.getSortOptions());
 
 		int showValues = valueList.getShowDataProviders();
 		int returnValues = valueList.getReturnDataProviders();
@@ -453,48 +458,54 @@ public class DBValueList extends CustomValueList implements ITableChangeListener
 			{
 				SortOptions sortoptions = application.getFoundSetManager().getSortOptions(sc.getColumn());
 				orderColumns.add(
-					new QuerySort(getQuerySelectValue(table, select.getTable(), sc.getDataProviderID()), sc.getSortOrder() == SortColumn.ASCENDING,
+					new QuerySort(getQueryColumn(table, select.getTable(), sc.getDataProviderID()), sc.getSortOrder() == SortColumn.ASCENDING,
 						sortoptions));
 			}
 		}
 
+		Set<QueryColumn> addedColumnsForSorting = new HashSet<>();
 		if ((total & 1) != 0)
 		{
-			IQuerySelectValue cSQLName = getQuerySelectValue(table, select.getTable(), valueList.getDataProviderID1());
-			columns.add(cSQLName);
-			if ((showValues & 1) != 0 && !useDefinedSort)
-			{
-				SortOptions sortoptions = application.getFoundSetManager().getSortOptions(table.getColumn(valueList.getDataProviderID1()));
-				orderColumns.add(new QuerySort(cSQLName, true, sortoptions));
-			}
+			addColumnsForvaluelistQuery(application, table, valueList.getDataProviderID1(), select.getTable(), orderColumns, columns,
+				!useDefinedSort && (showValues & 1) != 0, addedColumnsForSorting);
 		}
 		if ((total & 2) != 0)
 		{
-			IQuerySelectValue cSQLName = getQuerySelectValue(table, select.getTable(), valueList.getDataProviderID2());
-			columns.add(cSQLName);
-			if ((showValues & 2) != 0 && !useDefinedSort)
-			{
-				SortOptions sortoptions = application.getFoundSetManager().getSortOptions(table.getColumn(valueList.getDataProviderID2()));
-				orderColumns.add(new QuerySort(cSQLName, true, sortoptions));
-			}
+			addColumnsForvaluelistQuery(application, table, valueList.getDataProviderID2(), select.getTable(), orderColumns, columns,
+				!useDefinedSort && (showValues & 2) != 0, addedColumnsForSorting);
 		}
 		if ((total & 4) != 0)
 		{
-			IQuerySelectValue cSQLName = getQuerySelectValue(table, select.getTable(), valueList.getDataProviderID3());
-			columns.add(cSQLName);
-			if ((showValues & 4) != 0 && !useDefinedSort)
-			{
-				SortOptions sortoptions = application.getFoundSetManager().getSortOptions(table.getColumn(valueList.getDataProviderID3()));
-				orderColumns.add(new QuerySort(cSQLName, true, sortoptions));
-			}
+			addColumnsForvaluelistQuery(application, table, valueList.getDataProviderID3(), select.getTable(), orderColumns, columns,
+				!useDefinedSort && (showValues & 4) != 0, addedColumnsForSorting);
 		}
 
 		// check if we can still use distinct
-		select.setDistinct(SQLGenerator.isDistinctAllowed(columns, orderColumns));
+		select.setDistinct(isDistinctAllowed(columns, orderColumns));
 		select.setColumns(columns);
 		select.setSorts(orderColumns);
 
 		return select;
+	}
+
+	private static void addColumnsForvaluelistQuery(IServiceProvider application, ITable table, String dataProviderID, BaseQueryTable queryTable,
+		List<IQuerySort> orderColumns, List<IQuerySelectValue> columns, boolean addOrderBy, Set<QueryColumn> addedColumnsForSorting)
+	{
+		QueryColumn cSQLName = getQueryColumn(table, queryTable, dataProviderID);
+		if (columns.contains(cSQLName))
+		{
+			// to prevent error 'Ambiguous column name' in some databases (sqlserver) we add an alias if a column occurs multiple times
+			columns.add(cSQLName.asAlias(cSQLName.generateAlias(dataProviderID)));
+		}
+		else
+		{
+			columns.add(cSQLName);
+		}
+		if (addOrderBy && addedColumnsForSorting.add(cSQLName))
+		{
+			SortOptions sortoptions = application.getFoundSetManager().getSortOptions(table.getColumn(dataProviderID));
+			orderColumns.add(new QuerySort(cSQLName, true, sortoptions));
+		}
 	}
 
 	public static List<String> getShowDataproviders(ValueList valueList, Table callingTable, String dataProviderID, IFoundSetManagerInternal foundSetManager)

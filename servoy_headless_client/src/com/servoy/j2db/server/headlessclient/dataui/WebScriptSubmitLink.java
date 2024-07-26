@@ -16,12 +16,8 @@
  */
 package com.servoy.j2db.server.headlessclient.dataui;
 
-import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.MarkupStream;
-
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.ui.scripting.RuntimeScriptLabel;
-import com.servoy.j2db.util.HtmlUtils;
 
 /**
  * Represents a clickable (has an action event) label in the webbrowser.
@@ -38,24 +34,5 @@ public class WebScriptSubmitLink extends WebBaseSubmitLink
 	public WebScriptSubmitLink(IApplication application, RuntimeScriptLabel scriptable, String id)
 	{
 		super(application, scriptable, id);
-	}
-
-
-	/**
-	 * @see com.servoy.j2db.server.headlessclient.dataui.WebBaseSubmitLink#onComponentTagBody(wicket.markup.MarkupStream, wicket.markup.ComponentTag)
-	 */
-	@Override
-	protected void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag)
-	{
-		CharSequence bodyText = getDefaultModelObjectAsString();
-
-		Object modelObject = getDefaultModelObject();
-		if (HtmlUtils.startsWithHtml(modelObject))
-		{
-			// ignore script/header contributions for now
-			bodyText = StripHTMLTagsConverter.convertBodyText(this, bodyText, getScriptObject().trustDataAsHtml(),
-				application.getFlattenedSolution()).getBodyTxt();
-		}
-		instrumentAndReplaceBody(markupStream, openTag, bodyText);
 	}
 }

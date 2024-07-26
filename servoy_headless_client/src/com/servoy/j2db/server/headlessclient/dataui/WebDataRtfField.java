@@ -29,12 +29,12 @@ import com.servoy.j2db.ui.scripting.AbstractRuntimeTextEditor;
 import com.servoy.j2db.util.Text;
 
 /**
- * 
+ *
  * Dummy class that just extends {@link WebDataLabel} so that RTF fields map on this class.
  * Doesnt have an implementation.
- * 
+ *
  * @author jcompagner
- * 
+ *
  */
 public class WebDataRtfField extends WebDataLabel implements IFieldComponent
 {
@@ -49,7 +49,7 @@ public class WebDataRtfField extends WebDataLabel implements IFieldComponent
 	public WebDataRtfField(IApplication application, AbstractRuntimeTextEditor<IFieldComponent, JEditorPane> scriptable, String id)
 	{
 		super(application, scriptable, id);
-		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(null, TemplateGenerator.DEFAULT_LABEL_PADDING);
+		((ChangesRecorder)scriptable.getChangesRecorder()).setDefaultBorderAndPadding(null, AbstractFormLayoutProvider.DEFAULT_LABEL_PADDING);
 	}
 
 	/**
@@ -124,7 +124,7 @@ public class WebDataRtfField extends WebDataLabel implements IFieldComponent
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IFieldComponent#getMargin()
 	 */
 	public Insets getMargin()
@@ -134,7 +134,7 @@ public class WebDataRtfField extends WebDataLabel implements IFieldComponent
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.IFieldComponent#isEditable()
 	 */
 	public boolean isEditable()
@@ -160,7 +160,7 @@ public class WebDataRtfField extends WebDataLabel implements IFieldComponent
 	@Override
 	public String toString()
 	{
-		return getScriptObject().toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$ 
+		return getScriptObject().toString("value:" + getValueObject()); //$NON-NLS-1$
 	}
 
 	public List<ILabel> getLabelsFor()

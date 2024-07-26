@@ -17,14 +17,8 @@
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import java.awt.Dimension;
+import java.sql.Time;
 
-import org.apache.wicket.markup.html.DynamicWebResource;
-import org.apache.wicket.protocol.http.WebResponse;
-import org.apache.wicket.util.string.StringValueConversionException;
-import org.apache.wicket.util.time.Time;
-
-import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.HTTPUtils;
 import com.servoy.j2db.util.ImageLoader;
 import com.servoy.j2db.util.MimeTypes;
 
@@ -33,26 +27,25 @@ import com.servoy.j2db.util.MimeTypes;
  *
  * @author jcompagner
  */
-public final class MediaResource extends DynamicWebResource
+public final class MediaResource
 {
 	/**
 	 * @author jcompagner
 	 *
 	 */
-	private final class MediaResourceState extends ResourceState
+	private final class MediaResourceState
 	{
 		/**
 		 * @param lastModifiedTime
 		 */
-		public MediaResourceState(Time lastModifiedTime)
+		public MediaResourceState(Time lastModified)
 		{
-			this.lastModifiedTime = lastModifiedTime;
+			lastModifiedTime = lastModified;
 		}
 
 		/**
 		 * @see wicket.resource.DynamicByteArrayResource.ResourceState#getData()
 		 */
-		@Override
 		public byte[] getData()
 		{
 			return resized == null ? bs : resized;
@@ -61,7 +54,6 @@ public final class MediaResource extends DynamicWebResource
 		/**
 		 * @see wicket.resource.DynamicByteArrayResource.ResourceState#getContentType()
 		 */
-		@Override
 		public String getContentType()
 		{
 			return contentType;
@@ -70,7 +62,6 @@ public final class MediaResource extends DynamicWebResource
 		/**
 		 * @see wicket.resource.DynamicByteArrayResource.ResourceState#getLength()
 		 */
-		@Override
 		public int getLength()
 		{
 			return getData().length;
@@ -96,7 +87,7 @@ public final class MediaResource extends DynamicWebResource
 
 	private double iconHeight;
 
-	private final Time lastModifiedTime;
+	private Time lastModifiedTime;
 
 	MediaResource()
 	{
@@ -121,26 +112,15 @@ public final class MediaResource extends DynamicWebResource
 		this.keepAspect = (mediaOptions & 8) == 8;
 		this.contentType = MimeTypes.getContentType(bs);
 
-		this.setCacheable(true);
 
 	}
 
-	@Override
-	public ResourceState getResourceState()
+	public MediaResourceState getResourceState()
 	{
 		int mediaOptions = 0;
 		int width = 0;
 		int height = 0;
-		try
-		{
-			mediaOptions = getParameters().getInt("option", 0); //$NON-NLS-1$
-			width = getParameters().getInt("w", 0); //$NON-NLS-1$
-			height = getParameters().getInt("h", 0); //$NON-NLS-1$
-		}
-		catch (StringValueConversionException ex)
-		{
-			Debug.error(ex);
-		}
+
 		if (mediaOptions != 0 && mediaOptions != 1 && width != 0 && height != 0)
 		{
 			checkResize(new Dimension(width, height));
@@ -306,23 +286,6 @@ public final class MediaResource extends DynamicWebResource
 	public int getHeight()
 	{
 		return resizedSize == null ? 0 : resizedSize.height;
-	}
-
-	/**
-	 * @see wicket.markup.html.WebResource#setHeaders(wicket.protocol.http.WebResponse)
-	 */
-	@Override
-	protected void setHeaders(WebResponse response)
-	{
-		super.setHeaders(response);
-		if (!isCacheable())
-		{
-			HTTPUtils.setNoCacheHeaders(response.getHttpServletResponse());
-//			response.setHeader("Cache-Control", "no-cache");
-//			response.setHeader("Pragma", "no-cache");
-//			response.setDateHeader("Expires", -1);
-		}
-
 	}
 
 	public byte[] getRawData()

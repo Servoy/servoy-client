@@ -17,15 +17,13 @@
 package com.servoy.j2db.server.headlessclient.dataui;
 
 import com.servoy.j2db.persistence.Part;
-import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualCSS;
-import com.servoy.j2db.server.headlessclient.dataui.TemplateGenerator.TextualStyle;
 
 /**
  * Generic interface for a layout provider used for forms in web client. A layout
  * provider provides HTML for begin/end of HTML page, begin/end of form part,
- * begin/end of table view, plus some additional information like CSS styles or 
+ * begin/end of table view, plus some additional information like CSS styles or
  * the background color of the form.
- * 
+ *
  * @author gerzse
  */
 public interface IFormLayoutProvider
@@ -51,11 +49,11 @@ public interface IFormLayoutProvider
 	 * to occupy the entire page. However when a custom navigator is present, the form and the navigator need to be
 	 * laid out one next to the other. If the form is inside a tabpanel, then again the form should occupy all available
 	 * space.
-	 * 
+	 *
 	 * @param customNavigatorWidth The width of the custom navigator, if any. If a default navigator is used, then this value will be 0. In tabpanels the custom navigators are dropped, so again this value will be 0.
 	 * @param isNavigator If this form is a custom navigator, then this value will be true, otherwise it will be false.
 	 * @param isInTabPanel If the form is located inside a tabpanel, then this value will be true, otherwise false.
-	 * 
+	 *
 	 * @return A TextualStyle instance that holds the CSS that should be applied to the "webform" level <div>.
 	 */
 	TextualStyle getLayoutForForm(int customNavigatorWidth, boolean isNavigator, boolean isInTabPanel);

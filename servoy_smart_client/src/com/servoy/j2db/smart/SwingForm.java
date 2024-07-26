@@ -51,7 +51,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -88,7 +87,6 @@ import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 import javax.swing.text.html.CSS;
 
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.mozilla.javascript.JavaMembers;
 import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Scriptable;
@@ -960,16 +958,6 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 					{
 						tv.getColumnModel().removeColumn(tableCellAdapters[j]);
 					}
-				}
-			}
-			else if (dr instanceof WebMarkupContainer)
-			{
-				comps = new Object[((WebMarkupContainer)dr).size()];
-				Iterator< ? > it = ((WebMarkupContainer)dr).iterator();
-				int j = 0;
-				while (it.hasNext())
-				{
-					comps[j++] = it.next();
 				}
 			}
 
@@ -2186,10 +2174,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 			Map<JComponent, int[][]> selectedComponents = selectionHandler.getSelection(this);
 			if (selectedComponents.size() > 0)
 			{
-				Iterator<Entry<JComponent, int[][]>> iterator = selectedComponents.entrySet().iterator();
-				while (iterator.hasNext())
+				for (Entry<JComponent, int[][]> entry : selectedComponents.entrySet())
 				{
-					Entry<JComponent, int[][]> entry = iterator.next();
 					JComponent selectedComponent = entry.getKey();
 					int[][] positions = entry.getValue();
 					g.setColor(Color.black);
@@ -2304,12 +2290,10 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 							!(canMove instanceof Number && ((Number)canMove).intValue() == DRAGNDROP.NONE))
 						{
 							Map<JComponent, Rectangle> toUpdate = new HashMap<JComponent, Rectangle>(selectedComponents.size());
-							Iterator<JComponent> iterator = selectedComponents.keySet().iterator();
 							int panelWidth = getWidth();
 							int panelHeight = getHeight();
-							while (iterator.hasNext())
+							for (JComponent selectedComponent : selectedComponents.keySet())
 							{
-								JComponent selectedComponent = iterator.next();
 								Rectangle current = selectedComponent.getBounds();
 								int x = current.x + (e.getX() - lastMousePosition.x);
 								int y = current.y + (e.getY() - lastMousePosition.y);
@@ -2324,10 +2308,8 @@ public class SwingForm extends PartsScrollPane implements IFormUIInternal<Compon
 							}
 							if (toUpdate.size() > 0)
 							{
-								Iterator<Entry<JComponent, Rectangle>> it = toUpdate.entrySet().iterator();
-								while (it.hasNext())
+								for (Entry<JComponent, Rectangle> entry : toUpdate.entrySet())
 								{
-									Entry<JComponent, Rectangle> entry = it.next();
 									addSelectedComponent(entry.getKey(), entry.getValue());
 								}
 								moved = true;

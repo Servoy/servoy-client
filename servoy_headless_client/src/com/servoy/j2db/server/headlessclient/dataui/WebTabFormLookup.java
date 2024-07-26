@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.MarkupContainer;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.FormManager;
@@ -42,11 +40,11 @@ public class WebTabFormLookup implements IFormLookupPanel
 	private final String formName;
 	private WebForm webForm;
 	private final String tabName;
-	private final WebMarkupContainer parent;
+	private final Component parent;
 	private final IApplication application;
 	private List<SortColumn> defaultSort;
 
-	WebTabFormLookup(String tabname, String relationName, String formName, WebMarkupContainer parent, IApplication app)
+	WebTabFormLookup(String tabname, String relationName, String formName, Component parent, IApplication app)
 	{
 		this.tabName = tabname;
 		this.formName = formName;
@@ -76,7 +74,7 @@ public class WebTabFormLookup implements IFormLookupPanel
 		WebForm wf = getWebForm(false);
 		if (wf != null)
 		{
-			MarkupContainer wfParent = wf.getParent();
+			Component wfParent = wf.getParent();
 			if (wfParent instanceof WebTabPanel && ((WebTabPanel)wfParent).isVisible() && wfParent.getParent() != null)
 			{
 				boolean isTabPanelVisible = true;

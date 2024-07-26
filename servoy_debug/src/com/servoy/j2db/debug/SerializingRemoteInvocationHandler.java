@@ -18,6 +18,7 @@
 package com.servoy.j2db.debug;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -31,8 +32,6 @@ import java.rmi.Remote;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-import org.apache.wicket.util.io.ByteArrayOutputStream;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.util.AbstractRemoteInvocationHandler;

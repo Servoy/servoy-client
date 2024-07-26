@@ -481,15 +481,15 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		ArrayList<IQuerySelectValue> columns = new ArrayList<>();
 		if ((total & 1) != 0)
 		{
-			columns.add(getQuerySelectValue(foreignTable, lastTable, valueList.getDataProviderID1()));
+			columns.add(getQueryColumn(foreignTable, lastTable, valueList.getDataProviderID1()));
 		}
 		if ((total & 2) != 0)
 		{
-			columns.add(getQuerySelectValue(foreignTable, lastTable, valueList.getDataProviderID2()));
+			columns.add(getQueryColumn(foreignTable, lastTable, valueList.getDataProviderID2()));
 		}
 		if ((total & 4) != 0)
 		{
-			columns.add(getQuerySelectValue(foreignTable, lastTable, valueList.getDataProviderID3()));
+			columns.add(getQueryColumn(foreignTable, lastTable, valueList.getDataProviderID3()));
 		}
 		select.setColumns(columns);
 		select.setDistinct(false); // not allowed in all situations

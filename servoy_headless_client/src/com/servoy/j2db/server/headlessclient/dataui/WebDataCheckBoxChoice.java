@@ -25,24 +25,15 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.StringTokenizer;
 
 import javax.swing.JComponent;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.border.Border;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.text.Document;
 
-import org.apache.wicket.Page;
-import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.MarkupStream;
-import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.util.convert.IConverter;
+import org.apache.wicket.Component;
 
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.FormManager;
@@ -57,8 +48,6 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
-import com.servoy.j2db.persistence.IColumnTypes;
-import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -67,15 +56,12 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.IStylePropertyChanges;
-import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.ISupportScroll;
 import com.servoy.j2db.ui.ISupportSimulateBounds;
 import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeScrollableValuelistComponent;
-import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
-import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
@@ -84,9 +70,9 @@ import com.servoy.j2db.util.Utils;
  *
  * @author jcompagner
  */
-public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
+public class WebDataCheckBoxChoice extends Component
 	implements IDisplayData, IFieldComponent, IDisplayRelatedData, IResolveObject, IProviderStylePropertyChanges, IScrollPane, ISupportWebBounds,
-	IRightClickListener, IOwnTabSequenceHandler, ISupportValueList, IFormattingComponent, ISupportSimulateBoundsProvider, ISupportOnRender, ISupportScroll
+	IOwnTabSequenceHandler, ISupportValueList, IFormattingComponent, ISupportSimulateBoundsProvider, ISupportScroll
 {
 	private static final long serialVersionUID = 1L;
 	private static final String NO_COLOR = "NO_COLOR"; //$NON-NLS-1$
@@ -107,7 +93,6 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 	private int tabIndex = -1;
 	private int vScrollPolicy;
 	private final AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> scriptable;
-	private FormatConverter converter;
 	private final boolean multiselect;
 
 	public WebDataCheckBoxChoice(IApplication application, AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> scriptable, String id,
@@ -119,7 +104,6 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		eventExecutor = new WebEventExecutor(this, useAJAX);
-		setOutputMarkupPlaceholderTag(true);
 
 		list = new WebComboModelListModelWrapper(vl, true, false);
 		list.setMultiValueSelect(multiselect);
@@ -143,50 +127,10 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 				getStylePropertyChanges().setChanged();
 			}
 		});
-		setChoices(list);
 		this.multiselect = multiselect;
 
-		setChoiceRenderer(new WebChoiceRenderer(this, list));
-
-		add(StyleAttributeModifierModel.INSTANCE);
-		add(TooltipAttributeModifier.INSTANCE);
-
-		updatePrefix();
 		this.scriptable = scriptable;
 		scriptable.setList(list);
-		add(new ScrollBehavior(this));
-	}
-
-	@Override
-	public void renderHead(final HtmlHeaderContainer container)
-	{
-		super.renderHead(container);
-		container.getHeaderResponse().renderOnLoadJavascript("Servoy.Utils.attachChoiceEvents('" + getMarkupId() + "');"); //$NON-NLS-1$ //$NON-NLS-2$
-	}
-
-	@Override
-	public IConverter getConverter(Class< ? > cls)
-	{
-		if (converter != null) return converter;
-
-		ComponentFormat cf = getScriptObject().getComponentFormat();
-		switch (cf.uiType)
-		{
-			case IColumnTypes.DATETIME :
-				converter = new FormatConverter(this, eventExecutor, new StateFullSimpleDateFormat(cf.parsedFormat.getDisplayFormat(), /* getClientTimeZone() */
-					null, application.getLocale(), true), cf.parsedFormat);
-				break;
-
-			case IColumnTypes.INTEGER :
-			case IColumnTypes.NUMBER :
-				converter = new FormatConverter(this, eventExecutor, new RoundHalfUpDecimalFormat(cf.parsedFormat.getDisplayFormat(), application.getLocale()),
-					cf.parsedFormat);
-				break;
-
-			default :
-				return super.getConverter(cls);
-		}
-		return converter;
 	}
 
 	/*
@@ -194,7 +138,6 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 	 */
 	public void installFormat(ComponentFormat componentFormat)
 	{
-		converter = null;
 	}
 
 	public final AbstractRuntimeScrollableValuelistComponent<IFieldComponent, JComponent> getScriptObject()
@@ -202,27 +145,9 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 		return scriptable;
 	}
 
-	/**
-	 * @see org.apache.wicket.Component#getLocale()
-	 */
-	@Override
-	public Locale getLocale()
-	{
-		return application.getLocale();
-	}
-
 	public IStylePropertyChanges getStylePropertyChanges()
 	{
 		return scriptable.getChangesRecorder();
-	}
-
-	/**
-	 * @see wicket.Component#onModelChanged()
-	 */
-	@Override
-	protected void onModelChanged()
-	{
-		getModel().setObject(getConvertedInput());
 	}
 
 	/*
@@ -290,8 +215,6 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 			{
 				public void run()
 				{
-					WebEventExecutor.setSelectedIndex(WebDataCheckBoxChoice.this, null, IEventExecutor.MODIFIERS_UNSPECIFIED);
-
 					eventExecutor.fireChangeCommand(previousValidValue == null ? oldVal : previousValidValue, newVal, false, WebDataCheckBoxChoice.this);
 
 					//if change cmd is not succeeded also don't call action cmd?
@@ -359,68 +282,6 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 		eventExecutor.setSelectOnEnter(b);
 	}
 
-	//_____________________________________________________________
-
-	@Override
-	protected void onRender(final MarkupStream markupStream)
-	{
-		super.onRender(markupStream);
-		getStylePropertyChanges().setRendered();
-		IModel< ? > model = getInnermostModel();
-
-		if (model instanceof RecordItemModel)
-		{
-			((RecordItemModel)model).updateRenderedValue(this);
-		}
-	}
-
-	@Override
-	protected void onComponentTag(ComponentTag tag)
-	{
-		super.onComponentTag(tag);
-
-		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
-		if (useAJAX)
-		{
-			Object oe = scriptable.getClientProperty("ajax.enabled"); //$NON-NLS-1$
-			if (oe != null) useAJAX = Utils.getAsBoolean(oe);
-		}
-		if (!useAJAX)
-		{
-			Form< ? > f = getForm();
-			if (f != null)
-			{
-				if (eventExecutor.hasRightClickCmd())
-				{
-					CharSequence urlr = urlFor(IRightClickListener.INTERFACE);
-					// We need a "return false;" so that the context menu is not displayed in the browser.
-					tag.put("oncontextmenu", f.getJsForInterfaceUrl(urlr) + " return false;"); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-			}
-		}
-	}
-
-	/**
-	 * @see wicket.markup.html.form.FormComponent#getInputName()
-	 */
-	@Override
-	public String getInputName()
-	{
-		if (inputId == null)
-		{
-			Page page = findPage();
-			if (page instanceof MainPage)
-			{
-				inputId = ((MainPage)page).nextInputNameId();
-			}
-			else
-			{
-				return super.getInputName();
-			}
-		}
-		return inputId;
-	}
-
 	public void setEditable(boolean b)
 	{
 		editState = b;
@@ -475,6 +336,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#setCursor(java.awt.Cursor)
 	 */
+	@Override
 	public void setCursor(Cursor cursor)
 	{
 //		this.cursor = cursor;
@@ -482,7 +344,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 
 	public Object getValueObject()
 	{
-		return getDefaultModelObject();
+		return null;
 	}
 
 	public void setValueObject(Object value)
@@ -528,7 +390,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 	@Override
 	public String toString()
 	{
-		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$
+		return scriptable.toString("value:" + getValueObject()); //$NON-NLS-1$
 	}
 
 	/*
@@ -603,38 +465,6 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 		return null;
 	}
 
-
-	/**
-	 * @see wicket.markup.html.form.ListMultipleChoice#updateModel()
-	 */
-	@Override
-	public void updateModel()
-	{
-		Object ci = getConvertedInput();
-		if (ci instanceof List && ((List)ci).size() == 0 && vl != null && !vl.getAllowEmptySelection())
-		{
-			getStylePropertyChanges().setChanged(); // if valuelist doesn't allow null, don't change the model's value and mark for re-render
-		}
-		else
-		{
-			boolean b = getStylePropertyChanges().isChanged();
-			if (!multiselect && ci instanceof List && ((List)ci).size() > 0)
-			{
-				//remove the previously selected value if it's not multiselect
-				List l = (List)ci;
-				l.remove(list.getRealElementAt(list.getSelectedRow()));
-				list.setElementAt(Boolean.FALSE, list.getSelectedRow());
-				getStylePropertyChanges().setValueChanged();
-			}
-			setModelObject(ci);
-			// if before updating the model the changed flag was false make sure it stays that way.
-			if (!b && multiselect)
-			{
-				getStylePropertyChanges().setRendered();
-			}
-		}
-	}
-
 	/*
 	 * _____________________________________________________________ Methods for model object resolve
 	 */
@@ -666,22 +496,8 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 	public void setVerticalScrollBarPolicy(int policy)
 	{
 		this.vScrollPolicy = policy;
-		updatePrefix();
 	}
 
-	private void updatePrefix()
-	{
-		StringBuilder prefix = new StringBuilder();
-		prefix.append("<div onfocus='if (parentNode.onfocus)parentNode.onfocus()' onblur='if (parentNode.onblur)parentNode.onblur()'"); //$NON-NLS-1$
-		prefix.append(" tabindex='").append(tabIndex).append("'"); //$NON-NLS-1$//$NON-NLS-2$
-		prefix.append(" class='"); //$NON-NLS-1$
-		if (vScrollPolicy == ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER) prefix.append("inl"); //$NON-NLS-1$
-		else prefix.append("blk"); //$NON-NLS-1$
-		prefix.append("'"); //$NON-NLS-1$
-		prefix.append(">"); //$NON-NLS-1$
-		setPrefix(prefix.toString());
-		setSuffix("</div>"); //$NON-NLS-1$
-	}
 
 	public void requestFocusToComponent()
 	{
@@ -751,6 +567,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 	}
 
 
+	@Override
 	public void setName(String n)
 	{
 		name = n;
@@ -758,6 +575,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 
 	private String name;
 
+	@Override
 	public String getName()
 	{
 		return name;
@@ -768,11 +586,13 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 	 */
 	private Border border;
 
+	@Override
 	public void setBorder(Border border)
 	{
 		this.border = border;
 	}
 
+	@Override
 	public Border getBorder()
 	{
 		return border;
@@ -782,6 +602,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 	/*
 	 * opaque---------------------------------------------------
 	 */
+	@Override
 	public void setOpaque(boolean opaque)
 	{
 		this.opaque = opaque;
@@ -789,6 +610,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 
 	private boolean opaque;
 
+	@Override
 	public boolean isOpaque()
 	{
 		return opaque;
@@ -813,6 +635,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 
 	private String tooltip;
 
+	@Override
 	public void setToolTipText(String tooltip)
 	{
 		if (Utils.stringIsEmpty(tooltip))
@@ -835,18 +658,16 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#getToolTipText()
 	 */
+	@Override
 	public String getToolTipText()
 	{
-		if (tooltip != null && getInnermostModel() instanceof RecordItemModel)
-		{
-			return Text.processTags(tooltip, resolver);
-		}
 		return tooltip;
 	}
 
 	/*
 	 * font---------------------------------------------------
 	 */
+	@Override
 	public void setFont(Font font)
 	{
 		this.font = font;
@@ -854,6 +675,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 
 	private Font font;
 
+	@Override
 	public Font getFont()
 	{
 		return font;
@@ -862,11 +684,13 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 
 	private Color background;
 
+	@Override
 	public void setBackground(Color cbg)
 	{
 		this.background = cbg;
 	}
 
+	@Override
 	public Color getBackground()
 	{
 		return background;
@@ -877,11 +701,13 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 
 	private List<ILabel> labels;
 
+	@Override
 	public void setForeground(Color cfg)
 	{
 		this.foreground = cfg;
 	}
 
+	@Override
 	public Color getForeground()
 	{
 		return foreground;
@@ -891,6 +717,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 	/*
 	 * visible---------------------------------------------------
 	 */
+	@Override
 	public void setComponentVisible(boolean visible)
 	{
 		if (viewable || !visible)
@@ -898,9 +725,8 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 			setVisible(visible);
 			if (labels != null)
 			{
-				for (int i = 0; i < labels.size(); i++)
+				for (ILabel label : labels)
 				{
-					ILabel label = labels.get(i);
 					label.setComponentVisible(visible);
 				}
 			}
@@ -924,6 +750,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 	}
 
 
+	@Override
 	public void setComponentEnabled(final boolean b)
 	{
 		if (accessible || !b)
@@ -932,9 +759,8 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 			getStylePropertyChanges().setChanged();
 			if (labels != null)
 			{
-				for (int i = 0; i < labels.size(); i++)
+				for (ILabel label : labels)
 				{
-					ILabel label = labels.get(i);
 					label.setComponentEnabled(b);
 				}
 			}
@@ -977,11 +803,13 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 		return getLocation().y;
 	}
 
+	@Override
 	public void setLocation(Point location)
 	{
 		this.location = location;
 	}
 
+	@Override
 	public Point getLocation()
 	{
 		return location;
@@ -992,6 +820,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 	 */
 	private Dimension size = new Dimension(0, 0);
 
+	@Override
 	public Dimension getSize()
 	{
 		return size;
@@ -1011,6 +840,7 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 		return ((ChangesRecorder)getStylePropertyChanges()).getPaddingAndBorder(size.height, border, margin, 0, null);
 	}
 
+	@Override
 	public void setSize(Dimension size)
 	{
 		this.size = size;
@@ -1021,48 +851,9 @@ public class WebDataCheckBoxChoice extends CheckBoxMultipleChoice
 		eventExecutor.setRightClickCmd(rightClickCmd, args);
 	}
 
-	public void onRightClick()
-	{
-		Form< ? > f = getForm();
-		if (f != null)
-		{
-			// If form validation fails, we don't execute the method.
-			if (f.process()) eventExecutor.onEvent(JSEvent.EventType.rightClick, null, this, IEventExecutor.MODIFIERS_UNSPECIFIED);
-		}
-	}
-
 	public void handleOwnTabIndex(int newTabIndex)
 	{
 		this.tabIndex = newTabIndex;
-		updatePrefix();
-	}
-
-	@Override
-	protected void onBeforeRender()
-	{
-		super.onBeforeRender();
-		fireOnRender(false);
-	}
-
-	public void fireOnRender(boolean force)
-	{
-		if (scriptable != null)
-		{
-			boolean isFocused = false;
-			IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
-			if (currentContainer instanceof MainPage)
-			{
-				isFocused = this.equals(((MainPage)currentContainer).getFocusedComponent());
-			}
-			if (force) scriptable.getRenderEventExecutor().setRenderStateChanged();
-			scriptable.getRenderEventExecutor().fireOnRender(isFocused);
-		}
-	}
-
-	@Override
-	protected boolean isDisabled(Object object, int index, String selected)
-	{
-		return isReadOnly();
 	}
 
 	public ISupportSimulateBounds getBoundsProvider()

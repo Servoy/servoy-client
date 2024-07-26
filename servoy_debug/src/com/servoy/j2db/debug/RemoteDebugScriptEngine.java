@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.wicket.RequestCycle;
 import org.eclipse.dltk.rhino.dbgp.CommandHandlerThread;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger.ITerminationListener;
@@ -40,7 +39,6 @@ import com.servoy.j2db.ClientState;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IDebugClient;
 import com.servoy.j2db.IServiceProvider;
-import com.servoy.j2db.IWebClientApplication;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.IScriptProvider;
@@ -91,10 +89,6 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 					// only allow the event threads (AWT and web client request thread) to debug.
 					boolean isDispatchThread = application.isEventDispatchThread() &&
 						!(Thread.currentThread() instanceof ServoyDebugger || Thread.currentThread() instanceof CommandHandlerThread);
-					if (isDispatchThread && application instanceof IWebClientApplication)
-					{
-						isDispatchThread = RequestCycle.get() != null; // for web client test extra if this is a Request thread.
-					}
 					if (isDispatchThread)
 					{
 						cx.setApplicationClassLoader(application.getPluginManager().getClassLoader(), false);

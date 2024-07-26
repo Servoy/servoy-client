@@ -25,25 +25,18 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import javax.swing.border.Border;
 import javax.swing.text.Document;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.markup.MarkupStream;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 
 import com.servoy.base.util.ITagResolver;
-import com.servoy.j2db.FormManager;
 import com.servoy.j2db.IApplication;
-import com.servoy.j2db.IMainContainer;
 import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.component.ComponentFormat;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
-import com.servoy.j2db.server.headlessclient.IDesignModeListener;
-import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -51,7 +44,6 @@ import com.servoy.j2db.ui.IFormattingComponent;
 import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IStylePropertyChanges;
-import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.ISupportSimulateBounds;
 import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportWebBounds;
@@ -65,12 +57,12 @@ import com.servoy.j2db.util.PersistHelper;
 /**
  * Represents a component based on a text field to which it adds more (sub)components for added functionality.
  * For example calendar, spinner.
- * 
+ *
  * @author jcompagner
  */
-public abstract class WebDataCompositeTextField extends WebMarkupContainer implements IFieldComponent, IDisplayData, IDelegate, ISupportWebBounds,
-	IRightClickListener, IProviderStylePropertyChanges, ISupplyFocusChildren<Component>, IFormattingComponent, IDesignModeListener,
-	ISupportSimulateBoundsProvider, ISupportOnRender
+public abstract class WebDataCompositeTextField extends Component implements IFieldComponent, IDisplayData, IDelegate, ISupportWebBounds,
+	IProviderStylePropertyChanges, ISupplyFocusChildren<Component>, IFormattingComponent,
+	ISupportSimulateBoundsProvider
 {
 	private static final long serialVersionUID = 1L;
 
@@ -84,7 +76,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 	private Insets margin;
 	private final AbstractRuntimeField<IFieldComponent> scriptable;
 
-	private boolean designMode = false;
+	private final boolean designMode = false;
 
 	public WebDataCompositeTextField(IApplication application, AbstractRuntimeField<IFieldComponent> scriptable, String id)
 	{
@@ -92,8 +84,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 		this.application = application;
 		this.scriptable = scriptable;
 
-		RuntimeDataField fieldScriptable = new RuntimeDataField(new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE,
-			TemplateGenerator.DEFAULT_FIELD_PADDING), application);
+		RuntimeDataField fieldScriptable = new RuntimeDataField(new ChangesRecorder(), application);
 		field = createTextField(fieldScriptable);
 		fieldScriptable.setComponent(field, null);
 
@@ -105,10 +96,6 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 		// each time that component is rendered, we must make sure that we render the whole container;
 		// otherwise, each independent render of the field component will add one more unwanted tags to the composite field markup
 		((ChangesRecorder)scriptable.getChangesRecorder()).setAdditionalChangesRecorder(field.getStylePropertyChanges());
-		setOutputMarkupPlaceholderTag(true);
-
-		add(StyleAttributeModifierModel.INSTANCE);
-		add(TooltipAttributeModifier.INSTANCE);
 	}
 
 	protected WebDataField createTextField(RuntimeDataField fieldScriptable)
@@ -126,27 +113,9 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 		return scriptable;
 	}
 
-	protected boolean shouldShowExtraComponents()
-	{
-		return isEnabledInHierarchy() && showExtraComponents && !designMode;
-	}
-
 	public Component[] getFocusChildren()
 	{
 		return new Component[] { field };
-	}
-
-	@Override
-	public Locale getLocale()
-	{
-		return application.getLocale();
-	}
-
-	@Override
-	protected void onRender(MarkupStream markupStream)
-	{
-		super.onRender(markupStream);
-		getStylePropertyChanges().setRendered();
 	}
 
 	public IStylePropertyChanges getStylePropertyChanges()
@@ -241,7 +210,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 
 	public Object getValueObject()
 	{
-		return field.getValue();
+		return null;
 	}
 
 	public boolean needEditListener()
@@ -299,6 +268,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 		if (field != null) field.setSelectOnEnter(b);
 	}
 
+	@Override
 	public void setCursor(Cursor cursor)
 	{
 		// nothing here yet
@@ -360,6 +330,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 	}
 
 
+	@Override
 	public void setName(String n)
 	{
 		name = n;
@@ -368,6 +339,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 
 	private String name;
 
+	@Override
 	public String getName()
 	{
 		return name;
@@ -379,11 +351,13 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 	 */
 	private Border border;
 
+	@Override
 	public void setBorder(Border border)
 	{
 		this.border = border;
 	}
 
+	@Override
 	public Border getBorder()
 	{
 		return border;
@@ -393,6 +367,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 	/*
 	 * opaque---------------------------------------------------
 	 */
+	@Override
 	public void setOpaque(boolean opaque)
 	{
 		this.opaque = opaque;
@@ -400,6 +375,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 
 	private boolean opaque;
 
+	@Override
 	public boolean isOpaque()
 	{
 		return opaque;
@@ -423,11 +399,13 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 	 * tooltip---------------------------------------------------
 	 */
 
+	@Override
 	public void setToolTipText(String tip)
 	{
 		field.setToolTipText(tip);
 	}
 
+	@Override
 	public String getToolTipText()
 	{
 		return field.getToolTipText();
@@ -438,11 +416,13 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 	 */
 	private Font font;
 
+	@Override
 	public Font getFont()
 	{
 		return font;
 	}
 
+	@Override
 	public void setFont(Font f)
 	{
 		font = f;
@@ -454,11 +434,13 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 
 	private Color background;
 
+	@Override
 	public void setBackground(Color cbg)
 	{
 		this.background = cbg;
 	}
 
+	@Override
 	public Color getBackground()
 	{
 		return background;
@@ -469,6 +451,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 
 	private ArrayList<ILabel> labels;
 
+	@Override
 	public void setForeground(Color cfg)
 	{
 		this.foreground = cfg;
@@ -478,6 +461,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 		}
 	}
 
+	@Override
 	public Color getForeground()
 	{
 		return foreground;
@@ -486,6 +470,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 	/*
 	 * visible---------------------------------------------------
 	 */
+	@Override
 	public void setComponentVisible(boolean visible)
 	{
 		if (viewable || !visible)
@@ -493,9 +478,8 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 			setVisible(visible);
 			if (labels != null)
 			{
-				for (int i = 0; i < labels.size(); i++)
+				for (ILabel label : labels)
 				{
-					ILabel label = labels.get(i);
 					label.setComponentVisible(visible);
 				}
 			}
@@ -513,6 +497,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 		return labels;
 	}
 
+	@Override
 	public void setComponentEnabled(final boolean b)
 	{
 		if (accessible || !b)
@@ -522,9 +507,8 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 			getStylePropertyChanges().setChanged();
 			if (labels != null)
 			{
-				for (int i = 0; i < labels.size(); i++)
+				for (ILabel label : labels)
 				{
-					ILabel label = labels.get(i);
 					label.setComponentEnabled(b);
 				}
 			}
@@ -567,11 +551,13 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 		return getLocation().y;
 	}
 
+	@Override
 	public void setLocation(Point location)
 	{
 		this.location = location;
 	}
 
+	@Override
 	public Point getLocation()
 	{
 		return location;
@@ -582,6 +568,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 	 */
 	private Dimension size = new Dimension(0, 0);
 
+	@Override
 	public Dimension getSize()
 	{
 		return size;
@@ -599,6 +586,7 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 	}
 
 
+	@Override
 	public void setSize(Dimension size)
 	{
 		this.size = size;
@@ -607,38 +595,6 @@ public abstract class WebDataCompositeTextField extends WebMarkupContainer imple
 	public void setRightClickCommand(String rightClickCmd, Object[] args)
 	{
 		field.setRightClickCommand(rightClickCmd, args);
-	}
-
-	public void onRightClick()
-	{
-		field.onRightClick();
-	}
-
-	public void setDesignMode(boolean mode)
-	{
-		designMode = mode;
-	}
-
-	@Override
-	protected void onBeforeRender()
-	{
-		super.onBeforeRender();
-		fireOnRender(false);
-	}
-
-	public void fireOnRender(boolean force)
-	{
-		if (scriptable != null)
-		{
-			boolean isFocused = false;
-			IMainContainer currentContainer = ((FormManager)application.getFormManager()).getCurrentContainer();
-			if (currentContainer instanceof MainPage)
-			{
-				isFocused = field.equals(((MainPage)currentContainer).getFocusedComponent());
-			}
-			if (force) scriptable.getRenderEventExecutor().setRenderStateChanged();
-			scriptable.getRenderEventExecutor().fireOnRender(isFocused);
-		}
 	}
 
 	public ISupportSimulateBounds getBoundsProvider()

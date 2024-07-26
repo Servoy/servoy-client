@@ -38,6 +38,7 @@ import org.json.JSONException;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
+import org.sablo.IllegalChangeFromClientException;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.property.IBrowserConverterContext;
@@ -75,7 +76,6 @@ import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptVariable;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
-import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IServoyDataConverterContext;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetDataAdapterList;
@@ -299,7 +299,6 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		FormatTypeSabloValue formatSabloValue = null;
 		if (formatPdName != null)
 		{
-			INGApplication application = servoyDataConverterContext.getApplication();
 			formatSabloValue = (FormatTypeSabloValue)webObjectContext.getProperty(formatPdName);
 			if (formatSabloValue != null)
 			{
@@ -319,7 +318,8 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 			typeOfDP = NGUtils.getDataProviderPropertyDescription(dataProviderID, servoyDataConverterContext.getApplication(),
 				servoyDataConverterContext.getForm().getForm(), record != null ? record.getParentFoundSet().getTable() : null,
 				getDataProviderConfig().hasParseHtml(),
-				formatSabloValue != null ? formatSabloValue.getComponentFormat().parsedFormat.useLocalDateTime() : false);
+				(formatSabloValue != null && formatSabloValue.getComponentFormat() != null)
+					? formatSabloValue.getComponentFormat().parsedFormat.useLocalDateTime() : false);
 		}
 		if (fieldFormat != null && record instanceof FindState)
 		{
@@ -630,6 +630,31 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 		}
 	}
 
+	private void checkIfModifiable()
+	{
+		if (webObjectContext == null) return;
+		Collection<PropertyDescription> properties = webObjectContext.getProperties(TypesRegistry.getType(ModifiablePropertyType.TYPE_NAME));
+
+		for (PropertyDescription modifiable : properties)
+		{
+			// see whether format if "for" this property (dataprovider)
+			Object config = modifiable.getConfig();
+			if (dpPD.getName().equals(config))
+			{
+				// it is for our property
+				Object property = webObjectContext.getProperty(modifiable.getName());
+				if (property == null)
+				{
+					throw new IllegalChangeFromClientException(modifiable.getName(),
+						"Property '" + dpPD.getName() + "' is blocked because of the modifiable property '" + modifiable.getName() +
+							"' that blocks it because it has no value",
+						webObjectContext.getUnderlyingWebObject().getName(), dpPD.getName());
+				}
+			}
+		}
+		return;
+	}
+
 	private void computeShouldResolveValuelistConfig()
 	{
 		shouldResolveFromValuelistWithName = null;
@@ -795,6 +820,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 
 	public void browserUpdateReceived(Object newJSONValue, IBrowserConverterContext dataConverterContext)
 	{
+		checkIfModifiable();
 		Object oldUIValue = uiValue;
 
 		ValueReference<Boolean> serverSideValueIsNotTheSameAsClient = new ValueReference<>(Boolean.FALSE);

@@ -352,7 +352,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 					}
 					chainedRelatedFoundsetSelectionMonitor.update(newFoundset, record, foundsetSelector);
 				}
-				else
+				else if (parentDAL == null || parentDAL.getApplication().getFlattenedSolution().getRelationSequence(foundsetSelector) == null)
 				{
 					// if it is not a related foundset it must be a shared/named foundset
 					try

@@ -39,7 +39,6 @@ import com.servoy.j2db.server.shared.IApplicationServerSingleton;
 import com.servoy.j2db.server.shared.IBatchManager;
 import com.servoy.j2db.server.shared.IServerStatus;
 import com.servoy.j2db.server.shared.IUserManager;
-import com.servoy.j2db.server.shared.IWebClientSessionFactory;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.xmlxport.IXMLExportUserChannel;
 import com.servoy.j2db.util.xmlxport.IXMLExporter;
@@ -133,13 +132,6 @@ final class TestApplicationServer implements IApplicationServerSingleton
 	{
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	@Override
-	public IWebClientSessionFactory getWebClientSessionFactory()
-	{
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

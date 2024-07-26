@@ -72,8 +72,6 @@ public interface IApplicationServerSingleton
 
 	boolean isDeveloperStartup();
 
-	IWebClientSessionFactory getWebClientSessionFactory();
-
 	Map<String, HttpServlet> getWebServices();
 
 	int getWebServerPort();

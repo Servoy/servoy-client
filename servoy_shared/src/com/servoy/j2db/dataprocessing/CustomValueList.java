@@ -244,7 +244,7 @@ public class CustomValueList extends OptimizedDefaultListModel implements IValue
 				{
 					super.addElement(""); //$NON-NLS-1$
 				}
-				StringTokenizer tk = new StringTokenizer(values.trim(), "\r\n"); //$NON-NLS-1$
+				StringTokenizer tk = new StringTokenizer(values, "\r\n"); //$NON-NLS-1$
 				while (tk.hasMoreTokens())
 				{
 					String line = tk.nextToken();

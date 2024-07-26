@@ -57,7 +57,7 @@ public final class QueryColumn extends BaseQueryColumn implements IWriteReplaceE
 	}
 
 	@Override
-	public IQuerySelectValue asAlias(String newAlias)
+	public QueryColumn asAlias(String newAlias)
 	{
 		return new QueryColumn(table, id, name, newAlias, ColumnType.getInstance(columnType.getSqlType(), columnType.getLength(), columnType.getScale()),
 			nativeTypename, getFlags(), identity);

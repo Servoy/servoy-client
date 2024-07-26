@@ -20,7 +20,7 @@ package com.servoy.j2db.server.headlessclient.dataui;
 import java.awt.Rectangle;
 import java.util.List;
 
-import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.Component;
 
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IView;
@@ -29,10 +29,10 @@ import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 
 /**
  * Web version of RecordView showing one record at the time
- * 
+ *
  * @author jcompagner
  */
-public class WebRecordView extends WebMarkupContainer implements IView
+public class WebRecordView extends Component implements IView
 {
 	private static final long serialVersionUID = 1L;
 	private IApplication application;
@@ -58,7 +58,7 @@ public class WebRecordView extends WebMarkupContainer implements IView
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IView#start(com.servoy.j2db.IApplication)
 	 */
 	public void start(IApplication app)
@@ -69,7 +69,7 @@ public class WebRecordView extends WebMarkupContainer implements IView
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IView#stop()
 	 */
 	public void stop()
@@ -79,7 +79,7 @@ public class WebRecordView extends WebMarkupContainer implements IView
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IView#editCellAt(int)
 	 */
 	public boolean editCellAt(int i)
@@ -90,30 +90,18 @@ public class WebRecordView extends WebMarkupContainer implements IView
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IView#stopUIEditing()
 	 */
 	public boolean stopUIEditing(final boolean looseFocus)
 	{
-		Object hasInvalidValue = visitChildren(WebDataRenderer.class, new IVisitor<WebDataRenderer>()
-		{
-			public Object component(WebDataRenderer component)
-			{
-				if (!component.stopUIEditing(looseFocus))
-				{
-					return Boolean.TRUE;
-				}
-				return IVisitor.CONTINUE_TRAVERSAL;
-			}
-		});
-
-		return hasInvalidValue != Boolean.TRUE;
+		return true;
 	}
 
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IView#isEditing()
 	 */
 	public boolean isEditing()
@@ -124,7 +112,7 @@ public class WebRecordView extends WebMarkupContainer implements IView
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IView#destroy()
 	 */
 	public void destroy()
@@ -135,7 +123,7 @@ public class WebRecordView extends WebMarkupContainer implements IView
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IView#setRowBGColorCalculation(java.lang.String)
 	 */
 	public void setRowBGColorScript(String bgColorCalc, List<Object> args)
@@ -146,7 +134,7 @@ public class WebRecordView extends WebMarkupContainer implements IView
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IView#getRowBGColorCalculation()
 	 */
 	public String getRowBGColorScript()
@@ -161,7 +149,7 @@ public class WebRecordView extends WebMarkupContainer implements IView
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.IView#requestFocus()
 	 */
 	public void requestFocus()

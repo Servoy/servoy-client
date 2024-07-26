@@ -27,21 +27,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import javax.swing.ScrollPaneConstants;
 import javax.swing.border.Border;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.text.Document;
 
-import org.apache.wicket.Page;
-import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.MarkupStream;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.RadioChoice;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.util.convert.IConverter;
-import org.apache.wicket.util.value.AttributeMap;
-import org.apache.wicket.util.value.IValueMap;
+import org.apache.wicket.Component;
 
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.FormManager;
@@ -56,8 +47,6 @@ import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.IValueList;
 import com.servoy.j2db.dataprocessing.SortColumn;
-import com.servoy.j2db.persistence.IColumnTypes;
-import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -66,15 +55,12 @@ import com.servoy.j2db.ui.ILabel;
 import com.servoy.j2db.ui.IProviderStylePropertyChanges;
 import com.servoy.j2db.ui.IScrollPane;
 import com.servoy.j2db.ui.IStylePropertyChanges;
-import com.servoy.j2db.ui.ISupportOnRender;
 import com.servoy.j2db.ui.ISupportScroll;
 import com.servoy.j2db.ui.ISupportSimulateBounds;
 import com.servoy.j2db.ui.ISupportSimulateBoundsProvider;
 import com.servoy.j2db.ui.ISupportValueList;
 import com.servoy.j2db.ui.ISupportWebBounds;
 import com.servoy.j2db.ui.scripting.AbstractRuntimeScrollableValuelistComponent;
-import com.servoy.j2db.util.RoundHalfUpDecimalFormat;
-import com.servoy.j2db.util.StateFullSimpleDateFormat;
 import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
@@ -84,9 +70,9 @@ import com.servoy.j2db.util.Utils;
  *
  * @author jcompagner
  */
-public class WebDataRadioChoice extends RadioChoice
-	implements IDisplayData, IFieldComponent, IDisplayRelatedData, IProviderStylePropertyChanges, IScrollPane, ISupportWebBounds, IRightClickListener,
-	IOwnTabSequenceHandler, ISupportValueList, IFormattingComponent, ISupportSimulateBoundsProvider, ISupportOnRender, ISupportScroll
+public class WebDataRadioChoice extends Component
+	implements IDisplayData, IFieldComponent, IDisplayRelatedData, IProviderStylePropertyChanges, IScrollPane, ISupportWebBounds,
+	IOwnTabSequenceHandler, ISupportValueList, IFormattingComponent, ISupportSimulateBoundsProvider, ISupportScroll
 {
 	private static final long serialVersionUID = 1L;
 	private static final String NO_COLOR = "NO_COLOR"; //$NON-NLS-1$
@@ -106,7 +92,6 @@ public class WebDataRadioChoice extends RadioChoice
 	private int tabIndex = -1;
 	private int vScrollPolicy;
 	private final AbstractRuntimeScrollableValuelistComponent<IFieldComponent, ? > scriptable;
-	private FormatConverter converter;
 
 	public WebDataRadioChoice(IApplication application, AbstractRuntimeScrollableValuelistComponent<IFieldComponent, ? > scriptable, String id, IValueList vl)
 	{
@@ -115,7 +100,6 @@ public class WebDataRadioChoice extends RadioChoice
 		this.vl = vl;
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		eventExecutor = new WebEventExecutor(this, useAJAX);
-		setOutputMarkupPlaceholderTag(true);
 
 		list = new WebComboModelListModelWrapper(vl, true, false);
 		list.addListDataListener(new ListDataListener()
@@ -138,44 +122,9 @@ public class WebDataRadioChoice extends RadioChoice
 				getStylePropertyChanges().setChanged();
 			}
 		});
-		setChoices(list);
-
-		setChoiceRenderer(new WebChoiceRenderer(this, list)); // null because this component does not use a converter (for date/number formats)
-
-		add(StyleAttributeModifierModel.INSTANCE);
-		add(TooltipAttributeModifier.INSTANCE);
-
-		updatePrefix();
-
 		this.scriptable = scriptable;
 		scriptable.setList(list);
-		add(new ScrollBehavior(this));
 
-	}
-
-	@Override
-	public IConverter getConverter(Class< ? > cls)
-	{
-		if (converter != null) return converter;
-
-		ComponentFormat cf = getScriptObject().getComponentFormat();
-		switch (cf.uiType)
-		{
-			case IColumnTypes.DATETIME :
-				converter = new FormatConverter(this, eventExecutor, new StateFullSimpleDateFormat(cf.parsedFormat.getDisplayFormat(), /* getClientTimeZone() */
-					null, application.getLocale(), true), cf.parsedFormat);
-				break;
-
-			case IColumnTypes.INTEGER :
-			case IColumnTypes.NUMBER :
-				converter = new FormatConverter(this, eventExecutor, new RoundHalfUpDecimalFormat(cf.parsedFormat.getDisplayFormat(), application.getLocale()),
-					cf.parsedFormat);
-				break;
-
-			default :
-				return super.getConverter(cls);
-		}
-		return converter;
 	}
 
 	/*
@@ -183,7 +132,6 @@ public class WebDataRadioChoice extends RadioChoice
 	 */
 	public void installFormat(ComponentFormat componentFormat)
 	{
-		converter = null;
 	}
 
 	public final AbstractRuntimeScrollableValuelistComponent<IFieldComponent, ? > getScriptObject()
@@ -195,15 +143,6 @@ public class WebDataRadioChoice extends RadioChoice
 	public IStylePropertyChanges getStylePropertyChanges()
 	{
 		return scriptable.getChangesRecorder();
-	}
-
-	/**
-	 * @see wicket.markup.html.form.AbstractSingleSelectChoice#getDefaultChoice(java.lang.Object)
-	 */
-	@Override
-	protected CharSequence getDefaultChoice(Object selected)
-	{
-		return ""; //$NON-NLS-1$
 	}
 
 	/*
@@ -270,8 +209,6 @@ public class WebDataRadioChoice extends RadioChoice
 			{
 				public void run()
 				{
-					WebEventExecutor.setSelectedIndex(WebDataRadioChoice.this, null, IEventExecutor.MODIFIERS_UNSPECIFIED);
-
 					eventExecutor.fireChangeCommand(previousValidValue == null ? oldVal : previousValidValue, newVal, false, WebDataRadioChoice.this);
 
 					//if change cmd is not succeeded also don't call action cmd?
@@ -339,81 +276,6 @@ public class WebDataRadioChoice extends RadioChoice
 		eventExecutor.setSelectOnEnter(b);
 	}
 
-	//_____________________________________________________________
-
-	@Override
-	protected void onRender(final MarkupStream markupStream)
-	{
-		super.onRender(markupStream);
-		getStylePropertyChanges().setRendered();
-		IModel< ? > model = getInnermostModel();
-		if (model instanceof RecordItemModel)
-		{
-			((RecordItemModel)model).updateRenderedValue(this);
-		}
-	}
-
-	@Override
-	protected void onComponentTag(ComponentTag tag)
-	{
-		super.onComponentTag(tag);
-
-		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
-		if (useAJAX)
-		{
-			Object oe = scriptable.getClientProperty("ajax.enabled"); //$NON-NLS-1$
-			if (oe != null) useAJAX = Utils.getAsBoolean(oe);
-		}
-		if (!useAJAX)
-		{
-			Form< ? > f = getForm();
-			if (f != null)
-			{
-				if (eventExecutor.hasRightClickCmd())
-				{
-					CharSequence urlr = urlFor(IRightClickListener.INTERFACE);
-					// We need a "return false;" so that the context menu is not displayed in the browser.
-					tag.put("oncontextmenu", f.getJsForInterfaceUrl(urlr) + " return false;"); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-			}
-		}
-	}
-
-	/**
-	 * @see org.apache.wicket.markup.html.form.FormComponent#updateModel()
-	 */
-	@Override
-	public void updateModel()
-	{
-		boolean b = getStylePropertyChanges().isChanged();
-		super.updateModel();
-		// if before updating the model the changed flag was false make sure it stays that way.
-		if (!b)
-		{
-			getStylePropertyChanges().setRendered();
-		}
-	}
-
-	/**
-	 * @see wicket.markup.html.form.FormComponent#getInputName()
-	 */
-	@Override
-	public String getInputName()
-	{
-		if (inputId == null)
-		{
-			Page page = findPage();
-			if (page instanceof MainPage)
-			{
-				inputId = ((MainPage)page).nextInputNameId();
-			}
-			else
-			{
-				return super.getInputName();
-			}
-		}
-		return inputId;
-	}
 
 	/**
 	 * @see com.servoy.j2db.ui.IFieldComponent#setNeedEntireState(boolean)
@@ -466,6 +328,7 @@ public class WebDataRadioChoice extends RadioChoice
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#setCursor(java.awt.Cursor)
 	 */
+	@Override
 	public void setCursor(Cursor cursor)
 	{
 //		this.cursor = cursor;
@@ -473,7 +336,7 @@ public class WebDataRadioChoice extends RadioChoice
 
 	public Object getValueObject()
 	{
-		return getDefaultModelObject();
+		return null;
 	}
 
 	public void setValueObject(Object value)
@@ -503,20 +366,6 @@ public class WebDataRadioChoice extends RadioChoice
 		}
 	}
 
-	@Override
-	public String getModelValue()
-	{
-		Object value = getModelObject();
-		if (value != null)
-		{
-			return super.getModelValue();
-		}
-		else
-		{
-			int index = getChoices().indexOf(null);
-			return getChoiceRenderer().getIdValue(null, index);
-		}
-	}
 
 	/**
 	 * @see com.servoy.j2db.dataprocessing.IDisplayData#needEditListener()
@@ -534,7 +383,7 @@ public class WebDataRadioChoice extends RadioChoice
 	@Override
 	public String toString()
 	{
-		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$
+		return scriptable.toString("value:" + getValueObject()); //$NON-NLS-1$
 	}
 
 
@@ -618,21 +467,6 @@ public class WebDataRadioChoice extends RadioChoice
 	public void setVerticalScrollBarPolicy(int policy)
 	{
 		this.vScrollPolicy = policy;
-		updatePrefix();
-	}
-
-	private void updatePrefix()
-	{
-		StringBuffer prefix = new StringBuffer();
-		prefix.append("<div onfocus='if (parentNode.onfocus)parentNode.onfocus()' onblur='if (parentNode.onblur)parentNode.onblur()'"); //$NON-NLS-1$
-		prefix.append(" tabindex='").append(tabIndex).append("'"); //$NON-NLS-1$//$NON-NLS-2$
-		prefix.append(" class='"); //$NON-NLS-1$
-		if (vScrollPolicy == ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER) prefix.append("inl"); //$NON-NLS-1$
-		else prefix.append("blk"); //$NON-NLS-1$
-		prefix.append("'"); //$NON-NLS-1$
-		prefix.append(">"); //$NON-NLS-1$
-		setPrefix(prefix.toString());
-		setSuffix("</div>"); //$NON-NLS-1$
 	}
 
 	public void requestFocusToComponent()
@@ -721,6 +555,7 @@ public class WebDataRadioChoice extends RadioChoice
 		return dataProviderID;
 	}
 
+	@Override
 	public void setName(String n)
 	{
 		name = n;
@@ -728,6 +563,7 @@ public class WebDataRadioChoice extends RadioChoice
 
 	private String name;
 
+	@Override
 	public String getName()
 	{
 		return name;
@@ -739,11 +575,13 @@ public class WebDataRadioChoice extends RadioChoice
 	 */
 	private Border border;
 
+	@Override
 	public void setBorder(Border border)
 	{
 		this.border = border;
 	}
 
+	@Override
 	public Border getBorder()
 	{
 		return border;
@@ -753,6 +591,7 @@ public class WebDataRadioChoice extends RadioChoice
 	/*
 	 * opaque---------------------------------------------------
 	 */
+	@Override
 	public void setOpaque(boolean opaque)
 	{
 		this.opaque = opaque;
@@ -760,6 +599,7 @@ public class WebDataRadioChoice extends RadioChoice
 
 	private boolean opaque;
 
+	@Override
 	public boolean isOpaque()
 	{
 		return opaque;
@@ -783,6 +623,7 @@ public class WebDataRadioChoice extends RadioChoice
 
 	private String tooltip;
 
+	@Override
 	public void setToolTipText(String tooltip)
 	{
 		if (Utils.stringIsEmpty(tooltip))
@@ -805,18 +646,16 @@ public class WebDataRadioChoice extends RadioChoice
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#getToolTipText()
 	 */
+	@Override
 	public String getToolTipText()
 	{
-		if (tooltip != null && getInnermostModel() instanceof RecordItemModel)
-		{
-			return Text.processTags(tooltip, resolver);
-		}
 		return tooltip;
 	}
 
 	/*
 	 * font---------------------------------------------------
 	 */
+	@Override
 	public void setFont(Font font)
 	{
 		this.font = font;
@@ -824,6 +663,7 @@ public class WebDataRadioChoice extends RadioChoice
 
 	private Font font;
 
+	@Override
 	public Font getFont()
 	{
 		return font;
@@ -832,11 +672,13 @@ public class WebDataRadioChoice extends RadioChoice
 
 	private Color background;
 
+	@Override
 	public void setBackground(Color cbg)
 	{
 		this.background = cbg;
 	}
 
+	@Override
 	public Color getBackground()
 	{
 		return background;
@@ -847,11 +689,13 @@ public class WebDataRadioChoice extends RadioChoice
 
 	private List<ILabel> labels;
 
+	@Override
 	public void setForeground(Color cfg)
 	{
 		this.foreground = cfg;
 	}
 
+	@Override
 	public Color getForeground()
 	{
 		return foreground;
@@ -860,6 +704,7 @@ public class WebDataRadioChoice extends RadioChoice
 	/*
 	 * visible---------------------------------------------------
 	 */
+	@Override
 	public void setComponentVisible(boolean visible)
 	{
 		if (viewable || !visible)
@@ -867,9 +712,8 @@ public class WebDataRadioChoice extends RadioChoice
 			setVisible(visible);
 			if (labels != null)
 			{
-				for (int i = 0; i < labels.size(); i++)
+				for (ILabel label : labels)
 				{
-					ILabel label = labels.get(i);
 					label.setComponentVisible(visible);
 				}
 			}
@@ -887,6 +731,7 @@ public class WebDataRadioChoice extends RadioChoice
 		return labels;
 	}
 
+	@Override
 	public void setComponentEnabled(final boolean b)
 	{
 		if (accessible || !b)
@@ -895,9 +740,8 @@ public class WebDataRadioChoice extends RadioChoice
 			getStylePropertyChanges().setChanged();
 			if (labels != null)
 			{
-				for (int i = 0; i < labels.size(); i++)
+				for (ILabel label : labels)
 				{
-					ILabel label = labels.get(i);
 					label.setComponentEnabled(b);
 				}
 			}
@@ -940,11 +784,13 @@ public class WebDataRadioChoice extends RadioChoice
 		return getLocation().y;
 	}
 
+	@Override
 	public void setLocation(Point location)
 	{
 		this.location = location;
 	}
 
+	@Override
 	public Point getLocation()
 	{
 		return location;
@@ -955,6 +801,7 @@ public class WebDataRadioChoice extends RadioChoice
 	 */
 	private Dimension size = new Dimension(0, 0);
 
+	@Override
 	public Dimension getSize()
 	{
 		return size;
@@ -975,6 +822,7 @@ public class WebDataRadioChoice extends RadioChoice
 	}
 
 
+	@Override
 	public void setSize(Dimension size)
 	{
 		this.size = size;
@@ -985,28 +833,12 @@ public class WebDataRadioChoice extends RadioChoice
 		eventExecutor.setRightClickCmd(rightClickCmd, args);
 	}
 
-	public void onRightClick()
-	{
-		Form f = getForm();
-		if (f != null)
-		{
-			// If form validation fails, we don't execute the method.
-			if (f.process()) eventExecutor.onEvent(JSEvent.EventType.rightClick, null, this, IEventExecutor.MODIFIERS_UNSPECIFIED);
-		}
-	}
 
 	public void handleOwnTabIndex(int newTabIndex)
 	{
 		this.tabIndex = newTabIndex;
-		updatePrefix();
 	}
 
-	@Override
-	protected void onBeforeRender()
-	{
-		super.onBeforeRender();
-		fireOnRender(false);
-	}
 
 	public void fireOnRender(boolean force)
 	{
@@ -1023,23 +855,10 @@ public class WebDataRadioChoice extends RadioChoice
 		}
 	}
 
-	@Override
-	protected boolean isDisabled(Object object, int index, String selected)
-	{
-		return isReadOnly();
-	}
 
 	public ISupportSimulateBounds getBoundsProvider()
 	{
 		return findParent(ISupportSimulateBounds.class);
-	}
-
-	@Override
-	protected IValueMap getAdditionalAttributes(int index, Object choice)
-	{
-		AttributeMap attributes = new AttributeMap();
-		attributes.add("onclick", "parentNode.focus()"); //$NON-NLS-1$ //$NON-NLS-2$
-		return attributes;
 	}
 
 	private final Point scroll = new Point(0, 0);

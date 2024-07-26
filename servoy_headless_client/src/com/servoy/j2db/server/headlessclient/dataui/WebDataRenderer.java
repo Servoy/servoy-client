@@ -24,23 +24,14 @@ import java.awt.Point;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
 import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxCallDecorator;
-import org.apache.wicket.ajax.calldecorator.AjaxCallDecorator;
-import org.apache.wicket.markup.MarkupStream;
-import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.mozilla.javascript.Undefined;
 
-import com.servoy.base.scripting.api.IJSEvent.EventType;
 import com.servoy.j2db.ControllerUndoManager;
 import com.servoy.j2db.FormController;
 import com.servoy.j2db.IApplication;
@@ -51,14 +42,11 @@ import com.servoy.j2db.dataprocessing.IDisplay;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
-import com.servoy.j2db.dataprocessing.Record;
 import com.servoy.j2db.dnd.DRAGNDROP;
 import com.servoy.j2db.dnd.JSDNDEvent;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.IPersist;
-import com.servoy.j2db.server.headlessclient.WebForm;
-import com.servoy.j2db.server.headlessclient.dnd.DraggableBehavior;
 import com.servoy.j2db.ui.DataRendererOnRenderWrapper;
 import com.servoy.j2db.ui.IComponent;
 import com.servoy.j2db.ui.IDataRenderer;
@@ -67,7 +55,6 @@ import com.servoy.j2db.ui.IStylePropertyChanges;
 import com.servoy.j2db.ui.ISupportOnRenderCallback;
 import com.servoy.j2db.ui.ISupportRowStyling;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
-import com.servoy.j2db.util.ComponentFactoryHelper;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.IStyleRule;
@@ -77,10 +64,10 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * The web implementation of the {@link IDataRenderer}
- * 
+ *
  * @author jcompagner
  */
-public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer, IProviderStylePropertyChanges
+public class WebDataRenderer extends Component implements IDataRenderer, IProviderStylePropertyChanges
 {
 	private static final long serialVersionUID = 1L;
 
@@ -98,7 +85,7 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 	private DataAdapterList dataAdapterList;
 //	private final Set globalFields = new HashSet();
 	private HashMap<IPersist, IDisplay> fieldComponents = new HashMap<IPersist, IDisplay>();
-	private final ChangesRecorder jsChangeRecorder = new ChangesRecorder(TemplateGenerator.DEFAULT_FIELD_BORDER_SIZE, TemplateGenerator.DEFAULT_FIELD_PADDING);
+	private final ChangesRecorder jsChangeRecorder = new ChangesRecorder();
 
 	private IView parentView;
 	private final String formPartName;
@@ -113,68 +100,8 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 	{
 		super(id);
 //		application = app;
-		add(StyleAttributeModifierModel.INSTANCE);
-		add(TooltipAttributeModifier.INSTANCE);
-		setOutputMarkupPlaceholderTag(true);
 		this.formPartName = formPartName;
 		dataRendererOnRenderWrapper = new DataRendererOnRenderWrapper(this);
-		add(new StyleAppendingModifier(new Model<String>()
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public String getObject()
-			{
-				WebForm container = findParent(WebForm.class);
-				if (container != null && container.getBorder() instanceof TitledBorder)
-				{
-					int offset = ComponentFactoryHelper.getTitledBorderHeight(container.getBorder());
-					return "top: " + offset + "px;";
-				}
-				return ""; //$NON-NLS-1$
-			}
-		})
-		{
-			@Override
-			public boolean isEnabled(Component component)
-			{
-				if (WebDataRenderer.this.getParent().get(0) != WebDataRenderer.this) return false;
-				WebForm container = component.findParent(WebForm.class);
-				if (container != null && container.getBorder() instanceof TitledBorder)
-				{
-					return super.isEnabled(component);
-				}
-				return false;
-			}
-		});
-		add(new ServoyAjaxEventBehavior("onclick", null, true)
-		{
-			@Override
-			protected void onEvent(AjaxRequestTarget target)
-			{
-				if (app.getFoundSetManager().getEditRecordList().isEditing())
-				{
-					app.getFoundSetManager().getEditRecordList().stopEditing(false);
-					WebEventExecutor.generateResponse(target, getPage());
-				}
-			}
-
-			@Override
-			protected IAjaxCallDecorator getAjaxCallDecorator()
-			{
-				return new AjaxCallDecorator()
-				{
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public CharSequence decorateScript(CharSequence script)
-					{
-						return "if ((event.target || event.srcElement) == this){ " + script + " }"; //$NON-NLS-1$ 
-					}
-				};
-			}
-
-		});
 	}
 
 	public void setParentView(IView parentView)
@@ -201,10 +128,8 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 
 		//make it really fields only
 		HashMap<IPersist, IDisplay> f = new HashMap<IPersist, IDisplay>();
-		Iterator<Map.Entry<IPersist, IDisplay>> it = fieldComponents.entrySet().iterator();
-		while (it.hasNext())
+		for (Entry<IPersist, IDisplay> element : fieldComponents.entrySet())
 		{
-			Map.Entry<IPersist, IDisplay> element = it.next();
 			if (element.getValue() instanceof IDisplayData)
 			{
 //				String id = ((IDisplayData)element.getValue()).getDataProviderID();
@@ -246,17 +171,10 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 	/**
 	 * @see com.servoy.j2db.ui.IDataRenderer#setName(java.lang.String)
 	 */
+	@Override
 	public void setName(String name)
 	{
 		// ignore id can't be set in web
-	}
-
-	/**
-	 * @see com.servoy.j2db.ui.IComponent#getName()
-	 */
-	public String getName()
-	{
-		return getId();
 	}
 
 	public void destroy()
@@ -266,61 +184,63 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 			dataAdapterList.destroy();
 			dataAdapterList = null;
 		}
-		if (getRequestCycle() != null)
-		{
-			removeAll();
-			if (getParent() != null)
-			{
-				remove();
-			}
-		}
 	}
 
+	@Override
 	public void setComponentVisible(boolean visible)
 	{
 //		this.visible = visible;
 	}
 
+	@Override
 	public void setLocation(Point location)
 	{
 		this.location = location;
 	}
 
+	@Override
 	public void setSize(Dimension size)
 	{
 		this.size = size;
 	}
 
+	@Override
 	public void setForeground(Color foreground)
 	{
 		this.foreground = foreground;
 	}
 
+	@Override
 	public void setBackground(Color background)
 	{
 		this.background = background;
 	}
 
+	@Override
 	public void setFont(Font font)
 	{
 		this.font = font;
 	}
 
+	@Override
 	public void setBorder(Border border)
 	{
 		this.border = border;
 	}
 
+	@Override
 	public void setOpaque(boolean opaque)
 	{
 		this.opaque = opaque;
 	}
 
+	@Override
 	public void setCursor(Cursor cursor)
 	{
 //		this.cursor = cursor;
 	}
 
+	@Override
 	public void setToolTipText(String tooltiptext)
 	{
 		if (Utils.stringIsEmpty(tooltiptext))
@@ -336,17 +256,20 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#getToolTipText()
 	 */
+	@Override
 	public String getToolTipText()
 	{
 		return tooltiptext;
 	}
 
 
+	@Override
 	public Point getLocation()
 	{
 		return location;
 	}
 
+	@Override
 	public Dimension getSize()
 	{
 		return size;
@@ -363,11 +286,6 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 
 	public void refreshRecord(IRecordInternal record)
 	{
-		IModel< ? > model = getDefaultModel();
-		if (model != null)
-		{
-			model.detach();
-		}
 		if (dataAdapterList != null)
 		{
 			dataAdapterList.setRecord(record, true);
@@ -380,31 +298,37 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 		}
 	}
 
+	@Override
 	public Color getBackground()
 	{
 		return background;
 	}
 
+	@Override
 	public Border getBorder()
 	{
 		return border;
 	}
 
+	@Override
 	public Font getFont()
 	{
 		return font;
 	}
 
+	@Override
 	public Color getForeground()
 	{
 		return foreground;
 	}
 
+	@Override
 	public boolean isOpaque()
 	{
 		return opaque;
 	}
 
+	@Override
 	public void setComponentEnabled(boolean enabled)
 	{
 		setEnabled(enabled);
@@ -474,29 +398,6 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 	}
 
 
-	@Override
-	protected void onBeforeRender()
-	{
-		super.onBeforeRender();
-
-		if (getBgcolor() == null)
-		{
-			String parentViewBGColor = getParentViewBgColor();
-			if (parentViewBGColor != null)
-			{
-				setBgcolor(parentViewBGColor);
-			}
-		}
-		dataRendererOnRenderWrapper.getRenderEventExecutor().fireOnRender(false);
-	}
-
-	@Override
-	protected void onRender(final MarkupStream markupStream)
-	{
-		super.onRender(markupStream);
-		jsChangeRecorder.setRendered();
-	}
-
 	public IStylePropertyChanges getStylePropertyChanges()
 	{
 		String parentViewBackground = getParentViewBgColor();
@@ -530,7 +431,7 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 		if (parentView != null)
 		{
 			String rowBGColorCalculation = parentView.getRowBGColorScript();
-			IRecordInternal rec = (IRecordInternal)getDefaultModelObject();
+			IRecordInternal rec = null;
 			if (rec != null && rec.getRawData() != null)
 			{
 				IFoundSetInternal parentFoundSet = rec.getParentFoundSet();
@@ -546,7 +447,8 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 							rec,
 							rowBGColorCalculation,
 							Utils.arrayMerge(new Object[] { new Integer(recIndex), new Boolean(isSelected), null, null, Boolean.FALSE },
-								Utils.parseJSExpressions(parentView.getRowBGColorArgs())), null);
+								Utils.parseJSExpressions(parentView.getRowBGColorArgs())),
+							null);
 					}
 					else
 					{
@@ -556,8 +458,10 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 							bg_color = currentForm.executeFunction(
 								rowBGColorCalculation,
 								Utils.arrayMerge(
-									new Object[] { new Integer(parentFoundSet.getSelectedIndex()), new Boolean(isSelected), null, null, currentForm.getName(), rec, Boolean.FALSE },
-									Utils.parseJSExpressions(parentView.getRowBGColorArgs())), true, null, true, null);
+									new Object[] { new Integer(parentFoundSet.getSelectedIndex()), new Boolean(isSelected), null, null, currentForm
+										.getName(), rec, Boolean.FALSE },
+									Utils.parseJSExpressions(parentView.getRowBGColorArgs())),
+								true, null, true, null);
 						}
 						catch (Exception ex)
 						{
@@ -678,149 +582,6 @@ public class WebDataRenderer extends WebMarkupContainer implements IDataRenderer
 
 	private int yOffset;
 
-	public void initDragNDrop(FormController formController, int clientDesignYOffset)
-	{
-		this.yOffset = clientDesignYOffset;
-		Form form = formController.getForm();
-		if (form.getOnDragMethodID() > 0 || form.getOnDragEndMethodID() > 0 || form.getOnDragOverMethodID() > 0 || form.getOnDropMethodID() > 0)
-		{
-			this.dragNdropController = formController;
-			if (dragNdropController != null) addDragNDropBehavior();
-
-		}
-	}
-
-	public FormController getDragNDropController()
-	{
-		return dragNdropController;
-	}
-
-	private void addDragNDropBehavior()
-	{
-		DraggableBehavior dragBehavior = new DraggableBehavior()
-		{
-			private IComponent hoverComponent;
-			private boolean isHoverAcceptDrop;
-
-			@Override
-			protected void onDragEnd(String id, int x, int y, int m, AjaxRequestTarget ajaxRequestTarget)
-			{
-				if (getCurrentDragOperation() != DRAGNDROP.NONE)
-				{
-					JSDNDEvent event = WebDataRenderer.this.createScriptEvent(EventType.onDragEnd, getDragComponent(), null, m);
-					event.setData(getDragData());
-					event.setDataMimeType(getDragDataMimeType());
-					event.setDragResult(getDropResult() ? getCurrentDragOperation() : DRAGNDROP.NONE);
-					WebDataRenderer.this.onDragEnd(event);
-				}
-
-				super.onDragEnd(id, x, y, m, ajaxRequestTarget);
-			}
-
-			@Override
-			protected boolean onDragStart(final String id, int x, int y, int m, AjaxRequestTarget ajaxRequestTarget)
-			{
-				IComponent comp = getBindedComponentChild(id);
-				JSDNDEvent event = WebDataRenderer.this.createScriptEvent(EventType.onDrag, comp, new Point(x, y), m);
-				setDropResult(false);
-				int dragOp = WebDataRenderer.this.onDrag(event);
-				if (dragOp == DRAGNDROP.NONE) return false;
-				setCurrentDragOperation(dragOp);
-				setDragComponent(comp);
-				setDragData(event.getData(), event.getDataMimeType());
-				hoverComponent = null;
-				isHoverAcceptDrop = false;
-				return true;
-			}
-
-			@Override
-			protected void onDrop(String id, final String targetid, int x, int y, int m, AjaxRequestTarget ajaxRequestTarget)
-			{
-				if (getCurrentDragOperation() != DRAGNDROP.NONE)
-				{
-					IComponent comp = getBindedComponentChild(targetid);
-					if (hoverComponent == comp && !isHoverAcceptDrop) return;
-					WebDataRenderer renderer = WebDataRenderer.this;
-					JSDNDEvent event = renderer.createScriptEvent(EventType.onDrop, comp, new Point(x, y), m);
-					event.setData(getDragData());
-					event.setDataMimeType(getDragDataMimeType());
-					setDropResult(renderer.onDrop(event));
-				}
-			}
-
-//			private ISupportDragNDrop testTarget(ISupportDragNDrop ddComp, JSEvent event)
-//			{
-//				if (event.js_getSource() instanceof SpecialTabPanel)
-//				{
-//					SpecialTabPanel tabPanel = (SpecialTabPanel)event.js_getSource();
-//					Component selectedComponent = tabPanel.getEnclosingComponent().getSelectedComponent();
-//					if (selectedComponent instanceof FormLookupPanel)
-//					{
-//						FormController formControler = ((FormLookupPanel)selectedComponent).getFormPanel();
-//						event.setSource(null);
-//						event.setFormName(formControler.getName());
-//						event.setElementName(null);
-//						return (ISupportDragNDrop)formControler.getViewComponent();
-//					}
-//				}
-//				return ddComp;
-//			}
-
-			@Override
-			protected void onDropHover(String id, final String targetid, int m, AjaxRequestTarget ajaxRequestTarget)
-			{
-				if (getCurrentDragOperation() != DRAGNDROP.NONE)
-				{
-					IComponent comp = getBindedComponentChild(targetid);
-					JSDNDEvent event = WebDataRenderer.this.createScriptEvent(EventType.onDragOver, comp, null, m);
-					event.setData(getDragData());
-					event.setDataMimeType(getDragDataMimeType());
-					isHoverAcceptDrop = WebDataRenderer.this.onDragOver(event);
-					hoverComponent = comp;
-				}
-			}
-
-			@Override
-			public IComponent getBindedComponentChild(final String childId)
-			{
-				IComponent comp = super.getBindedComponentChild(childId);
-				if (comp == null) comp = WebDataRenderer.this;
-				return comp;
-			}
-
-		};
-		dragBehavior.setUseProxy(true);
-		add(dragBehavior);
-	}
-
-	private JSDNDEvent createScriptEvent(EventType type, IComponent dragSource, Point xy, int modifiers)
-	{
-		JSDNDEvent jsEvent = new JSDNDEvent();
-		jsEvent.setType(type);
-		jsEvent.setFormName(getDragFormName());
-		IRecordInternal dragRecord = getDragRecord(xy);
-		if (dragRecord instanceof Record) jsEvent.setRecord((Record)dragRecord);
-		if (dragSource instanceof IDataRenderer)
-		{
-			IDataRenderer dr = (IDataRenderer)dragSource;
-			FormController fct = dr.getDataAdapterList().getFormController();
-			jsEvent.setSource(fct.getFormScope());
-		}
-		else
-		{
-			jsEvent.setSource(dragSource);
-			if (dragSource != null)
-			{
-				String dragSourceName = dragSource.getName();
-				if (dragSourceName == null) dragSourceName = dragSource.getId();
-				jsEvent.setElementName(dragSourceName);
-			}
-		}
-		if (xy != null) jsEvent.setLocation(xy);
-		jsEvent.setModifiers(modifiers);
-
-		return jsEvent;
-	}
 
 	/*
 	 * @see com.servoy.j2db.ui.ISupportOnRenderWrapper#getOnRenderComponent()

@@ -22,7 +22,6 @@ import java.awt.print.PageFormat;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.UnsupportedEncodingException;
 import java.rmi.RemoteException;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -43,11 +42,7 @@ import javax.servlet.http.HttpSessionBindingEvent;
 import javax.servlet.http.HttpSessionEvent;
 import javax.swing.SwingUtilities;
 
-import org.apache.wicket.Application;
 import org.apache.wicket.Component;
-import org.apache.wicket.MarkupContainer;
-import org.apache.wicket.Session;
-import org.apache.wicket.protocol.http.WicketFilter;
 import org.mozilla.javascript.Scriptable;
 
 import com.servoy.j2db.ApplicationException;
@@ -112,10 +107,6 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 {
 	protected transient IDataRendererFactory<org.apache.wicket.Component> dataRendererFactory;
 	protected transient ItemFactory itemFactory;
-
-	//just for the cases there is no org.apache.wicket running
-	private static WebClientsApplication wicket_app = new WebClientsApplication();
-	private static Session wicket_session = null;
 
 	protected transient HttpSession session;
 
@@ -388,42 +379,6 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 		return shuttingDown || super.isShutDown();
 	}
 
-	static void onDestroy()
-	{
-		try
-		{
-			if (wicket_app != null)
-			{
-				WebClientsApplication tmp = wicket_app;
-				wicket_app = null;
-				WicketFilter wicketFilter = tmp.getWicketFilter();
-				if (wicketFilter != null)
-				{
-					wicketFilter.destroy();
-				}
-				if (Application.exists() && Application.get() == tmp)
-				{
-					Application.unset();
-				}
-
-
-				if (Session.exists() && Session.get() == wicket_session)
-				{
-					Session.unset();
-				}
-			}
-			else
-			{
-				wicket_app = null;
-				wicket_session = null;
-			}
-		}
-		catch (Exception e)
-		{
-			Debug.error("on destroy", e);
-		}
-	}
-
 	/**
 	 * This method sets the service provider to this if needed. Will return the previous provider that should be set back later.
 	 *
@@ -431,29 +386,6 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	 */
 	protected IServiceProvider testThreadLocals()
 	{
-		if (wicket_app != null)
-		{
-			if (!Application.exists())
-			{
-				Application.set(wicket_app);
-			}
-			if (ApplicationServerRegistry.get() != null)
-			{
-				if (!Session.exists())
-				{
-					synchronized (wicket_app)
-					{
-						if (wicket_session == null)
-						{
-							wicket_app.fakeInit();
-							wicket_session = wicket_app.newSession(new EmptyRequest(), null);
-						}
-					}
-					Session.set(wicket_session);
-				}
-			}
-		}
-
 		IServiceProvider provider = J2DBGlobals.getThreadServiceProvider();
 		if (provider != this)
 		{
@@ -593,34 +525,10 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 		return retval;
 	}
 
-	public WebClientsApplication getFakeApplication()
-	{
-		synchronized (wicket_app)
-		{
-			if (wicket_session == null)
-			{
-				wicket_app.fakeInit();
-				wicket_session = wicket_app.newSession(new EmptyRequest(), null);
-			}
-		}
-		return wicket_app;
-	}
-
 	protected void unsetThreadLocals(IServiceProvider prev)
 	{
 		if (J2DBGlobals.getServiceProvider() != prev)
 		{
-			if (Application.exists() && Application.get() == wicket_app)
-			{
-				Application.unset();
-			}
-			if (Session.exists() && Session.get() == wicket_session)
-			{
-				// make sure the 2 thread locals are just empty lists.
-				Session.get().getDirtyObjectsList().clear();
-				Session.get().getTouchedPages().clear();
-				Session.unset();
-			}
 			J2DBGlobals.setServiceProvider(prev);
 		}
 	}
@@ -805,17 +713,6 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	public synchronized int setDataProviderValues(String contextName, HttpServletRequest request_data)
 	{
 		int retval = 0;
-		if (request_data.getCharacterEncoding() == null)
-		{
-			try
-			{
-				request_data.setCharacterEncoding(wicket_app.getRequestCycleSettings().getResponseRequestEncoding());
-			}
-			catch (UnsupportedEncodingException e)
-			{
-				Debug.log(e);
-			}
-		}
 		IServiceProvider prev = testThreadLocals();
 		try
 		{
@@ -1356,12 +1253,8 @@ public class SessionClient extends AbstractApplication implements ISessionClient
 	{
 		if (component instanceof Component)
 		{
-			MarkupContainer parent = ((Component)component).getParent();
-			while (!(parent instanceof WebForm))
-			{
-				parent = parent.getParent();
-			}
-			return ((WebForm)parent).getController().getName();
+			WebForm parent = ((Component)component).findParent(WebForm.class);
+			return parent.getController().getName();
 		}
 		return ""; //$NON-NLS-1$
 	}

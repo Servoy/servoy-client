@@ -17,41 +17,25 @@
 
 package com.servoy.j2db.server.headlessclient.dataui;
 
-import java.util.Locale;
-
 import javax.swing.text.Document;
 
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
-import org.apache.wicket.Page;
-import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.MarkupStream;
-import org.apache.wicket.markup.html.form.FormComponent;
-import org.apache.wicket.model.IComponentInheritedModel;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.IWrapModel;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.util.convert.IConverter;
 
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
 import com.servoy.j2db.dataprocessing.IValueList;
-import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.scripting.RuntimeRadioButton;
-import com.servoy.j2db.util.Utils;
 
 /**
  * Represents a radiobutton field in the webbrowser.
- * 
+ *
  * @author lvostinar
  *
  */
 public class WebDataRadioButton extends WebBaseSelectBox
 {
-	private final IConverter converter = new RadioButtonConverter();
-
 	public WebDataRadioButton(IApplication application, RuntimeRadioButton scriptable, String id, String text, IValueList list)
 	{
 		this(application, scriptable, id, text);
@@ -66,12 +50,6 @@ public class WebDataRadioButton extends WebBaseSelectBox
 	public final RuntimeRadioButton getScriptObject()
 	{
 		return (RuntimeRadioButton)scriptable;
-	}
-
-	@Override
-	protected FormComponent getSelector(String id)
-	{
-		return new MyRadioButton(id, this);
 	}
 
 
@@ -89,137 +67,18 @@ public class WebDataRadioButton extends WebBaseSelectBox
 	@Override
 	public String toString()
 	{
-		return getScriptObject().toString("value:" + getDefaultModelObject()); //$NON-NLS-1$ 
+		return getScriptObject().toString("value:" + getValueObject()); //$NON-NLS-1$
 	}
 
-	public final class MyRadioButton extends FormComponent<Boolean> implements IDisplayData, WebBaseSelectBox.ISelector
+	public final class MyRadioButton extends Component implements IDisplayData, WebBaseSelectBox.ISelector
 	{
 		private static final long serialVersionUID = 1L;
-		private WebBaseSelectBox selectBox;
+		private final WebBaseSelectBox selectBox;
 
 		private MyRadioButton(String id, WebBaseSelectBox selectBox)
 		{
 			super(id);
 			this.selectBox = selectBox;
-			setOutputMarkupPlaceholderTag(true);
-			add(new AttributeModifier("disabled", true, new Model<String>() //$NON-NLS-1$
-				{
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public String getObject()
-					{
-						return ((WebDataRadioButton.this.isEnabled() && !WebDataRadioButton.this.isReadOnly()) ? AttributeModifier.VALUELESS_ATTRIBUTE_REMOVE
-							: AttributeModifier.VALUELESS_ATTRIBUTE_ADD);
-					}
-				}));
-			add(new StyleAppendingModifier(new Model<String>()
-			{
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public String getObject()
-				{
-					return "width:14px;height:14px;";
-				}
-			}));
-			setType(Object.class);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see org.apache.wicket.Component#initModel()
-		 */
-		@Override
-		protected IModel< ? > initModel()
-		{
-			// Search parents for CompoundPropertyModel
-			for (Component current = getParent(); current != null; current = current.getParent())
-			{
-				// Get model
-				IModel< ? > model = current.getDefaultModel();
-
-				if (model instanceof IWrapModel< ? >)
-				{
-					model = ((IWrapModel< ? >)model).getWrappedModel();
-				}
-
-				if (model instanceof IComponentInheritedModel< ? >)
-				{
-					// we turn off versioning as we share the model with another
-					// component that is the owner of the model (that component
-					// has to decide whether to version or not
-					setVersioned(false);
-
-					// return the shared inherited
-					return ((IComponentInheritedModel< ? >)model).wrapOnInheritance(WebDataRadioButton.this);
-				}
-			}
-
-			// No model for this component!
-			return null;
-		}
-
-		/**
-		 * @see FormComponent#supportsPersistence()
-		 */
-		@Override
-		protected final boolean supportsPersistence()
-		{
-			return true;
-		}
-
-		@Override
-		public final IConverter getConverter(Class< ? > type)
-		{
-			return converter;
-		}
-
-
-		/**
-		 * Processes the component tag.
-		 * 
-		 * @param tag
-		 *            Tag to modify
-		 * @see org.apache.wicket.Component#onComponentTag(ComponentTag)
-		 */
-		@Override
-		protected void onComponentTag(final ComponentTag tag)
-		{
-			checkComponentTag(tag, "input");
-			checkComponentTagAttribute(tag, "type", "radio");
-
-			final String value = getValue();
-			Object valuelistValue = null;
-			if (onValue != null && onValue.getSize() >= 1)
-			{
-				if (onValue.hasRealValues())
-				{
-					valuelistValue = onValue.getRealElementAt(0);
-				}
-				else
-				{
-					valuelistValue = onValue.getElementAt(0);
-				}
-			}
-			boolean checked = Utils.equalObjects(value, valuelistValue);
-
-			if (checked)
-			{
-				tag.put("checked", "checked");
-			}
-			else
-			{
-				// In case the attribute was added at design time
-				tag.remove("checked");
-			}
-
-			// remove value attribute, because it overrides the browser's submitted value, eg a [input
-			// type="checkbox" value=""] will always submit as false
-			tag.remove("value");
-
-			super.onComponentTag(tag);
 		}
 
 		/**
@@ -230,28 +89,6 @@ public class WebDataRadioButton extends WebBaseSelectBox
 		{
 			return WebDataRadioButton.this.isEnabled();
 		}
-
-		/**
-		 * @see wicket.markup.html.form.FormComponent#getInputName()
-		 */
-		@Override
-		public String getInputName()
-		{
-			if (inputId == null)
-			{
-				Page page = findPage();
-				if (page instanceof MainPage)
-				{
-					inputId = ((MainPage)page).nextInputNameId();
-				}
-				else
-				{
-					return super.getInputName();
-				}
-			}
-			return inputId;
-		}
-
 
 		public void setTagResolver(ITagResolver resolver)
 		{
@@ -368,73 +205,15 @@ public class WebDataRadioButton extends WebBaseSelectBox
 			return WebDataRadioButton.this.isReadOnly();
 		}
 
-		@Override
-		protected void onRender(final MarkupStream markupStream)
-		{
-			super.onRender(markupStream);
-
-			IModel model = WebDataRadioButton.this.getInnermostModel();
-
-			if (model instanceof RecordItemModel)
-			{
-				((RecordItemModel)model).updateRenderedValue(WebDataRadioButton.this);
-			}
-		}
-
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.server.headlessclient.dataui.WebBaseSelectBox.ISelector#getSelectBox()
 		 */
 		@Override
 		public WebBaseSelectBox getSelectBox()
 		{
 			return selectBox;
-		}
-	}
-
-	public class RadioButtonConverter implements IConverter
-	{
-		private static final long serialVersionUID = 1L;
-
-		/**
-		 * Constructor
-		 */
-		private RadioButtonConverter()
-		{
-
-		}
-
-		/**
-		 * @see org.apache.wicket.util.convert.IConverter#convertToObject(java.lang.String,
-		 *      java.util.Locale)
-		 */
-		public Object convertToObject(String value, Locale locale)
-		{
-			if ("on".equals(value))
-			{
-				if (onValue != null && onValue.getSize() >= 1)
-				{
-					if (onValue.hasRealValues())
-					{
-						return onValue.getRealElementAt(0);
-					}
-					else
-					{
-						return onValue.getElementAt(0);
-					}
-				}
-			}
-			return value;
-		}
-
-		/**
-		 * @see org.apache.wicket.util.convert.IConverter#convertToString(java.lang.Object,
-		 *      java.util.Locale)
-		 */
-		public String convertToString(Object value, Locale locale)
-		{
-			return value != null ? value.toString() : null;
 		}
 	}
 }

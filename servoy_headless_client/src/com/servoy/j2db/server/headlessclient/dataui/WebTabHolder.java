@@ -25,7 +25,7 @@ import com.servoy.j2db.util.Utils;
 
 /**
  * A container object that holds a single tab {@link IFormLookupPanel} for a {@link WebTabPanel}
- * 
+ *
  * @author jcompagner
  */
 public class WebTabHolder
@@ -58,7 +58,7 @@ public class WebTabHolder
 		{
 			tagTooltip = tooltip;
 		}
-		this.text = Utils.stringReplace(TemplateGenerator.getSafeText(t), " ", "&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
+		this.text = Utils.stringReplace(t, " ", "&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
 		this.enabled = true;
 	}
 
@@ -136,7 +136,7 @@ public class WebTabHolder
 		if (tagText != null)
 		{
 			String t = Text.processTags(tagText, resolver);
-			String elementNewText = Utils.stringReplace(TemplateGenerator.getSafeText(t), " ", "&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
+			String elementNewText = Utils.stringReplace(t, " ", "&nbsp;"); //$NON-NLS-1$ //$NON-NLS-2$
 			if (!Utils.equalObjects(text, elementNewText))
 			{
 				text = elementNewText;

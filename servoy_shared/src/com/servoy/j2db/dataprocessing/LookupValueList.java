@@ -330,13 +330,13 @@ public class LookupValueList implements IValueList
 
 				for (String displayValue : displayValues)
 				{
-					where.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, DBValueList.getQuerySelectValue(table, qTable, dp1),
+					where.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, DBValueList.getQueryColumn(table, qTable, dp1),
 						getAsRightType(dp1, displayValue)));
 				}
 			}
 			// also just add the complete value, for the possibility that it was a value with a separator.
 			value = getAsRightType(dp1, value);
-			where.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, DBValueList.getQuerySelectValue(table, qTable, dp1), value));
+			where.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, DBValueList.getQueryColumn(table, qTable, dp1), value));
 		}
 		if ((values & 2) != 0)
 		{
@@ -345,12 +345,12 @@ public class LookupValueList implements IValueList
 			{
 				for (String displayValue : displayValues)
 				{
-					where.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, DBValueList.getQuerySelectValue(table, qTable, dp2),
+					where.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, DBValueList.getQueryColumn(table, qTable, dp2),
 						getAsRightType(dp2, displayValue)));
 				}
 			}
 			value = getAsRightType(dp2, value);
-			where.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, DBValueList.getQuerySelectValue(table, qTable, dp2), value));
+			where.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, DBValueList.getQueryColumn(table, qTable, dp2), value));
 		}
 		if ((values & 4) != 0)
 		{
@@ -359,12 +359,12 @@ public class LookupValueList implements IValueList
 			{
 				for (String displayValue : displayValues)
 				{
-					where.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, DBValueList.getQuerySelectValue(table, qTable, dp3),
+					where.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, DBValueList.getQueryColumn(table, qTable, dp3),
 						getAsRightType(dp3, displayValue)));
 				}
 			}
 			value = getAsRightType(dp3, value);
-			where.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, DBValueList.getQuerySelectValue(table, qTable, dp3), value));
+			where.addCondition(new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, DBValueList.getQueryColumn(table, qTable, dp3), value));
 		}
 		select.setCondition(SQLGenerator.CONDITION_SEARCH, where);
 

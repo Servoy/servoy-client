@@ -23,6 +23,36 @@ package com.servoy.base.query;
  */
 public class BaseAbstractBaseQuery
 {
+	static final AtomicLong aliasCounter = new AtomicLong();
+
+	public static String generateAlias(String name)
+	{
+		// Skip anything but letters and digits
+		StringBuilder aliasBuf = new StringBuilder();
+		if (name != null)
+		{
+			char[] chars = name.toCharArray();
+			for (char element : chars)
+			{
+				if (Character.isLetterOrDigit(element))
+				{
+					aliasBuf.append(element);
+				}
+			}
+		}
+
+		// generate next counter
+		long n = aliasCounter.incrementAndGet() & 0x7fffffffffffffffL;
+
+		if (aliasBuf.length() == 0) // weird table name
+		{
+			return "T_" + n; //$NON-NLS-1$
+		}
+
+		aliasBuf.append(n);
+		return aliasBuf.toString();
+	}
+
 	public static int hashCode(Object[] array)
 	{
 		final int PRIME = 31;
@@ -184,4 +214,19 @@ public class BaseAbstractBaseQuery
 
 		return out;
 	}
+
+
+	/**
+	 * GWT: No source code is available for type java.util.concurrent.atomic.AtomicLong;	 *
+	 */
+	public static class AtomicLong
+	{
+		private volatile long value = 0L;
+
+		public synchronized long incrementAndGet()
+		{
+			return ++value;
+		}
+	}
+
 }

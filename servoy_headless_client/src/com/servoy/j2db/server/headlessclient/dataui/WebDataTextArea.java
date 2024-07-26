@@ -25,26 +25,11 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import javax.swing.border.Border;
 import javax.swing.text.Document;
 
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
-import org.apache.wicket.Page;
-import org.apache.wicket.ajax.AjaxEventBehavior;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.MarkupStream;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextArea;
-import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.IModelComparator;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.util.convert.ConversionException;
-import org.apache.wicket.util.string.Strings;
 
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.FormManager;
@@ -54,7 +39,6 @@ import com.servoy.j2db.IScriptExecuter;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.dataprocessing.IDisplayData;
 import com.servoy.j2db.dataprocessing.IEditListener;
-import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.headlessclient.MainPage;
 import com.servoy.j2db.ui.IEventExecutor;
 import com.servoy.j2db.ui.IFieldComponent;
@@ -74,11 +58,11 @@ import com.servoy.j2db.util.Utils;
 
 /**
  *  Represents a textarea field in the webbrowser.
- * 
+ *
  * @author jcompagner
  */
 @SuppressWarnings("nls")
-public class WebDataTextArea extends TextArea implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportWebBounds, IRightClickListener,
+public class WebDataTextArea extends Component implements IFieldComponent, IDisplayData, IProviderStylePropertyChanges, ISupportWebBounds,
 	ISupportInputSelection, ISupportSimulateBoundsProvider, ISupportOnRender, ISupportScroll
 {
 	private static final long serialVersionUID = 1L;
@@ -93,82 +77,16 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 
 	private final IApplication application;
 
-	private FindModeDisabledSimpleAttributeModifier maxLengthBehavior;
 	private final AbstractRuntimeField<IFieldComponent> scriptable;
 
 	public WebDataTextArea(final IApplication application, final AbstractRuntimeField<IFieldComponent> scriptable, String id)
 	{
 		super(id);
 		this.application = application;
-		setVersioned(false);
+		this.scriptable = scriptable;
 
 		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
 		eventExecutor = new WebEventExecutor(this, useAJAX);
-		setOutputMarkupPlaceholderTag(true);
-
-		add(new AttributeModifier("readonly", true, new Model<String>() //$NON-NLS-1$
-			{
-				@Override
-				public String getObject()
-				{
-					return (editable ? AttributeModifier.VALUELESS_ATTRIBUTE_REMOVE : AttributeModifier.VALUELESS_ATTRIBUTE_ADD);
-				}
-			}));
-
-		add(new AttributeModifier("placeholder", true, new Model<String>() //$NON-NLS-1$
-			{
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public String getObject()
-				{
-					return application.getI18NMessageIfPrefixed(scriptable.getPlaceholderText());
-				}
-			})
-		{
-			@Override
-			public boolean isEnabled(Component component)
-			{
-				return super.isEnabled(component) && scriptable.getPlaceholderText() != null;
-			}
-		});
-
-		add(new AjaxEventBehavior("onselect")
-		{
-			@Override
-			protected void onEvent(AjaxRequestTarget target)
-			{
-				setSelectedText(getComponent().getRequest().getParameter("st"));
-			}
-
-			@Override
-			public CharSequence getCallbackUrl(final boolean onlyTargetActivePage)
-			{
-				CharSequence callbackURL = super.getCallbackUrl(onlyTargetActivePage);
-				return callbackURL.toString() + "&st=' + Servoy.Utils.getSelectedText('" + getMarkupId() + "') + '";
-			}
-
-			@Override
-			protected String findIndicatorId()
-			{
-				return null; // main page defines it and the timer shouldn't show it
-			}
-		});
-
-		add(StyleAttributeModifierModel.INSTANCE);
-		add(TooltipAttributeModifier.INSTANCE);
-		add(new FilterBackspaceKeyAttributeModifier(new Model<String>()
-		{
-			private static final long serialVersionUID = 1332637522687352873L;
-
-			@Override
-			public String getObject()
-			{
-				return editable ? null : FilterBackspaceKeyAttributeModifier.SCRIPT;
-			}
-		}));
-		this.scriptable = scriptable;
-		add(new ScrollBehavior(this));
 	}
 
 	public final AbstractRuntimeField<IFieldComponent> getScriptObject()
@@ -176,110 +94,9 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		return scriptable;
 	}
 
-	/**
-	 * @see org.apache.wicket.Component#getLocale()
-	 */
-	@Override
-	public Locale getLocale()
-	{
-		return application.getLocale();
-	}
-
 	public IStylePropertyChanges getStylePropertyChanges()
 	{
 		return scriptable.getChangesRecorder();
-	}
-
-	/**
-	 * @see wicket.Component#getComparator()
-	 */
-	@Override
-	public IModelComparator getModelComparator()
-	{
-		return ComponentValueComparator.COMPARATOR;
-	}
-
-	@Override
-	protected void onRender(final MarkupStream markupStream)
-	{
-		super.onRender(markupStream);
-		getStylePropertyChanges().setRendered();
-		IModel< ? > model = getInnermostModel();
-		if (model instanceof RecordItemModel)
-		{
-			((RecordItemModel)model).updateRenderedValue(this);
-		}
-	}
-
-	@Override
-	protected void onComponentTag(final ComponentTag tag)
-	{
-		super.onComponentTag(tag);
-
-		boolean useAJAX = Utils.getAsBoolean(application.getRuntimeProperties().get("useAJAX")); //$NON-NLS-1$
-		if (useAJAX)
-		{
-			Object oe = scriptable.getClientProperty("ajax.enabled");
-			if (oe != null) useAJAX = Utils.getAsBoolean(oe);
-		}
-
-		if (!useAJAX)
-		{
-			Form< ? > f = getForm();
-			if (f != null)
-			{
-				if (eventExecutor.hasRightClickCmd())
-				{
-					CharSequence urlr = urlFor(IRightClickListener.INTERFACE);
-					// We need a "return false;" so that the context menu is not displayed in the browser.
-					tag.put("oncontextmenu", f.getJsForInterfaceUrl(urlr) + " return false;"); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-			}
-		}
-	}
-
-	@Override
-	public void renderHead(final HtmlHeaderContainer container)
-	{
-		super.renderHead(container);
-		container.getHeaderResponse().renderOnDomReadyJavascript(
-			"$(function(){$(\"#" + getMarkupId() + "\").numpadDecSeparator({useRegionalSettings: true});});"); //$NON-NLS-1$ //$NON-NLS-2$
-		if (scriptable.getPlaceholderText() != null)
-		{
-			container.getHeaderResponse().renderOnLoadJavascript("$('#" + getMarkupId() + "').placeholder();");
-		}
-	}
-
-	@Override
-	protected Object convertValue(String[] value) throws ConversionException
-	{
-		String tmp = value != null && value.length > 0 ? value[0] : null;
-		if (getConvertEmptyInputStringToNull() && Strings.isEmpty(tmp))
-		{
-			return null;
-		}
-		return tmp;
-	}
-
-	/**
-	 * @see wicket.markup.html.form.FormComponent#getInputName()
-	 */
-	@Override
-	public String getInputName()
-	{
-		if (inputId == null)
-		{
-			Page page = findPage();
-			if (page instanceof MainPage)
-			{
-				inputId = ((MainPage)page).nextInputNameId();
-			}
-			else
-			{
-				return super.getInputName();
-			}
-		}
-		return inputId;
 	}
 
 
@@ -354,21 +171,6 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	}
 
 	/**
-	 * @see com.servoy.j2db.ui.IFieldComponent#setMaxLength(int)
-	 */
-	public void setMaxLength(int maxLength)
-	{
-		if (maxLengthBehavior != null) remove(maxLengthBehavior);
-		maxLengthBehavior = null;
-		if (maxLength > 0)
-		{
-			maxLengthBehavior = new FindModeDisabledSimpleAttributeModifier(getEventExecutor(),
-				"onkeyup", ("Servoy.Validation.imposeMaxLength(this, " + +maxLength + ");").intern()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			add(maxLengthBehavior);
-		}
-	}
-
-	/**
 	 * @see com.servoy.j2db.ui.IFieldComponent#setMargin(java.awt.Insets)
 	 */
 	public void setMargin(Insets margin)
@@ -389,6 +191,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 //		this.horizontalAlignment = horizontalAlignment;
 	}
 
+	@Override
 	public void setCursor(Cursor cursor)
 	{
 //		this.cursor = cursor;
@@ -396,7 +199,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 
 	public Object getValueObject()
 	{
-		return getDefaultModelObjectAsString();
+		return null;
 	}
 
 	public void setValueObject(Object value)
@@ -452,8 +255,6 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 			{
 				public void run()
 				{
-					WebEventExecutor.setSelectedIndex(WebDataTextArea.this, null, IEventExecutor.MODIFIERS_UNSPECIFIED);
-
 					eventExecutor.fireChangeCommand(previousValidValue == null ? oldVal : previousValidValue, newVal, false, WebDataTextArea.this);
 				}
 			});
@@ -512,24 +313,6 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		if (currentContainer instanceof MainPage)
 		{
 			((MainPage)currentContainer).componentToFocus(this);
-		}
-	}
-
-	public void selectAll()
-	{
-		Page page = findPage();
-		if (page instanceof MainPage)
-		{
-			((MainPage)page).getPageContributor().addDynamicJavaScript("document.getElementById('" + getMarkupId() + "').select();");
-		}
-	}
-
-	public void replaceSelectedText(String s)
-	{
-		Page page = findPage();
-		if (page instanceof MainPage)
-		{
-			((MainPage)page).getPageContributor().addDynamicJavaScript("Servoy.Utils.replaceSelectedText('" + getMarkupId() + "','" + s + "');");
 		}
 	}
 
@@ -605,6 +388,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	private String dataProviderID;
 
 
+	@Override
 	public void setName(String n)
 	{
 		name = n;
@@ -612,6 +396,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 
 	private String name;
 
+	@Override
 	public String getName()
 	{
 		return name;
@@ -623,11 +408,13 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	 */
 	private Border border;
 
+	@Override
 	public void setBorder(Border border)
 	{
 		this.border = border;
 	}
 
+	@Override
 	public Border getBorder()
 	{
 		return border;
@@ -637,6 +424,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	/*
 	 * opaque---------------------------------------------------
 	 */
+	@Override
 	public void setOpaque(boolean opaque)
 	{
 		this.opaque = opaque;
@@ -644,6 +432,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 
 	private boolean opaque;
 
+	@Override
 	public boolean isOpaque()
 	{
 		return opaque;
@@ -667,6 +456,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 
 	private String tooltip;
 
+	@Override
 	public void setToolTipText(String tooltip)
 	{
 		this.tooltip = Utils.stringIsEmpty(tooltip) ? null : tooltip;
@@ -682,12 +472,9 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	/**
 	 * @see com.servoy.j2db.ui.IComponent#getToolTipText()
 	 */
+	@Override
 	public String getToolTipText()
 	{
-		if (tooltip != null && getInnermostModel() instanceof RecordItemModel)
-		{
-			return Text.processTags(tooltip, resolver);
-		}
 		return tooltip;
 	}
 
@@ -695,6 +482,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	/*
 	 * font---------------------------------------------------
 	 */
+	@Override
 	public void setFont(Font font)
 	{
 		this.font = font;
@@ -702,6 +490,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 
 	private Font font;
 
+	@Override
 	public Font getFont()
 	{
 		return font;
@@ -710,11 +499,13 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 
 	private Color background;
 
+	@Override
 	public void setBackground(Color cbg)
 	{
 		this.background = cbg;
 	}
 
+	@Override
 	public Color getBackground()
 	{
 		return background;
@@ -730,11 +521,13 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		return labels;
 	}
 
+	@Override
 	public void setForeground(Color cfg)
 	{
 		this.foreground = cfg;
 	}
 
+	@Override
 	public Color getForeground()
 	{
 		return foreground;
@@ -743,6 +536,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	/*
 	 * visible---------------------------------------------------
 	 */
+	@Override
 	public void setComponentVisible(boolean visible)
 	{
 		if (viewable || !visible)
@@ -750,9 +544,8 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 			setVisible(visible);
 			if (labels != null)
 			{
-				for (int i = 0; i < labels.size(); i++)
+				for (ILabel label : labels)
 				{
-					ILabel label = labels.get(i);
 					label.setComponentVisible(visible);
 				}
 			}
@@ -772,6 +565,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	}
 
 
+	@Override
 	public void setComponentEnabled(final boolean b)
 	{
 		if (accessible || !b)
@@ -780,9 +574,8 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 			((ChangesRecorder)getStylePropertyChanges()).setChanged();
 			if (labels != null)
 			{
-				for (int i = 0; i < labels.size(); i++)
+				for (ILabel label : labels)
 				{
-					ILabel label = labels.get(i);
 					label.setComponentEnabled(b);
 				}
 			}
@@ -825,11 +618,13 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		return getLocation().y;
 	}
 
+	@Override
 	public void setLocation(Point location)
 	{
 		this.location = location;
 	}
 
+	@Override
 	public Point getLocation()
 	{
 		return location;
@@ -840,6 +635,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 	 */
 	private Dimension size = new Dimension(0, 0);
 
+	@Override
 	public Dimension getSize()
 	{
 		return size;
@@ -859,6 +655,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		return ((ChangesRecorder)getStylePropertyChanges()).getPaddingAndBorder(size.height, border, margin, 0, null);
 	}
 
+	@Override
 	public void setSize(Dimension size)
 	{
 		this.size = size;
@@ -869,28 +666,13 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 		eventExecutor.setRightClickCmd(rightClickCmd, args);
 	}
 
-	public void onRightClick()
-	{
-		Form< ? > f = getForm();
-		if (f != null)
-		{
-			// If form validation fails, we don't execute the method.
-			if (f.process()) eventExecutor.onEvent(JSEvent.EventType.rightClick, null, this, IEventExecutor.MODIFIERS_UNSPECIFIED);
-		}
-	}
 
 	@Override
 	public String toString()
 	{
-		return scriptable.toString("value:" + getDefaultModelObjectAsString()); //$NON-NLS-1$ 
+		return scriptable.toString("value:"); //$NON-NLS-1$
 	}
 
-	@Override
-	protected void onBeforeRender()
-	{
-		super.onBeforeRender();
-		fireOnRender(false);
-	}
 
 	public void fireOnRender(boolean force)
 	{
@@ -916,7 +698,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#setScroll(int, int)
 	 */
 	@Override
@@ -928,7 +710,7 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#getScroll()
 	 */
 	@Override
@@ -939,12 +721,48 @@ public class WebDataTextArea extends TextArea implements IFieldComponent, IDispl
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.servoy.j2db.ui.ISupportScroll#getScrollComponentMarkupId()
 	 */
 	@Override
 	public String getScrollComponentMarkupId()
 	{
 		return getMarkupId();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.ui.ISupportInputSelection#selectAll()
+	 */
+	@Override
+	public void selectAll()
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.ui.ISupportInputSelection#replaceSelectedText(java.lang.String)
+	 */
+	@Override
+	public void replaceSelectedText(String s)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.servoy.j2db.ui.IFieldComponent#setMaxLength(int)
+	 */
+	@Override
+	public void setMaxLength(int maxLength)
+	{
+		// TODO Auto-generated method stub
+
 	}
 }
