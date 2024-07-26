@@ -17,8 +17,6 @@
 
 package com.servoy.base.query;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 /**
  * @author rgansevles
  *
@@ -216,4 +214,19 @@ public class BaseAbstractBaseQuery
 
 		return out;
 	}
+
+
+	/**
+	 * GWT: No source code is available for type java.util.concurrent.atomic.AtomicLong;	 *
+	 */
+	public static class AtomicLong
+	{
+		private volatile long value = 0L;
+
+		public synchronized long incrementAndGet()
+		{
+			return ++value;
+		}
+	}
+
 }
