@@ -17,6 +17,7 @@
 
 package com.servoy.base.query;
 
+import static com.servoy.base.query.BaseAbstractBaseQuery.generateAlias;
 
 /**
  * Query table for mobile and regular clients.
@@ -63,7 +64,7 @@ public class BaseQueryTable implements IBaseQueryElement
 		this.catalogName = catalogName;
 		this.schemaName = schemaName;
 		this.generatedAlias = alias == null;
-		this.alias = this.generatedAlias ? IBaseQueryElement.generateAlias(name) : alias;
+		this.alias = this.generatedAlias ? generateAlias(name) : alias;
 		this.needsQuoting = needsQuoting;
 		this.isComplete = true;
 	}

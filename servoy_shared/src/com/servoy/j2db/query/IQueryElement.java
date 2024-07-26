@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.query;
 
+import com.servoy.base.query.BaseAbstractBaseQuery;
 import com.servoy.base.query.IBaseQueryElement;
 import com.servoy.j2db.util.serialize.IWriteReplace;
 import com.servoy.j2db.util.visitor.IVisitable;
@@ -31,6 +32,6 @@ public interface IQueryElement extends IBaseQueryElement, ISQLCloneable, IWriteR
 {
 	default String generateAlias(String name)
 	{
-		return IBaseQueryElement.generateAlias(name);
+		return BaseAbstractBaseQuery.generateAlias(name);
 	}
 }
