@@ -2208,6 +2208,23 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
+	 * This assert method can be used to check for conditions in the code.
+	 * A message can be give that will then end up in the log file (with the stacktrace where this failed).
+	 *
+	 * If the condition is false and your are in developer then also the debugger will stop on this line by default.
+	 *
+	 * @sample
+	 * application.assert(userId != null, "User id should not be null");
+	 *
+	 * @param condition If flase then the assert is wrong and the message will be printed, debugger will stop on this line.
+	 * @param message The message to display if the condition is false.
+	 */
+	public void js_assert(boolean condition, String message)
+	{
+		application.assertCondition(condition, message);
+	}
+
+	/**
 	 * Undo last action (if possible).
 	 *
 	 * @sample application.undo();

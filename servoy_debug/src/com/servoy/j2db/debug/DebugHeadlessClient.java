@@ -331,6 +331,21 @@ public class DebugHeadlessClient extends HeadlessClient implements IDebugHeadles
 		}
 	}
 
+	@Override
+	public void assertCondition(boolean condition, String message)
+	{
+		errorToDebugger(message, null);
+		super.assertCondition(condition, message);
+		if (!condition)
+		{
+			DBGPDebugger debugger = getDebugger();
+			if (debugger != null)
+			{
+				debugger.getStackManager().sendSuspend(message);
+			}
+		}
+	}
+
 	private DBGPDebugger getDebugger()
 	{
 		RemoteDebugScriptEngine rdse = (RemoteDebugScriptEngine)getScriptEngine();

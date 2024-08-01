@@ -545,7 +545,7 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	 * @return
 	 */
 	public Object generateBrowserFunction(String functionString);
-	
+
 
 	/**
 	 * @param dataprovider
@@ -565,6 +565,18 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 		catch (InterruptedException e)
 		{
 			//ignore
+		}
+	}
+
+	/**
+	 * @param condition
+	 * @param message
+	 */
+	default void assertCondition(boolean condition, String message)
+	{
+		if (!condition)
+		{
+			output("Assert failed: " + message, ILogLevel.ERROR);
 		}
 	}
 }
