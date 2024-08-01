@@ -84,6 +84,7 @@ import com.servoy.j2db.persistence.ISupportScriptProviders;
 import com.servoy.j2db.persistence.ISupportUpdateableName;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Media;
+import com.servoy.j2db.persistence.Menu;
 import com.servoy.j2db.persistence.NameComparator;
 import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.persistence.Portal;
@@ -2383,6 +2384,20 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		ValueList vl = getIndex().getPersistByUUID(nameOrUUID, ValueList.class);
 		if (vl != null) return vl;
 		return getIndex().getPersistByName(nameOrUUID, ValueList.class);
+	}
+
+	public Menu getMenu(String nameOrUUID)
+	{
+		if (nameOrUUID == null) return null;
+
+		Menu menu = getIndex().getPersistByUUID(nameOrUUID, Menu.class);
+		if (menu != null) return menu;
+		return getIndex().getPersistByName(nameOrUUID, Menu.class);
+	}
+
+	public Iterator<Menu> getMenus(boolean sort)
+	{
+		return Solution.getMenus(getIndex().getIterableFor(Menu.class), sort);
 	}
 
 	public Iterator<Form> getForms(ITable basedOnTable, boolean sort)

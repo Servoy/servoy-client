@@ -54,6 +54,7 @@ import org.sablo.websocket.utils.JSONUtils.IJSONStringWithClientSideType;
 
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.IDataRendererFactory;
+import com.servoy.j2db.IMenuManager;
 import com.servoy.j2db.IModeManager;
 import com.servoy.j2db.cmd.ICmdManager;
 import com.servoy.j2db.component.ComponentFormat;
@@ -2056,6 +2057,18 @@ public class DataProviderDateTest
 		{
 			// TODO Auto-generated method stub
 
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see com.servoy.j2db.IApplication#getMenuManager()
+		 */
+		@Override
+		public IMenuManager getMenuManager()
+		{
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 	}

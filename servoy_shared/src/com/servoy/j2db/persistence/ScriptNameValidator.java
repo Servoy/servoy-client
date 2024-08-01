@@ -150,6 +150,10 @@ public class ScriptNameValidator implements IValidateName
 		{
 			warnings.add("The name '" + nameToCheck + "' already exists as a valuelist"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
+		if (obj instanceof Menu)
+		{
+			warnings.add("The name '" + nameToCheck + "' already exists as a menu"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 		if (obj instanceof IFormElement)
 		{
 			warnings.add("The element '" + nameToCheck + "' already exists on the form"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -360,6 +364,15 @@ public class ScriptNameValidator implements IValidateName
 			if (vl != null && vl.getID() != skip_element_id)
 			{
 				return vl;
+			}
+		}
+
+		if (searchContext.getType() == IRepository.MENUS)
+		{
+			Menu menu = solutionRoot.getMenu(nameToCheck);
+			if (menu != null && menu.getID() != skip_element_id)
+			{
+				return menu;
 			}
 		}
 

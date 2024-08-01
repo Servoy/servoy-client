@@ -250,6 +250,13 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public IModeManager getModeManager();
 
 	/**
+	 * Get the menu manager (used to control the solution menus).
+	 *
+	 * @return IMenuManager
+	 */
+	public IMenuManager getMenuManager();
+
+	/**
 	 * Get the user manager (used to do authentication and security)
 	 *
 	 * @return
