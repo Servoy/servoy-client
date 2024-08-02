@@ -28,6 +28,7 @@ import com.servoy.j2db.persistence.GraphicalComponent;
 import com.servoy.j2db.solutionmodel.ISMLabel;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent", scriptingName = "JSLabel")
+@Deprecated
 public class JSLabel extends JSGraphicalComponent implements ISMLabel, IMobileSMLabel
 {
 	public JSLabel(IJSParent< ? > parent, GraphicalComponent gc, IApplication application, boolean isNew)
@@ -57,7 +58,7 @@ public class JSLabel extends JSGraphicalComponent implements ISMLabel, IMobileSM
 
 	/**
 	 * Get title label for the label.
-	 * 
+	 *
 	 * @sample
 	 * var form = solutionModel.newForm('someForm', 'db:/example_data/parent_table');
 	 * var label = form.newLabel('Customers', 1);

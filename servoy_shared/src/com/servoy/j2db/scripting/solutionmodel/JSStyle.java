@@ -33,6 +33,7 @@ import com.servoy.j2db.util.UUID;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@Deprecated
 public class JSStyle implements IJavaScriptType, ISMStyle
 {
 	private boolean copy;
@@ -48,7 +49,7 @@ public class JSStyle implements IJavaScriptType, ISMStyle
 
 	/**
 	 * Gets the name of the style.
-	 * 
+	 *
 	 * @sample
 	 * var st = solutionModel.newStyle('myStyle','form { background-color: yellow; }');
 	 * st.text = st.text + 'field { background-color: blue; }';
@@ -65,7 +66,7 @@ public class JSStyle implements IJavaScriptType, ISMStyle
 
 	/**
 	 * The textual content of the style.
-	 * 
+	 *
 	 * @sampleas getName()
 	 */
 	@JSGetter
@@ -90,7 +91,7 @@ public class JSStyle implements IJavaScriptType, ISMStyle
 
 	/**
 	 * Returns the UUID of the style object
-	 * 
+	 *
 	 * @sample
 	 * var st = solutionModel.newStyle('myStyle','form { background-color: yellow; }');
 	 * application.output(st.getUUID().toString());
@@ -107,11 +108,11 @@ public class JSStyle implements IJavaScriptType, ISMStyle
 	{
 		return "JSStyle[name:" + style.getName() + ']';
 	}
-	
+
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -125,7 +126,7 @@ public class JSStyle implements IJavaScriptType, ISMStyle
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -141,5 +142,5 @@ public class JSStyle implements IJavaScriptType, ISMStyle
 		}
 		else if (!style.getUUID().equals(other.style.getUUID())) return false;
 		return true;
-	}	
+	}
 }

@@ -24,6 +24,7 @@ import com.servoy.j2db.solutionmodel.ISMMediaOption;
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@Deprecated
 public class MEDIAOPTION implements ISMMediaOption, IPrefixedConstantsObject
 {
 

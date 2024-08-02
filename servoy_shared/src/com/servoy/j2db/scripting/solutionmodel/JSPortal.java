@@ -55,6 +55,7 @@ import com.servoy.j2db.util.Utils;
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
 @ServoyClientSupport(ng = false, mc = false, wc = true, sc = true)
+@Deprecated
 public class JSPortal extends JSComponent<Portal> implements IJSParent<Portal>, IJavaScriptType, ISMPortal
 {
 	private final IApplication application;

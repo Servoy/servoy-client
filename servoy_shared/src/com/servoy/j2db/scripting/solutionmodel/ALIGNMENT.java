@@ -24,6 +24,7 @@ import com.servoy.j2db.solutionmodel.ISMAlignment;
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@Deprecated
 public class ALIGNMENT implements ISMAlignment, IPrefixedConstantsObject
 {
 

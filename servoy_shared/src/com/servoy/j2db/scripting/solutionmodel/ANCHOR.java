@@ -24,6 +24,7 @@ import com.servoy.j2db.solutionmodel.ISMAnchor;
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@Deprecated
 public class ANCHOR implements IPrefixedConstantsObject, ISMAnchor
 {
 	/**

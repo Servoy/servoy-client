@@ -26,6 +26,7 @@ import com.servoy.j2db.solutionmodel.ISMBevelType;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@Deprecated
 public class BEVELTYPE implements ISMBevelType, IPrefixedConstantsObject
 {
 

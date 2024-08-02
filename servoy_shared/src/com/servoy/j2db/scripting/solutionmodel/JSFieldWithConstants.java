@@ -20,6 +20,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent", publicName = "JSField", scriptingName = "JSField")
+@Deprecated
 public class JSFieldWithConstants extends JSField implements IPrefixedConstantsObject
 {
 

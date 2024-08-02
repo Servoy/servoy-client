@@ -371,6 +371,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	@JSFunction
 	@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
+	@Deprecated
 	public JSList newListForm(String formName, String dataSource, String textDataProviderID)
 	{
 		return null; // mobile only
@@ -378,6 +379,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 
 	@Override
 	@JSFunction
+	@Deprecated
 	@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
 	public JSList getListForm(String name)
 	{
@@ -387,6 +389,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	@Override
 	@JSFunction
 	@ServoyClientSupport(ng = false, mc = true, wc = false, sc = false)
+	@Deprecated
 	public JSList[] getListForms()
 	{
 		return null; // mobile only
@@ -410,6 +413,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @return a JSStyle
 	 */
 	@JSFunction
+	@Deprecated
 	public JSStyle getStyle(String name)
 	{
 		Style style = application.getFlattenedSolution().getStyle(name);
@@ -443,6 +447,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @return a JSStyle object
 	 */
 	@JSFunction
+	@Deprecated
 	public JSStyle newStyle(String name, String content)
 	{
 
@@ -765,6 +770,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @return true if the removal was successful, false otherwise
 	 */
 	@JSFunction
+	@Deprecated
 	public boolean removeStyle(String name)
 	{
 		FlattenedSolution fs = application.getFlattenedSolution();
@@ -1857,6 +1863,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 */
 
 	@JSFunction
+	@Deprecated
 	public String createPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin)
 	{
 		return createPageFormat(width, height, leftmargin, rightmargin, topmargin, bottommargin, PageFormat.PORTRAIT, ISMUnits.PIXELS);
@@ -1874,6 +1881,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @param orientation the specified orientation of the page to be printed; the default is Portrait mode
 	 */
 	@JSFunction
+	@Deprecated
 	public String createPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin, int orientation)
 	{
 		return createPageFormat(width, height, leftmargin, rightmargin, topmargin, bottommargin, orientation, ISMUnits.PIXELS);
@@ -1892,6 +1900,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @param units the specified units for the width and height of the page to be printed; the default is pixels
 	 */
 	@JSFunction
+	@Deprecated
 	public String createPageFormat(double width, double height, double leftmargin, double rightmargin, double topmargin, double bottommargin, int orientation,
 		int units)
 	{
@@ -1913,6 +1922,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public String createFont(String name, int style, int size)
 	{
 		Font font = PersistHelper.createFont(name, style, size);
@@ -1933,6 +1943,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public String createEmptyBorder(int top_width, int right_width, int bottom_width, int left_width)
 	{
 		Border border = BorderFactory.createEmptyBorder(top_width, left_width, bottom_width, right_width);
@@ -1952,6 +1963,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public String createEtchedBorder(int bevel_type, String highlight_color, String shadow_color)
 	{
 		Border border = null;
@@ -1980,6 +1992,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @param shadow_inner_color bevel border shadow outer color
 	 */
 	@JSFunction
+	@Deprecated
 	public String createBevelBorder(int bevel_type, String highlight_outer_color, String highlight_inner_color, String shadow_outer_color,
 		String shadow_inner_color)
 	{
@@ -2009,6 +2022,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public String createLineBorder(int thick, String color)
 	{
 		Border border = BorderFactory.createLineBorder(PersistHelper.createColor(color), thick);
@@ -2030,6 +2044,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public String createTitledBorder(String title_text, String font, String color, int title_justification, int title_position)
 	{
 		TitledBorder border = BorderFactory.createTitledBorder(title_text);
@@ -2055,6 +2070,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public String createMatteBorder(int top_width, int right_width, int bottom_width, int left_width, String color)
 	{
 		Border border = BorderFactory.createMatteBorder(top_width, left_width, bottom_width, right_width, PersistHelper.createColor(color));
@@ -2081,8 +2097,11 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @param left_color left border color
 	 * @param rounding_radius width of the arc to round the corners
 	 * @param dash_pattern the dash pattern of border stroke
+	 *
+	 * @deprecated
 	 */
 	@JSFunction
+	@Deprecated
 	public String createSpecialMatteBorder(int top_width, int right_width, int bottom_width, int left_width, String top_color, String right_color,
 		String bottom_color, String left_color, float rounding_radius, float[] dash_pattern)
 	{
@@ -2116,6 +2135,7 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 	 * @param border_style the border styles for the four margins(top/left/bottom/left)
 	 */
 	@JSFunction
+	@Deprecated
 	public String createRoundedBorder(int top_width, int right_width, int bottom_width, int left_width, String top_color, String right_color,
 		String bottom_color, String left_color, float[] rounding_radius, String[] border_style)
 	{

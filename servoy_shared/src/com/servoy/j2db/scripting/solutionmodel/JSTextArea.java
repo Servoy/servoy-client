@@ -23,10 +23,11 @@ import com.servoy.j2db.solutionmodel.ISMTextArea;
 
 /**
  * Solution model textarea field component.
- * 
+ *
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@Deprecated
 public class JSTextArea extends JSField implements ISMTextArea
 {
 	public JSTextArea(IJSParent< ? > parent, Field field, IApplication application, boolean isNew)
