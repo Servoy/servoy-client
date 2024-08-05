@@ -2071,5 +2071,17 @@ public class DataProviderDateTest
 			return null;
 		}
 
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see com.servoy.j2db.INGClientApplication#getBounds(java.lang.String, java.lang.String)
+		 */
+		@Override
+		public JSONObject getBounds(String webComponentID, String subselector)
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+
 	}
 }
