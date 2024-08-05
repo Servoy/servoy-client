@@ -128,6 +128,7 @@ public class NGClient extends AbstractApplication
 	public static final String APPLICATION_SERVICE = "$applicationService";
 	public static final String APPLICATION_SERVER_SERVICE = "applicationServerService";
 	private static final String SABLO_LOADING_INDICATOR = "$sabloLoadingIndicator";
+	private static final String CLIENTUTILS_SERVICE = "clientutils";
 
 	private final INGClientWebsocketSession wsSession;
 
@@ -1882,6 +1883,22 @@ public class NGClient extends AbstractApplication
 			Debug.error("Error getting the clipboard content", e);
 		}
 
+		return null;
+	}
+
+
+	@Override
+	public JSONObject getBounds(String webComponentID, String subselector)
+	{
+		try
+		{
+			return (JSONObject)this.getWebsocketSession().getClientService(NGClient.CLIENTUTILS_SERVICE).executeServiceCall("getBounds",
+				new Object[] { webComponentID, subselector });
+		}
+		catch (IOException e)
+		{
+			Debug.error("Error getting component bounds", e);
+		}
 		return null;
 	}
 

@@ -17,16 +17,15 @@
 
 package com.servoy.j2db.ui.runtime;
 
-import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.IScriptable;
 
 /**
  * @author lvostinar
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Component", scriptingName = "Component")
-@ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
-public interface IBaseRuntimeComponent
+public interface IBaseForInterfaceRuntimeComponent
+	extends IBaseRuntimeComponent, IScriptable, HasRuntimeClientProperty, HasRuntimeFormName, HasRuntimeName, HasRuntimeElementType,
+	HasRuntimeDesignTimeProperty
 {
 
 }

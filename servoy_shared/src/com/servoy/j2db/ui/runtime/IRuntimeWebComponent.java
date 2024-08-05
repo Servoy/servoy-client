@@ -30,7 +30,7 @@ import com.servoy.j2db.scripting.solutionmodel.ICSSPosition;
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeWebComponent", scriptingName = "RuntimeWebComponent", extendsComponent = "Component")
 @ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
-public interface IRuntimeWebComponent extends IBaseRuntimeComponent
+public interface IRuntimeWebComponent extends IBaseForInterfaceRuntimeComponent
 {
 	/**
 	 * CSS position is a replacement for anchoring system making it more intuitive to place a component.

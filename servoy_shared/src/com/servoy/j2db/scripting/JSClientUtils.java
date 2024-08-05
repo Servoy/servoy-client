@@ -17,12 +17,16 @@
 
 package com.servoy.j2db.scripting;
 
+import org.json.JSONObject;
+import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.INGClientApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.ui.runtime.IBaseRuntimeComponent;
+import com.servoy.j2db.util.Utils;
 
 /**
  * This is a class that is on the root of scripting under "clientutils".
@@ -141,15 +145,56 @@ public class JSClientUtils
 
 	/**
 	* This method is making the HTML document to be displayed in full screen mode.
-	* 
+	*
 	* @sample
-	* clienutils.requestFullscreen();
+	* clientutils.requestFullscreen();
 	*/
 	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 	@JSFunction
 	public void requestFullscreen()
 	{
 		application.getRuntimeWindowManager().getCurrentWindow().requestFullscreen();
+	}
+
+	/**
+	* Retrieves the screen location and size of a specific element. Returns the bounds (object with x, y, width and height properties).
+	*
+	* @sample
+	* var bounds = clientutils.getBounds(elements.myelement);
+	*
+	* @param webComponent the component
+	*/
+	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
+	@JSFunction
+	public JSBounds getBounds(IBaseRuntimeComponent webComponent)
+	{
+		return getBounds(webComponent, null);
+	}
+
+	/**
+	* Retrieves the screen location and size of a specific child element. Returns the bounds (object with x, y, width and height properties).
+	*
+	* @sample
+	*  var bounds = clientutils.getBounds(elements.myelement,'.subclass');
+	*
+	*  @param webComponent the parent component
+	*  @param subselector a selector to identify a child component starting with parent component
+	*/
+	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
+	@JSFunction
+	public JSBounds getBounds(IBaseRuntimeComponent webComponent, String subselector)
+	{
+		if (application instanceof INGClientApplication && webComponent instanceof Scriptable)
+		{
+			JSONObject retVal = ((INGClientApplication)application).getBounds((String)((Scriptable)webComponent).get("svyMarkupId", (Scriptable)webComponent),
+				subselector);
+			if (retVal instanceof JSONObject bounds)
+			{
+				return new JSBounds(Utils.getAsInteger(bounds.get("x")), Utils.getAsInteger(bounds.get("y")), Utils.getAsInteger(bounds.get("width")),
+					Utils.getAsInteger(bounds.get("height")));
+			}
+		}
+		return null;
 	}
 
 	public void destroy()
