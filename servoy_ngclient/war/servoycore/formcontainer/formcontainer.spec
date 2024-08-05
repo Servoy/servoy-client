@@ -1,6 +1,6 @@
 {
 	"name": "servoycore-formcontainer",
-	"displayName": "Form container",
+	"displayName": "Form Container",
 	"categoryName": "Form Containers",
 	"version": 1,
 	"icon": "servoycore/formcontainer/tab.png",
