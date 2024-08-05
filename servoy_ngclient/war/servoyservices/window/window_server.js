@@ -442,11 +442,6 @@ $scope.formPopupClosed = function (event) {
     $scope.model.popupform = null;
 }
 
-$scope.clearPopupForm = function()
-{
-	$scope.model.popupform = null;
-}
-
 $scope.executeMenuItem = function(menuItemId, itemIndex, parentItemIndex, isSelected, parentMenuText, menuText)
 {
 	var menuAndArgs = menuArgumentsInternal[menuItemId];
@@ -523,3 +518,18 @@ $scope.api.cleanup = function()
 	$scope.model.shortcuts = null;
 	$scope.model.popupform = null;
 }
+
+$scope.clearPopupForm = function()
+{
+	delay(100).then(() => {
+		$scope.model.popupform = null;
+	  });
+	
+}
+
+function delay(ms) {
+	return new Promise(resolve => {
+	  while (Date.now() < endTime) ; 
+	  resolve();
+	});
+  }
