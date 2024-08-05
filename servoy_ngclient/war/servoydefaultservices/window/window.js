@@ -179,7 +179,6 @@ angular.module('window',['servoy'])
 					}
 				}
 			}
-			
 			function getElementById(id)
 			{
 				var defered = $q.defer();
@@ -191,8 +190,16 @@ angular.module('window',['servoy'])
 					else if (counter++ < 100) $timeout(test,10);
 					else defered.reject();
 				}
-				if (!id) defered.resolve(null);
-				else test();
+				if (!id) {
+					defered.resolve(null);
+				} else if (scope.sequencePopup) 
+				{
+					defered.reject();
+				} 
+				else 
+				{
+					test();
+				}
 				return defered.promise;
 			};
 			
@@ -276,7 +283,7 @@ angular.module('window',['servoy'])
 		    	})
 			};
 
-			function displayPopup(component, relatedElement, useScopeCoords) {
+			function displayElement(component, relatedElement, useScopeCoords) {
 				var body = $('body');
 				var style = 'position:absolute;z-index:1499;';
 				var left = $( window ).width() /2;
@@ -332,13 +339,13 @@ angular.module('window',['servoy'])
 			
 			getElementById(component).then(function(relatedElement)
 			{
-				displayPopup(component, relatedElement);
+				displayElement(component, relatedElement);
 
 		 }, function()
 		 { 
 			
 			if (scope.sequencePopup) {
-				displayPopup(null, null, scope.sequencePopup);
+				displayElement(null, null, scope.sequencePopup);
 			} else {
 				$log.error('Cannot show form popup, the related element is not visible: form name "' + form + '".');
 			}
