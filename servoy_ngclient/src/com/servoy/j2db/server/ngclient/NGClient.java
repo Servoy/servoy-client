@@ -74,6 +74,7 @@ import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.dataprocessing.IClient;
 import com.servoy.j2db.dataprocessing.IDataServer;
+import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
 import com.servoy.j2db.dataprocessing.SwingFoundSetFactory;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.RepositoryException;
@@ -1496,9 +1497,19 @@ public class NGClient extends AbstractApplication
 					Debug.error(ex);
 				}
 				return Boolean.FALSE;
+
 			case "autosave" :
-				getFoundSetManager().getEditRecordList().stopEditing(false);
+				IFoundSetManagerInternal fsm = getFoundSetManager();
+				if (fsm != null)
+				{
+					fsm.getEditRecordList().stopEditing(false);
+				}
+				else
+				{
+					Debug.warn("autosave with no foundSetManager.");
+				}
 				break;
+
 			case "callServerSideApi" :
 			{
 				if (getScriptEngine() == null)
@@ -1509,9 +1520,8 @@ public class NGClient extends AbstractApplication
 				PluginScope scope = (PluginScope)getScriptEngine().getSolutionScope().get("plugins", getScriptEngine().getSolutionScope());
 				Object service = scope.get(serviceScriptingName, scope);
 
-				if (service instanceof WebServiceScriptable)
+				if (service instanceof WebServiceScriptable webServiceScriptable)
 				{
-					WebServiceScriptable webServiceScriptable = (WebServiceScriptable)service;
 					JSONArray methodArguments = args.getJSONArray("args");
 					String serviceMethodName = args.getString("methodName");
 
