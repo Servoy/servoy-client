@@ -28,10 +28,11 @@ import com.servoy.j2db.solutionmodel.ISMRadios;
 
 /**
  * Solution model radios field.
- * 
+ *
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@Deprecated
 public class JSRadios extends JSField implements ISMRadios
 {
 	public JSRadios(IJSParent< ? > parent, Field field, IApplication application, boolean isNew)
@@ -52,7 +53,8 @@ public class JSRadios extends JSField implements ISMRadios
 	@ServoyClientSupport(ng = false, mc = true, wc = true, sc = true)
 	public void setHorizontal(boolean horizontal)
 	{
-		getBaseComponent(true).putCustomMobileProperty(IMobileProperties.RADIO_STYLE.propertyName, horizontal ? IMobileProperties.RADIO_STYLE_HORIZONTAL : null);
+		getBaseComponent(true).putCustomMobileProperty(IMobileProperties.RADIO_STYLE.propertyName,
+			horizontal ? IMobileProperties.RADIO_STYLE_HORIZONTAL : null);
 	}
 
 	/**

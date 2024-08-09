@@ -190,6 +190,7 @@ function printDocument(url)
  * 
  * @param {string} component the component to retrieve location for.
  * @return {point} the location of the component.
+ * @deprecated replaced by clientutils.getBounds()
  */
 function getAbsoluteLocation(component)
 {

@@ -49,6 +49,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.ISmartClientApplication;
 import com.servoy.j2db.J2DBGlobals;
+import com.servoy.j2db.MenuManager;
 import com.servoy.j2db.dataprocessing.DataException;
 import com.servoy.j2db.dataprocessing.FoundSet;
 import com.servoy.j2db.dataprocessing.IDataServer;
@@ -261,6 +262,9 @@ public class ScriptEngine implements IScriptSupport
 			InstanceJavaMembers ijm = new InstanceJavaMembers(toplevelScope, historyProvider.getClass());
 			Scriptable history = new NativeJavaObject(tmpSolutionScope, historyProvider, ijm);
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_HISTORY, tmpSolutionScope, history);
+
+			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_MENUS, tmpSolutionScope,
+				new NativeJavaObject(tmpSolutionScope, application.getMenuManager(), new InstanceJavaMembers(tmpSolutionScope, MenuManager.class)));
 
 			pluginScope = new PluginScope(tmpSolutionScope, application);
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_PLUGINS, tmpSolutionScope, pluginScope);

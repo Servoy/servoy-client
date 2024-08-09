@@ -71,7 +71,8 @@
 		},
 		"getAbsoluteLocation": {
 			"parameters": [{ "name": "component", "type": "runtimecomponent" }],
-			"returns": "point"
+			"returns": "point",
+			"deprecated": "Replaced by clientutils.getBounds()"
 		},
 		"setLangAttribute": {
 			"parameters": [{ "name": "lang", "type": "string" }]

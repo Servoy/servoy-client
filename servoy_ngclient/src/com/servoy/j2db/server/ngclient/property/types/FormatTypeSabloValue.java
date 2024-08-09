@@ -83,6 +83,7 @@ public class FormatTypeSabloValue implements ISmartSortOrderPrevalence, IHasUnde
 	private String dataproviderID;
 	private Object valuelistID;
 	private String foundsetID;
+	private String formatType;
 
 	private ComponentFormat componentFormat;
 
@@ -109,7 +110,7 @@ public class FormatTypeSabloValue implements ISmartSortOrderPrevalence, IHasUnde
 	 * don't have to wait for {@link #attachToBaseObject(IChangeListener, IWebObjectContext)} to initialize it. FormElement had all he necessary data in it.
 	 */
 	public FormatTypeSabloValue(String formatDesignValue, FormatPropertyDependencies propertyDependencies, String dataproviderID, Object valuelistID,
-		String foundsetID, IWebObjectContext webObjectContext)
+		String foundsetID, IWebObjectContext webObjectContext, String formatType)
 	{
 		this.formatDesignValue = formatDesignValue;
 		this.propertyDependencies = propertyDependencies;
@@ -119,8 +120,9 @@ public class FormatTypeSabloValue implements ISmartSortOrderPrevalence, IHasUnde
 		this.dataproviderID = dataproviderID;
 		this.valuelistID = valuelistID;
 		this.foundsetID = foundsetID;
+		this.formatType = formatType;
 
-		this.componentFormat = getSabloValue(formatDesignValue, dataproviderID, valuelistID, foundsetID, webObjectContext);
+		this.componentFormat = getSabloValue(formatDesignValue, dataproviderID, valuelistID, foundsetID, webObjectContext, formatType);
 
 		initialized = true;
 	}
@@ -177,6 +179,7 @@ public class FormatTypeSabloValue implements ISmartSortOrderPrevalence, IHasUnde
 		String newDataproviderID = null;
 		Object newValuelistID = null;
 		String newFoundsetID = null;
+		String newFormatType = null;
 
 		if (propertyDependencies.valueListPropertyName != null)
 		{
@@ -230,18 +233,24 @@ public class FormatTypeSabloValue implements ISmartSortOrderPrevalence, IHasUnde
 			}
 		}
 
+		if (propertyDependencies.stringPropertyName != null)
+		{
+			newFormatType = (String)webObjectContext.getProperty(propertyDependencies.stringPropertyName);
+		}
+
 		// see if anything we are interested in changed +
 		// format value always has what it needs the first time attachToBaseObject is called; so if componentFormat is null we must initialize
 		// it even if dataProvider or valueList are null (maybe they are really not set or not present)
 		if (!Utils.stringSafeEquals(newDataproviderID, dataproviderID) || !Utils.safeEquals(valuelistID, newValuelistID) ||
-			!Utils.stringSafeEquals(newFoundsetID, foundsetID) || componentFormat == null)
+			!Utils.stringSafeEquals(newFoundsetID, foundsetID) || componentFormat == null || !Utils.stringSafeEquals(newFormatType, formatType))
 		{
 			// so something did change or we should do first initialization
 			dataproviderID = newDataproviderID;
 			valuelistID = newValuelistID;
 			foundsetID = newFoundsetID;
+			formatType = newFormatType;
 
-			componentFormat = getSabloValue(formatDesignValue, dataproviderID, valuelistID, foundsetID, webObjectContext);
+			componentFormat = getSabloValue(formatDesignValue, dataproviderID, valuelistID, foundsetID, webObjectContext, formatType);
 
 			if (changeMonitor != null) changeMonitor.valueChanged();
 		}
@@ -289,9 +298,15 @@ public class FormatTypeSabloValue implements ISmartSortOrderPrevalence, IHasUnde
 		initialized = false;
 	}
 
-	protected ComponentFormat getSabloValue(String formatValue, String dataproviderId, Object valuelistId, String foundsetId, IWebObjectContext webObjectCntxt)
+	protected ComponentFormat getSabloValue(String formatValue, String dataproviderId, Object valuelistId, String foundsetId, IWebObjectContext webObjectCntxt,
+		String formatType)
 	{
 		INGApplication application = ((WebFormComponent)webObjectCntxt.getUnderlyingWebObject()).getDataConverterContext().getApplication();
+
+		if (formatType != null)
+		{
+			return ComponentFormat.getComponentFormat(formatValue, ComponentFormat.getValueTypeForFormatType(formatType), application);
+		}
 		IDataProviderLookup dataProviderLookup = null;
 
 		// IMPORTANT: here we use the for: configs in .spec file

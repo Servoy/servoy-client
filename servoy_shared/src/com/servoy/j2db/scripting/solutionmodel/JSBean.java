@@ -33,6 +33,7 @@ import com.servoy.j2db.solutionmodel.ISMBean;
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent")
 @ServoyClientSupport(ng = false, mc = true, wc = true, sc = true)
+@Deprecated
 public class JSBean extends JSComponent<Bean> implements IJavaScriptType, ISMBean, IMobileSMBean
 {
 	public JSBean(IJSParent< ? > parent, Bean baseComponent, boolean isNew)

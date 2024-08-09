@@ -189,6 +189,14 @@ public abstract class AbstractPersistFactory implements IPersistFactory
 				object = new ValueList(parent, elementId, uuid);
 				break;
 
+			case IRepository.MENUS :
+				object = new Menu(parent, elementId, uuid);
+				break;
+
+			case IRepository.MENU_ITEMS :
+				object = new MenuItem(parent, elementId, uuid);
+				break;
+
 			case IRepository.SCRIPTVARIABLES :
 				object = new ScriptVariable(parent, elementId, uuid);
 				break;

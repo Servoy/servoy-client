@@ -57,10 +57,11 @@ angular.module('dialogs',['servoy'])
 		 * @param dialogTitle Dialog title.
 		 * @param dialogMessage Dialog message.
 		 * @param initialValue 
+		 * @param inputType the type of the input field, one of: color, date, datetime-local, email, month, number, password, tel, text, time, url, week
 		 * 
 		 * @return {String}
 		 */
-		showInputDialog: function(dialogTitle,dialogMessage,initialValue) {
+		showInputDialog: function(dialogTitle,dialogMessage,initialValue,inputType) {
 			if (!dialogTitle) dialogTitle = "Enter value";
 			var dialogOpenedDeferred = $q.defer();
 			var dialogOptions = {

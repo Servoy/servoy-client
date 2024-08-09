@@ -703,11 +703,13 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSHeader newHeader()
 	{
 		return null; // mobile only
 	}
 
+	@Deprecated
 	@JSFunction
 	public JSHeader getHeader()
 	{
@@ -715,6 +717,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSInsetList newInsetList(int yLocation, String relationName, String headerText, String textDataProviderID)
 	{
 		return null; // mobile only
@@ -722,6 +725,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 
 	@Override
 	@JSFunction
+	@Deprecated
 	public JSInsetList getInsetList(String name)
 	{
 		return null; // mobile only
@@ -729,6 +733,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 
 	@Override
 	@JSFunction
+	@Deprecated
 	public JSInsetList[] getInsetLists()
 	{
 		return null; // mobile only
@@ -736,12 +741,14 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 
 	@Override
 	@JSFunction
+	@Deprecated
 	public boolean removeInsetList(String name)
 	{
 		return false; // mobile only
 	}
 
 	@Override
+	@Deprecated
 	public void setComponentOrder(IBaseSMComponent[] components)
 	{
 		// mobile only
@@ -781,6 +788,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return A JSPart instance corresponding to the newly created Leading Grand Summary form part.
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPart newLeadingGrandSummaryPart(int height)
 	{
 		return getOrCreatePart(Part.LEADING_GRAND_SUMMARY, height);
@@ -797,6 +805,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return A JSPart instance corresponding to the newly created Leading Subsummary form part.
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPart newLeadingSubSummaryPart(int height)
 	{
 		return getOrCreatePart(Part.LEADING_SUBSUMMARY, height);
@@ -814,6 +823,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return A JSPart instance corresponding to the newly created Trailing Subsummary form part.
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPart newTrailingSubSummaryPart(int height)
 	{
 		return getOrCreatePart(Part.TRAILING_SUBSUMMARY, height);
@@ -830,6 +840,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return A JSPart instance corresponding to the newly created Trailing Grand Summary form part.
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPart newTrailingGrandSummaryPart(int height)
 	{
 		return getOrCreatePart(Part.TRAILING_GRAND_SUMMARY, height);
@@ -852,12 +863,14 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSFooter newFooter()
 	{
 		return null; // mobile only
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSFooter getFooter()
 	{
 		return null; // mobile only
@@ -880,6 +893,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return A JSPart instance corresponding to the newly created Title Footer form part.
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPart newTitleFooterPart(int height)
 	{
 		return getOrCreatePart(Part.TITLE_FOOTER, height);
@@ -1093,6 +1107,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return A JSPart instance corresponding to the Title Header part of the form.
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPart getTitleHeaderPart()
 	{
 		return getPartInternal(Part.TITLE_HEADER);
@@ -1121,6 +1136,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return A JSPart instance corresponding to the Leading Grand Summary part of the form.
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPart getLeadingGrandSummaryPart()
 	{
 		return getPartInternal(Part.LEADING_GRAND_SUMMARY);
@@ -1144,6 +1160,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return An array of JSPart instances corresponding to the Leading Subsummary parts of the form.
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPart[] getLeadingSubSummaryParts()
 	{
 		return getPartsInternal(Part.LEADING_SUBSUMMARY);
@@ -1167,6 +1184,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return An array of JSPart instances corresponding to the Trailing Subsummary parts of the form.
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPart[] getTrailingSubSummaryParts()
 	{
 		return getPartsInternal(Part.TRAILING_SUBSUMMARY);
@@ -1181,6 +1199,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return A JSPart instance corresponding to the Trailing Grand Summary part of the form.
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPart getTrailingGrandSummaryPart()
 	{
 		return getPartInternal(Part.TRAILING_GRAND_SUMMARY);
@@ -1209,6 +1228,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return A JSPart instance corresponding to the Title Footer part of the form.
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPart getTitleFooterPart()
 	{
 		return getPartInternal(Part.TITLE_FOOTER);
@@ -1217,36 +1237,42 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 
 	@JSFunction
 	@Override
+	@Deprecated
 	public JSBean newBean(String name, int y)
 	{
 		return null; // only in mobile
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSField newField(IBaseSMVariable dataprovider, int type, int y)
 	{
 		return newField(dataprovider, type, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSField newField(String dataprovider, int type, int y)
 	{
 		return newField(dataprovider, type, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSText newTextField(IBaseSMVariable dataprovider, int y)
 	{
 		return (JSText)newField(dataprovider, Field.TEXT_FIELD, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSText newTextField(String dataprovider, int y)
 	{
 		return (JSText)newField(dataprovider, Field.TEXT_FIELD, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSTextArea newTextArea(IBaseSMVariable dataprovider, int y)
 	{
 		return (JSTextArea)newField(dataprovider, Field.TEXT_AREA, 0, y, 10, 10);
@@ -1260,12 +1286,14 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 
 
 	@JSFunction
+	@Deprecated
 	public JSCombobox newCombobox(IBaseSMVariable dataprovider, int y)
 	{
 		return (JSCombobox)newField(dataprovider, Field.COMBOBOX, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSCombobox newCombobox(String dataprovider, int y)
 	{
 		return (JSCombobox)newField(dataprovider, Field.COMBOBOX, 0, y, 10, 10);
@@ -1273,60 +1301,70 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 
 
 	@JSFunction
+	@Deprecated
 	public JSRadios newRadios(IBaseSMVariable dataprovider, int y)
 	{
 		return (JSRadios)newField(dataprovider, Field.RADIOS, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSRadios newRadios(String dataprovider, int y)
 	{
 		return (JSRadios)newField(dataprovider, Field.RADIOS, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSChecks newCheck(IBaseSMVariable dataprovider, int y)
 	{
 		return (JSChecks)newField(dataprovider, Field.CHECKS, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSChecks newCheck(String dataprovider, int y)
 	{
 		return (JSChecks)newField(dataprovider, Field.CHECKS, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSCalendar newCalendar(IBaseSMVariable dataprovider, int y)
 	{
 		return (JSCalendar)newField(dataprovider, Field.CALENDAR, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSCalendar newCalendar(String dataprovider, int y)
 	{
 		return (JSCalendar)newField(dataprovider, Field.CALENDAR, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSPassword newPassword(IBaseSMVariable dataprovider, int y)
 	{
 		return (JSPassword)newField(dataprovider, Field.PASSWORD, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSPassword newPassword(String dataprovider, int y)
 	{
 		return (JSPassword)newField(dataprovider, Field.PASSWORD, 0, y, 10, 10);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSButton newButton(String txt, int y, IBaseSMMethod jsmethod)
 	{
 		return newButton(txt, 0, y, 10, 10, jsmethod);
 	}
 
 	@JSFunction
+	@Deprecated
 	public JSLabel newLabel(String txt, int y)
 	{
 		return newLabel(txt, 0, y, 10, 10, null);
@@ -1336,6 +1374,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSComponent#getBorderType()
 	 */
 	@JSGetter
+	@Deprecated
 	public String getBorderType()
 	{
 		return getForm().getBorderType();
@@ -1358,6 +1397,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@Deprecated
 	public String getDefaultPageFormat()
 	{
 		return getForm().getDefaultPageFormat();
@@ -1566,6 +1606,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@Deprecated
 	public int getPaperPrintScale()
 	{
 		return getForm().getPaperPrintScale();
@@ -1654,6 +1695,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 */
 	@JSGetter
+	@Deprecated
 	public boolean getShowInMenu()
 	{
 		return getForm().getShowInMenu();
@@ -1704,6 +1746,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@Deprecated
 	public String getStyleName()
 	{
 		return getForm().getStyleName();
@@ -2008,6 +2051,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * forms['newForm1'].controller.show();
 	 */
 	@JSGetter
+	@Deprecated
 	public int getView()
 	{
 		return getForm().getView();
@@ -2899,6 +2943,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @sampleas getOnNewRecordCmd()
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnDeleteAllRecordsCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDELETEALLRECORDSCMDMETHODID);
@@ -2916,6 +2961,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @sampleas getOnNewRecordCmd()
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnDeleteRecordCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDELETERECORDCMDMETHODID);
@@ -2938,6 +2984,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@Deprecated
 	public JSMethod getOnDrag()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGMETHODID);
@@ -2957,6 +3004,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@Deprecated
 	public JSMethod getOnDragEnd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGENDMETHODID);
@@ -2975,6 +3023,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@Deprecated
 	public JSMethod getOnDragOver()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDRAGOVERMETHODID);
@@ -2994,6 +3043,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@Deprecated
 	public JSMethod getOnDrop()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDROPMETHODID);
@@ -3048,6 +3098,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @sampleas getOnNewRecordCmd()
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnDuplicateRecordCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONDUPLICATERECORDCMDMETHODID);
@@ -3068,6 +3119,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * form.onShowAllRecordsCmd = form.newMethod('function onShowAllRecordsCmd(event) { application.output("onShowAllRecordsCmd intercepted on " + event.getFormName()); }');
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnFindCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONFINDCMDMETHODID);
@@ -3121,6 +3173,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @sampleas getOnOmitRecordCmd()
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnInvertRecordsCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONINVERTRECORDSCMDMETHODID);
@@ -3161,6 +3214,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * form.onDeleteAllRecordsCmd = form.newMethod('function onDeleteAllRecordsCmd(event) { application.output("onDeleteAllRecordsCmd intercepted on " + event.getFormName()); }');
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnNewRecordCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONNEWRECORDCMDMETHODID);
@@ -3178,6 +3232,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @sampleas getOnPreviousRecordCmd()
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnNextRecordCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONNEXTRECORDCMDMETHODID);
@@ -3198,6 +3253,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * form.onInvertRecordsCmd = form.newMethod('function onInvertRecordsCmd(event) { application.output("onInvertRecordsCmd intercepted on " + event.getFormName()); }');
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnOmitRecordCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONOMITRECORDCMDMETHODID);
@@ -3217,6 +3273,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * form.onNextRecordCmd = form.newMethod('function onNextRecordCmd(event) { application.output("onNextRecordCmd intercepted on " + event.getFormName()); }');
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnPreviousRecordCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONPREVIOUSRECORDCMDMETHODID);
@@ -3236,6 +3293,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@Deprecated
 	public JSMethod getOnPrintPreviewCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONPRINTPREVIEWCMDMETHODID);
@@ -3308,6 +3366,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @sampleas getOnFindCmd()
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnSearchCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONSEARCHCMDMETHODID);
@@ -3325,6 +3384,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @sampleas getOnFindCmd()
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnShowAllRecordsCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONSHOWALLRECORDSCMDMETHODID);
@@ -3362,6 +3422,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @sampleas getOnOmitRecordCmd()
 	 */
 	@JSGetter
+	@Deprecated
 	public JSMethod getOnShowOmittedRecordsCmd()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONSHOWOMITTEDRECORDSCMDMETHODID);
@@ -3435,6 +3496,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@Deprecated
 	public JSMethod getOnRender()
 	{
 		return getEventHandler(StaticContentSpecLoader.PROPERTY_ONRENDERMETHODID);
@@ -3496,6 +3558,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * myForm.ngReadOnlyMode = true;
 	 */
 	@JSGetter
+	@Deprecated
 	public boolean getNgReadOnlyMode()
 	{
 		return Utils.getAsBoolean(getForm().getNgReadOnlyMode());
@@ -3640,6 +3703,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newField(Object dataprovider, int type)
 	{
 		return newField(dataprovider, type, 0, 0, 100, 20);
@@ -3663,6 +3727,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newTextField(Object dataprovider)
 	{
 		return newField(dataprovider, Field.TEXT_FIELD, 0, 0, 100, 20);
@@ -3686,6 +3751,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newTextArea(Object dataprovider)
 	{
 		return newField(dataprovider, Field.TEXT_AREA, 0, 0, 100, 100);
@@ -3707,6 +3773,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newComboBox(Object dataprovider)
 	{
 		return newField(dataprovider, Field.COMBOBOX, 0, 0, 100, 20);
@@ -3728,6 +3795,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newListBox(Object dataprovider)
 	{
 		return newField(dataprovider, Field.LIST_BOX, 0, 0, 100, 100);
@@ -3749,6 +3817,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newMultiSelectListBox(Object dataprovider)
 	{
 		return newField(dataprovider, Field.MULTISELECT_LISTBOX, 0, 0, 100, 100);
@@ -3770,6 +3839,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newSpinner(Object dataprovider)
 	{
 		return newField(dataprovider, Field.SPINNER, 0, 0, 100, 20);
@@ -3793,6 +3863,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newRadios(Object dataprovider)
 	{
 		return newField(dataprovider, Field.RADIOS, 0, 0, 100, 100);
@@ -3814,6 +3885,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newCheck(Object dataprovider)
 	{
 		return newField(dataprovider, Field.CHECKS, 0, 0, 100, 100);
@@ -3835,6 +3907,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newCalendar(Object dataprovider)
 	{
 		return newField(dataprovider, Field.CALENDAR, 0, 0, 100, 20);
@@ -3858,6 +3931,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newHtmlArea(Object dataprovider)
 	{
 		return newField(dataprovider, Field.HTML_AREA, 0, 0, 200, 300);
@@ -3880,6 +3954,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newImageMedia(Object dataprovider)
 	{
 		return newField(dataprovider, Field.IMAGE_MEDIA, 0, 0, 200, 200);
@@ -3904,6 +3979,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newTypeAhead(Object dataprovider)
 	{
 		return newField(dataprovider, Field.TYPE_AHEAD, 0, 0, 100, 20);
@@ -3925,6 +4001,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSField newPassword(Object dataprovider)
 	{
 		return newField(dataprovider, Field.PASSWORD, 0, 0, 100, 20);
@@ -3949,6 +4026,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSButton newButton(String txt, Object action)
 	{
 		return newButton(txt, 0, 0, 100, 20, action);
@@ -3970,6 +4048,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSLabel newLabel(String txt)
 	{
 		return newLabel(txt, 0, 0, 100, 20, null);
@@ -3995,6 +4074,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)
 	@JSFunction
+	@Deprecated
 	public JSPortal newPortal(String name, Object relation)
 	{
 		return newPortal(name, relation, 0, 0, 300, 300);
@@ -4023,6 +4103,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSTabPanel object
 	 */
 	@JSFunction
+	@Deprecated
 	public JSTabPanel newTabPanel(String name)
 	{
 		return newTabPanel(name, 0, 0, 100, 100);
@@ -4074,6 +4155,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a new JSField object (of the specified display type)
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newField(Object dataprovider, int type, int x, int y, int width, int height)
 	{
 		checkModification();
@@ -4125,6 +4207,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSField object with the displayType of TEXT_FIELD
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newTextField(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.TEXT_FIELD, x, y, width, height);
@@ -4149,6 +4232,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSField object with the displayType of TEXT_AREA
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newTextArea(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.TEXT_AREA, x, y, width, height);
@@ -4171,6 +4255,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a new JSField object on the form with the displayType of COMBOBOX
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newComboBox(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.COMBOBOX, x, y, width, height);
@@ -4193,6 +4278,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a new JSField object on the form with the displayType of LISTBOX
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newListBox(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.LIST_BOX, x, y, width, height);
@@ -4215,6 +4301,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a new JSField object on the form with the displayType of MULTISELECT_LISTBOX
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newMultiSelectListBox(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.MULTISELECT_LISTBOX, x, y, width, height);
@@ -4237,6 +4324,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a new JSField object on the form with the displayType of SPINNER
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newSpinner(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.SPINNER, x, y, width, height);
@@ -4261,6 +4349,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSField object with the displayType of RADIOS (radio buttons)
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newRadios(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.RADIOS, x, y, width, height);
@@ -4283,6 +4372,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a new JSField object on the form with the displayType of CHECK (checkbox)
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newCheck(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.CHECKS, x, y, width, height);
@@ -4305,6 +4395,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a new JSField object on the form with the displayType of CALENDAR
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newCalendar(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.CALENDAR, x, y, width, height);
@@ -4327,6 +4418,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSField object with the displayType of RTF_AREA
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newRtfArea(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.RTF_AREA, x, y, width, height);
@@ -4351,6 +4443,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSField object on the form with the displayType of HTML_AREA
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newHtmlArea(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.HTML_AREA, x, y, width, height);
@@ -4374,6 +4467,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a new JSField object on the form with the displayType of IMAGE_MEDIA
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newImageMedia(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.IMAGE_MEDIA, x, y, width, height);
@@ -4399,6 +4493,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSField object with the displayType of TYPE_AHEAD
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newTypeAhead(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.TYPE_AHEAD, x, y, width, height);
@@ -4421,6 +4516,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a new JSField object on the form with the displayType of PASSWORD
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField newPassword(Object dataprovider, int x, int y, int width, int height)
 	{
 		return newField(dataprovider, Field.PASSWORD, x, y, width, height);
@@ -4450,6 +4546,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a new JSButton object
 	 */
 	@JSFunction
+	@Deprecated
 	public JSButton newButton(String txt, int x, int y, int width, int height, Object action)
 	{
 		checkModification();
@@ -4498,6 +4595,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSLabel object
 	 */
 	@JSFunction
+	@Deprecated
 	public JSLabel newLabel(String txt, int x, int y, int width, int height)
 	{
 		return newLabel(txt, x, y, width, height, null);
@@ -4526,6 +4624,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSLabel object
 	 */
 	@JSFunction
+	@Deprecated
 	public JSLabel newLabel(String txt, int x, int y, int width, int height, Object action)
 	{
 		checkModification();
@@ -4660,6 +4759,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSPortal object
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPortal newPortal(String name, Object relation, int x, int y, int width, int height)
 	{
 		checkModification();
@@ -4703,6 +4803,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSPortal object
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPortal getPortal(String name)
 	{
 		if (name == null) return null;
@@ -4737,6 +4838,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return true if the JSPortal has successfully been removed; false otherwise
 	 */
 	@JSFunction
+	@Deprecated
 	public boolean removePortal(String name)
 	{
 		if (name == null) return false;
@@ -4774,6 +4876,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPortal[] getPortals(boolean returnInheritedElements)
 	{
 		List<JSPortal> portals = new ArrayList<JSPortal>();
@@ -4805,6 +4908,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public JSPortal[] getPortals()
 	{
 		return getPortals(false);
@@ -4835,6 +4939,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSTabPanel object
 	 */
 	@JSFunction
+	@Deprecated
 	public JSTabPanel newTabPanel(String name, int x, int y, int width, int height)
 	{
 		checkModification();
@@ -4866,6 +4971,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSTabPanel object
 	 */
 	@JSFunction
+	@Deprecated
 	public JSTabPanel getTabPanel(String name)
 	{
 		if (name == null) return null;
@@ -4905,6 +5011,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return true is the JSTabPanel has been successfully removed, false otherwise
 	 */
 	@JSFunction
+	@Deprecated
 	public boolean removeTabPanel(String name)
 	{
 		if (name == null) return false;
@@ -4942,6 +5049,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public JSTabPanel[] getTabPanels(boolean returnInheritedElements)
 	{
 		List<JSTabPanel> tabPanels = new ArrayList<JSTabPanel>();
@@ -4973,6 +5081,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public JSTabPanel[] getTabPanels()
 	{
 		return getTabPanels(false);
@@ -4992,6 +5101,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@JSFunction
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
+	@Deprecated
 	public JSField getField(String name)
 	{
 		if (name == null) return null;
@@ -5027,6 +5137,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
+	@Deprecated
 	public boolean removeField(String name)
 	{
 		if (name == null) return false;
@@ -5062,6 +5173,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public JSField[] getFields(boolean returnInheritedElements)
 	{
 		List<JSField> fields = new ArrayList<JSField>();
@@ -5092,6 +5204,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
+	@Deprecated
 	public JSField[] getFields()
 	{
 		return getFields(false);
@@ -5110,6 +5223,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
+	@Deprecated
 	public JSButton getButton(String name)
 	{
 		if (name == null) return null;
@@ -5144,6 +5258,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
+	@Deprecated
 	public boolean removeButton(String name)
 	{
 		if (name == null) return false;
@@ -5179,6 +5294,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public JSButton[] getButtons(boolean returnInheritedElements)
 	{
 		List<JSButton> buttons = new ArrayList<JSButton>();
@@ -5213,6 +5329,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
+	@Deprecated
 	public JSButton[] getButtons()
 	{
 		return getButtons(false);
@@ -5236,6 +5353,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * @return a JSBean object
 	 */
 	@JSFunction
+	@Deprecated
 	public JSBean newBean(String name, String className, int x, int y, int width, int height)
 	{
 		checkModification();
@@ -5265,6 +5383,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
+	@Deprecated
 	public JSBean getBean(String name)
 	{
 		if (name == null) return null;
@@ -5301,6 +5420,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
+	@Deprecated
 	public boolean removeBean(String name)
 	{
 		if (name == null) return false;
@@ -5335,6 +5455,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public JSBean[] getBeans(boolean returnInheritedElements)
 	{
 		List<JSBean> beans = new ArrayList<JSBean>();
@@ -5362,6 +5483,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public JSBean[] getBeans()
 	{
 		return getBeans(false);
@@ -5430,6 +5552,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
+	@Deprecated
 	public JSLabel getLabel(String name)
 	{
 		if (name == null) return null;
@@ -5473,6 +5596,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
+	@Deprecated
 	public boolean removeLabel(String name)
 	{
 		if (name == null) return false;
@@ -5508,6 +5632,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 */
 	@JSFunction
+	@Deprecated
 	public JSLabel[] getLabels(boolean returnInheritedElements)
 	{
 		List<JSLabel> labels = new ArrayList<JSLabel>();
@@ -5542,6 +5667,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 */
 	@ServoyClientSupport(mc = true, ng = true, wc = true, sc = true)
 	@JSFunction
+	@Deprecated
 	public JSLabel[] getLabels()
 	{
 		return getLabels(false);

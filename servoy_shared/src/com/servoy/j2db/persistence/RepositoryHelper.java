@@ -213,6 +213,8 @@ public class RepositoryHelper
 				return "relation"; //$NON-NLS-1$
 			case IRepository.VALUELISTS :
 				return "valuelist"; //$NON-NLS-1$
+			case IRepository.MENUS :
+				return "menu"; //$NON-NLS-1$
 			case IRepository.MEDIA :
 				return "media"; //$NON-NLS-1$
 			default :

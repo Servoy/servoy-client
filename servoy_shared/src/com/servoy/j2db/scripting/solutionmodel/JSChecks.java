@@ -23,10 +23,11 @@ import com.servoy.j2db.solutionmodel.ISMChecks;
 
 /**
  * Solution model checks field component.
- * 
+ *
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@Deprecated
 public class JSChecks extends JSField implements ISMChecks
 {
 	public JSChecks(IJSParent< ? > parent, Field field, IApplication application, boolean isNew)

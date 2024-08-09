@@ -26,6 +26,7 @@ import com.servoy.j2db.solutionmodel.ISMUnits;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@Deprecated
 public class UNITS implements ISMUnits, IPrefixedConstantsObject
 {
 

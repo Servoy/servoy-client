@@ -234,6 +234,25 @@ public class DebugNGClient extends NGClient implements IDebugNGClient
 	}
 
 	@Override
+	public void assertCondition(boolean condition, String message)
+	{
+		errorToDebugger(message, null);
+		super.assertCondition(condition, message);
+		if (!condition)
+		{
+			IExecutingEnviroment engine = getScriptEngine();
+			if (engine instanceof RemoteDebugScriptEngine)
+			{
+				DBGPDebugger debugger = ((RemoteDebugScriptEngine)engine).getDebugger();
+				if (debugger != null)
+				{
+					debugger.getStackManager().sendSuspend(message);
+				}
+			}
+		}
+	}
+
+	@Override
 	public void reportJSError(String message, Object detail)
 	{
 		errorToDebugger(message, detail);

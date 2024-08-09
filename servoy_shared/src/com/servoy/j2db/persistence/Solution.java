@@ -476,6 +476,31 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		return getValueLists(getAllObjectsAsList(), sort);
 	}
 
+	public Iterator<Menu> getMenus(boolean sort)
+	{
+		return getMenus(getAllObjectsAsList(), sort);
+	}
+
+	public static Iterator<Menu> getMenus(List<IPersist> childs, boolean sort)
+	{
+		Iterator<Menu> menus = new TypeIterator<Menu>(childs, IRepository.MENUS);
+		if (sort)
+		{
+			return Utils.asSortedIterator(menus, NameComparator.INSTANCE);
+		}
+		return menus;
+	}
+
+	public static Iterator<Menu> getMenus(Iterator<Menu> childs, boolean sort)
+	{
+		Iterator<Menu> menus = childs;
+		if (sort)
+		{
+			return Utils.asSortedIterator(menus, NameComparator.INSTANCE);
+		}
+		return menus;
+	}
+
 	public static Iterator<ValueList> getValueLists(List<IPersist> childs, boolean sort)
 	{
 		Iterator<ValueList> vls = new TypeIterator<ValueList>(childs, IRepository.VALUELISTS);
@@ -514,6 +539,22 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		validator.checkName(name, 0, new ValidatorSearchContext(IRepository.VALUELISTS), false);
 
 		ValueList obj = (ValueList)getChangeHandler().createNewObject(this, IRepository.VALUELISTS);
+		//set all the required properties
+
+		obj.setName(name);
+
+		addChild(obj);
+		return obj;
+	}
+
+	public Menu createNewMenu(IValidateName validator, String menuName) throws RepositoryException
+	{
+		String name = menuName == null ? "untitled" : menuName; //$NON-NLS-1$
+
+		//check if name is in use
+		validator.checkName(name, 0, new ValidatorSearchContext(IRepository.MENUS), false);
+
+		Menu obj = (Menu)getChangeHandler().createNewObject(this, IRepository.MENUS);
 		//set all the required properties
 
 		obj.setName(name);

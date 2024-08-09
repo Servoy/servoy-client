@@ -240,7 +240,7 @@ public class WebCustomType extends AbstractBase implements IChildWebObject, ISup
 	@Override
 	public String toString()
 	{
-		return getClass().getSimpleName() + " -> " + webObjectImpl.toString(); //$NON-NLS-1$
+		return getClass().getSimpleName() + " -> " + webObjectImpl.toString() + '[' + index + ']'; //$NON-NLS-1$
 	}
 
 	@Override

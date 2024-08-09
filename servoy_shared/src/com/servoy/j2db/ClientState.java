@@ -127,6 +127,9 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 	//mode manager handling the application mode
 	protected transient volatile IModeManager modeManager;
 
+	//menu manager handling the application menus
+	protected transient volatile MenuManager menuManager;
+
 	//foundset manager handling the foundsets
 	protected transient volatile IFoundSetManagerInternal foundSetManager;
 
@@ -293,6 +296,9 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 
 		// create formmanager
 		formManager = createFormManager();
+
+		// create modemanager
+		menuManager = createMenuManager();
 
 		// Runtime.getRuntime().addShutdownHook(new Thread()
 		// {
@@ -940,6 +946,16 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		return new FoundSetManagerConfig(getSettings());
 	}
 
+	public MenuManager getMenuManager()
+	{
+		return menuManager;
+	}
+
+	protected MenuManager createMenuManager()
+	{
+		return new MenuManager(this);
+	}
+
 	public String getClientID()
 	{
 		if (clientInfo == null)
@@ -1131,6 +1147,8 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 		{
 			Debug.error(e1);
 		}
+
+		menuManager = null;
 
 		saveSettings();
 

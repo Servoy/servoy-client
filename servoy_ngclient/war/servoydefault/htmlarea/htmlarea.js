@@ -93,6 +93,13 @@ angular.module('servoydefaultHtmlarea',['servoy','ui.tinymce']).directive('servo
 								 $scope.handlers.onActionMethodID(createEvent(e));
 							 } 
 					     });
+						 ed.on('contextmenu',function(e) {
+							if ($scope.handlers.onRightClickMethodID)
+							{
+								$scope.handlers.onRightClickMethodID(createEvent(e));
+								e.preventDefault();
+							} 
+						 });
 						 ed.on('focus',function(e) {
 						  if ($scope.mustExecuteOnFocusGainedMethod !== false && $scope.handlers.onFocusGainedMethodID)
 						  {

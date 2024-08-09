@@ -41,6 +41,7 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@Deprecated
 public class JSTab extends JSBase<Tab> implements IJavaScriptType, ISMTab
 {
 	private final IApplication application;
@@ -62,7 +63,7 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType, ISMTab
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Tab#getContainsFormID()
-	 * 
+	 *
 	 * @sample
 	 * var childForm = solutionModel.newForm('childForm', 'db:/example_data/child_table', null, false, 400, 300);
 	 * var anotherChildForm = solutionModel.newForm('anotherChildForm', 'db:/example_data/child_table', null, false, 400, 300);
@@ -96,7 +97,7 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType, ISMTab
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Tab#getForeground()
-	 * 
+	 *
 	 * @sample
 	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm, relation);
 	 * firstTab.foreground = '#FF0000';
@@ -116,7 +117,7 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType, ISMTab
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Tab#getImageMediaID()
-	 * 
+	 *
 	 * @sample
 	 * var bytes = plugins.file.readFile('d:/ball.jpg');
 	 * var ballImage = solutionModel.newMedia('ball.jpg', bytes);
@@ -149,10 +150,10 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType, ISMTab
 	}
 
 	/**
-	 * The X coordinate of the tab. This influences the order in which the tabs are displayed. 
-	 * The tabs are displayed in increasing order of the X coordinate. If two tabs have the 
+	 * The X coordinate of the tab. This influences the order in which the tabs are displayed.
+	 * The tabs are displayed in increasing order of the X coordinate. If two tabs have the
 	 * same X coordinate, then they are displayed in increasing order of the Y coordinate.
-	 * 
+	 *
 	 * @sample
 	 * // Create two tabs, then make the second one be displayed to the left of the first
 	 * // by setting their X coordinates in the needed order.
@@ -175,14 +176,14 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType, ISMTab
 	}
 
 	/**
-	 * The Y coordinate of the tab. Together with the X coordinate, this influences the order 
+	 * The Y coordinate of the tab. Together with the X coordinate, this influences the order
 	 * in which the tabs are displayed. The tabs are displayed in increasing order of the X coordinate,
-	 * and if two tabs have the same X coordinate, then they are displayed in increasing order 
+	 * and if two tabs have the same X coordinate, then they are displayed in increasing order
 	 * of the Y coordinate.
-	 * 
+	 *
 	 * @sample
 	 * // Create two tabs, then make the second one be displayed to the left of the first
-	 * // by setting their X to the same value and Y coordinates in the needed order. 
+	 * // by setting their X to the same value and Y coordinates in the needed order.
 	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm, relation);
 	 * firstTab.x = 0;
 	 * firstTab.y = 10;
@@ -205,7 +206,7 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType, ISMTab
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Tab#getName()
-	 * 
+	 *
 	 * @sample
 	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm, relation);
 	 * firstTab.name = 'firstTabRenamed';
@@ -233,7 +234,7 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType, ISMTab
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Tab#getRelationName()
-	 * 
+	 *
 	 * @sample
 	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm);
 	 * firstTab.relationName = 'parent_table_to_child_table';
@@ -271,7 +272,7 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType, ISMTab
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Tab#getText()
-	 * 
+	 *
 	 * @sample
 	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm, relation);
 	 * firstTab.text = 'Better Title';
@@ -291,7 +292,7 @@ public class JSTab extends JSBase<Tab> implements IJavaScriptType, ISMTab
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Tab#getToolTipText()
-	 * 
+	 *
 	 * @sample
 	 * var firstTab = tabs.newTab('firstTab', 'Child Form', childForm, relation);
 	 * firstTab.toolTipText = 'Tooltip';

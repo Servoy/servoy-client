@@ -887,6 +887,7 @@ public interface ISolutionModel extends IBaseSolutionModel
 	 * @param rounding_radius width of the arc to round the corners
 	 * @param dash_pattern the dash pattern of border stroke
 	 */
+	@Deprecated
 	public String createSpecialMatteBorder(int top_width, int right_width, int bottom_width, int left_width, String top_color, String right_color,
 		String bottom_color, String left_color, float rounding_radius, float[] dash_pattern);
 

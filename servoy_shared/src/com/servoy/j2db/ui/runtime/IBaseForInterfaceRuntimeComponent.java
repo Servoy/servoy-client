@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2019 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -13,38 +13,19 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
- */
+*/
 
-package com.servoy.j2db.scripting.solutionmodel;
+package com.servoy.j2db.ui.runtime;
 
-import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.scripting.IPrefixedConstantsObject;
-import com.servoy.j2db.solutionmodel.ISMBevelType;
+import com.servoy.j2db.scripting.IScriptable;
 
 /**
  * @author lvostinar
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
-@Deprecated
-public class BEVELTYPE implements ISMBevelType, IPrefixedConstantsObject
+public interface IBaseForInterfaceRuntimeComponent
+	extends IBaseRuntimeComponent, IScriptable, HasRuntimeClientProperty, HasRuntimeFormName, HasRuntimeName, HasRuntimeElementType,
+	HasRuntimeDesignTimeProperty
 {
-
-	/**
-	 * @see com.servoy.j2db.scripting.IPrefixedConstantsObject#getPrefix()
-	 */
-	public String getPrefix()
-	{
-		return "SM_BEVELTYPE"; //$NON-NLS-1$
-	}
-
-	/**
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString()
-	{
-		return "Bevel Border Type Constants"; //$NON-NLS-1$
-	}
 
 }

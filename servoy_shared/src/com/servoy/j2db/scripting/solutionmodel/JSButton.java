@@ -28,6 +28,7 @@ import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.solutionmodel.ISMButton;
 
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "JSComponent", scriptingName = "JSButton")
+@Deprecated
 public class JSButton extends JSGraphicalComponent implements ISMButton, IBaseSMButton, IConstantsObject
 {
 	public JSButton(IJSParent< ? > parent, GraphicalComponent gc, IApplication application, boolean isNew)

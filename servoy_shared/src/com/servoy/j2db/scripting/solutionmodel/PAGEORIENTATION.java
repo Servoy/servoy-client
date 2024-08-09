@@ -26,6 +26,7 @@ import com.servoy.j2db.solutionmodel.ISMPageOrientation;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@Deprecated
 public class PAGEORIENTATION implements ISMPageOrientation, IPrefixedConstantsObject
 {
 

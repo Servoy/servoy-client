@@ -735,6 +735,19 @@ public abstract class AbstractBase implements IPersist
 		allobjectsMap = null;
 	}
 
+	public void moveChild(IPersist obj, boolean moveUp)
+	{
+		if (allobjects != null)
+		{
+			int index = allobjects.indexOf(obj);
+			if (index >= 0 && index < allobjects.size())
+			{
+				Collections.swap(allobjects, index, moveUp ? index - 1 : index + 1);
+				flagChanged();
+			}
+		}
+	}
+
 	public IPersist getChild(UUID childUuid)
 	{
 		if (allobjectsMap == null && allobjects != null && allobjects.size() > 0)

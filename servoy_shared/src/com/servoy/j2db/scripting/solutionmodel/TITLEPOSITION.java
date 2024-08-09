@@ -26,6 +26,7 @@ import com.servoy.j2db.solutionmodel.ISMTitlePosition;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@Deprecated
 public class TITLEPOSITION implements ISMTitlePosition, IPrefixedConstantsObject
 {
 

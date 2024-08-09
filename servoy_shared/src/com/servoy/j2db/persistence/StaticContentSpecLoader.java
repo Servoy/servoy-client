@@ -266,6 +266,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 	public static final TypedProperty<String> PROPERTY_SORTOPTIONS = new TypedProperty<String>(IContentSpecConstants.PROPERTY_SORTOPTIONS);
 	public static final TypedProperty<Integer> PROPERTY_STYLESHEET = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_STYLESHEET);
 	public static final TypedProperty<String> PROPERTY_STYLECLASS = new TypedProperty<String>(IContentSpecConstants.PROPERTY_STYLECLASS);
+	public static final TypedProperty<String> PROPERTY_ICONSTYLECLASS = new TypedProperty<String>(IContentSpecConstants.PROPERTY_ICONSTYLECLASS);
 	public static final TypedProperty<String> PROPERTY_STYLENAME = new TypedProperty<String>(IContentSpecConstants.PROPERTY_STYLENAME);
 	public static final TypedProperty<String> PROPERTY_STYLE = new TypedProperty<String>(IContentSpecConstants.PROPERTY_STYLE);
 	public static final TypedProperty<String> PROPERTY_TAGTYPE = new TypedProperty<String>(IContentSpecConstants.PROPERTY_TAGTYPE);
@@ -310,6 +311,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 		IContentSpecConstants.PROPERTY_ONAUTOSAVEDFAILEDMETHODID);
 	public static final TypedProperty<Integer> PROPERTY_ONBEFORELOGINMETHODID = new TypedProperty<Integer>(
 		IContentSpecConstants.PROPERTY_ONBEFORELOGINMETHODID);
+	public static final TypedProperty<ServoyJSONObject> PROPERTY_PERMISSIONS = new TypedProperty<ServoyJSONObject>(IContentSpecConstants.PROPERTY_PERMISSIONS);
 
 	private static HashMap<Integer, ContentSpec> csMap = new HashMap<Integer, ContentSpec>();
 
@@ -975,6 +977,24 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(473, IRepository.CSSPOS_LAYOUTCONTAINERS, PROPERTY_COMMENT.getPropertyName(), IRepository.STRING);
 //			cs.new Element(472, IRepository.LAYOUTCONTAINERS, PROPERTY_SIZE.getPropertyName(), IRepository.DIMENSION);
 
+		}
+		if (old_repository_version < 58)
+		{
+			//2024.09 properties here
+			cs.new Element(474, IRepository.MENUS, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
+			cs.new Element(475, IRepository.MENUS, PROPERTY_COMMENT.getPropertyName(), IRepository.STRING);
+			cs.new Element(476, IRepository.MENUS, PROPERTY_ENCAPSULATION.getPropertyName(), IRepository.INTEGER);
+			cs.new Element(477, IRepository.MENUS, PROPERTY_STYLECLASS.getPropertyName(), IRepository.STRING);
+			cs.new Element(478, IRepository.MENUS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
+
+			cs.new Element(479, IRepository.MENU_ITEMS, PROPERTY_NAME.getPropertyName(), IRepository.STRING);
+			cs.new Element(480, IRepository.MENU_ITEMS, PROPERTY_TEXT.getPropertyName(), IRepository.STRING);
+			cs.new Element(481, IRepository.MENU_ITEMS, PROPERTY_TOOLTIPTEXT.getPropertyName(), IRepository.STRING);
+			cs.new Element(482, IRepository.MENU_ITEMS, PROPERTY_STYLECLASS.getPropertyName(), IRepository.STRING);
+			cs.new Element(483, IRepository.MENU_ITEMS, PROPERTY_ICONSTYLECLASS.getPropertyName(), IRepository.STRING);
+			cs.new Element(484, IRepository.MENU_ITEMS, PROPERTY_CUSTOMPROPERTIES.getPropertyName(), IRepository.STRING);
+			cs.new Element(485, IRepository.MENU_ITEMS, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
+			cs.new Element(486, IRepository.MENU_ITEMS, PROPERTY_PERMISSIONS.getPropertyName(), IRepository.JSON, null);
 		}
 
 		//##add property adds here

@@ -204,6 +204,7 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_SORTOPTIONS = "sortOptions";
 	public static final String PROPERTY_STYLESHEET = "styleSheetID";
 	public static final String PROPERTY_STYLECLASS = "styleClass";
+	public static final String PROPERTY_ICONSTYLECLASS = "iconStyleClass";
 	public static final String PROPERTY_STYLENAME = "styleName";
 	public static final String PROPERTY_TAGTYPE = "tagType";
 	public static final String PROPERTY_TITLETEXT = "titleText";
@@ -230,4 +231,5 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_ONBEFORELOGINMETHODID = "onBeforeLoginMethodID";
 	public static final String PROPERTY_USE_MIN_HEIGHT = "useMinHeight";
 	public static final String PROPERTY_USE_MIN_WIDTH = "useMinWidth";
+	public static final String PROPERTY_PERMISSIONS = "permissions";
 }

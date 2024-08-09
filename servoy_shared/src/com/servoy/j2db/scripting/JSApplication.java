@@ -137,7 +137,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 
 	private static Class< ? >[] getAllReturnedTypesInternal()
 	{
-		return new Class< ? >[] { APPLICATION_TYPES.class, CLIENTDESIGN.class, DRAGNDROP.class, ELEMENT_TYPES.class, ICSSPosition.class, IScriptRenderMethodsWithOptionalProps.class, JSDimension.class, JSPoint.class, JSDNDEvent.class, JSEvent.class, JSRenderEvent.class, JSUpload.class, JSWindow.class, JSLogger.class, JSLogBuilder.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, NGCONSTANTS.class, APP_UI_PROPERTY.class, APP_NG_PROPERTY.class };
+		return new Class< ? >[] { APPLICATION_TYPES.class, CLIENTDESIGN.class, DRAGNDROP.class, ELEMENT_TYPES.class, ICSSPosition.class, IScriptRenderMethodsWithOptionalProps.class, JSDimension.class, JSPoint.class, JSBounds.class, JSDNDEvent.class, JSEvent.class, JSRenderEvent.class, JSUpload.class, JSWindow.class, JSLogger.class, JSLogBuilder.class, LOGGINGLEVEL.class, UICONSTANTS.class, UUID.class, WEBCONSTANTS.class, NGCONSTANTS.class, APP_UI_PROPERTY.class, APP_NG_PROPERTY.class };
 	}
 
 	@Deprecated
@@ -2205,6 +2205,23 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 		{
 			application.output(msg, level);
 		}
+	}
+
+	/**
+	 * This assert method can be used to check for conditions in the code.
+	 * A message can be give that will then end up in the log file (with the stacktrace where this failed).
+	 *
+	 * If the condition is false and your are in developer then also the debugger will stop on this line by default.
+	 *
+	 * @sample
+	 * application.assert(userId != null, "User id should not be null");
+	 *
+	 * @param condition If flase then the assert is wrong and the message will be printed, debugger will stop on this line.
+	 * @param message The message to display if the condition is false.
+	 */
+	public void js_assert(boolean condition, String message)
+	{
+		application.assertCondition(condition, message);
 	}
 
 	/**

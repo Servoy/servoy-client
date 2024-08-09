@@ -23,10 +23,11 @@ import com.servoy.j2db.solutionmodel.ISMText;
 
 /**
  * Solution model tetxt field component.
- * 
+ *
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
+@Deprecated
 public class JSText extends JSField implements ISMText
 {
 	public JSText(IJSParent< ? > parent, Field field, IApplication application, boolean isNew)

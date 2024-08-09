@@ -7317,7 +7317,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		EditRecordList editRecordList = fsm.getEditRecordList();
 		if (editRecordList.stopIfEditing(this) != ISaveConstants.STOPPED)
 		{
-			Debug.log("Couldn't add foundset filter param because foundset had edited records"); //$NON-NLS-1$
+			Debug.warn("Couldn't add foundset filter param because foundset had edited records"); //$NON-NLS-1$
 			return false;
 		}
 

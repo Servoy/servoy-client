@@ -29,7 +29,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeComponent", scriptingName = "RuntimeComponent", extendsComponent = "Component")
 @SuppressWarnings("nls")
 @ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
-public interface IRuntimeComponent extends IBaseRuntimeComponent, HasRuntimeFgBgColor, HasRuntimeVisible, HasRuntimeEnabled, HasRuntimeBorder,
+public interface IRuntimeComponent extends IBaseForInterfaceRuntimeComponent, HasRuntimeFgBgColor, HasRuntimeVisible, HasRuntimeEnabled, HasRuntimeBorder,
 	HasRuntimeTransparant, HasRuntimeTooltip, HasRuntimeFont, HasRuntimeSize, HasRuntimeLocation, HasRuntimeStyleClass
 {
 	// types for getElementType

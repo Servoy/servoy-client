@@ -55,7 +55,7 @@ public class JSPart extends JSBase<Part> implements ISMPart, IMobileSMPart
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Part#getAllowBreakAcrossPageBounds()
-	 * 
+	 *
 	 * @sample
 	 * var body = form.newPart(JSPart.BODY, 320);
 	 * body.allowBreakAcrossPageBounds = true;
@@ -63,6 +63,7 @@ public class JSPart extends JSBase<Part> implements ISMPart, IMobileSMPart
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@Deprecated
 	public boolean getAllowBreakAcrossPageBounds()
 	{
 		return getBaseComponent(false).getAllowBreakAcrossPageBounds();
@@ -77,7 +78,7 @@ public class JSPart extends JSBase<Part> implements ISMPart, IMobileSMPart
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Part#getBackground()
-	 * 
+	 *
 	 * @sample
 	 * var body = form.newPart(JSPart.BODY, 320);
 	 * body.background = 'green';
@@ -96,10 +97,11 @@ public class JSPart extends JSBase<Part> implements ISMPart, IMobileSMPart
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Part#getDiscardRemainderAfterBreak()
-	 * 
+	 *
 	 * @sampleas getAllowBreakAcrossPageBounds()
 	 */
 	@JSGetter
+	@Deprecated
 	public boolean getDiscardRemainderAfterBreak()
 	{
 		return getBaseComponent(false).getDiscardRemainderAfterBreak();
@@ -113,12 +115,13 @@ public class JSPart extends JSBase<Part> implements ISMPart, IMobileSMPart
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Part#getGroupbyDataProviderIDs()
-	 * 
+	 *
 	 * @sample
 	 * var leadingSubsummary = form.newPart(JSPart.LEADING_SUBSUMMARY, 160);
 	 * leadingSubsummary.groupbyDataProviderIDs = 'my_table_text';
 	 */
 	@JSGetter
+	@Deprecated
 	public String getGroupbyDataProviderIDs()
 	{
 		return getBaseComponent(false).getGroupbyDataProviderIDs();
@@ -133,7 +136,7 @@ public class JSPart extends JSBase<Part> implements ISMPart, IMobileSMPart
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Part#getHeight()
 	 *
-	 * @sample 
+	 * @sample
 	 * var part = form.newPart(JSPart.HEADER, 100);
 	 * part.height = 200;
 	 */
@@ -151,13 +154,14 @@ public class JSPart extends JSBase<Part> implements ISMPart, IMobileSMPart
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Part#getPageBreakAfterOccurrence()
-	 * 
+	 *
 	 * @sample
 	 * var body = form.newPart(JSPart.BODY, 320);
 	 * body.pageBreakAfterOccurrence = 2;
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@Deprecated
 	public int getPageBreakAfterOccurrence()
 	{
 		return getBaseComponent(false).getPageBreakAfterOccurrence();
@@ -172,7 +176,7 @@ public class JSPart extends JSBase<Part> implements ISMPart, IMobileSMPart
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Part#getPageBreakBefore()
-	 * 
+	 *
 	 * @sample
 	 * var leadingSubsummary = form.newPart(JSPart.LEADING_SUBSUMMARY, 160);
 	 * leadingSubsummary.groupbyDataProviderIDs = 'my_table_text';
@@ -180,6 +184,7 @@ public class JSPart extends JSBase<Part> implements ISMPart, IMobileSMPart
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@Deprecated
 	public boolean getPageBreakBefore()
 	{
 		return getBaseComponent(false).getPageBreakBefore();
@@ -196,7 +201,7 @@ public class JSPart extends JSBase<Part> implements ISMPart, IMobileSMPart
 	 * The Y offset of the part on the form, this will include all the super forms parts if this form extends a form.
 	 *
 	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSForm#getParts()
-	 * 
+	 *
 	 * @return A number holding the Y offset of the form part.
 	 */
 	@JSFunction
@@ -208,9 +213,9 @@ public class JSPart extends JSBase<Part> implements ISMPart, IMobileSMPart
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Part#getPartType()
-	 * 
+	 *
 	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSForm#getParts()
-	 * 
+	 *
 	 * @return A number representing the type of the form part.
 	 */
 	@JSFunction
@@ -221,7 +226,7 @@ public class JSPart extends JSBase<Part> implements ISMPart, IMobileSMPart
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Part#getRestartPageNumber()
-	 * 
+	 *
 	 * @sample
 	 * var trailingSubsummary = form.newPart(JSPart.TRAILING_SUBSUMMARY, 360);
 	 * trailingSubsummary.groupbyDataProviderIDs = 'my_table_text';
@@ -229,6 +234,7 @@ public class JSPart extends JSBase<Part> implements ISMPart, IMobileSMPart
 	 */
 	@JSGetter
 	@ServoyClientSupport(ng = false, wc = true, sc = true)
+	@Deprecated
 	public boolean getRestartPageNumber()
 	{
 		return getBaseComponent(false).getRestartPageNumber();
@@ -243,12 +249,13 @@ public class JSPart extends JSBase<Part> implements ISMPart, IMobileSMPart
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.Part#getSinkWhenLast()
-	 * 
+	 *
 	 * @sample
 	 * var trailingGrandSummary = form.newPart(JSPart.TRAILING_GRAND_SUMMARY, 400);
 	 * trailingGrandSummary.sinkWhenLast = true;
 	 */
 	@JSGetter
+	@Deprecated
 	public boolean getSinkWhenLast()
 	{
 		return getBaseComponent(false).getSinkWhenLast();
@@ -262,7 +269,7 @@ public class JSPart extends JSBase<Part> implements ISMPart, IMobileSMPart
 
 	/**
 	 * @clonedesc com.servoy.base.persistence.IBasePart#getStyleClass()
-	 * 
+	 *
 	 * @sample
 	 * var body = form.newPart(JSPart.BODY, 320);
 	 * body.styleClass = 'myBody';

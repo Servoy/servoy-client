@@ -245,6 +245,7 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	 * layoutContainer.style = "background-color:red";
 	 */
 	@JSGetter
+	@Deprecated
 	public String getStyle()
 	{
 		return getLayoutContainer().getStyle();

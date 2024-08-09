@@ -1,6 +1,6 @@
 {
 	"name": "servoycore-formcomponent",
-	"displayName": "FormComponentContainer",
+	"displayName": "Form Component Container",
 	"categoryName": "Form Containers",
 	"version": 1,
 	"icon": "servoycore/formcomponent/formcomponent.png",

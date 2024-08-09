@@ -2,6 +2,11 @@ angular.module('window',['servoy'])
 .factory("window",function($window,$services,$compile,$formService,$windowService,$sabloApplication,$timeout,$q,$log,$sabloTestability,$utils,$log) {
 	var scope = $services.getServiceScope('window');
 	scope.formPopupShown = null;
+	scope.clickedComponentId = null;
+	scope.x = null;
+	scope.y = null;
+	scope.sequencePopup = false;
+
 	// when a form popup is shown, we notify the server that the form will become visible but wait for the server to return any changes/data that form
     // needs to have client side (to be up to date) before really showing it in the browser; so after the form popup decides to show a form there will
 	// be a req/respone cycle before the reallyShownFormURL that shows that form in the DOM is set to the new form
@@ -129,6 +134,13 @@ angular.module('window',['servoy'])
 				$( "#mainForm" ).trigger( "disableTabseq" );
 			}
 
+			var docComponent = document.getElementById(component);
+
+			scope.sequencePopup = false;
+			if (component && !docComponent && component == scope.clickedComponentId) {
+				scope.sequencePopup = true;
+			}
+
 			$formService.formWillShow(form, true).then(function successCallback() {
 				if ($log.debugEnabled) $log.debug("wnd * formWillShow resolved successfully for showFormPopup; form: " + form + ". Adding the form to DOM.");
 				scope.reallyShownFormURL = $windowService.getFormUrl(form);
@@ -179,8 +191,16 @@ angular.module('window',['servoy'])
 					else if (counter++ < 100) $timeout(test,10);
 					else defered.reject();
 				}
-				if (!id) defered.resolve(null);
-				else test();
+				if (!id) {
+					defered.resolve(null);
+				} else if (scope.sequencePopup) 
+				{
+					defered.reject();
+				} 
+				else 
+				{
+					test();
+				}
 				return defered.promise;
 			};
 			
@@ -236,7 +256,11 @@ angular.module('window',['servoy'])
 					var css = {};
 					css["width"] = popupwidth+"px";
 					css["height"] = popupheight+"px";
-					if (component || (x && y))
+					if (scope.sequencePopup) 
+					{
+						css["left"] = scope.x + "px";
+						css["top"] = scope.y + "px";
+					} else if (component || (x && y))
 					{
 						var position = component ? $('#'+component).offset() : {'left':x,'top':y};
 						var left = getLeftPosition(position,popupwidth,component,null);
@@ -259,14 +283,18 @@ angular.module('window',['servoy'])
 					$('#formpopup').css(css);
 		    	})
 			};
-			getElementById(component).then(function(relatedElement)
-			{
+
+			function displayElement(component, relatedElement, useScopeCoords) {
 				var body = $('body');
 				var style = 'position:absolute;z-index:1499;';
 				var left = $( window ).width() /2;
 				var top = $( window ).height() /2;
 				var position = null;
-				if (component)
+
+				if  (useScopeCoords) {
+					left = scope.x;
+					top = scope.y;
+				} else if (component)
 				{
 					var position = relatedElement.offset();
 					left = position.left;
@@ -308,10 +336,20 @@ angular.module('window',['servoy'])
 					body.append('<div class="formpopup-backdrop modal-backdrop fade in" style="z-index:1498"></div>');
 				}
 				body.append(popup);
+			}
+			
+			getElementById(component).then(function(relatedElement)
+			{
+				displayElement(component, relatedElement);
 
 		 }, function()
-		 {
-			 $log.error('Cannot show form popup, the related element is not visible: form name "'+form+'".');
+		 { 
+			
+			if (scope.sequencePopup) {
+				displayElement(null, null, scope.sequencePopup);
+			} else {
+				$log.error('Cannot show form popup, the related element is not visible: form name "' + form + '".');
+			}
 		 });
 		},
 		
@@ -455,6 +493,15 @@ angular.module('window',['servoy'])
 	}
 	function formPopupBodyListener(event)
 	{
+		var target = event.target;
+		if (target && target.id) {
+			// Store the ID of the clicked element
+			scope.clickedComponentId = target.id;
+			scope.x = parseInt($('#formpopup').css('left'), 10);
+			scope.y = parseInt($('#formpopup').css('top'), 10);
+		} else {
+			scope.clickedComponentId = null;
+		}
 			if (scope.formPopupShown && scope.formPopupShown.doNotCloseOnClickOutside){
 				return;
 			}

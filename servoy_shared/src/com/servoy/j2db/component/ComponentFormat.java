@@ -289,4 +289,24 @@ public class ComponentFormat
 		return obj;
 	}
 
+	public static int getValueTypeForFormatType(String formatType)
+	{
+		int valueType = IColumnTypes.TEXT;
+		if (formatType != null)
+		{
+			switch (formatType)
+			{
+				case "TEXT" :
+					valueType = IColumnTypes.TEXT;
+					break;
+				case "NUMBER" :
+					valueType = IColumnTypes.NUMBER;
+					break;
+				case "DATETIME" :
+					valueType = IColumnTypes.DATETIME;
+			}
+		}
+		return valueType;
+	}
+
 }

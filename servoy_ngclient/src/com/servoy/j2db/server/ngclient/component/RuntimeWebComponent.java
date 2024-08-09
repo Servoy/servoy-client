@@ -71,6 +71,7 @@ import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ValueListTypeSabloValue;
 import com.servoy.j2db.server.ngclient.scripting.WebComponentFunction;
 import com.servoy.j2db.server.ngclient.scripting.WebServiceScriptable;
+import com.servoy.j2db.ui.runtime.IBaseRuntimeComponent;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
 
@@ -79,7 +80,7 @@ import com.servoy.j2db.util.Utils;
  *
  */
 @SuppressWarnings("nls")
-public class RuntimeWebComponent implements Scriptable, IInstanceOf, IRefreshValueList
+public class RuntimeWebComponent implements IBaseRuntimeComponent, Scriptable, IInstanceOf, IRefreshValueList
 {
 	/**
 	 *  a constanst set on the current context that a server side script is executing
