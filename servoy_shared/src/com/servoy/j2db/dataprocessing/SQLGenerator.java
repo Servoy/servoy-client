@@ -1389,14 +1389,14 @@ public class SQLGenerator
 			return null;
 		}
 
-		if (filter.getTableFilterdefinition() instanceof QueryTableFilterdefinition)
+		if (filter.getTableFilterdefinition() instanceof QueryTableFilterdefinition queryTableFilterdefinition)
 		{
-			return createTableFiltercondition(qTable, table, ((QueryTableFilterdefinition)filter.getTableFilterdefinition()).getQuerySelect());
+			return createTableFiltercondition(qTable, table, queryTableFilterdefinition.getQuerySelect());
 		}
 
-		if (filter.getTableFilterdefinition() instanceof DataproviderTableFilterdefinition)
+		if (filter.getTableFilterdefinition() instanceof DataproviderTableFilterdefinition dataproviderTableFilterdefinition)
 		{
-			return createTableFiltercondition(qTable, table, (DataproviderTableFilterdefinition)filter.getTableFilterdefinition());
+			return createTableFiltercondition(qTable, table, dataproviderTableFilterdefinition);
 		}
 
 		throw new IllegalStateException("Unknown table filter definition type: " + filter.getTableFilterdefinition().getClass().getName());

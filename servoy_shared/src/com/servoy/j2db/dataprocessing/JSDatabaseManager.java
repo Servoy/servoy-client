@@ -3810,8 +3810,6 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * If you want to avoid round trips to the server or avoid the possibility of blocking other clients
 	 * because of your pending changes, you can use databaseManager.setAutoSave(false/true) and databaseManager.rollbackEditedRecords().
 	 *
-	 * startTransaction, commit/rollbackTransacton() does support rollback of record deletes which autoSave = false doesn't support.
-	 *
 	 * @sample
 	 * // starts a database transaction
 	 * databaseManager.startTransaction()
@@ -3895,16 +3893,13 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Set autosave, if false then no saves will happen by the ui (not including deletes!).
+	 * Set autosave, if false then no saves or deletes will happen by the ui.
 	 * Until you call databaseManager.saveData() or setAutoSave(true)
-	 *
-	 * If you also want to be able to rollback deletes then you have to use databaseManager.startTransaction().
-	 * Because even if autosave is false deletes of records will be done.
-	 *
+	 *	 *
 	 * @sample
-	 * //Rollbacks in mem the records that were edited and not yet saved. Best used in combination with autosave false.
+	 * // Rollbacks in mem the records that were edited or deleted and not yet saved. Best used in combination with autosave false.
 	 * databaseManager.setAutoSave(false)
-	 * //Now let users input data
+	 * // Now let users input data
 	 *
 	 * //On save or cancel, when data has been entered:
 	 * if (cancel) databaseManager.rollbackEditedRecords()
@@ -3929,12 +3924,12 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Returns true or false if autosave is enabled or disabled.
 	 *
 	 * @sample
-	 * //Set autosave, if false then no saves will happen by the ui (not including deletes!). Until you call saveData or setAutoSave(true)
-	 * //Rollbacks in mem the records that were edited and not yet saved. Best used in combination with autosave false.
+	 * // Set autosave, if false then no saves or deletes will happen by the ui. Until you call saveData or setAutoSave(true)
+	 * // Rollbacks in mem the records that were edited and not yet saved. Best used in combination with autosave false.
 	 * databaseManager.setAutoSave(false)
-	 * //Now let users input data
+	 * // Now let users input data
 	 *
-	 * //On save or cancel, when data has been entered:
+	 * // On save or cancel, when data has been entered:
 	 * if (cancel) databaseManager.rollbackEditedRecords()
 	 * databaseManager.setAutoSave(true)
 	 *
@@ -3965,17 +3960,16 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Rolls back in memory edited records that are outstanding (not saved).
 	 * Can specify a record or foundset as parameter to rollback.
 	 * Best used in combination with the function databaseManager.setAutoSave()
-	 * This does not include deletes, they do not honor the autosafe false flag so they cant be rollbacked by this call.
 	 *
 	 * @deprecated  As of release 6.1, renamed to {@link #revertEditedRecords()}.
 	 *
 	 * @sample
-	 * //Set autosave, if false then no saves will happen by the ui (not including deletes!). Until you call saveData or setAutoSave(true)
-	 * //Rollbacks in mem the records that were edited and not yet saved. Best used in combination with autosave false.
+	 * // Set autosave, if false then no saves or deletes will happen by the ui. Until you call saveData or setAutoSave(true)
+	 * // Rollbacks in mem the records that were edited and not yet saved. Best used in combination with autosave false.
 	 * databaseManager.setAutoSave(false)
-	 * //Now let users input data
+	 * // Now let users input data
 	 *
-	 * //On save or cancel, when data has been entered:
+	 * // On save or cancel, when data has been entered:
 	 * if (cancel) databaseManager.rollbackEditedRecords()
 	 * //databaseManager.rollbackEditedRecords(foundset); // rollback all records from foundset
 	 * //databaseManager.rollbackEditedRecords(foundset.getSelectedRecord()); // rollback only one record
@@ -4021,12 +4015,10 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Reverts outstanding (not saved) in memory changes from edited records.
 	 * Can specify a record or foundset as parameter to rollback.
 	 * Best used in combination with the function databaseManager.setAutoSave()
-	 * This does not include deletes, they do not honor the autosafe false flag so they cant be rollbacked by this call.
-	 *
 	 *
 	 * @sample
-	 * //Set autosave, if false then no saves will happen by the ui (not including deletes!). Until you call saveData or setAutoSave(true)
-	 * //reverts in mem the records that were edited and not yet saved. Best used in combination with autosave false.
+	 * // Set autosave, if false then no saves or deletes will happen by the ui. Until you call saveData or setAutoSave(true)
+	 * // reverts in mem the records that were edited and not yet saved. Best used in combination with autosave false.
 	 * databaseManager.setAutoSave(false)
 	 * //Now let users input data
 	 *

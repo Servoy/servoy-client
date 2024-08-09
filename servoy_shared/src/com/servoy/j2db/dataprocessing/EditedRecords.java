@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.dataprocessing;
 
+import static com.servoy.j2db.dataprocessing.EditedRecords.EditedRecord.editedRecord;
+import static com.servoy.j2db.dataprocessing.EditedRecords.FoundsetDeletingQuery.foundsetDeletingQuery;
 import static java.util.Collections.emptySet;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
@@ -54,7 +56,7 @@ public class EditedRecords
 		if (record != null && !containsRecord(record, EditType.edit))
 		{
 			remove(record);
-			edited.put(record.getKey(), EditedRecord.of(record, EditType.edit, emptySet()));
+			edited.put(record.getKey(), editedRecord(record, EditType.edit, emptySet()));
 			modCount++;
 		}
 	}
@@ -64,7 +66,7 @@ public class EditedRecords
 		if (record != null)
 		{
 			remove(record);
-			edited.put(record.getKey(), EditedRecord.of(record, EditType.delete, affectedFoundsets));
+			edited.put(record.getKey(), editedRecord(record, EditType.delete, affectedFoundsets));
 			modCount++;
 		}
 	}
@@ -74,7 +76,7 @@ public class EditedRecords
 		if (record != null)
 		{
 			remove(record);
-			edited.put(record.getKey(), EditedRecord.of(record, EditType.failed, emptySet()));
+			edited.put(record.getKey(), editedRecord(record, EditType.failed, emptySet()));
 			modCount++;
 		}
 	}
@@ -110,7 +112,7 @@ public class EditedRecords
 	public void addDeleteQuery(IFoundSetInternal foundset, QueryDelete deleteQuery, ArrayList<TableFilter> filters,
 		Collection<IFoundSetInternal> affectedFoundsets)
 	{
-		var foundsetDeletingQuery = FoundsetDeletingQuery.of(foundset, deleteQuery, filters, affectedFoundsets);
+		var foundsetDeletingQuery = foundsetDeletingQuery(foundset, deleteQuery, filters, affectedFoundsets);
 		edited.put(foundsetDeletingQuery.getKey(), foundsetDeletingQuery);
 		modCount++;
 	}
@@ -320,11 +322,11 @@ public class EditedRecords
 		{
 			if (!(getAffectedFoundsets instanceof WeakHashSet))
 			{
-				throw new IllegalArgumentException("affectedFoundsets must be WeakHashSet, use EditedRecord.of() factory method");
+				throw new IllegalArgumentException("affectedFoundsets must be WeakHashSet, use EditedRecord.editedRecord() factory method");
 			}
 		}
 
-		static EditedRecord of(IRecordInternal record, EditType type, Collection<IFoundSetInternal> affectedFoundsets)
+		static EditedRecord editedRecord(IRecordInternal record, EditType type, Collection<IFoundSetInternal> affectedFoundsets)
 		{
 			return new EditedRecord(record, type, new WeakHashSet<>(affectedFoundsets));
 		}
@@ -360,7 +362,7 @@ public class EditedRecords
 	public record FoundsetDeletingQuery(IFoundSetInternal getFoundset, QueryDelete getQueryDelete, ArrayList<TableFilter> getFilters,
 		Collection<IFoundSetInternal> getAffectedFoundsets, ObjectKey getKey) implements EditedRecordOrFoundset
 	{
-		static FoundsetDeletingQuery of(IFoundSetInternal foundset, QueryDelete queryDelete, ArrayList<TableFilter> filters,
+		static FoundsetDeletingQuery foundsetDeletingQuery(IFoundSetInternal foundset, QueryDelete queryDelete, ArrayList<TableFilter> filters,
 			Collection<IFoundSetInternal> affectedFoundsets)
 		{
 			return new FoundsetDeletingQuery(foundset, queryDelete, filters, affectedFoundsets, new ObjectKey(queryDelete, foundset));

@@ -37,6 +37,7 @@ import com.servoy.j2db.util.visitor.ObjectCountVisitor;
 
 /**
  * Query select statement.
+ *
  * @author rgansevles
  */
 public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
@@ -141,7 +142,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 	{
 		if (srts != null && srts.size() > 0)
 		{
-			sorts = new ArrayList<IQuerySort>(srts.size());
+			sorts = new ArrayList<>(srts.size());
 			for (int i = 0; i < srts.size(); i++)
 			{
 				Object sort = srts.get(i);
@@ -170,7 +171,7 @@ public final class QuerySelect extends AbstractBaseQuery implements ISQLSelect
 				throw new IllegalArgumentException("Unknown group by class " + sort.getClass().getName()); //$NON-NLS-1$
 			}
 		}
-		groupBy = i == 0 ? null : new ArrayList<IQuerySelectValue>(gb);
+		groupBy = i == 0 ? null : new ArrayList<>(gb);
 	}
 
 	public void setCondition(String name, ISQLCondition c)

@@ -115,7 +115,6 @@ import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.IQueryElement;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLJoin;
-import com.servoy.j2db.query.ISQLQuery;
 import com.servoy.j2db.query.ISQLSelect;
 import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryAggregate;
@@ -1305,7 +1304,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	}
 
 	public void setTableFilters(String filterName, String serverName, List<TableFilterRequest> tableFilterRequests, boolean removeOld, boolean fire)
-		throws RepositoryException
 	{
 		boolean refreshI18NMessages = false;
 		Set<Pair<String, TableFilterdefinition>> toRefresh = new HashSet<>();
@@ -1323,7 +1321,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				String tableName = tableFilterRequest.table == null ? null : tableFilterRequest.table.getName();
 				TableFilter filter = new TableFilter(filterName, serverName, tableName,
 					tableFilterRequest.table == null ? null : tableFilterRequest.table.getSQLName(), tableFilterRequest.tableFilterdefinition,
-					tableFilterRequest.ragtestFilters, tableFilterRequest.broadcastFilter);
+					tableFilterRequest.broadcastFilter);
 
 				newParams.add(filter);
 				if (existingParams == null || !existingParams.contains(filter))
@@ -2839,20 +2837,13 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	{
 		private final ITable table;
 		private final TableFilterdefinition tableFilterdefinition;
-		private final List<TableFilter> ragtestFilters;
 		private final boolean broadcastFilter;
-
-		public TableFilterRequest(ITable table, TableFilterdefinition tableFilterdefinition, List<TableFilter> ragtestFilters, boolean broadcastFilter)
-		{
-			this.table = table;
-			this.tableFilterdefinition = tableFilterdefinition;
-			this.ragtestFilters = ragtestFilters;
-			this.broadcastFilter = broadcastFilter;
-		}
 
 		public TableFilterRequest(ITable table, TableFilterdefinition tableFilterdefinition, boolean broadcastFilter)
 		{
-			this(table, tableFilterdefinition, emptyList(), broadcastFilter);
+			this.table = table;
+			this.tableFilterdefinition = tableFilterdefinition;
+			this.broadcastFilter = broadcastFilter;
 		}
 	}
 
