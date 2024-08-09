@@ -25,7 +25,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @link https://ecma-international.org/publications-and-standards/standards/ecma-357/
  * @author gerzse
  */
-@Deprecated
 @ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "XML", scriptingName = "XML")
 public class XML
 {

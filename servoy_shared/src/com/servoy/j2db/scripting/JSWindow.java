@@ -34,6 +34,7 @@ import com.servoy.j2db.util.ServoyException;
  * A window/dialog that shows a form.
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSWindow")
+@ServoyClientSupport(ng = true, wc = true, sc = true)
 public class JSWindow implements IConstantsObject
 {
 	/**

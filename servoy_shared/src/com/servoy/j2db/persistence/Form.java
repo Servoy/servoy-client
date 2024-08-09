@@ -453,12 +453,12 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	/**
 	 * The navigator (previously named "controller")
 	 * that is used to control/navigate to the form. The navigator is shown at
-	 * the left or at the right side of the form, depending on the page orientation.
+	 * the left or at the right side of the form, depending on the page orientation.<br/><br/>
 	 *
-	 * The following options are available:
-	 * -none- - no navigator is assigned.
-	 * DEFAULT - the Servoy default navigator is assigned.
-	 * IGNORE - the navigator last assigned to a previous form.
+	 * The following options are available:<br/><br/>
+	 * -none- - no navigator is assigned.<br/>
+	 * DEFAULT - the Servoy default navigator is assigned.<br/>
+	 * IGNORE - the navigator last assigned to a previous form.<br/>
 	 * Custom - a custom navigator based on a selected form.
 	 *
 	 * @description-mc
@@ -1021,6 +1021,20 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * NOTE 2: the onLoad event bubbles down, meaning that the onLoad is first fired on the parent then on a tab in a tabpanel (and in tab of that tab panels if you are 3 deep)
 	 *
+	 * @sample
+	 *
+	 * /**
+	 *  * Callback method when form is (re)loaded.
+	 *  *
+	 *  * &#x40;param {JSEvent} event the event that triggered the action
+	 *  *
+	 *  * &#x40;properties={typeid:24,uuid:"106353C5-73F9-4FEB-8391-6F3B46EB7521"}
+	 *  *&#x2f;
+	 * function onLoad(event) {
+	 *     // TODO Auto-generated method stub
+	 *     elements.fc_orderslist.putClientProperty(APP_UI_PROPERTY.LISTFORMCOMPONENT_PAGING_MODE, true);
+	 * }
+	 *
 	 * @templateprivate
 	 * @templatedescription Callback method when form is (re)loaded
 	 * @templatename onLoad
@@ -1353,6 +1367,23 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	/**
 	 * The method that is triggered when a user starts editing a record (for example by clicking into a cell of a table, or editing a field who's data-provider is from that record).
 	 *
+	 * @sample
+	 * /**
+	 *  * Callback method form when editing is started.
+	 *  *
+	 *  * &#x40;param {JSEvent} event the event that triggered the action
+	 *  *
+	 *  * &#x40;return {Boolean}
+	 *  *
+	 *  * &#x40;properties={typeid:24,uuid:"061C702A-CE14-4B9A-9393-7BA3D24988A1"}
+	 *  *&#x2f;
+	 * function onRecordEditStart(event) {
+	 *     // TODO Auto-generated method stub
+	 *     var elementName = event.getElementName();
+	 *     elements[elementName].addStyleClass(‘grayBorder’);
+	 *     return true;
+	 * }
+	 *
 	 * @templatedescription Callback method form when editing is started
 	 * @templatename onRecordEditStart
 	 * @templatetype Boolean
@@ -1672,6 +1703,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * The type, color and style of border.
 	 * This property is automatically set to "DEFAULT" when a new form is created.
 	 */
+	@ServoyClientSupport(ng = false)
 	public String getBorderType()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_BORDERTYPE);
@@ -1780,6 +1812,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * @param b
 	 * @see com.servoy.j2db.dataui.ComponentFactoryHelper
 	 */
+	@ServoyClientSupport(ng = false)
 	public void setBorderType(String b)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_BORDERTYPE, b);
@@ -1873,6 +1906,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 * else
 	 *   return '#FFFFFF';
 	 */
+	@ServoyClientSupport(ng = false)
 	public String getRowBGColorCalculation()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ROWBGCOLORCALCULATION);
@@ -1885,6 +1919,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	 *
 	 * @param arg the rowBGColorCalculation
 	 */
+	@ServoyClientSupport(ng = false)
 	public void setRowBGColorCalculation(String arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ROWBGCOLORCALCULATION, arg);

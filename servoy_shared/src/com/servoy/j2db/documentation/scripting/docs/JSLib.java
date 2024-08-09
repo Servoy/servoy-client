@@ -18,6 +18,7 @@ package com.servoy.j2db.documentation.scripting.docs;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.IReturnedTypesProvider;
 
 /**
  * Generally available javascript constants / functions.
@@ -26,8 +27,14 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  */
 @ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "JS Lib")
 @ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
-public class JSLib
+public class JSLib implements IReturnedTypesProvider
 {
+
+	public Class< ? >[] getAllReturnedTypes()
+	{
+		return new Class< ? >[] { Boolean.class, String.class, Date.class, Number.class, Array.class, Object.class, Function.class, IterableValue.class, Iterator.class, JSON.class, Map.class, Math.class, Namespace.class, QName.class, RegExp.class, Set.class, SpecialOperators.class, Statements.class, XML.class, XMLList.class };
+	}
+
 	/**
 	 * Numeric value representing infinity.
 	 *

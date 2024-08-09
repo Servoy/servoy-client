@@ -30,7 +30,7 @@ import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
 
 /**
- * This class is a repository node for storing scriptcalculations under, because jaleman said that there easily are 300-1000 calcs in a solution
+ * Table nodes store Servoy specific information/functionality related to DB tables such as script calculations, aggregations and table events.
  *
  * @author jblok
  */

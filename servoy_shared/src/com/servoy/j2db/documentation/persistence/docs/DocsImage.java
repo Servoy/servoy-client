@@ -29,7 +29,7 @@ import com.servoy.j2db.persistence.IRepository;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Image", realClass = GraphicalComponent.class, typeCode = IRepository.GRAPHICALCOMPONENTS)
-@ServoyClientSupport(mc = false, wc = true, sc = true)
+@ServoyClientSupport(mc = false, wc = true, sc = true, ng = false)
 public class DocsImage extends BaseDocsGraphicalComponent
 {
 

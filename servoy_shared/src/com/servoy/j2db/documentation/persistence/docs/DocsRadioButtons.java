@@ -29,7 +29,7 @@ import com.servoy.j2db.persistence.IRepository;
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "RadioButtons", scriptingName = "RadioButtons", displayType = Field.RADIOS, realClass = Field.class, typeCode = IRepository.FIELDS)
-@ServoyClientSupport(mc = true, wc = true, sc = true)
+@ServoyClientSupport(mc = true, wc = true, sc = true, ng = false)
 public class DocsRadioButtons extends BaseDocsField
 {
 

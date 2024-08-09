@@ -24,8 +24,6 @@ import com.servoy.j2db.persistence.LiteralDataprovider;
 import com.servoy.j2db.persistence.RelationItem;
 import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.IJavaScriptType;
-import com.servoy.j2db.scripting.IReturnedTypesProvider;
-import com.servoy.j2db.scripting.ScriptObjectRegistry;
 import com.servoy.j2db.solutionmodel.ISMRelationItem;
 import com.servoy.j2db.util.Utils;
 
@@ -35,17 +33,6 @@ import com.servoy.j2db.util.Utils;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class JSRelationItem extends JSBase<RelationItem> implements IJavaScriptType, IConstantsObject, ISMRelationItem
 {
-	static
-	{
-		ScriptObjectRegistry.registerReturnedTypesProviderForClass(JSRelationItem.class, new IReturnedTypesProvider()
-		{
-			public Class< ? >[] getAllReturnedTypes()
-			{
-				return new Class< ? >[] { JSRelationItem.class };
-			}
-		});
-	}
-
 
 	public JSRelationItem(RelationItem relationItem, JSRelation parent, boolean isNew)
 	{
@@ -54,7 +41,7 @@ public class JSRelationItem extends JSBase<RelationItem> implements IJavaScriptT
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.RelationItem#getForeignColumnName()
-	 * 
+	 *
 	 * @sample
 	 * 	var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * var criteria = relation.newRelationItem('parent_table_id', '=', 'child_table_parent_id');
@@ -77,7 +64,7 @@ public class JSRelationItem extends JSBase<RelationItem> implements IJavaScriptT
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.RelationItem#getOperator()
-	 * 
+	 *
 	 * @sampleas getForeignColumnName()
 	 */
 	@JSGetter
@@ -97,7 +84,7 @@ public class JSRelationItem extends JSBase<RelationItem> implements IJavaScriptT
 
 	/**
 	 * @clonedesc com.servoy.j2db.persistence.RelationItem#getPrimaryDataProviderID()
-	 * 
+	 *
 	 * @sampleas getForeignColumnName()
 	 */
 	@JSGetter
@@ -115,14 +102,14 @@ public class JSRelationItem extends JSBase<RelationItem> implements IJavaScriptT
 
 	/**
 	 * Get the literal.
-	 * 
+	 *
 	 * @sample
 	 * var relation = solutionModel.newRelation('parentToChild', 'db:/example_data/parent_table', 'db:/example_data/child_table', JSRelation.INNER_JOIN);
 	 * var criteria = relation.newRelationItem(JSRelationItem.LITERAL_PREFIX + "'hello'",'=', 'myTextField');
 	 * criteria.primaryLiteral = 'literal_text';
 	 * //criteria.primaryLiteral = number;
 	 * var primaryLiteral = criteria.primaryLiteral;
-	 * 
+	 *
 	 */
 	@JSGetter
 	public Object getPrimaryLiteral()

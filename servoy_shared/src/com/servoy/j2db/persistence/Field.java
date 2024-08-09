@@ -29,7 +29,7 @@ import com.servoy.j2db.util.UUID;
  *
  * @author jblok
  */
-// this class should not have @ServoyClientSypport annotation directly, methods are annotated via their interfaces
+// this class should not have @ServoyClientSupport annotation directly, methods are annotated via their interfaces
 public class Field extends BaseComponent implements ISupportTextSetup, ISupportText, ISupportDataProviderID, ISupportScrollbars, ISupportTabSeq, IBaseField
 {
 

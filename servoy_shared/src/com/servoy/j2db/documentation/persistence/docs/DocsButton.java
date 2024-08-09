@@ -30,7 +30,7 @@ import com.servoy.j2db.persistence.IRepository;
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Button", scriptingName = "Button", isButton = true, realClass = GraphicalComponent.class, typeCode = IRepository.GRAPHICALCOMPONENTS)
-@ServoyClientSupport(mc = true, wc = true, sc = true)
+@ServoyClientSupport(mc = true, wc = true, sc = true, ng = false)
 public class DocsButton extends BaseDocsGraphicalComponent
 {
 

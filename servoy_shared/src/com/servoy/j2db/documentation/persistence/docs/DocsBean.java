@@ -31,7 +31,7 @@ import com.servoy.j2db.persistence.IRepository;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Bean", scriptingName = "Bean", realClass = Bean.class, typeCode = IRepository.BEANS)
-@ServoyClientSupport(mc = true, wc = true, sc = true)
+@ServoyClientSupport(mc = true, wc = true, sc = true, ng = false)
 public class DocsBean extends Bean implements IBaseDocsComponent
 {
 

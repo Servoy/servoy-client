@@ -30,7 +30,7 @@ import com.servoy.j2db.persistence.IRepository;
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "HeaderTitle", scriptingName = "HeaderTitle", realClass = GraphicalComponent.class, typeCode = IRepository.GRAPHICALCOMPONENTS)
-@ServoyClientSupport(mc = true, wc = false, sc = false)
+@ServoyClientSupport(mc = true, wc = false, sc = false, ng = false)
 public class DocsHeaderTitle extends BaseDocsGraphicalComponent
 {
 
