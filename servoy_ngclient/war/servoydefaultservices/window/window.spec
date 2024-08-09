@@ -4,6 +4,7 @@
 	"version": 1,
 	"definition": "servoydefaultservices/window/window.js",
 	"serverscript": "servoydefaultservices/window/window_server.js",
+	"doc": "servoydefaultservices/window/window_doc.js",
 	"ng2Config": {
        "packageName": "@servoy/window",
        "moduleName": "WindowServiceModule",
@@ -37,17 +38,17 @@
 					            {
 						            "name":"contextFilter",
 						            "type":"string",
-						            "optional":"true"
+						            "optional":true
 						        },
 					            {
 						            "name":"arguments",
 						            "type":"object []",
-						            "optional":"true"
+						            "optional":true
 					            },
 					            {
 						            "name":"consumeEvent",
 						            "type":"boolean",
-						            "optional":"true"
+						            "optional":true
 					            }
 	            			 ]
 	        },
@@ -61,7 +62,7 @@
 					            {
 						            "name":"contextFilter",
 						            "type":"string",
-						            "optional":"true"
+						            "optional":true
 					            }
 	            			 ]
 	        },
@@ -86,41 +87,41 @@
 	            				{
 		            				"name":"width",
 		            				"type":"int",
-		            				"optional":"true"
+		            				"optional":true
 	            				},
 	            				{
 		            				"name":"height",
 		            				"type":"int",
-		            				"optional":"true"
+		            				"optional":true
 		            				
 	            				},
 	            				{
 		            				"name":"x",
 		            				"type":"int",
-		            				"optional":"true"
+		            				"optional":true
 	            				},
 	            				{
 		            				"name":"y",
 		            				"type":"int",
-		            				"optional":"true"
+		            				"optional":true
 		            				
 	            				},
 	            				{
 		            				"name":"showBackdrop",
 		            				"type":"boolean",
-		            				"optional":"true"
+		            				"optional":true
 		            				
 	            				},
 	            				{
 		            				"name":"doNotCloseOnClickOutside",
 		            				"type":"boolean",
-		            				"optional":"true"
+		            				"optional":true
 		            				
 	            				},
 	            				{
 		            				"name":"onClose",
 		            				"type":"function",
-		            				"optional":"true"
+		            				"optional":true
 	            				}
 	            			 ]
 	        },
@@ -148,8 +149,20 @@
 	          "returns": "FormPopup"
 	      },
 	     "createPopupMenu": {
-	            "returns": "popup"
-	        },
+	           "parameters":[
+                {
+                    "name":"menu",
+                    "type":"JSMenu",
+                    "optional":true
+                },
+                {
+                     "name":"callback",
+                     "type":"function",
+                     "optional":true
+                }
+               ],
+               "returns": "popup"
+            },   
 	     "cleanup": {
 	     	}
 	},

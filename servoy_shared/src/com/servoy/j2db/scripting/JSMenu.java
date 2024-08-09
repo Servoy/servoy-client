@@ -213,4 +213,13 @@ public class JSMenu
 		this.selectedItem = menuItem;
 		this.menuManager.notifyChanged();
 	}
+
+	/**
+	 * @return the selectedItem
+	 */
+	@JSFunction
+	public JSMenuItem getSelectedItem()
+	{
+		return selectedItem;
+	}
 }
