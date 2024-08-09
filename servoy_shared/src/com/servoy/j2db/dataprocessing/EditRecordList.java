@@ -1406,7 +1406,6 @@ public class EditRecordList
 			.filter(RowUpdateInfo.class::isInstance)
 			.map(RowUpdateInfo.class::cast)
 			.map(update -> update.getRecord())
-			// RAGTEST addDeleted?
 			.forEachOrdered(editedRecords::addEdited);
 	}
 

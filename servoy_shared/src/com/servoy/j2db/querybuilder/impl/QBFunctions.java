@@ -210,7 +210,6 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBFunction cast(Object value, String type)
 	{
-		// RAGTEST validate only known types (sql injection)
 		return new QBFunction(getRoot(), getParent(), QueryFunctionType.cast,
 			new IQuerySelectValue[] { createOperand(value), new QueryColumnValue(type, null, true) });
 	}
@@ -457,7 +456,6 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBFunction custom(String name, Object... args)
 	{
-		// RAGTEST sql injection check
 		return new QBFunction(getRoot(), getParent(), QueryFunctionType.custom,
 			Utils.arrayAdd(getRoot().createOperands(args == null ? new Object[] { null } : args, null, 0), new QueryColumnValue(name, null, true), false));
 	}

@@ -4924,7 +4924,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		}
 		if (!(state instanceof PrototypeState))
 		{
-			/* RAGTEST nodig ?? */ removeRecordInternalEx(state, fsm.config.deleteWithAutosaveOff(), row);
+			removeRecordInternalEx(state, fsm.config.deleteWithAutosaveOff(), row);
 			if (state != null && state.getRawData() != null)
 			{
 				Row rawData = state.getRawData();
@@ -5220,7 +5220,6 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 
 			for (IRecordInternal dsState : recordsToOmit)
 			{
-				// RAGTEST test dit met delete-undo
 				removeRecordInternalEx(dsState, true, pksAndRecords.getCachedRecords().indexOf(dsState));
 			}
 		}

@@ -3168,7 +3168,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		if (record != null)
 		{
 			EditRecordList editRecordList = application.getFoundSetManager().getEditRecordList();
-			IRecordInternal[] failedRecords = editRecordList.getFailedRecords(); // RAGTEST functie containsFailed?
+			IRecordInternal[] failedRecords = editRecordList.getFailedRecords();
 			if (asList(failedRecords).contains(record))
 			{
 				editRecordList.startEditing((IRecordInternal)record, false);
@@ -3177,26 +3177,6 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		}
 		return false;
 	}
-
-//	/**
-//	 * @clonedesc saveData()
-//	 *
-//	 * @sampleas saveData()
-//	 *
-//	 * @param record The JSRecord to save.
-//	 *
-//	 * @return true if the save was done without an error.
-//	 */
-//	@JSFunction
-//	public boolean saveData(ViewRecord record) throws ServoyException
-//	{
-//		checkAuthorized();
-//		if (record != null)
-//		{
-//			return ((ViewFoundSet)record.getParentFoundSet()).save(record) == ISaveConstants.STOPPED;
-//		}
-//		return false;
-//	}
 
 	/**
 	 * @clonedesc saveData()
@@ -3233,7 +3213,6 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		}
 		return false;
 	}
-
 
 	/**
 	 * Returns a foundset object for a specified datasource or server and tablename.

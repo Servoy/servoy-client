@@ -1021,13 +1021,13 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	}
 
 	/**
-	 * RAGTEST doc
-	 * Returns true if the current record is a new record or false otherwise. New record means not saved to database.
+	 * Returns true if the current record is a deleted record or false otherwise.
+	 * The deletion has not been done in the database itself.
 	 *
 	 * @sample
-	 * var isNew = foundset.getSelectedRecord().isNew();
+	 * var isNew = foundset.getSelectedRecord().isDeleted();
 	 *
-	 * @return true if the current record is a new record, false otherwise;
+	 * @return true if the current record is a deleted record, false otherwise;
 	 */
 	@JSFunction
 	public boolean isDeleted()

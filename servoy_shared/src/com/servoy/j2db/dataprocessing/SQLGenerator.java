@@ -1563,7 +1563,6 @@ public class SQLGenerator
 		return lockSelect;
 	}
 
-	// RAGTEST alleen in EditRecordList gebruikt
 	public static Object[][] convertPKValuesForQueryCompare(Object[][] pkValues, int ncolumns)
 	{
 		// values is an array as wide as the columns, each element consists of the values for that column
