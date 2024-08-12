@@ -31,7 +31,7 @@ import com.servoy.j2db.persistence.RectShape;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Rectangle", scriptingName = "Rectangle", realClass = RectShape.class, typeCode = IRepository.RECTSHAPES)
-@ServoyClientSupport(mc = false, wc = true, sc = true)
+@ServoyClientSupport(mc = false, wc = true, sc = true, ng = false)
 public class DocsRectShape extends RectShape implements IBaseDocsComponent
 {
 

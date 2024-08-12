@@ -28,7 +28,7 @@ import com.servoy.j2db.persistence.IRepository;
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "ComboBox", scriptingName = "ComboBox", displayType = Field.COMBOBOX, realClass = Field.class, typeCode = IRepository.FIELDS)
-@ServoyClientSupport(mc = true, wc = true, sc = true)
+@ServoyClientSupport(mc = true, wc = true, sc = true, ng = false)
 public class DocsComboBox extends BaseDocsField
 {
 

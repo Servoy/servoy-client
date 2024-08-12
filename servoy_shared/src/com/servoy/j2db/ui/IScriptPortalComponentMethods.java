@@ -21,8 +21,8 @@ import com.servoy.j2db.ui.runtime.IRuntimePortal;
 
 /**
  * Scripting interface for RuntimePortal.
- * Combines (deprecated) script methods and java api ({@link IRuntimePortal});
- * 
+ * Combines (deprecated) script methods and java api ({@link IRuntimePortal}).
+ *
  * @author jcompagner
  *
  */

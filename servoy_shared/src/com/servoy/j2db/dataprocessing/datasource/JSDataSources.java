@@ -34,7 +34,8 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.IDestroyable;
 
 /**
- * In scripting: <pre>datasources</pre>
+ * In scripting: the <pre>datasources</pre> object.<br/>
+ * Use it to interact with databases, in-mem, view, stored procedures. It offers dynamic code completion that adapts to your solution's data model.
  *
  * @author rgansevles
  *

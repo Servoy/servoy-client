@@ -20,9 +20,8 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Dummy class for listing methods for JavaScript types in a manner that
- * suits our documentation generator.
- * 
+ * Javascript statements.
+ *
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "Statements")
@@ -31,9 +30,9 @@ public class Statements
 {
 	/**
 	 * Break statement exits a loop.
-	 * 
+	 *
 	 * @sample break
-	 * 
+	 *
 	 * @simplifiedSignature
 	 */
 	public void js_flow_break()
@@ -42,9 +41,9 @@ public class Statements
 
 	/**
 	 * Constant declaration.
-	 * 
+	 *
 	 * @sample const #;
-	 * 
+	 *
 	 * @simplifiedSignature
 	 */
 	public void js_flow_const()
@@ -53,7 +52,7 @@ public class Statements
 
 	/**
 	 * Continue statement, jumps to next iteration of the loop.
-	 * 
+	 *
 	 * @sample continue
 	 * @simplifiedSignature
 	 */
@@ -69,7 +68,7 @@ public class Statements
 	 * {
 	 * }
 	 * while ( # )
-	 * 
+	 *
 	 * @simplifiedSignature
 	 */
 	public void js_flow_do_while()
@@ -134,10 +133,10 @@ public class Statements
 	/**
 	 * Provides a statement with an identifier that you can refer to using a break or continue statement.
 	 *
-	 * For example, you can use a label to identify a loop, and then use the break or continue statements to indicate 
+	 * For example, you can use a label to identify a loop, and then use the break or continue statements to indicate
 	 * whether a program should interrupt the loop or continue its execution.
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var i = 0, j;
 	 * outer_loop: while (i < 10) {
 	 *	i++;
@@ -148,7 +147,7 @@ public class Statements
 	 *		application.output("i=" + i + ", j=" + j);
 	 *	}
 	 * }
-	 * 
+	 *
 	 * @simplifiedSignature
 	 */
 	public void js_flow_label()
@@ -172,13 +171,13 @@ public class Statements
 
 	/**
 	 * try/catch statement
-	 * 
+	 *
 	 * @sample
-	 * try 
+	 * try
 	 * {
 	 * 	#
 	 * }
-	 *  catch(#) 
+	 *  catch(#)
 	 * {
 	 * 	#
 	 * }
@@ -192,18 +191,18 @@ public class Statements
 	 * try/catch/finally statement
 	 *
 	 * @sample
-	 * try 
+	 * try
 	 * {
 	 * 	#
 	 * }
-	 *  catch(#) 
+	 *  catch(#)
 	 * {
 	 * 	#
-	 * } finally 
+	 * } finally
 	 * {
 	 * 	#
 	 * }
-	 * 
+	 *
 	 * @simplifiedSignature
 	 */
 	public void js_flow_try_catch_finally()
@@ -212,9 +211,9 @@ public class Statements
 
 	/**
 	 * Variable declaration
-	 * 
+	 *
 	 * @sample var #;
-	 * 
+	 *
 	 * @simplifiedSignature
 	 */
 	public void js_flow_var()
@@ -229,7 +228,7 @@ public class Statements
 	 * {
 	 * 	#
 	 * }
-	 * 
+	 *
 	 * @simplifiedSignature
 	 */
 	public void js_flow_while()

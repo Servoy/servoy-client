@@ -29,7 +29,9 @@ import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.util.Debug;
 
 /**
- * Scriptable column object for use in scripting
+ * A scripting object representing a data-source column.<br/>
+ * It can be reached via root objects <pre>datasources. ...</pre> and <pre>databaseManager. ...</pre>.
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)

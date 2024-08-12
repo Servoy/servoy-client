@@ -28,8 +28,8 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Debug;
 
 /**
- * This logger provides an API for logging with arguments, e.g. log.info.log("my message and my {}", "argument");.
- * This class can also be used to obtain JSLogBuilder instances.
+ * This logger provides an API for logging with arguments, e.g. log.info.log("my message and my {}", "argument");.<br/>
+ * This class can also be used to obtain JSLogBuilder instances.<br/>
  * Available logging levels are (in order): fatal, error, warn, info, debug and trace.
  *
  * @author jdejong

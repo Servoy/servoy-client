@@ -47,6 +47,10 @@ public interface IObjectDocumentation
 
 	public String getPublicName();
 
+	public String getScriptingName();
+
+	public String getDescription();
+
 	public String getCategory();
 
 	public String[] getParentClasses();

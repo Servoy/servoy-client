@@ -23,7 +23,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 /**
  * Solution model value list object.
- * 
+ *
  * @author rgansevles
  * @author acostescu
  *
@@ -38,7 +38,7 @@ public interface IBaseSMValueList
 	 * Sets the value list to use a custom list of values.
 	 * Also used in solutionModel.newValueList(...) to create new valuelists
 	 *
-	 * @sample 
+	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.DATABASE_VALUES);
 	 * vlist.valueListType = JSValueList.CUSTOM_VALUES; // Change the type to custom values.
 	 * vlist.customValues = "one\ntwo\nthree\nfour";
@@ -49,7 +49,7 @@ public interface IBaseSMValueList
 	 * Sets the value list to use values loaded from a database.
 	 * Also used in solutionModel.newValueList(...) to create new valuelists
 	 *
-	 * @sample 
+	 * @sample
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
 	 * vlist.valueListType = JSValueList.DATABASE_VALUES; // Change the type to database values.
 	 * vlist.dataSource = 'db:/example_data/parent_table';
@@ -62,7 +62,7 @@ public interface IBaseSMValueList
 	public static final int DATABASE_VALUES = IValueListConstants.DATABASE_VALUES;
 
 	/**
-	 * A string with the elements in the valuelist. The elements 
+	 * A string with the elements in the valuelist. The elements
 	 * can be separated by linefeeds (custom1
 	 * custom2), optional with realvalues ((custom1|1
 	 * custom2|2)).
@@ -83,8 +83,8 @@ public interface IBaseSMValueList
 	public void setCustomValues(String arg);
 
 	/**
-	 * The name of the value list.
-	 * 
+	 * The name of the value list.<br/><br/>
+	 *
 	 * It is relevant when the "useTableFilter" property is set.
 	 */
 	public String getName();

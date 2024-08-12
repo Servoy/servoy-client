@@ -34,6 +34,11 @@ import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.UUID;
 
 /**
+ * Layout containers are used to lay out your form's contents in case of advanced/responsive forms.<br/>
+ * It can contain other layout containers (that it allows) and/or components.<br/><br/>
+ *
+ * There are multiple types of layout containers that have very different behavior; custom layout packages can be installed into solutions - just as component packages - from the Servoy Package Manager.
+ *
  * @author lvostinar
  *
  */

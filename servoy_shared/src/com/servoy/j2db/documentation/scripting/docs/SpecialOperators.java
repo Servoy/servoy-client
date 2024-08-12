@@ -22,9 +22,8 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Dummy class for listing methods for JavaScript types in a manner that
- * suits our documentation generator.
- * 
+ * Special operators.
+ *
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "Special Operators")
@@ -42,7 +41,7 @@ public class SpecialOperators
 	 * application.output(typeof parseInt); // function
 	 * application.output(typeof application); // object
 	 * application.output(typeof somethingInexisting); // undefined
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Operators/typeof
 	 * @simplifiedSignature
 	 */

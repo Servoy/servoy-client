@@ -24,7 +24,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 
 /**
- * Media is binary data tagged with a mime type
+ * Media is binary data tagged with a mime type.
  *
  * @author jblok
  */

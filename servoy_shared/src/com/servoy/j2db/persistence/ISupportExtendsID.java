@@ -30,6 +30,7 @@ public interface ISupportExtendsID extends IPersist
 	/**
 	 * The selected parent (extended element) for the element (form).
 	 *
+	 * @sample "ordersForm"
 	 * @return the parent
 	 */
 	int getExtendsID();

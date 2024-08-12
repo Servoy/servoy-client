@@ -22,7 +22,7 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Helper class for easier documentation of our JavaScript API for forms.
+ * A layout container's runtime API - it can be accessed via "containers.myContainersName." in form scopes.
  *
  * @author jcompagner
  * @since 2019.12

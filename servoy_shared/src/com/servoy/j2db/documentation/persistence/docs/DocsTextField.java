@@ -28,7 +28,7 @@ import com.servoy.j2db.persistence.IRepository;
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "TextField", scriptingName = "TextField", displayType = Field.TEXT_FIELD, realClass = Field.class, typeCode = IRepository.FIELDS)
-@ServoyClientSupport(mc = true, wc = true, sc = true)
+@ServoyClientSupport(mc = true, wc = true, sc = true, ng = false)
 public class DocsTextField extends BaseDocsField
 {
 	private static final long serialVersionUID = 1L;

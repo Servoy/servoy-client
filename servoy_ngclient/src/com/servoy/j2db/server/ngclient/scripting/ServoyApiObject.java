@@ -56,7 +56,9 @@ import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Provides utility methods for web object server side scripting to interact with the Servoy environment.
+ * It provides utility methods for web object (NG / Titanium client components or services) server side scripting to interact with the Servoy environment.<br/>
+ * These will be used by the internal implementation of those web-objects when needed.
+ *
  * @author lvostinar
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ServoyApi", scriptingName = "servoyApi")

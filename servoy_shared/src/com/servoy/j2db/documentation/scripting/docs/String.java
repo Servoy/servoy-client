@@ -20,8 +20,9 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Dummy class for listing methods for JavaScript types in a manner that
- * suits our documentation generator.
+ * The String object is used to represent and manipulate a sequence of characters.<br/><br/>
+ *
+ * For more information see: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">String (MDN)</a>.
  *
  * @author gerzse
  */

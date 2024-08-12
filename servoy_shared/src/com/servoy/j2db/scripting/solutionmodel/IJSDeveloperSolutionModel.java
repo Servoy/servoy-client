@@ -23,7 +23,11 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 
 
 /**
- * Special interface in javascript only there in the developer that bridges between the runtime client and the developers workspace.
+ * Special object available in solution javascript but only when running a debug client from the developer (it is not available when running a deployed solution).
+ * It offers a bridge between the runtime client and the developer's workspace - allowing for changes done at runtime via solution model to be persisted into the workspace.<br/><br/>
+ *
+ * Look at this as a way to automate various tasks that create solution content or alter big solutions.
+ *
  * @author emera
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "servoyDeveloper", scriptingName = "servoyDeveloper")

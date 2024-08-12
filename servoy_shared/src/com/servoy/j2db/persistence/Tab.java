@@ -32,7 +32,7 @@ import com.servoy.j2db.util.UUID;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.TABS)
-@ServoyClientSupport(mc = false, wc = true, sc = true)
+@ServoyClientSupport(mc = false, wc = true, sc = true, ng = false)
 public class Tab extends AbstractBase
 	implements ISupportBounds, IPersistCloneable, ISupportUpdateableName, ISupportMedia, ICloneable, ISupportExtendsID, IContainsFormID
 {

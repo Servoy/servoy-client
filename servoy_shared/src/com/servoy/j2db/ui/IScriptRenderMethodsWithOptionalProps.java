@@ -23,8 +23,8 @@ import com.servoy.j2db.ui.runtime.HasRuntimeFormat;
 import com.servoy.j2db.ui.runtime.HasRuntimeImageURL;
 
 /**
- * Format and imageUrl  properties are optional so scripting Renderable will always have such properties but for some components (or the form itself doesn't have format and imageUrl) it will not do anything
- * 
+ * Components that are Renderable; the 'format' and 'imageUrl' properties are optional; so scripting Renderable will always have such properties but for some components (or the form itself that for example doesn't have format and imageUrl) those will not do anything.
+ *
  * @author jcompagner
  * @since 6.1
  */

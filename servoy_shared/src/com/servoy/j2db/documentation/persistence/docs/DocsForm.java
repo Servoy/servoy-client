@@ -25,7 +25,10 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IRepository;
 
 /**
- * Dummy class for use in the documentation generator.
+ * A <b>form</b> is an object that provides an UI and/or contains business logic; it's the basic user interface object in Servoy.<br/>
+ * The UI of a Form is built up of Form Parts, which in turn contain Elements (and layout containers in case of advanced layout).<br/><br/>
+ *
+ * Forms are also a unit of scope in Servoy, meaning that forms can have variables and methods attributed to them.
  *
  * @author acostache
  *
@@ -37,11 +40,6 @@ public class DocsForm extends Form implements IBaseDocsComponent
 
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * @param parent
-	 * @param element_id
-	 * @param uuid
-	 */
 	DocsForm()
 	{
 		super(null, 0, null);

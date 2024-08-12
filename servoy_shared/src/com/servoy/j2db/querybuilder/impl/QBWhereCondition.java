@@ -26,7 +26,8 @@ import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderWhereCondition;
 
 /**
- * Where clause for a query, conditions can be added by name.
+ * Where clause for a query; conditions can be added by name.
+ *
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)

@@ -34,7 +34,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Class for holding references to the upload files, this is a JSWrapper around {@link IUploadData}
+ * Used for holding references to the upload files.
  *
  * @author jcompagner
  * @since 2019.09

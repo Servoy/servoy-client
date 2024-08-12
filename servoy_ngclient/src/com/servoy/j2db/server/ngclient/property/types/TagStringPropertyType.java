@@ -287,6 +287,8 @@ public class TagStringPropertyType extends DefaultPropertyType<BasicTagStringTyp
 						if (relationSequence != null && relationSequence.length > 0)
 						{
 							// only one sequence is supported, do we need multiple?
+							// TODO Yes! we might need multiple relation sequences if we monitor multiple DPs that are on different relations; we have SVY-18622 for that
+
 							relations.clear();
 							relations.addAll(Arrays.asList(relationSequence));
 							recordDP[0] = true;

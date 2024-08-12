@@ -19,7 +19,7 @@ package com.servoy.j2db.persistence;
 
 /**
  * Encapsulation interface for persists that support it.
- * 
+ *
  * @author lvostinar
  *
  */
@@ -33,15 +33,19 @@ public interface ISupportEncapsulation
 
 	/**
 	 * The encapsulation mode of this persist. The following can be used/checked:
-	 * 
-	 * - Public (not a separate option - if none of the below options are selected)
-	 * - Hide in scripting; Module Scope - not available in scripting from any other context except the form itself. Available in designer for the same module.
-	 * - Module Scope - available in both scripting and designer but only in the same module.
-	 * - Hide Dataproviders (checked by default)
-	 * - Hide Foundset (checked by default)
-	 * - Hide Controller (checked by default)
-	 * - Hide Elements (checked by default)
-	 * 
+	 *
+	 * <ul>
+	 *   <li>Public (not a separate option - if none of the below options are selected)</li>
+	 *   <li>Hide in scripting; Module Scope - it will not be available in scripting from any other context except the form itself. Available in designer for the same module</li>
+	 *   <li>Module Scope - it will be available in both scripting and designer, but only in the same module</li>
+	 *   <li>Hide Dataproviders (checked by default) - the form's dataproviders will not be available from any other context except from the form itself</li>
+	 *   <li>Hide Foundset (checked by default) - the form's foundset will not be available from any other context except from the form itself</li>
+	 *   <li>Hide Controller - the form's controller will not be available from any other context except from the form itself</li>
+	 *   <li>Hide Elements (checked by default) - the form's elements will not be available from any other context except from the form itself</li>
+	 *   <li>Hide Containers (checked by default) - the form's containers will not be available from any other context except from the form itself.</li>
+	 * </ul>
+	 *
+	 * @sample "Hide Dataproviders, Hide Foundset, Hide Elements, Hide Containers"
 	 * @return the encapsulation mode/level of the persist.
 	 */
 	int getEncapsulation();

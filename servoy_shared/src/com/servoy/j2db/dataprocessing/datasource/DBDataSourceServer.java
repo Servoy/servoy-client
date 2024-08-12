@@ -37,7 +37,7 @@ import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 
 /**
- * Scope for datasources.db.myserver.
+ * A runtime data-source server, that can be accessed via "datasources.db.myserver." at runtime.
  *
  * @author rgansevles
  *

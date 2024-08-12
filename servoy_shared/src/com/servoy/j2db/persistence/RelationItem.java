@@ -29,6 +29,58 @@ import com.servoy.j2db.util.UUID;
 
 
 /**
+ * A <b>relation item</b> is one of the (potentially multiple) logical objects from a relation that tell the application how the two tables are related.<br/><br/>
+ *
+ * The nature of the relation between the source and destination tables is defined by one or more Relation Items.<br/>
+ * Relation Items are expressions, each consisting of a pair of key data providers, one from each table (the first can be a global variable as well) and a single operator and modifier.<br/>
+ * The Relation Items will be used to constrain the records that are loaded in the related foundset, such that records are loaded only when <b>all</b> of the expressions evaluate to be <b>true</b>.<br/><br/>
+ *
+ * <b>Example</b>: This example creates a relation between the <i>customers</i> and the <i>countries</i> table. A related foundset will only load <i>countries</i> records with a <i>code</i> equal (case insensitive) to the <i>countryCode</i> in the context of the source <i>customer</i> record.<br/><br/>
+ *
+ * <pre data-puremarkdown>
+ * | Source (customers table) | Operator |     Modifier     | Destination (countries table) |
+ * | ------------------------ | -------- | ---------------- | ----------------------------- |
+ * |      countryCode         |    =     | case-insensitive |            code               |
+ * </pre>
+ *
+ * <b>Data Providers</b><br/><br/>
+ *
+ * One data provider from each table will serve as an operand in the key-pair expression. Therefore, both data providers must share the same data type.<br/>
+ * Columns, calculations and global variables may all be used as the source data provider. However, only columns may be used for the destination data provider.<br/><br/>
+ *
+ * <i>Source Data Provider - Available Types:</i>
+ * <ul>
+ *   <li>Columns</li>
+ *   <li>Calculations</li>
+ *   <li>Global Variables (single values or Arrays)</li>
+ * </ul>
+ *
+ * <i>Destination Data Provider - Available Types:</i>
+ * <ul>
+ *   <li>Columns Only</li>
+ * </ul>
+ *
+ * <b>NOTE:</b> Related foundsets are loaded in the context of a single source table record, which is already known. Therefore, any global variables, as well as the source record's calculations can be evaluated and used as a key. However, only columns from the destination table can be used as the dynamic data providers cannot be evaluated on behalf of destination records before they are loaded.<br/><br/>
+ *
+ * <b>modifier</b><br/><br/>
+ * The operator that defines the relationship between the primary data-provider and the foreign column can have a modifier. Modifiers can be defined
+ * for operators, so multiple modifiers can be used in a relation item.<br/><br/>
+ * <pre data-puremarkdown>
+ * | Modifier         | Description                                                                                                        |
+ * | ---------------- | ------------------------------------------------------------------------------------------------------------------ |
+ * | case-insensitive | case-Insensitive comparison                                                                                        |
+ * | or-is-null       | allow null values in the value (will result in sql <_cond_> or _column is null_)                                   |
+ * | remove-when-null | remove the condition when the value is null, this is usually used icw a global variable holding an array of values |
+ * </pre>
+ *
+ * <b>For Text-Based Expressions</b><br/><br/>
+ * Expressions which contain the <i>SQL Like</i> or <i>SQL NOT Like</i> operators should be used in conjunction with values that contain wild-cards (%):<br/>
+ * <pre>
+ * customers.city like New%        // Starts with: i.e. New York, New Orleans
+ * customers.city like %Villa%     // Contains: i.e. Villa Nova, La Villa Linda
+ * customers.city like %s          // Ends with: i.e. Athens, Los Angeles
+ * </pre>
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.RELATION_ITEMS)
@@ -112,6 +164,8 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 	/**
 	 * The name of the column from the source table
 	 * that this relation item is based on.
+	 *
+	 * @sample "orderid"
 	 */
 	public String getPrimaryDataProviderID()
 	{
@@ -131,6 +185,8 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 	/**
 	 * The name of the column from the destination table
 	 * that this relation item is based on.
+	 *
+	 * @sample "orderid"
 	 */
 	public String getForeignColumnName()
 	{
@@ -302,8 +358,23 @@ public class RelationItem extends AbstractBase implements ISupportContentEquals,
 	}
 
 	/**
-	 * The operator that defines the relationship between the primary dataprovider
-	 * and the foreign column.
+	 * The operator that defines the relationship between the primary dataprovider and the foreign column. Each key pair expression is evaluated using a
+	 * single operator. Certain operators are only applicable to certain data types. Below is a list of all available operators and the data types for
+	 * which they are applicable.<br/><br/>
+	 * <pre data-puremarkdown>
+	 * | Operator | Description                         | Data Types                                            |
+	 * | -------- | ----------------------------------- | ----------------------------------------------------- |
+	 * | =        | Equals                              | Text, Integer, Number, Datetime, UUID, Array (in)     |
+	 * | >        | Greater Than                        | Text, Integer, Number, Datetime                       |
+	 * | <        | Less Than                           | Text, Integer, Number, Datetime                       |
+	 * | >=       | Greater Than or Equal To            | Text, Integer, Number, Datetime                       |
+	 * | <=       | Less Than or Equal To               | Text, Integer, Number, Datetime                       |
+	 * | !=       | NOT Equal To                        | Text, Integer, Number, Datetime, UUID, Array (not in) |
+	 * | like     | SQL Like use with '%' wildcards     | Text                                                  |
+	 * | not like | SQL Not Like use with '%' wildcards | Text                                                  |
+	 * </pre>
+	 *
+	 * @sample "="
 	 */
 	public int getOperator()
 	{

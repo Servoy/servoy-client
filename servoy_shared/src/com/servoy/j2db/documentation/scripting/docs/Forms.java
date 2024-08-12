@@ -22,8 +22,9 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * Helper class for easier documentation of our JavaScript API for forms.
- * 
+ * Forms object. Available as "<code>forms.</code>" in scripting.<br/>
+ * It gives easy access to (and code completion for) the solution's forms.
+ *
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Forms", scriptingName = "forms")
@@ -32,16 +33,16 @@ public class Forms
 {
 	/**
 	 * Get all form names of the current solution.
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var allFormNames = forms.allnames;
 	 * application.output("There are " + allFormNames.length + " forms.");
-	 * for (var i=0; i<allFormNames.length; i++) 
+	 * for (var i=0; i<allFormNames.length; i++)
 	 * {
 	 * 	var f = forms[allFormNames[i]];
 	 * 	application.output("Form " + allFormNames[i] + " has selected index " + f.controller.getSelectedIndex());
 	 * }
-	 * 
+	 *
 	 * @special
 	 * @deprecated use solutionModel.getForms() instead;
 	 * an exact replacement, if you need it would be 'solutionModel.getForms().map(function (jsForm) { return jsForm.name } )'.
@@ -70,11 +71,11 @@ public class Forms
 
 	/**
 	 * Get a form by name.
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var allForms = solutionModel.getForms();
 	 * application.output("There are " + allForms.length + " forms.");
-	 * for (var i=0; i<allForms.length; i++) 
+	 * for (var i=0; i<allForms.length; i++)
 	 * {
 	 * 	var f = forms[allForms[i].name];
 	 * 	application.output("Form " + allForms[i].name + " has selected index " + f.controller.getSelectedIndex());

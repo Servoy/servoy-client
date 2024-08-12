@@ -67,7 +67,9 @@ import com.servoy.j2db.util.WrappedObjectReference;
 
 
 /**
- * Scriptable dataset wrapper
+ * A dataset object. You can use it to work with data structured as rows and columns - but the data itself is created
+ * at runtime without the need for it to be linked directly both ways to a datasource (so it is different in that way from a foundset).
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSDataSet")

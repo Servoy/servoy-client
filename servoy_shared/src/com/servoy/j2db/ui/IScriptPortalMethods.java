@@ -19,10 +19,10 @@ package com.servoy.j2db.ui;
 import com.servoy.j2db.ui.runtime.IRuntimePortal;
 
 /**
- * Methods for runtime portal that are not shared with java api ({@link IRuntimePortal})
- * 
+ * Methods for runtime portal that are not shared with java api ({@link IRuntimePortal}).
+ *
  * @author rgansevles
- * 
+ *
  * @since 6.1
  *
  */
@@ -34,19 +34,19 @@ public interface IScriptPortalMethods
 	 * @sample
 	 * //gets the selected record index in the foundset
 	 * var current = %%prefix%%%%elementName%%.getSelectedIndex();
-	 * 
+	 *
 	 * //sets the next record index in the foundset
 	 * %%prefix%%%%elementName%%.setSelectedIndex(current+1);
-	 * 
+	 *
 	 * @return The selected index (integer).
 	 */
 	public int jsFunction_getSelectedIndex();
 
 	/**
 	 * Sets the selected record index in the current cached foundset in the specified portal.
-	 * 
+	 *
 	 * @sampleas jsFunction_getSelectedIndex()
-	 * 
+	 *
 	 * @param index the specified record index
 	 */
 	public void jsFunction_setSelectedIndex(int index);

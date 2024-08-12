@@ -26,7 +26,7 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.util.Debug;
 
 /**
- * JavaScript wrapper object around {@link IServer}
+ * JSServer represents a DB Server object - when using the maintenance plugin.
  *
  * @author jblok
  * @see IServer

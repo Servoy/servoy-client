@@ -22,8 +22,10 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Dummy class for listing methods for JavaScript types in a manner that
- * suits our documentation generator.
+ * The Map object holds key-value pairs and remembers the original insertion order of the keys.<br/>
+ * Any value (both objects and primitive values) may be used as either a key or a value.<br/><br/>
+ *
+ * For more information see: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map">Map (MDN)</a>.
  *
  * @author jcompagner
  */

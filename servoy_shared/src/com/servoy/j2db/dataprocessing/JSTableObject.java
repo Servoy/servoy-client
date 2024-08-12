@@ -27,7 +27,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 /**
- * A javascript wrapper around a {@link ITable} object.
+ * The JSTableObject is a newly created JSTable, that can be altered - one can add new columns as well to it for example.
  *
  * @author jblok
  */

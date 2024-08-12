@@ -524,6 +524,9 @@ public abstract class AbstractBase implements IPersist
 		propertiesMap.remove(property.getPropertyName());
 	}
 
+	/**
+	 * Additional information, such as programmer notes about this model object's purpose.
+	 */
 	public String getComment()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_COMMENT);

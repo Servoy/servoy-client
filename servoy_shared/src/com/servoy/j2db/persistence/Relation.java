@@ -52,7 +52,10 @@ import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UUID;
 
 /**
- * A relation (between 2 tables on one or more key column pairs)
+ * A <b>relation</b> between two database tables refers to how data in one table is related to data in another table.<br/><br/>
+ *
+ * A Relation it is an object from the data layer that provides a link from one data-source to another, based on one or more matches between the dataproviders in the datasources and an operator.
+ * These relationships are established using keys, typically primary keys and foreign keys.
  *
  * @author jblok
  */
@@ -270,8 +273,13 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	}
 
 	/**
-	 * Qualified name of the primary data source. Contains both the name of the primary server
-	 * and the name of the primary table.
+	 * Qualified name of the primary data source. It contains both the name of the primary server and the name of the primary table.
+	 * It can be any database table or view from any named server connection.<br/><br/>
+	 *
+	 * At runtime, a related foundset will exist in the context of a single record from the source table.<br/>
+	 * For example, the relation 'customer_to_orders', will become available in the context of any record in a foundset which is based on the 'customers' table.
+	 *
+	 * @sample 'example_data.customer'
 	 */
 	public String getPrimaryDataSource()
 	{
@@ -287,8 +295,14 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	}
 
 	/**
-	 * Qualified name of the foreign data source. Contains both the name of the foreign
-	 * server and the name of the foreign table.
+	 * Qualified name of the foreign data source. Contains both the name of the foreign server and the name of the foreign table. It can be chosen from all of the available tables and has this format: "server-name.table-name".<br/>
+	 * It can be any database table or view from any named server connection; it is not limited to the same database as the destination table.<br/><br/>
+	 *
+	 * At runtime, a related foundset will contain records from the destination table.
+	 *
+	 * NOTE: The destination table can be from a separate database than the source table. This is a powerful feature, but it is worth noting that a related foundset who's relation is defined across two databases will not be available when the source foundset is in find mode. This is because a related find requires a SQL JOIN, which cannot be issued across databases for all vendors.
+	 *
+	 * @sample 'example_data.order_details'
 	 */
 	public String getForeignDataSource()
 	{
@@ -418,10 +432,14 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	}
 
 	/**
-	 * A String which specified a set of sort options for the initial sorting of data
-	 * retrieved through this relation.
+	 * Foundsets, including related foundsets, have a sort property. By default, any foundset is sorted by the primary key(s) of the table upon which it is based.<br/><br/>
 	 *
-	 * Has the form "column_name asc, another_column_name desc, ...".
+	 * Relations have an Initial Sort property, which overrides the default sort, such that any related foundset is initialized to use the sorting definition defined by the relation object.<br/>
+	 * For more information see foundset sorting.<br/><br/>
+	 *
+	 * The value looks like "column_name asc, another_column_name desc, ...".
+	 *
+	 * @sample "productid asc"
 	 */
 	public String getInitialSort()
 	{
@@ -470,9 +488,14 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	}
 
 	/**
-	 * Flag that tells if related records should be deleted or not when a parent record is deleted.
+	 * Flag that tells if related records (from a related foundset) should be deleted or not when a parent record is deleted.<br/>
+	 * Moreover, it also enforces a cascading delete, such that when a source record is deleted, all records in the related foundset will also be deleted, eliminating the possibility of orphaned records.<br/><br/>
+	 *
+	 * <b>Example</b>: Assume the relation customers_to_orders has enabled this option. The deleting of the customer record will cause all of the related order records to be deleted.<br/><br/>
 	 *
 	 * The default value of this flag is "false".
+	 * @sample
+	 * "true" or "false"
 	 */
 	public boolean getDeleteRelatedRecords()
 	{
@@ -505,9 +528,28 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	}
 
 	/**
-	 * Flag that tells if related records can be created through this relation.
+	 * Flag that tells if related records can be created through this relation, or not.<br/><br/>
 	 *
-	 * The default value of this flag is "false".
+	 * This option is enabled by default, and it specifies that records can be created within a related foundset. Moreover, when records are created
+	 * in a related foundset, the key columns in the new record may be automatically filled with the corresponding values from the source record.<br/><br/>
+	 *
+	 * <b>Example</b>: Assume a relation, _customers_to_orders_ defined by a single key expression, <i>customers.customerid = orders.customerid</i>
+	 * <code>
+	 * customerid;         // 123, the customer's id
+	 * customers_to_orders.newRecord();// create the new record
+	 * customers_to_orders.customerid; // 123, the order record's foreign key is auto-filled
+	 * </code>
+	 * Key columns will be auto-filled for expressions using the following operators:
+	 * <ul>
+	 *   <li>=</li>
+	 *   <li>#=</li>
+	 *   <li>^||=</li>
+	 * </ul>
+	 * <br/>
+	 * If this option is disabled, then records cannot be created in a related foundset. If attempted, a [ServoyException]() is raised with the error code, [NO_RELATED_CREATE_ACCESS]().
+	 *
+	 * @sample
+	 * "true" or "false"
 	 */
 	public boolean getAllowCreationRelatedRecords()
 	{
@@ -520,9 +562,15 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	}
 
 	/**
-	 * Flag that tells if the parent record can be deleted while it has related records.
+	 * Flag that tells if the parent record can be deleted while it has related records.<br/>
+	 * This option is enabled by default.<br/><br/>
 	 *
-	 * The default value of this flag is "true".
+	 * When disabled, it will prevent the deleting of a record from the source table if the related foundset contains one or more records. If the delete fails, a [ServoyException]() is raised with the error code, [NO_PARENT_DELETE_WITH_RELATED_RECORDS]().<br/><br/>
+	 *
+	 * <b>Example</b>: Assume the relation customers_to_orders has this option disabled. An attempt to delete a customer record will fail, if that customer has one or more orders.<br/>
+	 *
+	 * @sample
+	 * "true" or "false"
 	 */
 	public boolean getAllowParentDeleteWhenHavingRelatedRecords()
 	{
@@ -1016,8 +1064,20 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	}
 
 	/**
-	 * The join type that is performed between the primary table and the foreign table.
-	 * Can be "inner join" or "left outer join".
+	 * The join type that is performed between the primary table and the foreign table.<br/>
+	 * Can be "inner join" or "left outer join".<br/><br/>
+	 *
+	 * This SQL join is used when a <b>find</b> or a <b>sort</b> is performed using related criteria, and thus the join type will affect behavior in these situations.
+	 *
+	 * <ul>
+	 *   <li><b>Inner Join</b> - SQL Inner Join does not return any rows for parent records which have no related records. Therefore, if a sort or a find is performed when a related data provider is used for criterion, the related foundset may have records omitted due parents with no child records.</li>
+	 *   <li><b>Left Outer Join</b> - SQL Left Outer Join will return always return a row for the parent record even if there are no related records. Therefore, if a sort or a find is performed when a related data provider is used for a criterion, the related foundset will include all matching records, regardless of the presence of related records.</li>
+	 * </ul>
+	 *
+	 * @sample
+	 * //Assume that the user chooses to sort a customer list containing 50 records. The sort is based on the account manager's last name, which is in the employees table. However, 3 of the customers don't have an employee listed to manage the account.
+	 * foundset.sort('customers_to_employees.last_name asc');
+	 * foundset.getSize(); //  returns 50 if the customers_to_employees relation specifies left outer join, 47 if the relation specifies inner join.
 	 */
 	public int getJoinType()
 	{
@@ -1044,13 +1104,15 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	}
 
 	/**
-	 * The encapsulation mode of this Relation. The following can be used/checked:
+	 * A relation has an encapsulation property, similar to the form encapsulation property. The following can be used:
 	 *
-	 * - Public (not a separate option - if none of the below options are selected)
-	 * - Hide in scripting; Module Scope - not available in scripting from any other context except the form itself. Available in designer for the same module.
-	 * - Module Scope - available in both scripting and designer but only in the same module.
+	 * <ul>
+	 *   <li><b>Public</b> – accessible from everywhere</li>
+	 *   <li><b>Hide in Scripting; Module Scope</b> – code completion is disabled for the relation; it is accessible only from the module that it was created in</li>
+	 *   <li><b>Module Scope</b> – accessible in both scripting and designer, but only from the module it was created in</li>
+	 * </ul>
 	 *
-	 * @return the encapsulation mode/level of the persist.
+	 * For non-public encapsulation, if the relation is used where it is not supposed to be used, you get a build marker in Problems View.
 	 */
 	@Override
 	public int getEncapsulation()
@@ -1059,7 +1121,11 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 	}
 
 	/*
-	 * @see com.servoy.j2db.persistence.ISupportDeprecated#getDeprecated()
+	 * A relation can be deprecated, and a description can to be provided to hint to developers about what the alternative is.
+	 *
+	 * @sample "not used anymore"
+	 *
+	 * @return the deprecation info for this object or null if it is not deprecated
 	 */
 	@Override
 	public String getDeprecated()
@@ -1299,5 +1365,17 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		}
 
 	}
+
+	/**
+	 * Additional information, such as programmer notes about this relation's purpose.
+	 *
+	 * @sample "gets order details table data starting from orders table"
+	 */
+	@Override
+	public String getComment()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_COMMENT);
+	}
+
 }
 

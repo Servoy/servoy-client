@@ -31,7 +31,7 @@ import com.servoy.j2db.persistence.Portal;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Portal", scriptingName = "Portal", realClass = Portal.class, typeCode = IRepository.PORTALS)
-@ServoyClientSupport(mc = false, wc = true, sc = true)
+@ServoyClientSupport(mc = false, wc = true, sc = true, ng = false)
 public class DocsPortal extends Portal implements IBaseDocsComponent
 {
 

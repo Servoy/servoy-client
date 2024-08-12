@@ -33,7 +33,8 @@ import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 
 /**
- * IMPORTANT: The names are exposed to javascripting do not refactor names!
+ * The ServoyException object. The constants that it provides document the scenarios when such an exception can be raised.
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ServoyException", scriptingName = "ServoyException")

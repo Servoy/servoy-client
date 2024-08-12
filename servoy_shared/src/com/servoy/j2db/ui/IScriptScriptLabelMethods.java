@@ -21,8 +21,8 @@ import com.servoy.j2db.ui.runtime.IRuntimeLabel;
 
 /**
  * Scripting interface for RuntimeLabel.
- * Combines (deprecated) script methods and java api ({@link IRuntimeLabel});
- * 
+ * Combines (deprecated) script methods and java api ({@link IRuntimeLabel}).
+ *
  * @author rgansevles
  *
  */

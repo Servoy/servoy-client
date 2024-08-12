@@ -31,7 +31,7 @@ import com.servoy.j2db.persistence.TabPanel;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "TabPanel", scriptingName = "TabPanel", realClass = TabPanel.class, typeCode = IRepository.TABPANELS)
-@ServoyClientSupport(mc = false, wc = true, sc = true)
+@ServoyClientSupport(mc = false, wc = true, sc = true, ng = false)
 public class DocsTabPanel extends TabPanel implements IBaseDocsComponent
 {
 

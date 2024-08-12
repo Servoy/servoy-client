@@ -22,10 +22,9 @@ import com.servoy.j2db.ui.scripting.RuntimeDataLabel;
 
 /**
  * Scripting interface for RuntimeDataLabel.
- * Combines (deprecated) script methods and java api ({@link RuntimeDataLabel});
- * 
- * @author rgansevles
+ * Combines (deprecated) script methods and java api ({@link RuntimeDataLabel}).
  *
+ * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeDataLabel", extendsComponent = "RuntimeComponent")
 public interface IScriptDataLabelMethods extends IScriptDataLabelDeprecatedMethods, IRuntimeDataLabel

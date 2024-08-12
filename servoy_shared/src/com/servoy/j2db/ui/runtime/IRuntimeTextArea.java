@@ -19,10 +19,10 @@ package com.servoy.j2db.ui.runtime;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Runtime methods for RuntimeTextArea
- * 
+ * Runtime methods for RuntimeTextArea.
+ *
  * @author rgansevles
- * 
+ *
  * @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeTextArea", extendsComponent = "RuntimeComponent")

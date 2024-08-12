@@ -22,7 +22,7 @@ import com.servoy.j2db.persistence.Field;
 import com.servoy.j2db.solutionmodel.ISMText;
 
 /**
- * Solution model tetxt field component.
+ * Solution model text field component.
  *
  * @author rgansevles
  */

@@ -33,7 +33,7 @@ import com.servoy.j2db.solutionmodel.ISMHeader;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Solution model header object on form.
+ * Solution model header part on a form.
  *
  * @author rgansevles
  */

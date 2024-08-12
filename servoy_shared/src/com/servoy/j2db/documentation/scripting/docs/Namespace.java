@@ -19,9 +19,9 @@ package com.servoy.j2db.documentation.scripting.docs;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Dummy class for listing methods for JavaScript types in a manner that
- * suits our documentation generator.
- * 
+ * XML Namespace of inline xml - as supported by the Rhino engine (but the support for direct XML inside javascript source code - as proposed by standards (Ecma-357) - is deprecated).
+ *
+ * @link https://ecma-international.org/publications-and-standards/standards/ecma-357/
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "Namespace", scriptingName = "Namespace")
@@ -29,14 +29,14 @@ public class Namespace
 {
 	/**
 	 * Identifies the prefix of this namespace, if applicable.
-	 * 
+	 *
 	 * @sample
 	 * var xmlElement = <xhtml:p xmlns:xhtml="http://www.w3.org/1999/xhtml">Hello World!</xhtml:p>;
 	 * var namespace = xmlElement.namespace();
 	 * application.output("Prefix: " + namespace.prefix); //will output: 'xhtml'
 	 * application.output("URI: " + namespace.uri); //will output: 'http://www.w3.org/1999/xhtml'
-	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
+	 *
+	 * @link https://ecma-international.org/publications-and-standards/standards/ecma-357/
 	 */
 	public String js_getPrefix()
 	{
@@ -49,10 +49,10 @@ public class Namespace
 
 	/**
 	 * Identifies the namespace of this Namespace, if applicable.
-	 * 
+	 *
 	 * @sampleas js_getPrefix()
-	 * 
-	 * @link http://www.ecma-international.org/publications/files/ECMA-ST-WITHDRAWN/Ecma-357.pdf
+	 *
+	 * @link https://ecma-international.org/publications-and-standards/standards/ecma-357/
 	 */
 	public String js_getUri()
 	{

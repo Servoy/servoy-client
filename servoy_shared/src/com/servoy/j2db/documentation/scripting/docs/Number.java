@@ -20,9 +20,10 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Dummy class for listing methods for JavaScript types in a manner that
- * suits our documentation generator.
- * 
+ * Number values represent floating-point numbers.<br/><br/>
+ *
+ * For more information see: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number">Number (MDN)</a>.
+ *
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "Number", scriptingName = "Number")
@@ -30,11 +31,11 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 public class Number
 {
 	/**
-	 * The largest representable number. 
-	 * 
+	 * The largest representable number.
+	 *
 	 * @sample
 	 * application.output("Largest number: " + Number.MAX_VALUE);
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Number/MAX_VALUE
 	 */
 	public Number js_getMAX_VALUE()
@@ -47,11 +48,11 @@ public class Number
 	}
 
 	/**
-	 * The smallest representable number. 
-	 * 
+	 * The smallest representable number.
+	 *
 	 * @sample
 	 * application.output("Smallest number: " + Number.MIN_VALUE);
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Number/MIN_VALUE
 	 */
 	public Number js_getMIN_VALUE()
@@ -65,10 +66,10 @@ public class Number
 
 	/**
 	 * Special "not a number" value.
-	 * 
+	 *
 	 * @sample
 	 * application.output("NaN: " + Number.NaN);
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Number/NaN
 	 */
 	public Object js_getsamecase_NaN()
@@ -82,10 +83,10 @@ public class Number
 
 	/**
 	 * Special value representing negative infinity; returned on overflow.
-	 * 
+	 *
 	 * @sample
 	 * application.output("Negative infinity: " + Number.NEGATIVE_INFINITY);
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Number/NEGATIVE_INFINITY
 	 */
 	public Number js_getNEGATIVE_INFINITY()
@@ -99,10 +100,10 @@ public class Number
 
 	/**
 	 * Special value representing infinity; returned on overflow.
-	 * 
+	 *
 	 * @sample
 	 * application.output("Positive infinity: " + Number.POSITIVE_INFINITY);
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Number/POSITIVE_INFINITY
 	 */
 	public Number js_getPOSITIVE_INFINITY()
@@ -115,14 +116,14 @@ public class Number
 	}
 
 	/**
-	 * Returns a string representing the number in fixed-point notation. 
+	 * Returns a string representing the number in fixed-point notation.
 	 *
 	 * @sample
 	 * var n = 123.45678;
 	 * application.output(n.toFixed(3));
-	 * 
+	 *
 	 * @return A string representing the number in fixed-point notation.
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Number/toFixed
 	 */
 	public String js_toFixed()
@@ -133,11 +134,11 @@ public class Number
 	/**
 	 * @clonedesc js_toFixed()
 	 * @sampleas js_toFixed()
-	 * 
+	 *
 	 * @param digits The number of digits to appear after the decimal point. Defaults to 0.
-	 * 
+	 *
 	 * @return A string representing the number in fixed-point notation.
-	 * 
+	 *
 	 */
 	public String js_toFixed(Number digits)
 	{
@@ -145,15 +146,15 @@ public class Number
 	}
 
 	/**
-	 * Returns a string representing the number in exponential notation. 
-	 * 
+	 * Returns a string representing the number in exponential notation.
+	 *
 	 * @sample
 	 * var n = 123.45678;
 	 * application.output(n.toExponential(3));
-	 *  
-	 * 
-	 * @return A string representing the number in exponential notation. 
-	 * 
+	 *
+	 *
+	 * @return A string representing the number in exponential notation.
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Number/toExponential
 	 */
 	public String js_toExponential()
@@ -164,11 +165,11 @@ public class Number
 	/**
 	 * @clonedesc js_toExponential()
 	 * @sampleas js_toExponential()
-	 * 
-	 * @param fractionDigits An integer specifying the number of digits after the decimal point. Defaults to as many digits as necessary to specify the number. 
-	 * 
-	 * @return A string representing the number in exponential notation. 
-	 * 
+	 *
+	 * @param fractionDigits An integer specifying the number of digits after the decimal point. Defaults to as many digits as necessary to specify the number.
+	 *
+	 * @return A string representing the number in exponential notation.
+	 *
 	 */
 	public String js_toExponential(Number fractionDigits)
 	{
@@ -177,13 +178,13 @@ public class Number
 
 	/**
 	 * Converts the number into a string which is suitable for presentation in the given locale.
-	 * 
+	 *
 	 * @sample
 	 * var n = 1000000;
 	 * application.output(n.toLocaleString());
-	 * 
+	 *
 	 * @return A string representing the number in the current locale.
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/En/Core_JavaScript_1.5_Reference/Global_Objects/Number/ToLocaleString
 	 */
 	public String js_toLocaleString()
@@ -192,15 +193,15 @@ public class Number
 	}
 
 	/**
-	 * Returns a string representing the number to a specified precision in fixed-point or exponential notation. 
-	 * 
+	 * Returns a string representing the number to a specified precision in fixed-point or exponential notation.
+	 *
 	 * @sample
 	 * var n = 123.45678;
 	 * application.output(n.toPrecision(5));
-	 * 
-	 * 
+	 *
+	 *
 	 * @return A string representing the number to a specified precision in fixed-point or exponential notation.
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Number/toPrecision
 	 */
 	public String js_toPrecision()
@@ -211,11 +212,11 @@ public class Number
 	/**
 	 * @clonedesc js_toPrecision()
 	 * @sampleas js_toPrecision()
-	 * 
+	 *
 	 * @param precision An integer specifying the number of significant digits.
-	 * 
+	 *
 	 * @return A string representing the number to a specified precision in fixed-point or exponential notation.
-	 * 
+	 *
 	 */
 	public String js_toPrecision(Number precision)
 	{
@@ -224,15 +225,15 @@ public class Number
 
 	/**
 	 * Returns a string representing the specified Number object.
-	 * 
+	 *
 	 * @sample
 	 * var n = 7;
 	 * application.output(n.toString()); //displays "7"
 	 * application.output(n.toString(2)); //displays "111"
-	 *   
-	 * 
+	 *
+	 *
 	 * @return A string representing the specified Number object.
-	 * 
+	 *
 	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Number/toString
 	 */
 	public String js_toString()
@@ -243,11 +244,11 @@ public class Number
 	/**
 	 * @clonedesc js_toString()
 	 * @sampleas js_toString()
-	 *   
+	 *
 	 * @param radix An integer between 2 and 36 specifying the base to use for representing numeric values
-	 * 
+	 *
 	 * @return A string representing the specified Number object.
-	 * 
+	 *
 	 */
 	public String js_toString(Number radix)
 	{
