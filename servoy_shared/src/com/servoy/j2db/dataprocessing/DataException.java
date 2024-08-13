@@ -121,7 +121,9 @@ public class DataException extends ServoyException
 	@Override
 	public String getMessage()
 	{
-		return super.getMessage() + '\n' + msg;
+		String message = super.getMessage() + '\n' + msg;
+		if (sql != null) message += "\nSQL: " + sql; //$NON-NLS-1$
+		return message;
 	}
 
 	public String getSQL()
