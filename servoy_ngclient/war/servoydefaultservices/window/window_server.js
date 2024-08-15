@@ -392,7 +392,8 @@ $scope.api.closeFormPopup = function(retval) {
             $scope.scope[$scope.dataProviderID] = retval;
         }
         $scope.model.popupform.retval = retval;
-        $scope.api.cancelFormPopup();
+		$scope.api.cancelFormPopupInternal(true);
+		$scope.clearPopupForm();
     }
 }
 
@@ -469,15 +470,5 @@ $scope.api.cleanup = function() {
 }
 
 $scope.clearPopupForm = function() {
-    delay(100).then(() => {
-        $scope.model.popupform = null;
-    });
-
-}
-
-function delay(ms) {
-    return new Promise(resolve => {
-        while (Date.now() < endTime);
-        resolve();
-    });
+    $scope.model.popupform = null;
 }
