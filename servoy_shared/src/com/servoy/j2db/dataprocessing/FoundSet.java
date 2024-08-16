@@ -1111,11 +1111,11 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 *       today    (equals today)
 	 *
 	 *  Text fields:
-	 *       #c	        (case insensitive condition)
-	 *       = x      (equals a space and 'x')
-	 *       ^=       (is null or empty)
-	 *       %x%      (contains 'x')
-	 *       %x_y%    (contains 'x' followed by any char and 'y')
+	 *       #c	     (case insensitive condition)
+	 *       = x     (equals a space and 'x')
+	 *       ^=      (is null or empty)
+	 *       %x%     (contains 'x')
+	 *       %x_y%   (contains 'x' followed by any char and 'y')
 	 *       \%      (contains char '%')
 	 *       \_      (contains char '_')
 	 *
