@@ -1093,10 +1093,10 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 *       #c        (modify condition, depends on column type)
 	 *       ^         (is null)
 	 *       ^=        (is null or empty)
-	 *       &lt;x     (less than value x)
-	 *       &gt;x     (greater than value x)
-	 *       &lt;=x    (less than or equals value x)
-	 *       &gt;=x    (greater than or equals value x)
+	 *       &lt;x        (less than value x)
+	 *       &gt;x        (greater than value x)
+	 *       &lt;=x       (less than or equals value x)
+	 *       &gt;=x       (greater than or equals value x)
 	 *       x...y     (between values x and y, including values)
 	 *       x         (equals value x)
 	 *
@@ -1111,7 +1111,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 *       today    (equals today)
 	 *
 	 *  Text fields:
-	 *       #c	     (case insensitive condition)
+	 *       #c      (case insensitive condition)
 	 *       = x     (equals a space and 'x')
 	 *       ^=      (is null or empty)
 	 *       %x%     (contains 'x')
