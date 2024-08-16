@@ -90,6 +90,11 @@ public class ServoyBeanState implements IRecord
 		return record.existInDataSource();
 	}
 
+	public boolean isFlaggedForDeletion()
+	{
+		return record.isFlaggedForDeletion();
+	}
+
 	public IFoundSet getParentFoundSet()
 	{
 		return record.getParentFoundSet();

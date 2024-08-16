@@ -147,7 +147,7 @@ public class UsedDataProviderTracker
 								}
 								else
 								{
-									usedColumn(currentRecord.getParentFoundSet().getDataSource(), currentRecord.getRawData().getPKHashKey(), primdp);
+									usedColumn(currentRecord.getDataSource(), currentRecord.getRawData().getPKHashKey(), primdp);
 								}
 							}
 						}

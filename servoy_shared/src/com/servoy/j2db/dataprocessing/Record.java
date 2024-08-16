@@ -17,9 +17,10 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import static java.util.Arrays.asList;
+
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -54,6 +55,7 @@ import com.servoy.j2db.scripting.UsedDataProviderTracker.UsedRelation;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDelegate;
+import com.servoy.j2db.util.ObjectKey;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
@@ -304,7 +306,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 			return parent.setDataProviderValue(dataProviderID, managebleValue);
 		}
 
-		//check if is related value request
+		// check if is related value request
 		int index = dataProviderID.indexOf('.');
 		if (index > 0)
 		{
@@ -319,7 +321,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		return null;
 	}
 
-	//called by DisplaysAdapter or CellAdapter
+	// called by DisplaysAdapter or CellAdapter
 	public boolean startEditing()
 	{
 		return startEditing(true);
@@ -330,7 +332,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		return getParentFoundSet().getFoundSetManager().getEditRecordList().startEditing(this, mustFireEditRecordChange);
 	}
 
-	//called by DataAdapterList, return changed
+	// called by DataAdapterList, return changed
 	public int stopEditing()
 	{
 		return getParentFoundSet().getFoundSetManager().getEditRecordList().stopEditing(false, this);
@@ -339,6 +341,11 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	public boolean existInDataSource()
 	{
 		return row.existInDB();
+	}
+
+	public boolean isFlaggedForDeletion()
+	{
+		return row.isFlaggedForDeletion();
 	}
 
 	@Deprecated
@@ -403,7 +410,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	public void completeFire(ModificationEvent me)
 	{
 		// Test if this record is in edit state for stopping it below if necessary
-		boolean isEditting = parent != null ? parent.getFoundSetManager().getEditRecordList().isEditing() : false;
+		boolean isEditing = parent != null ? parent.getFoundSetManager().getEditRecordList().isEditing() : false;
 		me.setRecord(this);
 		Object[] array = modificationListeners.toArray();
 		for (Object element : array)
@@ -412,7 +419,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		}
 		// If it wasn't editing and now it is (see RelookupdAdapter modification) then stop it now so that every change
 		// is recorded in one go and stored in one update
-		if (!isEditting && isEditing())
+		if (!isEditing && isEditing())
 		{
 			try
 			{
@@ -425,7 +432,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		}
 		else if (parent != null) // make sure pk is updated
 		{
-			if (Arrays.asList(parent.getSQLSheet().getPKColumnDataProvidersAsArray()).indexOf(me.getName()) != -1)
+			if (asList(parent.getSQLSheet().getPKColumnDataProvidersAsArray()).indexOf(me.getName()) != -1)
 			{
 				((FoundSet)parent).updatePk(this);
 			}
@@ -433,7 +440,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	}
 
 	/*
-	 * _____________________________________________________________ Scriptable impementation
+	 * _____________________________________________________________ Scriptable implementation
 	 */
 	public void delete(int index)
 	{
@@ -674,7 +681,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	}
 
 	/*
-	 * _____________________________________________________________ Related states impementation
+	 * _____________________________________________________________ Related states implementation
 	 */
 
 	/**
@@ -782,6 +789,12 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 			if (it.hasNext()) retval.append('\t');
 		}
 		return retval.toString();
+	}
+
+	@Override
+	public ObjectKey getKey()
+	{
+		return new ObjectKey(row, parent);
 	}
 
 	/**
@@ -1008,6 +1021,21 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	}
 
 	/**
+	 * Returns true if the current record is a deleted record or false otherwise.
+	 * The deletion has not been done in the database itself.
+	 *
+	 * @sample
+	 * var isNew = foundset.getSelectedRecord().isDeleted();
+	 *
+	 * @return true if the current record is a deleted record, false otherwise;
+	 */
+	@JSFunction
+	public boolean isDeleted()
+	{
+		return getRawData() != null && getRawData().isFlaggedForDeletion();
+	}
+
+	/**
 	 * Returns an array with the primary key values of the record.
 	 *
 	 * @sample
@@ -1071,7 +1099,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 			getRawData().rollbackFromDB();
 			getRawData().setLastException(null);
 		}
-		catch (Exception e)
+		catch (ServoyException e)
 		{
 			throw new RuntimeException(e);
 		}
@@ -1088,16 +1116,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	@JSFunction
 	public void revertChanges()
 	{
-		try
-		{
-			List<IRecordInternal> records = new ArrayList<IRecordInternal>();
-			records.add(this);
-			getParentFoundSet().getFoundSetManager().getEditRecordList().rollbackRecords(records);
-		}
-		catch (Exception e)
-		{
-			throw new RuntimeException(e);
-		}
+		getParentFoundSet().getFoundSetManager().getEditRecordList().rollbackRecords(asList(this), false, null);
 	}
 
 	/**
@@ -1114,14 +1133,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	@Deprecated
 	public boolean js_save()
 	{
-		try
-		{
-			return getParentFoundSet().getFoundSetManager().getEditRecordList().stopEditing(true, this) == ISaveConstants.STOPPED;
-		}
-		catch (Exception e)
-		{
-			throw new RuntimeException(e);
-		}
+		return getParentFoundSet().getFoundSetManager().getEditRecordList().stopEditing(true, this) == ISaveConstants.STOPPED;
 	}
 
 	/**

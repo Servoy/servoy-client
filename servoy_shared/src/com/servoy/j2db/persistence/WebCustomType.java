@@ -107,7 +107,7 @@ public class WebCustomType extends AbstractBase implements IChildWebObject, ISup
 	@Override
 	public void updateJSON()
 	{
-		webObjectImpl.updateJSONFromPersistMappedPropeties();
+		webObjectImpl.updateJSONFromPersistMappedProperties();
 		getParent().updateJSON();
 	}
 

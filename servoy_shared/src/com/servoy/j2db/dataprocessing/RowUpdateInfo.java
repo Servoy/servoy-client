@@ -24,7 +24,7 @@ import com.servoy.j2db.persistence.Column;
  * @author jcompagner
  *
  */
-public class RowUpdateInfo
+public final class RowUpdateInfo implements DatabaseUpdateInfo
 {
 	private final SQLStatement statement;
 	private final List<Column> dbPKReturnValues;

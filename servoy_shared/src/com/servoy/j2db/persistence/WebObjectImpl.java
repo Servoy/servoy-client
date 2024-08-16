@@ -114,7 +114,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 	}
 
 	@Override
-	public void updateJSONFromPersistMappedPropeties()
+	public void updateJSONFromPersistMappedProperties()
 	{
 		// writes persist mapped properties back to json
 		if (arePersistMappedPropertiesLoaded && !skipPersistMappedPropertiesUpdate)
@@ -281,7 +281,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 					if (getJson() == null) setJson(new ServoyJSONObject());
 					getPersistMappedProperties().put(propertyName, val);
 					persistMappedPropetiesByUUID = null;
-					updateJSONFromPersistMappedPropeties();
+					updateJSONFromPersistMappedProperties();
 					return true;
 				}
 				else
@@ -306,7 +306,7 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		{
 			persistMappedProperties.remove(propertyName); // remove the persist
 			persistMappedPropetiesByUUID = null;
-			updateJSONFromPersistMappedPropeties(); // remove it from json (as child persist is no longer there)
+			updateJSONFromPersistMappedProperties(); // remove it from json (as child persist is no longer there)
 
 			JSONObject json = getJson(); // this actually gets flattened json (ends up in AbstractBase that does that)
 			if (!ServoyJSONObject.isJavascriptNullOrUndefined(json) && json.has(propertyName))

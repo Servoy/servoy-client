@@ -201,7 +201,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 				}
 				if (tableFilterRequests != null)
 				{
-					application.getFoundSetManager().setTableFilters(TENANT_FILTER, server.getName(), tableFilterRequests, true);
+					application.getFoundSetManager().setTableFilters(TENANT_FILTER, server.getName(), tableFilterRequests, true, true);
 				}
 			}
 		}

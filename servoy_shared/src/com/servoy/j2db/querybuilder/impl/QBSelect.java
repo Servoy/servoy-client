@@ -58,7 +58,6 @@ import com.servoy.j2db.query.OrCondition;
 import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QuerySelect;
-import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
@@ -865,7 +864,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 				{
 					throw new RuntimeException("Cannot find table for datasource '" + getDataSource() + "'");
 				}
-				queryTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema(), tableAlias);
+				queryTable = table.queryTable(tableAlias);
 			}
 		}
 		return queryTable;

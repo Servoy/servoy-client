@@ -43,12 +43,12 @@ import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.QuerySelect;
-import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.FormatParser.ParsedFormat;
 import com.servoy.j2db.util.IDelegate;
+import com.servoy.j2db.util.ObjectKey;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
@@ -321,7 +321,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 		{
 			((IModificationListener)element).valueChanged(me);
 		}
-		// If it wasn't editting and now it is (see RelookupdAdapter modification) then stop it now so that every change
+		// If it wasn't editing and now it is (see RelookupdAdapter modification) then stop it now so that every change
 		// is recorded in one go and stored in one update
 		if (!editState && isEditing())
 		{
@@ -584,7 +584,13 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 
 	public boolean existInDataSource()
 	{
-		return true;//pretend to be stored, we never want to store this
+		return true; // pretend to be stored, we never want to store this
+	}
+
+	@Override
+	public boolean isFlaggedForDeletion()
+	{
+		return false;
 	}
 
 	@Deprecated
@@ -609,7 +615,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 		{
 			String partName = dataProviderID.substring(0, index);
 			String restName = dataProviderID.substring(index + 1);
-			IFoundSetInternal foundSet = getRelatedFoundSet(partName);//check substate, will return null if not found
+			IFoundSetInternal foundSet = getRelatedFoundSet(partName); // check substate, will return null if not found
 			if (foundSet != null)
 			{
 				FindState state = (FindState)foundSet.getRecord(0);
@@ -666,9 +672,8 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 	 */
 	public void notifyChange(ModificationEvent e, FireCollector col)
 	{
-		//not needed here
+		// not needed here
 	}
-
 
 	/**
 	 * Find all processable related find states and create joins. A find state is processable when it has changed or when a related find state has changed.
@@ -699,8 +704,7 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 					{
 
 						ITable foreignTable = parent.getFoundSetManager().getApplication().getFlattenedSolution().getTable(relation.getForeignDataSource());
-						foreignQTable = new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(),
-							foreignTable.getSchema());
+						foreignQTable = foreignTable.queryTable();
 					}
 					else
 					{
@@ -774,9 +778,12 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 
 	public boolean isRelatedFoundSetLoaded(String relationName, String restName)
 	{
-		return true;//return true to prevent async loading.
+		return true; // return true to prevent async loading.
 	}
 
+	/**
+	 * @param relationName
+	 */
 	@JSFunction
 	public boolean isRelatedFoundSetLoaded(String relationName)
 	{
@@ -825,6 +832,12 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 	}
 
 	@JSFunction
+	public boolean isDeleted()
+	{
+		return false;
+	}
+
+	@JSFunction
 	public JSRecordMarkers createMarkers()
 	{
 		return null;
@@ -833,7 +846,6 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 	@JSFunction
 	public void revertChanges()
 	{
-
 	}
 
 	public void rowRemoved()
@@ -886,5 +898,11 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 	public JSRecordMarkers getRecordMarkers()
 	{
 		return null;
+	}
+
+	@Override
+	public ObjectKey getKey()
+	{
+		return new ObjectKey(this);
 	}
 }

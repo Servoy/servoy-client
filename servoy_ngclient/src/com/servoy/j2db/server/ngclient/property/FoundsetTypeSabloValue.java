@@ -357,7 +357,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 					// if it is not a related foundset it must be a shared/named foundset
 					try
 					{
-						newFoundset = getFoundSetManager().getNamedFoundSet(foundsetSelector, record.getParentFoundSet().getDataSource());
+						newFoundset = getFoundSetManager().getNamedFoundSet(foundsetSelector, record.getDataSource());
 					}
 					catch (ServoyException e)
 					{

@@ -389,7 +389,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 		JSTableFilter tableFilter = createTableFilterInternal(query);
 		application.getFoundSetManager().setTableFilters(filterName, tableFilter.getTable().getServerName(),
-			asList(new TableFilterRequest(tableFilter.getTable(), tableFilter.getTableFilterdefinition(), false)), false);
+			asList(new TableFilterRequest(tableFilter.getTable(), tableFilter.getTableFilterdefinition(), false)), false, true);
 		return true;
 	}
 
@@ -557,13 +557,13 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			IFoundSetManagerInternal foundSetManager = application.getFoundSetManager();
 			for (String serverName : js_getServerNames())
 			{
-				foundSetManager.setTableFilters(filterName, serverName, tableFilterRequests.remove(serverName), true);
+				foundSetManager.setTableFilters(filterName, serverName, tableFilterRequests.remove(serverName), true, true);
 			}
 
 			for (Entry<String, List<TableFilterRequest>> entry : tableFilterRequests.entrySet())
 			{
 				// filter on a server that is not in server proxies (yet)
-				foundSetManager.setTableFilters(filterName, entry.getKey(), entry.getValue(), true);
+				foundSetManager.setTableFilters(filterName, entry.getKey(), entry.getValue(), true, true);
 			}
 		}
 		catch (Exception ex)
@@ -586,7 +586,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			if (tableFilter != null)
 			{
 				application.getFoundSetManager().setTableFilters(filterName, serverName,
-					asList(new TableFilterRequest(tableFilter.getTable(), tableFilter.getTableFilterdefinition(), false)), false);
+					asList(new TableFilterRequest(tableFilter.getTable(), tableFilter.getTableFilterdefinition(), false)), false, true);
 				return true;
 			}
 		}
@@ -681,7 +681,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 		try
 		{
-			application.getFoundSetManager().setTableFilters(filterName, serverName, null, true);
+			application.getFoundSetManager().setTableFilters(filterName, serverName, null, true, true);
 			return true;
 		}
 		catch (Exception ex)
@@ -923,7 +923,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					if (join == null)
 					{
 						join = application.getFoundSetManager().getSQLGenerator().createJoin(application.getFlattenedSolution(), relation, oldTable,
-							new QueryTable(ft.getSQLName(), ft.getDataSource(), ft.getCatalog(), ft.getSchema()), true, fs_old);
+							ft.queryTable(), true, fs_old);
 						sql.addJoin(join);
 					}
 
@@ -2823,9 +2823,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 							{
 								if (mainTableForeignType.equalsIgnoreCase(c.getColumnInfo().getForeignType()))
 								{
-									//update table set foreigntypecolumn = combinedDestinationRecordPK where foreigntypecolumn = sourceRecordPK
+									// update table set foreigntypecolumn = combinedDestinationRecordPK where foreigntypecolumn = sourceRecordPK
 
-									QueryTable qTable = new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema());
+									QueryTable qTable = table.queryTable();
 									QueryUpdate qUpdate = new QueryUpdate(qTable);
 
 									QueryColumn qc = c.queryColumn(qTable);
@@ -2849,7 +2849,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 
 				IDataSet pks = new BufferedDataSet();
 				pks.addRow(new Object[] { sourceRecordPK });
-				QueryTable qTable = new QueryTable(mainTable.getSQLName(), mainTable.getDataSource(), mainTable.getCatalog(), mainTable.getSchema());
+				QueryTable qTable = mainTable.queryTable();
 				QueryDelete qDelete = new QueryDelete(qTable);
 				ISQLCondition condition = new CompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, pkc.queryColumn(qTable), sourceRecordPK);
 				qDelete.setCondition(condition);
@@ -3149,13 +3149,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		if (foundset != null)
 		{
 			EditRecordList editRecordList = application.getFoundSetManager().getEditRecordList();
-			IRecordInternal[] failedRecords = editRecordList.getFailedRecords((IFoundSetInternal)foundset);
-			for (IRecordInternal record : failedRecords)
-			{
-				editRecordList.startEditing(record, false);
-			}
-			IRecord[] editedRecords = editRecordList.getEditedRecords((IFoundSetInternal)foundset);
-			return editRecordList.stopEditing(true, asList(editedRecords)) == ISaveConstants.STOPPED;
+			return editRecordList.stopEditing(true, (FoundSet)foundset) == ISaveConstants.STOPPED;
 		}
 		return false;
 	}
@@ -3181,30 +3175,10 @@ public class JSDatabaseManager implements IJSDatabaseManager
 			{
 				editRecordList.startEditing((IRecordInternal)record, false);
 			}
-			return editRecordList.stopEditing(true, (IRecord)record) == ISaveConstants.STOPPED;
+			return editRecordList.stopEditing(true, (IRecordInternal)record) == ISaveConstants.STOPPED;
 		}
 		return false;
 	}
-
-//	/**
-//	 * @clonedesc saveData()
-//	 *
-//	 * @sampleas saveData()
-//	 *
-//	 * @param record The JSRecord to save.
-//	 *
-//	 * @return true if the save was done without an error.
-//	 */
-//	@JSFunction
-//	public boolean saveData(ViewRecord record) throws ServoyException
-//	{
-//		checkAuthorized();
-//		if (record != null)
-//		{
-//			return ((ViewFoundSet)record.getParentFoundSet()).save(record) == ISaveConstants.STOPPED;
-//		}
-//		return false;
-//	}
 
 	/**
 	 * @clonedesc saveData()
@@ -3237,11 +3211,10 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				}
 			}
 
-			return editRecordList.stopEditing(true, asList(records)) == ISaveConstants.STOPPED;
+			return editRecordList.stopEditing(true, null, asList(records)) == ISaveConstants.STOPPED;
 		}
 		return false;
 	}
-
 
 	/**
 	 * Returns a foundset object for a specified datasource or server and tablename.
@@ -3818,8 +3791,6 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * If you want to avoid round trips to the server or avoid the possibility of blocking other clients
 	 * because of your pending changes, you can use databaseManager.setAutoSave(false/true) and databaseManager.rollbackEditedRecords().
 	 *
-	 * startTransaction, commit/rollbackTransacton() does support rollback of record deletes which autoSave = false doesn't support.
-	 *
 	 * @sample
 	 * // starts a database transaction
 	 * databaseManager.startTransaction()
@@ -3903,16 +3874,13 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Set autosave, if false then no saves will happen by the ui (not including deletes!).
+	 * Set autosave, if false then no saves or deletes will happen by the ui.
 	 * Until you call databaseManager.saveData() or setAutoSave(true)
-	 *
-	 * If you also want to be able to rollback deletes then you have to use databaseManager.startTransaction().
-	 * Because even if autosave is false deletes of records will be done.
-	 *
+	 *	 *
 	 * @sample
-	 * //Rollbacks in mem the records that were edited and not yet saved. Best used in combination with autosave false.
+	 * // Rollbacks in mem the records that were edited or deleted and not yet saved. Best used in combination with autosave false.
 	 * databaseManager.setAutoSave(false)
-	 * //Now let users input data
+	 * // Now let users input data
 	 *
 	 * //On save or cancel, when data has been entered:
 	 * if (cancel) databaseManager.rollbackEditedRecords()
@@ -3937,12 +3905,12 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Returns true or false if autosave is enabled or disabled.
 	 *
 	 * @sample
-	 * //Set autosave, if false then no saves will happen by the ui (not including deletes!). Until you call saveData or setAutoSave(true)
-	 * //Rollbacks in mem the records that were edited and not yet saved. Best used in combination with autosave false.
+	 * // Set autosave, if false then no saves or deletes will happen by the ui. Until you call saveData or setAutoSave(true)
+	 * // Rollbacks in mem the records that were edited and not yet saved. Best used in combination with autosave false.
 	 * databaseManager.setAutoSave(false)
-	 * //Now let users input data
+	 * // Now let users input data
 	 *
-	 * //On save or cancel, when data has been entered:
+	 * // On save or cancel, when data has been entered:
 	 * if (cancel) databaseManager.rollbackEditedRecords()
 	 * databaseManager.setAutoSave(true)
 	 *
@@ -3973,17 +3941,16 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Rolls back in memory edited records that are outstanding (not saved).
 	 * Can specify a record or foundset as parameter to rollback.
 	 * Best used in combination with the function databaseManager.setAutoSave()
-	 * This does not include deletes, they do not honor the autosafe false flag so they cant be rollbacked by this call.
 	 *
 	 * @deprecated  As of release 6.1, renamed to {@link #revertEditedRecords()}.
 	 *
 	 * @sample
-	 * //Set autosave, if false then no saves will happen by the ui (not including deletes!). Until you call saveData or setAutoSave(true)
-	 * //Rollbacks in mem the records that were edited and not yet saved. Best used in combination with autosave false.
+	 * // Set autosave, if false then no saves or deletes will happen by the ui. Until you call saveData or setAutoSave(true)
+	 * // Rollbacks in mem the records that were edited and not yet saved. Best used in combination with autosave false.
 	 * databaseManager.setAutoSave(false)
-	 * //Now let users input data
+	 * // Now let users input data
 	 *
-	 * //On save or cancel, when data has been entered:
+	 * // On save or cancel, when data has been entered:
 	 * if (cancel) databaseManager.rollbackEditedRecords()
 	 * //databaseManager.rollbackEditedRecords(foundset); // rollback all records from foundset
 	 * //databaseManager.rollbackEditedRecords(foundset.getSelectedRecord()); // rollback only one record
@@ -4029,12 +3996,10 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * Reverts outstanding (not saved) in memory changes from edited records.
 	 * Can specify a record or foundset as parameter to rollback.
 	 * Best used in combination with the function databaseManager.setAutoSave()
-	 * This does not include deletes, they do not honor the autosafe false flag so they cant be rollbacked by this call.
-	 *
 	 *
 	 * @sample
-	 * //Set autosave, if false then no saves will happen by the ui (not including deletes!). Until you call saveData or setAutoSave(true)
-	 * //reverts in mem the records that were edited and not yet saved. Best used in combination with autosave false.
+	 * // Set autosave, if false then no saves or deletes will happen by the ui. Until you call saveData or setAutoSave(true)
+	 * // reverts in mem the records that were edited and not yet saved. Best used in combination with autosave false.
 	 * databaseManager.setAutoSave(false)
 	 * //Now let users input data
 	 *
@@ -4062,10 +4027,11 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		application.checkAuthorized();
 		if (foundset != null)
 		{
-			List<IRecordInternal> records = new ArrayList<IRecordInternal>();
+			List<IRecordInternal> records = new ArrayList<>();
 			records.addAll(asList(application.getFoundSetManager().getEditRecordList().getEditedRecords(foundset)));
 			records.addAll(asList(application.getFoundSetManager().getEditRecordList().getFailedRecords(foundset)));
-			if (records.size() > 0) application.getFoundSetManager().getEditRecordList().rollbackRecords(records);
+			// if records is empty we still need to call rollbackRecords() in case of delete queries for the foundset
+			application.getFoundSetManager().getEditRecordList().rollbackRecords(records, true, foundset);
 		}
 	}
 
@@ -4082,11 +4048,9 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public void js_revertEditedRecords(IRecordInternal record) throws ServoyException
 	{
 		application.checkAuthorized();
-		if (record != null)
+		if (record instanceof IJSRecord)
 		{
-			List<IRecordInternal> records = new ArrayList<IRecordInternal>();
-			records.add(record);
-			application.getFoundSetManager().getEditRecordList().rollbackRecords(records);
+			((IJSRecord)record).revertChanges();
 		}
 	}
 
@@ -4300,27 +4264,23 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		else
 		{
 			EditRecordList el = application.getFoundSetManager().getEditRecordList();
-			// fist test quickly for this foundset only.
-			IRecordInternal[] editedRecords = el.getEditedRecords(foundset, true);
-			for (IRecordInternal editedRecord : editedRecords)
+			// first test quickly for this foundset only.
+			for (IRecordInternal editedRecord : el.getEditedRecords(foundset, true))
 			{
-				IRecordInternal record = editedRecord;
-				if (record.getRawData() != null && !record.existInDataSource())
+				if (editedRecord.getRawData() != null && !editedRecord.existInDataSource())
 				{
 					return true;
 				}
 			}
 			// if not found then look if other foundsets had record(s) that are new that also are in this foundset.
 			String ds = foundset.getDataSource();
-			editedRecords = el.getEditedRecords();
-			for (IRecordInternal editedRecord : editedRecords)
+			for (IRecordInternal editedRecord : el.getEditedRecords())
 			{
-				IRecordInternal record = editedRecord;
-				if (record.getRawData() != null && !record.existInDataSource())
+				if (editedRecord.getRawData() != null && !editedRecord.existInDataSource())
 				{
-					if (record.getParentFoundSet().getDataSource().equals(ds))
+					if (editedRecord.getParentFoundSet().getDataSource().equals(ds))
 					{
-						if (foundset.getRecord(record.getPK()) != null)
+						if (foundset.getRecord(editedRecord.getPK()) != null)
 						{
 							return true;
 						}

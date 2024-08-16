@@ -16,9 +16,6 @@
  */
 package com.servoy.j2db.query;
 
-import java.util.Arrays;
-
-import com.servoy.base.query.BaseAbstractBaseQuery;
 import com.servoy.base.query.BaseSetCondition;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.query.AbstractBaseQuery.PlaceHolderSetter;
@@ -78,17 +75,18 @@ public class SetCondition extends BaseSetCondition<IQuerySelectValue> implements
 		return super.clone();
 	}
 
+
 	@Override
 	public ISQLCondition negate()
 	{
-		int[] negop = new int[operators.length];
-		for (int i = 0; i < operators.length; i++)
-		{
-			negop[i] = OPERATOR_NEGATED[operators[i] & IBaseSQLCondition.OPERATOR_MASK] | (operators[i] & ~IBaseSQLCondition.OPERATOR_MASK);
-		}
-		return new SetCondition(negop, keys, values, !andCondition);
+		return (ISQLCondition)super.negate();
 	}
 
+	@Override
+	protected SetCondition withOperators(int[] ops, boolean ac)
+	{
+		return new SetCondition(ops, keys, values, ac);
+	}
 
 	public void acceptVisitor(IVisitor visitor)
 	{
@@ -105,121 +103,14 @@ public class SetCondition extends BaseSetCondition<IQuerySelectValue> implements
 		}
 	}
 
-
-	private static int hashCode(int[] array)
-	{
-		final int PRIME = 31;
-		if (array == null) return 0;
-		int result = 1;
-		for (int element : array)
-		{
-			result = PRIME * result + element;
-		}
-		return result;
-	}
-
-	@Override
-	public int hashCode()
-	{
-		final int PRIME = 31;
-		int result = 1;
-		result = PRIME * result + (this.andCondition ? 1231 : 1237);
-		result = PRIME * result + BaseAbstractBaseQuery.hashCode(this.keys);
-		result = PRIME * result + SetCondition.hashCode(this.operators);
-		result = PRIME * result + ((this.values == null) ? 0 : BaseAbstractBaseQuery.arrayHashcode(this.values));
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
-		final SetCondition other = (SetCondition)obj;
-		if (this.andCondition != other.andCondition) return false;
-		if (!Arrays.equals(this.keys, other.keys)) return false;
-		if (!Arrays.equals(this.operators, other.operators)) return false;
-		return BaseAbstractBaseQuery.arrayEquals(this.values, other.values);
-	}
-
-	@Override
-	public String toString()
-	{
-		StringBuffer sb = new StringBuffer();
-
-		sb.append('(');
-		for (int k = 0; k < keys.length; k++)
-		{
-			if (k > 0)
-			{
-				sb.append('|');
-			}
-			sb.append(keys[k].toString());
-		}
-		sb.append(')');
-		if (keys.length > 1)
-		{
-			sb.append(andCondition ? "AND" : "OR"); //$NON-NLS-1$//$NON-NLS-2$
-		}
-		for (int o = 0; o < operators.length; o++)
-		{
-			if (o > 0)
-			{
-				sb.append('|');
-			}
-			sb.append(IBaseSQLCondition.OPERATOR_STRINGS[operators[o] & IBaseSQLCondition.OPERATOR_MASK].toUpperCase());
-			int modifiers = (operators[0] & ~IBaseSQLCondition.OPERATOR_MASK);
-			if (modifiers != 0)
-			{
-				sb.append('(');
-				// modifiers
-				boolean added = false;
-				for (int m = 0; m < IBaseSQLCondition.ALL_MODIFIERS.length; m++)
-				{
-					if ((m & IBaseSQLCondition.ALL_MODIFIERS[m]) != 0)
-					{
-						if (added)
-						{
-							sb.append(',');
-						}
-						sb.append(IBaseSQLCondition.MODIFIER_STRINGS[m]);
-						added = true;
-					}
-				}
-				sb.append(')');
-			}
-		}
-		sb.append('(');
-		if (values instanceof Object[][])
-		{
-			Object[][] vals = (Object[][])values;
-			for (int k = 0; k < vals.length; k++)
-			{
-				if (k > 0)
-				{
-					sb.append('|');
-				}
-				sb.append(BaseAbstractBaseQuery.toString(vals[k]));
-			}
-		}
-		else
-		{
-			sb.append(BaseAbstractBaseQuery.toString(values));
-		}
-		sb.append(')');
-
-		return sb.toString();
-	}
-
 	///////// serialization ////////////////
-
 
 	public Object writeReplace()
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
 		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(),
-			new Object[] { Integer.valueOf(2) /* version */, operators, ReplacedObject.convertArray(keys, Object.class), values, Boolean.valueOf(andCondition) });
+			new Object[] { Integer.valueOf(2) /* version */, operators, ReplacedObject.convertArray(keys, Object.class), values, Boolean
+				.valueOf(andCondition) });
 		// Version 1: new Object[] { operators, ReplacedObject.convertArray(keys, Object.class), values, Boolean.valueOf(andCondition) }
 	}
 

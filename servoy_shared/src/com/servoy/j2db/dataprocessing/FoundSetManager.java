@@ -153,21 +153,21 @@ import com.servoy.j2db.util.xmlxport.TableDef;
 public class FoundSetManager implements IFoundSetManagerInternal
 {
 	private final IApplication application;
-	private ConcurrentMap<IFoundSetListener, IFoundSetInternal> separateFoundSets; //FoundSetListener -> FoundSet ... 1 foundset per listener
-	private Map<String, IFoundSetInternal> sharedDataSourceFoundSet; //dataSource -> FoundSet ... 1 foundset per data source
+	private ConcurrentMap<IFoundSetListener, IFoundSetInternal> separateFoundSets; // FoundSetListener -> FoundSet ... 1 foundset per listener
+	private Map<String, IFoundSetInternal> sharedDataSourceFoundSet; // dataSource -> FoundSet ... 1 foundset per data source
 	private Map<ViewFoundSet, Object> noneRegisteredVFS;
-	private Map<String, ViewFoundSet> viewFoundSets; //dataSource -> FoundSet ... 1 foundset per data source
+	private Map<String, ViewFoundSet> viewFoundSets; // dataSource -> FoundSet ... 1 foundset per data source
 	private ConcurrentMap<IFoundSetInternal, Boolean> foundSets;
 	private ConcurrentMap<Pair<String, String>, IFoundSetInternal> namedFoundSets;
 	private WeakReference<IFoundSetInternal> noTableFoundSet;
-	private Map<String, RowManager> rowManagers; //dataSource -> RowManager... 1 per table
-	private Map<ITable, CopyOnWriteArrayList<ITableChangeListener>> tableListeners; //table -> ArrayList(tableListeners)
-	protected SQLGenerator sqlGenerator;
+	private Map<String, RowManager> rowManagers; // dataSource -> RowManager... 1 per table
+	private Map<ITable, CopyOnWriteArrayList<ITableChangeListener>> tableListeners; // table -> ArrayList(tableListeners)
+	private SQLGenerator sqlGenerator;
 	private GlobalTransaction globalTransaction;
-	private IInfoListener infoListener;//we allow only one
+	private IInfoListener infoListener; // we allow only one
 	private final IFoundSetFactory foundsetfactory;
 	private boolean createEmptyFoundsets = false;
-	private Map<String, List<TableFilter>> tableFilterParams;//server -> ArrayList(TableFilter)
+	private Map<String, List<TableFilter>> tableFilterParams; // server -> ArrayList(TableFilter)
 	private Map<String, ITable> inMemDataSources; // dataSourceUri -> temp table
 	private Map<String, ITable> viewDataSources;
 	protected Map<String, ConcurrentMap<String, RelatedFoundSet>> cachedSubStates; // Map based on guava soft values cache
@@ -180,10 +180,10 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public final FoundSetManagerConfig config;
 
-	private final List<Runnable> fireRunabbles = new ArrayList<Runnable>();
+	private final List<Runnable> fireRunabbles = new ArrayList<>();
 
 	// tracking info used for logging
-	private final HashMap<String, Object> trackingInfoMap = new HashMap<String, Object>();
+	private final HashMap<String, Object> trackingInfoMap = new HashMap<>();
 	private int foundsetCounter = 1;
 
 	public FoundSetManager(IApplication app, FoundSetManagerConfig config, IFoundSetFactory factory)
@@ -216,7 +216,6 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			{
 				Debug.error("Exception getting server settings", e);
 			}
-
 
 			ColumnInfo columnInfo = column.getColumnInfo();
 			if (columnInfo != null)
@@ -273,7 +272,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		};
 	}
 
-	//triggered by server call
+	// triggered by server call
 	public void flushCachedDatabaseDataFromRemote(String dataSource)
 	{
 		runOnEditOrTransactionStoppedActions.add(createFlushAction(dataSource));
@@ -304,7 +303,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return true;
 	}
 
-	private final List<Runnable> runOnEditOrTransactionStoppedActions = Collections.synchronizedList(new ArrayList<Runnable>(3));
+	private final List<Runnable> runOnEditOrTransactionStoppedActions = Collections.synchronizedList(new ArrayList<>(3));
 	private final AtomicBoolean isBusy = new AtomicBoolean(false);
 
 	void performActionIfRequired()
@@ -1304,8 +1303,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		return value;
 	}
 
-	public void setTableFilters(String filterName, String serverName, List<TableFilterRequest> tableFilterRequests, boolean removeOld)
-		throws RepositoryException
+	public void setTableFilters(String filterName, String serverName, List<TableFilterRequest> tableFilterRequests, boolean removeOld, boolean fire)
 	{
 		boolean refreshI18NMessages = false;
 		Set<Pair<String, TableFilterdefinition>> toRefresh = new HashSet<>();
@@ -1317,7 +1315,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		List<TableFilter> newParams = null;
 		if (tableFilterRequests != null)
 		{
-			newParams = new ArrayList<TableFilter>(tableFilterRequests.size());
+			newParams = new ArrayList<>(tableFilterRequests.size());
 			for (TableFilterRequest tableFilterRequest : tableFilterRequests)
 			{
 				String tableName = tableFilterRequest.table == null ? null : tableFilterRequest.table.getName();
@@ -1393,22 +1391,25 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			getDataServer().setBroadcastFilters(application.getClientID(), serverName, broadcastFilters);
 		}
 
-		// fire events after all filters are adjusted
-		Set<ITable> firedTables = new HashSet<ITable>();
-		toRefresh.stream().collect(groupingBy(Pair::getLeft, mapping(Pair::getRight, toList())))
-			.forEach((dataSource, tableFilterdefinitions) -> {
-				for (ITable affectedtable : refreshFoundSetsFromDBforFilterAndGetAffectedTables(dataSource, tableFilterdefinitions))
-				{
-					if (firedTables.add(affectedtable))
-					{
-						fireTableEvent(affectedtable);
-					}
-				}
-			});
-
-		if (refreshI18NMessages)
+		if (fire)
 		{
-			((ClientState)application).refreshI18NMessages(false);
+			// fire events after all filters are adjusted
+			Set<ITable> firedTables = new HashSet<>();
+			toRefresh.stream().collect(groupingBy(Pair::getLeft, mapping(Pair::getRight, toList())))
+				.forEach((dataSource, tableFilterdefinitions) -> {
+					for (ITable affectedtable : refreshFoundSetsFromDBforFilterAndGetAffectedTables(dataSource, tableFilterdefinitions))
+					{
+						if (firedTables.add(affectedtable))
+						{
+							fireTableEvent(affectedtable);
+						}
+					}
+				});
+
+			if (refreshI18NMessages)
+			{
+				((ClientState)application).refreshI18NMessages(false);
+			}
 		}
 	}
 
@@ -1542,16 +1543,23 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	 */
 	public ArrayList<TableFilter> getTableFilterParams(String serverName, IQueryElement sql)
 	{
-		final List<TableFilter> serverFilters = tableFilterParams.get(serverName);
-		if (serverFilters == null)
+		return getTableFilterParams(serverName, sql, emptyList());
+	}
+
+	public ArrayList<TableFilter> getTableFilterParams(String serverName, IQueryElement sql, List<String> filtersToIgnore)
+	{
+		List<TableFilter> serverFilters = stream(tableFilterParams.get(serverName))
+			.filter(tf -> !filtersToIgnore.contains(tf.getName()))
+			.collect(toList());
+		if (serverFilters.isEmpty())
 		{
 			return null;
 		}
 
 		// get the sql table names in the query
-		final Set<String> tableSqlNames = new HashSet<String>();
+		Set<String> tableSqlNames = new HashSet<>();
 		// find the filters for the tables found in the query
-		final ArrayList<TableFilter>[] filters = new ArrayList[] { null };
+		ArrayList<TableFilter>[] filters = new ArrayList[] { null };
 		sql.acceptVisitor(o -> {
 			try
 			{
@@ -2383,7 +2391,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				IDataServer ds = application.getDataServer();
 				String transaction_id = getTransactionID(table.getServerName());
 
-				QuerySelect countSelect = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
+				QuerySelect countSelect = new QuerySelect(table.queryTable());
 				countSelect.addColumn(new QueryAggregate(QueryAggregate.COUNT, new QueryColumnValue(Integer.valueOf(1), "n", true), null)); //$NON-NLS-1$
 
 				IDataSet set = ds.performQuery(application.getClientID(), table.getServerName(), transaction_id, countSelect, null,
@@ -3386,7 +3394,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		{
 			try
 			{
-				// if the first returns false it will stop the rest (inline with what we had)
+				// if the first returns false it will stop the rest (in line with what we had)
 				if (!executeFoundsetTriggerBreakOnFalse(table, args, StaticContentSpecLoader.PROPERTY_ONINSERTMETHODID, true, scope))
 				{
 					recordMarkers.setOnBeforeInsertFailed();
@@ -3487,7 +3495,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	public int saveData(List<IRecord> recordsToSave)
 	{
-		return editRecordList.stopEditing(true, recordsToSave);
+		return editRecordList.stopEditing(true, null, recordsToSave.stream().map(IRecordInternal.class::cast).toList());
 	}
 
 	@Override

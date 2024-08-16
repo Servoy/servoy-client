@@ -41,7 +41,6 @@ import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QuerySort;
-import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.SortOptions;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.util.ServoyException;
@@ -231,7 +230,7 @@ public class MetaDataUtils
 
 	public static QuerySelect createTableMetadataQuery(ITable table, LinkedHashMap<Column, QueryColumn> queryColumns)
 	{
-		QuerySelect query = new QuerySelect(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()));
+		QuerySelect query = new QuerySelect(table.queryTable());
 		LinkedHashMap<Column, QueryColumn> qColumns = queryColumns == null ? new LinkedHashMap<Column, QueryColumn>() : queryColumns; // LinkedHashMap to keep order for column names
 		Iterator<Column> columns = table.getColumnsSortedByName();
 		while (columns.hasNext())
@@ -286,8 +285,8 @@ public class MetaDataUtils
 
 		// delete existing data
 		ApplicationServerRegistry.get().getDataServer().performUpdates(ApplicationServerRegistry.get().getClientId(),
-			new ISQLStatement[] { new SQLStatement(IDataServer.META_DATA_QUERY, table.getServerName(), table.getName(), null, //
-				new QueryDelete(new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema()))) // delete entire table
+			new ISQLStatement[] { new SQLStatement(IDataServer.META_DATA_QUERY, table.getServerName(), table.getName(), null,
+				new QueryDelete(table.queryTable())) // delete entire table
 			});
 		// insert the data
 		ApplicationServerRegistry.get().getDataServer().insertDataSet(ApplicationServerRegistry.get().getClientId(), dataSet, table.getDataSource(),

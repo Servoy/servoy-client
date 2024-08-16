@@ -151,19 +151,27 @@ public class NGFormServiceHandler extends FormServiceHandler
 			case "startEdit" :
 			{
 				String formName = args.getString("formname");
-				IWebFormUI form = getApplication().getFormManager().getFormAndSetCurrentWindow(formName).getFormUI();
-				if (form == null)
+				INGFormManager formManager = getApplication().getFormManager();
+				if (formManager == null)
 				{
-					log.error("startEdit for unknown form '" + formName + "'");
+					log.warn("startEdit without formManager");
 				}
 				else
 				{
-					form.getDataAdapterList().startEdit(form.getWebComponent(args.optString("beanname")), args.optString("property"),
-						args.optString("fslRowID", null));
+					IWebFormUI form = formManager.getFormAndSetCurrentWindow(formName).getFormUI();
+					if (form == null)
+					{
+						log.error("startEdit for unknown form '" + formName + "'");
+					}
+					else
+					{
+						form.getDataAdapterList().startEdit(form.getWebComponent(args.optString("beanname")), args.optString("property"),
+							args.optString("fslRowID", null));
+					}
 				}
-
 				break;
 			}
+
 			case "executeInlineScript" :
 			{
 				try

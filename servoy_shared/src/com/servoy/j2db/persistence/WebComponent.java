@@ -127,7 +127,7 @@ public class WebComponent extends BaseComponent implements IWebComponent
 	@Override
 	public void updateJSON()
 	{
-		webObjectImpl.updateJSONFromPersistMappedPropeties();
+		webObjectImpl.updateJSONFromPersistMappedProperties();
 	}
 
 	@Override

@@ -38,7 +38,6 @@ import com.servoy.j2db.persistence.ValueList;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLTableJoin;
 import com.servoy.j2db.query.QuerySelect;
-import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.SafeArrayList;
@@ -467,8 +466,7 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		{
 			foreignTable = fs.getTable(relations[i].getForeignDataSource());
 			ISQLTableJoin join = foundSetManager.getSQLGenerator().createJoin(application.getFlattenedSolution(), relations[i], lastTable,
-				new QueryTable(foreignTable.getSQLName(), foreignTable.getDataSource(), foreignTable.getCatalog(), foreignTable.getSchema()), true,
-				scopesScopeProvider);
+				foreignTable.queryTable(), true, scopesScopeProvider);
 			select.addJoin(join);
 			lastTable = join.getForeignTable();
 		}

@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2024 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -16,17 +16,33 @@
  */
 package com.servoy.j2db.dataprocessing;
 
+import com.servoy.j2db.persistence.ITable;
 
 /**
- * Delegating modification listener.
+ * Update (delete statement) to be performed on a table.
  *
  * @author rgansevles
- * @since Servoy 6.1
+ *
  */
-public class DelegateModificationSubject extends ModificationSubject implements IModificationListener
+public final class TableUpdateInfo implements DatabaseUpdateInfo
 {
-	public void valueChanged(ModificationEvent event)
+	private final SQLStatement statement;
+	private final ITable table;
+
+	public TableUpdateInfo(ITable table, SQLStatement statement)
 	{
-		fireModificationEvent(event);
+		this.table = table;
+		this.statement = statement;
+	}
+
+	public ISQLStatement getISQLStatement()
+	{
+		return statement;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "TableUpdateInfo for table [[" + table + "]] ";
 	}
 }

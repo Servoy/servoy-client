@@ -19,12 +19,12 @@ package com.servoy.j2db.dataprocessing;
 
 /**
  * The Record interface for business objects (table rows)
- * 
+ *
  *  <p>
  * NOTE: do not implement this interface, it can change with new Servoy versions if new functionality is needed.
  * Records instances should be get through the {@link IFoundSet}
  * </p>
- * 
+ *
  * @author jblok
  * @since Servoy 5.0
  */
@@ -32,7 +32,7 @@ public interface IRecord extends IRecordDeprecated
 {
 	/**
 	 * Start the edit of a record, must be called before any setValue.
-	 * 
+	 *
 	 * @return true if successful start of edit, since the record can be locked
 	 */
 	public boolean startEditing();
@@ -46,7 +46,7 @@ public interface IRecord extends IRecordDeprecated
 
 	/**
 	 * Get a record value
-	 * 
+	 *
 	 * @param dataProviderID
 	 * @return the value
 	 */
@@ -54,7 +54,7 @@ public interface IRecord extends IRecordDeprecated
 
 	/**
 	 * Returns true if the dataprovider can be resolved by this object.
-	 * 
+	 *
 	 * @param dataprovider
 	 * @return true if the dataprovider can be resolved by this object.
 	 */
@@ -62,14 +62,14 @@ public interface IRecord extends IRecordDeprecated
 
 	/**
 	 * Get the foundset this record belongs to
-	 * 
+	 *
 	 * @return the foundset
 	 */
 	public IFoundSet getParentFoundSet();
 
 	/**
 	 * Get a related foundset for this record
-	 * 
+	 *
 	 * @param relationName
 	 * @return the foundset
 	 */
@@ -77,43 +77,60 @@ public interface IRecord extends IRecordDeprecated
 
 	/**
 	 * The the record identifier (primary key)
-	 * 
+	 *
 	 * @return the record PK
 	 */
 	public Object[] getPK();
 
 	/**
 	 * Check if this is a new not yet saved record
-	 * 
+	 *
 	 * @return exists in datasource status
 	 */
 	public boolean existInDataSource();
 
 	/**
+	 * Check if this is a record that has been deleted from code but not in the database yet
+	 *
+	 * @return exists in datasource status
+	 */
+	public boolean isFlaggedForDeletion();
+
+	/**
 	 * Check to see if locked
-	 * 
+	 *
 	 * @return locked status
 	 */
 	public boolean isLocked();
 
 	/**
 	 * Add modification listener
-	 * 
+	 *
 	 * @param l the listener
 	 */
 	public void addModificationListener(IModificationListener l);
 
 	/**
 	 * Remove modification listener
-	 * 
+	 *
 	 * @param l the listener
 	 */
 	public void removeModificationListener(IModificationListener l);
 
 	/**
 	 * Returns last occurred exception on this record (or null).
-	 * 
+	 *
 	 * @return The occurred exception.
 	 */
 	public Exception getException();
+
+	default String getDataSource()
+	{
+		IFoundSet foundset = getParentFoundSet();
+		if (foundset == null)
+		{
+			return null;
+		}
+		return foundset.getDataSource();
+	}
 }

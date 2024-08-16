@@ -3303,7 +3303,6 @@ public class J2DBClient extends ClientState
 		((FoundSetManager)foundSetManager).setInfoListener(this);
 		foundSetManager.init();
 		((FoundSetManager)foundSetManager).setDisableRelatedSiblingsPrefetch(false);
-		((FoundSetManager)foundSetManager).getEditRecordList().addEditListener(this);
 	}
 
 	private int getRmiExportPort() throws Exception

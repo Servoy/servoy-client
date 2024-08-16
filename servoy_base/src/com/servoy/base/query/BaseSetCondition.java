@@ -21,7 +21,7 @@ import java.util.Arrays;
 
 /**
  * Set-condition for mobile and regular clients.
- * 
+ *
  * @author rgansevles
  *
  */
@@ -58,7 +58,7 @@ public class BaseSetCondition<K extends IBaseQuerySelectValue> implements IBaseS
 
 	/**
 	 * Constructor for all the same operators.
-	 * 
+	 *
 	 * @param operator
 	 * @param keys
 	 * @param values
@@ -71,7 +71,7 @@ public class BaseSetCondition<K extends IBaseQuerySelectValue> implements IBaseS
 
 	/**
 	 * Validate values and convert if neeed.
-	 * 
+	 *
 	 * @param keys
 	 * @param values
 	 */
@@ -165,14 +165,20 @@ public class BaseSetCondition<K extends IBaseQuerySelectValue> implements IBaseS
 		return operators;
 	}
 
+	@Override
 	public IBaseSQLCondition negate()
 	{
 		int[] negop = new int[operators.length];
 		for (int i = 0; i < operators.length; i++)
 		{
-			negop[i] = OPERATOR_NEGATED[operators[i] & IBaseSQLCondition.OPERATOR_MASK] | (operators[i] & ~IBaseSQLCondition.OPERATOR_MASK);
+			negop[i] = IBaseSQLCondition.negateOperator(operators[i]);
 		}
-		return new BaseSetCondition(negop, keys, values, !andCondition);
+		return withOperators(negop, !andCondition);
+	}
+
+	protected BaseSetCondition<K> withOperators(int[] ops, boolean ac)
+	{
+		return new BaseSetCondition<>(ops, keys, values, ac);
 	}
 
 	private static int hashCode(int[] array)
@@ -246,7 +252,7 @@ public class BaseSetCondition<K extends IBaseQuerySelectValue> implements IBaseS
 				boolean added = false;
 				for (int m = 0; m < IBaseSQLCondition.ALL_MODIFIERS.length; m++)
 				{
-					if ((m & IBaseSQLCondition.ALL_MODIFIERS[m]) != 0)
+					if ((modifiers & IBaseSQLCondition.ALL_MODIFIERS[m]) != 0)
 					{
 						if (added)
 						{

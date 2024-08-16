@@ -18,9 +18,8 @@ package com.servoy.j2db.persistence;
 
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import com.servoy.base.query.IBaseSQLCondition;
@@ -119,7 +118,7 @@ public class I18NUtil
 			{
 				Column pkColumn = i18NTable.getRowIdentColumns().get(0); // runtime exception when no ident columns
 
-				QueryTable messagesTable = new QueryTable(i18NTable.getSQLName(), i18NTable.getDataSource(), i18NTable.getCatalog(), i18NTable.getSchema());
+				QueryTable messagesTable = i18NTable.queryTable();
 				QueryColumn pkCol = pkColumn.queryColumn(messagesTable);
 				QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 150, 0, null, 0);
 				QueryColumn msgKey = new QueryColumn(messagesTable, -1, "message_key", Types.VARCHAR, 150, 0, null, 0);
@@ -141,11 +140,8 @@ public class I18NUtil
 
 				List<Column> tenantColumns = i18NTable.getTenantColumns();
 
-				Iterator<Map.Entry<String, MessageEntry>> messagesIte = messages.entrySet().iterator();
-				Map.Entry<String, MessageEntry> messageEntry;
-				while (messagesIte.hasNext())
+				for (Entry<String, MessageEntry> messageEntry : messages.entrySet())
 				{
-					messageEntry = messagesIte.next();
 					String key = messageEntry.getKey();
 					String value = messageEntry.getValue().getValue();
 					String lang = messageEntry.getValue().getLanguage();
@@ -230,12 +226,8 @@ public class I18NUtil
 
 				if (!noRemoves)
 				{
-					// go thorough remote, remove if not existing locally
-					Iterator<Map.Entry<String, MessageEntry>> remoteMessagesIte = remoteMessages.entrySet().iterator();
-					Map.Entry<String, MessageEntry> remoteMessageEntry;
-					while (remoteMessagesIte.hasNext())
+					for (Entry<String, MessageEntry> remoteMessageEntry : remoteMessages.entrySet())
 					{
-						remoteMessageEntry = remoteMessagesIte.next();
 						String key = remoteMessageEntry.getKey();
 						if (!messages.containsKey(key)) // delete
 						{
@@ -294,7 +286,7 @@ public class I18NUtil
 			Table i18NTable = (Table)i18NServer.getTable(i18NTableName);
 			if (i18NTable != null)
 			{
-				QueryTable messagesTable = new QueryTable(i18NTable.getSQLName(), i18NTable.getDataSource(), i18NTable.getCatalog(), i18NTable.getSchema());
+				QueryTable messagesTable = i18NTable.queryTable();
 				QuerySelect sql = new QuerySelect(messagesTable);
 
 				QueryColumn msgLang = new QueryColumn(messagesTable, -1, "message_language", Types.VARCHAR, 150, 0, null, 0);

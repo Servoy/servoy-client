@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.dataprocessing;
 
+import static com.servoy.base.util.DataSourceUtilsBase.createDBTableDataSource;
 import static com.servoy.j2db.util.Utils.iterate;
 import static com.servoy.j2db.util.Utils.toArray;
 
@@ -65,6 +66,11 @@ public class TableFilter implements IWriteReplace
 	public String getTableName()
 	{
 		return tableName;
+	}
+
+	public String getDataSource()
+	{
+		return createDBTableDataSource(serverName, tableName);
 	}
 
 	public String getTableSQLName()
