@@ -43,6 +43,7 @@ public class JSRecordMarkers implements IJavaScriptType, IRecordMarkers
 	private final List<JSRecordMarker> markers = new ArrayList<>(3);
 	private boolean invalid = false;
 	private boolean onBeforeUpdateFailed;
+	private boolean onBeforeDeleteFailed;
 	private boolean onBeforeInsertFailed;
 	private final Object state;
 
@@ -87,6 +88,12 @@ public class JSRecordMarkers implements IJavaScriptType, IRecordMarkers
 		this.onBeforeUpdateFailed = true;
 	}
 
+	public void setOnBeforeDeleteFailed()
+	{
+		invalid = true;
+		this.onBeforeDeleteFailed = true;
+	}
+
 	public void setOnBeforeInsertFailed()
 	{
 		invalid = true;
@@ -99,7 +106,8 @@ public class JSRecordMarkers implements IJavaScriptType, IRecordMarkers
 	@JSReadonlyProperty
 	public boolean isHasErrors()
 	{
-		return onBeforeInsertFailed || onBeforeUpdateFailed || genericExceptions.size() > 0 || markers.stream().anyMatch(problem -> problem.getLevel() >= 3);
+		return onBeforeInsertFailed || onBeforeUpdateFailed || onBeforeDeleteFailed || genericExceptions.size() > 0 ||
+			markers.stream().anyMatch(problem -> problem.getLevel() >= 3);
 	}
 
 	/**
@@ -208,6 +216,15 @@ public class JSRecordMarkers implements IJavaScriptType, IRecordMarkers
 	}
 
 	/**
+	 * @return the onBeforeUpdateFailed
+	 */
+	@JSReadonlyProperty
+	public boolean isOnBeforeDeleteFailed()
+	{
+		return onBeforeDeleteFailed;
+	}
+
+	/**
 	 * Returns a list of all the generic exceptions that did happen when the various methods where called.
 	 *
 	 * @return the genericExceptions
@@ -247,7 +264,7 @@ public class JSRecordMarkers implements IJavaScriptType, IRecordMarkers
 	@Override
 	public String toString()
 	{
-		return "JSRecordMarkers[markers=" + markers + ", onBeforeUpdateFailed=" + onBeforeUpdateFailed +
+		return "JSRecordMarkers[markers=" + markers + ", onBeforeUpdateFailed=" + onBeforeUpdateFailed + ", onBeforeDeleteFailed=" + onBeforeDeleteFailed +
 			", onBeforeInsertFailed=" + onBeforeInsertFailed + ", genericExceptions=" + genericExceptions + ", record=" + record + "]";
 	}
 

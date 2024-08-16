@@ -4799,24 +4799,28 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 
 			if (!partOfBiggerDelete)
 			{
-				try
+				if (fsm.config.deleteWithAutosaveOff())
 				{
-					// see EditRecordList.stopEditing
-					if (state.existInDataSource() &&
-						!executeFoundsetTriggerBreakOnFalse(new Object[] { state }, PROPERTY_ONDELETEMETHODID, true))
+					// when deletes are not performed with autosave off we call onDeleteMethod when validating the record
+					try
 					{
-						// trigger returned false
-						Debug.log("Delete not granted for the table " + getTable()); //$NON-NLS-1$
+						// see EditRecordList.stopEditing
+						if (state.existInDataSource() &&
+							!executeFoundsetTriggerBreakOnFalse(new Object[] { state }, PROPERTY_ONDELETEMETHODID, true))
+						{
+							// trigger returned false
+							Debug.log("Delete not granted for the table " + getTable()); //$NON-NLS-1$
+							throw new ApplicationException(ServoyException.DELETE_NOT_GRANTED);
+						}
+					}
+					catch (DataException e)
+					{
+						// trigger threw exception
+						state.getRawData().setLastException(e);
+						getFoundSetManager().getEditRecordList().markRecordAsFailed(state);
+						Debug.log("Delete not granted for the table " + getTable() + ", pre-delete trigger threw exception"); //$NON-NLS-1$ //$NON-NLS-2$
 						throw new ApplicationException(ServoyException.DELETE_NOT_GRANTED);
 					}
-				}
-				catch (DataException e)
-				{
-					// trigger threw exception
-					state.getRawData().setLastException(e);
-					getFoundSetManager().getEditRecordList().markRecordAsFailed(state);
-					Debug.log("Delete not granted for the table " + getTable() + ", pre-delete trigger threw exception"); //$NON-NLS-1$ //$NON-NLS-2$
-					throw new ApplicationException(ServoyException.DELETE_NOT_GRANTED);
 				}
 
 				// check for related data

@@ -3377,17 +3377,35 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		if (record.existInDataSource())
 		{
-			try
+			if (record.isFlaggedForDeletion())
 			{
-				// if the first returns false it will stop the rest (inline with what we had)
-				if (!executeFoundsetTriggerBreakOnFalse(table, args, StaticContentSpecLoader.PROPERTY_ONUPDATEMETHODID, true, scope))
+				try
 				{
-					recordMarkers.setOnBeforeUpdateFailed();
+					// if the first returns false it will stop the rest (in line with what we had)
+					if (!executeFoundsetTriggerBreakOnFalse(table, args, StaticContentSpecLoader.PROPERTY_ONDELETEMETHODID, true, scope))
+					{
+						recordMarkers.setOnBeforeUpdateFailed();
+					}
+				}
+				catch (ServoyException e)
+				{
+					recordMarkers.addGenericException(e);
 				}
 			}
-			catch (ServoyException e)
+			else
 			{
-				recordMarkers.addGenericException(e);
+				try
+				{
+					// if the first returns false it will stop the rest (in line with what we had)
+					if (!executeFoundsetTriggerBreakOnFalse(table, args, StaticContentSpecLoader.PROPERTY_ONUPDATEMETHODID, true, scope))
+					{
+						recordMarkers.setOnBeforeUpdateFailed();
+					}
+				}
+				catch (ServoyException e)
+				{
+					recordMarkers.addGenericException(e);
+				}
 			}
 		}
 		else
