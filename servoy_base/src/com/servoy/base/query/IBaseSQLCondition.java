@@ -119,10 +119,7 @@ public interface IBaseSQLCondition extends IBaseQueryElement
 		int maskedOperator = operator & IBaseSQLCondition.OPERATOR_MASK;
 		int negatedOperator = OPERATOR_NEGATED[maskedOperator];
 
-		int mask = operator & ~IBaseSQLCondition.OPERATOR_MASK;
-		int negatedMask = mask ^ ORNULL_MODIFIER; // XOR
-
-		return negatedOperator | negatedMask;
+		return negatedOperator | (operator & ~IBaseSQLCondition.OPERATOR_MASK);
 	}
 
 	IBaseSQLCondition negate();
