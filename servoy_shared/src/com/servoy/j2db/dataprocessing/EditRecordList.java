@@ -1550,15 +1550,14 @@ public class EditRecordList
 		editRecordsLock.lock();
 		try
 		{
-			editedRecordsArray = editedRecords.getEditedOrDeleted();
+			editedRecordsArray = editedRecords.getEdited();
 		}
 		finally
 		{
 			editRecordsLock.unlock();
 		}
-		for (Object element : editedRecordsArray)
+		for (IRecordInternal record : editedRecordsArray)
 		{
-			IRecordInternal record = (IRecordInternal)element;
 			if (record.getParentFoundSet() == set)
 			{
 				removeEditedRecord(record);
