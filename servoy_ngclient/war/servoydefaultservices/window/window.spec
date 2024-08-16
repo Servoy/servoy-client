@@ -234,7 +234,8 @@
 	  		"y": "int",
 			"showBackdrop": "boolean",
 			"doNotCloseOnClickOutside": "boolean",
-			"onClose": "function" 
+			"onClose": "function",
+			"parent": "popupform"
 	  	}
 	  },
 	  "FormPopup": {
@@ -248,7 +249,7 @@
 	  		"y": "int",
 			"showBackdrop": "boolean",
 			"doNotCloseOnClickOutside": "boolean",
-			"onClose": "function",
+			"onClose": "function"
 	  	}
 	  },
 	  "popupMenuShowCommand":{

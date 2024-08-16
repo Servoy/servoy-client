@@ -293,6 +293,7 @@ $scope.api.createFormPopup = function(form) {
         _scope: undefined,
         _dataprovider: undefined,
         _onClose: undefined,
+		_parent: undefined,
 
         width: function(val) {
             if (val == undefined) return this._width;
@@ -344,9 +345,30 @@ $scope.api.createFormPopup = function(form) {
             this._component = val;
             return this;
         },
+		createChildFormPopup: function(val) {
+			if (val == undefined) return this._parent;
+			var child = $scope.api.createFormPopup(val);
+			child._parent = {
+				component: this._component,
+				form: form,
+				width: this._width,
+				height: this._height,
+				x: this._x,
+				y: this._y,
+				showBackdrop: this._showBackdrop,
+				doNotCloseOnClickOutside: this._doNotCloseOnClickOutside,
+				onClose: this._onClose,
+				parent: this._parent
+			};
+			return child;
+		},
         show: function() {
-            $scope.api.showFormPopup(this._component, form, this._scope, this._dataprovider, this._width, this._height, this._x, this._y, this._showBackdrop, this._doNotCloseOnClickOutside, this._onClose);
-        }
+            $scope.api.showFormPopup(this._component, form, this._scope, this._dataprovider, this._width, this._height, this._x, this._y, this._showBackdrop, this._doNotCloseOnClickOutside, this._onClose, this._parent);
+        },
+		cancel: function() {
+			$scope.api.cancelFormPopupInternal(true);
+			$scope.clearPopupForm();
+		}
     }
 }
 
@@ -400,7 +422,7 @@ $scope.api.closeFormPopup = function(retval) {
 $scope.formPopupClosed = function(event) {
     if ($scope.model.popupform && $scope.model.popupform.onClose) {
         $scope.model.popupform.onClose(event, $scope.model.popupform.retval);
-    }
+	}
     $scope.model.popupform = null;
 }
 
@@ -411,8 +433,8 @@ $scope.executeMenuItem = function(menuItemId, itemIndex, parentItemIndex, isSele
     menuAndArgs[0].callback.apply(null, allArgs);
 }
 
-$scope.api.showFormPopup = function(component, form, dataproviderScope, dataproviderID, width, height, x, y, showBackdrop, doNotCloseOnClickOutside, onClose) {
-    if ($scope.model.popupform) {
+$scope.api.showFormPopup = function(component, form, dataproviderScope, dataproviderID, width, height, x, y, showBackdrop, doNotCloseOnClickOutside, onClose, parent) {
+	if ($scope.model.popupform && !parent) {
         $scope.api.cancelFormPopupInternal(true);
     }
     $scope.model.popupform = {};
@@ -427,6 +449,7 @@ $scope.api.showFormPopup = function(component, form, dataproviderScope, dataprov
     $scope.model.popupform.showBackdrop = showBackdrop;
     $scope.model.popupform.doNotCloseOnClickOutside = doNotCloseOnClickOutside;
     $scope.model.popupform.onClose = onClose;
+	$scope.model.popupform.parent = parent;
 }
 
 $scope.api.createShortcut = function(shortcut, callback, contextFilter, arguments, consumeEvent) {
