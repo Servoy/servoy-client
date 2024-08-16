@@ -3875,9 +3875,9 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	}
 
 	/**
-	 * Get the loaded record based on its  the primary key values
+	 * Get the loaded record based on its primary key values.
 	 *
-	 * This will only return a record that is already loaded in this foundset, this will not try to load anything from the database.
+	 * This will only return a record that is already loaded in this foundset; this will not try to load anything from the database.
 	 *
 	 * @sample var record = %%prefix%%foundset.getRecordByPk(1); // or getRecordByPk(1,2) or ([1,2]) for multicolumn pk
 	 *
