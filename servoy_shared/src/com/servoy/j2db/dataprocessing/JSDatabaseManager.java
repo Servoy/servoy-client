@@ -2062,7 +2062,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Returns an array of edited records with outstanding (unsaved) data.
+	 * Returns an array of edited or deleted records with outstanding (unsaved) data.
 	 *
 	 * This is different form JSRecord.isEditing() because this call actually checks if there are changes between the current
 	 * record data and the stored data in the database. If there are no changes then the record is removed from the edited records
@@ -2072,8 +2072,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * NOTE2: The fields focus may be lost in user interface in order to determine the edits.
 	 *
 	 * @sample
-	 * //This method can be used to loop through all outstanding changes,
-	 * //the application.output line contains all the changed data, their tablename and primary key
+	 * // This method can be used to loop through all outstanding changes,
+	 * // the application.output line contains all the changed data, their tablename and primary key
 	 * var editr = databaseManager.getEditedRecords()
 	 * for (x=0;x<editr.length;x++)
 	 * {
@@ -2088,12 +2088,12 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * 	}
 	 * 	application.output('Table: '+tableSQLName +', PKs: '+ pkvals.join(',') +' ('+pkrec +')');
 	 * 	// Get a dataset with outstanding changes on a record
-	 * 	for( var i = 1 ; i <= ds.getMaxRowIndex() ; i++ )
+	 * 	for (var i = 1; i <= ds.getMaxRowIndex(); i++)
 	 * 	{
 	 * 		application.output('Column: '+ ds.getValue(i,1) +', oldValue: '+ ds.getValue(i,2) +', newValue: '+ ds.getValue(i,3));
 	 * 	}
 	 * }
-	 * //in most cases you will want to set autoSave back on now
+	 * // in most cases you will want to set autoSave back on now
 	 * databaseManager.setAutoSave(true);
 	 *
 	 * @return Array of outstanding/unsaved JSRecords.
@@ -2104,16 +2104,16 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Returns an array of edited records with outstanding (unsaved) data.
+	 * Returns an array of edited or deleted records with outstanding (unsaved) data.
 	 *
 	 * NOTE: To return a dataset of outstanding (unsaved) edited data for each record, see JSRecord.getChangedData();
 	 * NOTE2: The fields focus may be lost in user interface in order to determine the edits.
 	 *
 	 * @sample
-	 * //This method can be used to loop through all outstanding changes in a foundset,
-	 * //the application.output line contains all the changed data, their tablename and primary key
+	 * // This method can be used to loop through all outstanding changes in a foundset,
+	 * // the application.output line contains all the changed data, their tablename and primary key
 	 * var editr = databaseManager.getEditedRecords(foundset)
-	 * for (x=0;x<editr.length;x++)
+	 * for (x=0; x<editr.length; x++)
 	 * {
 	 * 	var ds = editr[x].getChangedData();
 	 * 	var jstable = databaseManager.getTable(editr[x]);
@@ -2126,12 +2126,12 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * 	}
 	 * 	application.output('Table: '+tableSQLName +', PKs: '+ pkvals.join(',') +' ('+pkrec +')');
 	 * 	// Get a dataset with outstanding changes on a record
-	 * 	for( var i = 1 ; i <= ds.getMaxRowIndex() ; i++ )
+	 * 	for (var i = 1; i <= ds.getMaxRowIndex(); i++ )
 	 * 	{
 	 * 		application.output('Column: '+ ds.getValue(i,1) +', oldValue: '+ ds.getValue(i,2) +', newValue: '+ ds.getValue(i,3));
 	 * 	}
 	 * }
-	 * databaseManager.saveData(foundset);//save all records from foundset
+	 * databaseManager.saveData(foundset);// save all records from foundset
 	 *
 	 * @param foundset return edited records in the foundset only.
 	 *
@@ -2143,7 +2143,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Returns an array of edited records with outstanding (unsaved) data.
+	 * Returns an array of edited or deleted records with outstanding (unsaved) data.
 	 *
 	 * @sample
 	 * // This method can be used to loop through all outstanding changes for a specific datasource.
@@ -2188,7 +2188,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	}
 
 	/**
-	 * Returns an array of edited records with outstanding (unsaved) data for a datasource with a filter.
+	 * Returns an array of edited or deleted records with outstanding (unsaved) data for a datasource with a filter.
 	 *
 	 * @sample
 	 * // This method can be used to loop through all outstanding changes for a specific datasource.

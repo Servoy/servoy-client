@@ -228,7 +228,7 @@ public class EditRecordList
 		editRecordsLock.lock();
 		try
 		{
-			IRecordInternal[] edited = editedRecords.getEdited();
+			IRecordInternal[] edited = editedRecords.getEditedOrDeleted();
 			for (int i = edited.length; --i >= 0;)
 			{
 				IRecordInternal record = edited[i];
@@ -462,7 +462,7 @@ public class EditRecordList
 					{
 						if (recordsToSaveFinal != null && recordsToSaveFinal.size() == 1)
 						{
-							IRecordInternal[] edited = editedRecords.getEdited();
+							IRecordInternal[] edited = editedRecords.getEditedOrDeleted();
 							stop = edited.length == 1 && edited[0] == recordsToSaveFinal.get(0);
 						}
 					}
@@ -1550,7 +1550,7 @@ public class EditRecordList
 		editRecordsLock.lock();
 		try
 		{
-			editedRecordsArray = editedRecords.getEdited();
+			editedRecordsArray = editedRecords.getEditedOrDeleted();
 		}
 		finally
 		{
@@ -2145,7 +2145,7 @@ public class EditRecordList
 		editRecordsLock.lock();
 		try
 		{
-			return editedRecords.getEdited();
+			return editedRecords.getEditedOrDeleted();
 		}
 		finally
 		{

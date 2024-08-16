@@ -249,6 +249,11 @@ public class EditedRecords
 		return toArray(getRecords(EditType.delete));
 	}
 
+	public IRecordInternal[] getEditedOrDeleted()
+	{
+		return toArray(getEditingRecords().filter(er -> er.type == EditType.edit || er.type == EditType.delete));
+	}
+
 	public IRecordInternal[] getFailed()
 	{
 		return toArray(getRecords(EditType.failed));
