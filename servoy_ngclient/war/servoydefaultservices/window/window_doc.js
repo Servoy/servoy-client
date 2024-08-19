@@ -171,17 +171,84 @@ function cancelFormPopup() {}
 /**
  * This is the base class for all menu items.
  */
-function BaseMenuItem() {
+function Menu() {
+    /**
+     * Script the selection (emulate a mouse click) of the menu.
+     *
+     * @example
+     * // simulate a click on the popup menu
+     * menu.doClick();
+     */
+    this.doClick = function() {}
+    
+    /**
+     * Set the the selected menu enabled or disabled.
+     *
+     * @example
+     * var popup = plugins.window.createPopupMenu();
+     * var menu = popup.addMenu();
+     * // set the menu's text
+     * menu.text = "New Menu";
+     * // disable the menu
+     * menu.setEnabled(false);
+     * // set a mnemonic
+     * menu.setMnemonic("u");
+     * // add an icon to the menu
+     * menu.setIcon("media:///yourimage.gif");
+     * 
+     * @param {Boolean} enabled
+     */
+    this.setEnabled = function(enabled) {}
+
+   /**
+    * Set the icon of the menu.
+    *
+    * @example
+    * var popup = plugins.window.createPopupMenu();
+    * var menu = popup.addMenu();
+    * // set the menu's text
+    * menu.text = "New Menu";
+    * // disable the menu
+    * menu.setEnabled(false);
+    * // set a mnemonic
+    * menu.setMnemonic("u");
+    * // add an icon to the menu
+    * menu.setIcon("media:///yourimage.gif");
+    * 
+    * @param {Object} icon
+    */
+    this.setIcon = function(icon) {}
+
+   /**
+    * Set the mnemonic of the selected menu.
+    *
+    * @example
+    * var popup = plugins.window.createPopupMenu();
+    * var menu = popup.addMenu();
+    * // set the menu's text
+    * menu.text = "New Menu";
+    * // disable the menu
+    * menu.setEnabled(false);
+    * // set a mnemonic
+    * menu.setMnemonic("u");
+    * // add an icon to the menu
+    * menu.setIcon("media:///yourimage.gif");
+    * 
+    * @param {String} mnemonic
+    */
+    this.setMnemonic = function(mnemonic) {}
+}
+
+/**
+ * This is the base class for all menu items.
+ */
+function MenuItem() {
     /**
      * Script the selection (emulate a mouse click) of the item.
      *
      * @example
-     * // add a new menu to the menubar
-     * var menubar = plugins.window.getMenuBar();
-     * var menu = menubar.addMenu();
-     * menu.text = "New Menu";
-     * // alternatively create a popup menu
-     * //var menu = plugins.window.createPopupMenu();
+     * // create a popup menu
+     * var menu = plugins.window.createPopupMenu();
      * 
      * // add a menu item
      * var entry = menu.addMenuItem("menu entry", feedback);
@@ -474,53 +541,588 @@ function CheckBox() {
 }
 
 /**
+ * The radio api. 
+ * extends BaseMenuItem
+ */
+function RadioButton() {
+    
+}
+
+/**
  * The base menu for all menu types.
  */
 function BaseMenu() {
+
     /**
-       * Add a checkbox at the selected index (starting at 0) or at the end.
+     *
+     * Add a submenu with given name.
+     *
+     * @example
+     * // add a new menu to the menubar
+     * var menubar = plugins.window.getMenuBar();
+     * var menu = menubar.addMenu();
+     * menu.text = "New Menu";
+     * // alternatively create a popup menu
+     * //var menu = plugins.window.createPopupMenu();
+     *
+     * // add a first submenu
+     * var submenu1 = menu.addMenu("submenu 1");
+     * submenu1.addMenuItem("sub item 1 - 1", feedback_item);
+     * // add a submenu as child of the first submenu
+     * var submenu1_2 = submenu1.addMenu("submenu 1 - 2");
+     * submenu1_2.addMenuItem("sub item 1 - 2 - 1", feedback_item);
+     * // add another submenu as a child of the first submenu
+     * var submenu1_3 = submenu1.addMenu("submenu 1 - 3");
+     * submenu1_3.addMenuItem("sub item 1 - 3 - 1", feedback_item);
+     * // add a submenu to the second submenu of the first submenu
+     * var submenu1_3_2 = submenu1_2.addMenu("submenu 1 - 2 - 2");
+     * submenu1_3_2.addMenuItem("sub item 1 - 2 - 2 - 1", feedback_item);
+     * // add a submenu directly to the menu, at the first position
+     * var submenu0 = menu.addMenu(0);
+     * submenu0.text = "submenu 0";
+     * submenu0.addMenuItem("sub item 0 - 1", feedback_item);
+     *
+     * @param {String} [name] the text of the submenu; this can be also html if enclosed between html tags
+     *
+     * @return Menu
+     */
+    this.addMenu = function(name) {}
+
+    /**
+     * Add a checkbox at the selected index (starting at 0) or at the end.
+     *
+     * @example
+     * // create a popup menu
+     * var menu = plugins.window.createPopupMenu();
+     *
+     * // when you don't define an index the item will be added at the last position
+     * // this is what you usually do to build a new menu
+     * // minimum settings are the text and method
+     * // the method can be a global or form method
+     * // be sure to enter the method WITHOUT '()' at the end
+     * menu.addMenuItem("item", feedback_item);
+     * // add an item with an icon
+     * menu.addMenuItem("item with icon", feedback_item, "media:///yourimage.gif");
+     * //var pic_bytes = plugins.file.readFile("/path/to/image.jpg");
+     * //menu.addMenuItem("item with icon", feedback_item, pic_bytes);
+     * // add an item with a mnemonic
+     * menu.addMenuItem("item with mnemonic", feedback_item, "media:///yourimage.gif", "i");
+     * //add an entry with fontawesome icon. Only supported in NGClient!
+     * menu.addMenuItem("an entry", this.feedback, 'fas fa-trash-alt');
+     * // add a disabled item
+     * menu.addMenuItem("disabled item", feedback_item, "media:///yourimage.gif", "d", false);
+     * // add an item with text aligned to the right
+     * menu.addMenuItem("align right", feedback_item, null, null, true, SM_ALIGNMENT.RIGHT);
+     *
+     * // add an item at a given index (item properties must be configured after creation)
+     * // indexes start at 0 (zero) so index 2 is in fact position 3
+     * var item = menu.addMenuItem(2);
+     * item.text = "item at index";
+     * item.setMethod(feedback_item);
+     *
+     * @param {String} [name] the menu text; this can be also html if enclosed between html tags
+     * @param {Function} [feedback_item] the feedback function
+     * @param {Object} [icon] the menu icon (can be an image URL or the image content byte array)
+     * @param {String} [mnemonic] the menu mnemonic
+     * @param {Boolean} [enabled] the enabled state of the menu
+     * @param {Number} [align] the alignment type
+     *
+     * @return MenuItem
+     */
+     this.addMenuItem = function(name, feedback_item, icon, mnemonic, enabled, align) {};
+
+    /**
+     * Add a checkbox at the selected index (starting at 0) or at the end.
+     *
+     * @example
+     * // create a popup menu
+     * var menu = plugins.window.createPopupMenu();
+     *
+     * // when you don't define an index the checkbox will be added at the last position
+     * // this is what you usually do to build a new menu
+     * // minimum settings are the text and method
+     * // the method can be a global or form method
+     * // be sure to enter the method WITHOUT '()' at the end
+     * menu.addCheckBox("checkbox", feedback_checkbox);
+     * // add a checkbox with an icon
+     * menu.addCheckBox("checkbox with icon", feedback_checkbox, "media:///yourimage.gif");
+     * //var pic_bytes = plugins.file.readFile("/path/to/image.jpg");
+     * //menu.addCheckBox("checkbox with icon", feedback_checkbox, pic_bytes);
+     * // add a checkbox with a mnemonic
+     * menu.addCheckBox("checkbox with mnemonic", feedback_checkbox, "media:///yourimage.gif", "c");
+     * // add a disabled checkbox
+     * menu.addCheckBox("checkbox disabled", feedback_checkbox, "media:///yourimage.gif", "d", false);
+     * // add a checkbox with text aligned to the right
+     * menu.addCheckBox("align right", feedback_checkbox, null, null, true, MenuItem.ALIGN_RIGHT);
+     *
+     * // add a checkbox at a given index (checkbox properties must be configured after creation)
+     * // indexes start at 0 (zero) so index 2 is in fact position 3
+     * var chk = menu.addCheckBox(2);
+     * chk.text = "checkbox at index";
+     * chk.setMethod(feedback_checkbox);
+     *
+     * @param {String} [name] the checkbox text; this can be also html if enclosed between html tags
+     * @param {Function} [feedback_item] the feedback function
+     * @param {Object} [icon] the checkbox icon (can be an image URL or the image content byte array)
+     * @param {String} [mnemonic] the checkbox mnemonic
+     * @param {Boolean} [enabled] the enabled state of the checkbox
+     * @param {Number} [align] the alignment type
+     *
+     * @return CheckBox
+     */
+     this.addCheckBox = function(name, feedback_item, icon, mnemonic, enabled, align) {};
+ 
+      /**
+       * Add a radiobutton at the selected index (starting at 0) or at the end.
+        *
+        * @example
+        * // create a popup menu
+        * var menu = plugins.window.createPopupMenu();
+        *
+        * // when you don't define an index the radiobutton will be added at the last position
+        * // this is what you usually do to build a new menu
+        * // minimum settings are the text and method
+        * // the method can be a global or form method
+        * // be sure to enter the method WITHOUT '()' at the end
+        * menu.addRadioButton("radio", feedback_radiobutton);
+        * // add a radiobutton with an icon
+        * menu.addRadioButton("radio with icon", feedback_radiobutton, "media:///yourimage.gif");
+        * //var pic_bytes = plugins.file.readFile("/path/to/image.jpg");
+        * //menu.addRadioButton("radio with icon", feedback_radiobutton, pic_bytes);
+        *
+        * // add a new radiobutton group
+        * // a group will 'bind' all added radiobuttons after the group together
+        * // as a result checking one item will uncheck the other
+        * // if no group is added, a group is created automatically when the first radiobutton is added to the menu
+        * // so in this case we will have two groups, one with the radiobuttons added until now and one with the ones added from now on
+        * menu.addRadioGroup();
+        *
+        * // add a radiobutton with a mnemonic
+        * menu.addRadioButton("radio with mnemonic", feedback_radiobutton, "media:///yourimage.gif", "i");
+        * // add a disabled radiobutton
+        * menu.addRadioButton("disabled radio", feedback_radiobutton, "media:///yourimage.gif", "d", false);
+        * // add a radiobutton with text aligned to the right
+        * menu.addRadioButton("align right", feedback_radiobutton, null, null, true, SM_ALIGNMENT.RIGHT);
+        * // add a radiobutton at a given index (item properties must be configured after creation)
+        * // indexes start at 0 (zero) so index 2 is in fact position 3
+        * var rd = menu.addRadioButton(2);
+        * rd.text = "radio at index";
+        * rd.setMethod(feedback_item);
+        *
+        * @param {String} name the radio button text; this can be also html if enclosed between html tags
+        * @param {Function} feedback_item the feedback function
+        * @param {Object} icon the radio button icon (can be an image URL or the image content byte array)
+        * @param {String} mnemonic the radio button mnemonic
+        * @param {Boolean} enabled the enabled state of radio button
+        * @param {Number} align the alignment type
+        *
+        * @return RadioButton
+      */
+      this.addRadioButton = function(name, feedback_item, icon, mnemonic, enabled, align) {};
+
+
+      /**
+       * Add a radiogroup for radiobuttons. A radiogroup groups together all radiobuttons that are added
+       * after the group is added. From all radiobuttons that belong to the same radiogroup only one can be
+       * checked at a time.
        *
-       * @example
-       * // add a new menu to the menubar
-       * var menubar = plugins.window.getMenuBar();
-       * var menu = menubar.addMenu();
-       * menu.text = "New Menu";
-       * // alternatively create a popup menu
-       * //var menu = plugins.window.createPopupMenu();
+       * If no radiogroup is added, one is created automatically when the first radiobutton is added.
        *
-       * // when you don't define an index the checkbox will be added at the last position
-       * // this is what you usually do to build a new menu
-       * // minimum settings are the text and method
-       * // the method can be a global or form method
-       * // be sure to enter the method WITHOUT '()' at the end
-       * menu.addCheckBox("checkbox", feedback_checkbox);
-       * // add a checkbox with an icon
-       * menu.addCheckBox("checkbox with icon", feedback_checkbox, "media:///yourimage.gif");
-       * //var pic_bytes = plugins.file.readFile("/path/to/image.jpg");
-       * //menu.addCheckBox("checkbox with icon", feedback_checkbox, pic_bytes);
-       * // add a checkbox with a mnemonic
-       * menu.addCheckBox("checkbox with mnemonic", feedback_checkbox, "media:///yourimage.gif", "c");
-       * // add a disabled checkbox
-       * menu.addCheckBox("checkbox disabled", feedback_checkbox, "media:///yourimage.gif", "d", false);
-       * // add a checkbox with text aligned to the right
-       * menu.addCheckBox("align right", feedback_checkbox, null, null, true, MenuItem.ALIGN_RIGHT);
-       *
-       * // add a checkbox at a given index (checkbox properties must be configured after creation)
-       * // indexes start at 0 (zero) so index 2 is in fact position 3
-       * var chk = menu.addCheckBox(2);
-       * chk.text = "checkbox at index";
-       * chk.setMethod(feedback_checkbox);
-       *
-       * @param {String} [name] the checkbox text; this can be also html if enclosed between html tags
-       * @param {Function} [feedback_item] the feedback function
-       * @param {Object} [icon] the checkbox icon (can be an image URL or the image content byte array)
-       * @param {String} [mnemonic] the checkbox mnemonic
-       * @param {Boolean} [enabled] the enabled state of the checkbox
-       * @param {Number} [align] the alignment type
-       *
-       * @return CheckBox
-       */
-      this.addCheckBox = function(name, feedback_item, icon, mnemonic, enabled, align) {};
+      * @example
+      * // create a popup menu
+      * var menu = plugins.window.createPopupMenu();
+      *
+      * // when you don't define an index the radiobutton will be added at the last position
+      * // this is what you usually do to build a new menu
+      * // minimum settings are the text and method
+      * // the method can be a global or form method
+      * // be sure to enter the method WITHOUT '()' at the end
+      * menu.addRadioButton("radio", feedback_radiobutton);
+      * // add a radiobutton with an icon
+      * menu.addRadioButton("radio with icon", feedback_radiobutton, "media:///yourimage.gif");
+      * //var pic_bytes = plugins.file.readFile("/path/to/image.jpg");
+      * //menu.addRadioButton("radio with icon", feedback_radiobutton, pic_bytes);
+      *
+      * // add a new radiobutton group
+      * // a group will 'bind' all added radiobuttons after the group together
+      * // as a result checking one item will uncheck the other
+      * // if no group is added, a group is created automatically when the first radiobutton is added to the menu
+      * // so in this case we will have two groups, one with the radiobuttons added until now and one with the ones added from now on
+      * menu.addRadioGroup();
+      *
+      * // add a radiobutton with a mnemonic
+      * menu.addRadioButton("radio with mnemonic", feedback_radiobutton, "media:///yourimage.gif", "i");
+      * // add a disabled radiobutton
+      * menu.addRadioButton("disabled radio", feedback_radiobutton, "media:///yourimage.gif", "d", false);
+      * // add a radiobutton with text aligned to the right
+      * menu.addRadioButton("align right", feedback_radiobutton, null, null, true, SM_ALIGNMENT.RIGHT);
+      * // add a radiobutton at a given index (item properties must be configured after creation)
+      * // indexes start at 0 (zero) so index 2 is in fact position 3
+      * var rd = menu.addRadioButton(2);
+      * rd.text = "radio at index";
+      * rd.setMethod(feedback_item);
+      */
+      this.addRadioGroup = function() {};
+      
+      
+    /**
+     * Add the separator at the selected index (starting at 0) or at the end (empty).
+     *
+     * @example
+     * // create a popup menu
+     * var menu = plugins.window.createPopupMenu();
+     *
+     * // add an item and a checkbox
+     * menu.addMenuItem("item", feedback_item);
+     * menu.addCheckBox("checkbox", feedback_checkbox);
+     * // add a separator
+     * menu.addSeparator();
+     * // add a radiobutton. it will be separated from the rest of the control by the separator
+     * menu.addRadioButton("radio", feedback_radiobutton);
+     * // add another separator between the item and the checkbox
+     * menu.addSeparator(1);
+     * 
+     * @param {Number} [index] the index where to add the separator; if not defined, the separator is added at the end
+     *
+     */
+    this.addSeparator = function(index) {}
+    
+
+    /**
+     * Get the checkbox at the selected index (starting at 0).
+     *
+     * @example
+     * // a popup menu
+     * var menu = plugins.window.createPopupMenu();
+     *
+     * // add two radiobuttons
+     * menu.addRadioButton("radio one", feedback_radiobutton);
+     * menu.addRadioButton("radio two", feedback_radiobutton);
+     * // add a menu item, with a separator before it
+     * menu.addSeparator();
+     * menu.addMenuItem("item", feedback_item);
+     * // add a checkbox, with a separator before it
+     * menu.addSeparator();
+     * menu.addCheckBox("check", feedback_checkbox);
+     * // add a submenu with an item under it
+     * var submenu = menu.addMenu("submenu");
+     * submenu.addMenuItem("subitem", feedback_item);
+     *
+     * // depending on some state, update the entries in the menu
+     * var some_state = true;
+     * if (some_state) {
+     *  // select the first radiobutton
+     *  menu.getRadioButton(0).selected = true;
+     * } else {
+     *  // select the first radiobutton
+     *  menu.getRadioButton(1).selected = true;
+     * }
+     * // enable/disable the menu item
+     * // remember to include the separators also when counting the index
+     * menu.getItem(3).enabled = !some_state;
+     * // select/unselect the checkbox
+     * // remember to include the separators also when counting the index
+     * menu.getCheckBox(5).selected = some_state;
+     * // change the text of the submenu and its item
+     * application.output(menu.getItemCount());
+     * if (some_state) {
+     *  menu.getMenu(6).text = "some state";
+     *  menu.getMenu(6).getItem(0).text = "some text";
+     * }
+     * else {
+     *  menu.getMenu(6).text = "not some state";
+     *  menu.getMenu(6).getItem(0).text = "other text";
+     * }
+     *
+     * @param {Number} index
+     * 
+     * @return CheckBox 
+     *
+     */
+    this.getCheckBox = function(index) {}
+
+    /**
+     * Get the item at the selected index (starting at 0).
+     *
+     * @example
+     * // a popup menu
+     * var menu = plugins.window.createPopupMenu();
+     *
+     * // add two radiobuttons
+     * menu.addRadioButton("radio one", feedback_radiobutton);
+     * menu.addRadioButton("radio two", feedback_radiobutton);
+     * // add a menu item, with a separator before it
+     * menu.addSeparator();
+     * menu.addMenuItem("item", feedback_item);
+     * // add a checkbox, with a separator before it
+     * menu.addSeparator();
+     * menu.addCheckBox("check", feedback_checkbox);
+     * // add a submenu with an item under it
+     * var submenu = menu.addMenu("submenu");
+     * submenu.addMenuItem("subitem", feedback_item);
+     *
+     * // depending on some state, update the entries in the menu
+     * var some_state = true;
+     * if (some_state) {
+     *  // select the first radiobutton
+     *  menu.getRadioButton(0).selected = true;
+     * } else {
+     *  // select the first radiobutton
+     *  menu.getRadioButton(1).selected = true;
+     * }
+     * // enable/disable the menu item
+     * // remember to include the separators also when counting the index
+     * menu.getItem(3).enabled = !some_state;
+     * // select/unselect the checkbox
+     * // remember to include the separators also when counting the index
+     * menu.getCheckBox(5).selected = some_state;
+     * // change the text of the submenu and its item
+     * application.output(menu.getItemCount());
+     * if (some_state) {
+     *  menu.getMenu(6).text = "some state";
+     *  menu.getMenu(6).getItem(0).text = "some text";
+     * }
+     * else {
+     *  menu.getMenu(6).text = "not some state";
+     *  menu.getMenu(6).getItem(0).text = "other text";
+     * }
+     *
+     * @param {Number} index
+     * 
+     * @return MenuItem
+     */
+    this.getItem = function(index) {}
+
+    /**
+     * Get the number of items in the menu.
+     *
+     * @example
+     * // REMARK: indexes start at 0, disabled items, non visible items and seperators are counted also
+     * // REMARK: this is especially important when getting items by the index
+     * // create a popup menu
+     * var menu = plugins.window.createPopupMenu();
+     *
+     * // add two radiobuttons
+     * menu.addRadioButton("radio one", feedback_radiobutton);
+     * menu.addRadioButton("radio two", feedback_radiobutton);
+     * // add a checkbox
+     * menu.addCheckBox("check", feedback_checkbox);
+     * // add a menu item
+     * menu.addMenuItem("item", feedback_item);
+     * // add another menu item
+     * menu.addMenuItem("item 2", feedback_item);
+     *
+     * // remove the last item
+     * menu.removeItem(menu.getItemCount() - 1);
+     * 
+     * @return Number
+     */
+    this.getItemCount = function() {}
+
+    /**
+     * Retrieve the index of the item by text.
+     *
+     * @example
+     * // create a popup menu
+     * var menu = plugins.window.createPopupMenu();
+     *
+     * // add two radiobuttons
+     * menu.addRadioButton("radio one", feedback_radiobutton);
+     * menu.addRadioButton("radio two", feedback_radiobutton);
+     * // add a checkbox
+     * menu.addCheckBox("check", feedback_checkbox);
+     * // add a menu item
+     * menu.addMenuItem("item", feedback_item);
+     * // add another menu item
+     * menu.addMenuItem("item 2", feedback_item);
+     *
+     * // find the index of the checkbox
+     * var idx = menu.getItemIndexByText("check");
+     * // remove the checkbox by its index
+     * menu.removeItem(idx);
+     * // remove both radiobuttons by their indices
+     * menu.removeItem([0, 1]);
+     * // remove all remaining entries
+     * menu.removeAllItems();
+     * // add back an item
+     * menu.addMenuItem("new item", feedback_item);
+     *
+     * @param {String} text
+     * 
+     * @return MenuItem
+     */
+    this.getItemIndexByText = function(text) {}
+
+
+    /**
+     * Get the radiobutton at the selected index (starting at 0).
+     *
+     * @example
+     * // a popup menu
+     * var menu = plugins.window.createPopupMenu();
+     *
+     * // add two radiobuttons
+     * menu.addRadioButton("radio one", feedback_radiobutton);
+     * menu.addRadioButton("radio two", feedback_radiobutton);
+     * // add a menu item, with a separator before it
+     * menu.addSeparator();
+     * menu.addMenuItem("item", feedback_item);
+     * // add a checkbox, with a separator before it
+     * menu.addSeparator();
+     * menu.addCheckBox("check", feedback_checkbox);
+     * // add a submenu with an item under it
+     * var submenu = menu.addMenu("submenu");
+     * submenu.addMenuItem("subitem", feedback_item);
+     *
+     * // depending on some state, update the entries in the menu
+     * var some_state = true;
+     * if (some_state) {
+     *  // select the first radiobutton
+     *  menu.getRadioButton(0).selected = true;
+     * } else {
+     *  // select the first radiobutton
+     *  menu.getRadioButton(1).selected = true;
+     * }
+     * // enable/disable the menu item
+     * // remember to include the separators also when counting the index
+     * menu.getItem(3).enabled = !some_state;
+     * // select/unselect the checkbox
+     * // remember to include the separators also when counting the index
+     * menu.getCheckBox(5).selected = some_state;
+     * // change the text of the submenu and its item
+     * application.output(menu.getItemCount());
+     * if (some_state) {
+     *  menu.getMenu(6).text = "some state";
+     *  menu.getMenu(6).getItem(0).text = "some text";
+     * }
+     * else {
+     *  menu.getMenu(6).text = "not some state";
+     *  menu.getMenu(6).getItem(0).text = "other text";
+     * }
+     *
+     * @param {Number} index
+     * 
+     * @return RadioButton
+     */
+    this.getRadioButton = function(index) {}
+
+    /**
+     * Get the submenu at the selected index (starting at 0).
+     *
+     * @example
+     * // a popup menu
+     * var menu = plugins.window.createPopupMenu();
+     *
+     * // add two radiobuttons
+     * menu.addRadioButton("radio one", feedback_radiobutton);
+     * menu.addRadioButton("radio two", feedback_radiobutton);
+     * // add a menu item, with a separator before it
+     * menu.addSeparator();
+     * menu.addMenuItem("item", feedback_item);
+     * // add a checkbox, with a separator before it
+     * menu.addSeparator();
+     * menu.addCheckBox("check", feedback_checkbox);
+     * // add a submenu with an item under it
+     * var submenu = menu.addMenu("submenu");
+     * submenu.addMenuItem("subitem", feedback_item);
+     *
+     * // depending on some state, update the entries in the menu
+     * var some_state = true;
+     * if (some_state) {
+     *  // select the first radiobutton
+     *  menu.getRadioButton(0).selected = true;
+     * } else {
+     *  // select the first radiobutton
+     *  menu.getRadioButton(1).selected = true;
+     * }
+     * // enable/disable the menu item
+     * // remember to include the separators also when counting the index
+     * menu.getItem(3).enabled = !some_state;
+     * // select/unselect the checkbox
+     * // remember to include the separators also when counting the index
+     * menu.getCheckBox(5).selected = some_state;
+     * // change the text of the submenu and its item
+     * application.output(menu.getItemCount());
+     * if (some_state) {
+     *  menu.getMenu(6).text = "some state";
+     *  menu.getMenu(6).getItem(0).text = "some text";
+     * }
+     * else {
+     *  menu.getMenu(6).text = "not some state";
+     *  menu.getMenu(6).getItem(0).text = "other text";
+     * }
+     *
+     * @param {Number} index
+     * 
+     * @retun Menu
+     */
+    this.getMenu= function(index) {}
+
+
+    /**
+     * Remove all items from the menu.
+     *
+     * @example
+     * menu.removeAllItems();
+     */
+    this.removeAllItems = function() {}
+
+    /**
+     * Remove the item(s) at the selected index/indices.
+     *
+     * @example
+     * menu.removeItem([1,4,6]);
+     *
+     * @param {Array} index array of one or moe indexes corresponding to items to remove
+     */
+    this.removeItem = function(index) {}
+    
+    /**
+     * Sets the value for the specified element client property key.
+     *
+     * @example
+     * // create a popup menu
+     * var menu = plugins.window.createPopupMenu();
+     *
+     * // add an item to the menu
+     * menu.addMenuItem("item", feedback_item);
+     *
+     * // set the tooltip of the menu via client properties
+     * // keep the original tooltip in a form or global variable
+     * originalTooltip = menu.getClientProperty("ToolTipText");
+     * menu.putClientProperty("ToolTipText", "changed tooltip");
+     *
+     * // later restore the original tooltip from the variable
+     * menu.putClientProperty("ToolTipText", originalTooltip);
+     *
+     * @param {Object} key
+     * @param {Object} value
+     */
+    this.putClientProperty = function( key, value) {}
+
+    /**
+     * Gets the specified client property for the element based on a key.
+     *
+     * @example
+     * // create a popup menu
+     * var menu = plugins.window.createPopupMenu();
+     *
+     * // add an item to the menu
+     * menu.addMenuItem("item", feedback_item);
+     *
+     * // set the tooltip of the menu via client properties
+     * // keep the original tooltip in a form or global variable
+     * originalTooltip = menu.getClientProperty("ToolTipText");
+     * menu.putClientProperty("ToolTipText", "changed tooltip");
+     *
+     * // later restore the original tooltip from the variable
+     * menu.putClientProperty("ToolTipText", originalTooltip);
+     *
+     * @param {Objec} key
+     * 
+     * @return Object
+     */
+    this.getClientProperty = function(key) {}
 }
 /**
  * This is the the object that creates a popupmenu
@@ -528,4 +1130,38 @@ function BaseMenu() {
  */
 function Popup() {
  
+    /**
+     * Show the popup menu at the specified location this can have 3 different signatures:</br>
+     * 1> component param with optionally x,y and/or positionTop parameters</br>
+     * 2> event parameter</br>
+     * 3> x and y parameters</br>
+     * 
+     * If positionTop is true, and there is enough room available, then popup menu's bottom - left corner is ending at the specified coordinates;
+     * x, y values are relative to top-left corner of the component.
+     * By default, positionTop is false.
+     * If there is not enough space above or under the component, the behavior is undefined (the browser will decide how menu is displayed)
+     *
+     * @example
+     * // create a popup menu
+     * var menu = plugins.window.createPopupMenu();
+     * // add a menu item
+     * menu.addMenuItem("an entry", feedback);
+     *
+     * if (event.getSource()) {
+     *  // display the popup over the component which is the source of the event
+     *  menu.show(event.getSource());
+     *  // or you can just use direct they event:
+     *  //menu.show(event);
+     *  // display the popup over the components, at specified coordinates relative to the component
+     *  //menu.show(event.getSource(), 10, 10);
+     *  // display the popup at specified coordinates relative to the main window
+     *  //menu.show(100, 100);
+     * }
+     *
+     * @param {Object} component_or_event_or_x The component or the event or the x coordinate of the popup
+     * @param {Object} [x_or_y_or_positionTop] The x or y coordinate of the popup (depending on the first parameter) or positionTop 
+     * @param {Number} [y] The y coordinate of the popup
+     * @param {Boolean} [positionTop] The positionTop where to show the popup (default false)
+     */
+    this.show = function(component, x, y, positionTop) { }
 }

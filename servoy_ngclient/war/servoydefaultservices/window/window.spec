@@ -263,33 +263,24 @@
         }
       },
       "MenuItem": {
-        "model": {
-            "id":"string",
-            "text": "string",
-            "callback": "function",
-            "name": "string",
-            "align": "int",
-            "enabled": { "type": "protected", "blockingOn": false, "default": true },
-            "visible": "visible",
-            "icon": "media",
-            "fa_icon": "string",
-            "mnemonic": "string",
-            "backgroundColor": "string",
-            "foregroundColor": "string",
-            "selected": "boolean",
-            "accelarator": "string",
-            "methodArguments": "object[]",
-            "cssClass": "string",
-            "items": "MenuItem[]"
-        }
-      },
-      "BaseMenuItem": {
         "model":{
             "name": "string",
             "methodArguments": "object[]",
             "text": "string",
             "selected": "boolean",
-            "enabled": { "type": "protected", "blockingOn": false, "default": true }
+            "enabled": { "type": "protected", "blockingOn": false, "default": true },
+            "id":{"type" : "string", "tags": { "scope" :"private" }},
+            "callback": {"type" : "function", "tags": { "scope" :"private" }},
+            "align": {"type" : "int", "tags": { "scope" :"private" }},
+            "visible": {"type" : "visible", "tags": { "scope" :"private" }},
+            "icon": {"type" : "media", "tags": { "scope" :"private" }},
+            "fa_icon": {"type" : "string", "tags": { "scope" :"private" }},
+            "mnemonic": {"type" : "string", "tags": { "scope" :"private" }},
+            "backgroundColor": {"type" : "string", "tags": { "scope" :"private" }},
+            "foregroundColor": {"type" : "string", "tags": { "scope" :"private" }},
+            "accelarator": {"type" : "string", "tags": { "scope" :"private" }},
+            "cssClass": {"type" : "string", "tags": { "scope" :"private" }},
+            "items":  {"type" : "MenuItem[]", "tags": { "scope" :"private" }}
         },
         "serversideapi": {
            "doClick": {
@@ -367,18 +358,67 @@
                     "type":"object"
                 }
              ]
-            },
+            }
         }
       },
       "CheckBox" : {
-        "extends": "BaseMenuItem",
+        "extends": "MenuItem",
         "model":{
-        },
-        
+        }
+      },
+      "RadioButton" : {
+        "extends": "MenuItem",
+        "model":{
+        }
       },
       "BaseMenu": {
         "serversideapi":
         {
+         "addMenu": {
+             "parameters":[
+                {
+                    "name":"name",
+                    "type":"string",
+                    "optional":true
+                },
+            ],
+            "returns": "Menu"
+         },        
+         "addMenuItem": {
+             "parameters":[
+                {
+                    "name":"name",
+                    "type":"string",
+                    "optional":true
+                },
+                {
+                    "name":"feedback_item",
+                    "type":"string",
+                    "optional":true
+                },
+                {
+                    "name":"icon",
+                    "type":"object",
+                    "optional":true
+                },
+                {
+                    "name":"mnemonic",
+                    "type":"string",
+                    "optional":true
+                },
+                {
+                    "name":"enabled",
+                    "type":"boolean",
+                    "optional":true
+                },
+                {
+                    "name":"align",
+                    "type":"int",
+                    "optional":true
+                }
+               ],
+              "returns": "MenuItem"
+            },
             "addCheckBox": {
              "parameters":[
                 {
@@ -413,8 +453,160 @@
                 }
                ],
               "returns": "CheckBox"
+            },
+            "addRadioGroup": {
+            },
+            "addRadioButton": {
+             "parameters":[
+                {
+                    "name":"name",
+                    "type":"string",
+                    "optional":true
+                },
+                {
+                    "name":"feedback_item",
+                    "type":"string",
+                    "optional":true
+                },
+                {
+                    "name":"icon",
+                    "type":"object",
+                    "optional":true
+                },
+                {
+                    "name":"mnemonic",
+                    "type":"string",
+                    "optional":true
+                },
+                {
+                    "name":"enabled",
+                    "type":"boolean",
+                    "optional":true
+                },
+                {
+                    "name":"align",
+                    "type":"int",
+                    "optional":true
+                }
+               ],
+              "returns": "RadioButton"
+            },
+            "addSeparator": {
+                "parameters":[
+                    {
+                        "name":"index",
+                        "type":"int",
+                        "optional":true
+                    }
+                ]
+            },
+            "getCheckBox": {
+               "parameters":[
+                   {
+                       "name":"index",
+                       "type":"int"
+                   }
+               ]
+            },
+            "getRadioButton": {
+               "parameters":[
+                   {
+                       "name":"index",
+                       "type":"int"
+                   }
+               ]
+            },
+            "getItem": {
+               "parameters":[
+                   {
+                       "name":"index",
+                       "type":"int"
+                   }
+               ]
+            },
+            "getItemCount": {
+               "parameters":[]
+            },
+            "getItemIndexByText": {
+               "parameters":[
+                   {
+                       "name":"text",
+                       "type":"string"
+                   }
+               ]
+            },
+            "getMenu": {
+               "parameters":[
+                   {
+                       "name":"index",
+                       "type":"int"
+                   }
+               ]
+            },
+            "removeAllItems": {
+               "parameters":[]
+            },
+            "removeItem": {
+               "parameters":[
+                   {
+                       "name":"indices",
+                       "type":"Object[]"
+                   }
+               ]
+            },
+            "putClientProperty": {
+             "parameters":[
+                {
+                    "name":"key",
+                    "type":"object"
+                },
+                {
+                    "name":"value",
+                    "type":"object"
+                }
+             ]
+            },
+            "getClientProperty": {
+             "parameters":[
+                {
+                    "name":"key",
+                    "type":"object"
+                }
+             ]
             }
         }      
+      },
+      "Menu": {
+          "extends": "BaseMenu",
+          "model": {
+            "text" : "string"
+          },
+          "serversideapi": {
+            "doClick": {
+             "parameters":[]
+            },
+            "setEnabled": {
+                "parameters":[{
+                    "name":"enabled",
+                    "type":"boolean"
+                    
+                }]
+            },
+            "setIcon": {
+                "parameters":[{
+                    "name":"icon",
+                    "type":"object"
+                    
+                }]
+            },
+            "setMnemonic": {
+                "parameters":[{
+                    "name":"mnemonic",
+                    "type":"string"
+                    
+                }]
+            },
+       }
       },
       "Popup": {
         "extends": "BaseMenu",
@@ -423,6 +615,29 @@
             "name": {"type" : "string", "tags": { "scope" :"private" }},
             "items":  {"type" : "MenuItem[]", "tags": { "scope" :"private" }}
         },
+        "serversideapi": {
+            "show": {
+             "parameters":[{
+                "name": "component/jsevent/x",
+                "type": "object"
+             },
+              {
+                "name": "positionTop/x/y",
+                "type": "object",
+                "optional": true
+             },
+             {
+                 "name": "y",
+                 "type": "number",
+                 "optional": true
+              },
+              {
+                 "name": "positionTop",
+                 "type": "boolean",
+                 "optional": true
+              }]
+            },
+        }
       }
     }
 }
