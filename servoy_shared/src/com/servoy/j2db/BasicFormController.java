@@ -3667,8 +3667,10 @@ public abstract class BasicFormController
 		 * Gets or sets the enabled state of a form; also known as "grayed-out".
 		 *
 		 * Notes:
-		 * -A disabled element(s) cannot be selected by clicking the form.
-		 * -The disabled "grayed" color is dependent on the LAF set in the Servoy Smart Client Application Preferences.
+		 * <ul>
+		 *   <li>A disabled element(s) cannot be selected by clicking the form.</li>
+		 *   <li>The disabled "grayed" color is dependent on the LAF set in the Servoy Smart Client Application Preferences.</li>
+		 * </ul>
 		 *
 		 * @sample
 		 * //gets the enabled state of the form
