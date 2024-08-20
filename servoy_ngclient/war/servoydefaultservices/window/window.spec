@@ -389,7 +389,7 @@
                 ]
             },
             "show": {
-                "parameters":[],
+                "parameters":[]
             }
         }
       },
