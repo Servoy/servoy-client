@@ -35,6 +35,8 @@ import org.sablo.websocket.utils.JSONUtils;
 
 import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
 import com.servoy.base.scripting.api.IJSEvent;
+import com.servoy.j2db.dataprocessing.FoundSet;
+import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.dataprocessing.IRecord;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.BaseComponent;
@@ -51,6 +53,7 @@ import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.JSEventType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
+import com.servoy.j2db.server.ngclient.property.types.RecordPropertyType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
@@ -171,6 +174,22 @@ public class EventExecutor
 						newargs[i] = NGConversions.INSTANCE.convertSabloComponentToRhinoValue(JSONUtils.fromJSON(null, newargs[i], parameterPropertyDescription,
 							new BrowserConverterContext(component, PushToServerEnum.allow), returnValueAdjustedIncommingValueForIndex),
 							parameterPropertyDescription, component, scope);
+						if (parameterPropertyDescription.getType() == RecordPropertyType.INSTANCE &&
+							parameterPropertyDescription.getTag("skipCallIfNotSelected") instanceof Boolean &&
+							((Boolean)parameterPropertyDescription.getTag("skipCallIfNotSelected")).booleanValue())
+						{
+							if (newargs[i] == null) return null;
+							IRecord recordArg = (IRecord)newargs[i];
+							IFoundSet foundset = recordArg.getParentFoundSet();
+							if (!foundset.isMultiSelect() && foundset instanceof FoundSet)
+							{
+								FoundSet foundsetObj = (FoundSet)foundset;
+								if (!recordArg.equals(foundsetObj.getSelectedRecord()))
+								{
+									return null;
+								}
+							}
+						}
 					}
 					//TODO? if in propertyDesc.getAsPropertyDescription().getConfig() we have  "type":"${dataproviderType}" and parameterPropertyDescription.getType() is Object
 					//then get the type from the dataprovider and try to convert the json to that type instead of simply object
