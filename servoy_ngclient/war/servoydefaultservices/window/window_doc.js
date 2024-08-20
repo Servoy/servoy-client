@@ -140,6 +140,8 @@ function showFormPopup(elementToShowRelatedTo, form, scope, dataproviderID, widt
      * @param {Number} height popup height
      * @param {Number} x popup x location
      * @param {Number} y popup y location
+     * 
+     * @return FormPopup
      */
 function createFormPopup(form) {}
 /**
@@ -167,6 +169,157 @@ function closeFormPopup(retval) {}
  * // function onClose(event) {application.output("Popup closed");}
  */
 function cancelFormPopup() {}
+
+
+/**
+ * This is configuration object to show a FormPopup, created by the call createFormPopup(form)
+ */
+function FormPopup() {
+
+    /**
+     * Set component form popup will be shown relative to. If null, will use coordinates or show at screen center.
+     * 
+     * Without an argument it is a getter, it returns the component.
+     *
+     * @example
+     * plugins.window.createFormPopup(forms.orderPicker).component(elements.myelement).show();
+     *
+     * @param {RuntimeComponent} [component] the form to show
+     *
+     * @return this The FormPopup itself or the component if no argument is given
+     */
+    this.component = function(component) {}
+
+    /**
+     * Set form popup width. If not set, form design width will be used.
+     * 
+     * Without an argument it is a getter, it returns the width.
+     *
+     * @example
+     * plugins.window.createFormPopup(forms.orderPicker).width(100).show();
+     *
+     * @param {number} [width] form popup width
+     *
+     * @return this The FormPopup itself or the width if no argument is given
+     *
+     */
+    this.width = function( width) {}
+
+    /**
+     * Set form popup height. If not set, form design height will be used.
+     * 
+     * Without an argument it is a getter, it returns the height.
+     *
+     * @example
+     * plugins.window.createFormPopup(forms.orderPicker).height(100).show();
+     *
+     * @param {number} [height] form popup height
+     *
+     * @return this The FormPopup itself or the height if no argument is given
+     */
+    this.height = function(height) {}
+
+
+    /**
+     * Set form popup x location. The priority sequence for location is: related element, set location, center of screen.
+     * 
+     * Without an argument it is a getter, it returns the x.
+     *
+     * @example
+     * plugins.window.createFormPopup(forms.orderPicker).x(100).show();
+     *
+     * @param {number} [x] form popup x location
+     *
+     * @return this The FormPopup itself or the x if no argument is given
+     *
+     */
+    this.x = function(x) {}
+
+    /**
+     * Set form popup y location. The priority sequence for location is: related element, set location, center of screen.
+     * 
+     * Without an argument it is a getter, it returns the y value
+     *
+     * @example
+     * plugins.window.createFormPopup(forms.orderPicker).y(100).show();
+     *
+     * @param {number} [y] form popup y location
+     *
+     * @return this The FormPopup itself or the y value if no argument is given
+     *
+     */
+    this.y = function(y) {}
+
+    /**
+     * Set whether backdrop will be shown. Default value is false.
+     * 
+     * Without an argument it is a getter, it returns the backdrop value
+     *
+     * @example
+     * plugins.window.createFormPopup(forms.orderPicker).showBackdrop(true).show();
+     *
+     * @param {boolean} [showBackdrop] form popup showBackdrop
+     *
+     * @return this The FormPopup itself or the showBackdrop value if no argument is given
+     *
+     */
+    this.showBackdrop = function(showBackdrop) {}
+
+    /**
+     * Set form popup dataprovider that will be set. If this is set, also scope needs to be specified.
+     * 
+     * Without an argument it is a getter, it returns the datprovider value
+     *
+     * @exmple
+     * plugins.window.createFormPopup(forms.orderPicker).dataprovider('myid').scope(foundset.getSelectedRecord()).show();
+     *
+     * @param {string} [dataprovider] form popup dataprovider
+     *
+     * @return this The FormPopup itself or the dataprovider value if no argument is given
+     *
+     */
+    this.dataprovider = function(dataprovider) {}
+
+    /**
+     * Get/Set the onclose function that is called when the closeFormPopup is called.
+     * This onClose will get a JSEvent as the first argument, and the return value that is given to the closeFormPopup(retvalue) call.
+     * 
+     * Without an argument it is a getter, it returns the onclose function value
+     *
+     * @example
+     * plugins.window.createFormPopup(forms.orderPicker).dataprovider('myid').onClose(closePopupFunction).show();
+     *
+     * @param {function} [func] function that needs to be called when closed
+     *
+     * @return this The FormPopup itself or the dataprovider value if no argument is given
+     *
+     */
+    this.onClose = function(func) {}
+
+    /**
+     * Set form popup scope that will be modified. If this is set, also dataprovider needs to be specified.
+     * 
+     * Without an argument it is a getter, it returns the scope object
+     *
+     * @example
+     * plugins.window.createFormPopup(forms.orderPicker).dataprovider('myid').scope(foundset.getSelectedRecord()).show();
+     *
+     * @param {object} scope form popup scope to modify
+     *
+     * @return this The FormPopup itself or the dataprovider value if no argument is given
+     *
+     */
+    this.scope = function(scope) {}
+
+    /**
+     * Show form popup using parameters that were set
+     *
+     * @example
+     * plugins.window.createFormPopup(forms.orderPicker).x(100).y(100).width(100).height(100).showBackdrop(true).show();
+     *
+     */
+    this.show = function() {}
+}
 
 /**
  * This is the base class for all menu items.

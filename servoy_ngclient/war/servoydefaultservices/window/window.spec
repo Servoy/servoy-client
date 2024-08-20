@@ -19,7 +19,7 @@
     {
         "shortcuts" : { "type": "shortcut[]", "tags": { "scope" :"private" }},
         "popupform": {"type": "popupform", "tags": { "scope" :"private" }},
-        "popupMenus" : {"type": "popup[]", "tags": { "scope" :"private" }},
+        "popupMenus" : {"type": "Popup[]", "tags": { "scope" :"private" }},
         "popupMenuShowCommand" : {"type": "popupMenuShowCommand", "pushToServer": "shallow", "tags": { "scope" :"private" }} 
     },
     "api":
@@ -250,16 +250,147 @@
       },
       "FormPopup": {
         "model": {
-            "component": "runtimecomponent",
-            "dataprovider" : "string",
-            "scope": "object",
-            "width": "int",
-            "height": "int",
-            "x": "int",
-            "y": "int",
-            "showBackdrop": "boolean",
-            "doNotCloseOnClickOutside": "boolean",
-            "onClose": "function"
+            "component": {"type" : "runtimecomponent", "tags": { "scope" :"private" }},
+            "dataprovider" : {"type" : "string", "tags": { "scope" :"private" }},
+            "scope": {"type" : "object", "tags": { "scope" :"private" }},
+            "width": {"type" : "int", "tags": { "scope" :"private" }},
+            "height": {"type" : "int", "tags": { "scope" :"private" }},
+            "x": {"type" : "int", "tags": { "scope" :"private" }},
+            "y": {"type" : "int", "tags": { "scope" :"private" }},
+            "showBackdrop": {"type" : "boolean", "tags": { "scope" :"private" }},
+            "doNotCloseOnClickOutside": {"type" : "boolean", "tags": { "scope" :"private" }},
+            "onClose": {"type" : "function", "tags": { "scope" :"private" }}
+        },
+        "serversideapi": {
+            "component": {
+                "parameters":[],
+                "returns": "runtimecomponent",
+                "overloads": [
+                    {
+                        "parameters": [
+                        {
+                            "name": "component",
+                            "type": "runtimecomponent"
+                        }],
+                        "returns": "FormPopup"
+                    }
+                ]
+            },
+            "width": {
+                "parameters":[],
+                "returns": "int",
+                "overloads": [
+                    {
+                        "parameters": [
+                        {
+                            "name": "width",
+                            "type": "int"
+                        }],
+                        "returns": "FormPopup"
+                    }
+                ]
+            },
+            "height": {
+                "parameters":[],
+                "returns": "int",
+                "overloads": [
+                    {
+                        "parameters": [
+                        {
+                            "name": "height",
+                            "type": "int"
+                        }],
+                        "returns": "FormPopup"
+                    }
+                ]
+            },
+            "x": {
+                "parameters":[],
+                "returns": "int",
+                "overloads": [
+                    {
+                        "parameters": [
+                        {
+                            "name": "x",
+                            "type": "int"
+                        }],
+                        "returns": "FormPopup"
+                    }
+                ]
+            },
+            "y": {
+                "parameters":[],
+                "returns": "int",
+                "overloads": [
+                    {
+                        "parameters": [
+                        {
+                            "name": "y",
+                            "type": "int"
+                        }],
+                        "returns": "FormPopup"
+                    }
+                ]
+            },
+            "showBackdrop": {
+                "parameters":[],
+                "returns": "boolean",
+                "overloads": [
+                    {
+                        "parameters": [
+                        {
+                            "name": "showBackdrop",
+                            "type": "boolean"
+                        }],
+                        "returns": "FormPopup"
+                    }
+                ]
+            },
+            "dataprovider": {
+                "parameters":[],
+                "returns": "string",
+                "overloads": [
+                    {
+                        "parameters": [
+                        {
+                            "name": "dataprovider",
+                            "type": "string"
+                        }],
+                        "returns": "FormPopup"
+                    }
+                ]
+            },
+            "onClose": {
+                "parameters":[],
+                "returns": "function",
+                "overloads": [
+                    {
+                        "parameters": [
+                        {
+                            "name": "onClose",
+                            "type": "function"
+                        }],
+                        "returns": "FormPopup"
+                    }
+                ]
+            },
+            "scope": {
+                "parameters":[],
+                "returns": "object",
+                "overloads": [
+                    {
+                        "parameters": [
+                        {
+                            "name": "scope",
+                            "type": "object"
+                        }],
+                        "returns": "FormPopup"
+                    }
+                ]
+            },
+            "show": {
+                "parameters":[],
+            }
         }
       },
       "MenuItem": {
@@ -380,7 +511,7 @@
                     "name":"name",
                     "type":"string",
                     "optional":true
-                },
+                }
             ],
             "returns": "Menu"
          },        
@@ -506,7 +637,8 @@
                        "name":"index",
                        "type":"int"
                    }
-               ]
+               ],
+               "returns": "CheckBox"
             },
             "getRadioButton": {
                "parameters":[
@@ -514,7 +646,8 @@
                        "name":"index",
                        "type":"int"
                    }
-               ]
+               ],
+               "returns": "RadioButton"
             },
             "getItem": {
                "parameters":[
@@ -522,10 +655,12 @@
                        "name":"index",
                        "type":"int"
                    }
-               ]
+               ],
+               "returns": "MenuItem"
             },
             "getItemCount": {
-               "parameters":[]
+               "parameters":[],
+               "returns": "int"
             },
             "getItemIndexByText": {
                "parameters":[
@@ -533,7 +668,8 @@
                        "name":"text",
                        "type":"string"
                    }
-               ]
+               ],
+               "returns": "MenuItem"
             },
             "getMenu": {
                "parameters":[
@@ -541,7 +677,8 @@
                        "name":"index",
                        "type":"int"
                    }
-               ]
+               ],
+               "returns": "Menu"
             },
             "removeAllItems": {
                "parameters":[]
@@ -550,7 +687,7 @@
                "parameters":[
                    {
                        "name":"indices",
-                       "type":"Object[]"
+                       "type":"object[]"
                    }
                ]
             },
@@ -572,7 +709,8 @@
                     "name":"key",
                     "type":"object"
                 }
-             ]
+             ],
+             "returns": "object"
             }
         }      
       },
@@ -605,7 +743,7 @@
                     "type":"string"
                     
                 }]
-            },
+            }
        }
       },
       "Popup": {
@@ -618,25 +756,52 @@
         "serversideapi": {
             "show": {
              "parameters":[{
-                "name": "component/jsevent/x",
-                "type": "object"
+                "name": "component",
+                "type": "runtimecomponent"
              },
               {
-                "name": "positionTop/x/y",
-                "type": "object",
-                "optional": true
+                "name": "x",
+                "type": "int"
              },
              {
                  "name": "y",
-                 "type": "number",
-                 "optional": true
+                 "type": "int"
               },
               {
                  "name": "positionTop",
                  "type": "boolean",
                  "optional": true
-              }]
-            },
+              }],
+              "overloads" : [
+                {
+                    "parameters": [{
+                      "name": "component",
+                      "type": "runtimecomponent"
+                    },
+                    {
+                      "name": "positionTop",
+                      "type": "boolean",
+                      "optional": true
+                    }]
+                },
+                {
+                    "parameters": [{
+                      "name": "x",
+                      "type": "int"
+                    },
+                    {
+                      "name": "y",
+                      "type": "int"
+                    }]
+                },
+                {
+                    "parameters": [{
+                      "name": "event",
+                      "type": "JSEvent"
+                    }]
+                }
+              ]
+            }
         }
       }
     }
