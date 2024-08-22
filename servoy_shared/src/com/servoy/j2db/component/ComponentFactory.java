@@ -999,7 +999,7 @@ public class ComponentFactory
 					}
 				}
 			}
-			else if (valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES)
+			else if (list instanceof CustomValueList)
 			{
 				if (application instanceof IApplication && ((IApplication)application).isInDeveloper())
 				{
@@ -1013,8 +1013,10 @@ public class ComponentFactory
 						}
 					}
 					else if (type != Types.OTHER && type != currentType &&
-						!((Column.mapToDefaultType(type) == IColumnTypes.INTEGER && Column.mapToDefaultType(currentType) == IColumnTypes.NUMBER) ||
-							(Column.mapToDefaultType(type) == IColumnTypes.NUMBER && Column.mapToDefaultType(currentType) == IColumnTypes.INTEGER)))
+						!(((Column.mapToDefaultType(type) == IColumnTypes.INTEGER || Column.mapToDefaultType(type) == IColumnTypes.TEXT) &&
+							Column.mapToDefaultType(currentType) == IColumnTypes.NUMBER) ||
+							((Column.mapToDefaultType(type) == IColumnTypes.NUMBER || Column.mapToDefaultType(type) == IColumnTypes.TEXT) &&
+								Column.mapToDefaultType(currentType) == IColumnTypes.INTEGER)))
 					{
 						List<String> lst = ((CustomValueList)list).getDataProviders();
 

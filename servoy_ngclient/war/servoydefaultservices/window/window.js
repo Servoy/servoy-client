@@ -179,7 +179,6 @@ angular.module('window',['servoy'])
 					}
 				}
 			}
-			
 			function getElementById(id)
 			{
 				var defered = $q.defer();
