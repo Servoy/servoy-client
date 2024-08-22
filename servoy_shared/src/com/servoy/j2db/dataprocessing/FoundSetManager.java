@@ -3128,14 +3128,36 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				actualPkNames.o = inmemPKs.toArray(new String[inmemPKs.size()]);
 			}
 
-			if (!asList(dataSet.getColumnNames()).equals(inmemColumnNamesThatCanSetData) ||
+			List<String> dataSetColumnNames = asList(dataSet.getColumnNames());
+			if (dataSetColumnNames.size() > 0)
+			{
+				// sort inmemColumnNamesThatCanSetData (and inmemColumnTypesForColumnsThatCanSetData) to the same order as  dataSet.getColumnNames()
+				List<String> sortedInmemColumnNamesThatCanSetData = new ArrayList<>();
+				List<ColumnType> sortedInmemColumnTypesForColumnsThatCanSetData = new ArrayList<>();
+
+				for (int i = 0; i < dataSetColumnNames.size(); i++)
+				{
+					int idx = inmemColumnNamesThatCanSetData.indexOf(dataSetColumnNames.get(i));
+					if (idx != -1)
+					{
+						sortedInmemColumnNamesThatCanSetData.add(inmemColumnNamesThatCanSetData.remove(idx));
+						sortedInmemColumnTypesForColumnsThatCanSetData.add(inmemColumnTypesForColumnsThatCanSetData.remove(idx));
+					}
+				}
+				sortedInmemColumnNamesThatCanSetData.addAll(inmemColumnNamesThatCanSetData);
+				sortedInmemColumnTypesForColumnsThatCanSetData.addAll(inmemColumnTypesForColumnsThatCanSetData);
+				inmemColumnNamesThatCanSetData = sortedInmemColumnNamesThatCanSetData;
+				inmemColumnTypesForColumnsThatCanSetData = sortedInmemColumnTypesForColumnsThatCanSetData;
+			}
+
+			if (!dataSetColumnNames.equals(inmemColumnNamesThatCanSetData) ||
 				!compareColumnTypes(fixedColumnTypes, inmemColumnTypesForColumnsThatCanSetData))
 			{
 				if (dataSet.getColumnCount() > 0 /*
 													 * do not generate warning if this is just the initial load of a design time inmem table that adds 0 rows
 													 * and doesn't care about columns
 													 */
-					&& !asList(dataSet.getColumnNames()).equals(inmemColumnNamesThatCanSetData))
+					&& !dataSetColumnNames.equals(inmemColumnNamesThatCanSetData))
 				{
 					Debug.warn(
 						"Dataset column names definition does not match inmem table definition for datasource: " + dataSource + " columns of dataset: " + //$NON-NLS-1$ //$NON-NLS-2$
