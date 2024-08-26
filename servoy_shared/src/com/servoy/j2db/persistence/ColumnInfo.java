@@ -26,6 +26,7 @@ import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.ColumnType;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -138,6 +139,7 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 
 	public void flagChanged()
 	{
+		Debug.error("flag changed: " + getTextualPropertyInfo(false), new RuntimeException("flag changed"));
 		changed = true;
 	}
 
