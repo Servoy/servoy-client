@@ -114,7 +114,11 @@ public class ColumnInfo implements Serializable, ISupportHTMLToolTipText
 		this.columninfo_id = columninfo_id;
 		this.storedPersistently = storedPersistently;
 
-		if (!storedPersistently) changed = true;
+		if (!storedPersistently)
+		{
+			changed = true;
+			Debug.error("CI created directly changed is true: ", new RuntimeException("CI Created"));
+		}
 	}
 
 	public int getID()
