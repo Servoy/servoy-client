@@ -20,13 +20,13 @@ package com.servoy.j2db.scripting;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.j2db.MenuManager;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.MenuItem;
@@ -47,15 +47,16 @@ public class JSMenuItem
 	private String iconStyleClass;
 	private String tooltipText;
 	private boolean enabled = true;
-	private final MenuManager menuManager;
 	private final List<JSMenuItem> items = new ArrayList<JSMenuItem>();
 	private Object[] callbackArguments;
+	private final JSMenu parentMenu;
+	private Map<String, Map<String, Object>> extraProperties;
 
 	/**
 	 * @param menuManager
 	 * @param menuItem
 	 */
-	public JSMenuItem(MenuManager menuManager, MenuItem menuItem)
+	public JSMenuItem(JSMenu parentMenu, MenuItem menuItem)
 	{
 		this.itemID = menuItem.getName();
 		this.menuText = menuItem.getText();
@@ -63,26 +64,27 @@ public class JSMenuItem
 		this.iconStyleClass = menuItem.getIconStyleClass();
 		this.enabled = menuItem.getEnabled();
 		this.tooltipText = menuItem.getToolTipText();
-		this.menuManager = menuManager;
+		this.parentMenu = parentMenu;
 		Iterator<IPersist> it = menuItem.getAllObjects();
 		while (it.hasNext())
 		{
 			IPersist child = it.next();
 			if (child instanceof MenuItem menuItemChild)
 			{
-				items.add(new JSMenuItem(menuManager, menuItemChild));
+				items.add(new JSMenuItem(parentMenu, menuItemChild));
 			}
 		}
+		this.extraProperties = menuItem.getExtraProperties();
 	}
 
 	/**
 	 * @param menuManager
 	 * @param name
 	 */
-	public JSMenuItem(MenuManager menuManager, String itemID)
+	public JSMenuItem(JSMenu parentMenu, String itemID)
 	{
 		this.itemID = itemID;
-		this.menuManager = menuManager;
+		this.parentMenu = parentMenu;
 	}
 
 	/**
@@ -100,7 +102,7 @@ public class JSMenuItem
 	public void setMenuText(String text)
 	{
 		this.menuText = text;
-		this.menuManager.notifyChanged();
+		this.parentMenu.notifyChanged();
 	}
 
 	/**
@@ -119,7 +121,7 @@ public class JSMenuItem
 	public void setStyleClass(String styleclass)
 	{
 		this.styleClass = styleclass;
-		this.menuManager.notifyChanged();
+		this.parentMenu.notifyChanged();
 	}
 
 	/**
@@ -138,7 +140,7 @@ public class JSMenuItem
 	public void setIconStyleClass(String styleclass)
 	{
 		this.iconStyleClass = styleclass;
-		this.menuManager.notifyChanged();
+		this.parentMenu.notifyChanged();
 	}
 
 	/**
@@ -157,7 +159,7 @@ public class JSMenuItem
 	public void setTooltipText(String text)
 	{
 		this.tooltipText = text;
-		this.menuManager.notifyChanged();
+		this.parentMenu.notifyChanged();
 	}
 
 	/**
@@ -176,7 +178,7 @@ public class JSMenuItem
 	public void setEnabled(boolean enabled)
 	{
 		this.enabled = enabled;
-		this.menuManager.notifyChanged();
+		this.parentMenu.notifyChanged();
 	}
 
 	/**
@@ -212,6 +214,23 @@ public class JSMenuItem
 	public JSMenuItem getSubMenuItem(String id)
 	{
 		return items.stream().filter(item -> Utils.equalObjects(id, item.getItemID())).findAny().orElse(null);
+	}
+
+	public JSMenuItem findSubMenuItem(String id)
+	{
+		for (JSMenuItem item : items)
+		{
+			if (Utils.equalObjects(id, item.getItemID()))
+			{
+				return item;
+			}
+			JSMenuItem subItem = item.findSubMenuItem(id);
+			if (subItem != null)
+			{
+				return subItem;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -251,9 +270,9 @@ public class JSMenuItem
 		JSMenuItem item = null;
 		if (index >= 0 && index <= items.size())
 		{
-			item = new JSMenuItem(menuManager, id);
+			item = new JSMenuItem(parentMenu, id);
 			items.add(index, item);
-			this.menuManager.notifyChanged();
+			this.parentMenu.notifyChanged();
 		}
 		return item;
 	}
@@ -267,7 +286,7 @@ public class JSMenuItem
 	@JSFunction
 	public boolean removeSubMenuItem(String id)
 	{
-		this.menuManager.notifyChanged();
+		this.parentMenu.notifyChanged();
 		return items.removeIf(item -> Utils.equalObjects(id, item.getItemID()));
 	}
 
@@ -280,7 +299,7 @@ public class JSMenuItem
 	@JSFunction
 	public boolean removeSubMenuItem(JSMenuItem menuItem)
 	{
-		this.menuManager.notifyChanged();
+		this.parentMenu.notifyChanged();
 		return items.remove(menuItem);
 	}
 
@@ -303,5 +322,29 @@ public class JSMenuItem
 	public void setCallbackArguments(Object[] callbackArguments)
 	{
 		this.callbackArguments = callbackArguments;
+	}
+
+	/**
+	 * Returns an extra property value.
+	 *
+	 * @sample menuItem.getExtraProperty('Sidenav','formName');
+	 * @return  extra property value
+	 */
+	@JSFunction
+	public Object getExtraProperty(String categoryName, String propertyName)
+	{
+		if (extraProperties.containsKey(categoryName))
+		{
+			return extraProperties.get(categoryName).get(propertyName);
+		}
+		return null;
+	}
+
+	/**
+	 * @return
+	 */
+	public Map<String, Map<String, Object>> getExtraProperties()
+	{
+		return extraProperties;
 	}
 }

@@ -24,9 +24,9 @@ import java.util.List;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
+import org.sablo.IChangeListener;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
-import com.servoy.j2db.MenuManager;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Menu;
@@ -45,25 +45,25 @@ public class JSMenu
 	private final String name;
 	private String styleClass;
 	private final List<JSMenuItem> items = new ArrayList<JSMenuItem>();
-	private MenuManager menuManager;
 	private JSMenuItem selectedItem;
+
+	private final List<IChangeListener> changeListeners = new ArrayList<IChangeListener>();
 
 	/**
 	 * @param menuManager
 	 * @param menu
 	 */
-	public JSMenu(MenuManager menuManager, Menu menu)
+	public JSMenu(Menu menu)
 	{
 		this.name = menu.getName();
 		this.styleClass = menu.getStyleClass();
-		this.menuManager = menuManager;
 		Iterator<IPersist> it = menu.getAllObjects();
 		while (it.hasNext())
 		{
 			IPersist child = it.next();
 			if (child instanceof MenuItem menuItem)
 			{
-				items.add(new JSMenuItem(menuManager, menuItem));
+				items.add(new JSMenuItem(this, menuItem));
 			}
 		}
 	}
@@ -72,10 +72,10 @@ public class JSMenu
 	 * @param menuManager
 	 * @param name
 	 */
-	public JSMenu(MenuManager menuManager, String name)
+	public JSMenu(String name)
 	{
 		this.name = name;
-		items.add(new JSMenuItem(menuManager, name));
+		items.add(new JSMenuItem(this, name));
 	}
 
 	/**
@@ -93,7 +93,7 @@ public class JSMenu
 	public void setStyleClass(String styleclass)
 	{
 		this.styleClass = styleclass;
-		this.menuManager.notifyChanged();
+		this.notifyChanged();
 	}
 
 	/**
@@ -129,6 +129,30 @@ public class JSMenu
 	public JSMenuItem getMenuItem(String id)
 	{
 		return items.stream().filter(item -> Utils.equalObjects(id, item.getItemID())).findAny().orElse(null);
+	}
+
+	/**
+	 * Gets a menu item by identifier. Also searches for nested elements. Returns null if not found.
+	 *
+	 * @sample var mnu = menu.findMenuItem('item1');
+	 * @param id the menu item identifier
+	 */
+	@JSFunction
+	public JSMenuItem findMenuItem(String id)
+	{
+		for (JSMenuItem item : items)
+		{
+			if (Utils.equalObjects(id, item.getItemID()))
+			{
+				return item;
+			}
+			JSMenuItem subItem = item.findSubMenuItem(id);
+			if (subItem != null)
+			{
+				return subItem;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -168,9 +192,9 @@ public class JSMenu
 		JSMenuItem item = null;
 		if (index >= 0 && index <= items.size())
 		{
-			item = new JSMenuItem(menuManager, id);
+			item = new JSMenuItem(this, id);
 			items.add(index, item);
-			this.menuManager.notifyChanged();
+			this.notifyChanged();
 		}
 		return item;
 	}
@@ -184,7 +208,7 @@ public class JSMenu
 	@JSFunction
 	public boolean removeMenuItem(String id)
 	{
-		this.menuManager.notifyChanged();
+		this.notifyChanged();
 		return items.removeIf(item -> Utils.equalObjects(id, item.getItemID()));
 	}
 
@@ -197,7 +221,7 @@ public class JSMenu
 	@JSFunction
 	public boolean removeMenuItem(JSMenuItem menuItem)
 	{
-		this.menuManager.notifyChanged();
+		this.notifyChanged();
 		return items.remove(menuItem);
 	}
 
@@ -211,7 +235,7 @@ public class JSMenu
 	public void selectMenuItem(JSMenuItem menuItem)
 	{
 		this.selectedItem = menuItem;
-		this.menuManager.notifyChanged();
+		this.notifyChanged();
 	}
 
 	/**
@@ -221,5 +245,20 @@ public class JSMenu
 	public JSMenuItem getSelectedItem()
 	{
 		return selectedItem;
+	}
+
+	public void notifyChanged()
+	{
+		changeListeners.forEach(listener -> listener.valueChanged());
+	}
+
+	public void addChangeListener(IChangeListener listener)
+	{
+		changeListeners.add(listener);
+	}
+
+	public boolean removeChangeListener(IChangeListener listener)
+	{
+		return changeListeners.remove(listener);
 	}
 }

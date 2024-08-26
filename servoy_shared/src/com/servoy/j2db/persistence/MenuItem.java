@@ -17,6 +17,9 @@
 
 package com.servoy.j2db.persistence;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.ServoyJSONObject;
@@ -157,6 +160,26 @@ public class MenuItem extends AbstractBase implements ISupportUpdateableName, IC
 	public ServoyJSONObject getPermissions()
 	{
 		return this.getTypedProperty(StaticContentSpecLoader.PROPERTY_PERMISSIONS);
+	}
+
+	public void putExtraProperty(String category, String propertyName, Object value)
+	{
+		this.putCustomProperty(new String[] { "extraProperties", category, propertyName }, value);
+	}
+
+	public Object getExtraProperty(String category, String propertyName)
+	{
+		return this.getCustomProperty(new String[] { "extraProperties", category, propertyName });
+	}
+
+	public Map<String, Map<String, Object>> getExtraProperties()
+	{
+		Map<String, Map<String, Object>> map = (Map<String, Map<String, Object>>)getCustomProperty(new String[] { "extraProperties" });
+		if (map != null)
+		{
+			return new HashMap<String, Map<String, Object>>(map);
+		}
+		return null;
 	}
 
 	public MenuItem createNewMenuItem(IValidateName validator, String menuItemName) throws RepositoryException

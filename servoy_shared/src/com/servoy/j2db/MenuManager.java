@@ -34,7 +34,7 @@ import com.servoy.j2db.scripting.JSMenu;
  */
 @ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Menus", scriptingName = "menus")
-public class MenuManager extends IMenuManager
+public class MenuManager implements IMenuManager
 {
 	private final Map<String, JSMenu> menus = new HashMap<String, JSMenu>();
 	private final ClientState application;
@@ -59,7 +59,7 @@ public class MenuManager extends IMenuManager
 	public JSMenu createMenu(String name)
 	{
 		this.initMenus();
-		JSMenu menu = new JSMenu(this, name);
+		JSMenu menu = new JSMenu(name);
 		menus.put(name, menu);
 		return menu;
 	}
@@ -89,11 +89,6 @@ public class MenuManager extends IMenuManager
 		return menus.get(name);
 	}
 
-	public void notifyChanged()
-	{
-		//TODO notify listeners for runtime changes
-	}
-
 	private void initMenus()
 	{
 		if (!initialized)
@@ -103,8 +98,14 @@ public class MenuManager extends IMenuManager
 			while (it.hasNext())
 			{
 				Menu menu = it.next();
-				menus.put(menu.getName(), new JSMenu(this, menu));
+				menus.put(menu.getName(), new JSMenu(menu));
 			}
 		}
+	}
+
+	public void flushMenus()
+	{
+		menus.clear();
+		this.initialized = false;
 	}
 }

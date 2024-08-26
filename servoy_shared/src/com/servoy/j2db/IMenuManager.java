@@ -17,11 +17,13 @@
 
 package com.servoy.j2db;
 
+import com.servoy.j2db.scripting.JSMenu;
+
 /**
  * @author lvostinar
  *
  */
-public class IMenuManager
+public interface IMenuManager
 {
-
+	public JSMenu getMenu(String name);
 }

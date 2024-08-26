@@ -48,6 +48,8 @@ import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IPersistVisitor;
 import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.IScriptProvider;
+import com.servoy.j2db.persistence.Menu;
+import com.servoy.j2db.persistence.MenuItem;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
@@ -62,6 +64,7 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
 import com.servoy.j2db.scripting.LazyCompilationScope;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
+import com.servoy.j2db.server.ngclient.property.types.MenuPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.RelationPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.ValueListPropertyType;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
@@ -491,6 +494,42 @@ public class DebugUtils
 									for (PropertyDescription pd : properties)
 									{
 										if (Utils.equalObjects(webComponent.getFlattenedJson().opt(pd.getName()), finalValuelist.getUUID().toString()))
+										{
+											formsToReload.add(finalController);
+											return o;
+										}
+									}
+								}
+							}
+							return CONTINUE_TRAVERSAL;
+						}
+					});
+				}
+			}
+			else if (persist instanceof Menu || persist instanceof MenuItem)
+			{
+				clientState.getMenuManager().flushMenus();
+				final Menu menu = persist instanceof Menu ? (Menu)persist : (Menu)persist.getAncestor(IRepository.MENUS);
+				List<IFormController> cachedFormControllers = clientState.getFormManager().getCachedFormControllers();
+				for (IFormController formController : cachedFormControllers)
+				{
+					final IFormController finalController = formController;
+					formController.getForm().acceptVisitor(new IPersistVisitor()
+					{
+						@Override
+						public Object visit(IPersist o)
+						{
+							if (o instanceof WebComponent)
+							{
+								WebComponent webComponent = (WebComponent)o;
+								WebObjectSpecification spec = specProviderState == null ? null
+									: specProviderState.getWebObjectSpecification(webComponent.getTypeName());
+								if (spec != null)
+								{
+									Collection<PropertyDescription> properties = spec.getProperties(MenuPropertyType.INSTANCE);
+									for (PropertyDescription pd : properties)
+									{
+										if (Utils.equalObjects(webComponent.getFlattenedJson().opt(pd.getName()), Integer.valueOf(menu.getID())))
 										{
 											formsToReload.add(finalController);
 											return o;

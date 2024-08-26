@@ -2395,6 +2395,12 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 		return getIndex().getPersistByName(nameOrUUID, Menu.class);
 	}
 
+	public Menu getMenu(int id)
+	{
+		if (id <= 0) return null;
+		return getIndex().getPersistByID(id, Menu.class);
+	}
+
 	public Iterator<Menu> getMenus(boolean sort)
 	{
 		return Solution.getMenus(getIndex().getIterableFor(Menu.class), sort);
