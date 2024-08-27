@@ -3145,10 +3145,15 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@JSFunction
 	public boolean saveData(IJSFoundSet foundset) throws ServoyException
 	{
-		application.checkAuthorized();
+		return saveData(application, foundset);
+	}
+
+	public static boolean saveData(IApplication iApplication, IJSFoundSet foundset) throws ServoyException
+	{
+		iApplication.checkAuthorized();
 		if (foundset != null)
 		{
-			EditRecordList editRecordList = application.getFoundSetManager().getEditRecordList();
+			EditRecordList editRecordList = iApplication.getFoundSetManager().getEditRecordList();
 			return editRecordList.stopEditing(true, (FoundSet)foundset) == ISaveConstants.STOPPED;
 		}
 		return false;
@@ -3166,10 +3171,15 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	@JSFunction
 	public boolean saveData(IJSRecord record) throws ServoyException
 	{
-		application.checkAuthorized();
+		return saveData(application, record);
+	}
+
+	public static boolean saveData(IApplication iApplication, IJSRecord record) throws ServoyException
+	{
+		iApplication.checkAuthorized();
 		if (record != null)
 		{
-			EditRecordList editRecordList = application.getFoundSetManager().getEditRecordList();
+			EditRecordList editRecordList = iApplication.getFoundSetManager().getEditRecordList();
 			IRecordInternal[] failedRecords = editRecordList.getFailedRecords();
 			if (asList(failedRecords).contains(record))
 			{
@@ -4024,14 +4034,19 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 */
 	public void js_revertEditedRecords(IFoundSetInternal foundset) throws ServoyException
 	{
-		application.checkAuthorized();
+		revertEditedRecords(application, foundset);
+	}
+
+	public static void revertEditedRecords(IApplication iApplication, IFoundSetInternal foundset) throws ServoyException
+	{
+		iApplication.checkAuthorized();
 		if (foundset != null)
 		{
 			List<IRecordInternal> records = new ArrayList<>();
-			records.addAll(asList(application.getFoundSetManager().getEditRecordList().getEditedRecords(foundset)));
-			records.addAll(asList(application.getFoundSetManager().getEditRecordList().getFailedRecords(foundset)));
+			records.addAll(asList(iApplication.getFoundSetManager().getEditRecordList().getEditedRecords(foundset)));
+			records.addAll(asList(iApplication.getFoundSetManager().getEditRecordList().getFailedRecords(foundset)));
 			// if records is empty we still need to call rollbackRecords() in case of delete queries for the foundset
-			application.getFoundSetManager().getEditRecordList().rollbackRecords(records, true, foundset);
+			iApplication.getFoundSetManager().getEditRecordList().rollbackRecords(records, true, foundset);
 		}
 	}
 

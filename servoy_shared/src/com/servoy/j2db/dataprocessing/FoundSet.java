@@ -3802,6 +3802,26 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		return createRecord(Integer.valueOf(1), Boolean.TRUE);
 	}
 
+	/**
+	 * Reverts outstanding (not saved) in memory changes from edited records of this foundset.
+	 * Best used in combination with the function databaseManager.setAutoSave()
+	 */
+	public void js_revertEditedRecords() throws ServoyException
+	{
+		JSDatabaseManager.revertEditedRecords(fsm.getApplication(), this);
+	}
+
+	/**
+	 * Saves all outstanding (unsaved) data of this foundset and exits the current record.
+	 *
+	 * @return true if the save was done without an error.
+	 * @throws ServoyException
+	 */
+	public boolean js_save() throws ServoyException
+	{
+		return JSDatabaseManager.saveData(fsm.getApplication(), this);
+	}
+
 	@Override
 	public int jsFunction_getSelectedIndex()
 	{

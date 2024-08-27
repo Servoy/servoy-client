@@ -1120,9 +1120,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	}
 
 	/**
-	 * Saves this record to the datasource if it had changes.
-	 *
-	 * @deprecated Use databasemanager.saveData(record)
+	 * Saves the in memory outstanding (not saved) changes of the record and stops its editing.
 	 *
 	 * @sample
 	 * var record= %%prefix%%foundset.getSelectedRecord();
@@ -1130,10 +1128,28 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	 *
 	 * @return true if the save was done without an error.
 	 */
-	@Deprecated
-	public boolean js_save()
+	@JSFunction
+	public boolean save() throws ServoyException
 	{
-		return getParentFoundSet().getFoundSetManager().getEditRecordList().stopEditing(true, this) == ISaveConstants.STOPPED;
+		if (parent != null)
+		{
+			return JSDatabaseManager.saveData(parent.getFoundSetManager().getApplication(), this);
+		}
+		return false;
+	}
+
+	/**
+	 * Saves this record to the datasource if it had changes.
+	 *
+	 * @sample
+	 * var record= %%prefix%%foundset.getSelectedRecord();
+	 * record.save();
+	 *
+	 * @return true if the save was done without an error.
+	 */
+	public boolean js_save() throws ServoyException
+	{
+		return JSDatabaseManager.saveData(parent.getFoundSetManager().getApplication(), this);
 	}
 
 	/**
