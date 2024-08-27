@@ -46,7 +46,7 @@ public interface IServerAccess extends IPluginAccess
 
 	/**
 	 * Register a webservice in the application web server Note on the server 'init(servletConfig)' is never called, only 'init()'. The service comes available
-	 * as http://<host>[:port]/servoy-service/<webServiceAlias>
+	 * as http://&lt;host&gt;[:port]/servoy-service/&lt;webServiceAlias&gt;
 	 *
 	 * @param webServiceAlias do start your webServiceAlias with your pluginname, like 'my_pluginName_webService'.
 	 * @param service_servlet
@@ -64,7 +64,7 @@ public interface IServerAccess extends IPluginAccess
 	public void registerRMIService(String interfaceClassName, Remote obj) throws RemoteException;
 
 	/**
-	 * Register a RMI remote object in the application server.
+	 * Register a remote object in the application server that can be accessed by the client plugin.
 	 *
 	 * @param interfaceClassName
 	 * @param obj
@@ -72,7 +72,7 @@ public interface IServerAccess extends IPluginAccess
 	public void registerRemoteService(String interfaceClassName, Remote obj) throws RemoteException;
 
 	/**
-	 * Get a remote server service, will not work in the Servoy Runtime product!
+	 * Get a remote server service that could be registered by the server plugin
 	 */
 	public Remote getRemoteService(String rmiLookupName);
 
@@ -149,6 +149,10 @@ public interface IServerAccess extends IPluginAccess
 	 *
 	 * @param server_name
 	 * @param table_name
+	 * @param pks
+	 * @param action
+	 * @param transaction_id
+	 *
 	 * @since 3.5
 	 */
 	public boolean notifyDataChange(String server_name, String table_name, IDataSet pks, int action, String transaction_id);
@@ -156,9 +160,12 @@ public interface IServerAccess extends IPluginAccess
 	/**
 	 * End the timing that was started with {@link #addPerformanceTiming(String, String, long, String)}
 	 *
+	 * @param context
 	 * @param id the id that was returned by {@link #addPerformanceTiming(String, String, long, String)}
+	 * @param clientId
+	 *
 	 * @since 8.0
-	 * @Deprecated
+	 * @deprecated
 	 */
 	@Deprecated
 	public void endPerformanceTiming(String context, Integer id, String clientId);
@@ -171,6 +178,8 @@ public interface IServerAccess extends IPluginAccess
 	 * @param context group
 	 * @param action
 	 * @param time_ms
+	 * @param clientId
+	 *
 	 * @since 2023.06
 	 */
 	public Long addPerformanceTiming(String context, String action, long time_ms, String clientId);
@@ -178,7 +187,10 @@ public interface IServerAccess extends IPluginAccess
 	/**
 	 * End the timing that was started with {@link #addPerformanceTiming(String, String, long, String)}
 	 *
+	 * @param context
 	 * @param id the id that was returned by {@link #addPerformanceTiming(String, String, long, String)}
+	 * @param clientId
+	 *
 	 * @since 2023.06
 	 */
 	public void endPerformanceTiming(String context, Long id, String clientId);

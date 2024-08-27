@@ -18,18 +18,17 @@ package com.servoy.j2db.dataprocessing;
 
 
 /**
- * Public interface for a converter, this one is deprecated from 5.0 on Please use {@link ITypedColumnConverter} from 5.0 on so that the converter will return
- * its to object type.
- * 
+ * Public base interface for a converter, don't use this one directly but use the {@link ITypedColumnConverter} so that the converter will return its to object type.
+ *
  * @author jblok
- * 
+ *
  * @see ITypedColumnConverter
  */
 public interface IColumnConverter extends IBaseConverter
 {
 	/**
 	 * Get the database output types on which this converter can work.
-	 * 
+	 *
 	 * @return the types
 	 */
 	public int[] getSupportedColumnTypes();
