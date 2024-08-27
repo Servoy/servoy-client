@@ -17,6 +17,7 @@
 package com.servoy.j2db.scripting;
 
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -126,7 +127,7 @@ public class ScriptEngine implements IScriptSupport
 		public void contextCreated(Context cx)
 		{
 			IServiceProvider sp = J2DBGlobals.getServiceProvider();
-			if (sp instanceof IApplication)
+			if (sp instanceof IApplication && sp.isSolutionLoaded())
 			{
 				IApplication application = (IApplication)sp;
 				cx.setApplicationClassLoader(application.getPluginManager().getClassLoader(), false);
@@ -993,6 +994,72 @@ public class ScriptEngine implements IScriptSupport
 		return docStripper.matcher(declaration).replaceFirst(replacement);
 	}
 
+	/**
+	 * @param fnOrScript
+	 * @return
+	 */
+	public static String getSourceName(DebuggableScript fnOrScript)
+	{
+		String functionName = fnOrScript.getFunctionName();
+		DebuggableScript parent = fnOrScript.getParent();
+		if (functionName == null)
+		{
+			int[] lineNumbers = fnOrScript.getLineNumbers();
+			if (lineNumbers != null && lineNumbers.length > 0)
+			{
+				Arrays.sort(lineNumbers);
+				functionName = "(anon:" + lineNumbers[0] + ')'; //$NON-NLS-1$
+			}
+			else
+			{
+				functionName = "(anon)"; //$NON-NLS-1$
+			}
+			if (parent != null)
+			{
+				String parentName = parent.getFunctionName();
+				if (parentName != null)
+				{
+					functionName = parentName + '/' + functionName;
+				}
+			}
+		}
+		else if (parent != null)
+		{
+			String parentName = parent.getFunctionName();
+			if (parentName != null)
+			{
+				functionName = parentName + '/' + functionName;
+			}
+			int[] lineNumbers = fnOrScript.getLineNumbers();
+			if (lineNumbers != null && lineNumbers.length > 0)
+			{
+				Arrays.sort(lineNumbers);
+				functionName += ':' + Integer.toString(lineNumbers[0]);
+			}
+		}
+		String sourceName = fnOrScript.getSourceName();
+		if (!sourceName.endsWith(functionName))
+		{
+			int lastIndexOf = sourceName.lastIndexOf(File.separatorChar);
+			if (lastIndexOf > 0)
+			{
+				int lastIndexOf2 = sourceName.lastIndexOf(File.separatorChar, lastIndexOf - 1);
+				if (lastIndexOf2 > 0)
+				{
+					sourceName = sourceName.substring(lastIndexOf2 + 1);
+				}
+				else
+				{
+					sourceName = sourceName.substring(lastIndexOf + 1);
+				}
+				sourceName = sourceName.replace(File.separatorChar, '/');
+			}
+			sourceName += '/' + functionName;
+		}
+		return sourceName;
+	}
+
+
 }
 
 final class ProfilingDebugger implements Debugger
@@ -1014,33 +1081,15 @@ final class ProfilingDebugger implements Debugger
 	@Override
 	public DebugFrame getFrame(Context cx, DebuggableScript fnOrScript)
 	{
-		String functionName = fnOrScript.getFunctionName();
-		if (functionName == null)
-		{
-			int[] lineNumbers = fnOrScript.getLineNumbers();
-			if (lineNumbers != null && lineNumbers.length > 0)
-			{
-				Arrays.sort(lineNumbers);
-				functionName = "(anon:" + lineNumbers[0] + ")"; //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			else
-			{
-				functionName = "(anon)"; //$NON-NLS-1$
-			}
+		String sourceName = ScriptEngine.getSourceName(fnOrScript);
 
-		}
-		String sourceName = fnOrScript.getSourceName();
-		if (!sourceName.endsWith(functionName))
-		{
-			sourceName += '/' + functionName;
-		}
-
-		if (functionName != null && sourceName != null)
+		if (sourceName != null)
 		{
 			return new ProfilingDebugFrame(performanceData, application, sourceName);
 		}
 		return null;
 	}
+
 }
 
 final class ProfilingDebugFrame implements DebugFrame
@@ -1080,6 +1129,7 @@ final class ProfilingDebugFrame implements DebugFrame
 		if (pfId != null)
 		{
 			performanceData.endAction(pfId, application.getClientID());
+			pfId = null;
 		}
 	}
 

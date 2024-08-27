@@ -46,6 +46,7 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.scripting.LazyCompilationScope;
 import com.servoy.j2db.scripting.ScriptEngine;
+import com.servoy.j2db.server.shared.IPerformanceDataProvider;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ExtendableURLClassLoader;
@@ -96,6 +97,8 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 						cx.setDebugger(debugger, null);
 						cx.setGeneratingDebug(true);
 						cx.setOptimizationLevel(-1);
+
+						debugger.performanceData = application instanceof IPerformanceDataProvider pdp ? pdp.getPerformanceData() : null;
 					}
 					else if (!(cx.getApplicationClassLoader() instanceof ExtendableURLClassLoader))
 					{

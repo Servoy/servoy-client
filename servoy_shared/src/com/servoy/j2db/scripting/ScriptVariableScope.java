@@ -143,7 +143,11 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 					Context cx = Context.enter();
 					if (cx.getDebugger() instanceof ProfilingDebugger)
 					{
-						sourceName = var.getScopeName() + "." + name;
+						if (this instanceof FormScope)
+						{
+							sourceName = "forms/" + this.getScopeName() + '/' + name;
+						}
+						else sourceName = var.getScopeName() + '/' + name;
 					}
 					initValue = evalValue(name, str, sourceName, var.getLineNumberOffset());
 				}

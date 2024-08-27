@@ -26,14 +26,18 @@ import java.util.Stack;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugFrame;
 import org.eclipse.dltk.rhino.dbgp.DBGPDebugger;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.debug.DebugFrame;
 import org.mozilla.javascript.debug.DebuggableScript;
 import org.sablo.websocket.CurrentWindow;
 
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
+import com.servoy.j2db.dataprocessing.IDataServer;
+import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
+import com.servoy.j2db.server.shared.PerformanceData;
 
 
 /**
@@ -112,6 +116,7 @@ public class ServoyDebugger extends DBGPDebugger
 
 	private final ThreadLocal<ProfileInfo> profileInfo = new ThreadLocal<ProfileInfo>();
 	private final List<IProfileListener> profilelisteners;
+	protected PerformanceData performanceData;
 
 	/**
 	 * @param socket
@@ -141,6 +146,8 @@ public class ServoyDebugger extends DBGPDebugger
 		}
 		return new DBGPDebugFrame(cx, fnOrScript, this)
 		{
+			private Long pfId;
+
 			@Override
 			public Object eval(String value)
 			{
@@ -162,6 +169,35 @@ public class ServoyDebugger extends DBGPDebugger
 				finally
 				{
 					if (reset) CurrentWindow.set(null);
+				}
+			}
+
+			@Override
+			public void onEnter(Context cx, Scriptable activation, Scriptable thisObj, Object[] args)
+			{
+				super.onEnter(cx, activation, thisObj, args);
+				if (performanceData != null)
+				{
+					String sourceName = ScriptEngine.getSourceName(fnOrScript);
+
+					if (sourceName != null)
+					{
+						final IServiceProvider application = J2DBGlobals.getServiceProvider();
+						pfId = performanceData.startAction(sourceName, System.currentTimeMillis(), IDataServer.METHOD_CALL, application.getClientID(),
+							application.getSolution().getName());
+					}
+				}
+
+			}
+
+			@Override
+			public void onExit(Context cx, boolean byThrow, Object resultOrException)
+			{
+				super.onExit(cx, byThrow, resultOrException);
+				if (pfId != null)
+				{
+					performanceData.endAction(pfId, J2DBGlobals.getServiceProvider().getClientID());
+					pfId = null;
 				}
 			}
 		};
