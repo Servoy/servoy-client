@@ -23,7 +23,10 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 
 
 /**
- * Special object available in solution javascript but only when running a debug client from the developer (it is not available when running a deployed solution).
+ * ONLY AVAILABLE when running a client from Servoy Developer. Do not try to use this when running clients from a normal server/war deployment.<br/>
+ * It is meant to be used primarily from developer's 'Interactive Console' view (so you will not get it suggested in code completion of a scope/form script editor).<br/><br/>
+ *
+ * It provides utility methods for interacting with the developer's environment from a debug Servoy client.<br/>
  * It offers a bridge between the runtime client and the developer's workspace - allowing for changes done at runtime via solution model to be persisted into the workspace.<br/><br/>
  *
  * Look at this as a way to automate various tasks that create solution content or alter big solutions.

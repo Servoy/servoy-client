@@ -613,6 +613,8 @@ public class HtmlUtils
 	@SuppressWarnings("nls")
 	public static String applyDescriptionMagic(String description)
 	{
+		if (description == null) return null;
+
 		String desc = TextUtils.newLinesToBackslashN(description);
 
 		if (!desc.contains("<") && formattedPlainTextHintPattern.matcher(desc).matches())

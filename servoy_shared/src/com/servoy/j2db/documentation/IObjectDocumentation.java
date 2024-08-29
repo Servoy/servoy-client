@@ -49,7 +49,7 @@ public interface IObjectDocumentation
 
 	public String getScriptingName();
 
-	public String getDescription();
+	public String getDescription(ClientSupport csp);
 
 	public String getCategory();
 
