@@ -41,6 +41,7 @@ import com.servoy.j2db.util.UUID;
  * | Source (customers table) | Operator |     Modifier     | Destination (countries table) |
  * | ------------------------ | -------- | ---------------- | ----------------------------- |
  * |      countryCode         |    =     | case-insensitive |            code               |
+ *
  * </pre>
  *
  * <b>Data Providers</b><br/><br/>
@@ -71,6 +72,7 @@ import com.servoy.j2db.util.UUID;
  * | case-insensitive | case-Insensitive comparison                                                                                        |
  * | or-is-null       | allow null values in the value (will result in sql <_cond_> or _column is null_)                                   |
  * | remove-when-null | remove the condition when the value is null, this is usually used icw a global variable holding an array of values |
+ *
  * </pre>
  *
  * <b>For Text-Based Expressions</b><br/><br/>
