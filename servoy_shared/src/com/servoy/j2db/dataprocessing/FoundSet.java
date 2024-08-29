@@ -1148,7 +1148,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 * 	postalcode = '12209';
 	 * 	%%prefix%%foundset.newRecord();   // Create a new search record
 	 * 	city = 'San Francisco';
-	 *  postalcode = '94117';
+	 * 	postalcode = '94117';
 	 * 	%%prefix%%foundset.search();      // Execute the query and load the records
 	 * }
 	 *
