@@ -171,9 +171,17 @@ public class BaseSetCondition<K extends IBaseQuerySelectValue> implements IBaseS
 		int[] negop = new int[operators.length];
 		for (int i = 0; i < operators.length; i++)
 		{
-			negop[i] = IBaseSQLCondition.negateOperator(operators[i]);
+			negop[i] = negateOperator(operators[i]);
 		}
 		return withOperators(negop, !andCondition);
+	}
+
+	static int negateOperator(int operator)
+	{
+		int maskedOperator = operator & IBaseSQLCondition.OPERATOR_MASK;
+		int negatedOperator = OPERATOR_NEGATED[maskedOperator];
+
+		return negatedOperator | (operator & ~IBaseSQLCondition.OPERATOR_MASK);
 	}
 
 	protected BaseSetCondition<K> withOperators(int[] ops, boolean ac)

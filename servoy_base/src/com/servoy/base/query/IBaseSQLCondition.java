@@ -114,13 +114,5 @@ public interface IBaseSQLCondition extends IBaseQueryElement
 		"^!" // REMOVE_WHEN_NULL_MODIFIER
 	};
 
-	static int negateOperator(int operator)
-	{
-		int maskedOperator = operator & IBaseSQLCondition.OPERATOR_MASK;
-		int negatedOperator = OPERATOR_NEGATED[maskedOperator];
-
-		return negatedOperator | (operator & ~IBaseSQLCondition.OPERATOR_MASK);
-	}
-
 	IBaseSQLCondition negate();
 }
