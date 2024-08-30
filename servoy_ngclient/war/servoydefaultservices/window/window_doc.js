@@ -121,29 +121,30 @@ function removeShortcut(shortcut, contextFilter) {}
 function showFormPopup(elementToShowRelatedTo, form, scope, dataproviderID, width, height, x, y,
     showBackdrop, doNotCloseOnClickOutside, onClose) {}
 
-    /**
-     * Show a form as popup panel, where the closeFormPopup can pass return a value to a dataprovider in the specified scope. 
-     * Can show relative to a component or at specified coordinates.
-     * Show on specified location is only supported in NGClient.
-     *
-     * @example
-     * // Show a form as popup panel, where the closeFormPopup can pass return a value to a dataprovider in the specified scope.
-     * plugins.window.showFormPopup(null,forms.orderPicker,foundset.getSelectedRecord(),"order_id");
-     * // plugins.window.showFormPopup(null,forms.orderPicker,foundset.getSelectedRecord(),"order_id",-1,-1,100,100);
-     * // do call closeFormPopup(ordervalue) from the orderPicker form
-     *
-     * @param {RuntimeComponent} elementToShowRelatedTo element to show related to or null to center in screen
-     * @param {RuntimeForm} form the form to show
-     * @param {Object} scope the scope to put retval into
-     * @param {String} dataproviderID the dataprovider of scope to fill
-     * @param {Number} width popup width
-     * @param {Number} height popup height
-     * @param {Number} x popup x location
-     * @param {Number} y popup y location
-     * 
-     * @return FormPopup
-     */
+/**
+ * Show a form as popup panel, where the closeFormPopup can pass return a value to a dataprovider in the specified scope. 
+ * Can show relative to a component or at specified coordinates.
+ * Show on specified location is only supported in NGClient.
+ *
+ * @example
+ * // Show a form as popup panel, where the closeFormPopup can pass return a value to a dataprovider in the specified scope.
+ * plugins.window.showFormPopup(null,forms.orderPicker,foundset.getSelectedRecord(),"order_id");
+ * // plugins.window.showFormPopup(null,forms.orderPicker,foundset.getSelectedRecord(),"order_id",-1,-1,100,100);
+ * // do call closeFormPopup(ordervalue) from the orderPicker form
+ *
+ * @param {RuntimeComponent} elementToShowRelatedTo element to show related to or null to center in screen
+ * @param {RuntimeForm} form the form to show
+ * @param {Object} scope the scope to put retval into
+ * @param {String} dataproviderID the dataprovider of scope to fill
+ * @param {Number} width popup width
+ * @param {Number} height popup height
+ * @param {Number} x popup x location
+ * @param {Number} y popup y location
+ * 
+ * @return FormPopup
+ */
 function createFormPopup(form) {}
+
 /**
  * Close the current form popup panel and assign the value to the configured data provider.
  * 

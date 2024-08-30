@@ -800,6 +800,10 @@ public class NGClient extends AbstractApplication
 				for (WebObjectSpecification serviceSpecification : serviceSpecifications)
 				{
 					WebObjectFunctionDefinition apiFunction = serviceSpecification.getApiFunction("cleanup");
+					if (apiFunction == null)
+					{
+						apiFunction = serviceSpecification.getInternalApiFunction("cleanup");
+					}
 					if (apiFunction != null && getScriptEngine() != null)
 					{
 						final PluginScope scope = (PluginScope)getScriptEngine().getSolutionScope().get("plugins", getScriptEngine().getSolutionScope());

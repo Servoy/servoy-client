@@ -162,12 +162,12 @@
                 }
                ],
                "returns": "Popup"
-            },   
-         "cleanup": {
-            }
+            }  
     },
     "internalApi":
     {
+        "cleanup": {
+            },
          "formPopupClosed": {
             "parameters":[
                     {
@@ -222,7 +222,8 @@
             "callback": "function",
             "contextFilter": "string",
             "arguments": "object[]"
-        }
+        },
+        "tags": { "scope" :"private" }
       },
       "popupform": {
         "model": {
@@ -236,7 +237,8 @@
             "doNotCloseOnClickOutside": "boolean",
             "onClose": "function",
             "parent": "popupform"
-        }
+        },
+        "tags": { "scope" :"private" }
       },
       "popupMenuShowCommand":{
           "model": {
@@ -246,7 +248,8 @@
             "y": "int",
             "height": "int",
             "positionTop": "boolean"
-        }
+        },
+        "tags": { "scope" :"private" }
       },
       "FormPopup": {
         "model": {
@@ -446,6 +449,14 @@
                 }
              ]
             },
+            "setVisible": {
+             "parameters":[
+                {
+                    "name":"visible",
+                    "type":"boolean"
+                }
+             ]
+            },
             "setMnemonic": {
              "parameters":[
                 {
@@ -503,6 +514,7 @@
         }
       },
       "BaseMenu": {
+        "tags": { "scope" :"private" },
         "serversideapi":
         {
          "addMenu": {
