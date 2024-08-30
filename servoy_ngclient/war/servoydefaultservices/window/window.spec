@@ -138,10 +138,6 @@
          "createFormPopup": {
              "parameters":[
                 {
-                    "name":"component",
-                    "type":"runtimecomponent"
-                },
-                {
                     "name":"form",
                     "type":"form"
                 }
