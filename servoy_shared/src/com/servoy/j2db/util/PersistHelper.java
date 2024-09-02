@@ -960,18 +960,19 @@ public class PersistHelper
 			IPersist superPersist = PersistHelper.getSuperPersist((ISupportExtendsID)persist);
 			if (superPersist != null)
 			{
-				ISupportChilds parent = superPersist.getParent();
-				if (parent != null)
+				ISupportChilds realParent = getRealParent(superPersist);
+				if (realParent != null)
 				{
 					// not all overrides are on form level, search everywhere
 					for (IPersist possibleParent : ((Form)persist.getParent()).getFlattenedFormElementsAndLayoutContainers())
 					{
-						if (possibleParent instanceof ISupportExtendsID && ((ISupportExtendsID)possibleParent).getExtendsID() == parent.getID())
+						if (possibleParent instanceof ISupportExtendsID && ((ISupportExtendsID)possibleParent).getExtendsID() > 0 &&
+							(((ISupportExtendsID)possibleParent).getExtendsID() == realParent.getID() ||
+								((ISupportExtendsID)possibleParent).getExtendsID() == ((ISupportExtendsID)realParent).getExtendsID()))
 						{
 							return (ISupportChilds)possibleParent;
 						}
 					}
-					ISupportChilds realParent = getRealParent(superPersist);
 					if (realParent instanceof Form)
 					{
 						// this really was a form component, not an override
