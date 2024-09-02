@@ -443,7 +443,8 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 
 		if (val != previousVal) component.setProperty(name, val);
 		// always force size & location push as that maybe different on the client (if form anchored or table columns were changed as width or location)
-		if ("size".equals(name) || "location".equals(name))
+		// always force clientProperty push as it is a hashmap of properies, and an entry can be changed
+		if ("size".equals(name) || "location".equals(name) || "clientProperty".equals(name))
 		{
 			component.markPropertyAsChangedByRef(name);
 		}
