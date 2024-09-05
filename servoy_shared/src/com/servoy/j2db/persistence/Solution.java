@@ -43,7 +43,7 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
- * The servoy solution is equivalent to a "project". It is the unit that holds your UI and bussiness logic.<br/>
+ * The Servoy solution is equivalent to a "project". It is the unit that holds your UI and business logic.<br/>
  * A main solution can use modules (other solutions that are of the module type); in this way you can better organize your work.
  *
  * @author jblok
