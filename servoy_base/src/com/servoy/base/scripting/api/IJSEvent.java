@@ -16,13 +16,12 @@
  */
 package com.servoy.base.scripting.api;
 
-import java.awt.Event;
 import java.util.Date;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 
 /**
- * 
+ *
  * @author jcompagner
  * @since 7.0
  */
@@ -38,7 +37,7 @@ public interface IJSEvent
 	/**
 	 * Constant returned by JSEvent.getType() if the event is not used in a known event or command.
 	 * @sample
-	 * if (event.getType() == JSEvent.NONE) 
+	 * if (event.getType() == JSEvent.NONE)
 	 * {
 	 * 	// type is not set.
 	 * }
@@ -46,10 +45,10 @@ public interface IJSEvent
 	public static final String NONE = EventType.none.toString();
 
 	/**
-	 * Constant returned by JSEvent.getType() in a method that is attached to an onAction event. 
+	 * Constant returned by JSEvent.getType() in a method that is attached to an onAction event.
 	 *
 	 * @sample
-	 * if (event.getType() == JSEvent.ACTION) 
+	 * if (event.getType() == JSEvent.ACTION)
 	 * {
 	 * 	// its an action event.
 	 * }
@@ -59,8 +58,8 @@ public interface IJSEvent
 	/**
 	 * Constant returned by JSEvent.getType() in a method that is attached to an onFocusGained or the forms onElementFocusGained event.
 	 *
-	 * @sample 
-	 * if (event.getType() == JSEvent.FOCUSGAINED) 
+	 * @sample
+	 * if (event.getType() == JSEvent.FOCUSGAINED)
 	 * {
 	 * 	// its a focus gained event.
 	 * }
@@ -70,8 +69,8 @@ public interface IJSEvent
 	/**
 	 * Constant returned by JSEvent.getType() in a method that is attached to an onFocusLost or the forms onElementFocusLost event.
 	 *
-	 * @sample 
-	 * if (event.getType() == JSEvent.FOCUSLOST) 
+	 * @sample
+	 * if (event.getType() == JSEvent.FOCUSLOST)
 	 * {
 	 * 	// its a focus lost event.
 	 * }
@@ -81,8 +80,8 @@ public interface IJSEvent
 	/**
 	 * Constant returned by JSEvent.getType() in a method that is attached to an onDoubleClick event.
 	 *
-	 * @sample 
-	 * if (event.getType() == JSEvent.DOUBLECLICK) 
+	 * @sample
+	 * if (event.getType() == JSEvent.DOUBLECLICK)
 	 * {
 	 * 	// its a double click event.
 	 * }
@@ -93,7 +92,7 @@ public interface IJSEvent
 	 * Constant returned by JSEvent.getType() in a method that is attached to an onRightClick event.
 	 *
 	 * @sample
-	 * if (event.getType() == JSEvent.RIGHTCLICK) 
+	 * if (event.getType() == JSEvent.RIGHTCLICK)
 	 * {
 	 * 	// its a right click event.
 	 * }
@@ -105,7 +104,7 @@ public interface IJSEvent
 	 * Constant returned by JSEvent.getType() in a method that is attached to an onDataChange event.
 	 *
 	 * @sample
-	 * if (event.getType() == JSEvent.DATACHANGE) 
+	 * if (event.getType() == JSEvent.DATACHANGE)
 	 * {
 	 * 	// its a data change event
 	 * }
@@ -116,7 +115,7 @@ public interface IJSEvent
 	 * Constant returned by JSEvent.getType() in a method that is attached to a form event (like onShow) or command (like onDeleteRecord)
 	 *
 	 * @sample
-	 * if (event.getType() == JSEvent.FORM) 
+	 * if (event.getType() == JSEvent.FORM)
 	 * {
 	 * 	// its a form event or command
 	 * }
@@ -125,50 +124,50 @@ public interface IJSEvent
 
 	/**
 	 * Constant for the SHIFT modifier that can be returned by JSEvent.getModifiers();
-	 * 
+	 *
 	 * @sampleas getModifiers()
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.JSEvent#js_getModifiers()
 	 */
-	public static final int MODIFIER_SHIFT = Event.SHIFT_MASK;
+	public static final int MODIFIER_SHIFT = 1 << 0;
 
 	/**
 	 * Constant for the CTRL modifier that can be returned by JSEvent.getModifiers();
-	 * 
+	 *
 	 * @sampleas getModifiers()
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.JSEvent#js_getModifiers()
 	 */
-	public static final int MODIFIER_CTRL = Event.CTRL_MASK;
+	public static final int MODIFIER_CTRL = 1 << 1;
 
 	/**
 	 * Constant for the META modifier that can be returned by JSEvent.getModifiers();
-	 * 
+	 *
 	 * @sampleas getModifiers()
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.JSEvent#js_getModifiers()
 	 */
-	public static final int MODIFIER_META = Event.META_MASK;
+	public static final int MODIFIER_META = 1 << 2;
 
 	/**
 	 * Constant for the ALT modifier that can be returned by JSEvent.getModifiers();
-	 * 
+	 *
 	 * @sampleas getModifiers()
-	 * 
+	 *
 	 * @see com.servoy.j2db.scripting.JSEvent#js_getModifiers()
 	 */
-	public static final int MODIFIER_ALT = Event.ALT_MASK;
+	public static final int MODIFIER_ALT = 1 << 3;
 
 	/**
 	 * returns the event type see the JSEvents constants what it can return.
 	 * Plugins can create events with there own types.
 	 *
 	 * @sample
-	 * if (event.getType() == JSEvent.ACTION) 
+	 * if (event.getType() == JSEvent.ACTION)
 	 * {
 	 * 	// its an action event.
-	 * }	
-	 * 
+	 * }
+	 *
 	 * @return a String representing the type of this event.
 	 */
 	public String getType();
@@ -177,7 +176,7 @@ public interface IJSEvent
 	 * Returns the time the event occurred.
 	 *
 	 * @sample event.getTimestamp();
-	 * 
+	 *
 	 * @return a Date when this event happened.
 	 */
 	public Date getTimestamp();
@@ -191,7 +190,7 @@ public interface IJSEvent
 	 * /** @type {RuntimeTextField} *&#47;
 	 * var source = event.getSource();
 	 * var sourceDataProvider = source.getDataProviderID();
-	 * 
+	 *
 	 * @return an Object representing the source of this event.
 	 */
 	public Object getSource();
@@ -201,20 +200,20 @@ public interface IJSEvent
 	 *
 	 * @sample
 	 * forms[event.getFormName()].myFormMethod();
-	 * 
+	 *
 	 * @return a String representing the form name.
 	 */
 	public String getFormName();
 
 	/**
-	 * returns the name of the element, can be null if the form was the source of the event. 
-	 * 
+	 * returns the name of the element, can be null if the form was the source of the event.
+	 *
 	 * @sample
 	 * if (event.getElementName() == 'myElement')
 	 * {
 	 *     elements[event.getElementName()].bgcolor = '#ff0000';
 	 * }
-	 * 
+	 *
 	 * @return a String representing the element name.
 	 */
 	public String getElementName();
@@ -228,7 +227,7 @@ public interface IJSEvent
 	 * {
 	 * 	//do shift action
 	 * }
-	 * 
+	 *
 	 * @return an int which holds the modifiers as a bitset.
 	 */
 	public int getModifiers();
@@ -236,12 +235,12 @@ public interface IJSEvent
 	/**
 	 * Returns the x position of the event, relative to the component that fired it, if applicable.
 	 * For example drag'n'drop events will set the x,y positions.
-	 * 
+	 *
 	 * @sample
 	 * var x = event.getX();
 	 * var xPrevious = previousEvent.getX();
 	 * var movedXPixels = x -xPrevious;
-	 * 
+	 *
 	 * @return an int representing the X position.
 	 */
 	public int getX();
@@ -249,12 +248,12 @@ public interface IJSEvent
 	/**
 	 * Returns the y position of the event, relative to the component that fired it, if applicable.
 	 * For example drag'n'drop events will set the x,y positions.
-	 * 
+	 *
 	 * @sample
 	 * var y = event.getY();
 	 * var yPrevious = previousEvent.getY();
 	 * var movedYPixels = y -yPrevious;
-	 * 
+	 *
 	 * @return an int representing the Y position.
 	 */
 	public int getY();
@@ -274,16 +273,16 @@ public interface IJSEvent
 	 *      	return true;
 	 *      }
 	 * }
-	 * 
+	 *
 	 * // code for a data drag method
 	 * event.data = "drag me!";
 	 * return DRAGNDROP.COPY;
-	 * 
+	 *
 	 * // code for a data drop method
 	 * var data = event.data;
 	 * elemements[event.getElementName()].setText(data);
 	 * return true;
-	 * 
+	 *
 	 */
 	public Object getData();
 
