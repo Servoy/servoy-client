@@ -55,7 +55,7 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener
 		Map<String, Object> newJavaValueForJSON = new HashMap<String, Object>();
 		newJavaValueForJSON.put("name", jsMenu.getName());
 		newJavaValueForJSON.put("styleclass", jsMenu.getStyleClass());
-		addMenuItemsForJSON(newJavaValueForJSON, jsMenu.getMenuItems(), jsMenu.getSelectedItem());
+		addMenuItemsForJSON(newJavaValueForJSON, jsMenu.getMenuItemsWithSecurity(), jsMenu.getSelectedItem());
 
 		JSONUtils.toBrowserJSONFullValue(writer, key, newJavaValueForJSON, null, dataConverterContext);
 	}
@@ -75,11 +75,11 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener
 				itemMap.put("styleClass", item.getStyleClass());
 				itemMap.put("iconStyleClass", item.getIconStyleClass());
 				itemMap.put("tooltipText", item.getTooltipText());
-				itemMap.put("enabled", item.getEnabled());
+				itemMap.put("enabled", item.getEnabledWithSecurity());
 				itemMap.put("isSelected", item == selectedItem);
 				itemMap.put("callbackArguments", item.getCallbackArguments());
 				itemMap.put("extraProperties", getExtraPropertiesWithDefaultValues(item.getExtraProperties(), this.extraProperties));
-				addMenuItemsForJSON(itemMap, item.getSubMenuItems(), selectedItem);
+				addMenuItemsForJSON(itemMap, item.getSubMenuItemsWithSecurity(), selectedItem);
 			}
 		}
 	}

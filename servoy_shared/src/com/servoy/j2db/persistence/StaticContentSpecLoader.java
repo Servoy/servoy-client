@@ -311,7 +311,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 		IContentSpecConstants.PROPERTY_ONAUTOSAVEDFAILEDMETHODID);
 	public static final TypedProperty<Integer> PROPERTY_ONBEFORELOGINMETHODID = new TypedProperty<Integer>(
 		IContentSpecConstants.PROPERTY_ONBEFORELOGINMETHODID);
-	public static final TypedProperty<ServoyJSONObject> PROPERTY_PERMISSIONS = new TypedProperty<ServoyJSONObject>(IContentSpecConstants.PROPERTY_PERMISSIONS);
+	public static final TypedProperty<JSONObject> PROPERTY_PERMISSIONS = new TypedProperty<JSONObject>(IContentSpecConstants.PROPERTY_PERMISSIONS);
 
 	private static HashMap<Integer, ContentSpec> csMap = new HashMap<Integer, ContentSpec>();
 

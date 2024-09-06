@@ -379,7 +379,7 @@ $scope.api.createPopupMenu = function(jsmenu, callback) {
     popup.items = new Array();
     if (jsmenu) {
         popup.cssClass = jsmenu.getStyleClass();
-        addJSMenuItems(popup, jsmenu.getMenuItems(), callback, jsmenu ? jsmenu.getSelectedItem() : null);
+        addJSMenuItems(popup, jsmenu.getMenuItemsWithSecurity(), callback, jsmenu ? jsmenu.getSelectedItem() : null);
     }
     if (!$scope.model.popupMenus)
         $scope.model.popupMenus = [];
@@ -392,12 +392,12 @@ function addJSMenuItems(popupmenu, jsmenuitems, callback, selectedItem) {
     if (popupmenu && jsmenuitems) {
         for (var i = 0; i < jsmenuitems.length; i++) {
             var jsmenuitem = jsmenuitems[i];
-            if (jsmenuitem.getSubMenuItems().length > 0) {
+            if (jsmenuitem.getSubMenuItemsWithSecurity().length > 0) {
                 var newmenu = popupmenu.addMenu(jsmenuitem.getMenuText());
                 newmenu.cssClass = jsmenuitem.getStyleClass();
-                addJSMenuItems(newmenu, jsmenuitem.getSubMenuItems(), callback)
+                addJSMenuItems(newmenu, jsmenuitem.getSubMenuItemsWithSecurity(), callback)
             } else {
-                var newmenuitem = popupmenu.addMenuItem(jsmenuitem.getMenuText(), callback, jsmenuitem.getIconStyleClass(), null, jsmenuitem.getEnabled(), null);
+                var newmenuitem = popupmenu.addMenuItem(jsmenuitem.getMenuText(), callback, jsmenuitem.getIconStyleClass(), null, jsmenuitem.getEnabledWithSecurity(), null);
                 newmenuitem.cssClass = jsmenuitem.getStyleClass();
                 newmenuitem.methodArguments = jsmenuitem.getCallbackArguments();
                 if (selectedItem && jsmenuitem == selectedItem) {

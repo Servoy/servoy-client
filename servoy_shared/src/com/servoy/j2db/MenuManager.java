@@ -39,6 +39,7 @@ public class MenuManager implements IMenuManager
 	private final Map<String, JSMenu> menus = new HashMap<String, JSMenu>();
 	private final ClientState application;
 	private boolean initialized = false;
+	private String[] groups;
 
 	/**
 	 * @param clientState
@@ -59,7 +60,7 @@ public class MenuManager implements IMenuManager
 	public JSMenu createMenu(String name)
 	{
 		this.initMenus();
-		JSMenu menu = new JSMenu(name);
+		JSMenu menu = new JSMenu(name, groups);
 		menus.put(name, menu);
 		return menu;
 	}
@@ -98,7 +99,7 @@ public class MenuManager implements IMenuManager
 			while (it.hasNext())
 			{
 				Menu menu = it.next();
-				menus.put(menu.getName(), new JSMenu(menu));
+				menus.put(menu.getName(), new JSMenu(menu, groups));
 			}
 		}
 	}
@@ -107,5 +108,14 @@ public class MenuManager implements IMenuManager
 	{
 		menus.clear();
 		this.initialized = false;
+	}
+
+	/**
+	 * @param groups
+	 */
+	public void setCurrentGroups(String[] groups)
+	{
+		flushMenus();
+		this.groups = groups;
 	}
 }

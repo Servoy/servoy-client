@@ -18,10 +18,13 @@
 package com.servoy.j2db.scripting;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.json.JSONObject;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
@@ -51,12 +54,15 @@ public class JSMenuItem
 	private Object[] callbackArguments;
 	private final JSMenu parentMenu;
 	private Map<String, Map<String, Object>> extraProperties;
+	private final String[] groups;
+	private JSONObject permissions;
 
 	/**
 	 * @param menuManager
-	 * @param menuItem
+	 * @param name
+	 * @param groups
 	 */
-	public JSMenuItem(JSMenu parentMenu, MenuItem menuItem)
+	public JSMenuItem(JSMenu parentMenu, MenuItem menuItem, String[] groups)
 	{
 		this.itemID = menuItem.getName();
 		this.menuText = menuItem.getText();
@@ -65,13 +71,15 @@ public class JSMenuItem
 		this.enabled = menuItem.getEnabled();
 		this.tooltipText = menuItem.getToolTipText();
 		this.parentMenu = parentMenu;
+		this.groups = groups;
+		this.permissions = menuItem.getPermissions();
 		Iterator<IPersist> it = menuItem.getAllObjects();
 		while (it.hasNext())
 		{
 			IPersist child = it.next();
 			if (child instanceof MenuItem menuItemChild)
 			{
-				items.add(new JSMenuItem(parentMenu, menuItemChild));
+				items.add(new JSMenuItem(parentMenu, menuItemChild, groups));
 			}
 		}
 		this.extraProperties = menuItem.getExtraProperties();
@@ -81,10 +89,11 @@ public class JSMenuItem
 	 * @param menuManager
 	 * @param name
 	 */
-	public JSMenuItem(JSMenu parentMenu, String itemID)
+	public JSMenuItem(JSMenu parentMenu, String itemID, String[] groups)
 	{
 		this.itemID = itemID;
 		this.parentMenu = parentMenu;
+		this.groups = groups;
 	}
 
 	/**
@@ -204,6 +213,39 @@ public class JSMenuItem
 		return items.toArray(new JSMenuItem[0]);
 	}
 
+	@JSFunction
+	public JSMenuItem[] getSubMenuItemsWithSecurity()
+	{
+		return items.stream().filter(item -> item.hasSecurityFlag(MenuItem.VIEWABLE)).collect(Collectors.toList()).toArray(new JSMenuItem[0]);
+	}
+
+	@JSFunction
+	public boolean getEnabledWithSecurity()
+	{
+		return this.enabled && hasSecurityFlag(MenuItem.ENABLED);
+	}
+
+	public boolean hasSecurityFlag(int flag)
+	{
+		if (this.groups != null && this.groups.length > 0 && this.permissions != null)
+		{
+			List<String> groupsList = Arrays.asList(this.groups);
+			for (String key : this.permissions.keySet())
+			{
+				if (groupsList.contains(key))
+				{
+					int permission = Utils.getAsInteger(this.permissions.get(key));
+					if ((permission & flag) != 0)
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+		return true;
+	}
+
 	/**
 	 * Gets a child menu item by identifier. Returns null if not found.
 	 *
@@ -270,7 +312,7 @@ public class JSMenuItem
 		JSMenuItem item = null;
 		if (index >= 0 && index <= items.size())
 		{
-			item = new JSMenuItem(parentMenu, id);
+			item = new JSMenuItem(parentMenu, id, groups);
 			items.add(index, item);
 			this.parentMenu.notifyChanged();
 		}

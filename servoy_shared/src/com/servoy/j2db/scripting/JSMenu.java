@@ -20,6 +20,7 @@ package com.servoy.j2db.scripting;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
@@ -48,22 +49,25 @@ public class JSMenu
 	private JSMenuItem selectedItem;
 
 	private final List<IChangeListener> changeListeners = new ArrayList<IChangeListener>();
+	private final String[] groups;
 
 	/**
 	 * @param menuManager
 	 * @param menu
+	 * @param groups
 	 */
-	public JSMenu(Menu menu)
+	public JSMenu(Menu menu, String[] groups)
 	{
 		this.name = menu.getName();
 		this.styleClass = menu.getStyleClass();
+		this.groups = groups;
 		Iterator<IPersist> it = menu.getAllObjects();
 		while (it.hasNext())
 		{
 			IPersist child = it.next();
 			if (child instanceof MenuItem menuItem)
 			{
-				items.add(new JSMenuItem(this, menuItem));
+				items.add(new JSMenuItem(this, menuItem, groups));
 			}
 		}
 	}
@@ -72,10 +76,11 @@ public class JSMenu
 	 * @param menuManager
 	 * @param name
 	 */
-	public JSMenu(String name)
+	public JSMenu(String name, String[] groups)
 	{
 		this.name = name;
-		items.add(new JSMenuItem(this, name));
+		this.groups = groups;
+		items.add(new JSMenuItem(this, name, groups));
 	}
 
 	/**
@@ -117,6 +122,12 @@ public class JSMenu
 	public JSMenuItem[] getMenuItems()
 	{
 		return items.toArray(new JSMenuItem[0]);
+	}
+
+	@JSFunction
+	public JSMenuItem[] getMenuItemsWithSecurity()
+	{
+		return items.stream().filter(item -> item.hasSecurityFlag(MenuItem.VIEWABLE)).collect(Collectors.toList()).toArray(new JSMenuItem[0]);
 	}
 
 	/**
@@ -192,7 +203,7 @@ public class JSMenu
 		JSMenuItem item = null;
 		if (index >= 0 && index <= items.size())
 		{
-			item = new JSMenuItem(this, id);
+			item = new JSMenuItem(this, id, this.groups);
 			items.add(index, item);
 			this.notifyChanged();
 		}

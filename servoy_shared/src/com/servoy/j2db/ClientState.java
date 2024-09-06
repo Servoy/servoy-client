@@ -1598,6 +1598,10 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			{
 				((FoundSetManager)foundSetManager).flushSecuritySettings();
 			}
+			if (menuManager != null)
+			{
+				menuManager.setCurrentGroups(groups);
+			}
 		}
 	}
 

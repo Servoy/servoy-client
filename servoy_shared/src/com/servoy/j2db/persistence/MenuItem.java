@@ -20,9 +20,10 @@ package com.servoy.j2db.persistence;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.JSONObject;
+
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
 
 /**
@@ -33,6 +34,9 @@ import com.servoy.j2db.util.UUID;
 @ServoyClientSupport(mc = false, wc = false, sc = false, ng = true)
 public class MenuItem extends AbstractBase implements ISupportUpdateableName, ICloneable, ISupportChilds
 {
+	public static final int VIEWABLE = 1;
+	public static final int ENABLED = 2;
+
 	/**
 	 * Constructor I
 	 */
@@ -149,7 +153,7 @@ public class MenuItem extends AbstractBase implements ISupportUpdateableName, IC
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ICONSTYLECLASS, arg);
 	}
 
-	public void setPermissions(ServoyJSONObject permissions)
+	public void setPermissions(JSONObject permissions)
 	{
 		this.setTypedProperty(StaticContentSpecLoader.PROPERTY_PERMISSIONS, permissions);
 	}
@@ -157,7 +161,7 @@ public class MenuItem extends AbstractBase implements ISupportUpdateableName, IC
 	/**
 	 * The permissions defined for menu item. Similar to form element security. You can configure if a menu item is visible/enabled based on permission.
 	 */
-	public ServoyJSONObject getPermissions()
+	public JSONObject getPermissions()
 	{
 		return this.getTypedProperty(StaticContentSpecLoader.PROPERTY_PERMISSIONS);
 	}
