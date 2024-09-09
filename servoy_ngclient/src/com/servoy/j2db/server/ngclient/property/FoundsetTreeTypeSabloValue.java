@@ -397,11 +397,7 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 			for (IFoundSetInternal relatedFoundset : relatedFoundsets)
 			{
 				FoundsetTreeBinding relatedBinding = bindings.get(relatedFoundset.getDataSource());
-				boolean listenerAttached = false;
-				if (relatedBinding.foundsets.contains(relatedFoundset))
-				{
-					listenerAttached = true;
-				}
+				boolean listenerAttached = bindings.values().stream().anyMatch(binding -> binding.foundsets.contains(relatedFoundset));
 				if (listenerAttached)
 				{
 					((ISwingFoundSet)relatedFoundset).removeTableModelListener(this);
