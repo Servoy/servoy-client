@@ -144,6 +144,15 @@
                ],
               "returns": "FormPopup"
           },
+          "getPopupForm": {
+             "parameters":[
+                {
+                    "name":"form",
+                    "type":"form"
+                }
+               ],
+              "returns": "FormPopup"
+          },
          "createPopupMenu": {
                "parameters":[
                 {
@@ -179,6 +188,14 @@
                 {
                     "name":"disableClearPopupFormCallToServer",
                     "type":"boolean"
+                }
+            ]
+        },
+        "cancelForm": {
+        	"parameters":[
+                {
+                    "name":"form",
+                    "type":"string"
                 }
             ]
         },
@@ -258,7 +275,8 @@
             "y": {"type" : "int", "tags": { "scope" :"private" }},
             "showBackdrop": {"type" : "boolean", "tags": { "scope" :"private" }},
             "doNotCloseOnClickOutside": {"type" : "boolean", "tags": { "scope" :"private" }},
-            "onClose": {"type" : "function", "tags": { "scope" :"private" }}
+            "onClose": {"type" : "function", "tags": { "scope" :"private" }},
+            "parent": {"type" : "popupform", "tags": { "scope" :"private" }}
         },
         "serversideapi": {
             "component": {
@@ -389,7 +407,19 @@
             },
             "show": {
                 "parameters":[]
-            }
+            },
+            "cancel": {
+            	"parameters":[]
+            },
+            "createFormPopup": {
+             	"parameters":[
+                	{
+                    	"name":"form",
+                    	"type":"form"
+                	}
+               	],
+              	"returns": "FormPopup"
+          	}
         }
       },
       "MenuItem": {
