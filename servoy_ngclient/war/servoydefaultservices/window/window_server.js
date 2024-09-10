@@ -345,8 +345,12 @@ $scope.api.createFormPopup = function(form) {
             this._component = val;
             return this;
         },
-		createChildFormPopup: function(val) {
+		createFormPopup: function(val) {
 			if (val == undefined) return this._parent;
+			if (isPopupFormVisible(val, this._parent)) {
+				console.warn("Form '" + val._formname_ +"' will not be displayed, because is already visible in another popup form!");
+				return null;
+			}
 			var child = $scope.api.createFormPopup(val);
 			child._parent = {
 				component: this._component,
@@ -366,10 +370,64 @@ $scope.api.createFormPopup = function(form) {
             $scope.api.showFormPopup(this._component, form, this._scope, this._dataprovider, this._width, this._height, this._x, this._y, this._showBackdrop, this._doNotCloseOnClickOutside, this._onClose, this._parent);
         },
 		cancel: function() {
-			$scope.api.cancelFormPopupInternal(true);
-			$scope.clearPopupForm();
+			if (this._parent) {
+				$scope.api.cancelForm(this._parent.form);
+				// update model
+				$scope.model.popupform = {};
+				$scope.model.popupform.component = this._parent.component;
+				$scope.model.popupform.form = this._parent.form;
+				$scope.model.popupform.width = this._parent.width;
+				$scope.model.popupform.height = this._parent.height;
+				$scope.model.popupform.x = this._parent.x;
+				$scope.model.popupform.y = this._parent.y;
+				$scope.model.popupform.showBackdrop = this._parent.showBackdrop;
+				$scope.model.popupform.doNotCloseOnClickOutside = this._parent.doNotCloseOnClickOutside;
+				$scope.model.popupform.onClose = this._parent.onClose;
+				$scope.model.popupform.parent = this._parent.parent;
+			} else {
+				$scope.api.cancelFormPopupInternal(true);
+				$scope.clearPopupForm();
+			}
 		}
     }
+}
+
+function isPopupFormVisible(form, parent) {
+	if ($scope.model.popupform) {
+		var popup = $scope.model.popupform;
+		while(popup) {
+			if (popup.form == form._formname_ && parent && popup.parent.form == parent.form) {
+				return true;
+			}
+			popup = popup.parent;
+		}
+	}
+	return false;
+}
+
+$scope.api.getPopupForm = function(form) {
+	if ($scope.model.popupform) {
+		var popup = $scope.model.popupform;
+		while(popup) {
+			if (popup.form == form._formname_) {
+				var popupForm = $scope.api.createFormPopup(form);
+				popupForm._width = popup.width;
+				popupForm._height = popup.height;
+				popupForm._x = popup.x;
+				popupForm._y = popup.y;
+				popupForm._showBackdrop = popup.showBackdrop;
+				popupForm._doNotCloseOnClickOutside = popup.doNotCloseOnClickOutside;
+				popupForm._component = popup.component;
+				popupForm._scope = popup.scope;
+				popupForm._dataprovider = popup.dataprovider;
+				popupForm._onClose = popup.onClose;
+				popupForm._parent = popup.parent;
+				return popupForm;
+			}
+			popup = popup.parent;		
+		}
+	}
+	return null;
 }
 
 $scope.api.createPopupMenu = function(jsmenu, callback) {
