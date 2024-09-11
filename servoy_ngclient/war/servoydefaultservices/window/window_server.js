@@ -405,7 +405,7 @@ function isPopupFormVisible(form, parent) {
 	return false;
 }
 
-$scope.api.getPopupForm = function(form) {
+$scope.api.getFormPopup = function(form) {
 	if ($scope.model.popupform) {
 		var popup = $scope.model.popupform;
 		while(popup) {
