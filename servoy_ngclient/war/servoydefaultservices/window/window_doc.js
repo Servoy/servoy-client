@@ -150,13 +150,13 @@ function createFormPopup(form) {}
  *  It will return a FormPopup with the form passed as an argument or null.
  *
  * @example
- * plugins.window.getPopupForm(forms.orderPicker)
+ * plugins.window.getFormPopup(forms.orderPicker)
  *
  * @param {RuntimeForm} form
  * 
  * @return FormPopup
  */
-function getPopupForm(form) {}
+function getFormPopup(form) {}
 
 /**
  * Close the current form popup panel and assign the value to the configured data provider.
@@ -338,7 +338,7 @@ function FormPopup() {
 	 * Close/Cancel the current form and his children if applicable.
 	 *
 	 * @example
-	 * plugins.window.getPopupForm(forms.orderPicker).cancel();
+	 * plugins.window.getFormPopup(forms.orderPicker).cancel();
 	 *
 	 */
 	this.cancel = function() {}
@@ -347,7 +347,7 @@ function FormPopup() {
 	 * Create a subform as a popup panel, then you can add coordinates, size... like a normal popup form, and then display the subform.
 	 *
 	 * @example
-	 * plugins.window.getPopupForm(forms.orderPicker).createFormPopup(forms.clients).x(10).width(500).show();
+	 * plugins.window.getFormPopup(forms.orderPicker).createFormPopup(forms.clients).x(10).width(500).show();
 	 *
 	 * @param {RuntimeComponent} elementToShowRelatedTo element to show related to or null to center in screen
 	 * @param {RuntimeForm} form the form to show

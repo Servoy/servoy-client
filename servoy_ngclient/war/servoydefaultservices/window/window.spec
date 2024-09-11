@@ -144,7 +144,7 @@
                ],
               "returns": "FormPopup"
           },
-          "getPopupForm": {
+          "getFormPopup": {
              "parameters":[
                 {
                     "name":"form",
