@@ -26,7 +26,10 @@ import org.mozilla.javascript.annotations.JSFunction;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Menu;
+import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.JSMenu;
+import com.servoy.j2db.scripting.JSMenuItem;
+import com.servoy.j2db.scripting.ScriptObjectRegistry;
 
 /**
  * @author lvostinar
@@ -34,8 +37,31 @@ import com.servoy.j2db.scripting.JSMenu;
  */
 @ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Menus", scriptingName = "menus")
-public class MenuManager implements IMenuManager
+public class MenuManager implements IMenuManager, IReturnedTypesProvider
 {
+
+	static
+	{
+		ScriptObjectRegistry.registerReturnedTypesProviderForClass(MenuManager.class, new IReturnedTypesProvider()
+		{
+			public Class< ? >[] getAllReturnedTypes()
+			{
+				return getAllReturnedTypesInternal();
+			}
+		});
+	}
+
+	@Override
+	public Class< ? >[] getAllReturnedTypes()
+	{
+		return getAllReturnedTypesInternal();
+	}
+
+	private static Class< ? >[] getAllReturnedTypesInternal()
+	{
+		return new Class< ? >[] { JSMenu.class, JSMenuItem.class };
+	}
+
 	private final Map<String, JSMenu> menus = new HashMap<String, JSMenu>();
 	private final ClientState application;
 	private boolean initialized = false;
