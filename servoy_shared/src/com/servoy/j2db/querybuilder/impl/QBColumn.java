@@ -19,6 +19,7 @@ package com.servoy.j2db.querybuilder.impl;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.base.persistence.constants.IColumnTypeConstants;
 import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -32,6 +33,7 @@ import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderPart;
+import com.servoy.j2db.scripting.annotations.JSRagtest;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
@@ -643,6 +645,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * query.result.add(query.columns.mycol.round)
 	 */
 	@JSReadonlyProperty
+	@JSRagtest(ragtestin = { IColumnTypeConstants.NUMBER, IColumnTypeConstants.INTEGER }, ragtestout = IColumnTypeConstants.INTEGER)
 	public QBFunction round()
 	{
 		return getRoot().functions().round(this);
@@ -687,6 +690,7 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * query.result.add(query.columns.mydatecol.hour)
 	 */
 	@JSReadonlyProperty
+	@JSRagtest(ragtestin = IColumnTypeConstants.DATETIME, ragtestout = IColumnTypeConstants.INTEGER)
 	public QBFunction hour()
 	{
 		return getRoot().functions().hour(this);

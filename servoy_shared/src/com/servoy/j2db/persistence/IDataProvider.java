@@ -16,28 +16,29 @@
 */
 package com.servoy.j2db.persistence;
 
+import com.servoy.base.persistence.constants.IColumnTypeConstants;
 
 public interface IDataProvider
 {
-	public String getDataProviderID();//get the id of the provider
+	String getDataProviderID(); // get the id of the provider
 
 	/**
 	 * Leaves in dataprovider tree can be columns
 	 *
 	 * @return a column or column and relation, null if no database column depenency
 	 */
-	public ColumnWrapper getColumnWrapper();
+	ColumnWrapper getColumnWrapper();
 
-	public int getLength();//max length the provider can hold, especially used by columns varchars, -1 or 0 means is undefined
+	int getLength(); // max length the provider can hold, especially used by columns varchars, -1 or 0 means is undefined
 
-	public boolean isEditable();
+	boolean isEditable();
 
-	public int getFlags();
+	int getFlags();
 
 	/**
 	 * @param flag
 	 */
-	public default boolean hasFlag(int flag)
+	default boolean hasFlag(int flag)
 	{
 		return (getFlags() & flag) != 0;
 	}
@@ -45,5 +46,30 @@ public interface IDataProvider
 	/**
 	 * returns a in the Column class defined type,return -1 if unkown or can be anything (happpens only in script calcs for now)
 	 */
-	public int getDataProviderType();
+	int getDataProviderType();
+
+	default String getDataProviderTypeName()
+	{
+		return getTypeName(getDataProviderType());
+	}
+
+	public static String getTypeName(int dataProviderType)
+	{
+		switch (dataProviderType)
+		{
+			case IColumnTypeConstants.DATETIME :
+				return "DATETIME";
+			case IColumnTypeConstants.TEXT :
+				return "TEXT";
+			case IColumnTypeConstants.NUMBER :
+				return "NUMBER";
+			case IColumnTypeConstants.INTEGER :
+				return "INTEGER";
+			case IColumnTypeConstants.MEDIA :
+				return "MEDIA";
+			default :
+				return null;
+		}
+	}
+
 }
