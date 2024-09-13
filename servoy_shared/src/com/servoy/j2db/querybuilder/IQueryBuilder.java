@@ -19,6 +19,7 @@ package com.servoy.j2db.querybuilder;
 
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.ISQLSelect;
+import com.servoy.j2db.util.ServoyException;
 
 
 /**
@@ -273,6 +274,30 @@ public interface IQueryBuilder extends IQueryBuilderTableClause
 	 * </pre>
 	 */
 	IQueryBuilderAggregates aggregates();
+
+	/**
+	 * Returns the internal SQL of the Query Builder.
+	 * Table filters are on by default.
+	 *
+	 * @sample String sql = query.getSQL(true)
+	 *
+	 * @return String representing the sql of the Query Builder.
+	 */
+	String getSQL() throws ServoyException;
+
+	String getSQL(boolean includeFilters) throws ServoyException;
+
+	/**
+	 * Returns the parameters for the internal SQL of the Query Builder.
+	 * Table filters are on by default.
+	 *
+	 * @sample Object[] parameters = query.getSQLParameters(true)
+	 *
+	 * @return An Array with the sql parameter values.
+	 */
+	Object[] getSQLParameters() throws ServoyException;
+
+	Object[] getSQLParameters(boolean includeFilters) throws ServoyException;
 
 	/**
 	 * Build the query for performing query in the db
