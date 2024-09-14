@@ -23,6 +23,7 @@ import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
 import static com.servoy.j2db.query.AbstractBaseQuery.relinkTable;
 import static com.servoy.j2db.query.AndCondition.and;
 import static com.servoy.j2db.query.BooleanCondition.FALSE_CONDITION;
+import static com.servoy.j2db.util.Utils.arrayAdd;
 import static com.servoy.j2db.util.Utils.equalObjects;
 import static com.servoy.j2db.util.Utils.isInArray;
 import static com.servoy.j2db.util.Utils.iterate;
@@ -114,6 +115,7 @@ public class EditRecordList
 	private final ReentrantLock editRecordsLock = new ReentrantLock();
 
 	private final EditedRecords editedRecords = new EditedRecords();
+	private EditedRecordOrFoundset editedRecordOrFoundsetInProgress = null;
 	private final Map<IRecordInternal, List<IPrepareForSave>> recordTested = synchronizedMap(new HashMap<>()); // tested for form.OnRecordEditStop event
 	private boolean preparingForSave;
 
@@ -135,15 +137,16 @@ public class EditRecordList
 		}
 	}
 
-	/**
-	 * @param record
-	 * @return
-	 */
 	public boolean isEditing(IRecordInternal record)
 	{
 		editRecordsLock.lock();
 		try
 		{
+			if (editedRecordOrFoundsetInProgress instanceof EditedRecord editedRecord && editedRecord.getRecord() == record)
+			{
+				return true;
+			}
+
 			return editedRecords.containsEdited(record);
 		}
 		finally
@@ -157,7 +160,7 @@ public class EditRecordList
 		editRecordsLock.lock();
 		try
 		{
-			return !editedRecords.isEmpty();
+			return editedRecordOrFoundsetInProgress != null || !editedRecords.isEmpty();
 		}
 		finally
 		{
@@ -232,6 +235,14 @@ public class EditRecordList
 			for (int i = edited.length; --i >= 0;)
 			{
 				IRecordInternal record = edited[i];
+				if (recordFilter.test(record))
+				{
+					al.add(record);
+				}
+			}
+			if (editedRecordOrFoundsetInProgress instanceof EditedRecord editedRecord)
+			{
+				IRecordInternal record = editedRecord.getRecord();
 				if (recordFilter.test(record))
 				{
 					al.add(record);
@@ -457,19 +468,22 @@ public class EditRecordList
 				{
 					// do not stop if the user is editing something else.
 					boolean stop = false;
-					editRecordsLock.lock();
-					try
+					if (recordsToSaveFinal != null && recordsToSaveFinal.size() == 1)
 					{
-						if (recordsToSaveFinal != null && recordsToSaveFinal.size() == 1)
+						editRecordsLock.lock();
+						try
 						{
-							IRecordInternal[] edited = editedRecords.getEditedOrDeleted();
-							stop = edited.length == 1 && edited[0] == recordsToSaveFinal.get(0);
+							if (editedRecordOrFoundsetInProgress instanceof EditedRecord editedRecord)
+							{
+								stop = editedRecord.getRecord() == recordsToSaveFinal.get(0);
+							}
+						}
+						finally
+						{
+							editRecordsLock.unlock();
 						}
 					}
-					finally
-					{
-						editRecordsLock.unlock();
-					}
+
 					if (stop)
 					{
 						stopEditing(javascriptStop, foundset, recordsToSaveFinal);
@@ -563,9 +577,9 @@ public class EditRecordList
 				Map<IRecordInternal, Integer> processedRecords = new HashMap<>();
 
 				Predicate<EditedRecordOrFoundset> shouldProcessRecordOrFoundset = shouldProcessRecordOrFoundset(recordsToSave, foundset);
-				for (EditedRecordOrFoundset tmp = editedRecords.getAndRemoveFirstEditedRecordOrFoundset(shouldProcessRecordOrFoundset); //
+				for (EditedRecordOrFoundset tmp = getAndRemoveFirstEditedRecordOrFoundset(shouldProcessRecordOrFoundset); //
 					tmp != null; //
-					tmp = editedRecords.getAndRemoveFirstEditedRecordOrFoundset(shouldProcessRecordOrFoundset))
+					tmp = getAndRemoveFirstEditedRecordOrFoundset(shouldProcessRecordOrFoundset))
 				{
 					if (tmp instanceof EditedRecord editedRecord)
 					{
@@ -1098,6 +1112,15 @@ public class EditRecordList
 			}
 			return false;
 		};
+	}
+
+	/**
+	 * Get the next edited record or foundset to process, set editedRecordOrFoundsetInProgress as side-effect.
+	 */
+	private EditedRecordOrFoundset getAndRemoveFirstEditedRecordOrFoundset(Predicate<EditedRecordOrFoundset> shouldProcessRecordOrFoundset)
+	{
+		editedRecordOrFoundsetInProgress = editedRecords.getAndRemoveFirstEditedRecordOrFoundset(shouldProcessRecordOrFoundset);
+		return editedRecordOrFoundsetInProgress;
 	}
 
 	private TableUpdateInfo getTableUpdateInfoForDeleteQuery(ITable table, QueryDelete deleteQuery, ArrayList<TableFilter> filters) throws ServoyException
@@ -2144,7 +2167,12 @@ public class EditRecordList
 		editRecordsLock.lock();
 		try
 		{
-			return editedRecords.getEditedOrDeleted();
+			IRecordInternal[] editedOrDeleted = editedRecords.getEditedOrDeleted();
+			if (editedRecordOrFoundsetInProgress instanceof EditedRecord editedRecord)
+			{
+				return arrayAdd(editedOrDeleted, editedRecord.getRecord(), false);
+			}
+			return editedOrDeleted;
 		}
 		finally
 		{
