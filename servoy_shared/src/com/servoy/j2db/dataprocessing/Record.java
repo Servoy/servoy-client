@@ -1139,20 +1139,6 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	}
 
 	/**
-	 * Saves this record to the datasource if it had changes.
-	 *
-	 * @sample
-	 * var record= %%prefix%%foundset.getSelectedRecord();
-	 * record.save();
-	 *
-	 * @return true if the save was done without an error.
-	 */
-	public boolean js_save() throws ServoyException
-	{
-		return JSDatabaseManager.saveData(parent.getFoundSetManager().getApplication(), this);
-	}
-
-	/**
 	 * Returns a JSDataSet with outstanding (not saved) changed data of this record.
 	 * column1 is the column name, colum2 is the old data and column3 is the new data.
 	 *
