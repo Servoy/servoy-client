@@ -66,6 +66,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 
 	// ---instance vars
 	protected final Object[] initLock = new Object[1];//when filled with an Object the init is completed
+	private final static Object pluginsReadLock = new Object();
 
 	// ---plugin instances
 	protected Map<String, IClientPlugin> loadedClientPlugins; //contains all instances of client plugins, (name -> instance)
@@ -91,10 +92,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		super();
 		this.parentClassLoader = lafLoader;
 		pluginsDir = new File(pluginDirAsString);
-		if (pluginExtensions.size() == 0 && this.pluginsDir.isDirectory())
-		{
-			readDir(pluginsDir, pluginExtensions, supportLibExtensions, null, false);
-		}
+		this.readPlugins();
 	}
 
 	public PluginManager(List<ExtensionResource> pluginUrls, List<ExtensionResource> supportLibUrls, ClassLoader lafLoader)
@@ -749,10 +747,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 		{
 			try
 			{
-				if (pluginExtensions.size() == 0 && pluginsDir.isDirectory())
-				{
-					readDir(pluginsDir, pluginExtensions, supportLibExtensions, null, false);
-				}
+				this.readPlugins();
 
 				List<URL> allUrls = new ArrayList<URL>(supportLibExtensions.size() + pluginExtensions.size());
 				for (ExtensionResource ext : supportLibExtensions)
@@ -773,6 +768,17 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 			}
 		}
 		return _pluginsClassLoader;
+	}
+
+	private void readPlugins()
+	{
+		synchronized (pluginsReadLock)
+		{
+			if (pluginExtensions.size() == 0 && pluginsDir.isDirectory())
+			{
+				readDir(pluginsDir, pluginExtensions, supportLibExtensions, null, false);
+			}
+		}
 	}
 
 	@Override
