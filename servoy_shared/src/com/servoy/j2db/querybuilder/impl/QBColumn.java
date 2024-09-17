@@ -35,6 +35,8 @@ import com.servoy.j2db.querybuilder.IQueryBuilderPart;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
+ * A column from a QBSelect. Used for different conditions.
+ *
  * @author rgansevles
  *
  */

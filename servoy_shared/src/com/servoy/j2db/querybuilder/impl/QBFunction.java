@@ -24,6 +24,8 @@ import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
 import com.servoy.j2db.querybuilder.IQueryBuilderFunction;
 
 /**
+ * A wrapper for an SQL function to be used inside QBSelect.
+ *
  * @author rgansevles
  *
  */

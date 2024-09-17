@@ -24,6 +24,8 @@ import com.servoy.j2db.querybuilder.IQueryBuilderSort;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
+ * Wrapper for SQL Sort condition.
+ *
  * @author rgansevles
  *
  */

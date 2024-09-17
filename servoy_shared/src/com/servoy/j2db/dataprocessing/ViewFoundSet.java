@@ -101,6 +101,8 @@ import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
 import com.servoy.j2db.util.visitor.SearchVisitor;
 
 /**
+ * Similar to JSFoundSet, but is not based on a SQL table but on an SQL query.
+ *
  * @author jcompagner
  * @since 8.4
  */

@@ -49,6 +49,8 @@ import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 
 /**
+ * Utility object for handling all joins in QBSelect.
+ *
  * @author rgansevles
  *
  * @since 6.1

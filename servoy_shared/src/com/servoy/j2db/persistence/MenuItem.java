@@ -27,6 +27,8 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 
 /**
+ * A design-time menu item object, its parent is either a Menu or another MenuItem, helps comosing the Menu object.
+ *
  * @author lvostinar
  *
  */

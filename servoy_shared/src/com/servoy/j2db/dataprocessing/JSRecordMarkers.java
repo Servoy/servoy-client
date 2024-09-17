@@ -30,6 +30,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.ILogLevel;
 
 /**
+ * Validation failed complete state and list of record failed markers (reports).
  * @since 2020.09
  *
  * @author jcompagner

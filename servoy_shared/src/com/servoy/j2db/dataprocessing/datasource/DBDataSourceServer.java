@@ -186,9 +186,9 @@ public class DBDataSourceServer extends DefaultJavaScope implements LazyInitScop
 	}
 
 	/**
-	 * Define a client connection for this server, you can configure this DB Server to create connections for this client that are configured by this JSConnection.
-	 * All interaction with the database will go over a connection coming from a specific client pool with that is created for tihs client.
-	 * Things like username,password or connection properties can be adjusted.
+	 * Define a client connection for this server, you can configure the Database Server to create connections for current client using properties of this JSConnectionDefinition.
+	 * All interaction with the database will go over a connection coming from a specific client pool with that is created for this client.
+	 * Things like username, password or connection properties can be adjusted.
 	 *
 	 * @sample
 	 * var conncetionDefinition = datasources.db.example_data.defineClientConnection().setProperty('key', 'value').create();

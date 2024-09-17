@@ -47,6 +47,8 @@ import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * Similar to Record, is a row in a ViewFoundSet.
+ *
  * @author jcompagner
  * @since 8.4
  */

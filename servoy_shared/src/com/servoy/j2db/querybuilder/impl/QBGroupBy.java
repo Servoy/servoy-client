@@ -29,6 +29,8 @@ import com.servoy.j2db.querybuilder.IQueryBuilderGroupby;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
+ * SQL Group By condition in QBSelect.
+ *
  * @author rgansevles
  *
  */

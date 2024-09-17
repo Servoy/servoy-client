@@ -2517,6 +2517,9 @@ public abstract class BasicFormController
 		this.pageFormat = pageFormat;
 	}
 
+	/*
+	 * A runtime form instance (FormController).
+	 */
 	//Place holder class for the JavaScript FromController obj, all javascript calls must be delegated to the FormController
 	//It's a pity that this class can't be a inner class, prohibit by JS calling structure(delegation would then not needed)
 	@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "controller", scriptingName = "controller")

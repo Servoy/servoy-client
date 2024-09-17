@@ -87,6 +87,7 @@ import com.servoy.j2db.util.gui.RoundedBorder;
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
 /**
+ * Gives access to any design-time object at runtime, so design values can be retrieved or modified (then runtime object having to be recreated).
  * @author jcompagner
  */
 @SuppressWarnings("nls")

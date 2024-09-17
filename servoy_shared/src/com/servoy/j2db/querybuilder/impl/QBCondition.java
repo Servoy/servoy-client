@@ -22,6 +22,7 @@ import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 
 /**
+ * A wrapper for a QBSelect condition (compare condition, in, like, between ..)
  * @author rgansevles
  *
  */

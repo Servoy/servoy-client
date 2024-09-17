@@ -44,6 +44,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 
 /**
+ * Solution Model ScriptMethod wrapper.
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSMethod")

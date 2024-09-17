@@ -37,6 +37,10 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 
+/**
+ * Solution Model calculation wrapper.
+ *
+ */
 @SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class JSCalculation implements IJavaScriptType, ISMCalculation

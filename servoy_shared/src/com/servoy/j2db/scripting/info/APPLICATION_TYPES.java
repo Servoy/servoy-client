@@ -20,6 +20,9 @@ import com.servoy.base.persistence.constants.IBaseApplicationTypes;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
+/**
+ * Application types constants.
+ */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class APPLICATION_TYPES implements IPrefixedConstantsObject, IBaseApplicationTypes
 {

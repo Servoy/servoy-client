@@ -31,6 +31,8 @@ import com.servoy.j2db.querybuilder.IQueryBuilderAggregates;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
+ * Provides the list of aggregates that can be used in a QBSelect.
+ *
  * @author rgansevles
  *
  */

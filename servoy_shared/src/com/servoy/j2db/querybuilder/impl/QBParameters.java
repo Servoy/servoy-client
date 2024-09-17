@@ -34,6 +34,8 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.TypePredicate;
 
 /**
+ * Helper object for handling all QBSelect parameters (when having an parameterized query).
+ *
  * @author rgansevles
  *
  */

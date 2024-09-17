@@ -71,6 +71,8 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
+ * A wrapper for an SQL SELECT query.
+ *
  * @author rgansevles
  *
  */

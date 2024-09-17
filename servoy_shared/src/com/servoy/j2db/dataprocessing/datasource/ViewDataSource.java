@@ -29,7 +29,7 @@ import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 
 /**
- *  * In scripting: <pre>datasources.view</pre>
+ * Runtime access to all defined view foundsets. In scripting: <pre>datasources.view</pre>
  *
  * @author emera
  */

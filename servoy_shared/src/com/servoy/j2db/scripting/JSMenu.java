@@ -36,6 +36,8 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * A Menu object wrapper for scripting.
+ *
  * @author lvostinar
  *
  */

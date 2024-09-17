@@ -32,6 +32,8 @@ import com.servoy.j2db.scripting.JSMenuItem;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
 
 /**
+ * A scripting object for handling all menus (JSMenu, JSMenuItem) in the application.
+ *
  * @author lvostinar
  *
  */

@@ -77,6 +77,7 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.docvalidator.IdentDocumentValidator;
 
 /**
+ * Solution Model form wrapper.
  * @author jcompagner
  */
 @SuppressWarnings("nls")

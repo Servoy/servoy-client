@@ -24,6 +24,8 @@ import com.servoy.j2db.querybuilder.IQueryBuilderAggregate;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
+ * An aggregate (like count, min, max ..) inside a QBSelect
+ *
  * @author rgansevles
  *
  */

@@ -31,6 +31,8 @@ import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.UUID;
 
 /**
+ * Solution Model media wrapper.
+ *
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)

@@ -32,6 +32,8 @@ import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.util.Pair;
 
 /**
+ * Utility object for building an SQL Case expression inside a QBSelect.
+ *
  * @author rgansevles
  *
  */

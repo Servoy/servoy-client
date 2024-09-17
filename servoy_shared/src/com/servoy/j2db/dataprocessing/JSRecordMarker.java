@@ -23,6 +23,8 @@ import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
+ * A validation failed report on a specific record (during save).
+ *
  * @author jcompanger
  * @since 2020.09
  *

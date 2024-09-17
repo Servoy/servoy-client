@@ -27,6 +27,8 @@ import com.servoy.j2db.querybuilder.IQueryBuilderParameter;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
+ * An SQL parameter, so you can build parameterized queries.
+ *
  * @author rgansevles
  *
  */

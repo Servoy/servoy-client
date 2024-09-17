@@ -23,6 +23,8 @@ import org.mozilla.javascript.annotations.JSSetter;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
+ * A Dimension object in scripting.
+ *
  * @author lvostinar
  *
  */
