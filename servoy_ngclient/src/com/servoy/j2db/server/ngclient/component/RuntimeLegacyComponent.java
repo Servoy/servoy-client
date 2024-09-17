@@ -60,6 +60,7 @@ import com.servoy.j2db.server.ngclient.property.FoundsetLinkedTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
+import com.servoy.j2db.server.ngclient.property.types.UpdateableCSSPosition;
 import com.servoy.j2db.server.ngclient.property.types.ValueListTypeSabloValue;
 import com.servoy.j2db.server.ngclient.template.FormTemplateGenerator;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
@@ -615,6 +616,27 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 //				scriptable.put(StaticContentSpecLoader.PROPERTY_ANCHORS.getPropertyName(), null, Integer.valueOf(IAnchorConstants.DEFAULT));
 //			}
 			scriptable.put(propertyName, null, value);
+
+			// update cssPostion for LegacyComponent
+			if ("location".equals(propertyName) || "size".equals(propertyName))
+			{
+				UpdateableCSSPosition updateableCSSPosition = (UpdateableCSSPosition)((ISabloComponentToRhino)component.getPropertyDescription("cssPosition")
+					.getType()).toRhinoValue(component.getProperty("cssPosition"), component.getPropertyDescription("cssPosition"), component, scriptable);
+				//UpdateableCSSPosition updateableCSSPosition = new UpdateableCSSPosition();
+				if (updateableCSSPosition != null)
+				{
+					if ("location".equals(propertyName))
+					{
+						updateableCSSPosition.setLeft(args[0].toString());
+						updateableCSSPosition.setTop(args[1].toString());
+					}
+					else
+					{
+						updateableCSSPosition.setWidth(args[0].toString());
+						updateableCSSPosition.setHeight(args[1].toString());
+					}
+				}
+			}
 			return null;
 		}
 	}
