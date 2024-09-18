@@ -966,7 +966,7 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 
 	protected abstract boolean isShowingPrintPreview();
 
-	/*
+	/**
 	 * A form history object.
 	 */
 	@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "History", scriptingName = "history")
