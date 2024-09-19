@@ -51,7 +51,6 @@ import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IColumn;
-import com.servoy.j2db.persistence.IColumnTypes;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.query.ColumnType;
@@ -88,14 +87,12 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Symb
 
 	private IDataSetWithIndex set;
 	private ServoyException exception;
-	private String defaultActions;
 
 	private final IServiceProvider application;
 
 	public JSDataSet() //only for use JS engine
 	{
 		this.application = null;
-		this.defaultActions = null;
 		this.set = new DataSetWithIndex(new BufferedDataSet());
 	}
 
@@ -297,27 +294,13 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Symb
 	public void js_addRow(int index, Object[] array)
 	{
 		Object[] row = array;
-		int actionsColumnIdx = -1;
 		if (set != null && row != null)
 		{
-			if (this.defaultActions != null)
-			{
-				actionsColumnIdx = getActionsColumn();
-				if (actionsColumnIdx < 0)
-				{
-					actionsColumnIdx = addActionsColumn();
-				}
-			}
-
 			if (row.length < set.getColumnCount())
 			{
 				Object[] tmp = new Object[set.getColumnCount()];
 				System.arraycopy(row, 0, tmp, 0, row.length);
 				row = tmp;
-				if (this.defaultActions != null && actionsColumnIdx >= 0)
-				{
-					row[actionsColumnIdx] = defaultActions;
-				}
 			}
 			set.addRow(index - 1, row);
 			correctAttributeIndex(true, true, index - 1);
@@ -2034,44 +2017,5 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Symb
 	public Object getDefaultValue(Class< ? > hint)
 	{
 		return toString();
-	}
-
-	/**
-	 * Sets default actions for the dataset.
-	 * These actions will be applied to any future rows that don't have custom actions specified.
-	 * If set to null, no default actions will be applied.
-	 *
-	 * @param jsonActions The default actions in JSON format. Can be null to reset.
-	 */
-	public void js_setDefaultActions(String jsonActions)
-	{
-		this.defaultActions = jsonActions;
-	}
-
-	/**
-	 * Ensures the 'actions' column exists. Creates it if necessary.
-	 *
-	 * @return The index of the 'actions' column.
-	 */
-	private int getActionsColumn()
-	{
-		// Check if the last column is already 'actions'
-		int columnIndex = set.getColumnCount() - 1;
-		if (!set.getColumnNames()[columnIndex].equalsIgnoreCase("actions")) //$NON-NLS-1$
-		{
-			return -1;
-		}
-		return columnIndex;
-	}
-
-	// Add a new column for actions if it doesn't exist; return the new colun index
-	private int addActionsColumn()
-	{
-		int columnIndex = set.getColumnCount() - 1;
-		if (!set.getColumnNames()[columnIndex].equalsIgnoreCase("actions")) //$NON-NLS-1$
-		{
-			set.addColumn(++columnIndex, "actions", IColumnTypes.TEXT); //$NON-NLS-1$
-		}
-		return columnIndex;
 	}
 }
