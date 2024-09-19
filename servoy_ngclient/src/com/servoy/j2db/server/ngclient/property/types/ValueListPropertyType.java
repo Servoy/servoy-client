@@ -51,6 +51,7 @@ import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.solutionmodel.JSValueList;
 import com.servoy.j2db.scripting.solutionmodel.JSWebComponent;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
+import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.FormElementContext;
 import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGFormElement;
@@ -81,7 +82,8 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 	implements IConvertedPropertyType<ValueListTypeSabloValue>, IFormElementToSabloComponent<Object, ValueListTypeSabloValue>, ISupportTemplateValue<Object>,
 	IDataLinkedType<Object, ValueListTypeSabloValue>, IRhinoToSabloComponent<ValueListTypeSabloValue>, ISabloComponentToRhino<ValueListTypeSabloValue>,
 	IPushToServerSpecialType, IRhinoDesignConverter, II18NPropertyType<ValueListTypeSabloValue>, ICanBeLinkedToFoundset<Object, ValueListTypeSabloValue>,
-	ISupportsGranularUpdates<ValueListTypeSabloValue>, IPropertyWithClientSideConversions<ValueListTypeSabloValue>, IDesignerDefaultWriter
+	ISupportsGranularUpdates<ValueListTypeSabloValue>, IPropertyWithClientSideConversions<ValueListTypeSabloValue>, IDesignerDefaultWriter,
+	IFindModeAwareType<Object, ValueListTypeSabloValue>
 {
 
 	public static final ValueListPropertyType INSTANCE = new ValueListPropertyType();
@@ -529,6 +531,21 @@ public class ValueListPropertyType extends DefaultPropertyType<ValueListTypeSabl
 
 		w.value(TYPE_NAME);
 		return true;
+	}
+
+	@Override
+	public boolean isFindModeAware(Object formElementValue, PropertyDescription pd, FlattenedSolution flattenedSolution, FormElement formElement)
+	{
+		if (formElementValue != null && flattenedSolution != null)
+		{
+			ValueList valuelistPersist = ValueListTypeSabloValue.getValuelistPersist(formElementValue, flattenedSolution);
+
+			if (valuelistPersist != null && valuelistPersist.getFallbackValueListID() > 0)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
