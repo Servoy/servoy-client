@@ -707,7 +707,7 @@
                        "type":"string"
                    }
                ],
-               "returns": "MenuItem"
+               "returns": "int"
             },
             "getMenu": {
                "parameters":[
