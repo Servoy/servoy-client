@@ -82,9 +82,8 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 		public void contextCreated(Context cx)
 		{
 			IServiceProvider sp = J2DBGlobals.getServiceProvider();
-			if (sp instanceof IApplication && sp instanceof IDebugClient)
+			if (sp instanceof IApplication && sp instanceof IDebugClient application)
 			{
-				IApplication application = (IApplication)sp;
 				if (debugger != null && debugger.isInited)
 				{
 					// executing can be done multiply in a thread (calc)
@@ -196,9 +195,6 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 	private final AtomicInteger executingFunction = new AtomicInteger(0);
 
 
-	/**
-	 * @param app
-	 */
 	public RemoteDebugScriptEngine(IApplication app)
 	{
 		super(app);
@@ -578,9 +574,9 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 				{
 					if (debugger != null)
 					{
+						Context.enter();
 						try
 						{
-							Context.enter();
 							debugger.sendEnd(true);
 						}
 						catch (Throwable t)

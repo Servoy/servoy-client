@@ -136,11 +136,11 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 				{
 					sourceName = name;
 				}
+				Context cx = Context.enter();
 				try
 				{
 					// start already a context, to see which debugger is injected.
 					// if it is the ProfilingDebugger then make sure we just inject a nice name (scope + var)
-					Context cx = Context.enter();
 					if (cx.getDebugger() instanceof ProfilingDebugger)
 					{
 						sourceName = var.getScopeName() + "." + name;

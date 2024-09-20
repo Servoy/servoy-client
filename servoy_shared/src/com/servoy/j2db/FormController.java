@@ -1182,9 +1182,9 @@ public class FormController extends BasicFormController
 					IScriptable scriptObject = ((IScriptableProvider)src).getScriptObject();
 					if (scriptObject != null)
 					{
+						Context.enter();
 						try
 						{
-							Context.enter();
 							JavaMembers jm = ScriptObjectRegistry.getJavaMembers(scriptObject.getClass(), ScriptableObject.getTopLevelScope(formScope));
 							thisObject = new NativeJavaObject(formScope, scriptObject, jm);
 

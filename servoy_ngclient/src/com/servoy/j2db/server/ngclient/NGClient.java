@@ -678,7 +678,8 @@ public class NGClient extends AbstractApplication
 	@Override
 	public boolean isEventDispatchThread()
 	{
-		return wsSession.getEventDispatcher().isEventDispatchThread();
+		IEventDispatcher eventDispatcher = wsSession.getEventDispatcher(false);
+		return eventDispatcher != null && eventDispatcher.isEventDispatchThread();
 	}
 
 	@Override
