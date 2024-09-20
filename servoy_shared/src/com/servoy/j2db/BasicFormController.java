@@ -1150,7 +1150,10 @@ public abstract class BasicFormController
 	public void destroy()
 	{
 		SolutionScope solScope = application.getScriptEngine().getSolutionScope();
-		((CreationalPrototype)solScope.get("forms", solScope)).removeFormPanel(this); //$NON-NLS-1$
+		if (!solScope.isDestroyed())
+		{
+			((CreationalPrototype)solScope.get("forms", solScope)).removeFormPanel(this); //$NON-NLS-1$
+		}
 
 		if (scriptableForm != null)
 		{
