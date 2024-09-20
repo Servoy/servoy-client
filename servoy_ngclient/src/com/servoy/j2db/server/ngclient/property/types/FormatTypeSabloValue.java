@@ -324,7 +324,7 @@ public class FormatTypeSabloValue implements ISmartSortOrderPrevalence, IHasUnde
 		{
 			// if we have a "for" valuelist, see if this valuelist forces the format type due to display values (when they are separate from real values)
 			// otherwise it will do nothing and loop/fallback to the other if clause below which checks the "for" dataprovider
-			ValueList valuelistPersist = ValueListTypeSabloValue.getValuelistPersist(valuelistId, application);
+			ValueList valuelistPersist = ValueListTypeSabloValue.getValuelistPersist(valuelistId, application.getFlattenedSolution());
 
 			if (valuelistPersist != null)
 			{
