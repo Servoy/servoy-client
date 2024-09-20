@@ -81,9 +81,8 @@ public class RemoteDebugScriptEngine extends ScriptEngine implements ITerminatio
 		public void contextCreated(Context cx)
 		{
 			IServiceProvider sp = J2DBGlobals.getServiceProvider();
-			if (sp instanceof IApplication && sp instanceof IDebugClient)
+			if (sp instanceof IApplication application && sp instanceof IDebugClient && application.getPluginManager() != null)
 			{
-				IApplication application = (IApplication)sp;
 				if (debugger != null && debugger.isInited)
 				{
 					// executing can be done multiply in a thread (calc)

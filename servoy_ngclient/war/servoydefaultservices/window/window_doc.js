@@ -6,7 +6,7 @@
 * var menu = plugins.window.createPopupMenu();
 * // add a menu item
 * menu.addMenuItem("an entry", feedback);
-*
+*   
 * if (event.getSource()) {
 *  // display the popup over the component which is the source of the event
 *  menu.show(event.getSource());
@@ -19,7 +19,7 @@
  * @param {JSMenu} [jsmenu] The JSMenu whose structure will be used to initialize the popup menu.
  * @param {Function} [callback] The menu item click handler that will be set on all popup menu items
  * 
- * @return Popup
+ * @return {Popup}
  */
  function createPopupMenu(jsmenu, callback) {}
 
@@ -90,7 +90,6 @@ function removeShortcut(shortcut) {}
  * @exampleas js_removeShortcut(String)
  * @param {String} shortcut
  * @param {String} contextFilter form or element name ( ng only - specified by formName.elementName); only triggers the shortcut when on this form/element
- * @return
  */
 function removeShortcut(shortcut, contextFilter) {}
 
@@ -141,7 +140,7 @@ function showFormPopup(elementToShowRelatedTo, form, scope, dataproviderID, widt
  * @param {Number} x popup x location
  * @param {Number} y popup y location
  * 
- * @return FormPopup
+ * @return {FormPopup}
  */
 function createFormPopup(form) {}
 
@@ -154,7 +153,7 @@ function createFormPopup(form) {}
  *
  * @param {RuntimeForm} form
  * 
- * @return FormPopup
+ * @return {FormPopup}
  */
 function getFormPopup(form) {}
 
@@ -200,7 +199,7 @@ function FormPopup() {
      *
      * @param {RuntimeComponent} [component] the form to show
      *
-     * @return this The FormPopup itself or the component if no argument is given
+     * @return The FormPopup itself if it's used as a setter or the component if no argument is given
      */
     this.component = function(component) {}
 
@@ -214,10 +213,10 @@ function FormPopup() {
      *
      * @param {number} [width] form popup width
      *
-     * @return this The FormPopup itself or the width if no argument is given
+     * @return The FormPopup itself if it's used as a setter or the width if no argument is given
      *
      */
-    this.width = function( width) {}
+    this.width = function(width) {}
 
     /**
      * Set form popup height. If not set, form design height will be used.
@@ -229,7 +228,7 @@ function FormPopup() {
      *
      * @param {number} [height] form popup height
      *
-     * @return this The FormPopup itself or the height if no argument is given
+     * @return The FormPopup itself if it's used as a setter or the height if no argument is given
      */
     this.height = function(height) {}
 
@@ -244,7 +243,7 @@ function FormPopup() {
      *
      * @param {number} [x] form popup x location
      *
-     * @return this The FormPopup itself or the x if no argument is given
+     * @return The FormPopup itself if it's used as a setter or the x if no argument is given
      *
      */
     this.x = function(x) {}
@@ -259,7 +258,7 @@ function FormPopup() {
      *
      * @param {number} [y] form popup y location
      *
-     * @return this The FormPopup itself or the y value if no argument is given
+     * @return The FormPopup itself if it's used as a setter or the y value if no argument is given
      *
      */
     this.y = function(y) {}
@@ -274,7 +273,7 @@ function FormPopup() {
      *
      * @param {boolean} [showBackdrop] form popup showBackdrop
      *
-     * @return this The FormPopup itself or the showBackdrop value if no argument is given
+     * @return The FormPopup itself if it's used as a setter or the showBackdrop value if no argument is given
      *
      */
     this.showBackdrop = function(showBackdrop) {}
@@ -289,7 +288,7 @@ function FormPopup() {
      *
      * @param {string} [dataprovider] form popup dataprovider
      *
-     * @return this The FormPopup itself or the dataprovider value if no argument is given
+     * @return The FormPopup itself if it's used as a setter or the dataprovider value if no argument is given
      *
      */
     this.dataprovider = function(dataprovider) {}
@@ -305,7 +304,7 @@ function FormPopup() {
      *
      * @param {function} [func] function that needs to be called when closed
      *
-     * @return this The FormPopup itself or the dataprovider value if no argument is given
+     * @return The FormPopup itself if it's used as a setter or the dataprovider value if no argument is given
      *
      */
     this.onClose = function(func) {}
@@ -320,7 +319,7 @@ function FormPopup() {
      *
      * @param {object} scope form popup scope to modify
      *
-     * @return this The FormPopup itself or the dataprovider value if no argument is given
+     * @return The FormPopup itself if it's used as a setter or the dataprovider value if no argument is given
      *
      */
     this.scope = function(scope) {}
@@ -358,7 +357,7 @@ function FormPopup() {
 	 * @param {Number} x popup x location
 	 * @param {Number} y popup y location
 	 * 
-	 * @return FormPopup
+	 * @return {FormPopup}
 	 */
 
 	this.createFormPopup = function(form) {}
@@ -499,7 +498,7 @@ function MenuItem() {
      * @param {Function} method
      * @param {Array} arguments
      * 
-     * @returns BaseMenuItem
+     * @returns {MenuItem}
      */
     this.setMethod = function(method, arguments) {}
 
@@ -535,7 +534,7 @@ function MenuItem() {
       * 
       * @param {String} accelerator
       * 
-      * @returns BaseMenuItem
+      * @returns {MenuItem}
       */
      this.setAccelerator = function(accelerator) {}
      
@@ -570,7 +569,7 @@ function MenuItem() {
        * 
        * @param {Object} icon
        * 
-       * @returns BaseMenuItem
+       * @returns {MenuItem}
        */
       this.setIcon = function(icon) {}
       
@@ -605,7 +604,7 @@ function MenuItem() {
          * 
          * @param {String} icon
          * 
-         * @returns BaseMenuItem
+         * @returns {MenuItem}
          */
         this.setMnemonic = function(mnemonic) {}
         
@@ -636,7 +635,7 @@ function MenuItem() {
           * 
           * @param {Boolean} visible
           * 
-          * @returns BaseMenuItem
+          * @returns {MenuItem}
           */
          this.setVisible = function(visible) {}
          
@@ -1145,7 +1144,7 @@ function BaseMenu() {
      *
      * @param {String} text
      * 
-     * @return MenuItem
+     * @return {Number}
      */
     this.getItemIndexByText = function(text) {}
 
