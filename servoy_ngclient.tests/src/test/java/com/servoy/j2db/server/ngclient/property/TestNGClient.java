@@ -81,19 +81,12 @@ import com.servoy.j2db.util.xmlxport.ColumnInfoDef;
 
 /**
  * @author Johan
- *
  */
 public class TestNGClient extends NGClient
 {
-	/**
-	 *
-	 */
+
 	private final TestRepository tr;
 
-	/**
-	 * @param wsSession
-	 * @param tr
-	 */
 	TestNGClient(TestRepository tr, NGClientWebsocketSession session) throws Exception
 	{
 		super(session, null);

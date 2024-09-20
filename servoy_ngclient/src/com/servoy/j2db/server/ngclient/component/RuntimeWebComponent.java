@@ -132,9 +132,9 @@ public class RuntimeWebComponent implements IBaseRuntimeComponent, Scriptable, I
 			scopeObject = WebServiceScriptable.compileServerScript(serverScript, this, component.getDataConverterContext().getApplication(), component);
 			apiObject = (Scriptable)scopeObject.get("api", scopeObject);
 			// add also the handlers object
+			Context context = Context.enter();
 			try
 			{
-				Context context = Context.enter();
 				Scriptable handlerObject = context.newObject(scopeObject);
 				scopeObject.put("handlers", scopeObject, handlerObject);
 				Set<String> handlers = component.getSpecification().getHandlers().keySet();
