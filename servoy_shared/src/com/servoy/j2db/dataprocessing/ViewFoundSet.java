@@ -486,9 +486,9 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	{
 		FoundSetIterator foundsetIterator = new FoundSetIterator();
 		Scriptable scriptableFoundset = null;
+		Context.enter();
 		try
 		{
-			Context.enter();
 			scriptableFoundset = (Scriptable)Context.javaToJS(this, this.getFoundSetManager().getApplication().getScriptEngine().getSolutionScope());
 		}
 		finally
