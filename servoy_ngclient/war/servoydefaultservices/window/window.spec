@@ -562,7 +562,7 @@
                 },
                 {
                     "name":"feedback_item",
-                    "type":"string",
+                    "type":"function",
                     "optional":true
                 },
                 {
