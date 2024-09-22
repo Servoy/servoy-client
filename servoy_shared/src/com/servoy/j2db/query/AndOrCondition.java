@@ -57,6 +57,22 @@ public abstract class AndOrCondition extends BaseAndOrCondition<ISQLCondition> i
 		conditions = validateConditions(AbstractBaseQuery.acceptVisitor(conditions, visitor));
 	}
 
+	/**
+	 * If the composite condition only contains 1 condition, return that one, otherwise this.
+	 */
+	public ISQLCondition flatten()
+	{
+		if (conditions != null && conditions.size() == 1)
+		{
+			List<ISQLCondition> values = conditions.values().iterator().next();
+			if (values.size() == 1)
+			{
+				return values.get(0);
+			}
+		}
+		return this;
+	}
+
 	///////// serialization ////////////////
 
 
