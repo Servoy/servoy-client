@@ -78,13 +78,17 @@ public final class OrCondition extends AndOrCondition
 	 */
 	public static ISQLCondition or(ISQLCondition c1, ISQLCondition c2)
 	{
-		if (c1 == null)
+		if (c1 == null || BooleanCondition.FALSE_CONDITION.equals(c1))
 		{
 			return c2;
 		}
-		if (c2 == null)
+		if (c2 == null || BooleanCondition.FALSE_CONDITION.equals(c2))
 		{
 			return c1;
+		}
+		if (BooleanCondition.TRUE_CONDITION.equals(c1) || BooleanCondition.TRUE_CONDITION.equals(c2))
+		{
+			return BooleanCondition.TRUE_CONDITION;
 		}
 		OrCondition or = new OrCondition();
 		or.addCondition(c1);

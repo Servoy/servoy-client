@@ -17,17 +17,20 @@
 package com.servoy.j2db.dataprocessing;
 
 import static com.google.common.collect.Streams.concat;
+import static com.servoy.base.query.BaseAbstractBaseQuery.arrayEquals;
 import static com.servoy.j2db.dataprocessing.SQLGenerator.convertPKValuesForQueryCompare;
 import static com.servoy.j2db.dataprocessing.SQLGenerator.createTableFiltercondition;
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
 import static com.servoy.j2db.query.AbstractBaseQuery.relinkTable;
 import static com.servoy.j2db.query.AndCondition.and;
 import static com.servoy.j2db.query.BooleanCondition.FALSE_CONDITION;
+import static com.servoy.j2db.query.BooleanCondition.TRUE_CONDITION;
 import static com.servoy.j2db.util.Utils.arrayAdd;
 import static com.servoy.j2db.util.Utils.equalObjects;
 import static com.servoy.j2db.util.Utils.isInArray;
 import static com.servoy.j2db.util.Utils.iterate;
 import static com.servoy.j2db.util.Utils.stream;
+import static com.servoy.j2db.util.visitor.FlattenConditionVisitor.flattenCondition;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.reverse;
@@ -37,6 +40,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -58,6 +62,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.servoy.base.persistence.IBaseColumn;
+import com.servoy.base.query.BaseSetCondition;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
@@ -79,7 +84,9 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.query.ISQLCondition;
 import com.servoy.j2db.query.ISQLJoin;
+import com.servoy.j2db.query.OrCondition;
 import com.servoy.j2db.query.Placeholder;
 import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryDelete;
@@ -1848,26 +1855,104 @@ public class EditRecordList
 
 			QuerySelect select = new QuerySelect(table.queryTable());
 
-			deleteQueries.stream().forEach(foundsetDeletingQuery -> {
-				var deleteQuery = foundsetDeletingQuery.getQueryDelete();
-				var condition = relinkTable(deleteQuery.getTable(), select.getTable(), deepClone(deleteQuery.getCondition()));
+			ISQLCondition condition = deleteQueries.stream().map(foundsetDeletingQuery -> {
+				QueryDelete deleteQuery = foundsetDeletingQuery.getQueryDelete();
+				ISQLCondition deleteCondition = flattenCondition(relinkTable(deleteQuery.getTable(), select.getTable(), deepClone(deleteQuery.getCondition())));
 
-				for (TableFilter tf : iterate(foundsetDeletingQuery.getFilters()))
-				{
+				return stream(foundsetDeletingQuery.getFilters()).map(tf -> {
 					QueryFilter filtercondition = createTableFiltercondition(select.getTable(), table, tf);
-					condition = and(condition, filtercondition.getCondition());
 					for (ISQLJoin join : iterate(filtercondition.getJoins()))
 					{
 						select.addJoin(join);
 					}
+					return flattenCondition(filtercondition.getCondition());
+
+				})
+					.reduce(deleteCondition, (c1, c2) -> combineConditions(c1, c2));
+			})
+				.map(deleteQueryCondition -> deleteQueryCondition == null ? FALSE_CONDITION : deleteQueryCondition.negate())
+				.reduce(null, (c1, c2) -> combineConditions(c1, c2));
+
+			if ((condition == null || TRUE_CONDITION.equals(condition)) && select.getJoins() == null)
+			{
+				// No condition to filter on
+				return null;
+			}
+
+			select.addCondition(SQLGenerator.CONDITION_DELETED, condition);
+			return new TableFilterRequest(table, new QueryTableFilterdefinition(select), false);
+		})
+			.filter(Objects::nonNull)
+			.collect(toList());
+	}
+
+	/**
+	 * Combine 2 conditions, return c1 AND c2, but when possible, make the resulting condition as simple as possible.
+	 */
+	private static ISQLCondition combineConditions(ISQLCondition c1, ISQLCondition c2)
+	{
+		if (c1 instanceof SetCondition setCondition1 && c2 instanceof SetCondition setCondition2)
+		{
+			if (setCondition1.isNegationOf(setCondition2))
+			{
+				return FALSE_CONDITION;
+			}
+			if (setCondition1.isAndCondition() == setCondition2.isAndCondition() &&
+				Arrays.equals(setCondition1.getOperators(), setCondition2.getOperators()) &&
+				arrayEquals(setCondition1.getKeys(), setCondition2.getKeys()))
+			{
+				if (arrayEquals(setCondition1.getValues(), setCondition2.getValues()))
+				{
+					return setCondition1;
 				}
 
-				select.addCondition(SQLGenerator.CONDITION_DELETED, condition == null ? FALSE_CONDITION : condition.negate());
-			});
+				Object values1 = setCondition1.getValues();
+				Object values2 = setCondition2.getValues();
+				if (values1 instanceof Object[][] array1 && values2 instanceof Object[][] array2 && array1.length == array2.length)
+				{
+					Object[][] mergedValues = new Object[array1.length][];
+					for (int i = 0; i < array1.length; i++)
+					{
+						mergedValues[i] = Utils.arrayJoin(array1[i], array2[i]);
+					}
+					return new SetCondition(setCondition1.getOperators(), setCondition1.getKeys(), mergedValues, setCondition1.isAndCondition());
+				}
+			}
+		}
 
+		if (c1 instanceof SetCondition setCondition && c2 instanceof OrCondition orCondition)
+		{
+			return combineSetConditionWithOrCondition(setCondition, orCondition);
+		}
+		if (c2 instanceof SetCondition setCondition && c1 instanceof OrCondition orCondition)
+		{
+			return combineSetConditionWithOrCondition(setCondition, orCondition);
+		}
 
-			return new TableFilterRequest(table, new QueryTableFilterdefinition(select), false);
-		}).collect(toList());
+		return and(c1, c2);
+	}
+
+	/** Check if the same condition in already negated in the orCondition, then return a simplified condition, otherwise just setCondition AND orCondition.
+	 *
+	 * For example:
+	 * setCondition = pk=10
+	 * orCondition = (pk!=11 OR pk=!12 OR pk!=10).
+	 *
+	 * The the result will be: pk=10 AND (pk!=11 OR pk!=12)
+	 */
+	private static ISQLCondition combineSetConditionWithOrCondition(SetCondition setCondition, OrCondition orCondition)
+	{
+		List<ISQLCondition> allConditions = orCondition.getAllConditions();
+		List<ISQLCondition> filteredConditions = allConditions.stream()
+			.filter(condition -> (!(condition instanceof BaseSetCondition< ? > baseSQLCondition) || !setCondition.isNegationOf(baseSQLCondition)))
+			.collect(toList());
+		if (allConditions.size() == filteredConditions.size())
+		{
+			// nothing filtered out
+			return and(setCondition, orCondition);
+		}
+
+		return combineConditions(setCondition, OrCondition.or(filteredConditions));
 	}
 
 	public void clearSecuritySettings()
