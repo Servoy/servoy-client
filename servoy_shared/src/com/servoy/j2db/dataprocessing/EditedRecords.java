@@ -367,6 +367,7 @@ public class EditedRecords
 	public record FoundsetDeletingQuery(IFoundSetInternal getFoundset, QueryDelete getQueryDelete, ArrayList<TableFilter> getFilters,
 		Collection<IFoundSetInternal> getAffectedFoundsets, ObjectKey getKey) implements EditedRecordOrFoundset
 	{
+
 		static FoundsetDeletingQuery foundsetDeletingQuery(IFoundSetInternal foundset, QueryDelete queryDelete, ArrayList<TableFilter> filters,
 			Collection<IFoundSetInternal> affectedFoundsets)
 		{
@@ -378,6 +379,7 @@ public class EditedRecords
 		{
 			return getFoundset().getDataSource();
 		}
+
 	}
 
 }

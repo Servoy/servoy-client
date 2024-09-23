@@ -1708,7 +1708,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 *
 	 * The query of the QBSelect that is given is added as a "search" condition to the existing base query of the foundset.
 	 * This does mean that loadAllRecords() will revert this, because that will clear the search condition and go back to the base query of the foundset.
-	 * Some hold true for clear() that will remove the search condition and because of that the given query will also be removed.
+	 * The same holds true for clear() that will also remove the search condition, and, because of that, the given query will also be removed.
 	 *
 	 * If you want to create more a "view" on your database that will always be kept by this foundset, so loadAllRecords() (with our withou first calliing clear()) will always
 	 * revert back to this set of data (and you can also search inside this data with find/search or adding another query on top of it.

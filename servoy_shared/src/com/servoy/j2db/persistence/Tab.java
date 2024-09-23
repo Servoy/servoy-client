@@ -30,9 +30,11 @@ import com.servoy.j2db.util.UUID;
  * One Tab from a tabpanel
  *
  * @author jblok
+ * @deprecated
  */
+@Deprecated
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.TABS)
-@ServoyClientSupport(mc = false, wc = true, sc = true, ng = false)
+@ServoyClientSupport(mc = false, wc = true, sc = true)
 public class Tab extends AbstractBase
 	implements ISupportBounds, IPersistCloneable, ISupportUpdateableName, ISupportMedia, ICloneable, ISupportExtendsID, IContainsFormID
 {
