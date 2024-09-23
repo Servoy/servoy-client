@@ -31,9 +31,11 @@ import com.servoy.j2db.util.UUID;
  * A part is a section from a Form, which can be used in reporting to aggregate data
  *
  * @author jblok
+ * @deprecated
  */
+@Deprecated
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.PARTS)
-@ServoyClientSupport(mc = false, wc = true, sc = true, ng = false)
+@ServoyClientSupport(mc = false, wc = true, sc = true)
 public class Part extends AbstractBase implements ISupportSize, IPersistCloneable, ICloneable, ISupportExtendsID, IBasePart
 {
 

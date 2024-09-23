@@ -28,10 +28,12 @@ import com.servoy.j2db.persistence.RectShape;
  * Dummy class for use in the documentation generator.
  *
  * @author acostache
+ * @deprecated
  *
  */
+@Deprecated
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Rectangle", scriptingName = "Rectangle", realClass = RectShape.class, typeCode = IRepository.RECTSHAPES)
-@ServoyClientSupport(mc = false, wc = true, sc = true, ng = false)
+@ServoyClientSupport(mc = false, wc = true, sc = true)
 public class DocsRectShape extends RectShape implements IBaseDocsComponent
 {
 

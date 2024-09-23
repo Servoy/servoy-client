@@ -28,10 +28,12 @@ import com.servoy.j2db.persistence.TabPanel;
  * Dummy class for use in the documentation generator.
  *
  * @author acostache
+ * @deprecated
  *
  */
+@Deprecated
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "TabPanel", scriptingName = "TabPanel", realClass = TabPanel.class, typeCode = IRepository.TABPANELS)
-@ServoyClientSupport(mc = false, wc = true, sc = true, ng = false)
+@ServoyClientSupport(mc = false, wc = true, sc = true)
 public class DocsTabPanel extends TabPanel implements IBaseDocsComponent
 {
 
