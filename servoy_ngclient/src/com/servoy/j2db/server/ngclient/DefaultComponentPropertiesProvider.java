@@ -48,10 +48,14 @@ public class DefaultComponentPropertiesProvider implements IDefaultComponentProp
 	public Map<String, PropertyDescription> getDefaultComponentProperties()
 	{
 		Map<String, PropertyDescription> properties = new HashMap<String, PropertyDescription>();
-		properties.put("location", new PropertyDescriptionBuilder().withName("location").withType(TypesRegistry.getType(PointPropertyType.TYPE_NAME)).build());
-		properties.put("size", new PropertyDescriptionBuilder().withName("size").withType(TypesRegistry.getType(DimensionPropertyType.TYPE_NAME)).build());
-		properties.put("anchors", new PropertyDescriptionBuilder().withName("anchors").withType(TypesRegistry.getType(IntPropertyType.TYPE_NAME)).build());
-		properties.put("formIndex", new PropertyDescriptionBuilder().withName("formIndex").withType(TypesRegistry.getType(IntPropertyType.TYPE_NAME)).build());
+		properties.put("location",
+			new PropertyDescriptionBuilder().withName("location").withType(TypesRegistry.getType(PointPropertyType.TYPE_NAME)).build());
+		properties.put("size",
+			new PropertyDescriptionBuilder().withName("size").withType(TypesRegistry.getType(DimensionPropertyType.TYPE_NAME)).build());
+		properties.put("anchors",
+			new PropertyDescriptionBuilder().withName("anchors").withType(IntPropertyType.INSTANCE_NULL_DEFAULT).build());
+		properties.put("formIndex",
+			new PropertyDescriptionBuilder().withName("formIndex").withType(IntPropertyType.INSTANCE_NULL_DEFAULT).build());
 		properties.put(IContentSpecConstants.PROPERTY_CSS_POSITION,
 			new PropertyDescriptionBuilder().withName(IContentSpecConstants.PROPERTY_CSS_POSITION).withType(
 				TypesRegistry.getType(CSSPositionPropertyType.TYPE_NAME)).build());
