@@ -1183,7 +1183,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 		if (stringValue == null)
 		{
-			if ("selectedIndex".equals(dataProviderID) || isCountOrAvgOrSumAggregateDataProvider(dataProviderID, dataProviderLookup)) //$NON-NLS-1$
+			if ("maxRecordIndex".equals(dataProviderID) || "selectedIndex".equals(dataProviderID) || //$NON-NLS-1$
+				isCountOrAvgOrSumAggregateDataProvider(dataProviderID, dataProviderLookup))
+			{
+				return "0"; //$NON-NLS-1$
+			}
+			if (dataProviderID != null && (dataProviderID.endsWith(".selectedIndex") || dataProviderID.endsWith(".maxRecordIndex")))
 			{
 				return "0"; //$NON-NLS-1$
 			}
