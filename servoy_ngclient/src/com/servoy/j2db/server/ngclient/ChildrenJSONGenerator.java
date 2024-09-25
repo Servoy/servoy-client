@@ -364,6 +364,9 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				}
 				properties.content.keySet().remove(IContentSpecConstants.PROPERTY_ATTRIBUTES);
 			}
+			// remove the size and location properties, should not be used anymore in the client code
+			templateProperties.content.remove(IContentSpecConstantsBase.PROPERTY_SIZE);
+			templateProperties.content.remove(IContentSpecConstantsBase.PROPERTY_LOCATION);
 
 			// write the template properties that are left
 			JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType,
