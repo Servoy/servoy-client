@@ -377,8 +377,6 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 
 		if (o instanceof BaseComponent)
 		{
-			writer.key("servoyAttributes");
-			writer.object();
 			if (designer)
 			{
 				attributes.put("svy-id", fe.getDesignId());
@@ -409,11 +407,16 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				}
 				attributes.put("data-cy", form.getName() + "." + elementName);
 			}
-			attributes.forEach((key, value) -> {
-				writer.key(StringEscapeUtils.escapeEcmaScript(key));
-				writer.value(value);
-			});
-			writer.endObject();
+			if (attributes.size() > 0)
+			{
+				writer.key("servoyAttributes");
+				writer.object();
+				attributes.forEach((key, value) -> {
+					writer.key(StringEscapeUtils.escapeEcmaScript(key));
+					writer.value(value);
+				});
+				writer.endObject();
+			}
 		}
 		writer.endObject();
 
