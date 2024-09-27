@@ -617,23 +617,26 @@ public class RuntimeLegacyComponent implements Scriptable, IInstanceOf
 //			}
 			scriptable.put(propertyName, null, value);
 
-			// update cssPostion for LegacyComponent
-			if ("location".equals(propertyName) || "size".equals(propertyName))
+			if (component.getFormElement().getForm().getUseCssPosition().booleanValue())
 			{
-				UpdateableCSSPosition updateableCSSPosition = (UpdateableCSSPosition)((ISabloComponentToRhino)component.getPropertyDescription("cssPosition")
-					.getType()).toRhinoValue(component.getProperty("cssPosition"), component.getPropertyDescription("cssPosition"), component, scriptable);
-				//UpdateableCSSPosition updateableCSSPosition = new UpdateableCSSPosition();
-				if (updateableCSSPosition != null)
+				// update cssPostion for LegacyComponent
+				if ("location".equals(propertyName) || "size".equals(propertyName))
 				{
-					if ("location".equals(propertyName))
+					UpdateableCSSPosition updateableCSSPosition = (UpdateableCSSPosition)((ISabloComponentToRhino)component
+						.getPropertyDescription("cssPosition")
+						.getType()).toRhinoValue(component.getProperty("cssPosition"), component.getPropertyDescription("cssPosition"), component, scriptable);
+					if (updateableCSSPosition != null)
 					{
-						updateableCSSPosition.setLeft(args[0].toString());
-						updateableCSSPosition.setTop(args[1].toString());
-					}
-					else
-					{
-						updateableCSSPosition.setWidth(args[0].toString());
-						updateableCSSPosition.setHeight(args[1].toString());
+						if ("location".equals(propertyName))
+						{
+							updateableCSSPosition.setLeft(args[0].toString());
+							updateableCSSPosition.setTop(args[1].toString());
+						}
+						else
+						{
+							updateableCSSPosition.setWidth(args[0].toString());
+							updateableCSSPosition.setHeight(args[1].toString());
+						}
 					}
 				}
 			}
