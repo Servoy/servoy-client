@@ -77,7 +77,7 @@ public interface IFoundSetInternal extends IFoundSet, IFireCollectable
 
 	public IRecordInternal[] getRecords(int startrow, int count);
 
-	public void deleteAllInternal() throws ServoyException;
+	public void deleteAllInternal(IDeleteTrigger deleteTrigger) throws ServoyException;
 
 	public void addAggregateModificationListener(IModificationListener listener);
 

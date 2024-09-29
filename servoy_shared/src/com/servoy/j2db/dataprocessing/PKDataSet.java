@@ -247,10 +247,10 @@ public class PKDataSet implements IDataSet, IDelegate<IDataSet>
 		{
 			Placeholder placeholder = pksAndRecordsHolder.getQuerySelectForReading().getPlaceholder(
 				new TablePlaceholderKey(pksAndRecordsHolder.getQuerySelectForReading().getTable(), SQLGenerator.PLACEHOLDER_FOUNDSET_PKS));
-			Object value = placeholder.getValue();
-			if (value instanceof DynamicPkValuesArray)
+			Object value = placeholder.getRawValue();
+			if (value instanceof DynamicPkValuesArray dynamicPkValuesArray)
 			{
-				return (DynamicPkValuesArray)value;
+				return dynamicPkValuesArray;
 			}
 		}
 		return null;

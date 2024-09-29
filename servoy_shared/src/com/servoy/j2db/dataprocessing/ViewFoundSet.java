@@ -1901,7 +1901,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	@Override
-	public void deleteAllInternal() throws ServoyException
+	public void deleteAllInternal(IDeleteTrigger deleteTrigger) throws ServoyException
 	{
 		throw new UnsupportedOperationException("Can't delete records  from a View Foundset of datasource " + this.datasource);
 	}
