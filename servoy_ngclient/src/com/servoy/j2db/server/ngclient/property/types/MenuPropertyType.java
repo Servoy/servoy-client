@@ -215,20 +215,20 @@ public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 			Menu menu = null;
 			if (formElementValue instanceof Integer)
 			{
-				if (((Integer)formElementValue).intValue() == 0)
-				{
-					return null;
-				}
 				menu = fs.getMenu(((Integer)formElementValue).intValue());
-				if (menu != null)
-				{
-					Map<String, Object> newJavaValueForJSON = new HashMap<String, Object>();
-					newJavaValueForJSON.put("name", menu.getName());
-					newJavaValueForJSON.put("styleclass", menu.getStyleClass());
-					addMenuItemsForJSON(newJavaValueForJSON, menu.getAllObjectsAsList());
+			}
+			if (formElementValue instanceof String)
+			{
+				menu = fs.getMenu((String)formElementValue);
+			}
+			if (menu != null)
+			{
+				Map<String, Object> newJavaValueForJSON = new HashMap<String, Object>();
+				newJavaValueForJSON.put("name", menu.getName());
+				newJavaValueForJSON.put("styleclass", menu.getStyleClass());
+				addMenuItemsForJSON(newJavaValueForJSON, menu.getAllObjectsAsList());
 
-					JSONUtils.toBrowserJSONFullValue(writer, key, newJavaValueForJSON, null, null);
-				}
+				JSONUtils.toBrowserJSONFullValue(writer, key, newJavaValueForJSON, null, null);
 			}
 		}
 		return writer;
