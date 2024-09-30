@@ -55,6 +55,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author lvostinar
@@ -62,7 +63,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
  */
 public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 	implements IConvertedPropertyType<MenuTypeSabloValue>, IRhinoToSabloComponent<MenuTypeSabloValue>, ISabloComponentToRhino<MenuTypeSabloValue>,
-	IFormElementToSabloComponent<Integer, MenuTypeSabloValue>, IFormElementToTemplateJSON<Object, MenuTypeSabloValue>,
+	IFormElementToSabloComponent<Object, MenuTypeSabloValue>, IFormElementToTemplateJSON<Object, MenuTypeSabloValue>,
 	ISupportTemplateValue<Object>, IPropertyWithClientSideConversions<MenuTypeSabloValue>
 {
 	public static final MenuPropertyType INSTANCE = new MenuPropertyType();
@@ -183,12 +184,16 @@ public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 	}
 
 	@Override
-	public MenuTypeSabloValue toSabloComponentValue(Integer formElementValue, PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
+	public MenuTypeSabloValue toSabloComponentValue(Object formElementValue, PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
 		DataAdapterList dataAdapterList)
 	{
-		if (formElementValue != null && formElementValue.intValue() > 0)
+		if (formElementValue != null)
 		{
-			Menu menu = dataAdapterList.getApplication().getFlattenedSolution().getMenu(formElementValue.intValue());
+			Menu menu = dataAdapterList.getApplication().getFlattenedSolution().getMenu(formElementValue.toString());
+			if (menu == null)
+			{
+				menu = dataAdapterList.getApplication().getFlattenedSolution().getMenu(Utils.getAsInteger(formElementValue));
+			}
 			if (menu != null)
 			{
 				return new MenuTypeSabloValue(dataAdapterList.getApplication().getMenuManager().getMenu(menu.getName()), this.extraProperties, formElement,
