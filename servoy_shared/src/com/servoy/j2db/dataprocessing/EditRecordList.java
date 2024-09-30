@@ -711,8 +711,7 @@ public class EditRecordList
 							// trigger method threw exception
 							lastStopEditingException = e;
 							failedCount++;
-							editedRecords.addDeleteQuery(foundsetDeletingQuery.getFoundset(), foundsetDeletingQuery.getQueryDelete(),
-								foundsetDeletingQuery.getFilters(), foundsetDeletingQuery.getAffectedFoundsets());
+							editedRecords.addDeleteQuery(foundsetDeletingQuery);
 						}
 						catch (Exception e)
 						{
@@ -1103,20 +1102,41 @@ public class EditRecordList
 				{
 					return false;
 				}
-				var record = editedRecord.getRecord();
-				if (subList == null || subList.contains(record))
+
+				if (subList == null && foundset == null)
+				{
+					return true; // process all
+				}
+
+				if (foundset != null && (editedRecord.getDeleteTrigger() == foundset || editedRecord.getRecord().getParentFoundSet() == foundset))
 				{
 					return true;
 				}
-				if (record.getParentFoundSet() == foundset)
+
+				if (subList != null && (subList.contains(editedRecord.getDeleteTrigger()) || subList.contains(editedRecord.getRecord())))
 				{
 					return true;
 				}
 			}
-			if (editedRecordOrFoundset instanceof FoundsetDeletingQuery foundsetDeletingQuery)
+
+			else if (editedRecordOrFoundset instanceof FoundsetDeletingQuery foundsetDeletingQuery)
 			{
-				return foundset == null || foundset == foundsetDeletingQuery.getFoundset();
+				if (subList == null && foundset == null)
+				{
+					return true; // process all
+				}
+
+				if (foundset != null && (foundsetDeletingQuery.getDeleteTrigger() == foundset || foundsetDeletingQuery.getFoundset() == foundset))
+				{
+					return true;
+				}
+
+				if (subList != null && subList.contains(foundsetDeletingQuery.getDeleteTrigger()))
+				{
+					return true;
+				}
 			}
+
 			return false;
 		};
 	}
@@ -1709,7 +1729,7 @@ public class EditRecordList
 		return canStartEditing;
 	}
 
-	public boolean addDeletedRecord(IRecordInternal record)
+	public boolean addDeletedRecord(IRecordInternal record, IDeleteTrigger deleteTrigger)
 	{
 		if (record == null)
 		{
@@ -1762,7 +1782,7 @@ public class EditRecordList
 						.getRegisterdRecords()
 						.map(IRecordInternal::getParentFoundSet)
 						.toList();
-					editedRecords.addDeleted(record, affectedFoundsets);
+					editedRecords.addDeleted(record, affectedFoundsets, deleteTrigger);
 				}
 				finally
 				{
@@ -1778,12 +1798,12 @@ public class EditRecordList
 	}
 
 	public void addDeleteQuery(IFoundSetInternal foundset, QueryDelete deleteQuery, ArrayList<TableFilter> filters,
-		Collection<IFoundSetInternal> affectedFoundsets)
+		Collection<IFoundSetInternal> affectedFoundsets, IDeleteTrigger deleteTrigger)
 	{
 		editRecordsLock.lock();
 		try
 		{
-			editedRecords.addDeleteQuery(foundset, deleteQuery, filters, affectedFoundsets);
+			editedRecords.addDeleteQuery(foundset, deleteQuery, filters, affectedFoundsets, deleteTrigger);
 		}
 		finally
 		{

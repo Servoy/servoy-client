@@ -24,9 +24,9 @@ import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
  * Placeholder class, container for named value in a query structure.
- * 
+ *
  * @author rgansevles
- * 
+ *
  */
 public class Placeholder implements IQueryElement, IQueryValues
 {
@@ -43,6 +43,21 @@ public class Placeholder implements IQueryElement, IQueryValues
 	}
 
 	public Object getValue()
+	{
+		if (!set)
+		{
+			throw new IllegalStateException("Value " + key + " not set"); //$NON-NLS-1$//$NON-NLS-2$
+		}
+
+		if (value instanceof IDynamicValue dynamicValue)
+		{
+			return dynamicValue.getValue();
+		}
+
+		return value;
+	}
+
+	public Object getRawValue()
 	{
 		if (!set)
 		{
@@ -141,14 +156,7 @@ public class Placeholder implements IQueryElement, IQueryValues
 		Object serializedValue;
 		if (set)
 		{
-			if (value instanceof IDynamicValue)
-			{
-				serializedValue = ((IDynamicValue)value).getValue();
-			}
-			else
-			{
-				serializedValue = value;
-			}
+			serializedValue = getValue(); // replaces dynamic value
 		}
 		else
 		{

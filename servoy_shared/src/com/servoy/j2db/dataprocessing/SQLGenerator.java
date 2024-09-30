@@ -1045,11 +1045,11 @@ public class SQLGenerator
 			for (IBaseSQLCondition condition : iterate(((QuerySelect)sqlSelect).getWhere().getAllConditions()))
 			{
 				boolean skipQuery = false;
-				if (condition instanceof SetCondition && ((SetCondition)condition).isAndCondition())
+				if (condition instanceof SetCondition setCondition && setCondition.isAndCondition())
 				{
 					// check for EQUALS_OPERATOR
-					int ncols = ((SetCondition)condition).getKeys().length;
-					int[] operators = ((SetCondition)condition).getOperators();
+					int ncols = setCondition.getKeys().length;
+					int[] operators = setCondition.getOperators();
 					boolean eqop = true;
 					for (int i = 0; i < ncols; i++)
 					{
@@ -1061,11 +1061,10 @@ public class SQLGenerator
 
 					if (eqop)
 					{
-						Object value = ((SetCondition)condition).getValues();
-						if (value instanceof Placeholder)
+						Object value = setCondition.getValues();
+						if (value instanceof Placeholder placeholder)
 						{
-							Object phval = ((Placeholder)value).getValue();
-							skipQuery = phval instanceof DynamicPkValuesArray && ((DynamicPkValuesArray)phval).isEmpty(); // cleared foundset
+							skipQuery = placeholder.getRawValue() instanceof DynamicPkValuesArray dynamicPkValuesArray && dynamicPkValuesArray.isEmpty(); // cleared foundset
 						}
 						else if (value instanceof Object[][])
 						{
