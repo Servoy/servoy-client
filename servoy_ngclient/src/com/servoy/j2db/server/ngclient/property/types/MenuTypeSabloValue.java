@@ -24,14 +24,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
+import org.sablo.specification.property.IInnerPropertiesProvider;
+import org.sablo.specification.property.IPropertyConverterForBrowser;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.ISmartPropertyValue;
 import org.sablo.websocket.utils.JSONUtils;
-import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
 
 import com.servoy.j2db.scripting.JSMenu;
 import com.servoy.j2db.scripting.JSMenuItem;
@@ -44,7 +47,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
  * @author lvostinar
  *
  */
-public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener
+public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener, IInnerPropertiesProvider
 {
 	private IChangeListener changeMonitor;
 	private JSMenu jsMenu;
@@ -167,12 +170,12 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener
 			if (categoryValues == null)
 			{
 				categoryValues = new HashMap<String, Object>();
-				extraPropertiesValues.put(category, categoryValues);
 			}
 			else
 			{
 				categoryValues = new HashMap<String, Object>(categoryValues);
 			}
+			extraPropertiesValues.put(category, categoryValues);
 			for (String propertyName : categoryDefinitions.keySet())
 			{
 				PropertyDescription definition = categoryDefinitions.get(propertyName);
@@ -183,13 +186,33 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener
 						categoryValues.put(propertyName, definition.getDefaultValue());
 					}
 				}
-				else if (smartValues != null && smartValues.containsKey(propertyName))
+				else if (smartValues != null && smartValues.containsKey(propertyName) &&
+					definition.getType() instanceof IPropertyConverterForBrowser convertingTypeToUse)
 				{
 					Object sabloValue = smartValues.get(propertyName);
 					StringWriter stringWriter = new StringWriter();
 					final JSONWriter writer = new JSONWriter(stringWriter);
-					FullValueToJSONConverter.INSTANCE.toJSONValue(writer, null, sabloValue, definition, dataConverterContext);
-					categoryValues.put(propertyName, stringWriter.getBuffer().toString());
+					if (convertingTypeToUse instanceof IPropertyWithClientSideConversions)
+					{
+						JSONUtils.writeConvertedValueWithClientType(writer, null,
+							JSONUtils.getClientSideTypeJSONString((IPropertyWithClientSideConversions< ? >)convertingTypeToUse, definition),
+							() -> {
+								convertingTypeToUse.toJSON(writer, null, sabloValue, definition, dataConverterContext);
+								return null;
+							});
+					}
+					else
+					{
+						writer.object();
+						convertingTypeToUse.toJSON(writer, propertyName, sabloValue, definition, dataConverterContext);
+						writer.endObject();
+					}
+					Object newValue = new JSONObject(stringWriter.getBuffer().toString());
+					if (!(convertingTypeToUse instanceof IPropertyWithClientSideConversions))
+					{
+						newValue = ((JSONObject)newValue).get(propertyName);
+					}
+					categoryValues.put(propertyName, newValue);
 				}
 
 			}
@@ -241,5 +264,25 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener
 	public Object getJSMenu()
 	{
 		return jsMenu;
+	}
+
+	@Override
+	public Object getInnerPropertyValue(String[] parts)
+	{
+		if (parts != null && parts.length == 5 && parts[1].startsWith("items[") && parts[2].equals("extraProperties"))
+		{
+			String items = parts[1];
+			int arrayIndex = Integer.parseInt((items.substring(items.lastIndexOf('[') + 1, items.length() - 1)));
+			JSMenuItem[] menuItems = jsMenu.getMenuItemsWithSecurity();
+			if (menuItems != null && arrayIndex >= 0 && arrayIndex < menuItems.length)
+			{
+				Map<String, ISmartPropertyValue> smartValues = extraPropertiesSmartValues.get(menuItems[arrayIndex]);
+				if (smartValues != null)
+				{
+					return smartValues.get(parts[4]);
+				}
+			}
+		}
+		return null;
 	}
 }
