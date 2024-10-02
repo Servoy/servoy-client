@@ -20,9 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.servoy.j2db.dataprocessing.SQLSheet.SQLDescription;
 import com.servoy.j2db.query.AbstractBaseQuery;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.TablePlaceholderKey;
+import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.SafeArrayList;
 import com.servoy.j2db.util.Utils;
 
@@ -58,6 +60,7 @@ public class PksAndRecordsHolder
 		this.dbIndexLastPk = dbIndexLastPk;
 		this.querySelect = querySelect;
 		this.hasDynamicPlaceholder = hasDynamicPlaceholder;
+		validatePksForFoundset(this.pks, this.foundSet);
 	}
 
 	public PksAndRecordsHolder(FoundSet foundSet, int chunkSize, boolean optimzeChangeFires)
@@ -135,7 +138,29 @@ public class PksAndRecordsHolder
 		{
 			cachedRecords = new SafeArrayList<IRecordInternal>((pks != null ? pks.getRowCount() : 0) + 5);//(re)new
 		}
+
+		validatePksForFoundset(this.pks, this.foundSet);
 		return changes;
+	}
+
+	/**
+	 * Validate that the pks match the foundset, currently only the nr of columns is checked
+	 */
+	private static void validatePksForFoundset(PKDataSet pks, FoundSet foundSet)
+	{
+		if (pks != null && pks.getColumnCount() > 0)
+		{
+			SQLDescription selectDescription = foundSet.getSQLSheet().getSQLDescription(SQLSheet.SELECT);
+			if (selectDescription != null)
+			{
+				int foundsetPkColumns = selectDescription.getRequiredDataProviderIDs().size();
+				int pkColumns = pks.getColumnCount();
+				if (foundsetPkColumns != pkColumns)
+				{
+					Debug.error(new IllegalStateException("Unexpected pks (" + pkColumns + ") for foundset (" + foundsetPkColumns + "): " + foundSet));
+				}
+			}
+		}
 	}
 
 	public synchronized SafeArrayList<IRecordInternal> getCachedRecords()
