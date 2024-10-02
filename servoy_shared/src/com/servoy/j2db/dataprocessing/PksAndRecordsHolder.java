@@ -148,7 +148,7 @@ public class PksAndRecordsHolder
 	 */
 	private static void validatePksForFoundset(PKDataSet pks, FoundSet foundSet)
 	{
-		if (pks != null && pks.getColumnCount() > 0)
+		if (foundSet != null && pks != null && pks.getColumnCount() > 0)
 		{
 			SQLDescription selectDescription = foundSet.getSQLSheet().getSQLDescription(SQLSheet.SELECT);
 			if (selectDescription != null)
