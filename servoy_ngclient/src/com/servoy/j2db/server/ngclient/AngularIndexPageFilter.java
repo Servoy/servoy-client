@@ -103,6 +103,11 @@ public class AngularIndexPageFilter implements Filter
 
 				try
 				{
+					if (AngularIndexPageWriter.handleOauth(request, response))
+					{
+						return;
+					}
+
 					Pair<Boolean, String> showLogin = StatelessLoginHandler.mustAuthenticate(request, response, solutionName);
 					if (showLogin.getLeft().booleanValue())
 					{

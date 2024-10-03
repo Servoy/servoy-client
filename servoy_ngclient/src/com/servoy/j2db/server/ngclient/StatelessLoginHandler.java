@@ -20,12 +20,19 @@ package com.servoy.j2db.server.ngclient;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.RemoteException;
+import java.security.PublicKey;
+import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
@@ -55,6 +62,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sablo.util.HTTPUtils;
 
+import com.auth0.jwk.InvalidPublicKeyException;
+import com.auth0.jwk.Jwk;
+import com.auth0.jwk.JwkException;
+import com.auth0.jwk.JwkProvider;
+import com.auth0.jwk.UrlJwkProvider;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator.Builder;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -62,6 +74,10 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
+import com.github.scribejava.apis.MicrosoftAzureActiveDirectory20Api;
+import com.github.scribejava.core.builder.ServiceBuilder;
+import com.github.scribejava.core.builder.api.DefaultApi20;
+import com.github.scribejava.core.oauth.OAuth20Service;
 import com.servoy.base.util.I18NProvider;
 import com.servoy.base.util.ITagResolver;
 import com.servoy.base.util.TagParser;
@@ -78,6 +94,7 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
+import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -87,6 +104,7 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class StatelessLoginHandler
 {
+	public static final String OAUTH_CUSTOM_PROPERTIES = "oauth";
 	private static final String SVYLOGIN_PATH = "svylogin";
 	public static final String PASSWORD = "password";
 	public static final String ID_TOKEN = "id_token";
@@ -105,6 +123,17 @@ public class StatelessLoginHandler
 		"/servoy-service/rest_ws/api/login_auth/validateAuthUser";
 	public static final String REFRESH_TOKEN_CLOUD_URL = BASE_CLOUD_URL +
 		"/servoy-service/rest_ws/api/login_auth/refreshPermissions";
+
+	//oauth constants
+	private static final String NONCE = "nonce";
+	public static final String JWKS_URI = "jwks_uri";
+	public static final String ACCESS_TOKEN_ENDPOINT = "accessTokenEndpoint";
+	public static final String AUTHORIZATION_BASE_URL = "authorizationBaseUrl";
+	public static final String TENANT = "tenant";
+	public static final String OAUTH_API = "api";
+	public static final String DEFAULT_SCOPE = "defaultScope";
+	public static final String API_SECRET = "apiSecret";
+	public static final String CLIENT_ID = "clientId";
 
 	@SuppressWarnings({ "boxing" })
 	public static Pair<Boolean, String> mustAuthenticate(HttpServletRequest request, HttpServletResponse reponse, String solutionName)
@@ -134,11 +163,24 @@ public class StatelessLoginHandler
 						checkUser(user, password, needToLogin, fs.getSolution(), null, "on".equals(request.getParameter(REMEMBER)));
 						if (!needToLogin.getLeft()) return needToLogin;
 					}
+					if (request.getParameter("id_token") != null && authenticator == AUTHENTICATOR_TYPE.OAUTH)
+					{
+						String id_token = request.getParameter("id_token");
+						if (!Utils.stringIsEmpty(id_token))
+						{
+							DecodedJWT decodedJWT = JWT.decode(id_token);
+							if (checkOauthIdToken(needToLogin, fs, authenticator, id_token, decodedJWT))
+							{
+								return needToLogin;
+							}
+						}
+					}
 
 					String id_token = request.getParameter(ID_TOKEN) != null ? request.getParameter(ID_TOKEN)
 						: (String)request.getSession().getAttribute(ID_TOKEN);
 					if (!Utils.stringIsEmpty(id_token))
 					{
+						DecodedJWT decodedJWT = JWT.decode(id_token);
 						Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
 						JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(settings.getProperty(JWT_Password)))
 							.build();
@@ -152,7 +194,6 @@ public class StatelessLoginHandler
 						{
 							if (ex instanceof TokenExpiredException)
 							{
-								DecodedJWT decodedJWT = JWT.decode(id_token);
 								if (decodedJWT.getClaims().containsKey(USERNAME) && decodedJWT.getClaims().containsKey(UID) &&
 									decodedJWT.getClaims().containsKey(PERMISSIONS))
 								{
@@ -177,8 +218,97 @@ public class StatelessLoginHandler
 			{
 				throw new ServletException(e);
 			}
+			catch (MalformedURLException e)
+			{
+				throw new ServletException(e);
+			}
 		}
 		return needToLogin;
+	}
+
+	private static boolean checkOauthIdToken(Pair<Boolean, String> needToLogin, FlattenedSolution fs, AUTHENTICATOR_TYPE authenticator, String id_token,
+		DecodedJWT decodedJWT) throws MalformedURLException
+	{
+		if (authenticator == AUTHENTICATOR_TYPE.OAUTH && !"svy".equals(decodedJWT.getIssuer()))
+		{
+			JSONObject properties = new ServoyJSONObject(fs.getSolution().getCustomProperties(), true);
+			if (properties.has(OAUTH_CUSTOM_PROPERTIES))
+			{
+				JSONObject auth = properties.getJSONObject(OAUTH_CUSTOM_PROPERTIES);
+				if (auth.has(JWKS_URI))
+				{
+					try
+					{
+						String jwks_uri = auth.getString(JWKS_URI);
+						final JwkProvider jwkStore = new UrlJwkProvider(new URL(jwks_uri));
+						if (decodedJWT.getKeyId() == null)
+						{
+							Debug.error("Cannot verify the token with jwks '" + jwks_uri //
+								+ "' because the key id is missing in the token header.");
+						}
+						Algorithm algorithm = getAlgo(decodedJWT, jwkStore);
+						JWTVerifier verifier = JWT.require(algorithm).build();
+						try
+						{
+							verifier.verify(decodedJWT);
+
+							Solution authenticatorModule = findAuthenticator(fs.getSolution());
+							if (authenticatorModule != null)
+							{
+								Boolean remember = Boolean.valueOf("offline".equals(auth.optString("access_type")));
+								String payload = new String(java.util.Base64.getUrlDecoder().decode(decodedJWT.getPayload()));
+								JSONObject token = new JSONObject();
+								token.put(LAST_LOGIN, new JSONObject(payload));
+								return callAuthenticator(needToLogin, remember, authenticatorModule, token);
+							}
+							else
+							{
+								Debug.error("Trying to login in solution " + fs.getName() +
+									" with using an AUTHENCATOR solution, but the main solution doesn't have that as a module");
+							}
+						}
+						catch (JWTVerificationException ex)
+						{
+							//TODO should redirect to oauth provider login page from here?
+							return false;
+						}
+					}
+					catch (JwkException e)
+					{
+						Debug.error("Cannot verify the id_token", e);
+					}
+				}
+				else
+				{
+					Debug.error("Missing the oauth config file.");
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+
+	private static Algorithm getAlgo(DecodedJWT decodedJWT, final JwkProvider jwkStore) throws JwkException, InvalidPublicKeyException
+	{
+		Jwk jwk = jwkStore.get(decodedJWT.getKeyId());
+		String algo = decodedJWT.getAlgorithm();
+		PublicKey publicKey = jwk.getPublicKey();
+		switch (algo)
+		{
+			case "RS256" :
+				return Algorithm.RSA256((RSAPublicKey)publicKey, null);
+			case "RS384" :
+				return Algorithm.RSA384((RSAPublicKey)publicKey, null);
+			case "RS512" :
+				return Algorithm.RSA512((RSAPublicKey)publicKey, null);
+			case "ES256" :
+				return Algorithm.ECDSA256((ECPublicKey)publicKey, null);
+			case "ES384" :
+				return Algorithm.ECDSA384((ECPublicKey)publicKey, null);
+			case "ES512" :
+				return Algorithm.ECDSA512((ECPublicKey)publicKey, null);
+		}
+		return null;
 	}
 
 	public static boolean handlePossibleCloudRequest(HttpServletRequest request, HttpServletResponse response, String solutionName) throws ServletException
@@ -426,9 +556,9 @@ public class StatelessLoginHandler
 		{
 			verified = checkCloudPermissions(username, password, needToLogin, solution, oldToken, rememberUser);
 		}
-		else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.AUTHENTICATOR)
+		else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.AUTHENTICATOR || solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
 		{
-			verified = checkAuthenticatorPermssions(username, password, needToLogin, solution, oldToken, rememberUser);
+			verified = checkAuthenticatorPermissions(username, password, needToLogin, solution, oldToken, rememberUser);
 		}
 		else
 		{
@@ -481,12 +611,60 @@ public class StatelessLoginHandler
 		return false;
 	}
 
-	private static boolean checkAuthenticatorPermssions(String username, String password, Pair<Boolean, String> needToLogin, Solution solution,
+	private static boolean checkAuthenticatorPermissions(String username, String password, Pair<Boolean, String> needToLogin, Solution solution,
 		DecodedJWT oldToken, Boolean rememberUser)
 	{
+		Solution authenticator = findAuthenticator(solution);
+		if (authenticator != null)
+		{
+			JSONObject json = new JSONObject();
+			json.put(USERNAME, username);
+			json.put(PASSWORD, password);
+			if (oldToken != null)
+			{
+				String payload = new String(java.util.Base64.getUrlDecoder().decode(oldToken.getPayload()));
+				JSONObject token = new JSONObject(payload);
+				json.put(LAST_LOGIN, token);
+			}
+
+			return callAuthenticator(needToLogin, rememberUser, authenticator, json);
+		}
+		else
+		{
+			Debug.error("Trying to login in solution " + solution.getName() +
+				" with using an AUTHENTICATOR solution, but the main solution doesn't have that as a module");
+		}
+		return false;
+	}
+
+	private static boolean callAuthenticator(Pair<Boolean, String> needToLogin, Boolean rememberUser, Solution authenticator, JSONObject json)
+	{
+		Credentials credentials = new Credentials(null, authenticator.getName(), null, json.toString());
+		IApplicationServer applicationServer = ApplicationServerRegistry.getService(IApplicationServer.class);
+		try
+		{
+			ClientLogin login = applicationServer.login(credentials);
+			if (login != null)
+			{
+				String token = createToken(login.getUserName(), login.getUserUid(), login.getUserGroups(), Long.valueOf(System.currentTimeMillis()),
+					rememberUser);
+				needToLogin.setLeft(Boolean.FALSE);
+				needToLogin.setRight(token);
+				return true;
+			}
+		}
+		catch (RemoteException | RepositoryException e)
+		{
+			Debug.error(e);
+		}
+		return false;
+	}
+
+	private static Solution findAuthenticator(Solution solution)
+	{
+		Solution authenticator = null;
 		String modulesNames = solution.getModulesNames();
 		IRepository localRepository = ApplicationServerRegistry.get().getLocalRepository();
-		Solution authenticator = null;
 		for (String moduleName : Utils.getTokenElements(modulesNames, ",", true))
 		{
 			try
@@ -503,44 +681,7 @@ public class StatelessLoginHandler
 				Debug.error(e);
 			}
 		}
-		if (authenticator != null)
-		{
-			JSONObject json = new JSONObject();
-			json.put(USERNAME, username);
-			json.put(PASSWORD, password);
-			if (oldToken != null)
-			{
-				String payload = new String(java.util.Base64.getUrlDecoder().decode(oldToken.getPayload()));
-				JSONObject token = new JSONObject(payload);
-				json.put(LAST_LOGIN, token);
-			}
-
-			Credentials credentials = new Credentials(null, authenticator.getName(), null, json.toString());
-
-			IApplicationServer applicationServer = ApplicationServerRegistry.getService(IApplicationServer.class);
-			try
-			{
-				ClientLogin login = applicationServer.login(credentials);
-				if (login != null)
-				{
-					String token = createToken(login.getUserName(), login.getUserUid(), login.getUserGroups(), Long.valueOf(System.currentTimeMillis()),
-						rememberUser);
-					needToLogin.setLeft(Boolean.FALSE);
-					needToLogin.setRight(token);
-					return true;
-				}
-			}
-			catch (RemoteException | RepositoryException e)
-			{
-				Debug.error(e);
-			}
-		}
-		else
-		{
-			Debug.error("Trying to login in solution " + solution.getName() +
-				" with using an AUTHENCATOR solution, but the main solution doesn't have that as a module");
-		}
-		return false;
+		return authenticator;
 	}
 
 	private static boolean checkCloudPermissions(String username, String password, Pair<Boolean, String> needToLogin, Solution solution, DecodedJWT oldToken,
@@ -674,6 +815,31 @@ public class StatelessLoginHandler
 		{
 			Debug.error("Can't load solution " + solutionName, e);
 		}
+		if (solution != null && solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
+		{
+			JSONObject properties = new ServoyJSONObject(solution.getCustomProperties(), true);
+			if (properties.has(OAUTH_CUSTOM_PROPERTIES))
+			{
+				JSONObject auth = properties.getJSONObject(OAUTH_CUSTOM_PROPERTIES);
+				Map<String, String> additionalParameters = new HashMap<>();
+				OAuth20Service service = createOauthService(auth, additionalParameters, getServerURL(request));
+				if (service != null)
+				{
+					try
+					{
+						final String authorizationUrl = service.createAuthorizationUrlBuilder()//
+							.additionalParams(additionalParameters).build();
+						response.sendRedirect(authorizationUrl);
+					}
+					catch (Exception e)
+					{
+						Debug.error(e);
+					}
+				}
+				return;
+			}
+		}
+
 		String loginHtml = null;
 		if (solution != null && solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 		{
@@ -779,6 +945,82 @@ public class StatelessLoginHandler
 		response.setContentLengthLong(loginHtml.length());
 		response.getWriter().write(loginHtml);
 		return;
+	}
+
+
+	public static OAuth20Service createOauthService(JSONObject auth, Map<String, String> additionalParameters, String serverURL)
+	{
+		ServiceBuilder builder = new ServiceBuilder(auth.optString(CLIENT_ID));
+		String api = null, tenant = null;
+		for (String key : auth.keySet())
+		{
+			switch (key)
+			{
+				case API_SECRET :
+					builder.apiSecret(auth.getString(key));
+					break;
+				case DEFAULT_SCOPE :
+					builder.defaultScope(auth.getString(key));
+					break;
+				case OAUTH_API :
+					api = auth.getString(key);
+					break;
+				case TENANT :
+					tenant = auth.getString(key);
+					break;
+				case AUTHORIZATION_BASE_URL :
+				case ACCESS_TOKEN_ENDPOINT :
+				case CLIENT_ID :
+				case JWKS_URI :
+					//skip
+					break;
+				default :
+					additionalParameters.put(key, auth.getString(key));
+			}
+		}
+		additionalParameters.put(NONCE, "test"); //TODO check
+		builder.responseType("id_token");
+		builder.callback(serverURL + "svy_oauth/" + "index.html");
+		try
+		{
+			DefaultApi20 apiInstance = null;
+			if (api != null)
+			{
+				apiInstance = getApiInstance(api, tenant);
+			}
+			else
+			{
+				if (!auth.has(AUTHORIZATION_BASE_URL))
+				{
+					throw new Exception("Cannot create the custom oauth api, authorizationBaseUrl is null.");
+				}
+				if (!auth.has(ACCESS_TOKEN_ENDPOINT))
+				{
+					throw new Exception("Cannot create the custom oauth api, accessTokenEndpoint is null.");
+				}
+
+				apiInstance = new DefaultApi20()
+				{
+					@Override
+					protected String getAuthorizationBaseUrl()
+					{
+						return auth.getString(AUTHORIZATION_BASE_URL);
+					}
+
+					@Override
+					public String getAccessTokenEndpoint()
+					{
+						return auth.getString(ACCESS_TOKEN_ENDPOINT);
+					}
+				};
+			}
+			return builder.build(apiInstance);
+		}
+		catch (Exception e)
+		{
+			Debug.error("Cannot create the oauth service.", e);
+		}
+		return null;
 	}
 
 	private static String getPath(HttpServletRequest request)
@@ -917,5 +1159,32 @@ public class StatelessLoginHandler
 		return headerValue.replaceAll("[\n\r]+", " ");
 	}
 
+	static DefaultApi20 getApiInstance(String provider, String tenant) throws Exception
+	{
+		if ("com.github.scribejava.apis.MicrosoftAzureActiveDirectory20Api".equals(provider))
+		{
+			return tenant != null ? MicrosoftAzureActiveDirectory20Api.custom(tenant) : MicrosoftAzureActiveDirectory20Api.instance();
+		}
+		else
+		{
+			try
+			{
+				Class< ? > clazz = Class.forName(provider);
+				if (DefaultApi20.class.isAssignableFrom(clazz))
+				{
+					Method instance = clazz.getDeclaredMethod("instance");
+					return (DefaultApi20)instance.invoke(null, (Object[])null);
+				}
+				else
+				{
+					throw new Exception("'" + provider + "' api was not found or is not an OAuth2 api");
+				}
+			}
+			catch (Exception e)
+			{
+				throw new Exception("Could not create OAuth Service: " + e.getMessage());
+			}
+		}
+	}
 
 }
