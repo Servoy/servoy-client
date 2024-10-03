@@ -240,6 +240,48 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		return foundsetSelector;
 	}
 
+	public void updateFoundsetSelector(String newSelector)
+	{
+		foundsetSelector = newSelector;
+
+		if (webObjectContext != null)
+		{
+			if (parentDAL != null)
+			{
+				parentDAL.removeDataLinkedProperty(this);
+			}
+			updateFoundset((IRecordInternal)null);
+
+			setDataLinks();
+
+			fireUnderlyingStateChangedListeners();
+		}
+	}
+
+	private void setDataLinks()
+	{
+		// register parent record changed listener
+		if (parentDAL != null)
+		{
+			TargetDataLinks dataLinks = TargetDataLinks.LINKED_TO_ALL;
+			if (foundsetSelector != null && !FORM_FOUNDSET_SELECTOR.equals(foundsetSelector) && !DataSourceUtils.isDatasourceUri(foundsetSelector))
+			{
+				// it is a relation then, not a datasource (separate or named foundset)
+				int lastIndex = foundsetSelector.lastIndexOf('.');
+				if (lastIndex > 0)
+				{
+					// if this is a nested relation the parent dal needs to know this. so it can monitor the parent relations.
+					Relation[] relations = getApplication().getFlattenedSolution().getRelationSequence(foundsetSelector.substring(0, lastIndex));
+					if (relations != null && relations.length > 0)
+					{
+						dataLinks = new TargetDataLinks(null, true, relations);
+					}
+				}
+			}
+			parentDAL.addDataLinkedProperty(this, dataLinks);
+		}
+	}
+
 	protected boolean isOneOfTheFollowingAPk(Set<String> columnNames)
 	{
 		if (columnNames == null) return false;
@@ -267,26 +309,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 //		}
 		updateFoundset((IRecordInternal)null);
 
-		// register parent record changed listener
-		if (parentDAL != null)
-		{
-			TargetDataLinks dataLinks = TargetDataLinks.LINKED_TO_ALL;
-			if (foundsetSelector != null && !FORM_FOUNDSET_SELECTOR.equals(foundsetSelector) && !DataSourceUtils.isDatasourceUri(foundsetSelector))
-			{
-				// it is a relation then, not a datasource (separate or named foundset)
-				int lastIndex = foundsetSelector.lastIndexOf('.');
-				if (lastIndex > 0)
-				{
-					// if this is a nested relation the parent dal needs to know this. so it can monitor the parent relations.
-					Relation[] relations = getApplication().getFlattenedSolution().getRelationSequence(foundsetSelector.substring(0, lastIndex));
-					if (relations != null && relations.length > 0)
-					{
-						dataLinks = new TargetDataLinks(null, true, relations);
-					}
-				}
-			}
-			parentDAL.addDataLinkedProperty(this, dataLinks);
-		}
+		setDataLinks();
 
 		fireUnderlyingStateChangedListeners(); // we now have a webObjectContext so getDataAdapterList() might return non-null now; in some cases this is all other properties need, they don't need the foundset itself
 	}
