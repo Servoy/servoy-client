@@ -3,9 +3,11 @@
  * 
 * @example
 * // create a popup menu
+* // var menu = plugins.window.createPopupMenu(menus.getMenu('contextMenu'), feedback);
 * var menu = plugins.window.createPopupMenu();
+* 
 * // add a menu item
-* menu.addMenuItem("an entry", feedback);
+* menu.addMenuItem("an entry", callback);
 *   
 * if (event.getSource()) {
 *  // display the popup over the component which is the source of the event
@@ -17,7 +19,7 @@
 * }
 * 
  * @param {JSMenu} [jsmenu] The JSMenu whose structure will be used to initialize the popup menu.
- * @param {Function} [callback] The menu item click handler that will be set on all popup menu items
+ * @param {Function} [callback] The menu item click handler that will be set on all popup menu items.Its arguments are: [0] item index, [1] parent item index, [2] isSelected boolean, [3] parent menu text, [4] menu text
  * 
  * @return {Popup}
  */
