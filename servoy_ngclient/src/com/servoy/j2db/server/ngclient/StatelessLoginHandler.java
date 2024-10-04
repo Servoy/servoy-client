@@ -36,11 +36,13 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
@@ -169,7 +171,7 @@ public class StatelessLoginHandler
 						if (!Utils.stringIsEmpty(id_token))
 						{
 							DecodedJWT decodedJWT = JWT.decode(id_token);
-							if (checkOauthIdToken(needToLogin, fs, authenticator, id_token, decodedJWT))
+							if (checkOauthIdToken(needToLogin, fs, authenticator, id_token, decodedJWT, request))
 							{
 								return needToLogin;
 							}
@@ -227,10 +229,19 @@ public class StatelessLoginHandler
 	}
 
 	private static boolean checkOauthIdToken(Pair<Boolean, String> needToLogin, FlattenedSolution fs, AUTHENTICATOR_TYPE authenticator, String id_token,
-		DecodedJWT decodedJWT) throws MalformedURLException
+		DecodedJWT decodedJWT, HttpServletRequest request) throws MalformedURLException
 	{
 		if (authenticator == AUTHENTICATOR_TYPE.OAUTH && !"svy".equals(decodedJWT.getIssuer()))
 		{
+			String tokenNonce = decodedJWT.getClaim(NONCE).asString();
+			String nonce = (String)request.getSession().getAttribute(NONCE);
+			request.getSession().removeAttribute(NONCE);
+			if (tokenNonce == null || !tokenNonce.equals(nonce))
+			{
+				Debug.error("The token was replayed or tempered with.");
+				return false;
+			}
+
 			JSONObject properties = new ServoyJSONObject(fs.getSolution().getCustomProperties(), true);
 			if (properties.has(OAUTH_CUSTOM_PROPERTIES))
 			{
@@ -822,6 +833,10 @@ public class StatelessLoginHandler
 			{
 				JSONObject auth = properties.getJSONObject(OAUTH_CUSTOM_PROPERTIES);
 				Map<String, String> additionalParameters = new HashMap<>();
+				HttpSession session = request.getSession();
+				String nonce = UUID.randomUUID().toString();
+				session.setAttribute(NONCE, nonce);
+				additionalParameters.put(NONCE, nonce);
 				OAuth20Service service = createOauthService(auth, additionalParameters, getServerURL(request));
 				if (service != null)
 				{
@@ -978,7 +993,6 @@ public class StatelessLoginHandler
 					additionalParameters.put(key, auth.getString(key));
 			}
 		}
-		additionalParameters.put(NONCE, "test"); //TODO check
 		builder.responseType("id_token");
 		builder.callback(serverURL + "svy_oauth/" + "index.html");
 		try
