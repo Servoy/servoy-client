@@ -371,7 +371,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * For example,
 	 * * <pre>
 	 *     if (foundset.find()) {
-	 *      founset.myleftouterjoinrelation.myfield = 'someval';
+	 *      foundset.myleftouterjoinrelation.myfield = 'someval';
 	 *      foundset.search();
 	 *     }
 	 * </pre>

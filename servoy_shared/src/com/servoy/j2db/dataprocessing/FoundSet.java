@@ -3924,7 +3924,7 @@ public abstract class FoundSet
 
 	/**
 	 * Get the selected records.
-	 * When the founset is in multiSelect mode (see property multiSelect), selection can be a more than 1 record.
+	 * When the foundset is in multiSelect mode (see property multiSelect), selection can be a more than 1 record.
 	 *
 	 * @sample var selectedRecords = %%prefix%%foundset.getSelectedRecords();
 	 * @return Array current records.
