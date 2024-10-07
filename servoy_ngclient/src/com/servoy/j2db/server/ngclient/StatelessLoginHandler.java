@@ -77,6 +77,7 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.github.scribejava.apis.MicrosoftAzureActiveDirectory20Api;
+import com.github.scribejava.apis.openid.OpenIdOAuth2AccessToken;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.oauth.OAuth20Service;
@@ -106,6 +107,7 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class StatelessLoginHandler
 {
+	private static final String REFRESH_TOKEN = "refresh_token";
 	public static final String OAUTH_CUSTOM_PROPERTIES = "oauth";
 	private static final String SVYLOGIN_PATH = "svylogin";
 	public static final String PASSWORD = "password";
@@ -162,16 +164,36 @@ public class StatelessLoginHandler
 					String password = request.getParameter(PASSWORD);
 					if (!Utils.stringIsEmpty(user) && !Utils.stringIsEmpty(password))
 					{
-						checkUser(user, password, needToLogin, fs.getSolution(), null, "on".equals(request.getParameter(REMEMBER)));
+						checkUser(user, password, needToLogin, fs.getSolution(), null, "on".equals(request.getParameter(REMEMBER)), request);
 						if (!needToLogin.getLeft()) return needToLogin;
 					}
-					if (request.getParameter("id_token") != null && authenticator == AUTHENTICATOR_TYPE.OAUTH)
+					if ((request.getParameter("id_token") != null || request.getParameter("code") != null) && authenticator == AUTHENTICATOR_TYPE.OAUTH)
 					{
-						String id_token = request.getParameter("id_token");
+						String id_token = null;
+						String refreshToken = null;
+						if (request.getParameter("code") != null)
+						{
+							OAuth20Service service = createOauthService(request, fs.getSolution(), new HashMap<>());
+							try
+							{
+								OpenIdOAuth2AccessToken accessToken = (OpenIdOAuth2AccessToken)service.getAccessToken(request.getParameter("code"));
+								refreshToken = accessToken.getRefreshToken();
+								id_token = accessToken.getOpenIdToken();
+							}
+							catch (Exception e)
+							{
+								Debug.error("Could not get the id and refresh tokens.");
+							}
+						}
+						else
+						{
+							id_token = request.getParameter("id_token");
+						}
+
 						if (!Utils.stringIsEmpty(id_token))
 						{
 							DecodedJWT decodedJWT = JWT.decode(id_token);
-							if (checkOauthIdToken(needToLogin, fs, authenticator, id_token, decodedJWT, request))
+							if (checkOauthIdToken(needToLogin, fs.getSolution(), authenticator, id_token, decodedJWT, request, refreshToken, true))
 							{
 								return needToLogin;
 							}
@@ -186,6 +208,7 @@ public class StatelessLoginHandler
 						Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
 						JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(settings.getProperty(JWT_Password)))
 							.build();
+
 						try
 						{
 							jwtVerifier.verify(id_token);
@@ -204,7 +227,7 @@ public class StatelessLoginHandler
 										decodedJWT.getClaim(REMEMBER).asBoolean() : Boolean.FALSE;
 									try
 									{
-										checkUser(_user, null, needToLogin, fs.getSolution(), decodedJWT, rememberUser);
+										checkUser(_user, null, needToLogin, fs.getSolution(), decodedJWT, rememberUser, request);
 									}
 									catch (Exception e)
 									{
@@ -228,21 +251,25 @@ public class StatelessLoginHandler
 		return needToLogin;
 	}
 
-	private static boolean checkOauthIdToken(Pair<Boolean, String> needToLogin, FlattenedSolution fs, AUTHENTICATOR_TYPE authenticator, String id_token,
-		DecodedJWT decodedJWT, HttpServletRequest request) throws MalformedURLException
+	private static boolean checkOauthIdToken(Pair<Boolean, String> needToLogin, Solution solution, AUTHENTICATOR_TYPE authenticator, String id_token,
+		DecodedJWT decodedJWT, HttpServletRequest request, String refreshToken, boolean checkNonce) throws MalformedURLException
 	{
 		if (authenticator == AUTHENTICATOR_TYPE.OAUTH && !"svy".equals(decodedJWT.getIssuer()))
 		{
-			String tokenNonce = decodedJWT.getClaim(NONCE).asString();
-			String nonce = (String)request.getSession().getAttribute(NONCE);
-			request.getSession().removeAttribute(NONCE);
-			if (tokenNonce == null || !tokenNonce.equals(nonce))
+			if (checkNonce)
 			{
-				Debug.error("The token was replayed or tempered with.");
-				return false;
+				//if token was refreshed it does not have nonce // TODO check
+				String tokenNonce = decodedJWT.getClaim(NONCE).asString();
+				String nonce = (String)request.getSession().getAttribute(NONCE);
+				request.getSession().removeAttribute(NONCE);
+				if (tokenNonce == null || !tokenNonce.equals(nonce))
+				{
+					Debug.error("The token was replayed or tempered with.");
+					return false;
+				}
 			}
 
-			JSONObject properties = new ServoyJSONObject(fs.getSolution().getCustomProperties(), true);
+			JSONObject properties = new ServoyJSONObject(solution.getCustomProperties(), true);
 			if (properties.has(OAUTH_CUSTOM_PROPERTIES))
 			{
 				JSONObject auth = properties.getJSONObject(OAUTH_CUSTOM_PROPERTIES);
@@ -263,25 +290,34 @@ public class StatelessLoginHandler
 						{
 							verifier.verify(decodedJWT);
 
-							Solution authenticatorModule = findAuthenticator(fs.getSolution());
+							Solution authenticatorModule = findAuthenticator(solution);
 							if (authenticatorModule != null)
 							{
 								Boolean remember = Boolean.valueOf("offline".equals(auth.optString("access_type")));
 								String payload = new String(java.util.Base64.getUrlDecoder().decode(decodedJWT.getPayload()));
 								JSONObject token = new JSONObject();
-								token.put(LAST_LOGIN, new JSONObject(payload));
+								JSONObject jsonObject = new JSONObject(payload);
+								if (refreshToken != null)
+								{
+									jsonObject.put(REFRESH_TOKEN, refreshToken);
+								}
+								token.put(LAST_LOGIN, jsonObject);
 								return callAuthenticator(needToLogin, remember, authenticatorModule, token);
 							}
 							else
 							{
-								Debug.error("Trying to login in solution " + fs.getName() +
-									" with using an AUTHENCATOR solution, but the main solution doesn't have that as a module");
+								Debug.error("Trying to login in solution " + solution.getName() +
+									" with using an AUTHENTICATOR solution, but the main solution doesn't have that as a module");
 							}
 						}
 						catch (JWTVerificationException ex)
 						{
 							//TODO should redirect to oauth provider login page from here?
 							return false;
+						}
+						catch (Exception e)
+						{
+							Debug.error(e);
 						}
 					}
 					catch (JwkException e)
@@ -294,9 +330,10 @@ public class StatelessLoginHandler
 					Debug.error("Missing the oauth config file.");
 				}
 			}
-			return true;
+//			return true;
 		}
 		return false;
+
 	}
 
 	private static Algorithm getAlgo(DecodedJWT decodedJWT, final JwkProvider jwkStore) throws JwkException, InvalidPublicKeyException
@@ -560,14 +597,44 @@ public class StatelessLoginHandler
 	}
 
 	private static void checkUser(String username, String password, Pair<Boolean, String> needToLogin, Solution solution, DecodedJWT oldToken,
-		Boolean rememberUser)
+		Boolean rememberUser, HttpServletRequest request)
 	{
 		boolean verified = false;
 		if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 		{
 			verified = checkCloudPermissions(username, password, needToLogin, solution, oldToken, rememberUser);
 		}
-		else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.AUTHENTICATOR || solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
+		else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
+		{
+			String refresh_token = oldToken.getClaim(REFRESH_TOKEN).asString();
+			if (refresh_token != null)
+			{
+				OAuth20Service service = createOauthService(request, solution, new HashMap<>());
+				if (service != null)
+				{
+					try
+					{
+						OpenIdOAuth2AccessToken token = (OpenIdOAuth2AccessToken)service.refreshAccessToken(refresh_token);
+						String id_token = token.getOpenIdToken();
+						DecodedJWT decodedJWT = JWT.decode(id_token);
+						verified = checkOauthIdToken(needToLogin, solution, solution.getAuthenticator(), id_token, decodedJWT, request, refresh_token, false);
+					}
+					catch (Exception e)
+					{
+						Debug.error("Could not refresh the token", e);
+					}
+				}
+				else
+				{
+					Debug.error("Could not create the oauth service");
+				}
+			}
+			else
+			{
+				//TODO redirect to provider's login? or just call the authenticator? how to remove the expired svy token?
+			}
+		}
+		else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.AUTHENTICATOR)
 		{
 			verified = checkAuthenticatorPermissions(username, password, needToLogin, solution, oldToken, rememberUser);
 		}
@@ -608,7 +675,7 @@ public class StatelessLoginHandler
 				String[] permissions = ApplicationServerRegistry.get().getUserManager().getUserGroups(clientid, uid);
 				if (permissions.length > 0 && (oldToken == null || Arrays.equals(oldToken.getClaim(PERMISSIONS).asArray(String.class), permissions)))
 				{
-					String token = createToken(username, uid, permissions, Long.valueOf(System.currentTimeMillis()), rememberUser);
+					String token = createToken(username, uid, permissions, Long.valueOf(System.currentTimeMillis()), rememberUser, null);
 					needToLogin.setLeft(Boolean.FALSE);
 					needToLogin.setRight(token);
 					return true;
@@ -657,8 +724,9 @@ public class StatelessLoginHandler
 			ClientLogin login = applicationServer.login(credentials);
 			if (login != null)
 			{
-				String token = createToken(login.getUserName(), login.getUserUid(), login.getUserGroups(), Long.valueOf(System.currentTimeMillis()),
-					rememberUser);
+				String token = createToken(login.getUserName(), login.getUserUid(), login.getUserGroups(), //
+					Long.valueOf(System.currentTimeMillis()), rememberUser, //
+					json.get(LAST_LOGIN) instanceof JSONObject ? json.getJSONObject(LAST_LOGIN).getString(REFRESH_TOKEN) : null);
 				needToLogin.setLeft(Boolean.FALSE);
 				needToLogin.setRight(token);
 				return true;
@@ -735,7 +803,7 @@ public class StatelessLoginHandler
 					}
 					if (permissions != null)
 					{
-						String token = createToken(username, username, permissions, loginTokenJSON.optString("lastLogin"), rememberUser);
+						String token = createToken(username, username, permissions, loginTokenJSON.optString("lastLogin"), rememberUser, null);
 						needToLogin.setLeft(Boolean.FALSE);
 						needToLogin.setRight(token);
 						return true;
@@ -787,7 +855,7 @@ public class StatelessLoginHandler
 	}
 
 
-	public static String createToken(String username, String uid, String[] groups, Object lastLogin, Boolean rememberUser)
+	public static String createToken(String username, String uid, String[] groups, Object lastLogin, Boolean rememberUser, String refresh_token)
 	{
 		Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
 		Algorithm algorithm = Algorithm.HMAC256(settings.getProperty(JWT_Password));
@@ -809,8 +877,30 @@ public class StatelessLoginHandler
 		{
 			builder = builder.withClaim(REMEMBER, rememberUser);
 		}
+		if (refresh_token != null)
+		{
+			builder = builder.withClaim(REFRESH_TOKEN, refresh_token);
+		}
 		return builder.sign(algorithm);
 	}
+
+	private static OAuth20Service createOauthService(HttpServletRequest request, Solution solution,
+		Map<String, String> additionalParameters)
+	{
+		JSONObject properties = new ServoyJSONObject(solution.getCustomProperties(), true);
+		if (properties.has(OAUTH_CUSTOM_PROPERTIES))
+		{
+			JSONObject auth = properties.getJSONObject(OAUTH_CUSTOM_PROPERTIES);
+			HttpSession session = request.getSession();
+			String nonce = (String)request.getSession().getAttribute(NONCE) != null ? (String)request.getSession().getAttribute(NONCE)
+				: UUID.randomUUID().toString();
+			session.setAttribute(NONCE, nonce);
+			additionalParameters.put(NONCE, nonce);
+			return createOauthService(auth, additionalParameters, getServerURL(request));
+		}
+		return null;
+	}
+
 
 	public static void writeLoginPage(HttpServletRequest request, HttpServletResponse response, String solutionName)
 		throws IOException
@@ -828,31 +918,60 @@ public class StatelessLoginHandler
 		}
 		if (solution != null && solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
 		{
-			JSONObject properties = new ServoyJSONObject(solution.getCustomProperties(), true);
-			if (properties.has(OAUTH_CUSTOM_PROPERTIES))
+			Map<String, String> additionalParameters = new HashMap<>();
+			OAuth20Service service = createOauthService(request, solution, additionalParameters);
+			if (service != null)
 			{
-				JSONObject auth = properties.getJSONObject(OAUTH_CUSTOM_PROPERTIES);
-				Map<String, String> additionalParameters = new HashMap<>();
-				HttpSession session = request.getSession();
-				String nonce = UUID.randomUUID().toString();
-				session.setAttribute(NONCE, nonce);
-				additionalParameters.put(NONCE, nonce);
-				OAuth20Service service = createOauthService(auth, additionalParameters, getServerURL(request));
-				if (service != null)
+				try
 				{
-					try
-					{
-						final String authorizationUrl = service.createAuthorizationUrlBuilder()//
-							.additionalParams(additionalParameters).build();
-						response.sendRedirect(authorizationUrl);
-					}
-					catch (Exception e)
-					{
-						Debug.error(e);
-					}
+					final String authorizationUrl = service.createAuthorizationUrlBuilder()//
+						.additionalParams(additionalParameters).build();
+					StringBuilder sb = new StringBuilder();
+					sb.append("<!DOCTYPE html>").append("\n")
+						.append("<html lang=\"en\">").append("\n")
+						.append("<head>").append("\n")
+						.append("    <meta charset=\"UTF-8\">").append("\n")
+						.append("<base href=\"").append("\n")
+						.append(getPath(request)).append("\n")
+						.append("\">").append("\n")
+						.append("<script type='text/javascript'>").append("\n")
+						.append("    window.addEventListener('load', () => { ").append("\n")
+						.append("        const servoyIdToken = window.localStorage.getItem('servoy_id_token');").append("\n")
+						.append("        if (servoyIdToken) {").append("\n")
+						.append("            document.login_form.id_token.value = JSON.parse(servoyIdToken);").append("\n")
+						.append("            document.login_form.submit();").append("\n")
+						.append("        } else {").append("\n")
+						.append("            window.location.href = '").append(authorizationUrl).append("';").append("\n")
+						.append("        }").append("\n")
+						.append("   }) ").append("\n")
+						.append("  </script> ").append("\n")
+						.append("    <title>Auto Login</title>").append("\n")
+						.append("</head>").append("\n")
+						.append("<body>").append("\n")
+						.append("   <form accept-charset=\"UTF-8\" role=\"form\" name=\"login_form\" method=\"post\" style=\"display: none;\">")
+						.append("\n")
+						.append("        <input type=\"hidden\" name=\"id_token\" id=\"id_token\">").append("\n")
+						.append("   </form>").append("\n")
+						.append("\n")
+						.append("</body>").append("\n")
+						.append("</html>").append("\n");
+
+					response.setCharacterEncoding("UTF-8");
+					response.setContentType("text/html");
+					response.setContentLengthLong(sb.length());
+					response.getWriter().write(sb.toString());
 				}
-				return;
+				catch (Exception e)
+				{
+					Debug.error(e);
+				}
 			}
+			else
+			{
+				Debug.error("The oauth configuration is missing for solution " + solution.getName() +
+					". Please create it using the button from the authenticator type property in the properties view.");
+			}
+			return;
 		}
 
 		String loginHtml = null;
@@ -993,7 +1112,7 @@ public class StatelessLoginHandler
 					additionalParameters.put(key, auth.getString(key));
 			}
 		}
-		builder.responseType("id_token");
+		builder.responseType("offline".equals(additionalParameters.get("access_type")) ? "code" : "id_token"); //TODO check other apis
 		builder.callback(serverURL + "svy_oauth/" + "index.html");
 		try
 		{
