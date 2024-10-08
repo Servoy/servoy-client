@@ -310,11 +310,6 @@ public class StatelessLoginHandler
 									" with using an AUTHENTICATOR solution, but the main solution doesn't have that as a module");
 							}
 						}
-						catch (JWTVerificationException ex)
-						{
-							//TODO should redirect to oauth provider login page from here?
-							return false;
-						}
 						catch (Exception e)
 						{
 							Debug.error(e);
@@ -330,7 +325,6 @@ public class StatelessLoginHandler
 					Debug.error("Missing the oauth config file.");
 				}
 			}
-//			return true;
 		}
 		return false;
 
@@ -606,33 +600,7 @@ public class StatelessLoginHandler
 		}
 		else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
 		{
-			String refresh_token = oldToken.getClaim(REFRESH_TOKEN).asString();
-			if (refresh_token != null)
-			{
-				OAuth20Service service = createOauthService(request, solution, new HashMap<>());
-				if (service != null)
-				{
-					try
-					{
-						OpenIdOAuth2AccessToken token = (OpenIdOAuth2AccessToken)service.refreshAccessToken(refresh_token);
-						String id_token = token.getOpenIdToken();
-						DecodedJWT decodedJWT = JWT.decode(id_token);
-						verified = checkOauthIdToken(needToLogin, solution, solution.getAuthenticator(), id_token, decodedJWT, request, refresh_token, false);
-					}
-					catch (Exception e)
-					{
-						Debug.error("Could not refresh the token", e);
-					}
-				}
-				else
-				{
-					Debug.error("Could not create the oauth service");
-				}
-			}
-			else
-			{
-				//TODO redirect to provider's login? or just call the authenticator? how to remove the expired svy token?
-			}
+			verified = refreshOAuthTokenIfPossible(needToLogin, solution, oldToken, request);
 		}
 		else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.AUTHENTICATOR)
 		{
@@ -647,6 +615,34 @@ public class StatelessLoginHandler
 			needToLogin.setLeft(Boolean.TRUE);
 			needToLogin.setRight(null);
 		}
+	}
+
+	private static boolean refreshOAuthTokenIfPossible(Pair<Boolean, String> needToLogin, Solution solution, DecodedJWT oldToken, HttpServletRequest request)
+	{
+		String refresh_token = oldToken.getClaim(REFRESH_TOKEN).asString();
+		if (refresh_token != null)
+		{
+			OAuth20Service service = createOauthService(request, solution, new HashMap<>());
+			if (service != null)
+			{
+				try
+				{
+					OpenIdOAuth2AccessToken token = (OpenIdOAuth2AccessToken)service.refreshAccessToken(refresh_token);
+					String id_token = token.getOpenIdToken();
+					DecodedJWT decodedJWT = JWT.decode(id_token);
+					return checkOauthIdToken(needToLogin, solution, solution.getAuthenticator(), id_token, decodedJWT, request, refresh_token, false);
+				}
+				catch (Exception e)
+				{
+					Debug.error("Could not refresh the token", e);
+				}
+			}
+			else
+			{
+				Debug.error("Could not create the oauth service");
+			}
+		}
+		return false;
 	}
 
 	private static boolean checkDefaultLoginPermissions(String username, String password, Pair<Boolean, String> needToLogin, DecodedJWT oldToken,
@@ -935,15 +931,25 @@ public class StatelessLoginHandler
 						.append(getPath(request)).append("\n")
 						.append("\">").append("\n")
 						.append("<script type='text/javascript'>").append("\n")
-						.append("    window.addEventListener('load', () => { ").append("\n")
-						.append("        const servoyIdToken = window.localStorage.getItem('servoy_id_token');").append("\n")
-						.append("        if (servoyIdToken) {").append("\n")
-						.append("            document.login_form.id_token.value = JSON.parse(servoyIdToken);").append("\n")
-						.append("            document.login_form.submit();").append("\n")
-						.append("        } else {").append("\n")
-						.append("            window.location.href = '").append(authorizationUrl).append("';").append("\n")
-						.append("        }").append("\n")
-						.append("   }) ").append("\n")
+						.append("    window.addEventListener('load', () => { ").append("\n");
+					if (!Utils.stringIsEmpty(request.getParameter(ID_TOKEN) != null ? request.getParameter(ID_TOKEN)
+						: (String)request.getSession().getAttribute(ID_TOKEN)))
+					{
+						//we have an id token (svy or oauth provider) which is not valid or cannot be refreshed
+						sb.append("     window.localStorage.removeItem('servoy_id_token');").append("\n")
+							.append("   window.location.href = '").append(authorizationUrl).append("';").append("\n");
+					}
+					else
+					{
+						sb.append("        const servoyIdToken = window.localStorage.getItem('servoy_id_token');").append("\n")
+							.append("        if (servoyIdToken) {").append("\n")
+							.append("            document.login_form.id_token.value = JSON.parse(servoyIdToken);").append("\n")
+							.append("            document.login_form.submit();").append("\n")
+							.append("        } else {").append("\n")
+							.append("            window.location.href = '").append(authorizationUrl).append("';").append("\n")
+							.append("        }").append("\n");
+					}
+					sb.append("   }) ").append("\n")
 						.append("  </script> ").append("\n")
 						.append("    <title>Auto Login</title>").append("\n")
 						.append("</head>").append("\n")
