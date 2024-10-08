@@ -177,6 +177,7 @@ public class AngularIndexPageWriter
 			if (contentSecurityPolicyNonce != null)
 			{
 				indexHtml = indexHtml.replace("<script ", "<script nonce='" + contentSecurityPolicyNonce + '\'');
+				indexHtml = indexHtml.replace("<app-root>", "<app-root ngCspNonce='" + contentSecurityPolicyNonce + "\'>");
 			}
 
 			String titleText = fs.getSolution().getTitleText();
@@ -439,6 +440,7 @@ public class AngularIndexPageWriter
 		setDirectiveOverride(contentSecurityPolicyConfig, "img-src", settings);
 		setDirectiveOverride(contentSecurityPolicyConfig, "font-src", settings);
 		setDirectiveOverride(contentSecurityPolicyConfig, "form-action", settings);
+		setDirectiveOverride(contentSecurityPolicyConfig, "style-src-attr", settings);
 
 		return contentSecurityPolicyConfig;
 
