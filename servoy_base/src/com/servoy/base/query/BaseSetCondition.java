@@ -77,6 +77,7 @@ public class BaseSetCondition<K extends IBaseQuerySelectValue> implements IBaseS
 	 * @param keys
 	 * @param values
 	 */
+	@SuppressWarnings("nls")
 	protected static <K extends IBaseQuerySelectValue> Object validateValues(K[] keys, Object values)
 	{
 		Object vals = values;
@@ -106,7 +107,8 @@ public class BaseSetCondition<K extends IBaseQuerySelectValue> implements IBaseS
 
 		if (vals == null || !(vals instanceof Object[][]) || ((Object[][])vals).length != keys.length)
 		{
-			throw new IllegalArgumentException("Value list does not match key list in set condition"); //$NON-NLS-1$
+			String output = vals == null ? "null" : (vals instanceof Object[][]) ? Arrays.toString((Object[][])vals) : vals.toString();
+			throw new IllegalArgumentException("Array of values (" + output + ") does not match key list  (" + Arrays.toString(keys) + ") in set condition");
 		}
 
 		// ok

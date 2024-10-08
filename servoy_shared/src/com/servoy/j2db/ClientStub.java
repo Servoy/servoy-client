@@ -119,19 +119,18 @@ public class ClientStub implements IClient
 		{
 			public void run()
 			{
-				Runnable r = new Runnable()
+				client.invokeLater(new Runnable()
 				{
 					public void run()
 					{
 						if (client.isShutDown() || !client.isSolutionLoaded()) return;
-						IDataServer dataServer = client.getDataServer();
-						if (dataServer instanceof DataServerProxy)
+						if (client.getDataServer() instanceof DataServerProxy dataServerProxy)
 						{
 							String[] dbServernameTablename = DataSourceUtils.getDBServernameTablename(dataSource);
 							if (dbServernameTablename != null)
 							{
 								// map from real db server to server names from before switch-server
-								for (String srv : ((DataServerProxy)dataServer).getReverseMappedServerNames(dbServernameTablename[0]))
+								for (String srv : dataServerProxy.getReverseMappedServerNames(dbServernameTablename[0]))
 								{
 									((FoundSetManager)client.getFoundSetManager()).flushCachedDatabaseDataFromRemote(
 										DataSourceUtils.createDBTableDataSource(srv, dbServernameTablename[1]));
@@ -142,16 +141,7 @@ public class ClientStub implements IClient
 
 						((FoundSetManager)client.getFoundSetManager()).flushCachedDatabaseDataFromRemote(dataSource);
 					}
-				};
-
-				if (client.isEventDispatchThread())
-				{
-					r.run();
-				}
-				else
-				{
-					client.invokeLater(r);
-				}
+				});
 			}
 		});
 	}
