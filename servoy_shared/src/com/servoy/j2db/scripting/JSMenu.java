@@ -51,25 +51,25 @@ public class JSMenu
 	private JSMenuItem selectedItem;
 
 	private final List<IChangeListener> changeListeners = new ArrayList<IChangeListener>();
-	private final String[] groups;
+	private final String[] allowedPermissions;
 
 	/**
 	 * @param menuManager
 	 * @param menu
 	 * @param groups
 	 */
-	public JSMenu(Menu menu, String[] groups)
+	public JSMenu(Menu menu, String[] allowedPermissions)
 	{
 		this.name = menu.getName();
 		this.styleClass = menu.getStyleClass();
-		this.groups = groups;
+		this.allowedPermissions = allowedPermissions;
 		Iterator<IPersist> it = menu.getAllObjects();
 		while (it.hasNext())
 		{
 			IPersist child = it.next();
 			if (child instanceof MenuItem menuItem)
 			{
-				items.add(new JSMenuItem(this, menuItem, groups));
+				items.add(new JSMenuItem(this, menuItem, allowedPermissions));
 			}
 		}
 	}
@@ -78,11 +78,11 @@ public class JSMenu
 	 * @param menuManager
 	 * @param name
 	 */
-	public JSMenu(String name, String[] groups)
+	public JSMenu(String name, String[] allowedPermissions)
 	{
 		this.name = name;
-		this.groups = groups;
-		items.add(new JSMenuItem(this, name, groups));
+		this.allowedPermissions = allowedPermissions;
+		items.add(new JSMenuItem(this, name, allowedPermissions));
 	}
 
 	/**
@@ -205,7 +205,7 @@ public class JSMenu
 		JSMenuItem item = null;
 		if (index >= 0 && index <= items.size())
 		{
-			item = new JSMenuItem(this, id, this.groups);
+			item = new JSMenuItem(this, id, this.allowedPermissions);
 			items.add(index, item);
 			this.notifyChanged();
 		}

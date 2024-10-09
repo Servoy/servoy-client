@@ -67,7 +67,7 @@ public class MenuManager implements IMenuManager, IReturnedTypesProvider
 	private final Map<String, JSMenu> menus = new HashMap<String, JSMenu>();
 	private final ClientState application;
 	private boolean initialized = false;
-	private String[] groups;
+	private String[] allowedPermissions;
 
 	/**
 	 * @param clientState
@@ -88,7 +88,7 @@ public class MenuManager implements IMenuManager, IReturnedTypesProvider
 	public JSMenu createMenu(String name)
 	{
 		this.initMenus();
-		JSMenu menu = new JSMenu(name, groups);
+		JSMenu menu = new JSMenu(name, allowedPermissions);
 		menus.put(name, menu);
 		return menu;
 	}
@@ -127,7 +127,7 @@ public class MenuManager implements IMenuManager, IReturnedTypesProvider
 			while (it.hasNext())
 			{
 				Menu menu = it.next();
-				menus.put(menu.getName(), new JSMenu(menu, groups));
+				menus.put(menu.getName(), new JSMenu(menu, allowedPermissions));
 			}
 		}
 	}
@@ -139,11 +139,11 @@ public class MenuManager implements IMenuManager, IReturnedTypesProvider
 	}
 
 	/**
-	 * @param groups
+	 * @param allowedPermissions
 	 */
-	public void setCurrentGroups(String[] groups)
+	public void setCurrentPermissions(String[] allowedPermissions)
 	{
 		flushMenus();
-		this.groups = groups;
+		this.allowedPermissions = allowedPermissions;
 	}
 }
