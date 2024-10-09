@@ -303,26 +303,17 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		writer.endArray();
 		writer.endObject();
 		writer.endObject();
-		return stringWriter.toString();
+
+		String string = stringWriter.toString();
+//		System.err.println(string);
+		return string;
 	}
 
 	@SuppressWarnings("nls")
 	public static void writePosition(JSONWriter writer, IPersist o, Form form, WebFormComponent webComponent, boolean isDesigner)
 	{
-		if (o instanceof BaseComponent && ((BaseComponent)o).getCssPosition() != null)
-		{
-			CSSPosition position = ((BaseComponent)o).getCssPosition();
-			if (webComponent != null)
-			{
-				Object runtimeValue = webComponent.getProperty(IContentSpecConstants.PROPERTY_CSS_POSITION);
-				if (runtimeValue instanceof CSSPosition)
-				{
-					position = (CSSPosition)runtimeValue;
-				}
-			}
-			writeCSSPosition(writer, (BaseComponent)o, form, isDesigner, position);
-		}
-		else
+		// support for anchored old forms, convert to css position
+		if (o instanceof BaseComponent && ((BaseComponent)o).getCssPosition() == null && !form.isResponsiveLayout())
 		{
 			Point location = ((IFormElement)o).getLocation();
 			Dimension size = ((IFormElement)o).getSize();
