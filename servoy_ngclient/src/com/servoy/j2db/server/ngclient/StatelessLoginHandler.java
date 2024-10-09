@@ -722,7 +722,7 @@ public class StatelessLoginHandler
 			{
 				String token = createToken(login.getUserName(), login.getUserUid(), login.getUserGroups(), //
 					Long.valueOf(System.currentTimeMillis()), rememberUser, //
-					json.get(LAST_LOGIN) instanceof JSONObject ? json.getJSONObject(LAST_LOGIN).getString(REFRESH_TOKEN) : null);
+					json.has(LAST_LOGIN) && json.get(LAST_LOGIN) instanceof JSONObject ? json.getJSONObject(LAST_LOGIN).getString(REFRESH_TOKEN) : null);
 				needToLogin.setLeft(Boolean.FALSE);
 				needToLogin.setRight(token);
 				return true;
