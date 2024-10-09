@@ -20,7 +20,6 @@ package com.servoy.j2db.server.ngclient;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -76,6 +75,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
+import com.github.scribejava.apis.GoogleApi20;
 import com.github.scribejava.apis.MicrosoftAzureActiveDirectory20Api;
 import com.github.scribejava.apis.openid.OpenIdOAuth2AccessToken;
 import com.github.scribejava.core.builder.ServiceBuilder;
@@ -1300,30 +1300,14 @@ public class StatelessLoginHandler
 
 	static DefaultApi20 getApiInstance(String provider, String tenant) throws Exception
 	{
-		if ("com.github.scribejava.apis.MicrosoftAzureActiveDirectory20Api".equals(provider))
+		switch (provider)
 		{
-			return tenant != null ? MicrosoftAzureActiveDirectory20Api.custom(tenant) : MicrosoftAzureActiveDirectory20Api.instance();
-		}
-		else
-		{
-			try
-			{
-				Class< ? > clazz = Class.forName(provider);
-				if (DefaultApi20.class.isAssignableFrom(clazz))
-				{
-					Method instance = clazz.getDeclaredMethod("instance");
-					return (DefaultApi20)instance.invoke(null, (Object[])null);
-				}
-				else
-				{
-					throw new Exception("'" + provider + "' api was not found or is not an OAuth2 api");
-				}
-			}
-			catch (Exception e)
-			{
-				throw new Exception("Could not create OAuth Service: " + e.getMessage());
-			}
+			case "Microsoft" :
+				return tenant != null ? MicrosoftAzureActiveDirectory20Api.custom(tenant) : MicrosoftAzureActiveDirectory20Api.instance();
+			case "Google" :
+				return GoogleApi20.instance();
+			default :
+				throw new Exception("Could not create an OAuth Api.");
 		}
 	}
-
 }
