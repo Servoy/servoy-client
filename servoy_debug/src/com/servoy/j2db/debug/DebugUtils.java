@@ -158,7 +158,7 @@ public class DebugUtils
 
 					if (stackTrace == null) stackTrace = detail.toString();
 
-					msg += "\n > " + stackTrace;
+					msg = ((msg == null) ? "<null>\n > " : msg + "\n > ") + stackTrace;
 
 					if (detail instanceof ServoyException && ((ServoyException)detail).getScriptStackTrace() != null)
 					{
@@ -167,14 +167,18 @@ public class DebugUtils
 				}
 				else if (detail != null)
 				{
-					msg += "\n" + detail;
+					msg = ((msg == null) ? "<null>\n" : msg + "\n") + detail;
 					String scriptstack = Debug.getScriptStacktraceFromContext(msg);
 					if (scriptstack != null) msg += "\n" + scriptstack;
 				}
 				else
 				{
-					String scriptstack = Debug.getScriptStacktraceFromContext(msg);
-					if (scriptstack != null) msg += "\n" + scriptstack;
+					if (msg == null) msg = "<null>";
+					else
+					{
+						String scriptstack = Debug.getScriptStacktraceFromContext(msg);
+						if (scriptstack != null) msg += "\n" + scriptstack;
+					}
 				}
 				debugger.outputStdErr(msg.toString() + '\n');
 			}
