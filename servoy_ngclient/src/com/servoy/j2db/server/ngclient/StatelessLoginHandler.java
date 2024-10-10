@@ -132,6 +132,7 @@ public class StatelessLoginHandler
 	private static final String NONCE = "nonce";
 	public static final String JWKS_URI = "jwks_uri";
 	public static final String ACCESS_TOKEN_ENDPOINT = "accessTokenEndpoint";
+	public static final String REFRESH_TOKEN_ENDPOINT = "refreshTokenEndpoint";
 	public static final String AUTHORIZATION_BASE_URL = "authorizationBaseUrl";
 	public static final String TENANT = "tenant";
 	public static final String OAUTH_API = "api";
@@ -914,7 +915,18 @@ public class StatelessLoginHandler
 		}
 		if (solution != null && solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
 		{
+			String existingtoken = request.getParameter(ID_TOKEN) != null ? request.getParameter(ID_TOKEN)
+				: (String)request.getSession().getAttribute(ID_TOKEN);
 			Map<String, String> additionalParameters = new HashMap<>();
+			if (!Utils.stringIsEmpty(existingtoken))
+			{
+				DecodedJWT decodedJWT = JWT.decode(existingtoken);
+				if (!"svy".equals(decodedJWT.getIssuer()))
+				{
+					//id token which is rejected by the authenticator, show the prompt
+					additionalParameters.put("prompt", "consent"); // should this be select_account ?
+				}
+			}
 			OAuth20Service service = createOauthService(request, solution, additionalParameters);
 			if (service != null)
 			{
@@ -932,8 +944,7 @@ public class StatelessLoginHandler
 						.append("\">").append("\n")
 						.append("<script type='text/javascript'>").append("\n")
 						.append("    window.addEventListener('load', () => { ").append("\n");
-					if (!Utils.stringIsEmpty(request.getParameter(ID_TOKEN) != null ? request.getParameter(ID_TOKEN)
-						: (String)request.getSession().getAttribute(ID_TOKEN)))
+					if (!Utils.stringIsEmpty(existingtoken))
 					{
 						//we have an id token (svy or oauth provider) which is not valid or cannot be refreshed
 						sb.append("     window.localStorage.removeItem('servoy_id_token');").append("\n")
@@ -1150,6 +1161,12 @@ public class StatelessLoginHandler
 					public String getAccessTokenEndpoint()
 					{
 						return auth.getString(ACCESS_TOKEN_ENDPOINT);
+					}
+
+					@Override
+					public String getRefreshTokenEndpoint()
+					{
+						return auth.getString(REFRESH_TOKEN_ENDPOINT);
 					}
 				};
 			}
