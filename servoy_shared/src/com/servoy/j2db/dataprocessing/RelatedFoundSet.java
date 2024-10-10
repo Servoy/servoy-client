@@ -16,6 +16,7 @@
  */
 package com.servoy.j2db.dataprocessing;
 
+import static java.util.Arrays.stream;
 
 import static com.servoy.j2db.query.AbstractBaseQuery.deepClone;
 import static java.util.Arrays.stream;
