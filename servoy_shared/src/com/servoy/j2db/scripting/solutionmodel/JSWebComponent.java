@@ -36,6 +36,8 @@ import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.util.Debug;
 
 /**
+ * Solution Model WebComponent wrapper.
+ *
  * @author lvostinar
  *
  */

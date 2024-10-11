@@ -23,7 +23,7 @@ import java.util.List;
  *
  * @author jblok
  */
-public interface IRecordInternal extends IRecord, IRowChangeListener
+public interface IRecordInternal extends IRecord, IRowChangeListener, IDeleteTrigger
 {
 	public Row getRawData();
 

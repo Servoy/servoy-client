@@ -38,7 +38,7 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 
 /**
- * JSFoundSetUpdater is an utility class for performing updates on a foundset.
+ * JSFoundSetUpdater is an utility class for performing efficient updates on a foundset.
  *
  * @author jblok
  */

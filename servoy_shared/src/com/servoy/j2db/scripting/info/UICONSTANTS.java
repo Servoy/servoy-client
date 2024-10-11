@@ -21,6 +21,11 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
+/**
+ * Script constants user interface configuration.
+ *
+ * @author gerzse
+ */
 @SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class UICONSTANTS implements IPrefixedConstantsObject
@@ -366,7 +371,7 @@ public class UICONSTANTS implements IPrefixedConstantsObject
 	 * For example,
 	 * * <pre>
 	 *     if (foundset.find()) {
-	 *      founset.myleftouterjoinrelation.myfield = 'someval';
+	 *      foundset.myleftouterjoinrelation.myfield = 'someval';
 	 *      foundset.search();
 	 *     }
 	 * </pre>

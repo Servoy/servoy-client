@@ -71,6 +71,8 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
+ * A wrapper for an SQL SELECT query.
+ *
  * @author rgansevles
  *
  */
@@ -467,7 +469,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 *	    .add(
 	 *	      query.and
 	 *	        .add(query.columns.flag.eq(2))
-	 *	        .add(query.column.order_date.gt(new Date()))
+	 *	        .add(query.columns.order_date.gt(new Date()))
 	 *	     )
 	 *	);
 	 */

@@ -37,6 +37,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * A MenuItem scripting wrapper.
  * @author lvostinar
  *
  */
@@ -54,15 +55,15 @@ public class JSMenuItem
 	private Object[] callbackArguments;
 	private final JSMenu parentMenu;
 	private Map<String, Map<String, Object>> extraProperties;
-	private final String[] groups;
-	private JSONObject permissions;
+	private final String[] allowedPermissions;
+	private JSONObject permissionsData;
 
 	/**
 	 * @param menuManager
 	 * @param name
-	 * @param groups
+	 * @param allowedPermissions
 	 */
-	public JSMenuItem(JSMenu parentMenu, MenuItem menuItem, String[] groups)
+	public JSMenuItem(JSMenu parentMenu, MenuItem menuItem, String[] allowedPermissions)
 	{
 		this.itemID = menuItem.getName();
 		this.menuText = menuItem.getText();
@@ -71,15 +72,15 @@ public class JSMenuItem
 		this.enabled = menuItem.getEnabled();
 		this.tooltipText = menuItem.getToolTipText();
 		this.parentMenu = parentMenu;
-		this.groups = groups;
-		this.permissions = menuItem.getPermissions();
+		this.allowedPermissions = allowedPermissions;
+		this.permissionsData = menuItem.getPermissions();
 		Iterator<IPersist> it = menuItem.getAllObjects();
 		while (it.hasNext())
 		{
 			IPersist child = it.next();
 			if (child instanceof MenuItem menuItemChild)
 			{
-				items.add(new JSMenuItem(parentMenu, menuItemChild, groups));
+				items.add(new JSMenuItem(parentMenu, menuItemChild, allowedPermissions));
 			}
 		}
 		this.extraProperties = menuItem.getExtraProperties();
@@ -89,11 +90,11 @@ public class JSMenuItem
 	 * @param menuManager
 	 * @param name
 	 */
-	public JSMenuItem(JSMenu parentMenu, String itemID, String[] groups)
+	public JSMenuItem(JSMenu parentMenu, String itemID, String[] allowedPermissions)
 	{
 		this.itemID = itemID;
 		this.parentMenu = parentMenu;
-		this.groups = groups;
+		this.allowedPermissions = allowedPermissions;
 	}
 
 	/**
@@ -227,14 +228,14 @@ public class JSMenuItem
 
 	public boolean hasSecurityFlag(int flag)
 	{
-		if (this.groups != null && this.groups.length > 0 && this.permissions != null)
+		if (this.allowedPermissions != null && this.allowedPermissions.length > 0 && this.permissionsData != null)
 		{
-			List<String> groupsList = Arrays.asList(this.groups);
-			for (String key : this.permissions.keySet())
+			List<String> groupsList = Arrays.asList(this.allowedPermissions);
+			for (String key : this.permissionsData.keySet())
 			{
 				if (groupsList.contains(key))
 				{
-					int permission = Utils.getAsInteger(this.permissions.get(key));
+					int permission = Utils.getAsInteger(this.permissionsData.get(key));
 					if ((permission & flag) != 0)
 					{
 						return true;
@@ -312,7 +313,7 @@ public class JSMenuItem
 		JSMenuItem item = null;
 		if (index >= 0 && index <= items.size())
 		{
-			item = new JSMenuItem(parentMenu, id, groups);
+			item = new JSMenuItem(parentMenu, id, allowedPermissions);
 			items.add(index, item);
 			this.parentMenu.notifyChanged();
 		}

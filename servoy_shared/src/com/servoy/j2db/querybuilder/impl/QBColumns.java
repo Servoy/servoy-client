@@ -27,6 +27,8 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.DefaultJavaScope;
 
 /**
+ * Provides access to all columns from the QBSelect (query.columns).
+ *
  * @author rgansevles
  *
  * @since 6.1

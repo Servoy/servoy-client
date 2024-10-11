@@ -364,6 +364,9 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				}
 				properties.content.keySet().remove(IContentSpecConstants.PROPERTY_ATTRIBUTES);
 			}
+			// remove the size and location properties, should not be used anymore in the client code
+			templateProperties.content.remove(IContentSpecConstantsBase.PROPERTY_SIZE);
+			templateProperties.content.remove(IContentSpecConstantsBase.PROPERTY_LOCATION);
 
 			// write the template properties that are left
 			JSONUtils.writeData(FormElementToJSON.INSTANCE, writer, templateProperties.content, templateProperties.contentType,
@@ -374,8 +377,6 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 
 		if (o instanceof BaseComponent)
 		{
-			writer.key("servoyAttributes");
-			writer.object();
 			if (designer)
 			{
 				attributes.put("svy-id", fe.getDesignId());
@@ -406,11 +407,16 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				}
 				attributes.put("data-cy", form.getName() + "." + elementName);
 			}
-			attributes.forEach((key, value) -> {
-				writer.key(StringEscapeUtils.escapeEcmaScript(key));
-				writer.value(value);
-			});
-			writer.endObject();
+			if (attributes.size() > 0)
+			{
+				writer.key("servoyAttributes");
+				writer.object();
+				attributes.forEach((key, value) -> {
+					writer.key(StringEscapeUtils.escapeEcmaScript(key));
+					writer.value(value);
+				});
+				writer.endObject();
+			}
 		}
 		writer.endObject();
 

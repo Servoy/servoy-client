@@ -5,3 +5,4 @@
 /${buildDirectory}
 /@dot
 /target/
+/.polyglot.META-INF

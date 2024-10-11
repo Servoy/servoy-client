@@ -22,6 +22,8 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 
 /**
+ * A design-time menu object (a list of menu items), that can be used in various components and services (so you can re-use the same object in multiple places).
+ *
  * @author lvostinar
  *
  */

@@ -582,7 +582,7 @@ public class HtmlUtils
 	}
 
 
-	private static Pattern formattedPlainTextHintPattern = Pattern.compile(".*((\\n\\s)|(\\.\\n)).*", Pattern.DOTALL); //$NON-NLS-1$
+	private static Pattern formattedPlainTextHintPattern = Pattern.compile(".*((\\n-)|(\\n\\s)|((\\.|\\:)\\n)).*", Pattern.DOTALL); //$NON-NLS-1$
 	private static Pattern wantsMonospacedFontHintPattern = Pattern.compile(".*^( *\\S+)+ {2,}\\S+.*", Pattern.DOTALL | Pattern.MULTILINE); //$NON-NLS-1$
 
 	/**
@@ -607,7 +607,7 @@ public class HtmlUtils
 	 *   <li>otherwise, we leave it as it is - we expect valid HTML in there.</li>
 	 * </ul>
 	 *
-	 * @param description the description of a member, as written in it's JavaDocs / JSDocs.
+	 * @param description the description of a member, as written in it's JavaDocs / JSDocs. It should be without @param, @return and other such content; just the description part.
 	 * @return HTML formatted content that represents the initially given description.
 	 */
 	@SuppressWarnings("nls")

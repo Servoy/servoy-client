@@ -44,6 +44,7 @@ import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UUID;
 
 /**
+ * Solution Model ralation wrapper.
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)

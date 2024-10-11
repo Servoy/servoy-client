@@ -37,6 +37,8 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * Utility class for all available SQL functions.
+ *
  * @author rgansevles
  *
  */

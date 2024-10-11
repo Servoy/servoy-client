@@ -22,6 +22,7 @@ import com.servoy.j2db.query.QuerySearchedCaseExpression;
 import com.servoy.j2db.querybuilder.IQueryBuilderSearchCaseExpression;
 
 /**
+ * Else branch of an SQL Case expression.
  * @author rgansevles
  *
  */

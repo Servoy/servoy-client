@@ -562,7 +562,7 @@
                 },
                 {
                     "name":"feedback_item",
-                    "type":"string",
+                    "type":"function",
                     "optional":true
                 },
                 {
@@ -597,7 +597,7 @@
                 },
                 {
                     "name":"feedback_item",
-                    "type":"string",
+                    "type":"function",
                     "optional":true
                 },
                 {
@@ -634,7 +634,7 @@
                 },
                 {
                     "name":"feedback_item",
-                    "type":"string",
+                    "type":"function",
                     "optional":true
                 },
                 {
@@ -707,7 +707,7 @@
                        "type":"string"
                    }
                ],
-               "returns": "MenuItem"
+               "returns": "int"
             },
             "getMenu": {
                "parameters":[

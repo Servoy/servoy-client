@@ -46,6 +46,8 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.StringComparator;
 
 /**
+ * A utility scripting object for various i18n (internationalization) related APIs.
+ *
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "i18n", scriptingName = "i18n")

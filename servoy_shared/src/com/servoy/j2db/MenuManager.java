@@ -26,20 +26,48 @@ import org.mozilla.javascript.annotations.JSFunction;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Menu;
+import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.scripting.JSMenu;
+import com.servoy.j2db.scripting.JSMenuItem;
+import com.servoy.j2db.scripting.ScriptObjectRegistry;
 
 /**
+ * A scripting object for handling all menus (JSMenu, JSMenuItem) in the application.
+ *
  * @author lvostinar
  *
  */
 @ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Menus", scriptingName = "menus")
-public class MenuManager implements IMenuManager
+public class MenuManager implements IMenuManager, IReturnedTypesProvider
 {
+
+	static
+	{
+		ScriptObjectRegistry.registerReturnedTypesProviderForClass(MenuManager.class, new IReturnedTypesProvider()
+		{
+			public Class< ? >[] getAllReturnedTypes()
+			{
+				return getAllReturnedTypesInternal();
+			}
+		});
+	}
+
+	@Override
+	public Class< ? >[] getAllReturnedTypes()
+	{
+		return getAllReturnedTypesInternal();
+	}
+
+	private static Class< ? >[] getAllReturnedTypesInternal()
+	{
+		return new Class< ? >[] { JSMenu.class, JSMenuItem.class };
+	}
+
 	private final Map<String, JSMenu> menus = new HashMap<String, JSMenu>();
 	private final ClientState application;
 	private boolean initialized = false;
-	private String[] groups;
+	private String[] allowedPermissions;
 
 	/**
 	 * @param clientState
@@ -60,7 +88,7 @@ public class MenuManager implements IMenuManager
 	public JSMenu createMenu(String name)
 	{
 		this.initMenus();
-		JSMenu menu = new JSMenu(name, groups);
+		JSMenu menu = new JSMenu(name, allowedPermissions);
 		menus.put(name, menu);
 		return menu;
 	}
@@ -99,7 +127,7 @@ public class MenuManager implements IMenuManager
 			while (it.hasNext())
 			{
 				Menu menu = it.next();
-				menus.put(menu.getName(), new JSMenu(menu, groups));
+				menus.put(menu.getName(), new JSMenu(menu, allowedPermissions));
 			}
 		}
 	}
@@ -111,11 +139,11 @@ public class MenuManager implements IMenuManager
 	}
 
 	/**
-	 * @param groups
+	 * @param allowedPermissions
 	 */
-	public void setCurrentGroups(String[] groups)
+	public void setCurrentPermissions(String[] allowedPermissions)
 	{
 		flushMenus();
-		this.groups = groups;
+		this.allowedPermissions = allowedPermissions;
 	}
 }

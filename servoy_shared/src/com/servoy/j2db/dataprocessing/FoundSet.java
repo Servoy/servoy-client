@@ -154,7 +154,8 @@ import com.servoy.j2db.util.Utils;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSFoundSet", scriptingName = "JSFoundSet")
-public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMethods, IRowListener, Scriptable, SymbolScriptable, Cloneable, IJSFoundSet
+public abstract class FoundSet
+	implements IFoundSetInternal, IFoundSetScriptMethods, IRowListener, Scriptable, SymbolScriptable, Cloneable, IJSFoundSet, IDeleteTrigger
 {
 	public static final String JS_FOUNDSET = "JSFoundSet"; //$NON-NLS-1$
 
@@ -1708,7 +1709,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	 *
 	 * The query of the QBSelect that is given is added as a "search" condition to the existing base query of the foundset.
 	 * This does mean that loadAllRecords() will revert this, because that will clear the search condition and go back to the base query of the foundset.
-	 * Some hold true for clear() that will remove the search condition and because of that the given query will also be removed.
+	 * The same holds true for clear() that will also remove the search condition, and, because of that, the given query will also be removed.
 	 *
 	 * If you want to create more a "view" on your database that will always be kept by this foundset, so loadAllRecords() (with our withou first calliing clear()) will always
 	 * revert back to this set of data (and you can also search inside this data with find/search or adding another query on top of it.
@@ -2072,11 +2073,11 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		}
 
 		Placeholder dynamicPKplaceholder = sqlSelect.getPlaceholder(new TablePlaceholderKey(sqlSelect.getTable(), SQLGenerator.PLACEHOLDER_FOUNDSET_PKS));
-		if (dynamicPKplaceholder != null && dynamicPKplaceholder.isSet() && dynamicPKplaceholder.getValue() instanceof Object[])
+		if (dynamicPKplaceholder != null && dynamicPKplaceholder.getRawValue() instanceof Object[][] valuesAarray)
 		{
 			// loading from saved query, dynamic pk was replaced by array in serialization, make dynamic again
 			dynamicPKplaceholder.setValue(new DynamicPkValuesArray(getSQLSheet().getTable().getRowIdentColumns(),
-				SQLGenerator.createPKValuesDataSet(getSQLSheet().getTable().getRowIdentColumns(), (Object[][])dynamicPKplaceholder.getValue()).getRows()));
+				SQLGenerator.createPKValuesDataSet(getSQLSheet().getTable().getRowIdentColumns(), valuesAarray).getRows()));
 		}
 
 		if (sqlSelect.getSorts() == null)
@@ -3923,7 +3924,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 
 	/**
 	 * Get the selected records.
-	 * When the founset is in multiSelect mode (see property multiSelect), selection can be a more than 1 record.
+	 * When the foundset is in multiSelect mode (see property multiSelect), selection can be a more than 1 record.
 	 *
 	 * @sample var selectedRecords = %%prefix%%foundset.getSelectedRecords();
 	 * @return Array current records.
@@ -4592,7 +4593,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	{
 		try
 		{
-			deleteAllInternal();
+			deleteAllInternal(this);
 		}
 		finally
 		{
@@ -4600,7 +4601,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		}
 	}
 
-	public void deleteAllInternal() throws ServoyException
+	public void deleteAllInternal(IDeleteTrigger deleteTrigger) throws ServoyException
 	{
 		Table table = sheet.getTable();
 		if (table == null)
@@ -4666,7 +4667,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 						.collect(toList());
 
 					getFoundSetManager().getEditRecordList().addDeleteQuery(this, delete_sql, fsm.getTableFilterParams(table.getServerName(), delete_sql),
-						affectedFoundsets);
+						affectedFoundsets, deleteTrigger);
 					getFoundSetManager().getEditRecordList().stopEditing(false, this);
 				}
 
@@ -4697,7 +4698,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		{
 			for (int i = getSize() - 1; i >= 0; i--)
 			{
-				deleteRecord(i, partOfBiggerDelete);
+				deleteRecord(i, partOfBiggerDelete, deleteTrigger);
 			}
 		}
 		finally
@@ -4762,7 +4763,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		((FoundSetManager)getFoundSetManager()).clearAllDeleteSets();
 		try
 		{
-			deleteRecord(state, row, false);
+			deleteRecord(state, row, false, state);
 		}
 		finally
 		{
@@ -4783,7 +4784,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 	}
 
 	// part of bigger delete == sql foundset delete is already done for this row (see deleteAll)
-	private void deleteRecord(int row, boolean partOfBiggerDelete) throws ServoyException
+	private void deleteRecord(int row, boolean partOfBiggerDelete, IDeleteTrigger deleteTrigger) throws ServoyException
 	{
 		IRecordInternal state;
 		if (partOfBiggerDelete)
@@ -4795,10 +4796,10 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 			state = getRecord(row);
 		}
 
-		deleteRecord(state, row, partOfBiggerDelete);
+		deleteRecord(state, row, partOfBiggerDelete, deleteTrigger);
 	}
 
-	private void deleteRecord(IRecordInternal state, int row, boolean partOfBiggerDelete) throws ServoyException
+	private void deleteRecord(IRecordInternal state, int row, boolean partOfBiggerDelete, IDeleteTrigger deleteTrigger) throws ServoyException
 	{
 		if (sheet.getTable() == null)
 		{
@@ -4916,7 +4917,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 							{
 								Debug.trace("******************************* delete related set size: " + set.getSize() + " from record with PK: " + //$NON-NLS-1$//$NON-NLS-2$
 									state.getPKHashKey() + " index in foundset: " + row); //$NON-NLS-1$
-								set.deleteAllInternal();
+								set.deleteAllInternal(deleteTrigger);
 							}
 						}
 					}
@@ -4933,7 +4934,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 				}
 				else
 				{
-					if (performActualDelete && getFoundSetManager().getEditRecordList().addDeletedRecord(state))
+					if (performActualDelete && getFoundSetManager().getEditRecordList().addDeletedRecord(state, deleteTrigger))
 					{
 						if (!(state instanceof PrototypeState))
 						{

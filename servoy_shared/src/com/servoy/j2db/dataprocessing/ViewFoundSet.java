@@ -101,6 +101,8 @@ import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
 import com.servoy.j2db.util.visitor.SearchVisitor;
 
 /**
+ * Similar to JSFoundSet, but is not based on a SQL table but on an SQL query.
+ *
  * @author jcompagner
  * @since 8.4
  */
@@ -484,9 +486,9 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	{
 		FoundSetIterator foundsetIterator = new FoundSetIterator();
 		Scriptable scriptableFoundset = null;
+		Context.enter();
 		try
 		{
-			Context.enter();
 			scriptableFoundset = (Scriptable)Context.javaToJS(this, this.getFoundSetManager().getApplication().getScriptEngine().getSolutionScope());
 		}
 		finally
@@ -1901,7 +1903,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	@Override
-	public void deleteAllInternal() throws ServoyException
+	public void deleteAllInternal(IDeleteTrigger deleteTrigger) throws ServoyException
 	{
 		throw new UnsupportedOperationException("Can't delete records  from a View Foundset of datasource " + this.datasource);
 	}

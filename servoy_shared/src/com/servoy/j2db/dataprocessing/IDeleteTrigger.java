@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2010 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2024 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -13,22 +13,17 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
- */
-package com.servoy.j2db.scripting.info;
+*/
 
-import com.servoy.base.persistence.constants.IBaseApplicationTypes;
-import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.scripting.IPrefixedConstantsObject;
+package com.servoy.j2db.dataprocessing;
 
 /**
- * Application types constants.
+ * Tagging interface for record or foundset that trigger a delete (directly or via a relation)
+ *
+ * @author rgansevles
+ *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public class APPLICATION_TYPES implements IPrefixedConstantsObject, IBaseApplicationTypes
+public interface IDeleteTrigger
 {
-	@Override
-	public String toString()
-	{
-		return "Names of the application types";
-	}
+
 }

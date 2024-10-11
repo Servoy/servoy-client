@@ -23,15 +23,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.PropertyDescriptionBuilder;
+import org.sablo.specification.ValuesConfig;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
+import org.sablo.specification.property.IInnerPropertyTypeProvider;
+import org.sablo.specification.property.IPropertyType;
+import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.types.DefaultPropertyType;
+import org.sablo.specification.property.types.TypesRegistry;
+import org.sablo.specification.property.types.ValuesPropertyType;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
 
@@ -48,6 +56,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IRhinoToSabloComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloComponentToRhino;
+import com.servoy.j2db.util.Utils;
 
 /**
  * @author lvostinar
@@ -55,11 +64,12 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.ISabloCompon
  */
 public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 	implements IConvertedPropertyType<MenuTypeSabloValue>, IRhinoToSabloComponent<MenuTypeSabloValue>, ISabloComponentToRhino<MenuTypeSabloValue>,
-	IFormElementToSabloComponent<Integer, MenuTypeSabloValue>, IFormElementToTemplateJSON<Object, MenuTypeSabloValue>, ISupportTemplateValue<Object>
+	IFormElementToSabloComponent<Object, MenuTypeSabloValue>, IFormElementToTemplateJSON<Object, MenuTypeSabloValue>,
+	ISupportTemplateValue<Object>, IPropertyWithClientSideConversions<MenuTypeSabloValue>, IInnerPropertyTypeProvider
 {
 	public static final MenuPropertyType INSTANCE = new MenuPropertyType();
 	public static final String TYPE_NAME = "JSMenu";
-	public Map<String, Map<String, Object>> extraProperties = new HashMap<String, Map<String, Object>>();
+	public Map<String, Map<String, PropertyDescription>> extraProperties = new HashMap<String, Map<String, PropertyDescription>>();
 
 	private MenuPropertyType()
 	{
@@ -77,10 +87,10 @@ public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 		if (json != null && json.has("extraPropertiesCategory") && json.has("extraProperties"))
 		{
 			String category = json.getString("extraPropertiesCategory");
-			Map<String, Object> propertiesMap = extraProperties.get(category);
+			Map<String, PropertyDescription> propertiesMap = extraProperties.get(category);
 			if (propertiesMap == null)
 			{
-				propertiesMap = new HashMap<String, Object>();
+				propertiesMap = new HashMap<String, PropertyDescription>();
 				extraProperties.put(category, propertiesMap);
 			}
 			JSONObject properties = json.getJSONObject("extraProperties");
@@ -88,7 +98,33 @@ public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 			while (it.hasNext())
 			{
 				String key = it.next();
-				propertiesMap.put(key, properties.get(key));
+				Object typeInformation = properties.get(key);
+				String typeName = typeInformation instanceof String ? (String)typeInformation : ((JSONObject)typeInformation).getString("type");
+				Object defaultValue = typeInformation instanceof JSONObject ? ((JSONObject)typeInformation).opt("default") : null;
+				boolean hasDefaultValue = typeInformation instanceof JSONObject ? ((JSONObject)typeInformation).has("default") : false;
+				IPropertyType< ? > propertyType = TypesRegistry.getType(typeName, false);
+				ValuesConfig config = null;
+				if (typeInformation instanceof JSONObject && ((JSONObject)typeInformation).has("values"))
+				{
+					propertyType = ValuesPropertyType.INSTANCE;
+					config = new ValuesConfig();
+					ArrayList<Object> listdata = new ArrayList<Object>();
+					JSONArray array = ((JSONObject)typeInformation).optJSONArray("values");
+					if (array != null)
+					{
+						for (int i = 0; i < array.length(); i++)
+						{
+							listdata.add(array.get(i));
+						}
+						config.setValues(listdata.toArray());
+						if (defaultValue != null)
+						{
+							config.addDefault(defaultValue, defaultValue.toString());
+						}
+					}
+				}
+				propertiesMap.put(key, new PropertyDescriptionBuilder().withName(key).withType(
+					propertyType).withDefaultValue(defaultValue).withHasDefault(hasDefaultValue).withConfig(config).build());
 			}
 		}
 		return json;
@@ -116,7 +152,7 @@ public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 	/**
 	 * @return
 	 */
-	public Map<String, Map<String, Object>> getExtraProperties()
+	public Map<String, Map<String, PropertyDescription>> getExtraProperties()
 	{
 		return extraProperties;
 	}
@@ -149,15 +185,20 @@ public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 	}
 
 	@Override
-	public MenuTypeSabloValue toSabloComponentValue(Integer formElementValue, PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
+	public MenuTypeSabloValue toSabloComponentValue(Object formElementValue, PropertyDescription pd, INGFormElement formElement, WebFormComponent component,
 		DataAdapterList dataAdapterList)
 	{
-		if (formElementValue != null && formElementValue.intValue() > 0)
+		if (formElementValue != null)
 		{
-			Menu menu = dataAdapterList.getApplication().getFlattenedSolution().getMenu(formElementValue.intValue());
+			Menu menu = dataAdapterList.getApplication().getFlattenedSolution().getMenu(formElementValue.toString());
+			if (menu == null)
+			{
+				menu = dataAdapterList.getApplication().getFlattenedSolution().getMenu(Utils.getAsInteger(formElementValue));
+			}
 			if (menu != null)
 			{
-				return new MenuTypeSabloValue(dataAdapterList.getApplication().getMenuManager().getMenu(menu.getName()), this.extraProperties);
+				return new MenuTypeSabloValue(dataAdapterList.getApplication().getMenuManager().getMenu(menu.getName()), this.extraProperties, formElement,
+					component, dataAdapterList);
 			}
 		}
 		return null;
@@ -175,20 +216,20 @@ public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 			Menu menu = null;
 			if (formElementValue instanceof Integer)
 			{
-				if (((Integer)formElementValue).intValue() == 0)
-				{
-					return null;
-				}
 				menu = fs.getMenu(((Integer)formElementValue).intValue());
-				if (menu != null)
-				{
-					Map<String, Object> newJavaValueForJSON = new HashMap<String, Object>();
-					newJavaValueForJSON.put("name", menu.getName());
-					newJavaValueForJSON.put("styleclass", menu.getStyleClass());
-					addMenuItemsForJSON(newJavaValueForJSON, menu.getAllObjectsAsList());
+			}
+			if (formElementValue instanceof String)
+			{
+				menu = fs.getMenu((String)formElementValue);
+			}
+			if (menu != null)
+			{
+				Map<String, Object> newJavaValueForJSON = new HashMap<String, Object>();
+				newJavaValueForJSON.put("name", menu.getName());
+				newJavaValueForJSON.put("styleclass", menu.getStyleClass());
+				addMenuItemsForJSON(newJavaValueForJSON, menu.getAllObjectsAsList());
 
-					JSONUtils.toBrowserJSONFullValue(writer, key, newJavaValueForJSON, null, null);
-				}
+				JSONUtils.toBrowserJSONFullValue(writer, key, newJavaValueForJSON, null, null);
 			}
 		}
 		return writer;
@@ -212,7 +253,8 @@ public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 					itemMap.put("iconStyleClass", item.getIconStyleClass());
 					itemMap.put("tooltipText", item.getToolTipText());
 					itemMap.put("enabled", item.getEnabled());
-					itemMap.put("extraProperties", MenuTypeSabloValue.getExtraPropertiesWithDefaultValues(item.getExtraProperties(), this.extraProperties));
+					itemMap.put("extraProperties",
+						MenuTypeSabloValue.getExtraPropertiesWithDefaultValues(item.getExtraProperties(), this.extraProperties, null, null));
 					addMenuItemsForJSON(itemMap, item.getAllObjectsAsList());
 				}
 			}
@@ -226,6 +268,32 @@ public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 		if (value == null) return true;
 		if (formElementContext.getFormElement().getDesignId() != null) return true;
 		return false;
+	}
+
+
+	@Override
+	public boolean writeClientSideTypeName(JSONWriter w, String keyToAddTo, PropertyDescription pd)
+	{
+		JSONUtils.addKeyIfPresent(w, keyToAddTo);
+
+		w.value(TYPE_NAME);
+		return true;
+	}
+
+	@Override
+	public PropertyDescription getInnerPropertyDescription(String propertyName)
+	{
+		if (propertyName.startsWith(".")) propertyName = propertyName.substring(1);
+		String[] parts = propertyName.split("\\.");
+		if (parts.length == 4 && parts[0].startsWith("items[") && parts[1].equals("extraProperties"))
+		{
+			Map<String, PropertyDescription> properties = extraProperties.get(parts[2]);
+			if (properties != null)
+			{
+				return properties.get(parts[3]);
+			}
+		}
+		return null;
 	}
 
 }

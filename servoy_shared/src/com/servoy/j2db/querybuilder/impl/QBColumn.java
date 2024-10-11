@@ -37,6 +37,8 @@ import com.servoy.j2db.scripting.annotations.JSRagtest;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
+ * A column from a QBSelect. Used for different conditions.
+ *
  * @author rgansevles
  *
  */

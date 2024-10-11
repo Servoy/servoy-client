@@ -25,6 +25,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.Debug;
 
 /**
+ * Utility object for building a blob loader url.
  * @author jcompagner
  * @since 2022.03.9
  */

@@ -2216,7 +2216,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sample
 	 * application.assert(userId != null, "User id should not be null");
 	 *
-	 * @param condition If flase then the assert is wrong and the message will be printed, debugger will stop on this line.
+	 * @param condition If false then the assert is wrong and the message will be printed, debugger will stop on this line.
 	 * @param message The message to display if the condition is false.
 	 */
 	public void js_assert(boolean condition, String message)

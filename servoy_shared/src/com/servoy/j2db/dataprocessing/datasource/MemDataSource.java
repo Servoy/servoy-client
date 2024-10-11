@@ -29,7 +29,7 @@ import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 
 /**
- * In scripting: <pre>datasources.mem</pre>
+ * Runtime access to all defined in memory datasources. In scripting: <pre>datasources.mem</pre>
  *
  * @author rgansevles
  *

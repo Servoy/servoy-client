@@ -105,7 +105,7 @@ public interface IFoundSetScriptMethods extends IFoundSetInternal
 
 	/**
 	 * Get the indexes of the selected records.
-	 * When the founset is in multiSelect mode (see property multiSelect), a selection can consist of more than one index.
+	 * When the foundset is in multiSelect mode (see property multiSelect), a selection can consist of more than one index.
 	 *
 	 * @sample
 	 * // modify selection to the first selected item and the following row only

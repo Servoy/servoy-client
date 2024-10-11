@@ -28,6 +28,8 @@ import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.util.Debug;
 
 /**
+ * Runtime access to all defined stored procedures from valid datasources. In scripting: <pre>datasources.sp</pre>
+ *
  * @author jcompagner
  *
  */

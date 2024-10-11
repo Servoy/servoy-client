@@ -76,6 +76,7 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 
 	private static final String DATAPROVIDERS_KEY_FOR_RHINO = "dataproviders";
 	private static final String FOUNDSET_KEY_FOR_RHINO = "foundset";
+	private static final String RELATIONNAME_KEY_FOR_RHINO = "relationname";
 	public static final String DATAPROVIDERS_KEY_FOR_DESIGN = "dataproviders";
 
 	public FoundsetPropertyType()
@@ -255,6 +256,10 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 					};
 					return dataproviders;
 				}
+				case RELATIONNAME_KEY_FOR_RHINO :
+				{
+					return webComponentValue.getFoundsetSelector();
+				}
 			}
 			return Scriptable.NOT_FOUND;
 		}
@@ -316,13 +321,17 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 						new RuntimeException("illegal value '" + value + "' to set on the dataprovides property " + pd.getName()));
 					break;
 				}
+				case RELATIONNAME_KEY_FOR_RHINO :
+				{
+					webComponentValue.updateFoundsetSelector(value != null ? value.toString() : null);
+				}
 			}
 		}
 
 		@Override
 		public Object[] getIds()
 		{
-			return new Object[] { FOUNDSET_KEY_FOR_RHINO, DATAPROVIDERS_KEY_FOR_RHINO };
+			return new Object[] { FOUNDSET_KEY_FOR_RHINO, DATAPROVIDERS_KEY_FOR_RHINO, RELATIONNAME_KEY_FOR_RHINO };
 		}
 
 	}

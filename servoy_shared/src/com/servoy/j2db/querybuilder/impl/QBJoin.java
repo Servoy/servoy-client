@@ -42,6 +42,8 @@ import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
+ * Wrapper for SQL join in QBSelect.
+ *
  * @author rgansevles
  *
  */

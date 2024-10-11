@@ -30,6 +30,7 @@ import com.servoy.j2db.querybuilder.IQueryBuilderSorts;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
+ * Utility object for handling all sort conditions in a QBSelect (query.sort).
  * @author rgansevles
  *
  */

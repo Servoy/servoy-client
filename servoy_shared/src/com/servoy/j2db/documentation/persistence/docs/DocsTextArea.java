@@ -26,9 +26,11 @@ import com.servoy.j2db.persistence.IRepository;
  * Dummy class for use in the documentation generator.
  *
  * @author rgansevles
+ * @deprecated
  */
+@Deprecated
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "TextArea", scriptingName = "TextArea", displayType = Field.TEXT_AREA, realClass = Field.class, typeCode = IRepository.FIELDS)
-@ServoyClientSupport(mc = true, wc = true, sc = true, ng = false)
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public class DocsTextArea extends BaseDocsField
 {
 

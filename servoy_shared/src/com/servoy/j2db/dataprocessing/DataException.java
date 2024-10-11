@@ -22,6 +22,8 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.ServoyException;
 
 /**
+ * Wrapper for an sql exception (data related exception)
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)

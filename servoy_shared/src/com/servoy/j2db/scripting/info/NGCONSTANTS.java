@@ -22,6 +22,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
+ * Various NGClient/Titanium Client constants.
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)

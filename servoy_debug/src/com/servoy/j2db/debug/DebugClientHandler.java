@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.ServletRequest;
 import javax.swing.SwingUtilities;
@@ -70,12 +68,6 @@ public class DebugClientHandler implements IDebugClientHandler, IDesignerCallbac
 
 	public static final String SUPPORTED_DEBUG_CLIENT_TYPE_ID = "debugClientTypeID";
 	public static final String DEBUG_CLIENT_PROVIDER_EXTENSION_POINT_ID = "servoy_debug.debugClientProvider";
-
-
-	//This is needed for mobile client launch with switch to service option .
-	// switching to service in developer causes a required refresh in a separate thread triggered by activeSolutionChanged
-	// , meanwhile after setActiveSolution is called the mobileClientDelegate opens the browser which causes a get to the service solution which is not fully loaded and debuggable
-	public static Lock activeSolutionRefreshLock = new ReentrantLock();
 
 	private volatile DebugHeadlessClient debugHeadlessClient;
 	private volatile DebugAuthenticator debugAuthenticator;

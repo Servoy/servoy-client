@@ -56,17 +56,17 @@ public class EditedRecords
 		if (record != null && !containsRecord(record, EditType.edit))
 		{
 			remove(record);
-			edited.put(record.getKey(), editedRecord(record, EditType.edit, emptySet()));
+			edited.put(record.getKey(), editedRecord(record, EditType.edit, emptySet(), null));
 			modCount++;
 		}
 	}
 
-	public void addDeleted(IRecordInternal record, Collection<IFoundSetInternal> affectedFoundsets)
+	public void addDeleted(IRecordInternal record, Collection<IFoundSetInternal> affectedFoundsets, IDeleteTrigger deleteTrigger)
 	{
 		if (record != null)
 		{
 			remove(record);
-			edited.put(record.getKey(), editedRecord(record, EditType.delete, affectedFoundsets));
+			edited.put(record.getKey(), editedRecord(record, EditType.delete, affectedFoundsets, deleteTrigger));
 			modCount++;
 		}
 	}
@@ -76,7 +76,7 @@ public class EditedRecords
 		if (record != null)
 		{
 			remove(record);
-			edited.put(record.getKey(), editedRecord(record, EditType.failed, emptySet()));
+			edited.put(record.getKey(), editedRecord(record, EditType.failed, emptySet(), null));
 			modCount++;
 		}
 	}
@@ -109,12 +109,16 @@ public class EditedRecords
 		return getRecords(null).map(er -> er.getRecord()).anyMatch(recordFilter);
 	}
 
-	public void addDeleteQuery(IFoundSetInternal foundset, QueryDelete deleteQuery, ArrayList<TableFilter> filters,
-		Collection<IFoundSetInternal> affectedFoundsets)
+	public void addDeleteQuery(FoundsetDeletingQuery foundsetDeletingQuery)
 	{
-		var foundsetDeletingQuery = foundsetDeletingQuery(foundset, deleteQuery, filters, affectedFoundsets);
 		edited.put(foundsetDeletingQuery.getKey(), foundsetDeletingQuery);
 		modCount++;
+	}
+
+	public void addDeleteQuery(IFoundSetInternal foundset, QueryDelete deleteQuery, ArrayList<TableFilter> filters,
+		Collection<IFoundSetInternal> affectedFoundsets, IDeleteTrigger deleteTrigger)
+	{
+		addDeleteQuery(foundsetDeletingQuery(foundset, deleteQuery, filters, affectedFoundsets, deleteTrigger));
 	}
 
 	public Collection<IFoundSetInternal> getAffectedFoundsets(IFoundSetInternal foundset, QueryDelete deleteQuery)
@@ -321,7 +325,8 @@ public class EditedRecords
 		String getDataSource();
 	}
 
-	record EditedRecord(IRecordInternal getRecord, EditType type, Collection<IFoundSetInternal> getAffectedFoundsets) implements EditedRecordOrFoundset
+	record EditedRecord(IRecordInternal getRecord, EditType type, Collection<IFoundSetInternal> getAffectedFoundsets, IDeleteTrigger getDeleteTrigger)
+		implements EditedRecordOrFoundset
 	{
 		EditedRecord
 		{
@@ -331,9 +336,9 @@ public class EditedRecords
 			}
 		}
 
-		static EditedRecord editedRecord(IRecordInternal record, EditType type, Collection<IFoundSetInternal> affectedFoundsets)
+		static EditedRecord editedRecord(IRecordInternal record, EditType type, Collection<IFoundSetInternal> affectedFoundsets, IDeleteTrigger deleteTrigger)
 		{
-			return new EditedRecord(record, type, new WeakHashSet<>(affectedFoundsets));
+			return new EditedRecord(record, type, new WeakHashSet<>(affectedFoundsets), deleteTrigger);
 		}
 
 		@Override
@@ -365,12 +370,13 @@ public class EditedRecords
 	}
 
 	public record FoundsetDeletingQuery(IFoundSetInternal getFoundset, QueryDelete getQueryDelete, ArrayList<TableFilter> getFilters,
-		Collection<IFoundSetInternal> getAffectedFoundsets, ObjectKey getKey) implements EditedRecordOrFoundset
+		Collection<IFoundSetInternal> getAffectedFoundsets, IDeleteTrigger getDeleteTrigger, ObjectKey getKey) implements EditedRecordOrFoundset
 	{
+
 		static FoundsetDeletingQuery foundsetDeletingQuery(IFoundSetInternal foundset, QueryDelete queryDelete, ArrayList<TableFilter> filters,
-			Collection<IFoundSetInternal> affectedFoundsets)
+			Collection<IFoundSetInternal> affectedFoundsets, IDeleteTrigger deleteTrigger)
 		{
-			return new FoundsetDeletingQuery(foundset, queryDelete, filters, affectedFoundsets, new ObjectKey(queryDelete, foundset));
+			return new FoundsetDeletingQuery(foundset, queryDelete, filters, affectedFoundsets, deleteTrigger, new ObjectKey(queryDelete, foundset));
 		}
 
 		@Override
@@ -378,6 +384,7 @@ public class EditedRecords
 		{
 			return getFoundset().getDataSource();
 		}
+
 	}
 
 }

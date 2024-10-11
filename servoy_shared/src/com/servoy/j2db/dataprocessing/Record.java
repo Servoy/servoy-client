@@ -79,6 +79,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 
 	protected final IFoundSetInternal parent;
 	private final Row row; //table row data (and calculations which is row related)
+	private final ObjectKey objectKey;
 	//temp storage to make possible to stop edits on relatedFields, we do not cache/lookup here because the we can't flush substates globally (important for valuelists)
 	private final Map<String, SoftReference<IFoundSetInternal>> relatedFoundSets;
 	private final List<IModificationListener> modificationListeners;
@@ -99,16 +100,17 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 		this(parent, null, false);
 	}
 
-	private Record(IFoundSetInternal parent, Row r, boolean registerRow)
+	private Record(IFoundSetInternal parent, Row row, boolean registerRow)
 	{
 		this.parent = parent;
-		this.relatedFoundSets = new HashMap<String, SoftReference<IFoundSetInternal>>(3);
-		this.modificationListeners = Collections.synchronizedList(new ArrayList<IModificationListener>(3));
-		this.row = r;
+		this.relatedFoundSets = new HashMap<>(3);
+		this.modificationListeners = Collections.synchronizedList(new ArrayList<>(3));
+		this.row = row;
+		this.objectKey = new ObjectKey(row, parent);
 		if (registerRow)
 		{
-			if (r == null) throw new IllegalArgumentException(parent.getFoundSetManager().getApplication().getI18NMessage("servoy.record.error.nullRow")); //$NON-NLS-1$
-			r.register(this);
+			if (row == null) throw new IllegalArgumentException(parent.getFoundSetManager().getApplication().getI18NMessage("servoy.record.error.nullRow")); //$NON-NLS-1$
+			row.register(this);
 		}
 	}
 
@@ -794,7 +796,7 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	@Override
 	public ObjectKey getKey()
 	{
-		return new ObjectKey(row, parent);
+		return objectKey;
 	}
 
 	/**
@@ -1136,20 +1138,6 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 			return JSDatabaseManager.saveData(parent.getFoundSetManager().getApplication(), this);
 		}
 		return false;
-	}
-
-	/**
-	 * Saves this record to the datasource if it had changes.
-	 *
-	 * @sample
-	 * var record= %%prefix%%foundset.getSelectedRecord();
-	 * record.save();
-	 *
-	 * @return true if the save was done without an error.
-	 */
-	public boolean js_save() throws ServoyException
-	{
-		return JSDatabaseManager.saveData(parent.getFoundSetManager().getApplication(), this);
 	}
 
 	/**

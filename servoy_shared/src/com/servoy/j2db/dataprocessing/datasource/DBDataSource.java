@@ -28,7 +28,7 @@ import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.util.Debug;
 
 /**
- * In scripting: <pre>datasources.db</pre>
+ * Provides utility API for all datasources that are currently available (from all valid servers and tables). In scripting: <pre>datasources.db</pre>
  *
  * @author rgansevles
  *

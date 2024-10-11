@@ -26,6 +26,8 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 
 /**
+ * A generic SQL part.
+ *
  * @author rgansevles
  *
  */

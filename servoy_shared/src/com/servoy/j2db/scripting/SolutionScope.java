@@ -78,4 +78,10 @@ public class SolutionScope extends DefaultScope
 		this.destroyed = true;
 		super.destroy();
 	}
+
+
+	public boolean isDestroyed()
+	{
+		return destroyed;
+	}
 }

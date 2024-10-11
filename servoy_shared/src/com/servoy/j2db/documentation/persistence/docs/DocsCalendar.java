@@ -26,9 +26,11 @@ import com.servoy.j2db.persistence.IRepository;
  * Dummy class for use in the documentation generator.
  *
  * @author jcompagner
+ * @deprecated
  */
+@Deprecated
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, publicName = "Calendar", scriptingName = "Calendar", displayType = Field.CALENDAR, realClass = Field.class, typeCode = IRepository.FIELDS)
-@ServoyClientSupport(mc = true, wc = true, sc = true, ng = false)
+@ServoyClientSupport(mc = true, wc = true, sc = true)
 public class DocsCalendar extends BaseDocsField
 {
 	private static final long serialVersionUID = 1L;

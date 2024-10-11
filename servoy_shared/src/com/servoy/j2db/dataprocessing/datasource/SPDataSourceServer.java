@@ -42,7 +42,7 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 
 /**
- * Scope for datasources.sp.myserver.storedProcedur();
+ * Scope for datasources.sp.myserver.storedProcedure() (a specific stored procedure in a data source);
  *
  * @author rgansevles
  *

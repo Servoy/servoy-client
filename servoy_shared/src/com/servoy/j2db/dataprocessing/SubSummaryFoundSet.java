@@ -233,7 +233,7 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 		// ignore
 	}
 
-	public void deleteAllInternal() throws ServoyException
+	public void deleteAllInternal(IDeleteTrigger deleteTrigger) throws ServoyException
 	{
 		// ignore
 	}

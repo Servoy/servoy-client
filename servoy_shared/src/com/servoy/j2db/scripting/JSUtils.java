@@ -60,6 +60,8 @@ import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * A helper scripting object for different utility methods.
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Utils", scriptingName = "utils")
@@ -102,7 +104,7 @@ public class JSUtils implements IJSUtils
 	 * //}
 	 *
 	 * @param foundset the foundset to be tested
-
+	
 	 * @return true if exists
 	 */
 	@JSFunction
@@ -1815,7 +1817,7 @@ public class JSUtils implements IJSUtils
 	/**
 	 * @sample
 	 * var string = utils.bytesToHex(byteArray);
-	
+
 	 * @param bytearray the byte array to convert to hex encoded string
 	 * @return returns hex encoded string from bytearray
 	 */

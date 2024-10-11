@@ -28,6 +28,7 @@ import com.servoy.j2db.solutionmodel.ISMRelationItem;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * Solution Model relation item wrapper.
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)

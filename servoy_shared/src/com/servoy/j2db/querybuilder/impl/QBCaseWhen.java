@@ -25,6 +25,8 @@ import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.scripting.IJavaScriptType;
 
 /**
+ * Utility object for building a WHEN condition inside an SQL Case expression.
+ *
  * @author rgansevles
  *
  */

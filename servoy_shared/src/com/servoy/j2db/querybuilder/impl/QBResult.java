@@ -42,6 +42,8 @@ import com.servoy.j2db.querybuilder.IQueryBuilderResult;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
+ * A wrapper for QBSelect query result.
+ *
  * @author rgansevles
  *
  */

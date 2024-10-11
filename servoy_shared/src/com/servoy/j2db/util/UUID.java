@@ -22,6 +22,10 @@ import java.security.SecureRandom;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IJavaScriptType;
 
+/**
+ * A uuid object.
+ *
+ */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "UUID")
 public final class UUID implements Serializable, Comparable<UUID>, IJavaScriptType
 {

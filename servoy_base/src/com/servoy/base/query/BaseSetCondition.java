@@ -17,6 +17,8 @@
 
 package com.servoy.base.query;
 
+import static com.servoy.base.query.BaseAbstractBaseQuery.arrayEquals;
+
 import java.util.Arrays;
 
 /**
@@ -75,6 +77,7 @@ public class BaseSetCondition<K extends IBaseQuerySelectValue> implements IBaseS
 	 * @param keys
 	 * @param values
 	 */
+	@SuppressWarnings("nls")
 	protected static <K extends IBaseQuerySelectValue> Object validateValues(K[] keys, Object values)
 	{
 		Object vals = values;
@@ -104,7 +107,8 @@ public class BaseSetCondition<K extends IBaseQuerySelectValue> implements IBaseS
 
 		if (vals == null || !(vals instanceof Object[][]) || ((Object[][])vals).length != keys.length)
 		{
-			throw new IllegalArgumentException("Value list does not match key list in set condition"); //$NON-NLS-1$
+			String output = vals == null ? "null" : (vals instanceof Object[][]) ? Arrays.toString((Object[][])vals) : vals.toString();
+			throw new IllegalArgumentException("Array of values (" + output + ") does not match key list  (" + Arrays.toString(keys) + ") in set condition");
 		}
 
 		// ok
@@ -176,6 +180,34 @@ public class BaseSetCondition<K extends IBaseQuerySelectValue> implements IBaseS
 		return withOperators(negop, !andCondition);
 	}
 
+	private boolean areNegatedOperators(int[] otherOperator)
+	{
+		if (operators.length != otherOperator.length)
+		{
+			return false;
+		}
+		for (int i = 0; i < operators.length; i++)
+		{
+			if (otherOperator[i] != negateOperator(operators[i]))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Check if the other set condition exactly negates this one
+	 */
+	public <T extends IBaseQuerySelectValue> boolean isNegationOf(BaseSetCondition<T> other)
+	{
+		return getClass() == other.getClass() &&
+			andCondition != other.isAndCondition() &&
+			Arrays.equals(keys, other.getKeys()) &&
+			arrayEquals(values, other.getValues()) &&
+			areNegatedOperators(other.getOperators());
+	}
+
 	static int negateOperator(int operator)
 	{
 		int maskedOperator = operator & IBaseSQLCondition.OPERATOR_MASK;
@@ -223,7 +255,7 @@ public class BaseSetCondition<K extends IBaseQuerySelectValue> implements IBaseS
 		if (this.andCondition != other.andCondition) return false;
 		if (!Arrays.equals(this.keys, other.keys)) return false;
 		if (!Arrays.equals(this.operators, other.operators)) return false;
-		return BaseAbstractBaseQuery.arrayEquals(this.values, other.values);
+		return arrayEquals(this.values, other.values);
 	}
 
 	@Override

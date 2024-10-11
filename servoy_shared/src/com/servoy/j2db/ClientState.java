@@ -1600,7 +1600,7 @@ public abstract class ClientState extends ClientVersion implements IServiceProvi
 			}
 			if (menuManager != null)
 			{
-				menuManager.setCurrentGroups(groups);
+				menuManager.setCurrentPermissions(groups);
 			}
 		}
 	}

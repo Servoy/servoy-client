@@ -30,6 +30,7 @@ import com.servoy.j2db.solutionmodel.ISMVariable;
 import com.servoy.j2db.util.UUID;
 
 /**
+ * Solution Model ScriptVariable wrapper.
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)

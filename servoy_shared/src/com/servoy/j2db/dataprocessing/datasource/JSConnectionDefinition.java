@@ -32,6 +32,10 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IDestroyable;
 
 /**
+ * A runtime data-source server connection, that can be accessed via "datasources.db.myserver.defineClientConnection()" at runtime.
+ * You can configure the Database Server to create connections for current client using properties of this JSConnectionDefinition.
+ * Things like username, password or connection properties can be adjusted.
+ *
  * @author jcompagner
  * @since 2021.06
  */

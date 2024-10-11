@@ -238,9 +238,9 @@ public class ScriptObjectRegistry
 		JavaMembers jm = map.get(clss);
 		if (jm == null)
 		{
+			Context.enter();
 			try
 			{
-				Context.enter();
 				InstanceJavaMembers ijm;
 				if (clss != DataException.class)
 				{
@@ -280,19 +280,22 @@ public class ScriptObjectRegistry
 				{
 					jm = new JavaMembers(scope, clss);
 				}
-				else
+				else if (scope != null)
 				{
-					if (scope != null)
-					{
-						InstanceJavaMembers.registerClass(scope, clss, ijm);
-					}
+					InstanceJavaMembers.registerClass(scope, clss, ijm);
 				}
 				map.put(clss, jm);
 			}
 			catch (Throwable e)
 			{
-				// this is throwable to not let the smart client not start when a (plugin) class can;'t be found
-				Debug.error("Error creating java members returning null", e); //$NON-NLS-1$
+				// don't report anything if this exception is a null pointer and the scope is null
+				// this is because its called very likely from the deloper/typecreator that doesn't have a scope
+				// ignore it then if a JavaMember can't be created..
+				if (!(e instanceof NullPointerException && scope == null))
+				{
+					// this is throwable to not let the smart client not start when a (plugin) class can;'t be found
+					Debug.error("Error creating java members returning null", e); //$NON-NLS-1$
+				}
 			}
 			finally
 			{

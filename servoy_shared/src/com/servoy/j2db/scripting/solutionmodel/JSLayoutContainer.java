@@ -36,8 +36,9 @@ import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.util.PersistHelper;
 
 /**
- * @author lvostinar
+ * Solution Model layout container wrapper.
  *
+ * @author lvostinar
  */
 @SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSLayoutContainer")

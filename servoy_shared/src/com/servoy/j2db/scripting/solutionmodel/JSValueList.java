@@ -41,6 +41,8 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 
 /**
+ * Solution Model ValueList wrapper.
+ *
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)

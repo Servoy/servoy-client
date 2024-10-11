@@ -119,7 +119,10 @@ public final class RhinoMapOrArrayWrapper implements Scriptable, SymbolScriptabl
 					@Override
 					public Object call(Context cx, Scriptable scope, Scriptable thisObj, Object[] args)
 					{
-						return new NativeArray(((List)wrappedValue).toArray());
+						PropertyDescription pd = getArrayElementDescription();
+						return new NativeArray(((List)wrappedValue).stream().map(value -> {
+							return NGConversions.INSTANCE.convertSabloComponentToRhinoValue(value, pd, webObjectContext, start);
+						}).toList().toArray());
 					}
 				};
 			}

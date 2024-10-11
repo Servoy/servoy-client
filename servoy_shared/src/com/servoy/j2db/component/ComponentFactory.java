@@ -999,7 +999,7 @@ public class ComponentFactory
 					}
 				}
 			}
-			else if (list instanceof CustomValueList)
+			else if (valuelist.getValueListType() == IValueListConstants.CUSTOM_VALUES)
 			{
 				if (application instanceof IApplication && ((IApplication)application).isInDeveloper())
 				{

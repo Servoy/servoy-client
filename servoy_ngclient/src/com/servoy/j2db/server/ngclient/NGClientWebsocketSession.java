@@ -383,6 +383,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("rememberUser",
 							new Object[] { obj });
 					}
+					//remove the id token of the oauth provider from the url
+					getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("replaceUrlState", null);
 				}
 			});
 		}
