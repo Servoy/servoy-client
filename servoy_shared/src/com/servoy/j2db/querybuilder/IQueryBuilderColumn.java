@@ -19,6 +19,10 @@ package com.servoy.j2db.querybuilder;
 
 import com.servoy.base.query.BaseColumnType;
 import com.servoy.j2db.persistence.RepositoryException;
+import com.servoy.j2db.querybuilder.impl.QBAggregate;
+import com.servoy.j2db.querybuilder.impl.QBColumn;
+import com.servoy.j2db.querybuilder.impl.QBGenericColumn;
+import com.servoy.j2db.querybuilder.impl.QBIntegerColumnBase;
 
 
 /**
@@ -127,7 +131,7 @@ public interface IQueryBuilderColumn extends IQueryBuilderPart
 	 * </pre>
 	 * @return the negated condition
 	 */
-	IQueryBuilderColumn not();
+	QBColumn not();
 
 
 	/**
@@ -154,35 +158,35 @@ public interface IQueryBuilderColumn extends IQueryBuilderPart
 	 *     .getParent().sort().add(query.getColumn("value").count().desc());
 	 * </pre>
 	 */
-	IQueryBuilderAggregate count();
+	QBAggregate count();
 
 	/**
 	 * Create an aggregate expression.
 	 * Aggregate: max
 	 * @see #count
 	 */
-	IQueryBuilderAggregate max();
+	QBGenericColumn max();
 
 	/**
 	 * Create an aggregate expression.
 	 * Aggregate: min
 	 * @see #count
 	 */
-	IQueryBuilderAggregate min();
+	QBGenericColumn min();
 
 	/**
 	 * Create an aggregate expression.
 	 * Aggregate: avg
 	 * @see #count
 	 */
-	IQueryBuilderAggregate avg();
+	QBGenericColumn avg();
 
 	/**
 	 * Create an aggregate expression.
 	 * Aggregate: sum
 	 * @see #count
 	 */
-	IQueryBuilderAggregate sum();
+	QBColumn sum();
 
 	/**
 	 * Create upper(column) expression
@@ -322,7 +326,7 @@ public interface IQueryBuilderColumn extends IQueryBuilderPart
 	/**
 	 * Extract hour from date
 	 */
-	IQueryBuilderFunction hour();
+	QBIntegerColumnBase hour();
 
 	/**
 	 * Extract day from date

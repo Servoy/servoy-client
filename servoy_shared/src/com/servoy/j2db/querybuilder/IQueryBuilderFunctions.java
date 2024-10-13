@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.querybuilder;
 
+import com.servoy.j2db.querybuilder.impl.QBIntegerColumnBase;
 
 /**
  * Functions to be used in queries.
@@ -169,7 +170,7 @@ public interface IQueryBuilderFunctions extends IQueryBuilderPart
 	/**
 	 * Create hour(date) expression
 	 */
-	IQueryBuilderFunction hour(Object date);
+	QBIntegerColumnBase hour(Object date);
 
 	/**
 	 * Create day(date) expression

@@ -164,7 +164,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 
 
 	@Override
-	protected QBColumn createColumn(String name) throws RepositoryException
+	protected QBGenericColumn createColumn(String name) throws RepositoryException
 	{
 		ITableReference foreignTableReference = join.getForeignTableReference();
 		if (foreignTableReference instanceof TableExpression)
@@ -182,7 +182,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 				throw new RepositoryException("Cannot find column '" + name + "' in data source '" + foreignTableReference.getTable().getDataSource() + "'");
 			}
 
-			return new QBColumn(getRoot(), this,
+			return new QBColumnImpl(getRoot(), this,
 				new QueryColumn(getQueryTable(), col.getID(), col.getSQLName(), col.getType(), col.getLength(), col.getScale(), col.getNativeTypename(),
 					col.getFlags(), false));
 		}
@@ -193,7 +193,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 			{
 				if (name.equals(qcol.getAliasOrName()) || name.equals(generateNormalizedNonReservedOSName(qcol.getColumnName())))
 				{
-					return new QBColumn(getRoot(), this, new QueryColumn(foreignTableReference.getTable(), generateNormalizedNonReservedOSName(name)));
+					return new QBColumnImpl(getRoot(), this, new QueryColumn(foreignTableReference.getTable(), generateNormalizedNonReservedOSName(name)));
 				}
 			}
 		}

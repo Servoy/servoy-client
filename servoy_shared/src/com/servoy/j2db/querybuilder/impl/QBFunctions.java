@@ -490,6 +490,10 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 		return new QBFunction(getRoot(), getParent(), QueryFunctionType.minute, new IQuerySelectValue[] { createOperand(arg) });
 	}
 
+	// RAGTEST check ook argument??
+	// public QBIntegerColumn hour(QBDatetimeColumn arg)
+
+
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#hour(Object)
 	 * @param arg date object
@@ -499,7 +503,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
-	public QBFunction hour(Object arg)
+	public QBIntegerColumnBase hour(Object arg)
 	{
 		return new QBFunction(getRoot(), getParent(), QueryFunctionType.hour, new IQuerySelectValue[] { createOperand(arg) });
 	}
@@ -575,7 +579,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 
 	private static void warnIgnoredNegatedColumn(Object value)
 	{
-		if (value instanceof QBColumn && ((QBColumn)value).negate)
+		if (value instanceof QBColumnImpl && ((QBColumnImpl)value).negate)
 		{
 			Debug.warn("Function " + getCallerMethodName(2) + "() called on negated column (" + value + ") , negation will be ignored");
 		}

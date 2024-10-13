@@ -179,7 +179,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	@Override
-	protected QBColumn createColumn(String name) throws RepositoryException
+	protected QBGenericColumn createColumn(String name) throws RepositoryException
 	{
 		if (getTable() != null)
 		{
@@ -191,7 +191,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		{
 			if (name.equals(qcol.getAliasOrName()) || name.equals(generateNormalizedNonReservedOSName(qcol.getColumnName())))
 			{
-				return new QBColumn(getRoot(), this, qcol);
+				return new QBColumnImpl(getRoot(), this, qcol);
 			}
 		}
 

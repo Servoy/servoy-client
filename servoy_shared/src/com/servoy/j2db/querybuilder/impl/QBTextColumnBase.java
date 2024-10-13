@@ -13,27 +13,15 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
- */
+*/
 
-package com.servoy.j2db.scripting.annotations;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package com.servoy.j2db.querybuilder.impl;
 
 /**
  * RAGTEST doc
- *
- * @author rgansevles
+ * @author rob
  *
  */
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface JSRagtest {
-	int[] ragtestin() default { };
-
-	int ragtestout() default -1;
+public interface QBTextColumnBase extends QBColumn
+{
 }

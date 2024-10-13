@@ -37,7 +37,6 @@ import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
 import com.servoy.j2db.query.QuerySearchedCaseExpression;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
-import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderResult;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
@@ -166,55 +165,55 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 		return add(aggregate, alias);
 	}
 
-	/**
-	 * Add a function result to the query result.
-	 * @sample
-	 * query.result.add(query.columns.custname.upper())
-	 *
-	 * @param func the function to add to the result
-	 */
-	public QBResult js_add(QBFunction func)
-	{
-		return add(func);
-	}
+//	/**
+//	 * Add a function result to the query result.
+//	 * @sample
+//	 * query.result.add(query.columns.custname.upper())
+//	 *
+//	 * @param func the function to add to the result
+//	 */
+//	public QBResult js_add(QBFunction func)
+//	{
+//		return add(func);
+//	}
 
-	/**
-	 * Add a function with alias result to the query result.
-	 * @sample
-	 * query.result.add(query.columns.custname.upper(), 'customer_name')
-	 *
-	 * @param func the function to add to the result
-	 * @param alias function alias
-	 */
-	public QBResult js_add(QBFunction func, String alias)
-	{
-		return add(func, alias);
-	}
+//	/**
+//	 * Add a function with alias result to the query result.
+//	 * @sample
+//	 * query.result.add(query.columns.custname.upper(), 'customer_name')
+//	 *
+//	 * @param func the function to add to the result
+//	 * @param alias function alias
+//	 */
+//	public QBResult js_add(QBFunction func, String alias)
+//	{
+//		return add(func, alias);
+//	}
+//
+//	/**
+//	 * Add a case searched expression to the query result.
+//	 *
+//	 * @param qcase The searched case expression.
+//	 *
+//	 * @sampleas com.servoy.j2db.querybuilder.impl.QBSelect#js_case()
+//	 */
+//	public QBResult js_add(QBSearchedCaseExpression qcase)
+//	{
+//		return add(qcase);
+//	}
 
-	/**
-	 * Add a case searched expression to the query result.
-	 *
-	 * @param qcase The searched case expression.
-	 *
-	 * @sampleas com.servoy.j2db.querybuilder.impl.QBSelect#js_case()
-	 */
-	public QBResult js_add(QBSearchedCaseExpression qcase)
-	{
-		return add(qcase);
-	}
-
-	/**
-	 * Add a case searched expression with alias to the query result.
-	 *
-	 * @param qcase The searched case expression.
-	 * @param alias function alias
-	 *
-	 * @sampleas com.servoy.j2db.querybuilder.impl.QBSelect#js_case()
-	 */
-	public QBResult js_add(QBSearchedCaseExpression qcase, String alias)
-	{
-		return add(qcase, alias);
-	}
+//	/**
+//	 * Add a case searched expression with alias to the query result.
+//	 *
+//	 * @param qcase The searched case expression.
+//	 * @param alias function alias
+//	 *
+//	 * @sampleas com.servoy.j2db.querybuilder.impl.QBSelect#js_case()
+//	 */
+//	public QBResult js_add(QBSearchedCaseExpression qcase, String alias)
+//	{
+//		return add(qcase, alias);
+//	}
 
 	/**
 	 * Add all columns from a query or a join to the query result.
@@ -227,24 +226,24 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	public QBResult js_add(QBColumns columns)
 	{
 		stream(columns.getValues())
-			.filter(IQueryBuilderColumn.class::isInstance)
-			.map(IQueryBuilderColumn.class::cast)
+			.filter(QBColumn.class::isInstance)
+			.map(QBColumn.class::cast)
 			.forEach(this::add);
 		return this;
 	}
 
-	public QBResult add(IQueryBuilderColumn column)
+	public QBResult add(QBColumn column)
 	{
 		return add(column, null);
 	}
 
-	public QBResult add(IQueryBuilderColumn column, String alias)
+	public QBResult add(QBColumn column, String alias)
 	{
 		if (column == null)
 		{
 			throw new RuntimeException("Cannot add null or undefined column to a query");
 		}
-		IQuerySelectValue querySelectValue = ((QBColumn)column).getQuerySelectValue();
+		IQuerySelectValue querySelectValue = column.getQuerySelectValue();
 		getParent().getQuery().addColumn(alias == null ? querySelectValue : querySelectValue.asAlias(alias));
 		return this;
 	}
@@ -266,7 +265,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 			if (selectValue instanceof QueryAggregate)
 			{
 				QueryAggregate queryAggregate = (QueryAggregate)selectValue;
-				return new QBAggregate(getRoot(), getParent(), selectValue, queryAggregate.getType(), queryAggregate.getQuantifier());
+				return new QBAggregateImpl(getRoot(), getParent(), selectValue, queryAggregate.getType(), queryAggregate.getQuantifier());
 			}
 			if (selectValue instanceof QueryFunction)
 			{
@@ -277,7 +276,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 			{
 				return new QBSearchedCaseExpression(getRoot(), getParent(), ((QuerySearchedCaseExpression)selectValue));
 			}
-			return new QBColumn(getRoot(), getParent(), selectValue);
+			return new QBColumnImpl(getRoot(), getParent(), selectValue);
 
 		}).toArray(QBColumn[]::new);
 	}
@@ -410,16 +409,11 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	 *
 	 * @param column column to remove from the result
 	 */
-	public QBResult js_remove(QBColumn column)
-	{
-		return remove(column);
-	}
-
-	public QBResult remove(IQueryBuilderColumn column)
+	public QBResult remove(QBColumn column)
 	{
 		if (column != null)
 		{
-			getParent().getQuery().removeColumn(((QBColumn)column).getQuerySelectValue());
+			getParent().getQuery().removeColumn(column.getQuerySelectValue());
 		}
 		return this;
 	}

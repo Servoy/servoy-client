@@ -17,7 +17,8 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.query.IQuerySelectValue;
+import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
@@ -26,9 +27,23 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBAggregate")
-public interface QBAggregate extends QBColumn
+public class QBAggregateImpl extends QBColumnImpl implements QBAggregate
 {
+	private final int aggregateType;
+	private final int aggregateQuantifier;
+
+	QBAggregateImpl(QBSelect root, QBTableClause queryBuilderTableClause, IQuerySelectValue queryColumn, int aggregateType, int aggregateQuantifier)
+	{
+		super(root, queryBuilderTableClause, queryColumn);
+		this.aggregateType = aggregateType;
+		this.aggregateQuantifier = aggregateQuantifier;
+	}
+
+	@Override
+	public IQuerySelectValue getQuerySelectValue()
+	{
+		return new QueryAggregate(aggregateType, aggregateQuantifier, getQueryColumn(), null, null, false);
+	}
 
 	/** Add a distinct qualifier to the aggregate
 	 * @sample
@@ -37,6 +52,9 @@ public interface QBAggregate extends QBColumn
 	 * query.result.add(query.columns.shipcountry.count.distinct);
 	 */
 	@JSReadonlyProperty
-	public QBAggregate distinct();
+	public QBAggregateImpl distinct()
+	{
+		return new QBAggregateImpl(getRoot(), getParent(), getQueryColumn(), aggregateType, QueryAggregate.DISTINCT);
+	}
 
 }
