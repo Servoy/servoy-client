@@ -469,4 +469,26 @@ public abstract class AbstractContainer extends AbstractBase
 		return null;
 	}
 
+	/**
+	 * Finds the first container parent of this component of the given class.
+	 *
+	 * @param <Z> type of parent
+	 * @param c class to search for
+	 * @return First container parent that is an instance of the given class, or null if none can be
+	 *         found
+	 */
+	public final <Z> Z findParent(final Class<Z> c)
+	{
+		ISupportChilds current = getParent();
+		while (current != null)
+		{
+			if (c.isInstance(current))
+			{
+				return c.cast(current);
+			}
+			current = current.getParent();
+		}
+		return null;
+	}
+
 }

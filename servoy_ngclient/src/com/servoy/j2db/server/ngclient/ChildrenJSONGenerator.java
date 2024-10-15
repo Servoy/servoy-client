@@ -544,7 +544,11 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		}
 		if (designer)
 		{
-			attributes.put("svy-id", layoutContainer.getUUID().toString());
+			// only if the parent form of the layout container is this form we will add a svy-id
+			// so that layout containers in form containers will not add it because they should not be selectable.
+			Form parent = layoutContainer.findParent(Form.class);
+			if (form.equals(parent))
+				attributes.put("svy-id", layoutContainer.getUUID().toString());
 			if (spec != null)
 			{
 				attributes.put("svy-layoutname", spec.getPackageName() + "." + spec.getName());
