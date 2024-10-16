@@ -30,20 +30,22 @@ import java.security.PublicKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.collections4.map.PassiveExpiringMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -261,9 +263,7 @@ public class StatelessLoginHandler
 			{
 				//if token was refreshed it does not have nonce // TODO check
 				String tokenNonce = decodedJWT.getClaim(NONCE).asString();
-				String nonce = (String)request.getSession().getAttribute(NONCE);
-				request.getSession().removeAttribute(NONCE);
-				if (tokenNonce == null || !tokenNonce.equals(nonce))
+				if (checkNonce(request.getServletContext(), tokenNonce))
 				{
 					Debug.error("The token was replayed or tempered with.");
 					return false;
@@ -888,10 +888,7 @@ public class StatelessLoginHandler
 		if (properties.has(OAUTH_CUSTOM_PROPERTIES))
 		{
 			JSONObject auth = properties.getJSONObject(OAUTH_CUSTOM_PROPERTIES);
-			HttpSession session = request.getSession();
-			String nonce = (String)request.getSession().getAttribute(NONCE) != null ? (String)request.getSession().getAttribute(NONCE)
-				: UUID.randomUUID().toString();
-			session.setAttribute(NONCE, nonce);
+			String nonce = getNonce(request.getServletContext());
 			additionalParameters.put(NONCE, nonce);
 			return createOauthService(auth, additionalParameters, getServerURL(request));
 		}
@@ -1195,7 +1192,7 @@ public class StatelessLoginHandler
 	/**
 	 *
 	 */
-	public static void init()
+	public static void init(ServletContext context)
 	{
 		Settings settings = Settings.getInstance();
 		if (settings.getProperty(JWT_Password) == null)
@@ -1212,6 +1209,26 @@ public class StatelessLoginHandler
 				Debug.error("Error saving the settings class to store the JWT_Password", e); //$NON-NLS-1$
 			}
 		}
+		context.setAttribute(NONCE, Collections.synchronizedMap(new PassiveExpiringMap<String, String>(30, TimeUnit.MINUTES)));
+	}
+
+	@SuppressWarnings("unchecked")
+	public static String getNonce(ServletContext context)
+	{
+		Map<String, String> cache = (Map<String, String>)context.getAttribute(NONCE);
+		String nonce = UUID.randomUUID().toString();
+		cache.put(nonce, nonce);
+		return nonce;
+	}
+
+	public static boolean checkNonce(ServletContext context, String nonceString)
+	{
+		if (nonceString != null)
+		{
+			Map<String, String> cache = (Map<String, String>)context.getAttribute(NONCE);
+			return cache.remove(nonceString) != null;
+		}
+		return false;
 	}
 
 
