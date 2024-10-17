@@ -200,6 +200,10 @@ public class StatelessLoginHandler
 						if (!Utils.stringIsEmpty(id_token))
 						{
 							DecodedJWT decodedJWT = JWT.decode(id_token);
+							if (refreshToken == null)
+							{
+								refreshToken = decodedJWT.getClaim(REFRESH_TOKEN).asString();
+							}
 							if (checkOauthIdToken(needToLogin, fs.getSolution(), authenticator, decodedJWT, request, refreshToken, true))
 							{
 								return needToLogin;
@@ -297,15 +301,11 @@ public class StatelessLoginHandler
 						{
 							JSONObject token = new JSONObject();
 							JSONObject jsonObject = new JSONObject(payload);
-							if (refreshToken != null)
-							{
-								jsonObject.put(REFRESH_TOKEN, refreshToken);
-							}
 							token.put(LAST_LOGIN, jsonObject);
 							Solution authenticatorModule = findAuthenticator(solution);
 							if (authenticatorModule != null)
 							{
-								return callAuthenticator(needToLogin, remember, authenticatorModule, token);
+								return callAuthenticator(needToLogin, remember, authenticatorModule, token, refreshToken);
 							}
 							else
 							{
@@ -711,14 +711,16 @@ public class StatelessLoginHandler
 			JSONObject json = new JSONObject();
 			json.put(USERNAME, username);
 			json.put(PASSWORD, password);
+			String refreshToken = null;
 			if (oldToken != null)
 			{
 				String payload = new String(java.util.Base64.getUrlDecoder().decode(oldToken.getPayload()));
 				JSONObject token = new JSONObject(payload);
 				json.put(LAST_LOGIN, token);
+				refreshToken = oldToken.getClaim(REFRESH_TOKEN).asString();
 			}
 
-			return callAuthenticator(needToLogin, rememberUser, authenticator, json);
+			return callAuthenticator(needToLogin, rememberUser, authenticator, json, refreshToken);
 		}
 		else
 		{
@@ -728,7 +730,8 @@ public class StatelessLoginHandler
 		return false;
 	}
 
-	private static boolean callAuthenticator(Pair<Boolean, String> needToLogin, Boolean rememberUser, Solution authenticator, JSONObject json)
+	private static boolean callAuthenticator(Pair<Boolean, String> needToLogin, Boolean rememberUser, Solution authenticator, JSONObject json,
+		String refreshToken)
 	{
 		Credentials credentials = new Credentials(null, authenticator.getName(), null, json.toString());
 		IApplicationServer applicationServer = ApplicationServerRegistry.getService(IApplicationServer.class);
@@ -738,8 +741,7 @@ public class StatelessLoginHandler
 			if (login != null)
 			{
 				String token = createToken(login.getUserName(), login.getUserUid(), login.getUserGroups(), //
-					Long.valueOf(System.currentTimeMillis()), rememberUser, //
-					json.has(LAST_LOGIN) && json.get(LAST_LOGIN) instanceof JSONObject lastlogin ? lastlogin.optString(REFRESH_TOKEN) : null);
+					Long.valueOf(System.currentTimeMillis()), rememberUser, refreshToken);
 				needToLogin.setLeft(Boolean.FALSE);
 				needToLogin.setRight(token);
 				return true;
