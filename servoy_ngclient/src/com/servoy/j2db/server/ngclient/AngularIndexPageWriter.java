@@ -110,9 +110,10 @@ public class AngularIndexPageWriter
 			parameterMap.remove(StatelessLoginHandler.USERNAME);
 			parameterMap.remove(StatelessLoginHandler.PASSWORD);
 			parameterMap.remove(StatelessLoginHandler.REMEMBER);
+			HttpSession httpSession = request.getSession(false);
 			if (!parameterMap.containsKey(StartupArguments.PARAM_KEY_METHOD) && !parameterMap.containsKey("m") ||
-				request.getSession().getAttribute(StatelessLoginHandler.ID_TOKEN) != null &&
-					request.getSession().getAttribute(StatelessLoginHandler.ID_TOKEN).equals(parameterMap.get(StatelessLoginHandler.ID_TOKEN)))
+				httpSession != null && httpSession.getAttribute(StatelessLoginHandler.ID_TOKEN) != null &&
+					httpSession.getAttribute(StatelessLoginHandler.ID_TOKEN).equals(parameterMap.get(StatelessLoginHandler.ID_TOKEN)))
 			{
 				parameterMap.remove(StatelessLoginHandler.ID_TOKEN);
 			}
