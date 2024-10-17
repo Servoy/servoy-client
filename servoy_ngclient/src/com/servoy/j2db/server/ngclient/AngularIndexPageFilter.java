@@ -99,8 +99,6 @@ public class AngularIndexPageFilter implements Filter
 				{
 					return;
 				}
-				HttpSession session = request.getSession();
-
 				try
 				{
 					if (AngularIndexPageWriter.handleOauth(request, response))
@@ -116,6 +114,7 @@ public class AngularIndexPageFilter implements Filter
 					}
 					if (showLogin.getRight() != null)
 					{
+						HttpSession session = request.getSession(); // we know we are logged in so we can make a session now
 						session.setAttribute(StatelessLoginHandler.ID_TOKEN, showLogin.getRight());
 					}
 				}
@@ -125,9 +124,14 @@ public class AngularIndexPageFilter implements Filter
 					return;
 				}
 
+
 				ContentSecurityPolicyConfig contentSecurityPolicyConfig = addcontentSecurityPolicyHeader(request, response, false); // for NG2 remove the unsafe-eval
-				if (this.indexPage != null) AngularIndexPageWriter.writeIndexPage(this.indexPage, request, response, solutionName,
-					contentSecurityPolicyConfig == null ? null : contentSecurityPolicyConfig.getNonce());
+				if (this.indexPage != null)
+				{
+					request.getSession(); // now really make a session, we know we are going to render the index page to start a client.
+					AngularIndexPageWriter.writeIndexPage(this.indexPage, request, response, solutionName,
+						contentSecurityPolicyConfig == null ? null : contentSecurityPolicyConfig.getNonce());
+				}
 				else
 				{
 					response.setCharacterEncoding("UTF-8");
