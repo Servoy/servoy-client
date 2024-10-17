@@ -171,13 +171,16 @@ public class StatelessLoginHandler
 						checkUser(user, password, needToLogin, fs.getSolution(), null, "on".equals(request.getParameter(REMEMBER)), request);
 						if (!needToLogin.getLeft()) return needToLogin;
 					}
-					if ((request.getParameter("id_token") != null || request.getParameter("code") != null) && authenticator == AUTHENTICATOR_TYPE.OAUTH)
+					if ((request.getParameter("id_token") != null || request.getParameter("code") != null) &&
+						(authenticator == AUTHENTICATOR_TYPE.OAUTH || authenticator == AUTHENTICATOR_TYPE.SERVOY_CLOUD))
 					{
 						String id_token = null;
 						String refreshToken = null;
 						if (request.getParameter("code") != null)
 						{
-							OAuth20Service service = createOauthService(request, fs.getSolution(), new HashMap<>());
+							String nonceState = request.getParameter("state");
+							JSONObject auth = getNonce(request.getServletContext(), nonceState);
+							OAuth20Service service = createOauthService(request, auth, new HashMap<>());
 							try
 							{
 								OpenIdOAuth2AccessToken accessToken = (OpenIdOAuth2AccessToken)service.getAccessToken(request.getParameter("code"));
@@ -197,7 +200,7 @@ public class StatelessLoginHandler
 						if (!Utils.stringIsEmpty(id_token))
 						{
 							DecodedJWT decodedJWT = JWT.decode(id_token);
-							if (checkOauthIdToken(needToLogin, fs.getSolution(), authenticator, id_token, decodedJWT, request, refreshToken, true))
+							if (checkOauthIdToken(needToLogin, fs.getSolution(), authenticator, decodedJWT, request, refreshToken, true))
 							{
 								return needToLogin;
 							}
@@ -254,55 +257,54 @@ public class StatelessLoginHandler
 		return needToLogin;
 	}
 
-	private static boolean checkOauthIdToken(Pair<Boolean, String> needToLogin, Solution solution, AUTHENTICATOR_TYPE authenticator, String id_token,
+	private static boolean checkOauthIdToken(Pair<Boolean, String> needToLogin, Solution solution, AUTHENTICATOR_TYPE authenticator,
 		DecodedJWT decodedJWT, HttpServletRequest request, String refreshToken, boolean checkNonce) throws MalformedURLException
 	{
-		if (authenticator == AUTHENTICATOR_TYPE.OAUTH && !"svy".equals(decodedJWT.getIssuer()))
+		if (!"svy".equals(decodedJWT.getIssuer()))
 		{
+			JSONObject auth = null;
 			if (checkNonce)
 			{
 				//if token was refreshed it does not have nonce // TODO check
 				String tokenNonce = decodedJWT.getClaim(NONCE).asString();
-				if (!checkNonce(request.getServletContext(), tokenNonce))
+				auth = checkNonce(request.getServletContext(), tokenNonce);
+				if (auth == null)
 				{
 					Debug.error("The token was replayed or tampered with.");
 					return false;
 				}
 			}
-
-			JSONObject properties = new ServoyJSONObject(solution.getCustomProperties(), true);
-			if (properties.has(OAUTH_CUSTOM_PROPERTIES))
+			if (auth.has(JWKS_URI))
 			{
-				JSONObject auth = properties.getJSONObject(OAUTH_CUSTOM_PROPERTIES);
-				if (auth.has(JWKS_URI))
+				try
 				{
+					String jwks_uri = auth.getString(JWKS_URI);
+					final JwkProvider jwkStore = new UrlJwkProvider(new URL(jwks_uri));
+					if (decodedJWT.getKeyId() == null)
+					{
+						Debug.error("Cannot verify the token with jwks '" + jwks_uri //
+							+ "' because the key id is missing in the token header.");
+					}
+					Algorithm algorithm = getAlgo(decodedJWT, jwkStore);
+					JWTVerifier verifier = JWT.require(algorithm).build();
 					try
 					{
-						String jwks_uri = auth.getString(JWKS_URI);
-						final JwkProvider jwkStore = new UrlJwkProvider(new URL(jwks_uri));
-						if (decodedJWT.getKeyId() == null)
-						{
-							Debug.error("Cannot verify the token with jwks '" + jwks_uri //
-								+ "' because the key id is missing in the token header.");
-						}
-						Algorithm algorithm = getAlgo(decodedJWT, jwkStore);
-						JWTVerifier verifier = JWT.require(algorithm).build();
-						try
-						{
-							verifier.verify(decodedJWT);
+						verifier.verify(decodedJWT);
+						Boolean remember = Boolean.valueOf("offline".equals(auth.optString("access_type")));
+						String payload = new String(java.util.Base64.getUrlDecoder().decode(decodedJWT.getPayload()));
 
+						if (authenticator == AUTHENTICATOR_TYPE.OAUTH)
+						{
+							JSONObject token = new JSONObject();
+							JSONObject jsonObject = new JSONObject(payload);
+							if (refreshToken != null)
+							{
+								jsonObject.put(REFRESH_TOKEN, refreshToken);
+							}
+							token.put(LAST_LOGIN, jsonObject);
 							Solution authenticatorModule = findAuthenticator(solution);
 							if (authenticatorModule != null)
 							{
-								Boolean remember = Boolean.valueOf("offline".equals(auth.optString("access_type")));
-								String payload = new String(java.util.Base64.getUrlDecoder().decode(decodedJWT.getPayload()));
-								JSONObject token = new JSONObject();
-								JSONObject jsonObject = new JSONObject(payload);
-								if (refreshToken != null)
-								{
-									jsonObject.put(REFRESH_TOKEN, refreshToken);
-								}
-								token.put(LAST_LOGIN, jsonObject);
 								return callAuthenticator(needToLogin, remember, authenticatorModule, token);
 							}
 							else
@@ -311,22 +313,23 @@ public class StatelessLoginHandler
 									" with using an AUTHENTICATOR solution, but the main solution doesn't have that as a module");
 							}
 						}
-						catch (Exception e)
+						else if (authenticator == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 						{
-							Debug.error(e);
+							return checkCloudPermissions(payload, null, needToLogin, solution, null, remember);
 						}
 					}
-					catch (JwkException e)
+					catch (Exception e)
 					{
-						Debug.error("Cannot verify the id_token", e);
+						Debug.error(e);
 					}
 				}
-				else
+				catch (JwkException e)
 				{
-					Debug.error("Missing the oauth config file.");
+					Debug.error("Cannot verify the id_token", e);
 				}
 			}
 		}
+
 		return false;
 
 	}
@@ -457,24 +460,32 @@ public class StatelessLoginHandler
 					}
 				}
 			}
-
-			if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
-			StringBuilder sb = new StringBuilder();
-			sb.append("<base href=\"");
-			sb.append(getPath(request));
-			sb.append("\">");
-			html = html.replace("<base href=\"/\">", sb.toString());
-
-			String requestLanguage = request.getHeader("accept-language");
-			if (requestLanguage != null)
+			else if (json.has("oauth"))
 			{
-				html = html.replace("lang=\"en\"", "lang=\"" + request.getLocale().getLanguage() + "\"");
+				// this is an oauth request
+				JSONObject oauth = json.getJSONObject("oauth");
+				generateOauthCall(request, response, oauth);
 			}
+			if (html != null)
+			{
+				if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
+				StringBuilder sb = new StringBuilder();
+				sb.append("<base href=\"");
+				sb.append(getPath(request));
+				sb.append("\">");
+				html = html.replace("<base href=\"/\">", sb.toString());
 
-			response.setCharacterEncoding("UTF-8");
-			response.setContentType("text/html");
-			response.setContentLengthLong(html.length());
-			response.getWriter().write(html);
+				String requestLanguage = request.getHeader("accept-language");
+				if (requestLanguage != null)
+				{
+					html = html.replace("lang=\"en\"", "lang=\"" + request.getLocale().getLanguage() + "\"");
+				}
+
+				response.setCharacterEncoding("UTF-8");
+				response.setContentType("text/html");
+				response.setContentLengthLong(html.length());
+				response.getWriter().write(html);
+			}
 		}
 	}
 
@@ -623,19 +634,24 @@ public class StatelessLoginHandler
 		String refresh_token = oldToken.getClaim(REFRESH_TOKEN).asString();
 		if (refresh_token != null)
 		{
-			OAuth20Service service = createOauthService(request, solution, new HashMap<>());
-			if (service != null)
+			JSONObject properties = new ServoyJSONObject(solution.getCustomProperties(), true);
+			if (properties.has(OAUTH_CUSTOM_PROPERTIES))
 			{
-				try
+				JSONObject auth = properties.getJSONObject(OAUTH_CUSTOM_PROPERTIES);
+				OAuth20Service service = createOauthService(request, auth, new HashMap<>());
+				if (service != null)
 				{
-					OpenIdOAuth2AccessToken token = (OpenIdOAuth2AccessToken)service.refreshAccessToken(refresh_token);
-					String id_token = token.getOpenIdToken();
-					DecodedJWT decodedJWT = JWT.decode(id_token);
-					return checkOauthIdToken(needToLogin, solution, solution.getAuthenticator(), id_token, decodedJWT, request, refresh_token, false);
-				}
-				catch (Exception e)
-				{
-					Debug.error("Could not refresh the token", e);
+					try
+					{
+						OpenIdOAuth2AccessToken token = (OpenIdOAuth2AccessToken)service.refreshAccessToken(refresh_token);
+						String id_token = token.getOpenIdToken();
+						DecodedJWT decodedJWT = JWT.decode(id_token);
+						return checkOauthIdToken(needToLogin, solution, solution.getAuthenticator(), decodedJWT, request, refresh_token, false);
+					}
+					catch (Exception e)
+					{
+						Debug.error("Could not refresh the token", e);
+					}
 				}
 			}
 			else
@@ -881,18 +897,12 @@ public class StatelessLoginHandler
 		return builder.sign(algorithm);
 	}
 
-	private static OAuth20Service createOauthService(HttpServletRequest request, Solution solution,
+	private static OAuth20Service createOauthService(HttpServletRequest request, JSONObject auth,
 		Map<String, String> additionalParameters)
 	{
-		JSONObject properties = new ServoyJSONObject(solution.getCustomProperties(), true);
-		if (properties.has(OAUTH_CUSTOM_PROPERTIES))
-		{
-			JSONObject auth = properties.getJSONObject(OAUTH_CUSTOM_PROPERTIES);
-			String nonce = getNonce(request.getServletContext());
-			additionalParameters.put(NONCE, nonce);
-			return createOauthService(auth, additionalParameters, getServerURL(request));
-		}
-		return null;
+		String nonce = generateNonce(request.getServletContext(), auth);
+		additionalParameters.put(NONCE, nonce);
+		return createOauthService(auth, additionalParameters, getServerURL(request));
 	}
 
 
@@ -914,77 +924,18 @@ public class StatelessLoginHandler
 		}
 		if (solution != null && solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
 		{
-			Map<String, String> additionalParameters = new HashMap<>();
-			if (id_token != null)
+			JSONObject properties = new ServoyJSONObject(solution.getCustomProperties(), true);
+			if (properties.has(OAUTH_CUSTOM_PROPERTIES))
 			{
-				DecodedJWT decodedJWT = JWT.decode(id_token);
-				if (!"svy".equals(decodedJWT.getIssuer()))
-				{
-					//id token which is rejected by the authenticator, show the prompt
-					additionalParameters.put("prompt", "consent"); // should this be select_account ?
-				}
-			}
-			OAuth20Service service = createOauthService(request, solution, additionalParameters);
-			if (service != null)
-			{
-				try
-				{
-					final String authorizationUrl = service.createAuthorizationUrlBuilder()//
-						.additionalParams(additionalParameters).build();
-					StringBuilder sb = new StringBuilder();
-					sb.append("<!DOCTYPE html>").append("\n")
-						.append("<html lang=\"en\">").append("\n")
-						.append("<head>").append("\n")
-						.append("    <meta charset=\"UTF-8\">").append("\n")
-						.append("<base href=\"").append("\n")
-						.append(getPath(request)).append("\n")
-						.append("\">").append("\n")
-						.append("<script type='text/javascript'>").append("\n")
-						.append("    window.addEventListener('load', () => { ").append("\n");
-					if (id_token != null)
-					{
-						//we have an id token (svy or oauth provider) which is not valid or cannot be refreshed
-						sb.append("     window.localStorage.removeItem('servoy_id_token');").append("\n")
-							.append("   window.location.href = '").append(authorizationUrl).append("';").append("\n");
-					}
-					else
-					{
-						sb.append("        const servoyIdToken = window.localStorage.getItem('servoy_id_token');").append("\n")
-							.append("        if (servoyIdToken) {").append("\n")
-							.append("            document.login_form.id_token.value = JSON.parse(servoyIdToken);").append("\n")
-							.append("            document.login_form.submit();").append("\n")
-							.append("        } else {").append("\n")
-							.append("            window.location.href = '").append(authorizationUrl).append("';").append("\n")
-							.append("        }").append("\n");
-					}
-					sb.append("   }) ").append("\n")
-						.append("  </script> ").append("\n")
-						.append("    <title>Auto Login</title>").append("\n")
-						.append("</head>").append("\n")
-						.append("<body>").append("\n")
-						.append("   <form accept-charset=\"UTF-8\" role=\"form\" name=\"login_form\" method=\"post\" style=\"display: none;\">")
-						.append("\n")
-						.append("        <input type=\"hidden\" name=\"id_token\" id=\"id_token\">").append("\n")
-						.append("   </form>").append("\n")
-						.append("\n")
-						.append("</body>").append("\n")
-						.append("</html>").append("\n");
-
-					response.setCharacterEncoding("UTF-8");
-					response.setContentType("text/html");
-					response.setContentLengthLong(sb.length());
-					response.getWriter().write(sb.toString());
-				}
-				catch (Exception e)
-				{
-					Debug.error(e);
-				}
+				JSONObject auth = properties.getJSONObject(OAUTH_CUSTOM_PROPERTIES);
+				generateOauthCall(request, response, auth);
 			}
 			else
 			{
 				Debug.error("The oauth configuration is missing for solution " + solution.getName() +
 					". Please create it using the button from the authenticator type property in the properties view.");
 			}
+
 			return;
 		}
 
@@ -1113,6 +1064,82 @@ public class StatelessLoginHandler
 		return !Utils.stringIsEmpty(id_token) ? id_token : null;
 	}
 
+	/**
+	 * @param request
+	 * @param response
+	 * @param solution
+	 */
+	private static void generateOauthCall(HttpServletRequest request, HttpServletResponse response, JSONObject auth)
+	{
+		String id_token = getExistingIdToken(request);
+		Map<String, String> additionalParameters = new HashMap<>();
+		if (!Utils.stringIsEmpty(id_token))
+		{
+			DecodedJWT decodedJWT = JWT.decode(id_token);
+			if (!"svy".equals(decodedJWT.getIssuer()))
+			{
+				//id token which is rejected by the authenticator, show the prompt
+				additionalParameters.put("prompt", "consent"); // should this be select_account ?
+			}
+		}
+		OAuth20Service service = createOauthService(request, auth, additionalParameters);
+		if (service != null)
+		{
+			try
+			{
+				final String authorizationUrl = service.createAuthorizationUrlBuilder()//
+					.additionalParams(additionalParameters).build();
+				StringBuilder sb = new StringBuilder();
+				sb.append("<!DOCTYPE html>").append("\n")
+					.append("<html lang=\"en\">").append("\n")
+					.append("<head>").append("\n")
+					.append("    <meta charset=\"UTF-8\">").append("\n")
+					.append("<base href=\"").append("\n")
+					.append(getPath(request)).append("\n")
+					.append("\">").append("\n")
+					.append("<script type='text/javascript'>").append("\n")
+					.append("    window.addEventListener('load', () => { ").append("\n");
+				if (!Utils.stringIsEmpty(id_token))
+				{
+					//we have an id token (svy or oauth provider) which is not valid or cannot be refreshed
+					sb.append("     window.localStorage.removeItem('servoy_id_token');").append("\n")
+						.append("   window.location.href = '").append(authorizationUrl).append("';").append("\n");
+				}
+				else
+				{
+					sb.append("        const servoyIdToken = window.localStorage.getItem('servoy_id_token');").append("\n")
+						.append("        if (servoyIdToken) {").append("\n")
+						.append("            document.login_form.id_token.value = JSON.parse(servoyIdToken);").append("\n")
+						.append("            document.login_form.submit();").append("\n")
+						.append("        } else {").append("\n")
+						.append("            window.location.href = '").append(authorizationUrl).append("';").append("\n")
+						.append("        }").append("\n");
+				}
+				sb.append("   }) ").append("\n")
+					.append("  </script> ").append("\n")
+					.append("    <title>Auto Login</title>").append("\n")
+					.append("</head>").append("\n")
+					.append("<body>").append("\n")
+					.append("   <form accept-charset=\"UTF-8\" role=\"form\" name=\"login_form\" method=\"post\" style=\"display: none;\">")
+					.append("\n")
+					.append("        <input type=\"hidden\" name=\"id_token\" id=\"id_token\">").append("\n")
+					.append("   </form>").append("\n")
+					.append("\n")
+					.append("</body>").append("\n")
+					.append("</html>").append("\n");
+
+				response.setCharacterEncoding("UTF-8");
+				response.setContentType("text/html");
+				response.setContentLengthLong(sb.length());
+				response.getWriter().write(sb.toString());
+			}
+			catch (Exception e)
+			{
+				Debug.error(e);
+			}
+		}
+	}
+
 
 	public static OAuth20Service createOauthService(JSONObject auth, Map<String, String> additionalParameters, String serverURL)
 	{
@@ -1144,7 +1171,12 @@ public class StatelessLoginHandler
 					additionalParameters.put(key, auth.getString(key));
 			}
 		}
-		builder.responseType("offline".equals(additionalParameters.get("access_type")) ? "code" : "id_token"); //TODO check other apis
+		String responseType = "offline".equals(additionalParameters.get("access_type")) ? "code" : "id_token";
+		builder.responseType(responseType); //TODO check other apis
+		if (responseType.equals("code"))
+		{
+			additionalParameters.put("state", additionalParameters.get(NONCE));
+		}
 		builder.callback(serverURL + "svy_oauth/" + "index.html");
 		try
 		{
@@ -1230,23 +1262,56 @@ public class StatelessLoginHandler
 		context.setAttribute(NONCE, Collections.synchronizedMap(new PassiveExpiringMap<String, String>(30, TimeUnit.MINUTES)));
 	}
 
+
+	/**
+	 * this wil generate a nonce and put it in the context cache.
+	 *
+	 * @param context
+	 * @param oauth
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
-	public static String getNonce(ServletContext context)
+	private static String generateNonce(ServletContext context, JSONObject oauth)
 	{
-		Map<String, String> cache = (Map<String, String>)context.getAttribute(NONCE);
+		Map<String, JSONObject> cache = (Map<String, JSONObject>)context.getAttribute(NONCE);
 		String nonce = UUID.randomUUID().toString();
-		cache.put(nonce, nonce);
+		cache.put(nonce, oauth);
 		return nonce;
 	}
 
-	public static boolean checkNonce(ServletContext context, String nonceString)
+	/**
+	 * this will just return the value from the nonce context cache.
+	 *
+	 * @param context
+	 * @param nonceString
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private static JSONObject getNonce(ServletContext context, String nonceString)
 	{
 		if (nonceString != null)
 		{
-			Map<String, String> cache = (Map<String, String>)context.getAttribute(NONCE);
-			return cache.remove(nonceString) != null;
+			Map<String, JSONObject> cache = (Map<String, JSONObject>)context.getAttribute(NONCE);
+			return cache.get(nonceString);
 		}
-		return false;
+		return null;
+	}
+
+	/**
+	 * This will return the value from the nonce context cache and remove it. (so return null means it was not a valid nonce)
+	 * @param context
+	 * @param nonceString
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	private static JSONObject checkNonce(ServletContext context, String nonceString)
+	{
+		if (nonceString != null)
+		{
+			Map<String, JSONObject> cache = (Map<String, JSONObject>)context.getAttribute(NONCE);
+			return cache.remove(nonceString);
+		}
+		return null;
 	}
 
 
