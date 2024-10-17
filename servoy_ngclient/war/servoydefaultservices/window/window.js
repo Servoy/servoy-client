@@ -97,7 +97,7 @@ angular.module('window',['servoy'])
 								argsWithEvent.push(args);
 							}
 						}
-						if (!pushedChanges) $(targetEl).change();
+						if (!pushedChanges && document.activeElement !== targetEl) $(targetEl).change();
 						pushedChanges = true;
 						$sabloTestability.block(true);
 						$timeout(function(callback,argsWithEvent) {
