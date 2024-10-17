@@ -43,6 +43,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.map.PassiveExpiringMap;
@@ -203,9 +204,8 @@ public class StatelessLoginHandler
 						}
 					}
 
-					String id_token = request.getParameter(ID_TOKEN) != null ? request.getParameter(ID_TOKEN)
-						: (String)request.getSession().getAttribute(ID_TOKEN);
-					if (!Utils.stringIsEmpty(id_token))
+					String id_token = getExistingIdToken(request);
+					if (id_token != null)
 					{
 						DecodedJWT decodedJWT = JWT.decode(id_token);
 						Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
@@ -263,9 +263,9 @@ public class StatelessLoginHandler
 			{
 				//if token was refreshed it does not have nonce // TODO check
 				String tokenNonce = decodedJWT.getClaim(NONCE).asString();
-				if (checkNonce(request.getServletContext(), tokenNonce))
+				if (!checkNonce(request.getServletContext(), tokenNonce))
 				{
-					Debug.error("The token was replayed or tempered with.");
+					Debug.error("The token was replayed or tampered with.");
 					return false;
 				}
 			}
@@ -901,6 +901,8 @@ public class StatelessLoginHandler
 	{
 		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
 		HTTPUtils.setNoCacheHeaders(response);
+
+		String id_token = getExistingIdToken(request);
 		Solution solution = null;
 		try
 		{
@@ -912,12 +914,10 @@ public class StatelessLoginHandler
 		}
 		if (solution != null && solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
 		{
-			String existingtoken = request.getParameter(ID_TOKEN) != null ? request.getParameter(ID_TOKEN)
-				: (String)request.getSession().getAttribute(ID_TOKEN);
 			Map<String, String> additionalParameters = new HashMap<>();
-			if (!Utils.stringIsEmpty(existingtoken))
+			if (id_token != null)
 			{
-				DecodedJWT decodedJWT = JWT.decode(existingtoken);
+				DecodedJWT decodedJWT = JWT.decode(id_token);
 				if (!"svy".equals(decodedJWT.getIssuer()))
 				{
 					//id token which is rejected by the authenticator, show the prompt
@@ -941,7 +941,7 @@ public class StatelessLoginHandler
 						.append("\">").append("\n")
 						.append("<script type='text/javascript'>").append("\n")
 						.append("    window.addEventListener('load', () => { ").append("\n");
-					if (!Utils.stringIsEmpty(existingtoken))
+					if (id_token != null)
 					{
 						//we have an id token (svy or oauth provider) which is not valid or cannot be refreshed
 						sb.append("     window.localStorage.removeItem('servoy_id_token');").append("\n")
@@ -1059,8 +1059,7 @@ public class StatelessLoginHandler
 			sb.append("\n  </script> ");
 
 		}
-		else if (!Utils.stringIsEmpty(request.getParameter(ID_TOKEN) != null ? request.getParameter(ID_TOKEN)
-			: (String)request.getSession().getAttribute(ID_TOKEN)))
+		else if (id_token != null)
 		{
 			sb.append("\n  	 <script type='text/javascript'>");
 			sb.append("\n    window.addEventListener('load', () => { ");
@@ -1093,6 +1092,25 @@ public class StatelessLoginHandler
 		response.setContentLengthLong(loginHtml.length());
 		response.getWriter().write(loginHtml);
 		return;
+	}
+
+	/**
+	 * Check if there is an id_token as a request parameter or session attribute (without creating a new session).
+	 * @param request
+	 * @return the existing id_token or null if not present or in case of empty string
+	 */
+	private static String getExistingIdToken(HttpServletRequest request)
+	{
+		String id_token = request.getParameter(ID_TOKEN);
+		if (id_token == null)
+		{
+			HttpSession session = request.getSession(false);
+			if (session != null)
+			{
+				id_token = (String)session.getAttribute(ID_TOKEN);
+			}
+		}
+		return !Utils.stringIsEmpty(id_token) ? id_token : null;
 	}
 
 
