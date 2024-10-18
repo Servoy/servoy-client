@@ -212,6 +212,8 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 	 */
 	public boolean registerViewFoundSet(ViewFoundSet foundset, boolean onlyWeak);
 
+	public void registerRelatedMenuFoundSet(MenuFoundSet foundset);
+
 	/**
 	 * @param datasource
 	 * @return

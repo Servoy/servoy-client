@@ -1,7 +1,6 @@
 package com.servoy.j2db.server.ngclient;
 
 import static com.servoy.j2db.persistence.IRepository.SOLUTIONS;
-import static com.servoy.j2db.server.ngclient.AngularIndexPageWriter.addcontentSecurityPolicyHeader;
 import static com.servoy.j2db.server.ngclient.MediaResourcesServlet.FLATTENED_SOLUTION_ACCESS;
 import static com.servoy.j2db.server.ngclient.WebsocketSessionFactory.CLIENT_ENDPOINT;
 import static com.servoy.j2db.util.Utils.getAsBoolean;
@@ -44,7 +43,6 @@ import org.json.JSONObject;
 import org.sablo.IContributionEntryFilter;
 import org.sablo.IndexPageEnhancer;
 import org.sablo.WebEntry;
-import org.sablo.security.ContentSecurityPolicyConfig;
 import org.sablo.specification.WebComponentSpecProvider;
 import org.sablo.util.HTTPUtils;
 import org.sablo.websocket.IWebsocketSessionFactory;
@@ -383,10 +381,10 @@ public class NGClientEntryFilter extends WebEntry
 								addManifest(fs, extraMeta);
 								addHeadIndexContributions(fs, extraMeta);
 
-								ContentSecurityPolicyConfig contentSecurityPolicyConfig = addcontentSecurityPolicyHeader(request, response, true);
+								//ContentSecurityPolicyConfig contentSecurityPolicyConfig = addcontentSecurityPolicyHeader(request, response, true);
 								super.doFilter(servletRequest, servletResponse, filterChain, asList(SERVOY_CSS),
 									new ArrayList<String>(getFormScriptReferences(fs)), extraMeta, variableSubstitution,
-									contentSecurityPolicyConfig == null ? null : contentSecurityPolicyConfig.getNonce());
+									null/* contentSecurityPolicyConfig == null ? null : contentSecurityPolicyConfig.getNonce() */);
 								return;
 							}
 							finally

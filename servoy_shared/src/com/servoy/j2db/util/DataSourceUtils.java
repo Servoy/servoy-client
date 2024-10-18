@@ -45,6 +45,9 @@ public class DataSourceUtils extends DataSourceUtilsBase
 	public static final String VIEW_DATASOURCE = "view"; //$NON-NLS-1$
 	public static final String VIEW_DATASOURCE_SCHEME_COLON = VIEW_DATASOURCE + ':';
 
+	public static final String MENU_DATASOURCE = "menu"; //$NON-NLS-1$
+	public static final String MENU_DATASOURCE_SCHEME_COLON = MENU_DATASOURCE + ':';
+
 	private DataSourceUtils()
 	{
 	}
@@ -110,6 +113,11 @@ public class DataSourceUtils extends DataSourceUtilsBase
 		return new StringBuilder().append(VIEW_DATASOURCE_SCHEME_COLON).append(name).toString();
 	}
 
+	public static String createMenuDataSource(String name)
+	{
+		if (name == null) return null;
+		return new StringBuilder().append(MENU_DATASOURCE_SCHEME_COLON).append(name).toString();
+	}
 
 	/**
 	 * Get the datasource name from the in-mem datasource uri.
@@ -139,6 +147,16 @@ public class DataSourceUtils extends DataSourceUtilsBase
 		if (dataSource != null && dataSource.startsWith(VIEW_DATASOURCE_SCHEME_COLON))
 		{
 			return dataSource.substring(VIEW_DATASOURCE_SCHEME_COLON.length());
+		}
+		return null;
+	}
+
+	public static String getMenuDataSourceName(String dataSource)
+	{
+		// view:name
+		if (dataSource != null && dataSource.startsWith(MENU_DATASOURCE_SCHEME_COLON))
+		{
+			return dataSource.substring(MENU_DATASOURCE_SCHEME_COLON.length());
 		}
 		return null;
 	}

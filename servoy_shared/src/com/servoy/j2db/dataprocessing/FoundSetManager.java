@@ -130,6 +130,7 @@ import com.servoy.j2db.querybuilder.impl.QBFactory;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.IExecutingEnviroment;
+import com.servoy.j2db.scripting.JSMenu;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.DatabaseUtils;
 import com.servoy.j2db.util.Debug;
@@ -157,6 +158,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	private Map<String, IFoundSetInternal> sharedDataSourceFoundSet; // dataSource -> FoundSet ... 1 foundset per data source
 	private Map<ViewFoundSet, Object> noneRegisteredVFS;
 	private Map<String, ViewFoundSet> viewFoundSets; // dataSource -> FoundSet ... 1 foundset per data source
+	private Map<String, MenuFoundSet> menuFoundSets; // dataSource -> FoundSet ... 1 foundset per data source
+	private List<MenuFoundSet> relatedMenuFoundSets; // dataSource -> FoundSet ... 1 foundset per data source
 	private ConcurrentMap<IFoundSetInternal, Boolean> foundSets;
 	private ConcurrentMap<Pair<String, String>, IFoundSetInternal> namedFoundSets;
 	private WeakReference<IFoundSetInternal> noTableFoundSet;
@@ -920,6 +923,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		foundSets = CacheBuilder.newBuilder().weakKeys().initialCapacity(64).<IFoundSetInternal, Boolean> build().asMap();
 		namedFoundSets = CacheBuilder.newBuilder().weakValues().initialCapacity(32).<Pair<String, String>, IFoundSetInternal> build().asMap();
 		viewFoundSets = new ConcurrentHashMap<>(16);
+		menuFoundSets = new ConcurrentHashMap<>(5);
+		relatedMenuFoundSets = new ArrayList<MenuFoundSet>();
 		noneRegisteredVFS = CacheBuilder.newBuilder().weakKeys().initialCapacity(8).<ViewFoundSet, Object> build().asMap();
 		noTableFoundSet = null;
 
@@ -1494,7 +1499,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 	private Stream<IFoundSetInternal> getAllFoundsetsStream()
 	{
-		return Stream.concat(separateFoundSets.values().stream(), //
+		return Stream.concat(relatedMenuFoundSets.stream(), Stream.concat(menuFoundSets.values().stream(), Stream.concat(separateFoundSets.values().stream(), //
 			Stream.concat(sharedDataSourceFoundSet.values().stream(), //
 				Stream.concat(viewFoundSets.values().stream(), //
 					Stream.concat(noneRegisteredVFS.keySet().stream(), //
@@ -1504,7 +1509,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 									.stream() //
 									.map(ConcurrentMap::values)
 									.flatMap(Collection::stream) //
-							))))));
+							))))))));
 	}
 
 	public Object[][] getTableFilterParams(String serverName, String filterName)
@@ -1737,6 +1742,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			return vfs;
 		}
 
+		if (DataSourceUtils.getMenuDataSourceName(dataSource) != null)
+		{
+			// always one instance
+			return getAndCreateMenuFoundset(dataSource);
+		}
+
 		if (l.getSharedFoundsetName() != null)
 		{
 			return getNamedFoundSet(l.getSharedFoundsetName(), dataSource);
@@ -1833,6 +1844,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			if (vfs == null) throw new IllegalStateException("The view datasource " + dataSource +
 				" is not registered yet on the form manager, please use databaseManager.getViewFoundSet(name, query, register)  with the register boolean true, or get at design time view through datasources.view.xxx.getFoundSet() first before showing a form");
 			return vfs;
+		}
+
+		if (DataSourceUtils.getMenuDataSourceName(dataSource) != null)
+		{
+			return getAndCreateMenuFoundset(dataSource);
 		}
 
 		IFoundSetInternal foundset = sharedDataSourceFoundSet.get(dataSource);
@@ -1954,6 +1970,21 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 		removeFromCollection(separateFoundSets.values(), foundset);
 		removeFromCollection(namedFoundSets.values(), foundset);
+	}
+
+	private MenuFoundSet getAndCreateMenuFoundset(String dataSource)
+	{
+		MenuFoundSet menuFoundset = menuFoundSets.get(dataSource);
+		if (menuFoundset == null)
+		{
+			JSMenu jsMenu = application.getMenuManager().getMenu(DataSourceUtils.getMenuDataSourceName(dataSource));
+			if (jsMenu != null)
+			{
+				menuFoundset = new MenuFoundSet(jsMenu, this);
+				menuFoundSets.put(dataSource, menuFoundset);
+			}
+		}
+		return menuFoundset;
 	}
 
 /*
@@ -3595,6 +3626,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			}
 			return viewFoundSet;
 		}
+		if (DataSourceUtils.getMenuDataSourceName(dataSource) != null)
+		{
+			return getAndCreateMenuFoundset(dataSource);
+		}
+
 		if (dataSource.startsWith(DataSourceUtils.INMEM_DATASOURCE) &&
 			hasFoundsetTrigger(dataSource, StaticContentSpecLoader.PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID))
 		{
@@ -3677,6 +3713,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			.filter(column -> name.equals(column.getAliasOrName())) //
 			.findAny()
 			.orElse(null);
+	}
+
+	@Override
+	public void registerRelatedMenuFoundSet(MenuFoundSet foundset)
+	{
+		relatedMenuFoundSets.add(foundset);
 	}
 
 	@Override
