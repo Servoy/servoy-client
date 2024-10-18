@@ -97,7 +97,8 @@ angular.module('window',['servoy'])
 								argsWithEvent.push(args);
 							}
 						}
-						if (!pushedChanges && document.activeElement !== targetEl) $(targetEl).change();
+                        // should trigger a change only if the shorcut is a combination of 'CTRL' + any key
+						if (!pushedChanges && (shortcutcombination.startsWith('ctrl') || shortcutcombination.startsWith('control'))) $(targetEl).change();
 						pushedChanges = true;
 						$sabloTestability.block(true);
 						$timeout(function(callback,argsWithEvent) {
