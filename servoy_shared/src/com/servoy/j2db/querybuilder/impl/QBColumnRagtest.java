@@ -24,7 +24,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rob
  *
  */
-public interface QBColumnRagtest<T extends QBColumn>
+public interface QBColumnRagtest<T /* RAGTEST extends QBColumn */>
 {
 
 	/**

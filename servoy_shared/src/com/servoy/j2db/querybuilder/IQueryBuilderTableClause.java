@@ -19,7 +19,6 @@ package com.servoy.j2db.querybuilder;
 
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.querybuilder.impl.QBColumn;
-import com.servoy.j2db.querybuilder.impl.QBGenericColumn;
 
 /**
  * Common interface for table based clauses in a Servoy Query Objects builder.
@@ -50,7 +49,7 @@ public interface IQueryBuilderTableClause extends IQueryBuilderPart
 	 * Get a column from the table with given alias.
 	 * The alias may be of the main table or any level deep joined table.
 	 */
-	QBGenericColumn getColumn(String tableAlias, String name) throws RepositoryException;
+	QBColumn getColumn(String tableAlias, String name) throws RepositoryException;
 
 	/**
 	 * Get the joins clause of this table based clause.

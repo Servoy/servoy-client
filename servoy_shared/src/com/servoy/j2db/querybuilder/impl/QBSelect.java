@@ -179,7 +179,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	}
 
 	@Override
-	protected QBGenericColumn createColumn(String name) throws RepositoryException
+	protected QBColumn createColumn(String name) throws RepositoryException
 	{
 		if (getTable() != null)
 		{

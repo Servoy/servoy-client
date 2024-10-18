@@ -38,7 +38,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rgansevles
  *
  */
-public class QBColumnImpl extends QBPart implements QBGenericColumn, QBColumnRagtest<QBColumn>
+public class QBColumnImpl extends QBPart implements QBColumn
 {
 	private final IQuerySelectValue queryColumn;
 	protected final boolean negate;
@@ -380,7 +380,7 @@ public class QBColumnImpl extends QBPart implements QBGenericColumn, QBColumnRag
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.count.max(10))
 	 * 	foundset.loadRecords(query)
 	 */
-	private QBColumn _max()
+	public QBColumn maxragtest()
 	{
 		return getRoot().aggregates().max(this);
 	}
@@ -770,21 +770,15 @@ public class QBColumnImpl extends QBPart implements QBGenericColumn, QBColumnRag
 	}
 
 	@Override
-	public QBGenericColumn avg()
+	public QBColumn avg()
 	{
-		return (QBGenericColumn)_avg();
-	}
-
-	//@Override
-	public QBGenericColumn maxragtest()
-	{
-		return (QBGenericColumn)_max();
+		return _avg();
 	}
 
 	@Override
-	public QBGenericColumn min()
+	public QBColumn min()
 	{
-		return (QBGenericColumn)_min();
+		return _min();
 	}
 
 //RAGTEST	@Override

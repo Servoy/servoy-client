@@ -164,7 +164,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 
 
 	@Override
-	protected QBGenericColumn createColumn(String name) throws RepositoryException
+	protected QBColumn createColumn(String name) throws RepositoryException
 	{
 		ITableReference foreignTableReference = join.getForeignTableReference();
 		if (foreignTableReference instanceof TableExpression)

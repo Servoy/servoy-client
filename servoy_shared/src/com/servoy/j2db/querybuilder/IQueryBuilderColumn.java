@@ -21,7 +21,6 @@ import com.servoy.base.query.BaseColumnType;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.querybuilder.impl.QBAggregate;
 import com.servoy.j2db.querybuilder.impl.QBColumn;
-import com.servoy.j2db.querybuilder.impl.QBGenericColumn;
 import com.servoy.j2db.querybuilder.impl.QBIntegerColumnBase;
 
 
@@ -165,21 +164,21 @@ public interface IQueryBuilderColumn extends IQueryBuilderPart
 	 * Aggregate: max
 	 * @see #count
 	 */
-	QBGenericColumn maxragtest();
+	QBColumn maxragtest();
 
 	/**
 	 * Create an aggregate expression.
 	 * Aggregate: min
 	 * @see #count
 	 */
-	QBGenericColumn min();
+	QBColumn min();
 
 	/**
 	 * Create an aggregate expression.
 	 * Aggregate: avg
 	 * @see #count
 	 */
-	QBGenericColumn avg();
+	QBColumn avg();
 
 	/**
 	 * Create an aggregate expression.

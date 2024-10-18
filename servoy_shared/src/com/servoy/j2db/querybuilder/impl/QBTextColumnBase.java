@@ -22,6 +22,6 @@ package com.servoy.j2db.querybuilder.impl;
  * @author rob
  *
  */
-public interface QBTextColumnBase extends QBColumn
+public interface QBTextColumnBase //extends QBColumn
 {
 }

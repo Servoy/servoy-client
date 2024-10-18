@@ -22,7 +22,7 @@ package com.servoy.j2db.querybuilder.impl;
  * @author rob
  *
  */
-public interface QBDatetimeColumnBase extends QBColumn
+public interface QBDatetimeColumnBase //extends QBColumn
 {
 	QBIntegerColumnBase hour();
 

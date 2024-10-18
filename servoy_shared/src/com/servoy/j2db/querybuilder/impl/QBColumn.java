@@ -27,8 +27,9 @@ import com.servoy.j2db.querybuilder.IQueryBuilderPart;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBColumn")
-public interface QBColumn
+public interface QBColumn extends QBIntegerColumnBase, QBDatetimeColumnBase, QBNumberColumnBase, QBMediaColumnBase, QBTextColumnBase, QBColumnRagtest<QBColumn>
 {
+
 	IQuerySelectValue getQuerySelectValue();
 
 	/**

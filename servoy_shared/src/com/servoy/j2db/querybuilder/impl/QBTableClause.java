@@ -45,7 +45,7 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 	private QBJoins joins;
 
 	private ITable table;
-	private final Map<String, QBGenericColumn> columns = new HashMap<>();
+	private final Map<String, QBColumn> columns = new HashMap<>();
 
 	private QBColumns builderColumns;
 
@@ -146,9 +146,9 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 	 * @param name the name of column to get
 	 */
 	@JSFunction
-	public QBGenericColumn getColumn(String name) throws RepositoryException
+	public QBColumn getColumn(String name) throws RepositoryException
 	{
-		QBGenericColumn builderColumn = columns.get(name);
+		QBColumn builderColumn = columns.get(name);
 		if (builderColumn == null)
 		{
 			columns.put(name, builderColumn = createColumn(name));
@@ -156,7 +156,7 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 		return builderColumn;
 	}
 
-	protected QBGenericColumn createColumn(String name) throws RepositoryException
+	protected QBColumn createColumn(String name) throws RepositoryException
 	{
 		ITable tbl = getTable();
 		Column col = tbl == null ? null : tbl.getColumn(name);
@@ -178,7 +178,7 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 	 * @param name the name of column to get
 	 */
 	@JSFunction
-	public QBGenericColumn getColumn(String columnTableAlias, String name) throws RepositoryException
+	public QBColumn getColumn(String columnTableAlias, String name) throws RepositoryException
 	{
 		if (columnTableAlias == null)
 		{
