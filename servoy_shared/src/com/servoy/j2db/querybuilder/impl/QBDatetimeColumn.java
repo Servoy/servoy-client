@@ -18,6 +18,7 @@
 package com.servoy.j2db.querybuilder.impl;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * RAGTEST doc
@@ -27,5 +28,11 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "QBColumn")
 public interface QBDatetimeColumn extends QBDatetimeColumnBase, QBColumnRagtest<QBDatetimeColumn>
 {
-
+	/**
+	 * Extract hour from date
+	 * @sample
+	 * query.result.add(query.columns.mydatecol.hour)
+	 */
+	@JSReadonlyProperty
+	QBIntegerColumn hour();
 }

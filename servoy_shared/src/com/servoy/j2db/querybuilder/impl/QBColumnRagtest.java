@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+
 /**
  * RAGTEST doc  functies die verschillend zijn in verschillende types
  * @author rob
@@ -46,9 +48,10 @@ public interface QBColumnRagtest<T extends QBColumn>
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.count.max(10))
 	 * 	foundset.loadRecords(query)
 	 */
-	default T max()
+	@JSReadonlyProperty
+	default T maxragtest()
 	{
-		return (T)((QBColumnImpl)this).max();
+		return (T)((QBColumnImpl)this).maxragtest();
 	}
 
 

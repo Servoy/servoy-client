@@ -23,7 +23,7 @@ package com.servoy.j2db.querybuilder.impl;
  *
  */
 public interface QBGenericColumn
-	extends QBIntegerColumnBase, QBDatetimeColumnBase, QBNumberColumnBase, QBMediaColumnBase, QBTextColumnBase, QBColumnRagtest<QBGenericColumn>
+	extends QBIntegerColumnBase, QBDatetimeColumnBase, QBNumberColumnBase, QBMediaColumnBase, QBTextColumnBase, QBColumnRagtest<QBColumn>
 {
 
 }

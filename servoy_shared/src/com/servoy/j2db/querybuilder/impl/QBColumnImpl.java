@@ -38,7 +38,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rgansevles
  *
  */
-public class QBColumnImpl extends QBPart implements QBGenericColumn, QBColumnRagtest<QBGenericColumn>
+public class QBColumnImpl extends QBPart implements QBGenericColumn, QBColumnRagtest<QBColumn>
 {
 	private final IQuerySelectValue queryColumn;
 	protected final boolean negate;
@@ -775,8 +775,8 @@ public class QBColumnImpl extends QBPart implements QBGenericColumn, QBColumnRag
 		return (QBGenericColumn)_avg();
 	}
 
-	@Override
-	public QBGenericColumn max()
+	//@Override
+	public QBGenericColumn maxragtest()
 	{
 		return (QBGenericColumn)_max();
 	}
