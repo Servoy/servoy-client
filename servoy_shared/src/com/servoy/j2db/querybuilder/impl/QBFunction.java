@@ -29,7 +29,7 @@ import com.servoy.j2db.querybuilder.IQueryBuilderFunction;
  *
  */
 // RAGTEST doc alleen QBColumn @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBFunction")
-public class QBFunction extends QBColumnImpl implements IQueryBuilderFunction
+public class QBFunction extends QBColumn implements IQueryBuilderFunction
 {
 	private final QueryFunctionType functionType;
 	private final IQuerySelectValue[] functionArgs;

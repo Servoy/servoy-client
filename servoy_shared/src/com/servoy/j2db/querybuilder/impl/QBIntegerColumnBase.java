@@ -22,7 +22,7 @@ package com.servoy.j2db.querybuilder.impl;
  * @author rob
  *
  */
-public interface QBIntegerColumnBase //extends QBColumn
+public interface QBIntegerColumnBase
 {
 
 }

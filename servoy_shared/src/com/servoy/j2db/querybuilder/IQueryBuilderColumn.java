@@ -21,7 +21,6 @@ import com.servoy.base.query.BaseColumnType;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.querybuilder.impl.QBAggregate;
 import com.servoy.j2db.querybuilder.impl.QBColumn;
-import com.servoy.j2db.querybuilder.impl.QBIntegerColumnBase;
 
 
 /**
@@ -164,7 +163,7 @@ public interface IQueryBuilderColumn extends IQueryBuilderPart
 	 * Aggregate: max
 	 * @see #count
 	 */
-	QBColumn maxragtest();
+//	QBColumn maxragtest();
 
 	/**
 	 * Create an aggregate expression.
@@ -325,7 +324,7 @@ public interface IQueryBuilderColumn extends IQueryBuilderPart
 	/**
 	 * Extract hour from date
 	 */
-	QBIntegerColumnBase hour();
+//	QBIntegerColumn hour();
 
 	/**
 	 * Extract day from date

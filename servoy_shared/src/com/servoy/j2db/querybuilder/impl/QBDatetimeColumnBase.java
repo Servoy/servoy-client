@@ -17,13 +17,26 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+
 /**
  * RAGTEST doc
  * @author rob
  *
  */
-public interface QBDatetimeColumnBase //extends QBColumn
+public interface QBDatetimeColumnBase<IntegerColumnType>
 {
-	QBIntegerColumnBase hour();
+	/**
+	 * Extract hour from date
+	 * @sample
+	 * query.result.add(query.columns.mydatecol.hour)
+	 */
+	@JSReadonlyProperty
+	IntegerColumnType hourragtest();
+
+//	default IntegerColumnType hourragtest()
+//	{
+//		return (IntegerColumnType)((QBColumn)this)._hour();
+//	}
 
 }

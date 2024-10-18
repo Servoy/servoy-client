@@ -182,7 +182,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 				throw new RepositoryException("Cannot find column '" + name + "' in data source '" + foreignTableReference.getTable().getDataSource() + "'");
 			}
 
-			return new QBColumnImpl(getRoot(), this,
+			return new QBColumn(getRoot(), this,
 				new QueryColumn(getQueryTable(), col.getID(), col.getSQLName(), col.getType(), col.getLength(), col.getScale(), col.getNativeTypename(),
 					col.getFlags(), false));
 		}
@@ -193,7 +193,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 			{
 				if (name.equals(qcol.getAliasOrName()) || name.equals(generateNormalizedNonReservedOSName(qcol.getColumnName())))
 				{
-					return new QBColumnImpl(getRoot(), this, new QueryColumn(foreignTableReference.getTable(), generateNormalizedNonReservedOSName(name)));
+					return new QBColumn(getRoot(), this, new QueryColumn(foreignTableReference.getTable(), generateNormalizedNonReservedOSName(name)));
 				}
 			}
 		}

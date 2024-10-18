@@ -37,7 +37,7 @@ public interface QBColumnRagtest<T /* RAGTEST extends QBColumn */>
 	 */
 	default T min()
 	{
-		return (T)((QBColumnImpl)this).min();
+		return (T)((QBColumn)this).min();
 	}
 
 	/**
@@ -51,9 +51,8 @@ public interface QBColumnRagtest<T /* RAGTEST extends QBColumn */>
 	@JSReadonlyProperty
 	default T maxragtest()
 	{
-		return (T)((QBColumnImpl)this).maxragtest();
+		return (T)((QBColumn)this)._maxragtest();
 	}
-
 
 	/**
 	 * Create an aggregate average expression.
@@ -65,7 +64,7 @@ public interface QBColumnRagtest<T /* RAGTEST extends QBColumn */>
 	 */
 	default T avg()
 	{
-		return (T)((QBColumnImpl)this).avg();
+		return (T)((QBColumn)this).avg();
 	}
 
 }

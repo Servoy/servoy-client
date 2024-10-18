@@ -17,7 +17,8 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.query.IQuerySelectValue;
+import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
@@ -26,10 +27,25 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBAggregate")
-public interface QBAggregate extends QBColumn
+public class QBAggregate extends QBColumn
 {
+	private final int aggregateType;
+	private final int aggregateQuantifier;
 
+	QBAggregate(QBSelect root, QBTableClause queryBuilderTableClause, IQuerySelectValue queryColumn, int aggregateType, int aggregateQuantifier)
+	{
+		super(root, queryBuilderTableClause, queryColumn);
+		this.aggregateType = aggregateType;
+		this.aggregateQuantifier = aggregateQuantifier;
+	}
+
+	@Override
+	public IQuerySelectValue getQuerySelectValue()
+	{
+		return new QueryAggregate(aggregateType, aggregateQuantifier, getQueryColumn(), null, null, false);
+	}
+
+	// RAGTEST getypeerd
 	/** Add a distinct qualifier to the aggregate
 	 * @sample
 	 * // count the number of countries that we ship orders to
@@ -37,6 +53,9 @@ public interface QBAggregate extends QBColumn
 	 * query.result.add(query.columns.shipcountry.count.distinct);
 	 */
 	@JSReadonlyProperty
-	public QBAggregate distinct();
+	public QBAggregate distinct()
+	{
+		return new QBAggregate(getRoot(), getParent(), getQueryColumn(), aggregateType, QueryAggregate.DISTINCT);
+	}
 
 }

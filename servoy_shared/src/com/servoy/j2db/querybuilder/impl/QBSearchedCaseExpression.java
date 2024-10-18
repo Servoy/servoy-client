@@ -27,7 +27,7 @@ import com.servoy.j2db.querybuilder.IQueryBuilderSearchCaseExpression;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBSearchedCaseExpression")
-public class QBSearchedCaseExpression extends QBColumnImpl implements IQueryBuilderSearchCaseExpression
+public class QBSearchedCaseExpression extends QBColumn implements IQueryBuilderSearchCaseExpression
 {
 	QBSearchedCaseExpression(QBSelect root, QBTableClause queryBuilderTableClause, QuerySearchedCaseExpression querySearchedCaseExpression)
 	{

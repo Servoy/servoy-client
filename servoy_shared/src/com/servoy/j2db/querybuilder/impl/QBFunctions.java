@@ -503,7 +503,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
-	public QBIntegerColumnBase hour(Object arg)
+	public QBFunction hour(Object arg)
 	{
 		return new QBFunction(getRoot(), getParent(), QueryFunctionType.hour, new IQuerySelectValue[] { createOperand(arg) });
 	}
@@ -579,7 +579,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 
 	private static void warnIgnoredNegatedColumn(Object value)
 	{
-		if (value instanceof QBColumnImpl && ((QBColumnImpl)value).negate)
+		if (value instanceof QBColumn qbColumn && qbColumn.negate)
 		{
 			Debug.warn("Function " + getCallerMethodName(2) + "() called on negated column (" + value + ") , negation will be ignored");
 		}

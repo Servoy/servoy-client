@@ -191,7 +191,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		{
 			if (name.equals(qcol.getAliasOrName()) || name.equals(generateNormalizedNonReservedOSName(qcol.getColumnName())))
 			{
-				return new QBColumnImpl(getRoot(), this, qcol);
+				return new QBColumn(getRoot(), this, qcol);
 			}
 		}
 

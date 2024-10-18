@@ -265,7 +265,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 			if (selectValue instanceof QueryAggregate)
 			{
 				QueryAggregate queryAggregate = (QueryAggregate)selectValue;
-				return new QBAggregateImpl(getRoot(), getParent(), selectValue, queryAggregate.getType(), queryAggregate.getQuantifier());
+				return new QBAggregate(getRoot(), getParent(), selectValue, queryAggregate.getType(), queryAggregate.getQuantifier());
 			}
 			if (selectValue instanceof QueryFunction)
 			{
@@ -276,7 +276,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 			{
 				return new QBSearchedCaseExpression(getRoot(), getParent(), ((QuerySearchedCaseExpression)selectValue));
 			}
-			return new QBColumnImpl(getRoot(), getParent(), selectValue);
+			return new QBColumn(getRoot(), getParent(), selectValue);
 
 		}).toArray(QBColumn[]::new);
 	}
