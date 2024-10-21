@@ -123,26 +123,14 @@ function showFormPopup(elementToShowRelatedTo, form, scope, dataproviderID, widt
     showBackdrop, doNotCloseOnClickOutside, onClose) {}
 
 /**
- * Show a form as popup panel, where the closeFormPopup can pass return a value to a dataprovider in the specified scope. 
- * Can show relative to a component or at specified coordinates.
- * Show on specified location is only supported in NGClient.
+ * Create a form popup that can be filled with data and shown.
  *
- * @example
- * // Show a form as popup panel, where the closeFormPopup can pass return a value to a dataprovider in the specified scope.
- * plugins.window.showFormPopup(null,forms.orderPicker,foundset.getSelectedRecord(),"order_id");
- * // plugins.window.showFormPopup(null,forms.orderPicker,foundset.getSelectedRecord(),"order_id",-1,-1,100,100);
- * // do call closeFormPopup(ordervalue) from the orderPicker form
+ * @sample
+ * plugins.window.createFormPopup(forms.orderPicker).show();
  *
- * @param {RuntimeComponent} elementToShowRelatedTo element to show related to or null to center in screen
- * @param {RuntimeForm} form the form to show
- * @param {Object} scope the scope to put retval into
- * @param {String} dataproviderID the dataprovider of scope to fill
- * @param {Number} width popup width
- * @param {Number} height popup height
- * @param {Number} x popup x location
- * @param {Number} y popup y location
- * 
- * @return {FormPopup}
+ * @param form the form to show
+ *
+ * @return FormPopup
  */
 function createFormPopup(form) {}
 
