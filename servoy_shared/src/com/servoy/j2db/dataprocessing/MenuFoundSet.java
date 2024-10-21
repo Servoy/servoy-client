@@ -591,10 +591,11 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	@Override
-	public void setSelectedIndex(int selectedRow)
+	public boolean setSelectedIndex(int selectedRow)
 	{
 		if (selectionModel == null) createSelectionModel();
 		selectionModel.setSelectedRow(selectedRow);
+		return true;
 
 	}
 
@@ -615,10 +616,11 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	@Override
-	public void setSelectedIndexes(int[] indexes)
+	public boolean setSelectedIndexes(int[] indexes)
 	{
 		if (selectionModel == null) createSelectionModel();
 		selectionModel.setSelectedRows(indexes);
+		return true;
 
 	}
 

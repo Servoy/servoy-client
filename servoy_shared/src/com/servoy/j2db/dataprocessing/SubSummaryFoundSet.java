@@ -383,9 +383,10 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 	 *
 	 * @param selectedRow The selectedRow to set
 	 */
-	public void setSelectedIndex(int selectedRow)
+	public boolean setSelectedIndex(int selectedRow)
 	{
 		// ignore
+		return true;
 	}
 
 	@Override
@@ -646,9 +647,10 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 	}
 
 	@Override
-	public void setSelectedIndexes(int[] indexes)
+	public boolean setSelectedIndexes(int[] indexes)
 	{
 		// ignore
+		return true;
 	}
 
 	@Override

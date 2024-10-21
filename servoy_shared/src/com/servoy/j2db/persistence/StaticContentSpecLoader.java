@@ -114,6 +114,8 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 		IContentSpecConstants.PROPERTY_ONFOUNDSETLOADMETHODID);
 	public static final TypedProperty<Integer> PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID = new TypedProperty<Integer>(
 		IContentSpecConstants.PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID = new TypedProperty<Integer>(
+		IContentSpecConstants.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID);
 	public static final TypedProperty<Integer> PROPERTY_ONCLOSEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONCLOSEMETHODID);
 	public static final TypedProperty<Integer> PROPERTY_ONCREATEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONCREATEMETHODID);
 	public static final TypedProperty<Integer> PROPERTY_ONDATABROADCASTMETHODID = new TypedProperty<Integer>(
@@ -996,7 +998,11 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 			cs.new Element(485, IRepository.MENU_ITEMS, PROPERTY_ENABLED.getPropertyName(), IRepository.BOOLEAN, Boolean.TRUE);
 			cs.new Element(486, IRepository.MENU_ITEMS, PROPERTY_PERMISSIONS.getPropertyName(), IRepository.JSON, null);
 		}
-
+		if (old_repository_version < 59)
+		{
+			//2024.12 properties here
+			cs.new Element(487, IRepository.TABLENODES, PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID.getPropertyName(), IRepository.ELEMENTS);
+		}
 		//##add property adds here
 		return cs;
 	}

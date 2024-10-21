@@ -394,6 +394,36 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	}
 
 	/**
+	 * A method that is executed before a foundset selection change operation. The method can cancel the selection change operation by returning false.
+	 *
+	 * @templatedescription
+	 * Foundset pre-selection change trigger
+	 * Can be used to validate the record to be not selected.
+	 * When false is returned the selection will not bechanged.
+	 * @templatename onFoundsetSelectionChange
+	 * @templatetype Boolean
+	 * @templateparam JSRecord<${dataSource}>|Array<JSRecord<${dataSource}>> old selection (array with selected records)
+	 * @templateparam JSRecord<${dataSource}>|Array<JSRecord<${dataSource}>> new selection (array with records that will become selected)
+	 * @templateaddtodo
+	 * @templatecode
+	 *
+	 * var valid = true;
+	 * // test if it is valid.
+	 *
+	 * // return boolean to indicate success
+	 * return valid
+	 */
+	public int getOnFoundsetBeforeSelectionChangeMethodID()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID).intValue();
+	}
+
+	public void setOnFoundsetBeforeSelectionChangeMethodID(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID, arg);
+	}
+
+	/**
 	 * A method that is executed after an insert operation.
 	 *
 	 * @templatedescription Record after-insert trigger

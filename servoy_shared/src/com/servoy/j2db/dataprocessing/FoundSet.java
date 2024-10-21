@@ -44,6 +44,7 @@ import java.lang.ref.WeakReference;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -100,6 +101,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
@@ -6139,9 +6141,42 @@ public abstract class FoundSet
 
 	public abstract int getSelectedIndex();
 
-	public abstract void setSelectedIndex(int i);
+	public boolean setSelectedIndex(int i)
+	{
+		try
+		{
+			if (getSelectedIndex() >= 0 && fsm.hasFoundsetTrigger(getDataSource(), StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID))
+			{
+				return executeFoundsetTriggerBreakOnFalse(new Object[] { getSelectedRecord(), getRecord(i) },
+					StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID, false);
+			}
+		}
+		catch (ServoyException e)
+		{
+			Debug.error(e);
+			return false;
+		}
+		return true;
+	}
 
-	public abstract void setSelectedIndexes(int[] indexes);
+	public boolean setSelectedIndexes(int[] indexes)
+	{
+		try
+		{
+			if (getSelectedIndex() >= 0 && fsm.hasFoundsetTrigger(getDataSource(), StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID))
+			{
+				return executeFoundsetTriggerBreakOnFalse(
+					new Object[] { js_getSelectedRecords(), indexes != null ? Arrays.stream(indexes).mapToObj(index -> getRecord(index)).toArray() : null },
+					StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID, false);
+			}
+		}
+		catch (ServoyException e)
+		{
+			Debug.error(e);
+			return false;
+		}
+		return true;
+	}
 
 	public abstract int[] getSelectedIndexes();
 
