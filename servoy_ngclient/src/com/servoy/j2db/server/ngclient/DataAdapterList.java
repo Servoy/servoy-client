@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.stream.Collectors;
 
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -33,6 +34,8 @@ import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.servoy.base.util.ITagResolver;
 import com.servoy.j2db.ApplicationException;
@@ -88,6 +91,7 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class DataAdapterList implements IModificationListener, ITagResolver, IDataAdapterList
 {
+	public static final Logger EVENT_TRACING_LOG = LoggerFactory.getLogger("com.servoy.event.tracing");
 
 	// properties that are interested in a specific dataproviderID chaning
 	protected final Map<String, List<IDataLinkedPropertyValue>> dataProviderToLinkedComponentProperty = new HashMap<>(); // dataProviderID -> [(comp, propertyName)]
@@ -196,6 +200,16 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	@Override
 	public Object executeEvent(WebComponent webComponent, String event, int eventId, Object[] args)
 	{
+		if (EVENT_TRACING_LOG.isInfoEnabled())
+		{
+			INGApplication application = formController.getApplication();
+			Object[] tenantValue = application.getScriptEngine().getJSSecurity().getTenantValue();
+			String argsAsString = Arrays.asList(args).stream()
+				.map(value -> value instanceof JSONObject o && "event".equals(o.optString("type")) ? "JSEvent" : String.valueOf(value))
+				.collect(Collectors.joining(","));
+			EVENT_TRACING_LOG.info(application.getUserName() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
+				application.getSolutionName() + '|' + formController.getName() + '|' + webComponent.getName() + '|' + event + '|' + argsAsString);
+		}
 		Object jsRetVal = executor.executeEvent(webComponent, event, eventId, args);
 
 		// FIXME I think the convertRhinoToSabloComponentValue should only happen if
