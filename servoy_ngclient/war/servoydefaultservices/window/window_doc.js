@@ -332,24 +332,16 @@ function FormPopup() {
 	 */
 	this.cancel = function() {}
 	
-	/**
-	 * Create a subform as a popup panel, then you can add coordinates, size... like a normal popup form, and then display the subform.
-	 *
-	 * @example
-	 * plugins.window.getFormPopup(forms.orderPicker).createFormPopup(forms.clients).x(10).width(500).show();
-	 *
-	 * @param {RuntimeComponent} elementToShowRelatedTo element to show related to or null to center in screen
-	 * @param {RuntimeForm} form the form to show
-	 * @param {Object} scope the scope to put retval into
-	 * @param {String} dataproviderID the dataprovider of scope to fill
-	 * @param {Number} width popup width
-	 * @param {Number} height popup height
-	 * @param {Number} x popup x location
-	 * @param {Number} y popup y location
-	 * 
-	 * @return {FormPopup}
-	 */
-
+    /**
+     * Create a form popup that can be filled with data and shown.
+     *
+     * @sample
+     * plugins.window.createFormPopup(forms.orderPicker).show();
+     *
+     * @param form the form to show
+     *
+     * @return FormPopup
+     */
 	this.createFormPopup = function(form) {}
 }
 
