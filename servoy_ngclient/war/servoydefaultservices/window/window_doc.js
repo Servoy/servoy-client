@@ -125,7 +125,7 @@ function showFormPopup(elementToShowRelatedTo, form, scope, dataproviderID, widt
 /**
  * Create a form popup that can be filled with data and shown.
  *
- * @sample
+ * @example
  * plugins.window.createFormPopup(forms.orderPicker).show();
  *
  * @param form the form to show
@@ -273,7 +273,7 @@ function FormPopup() {
      * 
      * Without an argument it is a getter, it returns the datprovider value
      *
-     * @exmple
+     * @example
      * plugins.window.createFormPopup(forms.orderPicker).dataprovider('myid').scope(foundset.getSelectedRecord()).show();
      *
      * @param {string} [dataprovider] form popup dataprovider
@@ -335,7 +335,7 @@ function FormPopup() {
     /**
      * Create a form popup that can be filled with data and shown.
      *
-     * @sample
+     * @example
      * plugins.window.createFormPopup(forms.orderPicker).show();
      *
      * @param form the form to show
