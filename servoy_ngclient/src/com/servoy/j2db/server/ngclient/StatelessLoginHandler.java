@@ -130,6 +130,8 @@ public class StatelessLoginHandler
 		"/servoy-service/rest_ws/api/login_auth/validateAuthUser";
 	public static final String REFRESH_TOKEN_CLOUD_URL = BASE_CLOUD_URL +
 		"/servoy-service/rest_ws/api/login_auth/refreshPermissions";
+	public static final String CLOUD_OAUTH_URL = BASE_CLOUD_URL +
+		"/servoy-service/rest_ws/api/login_auth/validateOAuthUser";
 
 	//oauth constants
 	private static final String NONCE = "nonce";
@@ -315,7 +317,7 @@ public class StatelessLoginHandler
 						}
 						else if (authenticator == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 						{
-							return checkCloudPermissions(payload, null, needToLogin, solution, null, remember);
+							return checkCloudOAuthPermissions(needToLogin, solution, payload, remember);
 						}
 					}
 					catch (Exception e)
@@ -803,32 +805,70 @@ public class StatelessLoginHandler
 			Pair<Integer, JSONObject> res = httpclient.execute(httpget, new ResponseHandler("login_auth"));
 			if (res.getLeft().intValue() == HttpStatus.SC_OK)
 			{
-				JSONObject loginTokenJSON = res.getRight();
-				if (loginTokenJSON != null && loginTokenJSON.has("permissions"))
-				{
-					String[] permissions = null;
-					JSONArray permissionsArray = loginTokenJSON.getJSONArray("permissions");
-					if (permissionsArray != null)
-					{
-						permissions = new String[permissionsArray.length()];
-						for (int i = 0; i < permissions.length; i++)
-						{
-							permissions[i] = permissionsArray.getString(i);
-						}
-					}
-					if (permissions != null)
-					{
-						String token = createToken(username, username, permissions, loginTokenJSON.optString("lastLogin"), rememberUser, null);
-						needToLogin.setLeft(Boolean.FALSE);
-						needToLogin.setRight(token);
-						return true;
-					}
-				}
+				return extractPermissionFromResponse(needToLogin, rememberUser, res, username);
 			}
 		}
 		catch (IOException e)
 		{
 			Debug.error("Can't validate user with the Servoy Cloud", e);
+		}
+		return false;
+	}
+
+	private static boolean checkCloudOAuthPermissions(Pair<Boolean, String> needToLogin, Solution solution, String payload, Boolean rememberUser)
+	{
+		HttpPost post = new HttpPost(CLOUD_OAUTH_URL);
+		post.setEntity(new StringEntity(payload));
+
+		post.addHeader(HttpHeaders.ACCEPT, "application/json");
+		post.addHeader("uuid", sanitizeHeader(solution.getUUID().toString()));
+
+		try (CloseableHttpClient httpclient = HttpClients.createDefault())
+		{
+			Pair<Integer, JSONObject> res = httpclient.execute(post, new ResponseHandler("validateOAuthUser"));
+			if (res.getLeft().intValue() == HttpStatus.SC_OK)
+			{
+				return extractPermissionFromResponse(needToLogin, rememberUser, res, null);
+			}
+		}
+		catch (IOException e)
+		{
+			Debug.error("Can't validate user with the Servoy Cloud", e);
+		}
+		return false;
+	}
+
+	/**
+	 * @param needToLogin
+	 * @param rememberUser
+	 * @param res
+	 */
+	private static boolean extractPermissionFromResponse(Pair<Boolean, String> needToLogin, Boolean rememberUser, Pair<Integer, JSONObject> res, String user)
+	{
+		JSONObject loginTokenJSON = res.getRight();
+		if (loginTokenJSON != null && loginTokenJSON.has("permissions"))
+		{
+			String[] permissions = null;
+			JSONArray permissionsArray = loginTokenJSON.getJSONArray("permissions");
+			if (permissionsArray != null)
+			{
+				permissions = new String[permissionsArray.length()];
+				for (int i = 0; i < permissions.length; i++)
+				{
+					permissions[i] = permissionsArray.getString(i);
+				}
+			}
+			if (permissions != null)
+			{
+				String username = user;
+
+				if (username == null || loginTokenJSON.has("username")) username = loginTokenJSON.getString("username");
+
+				String token = createToken(username, username, permissions, loginTokenJSON.optString("lastLogin"), rememberUser, null);
+				needToLogin.setLeft(Boolean.FALSE);
+				needToLogin.setRight(token);
+				return true;
+			}
 		}
 		return false;
 	}
