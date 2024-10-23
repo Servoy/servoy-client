@@ -58,7 +58,6 @@ import com.servoy.j2db.scripting.DefaultScope;
 import com.servoy.j2db.scripting.JSApplication.FormAndComponent;
 import com.servoy.j2db.scripting.JSEvent;
 import com.servoy.j2db.server.ngclient.ClientDesignService;
-import com.servoy.j2db.server.ngclient.DataAdapterList;
 import com.servoy.j2db.server.ngclient.FormElement;
 import com.servoy.j2db.server.ngclient.IDataAdapterList;
 import com.servoy.j2db.server.ngclient.INGApplication;
@@ -739,17 +738,17 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		}
 		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables, executePreHideSteps);
 
-		if (DataAdapterList.EVENT_TRACING_LOG.isInfoEnabled())
+		if (EventExecutor.EVENT_TRACING_LOG.isInfoEnabled())
 		{
 			Object[] tenantValue = application.getScriptEngine().getJSSecurity().getTenantValue();
 			if (visible)
 			{
-				DataAdapterList.EVENT_TRACING_LOG.info(application.getUserName() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
+				EventExecutor.EVENT_TRACING_LOG.info(application.getUserName() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
 					application.getSolutionName() + '|' + getName() + "|FORM_SHOWN|" + notifyVisibleSuccess + '|'); //$NON-NLS-1$
 			}
 			else
 			{
-				DataAdapterList.EVENT_TRACING_LOG.info(application.getUserName() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
+				EventExecutor.EVENT_TRACING_LOG.info(application.getUserName() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
 					application.getSolutionName() + '|' + getName() + "|FORM_HIDDEN|" + notifyVisibleSuccess + '|'); //$NON-NLS-1$
 			}
 		}

@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.component;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,6 +33,8 @@ import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.util.ValueReference;
 import org.sablo.websocket.utils.JSONUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.servoy.base.persistence.constants.IContentSpecConstantsBase;
 import com.servoy.base.scripting.api.IJSEvent;
@@ -49,6 +52,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.GlobalScope;
 import com.servoy.j2db.scripting.JSEvent;
+import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.IWebFormController;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.JSEventType;
@@ -64,6 +68,8 @@ import com.servoy.j2db.util.Utils;
  */
 public class EventExecutor
 {
+	public static final Logger EVENT_TRACING_LOG = LoggerFactory.getLogger("com.servoy.event.tracing");
+
 	private final IWebFormController formController;
 
 	public EventExecutor(IWebFormController formController)
@@ -222,6 +228,17 @@ public class EventExecutor
 					}
 				}
 			}
+		}
+
+		if (EVENT_TRACING_LOG.isInfoEnabled())
+		{
+			INGApplication application = formController.getApplication();
+			Object[] tenantValue = application.getScriptEngine().getJSSecurity().getTenantValue();
+			String argsAsString = Arrays.asList(newargs).stream()
+				.map(value -> value instanceof JSEvent ? "JSEvent" : value instanceof Scriptable s ? Utils.getScriptableString(s) : String.valueOf(value)) //$NON-NLS-1$
+				.collect(Collectors.joining(","));
+			EVENT_TRACING_LOG.info(application.getUserName() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
+				application.getSolutionName() + '|' + formController.getName() + '|' + component.getName() + '|' + eventType + '|' + argsAsString);
 		}
 
 		try
