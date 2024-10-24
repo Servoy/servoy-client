@@ -30,27 +30,27 @@ import com.servoy.j2db.util.Debug;
 
 
 /**
- * # In-Memory Databases Overview
+ * <h2>In-Memory Databases Overview</h2>
  *
- * In-Memory databases in Servoy are temporary tables that function like regular database tables but are stored in memory.
- * They can be dynamically created at runtime or during design time.
+ * <p>In-Memory databases in Servoy are temporary tables that function like regular database tables but are stored in memory.
+ * They can be dynamically created at runtime or during design time.</p>
  *
- * ## Creating In-Memory Databases
+ * <h3>Creating In-Memory Databases</h3>
  *
- * There are two main ways to create an In-Memory database:
+ * <p>There are two main ways to create an In-Memory database:</p>
+ * <ul>
+ *   <li><b>Solution Explorer:</b> Use the context menu option <i>Datasources -> In Memory -> Create new data source</i> to create a new datasource. This opens the Table Editor to define the table structure.</li>
+ *   <li><b>At Runtime:</b> Use the <a href="../../../../reference/servoycore/dev-api/database-manager/jsdataset.md#createdatasourcename">JSDataSet::createDataSource</a> function to dynamically create In-Memory tables.</li>
+ * </ul>
  *
- * - **Solution Explorer:** Use the context menu option *Datasources -> In Memory -> Create new data source* to create a new datasource. This opens the Table Editor to define the table structure.
- * - **At Runtime:** Use the <a href="../../../../reference/servoycore/dev-api/database-manager/jsdataset.md#createdatasourcename">JSDataSet::createDataSource</a> function to dynamically create In-Memory tables.
- *
- * ## Usage Example
- *
+ * <h3>Usage Example</h3>
  * <pre>
  * var dataset = databaseManager.createEmptyDataSet(0, ['column1', 'column2']);
  * dataset.addRow(['value1', 'value2']);
  * dataset.createDataSource('inmemory_source', [JSColumn.STRING, JSColumn.STRING]);
  * </pre>
  *
- * For more details, refer to the documentation on <a href="../../../../reference/servoycore/dev-api/database-manager/jsdataset.md#createdatasourcename">JSDataSet::createDataSource</a>.
+ * <p>For more details, refer to the documentation on <a href="../../../../reference/servoycore/dev-api/database-manager/jsdataset.md#createdatasourcename">JSDataSet::createDataSource</a>.</p>
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class MemDataSource extends DefaultJavaScope
