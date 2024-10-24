@@ -30,33 +30,25 @@ import com.servoy.j2db.util.Debug;
 
 
 /**
- * @class InMemoryDatabase
+ * This is a test for MemDataSource
  *
- * @description
- * In-Memory databases in Servoy are temporary tables created using HSQL, which function like regular database tables. They can be created at design time or dynamically at runtime.
+ * <a href="../../../../reference/servoycore/dev-api/database-manager/jsdataset.md#createdatasourcename">In-Memory Databases Overview</a>
  *
- * - **Creating In-Memory Databases**:
- *   - 1. **Solution Explorer**: Use `Datasources -> In Memory -> Create new data source` to create a datasource, which opens the Table Editor for column definitions.
- *   - 2. **At Runtime**: Use `JSDataSet::createDataSource()` to create tables dynamically.
+ * In-Memory databases in Servoy are temporary tables that behave like regular database tables but are stored in memory.
  *
- * - **Additional Event: onLoad**:
- *   In-Memory tables trigger an `onLoad` event when forms access the datasource or when `datasource.mem.name.getFoundSet()` is called. This enables demand-based population of the table.
+ * <a href="../../../../reference/servoycore/dev-api/database-manager/jsdataset.md#createdatasourcename">JSDataSet::createDataSource</a> can be used to dynamically create these tables at runtime.
  *
- * - **Commands**:
- *   - **Create in memory datasource**: Opens the Table Editor for defining tables.
- *   - **Edit table/view**: Modify the In-Memory table’s structure.
- *   - **Delete/Rename**: Manage the In-Memory datasource.
- *   - **Search for references**: Find where the In-Memory datasource is used in the solution.
+ * @sample
+ * <pre>
+ * // Create an empty dataset
+ * var dataset = databaseManager.createEmptyDataSet(0, ['column1', 'column2']);
  *
- * @see [JSDataSet::createDataSource](../../../../reference/servoycore/dev-api/database-manager/jsdataset.md#createdatasourcename)
- * @see [Table Editor](../../../../reference/servoy-developer/object-editors/table-editor/README.md)
+ * // Add a row to the dataset
+ * dataset.addRow(['value1', 'value2']);
  *
- * runtime access to all defined in memory datasources. In scripting: <pre>datasources.mem</pre>
- *
- * @author rgansevles
- *
- * @since 7.4
- *
+ * // Create an In-Memory datasource from the dataset
+ * dataset.createDataSource('inmemory_source', [JSColumn.STRING, JSColumn.STRING]);
+ * </pre>
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class MemDataSource extends DefaultJavaScope
