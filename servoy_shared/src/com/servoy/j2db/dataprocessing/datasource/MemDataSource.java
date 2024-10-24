@@ -30,12 +30,12 @@ import com.servoy.j2db.util.Debug;
 
 
 /**
- * <p><strong>In-Memory Databases Overview</strong></p>
+ * <p><b><i>In-Memory Databases Overview</i></b></p>
  *
  * <p>In-Memory databases in Servoy are temporary tables that function like regular database tables but are stored in memory.
  * They can be dynamically created at runtime or during design time.</p>
  *
- * <p><strong>Creating In-Memory Databases</strong></p>
+ * <p><b><i>Creating In-Memory Databases</i></b></p>
  *
  * <p>There are two main ways to create an In-Memory database:</p>
  *
@@ -44,7 +44,7 @@ import com.servoy.j2db.util.Debug;
  *   <li><b>At Runtime:</b> Use the <a href="../../../../reference/servoycore/dev-api/database-manager/jsdataset.md#createdatasourcename">JSDataSet::createDataSource</a> function to dynamically create In-Memory tables.</li>
  * </ul>
  *
- * <p><strong>Usage Example</strong></p>
+ * <p><b><i>Usage Example</i></b></p>
  *
  * <pre>
  * var dataset = databaseManager.createEmptyDataSet(0, ['column1', 'column2']);
