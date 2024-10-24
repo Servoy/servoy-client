@@ -987,7 +987,7 @@ public class StatelessLoginHandler
 		{
 			try (CloseableHttpClient httpClient = HttpClients.createDefault())
 			{
-				Pair<Integer, JSONObject> result = executeCloudGetRequest(httpClient, solution, "login", null);
+				Pair<Integer, JSONObject> result = executeCloudGetRequest(httpClient, solution, "login", request);
 				if (result != null)
 				{
 					int status = result.getLeft().intValue();
