@@ -36,9 +36,7 @@ import com.servoy.j2db.util.Debug;
  * These tables are configured like regular database tables and can be populated using `JSDataSet` and the `createDataSource()` method.
  *
  * @summary Servoy's In-Memory tables can be dynamically created at runtime or during design time, offering flexibility in managing temporary data.
- */
-
-/**
+ *
  * Creating In-Memory Databases
  *
  * There are two main ways to create In-Memory databases:
@@ -51,9 +49,7 @@ import com.servoy.j2db.util.Debug;
  *
  * @see [JSDataSet::createDataSource](../../../../reference/servoycore/dev-api/database-manager/jsdataset.md#createdatasourcename)
  * @see [Table Editor](../../../../reference/servoy-developer/object-editors/table-editor/README.md)
- */
-
-/**
+ *
  * Additional Table Event: onLoad
  *
  * In-Memory tables have an additional event called **onLoad**, triggered when a form accesses the datasource or when the method `datasource.mem.name.getFoundSet()` is called.
@@ -67,9 +63,7 @@ import com.servoy.j2db.util.Debug;
  * }
  *
  * @see [JSDataSet::createDataSource](../../../../reference/servoycore/dev-api/database-manager/jsdataset.md#createdatasourcename)
- */
-
-/**
+ *
  * Commands Summary
  *
  * A set of commands is available for managing In-Memory datasources via the context menu:
