@@ -593,6 +593,7 @@ public class StatelessLoginHandler
 			}
 			HttpGet httpget = new HttpGet(uriBuilder.build());
 			httpget.addHeader(HttpHeaders.ACCEPT, "application/json");
+			httpget.addHeader(HttpHeaders.ACCEPT_LANGUAGE, request.getHeader(HttpHeaders.ACCEPT_LANGUAGE));
 			httpget.addHeader("uuid", sanitizeHeader(solution.getUUID().toString()));
 
 			return httpclient.execute(httpget, new ResponseHandler(endpoint));
