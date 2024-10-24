@@ -30,25 +30,26 @@ import com.servoy.j2db.util.Debug;
 
 
 /**
- * This is a test for MemDataSource
- *
  * <a href="../../../../reference/servoycore/dev-api/database-manager/jsdataset.md#createdatasourcename">In-Memory Databases Overview</a>
  *
- * In-Memory databases in Servoy are temporary tables that behave like regular database tables but are stored in memory.
+ * In-Memory databases in Servoy are temporary tables that behave like regular database tables but are stored in memory. These tables can be created dynamically at runtime.
  *
- * <a href="../../../../reference/servoycore/dev-api/database-manager/jsdataset.md#createdatasourcename">JSDataSet::createDataSource</a> can be used to dynamically create these tables at runtime.
+ * <a href="../../../../reference/servoycore/dev-api/database-manager/jsdataset.md#createdatasourcename">JSDataSet::createDataSource</a> is the function used to create these tables.
  *
- * @sample
+ * Example usage using pre tag:
  * <pre>
- * // Create an empty dataset
  * var dataset = databaseManager.createEmptyDataSet(0, ['column1', 'column2']);
- *
- * // Add a row to the dataset
  * dataset.addRow(['value1', 'value2']);
- *
- * // Create an In-Memory datasource from the dataset
  * dataset.createDataSource('inmemory_source', [JSColumn.STRING, JSColumn.STRING]);
  * </pre>
+ *
+ *
+ * Example usage using sample annotation tag:
+ * @sample
+ * // Example: Create and populate an In-Memory datasource
+ * var dataset = databaseManager.createEmptyDataSet(0, ['column1', 'column2']);
+ * dataset.addRow(['value1', 'value2']);
+ * dataset.createDataSource('inmemory_source', [JSColumn.STRING, JSColumn.STRING]);
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class MemDataSource extends DefaultJavaScope
