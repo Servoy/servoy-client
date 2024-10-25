@@ -30,36 +30,36 @@ import com.servoy.j2db.util.Debug;
 
 
 /**
- * <p><b><i>In-Memory Databases</i></b></p>
- *
- * <p><b><i>Overview</i></b></p>
- * <p>Servoy allows the creation of <b>In-Memory</b> tables using HSQL, which behave like regular database tables with similar configurations, including column properties and events.
- * These tables can be populated using a <i>JSDataSet</i> and the <i>createDataSource()</i> function to dynamically define datasources or foundsets at runtime.</p>
- *
- * <p>If the In-Memory table was predefined in Servoy Developer, no need to re-define column and type information during runtime.</p>
- *
- * <p><b><i>Creating In-Memory Databases</i></b></p>
- * <p>There are two ways to create an In-Memory database:</p>
- * <ul>
- *   <li>Via the <a href="../../../servoy-developer/solution-explorer/README.md">Solution Explorer</a>, under <i>Datasources -> In Memory -> Create new data source</i>. This opens a dialog to specify the datasource name and the <a href="../../../../reference/servoy-developer/object-editors/table-editor/README.md">Table Editor</a> for table structure definition.</li>
- *   <li>At runtime, using the <a href="../database-manager/jsdataset.md#createdatasourcename">JSDataSet::createDataSource</a> function to dynamically define datasources.</li>
- * </ul>
- *
- * <p><b><i>Additional Table Event: onLoad</i></b></p>
- * <p>In-Memory tables have an extra event called <b>onLoad</b>, triggered when a form accesses the In-Memory datasource or when <a href="../../../../reference/servoycore/dev-api/database-manager/jsdataset.md#getFoundSet">datasource.mem.name.getFoundSet()</a> is called. This event allows on-demand population of the datasource, but you must still use <i>createDataSource()</i> in the <b>onLoad</b> method to populate the table.</p>
- *
- * <p><b><i>Commands Summary</i></b></p>
- * <ul>
- *   <li><a href="memdatasource.md#create-in-memory-datasource">Create in memory datasource</a> - Opens the <a href="../../../servoy-developer/object-editors/table-editor/">Table Editor</a>.</li>
- *   <li><a href="memdatasource.md#edit-table-view">Edit table/view</a> - Edits table structure via the <a href="../../../servoy-developer/object-editors/table-editor/">Table Editor</a>.</li>
- *   <li><a href="memdatasource.md#delete-in-memory-datasource">Delete In Memory Datasource</a> - Deletes the datasource definition.</li>
- *   <li><a href="memdatasource.md#rename-in-memory-datasource">Rename In Memory Datasource</a> - Renames the datasource definition.</li>
- *   <li><a href="memdatasource.md#search-for-references">Search for references</a> - Finds locations within the solution where the datasource is used.</li>
- * </ul>
- *
- * For more details please refer the <a href="../../../../guides/develop/application-design/data-modeling/in-memory-databases.md">In-memory Databases</a> from <b>Data modeling</b> section of this documentation.
- *
- * Runtime access to all defined in memory datasources. In scripting: <pre>datasources.mem</pre>
+ *<pre data-puremarkdown>
+	# MemDataSource
+
+	## Overview
+
+	Servoy allows the creation of **In-Memory** tables using HSQL, which behave like regular database tables with similar configurations, including column properties and events. These tables can be populated using a *JSDataSet* and the *createDataSource()* function to dynamically define datasources or foundsets at runtime.
+
+	If the In-Memory table was predefined in Servoy Developer, no need to re-define column and type information during runtime.
+
+	## Creating In-Memory Databases
+
+	There are two ways to create an In-Memory database:
+
+	 - Via the [Solution Explorer](../../../servoy-developer/solution-explorer/README.md), under *Datasources -> In Memory -> Create new data source*. This opens a dialog to specify the datasource name and the [Table Editor](../../../servoy-developer/object-editors/table-editor/README.md) for table structure definition.
+	 - At runtime, using the [JSDataSet::createDataSource](../database-manager/jsdataset.md\#createdatasourcename) function to dynamically define datasources.
+
+	## Additional Table Event: onLoad
+
+	In-Memory tables have an extra event called **onLoad**, triggered when a form accesses the In-Memory datasource or when *datasource.mem.name.getFoundSet()* is called. This event allows on-demand population of the datasource, but you must still use *createDataSource()* in the **onLoad** method to populate the table.
+
+	## Commands Summary
+
+	 - _**Create in memory datasource**_ - Opens the [Table Editor](../../../servoy-developer/object-editors/table-editor/README.md).
+	 - _**Edit table/view**_ - Edits table structure via the [Table Editor](../../../servoy-developer/object-editors/table-editor/README.md).
+	 - _**Delete In Memory Datasource**_ - Deletes the datasource definition.
+	 - _**Rename In Memory Datasource**_ - Renames the datasource definition.
+	 - _**Search for references**_ - Finds locations within the solution where the datasource is used.
+
+	For more details please refer the [In-memory Databases](../../../../guides/develop/application-design/data-modeling/in-memory-databases.md) from **Data modeling** section of this documentation.
+ *</pre>
  *
  * @author rgansevles
  *
