@@ -4088,7 +4088,7 @@ public abstract class FoundSet
 				if (cachedRecords.get(startRow + r) == null)
 				{
 					Row rowData = rows.get(r);
-					if (rowData != null)
+					if (rowData != null && !isNewRowForOtherFoundset(rowData))
 					{
 						Record state = new Record(this, rowData);
 						cachedRecords.set(startRow + r, state);
@@ -4154,7 +4154,17 @@ public abstract class FoundSet
 		return retval;
 	}
 
-	//sliding window cache for selectedindex
+	/**
+	 * If a row is a not saved yet and it does not belong to this foundset we should not create a record for it,
+	 * the record is already in the foundset that created it.
+	 */
+	private boolean isNewRowForOtherFoundset(Row rowData)
+	{
+		return !rowData.existInDB() &&
+			rowData.getRegisterdRecords().noneMatch(record -> record.getParentFoundSet() == this);
+	}
+
+	// sliding window cache for selectedindex
 	// caller already synced on PksAndRecordsHolder
 	private void removeRecords(int row, boolean breakOnNull, SafeArrayList<IRecordInternal> cachedRecords)
 	{
