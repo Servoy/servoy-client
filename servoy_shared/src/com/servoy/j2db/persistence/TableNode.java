@@ -400,18 +400,16 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * Foundset pre-selection change trigger
 	 * Can be used to validate the record to be not selected.
 	 * When false is returned the selection will not bechanged.
-	 * @templatename onFoundsetSelectionChange
+	 * @templatename onFoundSetSelectionChange
 	 * @templatetype Boolean
-	 * @templateparam JSRecord<${dataSource}>|Array<JSRecord<${dataSource}>> old selection (array with selected records)
-	 * @templateparam JSRecord<${dataSource}>|Array<JSRecord<${dataSource}>> new selection (array with records that will become selected)
+	 * @templateparam JSRecord<${dataSource}>|Array<JSRecord<${dataSource}>> oldSelection array with selected records
+	 * @templateparam JSRecord<${dataSource}>|Array<JSRecord<${dataSource}>> newSelection array with records that will become selected
 	 * @templateaddtodo
 	 * @templatecode
 	 *
 	 * var valid = true;
 	 * // test if it is valid.
-	 *
-	 * // return boolean to indicate success
-	 * return valid
+	 * return valid;
 	 */
 	public int getOnFoundSetBeforeSelectionChangeMethodID()
 	{
