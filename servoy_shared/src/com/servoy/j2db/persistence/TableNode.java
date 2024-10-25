@@ -413,12 +413,12 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * // return boolean to indicate success
 	 * return valid
 	 */
-	public int getOnFoundsetBeforeSelectionChangeMethodID()
+	public int getOnFoundSetBeforeSelectionChangeMethodID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID).intValue();
 	}
 
-	public void setOnFoundsetBeforeSelectionChangeMethodID(int arg)
+	public void setOnFoundSetBeforeSelectionChangeMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID, arg);
 	}
