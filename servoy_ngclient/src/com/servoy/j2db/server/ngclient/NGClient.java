@@ -1348,7 +1348,16 @@ public class NGClient extends AbstractApplication
 				scheduledExecutorService = null;
 
 			}
-			if (showUrl == null) getWebsocketSession().sendRedirect(null);
+			if (showUrl == null)
+			{
+				getWebsocketSession().sendRedirect(null);
+			}
+			else
+			{
+				this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncNowServiceCall("showUrl",
+					new Object[] { showUrl.url, showUrl.target, showUrl.target_options, Integer.valueOf(showUrl.timeout) });
+				showUrl = null;
+			}
 			WebsocketSessionManager.removeSession(getWebsocketSession().getSessionKey());
 		}
 	}
