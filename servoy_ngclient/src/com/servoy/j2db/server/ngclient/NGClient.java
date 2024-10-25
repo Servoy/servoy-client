@@ -1354,9 +1354,23 @@ public class NGClient extends AbstractApplication
 			}
 			else
 			{
-				this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncNowServiceCall("showUrl",
-					new Object[] { showUrl.url, showUrl.target, showUrl.target_options, Integer.valueOf(showUrl.timeout) });
-				showUrl = null;
+				// if there is a show url, then this should be send first, just wait a bit
+				ShowUrl show = showUrl;
+				if (show != null)
+				{
+					// add a null/dummy event so the event dispatcher will process it and send the show url
+					getWebsocketSession().getEventDispatcher().addEvent(null);
+					synchronized (show)
+					{
+						try
+						{
+							show.wait(2000);
+						}
+						catch (InterruptedException e)
+						{
+						}
+					}
+				}
 			}
 			WebsocketSessionManager.removeSession(getWebsocketSession().getSessionKey());
 		}
@@ -1689,11 +1703,14 @@ public class NGClient extends AbstractApplication
 			}
 			toRecreate.clear();
 		}
-
 		if (showUrl != null)
 		{
 			this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncNowServiceCall("showUrl",
 				new Object[] { showUrl.url, showUrl.target, showUrl.target_options, Integer.valueOf(showUrl.timeout) });
+			synchronized (showUrl)
+			{
+				showUrl.notifyAll();
+			}
 			showUrl = null;
 		}
 	}
