@@ -1292,7 +1292,7 @@ public class NGClient extends AbstractApplication
 		// TODO call request focus on a div in a client?
 	}
 
-	private ShowUrl showUrl = null;
+	private volatile ShowUrl showUrl = null;
 
 	@Override
 	public boolean showURL(String url, String target, String target_options, int timeout, boolean onRootFrame)
@@ -1683,7 +1683,7 @@ public class NGClient extends AbstractApplication
 
 		if (showUrl != null)
 		{
-			this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("showUrl",
+			this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncNowServiceCall("showUrl",
 				new Object[] { showUrl.url, showUrl.target, showUrl.target_options, Integer.valueOf(showUrl.timeout) });
 			showUrl = null;
 		}
