@@ -31,34 +31,34 @@ import com.servoy.j2db.util.Debug;
 
 /**
  *<pre data-puremarkdown>
-	# MemDataSource
+# MemDataSource
 
-	## Overview
+## Overview
 
-	Servoy allows the creation of **In-Memory** tables using HSQL, which behave like regular database tables with similar configurations, including column properties and events. These tables can be populated using a *JSDataSet* and the *createDataSource()* function to dynamically define datasources or foundsets at runtime.
+Servoy allows the creation of **In-Memory** tables using HSQL, which behave like regular database tables with similar configurations, including column properties and events. These tables can be populated using a *JSDataSet* and the *createDataSource()* function to dynamically define datasources or foundsets at runtime.
 
-	If the In-Memory table was predefined in Servoy Developer, no need to re-define column and type information during runtime.
+If the In-Memory table was predefined in Servoy Developer, no need to re-define column and type information during runtime.
 
-	## Creating In-Memory Databases
+## Creating In-Memory Databases
 
-	There are two ways to create an In-Memory database:
+There are two ways to create an In-Memory database:
 
-	 - Via the [Solution Explorer](../../../servoy-developer/solution-explorer/README.md), under *Datasources -> In Memory -> Create new data source*. This opens a dialog to specify the datasource name and the [Table Editor](../../../servoy-developer/object-editors/table-editor/README.md) for table structure definition.
-	 - At runtime, using the [JSDataSet::createDataSource](../database-manager/jsdataset.md\#createdatasourcename) function to dynamically define datasources.
+ - Via the [Solution Explorer](../../../servoy-developer/solution-explorer/README.md), under *Datasources -> In Memory -> Create new data source*. This opens a dialog to specify the datasource name and the [Table Editor](../../../servoy-developer/object-editors/table-editor/README.md) for table structure definition.
+ - At runtime, using the [JSDataSet::createDataSource](../database-manager/jsdataset.md\#createdatasourcename) function to dynamically define datasources.
 
-	## Additional Table Event: onLoad
+## Additional Table Event: onLoad
 
-	In-Memory tables have an extra event called **onLoad**, triggered when a form accesses the In-Memory datasource or when *datasource.mem.name.getFoundSet()* is called. This event allows on-demand population of the datasource, but you must still use *createDataSource()* in the **onLoad** method to populate the table.
+In-Memory tables have an extra event called **onLoad**, triggered when a form accesses the In-Memory datasource or when *datasource.mem.name.getFoundSet()* is called. This event allows on-demand population of the datasource, but you must still use *createDataSource()* in the **onLoad** method to populate the table.
 
-	## Commands Summary
+## Commands Summary
 
-	 - _**Create in memory datasource**_ - Opens the [Table Editor](../../../servoy-developer/object-editors/table-editor/README.md).
-	 - _**Edit table/view**_ - Edits table structure via the [Table Editor](../../../servoy-developer/object-editors/table-editor/README.md).
-	 - _**Delete In Memory Datasource**_ - Deletes the datasource definition.
-	 - _**Rename In Memory Datasource**_ - Renames the datasource definition.
-	 - _**Search for references**_ - Finds locations within the solution where the datasource is used.
+ - _**Create in memory datasource**_ - Opens the [Table Editor](../../../servoy-developer/object-editors/table-editor/README.md).
+ - _**Edit table/view**_ - Edits table structure via the [Table Editor](../../../servoy-developer/object-editors/table-editor/README.md).
+ - _**Delete In Memory Datasource**_ - Deletes the datasource definition.
+ - _**Rename In Memory Datasource**_ - Renames the datasource definition.
+ - _**Search for references**_ - Finds locations within the solution where the datasource is used.
 
-	For more details please refer the [In-memory Databases](../../../../guides/develop/application-design/data-modeling/in-memory-databases.md) from **Data modeling** section of this documentation.
+For more details please refer the [In-memory Databases](../../../../guides/develop/application-design/data-modeling/in-memory-databases.md) from **Data modeling** section of this documentation.
  *</pre>
  *
  * @author rgansevles
