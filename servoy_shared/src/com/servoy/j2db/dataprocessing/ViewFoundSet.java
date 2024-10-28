@@ -101,7 +101,43 @@ import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
 import com.servoy.j2db.util.visitor.SearchVisitor;
 
 /**
- * Similar to JSFoundSet, but is not based on a SQL table but on an SQL query.
+ * <pre data-puremarkdown>
+## Overview
+
+A **View Foundset Datasource** is a virtual table that loads data at runtime, often based on a **QBSelect** query object. It is useful for combining datasets from multiple tables, improving performance compared to standard relations, valuelists, or aggregates.
+
+## Creating View Foundset Datasources
+
+View Foundset Datasources can be created in two ways:
+
+1. **Solution Explorer**: Accessed via *Datasources -> View foundsets -> Create view foundset* in the Solution Explorer context menu. This opens the [Table Editor](../../../../reference/servoy-developer/object-editors/table-editor/README.md) for defining the datasource structure.
+2. **Runtime Creation**: Created via `databaseManager.getViewFoundSet(String name, QBSelect query)`. This returns a `ViewFoundSet` object with essential operations like `getSize()`, `getRecord()`, and `loadAllRecords()`, but it doesn’t support `find()` or `search()`.
+
+## Data Broadcast and Monitoring Changes
+
+View Foundsets do not listen for databroadcast changes by default but can be enabled using `viewfoundset.enableDatabroadcastFor(QBTableClause queryTable, int flags)`. Available flags include:
+
+- [**MONITOR_COLUMNS**](viewfoundset.md#monitor_columns): Tracks changes in specific columns.
+- [**MONITOR_JOIN_CONDITIONS**](viewfoundset.md#monitor_join_conditions): Listens for changes in join conditions.
+- [**MONITOR_WHERE_CONDITIONS**](viewfoundset.md#monitor_where_conditions): Tracks updates to WHERE clause columns.
+- [**MONITOR_INSERT**](viewfoundset.md#monitor_insert): Monitors inserts, triggering a full query update.
+- [**MONITOR_DELETES**](viewfoundset.md#monitor_deletes): Tracks deletions, updating records as needed.
+- [**MONITOR_DELETES_FOR_PRIMARY_TABLE**](viewfoundset.md#monitor_deletes_for_primary_table): Monitors primary table deletions more efficiently.
+- [**MONITOR_AGGREGATES**](viewfoundset.md#monitor_aggregates): Observes changes impacting aggregates in the query.
+
+## Editable View Foundsets
+
+A **View Foundset** can be made editable with `save()` if the primary key (PK) is included in the `QBSelect`. Data updates pause databroadcast refreshes until the records are committed.
+
+## Commands Summary
+
+- _**Create view foundset datasource**_: Opens the [Table Editor](../../../../object-editors/table-editor/README.md).
+- _**[Edit table/view**_: Edits the View Foundset structure via the [Table Editor](../../../../object-editors/table-editor/README.md).
+- _**Delete View Foundset**_: Deletes the View Foundset.
+- _**Rename View Foundset**_: Renames the View Foundset.
+
+For more details, refer to the [View Foundset Datasource](../../../../guides/develop/application-design/data-modeling/view-datasource.md) documentation in the **Data modeling** section.
+</pre>
  *
  * @author jcompagner
  * @since 8.4
