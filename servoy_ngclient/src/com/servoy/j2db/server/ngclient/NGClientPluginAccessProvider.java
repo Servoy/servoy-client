@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import java.io.File;
+
 import com.servoy.j2db.plugins.ClientPluginAccessProvider;
 import com.servoy.j2db.plugins.IMediaUploadCallback;
 import com.servoy.j2db.plugins.INGClientPluginAccess;
@@ -58,6 +60,12 @@ public class NGClientPluginAccessProvider extends ClientPluginAccessProvider imp
 	public String serveResource(String filename, byte[] bs, String mimetype, String contentDisposition)
 	{
 		return ngClient.serveResource(filename, bs, mimetype, contentDisposition);
+	}
+
+	@Override
+	public String serveResource(File file, String mimetype, String contentDisposition)
+	{
+		return ngClient.serveResource(file, mimetype, contentDisposition);
 	}
 
 	@Override

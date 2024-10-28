@@ -4,6 +4,7 @@ import static com.servoy.j2db.util.UUID.randomUUID;
 
 import java.awt.Dimension;
 import java.awt.print.PageFormat;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -1440,6 +1441,15 @@ public class NGClient extends AbstractApplication
 		return mediaInfo;
 	}
 
+	public MediaInfo createMediaInfo(File file, String contentType, String contentDisposition)
+	{
+		MediaInfo mediaInfo = new MediaInfo(randomUUID().toString(), file,
+			contentType == null ? MimeTypes.guessContentTypeFromName(file.getName()) : contentType,
+			contentDisposition);
+		mediaInfos.put(mediaInfo.getName(), mediaInfo);
+		return mediaInfo;
+	}
+
 	public MediaInfo createMediaInfo(byte[] mediaBytes)
 	{
 		return createMediaInfo(mediaBytes, null, null, null);
@@ -1454,6 +1464,12 @@ public class NGClient extends AbstractApplication
 	public String serveResource(String filename, byte[] bs, String mimetype, String contentDisposition)
 	{
 		MediaInfo mediaInfo = createMediaInfo(bs, filename, mimetype, contentDisposition);
+		return mediaInfo.getURL(getWebsocketSession().getSessionKey().getClientnr());
+	}
+
+	public String serveResource(File file, String mimetype, String contentDisposition)
+	{
+		MediaInfo mediaInfo = createMediaInfo(file, mimetype, contentDisposition);
 		return mediaInfo.getURL(getWebsocketSession().getSessionKey().getClientnr());
 	}
 
