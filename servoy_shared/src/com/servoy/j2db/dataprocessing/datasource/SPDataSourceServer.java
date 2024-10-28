@@ -43,7 +43,6 @@ import com.servoy.j2db.util.ServoyException;
 
 /**
  * <pre data-puremarkdown>
-## Overview
 Execute specific stored procedures directly for any defined data source using the `datasources.sp.<servername>.<storedProcedure>()` syntax.
 
 ## Specific Scope for `datasources.sp.<servername>.storedProcedure()`

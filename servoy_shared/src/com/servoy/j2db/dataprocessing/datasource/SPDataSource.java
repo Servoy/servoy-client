@@ -29,7 +29,6 @@ import com.servoy.j2db.util.Debug;
 
 /**
  * <pre data-puremarkdown>
-## Overview
 Access and execute stored procedures dynamically at runtime from any enabled data source using the `datasources.sp` object.
 
 ## Runtime Access to Stored Procedures in `datasources.sp`
