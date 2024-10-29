@@ -34,8 +34,15 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.IDestroyable;
 
 /**
- * In scripting: the <pre>datasources</pre> object.<br/>
- * Use it to interact with databases, in-mem, view, stored procedures. It offers dynamic code completion that adapts to your solution's data model.
+ * <pre data-puremarkdown>
+
+`DBDataSources` provides a way to access and interact with various database, in-memory, view, and stored procedure datasources in Servoy applications. Available through the `datasources` object, it includes dynamic code completion that aligns with the solution’s data model, providing flexibility and ease when working with different data sources.
+
+For details related to datasources, refer to the specific sections in the Servoy documentation:
+- [DBDataSourceServer](./dbdatasourceserver.md)
+- [Create In Memory DataSource](../../../../guides/develop/application-design/data-modeling/in-memory-databases.md#create-in-memory-datasource)
+- [View Foundset Datasource](../../../../guides/develop/application-design/data-modeling/view-datasource).
+ * </pre>
  *
  * @author rgansevles
  *

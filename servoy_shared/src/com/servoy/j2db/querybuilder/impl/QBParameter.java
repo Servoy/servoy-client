@@ -27,7 +27,11 @@ import com.servoy.j2db.querybuilder.IQueryBuilderParameter;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * An SQL parameter, so you can build parameterized queries.
+ * <pre data-puremarkdown>
+`QBParameter` is an SQL parameter object for building parameterized queries within `QBSelect`. Using `QBParameter` enables flexible, reusable query structures by setting named values at runtime, helping to avoid direct value embedding in SQL and supporting secure, dynamic query building.
+
+For more on parameterized queries, see [Query Builder](../../../../guides/develop/programming-guide/working-with-data/searching/query-builder.md) in the Servoy documentation.
+ * </pre>
  *
  * @author rgansevles
  *

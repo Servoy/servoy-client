@@ -34,7 +34,11 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.TypePredicate;
 
 /**
- * Helper object for handling all QBSelect parameters (when having an parameterized query).
+ * <pre data-puremarkdown>
+`QBParameters` is a helper object for managing all parameters within a `QBSelect` query, simplifying the handling of multiple parameters when building parameterized queries. It provides centralized access to query parameters, supporting the creation of dynamic, flexible query structures.
+
+For additional information on working with parameters, see [Query Builder](../../../../guides/develop/programming-guide/working-with-data/searching/query-builder.md) in the Servoy documentation.
+ * <pre>
  *
  * @author rgansevles
  *

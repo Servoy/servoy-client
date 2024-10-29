@@ -29,8 +29,11 @@ import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 
 /**
- * Runtime access to all defined view foundsets. In scripting: <pre>datasources.view</pre>
- *
+ * <pre data-puremarkdown>
+`ViewDataSource` provides runtime access to all defined view foundsets, enabling the use of virtual tables that dynamically load data based on criteria defined in `QBSelect` queries. View datasources are often used to combine data across multiple tables, enabling efficient data retrieval and transformation without creating physical tables.
+
+For detailed instructions on defining and managing view foundsets, see [ViewFoundSet](../database-manager/viewfoundset.md) and [View Foundset Datasource](../../../../guides/develop/application-design/data-modeling/view-datasource.md) documentation.
+ * </pre>
  * @author emera
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
