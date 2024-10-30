@@ -40,18 +40,15 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  * </ul>
  *
  * <b>example</b> (inline): <code>let result = add(2, 3); // result should be 5.</code>
- * </pre>
  *
  * <code>
- * // Multi-line example with preformatted code
- * function test() {
- *     console.log("This is a test!");
- * }
- * </code>
- *
- *
- *
- * <b>exampleDoNotAutoAddCodeBlock - Do not auto-add code block - did not found a reliable replacement </b>
+// Multi-line example with preformatted code
+function test() {
+    console.log("This is a test!");
+}
+</code>
+
+ * <b>exampleDoNotAutoAddCodeBlock - Do not auto-add code block - did not find a reliable replacement</b>
  *
  * <pre data-puremarkdown>
 | Column1 | Column2 |
@@ -70,6 +67,7 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 `inlineCode` and `<pre>` blocks are handled differently depending on content length.
  * </pre>
  */
+
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class APPLICATION_TYPES implements IPrefixedConstantsObject, IBaseApplicationTypes
 {
