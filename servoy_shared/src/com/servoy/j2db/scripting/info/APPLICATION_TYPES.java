@@ -21,7 +21,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
- * V6 - This is a sample function to demonstrate all supported JSDoc tags and HTML transformations.
+ * V7 - This is a sample function to demonstrate all supported JSDoc tags and HTML transformations.
  *
  * <p>This function performs a simple addition. The JSDoc includes various tags and HTML elements to test conversion.</p>
  *
@@ -33,13 +33,17 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  *
  * <p>The following elements test HTML to Markdown transformations:</p>
  *
- * <pre text>
- * - **@param** {number} a - The first number to add.
- * - **@param** {number} b - The second number to add.
- * - **@return** {number} The sum of the two numbers.
+ * <pre data-puremarkdown>
+- **@param** {number} a - The first number to add.
+- **@param** {number} b - The second number to add.
+- **@return** {number} The sum of the two numbers.
  * </pre>
- *
- * <pre text>**@example** (inline):</pre> <code>let result = add(2, 3); // result should be 5.</code>
+ * <b>BEFORE br</b>
+ * <br>
+ * <b>AFTER br</b>
+ * <pre data-puremarkdown>
+**@example** (inline): `let result = add(2, 3); // result should be 5.`
+ * </pre>
  *
  * <pre>
  * // Multi-line example with preformatted code
@@ -48,13 +52,14 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  * }
  * </pre>
  *
- * <pre text>**@example**</pre>
- * <code>let inlineCode = "This is inline code";</code> <!-- Do not auto-add code block -->
+ * <pre data-puremarkdown>
+**@example** `let inlineCode = "This is inline code";` <!-- Do not auto-add code block -->
+ * </pre>
  *
  * <pre data-puremarkdown>
- * | Column1 | Column2 |
- * |---------|---------|
- * | Data1   | Data2   |
+| Column1 | Column2 |
+|---------|---------|
+| Data1   | Data2   |
  * </pre>
  *
  * <ol>
@@ -64,7 +69,7 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  *
  * <a href="https://example.com">Example link</a>
  *
- * <pre text>`inlineCode` and `<pre>` blocks are handled differently depending on</pre>
+ * <pre data-puremarkdown>`inlineCode` and `<pre>` blocks are handled differently depending on content length.</pre>
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class APPLICATION_TYPES implements IPrefixedConstantsObject, IBaseApplicationTypes
