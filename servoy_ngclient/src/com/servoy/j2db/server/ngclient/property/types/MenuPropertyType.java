@@ -296,4 +296,21 @@ public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 		return null;
 	}
 
+	/**
+	 * @param name
+	 * @return
+	 */
+	public String getExtraPropertyCategory(String name)
+	{
+		for (String category : extraProperties.keySet())
+		{
+			Map<String, PropertyDescription> properties = extraProperties.get(category);
+			if (properties != null && properties.containsKey(name))
+			{
+				return category;
+			}
+		}
+		return null;
+	}
+
 }
