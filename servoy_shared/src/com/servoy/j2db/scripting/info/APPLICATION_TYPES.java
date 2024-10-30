@@ -21,7 +21,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
- * V4 - This is a sample function to demonstrate all supported JSDoc tags and HTML transformations.
+ * V5 - This is a sample function to demonstrate all supported JSDoc tags and HTML transformations.
  *
  * <p>This function performs a simple addition. The JSDoc includes various tags and HTML elements to test conversion.</p>
  *
@@ -33,24 +33,23 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  *
  * <p>The following elements test HTML to Markdown transformations:</p>
  *
- * <p>Here's an example paragraph for testing paragraph tags.</p>
+ * <pre text>
+ * - **@param** {number} a - The first number to add.
+ * - **@param** {number} b - The second number to add.
+ * - **@return** {number} The sum of the two numbers.
+ * </pre>
  *
- * @param {number} a - The first number to add.
- * @param {number} b - The second number to add.
- * @return {number} The sum of the two numbers.
+ * <pre text>**@example** (inline):</pre> <code>let result = add(2, 3); // result should be 5.</code>
  *
- * @example
- * // Inline example
- * let result = add(2, 3); // <code>result</code> should be 5.
- *
- * @example <pre>
+ * <pre>
  * // Multi-line example with preformatted code
  * function test() {
  *     console.log("This is a test!");
  * }
  * </pre>
  *
- * @exampleDoNotAutoAddCodeBlock <code>let inlineCode = "This is inline code";</code>
+ * <pre text>**@example**</pre>
+ * <code>let inlineCode = "This is inline code";</code> <!-- Do not auto-add code block -->
  *
  * <pre data-puremarkdown>
  * | Column1 | Column2 |
@@ -65,7 +64,7 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  *
  * <a href="https://example.com">Example link</a>
  *
- * <code>inlineCode</code> and `<pre>` blocks are handled differently depending on content length.
+ * <b>inlineCode</b> and <i>preformatted</i> blocks are handled differently depending on content length.
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class APPLICATION_TYPES implements IPrefixedConstantsObject, IBaseApplicationTypes
