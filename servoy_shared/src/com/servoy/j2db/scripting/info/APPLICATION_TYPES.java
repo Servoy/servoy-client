@@ -21,7 +21,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
- * V3 - This is a sample function to demonstrate all supported JSDoc tags and HTML transformations.
+ * V4 - This is a sample function to demonstrate all supported JSDoc tags and HTML transformations.
  *
  * <p>This function performs a simple addition. The JSDoc includes various tags and HTML elements to test conversion.</p>
  *
@@ -35,26 +35,22 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  *
  * <p>Here's an example paragraph for testing paragraph tags.</p>
  *
- * Parameters:
- * - **a** {number} - The first number to add.
- * - **b** {number} - The second number to add.
+ * @param {number} a - The first number to add.
+ * @param {number} b - The second number to add.
+ * @return {number} The sum of the two numbers.
  *
- * Returns:
- * - **number** - The sum of the two numbers.
+ * @example
+ * // Inline example
+ * let result = add(2, 3); // <code>result</code> should be 5.
  *
- * <p><b>Examples:</b></p>
- * <ul>
- *    <li><b>Inline example:</b> `let result = add(2, 3);` should give `5`.</li>
- *    <li><b>Multi-line example:</b></li>
- * </ul>
- * <pre>
+ * @example <pre>
+ * // Multi-line example with preformatted code
  * function test() {
  *     console.log("This is a test!");
  * }
  * </pre>
  *
- * <p>**Example with inline code (do not auto-add code block):**</p>
- * <code>let inlineCode = "This is inline code";</code>
+ * @exampleDoNotAutoAddCodeBlock <code>let inlineCode = "This is inline code";</code>
  *
  * <pre data-puremarkdown>
  * | Column1 | Column2 |
@@ -71,7 +67,6 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  *
  * <code>inlineCode</code> and `<pre>` blocks are handled differently depending on content length.
  */
-
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class APPLICATION_TYPES implements IPrefixedConstantsObject, IBaseApplicationTypes
 {
