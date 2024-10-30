@@ -38,9 +38,7 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 - **@param** {number} b - The second number to add.
 - **@return** {number} The sum of the two numbers.
  * </pre>
- * <b>BEFORE br</b>
- * <br>
- * <b>AFTER br</b>
+ *
  * <pre data-puremarkdown>
 **@example** (inline): `let result = add(2, 3); // result should be 5.`
  * </pre>
