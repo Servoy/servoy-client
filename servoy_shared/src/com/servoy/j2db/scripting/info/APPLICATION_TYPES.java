@@ -21,7 +21,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
- * V10 - This is a sample function to demonstrate all supported JSDoc tags and HTML transformations.
+ * V11 - This is a sample function to demonstrate all supported JSDoc tags and HTML transformations.
  *
  * <p>This function performs a simple addition. The JSDoc includes various tags and HTML elements to test conversion.</p>
  *
@@ -33,26 +33,25 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  *
  * <p>The following elements test HTML to Markdown transformations:</p>
  *
- * <pre data-puremarkdown>
-- **param** {number} a - The first number to add.
-- **param** {number} b - The second number to add.
-- **return** {number} The sum of the two numbers.
+ * <ul>
+ *     <li><i><b>param</b> {number}</i> a - The first number to add.</li>
+ *     <li><i><b>param</b> {number}</i> b - The second number to add.</li>
+ *     <li><i><b>return</b> {number}</i> The sum of the two numbers.</li>
+ * </ul>
+ *
+ * <b>example</b> (inline): <code>let result = add(2, 3); // result should be 5.</code>
  * </pre>
  *
- * <pre data-puremarkdown>
-**example** (inline): `let result = add(2, 3); // result should be 5.`
- * </pre>
- *
- * <pre>
+ * <code>
  * // Multi-line example with preformatted code
  * function test() {
  *     console.log("This is a test!");
  * }
- * </pre>
+ * </code>
  *
- * <pre data-puremarkdown>
-**@example** `let inlineCode = "This is inline code";` <!-- Do not auto-add code block -->
- * </pre>
+ *
+ *
+ * <b>exampleDoNotAutoAddCodeBlock - Do not auto-add code block - did not found a reliable replacement </b>
  *
  * <pre data-puremarkdown>
 | Column1 | Column2 |
@@ -67,7 +66,9 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  *
  * <a href="https://example.com">Example link</a>
  *
- * <pre data-puremarkdown>`inlineCode` and `<pre>` blocks are handled differently depending on content length.</pre>
+ * <pre data-puremarkdown>
+`inlineCode` and `<pre>` blocks are handled differently depending on content length.
+ * </pre>
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class APPLICATION_TYPES implements IPrefixedConstantsObject, IBaseApplicationTypes
