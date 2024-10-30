@@ -36,18 +36,26 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  * <br>
  * <p>Here's an example paragraph for testing paragraph tags.</p>
  *
- * @param {number} a - The first number to add.
- * @param {number} b - The second number to add.
- * @return {number} The sum of the two numbers.
- * @example
- * // Example with inline code
- * let result = add(2, 3); // <code>result</code> should be 5.
- * @example <pre> // Example with preformatted multi-line code
+ * Parameters:
+ * - **a** {number} - The first number to add.
+ * - **b** {number} - The second number to add.
+ *
+ * Returns:
+ * - **number** - The sum of the two numbers.
+ *
+ * <p><b>Examples:</b></p>
+ * <ul>
+ *    <li><b>Inline example:</b> `let result = add(2, 3);` should give `5`.</li>
+ *    <li><b>Multi-line example:</b></li>
+ * </ul>
+ * <pre>
  * function test() {
  *     console.log("This is a test!");
  * }
  * </pre>
- * @exampleDoNotAutoAddCodeBlock <code>let inlineCode = "This is inline code";</code>
+ *
+ * <p>**Example with inline code (do not auto-add code block):**</p>
+ * <code>let inlineCode = "This is inline code";</code>
  *
  * <pre data-puremarkdown>
  * | Column1 | Column2 |
