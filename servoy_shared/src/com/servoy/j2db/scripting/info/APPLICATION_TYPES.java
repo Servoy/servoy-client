@@ -21,7 +21,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
- * V9 - This is a sample function to demonstrate all supported JSDoc tags and HTML transformations.
+ * V10 - This is a sample function to demonstrate all supported JSDoc tags and HTML transformations.
  *
  * <p>This function performs a simple addition. The JSDoc includes various tags and HTML elements to test conversion.</p>
  *
@@ -34,13 +34,13 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  * <p>The following elements test HTML to Markdown transformations:</p>
  *
  * <pre data-puremarkdown>
-- **@param** {number} a - The first number to add.
-- **@param** {number} b - The second number to add.
-- **@return** {number} The sum of the two numbers.
+- **param** {number} a - The first number to add.
+- **param** {number} b - The second number to add.
+- **return** {number} The sum of the two numbers.
  * </pre>
  *
  * <pre data-puremarkdown>
-**@example** (inline): `let result = add(2, 3); // result should be 5.`
+**example** (inline): `let result = add(2, 3); // result should be 5.`
  * </pre>
  *
  * <pre>
