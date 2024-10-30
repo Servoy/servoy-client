@@ -21,7 +21,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
- * This is a sample function to demonstrate all supported JSDoc tags and HTML transformations.
+ * V3 - This is a sample function to demonstrate all supported JSDoc tags and HTML transformations.
  *
  * <p>This function performs a simple addition. The JSDoc includes various tags and HTML elements to test conversion.</p>
  *
@@ -33,7 +33,6 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  *
  * <p>The following elements test HTML to Markdown transformations:</p>
  *
- * <br>
  * <p>Here's an example paragraph for testing paragraph tags.</p>
  *
  * Parameters:
