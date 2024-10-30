@@ -21,7 +21,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
- * V5 - This is a sample function to demonstrate all supported JSDoc tags and HTML transformations.
+ * V6 - This is a sample function to demonstrate all supported JSDoc tags and HTML transformations.
  *
  * <p>This function performs a simple addition. The JSDoc includes various tags and HTML elements to test conversion.</p>
  *
@@ -64,7 +64,7 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  *
  * <a href="https://example.com">Example link</a>
  *
- * <b>inlineCode</b> and <i>preformatted</i> blocks are handled differently depending on content length.
+ * <pre text>`inlineCode` and `<pre>` blocks are handled differently depending on</pre>
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class APPLICATION_TYPES implements IPrefixedConstantsObject, IBaseApplicationTypes
