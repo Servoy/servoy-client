@@ -33,6 +33,17 @@
 				"name": "event",
 				"type": "JSEvent"
 			}]
+		},
+		"onListItemClick": {
+			"description": "Called when a list item is clicked",
+			"parameters": [{
+				"name": "record",
+				"type": "record",
+				"tags": { "skipCallIfNotSelected": true }
+			},{
+				"name": "event",
+				"type": "JSEvent"
+			}]
 		}
 	}
 }
