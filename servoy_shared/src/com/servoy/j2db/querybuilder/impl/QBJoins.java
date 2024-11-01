@@ -85,15 +85,19 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 			// make sure that joins with the same alias are added with separate names
 			Map<String, List<ISQLTableJoin>> joinsPerName = stream(query.getJoins())
 				.filter(ISQLTableJoin.class::isInstance).map(ISQLTableJoin.class::cast)
-				.collect(groupingBy(ISQLTableJoin::getAlias, toList()));
+				.collect(groupingBy(join -> join.getAlias() == null ? "" : join.getAlias(), toList()));
 
-			joinsPerName.values().stream().forEach(joins -> range(0, joins.size())
-				.forEach(idx -> {
-					var join = joins.get(idx);
-					String name = joins.size() == 1 ? join.getAlias() : (join.getAlias() + "_" + (idx + 1));
-					allVars.put(name,
-						new QBJoin(root, parent, join.getForeignTable().getDataSource(), join, join.getAlias()));
-				}));
+			joinsPerName.entrySet().stream().forEach(entry -> {
+				var joins = entry.getValue();
+				var alias = entry.getKey();
+				range(0, joins.size())
+					.forEach(idx -> {
+						var join = joins.get(idx);
+						String name = joins.size() == 1 ? alias : (alias + "_" + (idx + 1));
+						allVars.put(name,
+							new QBJoin(root, parent, join.getForeignTable().getDataSource(), join, join.getAlias()));
+					});
+			});
 		}
 		return true;
 	}
