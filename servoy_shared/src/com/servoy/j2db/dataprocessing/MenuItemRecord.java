@@ -78,13 +78,13 @@ public class MenuItemRecord implements IRecordInternal, Scriptable
 	@Override
 	public boolean startEditing()
 	{
-		return false;
+		return true;
 	}
 
 	@Override
 	public Object setValue(String dataProviderID, Object value)
 	{
-		return null;
+		return setValue(dataProviderID, value, false);
 	}
 
 	@Override
@@ -183,7 +183,7 @@ public class MenuItemRecord implements IRecordInternal, Scriptable
 	@Override
 	public boolean startEditing(boolean mustFireEditRecordChange)
 	{
-		return false;
+		return true;
 	}
 
 	@Override
@@ -385,7 +385,7 @@ public class MenuItemRecord implements IRecordInternal, Scriptable
 		{
 			return foundset;
 		}
-		if (values.containsKey(dataProviderID.toLowerCase())) return values.get(dataProviderID);
+		if (values.containsKey(dataProviderID.toLowerCase())) return values.get(dataProviderID.toLowerCase());
 		int index = dataProviderID.lastIndexOf('.');
 		if (index > 0) //check if is related value request
 		{
@@ -423,6 +423,13 @@ public class MenuItemRecord implements IRecordInternal, Scriptable
 	@Override
 	public Object setValue(String dataProviderID, Object value, boolean checkIsEditing)
 	{
+		Object prevValue = values.get(dataProviderID.toLowerCase());
+		if (!Utils.equalObjects(value, prevValue))
+		{
+			values.put(dataProviderID.toLowerCase(), value);
+			// do we need to fire something?
+			return prevValue;
+		}
 		return value;
 	}
 
