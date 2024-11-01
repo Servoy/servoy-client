@@ -7030,7 +7030,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 		{
 			if (fs.foundSetFilters == null || !fs.foundSetFilters.contains(filter))
 			{
-				if (myOwnFilters == null) myOwnFilters = new ArrayList<TableFilter>(foundSetFilters.size());
+				if (myOwnFilters == null) myOwnFilters = new ArrayList<>(foundSetFilters.size());
 				myOwnFilters.add(filter);
 			}
 		}
@@ -7039,6 +7039,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			addFilterconditions(fs.pksAndRecords.getQuerySelectForModification(), myOwnFilters));
 		if (fs.foundSetFilters != null)
 		{
+			var originalFilters = foundSetFilters;
 			// copy over the foundset filters from the other fs, merged with the filters this foundset had
 			foundSetFilters = new ArrayList<>();
 			fs.foundSetFilters.forEach(filter -> {
@@ -7058,7 +7059,7 @@ public abstract class FoundSet implements IFoundSetInternal, IRowListener, Scrip
 			{
 				foundSetFilters.addAll(myOwnFilters);
 			}
-			resetFiltercondition(foundSetFilters);
+			resetFiltercondition(originalFilters);
 		}
 		initialized = fs.initialized;
 
