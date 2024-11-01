@@ -125,6 +125,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	@JSFunction
 	public QBJoin[] getJoins()
 	{
+		getIds(); // triggers a fill
 		return allVars.values().toArray(new QBJoin[allVars.size()]);
 	}
 
