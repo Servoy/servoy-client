@@ -18,6 +18,7 @@
 package com.servoy.j2db.querybuilder.impl;
 
 import static com.servoy.j2db.util.UUID.randomUUID;
+import static com.servoy.j2db.util.Utils.stream;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.IntStream.range;
@@ -82,7 +83,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		if (query != null)
 		{
 			// make sure that joins with the same alias are added with separate names
-			Map<String, List<ISQLTableJoin>> joinsPerName = query.getJoins().stream()
+			Map<String, List<ISQLTableJoin>> joinsPerName = stream(query.getJoins())
 				.filter(ISQLTableJoin.class::isInstance).map(ISQLTableJoin.class::cast)
 				.collect(groupingBy(ISQLTableJoin::getAlias, toList()));
 
