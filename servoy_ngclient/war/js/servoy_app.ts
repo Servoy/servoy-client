@@ -37,7 +37,7 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 }]).factory('$servoyInternal', function ($rootScope: angular.IRootScopeService, webStorage, $anchorConstants, $webSocket: sablo.IWebSocket, $q:angular.IQService,
 		$solutionSettings:servoy.SolutionSettings, $window: angular.IWindowService, $sabloConverters: sablo.ISabloConverters,
 		$sabloUtils: sablo.ISabloUtils, $sabloApplication: sablo.ISabloApplication, $utils,$foundsetTypeConstants,$log: angular.ILogService, clientdesign,
-		$typesRegistry: sablo.ITypesRegistry, $pushToServerUtils: sablo.IPushToServerUtils) {
+		$typesRegistry: sablo.ITypesRegistry, $pushToServerUtils: sablo.IPushToServerUtils, $timeout:angular.ITimeoutService) {
 	
 	function getAllChanges(now: object, prev: object, dynamicTypes: object, beanLayout, parentSize, beanModel, useAnchoring, formname,
 	                       scope: angular.IScope, propertyContextCreator: sablo.IPropertyContextCreator): any {
@@ -271,7 +271,8 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 						findModeShortCutAdded = true;
 						function performFind(event)
 						{
-							var element = angular.element(event.srcElement ? event.srcElement : event.target);									
+							var element = angular.element(event.srcElement ? event.srcElement : event.target);
+							var delay = false;									
 							if(element && element.attr('ng-model'))
 							{
 								var dataproviderString = element.attr('ng-model');
@@ -285,10 +286,19 @@ angular.module('servoyApp', ['sabloApp', 'servoy','webStorageModule','servoy-com
 									{
 										svyServoyApi.apply(propertyname);
 									}
-								}
+								} else{
+                                    // wait for the component to push the value
+                                    delay = true;
+                                }
 							}
-							
-							$sabloApplication.callService("formService", "performFind", {'formname' : frmName, 'clear' : true, 'reduce': true, 'showDialogOnNoResults':true},true);
+							if (delay){
+                                $timeout(function() {
+                                     $sabloApplication.callService("formService", "performFind", {'formname' : frmName, 'clear' : true, 'reduce': true, 'showDialogOnNoResults':true},true);
+                                },150);
+                            }
+                            else{
+                                $sabloApplication.callService("formService", "performFind", {'formname' : frmName, 'clear' : true, 'reduce': true, 'showDialogOnNoResults':true},true);
+                            }
 						}
 						window.shortcut.add('ENTER', performFind);
 					}
