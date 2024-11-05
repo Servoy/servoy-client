@@ -351,6 +351,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		else
 		{
 			TypedData<Map<String, Object>> properties = webComponent.getProperties();
+			webComponent.clearChanges();
 			TypedData<Map<String, Object>> templateProperties = fe.propertiesForTemplateJSON();
 			// remove from the templates properties all the properties that are current "live" in the component
 			templateProperties.content.keySet().removeAll(properties.content.keySet());
@@ -398,6 +399,8 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 					attributes.put("directEditPropertyName", directEditPropertyName);
 				}
 			}
+
+			// note that this if is in ServoyAttributesPropertyType as well
 			if (Utils.getAsBoolean(Settings.getInstance().getProperty("servoy.ngclient.testingMode", "false")))
 			{
 				String elementName = name;
@@ -407,6 +410,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 				}
 				attributes.put("data-cy", form.getName() + "." + elementName);
 			}
+
 			if (attributes.size() > 0)
 			{
 				writer.key("servoyAttributes");

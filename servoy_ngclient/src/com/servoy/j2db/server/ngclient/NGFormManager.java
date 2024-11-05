@@ -552,8 +552,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 				//add to history
 				getHistory(container).add(fp.getName());
 
-				container.setController(fp);
-
 				//show panel as main
 				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 				fp.notifyVisible(true, invokeLaterRunnables, true);
@@ -565,6 +563,8 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 				container.setTitle(titleText);
 
 				fp.getFormUI().setParentWindowName(container.getContainerName());
+
+				invokeLaterRunnables.add(() -> container.setController(fp)); // as this will send the updateController call to client, we do it after visibility runnables are done; so that we show the state after onShow instead of doing this earlier and then sending any UI changes that happen in onShow later to client
 
 				if (invokeLaterRunnables.size() > 0) wrapInShowLoadingIndicator(invokeLaterRunnables);
 				Utils.invokeLater(application, invokeLaterRunnables);

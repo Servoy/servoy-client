@@ -57,21 +57,21 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 	private Form flattenedForm;
 	private final boolean design;
 	private final WebFormUI formUI;
-	private final JSONObject runtimeProperties;
+	private final JSONObject runtimePropertiesForNG1;
 	private final Map<Object, TemplateModel> wrapperCache = new HashMap<>();
 
-	public FormTemplateObjectWrapper(IServoyDataConverterContext context, boolean useControllerProvider, boolean design)
+	public FormTemplateObjectWrapper(IServoyDataConverterContext context, boolean useControllerProvider, boolean design, boolean ng1WithFTLTemplatePreparation)
 	{
 		this.context = context;
 		this.useControllerProvider = useControllerProvider;
 		this.design = design;
 		formUI = (context.getForm() != null && context.getForm().getFormUI() instanceof WebFormUI) ? (WebFormUI)context.getForm().getFormUI() : null;
-		if (formUI != null)
+		if (formUI != null && ng1WithFTLTemplatePreparation)
 		{
 			String componentProps = NGUtils.formComponentPropertiesToString(formUI, FullValueToJSONConverter.INSTANCE);
-			runtimeProperties = new JSONObject(componentProps);
+			runtimePropertiesForNG1 = new JSONObject(componentProps);
 		}
-		else runtimeProperties = null;
+		else runtimePropertiesForNG1 = null;
 	}
 
 	@Override
@@ -88,12 +88,12 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 		{
 			this.flattenedForm = context.getSolution().getFlattenedForm((Form)((Object[])obj)[0]);
 			wrapped = new FormWrapper(flattenedForm, (String)((Object[])obj)[1], useControllerProvider, context, design,
-				runtimeProperties != null ? runtimeProperties.getJSONObject("") : null);
+				runtimePropertiesForNG1 != null ? runtimePropertiesForNG1.getJSONObject("") : null);
 		}
 		else if (obj == DefaultNavigator.INSTANCE)
 		{
 			wrapped = new FormElement(DefaultNavigator.INSTANCE, context.getSolution(), new PropertyPath(), design);
-			JSONObject object = runtimeProperties != null ? runtimeProperties.optJSONObject(((FormElement)wrapped).getName()) : null;
+			JSONObject object = runtimePropertiesForNG1 != null ? runtimePropertiesForNG1.optJSONObject(((FormElement)wrapped).getName()) : null;
 			if (object != null)
 			{
 				wrapped = new FormElementContext((FormElement)wrapped, context, object);
@@ -138,7 +138,7 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 				}
 			}
 			FormElement formElement = fe != null ? fe : FormElementHelper.INSTANCE.getFormElement((IFormElement)obj, context.getSolution(), null, false);
-			JSONObject object = runtimeProperties != null ? runtimeProperties.optJSONObject(formElement.getName()) : null;
+			JSONObject object = runtimePropertiesForNG1 != null ? runtimePropertiesForNG1.optJSONObject(formElement.getName()) : null;
 			wrapped = new FormElementContext(formElement, context, object);
 		}
 		else
@@ -150,13 +150,10 @@ public class FormTemplateObjectWrapper extends DefaultObjectWrapper
 		return wrap;
 	}
 
-	/**
-	 * @return
-	 */
 	public FormWrapper getFormWrapper(Form frm)
 	{
 		this.flattenedForm = context.getSolution().getFlattenedForm(frm);
 		return new FormWrapper(flattenedForm, null, useControllerProvider, context, design,
-			runtimeProperties != null ? runtimeProperties.getJSONObject("") : null);
+			runtimePropertiesForNG1 != null ? runtimePropertiesForNG1.getJSONObject("") : null);
 	}
 }
