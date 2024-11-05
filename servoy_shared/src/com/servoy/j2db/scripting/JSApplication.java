@@ -483,6 +483,40 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	}
 
 	/**
+	 * Get all persistent property names (from servoy.properties file).
+	 *
+	 * @sample
+	 * // display all properties
+	 * allPropertyNames = application.getServoyPropertyNames();
+	 * for(var i = 0; i < allPropertyNames.length; i++)
+	 * {
+	 * 	application.output(allPropertyNames[i] + " = " + application.getServoyProperty(allPropertyNames[i]));
+	 * }
+	 *
+	 * @return Array of all property names
+	 */
+	@JSFunction
+	public String[] getServoyPropertyNames()
+	{
+		return application.getSettings().keySet().toArray(new String[0]);
+	}
+
+	/**
+	 * Get a persistent property value (from servoy.properties file).
+	 *
+	 * @sample var value = application.getUserProperty('ServerManager.numberOfServers');
+	 *
+	 * @param name Name of the property
+	 *
+	 * @return Property value
+	 */
+	@JSFunction
+	public String getServoyProperty(String name)
+	{
+		return application.getSettings().getProperty(name);
+	}
+
+	/**
 	 * Sets a user property for this client: <br>
 	 * In NGClient this is stored in the locale storage of the browser, so it will be persisted over restarts as long as the user didn't clear the data.
 	 * <br>
