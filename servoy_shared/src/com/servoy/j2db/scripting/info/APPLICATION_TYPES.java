@@ -21,7 +21,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
- * V11 - This is a sample function to demonstrate all supported JSDoc tags and HTML transformations.
+ * VERSIONXXX - This is a sample function to demonstrate all supported JSDoc tags and HTML transformations.
  *
  * <p>This function performs a simple addition. The JSDoc includes various tags and HTML elements to test conversion.</p>
  *
@@ -33,27 +33,26 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  *
  * <p>The following elements test HTML to Markdown transformations:</p>
  *
- * <ul>
- *     <li><i><b>param</b> {number}</i> a - The first number to add.</li>
- *     <li><i><b>param</b> {number}</i> b - The second number to add.</li>
- *     <li><i><b>return</b> {number}</i> The sum of the two numbers.</li>
- * </ul>
+ * <br>
+ * <p>Here's an example paragraph for testing paragraph tags.</p>
  *
- * <b>example</b> (inline): <code>let result = add(2, 3); // result should be 5.</code>
- *
- * <code>
-// Multi-line example with preformatted code
-function test() {
-    console.log("This is a test!");
-}
-</code>
-
- * <b>exampleDoNotAutoAddCodeBlock - Do not auto-add code block - did not find a reliable replacement</b>
+ * @param {number} a - The first number to add.
+ * @param {number} b - The second number to add.
+ * @return {number} The sum of the two numbers.
+ * @example
+ * // Example with inline code
+ * let result = add(2, 3); // <code>result</code> should be 5.
+ * @example <pre> // Example with preformatted multi-line code
+ * function test() {
+ *     console.log("This is a test!");
+ * }
+ * </pre>
+ * @exampleDoNotAutoAddCodeBlock <code>let inlineCode = "This is inline code";</code>
  *
  * <pre data-puremarkdown>
-| Column1 | Column2 |
-|---------|---------|
-| Data1   | Data2   |
+ * | Column1 | Column2 |
+ * |---------|---------|
+ * | Data1   | Data2   |
  * </pre>
  *
  * <ol>
@@ -63,11 +62,8 @@ function test() {
  *
  * <a href="https://example.com">Example link</a>
  *
- * <pre data-puremarkdown>
-`inlineCode` and `<pre>` blocks are handled differently depending on content length.
- * </pre>
+ * <code>inlineCode</code> and <i>preformatted</i> blocks are handled differently depending on content length.
  */
-
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class APPLICATION_TYPES implements IPrefixedConstantsObject, IBaseApplicationTypes
 {
