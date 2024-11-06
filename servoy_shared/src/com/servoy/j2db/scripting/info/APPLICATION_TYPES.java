@@ -21,9 +21,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
- * VERSIONXXX - This is a sample function to demonstrate all supported JSDoc tags and HTML transformations.
- *
- * <p>This function performs a simple addition. The JSDoc includes various tags and HTML elements to test conversion.</p>
+ * <p>VERSIONXXX - This function performs a simple addition. The JSDoc includes various tags and HTML elements to test conversion.</p>
  *
  * <ul>
  *     <li><b>Bold text item</b></li>
@@ -36,16 +34,21 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  * <br/>
  * <p>Here's an example paragraph for testing paragraph tags.</p>
  *
- * Testing sample annotation: \@sample
- *
- * // Example with inline code
- * \@example
- * <pre><code>
- * let result = add(2, 3); // <code>result</code> should be 5.
+ * // Example with pre tag <br/>
+ * <pre>
+ * let result = add(2, 3); //result should be 5.
  * function test() {
  *     console.log("This is a test!");
  * }
- * </code></pre>
+ * </pre>
+ *
+ * // Example with code tag <br/>
+ * <code>
+ * let result = add(2, 3); //result should be 5.
+ * function test() {
+ *     console.log("This is a test!");
+ * }
+ * </code>
  *
  * <pre data-puremarkdown>
  * | Column1 | Column2 |
@@ -57,8 +60,13 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  *     <li>Ordered list item 1</li>
  *     <li>Ordered list item 2</li>
  * </ol>
+ * <br/>
+ * <a href="https://example.com">Example link</a> <br/>
  *
- * <a href="https://example.com">Example link</a>
+ * Using parentheses in text is transforming (the text inside parentheses) - which can be a problem for function parameters
+ * function f(a, b); <br/>
+ *
+ * Note the italics, and missing spaces
  *
  * <code>inlineCode</code> and <i>preformatted</i> blocks are handled differently depending on content length.
  */
