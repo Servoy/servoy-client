@@ -33,15 +33,19 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  *
  * <p>The following elements test HTML to Markdown transformations:</p>
  *
- * <br>
+ * <br/>
  * <p>Here's an example paragraph for testing paragraph tags.</p>
  *
+ * Testing sample annotation: \@sample
+ *
  * // Example with inline code
+ * \@example
+ * <pre><code>
  * let result = add(2, 3); // <code>result</code> should be 5.
  * function test() {
  *     console.log("This is a test!");
  * }
- * </pre>
+ * </code></pre>
  *
  * <pre data-puremarkdown>
  * | Column1 | Column2 |
