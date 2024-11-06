@@ -35,7 +35,6 @@ import javax.swing.border.TitledBorder;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
-import com.servoy.base.persistence.IMobileProperties;
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.solutionmodel.IBaseSMComponent;
 import com.servoy.base.solutionmodel.IBaseSMForm;
@@ -63,7 +62,6 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptNameValidator;
 import com.servoy.j2db.persistence.ScriptVariable;
-import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.Style;
 import com.servoy.j2db.persistence.TabPanel;
@@ -217,12 +215,12 @@ public class JSSolutionModel implements ISolutionModel, IMobileSolutionModel
 				form.setResponsiveLayout(true);
 			}
 
-			if (fs.getSolution().getSolutionType() == SolutionMetaData.MOBILE)
-			{
-				// mobile solution, make the form mobile
-				form.putCustomMobileProperty(IMobileProperties.MOBILE_FORM.propertyName, Boolean.TRUE);
-				form.setStyleName("_servoy_mobile"); // set internal style name
-			}
+//			if (fs.getSolution().getSolutionType() == SolutionMetaData.MOBILE)
+//			{
+//				// mobile solution, make the form mobile
+//				form.putCustomMobileProperty(IMobileProperties.MOBILE_FORM.propertyName, Boolean.TRUE);
+//				form.setStyleName("_servoy_mobile"); // set internal style name
+//			}
 
 			application.getFormManager().addForm(form, false);
 			return instantiateForm(form, true);
