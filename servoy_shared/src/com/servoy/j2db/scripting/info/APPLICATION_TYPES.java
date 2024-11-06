@@ -23,6 +23,11 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 /**
  * <p>VERSIONXXX - This function performs a simple addition. The JSDoc includes various tags and HTML elements to test conversion.</p>
  *
+ * <h1>Title 1</h1>
+ * <h2>Title 2</h2>
+ * <h3>Title 3</h3>
+ * <h4>Title 4</h4>
+ *
  * <ul>
  *     <li><b>Bold text item</b></li>
  *     <li><i>Italic text item</i></li>
@@ -62,11 +67,6 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
  * </ol>
  * <br/>
  * <a href="https://example.com">Example link</a> <br/>
- *
- * Using parentheses in text is transforming (the text inside parentheses) - which can be a problem for function parameters
- * function f(a, b); <br/>
- *
- * Note the italics, and missing spaces
  *
  * <code>inlineCode</code> and <i>preformatted</i> blocks are handled differently depending on content length.
  */
