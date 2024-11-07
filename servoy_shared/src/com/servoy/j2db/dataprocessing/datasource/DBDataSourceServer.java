@@ -37,11 +37,13 @@ import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 
 /**
- * <pre data-puremarkdown>
-`DBDataSourceServer` provides runtime access to a database server within Servoy applications, accessible via `datasources.db.<server_name>`. This object enables interaction with database servers, including the ability to define client-specific connections, retrieve server names, and access tables within the server.
-
-For further details on configuring connections, refer to the [JSConnectionDefinition](./jsconnectiondefinition.md) documentation.
- * <pre>
+ * <code>DBDataSourceServer</code> provides runtime access to a database server within Servoy applications,
+ * accessible via <code>datasources.db.&lt;server_name&gt;</code>. This object enables interaction with
+ * database servers, including the ability to define client-specific connections, retrieve server names,
+ * and access tables within the server.
+ *
+ * For further details on configuring connections, refer to the
+ * <a href="./jsconnectiondefinition.md">JSConnectionDefinition</a> documentation.
  *
  * @author rgansevles
  *

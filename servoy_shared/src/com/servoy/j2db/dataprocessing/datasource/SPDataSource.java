@@ -28,41 +28,50 @@ import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.util.Debug;
 
 /**
- * <pre data-puremarkdown>
-Access and execute stored procedures dynamically at runtime from any enabled data source using the `datasources.sp` object.
-
-## Runtime Access to Stored Procedures in `datasources.sp`
-
-The `datasources.sp` object provides runtime access to all stored procedures enabled across supported data sources. This access allows dynamic execution of procedures directly within Servoy’s scripting environment, enabling developers to interact with the database more flexibly without needing SQL statements.
-
-### Enabling Stored Procedures
-To make stored procedures accessible in your solution:
-1. Open the configuration settings for your database server.
-2. Under Advanced Server Settings, check the **Enable Procedures** option to allow stored procedures to appear.
-3. **Restart** Servoy Developer to apply the changes.
-
-After enabling, stored procedures appear under the Procedures node in the solution explorer. This setup allows the procedures to be accessed directly in code via the `datasources.sp` object.
-
-Example: Accessing stored procedures under a server
-`var dataset = datasources.sp.myserver.mystoredprocedure(param1, param2);`
-
-### Accessing Stored Procedures
-The `datasources.sp` structure organizes stored procedures by server. The syntax for accessing a procedure follows this format:
-- **`datasources.sp.<servername>.<storedProcedureName>()`**
-This syntax is available with code completion, making it easy to view and select from available stored procedures for each server.
-
-**Use Case Examples:**
-- **Data Retrieval**: Retrieve filtered datasets or calculated results from stored procedures, improving performance by handling data operations within the database.
-- **Batch Processing**: Use stored procedures for complex, multi-step operations that are better handled by the database itself.
-
-### Remarks
-- **Execution Context**: The logic within stored procedures is managed within the database. Any required changes to procedure logic should be handled in the database environment.
-- **In-Memory Data Source Support**: You can create an in-memory data source (temp table) directly from a stored procedure’s dataset, which is useful for handling temporary data during a session.
-- **Error Handling**: Procedures may throw database-side exceptions; handling these at the database layer will prevent disruption in the Servoy client.
-
-For details on how to use Stored Procedures with Servoy, refer to the [Procedures](../../../guides/develop/application-design/data-modeling/databases/procedures.md) section of this documentation
-
+ *
+ * <p>Access and execute stored procedures dynamically at runtime from any enabled data source using the <code>datasources.sp</code> object.</p>
+ *
+ * <h2>Runtime Access to Stored Procedures in <code>datasources.sp</code></h2>
+ * <p>The <code>datasources.sp</code> object provides runtime access to all stored procedures enabled across supported data sources.
+ * This access allows dynamic execution of procedures directly within Servoy’s scripting environment, enabling developers to interact
+ * with the database more flexibly without needing SQL statements.</p>
+ *
+ * <h3>Enabling Stored Procedures</h3>
+ * <p>To make stored procedures accessible in your solution:</p>
+ * <ol>
+ *   <li>Open the configuration settings for your database server.</li>
+ *   <li>Under Advanced Server Settings, check the <b>Enable Procedures</b> option to allow stored procedures to appear.</li>
+ *   <li><b>Restart</b> Servoy Developer to apply the changes.</li>
+ * </ol>
+ * <p>After enabling, stored procedures appear under the Procedures node in the solution explorer.
+ * This setup allows the procedures to be accessed directly in code via the <code>datasources.sp</code> object.</p>
+ *
+ * <p><b>Example:</b> Accessing stored procedures under a server</p>
+ * <pre>
+ * var dataset = datasources.sp.myserver.mystoredprocedure(param1, param2);
  * </pre>
+ *
+ * <h3>Accessing Stored Procedures</h3>
+ * <p>The <code>datasources.sp</code> structure organizes stored procedures by server. The syntax for accessing a procedure follows this format:</p>
+ * <ul>
+ *   <li><code>datasources.sp.&lt;servername&gt;.&lt;storedProcedureName&gt;()</code></li>
+ * </ul>
+ * <p>This syntax is available with code completion, making it easy to view and select from available stored procedures for each server.</p>
+ *
+ * <h3>Use Case Examples:</h3>
+ * <ul>
+ *   <li><b>Data Retrieval</b>: Retrieve filtered datasets or calculated results from stored procedures, improving performance by handling data operations within the database.</li>
+ *   <li><b>Batch Processing</b>: Use stored procedures for complex, multi-step operations that are better handled by the database itself.</li>
+ * </ul>
+ *
+ * <h3>Remarks</h3>
+ * <ul>
+ *   <li><b>Execution Context</b>: The logic within stored procedures is managed within the database. Any required changes to procedure logic should be handled in the database environment.</li>
+ *   <li><b>In-Memory Data Source Support</b>: You can create an in-memory data source (temp table) directly from a stored procedure’s dataset, which is useful for handling temporary data during a session.</li>
+ *   <li><b>Error Handling</b>: Procedures may throw database-side exceptions; handling these at the database layer will prevent disruption in the Servoy client.</li>
+ * </ul>
+ *
+ * <p>For details on how to use Stored Procedures with Servoy, refer to the <a href="../../../guides/develop/application-design/data-modeling/databases/procedures.md">Procedures</a> section of this documentation.</p>
  *
  * @author jcompagner
  *

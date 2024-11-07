@@ -39,11 +39,13 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Utils;
 
 /**
- * <pre data-puremarkdown>
-`MenuItemRecord` represents a single menu item within a `MenuFoundSet`, allowing access to a record’s data and its parent `foundset`. This structure enables menu items to behave as records, facilitating component interactions that treat menu items as data entries.
-
-For more information on working with menu datasources, refer to [MenuFoundSet](menufoundset.md).
- * </pre>
+ * <code>MenuItemRecord</code> represents a single menu item within a <code>MenuFoundSet</code>,
+ * allowing access to a record’s data and its parent <code>foundset</code>. This structure enables
+ * menu items to behave as records, facilitating component interactions that treat menu items as data entries.
+ *
+ * For more information on working with menu datasources, refer to
+ * <a href="menufoundset.md">MenuFoundSet</a>.
+ *
  * @author lvostinar
  *
  */

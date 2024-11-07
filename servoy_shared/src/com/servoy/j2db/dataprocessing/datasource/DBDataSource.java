@@ -28,13 +28,14 @@ import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.util.Debug;
 
 /**
- * <pre data-puremarkdown>
-The `DBDataSource` class provides a utility API to access and manage all currently available datasources within the Servoy application, including those from all valid servers and tables. Accessed in scripting through `datasources.db`, this API facilitates interaction with database servers, tables, and their associated records and schemas.
-
-For further reference, see:
-- [DBDataSourceServer](./dbdatasourceserver.md)
-- [Datasources](./README.md)
- * </pre>
+ * The <code>DBDataSource</code> class provides a utility API to access and manage all currently
+ * available datasources within the Servoy application, including those from all valid servers and tables.
+ * Accessed in scripting through <code>datasources.db</code>, this API facilitates interaction with
+ * database servers, tables, and their associated records and schemas.
+ *
+ * For further reference, see:
+ * - <a href="./dbdatasourceserver.md">DBDataSourceServer</a> <br/>
+ * - <a href="./README.md">Datasources</a> <br/>
  *
  * @author rgansevles
  *

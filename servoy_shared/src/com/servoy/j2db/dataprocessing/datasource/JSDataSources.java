@@ -34,15 +34,15 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.IDestroyable;
 
 /**
- * <pre data-puremarkdown>
-
-`DBDataSources` provides a way to access and interact with various database, in-memory, view, and stored procedure datasources in Servoy applications. Available through the `datasources` object, it includes dynamic code completion that aligns with the solution’s data model, providing flexibility and ease when working with different data sources.
-
-For details related to datasources, refer to the specific sections in the Servoy documentation:
-- [DBDataSourceServer](./dbdatasourceserver.md)
-- [Create In Memory DataSource](../../../../guides/develop/application-design/data-modeling/in-memory-databases.md#create-in-memory-datasource)
-- [View Foundset Datasource](../../../../guides/develop/application-design/data-modeling/view-datasource).
- * </pre>
+ * <code>DBDataSources</code> provides a way to access and interact with various database, in-memory, view,
+ * and stored procedure datasources in Servoy applications. Available through the <code>datasources</code> object,
+ * it includes dynamic code completion that aligns with the solution’s data model, providing flexibility
+ * and ease when working with different data sources.
+ *
+ * For details related to datasources, refer to the specific sections in the Servoy documentation:
+ * - <a href="./dbdatasourceserver.md">DBDataSourceServer</a> <br/>
+ * - <a href="../../../../guides/develop/application-design/data-modeling/in-memory-databases.md#create-in-memory-datasource">Create In Memory DataSource</a> <br/>
+ * - <a href="../../../../guides/develop/application-design/data-modeling/view-datasource">View Foundset Datasource</a> <br/>
  *
  * @author rgansevles
  *

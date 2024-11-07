@@ -27,11 +27,14 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.DefaultJavaScope;
 
 /**
- * <pre data-puremarkdown>
-`QBColumns` represents a collection of columns within a datasource, providing access to all columns for building query components such as select and where clauses. Individual columns can be accessed through `QBColumn` for more granular control over data expressions, such as sorting, conditions, and aggregations.
-
-For further details on accessing all columns, see [QBTableClause.columns](qbtableclause.md#columns). For working with specific columns, refer to [QBColumn](qbcolumn.md).
- * <pre>
+ * <code>QBColumns</code> represents a collection of columns within a datasource, providing access to all
+ * columns for building query components such as select and where clauses. Individual columns can be
+ * accessed through <code>QBColumn</code> for more granular control over data expressions, such as sorting,
+ * conditions, and aggregations.
+ *
+ * For further details on accessing all columns, see
+ * <a href="qbtableclause.md#columns">QBTableClause.columns</a>. For working with specific columns, refer to
+ * <a href="qbcolumn.md">QBColumn</a>.
  *
  * @author rgansevles
  *

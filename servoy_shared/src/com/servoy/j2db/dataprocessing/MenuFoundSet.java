@@ -54,23 +54,25 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
 
 /**
- * <pre data-puremarkdown>
+ * <p><code>MenuFoundSet</code> enables a menu structure to function as a datasource, allowing menu items to be treated as records
+ * within the Servoy Developer environment. This provides access to menu properties as dataproviders, which are read-only, and
+ * supports hierarchical relationships, such as parent-child structures based on <code>parentid</code>.
+ * These capabilities allow components like <a href="../../../servoyextensions/ui-components/visualization/dbtreeview.md">DBTreeView</a>
+ * to work seamlessly with menu records and enable complex menu representations with FormComponents.</p>
  *
-`MenuFoundSet` enables a menu structure to function as a datasource, allowing menu items to be treated as records within the Servoy Developer environment. This provides access to menu properties as dataproviders, which are read-only, and supports hierarchical relationships, such as parent-child structures based on `parentid`. These capabilities allow components like [DBTreeView](../../../servoyextensions/ui-components/visualization/dbtreeview.md) to work seamlessly with menu records and enable complex menu representations with FormComponents.
-
-### Example Usage
-
-```js
-elements.myDbtreeview.addRoots(datasources.menu.treemenu.getFoundSet());
-elements.myDbtreeview.setTextDataprovider(datasources.menu.treemenu.getDataSource(), 'menuText');
-elements.myDbtreeview.setNRelationName(
-  datasources.menu.treemenu.getDataSource(),
-  datasources.menu.treemenu.getParentToChildrenRelationName()
-);
-
-For further details on setting up and working with datasources, see [Datasource Setup](../datasources/jsdatasource.md).
-
+ * <h3>Example Usage</h3>
+ * <pre>
+ * elements.myDbtreeview.addRoots(datasources.menu.treemenu.getFoundSet());
+ * elements.myDbtreeview.setTextDataprovider(datasources.menu.treemenu.getDataSource(), 'menuText');
+ * elements.myDbtreeview.setNRelationName(
+ *   datasources.menu.treemenu.getDataSource(),
+ *   datasources.menu.treemenu.getParentToChildrenRelationName()
+ * );
  * </pre>
+ *
+ * <p>For further details on setting up and working with datasources, see
+ * <a href="../datasources/jsdatasource.md">Datasource Setup</a>.</p>
+ *
  * @author lvostinar
  *
  */
