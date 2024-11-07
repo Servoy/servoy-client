@@ -19,6 +19,7 @@ package com.servoy.j2db.scripting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -381,6 +382,20 @@ public class JSMenuItem
 			return extraProperties.get(categoryName).get(propertyName);
 		}
 		return null;
+	}
+
+	public void setExtraProperty(String categoryName, String propertyName, Object value)
+	{
+		if (extraProperties.containsKey(categoryName))
+		{
+			Map<String, Object> propertiesMap = extraProperties.get(categoryName);
+			if (propertiesMap == null)
+			{
+				propertiesMap = new HashMap<String, Object>();
+				extraProperties.put(categoryName, propertiesMap);
+			}
+			propertiesMap.put(propertyName, value);
+		}
 	}
 
 	/**

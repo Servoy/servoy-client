@@ -34,7 +34,6 @@ import org.sablo.specification.PropertyDescriptionBuilder;
 import org.sablo.specification.ValuesConfig;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.IConvertedPropertyType;
-import org.sablo.specification.property.IInnerPropertyTypeProvider;
 import org.sablo.specification.property.IPropertyType;
 import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.types.DefaultPropertyType;
@@ -65,7 +64,7 @@ import com.servoy.j2db.util.Utils;
 public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 	implements IConvertedPropertyType<MenuTypeSabloValue>, IRhinoToSabloComponent<MenuTypeSabloValue>, ISabloComponentToRhino<MenuTypeSabloValue>,
 	IFormElementToSabloComponent<Object, MenuTypeSabloValue>, IFormElementToTemplateJSON<Object, MenuTypeSabloValue>,
-	ISupportTemplateValue<Object>, IPropertyWithClientSideConversions<MenuTypeSabloValue>, IInnerPropertyTypeProvider
+	ISupportTemplateValue<Object>, IPropertyWithClientSideConversions<MenuTypeSabloValue>
 {
 	public static final MenuPropertyType INSTANCE = new MenuPropertyType();
 	public static final String TYPE_NAME = "JSMenu";
@@ -134,8 +133,12 @@ public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 	public MenuTypeSabloValue fromJSON(Object newJSONValue, MenuTypeSabloValue previousSabloValue, PropertyDescription pd,
 		IBrowserConverterContext dataConverterContext, ValueReference<Boolean> returnValueAdjustedIncommingValue)
 	{
-		//do we need this one also?
-		return null;
+		if (newJSONValue instanceof JSONObject json && previousSabloValue != null)
+		{
+			previousSabloValue.pushDataProviderValue(json.getString("category"), json.getString("propertyName"), json.getInt("itemIndex"),
+				json.get("dataproviderValue"));
+		}
+		return previousSabloValue;
 	}
 
 	@Override
@@ -278,22 +281,6 @@ public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 
 		w.value(TYPE_NAME);
 		return true;
-	}
-
-	@Override
-	public PropertyDescription getInnerPropertyDescription(String propertyName)
-	{
-		if (propertyName.startsWith(".")) propertyName = propertyName.substring(1);
-		String[] parts = propertyName.split("\\.");
-		if (parts.length == 4 && parts[0].startsWith("items[") && parts[1].equals("extraProperties"))
-		{
-			Map<String, PropertyDescription> properties = extraProperties.get(parts[2]);
-			if (properties != null)
-			{
-				return properties.get(parts[3]);
-			}
-		}
-		return null;
 	}
 
 	/**
