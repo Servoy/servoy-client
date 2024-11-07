@@ -5,7 +5,7 @@
      sablotabseqcallback='tabIndexChanged($tabindex)' 
      svy-attributes='model.attributes'>
   <label class='svy-check-radio'
-  		 ng-repeat="item in  model.valuelistID  | filter:notNullOrEmptyValueListItem()">
+  		 ng-repeat="item in  model.valuelistID  | filter:notNullOrEmptyValueListItem()" svy-rightclick='handlers.onRightClickMethodID($event)'>
      <input type="checkbox" ng-model="selection[$index]"  ng-value="item.realValue" 
            ng-disabled="model.enabled == false || model.editable == false"
            ng-change="checkBoxClicked($event,$index)"
