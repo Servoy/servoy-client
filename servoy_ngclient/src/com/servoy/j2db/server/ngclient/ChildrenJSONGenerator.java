@@ -258,7 +258,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			writer.object();
 			LayoutContainer layoutContainer = (LayoutContainer)o;
 
-			writeLayoutContainer(writer, layoutContainer, formUI, form, designer);
+			writeLayoutContainer(writer, layoutContainer, formUI, form, designer, context.getSolution());
 
 			writer.key("children");
 			writer.array();
@@ -466,7 +466,8 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 		if (elementTypeForClient != null) writer.key("elType").value(elementTypeForClient);
 	}
 
-	public static void writeLayoutContainer(JSONWriter writer, LayoutContainer layoutContainer, WebFormUI formUI, Form form, boolean designer)
+	public static void writeLayoutContainer(JSONWriter writer, LayoutContainer layoutContainer, WebFormUI formUI, Form form, boolean designer,
+		FlattenedSolution flattenedSolution)
 	{
 		WebLayoutSpecification spec = null;
 		if (layoutContainer.getPackageName() != null)
@@ -541,7 +542,7 @@ public final class ChildrenJSONGenerator implements IPersistVisitor
 			// only if the parent form of the layout container is this form we will add a svy-id
 			// so that layout containers in form containers will not add it because they should not be selectable.
 			Form parent = layoutContainer.findParent(Form.class);
-			if (form.equals(parent))
+			if (flattenedSolution.getFormHierarchy(form).contains(parent))
 				attributes.put("svy-id", layoutContainer.getUUID().toString());
 			if (spec != null)
 			{
