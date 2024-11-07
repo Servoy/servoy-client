@@ -34,8 +34,10 @@ import com.servoy.j2db.util.Debug;
  * database servers, tables, and their associated records and schemas.
  *
  * For further reference, see:
- * - <a href="./dbdatasourceserver.md">DBDataSourceServer</a> <br/>
- * - <a href="./README.md">Datasources</a> <br/>
+  <ul>
+ * 	<li><a href="./dbdatasourceserver.md">DBDataSourceServer</a></li>
+ * 	<li><a href="./README.md">Datasources</a></li>
+ * </ul>
  *
  * @author rgansevles
  *

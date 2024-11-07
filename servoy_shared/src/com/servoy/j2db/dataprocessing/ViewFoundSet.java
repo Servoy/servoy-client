@@ -132,8 +132,8 @@ import com.servoy.j2db.util.visitor.SearchVisitor;
  *
  * <h2>Commands Summary</h2>
  * <ul>
- *   <li><i>Create view foundset datasource</i>: Opens the <a href="../../../../object-editors/table-editor/README.md">Table Editor</a>.</li>
- *   <li><i>Edit table/view</i>: Edits the View Foundset structure via the <a href="../../../../object-editors/table-editor/README.md">Table Editor</a>.</li>
+ *   <li><i>Create view foundset datasource</i>: Opens the <a href="../../../../reference/servoy-developer/object-editors/table-editor/README.md">Table Editor</a>.</li>
+ *   <li><i>Edit table/view</i>: Edits the View Foundset structure via the <a href="../../../../reference/servoy-developer/object-editors/table-editor/README.md">Table Editor</a>.</li>
  *   <li><i>Delete View Foundset</i>: Deletes the View Foundset.</li>
  *   <li><i>Rename View Foundset</i>: Renames the View Foundset.</li>
  * </ul>
