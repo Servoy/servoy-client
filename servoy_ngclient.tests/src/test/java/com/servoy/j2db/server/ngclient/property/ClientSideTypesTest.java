@@ -183,7 +183,7 @@ public class ClientSideTypesTest extends AbstractSolutionTest
 			if (indexOfHash >= 0)
 			{
 				JSONObject msgJSON = new JSONObject(msg.substring(indexOfHash + 1));
-				if (msgJSON.has("serviceApis") && msgJSON.getJSONArray("serviceApis").length() == 1 &&
+				if (msgJSON.has("serviceApis") && msgJSON.getJSONArray("serviceApis").length() == 2 &&
 					msgJSON.getJSONArray("serviceApis").getJSONObject(0).getString("name").equals("$typesRegistry") &&
 					msgJSON.getJSONArray("serviceApis").getJSONObject(0).getString("call").equals("addComponentClientSideSpecs"))
 				{
@@ -212,7 +212,7 @@ public class ClientSideTypesTest extends AbstractSolutionTest
 			if (indexOfHash >= 0)
 			{
 				JSONObject msgJSON = new JSONObject(msg.substring(indexOfHash + 1));
-				if (msgJSON.has("serviceApis") && msgJSON.getJSONArray("serviceApis").length() == 1 &&
+				if (msgJSON.has("serviceApis") && msgJSON.getJSONArray("serviceApis").length() == 2 &&
 					msgJSON.getJSONArray("serviceApis").getJSONObject(0).getString("name").equals("$typesRegistry") &&
 					msgJSON.getJSONArray("serviceApis").getJSONObject(0).getString("call").equals("addComponentClientSideSpecs"))
 				{

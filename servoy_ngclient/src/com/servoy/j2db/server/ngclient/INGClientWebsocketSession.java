@@ -19,7 +19,6 @@ package com.servoy.j2db.server.ngclient;
 
 import java.util.Collection;
 
-import org.sablo.IChangeListener;
 import org.sablo.websocket.IWebsocketSession;
 
 import com.servoy.j2db.persistence.Form;
@@ -30,7 +29,7 @@ import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
  * Interface for classes handling a websocket session based on a client.
  * @author rgansevles
  */
-public interface INGClientWebsocketSession extends IWebsocketSession, IChangeListener
+public interface INGClientWebsocketSession extends IWebsocketSession
 {
 	INGApplication getClient();
 
