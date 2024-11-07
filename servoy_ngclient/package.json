@@ -17,7 +17,7 @@
 	"scripts": {
 		"build": "tsc",
 		"test": "karma start ./client_tests/karma.conf.js --browsers ChromeHeadless",
-		"test_edge_nowatch": "karma start ./client_tests/karma.conf.js --browsers Edge",
+		"test_edge_nowatch": "karma start ./client_tests/karma.conf.js --browsers EdgeHeadless",
 		"test_dev_chrome": "karma start ./client_tests/karma_run_on_file_change.conf.js --browsers Chrome",
 		"test_dev_ff": "karma start ./client_tests/karma_run_on_file_change.conf.js --browsers Firefox",
 		"test_dev": "karma start ./client_tests/karma_run_on_file_change.conf.js"
