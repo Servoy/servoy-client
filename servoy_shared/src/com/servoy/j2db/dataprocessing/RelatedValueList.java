@@ -503,20 +503,23 @@ public class RelatedValueList extends DBValueList implements IFoundSetEventListe
 		Relation[] relations = application.getFlattenedSolution().getRelationSequence(valueList.getRelationName());
 		if (relations != null && relations.length > 0)
 		{
-			List<IDataProvider> dataProviders = new ArrayList<IDataProvider>();
+			List<IDataProvider> dataProviders = new ArrayList<>();
 			for (Relation relation : relations)
 			{
-				try
+				if (Relation.isValid(relation, application.getFlattenedSolution()))
 				{
-					IDataProvider[] currentDPS = relation.getPrimaryDataProviders(application.getFlattenedSolution());
-					if (currentDPS != null && currentDPS.length > 0)
+					try
 					{
-						dataProviders.addAll(Arrays.asList(currentDPS));
+						IDataProvider[] currentDPS = relation.getPrimaryDataProviders(application.getFlattenedSolution());
+						if (currentDPS != null && currentDPS.length > 0)
+						{
+							dataProviders.addAll(Arrays.asList(currentDPS));
+						}
 					}
-				}
-				catch (RepositoryException e)
-				{
-					Debug.error(e);
+					catch (RepositoryException e)
+					{
+						Debug.error(e);
+					}
 				}
 			}
 			if (this.fallbackValueList != null)

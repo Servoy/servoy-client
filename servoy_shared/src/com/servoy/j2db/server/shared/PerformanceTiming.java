@@ -35,7 +35,7 @@ public class PerformanceTiming extends PerformanceData
 {
 	private final static AtomicLong ID_GEN = new AtomicLong();
 	private final Long id;
-	private final Long parentId;
+	private final PerformanceTiming parentTiming;
 	private final String action;
 	private final String customObject;
 	private final int type;
@@ -43,17 +43,19 @@ public class PerformanceTiming extends PerformanceData
 	private final AtomicLong start_ms = new AtomicLong(0);
 	private final AtomicLong end_ms = new AtomicLong(0);
 	private final AtomicLong interval_ms = new AtomicLong(0);
+	private final AtomicLong inputtime_ms = new AtomicLong(0);
 
 	private final ConcurrentLinkedQueue<PerformanceTiming> subTimings = new ConcurrentLinkedQueue<>();
 
-	public PerformanceTiming(String action, int type, Long parentId, String customObject, long start_ms, String clientUUID, IPerformanceRegistry registry,
+	public PerformanceTiming(String action, int type, PerformanceTiming parentTiming, String customObject, long start_ms, String clientUUID,
+		IPerformanceRegistry registry,
 		Logger log,
 		String contextId, PerformanceAggregator aggregator)
 	{
 		super(registry, log, contextId, aggregator);
 
 		this.id = Long.valueOf(ID_GEN.getAndIncrement());
-		this.parentId = parentId;
+		this.parentTiming = parentTiming;
 		this.action = action;
 		this.type = type;
 		this.customObject = customObject;
@@ -69,9 +71,7 @@ public class PerformanceTiming extends PerformanceData
 		long intervalMsSubAction2 = intervalMsSubAction;
 		if (timing.getType() == IDataServer.METHOD_CALL_WAITING_FOR_USER_INPUT)
 		{
-			// the subaction was waiting for user input; so discard it's running time from this action's calculation as it's not useful
-			// (we could also keep a separate longs and substract them from these values during display if we need to show total time of an action including waiting for user stuff in the future)
-			start_ms.addAndGet(totalMsSubAction);
+			addInputTime(totalMsSubAction);
 			totalMsSubAction2 = 0;
 			intervalMsSubAction2 = 0;
 		}
@@ -163,7 +163,7 @@ public class PerformanceTiming extends PerformanceData
 	{
 		long end = end_ms.get();
 		if (end == 0) end = System.currentTimeMillis();
-		return end - start_ms.get();
+		return end - start_ms.get() - inputtime_ms.get();
 	}
 
 	public long getIntervalTimeMS()
@@ -193,6 +193,15 @@ public class PerformanceTiming extends PerformanceData
 
 	public Long getParentID()
 	{
-		return parentId;
+		return parentTiming != null ? parentTiming.getID() : null;
+	}
+
+	public void addInputTime(long userTime)
+	{
+		inputtime_ms.addAndGet(userTime);
+		if (parentTiming != null)
+		{
+			parentTiming.addInputTime(userTime);
+		}
 	}
 }

@@ -97,7 +97,13 @@ angular.module('window',['servoy'])
 								argsWithEvent.push(args);
 							}
 						}
-						if (!pushedChanges && document.activeElement !== targetEl) $(targetEl).change();
+                        
+                        function checkModifierKey(str) {
+                            return ['ctrl', 'control', 'alt', 'meta'].some(item => str.toLowerCase().startsWith(item));
+                        }
+                        
+                        // should trigger a change only if the shorcut is a combination of 'CTRL' or 'ALT' or 'META' + any key
+						if (!pushedChanges && checkModifierKey(shortcutcombination)) $(targetEl).change();
 						pushedChanges = true;
 						$sabloTestability.block(true);
 						$timeout(function(callback,argsWithEvent) {

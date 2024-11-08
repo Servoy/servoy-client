@@ -18,7 +18,11 @@
 package com.servoy.j2db.server.ngclient;
 
 import java.awt.Dimension;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -61,7 +65,6 @@ import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ImageLoader;
-import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
@@ -183,8 +186,9 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 				if (clientnr != null && (client = getClient(req, Integer.parseInt(clientnr))) != null)
 				{
 					String decrypt = client.getFlattenedSolution().getEncryptionHandler().decryptString(encrypted);
-					found = sendData(resp, MediaURLStreamHandler.getBlobLoaderMedia(client, decrypt),
-						MediaURLStreamHandler.getBlobLoaderMimeType(decrypt), MediaURLStreamHandler.getBlobLoaderFileName(decrypt), null);
+					byte[] data = MediaURLStreamHandler.getBlobLoaderMedia(client, decrypt);
+					found = sendData(resp, new ByteArrayInputStream(data),
+						MediaURLStreamHandler.getBlobLoaderMimeType(decrypt), MediaURLStreamHandler.getBlobLoaderFileName(decrypt), null, data.length);
 				}
 
 			}
@@ -208,7 +212,8 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 				mediaInfo.touch();
 				if (HTTPUtils.checkAndSetUnmodified(request, response, mediaInfo.getLastModifiedTimeStamp())) return true;
 
-				return sendData(response, mediaInfo.getData(), mediaInfo.getContentType(), mediaInfo.getFileName(), mediaInfo.getContentDisposition());
+				return sendData(response, mediaInfo.getInputStream(), mediaInfo.getContentType(), mediaInfo.getFileName(), mediaInfo.getContentDisposition(),
+					mediaInfo.getContentLength());
 			}
 
 		}
@@ -312,8 +317,11 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 		// cache resources on client until changed
 		if (HTTPUtils.checkAndSetUnmodified(request, response, media.getLastModifiedTime() != -1 ? media.getLastModifiedTime() : fs.getLastModifiedTime()))
 			return true;
-		return sendData(response, media.getName().endsWith(".less") ? LessCompiler.compileSolutionLessFile(media, fs).getBytes("UTF-8") : media.getMediaData(),
-			media.getName().endsWith(".less") ? "text/css" : media.getMimeType(), media.getName(), null);
+		byte[] data = media.getName().endsWith(".less") ? LessCompiler.compileSolutionLessFile(media, fs).getBytes("UTF-8")
+			: media.getMediaData();
+		return sendData(response,
+			new ByteArrayInputStream(data),
+			media.getName().endsWith(".less") ? "text/css" : media.getMimeType(), media.getName(), null, data.length);
 	}
 
 	private boolean sendClientFlattenedSolutionBasedMedia(HttpServletRequest request, HttpServletResponse response, int clientnr, String mediaName)
@@ -332,18 +340,15 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 		return false;
 	}
 
-	private boolean sendData(HttpServletResponse resp, byte[] mediaData, String contentType, String fileName, String contentDisposition) throws IOException
+	private boolean sendData(HttpServletResponse resp, InputStream inputStream, String contentType, String fileName, String contentDisposition,
+		int contentLength)
+		throws IOException
 	{
 		boolean dataWasSent = false;
-		if (mediaData != null && mediaData.length > 0)
+		if (inputStream != null)
 		{
-			String ct = contentType;
-			if (ct == null)
-			{
-				ct = MimeTypes.getContentType(mediaData, fileName);
-			}
-			if (ct != null) resp.setContentType(ct);
-			resp.setContentLength(mediaData.length);
+			if (contentType != null) resp.setContentType(contentType);
+			resp.setContentLength(contentLength >= 0 ? contentLength : inputStream.available());
 			if (fileName != null)
 			{
 				resp.setHeader("Content-disposition",
@@ -351,7 +356,7 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 						"\"; filename*=UTF-8''" + Rfc5987Util.encode(fileName, "UTF8") + ""));
 			}
 			ServletOutputStream outputStream = resp.getOutputStream();
-			outputStream.write(mediaData);
+			IOUtils.copy(inputStream, outputStream);
 			outputStream.flush();
 			dataWasSent = true;
 		}
@@ -474,6 +479,7 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 
 		private final String name;
 		private final String fileName;
+		private final File file;
 		private final String contentType;
 		private final String contentDisposition;
 		private final long modifiedTimeStamp;
@@ -487,6 +493,7 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 			this.fileName = fileName;
 			this.contentType = contentType;
 			this.contentDisposition = contentDisposition;
+			this.file = null;
 			modifiedTimeStamp = accessedTimeStamp = System.currentTimeMillis();
 			this.mediaSize = ImageLoader.getSize(data);
 			if (data.length < MAX_DATA_SIZE_FOR_IN_MEMORY)
@@ -505,6 +512,18 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 					Debug.error("Cannot save dynamic data to servlet temp dir!");
 				}
 			}
+		}
+
+		MediaInfo(String name, File file, String contentType, String contentDisposition)
+		{
+			this.name = name;
+			this.fileName = file.getName();
+			this.file = file;
+			this.contentType = contentType;
+			this.contentDisposition = contentDisposition;
+			modifiedTimeStamp = accessedTimeStamp = System.currentTimeMillis();
+			this.mediaSize = null;
+			this.data = null;
 		}
 
 		public String getName()
@@ -537,13 +556,34 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 			return mediaSize;
 		}
 
-		public byte[] getData()
+		public InputStream getInputStream()
 		{
 			if (data == null)
 			{
-				return Utils.readFile(new File(MediaResourcesServlet.tempDir, name), -1);
+				try
+				{
+					if (file != null)
+					{
+						return new BufferedInputStream(new FileInputStream(file));
+					}
+					return new BufferedInputStream(new FileInputStream(new File(MediaResourcesServlet.tempDir, name)));
+				}
+				catch (FileNotFoundException ex)
+				{
+					Debug.error(ex);
+				}
+				return new ByteArrayInputStream(new byte[0]);
 			}
-			return data;
+			return new ByteArrayInputStream(data);
+		}
+
+		public int getContentLength()
+		{
+			if (data != null)
+			{
+				return data.length;
+			}
+			return -1;
 		}
 
 		public void touch()

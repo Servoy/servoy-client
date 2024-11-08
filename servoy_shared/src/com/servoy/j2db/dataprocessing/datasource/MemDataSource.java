@@ -28,8 +28,31 @@ import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 
+
 /**
- * Runtime access to all defined in memory datasources. In scripting: <pre>datasources.mem</pre>
+ * <p>Servoy allows the creation of <b>In-Memory</b> tables using HSQL, which behave like regular database tables with similar configurations, including column properties and events. These tables can be populated using a <i>JSDataSet</i> and the <code>createDataSource()</code> function to dynamically define datasources or foundsets at runtime.</p>
+ * <p>If the In-Memory table was predefined in Servoy Developer, there is no need to re-define column and type information during runtime.</p>
+ *
+ * <h2>Creating In-Memory Databases</h2>
+ * <p>There are two ways to create an In-Memory database:</p>
+ * <ul>
+ *    <li>Via the <a href="../../../servoy-developer/solution-explorer/README.md">Solution Explorer</a>, under <i>Datasources -> In Memory -> Create new data source</i>. This opens a dialog to specify the datasource name and the <a href="../../../servoy-developer/object-editors/table-editor/README.md">Table Editor</a> for table structure definition.</li>
+ *    <li>At runtime, using the <a href="../database-manager/jsdataset.md#createdatasourcename">JSDataSet::createDataSource</a> function to dynamically define datasources.</li>
+ * </ul>
+ *
+ * <h2>Additional Table Event: onLoad</h2>
+ * <p>In-Memory tables have an extra event called <b>onLoad</b>, triggered when a form accesses the In-Memory datasource or when <code>datasource.mem.name.getFoundSet()</code> is called. This event allows on-demand population of the datasource, but you must still use <code>createDataSource()</code> in the <b>onLoad</b> method to populate the table.</p>
+ *
+ * <h2>Commands Summary</h2>
+ * <ul>
+ *    <li><i><b>Create in memory datasource</b></i> - Opens the <a href="../../../servoy-developer/object-editors/table-editor/README.md">Table Editor</a>.</li>
+ *    <li><i><b>Edit table/view</b></i> - Edits table structure via the <a href="../../../servoy-developer/object-editors/table-editor/README.md">Table Editor</a>.</li>
+ *    <li><i><b>Delete In Memory Datasource</b></i> - Deletes the datasource definition.</li>
+ *    <li><i><b>Rename In Memory Datasource</b></i> - Renames the datasource definition.</li>
+ *    <li><i><b>Search for references</b></i> - Finds locations within the solution where the datasource is used.</li>
+ * </ul>
+ *
+ * <p>For more details, please refer to the <a href="../../../../guides/develop/application-design/data-modeling/in-memory-databases.md">In-memory Databases</a> section of the <b>Data modeling</b> documentation.</p>
  *
  * @author rgansevles
  *

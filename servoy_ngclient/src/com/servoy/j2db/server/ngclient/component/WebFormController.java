@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient.component;
 import java.awt.Point;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -737,6 +738,20 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		}
 		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables, executePreHideSteps);
 
+		if (EventExecutor.EVENT_TRACING_LOG.isInfoEnabled())
+		{
+			Object[] tenantValue = application.getScriptEngine().getJSSecurity().getTenantValue();
+			if (visible)
+			{
+				EventExecutor.EVENT_TRACING_LOG.info(application.getUserName() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
+					application.getSolutionName() + '|' + getName() + "|FORM_SHOWN|" + notifyVisibleSuccess + '|'); //$NON-NLS-1$
+			}
+			else
+			{
+				EventExecutor.EVENT_TRACING_LOG.info(application.getUserName() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
+					application.getSolutionName() + '|' + getName() + "|FORM_HIDDEN|" + notifyVisibleSuccess + '|'); //$NON-NLS-1$
+			}
+		}
 		if (notifyVisibleSuccess)
 		{
 			for (WebComponent comp : getFormUI().getComponents())

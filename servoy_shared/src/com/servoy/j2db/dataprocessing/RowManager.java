@@ -924,7 +924,8 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 					Object value = row.getOldRequiredValue(dataProviderID);
 					if (value == null)
 					{
-						value = row.getValue(dataProviderID);
+						// deletes could now get into this but we need the raw value (like the above getOldXxx also returns)
+						value = row.getRawValue(dataProviderID);
 					}
 					pkValues[j] = value;
 				}

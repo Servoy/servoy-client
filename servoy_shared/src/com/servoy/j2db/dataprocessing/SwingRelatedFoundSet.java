@@ -129,11 +129,15 @@ public class SwingRelatedFoundSet extends RelatedFoundSet implements ISwingFound
 	 * @param selectedRow The selectedRow to set
 	 */
 	@Override
-	public void setSelectedIndex(int selectedRow)
+	public boolean setSelectedIndex(int selectedRow)
 	{
+		if (!super.setSelectedIndex(selectedRow))
+		{
+			return false;
+		}
 		if (selectionModel == null) createSelectionModel();
 		selectionModel.setSelectedRow(selectedRow);
-
+		return true;
 	}
 
 	@Override
@@ -297,10 +301,15 @@ public class SwingRelatedFoundSet extends RelatedFoundSet implements ISwingFound
 	}
 
 	@Override
-	public void setSelectedIndexes(int[] indexes)
+	public boolean setSelectedIndexes(int[] indexes)
 	{
+		if (!super.setSelectedIndexes(indexes))
+		{
+			return false;
+		}
 		if (selectionModel == null) createSelectionModel();
 		selectionModel.setSelectedRows(indexes);
+		return true;
 	}
 
 	@Override

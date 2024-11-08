@@ -36,12 +36,10 @@ import com.servoy.j2db.util.Debug;
 @SuppressWarnings("nls")
 public class ServoyClientService extends ClientService implements IContextProvider
 {
-	private final INGClientWebsocketSession session;
 
 	public ServoyClientService(String serviceName, WebObjectSpecification spec, INGClientWebsocketSession session, boolean initDefaults)
 	{
-		super(serviceName, spec, initDefaults);
-		this.session = session;
+		super(serviceName, spec, session, initDefaults);
 
 		if (initDefaults)
 		{
@@ -111,14 +109,7 @@ public class ServoyClientService extends ClientService implements IContextProvid
 	@Override
 	public IServoyDataConverterContext getDataConverterContext()
 	{
-		return new ServoyDataConverterContext(session.getClient());
-	}
-
-	@Override
-	public void executeAsyncServiceCall(String functionName, Object[] arguments)
-	{
-		super.executeAsyncServiceCall(functionName, arguments);
-		session.valueChanged();
+		return new ServoyDataConverterContext(((INGClientWebsocketSession)session).getClient());
 	}
 
 	@Override

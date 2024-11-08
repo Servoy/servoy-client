@@ -42,7 +42,47 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.ServoyException;
 
 /**
- * Scope for datasources.sp.myserver.storedProcedure() (a specific stored procedure in a data source);
+ * <p>Execute specific stored procedures directly for any defined data source using the <code>datasources.sp.&lt;servername&gt;.&lt;storedProcedure&gt;()</code> syntax.</p>
+ *
+ * <h2>Specific Scope for <code>datasources.sp.&lt;servername&gt;.storedProcedure()</code></h2>
+ * <p>After enabling stored procedures as outlined in Plot 1, individual procedures can be directly accessed for specific data sources via the syntax
+ * <code>datasources.sp.&lt;servername&gt;.&lt;storedProcedure&gt;()</code>. This specific scope allows efficient retrieval and manipulation of data,
+ * using Servoy scripting to control execution.</p>
+ *
+ * <h3>Calling a Stored Procedure</h3>
+ * <p>To call a stored procedure:</p>
+ * <ol>
+ *   <li>Enable procedures for the database server (see <b>Enabling Stored Procedures</b> in Plot 1).</li>
+ *   <li>Use code completion to navigate to the desired procedure under <code>datasources.sp.&lt;servername&gt;.&lt;storedProcedureName&gt;()</code>.</li>
+ * </ol>
+ *
+ * <p><b>Example:</b> Calling a specific stored procedure from a defined server</p>
+ * <pre>
+ * var results = datasources.sp.myserver.calculateInterest(3000, 'USD');
+ * </pre>
+ *
+ * <h3>Handling Result Sets</h3>
+ * <p>The result of calling a stored procedure is a <b>JSDataSet</b>, which can be processed further. Some practical ways to work with the dataset include:</p>
+ * <ul>
+ *   <li><b>Iteration</b>: Use <code>.getValue(row, column)</code> to access each data row returned from the procedure.</li>
+ *   <li><b>In-Memory Conversion</b>: If required, use <b>Create In-Memory Table from Procedure</b> to store the returned data as a temporary table,
+ *       useful for session-based calculations or cache-like functionality.</li>
+ * </ul>
+ *
+ * <h3>Considerations and Best Practices</h3>
+ * <ul>
+ *   <li><b>Parameter Handling</b>: Ensure that input parameters match the procedure’s expected data types, especially when working with complex queries.</li>
+ *   <li><b>Data Lifecycle</b>: In-memory tables created from stored procedures are session-specific, meaning they clear automatically at the end of each session.</li>
+ *   <li><b>Error Monitoring</b>: Stored procedures may generate exceptions if there are issues within the procedure logic. Verify and handle these in the database for smoother client interactions.</li>
+ *   <li><b>Performance Optimization</b>: Using stored procedures can reduce network load and offload processing to the database, which can enhance overall performance,
+ *       especially for batch updates or large data transformations.</li>
+ * </ul>
+ *
+ * <h3>Remarks</h3>
+ * <p>Stored procedures provide powerful tools for offloading operations to the database server, especially useful for data manipulation that benefits
+ * from database processing power rather than client-side execution.</p>
+ *
+ * <p>For details on how to use Stored Procedures with Servoy, refer to the <a href="../../../guides/develop/application-design/data-modeling/databases/procedures.md">Procedures</a> section of this documentation.</p>
  *
  * @author rgansevles
  *

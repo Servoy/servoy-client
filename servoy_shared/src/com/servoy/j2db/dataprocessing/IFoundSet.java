@@ -209,8 +209,9 @@ public interface IFoundSet extends IFoundSetDeprecated, IGlobalValueEntry, Itera
 	 * Set the selected index
 	 *
 	 * @param selectedRow the index
+	 * @return true if selection was changed successfully
 	 */
-	public void setSelectedIndex(int selectedRow);
+	public boolean setSelectedIndex(int selectedRow);
 
 	/**
 	 * Puts this foundset in multi-select or single-select mode. If this foundset is shown in a form, this call can be
@@ -228,8 +229,9 @@ public interface IFoundSet extends IFoundSetDeprecated, IGlobalValueEntry, Itera
 	/**
 	 * Set the selected indexes of this foundset (in case multiselect is used).
 	 * @param indexes the indexes that will be selected in this foundset.
+	 * @return true if selection was changed successfully
 	 */
-	public void setSelectedIndexes(int[] indexes);
+	public boolean setSelectedIndexes(int[] indexes);
 
 	/**
 	 * Returns the selected indexes of this foundset (in case multiselect is used).

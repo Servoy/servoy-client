@@ -4,6 +4,7 @@ import static com.servoy.j2db.util.UUID.randomUUID;
 
 import java.awt.Dimension;
 import java.awt.print.PageFormat;
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -1292,7 +1293,7 @@ public class NGClient extends AbstractApplication
 		// TODO call request focus on a div in a client?
 	}
 
-	private ShowUrl showUrl = null;
+	private volatile ShowUrl showUrl = null;
 
 	@Override
 	public boolean showURL(String url, String target, String target_options, int timeout, boolean onRootFrame)
@@ -1348,7 +1349,30 @@ public class NGClient extends AbstractApplication
 				scheduledExecutorService = null;
 
 			}
-			if (showUrl == null) getWebsocketSession().sendRedirect(null);
+			if (showUrl == null)
+			{
+				getWebsocketSession().sendRedirect(null);
+			}
+			else
+			{
+				// if there is a show url, then this should be send first, just wait a bit
+				ShowUrl show = showUrl;
+				if (show != null)
+				{
+					// add a null/dummy event so the event dispatcher will process it and send the show url
+					getWebsocketSession().getEventDispatcher().addEvent(null);
+					synchronized (show)
+					{
+						try
+						{
+							show.wait(2000);
+						}
+						catch (InterruptedException e)
+						{
+						}
+					}
+				}
+			}
 			WebsocketSessionManager.removeSession(getWebsocketSession().getSessionKey());
 		}
 	}
@@ -1440,6 +1464,15 @@ public class NGClient extends AbstractApplication
 		return mediaInfo;
 	}
 
+	public MediaInfo createMediaInfo(File file, String contentType, String contentDisposition)
+	{
+		MediaInfo mediaInfo = new MediaInfo(randomUUID().toString(), file,
+			contentType == null ? MimeTypes.guessContentTypeFromName(file.getName()) : contentType,
+			contentDisposition);
+		mediaInfos.put(mediaInfo.getName(), mediaInfo);
+		return mediaInfo;
+	}
+
 	public MediaInfo createMediaInfo(byte[] mediaBytes)
 	{
 		return createMediaInfo(mediaBytes, null, null, null);
@@ -1454,6 +1487,12 @@ public class NGClient extends AbstractApplication
 	public String serveResource(String filename, byte[] bs, String mimetype, String contentDisposition)
 	{
 		MediaInfo mediaInfo = createMediaInfo(bs, filename, mimetype, contentDisposition);
+		return mediaInfo.getURL(getWebsocketSession().getSessionKey().getClientnr());
+	}
+
+	public String serveResource(File file, String mimetype, String contentDisposition)
+	{
+		MediaInfo mediaInfo = createMediaInfo(file, mimetype, contentDisposition);
 		return mediaInfo.getURL(getWebsocketSession().getSessionKey().getClientnr());
 	}
 
@@ -1680,11 +1719,14 @@ public class NGClient extends AbstractApplication
 			}
 			toRecreate.clear();
 		}
-
 		if (showUrl != null)
 		{
-			this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("showUrl",
+			this.getWebsocketSession().getClientService(NGClient.APPLICATION_SERVICE).executeAsyncNowServiceCall("showUrl",
 				new Object[] { showUrl.url, showUrl.target, showUrl.target_options, Integer.valueOf(showUrl.timeout) });
+			synchronized (showUrl)
+			{
+				showUrl.notifyAll();
+			}
 			showUrl = null;
 		}
 	}

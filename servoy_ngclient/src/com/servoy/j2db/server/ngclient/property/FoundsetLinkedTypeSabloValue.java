@@ -575,11 +575,12 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 		// in attachToBaseObject we didn't even call then attach for the wrapped sablo value so, to avoid exceptions, fullToJSON will just send null single value to client
 		if (getFoundsetValue() == null) return fullToJSON(writer, key, wrappedPropertyDescription, dataConverterContext);
 
-		JSONUtils.addKeyIfPresent(writer, key);
+		boolean somethingWasWritten = false;
 
-		writer.object();
 		if (idForFoundsetChanged)
 		{
+			somethingWasWritten = startContentWithObjectIfNeeded(writer, key, somethingWasWritten);
+
 			writer.key(ID_FOR_FOUNDSET).value(idForFoundset == null ? JSONObject.NULL : idForFoundset);
 			idForFoundsetChanged = false;
 		}
@@ -592,6 +593,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 			if (wrappedJSONValue != null)
 			{
+				somethingWasWritten = startContentWithObjectIfNeeded(writer, key, somethingWasWritten);
 				writer.key(FoundsetLinkedPropertyType.SINGLE_VALUE_UPDATE).value(wrappedJSONValue);
 				if (wrappedJSONValue.getClientSideType() != null) writer.key(JSONUtils.CONVERSION_CL_SIDE_TYPE_KEY).value(wrappedJSONValue.getClientSideType());
 			}
@@ -602,11 +604,13 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 			if (viewPortChangeMonitor.shouldSendWholeViewport())
 			{
+				somethingWasWritten = startContentWithObjectIfNeeded(writer, key, somethingWasWritten);
 				viewPortChangeMonitor.clearChanges();
 				writeWholeViewportToJSON(writer);
 			}
 			else if (viewPortChangeMonitor.hasViewportChanges())
 			{
+				somethingWasWritten = startContentWithObjectIfNeeded(writer, key, somethingWasWritten);
 				writer.key(FoundsetLinkedPropertyType.VIEWPORT_VALUE_UPDATE);
 
 				ArrayOperation[] viewPortChanges = viewPortChangeMonitor.getViewPortChanges();
@@ -624,9 +628,19 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 
 			viewPortChangeMonitor.doneWritingChanges();
 		}
-		writer.endObject();
+		if (somethingWasWritten) writer.endObject();
 
 		return writer;
+	}
+
+	private boolean startContentWithObjectIfNeeded(JSONWriter writer, String key, boolean somethingWasWritten)
+	{
+		if (!somethingWasWritten)
+		{
+			JSONUtils.addKeyIfPresent(writer, key);
+			writer.object();
+		}
+		return true;
 	}
 
 	public void browserUpdatesReceived(Object newJSONValue, PropertyDescription wrappedPropertyDescription, PropertyDescription pd,

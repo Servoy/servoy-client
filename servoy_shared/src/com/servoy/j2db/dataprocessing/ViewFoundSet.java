@@ -101,7 +101,44 @@ import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
 import com.servoy.j2db.util.visitor.SearchVisitor;
 
 /**
- * Similar to JSFoundSet, but is not based on a SQL table but on an SQL query.
+ * <p>A <b>View Foundset Datasource</b> is a virtual table that loads data at runtime, often based on a <b>QBSelect</b> query object.
+ * It is useful for combining datasets from multiple tables, improving performance compared to standard relations, valuelists, or aggregates.</p>
+ *
+ * <h2>Creating View Foundset Datasources</h2>
+ * <p>View Foundset Datasources can be created in two ways:</p>
+ * <ol>
+ *   <li><b>Solution Explorer</b>: Accessed via <i>Datasources -> View foundsets -> Create view foundset</i> in the Solution Explorer context menu.
+ *       This opens the <a href="../../../../reference/servoy-developer/object-editors/table-editor/README.md">Table Editor</a> for defining the datasource structure.</li>
+ *   <li><b>Runtime Creation</b>: Created via <code>databaseManager.getViewFoundSet(String name, QBSelect query)</code>. This returns a <code>ViewFoundSet</code>
+ *       object with essential operations like <code>getSize()</code>, <code>getRecord()</code>, and <code>loadAllRecords()</code>, but it doesn’t support <code>find()</code> or <code>search()</code>.</li>
+ * </ol>
+ *
+ * <h2>Data Broadcast and Monitoring Changes</h2>
+ * <p>View Foundsets do not listen for databroadcast changes by default but can be enabled using
+ *    <code>viewfoundset.enableDatabroadcastFor(QBTableClause queryTable, int flags)</code>. Available flags include:</p>
+ * <ul>
+ *   <li><a href="viewfoundset.md#monitor_columns"><b>MONITOR_COLUMNS</b></a>: Tracks changes in specific columns.</li>
+ *   <li><a href="viewfoundset.md#monitor_join_conditions"><b>MONITOR_JOIN_CONDITIONS</b></a>: Listens for changes in join conditions.</li>
+ *   <li><a href="viewfoundset.md#monitor_where_conditions"><b>MONITOR_WHERE_CONDITIONS</b></a>: Tracks updates to WHERE clause columns.</li>
+ *   <li><a href="viewfoundset.md#monitor_insert"><b>MONITOR_INSERT</b></a>: Monitors inserts, triggering a full query update.</li>
+ *   <li><a href="viewfoundset.md#monitor_deletes"><b>MONITOR_DELETES</b></a>: Tracks deletions, updating records as needed.</li>
+ *   <li><a href="viewfoundset.md#monitor_deletes_for_primary_table"><b>MONITOR_DELETES_FOR_PRIMARY_TABLE</b></a>: Monitors primary table deletions more efficiently.</li>
+ *   <li><a href="viewfoundset.md#monitor_aggregates"><b>MONITOR_AGGREGATES</b></a>: Observes changes impacting aggregates in the query.</li>
+ * </ul>
+ *
+ * <h2>Editable View Foundsets</h2>
+ * <p>A <b>View Foundset</b> can be made editable with <code>save()</code> if the primary key (PK) is included in the <code>QBSelect</code>.
+ * Data updates pause databroadcast refreshes until the records are committed.</p>
+ *
+ * <h2>Commands Summary</h2>
+ * <ul>
+ *   <li><i>Create view foundset datasource</i>: Opens the <a href="../../../../reference/servoy-developer/object-editors/table-editor/README.md">Table Editor</a>.</li>
+ *   <li><i>Edit table/view</i>: Edits the View Foundset structure via the <a href="../../../../reference/servoy-developer/object-editors/table-editor/README.md">Table Editor</a>.</li>
+ *   <li><i>Delete View Foundset</i>: Deletes the View Foundset.</li>
+ *   <li><i>Rename View Foundset</i>: Renames the View Foundset.</li>
+ * </ul>
+ *
+ * <p>For more details, refer to the <a href="../../../../guides/develop/application-design/data-modeling/view-datasource.md">View Foundset Datasource</a> documentation in the <b>Data modeling</b> section.</p>
  *
  * @author jcompagner
  * @since 8.4
@@ -1131,10 +1168,11 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	@Override
-	public void setSelectedIndex(int selectedRow)
+	public boolean setSelectedIndex(int selectedRow)
 	{
 		if (selectionModel == null) createSelectionModel();
 		selectionModel.setSelectedRow(selectedRow);
+		return true;
 	}
 
 	protected void setMultiSelectInternal(boolean isMultiSelect)
@@ -1212,10 +1250,11 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	@Override
-	public void setSelectedIndexes(int[] indexes)
+	public boolean setSelectedIndexes(int[] indexes)
 	{
 		if (selectionModel == null) createSelectionModel();
 		selectionModel.setSelectedRows(indexes);
+		return true;
 	}
 
 	@Override

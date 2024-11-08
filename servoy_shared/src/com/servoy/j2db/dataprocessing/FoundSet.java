@@ -44,6 +44,7 @@ import java.lang.ref.WeakReference;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -100,6 +101,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptCalculation;
 import com.servoy.j2db.persistence.ScriptMethod;
 import com.servoy.j2db.persistence.ScriptVariable;
+import com.servoy.j2db.persistence.StaticContentSpecLoader;
 import com.servoy.j2db.persistence.StaticContentSpecLoader.TypedProperty;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.persistence.TableNode;
@@ -4086,7 +4088,7 @@ public abstract class FoundSet
 				if (cachedRecords.get(startRow + r) == null)
 				{
 					Row rowData = rows.get(r);
-					if (rowData != null)
+					if (rowData != null && !isNewRowForOtherFoundset(rowData))
 					{
 						Record state = new Record(this, rowData);
 						cachedRecords.set(startRow + r, state);
@@ -4152,7 +4154,17 @@ public abstract class FoundSet
 		return retval;
 	}
 
-	//sliding window cache for selectedindex
+	/**
+	 * If a row is a not saved yet and it does not belong to this foundset we should not create a record for it,
+	 * the record is already in the foundset that created it.
+	 */
+	private boolean isNewRowForOtherFoundset(Row rowData)
+	{
+		return !rowData.existInDB() &&
+			rowData.getRegisterdRecords().noneMatch(record -> record.getParentFoundSet() == this);
+	}
+
+	// sliding window cache for selectedindex
 	// caller already synced on PksAndRecordsHolder
 	private void removeRecords(int row, boolean breakOnNull, SafeArrayList<IRecordInternal> cachedRecords)
 	{
@@ -6139,9 +6151,42 @@ public abstract class FoundSet
 
 	public abstract int getSelectedIndex();
 
-	public abstract void setSelectedIndex(int i);
+	public boolean setSelectedIndex(int i)
+	{
+		try
+		{
+			if (getSelectedIndex() >= 0 && fsm.hasFoundsetTrigger(getDataSource(), StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID))
+			{
+				return executeFoundsetTriggerBreakOnFalse(new Object[] { getSelectedRecord(), getRecord(i) },
+					StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID, false);
+			}
+		}
+		catch (ServoyException e)
+		{
+			Debug.error(e);
+			return false;
+		}
+		return true;
+	}
 
-	public abstract void setSelectedIndexes(int[] indexes);
+	public boolean setSelectedIndexes(int[] indexes)
+	{
+		try
+		{
+			if (getSelectedIndex() >= 0 && fsm.hasFoundsetTrigger(getDataSource(), StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID))
+			{
+				return executeFoundsetTriggerBreakOnFalse(
+					new Object[] { js_getSelectedRecords(), indexes != null ? Arrays.stream(indexes).mapToObj(index -> getRecord(index)).toArray() : null },
+					StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID, false);
+			}
+		}
+		catch (ServoyException e)
+		{
+			Debug.error(e);
+			return false;
+		}
+		return true;
+	}
 
 	public abstract int[] getSelectedIndexes();
 
@@ -7239,7 +7284,7 @@ public abstract class FoundSet
 		{
 			if (fs.foundSetFilters == null || !fs.foundSetFilters.contains(filter))
 			{
-				if (myOwnFilters == null) myOwnFilters = new ArrayList<TableFilter>(foundSetFilters.size());
+				if (myOwnFilters == null) myOwnFilters = new ArrayList<>(foundSetFilters.size());
 				myOwnFilters.add(filter);
 			}
 		}
@@ -7248,6 +7293,7 @@ public abstract class FoundSet
 			addFilterconditions(fs.pksAndRecords.getQuerySelectForModification(), myOwnFilters));
 		if (fs.foundSetFilters != null)
 		{
+			var originalFilters = foundSetFilters;
 			// copy over the foundset filters from the other fs, merged with the filters this foundset had
 			foundSetFilters = new ArrayList<>();
 			fs.foundSetFilters.forEach(filter -> {
@@ -7267,7 +7313,7 @@ public abstract class FoundSet
 			{
 				foundSetFilters.addAll(myOwnFilters);
 			}
-			resetFiltercondition(foundSetFilters);
+			resetFiltercondition(originalFilters);
 		}
 		initialized = fs.initialized;
 

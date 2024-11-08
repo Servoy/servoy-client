@@ -70,7 +70,7 @@ public class FormTemplateGenerator
 		cfg = new Configuration(Configuration.VERSION_2_3_32);
 
 		cfg.setTemplateLoader(new ClassTemplateLoader(getClass(), "templates"));
-		cfg.setObjectWrapper(new FormTemplateObjectWrapper(context, useControllerProvider, design));
+		cfg.setObjectWrapper(new FormTemplateObjectWrapper(context, useControllerProvider, design, true));
 		cfg.setDefaultEncoding("UTF-8");
 		cfg.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
 		cfg.setIncompatibleImprovements(new Version(2, 3, 20));

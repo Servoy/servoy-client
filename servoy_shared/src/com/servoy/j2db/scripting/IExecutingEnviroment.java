@@ -96,6 +96,14 @@ public interface IExecutingEnviroment
 	 */
 	public JSApplication getJSApplication();
 
+
+	/**
+	 * FOR INTERNAL USE ONLY, DO NOT CALL.
+	 *
+	 * @exclude
+	 */
+	public JSSecurity getJSSecurity();
+
 	/**
 	 * @return the solutionModifier
 	 */
@@ -125,6 +133,4 @@ public interface IExecutingEnviroment
 	 * @return evaluation result
 	 */
 	public Object eval(Scriptable scope, String eval_string);
-
-
 }

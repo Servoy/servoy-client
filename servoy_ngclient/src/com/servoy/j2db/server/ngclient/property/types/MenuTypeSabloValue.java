@@ -30,7 +30,6 @@ import org.sablo.IChangeListener;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.property.IBrowserConverterContext;
-import org.sablo.specification.property.IInnerPropertiesProvider;
 import org.sablo.specification.property.IPropertyConverterForBrowser;
 import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.ISmartPropertyValue;
@@ -47,7 +46,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
  * @author lvostinar
  *
  */
-public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener, IInnerPropertiesProvider
+public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener
 {
 	private IChangeListener changeMonitor;
 	private JSMenu jsMenu;
@@ -74,7 +73,7 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener,
 	{
 		Map<String, Object> newJavaValueForJSON = new HashMap<String, Object>();
 		newJavaValueForJSON.put("name", jsMenu.getName());
-		newJavaValueForJSON.put("styleclass", jsMenu.getStyleClass());
+		newJavaValueForJSON.put("styleClass", jsMenu.getStyleClass());
 		addMenuItemsForJSON(newJavaValueForJSON, jsMenu.getMenuItemsWithSecurity(), jsMenu.getSelectedItem(), dataConverterContext);
 
 		JSONUtils.toBrowserJSONFullValue(writer, key, newJavaValueForJSON, null, dataConverterContext);
@@ -266,23 +265,13 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener,
 		return jsMenu;
 	}
 
-	@Override
-	public Object getInnerPropertyValue(String[] parts)
+	public void pushDataProviderValue(String category, String propertyName, int itemIndex, Object dataproviderValue)
 	{
-		if (parts != null && parts.length == 5 && parts[1].startsWith("items[") && parts[2].equals("extraProperties"))
+		JSMenuItem[] items = jsMenu.getMenuItemsWithSecurity();
+		if (items != null && items.length > 0 && itemIndex >= 0 && itemIndex < items.length)
 		{
-			String items = parts[1];
-			int arrayIndex = Integer.parseInt((items.substring(items.lastIndexOf('[') + 1, items.length() - 1)));
-			JSMenuItem[] menuItems = jsMenu.getMenuItemsWithSecurity();
-			if (menuItems != null && arrayIndex >= 0 && arrayIndex < menuItems.length)
-			{
-				Map<String, ISmartPropertyValue> smartValues = extraPropertiesSmartValues.get(menuItems[arrayIndex]);
-				if (smartValues != null)
-				{
-					return smartValues.get(parts[4]);
-				}
-			}
+			items[itemIndex].setExtraProperty(category, propertyName, dataproviderValue);
 		}
-		return null;
+
 	}
 }

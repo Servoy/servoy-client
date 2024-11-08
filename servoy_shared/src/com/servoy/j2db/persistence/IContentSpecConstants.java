@@ -93,6 +93,7 @@ public interface IContentSpecConstants extends IContentSpecConstantsBase
 	public static final String PROPERTY_ONAFTERUPDATEMETHODID = "onAfterUpdateMethodID";
 	public static final String PROPERTY_ONFOUNDSETLOADMETHODID = "onFoundSetLoadMethodID";
 	public static final String PROPERTY_ONFOUNDSETNEXTCHUNKMETHODID = "onFoundsetNextChunkMethodID";
+	public static final String PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID = "onFoundSetBeforeSelectionChangeMethodID";
 	public static final String PROPERTY_ONCLOSEMETHODID = "onCloseMethodID";
 	public static final String PROPERTY_ONCREATEMETHODID = "onCreateMethodID";
 	public static final String PROPERTY_ONDATABROADCASTMETHODID = "onDataBroadcastMethodID";

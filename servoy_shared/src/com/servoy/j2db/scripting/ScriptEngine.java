@@ -920,6 +920,12 @@ public class ScriptEngine implements IScriptSupport
 		return jsApplication;
 	}
 
+	@Override
+	public JSSecurity getJSSecurity()
+	{
+		return jssec;
+	}
+
 	/**
 	 * @author jcompagner
 	 *

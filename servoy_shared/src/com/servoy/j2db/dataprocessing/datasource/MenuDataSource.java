@@ -28,7 +28,14 @@ import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.util.DataSourceUtils;
 
 /**
- * Runtime access to all defined menu foundsets. In scripting: <pre>datasources.menu</pre>
+ * <code>MenuDataSource</code> provides runtime access to all defined menu foundsets, allowing menus to
+ * function as datasources with <code>datasources.menu</code> in scripting. This enables menu structures
+ * to be used as data records, supporting components like <code>DBTreeView</code> and custom FormComponents
+ * for enhanced menu interactions.
+ *
+ * For more on setting up and using menu datasources, see
+ * <a href="../database-manager/menufoundset.md">MenuFoundSet</a>.
+ *
  *
  * @author lvostinar
  *

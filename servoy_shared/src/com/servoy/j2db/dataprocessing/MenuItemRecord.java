@@ -39,6 +39,13 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * <code>MenuItemRecord</code> represents a single menu item within a <code>MenuFoundSet</code>,
+ * allowing access to a record’s data and its parent <code>foundset</code>. This structure enables
+ * menu items to behave as records, facilitating component interactions that treat menu items as data entries.
+ *
+ * For more information on working with menu datasources, refer to
+ * <a href="menufoundset.md">MenuFoundSet</a>.
+ *
  * @author lvostinar
  *
  */
@@ -64,20 +71,22 @@ public class MenuItemRecord implements IRecordInternal, Scriptable
 	{
 		this.foundset = foundset;
 		this.menuItem = menuItem;
-		this.values.putAll(data);
+		data.forEach((key, value) -> {
+			this.values.put(key.toLowerCase(), value);
+		});
 		this.modificationListeners = synchronizedList(new ArrayList<>(3));
 	}
 
 	@Override
 	public boolean startEditing()
 	{
-		return false;
+		return true;
 	}
 
 	@Override
 	public Object setValue(String dataProviderID, Object value)
 	{
-		return null;
+		return setValue(dataProviderID, value, false);
 	}
 
 	@Override
@@ -90,7 +99,7 @@ public class MenuItemRecord implements IRecordInternal, Scriptable
 	public boolean has(String dataProviderID)
 	{
 		if ("foundset".equals(dataProviderID) || jsFunctions.containsKey(dataProviderID)) return true; //$NON-NLS-1$
-		return values.containsKey(dataProviderID);
+		return values.containsKey(dataProviderID.toLowerCase());
 	}
 
 	@Override
@@ -176,7 +185,7 @@ public class MenuItemRecord implements IRecordInternal, Scriptable
 	@Override
 	public boolean startEditing(boolean mustFireEditRecordChange)
 	{
-		return false;
+		return true;
 	}
 
 	@Override
@@ -230,7 +239,7 @@ public class MenuItemRecord implements IRecordInternal, Scriptable
 	@Override
 	public boolean has(String name, Scriptable start)
 	{
-		return values.containsKey(name);
+		return values.containsKey(name.toLowerCase());
 	}
 
 	@Override
@@ -378,21 +387,12 @@ public class MenuItemRecord implements IRecordInternal, Scriptable
 		{
 			return foundset;
 		}
-		if (values.containsKey(dataProviderID)) return values.get(dataProviderID);
+		if (values.containsKey(dataProviderID.toLowerCase())) return values.get(dataProviderID.toLowerCase());
 		int index = dataProviderID.lastIndexOf('.');
 		if (index > 0) //check if is related value request
 		{
 			String partName = dataProviderID.substring(0, index);
 			String restName = dataProviderID.substring(index + 1);
-
-			if ("lazyMaxRecordIndex".equals(restName)) //$NON-NLS-1$
-			{
-				if (!isRelatedFoundSetLoaded(partName, restName))
-				{
-					return "?"; //$NON-NLS-1$
-				}
-				restName = "maxRecordIndex"; //$NON-NLS-1$
-			}
 
 			IFoundSetInternal foundSet = getRelatedFoundSet(partName);// partName may be multiple levels deep; check substate, will return null if not found
 			if (foundSet != null)
@@ -416,15 +416,8 @@ public class MenuItemRecord implements IRecordInternal, Scriptable
 			return null;
 		}
 
-		// this relaxes the way related foundsets are loaded through a ViewRecord;
-		// if there is a hit then we just assume it is fine, only when nothing is returned we check it using ".isValidRelation()";
-		// we will test if this is a valid relation for this viewrecord simply by getting it to avoid the warning that isValidRelation generates.
-		// this is because the WHERE arguments could be fine for this viewrecord for that relation,
-		// because this could be a just a quick ViewFoundset (filtering etc.) that replaces an actual Foundset but it's based on the same datasource columns
-		// (So same whereargs) and that datasource is compatible with the relation
 		IFoundSetInternal rfs = getRelatedFoundSet(dataProviderID);
-		if (rfs == null) foundset.isValidRelation(dataProviderID);
-		else return rfs;
+		if (rfs != null) return rfs;
 
 		return Scriptable.NOT_FOUND;
 	}
@@ -432,6 +425,13 @@ public class MenuItemRecord implements IRecordInternal, Scriptable
 	@Override
 	public Object setValue(String dataProviderID, Object value, boolean checkIsEditing)
 	{
+		Object prevValue = values.get(dataProviderID.toLowerCase());
+		if (!Utils.equalObjects(value, prevValue))
+		{
+			values.put(dataProviderID.toLowerCase(), value);
+			// do we need to fire something?
+			return prevValue;
+		}
 		return value;
 	}
 
@@ -492,7 +492,7 @@ public class MenuItemRecord implements IRecordInternal, Scriptable
 		if (obj == this) return true;
 		if (obj != null && obj.getClass() == getClass())
 		{
-			return getKey().equals(((ViewRecord)obj).getKey());
+			return getKey().equals(((MenuItemRecord)obj).getKey());
 		}
 		return false;
 	}

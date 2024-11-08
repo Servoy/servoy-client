@@ -21,7 +21,54 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
- * Application types constants.
+ * <p>VERSIONXXX - This function performs a simple addition. The JSDoc includes various tags and HTML elements to test conversion.</p>
+ *
+ * <h1>Title 1</h1>
+ * <h2>Title 2</h2>
+ * <h3>Title 3</h3>
+ * <h4>Title 4</h4>
+ *
+ * <ul>
+ *     <li><b>Bold text item</b></li>
+ *     <li><i>Italic text item</i></li>
+ *     <li>Regular text item</li>
+ * </ul>
+ *
+ * <p>The following elements test HTML to Markdown transformations:</p>
+ *
+ * <br/>
+ * <p>Here's an example paragraph for testing paragraph tags.</p>
+ *
+ * // Example with pre tag <br/>
+ * <pre>
+ * let result = add(2, 3); //result should be 5.
+ * function test() {
+ *     console.log("This is a test!");
+ * }
+ * </pre>
+ *
+ * // Example with code tag <br/>
+ * <code>
+ * let result = add(2, 3); //result should be 5.
+ * function test() {
+ *     console.log("This is a test!");
+ * }
+ * </code>
+ *
+ * <pre data-puremarkdown>
+ * | Column1 | Column2 |
+ * |---------|---------|
+ * | Data1   | Data2   |
+ * </pre>
+ *
+ * <ol>
+ *     <li>Ordered list item 1</li>
+ *     <li>Ordered list item 2</li>
+ * </ol>
+ * <br/>
+ * <a href="https://example.com">Example link</a> <br/>
+ *
+ * <code>inlineCode</code> and <i>preformatted</i> blocks are handled differently depending on content length.
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class APPLICATION_TYPES implements IPrefixedConstantsObject, IBaseApplicationTypes

@@ -19,7 +19,11 @@ package com.servoy.j2db.querybuilder.impl;
 
 import static com.servoy.j2db.util.UUID.randomUUID;
 import static com.servoy.j2db.util.Utils.stream;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.IntStream.range;
 
+import java.util.List;
 import java.util.Map;
 
 import org.mozilla.javascript.NativeJavaMethod;
@@ -78,11 +82,28 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		QuerySelect query = root.getQuery(false);
 		if (query != null)
 		{
-			stream(query.getJoins())
+			// make sure that joins with the same alias are added with separate names
+			Map<String, List<ISQLTableJoin>> joinsPerName = stream(query.getJoins())
 				.filter(ISQLTableJoin.class::isInstance).map(ISQLTableJoin.class::cast)
 				.filter(queryJoin -> parent.getQueryTable() == queryJoin.getPrimaryTable())
-				.forEach(queryJoin -> allVars.put(queryJoin.getAlias(),
-					new QBJoin(root, parent, queryJoin.getForeignTable().getDataSource(), queryJoin, queryJoin.getAlias())));
+				.collect(groupingBy(join -> join.getAlias() == null ? "" : join.getAlias(), toList()));
+
+			joinsPerName.entrySet().stream().forEach(entry -> {
+				var joins = entry.getValue();
+				var alias = entry.getKey();
+				range(0, joins.size())
+					.forEach(idx -> {
+						var join = joins.get(idx);
+						String name = joins.size() == 1 ? alias : (alias + "_" + (idx + 1));
+						var qbJoin = new QBJoin(root, parent, join.getForeignTable().getDataSource(), join, join.getAlias());
+						allVars.put(name, qbJoin);
+						if (joins.size() > 1 && join.getAlias() != null)
+						{
+							// Also add one of the joins with the original name
+							allVars.put(join.getAlias(), qbJoin);
+						}
+					});
+			});
 		}
 		return true;
 	}
@@ -126,6 +147,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	@JSFunction
 	public QBJoin[] getJoins()
 	{
+		getIds(); // triggers a fill
 		return allVars.values().toArray(new QBJoin[allVars.size()]);
 	}
 

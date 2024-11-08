@@ -60,7 +60,6 @@ import com.servoy.j2db.util.Utils;
 public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 {
 
-
 	private final NGClient client;
 	private final Form form;
 	private final String realFormName;
@@ -106,7 +105,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 	{
 		IWebFormController cachedFormController = client != null ? client.getFormManager().getCachedFormController(realFormName) : null;
 
-		FormTemplateObjectWrapper formTemplate = new FormTemplateObjectWrapper(servoyDataConverterContext, true, false);
+		FormTemplateObjectWrapper formTemplate = new FormTemplateObjectWrapper(servoyDataConverterContext, true, false, false);
 		FormWrapper formWrapper = formTemplate.getFormWrapper(form);
 
 		// for this form it is really just some json.
@@ -138,6 +137,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 			// write the properties of the formUI itself using an already present form controller
 			Container con = (Container)cachedFormController.getFormUI();
 			TypedData<Map<String, Object>> typedProperties = con.getProperties();
+			con.clearChanges();
 			con.writeProperties(FullValueToJSONConverter.INSTANCE, null, writer, typedProperties);
 			containerProperties = typedProperties.content;
 		}
@@ -305,6 +305,7 @@ public class AngularFormGenerator implements IFormHTMLAndJSGenerator
 		writer.endObject();
 
 		String string = stringWriter.toString();
+
 //		System.err.println(string);
 		return string;
 	}

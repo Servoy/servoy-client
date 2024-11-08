@@ -526,7 +526,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 		// model content
 		TypedData<Map<String, Object>> allProps = childComponent.getProperties();
-		childComponent.getAndClearChanges(); // just for clear
+		childComponent.clearChanges();
 		removeRecordDependentProperties(allProps);
 
 		destinationJSON.key(ComponentPropertyType.MODEL_KEY);
@@ -660,7 +660,7 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 
 		// we'll need to update them with runtime values
 		final TypedData<Map<String, Object>> runtimeProperties = childComponent.getProperties();
-		childComponent.getAndClearChanges(); // just for clear
+		childComponent.clearChanges();
 
 		// add to useful properties only those formElement properties that didn't get overridden at runtime (so form element value is still used)
 		boolean templateValuesRemoved = false;

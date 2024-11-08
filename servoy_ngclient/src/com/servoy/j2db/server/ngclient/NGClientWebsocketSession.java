@@ -43,6 +43,7 @@ import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebObjectSpecificationBuilder;
 import org.sablo.specification.WebServiceSpecProvider;
+import org.sablo.specification.property.types.BooleanPropertyType;
 import org.sablo.specification.property.types.ObjectPropertyType;
 import org.sablo.specification.property.types.StringPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
@@ -99,11 +100,29 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		private WindowServiceSpecification()
 		{
 			super(NGRuntimeWindowManager.WINDOW_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, null, "", null, null, null);
-			WebObjectApiFunctionDefinition destroy = new WebObjectApiFunctionDefinition("destroyController");
-			destroy.addParameter(new PropertyDescriptionBuilder().withName("name").withType(TypesRegistry.getType(StringPropertyType.TYPE_NAME)).build());
-			destroy.setAsync(true);
-			destroy.setPreDataServiceCall(true);
-			addApiFunction(destroy);
+
+			WebObjectApiFunctionDefinition createFormController = new WebObjectApiFunctionDefinition("updateController");
+			// realFormName, jsTemplate, realUrl, Boolean.valueOf(forceLoad), htmlTemplate
+			createFormController
+				.addParameter(new PropertyDescriptionBuilder().withName("realFormName").withType(TypesRegistry.getType(StringPropertyType.TYPE_NAME)).build());
+			createFormController
+				.addParameter(new PropertyDescriptionBuilder().withName("jsTemplate").withType(TypesRegistry.getType(StringPropertyType.TYPE_NAME)).build());
+			createFormController
+				.addParameter(new PropertyDescriptionBuilder().withName("realUrl").withType(TypesRegistry.getType(StringPropertyType.TYPE_NAME)).build());
+			createFormController.addParameter(new PropertyDescriptionBuilder().withName("forceLoad")
+				.withType(TypesRegistry.getType(BooleanPropertyType.TYPE_NAME)).withOptional(true).build()); // Titanium client doesn't use this
+			createFormController.addParameter(new PropertyDescriptionBuilder().withName("htmlTemplate")
+				.withType(TypesRegistry.getType(StringPropertyType.TYPE_NAME)).withOptional(true).build()); // Titanium client doesn't use this //
+			// createFormController.setAsync(true); // sync / async for this method is given explicitly by the java code that calls it (it calls either sync method or async method)
+			createFormController.setPreDataServiceCall(true); // make sure the client state (FormCache) is created first on client when that message arrives, before any updates for this same form (from potentially the same message) want to apply themselves on that form's state
+			addApiFunction(createFormController);
+
+			WebObjectApiFunctionDefinition destroyFormController = new WebObjectApiFunctionDefinition("destroyController");
+			destroyFormController
+				.addParameter(new PropertyDescriptionBuilder().withName("realFormName").withType(TypesRegistry.getType(StringPropertyType.TYPE_NAME)).build());
+			destroyFormController.setAsync(true);
+			destroyFormController.setPreDataServiceCall(true);
+			addApiFunction(destroyFormController);
 		}
 	}
 

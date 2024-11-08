@@ -379,10 +379,11 @@ public class FoundsetTest extends AbstractSolutionTest
 		stringWriter.getBuffer().setLength(0);
 		jsonWriter = new JSONWriter(stringWriter);
 		dynamicBeanRelatedFoundset.changesToJSON(jsonWriter, allowBrowserConverterContext2);
-		assertEquals(format(
-			"{\"upd_serverSize\":12,\"upd_foundsetId\":%d,\"upd_sortColumns\":\"\",\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}}",
+		JSONAssert.assertEquals(format(
+			"{\"upd_serverSize\":12,\"upd_foundsetId\":%d,\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}}",
 			dynamicBeanRelatedFoundset.getFoundset().getID()),
-			stringWriter.toString());
+			stringWriter.toString(),
+			true);
 
 		customBeanFoundSet.getFoundset().setSelectedIndex(1);
 		dynamicBeanRelatedFoundset.getViewPort().setBounds(0, 1);
@@ -489,9 +490,10 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.toJSON(jsonWriter, allowBrowserConverterContext);
 
 
-		assertTrue(new JSONObject(
-			"{\"serverSize\":18,\"foundsetId\":2,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":18,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.3;_2\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.4;_3\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.5;_4\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.6;_5\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.7;_6\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.8;_7\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.9;_8\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.10;_9\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.11;_10\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.12;_11\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.13;_12\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.14;_13\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.15;_14\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.16;_15\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.17;_16\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.18;_17\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}")
-				.similar(new JSONObject(stringWriter.toString())));
+		JSONAssert.assertEquals(
+			"{\"serverSize\":18,\"foundsetId\":3,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":18,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.3;_2\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.4;_3\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.5;_4\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.6;_5\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.7;_6\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.8;_7\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.9;_8\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.10;_9\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.11;_10\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.12;_11\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.13;_12\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.14;_13\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.15;_14\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.16;_15\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.17;_16\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.18;_17\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			stringWriter.toString(),
+			true);
 
 		form.getFormModel().fireFoundSetChanged();
 
@@ -785,7 +787,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.toJSON(jsonWriter, allowBrowserConverterContext);
 
 		JSONAssert.assertEquals(new JSONObject(
-			"{\"selectedRowIndexes\":[0],\"viewPort\":{\"startIndex\":0,\"size\":7,\"rows\":[{\"firstname\":\"value00\",\"_svyRowId\":\"1.0;_0\",\"lastname\":\"value01\"},{\"firstname\":\"value10\",\"_svyRowId\":\"1.1;_1\",\"lastname\":\"value11\"},{\"firstname\":\"value20\",\"_svyRowId\":\"1.2;_2\",\"lastname\":\"value21\"},{\"firstname\":\"value30\",\"_svyRowId\":\"1.3;_3\",\"lastname\":\"value31\"},{\"firstname\":\"value40\",\"_svyRowId\":\"1.4;_4\",\"lastname\":\"value41\"},{\"firstname\":\"value50\",\"_svyRowId\":\"1.5;_5\",\"lastname\":\"value51\"},{\"firstname\":\"value60\",\"_svyRowId\":\"1.6;_6\",\"lastname\":\"value61\"}]},\"sortColumns\":\"\",\"serverSize\":200,\"foundsetId\":1,\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":true}"),
+			"{\"selectedRowIndexes\":[0],\"viewPort\":{\"startIndex\":0,\"size\":7,\"rows\":[{\"firstname\":\"value00\",\"_svyRowId\":\"1.0;_0\",\"lastname\":\"value01\"},{\"firstname\":\"value10\",\"_svyRowId\":\"1.1;_1\",\"lastname\":\"value11\"},{\"firstname\":\"value20\",\"_svyRowId\":\"1.2;_2\",\"lastname\":\"value21\"},{\"firstname\":\"value30\",\"_svyRowId\":\"1.3;_3\",\"lastname\":\"value31\"},{\"firstname\":\"value40\",\"_svyRowId\":\"1.4;_4\",\"lastname\":\"value41\"},{\"firstname\":\"value50\",\"_svyRowId\":\"1.5;_5\",\"lastname\":\"value51\"},{\"firstname\":\"value60\",\"_svyRowId\":\"1.6;_6\",\"lastname\":\"value61\"}]},\"sortColumns\":\"\",\"serverSize\":200,\"foundsetId\":2,\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":true}"),
 			new JSONObject(stringWriter.toString()), JSONCompareMode.STRICT);
 	}
 
@@ -805,9 +807,10 @@ public class FoundsetTest extends AbstractSolutionTest
 		JSONWriter jsonWriter = new JSONWriter(stringWriter);
 		rawPropertyValue.toJSON(jsonWriter, allowBrowserConverterContext);
 
-		assertTrue(new JSONObject(
-			"{\"serverSize\":200,\"foundsetId\":1,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":true,\"viewPort\":{\"startIndex\":0,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.0;_0\",\"lastname\":\"value01\",\"firstname\":\"value00\"}]}}")
-				.similar(new JSONObject(stringWriter.toString())));
+		JSONAssert.assertEquals(
+			"{\"serverSize\":200,\"foundsetId\":2,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":true,\"viewPort\":{\"startIndex\":0,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.0;_0\",\"lastname\":\"value01\",\"firstname\":\"value00\"}]}}",
+			stringWriter.toString(),
+			true);
 
 		// foundset loads more records due to server side access - client should be aware of new size and hasMoreRows
 		rawPropertyValue.getFoundset().getRecord(200);

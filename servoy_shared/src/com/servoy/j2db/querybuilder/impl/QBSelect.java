@@ -71,7 +71,12 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.visitor.IVisitor;
 
 /**
- * A wrapper for an SQL SELECT query.
+ * <pre data-puremarkdown>
+`QBSelect` is a wrapper for building SQL `SELECT` queries in Servoy, providing a flexible API to add conditions, sorting, grouping, joins, and parameters to SQL-based queries. Through structured access to clauses like `where`, `groupBy`, and `joins`, `QBSelect` supports complex query construction and parameterized queries.
+
+For detailed query building, see [Query Builder](../../../../guides/develop/programming-guide/working-with-data/searching/query-builder.md) in the Servoy documentation.
+
+ * </pre>
  *
  * @author rgansevles
  *

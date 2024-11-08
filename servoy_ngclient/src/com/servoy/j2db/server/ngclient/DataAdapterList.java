@@ -88,7 +88,6 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class DataAdapterList implements IModificationListener, ITagResolver, IDataAdapterList
 {
-
 	// properties that are interested in a specific dataproviderID chaning
 	protected final Map<String, List<IDataLinkedPropertyValue>> dataProviderToLinkedComponentProperty = new HashMap<>(); // dataProviderID -> [(comp, propertyName)]
 

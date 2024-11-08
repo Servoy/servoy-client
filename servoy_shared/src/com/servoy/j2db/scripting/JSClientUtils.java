@@ -58,16 +58,19 @@ public class JSClientUtils
 	}
 
 	/**
-	 * This generates a browser function for the given function string that can be executed in the browser by a component that needs a function for a certain property value.
-	 * The resulting object should be assigned into a config/property object (where the property it typed as 'object'/'json'/'map' in the .spec) that is then assigned to a component.
-	 * The component will receive this function as a real function object in TiNG (but still as a plain string that needs to be evalled in NG1).<br/><br/>
+	 * This will generate a browser function for the given function string - that can be executed in the browser by a component/service that needs a client side executable function for one of it's properties / method arguments.<br/><br/>
 	 *
-	 * This is needed because in TiNG it is not allowed - due to the Content Security Policy (CSP) that is enforced - to eval(string) in order to get a function object (that then can be executed later on).<br/><br/>
+	 * The resulting object should be assigned to / given as a (config) property / method argument (that is typed as 'object'/'json'/'map' in the .spec).
+	 * The component will receive this function as a real function object in TiNG (but it will still be a plain string that needs to be evalled in NG1).<br/><br/>
 	 *
-	 * This is a more dynamic variant of the .spec property type "clientfunction": https://docs.servoy.com/reference/servoy-developer/property_types#clientfunction<br/><br/>
+	 * This method is needed because in TiNG it is not allowed to eval(string) - due to the Content Security Policy (CSP) that is enforced - in order to get a function object (that then can be executed later on).<br/><br/>
+	 *
+	 * This is a more dynamic variant of the .spec <a href="https://docs.servoy.com/reference/servoy-developer/property_types#clientfunction">property type "clientfunction"</a>.<br/><br/>
 	 *
 	 * You do not need to use this for properties/arguments/return values that are declared to have "clientfunction" type in the .spec file, but rather for
-	 * when you want to give it inside plain 'object' typed values. Starting with 2023.09, 'map' and 'json' property types (even nested if configured in the spec correctly) are supported.
+	 * when you want to give it inside plain 'object' typed values.<br/><br/>
+	 *
+	 * Starting with 2023.09, even 'map' and 'json' property types (values nested inside those - if configured in the component/service .spec file correctly) support client functions given as simple strings, without the need to call this method.
 	 *
 	 * @sample
 	 * var options = { myfunction: clientutils.generateBrowserFunction("function(param) { return param + 1 }") };
@@ -75,7 +78,7 @@ public class JSClientUtils
 	 *
 	 * @param functionString The javascript function (given as a string - DON'T USE a javascript function with toString or a String constructor) that should be running in the client's browser.
 	 *
-	 * @return An object that can be assigned to a property of an component or custom type. (but which is then nested/part of an object type)
+	 * @return An object that can be assigned to a property of an component/service or to a method argument - if that is typed as, or is part of something typed as 'object'.
 	 */
 	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 	@JSFunction
