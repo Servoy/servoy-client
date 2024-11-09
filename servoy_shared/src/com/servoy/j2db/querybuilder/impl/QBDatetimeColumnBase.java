@@ -17,6 +17,7 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
@@ -24,6 +25,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rob
  *
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBDatetimeColumn", extendsComponent = "QBColumn")
 public interface QBDatetimeColumnBase<IntegerColumnType>
 {
 	/**

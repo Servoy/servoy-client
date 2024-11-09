@@ -19,7 +19,6 @@ package com.servoy.j2db.querybuilder.impl;
 
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.QueryAggregate;
-import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * An aggregate (like count, min, max ..) inside a QBSelect
@@ -27,7 +26,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rgansevles
  *
  */
-public class QBAggregate extends QBColumn
+public class QBAggregate extends QBColumnImpl implements QBCountAggregate
 {
 	private final int aggregateType;
 	private final int aggregateQuantifier;
@@ -45,17 +44,8 @@ public class QBAggregate extends QBColumn
 		return new QueryAggregate(aggregateType, aggregateQuantifier, getQueryColumn(), null, null, false);
 	}
 
-	// RAGTEST getypeerd
-	/** Add a distinct qualifier to the aggregate
-	 * @sample
-	 * // count the number of countries that we ship orders to
-	 * var query = datasources.db.example_data.orders.createSelect();
-	 * query.result.add(query.columns.shipcountry.count.distinct);
-	 */
-	@JSReadonlyProperty
-	public QBAggregate distinct()
+	QBAggregate _distinct()
 	{
 		return new QBAggregate(getRoot(), getParent(), getQueryColumn(), aggregateType, QueryAggregate.DISTINCT);
 	}
-
 }

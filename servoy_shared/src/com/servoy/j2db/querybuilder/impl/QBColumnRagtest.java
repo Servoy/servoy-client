@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
@@ -37,7 +39,7 @@ public interface QBColumnRagtest<T /* RAGTEST extends QBColumn */>
 	 */
 	default T min()
 	{
-		return (T)((QBColumn)this).min();
+		return (T)getRoot().aggregates().min(this);
 	}
 
 	/**
@@ -51,7 +53,7 @@ public interface QBColumnRagtest<T /* RAGTEST extends QBColumn */>
 	@JSReadonlyProperty
 	default T maxragtest()
 	{
-		return (T)((QBColumn)this)._maxragtest();
+		return (T)getRoot().aggregates().max(this);
 	}
 
 	/**
@@ -62,9 +64,24 @@ public interface QBColumnRagtest<T /* RAGTEST extends QBColumn */>
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.avg.eq(1))
 	 * 	foundset.loadRecords(query)
 	 */
+	@JSReadonlyProperty
 	default T avg()
 	{
-		return (T)((QBColumn)this).avg();
+		return (T)getRoot().aggregates().avg(this);
 	}
+
+	/**
+	 * Create nullif(arg) expression
+	 * @param arg object to compare
+	 * @sample
+	 * query.result.add(query.columns.mycol.nullif('none'))
+	 */
+	@JSFunction
+	default T nullifragtest(Object arg)
+	{
+		return (T)getRoot().functions().nullifragtest(this, arg);
+	}
+
+	QBSelect getRoot();
 
 }

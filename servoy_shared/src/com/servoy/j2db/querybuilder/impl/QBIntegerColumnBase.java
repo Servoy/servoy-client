@@ -17,11 +17,15 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
+
 /**
  * RAGTEST doc
  * @author rob
  *
  */
+// RAGTEST extendsComponent nodig? zit al in QBIntegerColumn
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBIntegerColumn", extendsComponent = "QBColumn")
 public interface QBIntegerColumnBase
 {
 

@@ -13,24 +13,31 @@
  You should have received a copy of the GNU Affero General Public License along
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
- */
+*/
 
-package com.servoy.j2db.scripting.annotations;
+package com.servoy.j2db.querybuilder.impl;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * RAGTEST doc
+ * RAGTEST doc  count distinct()
+ * @author rob
  *
- * @author rgansevles
  */
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface JSIgnore {
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "QBColumn")
+public interface QBCountAggregate
+{
 
+	/** Add a distinct qualifier to the aggregate
+	 * @sample
+	 * // count the number of countries that we ship orders to
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.result.add(query.columns.shipcountry.count.distinct);
+	 */
+	@JSReadonlyProperty
+	default QBIntegerColumnBase distinct()
+	{
+		return ((QBAggregate)this)._distinct();
+	}
 }

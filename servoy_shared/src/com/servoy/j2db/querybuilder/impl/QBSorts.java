@@ -65,7 +65,7 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 		{
 			for (String columnName : iterate(table.getRowIdentColumnNames()))
 			{
-				add(getParent().getColumn(columnName).asc());
+				add(((QBColumnImpl)getParent().getColumn(columnName)).asc());
 			}
 		}
 		return this;
@@ -128,7 +128,7 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 
 	public QBSorts add(QBColumn columnSortAsc) throws RepositoryException
 	{
-		return add(columnSortAsc.asc());
+		return add(((QBColumnImpl)columnSortAsc).asc());
 	}
 
 	@Override

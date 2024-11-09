@@ -89,7 +89,7 @@ public class QBGroupBy extends QBPart implements IQueryBuilderGroupby
 		{
 			throw new RuntimeException("Cannot add null or undefined column to a group-by clause");
 		}
-		getParent().getQuery().addGroupBy(column.getQuerySelectValue());
+		getParent().getQuery().addGroupBy(((QBColumnImpl)column).getQuerySelectValue());
 		return this;
 	}
 

@@ -243,7 +243,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 		{
 			throw new RuntimeException("Cannot add null or undefined column to a query");
 		}
-		IQuerySelectValue querySelectValue = column.getQuerySelectValue();
+		IQuerySelectValue querySelectValue = ((QBColumnImpl)column).getQuerySelectValue();
 		getParent().getQuery().addColumn(alias == null ? querySelectValue : querySelectValue.asAlias(alias));
 		return this;
 	}
@@ -270,13 +270,13 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 			if (selectValue instanceof QueryFunction)
 			{
 				QueryFunctionType function = ((QueryFunction)selectValue).getFunction();
-				return new QBFunction(getRoot(), getParent(), function, ((QueryFunction)selectValue).getArgs());
+				return new QBFunctionImpl(getRoot(), getParent(), function, ((QueryFunction)selectValue).getArgs());
 			}
 			if (selectValue instanceof QuerySearchedCaseExpression)
 			{
 				return new QBSearchedCaseExpression(getRoot(), getParent(), ((QuerySearchedCaseExpression)selectValue));
 			}
-			return new QBColumn(getRoot(), getParent(), selectValue);
+			return new QBColumnImpl(getRoot(), getParent(), selectValue);
 
 		}).toArray(QBColumn[]::new);
 	}
@@ -413,7 +413,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 	{
 		if (column != null)
 		{
-			getParent().getQuery().removeColumn(column.getQuerySelectValue());
+			getParent().getQuery().removeColumn(((QBColumnImpl)column).getQuerySelectValue());
 		}
 		return this;
 	}

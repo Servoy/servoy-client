@@ -20,7 +20,6 @@ package com.servoy.j2db.querybuilder.impl;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.QueryFunction;
 import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
-import com.servoy.j2db.querybuilder.IQueryBuilderFunction;
 
 /**
  * A wrapper for an SQL function to be used inside QBSelect.
@@ -29,12 +28,12 @@ import com.servoy.j2db.querybuilder.IQueryBuilderFunction;
  *
  */
 // RAGTEST doc alleen QBColumn @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBFunction")
-public class QBFunction extends QBColumn implements IQueryBuilderFunction
+public class QBFunctionImpl extends QBColumnImpl
 {
 	private final QueryFunctionType functionType;
 	private final IQuerySelectValue[] functionArgs;
 
-	QBFunction(QBSelect root, QBTableClause queryBuilderTableClause, QueryFunctionType functionType, IQuerySelectValue[] functionArgs)
+	QBFunctionImpl(QBSelect root, QBTableClause queryBuilderTableClause, QueryFunctionType functionType, IQuerySelectValue[] functionArgs)
 	{
 		super(root, queryBuilderTableClause, null);
 		this.functionType = functionType;

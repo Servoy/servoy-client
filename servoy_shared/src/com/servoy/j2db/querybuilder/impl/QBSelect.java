@@ -196,7 +196,7 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 		{
 			if (name.equals(qcol.getAliasOrName()) || name.equals(generateNormalizedNonReservedOSName(qcol.getColumnName())))
 			{
-				return new QBColumn(getRoot(), this, qcol);
+				return new QBColumnImpl(getRoot(), this, qcol);
 			}
 		}
 
@@ -890,9 +890,9 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 
 	IQuerySelectValue createOperand(Object value, BaseColumnType columnType, int flags)
 	{
-		if (value instanceof QBColumn)
+		if (value instanceof QBColumnImpl qbColumn)
 		{
-			return ((QBColumn)value).getQuerySelectValue();
+			return qbColumn.getQuerySelectValue();
 		}
 
 		Object val = value;

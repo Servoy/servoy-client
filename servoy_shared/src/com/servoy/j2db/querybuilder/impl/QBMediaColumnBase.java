@@ -24,7 +24,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author rob
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "QBColumn")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBDatetimeColumn", extendsComponent = "QBColumn")
 public interface QBMediaColumnBase
 {
 }
