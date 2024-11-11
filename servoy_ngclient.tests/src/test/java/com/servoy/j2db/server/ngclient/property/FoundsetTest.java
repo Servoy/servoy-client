@@ -90,6 +90,12 @@ public class FoundsetTest extends AbstractSolutionTest
 		String comp1 = new String(bytes);
 		is.close();
 
+		is = getClass().getResourceAsStream("FoundSetTest-pagingcomponent.spec");
+		bytes = new byte[is.available()];
+		is.read(bytes);
+		String compWithPaging = new String(bytes);
+		is.close();
+
 		is = getClass().getResourceAsStream("FoundSetTest-mydynamiccomponent.spec");
 		bytes = new byte[is.available()];
 		is.read(bytes);
@@ -99,6 +105,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		HashMap<String, String> components = new HashMap<>();
 		components.put("mycomponent.spec", comp1);
 		components.put("mydynamiccomponent.spec", comp2);
+		components.put("mypagingcomponent.spec", compWithPaging);
 		InMemPackageReader inMemPackageReader = new InMemPackageReader(manifest, components);
 		return inMemPackageReader;
 	}
@@ -122,6 +129,11 @@ public class FoundsetTest extends AbstractSolutionTest
 		WebComponent bean2 = form.createNewWebComponent("mycustomseparatefoundsetbean", "my-component");
 		bean2.setProperty("myfoundset", new ServoyJSONObject(
 			"{foundsetSelector: \"mem:testseparatefoundset\", loadAllRecords: true, dataproviders:{firstname:'test1',lastname:'test2'}}", false));
+
+		WebComponent componentWithPaging = form.createNewWebComponent("mycomponentwithpaging", "mypagingcomponent");
+		componentWithPaging.setProperty("myfoundset",
+			new ServoyJSONObject("{foundsetSelector:'',dataproviders:{firstname:'test1',lastname:'test2'}}", false));
+		componentWithPaging.setProperty("pageSize", Integer.valueOf(7));
 	}
 
 	@Override
@@ -966,6 +978,24 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.changesToJSON(jsonWriter3, allowBrowserConverterContext);
 
 		assertEquals("{\"n\":true}", stringWriter3.toString());
+	}
+
+	@Test
+	public void foundsetWithInitialServerSizePageSize()
+	{
+		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("test");
+		assertNotNull(form);
+
+		FoundsetTypeSabloValue foundSetPropValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycomponentwithpaging")
+			.getRawPropertyValue("myfoundset");
+		StringWriter stringWriter = new StringWriter();
+		JSONWriter jsonWriter = new JSONWriter(stringWriter);
+		foundSetPropValue.addViewPort(jsonWriter);
+
+		// see that initially the viewport size is "7" according to "pageSize" property
+		assertEquals(
+			"{\"startIndex\":0,\"size\":7,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"firstname\":\"value1\",\"lastname\":\"value2\"},{\"_svyRowId\":\"1.2;_1\",\"firstname\":\"value3\",\"lastname\":\"value4\"},{\"_svyRowId\":\"1.3;_2\",\"firstname\":\"value1\",\"lastname\":\"value2\"},{\"_svyRowId\":\"1.4;_3\",\"firstname\":\"value3\",\"lastname\":\"value4\"},{\"_svyRowId\":\"1.5;_4\",\"firstname\":\"value1\",\"lastname\":\"value2\"},{\"_svyRowId\":\"1.6;_5\",\"firstname\":\"value3\",\"lastname\":\"value4\"},{\"_svyRowId\":\"1.7;_6\",\"firstname\":\"value1\",\"lastname\":\"value2\"}]}",
+			stringWriter.toString());
 	}
 
 }

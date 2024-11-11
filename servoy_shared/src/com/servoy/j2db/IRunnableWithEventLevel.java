@@ -18,21 +18,11 @@ package com.servoy.j2db;
 
 
 /**
- * Event delegator interface, provides a geneic way to handle event between smart and web client
- * @author jblok
+ * A runnable that wants to run at a specific event level.
+ *
+ * @author acostescu
  */
-public interface IEventDelegator
+public interface IRunnableWithEventLevel extends Runnable
 {
-
-	/**
-	 * Runs the given runnable later.<br/><br/>
-	 *
-	 * If the given runnable is an instance of {@link IRunnableWithEventLevel} and if this IEventDelegator supports that,
-	 * then the {@link IRunnableWithEventLevel#getEventLevel()} will be used.
-	 */
-	public void invokeLater(Runnable r);
-
-	public boolean isEventDispatchThread();
-
-	public void invokeAndWait(Runnable r);
+	int getEventLevel();
 }

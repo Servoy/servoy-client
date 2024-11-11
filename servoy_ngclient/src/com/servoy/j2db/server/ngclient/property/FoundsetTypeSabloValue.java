@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.property;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -300,6 +301,9 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	{
 		this.webObjectContext = webObjectCntxt;
 		dataAdapterList = null;
+
+		if (webObjectCntxt != null) lookForInitialPreferredViewportSizePropertyAndApplyIt();
+
 		changeMonitor.setChangeNotifier(changeNotifier);
 
 		// get the foundset identifier, then the foundset itself
@@ -312,6 +316,23 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		setDataLinks();
 
 		fireUnderlyingStateChangedListeners(); // we now have a webObjectContext so getDataAdapterList() might return non-null now; in some cases this is all other properties need, they don't need the foundset itself
+	}
+
+	private void lookForInitialPreferredViewportSizePropertyAndApplyIt()
+	{
+		Collection<PropertyDescription> properties = webObjectContext
+			.getProperties(TypesRegistry.getType(FoundsetInitialPreferredViewportSizePropertyType.TYPE_NAME));
+
+		for (PropertyDescription foundsetInitialPreferredViewportSizeProperty : properties)
+		{
+			// see whether format if "for" this property (dataprovider)
+			String fipvsIsFor = (String)foundsetInitialPreferredViewportSizeProperty.getConfig();
+			if (fipvsIsFor != null && fipvsIsFor.equals(propertyName))
+			{
+				viewPort.setPreferredViewportSize(((Integer)webObjectContext.getProperty(foundsetInitialPreferredViewportSizeProperty.getName())).intValue());
+				break;
+			}
+		}
 	}
 
 	/**
