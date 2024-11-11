@@ -122,7 +122,7 @@ public class EditRecordList
 	private final ReentrantLock editRecordsLock = new ReentrantLock();
 
 	private final EditedRecords editedRecords = new EditedRecords();
-	private EditedRecordOrFoundset editedRecordOrFoundsetInProgress = null;
+	private final List<EditedRecordOrFoundset> editedRecordsOrFoundsetsInProgress = new ArrayList<>();
 	private final Map<IRecordInternal, List<IPrepareForSave>> recordTested = synchronizedMap(new HashMap<>()); // tested for form.OnRecordEditStop event
 	private boolean preparingForSave;
 
@@ -149,12 +149,8 @@ public class EditRecordList
 		editRecordsLock.lock();
 		try
 		{
-			if (editedRecordOrFoundsetInProgress instanceof EditedRecord editedRecord && editedRecord.getRecord() == record)
-			{
-				return true;
-			}
-
-			return editedRecords.containsEdited(record);
+			return getInProgressRecords().anyMatch(inProgressRecord -> inProgressRecord == record) ||
+				editedRecords.containsEdited(record);
 		}
 		finally
 		{
@@ -167,7 +163,7 @@ public class EditRecordList
 		editRecordsLock.lock();
 		try
 		{
-			return editedRecordOrFoundsetInProgress != null || !editedRecords.isEmpty();
+			return !editedRecordsOrFoundsetsInProgress.isEmpty() || !editedRecords.isEmpty();
 		}
 		finally
 		{
@@ -228,6 +224,13 @@ public class EditRecordList
 			});
 	}
 
+	private Stream<IRecordInternal> getInProgressRecords()
+	{
+		return editedRecordsOrFoundsetsInProgress.stream()
+			.filter(EditedRecord.class::isInstance).map(EditedRecord.class::cast)
+			.map(EditedRecord::getRecord);
+	}
+
 	private IRecordInternal[] getEditedRecords(Predicate< ? super IRecordInternal> recordFilter, boolean removeUnchanged)
 	{
 		if (removeUnchanged)
@@ -247,14 +250,7 @@ public class EditRecordList
 					al.add(record);
 				}
 			}
-			if (editedRecordOrFoundsetInProgress instanceof EditedRecord editedRecord)
-			{
-				IRecordInternal record = editedRecord.getRecord();
-				if (recordFilter.test(record))
-				{
-					al.add(record);
-				}
-			}
+			getInProgressRecords().filter(recordFilter::test).forEach(al::add);
 		}
 		finally
 		{
@@ -480,10 +476,7 @@ public class EditRecordList
 						editRecordsLock.lock();
 						try
 						{
-							if (editedRecordOrFoundsetInProgress instanceof EditedRecord editedRecord)
-							{
-								stop = editedRecord.getRecord() == recordsToSaveFinal.get(0);
-							}
+							stop = getInProgressRecords().anyMatch(record -> record == recordsToSaveFinal.get(0));
 						}
 						finally
 						{
@@ -584,139 +577,151 @@ public class EditRecordList
 				Map<IRecordInternal, Integer> processedRecords = new HashMap<>();
 
 				Predicate<EditedRecordOrFoundset> shouldProcessRecordOrFoundset = shouldProcessRecordOrFoundset(recordsToSave, foundset);
-				for (EditedRecordOrFoundset tmp = getAndRemoveFirstEditedRecordOrFoundset(shouldProcessRecordOrFoundset); //
+				for (EditedRecordOrFoundset tmp = editedRecords.getAndRemoveFirstEditedRecordOrFoundset(shouldProcessRecordOrFoundset); //
 					tmp != null; //
-					tmp = getAndRemoveFirstEditedRecordOrFoundset(shouldProcessRecordOrFoundset))
+					tmp = editedRecords.getAndRemoveFirstEditedRecordOrFoundset(shouldProcessRecordOrFoundset))
 				{
-					if (tmp instanceof EditedRecord editedRecord)
+					editedRecordsOrFoundsetsInProgress.add(tmp);
+					try
 					{
-						IRecordInternal rec = editedRecord.getRecord();
-						// check if we do not have an infinite recursive loop
-						Integer count = processedRecords.get(rec);
-						if (count != null && count.intValue() > 50)
+						if (tmp instanceof EditedRecord editedRecord)
 						{
-							fsm.getApplication().reportJSError(
-								"stopEditing max loop counter exceeded on " + rec.getDataSource() + "/" + rec.getPKHashKey(),
-								new RuntimeException());
-							return ISaveConstants.SAVE_FAILED;
-						}
-						processedRecords.put(rec, Integer.valueOf(count == null ? 1 : (count.intValue() + 1)));
-					}
-
-					if (isDeleteRecordOrQuery(tmp))
-					{
-						setDeletedrecordsInternalTableFilter(false);
-					}
-
-					// tmp is a record to save/delete or a delete-query to perform
-					if (tmp instanceof EditedRecord editedRecord)
-					{
-						Record record = (Record)editedRecord.getRecord();
-
-						// prevent multiple update for the same row (from multiple records)
-						for (int j = 0; j < dbUpdates.size(); j++)
-						{
-							if (dbUpdates.get(j) instanceof RowUpdateInfo rowUpdateInfo && rowUpdateInfo.getRow() == record.getRawData())
+							IRecordInternal rec = editedRecord.getRecord();
+							// check if we do not have an infinite recursive loop
+							Integer count = processedRecords.get(rec);
+							if (count != null && count.intValue() > 50)
 							{
-								// create a new rowUpdate that contains both updates
-								RowUpdateInfo removed = (RowUpdateInfo)dbUpdates.remove(j);
-								recordTested.remove(record);
-								// do use the first record, that one must always be leading. (for fire of events)
-								record = removed.getRecord();
-								break;
+								fsm.getApplication().reportJSError(
+									"stopEditing max loop counter exceeded on " + rec.getDataSource() + "/" + rec.getPKHashKey(),
+									new RuntimeException("stopEditing max loop counter exceeded on " + rec.getDataSource() + "/" + rec.getPKHashKey()));
+								return ISaveConstants.SAVE_FAILED;
 							}
+							processedRecords.put(rec, Integer.valueOf(count == null ? 1 : (count.intValue() + 1)));
 						}
 
-						try
+						if (isDeleteRecordOrQuery(tmp))
 						{
-							// test for table events; this may execute table events if the user attached JS methods to them;
-							// the user might add/delete/edit records in the JS - thus invalidating a normal iterator (it)
-							// - edited record list changes; this is why an AllowListModificationIterator is used
+							setDeletedrecordsInternalTableFilter(false);
+						}
 
-							// Note that the behavior is different when trigger returns false or when it throws an exception.
-							// when the trigger returns false, record must stay in editedRecords.
-							//   this is needed because the trigger may be used as validation to keep the user in the record when autosave=true.
-							// when the trigger throws an exception, the record must move from editedRecords to failedRecords so that in
-							//    scripting the failed records can be examined (the thrown value is retrieved via record.exception.getValue())
-							editRecordsLock.unlock();
+						// tmp is a record to save/delete or a delete-query to perform
+						if (tmp instanceof EditedRecord editedRecord)
+						{
+							Record record = (Record)editedRecord.getRecord();
+
+							// prevent multiple update for the same row (from multiple records)
+							for (int j = 0; j < dbUpdates.size(); j++)
+							{
+								if (dbUpdates.get(j) instanceof RowUpdateInfo rowUpdateInfo && rowUpdateInfo.getRow() == record.getRawData())
+								{
+									// create a new rowUpdate that contains both updates
+									RowUpdateInfo removed = (RowUpdateInfo)dbUpdates.remove(j);
+									recordTested.remove(record);
+									// do use the first record, that one must always be leading. (for fire of events)
+									record = removed.getRecord();
+									break;
+								}
+							}
+
 							try
 							{
-								boolean validationErrors = false;
-								JSRecordMarkers validateObject = fsm.validateRecord(record, null);
-								if (validateObject != null && validateObject.isHasErrors()) // throws ServoyException when trigger method throws exception
+								// test for table events; this may execute table events if the user attached JS methods to them;
+								// the user might add/delete/edit records in the JS - thus invalidating a normal iterator (it)
+								// - edited record list changes; this is why an AllowListModificationIterator is used
+
+								// Note that the behavior is different when trigger returns false or when it throws an exception.
+								// when the trigger returns false, record must stay in editedRecords.
+								//   this is needed because the trigger may be used as validation to keep the user in the record when autosave=true.
+								// when the trigger throws an exception, the record must move from editedRecords to failedRecords so that in
+								//    scripting the failed records can be examined (the thrown value is retrieved via record.exception.getValue())
+								editRecordsLock.unlock();
+								try
 								{
-									Object[] genericExceptions = validateObject.getGenericExceptions();
-									if (genericExceptions.length > 0)
+									boolean validationErrors = false;
+									JSRecordMarkers validateObject = fsm.validateRecord(record, null);
+									if (validateObject != null && validateObject.isHasErrors()) // throws ServoyException when trigger method throws exception
 									{
-										// compatible with old code, then those exceptions are caught below.
-										throw (Exception)genericExceptions[0];
-									}
-									// we always want to process all records, but mark this as a validation error so below the failed records are updated.
-									validationErrors = true;
-									// update the just failed boolean to true, if that is true and there is not really an exception then handleException of application is not called.
-									justValidationErrors = true;
-									failedCount++;
-									editedRecords.addFailed(record);
-									recordTested.remove(record);
-								}
-								if (!validationErrors)
-								{
-									RowUpdateInfo rowUpdateInfo = getRecordUpdateInfo(record);
-									if (rowUpdateInfo != null)
-									{
-										rowUpdateInfo.setRecord(record);
-										dbUpdates.add(rowUpdateInfo);
-									}
-									else
-									{
+										Object[] genericExceptions = validateObject.getGenericExceptions();
+										if (genericExceptions.length > 0)
+										{
+											// compatible with old code, then those exceptions are caught below.
+											throw (Exception)genericExceptions[0];
+										}
+										// we always want to process all records, but mark this as a validation error so below the failed records are updated.
+										validationErrors = true;
+										// update the just failed boolean to true, if that is true and there is not really an exception then handleException of application is not called.
+										justValidationErrors = true;
+										failedCount++;
+										editedRecords.addFailed(record);
 										recordTested.remove(record);
 									}
+									if (!validationErrors)
+									{
+										RowUpdateInfo rowUpdateInfo = getRecordUpdateInfo(record);
+										if (rowUpdateInfo != null)
+										{
+											rowUpdateInfo.setRecord(record);
+											dbUpdates.add(rowUpdateInfo);
+										}
+										else
+										{
+											recordTested.remove(record);
+										}
+									}
+								}
+								finally
+								{
+									editRecordsLock.lock();
 								}
 							}
-							finally
+							catch (ServoyException e)
 							{
-								editRecordsLock.lock();
+								log.debug(
+									"stopEditing(" + javascriptStop + ") encountered an exception - could be expected and treated by solution code or not", //$NON-NLS-1$//$NON-NLS-2$
+									e);
+								// trigger method threw exception
+								lastStopEditingException = e;
+								failedCount++;
+								record.getRawData().setLastException(e); // set latest
+								editedRecords.addFailed(record);
+								recordTested.remove(record);
+							}
+							catch (Exception e)
+							{
+								Debug.error("Not a normal Servoy/Db Exception generated in saving record: " + record + " removing the record", e); //$NON-NLS-1$ //$NON-NLS-2$
+								recordTested.remove(record);
 							}
 						}
-						catch (ServoyException e)
-						{
-							log.debug("stopEditing(" + javascriptStop + ") encountered an exception - could be expected and treated by solution code or not", //$NON-NLS-1$//$NON-NLS-2$
-								e);
-							// trigger method threw exception
-							lastStopEditingException = e;
-							failedCount++;
-							record.getRawData().setLastException(e); // set latest
-							editedRecords.addFailed(record);
-							recordTested.remove(record);
-						}
-						catch (Exception e)
-						{
-							Debug.error("Not a normal Servoy/Db Exception generated in saving record: " + record + " removing the record", e); //$NON-NLS-1$ //$NON-NLS-2$
-							recordTested.remove(record);
-						}
-					}
 
-					else if (tmp instanceof FoundsetDeletingQuery foundsetDeletingQuery)
+						else if (tmp instanceof FoundsetDeletingQuery foundsetDeletingQuery)
+						{
+							try
+							{
+								dbUpdates
+									.add(
+										getTableUpdateInfoForDeleteQuery(foundsetDeletingQuery.getFoundset().getTable(), foundsetDeletingQuery.getQueryDelete(),
+											foundsetDeletingQuery.getFilters()));
+							}
+							catch (ServoyException e)
+							{
+								log.debug(
+									"stopEditing(" + javascriptStop + ") encountered an exception - could be expected and treated by solution code or not", //$NON-NLS-1$//$NON-NLS-2$
+									e);
+								// trigger method threw exception
+								lastStopEditingException = e;
+								failedCount++;
+								editedRecords.addDeleteQuery(foundsetDeletingQuery);
+							}
+							catch (Exception e)
+							{
+								Debug.error("Not a normal Servoy/Db Exception generated in deleting recors", e);
+							}
+						}
+
+					}
+					finally
 					{
-						try
-						{
-							dbUpdates
-								.add(getTableUpdateInfoForDeleteQuery(foundsetDeletingQuery.getFoundset().getTable(), foundsetDeletingQuery.getQueryDelete(),
-									foundsetDeletingQuery.getFilters()));
-						}
-						catch (ServoyException e)
-						{
-							log.debug("stopEditing(" + javascriptStop + ") encountered an exception - could be expected and treated by solution code or not", //$NON-NLS-1$//$NON-NLS-2$
-								e);
-							// trigger method threw exception
-							lastStopEditingException = e;
-							failedCount++;
-							editedRecords.addDeleteQuery(foundsetDeletingQuery);
-						}
-						catch (Exception e)
-						{
-							Debug.error("Not a normal Servoy/Db Exception generated in deleting recors", e);
-						}
+						editedRecordsOrFoundsetsInProgress.remove(tmp);
 					}
 				}
 			}
@@ -1139,15 +1144,6 @@ public class EditRecordList
 
 			return false;
 		};
-	}
-
-	/**
-	 * Get the next edited record or foundset to process, set editedRecordOrFoundsetInProgress as side-effect.
-	 */
-	private EditedRecordOrFoundset getAndRemoveFirstEditedRecordOrFoundset(Predicate<EditedRecordOrFoundset> shouldProcessRecordOrFoundset)
-	{
-		editedRecordOrFoundsetInProgress = editedRecords.getAndRemoveFirstEditedRecordOrFoundset(shouldProcessRecordOrFoundset);
-		return editedRecordOrFoundsetInProgress;
 	}
 
 	private TableUpdateInfo getTableUpdateInfoForDeleteQuery(ITable table, QueryDelete deleteQuery, ArrayList<TableFilter> filters) throws ServoyException
@@ -2272,12 +2268,11 @@ public class EditRecordList
 		editRecordsLock.lock();
 		try
 		{
-			IRecordInternal[] editedOrDeleted = editedRecords.getEditedOrDeleted();
-			if (editedRecordOrFoundsetInProgress instanceof EditedRecord editedRecord)
-			{
-				return arrayAdd(editedOrDeleted, editedRecord.getRecord(), false);
-			}
-			return editedOrDeleted;
+			IRecordInternal[][] editedOrDeleted = { editedRecords.getEditedOrDeleted() };
+			getInProgressRecords().forEach(record -> {
+				editedOrDeleted[0] = arrayAdd(editedOrDeleted[0], record, false);
+			});
+			return editedOrDeleted[0];
 		}
 		finally
 		{
