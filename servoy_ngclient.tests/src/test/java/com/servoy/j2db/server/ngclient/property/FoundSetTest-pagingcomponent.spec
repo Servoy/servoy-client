@@ -5,7 +5,7 @@
 	"libraries": [],
 	"model":
 	{
-	        "myfoundset": { "type": "foundset", "dynamicDataproviders": "true", "pushToServer": "allow", "initialPreferredViewPortSize": 15 },
+	        "myfoundset": { "type": "foundset", "dynamicDataproviders": "true", "pushToServer": "allow", "initialPreferredViewPortSize": 12, "sendSelectionViewportInitially": true },
             "fakePageSize1": { "type": "foundsetInitialPreferredViewportSize" },
             "fakePageSize2": { "type": "foundsetInitialPreferredViewportSize", "for": "puppy" },
             "pageSize": { "type": "foundsetInitialPreferredViewportSize", "for": "myfoundset" }

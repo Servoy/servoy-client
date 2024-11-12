@@ -34,32 +34,41 @@ public class FoundsetPropertyTypeConfig
 {
 
 	public static final boolean DEFAULT_SEND_DEFAULT_FORMATS = false;
-	public static final boolean DEFAULT_SEND_SELECTION_VIEWPORT_INITIALLY = false;
+
 	public static final int DEFAULT_INITIALL_PREFERRED_VIEWPORT_SIZE = 50;
+	public static final boolean DEFAULT_SEND_SELECTION_VIEWPORT_INITIALLY = false;
+	public static final boolean DEFAULT_CENTER_INITIAL_VIEWPORT_ON_SELECTED = true;
+
 	public static final boolean DEFAULT_FOUNDSET_DEFINITION_LISTENER = false;
 
 	public static final String SEND_DEFAULT_FORMATS = "provideColumnFormats";
 	public static final String DATAPROVIDERS = "dataproviders";
 	public static final String DYNAMIC_DATAPROVIDERS = "dynamicDataproviders";
-	public static final String SEND_SELECTION_VIEWPORT_INITIALLY = "sendSelectionViewportInitially";
+
 	public static final String INITIAL_PREFERRED_VIEWPORT_SIZE = "initialPreferredViewPortSize";
+	public static final String SEND_SELECTION_VIEWPORT_INITIALLY = "sendSelectionViewportInitially";
+	public static final String CENTER_INITIAL_VIEWPORT_ON_SELECTED = "centerInitialViewportOnSelected";
+
 	public static final String FOUNDSET_DEFINITION_LISTENER = "foundsetDefinitionListener";
 
 	public final boolean sendDefaultFormats;
 	public final boolean hasDynamicDataproviders;
 	public final String[] dataproviders;
-	public final int initialPreferredViewPortSize;
 	public final boolean foundsetDefinitionListener;
+
+	public final int initialPreferredViewPortSize;
 	public final boolean sendSelectionViewportInitially;
+	public final boolean centerInitialViewportOnSelected;
 
 	public FoundsetPropertyTypeConfig(boolean sendDefaultFormats, boolean hasDynamicDataproviders, String[] dataproviders,
-		boolean sendSelectionViewportInitially, int initialPreferredViewPortSize, boolean foundsetDefinitionListener)
+		boolean sendSelectionViewportInitially, int initialPreferredViewPortSize, boolean foundsetDefinitionListener, boolean centerInitialViewportOnSelected)
 	{
 		this.sendDefaultFormats = sendDefaultFormats;
 		this.hasDynamicDataproviders = hasDynamicDataproviders;
 		this.dataproviders = dataproviders;
-		this.sendSelectionViewportInitially = sendSelectionViewportInitially;
 		this.initialPreferredViewPortSize = initialPreferredViewPortSize;
+		this.sendSelectionViewportInitially = sendSelectionViewportInitially;
+		this.centerInitialViewportOnSelected = centerInitialViewportOnSelected;
 		this.foundsetDefinitionListener = foundsetDefinitionListener;
 	}
 
@@ -69,10 +78,12 @@ public class FoundsetPropertyTypeConfig
 			? config.optBoolean(FoundsetPropertyTypeConfig.SEND_DEFAULT_FORMATS, false) : DEFAULT_SEND_DEFAULT_FORMATS);
 
 		this.hasDynamicDataproviders = (config != null && (config.has(DYNAMIC_DATAPROVIDERS) ? config.optBoolean(DYNAMIC_DATAPROVIDERS) : false));
-		this.sendSelectionViewportInitially = (config != null && config.has(SEND_SELECTION_VIEWPORT_INITIALLY)
-			? config.optBoolean(SEND_SELECTION_VIEWPORT_INITIALLY) : DEFAULT_SEND_SELECTION_VIEWPORT_INITIALLY);
 		this.initialPreferredViewPortSize = (config != null && config.has(INITIAL_PREFERRED_VIEWPORT_SIZE) ? config.optInt(INITIAL_PREFERRED_VIEWPORT_SIZE)
 			: DEFAULT_INITIALL_PREFERRED_VIEWPORT_SIZE);
+		this.sendSelectionViewportInitially = (config != null && config.has(SEND_SELECTION_VIEWPORT_INITIALLY)
+			? config.optBoolean(SEND_SELECTION_VIEWPORT_INITIALLY) : DEFAULT_SEND_SELECTION_VIEWPORT_INITIALLY);
+		this.centerInitialViewportOnSelected = (config != null && config.has(CENTER_INITIAL_VIEWPORT_ON_SELECTED)
+			? config.optBoolean(CENTER_INITIAL_VIEWPORT_ON_SELECTED) : DEFAULT_CENTER_INITIAL_VIEWPORT_ON_SELECTED);
 		this.foundsetDefinitionListener = (config != null && config.has(FOUNDSET_DEFINITION_LISTENER) ? config.optBoolean(FOUNDSET_DEFINITION_LISTENER)
 			: DEFAULT_FOUNDSET_DEFINITION_LISTENER);
 		String[] dps = null;

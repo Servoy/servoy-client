@@ -219,6 +219,9 @@ declare namespace foundsetType {
          * because they are used/useful in other scenarios as well, not just initially: for example when a
          * related foundset changes parent record, when a search/find is performed and so on.
          *
+         * See also the description of "foundsetInitialPreferredViewportSize" property type for a way to set this
+         * at design-time (via properties view) or before the form is shown.
+         * 
          * @param preferredSize the preferred number or rows that the viewport should get automatically
          *                      from the server.
          * @param sendViewportWithSelection if this is true, the auto-sent viewport will contain

@@ -325,11 +325,16 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 		for (PropertyDescription foundsetInitialPreferredViewportSizeProperty : properties)
 		{
-			// see whether format if "for" this property (dataprovider)
+			// see whether it's "for" this foundset property
 			String fipvsIsFor = (String)foundsetInitialPreferredViewportSizeProperty.getConfig();
 			if (fipvsIsFor != null && fipvsIsFor.equals(propertyName))
 			{
-				viewPort.setPreferredViewportSize(((Integer)webObjectContext.getProperty(foundsetInitialPreferredViewportSizeProperty.getName())).intValue());
+				int initialPreferredViewportSize = ((Integer)webObjectContext.getProperty(foundsetInitialPreferredViewportSizeProperty.getName())).intValue();
+				if (initialPreferredViewportSize > 0)
+				{
+					viewPort.setPreferredViewportSize(initialPreferredViewportSize);
+					viewPort.setPreferredViewportCentersOnSelected(false); // paging mode; as paging components use "foundsetInitialPreferredViewportSize"
+				}
 				break;
 			}
 		}
@@ -963,9 +968,9 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 					{
 						viewPort.setPreferredViewportSize(update.getInt(PREFERRED_VIEWPORT_SIZE));
 						if (update.has(FoundsetPropertyTypeConfig.SEND_SELECTION_VIEWPORT_INITIALLY))
-							viewPort.setSendSelectionViewportInitially(update.getBoolean(FoundsetPropertyTypeConfig.SEND_SELECTION_VIEWPORT_INITIALLY));
+							viewPort.setPreferredViewportContainsSelection(update.getBoolean(FoundsetPropertyTypeConfig.SEND_SELECTION_VIEWPORT_INITIALLY));
 						if (update.has(INITIAL_SELECTION_VIEWPORT_CENTERED))
-							viewPort.setInitialSelectionViewportCentered(update.getBoolean(INITIAL_SELECTION_VIEWPORT_CENTERED));
+							viewPort.setPreferredViewportCentersOnSelected(update.getBoolean(INITIAL_SELECTION_VIEWPORT_CENTERED));
 					}
 					// {loadExtraRecords: negativeOrPositiveCount}
 					else if (update.has("loadExtraRecords"))
