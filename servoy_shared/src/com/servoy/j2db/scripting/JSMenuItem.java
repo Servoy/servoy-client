@@ -44,8 +44,22 @@ import com.servoy.j2db.util.Utils;
  */
 @ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSMenuItem")
-public class JSMenuItem
+public class JSMenuItem implements IConstantsObject
 {
+	/**
+	 * Constant representing the viewable flag for menu item seurity.
+	 *
+	 * @sampleas setSecurityFlags(int)
+	 */
+	public static final int VIEWABLE = MenuItem.VIEWABLE;
+
+	/**
+	 * Constant representing the enabled flag for menu item security.
+	 *
+	 * @sampleas setSecurityFlags(int)
+	 */
+	public static final int ENABLED = MenuItem.ENABLED;
+
 	private final String itemID;
 	private String menuText;
 	private String styleClass;
@@ -58,6 +72,7 @@ public class JSMenuItem
 	private Map<String, Map<String, Object>> extraProperties;
 	private final String[] allowedPermissions;
 	private JSONObject permissionsData;
+	private int overridenPermissionData = -1;
 
 	/**
 	 * @param menuManager
@@ -227,8 +242,28 @@ public class JSMenuItem
 		return this.enabled && hasSecurityFlag(MenuItem.ENABLED);
 	}
 
+	/**
+	 * Override the permission data and design data (for enabled flag) and set if a menu item is viewable(visible) and enabled.
+	 *
+	 * @param flags either 0 or a combination of JSMenuItem.VIEWABLE and JSMenuItem.ENABLED
+	 *
+	 * @sample menuItem.setSecurityFlags(JSMenuItem.VIEWABLE|JSMenuItem.ENABLED);
+	 */
+	@JSFunction
+	public void setSecurityFlags(int flags)
+	{
+		if (flags >= 0)
+		{
+			this.overridenPermissionData = flags;
+		}
+	}
+
 	public boolean hasSecurityFlag(int flag)
 	{
+		if (overridenPermissionData >= 0)
+		{
+			return (overridenPermissionData & flag) != 0;
+		}
 		if (this.allowedPermissions != null && this.allowedPermissions.length > 0 && this.permissionsData != null)
 		{
 			List<String> groupsList = Arrays.asList(this.allowedPermissions);
