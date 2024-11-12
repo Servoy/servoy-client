@@ -22,6 +22,10 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 import com.servoy.j2db.solutionmodel.ISMFontStyle;
 
 /**
+ * The <code>FONTSTYLE</code> and <code>ISMFontStyle</code> components provide constants for defining font styles in Servoy,
+ * such as <code>PLAIN</code>, <code>BOLD</code>, <code>ITALIC</code>, and <code>BOLD_ITALIC</code>. These constants enable
+ * developers to customize text appearance in forms and components, streamlining font style management in scripting.
+ *
  * @author lvostinar
  *
  */

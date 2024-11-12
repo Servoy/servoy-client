@@ -64,7 +64,6 @@ import com.servoy.j2db.dataprocessing.RelatedFoundSet;
 import com.servoy.j2db.dataprocessing.SortColumn;
 import com.servoy.j2db.dataprocessing.ViewFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.ArgumentType;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IDataProvider;
@@ -2501,7 +2500,7 @@ public abstract class BasicFormController
 
 	public Map<String, Object> getDesignProperties()
 	{
-		Map<String, Object> designProperties = ((AbstractBase)getForm()).getMergedCustomDesignTimeProperties();
+		Map<String, Object> designProperties = getForm().getMergedCustomDesignTimeProperties();
 		Map<String, Object> parsedMap = new JSMap<>();
 
 		designProperties.entrySet().forEach(entry -> {
@@ -2521,13 +2520,15 @@ public abstract class BasicFormController
 	}
 
 	/**
-	 * A runtime form instance (FormController).
+	 * <p>The controller represents a runtime form instance (<code>FormController</code>) and provides methods for manipulating forms programmatically.</p>
+	 * <p>It includes properties like <code>enabled</code>, <code>readOnly</code>, and <code>view</code> to control form behavior and appearance, and a variety of methods to manage data, set focus, and control the form’s user interface dynamically.</p>
+	 * <p>Functions like <code>find()</code> and <code>search()</code> enable advanced data querying capabilities.</p>
+	 * <p>All javascript calls must be delegated to the FormController</p>
 	 */
-	//Place holder class for the JavaScript FromController obj, all javascript calls must be delegated to the FormController
-	//It's a pity that this class can't be a inner class, prohibit by JS calling structure(delegation would then not needed)
 	@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "controller", scriptingName = "controller")
 	public static class JSForm implements IJSController
 	{
+		//It's a pity that this class can't be a inner class, prohibit by JS calling structure(delegation would then not needed)
 		private BasicFormController formController;
 
 		public JSForm()//required by JS lib, but never called by us.

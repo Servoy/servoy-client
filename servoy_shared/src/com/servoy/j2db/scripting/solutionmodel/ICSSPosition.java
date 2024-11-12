@@ -26,6 +26,10 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 
 
 /**
+ * The <code>CSSPosition</code> interface in the Servoy environment provides methods for managing and manipulating CSS position properties such as <code>left</code>, <code>right</code>, <code>top</code>, <code>bottom</code>, <code>width</code>, and <code>height</code>.
+ * It allows both getting and setting these properties in pixels or percentages, with chaining methods for streamlined updates.
+ * The interface supports use cases in Servoy NG Client only.
+ *
  * @author jcompagner
  *
  */

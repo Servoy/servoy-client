@@ -24,7 +24,14 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 
 /**
- * Scope defining drag and drop constants.
+ * The <code>DRAGNDROP</code> class provides constants for handling drag-and-drop operations in Servoy.
+ * Key operations include <code>COPY</code>, <code>MOVE</code>, and <code>NONE</code>, which allow developers
+ * to define behavior for copying, moving, or disabling drag functionality. These constants help streamline
+ * interaction handling in custom applications.
+ *
+ * Additionally, the class defines MIME types such as <code>MIME_TYPE_SERVOY</code> and <code>MIME_TYPE_SERVOY_RECORD</code>.
+ * These constants ensure proper identification of Servoy objects and records during drag-and-drop operations,
+ * enhancing integration and compatibility within the Servoy runtime environment.
  *
  * @author gboros
  */

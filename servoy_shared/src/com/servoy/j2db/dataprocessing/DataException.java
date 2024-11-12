@@ -22,7 +22,9 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.ServoyException;
 
 /**
- * Wrapper for an sql exception (data related exception)
+ * Designed for handling SQL-related errors, <code>DataException</code> offers detailed methods to inspect the root causes of database issues.
+ * It exposes properties like the SQL query, SQL state, vendor error code, and associated parameters for debugging.
+ * Deprecated methods maintain compatibility with older implementations, while scripting-friendly features simplify usage in client-side logic.
  *
  * @author jblok
  */
@@ -111,7 +113,7 @@ public class DataException extends ServoyException
 	 * 	application.output("VendorErrorCode: " + record.exception.getVendorErrorCode());
 	 * }
 	 * @return true.
-	
+
 	 */
 	@Deprecated
 	public boolean js_isDataException()

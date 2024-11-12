@@ -21,8 +21,12 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * The javascript Function implementation.<br/>
- * Each function in javascript is actually a Function instance.<br/><br/>
+ *
+ *
+ * <p><code>JavaScript functions</code> have key properties like <code>constructor</code>, which specifies the function that creates an object's prototype, and <code>length</code>, which indicates the number of expected arguments. These properties allow developers to inspect and manage function behaviors.</p><br/>
+ * <p>Methods such as <code>apply()</code>, <code>bind()</code>, <code>call()</code>, and <code>toString()</code> provide flexible ways to manipulate function contexts, invoke functions with specific arguments, and retrieve their source code.</p><br/>
+ * <p>Practical examples demonstrate how these features enhance function utility in <code>Servoy applications</code>.</p> *
+ * <p>Each function in javascript is actually a Function instance.</p><br/>
  *
  * For more information see: <a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Function">Function (MDN)</a>.
  *
