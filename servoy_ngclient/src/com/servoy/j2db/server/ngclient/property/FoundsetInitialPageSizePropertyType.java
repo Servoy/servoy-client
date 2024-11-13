@@ -29,17 +29,17 @@ import org.sablo.specification.property.types.IntPropertyType;
  *
  * @author acostescu
  */
-public class FoundsetInitialPreferredViewportSizePropertyType extends IntPropertyType
+public class FoundsetInitialPageSizePropertyType extends IntPropertyType
 {
 	private static final String CONFIG_KEY_FOR = "for"; //$NON-NLS-1$
 
 	@SuppressWarnings("hiding")
-	public static final IntPropertyType INSTANCE = new FoundsetInitialPreferredViewportSizePropertyType();
+	public static final IntPropertyType INSTANCE = new FoundsetInitialPageSizePropertyType();
 
 	@SuppressWarnings("hiding")
-	public static final String TYPE_NAME = "foundsetInitialPreferredViewportSize"; //$NON-NLS-1$
+	public static final String TYPE_NAME = "foundsetInitialPageSize"; //$NON-NLS-1$
 
-	private FoundsetInitialPreferredViewportSizePropertyType()
+	private FoundsetInitialPageSizePropertyType()
 	{
 		super();
 	}

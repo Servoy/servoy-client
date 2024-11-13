@@ -321,19 +321,19 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	private void lookForInitialPreferredViewportSizePropertyAndApplyIt()
 	{
 		Collection<PropertyDescription> properties = webObjectContext
-			.getProperties(TypesRegistry.getType(FoundsetInitialPreferredViewportSizePropertyType.TYPE_NAME));
+			.getProperties(TypesRegistry.getType(FoundsetInitialPageSizePropertyType.TYPE_NAME));
 
-		for (PropertyDescription foundsetInitialPreferredViewportSizeProperty : properties)
+		for (PropertyDescription foundsetInitialPageSizeProperty : properties)
 		{
 			// see whether it's "for" this foundset property
-			String fipvsIsFor = (String)foundsetInitialPreferredViewportSizeProperty.getConfig();
+			String fipvsIsFor = (String)foundsetInitialPageSizeProperty.getConfig();
 			if (fipvsIsFor != null && fipvsIsFor.equals(propertyName))
 			{
-				int initialPreferredViewportSize = ((Integer)webObjectContext.getProperty(foundsetInitialPreferredViewportSizeProperty.getName())).intValue();
+				int initialPreferredViewportSize = ((Integer)webObjectContext.getProperty(foundsetInitialPageSizeProperty.getName())).intValue();
 				if (initialPreferredViewportSize > 0)
 				{
 					viewPort.setPreferredViewportSize(initialPreferredViewportSize);
-					viewPort.setPreferredViewportCentersOnSelected(false); // paging mode; as paging components use "foundsetInitialPreferredViewportSize"
+					viewPort.setPreferredViewportCentersOnSelected(false); // paging mode; as paging components use "foundsetInitialPageSize"
 				}
 				break;
 			}
