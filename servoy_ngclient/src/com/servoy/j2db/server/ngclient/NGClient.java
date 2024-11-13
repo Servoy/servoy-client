@@ -627,7 +627,7 @@ public class NGClient extends AbstractApplication
 	@Override
 	protected int getSolutionTypeFilter()
 	{
-		return super.getSolutionTypeFilter() | SolutionMetaData.NG_CLIENT_ONLY;
+		return super.getSolutionTypeFilter() | SolutionMetaData.NG_CLIENT_ONLY | SolutionMetaData.MOBILE;
 	}
 
 	@Override
