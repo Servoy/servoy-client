@@ -21,7 +21,20 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
- * Application types constants.
+ * Application Types Overview
+ *
+ * Servoy applications can run in different environments, each tailored to specific use cases:
+ *
+ * <ul>
+ *   <li><b><a href="[SmartClientLink]">Smart Client</a></b>: A desktop-like environment with rich functionality.</li>
+ *   <li><b><a href="[HeadlessClientLink]">Headless Client</a></b>: A backend-only environment for automation and services.</li>
+ *   <li><b><a href="[WebClientLink]">Web Client</a></b>: A browser-based environment, no installation needed.</li>
+ *   <li><b><a href="[RuntimeClientLink]">Runtime Client</a></b>: A lightweight, standalone execution environment.</li>
+ *   <li><b><a href="[MobileClientLink]">Mobile Client</a></b>: Optimized for mobile devices and touch input.</li>
+ *   <li><b><a href="[NGClientLink]">NG Client</a></b>: A modern web environment with responsive UI/UX.</li>
+ * </ul>
+ *
+ * These application types allow developers to design specific solutions that fully leverage the features of each runtime environment.
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class APPLICATION_TYPES implements IPrefixedConstantsObject, IBaseApplicationTypes
