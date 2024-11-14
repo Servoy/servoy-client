@@ -21,20 +21,23 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
- * Application Types Overview
- *
- * Servoy applications can run in different environments, each tailored to specific use cases:
- *
+ * <p>Constants are defined to represent different application types, each assigned a numeric value. These constants enable applications to identify and handle specific client environments dynamically. The constants include:</p>
  * <ul>
- *   <li><b><a href="[SmartClientLink]">Smart Client</a></b>: A desktop-like environment with rich functionality.</li>
- *   <li><b><a href="[HeadlessClientLink]">Headless Client</a></b>: A backend-only environment for automation and services.</li>
- *   <li><b><a href="[WebClientLink]">Web Client</a></b>: A browser-based environment, no installation needed.</li>
- *   <li><b><a href="[RuntimeClientLink]">Runtime Client</a></b>: A lightweight, standalone execution environment.</li>
- *   <li><b><a href="[MobileClientLink]">Mobile Client</a></b>: Optimized for mobile devices and touch input.</li>
- *   <li><b><a href="[NGClientLink]">NG Client</a></b>: A modern web environment with responsive UI/UX.</li>
+ *   <li><b>HEADLESS_CLIENT</b>: Represents a headless client.</li>
+ *   <li><b>MOBILE_CLIENT</b>: Represents a mobile client.</li>
+ *   <li><b>NG_CLIENT</b>: Represents an NG client.</li>
+ *   <li><b>RUNTIME_CLIENT</b>: Represents a runtime client.</li>
+ *   <li><b>SMART_CLIENT</b>: Represents a smart client.</li>
+ *   <li><b>WEB_CLIENT</b>: Represents a web client.</li>
  * </ul>
  *
- * These application types allow developers to design specific solutions that fully leverage the features of each runtime environment.
+ * <h2>Key Points</h2>
+ * <ul>
+ *   <li><b>Type</b>: All constants are of type <code>Number</code>.</li>
+ *   <li><b>Usage</b>: These constants can be used in conditional logic to execute code tailored for the respective application type.</li>
+ * </ul>
+ *
+ * <p>These constants provide a structured approach to managing diverse application environments, ensuring that applications can adapt their behavior based on the client type dynamically and efficiently.</p>
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class APPLICATION_TYPES implements IPrefixedConstantsObject, IBaseApplicationTypes
