@@ -17,6 +17,9 @@
 
 package com.servoy.j2db.server.ngclient;
 
+import static com.servoy.j2db.server.ngclient.AngularIndexPageWriter.addcontentSecurityPolicyHeader;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -47,6 +50,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.map.PassiveExpiringMap;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
@@ -64,6 +68,7 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.net.URIBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.sablo.security.ContentSecurityPolicyConfig;
 import org.sablo.util.HTTPUtils;
 
 import com.auth0.jwk.InvalidPublicKeyException;
@@ -116,6 +121,7 @@ public class StatelessLoginHandler
 	public static final String PASSWORD = "password";
 	public static final String ID_TOKEN = "id_token";
 	public static final String PERMISSIONS = "permissions";
+	public static final String TENANTS = "tenants";
 	public static final String USERNAME = "username";
 	public static final String REMEMBER = "remember";
 	public static final String UID = "uid";
@@ -359,7 +365,8 @@ public class StatelessLoginHandler
 		return null;
 	}
 
-	public static boolean handlePossibleCloudRequest(HttpServletRequest request, HttpServletResponse response, String solutionName) throws ServletException
+	public static boolean handlePossibleCloudRequest(HttpServletRequest request, HttpServletResponse response, String solutionName, Object index)
+		throws ServletException
 	{
 		Path path = Paths.get(request.getRequestURI()).normalize();
 		if (solutionName != null && path.getNameCount() > 2 && SVYLOGIN_PATH.equals(path.getName(2).toString()))
@@ -391,7 +398,7 @@ public class StatelessLoginHandler
 
 								if (res != null)
 								{
-									writeResponse(request, response, solution, res);
+									writeResponse(request, response, solution, res, index);
 									return true;
 								}
 							}
@@ -412,8 +419,9 @@ public class StatelessLoginHandler
 
 	}
 
-	private static void writeResponse(HttpServletRequest request, HttpServletResponse response, Solution solution, Pair<Integer, JSONObject> res)
-		throws IOException, UnsupportedEncodingException
+	private static void writeResponse(HttpServletRequest request, HttpServletResponse response, Solution solution, Pair<Integer, JSONObject> res,
+		Object index)
+		throws IOException, UnsupportedEncodingException, ServletException
 	{
 		String html = null;
 		int status = res.getLeft().intValue();
@@ -468,26 +476,52 @@ public class StatelessLoginHandler
 				JSONObject oauth = json.getJSONObject("oauth");
 				generateOauthCall(request, response, oauth);
 			}
-			if (html != null)
+			else if (json.has("permissions"))
 			{
-				if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
-				StringBuilder sb = new StringBuilder();
-				sb.append("<base href=\"");
-				sb.append(getPath(request));
-				sb.append("\">");
-				html = html.replace("<base href=\"/\">", sb.toString());
-
-				String requestLanguage = request.getHeader("accept-language");
-				if (requestLanguage != null)
+				Pair<Boolean, String> showLogin = new Pair<>(Boolean.TRUE, null);
+				Boolean rememberUser = Boolean.FALSE; // TODO how to get rememberUser?
+				boolean verified = extractPermissionFromResponse(showLogin, rememberUser, res, json.optString(USERNAME, ""));
+				if (verified && (index instanceof File || index instanceof String))
 				{
-					html = html.replace("lang=\"en\"", "lang=\"" + request.getLocale().getLanguage() + "\"");
-				}
+					//TODO refactor?
+					if (showLogin.getRight() != null)
+					{
+						request.getSession().setAttribute(StatelessLoginHandler.ID_TOKEN, showLogin.getRight());
+					}
 
-				response.setCharacterEncoding("UTF-8");
-				response.setContentType("text/html");
-				response.setContentLengthLong(html.length());
-				response.getWriter().write(html);
+					String indexHtml = index instanceof File file ? FileUtils.readFileToString(file, "UTF-8") : (String)index;
+
+					ContentSecurityPolicyConfig contentSecurityPolicyConfig = addcontentSecurityPolicyHeader(request, response, false); // for NG2 remove the unsafe-eval
+					AngularIndexPageWriter.writeIndexPage(indexHtml, request, response, solution.getName(),
+						contentSecurityPolicyConfig == null ? null : contentSecurityPolicyConfig.getNonce());
+					return;
+				}
 			}
+			writeHTML(request, response, html);
+		}
+	}
+
+	private static void writeHTML(HttpServletRequest request, HttpServletResponse response, String html) throws UnsupportedEncodingException, IOException
+	{
+		if (html != null)
+		{
+			if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
+			StringBuilder sb = new StringBuilder();
+			sb.append("<base href=\"");
+			sb.append(getPath(request));
+			sb.append("\">");
+			html = html.replace("<base href=\"/\">", sb.toString());
+
+			String requestLanguage = request.getHeader("accept-language");
+			if (requestLanguage != null)
+			{
+				html = html.replace("lang=\"en\"", "lang=\"" + request.getLocale().getLanguage() + "\"");
+			}
+
+			response.setCharacterEncoding("UTF-8");
+			response.setContentType("text/html");
+			response.setContentLengthLong(html.length());
+			response.getWriter().write(html);
 		}
 	}
 
@@ -628,7 +662,10 @@ public class StatelessLoginHandler
 		if (!verified)
 		{
 			needToLogin.setLeft(Boolean.TRUE);
-			needToLogin.setRight(null);
+			if (needToLogin.getRight() != null && !needToLogin.getRight().startsWith("<"))
+			{
+				needToLogin.setRight(null);
+			}
 		}
 	}
 
@@ -691,7 +728,7 @@ public class StatelessLoginHandler
 				String[] permissions = ApplicationServerRegistry.get().getUserManager().getUserGroups(clientid, uid);
 				if (permissions.length > 0 && (oldToken == null || Arrays.equals(oldToken.getClaim(PERMISSIONS).asArray(String.class), permissions)))
 				{
-					String token = createToken(username, uid, permissions, Long.valueOf(System.currentTimeMillis()), rememberUser, null);
+					String token = createToken(username, uid, permissions, Long.valueOf(System.currentTimeMillis()), rememberUser, null, null);
 					needToLogin.setLeft(Boolean.FALSE);
 					needToLogin.setRight(token);
 					return true;
@@ -744,7 +781,7 @@ public class StatelessLoginHandler
 			if (login != null)
 			{
 				String token = createToken(login.getUserName(), login.getUserUid(), login.getUserGroups(), //
-					Long.valueOf(System.currentTimeMillis()), rememberUser, refreshToken);
+					Long.valueOf(System.currentTimeMillis()), rememberUser, refreshToken, null);
 				needToLogin.setLeft(Boolean.FALSE);
 				needToLogin.setRight(token);
 				return true;
@@ -847,28 +884,47 @@ public class StatelessLoginHandler
 	private static boolean extractPermissionFromResponse(Pair<Boolean, String> needToLogin, Boolean rememberUser, Pair<Integer, JSONObject> res, String user)
 	{
 		JSONObject loginTokenJSON = res.getRight();
-		if (loginTokenJSON != null && loginTokenJSON.has("permissions"))
+		if (loginTokenJSON != null)
 		{
-			String[] permissions = null;
-			JSONArray permissionsArray = loginTokenJSON.getJSONArray("permissions");
-			if (permissionsArray != null)
+			if (res.getRight().has("html"))
 			{
-				permissions = new String[permissionsArray.length()];
-				for (int i = 0; i < permissions.length; i++)
-				{
-					permissions[i] = permissionsArray.getString(i);
-				}
+				needToLogin.setLeft(Boolean.TRUE);
+				needToLogin.setRight(res.getRight().getString("html"));
+				return false;
 			}
-			if (permissions != null)
+			if (loginTokenJSON.has("permissions"))
 			{
-				String username = user;
+				String[] permissions = null, tenants = null;
+				JSONArray permissionsArray = loginTokenJSON.getJSONArray("permissions");
+				if (permissionsArray != null)
+				{
+					permissions = new String[permissionsArray.length()];
+					for (int i = 0; i < permissions.length; i++)
+					{
+						permissions[i] = permissionsArray.getString(i);
+					}
+				}
+				if (loginTokenJSON.optJSONArray("tenantValues") != null)
+				{
+					JSONArray tenantValues = loginTokenJSON.getJSONArray("tenantValues");
+					tenants = new String[tenantValues.length()];
+					for (int i = 0; i < tenants.length; i++)
+					{
+						tenants[i] = tenantValues.getString(i);
+					}
+				}
 
-				if (username == null || loginTokenJSON.has("username")) username = loginTokenJSON.getString("username");
+				if (permissions != null)
+				{
+					String username = user;
 
-				String token = createToken(username, username, permissions, loginTokenJSON.optString("lastLogin"), rememberUser, null);
-				needToLogin.setLeft(Boolean.FALSE);
-				needToLogin.setRight(token);
-				return true;
+					if (username == null || loginTokenJSON.has("username")) username = loginTokenJSON.getString("username");
+
+					String token = createToken(username, username, permissions, loginTokenJSON.optString("lastLogin"), rememberUser, null, tenants);
+					needToLogin.setLeft(Boolean.FALSE);
+					needToLogin.setRight(token);
+					return true;
+				}
 			}
 		}
 		return false;
@@ -911,7 +967,8 @@ public class StatelessLoginHandler
 	}
 
 
-	public static String createToken(String username, String uid, String[] groups, Object lastLogin, Boolean rememberUser, String refresh_token)
+	public static String createToken(String username, String uid, String[] groups, Object lastLogin, Boolean rememberUser, String refresh_token,
+		String[] tenantsValue)
 	{
 		Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
 		Algorithm algorithm = Algorithm.HMAC256(settings.getProperty(JWT_Password));
@@ -937,6 +994,10 @@ public class StatelessLoginHandler
 		{
 			builder = builder.withClaim(REFRESH_TOKEN, refresh_token);
 		}
+		if (tenantsValue != null)
+		{
+			builder = builder.withArrayClaim(TENANTS, tenantsValue);
+		}
 		return builder.sign(algorithm);
 	}
 
@@ -949,7 +1010,7 @@ public class StatelessLoginHandler
 	}
 
 
-	public static void writeLoginPage(HttpServletRequest request, HttpServletResponse response, String solutionName)
+	public static void writeLoginPage(HttpServletRequest request, HttpServletResponse response, String solutionName, String customHTML)
 		throws IOException
 	{
 		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
@@ -985,16 +1046,24 @@ public class StatelessLoginHandler
 		String loginHtml = null;
 		if (solution != null && solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 		{
-			try (CloseableHttpClient httpClient = HttpClients.createDefault())
+			if (customHTML != null && customHTML.startsWith("<"))
 			{
-				Pair<Integer, JSONObject> result = executeCloudGetRequest(httpClient, solution, "login", request);
-				if (result != null)
+				writeHTML(request, response, customHTML);
+				return;
+			}
+			else
+			{
+				try (CloseableHttpClient httpClient = HttpClients.createDefault())
 				{
-					int status = result.getLeft().intValue();
-					JSONObject res = result.getRight();
-					if (status == HttpStatus.SC_OK && res != null)
+					Pair<Integer, JSONObject> result = executeCloudGetRequest(httpClient, solution, "login", request);
+					if (result != null)
 					{
-						loginHtml = res.optString("html", null);
+						int status = result.getLeft().intValue();
+						JSONObject res = result.getRight();
+						if (status == HttpStatus.SC_OK && res != null)
+						{
+							loginHtml = res.optString("html", null);
+						}
 					}
 				}
 			}
