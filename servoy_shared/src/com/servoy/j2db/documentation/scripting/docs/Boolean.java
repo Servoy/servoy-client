@@ -20,42 +20,37 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * <p>A <b>Boolean</b> is a data type that represents one of two values: <code>true</code> or <code>false</code>.
- * Widely used in programming for decision-making processes and logical comparisons.</p>
+ * <p>A <b>Boolean</b> is a data type that represents one of two values: <code>true</code> or <code>false</code>.</p>
  *
  * <h2>Key Characteristics</h2>
  * <ol>
- *   <li>
- *     <b>Basic Definition:</b><br/>
- *     A Boolean value is either <code>true</code> or <code>false</code>. <br/>
- *     These values are typically the result of comparison operations or logical expressions.
+ *   <li><b>Basic Definition:</b><br/>
+ *       A Boolean value is either <code>true</code> or <code>false</code>.
+ *       These values are typically the result of comparison operations or logical expressions.
  *   </li>
- *   <li>
- *     <b>Type Conversion:</b><br/>
- *     Any value in JavaScript can be converted to a Boolean using the <code>Boolean()</code> function or double negation <code>!!</code>.<br/>
- *     <i>Examples:</i>
+ *   <li><b>Type Conversion:</b><br/>
+ *       Any value in JavaScript can be converted to a Boolean using the <code>Boolean()</code> function or double negation <code>!!</code>.
+ *       <b>Examples:</b>
  *       <pre>
  *       Boolean(0); // false
  *       Boolean(1); // true
  *       </pre>
  *   </li>
- *   <li>
- *     <b>Common Use Cases:</b><br/>
- *     <b>Conditionals:</b> Boolean values are essential in <code>if</code> statements to control the flow of a program.
+ *   <li><b>Common Use Cases:</b><br/>
+ *       <b>Conditionals:</b> Boolean values are essential in <code>if</code> statements to control the flow of a program.
  *       <pre>
  *       if (isAvailable) {
  *           console.log("The item is available!");
  *       }
  *       </pre>
- *     <b>Logical Operators:</b> Boolean values work with operators like <code>&&</code>, <code>||</code>, and <code>!</code> for complex conditions.
+ *       <b>Logical Operators:</b> Boolean values work with operators like <code>&&</code>, <code>||</code>, and <code>!</code> for complex conditions.
  *       <pre>
  *       let result = isAvailable && isAffordable;
  *       </pre>
  *   </li>
- *   <li>
- *     <b>Truthiness and Falsiness:</b><br/>
- *     Some values in JavaScript are inherently "truthy" (treated as <code>true</code>) or "falsy" (treated as <code>false</code>).<br/>
- *     Falsy values include: <code>false</code>, <code>0</code>, <code>""</code>, <code>null</code>, <code>undefined</code>, and <code>NaN</code>.
+ *   <li><b>Truthiness and Falsiness:</b><br/>
+ *       Some values in JavaScript are inherently "truthy" (treated as <code>true</code>) or "falsy" (treated as <code>false</code>).
+ *       <b>Falsy values</b> include: <code>false</code>, <code>0</code>, <code>""</code>, <code>null</code>, <code>undefined</code>, and <code>NaN</code>.
  *   </li>
  * </ol>
  *
