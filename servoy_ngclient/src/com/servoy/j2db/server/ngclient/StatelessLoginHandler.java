@@ -1112,6 +1112,7 @@ public class StatelessLoginHandler
 			sb.append("\n    window.addEventListener('load', () => { ");
 			sb.append("\n     if (window.localStorage.getItem('servoy_id_token')) { ");
 			sb.append("\n    	document.body.style.display = 'none'; ");
+			sb.append("\n    	document.login_form.action = 'index.html'; ");
 			sb.append("\n  	    document.login_form.id_token.value = JSON.parse(window.localStorage.getItem('servoy_id_token'));  ");
 			sb.append("\n    	document.login_form.remember.checked = true;  ");
 			sb.append("\n    	document.login_form.submit(); ");
