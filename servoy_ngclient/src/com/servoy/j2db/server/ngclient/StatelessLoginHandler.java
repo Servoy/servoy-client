@@ -479,7 +479,7 @@ public class StatelessLoginHandler
 			else if (json.has("permissions"))
 			{
 				Pair<Boolean, String> showLogin = new Pair<>(Boolean.TRUE, null);
-				Boolean rememberUser = Boolean.FALSE; // TODO how to get rememberUser?
+				Boolean rememberUser = json.has(REMEMBER) ? Boolean.valueOf(json.getBoolean(REMEMBER)) : Boolean.FALSE;
 				boolean verified = extractPermissionFromResponse(showLogin, rememberUser, res, json.optString(USERNAME, ""));
 				if (verified && (index instanceof File || index instanceof String))
 				{
@@ -829,6 +829,7 @@ public class StatelessLoginHandler
 			byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("ISO-8859-1")));
 			String authHeader = "Basic " + new String(encodedAuth);
 			httpget.setHeader(HttpHeaders.AUTHORIZATION, sanitizeHeader(authHeader));
+			httpget.addHeader(REMEMBER, rememberUser); //this is needed until the validateAuthUser endpoint is deprecated
 		}
 		else
 		{
