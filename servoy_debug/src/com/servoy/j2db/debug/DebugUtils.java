@@ -533,7 +533,7 @@ public class DebugUtils
 									Collection<PropertyDescription> properties = spec.getProperties(MenuPropertyType.INSTANCE);
 									for (PropertyDescription pd : properties)
 									{
-										if (Utils.equalObjects(webComponent.getFlattenedJson().opt(pd.getName()), Integer.valueOf(menu.getID())))
+										if (Utils.equalObjects(webComponent.getFlattenedJson().opt(pd.getName()), menu.getUUID()))
 										{
 											formsToReload.add(finalController);
 											return o;
