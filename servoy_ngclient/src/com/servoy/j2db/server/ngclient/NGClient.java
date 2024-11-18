@@ -1632,6 +1632,7 @@ public class NGClient extends AbstractApplication
 	@Override
 	public void logout(final Object[] solution_to_open_args)
 	{
+		Solution initialSolution = getSolution();
 		if (getClientInfo().getUserUid() != null)
 		{
 			boolean doLogoutAndClearUserInfo = false;
@@ -1654,6 +1655,7 @@ public class NGClient extends AbstractApplication
 				HttpSession httpSession = getWebsocketSession().getHttpSession();
 				if (httpSession != null)
 				{
+					if (initialSolution != null) StatelessLoginHandler.logoutAndRevokeToken(httpSession, initialSolution);
 					httpSession.removeAttribute(StatelessLoginHandler.ID_TOKEN);
 				}
 				if (getApplicationServerAccess() != null && getClientID() != null)

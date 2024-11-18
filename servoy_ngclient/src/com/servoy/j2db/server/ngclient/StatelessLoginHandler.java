@@ -40,6 +40,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletContext;
@@ -89,6 +90,7 @@ import com.github.scribejava.apis.openid.OpenIdOAuth2AccessToken;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.oauth.OAuth20Service;
+import com.github.scribejava.core.revoke.TokenTypeHint;
 import com.servoy.base.util.I18NProvider;
 import com.servoy.base.util.ITagResolver;
 import com.servoy.base.util.TagParser;
@@ -144,6 +146,7 @@ public class StatelessLoginHandler
 	public static final String JWKS_URI = "jwks_uri";
 	public static final String ACCESS_TOKEN_ENDPOINT = "accessTokenEndpoint";
 	public static final String REFRESH_TOKEN_ENDPOINT = "refreshTokenEndpoint";
+	public static final String REVOKE_TOKEN_ENDPOINT = "revokeTokenEndpoint";
 	public static final String AUTHORIZATION_BASE_URL = "authorizationBaseUrl";
 	public static final String TENANT = "tenant";
 	public static final String OAUTH_API = "api";
@@ -1007,6 +1010,12 @@ public class StatelessLoginHandler
 	{
 		String nonce = generateNonce(request.getServletContext(), auth);
 		additionalParameters.put(NONCE, nonce);
+		HttpSession session = request.getSession(false);
+		if (session != null && session.getAttribute("logout") != null)
+		{
+			session.removeAttribute("logout");
+			additionalParameters.put("prompt", "consent");
+		}
 		return createOauthService(auth, additionalParameters, getServerURL(request));
 	}
 
@@ -1327,7 +1336,13 @@ public class StatelessLoginHandler
 					@Override
 					public String getRefreshTokenEndpoint()
 					{
-						return auth.getString(REFRESH_TOKEN_ENDPOINT);
+						return auth.optString(REFRESH_TOKEN_ENDPOINT, null);
+					}
+
+					@Override
+					public String getRevokeTokenEndpoint()
+					{
+						return auth.optString(REVOKE_TOKEN_ENDPOINT, null);
 					}
 				};
 			}
@@ -1540,5 +1555,48 @@ public class StatelessLoginHandler
 			default :
 				throw new Exception("Could not create an OAuth Api.");
 		}
+	}
+
+
+	public static void logoutAndRevokeToken(HttpSession httpSession, Solution solution)
+	{
+		if (httpSession == null) return;
+		httpSession.setAttribute("logout", true);
+		String id_token = (String)httpSession.getAttribute(StatelessLoginHandler.ID_TOKEN);
+		if (id_token != null)
+		{
+			DecodedJWT jwt = JWT.decode(id_token);
+			if (!jwt.getClaim(REFRESH_TOKEN).isNull())
+			{
+				OAuth20Service service = null;
+				AUTHENTICATOR_TYPE authenticator = solution.getAuthenticator();
+				if (authenticator == AUTHENTICATOR_TYPE.OAUTH)
+				{
+					JSONObject properties = new ServoyJSONObject(solution.getCustomProperties(), true);
+					if (properties.has(OAUTH_CUSTOM_PROPERTIES))
+					{
+						JSONObject auth = properties.getJSONObject(OAUTH_CUSTOM_PROPERTIES);
+						service = createOauthService(auth, new HashMap<>(), null);
+					}
+				}
+				else if (authenticator == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
+				{
+					//TODO get config from the cloud
+				}
+
+				try
+				{
+					if (service != null && service.getApi().getRevokeTokenEndpoint() != null)
+					{
+						service.revokeToken(jwt.getClaim(REFRESH_TOKEN).asString(), TokenTypeHint.REFRESH_TOKEN);
+					}
+				}
+				catch (IOException | InterruptedException | ExecutionException | UnsupportedOperationException e)
+				{
+					Debug.error("Could not revoke the refresh token.", e);
+				}
+			}
+		}
+
 	}
 }
