@@ -18,11 +18,13 @@
 package com.servoy.j2db.ui.runtime;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
  * @author lvostinar
  *
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Component", scriptingName = "Component")
 @ServoyClientSupport(ng = true, mc = false, wc = true, sc = true)
 public interface IBaseRuntimeComponent
 {
