@@ -28,8 +28,10 @@ public interface IServerManager
 
 	String[] getDuplicateServerNames(String name, boolean mustBeEnabled, boolean mustBeValid);
 
-	IServer[] getDataModelCloneServers(String name);
+	String getDataModelParentCloneServerName(String serverName);
 
+	IServer[] getDataModelCloneServers(String name);
+	
 	String[] getServerNames(boolean mustBeEnabled, boolean mustBeValid, boolean sort, boolean includeDuplicates);
 
 }
