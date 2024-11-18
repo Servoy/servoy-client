@@ -38,8 +38,15 @@ import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.UUID;
 
 /**
- * Solution Model calculation wrapper.
+ * The <code>JSCalculation</code> object is a solution model wrapper designed to define and manage custom calculations
+ * associated with data sources. It allows for full customization of calculation logic, variable types, and storage options,
+ * enabling developers to seamlessly integrate business logic into their data models.
  *
+ * <p>
+ * Through its flexible API, the object provides access to essential details like calculation code and metadata while offering
+ * tools to evaluate storage status and configuration. This ensures calculations are adaptable to varying application
+ * requirements, maintaining both clarity and efficiency in solution development.
+ * </p>
  */
 @SuppressWarnings("nls")
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)

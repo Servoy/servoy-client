@@ -38,7 +38,23 @@ import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyException;
 
 /**
- * JSFoundSetUpdater is an utility class for performing efficient updates on a foundset.
+ * <p><b>JSFoundSetUpdater</b> is a utility class designed to perform efficient updates on a foundset,
+ * enabling streamlined data modification in applications. By leveraging its methods, developers can iterate
+ * through records, assign new values to specific columns, and apply updates either to the entire foundset
+ * or selected subsets of records. This tool enhances performance by minimizing database interaction overhead
+ * and allowing bulk updates directly in the database when possible.</p>
+ *
+ * <p>The updater supports three primary use cases:</p>
+ * <ul>
+ *   <li>Applying a single SQL statement to update all records in the foundset.</li>
+ *   <li>Updating specific records within the foundset.</li>
+ *   <li>Iterating safely through records to apply custom logic.</li>
+ * </ul>
+ *
+ * <p>It ensures precise control over data changes while bypassing triggers like table events or modification
+ * column updates for direct database operations. With features like resettable iterators and support for
+ * both individual and batch updates, <b>JSFoundSetUpdater</b> offers a flexible and powerful approach to
+ * managing foundset modifications.</p>
  *
  * @author jblok
  */

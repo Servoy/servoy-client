@@ -36,7 +36,26 @@ import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.util.PersistHelper;
 
 /**
- * Solution Model layout container wrapper.
+ * <p>The <b>JSLayoutContainer</b> is a JavaScript object designed to facilitate the management and manipulation
+ * of layout containers in the Solution Model. It supports both hierarchical navigation and dynamic creation
+ * of containers, offering extensive control over layout structures. This object is particularly useful for
+ * building responsive designs and managing nested layouts efficiently.</p>
+ *
+ * <p>The container's properties allow users to define dimensions, positions, and appearance attributes.
+ * For example, height, <code>x</code>, and <code>y</code> coordinates control spatial placement, while
+ * <code>cssClasses</code> and <code>tagType</code> customize the HTML output. Identifiers such as
+ * <code>elementId</code>, <code>name</code>, <code>packageName</code>, and <code>specName</code> ensure clear
+ * referencing and seamless integration with layout specifications.</p>
+ *
+ * <p>The methods provided enable comprehensive interaction with components and containers. Users can add,
+ * retrieve, or remove components through functions like <code>newWebComponent(type)</code> or
+ * <code>getComponent(name)</code>. Attribute management is also supported, allowing customization with
+ * methods like <code>putAttribute(key, value)</code>. Additionally, hierarchical navigation is made simple
+ * with functions such as <code>findLayoutContainer(name)</code> and <code>getLayoutContainers()</code>, which
+ * aid in accessing or organizing nested structures dynamically.</p>
+ *
+ * <p>These features collectively make the <b>JSLayoutContainer</b> a robust tool for developing adaptable
+ * and scalable form layouts.</p>
  *
  * @author lvostinar
  */

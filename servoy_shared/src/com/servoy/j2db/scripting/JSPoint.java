@@ -23,7 +23,8 @@ import org.mozilla.javascript.annotations.JSSetter;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * A Point object in scripting.
+ * The <code>JSPoint</code> object represents a point in a 2D coordinate system, defined by its <code>x</code> and
+ * <code>y</code> coordinates. It provides a simple and intuitive interface for working with positions in scripting environments.
  *
  * @author lvostinar
  *

@@ -25,7 +25,33 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.Debug;
 
 /**
- * Utility object for building a blob loader url.
+ * The <code>JSBlobLoaderBuilder</code> utility facilitates constructing blob loader URLs for downloading or embedding data
+ * from a specified data provider. It supports configuration of data sources, file metadata, and database settings.
+ *
+ * <h2>Functionality</h2>
+ *
+ * <h3>URL Construction</h3>
+ * <ul>
+ *   <li><code>build()</code> generates a blob loader URL string for use in custom HTML or as a redirect URL for direct downloads.</li>
+ * </ul>
+ *
+ * <h3>Data Source Configuration</h3>
+ * <ul>
+ *   <li><code>datasource(datasource)</code> specifies the server and table combination for the data provider.</li>
+ *   <li><code>serverAndTable(servername, tablename)</code> assigns the server and table names for the builder's column data provider.</li>
+ * </ul>
+ *
+ * <h3>File Metadata</h3>
+ * <ul>
+ *   <li><code>filename(filename)</code> sets the filename for the downloaded data, affecting the <code>Content-Disposition</code> header.</li>
+ *   <li><code>mimetype(mimetype)</code> specifies the MIME type of the data, applied in the <code>Content-Type</code> header.</li>
+ * </ul>
+ *
+ * <h3>Row Management</h3>
+ * <ul>
+ *   <li><code>rowid(rowid)</code> allows specifying single or composite primary keys for identifying rows in the data source.</li>
+ * </ul>
+ *
  * @author jcompagner
  * @since 2022.03.9
  */

@@ -23,7 +23,8 @@ import org.mozilla.javascript.annotations.JSSetter;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * A Dimension object in scripting.
+ * The <code>JSDimension</code> object represents a dimension in scripting, defined by its <code>height</code> and
+ * <code>width</code> properties. It is used to manage size-related attributes dynamically.
  *
  * @author lvostinar
  *

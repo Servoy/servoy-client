@@ -25,7 +25,26 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.JSBaseEvent;
 
 /**
- * JSDNDEvent, used as argument to drag and drop callbacks.
+ * The <code>JSDNDEvent</code> object is designed for use in drag-and-drop callback functions, offering detailed event
+ * information and support for client-server interaction. It integrates deeply with event management in scripting environments.
+ *
+ * <h2>Overview</h2>
+ *
+ * <h3>Key Features</h3>
+ * <ul>
+ *   <li>Constants for identifying event types (<code>ONDRAG</code>, <code>ONDROP</code>, etc.) and modifiers
+ *       (<code>MODIFIER_ALT</code>, <code>MODIFIER_SHIFT</code>).</li>
+ *   <li>Properties such as <code>data</code> and <code>dataMimeType</code> to handle event-specific data transfer.</li>
+ *   <li>Methods for retrieving event details, such as <code>getDragResult()</code>, <code>getType()</code>, and positional
+ *       data (<code>getX()</code>, <code>getY()</code>).</li>
+ * </ul>
+ *
+ * <h3>Advanced Usage</h3>
+ * <p>
+ * The <code>JSDNDEventType</code> class facilitates JSON conversion for events in browser contexts. It ensures that events
+ * with a source are correctly handled, mapping them to client-side representations using a <code>WeakHashMap</code> for
+ * efficient reference management.
+ * </p>
  *
  * @author gboros
  */
@@ -211,7 +230,7 @@ public class JSDNDEvent extends JSBaseEvent
 
 	/**
 	 * Returns the event data mime type.
-
+	
 	 * @return event data mime type
 	 */
 	public String getDataMimeType()

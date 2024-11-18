@@ -23,7 +23,22 @@ import org.mozilla.javascript.annotations.JSSetter;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * A Bounds object.
+ * The <code>JSBounds</code> object defines a rectangular boundary using coordinates and dimensions, enabling the
+ * specification of position and size.
+ *
+ * <h2>Properties</h2>
+ * <ul>
+ *   <li><code>height</code>: The height of the bounds. It can be retrieved or modified.</li>
+ *   <li><code>width</code>: The width of the bounds. It can be retrieved or modified.</li>
+ *   <li><code>x</code>: The x-coordinate of the top-left corner. It can be retrieved or modified.</li>
+ *   <li><code>y</code>: The y-coordinate of the top-left corner. It can be retrieved or modified.</li>
+ * </ul>
+ *
+ * <h2>Summary</h2>
+ * <p>
+ * The <code>JSBounds</code> object provides a straightforward interface to manage position and size through its properties,
+ * making it useful for layout and graphical computations.
+ * </p>
  *
  * @author lvostinar
  *

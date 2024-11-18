@@ -967,7 +967,19 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 	protected abstract boolean isShowingPrintPreview();
 
 	/**
-	 * A form history object.
+	 * The <b>History</b> object provides tools to manage a history stack, enabling navigation and manipulation of forms in the stack. It includes properties and methods to configure settings, navigate through history, and modify its content.
+	 *
+	 * <h2>Functionality</h2>
+	 * <p>The primary property, <code>buttonsEnabled</code>, allows enabling or disabling history buttons, enhancing user interface control. It is a Boolean value that can be set or retrieved.</p>
+	 *
+	 * <p>The object offers several methods for history stack management:</p>
+	 * <ul>
+	 *   <li>Navigation methods like <code>back()</code>, <code>forward()</code>, and <code>go(i)</code> allow users to move through or jump to specific points in the history.</li>
+	 *   <li>Management methods such as <code>clear()</code> to reset the stack, <code>removeForm(formName)</code> and <code>removeIndex(index)</code> to delete specific entries, and <code>size()</code> to retrieve the stack's total size.</li>
+	 *   <li>Utility methods like <code>getCurrentIndex()</code> and <code>getFormName(i)</code> provide insights into the stack's state or retrieve specific form names based on their position.</li>
+	 * </ul>
+	 *
+	 * <p>These features ensure efficient and dynamic control over form navigation and history management.</p>
 	 */
 	@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "History", scriptingName = "history")
 	public static class HistoryProvider implements IJSHistory
