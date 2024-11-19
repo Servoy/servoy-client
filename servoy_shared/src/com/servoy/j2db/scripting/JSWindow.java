@@ -31,7 +31,23 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.ServoyException;
 
 /**
- * A scripting object for a window/dialog that shows a form.
+ * The <code>JSWindow</code> object provides functionality for managing and scripting windows and dialogs in a solution.
+ * It supports creating modal and non-modal dialogs, customizing their appearance and behavior, and displaying forms within them.
+ * Windows can have properties like opacity, size, location, resizable state, and titles, and they can also maintain their state across sessions using bounds storage.
+ *
+ * <h2>Functionality</h2>
+ * <p>JSWindow provides constants such as <code>DEFAULT</code> for auto-determined bounds, <code>DIALOG</code> for non-modal windows,
+ * and <code>MODAL_DIALOG</code> for modal dialogs. These constants simplify the creation and configuration of different window types.</p>
+ *
+ * <p>Properties allow fine control over the window’s characteristics. For example, <code>opacity</code> and <code>transparent</code> control visual appearance,
+ * while <code>resizable</code>, <code>undecorated</code>, and <code>storeBounds</code> affect interactivity and persistence.
+ * Methods enable developers to show or hide windows, manipulate their size and position dynamically, and manage associated forms.</p>
+ *
+ * <p>Windows support advanced features like setting CSS classes for styling, managing design-time properties, and attaching handlers for specific events.
+ * These features enhance customization and integration within applications.</p>
+ *
+ * <p>Refer to the
+ * <a href="../../../../guides/develop/programming-guide/scripting-the-ui/windows-dialogs-and-popups.md">Creating window</a> documentation for additional details.</p>
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSWindow")
 @ServoyClientSupport(ng = true, wc = true, sc = true)

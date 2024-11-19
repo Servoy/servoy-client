@@ -36,7 +36,21 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Utils;
 
 /**
- * A Menu object wrapper for scripting.
+ * <code>JSMenu</code> is a wrapper for scripting menu objects, providing properties and methods to define and manage menus in a user interface.
+ *
+ * <p>The <b>name</b> property serves as the identifier for a menu, allowing for easy reference during scripting.
+ * The <b>styleClass</b> property enables the assignment of space-separated CSS style classes to customize the menu's appearance.</p>
+ *
+ * <p>JSMenu offers a range of methods to interact with menu items. The <code>addMenuItem(id)</code> and <code>addMenuItem(id, index)</code> methods allow adding menu items either at the end of the list or at a specific position.
+ * Existing menu items can be retrieved using methods like <code>findMenuItem(id)</code>, which searches for items by identifier, including nested ones, and <code>getMenuItem(id)</code> or <code>getMenuItemAt(index)</code>, which retrieve menu items based on identifier or index respectively.
+ * The <code>getMenuItems()</code> method returns a list of all menu items in the order they appear in the interface.</p>
+ *
+ * <p>Additional functionality includes removing menu items using <code>removeMenuItem(menuItem)</code> or <code>removeMenuItem(id)</code>, both of which return a Boolean indicating success.
+ * The <code>selectMenuItem(menuItem)</code> method allows selecting a specific menu item in the user interface.
+ * For enhanced security considerations, the <code>getMenuItemsWithSecurity()</code> method provides items with security metadata, and the <code>getSelectedItem()</code> method retrieves the currently selected item.</p>
+ *
+ * <p>For further information, refer to the
+ * <a href="../../../servoy-developer/menu/README.md">menu</a> section of this documentation.</p>
  *
  * @author lvostinar
  *

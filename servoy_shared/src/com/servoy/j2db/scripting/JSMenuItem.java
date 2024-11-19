@@ -38,7 +38,24 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Utils;
 
 /**
- * A MenuItem scripting wrapper.
+ * The `JSMenuItem` scripting wrapper provides functionality for managing menu items in a Servoy application.
+ * It supports configuration and interaction through constants, properties, and methods, enabling dynamic customization of menu behavior and appearance.
+ *
+ * <h2>Functionality</h2>
+ * <p>Constants such as <code>ENABLED</code> and <code>VIEWABLE</code> control security flags, determining whether menu items are accessible or visible.
+ * Properties like <code>callbackArguments</code>, <code>enabled</code>, <code>iconStyleClass</code>, <code>itemID</code>, <code>menuText</code>, <code>styleClass</code>, and <code>tooltipText</code> allow precise customization of menu item attributes, including visual styling, text, and state.</p>
+ *
+ * <p>The functionality includes methods to manage menu items dynamically. Developers can add new items using methods like <code>addSubMenuItem</code>, which supports specifying positions, or retrieve existing items through methods such as <code>getSubMenuItem</code> and <code>getSubMenuItemAt</code>.
+ * Items can also be removed using the <code>removeSubMenuItem</code> method.</p>
+ *
+ * <p>Security and visibility features allow control over menu item behavior. The <code>setSecurityFlags</code> method, combined with constants like <code>ENABLED</code> and <code>VIEWABLE</code>, provides flexibility to set whether a menu item is visible and interactive.
+ * Additional methods, such as <code>getEnabledWithSecurity</code> and <code>getSubMenuItemsWithSecurity</code>, refine the interaction by considering security constraints.</p>
+ *
+ * <p>Properties and additional functionality extend to retrieving extra information, such as through the <code>getExtraProperty</code> method, and updating the menu item’s appearance and behavior dynamically.
+ * These capabilities make <code>JSMenuItem</code> a versatile tool for creating adaptive and secure menu systems in Servoy applications.</p>
+ *
+ * <p><a href="../../../servoy-developer/solution-explorer/all-solutions/active-solution/menus/menu-item.md">MenuItem</a> section  of this documentation</p>
+ *
  * @author lvostinar
  *
  */

@@ -28,7 +28,27 @@ import com.servoy.j2db.solutionmodel.ISMRelationItem;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Solution Model relation item wrapper.
+ * JSRelationItem represents a single criterion within a relation in the solution model.
+ * It defines how columns from the primary and foreign data sources are connected, enabling precise relationship definitions for queries and data operations.
+ *
+ * <h2>Functionality</h2>
+ * <p>JSRelationItem provides constants such as <code>LITERAL_PREFIX</code> to enable the use of literals in relation definitions.
+ * Properties like <code>foreignColumnName</code>, <code>primaryDataProviderID</code>, and <code>operator</code> allow customization of the relationship criteria.
+ * Supported operators include <code>=</code>, <code>!=</code>, <code><</code>, <code>></code>, <code>like</code>, and more, enabling a wide range of comparisons and queries between data sources.</p>
+ *
+ * <p>Methods like <code>getComment</code> and <code>getUUID</code> assist in retrieving metadata about the relation item,
+ * such as a unique identifier or comments. These utilities enhance the traceability and documentation of relation definitions in complex solution models.</p>
+ *
+ * <h3>Example</h3>
+ * <p>A relation item can be configured to specify relationships like:</p>
+ * <ul>
+ *   <li>Linking a column from the primary table to a foreign table.</li>
+ *   <li>Using literals or specific operators to define advanced criteria.</li>
+ * </ul>
+ *
+ * <p>For more details, please refer to the
+ * <a href="../../object-model/solution/relation/relationitem.md">Relation item</a> section of this documentation.</p>
+ *
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)

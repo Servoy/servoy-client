@@ -44,7 +44,23 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 
 /**
- * Solution Model ScriptMethod wrapper.
+ * The <code>JSMethod</code> scripting wrapper provides tools for managing and interacting with solution model script methods in Servoy.
+ * It includes properties and methods that allow customization of script behavior, source code, and visibility in the client interface.
+ *
+ * <h2>Functionality</h2>
+ * <p>The <code>code</code> property stores the full source code of a method, including its documentation and declaration.
+ * It supports dynamic updates, enabling modifications to method functionality at runtime.
+ * The <code>showInMenu</code> property determines whether a method is displayed in the "Methods" menu of the Servoy Client, allowing developers to manage method visibility.</p>
+ *
+ * <p>Several methods enhance interaction with script methods.
+ * <code>getArguments</code> retrieves an array of arguments set for a method, which is useful for analyzing and reconfiguring parameterized actions.
+ * <code>getName</code> provides the name of the method, while <code>getScopeName</code> returns the associated scope, useful for organizing global or local method interactions.
+ * <code>getUUID</code> returns the universally unique identifier of the method object, aiding in identifying and managing methods programmatically.</p>
+ *
+ * <p>These capabilities make JSMethod a versatile component for customizing and extending script-based behavior in Servoy applications.</p>
+ *
+ * <p>For details read the<a href="../../object-model/database-server/table/method.md">Method</a> section of this documentation</p>
+ *
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSMethod")

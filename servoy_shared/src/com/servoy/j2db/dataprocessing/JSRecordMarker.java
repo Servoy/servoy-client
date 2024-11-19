@@ -23,7 +23,23 @@ import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * A validation failed report on a specific record (during save).
+ * The JSRecordMarker scripting wrapper represents a specific validation failure report for a record during a save operation.
+ * It allows detailed reporting of issues tied to particular columns or data in a single record.
+ *
+ * <h2>Functionality</h2>
+ * <p>The <code>customObject</code> property stores a user-defined object associated with the record marker, enabling the inclusion of custom metadata.
+ * The <code>dataprovider</code> specifies the column where the issue occurred, providing precise error localization.
+ * Message handling includes the <code>message</code> property, which holds the problem description and can be an internationalization (i18n) key,
+ * while the <code>i18NMessage</code> property resolves the i18n key when applicable.</p>
+ *
+ * <p>The <code>level</code> property indicates the logging level assigned to the record marker, classifying the severity of the issue.
+ * The <code>record</code> property links the marker to the specific record it references, facilitating direct association with the affected data.</p>
+ *
+ * <p>This wrapper is closely related to <a href="./jsrecordmarkers.md">JSRecordMarkers</a>, which manages validation states and aggregates multiple <code>JSRecordMarker</code>
+ * instances for broader reporting and validation workflows.</p>
+ *
+ * <h2>Reference</h2>
+ * <p></p>
  *
  * @author jcompanger
  * @since 2020.09
