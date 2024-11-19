@@ -698,7 +698,8 @@ public class NGFormServiceHandler extends FormServiceHandler
 				String formName = arguments.optString("formname");
 
 				IWebFormController cachedFormController = getApplication().getFormManager().getCachedFormController(formName);
-				if (cachedFormController == null || !cachedFormController.getFormUI().isChanging())
+				IWebFormUI formUI = cachedFormController != null ? cachedFormController.getFormUI() : null;
+				if (cachedFormController == null || formUI == null || !formUI.isChanging())
 				{
 					return EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST;
 				}
