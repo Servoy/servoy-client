@@ -7,12 +7,12 @@
 	</prerequisites>
 	<parent>
 		<artifactId>servoy-client</artifactId>
-		<version>2024.9.0.4002</version>
+		<version>2024.9.1.4003</version>
 		<groupId>com.servoy</groupId>
 	</parent>
 
 	<groupId>com.servoy</groupId>
-	<version>2024.9.0.4002</version>
+	<version>2024.9.1.4003</version>
 	<artifactId>servoy-doc</artifactId>
 	<packaging>jar</packaging>
 
