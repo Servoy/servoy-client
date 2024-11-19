@@ -23,7 +23,7 @@ import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * The JSRecordMarker scripting wrapper represents a specific validation failure report for a record during a save operation.
+ * The <code>JSRecordMarker</code> scripting wrapper represents a specific validation failure report for a record during a save operation.
  * It allows detailed reporting of issues tied to particular columns or data in a single record.
  *
  * <h2>Functionality</h2>

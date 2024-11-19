@@ -38,7 +38,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Utils;
 
 /**
- * The `JSMenuItem` scripting wrapper provides functionality for managing menu items in a Servoy application.
+ * The <code>JSMenuItem</code> scripting wrapper provides functionality for managing menu items in a Servoy application.
  * It supports configuration and interaction through constants, properties, and methods, enabling dynamic customization of menu behavior and appearance.
  *
  * <h2>Functionality</h2>

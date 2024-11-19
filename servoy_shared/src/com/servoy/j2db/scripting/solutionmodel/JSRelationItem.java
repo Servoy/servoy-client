@@ -28,7 +28,7 @@ import com.servoy.j2db.solutionmodel.ISMRelationItem;
 import com.servoy.j2db.util.Utils;
 
 /**
- * JSRelationItem represents a single criterion within a relation in the solution model.
+ * <code>JSRelationItem</code> represents a single criterion within a relation in the solution model.
  * It defines how columns from the primary and foreign data sources are connected, enabling precise relationship definitions for queries and data operations.
  *
  * <h2>Functionality</h2>
