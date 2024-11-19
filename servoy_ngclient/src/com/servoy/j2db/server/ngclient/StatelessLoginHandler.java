@@ -85,6 +85,7 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.github.scribejava.apis.GoogleApi20;
+import com.github.scribejava.apis.LinkedInApi20;
 import com.github.scribejava.apis.MicrosoftAzureActiveDirectory20Api;
 import com.github.scribejava.apis.openid.OpenIdOAuth2AccessToken;
 import com.github.scribejava.core.builder.ServiceBuilder;
@@ -103,6 +104,7 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Solution.AUTHENTICATOR_TYPE;
 import com.servoy.j2db.persistence.SolutionMetaData;
+import com.servoy.j2db.server.ngclient.auth.AppleIDApi;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
@@ -1549,9 +1551,14 @@ public class StatelessLoginHandler
 		switch (provider)
 		{
 			case "Microsoft" :
+			case "Microsoft AD" :
 				return tenant != null ? MicrosoftAzureActiveDirectory20Api.custom(tenant) : MicrosoftAzureActiveDirectory20Api.instance();
 			case "Google" :
 				return GoogleApi20.instance();
+			case "LinkedIn" :
+				return LinkedInApi20.instance();
+			case "Apple" :
+				return AppleIDApi.instance();
 			default :
 				throw new Exception("Could not create an OAuth Api.");
 		}
