@@ -157,12 +157,13 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 	/**
 	 * Set the tenant value for this Client, this value will be used as the value for all tables that have a column marked as a tenant column.
-	 * This results in adding a table filter for that table based on that column and the this value.
+	 * This results in adding a table filter for that table based on that column and the given value, using JSTableFilter.dataBroadcast(true).
 	 *<p>
-	 * This value will be auto filled in for all the columns that are marked as a tenant column. If you give an array of values then the first array value is used for this.
+	 * When creating a new record, this value will be auto filled in for all the columns that are marked as a tenant column. If you give an array of values then the first array value is used for this.
 	 *</p>
 	 *<p>
-	 *  When a tenant value is set the client will only receive databroadcasts from other clients that have no or a common tenant value set
+	 *  When a tenant value is set the client will only receive databroadcasts from other clients that have no or a common tenant value set.
+	 *  If the tenant value is a list then the broadcast will be filtered only if there is single element match between the 2 list, so ['a','b'] will match ['a','c'] but not ['c','d'], the actual data of a recod is ignored for this.
 	 *  Be sure to not access or depend on records having different tenant values, as no databroadcasts will be received for those
 	 *</p>
 	 * @param value a single tenant value or an array of tenant values to filter tables having a column flagged as Tenant column by.
