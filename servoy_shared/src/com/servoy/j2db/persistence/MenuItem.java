@@ -27,7 +27,25 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 
 /**
- * A design-time menu item object, its parent is either a Menu or another MenuItem, helps comosing the Menu object.
+ * <p>The <code>MenuItem</code> is a reusable, design-time entity that integrates into <code>Menu</code> structures.
+ * It represents an individual menu item used in building menus. Its parent can be either a <code>Menu</code> or another
+ * <code>MenuItem</code>, enabling nested menu structures and flexible menu composition.</p>
+ *
+ * It is a reusable, design-time entity that integrates seamlessly into `Menu` structures
+ *
+ * <h2>Key features</h2>
+ * <p>The <code>MenuItem</code> includes several important properties that integrate
+ * seamlessly within the <code>Menu</code> structure. The <code>enabled</code>
+ * property determines whether the menu item is interactive. The
+ * <code>iconStyleClass</code> and <code>styleClass</code> properties allow the
+ * application of specific styling to the item's icon and general appearance,
+ * complementing the <code>Menu</code>'s overall design. The <code>name</code>
+ * property uniquely identifies the menu item, while the <code>permissions</code>
+ * property ensures security and visibility control by restricting access based on
+ * user roles. The <code>text</code> property displays the menu item content and
+ * supports HTML and localized text for dynamic customization. Additionally, the
+ * <code>toolTipText</code> property provides rich, formatted hover text, enhancing
+ * user experience and maintaining consistency with the parent <code>Menu</code>.</p>
  *
  * @author lvostinar
  *
