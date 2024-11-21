@@ -17,7 +17,13 @@
 
 package com.servoy.j2db.server.ngclient.auth;
 
+import java.io.OutputStream;
+
 import com.github.scribejava.core.builder.api.DefaultApi20;
+import com.github.scribejava.core.httpclient.HttpClient;
+import com.github.scribejava.core.httpclient.HttpClientConfig;
+import com.github.scribejava.core.oauth2.clientauthentication.ClientAuthentication;
+import com.github.scribejava.core.oauth2.clientauthentication.RequestBodyAuthenticationScheme;
 
 /**
  * @author emera
@@ -55,5 +61,20 @@ public class AppleIDApi extends DefaultApi20
 	public String getRevokeTokenEndpoint()
 	{
 		return "https://appleid.apple.com/auth/revoke";
+	}
+
+	@Override
+	public ClientAuthentication getClientAuthentication()
+	{
+		return RequestBodyAuthenticationScheme.instance();
+	}
+
+	@Override
+	public AppleIDService createService(String apiKey, String apiSecret, String callback, String defaultScope,
+		String responseType, OutputStream debugStream, String userAgent, HttpClientConfig httpClientConfig,
+		HttpClient httpClient)
+	{
+		return new AppleIDService(this, apiKey, apiSecret, callback, defaultScope, responseType, debugStream,
+			userAgent, httpClientConfig, httpClient);
 	}
 }

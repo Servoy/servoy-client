@@ -90,6 +90,7 @@ import com.github.scribejava.apis.MicrosoftAzureActiveDirectory20Api;
 import com.github.scribejava.apis.openid.OpenIdOAuth2AccessToken;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.builder.api.DefaultApi20;
+import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.github.scribejava.core.revoke.TokenTypeHint;
 import com.servoy.base.util.I18NProvider;
@@ -157,6 +158,11 @@ public class StatelessLoginHandler
 	public static final String API_SECRET = "apiSecret";
 	public static final String CLIENT_ID = "clientId";
 
+	public static final String APPLE = "Apple";
+	public static final String LINKED_IN = "LinkedIn";
+	public static final String GOOGLE = "Google";
+	public static final String MICROSOFT_AD = "Microsoft AD";
+
 	@SuppressWarnings({ "boxing" })
 	public static Pair<Boolean, String> mustAuthenticate(HttpServletRequest request, HttpServletResponse reponse, String solutionName)
 		throws ServletException
@@ -188,7 +194,7 @@ public class StatelessLoginHandler
 					if ((request.getParameter("id_token") != null || request.getParameter("code") != null) &&
 						(authenticator == AUTHENTICATOR_TYPE.OAUTH || authenticator == AUTHENTICATOR_TYPE.SERVOY_CLOUD))
 					{
-						String id_token = null;
+						String id_token = request.getParameter("id_token");
 						String refreshToken = null;
 						if (request.getParameter("code") != null)
 						{
@@ -197,9 +203,20 @@ public class StatelessLoginHandler
 							OAuth20Service service = createOauthService(request, auth, new HashMap<>());
 							try
 							{
-								OpenIdOAuth2AccessToken accessToken = (OpenIdOAuth2AccessToken)service.getAccessToken(request.getParameter("code"));
-								refreshToken = accessToken.getRefreshToken();
-								id_token = accessToken.getOpenIdToken();
+								OAuth2AccessToken access = service.getAccessToken(request.getParameter("code"));
+								if (access instanceof OpenIdOAuth2AccessToken accessToken)
+								{
+									refreshToken = accessToken.getRefreshToken();
+									id_token = accessToken.getOpenIdToken();
+								}
+								else
+								{
+									refreshToken = access.getRefreshToken();
+									if (id_token == null)
+									{
+										Debug.error("The id_token is not retrieved.");
+									}
+								}
 							}
 							catch (Exception e)
 							{
@@ -1299,13 +1316,14 @@ public class StatelessLoginHandler
 					additionalParameters.put(key, auth.getString(key));
 			}
 		}
-		String responseType = "offline".equals(additionalParameters.get("access_type")) ? "code" : "id_token";
-		builder.responseType(responseType); //TODO check other apis
-		if (responseType.equals("code"))
+		String responseType = getResponseType(api, additionalParameters);
+		builder.responseType(responseType);
+		if (responseType.contains("code"))
 		{
 			additionalParameters.put("state", additionalParameters.get(NONCE));
 		}
-		builder.callback(serverURL + "svy_oauth/" + "index.html");
+		String oauth_path = responseType.equals("id_token") ? "svy_oauth/" : "";
+		builder.callback(serverURL + oauth_path + "index.html");
 		try
 		{
 			DefaultApi20 apiInstance = null;
@@ -1358,6 +1376,19 @@ public class StatelessLoginHandler
 			Debug.error("Cannot create the oauth service.", e);
 		}
 		return null;
+	}
+
+	private static String getResponseType(String api, Map<String, String> additionalParameters)
+	{
+		if (GOOGLE.equals(api) || MICROSOFT_AD.equals(api) || "Microsoft".equals(api))
+		{
+			return "offline".equals(additionalParameters.get("access_type")) ? "code" : "id_token";
+		}
+		else if (APPLE.equals(api))
+		{
+			return "code id_token";
+		}
+		return "code";
 	}
 
 	private static String getPath(HttpServletRequest request)
@@ -1554,13 +1585,13 @@ public class StatelessLoginHandler
 		switch (provider)
 		{
 			case "Microsoft" :
-			case "Microsoft AD" :
+			case MICROSOFT_AD :
 				return tenant != null ? MicrosoftAzureActiveDirectory20Api.custom(tenant) : MicrosoftAzureActiveDirectory20Api.instance();
-			case "Google" :
+			case GOOGLE :
 				return GoogleApi20.instance();
-			case "LinkedIn" :
+			case LINKED_IN :
 				return LinkedInApi20.instance();
-			case "Apple" :
+			case APPLE :
 				return AppleIDApi.instance();
 			default :
 				throw new Exception("Could not create an OAuth Api.");
