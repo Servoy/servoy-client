@@ -96,6 +96,7 @@ import com.servoy.base.util.I18NProvider;
 import com.servoy.base.util.ITagResolver;
 import com.servoy.base.util.TagParser;
 import com.servoy.j2db.ClientLogin;
+import com.servoy.j2db.ClientVersion;
 import com.servoy.j2db.Credentials;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.persistence.IRepository;
@@ -536,6 +537,7 @@ public class StatelessLoginHandler
 		HttpPost httppost = new HttpPost(CLOUD_REST_API_POST + endpoint);
 		httppost.addHeader(HttpHeaders.ACCEPT, "application/json");
 		httppost.addHeader(HttpHeaders.CONTENT_TYPE, "application/json");
+		httppost.addHeader("build-number", String.valueOf(ClientVersion.getReleaseNumber()));
 		httppost.addHeader("uuid", sanitizeHeader(solution.getUUID().toString()));
 		JSONObject postParameters = new JSONObject();
 		Map<String, String[]> parameters = request.getParameterMap();
@@ -633,6 +635,7 @@ public class StatelessLoginHandler
 			HttpGet httpget = new HttpGet(uriBuilder.build());
 			httpget.addHeader(HttpHeaders.ACCEPT, "application/json");
 			httpget.addHeader(HttpHeaders.ACCEPT_LANGUAGE, request.getHeader(HttpHeaders.ACCEPT_LANGUAGE));
+			httpget.addHeader("build-number", String.valueOf(ClientVersion.getReleaseNumber()));
 			httpget.addHeader("uuid", sanitizeHeader(solution.getUUID().toString()));
 
 			return httpclient.execute(httpget, new ResponseHandler(endpoint));
