@@ -22,7 +22,29 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
- * Various NGClient/Titanium Client constants.
+ * <p>The NGClient/Titanium Client constants provide essential configurations to
+ * control the behavior and appearance of web applications. These constants allow
+ * developers to customize aspects such as browser history, search mechanisms,
+ * branding, and session management, offering flexibility in creating user-centric
+ * experiences.</p>
+ *
+ * <p>Browser history can be managed using the <code>FORM_BASED_BROWSER_HISTORY</code>
+ * constant, which determines whether the main form's name is appended to the URL in
+ * the browser's address bar. For enhanced search functionality, the
+ * <code>VALUELIST_CONTAINS_SEARCH</code> constant enables "contains" searches,
+ * offering broader query matching compared to default behaviors.</p>
+ *
+ * <p>Branding is supported through properties like <code>WINDOW_BRANDING_ICON_32</code>
+ * and <code>WINDOW_BRANDING_ICON_192</code>, which define icon images for windows or
+ * app shortcuts. The <code>WINDOW_BRANDING_TITLE</code> constant allows customization
+ * of the window's title text, providing a consistent and professional appearance
+ * when branding is enabled.</p>
+ *
+ * <p>Session management is facilitated by the <code>WINDOW_TIMEOUT</code> constant,
+ * which specifies the duration for which a user session remains active after
+ * disconnection or navigation away from the app. This feature ensures continuity
+ * and flexibility for users returning within the configured timeframe.</p>
+ *
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
