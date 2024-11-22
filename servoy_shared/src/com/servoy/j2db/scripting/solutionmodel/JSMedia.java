@@ -31,7 +31,19 @@ import com.servoy.j2db.util.MimeTypes;
 import com.servoy.j2db.util.UUID;
 
 /**
- * Solution Model media wrapper.
+ * <p><code>JSMedia</code> is a media wrapper designed for managing media content within solutions. It enables manipulation of media properties such as content bytes, MIME types, and metadata through a set of defined properties and methods.</p>
+ *
+ * <p>The <code>bytes</code> property represents the content of the media as a byte array. This allows direct modification of the media content while retaining its original name. For example, users can read image files, replace their content, and verify changes programmatically. The <code>mimeType</code> property specifies the type of media, such as 'image/jpg' or 'image/png'. It can be updated alongside the content to reflect new media formats without altering the media’s name.</p>
+ *
+ * <p>JSMedia provides several methods for interacting with media objects:</p>
+ * <ul>
+ *   <li><b><code>getAsString()</code></b>: Converts the byte content into a UTF-8 encoded string, returning <code>null</code> if the conversion fails or if the byte content is unavailable.</li>
+ *   <li><b><code>getName()</code></b>: Retrieves the name of the media object, ensuring that changes to content or MIME type do not affect the original name.</li>
+ *   <li><b><code>getUUID()</code></b>: Returns a unique identifier (UUID) for the media, allowing for precise identification.</li>
+ *   <li><b><code>setAsString(string)</code></b>: Updates the media’s byte content using a UTF-8 encoded string, enabling quick modifications with string inputs.</li>
+ * </ul>
+ *
+ * <p>For more comprehensive information, refer to the <a href="../../../servoy-developer/solution-explorer/all-solutions/active-solution/media/README.md">media</a> section of this documentation.</p>
  *
  * @author jcompagner
  */

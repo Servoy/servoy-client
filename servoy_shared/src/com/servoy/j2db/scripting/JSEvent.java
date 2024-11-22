@@ -23,10 +23,21 @@ import org.mozilla.javascript.Wrapper;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * JSEvent, used as first argument to user-event callbacks.
- * 
+ * The <code>JSEvent</code> object serves as the primary argument for user-event callbacks, encapsulating key details about
+ * application-triggered events. It provides information such as event type, source element or form, position, and any
+ * associated data, enabling developers to handle interactions dynamically and efficiently. Constants like <code>ACTION</code>,
+ * <code>DATACHANGE</code>, and <code>DOUBLECLICK</code> help identify specific event types, while methods such as
+ * <code>getType()</code>, <code>getSource()</code>, and <code>getElementName()</code> give precise context for each event.
+ *
+ * <p>
+ * In addition to identifying event origins and types, the object supports positional data with methods like <code>getX()</code>
+ * and <code>getY()</code>, and tracks the timing of occurrences using <code>getTimestamp()</code>. It also features a
+ * <code>data</code> property to carry event-specific payloads, enhancing customization options. This makes <code>JSEvent</code>
+ * a flexible and powerful tool for implementing responsive, user-driven functionality in applications.
+ * </p>
+ *
  * @author rgansevles
- * 
+ *
  * @since 5.0
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSEvent")
@@ -46,7 +57,8 @@ public class JSEvent extends JSBaseEvent
 		{
 			eName = "<no name>"; //$NON-NLS-1$
 		}
-		return "JSEvent(type = " + type + ", source = " + ((source instanceof Wrapper) ? ((Wrapper)source).unwrap() : source) + ", formName = " + formName + ", elementName = " + eName + ", timestamp = " + //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+		return "JSEvent(type = " + type + ", source = " + ((source instanceof Wrapper) ? ((Wrapper)source).unwrap() : source) + ", formName = " + formName + //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			", elementName = " + eName + ", timestamp = " + //$NON-NLS-1$ //$NON-NLS-2$
 			timestamp + ",modifiers = " + modifiers + ",x =" + x + ",y = " + y + ",data = " + dataToString + ')'; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 	}
 

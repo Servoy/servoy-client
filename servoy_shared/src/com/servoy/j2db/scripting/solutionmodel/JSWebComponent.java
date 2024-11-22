@@ -36,7 +36,24 @@ import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.util.Debug;
 
 /**
- * Solution Model WebComponent wrapper.
+ * <code>JSWebComponent</code> provides a wrapper for creating and managing web components in the Solution Model.
+ * It extends the <code>JSComponent</code> model and allows developers to define custom behaviors, attributes, and design-time properties.
+ * Web components are essential for building dynamic, responsive forms in web-based Servoy applications.
+ *
+ * <h2>Functionality</h2>
+ * <p>JSWebComponent includes properties such as <code>cssPosition</code> and <code>anchors</code> for defining layout behaviors,
+ * making it adaptable to resizing and responsive designs.
+ * Visibility, dimensions, and coordinates can be controlled via properties like <code>x</code>, <code>y</code>, <code>width</code>,
+ * <code>height</code>, and <code>visible</code>. The <code>typeName</code> property identifies the type of web component, as defined in the specification file.</p>
+ *
+ * <p>Methods such as <code>getAttribute</code>, <code>setJSONProperty</code>, and <code>getHandler</code> provide tools for managing attributes,
+ * design-time properties, and event handlers. These methods enable dynamic configuration and integration of web components into forms.
+ * Utilities like <code>getAttributes</code> and <code>getUUID</code> facilitate introspection and metadata access.</p>
+ *
+ * <p>JSWebComponent supports both design-time and runtime modifications, allowing components to be customized during development or adjusted dynamically at runtime.</p>
+ *
+ * <p>For more details, refer to the
+ * <a href="../../../servoycore/dev-api/forms/runtimeform/elements/runtimewebcomponent.md">RuntimeWebComponent</a> section of this documentation.</p>
  *
  * @author lvostinar
  *

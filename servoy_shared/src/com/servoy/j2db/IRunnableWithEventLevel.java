@@ -14,24 +14,15 @@
  with this program; if not, see http://www.gnu.org/licenses or write to the Free
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
  */
-package com.servoy.j2db.persistence;
+package com.servoy.j2db;
+
 
 /**
- * Interface for server manager.
- * @author rgansevles
+ * A runnable that wants to run at a specific event level.
  *
+ * @author acostescu
  */
-public interface IServerManager
+public interface IRunnableWithEventLevel extends Runnable
 {
-
-	IServer getServer(String name, boolean mustBeEnabled, boolean mustBeValid);
-
-	String[] getDuplicateServerNames(String name, boolean mustBeEnabled, boolean mustBeValid);
-
-	String getDataModelParentCloneServerName(String serverName);
-
-	IServer[] getDataModelCloneServers(String name);
-	
-	String[] getServerNames(boolean mustBeEnabled, boolean mustBeValid, boolean sort, boolean includeDuplicates);
-
+	int getEventLevel();
 }

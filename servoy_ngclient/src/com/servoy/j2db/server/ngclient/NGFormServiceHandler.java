@@ -37,7 +37,7 @@ import org.sablo.specification.WebObjectSpecification.PushToServerEnum;
 import org.sablo.specification.property.BrowserConverterContext;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.util.ValueReference;
-import org.sablo.websocket.CurrentWindow;
+import org.sablo.websocket.DelayedReturnValue;
 import org.sablo.websocket.utils.JSONUtils;
 import org.sablo.websocket.utils.JSONUtils.EmbeddableJSONWriter;
 import org.sablo.websocket.utils.JSONUtils.FullValueToJSONConverter;
@@ -45,6 +45,7 @@ import org.sablo.websocket.utils.JSONUtils.IToJSONConverter;
 
 import com.servoy.j2db.ExitScriptException;
 import com.servoy.j2db.IBasicFormManager.History;
+import com.servoy.j2db.IRunnableWithEventLevel;
 import com.servoy.j2db.component.ComponentFactory;
 import com.servoy.j2db.dataprocessing.DBValueList;
 import com.servoy.j2db.dataprocessing.IFoundSetInternal;
@@ -343,17 +344,49 @@ public class NGFormServiceHandler extends FormServiceHandler
 						showing.put("parentForm", args.getString("parentForm"));
 						showing.put("bean", args.getString("bean"));
 					}
-					executeMethod("formvisibility", showing);
-					// send the changes before returning the value, because else the values will be still
-					// a bit later then the "ok" of the form can be hidden.
-					CurrentWindow.get().sendChanges();
+					executeMethod("formvisibility", showing); // call this same code, but with visible 'true' for the form that is going to be shown
 				}
-				Utils.invokeAndWait(getApplication(), invokeLaterRunnables);
-				Form form = getApplication().getFormManager().getPossibleForm(formName);
-				if (form != null && controller.isFormVisible())
-					NGClientWindow.getCurrentWindow().touchForm(getApplication().getFlattenedSolution().getFlattenedForm(form), formName, true, true);
+				final IWebFormController fc = controller;
 
-				return Boolean.valueOf(ok);
+				// we want the onShow of newly shown forms to execute before NGClientWindow.getCurrentWindow().touchForm does,
+				// in order to send to the client forms only after (if set) onShow handler has done it's changes, in order to avoid flicker
+				// and sending data multiple times for the same form with onShow;
+				// but because that onShow might have sync calls to components that suspend the event thread until they run (or fail on client),
+				// we give the touchForm a higher event level even if it's added later, so that it does execute
+				// and send stuff to client even if onShow does a sync call before that...
+
+				// so in case of onShow without sync calls what should happen is:
+				// 1. form show code runs that might add the onShow form handler to invokeLaterRunnables
+				// 2. onShow executes
+				// 3. initial form data (updateController to client) if needed, or form data changes are sent to client
+				// 4. this 'formvisibility' call gets resolved on client, so that the form is shown
+
+				// so in case of onShow with sync calls to ca component API what should happen is:
+				// 1. form show code runs that might add the onShow form handler to invokeLaterRunnables
+				// 2. onShow executes; does a sync call to client and waits - suspends the event thread with IEventDispatcher.EVENT_LEVEL_SYNC_API_CALL level; if form is already on client, data changes are send as part of this response
+				// 3. initial form data (updateController to client) is sent to client if form data is not already on client
+				// 4. this 'formvisibility' call gets resolved on client, so that the form is shown
+
+				// as we return a IDelayedReturnValue, that means point 4 will happen in another invokeLater that is added to the end of the list
+				invokeLaterRunnables.add(new IRunnableWithEventLevel()
+				{
+					public void run()
+					{
+						Form form = getApplication().getFormManager().getPossibleForm(formName);
+						if (form != null && fc.isFormVisible())
+							NGClientWindow.getCurrentWindow().touchForm(getApplication().getFlattenedSolution().getFlattenedForm(form), formName, true, true);
+					}
+
+					public int getEventLevel()
+					{
+						return EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST;
+					}
+				});
+
+				Utils.invokeLater(getApplication(), invokeLaterRunnables);
+
+				// point 4 above: return an IDelayedReturnValue
+				return new DelayedReturnValue(Boolean.valueOf(ok), EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST);
 			}
 
 			case "formLoaded" :
@@ -707,7 +740,8 @@ public class NGFormServiceHandler extends FormServiceHandler
 				String formName = arguments.optString("formname");
 
 				IWebFormController cachedFormController = getApplication().getFormManager().getCachedFormController(formName);
-				if (cachedFormController == null || !cachedFormController.getFormUI().isChanging())
+				IWebFormUI formUI = cachedFormController != null ? cachedFormController.getFormUI() : null;
+				if (cachedFormController == null || formUI == null || !formUI.isChanging())
 				{
 					return EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST;
 				}

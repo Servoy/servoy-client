@@ -90,6 +90,7 @@ import com.servoy.j2db.dataprocessing.ValueFactory.DbIdentValue;
 import com.servoy.j2db.persistence.AbstractBase;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.ColumnInfo;
+import com.servoy.j2db.persistence.ColumnName;
 import com.servoy.j2db.persistence.EnumDataProvider;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IColumn;
@@ -188,6 +189,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	// tracking info used for logging
 	private final HashMap<String, Object> trackingInfoMap = new HashMap<>();
 	private int foundsetCounter = 1;
+
+	private static final String TENANT_FILTER = "_svy_tenant_id_table_filter"; //$NON-NLS-1$
 
 	public FoundSetManager(IApplication app, FoundSetManagerConfig config, IFoundSetFactory factory)
 	{
@@ -4040,6 +4043,61 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 
 		return application.getDataServer().getSQLQuerySet(serverName, select, tfParams, 0, -1, true, true);
+	}
+
+	@Override
+	public void setTenantValue(Object value)
+	{
+		int count = 0;
+		try
+		{
+			// get tenant columns
+			Solution solution = application.getFlattenedSolution().getSolution();
+			for (IServer server : solution.getServerProxies().values())
+			{
+				List<TableFilterRequest> tableFilterRequests = null;
+				for (ColumnName tenantColumn : server.getTenantColumns())
+				{
+					count++;
+					ITable table = server.getTable(tenantColumn.getTableName());
+
+					if (tableFilterRequests == null) tableFilterRequests = new ArrayList<>();
+					if (value != null)
+					{
+						tableFilterRequests.add(new TableFilterRequest(table,
+							createDataproviderTableFilterdefinition(table, tenantColumn.getColumnName(), "=", value), //$NON-NLS-1$
+							true));
+					}
+					// else filter will be removed if it exists for this server
+				}
+				if (tableFilterRequests != null)
+				{
+					setTableFilters(TENANT_FILTER, server.getName(), tableFilterRequests, true, true);
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			Debug.error(e);
+		}
+		if (count == 0)
+		{
+			Debug.warn("setTenantValue: No tenant columns found, value is ignored!");
+		}
+		else
+		{
+			Debug.debug("setTenantValue: A tenant value was " + (value == null ? "cleared" : "set") + " for " + count + " tenant columns.");
+		}
+	}
+
+	@Override
+	public Object[] getTenantValue()
+	{
+		return getTableFilters(TENANT_FILTER).stream()
+			.map(TableFilter::createBroadcastFilter)
+			.filter(Objects::nonNull)
+			.map(bf -> bf.getFilterValue())
+			.findAny().orElse(null);
 	}
 
 }

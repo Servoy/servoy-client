@@ -140,7 +140,8 @@ public abstract class AbstractBase implements IPersist
 
 	public boolean hasProperty(String propertyName)
 	{
-		return propertiesMap.containsKey(propertyName) || (bufferPropertiesMap != null && bufferPropertiesMap.containsKey(propertyName));
+		return propertiesMap.containsKey(propertyName) || (bufferPropertiesMap != null && bufferPropertiesMap.containsKey(propertyName)) ||
+			(jsonCustomProperties != null && jsonCustomProperties.containsKey(propertyName));
 	}
 
 	public void copyPropertiesMap(Map<String, Object> newProperties, boolean overwriteMap)

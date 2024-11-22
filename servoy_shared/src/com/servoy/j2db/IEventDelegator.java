@@ -23,6 +23,13 @@ package com.servoy.j2db;
  */
 public interface IEventDelegator
 {
+
+	/**
+	 * Runs the given runnable later.<br/><br/>
+	 *
+	 * If the given runnable is an instance of {@link IRunnableWithEventLevel} and if this IEventDelegator supports that,
+	 * then the {@link IRunnableWithEventLevel#getEventLevel()} will be used.
+	 */
 	public void invokeLater(Runnable r);
 
 	public boolean isEventDispatchThread();

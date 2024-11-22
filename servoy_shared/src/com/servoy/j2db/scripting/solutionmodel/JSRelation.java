@@ -44,7 +44,27 @@ import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UUID;
 
 /**
- * Solution Model ralation wrapper.
+ * <code>JSRelation</code> provides a model for defining and managing relations between primary and foreign data sources,
+ * supporting operations such as joins, sorting, and criteria management.
+ * It includes constants, properties, and methods to facilitate the creation, modification, and use of relational data structures.
+ *
+ * <h2>Functionality</h2>
+ * <p>JSRelation offers constants to define join types (<code>FULL_JOIN</code>, <code>INNER_JOIN</code>, <code>LEFT_OUTER_JOIN</code>, and <code>RIGHT_OUTER_JOIN</code>)
+ * used in database relations. These constants influence how tables are joined during operations like sorting and querying.
+ * Properties such as <code>allowCreationRelatedRecords</code> and <code>deleteRelatedRecords</code> provide control over cascading actions
+ * like record creation or deletion across related data sets.
+ * Other attributes like <code>foreignDataSource</code>, <code>primaryDataSource</code>, and <code>initialSort</code>
+ * allow fine-tuning of the relational setup, enabling flexibility across multiple databases or data views.</p>
+ *
+ * <p>The methods provided, such as <code>getRelationItems</code> and <code>getUUID</code>, allow querying and identifying relations,
+ * while methods like <code>newRelationItem</code> and <code>removeRelationItem</code> enable dynamic modification of relation criteria.
+ * For example, relations can be defined between specific columns or modified to add or remove criteria dynamically during runtime.</p>
+ *
+ * <p>JSRelation supports a robust configuration system with detailed examples, showcasing the integration of parent-child relations and control over operations
+ * such as cascading deletions, dynamic key assignments, and data source management.</p>
+ *
+ * For details please refer to the <a href="../../object-model/solution/relation.md">Relation</a> section of this documentation</p>
+ *
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)

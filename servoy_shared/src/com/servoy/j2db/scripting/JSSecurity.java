@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
@@ -32,12 +31,9 @@ import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.BufferedDataSet;
 import com.servoy.j2db.dataprocessing.ClientInfo;
-import com.servoy.j2db.dataprocessing.FoundSetManager.TableFilterRequest;
 import com.servoy.j2db.dataprocessing.IDataSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
-import com.servoy.j2db.dataprocessing.TableFilter;
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.persistence.ColumnName;
 import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.IRepository;
@@ -46,7 +42,6 @@ import com.servoy.j2db.persistence.ISupportName;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.NameComparator;
 import com.servoy.j2db.persistence.RepositoryException;
-import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.persistence.Table;
 import com.servoy.j2db.scripting.info.FORMSECURITY;
@@ -130,8 +125,6 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	 */
 	public static final int ACCESSIBLE = IRepository.ACCESSIBLE;
 
-	private static final String TENANT_FILTER = "_svy_tenant_id_table_filter"; //$NON-NLS-1$
-
 	private volatile IApplication application;
 
 
@@ -164,12 +157,13 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 
 	/**
 	 * Set the tenant value for this Client, this value will be used as the value for all tables that have a column marked as a tenant column.
-	 * This results in adding a table filter for that table based on that column and the this value.
+	 * This results in adding a table filter for that table based on that column and the given value, using JSTableFilter.dataBroadcast(true).
 	 *<p>
-	 * This value will be auto filled in for all the columns that are marked as a tenant column. If you give an array of values then the first array value is used for this.
+	 * When creating a new record, this value will be auto filled in for all the columns that are marked as a tenant column. If you give an array of values then the first array value is used for this.
 	 *</p>
 	 *<p>
-	 *  When a tenant value is set the client will only receive databroadcasts from other clients that have no or a common tenant value set
+	 *  When a tenant value is set the client will only receive databroadcasts from other clients that have no or a common tenant value set.
+	 *  If the tenant value is a list then the broadcast will be filtered only if there is single element match between the 2 list, so ['a','b'] will match ['a','c'] but not ['c','d'], the actual data of a recod is ignored for this.
 	 *  Be sure to not access or depend on records having different tenant values, as no databroadcasts will be received for those
 	 *</p>
 	 * @param value a single tenant value or an array of tenant values to filter tables having a column flagged as Tenant column by.
@@ -177,46 +171,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	@JSFunction
 	public void setTenantValue(Object value)
 	{
-		int count = 0;
-		try
-		{
-			// get tenant columns
-			Solution solution = application.getFlattenedSolution().getSolution();
-			for (IServer server : solution.getServerProxies().values())
-			{
-				List<TableFilterRequest> tableFilterRequests = null;
-				for (ColumnName tenantColumn : server.getTenantColumns())
-				{
-					count++;
-					ITable table = server.getTable(tenantColumn.getTableName());
-
-					if (tableFilterRequests == null) tableFilterRequests = new ArrayList<>();
-					if (value != null)
-					{
-						tableFilterRequests.add(new TableFilterRequest(table,
-							application.getFoundSetManager().createDataproviderTableFilterdefinition(table, tenantColumn.getColumnName(), "=", value), //$NON-NLS-1$
-							true));
-					}
-					// else filter will be removed if it exists for this server
-				}
-				if (tableFilterRequests != null)
-				{
-					application.getFoundSetManager().setTableFilters(TENANT_FILTER, server.getName(), tableFilterRequests, true, true);
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			Debug.error(e);
-		}
-		if (count == 0)
-		{
-			Debug.warn("setTenantValue: No tenant columns found, value is ignored!");
-		}
-		else
-		{
-			Debug.debug("setTenantValue: A tenant value was " + (value == null ? "cleared" : "set") + " for " + count + " tenant columns.");
-		}
+		application.getFoundSetManager().setTenantValue(value);
 	}
 
 	/**
@@ -231,11 +186,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	@JSFunction
 	public Object[] getTenantValue()
 	{
-		return application.getFoundSetManager().getTableFilters(TENANT_FILTER).stream()
-			.map(TableFilter::createBroadcastFilter)
-			.filter(Objects::nonNull)
-			.map(bf -> bf.getFilterValue())
-			.findAny().orElse(null);
+		return application.getFoundSetManager().getTenantValue();
 	}
 
 	/**

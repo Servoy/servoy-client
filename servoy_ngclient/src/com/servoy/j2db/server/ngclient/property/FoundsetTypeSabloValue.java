@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.property;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -300,6 +301,9 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	{
 		this.webObjectContext = webObjectCntxt;
 		dataAdapterList = null;
+
+		if (webObjectCntxt != null) lookForInitialPreferredViewportSizePropertyAndApplyIt();
+
 		changeMonitor.setChangeNotifier(changeNotifier);
 
 		// get the foundset identifier, then the foundset itself
@@ -312,6 +316,28 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		setDataLinks();
 
 		fireUnderlyingStateChangedListeners(); // we now have a webObjectContext so getDataAdapterList() might return non-null now; in some cases this is all other properties need, they don't need the foundset itself
+	}
+
+	private void lookForInitialPreferredViewportSizePropertyAndApplyIt()
+	{
+		Collection<PropertyDescription> properties = webObjectContext
+			.getProperties(TypesRegistry.getType(FoundsetInitialPageSizePropertyType.TYPE_NAME));
+
+		for (PropertyDescription foundsetInitialPageSizeProperty : properties)
+		{
+			// see whether it's "for" this foundset property
+			String fipvsIsFor = (String)foundsetInitialPageSizeProperty.getConfig();
+			if (fipvsIsFor != null && fipvsIsFor.equals(propertyName))
+			{
+				int initialPreferredViewportSize = ((Integer)webObjectContext.getProperty(foundsetInitialPageSizeProperty.getName())).intValue();
+				if (initialPreferredViewportSize > 0)
+				{
+					viewPort.setPreferredViewportSize(initialPreferredViewportSize);
+					viewPort.setPreferredViewportCentersOnSelected(false); // paging mode; as paging components use "foundsetInitialPageSize"
+				}
+				break;
+			}
+		}
 	}
 
 	/**
@@ -942,9 +968,9 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 					{
 						viewPort.setPreferredViewportSize(update.getInt(PREFERRED_VIEWPORT_SIZE));
 						if (update.has(FoundsetPropertyTypeConfig.SEND_SELECTION_VIEWPORT_INITIALLY))
-							viewPort.setSendSelectionViewportInitially(update.getBoolean(FoundsetPropertyTypeConfig.SEND_SELECTION_VIEWPORT_INITIALLY));
+							viewPort.setPreferredViewportContainsSelection(update.getBoolean(FoundsetPropertyTypeConfig.SEND_SELECTION_VIEWPORT_INITIALLY));
 						if (update.has(INITIAL_SELECTION_VIEWPORT_CENTERED))
-							viewPort.setInitialSelectionViewportCentered(update.getBoolean(INITIAL_SELECTION_VIEWPORT_CENTERED));
+							viewPort.setPreferredViewportCentersOnSelected(update.getBoolean(INITIAL_SELECTION_VIEWPORT_CENTERED));
 					}
 					// {loadExtraRecords: negativeOrPositiveCount}
 					else if (update.has("loadExtraRecords"))

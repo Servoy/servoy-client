@@ -21,6 +21,9 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
+ *
+ * <p>The <b>CLIENTDESIGN</b> outlines two constants: <b>HANDLES</b>, which determines available resizing handles, and <b>SELECTABLE</b>, which configures whether an element can be selected in the client design. These properties are set using the <code>putClientProperty</code> method.</p>
+ *
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)

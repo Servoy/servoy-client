@@ -21,6 +21,11 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 import com.servoy.j2db.solutionmodel.ISMDefaults;
 
 /**
+ * The code defines constants and behaviors for handling different states in Servoy's solution model scripting.
+ * These constants help manage form properties, component behaviors, and navigator settings, enabling efficient
+ * customization of UI and scripting functionality. The provided structures also ensure compatibility with
+ * JavaScript and Servoy's development environment.
+ *
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)

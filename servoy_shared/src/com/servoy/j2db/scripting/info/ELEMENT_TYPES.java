@@ -20,6 +20,14 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 
+/**
+ * The <code>ELEMENT_TYPES</code> defines constants for identifying various UI components in Servoy.
+ * It provides values such as <code>BUTTON</code>, <code>CALENDAR</code>, and <code>TEXT_FIELD</code> to help
+ * developers determine an element's type and manage its behavior during scripting.
+ *
+ * Practical examples show how these constants can be used in scripts to implement specific logic based on the
+ * element type. This simplifies working with Servoy's UI components and enhances customization capabilities.
+ */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 @SuppressWarnings("nls")
 public class ELEMENT_TYPES implements IPrefixedConstantsObject

@@ -394,6 +394,10 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						}
 						ci.setUserGroups(gr);
 					}
+					if (token.has(StatelessLoginHandler.TENANTS))
+					{
+						client.getFoundSetManager().setTenantValue(token.get(StatelessLoginHandler.TENANTS));
+					}
 					if (token.optBoolean("remember", false))
 					{
 						JSONObject obj = new JSONObject();

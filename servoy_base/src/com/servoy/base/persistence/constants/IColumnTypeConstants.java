@@ -33,4 +33,28 @@ public interface IColumnTypeConstants
 	public int INTEGER = Types.INTEGER;
 	public int MEDIA = Types.LONGVARBINARY;
 
+	public static String getDisplayTypeString(int atype)
+	{
+		switch (atype)
+		{
+			case DATETIME :
+				return "DATETIME"; //$NON-NLS-1$
+
+			case TEXT :
+				return "TEXT"; //$NON-NLS-1$
+
+			case NUMBER :
+				return "NUMBER"; //$NON-NLS-1$
+
+			case INTEGER :
+				return "INTEGER"; //$NON-NLS-1$
+
+			case MEDIA :
+				return "MEDIA"; //$NON-NLS-1$
+
+			default :
+				return "UNKNOWN TYPE#" + atype; //$NON-NLS-1$
+		}
+	}
+
 }

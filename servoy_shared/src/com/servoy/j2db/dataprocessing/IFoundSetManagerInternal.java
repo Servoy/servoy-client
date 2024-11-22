@@ -244,4 +244,7 @@ public interface IFoundSetManagerInternal extends IFoundSetManager, IDatabaseMan
 
 	public SortOptions getSortOptions(IColumn column);
 
+	public void setTenantValue(Object value);
+
+	public Object[] getTenantValue();
 }

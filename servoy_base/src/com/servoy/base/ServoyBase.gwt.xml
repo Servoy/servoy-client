@@ -3,7 +3,7 @@
 <module rename-to='servoy_base'>
 
     <set-property name="compiler.useSourceMaps" value="true"/>  
-    <set-configuration-property name="includeSourceMapUrl" value="/mobileclient/src/__HASH___sourceMap__FRAGMENT__.json"/>
+    <set-configuration-property name="includeSourceMapUrl" value="mobileclient/src/__HASH___sourceMap__FRAGMENT__.json"/>
 
     <source path="scripting" />
     <source path="plugins" />

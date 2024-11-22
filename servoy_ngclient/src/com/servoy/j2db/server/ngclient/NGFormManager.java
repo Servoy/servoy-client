@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeJavaObject;
+import org.sablo.services.server.FormServiceHandler;
 import org.sablo.websocket.CurrentWindow;
 
 import com.servoy.j2db.BasicFormController;
@@ -38,6 +39,7 @@ import com.servoy.j2db.ClientState;
 import com.servoy.j2db.IBasicMainContainer;
 import com.servoy.j2db.IFormController;
 import com.servoy.j2db.IModeManager;
+import com.servoy.j2db.IRunnableWithEventLevel;
 import com.servoy.j2db.IServiceProvider;
 import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
@@ -564,7 +566,21 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 
 				fp.getFormUI().setParentWindowName(container.getContainerName());
 
-				invokeLaterRunnables.add(() -> container.setController(fp)); // as this will send the updateController call to client, we do it after visibility runnables are done; so that we show the state after onShow instead of doing this earlier and then sending any UI changes that happen in onShow later to client
+				// as this will send the updateController call to client (initial data) if needed, we do it after visibility runnables are done; so that we show the state after onShow instead of doing this earlier and then sending any UI changes that happen in onShow later to client
+				// see BIG COMMENT in NGFormServiceHandler.executeMethod('formvisibility'); - here we have a similar thing, but the main form is changed,
+				// not the tab of a tabpanel or some other visibility of a custom component;
+				invokeLaterRunnables.add(new IRunnableWithEventLevel()
+				{
+					public void run()
+					{
+						container.setController(fp); // actually change the form in main container (also sends initial data / updateController if form data is not yet on client)
+					}
+
+					public int getEventLevel()
+					{
+						return FormServiceHandler.EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST;
+					}
+				});
 
 				if (invokeLaterRunnables.size() > 0) wrapInShowLoadingIndicator(invokeLaterRunnables);
 				Utils.invokeLater(application, invokeLaterRunnables);

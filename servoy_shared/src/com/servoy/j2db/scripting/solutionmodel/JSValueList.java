@@ -41,7 +41,26 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 
 /**
- * Solution Model ValueList wrapper.
+ * <code>JSValueList</code> is a wrapper for defining and managing value lists in the Solution Model.
+ * It supports multiple types, including custom values, database values, and global methods.
+ * It provides flexibility in configuring the display and return values, sorting, and filtering options,
+ * allowing dynamic value lists tailored to specific application needs.
+ *
+ * <h2>Functionality</h2>
+ * <p>JSValueList offers constants like <code>CUSTOM_VALUES</code> and <code>DATABASE_VALUES</code> to define its type.
+ * Properties such as <code>dataSource</code>, <code>relationName</code>, and <code>sortOptions</code> allow integration with database tables and relations.
+ * Additional properties like <code>addEmptyValue</code> and <code>lazyLoading</code> enable control over list behavior,
+ * such as including an empty option or deferring list loading to improve performance.
+ * For global method-based value lists, a specified method can populate the list dynamically based on provided criteria.</p>
+ *
+ * <p>Methods like <code>setDisplayDataProviderIds</code> and <code>setReturnDataProviderIds</code> configure the display and return data providers,
+ * while utility functions like <code>getUUID</code> provide metadata access.
+ * Examples demonstrate usage scenarios, such as creating value lists from custom strings or database queries,
+ * and dynamically updating their configuration.</p>
+ *
+ * <p>For more details, please refer to the
+ * <a href="../../../servoy-developer/solution-explorer/all-solutions/active-solution/valuelists/valuelist.md">Value list</a> section of these documentation.</p>
+ *
  *
  * @author jcompagner
  */

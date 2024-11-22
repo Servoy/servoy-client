@@ -38,14 +38,45 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Utils;
 
 /**
- * A MenuItem scripting wrapper.
+ * The <code>JSMenuItem</code> scripting wrapper provides functionality for managing menu items in a Servoy application.
+ * It supports configuration and interaction through constants, properties, and methods, enabling dynamic customization of menu behavior and appearance.
+ *
+ * <h2>Functionality</h2>
+ * <p>Constants such as <code>ENABLED</code> and <code>VIEWABLE</code> control security flags, determining whether menu items are accessible or visible.
+ * Properties like <code>callbackArguments</code>, <code>enabled</code>, <code>iconStyleClass</code>, <code>itemID</code>, <code>menuText</code>, <code>styleClass</code>, and <code>tooltipText</code> allow precise customization of menu item attributes, including visual styling, text, and state.</p>
+ *
+ * <p>The functionality includes methods to manage menu items dynamically. Developers can add new items using methods like <code>addSubMenuItem</code>, which supports specifying positions, or retrieve existing items through methods such as <code>getSubMenuItem</code> and <code>getSubMenuItemAt</code>.
+ * Items can also be removed using the <code>removeSubMenuItem</code> method.</p>
+ *
+ * <p>Security and visibility features allow control over menu item behavior. The <code>setSecurityFlags</code> method, combined with constants like <code>ENABLED</code> and <code>VIEWABLE</code>, provides flexibility to set whether a menu item is visible and interactive.
+ * Additional methods, such as <code>getEnabledWithSecurity</code> and <code>getSubMenuItemsWithSecurity</code>, refine the interaction by considering security constraints.</p>
+ *
+ * <p>Properties and additional functionality extend to retrieving extra information, such as through the <code>getExtraProperty</code> method, and updating the menu item’s appearance and behavior dynamically.
+ * These capabilities make <code>JSMenuItem</code> a versatile tool for creating adaptive and secure menu systems in Servoy applications.</p>
+ *
+ * <p><a href="../../../servoy-developer/solution-explorer/all-solutions/active-solution/menus/menu-item.md">MenuItem</a> section  of this documentation</p>
+ *
  * @author lvostinar
  *
  */
 @ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSMenuItem")
-public class JSMenuItem
+public class JSMenuItem implements IConstantsObject
 {
+	/**
+	 * Constant representing the viewable flag for menu item seurity.
+	 *
+	 * @sampleas setSecurityFlags(int)
+	 */
+	public static final int VIEWABLE = MenuItem.VIEWABLE;
+
+	/**
+	 * Constant representing the enabled flag for menu item security.
+	 *
+	 * @sampleas setSecurityFlags(int)
+	 */
+	public static final int ENABLED = MenuItem.ENABLED;
+
 	private final String itemID;
 	private String menuText;
 	private String styleClass;
@@ -58,6 +89,7 @@ public class JSMenuItem
 	private Map<String, Map<String, Object>> extraProperties;
 	private final String[] allowedPermissions;
 	private JSONObject permissionsData;
+	private int overridenPermissionData = -1;
 
 	/**
 	 * @param menuManager
@@ -227,8 +259,28 @@ public class JSMenuItem
 		return this.enabled && hasSecurityFlag(MenuItem.ENABLED);
 	}
 
+	/**
+	 * Override the permission data and design data (for enabled flag) and set if a menu item is viewable(visible) and enabled.
+	 *
+	 * @param flags either 0 or a combination of JSMenuItem.VIEWABLE and JSMenuItem.ENABLED
+	 *
+	 * @sample menuItem.setSecurityFlags(JSMenuItem.VIEWABLE|JSMenuItem.ENABLED);
+	 */
+	@JSFunction
+	public void setSecurityFlags(int flags)
+	{
+		if (flags >= 0)
+		{
+			this.overridenPermissionData = flags;
+		}
+	}
+
 	public boolean hasSecurityFlag(int flag)
 	{
+		if (overridenPermissionData >= 0)
+		{
+			return (overridenPermissionData & flag) != 0;
+		}
 		if (this.allowedPermissions != null && this.allowedPermissions.length > 0 && this.permissionsData != null)
 		{
 			List<String> groupsList = Arrays.asList(this.allowedPermissions);

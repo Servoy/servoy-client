@@ -21,6 +21,8 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
+ * The base <code>Component</code> class serves as the foundational structure for all Servoy components.
+ *
  * @author lvostinar
  *
  */

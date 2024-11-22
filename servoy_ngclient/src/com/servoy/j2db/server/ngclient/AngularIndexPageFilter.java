@@ -109,7 +109,7 @@ public class AngularIndexPageFilter implements Filter
 					Pair<Boolean, String> showLogin = StatelessLoginHandler.mustAuthenticate(request, response, solutionName);
 					if (showLogin.getLeft().booleanValue())
 					{
-						StatelessLoginHandler.writeLoginPage(request, response, solutionName);
+						StatelessLoginHandler.writeLoginPage(request, response, solutionName, showLogin.getRight());
 						return;
 					}
 					if (showLogin.getRight() != null)
@@ -145,7 +145,7 @@ public class AngularIndexPageFilter implements Filter
 				}
 				return;
 			}
-			else if (solutionName != null && StatelessLoginHandler.handlePossibleCloudRequest(request, response, solutionName))
+			else if (solutionName != null && StatelessLoginHandler.handlePossibleCloudRequest(request, response, solutionName, this.indexPage))
 			{
 				return;
 			}

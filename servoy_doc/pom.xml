@@ -246,6 +246,8 @@
                                         <args>com.servoy.j2db.documentation.persistence.docs</args>
                                         <args>--output-file</args>
                                         <args>/servoy_shared/_doc/servoydoc_design.xml</args>
+                                        <args>--categories</args>
+                                        <args>designtime</args>
                                         <args>--import-projects</args>
                                         <args>true</args>
                                     </applicationsArgs>
@@ -306,6 +308,8 @@
 										<args>com.servoy.j2db.documentation.persistence.docs</args>
 										<args>--output-file</args>
 										<args>/servoy_shared/_doc/servoydoc_design.xml</args>
+                                        <args>--categories</args>
+                                        <args>designtime</args>
 										<args>--import-projects</args>
 										<args>true</args>
 									</applicationsArgs>

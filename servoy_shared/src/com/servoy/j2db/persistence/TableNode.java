@@ -293,7 +293,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templatedescription
 	 * Record pre-insert trigger
 	 * Validate the record to be inserted.
-	 * When false is returned or a validaton error is added to the recordMarkers the record will not be inserted in the database.
+	 * When false is returned or a validation error is added to the recordMarkers the record will not be inserted in the database.
 	 * When an exception is thrown the record will also not be inserted in the database but it will be added to databaseManager.getFailedRecords(),
 	 * the thrown exception can be retrieved via record.exception.getValue().
 	 * @templatename onRecordInsert
@@ -329,7 +329,7 @@ public class TableNode extends AbstractBase implements ISupportChilds
 	 * @templatedescription
 	 * Record pre-update trigger
 	 * Validate the record to be updated.
-	 * When false is returned or a validaton error is added to the recordMarkers the record will not be updated in the database.
+	 * When false is returned or a validation error is added to the recordMarkers the record will not be updated in the database.
 	 * When an exception is thrown the record will also not be updated in the database but it will be added to databaseManager.getFailedRecords(),
 	 * the thrown exception can be retrieved via record.exception.getValue().
 	 * @templatename onRecordUpdate

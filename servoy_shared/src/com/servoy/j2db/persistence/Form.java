@@ -226,10 +226,7 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 		{
 			getParts().next().setHeight(height);
 		}
-		else
-		{
-			setSize(new Dimension(getSize().width, height));
-		}
+		setSize(new Dimension(getSize().width, height));
 	}
 
 	/**

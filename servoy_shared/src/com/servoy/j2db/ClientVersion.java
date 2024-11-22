@@ -94,6 +94,7 @@ public abstract class ClientVersion
 	}
 
 	/**
+	 * The build date if it could get the timestamp from a .svy_timestamp or manifest file.
 	 * @return
 	 */
 	public static String getBuildDate()

@@ -22,11 +22,23 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.UUID;
 
 /**
- * A design-time menu object (a list of menu items), that can be used in various components and services (so you can re-use the same object in multiple places).
- *
- * @author lvostinar
- *
- */
+* <p>The <code>Menu</code> object is a reusable design-time entity that represents 
+* a list of menu items. It can be utilized across various components and services, 
+* promoting consistency in menu design.</p>
+* 
+* <h2>Functionality</h2>
+* <p>The <code>Menu</code> object includes several key properties. The 
+* <code>comment</code> property allows adding programmer notes or other descriptive 
+* information about the menu's purpose. The <code>encapsulation</code> property 
+* defines the menu's visibility, with options such as "Public" (accessible across 
+* modules) or "Module Scope" (restricted to the same module). The <code>name</code> 
+* property serves as the unique identifier for the menu. Additionally, the 
+* <code>styleClass</code> property allows associating CSS classes for styling 
+* purposes.</p>
+*
+* @author lvostinar
+*
+*/
 @ServoyDocumented(category = ServoyDocumented.DESIGNTIME, typeCode = IRepository.MENUS)
 @ServoyClientSupport(mc = false, wc = false, sc = false, ng = true)
 public class Menu extends AbstractBase implements ISupportUpdateableName, ISupportEncapsulation, ICloneable, ISupportChilds

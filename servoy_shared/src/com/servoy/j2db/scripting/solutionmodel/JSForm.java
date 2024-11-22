@@ -77,7 +77,21 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.docvalidator.IdentDocumentValidator;
 
 /**
- * Solution Model form wrapper.
+ * The <code>JSForm</code> is a Solution Model wrapper for forms, providing properties and methods to dynamically manage
+ * and interact with forms in an application. It includes constants for specifying foundset behavior and selection modes,
+ * properties like <code>dataSource</code>, <code>name</code>, and <code>selectionMode</code>, and methods for creating,
+ * accessing, and manipulating form components, variables, methods, and layout containers.
+ *
+ * <p>
+ * With encapsulation levels, event handlers (e.g., <code>onShow</code>, <code>onHide</code>, <code>onRecordSelection</code>),
+ * and integration of design-time properties, <code>JSForm</code> is pivotal for customizing forms at runtime. It supports
+ * responsive layouts, default sorting, transparent forms, and CSS-based positioning, enabling developers to tailor the UI
+ * dynamically while managing forms effectively.
+ * </p>
+ *
+ *
+ * Please refer to the <a href="../../object-model/solution/form.md">Form</a> section of this documentation for details.
+ *
  * @author jcompagner
  */
 @SuppressWarnings("nls")

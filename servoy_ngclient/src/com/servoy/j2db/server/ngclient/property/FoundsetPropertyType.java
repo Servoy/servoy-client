@@ -370,6 +370,7 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 		boolean sendDefaultFormats = FoundsetPropertyTypeConfig.DEFAULT_SEND_DEFAULT_FORMATS;
 		int initialPreferredViewPortSize = FoundsetPropertyTypeConfig.DEFAULT_INITIALL_PREFERRED_VIEWPORT_SIZE;
 		boolean sendSelectionViewportInitially = FoundsetPropertyTypeConfig.DEFAULT_SEND_SELECTION_VIEWPORT_INITIALLY;
+		boolean centerInitialViewportOnSelected = FoundsetPropertyTypeConfig.DEFAULT_CENTER_INITIAL_VIEWPORT_ON_SELECTED;
 		boolean foundsetDefinitionListener = FoundsetPropertyTypeConfig.DEFAULT_FOUNDSET_DEFINITION_LISTENER;
 
 		if (rhinoValue instanceof Wrapper) rhinoValue = ((Wrapper)rhinoValue).unwrap();
@@ -416,6 +417,9 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 					initialPreferredViewPortSize = Utils.getAsInteger(obj.get(FoundsetPropertyTypeConfig.INITIAL_PREFERRED_VIEWPORT_SIZE, obj));
 				if (obj.has(FoundsetPropertyTypeConfig.SEND_SELECTION_VIEWPORT_INITIALLY, obj))
 					sendSelectionViewportInitially = Utils.getAsBoolean(obj.get(FoundsetPropertyTypeConfig.SEND_SELECTION_VIEWPORT_INITIALLY, obj));
+				if (obj.has(FoundsetPropertyTypeConfig.CENTER_INITIAL_VIEWPORT_ON_SELECTED, obj))
+					centerInitialViewportOnSelected = Utils.getAsBoolean(obj.get(FoundsetPropertyTypeConfig.CENTER_INITIAL_VIEWPORT_ON_SELECTED, obj));
+
 				Object config = pd.getConfig();
 				if (config instanceof FoundsetPropertyTypeConfig)
 				{
@@ -445,7 +449,7 @@ public class FoundsetPropertyType extends DefaultPropertyType<FoundsetTypeSabloV
 
 				newSabloValue = new FoundsetTypeSabloValue(designJSON, null, null,
 					new FoundsetPropertyTypeConfig(sendDefaultFormats, true, null, sendSelectionViewportInitially, initialPreferredViewPortSize,
-						foundsetDefinitionListener));
+						foundsetDefinitionListener, centerInitialViewportOnSelected));
 				newSabloValue.updateFoundset(newFoundset);
 			}
 		}

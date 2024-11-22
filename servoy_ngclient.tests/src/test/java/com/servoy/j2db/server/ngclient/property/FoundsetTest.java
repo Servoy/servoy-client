@@ -90,6 +90,12 @@ public class FoundsetTest extends AbstractSolutionTest
 		String comp1 = new String(bytes);
 		is.close();
 
+		is = getClass().getResourceAsStream("FoundSetTest-pagingcomponent.spec");
+		bytes = new byte[is.available()];
+		is.read(bytes);
+		String compWithPaging = new String(bytes);
+		is.close();
+
 		is = getClass().getResourceAsStream("FoundSetTest-mydynamiccomponent.spec");
 		bytes = new byte[is.available()];
 		is.read(bytes);
@@ -99,6 +105,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		HashMap<String, String> components = new HashMap<>();
 		components.put("mycomponent.spec", comp1);
 		components.put("mydynamiccomponent.spec", comp2);
+		components.put("mypagingcomponent.spec", compWithPaging);
 		InMemPackageReader inMemPackageReader = new InMemPackageReader(manifest, components);
 		return inMemPackageReader;
 	}
@@ -122,6 +129,25 @@ public class FoundsetTest extends AbstractSolutionTest
 		WebComponent bean2 = form.createNewWebComponent("mycustomseparatefoundsetbean", "my-component");
 		bean2.setProperty("myfoundset", new ServoyJSONObject(
 			"{foundsetSelector: \"mem:testseparatefoundset\", loadAllRecords: true, dataproviders:{firstname:'test1',lastname:'test2'}}", false));
+
+		Form formSel8 = solution.createNewForm(validator, null, "testSel8", "mem:testsel8", false, new Dimension(600, 400));
+		formSel8.setNavigatorID(-1);
+		formSel8.createNewPart(IBaseSMPart.BODY, 5);
+
+		WebComponent componentWithPaging = formSel8.createNewWebComponent("mycomponentwithpaging", "mypagingcomponent");
+		componentWithPaging.setProperty("myfoundset",
+			new ServoyJSONObject("{foundsetSelector:'',dataproviders:{firstname:'test1',lastname:'test2'}}", false));
+		componentWithPaging.setProperty("pageSize", Integer.valueOf(7));
+
+		WebComponent componentWithPagingLT1_1 = formSel8.createNewWebComponent("mycomponentwithpagingLT1_1", "mypagingcomponent");
+		componentWithPagingLT1_1.setProperty("myfoundset",
+			new ServoyJSONObject("{foundsetSelector:'',dataproviders:{firstname:'test1',lastname:'test2'}}", false));
+		componentWithPagingLT1_1.setProperty("pageSize", Integer.valueOf(0));
+
+		WebComponent componentWithPagingLT1_2 = formSel8.createNewWebComponent("mycomponentwithpagingLT1_2", "mypagingcomponent");
+		componentWithPagingLT1_2.setProperty("myfoundset",
+			new ServoyJSONObject("{foundsetSelector:'',dataproviders:{firstname:'test1',lastname:'test2'}}", false));
+		componentWithPagingLT1_2.setProperty("pageSize", Integer.valueOf(-1));
 	}
 
 	@Override
@@ -148,6 +174,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		ds.addRow(new Object[] { Integer.valueOf(17), "value1", "value2" });
 		ds.addRow(new Object[] { Integer.valueOf(18), "value3", "value4" });
 		client.getFoundSetManager().insertToDataSource("test", ds, null, new WrappedObjectReference<String[]>(new String[] { "pk" }), true, false);
+		client.getFoundSetManager().insertToDataSource("testsel8", ds, null, new WrappedObjectReference<String[]>(new String[] { "pk" }), true, false);
 
 		BufferedDataSet separateDSs = new BufferedDataSet(new String[] { "pk", "test1", "test2" },
 			new int[] { IColumnTypes.INTEGER, IColumnTypes.TEXT, IColumnTypes.TEXT });
@@ -187,6 +214,10 @@ public class FoundsetTest extends AbstractSolutionTest
 		Column primaryColumn = ((Table)client.getFoundSetManager().getTable(relation.getPrimaryDataSource())).getColumn("pk");
 		Column foreignColumn = ((Table)client.getFoundSetManager().getTable(relation.getForeignDataSource())).getColumn("testpk");
 		relation.createNewRelationItem(client.getFoundSetManager(), primaryColumn, IBaseSQLCondition.EQUALS_OPERATOR, foreignColumn);
+
+		IFoundSetInternal foundset = client.getFoundSetManager().getSharedFoundSet("mem:testsel8");
+		foundset.loadAllRecords();
+		foundset.setSelectedIndex(8);
 	}
 
 	@Test
@@ -966,6 +997,40 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.changesToJSON(jsonWriter3, allowBrowserConverterContext);
 
 		assertEquals("{\"n\":true}", stringWriter3.toString());
+	}
+
+	@Test
+	public void foundsetWithInitialServerSizePageSize()
+	{
+		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("testSel8");
+		assertNotNull(form);
+
+		FoundsetTypeSabloValue foundSetPropValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycomponentwithpaging")
+			.getRawPropertyValue("myfoundset");
+
+		assertEquals(7, foundSetPropValue.getViewPort().getStartIndex()); // it does not center on selected record which is 8 (setupData()), because although spec says so, the "pageSize" has prio and it is applied to enter paging mode for selected page (page that has record 8 is the second page)
+		assertEquals(7, foundSetPropValue.getViewPort().getSize()); // see that initially the viewport size is "7" according to "pageSize" property
+	}
+
+	@Test
+	public void foundsetWithInitialServerSizePageSizeLessThen1()
+	{
+		IWebFormController form = (IWebFormController)client.getFormManager().showFormInCurrentContainer("testSel8");
+		assertNotNull(form);
+
+		FoundsetTypeSabloValue foundSetPropValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycomponentwithpagingLT1_1")
+			.getRawPropertyValue("myfoundset");
+
+		// see that initially the viewport size is the spec defined 12 according to "pageSize" = 0 that should not do anything
+		assertEquals(12, foundSetPropValue.getViewPort().getSize());
+		assertEquals(2, foundSetPropValue.getViewPort().getStartIndex()); // it centers on selected record which is 8 (setupData()), because spec says so and the "pageSize" is not applied to enter paging mode for selected page
+
+		foundSetPropValue = (FoundsetTypeSabloValue)form.getFormUI().getWebComponent("mycomponentwithpagingLT1_2")
+			.getRawPropertyValue("myfoundset");
+
+		// see that initially the viewport size is the spec defined 12 according to "pageSize" = -1 that should not do anything
+		assertEquals(12, foundSetPropValue.getViewPort().getSize());
+		assertEquals(2, foundSetPropValue.getViewPort().getStartIndex()); // it centers on selected record which is 8 (setupData()), because spec says so and the "pageSize" is not applied to enter paging mode for selected page
 	}
 
 }
