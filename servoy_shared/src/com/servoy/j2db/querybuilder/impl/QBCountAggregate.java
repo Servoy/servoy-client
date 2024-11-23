@@ -25,7 +25,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rob
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "QBColumn")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "QBIntegerColumn")
 public interface QBCountAggregate
 {
 
@@ -38,6 +38,6 @@ public interface QBCountAggregate
 	@JSReadonlyProperty
 	default QBIntegerColumnBase distinct()
 	{
-		return ((QBAggregate)this)._distinct();
+		return ((QBAggregateImpl)this).countDistinct();
 	}
 }

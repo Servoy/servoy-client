@@ -25,6 +25,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "QBColumn")
-public interface QBDatetimeColumn extends QBDatetimeColumnBase<QBIntegerColumn>, QBColumnRagtest<QBDatetimeColumn>
+public interface QBDatetimeColumn extends QBDatetimeColumnBase, QBColumnRagtest<QBDatetimeColumn>
 {
 }

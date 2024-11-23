@@ -160,7 +160,7 @@ public interface IQueryBuilderColumn extends IQueryBuilderPart
 //	 * Aggregate: max
 //	 * @see #count
 //	 */
-////	QBColumn maxragtest();
+////	QBColumn max();
 //
 //	/**
 //	 * Create an aggregate expression.

@@ -17,8 +17,8 @@
 
 package com.servoy.j2db.querybuilder;
 
-import com.servoy.j2db.querybuilder.impl.QBAggregate;
 import com.servoy.j2db.querybuilder.impl.QBColumn;
+import com.servoy.j2db.querybuilder.impl.QBCountAggregate;
 
 /**
  * Aggregates to be used in queries.
@@ -38,12 +38,12 @@ public interface IQueryBuilderAggregates extends IQueryBuilderPart
 	/**
 	 * Create count(*) expression
 	 */
-	QBAggregate count();
+	QBCountAggregate count();
 
 	/**
 	 * Create count(value) expression
 	 */
-	QBAggregate count(Object aggregee);
+	QBCountAggregate count(Object aggregee);
 
 	/**
 	 * Create max(value) expression

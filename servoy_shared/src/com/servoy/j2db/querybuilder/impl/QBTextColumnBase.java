@@ -17,11 +17,105 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import org.mozilla.javascript.annotations.JSFunction;
+
+import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
+
 /**
  * RAGTEST doc
  * @author rob
  *
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBTextColumn")
 public interface QBTextColumnBase
 {
+	/**
+	 * Create upper(column) expression
+	 * @sample
+	 * query.result.add(query.columns.custname.upper)
+	 */
+	@JSReadonlyProperty
+	QBTextColumnBase upper();
+
+	/**
+	 * Create lower(column) expression
+	 * @sample
+	 * query.result.add(query.columns.custname.lower)
+	 */
+	@JSReadonlyProperty
+	QBTextColumnBase lower();
+
+	/**
+	 * Create trim(column) expression
+	 * @sample
+	 * query.result.add(query.columns.custname.trim)
+	 */
+	@JSReadonlyProperty
+	QBTextColumnBase trim();
+
+	/**
+	 * Create length(column) expression
+	 * @sample
+	 * query.result.add(query.columns.custname.len)
+	 */
+	@JSReadonlyProperty
+	QBIntegerColumnBase len();
+
+	/**
+	 * Create substring(pos) expression
+	 * @param pos
+	 * @sample
+	 * query.result.add(query.columns.mycol.substring(3))
+	 */
+	@JSFunction
+	public QBTextColumnBase substring(int pos);
+
+	/**
+	 * Create substring(pos, len) expression
+	 * @param pos
+	 * @param len
+	 * @sample
+	 * query.result.add(query.columns.mycol.substring(3, 2))
+	 */
+	@JSFunction
+	public QBTextColumnBase substring(int pos, int len);
+
+	/**
+	 * Create bit_length(column) expression
+	 * @sample
+	 * query.result.add(query.columns.custname.bit_length)
+	 */
+	@JSReadonlyProperty
+	public QBIntegerColumnBase bit_length();
+
+
+	/**
+	 * Create locate(arg) expression
+	 * @param arg string to locate
+	 * @sample
+	 * query.result.add(query.columns.mycol.locate('sample'))
+	 */
+	@JSFunction
+	public QBIntegerColumnBase locate(Object arg);
+
+	/**
+	 * Create locate(arg, start) expression
+	 * @param arg string to locate
+	 * @param start start pos
+	 * @sample
+	 * query.result.add(query.columns.mycol.locate('sample', 5))
+	 */
+	@JSFunction
+	public QBIntegerColumnBase locate(Object arg, int start);
+
+
+	/**
+	 * Concatenate with value
+	 * @param arg value to concatenate with
+	 * @sample
+	 * query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname))
+	 */
+	@JSFunction
+	public QBTextColumnBase concat(Object arg);
 }

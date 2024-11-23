@@ -17,8 +17,6 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import org.mozilla.javascript.annotations.JSFunction;
-
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
@@ -29,238 +27,53 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBColumn")
-public interface QBColumn extends QBColumnRagtest<QBColumn>
+public interface QBColumn extends QBColumnRagtest<QBColumn>, QBColumnCompare
 {
-
-//	/**
-//	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#gt(Object)
-//	 * @param value
-//	 * @sample
-//	 * query.where.add(query.columns.flag.gt(0))
-//	 */
-//	@JSFunction
-//	public QBCondition gt(Object value)
-//	{
-//		return createCompareCondition(IBaseSQLCondition.GT_OPERATOR, value);
-//	}
-//
-//	/**
-//	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#lt(Object)
-//	 * @param value
-//	 * @sample
-//	 * query.where.add(query.columns.flag.lt(99))
-//	 */
-//	@JSFunction
-//	public QBCondition lt(Object value)
-//	{
-//		return createCompareCondition(IBaseSQLCondition.LT_OPERATOR, value);
-//	}
-//
-//	/**
-//	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#ge(Object)
-//	 * @param value
-//	 * @sample
-//	 * query.where.add(query.columns.flag.ge(2))
-//	 */
-//	@JSFunction
-//	public QBCondition ge(Object value)
-//	{
-//		return createCompareCondition(IBaseSQLCondition.GTE_OPERATOR, value);
-//	}
-//
-//	/**
-//	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#le(Object)
-//	 * @param value
-//	 * @sample
-//	 * query.where.add(query.columns.flag.le(2))
-//	 */
-//	@JSFunction
-//	public QBCondition le(Object value)
-//	{
-//		return createCompareCondition(IBaseSQLCondition.LTE_OPERATOR, value);
-//	}
-//
-//	/**
-//	 * Compare column to a range of 2 values or other columns.
-//	 * @param value1
-//	 * @param value2
-//	 * @sample
-//	 * query.where.add(query.columns.flag.between(0, 5))
-//	 */
-//	@JSFunction
-//	public QBCondition between(Object value1, Object value2)
-//	{
-//		return createCondition(
-//			new CompareCondition(IBaseSQLCondition.BETWEEN_OPERATOR, getQuerySelectValue(), new Object[] { createOperand(value1), createOperand(value2) }));
-//	}
-//
-//	/**
-//	 * Compare column with subquery result.
-//	 * @param query subquery
-//	 * @sample
-//	 * query.where.add(query.columns.flag.isin(query2))
-//	 */
-//	public QBCondition js_isin(QBPart query)
-//	{
-//		return in(query);
-//	}
-//
-//	/**
-//	 * Compare column with custom query result.
-//	 * @param customQuery custom query
-//	 * @param args query arguments
-//	 * @sample
-//	 * query.where.add(query.columns.ccy.isin("select ccycode from currencies c where c.category = " + query.getTableAlias() + ".currency_category and c.flag = ?", ['T']))
-//	 */
-//	public QBCondition js_isin(String customQuery, Object[] args)
-//	{
-//		return in(customQuery, args);
-//	}
-//
-//	public QBCondition in(IQueryBuilderPart query)
-//	{
-//		return createCompareCondition(IBaseSQLCondition.IN_OPERATOR, query);
-//	}
-//
-//	/**
-//	 * Compare column with values.
-//	 * @param values array of values
-//	 * @sample
-//	 * query.where.add(query.columns.flag.isin([1, 5, 99]))
-//	 */
-//	public QBCondition js_isin(Object[] values)
-//	{
-//		return in(values);
-//	}
-//
-//	public QBCondition in(Object[] values)
-//	{
-//		IQuerySelectValue querySelectValue = getQuerySelectValue();
-//		return createCondition(new SetCondition(IBaseSQLCondition.EQUALS_OPERATOR, new IQuerySelectValue[] { querySelectValue },
-//			new Object[][] { values == null ? new Object[0] : getRoot().createOperands(values, querySelectValue.getColumnType(), querySelectValue.getFlags()) },
-//			true));
-//	}
-//
-//	@Override
-//	public QBCondition in(String customQuery, Object[] args)
-//	{
-//		return createCondition(
-//			new SetCondition(IBaseSQLCondition.IN_OPERATOR, new IQuerySelectValue[] { getQuerySelectValue() },
-//				new QueryCustomSelect(customQuery, args == null ? null : getRoot().createOperands(args, null, 0)), true));
-//	}
-//
-//	/**
-//	 * Compare column with null.
-//	 * @sample
-//	 * query.where.add(query.columns.flag.isNull)
-//	 */
-//	@JSReadonlyProperty
-//	public QBCondition isNull()
-//	{
-//		return eq(null);
-//	}
-//
 	/**
-	 * Compare column with a value or another column.
-	 * Operator: equals
-	 * @param value
+	 * Compare column with null.
 	 * @sample
-	 * query.where.add(query.columns.flag.eq(1))
+	 * query.where.add(query.columns.flag.isNull)
 	 */
-	@JSFunction
-	QBCondition eq(Object value);
+	@JSReadonlyProperty
+	default QBCondition isNull()
+	{
+		return eq(null);
+	}
 
-//
-//	/**
-//	 * Compare column with a value or another column.
-//	 * Operator: like
-//	 *
-//	 * @param pattern the string value of the pattern
-//	 *
-//	 * @sample
-//	 * query.where.add(query.columns.companyname.like('Serv%'))
-//	 *
-//	 * // case-insensitive compares can be done using the upper (or lower) functions,
-//	 * // this can be useful when using for example German letters like ß,
-//	 * query.where.add(query.columns.companyname.upper.like(query.functions.upper('groß%')))
-//	 */
-//	@JSFunction
-//	public QBCondition like(Object pattern)
-//	{
-//		if (pattern instanceof String)
-//		{
-//			// don't try to convert the pattern to the column type
-//			return createCondition(new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, getQuerySelectValue(), pattern));
-//		}
-//		return createCompareCondition(IBaseSQLCondition.LIKE_OPERATOR, pattern);
-//	}
-//
-//	/**
-//	 * Compare column with a value or another column.
-//	 * Operator: like, with escape character
-//	 *
-//	 * @param pattern the string value of the pattern
-//	 * @param escape the escape char
-//	 *
-//	 * @sample
-//	 * query.where.add(query.columns.companyname.like('X_%', '_'))
-//	 */
-//	@JSFunction
-//	public QBCondition like(Object pattern, char escape)
-//	{
-//		if (pattern instanceof String)
-//		{
-//			// don't try to convert the pattern to the column type
-//			return createCondition(
-//				new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, getQuerySelectValue(), new Object[] { pattern, String.valueOf(escape) }));
-//		}
-//
-//		return createCondition(
-//			new CompareCondition(IBaseSQLCondition.LIKE_OPERATOR, getQuerySelectValue(), new Object[] { createOperand(pattern), String.valueOf(escape) }));
-//	}
-//
-//	/**
-//	 * Create a negated condition.
-//	 * @sample
-//	 * query.where.add(query.columns.flag.not.eq(1))
-//	 *
-//	 */
-//	@JSReadonlyProperty
-//	public QBColumn not()
-//	{
-//		return new QBColumnImpl(getRoot(), getParent(), getQuerySelectValue(), !negate);
-//	}
-//
-//	/**
-//	 * Create an ascending sort expression
-//	 * @sample
-//	 * var query = datasources.db.example_data.orders.createSelect();
-//	 * query.sort
-//	 * .add(query.joins.orders_to_order_details.columns.quantity.asc)
-//	 * .add(query.columns.companyid)
-//	 * foundset.loadRecords(query)
-//	 */
-//	@JSReadonlyProperty
-//	public QBSort asc()
-//	{
-//		return new QBSort(getRoot(), this, true);
-//	}
-//
-//	/**
-//	 * Create an descending sort expression
-//	 * @sample
-//	 * var query = datasources.db.example_data.orders.createSelect();
-//	 * query.sort
-//	 * .add(query.joins.orders_to_order_details.columns.quantity.desc)
-//	 * .add(query.columns.companyid)
-//	 * foundset.loadRecords(query)
-//	 */
-//	@JSReadonlyProperty
-//	public QBSort desc()
-//	{
-//		return new QBSort(getRoot(), this, false);
-//	}
-//
+	/**
+	 * Create a negated condition.
+	 * @sample
+	 * query.where.add(query.columns.flag.not.eq(1))
+	 *
+	 */
+	@JSReadonlyProperty
+	QBColumnCompare not();
+
+
+	/**
+	 * Create an ascending sort expression
+	 * @sample
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.sort
+	 * .add(query.joins.orders_to_order_details.columns.quantity.asc)
+	 * .add(query.columns.companyid)
+	 * foundset.loadRecords(query)
+	 */
+	@JSReadonlyProperty
+	QBSort asc();
+
+	/**
+	 * Create an descending sort expression
+	 * @sample
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.sort
+	 * .add(query.joins.orders_to_order_details.columns.quantity.desc)
+	 * .add(query.columns.companyid)
+	 * foundset.loadRecords(query)
+	 */
+	@JSReadonlyProperty
+	QBSort desc();
+
 	/**
 	 * Create an aggregate count expression.
 	 * @sample
@@ -270,80 +83,9 @@ public interface QBColumn extends QBColumnRagtest<QBColumn>
 	 * 	foundset.loadRecords(query)
 	 */
 	@JSReadonlyProperty
-	default QBCountAggregate count()
-	{
-		return getRoot().aggregates().count(this);
-	}
-//
-//	/**
-//	 * Create an aggregate average expression.
-//	 * @sample
-//	 * 	var query = datasources.db.example_data.orders.createSelect();
-//	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
-//	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.avg.eq(1))
-//	 * 	foundset.loadRecords(query)
-//	 */
-//	//@JSReadonlyProperty
-//	public QBColumn avg()
-//	{
-//		return getRoot().aggregates().avg(this);
-//	}
-//
-//	public QBAggregate _maxragtest()
-//	{
-//		return getRoot().aggregates().max(this);
-//	}
-//
-//	/**
-//	 * Create an aggregate min expression.
-//	 * @sample
-//	 * 	var query = datasources.db.example_data.orders.createSelect();
-//	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
-//	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.count.min(10))
-//	 * 	foundset.loadRecords(query)
-//	 */
-//	//@JSReadonlyProperty
-//	public QBAggregate min()
-//	{
-//		return getRoot().aggregates().min(this);
-//	}
-//
-//	/**
-//	 * Create an aggregate sum expression.
-//	 * @sample
-//	 * 	var query = datasources.db.example_data.orders.createSelect();
-//	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
-//	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.count.sum(10))
-//	 * 	foundset.loadRecords(query)
-//	 */
-//	@JSReadonlyProperty
-//	public QBColumn sum()
-//	{
-//		return getRoot().aggregates().sum(this);
-//	}
-//
-//	/**
-//	 * Create upper(column) expression
-//	 * @sample
-//	 * query.result.add(query.columns.custname.upper)
-//	 */
-//	@JSReadonlyProperty
-//	public QBFunction upper()
-//	{
-//		return getRoot().functions().upper(this);
-//	}
-//
-//	/**
-//	 * Create abs(column) expression
-//	 * @sample
-//	 * query.result.add(query.columns.custname.abs)
-//	 */
-//	@JSReadonlyProperty
-//	public QBFunction abs()
-//	{
-//		return getRoot().functions().abs(this);
-//	}
-//
+	QBCountAggregate count();
+
+	//
 //	/**
 //	 * Create sqrt(column) expression
 //	 * @sample
@@ -466,17 +208,7 @@ public interface QBColumn extends QBColumnRagtest<QBColumn>
 //		return getRoot().functions().locate(arg, this, start);
 //	}
 //
-//	/**
-//	 * Create nullif(arg) expression
-//	 * @param arg object to compare
-//	 * @sample
-//	 * query.result.add(query.columns.mycol.nullif('none'))
-//	 */
-//	@JSFunction
-//	public QBFunction nullif(Object arg)
-//	{
-//		return getRoot().functions().nullif(this, arg);
-//	}
+
 //
 //	/**
 //	 * Create mod(arg) expression
@@ -539,8 +271,8 @@ public interface QBColumn extends QBColumnRagtest<QBColumn>
 //	}
 //
 //	/**
-//	 * Concatename with value
-//	 * @param arg valeu to concatenate with
+//	 * Concatenate with value
+//	 * @param arg value to concatenate with
 //	 * @sample
 //	 * query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname))
 //	 */

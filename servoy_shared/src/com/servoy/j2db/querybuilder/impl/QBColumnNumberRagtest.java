@@ -26,48 +26,70 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rob
  *
  */
-public interface QBColumnRagtest<T>
+public interface QBColumnNumberRagtest<T>
 {
-	/**
-	 * Create an aggregate min expression.
-	 * @sample
-	 * 	var query = datasources.db.example_data.orders.createSelect();
-	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
-	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.count.min(10))
-	 * 	foundset.loadRecords(query)
-	 */
-	@JSReadonlyProperty
-	T min();
 
 	/**
-	 * Create an aggregate max expression.
+	 * Create abs(column) expression
 	 * @sample
-	 * 	var query = datasources.db.example_data.orders.createSelect();
-	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
-	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.count.max(10))
-	 * 	foundset.loadRecords(query)
+	 * query.result.add(query.columns.custname.abs)
 	 */
 	@JSReadonlyProperty
-	T max();
+	public T abs();
+
 
 	/**
-	 * Create an aggregate average expression.
+	 * Create sqrt(column) expression
 	 * @sample
-	 * 	var query = datasources.db.example_data.orders.createSelect();
-	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
-	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.avg.eq(1))
-	 * 	foundset.loadRecords(query)
+	 * query.result.add(query.columns.custname.sqrt)
 	 */
 	@JSReadonlyProperty
-	T avg();
+	public QBNumberColumnBase sqrt();
+
 
 	/**
-	 * Create nullif(arg) expression
-	 * @param arg object to compare
+	 * Create mod(arg) expression
+	 * @param arg mod arg
 	 * @sample
-	 * query.result.add(query.columns.mycol.nullif('none'))
+	 * query.result.add(query.columns.mycol.mod(2))
 	 */
 	@JSFunction
-	T nullif(Object arg);
+	public T mod(Object arg);
+
+	/**
+	 * Add up value
+	 * @param arg nr to add
+	 * @sample
+	 * query.result.add(query.columns.mycol.plus(2))
+	 */
+	@JSFunction
+	public QBNumberColumnBase plus(Object arg);
+
+	/**
+	 * Subtract value
+	 * @param arg nr to subtract
+	 * @sample
+	 * query.result.add(query.columns.mycol.minus(2))
+	 */
+	@JSFunction
+	public QBNumberColumnBase minus(Object arg);
+
+	/**
+	 * Multiply with value
+	 * @param arg nr to multiply with
+	 * @sample
+	 * query.result.add(query.columns.mycol.multiply(2))
+	 */
+	@JSFunction
+	public QBNumberColumnBase multiply(Object arg);
+
+	/**
+	 * Divide by value
+	 * @param arg nr to divide by
+	 * @sample
+	 * query.result.add(query.columns.mycol.divide(2))
+	 */
+	@JSFunction
+	public QBNumberColumnBase divide(Object arg);
 
 }

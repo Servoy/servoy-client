@@ -25,20 +25,16 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rob
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBDatetimeColumn", extendsComponent = "QBColumn")
-public interface QBDatetimeColumnBase<IntegerColumnType>
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBDatetimeColumn")
+public interface QBDatetimeColumnBase
 {
+
 	/**
 	 * Extract hour from date
 	 * @sample
 	 * query.result.add(query.columns.mydatecol.hour)
 	 */
 	@JSReadonlyProperty
-	IntegerColumnType hourragtest();
-
-//	default IntegerColumnType hourragtest()
-//	{
-//		return (IntegerColumnType)((QBColumn)this)._hour();
-//	}
+	QBIntegerColumnBase hourragtest();
 
 }

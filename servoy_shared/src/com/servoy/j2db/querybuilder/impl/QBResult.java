@@ -140,30 +140,6 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 		return add(column, alias);
 	}
 
-	/**
-	 * Add an aggregate to the query result.
-	 * @sample
-	 * query.result.add(query.columns.label_text.max)
-	 *
-	 * @param aggregate the aggregate to add to result
-	 */
-	public QBResult js_add(QBAggregate aggregate)
-	{
-		return add(aggregate);
-	}
-
-	/**
-	 * Add an aggregate with alias to the query result.
-	 * @sample
-	 * query.result.add(query.columns.item_count.max, 'maximum_items')
-	 *
-	 * @param aggregate the aggregate to add to result
-	 * @param alias aggregate alias
-	 */
-	public QBResult js_add(QBAggregate aggregate, String alias)
-	{
-		return add(aggregate, alias);
-	}
 
 //	/**
 //	 * Add a function result to the query result.
@@ -265,7 +241,7 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 			if (selectValue instanceof QueryAggregate)
 			{
 				QueryAggregate queryAggregate = (QueryAggregate)selectValue;
-				return new QBAggregate(getRoot(), getParent(), selectValue, queryAggregate.getType(), queryAggregate.getQuantifier());
+				return new QBAggregateImpl(getRoot(), getParent(), selectValue, queryAggregate.getType(), queryAggregate.getQuantifier());
 			}
 			if (selectValue instanceof QueryFunction)
 			{

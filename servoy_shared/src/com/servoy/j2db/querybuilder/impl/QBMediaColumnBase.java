@@ -18,13 +18,21 @@
 package com.servoy.j2db.querybuilder.impl;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * RAGTEST doc
  * @author rob
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBDatetimeColumn", extendsComponent = "QBColumn")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBDatetimeColumn")
 public interface QBMediaColumnBase
 {
+	/**
+	 * Create bit_length(column) expression
+	 * @sample
+	 * query.result.add(query.columns.custname.bit_length)
+	 */
+	@JSReadonlyProperty
+	public QBIntegerColumnBase bit_length();
 }

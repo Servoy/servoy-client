@@ -61,7 +61,7 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 */
 	@JSFunction
 	@Override
-	public QBAggregate count()
+	public QBCountAggregate count()
 	{
 		return count(ASTERIX);
 	}
@@ -76,15 +76,15 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 */
 	@JSFunction
 	@Override
-	public QBAggregate count(Object aggregee)
+	public QBCountAggregate count(Object aggregee)
 	{
 		IQuerySelectValue operand = createOperand(aggregee, aggregee instanceof Number ? IColumnTypes.INTEGER : 0);
-		if (operand instanceof QueryColumnValue && (aggregee instanceof Number || ASTERIX.equals(aggregee)))
+		if (operand instanceof QueryColumnValue queryColumnValue && (aggregee instanceof Number || ASTERIX.equals(aggregee)))
 		{
-			operand = ((QueryColumnValue)operand).withFixedvalue(true);
+			operand = queryColumnValue.withFixedvalue(true);
 		}
 
-		return new QBAggregate(getRoot(), getParent(), operand, QueryAggregate.COUNT, QueryAggregate.ALL);
+		return new QBAggregateImpl(getRoot(), getParent(), operand, QueryAggregate.COUNT, QueryAggregate.ALL);
 	}
 
 	/**
@@ -112,7 +112,7 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 */
 	@JSFunction
 	@Override
-	public QBAggregate max(Object aggregee)
+	public QBColumn max(Object aggregee)
 	{
 		return createAggregate(aggregee, QueryAggregate.MAX);
 	}
@@ -127,7 +127,7 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 */
 	@JSFunction
 	@Override
-	public QBAggregate min(Object aggregee)
+	public QBColumn min(Object aggregee)
 	{
 		return createAggregate(aggregee, QueryAggregate.MIN);
 	}
@@ -142,14 +142,14 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 */
 	@JSFunction
 	@Override
-	public QBAggregate sum(Object aggregee)
+	public QBColumn sum(Object aggregee)
 	{
 		return createAggregate(aggregee, QueryAggregate.SUM);
 	}
 
-	protected QBAggregate createAggregate(Object aggregee, int aggregateType)
+	protected QBColumn createAggregate(Object aggregee, int aggregateType)
 	{
-		return new QBAggregate(getRoot(), getParent(), getRoot().createOperand(aggregee, null, 0), aggregateType, QueryAggregate.ALL);
+		return new QBAggregateImpl(getRoot(), getParent(), getRoot().createOperand(aggregee, null, 0), aggregateType, QueryAggregate.ALL);
 	}
 
 	protected IQuerySelectValue createOperand(Object value, int type)

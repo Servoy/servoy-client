@@ -22,6 +22,6 @@ package com.servoy.j2db.querybuilder.impl;
  * @author rob
  *
  */
-public interface QBNumberColumn extends QBNumberColumnBase, QBColumnRagtest<QBNumberColumn>
+public interface QBNumberColumn extends QBNumberColumnBase, QBColumnRagtest<QBNumberColumn>, QBColumnNumberRagtest<QBNumberColumn>
 {
 }

@@ -18,13 +18,21 @@
 package com.servoy.j2db.querybuilder.impl;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
+import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * RAGTEST doc
  * @author rob
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBNumberColumn", extendsComponent = "QBColumn")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBNumberColumn")
 public interface QBNumberColumnBase
 {
+	/**
+	 * Create floor(column) expression
+	 * @sample
+	 * query.result.add(query.columns.mycol.floor)
+	 */
+	@JSReadonlyProperty
+	public QBIntegerColumnBase floor();
 }

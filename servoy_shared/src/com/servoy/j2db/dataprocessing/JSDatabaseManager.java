@@ -83,13 +83,13 @@ import com.servoy.j2db.query.QueryDelete;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.QueryTable;
 import com.servoy.j2db.query.QueryUpdate;
-import com.servoy.j2db.querybuilder.impl.QBAggregate;
 import com.servoy.j2db.querybuilder.impl.QBAggregates;
 import com.servoy.j2db.querybuilder.impl.QBCase;
 import com.servoy.j2db.querybuilder.impl.QBCaseWhen;
 import com.servoy.j2db.querybuilder.impl.QBColumn;
 import com.servoy.j2db.querybuilder.impl.QBColumns;
 import com.servoy.j2db.querybuilder.impl.QBCondition;
+import com.servoy.j2db.querybuilder.impl.QBCountAggregate;
 import com.servoy.j2db.querybuilder.impl.QBFunctions;
 import com.servoy.j2db.querybuilder.impl.QBGroupBy;
 import com.servoy.j2db.querybuilder.impl.QBJoin;
@@ -134,11 +134,11 @@ public class JSDatabaseManager implements IJSDatabaseManager
 		{
 			public Class< ? >[] getAllReturnedTypes()
 			{
-				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, JSRecordMarker.class, JSRecordMarkers.class, Record.class, FoundSet.class, JSTable.class, //
-					QBSelect.class, QBAggregate.class, QBCase.class, QBCaseWhen.class, QBColumn.class, QBColumns.class, QBCondition.class, //
-					QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBWhereCondition.class, QBResult.class, //
-					QBSearchedCaseExpression.class, QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, //
-					QBFunctions.class, QBAggregates.class, QUERY_COLUMN_TYPES.class, ViewFoundSet.class, ViewRecord.class, JSTableFilter.class, MenuFoundSet.class, MenuItemRecord.class };
+				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, JSRecordMarker.class, //
+					JSRecordMarkers.class, Record.class, FoundSet.class, JSTable.class, QBSelect.class, QBCountAggregate.class, QBCase.class, QBCaseWhen.class, QBColumn.class, //
+					QBColumns.class, QBCondition.class, QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBWhereCondition.class, QBResult.class, //
+					QBSearchedCaseExpression.class, QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, QBFunctions.class, //
+					QBAggregates.class, QUERY_COLUMN_TYPES.class, ViewFoundSet.class, ViewRecord.class, JSTableFilter.class, MenuFoundSet.class, MenuItemRecord.class };
 			}
 		});
 	}
