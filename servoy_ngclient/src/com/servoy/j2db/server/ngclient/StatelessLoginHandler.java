@@ -84,9 +84,6 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
-import com.github.scribejava.apis.GoogleApi20;
-import com.github.scribejava.apis.LinkedInApi20;
-import com.github.scribejava.apis.MicrosoftAzureActiveDirectory20Api;
 import com.github.scribejava.apis.openid.OpenIdOAuth2AccessToken;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.builder.api.DefaultApi20;
@@ -106,7 +103,6 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Solution.AUTHENTICATOR_TYPE;
 import com.servoy.j2db.persistence.SolutionMetaData;
-import com.servoy.j2db.server.ngclient.auth.AppleIDApi;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
@@ -157,11 +153,6 @@ public class StatelessLoginHandler
 	public static final String DEFAULT_SCOPE = "defaultScope";
 	public static final String API_SECRET = "apiSecret";
 	public static final String CLIENT_ID = "clientId";
-
-	public static final String APPLE = "Apple";
-	public static final String LINKED_IN = "LinkedIn";
-	public static final String GOOGLE = "Google";
-	public static final String MICROSOFT_AD = "Microsoft AD";
 
 	@SuppressWarnings({ "boxing" })
 	public static Pair<Boolean, String> mustAuthenticate(HttpServletRequest request, HttpServletResponse reponse, String solutionName)
@@ -1316,7 +1307,7 @@ public class StatelessLoginHandler
 					additionalParameters.put(key, auth.getString(key));
 			}
 		}
-		String responseType = getResponseType(api, additionalParameters);
+		String responseType = OAuthUtils.getResponseType(api, additionalParameters);
 		builder.responseType(responseType);
 		if (responseType.contains("code"))
 		{
@@ -1329,7 +1320,7 @@ public class StatelessLoginHandler
 			DefaultApi20 apiInstance = null;
 			if (api != null)
 			{
-				apiInstance = getApiInstance(api, tenant);
+				apiInstance = OAuthUtils.getApiInstance(api, tenant);
 			}
 			else
 			{
@@ -1376,19 +1367,6 @@ public class StatelessLoginHandler
 			Debug.error("Cannot create the oauth service.", e);
 		}
 		return null;
-	}
-
-	private static String getResponseType(String api, Map<String, String> additionalParameters)
-	{
-		if (GOOGLE.equals(api) || MICROSOFT_AD.equals(api) || "Microsoft".equals(api))
-		{
-			return "offline".equals(additionalParameters.get("access_type")) ? "code" : "id_token";
-		}
-		else if (APPLE.equals(api))
-		{
-			return "code id_token";
-		}
-		return "code";
 	}
 
 	private static String getPath(HttpServletRequest request)
@@ -1579,25 +1557,6 @@ public class StatelessLoginHandler
 	{
 		return headerValue.replaceAll("[\n\r]+", " ");
 	}
-
-	static DefaultApi20 getApiInstance(String provider, String tenant) throws Exception
-	{
-		switch (provider)
-		{
-			case "Microsoft" :
-			case MICROSOFT_AD :
-				return tenant != null ? MicrosoftAzureActiveDirectory20Api.custom(tenant) : MicrosoftAzureActiveDirectory20Api.instance();
-			case GOOGLE :
-				return GoogleApi20.instance();
-			case LINKED_IN :
-				return LinkedInApi20.instance();
-			case APPLE :
-				return AppleIDApi.instance();
-			default :
-				throw new Exception("Could not create an OAuth Api.");
-		}
-	}
-
 
 	public static void logoutAndRevokeToken(HttpSession httpSession, Solution solution)
 	{
