@@ -679,9 +679,16 @@ public class MediaResourcesServlet extends AbstractMediaResourceServlet
 		/*
 		 * @see com.servoy.j2db.plugins.IUploadData#getInputStream()
 		 */
-		public InputStream getInputStream() throws IOException
+		public InputStream getInputStream()
 		{
-			return item.getInputStream();
+			try
+			{
+				return item.getInputStream();
+			}
+			catch (IOException e)
+			{
+				return null;
+			}
 		}
 
 		@Override

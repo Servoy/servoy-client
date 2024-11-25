@@ -21,7 +21,7 @@ import java.awt.Window;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URLStreamHandler;
 import java.rmi.Remote;
@@ -69,7 +69,7 @@ public class SmartClientPluginAccessProvider extends ClientPluginAccessProvider 
 
 	/**
 	 * Register a URLStreamHandler for a protocol
-	 * 
+	 *
 	 * @param protocolName
 	 * @param handler
 	 */
@@ -173,7 +173,7 @@ public class SmartClientPluginAccessProvider extends ClientPluginAccessProvider 
 	private static final class FileUploadData implements IUploadData
 	{
 		/**
-		 * 
+		 *
 		 */
 		private final File f;
 
@@ -221,12 +221,19 @@ public class SmartClientPluginAccessProvider extends ClientPluginAccessProvider 
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see com.servoy.j2db.plugins.IUploadData#getInputStream()
 		 */
-		public InputStream getInputStream() throws IOException
+		public InputStream getInputStream()
 		{
-			return new BufferedInputStream(new FileInputStream(f));
+			try
+			{
+				return new BufferedInputStream(new FileInputStream(f));
+			}
+			catch (FileNotFoundException e)
+			{
+				return null;
+			}
 		}
 
 		/**
