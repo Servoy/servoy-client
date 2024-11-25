@@ -32,7 +32,19 @@ import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.util.Pair;
 
 /**
- * Utility object for building an SQL Case expression inside a QBSelect.
+ * <p>The <code>QBCase</code> class is a utility for constructing SQL <code>CASE</code> expressions
+ * within a <code>QBSelect</code> query. It allows for dynamic conditional logic by specifying
+ * <code>WHEN</code> clauses and an optional <code>ELSE</code> clause to handle unmatched conditions.
+ * This enables advanced query customizations, such as transforming values or applying conditional
+ * calculations.</p>
+ *
+ * <p>The <code>when</code> method adds conditions to the <code>CASE</code> expression, while the
+ * <code>else</code> method sets the default value for cases where no conditions are satisfied. The
+ * <code>parent</code> and <code>root</code> properties provide access to the query's parent table
+ * clause or the root query, allowing seamless integration with other query builder components.</p>
+ *
+ * <p>For more information about constructing and executing queries, refer to
+ * <a href="./qbselect.md">QBSelect</a> section of this documentation.</p>
  *
  * @author rgansevles
  *

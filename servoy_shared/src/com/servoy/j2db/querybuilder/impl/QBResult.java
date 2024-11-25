@@ -42,7 +42,19 @@ import com.servoy.j2db.querybuilder.IQueryBuilderResult;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * A wrapper for QBSelect query result.
+ * <p>The <code>QBResult</code> class serves as a wrapper for managing query results in the
+ * <code>QBSelect</code> framework. It enables precise control over the structure and content of
+ * query results, including the addition of columns, aggregates, functions, case expressions, and
+ * subqueries. This flexibility allows developers to define custom outputs that align with specific
+ * SQL requirements.</p>
+ *
+ * <p>Key features include support for distinct results, dynamic addition or removal of result
+ * components, and methods to include primary key columns automatically. Notable methods include
+ * <code>add(column, alias)</code> to add columns with aliases, <code>addSubSelect(query, alias)</code>
+ * for embedding subqueries, and <code>remove(name)</code> to remove a column by its name.</p>
+ *
+ * <p>For further details, refer to the
+ * <a href="./qbselect.md">QBSelect documentation</a>.</p>
  *
  * @author rgansevles
  *

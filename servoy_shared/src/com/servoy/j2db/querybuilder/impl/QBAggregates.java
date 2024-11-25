@@ -31,7 +31,18 @@ import com.servoy.j2db.querybuilder.IQueryBuilderAggregates;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * Provides the list of aggregates that can be used in a QBSelect.
+ * <p>The <code>QBAggregates</code> class provides a collection of aggregate functions that can be
+ * utilized within a <code>QBSelect</code> query. These functions enable the creation of expressions
+ * for common operations such as averages, counts, maximums, minimums, and sums. They are designed
+ * to work within query results or as part of grouping and filtering logic.</p>
+ *
+ * <p>Key methods include <code>avg</code>, <code>count</code>, <code>max</code>, <code>min</code>,
+ * and <code>sum</code>, which allow you to compute aggregate values for specific columns or
+ * expressions. Additionally, the <code>parent</code> and <code>root</code> properties give access
+ * to the parent query or table clause, facilitating complex query structures and subqueries.</p>
+ *
+ * <p>For more information about constructing and executing queries, refer to
+ * <a href="./qbselect.md">QBSelect</a> section of the documentation.</p>
  *
  * @author rgansevles
  *

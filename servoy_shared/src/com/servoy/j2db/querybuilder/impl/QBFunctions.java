@@ -37,7 +37,18 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Utility class for all available SQL functions.
+ * <p>The <code>QBFunctions</code> class provides a comprehensive set of SQL functions designed to
+ * enhance query building in <code>QBSelect</code>. It enables the creation of mathematical, string,
+ * and date-based expressions, along with conditional and custom logic.</p>
+ *
+ * <p>This class allows users to perform operations like calculating absolute values, rounding, and
+ * extracting substrings. It also includes advanced capabilities such as casting data types,
+ * concatenating strings, trimming whitespace, and formatting dates. With access to aggregation
+ * methods and support for custom function definitions, the class is versatile in handling diverse
+ * SQL requirements.</p>
+ *
+ * <p>For additional guidance on query construction and execution, refer to the
+ * <a href="./qbselect.md">QBSelect</a> section of the documentation.</p>
  *
  * @author rgansevles
  *
