@@ -32,7 +32,18 @@ import com.servoy.j2db.scripting.JSMenuItem;
 import com.servoy.j2db.scripting.ScriptObjectRegistry;
 
 /**
- * A scripting object for handling all menus (JSMenu, JSMenuItem) in the application.
+ * <p><code>Menus</code> in Servoy provide a scripting object for creating and managing
+ * menus (<code>JSMenu</code>, <code>JSMenuItem</code>) in applications. These objects facilitate
+ * dynamic or design-time menu configuration and interaction.</p>
+ *
+ * <p>The <code>menus</code> object supports creating new menus using <code>createMenu(name)</code>,
+ * where the <code>name</code> must be a unique identifier. Existing menus can be retrieved
+ * using <code>getMenu(name)</code>, returning <code>null</code> if the specified menu does
+ * not exist. Additionally, all menus, whether created at runtime or design time, can be
+ * retrieved using <code>getMenus()</code>, which returns an array of available menus.</p>
+ *
+ * <p>Menus enable developers to customize user navigation and application functionality
+ * dynamically or statically, supporting enhanced application experiences.</p>
  *
  * @author lvostinar
  *

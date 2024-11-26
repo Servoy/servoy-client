@@ -121,7 +121,7 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
- * <p>The database manager offers extensive tools for managing datasources, queries,
+ * <p>The <code>Database Manager</code> offers extensive tools for managing datasources, queries,
  * records, and transactions, enabling the creation of efficient and scalable data-driven
  * applications. It supports interaction with both in-memory and database-bound datasources,
  * advanced query construction, and record management.</p>
