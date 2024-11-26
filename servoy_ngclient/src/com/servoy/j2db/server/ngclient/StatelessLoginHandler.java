@@ -669,7 +669,7 @@ public class StatelessLoginHandler
 		}
 		else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.AUTHENTICATOR)
 		{
-			verified = checkAuthenticatorPermissions(username, password, needToLogin, solution, oldToken, rememberUser);
+			verified = checkAuthenticatorPermissions(username, password, needToLogin, solution, oldToken, rememberUser, request);
 		}
 		else
 		{
@@ -759,7 +759,7 @@ public class StatelessLoginHandler
 	}
 
 	private static boolean checkAuthenticatorPermissions(String username, String password, Pair<Boolean, String> needToLogin, Solution solution,
-		DecodedJWT oldToken, Boolean rememberUser)
+		DecodedJWT oldToken, Boolean rememberUser, HttpServletRequest request)
 	{
 		Solution authenticator = findAuthenticator(solution);
 		if (authenticator != null)
@@ -767,6 +767,18 @@ public class StatelessLoginHandler
 			JSONObject json = new JSONObject();
 			json.put(USERNAME, username);
 			json.put(PASSWORD, password);
+			Map<String, String[]> parameters = request.getParameterMap();
+			for (Map.Entry<String, String[]> entry : parameters.entrySet())
+			{
+				if (entry.getKey().startsWith("custom_"))
+				{
+					String[] values = entry.getValue();
+					for (String value : values)
+					{
+						json.put(entry.getKey(), value);
+					}
+				}
+			}
 			String refreshToken = null;
 			if (oldToken != null)
 			{
