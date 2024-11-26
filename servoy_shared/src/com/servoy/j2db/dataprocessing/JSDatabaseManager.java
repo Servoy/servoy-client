@@ -121,8 +121,47 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
- * The database manager helper object. Available as "<code>databaseManager.</code>" in scripting.<br/>
- * It helps working with the database, foundsets and datasets.
+ * <p>The database manager offers extensive tools for managing datasources, queries,
+ * records, and transactions, enabling the creation of efficient and scalable data-driven
+ * applications. It supports interaction with both in-memory and database-bound datasources,
+ * advanced query construction, and record management.</p>
+ *
+ * <p>The system allows dynamic creation of datasources using <code>createDataSourceByQuery</code>,
+ * which populates datasources with query results while enabling reuse if the data structure
+ * remains consistent. Developers can specify or infer column types and remove unused
+ * datasources using <code>removeDataSource</code> to optimize resource usage. Query handling
+ * is further enhanced with the <code>QBSelect</code> object, enabling the programmatic
+ * construction of complex queries. The manager also supports <code>ViewFoundSets</code>,
+ * which create filtered, read-only views of database tables suitable for custom data
+ * presentation and aggregation.</p>
+ *
+ * <p>Record management is facilitated by functions like <code>saveData</code> for committing
+ * changes, <code>validate</code> for enforcing data constraints, and <code>mergeRecords</code>
+ * for resolving duplicate records by merging their associated data. Unsaved changes can be
+ * reverted with <code>revertEditedRecords</code>, and the system tracks edited, new, or
+ * unsaved records using functions like <code>getEditedRecords</code>. Developers can ensure
+ * data integrity by starting transactions with <code>startTransaction</code> and rolling
+ * back changes using <code>rollbackTransaction</code> if necessary.</p>
+ *
+ * <p>Table filters enable the restriction of data access through both column-based and
+ * query-based conditions. Filters can be dynamically applied, updated, or removed using
+ * <code>setTableFilters</code> and <code>removeTableFilterParam</code>. The manager provides
+ * utilities like <code>getTable</code> to retrieve schema details, <code>getTableCount</code>
+ * to determine record counts, and <code>getTableFilterParams</code> to inspect active filters.</p>
+ *
+ * <p>Lock management is supported through <code>hasLocks</code> to check acquired locks
+ * and <code>releaseAllLocks</code> to release them, ensuring safe multi-user interactions.
+ * To reflect external data changes, cached records can be refreshed using
+ * <code>refreshRecordFromDatabase</code>.</p>
+ *
+ * <p>Validation tools ensure that records conform to constraints such as column lengths
+ * and non-null requirements through the <code>validate</code> function. Performance
+ * optimization is achieved with <code>recalculate</code> to refresh derived values and
+ * <code>flushCalculations</code> to clear unnecessary data in memory, reducing resource
+ * overhead.</p>
+ *
+ * <p>These capabilities provide developers with a comprehensive framework for building
+ * robust and customizable database-driven solutions.</p>
  *
  * @author jblok
  */

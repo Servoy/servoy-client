@@ -29,8 +29,25 @@ import com.servoy.j2db.ui.runtime.IBaseRuntimeComponent;
 import com.servoy.j2db.util.Utils;
 
 /**
- * The client utilities object. Available as "<code>clientutils.</code>" in scripting.<br/>
- * This provides some utility functions purely for interaction with the client, like generating urls or using client side functions.
+ * <p>The <code>clientutils</code> object provides essential utilities for client-side
+ * operations in applications, streamlining tasks like generating URLs, managing browser
+ * functions, and retrieving interface dimensions. It is designed to enhance interaction
+ * with the client environment, ensuring efficiency and flexibility in various scenarios.</p>
+ *
+ * <p>One key function, <code>createUrlBlobloaderBuilder</code>, enables the creation of
+ * downloadable URLs for content, such as database columns or global variables, which can
+ * be presented in HTML areas. This allows for flexible handling of files with customizable
+ * filenames and MIME types.</p>
+ *
+ * <p>The <code>generateBrowserFunction</code> method facilitates the secure execution of
+ * JavaScript functions on the client side by creating executable function strings. This
+ * is particularly useful in environments with stringent Content Security Policies (CSP).</p>
+ *
+ * <p>Other functions include <code>getBounds</code>, which retrieves the position and size
+ * of UI components or their sub-elements, and <code>getMediaURL</code>, which generates
+ * URLs for serving media assets. Additionally, the <code>requestFullscreen</code> method
+ * enables full-screen display for the HTML document, enhancing user experiences in
+ * immersive scenarios.</p>
  *
  * @author jcompagner
  * @since 2024.3.1
