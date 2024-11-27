@@ -77,9 +77,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 
 	private final int maxForms;
 
-	/**
-	 * @param application
-	 */
 	public NGFormManager(INGApplication application)
 	{
 		super(application);
@@ -483,7 +480,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 				(rw.getType() == JSWindow.MODAL_DIALOG || rw.getType() == JSWindow.DIALOG)))
 			{
 				Debug.warn("Trying to show a form " + formName + " when a login form " + loginForm.getName() + "  is shown, this is not allowed "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				return null;//not allowed to leave here...or show anything else than login form
+				return null; // not allowed to leave here... or show anything else than login form
 			}
 		}
 
@@ -566,6 +563,8 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 
 				fp.getFormUI().setParentWindowName(container.getContainerName());
 
+				INGClientWindow clientWindow = NGClientWindow.getCurrentWindow();
+
 				// as this will send the updateController call to client (initial data) if needed, we do it after visibility runnables are done; so that we show the state after onShow instead of doing this earlier and then sending any UI changes that happen in onShow later to client
 				// see BIG COMMENT in NGFormServiceHandler.executeMethod('formvisibility'); - here we have a similar thing, but the main form is changed,
 				// not the tab of a tabpanel or some other visibility of a custom component;
@@ -574,6 +573,12 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 					public void run()
 					{
 						container.setController(fp); // actually change the form in main container (also sends initial data / updateController if form data is not yet on client)
+
+						INGClientWebsocketSession session;
+						if (clientWindow != null && (session = clientWindow.getSession()) != null && session.isValid()) // as this executes later, make sure everything is still in an ok state
+						{
+							session.getSabloService().setExpectFormToShowOnClient(false);
+						}
 					}
 
 					public int getEventLevel()
@@ -581,6 +586,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 						return FormServiceHandler.EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST;
 					}
 				});
+				if (clientWindow != null) clientWindow.getSession().getSabloService().setExpectFormToShowOnClient(true);
 
 				if (invokeLaterRunnables.size() > 0) wrapInShowLoadingIndicator(invokeLaterRunnables);
 				Utils.invokeLater(application, invokeLaterRunnables);
