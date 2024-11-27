@@ -30,7 +30,20 @@ import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.UUID;
 
 /**
- * Table nodes store Servoy specific information/functionality related to DB tables such as script calculations, aggregations and table events.
+ * <p>The <code>Table</code> object supports defining table-level events such as <code>onCreate</code>,
+ * <code>onUpdate</code>, and <code>onDelete</code>. These methods can control operations by allowing or
+ * preventing actions based on custom logic. For instance, <code>onValidate</code> can validate a record
+ * before insertion, while <code>onAfterInsert</code> is triggered post-insertion for additional operations.</p>
+ *
+ * <p>Additionally, events like <code>onSearch</code> and <code>onFind</code> enable customization of
+ * foundset searches. Events such as <code>onFoundSetLoad</code> and <code>onFoundsetNextChunk</code> are
+ * useful for managing in-memory or view-based datasets.</p>
+ *
+ * <p>The <code>columns</code> property allows for detailed configuration and interaction with the database
+ * schema.</p>
+ *
+ * <p>For a broader understanding of database-level features and capabilities, refer to the
+ * <a href="../database-server/README.md">Database Server</a> documentation.</p>
  *
  * @author jblok
  */

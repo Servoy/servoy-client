@@ -54,8 +54,29 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Security object. Available as "<code>security.</code>" in scripting.<br/>
- * It provides methods and constants for working with users / groups / permissions etc.
+ * <p>The <code>security</code> object provides a comprehensive API for managing users, groups, and permissions
+ * in a solution. It includes constants for form and table security and methods to control user access and
+ * permissions programmatically.</p>
+ *
+ * <p>Security constants such as <code>ACCESSIBLE</code>, <code>DELETE</code>, <code>INSERT</code>,
+ * <code>READ</code>, and <code>UPDATE</code> define flags for controlling access to forms and tables. These
+ * constants allow developers to set permissions using datasets and apply them at runtime.</p>
+ *
+ * <p>The API includes methods for managing users, such as <code>createUser</code>, <code>deleteUser</code>,
+ * and <code>changeUserName</code>. Permissions can be assigned or removed with <code>addPermissionToUser</code>
+ * and <code>removePermissionFromUser</code>. Developers can query permissions using methods like
+ * <code>hasPermission</code> or retrieve user-related information with <code>getUserName</code> and
+ * <code>getUserUID</code>.</p>
+ *
+ * <p>Authentication is supported via the <code>authenticate</code> method, which integrates with custom
+ * authenticators or Servoy's built-in system. The API also allows setting and managing tenant values to
+ * filter data access by tenant.</p>
+ *
+ * <p>The <code>security</code> object facilitates dynamic security configurations and provides control
+ * over application access at a granular level.</p>
+ *
+ * <p>For more information, please refer to the overall
+ * <a href="../../../guides/develop/security/README.md">Security</a> documentation.</p>
  *
  * @author jcompagner,seb,jblok
  */

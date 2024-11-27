@@ -47,7 +47,26 @@ import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Similar to Record, is a row in a ViewFoundSet.
+ * <p>A <code>ViewRecord</code> represents a row in a <code>ViewFoundSet</code>, with functionality tailored
+ * to handle specific record-related operations. Key properties include:</p>
+ *
+ * <p><code>exception</code>: Provides information on the last exception that occurred for the record.</p>
+ * <p><code>foundset</code>: References the parent foundset.</p>
+ * <p><code>recordMarkers</code>: Facilitates validation by retaining markers for issues until a record is
+ * successfully saved or manually cleared.</p>
+ *
+ * <p>The <code>ViewRecord</code> object includes methods for examining and managing record state. For instance:</p>
+ * <p><code>getChangedData</code>: Retrieves unsaved changes in a dataset format.</p>
+ * <p><code>hasChangedData</code> and <code>isEditing</code>: Determine whether the record has pending
+ * modifications.</p>
+ * <p><code>createMarkers</code>: Allows manual creation of validation markers.</p>
+ * <p><code>revertChanges</code>: Undoes unsaved modifications.</p>
+ * <p><code>getPKs</code>: Fetches the primary key values of a record.</p>
+ * <p><code>isRelatedFoundSetLoaded</code>: Verifies if a related foundset is already initialized without
+ * triggering its load.</p>
+ *
+ * <p>For more information on managing records within the context of view foundsets, refer to the
+ * <a href="./viewfoundset.md">View foundset</a> section of the documentation.</p>
  *
  * @author jcompagner
  * @since 8.4

@@ -22,7 +22,27 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
- * Script constants user interface configuration.
+ * <p>The <code>UICONSTANTS</code> object provides predefined script constants to configure various aspects
+ * of the user interface. These constants enable developers to control application behavior, including
+ * component-specific properties, tooltip timings, and table view settings.</p>
+ *
+ * <p>For instance:</p>
+ * <ul>
+ *   <li><code>CALENDAR_NG_SHOW_ISO_WEEK_NUMBER</code> allows toggling the display of ISO week numbers in
+ *   calendar components.</li>
+ *   <li><code>COMBOBOX_ENABLE_FILTER</code> controls the visibility of search boxes in combobox fields.</li>
+ *   <li><code>HTML_EDITOR_CONFIGURATION</code> supports custom configurations for TinyMCE editors in
+ *   editable HTML areas.</li>
+ *   <li><code>TABLEVIEW_NG_PAGE_SIZE_FACTOR</code> adjusts data-loading size for table views in NGClient,
+ *   enhancing performance for large datasets.</li>
+ *   <li><code>TRUST_DATA_AS_HTML</code> determines whether displayed data is sanitized, a feature that
+ *   should be used cautiously to avoid potential XSS vulnerabilities.</li>
+ * </ul>
+ *
+ * <p>These constants are typically configured using methods like <code>application.putClientProperty</code>
+ * or <code>element.putClientProperty</code>, allowing for application-wide or component-specific behavior
+ * modifications. Many of these configurations, such as <code>TOOLTIP_INITIAL_DELAY</code> or
+ * <code>TYPE_AHEAD_SHOW_POPUP_ON_FOCUS_GAIN</code>, contribute to a more user-friendly interface.</p>
  *
  * @author gerzse
  */
