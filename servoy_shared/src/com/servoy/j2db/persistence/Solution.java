@@ -1028,7 +1028,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	}
 	/*------------------------------------------------------------------------------------------------------------------------
 	 * LISTENERS
-
+	
 	public void iPersistChanged(IPersist persist)
 	{
 		getChangeHandler().fireIPersistChanged(persist);
@@ -1250,7 +1250,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * The custom CSS used by the solution (a MEDIA lib entry). It can reference other media resources (even additional .css through relative '@import' statements).
 	 * For NGClient - this CSS will be available directly in the browser.
 	 */
-	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
+	@ServoyClientSupport(ng = true, mc = true, wc = false, sc = false)
 	public int getStyleSheetID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLESHEET).intValue();
