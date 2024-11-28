@@ -85,8 +85,6 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.github.scribejava.apis.openid.OpenIdOAuth2AccessToken;
-import com.github.scribejava.core.builder.ServiceBuilder;
-import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.github.scribejava.core.revoke.TokenTypeHint;
@@ -140,19 +138,6 @@ public class StatelessLoginHandler
 		"/servoy-service/rest_ws/api/login_auth/refreshPermissions";
 	public static final String CLOUD_OAUTH_URL = BASE_CLOUD_URL +
 		"/servoy-service/rest_ws/api/login_auth/validateOAuthUser";
-
-	//oauth constants
-	private static final String NONCE = "nonce";
-	public static final String JWKS_URI = "jwks_uri";
-	public static final String ACCESS_TOKEN_ENDPOINT = "accessTokenEndpoint";
-	public static final String REFRESH_TOKEN_ENDPOINT = "refreshTokenEndpoint";
-	public static final String REVOKE_TOKEN_ENDPOINT = "revokeTokenEndpoint";
-	public static final String AUTHORIZATION_BASE_URL = "authorizationBaseUrl";
-	public static final String TENANT = "tenant";
-	public static final String OAUTH_API = "api";
-	public static final String DEFAULT_SCOPE = "defaultScope";
-	public static final String API_SECRET = "apiSecret";
-	public static final String CLIENT_ID = "clientId";
 
 	@SuppressWarnings({ "boxing" })
 	public static Pair<Boolean, String> mustAuthenticate(HttpServletRequest request, HttpServletResponse reponse, String solutionName)
@@ -292,7 +277,7 @@ public class StatelessLoginHandler
 			if (checkNonce)
 			{
 				//if token was refreshed it does not have nonce // TODO check
-				String tokenNonce = decodedJWT.getClaim(NONCE).asString();
+				String tokenNonce = decodedJWT.getClaim(OAuthUtils.NONCE).asString();
 				auth = checkNonce(request.getServletContext(), tokenNonce);
 				if (auth == null)
 				{
@@ -300,11 +285,11 @@ public class StatelessLoginHandler
 					return false;
 				}
 			}
-			if (auth.has(JWKS_URI))
+			if (auth.has(OAuthUtils.JWKS_URI))
 			{
 				try
 				{
-					String jwks_uri = auth.getString(JWKS_URI);
+					String jwks_uri = auth.getString(OAuthUtils.JWKS_URI);
 					final JwkProvider jwkStore = new UrlJwkProvider(new URL(jwks_uri));
 					if (decodedJWT.getKeyId() == null)
 					{
@@ -1034,14 +1019,14 @@ public class StatelessLoginHandler
 		Map<String, String> additionalParameters)
 	{
 		String nonce = generateNonce(request.getServletContext(), auth);
-		additionalParameters.put(NONCE, nonce);
+		additionalParameters.put(OAuthUtils.NONCE, nonce);
 		HttpSession session = request.getSession(false);
 		if (session != null && session.getAttribute("logout") != null)
 		{
 			session.removeAttribute("logout");
 			additionalParameters.put("prompt", "consent");
 		}
-		return createOauthService(auth, additionalParameters, getServerURL(request));
+		return OAuthUtils.createOauthService(auth, additionalParameters, getServerURL(request));
 	}
 
 
@@ -1289,98 +1274,6 @@ public class StatelessLoginHandler
 	}
 
 
-	public static OAuth20Service createOauthService(JSONObject auth, Map<String, String> additionalParameters, String serverURL)
-	{
-		ServiceBuilder builder = new ServiceBuilder(auth.optString(CLIENT_ID));
-		String api = null, tenant = null;
-		for (String key : auth.keySet())
-		{
-			switch (key)
-			{
-				case API_SECRET :
-					builder.apiSecret(auth.getString(key));
-					break;
-				case DEFAULT_SCOPE :
-					builder.defaultScope(auth.getString(key));
-					break;
-				case OAUTH_API :
-					api = auth.getString(key);
-					break;
-				case TENANT :
-					tenant = auth.getString(key);
-					break;
-				case AUTHORIZATION_BASE_URL :
-				case ACCESS_TOKEN_ENDPOINT :
-				case CLIENT_ID :
-				case JWKS_URI :
-					//skip
-					break;
-				default :
-					additionalParameters.put(key, auth.getString(key));
-			}
-		}
-		String responseType = OAuthUtils.getResponseType(api, additionalParameters);
-		builder.responseType(responseType);
-		if (responseType.contains("code"))
-		{
-			additionalParameters.put("state", additionalParameters.get(NONCE));
-		}
-		String oauth_path = responseType.equals("id_token") ? "svy_oauth/" : "";
-		builder.callback(serverURL + oauth_path + "index.html");
-		try
-		{
-			DefaultApi20 apiInstance = null;
-			if (api != null)
-			{
-				apiInstance = OAuthUtils.getApiInstance(api, tenant);
-			}
-			else
-			{
-				if (!auth.has(AUTHORIZATION_BASE_URL))
-				{
-					throw new Exception("Cannot create the custom oauth api, authorizationBaseUrl is null.");
-				}
-				if (!auth.has(ACCESS_TOKEN_ENDPOINT))
-				{
-					throw new Exception("Cannot create the custom oauth api, accessTokenEndpoint is null.");
-				}
-
-				apiInstance = new DefaultApi20()
-				{
-					@Override
-					protected String getAuthorizationBaseUrl()
-					{
-						return auth.getString(AUTHORIZATION_BASE_URL);
-					}
-
-					@Override
-					public String getAccessTokenEndpoint()
-					{
-						return auth.getString(ACCESS_TOKEN_ENDPOINT);
-					}
-
-					@Override
-					public String getRefreshTokenEndpoint()
-					{
-						return auth.optString(REFRESH_TOKEN_ENDPOINT, null);
-					}
-
-					@Override
-					public String getRevokeTokenEndpoint()
-					{
-						return auth.optString(REVOKE_TOKEN_ENDPOINT, null);
-					}
-				};
-			}
-			return builder.build(apiInstance);
-		}
-		catch (Exception e)
-		{
-			Debug.error("Cannot create the oauth service.", e);
-		}
-		return null;
-	}
-
 	private static String getPath(HttpServletRequest request)
 	{
 		String path = Settings.getInstance().getProperty("servoy.context.path", request.getContextPath() + '/');
@@ -1414,7 +1307,7 @@ public class StatelessLoginHandler
 				Debug.error("Error saving the settings class to store the JWT_Password", e); //$NON-NLS-1$
 			}
 		}
-		context.setAttribute(NONCE, Collections.synchronizedMap(new PassiveExpiringMap<String, String>(30, TimeUnit.MINUTES)));
+		context.setAttribute(OAuthUtils.NONCE, Collections.synchronizedMap(new PassiveExpiringMap<String, String>(30, TimeUnit.MINUTES)));
 	}
 
 
@@ -1428,7 +1321,7 @@ public class StatelessLoginHandler
 	@SuppressWarnings("unchecked")
 	private static String generateNonce(ServletContext context, JSONObject oauth)
 	{
-		Map<String, JSONObject> cache = (Map<String, JSONObject>)context.getAttribute(NONCE);
+		Map<String, JSONObject> cache = (Map<String, JSONObject>)context.getAttribute(OAuthUtils.NONCE);
 		String nonce = UUID.randomUUID().toString();
 		cache.put(nonce, oauth);
 		return nonce;
@@ -1446,7 +1339,7 @@ public class StatelessLoginHandler
 	{
 		if (nonceString != null)
 		{
-			Map<String, JSONObject> cache = (Map<String, JSONObject>)context.getAttribute(NONCE);
+			Map<String, JSONObject> cache = (Map<String, JSONObject>)context.getAttribute(OAuthUtils.NONCE);
 			return cache.get(nonceString);
 		}
 		return null;
@@ -1463,7 +1356,7 @@ public class StatelessLoginHandler
 	{
 		if (nonceString != null)
 		{
-			Map<String, JSONObject> cache = (Map<String, JSONObject>)context.getAttribute(NONCE);
+			Map<String, JSONObject> cache = (Map<String, JSONObject>)context.getAttribute(OAuthUtils.NONCE);
 			return cache.remove(nonceString);
 		}
 		return null;
@@ -1578,7 +1471,7 @@ public class StatelessLoginHandler
 		if (id_token != null)
 		{
 			DecodedJWT jwt = JWT.decode(id_token);
-			if (!jwt.getClaim(REFRESH_TOKEN).isNull())
+			if (jwt.getClaim(REFRESH_TOKEN).asString() != null)
 			{
 				OAuth20Service service = null;
 				AUTHENTICATOR_TYPE authenticator = solution.getAuthenticator();
@@ -1588,7 +1481,7 @@ public class StatelessLoginHandler
 					if (properties.has(OAUTH_CUSTOM_PROPERTIES))
 					{
 						JSONObject auth = properties.getJSONObject(OAUTH_CUSTOM_PROPERTIES);
-						service = createOauthService(auth, new HashMap<>(), null);
+						service = OAuthUtils.createOauthService(auth, new HashMap<>(), null);
 					}
 				}
 				else if (authenticator == AUTHENTICATOR_TYPE.SERVOY_CLOUD)

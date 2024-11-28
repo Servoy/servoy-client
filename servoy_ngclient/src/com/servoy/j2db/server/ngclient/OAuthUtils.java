@@ -19,11 +19,17 @@ package com.servoy.j2db.server.ngclient;
 
 import java.util.Map;
 
+import org.json.JSONObject;
+
 import com.github.scribejava.apis.GoogleApi20;
 import com.github.scribejava.apis.LinkedInApi20;
 import com.github.scribejava.apis.MicrosoftAzureActiveDirectory20Api;
+import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.builder.api.DefaultApi20;
+import com.github.scribejava.core.oauth.OAuth20Service;
 import com.servoy.j2db.server.ngclient.auth.AppleIDApi;
+import com.servoy.j2db.server.ngclient.auth.OktaApi;
+import com.servoy.j2db.util.Debug;
 
 /**
  * Constants and helper methods for oauth.
@@ -35,11 +41,24 @@ public class OAuthUtils
 	public static final String LINKED_IN = "LinkedIn";
 	public static final String GOOGLE = "Google";
 	public static final String MICROSOFT_AD = "Microsoft AD";
+	public static final String OKTA = "Okta";
 
 	public static final String GOOGLE_JWKS = "https://www.googleapis.com/oauth2/v3/certs";
 	public static final String MICROSOFT_JWKS = "https://login.microsoftonline.com/{tenant}/discovery/v2.0/keys";
 	public static final String APPLE_JWKS = "https://appleid.apple.com/auth/keys";
 	public static final String LINKEDIN_JWKS = "https://www.linkedin.com/oauth/v2/certs";
+	public static final String OKTA_JWKS = "https://{domain}/oauth2/default/v1/keys";
+
+	static final String NONCE = "nonce";
+	public static final String JWKS_URI = "jwks_uri";
+	public static final String ACCESS_TOKEN_ENDPOINT = "accessTokenEndpoint";
+	public static final String REFRESH_TOKEN_ENDPOINT = "refreshTokenEndpoint";
+	public static final String REVOKE_TOKEN_ENDPOINT = "revokeTokenEndpoint";
+	public static final String AUTHORIZATION_BASE_URL = "authorizationBaseUrl";
+	public static final String OAUTH_API = "api";
+	public static final String DEFAULT_SCOPE = "defaultScope";
+	public static final String API_SECRET = "apiSecret";
+	public static final String CLIENT_ID = "clientId";
 
 
 	public static String getResponseType(String api, Map<String, String> additionalParameters)
@@ -48,19 +67,21 @@ public class OAuthUtils
 		{
 			return "offline".equals(additionalParameters.get("access_type")) ? "code" : "id_token";
 		}
-		else if (APPLE.equals(api))
+		else if (APPLE.equals(api) || OKTA.equals(api))
 		{
 			return "code id_token";
 		}
 		return "code";
 	}
 
-	static DefaultApi20 getApiInstance(String provider, String tenant) throws Exception
+	static DefaultApi20 getApiInstance(String provider, JSONObject auth) throws Exception
 	{
+		JSONObject customParameters = auth.optJSONObject("customParameters");
 		switch (provider)
 		{
 			case "Microsoft" :
 			case MICROSOFT_AD :
+				String tenant = customParameters != null ? customParameters.optString("tenant", null) : null;
 				return tenant != null ? MicrosoftAzureActiveDirectory20Api.custom(tenant) : MicrosoftAzureActiveDirectory20Api.instance();
 			case GOOGLE :
 				return GoogleApi20.instance();
@@ -68,6 +89,8 @@ public class OAuthUtils
 				return LinkedInApi20.instance();
 			case APPLE :
 				return AppleIDApi.instance();
+			case OKTA :
+				return OktaApi.custom(customParameters.optString("domain"));
 			default :
 				throw new Exception("Could not create an OAuth Api.");
 		}
@@ -86,8 +109,100 @@ public class OAuthUtils
 				return LINKEDIN_JWKS;
 			case APPLE :
 				return APPLE_JWKS;
+			case OKTA :
+				return OKTA_JWKS;
 			default :
 				return null;
 		}
+	}
+
+	public static OAuth20Service createOauthService(JSONObject auth, Map<String, String> additionalParameters, String serverURL)
+	{
+		ServiceBuilder builder = new ServiceBuilder(auth.optString(CLIENT_ID));
+		String api = null;
+		for (String key : auth.keySet())
+		{
+			switch (key)
+			{
+				case API_SECRET :
+					builder.apiSecret(auth.getString(key));
+					break;
+				case DEFAULT_SCOPE :
+					builder.defaultScope(auth.getString(key));
+					break;
+				case OAUTH_API :
+					api = auth.getString(key);
+					break;
+				case AUTHORIZATION_BASE_URL :
+				case ACCESS_TOKEN_ENDPOINT :
+				case CLIENT_ID :
+				case JWKS_URI :
+				case "customParameters" :
+					//skip
+					break;
+				default :
+					additionalParameters.put(key, auth.getString(key));
+			}
+		}
+		String responseType = getResponseType(api, additionalParameters);
+		builder.responseType(responseType);
+		if (responseType.contains("code"))
+		{
+			additionalParameters.put("state", additionalParameters.get(NONCE));
+		}
+		String oauth_path = responseType.equals("id_token") ? "svy_oauth/" : "";
+		builder.callback(serverURL + oauth_path + "index.html");
+		try
+		{
+			DefaultApi20 apiInstance = null;
+			if (api != null)
+			{
+				apiInstance = getApiInstance(api, auth);
+			}
+			else
+			{
+				if (!auth.has(AUTHORIZATION_BASE_URL))
+				{
+					throw new Exception("Cannot create the custom oauth api, authorizationBaseUrl is null.");
+				}
+				if (!auth.has(ACCESS_TOKEN_ENDPOINT))
+				{
+					throw new Exception("Cannot create the custom oauth api, accessTokenEndpoint is null.");
+				}
+
+				apiInstance = new DefaultApi20()
+				{
+					@Override
+					protected String getAuthorizationBaseUrl()
+					{
+						return auth.getString(AUTHORIZATION_BASE_URL);
+					}
+
+					@Override
+					public String getAccessTokenEndpoint()
+					{
+						return auth.getString(ACCESS_TOKEN_ENDPOINT);
+					}
+
+					@Override
+					public String getRefreshTokenEndpoint()
+					{
+						return auth.optString(REFRESH_TOKEN_ENDPOINT, null);
+					}
+
+					@Override
+					public String getRevokeTokenEndpoint()
+					{
+						return auth.optString(REVOKE_TOKEN_ENDPOINT, null);
+					}
+				};
+			}
+			return builder.build(apiInstance);
+		}
+		catch (Exception e)
+		{
+			Debug.error("Cannot create the oauth service.", e);
+		}
+		return null;
 	}
 }
