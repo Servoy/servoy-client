@@ -82,7 +82,7 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	public static final String MENU_FOUNDSET = "MenuFoundSet";
 
 	private static Callable symbol_iterator = (Context cx, Scriptable scope, Scriptable thisObj, Object[] args) -> {
-		return new IterableES6Iterator(scope, ((ViewFoundSet)thisObj));
+		return new IterableES6Iterator(scope, ((MenuFoundSet)thisObj));
 	};
 
 	private final IFoundSetManagerInternal manager;
