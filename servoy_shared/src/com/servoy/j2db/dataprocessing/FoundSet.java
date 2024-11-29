@@ -6155,7 +6155,8 @@ public abstract class FoundSet
 	{
 		try
 		{
-			if (getSelectedIndex() >= 0 && fsm.hasFoundsetTrigger(getDataSource(), StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID))
+			if (getSelectedIndex() >= 0 && i >= 0 &&
+				fsm.hasFoundsetTrigger(getDataSource(), StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID))
 			{
 				return executeFoundsetTriggerBreakOnFalse(new Object[] { getSelectedRecord(), getRecord(i) },
 					StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID, false);
