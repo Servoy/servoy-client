@@ -237,7 +237,7 @@ public class EventExecutor
 			String argsAsString = Arrays.asList(newargs).stream()
 				.map(value -> value instanceof JSEvent ? "JSEvent" //$NON-NLS-1$
 					: value instanceof Record ? "JSRecord" //$NON-NLS-1$
-						: value instanceof String str ? str.substring(0, 30)
+						: value instanceof String str && str.length() > 30 ? str.substring(0, 30)
 							: value instanceof Scriptable s ? Utils.getScriptableString(s) : String.valueOf(value))
 				.collect(Collectors.joining(",")); //$NON-NLS-1$
 			EVENT_TRACING_LOG.info(application.getUserUID() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
