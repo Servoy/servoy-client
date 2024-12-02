@@ -240,7 +240,7 @@ public class EventExecutor
 						: value instanceof String str ? str.substring(0, 30)
 							: value instanceof Scriptable s ? Utils.getScriptableString(s) : String.valueOf(value))
 				.collect(Collectors.joining(",")); //$NON-NLS-1$
-			EVENT_TRACING_LOG.info(application.getUserName() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
+			EVENT_TRACING_LOG.info(application.getUserUID() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
 				application.getSolutionName() + '|' + formController.getName() + '|' + component.getName() + '|' + eventType + '|' + argsAsString);
 		}
 
