@@ -1799,14 +1799,19 @@ public class NGClient extends AbstractApplication
 		{
 			uuid = UUID.randomUUID().toString();
 			clientFunctions.put(code, uuid);
-			if (!reloadClientFunctionsSend)
-			{
-				reloadClientFunctionsSend = true;
-				this.getWebsocketSession().getClientService(NGClientWebsocketSession.CLIENT_FUNCTION_SERVICE).executeAsyncServiceCall("reloadClientFunctions",
-					null);
-			}
+			reloadClientFunctions();
 		}
 		return uuid;
+	}
+
+	public void reloadClientFunctions()
+	{
+		if (!reloadClientFunctionsSend)
+		{
+			reloadClientFunctionsSend = true;
+			this.getWebsocketSession().getClientService(NGClientWebsocketSession.CLIENT_FUNCTION_SERVICE).executeAsyncServiceCall("reloadClientFunctions",
+				null);
+		}
 	}
 
 	@Override

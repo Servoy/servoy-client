@@ -56,6 +56,8 @@ public interface INGApplication extends INGClientApplication
 
 	String registerClientFunction(String code);
 
+	void reloadClientFunctions();
+
 	Map<String, String> getClientFunctions();
 
 	/**
