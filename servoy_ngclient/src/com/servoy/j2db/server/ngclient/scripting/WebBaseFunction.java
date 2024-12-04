@@ -24,8 +24,12 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.sablo.IWebObjectContext;
 import org.sablo.specification.IFunctionParameters;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectApiFunctionDefinition;
 
+import com.servoy.j2db.server.ngclient.IContextProvider;
+import com.servoy.j2db.server.ngclient.property.types.BasicTagStringTypeSabloValue;
+import com.servoy.j2db.server.ngclient.property.types.ClientFunctionPropertyType;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 
 /**
@@ -63,8 +67,15 @@ public abstract class WebBaseFunction implements Function
 			}
 			for (int i = 0; i < args.length; i++)
 			{
-				args[i] = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(args[i], null, parameterTypes.getParameterDefinitionTreatVarArgs(i),
+				PropertyDescription pd = parameterTypes.getParameterDefinitionTreatVarArgs(i);
+				args[i] = NGConversions.INSTANCE.convertRhinoToSabloComponentValue(args[i], null, pd,
 					webObjectContext);
+				if (pd != null && pd.getType() instanceof ClientFunctionPropertyType && webObjectContext != null &&
+					webObjectContext.getUnderlyingWebObject() instanceof IContextProvider contextProvider &&
+					args[i] instanceof BasicTagStringTypeSabloValue tagValue)
+				{
+					contextProvider.getDataConverterContext().getApplication().registerClientFunction(tagValue.getOperatingDesignValue());
+				}
 			}
 		}
 		return args;
