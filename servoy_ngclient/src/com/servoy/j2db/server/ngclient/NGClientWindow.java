@@ -30,6 +30,8 @@ import org.json.JSONString;
 import org.sablo.Container;
 import org.sablo.WebComponent;
 import org.sablo.eventthread.EventDispatcher;
+import org.sablo.specification.IFunctionParameters;
+import org.sablo.specification.PropertyDescription;
 import org.sablo.specification.WebObjectApiFunctionDefinition;
 import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.websocket.BaseWindow;
@@ -48,6 +50,7 @@ import com.servoy.j2db.persistence.Form;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.server.ngclient.endpoint.NGClientSideWindowState;
+import com.servoy.j2db.server.ngclient.property.types.ClientFunctionPropertyType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.WeakHashSet;
@@ -531,4 +534,20 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 		return uuidRelationName;
 	}
 
+	@Override
+	protected void addServiceCall(IClientService clientService, String functionName, Object[] arguments, IFunctionParameters argumentTypes)
+	{
+		super.addServiceCall(clientService, functionName, arguments, argumentTypes);
+		if (arguments != null)
+		{
+			for (int i = 0; i < arguments.length; i++)
+			{
+				PropertyDescription pd = argumentTypes != null ? argumentTypes.getParameterDefinition(i) : null;
+				if (pd != null && arguments[i] != null && pd.getType() instanceof ClientFunctionPropertyType)
+				{
+					getClient().reloadClientFunctions();
+				}
+			}
+		}
+	}
 }
