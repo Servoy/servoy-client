@@ -23,6 +23,7 @@ import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.dataprocessing.MenuFoundSet;
 import com.servoy.j2db.dataprocessing.MenuItemRecord;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.ServoyException;
@@ -31,6 +32,7 @@ import com.servoy.j2db.util.ServoyException;
  * @author lvostinar
  *
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class JSMenuDataSource implements IJavaScriptType, IDestroyable
 {
 	private volatile IApplication application;
