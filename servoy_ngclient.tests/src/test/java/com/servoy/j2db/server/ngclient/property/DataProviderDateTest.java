@@ -2082,18 +2082,5 @@ public class DataProviderDateTest
 			// TODO Auto-generated method stub
 			return null;
 		}
-
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see com.servoy.j2db.server.ngclient.INGApplication#reloadClientFunctions()
-		 */
-		@Override
-		public void reloadClientFunctions()
-		{
-			// TODO Auto-generated method stub
-
-		}
-
 	}
 }
