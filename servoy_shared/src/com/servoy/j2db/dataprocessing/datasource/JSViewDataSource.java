@@ -22,6 +22,7 @@ import org.mozilla.javascript.annotations.JSFunction;
 import com.servoy.j2db.IApplication;
 import com.servoy.j2db.dataprocessing.IFoundSet;
 import com.servoy.j2db.dataprocessing.ViewFoundSet;
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.scripting.IJavaScriptType;
@@ -33,6 +34,7 @@ import com.servoy.j2db.util.ServoyException;
 /**
  * @author emera
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class JSViewDataSource implements IJavaScriptType, IDestroyable
 {
 	private volatile IApplication application;
