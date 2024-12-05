@@ -81,9 +81,7 @@ public class AngularIndexPageFilter implements Filter
 		HttpServletResponse response = (HttpServletResponse)servletResponse;
 		String requestURI = request.getRequestURI();
 		String solutionName = getSolutionNameFromURI(requestURI);
-		if (("GET".equalsIgnoreCase(request.getMethod()) ||
-			"POST".equalsIgnoreCase(request.getMethod()) && request.getParameter(StatelessLoginHandler.USERNAME) != null) &&
-			solutionName != null)
+		if (("GET".equalsIgnoreCase(request.getMethod()) || "POST".equalsIgnoreCase(request.getMethod())) && solutionName != null)
 		{
 
 			if ((requestURI.endsWith("/") || requestURI.endsWith("/" + solutionName) || requestURI.toLowerCase().endsWith("/index.html")))

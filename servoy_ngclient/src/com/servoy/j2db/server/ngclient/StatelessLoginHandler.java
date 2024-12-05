@@ -430,7 +430,8 @@ public class StatelessLoginHandler
 			}
 			catch (Exception e)
 			{
-				throw new ServletException(e.getMessage());
+				log.atInfo().setCause(e).log(() -> "Exception thrown when handling a possible cloud request");
+				throw new ServletException(e.getMessage(), e);
 			}
 		}
 		return false;
@@ -448,7 +449,7 @@ public class StatelessLoginHandler
 		{
 			if (status == HttpStatus.SC_OK && json.has("html"))
 			{
-				log.atInfo().log(() -> "The cloud returned html: " + json.getString("html"));
+				log.atInfo().log(() -> "The cloud returned html: " + json.get("html"));
 				html = json.getString("html");
 			}
 			else if (json.has("error"))
