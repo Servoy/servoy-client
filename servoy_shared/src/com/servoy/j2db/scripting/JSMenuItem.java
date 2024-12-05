@@ -17,13 +17,11 @@
 
 package com.servoy.j2db.scripting;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.json.JSONObject;
 import org.mozilla.javascript.annotations.JSFunction;
@@ -34,7 +32,6 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.MenuItem;
-import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -61,7 +58,7 @@ import com.servoy.j2db.util.Utils;
  */
 @ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSMenuItem")
-public class JSMenuItem implements IConstantsObject
+public class JSMenuItem extends JSMenu implements IConstantsObject
 {
 	/**
 	 * Constant representing the viewable flag for menu item seurity.
@@ -77,13 +74,10 @@ public class JSMenuItem implements IConstantsObject
 	 */
 	public static final int ENABLED = MenuItem.ENABLED;
 
-	private final String itemID;
 	private String menuText;
-	private String styleClass;
 	private String iconStyleClass;
 	private String tooltipText;
 	private boolean enabled = true;
-	private final List<JSMenuItem> items = new ArrayList<JSMenuItem>();
 	private Object[] callbackArguments;
 	private final JSMenu parentMenu;
 	private Map<String, Map<String, Object>> extraProperties;
@@ -98,7 +92,7 @@ public class JSMenuItem implements IConstantsObject
 	 */
 	public JSMenuItem(JSMenu parentMenu, MenuItem menuItem, String[] allowedPermissions)
 	{
-		this.itemID = menuItem.getName();
+		super(menuItem.getName(), allowedPermissions);
 		this.menuText = menuItem.getText();
 		this.styleClass = menuItem.getStyleClass();
 		this.iconStyleClass = menuItem.getIconStyleClass();
@@ -113,7 +107,7 @@ public class JSMenuItem implements IConstantsObject
 			IPersist child = it.next();
 			if (child instanceof MenuItem menuItemChild)
 			{
-				items.add(new JSMenuItem(parentMenu, menuItemChild, allowedPermissions));
+				items.add(new JSMenuItem(this, menuItemChild, allowedPermissions));
 			}
 		}
 		this.extraProperties = menuItem.getExtraProperties();
@@ -123,28 +117,25 @@ public class JSMenuItem implements IConstantsObject
 	 * @param menuManager
 	 * @param name
 	 */
-	public JSMenuItem(JSMenu parentMenu, String itemID, String[] allowedPermissions)
+	public JSMenuItem(JSMenu parentMenu, String name, String[] allowedPermissions)
 	{
-		this.itemID = itemID;
+		super(name, allowedPermissions);
 		this.parentMenu = parentMenu;
 		this.allowedPermissions = allowedPermissions;
-	}
-
-	/**
-	 * The menu name (identifier)
-	 *
-	 * @return the name (identifier) of the menu item
-	 */
-	@JSReadonlyProperty
-	public String getItemID()
-	{
-		return itemID;
 	}
 
 	@JSSetter
 	public void setMenuText(String text)
 	{
 		this.menuText = text;
+		notifyChanged();
+	}
+
+	/**
+	 * 
+	 */
+	protected void notifyChanged()
+	{
 		this.parentMenu.notifyChanged();
 	}
 
@@ -161,29 +152,10 @@ public class JSMenuItem implements IConstantsObject
 	}
 
 	@JSSetter
-	public void setStyleClass(String styleclass)
-	{
-		this.styleClass = styleclass;
-		this.parentMenu.notifyChanged();
-	}
-
-	/**
-	 * Set/Get the menu item space separated style classes
-	 *
-	 * @sample
-	 * menu.styleClass = 'myclass';
-	 */
-	@JSGetter
-	public String getStyleClass()
-	{
-		return this.styleClass;
-	}
-
-	@JSSetter
 	public void setIconStyleClass(String styleclass)
 	{
 		this.iconStyleClass = styleclass;
-		this.parentMenu.notifyChanged();
+		notifyChanged();
 	}
 
 	/**
@@ -202,7 +174,7 @@ public class JSMenuItem implements IConstantsObject
 	public void setTooltipText(String text)
 	{
 		this.tooltipText = text;
-		this.parentMenu.notifyChanged();
+		notifyChanged();
 	}
 
 	/**
@@ -221,7 +193,7 @@ public class JSMenuItem implements IConstantsObject
 	public void setEnabled(boolean enabled)
 	{
 		this.enabled = enabled;
-		this.parentMenu.notifyChanged();
+		notifyChanged();
 	}
 
 	/**
@@ -234,23 +206,6 @@ public class JSMenuItem implements IConstantsObject
 	public boolean getEnabled()
 	{
 		return this.enabled;
-	}
-
-	/**
-	 * Returns all the child menus items, either created at design time or at runtime, in the order they will show up in user interface.
-	 *
-	 * @sample var items = menuItem.getSubMenuItems();
-	 */
-	@JSFunction
-	public JSMenuItem[] getSubMenuItems()
-	{
-		return items.toArray(new JSMenuItem[0]);
-	}
-
-	@JSFunction
-	public JSMenuItem[] getSubMenuItemsWithSecurity()
-	{
-		return items.stream().filter(item -> item.hasSecurityFlag(MenuItem.VIEWABLE)).collect(Collectors.toList()).toArray(new JSMenuItem[0]);
 	}
 
 	@JSFunction
@@ -300,104 +255,6 @@ public class JSMenuItem implements IConstantsObject
 		return true;
 	}
 
-	/**
-	 * Gets a child menu item by identifier. Returns null if not found.
-	 *
-	 * @sample var mnu = menuItem.getSubMenuItem('item1');
-	 * @param id the menu item identifier
-	 */
-	@JSFunction
-	public JSMenuItem getSubMenuItem(String id)
-	{
-		return items.stream().filter(item -> Utils.equalObjects(id, item.getItemID())).findAny().orElse(null);
-	}
-
-	public JSMenuItem findSubMenuItem(String id)
-	{
-		for (JSMenuItem item : items)
-		{
-			if (Utils.equalObjects(id, item.getItemID()))
-			{
-				return item;
-			}
-			JSMenuItem subItem = item.findSubMenuItem(id);
-			if (subItem != null)
-			{
-				return subItem;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Gets a child menu item at index (0 based). Returns null if not found.
-	 *
-	 * @sample var mnu = menuItem.getSubMenuItemAt(0);
-	 * @param index the menu item index among its sibblings
-	 */
-	@JSFunction
-	public JSMenuItem getSubMenuItemAt(int index)
-	{
-		return index >= 0 && index < items.size() ? items.get(index) : null;
-	}
-
-	/**
-	 * Adds a new menu item, as last item in the list.
-	 *
-	 * @sample var item = menuItem.addSubMenuItem('item1');
-	 * @param id the menu item identifier
-	 */
-	@JSFunction
-	public JSMenuItem addSubMenuItem(String id)
-	{
-		return addSubMenuItem(id, items.size());
-	}
-
-	/**
-	 * Adds a new menu item, at a specific position.
-	 *
-	 * @sample var mnu = menu.addSubMenuItem('item1',0);
-	 * @param id the menu item identifier
-	 * @param index the index position in list (0 based)
-	 */
-	@JSFunction
-	public JSMenuItem addSubMenuItem(String id, int index)
-	{
-		JSMenuItem item = null;
-		if (index >= 0 && index <= items.size())
-		{
-			item = new JSMenuItem(parentMenu, id, allowedPermissions);
-			items.add(index, item);
-			this.parentMenu.notifyChanged();
-		}
-		return item;
-	}
-
-	/**
-	 * Removes a menu item with given id, returns true if element was found an removed
-	 *
-	 * @sample var success = menu.removeSubMenuItem('item1');
-	 * @param id the menu item identifier
-	 */
-	@JSFunction
-	public boolean removeSubMenuItem(String id)
-	{
-		this.parentMenu.notifyChanged();
-		return items.removeIf(item -> Utils.equalObjects(id, item.getItemID()));
-	}
-
-	/**
-	 * Removes a menu item from children's list, returns true if element was found an removed
-	 *
-	 * @sample var success = menu.removeSubMenuItem(item);
-	 * @param menuItem the menu item to be removed
-	 */
-	@JSFunction
-	public boolean removeSubMenuItem(JSMenuItem menuItem)
-	{
-		this.parentMenu.notifyChanged();
-		return items.remove(menuItem);
-	}
 
 	/**
 	 * Set/Get the menu item callback arguments (for components that support this)

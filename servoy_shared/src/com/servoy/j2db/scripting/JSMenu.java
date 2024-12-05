@@ -60,12 +60,13 @@ import com.servoy.j2db.util.Utils;
 public class JSMenu
 {
 	private final String name;
-	private String styleClass;
-	private final List<JSMenuItem> items = new ArrayList<JSMenuItem>();
 	private JSMenuItem selectedItem;
 
 	private final List<IChangeListener> changeListeners = new ArrayList<IChangeListener>();
 	private final String[] allowedPermissions;
+
+	protected String styleClass;
+	protected final List<JSMenuItem> items = new ArrayList<JSMenuItem>();
 
 	/**
 	 * @param menuManager
@@ -155,7 +156,7 @@ public class JSMenu
 	@JSFunction
 	public JSMenuItem getMenuItem(String id)
 	{
-		return items.stream().filter(item -> Utils.equalObjects(id, item.getItemID())).findAny().orElse(null);
+		return items.stream().filter(item -> Utils.equalObjects(id, item.getName())).findAny().orElse(null);
 	}
 
 	/**
@@ -169,11 +170,11 @@ public class JSMenu
 	{
 		for (JSMenuItem item : items)
 		{
-			if (Utils.equalObjects(id, item.getItemID()))
+			if (Utils.equalObjects(id, item.getName()))
 			{
 				return item;
 			}
-			JSMenuItem subItem = item.findSubMenuItem(id);
+			JSMenuItem subItem = item.findMenuItem(id);
 			if (subItem != null)
 			{
 				return subItem;
@@ -235,8 +236,9 @@ public class JSMenu
 	@JSFunction
 	public boolean removeMenuItem(String id)
 	{
-		this.notifyChanged();
-		return items.removeIf(item -> Utils.equalObjects(id, item.getItemID()));
+		boolean removed = items.removeIf(item -> Utils.equalObjects(id, item.getName()));
+		if (removed) this.notifyChanged();
+		return removed;
 	}
 
 	/**
@@ -248,8 +250,9 @@ public class JSMenu
 	@JSFunction
 	public boolean removeMenuItem(JSMenuItem menuItem)
 	{
-		this.notifyChanged();
-		return items.remove(menuItem);
+		boolean removed = items.remove(menuItem);
+		if (removed) this.notifyChanged();
+		return removed;
 	}
 
 	/**
@@ -274,7 +277,7 @@ public class JSMenu
 		return selectedItem;
 	}
 
-	public void notifyChanged()
+	protected void notifyChanged()
 	{
 		changeListeners.forEach(listener -> listener.valueChanged());
 	}
