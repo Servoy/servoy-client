@@ -335,14 +335,14 @@ public class StatelessLoginHandler
 				}
 				catch (MalformedURLException e)
 				{
-					log.error("The jwks url is malformed: "+ auth.getString(OAuthUtils.JWKS_URI));
+					log.error("The jwks url is malformed: " + auth.getString(OAuthUtils.JWKS_URI));
 				}
 				catch (JwkException e)
 				{
 					log.error("Cannot verify the id_token", e);
 				}
 			}
-			else 
+			else
 			{
 				log.error("The jwks_uri is missing.");
 			}
@@ -413,12 +413,12 @@ public class StatelessLoginHandler
 								}
 								else
 								{
-									log.info("The endpoint " + endpoint + " returned no result.");
+									log.atInfo().log(() -> "The endpoint " + endpoint + " returned no result.");
 								}
 							}
 							else
 							{
-								log.info("The endpoint " + endpoint + " is not available for the solution " + solution.getUUID());
+								log.atInfo().log(() -> "The endpoint " + endpoint + " is not available for the solution " + solution.getUUID());
 							}
 						}
 					}
@@ -448,12 +448,12 @@ public class StatelessLoginHandler
 		{
 			if (status == HttpStatus.SC_OK && json.has("html"))
 			{
-				log.info("The cloud returned html.");
+				log.atInfo().log(() -> "The cloud returned html: " + json.getString("html"));
 				html = json.getString("html");
 			}
 			else if (json.has("error"))
 			{
-				log.info("The cloud sent an error response, http status " + res.getLeft());
+				log.atInfo().log(() -> "The cloud sent an error response, http status " + res.getLeft());
 				String error = json.optString("error", "");
 				if (error.startsWith("<html>"))
 				{
@@ -493,13 +493,13 @@ public class StatelessLoginHandler
 			else if (json.has("oauth"))
 			{
 				// this is an oauth request
-				log.info("The cloud returned an oauth config.");
 				JSONObject oauth = json.getJSONObject("oauth");
+				log.atInfo().log(() -> "The cloud returned an oauth config: " + oauth);
 				generateOauthCall(request, response, oauth);
 			}
 			else if (json.has("permissions"))
 			{
-				log.info("The cloud returned permissions.");
+				log.atInfo().log(() -> "The cloud returned permissions: " + json.getJSONArray("permissions").toString(2));
 				Pair<Boolean, String> showLogin = new Pair<>(Boolean.TRUE, null);
 				Boolean rememberUser = json.has(REMEMBER) ? Boolean.valueOf(json.getBoolean(REMEMBER)) : Boolean.FALSE;
 				boolean verified = extractPermissionFromResponse(showLogin, rememberUser, res, json.optString(USERNAME, ""));
@@ -524,7 +524,7 @@ public class StatelessLoginHandler
 					{
 						if (showLogin.getRight() != null && showLogin.getRight().startsWith("<"))
 						{
-							log.info("Display html result from the cloud.");
+							log.atInfo().log(() -> "Display html result from the cloud." + showLogin.getRight());
 							html = showLogin.getRight();
 						}
 						else
@@ -640,7 +640,7 @@ public class StatelessLoginHandler
 				}
 				else
 				{
-					log.info("No endpoints were returned for solution " + solution.getUUID());
+					log.atInfo().log(() -> "No endpoints were returned for solution " + solution.getUUID());
 				}
 			}
 			catch (IOException e)
@@ -1250,7 +1250,7 @@ public class StatelessLoginHandler
 	 */
 	private static void generateOauthCall(HttpServletRequest request, HttpServletResponse response, JSONObject auth)
 	{
-		log.info("Generate oauth call " + auth.optString(OAuthUtils.OAUTH_API, "Custom"));
+		log.atInfo().log(() -> "Generate oauth call " + auth.optString(OAuthUtils.OAUTH_API, "Custom"));
 		String id_token = getExistingIdToken(request);
 		Map<String, String> additionalParameters = new HashMap<>();
 		if (!Utils.stringIsEmpty(id_token))
@@ -1270,8 +1270,8 @@ public class StatelessLoginHandler
 			{
 				final String authorizationUrl = service.createAuthorizationUrlBuilder()//
 					.additionalParams(additionalParameters).build();
-				log.trace("authorization url " + authorizationUrl);
-				log.trace("Writing the auto login page.");
+				log.atInfo().log(() -> "authorization url " + authorizationUrl);
+				log.atInfo().log(() -> "Writing the auto login page.");
 				StringBuilder sb = new StringBuilder();
 				sb.append("<!DOCTYPE html>").append("\n")
 					.append("<html lang=\"en\">").append("\n")
