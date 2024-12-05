@@ -430,9 +430,11 @@ public class StatelessLoginHandler
 			}
 			catch (Exception e)
 			{
-				throw new ServletException(e.getMessage());
+				log.atInfo().setCause(e).log(() -> "Exception thrown when handling a possible cloud request");
+				throw new ServletException(e.getMessage(), e);
 			}
 		}
+		log.atInfo().log(() -> "No cloud request was handled for " + path);
 		return false;
 
 	}
@@ -448,7 +450,7 @@ public class StatelessLoginHandler
 		{
 			if (status == HttpStatus.SC_OK && json.has("html"))
 			{
-				log.atInfo().log(() -> "The cloud returned html: " + json.getString("html"));
+				log.atInfo().log(() -> "The cloud returned html: " + json.get("html"));
 				html = json.getString("html");
 			}
 			else if (json.has("error"))
@@ -1349,6 +1351,9 @@ public class StatelessLoginHandler
 		Settings settings = Settings.getInstance();
 		if (settings.getProperty(JWT_Password) == null)
 		{
+			log.atInfo().log(() -> "init of Stalessloginhandler");
+			log.atWarn().log(() -> "init of Stalessloginhandler");
+
 			log.warn("A servoy property '" + JWT_Password + //$NON-NLS-1$
 				"' is added the the servoy properties file, this needs to be the same over redeploys, so make sure to add this in the servoy.properties that is used to deploy the WAR"); //$NON-NLS-1$
 			settings.put(JWT_Password, "pwd" + Math.random());
