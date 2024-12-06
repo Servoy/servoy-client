@@ -192,7 +192,7 @@ public class JSSecurity implements IReturnedTypesProvider, IConstantsObject, IJS
 	@JSFunction
 	public void setTenantValue(Object value)
 	{
-		application.getFoundSetManager().setTenantValue(value);
+		application.getFoundSetManager().setTenantValue(application.getFlattenedSolution().getSolution(), value);
 	}
 
 	/**
