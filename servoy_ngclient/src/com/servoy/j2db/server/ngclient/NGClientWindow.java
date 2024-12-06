@@ -466,6 +466,7 @@ public class NGClientWindow extends BaseWindow implements INGClientWindow
 	{
 		getSession().getClientService(NGRuntimeWindowManager.WINDOW_SERVICE).executeAsyncServiceCall("destroyController", new Object[] { name });
 		getClientSideWindowState().formDestroyed(name);
+		clearAllDelayedCallsToForm(name);
 	}
 
 	/**
