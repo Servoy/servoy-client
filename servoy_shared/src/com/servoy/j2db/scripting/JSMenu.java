@@ -97,7 +97,6 @@ public class JSMenu
 	{
 		this.name = name;
 		this.allowedPermissions = allowedPermissions;
-		items.add(new JSMenuItem(this, name, allowedPermissions));
 	}
 
 	/**
