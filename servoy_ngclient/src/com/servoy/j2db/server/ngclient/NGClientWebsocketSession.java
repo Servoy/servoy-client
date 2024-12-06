@@ -339,6 +339,10 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 							setUserId();
 						}
 						client.loadSolution(solutionName);
+						if (getHttpSession().getAttribute(StatelessLoginHandler.ID_TOKEN) != null)
+						{
+							setTenantValue();
+						}
 
 						client.showInfoPanel();
 
@@ -347,6 +351,19 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					{
 						Debug.error("Failed to load the solution: " + solutionName, e);
 						sendInternalError(e);
+					}
+				}
+
+				private void setTenantValue()
+				{
+					String id_token = (String)getHttpSession().getAttribute(StatelessLoginHandler.ID_TOKEN);
+					String[] chunks = id_token.split("\\.");
+					Base64.Decoder decoder = Base64.getUrlDecoder();
+					String payload = new String(decoder.decode(chunks[1]));
+					JSONObject token = new JSONObject(payload);
+					if (token.has(StatelessLoginHandler.TENANTS))
+					{
+						client.getFoundSetManager().setTenantValue(token.get(StatelessLoginHandler.TENANTS));
 					}
 				}
 
