@@ -63,6 +63,7 @@ import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.persistence.Form;
+import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
@@ -339,11 +340,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 							setUserId();
 						}
 						client.loadSolution(solutionName);
-						if (getHttpSession().getAttribute(StatelessLoginHandler.ID_TOKEN) != null)
-						{
-							setTenantValue();
-						}
-
 						client.showInfoPanel();
 
 					}
@@ -351,19 +347,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					{
 						Debug.error("Failed to load the solution: " + solutionName, e);
 						sendInternalError(e);
-					}
-				}
-
-				private void setTenantValue()
-				{
-					String id_token = (String)getHttpSession().getAttribute(StatelessLoginHandler.ID_TOKEN);
-					String[] chunks = id_token.split("\\.");
-					Base64.Decoder decoder = Base64.getUrlDecoder();
-					String payload = new String(decoder.decode(chunks[1]));
-					JSONObject token = new JSONObject(payload);
-					if (token.has(StatelessLoginHandler.TENANTS))
-					{
-						client.getFoundSetManager().setTenantValue(token.get(StatelessLoginHandler.TENANTS));
 					}
 				}
 
@@ -391,7 +374,16 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					}
 					if (token.has(StatelessLoginHandler.TENANTS))
 					{
-						client.getFoundSetManager().setTenantValue(token.get(StatelessLoginHandler.TENANTS));
+						try
+						{
+							Solution sol = (Solution)client.getRepository().getActiveRootObject(solutionName,
+								IRepository.SOLUTIONS);
+							client.getFoundSetManager().setTenantValue(sol, token.get(StatelessLoginHandler.TENANTS));
+						}
+						catch (RepositoryException e)
+						{
+							Debug.error("Could not set the tenant value", e);
+						}
 					}
 					if (token.optBoolean("remember", false))
 					{
