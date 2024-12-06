@@ -963,7 +963,7 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	{
 		if (menuItem != null)
 		{
-			for (JSMenuItem childMenuItem : menuItem.getSubMenuItemsWithSecurity())
+			for (JSMenuItem childMenuItem : menuItem.getMenuItemsWithSecurity())
 			{
 				records.add(new MenuItemRecord(childMenuItem, getMenuItemData(childMenuItem), this));
 			}
@@ -973,7 +973,7 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	private Map<String, Object> getMenuItemData(JSMenuItem item)
 	{
 		Map<String, Object> itemMap = new HashMap<String, Object>();
-		itemMap.put("itemID", item.getItemID());
+		itemMap.put("itemID", item.getName());
 		itemMap.put("menuText", item.getMenuText());
 		itemMap.put("styleClass", item.getStyleClass());
 		itemMap.put("iconStyleClass", item.getIconStyleClass());
