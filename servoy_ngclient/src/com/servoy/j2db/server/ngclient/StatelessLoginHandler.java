@@ -864,7 +864,7 @@ public class StatelessLoginHandler
 			try
 			{
 				Solution module = (Solution)localRepository.getActiveRootObject(moduleName, IRepository.SOLUTIONS);
-				if (module.getSolutionType() == SolutionMetaData.AUTHENTICATOR)
+				if (module != null && module.getSolutionType() == SolutionMetaData.AUTHENTICATOR)
 				{
 					authenticator = module;
 					break;
