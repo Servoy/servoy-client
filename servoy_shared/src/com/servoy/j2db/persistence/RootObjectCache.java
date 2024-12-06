@@ -189,6 +189,7 @@ public class RootObjectCache
 		{
 			return getActiveRootObject(rod.getRootObjectId());
 		}
+		Debug.warn("Active root object '" + name + "' , type " + objectTypeId + " not found");
 		return null;
 	}
 
@@ -199,6 +200,7 @@ public class RootObjectCache
 		{
 			return getRootObject(rod.getRootObjectId(), release);
 		}
+		Debug.warn("Active root object '" + name + "' , type " + objectTypeId + ", release " + release + " not found");
 		return null;
 	}
 

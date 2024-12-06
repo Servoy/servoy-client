@@ -118,7 +118,7 @@ public class AngularIndexPageFilter implements Filter
 				}
 				catch (Exception e)
 				{
-					Debug.error(e.getMessage());
+					Debug.error(e);
 					return;
 				}
 
