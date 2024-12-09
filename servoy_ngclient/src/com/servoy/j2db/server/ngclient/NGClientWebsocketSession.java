@@ -63,7 +63,6 @@ import com.servoy.j2db.J2DBGlobals;
 import com.servoy.j2db.Messages;
 import com.servoy.j2db.dataprocessing.ClientInfo;
 import com.servoy.j2db.persistence.Form;
-import com.servoy.j2db.persistence.IRepository;
 import com.servoy.j2db.persistence.Media;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
@@ -371,19 +370,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 							gr[i] = groups.getString(i);
 						}
 						ci.setUserGroups(gr);
-					}
-					if (token.has(StatelessLoginHandler.TENANTS))
-					{
-						try
-						{
-							Solution sol = (Solution)client.getRepository().getActiveRootObject(solutionName,
-								IRepository.SOLUTIONS);
-							client.getFoundSetManager().setTenantValue(sol, token.get(StatelessLoginHandler.TENANTS));
-						}
-						catch (RepositoryException e)
-						{
-							Debug.error("Could not set the tenant value", e);
-						}
 					}
 					if (token.optBoolean("remember", false))
 					{
