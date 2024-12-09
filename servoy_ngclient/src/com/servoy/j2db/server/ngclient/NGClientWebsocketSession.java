@@ -371,6 +371,10 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						}
 						ci.setUserGroups(gr);
 					}
+					if (token.has(StatelessLoginHandler.TENANTS))
+					{
+						client.getFormManager().setTenantValue(token.get(StatelessLoginHandler.TENANTS));
+					}
 					if (token.optBoolean("remember", false))
 					{
 						JSONObject obj = new JSONObject();
@@ -380,7 +384,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 							new Object[] { obj });
 					}
 					//remove the id token of the oauth provider from the url
-					getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("replaceUrlState", null);
+					getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("replaceUrlState",
+						new Object[] { StatelessLoginHandler.SVYLOGIN_PATH });
 				}
 			});
 		}
