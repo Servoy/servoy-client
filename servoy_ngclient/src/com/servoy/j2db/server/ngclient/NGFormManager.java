@@ -20,6 +20,7 @@ package com.servoy.j2db.server.ngclient;
 import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -27,6 +28,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import javax.servlet.http.HttpSession;
+
+import org.json.JSONObject;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.NativeJavaObject;
@@ -216,7 +220,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 			}
 			loginForm = null;//clear and continue
 		}
-
+		setTenantValueIfNeeded(solution);
 		ScriptMethod sm = application.getFlattenedSolution().getScriptMethod(solution.getOnOpenMethodID());
 
 		Object[] solutionOpenMethodArgs = null;
@@ -275,6 +279,24 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 			{
 				application.reportError(Messages.getString("servoy.formManager.error.ExecutingOpenSolutionMethod", new Object[] { preferedSolutionMethodName }), //$NON-NLS-1$
 					e1);
+			}
+		}
+	}
+
+	private void setTenantValueIfNeeded(Solution solution)
+	{
+		HttpSession httpSession = NGClientWindow.getCurrentWindow() != null && NGClientWindow.getCurrentWindow().getSession() != null
+			? NGClientWindow.getCurrentWindow().getSession().getHttpSession() : null;
+		if (httpSession != null && httpSession.getAttribute(StatelessLoginHandler.ID_TOKEN) != null)
+		{
+			String id_token = (String)httpSession.getAttribute(StatelessLoginHandler.ID_TOKEN);
+			String[] chunks = id_token.split("\\.");
+			Base64.Decoder decoder = Base64.getUrlDecoder();
+			String payload = new String(decoder.decode(chunks[1]));
+			JSONObject token = new JSONObject(payload);
+			if (token.has(StatelessLoginHandler.TENANTS))
+			{
+				application.getFoundSetManager().setTenantValue(solution, token.get(StatelessLoginHandler.TENANTS));
 			}
 		}
 	}
