@@ -120,7 +120,7 @@ public class StatelessLoginHandler
 
 	private static final String REFRESH_TOKEN = "refresh_token";
 	public static final String OAUTH_CUSTOM_PROPERTIES = "oauth";
-	private static final String SVYLOGIN_PATH = "svylogin";
+	public static final String SVYLOGIN_PATH = "svylogin";
 	public static final String PASSWORD = "password";
 	public static final String ID_TOKEN = "id_token";
 	public static final String PERMISSIONS = "permissions";
