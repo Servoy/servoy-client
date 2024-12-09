@@ -539,6 +539,12 @@ public class StatelessLoginHandler
 					}
 				}
 			}
+			else
+			{
+				log.atInfo().log(() -> "Showing the login page. The cloud returned " + status + " http status and unknown response format:" + json);
+				writeLoginPage(request, response, solution.getName(), html);
+				return;
+			}
 			writeHTML(request, response, html);
 		}
 	}
