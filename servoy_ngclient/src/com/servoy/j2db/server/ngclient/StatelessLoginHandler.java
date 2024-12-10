@@ -300,7 +300,7 @@ public class StatelessLoginHandler
 							+ "' because the key id is missing in the token header.");
 					}
 					Algorithm algorithm = getAlgo(decodedJWT, jwkStore);
-					JWTVerifier verifier = JWT.require(algorithm).build();
+					JWTVerifier verifier = JWT.require(algorithm).acceptNotBefore(60).build();
 					try
 					{
 						verifier.verify(decodedJWT);
