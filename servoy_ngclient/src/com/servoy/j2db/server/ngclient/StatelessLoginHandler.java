@@ -300,7 +300,7 @@ public class StatelessLoginHandler
 							+ "' because the key id is missing in the token header.");
 					}
 					Algorithm algorithm = getAlgo(decodedJWT, jwkStore);
-					JWTVerifier verifier = JWT.require(algorithm).build();
+					JWTVerifier verifier = JWT.require(algorithm).acceptNotBefore(60).build();
 					try
 					{
 						verifier.verify(decodedJWT);
@@ -974,10 +974,13 @@ public class StatelessLoginHandler
 				if (loginTokenJSON.optJSONArray("tenantValues") != null)
 				{
 					JSONArray tenantValues = loginTokenJSON.getJSONArray("tenantValues");
-					tenants = new String[tenantValues.length()];
-					for (int i = 0; i < tenants.length; i++)
+					if (tenantValues.length() > 0)
 					{
-						tenants[i] = tenantValues.getString(i);
+						tenants = new String[tenantValues.length()];
+						for (int i = 0; i < tenants.length; i++)
+						{
+							tenants[i] = tenantValues.getString(i);
+						}
 					}
 				}
 
