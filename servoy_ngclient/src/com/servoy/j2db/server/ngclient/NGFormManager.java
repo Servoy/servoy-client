@@ -450,7 +450,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 	protected void destroySolutionSettings(boolean reload)
 	{
 		loginForm = null;
-		this.tenantValue = null;
 		for (IFormController controller : createdFormControllers.values())
 		{
 			controller.destroy();

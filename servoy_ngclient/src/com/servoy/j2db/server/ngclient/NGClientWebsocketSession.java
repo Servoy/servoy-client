@@ -33,6 +33,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.services.client.TypesRegistryService;
@@ -371,10 +372,23 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						}
 						ci.setUserGroups(gr);
 					}
-					if (token.has(StatelessLoginHandler.TENANTS))
+					Object[] tenants = null;
+					if (token.has(StatelessLoginHandler.TENANTS) && token.get(StatelessLoginHandler.TENANTS) instanceof JSONArray arr && arr.length() > 0)
 					{
-						client.getFormManager().setTenantValue(token.get(StatelessLoginHandler.TENANTS));
+						tenants = new Object[arr.length()];
+						for (int i = 0; i < arr.length(); i++)
+						{
+							try
+							{
+								tenants[i] = arr.get(i);
+							}
+							catch (JSONException e)
+							{
+								Debug.error("Cannot set the tenants value", e);
+							}
+						}
 					}
+					client.getFormManager().setTenantValue(tenants);
 					if (token.optBoolean("remember", false))
 					{
 						JSONObject obj = new JSONObject();
