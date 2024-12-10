@@ -399,7 +399,7 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 					}
 					//remove the id token of the oauth provider from the url
 					getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("replaceUrlState",
-						new Object[] { StatelessLoginHandler.SVYLOGIN_PATH });
+						new Object[] { "/" + StatelessLoginHandler.SVYLOGIN_PATH });
 				}
 			});
 		}
