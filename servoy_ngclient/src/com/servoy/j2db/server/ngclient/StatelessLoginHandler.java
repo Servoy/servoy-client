@@ -974,10 +974,13 @@ public class StatelessLoginHandler
 				if (loginTokenJSON.optJSONArray("tenantValues") != null)
 				{
 					JSONArray tenantValues = loginTokenJSON.getJSONArray("tenantValues");
-					tenants = new String[tenantValues.length()];
-					for (int i = 0; i < tenants.length; i++)
+					if (tenantValues.length() > 0)
 					{
-						tenants[i] = tenantValues.getString(i);
+						tenants = new String[tenantValues.length()];
+						for (int i = 0; i < tenants.length; i++)
+						{
+							tenants[i] = tenantValues.getString(i);
+						}
 					}
 				}
 
