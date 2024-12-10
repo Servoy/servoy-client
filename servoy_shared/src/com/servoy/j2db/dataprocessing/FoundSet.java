@@ -155,9 +155,9 @@ import com.servoy.j2db.util.Utils;
  *
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSFoundSet", scriptingName = "JSFoundSet")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSFoundSet", scriptingName = "JSFoundSet", extendsComponent = "JSBaseSQLFoundSet")
 public abstract class FoundSet
-	implements IFoundSetInternal, IFoundSetScriptMethods, IRowListener, Scriptable, SymbolScriptable, Cloneable, IJSFoundSet, IDeleteTrigger
+	implements IFoundSetInternal, IJSBaseSQLFoundSet, IRowListener, Scriptable, SymbolScriptable, Cloneable, IJSFoundSet, IDeleteTrigger
 {
 	public static final String JS_FOUNDSET = "JSFoundSet"; //$NON-NLS-1$
 
@@ -1070,7 +1070,8 @@ public abstract class FoundSet
 	 *
 	 * @return foundset duplicate.
 	 */
-	public FoundSet js_duplicateFoundSet() throws ServoyException//can be used by loadRecords Again
+	@JSFunction
+	public FoundSet duplicateFoundSet() throws ServoyException//can be used by loadRecords Again
 	{
 		return (FoundSet)copy(false);
 	}
@@ -3389,7 +3390,8 @@ public abstract class FoundSet
 	 *
 	 * @return String sort columns
 	 */
-	public String js_getCurrentSort()
+	@JSFunction
+	public String getCurrentSort()
 	{
 		return FoundSetManager.getSortColumnsAsString(lastSortColumns);
 	}
@@ -3403,9 +3405,10 @@ public abstract class FoundSet
 	 *
 	 * @param sortString the specified columns (and sort order)
 	 */
-	public void js_sort(String sortString) throws ServoyException
+	@JSFunction
+	public void sort(String sortString) throws ServoyException
 	{
-		js_sort(sortString, Boolean.FALSE);
+		sort(sortString, Boolean.FALSE);
 	}
 
 	/**
@@ -3418,7 +3421,8 @@ public abstract class FoundSet
 	 * @param sortString the specified columns (and sort order)
 	 * @param defer boolean when true, the "sortString" will be just stored, without performing a query on the database (the actual sorting will be deferred until the next data loading action).
 	 */
-	public void js_sort(String sortString, Boolean defer) throws ServoyException
+	@JSFunction
+	public void sort(String sortString, Boolean defer) throws ServoyException
 	{
 		sort(((FoundSetManager)getFoundSetManager()).getSortColumns(getTable(), sortString), getBooleanAsbool(defer, false));
 	}
@@ -3809,7 +3813,8 @@ public abstract class FoundSet
 	 * Reverts outstanding (not saved) in memory changes from edited records of this foundset.
 	 * Best used in combination with the function databaseManager.setAutoSave()
 	 */
-	public void js_revertEditedRecords() throws ServoyException
+	@JSFunction
+	public void revertEditedRecords() throws ServoyException
 	{
 		JSDatabaseManager.revertEditedRecords(fsm.getApplication(), this);
 	}
@@ -3820,7 +3825,8 @@ public abstract class FoundSet
 	 * @return true if the save was done without an error.
 	 * @throws ServoyException
 	 */
-	public boolean js_save() throws ServoyException
+	@JSFunction
+	public boolean save() throws ServoyException
 	{
 		return JSDatabaseManager.saveData(fsm.getApplication(), this);
 	}
@@ -3829,20 +3835,20 @@ public abstract class FoundSet
 	public int jsFunction_getSelectedIndex()
 	{
 		checkSelection();
-		return IFoundSetScriptMethods.super.jsFunction_getSelectedIndex();
+		return IJSBaseSQLFoundSet.super.jsFunction_getSelectedIndex();
 	}
 
 	@Override
 	public void jsFunction_setSelectedIndex(int index)
 	{
-		IFoundSetScriptMethods.super.jsFunction_setSelectedIndex(index);
+		IJSBaseSQLFoundSet.super.jsFunction_setSelectedIndex(index);
 	}
 
 	@Override
 	public Number[] jsFunction_getSelectedIndexes()
 	{
 		checkSelection();
-		return IFoundSetScriptMethods.super.jsFunction_getSelectedIndexes();
+		return IJSBaseSQLFoundSet.super.jsFunction_getSelectedIndexes();
 	}
 
 	/**
@@ -3873,9 +3879,9 @@ public abstract class FoundSet
 	 *
 	 * @return Record record.
 	 */
-	public IJSRecord js_getRecord(int index)
+	public Record js_getRecord(int index)
 	{
-		return (IJSRecord)getRecord(index - 1); // index is row + 1, so we substract 1 here.
+		return (Record)getRecord(index - 1); // index is row + 1, so we substract 1 here.
 	}
 
 	/**
@@ -3889,9 +3895,9 @@ public abstract class FoundSet
 	 *
 	 * @return Record record.
 	 */
-	public IJSRecord js_getRecordByPk(Object... pk)
+	public IJSBaseSQLRecord js_getRecordByPk(Object... pk)
 	{
-		return (IJSRecord)getRecord(pk);
+		return (IJSBaseSQLRecord)getRecord(pk);
 	}
 
 	/**
@@ -3931,21 +3937,22 @@ public abstract class FoundSet
 	 * @sample var selectedRecords = %%prefix%%foundset.getSelectedRecords();
 	 * @return Array current records.
 	 */
-	public IRecordInternal[] js_getSelectedRecords()
+	@JSFunction
+	public IJSBaseSQLRecord[] getSelectedRecords()
 	{
 		checkSelection();
 		int[] selectedIndexes = getSelectedIndexes();
-		List<IRecordInternal> selectedRecords = new ArrayList<IRecordInternal>(selectedIndexes.length);
+		List<IJSBaseSQLRecord> selectedRecords = new ArrayList<IJSBaseSQLRecord>(selectedIndexes.length);
 		for (int index : selectedIndexes)
 		{
 			IRecordInternal record = getRecord(index);
 			if (record != null && record != getPrototypeState()) // safety, do not return proto
 			{
-				selectedRecords.add(record);
+				selectedRecords.add((IJSBaseSQLRecord)record);
 			}
 		}
 
-		return selectedRecords.toArray(new IRecordInternal[selectedRecords.size()]);
+		return selectedRecords.toArray(new IJSBaseSQLRecord[selectedRecords.size()]);
 	}
 
 	/**
@@ -6177,7 +6184,7 @@ public abstract class FoundSet
 			if (getSelectedIndex() >= 0 && fsm.hasFoundsetTrigger(getDataSource(), StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID))
 			{
 				return executeFoundsetTriggerBreakOnFalse(
-					new Object[] { js_getSelectedRecords(), indexes != null ? Arrays.stream(indexes).mapToObj(index -> getRecord(index)).toArray() : null },
+					new Object[] { getSelectedRecords(), indexes != null ? Arrays.stream(indexes).mapToObj(index -> getRecord(index)).toArray() : null },
 					StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID, false);
 			}
 		}

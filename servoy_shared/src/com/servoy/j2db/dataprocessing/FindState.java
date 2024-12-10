@@ -33,7 +33,6 @@ import org.mozilla.javascript.annotations.JSFunction;
 
 import com.servoy.base.query.BaseQueryTable;
 import com.servoy.base.scripting.api.IJSDataSet;
-import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.base.scripting.api.IJSRecord;
 import com.servoy.j2db.FlattenedSolution;
 import com.servoy.j2db.Messages;
@@ -58,7 +57,7 @@ import com.servoy.j2db.util.Utils;
  *
  * @author jblok
  */
-public class FindState implements Scriptable, IRecordInternal, Serializable, IJSRecord
+public class FindState implements Scriptable, IRecordInternal, Serializable, IJSRecord, IJSBaseSQLRecord
 {
 	public static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(FindState.class);
 
@@ -808,9 +807,9 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 	}
 
 	@JSReadonlyProperty
-	public IJSFoundSet getFoundset()
+	public FoundSet getFoundset()
 	{
-		return (IJSFoundSet)parent;
+		return (FoundSet)parent;
 	}
 
 	@JSFunction

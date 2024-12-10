@@ -178,7 +178,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					QBSelect.class, QBAggregate.class, QBCase.class, QBCaseWhen.class, QBColumn.class, QBColumns.class, QBCondition.class, //
 					QBFunction.class, QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBWhereCondition.class, QBResult.class, //
 					QBSearchedCaseExpression.class, QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, //
-					QBFunctions.class, QBAggregates.class, QUERY_COLUMN_TYPES.class, ViewFoundSet.class, ViewRecord.class, JSTableFilter.class, MenuFoundSet.class, MenuItemRecord.class };
+					QBFunctions.class, QBAggregates.class, QUERY_COLUMN_TYPES.class, ViewFoundSet.class, ViewRecord.class, JSTableFilter.class, MenuFoundSet.class, MenuItemRecord.class, IJSBaseRecord.class, IJSBaseSQLRecord.class, IJSBaseFoundSet.class, IJSBaseSQLFoundSet.class };
 			}
 		});
 	}
@@ -2339,13 +2339,13 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public String js_getSQL(Object foundsetOrQBSelect, boolean includeFilters) throws ServoyException
 	{
 		application.checkAuthorized();
-		if (foundsetOrQBSelect instanceof IFoundSetScriptMethods)
+		if (foundsetOrQBSelect instanceof IJSBaseSQLFoundSet sqlFoundset)
 		{
-			return ((IFoundSetScriptMethods)foundsetOrQBSelect).getSQL(includeFilters);
+			return sqlFoundset.getSQL(includeFilters);
 		}
-		if (foundsetOrQBSelect instanceof QBSelect)
+		if (foundsetOrQBSelect instanceof QBSelect qbSelect)
 		{
-			return ((QBSelect)foundsetOrQBSelect).getSQL(includeFilters);
+			return qbSelect.getSQL(includeFilters);
 
 		}
 		return null;
@@ -2387,13 +2387,13 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	public Object[] js_getSQLParameters(Object foundsetOrQBSelect, boolean includeFilters) throws ServoyException
 	{
 		application.checkAuthorized();
-		if (foundsetOrQBSelect instanceof IFoundSetScriptMethods)
+		if (foundsetOrQBSelect instanceof IJSBaseSQLFoundSet sqlFoundset)
 		{
-			return ((IFoundSetScriptMethods)foundsetOrQBSelect).getSQLParameters(includeFilters);
+			return sqlFoundset.getSQLParameters(includeFilters);
 		}
-		if (foundsetOrQBSelect instanceof QBSelect)
+		if (foundsetOrQBSelect instanceof QBSelect qbSelect)
 		{
-			return ((QBSelect)foundsetOrQBSelect).getSQLParameters(includeFilters);
+			return qbSelect.getSQLParameters(includeFilters);
 		}
 		return null;
 	}

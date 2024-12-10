@@ -76,8 +76,8 @@ import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
  * @author lvostinar
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "MenuFoundSet", scriptingName = "MenuFoundSet")
-public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, IFoundSetScriptBaseMethods, SymbolScriptable
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "MenuFoundSet", scriptingName = "MenuFoundSet", extendsComponent = "JSBaseFoundSet")
+public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, IJSBaseFoundSet, SymbolScriptable
 {
 	public static final String MENU_FOUNDSET = "MenuFoundSet";
 

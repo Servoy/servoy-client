@@ -22,15 +22,42 @@ import java.util.ArrayList;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.Utils;
 
 /**  List of methods that expose {@link IFoundSetInternal} functions to scripting where the implementations are the same for regular foundsets and viewfoundsets.
  *
  * @author rgansevles
  */
-public interface IFoundSetScriptBaseMethods extends IFoundSetInternal
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSBaseFoundSet", scriptingName = "JSBaseFoundSet")
+public interface IJSBaseFoundSet extends IFoundSetInternal
 {
+	@JSSetter
+	void setMultiSelect(boolean multiSelect);
+
+	@JSGetter
+	boolean isMultiSelect();
+
+	@JSFunction
+	String getDataSource();
+
+	@JSFunction
+	String getName();
+
+	IJSBaseRecord js_getRecord(int row);
+
+	@JSFunction
+	int getRecordIndex(IRecord record);
+
+	@JSFunction
+	public IJSBaseRecord[] getSelectedRecords();
+
+	@JSFunction
+	public int getSize();
+
 	/**
 	 * Iterates over the records of a foundset taking into account inserts and deletes that may happen at the same time.
 	 * It will dynamically load all records in the foundset (using Servoy lazy loading mechanism). If callback function returns a non null value the traversal will be stopped and that value is returned.

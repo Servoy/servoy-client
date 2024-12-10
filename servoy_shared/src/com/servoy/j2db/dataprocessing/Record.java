@@ -42,7 +42,6 @@ import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.scripting.api.IJSDataSet;
-import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.base.scripting.api.IJSRecord;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -65,8 +64,8 @@ import com.servoy.j2db.util.Utils;
  *
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSRecord", scriptingName = "JSRecord")
-public class Record implements Scriptable, IRecordInternal, IJSRecord
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSRecord", scriptingName = "JSRecord", extendsComponent = "JSBaseSQLRecord")
+public class Record implements Scriptable, IRecordInternal, IJSRecord, IJSBaseSQLRecord
 {
 	public static final String JS_RECORD = "JSRecord"; //$NON-NLS-1$
 
@@ -1278,9 +1277,9 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	 * @return The parent foundset of the record.
 	 */
 	@JSReadonlyProperty
-	public IJSFoundSet getFoundset()
+	public FoundSet getFoundset()
 	{
-		return (IJSFoundSet)parent;
+		return (FoundSet)parent;
 	}
 
 	public void rowRemoved()

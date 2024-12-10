@@ -17,17 +17,58 @@
 package com.servoy.j2db.dataprocessing;
 
 
+import org.mozilla.javascript.Function;
 import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.QuerySet;
+import com.servoy.j2db.scripting.annotations.JSSignature;
 import com.servoy.j2db.util.ServoyException;
 
-/**  List of methods that expose {@link IFoundSetInternal} functions to scripting where the implementations are the same for regular foundsets and viewfoundsets.
+/** JSBaseSQLFoundSet is the base class for SQL based foundsets (either a JSFoundSet or a ViewFoundSet).
  *
  * @author rgansevles
  */
-public interface IFoundSetScriptMethods extends IFoundSetScriptBaseMethods
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSBaseSQLFoundSet", scriptingName = "JSBaseSQLFoundSet", extendsComponent = "JSBaseFoundSet")
+public interface IJSBaseSQLFoundSet extends IJSBaseFoundSet
 {
+	@JSSetter
+	void setMultiSelect(boolean multiSelect);
+
+	@JSGetter
+	boolean isMultiSelect();
+
+	@JSFunction
+	boolean dispose();
+
+	@JSFunction
+	IJSBaseSQLFoundSet duplicateFoundSet() throws ServoyException;
+
+	@JSFunction
+	String getCurrentSort();
+
+	IJSBaseSQLRecord js_getRecordByPk(Object... pk);
+
+	boolean js_loadAllRecords() throws ServoyException;
+
+	@JSFunction
+	void revertEditedRecords() throws ServoyException;
+
+	@JSFunction
+	public boolean save() throws ServoyException;
+
+	@JSFunction
+	public void sort(String sortString) throws ServoyException;
+
+	@JSFunction
+	public void sort(String sortString, Boolean defer) throws ServoyException;
+
+	@JSFunction
+	@JSSignature(arguments = { Function.class })
+	public void sort(Object recordComparisonFunction);
+
 	/**
 	 * Returns the internal SQL of the JSFoundset.
 	 * Optionally, the foundset and table filter params can be excluded in the sql (includeFilters=false).

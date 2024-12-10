@@ -37,7 +37,6 @@ import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.scripting.api.IJSDataSet;
-import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.scripting.DefaultJavaScope;
@@ -67,8 +66,8 @@ import com.servoy.j2db.util.Utils;
  * @author jcompagner
  * @since 8.4
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ViewRecord", scriptingName = "ViewRecord")
-public final class ViewRecord implements IRecordInternal, Scriptable
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ViewRecord", scriptingName = "ViewRecord", extendsComponent = "JSBaseSQLRecord")
+public final class ViewRecord implements IRecordInternal, IJSBaseSQLRecord, Scriptable
 {
 	public static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(ViewRecord.class);
 
@@ -339,9 +338,9 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	 * @return The parent foundset of the record.
 	 */
 	@JSReadonlyProperty
-	public IJSFoundSet getFoundset()
+	public ViewFoundSet getFoundset()
 	{
-		return (IJSFoundSet)foundset;
+		return foundset;
 	}
 
 	@Override

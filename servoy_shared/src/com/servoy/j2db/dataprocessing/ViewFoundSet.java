@@ -57,6 +57,7 @@ import org.mozilla.javascript.SymbolScriptable;
 import org.mozilla.javascript.Undefined;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.persistence.IBaseColumn;
 import com.servoy.base.query.BaseColumnType;
@@ -143,8 +144,8 @@ import com.servoy.j2db.util.visitor.SearchVisitor;
  * @author jcompagner
  * @since 8.4
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ViewFoundSet", scriptingName = "ViewFoundSet")
-public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, IFoundSetScriptMethods, IConstantsObject, SymbolScriptable
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ViewFoundSet", scriptingName = "ViewFoundSet", extendsComponent = "JSBaseSQLFoundSet")
+public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, IJSBaseSQLFoundSet, IConstantsObject, SymbolScriptable
 {
 
 	/**
@@ -1061,8 +1062,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 * All edited records will be discarded! So this can be seen as a full clean up of this ViewFoundSet.
 	 */
 	@Override
-	@JSFunction
-	public void loadAllRecords() throws ServoyException
+	public boolean js_loadAllRecords() throws ServoyException
 	{
 		currentChunkSize = chunkSize;
 		if (editedRecords.size() > 0)
@@ -1078,6 +1078,15 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			failedRecords.clear();
 		}
 		loadAllRecordsImpl();
+		return true;
+	}
+
+
+	@Override
+	public void loadAllRecords() throws ServoyException
+	{
+		js_loadAllRecords();
+
 	}
 
 	private void loadAllRecordsImpl() throws ServoyException
@@ -1235,7 +1244,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	@Override
-	@JSGetter
+	@JSSetter
 	public void setMultiSelect(boolean multiSelect)
 	{
 		if (multiSelectPinnedForm == null) setMultiSelectInternal(multiSelect); // if a form is currently overriding this, ignore js call
