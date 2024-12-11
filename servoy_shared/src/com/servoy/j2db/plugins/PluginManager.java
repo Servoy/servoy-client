@@ -253,7 +253,7 @@ public class PluginManager extends JarManager implements IPluginManagerInternal,
 
 		if (notProcessedMap.size() > 0)
 		{
-			String errorWarningMessage = "Some plugins don't follow the ServiceLoader setup, please make sure that those plugins are updated, this will be mandatory in the new future, see  https://wiki.servoy.com/display/DOCS/Creating+Client+Plugins#CreatingClientPlugins-EntryPoints, the plugins: " +
+			String errorWarningMessage = "Some plugins don't follow the ServiceLoader setup, please make sure that those plugins are updated, this is mandatory to have, see  https://docs.servoy.com/reference/extension-dev/serverside#entry-points, the plugins: " +
 				notProcessedMap.stream().map(t -> t.jarFileName).collect(Collectors.joining(", "));
 			Debug.warn(
 				errorWarningMessage);
