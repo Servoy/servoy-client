@@ -3879,9 +3879,9 @@ public abstract class FoundSet
 	 *
 	 * @return Record record.
 	 */
-	public Record js_getRecord(int index)
+	public IJSRecord js_getRecord(int index)
 	{
-		return (Record)getRecord(index - 1); // index is row + 1, so we substract 1 here.
+		return (IJSRecord)getRecord(index - 1); // index is row + 1, so we substract 1 here.
 	}
 
 	/**

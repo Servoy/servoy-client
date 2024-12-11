@@ -47,8 +47,6 @@ public interface IJSBaseFoundSet extends IFoundSetInternal
 	@JSFunction
 	String getName();
 
-	IJSBaseRecord js_getRecord(int row);
-
 	@JSFunction
 	int getRecordIndex(IRecord record);
 
