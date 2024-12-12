@@ -29,6 +29,20 @@ import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.ServoyException;
 
 /**
+ * <p><code>JSMenuDataSource</code> facilitates interaction with menu-related data by offering
+ * methods to manage and retrieve menu datasources and their structures. It supports accessing
+ * the <code>MenuFoundSet</code>, which represents all menu items in a fully loaded shared
+ * foundset, making it readily available for use once requested. This foundset can be used to
+ * navigate and interact with the menu data programmatically.</p>
+ *
+ * <p>The datasource string of a menu can be retrieved as needed, allowing it to be referenced
+ * in various operations. Additionally, <code>JSMenuDataSource</code> provides functionality to
+ * handle hierarchical menus by enabling access to the relation name that defines parent-to-children
+ * relationships. This capability is essential for constructing and navigating nested menu structures
+ * effectively.</p>
+ *
+ * <p>For more details, refer to the <a href="./menufoundset.md">MenuFoundSet</a> documentation.</p>
+ *
  * @author lvostinar
  *
  */

@@ -60,7 +60,23 @@ import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
 /**
- * JSRecord represents one row of a JSFoundset.
+ * <p>The <code>JSRecord</code> class represents a single row within a <code>JSFoundset</code>,
+ * extending the capabilities of <code>JSBaseSQLRecord</code>. It provides various methods and
+ * properties to access, modify, validate, and manage records in Servoy.</p>
+ *
+ * <h2>Functionality</h2>
+ * <p>This class offers properties to retrieve the parent foundset, check for validation errors
+ * through <code>recordMarkers</code>, and access any exceptions encountered during operations.
+ * It allows developers to track and manage the state of a record, such as checking whether it is
+ * new, edited, or deleted.</p>
+ *
+ * <p>The <code>JSRecord</code> methods include features to revert unsaved changes, save records,
+ * and retrieve data about the record, such as its primary keys, data source, and outstanding
+ * changed data. Developers can also create custom validation markers for additional record checks
+ * and validations. The class ensures flexibility by providing utilities for checking the loaded
+ * state of related foundsets and handling record edits efficiently.</p>
+ *
+ * <p>For more details, refer to the <a href="./jsfoundset.md">JSFoundset</a> documentation.</p>
  *
  * @author jblok
  */

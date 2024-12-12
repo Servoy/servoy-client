@@ -23,7 +23,17 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * JSBaseRecord is the base type for a record, represents one row of a foundset (either a JSFoundSet or ViewFoundSet or MenuFoundSet).
+ * <p><code>JSBaseRecord</code> serves as the foundational type for a record, representing a single
+ * row within a foundset. This includes various foundset types such as <code>JSFoundSet</code>,
+ * <code>ViewFoundSet</code>, or <code>MenuFoundSet</code>.</p>
+ *
+ * <p>Each <code>JSBaseRecord</code> is associated with a foundset, providing access to the dataset
+ * it belongs to. This association allows manipulation and interaction with the data structure.</p>
+ *
+ * <p>The <code>getDataSource()</code> method retrieves the datasource linked to the record,
+ * offering insights into the origin of the data.</p>
+ *
+ * <p>For more details, refer to the <a href="./jsrecord.md">JSRecord</a> documentation.</p>
  *
  * @author lvostinar
  *

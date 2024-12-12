@@ -32,6 +32,21 @@ import com.servoy.j2db.util.IDestroyable;
 import com.servoy.j2db.util.ServoyException;
 
 /**
+ * <p>A <code>JSViewDataSource</code> provides methods for managing and manipulating view-based
+ * data sources in Servoy. It enables the retrieval of column names, creation and management of
+ * view foundsets, and dynamic querying capabilities. Methods include obtaining column names
+ * through <code>getColumnNames()</code>, fetching the data source string with
+ * <code>getDataSource()</code>, and accessing the <code>ViewFoundSet</code> with
+ * <code>getFoundSet()</code>.</p>
+ *
+ * <p>Additionally, <code>getViewFoundSet(query)</code> creates and optionally registers view
+ * foundsets from a specified query object. The system retains registered view foundsets in memory
+ * until explicitly disposed of using <code>dispose()</code>. The <code>unregister()</code> method
+ * facilitates removing view foundsets associated with the datasource, optimizing memory management.</p>
+ *
+ * <p>For more details, refer to
+ * <a href="./dev-api/datasources/viewdatasource.md">ViewDataSource Documentation</a>.</p>
+ *
  * @author emera
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)

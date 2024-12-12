@@ -27,7 +27,24 @@ import com.servoy.j2db.persistence.QuerySet;
 import com.servoy.j2db.scripting.annotations.JSSignature;
 import com.servoy.j2db.util.ServoyException;
 
-/** JSBaseSQLFoundSet is the base class for SQL based foundsets (either a JSFoundSet or a ViewFoundSet).
+/**
+ * <p><code>JSBaseSQLFoundSet</code> is the foundational class for SQL-based foundsets, including
+ * <code>JSFoundSet</code> and <code>ViewFoundSet</code>. It provides functionality to handle
+ * SQL-driven data operations within Servoy environments. This class extends <code>JSFoundSet</code>,
+ * enabling inheritance of its capabilities and adding specific methods for SQL-based operations.</p>
+ *
+ * <h2>Features</h2>
+ * <p>The <code>JSBaseSQLFoundSet</code> supports multiselect mode, allowing multiple records to be
+ * selected simultaneously, making it suitable for batch operations. It includes mechanisms to
+ * iterate over records using the <code>forEach</code> method, which dynamically loads records while
+ * accounting for concurrent inserts and deletes, ensuring data consistency during operations.</p>
+ *
+ * <p>Developers can retrieve the internal SQL used by the foundset through the <code>getSQL</code>
+ * method, along with parameters via <code>getSQLParameters</code>. Options are available to include
+ * or exclude table filters from the returned SQL and parameters. Additional capabilities include
+ * sorting records with <code>sort</code>, duplicating the foundset using <code>duplicateFoundSet</code>,
+ * saving changes with <code>save</code>, and reverting unsaved edits using
+ * <code>revertEditedRecords</code>.</p>
  *
  * @author rgansevles
  */

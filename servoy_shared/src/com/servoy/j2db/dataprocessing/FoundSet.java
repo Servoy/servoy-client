@@ -147,11 +147,25 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
- * JSFoundSet is the data model for various UI components or forms that link directly (both ways) to a datasource (db table, view, in-mem...).<br/><br/>
+ * <p><code>FoundSet</code> serves as the data model for UI components or forms directly linked
+ * to a datasource, enabling data manipulation and validation. It supports common operations like
+ * sorting, query-based loading, and lazy loading, with features for relation handling and batch
+ * data management.</p>
  *
- * It eases the read-from-db/datasource and write-to-db/datasource, editing data, data input validations and so on.<br/>
- * It's API supports common tasks like sorting, query based loading, working through relations etc.<br/>
- * It will automatically handle loading of data in batches from the datasource and supports lazy loading/partial loading in the UI as well (if the UI components themselves (lists / tables / trees etc.) support that).
+ * <h2>Functionality</h2>
+ * <p><code>FoundSet</code> allows filtering, creating, duplicating, or deleting records with a
+ * robust API for data management. Filters can be applied via query builders or column-based
+ * conditions and can be removed dynamically. Sorting can be done with predefined strings,
+ * deferred execution, or custom comparator functions.</p>
+ *
+ * <p>Developers can retrieve the current state of the foundset, including active filters, query
+ * parameters, and loaded record indices. <code>FoundSet</code>'s structure supports direct
+ * interaction with parent or related records, dynamic loading of omitted records, and navigation
+ * using indices or primary keys.</p>
+ *
+ * <p><code>FoundSet</code> also offers functionality for find/search operations using SQL-like
+ * conditions. It integrates with server-side data sources for data synchronization,
+ * enabling a balance of client-side and server-side performance optimization.</p>
  *
  * @author jblok
  */
