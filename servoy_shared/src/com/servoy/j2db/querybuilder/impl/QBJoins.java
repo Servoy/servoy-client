@@ -53,7 +53,17 @@ import com.servoy.j2db.util.DataSourceUtils;
 import com.servoy.j2db.util.Debug;
 
 /**
- * Utility object for handling all joins in QBSelect.
+ * <p>The <code>QBJoins</code> class is a utility object designed to manage and configure all join
+ * operations in the <code>QBSelect</code> query builder framework. It provides mechanisms to dynamically
+ * add, modify, and remove joins based on data sources, relations, or subqueries. This flexibility allows
+ * developers to construct queries that incorporate complex table relationships.</p>
+ *
+ * <p>The class supports multiple join types, including <code>INNER JOIN</code> and <code>LEFT OUTER JOIN</code>,
+ * and offers tools to manage unused joins, ensuring optimized query execution. It also integrates 
+ * with parent and root query references, allowing for scalable and modular query design.</p>
+ *
+ * <p>For additional guidance on query construction and execution, see the
+ * <a href="./qbselect.md">QBSelect documentation</a>.</p>
  *
  * @author rgansevles
  *
@@ -463,7 +473,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		// not a direct child, try recursive
 		for (QBJoin j : getJoins())
 		{
-			QBTableClause found = ((QBTableClause)j).findQueryBuilderTableClause(tableAlias);
+			QBTableClause found = j.findQueryBuilderTableClause(tableAlias);
 			if (found != null)
 			{
 				return found;

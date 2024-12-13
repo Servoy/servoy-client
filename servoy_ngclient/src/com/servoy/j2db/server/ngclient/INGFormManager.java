@@ -43,4 +43,6 @@ public interface INGFormManager extends IBasicFormManager
 	void setFormReadOnlyScriptingState(String formName, boolean readOnly);
 
 	boolean getChildReadonlyStateWhenShowingInHierarchy(IWebFormController childController, IWebFormController parentController);
+
+	void setTenantValue(Object object);
 }

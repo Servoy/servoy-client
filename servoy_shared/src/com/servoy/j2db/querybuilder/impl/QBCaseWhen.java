@@ -25,7 +25,16 @@ import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.scripting.IJavaScriptType;
 
 /**
- * Utility object for building a WHEN condition inside an SQL Case expression.
+ * <p>The <code>QBCaseWhen</code> class is a utility for defining <code>WHEN</code> conditions within
+ * an SQL <code>CASE</code> expression in a <code>QBSelect</code> query. It specifies the conditions
+ * that, when met, determine the result of the <code>CASE</code> expression.</p>
+ *
+ * <p>The <code>then</code> method assigns the value to return when the specified <code>WHEN</code>
+ * condition is satisfied. This enables the construction of dynamic and complex conditional logic
+ * directly within SQL queries.</p>
+ *
+ * <p>For more information about constructing and executing queries, refer to the
+ * <a href="./qbselect.md">QBSelect</a> section of this documentation.</p>
  *
  * @author rgansevles
  *

@@ -147,17 +147,31 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
- * JSFoundSet is the data model for various UI components or forms that link directly (both ways) to a datasource (db table, view, in-mem...).<br/><br/>
+ * <p><code>FoundSet</code> serves as the data model for UI components or forms directly linked
+ * to a datasource, enabling data manipulation and validation. It supports common operations like
+ * sorting, query-based loading, and lazy loading, with features for relation handling and batch
+ * data management.</p>
  *
- * It eases the read-from-db/datasource and write-to-db/datasource, editing data, data input validations and so on.<br/>
- * It's API supports common tasks like sorting, query based loading, working through relations etc.<br/>
- * It will automatically handle loading of data in batches from the datasource and supports lazy loading/partial loading in the UI as well (if the UI components themselves (lists / tables / trees etc.) support that).
+ * <h2>Functionality</h2>
+ * <p><code>FoundSet</code> allows filtering, creating, duplicating, or deleting records with a
+ * robust API for data management. Filters can be applied via query builders or column-based
+ * conditions and can be removed dynamically. Sorting can be done with predefined strings,
+ * deferred execution, or custom comparator functions.</p>
+ *
+ * <p>Developers can retrieve the current state of the foundset, including active filters, query
+ * parameters, and loaded record indices. <code>FoundSet</code>'s structure supports direct
+ * interaction with parent or related records, dynamic loading of omitted records, and navigation
+ * using indices or primary keys.</p>
+ *
+ * <p><code>FoundSet</code> also offers functionality for find/search operations using SQL-like
+ * conditions. It integrates with server-side data sources for data synchronization,
+ * enabling a balance of client-side and server-side performance optimization.</p>
  *
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSFoundSet", scriptingName = "JSFoundSet")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSFoundSet", scriptingName = "JSFoundSet", extendsComponent = "JSBaseSQLFoundSet")
 public abstract class FoundSet
-	implements IFoundSetInternal, IFoundSetScriptMethods, IRowListener, Scriptable, SymbolScriptable, Cloneable, IJSFoundSet, IDeleteTrigger
+	implements IFoundSetInternal, IJSBaseSQLFoundSet, IRowListener, Scriptable, SymbolScriptable, Cloneable, IJSFoundSet, IDeleteTrigger
 {
 	public static final String JS_FOUNDSET = "JSFoundSet"; //$NON-NLS-1$
 
@@ -1070,7 +1084,8 @@ public abstract class FoundSet
 	 *
 	 * @return foundset duplicate.
 	 */
-	public FoundSet js_duplicateFoundSet() throws ServoyException//can be used by loadRecords Again
+	@JSFunction
+	public FoundSet duplicateFoundSet() throws ServoyException//can be used by loadRecords Again
 	{
 		return (FoundSet)copy(false);
 	}
@@ -3389,7 +3404,8 @@ public abstract class FoundSet
 	 *
 	 * @return String sort columns
 	 */
-	public String js_getCurrentSort()
+	@JSFunction
+	public String getCurrentSort()
 	{
 		return FoundSetManager.getSortColumnsAsString(lastSortColumns);
 	}
@@ -3403,9 +3419,10 @@ public abstract class FoundSet
 	 *
 	 * @param sortString the specified columns (and sort order)
 	 */
-	public void js_sort(String sortString) throws ServoyException
+	@JSFunction
+	public void sort(String sortString) throws ServoyException
 	{
-		js_sort(sortString, Boolean.FALSE);
+		sort(sortString, Boolean.FALSE);
 	}
 
 	/**
@@ -3418,7 +3435,8 @@ public abstract class FoundSet
 	 * @param sortString the specified columns (and sort order)
 	 * @param defer boolean when true, the "sortString" will be just stored, without performing a query on the database (the actual sorting will be deferred until the next data loading action).
 	 */
-	public void js_sort(String sortString, Boolean defer) throws ServoyException
+	@JSFunction
+	public void sort(String sortString, Boolean defer) throws ServoyException
 	{
 		sort(((FoundSetManager)getFoundSetManager()).getSortColumns(getTable(), sortString), getBooleanAsbool(defer, false));
 	}
@@ -3809,7 +3827,8 @@ public abstract class FoundSet
 	 * Reverts outstanding (not saved) in memory changes from edited records of this foundset.
 	 * Best used in combination with the function databaseManager.setAutoSave()
 	 */
-	public void js_revertEditedRecords() throws ServoyException
+	@JSFunction
+	public void revertEditedRecords() throws ServoyException
 	{
 		JSDatabaseManager.revertEditedRecords(fsm.getApplication(), this);
 	}
@@ -3820,7 +3839,8 @@ public abstract class FoundSet
 	 * @return true if the save was done without an error.
 	 * @throws ServoyException
 	 */
-	public boolean js_save() throws ServoyException
+	@JSFunction
+	public boolean save() throws ServoyException
 	{
 		return JSDatabaseManager.saveData(fsm.getApplication(), this);
 	}
@@ -3829,20 +3849,20 @@ public abstract class FoundSet
 	public int jsFunction_getSelectedIndex()
 	{
 		checkSelection();
-		return IFoundSetScriptMethods.super.jsFunction_getSelectedIndex();
+		return IJSBaseSQLFoundSet.super.jsFunction_getSelectedIndex();
 	}
 
 	@Override
 	public void jsFunction_setSelectedIndex(int index)
 	{
-		IFoundSetScriptMethods.super.jsFunction_setSelectedIndex(index);
+		IJSBaseSQLFoundSet.super.jsFunction_setSelectedIndex(index);
 	}
 
 	@Override
 	public Number[] jsFunction_getSelectedIndexes()
 	{
 		checkSelection();
-		return IFoundSetScriptMethods.super.jsFunction_getSelectedIndexes();
+		return IJSBaseSQLFoundSet.super.jsFunction_getSelectedIndexes();
 	}
 
 	/**
@@ -3889,9 +3909,9 @@ public abstract class FoundSet
 	 *
 	 * @return Record record.
 	 */
-	public IJSRecord js_getRecordByPk(Object... pk)
+	public IJSBaseSQLRecord js_getRecordByPk(Object... pk)
 	{
-		return (IJSRecord)getRecord(pk);
+		return (IJSBaseSQLRecord)getRecord(pk);
 	}
 
 	/**
@@ -3931,21 +3951,22 @@ public abstract class FoundSet
 	 * @sample var selectedRecords = %%prefix%%foundset.getSelectedRecords();
 	 * @return Array current records.
 	 */
-	public IRecordInternal[] js_getSelectedRecords()
+	@JSFunction
+	public IJSBaseSQLRecord[] getSelectedRecords()
 	{
 		checkSelection();
 		int[] selectedIndexes = getSelectedIndexes();
-		List<IRecordInternal> selectedRecords = new ArrayList<IRecordInternal>(selectedIndexes.length);
+		List<IJSBaseSQLRecord> selectedRecords = new ArrayList<IJSBaseSQLRecord>(selectedIndexes.length);
 		for (int index : selectedIndexes)
 		{
 			IRecordInternal record = getRecord(index);
 			if (record != null && record != getPrototypeState()) // safety, do not return proto
 			{
-				selectedRecords.add(record);
+				selectedRecords.add((IJSBaseSQLRecord)record);
 			}
 		}
 
-		return selectedRecords.toArray(new IRecordInternal[selectedRecords.size()]);
+		return selectedRecords.toArray(new IJSBaseSQLRecord[selectedRecords.size()]);
 	}
 
 	/**
@@ -6155,7 +6176,8 @@ public abstract class FoundSet
 	{
 		try
 		{
-			if (getSelectedIndex() >= 0 && fsm.hasFoundsetTrigger(getDataSource(), StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID))
+			if (getSelectedIndex() >= 0 && i >= 0 &&
+				fsm.hasFoundsetTrigger(getDataSource(), StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID))
 			{
 				return executeFoundsetTriggerBreakOnFalse(new Object[] { getSelectedRecord(), getRecord(i) },
 					StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID, false);
@@ -6176,7 +6198,7 @@ public abstract class FoundSet
 			if (getSelectedIndex() >= 0 && fsm.hasFoundsetTrigger(getDataSource(), StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID))
 			{
 				return executeFoundsetTriggerBreakOnFalse(
-					new Object[] { js_getSelectedRecords(), indexes != null ? Arrays.stream(indexes).mapToObj(index -> getRecord(index)).toArray() : null },
+					new Object[] { getSelectedRecords(), indexes != null ? Arrays.stream(indexes).mapToObj(index -> getRecord(index)).toArray() : null },
 					StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID, false);
 			}
 		}

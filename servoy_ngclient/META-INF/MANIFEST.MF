@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Servoy NG Client Plug-in
 Bundle-SymbolicName: servoy_ngclient;singleton:=true
-Bundle-Version: 2024.12.0.4020_rc
+Bundle-Version: 2025.3.0.4040_rc
 Export-Package: com.servoy.j2db.server.ngclient,
  com.servoy.j2db.server.ngclient.component,
  com.servoy.j2db.server.ngclient.endpoint,
@@ -81,6 +81,7 @@ Import-Package: com.auth0.jwk;version="[0.22.0,1.0.0)",
  org.jsoup;version="1.17.1",
  org.jsoup.nodes;version="1.17.1",
  org.jsoup.select;version="1.17.1",
- org.slf4j;version="2.0.6"
+ org.slf4j;version="2.0.6",
+ org.slf4j.spi;version="[2.0.0,3.0.0)"
 Bundle-ActivationPolicy: lazy
 Automatic-Module-Name: servoy_ngclient

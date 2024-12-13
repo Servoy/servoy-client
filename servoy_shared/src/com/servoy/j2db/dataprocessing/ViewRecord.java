@@ -37,7 +37,6 @@ import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.scripting.api.IJSDataSet;
-import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.scripting.DefaultJavaScope;
@@ -47,13 +46,28 @@ import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Similar to Record, is a row in a ViewFoundSet.
+ * <p>A <code>ViewRecord</code> represents a row in a <code>ViewFoundSet</code>, with functionality tailored
+ * to handle specific record-related operations. Key properties include <code>exception</code>, which provides
+ * information on the last exception that occurred for the record, and <code>foundset</code>, which references
+ * the parent foundset. The <code>recordMarkers</code> property facilitates validation by retaining markers
+ * for issues until a record is successfully saved or manually cleared.</p>
+ *
+ * <p>The <code>ViewRecord</code> object includes methods for examining and managing record state. For instance,
+ * <code>getChangedData</code> retrieves unsaved changes in a dataset format, while <code>hasChangedData</code>
+ * and <code>isEditing</code> determine whether the record has pending modifications. The <code>createMarkers</code>
+ * method allows manual creation of validation markers. Other methods, like <code>revertChanges</code>, undo
+ * unsaved modifications, and <code>getPKs</code> fetch the primary key values of a record. Additionally,
+ * <code>isRelatedFoundSetLoaded</code> verifies if a related foundset is already initialized without triggering
+ * its load.</p>
+ *
+ * <p>For more information on managing records within the context of view foundsets, refer to the
+ * <a href="./viewfoundset.md">View foundset</a> section of the documentation.</p>
  *
  * @author jcompagner
  * @since 8.4
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ViewRecord", scriptingName = "ViewRecord")
-public final class ViewRecord implements IRecordInternal, Scriptable
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "ViewRecord", scriptingName = "ViewRecord", extendsComponent = "JSBaseSQLRecord")
+public final class ViewRecord implements IRecordInternal, IJSBaseSQLRecord, Scriptable
 {
 	public static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(ViewRecord.class);
 
@@ -324,9 +338,9 @@ public final class ViewRecord implements IRecordInternal, Scriptable
 	 * @return The parent foundset of the record.
 	 */
 	@JSReadonlyProperty
-	public IJSFoundSet getFoundset()
+	public ViewFoundSet getFoundset()
 	{
-		return (IJSFoundSet)foundset;
+		return foundset;
 	}
 
 	@Override

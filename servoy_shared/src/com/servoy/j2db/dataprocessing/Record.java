@@ -42,7 +42,6 @@ import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.scripting.api.IJSDataSet;
-import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.base.scripting.api.IJSRecord;
 import com.servoy.j2db.ApplicationException;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -61,12 +60,28 @@ import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
 /**
- * JSRecord represents one row of a JSFoundset.
+ * <p>The <code>JSRecord</code> class represents a single row within a <code>JSFoundset</code>,
+ * extending the capabilities of <code>JSBaseSQLRecord</code>. It provides various methods and
+ * properties to access, modify, validate, and manage records in Servoy.</p>
+ *
+ * <h2>Functionality</h2>
+ * <p>This class offers properties to retrieve the parent foundset, check for validation errors
+ * through <code>recordMarkers</code>, and access any exceptions encountered during operations.
+ * It allows developers to track and manage the state of a record, such as checking whether it is
+ * new, edited, or deleted.</p>
+ *
+ * <p>The <code>JSRecord</code> methods include features to revert unsaved changes, save records,
+ * and retrieve data about the record, such as its primary keys, data source, and outstanding
+ * changed data. Developers can also create custom validation markers for additional record checks
+ * and validations. The class ensures flexibility by providing utilities for checking the loaded
+ * state of related foundsets and handling record edits efficiently.</p>
+ *
+ * <p>For more details, refer to the <a href="./jsfoundset.md">JSFoundset</a> documentation.</p>
  *
  * @author jblok
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSRecord", scriptingName = "JSRecord")
-public class Record implements Scriptable, IRecordInternal, IJSRecord
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSRecord", scriptingName = "JSRecord", extendsComponent = "JSBaseSQLRecord")
+public class Record implements Scriptable, IRecordInternal, IJSRecord, IJSBaseSQLRecord
 {
 	public static final String JS_RECORD = "JSRecord"; //$NON-NLS-1$
 
@@ -1278,9 +1293,9 @@ public class Record implements Scriptable, IRecordInternal, IJSRecord
 	 * @return The parent foundset of the record.
 	 */
 	@JSReadonlyProperty
-	public IJSFoundSet getFoundset()
+	public FoundSet getFoundset()
 	{
-		return (IJSFoundSet)parent;
+		return (FoundSet)parent;
 	}
 
 	public void rowRemoved()

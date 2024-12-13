@@ -29,7 +29,20 @@ import com.servoy.j2db.querybuilder.IQueryBuilderSorts;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * Utility object for handling all sort conditions in a QBSelect (query.sort).
+ * <p>The <code>QBSorts</code> class is a versatile utility for managing sorting conditions in
+ * <code>QBSelect</code> queries. It enables developers to define ascending or descending sort orders
+ * for columns and functions, offering granular control over query result organization. This class
+ * integrates with other query builder components, allowing for dynamic updates to sorting criteria
+ * during query construction.</p>
+ *
+ * <p>With support for adding primary key columns automatically in alphabetical order,
+ * <code>QBSorts</code> streamlines the sorting process in complex queries. Additionally, it includes
+ * features for clearing sorting conditions, ensuring flexibility and adaptability. Key methods
+ * include <code>add(columnSortAsc)</code> for adding sort orders, <code>addPk()</code> for incorporating
+ * primary key columns, and <code>clear()</code> for resetting the sort configuration.</p>
+ *
+ * <p>For more details, see the <a href="./qbselect.md">QBSelect documentation</a>.</p>
+ *
  * @author rgansevles
  *
  */

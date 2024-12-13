@@ -215,9 +215,16 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	/**
 	 * @return the java input stream object.
 	 */
-	public InputStream getInputStream() throws IOException
+	public InputStream getInputStream()
 	{
-		return ((FileItem)item).getInputStream();
+		try
+		{
+			return ((FileItem)item).getInputStream();
+		}
+		catch (IOException e)
+		{
+			return null;
+		}
 	}
 
 	/**

@@ -105,7 +105,35 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.gui.SnapShot;
 
 /**
- * Application object. Available as "<code>application.</code>" in scripting.
+ * <p>The <code>application</code> class is a core utility in Servoy, enabling robust management of
+ * client sessions, user interfaces, and interactions with the underlying system. It provides
+ * functionality to control solutions, interact with system resources, and manage both client-specific
+ * and server-side behaviors.</p>
+ *
+ * <p>One of its primary capabilities is the management of solutions. Developers can close and
+ * optionally reopen solutions dynamically, ensuring that applications adapt to user or system
+ * requirements without disruption. The <code>application</code> object also facilitates the creation
+ * and handling of windows and dialogs, allowing for advanced UI management. Developers can create
+ * custom windows, retrieve active ones, and manipulate UI elements to provide tailored user experiences.</p>
+ *
+ * <p>The <code>application</code> object also provides tools to interact with the underlying system.
+ * It enables developers to execute external programs, both synchronously and asynchronously, gather
+ * system information such as client IP addresses and operating systems, and work with clipboard data.
+ * Additionally, it allows for managing properties at both the user and client levels, offering
+ * persistent and configurable settings across sessions.</p>
+ *
+ * <p>Advanced logging and debugging capabilities are integrated into the <code>application</code>
+ * class, allowing developers to assert conditions, log messages at varying levels, and gain insights
+ * into application behavior. Furthermore, it offers support for value lists and dynamic data
+ * management, enabling seamless integration with forms and data models.</p>
+ *
+ * <p>Several core methods highlight its versatility. Functions like <code>closeSolution</code> and
+ * <code>createWindow</code> exemplify its solution and UI management features. System-level utilities
+ * like <code>executeProgram</code>, <code>getHostName</code>, and <code>getOSName</code> extend its
+ * reach to the operating environment. Persistent storage and customization are supported through
+ * methods like <code>getUserProperty</code> and <code>setUserProperty</code>, while utilities such
+ * as <code>addClientInfo</code> and <code>refreshGlobalMethodValueList</code> provide dynamic
+ * adaptability for client-specific needs.</p>
  *
  * @author jblok
  */

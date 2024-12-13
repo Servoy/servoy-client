@@ -87,6 +87,7 @@ public class PluginScope extends DefaultScope
 
 		String realName = name;
 		if ("it2be_menubar".equals(realName)) realName = "menubar";//we bought, just map, has to backwards compatible anyway //$NON-NLS-1$ //$NON-NLS-2$
+		else if ("jasperPluginRMI".equals(realName)) realName = "jasperReports"; //$NON-NLS-1$ //$NON-NLS-2$
 		Object o = super.get(realName, start);
 		if (o == Scriptable.NOT_FOUND || o == null)
 		{
@@ -156,7 +157,7 @@ public class PluginScope extends DefaultScope
 	 */
 	public static String getUpdatedPluginName(String name)
 	{
-		if ("kioskmode".equals(name) || "popupmenu".equals(name) || "menubar".equals(name) || "it2be_menubar".equals(name)) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ 
+		if ("kioskmode".equals(name) || "popupmenu".equals(name) || "menubar".equals(name) || "it2be_menubar".equals(name)) //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		{
 			return "window"; //$NON-NLS-1$
 		}

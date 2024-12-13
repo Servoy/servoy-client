@@ -20,9 +20,12 @@ package com.servoy.j2db.server.ngclient.property;
 import java.awt.Dimension;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Queue;
+import java.util.Iterator;
+import java.util.LinkedList;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -138,9 +141,10 @@ public class ClientSideTypesTest extends AbstractSolutionTest
 	@Test
 	public void serviceClientSideTypeShoulAlwaysGetSent()
 	{
-		Queue<String> sentTextMessages = endpoint.getSession().getBasicRemote().getAndClearSentTextMessages();
+		LinkedList<String> sentTextMessages = endpoint.getSession().getBasicRemote().getAndClearSentTextMessages();
 		Assert.assertTrue(sentTextMessages.size() > 0);
 		// searching for something like 2#{"msg":{},"services":[{"call":"setServiceClientSideConversionTypes","args":...,"name":"$sabloService"}]}
+//		changeme();
 		String msg;
 		boolean found = false;
 		while (!found && ((msg = sentTextMessages.poll()) != null))
@@ -169,108 +173,146 @@ public class ClientSideTypesTest extends AbstractSolutionTest
 	@Test
 	public void componentClientSideTypesShoulGetSentWhenNeeded()
 	{
+		endpoint.getSession().getBasicRemote().getAndClearSentTextMessages();
 		// show first form and see second component spec. being sent to client
 		client.getFormManager().showFormInCurrentContainer("comp1Form");
 
-		Queue<String> sentTextMessages = endpoint.getSession().getBasicRemote().getAndClearSentTextMessages();
+		LinkedList<String> sentTextMessages = endpoint.getSession().getBasicRemote().getAndClearSentTextMessages();
 		Assert.assertTrue(sentTextMessages.size() > 0);
-		// searching for something like 2#{"msg":{},"services":[{"call":"setServiceClientSideConversionTypes","args":...,"name":"$sabloService"}]}
-		String msg;
-		boolean found = false;
-		while (!found && ((msg = sentTextMessages.poll()) != null))
-		{
-			int indexOfHash = msg.indexOf("#");
-			if (indexOfHash >= 0)
-			{
-				JSONObject msgJSON = new JSONObject(msg.substring(indexOfHash + 1));
-				if (msgJSON.has("serviceApis") && msgJSON.getJSONArray("serviceApis").length() == 2 &&
-					msgJSON.getJSONArray("serviceApis").getJSONObject(0).getString("name").equals("$typesRegistry") &&
-					msgJSON.getJSONArray("serviceApis").getJSONObject(0).getString("call").equals("addComponentClientSideSpecs"))
-				{
-					JSONObject args = msgJSON.getJSONArray("serviceApis").getJSONObject(0).getJSONArray("args").getJSONObject(0);
-					// check that our test service client side PDs are sent correctly
-					JSONAssert.assertEquals(new JSONObject(
-						"{\"p\":{\"arrayOfCustomType\":[\"JSON_arr\",[\"JSON_obj\",\"component1.mytype\"]],\"customType\":[\"JSON_obj\",\"component1.mytype\"],\"octWithCustomTypeAllow\":{\"s\":1,\"t\":[\"JSON_obj\",\"component1.octWithCustomType\"]},\"someDate\":{\"s\":1,\"t\":\"svy_date\"},\"stringArray\":[\"JSON_arr\",{\"t\":null,\"s\":2}],\"arrayOfCustomTypeWithAllow\":{\"s\":1,\"t\":[\"JSON_arr\",[\"JSON_obj\",\"component1.mytype\"]]},\"arrayWithOctAllowAndShallowEl\":{\"s\":1,\"t\":[\"JSON_arr\",{\"t\":[\"JSON_obj\",\"component1.octWithCustomType\"],\"s\":2}]}},\"ftd\":{\"JSON_obj\":{\"component1.octWithCustomType\":{\"customType\":{\"s\":3,\"t\":[\"JSON_obj\",\"component1.mytype\"]},\"someString\":{\"s\":0}},\"component1.mytype\":{\"someComponent\":\"component\"}}}}"),
-						args.getJSONObject("component1"), JSONCompareMode.NON_EXTENSIBLE);
-					found = true;
-				}
-			}
-		}
 
-		Assert.assertTrue("Component client side types should have been sent when a form using that component was shown", found);
+		int[] locationOfClientSideSpecsSentInMessages = getServiceCallLocationInMsgsThatMatches(sentTextMessages,
+			1, "$typesRegistry", "addComponentClientSideSpecs",
+			"[{\"component1\":{\"p\":{\"arrayOfCustomType\":[\"JSON_arr\",[\"JSON_obj\",\"component1.mytype\"]],\"customType\":[\"JSON_obj\",\"component1.mytype\"],\"octWithCustomTypeAllow\":{\"s\":1,\"t\":[\"JSON_obj\",\"component1.octWithCustomType\"]},\"someDate\":{\"s\":1,\"t\":\"svy_date\"},\"stringArray\":[\"JSON_arr\",{\"t\":null,\"s\":2}],\"arrayOfCustomTypeWithAllow\":{\"s\":1,\"t\":[\"JSON_arr\",[\"JSON_obj\",\"component1.mytype\"]]},\"arrayWithOctAllowAndShallowEl\":{\"s\":1,\"t\":[\"JSON_arr\",{\"t\":[\"JSON_obj\",\"component1.octWithCustomType\"],\"s\":2}]}},\"ftd\":{\"JSON_obj\":{\"component1.octWithCustomType\":{\"customType\":{\"s\":3,\"t\":[\"JSON_obj\",\"component1.mytype\"]},\"someString\":{\"s\":0}},\"component1.mytype\":{\"someComponent\":\"component\"}}}}}]");
+		Assert.assertTrue("Component client side types should have been sent when a form using that component was shown",
+			locationOfClientSideSpecsSentInMessages[0] >= 0);
+
+		int[] locationOfExpectFormToShowOnClientTrueInMessages = getServiceCallLocationInMsgsThatMatches(sentTextMessages,
+			1, "$sabloService", "expectFormToShowOnClient",
+			"[true]");
+		Assert.assertTrue("expectFormToShowOnClient should have been sent with true when a form using that component was shown",
+			locationOfExpectFormToShowOnClientTrueInMessages[0] >= 0);
+
+		int[] locationOfExpectFormToShowOnClientFalseInMessages = getServiceCallLocationInMsgsThatMatches(sentTextMessages,
+			2, "$sabloService", "expectFormToShowOnClient",
+			"[false]");
+		Assert.assertTrue("expectFormToShowOnClient should have been sent with true when a form using that component was shown",
+			locationOfExpectFormToShowOnClientFalseInMessages[0] >= 0);
+
+		int[] locationOfUpdateControllerInMessages = getServiceCallLocationInMsgsThatMatches(sentTextMessages,
+			1, "$windowService", "updateController", null);
+		Assert.assertTrue("expectFormToShowOnClient should have been sent with true when a form using that component was shown",
+			locationOfUpdateControllerInMessages[0] >= 0);
+
+		int[] locationOfSwitchFormInMessages = getServiceCallLocationInMsgsThatMatches(sentTextMessages,
+			1, "$windowService", "switchForm", null);
+		Assert.assertTrue("expectFormToShowOnClient should have been sent with true when a form using that component was shown",
+			locationOfSwitchFormInMessages[0] >= 0);
+
+		assertFirstArgIsBeforeSecond("Client sent specs need to be sent before form data to client",
+			locationOfClientSideSpecsSentInMessages, locationOfUpdateControllerInMessages);
+
+		assertFirstArgIsBeforeSecond("Send 'expect form to show' (for sync comp. api calls in onShow) should be sent before form data to client",
+			locationOfExpectFormToShowOnClientTrueInMessages, locationOfUpdateControllerInMessages);
+
+		assertFirstArgIsBeforeSecond("Form data should be sent before switchForm that triggers the UI load of the form on client",
+			locationOfUpdateControllerInMessages, locationOfSwitchFormInMessages);
+
+		assertFirstArgIsBeforeSecond("Form data should be sent to client and then it should tall client that it's no longer going to show forms",
+			locationOfSwitchFormInMessages, locationOfExpectFormToShowOnClientFalseInMessages);
 
 		// OK, now show second form and see second component spec being sent to client
 		client.getFormManager().showFormInCurrentContainer("comp2Form");
-
 		sentTextMessages = endpoint.getSession().getBasicRemote().getAndClearSentTextMessages();
-		Assert.assertTrue(sentTextMessages.size() > 0);
-		// searching for something like 2#{"msg":{},"services":[{"call":"setServiceClientSideConversionTypes","args":...,"name":"$sabloService"}]}
-		found = false;
-		while (!found && ((msg = sentTextMessages.poll()) != null))
-		{
-			int indexOfHash = msg.indexOf("#");
-			if (indexOfHash >= 0)
-			{
-				JSONObject msgJSON = new JSONObject(msg.substring(indexOfHash + 1));
-				if (msgJSON.has("serviceApis") && msgJSON.getJSONArray("serviceApis").length() == 2 &&
-					msgJSON.getJSONArray("serviceApis").getJSONObject(0).getString("name").equals("$typesRegistry") &&
-					msgJSON.getJSONArray("serviceApis").getJSONObject(0).getString("call").equals("addComponentClientSideSpecs"))
-				{
-					JSONObject args = msgJSON.getJSONArray("serviceApis").getJSONObject(0).getJSONArray("args").getJSONObject(0);
-					// check that our test service client side PDs are sent correctly
-					JSONAssert.assertEquals(new JSONObject(
-						"{\"p\":{\"arrayOfCustomType\":[\"JSON_arr\",[\"JSON_obj\",\"component2.mytype\"]],\"customType\":[\"JSON_obj\",\"component2.mytype\"],\"octWithCustomTypeAllow\":{\"s\":1,\"t\":[\"JSON_obj\",\"component2.octWithCustomType\"]},\"someDate\":{\"s\":1,\"t\":\"svy_date\"},\"stringArray\":[\"JSON_arr\",{\"t\":null,\"s\":2}],\"arrayOfCustomTypeWithAllow\":{\"s\":1,\"t\":[\"JSON_arr\",[\"JSON_obj\",\"component2.mytype\"]]},\"arrayWithOctAllowAndShallowEl\":{\"s\":1,\"t\":[\"JSON_arr\",{\"t\":[\"JSON_obj\",\"component2.octWithCustomType\"],\"s\":2}]}},\"ftd\":{\"JSON_obj\":{\"component2.octWithCustomType\":{\"customType\":{\"s\":3,\"t\":[\"JSON_obj\",\"component2.mytype\"]},\"someString\":{\"s\":0}},\"component2.mytype\":{\"someComponent\":\"component\"}}}}"),
-						args.getJSONObject("component2"), JSONCompareMode.NON_EXTENSIBLE);
-					found = true;
-				}
-			}
-		}
 
-		Assert.assertTrue("Component client side types should have been sent when a form using that component was shown", found);
+		Assert.assertTrue(sentTextMessages.size() > 0);
+
+		locationOfClientSideSpecsSentInMessages = getServiceCallLocationInMsgsThatMatches(sentTextMessages,
+			1, "$typesRegistry", "addComponentClientSideSpecs",
+			"[{\"component2\":{\"p\":{\"arrayOfCustomType\":[\"JSON_arr\",[\"JSON_obj\",\"component2.mytype\"]],\"customType\":[\"JSON_obj\",\"component2.mytype\"],\"octWithCustomTypeAllow\":{\"s\":1,\"t\":[\"JSON_obj\",\"component2.octWithCustomType\"]},\"someDate\":{\"s\":1,\"t\":\"svy_date\"},\"stringArray\":[\"JSON_arr\",{\"t\":null,\"s\":2}],\"arrayOfCustomTypeWithAllow\":{\"s\":1,\"t\":[\"JSON_arr\",[\"JSON_obj\",\"component2.mytype\"]]},\"arrayWithOctAllowAndShallowEl\":{\"s\":1,\"t\":[\"JSON_arr\",{\"t\":[\"JSON_obj\",\"component2.octWithCustomType\"],\"s\":2}]}},\"ftd\":{\"JSON_obj\":{\"component2.octWithCustomType\":{\"customType\":{\"s\":3,\"t\":[\"JSON_obj\",\"component2.mytype\"]},\"someString\":{\"s\":0}},\"component2.mytype\":{\"someComponent\":\"component\"}}}}}]");
+		Assert.assertTrue("Component client side types should have been sent when a form using that component was shown",
+			locationOfClientSideSpecsSentInMessages[0] >= 0);
 
 		// OK now show a third form that has both components - they are both already on client so it shouldn't send anything anymore
 		client.getFormManager().showFormInCurrentContainer("comp12Form");
-
 		sentTextMessages = endpoint.getSession().getBasicRemote().getAndClearSentTextMessages();
-		found = false;
-		while (!found && ((msg = sentTextMessages.poll()) != null))
-		{
-			int indexOfHash = msg.indexOf("#");
-			if (indexOfHash >= 0)
-			{
-				JSONObject msgJSON = new JSONObject(msg.substring(indexOfHash + 1));
-				if (msgJSON.has("services") && msgJSON.getJSONArray("services").length() == 1 &&
-					msgJSON.getJSONArray("services").getJSONObject(0).getString("name").equals("$sabloService") &&
-					msgJSON.getJSONArray("services").getJSONObject(0).getString("call").equals("addComponentClientSideConversionTypes"))
-				{
-					found = true;
-				}
-			}
-		}
 
-		Assert.assertFalse("Component client side types should have been sent already previously; and they should not be sent again", found);
+		locationOfClientSideSpecsSentInMessages = getServiceCallLocationInMsgsThatMatches(sentTextMessages,
+			1, "$typesRegistry", "addComponentClientSideSpecs", null);
+		Assert.assertTrue("Component client side types should have been sent already previously; and they should not be sent again",
+			locationOfClientSideSpecsSentInMessages[0] == -1);
 
 		// OK now show a fourth form that has a component with no client side types
 		client.getFormManager().showFormInCurrentContainer("comp3Form");
-
 		sentTextMessages = endpoint.getSession().getBasicRemote().getAndClearSentTextMessages();
-		found = false;
-		while (!found && ((msg = sentTextMessages.poll()) != null))
+
+		locationOfClientSideSpecsSentInMessages = getServiceCallLocationInMsgsThatMatches(sentTextMessages,
+			1, "$typesRegistry", "addComponentClientSideSpecs", null);
+		Assert.assertTrue("Component client side types should have been sent already previously; and they should not be sent again",
+			locationOfClientSideSpecsSentInMessages[0] == -1);
+	}
+
+	/**
+	 * @param l1 a non-null int[] of length 2
+	 * @param l2 another non-null int[] of length 2
+	 */
+	private void assertFirstArgIsBeforeSecond(String failureMsgPrefix, int[] l1, int[] l2)
+	{
+		boolean isItTrue = (l1[0] < l2[0]);
+		if (!isItTrue && l1[0] == l2[0]) isItTrue = (l1[1] < l2[1]);
+
+		if (!isItTrue) Assert.fail(failureMsgPrefix + ": " + Arrays.toString(l1) + " vs " + Arrays.toString(l2));
+	}
+
+	/**
+	 * @param callNo look for the callNo occurrence of the given service call name on the given service. So not necessarily the first occurrence.
+	 * @return return a 2-item int array; first int is the number of the message that contains the call; second one is the numer of the service call itself in that message (if there are multiple); both are -1 if not found
+	 */
+	private int[] getServiceCallLocationInMsgsThatMatches(LinkedList<String> sentTextMessages, int callNo, String serviceName, String methodName,
+		String expectedArgsJSONString)
+	{
+		int[] position = new int[] { -1, -1 };
+		String msg;
+		Iterator<String> it = sentTextMessages.iterator();
+		int msgIdx = 0;
+		int foundMethodOnThatServiceCount = 0;
+		while (position[0] == -1 && it.hasNext())
 		{
+			msg = it.next();
 			int indexOfHash = msg.indexOf("#");
 			if (indexOfHash >= 0)
 			{
 				JSONObject msgJSON = new JSONObject(msg.substring(indexOfHash + 1));
-				if (msgJSON.has("serviceApis") && msgJSON.getJSONArray("serviceApis").length() == 1 &&
-					msgJSON.getJSONArray("serviceApis").getJSONObject(0).getString("name").equals("$sabloService") &&
-					msgJSON.getJSONArray("serviceApis").getJSONObject(0).getString("call").equals("addComponentClientSideConversionTypes"))
+				if (msgJSON.has("serviceApis"))
 				{
-					found = true;
+					JSONArray serviceAPICalls = msgJSON.getJSONArray("serviceApis");
+					for (int i = 0; i < serviceAPICalls.length() && position[0] == -1; i++)
+					{
+						JSONObject serviceCall = serviceAPICalls.getJSONObject(i);
+						if (serviceCall.getString("name").equals(serviceName) &&
+							serviceCall.getString("call").equals(methodName))
+						{
+							foundMethodOnThatServiceCount++;
+							if (callNo == foundMethodOnThatServiceCount)
+							{
+								if (expectedArgsJSONString != null)
+								{
+									JSONArray args = serviceCall.getJSONArray("args");
+									// check that our test service client side PDs are sent correctly
+									JSONAssert.assertEquals(new JSONArray(
+										expectedArgsJSONString),
+										args, JSONCompareMode.NON_EXTENSIBLE);
+								} // caller does not care about "args" content
+								position[0] = msgIdx;
+								position[1] = i;
+							} // else ignore it, caller wants to look at a following call to this service method
+						}
+					}
 				}
 			}
+			msgIdx++;
 		}
 
-		Assert.assertFalse("Component client side types should have been sent already previously; and they should not be sent again", found);
+		return position;
 	}
 
 }

@@ -4046,13 +4046,12 @@ public class FoundSetManager implements IFoundSetManagerInternal
 	}
 
 	@Override
-	public void setTenantValue(Object value)
+	public void setTenantValue(Solution solution, Object value)
 	{
 		int count = 0;
 		try
 		{
 			// get tenant columns
-			Solution solution = application.getFlattenedSolution().getSolution();
 			for (IServer server : solution.getServerProxies().values())
 			{
 				List<TableFilterRequest> tableFilterRequests = null;

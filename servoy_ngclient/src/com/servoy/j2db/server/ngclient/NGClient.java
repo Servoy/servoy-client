@@ -1805,6 +1805,7 @@ public class NGClient extends AbstractApplication
 				this.getWebsocketSession().getClientService(NGClientWebsocketSession.CLIENT_FUNCTION_SERVICE).executeAsyncServiceCall("reloadClientFunctions",
 					null);
 			}
+
 		}
 		return uuid;
 	}

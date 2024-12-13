@@ -22,15 +22,65 @@ import java.util.ArrayList;
 import org.mozilla.javascript.Function;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
+import org.mozilla.javascript.annotations.JSGetter;
+import org.mozilla.javascript.annotations.JSSetter;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.util.Utils;
 
-/**  List of methods that expose {@link IFoundSetInternal} functions to scripting where the implementations are the same for regular foundsets and viewfoundsets.
+/**
+ * <p><code>JSBaseFoundSet</code> provides a unified interface for working with foundsets, exposing
+ * shared functionalities for regular and view foundsets. It supports key operations such as
+ * iteration, selection, and data source retrieval. The multi-select mode allows multiple records
+ * to be handled simultaneously. This abstraction ensures consistency across various foundset
+ * types.</p>
+ *
+ * <h2>Features</h2>
+ * <p><code>JSBaseFoundSet</code> allows iteration over records with the <code>forEach</code>
+ * method, which handles dynamic loading while respecting Servoy’s lazy-loading mechanism. Callback
+ * functions can interact with records while accommodating changes like inserts and deletions.
+ * Exceptions ensure stability when the foundset is modified during iteration.</p>
+ *
+ * <p>The class provides methods to retrieve details about the data source and selected records.
+ * Methods like <code>getDataSource</code> return the underlying data source, while
+ * <code>getSelectedIndex</code> and <code>getSelectedIndexes</code> provide details about
+ * currently selected records. The size of the cached row identifiers can be retrieved using
+ * <code>getSize</code>.</p>
+ *
+ * <h2>Selection Management</h2>
+ * <p><code>JSBaseFoundSet</code> includes methods for managing record selection. Developers can
+ * set or retrieve the currently selected record index with <code>setSelectedIndex</code> and
+ * <code>getSelectedIndex</code>. For multi-select scenarios, <code>setSelectedIndexes</code> and
+ * <code>getSelectedIndexes</code> enable handling multiple selected records.</p>
+ *
+ * <p>For more information, refer to the <a href="./jsfoundset.md">FoundSet</a> documentation.</p>
  *
  * @author rgansevles
  */
-public interface IFoundSetScriptBaseMethods extends IFoundSetInternal
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSBaseFoundSet", scriptingName = "JSBaseFoundSet")
+public interface IJSBaseFoundSet extends IFoundSetInternal
 {
+	@JSSetter
+	void setMultiSelect(boolean multiSelect);
+
+	@JSGetter
+	boolean isMultiSelect();
+
+	@JSFunction
+	String getDataSource();
+
+	@JSFunction
+	String getName();
+
+	@JSFunction
+	int getRecordIndex(IRecord record);
+
+	@JSFunction
+	public IJSBaseRecord[] getSelectedRecords();
+
+	@JSFunction
+	public int getSize();
+
 	/**
 	 * Iterates over the records of a foundset taking into account inserts and deletes that may happen at the same time.
 	 * It will dynamically load all records in the foundset (using Servoy lazy loading mechanism). If callback function returns a non null value the traversal will be stopped and that value is returned.

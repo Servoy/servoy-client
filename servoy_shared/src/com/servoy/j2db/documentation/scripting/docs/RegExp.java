@@ -20,7 +20,15 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * The RegExp object is used for matching text with a pattern.<br/><br/>
+ * <p>The <code>RegExp</code> object in JavaScript provides powerful tools for pattern matching
+ * and text processing. It allows developers to define patterns for searching and manipulating
+ * strings, supporting modifiers such as global searches, case-insensitivity, and multiline matching.
+ * Key properties include the pattern source, flags indicating active modifiers, and the index
+ * position for the next match.</p>
+ *
+ * <p>Core functionality includes the <code>exec()</code> method, which searches for a pattern
+ * and returns the matched value while keeping track of the match position, and the <code>test()</code>
+ * method, which checks if a pattern exists in a string, returning a boolean result.</p>
  *
  * For more information see: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp">RegExp (MDN)</a>.
  *

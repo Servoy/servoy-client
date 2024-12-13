@@ -60,7 +60,25 @@ import com.servoy.j2db.util.Text;
 import com.servoy.j2db.util.Utils;
 
 /**
- * A helper scripting object for different utility methods.
+ * <p>The <code>Utils</code> scripting object provides a range of utility methods for data transformation,
+ * formatting, and validation. It includes functionality for handling Base64 encoding and decoding, byte
+ * array manipulation, and string transformations such as escaping markup, formatting, and hashing. This
+ * makes it a versatile tool for managing data in different formats.</p>
+ *
+ * <p>Key methods include <code>base64ToBytes</code>, which converts Base64-encoded strings to byte arrays,
+ * and <code>bytesToBase64</code>, which performs the reverse operation. The <code>dateFormat</code> method
+ * allows dates to be formatted based on specified patterns, with support for custom timezones and locales.
+ * Similarly, <code>numberFormat</code> enables precise number formatting, including locale-specific options.</p>
+ *
+ * <p>Advanced string operations such as <code>stringReplace</code>, <code>stringFormat</code>, and
+ * <code>stringTrim</code> are complemented by security-focused methods like <code>stringMD5HashBase16</code>
+ * and <code>stringPBKDF2Hash</code>, providing robust options for hashing and validation. For example,
+ * <code>validatePBKDF2Hash</code> ensures that a given password matches a hash, supporting modern cryptographic
+ * standards like SHA256.</p>
+ *
+ * <p>The object also facilitates Unicode character conversion, checks for related records using
+ * <code>hasRecords</code>, and parses strings into date objects with <code>parseDate</code>, offering rich
+ * functionality for varied use cases.</p>
  *
  * @author jblok
  */
@@ -104,7 +122,7 @@ public class JSUtils implements IJSUtils
 	 * //}
 	 *
 	 * @param foundset the foundset to be tested
-	
+
 	 * @return true if exists
 	 */
 	@JSFunction
@@ -1817,7 +1835,7 @@ public class JSUtils implements IJSUtils
 	/**
 	 * @sample
 	 * var string = utils.bytesToHex(byteArray);
-
+	
 	 * @param bytearray the byte array to convert to hex encoded string
 	 * @return returns hex encoded string from bytearray
 	 */

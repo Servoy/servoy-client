@@ -40,3 +40,6 @@ Web-Service: True
 
 Name: foundsettree_property/foundsettree.spec
 Web-Service: True
+
+Name: jsmenu_property/jsmenu.spec
+Web-Service: True

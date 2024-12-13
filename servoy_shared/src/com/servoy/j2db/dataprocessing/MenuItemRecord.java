@@ -31,7 +31,6 @@ import org.mozilla.javascript.ScriptRuntime;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.annotations.JSFunction;
 
-import com.servoy.base.scripting.api.IJSFoundSet;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.DefaultJavaScope;
 import com.servoy.j2db.scripting.JSMenuItem;
@@ -49,8 +48,8 @@ import com.servoy.j2db.util.Utils;
  * @author lvostinar
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "MenuItemRecord", scriptingName = "MenuItemRecord")
-public class MenuItemRecord implements IRecordInternal, Scriptable
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "MenuItemRecord", scriptingName = "MenuItemRecord", extendsComponent = "JSBaseRecord")
+public class MenuItemRecord implements IRecordInternal, Scriptable, IJSBaseRecord
 {
 	public static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(MenuItemRecord.class);
 	public static final String MENUITEM_RECORD = "MenuItemRecord"; //$NON-NLS-1$
@@ -461,9 +460,9 @@ public class MenuItemRecord implements IRecordInternal, Scriptable
 	 * @return The parent foundset of the record.
 	 */
 	@JSReadonlyProperty
-	public IJSFoundSet getFoundset()
+	public MenuFoundSet getFoundset()
 	{
-		return (IJSFoundSet)foundset;
+		return foundset;
 	}
 
 	/**

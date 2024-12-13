@@ -1,7 +1,7 @@
 angular.module('foundsettree_property', ['webSocketModule'])
-// Date type -------------------------------------------
+// Foundset Tree type -------------------------------------------
 .run(function ($typesRegistry: sablo.ITypesRegistry) {
-	// not implemented in ng1, just for ng2 at this point
+    // not implemented in ng1, just for Titanium NG at this point
 	var foundsetTreeType: sablo.IType<any> =  {
 			fromServerToClient: function (serverJSONValue: any, currentClientValue: any, componentScope: angular.IScope, propertyContext: sablo.IPropertyContext): String {
 				return serverJSONValue;

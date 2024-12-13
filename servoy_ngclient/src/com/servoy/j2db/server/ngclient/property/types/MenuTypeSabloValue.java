@@ -89,7 +89,7 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener
 			{
 				Map<String, Object> itemMap = new HashMap<String, Object>();
 				itemsList.add(itemMap);
-				itemMap.put("itemID", item.getItemID());
+				itemMap.put("itemID", item.getName());
 				itemMap.put("menuText", item.getMenuText());
 				itemMap.put("styleClass", item.getStyleClass());
 				itemMap.put("iconStyleClass", item.getIconStyleClass());
@@ -100,7 +100,7 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener
 				itemMap.put("extraProperties",
 					getExtraPropertiesWithDefaultValues(item.getExtraProperties(), this.extraProperties, this.extraPropertiesSmartValues.get(item),
 						dataConverterContext));
-				addMenuItemsForJSON(itemMap, item.getSubMenuItemsWithSecurity(), selectedItem, dataConverterContext);
+				addMenuItemsForJSON(itemMap, item.getMenuItemsWithSecurity(), selectedItem, dataConverterContext);
 			}
 		}
 	}
@@ -142,7 +142,7 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener
 						}
 					}
 				}
-				addMenuItemsSabloValues(item.getSubMenuItemsWithSecurity(), formElement, component,
+				addMenuItemsSabloValues(item.getMenuItemsWithSecurity(), formElement, component,
 					dataAdapterList);
 			}
 		}

@@ -28,7 +28,24 @@ import com.servoy.j2db.querybuilder.IQueryBuilderGroupby;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * SQL Group By condition in QBSelect.
+ * <p>The <code>QBGroupBy</code> class is utilized to define SQL <code>GROUP BY</code> conditions
+ * within a <code>QBSelect</code> query. It allows adding columns, functions, or primary key columns
+ * to the <code>GROUP BY</code> clause. This class also provides the capability to clear the existing
+ * <code>GROUP BY</code> clause, ensuring flexibility in query construction.</p>
+ *
+ * <p><b>Key Features</b></p>
+ * <p>The <code>parent</code> property links the <code>QBGroupBy</code> instance to its parent table
+ * clause, which can be a query or a join clause. The <code>root</code> property provides access to
+ * the parent query builder, enabling hierarchical query manipulation.</p>
+ *
+ * <p>The <code>add(column)</code> and <code>add(function)</code> methods enable adding columns or
+ * functions to the <code>GROUP BY</code> clause, supporting aggregation queries. The
+ * <code>addPk()</code> method simplifies grouping by adding primary key columns in alphabetical
+ * order. Additionally, the <code>clear()</code> method removes all conditions from the
+ * <code>GROUP BY</code> clause, allowing for dynamic query adjustments.</p>
+ *
+ * <p>For further details on query construction and execution, refer to the
+ * <a href="./qbselect.md">QBSelect</a> section of the documentation.</p>
  *
  * @author rgansevles
  *

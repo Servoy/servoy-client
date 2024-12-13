@@ -17,15 +17,36 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.QueryAggregate;
 
 /**
- * An aggregate (like count, min, max ..) inside a QBSelect
+ * <p>The <code>QBAggregate</code> class represents aggregate expressions, such as <code>count</code>,
+ * <code>min</code>, and <code>max</code>, within a <code>QBSelect</code> query. It provides a range
+ * of methods and properties for constructing and manipulating aggregate expressions, allowing for
+ * customization of query results and conditions.</p>
+ *
+ * <p>Aggregates can be used to calculate summaries, apply mathematical functions, or manipulate
+ * data within a query. Properties like <code>count</code>, <code>sum</code>, and <code>avg</code>
+ * allow direct creation of aggregate expressions, while others like <code>abs</code> or <code>round</code>
+ * perform mathematical operations. Sorting and conditional operations can also be applied using
+ * properties such as <code>asc</code>, <code>desc</code>, and <code>isNull</code>.</p>
+ *
+ * <p>Methods extend the functionality of aggregates by enabling operations like comparison
+ * (<code>eq</code>, <code>between</code>, <code>like</code>), mathematical manipulation
+ * (<code>plus</code>, <code>minus</code>, <code>mod</code>), and substring extraction
+ * (<code>substring</code>). These features provide fine-grained control over how aggregate data
+ * is computed and retrieved.</p>
+ *
+ * <p>The <code>QBAggregate</code> class integrates with query builder constructs like
+ * <a href="./qbcolumn.md">QBColumn</a>, <a href="./qbcondition.md">QBCondition</a>, and
+ * <a href="./qbsort.md">QBSort</a>, enabling complex query logic and data transformations.</p>
  *
  * @author rgansevles
  *
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBAggregate")
 public class QBAggregateImpl extends QBColumnImpl implements QBCountAggregate
 {
 	private final int aggregateType;

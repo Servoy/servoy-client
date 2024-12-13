@@ -43,8 +43,24 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
- * The Servoy solution is equivalent to a "project". It is the unit that holds your UI and business logic.<br/>
- * A main solution can use modules (other solutions that are of the module type); in this way you can better organize your work.
+ * <p>The <code>Servoy solution</code> represents a <code>project</code> that encapsulates
+ * both user interface and business logic. It supports modular design by allowing integration
+ * with other solutions defined as modules, improving organizational flexibility. Key properties
+ * include <code>comment</code> for programmer notes, <code>firstForm</code> to define the initial
+ * form upon deployment, and <code>modulesNames</code> listing the modules added to the solution.
+ * Authentication requirements are managed with <code>mustAuthenticate</code>, while
+ * <code>solutionType</code> specifies the type of solution, such as "Normal", "Module",
+ * "NG Client", or "Service". Other attributes like <code>styleSheet</code>, <code>titleText</code>,
+ * and <code>version</code> provide customization options and semantic versioning support.</p>
+ *
+ * <p>Notable events include <code>onOpen</code>, triggered when the solution starts, and
+ * <code>onClose</code>, which allows conditional termination. The <code>onAutoSaveFailed</code>
+ * event captures validation or save failures during automatic saving. Additional functionality
+ * is available through events like <code>onDataBroadcast</code> for handling data updates and
+ * <code>onError</code> to manage runtime exceptions.</p>
+ *
+ * <p>The solution provides flexible integration with login forms, internationalization,
+ * and custom styling, offering extensive configurability for various application requirements.</p>
  *
  * @author jblok
  */
@@ -1188,7 +1204,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 			RootObjectMetaData metaData = moduleReference.getMetaData();
 			if (metaData instanceof SolutionMetaData && ((SolutionMetaData)metaData).getSolutionType() != SolutionMetaData.LOGIN_SOLUTION)
 			{
-				newModules.add(((SolutionMetaData)metaData).getName());
+				newModules.add(metaData.getName());
 			}
 		}
 
@@ -1234,7 +1250,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	 * The custom CSS used by the solution (a MEDIA lib entry). It can reference other media resources (even additional .css through relative '@import' statements).
 	 * For NGClient - this CSS will be available directly in the browser.
 	 */
-	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
+	@ServoyClientSupport(ng = true, mc = true, wc = false, sc = false)
 	public int getStyleSheetID()
 	{
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_STYLESHEET).intValue();

@@ -26,7 +26,15 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 
 /**
- * A generic SQL part.
+ * <p>The <code>QBPart</code> class serves as a generic SQL component within the
+ * <code>QBSelect</code> framework. It provides foundational support for query construction by
+ * linking to parent and root query elements.</p>
+ *
+ * <p>By referencing the parent table clause or root query, <code>QBPart</code> integrates
+ * into larger query structures, supporting complex scenarios in SQL execution.</p>
+ *
+ * <p>For further details on query construction and execution, refer to the
+ * <a href="./qbselect.md">QBSelect documentation</a>.</p>
  *
  * @author rgansevles
  *

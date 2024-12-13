@@ -76,13 +76,13 @@ import com.servoy.j2db.util.model.AlwaysRowSelectedSelectionModel;
  * @author lvostinar
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "MenuFoundSet", scriptingName = "MenuFoundSet")
-public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, IFoundSetScriptBaseMethods, SymbolScriptable
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "MenuFoundSet", scriptingName = "MenuFoundSet", extendsComponent = "JSBaseFoundSet")
+public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, IJSBaseFoundSet, SymbolScriptable
 {
 	public static final String MENU_FOUNDSET = "MenuFoundSet";
 
 	private static Callable symbol_iterator = (Context cx, Scriptable scope, Scriptable thisObj, Object[] args) -> {
-		return new IterableES6Iterator(scope, ((ViewFoundSet)thisObj));
+		return new IterableES6Iterator(scope, ((MenuFoundSet)thisObj));
 	};
 
 	private final IFoundSetManagerInternal manager;
@@ -963,7 +963,7 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	{
 		if (menuItem != null)
 		{
-			for (JSMenuItem childMenuItem : menuItem.getSubMenuItemsWithSecurity())
+			for (JSMenuItem childMenuItem : menuItem.getMenuItemsWithSecurity())
 			{
 				records.add(new MenuItemRecord(childMenuItem, getMenuItemData(childMenuItem), this));
 			}
@@ -973,7 +973,7 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	private Map<String, Object> getMenuItemData(JSMenuItem item)
 	{
 		Map<String, Object> itemMap = new HashMap<String, Object>();
-		itemMap.put("itemID", item.getItemID());
+		itemMap.put("itemID", item.getName());
 		itemMap.put("menuText", item.getMenuText());
 		itemMap.put("styleClass", item.getStyleClass());
 		itemMap.put("iconStyleClass", item.getIconStyleClass());

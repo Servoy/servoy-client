@@ -85,7 +85,20 @@ import com.servoy.j2db.util.gui.RoundedBorder;
 import com.servoy.j2db.util.gui.SpecialMatteBorder;
 
 /**
- * Gives access to any design-time object at runtime, so design values can be retrieved or modified (then runtime object having to be recreated).
+ * <p><code>SolutionModel</code> provides runtime access to design-time objects in Servoy,
+ * enabling dynamic application modifications without recompilation. Developers can retrieve
+ * and modify forms, relations, media, and methods using methods like <code>getForm(name)</code>,
+ * <code>newForm(name)</code>, and <code>getRelation(name)</code>. New components, forms, and
+ * relations can also be created or cloned dynamically.</p>
+ *
+ * <p>Global methods and variables are managed with methods like <code>newGlobalMethod(scopeName, code)</code>
+ * and <code>newGlobalVariable(scopeName, name, type)</code>. Existing ones can be removed using
+ * corresponding <code>remove</code> methods. Forms can be created with specific layouts and styles,
+ * made responsive, or reverted to their original configurations with <code>revertForm(name)</code>.</p>
+ *
+ * <p>The API supports argument wrapping for event handling with <code>wrapMethodWithArguments(method, args)</code>
+ * and allows management of value lists, media, and relations.</p>
+ *
  * @author jcompagner
  */
 @SuppressWarnings("nls")

@@ -21,7 +21,24 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * A column from a QBSelect. Used for different conditions.
+ * <p>The <code>QBColumn</code> class represents a column in a <code>QBSelect</code> query. It is used
+ * to define conditions, aggregate functions, and transformations within queries. The class provides
+ * a range of properties and methods for handling column-specific operations such as mathematical
+ * expressions, sorting, and conditional comparisons.</p>
+ *
+ * <p>Key properties include <code>abs</code>, <code>ceil</code>, and <code>floor</code> for mathematical
+ * transformations, and <code>avg</code>, <code>count</code>, and <code>sum</code> for aggregate functions.
+ * Sorting can be applied using <code>asc</code> and <code>desc</code>, while date manipulations are
+ * supported with properties like <code>day</code>, <code>month</code>, and <code>year</code>.</p>
+ *
+ * <p>Methods enable additional functionality, including comparisons (<code>eq</code>, <code>between</code>,
+ * <code>like</code>), mathematical operations (<code>plus</code>, <code>minus</code>, <code>mod</code>),
+ * and string manipulations (<code>substring</code>, <code>concat</code>). The <code>parent</code> and
+ * <code>root</code> properties provide access to the query's structure, supporting complex query building
+ * and integration.</p>
+ *
+ * <p>For more information about constructing and executing queries, refer to the
+ * <a href="./qbselect.md">QBSelect</a> section of this documentation.</p>
  *
  * @author rgansevles
  *

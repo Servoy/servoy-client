@@ -42,7 +42,18 @@ import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * Wrapper for SQL join in QBSelect.
+ * <p>The <code>QBJoin</code> class simplifies the process of creating and managing SQL joins within
+ * the <code>QBSelect</code> query builder framework. It provides tools to handle complex relationships
+ * between tables, enabling construction of queries with various join types, such as
+ * <code>LEFT OUTER JOIN</code> or <code>INNER JOIN</code>. By leveraging the class, developers can
+ * define join conditions and access columns from related tables for select or where clauses.</p>
+ *
+ * <p>The class supports dynamic query building with its integration of parent and root query references,
+ * ensuring flexibility and scalability in query design. It also allows for annotating joins with comments,
+ * aiding in query documentation and readability.</p>
+ *
+ * <p>For further details on constructing and executing queries, refer to the
+ * <a href="./qbselect.md">QBSelect documentation</a>.</p>
  *
  * @author rgansevles
  *

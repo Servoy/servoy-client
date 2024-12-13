@@ -750,23 +750,6 @@ public class RepositoryHelper
 			return true;
 		}
 
-		// there is no style support for labels & text fields on mobile client
-		if (name.equals(StaticContentSpecLoader.PROPERTY_STYLECLASS.getPropertyName()))
-		{
-			if (GraphicalComponent.class.isAssignableFrom(persistClass))
-			{
-				return !isButton;
-			}
-			if (Field.class.isAssignableFrom(persistClass))
-			{
-				return displayType != Field.CHECKS && displayType != Field.RADIOS && displayType != Field.COMBOBOX && displayType >= 0;
-			}
-			if (Part.class.isAssignableFrom(persistClass))
-			{
-				return false;
-			}
-			return true;
-		}
 
 		if (name.equals(StaticContentSpecLoader.PROPERTY_VALUELISTID.getPropertyName()) && Field.class.isAssignableFrom(persistClass) &&
 			(displayType == Field.TEXT_FIELD || displayType == Field.TEXT_AREA || displayType == Field.PASSWORD))

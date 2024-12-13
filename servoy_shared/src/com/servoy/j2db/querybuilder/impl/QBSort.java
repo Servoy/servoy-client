@@ -24,7 +24,14 @@ import com.servoy.j2db.querybuilder.IQueryBuilderSort;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * Wrapper for SQL Sort condition.
+ * <p>The <code>QBSort</code> class provides a wrapper for defining SQL sort conditions within the
+ * <code>QBSelect</code> framework. It allows for flexible and precise specification of sorting rules,
+ * integrating seamlessly with parent and root query references. Main functions include configuring
+ * ascending (<code>asc</code>) and descending (<code>desc</code>) sort orders, supporting diverse
+ * query components.</p>
+ *
+ * <p>For additional details on query construction and execution, refer to the
+ * <a href="./qbselect.md">QBSelect documentation</a>.</p>
  *
  * @author rgansevles
  *

@@ -39,7 +39,6 @@ import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -884,7 +883,7 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 
 	public static class TestBasic implements Basic
 	{
-		Queue<String> sentTexts = new LinkedList<String>();
+		LinkedList<String> sentTexts = new LinkedList<String>();
 
 		@Override
 		public void setBatchingAllowed(boolean arg0) throws IOException
@@ -924,9 +923,9 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 			sentTexts.add(arg0);
 		}
 
-		public Queue<String> getAndClearSentTextMessages()
+		public LinkedList<String> getAndClearSentTextMessages()
 		{
-			Queue<String> tmp = sentTexts;
+			LinkedList<String> tmp = sentTexts;
 			sentTexts = new LinkedList<String>();
 			return tmp;
 		}

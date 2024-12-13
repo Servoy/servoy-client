@@ -33,6 +33,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.services.client.TypesRegistryService;
@@ -44,7 +45,6 @@ import org.sablo.specification.WebObjectSpecification;
 import org.sablo.specification.WebObjectSpecificationBuilder;
 import org.sablo.specification.WebServiceSpecProvider;
 import org.sablo.specification.property.types.BooleanPropertyType;
-import org.sablo.specification.property.types.ObjectPropertyType;
 import org.sablo.specification.property.types.StringPropertyType;
 import org.sablo.specification.property.types.TypesRegistry;
 import org.sablo.websocket.BaseWebsocketSession;
@@ -126,27 +126,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 		}
 	}
 
-	private static final class TypesRegistryServiceSpecification extends WebObjectSpecification
-	{
-		@SuppressWarnings("nls")
-		private TypesRegistryServiceSpecification()
-		{
-			super(TypesRegistryService.TYPES_REGISTRY_SERVICE, "", IPackageReader.WEB_SERVICE, "", null, null, null, null, "", null, null, null);
-			WebObjectApiFunctionDefinition apiCallDef = new WebObjectApiFunctionDefinition("addComponentClientSideSpecs");
-			apiCallDef
-				.addParameter(new PropertyDescriptionBuilder().withName("toBeSent").withType(TypesRegistry.getType(ObjectPropertyType.TYPE_NAME)).build());
-			apiCallDef.setAsync(true);
-			apiCallDef.setPreDataServiceCall(true);
-			addApiFunction(apiCallDef);
-
-			apiCallDef = new WebObjectApiFunctionDefinition("setServiceClientSideSpecs");
-			apiCallDef
-				.addParameter(new PropertyDescriptionBuilder().withName("toBeSent").withType(TypesRegistry.getType(ObjectPropertyType.TYPE_NAME)).build());
-			apiCallDef.setAsync(true);
-			apiCallDef.setPreDataServiceCall(true);
-			addApiFunction(apiCallDef);
-		}
-	}
 
 	private static final class ClientFunctionsServiceSpecification extends WebObjectSpecification
 	{
@@ -162,7 +141,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 
 	private static final ClientFunctionsServiceSpecification CLIENT_FUNCTIONS_SERVICE_SPEC = new ClientFunctionsServiceSpecification();
 	private static final WindowServiceSpecification WINDOWS_SERVICE_SPEC = new WindowServiceSpecification();
-	private static final TypesRegistryServiceSpecification TYPES_REGISTRY_SERVICE_SPEC = new TypesRegistryServiceSpecification();
 
 	private NGClient client;
 
@@ -170,7 +148,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 	{
 		super(sessionKey);
 		registerClientService(new ServoyClientService(NGRuntimeWindowManager.WINDOW_SERVICE, WINDOWS_SERVICE_SPEC, this, false));
-		registerClientService(new ServoyClientService(TypesRegistryService.TYPES_REGISTRY_SERVICE, TYPES_REGISTRY_SERVICE_SPEC, this, false));
+		registerClientService(
+			new ServoyClientService(TypesRegistryService.TYPES_REGISTRY_SERVICE, TypesRegistryService.TYPES_REGISTRY_SERVICE_SPEC, this, false));
 		registerClientService(new ServoyClientService(CLIENT_FUNCTION_SERVICE, CLIENT_FUNCTIONS_SERVICE_SPEC, this, false));
 	}
 
@@ -361,7 +340,6 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 							setUserId();
 						}
 						client.loadSolution(solutionName);
-
 						client.showInfoPanel();
 
 					}
@@ -394,10 +372,23 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 						}
 						ci.setUserGroups(gr);
 					}
-					if (token.has(StatelessLoginHandler.TENANTS))
+					Object[] tenants = null;
+					if (token.has(StatelessLoginHandler.TENANTS) && token.get(StatelessLoginHandler.TENANTS) instanceof JSONArray arr && arr.length() > 0)
 					{
-						client.getFoundSetManager().setTenantValue(token.get(StatelessLoginHandler.TENANTS));
+						tenants = new Object[arr.length()];
+						for (int i = 0; i < arr.length(); i++)
+						{
+							try
+							{
+								tenants[i] = arr.get(i);
+							}
+							catch (JSONException e)
+							{
+								Debug.error("Cannot set the tenants value", e);
+							}
+						}
 					}
+					client.getFormManager().setTenantValue(tenants);
 					if (token.optBoolean("remember", false))
 					{
 						JSONObject obj = new JSONObject();
@@ -407,7 +398,8 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 							new Object[] { obj });
 					}
 					//remove the id token of the oauth provider from the url
-					getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("replaceUrlState", null);
+					getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("replaceUrlState",
+						new Object[] { "/" + StatelessLoginHandler.SVYLOGIN_PATH });
 				}
 			});
 		}

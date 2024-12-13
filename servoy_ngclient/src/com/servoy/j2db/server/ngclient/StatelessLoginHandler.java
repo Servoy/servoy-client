@@ -71,6 +71,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.sablo.security.ContentSecurityPolicyConfig;
 import org.sablo.util.HTTPUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.auth0.jwk.InvalidPublicKeyException;
 import com.auth0.jwk.Jwk;
@@ -84,12 +86,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
-import com.github.scribejava.apis.GoogleApi20;
-import com.github.scribejava.apis.LinkedInApi20;
-import com.github.scribejava.apis.MicrosoftAzureActiveDirectory20Api;
 import com.github.scribejava.apis.openid.OpenIdOAuth2AccessToken;
-import com.github.scribejava.core.builder.ServiceBuilder;
-import com.github.scribejava.core.builder.api.DefaultApi20;
 import com.github.scribejava.core.model.OAuth2AccessToken;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.github.scribejava.core.revoke.TokenTypeHint;
@@ -106,10 +103,8 @@ import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.Solution.AUTHENTICATOR_TYPE;
 import com.servoy.j2db.persistence.SolutionMetaData;
-import com.servoy.j2db.server.ngclient.auth.AppleIDApi;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
-import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.ServoyJSONObject;
 import com.servoy.j2db.util.Settings;
@@ -121,9 +116,11 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class StatelessLoginHandler
 {
+	public static final Logger log = LoggerFactory.getLogger("stateless.login");
+
 	private static final String REFRESH_TOKEN = "refresh_token";
 	public static final String OAUTH_CUSTOM_PROPERTIES = "oauth";
-	private static final String SVYLOGIN_PATH = "svylogin";
+	public static final String SVYLOGIN_PATH = "svylogin";
 	public static final String PASSWORD = "password";
 	public static final String ID_TOKEN = "id_token";
 	public static final String PERMISSIONS = "permissions";
@@ -144,24 +141,6 @@ public class StatelessLoginHandler
 		"/servoy-service/rest_ws/api/login_auth/refreshPermissions";
 	public static final String CLOUD_OAUTH_URL = BASE_CLOUD_URL +
 		"/servoy-service/rest_ws/api/login_auth/validateOAuthUser";
-
-	//oauth constants
-	private static final String NONCE = "nonce";
-	public static final String JWKS_URI = "jwks_uri";
-	public static final String ACCESS_TOKEN_ENDPOINT = "accessTokenEndpoint";
-	public static final String REFRESH_TOKEN_ENDPOINT = "refreshTokenEndpoint";
-	public static final String REVOKE_TOKEN_ENDPOINT = "revokeTokenEndpoint";
-	public static final String AUTHORIZATION_BASE_URL = "authorizationBaseUrl";
-	public static final String TENANT = "tenant";
-	public static final String OAUTH_API = "api";
-	public static final String DEFAULT_SCOPE = "defaultScope";
-	public static final String API_SECRET = "apiSecret";
-	public static final String CLIENT_ID = "clientId";
-
-	public static final String APPLE = "Apple";
-	public static final String LINKED_IN = "LinkedIn";
-	public static final String GOOGLE = "Google";
-	public static final String MICROSOFT_AD = "Microsoft AD";
 
 	@SuppressWarnings({ "boxing" })
 	public static Pair<Boolean, String> mustAuthenticate(HttpServletRequest request, HttpServletResponse reponse, String solutionName)
@@ -214,13 +193,13 @@ public class StatelessLoginHandler
 									refreshToken = access.getRefreshToken();
 									if (id_token == null)
 									{
-										Debug.error("The id_token is not retrieved.");
+										log.error("The id_token is not retrieved.");
 									}
 								}
 							}
 							catch (Exception e)
 							{
-								Debug.error("Could not get the id and refresh tokens.");
+								log.error("Could not get the id and refresh tokens.");
 							}
 						}
 						else
@@ -301,27 +280,27 @@ public class StatelessLoginHandler
 			if (checkNonce)
 			{
 				//if token was refreshed it does not have nonce // TODO check
-				String tokenNonce = decodedJWT.getClaim(NONCE).asString();
+				String tokenNonce = decodedJWT.getClaim(OAuthUtils.NONCE).asString();
 				auth = checkNonce(request.getServletContext(), tokenNonce);
 				if (auth == null)
 				{
-					Debug.error("The token was replayed or tampered with.");
+					log.error("The token was replayed or tampered with.");
 					return false;
 				}
 			}
-			if (auth.has(JWKS_URI))
+			if (auth.has(OAuthUtils.JWKS_URI))
 			{
 				try
 				{
-					String jwks_uri = auth.getString(JWKS_URI);
+					String jwks_uri = auth.getString(OAuthUtils.JWKS_URI);
 					final JwkProvider jwkStore = new UrlJwkProvider(new URL(jwks_uri));
 					if (decodedJWT.getKeyId() == null)
 					{
-						Debug.error("Cannot verify the token with jwks '" + jwks_uri //
+						log.error("Cannot verify the token with jwks '" + jwks_uri //
 							+ "' because the key id is missing in the token header.");
 					}
 					Algorithm algorithm = getAlgo(decodedJWT, jwkStore);
-					JWTVerifier verifier = JWT.require(algorithm).build();
+					JWTVerifier verifier = JWT.require(algorithm).acceptIssuedAt(60).acceptNotBefore(60).build();
 					try
 					{
 						verifier.verify(decodedJWT);
@@ -340,7 +319,7 @@ public class StatelessLoginHandler
 							}
 							else
 							{
-								Debug.error("Trying to login in solution " + solution.getName() +
+								log.error("Trying to login in solution " + solution.getName() +
 									" with using an AUTHENTICATOR solution, but the main solution doesn't have that as a module");
 							}
 						}
@@ -349,15 +328,23 @@ public class StatelessLoginHandler
 							return checkCloudOAuthPermissions(needToLogin, solution, payload, remember);
 						}
 					}
-					catch (Exception e)
+					catch (JWTVerificationException e)
 					{
-						Debug.error(e);
+						log.info("Token is expired or the signature cannot be verified. Need to request a new token.", e);
 					}
+				}
+				catch (MalformedURLException e)
+				{
+					log.error("The jwks url is malformed: " + auth.getString(OAuthUtils.JWKS_URI));
 				}
 				catch (JwkException e)
 				{
-					Debug.error("Cannot verify the id_token", e);
+					log.error("Cannot verify the id_token", e);
 				}
+			}
+			else
+			{
+				log.error("The jwks_uri is missing.");
 			}
 		}
 
@@ -424,18 +411,27 @@ public class StatelessLoginHandler
 									writeResponse(request, response, solution, res, index);
 									return true;
 								}
+								else
+								{
+									log.atInfo().log(() -> "The endpoint " + endpoint + " returned no result.");
+								}
+							}
+							else
+							{
+								log.atInfo().log(() -> "The endpoint " + endpoint + " is not available for the solution " + solution.getUUID());
 							}
 						}
 					}
 					catch (IOException e)
 					{
-						Debug.error("Can't access the Servoy Cloud api", e);
+						log.error("Can't access the Servoy Cloud api", e);
 					}
 				}
 			}
 			catch (Exception e)
 			{
-				throw new ServletException(e.getMessage());
+				log.atInfo().setCause(e).log(() -> "Exception thrown when handling a possible cloud request");
+				throw new ServletException(e.getMessage(), e);
 			}
 		}
 		return false;
@@ -453,10 +449,12 @@ public class StatelessLoginHandler
 		{
 			if (status == HttpStatus.SC_OK && json.has("html"))
 			{
+				log.atInfo().log(() -> "The cloud returned html: " + json.get("html"));
 				html = json.getString("html");
 			}
 			else if (json.has("error"))
 			{
+				log.atInfo().log(() -> "The cloud sent an error response, http status " + res.getLeft());
 				String error = json.optString("error", "");
 				if (error.startsWith("<html>"))
 				{
@@ -497,10 +495,12 @@ public class StatelessLoginHandler
 			{
 				// this is an oauth request
 				JSONObject oauth = json.getJSONObject("oauth");
+				log.atInfo().log(() -> "The cloud returned an oauth config: " + oauth);
 				generateOauthCall(request, response, oauth);
 			}
 			else if (json.has("permissions"))
 			{
+				log.atInfo().log(() -> "The cloud returned permissions: " + json.getJSONArray("permissions").toString(2));
 				Pair<Boolean, String> showLogin = new Pair<>(Boolean.TRUE, null);
 				Boolean rememberUser = json.has(REMEMBER) ? Boolean.valueOf(json.getBoolean(REMEMBER)) : Boolean.FALSE;
 				boolean verified = extractPermissionFromResponse(showLogin, rememberUser, res, json.optString(USERNAME, ""));
@@ -519,6 +519,31 @@ public class StatelessLoginHandler
 						contentSecurityPolicyConfig == null ? null : contentSecurityPolicyConfig.getNonce());
 					return;
 				}
+				else
+				{
+					if (!verified)
+					{
+						if (showLogin.getRight() != null && showLogin.getRight().startsWith("<"))
+						{
+							log.atInfo().log(() -> "Display html result from the cloud." + showLogin.getRight());
+							html = showLogin.getRight();
+						}
+						else
+						{
+							log.error("There was a problem when extracting the permissions and creating a svy token.");
+						}
+					}
+					else
+					{
+						log.error("Cannot redirect to the index page.");
+					}
+				}
+			}
+			else
+			{
+				log.atInfo().log(() -> "Showing the login page. The cloud returned " + status + " http status and unknown response format:" + json);
+				writeLoginPage(request, response, solution.getName(), html);
+				return;
 			}
 			writeHTML(request, response, html);
 		}
@@ -575,7 +600,7 @@ public class StatelessLoginHandler
 		}
 		catch (IOException e)
 		{
-			Debug.error("Can't get the rest api endpoints", e);
+			log.error("Can't execute cloud post request", e);
 		}
 		return null;
 	}
@@ -620,10 +645,14 @@ public class StatelessLoginHandler
 					servletContext.setAttribute("endpoints", endpoints);
 					servletContext.setAttribute("endpoints_expire", Long.valueOf(System.currentTimeMillis() + 10 * 60 * 1000));
 				}
+				else
+				{
+					log.atInfo().log(() -> "No endpoints were returned for solution " + solution.getUUID());
+				}
 			}
 			catch (IOException e)
 			{
-				Debug.error("Can't get the rest api endpoints", e);
+				log.error("Can't get the rest api endpoints", e);
 				servletContext.setAttribute("endpoints", null);
 			}
 		}
@@ -659,7 +688,7 @@ public class StatelessLoginHandler
 		}
 		catch (Exception e)
 		{
-			Debug.error("Can't execute cloud get request", e);
+			log.error("Can't execute cloud get request", e);
 		}
 		return null;
 	}
@@ -678,7 +707,7 @@ public class StatelessLoginHandler
 		}
 		else if (solution.getAuthenticator() == AUTHENTICATOR_TYPE.AUTHENTICATOR)
 		{
-			verified = checkAuthenticatorPermissions(username, password, needToLogin, solution, oldToken, rememberUser);
+			verified = checkAuthenticatorPermissions(username, password, needToLogin, solution, oldToken, rememberUser, request);
 		}
 		else
 		{
@@ -715,13 +744,13 @@ public class StatelessLoginHandler
 					}
 					catch (Exception e)
 					{
-						Debug.error("Could not refresh the token", e);
+						log.error("Could not refresh the token", e);
 					}
 				}
 			}
 			else
 			{
-				Debug.error("Could not create the oauth service");
+				log.error("Could not create the oauth service");
 			}
 		}
 		return false;
@@ -762,13 +791,13 @@ public class StatelessLoginHandler
 		}
 		catch (Exception e)
 		{
-			Debug.error(e);
+			log.error("Default login problem.", e);
 		}
 		return false;
 	}
 
 	private static boolean checkAuthenticatorPermissions(String username, String password, Pair<Boolean, String> needToLogin, Solution solution,
-		DecodedJWT oldToken, Boolean rememberUser)
+		DecodedJWT oldToken, Boolean rememberUser, HttpServletRequest request)
 	{
 		Solution authenticator = findAuthenticator(solution);
 		if (authenticator != null)
@@ -776,6 +805,18 @@ public class StatelessLoginHandler
 			JSONObject json = new JSONObject();
 			json.put(USERNAME, username);
 			json.put(PASSWORD, password);
+			Map<String, String[]> parameters = request.getParameterMap();
+			for (Map.Entry<String, String[]> entry : parameters.entrySet())
+			{
+				if (entry.getKey().startsWith("custom_"))
+				{
+					String[] values = entry.getValue();
+					for (String value : values)
+					{
+						json.put(entry.getKey(), value);
+					}
+				}
+			}
 			String refreshToken = null;
 			if (oldToken != null)
 			{
@@ -789,7 +830,7 @@ public class StatelessLoginHandler
 		}
 		else
 		{
-			Debug.error("Trying to login in solution " + solution.getName() +
+			log.error("Trying to login in solution " + solution.getName() +
 				" with using an AUTHENTICATOR solution, but the main solution doesn't have that as a module");
 		}
 		return false;
@@ -814,7 +855,7 @@ public class StatelessLoginHandler
 		}
 		catch (RemoteException | RepositoryException e)
 		{
-			Debug.error(e);
+			log.error("Cannot call authenticator.", e);
 		}
 		return false;
 	}
@@ -829,7 +870,7 @@ public class StatelessLoginHandler
 			try
 			{
 				Solution module = (Solution)localRepository.getActiveRootObject(moduleName, IRepository.SOLUTIONS);
-				if (module.getSolutionType() == SolutionMetaData.AUTHENTICATOR)
+				if (module != null && module.getSolutionType() == SolutionMetaData.AUTHENTICATOR)
 				{
 					authenticator = module;
 					break;
@@ -837,7 +878,7 @@ public class StatelessLoginHandler
 			}
 			catch (RepositoryException e)
 			{
-				Debug.error(e);
+				log.error("Cannot find authenticator.", e);
 			}
 		}
 		return authenticator;
@@ -874,7 +915,7 @@ public class StatelessLoginHandler
 		}
 		catch (IOException e)
 		{
-			Debug.error("Can't validate user with the Servoy Cloud", e);
+			log.error("Can't validate user with the Servoy Cloud", e);
 		}
 		return false;
 	}
@@ -897,7 +938,7 @@ public class StatelessLoginHandler
 		}
 		catch (IOException e)
 		{
-			Debug.error("Can't validate user with the Servoy Cloud", e);
+			log.error("Can't validate user with the Servoy Cloud", e);
 		}
 		return false;
 	}
@@ -933,10 +974,13 @@ public class StatelessLoginHandler
 				if (loginTokenJSON.optJSONArray("tenantValues") != null)
 				{
 					JSONArray tenantValues = loginTokenJSON.getJSONArray("tenantValues");
-					tenants = new String[tenantValues.length()];
-					for (int i = 0; i < tenants.length; i++)
+					if (tenantValues.length() > 0)
 					{
-						tenants[i] = tenantValues.getString(i);
+						tenants = new String[tenantValues.length()];
+						for (int i = 0; i < tenants.length; i++)
+						{
+							tenants[i] = tenantValues.getString(i);
+						}
 					}
 				}
 
@@ -983,7 +1027,7 @@ public class StatelessLoginHandler
 				}
 				else
 				{
-					Debug.error(error + response.getCode() + " " +
+					log.error(error + response.getCode() + " " +
 						response.getReasonPhrase());
 					return null;
 				}
@@ -1031,14 +1075,14 @@ public class StatelessLoginHandler
 		Map<String, String> additionalParameters)
 	{
 		String nonce = generateNonce(request.getServletContext(), auth);
-		additionalParameters.put(NONCE, nonce);
+		additionalParameters.put(OAuthUtils.NONCE, nonce);
 		HttpSession session = request.getSession(false);
 		if (session != null && session.getAttribute("logout") != null)
 		{
 			session.removeAttribute("logout");
 			additionalParameters.put("prompt", "consent");
 		}
-		return createOauthService(auth, additionalParameters, getServerURL(request));
+		return OAuthUtils.createOauthService(auth, additionalParameters, getServerURL(request));
 	}
 
 
@@ -1056,7 +1100,7 @@ public class StatelessLoginHandler
 		}
 		catch (RepositoryException e)
 		{
-			Debug.error("Can't load solution " + solutionName, e);
+			log.error("Can't load solution " + solutionName, e);
 		}
 		if (solution != null && solution.getAuthenticator() == AUTHENTICATOR_TYPE.OAUTH)
 		{
@@ -1068,7 +1112,7 @@ public class StatelessLoginHandler
 			}
 			else
 			{
-				Debug.error("The oauth configuration is missing for solution " + solution.getName() +
+				log.error("The oauth configuration is missing for solution " + solution.getName() +
 					". Please create it using the button from the authenticator type property in the properties view.");
 			}
 
@@ -1216,6 +1260,7 @@ public class StatelessLoginHandler
 	 */
 	private static void generateOauthCall(HttpServletRequest request, HttpServletResponse response, JSONObject auth)
 	{
+		log.atInfo().log(() -> "Generate oauth call " + auth.optString(OAuthUtils.OAUTH_API, "Custom"));
 		String id_token = getExistingIdToken(request);
 		Map<String, String> additionalParameters = new HashMap<>();
 		if (!Utils.stringIsEmpty(id_token))
@@ -1225,6 +1270,7 @@ public class StatelessLoginHandler
 			{
 				//id token which is rejected by the authenticator, show the prompt
 				additionalParameters.put("prompt", "consent"); // should this be select_account ?
+				log.info("The id_token could not be verified with the authenticator, show consent screen.");
 			}
 		}
 		OAuth20Service service = createOauthService(request, auth, additionalParameters);
@@ -1234,6 +1280,8 @@ public class StatelessLoginHandler
 			{
 				final String authorizationUrl = service.createAuthorizationUrlBuilder()//
 					.additionalParams(additionalParameters).build();
+				log.atInfo().log(() -> "authorization url " + authorizationUrl);
+				log.atInfo().log(() -> "Writing the auto login page.");
 				StringBuilder sb = new StringBuilder();
 				sb.append("<!DOCTYPE html>").append("\n")
 					.append("<html lang=\"en\">").append("\n")
@@ -1280,116 +1328,15 @@ public class StatelessLoginHandler
 			}
 			catch (Exception e)
 			{
-				Debug.error(e);
+				log.error("Error writing the auto login page.", e);
 			}
+		}
+		else
+		{
+			log.error("Could not create the oauth service for config " + auth);
 		}
 	}
 
-
-	public static OAuth20Service createOauthService(JSONObject auth, Map<String, String> additionalParameters, String serverURL)
-	{
-		ServiceBuilder builder = new ServiceBuilder(auth.optString(CLIENT_ID));
-		String api = null, tenant = null;
-		for (String key : auth.keySet())
-		{
-			switch (key)
-			{
-				case API_SECRET :
-					builder.apiSecret(auth.getString(key));
-					break;
-				case DEFAULT_SCOPE :
-					builder.defaultScope(auth.getString(key));
-					break;
-				case OAUTH_API :
-					api = auth.getString(key);
-					break;
-				case TENANT :
-					tenant = auth.getString(key);
-					break;
-				case AUTHORIZATION_BASE_URL :
-				case ACCESS_TOKEN_ENDPOINT :
-				case CLIENT_ID :
-				case JWKS_URI :
-					//skip
-					break;
-				default :
-					additionalParameters.put(key, auth.getString(key));
-			}
-		}
-		String responseType = getResponseType(api, additionalParameters);
-		builder.responseType(responseType);
-		if (responseType.contains("code"))
-		{
-			additionalParameters.put("state", additionalParameters.get(NONCE));
-		}
-		String oauth_path = responseType.equals("id_token") ? "svy_oauth/" : "";
-		builder.callback(serverURL + oauth_path + "index.html");
-		try
-		{
-			DefaultApi20 apiInstance = null;
-			if (api != null)
-			{
-				apiInstance = getApiInstance(api, tenant);
-			}
-			else
-			{
-				if (!auth.has(AUTHORIZATION_BASE_URL))
-				{
-					throw new Exception("Cannot create the custom oauth api, authorizationBaseUrl is null.");
-				}
-				if (!auth.has(ACCESS_TOKEN_ENDPOINT))
-				{
-					throw new Exception("Cannot create the custom oauth api, accessTokenEndpoint is null.");
-				}
-
-				apiInstance = new DefaultApi20()
-				{
-					@Override
-					protected String getAuthorizationBaseUrl()
-					{
-						return auth.getString(AUTHORIZATION_BASE_URL);
-					}
-
-					@Override
-					public String getAccessTokenEndpoint()
-					{
-						return auth.getString(ACCESS_TOKEN_ENDPOINT);
-					}
-
-					@Override
-					public String getRefreshTokenEndpoint()
-					{
-						return auth.optString(REFRESH_TOKEN_ENDPOINT, null);
-					}
-
-					@Override
-					public String getRevokeTokenEndpoint()
-					{
-						return auth.optString(REVOKE_TOKEN_ENDPOINT, null);
-					}
-				};
-			}
-			return builder.build(apiInstance);
-		}
-		catch (Exception e)
-		{
-			Debug.error("Cannot create the oauth service.", e);
-		}
-		return null;
-	}
-
-	private static String getResponseType(String api, Map<String, String> additionalParameters)
-	{
-		if (GOOGLE.equals(api) || MICROSOFT_AD.equals(api) || "Microsoft".equals(api))
-		{
-			return "offline".equals(additionalParameters.get("access_type")) ? "code" : "id_token";
-		}
-		else if (APPLE.equals(api))
-		{
-			return "code id_token";
-		}
-		return "code";
-	}
 
 	private static String getPath(HttpServletRequest request)
 	{
@@ -1412,7 +1359,7 @@ public class StatelessLoginHandler
 		Settings settings = Settings.getInstance();
 		if (settings.getProperty(JWT_Password) == null)
 		{
-			Debug.warn("A servoy property '" + JWT_Password + //$NON-NLS-1$
+			log.warn("A servoy property '" + JWT_Password + //$NON-NLS-1$
 				"' is added the the servoy properties file, this needs to be the same over redeploys, so make sure to add this in the servoy.properties that is used to deploy the WAR"); //$NON-NLS-1$
 			settings.put(JWT_Password, "pwd" + Math.random());
 			try
@@ -1421,10 +1368,10 @@ public class StatelessLoginHandler
 			}
 			catch (Exception e)
 			{
-				Debug.error("Error saving the settings class to store the JWT_Password", e); //$NON-NLS-1$
+				log.error("Error saving the settings class to store the JWT_Password", e); //$NON-NLS-1$
 			}
 		}
-		context.setAttribute(NONCE, Collections.synchronizedMap(new PassiveExpiringMap<String, String>(30, TimeUnit.MINUTES)));
+		context.setAttribute(OAuthUtils.NONCE, Collections.synchronizedMap(new PassiveExpiringMap<String, String>(30, TimeUnit.MINUTES)));
 	}
 
 
@@ -1438,7 +1385,7 @@ public class StatelessLoginHandler
 	@SuppressWarnings("unchecked")
 	private static String generateNonce(ServletContext context, JSONObject oauth)
 	{
-		Map<String, JSONObject> cache = (Map<String, JSONObject>)context.getAttribute(NONCE);
+		Map<String, JSONObject> cache = (Map<String, JSONObject>)context.getAttribute(OAuthUtils.NONCE);
 		String nonce = UUID.randomUUID().toString();
 		cache.put(nonce, oauth);
 		return nonce;
@@ -1456,7 +1403,7 @@ public class StatelessLoginHandler
 	{
 		if (nonceString != null)
 		{
-			Map<String, JSONObject> cache = (Map<String, JSONObject>)context.getAttribute(NONCE);
+			Map<String, JSONObject> cache = (Map<String, JSONObject>)context.getAttribute(OAuthUtils.NONCE);
 			return cache.get(nonceString);
 		}
 		return null;
@@ -1473,7 +1420,7 @@ public class StatelessLoginHandler
 	{
 		if (nonceString != null)
 		{
-			Map<String, JSONObject> cache = (Map<String, JSONObject>)context.getAttribute(NONCE);
+			Map<String, JSONObject> cache = (Map<String, JSONObject>)context.getAttribute(OAuthUtils.NONCE);
 			return cache.remove(nonceString);
 		}
 		return null;
@@ -1504,11 +1451,15 @@ public class StatelessLoginHandler
 				{
 					pair.setRight(new JSONObject(responseString));
 				}
+				else
+				{
+					log.error("The endpoint " + endpoint + " did not return json.");
+				}
 				return pair;
 			}
 			else
 			{
-				Debug.error("Could not access rest api endpoint " + endpoint + " " + response.getCode() + " " +
+				log.error("Could not access rest api endpoint " + endpoint + " " + response.getCode() + " " +
 					response.getReasonPhrase());
 			}
 			return null;
@@ -1580,25 +1531,6 @@ public class StatelessLoginHandler
 		return headerValue.replaceAll("[\n\r]+", " ");
 	}
 
-	static DefaultApi20 getApiInstance(String provider, String tenant) throws Exception
-	{
-		switch (provider)
-		{
-			case "Microsoft" :
-			case MICROSOFT_AD :
-				return tenant != null ? MicrosoftAzureActiveDirectory20Api.custom(tenant) : MicrosoftAzureActiveDirectory20Api.instance();
-			case GOOGLE :
-				return GoogleApi20.instance();
-			case LINKED_IN :
-				return LinkedInApi20.instance();
-			case APPLE :
-				return AppleIDApi.instance();
-			default :
-				throw new Exception("Could not create an OAuth Api.");
-		}
-	}
-
-
 	public static void logoutAndRevokeToken(HttpSession httpSession, Solution solution)
 	{
 		if (httpSession == null) return;
@@ -1607,7 +1539,7 @@ public class StatelessLoginHandler
 		if (id_token != null)
 		{
 			DecodedJWT jwt = JWT.decode(id_token);
-			if (!jwt.getClaim(REFRESH_TOKEN).isNull())
+			if (jwt.getClaim(REFRESH_TOKEN).asString() != null)
 			{
 				OAuth20Service service = null;
 				AUTHENTICATOR_TYPE authenticator = solution.getAuthenticator();
@@ -1617,7 +1549,7 @@ public class StatelessLoginHandler
 					if (properties.has(OAUTH_CUSTOM_PROPERTIES))
 					{
 						JSONObject auth = properties.getJSONObject(OAUTH_CUSTOM_PROPERTIES);
-						service = createOauthService(auth, new HashMap<>(), null);
+						service = OAuthUtils.createOauthService(auth, new HashMap<>(), null);
 					}
 				}
 				else if (authenticator == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
@@ -1634,7 +1566,7 @@ public class StatelessLoginHandler
 				}
 				catch (IOException | InterruptedException | ExecutionException | UnsupportedOperationException e)
 				{
-					Debug.error("Could not revoke the refresh token.", e);
+					log.error("Could not revoke the refresh token.", e);
 				}
 			}
 		}

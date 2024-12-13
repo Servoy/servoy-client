@@ -22,7 +22,20 @@ import com.servoy.j2db.query.QuerySearchedCaseExpression;
 import com.servoy.j2db.querybuilder.IQueryBuilderSearchCaseExpression;
 
 /**
- * Else branch of an SQL Case expression.
+ * <p>The <code>QBSearchedCaseExpression</code> class provides functionality for constructing SQL
+ * case expressions with dynamic branching logic. It supports the definition of complex conditional
+ * logic directly within queries, enabling nuanced data manipulation and evaluation.</p>
+ *
+ * <p>This class allows for a wide range of operations on columns, including mathematical functions
+ * (e.g., <code>abs</code>, <code>ceil</code>, <code>sqrt</code>), string manipulations
+ * (e.g., <code>upper</code>, <code>trim</code>, <code>concat</code>), and date extractions
+ * (e.g., <code>year</code>, <code>month</code>, <code>day</code>). Additionally, it facilitates
+ * comparisons, aggregate operations (e.g., <code>sum</code>, <code>avg</code>), and casting of
+ * column types. These features make it a versatile tool for building expressive and dynamic queries.</p>
+ *
+ * <p>For further details, refer to the
+ * <a href="./qbselect.md">QBSelect documentation</a>.</p>
+ *
  * @author rgansevles
  *
  */

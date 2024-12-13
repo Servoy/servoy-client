@@ -34,15 +34,26 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.IDestroyable;
 
 /**
- * <code>DBDataSources</code> provides a way to access and interact with various database, in-memory, view,
- * and stored procedure datasources in Servoy applications. Available through the <code>datasources</code> object,
- * it includes dynamic code completion that aligns with the solution’s data model, providing flexibility
- * and ease when working with different data sources.
+ * <p><code>Datasources</code> in Servoy provide a structured way to interact with various
+ * types of data sources, such as database tables, in-memory tables, views, and stored
+ * procedures. These <code>datasources</code> are accessible through the <code>datasources</code>
+ * object and support dynamic code completion based on the solution’s data model, enabling
+ * efficient development.</p>
  *
- * For details related to datasources, refer to the specific sections in the Servoy documentation:
- * - <a href="./dbdatasourceserver.md">DBDataSourceServer</a> <br/>
- * - <a href="../../../../guides/develop/application-design/data-modeling/in-memory-databases.md#create-in-memory-datasource">Create In Memory DataSource</a> <br/>
- * - <a href="../../../../guides/develop/application-design/data-modeling/view-datasource">View Foundset Datasource</a> <br/>
+ * <p><code>Datasources</code> include types like <code>DBDataSource</code>,
+ * <code>MemDataSource</code>, <code>ViewDataSource</code>, <code>SPDataSource</code>, and
+ * <code>MenuDataSource</code>, each catering to a specific use case. For example,
+ * <code>db</code> is used for server/table-based data sources, <code>mem</code> for in-memory
+ * tables, and <code>view</code> for view foundset data sources. Stored procedures are managed
+ * under the <code>sp</code> property, with server-side configuration enabling their use. The
+ * <code>menu</code> property handles menu-related datasources.</p>
+ *
+ * <p>For details related to datasources, refer to the specific sections in the Servoy documentation:</p>
+ * <p><a href="./dbdatasourceserver.md">DBDataSourceServer</a></p>
+ * <p><a href="../../../../guides/develop/application-design/data-modeling/in-memory-databases.md#create-in-memory-datasource">
+ * Create In Memory DataSource</a></p>
+ * <p><a href="../../../../guides/develop/application-design/data-modeling/view-datasource.md">
+ * View Foundset Datasource</a></p>
  *
  * @author rgansevles
  *
