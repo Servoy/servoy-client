@@ -25,7 +25,24 @@ import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * A table filter that can be created and used via a JSFoundset.
+ * <p>
+ * The <code>JSTableFilter</code> represents a server-side table filter in Servoy, used for managing database
+ * filters with enhanced control over server broadcasting. The class provides properties and methods to define
+ * and interact with table filters dynamically.
+ * </p>
+ *
+ * <h2>Functionality</h2>
+ * <p>
+ * A <code>JSTableFilter</code> is associated with a server and a specific table. It includes read-only properties
+ * to retrieve the server and table names. The <code>dataBroadcast</code> method allows setting a flag for
+ * database broadcast filtering, ensuring that only specific updates are broadcasted to clients.
+ * </p>
+ *
+ * <p>
+ * The filter supports operations such as <code>in</code> or <code>=</code> for applying constraints on data
+ * visibility and is tightly integrated with Servoy's database manager capabilities. Filters are set and modified
+ * through server-side methods, making them a powerful tool for data management in multi-client environments.
+ * </p>
  *
  * @author rgansevles
  */

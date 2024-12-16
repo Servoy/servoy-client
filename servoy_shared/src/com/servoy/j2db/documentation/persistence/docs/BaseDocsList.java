@@ -22,8 +22,12 @@ import com.servoy.base.solutionmodel.IBaseSMMethod;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Dummy class for use in the documentation generator.
- * 
+ * <p>
+ * A dummy class intended for use within the documentation generator. It provides placeholder
+ * implementations for list-related properties and methods, such as text, subtext, icons, and event handling,
+ * typically used in UI components. These methods are non-functional and return default <code>null</code> values.
+ * </p>
+ *
  * @author rgansevles
  */
 public class BaseDocsList implements IBaseSHList
@@ -100,27 +104,27 @@ public class BaseDocsList implements IBaseSHList
 
 	/**
 	 * Icon type for list.
-	 * Possible values: 
-	 *  alert 
-	 *  arrow-d 
-	 *  arrow-l 
-	 *  arrow-r 
-	 *  arrow-u 
-	 *  back 
-	 *  bars 
-	 *  check 
-	 *  delete 
-	 *  edit 
-	 *  forward 
-	 *  gear 
-	 *  grid 
-	 *  home 
-	 *  info 
-	 *  minus 
-	 *  plus 
-	 *  refresh 
-	 *  search 
-	 *  star 
+	 * Possible values:
+	 *  alert
+	 *  arrow-d
+	 *  arrow-l
+	 *  arrow-r
+	 *  arrow-u
+	 *  back
+	 *  bars
+	 *  check
+	 *  delete
+	 *  edit
+	 *  forward
+	 *  gear
+	 *  grid
+	 *  home
+	 *  info
+	 *  minus
+	 *  plus
+	 *  refresh
+	 *  search
+	 *  star
 	 */
 	@Override
 	public java.lang.String getDataIconType()

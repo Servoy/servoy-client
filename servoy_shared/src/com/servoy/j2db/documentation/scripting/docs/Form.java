@@ -24,8 +24,19 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * Helper class for easier documentation of our JavaScript API for forms.
+ * <p>
+ * The <code>Form</code> class offers a powerful interface for interacting with runtime forms in Servoy,
+ * providing access to core properties and behaviors essential for dynamic UI and data handling. It facilitates
+ * interaction with foundsets, elements, variables, and responsive containers, enabling developers to create
+ * and manage forms programmatically.
+ * </p>
  *
+ * <h2>Features and Capabilities</h2>
+ * <p>
+ * The class supports retrieving and modifying foundsets, accessing form elements, and leveraging responsive
+ * form containers for advanced styling and layout customization. It also provides properties for interacting
+ * with controllers, allowing developers to enable or disable form components dynamically.
+ * </p>
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeForm", scriptingName = "RuntimeForm")

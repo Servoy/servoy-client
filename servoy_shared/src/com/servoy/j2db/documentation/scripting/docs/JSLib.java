@@ -21,7 +21,9 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 
 /**
- * Generally available javascript constants / functions.
+ * <p> This class provides essential JavaScript constants and utility functions like Infinity, NaN, and undefined,
+ * along with URI encoding/decoding (encodeURI, decodeURIComponent) and string parsing (parseFloat, parseInt).
+ * It includes utilities like isFinite and isNaN for value validation and supports dynamic code evaluation through eval. </p>
  *
  * @author gerzse
  */
