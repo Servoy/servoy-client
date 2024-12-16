@@ -299,6 +299,8 @@ public class ScriptEngine implements IScriptSupport
 			tmpSolutionScope.put(IExecutingEnviroment.TOPLEVEL_I18N, tmpSolutionScope,
 				new NativeJavaObject(tmpSolutionScope, i18n, new InstanceJavaMembers(tmpSolutionScope, JSI18N.class)));
 
+			tmpSolutionScope.put(JSMenuItem.class.getSimpleName(), tmpSolutionScope, new NativeJavaClass(tmpSolutionScope, JSMenuItem.class));
+
 			ScriptObjectRegistry.getJavaMembers(RepositoryException.class, tmpSolutionScope);
 			ScriptObjectRegistry.getJavaMembers(ApplicationException.class, tmpSolutionScope);
 			ScriptObjectRegistry.getJavaMembers(ServoyException.class, tmpSolutionScope);
