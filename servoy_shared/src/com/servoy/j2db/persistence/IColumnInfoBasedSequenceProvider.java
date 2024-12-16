@@ -18,9 +18,9 @@
 package com.servoy.j2db.persistence;
 
 /**
- * Sequenced provider based on Repository column info. 
+ * Sequenced provider based on Repository column info.
  */
 public interface IColumnInfoBasedSequenceProvider extends ISequenceProvider
 {
-	void setNextSequence(ColumnInfo ci) throws RepositoryException;
+	void setNextSequence(Column column) throws RepositoryException;
 }
