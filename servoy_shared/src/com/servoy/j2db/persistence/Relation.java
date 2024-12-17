@@ -52,10 +52,23 @@ import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.UUID;
 
 /**
- * A <b>relation</b> between two database tables refers to how data in one table is related to data in another table.<br/><br/>
  *
- * A Relation it is an object from the data layer that provides a link from one data-source to another, based on one or more matches between the dataproviders in the datasources and an operator.
- * These relationships are established using keys, typically primary keys and foreign keys.
+ * <p>The <code>Relation</code> class represents a connection between two data sources, typically involving a primary and a foreign table.</p>
+ * <p>It provides functionality for managing the relationship between data providers, including the operators used for linking the two tables.
+ * The relation can define how the data should be sorted, whether related records can be created or deleted, and how the related records are
+ * handled during find and sort operations.</p>
+ *
+ * <p>The class allows for checking if the relation items are valid, creating new relation items, and validating data types and foreign
+ * key relationships.  * It supports encapsulation levels to control its visibility in scripting and modules, and it can also be deprecated with
+ * a description.  * A key feature of this class is the ability to specify the join type for the relationship, such as an <code>inner join</code>
+ * or a <code>left outer join</code>,  * which affects how records are returned during operations.</p>
+ *
+ * <p>Additionally, the relation can be configured to handle cascading deletes, creation of related records, and whether the relation spans
+ * multiple servers.  * It also supports various operations for handling global and literal data providers, and it offers a mechanism for caching
+ * data providers for improved performance.</p>
+ *
+ * <p>Overall, the `Relation` class provides relationship management between data sources in the Servoy environment, offering fine-grained
+ * control over data handling, sorting, and record management.</p>
  *
  * @author jblok
  */
@@ -895,7 +908,7 @@ public class Relation extends AbstractBase implements ISupportChilds, ISupportUp
 		}
 		if (real instanceof Column)
 		{
-			return ((Column)real).hasFlag(IBaseColumn.UUID_COLUMN);
+			return real.hasFlag(IBaseColumn.UUID_COLUMN);
 		}
 		return false;
 	}

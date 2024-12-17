@@ -31,7 +31,9 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 public class SpecialOperators
 {
 	/**
-	 * Returns the type of the given object, one of these strings get returned: "number", "string", "boolean", "object", "function" or undefined if the object doesn't exists.
+	 * <p>The <code>SpecialOperators</code> class Returns the type of the given object, one of these strings get returned:
+	 * <code>number</code>, <code>string</code>, <code>boolean</code>, <code>object</code>, <code>function</code> or <code>undefined</code>
+	 * if the object doesn't exists.</p>
 	 *
 	 * @sample
 	 * application.output(typeof "abc"); // string

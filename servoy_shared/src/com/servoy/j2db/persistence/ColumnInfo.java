@@ -30,8 +30,18 @@ import com.servoy.j2db.util.Settings;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Keeps information about a data-source (can be a DB table) column, information that is more then just the basic DB metadata.<br/>
- * It holds Servoy specific information about that column as well.
+ * <p>The <code>ColumnInfo</code> class holds information about a column in a data source, such as a database table, and
+ * extends basic database metadata with Servoy-specific details. It provides methods to manage various aspects of the column,
+ * including its ID, persistence, and flags. For columns with auto-enter properties, it supports types like system values,
+ * sequences, and custom values, with configurable subtypes for each.</p>
+ *
+ * <p>The class allows for the configuration of column properties such as default values, lookup values, titles, descriptions,
+ * and formatting. For sequences, it manages sequence names, step sizes, and the next value, while also supporting foreign keys
+ * with the <code>foreignType</code> property.</p>
+ *
+ * <p>Additionally, the class offers tools for managing column types, including <code>getConfiguredColumnType()</code> for
+ * retrieving the developer-configured column type, and <code>getCompatibleColumnTypes()</code> for checking column type compatibility.
+ * Flags can be set and checked to track column attributes, and detailed property information can be retrieved or converted to HTML format.</p>
  *
  * @author jblok
  */

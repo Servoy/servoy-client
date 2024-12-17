@@ -21,8 +21,9 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * "containers" is a top level property of form scopes at runtime that gives access to all available layout containers on that form, by name - if the form is using "advanced"/"responsive" layout.
- *
+ * <p>
+ * The <code>RuntimeContainers</code> class provides access to all available layout containers in a form when the form is using <code>advanced</code> or <code>responsive</code> layout.
+ * The <code>containers</code> property is a top-level runtime property that allows interaction with layout containers by their names. </p>
  * @author jcompagner
  * @since 2019.12
  */

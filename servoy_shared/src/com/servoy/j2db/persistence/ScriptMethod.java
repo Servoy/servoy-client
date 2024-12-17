@@ -23,7 +23,21 @@ import com.servoy.j2db.util.UUID;
 
 
 /**
- * A script method.
+ * <p>The <code>ScriptMethod</code> class represents a script method in the Servoy environment, offering functionality for defining,
+ * managing, and inspecting script methods. It provides various properties for checking the visibility of the method, such as whether
+ * it should appear in the menu with the <code>getShowInMenu()</code> method.</p>
+ *
+ * <p>
+ * Additionally, the class allows for setting and retrieving details about the method, including its <code>name</code>, <code>scopeName</code>,
+ * and <code>declaration</code>, which can be managed through the <code>setName()</code>, <code>setScopeName()</code>,
+ * and <code>setDeclaration()</code> methods. </p>
+ *
+ * <p>The class also includes features for determining the accessibility and type of the method. For example, it can check if the method is a
+ * <code>constructor</code> using the <code>isConstructor()</code> method. It provides flexibility for generating the method signature with
+ * <code>getScriptMethodSignature()</code>, which constructs a string representation of the method’s parameters, types, and return type.</p>
+ *
+ * <p>Overall, the <code>ScriptMethod</code> class is allowing to define and managing methods in the Servoy environment, with a focus on
+ * method visibility, signatures, and associated metadata like scope and constructor status.</p>
  *
  * @author jblok
  */

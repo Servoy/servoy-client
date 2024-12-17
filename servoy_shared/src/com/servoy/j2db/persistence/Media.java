@@ -24,7 +24,21 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.UUID;
 
 /**
- * Media is binary data tagged with a mime type.
+ * <p>The <code>Media</code> class represents binary data associated with a MIME type and provides various methods to manage and
+ * manipulate this data. It stores media content as a blob and offers functionality for retrieving and updating the media content,
+ * such as using the <code>getMediaData()</code> function to lazily load the media or <code>makeBlobPermanent()</code>
+ * to make the data persistent. The class also allows for setting and getting properties like <code>name</code> and
+ * <code>mime type</code> through the <code>setName()</code> and <code>getMimeType()</code> functions, ensuring proper i
+ * dentification of the media.</p>
+ *
+ * <p>Additionally, the <code>Media</code> class supports encapsulation levels with <code>setEncapsulation()</code> and
+ * <code>getEncapsulation()</code>, which help define how the media is exposed in different environments. The class also includes
+ * methods for handling deprecation, allowing you to track and manage deprecated media through <code>getDeprecated()</code>
+ * and <code>setDeprecated()</code>. </p>
+ *
+ * <p>By utilizing these features, the <code>Media</code> class provides support for managing media data, making it easy to handle in the Servoy environment,
+ * whether it is for temporary usage or permanent storage with a defined MIME type.
+ * </p>
  *
  * @author jblok
  */

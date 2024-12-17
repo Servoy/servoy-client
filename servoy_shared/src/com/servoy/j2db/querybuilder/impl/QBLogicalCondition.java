@@ -31,7 +31,20 @@ import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * Logical clause for a query; conditions can be added by name.
+ * The <code>QBLogicalCondition</code> class represents a logical clause used in building queries within the Servoy environment.
+ * It allows for the dynamic addition and removal of conditions, enabling complex query construction.
+ * The class provides functionality for managing conditions in logical groupings, either through `AND` or `OR` operations,
+ * and conditions can be added by name for easy reference.
+ *
+ * <h2>Features</h2>
+ * <p>Key features of the class include methods like <code>js_add()</code>, which adds conditions to the logical group in a
+ * JavaScript-compatible manner,and <code>add()</code>, which allows for adding conditions programmatically. The <code>conditionnames()</code>
+ * method returns the list of condition names,  * while <code>getCondition()</code> retrieves a specific condition by its name. Conditions can
+ * also be cleared or removed with <code>clear()</code> and <code>remove()</code>, respectively. Additionally, the class includes
+ * a <code>toString()</code> method that provides a string representation of the logical condition.</p>
+ *
+ * <p>Overall, the <code>QBLogicalCondition</code> class is used to manage query conditions in Servoy, offering flexibility
+ * in how logical conditions are structured and manipulated within queries.</p>
  *
  * @author rgansevles
  *

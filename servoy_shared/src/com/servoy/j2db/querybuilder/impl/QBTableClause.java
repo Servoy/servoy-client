@@ -33,6 +33,25 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.ServoyException;
 
 /**
+ * The <code>QBTableClause</code> class is a fundamental component for building queries within the Servoy environment.
+ * It manages properties related to the table, such as `dataSource` and `tableAlias`, and provides functionality
+ * to retrieve or create columns for the query.
+ *
+ * <p>The class offers methods for managing the columns associated with a data source, such as <code>getColumn()</code>
+ * to retrieve specific columns by name, and <code>columns()</code> to get all available columns.</p>
+ *
+ * <p>It allows for complex query construction by supporting joins, accessible via the <code>joins()</code> method,
+ * which handles relationships between tables. The <code>getTable()</code> method provides access to the underlying
+ * table associated with the data source, while <code>getColumnNames()</code> retrieves all the column names in the table.</p>
+ *
+ * <p>Additionally, the `QBTableClause` class provides a way to find other `QBTableClause` objects through table aliases,
+ * using the <code>findQueryBuilderTableClause()</code> method.</p>
+ *
+ * <p>The class also facilitates the dynamic creation of columns when needed, and it ensures that the correct
+ * <code>QBColumn</code> objects are available for query building. By supporting query table retrieval, column management,
+ * and joins, <code>QBTableClause</code> is integral to structuring and executing complex database queries
+ * in the Servoy environment.</p>
+ *
  * @author rgansevles
  *
  */
