@@ -401,44 +401,18 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			form.getFormUI().getDataAdapterList().addParentRelatedForm(getForm());
 		}
 
-		if (relation != null)
+		if (relation != null && !isGlobalScopeListener)
 		{
-			HashMap<IWebFormController, String> childFormsCopy = getVisibleChildFormCopy();
-			for (Entry<IWebFormController, String> relatedFormEntry : childFormsCopy.entrySet())
+			Relation[] relations = formController.getApplication().getFlattenedSolution().getRelationSequence(relation);
+			if (relations != null)
 			{
-				IWebFormController relatedForm = relatedFormEntry.getKey();
-				String relatedFormRelation = relatedFormEntry.getValue();
-				if (relatedFormRelation != null)
+				for (Relation relationObj : relations)
 				{
-					if (relatedFormRelation.startsWith(relation + ".") && relatedFormRelation.length() > relation.length())
+					if (relationObj != null && relationObj.containsGlobal())
 					{
-						if (!containsForm(form.getFormUI(), relatedForm.getFormUI()))
-						{
-							form.getFormUI().getDataAdapterList().addVisibleChildForm(relatedForm, relatedFormRelation.substring(relation.length() + 1), false);
-						}
-					}
-					else if (relation.startsWith(relatedFormRelation + ".") && relation.length() > relatedFormRelation.length())
-					{
-						if (!containsForm(relatedForm.getFormUI(), form.getFormUI()))
-						{
-							relatedForm.getFormUI().getDataAdapterList().addVisibleChildForm(form, relation.substring(relatedFormRelation.length() + 1), false);
-						}
-					}
-				}
-			}
-			if (!isGlobalScopeListener)
-			{
-				Relation[] relations = formController.getApplication().getFlattenedSolution().getRelationSequence(relation);
-				if (relations != null)
-				{
-					for (Relation relationObj : relations)
-					{
-						if (relationObj != null && relationObj.containsGlobal())
-						{
-							formController.getApplication().getScriptEngine().getScopesScope().getModificationSubject().addModificationListener(this);
-							isGlobalScopeListener = true;
-							break;
-						}
+						formController.getApplication().getScriptEngine().getScopesScope().getModificationSubject().addModificationListener(this);
+						isGlobalScopeListener = true;
+						break;
 					}
 				}
 			}
