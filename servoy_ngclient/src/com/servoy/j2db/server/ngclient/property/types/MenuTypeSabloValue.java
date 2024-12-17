@@ -35,6 +35,8 @@ import org.sablo.specification.property.IPropertyWithClientSideConversions;
 import org.sablo.specification.property.ISmartPropertyValue;
 import org.sablo.websocket.utils.JSONUtils;
 
+import com.servoy.j2db.dataprocessing.IModificationListener;
+import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.scripting.JSMenu;
 import com.servoy.j2db.scripting.JSMenuItem;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
@@ -46,7 +48,7 @@ import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElement
  * @author lvostinar
  *
  */
-public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener
+public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener, IModificationListener
 {
 	private IChangeListener changeMonitor;
 	private JSMenu jsMenu;
@@ -258,6 +260,12 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener
 	public void valueChanged()
 	{
 		this.changeMonitor.valueChanged();
+	}
+
+	@Override
+	public void valueChanged(ModificationEvent e)
+	{
+		this.valueChanged();
 	}
 
 	public Object getJSMenu()

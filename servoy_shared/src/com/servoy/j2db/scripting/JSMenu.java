@@ -25,9 +25,10 @@ import java.util.stream.Collectors;
 import org.mozilla.javascript.annotations.JSFunction;
 import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
-import org.sablo.IChangeListener;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.dataprocessing.IModificationListener;
+import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.persistence.IPersist;
 import com.servoy.j2db.persistence.Menu;
@@ -62,7 +63,7 @@ public class JSMenu
 	private final String name;
 	private JSMenuItem selectedItem;
 
-	private final List<IChangeListener> changeListeners = new ArrayList<IChangeListener>();
+	private final List<IModificationListener> changeListeners = new ArrayList<IModificationListener>();
 	private final String[] allowedPermissions;
 
 	protected String styleClass;
@@ -278,15 +279,15 @@ public class JSMenu
 
 	protected void notifyChanged()
 	{
-		changeListeners.forEach(listener -> listener.valueChanged());
+		changeListeners.forEach(listener -> listener.valueChanged(new ModificationEvent(null, null, this)));
 	}
 
-	public void addChangeListener(IChangeListener listener)
+	public void addChangeListener(IModificationListener listener)
 	{
 		changeListeners.add(listener);
 	}
 
-	public boolean removeChangeListener(IChangeListener listener)
+	public boolean removeChangeListener(IModificationListener listener)
 	{
 		return changeListeners.remove(listener);
 	}
