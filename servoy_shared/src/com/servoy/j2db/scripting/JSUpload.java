@@ -34,7 +34,18 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 /**
- * Used for holding references to the upload files.
+ * The <code>JSUpload</code> class provides robust tools for managing uploaded files in Servoy applications.
+ * It supports accessing file contents as bytes, strings, or input streams and provides metadata retrieval for handling uploads.
+ * Developers can determine if files are stored in memory or on disk and write them to specified locations using the <code>write</code> method,
+ * which manages temporary files.
+ *
+ * Metadata associated with uploads, such as form field names and their values, can be accessed using the <code>getFields</code> and
+ * <code>getFieldValue</code> methods. The class also allows retrieval of file-specific details, including size, name, and content type,
+ * while ensuring compatibility with browsers that may include full file paths.
+ *
+ * The <code>deleteFile</code> method explicitly removes temporary files to free resources, complementing automatic cleanup processes.
+ * By combining file content management with metadata handling, <code>JSUpload</code> offers a streamlined solution for file upload operations
+ * in Servoy applications.
  *
  * @author jcompagner
  * @since 2019.09

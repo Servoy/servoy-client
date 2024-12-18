@@ -41,6 +41,16 @@ import com.servoy.j2db.util.Utils;
 import com.servoy.j2db.util.docvalidator.IdentDocumentValidator;
 
 /**
+ * <p>The <code>JSComponent</code> class provides a set of methods for interacting with and managing components within a solution model.
+ * It offers functionality for setting and retrieving properties such as background, font type, borders, visibility, and positioning.
+ * Through various getter and setter methods, it allows for fine-tuned control over the component’s attributes, including handling design-time properties,
+ * setting Z-index values, and managing anchor configurations.</p>
+ *
+ * <p>In addition to visual and layout properties, <code>JSComponent</code> supports grouping components together by <code>groupID</code>,
+ * enabling batch actions like enabling or disabling multiple elements at once. The class also supports retrieving and setting CSS position
+ * for components in NGClient, as well as managing event handlers and design-time properties. It provides utility methods for managing component attributes,
+ * including getting and setting attribute values, and clearing attributes when necessary.</p>
+ *
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSComponent")

@@ -20,7 +20,12 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * This jsunit node provides the jsunit assertion methods & code completion, but in developer's javascript editor/solution explorer only (and in jsunit test runner client).
+ * The <code>JSUnitAssertFunctions</code> class provides a comprehensive set of assertion methods for unit testing in Servoy.
+ * It supports operations such as equality checks, regular expression matching, null checks, and conditional assertions.
+ * These methods enable the validation of test outcomes with detailed messages and tolerances for specific scenarios like floating-point comparisons.
+ *
+ * Assertions can evaluate conditions as true or false, verify object definitions, or ensure two values are the same or different.
+ * Additional functions allow forcing test failures and checking against expected exceptions.
  *
  * @author acostescu
  */

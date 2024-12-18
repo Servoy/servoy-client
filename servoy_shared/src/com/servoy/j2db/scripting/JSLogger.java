@@ -28,9 +28,13 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.util.Debug;
 
 /**
- * This logger provides an API for logging with arguments, e.g. log.info.log("my message and my {}", "argument");.<br/>
- * This class can also be used to obtain JSLogBuilder instances.<br/>
- * Available logging levels are (in order): fatal, error, warn, info, debug and trace.
+ * The <code>JSLogger</code> class provides a comprehensive API for managing logging operations. It supports constructing log events
+ * with various severity levels, such as fatal, error, warn, info, debug, and trace, using the <code>JSLogBuilder</code> instances
+ * it creates. Logs can include messages formatted with arguments, enabling flexible and detailed logging.
+ *
+ * The class offers methods to check if a specific logging level is enabled, allowing efficient logging decisions. It also allows
+ * dynamically setting the logger's logging level, overriding the default configuration. This global change persists until the
+ * application server is restarted. The current logging level can be retrieved as a string using the <code>level</code> property.
  *
  * @author jdejong
  *

@@ -33,8 +33,25 @@ import com.servoy.j2db.persistence.Part;
 import com.servoy.j2db.solutionmodel.ISMFooter;
 
 /**
- * Solution model footer object on form.
- * 
+ * The <code>JSFooter</code> class represents the footer section of a form in a solution model.
+ * It provides functionality to manage and manipulate components specifically placed within the footer,
+ * enabling dynamic customization and behavior. The class extends <code>JSPart</code> and implements <code>ISMFooter</code>,
+ * integrating seamlessly into the solution model's architecture.
+ *
+ * ## Features and Functionalities
+ * This class supports the creation of various UI components for the footer, including fields, text areas,
+ * comboboxes, buttons, and labels. Each component can be dynamically added based on data provider references
+ * and positioned horizontally to define their order. For example:
+ * 1. Components such as fields or text areas can be created with display types like text fields or comboboxes.
+ * 2. Buttons and labels can be defined with textual content and event handlers for interactive functionality.
+ *
+ * The <code>JSFooter</code> allows for sticky behavior, where the footer remains fixed and does not scroll out of view,
+ * controlled by the <code>sticky</code> property. It also provides a method to retrieve all components belonging to the footer,
+ * filtering based on their custom properties.
+ *
+ * Components within the footer can be removed by name, ensuring modularity and allowing developers to dynamically manage
+ * the footer layout.
+ *
  * @author rgansevles
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
@@ -53,8 +70,8 @@ public class JSFooter extends JSPart implements ISMFooter
 
 	/**
 	 * Flag to set a set the footer sticky so it will not scroll out of view.
-	 * 
-	 * @sample 
+	 *
+	 * @sample
 	 * var form = solutionModel.newForm('newForm1', myDatasource);
 	 * var footer = form.newFooter()
 	 * footer.sticky = false // default: true
@@ -73,14 +90,14 @@ public class JSFooter extends JSPart implements ISMFooter
 		getBaseComponent(true).setPartType(sticky ? TITLE_FOOTER : FOOTER);
 	}
 
-	/** 
+	/**
 	 * Creates a new JSField object on the footer.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.getForm('myform')
 	 * var footer = form.getForm('myform').newFooter()
 	 * footer.newField('myvar', JSField.TEXT_FIELD, 1);
-	 * forms['newForm1'].controller.show();  	
+	 * forms['newForm1'].controller.show();
 	 *
 	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 *
@@ -88,8 +105,8 @@ public class JSFooter extends JSPart implements ISMFooter
 	 *
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
-	 * @return a new JSField object (of the specified display type) 
-	 * 
+	 * @return a new JSField object (of the specified display type)
+	 *
 	 * @deprecated Possible future api
 	 */
 	@Deprecated
@@ -102,7 +119,7 @@ public class JSFooter extends JSPart implements ISMFooter
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newField(IBaseSMVariable,int,int)
-	 * 
+	 *
 	 * @deprecated Possible future api
 	 */
 	@Deprecated
@@ -113,21 +130,21 @@ public class JSFooter extends JSPart implements ISMFooter
 		return markForFooter(getJSParent().newField(dataprovider, type, x, 0, 10, 10));
 	}
 
-	/** 
+	/**
 	 * Creates a new JSText object on the footer.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.getForm('myform')
 	 * var footer = form.getForm('myform').newFooter()
 	 * footer.newTextField('myvar', 1);
-	 * forms['newForm1'].controller.show();  	
+	 * forms['newForm1'].controller.show();
 	 *
 	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 *
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
 	 * @return a new JSText element
-	 * 
+	 *
 	 * @deprecated Possible future api
 	 */
 	@Deprecated
@@ -140,7 +157,7 @@ public class JSFooter extends JSPart implements ISMFooter
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newTextField(IBaseSMVariable,int)
-	 * 
+	 *
 	 * @deprecated Possible future api
 	 */
 	@Deprecated
@@ -151,21 +168,21 @@ public class JSFooter extends JSPart implements ISMFooter
 		return (JSText)newField(dataprovider, Field.TEXT_FIELD, x);
 	}
 
-	/** 
+	/**
 	 * Creates a new JSTextArea object on the footer.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.getForm('myform')
 	 * var footer = form.getForm('myform').newFooter()
 	 * footer.newTextArea('myvar', 1);
-	 * forms['newForm1'].controller.show();  	
+	 * forms['newForm1'].controller.show();
 	 *
 	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 *
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
 	 * @return a new JSTextArea element
-	 * 
+	 *
 	 * @deprecated Possible future api
 	 */
 	@Deprecated
@@ -178,7 +195,7 @@ public class JSFooter extends JSPart implements ISMFooter
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newTextArea(IBaseSMVariable,int)
-	 * 
+	 *
 	 * @deprecated Possible future api
 	 */
 	@Deprecated
@@ -189,21 +206,21 @@ public class JSFooter extends JSPart implements ISMFooter
 		return (JSTextArea)newField(dataprovider, Field.TEXT_AREA, x);
 	}
 
-	/** 
+	/**
 	 * Creates a new JSCombobox object on the footer.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.getForm('myform')
 	 * var footer = form.getForm('myform').newFooter()
 	 * footer.newCombobox('myvar', 1);
-	 * forms['newForm1'].controller.show();  	
+	 * forms['newForm1'].controller.show();
 	 *
 	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 *
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
 	 * @return a new JSCombobox element
-	 * 
+	 *
 	 * @deprecated Possible future api
 	 */
 	@Deprecated
@@ -216,7 +233,7 @@ public class JSFooter extends JSPart implements ISMFooter
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newCombobox(IBaseSMVariable,int)
-	 * 
+	 *
 	 * @deprecated Possible future api
 	 */
 	@Deprecated
@@ -227,21 +244,21 @@ public class JSFooter extends JSPart implements ISMFooter
 		return (JSCombobox)newField(dataprovider, Field.COMBOBOX, x);
 	}
 
-	/** 
+	/**
 	 * Creates a new JSRadios object on the footer.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.getForm('myform')
 	 * var footer = form.getForm('myform').newFooter()
 	 * footer.newRadios('myvar', 1);
-	 * forms['newForm1'].controller.show();  	
+	 * forms['newForm1'].controller.show();
 	 *
 	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 *
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
 	 * @return a new JSRadios element
-	 * 
+	 *
 	 * @deprecated Possible future api
 	 */
 	@Deprecated
@@ -254,7 +271,7 @@ public class JSFooter extends JSPart implements ISMFooter
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newRadios(IBaseSMVariable,int)
-	 * 
+	 *
 	 * @deprecated Possible future api
 	 */
 	@Deprecated
@@ -265,21 +282,21 @@ public class JSFooter extends JSPart implements ISMFooter
 		return (JSRadios)newField(dataprovider, Field.RADIOS, x);
 	}
 
-	/** 
+	/**
 	 * Creates a new JSChecks object on the footer.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.getForm('myform')
 	 * var footer = form.getForm('myform').newFooter()
 	 * footer.newCheck('myvar', 1);
-	 * forms['newForm1'].controller.show();  	
+	 * forms['newForm1'].controller.show();
 	 *
 	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 *
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
 	 * @return a new JSChecks element
-	 * 
+	 *
 	 * @deprecated Possible future api
 	 */
 	@Deprecated
@@ -292,7 +309,7 @@ public class JSFooter extends JSPart implements ISMFooter
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newCheck(IBaseSMVariable,int)
-	 * 
+	 *
 	 * @deprecated Possible future api
 	 */
 	@Deprecated
@@ -303,21 +320,21 @@ public class JSFooter extends JSPart implements ISMFooter
 		return (JSChecks)newField(dataprovider, Field.CHECKS, x);
 	}
 
-	/** 
+	/**
 	 * Creates a new JSPassword object on the footer.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.getForm('myform')
 	 * var footer = form.getForm('myform').newFooter()
 	 * footer.newPassword('myvar', 1);
-	 * forms['newForm1'].controller.show();  	
+	 * forms['newForm1'].controller.show();
 	 *
 	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 *
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
 	 * @return a new JSPassword element
-	 * 
+	 *
 	 * @deprecated Possible future api
 	 */
 	@Deprecated
@@ -330,7 +347,7 @@ public class JSFooter extends JSPart implements ISMFooter
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newPassword(IBaseSMVariable,int)
-	 * 
+	 *
 	 * @deprecated Possible future api
 	 */
 	@Deprecated
@@ -341,21 +358,21 @@ public class JSFooter extends JSPart implements ISMFooter
 		return (JSPassword)newField(dataprovider, Field.PASSWORD, x);
 	}
 
-	/** 
+	/**
 	 * Creates a new JSCalendar object on the footer.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.getForm('myform')
 	 * var footer = form.getForm('myform').newFooter()
 	 * footer.newCalendar('myvar', 1);
-	 * forms['newForm1'].controller.show();  	
+	 * forms['newForm1'].controller.show();
 	 *
 	 * @param dataprovider the specified dataprovider name/JSVariable of the JSField object
 	 *
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
 	 *
 	 * @return a new JSCalendar element
-	 * 
+	 *
 	 * @deprecated Possible future api
 	 */
 	@Deprecated
@@ -368,7 +385,7 @@ public class JSFooter extends JSPart implements ISMFooter
 
 	/**
 	 * @sameas com.servoy.j2db.scripting.solutionmodel.JSFooter#newCalendar(IBaseSMVariable,int)
-	 * 
+	 *
 	 * @deprecated Possible future api
 	 */
 	@Deprecated
@@ -379,19 +396,19 @@ public class JSFooter extends JSPart implements ISMFooter
 		return (JSCalendar)newField(dataprovider, Field.CALENDAR, x);
 	}
 
-	/** 
+	/**
 	 * Creates a new button on the footer.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.getForm('myform')
 	 * var footer = form.getForm('myform').newFooter()
 	 * footer.newButton('myvar', form.getMethod('doit'));
-	 * forms['newForm1'].controller.show();  	
+	 * forms['newForm1'].controller.show();
 	 *
 	 * @param text the text on the button
 	 *
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
-	 * 
+	 *
 	 * @param jsmethod the method assigned to handle an onAction event
 	 *
 	 * @return a new JSCalendar element
@@ -403,21 +420,21 @@ public class JSFooter extends JSPart implements ISMFooter
 		return markForFooter(getJSParent().newButton(text, x, 0, 10, 10, jsmethod));
 	}
 
-	/** 
+	/**
 	 * Creates a new label on the footer.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.getForm('myform')
 	 * var footer = form.getForm('myform').newFooter()
 	 * footer.newButton('myvar', form.getMethod('doit'));
-	 * forms['newForm1'].controller.show();  	
+	 * forms['newForm1'].controller.show();
 	 *
 	 * @param text the text on the label
 	 *
 	 * @param x the horizontal "x" position of the new element, defines the order of elements on the footer
-	 * 
+	 *
 	 * @return a new JSCalendar element
-	 * 
+	 *
 	 * @deprecated Possible future api
 	 */
 	@Deprecated
@@ -436,8 +453,8 @@ public class JSFooter extends JSPart implements ISMFooter
 	 * var footer = form.getFooter();
 	 * var components = footer.getComponents();
 	 * for (var i in components)
-	 * 	application.output("Component type and name: " + components[i]); 
-	 * 
+	 * 	application.output("Component type and name: " + components[i]);
+	 *
 	 * @return an array of all the JSComponents on the footer.
 	 */
 	@JSFunction
@@ -456,15 +473,15 @@ public class JSFooter extends JSPart implements ISMFooter
 	}
 
 	/**
-	 * Removes a named component from the footer. 
+	 * Removes a named component from the footer.
 	 *
-	 * @sample 
+	 * @sample
 	 * var form = solutionModel.getForm("myForm");
 	 * var footer = form.getFooter();
 	 * footer.removeComponent('myfield1')
 	 *
-	 * @param name the specified name of the component to remove 
-	 * 
+	 * @param name the specified name of the component to remove
+	 *
 	 * @return true is the component has been successfully removed; false otherwise
 	 */
 	@JSFunction

@@ -21,7 +21,7 @@ import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 import com.servoy.j2db.util.ILogLevel;
 
 /***
- * Script constants for application.output logging levels.
+ * <p>The <code>LOGGINGLEVEL</code> class defines script constants for application output logging levels.</p>
  *
  *  @author lvostinar
  *  @see ILogLevel

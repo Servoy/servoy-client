@@ -22,7 +22,7 @@ import com.servoy.j2db.querybuilder.IQueryBuilderConstants;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
- * Script constants for Query Builder column types.
+ * <p>The <code>QUERY_COLUMN_TYPES</code> class defines script constants for Query Builder column types.</p>
  *
  * @author rgansevles
  *

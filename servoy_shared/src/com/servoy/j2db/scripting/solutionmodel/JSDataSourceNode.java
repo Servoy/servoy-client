@@ -42,7 +42,22 @@ import com.servoy.j2db.scripting.TableScope;
 import com.servoy.j2db.solutionmodel.ISMDataSourceNode;
 
 /**
- * Solution model holder for calculations and foundset methods.
+ * <p>The <code>JSDataSourceNode</code> class facilitates interaction with data source nodes within a
+ * Servoy solution model. It enables the creation, retrieval, and management of calculations and foundset
+ * methods associated with a data source.  * This class is tied to an <code>IApplication</code> instance
+ * and a specified data source, allowing dynamic manipulation of related objects.</p>
+ *
+ * ## Core Functionality
+ * <p>The class provides methods for retrieving and managing calculations and foundset methods. Calculations
+ * can be created using JavaScript code,  * with the ability to specify types and validate names. Similarly,
+ * foundset methods can be dynamically defined and linked to the data source. Both calculations and methods
+ * support retrieval, enumeration, and removal, enhancing the flexibility of database scripting.</p>
+ *
+ * ## Additional Features
+ * <p>The <code>JSDataSourceNode</code> ensures persistence management by integrating with the Servoy framework’s
+ * <code>FlattenedSolution</code> and <code>TableNode</code> objects. It supports cloning of script providers and
+ * handles runtime exceptions gracefully, ensuring stability. It also provides utility methods like <code>hashCode</code>,
+ * <code>equals</code>, and <code>toString</code> for seamless object management in Java environments.</p>
  *
  * @author rgansevles
  */
