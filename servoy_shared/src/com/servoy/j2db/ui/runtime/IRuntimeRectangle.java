@@ -20,10 +20,11 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Interface for RuntimeRectangle component.
- * 
+ * The <code>IRuntimeRectangle</code> interface provides scripting support for runtime rectangle components in Servoy,
+ * extending <code>IRuntimeComponent</code> for general component functionalities.
+ *
  *  @author lvostinar
- *  
+ *
  *  @since 6.1
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "RuntimeRectangle", extendsComponent = "RuntimeComponent")

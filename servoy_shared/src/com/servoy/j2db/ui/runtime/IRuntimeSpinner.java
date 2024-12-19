@@ -20,8 +20,9 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Interface for RuntimeSpinner component.
- * 
+ * The <code>IRuntimeSpinner</code> interface provides scripting support for runtime spinner components in Servoy,
+ * extending functionalities for input, read-only mode, valuelists, and formatting.
+ *
  * @author acostescu
  * @since 6.1
  */

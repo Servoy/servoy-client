@@ -19,7 +19,9 @@ package com.servoy.j2db.ui.runtime;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Interface for RuntimeCalendar element.
+ * The <code>IRuntimeCalendar</code> interface provides scripting support for runtime calendar elements in Servoy.
+ * It extends <code>IRuntimeInputComponent</code> and <code>HasRuntimeFormat</code> to enable input handling
+ * and formatting capabilities for calendar components.
  *
  * @author lvostinar
  * @since 6.1

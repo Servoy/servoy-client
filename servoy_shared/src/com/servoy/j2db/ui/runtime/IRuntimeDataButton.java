@@ -19,7 +19,8 @@ package com.servoy.j2db.ui.runtime;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Interface for RuntimeDataButton element.
+ * The <code>IRuntimeDataButton</code> interface enables scripting for runtime data button elements in Servoy,
+ * extending <code>IRuntimeBaseButton</code> for button-specific functionalities.
  *
  * @author lvostinar
  * @since 6.1

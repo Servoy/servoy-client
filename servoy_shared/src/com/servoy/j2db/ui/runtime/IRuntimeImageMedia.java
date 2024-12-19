@@ -21,8 +21,9 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 
 
 /**
- * Interface for RuntimeImageMedia component.
- * 
+ * The <code>IRuntimeImageMedia</code> interface provides scripting support for runtime image media components in Servoy,
+ * combining functionalities for read-only mode, scrolling, titles, data binding, and editability.
+ *
  * @author jcompagner
  * @since 6.1
  */

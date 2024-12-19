@@ -20,8 +20,10 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 
 
 /**
- * Interface for RuntimeCheck component.
- * 
+ * The <code>IRuntimeCheck</code> interface enables scripting for runtime check components in Servoy.
+ * It extends <code>IRuntimeField</code>, <code>HasRuntimeValuelist</code>, and <code>HasRuntimeReadOnly</code>
+ * to support field functionality, valuelists, and read-only properties.
+ *
  * @author jcompagner
  *  @since 6.1
  */

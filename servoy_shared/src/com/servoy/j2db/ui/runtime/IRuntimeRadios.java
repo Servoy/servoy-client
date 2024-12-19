@@ -19,8 +19,9 @@ package com.servoy.j2db.ui.runtime;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Interface for RuntimeRadios component.
- * 
+ * The <code>IRuntimeRadios</code> interface enables scripting for runtime radio components in Servoy,
+ * extending <code>IRuntimeBaseChecks</code> and <code>HasRuntimeValuelistItems</code> for managing checks and valuelist items.
+ *
  * @author lvostinar
  *  @since 6.1
  */

@@ -20,8 +20,9 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Interface for RuntimeHtmlArea component.
- * 
+ * The <code>IRuntimeHtmlArea</code> interface enables scripting for runtime HTML area components in Servoy,
+ * extending <code>IRuntimeTextEditor</code> for text editing functionalities.
+ *
  * @author rgansevles
  * @since 6.1
  */

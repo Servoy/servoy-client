@@ -21,8 +21,8 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.ui.runtime.IRuntimeAccordionPanel;
 
 /**
- * Scripting interface for RuntimeAccordionPanel.
- * Combines (deprecated) script methods and java api ({@link IRuntimeAccordionPanel}).
+ * The <code>IScriptAccordionPanelMethods</code> interface supports scripting for runtime accordion panels in Servoy,
+ * combining (deprecated) script methods and java api ({@link IRuntimeAccordionPanel})
  *
  * @author lvostinar
  *

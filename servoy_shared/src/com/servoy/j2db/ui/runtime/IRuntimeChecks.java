@@ -19,7 +19,8 @@ package com.servoy.j2db.ui.runtime;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Interface for RuntimeChecks element.
+ * The <code>IRuntimeChecks</code> interface provides scripting support for runtime checks elements in Servoy,
+ * extending <code>IRuntimeBaseChecks</code> and <code>HasRuntimeValuelistItems</code> for managing checks and valuelist items.
  *
  * @author lvostinar
  * @since 6.1

@@ -20,8 +20,9 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 
 
 /**
- * Interface for RuntimeTextField component.
- * 
+ * The <code>IRuntimeTextField</code> interface provides scripting support for runtime text field components in Servoy,
+ * offering input, text handling, formatting, valuelist, and placeholder functionalities.
+ *
  * @author jcompagner
  *  @since 6.1
  */

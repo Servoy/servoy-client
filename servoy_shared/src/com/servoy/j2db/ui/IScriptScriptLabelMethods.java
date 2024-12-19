@@ -20,7 +20,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.ui.runtime.IRuntimeLabel;
 
 /**
- * Scripting interface for RuntimeLabel.
+ * The <code>IScriptScriptLabelMethods</code> is a scripting interface for RuntimeLabel.
  * Combines (deprecated) script methods and java api ({@link IRuntimeLabel}).
  *
  * @author rgansevles
