@@ -61,13 +61,17 @@ public class OAuthUtils
 	public static final String CLIENT_ID = "clientId";
 
 
-	public static String getResponseType(String api, Map<String, String> additionalParameters)
+	public static String getResponseType(String api, JSONObject auth)
 	{
 		if (GOOGLE.equals(api) || MICROSOFT_AD.equals(api) || "Microsoft".equals(api))
 		{
-			return "offline".equals(additionalParameters.get("access_type")) ? "code" : "id_token";
+			return "offline".equals(auth.get("access_type")) ? "code" : "id_token";
 		}
-		else if (APPLE.equals(api) || OKTA.equals(api))
+		else if (OKTA.equals(api))
+		{
+			return auth.optString(DEFAULT_SCOPE, "").contains("offline_access") ? "code" : "id_token";
+		}
+		else if (APPLE.equals(api))
 		{
 			return "code id_token";
 		}
@@ -144,7 +148,7 @@ public class OAuthUtils
 					additionalParameters.put(key, auth.getString(key));
 			}
 		}
-		String responseType = getResponseType(api, additionalParameters);
+		String responseType = getResponseType(api, auth);
 		builder.responseType(responseType);
 		if (responseType.contains("code"))
 		{
