@@ -1079,11 +1079,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return dpInfo;
 	}
 
-	/**
-	 * @param webComponent
-	 * @param beanProperty
-	 * @return
-	 */
 	static DataproviderConfig getDataproviderConfig(WebFormComponent webComponent, String beanProperty)
 	{
 		Object config = webComponent.getFormElement().getWebComponentSpec().getProperty(beanProperty).getConfig();
@@ -1094,10 +1089,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		return config instanceof DataproviderConfig ? (DataproviderConfig)config : null;
 	}
 
-	/**
-	 * @param onDataChangeCallback
-	 * @return
-	 */
 	static WebObjectApiFunctionDefinition createWebObjectFunction(String onDataChangeCallback)
 	{
 		WebObjectApiFunctionDefinition call = new WebObjectApiFunctionDefinition(onDataChangeCallback);

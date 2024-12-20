@@ -557,12 +557,6 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 				fp.notifyVisible(true, invokeLaterRunnables, true);
 
-				String titleText = title;
-				if (titleText == null) titleText = f.getTitleText();
-				if (titleText == null || titleText.equals("")) titleText = fp.getName(); //$NON-NLS-1$
-				if (NO_TITLE_TEXT.equals(titleText)) titleText = ""; //$NON-NLS-1$
-				container.setTitle(titleText);
-
 				fp.getFormUI().setParentWindowName(container.getContainerName());
 
 				INGClientWindow clientWindow = NGClientWindow.getCurrentWindow();
@@ -575,6 +569,12 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 					public void run()
 					{
 						container.setController(fp); // actually change the form in main container (also sends initial data / updateController if form data is not yet on client)
+
+						String titleText = title;
+						if (titleText == null) titleText = f.getTitleText();
+						if (titleText == null || titleText.equals("")) titleText = fp.getName(); //$NON-NLS-1$
+						if (NO_TITLE_TEXT.equals(titleText)) titleText = ""; //$NON-NLS-1$
+						container.setTitle(titleText);
 
 						INGClientWebsocketSession session;
 						if (clientWindow != null && (session = clientWindow.getSession()) != null && session.isValid()) // as this executes later, make sure everything is still in an ok state
