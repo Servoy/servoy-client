@@ -142,6 +142,7 @@ public class OAuthUtils
 				case CLIENT_ID :
 				case JWKS_URI :
 				case "customParameters" :
+				case "endpoint" :
 					//skip
 					break;
 				default :
