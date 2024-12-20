@@ -25,7 +25,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rob
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBNumberColumn")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBNumberColumn") // RAGTEST wel nodig
 public interface QBNumberColumnBase
 {
 	/**
@@ -35,4 +35,22 @@ public interface QBNumberColumnBase
 	 */
 	@JSReadonlyProperty
 	public QBIntegerColumnBase floor();
+
+
+	/**
+	 * Create round(column) expression
+	 * @sample
+	 * query.result.add(query.columns.mycol.round)
+	 */
+	@JSReadonlyProperty
+	public QBIntegerColumnBase round();
+
+
+	/**
+	 * Create ceil(column) expression
+	 * @sample
+	 * query.result.add(query.columns.mycol.ceil)
+	 */
+	@JSReadonlyProperty
+	public QBIntegerColumnBase ceil();
 }

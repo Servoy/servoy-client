@@ -203,22 +203,22 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	{
 		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.bit_length, new IQuerySelectValue[] { createOperand(value) });
 	}
-//
-//	/**
-//	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#cast(Object, String)
-//	 * @param value object to cast
-//	 * @param type type see QUERY_COLUMN_TYPES
-//	 * @sample
-//	 * var query = datasources.db.example_data.orders.createSelect();
-//	 * query.result.add(query.functions.cast("22",QUERY_COLUMN_TYPES.TYPE_INTEGER)).add(query.columns.amt_discount.cast(QUERY_COLUMN_TYPES.TYPE_STRING));
-//	 * application.output(databaseManager.getDataSetByQuery(query,1).getAsHTML())
-//	 */
-//	@JSFunction
-//	public QBFunction cast(Object value, String type)
-//	{
-//		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.cast,
-//			new IQuerySelectValue[] { createOperand(value), new QueryColumnValue(type, null, true) });
-//	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#cast(Object, String)
+	 * @param value object to cast
+	 * @param type type see QUERY_COLUMN_TYPES
+	 * @sample
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.result.add(query.functions.cast("22",QUERY_COLUMN_TYPES.TYPE_INTEGER)).add(query.columns.amt_discount.cast(QUERY_COLUMN_TYPES.TYPE_STRING));
+	 * application.output(databaseManager.getDataSetByQuery(query,1).getAsHTML())
+	 */
+	@JSFunction
+	public QBColumn cast(Object value, String type)
+	{
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.cast,
+			new IQuerySelectValue[] { createOperand(value), new QueryColumnValue(type, null, true) });
+	}
 
 	/**
 	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#substring(Object, int)
@@ -403,51 +403,51 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	{
 		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.floor, new IQuerySelectValue[] { createOperand(arg) });
 	}
-//
-//	/**
-//	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#round(Object)
-//	 * @param arg number object
-//	 * @sample
-//	 * var query = datasources.db.example_data.orders.createSelect();
-//	 * query.where.add(query.columns.mynumcol.round.eq(query.functions.round(myvar))
-//	 * foundset.loadRecords(query);
-//	 */
-//	@JSFunction
-//	public QBFunction round(Object arg)
-//	{
-//		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.round, new IQuerySelectValue[] { createOperand(arg) });
-//	}
-//
-//	/**
-//	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#round(Object)
-//	 * @param arg number object
-//	 * @param decimals The number of decimal places to round number to, default 0
-//	 * @sample
-//	 * var query = datasources.db.example_data.orders.createSelect();
-//	 * query.where.add(query.columns.mynumcol.round.eq(query.functions.round(myvar, 1))
-//	 * foundset.loadRecords(query);
-//	 */
-//	@JSFunction
-//	@Override
-//	public QBFunction round(Object arg, int decimals)
-//	{
-//		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.round,
-//			new IQuerySelectValue[] { createOperand(arg), createOperand(Integer.valueOf(decimals)) });
-//	}
-//
-//	/**
-//	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#ceil(Object)
-//	 * @param arg number object
-//	 * @sample
-//	 * var query = datasources.db.example_data.orders.createSelect();
-//	 * query.where.add(query.columns.mynumcol.ceil.eq(query.functions.ceil(myvar))
-//	 * foundset.loadRecords(query);
-//	 */
-//	@JSFunction
-//	public QBFunction ceil(Object arg)
-//	{
-//		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.ceil, new IQuerySelectValue[] { createOperand(arg) });
-//	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#round(Object)
+	 * @param arg number object
+	 * @sample
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mynumcol.round.eq(query.functions.round(myvar))
+	 * foundset.loadRecords(query);
+	 */
+	@JSFunction
+	public QBIntegerColumnBase round(Object arg)
+	{
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.round, new IQuerySelectValue[] { createOperand(arg) });
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#round(Object)
+	 * @param arg number object
+	 * @param decimals The number of decimal places to round number to, default 0
+	 * @sample
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mynumcol.round.eq(query.functions.round(myvar, 1))
+	 * foundset.loadRecords(query);
+	 */
+	@JSFunction
+	public QBIntegerColumnBase round(Object arg, int decimals)
+	{
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.round,
+			new IQuerySelectValue[] { createOperand(arg), createOperand(Integer.valueOf(decimals)) });
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#ceil(Object)
+	 * @param arg number object
+	 * @sample
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mynumcol.ceil.eq(query.functions.ceil(myvar))
+	 * foundset.loadRecords(query);
+	 */
+	@JSFunction
+	public QBIntegerColumnBase ceil(Object arg)
+	{
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.ceil, new IQuerySelectValue[] { createOperand(arg) });
+	}
+
 //
 //	/**
 //	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#custom(String, Object...)
@@ -466,36 +466,33 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 //			Utils.arrayAdd(getRoot().createOperands(args == null ? new Object[] { null } : args, null, 0), new QueryColumnValue(name, null, true), false));
 //	}
 //
-//	/**
-//	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#second(Object)
-//	 * @param arg date object
-//	 * @sample
-//	 * var query = datasources.db.example_data.orders.createSelect();
-//	 * query.where.add(query.columns.mydatecol.second.eq(query.functions.second(mydatevar))
-//	 * foundset.loadRecords(query);
-//	 */
-//	@JSFunction
-//	public QBFunction second(Object arg)
-//	{
-//		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.second, new IQuerySelectValue[] { createOperand(arg) });
-//	}
-//
-//	/**
-//	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#minute(Object)
-//	 * @param arg date object
-//	 * @sample
-//	 * var query = datasources.db.example_data.orders.createSelect();
-//	 * query.where.add(query.columns.mydatecol.minute.eq(query.functions.minute(mydatevar))
-//	 * foundset.loadRecords(query);
-//	 */
-//	@JSFunction
-//	public QBFunction minute(Object arg)
-//	{
-//		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.minute, new IQuerySelectValue[] { createOperand(arg) });
-//	}
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#second(Object)
+	 * @param arg date object
+	 * @sample
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mydatecol.second.eq(query.functions.second(mydatevar))
+	 * foundset.loadRecords(query);
+	 */
+	@JSFunction
+	public QBIntegerColumnBase second(Object arg)
+	{
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.second, new IQuerySelectValue[] { createOperand(arg) });
+	}
 
-	// RAGTEST check ook argument??
-	// public QBIntegerColumn hour(QBDatetimeColumn arg)
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#minute(Object)
+	 * @param arg date object
+	 * @sample
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mydatecol.minute.eq(query.functions.minute(mydatevar))
+	 * foundset.loadRecords(query);
+	 */
+	@JSFunction
+	public QBIntegerColumnBase minute(Object arg)
+	{
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.minute, new IQuerySelectValue[] { createOperand(arg) });
+	}
 
 
 	/**
@@ -507,52 +504,52 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * foundset.loadRecords(query);
 	 */
 	@JSFunction
-	public QBIntegerColumnBase hourragtest(Object arg)
+	public QBIntegerColumnBase hour(Object arg)
 	{
 		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.hour, new IQuerySelectValue[] { createOperand(arg) });
 	}
 
-//	/**
-//	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#day(Object)
-//	 * @param arg date object
-//	 * @sample
-//	 * var query = datasources.db.example_data.orders.createSelect();
-//	 * query.where.add(query.columns.mydatecol.day.eq(query.functions.day(mydatevar))
-//	 * foundset.loadRecords(query);
-//	 */
-//	@JSFunction
-//	public QBFunction day(Object arg)
-//	{
-//		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.day, new IQuerySelectValue[] { createOperand(arg) });
-//	}
-//
-//	/**
-//	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#month(Object)
-//	 * @param arg date object
-//	 * @sample
-//	 * var query = datasources.db.example_data.orders.createSelect();
-//	 * query.where.add(query.columns.mydatecol.month.eq(query.functions.month(mydatevar))
-//	 * foundset.loadRecords(query);
-//	 */
-//	@JSFunction
-//	public QBFunction month(Object arg)
-//	{
-//		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.month, new IQuerySelectValue[] { createOperand(arg) });
-//	}
-//
-//	/**
-//	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#year(Object)
-//	 * @param arg date object
-//	 * @sample
-//	 * var query = datasources.db.example_data.orders.createSelect();
-//	 * query.where.add(query.columns.mydatecol.year.eq(query.functions.year(mydatevar))
-//	 * foundset.loadRecords(query);
-//	 */
-//	@JSFunction
-//	public QBFunction year(Object arg)
-//	{
-//		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.year, new IQuerySelectValue[] { createOperand(arg) });
-//	}
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#day(Object)
+	 * @param arg date object
+	 * @sample
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mydatecol.day.eq(query.functions.day(mydatevar))
+	 * foundset.loadRecords(query);
+	 */
+	@JSFunction
+	public QBIntegerColumnBase day(Object arg)
+	{
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.day, new IQuerySelectValue[] { createOperand(arg) });
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#month(Object)
+	 * @param arg date object
+	 * @sample
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mydatecol.month.eq(query.functions.month(mydatevar))
+	 * foundset.loadRecords(query);
+	 */
+	@JSFunction
+	public QBIntegerColumnBase month(Object arg)
+	{
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.month, new IQuerySelectValue[] { createOperand(arg) });
+	}
+
+	/**
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#year(Object)
+	 * @param arg date object
+	 * @sample
+	 * var query = datasources.db.example_data.orders.createSelect();
+	 * query.where.add(query.columns.mydatecol.year.eq(query.functions.year(mydatevar))
+	 * foundset.loadRecords(query);
+	 */
+	@JSFunction
+	public QBIntegerColumnBase year(Object arg)
+	{
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.year, new IQuerySelectValue[] { createOperand(arg) });
+	}
 //
 //	/**
 //	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderFunctions#coalesce(Object...)

@@ -39,7 +39,7 @@ import com.servoy.j2db.scripting.IJavaScriptType;
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBCaseWhen")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBCaseWhen implements IQueryBuilderCaseWhen, IJavaScriptType
 {
 	private final QBCase parent;

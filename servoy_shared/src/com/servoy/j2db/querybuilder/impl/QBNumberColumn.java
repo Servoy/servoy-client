@@ -17,11 +17,14 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
+
 /**
  * RAGTEST doc
  * @author rob
  *
  */
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "QBColumn")
 public interface QBNumberColumn extends QBNumberColumnBase, QBColumnRagtest<QBNumberColumn>, QBColumnNumberRagtest<QBNumberColumn>
 {
 }

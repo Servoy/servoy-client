@@ -19,14 +19,11 @@ package com.servoy.j2db.querybuilder.impl;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
-import com.servoy.j2db.documentation.ServoyDocumented;
-
 /**
  * RAGTEST doc
  * @author rob
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public interface QBColumnCompare
 {
 
@@ -113,36 +110,5 @@ public interface QBColumnCompare
 	 */
 	@JSFunction
 	QBCondition eq(Object value);
-
-
-	/**
-	 * Compare column with a value or another column.
-	 * Operator: like
-	 *
-	 * @param pattern the string value of the pattern
-	 *
-	 * @sample
-	 * query.where.add(query.columns.companyname.like('Serv%'))
-	 *
-	 * // case-insensitive compares can be done using the upper (or lower) functions,
-	 * // this can be useful when using for example German letters like ß,
-	 * query.where.add(query.columns.companyname.upper.like(query.functions.upper('groß%')))
-	 */
-	@JSFunction
-	QBCondition like(Object pattern);
-
-	/**
-	 * Compare column with a value or another column.
-	 * Operator: like, with escape character
-	 *
-	 * @param pattern the string value of the pattern
-	 * @param escape the escape char
-	 *
-	 * @sample
-	 * query.where.add(query.columns.companyname.like('X_%', '_'))
-	 */
-	@JSFunction
-	QBCondition like(Object pattern, char escape);
-
 
 }

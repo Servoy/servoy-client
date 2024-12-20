@@ -70,15 +70,6 @@ public interface IQueryBuilderFunctions extends IQueryBuilderPart
 //	 */
 //	IQueryBuilderFunction abs(Object arg);
 //
-//	/**
-//	 * Create sqrt(column) expression
-//	 */
-//	IQueryBuilderFunction sqrt(Object arg);
-//
-//	/**
-//	 * Create lower(column) expression
-//	 */
-//	IQueryBuilderFunction lower(Object arg);
 //
 //	/**
 //	 * Create trim(column) expression
@@ -168,7 +159,7 @@ public interface IQueryBuilderFunctions extends IQueryBuilderPart
 //	/**
 //	 * Create hour(date) expression
 //	 */
-//	QBIntegerColumnBase hourragtest(Object date);
+//	QBIntegerColumnBase hour(Object date);
 //
 //	/**
 //	 * Create day(date) expression

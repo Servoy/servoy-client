@@ -97,42 +97,48 @@ public class QBColumnImpl extends QBPart
 		return getRoot().createOperand(value, querySelectValue.getColumnType(), querySelectValue.getFlags());
 	}
 
-
 	/////////////////////////////////////////////////////////
 	////////////// QBColumnCompare methods //////////////////
 	/////////////////////////////////////////////////////////
 
+	@Override
 	public QBCondition gt(Object value)
 	{
 		return createCompareCondition(IBaseSQLCondition.GT_OPERATOR, value);
 	}
 
+	@Override
 	public QBCondition lt(Object value)
 	{
 		return createCompareCondition(IBaseSQLCondition.LT_OPERATOR, value);
 	}
 
+	@Override
 	public QBCondition ge(Object value)
 	{
 		return createCompareCondition(IBaseSQLCondition.GTE_OPERATOR, value);
 	}
 
+	@Override
 	public QBCondition le(Object value)
 	{
 		return createCompareCondition(IBaseSQLCondition.LTE_OPERATOR, value);
 	}
 
+	@Override
 	public QBCondition between(Object value1, Object value2)
 	{
 		return createCondition(
 			new CompareCondition(IBaseSQLCondition.BETWEEN_OPERATOR, getQuerySelectValue(), new Object[] { createOperand(value1), createOperand(value2) }));
 	}
 
+	@Override
 	public QBCondition isin(QBPart query)
 	{
 		return createCompareCondition(IBaseSQLCondition.IN_OPERATOR, query);
 	}
 
+	@Override
 	public QBCondition isin(String customQuery, Object[] args)
 	{
 		return createCondition(
@@ -140,6 +146,7 @@ public class QBColumnImpl extends QBPart
 				new QueryCustomSelect(customQuery, args == null ? null : getRoot().createOperands(args, null, 0)), true));
 	}
 
+	@Override
 	public QBCondition isin(Object[] values)
 	{
 		IQuerySelectValue querySelectValue = getQuerySelectValue();
@@ -148,11 +155,140 @@ public class QBColumnImpl extends QBPart
 			true));
 	}
 
+	@Override
 	public QBCondition eq(Object value)
 	{
 		return createCompareCondition(IBaseSQLCondition.EQUALS_OPERATOR, value);
 	}
 
+
+	/////////////////////////////////////////////////////////
+	////////////// General QBColumn methods /////////////////
+	/////////////////////////////////////////////////////////
+
+	@Override
+	public QBColumn not()
+	{
+		return new QBColumnImpl(getRoot(), getParent(), getQuerySelectValue(), !negate);
+	}
+
+	@Override
+	public QBSort asc()
+	{
+		return new QBSort(getRoot(), this, true);
+	}
+
+	@Override
+	public QBSort desc()
+	{
+		return new QBSort(getRoot(), this, false);
+	}
+
+	@Override
+	public QBCountAggregate count()
+	{
+		return getRoot().aggregates().count(this);
+	}
+
+	@Override
+	public QBTextColumnBase concat(Object arg)
+	{
+		return getRoot().functions().concat(this, arg);
+	}
+
+	/////////////////////////////////////////////////////////
+	////////////// QBColumnRagtest methods /////////////////
+	/////////////////////////////////////////////////////////
+
+	@Override
+	public QBColumn avg()
+	{
+		return getRoot().aggregates().avg(this);
+	}
+
+	@Override
+	public QBColumn max()
+	{
+		return getRoot().aggregates().max(this);
+	}
+
+	@Override
+	public QBColumn min()
+	{
+		return getRoot().aggregates().min(this);
+	}
+
+	@Override
+	public QBColumn sum()
+	{
+		return getRoot().aggregates().sum(this);
+	}
+
+	@Override
+	public QBColumn nullif(Object arg)
+	{
+		return getRoot().functions().nullif(this, arg);
+	}
+
+	/////////////////////////////////////////////////////////
+	////////////// QBTextColumnBase methods /////////////////
+	/////////////////////////////////////////////////////////
+
+	@Override
+	public QBTextColumnBase upper()
+	{
+		return getRoot().functions().upper(this);
+	}
+
+	@Override
+	public QBTextColumnBase lower()
+	{
+		return getRoot().functions().lower(this);
+	}
+
+	@Override
+	public QBTextColumnBase trim()
+	{
+		return getRoot().functions().trim(this);
+	}
+
+	@Override
+	public QBIntegerColumnBase len()
+	{
+		return getRoot().functions().len(this);
+	}
+
+	@Override
+	public QBTextColumnBase substring(int pos)
+	{
+		return getRoot().functions().substring(this, pos);
+	}
+
+	@Override
+	public QBTextColumnBase substring(int pos, int len)
+	{
+		return getRoot().functions().substring(this, pos, len);
+	}
+
+	@Override
+	public QBIntegerColumnBase bit_length()
+	{
+		return getRoot().functions().bit_length(this);
+	}
+
+	@Override
+	public QBIntegerColumnBase locate(Object arg)
+	{
+		return getRoot().functions().locate(arg, this);
+	}
+
+	@Override
+	public QBIntegerColumnBase locate(Object arg, int start)
+	{
+		return getRoot().functions().locate(arg, this, start);
+	}
+
+	@Override
 	public QBCondition like(Object pattern)
 	{
 		if (pattern instanceof String)
@@ -163,6 +299,7 @@ public class QBColumnImpl extends QBPart
 		return createCompareCondition(IBaseSQLCondition.LIKE_OPERATOR, pattern);
 	}
 
+	@Override
 	public QBCondition like(Object pattern, char escape)
 	{
 		if (pattern instanceof String)
@@ -178,258 +315,123 @@ public class QBColumnImpl extends QBPart
 
 
 	/////////////////////////////////////////////////////////
-	////////////// General QBColumn methods /////////////////
-	/////////////////////////////////////////////////////////
-
-	public QBColumn not()
-	{
-		return new QBColumnImpl(getRoot(), getParent(), getQuerySelectValue(), !negate);
-	}
-
-	public QBSort asc()
-	{
-		return new QBSort(getRoot(), this, true);
-	}
-
-	public QBSort desc()
-	{
-		return new QBSort(getRoot(), this, false);
-	}
-
-	public QBCountAggregate count()
-	{
-		return getRoot().aggregates().count(this);
-	}
-
-	/////////////////////////////////////////////////////////
-	////////////// QBColumnRagtest methods /////////////////
-	/////////////////////////////////////////////////////////
-
-	public QBColumn avg()
-	{
-		return getRoot().aggregates().avg(this);
-	}
-
-	public QBColumn max()
-	{
-		return getRoot().aggregates().max(this);
-	}
-
-	public QBColumn min()
-	{
-		return getRoot().aggregates().min(this);
-	}
-
-	public QBColumn sum()
-	{
-		return getRoot().aggregates().sum(this);
-	}
-
-	public QBColumn nullif(Object arg)
-	{
-		return getRoot().functions().nullif(this, arg);
-	}
-
-	/////////////////////////////////////////////////////////
-	////////////// QBTextColumnBase methods /////////////////
-	/////////////////////////////////////////////////////////
-
-	public QBTextColumnBase upper()
-	{
-		return getRoot().functions().upper(this);
-	}
-
-	public QBTextColumnBase lower()
-	{
-		return getRoot().functions().lower(this);
-	}
-
-	public QBTextColumnBase trim()
-	{
-		return getRoot().functions().trim(this);
-	}
-
-	public QBIntegerColumnBase len()
-	{
-		return getRoot().functions().len(this);
-	}
-
-	public QBTextColumnBase substring(int pos)
-	{
-		return getRoot().functions().substring(this, pos);
-	}
-
-	public QBTextColumnBase substring(int pos, int len)
-	{
-		return getRoot().functions().substring(this, pos, len);
-	}
-
-	public QBIntegerColumnBase bit_length()
-	{
-		return getRoot().functions().bit_length(this);
-	}
-
-	public QBIntegerColumnBase locate(Object arg)
-	{
-		return getRoot().functions().locate(arg, this);
-	}
-
-	public QBIntegerColumnBase locate(Object arg, int start)
-	{
-		return getRoot().functions().locate(arg, this, start);
-	}
-
-	public QBTextColumnBase concat(Object arg)
-	{
-		return getRoot().functions().concat(this, arg);
-	}
-
-	/////////////////////////////////////////////////////////
 	////////////// QBColumnNumberRagtest methods /////////////////
 	/////////////////////////////////////////////////////////
 
+	@Override
 	public QBColumn abs()
 	{
 		return (QBColumn)getRoot().functions().abs(this);
 	}
 
+	@Override
 	public QBNumberColumnBase sqrt()
 	{
 		return getRoot().functions().sqrt(this);
 	}
 
+	@Override
 	public QBColumn mod(Object arg)
 	{
 		return (QBColumn)getRoot().functions().mod(this, arg);
 	}
 
+	@Override
 	public QBNumberColumnBase plus(Object arg)
 	{
 		return getRoot().functions().plus(this, arg);
 	}
 
+	@Override
 	public QBNumberColumnBase minus(Object arg)
 	{
 		return getRoot().functions().minus(this, arg);
 	}
 
+	@Override
 	public QBNumberColumnBase multiply(Object arg)
 	{
 		return getRoot().functions().multiply(this, arg);
 	}
 
+	@Override
 	public QBNumberColumnBase divide(Object arg)
 	{
 		return getRoot().functions().divide(this, arg);
 	}
 
+	@Override
+	public QBColumn cast(String type)
+	{
+		return getRoot().functions().cast(this, type);
+	}
 
-//	/**
-//	 * Create cast(column, type) expression
-//	 * @param type string type, see QUERY_COLUMN_TYPES
-//	 * @sample
-//	 * query.result.add(query.columns.mycol.cast(QUERY_COLUMN_TYPES.TYPE_INTEGER))
-//	 */
-//	@JSFunction
-//	public QBFunction cast(String type)
-//	{
-//		return getRoot().functions().cast(this, type);
-//	}
-//
 	/////////////////////////////////////////////////////////
 	////////////// QBNumberColumnBase methods ///////////////
 	/////////////////////////////////////////////////////////
 
+	@Override
 	public QBIntegerColumnBase floor()
 	{
 		return getRoot().functions().floor(this);
 	}
 
-//	/**
-//	 * Create round(column) expression
-//	 * @sample
-//	 * query.result.add(query.columns.mycol.round)
-//	 */
-//	@JSReadonlyProperty
-//	public QBFunction round()
-//	{
-//		return getRoot().functions().round(this);
-//	}
-//
-//	/**
-//	 * Create ceil(column) expression
-//	 * @sample
-//	 * query.result.add(query.columns.mycol.ceil)
-//	 */
-//	@JSReadonlyProperty
-//	public QBFunction ceil()
-//	{
-//		return getRoot().functions().ceil(this);
-//	}
-//
-//	/**
-//	 * Extract second from date
-//	 * @sample
-//	 * query.result.add(query.columns.mydatecol.second)
-//	 */
-//	@JSReadonlyProperty
-//	public QBFunction second()
-//	{
-//		return getRoot().functions().second(this);
-//	}
-//
-//	/**
-//	 * Extract minute from date
-//	 * @sample
-//	 * query.result.add(query.columns.mydatecol.minute)
-//	 */
-//	@JSReadonlyProperty
-//	public QBFunction minute()
-//	{
-//		return getRoot().functions().minute(this);
-//	}
-//
-	//@JSIgnore // RAGTEST doc
 	@Override
-	public QBIntegerColumnBase hourragtest()
+	public QBIntegerColumnBase round()
 	{
-		return getRoot().functions().hourragtest(this);
+		return getRoot().functions().round(this);
+	}
+
+	@Override
+	public QBIntegerColumnBase ceil()
+	{
+		return getRoot().functions().ceil(this);
+	}
+
+	/////////////////////////////////////////////////////////
+	////////////// QBNumberColumnBase methods ///////////////
+	/////////////////////////////////////////////////////////
+
+	@Override
+	public QBIntegerColumnBase hour()
+	{
+		return getRoot().functions().hour(this);
+	}
+
+	@Override
+	public QBIntegerColumnBase second()
+	{
+		return getRoot().functions().second(this);
+	}
+
+	@Override
+	public QBIntegerColumnBase minute()
+	{
+		return getRoot().functions().minute(this);
+	}
+
+	@Override
+	public QBIntegerColumnBase day()
+	{
+		return getRoot().functions().day(this);
+	}
+
+	@Override
+	public QBIntegerColumnBase month()
+	{
+		return getRoot().functions().month(this);
+	}
+
+	@Override
+	public QBIntegerColumnBase year()
+	{
+		return getRoot().functions().year(this);
 	}
 
 
-//	/**
-//	 * Extract day from date
-//	 * @sample
-//	 * query.result.add(query.columns.mydatecol.day)
-//	 */
-//	@JSReadonlyProperty
-//	public QBFunction day()
-//	{
-//		return getRoot().functions().day(this);
-//	}
-//
-//	/**
-//	 * Extract month from date
-//	 * @sample
-//	 * query.result.add(query.columns.mydatecol.month)
-//	 */
-//	@JSReadonlyProperty
-//	public QBFunction month()
-//	{
-//		return getRoot().functions().month(this);
-//	}
-//
-//	/**
-//	 * Extract year from date
-//	 * @sample
-//	 * query.result.add(query.columns.mydatecol.year)
-//	 */
-//	@JSReadonlyProperty
-//	public QBFunction year()
-//	{
-//		return getRoot().functions().year(this);
-//	}
-
+	/////////////////////////////////////////////////////////
+	//////////////////// General methods ////////////////////
+	/////////////////////////////////////////////////////////
 	@Override
 	public BaseColumnType getColumnType()
 	{

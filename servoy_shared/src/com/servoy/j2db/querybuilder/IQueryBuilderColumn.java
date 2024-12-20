@@ -192,22 +192,7 @@ public interface IQueryBuilderColumn extends IQueryBuilderPart
 //	 * Create abs(column) expression
 //	 */
 //	IQueryBuilderFunction abs();
-//
-//	/**
-//	 * Create sqrt(column) expression
-//	 */
-//	IQueryBuilderFunction sqrt();
-//
-//	/**
-//	 * Create lower(column) expression
-//	 */
-//	IQueryBuilderFunction lower();
-//
-//	/**
-//	 * Create trim(column) expression
-//	 */
-//	IQueryBuilderFunction trim();
-//
+
 //	/**
 //	 * Create length(column) expression
 //	 */

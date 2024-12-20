@@ -17,7 +17,6 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.QueryAggregate;
 
@@ -46,7 +45,6 @@ import com.servoy.j2db.query.QueryAggregate;
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBAggregate")
 public class QBAggregateImpl extends QBColumnImpl implements QBCountAggregate
 {
 	private final int aggregateType;

@@ -68,8 +68,7 @@ public final class QueryFunction implements IQuerySelectValue
 		round,
 		ceil,
 
-		// slightly abused as function
-		distinct,
+		distinct, // slightly abused as function
 		plus,
 		minus,
 		multiply,

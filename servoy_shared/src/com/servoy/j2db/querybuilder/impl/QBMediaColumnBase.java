@@ -25,7 +25,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rob
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBDatetimeColumn")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBMediaColumnBase") // RAGTEST wel nodig
 public interface QBMediaColumnBase
 {
 	/**

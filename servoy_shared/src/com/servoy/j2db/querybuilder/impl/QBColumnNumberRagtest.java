@@ -28,7 +28,6 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  */
 public interface QBColumnNumberRagtest<T>
 {
-
 	/**
 	 * Create abs(column) expression
 	 * @sample
@@ -91,5 +90,27 @@ public interface QBColumnNumberRagtest<T>
 	 */
 	@JSFunction
 	public QBNumberColumnBase divide(Object arg);
+
+	/**
+	 * Create an aggregate sum expression.
+	 * @sample
+	 * 	var query = datasources.db.example_data.orders.createSelect();
+	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
+	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.sum.gt(100))
+	 * 	foundset.loadRecords(query)
+	 */
+	@JSReadonlyProperty
+	T sum();
+
+	/**
+	 * Create an aggregate average expression.
+	 * @sample
+	 * 	var query = datasources.db.example_data.orders.createSelect();
+	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
+	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.avg.eq(1))
+	 * 	foundset.loadRecords(query)
+	 */
+	@JSReadonlyProperty
+	T avg();
 
 }

@@ -51,17 +51,6 @@ public interface QBColumnRagtest<T>
 	T max();
 
 	/**
-	 * Create an aggregate average expression.
-	 * @sample
-	 * 	var query = datasources.db.example_data.orders.createSelect();
-	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
-	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.avg.eq(1))
-	 * 	foundset.loadRecords(query)
-	 */
-	@JSReadonlyProperty
-	T avg();
-
-	/**
 	 * Create nullif(arg) expression
 	 * @param arg object to compare
 	 * @sample

@@ -49,7 +49,7 @@ import com.servoy.j2db.util.Pair;
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBCase")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBCase extends QBPart implements IQueryBuilderCase
 {
 	private final List<Pair<QBCondition, Object>> whenThen = new ArrayList<>();

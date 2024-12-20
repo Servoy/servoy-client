@@ -35,6 +35,45 @@ public interface QBDatetimeColumnBase
 	 * query.result.add(query.columns.mydatecol.hour)
 	 */
 	@JSReadonlyProperty
-	QBIntegerColumnBase hourragtest();
+	QBIntegerColumnBase hour();
 
+	/**
+	 * Extract second from date
+	 * @sample
+	 * query.result.add(query.columns.mydatecol.second)
+	 */
+	@JSReadonlyProperty
+	public QBIntegerColumnBase second();
+
+	/**
+	 * Extract minute from date
+	 * @sample
+	 * query.result.add(query.columns.mydatecol.minute)
+	 */
+	@JSReadonlyProperty
+	public QBIntegerColumnBase minute();
+
+	/**
+	 * Extract day from date
+	 * @sample
+	 * query.result.add(query.columns.mydatecol.day)
+	 */
+	@JSReadonlyProperty
+	public QBIntegerColumnBase day();
+
+	/**
+	 * Extract month from date
+	 * @sample
+	 * query.result.add(query.columns.mydatecol.month)
+	 */
+	@JSReadonlyProperty
+	public QBIntegerColumnBase month();
+
+	/**
+	 * Extract year from date
+	 * @sample
+	 * query.result.add(query.columns.mydatecol.year)
+	 */
+	@JSReadonlyProperty
+	public QBIntegerColumnBase year();
 }
