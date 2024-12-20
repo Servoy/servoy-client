@@ -1491,13 +1491,14 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 	}
 
-	private class NestedRelatedListener implements ListSelectionListener
+	private class NestedRelatedListener implements ListSelectionListener, IFoundSetEventListener
 	{
 		private final String innerRelationName;
 		private IFoundSetInternal relatedFoundset;
 		private final IWebFormController formController;
 		private final String fullRelationName;
 		private final DataAdapterList dal;
+		private IRecordInternal selectedRecord;
 
 		/**
 		 * @param related
@@ -1522,6 +1523,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					{
 						((ISwingFoundSet)this.relatedFoundset).getSelectionModel().addListSelectionListener(this);
 					}
+					selectedRecord = this.relatedFoundset.getRecord(this.relatedFoundset.getSelectedIndex());
+					this.relatedFoundset.addFoundSetEventListener(this);
+
 				}
 			}
 		}
@@ -1534,7 +1538,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				{
 					((ISwingFoundSet)this.relatedFoundset).getSelectionModel().removeListSelectionListener(this);
 				}
+				this.relatedFoundset.removeFoundSetEventListener(this);
 				this.relatedFoundset = null;
+				this.selectedRecord = null;
 			}
 		}
 
@@ -1556,6 +1562,15 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			{
 				formController
 					.loadRecords(this.dal.getRecord().getRelatedFoundSet(fullRelationName, ((BasicFormController)formController).getDefaultSortColumns()));
+			}
+		}
+
+		@Override
+		public void foundSetChanged(FoundSetEvent e)
+		{
+			if (this.relatedFoundset != null && this.relatedFoundset.getRecord(this.relatedFoundset.getSelectedIndex()) != this.selectedRecord)
+			{
+				reloadRecords();
 			}
 		}
 	}
