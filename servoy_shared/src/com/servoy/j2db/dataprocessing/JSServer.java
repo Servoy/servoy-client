@@ -26,8 +26,22 @@ import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.util.Debug;
 
 /**
- * JSServer represents a DB Server object - when using the maintenance plugin.
+ * <p>
+ * The <code>JSServer</code> class represents a database server object and is commonly accessed through
+ * the Servoy maintenance plugin. It provides methods to interact with a database server, allowing developers
+ * to create, modify, and remove tables dynamically. Through <code>JSServer</code>, developers can synchronize
+ * table definitions with the database, reload the database model to reflect changes made externally, and
+ * retrieve or validate the current state of the database server.
+ * </p>
  *
+ * <h2>Functionality</h2>
+ * <p>
+ * Developers can create new tables with specified columns, retrieve existing tables, or drop them entirely.
+ * Tables can be synchronized with the database, enabling changes to column definitions or metadata.
+ * Additionally, the class supports reloading the server's data model to capture external modifications,
+ * such as those made through raw SQL operations. Utility methods allow retrieval of all table names on the
+ * server and verification of the server's validity for use.
+ * </p>
  * @author jblok
  * @see IServer
  */

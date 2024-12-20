@@ -22,8 +22,26 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 import com.servoy.j2db.ui.runtime.IRuntimeComponent;
 
 /**
- * "elements" is a top level property of form scopes at runtime that gives access to all available elements on that form, by name.
+ * <p>
+ * The <code>elements</code> property is a top-level runtime feature in form scopes that provides access
+ * to all elements of a form. It allows for interaction with elements either by their names or by their indices.
+ * This property is versatile, offering methods to retrieve the names of all form elements as an array and
+ * to fetch elements individually.
+ * </p>
  *
+ * <h2>Features</h2>
+ * <p>
+ * The <code>elements</code> property offers access to elements through two main methods: indexed by name
+ * or by position. An array of all element names is accessible via the <code>allnames</code> property, and
+ * the total number of elements can be determined using the <code>length</code> property. These capabilities
+ * allow for dynamic interaction with form elements at runtime, enhancing flexibility in customizing and
+ * managing forms.
+ * </p>
+ *
+ * <p>
+ * The property is universally supported across multiple clients, including Mobile, Web, Smart, and NG
+ * Client environments, making it a powerful tool in Servoy applications.
+ * </p>
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "elements", scriptingName = "elements")

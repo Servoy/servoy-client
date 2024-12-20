@@ -19,7 +19,9 @@ package com.servoy.j2db.ui.runtime;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Interface for RuntimeCombobox element.
+ * The <code>IRuntimeCombobox</code> interface provides scripting support for runtime combobox elements in Servoy,
+ * extending <code>IRuntimeInputComponent</code>, <code>HasRuntimeFormat</code>, and <code>HasRuntimeValuelist</code>
+ * for input, formatting, and valuelist functionalities.
  *
  * @author lvostinar
  * @since 6.1

@@ -21,7 +21,7 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.ui.runtime.IRuntimeSplitPane;
 
 /**
- * Scripting interface for RuntimeSplitPane.
+ * The <code>IScriptSplitPaneMethods</code> is a scripting interface for RuntimeSplitPane.
  * Combines (deprecated) script methods and java api ({@link IRuntimeSplitPane}).
  *
  * @author gboros

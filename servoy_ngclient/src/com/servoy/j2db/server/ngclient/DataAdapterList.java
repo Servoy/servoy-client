@@ -104,6 +104,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private Map<IDataLinkedPropertyValue, Pair<Relation[], List<RelatedListener>>> toWatchRelations;
 	private DLPropertyValueFoundsetFoundsetListener maxRecIndexPropertyValueListener;
 	private final Map<String, List<Pair<String, String>>> lookupDependency = new HashMap<String, List<Pair<String, String>>>();
+	private final List<NestedRelatedListener> nestedRelatedFoundsetListeners = new ArrayList<NestedRelatedListener>();
 
 	private IRecordInternal record;
 	private boolean findMode = false;
@@ -403,33 +404,28 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 		if (relation != null)
 		{
-			HashMap<IWebFormController, String> childFormsCopy = getVisibleChildFormCopy();
-			for (Entry<IWebFormController, String> relatedFormEntry : childFormsCopy.entrySet())
+			Relation[] relations = formController.getApplication().getFlattenedSolution().getRelationSequence(relation);
+			if (relations != null)
 			{
-				IWebFormController relatedForm = relatedFormEntry.getKey();
-				String relatedFormRelation = relatedFormEntry.getValue();
-				if (relatedFormRelation != null)
+				if (relations.length > 1)
 				{
-					if (relatedFormRelation.startsWith(relation + ".") && relatedFormRelation.length() > relation.length())
+					IRecordInternal current = this.record;
+					for (int i = 0; i < relations.length - 1; i++)
 					{
-						if (!containsForm(form.getFormUI(), relatedForm.getFormUI()))
+						Relation element = relations[i];
+						if (element == null) break;
+						IFoundSetInternal relatedFoundset = current.getRelatedFoundSet(element.getName());
+						if (relatedFoundset != null)
 						{
-							form.getFormUI().getDataAdapterList().addVisibleChildForm(relatedForm, relatedFormRelation.substring(relation.length() + 1), false);
+							// if selection changes or the current record changes then an update should happen.
+							nestedRelatedFoundsetListeners.add(new NestedRelatedListener(relatedFoundset, form, relation, this));
+							current = relatedFoundset.getRecord(relatedFoundset.getSelectedIndex());
+							if (current == null) break;
 						}
-					}
-					else if (relation.startsWith(relatedFormRelation + ".") && relation.length() > relatedFormRelation.length())
-					{
-						if (!containsForm(relatedForm.getFormUI(), form.getFormUI()))
-						{
-							relatedForm.getFormUI().getDataAdapterList().addVisibleChildForm(form, relation.substring(relatedFormRelation.length() + 1), false);
-						}
+						else break;
 					}
 				}
-			}
-			if (!isGlobalScopeListener)
-			{
-				Relation[] relations = formController.getApplication().getFlattenedSolution().getRelationSequence(relation);
-				if (relations != null)
+				if (!isGlobalScopeListener)
 				{
 					for (Relation relationObj : relations)
 					{
@@ -464,6 +460,10 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			{
 				((IWebFormController)relWFC).getFormUI().getDataAdapterList().removeVisibleChildForm(form, false);
 			}
+			this.nestedRelatedFoundsetListeners.stream()
+				.filter(listener -> Utils.equalObjects(form, listener.formController))
+				.forEach(nestedRelatedListener -> nestedRelatedListener.dispose());
+			this.nestedRelatedFoundsetListeners.removeIf(listener -> Utils.equalObjects(form, listener.formController));
 		}
 	}
 
@@ -1266,6 +1266,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 		if (!b)
 		{
+			clearNestedRelatedFoundsetListeners();
 			visibleChildForms.clear();
 		}
 	}
@@ -1343,11 +1344,21 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				er.getScopesScope().getModificationSubject().removeModificationListener(this);
 			}
 		}
+		clearNestedRelatedFoundsetListeners();
 		dataProviderToLinkedComponentProperty.clear();
 		allComponentPropertiesLinkedToData.clear();
 		findModeAwareProperties.clear();
 		parentRelatedForms.clear();
 		visibleChildForms.clear();
+	}
+
+	public void clearNestedRelatedFoundsetListeners()
+	{
+		for (NestedRelatedListener listener : nestedRelatedFoundsetListeners)
+		{
+			listener.dispose();
+		}
+		nestedRelatedFoundsetListeners.clear();
 	}
 
 	@Override
@@ -1473,6 +1484,43 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			{
 				changed();
 			}
+		}
+	}
+
+	private class NestedRelatedListener implements ListSelectionListener
+	{
+		private final IFoundSetInternal relatedFoundset;
+		private final IWebFormController formController;
+		private final String relation;
+		private final DataAdapterList dal;
+
+		/**
+		 * @param related
+		 */
+		public NestedRelatedListener(IFoundSetInternal relatedFoundset, IWebFormController formController, String relation, DataAdapterList dal)
+		{
+			this.relatedFoundset = relatedFoundset;
+			this.formController = formController;
+			this.relation = relation;
+			this.dal = dal;
+			if (this.relatedFoundset instanceof ISwingFoundSet)
+			{
+				((ISwingFoundSet)this.relatedFoundset).getSelectionModel().addListSelectionListener(this);
+			}
+		}
+
+		public void dispose()
+		{
+			if (this.relatedFoundset instanceof ISwingFoundSet)
+			{
+				((ISwingFoundSet)this.relatedFoundset).getSelectionModel().removeListSelectionListener(this);
+			}
+		}
+
+		@Override
+		public void valueChanged(ListSelectionEvent e)
+		{
+			formController.loadRecords(this.dal.getRecord().getRelatedFoundSet(relation, ((BasicFormController)formController).getDefaultSortColumns()));
 		}
 	}
 }

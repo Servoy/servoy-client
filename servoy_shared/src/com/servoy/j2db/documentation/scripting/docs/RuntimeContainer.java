@@ -22,7 +22,14 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * A layout container's runtime API - it can be accessed via "containers.myContainersName." in form scopes.
+ * <p>The <code>RuntimeContainer</code> class is designed to manage the styling of a container in a dynamic environment.
+ * One of its primary functions is to modify the visual appearance of the container by adding or removing style classes.
+ * This functionality allows for flexibility in managing the container’s style dynamically during runtime.</p>
+ *
+ * <p>Additionally, the class provides methods to check for specific set of style classes in the container.
+ * This can be particularly useful for making conditional styling decisions based on the container's current style state.</p>
+ *
+ * <p>For more granular control over the container's appearance, the <code>setCSSStyle()</code> and <code>removeCSSStyle()</code> methods may be used.</p>
  *
  * @author jcompagner
  * @since 2019.12

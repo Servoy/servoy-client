@@ -33,7 +33,22 @@ import com.servoy.j2db.scripting.IConstantsObject;
 import com.servoy.j2db.scripting.IReturnedTypesProvider;
 
 /**
- * The ServoyException object. The constants that it provides document the scenarios when such an exception can be raised.
+ * The <code>ServoyException</code> class is a specialized exception handling mechanism for the Servoy runtime environment.
+ * It offers extensive support for identifying and managing errors through predefined constants representing various scenarios,
+ * such as database deadlocks, permission issues, and validation failures. The class is designed to provide meaningful context
+ * and feedback for debugging and runtime operations.
+ *
+ * ## Functionality and Features
+ * The class defines a comprehensive set of constants categorized by error type, including database integrity violations,
+ * SQL syntax errors, and application-level access control issues. It enables runtime systems to determine error codes and
+ * retrieve corresponding human-readable messages, facilitating informed decision-making during error handling. Methods like
+ * <code>js_getErrorCode</code> and <code>js_getMessage</code> provide structured access to error information, while the
+ * <code>js_getStackTrace</code> method supports detailed debugging through stack trace retrieval.
+ *
+ * Additionally, the class integrates with <code>RhinoException</code> to generate JavaScript stack traces, ensuring compatibility
+ * with Servoy's scripting environment. This functionality supports scenarios where the cause of the error is a JavaScript exception,
+ * allowing integration between Java and JavaScript layers. Other features include support for custom contexts, logging capabilities,
+ * and tools for managing cascading exceptions in a multi-layered application environment.
  *
  * @author jblok
  */

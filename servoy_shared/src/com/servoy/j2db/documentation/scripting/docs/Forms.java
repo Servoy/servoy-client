@@ -22,9 +22,20 @@ import com.servoy.j2db.scripting.FormScope;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * Forms object. Available as "<code>forms.</code>" in scripting.<br/>
- * It gives easy access to (and code completion for) the solution's forms.
+ * <p>
+ * The <code>Forms</code> object serves as a scripting entry point to access all forms within a solution
+ * at runtime. It enables developers to retrieve form names, manipulate loaded forms, and interact with
+ * specific form instances. Accessible via <code>forms.&lt;formName&gt;</code>, it simplifies navigation and
+ * operations on forms while supporting code completion.
+ * </p>
  *
+ * <h2>Key Features</h2>
+ * <p>
+ * The <code>Forms</code> object provides access to all form names in the current solution, allowing iteration
+ * or direct access to forms using their names. Developers can determine the number of forms loaded into memory
+ * or interact with a form instance to manage its elements, controller, and variables. It is particularly helpful
+ * for dynamic form manipulation and integration with scripting workflows in Servoy applications.
+ * </p>
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "Forms", scriptingName = "forms")

@@ -22,8 +22,31 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * The old "globals" scope. It use to be the only global scope that could hold global variables/methods until multiple
- * global scopes were introduced via "scopes.myScopeName".
+ * <p>
+ * The <code>globals</code> object represents the original global scope in Servoy, used to store global
+ * variables, methods, and relations. Historically, it was the only global scope available before the
+ * introduction of multiple global scopes via <code>scopes.myScopeName</code>. Although still functional,
+ * its usage has been largely superseded by the more flexible and modular <code>scopes</code> mechanism.
+ * </p>
+ *
+ * <h2>Key Features</h2>
+ * <ul>
+ *   <li>
+ *     Provides access to all global variables (<code>allvariables</code>), methods (<code>allmethods</code>),
+ *     and relations (<code>allrelations</code>) defined in the solution. These are now deprecated in favor
+ *     of more specific solution model methods like
+ *     <code>solutionModel.getGlobalVariables(scopeName)</code>.
+ *   </li>
+ *   <li>
+ *     Includes support for the <code>currentcontroller</code>, which references the controller of the
+ *     top-level form in the active dialog.
+ *   </li>
+ * </ul>
+ *
+ * <p>
+ * The <code>globals</code> object remains part of the runtime for legacy support but encourages migration
+ * to the <code>scopes</code> API for modern solutions.
+ * </p>
  *
  * @author gerzse
  */

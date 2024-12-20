@@ -20,7 +20,11 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Javascript statements.
+ * <p>The <code>Statements</code> class provides essential control flow and error-handling structures for JavaScript.
+ * It enables managing loops with various conditions, , decision-making and handling errors.</p>
+ *
+ * <p>The class also supports declaring variables with <code>js_flow_var()</code> and constants with <code>js_flow_const()</code>, offering flexibility
+ * in managing data within the code.</p>
  *
  * @author gerzse
  */

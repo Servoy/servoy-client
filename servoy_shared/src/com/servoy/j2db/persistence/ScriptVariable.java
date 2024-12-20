@@ -35,7 +35,21 @@ import com.servoy.j2db.util.Utils;
 
 
 /**
- * A script variable used either in a global scope under solution or as a form variable.
+ * The <code>ScriptVariable</code> class is used either in a global scope under solution or as a form variable within the Servoy environment.
+ * It allows for defining and managing variables with properties such as name, scope, and type.
+ * The class supports various functionalities, including setting and retrieving the variable’s name and scope with methods like
+ * <code>setName()</code> and <code>getScopeName()</code>. It also provides the ability to manage the variable's default value using
+ * <code>setDefaultValue()</code> and <code>getDefaultValue()</code>, along with calculating its initial value through the <code>getInitValue()</code> method.
+ *
+ * <p>The class handles the type of the variable, ensuring it is correctly set and validated with <code>setVariableType()</code> and <code>getVariableType()</code>.
+ * It can also generate string representations of the variable providing useful metadata like type and default value in an HTML format.</p>
+ *
+ * <p>Additionally, <code>ScriptVariable</code> supports various annotations which are checked using methods like <code>isPrivate()</code>,
+ * <code>isPublic()</code>, and <code>isDeprecated()</code>. The class also includes functionality for handling custom properties, such as a keyword
+ * with <code>getKeyword()</code> and <code>setKeyword()</code>.</p>
+ *
+ * <p>In essence, the <code>ScriptVariable</code> class offers a comprehensive solution for defining and managing variables in the Servoy environment,
+ * providing flexibility for visibility, scope, and customization.</p>
  *
  * @author jblok
  */

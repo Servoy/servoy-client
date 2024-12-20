@@ -25,6 +25,8 @@ import com.servoy.j2db.persistence.LayoutContainer;
 import com.servoy.j2db.util.UUID;
 
 /**
+ * Dummy class for use in the documentation generator.
+ *
  * @author lvostinar
  *
  */

@@ -27,7 +27,23 @@ import com.servoy.j2db.util.PersistHelper;
 import com.servoy.j2db.util.UUID;
 
 /**
- * One Tab from a tabpanel
+ * <p>The <code>Tab</code> class represents a tab within a tab panel in the Servoy environment. It allows for defining and managing various properties
+ * of the tab, including its <code>name</code>, <code>text</code>, and <code>tooltip</code>, as well as its visual aspects such as <code>foreground</code>
+ * and <code>background</code> colors. The class also provides functionality for managing the location and size of the tab, with default values if not set.
+ * The tab can be associated with a form through the <code>containsFormID</code> property and can reference a related form via the <code>relationName</code>
+ * property.</p>
+ *
+ * <p>One of the key features of the <code>Tab</code> class is its ability to manage a variety of configuration properties, such as whether the tab uses a
+ * new form instance or whether it is locked. It also supports advanced features like setting and retrieving the <code>mnemonic</code> for tab switching,
+ * and defining groupings through the <code>groupID</code> property. The class also provides methods for cloning a tab, copying essential properties like
+ * its size and location.</p>
+ *
+ * <p>For visual representation, the tab can have an associated <code>imageMediaID</code>, defining which image file is used for the tab's icon. Additionally,
+ * it supports legacy features such as background and foreground color management, though the background color feature is deprecated. The <code>Tab</code> class
+ * provides detailed metadata and configuration options for tab panels, enabling flexible UI design and control.</p>
+ *
+ * <p>In essence, the <code>Tab</code> class is crucial for managing the presentation and behavior of tabs within the Servoy environment, offering control
+ * over layout, style, and functionality.</p>
  *
  * @author jblok
  * @deprecated

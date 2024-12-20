@@ -141,7 +141,15 @@ html, body {
     border-radius: @border-radius;
 }
 
-.btn-default {
+.btn-default,
+.tempus-dominus-widget.dark, 
+.tempus-dominus-widget.light,
+.tempus-dominus-widget.dark .date-container-days .dow,
+.tempus-dominus-widget.light .date-container-days .dow,
+.tempus-dominus-widget.dark .date-container-days .cw:first-child,
+.tempus-dominus-widget.light .date-container-days .cw:first-child,
+.tempus-dominus-widget.dark .date-container-decades div:not(.no-highlight).old,
+.tempus-dominus-widget.light .date-container-decades div:not(.no-highlight).old {
     color: @text-color;
 }
 
@@ -1066,17 +1074,15 @@ data-servoyextra-fontawesome > div {
 
 .bts-extra-navbar.bts-navbar-default .navbar-nav > li > a,
 .bts-extra-navbar.bts-navbar-default .navbar-nav .dropdown-menu > .dropdown-item,
-.bts-extra-navbar.bts-navbar-default .navbar-nav .dropdown-menu > .dropdown-item:active,
-.bts-extra-navbar.bts-navbar-default .navbar-nav .dropdown-menu > .dropdown-item:hover, 
+.bts-extra-navbar.bts-navbar-default .navbar-nav .dropdown-menu > .dropdown-item.active, 
 .bts-extra-navbar.bts-navbar-default .navbar-nav .dropdown-menu > .dropdown-item:focus
  {
     background-color: @navbar-bg;
     color: @navbar-text-color;
 }
 
-.bts-extra-navbar.bts-navbar-default .navbar-nav .dropdown-menu > .dropdown-item,
-.bts-extra-navbar.bts-navbar-default .navbar-nav .dropdown-menu > .dropdown-item:active,
-.bts-extra-navbar.bts-navbar-default .navbar-nav .dropdown-menu > .dropdown-item:hover, 
+.bts-extra-navbar.bts-navbar-default .navbar-nav li.active > a,
+.bts-extra-navbar.bts-navbar-default .navbar-nav .dropdown-menu > .dropdown-item.active, 
 .bts-extra-navbar.bts-navbar-default .navbar-nav .dropdown-menu > .dropdown-item:focus {
     background-color: @navbar-active-bg;
     color: @navbar-active-text-color;
@@ -1085,11 +1091,14 @@ data-servoyextra-fontawesome > div {
     border-style: solid;
 }
 
-.bts-extra-navbar.bts-navbar-default .dropdown-menu  {
-    background-color: @navbar-bg;
-    color: @navbar-text-color;
+.bts-extra-navbar.bts-navbar-default .navbar-nav .dropdown-menu,
+.bts-extra-navbar.bts-navbar-default .navbar-nav .dropdown-menu > .dropdown-item,
+.bts-extra-navbar.bts-navbar-default .navbar-nav .dropdown-menu > .dropdown-item:hover  {
+    background-color: @navbar-dropdown-bg;
+    color: @navbar-dropdown-text-color;
 }
 
+.bts-extra-navbar.bts-navbar-default .navbar-nav > li > a:hover,
 .bts-extra-navbar.bts-navbar-default .navbar-nav .dropdown-menu > .dropdown-item:hover, 
 .bts-extra-navbar.bts-navbar-default .navbar-nav .dropdown-menu > .dropdown-item:focus {
     background-color: @navbar-bg-highlighted;

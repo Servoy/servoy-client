@@ -67,8 +67,28 @@ import com.servoy.j2db.util.WrappedObjectReference;
 
 
 /**
- * A dataset object. You can use it to work with data structured as rows and columns - but the data itself is created
- * at runtime without the need for it to be linked directly both ways to a datasource (so it is different in that way from a foundset).
+ * <p>
+ * A <code>JSDataSet</code> is a runtime object in Servoy designed to work with data organized in rows
+ * and columns. Unlike foundsets, it operates independently of persistent datasources, allowing developers
+ * to create and manipulate temporary datasets dynamically. This flexibility makes it ideal for handling
+ * transient data at runtime without requiring direct database connectivity.
+ * </p>
+ *
+ * <h2>Core Functionality</h2>
+ * <p>
+ * The <code>JSDataSet</code> supports a range of operations for managing data. Developers can add, remove,
+ * and retrieve rows and columns or set specific values within the dataset. For enhanced usability, the object
+ * provides methods to sort rows by column values or through custom comparator functions, enabling advanced
+ * data handling logic. Additionally, the dataset can be exported into formats such as HTML tables or delimited
+ * text, supporting customized data representation and integration with other Servoy features.
+ * </p>
+ *
+ * <p>
+ * Temporary datasources can also be created from datasets, allowing them to be reused in forms, scripts,
+ * or even foundsets. This capability ensures the flow between runtime data generation and persistent
+ * application components. The <code>JSDataSet</code> is particularly effective for scenarios requiring transient
+ * data manipulation, such as on-the-fly calculations or data processing pipelines.
+ * </p>
  *
  * @author jblok
  */

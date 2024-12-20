@@ -21,8 +21,9 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Interface for RuntimeListBox component.
- * 
+ * The <code>IRuntimeListBox</code> interface supports scripting for runtime list box components in Servoy,
+ * combining functionalities for fields, read-only mode, scrolling, and valuelist items.
+ *
  * @author lvostinar
  * @since 6.1
  */

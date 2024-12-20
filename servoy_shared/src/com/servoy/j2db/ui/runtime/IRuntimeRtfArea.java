@@ -20,7 +20,9 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Interface for RuntimeRtfArea component.
+ * The <code>IRuntimeRtfArea</code> interface enables scripting for runtime RTF area components in Servoy,
+ * extending <code>IRuntimeTextEditor</code> for text editing functionalities.
+ *
  * @author rgansevles
  * @since 6.1
  */

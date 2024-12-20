@@ -132,8 +132,9 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	}
 
 	/**
-	 * 
+	 *
 	 */
+	@Override
 	protected void notifyChanged()
 	{
 		this.parentMenu.notifyChanged();
@@ -286,25 +287,32 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	@JSFunction
 	public Object getExtraProperty(String categoryName, String propertyName)
 	{
-		if (extraProperties.containsKey(categoryName))
+		if (extraProperties != null && extraProperties.containsKey(categoryName))
 		{
 			return extraProperties.get(categoryName).get(propertyName);
 		}
 		return null;
 	}
 
+	/**
+	 * Sets an extra property value (property must be present in the component spec).
+	 *
+	 * @sample menuItem.setExtraProperty('Sidenav','formName','myform');
+	 */
+	@JSFunction
 	public void setExtraProperty(String categoryName, String propertyName, Object value)
 	{
-		if (extraProperties.containsKey(categoryName))
+		if (extraProperties == null)
 		{
-			Map<String, Object> propertiesMap = extraProperties.get(categoryName);
-			if (propertiesMap == null)
-			{
-				propertiesMap = new HashMap<String, Object>();
-				extraProperties.put(categoryName, propertiesMap);
-			}
-			propertiesMap.put(propertyName, value);
+			extraProperties = new HashMap<String, Map<String, Object>>();
 		}
+		Map<String, Object> propertiesMap = extraProperties.get(categoryName);
+		if (propertiesMap == null)
+		{
+			propertiesMap = new HashMap<String, Object>();
+			extraProperties.put(categoryName, propertiesMap);
+		}
+		propertiesMap.put(propertyName, value);
 	}
 
 	/**

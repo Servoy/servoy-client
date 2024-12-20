@@ -22,29 +22,29 @@ import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Special operators.
+ * <p>The <code>SpecialOperators</code> class Returns the type of the given object, one of these strings get returned:
+ * <code>number</code>, <code>string</code>, <code>boolean</code>, <code>object</code>, <code>function</code> or <code>undefined</code>
+ * if the object doesn't exists.</p>
  *
+ * @sample
+ * application.output(typeof "abc"); // string
+ * application.output(typeof 10); // number
+ * application.output(typeof 10.1); // number
+ * application.output(typeof true); // boolean
+ * application.output(typeof parseInt); // function
+ * application.output(typeof application); // object
+ * application.output(typeof somethingInexisting); // undefined
+ *
+ * @link https://developer.mozilla.org/en/JavaScript/Reference/Operators/typeof
+ * @simplifiedSignature
+ * 
  * @author gerzse
  */
 @ServoyDocumented(category = ServoyDocumented.JSLIB, publicName = "Special Operators")
 @ServoyClientSupport(mc = true, wc = true, sc = true, ng = true)
 public class SpecialOperators
 {
-	/**
-	 * Returns the type of the given object, one of these strings get returned: "number", "string", "boolean", "object", "function" or undefined if the object doesn't exists.
-	 *
-	 * @sample
-	 * application.output(typeof "abc"); // string
-	 * application.output(typeof 10); // number
-	 * application.output(typeof 10.1); // number
-	 * application.output(typeof true); // boolean
-	 * application.output(typeof parseInt); // function
-	 * application.output(typeof application); // object
-	 * application.output(typeof somethingInexisting); // undefined
-	 *
-	 * @link https://developer.mozilla.org/en/JavaScript/Reference/Operators/typeof
-	 * @simplifiedSignature
-	 */
+
 	@JSFunction
 	public void typeof()
 	{

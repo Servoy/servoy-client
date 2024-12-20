@@ -21,8 +21,8 @@ import com.servoy.j2db.ui.runtime.IRuntimeDataLabel;
 import com.servoy.j2db.ui.scripting.RuntimeDataLabel;
 
 /**
- * Scripting interface for RuntimeDataLabel.
- * Combines (deprecated) script methods and java api ({@link RuntimeDataLabel}).
+ * The <code>IScriptDataLabelMethods</code> interface enables scripting for runtime data labels in Servoy,
+ * combining (deprecated) script methods and java api ({@link RuntimeDataLabel}).
  *
  * @author rgansevles
  */

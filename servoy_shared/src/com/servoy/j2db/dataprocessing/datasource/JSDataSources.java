@@ -69,7 +69,7 @@ public class JSDataSources implements IDestroyable
 		{
 			public Class< ? >[] getAllReturnedTypes()
 			{
-				return new Class< ? >[] { DBDataSource.class, MemDataSource.class, JSDataSource.class, JSConnectionDefinition.class, DBDataSourceServer.class, ViewDataSource.class, MenuDataSource.class };
+				return new Class< ? >[] { SPDataSource.class, SPDataSourceServer.class, DBDataSource.class, MemDataSource.class, JSDataSource.class, JSConnectionDefinition.class, DBDataSourceServer.class, ViewDataSource.class, MenuDataSource.class };
 			}
 		});
 	}

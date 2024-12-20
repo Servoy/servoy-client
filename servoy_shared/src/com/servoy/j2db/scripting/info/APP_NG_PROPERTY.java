@@ -22,6 +22,9 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
+ * <p>The <code>APP_NG_PROPERTY</code> class defines constants for various client properties used in the NGClient application.
+ * These properties manage key aspects of the user interface and client behavior, such as session timeout duration, the branding of the
+ * main window, and how the browser's URL is handled.</p>
  * @author rgansevles
  * @deprecated replaced by NGCONSTANTS {@link NGCONSTANTS}
  */

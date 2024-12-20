@@ -34,7 +34,21 @@ import com.servoy.j2db.scripting.IReturnedTypesProvider;
 import com.servoy.j2db.util.Debug;
 
 /**
- * JSTable represents a DB Table object - when using the maintenance plugin or databaseManager.
+ * <p>
+ * The <code>JSTable</code> represents a database table object used in Servoy, accessible through the
+ * maintenance plugin or the <code>databaseManager</code>. It provides functionality for interacting with
+ * table metadata, columns, and related properties within a database. This object allows developers to
+ * retrieve table-specific details such as the SQL name, quoted identifiers, server name, and the table's
+ * data source URI.
+ * </p>
+ *
+ * <h2>Functionality</h2>
+ * <p>
+ * <code>JSTable</code> supports accessing column data, including retrieving names of all columns or primary
+ * key columns in a table. Developers can obtain a specific column as a <code>JSColumn</code> object or
+ * determine if a table is marked as a metadata table. Additionally, table attributes like the SQL name and
+ * quoted SQL name can be utilized for database queries or raw SQL operations.
+ * </p>
  *
  * @author jblok
  */

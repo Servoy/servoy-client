@@ -20,8 +20,8 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.ui.runtime.IRuntimePortal;
 
 /**
- * Scripting interface for RuntimePortal.
- * Combines (deprecated) script methods and java api ({@link IRuntimePortal}).
+ * The <code>IScriptPortalComponentMethods</code> interface supports scripting for runtime portals in Servoy,
+ * combining (deprecated) script methods and java api ({@link IRuntimePortal}).
  *
  * @author jcompagner
  *

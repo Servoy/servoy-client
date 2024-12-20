@@ -56,8 +56,26 @@ import com.servoy.j2db.util.ServoyException;
 import com.servoy.j2db.util.Utils;
 
 /**
- * It provides utility methods for web object (NG / Titanium client components or services) server side scripting to interact with the Servoy environment.<br/>
- * These will be used by the internal implementation of those web-objects when needed.
+ * <p>
+ * The <code>ServoyApiObject</code> provides server-side utility methods to facilitate interactions within
+ * the Servoy environment, primarily for NG and Titanium client components or services. These utilities are
+ * integral to the internal implementation of web objects, enabling seamless data management and dynamic
+ * UI interactions.
+ * </p>
+ *
+ * <p>
+ * The API supports functionalities such as creating foundsets and view foundsets using <code>QBSelect</code>
+ * for flexible data retrieval and filtering. It allows direct manipulation of forms on the server, including
+ * methods to show or hide forms dynamically, ensuring efficient updates without additional client-side round trips.
+ * Session-specific filters can be applied to foundsets, offering dynamic, user-specific data restrictions.
+ * </p>
+ *
+ * <p>
+ * Additional capabilities include performing SQL queries with query builders, generating media URLs from
+ * server-side byte arrays, and creating custom <code>JSEvent</code> instances for event-driven workflows.
+ * Developers can also use utility functions like deep copying of complex objects and creating empty datasets,
+ * enhancing data and object management within the platform.
+ * </p>
  *
  * @author lvostinar
  */

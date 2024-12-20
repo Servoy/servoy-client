@@ -27,7 +27,20 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 /**
- * The JSTableObject is a newly created JSTable, that can be altered - one can add new columns as well to it for example.
+ * <p>
+ * The <code>JSTableObject</code> is an enhanced version of <code>JSTable</code>, designed to represent
+ * a table that can be modified programmatically before being finalized in the database. This object supports
+ * dynamic schema modifications, such as adding or deleting columns. The changes made to a <code>JSTableObject</code>
+ * do not immediately impact the database and must be explicitly synchronized using methods like
+ * <code>JSServer.synchronizeWithDB</code>.
+ * </p>
+ *
+ * <p>
+ * Developers can create new columns in the table by specifying attributes such as the column name,
+ * data type, length, and whether the column allows null values. Primary key configurations can also be set
+ * programmatically. This flexibility is particularly useful when working with dynamically generated tables or
+ * when adjustments to a schema are needed during runtime.
+ * </p>
  *
  * @author jblok
  */

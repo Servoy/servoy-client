@@ -21,6 +21,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.IPrefixedConstantsObject;
 
 /**
+ * <p>The <code>WEBCONSTANTS</code> class defines script constants for the web client.</p>
  * @author jcompagner
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
@@ -29,7 +30,8 @@ public class WEBCONSTANTS implements IPrefixedConstantsObject
 {
 
 	/**
-	 * Property that can be set using application.putClientProperty(), it sets the servoy_web_client_default.css location directory in the templates dir for this client
+	 * Property that can be set using application.putClientProperty(), it sets the servoy_web_client_default.css location directory in the
+	 * templates dir for this client
 	 *
 	 * @sample
 	 * // set this if you want to set the css path to the servoy_web_client_default.css file that you can specify per client

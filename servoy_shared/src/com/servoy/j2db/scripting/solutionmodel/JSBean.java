@@ -28,6 +28,16 @@ import com.servoy.j2db.scripting.IJavaScriptType;
 import com.servoy.j2db.solutionmodel.ISMBean;
 
 /**
+ * <p>The <code>JSBean</code> class is a component that extends <code>JSComponent</code> and is used to represent a bean within the solution model.
+ * It implements several interfaces, including <code>IJavaScriptType</code>, <code>ISMBean</code>, and <code>IMobileSMBean</code>, allowing it to
+ * be utilized across various client types.</p>
+ *
+ * <p>The class provides methods to retrieve and set the class name of the associated bean, as well as to handle its XML content through
+ * <code>getInnerHTML()</code> and <code>setInnerHTML()</code>.</p>
+ *
+ * <p>Overall, <code>JSBean</code> facilitates interaction with beans in the solution model, while also supporting legacy properties
+ * for backward compatibility.</p>
+ *
  * @author lvostinar
  *
  */

@@ -19,7 +19,8 @@ package com.servoy.j2db.ui.runtime;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * Interface for script button.
+ * The <code>IRuntimeButton</code> interface in Servoy provides scripting capabilities for runtime buttons.
+ * This interface enables dynamic interactions and text manipulation for buttons within the Servoy runtime environment.
  *
  * @author lvostinar
  * @since 6.1

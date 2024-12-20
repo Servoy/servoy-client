@@ -25,8 +25,19 @@ import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.ITable;
 
 /**
- * A scripting object representing a data-source column that has now been created via JSTableObject.createNewColumn(...).<br/>
- * It is a JSColumn that has a few extra methods - setters that can modify it; the changes will be applied only by a server.synchronizeWithDB() call.
+ * <p>
+ * The <code>JSColumnObject</code> is a scripting object that represents a data-source column created
+ * through <code>JSTableObject.createNewColumn(...)</code>. It extends <code>JSColumn</code> by providing
+ * additional setter methods for modifying the column's properties, such as nullability, flags, sequence
+ * types, and row identifier types. These changes are not immediately applied but take effect only after
+ * invoking <code>server.synchronizeWithDB()</code>.
+ * </p>
+ *
+ * <p>
+ * This object allows developers to customize columns further during table creation, including defining
+ * primary key configurations, database sequences, and UUID generation settings. Flags can also be set or
+ * cleared to mark columns as excluded, tenant-specific, or native type columns.
+ * </p>
  *
  * @author rgansevles
  *
