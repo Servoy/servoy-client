@@ -215,7 +215,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	public Object executeInlineScript(String script, JSONObject args, JSONArray appendingArgs)
 	{
 		String decryptedScript = HTMLTagsConverter.decryptInlineScript(script, args, getApplication().getFlattenedSolution());
-		if (appendingArgs != null && decryptedScript.endsWith("()"))
+		if (appendingArgs != null && decryptedScript != null && decryptedScript.endsWith("()"))
 		{
 			Object[] javaArguments = generateArguments(appendingArgs, formController);
 
