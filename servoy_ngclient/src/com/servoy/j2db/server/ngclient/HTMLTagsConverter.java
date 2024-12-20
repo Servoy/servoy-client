@@ -238,7 +238,7 @@ public class HTMLTagsConverter
 		}
 		catch (Exception ex)
 		{
-			Debug.error("Cannot decrypt inline javascript", ex);
+			Debug.error("Cannot decrypt inline javascript: " + encryptedJavascript, ex);
 		}
 		return null;
 	}
