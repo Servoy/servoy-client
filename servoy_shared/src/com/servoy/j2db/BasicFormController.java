@@ -105,6 +105,21 @@ import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
+ * The <code>BasicFormController</code> manages GUI-based application forms, providing methods for data handling, UI interactions,
+ * and lifecycle event handling.
+ *
+ * ## Functionality
+ * The controller initializes with an application instance, form, and instance name, facilitating operations like loading data,
+ * managing UI elements, and executing lifecycle events. It supports find mode, validation, and state transitions for forms.
+ * Core functionalities include handling on-load, on-show, on-hide, and record-level events like edit, selection, and deletion.
+ *
+ * Advanced features allow printing, sorting, data manipulation, and integration with JavaScript for form customization.
+ * The class includes methods for managing the form's found set, handling changes in record states, and supporting shared data sets.
+ * It also provides utilities for design-time property management, preferred printer configuration, and generating XML data for printing.
+ *
+ * Additionally, the controller incorporates error handling, supports scoped execution of JavaScript functions,
+ * and ensures form integrity during lifecycle transitions such as initialization, destruction, and unloading.
+ *
  * @author jcompagner
  *
  */
