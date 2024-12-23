@@ -3354,6 +3354,8 @@ public abstract class FoundSet
 	 *
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_loadOmittedRecords()
 	 *
+	 * @param {IJSRecord} record - The record to be omitted from the foundset.
+	 *
 	 * @return boolean true if record could be omitted.
 	 */
 	@JSFunction
