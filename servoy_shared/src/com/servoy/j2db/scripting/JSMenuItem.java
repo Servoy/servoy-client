@@ -282,6 +282,11 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	 * Returns an extra property value.
 	 *
 	 * @sample menuItem.getExtraProperty('Sidenav','formName');
+	 *
+	 * @param {String} categoryName - The category name of the extra property.
+	 * @param {String} propertyName - The name of the property to retrieve the value for.
+	 * @return {Object} The value of the specified extra property, or null if not found.
+	 *
 	 * @return  extra property value
 	 */
 	@JSFunction
@@ -296,6 +301,10 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 
 	/**
 	 * Sets an extra property value (property must be present in the component spec).
+	 *
+	 * @param {String} categoryName - The category name of the extra property.
+	 * @param {String} propertyName - The name of the property to set.
+	 * @param {Object} value - The value to assign to the specified property.
 	 *
 	 * @sample menuItem.setExtraProperty('Sidenav','formName','myform');
 	 */
