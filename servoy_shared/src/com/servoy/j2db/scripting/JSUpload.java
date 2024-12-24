@@ -239,7 +239,7 @@ public class JSUpload implements IUploadData, IJavaScriptType, IFile
 	}
 
 	/**
-	 * @return
+	 * @return {long} The timestamp of the last modification, in milliseconds since the epoch.
 	 */
 	public long lastModified()
 	{
