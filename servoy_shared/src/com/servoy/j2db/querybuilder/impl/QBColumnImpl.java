@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2011 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2024 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -17,8 +17,6 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
-import org.mozilla.javascript.annotations.JSFunction;
-
 import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.persistence.Column;
@@ -32,14 +30,14 @@ import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 
 /**
- * A column from a QBSelect. Used for different conditions.
+ * A column from a QBSelect. Base class that contains all actual implementations.
  *
  * @author rgansevles
  *
  */
 public class QBColumnImpl extends QBPart
 	implements IQueryBuilderColumn, QBIntegerColumnBase, QBDatetimeColumnBase, QBNumberColumnBase, QBMediaColumnBase,
-	QBTextColumnBase, QBColumnCompare, QBColumn, QBColumnNumberRagtest<QBColumn>
+	QBTextColumnBase, QBColumnComparable, QBColumn, QBColumnNumberRagtest<QBColumn>
 {
 	private final IQuerySelectValue queryColumn;
 	protected final boolean negate;
@@ -209,7 +207,7 @@ public class QBColumnImpl extends QBPart
 	@Override
 	public QBColumn max()
 	{
-		return getRoot().aggregates().ragtestmax(this);
+		return getRoot().aggregates().max(this);
 	}
 
 	@Override
@@ -228,6 +226,12 @@ public class QBColumnImpl extends QBPart
 	public QBColumn nullif(Object arg)
 	{
 		return getRoot().functions().nullif(this, arg);
+	}
+
+	@Override
+	public QBColumn coalesce(Object arg)
+	{
+		return getRoot().functions().coalesce(this, arg);
 	}
 
 	/////////////////////////////////////////////////////////
@@ -366,6 +370,19 @@ public class QBColumnImpl extends QBPart
 		return getRoot().functions().cast(this, type);
 	}
 
+	@Override
+	public int getFlags()
+	{
+		return getQuerySelectValue().getFlags();
+	}
+
+	@Override
+	public String getTypeAsString()
+	{
+		BaseColumnType columnType = getColumnType();
+		return columnType != null ? Column.getDisplayTypeString(columnType.getSqlType()) : null;
+	}
+
 	/////////////////////////////////////////////////////////
 	////////////// QBNumberColumnBase methods ///////////////
 	/////////////////////////////////////////////////////////
@@ -389,7 +406,7 @@ public class QBColumnImpl extends QBPart
 	}
 
 	/////////////////////////////////////////////////////////
-	////////////// QBNumberColumnBase methods ///////////////
+	////////////// QBDatetimeColumnBase methods ///////////////
 	/////////////////////////////////////////////////////////
 
 	@Override
@@ -432,33 +449,10 @@ public class QBColumnImpl extends QBPart
 	/////////////////////////////////////////////////////////
 	//////////////////// General methods ////////////////////
 	/////////////////////////////////////////////////////////
-	@Override
+
 	public BaseColumnType getColumnType()
 	{
 		return getQuerySelectValue().getColumnType();
-	}
-
-	/**
-	 * Column type as a string
-	 */
-	@JSFunction
-	public String getTypeAsString()
-	{
-		BaseColumnType columnType = getColumnType();
-		return columnType != null ? Column.getDisplayTypeString(columnType.getSqlType()) : null;
-	}
-
-	/**
-	 * 	The flags are a bit pattern consisting of 1 or more of the following bits:
-	 *  - JSColumn.UUID_COLUMN
-	 *  - JSColumn.EXCLUDED_COLUMN
-	 *  - JSColumn.TENANT_COLUMN
-	 */
-	@Override
-	@JSFunction
-	public int getFlags()
-	{
-		return getQuerySelectValue().getFlags();
 	}
 
 	@Override

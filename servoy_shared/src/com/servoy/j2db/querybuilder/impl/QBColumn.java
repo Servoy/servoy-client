@@ -46,7 +46,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public interface QBColumn extends QBColumnRagtest<QBColumn>, QBColumnCompare
+public interface QBColumn extends QBColumnRagtest<QBColumn>, QBColumnComparable
 {
 	/**
 	 * Compare column with null.
@@ -66,7 +66,7 @@ public interface QBColumn extends QBColumnRagtest<QBColumn>, QBColumnCompare
 	 *
 	 */
 	@JSReadonlyProperty
-	QBColumnCompare not();
+	QBColumnComparable not();
 
 
 	/**
@@ -122,5 +122,20 @@ public interface QBColumn extends QBColumnRagtest<QBColumn>, QBColumnCompare
 	 */
 	@JSFunction
 	public QBColumn cast(String type);
+
+	/**
+	 * 	The flags are a bit pattern consisting of 1 or more of the following bits:
+	 *  - JSColumn.UUID_COLUMN
+	 *  - JSColumn.EXCLUDED_COLUMN
+	 *  - JSColumn.TENANT_COLUMN
+	 */
+	@JSFunction
+	public int getFlags();
+
+	/**
+	 * Column type as a string
+	 */
+	@JSFunction
+	public String getTypeAsString();
 
 }

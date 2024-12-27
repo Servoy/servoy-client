@@ -21,7 +21,7 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
  * RAGTEST doc
- * @author rob
+ * @author rgansevles
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBIntegerColumn")

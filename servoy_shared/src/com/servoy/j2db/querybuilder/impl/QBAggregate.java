@@ -45,12 +45,12 @@ import com.servoy.j2db.query.QueryAggregate;
  * @author rgansevles
  *
  */
-public class QBAggregateImpl extends QBColumnImpl implements QBCountAggregate
+public class QBAggregate extends QBColumnImpl implements QBCountAggregate
 {
 	private final int aggregateType;
 	private final int aggregateQuantifier;
 
-	QBAggregateImpl(QBSelect root, QBTableClause queryBuilderTableClause, IQuerySelectValue queryColumn, int aggregateType, int aggregateQuantifier)
+	QBAggregate(QBSelect root, QBTableClause queryBuilderTableClause, IQuerySelectValue queryColumn, int aggregateType, int aggregateQuantifier)
 	{
 		super(root, queryBuilderTableClause, queryColumn);
 		this.aggregateType = aggregateType;
@@ -65,6 +65,6 @@ public class QBAggregateImpl extends QBColumnImpl implements QBCountAggregate
 
 	QBIntegerColumnBase countDistinct()
 	{
-		return new QBAggregateImpl(getRoot(), getParent(), getQueryColumn(), aggregateType, QueryAggregate.DISTINCT);
+		return new QBAggregate(getRoot(), getParent(), getQueryColumn(), aggregateType, QueryAggregate.DISTINCT);
 	}
 }

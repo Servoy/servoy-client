@@ -23,7 +23,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * RAGTEST doc  functies die verschillend zijn in verschillende types
- * @author rob
+ * @author rgansevles
  *
  */
 public interface QBColumnRagtest<T>
@@ -58,5 +58,14 @@ public interface QBColumnRagtest<T>
 	 */
 	@JSFunction
 	T nullif(Object arg);
+
+	/**
+	 * Create coalesce(arg) expression
+	 * @param value when column is null
+	 * @sample
+	 * query.result.add(query.columns.mycol.coalesce('defval'))
+	 */
+	@JSFunction
+	T coalesce(Object arg);
 
 }

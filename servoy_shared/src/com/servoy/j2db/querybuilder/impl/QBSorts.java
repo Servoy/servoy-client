@@ -116,32 +116,16 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderSorts#add(IQueryBuilderColumn)
+	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderSorts#add(QBColumn)
 	 * @sample
 	 * query.sort.add(query.columns.orderid)
 	 *
 	 * @param columnSortAsc column to sort by
 	 */
-	public QBSorts js_add(QBColumn columnSortAsc) throws RepositoryException
-	{
-		return add(columnSortAsc);
-	}
-
-//	/**
-//	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderSorts#add(IQueryBuilderColumn)
-//	 * @sample
-//	 * query.sort.add(query.columns.orderid)
-//	 *
-//	 * @param functionSortAsc function to add
-//	 */
-//	public QBSorts js_add(QBFunction functionSortAsc) throws RepositoryException
-//	{
-//		return add(functionSortAsc);
-//	}
-
+	@JSFunction
 	public QBSorts add(QBColumn columnSortAsc) throws RepositoryException
 	{
-		return add(((QBColumnImpl)columnSortAsc).asc());
+		return add(columnSortAsc.asc());
 	}
 
 	@Override

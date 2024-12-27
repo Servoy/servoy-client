@@ -22,7 +22,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * RAGTEST doc
- * @author rob
+ * @author rgansevles
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBMediaColumn")

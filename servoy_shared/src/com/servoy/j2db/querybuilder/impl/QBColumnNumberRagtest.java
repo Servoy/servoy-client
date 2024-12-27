@@ -23,7 +23,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * RAGTEST doc  functies die verschillend zijn in verschillende types
- * @author rob
+ * @author rgansevles
  *
  */
 public interface QBColumnNumberRagtest<T>

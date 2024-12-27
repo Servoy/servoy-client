@@ -60,7 +60,6 @@ import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.TablePlaceholderKey;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
-import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
 import com.servoy.j2db.querybuilder.IQueryBuilderCondition;
 import com.servoy.j2db.querybuilder.IQueryBuilderLogicalCondition;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
@@ -414,10 +413,15 @@ public class QBSelect extends QBTableClause implements IQueryBuilder
 	 * @param columnForType convert value to type of the column
 	 */
 	@JSFunction
-	public Object inline(Number number, IQueryBuilderColumn columnForType)
+	public Object inline(Number number, QBColumn columnForType)
 	{
-		return number == null ? null : new QueryColumnValue(
-			columnForType == null ? number : getAsRightType(number, columnForType.getColumnType(), columnForType.getFlags()), null, true);
+		if (number == null)
+		{
+			return null;
+		}
+		return new QueryColumnValue(
+			columnForType == null ? number : getAsRightType(number, ((QBColumnImpl)columnForType).getColumnType(), ((QBColumnImpl)columnForType).getFlags()),
+			null, true);
 	}
 
 	/**

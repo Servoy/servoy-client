@@ -19,6 +19,7 @@ package com.servoy.j2db.querybuilder;
 
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.query.ISQLSelect;
+import com.servoy.j2db.querybuilder.impl.QBColumn;
 import com.servoy.j2db.util.ServoyException;
 
 
@@ -117,7 +118,7 @@ public interface IQueryBuilder extends IQueryBuilderTableClause
 	 * <pre>
 	 * query.sort().add(query.getColumn("note").desc()).add(query.getColumn("id")); // order by note desc, id asc
 	 * </pre>
-	 * @see IQueryBuilderColumn#asc()
+	 * @see QBColumn#asc()
 	 */
 	IQueryBuilderSorts sort();
 
@@ -183,7 +184,7 @@ public interface IQueryBuilder extends IQueryBuilderTableClause
 	 */
 	Object inline(Number number);
 
-	Object inline(Number number, IQueryBuilderColumn columnForType);
+	Object inline(Number number, QBColumn columnForType);
 
 	Object inline(String string);
 

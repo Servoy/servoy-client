@@ -79,7 +79,7 @@ public class QBCase extends QBPart implements IQueryBuilderCase
 	 *
 	 * @sampleas com.servoy.j2db.querybuilder.impl.QBSelect#js_case()
 	 */
-	public QBSearchedCaseExpression jsFunction_else(Object value)
+	public QBColumn jsFunction_else(Object value)
 	{
 		return qelse(value);
 	}
@@ -89,12 +89,12 @@ public class QBCase extends QBPart implements IQueryBuilderCase
 	 */
 	@Deprecated
 	@JSFunction
-	public QBSearchedCaseExpression elseValue(Object value)
+	public QBColumn elseValue(Object value)
 	{
 		return qelse(value);
 	}
 
-	public QBSearchedCaseExpression qelse(Object value)
+	private QBColumn qelse(Object value)
 	{
 		return new QBSearchedCaseExpression(getRoot(), getParent(), buildSearchedCaseExpression(getRoot(), whenThen, value));
 	}

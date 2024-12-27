@@ -22,7 +22,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
  * RAGTEST doc  count distinct()
- * @author rob
+ * @author rgansevles
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "QBIntegerColumn")
@@ -38,6 +38,6 @@ public interface QBCountAggregate
 	@JSReadonlyProperty
 	default QBIntegerColumnBase distinct()
 	{
-		return ((QBAggregateImpl)this).countDistinct();
+		return ((QBAggregate)this).countDistinct();
 	}
 }

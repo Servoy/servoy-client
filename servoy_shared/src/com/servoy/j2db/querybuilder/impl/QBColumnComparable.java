@@ -19,17 +19,21 @@ package com.servoy.j2db.querybuilder.impl;
 
 import org.mozilla.javascript.annotations.JSFunction;
 
+import com.servoy.j2db.documentation.ServoyDocumented;
+
 /**
  * RAGTEST doc
- * @author rob
+ * @author rgansevles
  *
  */
 // RAGTEST inhoud verplaatsen naar QBColumn: nee vanwege QBColumn.not()
-public interface QBColumnCompare
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
+public interface QBColumnComparable
 {
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#gt(Object)
+	 * Compare column with a value or another column.
+	 * Operator: greaterThan
 	 * @param value
 	 * @sample
 	 * query.where.add(query.columns.flag.gt(0))
@@ -38,7 +42,8 @@ public interface QBColumnCompare
 	QBCondition gt(Object value);
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#lt(Object)
+	 * Compare column with a value or another column.
+	 * Operator: lessThan
 	 * @param value
 	 * @sample
 	 * query.where.add(query.columns.flag.lt(99))
@@ -47,7 +52,8 @@ public interface QBColumnCompare
 	QBCondition lt(Object value);
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#ge(Object)
+	 * Compare column with a value or another column.
+	 * Operator: greaterThanOrEqual
 	 * @param value
 	 * @sample
 	 * query.where.add(query.columns.flag.ge(2))
@@ -56,7 +62,8 @@ public interface QBColumnCompare
 	QBCondition ge(Object value);
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.IQueryBuilderColumn#le(Object)
+	 * Compare column with a value or another column.
+	 * Operator: lessThanOrEqual
 	 * @param value
 	 * @sample
 	 * query.where.add(query.columns.flag.le(2))
