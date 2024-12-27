@@ -48,7 +48,7 @@ public interface IQueryBuilderAggregates extends IQueryBuilderPart
 	/**
 	 * Create max(value) expression
 	 */
-	QBColumn max(Object aggregee);
+	QBColumn ragtestmax(Object aggregee);
 
 	/**
 	 * Create min(value) expression

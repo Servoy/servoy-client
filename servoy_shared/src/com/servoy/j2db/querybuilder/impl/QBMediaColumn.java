@@ -28,3 +28,4 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 public interface QBMediaColumn extends QBMediaColumnBase, QBColumnRagtest<QBMediaColumn>
 {
 }
+QBSelect documentation

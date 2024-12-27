@@ -24,7 +24,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author rob
  *
  */
-// RAGTEST extendsComponent nodig? zit al in QBIntegerColumn
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBIntegerColumn")
 public interface QBIntegerColumnBase
 {

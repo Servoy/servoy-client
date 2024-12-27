@@ -49,7 +49,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBLogicalCondition")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogicalCondition
 {
 	private static final String CONDITION_ANONYMOUS = "<anonymous>"; // When no condition name is given

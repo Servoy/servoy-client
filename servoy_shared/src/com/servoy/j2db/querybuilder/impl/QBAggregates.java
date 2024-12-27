@@ -123,7 +123,7 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 */
 	@JSFunction
 	@Override
-	public QBColumn max(Object aggregee)
+	public QBColumn ragtestmax(Object aggregee)
 	{
 		return createAggregate(aggregee, QueryAggregate.MAX);
 	}

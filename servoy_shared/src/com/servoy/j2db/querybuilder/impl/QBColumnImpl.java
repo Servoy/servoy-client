@@ -209,7 +209,7 @@ public class QBColumnImpl extends QBPart
 	@Override
 	public QBColumn max()
 	{
-		return getRoot().aggregates().max(this);
+		return getRoot().aggregates().ragtestmax(this);
 	}
 
 	@Override

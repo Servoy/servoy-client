@@ -81,7 +81,7 @@ For detailed query building, see [Query Builder](../../../../guides/develop/prog
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBSelect")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public class QBSelect extends QBTableClause implements IQueryBuilder
 {
 	private static final char QUOTE = '\'';

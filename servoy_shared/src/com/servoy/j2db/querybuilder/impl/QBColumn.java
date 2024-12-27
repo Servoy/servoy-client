@@ -82,7 +82,7 @@ public interface QBColumn extends QBColumnRagtest<QBColumn>, QBColumnCompare
 	QBSort asc();
 
 	/**
-	 * Create an descending sort expression
+	 * Create a descending sort expression
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.sort

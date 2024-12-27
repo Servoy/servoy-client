@@ -24,6 +24,7 @@ import org.mozilla.javascript.annotations.JSFunction;
  * @author rob
  *
  */
+// RAGTEST inhoud verplaatsen naar QBColumn: nee vanwege QBColumn.not()
 public interface QBColumnCompare
 {
 

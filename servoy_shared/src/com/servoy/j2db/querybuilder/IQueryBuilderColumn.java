@@ -138,7 +138,7 @@ public interface IQueryBuilderColumn extends IQueryBuilderPart
 //	IQueryBuilderSort asc();
 //
 //	/**
-//	 * Create an descending sort expression
+//	 * Create a descending sort expression
 //	 * @see #asc
 //	 */
 //	IQueryBuilderSort desc();
