@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -105,7 +106,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	private Map<IDataLinkedPropertyValue, Pair<Relation[], List<RelatedListener>>> toWatchRelations;
 	private DLPropertyValueFoundsetFoundsetListener maxRecIndexPropertyValueListener;
 	private final Map<String, List<Pair<String, String>>> lookupDependency = new HashMap<String, List<Pair<String, String>>>();
-	private final List<NestedRelatedListener> nestedRelatedFoundsetListeners = new ArrayList<NestedRelatedListener>();
+	private final List<RelatedFoundsetListenerForChildVisibleForm> nestedRelatedFoundsetListeners = new ArrayList<RelatedFoundsetListenerForChildVisibleForm>();
 
 	private IRecordInternal record;
 	private boolean findMode = false;
@@ -408,24 +409,12 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 			Relation[] relations = formController.getApplication().getFlattenedSolution().getRelationSequence(relation);
 			if (relations != null)
 			{
-				if (relations.length > 1)
+				if (relations.length > 0)
 				{
-					String innerRelationName = null;
-					for (int i = 0; i < relations.length - 1; i++)
-					{
-						Relation element = relations[i];
-						if (element == null) break;
-						if (innerRelationName == null)
-						{
-							innerRelationName = element.getName();
-						}
-						else
-						{
-							innerRelationName += "." + element.getName();
-						}
-						// if selection changes or the current record changes then an update should happen.
-						nestedRelatedFoundsetListeners.add(new NestedRelatedListener(innerRelationName, form, relation, this));
-					}
+					// if selection changes or the current record changes columns that are used as keys somewhere in the relation sequence then a reload of the nested form's foundset needs to happen
+					// the NestedRelatedListener constructor will recursively create one NestedRelatedListener for each intermediat relation in the relation chain
+					nestedRelatedFoundsetListeners.add(new RelatedFoundsetListenerForChildVisibleForm(relations, 0, null,
+						form, relation, this));
 				}
 				if (!isGlobalScopeListener)
 				{
@@ -463,9 +452,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				((IWebFormController)relWFC).getFormUI().getDataAdapterList().removeVisibleChildForm(form, false);
 			}
 			this.nestedRelatedFoundsetListeners.stream()
-				.filter(listener -> Utils.equalObjects(form, listener.formController))
+				.filter(listener -> Utils.equalObjects(form, listener.leafRelatedFormController))
 				.forEach(nestedRelatedListener -> nestedRelatedListener.dispose());
-			this.nestedRelatedFoundsetListeners.removeIf(listener -> Utils.equalObjects(form, listener.formController));
+			this.nestedRelatedFoundsetListeners.removeIf(listener -> Utils.equalObjects(form, listener.leafRelatedFormController));
 		}
 	}
 
@@ -672,7 +661,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					this.record.getParentFoundSet().addAggregateModificationListener(this);
 				}
 				createRelationListeners();
-				refreshNestedRelatedListeners();
+				tellNestedRelatedListenersThatMainDALRecordHasChanged();
 				if (maxRecIndexPropertyValueListener != null) maxRecIndexPropertyValueListener.setRecord(this.record);
 			}
 			finally
@@ -680,19 +669,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				formController.getFormUI().setChanging(false);
 				settingRecord = false;
 				fireCollector.done();
-			}
-			// we should use the "this.record" because fireCollector.done() could result in a setRecord with a different record.
-			if (this.record != null)
-			{
-				for (Entry<IWebFormController, String> entry : getVisibleChildFormCopy().entrySet())
-				{
-					String relation = entry.getValue();
-					if (relation != null)
-					{
-						IWebFormController form = entry.getKey();
-						form.loadRecords(this.record.getRelatedFoundSet(relation, ((BasicFormController)form).getDefaultSortColumns()));
-					}
-				}
 			}
 		}
 		catch (RuntimeException re)
@@ -832,36 +808,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	@Override
 	public void valueChanged(ModificationEvent e)
 	{
-		if (record != null && e != null && e.getName() != null)
-		{
-			for (Entry<IWebFormController, String> relatedFormEntry : getVisibleChildFormCopy().entrySet())
-			{
-				IWebFormController relatedForm = relatedFormEntry.getKey();
-				String relatedFormRelation = relatedFormEntry.getValue();
-				boolean depends = false;
-				Relation[] relations = getApplication().getFlattenedSolution().getRelationSequence(relatedFormRelation);
-				for (int r = 0; !depends && relations != null && r < relations.length; r++)
-				{
-					try
-					{
-						IDataProvider[] primaryDataProviders = relations[r].getPrimaryDataProviders(getApplication().getFlattenedSolution());
-						for (int p = 0; !depends && primaryDataProviders != null && p < primaryDataProviders.length; p++)
-						{
-							depends = e.getName().equals(primaryDataProviders[p].getDataProviderID());
-						}
-					}
-					catch (RepositoryException ex)
-					{
-						Debug.log(ex);
-					}
-				}
-				if (depends)
-				{
-					relatedForm.loadRecords(record.getRelatedFoundSet(relatedFormRelation, ((BasicFormController)relatedForm).getDefaultSortColumns()));
-				}
-			}
-		}
-
 		if (!findMode && this.record != null && e.getName() != null && (e.getRecord() == null || e.getRecord() == this.record) &&
 			this.lookupDependency.containsKey(e.getName()) &&
 			!(this.record instanceof PrototypeState))
@@ -876,9 +822,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 				}
 			}
 		}
+
 		// one of the relations could be changed make sure they are recreated.
 		createRelationListeners();
-		refreshNestedRelatedListeners();
+		if (e.getRecord() == null) tellNestedRelatedListenersThatGlobalOrScopeVariableChanged(e.getName()); // if it's a change in the record, they will refresh anyway due to direct foundset listeners added by nestedRelatedFoundsetListeners or due to DAL.setRecord(...)
+
 		pushChangedValues(e.getName(), true);
 	}
 
@@ -1350,18 +1298,26 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 
 	public void clearNestedRelatedFoundsetListeners()
 	{
-		for (NestedRelatedListener listener : nestedRelatedFoundsetListeners)
+		for (RelatedFoundsetListenerForChildVisibleForm listener : nestedRelatedFoundsetListeners)
 		{
 			listener.dispose();
 		}
 		nestedRelatedFoundsetListeners.clear();
 	}
 
-	public void refreshNestedRelatedListeners()
+	public void tellNestedRelatedListenersThatMainDALRecordHasChanged()
 	{
-		for (NestedRelatedListener listener : nestedRelatedFoundsetListeners)
+		for (RelatedFoundsetListenerForChildVisibleForm listener : nestedRelatedFoundsetListeners)
 		{
-			listener.refreshListeners();
+			listener.rootDALRecordHasChanged();
+		}
+	}
+
+	public void tellNestedRelatedListenersThatGlobalOrScopeVariableChanged(String globalScopeChangedVariableName)
+	{
+		for (RelatedFoundsetListenerForChildVisibleForm listener : nestedRelatedFoundsetListeners)
+		{
+			listener.globalOrScopeVariableChanged(globalScopeChangedVariableName);
 		}
 	}
 
@@ -1424,6 +1380,11 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 	}
 
+	/**
+	 * Class used to listen to related foundset changes in case a related data-provider was registered to this DAL.
+	 *
+	 * TODO see if it makes sense to merge this class with {@link RelatedFoundsetListenerForChildVisibleForm} class...
+	 */
 	private class RelatedListener implements ListSelectionListener, IModificationListener, IFoundSetEventListener
 	{
 
@@ -1431,9 +1392,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		private final IRecordInternal selectedRecord;
 		private final IDataLinkedPropertyValue propertyValue;
 
-		/**
-		 * @param related
-		 */
 		public RelatedListener(IDataLinkedPropertyValue propertyValue, IFoundSetInternal related)
 		{
 			this.propertyValue = propertyValue;
@@ -1491,87 +1449,186 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 	}
 
-	private class NestedRelatedListener implements ListSelectionListener, IFoundSetEventListener
+	/**
+	 * Class used to listen to relation changes in related foundset chains used by related child visible forms.
+	 * It will reload records in those related forms when needed.
+	 */
+	private class RelatedFoundsetListenerForChildVisibleForm implements ListSelectionListener, IFoundSetEventListener
 	{
-		private final String innerRelationName;
-		private IFoundSetInternal relatedFoundset;
-		private final IWebFormController formController;
+
+		private final String intermediateRelationName;
+		private final Set<String> nextIntermediateRelationScopeKeys = new HashSet<>();
+		private final Set<String> nextIntermediateRelationColumnKeys = new HashSet<>();
+		private IFoundSetInternal foundsetToListenTo;
+		private final IWebFormController leafRelatedFormController;
 		private final String fullRelationName;
 		private final DataAdapterList dal;
 		private IRecordInternal selectedRecord;
 
+		private final RelatedFoundsetListenerForChildVisibleForm nextIntermediateRelationListener;
+
 		/**
-		 * @param related
+		 * This listens to changes in the selected record of foundset determined by "intermediateRelationName" (or DAL foundset if intermediateRelationName is null)
+		 * or in columns from the selected record of it that are used as keys in the "relations[currentIntermediateRelationIndex]".<br/><br/>
+		 *
+		 * If there are such changes, then the given formController will reload it's records based on fullRelationName.
+		 *
+		 * @param relations the full relation sequence that needs to be listened to; current NestedRelatedListener will only look at relations[currentIntermediateRelationIndex]
+		 * @param currentIntermediateRelationIndex the index in "relations" that this NestedRelatedListener creates listeners for
+		 * @param intermediateRelationName the relation of the related foundset to look at for selections changes and column changes that might affect; can be null and then we watch the 'dal''s foundset directly (it is for the first relation in the chain);
+		 *                                 this is the String equivalent to the relation sequence up to (excluding) relations[currentIntermediateRelationIndex]; initially it is null
+		 * @param leafRelatedFormController the form controller that corresponds to given fullRelationName
+		 * @param fullRelationName the full relation name of the (end) form for which we are watching selection and column changes
+		 * @param dal the DAL of the parent form that sees leafRelatedFormController becoming visible inside it (nested in tab panels etc.)
 		 */
-		public NestedRelatedListener(String innerRelationName, IWebFormController formController, String fullRelationName, DataAdapterList dal)
+		public RelatedFoundsetListenerForChildVisibleForm(Relation[] relations, int currentIntermediateRelationIndex, String intermediateRelationName,
+			IWebFormController leafRelatedFormController, String fullRelationName, DataAdapterList dal)
 		{
-			this.innerRelationName = innerRelationName;
-			this.formController = formController;
+			this.intermediateRelationName = intermediateRelationName;
+			IDataProvider[] nIRColumns = null;
+			try
+			{
+				nIRColumns = relations[currentIntermediateRelationIndex].getPrimaryDataProviders(dal.getApplication().getFlattenedSolution());
+				for (IDataProvider dp : nIRColumns)
+				{
+					String dpID = dp.getDataProviderID();
+					if (ScopesUtils.isVariableScope(dpID)) nextIntermediateRelationScopeKeys.add(dpID);
+					else nextIntermediateRelationColumnKeys.add(dpID);
+				}
+			}
+			catch (RepositoryException e)
+			{
+				Debug.log(e);
+			}
+
+			this.leafRelatedFormController = leafRelatedFormController;
 			this.fullRelationName = fullRelationName;
 			this.dal = dal;
+
 			addListeners();
+
+			if (currentIntermediateRelationIndex < relations.length - 1 && relations[currentIntermediateRelationIndex + 1] != null)
+				nextIntermediateRelationListener = new RelatedFoundsetListenerForChildVisibleForm(relations, currentIntermediateRelationIndex + 1,
+					intermediateRelationName == null ? relations[currentIntermediateRelationIndex].getName()
+						: intermediateRelationName + "." + relations[currentIntermediateRelationIndex].getName(),
+					leafRelatedFormController, fullRelationName, dal);
+			else nextIntermediateRelationListener = null;
 		}
 
 		private void addListeners()
 		{
 			if (this.dal.getRecord() != null)
 			{
-				this.relatedFoundset = this.dal.getRecord().getRelatedFoundSet(innerRelationName);
-				if (this.relatedFoundset != null)
-				{
-					if (this.relatedFoundset instanceof ISwingFoundSet)
-					{
-						((ISwingFoundSet)this.relatedFoundset).getSelectionModel().addListSelectionListener(this);
-					}
-					selectedRecord = this.relatedFoundset.getRecord(this.relatedFoundset.getSelectedIndex());
-					this.relatedFoundset.addFoundSetEventListener(this);
+				if (intermediateRelationName != null)
+					this.foundsetToListenTo = this.dal.getRecord().getRelatedFoundSet(intermediateRelationName);
+				else
+					this.foundsetToListenTo = this.dal.getRecord().getParentFoundSet();
 
+				if (this.foundsetToListenTo != null)
+				{
+					if (this.foundsetToListenTo instanceof ISwingFoundSet && intermediateRelationName != null) // if intermediateRelationName == null then this is the foundet of the DAL itself, and the DAL will notify record selection changed itself, because the foundset itself might change...
+					{
+						((ISwingFoundSet)this.foundsetToListenTo).getSelectionModel().addListSelectionListener(this);
+					}
+					selectedRecord = this.foundsetToListenTo.getRecord(this.foundsetToListenTo.getSelectedIndex());
+					this.foundsetToListenTo.addFoundSetEventListener(this);
 				}
 			}
+		}
+
+		private void recreateListenersInChain()
+		{
+			addListeners();
+			if (nextIntermediateRelationListener != null) nextIntermediateRelationListener.addListeners();
 		}
 
 		public void dispose()
 		{
-			if (this.relatedFoundset != null)
+			if (nextIntermediateRelationListener != null) nextIntermediateRelationListener.dispose();
+
+			if (this.foundsetToListenTo != null)
 			{
-				if (this.relatedFoundset instanceof ISwingFoundSet)
+				if (this.foundsetToListenTo instanceof ISwingFoundSet && intermediateRelationName != null)
 				{
-					((ISwingFoundSet)this.relatedFoundset).getSelectionModel().removeListSelectionListener(this);
+					((ISwingFoundSet)this.foundsetToListenTo).getSelectionModel().removeListSelectionListener(this);
 				}
-				this.relatedFoundset.removeFoundSetEventListener(this);
-				this.relatedFoundset = null;
+				this.foundsetToListenTo.removeFoundSetEventListener(this);
+				this.foundsetToListenTo = null;
 				this.selectedRecord = null;
 			}
 		}
 
-		public void refreshListeners()
+		public void globalOrScopeVariableChanged(String globalScopeChangedVariableName)
 		{
-			this.dispose();
-			this.addListeners();
+			// a global/scope variable changed
+			if (nextIntermediateRelationScopeKeys.contains(globalScopeChangedVariableName))
+			{
+				if (nextIntermediateRelationListener != null) nextIntermediateRelationListener.refreshListeners();
+				reloadRecordsOnEndFormController(); // a global/scope variable that is used as a key in the next intermediate relation has changed; reload of records is needed
+			}
+			else if (nextIntermediateRelationListener != null) nextIntermediateRelationListener.globalOrScopeVariableChanged(globalScopeChangedVariableName);
+		}
+
+		/**
+		 * The first NestedRelatedListener in a chain of relations that leads to a related form controller gets it's selection change
+		 * from the DAL directly, just in case the foundset of the DAL has changed as well - so the listeners are recreated on the new foundset then.
+		 */
+		public void rootDALRecordHasChanged()
+		{
+			this.refreshListeners(); // it is possible that the selected record is from another foundset - so refresh including 'this', not just from 'nextIntermediateRelationListener'
+			selectedRecordChanged();
 		}
 
 		@Override
 		public void valueChanged(ListSelectionEvent e)
 		{
-			reloadRecords();
+			// selected index changed...
+			selectedRecordChanged();
 		}
 
-		private void reloadRecords()
+		private void selectedRecordChanged()
 		{
-			if (this.dal.getRecord() != null)
-			{
-				formController
-					.loadRecords(this.dal.getRecord().getRelatedFoundSet(fullRelationName, ((BasicFormController)formController).getDefaultSortColumns()));
-			}
+			reloadRecordsOnEndFormController();
+		}
+
+		private void refreshListeners()
+		{
+			dispose(); // calls it for whole relation chain starting from this NestedRelatedListener's intermediate relation
+			recreateListenersInChain(); // calls it for whole relation chain starting from this NestedRelatedListener's intermediate relation
+		}
+
+		private void reloadRecordsOnEndFormController()
+		{
+			leafRelatedFormController.loadRecords(
+				(this.dal.getRecord() != null ? this.dal.getRecord().getRelatedFoundSet(fullRelationName,
+					((BasicFormController)leafRelatedFormController).getDefaultSortColumns()) : null));
 		}
 
 		@Override
 		public void foundSetChanged(FoundSetEvent e)
 		{
-			if (this.relatedFoundset != null && this.relatedFoundset.getRecord(this.relatedFoundset.getSelectedIndex()) != this.selectedRecord)
+			if (this.foundsetToListenTo != null)
 			{
-				reloadRecords();
+				int selectedIndex = this.foundsetToListenTo.getSelectedIndex();
+				if (this.foundsetToListenTo.getRecord(selectedIndex) != this.selectedRecord)
+				{
+					// selected record has changed, but maybe selected index did not (record deletes/inserts etc. could do that)
+					selectedRecordChanged();
+				}
+				else
+				{
+					// same selected record; if it was a change that did affect the current record; check
+					// changed column(s) vs relation keys; see if columns that are used as keys in relations have changed
+					if (this.selectedRecord != null && e != null && e.getType() == FoundSetEvent.CONTENTS_CHANGED &&
+						e.getChangeType() == FoundSetEvent.CHANGE_UPDATE && e.getFirstRow() <= selectedIndex && e.getLastRow() >= selectedIndex &&
+						e.getDataProviders().stream().anyMatch((columnName) -> nextIntermediateRelationColumnKeys.contains(columnName)))
+					{
+						if (nextIntermediateRelationListener != null) nextIntermediateRelationListener.refreshListeners();
+						reloadRecordsOnEndFormController(); // a column that is used as a key in the next intermediate relation has changed; reload of records is needed
+					}
+				}
 			}
 		}
+
 	}
 }
