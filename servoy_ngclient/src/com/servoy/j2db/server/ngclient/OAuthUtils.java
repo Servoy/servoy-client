@@ -65,7 +65,7 @@ public class OAuthUtils
 	{
 		if (GOOGLE.equals(api) || MICROSOFT_AD.equals(api) || "Microsoft".equals(api))
 		{
-			return "offline".equals(auth.get("access_type")) ? "code" : "id_token";
+			return "offline".equals(auth.optString("access_type")) ? "code" : "id_token";
 		}
 		else if (OKTA.equals(api))
 		{
@@ -142,6 +142,7 @@ public class OAuthUtils
 				case CLIENT_ID :
 				case JWKS_URI :
 				case "customParameters" :
+				case "endpoint" :
 					//skip
 					break;
 				default :

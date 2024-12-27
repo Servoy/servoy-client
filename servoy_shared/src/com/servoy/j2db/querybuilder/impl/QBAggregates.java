@@ -84,6 +84,8 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 * 	query.result.add(query.aggregates.count(query.columns.amount)).add(query.columns.countryCode)
 	 * 	query.groupBy.add(query.columns.countryCode)
 	 *  var ds = databaseManager.getDataSetByQuery(query, 100);
+	 *
+	 *  @param {Object} aggregee - The column, expression, or value to count. Can also be a special value like "*" for counting all rows.
 	 */
 	@JSFunction
 	@Override
@@ -105,6 +107,8 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 * 	query.result.add(query.aggregates.avg(query.columns.amount)).add(query.columns.countryCode)
 	 * 	query.groupBy.add(query.columns.countryCode)
 	 *  var ds = databaseManager.getDataSetByQuery(query, 100);
+	 *
+	 *  @param {Object} aggregee - The column or expression to calculate the average for.
 	 */
 	@JSFunction
 	@Override
@@ -120,6 +124,8 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 * 	query.result.add(query.aggregates.max(query.columns.amount)).add(query.columns.countryCode)
 	 * 	query.groupBy.add(query.columns.countryCode)
 	 *  var ds = databaseManager.getDataSetByQuery(query, 100);
+	 *
+	 *  @param {Object} aggregee - The column or expression to calculate the maximum value for. This can be a specific column or a computed expression.
 	 */
 	@JSFunction
 	@Override
@@ -135,6 +141,8 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 * 	query.result.add(query.aggregates.min(query.columns.amount)).add(query.columns.countryCode)
 	 * 	query.groupBy.add(query.columns.countryCode)
 	 *  var ds = databaseManager.getDataSetByQuery(query, 100);
+	 *
+	 * @param {Object} aggregee - The column or expression to calculate the minimum value for. This can be a specific column or a computed expression.
 	 */
 	@JSFunction
 	@Override
@@ -150,6 +158,8 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 * 	query.result.add(query.aggregates.sum(query.columns.amount)).add(query.columns.countryCode)
 	 * 	query.groupBy.add(query.columns.countryCode)
 	 *  var ds = databaseManager.getDataSetByQuery(query, 100);
+	 *
+	 * @param {Object} aggregee - The column or expression to calculate the sum for. This can be a specific column or a computed expression.
 	 */
 	@JSFunction
 	@Override

@@ -59,7 +59,24 @@ import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.Utils;
 
 /**
- * This class keeps track of all the forms and handles the window menu
+ * The <code>FormManager</code> class is a central component in the Servoy development environment, managing forms
+ * and their interactions within the application. It oversees the lifecycle of forms, controls their visibility,
+ * and ensures smooth transitions between various application states. By coordinating form display, navigation,
+ * and scripting interactions, the <code>FormManager</code> enables developers to deliver dynamic and user-friendly interfaces.
+ *
+ * ## Functionality and Responsibilities
+ * At its core, the <code>FormManager</code> handles form navigation, allowing forms to be displayed in main panels, dialogs,
+ * or custom containers. It ensures that forms adhere to access controls, checking permissions and visibility rules before rendering them.
+ * A built-in history mechanism tracks the navigation stack, enabling users to move back, forward, or to specific points in their interaction flow.
+ *
+ * The class supports dynamic form behavior through integration with a scripting engine, facilitating runtime actions such as
+ * executing custom methods, loading data, or performing searches. Additionally, it ensures efficient resource management by
+ * dynamically creating and destroying form controllers as needed. By coordinating visibility notifications and managing state changes,
+ * the <code>FormManager</code> ensures forms respond appropriately to user actions and application events.
+ *
+ * This class also integrates with application modes (e.g., browse, find, preview), transitioning forms smoothly while maintaining context.
+ * Its design supports scalability and flexibility, making it a critical component for maintaining a consistent user experience
+ * across diverse application states.
  *
  * @author jblok, jcompagner
  */

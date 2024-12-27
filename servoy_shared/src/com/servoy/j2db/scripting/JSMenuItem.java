@@ -145,6 +145,8 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	 *
 	 * @sample
 	 * menuItem.menuText = 'Item 1';
+	 *
+	 * @return {String} The text of the menu item.
 	 */
 	@JSGetter
 	public String getMenuText()
@@ -164,6 +166,8 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	 *
 	 * @sample
 	 * menu.iconStyleClass = 'fas fa-square';
+	 *
+	 * @return {String} The space-separated icon style classes of the menu item.
 	 */
 	@JSGetter
 	public String getIconStyleClass()
@@ -183,6 +187,8 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	 *
 	 * @sample
 	 * menuItem.tooltipText = 'my tooltip';
+	 *
+	 * @return {String} The tooltip text of the menu item.
 	 */
 	@JSGetter
 	public String getTooltipText()
@@ -202,6 +208,8 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	 *
 	 * @sample
 	 * menuItem.enabled = false;
+	 *
+	 * @return {boolean} The enabled state of the menu item.
 	 */
 	@JSGetter
 	public boolean getEnabled()
@@ -209,6 +217,10 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 		return this.enabled;
 	}
 
+	/**
+	 *
+	 * @return {boolean} Returns whether the menu item is enabled with security constraints applied.
+	 */
 	@JSFunction
 	public boolean getEnabledWithSecurity()
 	{
@@ -262,6 +274,8 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	 *
 	 * @sample
 	 * menuItem.callbackArguments = [1];
+	 *
+	 * @return {Object[]} The callback arguments of the menu item for supported components.
 	 */
 	@JSGetter
 	public Object[] getCallbackArguments()
@@ -282,7 +296,12 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	 * Returns an extra property value.
 	 *
 	 * @sample menuItem.getExtraProperty('Sidenav','formName');
-	 * @return  extra property value
+	 *
+	 * @param {String} categoryName - The category name of the extra property.
+	 * @param {String} propertyName - The name of the property to retrieve the value for.
+	 * @return {Object} The value of the specified extra property, or null if not found.
+	 *
+	 @return {Object} The value of the specified extra property, or null if not found.
 	 */
 	@JSFunction
 	public Object getExtraProperty(String categoryName, String propertyName)
@@ -296,6 +315,10 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 
 	/**
 	 * Sets an extra property value (property must be present in the component spec).
+	 *
+	 * @param {String} categoryName - The category name of the extra property.
+	 * @param {String} propertyName - The name of the property to set.
+	 * @param {Object} value - The value to assign to the specified property.
 	 *
 	 * @sample menuItem.setExtraProperty('Sidenav','formName','myform');
 	 */
