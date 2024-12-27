@@ -60,6 +60,8 @@ public class JSTableObject extends JSTable
 	 * @param type
 	 * @param length
 	 * @param allowNull
+	 *
+	 * @return A JSColumnObject instance representing the newly created column, or null if the column could not be created.
 	 */
 	public JSColumnObject js_createNewColumn(String columnName, Number type, Number length, Boolean allowNull)
 	{
@@ -73,6 +75,8 @@ public class JSTableObject extends JSTable
 	 * @param columnName
 	 * @param type
 	 * @param length
+	 *
+	 * @return A JSColumnObject instance representing the newly created column, or null if the column could not be created.
 	 */
 	public JSColumnObject js_createNewColumn(String columnName, Number type, Number length)
 	{
@@ -114,6 +118,8 @@ public class JSTableObject extends JSTable
 	 * @param length
 	 * @param allowNull
 	 * @param pkColumn
+	 *
+	 * @return A JSColumnObject instance representing the newly created column, or null if the column could not be created.
 	 */
 	public JSColumnObject js_createNewColumn(String columnName, Number type, Number length, Boolean allowNull, Boolean pkColumn)
 	{

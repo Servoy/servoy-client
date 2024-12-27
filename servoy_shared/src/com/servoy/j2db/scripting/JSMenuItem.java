@@ -146,7 +146,7 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	 * @sample
 	 * menuItem.menuText = 'Item 1';
 	 *
-	 * @return {String} The text of the menu item.
+	 * @return The text of the menu item.
 	 */
 	@JSGetter
 	public String getMenuText()
@@ -167,7 +167,7 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	 * @sample
 	 * menu.iconStyleClass = 'fas fa-square';
 	 *
-	 * @return {String} The space-separated icon style classes of the menu item.
+	 * @return The space-separated icon style classes of the menu item.
 	 */
 	@JSGetter
 	public String getIconStyleClass()
@@ -188,7 +188,7 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	 * @sample
 	 * menuItem.tooltipText = 'my tooltip';
 	 *
-	 * @return {String} The tooltip text of the menu item.
+	 * @return The tooltip text of the menu item.
 	 */
 	@JSGetter
 	public String getTooltipText()
@@ -209,7 +209,7 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	 * @sample
 	 * menuItem.enabled = false;
 	 *
-	 * @return {boolean} The enabled state of the menu item.
+	 * @return The enabled state of the menu item.
 	 */
 	@JSGetter
 	public boolean getEnabled()
@@ -219,7 +219,7 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 
 	/**
 	 *
-	 * @return {boolean} Returns whether the menu item is enabled with security constraints applied.
+	 * @return Returns whether the menu item is enabled with security constraints applied.
 	 */
 	@JSFunction
 	public boolean getEnabledWithSecurity()
@@ -275,7 +275,7 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	 * @sample
 	 * menuItem.callbackArguments = [1];
 	 *
-	 * @return {Object[]} The callback arguments of the menu item for supported components.
+	 * @return The callback arguments of the menu item for supported components.
 	 */
 	@JSGetter
 	public Object[] getCallbackArguments()
@@ -299,9 +299,8 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	 *
 	 * @param {String} categoryName - The category name of the extra property.
 	 * @param {String} propertyName - The name of the property to retrieve the value for.
-	 * @return {Object} The value of the specified extra property, or null if not found.
 	 *
-	 @return {Object} The value of the specified extra property, or null if not found.
+	 * @return The value of the specified extra property, or null if not found.
 	 */
 	@JSFunction
 	public Object getExtraProperty(String categoryName, String propertyName)
@@ -339,7 +338,7 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	}
 
 	/**
-	 * @return
+	 * @return A map containing all extra properties categorized by their names.
 	 */
 	public Map<String, Map<String, Object>> getExtraProperties()
 	{

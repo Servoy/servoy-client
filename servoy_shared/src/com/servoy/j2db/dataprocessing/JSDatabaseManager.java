@@ -3596,6 +3596,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * 	var serverNames = databaseManager.getDataModelClonesFrom('myServerName');
 	 *
 	 * @param serverName
+	 *
+	 * @return A list of names of all database servers that have the property DataModelCloneFrom set to the specified server name, or null if an error occurs or no such servers exist.
 	 */
 	@JSFunction
 	public String[] getDataModelClonesFrom(String serverName) throws ServoyException

@@ -631,6 +631,7 @@ public abstract class FoundSet
 	 * @sample
 	 * //Clear the foundset, including searches that may be on it
 	 * %%prefix%%foundset.clear();
+	 *
 	 */
 	public void js_clear()
 	{
@@ -703,6 +704,8 @@ public abstract class FoundSet
 	 * {
 	 *    // foundset cannot be used anymore
 	 * }
+	 *
+	 * @return True if the foundset has been disposed; false otherwise.
 	 */
 	@JSFunction
 	public boolean isDisposed()
@@ -1217,6 +1220,7 @@ public abstract class FoundSet
 	 * @return the recordCount
 	 *
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#find()
+	 *
 	 */
 	@JSFunction
 	public int search() throws ServoyException
@@ -3990,6 +3994,8 @@ public abstract class FoundSet
 	 * @sample
 	 * // allow user to select multiple rows.
 	 * %%prefix%%foundset.multiSelect = true;
+	 *
+	 * @return True if the foundset is in multi-select mode; false otherwise.
 	 */
 	public boolean js_isMultiSelect()
 	{

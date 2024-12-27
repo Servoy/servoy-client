@@ -83,6 +83,8 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 	 * @clonedesc com.servoy.j2db.persistence.Media#getMimeType()
 	 *
 	 * @sampleas getBytes()
+	 *
+	 * @return The MIME type of this Media object.
 	 */
 	@JSGetter
 	public String getMimeType()
@@ -123,6 +125,8 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 	 * application.output('image name after change: ' + ballImage.getName()); // The name remains unchanged. Only the content (bytes) are changed.
 	 * application.output('image mime type: ' + ballImage.mimeType);
 	 * application.output('image size: ' + ballImage.bytes.length);
+	 *
+	 * @return A byte array holding the content of the Media object.
 	 */
 	@JSGetter
 	public byte[] getBytes()
@@ -145,7 +149,8 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 	/**
 	 * Returns this media's bytes a a String converting it with the UTF-8 Charset.
 	 * Returns null if it couldn't convert it or the bytes where null.
-	 * @return
+	 *
+	 * @return This media's bytes as a string converted with the UTF-8 charset, or null if conversion is not possible or bytes are null.
 	 */
 	@JSFunction
 	public String getAsString()
@@ -171,6 +176,8 @@ public class JSMedia implements IJavaScriptType, ISMMedia
 	 * @sample
 	 * var ballImg = plugins.file.readFile('d:/ball.jpg');
 	 * application.output(ballImg.getUUID().toString());
+	 *
+	 * @return The UUID of this Media object.
 	 */
 	@JSFunction
 	public UUID getUUID()

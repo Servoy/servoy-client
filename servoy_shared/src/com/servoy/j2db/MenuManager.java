@@ -94,6 +94,8 @@ public class MenuManager implements IMenuManager, IReturnedTypesProvider
 	 *
 	 * @sample var mnu = menus.createMenu('mymenu');
 	 * @param name the menu name (identifier)
+	 *
+	 * @return the newly created menu with the specified name.
 	 */
 	@JSFunction
 	public JSMenu createMenu(String name)
@@ -108,6 +110,8 @@ public class MenuManager implements IMenuManager, IReturnedTypesProvider
 	 * Returns all the menus, either created at design time or at runtime.
 	 *
 	 * @sample var menus = menus.getMenus();
+	 *
+	 * @return an array of all menus, created either at design time or runtime.
 	 */
 	@JSFunction
 	public JSMenu[] getMenus()
@@ -121,6 +125,8 @@ public class MenuManager implements IMenuManager, IReturnedTypesProvider
 	 *
 	 * @sample var mnu = menus.getMenu('mymenu');
 	 * @param name the menu name (identifier)
+	 *
+	 * @return the menu with the specified name, or null if not found.
 	 */
 	@JSFunction
 	public JSMenu getMenu(String name)

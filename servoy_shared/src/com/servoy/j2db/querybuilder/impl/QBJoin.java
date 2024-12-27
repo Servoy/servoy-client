@@ -88,7 +88,7 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 	/**
 	 * Returns the join type, one of {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}, {@link IQueryBuilderJoin#INNER_JOIN}, {@link IQueryBuilderJoin#RIGHT_OUTER_JOIN}, {@link IQueryBuilderJoin#FULL_JOIN}
 	 *
-	 * @return joinType.
+	 * @return the join type, one of IQueryBuilderJoin
 	 */
 	@JSGetter
 	public int getJoinType()
@@ -108,6 +108,8 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.result.add(query.joins.orders_to_orderlines.columns.price)
 	 * query.joins.orders_to_orderlines.comment = 'Join comment'
+	 *
+	 * @return the comment of the join.
 	 */
 	@JSGetter
 	public String getComment()
@@ -134,6 +136,8 @@ public class QBJoin extends QBTableClause implements IQueryBuilderJoin, IConstan
 	 *
 	 * query.where.add(join2.columns.name.eq('john'))
 	 * foundset.loadRecords(query)
+	 *
+	 * @return the logical condition for the join.
 	 */
 	@JSReadonlyProperty
 	public QBLogicalCondition on()

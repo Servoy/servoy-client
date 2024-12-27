@@ -97,7 +97,7 @@ public class JSCalculation implements IJavaScriptType, ISMCalculation
 	 * var calc = solutionModel.getDataSourceNode("db:/example_data/customers").getCalculation("myCalculation");
 	 * calc.variableType = JSVariable.DATETIME;
 	 *
-	 * @return {int} The SQL type of this variable.
+	 * @return The SQL type of this variable.
 	 */
 	@JSGetter
 	public int getVariableType()
@@ -176,7 +176,7 @@ public class JSCalculation implements IJavaScriptType, ISMCalculation
 	 * var calc = solutionModel.getDataSourceNode("db:/example_data/customers").getCalculation("myCalculation");
 	 * calc.code = "function myCalculation() { return 123; }";
 	 *
-	 * @return {String} The declaration code of the calculation.
+	 * @return The declaration code of the calculation.
 	 */
 	@JSGetter
 	public String getCode()
@@ -234,7 +234,7 @@ public class JSCalculation implements IJavaScriptType, ISMCalculation
 	 * var calc = solutionModel.getDataSourceNode("db:/example_data/customers").newCalculation("function myCalculation() { return 123; }", JSVariable.INTEGER);
 	 * application.output(calc.getUUID().toString());
 	 *
-	 * @return {UUID} The UUID of the calculation.
+	 * @return The UUID of the calculation.
 	 */
 	@JSFunction
 	public UUID getUUID()

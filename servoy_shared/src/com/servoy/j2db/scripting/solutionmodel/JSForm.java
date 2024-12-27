@@ -770,7 +770,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	}
 
 	/**
-	 * @return {boolean} True if a header was successfully removed; false otherwise.
+	 * @return True if a header was successfully removed; false otherwise.
 	 */
 	@JSFunction
 	public boolean removeHeader()
@@ -3632,7 +3632,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * var frm = solutionModel.getForm('orders')
 	 * var prop = frm.getDesignTimeProperty('myprop')
 	 *
-	 * @return {Object} The value of the specified design-time property.
+	 * @return The value of the specified design-time property.
 	 */
 	@JSFunction
 	public Object getDesignTimeProperty(String key)
@@ -3651,7 +3651,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * var frm = solutionModel.getForm('orders')
 	 * frm.putDesignTimeProperty('myprop', 'lemon')
 	 *
-	 * @return {Object} The previous value of the specified design-time property, or null if none existed.
+	 * @return The previous value of the specified design-time property, or null if none existed.
 	 */
 	@JSFunction
 	public Object putDesignTimeProperty(String key, Object value)
@@ -3666,7 +3666,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * var frm = solutionModel.getForm('orders')
 	 * var propNames = frm.getDesignTimePropertyNames()
 	 *
-	 * @return {String[]} An array of design-time property names for the form.
+	 * @return An array of design-time property names for the form.
 	 */
 	@JSFunction
 	public String[] getDesignTimePropertyNames()
@@ -3688,7 +3688,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 * @param key the property name
 	 *
-	 * @return {Object} The previous value of the specified design-time property, or null if none existed.
+	 * @return The previous value of the specified design-time property, or null if none existed.
 	 */
 	@JSFunction
 	public Object removeDesignTimeProperty(String key)
@@ -3704,7 +3704,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 * var form_UUID = myForm.getUUID();
 	 * application.output(form_UUID.toString());
 	 *
-	 * @return {UUID} The UUID of this form.
+	 * @return The UUID of this form.
 	 */
 	@JSFunction
 	public UUID getUUID()
@@ -3728,7 +3728,7 @@ public class JSForm extends JSBaseContainer<Form> implements IJSScriptParent<For
 	 *
 	 * @param type the display type of the JSField object (see the Solution Model -> JSField node for display types)
 	 *
-	 * @return {JSField} The newly created JSField object.
+	 * @return The newly created JSField object.
 	 *
 	 */
 	@ServoyClientSupport(mc = false, ng = true, wc = false, sc = false)

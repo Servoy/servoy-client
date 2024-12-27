@@ -41,7 +41,7 @@ public class RuntimeContainer
 	/**
 	 * Adds one or more style classes to this container.
 	 * @param classes one or more class names
-	 * @return
+	 * @return true if the style classes were successfully added.
 	 */
 	@JSFunction
 	public boolean addStyleClasses(String... classes)
@@ -52,7 +52,7 @@ public class RuntimeContainer
 	/**
 	 * Removes one or more style classes to this container.
 	 * @param classes one or more class names
-	 * @return
+	 * @return true if the style classes were successfully removed.
 	 */
 	@JSFunction
 	public boolean removeStyleClasses(String... classes)
@@ -64,7 +64,7 @@ public class RuntimeContainer
 	 * returns true if this container has all the classes give.
 	 *
 	 * @param classes one or more class names
-	 * @return
+	 * @return true if this container has all the specified classes.
 	 */
 	@JSFunction
 	public boolean hasStyleClasses(String... classes)
