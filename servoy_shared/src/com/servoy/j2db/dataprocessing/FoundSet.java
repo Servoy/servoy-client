@@ -6047,7 +6047,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType, firstRow, lastRow));
 	}
 
-	protected final void fireFoundSetEvent(int firstRow, int lastRow, int changeType, List<String> dataproviders)
+	public final void fireFoundSetEvent(int firstRow, int lastRow, int changeType, Set<String> dataproviders)
 	{
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType, firstRow, lastRow, dataproviders));
 	}
@@ -6146,33 +6146,6 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 		else recordPkHash = createPKHashKey(pks.getRow(i));
 
 		return pkHash.equals(recordPkHash);
-	}
-
-	/**
-	 * @see com.servoy.j2db.dataprocessing.IFireCollectable#completeFire(java.util.List)
-	 */
-	public void completeFire(Map<IRecord, List<String>> entries)
-	{
-		int start = Integer.MAX_VALUE;
-		int end = -1;
-		List<String> dataproviders = null;
-		for (IRecord record : entries.keySet())
-		{
-			int index = getRecordIndex(record);
-			if (index != -1 && start > index)
-			{
-				start = index;
-			}
-			if (end < index)
-			{
-				end = index;
-			}
-			dataproviders = entries.get(record);
-		}
-		if (start != Integer.MAX_VALUE && end != -1)
-		{
-			fireFoundSetEvent(start, end, FoundSetEvent.CHANGE_UPDATE, dataproviders);
-		}
 	}
 
 	private boolean isInNotify = false;
@@ -6287,7 +6260,7 @@ public abstract class FoundSet implements IFoundSetInternal, IFoundSetScriptMeth
 							Object[] changedColumnNames = e.getChangedColumnNames();
 							if (changedColumnNames instanceof String[])
 							{
-								fireFoundSetEvent(0, getSize() - 1, FoundSetEvent.CHANGE_UPDATE, asList((String[])changedColumnNames));
+								fireFoundSetEvent(0, getSize() - 1, FoundSetEvent.CHANGE_UPDATE, Set.of((String[])changedColumnNames));
 							}
 							else
 							{
