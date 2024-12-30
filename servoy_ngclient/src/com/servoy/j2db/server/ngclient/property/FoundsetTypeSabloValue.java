@@ -1187,7 +1187,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 											returnValueAdjustedIncommingValueForRow.value.booleanValue())
 										{
 											changeMonitor.recordsUpdated(recordIndex, recordIndex, foundset.getSize(), viewPort,
-												Arrays.asList(new String[] { dataProviderName }));
+												Set.of(dataProviderName));
 										}
 									}
 								}

@@ -1438,37 +1438,10 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	@Override
-	public void completeFire(Map<IRecord, List<String>> entries)
-	{
-		int start = Integer.MAX_VALUE;
-		int end = -1;
-		List<String> dataproviders = null;
-		for (Entry<IRecord, List<String>> entry : entries.entrySet())
-		{
-			int index = getRecordIndex(entry.getKey());
-			if (index != -1 && start > index)
-			{
-				start = index;
-			}
-			if (end < index)
-			{
-				end = index;
-			}
-			if (dataproviders == null) dataproviders = entry.getValue();
-			else dataproviders.addAll(entry.getValue());
-		}
-		if (start != Integer.MAX_VALUE && end != -1)
-		{
-			fireFoundSetEvent(start, end, FoundSetEvent.CHANGE_UPDATE, dataproviders);
-		}
-	}
-
-	@Override
 	public SQLSheet getSQLSheet()
 	{
 		return null;
 	}
-
 
 	/*
 	 * (non-Javadoc)
@@ -2074,7 +2047,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType, firstRow, lastRow));
 	}
 
-	protected final void fireFoundSetEvent(int firstRow, int lastRow, int changeType, List<String> dataproviders)
+	public final void fireFoundSetEvent(int firstRow, int lastRow, int changeType, Set<String> dataproviders)
 	{
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType, firstRow, lastRow, dataproviders));
 	}

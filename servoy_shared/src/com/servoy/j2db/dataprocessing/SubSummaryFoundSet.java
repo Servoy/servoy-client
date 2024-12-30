@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.servoy.j2db.persistence.AggregateVariable;
 import com.servoy.j2db.persistence.Column;
@@ -75,10 +76,7 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 		sheet.setDataProviderIDsColumnMap(columnIndexes);
 	}
 
-	/**
-	 * @see com.servoy.j2db.dataprocessing.IFireCollectable#completeFire(java.util.List)
-	 */
-	public void completeFire(Map<IRecord, List<String>> entries)
+	public void completeFire(Map<IRecord, Set<String>> entries)
 	{
 	}
 
@@ -699,4 +697,11 @@ public class SubSummaryFoundSet implements IFoundSetInternal
 	{
 		return null;
 	}
+
+	@Override
+	public void fireFoundSetEvent(int firstRow, int lastRow, int changeType, Set<String> dataproviders)
+	{
+		// not used, because completeFire() default impl. was overriden with an empty method
+	}
+
 }

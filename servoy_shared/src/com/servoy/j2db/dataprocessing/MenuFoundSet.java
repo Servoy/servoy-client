@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListDataListener;
@@ -761,33 +761,6 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	}
 
 	@Override
-	public void completeFire(Map<IRecord, List<String>> entries)
-	{
-		int start = Integer.MAX_VALUE;
-		int end = -1;
-		List<String> dataproviders = null;
-		for (Entry<IRecord, List<String>> entry : entries.entrySet())
-		{
-			int index = getRecordIndex(entry.getKey());
-			if (index != -1 && start > index)
-			{
-				start = index;
-			}
-			if (end < index)
-			{
-				end = index;
-			}
-			if (dataproviders == null) dataproviders = entry.getValue();
-			else dataproviders.addAll(entry.getValue());
-		}
-		if (start != Integer.MAX_VALUE && end != -1)
-		{
-			fireFoundSetEvent(start, end, FoundSetEvent.CHANGE_UPDATE, dataproviders);
-		}
-
-	}
-
-	@Override
 	public int getRowCount()
 	{
 		return getSize();
@@ -1002,7 +975,7 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType, firstRow, lastRow));
 	}
 
-	private void fireFoundSetEvent(int firstRow, int lastRow, int changeType, List<String> dataproviders)
+	public void fireFoundSetEvent(int firstRow, int lastRow, int changeType, Set<String> dataproviders)
 	{
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType, firstRow, lastRow, dataproviders));
 	}

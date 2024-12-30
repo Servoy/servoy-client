@@ -19,6 +19,7 @@ package com.servoy.j2db.server.ngclient.property;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.sablo.IChangeListener;
 import org.sablo.specification.property.ArrayOperation;
@@ -449,7 +450,7 @@ public class FoundsetTypeChangeMonitor
 		if (oldChangeFlags != changeFlags) notifyChange();
 	}
 
-	public void recordsUpdated(int firstRow, int lastRow, int foundSetSize, final FoundsetTypeViewport viewPort, final List<String> dataproviders)
+	public void recordsUpdated(int firstRow, int lastRow, int foundSetSize, final FoundsetTypeViewport viewPort, final Set<String> dataproviders)
 	{
 		if (propertyValue.getDataAdapterList() != null && propertyValue.getDataAdapterList().isQuietRecordChangeInProgress()) return;
 
