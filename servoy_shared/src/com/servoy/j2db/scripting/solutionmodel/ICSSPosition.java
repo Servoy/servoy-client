@@ -44,6 +44,7 @@ public interface ICSSPosition
 	 * @sample
 	 * var left = comp.cssPosition.left;
 	 *
+	 * @return The left CSS position as a string, in pixels or percentage.
 	 */
 	@JSGetter
 	String getLeft();
@@ -57,6 +58,7 @@ public interface ICSSPosition
 	 * @sample
 	 * comp.cssPosition.right
 	 *
+	 * @return The right CSS position as a string, in pixels or percentage.
 	 */
 	@JSGetter
 	String getRight();
@@ -70,6 +72,7 @@ public interface ICSSPosition
 	 * @sample
 	 * comp.cssPosition.top
 	 *
+	 * @return The top CSS position as a string, in pixels or percentage.
 	 */
 	@JSGetter
 	String getTop();
@@ -83,6 +86,7 @@ public interface ICSSPosition
 	 * @sample
 	 * comp.cssPosition.bottom
 	 *
+	 * @return The bottom CSS position as a string, in pixels or percentage.
 	 */
 	@JSGetter
 	String getBottom();
@@ -110,6 +114,7 @@ public interface ICSSPosition
 	 * @sample
 	 * comp.cssPosition.height
 	 *
+	 * @return The height CSS position as a string, in pixels or percentage.
 	 */
 	@JSGetter
 	String getHeight();

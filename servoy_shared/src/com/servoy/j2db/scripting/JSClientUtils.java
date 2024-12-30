@@ -136,6 +136,8 @@ public class JSClientUtils
 	 *                     .build();
 	 *
 	 * @param dataprovider the dataprovider who's value should be sent to the browser (it can be a global scope variable or a datasource column)
+	 *
+	 * @return A JSBlobLoaderBuilder instance for constructing a blob loader URL.
 	 */
 	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 	@JSFunction
@@ -151,6 +153,8 @@ public class JSClientUtils
 	 * clienutils.getMediaURL('solution.css');
 	 *
 	 * @param mediaName Name of the media
+	 *
+	 * @return The media URL as a string, or null if the application is not an NGClient application.
 	 */
 	@JSFunction
 	@ServoyClientSupport(ng = true, wc = false, sc = false)
@@ -183,6 +187,8 @@ public class JSClientUtils
 	* var bounds = clientutils.getBounds(elements.myelement);
 	*
 	* @param webComponent the component
+	*
+	* @return A JSBounds object representing the screen location and size of the specified component, or null if unavailable.
 	*/
 	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 	@JSFunction
@@ -199,6 +205,8 @@ public class JSClientUtils
 	*
 	*  @param webComponent the parent component
 	*  @param subselector a selector to identify a child component starting with parent component
+	*
+	*  @return A JSBounds object representing the screen location and size of the specified child component, or null if unavailable.
 	*/
 	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
 	@JSFunction
