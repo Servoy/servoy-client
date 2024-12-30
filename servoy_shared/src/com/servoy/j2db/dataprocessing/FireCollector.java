@@ -18,8 +18,9 @@ package com.servoy.j2db.dataprocessing;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author jcompagner
@@ -47,7 +48,7 @@ public class FireCollector implements AutoCloseable
 		return fireCollector;
 	}
 
-	private final Map<IFireCollectable, Map<IRecord, List<String>>> map = new HashMap<IFireCollectable, Map<IRecord, List<String>>>();
+	private final Map<IFireCollectable, Map<IRecord, Set<String>>> map = new HashMap<>();
 	private int depth = 0;
 
 	private FireCollector()
@@ -62,10 +63,10 @@ public class FireCollector implements AutoCloseable
 			{
 				while (map.size() > 0)
 				{
-					ArrayList<Map.Entry<IFireCollectable, Map<IRecord, List<String>>>> copy = new ArrayList<Map.Entry<IFireCollectable, Map<IRecord, List<String>>>>(
+					ArrayList<Map.Entry<IFireCollectable, Map<IRecord, Set<String>>>> copy = new ArrayList<>(
 						map.entrySet());
 					map.clear();
-					for (Map.Entry<IFireCollectable, Map<IRecord, List<String>>> entry : copy)
+					for (Map.Entry<IFireCollectable, Map<IRecord, Set<String>>> entry : copy)
 					{
 						entry.getKey().completeFire(entry.getValue());
 					}
@@ -85,22 +86,19 @@ public class FireCollector implements AutoCloseable
 	 */
 	public void put(IFireCollectable rowCollectable, IRecord collected, String dataproviderID)
 	{
-		Map<IRecord, List<String>> lst = map.get(rowCollectable);
+		Map<IRecord, Set<String>> lst = map.get(rowCollectable);
 		if (lst == null)
 		{
-			lst = new HashMap<IRecord, List<String>>();
+			lst = new HashMap<IRecord, Set<String>>();
 			map.put(rowCollectable, lst);
 		}
-		List<String> dataproviders = lst.get(collected);
+		Set<String> dataproviders = lst.get(collected);
 		if (dataproviders == null)
 		{
-			dataproviders = new ArrayList<String>();
+			dataproviders = new HashSet<String>();
 			lst.put(collected, dataproviders);
 		}
-		if (!dataproviders.contains(dataproviderID))
-		{
-			dataproviders.add(dataproviderID);
-		}
+		dataproviders.add(dataproviderID);
 	}
 
 	/*

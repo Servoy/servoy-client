@@ -825,11 +825,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		// one of the relations could be changed make sure they are recreated.
 		createRelationListeners();
 		if (e.getRecord() == null) tellNestedRelatedListenersThatGlobalOrScopeVariableChanged(e.getName()); // if it's a change in the record, they will refresh anyway due to direct foundset listeners added by nestedRelatedFoundsetListeners or due to DAL.setRecord(...)
+		pushChangedValues(e.getName(), getForm().isFormVisible());
 
-		if (getForm().isFormVisible())
-		{
-			pushChangedValues(e.getName(), true);
-		}
 	}
 
 	public void pushChanges(WebFormComponent webComponent, String beanProperty)
@@ -1619,7 +1616,8 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					// changed column(s) vs relation keys; see if columns that are used as keys in relations have changed
 					if (this.selectedRecord != null && e != null && e.getType() == FoundSetEvent.CONTENTS_CHANGED &&
 						e.getChangeType() == FoundSetEvent.CHANGE_UPDATE && e.getFirstRow() <= selectedIndex && e.getLastRow() >= selectedIndex &&
-						e.getDataProviders().stream().anyMatch((columnName) -> nextIntermediateRelationColumnKeys.contains(columnName)))
+						(e.getDataProviders() == null ||
+							e.getDataProviders().stream().anyMatch((columnName) -> nextIntermediateRelationColumnKeys.contains(columnName))))
 					{
 						if (nextIntermediateRelationListener != null) nextIntermediateRelationListener.refreshListeners();
 						reloadRecordsOnEndFormController(); // a column that is used as a key in the next intermediate relation has changed; reload of records is needed
