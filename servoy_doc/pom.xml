@@ -19,7 +19,7 @@
 	<properties>
 		<workspace_dir>${project.build.directory}/ws</workspace_dir>
 		<servoy-local.url>${project.baseUri}/target/repository/</servoy-local.url>
-		<doc.version>1.6.2</doc.version>
+		<doc.version>1.7.0</doc.version>
 	</properties>
 
 	<build>
