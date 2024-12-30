@@ -87,28 +87,10 @@ public interface IFireCollectable
 						addNewOpAtTheEnd = false;
 						updateOpNode = null; // finish iteration
 					}
+
 					// this else is not possible because we don't have the same record twice in the map - so it can't overlap a previously created updateOp
 //					else if (indexOfRecord >= updateOp.start && indexOfRecord <= updateOp.end)
-//					{
-//						// index is inside of the updateOp changed interval; see if dataproviders match or are less then the current ones on the updateOp
-//						if (!updateOp.dataproviders.containsAll(dataproviders))
-//						{
-//							// we have to split current updateOp... into a (maybe) before interval, one interval at record index and (maybe) an after interval
-//							if (updateOp.start < indexOfRecord)
-//								sortedUpdateOps.addBefore(updateOpNode, new UpdateOp(updateOp.start, indexOfRecord - 1, updateOp.dataproviders));
-//
-//							updateOp.start = updateOp.end = indexOfRecord;
-//							updateOp.dataproviders = new HashSet<>(updateOp.dataproviders);
-//							updateOp.dataproviders.addAll(dataproviders);
-//
-//							if (updateOp.end > indexOfRecord)
-//								sortedUpdateOps.addAfter(updateOpNode, new UpdateOp(indexOfRecord + 1, updateOp.end, updateOp.dataproviders));
-//
-//						} // else nothing more to do here
-//
-//						addNewOpAtTheEnd = false;
-//						updateOpNode = null; // finish iteration
-//					}
+
 					else if (indexOfRecord < updateOp.start - 1)
 					{
 						// it is a separate update op; it's not next to either it's previous change index or it's next change index
