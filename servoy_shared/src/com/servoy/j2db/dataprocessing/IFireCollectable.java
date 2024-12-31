@@ -112,7 +112,7 @@ public interface IFireCollectable
 
 		// ok, now fire the merged ops; because the initial "entries" might contain records in random order, it is also possible now
 		// that 2 UpdateOp might be right next to each other with the same DPs - in that case merge the 2 UpdateOps into one event fire
-		Node<UpdateOp> updateOpNode = sortedUpdateOps.getFirstNode();
+		Node<UpdateOp> updateOpNode = sortedUpdateOps.size() > 0 ? sortedUpdateOps.getFirstNode() : null;
 		while (updateOpNode != null)
 		{
 			UpdateOp updateOp = updateOpNode.item();
