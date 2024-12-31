@@ -3699,6 +3699,8 @@ public abstract class BasicFormController
 		 * var state = %%prefix%%controller.enabled;
 		 * //enables the form for input
 		 * %%prefix%%controller.enabled = true;
+		 *
+		 * @return true if the form is enabled (not grayed-out), false otherwise.
 		 */
 		@JSGetter
 		public boolean getEnabled()
@@ -3724,6 +3726,8 @@ public abstract class BasicFormController
 		 * var state = %%prefix%%controller.readOnly;
 		 * //sets the read-only state of the form
 		 * %%prefix%%controller.readOnly = true
+		 *
+		 * @return true if the form is read-only (not editable), false otherwise.
 		 */
 		public boolean js_getReadOnly()
 		{
@@ -3747,6 +3751,8 @@ public abstract class BasicFormController
 		 * 	columnDateDataProvider = '31-12-2010|dd-MM-yyyy'
 		 * 	%%prefix%%controller.search()
 		 * }
+		 *
+		 * @return true if the find mode was successfully entered, false otherwise.
 		 */
 		public boolean js_find() throws ServoyException
 		{
@@ -3759,6 +3765,8 @@ public abstract class BasicFormController
 		 * @sample
 		 * var recordCount = %%prefix%%controller.search();
 		 * //var recordCount = %%prefix%%controller.search(false,false); //to extend foundset
+		 *
+		 * @return the number of records found matching the search criteria.
 		 */
 		public int js_search() throws ServoyException
 		{
@@ -4296,6 +4304,8 @@ public abstract class BasicFormController
 		 * %%prefix%%controller.view = JSForm.RECORD_VIEW;
 		 * //sets the form to List view
 		 * %%prefix%%controller.view = JSForm.LIST_VIEW;
+		 *
+		 * @return the current view type of the form as an integer (e.g., RECORD_VIEW, LIST_VIEW).
 		 */
 		public int js_getView()
 		{
@@ -4721,6 +4731,8 @@ public abstract class BasicFormController
 		 * var prop = forms.orders.controller.getDesignTimeProperty('myprop')
 		 *
 		 * @param key the property name
+		 *
+		 * @return the value of the specified design-time property, or null if the property is not set.
 		 */
 		public Object js_getDesignTimeProperty(String key)
 		{
@@ -4732,6 +4744,8 @@ public abstract class BasicFormController
 		 *
 		 * @sample
 		 * var prop = fforms.orders.controller.getDesignProperties()
+		 *
+		 * @return a map containing all design-time properties of the form.
 		 */
 		@JSFunction
 		public Map<String, Object> getDesignProperties()

@@ -81,6 +81,8 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 	 * query.where.add(query.columns.orderdate.isNull)
 	 *
 	 * @param condition the condition to add
+	 *
+	 * @return the updated logical condition with the added condition.
 	 */
 	public QBLogicalCondition js_add(QBCondition condition)
 	{
@@ -109,6 +111,8 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 	 *
 	 * @param name the name of the condition
 	 * @param condition the condition to add
+	 *
+	 * @return the updated logical condition with the named condition added.
 	 */
 	public QBLogicalCondition js_add(String name, QBCondition condition)
 	{
@@ -129,6 +133,8 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 	 * {
 	 * 	var subcond = cond.getCondition(cname)
 	 * }
+	 *
+	 * @return an array of strings representing the names of the conditions in the logical condition.
 	 */
 	@JSReadonlyProperty
 	public String[] conditionnames()
@@ -149,6 +155,8 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 	 * @sample
 	 * var cond = query.getCondition('mycond')
 	 * cond.remove('mysubcond')
+	 *
+	 * @return the updated logical condition with the named condition removed.
 	 */
 	@JSFunction
 	public QBLogicalCondition remove(String name)
@@ -166,6 +174,8 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 	 * @sample
 	 * var cond = query.getCondition('mycond')
 	 * cond.clear()
+	 *
+	 * @return the cleared logical condition.
 	 */
 	@JSFunction
 	public QBLogicalCondition clear()
@@ -184,6 +194,8 @@ public class QBLogicalCondition extends QBCondition implements IQueryBuilderLogi
 	 * @param name The condition name.
 	 *
 	 * @sampleas conditionnames()
+	 *
+	 * @return the named condition as a new logical condition, or null if the condition does not exist.
 	 */
 	@JSFunction
 	public QBLogicalCondition getCondition(String name)

@@ -80,6 +80,8 @@ public class QBGroupBy extends QBPart implements IQueryBuilderGroupby
 	 * foundset.loadRecords(query)
 	 *
 	 * @param column the column to add to the query condition
+	 *
+	 * @return the updated group-by clause with the specified column added.
 	 */
 	public QBGroupBy js_add(QBColumn column) throws RepositoryException
 	{
@@ -95,6 +97,8 @@ public class QBGroupBy extends QBPart implements IQueryBuilderGroupby
 	 * foundset.loadRecords(query)
 	 *
 	 * @param function the function to add to the query
+	 *
+	 * @return the updated group-by clause with the specified function added.
 	 */
 	public QBGroupBy js_add(QBFunction function) throws RepositoryException
 	{
@@ -118,6 +122,8 @@ public class QBGroupBy extends QBPart implements IQueryBuilderGroupby
 	 * query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * .root.having.add(query.joins.orders_to_order_details.columns.quantity.count.eq(0))
 	 * foundset.loadRecords(query)
+	 *
+	 * @return the updated group-by clause with the primary key(s) of the table added.
 	 */
 	@JSFunction
 	public QBGroupBy addPk() throws RepositoryException
@@ -140,6 +146,8 @@ public class QBGroupBy extends QBPart implements IQueryBuilderGroupby
 	 * q.where.add(q.columns.x.eq(100))
 	 * query.groupBy.clear.root.clearHaving()
 	 * foundset.loadRecords(q);
+	 *
+	 * @return the cleared group-by clause.
 	 */
 	@JSFunction
 	public QBGroupBy clear()
