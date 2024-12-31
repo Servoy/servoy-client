@@ -660,7 +660,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 					this.record.getParentFoundSet().addAggregateModificationListener(this);
 				}
 				createRelationListeners();
-				tellNestedRelatedListenersThatMainDALRecordHasChanged();
+				if (record != null) tellNestedRelatedListenersThatMainDALRecordHasChanged(); // if record == null it could be due to a hide of the main form, in which case we want the related forms to not set their foundsets to null, but keep the last related foundset where the form will be shown next (if another foundset/relation is not enforced on that form then)
 				if (maxRecIndexPropertyValueListener != null) maxRecIndexPropertyValueListener.setRecord(this.record);
 			}
 			finally
