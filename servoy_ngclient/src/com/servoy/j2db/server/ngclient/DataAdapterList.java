@@ -876,10 +876,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		}
 		// one of the relations could be changed make sure they are recreated.
 		createRelationListeners();
-		if (getForm().isFormVisible())
-		{
-			pushChangedValues(e.getName(), true);
-		}
+		pushChangedValues(e.getName(), true);
 	}
 
 	public void pushChanges(WebFormComponent webComponent, String beanProperty)
