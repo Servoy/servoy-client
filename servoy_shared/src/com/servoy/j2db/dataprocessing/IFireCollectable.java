@@ -20,9 +20,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.servoy.j2db.util.LinkedListWithAccessToNodes;
-import com.servoy.j2db.util.LinkedListWithAccessToNodes.Node;
-
 /**
  * @author jcompagner
  */
@@ -35,101 +32,26 @@ public interface IFireCollectable
 	 */
 	default void completeFire(Map<IRecord, Set<String>> entries)
 	{
-		class UpdateOp
-		{
-			int start, end;
-			Set<String> dataproviders;
-
-			public UpdateOp(int start, int end, Set<String> dataproviders)
-			{
-				this.start = start;
-				this.end = end;
-				this.dataproviders = dataproviders;
-			}
-		}
-
-		LinkedListWithAccessToNodes<UpdateOp> sortedUpdateOps = new LinkedListWithAccessToNodes<>();
-
-		// merge multiple 1-record change events into less (even 1 change event with an interval) if possible; so that we fire as few changes as needed
+		int start = Integer.MAX_VALUE;
+		int end = -1;
+		Set<String> dataproviders = null;
 		for (Entry<IRecord, Set<String>> entry : entries.entrySet())
 		{
-			int indexOfRecord = getRecordIndex(entry.getKey());
-
-			if (indexOfRecord != -1)
+			int index = getRecordIndex(entry.getKey());
+			if (index != -1 && start > index)
 			{
-				Set<String> dataproviders = entry.getValue(); // CANNOT BE null!
-
-				boolean addNewOpAtTheEnd = true;
-				Node<UpdateOp> updateOpNode = sortedUpdateOps.size() > 0 ? sortedUpdateOps.getFirstNode() : null;
-
-				while (updateOpNode != null)
-				{
-					UpdateOp updateOp = updateOpNode.item();
-					if (indexOfRecord == updateOp.start - 1 || indexOfRecord == updateOp.end + 1)
-					{
-						// index is right next to updateOp interval; see if dataProviders match
-						if (dataproviders.containsAll(updateOp.dataproviders) && updateOp.dataproviders.containsAll(dataproviders))
-						{
-							// yep, they do; just update interval
-							if (indexOfRecord == updateOp.start - 1) updateOp.start--;
-							if (indexOfRecord == updateOp.end + 1) updateOp.end++;
-						}
-						else
-						{
-							// no, they do not; create a new OP
-							if (indexOfRecord == updateOp.start - 1)
-								sortedUpdateOps.addBefore(updateOpNode, new UpdateOp(indexOfRecord, indexOfRecord, dataproviders));
-							else /* indexOfRecord == updateOp.end + 1 */ sortedUpdateOps.addAfter(updateOpNode,
-								new UpdateOp(indexOfRecord, indexOfRecord, dataproviders));
-
-						}
-
-						addNewOpAtTheEnd = false;
-						updateOpNode = null; // finish iteration
-					}
-
-					// this else is not possible because we don't have the same record twice in the map - so it can't overlap a previously created updateOp
-//					else if (indexOfRecord >= updateOp.start && indexOfRecord <= updateOp.end)
-
-					else if (indexOfRecord < updateOp.start - 1)
-					{
-						// it is a separate update op; it's not next to either it's previous change index or it's next change index
-						sortedUpdateOps.addBefore(updateOpNode, new UpdateOp(indexOfRecord, indexOfRecord, dataproviders));
-
-						addNewOpAtTheEnd = false;
-						updateOpNode = null; // finish iteration
-					}
-					else updateOpNode = updateOpNode.next(); // continue searching to see if we can merge this change into an existing change op.
-				}
-
-				if (addNewOpAtTheEnd)
-				{
-					// we found no changed interval to add it to; add a new one
-					sortedUpdateOps.addLast(new UpdateOp(indexOfRecord, indexOfRecord, dataproviders));
-				}
+				start = index;
 			}
+			if (end < index)
+			{
+				end = index;
+			}
+			if (dataproviders == null) dataproviders = entry.getValue();
+			else dataproviders.addAll(entry.getValue());
 		}
-
-		// ok, now fire the merged ops; because the initial "entries" might contain records in random order, it is also possible now
-		// that 2 UpdateOp might be right next to each other with the same DPs - in that case merge the 2 UpdateOps into one event fire
-		Node<UpdateOp> updateOpNode = sortedUpdateOps.getFirstNode();
-		while (updateOpNode != null)
+		if (start != Integer.MAX_VALUE && end != -1)
 		{
-			UpdateOp updateOp = updateOpNode.item();
-			int start = updateOp.start, end = updateOp.end;
-
-			Node<UpdateOp> nextUpdateOpNode = updateOpNode.next();
-
-			while (nextUpdateOpNode != null && nextUpdateOpNode.item().start == updateOp.end + 1 &&
-				nextUpdateOpNode.item().dataproviders.containsAll(updateOp.dataproviders) &&
-				updateOp.dataproviders.containsAll(nextUpdateOpNode.item().dataproviders))
-			{
-				end = nextUpdateOpNode.item().end;
-				nextUpdateOpNode = nextUpdateOpNode.next();
-			}
-
-			fireFoundSetEvent(start, end, FoundSetEvent.CHANGE_UPDATE, updateOp.dataproviders);
-			updateOpNode = nextUpdateOpNode;
+			fireFoundSetEvent(start, end, FoundSetEvent.CHANGE_UPDATE, dataproviders);
 		}
 	}
 
