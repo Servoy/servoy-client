@@ -711,6 +711,8 @@ public class JSI18N implements IJSI18N
 	 * @sample
 	 * //Get the list of available time zones
 	 * var timezones = i18n.getAvailableTimeZoneIDs();
+	 *
+	 * @return An array of Strings containing the available time zones.
 	 */
 	@JSFunction
 	public String[] getAvailableTimeZoneIDs()

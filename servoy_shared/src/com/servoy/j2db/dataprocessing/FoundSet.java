@@ -631,6 +631,7 @@ public abstract class FoundSet
 	 * @sample
 	 * //Clear the foundset, including searches that may be on it
 	 * %%prefix%%foundset.clear();
+	 *
 	 */
 	public void js_clear()
 	{
@@ -703,6 +704,8 @@ public abstract class FoundSet
 	 * {
 	 *    // foundset cannot be used anymore
 	 * }
+	 *
+	 * @return True if the foundset has been disposed; false otherwise.
 	 */
 	@JSFunction
 	public boolean isDisposed()
@@ -1217,6 +1220,7 @@ public abstract class FoundSet
 	 * @return the recordCount
 	 *
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#find()
+	 *
 	 */
 	@JSFunction
 	public int search() throws ServoyException
@@ -3990,6 +3994,8 @@ public abstract class FoundSet
 	 * @sample
 	 * // allow user to select multiple rows.
 	 * %%prefix%%foundset.multiSelect = true;
+	 *
+	 * @return True if the foundset is in multi-select mode; false otherwise.
 	 */
 	public boolean js_isMultiSelect()
 	{
@@ -6113,7 +6119,7 @@ public abstract class FoundSet
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType, firstRow, lastRow));
 	}
 
-	protected final void fireFoundSetEvent(int firstRow, int lastRow, int changeType, List<String> dataproviders)
+	public final void fireFoundSetEvent(int firstRow, int lastRow, int changeType, Set<String> dataproviders)
 	{
 		fireFoundSetEvent(new FoundSetEvent(this, FoundSetEvent.CONTENTS_CHANGED, changeType, firstRow, lastRow, dataproviders));
 	}
@@ -6248,33 +6254,6 @@ public abstract class FoundSet
 		return pkHash.equals(recordPkHash);
 	}
 
-	/**
-	 * @see com.servoy.j2db.dataprocessing.IFireCollectable#completeFire(java.util.List)
-	 */
-	public void completeFire(Map<IRecord, List<String>> entries)
-	{
-		int start = Integer.MAX_VALUE;
-		int end = -1;
-		List<String> dataproviders = null;
-		for (IRecord record : entries.keySet())
-		{
-			int index = getRecordIndex(record);
-			if (index != -1 && start > index)
-			{
-				start = index;
-			}
-			if (end < index)
-			{
-				end = index;
-			}
-			dataproviders = entries.get(record);
-		}
-		if (start != Integer.MAX_VALUE && end != -1)
-		{
-			fireFoundSetEvent(start, end, FoundSetEvent.CHANGE_UPDATE, dataproviders);
-		}
-	}
-
 	private boolean isInNotify = false;
 
 	public void notifyChange(RowEvent e) //this method is only called if I'm not the source of the event
@@ -6387,7 +6366,7 @@ public abstract class FoundSet
 							Object[] changedColumnNames = e.getChangedColumnNames();
 							if (changedColumnNames instanceof String[])
 							{
-								fireFoundSetEvent(0, getSize() - 1, FoundSetEvent.CHANGE_UPDATE, asList((String[])changedColumnNames));
+								fireFoundSetEvent(0, getSize() - 1, FoundSetEvent.CHANGE_UPDATE, Set.of((String[])changedColumnNames));
 							}
 							else
 							{

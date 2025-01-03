@@ -79,7 +79,7 @@ public class Set
 	 *
 	 * @param value
 	 *
-	 * @return {boolean} True if the specified element was successfully removed from the Set; false otherwise.
+	 * @return True if the specified element was successfully removed from the Set; false otherwise.
 	 */
 	@JSFunction
 	public boolean delete(Object value)
@@ -120,7 +120,7 @@ public class Set
 	 *
 	 * @param key
 	 *
-	 * @return {boolean} True if the Set contains an element with the specified key; false otherwise.
+	 * @return True if the Set contains an element with the specified key; false otherwise.
 	 *
 	 */
 	public boolean js_has(Object key)

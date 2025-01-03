@@ -131,6 +131,8 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 	 * @clonedesc com.servoy.j2db.persistence.AbstractScriptProvider#getDeclaration()
 	 *
 	 * @sampleas com.servoy.j2db.solutionmodel.ISMMethod#getShowInMenu()
+	 *
+	 * @return The declaration code of the script method.
 	 */
 	@JSGetter
 	public String getCode()
@@ -192,6 +194,8 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 	 * var methods = solutionModel.getGlobalMethods();
 	 * for (var x in methods)
 	 * 	application.output(methods[x].getName() + ' is defined in scope ' + methods[x].getScopeName());
+	 *
+	 * @return The scope name in which the method is defined.
 	 */
 	@JSFunction
 	public String getScopeName()
@@ -204,6 +208,8 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 	 * @clonedesc com.servoy.j2db.persistence.ScriptMethod#getShowInMenu()
 	 *
 	 * @sampleas com.servoy.j2db.scripting.solutionmodel.JSMethod#getCode()
+	 *
+	 * @return True if the method is shown in the menu; false otherwise.
 	 */
 	@JSGetter
 	public boolean getShowInMenu()
@@ -251,6 +257,8 @@ public class JSMethod implements IJavaScriptType, ISMMethod
 	 * @sample
 	 * var method = form.newMethod('function original() { application.output("Original function."); }');
 	 * application.output(method.getUUID().toString());
+	 *
+	 * @return The UUID of the method object.
 	 */
 	@JSFunction
 	public UUID getUUID()

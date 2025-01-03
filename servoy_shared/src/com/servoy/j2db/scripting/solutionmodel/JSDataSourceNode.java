@@ -136,6 +136,8 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	 *
 	 * @sampleas newCalculation(String, int)
 	 *
+	 * @return a JSCalculation object for the specified calculation name, or null if no such calculation exists.
+	 *
 	 */
 	@JSFunction
 	public JSCalculation getCalculation(String name)
@@ -152,6 +154,8 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	 * Gets all the calculations for the datasource node.
 	 *
 	 * @sampleas newCalculation(String, int)
+	 *
+	 * @return an array of all JSCalculation objects for the data source node.
 	 */
 	@JSFunction
 	public JSCalculation[] getCalculations()
@@ -172,6 +176,8 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	 * @param code The code of the calculation, this must be a full function declaration.
 	 *
 	 * @sampleas newCalculation(String, int)
+	 *
+	 * @return the created JSCalculation object for the specified code with default type TEXT.
 	 *
 	 */
 	@JSFunction
@@ -199,6 +205,7 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	 * 	application.output(allCalcs[i]);
 	 * }
 	 *
+	 * @return the created JSCalculation object for the specified code and type.
 	 */
 	@JSFunction
 	public JSCalculation newCalculation(String code, int type)
@@ -324,6 +331,8 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	 *
 	 * @sampleas newMethod(String)
 	 *
+	 * @return the JSMethod object for the specified method name, or null if no such method exists.
+	 *
 	 */
 	@JSFunction
 	public JSMethod getMethod(String name)
@@ -340,6 +349,8 @@ public class JSDataSourceNode implements IJSScriptParent<TableNode>, IConstantsO
 	 * Gets all the foundset methods for the datasource node.
 	 *
 	 * @sampleas newMethod(String)
+	 *
+	 * @return an array of all JSMethod objects for the data source node.
 	 */
 	@JSFunction
 	public JSMethod[] getMethods()

@@ -57,6 +57,8 @@ public class QBCaseWhen implements IQueryBuilderCaseWhen, IJavaScriptType
 	 * @param value The value.
 	 *
 	 * @sampleas com.servoy.j2db.querybuilder.impl.QBSelect#js_case()
+	 *
+	 * @return the parent `QBCase` object with the associated condition and value applied.
 	 */
 	@JSFunction
 	public QBCase then(Object value)

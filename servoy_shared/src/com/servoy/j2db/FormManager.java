@@ -1044,6 +1044,8 @@ public abstract class FormManager extends BasicFormManager implements PropertyCh
 		 * @sample
 		 * history.buttonsEnabled = true;
 		 * var status = history.buttonsEnabled;
+		 *
+		 * @return True if the history navigation buttons are enabled; otherwise, false.
 		 */
 		@JSGetter
 		public boolean getButtonsEnabled()

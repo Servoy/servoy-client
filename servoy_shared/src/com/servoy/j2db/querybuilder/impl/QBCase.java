@@ -65,6 +65,8 @@ public class QBCase extends QBPart implements IQueryBuilderCase
 	 * @param condition The condition.
 	 *
 	 * @sampleas com.servoy.j2db.querybuilder.impl.QBSelect#js_case()
+	 *
+	 * @return A QBCaseWhen instance, allowing you to specify the then value for the provided when condition.
 	 */
 	@JSFunction
 	public QBCaseWhen when(IQueryBuilderCondition condition)
@@ -78,6 +80,8 @@ public class QBCase extends QBPart implements IQueryBuilderCase
 	 * @param value The value.
 	 *
 	 * @sampleas com.servoy.j2db.querybuilder.impl.QBSelect#js_case()
+	 *
+	 * @return A QBSearchedCaseExpression that defines the value to return if none of the when clauses are satisfied.
 	 */
 	public QBColumn jsFunction_else(Object value)
 	{

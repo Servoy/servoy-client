@@ -75,6 +75,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.shipname.upper.eq(query.functions.upper('Sample')))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the value converted to uppercase.
 	 */
 	@JSFunction
 	public QBTextColumnBase upper(Object value)
@@ -89,6 +91,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.mynum.abs.eq(query.functions.abs(myval)))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the absolute value of the input.
 	 */
 	@JSFunction
 	public QBNumberColumnBase abs(Object value)
@@ -103,6 +107,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.mynum.sqrt.eq(query.functions.sqrt(myval)))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the square root of the input.
 	 */
 	@JSFunction
 	public QBNumberColumnBase sqrt(Object value)
@@ -117,6 +123,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.shipname.lower.eq(query.functions.lower('Sample')))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the value converted to lowercase.
 	 */
 	@JSFunction
 	public QBTextColumnBase lower(Object value)
@@ -131,6 +139,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.shipname.trim.eq(query.functions.trim('Sample')))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the value with leading and trailing spaces removed.
 	 */
 	@JSFunction
 	public QBTextColumnBase trim(Object value)
@@ -150,6 +160,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * // show shipname but remove trailing space
 	 * query.result.add(query.functions.trim('trailing', ' ', 'from', query.columns.shipname));
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the value with specified characters trimmed from a specified position.
 	 */
 	@JSFunction
 	public QBTextColumnBase trim(String leading_trailing_both, String characters, String fromKeyword, Object value)
@@ -186,6 +198,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.shipname.len.eq(query.functions.len('Sample')))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the length of the value.
 	 */
 	@JSFunction
 	public QBIntegerColumnBase len(Object value)
@@ -201,6 +215,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.shipname.bit_length.eq(query.functions.bit_length('Sample')))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the bit length of the value.
 	 */
 	@JSFunction
 	public QBIntegerColumnBase bit_length(Object value)
@@ -216,6 +232,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.result.add(query.functions.cast("22",QUERY_COLUMN_TYPES.TYPE_INTEGER)).add(query.columns.amt_discount.cast(QUERY_COLUMN_TYPES.TYPE_STRING));
 	 * application.output(databaseManager.getDataSetByQuery(query,1).getAsHTML())
+	 *
+	 * @return A query builder function representing the value cast to the specified type.
 	 */
 	@JSFunction
 	public QBColumn cast(Object value, String type)
@@ -232,6 +250,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.shipname.substring(3).eq(query.functions.substring('Sample', 3)))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing a substring starting at the specified position.
 	 */
 	@JSFunction
 	public QBTextColumnBase substring(Object arg, int pos)
@@ -248,6 +268,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.shipname.substring(3, 2).eq(query.functions.substring('Sample', 3, 2)))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing a substring of specified length starting at the specified position.
 	 */
 	@JSFunction
 	public QBTextColumnBase substring(Object arg, int pos, int len)
@@ -264,6 +286,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.shipname.locate('amp').eq(query.functions.locate('amp', 'Sample')))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the position of the first occurrence of one string in another.
 	 */
 	@JSFunction
 	public QBIntegerColumnBase locate(Object string1, Object string2)
@@ -280,6 +304,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.shipname.locate('amp', 1).eq(query.functions.locate('amp', 'Sample', 1)))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the position of the first occurrence of one string in another, starting from a given position.
 	 */
 	@JSFunction
 	public QBIntegerColumnBase locate(Object string1, Object string2, int start)
@@ -296,6 +322,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.shipname.nullif('none').eq(query.functions.nullif('Sample', 'none')))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function that returns null if the two arguments are equal.
 	 */
 	@JSFunction
 	public QBColumn nullif(Object arg1, Object arg2)
@@ -311,6 +339,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.mynumcol.mod(2).eq(query.functions.mod(myvar, 2))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the remainder of the division of two numbers.
 	 */
 	@JSFunction
 	public QBNumberColumnBase mod(Object dividend, Object divisor)
@@ -326,6 +356,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.mynumcol.plus(2).eq(query.functions.plus(myvar, 2))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the sum of two arguments.
 	 */
 	@JSFunction
 	public QBNumberColumnBase plus(Object arg1, Object arg2)
@@ -341,6 +373,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.mynumcol.minus(2).eq(query.functions.minus(myvar, 2))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the difference between two arguments.
 	 */
 	@JSFunction
 	public QBNumberColumnBase minus(Object arg1, Object arg2)
@@ -356,6 +390,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.mynumcol.multiply(2).eq(query.functions.multiply(myvar, 2))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the product of two arguments.
 	 */
 	@JSFunction
 	public QBNumberColumnBase multiply(Object arg1, Object arg2)
@@ -371,6 +407,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.mynumcol.divide(2).eq(query.functions.divide(myvar, 2))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the division of two arguments.
 	 */
 	@JSFunction
 	public QBNumberColumnBase divide(Object arg1, Object arg2)
@@ -387,6 +425,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * 	query.result.add(query.columns.name_first.concat(' ').concat(query.columns.name_last))
 	 * 	var ds = databaseManager.getDataSetByQuery(query, -1)
 	 *
+	 * @return A query builder function representing the concatenation of two arguments.
 	 */
 	@JSFunction
 	public QBTextColumnBase concat(Object arg1, Object arg2)
@@ -401,6 +440,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.mynumcol.floor.eq(query.functions.floor(myvar))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the largest integer less than or equal to the input.
 	 */
 	@JSFunction
 	public QBIntegerColumnBase floor(Object arg)
@@ -415,6 +456,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.mynumcol.round.eq(query.functions.round(myvar))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the input rounded to the nearest integer.
 	 */
 	@JSFunction
 	public QBIntegerColumnBase round(Object arg)
@@ -430,6 +473,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.mynumcol.round.eq(query.functions.round(myvar, 1))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the input rounded to the specified number of decimal places.
 	 */
 	@JSFunction
 	public QBIntegerColumnBase round(Object arg, int decimals)
@@ -445,6 +490,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.mynumcol.ceil.eq(query.functions.ceil(myvar))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the smallest integer greater than or equal to the input.
 	 */
 	@JSFunction
 	public QBIntegerColumnBase ceil(Object arg)
@@ -461,6 +508,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * 	var query = datasources.db.example_data.orders.createSelect();
 	 * 	query.result.add(query.functions.custom('myadd', query.columns.freight, 500));
 	 * 	var dataset = databaseManager.getDataSetByQuery(query, 100);
+	 *
+	 * @return A query builder function representing a custom function with the given name and arguments.
 	 */
 	@JSFunction
 	public QBColumn custom(String name, Object... args)
@@ -476,6 +525,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.mydatecol.second.eq(query.functions.second(mydatevar))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the second component of a date/time value.
 	 */
 	@JSFunction
 	public QBIntegerColumnBase second(Object arg)
@@ -490,6 +541,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.mydatecol.minute.eq(query.functions.minute(mydatevar))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the minute component of a date/time value.
 	 */
 	@JSFunction
 	public QBIntegerColumnBase minute(Object arg)
@@ -504,6 +557,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.mydatecol.hour.eq(query.functions.hour(mydatevar))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the hour component of a date/time value.
 	 */
 	@JSFunction
 	public QBIntegerColumnBase hour(Object arg)
@@ -518,6 +573,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.mydatecol.day.eq(query.functions.day(mydatevar))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the day component of a date/time value.
 	 */
 	@JSFunction
 	public QBIntegerColumnBase day(Object arg)
@@ -532,6 +589,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.mydatecol.month.eq(query.functions.month(mydatevar))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the month component of a date/time value.
 	 */
 	@JSFunction
 	public QBIntegerColumnBase month(Object arg)
@@ -546,6 +605,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.mydatecol.year.eq(query.functions.year(mydatevar))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function representing the year component of a date/time value.
 	 */
 	@JSFunction
 	public QBIntegerColumnBase year(Object arg)
@@ -560,6 +621,8 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.mycol.coalesce('defval').eq(query.functions.coalesce(myvar, 'defval'))
 	 * foundset.loadRecords(query);
+	 *
+	 * @return A query builder function that returns the first non-null argument.
 	 */
 	@JSFunction
 	public QBColumn coalesce(Object... args)

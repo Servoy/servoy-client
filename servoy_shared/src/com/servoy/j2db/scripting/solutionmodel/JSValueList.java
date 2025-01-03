@@ -105,7 +105,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 * var cmb = form.newComboBox('my_table_text', 10, 10, 100, 20);
 	 * cmb.valuelist = vlist;
 	 *
-	 * @return {int} The configuration for adding an empty value to the value list.
+	 * @return The configuration for adding an empty value to the value list.
 	 */
 	@JSGetter
 	public int getAddEmptyValue()
@@ -423,7 +423,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 * var combo2 = form.newComboBox("scopes.globals.id",10,60,120,20);
 	 * combo2.valuelist = vl2;
 	 *
-	 * @return {String} The custom values defined for the value list, separated by newlines or pipes.
+	 * @return The custom values defined for the value list, separated by newlines or pipes.
 	 */
 	@JSGetter
 	public String getCustomValues()
@@ -443,7 +443,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 *
 	 * @sampleas getUseTableFilter()
 	 *
-	 * @return {String} The name of the value list.
+	 * @return The name of the value list.
 	 */
 	@JSGetter
 	public String getName()
@@ -478,7 +478,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 * vlist.setDisplayDataProviderIds('child_table_text');
 	 * vlist.setReturnDataProviderIds('child_table_text');
 	 *
-	 * @return {String} The name of the relation associated with the value list.
+	 * @return The name of the relation associated with the value list.
 	 */
 	@JSGetter
 	public String getRelationName()
@@ -507,7 +507,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 *
 	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
 	 *
-	 * @return {String} The separator used for values in the value list.
+	 * @return The separator used for values in the value list.
 	 */
 	@JSGetter
 	public String getSeparator()
@@ -527,7 +527,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 *
 	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
 	 *
-	 * @return {String} The name of the server associated with the value list.
+	 * @return The name of the server associated with the value list.
 	 */
 	@JSGetter
 	public String getServerName()
@@ -547,7 +547,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 *
 	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
 	 *
-	 * @return {String} The sort options applied to the value list.
+	 * @return The sort options applied to the value list.
 	 */
 	@JSGetter
 	public String getSortOptions()
@@ -567,7 +567,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 *
 	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
 	 *
-	 * @return {String} The name of the table associated with the value list.
+	 * @return The name of the table associated with the value list.
 	 */
 	@JSGetter
 	public String getTableName()
@@ -591,7 +591,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 * vlist.setDisplayDataProviderIds('parent_table_text');
 	 * vlist.setReturnDataProviderIds('parent_table_text');
 	 *
-	 * @return {String} The data source associated with the value list.
+	 * @return The data source associated with the value list.
 	 */
 	@JSGetter
 	public String getDataSource()
@@ -629,7 +629,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 * vlist.useTableFilter = true;
 	 * vlist.name = 'two';
 	 *
-	 * @return {boolean} Whether table filtering is used for the value list.
+	 * @return Whether table filtering is used for the value list.
 	 */
 	@JSGetter
 	public boolean getUseTableFilter()
@@ -655,7 +655,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 * vlist.lazyLoading = true;
 	 * vlist.name = 'two';
 	 *
-	 * @return {boolean} Whether lazy loading is enabled for the value list.
+	 * @return Whether lazy loading is enabled for the value list.
 	 */
 	@JSGetter
 	public boolean getLazyLoading()
@@ -675,7 +675,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 *
 	 * @sampleas com.servoy.j2db.solutionmodel.ISMValueList#DATABASE_VALUES
 	 *
-	 * @return {int} The type of the value list (e.g., custom or database values).
+	 * @return The type of the value list (e.g., custom or database values).
 	 */
 	@JSGetter
 	public int getValueListType()
@@ -736,7 +736,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 * var vlist = solutionModel.newValueList('vlist', JSValueList.CUSTOM_VALUES);
 	 * vlist.globalMethod = listProvider;
 	 *
-	 * @return {JSMethod} The global method used to populate or adjust the value list.
+	 * @return The global method used to populate or adjust the value list.
 	 */
 	@JSGetter
 	public JSMethod getGlobalMethod()
@@ -782,7 +782,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 *  //get fallback value list
 	 * var fallbackValueList = myValueList.fallbackValueList
 	 *
-	 * @return {JSValueList} The fallback value list associated with this value list, or null if none is set.
+	 * @return The fallback value list associated with this value list, or null if none is set.
 	 */
 	@JSGetter
 	public JSValueList getFallbackValueList()
@@ -829,7 +829,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 * var vlist = solutionModel.newValueList('options', JSValueList.CUSTOM_VALUES);
 	 * application.output(vlist.getUUID().toString());
 	 *
-	 * @return {UUID} The UUID of the value list.
+	 * @return The UUID of the value list.
 	 */
 	@JSFunction
 	public UUID getUUID()
@@ -921,7 +921,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 *  //set the display value type
 	 * myValueList.displayValueType = JSVariable.TEXT
 	 *
-	 * @return {int} The data type of the display value in the value list.
+	 * @return The data type of the display value in the value list.
 	 */
 	@JSGetter
 	@Override
@@ -954,7 +954,7 @@ public class JSValueList implements IConstantsObject, ISMValueList
 	 *  // set the real value type
 	 * myValueList.realValueType = JSVariable.NUMBER
 	 *
-	 * @return {int} The data type of the real value in the value list.
+	 * @return The data type of the real value in the value list.
 	 */
 	@JSGetter
 	@Override

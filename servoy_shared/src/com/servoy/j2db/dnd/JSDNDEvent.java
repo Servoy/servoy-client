@@ -216,6 +216,8 @@ public class JSDNDEvent extends JSBaseEvent
 	 * 	if(event.dataMimeType.indexOf("application/x-servoy-record-object") == 0) return true;
 	 * 	else return false;
 	 * }
+	 *
+	 * @return a string representing the MIME type of the event data.
 	 */
 	public String js_getDataMimeType()
 	{
@@ -230,7 +232,7 @@ public class JSDNDEvent extends JSBaseEvent
 
 	/**
 	 * Returns the event data mime type.
-	
+
 	 * @return event data mime type
 	 */
 	public String getDataMimeType()

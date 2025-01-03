@@ -123,6 +123,8 @@ public class JSMenu
 	 *
 	 * @sample
 	 * menu.styleClass = 'myclass';
+	 *
+	 * @return The space-separated style classes applied to the menu.
 	 */
 	@JSGetter
 	public String getStyleClass()
@@ -134,6 +136,8 @@ public class JSMenu
 	 * Returns all the menus items, either created at design time or at runtime, in the order they will show up in user interface.
 	 *
 	 * @sample var items = menu.getMenuItems();
+	 *
+	 * @return An array of all menu items in this menu, in the order they appear in the user interface.
 	 */
 	@JSFunction
 	public JSMenuItem[] getMenuItems()
@@ -141,6 +145,9 @@ public class JSMenu
 		return items.toArray(new JSMenuItem[0]);
 	}
 
+	/**
+	 * @return An array of menu items that have the security flag set to "viewable."
+	 */
 	@JSFunction
 	public JSMenuItem[] getMenuItemsWithSecurity()
 	{
@@ -152,6 +159,8 @@ public class JSMenu
 	 *
 	 * @sample var mnu = menu.getMenuItem('item1');
 	 * @param id the menu item identifier
+	 *
+	 * @return The menu item with the specified identifier, or null if not found.
 	 */
 	@JSFunction
 	public JSMenuItem getMenuItem(String id)
@@ -164,6 +173,8 @@ public class JSMenu
 	 *
 	 * @sample var mnu = menu.findMenuItem('item1');
 	 * @param id the menu item identifier
+	 *
+	 * @return The menu item with the specified identifier, including nested items, or null if not found.
 	 */
 	@JSFunction
 	public JSMenuItem findMenuItem(String id)
@@ -188,6 +199,8 @@ public class JSMenu
 	 *
 	 * @sample var mnu = menu.getMenuItemAt(0);
 	 * @param index the menu item index among its sibblings
+	 *
+	 * @return The menu item at the specified index, or null if the index is out of bounds.
 	 */
 	@JSFunction
 	public JSMenuItem getMenuItemAt(int index)
@@ -200,6 +213,8 @@ public class JSMenu
 	 *
 	 * @sample var item = menu.addMenuItem('item1');
 	 * @param id the menu item identifier
+	 *
+	 * @return The newly added menu item.
 	 */
 	@JSFunction
 	public JSMenuItem addMenuItem(String id)
@@ -213,6 +228,8 @@ public class JSMenu
 	 * @sample var mnu = menu.addMenuItem('item1',0);
 	 * @param id the menu item identifier
 	 * @param index the index position in list (0 based)
+	 *
+	 * @return The newly added menu item at the specified index.
 	 */
 	@JSFunction
 	public JSMenuItem addMenuItem(String id, int index)
@@ -232,6 +249,8 @@ public class JSMenu
 	 *
 	 * @sample var success = menu.removeMenuItem('item1');
 	 * @param id the menu item identifier
+	 *
+	 * @return True if a menu item with the specified identifier was removed; false otherwise.
 	 */
 	@JSFunction
 	public boolean removeMenuItem(String id)
@@ -246,6 +265,8 @@ public class JSMenu
 	 *
 	 * @sample var success = menu.removeMenuItem(item);
 	 * @param menuItem the menu item to be removed
+	 *
+	 * @return True if the specified menu item was removed; false otherwise.
 	 */
 	@JSFunction
 	public boolean removeMenuItem(JSMenuItem menuItem)

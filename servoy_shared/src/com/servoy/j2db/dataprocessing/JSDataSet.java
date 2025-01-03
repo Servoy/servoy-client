@@ -234,6 +234,8 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Symb
 	 * dataset.rowIndex = 1 //sets the rowIndex to the first row (dataset is 1-based)
 	 * //to retrieve the rowIndex of the currently selected row
 	 * var currRow = dataset.rowIndex
+	 *
+	 * @return The current row index, starting from 1, or -1 if no row is selected.
 	 */
 	public int js_getRowIndex()
 	{

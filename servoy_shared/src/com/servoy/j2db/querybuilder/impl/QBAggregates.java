@@ -69,6 +69,8 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 * 	query.result.add(query.aggregates.count().add(query.columns.countryCode)
 	 * 	query.groupBy.add(query.columns.countryCode)
 	 *  var ds = databaseManager.getDataSetByQuery(query, 100);
+	 *
+	 *  @return A QBCountAggregate object representing the count operation.
 	 */
 	@JSFunction
 	@Override
@@ -86,6 +88,8 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 *  var ds = databaseManager.getDataSetByQuery(query, 100);
 	 *
 	 *  @param aggregee The column, expression, or value to count. Can also be a special value like "*" for counting all rows.
+	 *
+	 *  @return A QBCountAggregate object representing the count operation with the specified aggregee.
 	 */
 	@JSFunction
 	@Override
@@ -109,6 +113,8 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 *  var ds = databaseManager.getDataSetByQuery(query, 100);
 	 *
 	 *  @param aggregee The column or expression to calculate the average for.
+	 *
+	 *  @return A QBColumn object representing the average operation for the specified aggregee.
 	 */
 	@JSFunction
 	@Override
@@ -126,6 +132,8 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 *  var ds = databaseManager.getDataSetByQuery(query, 100);
 	 *
 	 *  @param aggregee The column or expression to calculate the maximum value for. This can be a specific column or a computed expression.
+	 *
+	 *  @return A QBAggregate object representing the maximum value operation for the specified aggregee.
 	 */
 	@JSFunction
 	@Override
@@ -143,6 +151,8 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 *  var ds = databaseManager.getDataSetByQuery(query, 100);
 	 *
 	 * @param aggregee The column or expression to calculate the minimum value for. This can be a specific column or a computed expression.
+	 *
+	 * @return A QBColumn object representing the minimum value operation for the specified aggregee.
 	 */
 	@JSFunction
 	@Override
@@ -160,6 +170,8 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 *  var ds = databaseManager.getDataSetByQuery(query, 100);
 	 *
 	 * @param aggregee The column or expression to calculate the sum for. This can be a specific column or a computed expression.
+	 *
+	 * @return A QBColumn object representing the sum operation for the specified aggregee.
 	 */
 	@JSFunction
 	@Override
