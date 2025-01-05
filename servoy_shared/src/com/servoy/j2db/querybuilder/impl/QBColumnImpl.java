@@ -37,7 +37,7 @@ import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
  */
 public class QBColumnImpl extends QBPart
 	implements IQueryBuilderColumn, QBIntegerColumnBase, QBDatetimeColumnBase, QBNumberColumnBase, QBMediaColumnBase,
-	QBTextColumnBase, QBColumnComparable, QBColumn, QBColumnNumberRagtest<QBColumn>
+	QBTextColumnBase, QBColumnComparable, QBColumn, QBNumberColumnFunctions<QBColumn>
 {
 	private final IQuerySelectValue queryColumn;
 	protected final boolean negate;
@@ -195,7 +195,7 @@ public class QBColumnImpl extends QBPart
 	}
 
 	/////////////////////////////////////////////////////////
-	////////////// QBColumnRagtest methods /////////////////
+	//////////// QBNumberColumnFunctions methods ////////////
 	/////////////////////////////////////////////////////////
 
 	@Override
@@ -319,7 +319,7 @@ public class QBColumnImpl extends QBPart
 
 
 	/////////////////////////////////////////////////////////
-	////////////// QBColumnNumberRagtest methods /////////////////
+	////////// QBNumberColumnFunctions methods //////////////
 	/////////////////////////////////////////////////////////
 
 	@Override

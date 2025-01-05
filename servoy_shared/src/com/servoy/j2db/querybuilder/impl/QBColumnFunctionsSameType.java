@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2024 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2025 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -22,11 +22,12 @@ import org.mozilla.javascript.annotations.JSFunction;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * RAGTEST doc  functies die verschillend zijn in verschillende types
+ * This interface lists the functions on columns that return the same column type as column they are applied to.
+ *
  * @author rgansevles
  *
  */
-public interface QBColumnRagtest<T>
+public interface QBColumnFunctionsSameType<T>
 {
 	/**
 	 * Create an aggregate min expression.

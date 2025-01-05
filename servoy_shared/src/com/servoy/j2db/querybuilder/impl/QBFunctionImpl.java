@@ -22,16 +22,17 @@ import com.servoy.j2db.query.QueryFunction;
 import com.servoy.j2db.query.QueryFunction.QueryFunctionType;
 
 /**
- * RAGTEST doc
+ * QueryBuilder implementation of functions.
+ *
  * @author rgansevles
  *
  */
-public class QBFunction extends QBColumnImpl
+public class QBFunctionImpl extends QBColumnImpl
 {
 	private final QueryFunctionType functionType;
 	private final IQuerySelectValue[] functionArgs;
 
-	QBFunction(QBSelect root, QBTableClause queryBuilderTableClause, QueryFunctionType functionType, IQuerySelectValue[] functionArgs)
+	QBFunctionImpl(QBSelect root, QBTableClause queryBuilderTableClause, QueryFunctionType functionType, IQuerySelectValue[] functionArgs)
 	{
 		super(root, queryBuilderTableClause, null);
 		this.functionType = functionType;

@@ -46,7 +46,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
-public interface QBColumn extends QBColumnRagtest<QBColumn>, QBColumnComparable
+public interface QBColumn extends QBColumnFunctionsSameType<QBColumn>, QBColumnComparable
 {
 	/**
 	 * Compare column with null.

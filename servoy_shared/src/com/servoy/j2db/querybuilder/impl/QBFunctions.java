@@ -69,7 +69,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBTextColumnBase#upper(Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBTextColumnBase#upper()
 	 * @param value
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
@@ -81,11 +81,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBTextColumnBase upper(Object value)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.upper, new IQuerySelectValue[] { createOperand(value, TEXT) });
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.upper, new IQuerySelectValue[] { createOperand(value, TEXT) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBColumnNumberRagtest#abs(Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBNumberColumnFunctions#abs()
 	 * @param value
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
@@ -97,11 +97,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBNumberColumnBase abs(Object value)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.abs, new IQuerySelectValue[] { createOperand(value) });
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.abs, new IQuerySelectValue[] { createOperand(value) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBColumnNumberRagtest#sqrt(Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBNumberColumnFunctions#sqrt()
 	 * @param value
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
@@ -113,11 +113,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBNumberColumnBase sqrt(Object value)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.sqrt, new IQuerySelectValue[] { createOperand(value) });
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.sqrt, new IQuerySelectValue[] { createOperand(value) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBTextColumnBase#lower(Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBTextColumnBase#lower()
 	 * @param value
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
@@ -129,11 +129,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBTextColumnBase lower(Object value)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.lower, new IQuerySelectValue[] { createOperand(value, TEXT) });
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.lower, new IQuerySelectValue[] { createOperand(value, TEXT) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBTextColumnBase#trim(Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBTextColumnBase#trim()
 	 * @param value
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
@@ -150,7 +150,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBTextColumnBase#trim(String, String, String, Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBTextColumnBase#trim()
 	 * @param leading_trailing_both 'leading', 'trailing' or 'both'
 	 * @param characters characters to remove
 	 * @param fromKeyword 'from'
@@ -170,7 +170,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 		IQuerySelectValue charactersValue = characters.length() == 1
 			? new QueryColumnValue('\'' + characters + '\'', null, true)
 			: new QueryColumnValue(characters, null, false);
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.trim, new IQuerySelectValue[] { //
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.trim, new IQuerySelectValue[] { //
 			new QueryColumnValue(leading_trailing_both, null, validateKeyword(leading_trailing_both, "leading", "trailing", "both")), // keyword
 			charactersValue, // characters
 			new QueryColumnValue(fromKeyword, null, validateKeyword(fromKeyword, "from")), // keyword
@@ -192,7 +192,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBTextColumnBase#length(Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBTextColumnBase#len()
 	 * @param value
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
@@ -204,12 +204,12 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBIntegerColumnBase len(Object value)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.length, new IQuerySelectValue[] { createOperand(value) });
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.length, new IQuerySelectValue[] { createOperand(value) });
 	}
 
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBTextColumnBase#bit_length(Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBTextColumnBase#bit_length()
 	 * @param value
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
@@ -221,11 +221,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBIntegerColumnBase bit_length(Object value)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.bit_length, new IQuerySelectValue[] { createOperand(value) });
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.bit_length, new IQuerySelectValue[] { createOperand(value) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBColumn#cast(Object, String)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBColumn#cast(String)
 	 * @param value object to cast
 	 * @param type type see QUERY_COLUMN_TYPES
 	 * @sample
@@ -238,12 +238,12 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBColumn cast(Object value, String type)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.cast,
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.cast,
 			new IQuerySelectValue[] { createOperand(value), new QueryColumnValue(type, null, true) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBTextColumnBase#substring(Object, int)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBTextColumnBase#substring(int)
 	 * @param arg column name
 	 * @param pos position
 	 * @sample
@@ -260,7 +260,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBTextColumnBase#substring(Object, int, int)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBTextColumnBase#substring(int, int)
 	 * @param arg column name
 	 * @param pos position
 	 * @param len length
@@ -274,12 +274,12 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBTextColumnBase substring(Object arg, int pos, int len)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.substring,
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.substring,
 			new IQuerySelectValue[] { createOperand(arg, TEXT), createOperand(Integer.valueOf(pos)), createOperand(Integer.valueOf(len)) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBTextColumnBase#locate(Object, Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBTextColumnBase#locate(Object)
 	 * @param string1 string to locate
 	 * @param string2 string to search in
 	 * @sample
@@ -296,7 +296,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBTextColumnBase#locate(Object, Object, int)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBTextColumnBase#locate(Object, int)
 	 * @param string1 string to locate
 	 * @param string2 string to search in
 	 * @param start start pos
@@ -310,14 +310,14 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBIntegerColumnBase locate(Object string1, Object string2, int start)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.locate,
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.locate,
 			new IQuerySelectValue[] { createOperand(string1, TEXT), createOperand(string2, TEXT), createOperand(Integer.valueOf(start)) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBColumn#nullif(Object, Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBColumnFunctionsSameType#nullif(Object)
 	 * @param arg1
-	 * @param arg1
+	 * @param arg2
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.add(query.columns.shipname.nullif('none').eq(query.functions.nullif('Sample', 'none')))
@@ -328,11 +328,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBColumn nullif(Object arg1, Object arg2)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.nullif, new IQuerySelectValue[] { createOperand(arg1), createOperand(arg2) });
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.nullif, new IQuerySelectValue[] { createOperand(arg1), createOperand(arg2) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBColumnNumberRagtest#mod(Object, Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBNumberColumnFunctions#mod(Object)
 	 * @param dividend
 	 * @param divisor
 	 * @sample
@@ -345,11 +345,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBNumberColumnBase mod(Object dividend, Object divisor)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.mod, new IQuerySelectValue[] { createOperand(dividend), createOperand(divisor) });
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.mod, new IQuerySelectValue[] { createOperand(dividend), createOperand(divisor) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBColumnNumberRagtest#plus(Object, Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBNumberColumnFunctions#plus(Object)
 	 * @param arg1
 	 * @param arg2
 	 * @sample
@@ -362,11 +362,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBNumberColumnBase plus(Object arg1, Object arg2)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.plus, new IQuerySelectValue[] { createOperand(arg1), createOperand(arg2) });
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.plus, new IQuerySelectValue[] { createOperand(arg1), createOperand(arg2) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBColumnNumberRagtest#minus(Object, Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBNumberColumnFunctions#minus(Object)
 	 * @param arg1
 	 * @param arg2
 	 * @sample
@@ -379,11 +379,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBNumberColumnBase minus(Object arg1, Object arg2)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.minus, new IQuerySelectValue[] { createOperand(arg1), createOperand(arg2) });
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.minus, new IQuerySelectValue[] { createOperand(arg1), createOperand(arg2) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBColumnNumberRagtest#multiply(Object, Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBNumberColumnFunctions#multiply(Object)
 	 * @param arg1
 	 * @param arg2
 	 * @sample
@@ -396,11 +396,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBNumberColumnBase multiply(Object arg1, Object arg2)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.multiply, new IQuerySelectValue[] { createOperand(arg1), createOperand(arg2) });
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.multiply, new IQuerySelectValue[] { createOperand(arg1), createOperand(arg2) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBColumnNumberRagtest#divide(Object, Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBNumberColumnFunctions#divide(Object)
 	 * @param arg1
 	 * @param arg2
 	 * @sample
@@ -413,11 +413,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBNumberColumnBase divide(Object arg1, Object arg2)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.divide, new IQuerySelectValue[] { createOperand(arg1), createOperand(arg2) });
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.divide, new IQuerySelectValue[] { createOperand(arg1), createOperand(arg2) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBColumn#concat(Object, Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBColumn#concat(Object)
 	 * @param arg1
 	 * @param arg2
 	 * @sample
@@ -430,11 +430,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBTextColumnBase concat(Object arg1, Object arg2)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.concat, new IQuerySelectValue[] { createOperand(arg1), createOperand(arg2) });
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.concat, new IQuerySelectValue[] { createOperand(arg1), createOperand(arg2) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBNumberColumnBase#floor(Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBNumberColumnBase#floor()
 	 * @param arg number object
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
@@ -446,11 +446,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBIntegerColumnBase floor(Object arg)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.floor, new IQuerySelectValue[] { createOperand(arg) });
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.floor, new IQuerySelectValue[] { createOperand(arg) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBNumberColumnBase#round(Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBNumberColumnBase#round()
 	 * @param arg number object
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
@@ -462,11 +462,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBIntegerColumnBase round(Object arg)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.round, new IQuerySelectValue[] { createOperand(arg) });
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.round, new IQuerySelectValue[] { createOperand(arg) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBNumberColumnBase#round(Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBNumberColumnBase#round()
 	 * @param arg number object
 	 * @param decimals The number of decimal places to round number to, default 0
 	 * @sample
@@ -479,12 +479,12 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBIntegerColumnBase round(Object arg, int decimals)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.round,
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.round,
 			new IQuerySelectValue[] { createOperand(arg), createOperand(Integer.valueOf(decimals)) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBNumberColumnBase#ceil(Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBNumberColumnBase#ceil()
 	 * @param arg number object
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
@@ -496,7 +496,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBIntegerColumnBase ceil(Object arg)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.ceil, new IQuerySelectValue[] { createOperand(arg) });
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.ceil, new IQuerySelectValue[] { createOperand(arg) });
 	}
 
 	/**
@@ -514,12 +514,12 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBColumn custom(String name, Object... args)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.custom,
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.custom,
 			Utils.arrayAdd(getRoot().createOperands(args == null ? new Object[] { null } : args, null, 0), new QueryColumnValue(name, null, true), false));
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBDatetimeColumnBase#second(Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBDatetimeColumnBase#second()
 	 * @param arg date object
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
@@ -531,11 +531,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBIntegerColumnBase second(Object arg)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.second, new IQuerySelectValue[] { createOperand(arg) });
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.second, new IQuerySelectValue[] { createOperand(arg) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBDatetimeColumnBase#minute(Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBDatetimeColumnBase#minute()
 	 * @param arg date object
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
@@ -547,11 +547,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBIntegerColumnBase minute(Object arg)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.minute, new IQuerySelectValue[] { createOperand(arg) });
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.minute, new IQuerySelectValue[] { createOperand(arg) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBDatetimeColumnBase#hour(Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBDatetimeColumnBase#hour()
 	 * @param arg date object
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
@@ -563,11 +563,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBIntegerColumnBase hour(Object arg)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.hour, new IQuerySelectValue[] { createOperand(arg) });
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.hour, new IQuerySelectValue[] { createOperand(arg) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBDatetimeColumnBase#day(Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBDatetimeColumnBase#day()
 	 * @param arg date object
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
@@ -579,11 +579,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBIntegerColumnBase day(Object arg)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.day, new IQuerySelectValue[] { createOperand(arg) });
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.day, new IQuerySelectValue[] { createOperand(arg) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBDatetimeColumnBase#month(Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBDatetimeColumnBase#month()
 	 * @param arg date object
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
@@ -595,11 +595,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBIntegerColumnBase month(Object arg)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.month, new IQuerySelectValue[] { createOperand(arg) });
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.month, new IQuerySelectValue[] { createOperand(arg) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBDatetimeColumnBase#year(Object)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBDatetimeColumnBase#year()
 	 * @param arg date object
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
@@ -611,11 +611,11 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 	@JSFunction
 	public QBIntegerColumnBase year(Object arg)
 	{
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.year, new IQuerySelectValue[] { createOperand(arg) });
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.year, new IQuerySelectValue[] { createOperand(arg) });
 	}
 
 	/**
-	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBColumnRagtest#coalesce(Object...)
+	 * @clonedesc com.servoy.j2db.querybuilder.impl.QBColumnFunctionsSameType#coalesce(Object)
 	 * @param args arguments to coalesce
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
@@ -632,7 +632,7 @@ public class QBFunctions extends QBPart implements IQueryBuilderFunctions
 		{
 			list.add(createOperand(arg));
 		}
-		return new QBFunction(getRoot(), getParent(), QueryFunctionType.coalesce, list.toArray(new IQuerySelectValue[list.size()]));
+		return new QBFunctionImpl(getRoot(), getParent(), QueryFunctionType.coalesce, list.toArray(new IQuerySelectValue[list.size()]));
 	}
 
 	/**

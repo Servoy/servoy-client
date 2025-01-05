@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2024 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2025 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -20,11 +20,15 @@ package com.servoy.j2db.querybuilder.impl;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * RAGTEST doc
+ * <p>The <code>QBNumberColumn</code> class represents a number column in a <code>QBSelect</code> query.
+ *
+ * <p>For more information about constructing and executing queries and columns, refer to the
+ * <a href="./qbcolumn.md">QBSelect</a> section of this documentation.</p>
+ *
  * @author rgansevles
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "QBColumn")
-public interface QBNumberColumn extends QBNumberColumnBase, QBColumnRagtest<QBNumberColumn>, QBColumnNumberRagtest<QBNumberColumn>
+public interface QBNumberColumn extends QBNumberColumnBase, QBColumnFunctionsSameType<QBNumberColumn>, QBNumberColumnFunctions<QBNumberColumn>
 {
 }

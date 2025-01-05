@@ -101,7 +101,7 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 			operand = queryColumnValue.withFixedvalue(true);
 		}
 
-		return new QBAggregate(getRoot(), getParent(), operand, QueryAggregate.COUNT, QueryAggregate.ALL);
+		return new QBAggregateImpl(getRoot(), getParent(), operand, QueryAggregate.COUNT, QueryAggregate.ALL);
 	}
 
 	/**
@@ -182,7 +182,7 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 
 	protected QBColumn createAggregate(Object aggregee, int aggregateType)
 	{
-		return new QBAggregate(getRoot(), getParent(), getRoot().createOperand(aggregee, null, 0), aggregateType, QueryAggregate.ALL);
+		return new QBAggregateImpl(getRoot(), getParent(), getRoot().createOperand(aggregee, null, 0), aggregateType, QueryAggregate.ALL);
 	}
 
 	protected IQuerySelectValue createOperand(Object value, int type)

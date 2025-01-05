@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2024 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2025 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -23,11 +23,12 @@ import com.servoy.j2db.documentation.ServoyDocumented;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * RAGTEST doc
+ * This interface lists functions on test columns.
+ *
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "QBTextColumn")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "QBTextColumn")
 public interface QBTextColumnBase
 {
 	/**
@@ -138,6 +139,4 @@ public interface QBTextColumnBase
 	 */
 	@JSFunction
 	QBCondition like(Object pattern, char escape);
-
-
 }

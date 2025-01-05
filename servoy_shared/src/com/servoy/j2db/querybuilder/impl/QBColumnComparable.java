@@ -1,5 +1,5 @@
 /*
- This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2024 Servoy BV
+ This file belongs to the Servoy development and deployment environment, Copyright (C) 1997-2025 Servoy BV
 
  This program is free software; you can redistribute it and/or modify it under
  the terms of the GNU Affero General Public License as published by the Free
@@ -22,11 +22,15 @@ import org.mozilla.javascript.annotations.JSFunction;
 import com.servoy.j2db.documentation.ServoyDocumented;
 
 /**
- * RAGTEST doc
+ * This interface lists all methods that are for comparing columns with values or other columns.
+ * The query.columns.mycol.not prefix is supported to negate the compare condition.
+ *
+ * These methods are not placed in QBColumn, that way we can make sure that query.columns.mycol.not only has
+ * compare methods in code completion and query.columns.mycol.not.sqrt (for example) gives a warning.
+ *
  * @author rgansevles
  *
  */
-// RAGTEST inhoud verplaatsen naar QBColumn: nee vanwege QBColumn.not()
 @ServoyDocumented(category = ServoyDocumented.RUNTIME)
 public interface QBColumnComparable
 {

@@ -210,11 +210,11 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 
 			if (selectValue instanceof QueryAggregate queryAggregate)
 			{
-				return new QBAggregate(getRoot(), getParent(), selectValue, queryAggregate.getType(), queryAggregate.getQuantifier());
+				return new QBAggregateImpl(getRoot(), getParent(), selectValue, queryAggregate.getType(), queryAggregate.getQuantifier());
 			}
 			if (selectValue instanceof QueryFunction queryFunction)
 			{
-				return new QBFunction(getRoot(), getParent(), queryFunction.getFunction(), queryFunction.getArgs());
+				return new QBFunctionImpl(getRoot(), getParent(), queryFunction.getFunction(), queryFunction.getArgs());
 			}
 			if (selectValue instanceof QuerySearchedCaseExpression querySearchedCaseExpression)
 			{
