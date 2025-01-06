@@ -6366,7 +6366,8 @@ public abstract class FoundSet
 							Object[] changedColumnNames = e.getChangedColumnNames();
 							if (changedColumnNames instanceof String[])
 							{
-								fireFoundSetEvent(0, getSize() - 1, FoundSetEvent.CHANGE_UPDATE, Set.of((String[])changedColumnNames));
+								HashSet<String> set = new HashSet<>(Arrays.asList((String[])changedColumnNames));
+								fireFoundSetEvent(0, getSize() - 1, FoundSetEvent.CHANGE_UPDATE, set);
 							}
 							else
 							{
