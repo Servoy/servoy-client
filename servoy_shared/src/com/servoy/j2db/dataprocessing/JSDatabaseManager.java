@@ -3109,6 +3109,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @param customObject The extra customObject that is passed on the the validation methods.
 	 *
 	 * @throws ServoyException
+	 *
+	 *  @return a JSRecordMarkers object containing validation problems, or null if no validation issues were found.
 	 */
 	@JSFunction
 	public JSRecordMarkers validate(IJSRecord record, Object customObject) throws ServoyException
@@ -4657,6 +4659,8 @@ public class JSDatabaseManager implements IJSDatabaseManager
 	 * @sample databaseManager.removeDataSource(uri);
 	 *
 	 * @param uri
+	 *
+	 *  @return true if the data source was successfully removed; false otherwise.
 	 */
 	public boolean js_removeDataSource(String uri)
 	{

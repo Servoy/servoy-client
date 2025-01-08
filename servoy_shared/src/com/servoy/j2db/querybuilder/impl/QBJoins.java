@@ -59,7 +59,7 @@ import com.servoy.j2db.util.Debug;
  * developers to construct queries that incorporate complex table relationships.</p>
  *
  * <p>The class supports multiple join types, including <code>INNER JOIN</code> and <code>LEFT OUTER JOIN</code>,
- * and offers tools to manage unused joins, ensuring optimized query execution. It also integrates 
+ * and offers tools to manage unused joins, ensuring optimized query execution. It also integrates
  * with parent and root query references, allowing for scalable and modular query design.</p>
  *
  * <p>For additional guidance on query construction and execution, see the
@@ -124,6 +124,8 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 * 	var query = datasources.db.example_data.person.createSelect();
 	 * 	query.where.add(query.joins.person_to_parent.joins.person_to_parent.columns.name.eq('john'))
 	 * 	foundset.loadRecords(query)
+	 *
+	 *  @return the parent table clause for these joins.
 	 */
 	@JSReadonlyProperty
 	public QBTableClause getParent()
@@ -147,6 +149,8 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 * 		)
 	 *
 	 * 	foundset.loadRecords(query)
+	 *
+	 *  @return the root query builder for these joins.
 	 */
 	@JSReadonlyProperty
 	public QBSelect getRoot()
@@ -154,6 +158,10 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 		return root;
 	}
 
+	/**
+	 *
+	 *  @return an array of QBJoin objects representing all joins in this query.
+	 */
 	@JSFunction
 	public QBJoin[] getJoins()
 	{
@@ -236,6 +244,8 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 *  query.joins.removeUnused(false)
 	 *
 	 * @param keepInnerjoins when true inner joins are not removed, inner joins may impact the query result, even when not used
+	 *
+	 *  @return this QBJoins instance after removing unused joins.
 	 */
 	@Override
 	@JSFunction
@@ -311,6 +321,8 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 *
 	 * @param dataSource data source
 	 * @param joinType join type, one of QBJoin.LEFT_OUTER_JOIN, QBJoin.INNER_JOIN, QBJoin.RIGHT_OUTER_JOIN, QBJoin.FULL_JOIN
+	 *
+	 *  @return a QBJoin object representing the newly added join.
 	 */
 	@JSFunction
 	public QBJoin add(String dataSource, int joinType)
@@ -324,6 +336,8 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 *
 	 * @param dataSourceOrRelation data source
 	 * @param alias the alias for joining table
+	 *
+	 *  @return a QBJoin object representing the newly added join using the given alias.
 	 */
 	@JSFunction
 	public QBJoin add(String dataSourceOrRelation, String alias) throws RepositoryException
@@ -346,6 +360,8 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 * @sampleas add(String, int)
 	 *
 	 * @param dataSource data source
+	 *
+	 *  @return a QBJoin object representing the newly added join with a default join type.
 	 */
 	@JSFunction
 	public QBJoin add(String dataSource)
@@ -359,6 +375,8 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 *
 	 * @param subqueryBuilder
 	 * @param joinType
+	 *
+	 *  @return a QBJoin object representing the join added for the specified subquery.
 	 */
 	public QBJoin js_add(QBSelect subqueryBuilder, int joinType)
 	{
@@ -388,6 +406,8 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 * @param subqueryBuilder
 	 * @param joinType
 	 * @param alias
+	 *
+	 *   @return a QBJoin object representing the join added for the specified subquery with the given alias.
 	 */
 	public QBJoin js_add(QBSelect subqueryBuilder, int joinType, String alias)
 	{
@@ -420,6 +440,7 @@ public class QBJoins extends DefaultJavaScope implements IQueryBuilderJoins
 	 * @param joinType join type, one of {@link IQueryBuilderJoin#LEFT_OUTER_JOIN}, {@link IQueryBuilderJoin#INNER_JOIN}, {@link IQueryBuilderJoin#RIGHT_OUTER_JOIN}, {@link IQueryBuilderJoin#FULL_JOIN}
 	 * @param alias the alias for joining table
 	 *
+	 *  @return a QBJoin object representing the newly added join with the specified type and alias.
 	 */
 	@JSFunction
 	public QBJoin add(String dataSource, int joinType, String alias)

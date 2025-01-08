@@ -54,15 +54,30 @@ public interface IJSBaseSQLFoundSet extends IJSBaseFoundSet
 	@JSSetter
 	void setMultiSelect(boolean multiSelect);
 
+	/**
+	 * @return true if the foundset is in multi-select mode; false otherwise.
+	 */
 	@JSGetter
 	boolean isMultiSelect();
 
+	/**
+	 * @return true if the foundset was successfully disposed; false otherwise.
+	 */
 	@JSFunction
 	boolean dispose();
 
+	/**
+	 *
+	 * @return a new instance of the duplicated foundset.
+	 * @throws ServoyException
+	 */
 	@JSFunction
 	IJSBaseSQLFoundSet duplicateFoundSet() throws ServoyException;
 
+	/**
+	 *
+	 * @return the current sort order as a string.
+	 */
 	@JSFunction
 	String getCurrentSort();
 

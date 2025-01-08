@@ -422,6 +422,10 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		return records.size();
 	}
 
+	/**
+	 *
+	 *  @return the currently selected record, or null if no record is selected.
+	 */
 	@JSFunction
 	public MenuItemRecord getSelectedRecord()
 	{

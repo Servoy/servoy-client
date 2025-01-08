@@ -121,6 +121,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @param value
 	 * @sample
 	 * query.where.add(query.columns.flag.gt(0))
+	 *
+	 *  @return a QBCondition representing the "greater than" comparison.
 	 */
 	@JSFunction
 	public QBCondition gt(Object value)
@@ -133,6 +135,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @param value
 	 * @sample
 	 * query.where.add(query.columns.flag.lt(99))
+	 *
+	 *  @return a QBCondition representing the "less than" comparison.
 	 */
 	@JSFunction
 	public QBCondition lt(Object value)
@@ -145,6 +149,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @param value
 	 * @sample
 	 * query.where.add(query.columns.flag.ge(2))
+	 *
+	 *  @return a QBCondition representing the "greater than or equal to" comparison.
 	 */
 	@JSFunction
 	public QBCondition ge(Object value)
@@ -157,6 +163,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @param value
 	 * @sample
 	 * query.where.add(query.columns.flag.le(2))
+	 *
+	 *  @return a QBCondition representing the "less than or equal to" comparison.
 	 */
 	@JSFunction
 	public QBCondition le(Object value)
@@ -170,6 +178,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @param value2
 	 * @sample
 	 * query.where.add(query.columns.flag.between(0, 5))
+	 *
+	 *  @return a QBCondition representing the "between" comparison for the two values.
 	 */
 	@JSFunction
 	public QBCondition between(Object value1, Object value2)
@@ -183,6 +193,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @param query subquery
 	 * @sample
 	 * query.where.add(query.columns.flag.isin(query2))
+	 *
+	 *  @return a QBCondition representing the "in" comparison with a subquery.
 	 */
 	public QBCondition js_isin(QBPart query)
 	{
@@ -195,6 +207,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @param args query arguments
 	 * @sample
 	 * query.where.add(query.columns.ccy.isin("select ccycode from currencies c where c.category = " + query.getTableAlias() + ".currency_category and c.flag = ?", ['T']))
+	 *
+	 *  @return a QBCondition representing the "in" comparison with a custom query and arguments.
 	 */
 	public QBCondition js_isin(String customQuery, Object[] args)
 	{
@@ -211,6 +225,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @param values array of values
 	 * @sample
 	 * query.where.add(query.columns.flag.isin([1, 5, 99]))
+	 *
+	 *  @return a QBCondition representing the "in" comparison with a list of values.
 	 */
 	public QBCondition js_isin(Object[] values)
 	{
@@ -237,6 +253,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * Compare column with null.
 	 * @sample
 	 * query.where.add(query.columns.flag.isNull)
+	 *
+	 *  @return a QBCondition representing the "is null" comparison.
 	 */
 	@JSReadonlyProperty
 	public QBCondition isNull()
@@ -250,6 +268,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @param value
 	 * @sample
 	 * query.where.add(query.columns.flag.eq(1))
+	 *
+	 *  @return a QBCondition representing the "equals" comparison.
 	 */
 	@JSFunction
 	public QBCondition eq(Object value)
@@ -269,6 +289,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * // case-insensitive compares can be done using the upper (or lower) functions,
 	 * // this can be useful when using for example German letters like ß,
 	 * query.where.add(query.columns.companyname.upper.like(query.functions.upper('groß%')))
+	 *
+	 *  @return a QBCondition representing the "like" comparison with a pattern.
 	 */
 	@JSFunction
 	public QBCondition like(Object pattern)
@@ -290,6 +312,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *
 	 * @sample
 	 * query.where.add(query.columns.companyname.like('X_%', '_'))
+	 *
+	 *  @return a QBCondition representing the "like" comparison with a pattern and an escape character.
 	 */
 	@JSFunction
 	public QBCondition like(Object pattern, char escape)
@@ -310,6 +334,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @sample
 	 * query.where.add(query.columns.flag.not.eq(1))
 	 *
+	 *  @return a QBColumn representing the negated condition.
+	 *
 	 */
 	@JSReadonlyProperty
 	public QBColumn not()
@@ -325,6 +351,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * .add(query.joins.orders_to_order_details.columns.quantity.asc)
 	 * .add(query.columns.companyid)
 	 * foundset.loadRecords(query)
+	 *
+	 *  @return a QBSort representing an ascending sort order.
 	 */
 	@JSReadonlyProperty
 	public QBSort asc()
@@ -340,6 +368,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * .add(query.joins.orders_to_order_details.columns.quantity.desc)
 	 * .add(query.columns.companyid)
 	 * foundset.loadRecords(query)
+	 *
+	 *  @return a QBSort representing a descending sort order.
 	 */
 	@JSReadonlyProperty
 	public QBSort desc()
@@ -354,6 +384,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.count.eq(0))
 	 * 	foundset.loadRecords(query)
+	 *
+	 *  @return a QBAggregate representing the count aggregate function.
 	 */
 	@JSReadonlyProperty
 	public QBAggregate count()
@@ -368,6 +400,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.avg.eq(1))
 	 * 	foundset.loadRecords(query)
+	 *
+	 *  @return a QBAggregate representing the average aggregate function.
 	 */
 	@JSReadonlyProperty
 	public QBAggregate avg()
@@ -382,6 +416,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.count.max(10))
 	 * 	foundset.loadRecords(query)
+	 *
+	 *  @return a QBAggregate representing the maximum aggregate function.
 	 */
 	@JSReadonlyProperty
 	public QBAggregate max()
@@ -396,6 +432,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.count.min(10))
 	 * 	foundset.loadRecords(query)
+	 *
+	 *  @return a QBAggregate representing the minimum aggregate function.
 	 */
 	@JSReadonlyProperty
 	public QBAggregate min()
@@ -410,6 +448,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.count.sum(10))
 	 * 	foundset.loadRecords(query)
+	 *
+	 *  @return a QBAggregate representing the sum aggregate function.
 	 */
 	@JSReadonlyProperty
 	public QBAggregate sum()
@@ -421,6 +461,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * Create upper(column) expression
 	 * @sample
 	 * query.result.add(query.columns.custname.upper)
+	 *
+	 *  @return a QBFunction representing the upper case transformation.
 	 */
 	@JSReadonlyProperty
 	public QBFunction upper()
@@ -432,6 +474,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * Create abs(column) expression
 	 * @sample
 	 * query.result.add(query.columns.custname.abs)
+	 *
+	 *  @return a QBFunction representing the absolute value function.
 	 */
 	@JSReadonlyProperty
 	public QBFunction abs()
@@ -443,6 +487,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * Create sqrt(column) expression
 	 * @sample
 	 * query.result.add(query.columns.custname.sqrt)
+	 *
+	 *  @return a QBFunction representing the square root function.
 	 */
 	@JSReadonlyProperty
 	public QBFunction sqrt()
@@ -454,6 +500,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * Create lower(column) expression
 	 * @sample
 	 * query.result.add(query.columns.custname.lower)
+	 *
+	 *  @return a QBFunction representing the lower case transformation.
 	 */
 	@JSReadonlyProperty
 	public QBFunction lower()
@@ -465,6 +513,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * Create trim(column) expression
 	 * @sample
 	 * query.result.add(query.columns.custname.trim)
+	 *
+	 *  @return a QBFunction representing the trim function.
 	 */
 	@JSReadonlyProperty
 	public QBFunction trim()
@@ -476,6 +526,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * Create length(column) expression
 	 * @sample
 	 * query.result.add(query.columns.custname.len)
+	 *
+	 *  @return a QBFunction representing the length function.
 	 */
 	@JSReadonlyProperty
 	public QBFunction len()
@@ -492,6 +544,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * Create bit_length(column) expression
 	 * @sample
 	 * query.result.add(query.columns.custname.bit_length)
+	 *
+	 *  @return a QBFunction representing the bit length function.
 	 */
 	@JSReadonlyProperty
 	public QBFunction bit_length()
@@ -504,6 +558,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @param type string type, see QUERY_COLUMN_TYPES
 	 * @sample
 	 * query.result.add(query.columns.mycol.cast(QUERY_COLUMN_TYPES.TYPE_INTEGER))
+	 *
+	 *  @return a QBFunction representing the cast function with the specified type.
 	 */
 	@JSFunction
 	public QBFunction cast(String type)
@@ -516,6 +572,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @param pos
 	 * @sample
 	 * query.result.add(query.columns.mycol.substring(3))
+	 *
+	 *  @return a QBFunction representing the substring function starting from the specified position.
 	 */
 	@JSFunction
 	public QBFunction substring(int pos)
@@ -529,6 +587,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @param len
 	 * @sample
 	 * query.result.add(query.columns.mycol.substring(3, 2))
+	 *
+	 *  @return a QBFunction representing the substring function with the specified position and length.
 	 */
 	@JSFunction
 	public QBFunction substring(int pos, int len)
@@ -541,6 +601,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @param arg string to locate
 	 * @sample
 	 * query.result.add(query.columns.mycol.locate('sample'))
+	 *
+	 *  @return a QBFunction representing the locate function for the specified string.
 	 */
 	@JSFunction
 	public QBFunction locate(Object arg)
@@ -554,6 +616,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @param start start pos
 	 * @sample
 	 * query.result.add(query.columns.mycol.locate('sample', 5))
+	 *
+	 *  @return a QBFunction representing the locate function starting from the specified position.
 	 */
 	@JSFunction
 	public QBFunction locate(Object arg, int start)
@@ -566,6 +630,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @param arg object to compare
 	 * @sample
 	 * query.result.add(query.columns.mycol.nullif('none'))
+	 *
+	 *  @return a QBFunction representing the nullif function.
 	 */
 	@JSFunction
 	public QBFunction nullif(Object arg)
@@ -578,6 +644,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @param arg mod arg
 	 * @sample
 	 * query.result.add(query.columns.mycol.mod(2))
+	 *
+	 *  @return a QBFunction representing the modulo operation.
 	 */
 	@JSFunction
 	public QBFunction mod(Object arg)
@@ -590,6 +658,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @param arg nr to add
 	 * @sample
 	 * query.result.add(query.columns.mycol.plus(2))
+	 *
+	 *  @return a QBFunction representing the addition operation.
 	 */
 	@JSFunction
 	public QBFunction plus(Object arg)
@@ -602,6 +672,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @param arg nr to subtract
 	 * @sample
 	 * query.result.add(query.columns.mycol.minus(2))
+	 *
+	 *  @return a QBFunction representing the subtraction operation.
 	 */
 	@JSFunction
 	public QBFunction minus(Object arg)
@@ -614,6 +686,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @param arg nr to multiply with
 	 * @sample
 	 * query.result.add(query.columns.mycol.multiply(2))
+	 *
+	 *  @return a QBFunction representing the multiplication operation.
 	 */
 	@JSFunction
 	public QBFunction multiply(Object arg)
@@ -626,6 +700,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @param arg nr to divide by
 	 * @sample
 	 * query.result.add(query.columns.mycol.divide(2))
+	 *
+	 *  @return a QBFunction representing the division operation.
 	 */
 	@JSFunction
 	public QBFunction divide(Object arg)
@@ -638,6 +714,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * @param arg valeu to concatenate with
 	 * @sample
 	 * query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname))
+	 *
+	 *  @return a QBFunction representing the concatenation operation.
 	 */
 	@JSFunction
 	public QBFunction concat(Object arg)
@@ -649,6 +727,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * Create floor(column) expression
 	 * @sample
 	 * query.result.add(query.columns.mycol.floor)
+	 *
+	 *  @return a QBFunction representing the floor function.
 	 */
 	@JSReadonlyProperty
 	public QBFunction floor()
@@ -660,6 +740,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * Create round(column) expression
 	 * @sample
 	 * query.result.add(query.columns.mycol.round)
+	 *
+	 *  @return a QBFunction representing the round function.
 	 */
 	@JSReadonlyProperty
 	public QBFunction round()
@@ -671,6 +753,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * Create ceil(column) expression
 	 * @sample
 	 * query.result.add(query.columns.mycol.ceil)
+	 *
+	 *  @return a QBFunction representing the ceil function.
 	 */
 	@JSReadonlyProperty
 	public QBFunction ceil()
@@ -682,6 +766,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * Extract second from date
 	 * @sample
 	 * query.result.add(query.columns.mydatecol.second)
+	 *
+	 *  @return a QBFunction representing the extraction of the second from a date.
 	 */
 	@JSReadonlyProperty
 	public QBFunction second()
@@ -693,6 +779,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * Extract minute from date
 	 * @sample
 	 * query.result.add(query.columns.mydatecol.minute)
+	 *
+	 *  @return a QBFunction representing the extraction of the minute from a date.
 	 */
 	@JSReadonlyProperty
 	public QBFunction minute()
@@ -704,6 +792,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * Extract hour from date
 	 * @sample
 	 * query.result.add(query.columns.mydatecol.hour)
+	 *
+	 *  @return a QBFunction representing the extraction of the hour from a date.
 	 */
 	@JSReadonlyProperty
 	public QBFunction hour()
@@ -715,6 +805,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * Extract day from date
 	 * @sample
 	 * query.result.add(query.columns.mydatecol.day)
+	 *
+	 *  @return a QBFunction representing the extraction of the day from a date.
 	 */
 	@JSReadonlyProperty
 	public QBFunction day()
@@ -726,6 +818,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * Extract month from date
 	 * @sample
 	 * query.result.add(query.columns.mydatecol.month)
+	 *
+	 *  @return a QBFunction representing the extraction of the month from a date.
 	 */
 	@JSReadonlyProperty
 	public QBFunction month()
@@ -737,6 +831,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 * Extract year from date
 	 * @sample
 	 * query.result.add(query.columns.mydatecol.year)
+	 *
+	 *  @return a QBFunction representing the extraction of the year from a date.
 	 */
 	@JSReadonlyProperty
 	public QBFunction year()
@@ -752,6 +848,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 
 	/**
 	 * Column type as a string
+	 *
+	 *  @return a string representing the column type.
 	 */
 	@JSFunction
 	public String getTypeAsString()
@@ -765,6 +863,8 @@ public class QBColumn extends QBPart implements IQueryBuilderColumn
 	 *  - JSColumn.UUID_COLUMN
 	 *  - JSColumn.EXCLUDED_COLUMN
 	 *  - JSColumn.TENANT_COLUMN
+	 *
+	 *   @return an integer representing the flags of the column.
 	 */
 	@Override
 	@JSFunction

@@ -140,6 +140,7 @@ public class XMLList
 	 *
 	 * @param name
 	 *
+	 * @link https://ecma-international.org/publications-and-standards/standards/ecma-357/
 	 */
 	public XMLList js_descendants(String name)
 	{
@@ -257,6 +258,7 @@ public class XMLList
 	 *
 	 * @param name
 	 *
+	 * @link https://ecma-international.org/publications-and-standards/standards/ecma-357/
 	 */
 	public XMLList js_processingInstructions(String name)
 	{

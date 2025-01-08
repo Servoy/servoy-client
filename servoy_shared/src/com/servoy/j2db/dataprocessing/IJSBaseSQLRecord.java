@@ -49,33 +49,70 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSBaseSQLRecord", scriptingName = "JSBaseSQLRecord", extendsComponent = "JSBaseRecord")
 public interface IJSBaseSQLRecord extends IJSBaseRecord
 {
+	/**
+	 *
+	 *  @return the exception associated with this record, or null if no exception exists.
+	 */
 	@JSReadonlyProperty
 	Exception getException();
 
+	/**
+	 *
+	 *  @return the record markers associated with this record.
+	 */
 	@JSGetter
 	JSRecordMarkers getRecordMarkers();
 
 	@JSSetter
 	void setRecordMarkers(JSRecordMarkers object);
 
+	/**
+	 *
+	 *  @return a dataset containing the changed data for this record.
+	 */
 	@JSFunction
 	public IJSDataSet getChangedData();
 
+	/**
+	 *
+	 *  @return true if the record has modified data; false otherwise.
+	 */
 	@JSFunction
 	public boolean hasChangedData();
 
+	/**
+	 *
+	 *  @return newly created record markers for this record.
+	 */
 	@JSFunction
 	JSRecordMarkers createMarkers();
 
+	/**
+	 *
+	 *  @return an array of primary key values associated with this record.
+	 */
 	@JSFunction
 	public Object[] getPKs();
 
+	/**
+	 *
+	 *  @return true if the record is newly created and not yet saved; false otherwise.
+	 */
 	@JSFunction
 	public boolean isNew();
 
+	/**
+	 *
+	 *  @return true if the record is in edit mode; false otherwise.
+	 */
 	@JSFunction
 	public boolean isEditing();
 
+	/**
+	 *
+	 * @param relationName
+	 *  @return true if the related foundset for the given relation name is loaded; false otherwise.
+	 */
 	@JSFunction
 	boolean isRelatedFoundSetLoaded(String relationName);
 

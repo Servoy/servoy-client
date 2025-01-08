@@ -3826,6 +3826,7 @@ public class JSApplication implements IReturnedTypesProvider, IJSApplication
 	 * @sample
 	 * var uuid = application.getServerUUID();
 	 *
+	 * @return the UUID of the server instance.
 	 */
 	@JSFunction
 	@ServoyClientSupport(ng = true, wc = true, sc = true, mc = false)

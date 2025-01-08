@@ -163,6 +163,8 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 	 * foundset.getQuery().getColumn('orderid')
 	 *
 	 * @param name the name of column to get
+	 *
+	 *  @return the QBColumn representing the specified column name.
 	 */
 	@JSFunction
 	public QBColumn getColumn(String name) throws RepositoryException
@@ -195,6 +197,8 @@ public abstract class QBTableClause extends QBPart implements IQueryBuilderTable
 	 *
 	 * @param columnTableAlias the alias for the table
 	 * @param name the name of column to get
+	 *
+	 *  @return the QBColumn representing the specified column from the table with the given alias.
 	 */
 	@JSFunction
 	public QBColumn getColumn(String columnTableAlias, String name) throws RepositoryException
