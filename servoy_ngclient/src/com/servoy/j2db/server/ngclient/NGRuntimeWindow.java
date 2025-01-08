@@ -125,10 +125,16 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	@Override
 	public void setController(IFormController form)
 	{
+		setController(form, null);
+	}
+
+	@Override
+	public void setController(IFormController form, List<Runnable> invokeLaterRunnables)
+	{
 		if (form != null)
 		{
 			this.formName = form.getName();
-			switchForm((WebFormController)form);
+			switchForm((WebFormController)form, invokeLaterRunnables);
 		}
 		else
 		{
@@ -514,9 +520,11 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 				return;
 			}
 			this.formName = formName;
-			controller.getFormUI().setParentWindowName(getName());
-			//show panel as main
-			switchForm(controller);
+
+			// show panel as main
+			// TODO the following two lines are normally already done by showFormInContainer(...) call above
+			controller.getFormUI().setParentWindowName(getName()); // TODO is this on purpose, that even if getApplication().getFormManager().showFormInContainer(formName, this, getTitle(), true, windowName) blocks the show (returns a previous controller who's onHide/onPreHide blocked the show) we still want to do it?
+			switchForm(controller, null); // TODO is this on purpose, that even if getApplication().getFormManager().showFormInContainer(formName, this, getTitle(), true, windowName) blocks the show (returns a previous controller who's onHide/onPreHide blocked the show) we still want to do it?
 		}
 
 		String titleArg = getTitle();
@@ -598,7 +606,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		}
 	}
 
-	private void switchForm(IWebFormController currentForm)
+	private void switchForm(IWebFormController currentForm, List<Runnable> invokeLaterRunnables)
 	{
 		visible = true;
 		// set the parent and current window ,
@@ -612,18 +620,27 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		mainForm.put("name", currentForm.getName());
 
 		Map<String, Object> navigatorForm = getNavigatorProperties(currentForm);
-		NGClientWindow.getCurrentWindow().touchForm(currentForm.getForm(), currentForm.getName(), true, false);
-		boolean isLoginForm = false;
+		boolean isLoginForm;
 		Solution solution = getApplication().getFlattenedSolution().getSolution();
 		if (solution != null)
 		{
 			isLoginForm = (solution.getSolutionType() == SolutionMetaData.LOGIN_SOLUTION || solution.getLoginFormID() == currentForm
 				.getForm().getID());
 		}
-		getApplication().getWebsocketSession()
-			.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE)
-			.executeAsyncServiceCall("switchForm",
-				new Object[] { getName(), mainForm, navigatorForm, isLoginForm });
+		else isLoginForm = false;
+
+		Runnable r = () -> {
+			// allow onShow handler to execute somewhere in the parent calls before sending initial form data to the client - in order to not send data twice
+			NGClientWindow.getCurrentWindow().touchForm(currentForm.getForm(), currentForm.getName(), true, false);
+			getApplication().getWebsocketSession()
+				.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE)
+				.executeAsyncServiceCall("switchForm",
+					new Object[] { getName(), mainForm, navigatorForm, Boolean.valueOf(isLoginForm) });
+		};
+
+		if (invokeLaterRunnables != null) invokeLaterRunnables.add(r);
+		else r.run();
+
 		sendTitle(title);
 	}
 
