@@ -140,7 +140,7 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	/**
 	 * returns the layouts spec name
 	 *
-	 * @return String
+	 * @return The specification name of the layout container.
 	 */
 	@JSGetter
 	public String getSpecName()
@@ -163,7 +163,7 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	/**
 	 * returns the layouts package name
 	 *
-	 * @return String
+	 * @return The package name associated with the layout container.
 	 */
 	@JSGetter
 	public String getPackageName()
@@ -176,6 +176,8 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	 *
 	 * @sample
 	 * layoutContainer.tagType = 'span';
+	 *
+	 * @return The tag type (e.g., 'div', 'span') of the layout container.
 	 */
 	@JSGetter
 	public String getTagType()
@@ -195,6 +197,8 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	 *
 	 * @sample
 	 * layoutContainer.elementId = 'rowCol';
+	 *
+	 * @return The unique element ID of the layout container.
 	 */
 	@JSGetter
 	public String getElementId()
@@ -214,6 +218,8 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	 *
 	 * @sample
 	 * layoutContainer.cssClasses = 'myContainer';
+	 *
+	 * @return A space-separated string of CSS classes applied to the layout container.
 	 */
 	@JSGetter
 	public String getCssClasses()
@@ -235,6 +241,8 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	 *
 	 * @sample
 	 * layoutContainer.getAttribute('class');
+	 *
+	 * @return The value of the specified attribute, or null if the attribute is not set.
 	 */
 	@JSFunction
 	public String getAttribute(String name)
@@ -283,6 +291,8 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	 *
 	 * @sample
 	 * layoutContainer.name = 'col1';
+	 *
+	 * @return The name of the layout container.
 	 */
 	@JSGetter
 	public String getName()
@@ -301,6 +311,8 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	 *
 	 * @sample
 	 * layoutContainer.x = 100;;
+	 *
+	 * @return The X-coordinate of the layout container's position.
 	 */
 	@JSGetter
 	public int getX()
@@ -320,6 +332,8 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	 *
 	 * @sample
 	 * layoutContainer.y = 100;;
+	 *
+	 * @return The Y-coordinate of the layout container's position.
 	 */
 	@JSGetter
 	public int getY()
@@ -339,6 +353,8 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	 *
 	 * @sample
 	 * layoutContainer.height = 300;
+	 *
+	 * @return The height of the layout container.
 	 */
 	@JSGetter
 	public int getHeight()
@@ -359,6 +375,8 @@ public class JSLayoutContainer extends JSBaseContainer<LayoutContainer> implemen
 	 * @deprecated
 	 * @sample
 	 * layoutContainer.width = 300;
+	 *
+	 * @return The width of the layout container.
 	 */
 	@Deprecated
 	@JSGetter

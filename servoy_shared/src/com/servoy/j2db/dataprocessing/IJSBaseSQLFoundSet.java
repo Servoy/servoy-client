@@ -81,13 +81,28 @@ public interface IJSBaseSQLFoundSet extends IJSBaseFoundSet
 	@JSFunction
 	String getCurrentSort();
 
+	/**
+	 *
+	 * @param pk
+	 * @return The record corresponding to the given primary key(s), or null if no matching record is found.
+	 */
 	IJSBaseSQLRecord js_getRecordByPk(Object... pk);
 
+	/**
+	 *
+	 * @return true if all records are successfully loaded; false otherwise.
+	 * @throws ServoyException
+	 */
 	boolean js_loadAllRecords() throws ServoyException;
 
 	@JSFunction
 	void revertEditedRecords() throws ServoyException;
 
+	/**
+	 *
+	 * @return true if the changes are successfully saved; false otherwise.
+	 * @throws ServoyException
+	 */
 	@JSFunction
 	public boolean save() throws ServoyException;
 

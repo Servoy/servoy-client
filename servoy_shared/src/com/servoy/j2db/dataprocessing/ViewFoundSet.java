@@ -411,6 +411,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 *
 	 * @sample
 	 * solutionModel.getForm("x").dataSource  = viewFoundSet.getDataSource();
+	 *
+	 * @return the datasource string representing the ViewFoundSet, typically in the format "view:<name>".
 	 */
 	@Override
 	@JSFunction
@@ -754,6 +756,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 * 	 *
 	 * @param record The ViewRecord to validate
 	 * @param customObject An extra customObject to give to the validate method.
+	 *
+	 * @return a `JSRecordMarkers` object indicating validation problems for the given record with the provided custom context, or `null` if no issues are found.
 	 */
 	@JSFunction
 	public JSRecordMarkers validate(ViewRecord record, Object customObject)
@@ -1060,6 +1064,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	/**
 	 * This will reload the current set of ViewRecords in this foundset, resetting the chunk size back to the start (default 200).
 	 * All edited records will be discarded! So this can be seen as a full clean up of this ViewFoundSet.
+	 *
+	 * @return true if the records were successfully reloaded.
 	 */
 	@Override
 	public boolean js_loadAllRecords() throws ServoyException
@@ -1250,6 +1256,9 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		if (multiSelectPinnedForm == null) setMultiSelectInternal(multiSelect); // if a form is currently overriding this, ignore js call
 	}
 
+	/**
+	 * @return `true` if the ViewFoundSet supports selecting multiple records; `false` if only single selection is allowed.
+	 */
 	@Override
 	@JSGetter
 	public boolean isMultiSelect()
@@ -1273,6 +1282,9 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		return selectionModel.getSelectedRows();
 	}
 
+	/**
+	 * @return the currently selected `ViewRecord`, or `null` if no record is selected.
+	 */
 	@JSFunction
 	public ViewRecord getSelectedRecord()
 	{

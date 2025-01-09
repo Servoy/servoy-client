@@ -369,6 +369,8 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	 *
 	 * @sample
 	 * solutionModel.getForm("x").dataSource  = menuFoundSet.getDataSource();
+	 *
+	 * @return The datasource identifier for this MenuFoundSet in the format menu:name.
 	 */
 	@JSFunction
 	@Override
@@ -630,6 +632,9 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 	}
 
+	/**
+	 * @return true if the MenuFoundSet is in multi-select mode; false otherwise.
+	 */
 	@Override
 	@JSGetter
 	public boolean isMultiSelect()

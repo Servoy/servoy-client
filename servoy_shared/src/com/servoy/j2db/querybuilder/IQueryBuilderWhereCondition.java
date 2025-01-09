@@ -34,6 +34,8 @@ public interface IQueryBuilderWhereCondition extends IQueryBuilderLogicalConditi
 	 * <pre>
 	 * query.where().add("mycond", query.getColumn("flag").eq(new Integer(1))).add(query.getColumn("value").isNull());
 	 * </pre>
+	 * 
+	 * @return the current IQueryBuilderWhereCondition instance after adding the specified condition.
 	 */
 	IQueryBuilderWhereCondition add(String name, IQueryBuilderCondition condition) throws RepositoryException;
 

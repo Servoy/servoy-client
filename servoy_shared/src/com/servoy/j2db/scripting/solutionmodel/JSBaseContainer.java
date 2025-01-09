@@ -954,6 +954,8 @@ public abstract class JSBaseContainer<T extends AbstractContainer> implements IJ
 	 * @sample
 	 * var comment = solutionModel.getForm("my_form").getComment();
 	 * application.output(comment);
+	 *
+	 * @return the comment of this container.
 	 */
 	@JSFunction
 	public String getComment()
