@@ -28,11 +28,13 @@ import java.util.concurrent.TimeoutException;
 
 import org.json.JSONObject;
 import org.sablo.eventthread.IEventDispatcher;
+import org.sablo.services.server.FormServiceHandler;
 import org.sablo.websocket.CurrentWindow;
 
 import com.servoy.j2db.IBasicFormManager.History;
 import com.servoy.j2db.IBasicMainContainer;
 import com.servoy.j2db.IFormController;
+import com.servoy.j2db.IRunnableWithEventLevel;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.TagResolver;
@@ -515,16 +517,10 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		if (controller != null)
 		{
 			IFormController showFormInContainer = getApplication().getFormManager().showFormInContainer(formName, this, getTitle(), true, windowName);
-			if (showFormInContainer == null)
+			if (showFormInContainer == null || showFormInContainer != controller)
 			{
 				return;
 			}
-			this.formName = formName;
-
-			// show panel as main
-			// TODO the following two lines are normally already done by showFormInContainer(...) call above
-			controller.getFormUI().setParentWindowName(getName()); // TODO is this on purpose, that even if getApplication().getFormManager().showFormInContainer(formName, this, getTitle(), true, windowName) blocks the show (returns a previous controller who's onHide/onPreHide blocked the show) we still want to do it?
-			switchForm(controller, null); // TODO is this on purpose, that even if getApplication().getFormManager().showFormInContainer(formName, this, getTitle(), true, windowName) blocks the show (returns a previous controller who's onHide/onPreHide blocked the show) we still want to do it?
 		}
 
 		String titleArg = getTitle();
@@ -537,10 +533,28 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			titleArg = formName;
 		}
 		titleArg = getApplication().getI18NMessageIfPrefixed(titleArg);
-		getApplication().getWebsocketSession()
-			.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE)
-			.executeAsyncServiceCall("show",
-				new Object[] { getName(), formName, titleArg });
+
+		final String fTitle = titleArg;
+
+		// we do invokeLater here because the showFormInContainer call above also sends
+		// the initial data of the form (if needed) later, after the onShow has already been called
+		// we also use EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST because a show of a modal dialog, or a sync-call
+		// to client side component API in onShow could suspend the event thread - and we still want this to happen
+		getApplication().invokeLater(new IRunnableWithEventLevel()
+		{
+			public void run()
+			{
+				getApplication().getWebsocketSession()
+					.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE)
+					.executeAsyncServiceCall("show",
+						new Object[] { getName(), formName, fTitle });
+			}
+
+			public int getEventLevel()
+			{
+				return FormServiceHandler.EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST;
+			}
+		});
 
 		if (windowType == JSWindow.MODAL_DIALOG && getApplication().getWebsocketSession().getEventDispatcher() != null)
 		{
