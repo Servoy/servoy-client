@@ -92,7 +92,7 @@ public class ServoyApiObject
 		this.component = component;
 	}
 
-	@JSFunction
+
 	/**
 	 * Creates a view (read-only) foundset.
 	 * @param name foundset name
@@ -100,19 +100,20 @@ public class ServoyApiObject
 	 * @return The view foundset created based on the specified query.
 	 * @throws ServoyException
 	 */
+	@JSFunction
 	public ViewFoundSet getViewFoundSet(String name, QBSelect query) throws ServoyException
 	{
 		app.checkAuthorized();
 		return app.getFoundSetManager().getViewFoundSet(name, query, false);
 	}
 
-	@JSFunction
 	/**
 	 * Creates a foundset.
 	 * @param query query builder used to get the data for the foundset
 	 * @return The foundset created based on the specified query.
 	 * @throws ServoyException
 	 */
+	@JSFunction
 	public FoundSet getFoundSet(QBSelect query) throws ServoyException
 	{
 		app.checkAuthorized();
