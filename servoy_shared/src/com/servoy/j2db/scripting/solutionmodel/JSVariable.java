@@ -118,6 +118,8 @@ public class JSVariable implements IConstantsObject, ISMVariable
 	 * var mediaVar = solutionModel.newGlobalVariable('globals', 'gMedia', JSVariable.MEDIA);
 	 * mediaVar.defaultValue = 'new Array(1, 2, 3, 4)';
 	 * application.output(scopes.globals.gMedia); // Prints out the array with four elements.
+	 *
+	 * @return The default value of the variable.
 	 */
 	@JSGetter
 	public String getDefaultValue()
@@ -143,6 +145,8 @@ public class JSVariable implements IConstantsObject, ISMVariable
 	 * // The next two lines will print the same output.
 	 * application.output(scopes.globals[gVar.name]);
 	 * application.output(scopes.globals.anotherName);
+	 *
+	 * @return The name of the variable.
 	 */
 	@JSGetter
 	public String getName()
@@ -175,6 +179,8 @@ public class JSVariable implements IConstantsObject, ISMVariable
 	 * var globalVariables = solutionModel.getGlobalVariables();
 	 * for (var i in globalVariables)
 	 * 	application.output(globalVariables[i].name + ' is defined in scope ' + globalVariables[i].getScopeName());
+	 *
+	 * @return The scope name in which the variable is defined.
 	 */
 	@JSFunction
 	public String getScopeName()
@@ -190,6 +196,8 @@ public class JSVariable implements IConstantsObject, ISMVariable
 	 * scopes.globals.gtext = 'some text';
 	 * g.variableType = JSVariable.DATETIME;
 	 * scopes.globals.gtext = 'another text'; // This will raise an error now, because the variable is not longer of type text.
+	 *
+	 * @return The type of the variable (e.g., TEXT, NUMBER, DATETIME).
 	 */
 	@JSGetter
 	public int getVariableType()
@@ -212,6 +220,8 @@ public class JSVariable implements IConstantsObject, ISMVariable
 	 * @sample
 	 * var dateVar = solutionModel.newGlobalVariable('globals', 'gDate', JSVariable.DATETIME);
 	 * application.output(dateVar.getUUID().toString());
+	 *
+	 * @return The unique identifier (UUID) of the variable.
 	 */
 	@JSFunction
 	public UUID getUUID()

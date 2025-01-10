@@ -52,6 +52,8 @@ public interface QBColumn extends QBColumnFunctionsSameType<QBColumn>, QBColumnC
 	 * Compare column with null.
 	 * @sample
 	 * query.where.add(query.columns.flag.isNull)
+	 *
+	 *  @return a QBCondition representing the "is null" comparison.
 	 */
 	@JSReadonlyProperty
 	default QBCondition isNull()
@@ -63,6 +65,8 @@ public interface QBColumn extends QBColumnFunctionsSameType<QBColumn>, QBColumnC
 	 * Create a negated condition.
 	 * @sample
 	 * query.where.add(query.columns.flag.not.eq(1))
+	 *
+	 *  @return a QBColumn representing the negated condition.
 	 *
 	 */
 	@JSReadonlyProperty
@@ -77,6 +81,8 @@ public interface QBColumn extends QBColumnFunctionsSameType<QBColumn>, QBColumnC
 	 * .add(query.joins.orders_to_order_details.columns.quantity.asc)
 	 * .add(query.columns.companyid)
 	 * foundset.loadRecords(query)
+	 *
+	 *  @return a QBSort representing an ascending sort order.
 	 */
 	@JSReadonlyProperty
 	QBSort asc();
@@ -89,6 +95,8 @@ public interface QBColumn extends QBColumnFunctionsSameType<QBColumn>, QBColumnC
 	 * .add(query.joins.orders_to_order_details.columns.quantity.desc)
 	 * .add(query.columns.companyid)
 	 * foundset.loadRecords(query)
+	 *
+	 *  @return a QBSort representing a descending sort order.
 	 */
 	@JSReadonlyProperty
 	QBSort desc();
@@ -100,6 +108,8 @@ public interface QBColumn extends QBColumnFunctionsSameType<QBColumn>, QBColumnC
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.count.eq(0))
 	 * 	foundset.loadRecords(query)
+	 *
+	 *  @return a QBAggregate representing the count aggregate function.
 	 */
 	@JSReadonlyProperty
 	QBCountAggregate count();
@@ -109,6 +119,8 @@ public interface QBColumn extends QBColumnFunctionsSameType<QBColumn>, QBColumnC
 	 * @param arg value to concatenate with
 	 * @sample
 	 * query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname))
+	 *
+	 *  @return a QBFunction representing the concatenation operation.
 	 */
 	@JSFunction
 	// concat is supported on most column types, databases can automatically convert number columns to string before concatenation
@@ -119,6 +131,8 @@ public interface QBColumn extends QBColumnFunctionsSameType<QBColumn>, QBColumnC
 	 * @param type string type, see QUERY_COLUMN_TYPES
 	 * @sample
 	 * query.result.add(query.columns.mycol.cast(QUERY_COLUMN_TYPES.TYPE_INTEGER))
+	 *
+	 *  @return a QBFunction representing the cast function with the specified type.
 	 */
 	@JSFunction
 	public QBColumn cast(String type);
@@ -128,12 +142,16 @@ public interface QBColumn extends QBColumnFunctionsSameType<QBColumn>, QBColumnC
 	 *  - JSColumn.UUID_COLUMN
 	 *  - JSColumn.EXCLUDED_COLUMN
 	 *  - JSColumn.TENANT_COLUMN
+	 *
+	 *   @return an integer representing the flags of the column.
 	 */
 	@JSFunction
 	public int getFlags();
 
 	/**
 	 * Column type as a string
+	 *
+	 *  @return a string representing the column type.
 	 */
 	@JSFunction
 	public String getTypeAsString();

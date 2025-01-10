@@ -331,13 +331,18 @@ public class JSLib implements IReturnedTypesProvider
 	/**
 	 * Returns the string representation behind a given object.
 	 *
+	 * @deprecated Not longer available (use toString() instead)
+	 *
 	 * @sample
 	 * application.output(uneval(isNaN)); // prints something like: function isNaN() { [native code for isNaN, arity=1] }
 	 *
 	 * @param obj
 	 *
 	 * @staticCall
+	 *
+	 * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Deprecated_and_obsolete_features
 	 */
+	@Deprecated
 	public String js_uneval(Object obj)
 	{
 		return null;

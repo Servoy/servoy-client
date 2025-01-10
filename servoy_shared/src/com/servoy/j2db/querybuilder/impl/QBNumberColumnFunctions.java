@@ -33,6 +33,8 @@ public interface QBNumberColumnFunctions<T>
 	 * Create abs(column) expression
 	 * @sample
 	 * query.result.add(query.columns.custname.abs)
+	 *
+	 *  @return a QBFunction representing the absolute value function.
 	 */
 	@JSReadonlyProperty
 	public T abs();
@@ -42,6 +44,8 @@ public interface QBNumberColumnFunctions<T>
 	 * Create sqrt(column) expression
 	 * @sample
 	 * query.result.add(query.columns.custname.sqrt)
+	 *
+	 *  @return a QBFunction representing the square root function.
 	 */
 	@JSReadonlyProperty
 	public QBNumberColumnBase sqrt();
@@ -52,6 +56,8 @@ public interface QBNumberColumnFunctions<T>
 	 * @param arg mod arg
 	 * @sample
 	 * query.result.add(query.columns.mycol.mod(2))
+	 *
+	 *  @return a QBFunction representing the modulo operation.
 	 */
 	@JSFunction
 	public T mod(Object arg);
@@ -61,6 +67,8 @@ public interface QBNumberColumnFunctions<T>
 	 * @param arg nr to add
 	 * @sample
 	 * query.result.add(query.columns.mycol.plus(2))
+	 *
+	 *  @return a QBFunction representing the addition operation.
 	 */
 	@JSFunction
 	public QBNumberColumnBase plus(Object arg);
@@ -70,6 +78,8 @@ public interface QBNumberColumnFunctions<T>
 	 * @param arg nr to subtract
 	 * @sample
 	 * query.result.add(query.columns.mycol.minus(2))
+	 *
+	 *  @return a QBFunction representing the subtraction operation.
 	 */
 	@JSFunction
 	public QBNumberColumnBase minus(Object arg);
@@ -79,6 +89,8 @@ public interface QBNumberColumnFunctions<T>
 	 * @param arg nr to multiply with
 	 * @sample
 	 * query.result.add(query.columns.mycol.multiply(2))
+	 *
+	 *  @return a QBFunction representing the multiplication operation.
 	 */
 	@JSFunction
 	public QBNumberColumnBase multiply(Object arg);
@@ -88,6 +100,8 @@ public interface QBNumberColumnFunctions<T>
 	 * @param arg nr to divide by
 	 * @sample
 	 * query.result.add(query.columns.mycol.divide(2))
+	 *
+	 *  @return a QBFunction representing the division operation.
 	 */
 	@JSFunction
 	public QBNumberColumnBase divide(Object arg);
@@ -99,6 +113,8 @@ public interface QBNumberColumnFunctions<T>
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.sum.gt(100))
 	 * 	foundset.loadRecords(query)
+	 *
+	 *  @return a QBAggregate representing the sum aggregate function.
 	 */
 	@JSReadonlyProperty
 	T sum();
@@ -110,6 +126,8 @@ public interface QBNumberColumnFunctions<T>
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.avg.eq(1))
 	 * 	foundset.loadRecords(query)
+	 *
+	 *  @return a QBAggregate representing the average aggregate function.
 	 */
 	@JSReadonlyProperty
 	T avg();

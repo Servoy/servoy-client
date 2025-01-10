@@ -17,6 +17,8 @@
 
 package com.servoy.j2db;
 
+import java.util.List;
+
 import com.servoy.j2db.IBasicFormManager.History;
 
 /**
@@ -33,6 +35,7 @@ public interface IBasicMainContainer
 
 	void setController(IFormController currentForm);
 
+	void setController(IFormController currentForm, List<Runnable> invokeLaterRunnables);
 
 	/**
 	 * @return

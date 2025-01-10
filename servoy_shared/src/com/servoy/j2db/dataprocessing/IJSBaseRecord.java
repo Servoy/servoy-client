@@ -41,9 +41,17 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "JSBaseRecord", scriptingName = "JSBaseRecord")
 public interface IJSBaseRecord
 {
+	/**
+	 *
+	 * @return the foundset to which this record belongs.
+	 */
 	@JSReadonlyProperty
 	IJSBaseFoundSet getFoundset();
 
+	/**
+	 *
+	 * @return the data source associated with this record.
+	 */
 	@JSFunction
 	String getDataSource();
 }

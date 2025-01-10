@@ -54,25 +54,55 @@ public interface IJSBaseSQLFoundSet extends IJSBaseFoundSet
 	@JSSetter
 	void setMultiSelect(boolean multiSelect);
 
+	/**
+	 * @return true if the foundset is in multi-select mode; false otherwise.
+	 */
 	@JSGetter
 	boolean isMultiSelect();
 
+	/**
+	 * @return true if the foundset was successfully disposed; false otherwise.
+	 */
 	@JSFunction
 	boolean dispose();
 
+	/**
+	 *
+	 * @return a new instance of the duplicated foundset.
+	 * @throws ServoyException
+	 */
 	@JSFunction
 	IJSBaseSQLFoundSet duplicateFoundSet() throws ServoyException;
 
+	/**
+	 *
+	 * @return the current sort order as a string.
+	 */
 	@JSFunction
 	String getCurrentSort();
 
+	/**
+	 *
+	 * @param pk
+	 * @return The record corresponding to the given primary key(s), or null if no matching record is found.
+	 */
 	IJSBaseSQLRecord js_getRecordByPk(Object... pk);
 
+	/**
+	 *
+	 * @return true if all records are successfully loaded; false otherwise.
+	 * @throws ServoyException
+	 */
 	boolean js_loadAllRecords() throws ServoyException;
 
 	@JSFunction
 	void revertEditedRecords() throws ServoyException;
 
+	/**
+	 *
+	 * @return true if the changes are successfully saved; false otherwise.
+	 * @throws ServoyException
+	 */
 	@JSFunction
 	public boolean save() throws ServoyException;
 

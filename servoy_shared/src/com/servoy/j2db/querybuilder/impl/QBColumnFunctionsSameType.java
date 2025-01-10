@@ -36,6 +36,8 @@ public interface QBColumnFunctionsSameType<T>
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.count.min(10))
 	 * 	foundset.loadRecords(query)
+	 *
+	 *  @return a QBAggregate representing the minimum aggregate function.
 	 */
 	@JSReadonlyProperty
 	T min();
@@ -47,6 +49,8 @@ public interface QBColumnFunctionsSameType<T>
 	 * 	query.groupBy.addPk() // have to group by on pk when using having-conditions in (foundset) pk queries
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.count.max(10))
 	 * 	foundset.loadRecords(query)
+	 *
+	 *  @return a QBAggregate representing the sum aggregate function.
 	 */
 	@JSReadonlyProperty
 	T max();
@@ -56,6 +60,8 @@ public interface QBColumnFunctionsSameType<T>
 	 * @param arg object to compare
 	 * @sample
 	 * query.result.add(query.columns.mycol.nullif('none'))
+	 *
+	 *  @return a QBFunction representing the nullif function.
 	 */
 	@JSFunction
 	T nullif(Object arg);
@@ -65,6 +71,8 @@ public interface QBColumnFunctionsSameType<T>
 	 * @param value when column is null
 	 * @sample
 	 * query.result.add(query.columns.mycol.coalesce('defval'))
+	 *
+	 *  @return a QBFunction representing the coalesce function.
 	 */
 	@JSFunction
 	T coalesce(Object arg);

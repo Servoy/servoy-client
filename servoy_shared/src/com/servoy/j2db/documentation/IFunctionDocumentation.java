@@ -19,6 +19,7 @@ package com.servoy.j2db.documentation;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.SortedMap;
 
 import org.dom4j.Element;
 
@@ -128,4 +129,6 @@ public interface IFunctionDocumentation
 	public String getUntil();
 
 	public ClientSupport getClientSupport();
+
+	public SortedMap<String, String> getLinks();
 }

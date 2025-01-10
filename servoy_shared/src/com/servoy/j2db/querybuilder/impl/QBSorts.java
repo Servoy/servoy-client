@@ -57,6 +57,9 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 		super(parent, parent);
 	}
 
+	/**
+	 *  @return the parent QBSelect query associated with these sorts.
+	 */
 	@Override
 	@JSReadonlyProperty
 	public final QBSelect getParent()
@@ -69,6 +72,8 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 	 * @sample
 	 *
 	 * query.sort.addPk()
+	 *
+	 * @return this QBSorts instance after adding primary key columns to the sort order.
 	 */
 	@JSFunction
 	public QBSorts addPk() throws RepositoryException
@@ -89,6 +94,7 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 	 * @sample
 	 *
 	 * query.sort.clear()
+	 * @return this QBSorts instance after clearing all sort conditions.
 	 */
 	@JSFunction
 	public QBSorts clear()
@@ -103,6 +109,8 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 	 * query.sort.add(query.columns.orderid.desc)
 	 *
 	 * @param sort the sort to add
+	 *
+	 * @return this QBSorts instance after adding the specified sort condition.
 	 */
 	public QBSorts js_add(QBSort sort) throws RepositoryException
 	{
@@ -121,6 +129,8 @@ public class QBSorts extends QBPart implements IQueryBuilderSorts
 	 * query.sort.add(query.columns.orderid)
 	 *
 	 * @param columnSortAsc column to sort by
+	 *
+	 * @return this QBSorts instance after adding the specified column to the sort order.
 	 */
 	@JSFunction
 	public QBSorts add(QBColumn columnSortAsc) throws RepositoryException

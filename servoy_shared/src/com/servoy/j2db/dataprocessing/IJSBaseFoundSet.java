@@ -63,21 +63,39 @@ public interface IJSBaseFoundSet extends IFoundSetInternal
 	@JSSetter
 	void setMultiSelect(boolean multiSelect);
 
+	/**
+	 * @return true if the foundset is in multi-select mode; false otherwise.
+	 */
 	@JSGetter
 	boolean isMultiSelect();
 
+	/**
+	 * @return the data source of the foundset as a string.
+	 */
 	@JSFunction
 	String getDataSource();
 
+	/**
+	 * @return the name of the foundset.
+	 */
 	@JSFunction
 	String getName();
 
+	/**
+	 * @return the 0-based index of the given record in the foundset.
+	 */
 	@JSFunction
 	int getRecordIndex(IRecord record);
 
+	/**
+	 * @return an array of currently selected records in the foundset.
+	 */
 	@JSFunction
 	public IJSBaseRecord[] getSelectedRecords();
 
+	/**
+	 * @return the number of records in the foundset.
+	 */
 	@JSFunction
 	public int getSize();
 

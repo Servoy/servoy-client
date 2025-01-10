@@ -22,6 +22,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.border.Border;
 
@@ -220,6 +221,11 @@ public class DummyMainContainer implements IMainContainer
 	public void setController(IFormController f)
 	{
 		this.f = (FormController)f;
+	}
+
+	public void setController(IFormController f, List<Runnable> invokeLaterRunnables)
+	{
+		setController(f);
 	}
 
 	/**

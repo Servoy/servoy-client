@@ -33,6 +33,8 @@ public interface QBMediaColumnBase
 	 * Create bit_length(column) expression
 	 * @sample
 	 * query.result.add(query.columns.custname.bit_length)
+	 *
+	 *  @return a QBFunction representing the bit length function.
 	 */
 	@JSReadonlyProperty
 	public QBIntegerColumnBase bit_length();

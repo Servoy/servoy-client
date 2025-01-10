@@ -41,6 +41,8 @@ public interface QBColumnComparable
 	 * @param value
 	 * @sample
 	 * query.where.add(query.columns.flag.gt(0))
+	 *
+	 *  @return a QBCondition representing the "greater than" comparison.
 	 */
 	@JSFunction
 	QBCondition gt(Object value);
@@ -51,6 +53,8 @@ public interface QBColumnComparable
 	 * @param value
 	 * @sample
 	 * query.where.add(query.columns.flag.lt(99))
+	 *
+	 *  @return a QBCondition representing the "less than" comparison.
 	 */
 	@JSFunction
 	QBCondition lt(Object value);
@@ -61,6 +65,8 @@ public interface QBColumnComparable
 	 * @param value
 	 * @sample
 	 * query.where.add(query.columns.flag.ge(2))
+	 *
+	 *  @return a QBCondition representing the "greater than or equal to" comparison.
 	 */
 	@JSFunction
 	QBCondition ge(Object value);
@@ -71,6 +77,8 @@ public interface QBColumnComparable
 	 * @param value
 	 * @sample
 	 * query.where.add(query.columns.flag.le(2))
+	 *
+	 *  @return a QBCondition representing the "less than or equal to" comparison.
 	 */
 	@JSFunction
 	QBCondition le(Object value);
@@ -81,6 +89,8 @@ public interface QBColumnComparable
 	 * @param value2
 	 * @sample
 	 * query.where.add(query.columns.flag.between(0, 5))
+	 *
+	 *  @return a QBCondition representing the "between" comparison for the two values.
 	 */
 	@JSFunction
 	QBCondition between(Object value1, Object value2);
@@ -90,6 +100,8 @@ public interface QBColumnComparable
 	 * @param query subquery
 	 * @sample
 	 * query.where.add(query.columns.flag.isin(query2))
+	 *
+	 *  @return a QBCondition representing the "in" comparison with a subquery.
 	 */
 	@JSFunction
 	QBCondition isin(QBPart query);
@@ -100,6 +112,8 @@ public interface QBColumnComparable
 	 * @param args query arguments
 	 * @sample
 	 * query.where.add(query.columns.ccy.isin("select ccycode from currencies c where c.category = " + query.getTableAlias() + ".currency_category and c.flag = ?", ['T']))
+	 *
+	 *  @return a QBCondition representing the "in" comparison with a custom query and arguments.
 	 */
 	@JSFunction
 	QBCondition isin(String customQuery, Object[] args);
@@ -109,6 +123,8 @@ public interface QBColumnComparable
 	 * @param values array of values
 	 * @sample
 	 * query.where.add(query.columns.flag.isin([1, 5, 99]))
+	 *
+	 *  @return a QBCondition representing the "in" comparison with a list of values.
 	 */
 	@JSFunction
 	QBCondition isin(Object[] values);
@@ -119,6 +135,8 @@ public interface QBColumnComparable
 	 * @param value
 	 * @sample
 	 * query.where.add(query.columns.flag.eq(1))
+	 *
+	 *  @return a QBCondition representing the "equals" comparison.
 	 */
 	@JSFunction
 	QBCondition eq(Object value);

@@ -97,7 +97,7 @@ public class ServoyApiObject
 	 * Creates a view (read-only) foundset.
 	 * @param name foundset name
 	 * @param query query builder used to get the data for the foundset
-	 * @return the view foundset
+	 * @return The view foundset created based on the specified query.
 	 * @throws ServoyException
 	 */
 	public ViewFoundSet getViewFoundSet(String name, QBSelect query) throws ServoyException
@@ -110,7 +110,7 @@ public class ServoyApiObject
 	/**
 	 * Creates a foundset.
 	 * @param query query builder used to get the data for the foundset
-	 * @return the foundset
+	 * @return The foundset created based on the specified query.
 	 * @throws ServoyException
 	 */
 	public FoundSet getFoundSet(QBSelect query) throws ServoyException
@@ -463,6 +463,8 @@ public class ServoyApiObject
 	 * @param filterName a name given to this foundset filter
 	 *
 	 * @see Foundset.js_addFoundSetFilterParam
+	 *
+	 * @return true if the filter parameter was successfully added, false otherwise.
 	 */
 	@JSFunction
 	public boolean addFoundSetFilterParam(FoundSet foundset, QBSelect query, String filterName)

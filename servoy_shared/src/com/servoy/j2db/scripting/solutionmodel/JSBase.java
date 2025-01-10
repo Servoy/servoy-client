@@ -77,6 +77,8 @@ public class JSBase<T extends AbstractBase> implements ISMHasUUID
 	 * @sample
 	 * var button_uuid = solutionModel.getForm("my_form").getButton("my_button").getUUID();
 	 * application.output(button_uuid.toString());
+	 *
+	 * @return the UUID of this component.
 	 */
 	@JSFunction
 	public UUID getUUID()
@@ -90,6 +92,8 @@ public class JSBase<T extends AbstractBase> implements ISMHasUUID
 	 * @sample
 	 * var comment = solutionModel.getForm("my_form").getButton("my_button").getComment();
 	 * application.output(comment);
+	 *
+	 * @return the comment associated with this component.
 	 */
 	@JSFunction
 	public String getComment()

@@ -550,10 +550,13 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 				if (application.getSolution() == null) return null;
 
 				setCurrentControllerJS(fp);
-				//add to history
+				// add to history
 				getHistory(container).add(fp.getName());
 
-				//show panel as main
+				List<Runnable> switchOnClientAndSendInitialDataRunnables = new ArrayList<Runnable>();
+				container.setController(fp, switchOnClientAndSendInitialDataRunnables);
+
+				// show panel as main
 				List<Runnable> invokeLaterRunnables = new ArrayList<Runnable>();
 				fp.notifyVisible(true, invokeLaterRunnables, true);
 
@@ -568,7 +571,7 @@ public class NGFormManager extends BasicFormManager implements INGFormManager
 				{
 					public void run()
 					{
-						container.setController(fp); // actually change the form in main container (also sends initial data / updateController if form data is not yet on client)
+						switchOnClientAndSendInitialDataRunnables.forEach((r) -> r.run());
 
 						String titleText = title;
 						if (titleText == null) titleText = f.getTitleText();

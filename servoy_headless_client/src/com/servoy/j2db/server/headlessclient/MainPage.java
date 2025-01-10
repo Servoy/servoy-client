@@ -649,6 +649,11 @@ public class MainPage extends Component implements IMainContainer
 		}
 	}
 
+	public void setController(IFormController f, List<Runnable> invokeLaterRunnables)
+	{
+		setController(f);
+	}
+
 	/**
 	 * @see com.servoy.j2db.IMainContainer#getController()
 	 */

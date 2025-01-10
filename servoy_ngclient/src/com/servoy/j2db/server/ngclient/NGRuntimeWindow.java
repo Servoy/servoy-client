@@ -28,11 +28,13 @@ import java.util.concurrent.TimeoutException;
 
 import org.json.JSONObject;
 import org.sablo.eventthread.IEventDispatcher;
+import org.sablo.services.server.FormServiceHandler;
 import org.sablo.websocket.CurrentWindow;
 
 import com.servoy.j2db.IBasicFormManager.History;
 import com.servoy.j2db.IBasicMainContainer;
 import com.servoy.j2db.IFormController;
+import com.servoy.j2db.IRunnableWithEventLevel;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.PrototypeState;
 import com.servoy.j2db.dataprocessing.TagResolver;
@@ -125,10 +127,16 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 	@Override
 	public void setController(IFormController form)
 	{
+		setController(form, null);
+	}
+
+	@Override
+	public void setController(IFormController form, List<Runnable> invokeLaterRunnables)
+	{
 		if (form != null)
 		{
 			this.formName = form.getName();
-			switchForm((WebFormController)form);
+			switchForm((WebFormController)form, invokeLaterRunnables);
 		}
 		else
 		{
@@ -509,14 +517,10 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		if (controller != null)
 		{
 			IFormController showFormInContainer = getApplication().getFormManager().showFormInContainer(formName, this, getTitle(), true, windowName);
-			if (showFormInContainer == null)
+			if (showFormInContainer == null || showFormInContainer != controller)
 			{
 				return;
 			}
-			this.formName = formName;
-			controller.getFormUI().setParentWindowName(getName());
-			//show panel as main
-			switchForm(controller);
 		}
 
 		String titleArg = getTitle();
@@ -529,10 +533,28 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 			titleArg = formName;
 		}
 		titleArg = getApplication().getI18NMessageIfPrefixed(titleArg);
-		getApplication().getWebsocketSession()
-			.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE)
-			.executeAsyncServiceCall("show",
-				new Object[] { getName(), formName, titleArg });
+
+		final String fTitle = titleArg;
+
+		// we do invokeLater here because the showFormInContainer call above also sends
+		// the initial data of the form (if needed) later, after the onShow has already been called
+		// we also use EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST because a show of a modal dialog, or a sync-call
+		// to client side component API in onShow could suspend the event thread - and we still want this to happen
+		getApplication().invokeLater(new IRunnableWithEventLevel()
+		{
+			public void run()
+			{
+				getApplication().getWebsocketSession()
+					.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE)
+					.executeAsyncServiceCall("show",
+						new Object[] { getName(), formName, fTitle });
+			}
+
+			public int getEventLevel()
+			{
+				return FormServiceHandler.EVENT_LEVEL_INITIAL_FORM_DATA_REQUEST;
+			}
+		});
 
 		if (windowType == JSWindow.MODAL_DIALOG && getApplication().getWebsocketSession().getEventDispatcher() != null)
 		{
@@ -598,7 +620,7 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		}
 	}
 
-	private void switchForm(IWebFormController currentForm)
+	private void switchForm(IWebFormController currentForm, List<Runnable> invokeLaterRunnables)
 	{
 		visible = true;
 		// set the parent and current window ,
@@ -612,18 +634,27 @@ public class NGRuntimeWindow extends RuntimeWindow implements IBasicMainContaine
 		mainForm.put("name", currentForm.getName());
 
 		Map<String, Object> navigatorForm = getNavigatorProperties(currentForm);
-		NGClientWindow.getCurrentWindow().touchForm(currentForm.getForm(), currentForm.getName(), true, false);
-		boolean isLoginForm = false;
+		boolean isLoginForm;
 		Solution solution = getApplication().getFlattenedSolution().getSolution();
 		if (solution != null)
 		{
 			isLoginForm = (solution.getSolutionType() == SolutionMetaData.LOGIN_SOLUTION || solution.getLoginFormID() == currentForm
 				.getForm().getID());
 		}
-		getApplication().getWebsocketSession()
-			.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE)
-			.executeAsyncServiceCall("switchForm",
-				new Object[] { getName(), mainForm, navigatorForm, isLoginForm });
+		else isLoginForm = false;
+
+		Runnable r = () -> {
+			// allow onShow handler to execute somewhere in the parent calls before sending initial form data to the client - in order to not send data twice
+			NGClientWindow.getCurrentWindow().touchForm(currentForm.getForm(), currentForm.getName(), true, false);
+			getApplication().getWebsocketSession()
+				.getClientService(NGRuntimeWindowManager.WINDOW_SERVICE)
+				.executeAsyncServiceCall("switchForm",
+					new Object[] { getName(), mainForm, navigatorForm, Boolean.valueOf(isLoginForm) });
+		};
+
+		if (invokeLaterRunnables != null) invokeLaterRunnables.add(r);
+		else r.run();
+
 		sendTitle(title);
 	}
 

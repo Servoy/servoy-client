@@ -209,6 +209,8 @@ public class JSWindow implements IConstantsObject
 	 * win1.storeBounds = true;
 	 * win1.title = "Window 1";
 	 * controller.show(win1);
+	 *
+	 *  @return true if the window's bounds are stored/persisted; false otherwise.
 	 */
 	public boolean js_getStoreBounds()
 	{
@@ -219,6 +221,8 @@ public class JSWindow implements IConstantsObject
 	 * Gets/Sets whether or not this window can be resized by the user (default true).
 	 *
 	 * @sampleas js_isVisible()
+	 *
+	 *  @return true if the window is resizable by the user; false otherwise.
 	 */
 	public boolean js_isResizable()
 	{
@@ -483,6 +487,8 @@ public class JSWindow implements IConstantsObject
 	 * } else {
 	 * 	application.output("Window could not be destroyed");
 	 * }
+	 *
+	 *  @return true if the window was successfully destroyed; false otherwise.
 	 */
 	public boolean js_destroy()
 	{

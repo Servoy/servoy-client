@@ -33,6 +33,8 @@ public interface QBNumberColumnBase
 	 * Create floor(column) expression
 	 * @sample
 	 * query.result.add(query.columns.mycol.floor)
+	 *
+	 *  @return a QBFunction representing the floor function.
 	 */
 	@JSReadonlyProperty
 	public QBIntegerColumnBase floor();
@@ -42,6 +44,8 @@ public interface QBNumberColumnBase
 	 * Create round(column) expression
 	 * @sample
 	 * query.result.add(query.columns.mycol.round)
+	 *
+	 *  @return a QBFunction representing the round function.
 	 */
 	@JSReadonlyProperty
 	public QBIntegerColumnBase round();
@@ -51,6 +55,8 @@ public interface QBNumberColumnBase
 	 * Create ceil(column) expression
 	 * @sample
 	 * query.result.add(query.columns.mycol.ceil)
+	 *
+	 *  @return a QBFunction representing the ceil function.
 	 */
 	@JSReadonlyProperty
 	public QBIntegerColumnBase ceil();

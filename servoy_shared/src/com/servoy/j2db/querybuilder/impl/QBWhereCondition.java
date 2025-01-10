@@ -70,6 +70,8 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 
 	/**
 	 * @sameas com.servoy.j2db.querybuilder.impl.QBLogicalCondition#js_add(QBCondition)
+	 *
+	 * @return the current QBWhereCondition instance after adding the specified condition.
 	 */
 	@Override
 	public QBWhereCondition js_add(QBCondition condition)
@@ -91,6 +93,8 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 	 *
 	 * @param name the name of the condition
 	 * @param condition the condition to add
+	 *
+	 * @return the current QBWhereCondition instance after adding the named condition.
 	 */
 	@Override
 	public QBWhereCondition js_add(String name, QBCondition condition)
@@ -112,6 +116,8 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.remove("mycond")
+	 *
+	 * @return the current QBWhereCondition instance after removing the specified condition.
 	 */
 	@Override
 	@JSFunction
@@ -125,6 +131,8 @@ public class QBWhereCondition extends QBLogicalCondition implements IQueryBuilde
 	 * @sample
 	 * var query = datasources.db.example_data.orders.createSelect();
 	 * query.where.clear()
+	 *
+	 * @return the current QBWhereCondition instance after clearing all conditions.
 	 */
 	@Override
 	@JSFunction

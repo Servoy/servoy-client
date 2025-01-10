@@ -659,6 +659,9 @@ public class ServoyException extends Exception implements IReturnedTypesProvider
 		return result.toString();
 	}
 
+	/**
+	 * @return the context associated with this ServoyException.
+	 */
 	public String js_getContext()
 	{
 		return context;
