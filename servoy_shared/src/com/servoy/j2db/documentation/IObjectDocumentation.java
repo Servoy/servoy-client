@@ -49,6 +49,8 @@ public interface IObjectDocumentation
 
 	public String getScriptingName();
 
+	public String getRealClass();
+
 	public String getDescription(ClientSupport csp);
 
 	public String getCategory();
@@ -58,8 +60,6 @@ public interface IObjectDocumentation
 	public String getExtendsClass();
 
 	public void addFunction(IFunctionDocumentation function);
-
-	public void setHide(boolean hide);
 
 	public void runResolver(ITagResolver resolver);
 

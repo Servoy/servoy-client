@@ -22,12 +22,12 @@ import org.mozilla.javascript.annotations.JSFunction;
 import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * This interface lists the functions on columns that return the same column type as column they are applied to.
+ * This interface lists the functions on columns that apply to all columns.
  *
  * @author rgansevles
  *
  */
-public interface QBColumnFunctionsSameType<T>
+public interface QBColumnBaseFunctions<T> extends QBColumnComparable
 {
 	/**
 	 * Create an aggregate min expression.

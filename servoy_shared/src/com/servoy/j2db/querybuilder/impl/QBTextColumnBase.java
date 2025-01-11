@@ -28,7 +28,7 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "QBTextColumn")
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, realClass = QBTextColumn.class)
 public interface QBTextColumnBase
 {
 	/**
