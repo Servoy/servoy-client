@@ -135,8 +135,15 @@ public class MenuPropertyType extends DefaultPropertyType<MenuTypeSabloValue>
 	{
 		if (newJSONValue instanceof JSONObject json && previousSabloValue != null)
 		{
-			previousSabloValue.pushDataProviderValue(json.getString("category"), json.getString("propertyName"), json.getInt("itemIndex"),
-				json.get("dataproviderValue"));
+			if (json.optString("selectedItemID", null) != null)
+			{
+				previousSabloValue.updateSelectedMenuItem(json.getString("selectedItemID"));
+			}
+			else
+			{
+				previousSabloValue.pushDataProviderValue(json.getString("category"), json.getString("propertyName"), json.getInt("itemIndex"),
+					json.get("dataproviderValue"));
+			}
 		}
 		return previousSabloValue;
 	}
