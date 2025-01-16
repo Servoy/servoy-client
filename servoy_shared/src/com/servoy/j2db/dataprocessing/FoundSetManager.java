@@ -3626,6 +3626,11 @@ public class FoundSetManager implements IFoundSetManagerInternal
 				// trigger the load if it is not there yet.
 				getTable(dataSource);
 				viewFoundSet = viewFoundSets.get(dataSource);
+				if (viewFoundSet == null)
+				{
+					Debug.warn("The ViewFoundSet for datasource " + dataSource +
+						" is not registered, use the entity onload method to register through 'datasources.view.xxx.getViewFoundset(select)' or 'databaseManager.getViewFoundSet(memOrViewName,sql,true)'");
+				}
 			}
 			return viewFoundSet;
 		}
