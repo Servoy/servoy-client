@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -100,6 +101,7 @@ import com.servoy.j2db.scripting.ScriptEngine;
 import com.servoy.j2db.server.ngclient.DefaultComponentPropertiesProvider;
 import com.servoy.j2db.server.ngclient.FormElementHelper;
 import com.servoy.j2db.server.ngclient.INGClientWindow;
+import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.NGClientWebsocketSession;
 import com.servoy.j2db.server.ngclient.NGClientWindow;
@@ -262,6 +264,8 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 	protected Solution solution;
 	protected TestNGClient client;
 	protected TestNGClientEndpoint endpoint;
+	protected final Map<String, Map<String, String>> relationNamesAsSentToClient = new HashMap<>();
+
 
 	public AbstractSolutionTest()
 	{
@@ -468,6 +472,18 @@ public abstract class AbstractSolutionTest extends Log4JToConsoleTest
 				{
 					return new NGClientWindow(this, windowNr, windowName)
 					{
+						@Override
+						public String registerAllowedRelation(String relationName, INGFormElement element)
+						{
+							String result = super.registerAllowedRelation(relationName, element);
+							if (!relationNamesAsSentToClient.containsKey(relationName))
+							{
+								relationNamesAsSentToClient.put(relationName, new HashMap<>());
+							}
+							relationNamesAsSentToClient.get(relationName).put(element.getName(), result);
+							return result;
+						}
+
 						@Override
 						public long getLastPingTime()
 						{

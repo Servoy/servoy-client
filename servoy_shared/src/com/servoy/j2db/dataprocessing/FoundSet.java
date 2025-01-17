@@ -180,7 +180,7 @@ public abstract class FoundSet
 	protected final FoundSetManager fsm;
 	protected final RowManager rowManager;
 	protected boolean findMode = false;
-	private List<IFoundSetEventListener> foundSetEventListeners = new ArrayList<IFoundSetEventListener>();
+	protected List<IFoundSetEventListener> foundSetEventListeners = new ArrayList<IFoundSetEventListener>();
 	private List<IModificationListener> aggregateModificationListeners = new ArrayList<IModificationListener>();
 
 	private String serializedQuery;
