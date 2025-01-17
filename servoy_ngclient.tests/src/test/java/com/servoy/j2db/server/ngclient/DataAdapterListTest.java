@@ -185,6 +185,15 @@ public class DataAdapterListTest extends AbstractSolutionTest
 		field.setDisplayType(Field.TEXT_FIELD);
 		field.setName("mainQuantity");
 		field.setDataProviderID("quantity");
+
+		// form 5; 1 tabpanels; 1 unrelated tab
+		mainForm = solution.createNewForm(validator, null, "mainForm5", "mem:relatedTable2", false, new Dimension(600, 400));
+		mainForm.setNavigatorID(-1);
+		mainForm.createNewPart(IBaseSMPart.BODY, 5);
+
+		mainTabPanel = mainForm.createNewWebComponent("mainTabPanel", "tabpanel");
+		mainTabPanel.setProperty("tabs", new ServoyJSONArray(
+			"[ { \"_id\": \"abc\", \"containedForm\": \"relatedForm1\" } ]"));
 	}
 
 	@Override
@@ -689,6 +698,40 @@ public class DataAdapterListTest extends AbstractSolutionTest
 		client.getFormManager().destroyFormInstance("mainForm4");
 
 		assertFalse(client.getScriptEngine().getScopesScope().getModificationSubject().hasListeners());
+
+		// when showing relatedForm1 as main form, it should keep it's foundset
+		relatedForm1 = client.getFormManager().getForm("relatedForm1");
+		assertNotNull(relatedForm1);
+
+		relatedFoundset1 = relatedForm1.getFormModel();
+		assertTrue(relatedFoundset1 instanceof SwingRelatedFoundSet);
+		assertEquals(2, relatedFoundset1.getSize());
+
+		// when showing relatedForm1 as and un-related tab, it should keep it's foundset
+		client.getFormManager().showFormInCurrentContainer("mainForm5");
+
+		// @formatter:off
+		endpoint.incoming(
+			"{" +
+				"\"service\":\"formService\"," +
+				"\"methodname\":\"formvisibility\"," +
+				"\"args\":{" +
+					"\"formname\":\"relatedForm1\"," +
+					"\"parentForm\":\"mainForm5\"," +
+					"\"bean\":\"mainTabPanel\"," +
+					"\"visible\":true," +
+					",\"formIndex\":1" +
+				"}" +
+			"}",
+			true);
+		// @formatter:on
+
+		relatedForm1 = client.getFormManager().getForm("relatedForm1");
+		assertNotNull(relatedForm1);
+
+		relatedFoundset1 = relatedForm1.getFormModel();
+		assertTrue(relatedFoundset1 instanceof SwingRelatedFoundSet);
+		assertEquals(2, relatedFoundset1.getSize());
 	}
 
 	private void saveData()
