@@ -826,7 +826,6 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		createRelationListeners();
 		if (e.getRecord() == null) tellNestedRelatedListenersThatGlobalOrScopeVariableChanged(e.getName()); // if it's a change in the record, they will refresh anyway due to direct foundset listeners added by nestedRelatedFoundsetListeners or due to DAL.setRecord(...)
 		pushChangedValues(e.getName(), true);
-
 	}
 
 	public void pushChanges(WebFormComponent webComponent, String beanProperty)
