@@ -4,6 +4,7 @@ Bundle-Name: Servoy NG Client Plug-in
 Bundle-SymbolicName: servoy_ngclient;singleton:=true
 Bundle-Version: 2025.3.0.4040_rc
 Export-Package: com.servoy.j2db.server.ngclient,
+ com.servoy.j2db.server.ngclient.auth,
  com.servoy.j2db.server.ngclient.component,
  com.servoy.j2db.server.ngclient.endpoint,
  com.servoy.j2db.server.ngclient.eventthread,

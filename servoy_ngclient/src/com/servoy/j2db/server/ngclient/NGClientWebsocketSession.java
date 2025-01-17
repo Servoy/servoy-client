@@ -20,7 +20,6 @@ package com.servoy.j2db.server.ngclient;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,8 +31,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.sablo.eventthread.IEventDispatcher;
 import org.sablo.services.client.TypesRegistryService;
@@ -71,6 +68,7 @@ import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.RuntimeWindow;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.ngclient.INGClientWindow.IFormHTMLAndJSGenerator;
+import com.servoy.j2db.server.ngclient.auth.SvyID;
 import com.servoy.j2db.server.ngclient.eventthread.NGClientWebsocketSessionWindows;
 import com.servoy.j2db.server.ngclient.eventthread.NGEventDispatcher;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
@@ -353,46 +351,18 @@ public class NGClientWebsocketSession extends BaseWebsocketSession implements IN
 				public void setUserId()
 				{
 					String id_token = (String)getHttpSession().getAttribute(StatelessLoginHandler.ID_TOKEN);
-					String[] chunks = id_token.split("\\.");
-					Base64.Decoder decoder = Base64.getUrlDecoder();
-					String payload = new String(decoder.decode(chunks[1]));
-					JSONObject token = new JSONObject(payload);
-					String userID = token.getString(StatelessLoginHandler.UID);
-
+					SvyID token = new SvyID(id_token);
 					ClientInfo ci = client.getClientInfo();
-					ci.setUserUid(userID);
-					ci.setUserName(token.getString(StatelessLoginHandler.USERNAME));
-					if (token.has(StatelessLoginHandler.PERMISSIONS))
-					{
-						JSONArray groups = token.getJSONArray(StatelessLoginHandler.PERMISSIONS);
-						String[] gr = new String[groups.length()];
-						for (int i = 0; i < groups.length(); i++)
-						{
-							gr[i] = groups.getString(i);
-						}
-						ci.setUserGroups(gr);
-					}
-					Object[] tenants = null;
-					if (token.has(StatelessLoginHandler.TENANTS) && token.get(StatelessLoginHandler.TENANTS) instanceof JSONArray arr && arr.length() > 0)
-					{
-						tenants = new Object[arr.length()];
-						for (int i = 0; i < arr.length(); i++)
-						{
-							try
-							{
-								tenants[i] = arr.get(i);
-							}
-							catch (JSONException e)
-							{
-								Debug.error("Cannot set the tenants value", e);
-							}
-						}
-					}
+					ci.setUserUid(token.getUserID());
+					ci.setUserName(token.getUsername());
+					String[] gr = token.getPermissions();
+					if (gr != null) ci.setUserGroups(gr);
+					Object[] tenants = token.getTenants();
 					client.getFormManager().setTenantValue(tenants);
-					if (token.optBoolean("remember", false))
+					if (token.rememberUser())
 					{
 						JSONObject obj = new JSONObject();
-						obj.put(StatelessLoginHandler.USERNAME, token.get(StatelessLoginHandler.USERNAME));
+						obj.put(SvyID.USERNAME, token.getUsername());
 						obj.put(StatelessLoginHandler.ID_TOKEN, id_token);
 						getClientService(NGClient.APPLICATION_SERVICE).executeAsyncServiceCall("rememberUser",
 							new Object[] { obj });

@@ -15,7 +15,7 @@
  Software Foundation,Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 */
 
-package com.servoy.j2db.server.ngclient;
+package com.servoy.j2db.server.ngclient.auth;
 
 import java.util.Date;
 import java.util.Properties;
@@ -26,6 +26,7 @@ import java.util.Properties;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTCreator.Builder;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.servoy.j2db.server.ngclient.StatelessLoginHandler;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 
 /**
@@ -38,15 +39,16 @@ public class SvyTokenBuilder
 	private final Builder builder;
 	private final Algorithm algorithm;
 	private boolean lastLoginSet = false;
+	static final int TOKEN_AGE_IN_SECONDS = 2 * 3600;
 
 	public SvyTokenBuilder(String username, String uid, String[] permissions)
 	{
 		Properties settings = ApplicationServerRegistry.get().getServerAccess().getSettings();
-		this.algorithm = Algorithm.HMAC256(settings.getProperty(StatelessLoginHandler.JWT_Password));
+		this.algorithm = Algorithm.HMAC256(settings.getProperty(StatelessLoginUtils.JWT_Password));
 		this.builder = JWT.create().withIssuer(ISSUER)//
-			.withClaim(StatelessLoginHandler.UID, uid)
-			.withClaim(StatelessLoginHandler.USERNAME, username)
-			.withArrayClaim(StatelessLoginHandler.PERMISSIONS, permissions);
+			.withClaim(SvyID.UID, uid)
+			.withClaim(SvyID.USERNAME, username)
+			.withArrayClaim(SvyID.PERMISSIONS, permissions);
 	}
 
 	public SvyTokenBuilder withClaim(String claim, String value)
@@ -64,7 +66,7 @@ public class SvyTokenBuilder
 		if (lastLogin != null)
 		{
 			lastLoginSet = true;
-			builder.withClaim(StatelessLoginHandler.LAST_LOGIN, lastLogin);
+			builder.withClaim(SvyID.LAST_LOGIN, lastLogin);
 		}
 		return this;
 	}
@@ -73,7 +75,7 @@ public class SvyTokenBuilder
 	{
 		if (Boolean.TRUE.equals(rememberUser))
 		{
-			builder.withClaim(StatelessLoginHandler.REMEMBER, rememberUser);
+			builder.withClaim(SvyID.REMEMBER, rememberUser);
 		}
 		return this;
 	}
@@ -91,16 +93,16 @@ public class SvyTokenBuilder
 	{
 		if (tenantsValue != null)
 		{
-			builder.withArrayClaim(StatelessLoginHandler.TENANTS, tenantsValue);
+			builder.withArrayClaim(SvyID.TENANTS, tenantsValue);
 		}
 		return this;
 	}
 
 	public String sign()
 	{
-		if (!lastLoginSet) builder.withClaim(StatelessLoginHandler.LAST_LOGIN, Long.valueOf(System.currentTimeMillis()));
+		if (!lastLoginSet) builder.withClaim(SvyID.LAST_LOGIN, Long.valueOf(System.currentTimeMillis()));
 		return builder
-			.withExpiresAt(new Date(System.currentTimeMillis() + StatelessLoginHandler.TOKEN_AGE_IN_SECONDS * 1000))
+			.withExpiresAt(new Date(System.currentTimeMillis() + SvyTokenBuilder.TOKEN_AGE_IN_SECONDS * 1000))
 			.sign(algorithm);
 	}
 }
