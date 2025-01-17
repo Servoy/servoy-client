@@ -282,4 +282,9 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener,
 		}
 
 	}
+
+	public void updateSelectedMenuItem(String itemID)
+	{
+		jsMenu.updateSelectedMenuItem(jsMenu.findMenuItem(itemID));
+	}
 }

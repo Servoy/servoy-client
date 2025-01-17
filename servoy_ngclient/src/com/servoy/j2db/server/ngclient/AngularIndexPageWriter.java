@@ -28,10 +28,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.io.Writer;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -59,6 +56,7 @@ import com.servoy.j2db.persistence.Solution;
 import com.servoy.j2db.persistence.SolutionMetaData;
 import com.servoy.j2db.scripting.StartupArguments;
 import com.servoy.j2db.server.headlessclient.util.HCUtils;
+import com.servoy.j2db.server.ngclient.auth.SvyID;
 import com.servoy.j2db.server.shared.ApplicationServerRegistry;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.util.Debug;
@@ -103,13 +101,13 @@ public class AngularIndexPageWriter
 		json.put("pathName", request.getContextPath() + "/solution/" + fs.getName() + "/");
 
 		Map<String, String[]> parameterMap = request.getParameterMap();
-		if (parameterMap.containsKey(StatelessLoginHandler.USERNAME) || parameterMap.containsKey(StatelessLoginHandler.ID_TOKEN) ||
+		if (parameterMap.containsKey(SvyID.USERNAME) || parameterMap.containsKey(StatelessLoginHandler.ID_TOKEN) ||
 			parameterMap.containsKey(StatelessLoginHandler.PASSWORD) || parameterMap.containsKey("svy_remove_id_token"))
 		{
 			parameterMap = new HashMap<>(request.getParameterMap());
-			parameterMap.remove(StatelessLoginHandler.USERNAME);
+			parameterMap.remove(SvyID.USERNAME);
 			parameterMap.remove(StatelessLoginHandler.PASSWORD);
-			parameterMap.remove(StatelessLoginHandler.REMEMBER);
+			parameterMap.remove(SvyID.REMEMBER);
 			HttpSession httpSession = request.getSession(false);
 			if (!parameterMap.containsKey(StartupArguments.PARAM_KEY_METHOD) && !parameterMap.containsKey("m") ||
 				httpSession != null && httpSession.getAttribute(StatelessLoginHandler.ID_TOKEN) != null &&
@@ -263,7 +261,7 @@ public class AngularIndexPageWriter
 		return;
 	}
 
-	static Pair<FlattenedSolution, Boolean> getFlattenedSolution(String solutionName, String clientnr, HttpServletRequest request,
+	public static Pair<FlattenedSolution, Boolean> getFlattenedSolution(String solutionName, String clientnr, HttpServletRequest request,
 		HttpServletResponse response)
 	{
 		INGClientWebsocketSession wsSession = null;
@@ -492,61 +490,6 @@ public class AngularIndexPageWriter
 					return true;
 				}
 			}
-		}
-		return false;
-	}
-
-	public static boolean handleOauth(HttpServletRequest req, HttpServletResponse resp) throws IOException
-	{
-		String reqUrl = req.getRequestURL().toString();
-		if (reqUrl.contains("/svy_oauth/"))
-		{
-			String scheme = req.getScheme();
-			String serverName = req.getServerName();
-			int serverPort = req.getServerPort();
-			String contextPath = req.getContextPath();
-			String queryString = req.getQueryString();
-
-			StringBuilder url = new StringBuilder();
-			url.append(scheme).append("://").append(serverName);
-			if (serverPort != 80 && serverPort != 443)
-			{
-				url.append(":").append(serverPort);
-			}
-			url.append(contextPath);
-			Path path = Paths.get(reqUrl.substring(reqUrl.indexOf(SOLUTIONS_PATH))).normalize();
-			for (int i = 0; i < path.getNameCount(); i++)
-			{
-				String pathInfo = path.getName(i).toString();
-				if (!"svy_oauth".equals(pathInfo))
-				{
-					url.append("/" + pathInfo);
-				}
-			}
-			url.append("?");
-			url.append("svy_remove_id_token=true&");
-			if (queryString != null)
-			{
-				url.append(queryString);
-				url.append('&');
-			}
-
-			resp.setContentType("text/html");
-			PrintWriter out = resp.getWriter();
-			out.println("<html>");
-			out.println("<head>");
-			out.println("<script type=\"text/javascript\">");
-			out.println("function redirectToSolution() {");
-			out.println(" var url = '" + StringEscapeUtils.escapeEcmaScript(url.toString()) + "'+window.location.hash.substring(1);");
-			out.println("  window.location.href = url;");
-			out.println("  }");
-			out.println(" window.onload = redirectToSolution;");
-			out.println(" </script>");
-			out.println("</head>");
-			out.println("<body>");
-			out.println("</body>");
-			out.println("</html>");
-			return true;
 		}
 		return false;
 	}

@@ -36,6 +36,7 @@ import org.mozilla.javascript.BaseFunction;
 import org.mozilla.javascript.Callable;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Function;
+import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeJavaArray;
 import org.mozilla.javascript.NativeJavaMethod;
 import org.mozilla.javascript.ScriptRuntime;
@@ -93,7 +94,7 @@ import com.servoy.j2db.util.WrappedObjectReference;
  * @author jblok
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, scriptingName = "JSDataSet")
-public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, SymbolScriptable, Serializable, IJSDataSet
+public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, SymbolScriptable, Serializable, IJSDataSet, Iterable
 {
 	private static final long serialVersionUID = 1L;
 
@@ -102,7 +103,7 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Symb
 	private static JSDataSet prototype = new JSDataSet();
 
 	private static Callable symbol_iterator = (Context cx, Scriptable scope, Scriptable thisObj, Object[] args) -> {
-		return new IterableES6Iterator(scope, ((JSDataSet)thisObj).set.getRows());
+		return new IterableES6Iterator(scope, (JSDataSet)thisObj);
 	};
 
 	private IDataSetWithIndex set;
@@ -596,6 +597,30 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Symb
 			if (index > 0 && index <= set.getRowCount())
 			{
 				return set.getRow(index - 1);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Get the row data of a dataset as an Array that can also retrieve data by column name.
+	 *
+	 * @sample
+	 * //assuming the variable dataset contains a dataset
+	 * var dataArray = dataset.getRowObject(1); //puts the contents from the first row of the dataset into an array
+	 * //use dataArray[index] or dataArray.columnName
+	 *
+	 * @param index index of row (1-based).
+	 *
+	 * @return NativeArray array of data.
+	 */
+	public NativeArray js_getRowObject(int index)
+	{
+		if (set != null)
+		{
+			if (index > 0 && index <= set.getRowCount())
+			{
+				return wrapRowObject(set.getRow(index - 1));
 			}
 		}
 		return null;
@@ -1701,6 +1726,63 @@ public class JSDataSet implements Wrapper, IDelegate<IDataSet>, Scriptable, Symb
 	public void delete(Symbol key)
 	{
 
+	}
+
+	private NativeArray wrapRowObject(Object[] data)
+	{
+		if (columnameMap == null)
+		{
+			makeColumnMap();
+		}
+		NativeArray array = new NativeArray(data);
+		for (String name : columnameMap.keySet())
+		{
+			Integer iindex = columnameMap.get(name);
+			if (iindex != null)
+			{
+				int columnIndex = iindex.intValue();
+				if (columnIndex > 0 && columnIndex <= data.length)
+				{
+					array.put(name, array, data[columnIndex - 1]);
+				}
+			}
+		}
+		return array;
+	}
+
+	@Override
+	public Iterator<NativeArray> iterator()
+	{
+		return new JSDataSetIterator();
+	}
+
+	private class JSDataSetIterator implements Iterator<NativeArray>
+	{
+
+		private final Iterator<Object[]> iterator;
+
+		public JSDataSetIterator()
+		{
+			this.iterator = JSDataSet.this.set.getRows().iterator();
+		}
+
+		@Override
+		public boolean hasNext()
+		{
+			return this.iterator.hasNext();
+		}
+
+		@Override
+		public NativeArray next()
+		{
+			return JSDataSet.this.wrapRowObject(this.iterator.next());
+		}
+
+		@Override
+		public void remove()
+		{
+			throw new UnsupportedOperationException();
+		}
 	}
 
 	private class DataModel extends AbstractTableModel

@@ -289,6 +289,11 @@ public class JSMenu
 		this.notifyChanged();
 	}
 
+	public void updateSelectedMenuItem(JSMenuItem menuItem)
+	{
+		this.selectedItem = menuItem;
+	}
+
 	/**
 	 * @return the selectedItem
 	 */
