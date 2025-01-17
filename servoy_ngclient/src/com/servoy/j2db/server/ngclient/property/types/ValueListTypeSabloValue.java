@@ -522,6 +522,8 @@ public class ValueListTypeSabloValue
 	@Override
 	public void detach()
 	{
+		if (webObjectContext == null) return; // already detached
+
 		clearUpRuntimeValuelistAndFormat();
 		customValueListDataSet = null;
 
@@ -537,7 +539,7 @@ public class ValueListTypeSabloValue
 			webObjectContext.removePropertyChangeListener(propertyDependencies.foundsetPropertyName, this);
 
 			Object foundsetValue = webObjectContext.getProperty(propertyDependencies.foundsetPropertyName);
-			if (foundsetValue instanceof IHasUnderlyingState) ((IHasUnderlyingState)foundsetPropertySabloValue).removeStateChangeListener(this);
+			if (foundsetValue instanceof IHasUnderlyingState) foundsetPropertySabloValue.removeStateChangeListener(this);
 		}
 		if (propertyDependencies.formatPropertyName != null)
 		{
