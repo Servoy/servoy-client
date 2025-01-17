@@ -55,7 +55,7 @@ public class SwingRelatedFoundSet extends RelatedFoundSet implements ISwingFound
 	}
 
 	//can only used by findState
-	SwingRelatedFoundSet(IFoundSetManagerInternal app, String relationName, SQLSheet sheet) throws ServoyException
+	protected SwingRelatedFoundSet(IFoundSetManagerInternal app, String relationName, SQLSheet sheet) throws ServoyException
 	{
 		super(app, relationName, sheet);
 		createSelectionModel();

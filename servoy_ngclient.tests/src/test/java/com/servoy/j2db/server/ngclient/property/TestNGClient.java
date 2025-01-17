@@ -39,9 +39,17 @@ import com.servoy.j2db.dataprocessing.IClient;
 import com.servoy.j2db.dataprocessing.IClientHost;
 import com.servoy.j2db.dataprocessing.IDataServer;
 import com.servoy.j2db.dataprocessing.IDataSet;
+import com.servoy.j2db.dataprocessing.IFoundSetInternal;
+import com.servoy.j2db.dataprocessing.IFoundSetManagerInternal;
+import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISQLStatement;
 import com.servoy.j2db.dataprocessing.ITrackingSQLStatement;
 import com.servoy.j2db.dataprocessing.QueryData;
+import com.servoy.j2db.dataprocessing.SQLSheet;
+import com.servoy.j2db.dataprocessing.SortColumn;
+import com.servoy.j2db.dataprocessing.SwingFoundSet;
+import com.servoy.j2db.dataprocessing.SwingFoundSetFactory;
+import com.servoy.j2db.dataprocessing.SwingRelatedFoundSet;
 import com.servoy.j2db.dataprocessing.TableFilter;
 import com.servoy.j2db.persistence.Column;
 import com.servoy.j2db.persistence.IRepository;
@@ -64,6 +72,7 @@ import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.query.SetCondition;
 import com.servoy.j2db.server.ngclient.NGClient;
 import com.servoy.j2db.server.ngclient.NGClientWebsocketSession;
+import com.servoy.j2db.server.ngclient.NGFoundSetManager;
 import com.servoy.j2db.server.shared.IApplicationServer;
 import com.servoy.j2db.server.shared.IApplicationServerAccess;
 import com.servoy.j2db.server.shared.IClientManager;
@@ -96,6 +105,44 @@ public class TestNGClient extends NGClient
 	public static void initSettings()
 	{
 		Debug.init();
+	}
+
+	@SuppressWarnings("deprecation")
+	@Override
+	protected void createFoundSetManager()
+	{
+		foundSetManager = new NGFoundSetManager(this, getFoundSetManagerConfig(), new SwingFoundSetFactory()
+		{
+			@Override
+			public IFoundSetInternal createRelatedFindFoundSet(IFoundSetManagerInternal fsm, IRecordInternal parentRecord, String relationName,
+				SQLSheet childSheet) throws ServoyException
+			{
+				SwingRelatedFoundSet swingRelatedFoundSet = new TestSwingRelatedFoundset(fsm, relationName, childSheet);
+				swingRelatedFoundSet.configure(parentRecord);
+				return swingRelatedFoundSet;
+			}
+
+			@Override
+			public IFoundSetInternal createFoundSet(IFoundSetManagerInternal fsm, SQLSheet sheet, QuerySelect pkSelect, List<SortColumn> defaultSortColumns)
+				throws ServoyException
+			{
+				SwingFoundSet swingFoundSet = new TestSwingFoundSet(fsm, sheet, pkSelect, defaultSortColumns);
+				swingFoundSet.configure(null);
+				return swingFoundSet;
+			}
+
+			@Override
+			public IFoundSetInternal createRelatedFoundSet(IDataSet data, QuerySelect querySelect, IFoundSetManagerInternal fsm, IRecordInternal parent,
+				String relationName, SQLSheet sheet, List<SortColumn> defaultSortColumns, QuerySelect aggregateSelect, IDataSet aggregateData)
+				throws ServoyException
+			{
+				SwingRelatedFoundSet swingRelatedFoundSet = new TestSwingRelatedFoundset(data, querySelect, fsm, relationName, sheet, defaultSortColumns,
+					aggregateSelect, aggregateData);
+				swingRelatedFoundSet.configure(parent);
+				return swingRelatedFoundSet;
+			}
+		});
+		foundSetManager.init();
 	}
 
 	@Override
@@ -171,22 +218,36 @@ public class TestNGClient extends NGClient
 				if (array.length > 0)
 				{
 					String ds = array[0].getSqlSelect().getTable().getDataSource();
-					if ("mem:relatedtest".equals(ds))
+					if ("mem:relatedtest".equals(ds) || ds.startsWith("mem:relatedTable"))
 					{
 						IDataSet set = dataSetMap.get(ds);
+						List<String> setColumnNames = Arrays.asList(set.getColumnNames());
 						IDataSet[] returnDataSet = new IDataSet[array.length];
 						for (int i = 0; i < array.length; i++)
 						{
 							returnDataSet[i] = new BufferedDataSet();
+
+							QuerySelect sqlSelect = (QuerySelect)array[i].getSqlSelect();
+							List<ISQLCondition> conditions = sqlSelect.getWhere().getAllConditions();
+							SetCondition setCondition = (SetCondition)conditions.get(0);
+							int numberOfColumnsInWhere = setCondition.getKeys().length;
+							Object[][] value = (Object[][])((Placeholder)setCondition.getValues()).getValue();
+
 							for (int k = 0; k < set.getRowCount(); k++)
 							{
-								QuerySelect sqlSelect = (QuerySelect)array[i].getSqlSelect();
-								List<ISQLCondition> conditions = sqlSelect.getWhere().getAllConditions();
-								SetCondition setCondition = (SetCondition)conditions.get(0);
-								Object[][] value = (Object[][])((Placeholder)setCondition.getValues()).getValue();
-								if (set.getRow(k)[1].equals(value[0][0]))
+
+								boolean rowMatchesCondition = true;
+								for (int z = 0; rowMatchesCondition && z < numberOfColumnsInWhere; z++)
 								{
-									returnDataSet[i].addRow(new Object[] { set.getRow(k)[0], set.getRow(k)[1], set.getRow(k)[2], set.getRow(k)[3] });
+									String colName = setCondition.getKeys()[z].getColumnName();
+									int colIndex = setColumnNames.indexOf(colName);
+									if (colIndex < 0) colIndex = 1; // it assumes tests that don't name columns correctly have the fk as the second column
+
+									rowMatchesCondition = set.getRow(k)[colIndex].equals(value[z][0]);
+								}
+								if (rowMatchesCondition)
+								{
+									returnDataSet[i].addRow(set.getRow(k).clone());
 								}
 							}
 						}
