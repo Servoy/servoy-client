@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -59,10 +58,18 @@ public class DatabaseUtils
 	 */
 	public static TableDef deserializeTableInfo(String stringDBIContent) throws JSONException
 	{
-		ServoyJSONObject dbiContents = new ServoyJSONObject(stringDBIContent, true);
-		TableDef tableInfo = deserializeTableInfo(dbiContents);
-		tableInfo.dbiFileContents = stringDBIContent;
-		return tableInfo;
+		try
+		{
+			ServoyJSONObject dbiContents = new ServoyJSONObject(stringDBIContent, true);
+			TableDef tableInfo = deserializeTableInfo(dbiContents);
+			tableInfo.dbiFileContents = stringDBIContent;
+			return tableInfo;
+		}
+		catch (JSONException e)
+		{
+			Debug.error("Error reading dbi content: " + stringDBIContent);
+			throw e;
+		}
 	}
 
 	/**
@@ -206,10 +213,8 @@ public class DatabaseUtils
 			}
 		}
 
-		Iterator<Column> columns = t.getColumns().iterator();
-		while (columns.hasNext())
+		for (Column c : t.getColumns())
 		{
-			Column c = columns.next();
 			if (c.getColumnInfo() == null)
 			{
 				// only create servoy sequences when this was a new table and there is only 1 pk column
