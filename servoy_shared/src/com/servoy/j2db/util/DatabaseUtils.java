@@ -58,10 +58,18 @@ public class DatabaseUtils
 	 */
 	public static TableDef deserializeTableInfo(String stringDBIContent) throws JSONException
 	{
-		ServoyJSONObject dbiContents = new ServoyJSONObject(stringDBIContent, true);
-		TableDef tableInfo = deserializeTableInfo(dbiContents);
-		tableInfo.dbiFileContents = stringDBIContent;
-		return tableInfo;
+		try
+		{
+			ServoyJSONObject dbiContents = new ServoyJSONObject(stringDBIContent, true);
+			TableDef tableInfo = deserializeTableInfo(dbiContents);
+			tableInfo.dbiFileContents = stringDBIContent;
+			return tableInfo;
+		}
+		catch (JSONException e)
+		{
+			Debug.error("Error reading dbi content: " + stringDBIContent);
+			throw e;
+		}
 	}
 
 	/**

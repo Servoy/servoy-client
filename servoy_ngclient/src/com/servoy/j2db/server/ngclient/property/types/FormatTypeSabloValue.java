@@ -267,6 +267,8 @@ public class FormatTypeSabloValue implements ISmartSortOrderPrevalence, IHasUnde
 
 	public void detach()
 	{
+		if (webObjectContext == null) return; // already detached
+
 		if (propertyDependencies.dataproviderPropertyName != null)
 		{
 			webObjectContext.removePropertyChangeListener(propertyDependencies.dataproviderPropertyName, this);

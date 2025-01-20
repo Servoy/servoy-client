@@ -236,7 +236,7 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			@Override
 			public void propertyChange(PropertyChangeEvent evt)
 			{
-				attachToBaseObject(monitor, webObjectCntxt);
+				attachToBaseObject(monitor, webObjectCntxt); // it does "detach" first at the beginning of attachToBaseObject anyway, that is why we don't call detach here
 			}
 		});
 
@@ -340,6 +340,8 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	@Override
 	public void detach()
 	{
+		if (webObjectContext == null) return; // it is already detached
+
 		// this wrapped detach() should normally trigger unregister idForFoundset and remove viewPortChangeMonitor as well if needed - in dataLinkedPropertyUnregistered() below
 		if (wrappedSabloValue instanceof IDataLinkedPropertyValue) ((IDataLinkedPropertyValue)wrappedSabloValue).detach();
 		if (wrappedSabloValue instanceof IHasUnderlyingState)
