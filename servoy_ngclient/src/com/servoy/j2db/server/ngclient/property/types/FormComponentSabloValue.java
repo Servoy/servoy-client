@@ -157,9 +157,9 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 				for (ComponentTypeSabloValue componentTypeSabloValue : componentsList)
 				{
 					componentTypeSabloValue.attachToBaseObject(changeMonitor, webObjectContext);
-	}
+				}
+			}
 
-	}
 			currentFormComponentCache = formComponentCache;
 			components = componentsList.toArray(new ComponentTypeSabloValue[0]);
 		}
@@ -184,11 +184,14 @@ public class FormComponentSabloValue implements ISmartPropertyValue
 	@Override
 	public void detach()
 	{
+		if (webObjectContext == null) return; // it is already detached
+
 		ComponentTypeSabloValue[] components = getComponents();
 		for (ComponentTypeSabloValue componentTypeSabloValue : components)
 		{
 			componentTypeSabloValue.detach();
 		}
+		this.webObjectContext = null;
 	}
 
 	@SuppressWarnings("nls")

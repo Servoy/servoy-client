@@ -80,9 +80,9 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 	private IFoundSetManagerInternal fsm;
 
 	@Override
-	public void attachToBaseObject(IChangeListener changeMonitor, IWebObjectContext webObjectContext)
+	public void attachToBaseObject(IChangeListener chMonitor, IWebObjectContext webObjectContext)
 	{
-		this.changeMonitor = changeMonitor;
+		this.changeMonitor = chMonitor;
 		this.autorefresh = Utils.getAsBoolean(webObjectContext.getProperty("autoRefresh"));
 		this.fsm = ((IContextProvider)webObjectContext.getUnderlyingWebObject()).getDataConverterContext().getApplication().getFoundSetManager();
 	}
@@ -90,9 +90,13 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 	@Override
 	public void detach()
 	{
+		if (fsm == null) return; // it is already detached
+
 		this.changeMonitor = null;
 		this.removeAllRoots();
 		this.bindings.clear();
+
+		this.fsm = null;
 	}
 
 	public void flagChanged()
@@ -495,17 +499,11 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 		return relChildren;
 	}
 
-	/**
-	 * @param selectionPath the selectionPath to set
-	 */
 	public void setSelectionPath(Object[] selectionPath)
 	{
 		this.selectionPath = selectionPath;
 	}
 
-	/**
-	 * @return the selectionPath
-	 */
 	public Object[] getSelectionPath()
 	{
 		return selectionPath;
@@ -600,11 +598,6 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 		}
 	}
 
-	/**
-	 * @param string
-	 * @param objects
-	 * @param boolean1
-	 */
 	public void updateCheckBoxValues(String datasource, Object[] pks, Boolean checked)
 	{
 		if (this.initialized)
@@ -703,10 +696,6 @@ public class FoundsetTreeTypeSabloValue implements ISmartPropertyValue, TableMod
 
 	}
 
-	/**
-	 * @param number
-	 * @param boolean1
-	 */
 	public void setLevelVisibility(Number level, Boolean visibility)
 	{
 		this.levelVisible = level.intValue();
