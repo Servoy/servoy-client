@@ -240,6 +240,8 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 	@Override
 	public void detach()
 	{
+		if (webObjectContext == null) return; // it is already detached
+
 		// unregister listeners
 		dataAdapterList.removeDataLinkedProperty(this);
 		dataAdapterList.removeFindModeAwareProperty(this);

@@ -86,7 +86,11 @@ public class FindModeSabloValue implements IFindModeAwarePropertyValue
 	@Override
 	public void detach()
 	{
+		if (webObjectContext == null) return; // already detached
+
 		if (dataAdapterList != null) dataAdapterList.removeFindModeAwareProperty(this);
+		this.changeMonitor = null;
+		this.webObjectContext = null;
 	}
 
 	@Override
