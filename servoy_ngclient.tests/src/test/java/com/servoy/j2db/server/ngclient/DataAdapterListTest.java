@@ -321,7 +321,7 @@ public class DataAdapterListTest extends AbstractSolutionTest
 		LinkedList<String> sentTextMessages = endpoint.getSession().getBasicRemote().getAndClearSentTextMessages();
 		Assert.assertTrue(sentTextMessages.size() > 0);
 
-		assertMessagesContain(sentTextMessages, "\\\"dataProviderID\\\":1001");
+		assertMessagesContain(sentTextMessages, "\"dataProviderID\":1001");
 		assertMessagesContain(sentTextMessages, "\\\"dataProviderID\\\":\\\"City11\\\"");
 
 		IWebFormController relatedForm1 = client.getFormManager().getForm("relatedForm1");
@@ -408,7 +408,7 @@ public class DataAdapterListTest extends AbstractSolutionTest
 		LinkedList<String> sentTextMessages = endpoint.getSession().getBasicRemote().getAndClearSentTextMessages();
 		Assert.assertTrue(sentTextMessages.size() > 0);
 
-		assertMessagesContain(sentTextMessages, "\\\"dataProviderID\\\":1001");
+		assertMessagesContain(sentTextMessages, "\"dataProviderID\":1001");
 		assertMessagesContain(sentTextMessages, "\\\"dataProviderID\\\":\\\"City11\\\"");
 		assertMessagesContain(sentTextMessages, "\\\"dataProviderID\\\":\\\"Product 1\\\"");
 
@@ -508,7 +508,7 @@ public class DataAdapterListTest extends AbstractSolutionTest
 		LinkedList<String> sentTextMessages = endpoint.getSession().getBasicRemote().getAndClearSentTextMessages();
 		Assert.assertTrue(sentTextMessages.size() > 0);
 
-		assertMessagesContain(sentTextMessages, "\\\"dataProviderID\\\":1001");
+		assertMessagesContain(sentTextMessages, "\"dataProviderID\":1001");
 		assertMessagesContain(sentTextMessages, "\\\"dataProviderID\\\":\\\"Product 1\\\"");
 
 		IWebFormController relatedForm2 = client.getFormManager().getForm("relatedForm2");
@@ -623,7 +623,7 @@ public class DataAdapterListTest extends AbstractSolutionTest
 		LinkedList<String> sentTextMessages = endpoint.getSession().getBasicRemote().getAndClearSentTextMessages();
 		Assert.assertTrue(sentTextMessages.size() > 0);
 
-		assertMessagesContain(sentTextMessages, "\\\"dataProviderID\\\":1001");
+		assertMessagesContain(sentTextMessages, "\"dataProviderID\":1001");
 		assertMessagesContain(sentTextMessages, "\\\"dataProviderID\\\":\\\"City11\\\"");
 		assertMessagesContain(sentTextMessages, "\\\"dataProviderID\\\":\\\"City12\\\"");
 
