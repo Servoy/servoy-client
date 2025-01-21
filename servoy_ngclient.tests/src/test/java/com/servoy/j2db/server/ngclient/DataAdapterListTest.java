@@ -720,7 +720,7 @@ public class DataAdapterListTest extends AbstractSolutionTest
 					"\"parentForm\":\"mainForm5\"," +
 					"\"bean\":\"mainTabPanel\"," +
 					"\"visible\":true," +
-					",\"formIndex\":1" +
+					"\"formIndex\":1" +
 				"}" +
 			"}",
 			true);

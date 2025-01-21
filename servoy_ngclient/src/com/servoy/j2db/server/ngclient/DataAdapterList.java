@@ -89,6 +89,7 @@ import com.servoy.j2db.util.Utils;
 @SuppressWarnings("nls")
 public class DataAdapterList implements IModificationListener, ITagResolver, IDataAdapterList
 {
+
 	// properties that are interested in a specific dataproviderID chaning
 	protected final Map<String, List<IDataLinkedPropertyValue>> dataProviderToLinkedComponentProperty = new HashMap<>(); // dataProviderID -> [(comp, propertyName)]
 
@@ -825,6 +826,7 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 		// one of the relations could be changed make sure they are recreated.
 		createRelationListeners();
 		if (e.getRecord() == null) tellNestedRelatedListenersThatGlobalOrScopeVariableChanged(e.getName()); // if it's a change in the record, they will refresh anyway due to direct foundset listeners added by nestedRelatedFoundsetListeners or due to DAL.setRecord(...)
+
 		pushChangedValues(e.getName(), true);
 	}
 
