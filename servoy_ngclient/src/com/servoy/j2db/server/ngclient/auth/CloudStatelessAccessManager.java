@@ -233,7 +233,7 @@ public class CloudStatelessAccessManager
 		throws ServletException
 	{
 		Path path = Paths.get(request.getRequestURI()).normalize();
-		if (solutionName != null && path.getNameCount() > 2 && StatelessLoginUtils.SVYLOGIN_PATH.equals(path.getName(2).toString())) //TODO SVYLOGIN_PATH should be moved from StatelessLoginHandler
+		if (solutionName != null && path.getNameCount() > 2 && StatelessLoginUtils.SVYLOGIN_PATH.equals(path.getName(2).toString()))
 		{
 			Pair<FlattenedSolution, Boolean> _fs = AngularIndexPageWriter.getFlattenedSolution(solutionName, null, request, response);
 			FlattenedSolution fs = _fs.getLeft();
