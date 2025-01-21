@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 public class StatelessLoginUtils
 {
 	public static final String JWT_Password = "servoy.jwt.logintoken.password";
+	public static final String SVYLOGIN_PATH = "svylogin";
 
 	public static String getServerURL(HttpServletRequest req)
 	{

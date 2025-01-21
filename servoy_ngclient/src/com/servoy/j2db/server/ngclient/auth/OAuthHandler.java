@@ -91,7 +91,7 @@ public class OAuthHandler
 		String refreshToken = null;
 		if (req.getParameter("code") != null)
 		{
-			String nonceState = req.getParameter("state");
+			String nonceState = req.getParameter(OAuthParameters.state.name());
 			JSONObject auth = getNonce(req.getServletContext(), nonceState);
 			OAuth20Service service = OAuthUtils.createOauthService(req, auth, new HashMap<>());
 			try
@@ -108,12 +108,14 @@ public class OAuthHandler
 					if (id_token == null)
 					{
 						log.error("The id_token is not retrieved.");
+						return showLogin;
 					}
 				}
 			}
 			catch (Exception e)
 			{
 				log.error("Could not get the id and refresh tokens.");
+				return showLogin;
 			}
 		}
 		else
@@ -126,7 +128,7 @@ public class OAuthHandler
 			DecodedJWT decodedJWT = JWT.decode(id_token);
 			if (refreshToken == null)
 			{
-				refreshToken = decodedJWT.getClaim(StatelessLoginHandler.REFRESH_TOKEN).asString(); //TODO check: is this needed here, or just for the svy token
+				refreshToken = decodedJWT.getClaim(StatelessLoginHandler.REFRESH_TOKEN).asString();
 			}
 			if (JWTValidator.checkOauthIdToken(showLogin, fs.getSolution(), fs.getSolution().getAuthenticator(), decodedJWT, req, refreshToken,
 				true))
@@ -257,7 +259,6 @@ public class OAuthHandler
 	 * @param response
 	 * @param solution
 	 */
-	//TODO move to OAuthHandler
 	public static void generateOauthCall(HttpServletRequest request, HttpServletResponse response, JSONObject auth)
 	{
 		StatelessLoginHandler.log.atInfo().log(() -> "Generate oauth call " + auth.optString(OAuthParameters.api.name(), "Custom"));

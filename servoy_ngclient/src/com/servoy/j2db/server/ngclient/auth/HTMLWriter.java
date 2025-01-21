@@ -64,7 +64,7 @@ public class HTMLWriter
 		String path = Settings.getInstance().getProperty("servoy.context.path", request.getContextPath() + '/');
 		Path p = Paths.get(request.getServletPath()).normalize();
 		int i = 0;
-		while (i < p.getNameCount() - 1 && !StatelessLoginHandler.SVYLOGIN_PATH.equals(p.getName(i).toString()))
+		while (i < p.getNameCount() - 1 && !StatelessLoginUtils.SVYLOGIN_PATH.equals(p.getName(i).toString()))
 		{
 			path += p.getName(i) + "/";
 			i++;
