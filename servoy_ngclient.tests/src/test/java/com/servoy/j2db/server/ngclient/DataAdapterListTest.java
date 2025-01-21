@@ -96,7 +96,7 @@ public class DataAdapterListTest extends AbstractSolutionTest
 	@Override
 	protected void fillTestSolution() throws ServoyException
 	{
-		// form 1
+		// form 1; 1 tabpanel showing one related tab
 		Form mainForm = solution.createNewForm(validator, null, "mainForm1", "mem:mainTable", false, new Dimension(600, 400));
 		mainForm.setNavigatorID(-1);
 		mainForm.createNewPart(IBaseSMPart.BODY, 5);
