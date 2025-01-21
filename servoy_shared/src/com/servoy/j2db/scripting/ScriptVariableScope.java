@@ -161,6 +161,14 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 			{//insert "inded-> name" only if "index -> name" isn't already present  (case of form inheritance)
 				allIndex.put(new Integer(allIndex.size()), name);
 			}
+			Context currentContext = Context.getCurrentContext();
+			if (currentContext != null)
+			{
+				if (currentContext.getDebugger() instanceof IDebuggerWithWatchPoints watchPointDebugger)
+				{
+					watchPointDebugger.registerVariable(name, var.getSerializableRuntimeProperty(IScriptProvider.FILENAME), var.getLineNumberOffset(), this);
+				}
+			}
 		}
 	}
 
@@ -538,7 +546,7 @@ public abstract class ScriptVariableScope extends LazyCompilationScope
 		}
 		if (o instanceof XMLObject)
 		{
-			o = ((XMLObject)o).toString();
+			o = o.toString();
 		}
 		return o;
 	}
