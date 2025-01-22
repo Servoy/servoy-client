@@ -128,16 +128,17 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	public void setMenuText(String text)
 	{
 		this.menuText = text;
-		notifyChanged();
+		notifyChanged("menutext", text);
 	}
 
 	/**
 	 *
 	 */
 	@Override
-	protected void notifyChanged()
+	protected void notifyChanged(String property, Object value)
 	{
-		this.parentMenu.notifyChanged();
+		super.notifyChanged(property, value);
+		this.parentMenu.notifyChanged(property, value);
 	}
 
 	/**
@@ -158,7 +159,7 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	public void setIconStyleClass(String styleclass)
 	{
 		this.iconStyleClass = styleclass;
-		notifyChanged();
+		notifyChanged("iconstyleclass", styleclass);
 	}
 
 	/**
@@ -179,7 +180,7 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	public void setTooltipText(String text)
 	{
 		this.tooltipText = text;
-		notifyChanged();
+		notifyChanged("tooltiptext", text);
 	}
 
 	/**
@@ -200,7 +201,7 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	public void setEnabled(boolean enabled)
 	{
 		this.enabled = enabled;
-		notifyChanged();
+		notifyChanged("enabled", enabled);
 	}
 
 	/**

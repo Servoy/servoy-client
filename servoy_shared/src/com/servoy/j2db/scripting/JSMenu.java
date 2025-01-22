@@ -27,6 +27,7 @@ import org.mozilla.javascript.annotations.JSGetter;
 import org.mozilla.javascript.annotations.JSSetter;
 
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
+import com.servoy.j2db.dataprocessing.FoundSetEvent;
 import com.servoy.j2db.dataprocessing.IModificationListener;
 import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -115,7 +116,7 @@ public class JSMenu
 	public void setStyleClass(String styleclass)
 	{
 		this.styleClass = styleclass;
-		this.notifyChanged();
+		this.notifyChanged("styleclass", styleclass);
 	}
 
 	/**
@@ -239,7 +240,7 @@ public class JSMenu
 		{
 			item = new JSMenuItem(this, id, this.allowedPermissions);
 			items.add(index, item);
-			this.notifyChanged();
+			this.notifyChanged(String.valueOf(FoundSetEvent.CHANGE_INSERT), Integer.valueOf(index));
 		}
 		return item;
 	}
@@ -255,9 +256,7 @@ public class JSMenu
 	@JSFunction
 	public boolean removeMenuItem(String id)
 	{
-		boolean removed = items.removeIf(item -> Utils.equalObjects(id, item.getName()));
-		if (removed) this.notifyChanged();
-		return removed;
+		return removeMenuItem(findMenuItem(id));
 	}
 
 	/**
@@ -271,8 +270,12 @@ public class JSMenu
 	@JSFunction
 	public boolean removeMenuItem(JSMenuItem menuItem)
 	{
+		int index = items.indexOf(menuItem);
 		boolean removed = items.remove(menuItem);
-		if (removed) this.notifyChanged();
+		if (removed)
+		{
+			this.notifyChanged(String.valueOf(FoundSetEvent.CHANGE_DELETE), Integer.valueOf(index));
+		}
 		return removed;
 	}
 
@@ -286,7 +289,7 @@ public class JSMenu
 	public void selectMenuItem(JSMenuItem menuItem)
 	{
 		this.selectedItem = menuItem;
-		this.notifyChanged();
+		this.notifyChanged(null, null);
 	}
 
 	public void updateSelectedMenuItem(JSMenuItem menuItem)
@@ -303,9 +306,9 @@ public class JSMenu
 		return selectedItem;
 	}
 
-	protected void notifyChanged()
+	protected void notifyChanged(String property, Object value)
 	{
-		changeListeners.forEach(listener -> listener.valueChanged(new ModificationEvent(null, null, this)));
+		changeListeners.forEach(listener -> listener.valueChanged(new ModificationEvent(property, value, this)));
 	}
 
 	public void addChangeListener(IModificationListener listener)
