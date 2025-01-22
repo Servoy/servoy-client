@@ -72,13 +72,19 @@ public abstract class AbstractRemoteInvocationHandler<T> implements InvocationHa
 	 */
 	protected Object invokeMethod(Method method, Object[] args) throws Throwable
 	{
+		ClassLoader savedCl = Thread.currentThread().getContextClassLoader();
 		try
 		{
+			Thread.currentThread().setContextClassLoader(remote.getClass().getClassLoader());
 			return method.invoke(remote, args);
 		}
 		catch (InvocationTargetException e)
 		{
 			throw e.getCause();
+		}
+		finally
+		{
+			Thread.currentThread().setContextClassLoader(savedCl);
 		}
 	}
 }
