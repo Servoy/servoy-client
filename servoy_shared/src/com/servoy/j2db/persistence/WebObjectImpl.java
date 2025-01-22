@@ -315,26 +315,8 @@ public class WebObjectImpl extends WebObjectBasicImpl
 		}
 		else
 		{
-			PropertyDescription propertyDescription = getPropertyDescription();
-			if (propertyDescription != null)
-			{
-				// IMPORTANT if we decide that this method shouldn't affect all json properties and we remove the following code, we have to update code
-				// in CustomJSONObjectTypePropertyController.CustomJSONObjectPropertySource.defaultResetProperty(Object) because underlyingPropertySource.defaultResetProperty(id);
-				// depends on this in the end (the same for WebComponentPropertySource)
-				PropertyDescription childPd = propertyDescription.getProperty(propertyName);
-				if (childPd == null && propertyDescription instanceof WebObjectSpecification)
-				{
-					if (((WebObjectSpecification)propertyDescription).getHandler(propertyName) != null)
-						childPd = ((WebObjectSpecification)propertyDescription).getHandler(propertyName).getAsPropertyDescription();
-				}
-				if (childPd != null)
-				{
-					// it is a json property defined in spec, but it's not mapping to a persist
-					return setOrRemoveJsonSubproperty(propertyName, null, true);
-				}
-			}
+			return setOrRemoveJsonSubproperty(propertyName, null, true);
 		}
-		return false;
 	}
 
 	@Override
