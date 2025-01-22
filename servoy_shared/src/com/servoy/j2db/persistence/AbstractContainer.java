@@ -114,8 +114,9 @@ public abstract class AbstractContainer extends AbstractBase
 	@Override
 	public int getExtendsID()
 	{
-		if (getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID) != null)
-			return getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID).intValue();
+		Integer extendsId = getTypedProperty(StaticContentSpecLoader.PROPERTY_EXTENDSID);
+		if (extendsId != null)
+			return extendsId.intValue();
 		else return 0;
 	}
 
