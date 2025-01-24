@@ -3245,6 +3245,8 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		if (create && table != null)
 		{
 			// temp table was used before, delete all data in it
+			// first remove all edits for this datasource.
+			application.getFoundSetManager().getEditRecordList().removeRecords(dataSource);
 			FoundSet foundSet = (FoundSet)getSharedFoundSet(dataSource);
 			foundSet.removeLastFound();
 			try
