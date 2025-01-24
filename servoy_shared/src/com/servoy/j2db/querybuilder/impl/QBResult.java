@@ -33,7 +33,6 @@ import com.servoy.j2db.query.QueryAggregate;
 import com.servoy.j2db.query.QueryColumnValue;
 import com.servoy.j2db.query.QueryCustomSelect;
 import com.servoy.j2db.query.QueryFunction;
-import com.servoy.j2db.query.QuerySearchedCaseExpression;
 import com.servoy.j2db.query.QuerySelect;
 import com.servoy.j2db.querybuilder.IQueryBuilder;
 import com.servoy.j2db.querybuilder.IQueryBuilderResult;
@@ -215,10 +214,6 @@ public class QBResult extends QBPart implements IQueryBuilderResult
 			if (selectValue instanceof QueryFunction queryFunction)
 			{
 				return new QBFunctionImpl(getRoot(), getParent(), queryFunction.getFunction(), queryFunction.getArgs());
-			}
-			if (selectValue instanceof QuerySearchedCaseExpression querySearchedCaseExpression)
-			{
-				return new QBSearchedCaseExpression(getRoot(), getParent(), querySearchedCaseExpression);
 			}
 			return new QBColumnImpl(getRoot(), getParent(), selectValue);
 

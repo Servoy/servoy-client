@@ -17,6 +17,8 @@
 
 package com.servoy.j2db.querybuilder.impl;
 
+import static com.servoy.j2db.util.Utils.arrayAdd;
+
 import com.servoy.base.query.BaseColumnType;
 import com.servoy.base.query.IBaseSQLCondition;
 import com.servoy.j2db.persistence.Column;
@@ -229,9 +231,9 @@ public class QBColumnImpl extends QBPart
 	}
 
 	@Override
-	public QBColumn coalesce(Object arg)
+	public QBColumn coalesce(Object... args)
 	{
-		return getRoot().functions().coalesce(this, arg);
+		return getRoot().functions().coalesce(arrayAdd(args, this, false));
 	}
 
 	/////////////////////////////////////////////////////////

@@ -25,7 +25,6 @@ import com.servoy.j2db.documentation.ServoyDocumented;
  * @author rgansevles
  *
  */
-// RAGTEST gebruik deze ook in TypeCreater
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, realClass = QBIntegerColumn.class)
 public interface QBIntegerColumnBase
 {

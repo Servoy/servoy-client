@@ -81,7 +81,7 @@ public class QBCase extends QBPart implements IQueryBuilderCase
 	 *
 	 * @sampleas com.servoy.j2db.querybuilder.impl.QBSelect#js_case()
 	 *
-	 * @return A QBSearchedCaseExpression that defines the value to return if none of the when clauses are satisfied.
+	 * @return A QBColumn that defines the value to return if none of the when clauses are satisfied.
 	 */
 	public QBColumn jsFunction_else(Object value)
 	{
@@ -100,7 +100,7 @@ public class QBCase extends QBPart implements IQueryBuilderCase
 
 	private QBColumn qelse(Object value)
 	{
-		return new QBSearchedCaseExpression(getRoot(), getParent(), buildSearchedCaseExpression(getRoot(), whenThen, value));
+		return new QBColumnImpl(getRoot(), getParent(), buildSearchedCaseExpression(getRoot(), whenThen, value));
 	}
 
 	QBCase withWhenThen(IQueryBuilderCondition whenCondition, Object thenValue)

@@ -75,6 +75,6 @@ public interface QBColumnBaseFunctions<T> extends QBColumnComparable
 	 *  @return a QBFunction representing the coalesce function.
 	 */
 	@JSFunction
-	T coalesce(Object arg);
+	T coalesce(Object... args);
 
 }

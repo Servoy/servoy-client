@@ -104,7 +104,6 @@ import com.servoy.j2db.querybuilder.impl.QBParameter;
 import com.servoy.j2db.querybuilder.impl.QBParameters;
 import com.servoy.j2db.querybuilder.impl.QBPart;
 import com.servoy.j2db.querybuilder.impl.QBResult;
-import com.servoy.j2db.querybuilder.impl.QBSearchedCaseExpression;
 import com.servoy.j2db.querybuilder.impl.QBSelect;
 import com.servoy.j2db.querybuilder.impl.QBSort;
 import com.servoy.j2db.querybuilder.impl.QBSorts;
@@ -184,7 +183,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 					QBSelect.class, QBCountAggregate.class, QBCase.class, QBCaseWhen.class, //
 					QBColumn.class, QBDatetimeColumn.class, QBIntegerColumn.class, QBMediaColumn.class, QBNumberColumn.class, QBTextColumn.class, QBColumnComparable.class, //
 					QBColumns.class, QBCondition.class, QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBWhereCondition.class, QBResult.class, //
-					QBSearchedCaseExpression.class, QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, //
+					QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, //
 					QBFunctions.class, QBAggregates.class, QUERY_COLUMN_TYPES.class, ViewFoundSet.class, ViewRecord.class, JSTableFilter.class, MenuFoundSet.class, MenuItemRecord.class, //
 					IJSBaseRecord.class, IJSBaseSQLRecord.class, IJSBaseFoundSet.class, IJSBaseSQLFoundSet.class };
 			}
