@@ -2609,28 +2609,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 		}
 		if (table != null)
 		{
-			// temp table was used before, delete all data in it
-			FoundSet foundSet = (FoundSet)getSharedFoundSet(dataSource);
-			foundSet.removeLastFound();
-			try
-			{
-				QueryDelete delete = new QueryDelete(
-					new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema(), true));
-				SQLStatement deleteStatement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), null, targetTid,
-					delete, null);
-				application.getDataServer().performUpdates(application.getClientID(), new ISQLStatement[] { deleteStatement });
-			}
-			catch (Exception e)
-			{
-				Debug.log(e);
-				table = null;
-			}
-		}
-
-		if (getEditRecordList().removeRecords(dataSource))
-		{
-			Debug.warn("createDataSourceFromQuery was called while there were edited records under datasource with same name: " + name +
-				". All old records were removed.");
+			table = deleteAndCleanupInmemoryDatasource(name, dataSource, table, targetTid);
 		}
 
 		table = application.getDataServer()
@@ -3244,29 +3223,7 @@ public class FoundSetManager implements IFoundSetManagerInternal
 
 		if (create && table != null)
 		{
-			// temp table was used before, delete all data in it
-			// first remove all edits for this datasource.
-			application.getFoundSetManager().getEditRecordList().removeRecords(dataSource);
-			FoundSet foundSet = (FoundSet)getSharedFoundSet(dataSource);
-			foundSet.removeLastFound();
-			try
-			{
-				QueryDelete delete = new QueryDelete(
-					new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema(), true));
-				SQLStatement deleteStatement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), null, tid, delete,
-					null);
-				application.getDataServer().performUpdates(application.getClientID(), new ISQLStatement[] { deleteStatement });
-			}
-			catch (Exception e)
-			{
-				Debug.log(e);
-				table = null;
-			}
-			RowManager element = rowManagers.get(dataSource);
-			if (element != null)
-			{
-				element.flushAllCachedRows();
-			}
+			table = deleteAndCleanupInmemoryDatasource(name, dataSource, table, tid);
 		}
 
 		InsertResult insertResult = application.getDataServer()
@@ -3314,6 +3271,47 @@ public class FoundSetManager implements IFoundSetManagerInternal
 			return insertResult.getGeneratedPks();
 		}
 		return null;
+	}
+
+	/**
+	 * @param name
+	 * @param dataSource
+	 * @param table
+	 * @param tid
+	 * @return
+	 * @throws ServoyException
+	 */
+	protected ITable deleteAndCleanupInmemoryDatasource(String name, String dataSource, ITable table, String tid) throws ServoyException
+	{
+		// temp table was used before, delete all data in it
+		// first remove all edits for this datasource.
+		if (getEditRecordList().removeRecords(dataSource))
+		{
+			Debug.warn("createDataSource was called while there were edited records under datasource with same name: " + name +
+				". All old records that where in edit state were removed.");
+		}
+
+		FoundSet foundSet = (FoundSet)getSharedFoundSet(dataSource);
+		foundSet.removeLastFound();
+		try
+		{
+			QueryDelete delete = new QueryDelete(
+				new QueryTable(table.getSQLName(), table.getDataSource(), table.getCatalog(), table.getSchema(), true));
+			SQLStatement deleteStatement = new SQLStatement(ISQLActionTypes.DELETE_ACTION, table.getServerName(), table.getName(), null, tid, delete,
+				null);
+			application.getDataServer().performUpdates(application.getClientID(), new ISQLStatement[] { deleteStatement });
+		}
+		catch (Exception e)
+		{
+			Debug.log(e);
+			table = null;
+		}
+		RowManager element = rowManagers.get(dataSource);
+		if (element != null)
+		{
+			element.flushAllCachedRows();
+		}
+		return table;
 	}
 
 	private static void replaceValuesWithSerializedString(IDataSet dataSet, Set<Integer> columnsThatNeedToStringSerialize)
