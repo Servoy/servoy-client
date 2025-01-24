@@ -160,6 +160,8 @@ public class JavaToDocumentedJSTypeTranslator
 
 		javaClassToDocumentedJavaClass.put(org.mozilla.javascript.Function.class, com.servoy.j2db.documentation.scripting.docs.Function.class);
 
+		javaClassToDocumentedJavaClass.put(org.mozilla.javascript.NativeBigInt.class, com.servoy.j2db.documentation.scripting.docs.BigInt.class);
+
 		javaClassToDocumentedJavaClass.put(Exception.class, ServoyException.class);
 
 		javaClassToDocumentedJavaClass.put(IFoundSetInternal.class, FoundSet.class);

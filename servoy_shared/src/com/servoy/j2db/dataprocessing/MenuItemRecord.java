@@ -49,7 +49,7 @@ import com.servoy.j2db.util.Utils;
  *
  */
 @ServoyDocumented(category = ServoyDocumented.RUNTIME, publicName = "MenuItemRecord", scriptingName = "MenuItemRecord", extendsComponent = "JSBaseRecord")
-public class MenuItemRecord implements IRecordInternal, Scriptable, IJSBaseRecord
+public class MenuItemRecord implements IRecordInternal, Scriptable, IJSBaseRecord, IModificationListener
 {
 	public static final Map<String, NativeJavaMethod> jsFunctions = DefaultJavaScope.getJsFunctions(MenuItemRecord.class);
 	public static final String MENUITEM_RECORD = "MenuItemRecord"; //$NON-NLS-1$
@@ -74,6 +74,8 @@ public class MenuItemRecord implements IRecordInternal, Scriptable, IJSBaseRecor
 			this.values.put(key.toLowerCase(), value);
 		});
 		this.modificationListeners = synchronizedList(new ArrayList<>(3));
+		//TODO menuitem record is never destroyed, this listener is never removed
+		menuItem.addChangeListener(this);
 	}
 
 	@Override
@@ -178,7 +180,7 @@ public class MenuItemRecord implements IRecordInternal, Scriptable, IJSBaseRecor
 		{
 			((IModificationListener)element).valueChanged(e);
 		}
-		collector.put(this.getParentFoundSet(), this, e.getName());
+		if (collector != null) collector.put(this.getParentFoundSet(), this, e.getName());
 	}
 
 	@Override
@@ -483,6 +485,21 @@ public class MenuItemRecord implements IRecordInternal, Scriptable, IJSBaseRecor
 	public Object getKey()
 	{
 		return getPK()[0];
+	}
+
+	@Override
+	public void valueChanged(ModificationEvent e)
+	{
+		int changeType = Utils.getAsInteger(e.getName());
+		// filter out special change events
+		if (changeType != FoundSetEvent.CHANGE_DELETE && changeType != FoundSetEvent.CHANGE_INSERT)
+		{
+			if (e.getName() != null)
+			{
+				values.put(e.getName(), e.getValue());
+			}
+			this.notifyChange(new ModificationEvent(e.getName(), e.getValue(), e.getSource()), null);
+		}
 	}
 
 	@Override

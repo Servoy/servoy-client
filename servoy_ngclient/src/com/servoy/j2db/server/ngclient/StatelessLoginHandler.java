@@ -75,7 +75,6 @@ public class StatelessLoginHandler
 
 	public static final String REFRESH_TOKEN = "refresh_token";
 	public static final String OAUTH_CUSTOM_PROPERTIES = "oauth";
-	public static final String SVYLOGIN_PATH = "svylogin";
 	public static final String USERNAME = "username";
 	public static final String PASSWORD = "password";
 	public static final String ID_TOKEN = "id_token";

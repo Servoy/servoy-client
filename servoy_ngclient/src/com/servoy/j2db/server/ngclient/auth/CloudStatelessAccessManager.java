@@ -148,49 +148,36 @@ public class CloudStatelessAccessManager
 		}
 		else
 		{
-			//TODO how to refactor this part?
 			if (oldToken.getStringClaim(CLOUD_OAUTH_ENDPOINT) != null &&
 				oldToken.getStringClaim(StatelessLoginHandler.REFRESH_TOKEN) != null)
 			{
 				provider = oldToken.getStringClaim(CLOUD_OAUTH_ENDPOINT);
-				try (CloseableHttpClient httpclient = HttpClients.createDefault())
+				JSONObject oauth = getOAuthConfigFromTheCloud(solution, request, provider);
+				OAuth20Service service = OAuthUtils.createOauthService(request, oauth, new HashMap<>());
+				if (service != null)
 				{
-					String[] parts = provider.split("\\?");
-					String endpoint = parts[0];
-					Map<String, String[]> parameters = parts.length > 1 ? parseQueryString(parts[1]) : new HashMap<>();
-					Pair<Integer, JSONObject> providerRequest = executeCloudPostRequest(httpclient, solution, endpoint, request, parameters);
-					if (providerRequest.getRight().has("oauth"))
+					try
 					{
-						JSONObject oauth = providerRequest.getRight().getJSONObject("oauth");
-						OAuth20Service service = OAuthUtils.createOauthService(request, oauth, new HashMap<>());
-						if (service != null)
+						String refresh_token = oldToken.getStringClaim(StatelessLoginHandler.REFRESH_TOKEN);
+						OpenIdOAuth2AccessToken token = (OpenIdOAuth2AccessToken)service.refreshAccessToken(refresh_token);
+						String id_token = token.getOpenIdToken();
+						DecodedJWT decodedJWT = JWT.decode(id_token);
+						if (!JWTValidator.verifyJWT(decodedJWT, oauth.getString(OAuthParameters.jwks_uri.name())))
 						{
-							try
-							{
-								String refresh_token = oldToken.getStringClaim(StatelessLoginHandler.REFRESH_TOKEN);
-								OpenIdOAuth2AccessToken token = (OpenIdOAuth2AccessToken)service.refreshAccessToken(refresh_token);
-								String id_token = token.getOpenIdToken();
-								DecodedJWT decodedJWT = JWT.decode(id_token);
-								if (!JWTValidator.verifyJWT(decodedJWT, oauth.getString(OAuthParameters.jwks_uri.name())))
-								{
-									return false;
-								}
-
-								//TODO send the id_token or some other info to the cloud??
-
-							}
-							catch (Exception e)
-							{
-								log.error("Could not refresh the token", e);
-							}
+							return false;
 						}
 					}
+					catch (Exception e)
+					{
+						log.error("Could not refresh the token", e);
+						return false;
+					}
 				}
-				catch (IOException e)
+				else
 				{
-					log.error("Can't validate user with the Servoy Cloud", e);
+					log.error("Could not refresh the token, because the oauth service is null");
+					return false;
 				}
-				return false;
 			}
 			httpget.addHeader(SvyID.USERNAME, sanitizeHeader(oldToken.getUsername()));
 			httpget.addHeader(SvyID.LAST_LOGIN, sanitizeHeader(oldToken.getStringClaim(SvyID.LAST_LOGIN)));
@@ -221,11 +208,32 @@ public class CloudStatelessAccessManager
 		return false;
 	}
 
+	private static JSONObject getOAuthConfigFromTheCloud(Solution solution, HttpServletRequest request, String provider)
+	{
+		JSONObject oauth = null;
+		try (CloseableHttpClient httpclient = HttpClients.createDefault())
+		{
+			String[] parts = provider.split("\\?");
+			String endpoint = parts[0];
+			Map<String, String[]> parameters = parts.length > 1 ? parseQueryString(parts[1]) : new HashMap<>();
+			Pair<Integer, JSONObject> providerRequest = executeCloudPostRequest(httpclient, solution, endpoint, request, parameters);
+			if (providerRequest.getRight().has("oauth"))
+			{
+				oauth = providerRequest.getRight().getJSONObject("oauth");
+			}
+		}
+		catch (IOException e)
+		{
+			log.error("Can't validate user with the Servoy Cloud", e);
+		}
+		return oauth;
+	}
+
 	public static boolean handlePossibleCloudRequest(HttpServletRequest request, HttpServletResponse response, String solutionName, Object index)
 		throws ServletException
 	{
 		Path path = Paths.get(request.getRequestURI()).normalize();
-		if (solutionName != null && path.getNameCount() > 2 && StatelessLoginHandler.SVYLOGIN_PATH.equals(path.getName(2).toString())) //TODO SVYLOGIN_PATH should be moved from StatelessLoginHandler
+		if (solutionName != null && path.getNameCount() > 2 && StatelessLoginUtils.SVYLOGIN_PATH.equals(path.getName(2).toString()))
 		{
 			Pair<FlattenedSolution, Boolean> _fs = AngularIndexPageWriter.getFlattenedSolution(solutionName, null, request, response);
 			FlattenedSolution fs = _fs.getLeft();
@@ -303,7 +311,8 @@ public class CloudStatelessAccessManager
 				postParameters.put(entry.getKey(), value);
 			}
 		}
-		postParameters.put("serverUrl", StatelessLoginUtils.getServerURL(request));
+		//the request can be null on logout, but the cloud needs the server url
+		postParameters.put("serverUrl", request != null ? StatelessLoginUtils.getServerURL(request) : "https://");
 		httppost.setEntity(new StringEntity(postParameters.toString()));
 
 		try
@@ -317,7 +326,7 @@ public class CloudStatelessAccessManager
 		return null;
 	}
 
-	public static Pair<Integer, JSONObject> executeCloudGetRequest(CloseableHttpClient httpclient, Solution solution, String endpoint,
+	private static Pair<Integer, JSONObject> executeCloudGetRequest(CloseableHttpClient httpclient, Solution solution, String endpoint,
 		HttpServletRequest request)
 	{
 		try
@@ -352,16 +361,18 @@ public class CloudStatelessAccessManager
 
 	public static void revokeToken(Solution solution, DecodedJWT jwt)
 	{
-		OAuth20Service service = null;
-		//TODO get config from the cloud
-		try
+		String provider = jwt.getClaim(CLOUD_OAUTH_ENDPOINT).asString();
+		JSONObject oauth = getOAuthConfigFromTheCloud(solution, null, provider);
+		OAuth20Service service = OAuthUtils.createOauthService(oauth, new HashMap<>(), null);
+		if (service != null)
+			try
 		{
 			if (service != null && service.getApi().getRevokeTokenEndpoint() != null)
 			{
 				service.revokeToken(jwt.getClaim(StatelessLoginHandler.REFRESH_TOKEN).asString(), TokenTypeHint.REFRESH_TOKEN);
 			}
 		}
-		catch (IOException | InterruptedException | ExecutionException | UnsupportedOperationException e)
+			catch (IOException | InterruptedException | ExecutionException | UnsupportedOperationException e)
 		{
 			log.error("Could not revoke the refresh token.", e);
 		}
@@ -659,7 +670,7 @@ public class CloudStatelessAccessManager
 	{
 		try (CloseableHttpClient httpClient = HttpClients.createDefault())
 		{
-			Pair<Integer, JSONObject> result = executeCloudGetRequest(httpClient, solution, "login", request); //TODO executeCloudGetRequest should be private
+			Pair<Integer, JSONObject> result = executeCloudGetRequest(httpClient, solution, "login", request);
 			if (result != null)
 			{
 				int status = result.getLeft().intValue();

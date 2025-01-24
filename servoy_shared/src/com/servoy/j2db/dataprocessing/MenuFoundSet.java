@@ -103,24 +103,86 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	public MenuFoundSet(JSMenu menu, IFoundSetManagerInternal manager)
 	{
 		this.datasource = DataSourceUtils.createMenuDataSource(menu.getName());
-		//listen to changes?
-		//menu.addChangeListener();
 		this.manager = manager;
 		createSelectionModel();
-		createRecords(menu);
+		for (JSMenuItem menuItem : menu.getMenuItemsWithSecurity())
+		{
+			records.add(new MenuItemRecord(menuItem, getMenuItemData(menuItem), this));
+		}
 		setSelectedIndex(0);
+		//TODO menufoundset is never destroyed, when should we remove this listener?
+		menu.addChangeListener(new IModificationListener()
+		{
+
+			@Override
+			public void valueChanged(ModificationEvent e)
+			{
+				int changeType = Utils.getAsInteger(e.getName());
+				if (changeType == FoundSetEvent.CHANGE_DELETE || changeType == FoundSetEvent.CHANGE_INSERT)
+				{
+					int row = Utils.getAsInteger(e.getValue());
+					if (changeType == FoundSetEvent.CHANGE_DELETE)
+					{
+						if (row >= 0 && row < records.size())
+						{
+							records.remove(row);
+						}
+					}
+					else
+					{
+						if (row >= 0 && row <= records.size())
+						{
+							JSMenuItem menuItem = menu.getMenuItemAt(row);
+							records.add(row, new MenuItemRecord(menuItem, getMenuItemData(menuItem), MenuFoundSet.this));
+						}
+					}
+					fireFoundSetEvent(row, row, changeType);
+				}
+			}
+		});
 	}
 
 	public MenuFoundSet(JSMenuItem menuItem, String relationName, IFoundSetManagerInternal manager, String datasource)
 	{
 		this.datasource = datasource;
 		this.relationName = relationName;
-		//listen to changes?
-		//menu.addChangeListener();
 		this.manager = manager;
 		createSelectionModel();
-		createRecords(menuItem);
+		for (JSMenuItem childMenuItem : menuItem.getMenuItemsWithSecurity())
+		{
+			records.add(new MenuItemRecord(childMenuItem, getMenuItemData(childMenuItem), this));
+		}
 		setSelectedIndex(0);
+		//TODO menufoundset is never destroyed, when should we remove this listener?
+		menuItem.addChangeListener(new IModificationListener()
+		{
+
+			@Override
+			public void valueChanged(ModificationEvent e)
+			{
+				int changeType = Utils.getAsInteger(e.getName());
+				if (changeType == FoundSetEvent.CHANGE_DELETE || changeType == FoundSetEvent.CHANGE_INSERT)
+				{
+					int row = Utils.getAsInteger(e.getValue());
+					if (changeType == FoundSetEvent.CHANGE_DELETE)
+					{
+						if (row >= 0 && row < records.size())
+						{
+							records.remove(row);
+						}
+					}
+					else
+					{
+						if (row >= 0 && row <= records.size())
+						{
+							JSMenuItem childMenuItem = menuItem.getMenuItemAt(row);
+							records.add(row, new MenuItemRecord(childMenuItem, getMenuItemData(childMenuItem), MenuFoundSet.this));
+						}
+					}
+					fireFoundSetEvent(row, row, changeType);
+				}
+			}
+		});
 	}
 
 	@Override
@@ -929,26 +991,6 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		{
 			selectionModel = new AlwaysRowSelectedSelectionModel(this);
 			addListDataListener(selectionModel);
-		}
-	}
-
-	private void createRecords(JSMenu menu)
-	{
-		records.clear();
-		for (JSMenuItem menuItem : menu.getMenuItemsWithSecurity())
-		{
-			records.add(new MenuItemRecord(menuItem, getMenuItemData(menuItem), this));
-		}
-	}
-
-	private void createRecords(JSMenuItem menuItem)
-	{
-		if (menuItem != null)
-		{
-			for (JSMenuItem childMenuItem : menuItem.getMenuItemsWithSecurity())
-			{
-				records.add(new MenuItemRecord(childMenuItem, getMenuItemData(childMenuItem), this));
-			}
 		}
 	}
 

@@ -604,6 +604,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 	@Override
 	public void detach()
 	{
+		if (webObjectContext == null) return; // it is already detached
+
 		viewPort.dispose();
 		if (foundset instanceof ISwingFoundSet)
 		{
@@ -620,6 +622,8 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			dataAdapterList.destroy();
 			dataAdapterList = null;
 		}
+
+		webObjectContext = null;
 	}
 
 	public JSONWriter toJSON(JSONWriter destinationJSON, IBrowserConverterContext dataConverterContext) throws JSONException

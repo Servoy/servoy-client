@@ -96,16 +96,19 @@ public class OAuthUtils
 		api,
 		defaultScope,
 		apiSecret,
-		clientId;
+		clientId,
+		state;
 	}
 
-	public static String getResponseType(Provider provider, JSONObject auth)
+	private static String getResponseType(Provider provider, JSONObject auth, Map<String, String> additionalParameters)
 	{
 		switch (provider)
 		{
 			case Google :
 			case Microsoft :
-				return "offline".equals(auth.optString("access_type")) ? "code" : "id_token";
+				String accessType = additionalParameters.containsKey("access_type") ? //
+					additionalParameters.get("access_type") : auth.optString("access_type");
+				return "offline".equals(accessType) ? "code" : "id_token";
 			case Okta :
 				return auth.optString(OAuthParameters.defaultScope.name(), "")
 					.contains("offline_access") ? "code" : "id_token";
@@ -191,14 +194,17 @@ public class OAuthUtils
 			}
 		}
 
-		String responseType = getResponseType(Provider.valueOf(api), auth);
+		String responseType = getResponseType(Provider.valueOf(api), auth, additionalParameters);
 		builder.responseType(responseType);
 		if (responseType.contains("code"))
 		{
-			additionalParameters.put(OAuthParameters.nonce.name(), additionalParameters.get(OAuthParameters.nonce.name()));
+			additionalParameters.put(OAuthParameters.state.name(), additionalParameters.get(OAuthParameters.nonce.name()));
 		}
-		String oauthPath = "svy_oauth/"; // TODO: revise path logic
-		builder.callback(serverURL + oauthPath + "index.html");
+		if (serverURL != null)
+		{
+			String oauthPath = serverURL.contains("/svy_oauth/") ? "" : "svy_oauth/";
+			builder.callback(serverURL + oauthPath + "index.html");
+		}
 
 		try
 		{
