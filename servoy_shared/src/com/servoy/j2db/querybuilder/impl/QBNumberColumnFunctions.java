@@ -34,7 +34,7 @@ public interface QBNumberColumnFunctions<T>
 	 * @sample
 	 * query.result.add(query.columns.custname.abs)
 	 *
-	 *  @return a QBFunction representing the absolute value function.
+	 *  @return a QBColumn representing the absolute value of the column.
 	 */
 	@JSReadonlyProperty
 	public T abs();
@@ -45,7 +45,7 @@ public interface QBNumberColumnFunctions<T>
 	 * @sample
 	 * query.result.add(query.columns.custname.sqrt)
 	 *
-	 *  @return a QBFunction representing the square root function.
+	 *  @return a QBNumberColumn representing the square root of the column.
 	 */
 	@JSReadonlyProperty
 	public QBNumberColumnBase sqrt();
@@ -57,54 +57,54 @@ public interface QBNumberColumnFunctions<T>
 	 * @sample
 	 * query.result.add(query.columns.mycol.mod(2))
 	 *
-	 *  @return a QBFunction representing the modulo operation.
+	 *  @return a QBColumn representing the modulo of the column.
 	 */
 	@JSFunction
 	public T mod(Object arg);
 
 	/**
 	 * Add up value
-	 * @param arg nr to add
+	 * @param value nr to add
 	 * @sample
 	 * query.result.add(query.columns.mycol.plus(2))
 	 *
-	 *  @return a QBFunction representing the addition operation.
+	 *  @return a QBNumberColumn representing the column added with the value.
 	 */
 	@JSFunction
-	public QBNumberColumnBase plus(Object arg);
+	public QBNumberColumnBase plus(Object value);
 
 	/**
 	 * Subtract value
-	 * @param arg nr to subtract
+	 * @param value nr to subtract
 	 * @sample
 	 * query.result.add(query.columns.mycol.minus(2))
 	 *
-	 *  @return a QBFunction representing the subtraction operation.
+	 *  @return a QBNumberColumn representing the column substracted with the value.
 	 */
 	@JSFunction
-	public QBNumberColumnBase minus(Object arg);
+	public QBNumberColumnBase minus(Object value);
 
 	/**
 	 * Multiply with value
-	 * @param arg nr to multiply with
+	 * @param value nr to multiply with
 	 * @sample
 	 * query.result.add(query.columns.mycol.multiply(2))
 	 *
-	 *  @return a QBFunction representing the multiplication operation.
+	 *  @return a QBNumberColumn representing the column multiplied with the value.
 	 */
 	@JSFunction
-	public QBNumberColumnBase multiply(Object arg);
+	public QBNumberColumnBase multiply(Object value);
 
 	/**
 	 * Divide by value
-	 * @param arg nr to divide by
+	 * @param value nr to divide by
 	 * @sample
 	 * query.result.add(query.columns.mycol.divide(2))
 	 *
-	 *  @return a QBFunction representing the division operation.
+	 *  @return a QBNumberColumn representing the column divided by the value.
 	 */
 	@JSFunction
-	public QBNumberColumnBase divide(Object arg);
+	public QBNumberColumnBase divide(Object value);
 
 	/**
 	 * Create an aggregate sum expression.
@@ -114,7 +114,7 @@ public interface QBNumberColumnFunctions<T>
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.sum.gt(100))
 	 * 	foundset.loadRecords(query)
 	 *
-	 *  @return a QBAggregate representing the sum aggregate function.
+	 *  @return a QBColumn representing the sum aggregate of the column.
 	 */
 	@JSReadonlyProperty
 	T sum();
@@ -127,7 +127,7 @@ public interface QBNumberColumnFunctions<T>
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.avg.eq(1))
 	 * 	foundset.loadRecords(query)
 	 *
-	 *  @return a QBAggregate representing the average aggregate function.
+	 *  @return a QBColumn representing the average aggregate of the column.
 	 */
 	@JSReadonlyProperty
 	T avg();

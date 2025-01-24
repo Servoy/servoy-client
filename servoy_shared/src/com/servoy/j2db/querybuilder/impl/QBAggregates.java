@@ -118,7 +118,7 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 */
 	@JSFunction
 	@Override
-	public QBColumn avg(Object aggregee)
+	public QBGenericColumnBase avg(Object aggregee)
 	{
 		return createAggregate(aggregee, QueryAggregate.AVG);
 	}
@@ -137,7 +137,7 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 */
 	@JSFunction
 	@Override
-	public QBColumn max(Object aggregee)
+	public QBGenericColumnBase max(Object aggregee)
 	{
 		return createAggregate(aggregee, QueryAggregate.MAX);
 	}
@@ -156,7 +156,7 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 */
 	@JSFunction
 	@Override
-	public QBColumn min(Object aggregee)
+	public QBGenericColumnBase min(Object aggregee)
 	{
 		return createAggregate(aggregee, QueryAggregate.MIN);
 	}
@@ -175,12 +175,12 @@ public class QBAggregates extends QBPart implements IQueryBuilderAggregates
 	 */
 	@JSFunction
 	@Override
-	public QBColumn sum(Object aggregee)
+	public QBGenericColumnBase sum(Object aggregee)
 	{
 		return createAggregate(aggregee, QueryAggregate.SUM);
 	}
 
-	protected QBColumn createAggregate(Object aggregee, int aggregateType)
+	protected QBGenericColumnBase createAggregate(Object aggregee, int aggregateType)
 	{
 		return new QBAggregateImpl(getRoot(), getParent(), getRoot().createOperand(aggregee, null, 0), aggregateType, QueryAggregate.ALL);
 	}

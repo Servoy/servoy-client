@@ -18,46 +18,18 @@
 package com.servoy.j2db.querybuilder.impl;
 
 import com.servoy.j2db.documentation.ServoyDocumented;
-import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
 
 /**
- * This interface lists functions on number columns.
+ * <p>The <code>QBGenericColumn</code> class represents a generic (untyped) column in a <code>QBSelect</code> query.
+ *
+ * <p>For more information about constructing and executing queries and columns, refer to the
+ * <a href="./qbcolumn.md">QBSelect</a> section of this documentation.</p>
  *
  * @author rgansevles
  *
  */
-@ServoyDocumented(category = ServoyDocumented.RUNTIME, realClass = QBNumberColumn.class)
-public interface QBNumberColumnBase
+@ServoyDocumented(category = ServoyDocumented.RUNTIME, extendsComponent = "QBColumn")
+public interface QBGenericColumn extends QBGenericColumnBase, QBDatetimeColumnBase, QBIntegerColumnBase, QBNumberColumnFunctions<QBGenericColumn>,
+	QBMediaColumnBase, QBNumberColumnBase, QBTextColumnBase, QBColumnBaseFunctions<QBGenericColumn>
 {
-	/**
-	 * Create floor(column) expression
-	 * @sample
-	 * query.result.add(query.columns.mycol.floor)
-	 *
-	 *  @return a QBIntegerColumn representing the floor expression for the column.
-	 */
-	@JSReadonlyProperty
-	public QBIntegerColumnBase floor();
-
-
-	/**
-	 * Create round(column) expression
-	 * @sample
-	 * query.result.add(query.columns.mycol.round)
-	 *
-	 *  @return a QBIntegerColumn representing the round expression for the column.
-	 */
-	@JSReadonlyProperty
-	public QBIntegerColumnBase round();
-
-
-	/**
-	 * Create ceil(column) expression
-	 * @sample
-	 * query.result.add(query.columns.mycol.ceil)
-	 *
-	 *  @return a QBIntegerColumn representing the ceil expression for the column.
-	 */
-	@JSReadonlyProperty
-	public QBIntegerColumnBase ceil();
 }

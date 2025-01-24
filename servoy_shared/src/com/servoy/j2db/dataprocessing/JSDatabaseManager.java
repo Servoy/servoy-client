@@ -93,6 +93,7 @@ import com.servoy.j2db.querybuilder.impl.QBCondition;
 import com.servoy.j2db.querybuilder.impl.QBCountAggregate;
 import com.servoy.j2db.querybuilder.impl.QBDatetimeColumn;
 import com.servoy.j2db.querybuilder.impl.QBFunctions;
+import com.servoy.j2db.querybuilder.impl.QBGenericColumn;
 import com.servoy.j2db.querybuilder.impl.QBGroupBy;
 import com.servoy.j2db.querybuilder.impl.QBIntegerColumn;
 import com.servoy.j2db.querybuilder.impl.QBJoin;
@@ -181,7 +182,7 @@ public class JSDatabaseManager implements IJSDatabaseManager
 				return new Class< ? >[] { COLUMNTYPE.class, SQL_ACTION_TYPES.class, JSColumn.class, JSDataSet.class, JSFoundSetUpdater.class, //
 					JSRecordMarker.class, JSRecordMarkers.class, Record.class, FoundSet.class, JSTable.class, //
 					QBSelect.class, QBCountAggregate.class, QBCase.class, QBCaseWhen.class, //
-					QBColumn.class, QBDatetimeColumn.class, QBIntegerColumn.class, QBMediaColumn.class, QBNumberColumn.class, QBTextColumn.class, QBColumnComparable.class, //
+					QBColumn.class, QBGenericColumn.class, QBDatetimeColumn.class, QBIntegerColumn.class, QBMediaColumn.class, QBNumberColumn.class, QBTextColumn.class, QBColumnComparable.class, //
 					QBColumns.class, QBCondition.class, QBGroupBy.class, QBJoin.class, QBJoins.class, QBLogicalCondition.class, QBWhereCondition.class, QBResult.class, //
 					QBSort.class, QBSorts.class, QBTableClause.class, QBPart.class, QBParameter.class, QBParameters.class, //
 					QBFunctions.class, QBAggregates.class, QUERY_COLUMN_TYPES.class, ViewFoundSet.class, ViewRecord.class, JSTableFilter.class, MenuFoundSet.class, MenuItemRecord.class, //

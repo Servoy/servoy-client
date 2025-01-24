@@ -38,7 +38,7 @@ import com.servoy.j2db.querybuilder.IQueryBuilderColumn;
  *
  */
 public class QBColumnImpl extends QBPart
-	implements IQueryBuilderColumn, QBIntegerColumnBase, QBDatetimeColumnBase, QBNumberColumnBase, QBMediaColumnBase,
+	implements IQueryBuilderColumn, QBGenericColumnBase, QBIntegerColumnBase, QBDatetimeColumnBase, QBNumberColumnBase, QBMediaColumnBase,
 	QBTextColumnBase, QBColumnComparable, QBColumn, QBNumberColumnFunctions<QBColumn>
 {
 	private final IQuerySelectValue queryColumn;
@@ -203,37 +203,37 @@ public class QBColumnImpl extends QBPart
 	@Override
 	public QBColumn avg()
 	{
-		return getRoot().aggregates().avg(this);
+		return (QBColumn)getRoot().aggregates().avg(this);
 	}
 
 	@Override
 	public QBColumn max()
 	{
-		return getRoot().aggregates().max(this);
+		return (QBColumn)getRoot().aggregates().max(this);
 	}
 
 	@Override
 	public QBColumn min()
 	{
-		return getRoot().aggregates().min(this);
+		return (QBColumn)getRoot().aggregates().min(this);
 	}
 
 	@Override
 	public QBColumn sum()
 	{
-		return getRoot().aggregates().sum(this);
+		return (QBColumn)getRoot().aggregates().sum(this);
 	}
 
 	@Override
 	public QBColumn nullif(Object arg)
 	{
-		return getRoot().functions().nullif(this, arg);
+		return (QBColumn)getRoot().functions().nullif(this, arg);
 	}
 
 	@Override
 	public QBColumn coalesce(Object... args)
 	{
-		return getRoot().functions().coalesce(arrayAdd(args, this, false));
+		return (QBColumn)getRoot().functions().coalesce(arrayAdd(args, this, false));
 	}
 
 	/////////////////////////////////////////////////////////
@@ -367,7 +367,7 @@ public class QBColumnImpl extends QBPart
 	}
 
 	@Override
-	public QBColumn cast(String type)
+	public QBGenericColumnBase cast(String type)
 	{
 		return getRoot().functions().cast(this, type);
 	}

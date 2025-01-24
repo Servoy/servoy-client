@@ -28,6 +28,10 @@ import com.servoy.j2db.scripting.annotations.JSReadonlyProperty;
  * a range of properties and methods for handling column-specific operations such as mathematical
  * expressions, sorting, and conditional comparisons.</p>
  *
+ * <p>Columns are typed based on their definition in the database, in situations where the type is unknown a
+ * <a href="./qbgenericcolumn.md">QBGenericColumn</a> is returned by the methods.
+ * That class contains all methods and properties that are defined in any of the type-specific column classes.</p>
+ *
  * <p>Key properties include <code>abs</code>, <code>ceil</code>, and <code>floor</code> for mathematical
  * transformations, and <code>avg</code>, <code>count</code>, and <code>sum</code> for aggregate functions.
  * Sorting can be applied using <code>asc</code> and <code>desc</code>, while date manipulations are
@@ -116,15 +120,15 @@ public interface QBColumn extends QBColumnBaseFunctions<QBColumn>
 
 	/**
 	 * Concatenate with value
-	 * @param arg value to concatenate with
+	 * @param value value to concatenate with
 	 * @sample
 	 * query.result.add(query.columns.firstname.concat(' ').concat(query.columns.lastname))
 	 *
-	 *  @return a QBFunction representing the concatenation operation.
+	 *  @return a QBTextColumn representing the column concatenated with the value.
 	 */
 	@JSFunction
 	// concat is supported on most column types, databases can automatically convert number columns to string before concatenation
-	public QBTextColumnBase concat(Object arg);
+	public QBTextColumnBase concat(Object value);
 
 	/**
 	 * Create cast(column, type) expression
@@ -132,10 +136,10 @@ public interface QBColumn extends QBColumnBaseFunctions<QBColumn>
 	 * @sample
 	 * query.result.add(query.columns.mycol.cast(QUERY_COLUMN_TYPES.TYPE_INTEGER))
 	 *
-	 *  @return a QBFunction representing the cast function with the specified type.
+	 *  @return a QBGenericColumn representing the column cast to the specified type.
 	 */
 	@JSFunction
-	public QBColumn cast(String type);
+	public QBGenericColumnBase cast(String type);
 
 	/**
 	 * 	The flags are a bit pattern consisting of 1 or more of the following bits:

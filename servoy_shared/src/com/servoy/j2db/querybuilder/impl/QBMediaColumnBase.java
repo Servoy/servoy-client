@@ -34,7 +34,7 @@ public interface QBMediaColumnBase
 	 * @sample
 	 * query.result.add(query.columns.custname.bit_length)
 	 *
-	 *  @return a QBFunction representing the bit length function.
+	 *  @return a QBIntegerColumn representing the bit length function.
 	 */
 	@JSReadonlyProperty
 	public QBIntegerColumnBase bit_length();

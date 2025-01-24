@@ -37,7 +37,7 @@ public interface QBColumnBaseFunctions<T> extends QBColumnComparable
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.count.min(10))
 	 * 	foundset.loadRecords(query)
 	 *
-	 *  @return a QBAggregate representing the minimum aggregate function.
+	 *  @return a QBColumn representing the minimum aggregate function.
 	 */
 	@JSReadonlyProperty
 	T min();
@@ -50,7 +50,7 @@ public interface QBColumnBaseFunctions<T> extends QBColumnComparable
 	 * 	.root.having.add(query.joins.orders_to_order_details.columns.quantity.count.max(10))
 	 * 	foundset.loadRecords(query)
 	 *
-	 *  @return a QBAggregate representing the sum aggregate function.
+	 *  @return a QBColumn representing the sum aggregate function.
 	 */
 	@JSReadonlyProperty
 	T max();
@@ -61,7 +61,7 @@ public interface QBColumnBaseFunctions<T> extends QBColumnComparable
 	 * @sample
 	 * query.result.add(query.columns.mycol.nullif('none'))
 	 *
-	 *  @return a QBFunction representing the nullif function.
+	 *  @return a QBColumn representing the nullif expression.
 	 */
 	@JSFunction
 	T nullif(Object arg);
@@ -72,7 +72,7 @@ public interface QBColumnBaseFunctions<T> extends QBColumnComparable
 	 * @sample
 	 * query.result.add(query.columns.mycol.coalesce('defval'))
 	 *
-	 *  @return a QBFunction representing the coalesce function.
+	 *  @return a QBColumn representing the coalesce expression.
 	 */
 	@JSFunction
 	T coalesce(Object... args);

@@ -35,7 +35,7 @@ public interface QBDatetimeColumnBase
 	 * @sample
 	 * query.result.add(query.columns.mydatecol.hour)
 	 *
-	 *  @return a QBFunction representing the extraction of the hour from a date.
+	 *  @return a QBIntegerColumn representing the extraction of the hour from a date.
 	 */
 	@JSReadonlyProperty
 	QBIntegerColumnBase hour();
@@ -45,7 +45,7 @@ public interface QBDatetimeColumnBase
 	 * @sample
 	 * query.result.add(query.columns.mydatecol.second)
 	 *
-	 *  @return a QBFunction representing the extraction of the second from a date.
+	 *  @return a QBIntegerColumn representing the extraction of the second from a date.
 	 */
 	@JSReadonlyProperty
 	public QBIntegerColumnBase second();
@@ -55,7 +55,7 @@ public interface QBDatetimeColumnBase
 	 * @sample
 	 * query.result.add(query.columns.mydatecol.minute)
 	 *
-	 *  @return a QBFunction representing the extraction of the minute from a date.
+	 *  @return a QBIntegerColumn representing the extraction of the minute from a date.
 	 */
 	@JSReadonlyProperty
 	public QBIntegerColumnBase minute();
@@ -65,7 +65,7 @@ public interface QBDatetimeColumnBase
 	 * @sample
 	 * query.result.add(query.columns.mydatecol.day)
 	 *
-	 *  @return a QBFunction representing the extraction of the day from a date.
+	 *  @return a QBIntegerColumn representing the extraction of the day from a date.
 	 */
 	@JSReadonlyProperty
 	public QBIntegerColumnBase day();
@@ -75,7 +75,7 @@ public interface QBDatetimeColumnBase
 	 * @sample
 	 * query.result.add(query.columns.mydatecol.month)
 	 *
-	 *  @return a QBFunction representing the extraction of the month from a date.
+	 *  @return a QBIntegerColumn representing the extraction of the month from a date.
 	 */
 	@JSReadonlyProperty
 	public QBIntegerColumnBase month();
@@ -85,7 +85,7 @@ public interface QBDatetimeColumnBase
 	 * @sample
 	 * query.result.add(query.columns.mydatecol.year)
 	 *
-	 *  @return a QBFunction representing the extraction of the year from a date.
+	 *  @return a QBIntegerColumn representing the extraction of the year from a date.
 	 */
 	@JSReadonlyProperty
 	public QBIntegerColumnBase year();

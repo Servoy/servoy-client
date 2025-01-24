@@ -83,7 +83,7 @@ public class QBCase extends QBPart implements IQueryBuilderCase
 	 *
 	 * @return A QBColumn that defines the value to return if none of the when clauses are satisfied.
 	 */
-	public QBColumn jsFunction_else(Object value)
+	public QBGenericColumnBase jsFunction_else(Object value)
 	{
 		return qelse(value);
 	}
@@ -93,12 +93,12 @@ public class QBCase extends QBPart implements IQueryBuilderCase
 	 */
 	@Deprecated
 	@JSFunction
-	public QBColumn elseValue(Object value)
+	public QBGenericColumnBase elseValue(Object value)
 	{
 		return qelse(value);
 	}
 
-	private QBColumn qelse(Object value)
+	private QBGenericColumnBase qelse(Object value)
 	{
 		return new QBColumnImpl(getRoot(), getParent(), buildSearchedCaseExpression(getRoot(), whenThen, value));
 	}
