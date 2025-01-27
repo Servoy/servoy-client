@@ -40,6 +40,8 @@ import com.servoy.j2db.dataprocessing.ModificationEvent;
 import com.servoy.j2db.scripting.JSMenu;
 import com.servoy.j2db.scripting.JSMenuItem;
 import com.servoy.j2db.server.ngclient.DataAdapterList;
+import com.servoy.j2db.server.ngclient.IContextProvider;
+import com.servoy.j2db.server.ngclient.INGApplication;
 import com.servoy.j2db.server.ngclient.INGFormElement;
 import com.servoy.j2db.server.ngclient.WebFormComponent;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToSabloComponent;
@@ -87,15 +89,20 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener,
 		{
 			List<Map<String, Object>> itemsList = new ArrayList<Map<String, Object>>();
 			menuMap.put("items", itemsList);
+			INGApplication application = null;
+			if (dataConverterContext != null && dataConverterContext.getWebObject() instanceof IContextProvider contextProvider)
+			{
+				application = contextProvider.getDataConverterContext().getApplication();
+			}
 			for (JSMenuItem item : items)
 			{
 				Map<String, Object> itemMap = new HashMap<String, Object>();
 				itemsList.add(itemMap);
 				itemMap.put("itemID", item.getName());
-				itemMap.put("menuText", item.getMenuText());
+				itemMap.put("menuText", application != null ? application.getI18NMessageIfPrefixed(item.getMenuText()) : item.getMenuText());
 				itemMap.put("styleClass", item.getStyleClass());
 				itemMap.put("iconStyleClass", item.getIconStyleClass());
-				itemMap.put("tooltipText", item.getTooltipText());
+				itemMap.put("tooltipText", application != null ? application.getI18NMessageIfPrefixed(item.getTooltipText()) : item.getTooltipText());
 				itemMap.put("enabled", item.getEnabledWithSecurity());
 				itemMap.put("isSelected", item == selectedItem);
 				itemMap.put("callbackArguments", item.getCallbackArguments());
