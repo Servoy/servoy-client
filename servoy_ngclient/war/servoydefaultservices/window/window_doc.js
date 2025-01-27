@@ -1400,9 +1400,9 @@ function Popup() {
      * menu.addMenuItem("an entry", feedback);
      *
      * if (event.getSource()) {
-     *  // display the popup over the component which is the source of the event
-     *  // display the popup over the components, at specified coordinates relative to the component
-     *  //menu.show(event.getSource(), 10, 10, true);
+     *  // display the popup over the component which is the source of the event, 
+     *  // at specified coordinates relative to the component
+     *  menu.show(event.getSource(), 10, 10, true);
      * }
      *
      * @param {Object} [component] The component where this popup is linked in
@@ -1441,9 +1441,8 @@ function Popup() {
 	 * menu.addMenuItem("an entry", feedback);
 	 *
 	 * if (event.getSource()) {
-	 *  // display the popup over the component which is the source of the event
-	 *  // display the popup over the components, at specified coordinates relative to the component
-	 *  //menu.show(event.getSource(), 10, 10, true);
+	 *  // display the popup at specified coordinates
+	 *  menu.show(10, 10);
 	 * }
 	 *
 	 * @param {Object} [x] The x of the popup 
@@ -1462,8 +1461,7 @@ function Popup() {
 	 *
 	 * if (event.getSource()) {
 	 *  // display the popup over the component which is the source of the event
-	 *  // display the popup over the components, at specified coordinates relative to the component
-	 *  //menu.show(event.getSource());
+	 *  menu.show(event.getSource());
 	 * }
 	 *
 	 * @param {Object} [Event] event related to Popup 
