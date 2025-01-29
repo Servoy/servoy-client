@@ -432,7 +432,9 @@ $scope.api.closeFormPopup = function(retval)
         }
         $scope.model.popupform.retval = retval;
         $scope.api.cancelFormPopupInternal(true);
-        $scope.clearPopupForm();
+        if (!($scope.model.popupform && $scope.model.popupform.onClose)) {
+            $scope.clearPopupForm();
+        }
     }
 }
 
