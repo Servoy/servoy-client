@@ -51,7 +51,10 @@ public class BigInt
 	/**
 	 * Converts the BigInt value to a string in a specified base.
 	 *
-	 * @sample 1024n.toString(16);
+	 * @sample
+	 * /** @type {BigInt} *&#47;
+	 * let b = 1024n;
+	 * b.toString(16);
 	 *
 	 * @param radix An integer between 2 and 36 that specifies the base of the returned string.
 	 * @return The string representation of the BigInt in the specified base.
@@ -66,7 +69,10 @@ public class BigInt
 	/**
 	 * Converts the BigInt value to a string using the default base (10).
 	 *
-	 * @sample 1024n.toString();
+	 * @sample
+	 * /** @type {BigInt} *&#47;
+	 * let b = 1024n;
+	 * b.toString();
 	 *
 	 * @return The string representation of the BigInt in base 10.
 	 *
@@ -80,7 +86,7 @@ public class BigInt
 	/**
 	 * Converts the BigInt value to a locale-sensitive string representation.
 	 *
-	 * @sample 123456789012345678901234567890n.toLocaleString();
+	 * @sample BigInt(123456789123456789)toLocaleString();
 	 *
 	 * @return The locale-sensitive string representation of the BigInt using the default locale.
 	 *
@@ -94,7 +100,7 @@ public class BigInt
 	/**
 	 * Converts the BigInt value to a locale-sensitive string representation.
 	 *
-	 * @sample 123456789123456789n.toLocaleString('de-DE');
+	 * @sample BigInt(123456789123456789).toLocaleString('de-DE');
 	 *
 	 * @param locales A string with a BCP 47 language tag, or an array of such strings. Corresponds to the locales parameter of the Intl.NumberFormat() constructor.
 	 * @return The locale-sensitive string representation of the BigInt.
