@@ -3358,7 +3358,7 @@ public abstract class FoundSet
 	 *
 	 * @see com.servoy.j2db.dataprocessing.FoundSet#js_loadOmittedRecords()
 	 *
-	 * @param {IJSRecord} record - The record to be omitted from the foundset.
+	 * @param record Record - The record to be omitted from the foundset.
 	 *
 	 * @return boolean true if record could be omitted.
 	 */
@@ -3748,7 +3748,7 @@ public abstract class FoundSet
 	 *
 	 * @param index the new record is added at specified index (1-based).
 	 *
-	 * @return IJSRecord of new record.
+	 * @return the new record.
 	 */
 	@JSFunction
 	public IJSRecord createRecord(Number index) throws Exception
@@ -3765,7 +3765,7 @@ public abstract class FoundSet
 	 * @param index the new record is added at specified index (1-based).
 	 * @param changeSelection boolean when true the selection is changed to the new record.
 	 *
-	 * @return  IJSRecord of new record.
+	 * @return the new record.
 	 */
 	@JSFunction
 	public IJSRecord createRecord(Number index, Boolean changeSelection) throws Exception
@@ -3787,7 +3787,7 @@ public abstract class FoundSet
 	 *
 	 * @param onTop when true the new record is added as the topmost record.
 	 *
-	 * @return IJSRecord of new record.
+	 * @return the new record.
 	 */
 	@JSFunction
 	public IJSRecord createRecord(Boolean onTop) throws ServoyException
@@ -3805,7 +3805,7 @@ public abstract class FoundSet
 	 * the record is added to the end, if all records are loaded, otherwise it will be added to the top
 	 * @param changeSelection boolean when true the selection is changed to the new record.
 	 *
-	 * @return  IJSRecord of new record.
+	 * @return the new record.
 	 */
 	@JSFunction
 	public IJSRecord createRecord(Boolean onTop, Boolean changeSelection) throws ServoyException
@@ -3821,7 +3821,7 @@ public abstract class FoundSet
 	 * @sample
 	 * var rec = %%prefix%%foundset.createRecord(); // add as first record
 	 *
-	 * @return IJSRecord the new record
+	 * @return the new record
 	 */
 	@JSFunction
 	public IJSRecord createRecord() throws Exception
