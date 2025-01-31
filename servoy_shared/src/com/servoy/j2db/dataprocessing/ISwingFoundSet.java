@@ -38,4 +38,8 @@ public interface ISwingFoundSet extends IFoundSetInternal, TableModel, IEditList
 	public void pinMultiSelectIfNeeded(boolean multiSelect, String formName, int pinLevel);
 
 	public void unpinMultiSelectIfNeeded(String formName);
+
+	public void addSelectionChangeListener(ISelectionChangeListener l);
+
+	public void removeSelectionChangeListener(ISelectionChangeListener l);
 }

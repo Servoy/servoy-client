@@ -169,6 +169,8 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 		IContentSpecConstants.PROPERTY_ONRECORDEDITSTOPMETHODID);
 	public static final TypedProperty<Integer> PROPERTY_ONRECORDSELECTIONMETHODID = new TypedProperty<Integer>(
 		IContentSpecConstantsBase.PROPERTY_ONRECORDSELECTIONMETHODID);
+	public static final TypedProperty<Integer> PROPERTY_ONBEFORERECORDSELECTIONMETHODID = new TypedProperty<Integer>(
+		IContentSpecConstantsBase.PROPERTY_ONBEFORERECORDSELECTIONMETHODID);
 	public static final TypedProperty<Integer> PROPERTY_ONRENDERMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONRENDERMETHODID);
 	public static final TypedProperty<Integer> PROPERTY_ONRESIZEMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONRESIZEMETHODID);
 	public static final TypedProperty<Integer> PROPERTY_ONRIGHTCLICKMETHODID = new TypedProperty<Integer>(IContentSpecConstants.PROPERTY_ONRIGHTCLICKMETHODID);
@@ -1002,6 +1004,11 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 		{
 			//2024.12 properties here
 			cs.new Element(487, IRepository.TABLENODES, PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID.getPropertyName(), IRepository.ELEMENTS);
+		}
+		if (old_repository_version < 60)
+		{
+			//2025.03 properties here
+			cs.new Element(488, IRepository.FORMS, PROPERTY_ONBEFORERECORDSELECTIONMETHODID.getPropertyName(), IRepository.ELEMENTS);
 		}
 		//##add property adds here
 		return cs;
