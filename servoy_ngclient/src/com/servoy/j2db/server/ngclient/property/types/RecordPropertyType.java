@@ -119,6 +119,10 @@ public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInterna
 			}
 
 		}
+		else if (newJSONValue instanceof IRecordInternal)
+		{
+			record = (IRecordInternal)newJSONValue;
+		}
 		return record;
 	}
 
