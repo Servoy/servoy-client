@@ -738,17 +738,17 @@ public class WebFormController extends BasicFormController implements IWebFormCo
 		}
 		boolean notifyVisibleSuccess = super.notifyVisible(visible, invokeLaterRunnables, executePreHideSteps);
 
-		if (EventExecutor.EVENT_TRACING_LOG.isInfoEnabled())
+		if (EventExecutor.EVENT_TRACING_LOG.isTraceEnabled())
 		{
 			Object[] tenantValue = application.getScriptEngine().getJSSecurity().getTenantValue();
 			if (visible)
 			{
-				EventExecutor.EVENT_TRACING_LOG.info(application.getUserName() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
+				EventExecutor.EVENT_TRACING_LOG.trace(application.getUserName() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
 					application.getSolutionName() + '|' + getName() + "|FORM_SHOWN|" + notifyVisibleSuccess + '|'); //$NON-NLS-1$
 			}
 			else
 			{
-				EventExecutor.EVENT_TRACING_LOG.info(application.getUserName() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
+				EventExecutor.EVENT_TRACING_LOG.trace(application.getUserName() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
 					application.getSolutionName() + '|' + getName() + "|FORM_HIDDEN|" + notifyVisibleSuccess + '|'); //$NON-NLS-1$
 			}
 		}
