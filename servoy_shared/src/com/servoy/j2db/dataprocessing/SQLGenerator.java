@@ -1639,6 +1639,7 @@ public class SQLGenerator
 	static boolean isBlobColumn(Column column)
 	{
 		return mapToDefaultType(column.getType()) == MEDIA && !column.hasFlag(UUID_COLUMN | IDENT_COLUMNS);
+		//RAGTESTreturn column.getType() != Types.ARRAY && mapToDefaultType(column.getType()) == MEDIA && !column.hasFlag(UUID_COLUMN | IDENT_COLUMNS);
 	}
 
 	/**

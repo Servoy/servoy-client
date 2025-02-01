@@ -52,6 +52,9 @@ public interface IColumnTypeConstants
 			case MEDIA :
 				return "MEDIA"; //$NON-NLS-1$
 
+			case Types.ARRAY :
+				return "ARRAY"; //$NON-NLS-1$
+
 			default :
 				return "UNKNOWN TYPE#" + atype; //$NON-NLS-1$
 		}

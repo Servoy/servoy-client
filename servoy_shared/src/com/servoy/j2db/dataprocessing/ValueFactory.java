@@ -161,11 +161,13 @@ public class ValueFactory
 	{
 		private final Object elements[];
 		private final BaseColumnType columnType;
+		private final String nativeTypename;
 
-		private ArrayValue(Object elements[], BaseColumnType columnType)
+		private ArrayValue(Object elements[], BaseColumnType columnType, String nativeTypename)
 		{
 			this.elements = elements;
 			this.columnType = columnType;
+			this.nativeTypename = nativeTypename;
 		}
 
 		public Object[] getElements()
@@ -176,6 +178,11 @@ public class ValueFactory
 		public BaseColumnType getColumnType()
 		{
 			return columnType;
+		}
+
+		public String getNativeTypename()
+		{
+			return nativeTypename;
 		}
 
 		/**
@@ -199,7 +206,12 @@ public class ValueFactory
 		public String toString()
 		{
 			StringBuilder elementsString = new StringBuilder();
-			elementsString.append("ArrayValue[");
+			elementsString.append("ArrayValue");
+			if (nativeTypename != null)
+			{
+				elementsString.append("(").append(nativeTypename).append(")");
+			}
+			elementsString.append("[");
 			int length = elements.length;
 			boolean isLengthGreater100 = false;
 			if (length > 100)
@@ -262,8 +274,8 @@ public class ValueFactory
 		return new BlobMarkerValue(data_to_chache);
 	}
 
-	public static ArrayValue createArrayValue(Object[] elements, BaseColumnType columnType)
+	public static ArrayValue createArrayValue(Object[] elements, BaseColumnType columnType, String nativeTypename)
 	{
-		return new ArrayValue(elements, columnType);
+		return new ArrayValue(elements, columnType, nativeTypename);
 	}
 }

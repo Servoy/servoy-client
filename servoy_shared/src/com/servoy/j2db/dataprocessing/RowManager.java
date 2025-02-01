@@ -60,6 +60,7 @@ import com.servoy.j2db.persistence.IServer;
 import com.servoy.j2db.persistence.Relation;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.Table;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.IQuerySelectValue;
 import com.servoy.j2db.query.ISQLUpdate;
 import com.servoy.j2db.query.QueryColumn;
@@ -885,7 +886,14 @@ public class RowManager implements IModificationListener, IFoundSetEventListener
 								aggregatesToRemove.addAll(sheet.getAggregateName(dataProviderID));
 							}
 							Object robj = c.getAsRightType(newdata[i]);
-							if (robj == null) robj = ValueFactory.createNullValue(c.getType());
+							if (robj == null)
+							{
+								robj = ValueFactory.createNullValue(c.getType());
+							}
+							else if (c.getType() == Types.ARRAY && robj instanceof Object[] array)
+							{
+								robj = ValueFactory.createArrayValue(array, ColumnType.UNKNOWN, c.getNativeTypename());
+							}
 							queryUpdate.addValue(c.queryColumn(sqlUpdate.getTable()), robj);
 							if (changedColumns == null)
 							{

@@ -53,7 +53,7 @@ public final class QueryColumn extends BaseQueryColumn implements IWriteReplaceE
 
 	public QueryColumn(BaseQueryTable table, String name)
 	{
-		this(table, -1, name, ColumnType.DUMMY, null, 0, false);
+		this(table, -1, name, ColumnType.UNKNOWN, null, 0, false);
 	}
 
 	@Override

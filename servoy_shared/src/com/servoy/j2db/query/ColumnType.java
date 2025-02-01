@@ -34,12 +34,12 @@ import com.servoy.j2db.util.serialize.ReplacedObject;
 public class ColumnType extends BaseColumnType implements IWriteReplace
 {
 	private static final ConcurrentMap<ColumnType, ColumnType> instances;
-	public static final ColumnType DUMMY;
+	public static final ColumnType UNKNOWN;
 
 	static
 	{
 		instances = new ConcurrentHashMap<ColumnType, ColumnType>();
-		DUMMY = getInstance(-1, -1, 0);
+		UNKNOWN = getInstance(-1, -1, 0);
 	}
 
 	private ColumnType(int sqlType, int length, int scale)
