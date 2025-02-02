@@ -72,7 +72,6 @@ import com.servoy.j2db.server.ngclient.component.EventExecutor;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedTypeSabloValue;
-import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderTypeSabloValue;
@@ -1060,10 +1059,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 		IRecordInternal recordForRowID = null;
 
-		Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(foundsetLinkedRowID);
-		int index = foundsetLinkedValue.getFoundset().getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
-
+		int index = foundsetLinkedValue.getFoundset().getRecordIndex(foundsetLinkedRowID, foundsetLinkedValue.getRecordIndexHint());
 		if (index >= 0) recordForRowID = foundsetLinkedValue.getFoundset().getRecord(index);
+
 		return recordForRowID;
 	}
 

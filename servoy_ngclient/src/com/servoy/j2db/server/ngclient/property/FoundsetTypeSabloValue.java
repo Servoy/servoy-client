@@ -1103,8 +1103,7 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 
 							if (foundset != null)
 							{
-								Pair<String, Integer> splitHashAndIndex = splitPKHashAndIndex(rowIDValue);
-								int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
+								int recordIndex = foundset.getRecordIndex(rowIDValue, getRecordIndexHint());
 
 								if (recordIndex != -1)
 								{
@@ -1197,12 +1196,25 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 			? ((WebComponent)webObjectContext.getUnderlyingWebObject()).findParent(IWebFormUI.class) : null;
 	}
 
-	public static Pair<String, Integer> splitPKHashAndIndex(String pkHashAndIndex)
+	public int getRecordIndexHint(/* String pkHashAndIndexHint */)
 	{
-		int index = pkHashAndIndex.lastIndexOf("_");
-		int recordIndex = Integer.parseInt(pkHashAndIndex.substring(index + 1));
-		String pkHash = pkHashAndIndex.substring(0, index);
-		return new Pair<>(pkHash, Integer.valueOf(recordIndex));
+		// there is no splitting being done here from rowID anymore to get the record index hint from it;
+		// as a workaround for case SVY-19773
+		// it was decided to not send index hints anymore to client (because client side components
+		// might decide to use that as an ID and expect it to be stable even after insert/remove)
+		// so even though the foundset and other property types using it worked correctly as they
+		// saw the index as just a hint... the components that expected that to be a stable rowId failed
+
+		// if it's needed in the future, we could send the index hint to client as another key in the
+		// row object, different from the rowID (but that would bloat the JSON a bit)
+
+//		int index = pkHashAndIndexHint.lastIndexOf("_");
+//		int recordIndexHint = Integer.parseInt(pkHashAndIndexHint.substring(index + 1));
+//		String pkHash = pkHashAndIndexHint.substring(0, index);
+//		return new Pair<>(pkHash, Integer.valueOf(recordIndexHint));
+
+		// we give now as index hint here always the middle of the current viewport
+		return viewPort.startIndex + viewPort.size / 2;
 	}
 
 	public void addViewportDataChangeMonitor(ViewportDataChangeMonitor viewPortChangeMonitor)
@@ -1215,24 +1227,15 @@ public class FoundsetTypeSabloValue implements IDataLinkedPropertyValue, TableMo
 		changeMonitor.removeViewportDataChangeMonitor(viewPortChangeMonitor);
 	}
 
-	public boolean setEditingRowByPkHash(String pkHashAndIndex)
+	public boolean setEditingRowByPkHash(String pkHash)
 	{
-		Pair<String, Integer> splitHashAndIndex = splitPKHashAndIndex(pkHashAndIndex);
-		int recordIndex = splitHashAndIndex.getRight().intValue();
-		IRecordInternal recordByIndexHint = foundset.getRecord(recordIndex);
-		String pkHash = splitHashAndIndex.getLeft();
-		if (recordByIndexHint == null || !pkHash.equals(recordByIndexHint.getPKHashKey()))
+		int recordIndex = foundset.getRecordIndex(pkHash, getRecordIndexHint());
+		if (recordIndex != -1)
 		{
-			recordIndex = foundset.getRecordIndex(pkHash, recordIndex);
-			if (recordIndex != -1)
-			{
-				foundset.setSelectedIndex(recordIndex);
-				return true;
-			}
-			else return false;
+			foundset.setSelectedIndex(recordIndex);
+			return true;
 		}
-		else foundset.setSelectedIndex(recordIndex);
-		return true;
+		else return false;
 	}
 
 	@Override
