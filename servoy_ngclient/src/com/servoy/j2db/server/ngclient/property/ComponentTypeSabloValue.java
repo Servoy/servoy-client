@@ -940,13 +940,13 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 					if (forFoundsetTypedPropertyName != null && recordBasedProperties.contains(propertyName))
 					{
 						String rowIDValue = startEditData.getString(FoundsetTypeSabloValue.ROW_ID_COL_KEY);
-						IFoundSetInternal foundset = getFoundsetValue().getFoundset();
-						dal = getFoundsetValue().getDataAdapterList();
+						FoundsetTypeSabloValue foundsetTypeSabloValue = getFoundsetValue();
+						IFoundSetInternal foundset = foundsetTypeSabloValue.getFoundset();
+						dal = foundsetTypeSabloValue.getDataAdapterList();
 
-						Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowIDValue);
 						if (foundset != null)
 						{
-							int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
+							int recordIndex = foundset.getRecordIndex(rowIDValue, foundsetTypeSabloValue.getRecordIndexHint());
 
 							if (recordIndex != -1)
 							{
@@ -985,10 +985,9 @@ public class ComponentTypeSabloValue implements ISmartPropertyValue
 	{
 		IFoundSetInternal foundset = foundsetPropertyValue.getFoundset();
 
-		Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowIDValue);
 		if (foundset != null)
 		{
-			int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
+			int recordIndex = foundset.getRecordIndex(rowIDValue, foundsetPropertyValue.getRecordIndexHint());
 
 			if (recordIndex != -1)
 			{

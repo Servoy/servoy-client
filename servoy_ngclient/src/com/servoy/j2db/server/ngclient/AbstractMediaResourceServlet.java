@@ -49,7 +49,6 @@ import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.FormComponentPropertyType;
 import com.servoy.j2db.ui.IMediaFieldConstants;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Pair;
 
 /**
  * @author jcompagner
@@ -205,11 +204,9 @@ public abstract class AbstractMediaResourceServlet extends HttpServlet
 											{
 												IFoundSetInternal foundset = foundsetPropertyValue.getFoundset();
 
-												Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowID);
 												if (foundset != null)
 												{
-													int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(),
-														splitHashAndIndex.getRight().intValue());
+													int recordIndex = foundset.getRecordIndex(rowID, foundsetPropertyValue.getRecordIndexHint());
 
 													if (recordIndex != -1)
 													{
