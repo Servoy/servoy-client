@@ -178,7 +178,7 @@ public class FoundsetLinkedTest extends AbstractSolutionTest
 			((DataproviderTypeSabloValue)((FoundsetLinkedTypeSabloValue)comp.getProperty("datalinkedDPReject")).getWrappedValue()).getValue()); // not value 501 cause pushToServer is rejected!
 
 		// fake incomming update/svyPush for DP changes on these fsLinked properties; one should get rejected, the other allowed and changed in the DP
-		String pkFromClientForThirdRow = RowManager.createPKHashKey(new Object[] { 3 }) + "_" + 2; // this is not needed for form variables but I think client would send it anyway
+		String pkFromClientForThirdRow = RowManager.createPKHashKey(new Object[] { 3 }); // this is not needed for form variables but I think client would send it anyway
 		endpoint.incoming(
 			"{\"methodname\":\"svyPush\",\"args\":{\"fslRowID\":\"" + pkFromClientForThirdRow +
 				"\",\"property\":\"datalinkedDPReject\",\"beanname\":\"mycustombean\",\"formname\":\"test\",\"changes\":{\"datalinkedDPReject\":[{\"propertyChange\":111}]}},\"service\":\"formService\"}",
@@ -227,7 +227,7 @@ public class FoundsetLinkedTest extends AbstractSolutionTest
 		Assert.assertEquals("value4", fsLinkedReject.optString(1));
 
 		// fake incomming update/svyPush for DP changes on these fsLinked properties; one should get rejected, the other allowed
-		String pkFromClientForThirdRow = RowManager.createPKHashKey(new Object[] { 3 }) + "_" + 2;
+		String pkFromClientForThirdRow = RowManager.createPKHashKey(new Object[] { 3 });
 		endpoint.incoming(
 			"{\"methodname\":\"svyPush\",\"args\":{\"fslRowID\":\"" + pkFromClientForThirdRow +
 				"\", \"property\":\"datalinkedDPReject\",\"beanname\":\"mycustombean\",\"formname\":\"test\",\"changes\":{\"datalinkedDPReject\":[{\"viewportDataChanged\":{\"_svyRowId\":\"" +
