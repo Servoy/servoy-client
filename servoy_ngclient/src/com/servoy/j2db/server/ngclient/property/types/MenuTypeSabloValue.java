@@ -109,6 +109,7 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener,
 				itemMap.put("extraProperties",
 					getExtraPropertiesWithDefaultValues(item.getExtraProperties(), this.extraProperties, this.extraPropertiesSmartValues.get(item),
 						dataConverterContext));
+				addMenuItemsCustomProperties(item, itemMap);
 				addMenuItemsForJSON(itemMap, item.getMenuItemsWithSecurity(), selectedItem, dataConverterContext);
 			}
 		}
@@ -226,6 +227,11 @@ public class MenuTypeSabloValue implements ISmartPropertyValue, IChangeListener,
 			}
 		}
 		return extraPropertiesValues;
+	}
+
+	private void addMenuItemsCustomProperties(JSMenuItem item, Map<String, Object> itemMap)
+	{
+		itemMap.putAll(item.getCustomProperties());
 	}
 
 	@Override

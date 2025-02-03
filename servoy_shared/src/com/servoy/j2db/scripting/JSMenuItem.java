@@ -81,6 +81,7 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	private Object[] callbackArguments;
 	private final JSMenu parentMenu;
 	private Map<String, Map<String, Object>> extraProperties;
+	private Map<String, Object> customPropertiesValues;
 	private final String[] allowedPermissions;
 	private JSONObject permissionsData;
 	private int overridenPermissionData = -1;
@@ -111,6 +112,7 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 			}
 		}
 		this.extraProperties = menuItem.getExtraProperties();
+		this.customPropertiesValues = new HashMap<String, Object>(menuItem.getCustomPropertiesValues());
 	}
 
 	/**
@@ -339,10 +341,44 @@ public class JSMenuItem extends JSMenu implements IConstantsObject
 	}
 
 	/**
+	 * Returns custom property value. Custom properties can be defined on each Menu.
+	 *
+	 * @sample menuItem.getCustomProperty('myproperty');
+	 *
+	 * @param {String} propertyName - The name of the property to retrieve the value for.
+	 *
+	 * @return The value of the specified custom property, or null if not found.
+	 */
+	@JSFunction
+	public Object getCustomProperty(String propertyName)
+	{
+		return customPropertiesValues.get(propertyName);
+	}
+
+	/**
+	 * Sets a custom property value. Custom properties can be defined on each Menu.
+	 *
+	 * @param {String} propertyName - The name of the property to set.
+	 * @param {Object} value - The value to assign to the specified property.
+	 *
+	 * @sample menuItem.setCustomProperty('formName','myform');
+	 */
+	@JSFunction
+	public void setCustomProperty(String propertyName, Object value)
+	{
+		customPropertiesValues.put(propertyName, value);
+	}
+
+	/**
 	 * @return A map containing all extra properties categorized by their names.
 	 */
 	public Map<String, Map<String, Object>> getExtraProperties()
 	{
 		return extraProperties;
+	}
+
+	public Map<String, Object> getCustomProperties()
+	{
+		return this.customPropertiesValues;
 	}
 }
