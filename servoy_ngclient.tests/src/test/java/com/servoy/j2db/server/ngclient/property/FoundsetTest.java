@@ -373,14 +373,14 @@ public class FoundsetTest extends AbstractSolutionTest
 		StringWriter stringWriter = new StringWriter();
 		JSONWriter jsonWriter = new JSONWriter(stringWriter);
 		dynamicBeanRelatedFoundset.addViewPort(jsonWriter);
-		assertEquals("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}",
+		assertEquals("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}",
 			stringWriter.toString());
 
 		stringWriter.getBuffer().setLength(0);
 		jsonWriter = new JSONWriter(stringWriter);
 		dynamicBeanRelatedFoundset.changesToJSON(jsonWriter, allowBrowserConverterContext2);
 		assertEquals(format(
-			"{\"upd_serverSize\":12,\"upd_foundsetId\":%d,\"upd_sortColumns\":\"\",\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}}",
+			"{\"upd_serverSize\":12,\"upd_foundsetId\":%d,\"upd_sortColumns\":\"\",\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}}",
 			dynamicBeanRelatedFoundset.getFoundset().getID()),
 			stringWriter.toString());
 
@@ -390,7 +390,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		jsonWriter = new JSONWriter(stringWriter);
 		dynamicBeanRelatedFoundset.changesToJSON(jsonWriter, allowBrowserConverterContext2);
 		assertEquals(format(
-			"{\"upd_serverSize\":4,\"upd_foundsetId\":%d,\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":0,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.4;_0\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"}]}}",
+			"{\"upd_serverSize\":4,\"upd_foundsetId\":%d,\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":0,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.4;\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"}]}}",
 			dynamicBeanRelatedFoundset.getFoundset().getID()),
 			stringWriter.toString());
 	}
@@ -416,7 +416,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		JSONWriter jsonWriter = new JSONWriter(stringWriter);
 		dynamicBeanRelatedFoundset.toJSON(jsonWriter, allowBrowserConverterContext2);
 		assertEquals(format(
-			"{\"serverSize\":12,\"foundsetId\":%d,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":8,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"1.2;_1\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"},{\"_svyRowId\":\"1.3;_2\",\"dp1\":\"relatedvalue131\",\"dp2\":\"relatedvalue132\"},{\"_svyRowId\":\"1.5;_3\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"1.6;_4\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"},{\"_svyRowId\":\"1.7;_5\",\"dp1\":\"relatedvalue131\",\"dp2\":\"relatedvalue132\"},{\"_svyRowId\":\"1.9;_6\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"2.10;_7\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}}",
+			"{\"serverSize\":12,\"foundsetId\":%d,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":8,\"rows\":[{\"_svyRowId\":\"1.1;\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"1.2;\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"},{\"_svyRowId\":\"1.3;\",\"dp1\":\"relatedvalue131\",\"dp2\":\"relatedvalue132\"},{\"_svyRowId\":\"1.5;\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"1.6;\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"},{\"_svyRowId\":\"1.7;\",\"dp1\":\"relatedvalue131\",\"dp2\":\"relatedvalue132\"},{\"_svyRowId\":\"1.9;\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"2.10;\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}}",
 			dynamicBeanRelatedFoundset.getFoundset().getID()),
 			stringWriter.toString());
 
@@ -425,7 +425,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		customBeanFoundSet.getFoundset().setSelectedIndex(1);//selection is now 0, so set to 1 and then back again
 		dynamicBeanRelatedFoundset.changesToJSON(jsonWriter, allowBrowserConverterContext2);
 		assertEquals(format(
-			"{\"upd_serverSize\":4,\"upd_foundsetId\":%d,\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":0,\"size\":4,\"rows\":[{\"_svyRowId\":\"1.4;_0\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"},{\"_svyRowId\":\"1.8;_1\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"},{\"_svyRowId\":\"2.12;_2\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"},{\"_svyRowId\":\"2.16;_3\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"}]}}",
+			"{\"upd_serverSize\":4,\"upd_foundsetId\":%d,\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":0,\"size\":4,\"rows\":[{\"_svyRowId\":\"1.4;\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"},{\"_svyRowId\":\"1.8;\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"},{\"_svyRowId\":\"2.12;\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"},{\"_svyRowId\":\"2.16;\",\"dp1\":\"relatedvalue241\",\"dp2\":\"relatedvalue242\"}]}}",
 			dynamicBeanRelatedFoundset.getFoundset().getID()),
 			stringWriter.toString());
 
@@ -434,7 +434,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		customBeanFoundSet.getFoundset().setSelectedIndex(0);
 		dynamicBeanRelatedFoundset.changesToJSON(jsonWriter, allowBrowserConverterContext2);
 		assertEquals(format(
-			"{\"upd_serverSize\":12,\"upd_foundsetId\":%d,\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":0,\"size\":8,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"1.2;_1\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"},{\"_svyRowId\":\"1.3;_2\",\"dp1\":\"relatedvalue131\",\"dp2\":\"relatedvalue132\"},{\"_svyRowId\":\"1.5;_3\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"1.6;_4\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"},{\"_svyRowId\":\"1.7;_5\",\"dp1\":\"relatedvalue131\",\"dp2\":\"relatedvalue132\"},{\"_svyRowId\":\"1.9;_6\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"2.10;_7\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}}",
+			"{\"upd_serverSize\":12,\"upd_foundsetId\":%d,\"upd_selectedRowIndexes\":[0],\"upd_viewPort\":{\"startIndex\":0,\"size\":8,\"rows\":[{\"_svyRowId\":\"1.1;\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"1.2;\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"},{\"_svyRowId\":\"1.3;\",\"dp1\":\"relatedvalue131\",\"dp2\":\"relatedvalue132\"},{\"_svyRowId\":\"1.5;\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"1.6;\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"},{\"_svyRowId\":\"1.7;\",\"dp1\":\"relatedvalue131\",\"dp2\":\"relatedvalue132\"},{\"_svyRowId\":\"1.9;\",\"dp1\":\"relatedvalue111\",\"dp2\":\"relatedvalue112\"},{\"_svyRowId\":\"2.10;\",\"dp1\":\"relatedvalue121\",\"dp2\":\"relatedvalue122\"}]}}",
 			dynamicBeanRelatedFoundset.getFoundset().getID()),
 			stringWriter.toString());
 	}
@@ -490,7 +490,7 @@ public class FoundsetTest extends AbstractSolutionTest
 
 
 		assertTrue(new JSONObject(
-			"{\"serverSize\":18,\"foundsetId\":2,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":18,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.3;_2\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.4;_3\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.5;_4\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.6;_5\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.7;_6\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.8;_7\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.9;_8\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.10;_9\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.11;_10\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.12;_11\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.13;_12\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.14;_13\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.15;_14\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.16;_15\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.17;_16\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.18;_17\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}")
+			"{\"serverSize\":18,\"foundsetId\":2,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":18,\"rows\":[{\"_svyRowId\":\"1.1;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.3;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.4;\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.5;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.6;\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.7;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.8;\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.9;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.10;\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.11;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.12;\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.13;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.14;\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.15;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.16;\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.17;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.18;\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}")
 				.similar(new JSONObject(stringWriter.toString())));
 
 		form.getFormModel().fireFoundSetChanged();
@@ -502,7 +502,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.toJSON(jsonWriter, allowBrowserConverterContext);
 
 		assertTrue(new JSONObject(format(
-			"{\"serverSize\":17,\"foundsetId\":%d,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":17,\"rows\":[{\"_svyRowId\":\"1.2;_0\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.3;_1\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.4;_2\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.5;_3\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.6;_4\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.7;_5\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.8;_6\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.9;_7\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.10;_8\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.11;_9\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.12;_10\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.13;_11\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.14;_12\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.15;_13\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.16;_14\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.17;_15\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.18;_16\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			"{\"serverSize\":17,\"foundsetId\":%d,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":17,\"rows\":[{\"_svyRowId\":\"1.2;\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.3;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.4;\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.5;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.6;\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.7;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.8;\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.9;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.10;\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.11;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.12;\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.13;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.14;\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.15;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.16;\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.17;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.18;\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
 			rawPropertyValue.getFoundset().getID()))
 				.similar(new JSONObject(stringWriter.toString())));
 	}
@@ -557,7 +557,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.addViewPort(jsonWriter);
 
 		assertTrue(
-			new JSONObject("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\".null;_1\",\"lastname\":null,\"firstname\":null}]}").similar(
+			new JSONObject("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\".null;\",\"lastname\":null,\"firstname\":null}]}").similar(
 				new JSONObject(stringWriter.toString())));
 		foundSet.deleteRecord(1);
 
@@ -570,7 +570,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.addViewPort(jsonWriter);
 
 		assertTrue(
-			new JSONObject("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}").similar(
+			new JSONObject("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}").similar(
 				new JSONObject(stringWriter.toString())));
 		foundSet.newRecord(0, false);
 
@@ -580,7 +580,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.addViewPort(jsonWriter);
 
 		assertTrue(
-			new JSONObject("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.1;_1\",\"lastname\":\"value2\",\"firstname\":\"value1\"}]}").similar(
+			new JSONObject("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.1;\",\"lastname\":\"value2\",\"firstname\":\"value1\"}]}").similar(
 				new JSONObject(stringWriter.toString())));
 
 		foundSet.newRecord(3, false);
@@ -591,7 +591,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.addViewPort(jsonWriter);
 
 		assertTrue(
-			new JSONObject("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.1;_1\",\"lastname\":\"value2\",\"firstname\":\"value1\"}]}").similar(
+			new JSONObject("{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.1;\",\"lastname\":\"value2\",\"firstname\":\"value1\"}]}").similar(
 				new JSONObject(stringWriter.toString())));
 
 
@@ -785,7 +785,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.toJSON(jsonWriter, allowBrowserConverterContext);
 
 		JSONAssert.assertEquals(new JSONObject(
-			"{\"selectedRowIndexes\":[0],\"viewPort\":{\"startIndex\":0,\"size\":7,\"rows\":[{\"firstname\":\"value00\",\"_svyRowId\":\"1.0;_0\",\"lastname\":\"value01\"},{\"firstname\":\"value10\",\"_svyRowId\":\"1.1;_1\",\"lastname\":\"value11\"},{\"firstname\":\"value20\",\"_svyRowId\":\"1.2;_2\",\"lastname\":\"value21\"},{\"firstname\":\"value30\",\"_svyRowId\":\"1.3;_3\",\"lastname\":\"value31\"},{\"firstname\":\"value40\",\"_svyRowId\":\"1.4;_4\",\"lastname\":\"value41\"},{\"firstname\":\"value50\",\"_svyRowId\":\"1.5;_5\",\"lastname\":\"value51\"},{\"firstname\":\"value60\",\"_svyRowId\":\"1.6;_6\",\"lastname\":\"value61\"}]},\"sortColumns\":\"\",\"serverSize\":200,\"foundsetId\":1,\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":true}"),
+			"{\"selectedRowIndexes\":[0],\"viewPort\":{\"startIndex\":0,\"size\":7,\"rows\":[{\"firstname\":\"value00\",\"_svyRowId\":\"1.0;\",\"lastname\":\"value01\"},{\"firstname\":\"value10\",\"_svyRowId\":\"1.1;\",\"lastname\":\"value11\"},{\"firstname\":\"value20\",\"_svyRowId\":\"1.2;\",\"lastname\":\"value21\"},{\"firstname\":\"value30\",\"_svyRowId\":\"1.3;\",\"lastname\":\"value31\"},{\"firstname\":\"value40\",\"_svyRowId\":\"1.4;\",\"lastname\":\"value41\"},{\"firstname\":\"value50\",\"_svyRowId\":\"1.5;\",\"lastname\":\"value51\"},{\"firstname\":\"value60\",\"_svyRowId\":\"1.6;\",\"lastname\":\"value61\"}]},\"sortColumns\":\"\",\"serverSize\":200,\"foundsetId\":1,\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":true}"),
 			new JSONObject(stringWriter.toString()), JSONCompareMode.STRICT);
 	}
 
@@ -806,7 +806,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.toJSON(jsonWriter, allowBrowserConverterContext);
 
 		assertTrue(new JSONObject(
-			"{\"serverSize\":200,\"foundsetId\":1,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":true,\"viewPort\":{\"startIndex\":0,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.0;_0\",\"lastname\":\"value01\",\"firstname\":\"value00\"}]}}")
+			"{\"serverSize\":200,\"foundsetId\":1,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":true,\"viewPort\":{\"startIndex\":0,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.0;\",\"lastname\":\"value01\",\"firstname\":\"value00\"}]}}")
 				.similar(new JSONObject(stringWriter.toString())));
 
 		// foundset loads more records due to server side access - client should be aware of new size and hasMoreRows
@@ -828,7 +828,7 @@ public class FoundsetTest extends AbstractSolutionTest
 
 		// bounds is 0,15 we should get the rows now
 		assertEquals(new JSONObject(
-			"{\"upd_viewPort\":{\"startIndex\":0,\"size\":15,\"rows\":[{\"_svyRowId\":\"1.0;_0\",\"firstname\":\"value00\",\"lastname\":\"value01\"},{\"_svyRowId\":\"1.1;_1\",\"firstname\":\"value10\",\"lastname\":\"value11\"},{\"_svyRowId\":\"1.2;_2\",\"firstname\":\"value20\",\"lastname\":\"value21\"},{\"_svyRowId\":\"1.3;_3\",\"firstname\":\"value30\",\"lastname\":\"value31\"},{\"_svyRowId\":\"1.4;_4\",\"firstname\":\"value40\",\"lastname\":\"value41\"},{\"_svyRowId\":\"1.5;_5\",\"firstname\":\"value50\",\"lastname\":\"value51\"},{\"_svyRowId\":\"1.6;_6\",\"firstname\":\"value60\",\"lastname\":\"value61\"},{\"_svyRowId\":\"1.7;_7\",\"firstname\":\"value70\",\"lastname\":\"value71\"},{\"_svyRowId\":\"1.8;_8\",\"firstname\":\"value80\",\"lastname\":\"value81\"},{\"_svyRowId\":\"1.9;_9\",\"firstname\":\"value90\",\"lastname\":\"value91\"},{\"_svyRowId\":\"2.10;_10\",\"firstname\":\"value100\",\"lastname\":\"value101\"},{\"_svyRowId\":\"2.11;_11\",\"firstname\":\"value110\",\"lastname\":\"value111\"},{\"_svyRowId\":\"2.12;_12\",\"firstname\":\"value120\",\"lastname\":\"value121\"},{\"_svyRowId\":\"2.13;_13\",\"firstname\":\"value130\",\"lastname\":\"value131\"},{\"_svyRowId\":\"2.14;_14\",\"firstname\":\"value140\",\"lastname\":\"value141\"}]}}")
+			"{\"upd_viewPort\":{\"startIndex\":0,\"size\":15,\"rows\":[{\"_svyRowId\":\"1.0;\",\"firstname\":\"value00\",\"lastname\":\"value01\"},{\"_svyRowId\":\"1.1;\",\"firstname\":\"value10\",\"lastname\":\"value11\"},{\"_svyRowId\":\"1.2;\",\"firstname\":\"value20\",\"lastname\":\"value21\"},{\"_svyRowId\":\"1.3;\",\"firstname\":\"value30\",\"lastname\":\"value31\"},{\"_svyRowId\":\"1.4;\",\"firstname\":\"value40\",\"lastname\":\"value41\"},{\"_svyRowId\":\"1.5;\",\"firstname\":\"value50\",\"lastname\":\"value51\"},{\"_svyRowId\":\"1.6;\",\"firstname\":\"value60\",\"lastname\":\"value61\"},{\"_svyRowId\":\"1.7;\",\"firstname\":\"value70\",\"lastname\":\"value71\"},{\"_svyRowId\":\"1.8;\",\"firstname\":\"value80\",\"lastname\":\"value81\"},{\"_svyRowId\":\"1.9;\",\"firstname\":\"value90\",\"lastname\":\"value91\"},{\"_svyRowId\":\"2.10;\",\"firstname\":\"value100\",\"lastname\":\"value101\"},{\"_svyRowId\":\"2.11;\",\"firstname\":\"value110\",\"lastname\":\"value111\"},{\"_svyRowId\":\"2.12;\",\"firstname\":\"value120\",\"lastname\":\"value121\"},{\"_svyRowId\":\"2.13;\",\"firstname\":\"value130\",\"lastname\":\"value131\"},{\"_svyRowId\":\"2.14;\",\"firstname\":\"value140\",\"lastname\":\"value141\"}]}}")
 				.toString(),
 			new JSONObject(stringWriter2_1.toString()).toString());
 
@@ -840,7 +840,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.changesToJSON(jsonWriter3, allowBrowserConverterContext);
 
 		assertTrue(new JSONObject(
-			"{\"upd_serverSize\":943,\"upd_hasMoreRows\":false,\"upd_viewPort\":{\"startIndex\":800,\"size\":1,\"rows\":[{\"_svyRowId\":\"3.800;_800\",\"lastname\":\"value8001\",\"firstname\":\"value8000\"}]}}")
+			"{\"upd_serverSize\":943,\"upd_hasMoreRows\":false,\"upd_viewPort\":{\"startIndex\":800,\"size\":1,\"rows\":[{\"_svyRowId\":\"3.800;\",\"lastname\":\"value8001\",\"firstname\":\"value8000\"}]}}")
 				.similar(
 					new JSONObject(stringWriter3.toString())));
 	}
@@ -861,7 +861,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.toJSON(jsonWriter, allowBrowserConverterContext);
 
 		assertTrue(new JSONObject(format(
-			"{\"serverSize\":18,\"foundsetId\":%d,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			"{\"serverSize\":18,\"foundsetId\":%d,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
 			rawPropertyValue.getFoundset().getID()))
 				.similar(new JSONObject(stringWriter.toString())));
 
@@ -873,7 +873,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.toJSON(jsonWriter, allowBrowserConverterContext);
 
 		assertTrue(new JSONObject(format(
-			"{\"serverSize\":18,\"foundsetId\":%d,\"sortColumns\":\"firstname asc\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			"{\"serverSize\":18,\"foundsetId\":%d,\"sortColumns\":\"firstname asc\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
 			rawPropertyValue.getFoundset().getID()))
 				.similar(new JSONObject(stringWriter.toString())));
 
@@ -884,7 +884,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.toJSON(jsonWriter, allowBrowserConverterContext);
 
 		assertTrue(new JSONObject(format(
-			"{\"serverSize\":18,\"foundsetId\":%d,\"sortColumns\":\"lastname desc\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			"{\"serverSize\":18,\"foundsetId\":%d,\"sortColumns\":\"lastname desc\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
 			rawPropertyValue.getFoundset().getID()))
 				.similar(
 					new JSONObject(stringWriter.toString())));
@@ -896,7 +896,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.toJSON(jsonWriter, allowBrowserConverterContext);
 
 		assertTrue(new JSONObject(format(
-			"{\"serverSize\":18,\"foundsetId\":%d,\"sortColumns\":\"lastname desc,firstname asc\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			"{\"serverSize\":18,\"foundsetId\":%d,\"sortColumns\":\"lastname desc,firstname asc\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
 			rawPropertyValue.getFoundset().getID()))
 				.similar(
 					new JSONObject(stringWriter.toString())));
@@ -908,7 +908,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.toJSON(jsonWriter, allowBrowserConverterContext);
 
 		assertTrue(new JSONObject(format(
-			"{\"serverSize\":18,\"foundsetId\":%d,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			"{\"serverSize\":18,\"foundsetId\":%d,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":0,\"size\":2,\"rows\":[{\"_svyRowId\":\"1.1;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.2;\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
 			rawPropertyValue.getFoundset().getID()))
 				.similar(
 					new JSONObject(stringWriter.toString())));
@@ -922,7 +922,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.toJSON(jsonWriter2, allowBrowserConverterContext);
 
 		assertTrue(new JSONObject(format(
-			"{\"serverSize\":18,\"foundsetId\":%d,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;_1\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
+			"{\"serverSize\":18,\"foundsetId\":%d,\"sortColumns\":\"\",\"selectedRowIndexes\":[0],\"multiSelect\":false,\"findMode\":false,\"hasMoreRows\":false,\"viewPort\":{\"startIndex\":1,\"size\":1,\"rows\":[{\"_svyRowId\":\"1.2;\",\"lastname\":\"value4\",\"firstname\":\"value3\"}]}}",
 			rawPropertyValue.getFoundset().getID())).similar(
 				new JSONObject(stringWriter2.toString())));
 
@@ -933,7 +933,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.changesToJSON(jsonWriter3, allowBrowserConverterContext);
 
 		assertTrue(new JSONObject(
-			"{\"upd_viewPort\":{\"startIndex\":0,\"size\":2,\"upd_rows\":[{\"rows\":[{\"_svyRowId\":\"1.1;_0\",\"lastname\":\"value2\",\"firstname\":\"value1\"}],\"startIndex\":0,\"endIndex\":0,\"type\":1}]}}")
+			"{\"upd_viewPort\":{\"startIndex\":0,\"size\":2,\"upd_rows\":[{\"rows\":[{\"_svyRowId\":\"1.1;\",\"lastname\":\"value2\",\"firstname\":\"value1\"}],\"startIndex\":0,\"endIndex\":0,\"type\":1}]}}")
 				.similar(
 					new JSONObject(stringWriter3.toString())));
 
@@ -952,7 +952,7 @@ public class FoundsetTest extends AbstractSolutionTest
 		rawPropertyValue.changesToJSON(jsonWriter3, allowBrowserConverterContext);
 
 		assertTrue(new JSONObject(
-			"{\"upd_viewPort\":{\"startIndex\":0,\"size\":18,\"upd_rows\":[{\"rows\":[{\"_svyRowId\":\"1.3;_2\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.4;_3\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.5;_4\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.6;_5\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.7;_6\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.8;_7\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.9;_8\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.10;_9\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.11;_10\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.12;_11\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.13;_12\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.14;_13\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.15;_14\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.16;_15\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.17;_16\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.18;_17\",\"lastname\":\"value4\",\"firstname\":\"value3\"}],\"startIndex\":2,\"endIndex\":17,\"type\":1}]}}")
+			"{\"upd_viewPort\":{\"startIndex\":0,\"size\":18,\"upd_rows\":[{\"rows\":[{\"_svyRowId\":\"1.3;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.4;\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.5;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.6;\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.7;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"1.8;\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"1.9;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.10;\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.11;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.12;\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.13;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.14;\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.15;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.16;\",\"lastname\":\"value4\",\"firstname\":\"value3\"},{\"_svyRowId\":\"2.17;\",\"lastname\":\"value2\",\"firstname\":\"value1\"},{\"_svyRowId\":\"2.18;\",\"lastname\":\"value4\",\"firstname\":\"value3\"}],\"startIndex\":2,\"endIndex\":17,\"type\":1}]}}")
 				.similar(
 					new JSONObject(stringWriter3.toString())));
 
