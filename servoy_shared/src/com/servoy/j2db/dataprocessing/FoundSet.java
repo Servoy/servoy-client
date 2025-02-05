@@ -6247,6 +6247,8 @@ public abstract class FoundSet
 	@Override
 	public int getRecordIndex(String pkHash, int startHint)
 	{
+		if (isInFindMode() && pkHash != null && pkHash.length() > 0) return Integer.parseInt(pkHash); // in find mode we send to client (NG/Ti) the record index as pkHash then we use this method to identify the record
+
 		int hintStart = Math.min(startHint + 5, getSize());
 
 		SafeArrayList<IRecordInternal> cachedRecords = getPksAndRecords().getCachedRecords();
