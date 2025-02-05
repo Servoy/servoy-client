@@ -130,7 +130,9 @@ public class RecordPropertyType extends UUIDReferencePropertyType<IRecordInterna
 			writer.object();
 			writer.key("recordhash").value(addReference(sabloValue, converterContext));
 			writer.key(FoundsetTypeSabloValue.FOUNDSET_ID).value(sabloValue.getParentFoundSet().getID());
-			writer.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY).value(sabloValue.getPKHashKey());
+			IFoundSetInternal foundset = sabloValue.getParentFoundSet();
+			writer.key(FoundsetTypeSabloValue.ROW_ID_COL_KEY)
+				.value(foundset.isInFindMode() ? String.valueOf(foundset.getRecordIndex(sabloValue)) : sabloValue.getPKHashKey());
 			writer.endObject();
 		}
 		else writer.value(null);

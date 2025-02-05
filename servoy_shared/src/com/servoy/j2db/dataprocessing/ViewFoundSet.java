@@ -1959,6 +1959,8 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@Override
 	public int getRecordIndex(String pkHash, int startHint)
 	{
+		if (isInFindMode() && pkHash != null && pkHash.length() > 0) return Integer.parseInt(pkHash); // in find mode we send to client (NG/Ti) the record index as pkHash then we use this method to identify the record
+
 		int hintStart = Math.min(startHint + 5, getSize());
 
 		int start = (hintStart < 0 || hintStart > records.size()) ? 0 : hintStart;
