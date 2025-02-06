@@ -59,7 +59,7 @@ public abstract class ViewportRowDataProvider
 		IRecordInternal record = foundset.getRecord(foundsetIndex);
 		types.nextRecordWillBe(foundsetIndex);
 		populateRowData(record, columnNames, w,
-			shouldGenerateRowIds() ? (foundset.isInFindMode() ? String.valueOf(foundsetIndex) : record.getPKHashKey()) : null, types);
+			shouldGenerateRowIds() ? record.getPKHashKey() : null, types);
 	}
 
 	protected ViewportClientSideTypes writeRowData(int startIndex, int endIndex, IFoundSetInternal foundset, JSONWriter w) throws JSONException
