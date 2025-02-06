@@ -126,7 +126,7 @@ public class NGFoundSetManager extends FoundSetManager implements IServerService
 						Object o = record.getValue(childrelation);
 						if (o instanceof IFoundSetInternal)
 						{
-							childrelationinfo.put(record.getPKHashKey() + "_" + record.getParentFoundSet().getRecordIndex(record),
+							childrelationinfo.put(record.getPKHashKey(),
 								((IFoundSetInternal)o).getSize());
 						}
 					}
