@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.servoy.j2db.dataprocessing.IndexInfo;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.query.QueryTable;
 
 /**
@@ -198,7 +199,7 @@ public interface ITable
 	 * @param scale
 	 * @return
 	 */
-	public Column createNewColumn(IValidateName validator, String name, int sqlType, int length, int scale) throws RepositoryException;
+	public Column createNewColumn(IValidateName validator, String name, ColumnType columnType) throws RepositoryException;
 
 	/**
 	 * @param validator
@@ -211,7 +212,7 @@ public interface ITable
 	 * @return
 	 * @throws RepositoryException
 	 */
-	public Column createNewColumn(IValidateName validator, String colname, int type, int length, int scale, boolean allowNull, boolean pkColumn)
+	public Column createNewColumn(IValidateName validator, String colname, ColumnType columnType, boolean allowNull, boolean pkColumn)
 		throws RepositoryException;
 
 	/**
@@ -222,16 +223,7 @@ public interface ITable
 	 * @param j
 	 * @param b
 	 */
-	public Column createNewColumn(IValidateName validator, String colname, int type, int length, int scale, boolean allowNull) throws RepositoryException;
-
-	/**
-	 * @param nameValidator
-	 * @param colname
-	 * @param text
-	 * @param i
-	 * @return
-	 */
-	public Column createNewColumn(IValidateName nameValidator, String colname, int type, int length) throws RepositoryException;
+	public Column createNewColumn(IValidateName validator, String colname, ColumnType columnType, boolean allowNull) throws RepositoryException;
 
 	/**
 	 * @param oldDataProviderID

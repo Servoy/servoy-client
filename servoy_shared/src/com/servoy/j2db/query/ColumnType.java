@@ -39,17 +39,22 @@ public class ColumnType extends BaseColumnType implements IWriteReplace
 	static
 	{
 		instances = new ConcurrentHashMap<ColumnType, ColumnType>();
-		UNKNOWN = getInstance(-1, -1, 0);
+		UNKNOWN = getInstance(-1, -1, 0, 0);
 	}
 
-	private ColumnType(int sqlType, int length, int scale)
+	private ColumnType(int sqlType, int length, int scale, int subType)
 	{
-		super(sqlType, length, scale);
+		super(sqlType, length, scale, subType);
 	}
 
 	public static ColumnType getInstance(int sqlType, int length, int scale)
 	{
-		ColumnType instance = new ColumnType(sqlType, length, scale);
+		return getInstance(sqlType, length, scale, 0);
+	}
+
+	public static ColumnType getInstance(int sqlType, int length, int scale, int subType)
+	{
+		ColumnType instance = new ColumnType(sqlType, length, scale, subType);
 		ColumnType previous = instances.putIfAbsent(instance, instance);
 		if (previous != null)
 		{
@@ -58,25 +63,22 @@ public class ColumnType extends BaseColumnType implements IWriteReplace
 		return instance;
 	}
 
-	public ColumnType intern()
-	{
-		return getInstance(getSqlType(), getLength(), getScale());
-	}
-
 ///////// serialization ////////////////
 
 	public Object writeReplace()
 	{
 		// Note: when this serialized structure changes, make sure that old data (maybe saved as serialized xml) can still be deserialized!
-		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new int[] { sqlType, length, scale });
+		return new ReplacedObject(AbstractBaseQuery.QUERY_SERIALIZE_DOMAIN, getClass(), new int[] { sqlType, length, scale, subType });
 	}
 
 	public ColumnType(ReplacedObject s)
 	{
 		int[] ints = (int[])s.getObject();
-		sqlType = ints[0];
-		length = ints[1];
-		scale = ints[2];
+		int index = 0;
+		sqlType = ints[index++];
+		length = ints[index++];
+		scale = ints[index++];
+		if (index < ints.length) subType = ints[index++];
 	}
 
 
@@ -127,5 +129,11 @@ public class ColumnType extends BaseColumnType implements IWriteReplace
 				return getInstance(type, Integer.MAX_VALUE, 0);
 		}
 		return getInstance(type, 0, 0);
+	}
+
+
+	public static ColumnType getInstance(BaseColumnType columnType)
+	{
+		return getInstance(columnType.getSqlType(), columnType.getLength(), columnType.getScale(), columnType.getSubType());
 	}
 }

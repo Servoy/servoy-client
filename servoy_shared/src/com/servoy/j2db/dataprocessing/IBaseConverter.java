@@ -19,16 +19,17 @@ package com.servoy.j2db.dataprocessing;
 import java.util.Map;
 
 import com.servoy.j2db.persistence.IColumnTypes;
+import com.servoy.j2db.query.ColumnType;
 
 /**
  * Public base interface for a converter.
  * This interface is not intended to be implemented, implement sub-interfaces instead.
- * 
+ *
  * @see IColumnConverter
  * @see IUIConverter
- * 
+ *
  * @author jblok, rgansevles
- * 
+ *
  */
 public interface IBaseConverter extends IColumnTypes
 {
@@ -36,26 +37,26 @@ public interface IBaseConverter extends IColumnTypes
 	 * Convert from input data type to a converted object.
 	 * <p>For column converters, this method converts from db value to dataprovider value.
 	 * <p>For ui converters, this method converts from dataprovider value to ui value.
-	 * 
+	 *
 	 * @param props properties for this converter
 	 * @param input_type the type of the object
 	 * @param input the value to convert
 	 * @return the converted object
 	 * @throws Exception
 	 */
-	public Object convertToObject(Map<String, String> props, int input_type, Object input) throws Exception;
+	public Object convertToObject(Map<String, String> props, ColumnType input_type, Object input) throws Exception;
 
 	/**
 	 * Convert from a converted object to the input type.
 	 * <p>For column converters, this method converts from dataprovider value to db value.
 	 * <p>For ui converters, this method converts from ui value to dataprovider value.
-	 * 
+	 *
 	 * @param props properties for this converter
 	 * @param input_type the Object to convert
 	 * @param converted the input value
 	 * @return the value in the input type
 	 */
-	public Object convertFromObject(Map<String, String> props, int input_type, Object converted) throws Exception;
+	public Object convertFromObject(Map<String, String> props, ColumnType input_type, Object converted) throws Exception;
 
 	/**
 	 * Called for default properties about the converter.

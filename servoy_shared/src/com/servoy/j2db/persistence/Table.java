@@ -297,10 +297,8 @@ public class Table extends AbstractTable implements ITable, Serializable, ISuppo
 	public int getPKColumnTypeRowIdentCount()
 	{
 		int retval = 0;
-		Iterator<Column> it = keyColumns.iterator();
-		while (it.hasNext())
+		for (Column c : keyColumns)
 		{
-			Column c = it.next();
 			if (c.getRowIdentType() == IBaseColumn.PK_COLUMN)
 			{
 				retval++;
@@ -324,19 +322,6 @@ public class Table extends AbstractTable implements ITable, Serializable, ISuppo
 		validator.checkName(colname, 0, new ValidatorSearchContext(this, IRepository.COLUMNS), true);
 	}
 
-	public Column createNewColumn(IValidateName validator, String colname, int type, int length, boolean allowNull) throws RepositoryException
-	{
-		Column c = createNewColumn(validator, colname, type, length, 0);
-		c.setAllowNull(allowNull);
-		return c;
-	}
-
-	public Column createNewColumn(IValidateName validator, String colname, int type, int length, boolean allowNull, boolean pkColumn) throws RepositoryException
-	{
-		Column c = createNewColumn(validator, colname, type, length, 0, allowNull);
-		c.setDatabasePK(pkColumn);
-		return c;
-	}
 
 	/**
 	 * Called when the dataProviderID of a column might have changed - the special double-keyed map we use should get updated.
@@ -373,20 +358,16 @@ public class Table extends AbstractTable implements ITable, Serializable, ISuppo
 		if (existInDB)
 		{
 			List<Column> notNeededColumns = new ArrayList<Column>();
-			Iterator<Column> it = columns.values().iterator();
-			while (it.hasNext())
+			for (Column c : columns.values())
 			{
-				Column c = it.next();
 				if (!c.getExistInDB())
 				{
 					notNeededColumns.add(c);
 				}
 			}
 
-			Iterator<Column> it2 = notNeededColumns.iterator();
-			while (it2.hasNext())
+			for (Column c : notNeededColumns)
 			{
-				Column c = it2.next();
 				keyColumns.remove(c);//just to make sure
 				columns.remove(c.getName());
 			}

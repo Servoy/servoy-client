@@ -34,6 +34,7 @@ import com.servoy.j2db.persistence.IDataProviderLookup;
 import com.servoy.j2db.persistence.ITable;
 import com.servoy.j2db.persistence.RepositoryException;
 import com.servoy.j2db.persistence.ScriptCalculation;
+import com.servoy.j2db.query.ColumnType;
 import com.servoy.j2db.scripting.IScriptableProvider;
 import com.servoy.j2db.ui.scripting.IFormatScriptComponent;
 import com.servoy.j2db.util.Debug;
@@ -245,7 +246,7 @@ public class ComponentFormat
 			}
 			try
 			{
-				return conv.convertToObject(cf.parsedFormat.getUIConverterProperties(), cf.dpType, value);
+				return conv.convertToObject(cf.parsedFormat.getUIConverterProperties(), ColumnType.getColumnType(cf.dpType), value);
 			}
 			catch (Exception e)
 			{
@@ -277,7 +278,7 @@ public class ComponentFormat
 			}
 			try
 			{
-				return conv.convertFromObject(cf.parsedFormat.getUIConverterProperties(), cf.dpType, obj);
+				return conv.convertFromObject(cf.parsedFormat.getUIConverterProperties(), ColumnType.getColumnType(cf.dpType), obj);
 			}
 			catch (Exception e)
 			{

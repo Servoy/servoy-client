@@ -106,7 +106,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		sb.append("<b>"); //$NON-NLS-1$
 		sb.append(getSQLName());
 		sb.append("</b> "); //$NON-NLS-1$
-		sb.append(getDisplayTypeString(mapToDefaultType(getType())));
+		sb.append(getTypeAsString());
 		if (getLength() > 0)
 		{
 			sb.append(" length: "); //$NON-NLS-1$
@@ -130,9 +130,14 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		return null;
 	}
 
-	public static String getDisplayTypeString(int atype)
+	public static String getDisplayTypeString(int type)
 	{
-		return IColumnTypeConstants.getDisplayTypeString(mapToDefaultType(atype));
+		return IColumnTypeConstants.getDisplayTypeString(mapToDefaultType(type));
+	}
+
+	public static String getDisplayTypeString(BaseColumnType type)
+	{
+		return IColumnTypeConstants.getDisplayTypeString(mapToDefaultType(type));
 	}
 
 	public static int mapToDefaultType(BaseColumnType type)
@@ -191,7 +196,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 			case Types.BLOB :
 			case Types.SQLXML :
 			case Types.NULL :
-				//	case Types.ARRAY :
+				//	case Types.ARRAY : // RAGTEST
 				return MEDIA;
 
 			case Types.OTHER :
@@ -382,7 +387,20 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 		if (obj instanceof Object[])
 		{
-			return stream((Object[])obj).map(el -> getAsRightType(type, flags, el, throwOnFail, truncate)).toArray();
+			BaseColumnType elementType;
+			if (type.getSqlType() == Types.ARRAY)
+			{
+				if (type.getSubType() == 0)
+				{
+					return obj;
+				}
+				elementType = ColumnType.getColumnType(type.getSubType());
+			}
+			else
+			{
+				elementType = type;
+			}
+			return stream((Object[])obj).map(el -> getAsRightType(elementType, flags, el, throwOnFail, truncate)).toArray();
 		}
 
 		if ((flags & UUID_COLUMN) != 0 || obj instanceof UUID)
@@ -763,7 +781,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 
 	public String getTypeAsString()
 	{
-		return getDisplayTypeString(getType());
+		return getDisplayTypeString(getColumnType());
 	}
 
 /*
@@ -900,7 +918,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 		}
 		int defType = Column.mapToDefaultType(columnType.getSqlType());
 		return ColumnType.getInstance(columnType.getSqlType(), (defType == IColumnTypes.INTEGER || defType == IColumnTypes.DATETIME) ? 0 /* length irrelevant */
-			: columnType.getLength(), defType == IColumnTypes.NUMBER ? columnType.getScale() : 0);
+			: columnType.getLength(), defType == IColumnTypes.NUMBER ? columnType.getScale() : 0, columnType.getSubType());
 	}
 
 	public String getName()
@@ -1391,7 +1409,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 	 * @param type of the object
 	 * @return 0 if irrelevant, Integer.MAX_VALUE if it does not know
 	 */
-	public static int getObjectSize(Object value, int type)
+	public static int getObjectSize(Object value, ColumnType type)
 	{
 		if (value == null) return 0;//length irrelevant for null values
 
@@ -1424,7 +1442,7 @@ public class Column extends BaseColumn implements Serializable, IColumn, ISuppor
 				}
 				break;
 		}
-		if (type == Types.ARRAY)
+		if (type.getSqlType() == Types.ARRAY)
 		{
 			return 0;
 		}

@@ -28,12 +28,19 @@ public class BaseColumnType implements Serializable
 	protected int sqlType;
 	protected int length;
 	protected int scale;
+	protected int subType;
 
 	public BaseColumnType(int sqlType, int length, int scale)
+	{
+		this(sqlType, length, scale, 0);
+	}
+
+	public BaseColumnType(int sqlType, int length, int scale, int subType)
 	{
 		this.sqlType = sqlType;
 		this.length = length;
 		this.scale = scale;
+		this.subType = subType;
 	}
 
 	protected BaseColumnType()
@@ -55,10 +62,15 @@ public class BaseColumnType implements Serializable
 		return sqlType;
 	}
 
+	public int getSubType()
+	{
+		return subType;
+	}
+
 	@Override
 	public String toString()
 	{
-		return "<" + sqlType + ',' + length + ',' + scale + '>'; //$NON-NLS-1$
+		return "<" + sqlType + ',' + length + ',' + scale + ',' + subType + '>'; //$NON-NLS-1$
 	}
 
 	@Override
@@ -69,6 +81,7 @@ public class BaseColumnType implements Serializable
 		result = prime * result + this.length;
 		result = prime * result + this.scale;
 		result = prime * result + this.sqlType;
+		result = prime * result + this.subType;
 		return result;
 	}
 
@@ -82,6 +95,7 @@ public class BaseColumnType implements Serializable
 		if (this.length != other.length) return false;
 		if (this.scale != other.scale) return false;
 		if (this.sqlType != other.sqlType) return false;
+		if (this.subType != other.subType) return false;
 		return true;
 	}
 }

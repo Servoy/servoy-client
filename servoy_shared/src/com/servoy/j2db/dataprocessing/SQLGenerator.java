@@ -862,7 +862,8 @@ public class SQLGenerator
 						}
 						// Have to use getAsRightType twice here, once to parse using format (getAsType(dataProviderType, formatString))
 						// and once to convert for query (getAsType(c.getDataProviderType(), null))
-						Object converted = convertFromObject(application, columnConverter, columnConverterInfo, dataProviderID, c.getDataProviderType(),
+						Object converted = convertFromObject(application, columnConverter, columnConverterInfo, dataProviderID,
+							ColumnType.getColumnType(c.getDataProviderType()),
 							Column.getAsRightType(dataProviderType, c.getFlags(), obj, formatString, c.getLength(), null, false, false), false);
 						elements[e] = Column.getAsRightType(c.getDataProviderType(), c.getFlags(), converted, null, c.getLength(), null, false, false);
 					}
@@ -873,7 +874,7 @@ public class SQLGenerator
 				{
 					final IColumnConverter fColumnConverter = columnConverter;
 					final ConverterInfo fColumnConverterInfo = columnConverterInfo;
-					final int fDataProviderType = c.getDataProviderType();
+					final ColumnType fDataProviderType = ColumnType.getColumnType(c.getDataProviderType());
 					or = (ISQLCondition)BaseSQLGenerator.parseFindExpression(QueryFactory.INSTANCE, raw, qCol, columnTable, dataProviderType, formatString, c,
 						rfs.getRelations().size() > 0 && relatedNullSearchAddPkCondition(), new IValueConverter()
 						{
@@ -922,7 +923,7 @@ public class SQLGenerator
 	}
 
 	public static Object convertFromObject(IServiceProvider application, IColumnConverter columnConverter, ConverterInfo columnConverterInfo,
-		String dataProviderID, int columnType, Object obj, boolean throwOnFail)
+		String dataProviderID, ColumnType columnType, Object obj, boolean throwOnFail)
 	{
 		if (columnConverter != null)
 		{
