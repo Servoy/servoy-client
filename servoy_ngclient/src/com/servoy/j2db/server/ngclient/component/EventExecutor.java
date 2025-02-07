@@ -230,7 +230,7 @@ public class EventExecutor
 			}
 		}
 
-		if (EVENT_TRACING_LOG.isInfoEnabled())
+		if (EVENT_TRACING_LOG.isTraceEnabled())
 		{
 			INGApplication application = formController.getApplication();
 			Object[] tenantValue = application.getScriptEngine().getJSSecurity().getTenantValue();
@@ -240,7 +240,7 @@ public class EventExecutor
 						: value instanceof String str && str.length() > 30 ? str.substring(0, 30)
 							: value instanceof Scriptable s ? Utils.getScriptableString(s) : String.valueOf(value))
 				.collect(Collectors.joining(",")); //$NON-NLS-1$
-			EVENT_TRACING_LOG.info(application.getUserUID() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
+			EVENT_TRACING_LOG.trace(application.getUserUID() + '|' + application.getClientID() + '|' + Arrays.toString(tenantValue) + '|' +
 				application.getSolutionName() + '|' + formController.getName() + '|' + component.getName() + '|' + eventType + '|' + argsAsString);
 		}
 

@@ -42,7 +42,7 @@
                                 },
                                 {
                                     "name":"arguments",
-                                    "type":"object []",
+                                    "type":"object[]",
                                     "optional":true
                                 },
                                 {

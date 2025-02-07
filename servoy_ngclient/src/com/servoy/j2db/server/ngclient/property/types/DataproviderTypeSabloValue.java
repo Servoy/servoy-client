@@ -650,7 +650,7 @@ public class DataproviderTypeSabloValue implements IDataLinkedPropertyValue, IFi
 					throw new IllegalChangeFromClientException(modifiable.getName(),
 						"Property '" + dpPD.getName() + "' is blocked because of the modifiable property '" + modifiable.getName() +
 							"' that blocks it because it has no value",
-						webObjectContext.getUnderlyingWebObject().getName(), dpPD.getName());
+						webObjectContext.getUnderlyingWebObject().getName(), dpPD.getName(), true);
 				}
 			}
 		}

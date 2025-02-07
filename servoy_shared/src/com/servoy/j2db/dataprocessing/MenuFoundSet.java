@@ -94,6 +94,7 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	private final List<IFoundSetEventListener> foundSetEventListeners = new ArrayList<>(3);
 	private transient AlwaysRowSelectedSelectionModel selectionModel;
 	private transient TableAndListEventDelegate tableAndListEventDelegate;
+	private final List<ISelectionChangeListener> selectionChangeListeners = new ArrayList<ISelectionChangeListener>();
 	// forms might force their foundset to remain at a certain multiselect value
 	// if a form 'pinned' multiselect, multiSelect should not be changeable by foundset JS access
 	// if more then 1 form wishes to pin multiselect at a time, the form with lowest elementid wins
@@ -508,18 +509,7 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@JSFunction
 	public MenuItemRecord[] getSelectedRecords()
 	{
-		int[] selectedIndexes = getSelectedIndexes();
-		List<MenuItemRecord> selectedRecords = new ArrayList<MenuItemRecord>(selectedIndexes.length);
-		for (int index : selectedIndexes)
-		{
-			MenuItemRecord record = getRecord(index);
-			if (record != null)
-			{
-				selectedRecords.add(record);
-			}
-		}
-
-		return selectedRecords.toArray(new MenuItemRecord[selectedRecords.size()]);
+		return getRecords(getSelectedIndexes());
 	}
 
 	/**
@@ -574,6 +564,37 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		{
 			foundSetEventListeners.remove(l);
 		}
+	}
+
+	public void addSelectionChangeListener(ISelectionChangeListener l)
+	{
+		synchronized (selectionChangeListeners)
+		{
+			if (!selectionChangeListeners.contains(l))
+			{
+				selectionChangeListeners.add(l);
+			}
+		}
+	}
+
+	public void removeSelectionChangeListener(ISelectionChangeListener l)
+	{
+		synchronized (selectionChangeListeners)
+		{
+			selectionChangeListeners.remove(l);
+		}
+	}
+
+	private boolean executeSelectionListeners(IRecordInternal[] oldSelection, IRecordInternal[] newSelection)
+	{
+		for (ISelectionChangeListener listener : selectionChangeListeners)
+		{
+			if (!listener.selectionChange(oldSelection, newSelection))
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override
@@ -681,6 +702,13 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	public boolean setSelectedIndex(int selectedRow)
 	{
 		if (selectionModel == null) createSelectionModel();
+		if (getSelectedIndex() >= 0 && selectedRow >= 0)
+		{
+			if (!executeSelectionListeners(getSelectedRecords(), new IRecordInternal[] { getRecord(selectedRow) }))
+			{
+				return false;
+			}
+		}
 		selectionModel.setSelectedRow(selectedRow);
 		return true;
 
@@ -709,6 +737,13 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	public boolean setSelectedIndexes(int[] indexes)
 	{
 		if (selectionModel == null) createSelectionModel();
+		if (getSelectedIndex() >= 0)
+		{
+			if (!executeSelectionListeners(getSelectedRecords(), getRecords(indexes)))
+			{
+				return false;
+			}
+		}
 		selectionModel.setSelectedRows(indexes);
 		return true;
 
@@ -992,6 +1027,22 @@ public class MenuFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 			selectionModel = new AlwaysRowSelectedSelectionModel(this);
 			addListDataListener(selectionModel);
 		}
+	}
+
+	private MenuItemRecord[] getRecords(int[] indexes)
+	{
+		if (indexes == null) return new MenuItemRecord[0];
+		List<MenuItemRecord> selectedRecords = new ArrayList<MenuItemRecord>(indexes.length);
+		for (int index : indexes)
+		{
+			MenuItemRecord record = getRecord(index);
+			if (record != null)
+			{
+				selectedRecords.add(record);
+			}
+		}
+
+		return selectedRecords.toArray(new MenuItemRecord[selectedRecords.size()]);
 	}
 
 	private Map<String, Object> getMenuItemData(JSMenuItem item)

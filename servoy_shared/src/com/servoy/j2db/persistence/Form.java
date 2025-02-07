@@ -1251,6 +1251,36 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	}
 
 	/**
+	 * The method that is triggered each time before a record is selected. Should return true or false to validate the selection change.
+	 *
+	 * @sample
+	 * /**
+	 *  * Handle record selected.
+	 *  *
+	 *  * &#x40;param {Array<JSRecord<db:/example_data/orders>>} old selected records
+	 *  * &#x40;param {Array<JSRecord<db:/example_data/orders>>} new selected records
+	 *  * &#x40;param {JSEvent} event the event that triggered the action
+	 *  *
+	 *  * &#x40;properties={typeid:24,uuid:"5D614C43-89B3-41D5-941B-0C83CA4D3039"}
+	 *  *&#x2f;
+	 * function onBeforeRecordSelection(event) {
+	 *     return true;
+	 * }
+	 *
+	 * @templatedescription Validate record selection before is completed
+	 * @templatename onBeforeRecordSelection
+	 * @templateparam Array<JSRecord<${dataSource}>> old selection
+	 * @templateparam Array<JSRecord<${dataSource}>> new selection
+	 * @templateparam JSEvent event the event that triggered the action
+	 * @templateaddtodo
+	 */
+	@ServoyClientSupport(mc = true, wc = true, sc = true)
+	public int getOnBeforeRecordSelectionMethodID()
+	{
+		return getTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFORERECORDSELECTIONMETHODID).intValue();
+	}
+
+	/**
 	 * The method that is triggered EVERY TIME the form is displayed; an true argument will be passed to the method if this is the first time the form is displayed.<br/><br/>
 	 *
 	 * NOTE 1: onShow can be used to access current foundset dataproviders; onLoad cannot be used because the foundset data is not loaded until after the form is loaded.<br/>
@@ -1349,6 +1379,16 @@ public class Form extends AbstractContainer implements ITableDisplay, ISupportSc
 	public void setOnRecordSelectionMethodID(int arg)
 	{
 		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONRECORDSELECTIONMETHODID, arg);
+	}
+
+	/**
+	 * Set the onBeforeRecordSelectionMethodID.
+	 *
+	 * @param arg The onBeforeRecordSelectionMethodID to set
+	 */
+	public void setOnBeforeRecordSelectionMethodID(int arg)
+	{
+		setTypedProperty(StaticContentSpecLoader.PROPERTY_ONBEFORERECORDSELECTIONMETHODID, arg);
 	}
 
 	/**

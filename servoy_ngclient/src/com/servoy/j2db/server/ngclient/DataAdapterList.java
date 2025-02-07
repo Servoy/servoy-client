@@ -72,7 +72,6 @@ import com.servoy.j2db.server.ngclient.component.EventExecutor;
 import com.servoy.j2db.server.ngclient.property.DataproviderConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedConfig;
 import com.servoy.j2db.server.ngclient.property.FoundsetLinkedTypeSabloValue;
-import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.IDataLinkedPropertyValue;
 import com.servoy.j2db.server.ngclient.property.IFindModeAwarePropertyValue;
 import com.servoy.j2db.server.ngclient.property.types.DataproviderTypeSabloValue;
@@ -863,132 +862,142 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	public void pushChanges(WebFormComponent webComponent, String beanProperty, Object value, String foundsetLinkedRowID)
 	{
 		// TODO should this all (svy-apply/push) move to DataProviderType client/server side implementation instead of these specialized calls, instanceof checks and string parsing (see getProperty or getPropertyDescription)?
-
-		String dataProviderID = getDataProviderID(webComponent, beanProperty);
-		if (dataProviderID == null)
+		try
 		{
-			Debug.log(
-				"apply called on a property that is not bound to a dataprovider: " + beanProperty + ", value: " + value + " of component: " + webComponent);
-			return;
-		}
-
-		Object newValue = value;
-		// Check security
-		webComponent.checkThatPropertyAllowsUpdateFromClient(beanProperty);
-
-		IRecordInternal editingRecord = record;
-
-		if (newValue instanceof FoundsetLinkedTypeSabloValue)
-		{
-			if (foundsetLinkedRowID != null)
+			String dataProviderID = getDataProviderID(webComponent, beanProperty);
+			if (dataProviderID == null)
 			{
-				// find the row of the foundset that changed; we can't use client's index (as server-side indexes might have changed meanwhile on server); so we are doing it based on client sent rowID
-				editingRecord = getFoundsetLinkedRecord((FoundsetLinkedTypeSabloValue< ? , ? >)newValue, foundsetLinkedRowID);
-				if (editingRecord == null)
-				{
-					Debug.error("Error pushing data from client to server for foundset linked DP (cannot find record): dp=" + newValue + ", rowID=" +
-						foundsetLinkedRowID);
-					return;
-				}
-			} // hmm, this is strange - usually we should always get rowID, even if foundset linked is actually set by developer to a global or form variable - even though there rowID is not actually needed; just treat this as if it is not record linked
-			newValue = ((FoundsetLinkedTypeSabloValue)newValue).getWrappedValue();
-		}
-		if (newValue instanceof DataproviderTypeSabloValue) newValue = ((DataproviderTypeSabloValue)newValue).getValue();
+				Debug.log(
+					"apply called on a property that is not bound to a dataprovider: " + beanProperty + ", value: " + value + " of component: " + webComponent);
+				return;
+			}
 
-		if (editingRecord == null || editingRecord.startEditing() || editingRecord.getParentFoundSet().getColumnIndex(dataProviderID) == -1)
-		{
-			Object v;
-			// if the value is a map, then it means, that a set of related properties needs to be updated,
-			// ex. newValue = {"" : "image_data", "_filename": "pic.jpg", "_mimetype": "image/jpeg"}
-			// will update property with "image_data", property_filename with "pic.jpg" and property_mimetype with "image/jpeg"
-			if (newValue instanceof HashMap)
+			Object newValue = value;
+			// Check security
+			webComponent.checkThatPropertyAllowsUpdateFromClient(beanProperty);
+
+			IRecordInternal editingRecord = record;
+
+			if (newValue instanceof FoundsetLinkedTypeSabloValue)
 			{
-				v = ((HashMap< ? , ? >)newValue).get(""); // defining value
-				Iterator<Entry< ? , ? >> newValueIte = ((HashMap)newValue).entrySet().iterator();
-				while (newValueIte.hasNext())
+				if (foundsetLinkedRowID != null)
 				{
-					Entry< ? , ? > e = newValueIte.next();
-					if (!"".equals(e.getKey()))
+					// find the row of the foundset that changed; we can't use client's index (as server-side indexes might have changed meanwhile on server); so we are doing it based on client sent rowID
+					editingRecord = getFoundsetLinkedRecord((FoundsetLinkedTypeSabloValue< ? , ? >)newValue, foundsetLinkedRowID);
+					if (editingRecord == null)
 					{
+						Debug.error("Error pushing data from client to server for foundset linked DP (cannot find record): dp=" + newValue + ", rowID=" +
+							foundsetLinkedRowID);
+						return;
+					}
+				} // hmm, this is strange - usually we should always get rowID, even if foundset linked is actually set by developer to a global or form variable - even though there rowID is not actually needed; just treat this as if it is not record linked
+				newValue = ((FoundsetLinkedTypeSabloValue)newValue).getWrappedValue();
+			}
+			if (newValue instanceof DataproviderTypeSabloValue) newValue = ((DataproviderTypeSabloValue)newValue).getValue();
+
+			if (editingRecord == null || editingRecord.startEditing() || editingRecord.getParentFoundSet().getColumnIndex(dataProviderID) == -1)
+			{
+				Object v;
+				// if the value is a map, then it means, that a set of related properties needs to be updated,
+				// ex. newValue = {"" : "image_data", "_filename": "pic.jpg", "_mimetype": "image/jpeg"}
+				// will update property with "image_data", property_filename with "pic.jpg" and property_mimetype with "image/jpeg"
+				if (newValue instanceof HashMap)
+				{
+					v = ((HashMap< ? , ? >)newValue).get(""); // defining value
+					Iterator<Entry< ? , ? >> newValueIte = ((HashMap)newValue).entrySet().iterator();
+					while (newValueIte.hasNext())
+					{
+						Entry< ? , ? > e = newValueIte.next();
+						if (!"".equals(e.getKey()))
+						{
+							try
+							{
+								com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(editingRecord, formController.getFormScope(),
+									dataProviderID + e.getKey(), e.getValue());
+							}
+							catch (IllegalArgumentException ex)
+							{
+								Debug.trace(ex);
+								getApplication().handleException(null, new ApplicationException(ServoyException.INVALID_INPUT, ex));
+							}
+						}
+					}
+				}
+				else
+				{
+					v = newValue;
+				}
+				Object oldValue = null;
+				Exception setValueException = null;
+				try
+				{
+					oldValue = com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(editingRecord, formController.getFormScope(), dataProviderID, v);
+					if (value instanceof DataproviderTypeSabloValue) ((DataproviderTypeSabloValue)value).checkValueForChanges(editingRecord);
+				}
+				catch (IllegalArgumentException e)
+				{
+					Debug.trace(e);
+					getApplication().handleException(null, new ApplicationException(ServoyException.INVALID_INPUT, e));
+					setValueException = e;
+					webComponent.setInvalidState(true);
+				}
+				DataproviderConfig dataproviderConfig = getDataproviderConfig(webComponent, beanProperty);
+				String onDataChange = dataproviderConfig.getOnDataChange();
+
+				if (onDataChange != null)
+				{
+					JSONObject event = EventExecutor.createEvent(onDataChange, editingRecord.getParentFoundSet().getSelectedIndex());
+					event.put("data", createDataproviderInfo(editingRecord, formController.getFormScope(), dataProviderID));
+					Object returnValue = null;
+					Exception exception = null;
+					String onDataChangeCallback = null;
+					if (!Utils.equalObjects(oldValue, v) && setValueException == null && webComponent.hasEvent(onDataChange))
+					{
+						getApplication().getWebsocketSession().getClientService("$sabloLoadingIndicator").executeAsyncNowServiceCall("showLoading", null); //$NON-NLS-1$ //$NON-NLS-2$
 						try
 						{
-							com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(editingRecord, formController.getFormScope(),
-								dataProviderID + e.getKey(), e.getValue());
+							returnValue = webComponent.executeEvent(onDataChange, new Object[] { oldValue, v, event });
 						}
-						catch (IllegalArgumentException ex)
+						catch (Exception e)
 						{
-							Debug.trace(ex);
-							getApplication().handleException(null, new ApplicationException(ServoyException.INVALID_INPUT, ex));
+							Debug.error("Error during onDataChange webComponent=" + webComponent, e);
+							exception = e;
 						}
-					}
-				}
-			}
-			else
-			{
-				v = newValue;
-			}
-			Object oldValue = null;
-			Exception setValueException = null;
-			try
-			{
-				oldValue = com.servoy.j2db.dataprocessing.DataAdapterList.setValueObject(editingRecord, formController.getFormScope(), dataProviderID, v);
-				if (value instanceof DataproviderTypeSabloValue) ((DataproviderTypeSabloValue)value).checkValueForChanges(editingRecord);
-			}
-			catch (IllegalArgumentException e)
-			{
-				Debug.trace(e);
-				getApplication().handleException(null, new ApplicationException(ServoyException.INVALID_INPUT, e));
-				setValueException = e;
-				webComponent.setInvalidState(true);
-			}
-			DataproviderConfig dataproviderConfig = getDataproviderConfig(webComponent, beanProperty);
-			String onDataChange = dataproviderConfig.getOnDataChange();
+						finally
+						{
+							getApplication().getWebsocketSession().getClientService("$sabloLoadingIndicator").executeAsyncNowServiceCall("hideLoading", null); //$NON-NLS-1$ //$NON-NLS-2$
+						}
+						onDataChangeCallback = dataproviderConfig.getOnDataChangeCallback();
 
-			if (onDataChange != null)
-			{
-				JSONObject event = EventExecutor.createEvent(onDataChange, editingRecord.getParentFoundSet().getSelectedIndex());
-				event.put("data", createDataproviderInfo(editingRecord, formController.getFormScope(), dataProviderID));
-				Object returnValue = null;
-				Exception exception = null;
-				String onDataChangeCallback = null;
-				if (!Utils.equalObjects(oldValue, v) && setValueException == null && webComponent.hasEvent(onDataChange))
-				{
-					getApplication().getWebsocketSession().getClientService("$sabloLoadingIndicator").executeAsyncNowServiceCall("showLoading", null); //$NON-NLS-1$ //$NON-NLS-2$
-					try
+					}
+					else if (setValueException != null)
 					{
-						returnValue = webComponent.executeEvent(onDataChange, new Object[] { oldValue, v, event });
+						returnValue = setValueException.getMessage();
+						exception = setValueException;
+						onDataChangeCallback = dataproviderConfig.getOnDataChangeCallback();
+
 					}
-					catch (Exception e)
+					else if (webComponent.isInvalidState() && exception == null)
 					{
-						Debug.error("Error during onDataChange webComponent=" + webComponent, e);
-						exception = e;
+						onDataChangeCallback = dataproviderConfig.getOnDataChangeCallback();
+						webComponent.setInvalidState(false);
+
 					}
-					finally
+					if (onDataChangeCallback != null)
 					{
-						getApplication().getWebsocketSession().getClientService("$sabloLoadingIndicator").executeAsyncNowServiceCall("hideLoading", null); //$NON-NLS-1$ //$NON-NLS-2$
+						WebObjectApiFunctionDefinition call = createWebObjectFunction(onDataChangeCallback);
+						webComponent.invokeApi(call, new Object[] { event, returnValue, exception == null ? null : exception.getMessage() });
 					}
-					onDataChangeCallback = dataproviderConfig.getOnDataChangeCallback();
-
-				}
-				else if (setValueException != null)
-				{
-					returnValue = setValueException.getMessage();
-					exception = setValueException;
-					onDataChangeCallback = dataproviderConfig.getOnDataChangeCallback();
-
-				}
-				else if (webComponent.isInvalidState() && exception == null)
-				{
-					onDataChangeCallback = dataproviderConfig.getOnDataChangeCallback();
-					webComponent.setInvalidState(false);
-
-				}
-				if (onDataChangeCallback != null)
-				{
-					WebObjectApiFunctionDefinition call = createWebObjectFunction(onDataChangeCallback);
-					webComponent.invokeApi(call, new Object[] { event, returnValue, exception == null ? null : exception.getMessage() });
 				}
 			}
+		}
+		catch (IllegalChangeFromClientException e)
+		{
+			// we always want to print a warning in the log if a data push was denied
+			// due to form becomming hidden, even if it was hidden just milliseconds before
+			// the deny; we should know if real dataprovider data was discarded due to this...
+			e.setShouldPrintWarningToLog(true);
+			throw e;
 		}
 	}
 
@@ -1051,10 +1060,9 @@ public class DataAdapterList implements IModificationListener, ITagResolver, IDa
 	{
 		IRecordInternal recordForRowID = null;
 
-		Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(foundsetLinkedRowID);
-		int index = foundsetLinkedValue.getFoundset().getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
-
+		int index = foundsetLinkedValue.getFoundset().getRecordIndex(foundsetLinkedRowID, foundsetLinkedValue.getRecordIndexHint());
 		if (index >= 0) recordForRowID = foundsetLinkedValue.getFoundset().getRecord(index);
+
 		return recordForRowID;
 	}
 

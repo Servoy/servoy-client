@@ -16,11 +16,15 @@
 package com.servoy.j2db.server.ngclient.property.types;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONWriter;
 import org.sablo.specification.PropertyDescription;
+import org.sablo.specification.property.IBrowserConverterContext;
 import org.sablo.specification.property.types.ObjectPropertyType;
+import org.sablo.util.ValueReference;
 
 import com.servoy.j2db.server.ngclient.FormElementContext;
+import com.servoy.j2db.server.ngclient.property.FoundsetTypeSabloValue;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.FormElementToJSON;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions.IFormElementToTemplateJSON;
 
@@ -33,6 +37,18 @@ public class NGObjectPropertyType extends ObjectPropertyType implements IFormEle
 {
 
 	public final static NGObjectPropertyType NG_INSTANCE = new NGObjectPropertyType();
+
+	@Override
+	public Object fromJSON(Object newJSONValue, Object previousSabloValue, PropertyDescription propertyDescription, IBrowserConverterContext context,
+		ValueReference<Boolean> returnValueAdjustedIncommingValue)
+	{
+		if (newJSONValue instanceof JSONObject && ((JSONObject)newJSONValue).has(FoundsetTypeSabloValue.ROW_ID_COL_KEY))
+		{
+			return RecordPropertyType.INSTANCE.fromJSON(newJSONValue, null, propertyDescription, context, returnValueAdjustedIncommingValue);
+		}
+
+		return super.fromJSON(newJSONValue, previousSabloValue, propertyDescription, context, returnValueAdjustedIncommingValue);
+	}
 
 	@Override
 	public JSONWriter toTemplateJSONValue(JSONWriter writer, String key, Object formElementValue, PropertyDescription pd, FormElementContext formElementContext)

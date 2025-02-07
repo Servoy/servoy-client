@@ -18,10 +18,10 @@
 *  //menu.show(100, 100);
 * }
 * 
- * @param {JSMenu} [jsmenu] The JSMenu whose structure will be used to initialize the popup menu.
+ * @param {JSMenu} [menu] The JSMenu whose structure will be used to initialize the popup menu.
  * @param {Function} [callback] The menu item click handler that will be set on all popup menu items. The callback signature is: function(itemIndex:number, parentIndex: number, isSelected: boolean, parentMenu: String, menu: String)
  * 
- * @return {Popup}
+ * @return {CustomType<window.Popup>} A new popup menu instance, optionally initialized with the provided JSMenu structure and callback function.
  */
  function createPopupMenu(jsmenu, callback) {}
 
@@ -68,13 +68,15 @@
  * // choose your shortcuts carefully to make sure they work in all clients.
  * // 2) always use lower-case letters for modifiers (shift, control, etc.), otherwise createShortcut will fail.
  *
- * @param {String} shortcut
- * @param {String} methodName scopes.scopename.methodname or formname.methodname String to target the method to execute
- * @param {String} contextFilter form or element name ( ng only - specified by formName.elementName); only triggers the shortcut when on this form/element
- * @param arguments
- * @param {Boolean} consumeEvent if true then the shotcut will consume the event and the default browser behavior will not be executed (default false)
+ * @param {String} shortcut The keyboard shortcut combination (e.g., 'control shift I', 'F4', 'NUMPAD8') to trigger the action.
+ * @param {Function} callback scopes.scopename.methodname or formname.methodname String to target the method to execute
+ * @param {String} [contextFilter] Form or element name ( ng only - specified by formName.elementName); only triggers the shortcut when on this form/element
+ * @param {Array<Object>} [arguments] An optional array of arguments to pass to the method when the shortcut is executed.
+ * @param {Boolean} [consumeEvent] If true then the shotcut will consume the event and the default browser behavior will not be executed (default false)
+ * 
+ * @return {Boolean} True if the shortcut was successfully created; otherwise, false.
  */
-function createShortcut(shortcut, methodName, contextFilter, arguments, consumeEvent) {}
+function createShortcut(shortcut, callback, contextFilter, arguments, consumeEvent) {}
 
 
 
@@ -83,15 +85,17 @@ function createShortcut(shortcut, methodName, contextFilter, arguments, consumeE
  *
  * @exampleas js_createShortcut(String, String, String, Object[],boolean)
  *
- * @param {String} shortcut
+ * @param {String} shortcut The keyboard shortcut combination to be removed.
  */
 function removeShortcut(shortcut) {}
 
 /**
  * @clonedesc js_removeShortcut(String)
  * @exampleas js_removeShortcut(String)
- * @param {String} shortcut
- * @param {String} contextFilter form or element name ( ng only - specified by formName.elementName); only triggers the shortcut when on this form/element
+ * @param {String} shortcut The keyboard shortcut combination to be removed.
+ * @param {String} [contextFilter] form or element name ( ng only - specified by formName.elementName); only triggers the shortcut when on this form/element
+ * 
+ * @return {Boolean} True if the shortcut was successfully removed; otherwise, false.
  */
 function removeShortcut(shortcut, contextFilter) {}
 
@@ -107,19 +111,19 @@ function removeShortcut(shortcut, contextFilter) {}
  * //
  * // function onClose(event) {application.output("Popup closed");}
  *
- * @param {RuntimeComponent} elementToShowRelatedTo element to show related to or null to center in screen
- * @param {RuntimeForm} form the form to show
+ * @param {Runtimecomponent} component Element to show related to or null to center in screen
+ * @param {Form} form the form to show
  * @param {Object} scope the scope to put retval into
- * @param {String} dataproviderID the dataprovider of scope to fill
- * @param {Number} width popup width
- * @param {Number} height popup height
- * @param {Number} x popup x location
- * @param {Number} y popup y location
- * @param {Boolean} showBackdrop whatever to show a dimmed backdrop under the popup
- * @param {Boolean} doNotCloseOnClickOutside whether to close on not close the popup on clicking outside
- * @param {Function} onClose a callback function that is being triggered once the formpopup window is being closed
+ * @param {String} dataProviderID the dataprovider of scope to fill
+ * @param {Number} [width] popup width
+ * @param {Number} [height] popup height
+ * @param {Number} [x] popup x location
+ * @param {Number} [y] popup y location
+ * @param {Boolean} [showBackdrop] whatever to show a dimmed backdrop under the popup
+ * @param {Boolean} [doNotCloseOnClickOutside] whether to close on not close the popup on clicking outside
+ * @param {Function} [onClose] a callback function that is being triggered once the formpopup window is being closed
  */
-function showFormPopup(elementToShowRelatedTo, form, scope, dataproviderID, width, height, x, y,
+function showFormPopup(component, form, scope, dataproviderID, width, height, x, y,
     showBackdrop, doNotCloseOnClickOutside, onClose) {}
 
 /**
@@ -128,9 +132,9 @@ function showFormPopup(elementToShowRelatedTo, form, scope, dataproviderID, widt
  * @example
  * plugins.window.createFormPopup(forms.orderPicker).show();
  *
- * @param {form} form the form to show
+ * @param {Form} form The form to show
  *
- * @return {FormPopup} FormPopup
+ * @return {CustomType<window.FormPopup>} A FormPopup instance that can be populated with data and displayed.
  */
 function createFormPopup(form) {}
 
@@ -141,9 +145,9 @@ function createFormPopup(form) {}
  * @example
  * plugins.window.getFormPopup(forms.orderPicker)
  *
- * @param {RuntimeForm} form
+ * @param {Form} form The form instance to be used in the popup.
  * 
- * @return {FormPopup}
+ * @return {CustomType<window.FormPopup>} A FormPopup instance containing the specified form, or null if the popup could not be created.
  */
 function getFormPopup(form) {}
 
@@ -157,7 +161,7 @@ function getFormPopup(form) {}
  * //
  * // function onClose(event) {application.output("Popup closed");}
  *
- * @param {Object} [retval] return value for data provider
+ *  @param {Object} retval Return value for data provider
  */
 function closeFormPopup(retval) {}
 

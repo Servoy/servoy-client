@@ -109,6 +109,8 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 		}).collect(Collectors.toMap(data -> (String)data[0], data -> (PropertyDescription)data[1]))).build();
 	// @formatter:on
 
+	private static final long REASONABLE_IGNORE_MSGS_FROM_CLIENT_AFTER_HIDE_INTERVAL = 3000;
+
 	private final IWebFormController formController;
 
 	private Object parentContainerOrWindowName;
@@ -121,6 +123,7 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	private Map<String, RuntimeWebGroup> groups;
 	private Map<WebFormComponent, FormComponentCache> fcc;
 	private int changing = 0;
+	private long lastHideTimestampMs = 0;
 
 	public WebFormUI(IWebFormController formController)
 	{
@@ -693,6 +696,36 @@ public class WebFormUI extends Container implements IWebFormUI, IContextProvider
 	public void setComponentVisible(boolean visible)
 	{
 		setVisible(visible);
+	}
+
+	@Override
+	public boolean setProperty(String propertyName, Object propertyValue)
+	{
+		if ("visible".equals(propertyName))
+		{
+			Object oldPropertyValue = getProperty("visible");
+			boolean oldVisible = oldPropertyValue instanceof Boolean ? ((Boolean)oldPropertyValue).booleanValue() : false;
+
+			boolean dirty = super.setProperty(propertyName, propertyValue);
+
+			boolean newVisible = (propertyValue instanceof Boolean ? ((Boolean)propertyValue).booleanValue() : false);
+			if (!newVisible && oldVisible)
+				lastHideTimestampMs = System.currentTimeMillis();
+			return dirty;
+		}
+		else return super.setProperty(propertyName, propertyValue);
+	}
+
+	@Override
+	protected boolean shouldPrintWarningMessageOnIllegalChangeFromClient(String nameOfPropertyThatBlocksTheClientSentChange)
+	{
+		// for example if on a textfield I set onDataChange handler and onFocusLost handler, but in onDataChange I show another main form
+		// then the onFocusLost which was already sent by client will arrive on server when the form was already hidden; we want
+		// to silently ignore that instead of generating an warning message in the log file
+		if ("visible".equals(nameOfPropertyThatBlocksTheClientSentChange))
+			return (System.currentTimeMillis() - lastHideTimestampMs) > REASONABLE_IGNORE_MSGS_FROM_CLIENT_AFTER_HIDE_INTERVAL;
+
+		return true;
 	}
 
 	@Override

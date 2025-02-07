@@ -52,7 +52,6 @@ import com.servoy.j2db.server.ngclient.property.types.IDataLinkedType.TargetData
 import com.servoy.j2db.server.ngclient.property.types.ISupportTemplateValue;
 import com.servoy.j2db.server.ngclient.property.types.NGConversions;
 import com.servoy.j2db.util.Debug;
-import com.servoy.j2db.util.Pair;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -205,6 +204,19 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 			return (FoundsetTypeSabloValue)webObjectContext.getProperty(forFoundsetPropertyName);
 		}
 		return null;
+	}
+
+	public int getRecordIndexHint()
+	{
+		if (webObjectContext != null)
+		{
+			Object property = webObjectContext.getProperty(forFoundsetPropertyName);
+			if (property instanceof FoundsetTypeSabloValue)
+			{
+				return ((FoundsetTypeSabloValue)property).getRecordIndexHint();
+			}
+		}
+		return 0; // we no longer send index hint to client; if we don't have a FoundsetTypeSabloValue use 0 as hint, but this should not happen
 	}
 
 	public IFoundSetInternal getFoundset()
@@ -750,11 +762,9 @@ public class FoundsetLinkedTypeSabloValue<YF, YT> implements IDataLinkedProperty
 	{
 		IFoundSetInternal foundset = foundsetPropertyValue.getFoundset();
 
-		Pair<String, Integer> splitHashAndIndex = FoundsetTypeSabloValue.splitPKHashAndIndex(rowIDValue);
-
 		if (foundset != null)
 		{
-			int recordIndex = foundset.getRecordIndex(splitHashAndIndex.getLeft(), splitHashAndIndex.getRight().intValue());
+			int recordIndex = foundset.getRecordIndex(rowIDValue, foundsetPropertyValue.getRecordIndexHint());
 
 			if (recordIndex != -1)
 			{

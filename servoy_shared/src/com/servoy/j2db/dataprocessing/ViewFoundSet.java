@@ -242,6 +242,7 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	private final IFoundSetManagerInternal manager;
 
 	private final List<IFoundSetEventListener> foundSetEventListeners = new ArrayList<>(3);
+	private final List<ISelectionChangeListener> selectionChangeListeners = new ArrayList<ISelectionChangeListener>();
 	// this is just a list to keep hard references to the RowListeners we give the RowManager (that is kept weak in there)
 	private final List<IRowListener> rowListeners = new ArrayList<>(3);
 
@@ -519,6 +520,37 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 		{
 			foundSetEventListeners.remove(l);
 		}
+	}
+
+	public void addSelectionChangeListener(ISelectionChangeListener l)
+	{
+		synchronized (selectionChangeListeners)
+		{
+			if (!selectionChangeListeners.contains(l))
+			{
+				selectionChangeListeners.add(l);
+			}
+		}
+	}
+
+	public void removeSelectionChangeListener(ISelectionChangeListener l)
+	{
+		synchronized (selectionChangeListeners)
+		{
+			selectionChangeListeners.remove(l);
+		}
+	}
+
+	private boolean executeSelectionListeners(IRecordInternal[] oldSelection, IRecordInternal[] newSelection)
+	{
+		for (ISelectionChangeListener listener : selectionChangeListeners)
+		{
+			if (!listener.selectionChange(oldSelection, newSelection))
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override
@@ -1186,6 +1218,13 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	public boolean setSelectedIndex(int selectedRow)
 	{
 		if (selectionModel == null) createSelectionModel();
+		if (getSelectedIndex() >= 0 && selectedRow >= 0)
+		{
+			if (!executeSelectionListeners(getSelectedRecords(), new IRecordInternal[] { getRecord(selectedRow) }))
+			{
+				return false;
+			}
+		}
 		selectionModel.setSelectedRow(selectedRow);
 		return true;
 	}
@@ -1271,6 +1310,13 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	public boolean setSelectedIndexes(int[] indexes)
 	{
 		if (selectionModel == null) createSelectionModel();
+		if (getSelectedIndex() >= 0)
+		{
+			if (!executeSelectionListeners(getSelectedRecords(), getRecords(indexes)))
+			{
+				return false;
+			}
+		}
 		selectionModel.setSelectedRows(indexes);
 		return true;
 	}
@@ -1303,9 +1349,14 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 	@JSFunction
 	public ViewRecord[] getSelectedRecords()
 	{
-		int[] selectedIndexes = getSelectedIndexes();
-		List<ViewRecord> selectedRecords = new ArrayList<ViewRecord>(selectedIndexes.length);
-		for (int index : selectedIndexes)
+		return getRecords(getSelectedIndexes());
+	}
+
+	private ViewRecord[] getRecords(int[] indexes)
+	{
+		if (indexes == null) return new ViewRecord[0];
+		List<ViewRecord> selectedRecords = new ArrayList<ViewRecord>(indexes.length);
+		for (int index : indexes)
 		{
 			ViewRecord record = getRecord(index);
 			if (record != null)
@@ -1316,7 +1367,6 @@ public class ViewFoundSet extends AbstractTableModel implements ISwingFoundSet, 
 
 		return selectedRecords.toArray(new ViewRecord[selectedRecords.size()]);
 	}
-
 
 	@Override
 	public String getSort()

@@ -182,6 +182,7 @@ public abstract class FoundSet
 	protected boolean findMode = false;
 	protected List<IFoundSetEventListener> foundSetEventListeners = new ArrayList<IFoundSetEventListener>();
 	private List<IModificationListener> aggregateModificationListeners = new ArrayList<IModificationListener>();
+	private final List<ISelectionChangeListener> selectionChangeListeners = new ArrayList<ISelectionChangeListener>();
 
 	private String serializedQuery;
 
@@ -6184,11 +6185,15 @@ public abstract class FoundSet
 	{
 		try
 		{
-			if (getSelectedIndex() >= 0 && i >= 0 &&
-				fsm.hasFoundsetTrigger(getDataSource(), StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID))
+			if (getSelectedIndex() >= 0 && i >= 0)
 			{
-				return executeFoundsetTriggerBreakOnFalse(new Object[] { getSelectedRecord(), getRecord(i) },
-					StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID, false);
+				if (fsm.hasFoundsetTrigger(getDataSource(), StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID) &&
+					!executeFoundsetTriggerBreakOnFalse(new Object[] { getSelectedRecord(), getRecord(i) },
+						StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID, false))
+				{
+					return false;
+				}
+				return executeSelectionListeners(new IRecordInternal[] { getRecord(getSelectedIndex()) }, new IRecordInternal[] { getRecord(i) });
 			}
 		}
 		catch (ServoyException e)
@@ -6203,17 +6208,36 @@ public abstract class FoundSet
 	{
 		try
 		{
-			if (getSelectedIndex() >= 0 && fsm.hasFoundsetTrigger(getDataSource(), StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID))
+			if (getSelectedIndex() >= 0)
 			{
-				return executeFoundsetTriggerBreakOnFalse(
-					new Object[] { getSelectedRecords(), indexes != null ? Arrays.stream(indexes).mapToObj(index -> getRecord(index)).toArray() : null },
-					StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID, false);
+				if (fsm.hasFoundsetTrigger(getDataSource(), StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID) &&
+					!executeFoundsetTriggerBreakOnFalse(
+						new Object[] { getSelectedRecords(), indexes != null ? Arrays.stream(indexes).mapToObj(index -> getRecord(index)).toArray() : null },
+						StaticContentSpecLoader.PROPERTY_ONFOUNDSETBEFORESELECTIONCHANGEMETHODID, false))
+				{
+					return false;
+				}
+				return executeSelectionListeners(
+					Arrays.stream(getSelectedIndexes()).mapToObj(index -> getRecord(index)).toArray(size -> new IRecordInternal[size]),
+					indexes != null ? Arrays.stream(indexes).mapToObj(index -> getRecord(index)).toArray(size -> new IRecordInternal[size]) : null);
 			}
 		}
 		catch (ServoyException e)
 		{
 			Debug.error(e);
 			return false;
+		}
+		return true;
+	}
+
+	private boolean executeSelectionListeners(IRecordInternal[] oldSelection, IRecordInternal[] newSelection)
+	{
+		for (ISelectionChangeListener listener : selectionChangeListeners)
+		{
+			if (!listener.selectionChange(oldSelection, newSelection))
+			{
+				return false;
+			}
 		}
 		return true;
 	}
@@ -7676,6 +7700,25 @@ public abstract class FoundSet
 		synchronized (aggregateModificationListeners)
 		{
 			aggregateModificationListeners.remove(l);
+		}
+	}
+
+	public void addSelectionChangeListener(ISelectionChangeListener l)
+	{
+		synchronized (selectionChangeListeners)
+		{
+			if (!selectionChangeListeners.contains(l))
+			{
+				selectionChangeListeners.add(l);
+			}
+		}
+	}
+
+	public void removeSelectionChangeListener(ISelectionChangeListener l)
+	{
+		synchronized (selectionChangeListeners)
+		{
+			selectionChangeListeners.remove(l);
 		}
 	}
 

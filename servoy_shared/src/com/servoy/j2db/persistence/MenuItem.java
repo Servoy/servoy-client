@@ -57,6 +57,8 @@ public class MenuItem extends AbstractBase implements ISupportUpdateableName, IC
 	public static final int VIEWABLE = 1;
 	public static final int ENABLED = 2;
 
+	private static String PROPERTY_VALUES = "propertyValues";
+
 	/**
 	 * Constructor I
 	 */
@@ -220,6 +222,34 @@ public class MenuItem extends AbstractBase implements ISupportUpdateableName, IC
 
 		addChild(obj);
 		return obj;
+	}
+
+	public Object putCustomPropertyValue(String name, Object value)
+	{
+		if (name != null)
+		{
+			return putCustomProperty(new String[] { PROPERTY_VALUES, name }, value);
+		}
+		return null;
+	}
+
+	public Object getCustomPropertyValue(String name)
+	{
+		if (name != null)
+		{
+			return getCustomProperty(new String[] { PROPERTY_VALUES, name });
+		}
+		return null;
+	}
+
+	public Map<String, Object> getCustomPropertiesValues()
+	{
+		Map<String, Object> map = (Map<String, Object>)getCustomProperty(new String[] { PROPERTY_VALUES });
+		if (map == null || map.size() == 0)
+		{
+			return new HashMap<String, Object>();
+		}
+		return map;
 	}
 
 	@Override

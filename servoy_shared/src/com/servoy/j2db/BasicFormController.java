@@ -58,6 +58,7 @@ import com.servoy.j2db.dataprocessing.IFoundSetInternal;
 import com.servoy.j2db.dataprocessing.IFoundSetListener;
 import com.servoy.j2db.dataprocessing.IRecordInternal;
 import com.servoy.j2db.dataprocessing.ISaveConstants;
+import com.servoy.j2db.dataprocessing.ISelectionChangeListener;
 import com.servoy.j2db.dataprocessing.ISwingFoundSet;
 import com.servoy.j2db.dataprocessing.JSDataSet;
 import com.servoy.j2db.dataprocessing.RelatedFoundSet;
@@ -124,7 +125,7 @@ import com.servoy.j2db.util.Utils;
  *
  */
 public abstract class BasicFormController
-	implements IFoundSetListener, IFoundSetEventListener, IFormController, ListSelectionListener, TableModelListener, IPrepareForSave
+	implements IFoundSetListener, IFoundSetEventListener, IFormController, ListSelectionListener, TableModelListener, IPrepareForSave, ISelectionChangeListener
 {
 	private static final int PIN_VISIBLE = 1; // 1 is higher prio then 2
 	private static final int PIN_HIDDEN = 2;
@@ -206,6 +207,7 @@ public abstract class BasicFormController
 					((ISwingFoundSet)formModel).getSelectionModel().removeListSelectionListener(this);
 					((ISwingFoundSet)formModel).getSelectionModel().removeFormController(this);
 					((ISwingFoundSet)formModel).removeTableModelListener(this);
+					((ISwingFoundSet)formModel).removeSelectionChangeListener(this);
 					if (formModel instanceof FoundSet) ((FoundSet)formModel).flushAllCachedItems();//to make sure all data is gc'ed
 				}
 				catch (Exception ex)
@@ -229,6 +231,7 @@ public abstract class BasicFormController
 				((ISwingFoundSet)formModel).getSelectionModel().addListSelectionListener(this);
 				((ISwingFoundSet)formModel).getSelectionModel().addFormController(this);
 				((ISwingFoundSet)formModel).addTableModelListener(this);
+				((ISwingFoundSet)formModel).addSelectionChangeListener(this);
 				if (view != null) //it may not yet exist
 				{
 					view.setModel(formModel);
@@ -358,6 +361,7 @@ public abstract class BasicFormController
 			((ISwingFoundSet)formModel).getSelectionModel().addListSelectionListener(this);
 			((ISwingFoundSet)formModel).getSelectionModel().addFormController(this);
 			((ISwingFoundSet)formModel).addTableModelListener(this);
+			((ISwingFoundSet)formModel).addSelectionChangeListener(this);
 			if (view != null)
 			{
 				view.setModel(formModel);
@@ -452,6 +456,7 @@ public abstract class BasicFormController
 				((ISwingFoundSet)formModel).getSelectionModel().removeListSelectionListener(this);
 				((ISwingFoundSet)formModel).getSelectionModel().removeFormController(this);
 				((ISwingFoundSet)formModel).removeTableModelListener(this);
+				((ISwingFoundSet)formModel).removeSelectionChangeListener(this);
 			}
 
 			if (view != null)
@@ -479,6 +484,15 @@ public abstract class BasicFormController
 		//		{
 		valueChanged(null);//fire value chance because selection does not fire
 		//		}
+	}
+
+	@Override
+	public boolean selectionChange(IRecordInternal[] oldSelection, IRecordInternal[] newSelection)
+	{
+		return !Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONBEFORERECORDSELECTIONMETHODID,
+			new Object[] { oldSelection, newSelection, getJSEvent(formScope,
+				RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONBEFORERECORDSELECTIONMETHODID.getPropertyName(), Form.class)) },
+			Boolean.TRUE, false, true));
 	}
 
 	public void valueChanged(ListSelectionEvent e)
@@ -1201,6 +1215,7 @@ public abstract class BasicFormController
 			((ISwingFoundSet)formModel).getSelectionModel().removeFormController(this);
 			//			formModel.removeEditListener(this);
 			((ISwingFoundSet)formModel).removeTableModelListener(this);
+			((ISwingFoundSet)formModel).removeSelectionChangeListener(this);
 			if (formModel instanceof FoundSet) ((FoundSet)formModel).flushAllCachedItems();//to make sure all data is gc'ed
 		}
 		setFormModelInternal(null);

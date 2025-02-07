@@ -50,6 +50,7 @@ import com.servoy.j2db.util.IDelegate;
 import com.servoy.j2db.util.ObjectKey;
 import com.servoy.j2db.util.ScopesUtils;
 import com.servoy.j2db.util.ServoyException;
+import com.servoy.j2db.util.UUID;
 import com.servoy.j2db.util.Utils;
 
 /**
@@ -66,6 +67,9 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 	private final Map<String, IFoundSetInternal> relatedStates;
 
 	private List<String> relatedFoundsetErrorReported;
+
+	private String pk = null;
+	private String pkHashKey = null;
 
 	/**
 	 * Constructor
@@ -638,12 +642,23 @@ public class FindState implements Scriptable, IRecordInternal, Serializable, IJS
 
 	public String getPKHashKey()
 	{
-		return ""; //$NON-NLS-1$
+		createPkAndHashIfNeeded();
+		return pkHashKey;
 	}
 
 	public Object[] getPK()
 	{
-		return null;
+		createPkAndHashIfNeeded();
+		return new Object[] { pk };
+	}
+
+	private void createPkAndHashIfNeeded()
+	{
+		if (pk == null)
+		{
+			pk = UUID.randomUUID().toString();
+			pkHashKey = RowManager.createPKHashKey(getPK());
+		}
 	}
 
 	/**
