@@ -502,7 +502,21 @@ public class CloudStatelessAccessManager
 				StatelessLoginHandler.writeLoginPage(request, response, solution.getName(), html); //TODO refactor
 				return;
 			}
-			HTMLWriter.writeHTML(request, response, html);
+			if (html != null)
+			{
+				ContentSecurityPolicyConfig contentSecurityPolicyConfig = CloudStatelessAccessManager.addcontentSecurityPolicyHeader(request, response);
+				String contentSecurityPolicyNonce = contentSecurityPolicyConfig.getNonce();
+				if (contentSecurityPolicyNonce != null)
+				{
+					html = html.replace("<script ", "<script nonce='" + contentSecurityPolicyNonce + '\'');
+					html = html.replace("<style", "<style nonce='" + contentSecurityPolicyNonce + '\'');
+				}
+				HTMLWriter.writeHTML(request, response, html);
+			}
+			else
+			{
+				log.error("The cloud did not return html.");
+			}
 		}
 
 	}
