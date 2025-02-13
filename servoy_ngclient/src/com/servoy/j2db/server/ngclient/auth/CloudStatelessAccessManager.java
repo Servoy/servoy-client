@@ -17,8 +17,6 @@
 
 package com.servoy.j2db.server.ngclient.auth;
 
-import static com.servoy.j2db.server.ngclient.AngularIndexPageWriter.addcontentSecurityPolicyHeader;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -471,7 +470,7 @@ public class CloudStatelessAccessManager
 
 					String indexHtml = index instanceof File file ? FileUtils.readFileToString(file, "UTF-8") : (String)index;
 
-					ContentSecurityPolicyConfig contentSecurityPolicyConfig = addcontentSecurityPolicyHeader(request, response, false); // for NG2 remove the unsafe-eval
+					ContentSecurityPolicyConfig contentSecurityPolicyConfig = AngularIndexPageWriter.addcontentSecurityPolicyHeader(request, response, false); // for NG2 remove the unsafe-eval
 					AngularIndexPageWriter.writeIndexPage(indexHtml, request, response, solution.getName(),
 						contentSecurityPolicyConfig == null ? null : contentSecurityPolicyConfig.getNonce());
 					return;
@@ -682,5 +681,26 @@ public class CloudStatelessAccessManager
 			}
 		}
 		return loginHtml;
+	}
+
+	public static ContentSecurityPolicyConfig addcontentSecurityPolicyHeader(HttpServletRequest request, HttpServletResponse response)
+	{
+		ContentSecurityPolicyConfig contentSecurityPolicyConfig = AngularIndexPageWriter.getContentSecurityPolicyConfig(request);
+		if (contentSecurityPolicyConfig != null)
+		{
+			String val = contentSecurityPolicyConfig.getDirectives().entrySet().stream()
+				.map(entry -> {
+					String key = entry.getKey();
+					String value = entry.getValue();
+					if ("script-src".equals(key) || "style-src".equals(key))
+					{
+						value += " " + BASE_CLOUD_URL;
+					}
+					return key + ' ' + value;
+				})
+				.collect(Collectors.joining("; "));
+			response.addHeader("Content-Security-Policy", val);
+		}
+		return contentSecurityPolicyConfig;
 	}
 }

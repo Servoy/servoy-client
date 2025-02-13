@@ -410,7 +410,7 @@ public class AngularIndexPageWriter
 	 *
 	 * Only when configured and when the browser is a modern browser that supports Content-Security-Policy level 3.
 	 */
-	private static ContentSecurityPolicyConfig getContentSecurityPolicyConfig(HttpServletRequest request)
+	public static ContentSecurityPolicyConfig getContentSecurityPolicyConfig(HttpServletRequest request)
 	{
 		Settings settings = Settings.getInstance();
 		if (!getAsBoolean(settings.getProperty("servoy.ngclient.setContentSecurityPolicyHeader", "true")))

@@ -33,6 +33,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.collections4.map.PassiveExpiringMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.text.StringEscapeUtils;
+import org.sablo.security.ContentSecurityPolicyConfig;
 import org.sablo.util.HTTPUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -250,6 +251,7 @@ public class StatelessLoginHandler
 			return;
 		}
 
+		ContentSecurityPolicyConfig contentSecurityPolicyConfig = null;
 		String loginHtml = null;
 		if (solution != null && solution.getAuthenticator() == AUTHENTICATOR_TYPE.SERVOY_CLOUD)
 		{
@@ -261,7 +263,12 @@ public class StatelessLoginHandler
 			else
 			{
 				loginHtml = CloudStatelessAccessManager.getCloudLoginPage(request, solution, loginHtml);
+				contentSecurityPolicyConfig = CloudStatelessAccessManager.addcontentSecurityPolicyHeader(request, response);
 			}
+		}
+		else
+		{
+			contentSecurityPolicyConfig = AngularIndexPageWriter.addcontentSecurityPolicyHeader(request, response, false);
 		}
 		if (solution != null && loginHtml == null)
 		{
@@ -343,6 +350,13 @@ public class StatelessLoginHandler
 		if (requestLanguage != null)
 		{
 			loginHtml = loginHtml.replace("lang=\"en\"", "lang=\"" + request.getLocale().getLanguage() + "\"");
+		}
+
+		String contentSecurityPolicyNonce = contentSecurityPolicyConfig.getNonce();
+		if (contentSecurityPolicyNonce != null)
+		{
+			loginHtml = loginHtml.replace("<script ", "<script nonce='" + contentSecurityPolicyNonce + '\'');
+			loginHtml = loginHtml.replace("<style", "<style nonce='" + contentSecurityPolicyNonce + '\'');
 		}
 
 		response.setCharacterEncoding("UTF-8");
