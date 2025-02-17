@@ -505,7 +505,7 @@ public class CloudStatelessAccessManager
 			if (html != null)
 			{
 				ContentSecurityPolicyConfig contentSecurityPolicyConfig = CloudStatelessAccessManager.addcontentSecurityPolicyHeader(request, response);
-				String contentSecurityPolicyNonce = contentSecurityPolicyConfig.getNonce();
+				String contentSecurityPolicyNonce = contentSecurityPolicyConfig != null ? contentSecurityPolicyConfig.getNonce() : null;
 				if (contentSecurityPolicyNonce != null)
 				{
 					html = html.replace("<script ", "<script nonce='" + contentSecurityPolicyNonce + '\'');

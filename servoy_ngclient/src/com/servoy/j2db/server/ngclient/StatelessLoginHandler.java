@@ -352,7 +352,7 @@ public class StatelessLoginHandler
 			loginHtml = loginHtml.replace("lang=\"en\"", "lang=\"" + request.getLocale().getLanguage() + "\"");
 		}
 
-		String contentSecurityPolicyNonce = contentSecurityPolicyConfig.getNonce();
+		String contentSecurityPolicyNonce = contentSecurityPolicyConfig != null ? contentSecurityPolicyConfig.getNonce() : null;
 		if (contentSecurityPolicyNonce != null)
 		{
 			loginHtml = loginHtml.replace("<script ", "<script nonce='" + contentSecurityPolicyNonce + '\'');
