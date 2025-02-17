@@ -31,6 +31,8 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.json.JSONObject;
+
 import com.servoy.base.scripting.annotations.ServoyClientSupport;
 import com.servoy.base.util.DataSourceUtilsBase;
 import com.servoy.j2db.documentation.ServoyDocumented;
@@ -1028,7 +1030,7 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 	}
 	/*------------------------------------------------------------------------------------------------------------------------
 	 * LISTENERS
-	
+
 	public void iPersistChanged(IPersist persist)
 	{
 		getChangeHandler().fireIPersistChanged(persist);
@@ -1664,6 +1666,20 @@ public class Solution extends AbstractRootObject implements ISupportChilds, IClo
 		return getTypedProperty(StaticContentSpecLoader.PROPERTY_VERSION);
 	}
 
+
+	public void setEventTypes(JSONObject eventTypes)
+	{
+		this.setTypedProperty(StaticContentSpecLoader.PROPERTY_EVENTTYPES, eventTypes);
+	}
+
+	/**
+	 * These are the event types of the solution that can be added/fired/removed from application object.These event types are added on top of default form events.
+	 */
+	@ServoyClientSupport(ng = true, mc = true, wc = true, sc = true)
+	public JSONObject getEventTypes()
+	{
+		return this.getTypedProperty(StaticContentSpecLoader.PROPERTY_EVENTTYPES);
+	}
 
 	@Override
 	public int compareTo(Solution o)

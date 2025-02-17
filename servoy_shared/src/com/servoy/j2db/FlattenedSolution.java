@@ -115,6 +115,7 @@ import com.servoy.j2db.query.QueryColumn;
 import com.servoy.j2db.query.QueryCompositeJoin;
 import com.servoy.j2db.query.QueryJoin;
 import com.servoy.j2db.query.QueryTable;
+import com.servoy.j2db.scripting.info.EventType;
 import com.servoy.j2db.util.Debug;
 import com.servoy.j2db.util.IteratorChain;
 import com.servoy.j2db.util.Pair;
@@ -167,6 +168,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 	private VariantsHandler variantsHandler;
 
 	private EncryptionHandler encryptionHandler;
+	private Map<String, EventType> eventTypes;
 
 	/**
 	 * @param cacheFlattenedForms turn flattened form caching on when flushFlattenedFormCache() will also be called.
@@ -800,6 +802,7 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			index.destroy();
 			index = null;
 		}
+		buildEventTypesList();
 	}
 
 	/**
@@ -1916,6 +1919,10 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 				form.setExtendsForm(null);
 			}
 		}
+		if (persist instanceof Solution)
+		{
+			buildEventTypesList();
+		}
 	}
 
 	public void itemChanged(Collection<IPersist> persists)
@@ -3003,6 +3010,45 @@ public class FlattenedSolution implements IItemChangeListener<IPersist>, IDataPr
 			}
 		}
 
+	}
+
+	public Collection<EventType> getEventTypes()
+	{
+		if (eventTypes != null)
+		{
+			return eventTypes.values();
+		}
+		return Collections.emptyList();
+	}
+
+	public EventType getEventType(String name)
+	{
+		if (eventTypes != null)
+		{
+			return eventTypes.get(name);
+		}
+		return null;
+	}
+
+	private void buildEventTypesList()
+	{
+		eventTypes = new HashMap<String, EventType>();
+		Arrays.stream(EventType.DEFAULT_EVENTS).map(name -> new EventType(name)).forEach(eventType -> eventTypes.put(eventType.getDisplayName(), eventType));
+
+		if (mainSolution != null && mainSolution.getEventTypes() != null)
+		{
+			mainSolution.getEventTypes().keySet().stream().forEach(name -> eventTypes.put(name, new EventType(name)));
+		}
+		if (modules != null)
+		{
+			for (Solution solution : modules)
+			{
+				if (solution.getEventTypes() != null)
+				{
+					solution.getEventTypes().keySet().stream().forEach(name -> eventTypes.put(name, new EventType(name)));
+				}
+			}
+		}
 	}
 
 	private String designFormName = null;

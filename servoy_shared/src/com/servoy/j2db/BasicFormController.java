@@ -664,28 +664,25 @@ public abstract class BasicFormController
 		if (!didOnload)
 		{
 			didOnload = true;
-			if (form.getOnLoadMethodID() > 0)
+			// Set this boolean on true while executing the onload so that
+			// an onload method won't trigger the notify visible before it is finished itself.
+			executingOnLoad = true;
+			try
 			{
-				// Set this boolean on true while executing the onload so that
-				// an onload method won't trigger the notify visible before it is finished itself.
-				executingOnLoad = true;
-				try
-				{
-					Object[] args = new Object[] { getJSEvent(formScope,
-						RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID.getPropertyName(), Form.class)) };
-					executeFormMethod(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID, args, Boolean.FALSE, true, false /* foundset is not yet initialized */);
-				}
-				finally
-				{
-					executingOnLoad = false;
-				}
+				Object[] args = new Object[] { getJSEvent(formScope,
+					RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID.getPropertyName(), Form.class)) };
+				executeFormMethod(StaticContentSpecLoader.PROPERTY_ONLOADMETHODID, args, Boolean.FALSE, true, false /* foundset is not yet initialized */);
+			}
+			finally
+			{
+				executingOnLoad = false;
 			}
 		}
 	}
 
 	private void executeOnShowMethod()
 	{
-		if (!executingOnLoad && form.getOnShowMethodID() > 0)
+		if (!executingOnLoad)
 		{
 			Object[] args = new Object[] { Boolean.valueOf(!didOnShowOnce), getJSEvent(formScope,
 				RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONSHOWMETHODID.getPropertyName(), Form.class)) };//isFirstTime
@@ -715,12 +712,11 @@ public abstract class BasicFormController
 			if (canHide)
 			{
 				// if we can still hide, call the solution onBeforeHide (if present) to check if the solution allows hide for the form
-				return form.getOnBeforeHideMethodID() == 0 ||
-					!Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID,
-						new Object[] { getJSEvent(formScope,
-							RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID.getPropertyName(),
-								Form.class))
-						}, null, true, true));
+				return !Boolean.FALSE.equals(executeFormMethod(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID,
+					new Object[] { getJSEvent(formScope,
+						RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONBEFOREHIDEMETHODID.getPropertyName(),
+							Form.class))
+					}, null, true, true));
 			}
 			else
 			{
@@ -808,7 +804,7 @@ public abstract class BasicFormController
 	{
 		Object ret = null;
 		Integer id = ((Integer)form.getProperty(methodProperty.getPropertyName()));
-		if (id.intValue() > 0 && formScope != null)
+		if (id != null && id.intValue() > 0 && formScope != null)
 		{
 			FormExecutionState formExecutionState = null;
 			if (getFormUI() instanceof ISupportFormExecutionState)
@@ -874,6 +870,27 @@ public abstract class BasicFormController
 				if (formExecutionState != null && getFormUI() instanceof ISupportFormExecutionState)
 				{
 					((ISupportFormExecutionState)getFormUI()).formMethodExecuted(formExecutionState);
+				}
+			}
+		}
+		List<Function> callbacks = application.getEventsManager().getListeners(methodProperty.getPropertyName(),
+			IExecutingEnviroment.TOPLEVEL_FORMS + "." + getName());
+		if (callbacks != null)
+		{
+			for (Function function : callbacks)
+			{
+				try
+				{
+					executeFunction(function,
+						Utils.arrayMerge(args, Utils.parseJSExpressions(form.getFlattenedMethodArguments(methodProperty.getPropertyName()))),
+						function.getParentScope(),
+						function.getParentScope(),
+						saveData, null, testFindMode != null ? testFindMode.booleanValue() : false, false, methodProperty.getPropertyName(), false, true,
+						false);
+				}
+				catch (Exception e)
+				{
+					Debug.error(e);
 				}
 			}
 		}
@@ -1199,13 +1216,11 @@ public abstract class BasicFormController
 
 	public void unload()
 	{
-		if (form.getOnUnLoadMethodID() > 0)
-		{
-			executeFormMethod(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID,
-				new Object[] { getJSEvent(formScope,
-					RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID.getPropertyName(), Form.class)) },
-				Boolean.TRUE, true, true);
-		}
+		executeFormMethod(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID,
+			new Object[] { getJSEvent(formScope,
+				RepositoryHelper.getDisplayName(StaticContentSpecLoader.PROPERTY_ONUNLOADMETHODID.getPropertyName(), Form.class)) },
+			Boolean.TRUE, true, true);
+
 		application.getFoundSetManager().getEditRecordList().removePrepareForSave(this);
 		((FoundSetManager)application.getFoundSetManager()).removeFoundSetListener(this);
 

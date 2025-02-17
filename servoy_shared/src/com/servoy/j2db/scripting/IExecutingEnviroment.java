@@ -48,6 +48,7 @@ public interface IExecutingEnviroment
 	public final static String TOPLEVEL_JSUNIT = "jsunit"; //$NON-NLS-1$ // IMPORTANT: if you change this, you MUST change it also in Ident.java
 	public final static String TOPLEVEL_SCOPES = ScriptVariable.SCOPES;
 	public final static String TOPLEVEL_MENUS = "menus"; //$NON-NLS-1$
+	public final static String TOPLEVEL_EVENTTYPES = "eventTypes"; //$NON-NLS-1$
 
 	public final static String[] TOPLEVEL_KEYWORDS = { TOPLEVEL_HISTORY, TOPLEVEL_PLUGINS, TOPLEVEL_APPLICATION, TOPLEVEL_UTILS, TOPLEVEL_CLIENTUTILS, //
 		TOPLEVEL_SECURITY, TOPLEVEL_DATABASE_MANAGER, TOPLEVEL_I18N, TOPLEVEL_SERVOY_EXCEPTION, TOPLEVEL_FORMS, TOPLEVEL_JSUNIT, TOPLEVEL_SCOPES, TOPLEVEL_MENUS };

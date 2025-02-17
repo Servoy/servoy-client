@@ -257,6 +257,13 @@ public interface IApplication extends IBasicApplication, IServiceProvider, ILogL
 	public IMenuManager getMenuManager();
 
 	/**
+	 * Get the events manager (used to control the application events).
+	 *
+	 * @return IEventsManager
+	 */
+	public IEventsManager getEventsManager();
+
+	/**
 	 * Get the user manager (used to do authentication and security)
 	 *
 	 * @return

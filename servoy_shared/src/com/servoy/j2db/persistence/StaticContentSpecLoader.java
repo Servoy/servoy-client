@@ -316,6 +316,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 	public static final TypedProperty<Integer> PROPERTY_ONBEFORELOGINMETHODID = new TypedProperty<Integer>(
 		IContentSpecConstants.PROPERTY_ONBEFORELOGINMETHODID);
 	public static final TypedProperty<JSONObject> PROPERTY_PERMISSIONS = new TypedProperty<JSONObject>(IContentSpecConstants.PROPERTY_PERMISSIONS);
+	public static final TypedProperty<JSONObject> PROPERTY_EVENTTYPES = new TypedProperty<JSONObject>(IContentSpecConstants.PROPERTY_EVENTTYPES);
 
 	private static HashMap<Integer, ContentSpec> csMap = new HashMap<Integer, ContentSpec>();
 
@@ -1009,6 +1010,7 @@ public class StaticContentSpecLoader implements IContentSpecConstants
 		{
 			//2025.03 properties here
 			cs.new Element(488, IRepository.FORMS, PROPERTY_ONBEFORERECORDSELECTIONMETHODID.getPropertyName(), IRepository.ELEMENTS);
+			cs.new Element(489, IRepository.SOLUTIONS, PROPERTY_EVENTTYPES.getPropertyName(), IRepository.JSON, null);
 		}
 		//##add property adds here
 		return cs;
