@@ -230,7 +230,7 @@ public class StatelessLoginHandler
 	}
 
 	public static void writeLoginPage(HttpServletRequest request, HttpServletResponse response, String solutionName, String customHTML)
-		throws IOException
+		throws IOException, ServletException
 	{
 		if (request.getCharacterEncoding() == null) request.setCharacterEncoding("UTF8");
 		HTTPUtils.setNoCacheHeaders(response);
@@ -246,7 +246,7 @@ public class StatelessLoginHandler
 			log.error("Can't load solution " + solutionName, e);
 			return;
 		}
-		
+
 		if (solution == null)
 		{
 			log.error("The solution is null " + solutionName);

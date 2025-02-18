@@ -26,10 +26,12 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.text.StringEscapeUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +61,8 @@ import com.servoy.j2db.util.Utils;
 public class OAuthHandler
 {
 	private static final String GET_OAUTH_CONFIG = "getOAuthConfig";
-	
+	private static final String OAUTHCONFIGREQUEST_PARAM = "oauthconfigrequest";
+
 	static final Logger log = LoggerFactory.getLogger("stateless.login");
 
 	public static Pair<Boolean, String> handleOauth(HttpServletRequest req, HttpServletResponse resp) throws IOException
@@ -380,8 +383,14 @@ public class OAuthHandler
 		}
 	}
 
-	public static void redirectToAuthenticator(HttpServletRequest request, HttpServletResponse response, Solution solution)
+	public static void redirectToAuthenticator(HttpServletRequest request, HttpServletResponse response, Solution solution) throws ServletException
 	{
+		String oauthconfigrequest = StringEscapeUtils.escapeHtml4(request.getParameter(OAUTHCONFIGREQUEST_PARAM));
+		if (oauthconfigrequest == null)
+		{
+			log.error("Oauth config request parameter was not provided");
+			throw new ServletException("Oauth config request parameter was not provided");
+		}
 		Solution authenticatorModule = AuthenticatorManager.findAuthenticator(solution);
 		if (authenticatorModule != null)
 		{
@@ -392,11 +401,14 @@ public class OAuthHandler
 				String[] values = entry.getValue();
 				for (String value : values)
 				{
-					json.put(entry.getKey(), value);
+					json.put(entry.getKey(), StringEscapeUtils.escapeHtml4(value));
 				}
 			}
 
-			JSONObject config = getConfig(authenticatorModule, json);
+			JSONArray args = new JSONArray();
+			args.put(oauthconfigrequest);
+			args.put(json);
+			JSONObject config = getConfig(authenticatorModule, args);
 			if (config != null)
 			{
 				generateOauthCall(request, response, config);
@@ -404,9 +416,9 @@ public class OAuthHandler
 		}
 	}
 
-	private static JSONObject getConfig(Solution authenticatorModule, JSONObject json)
+	private static JSONObject getConfig(Solution authenticatorModule, JSONArray args)
 	{
-		Credentials credentials = new Credentials(null, authenticatorModule.getName(), GET_OAUTH_CONFIG, json.toString());
+		Credentials credentials = new Credentials(null, authenticatorModule.getName(), GET_OAUTH_CONFIG, args.toString());
 		IApplicationServer applicationServer = ApplicationServerRegistry.getService(IApplicationServer.class);
 		try
 		{
