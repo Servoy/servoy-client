@@ -225,6 +225,30 @@ public class JSClientUtils
 		return null;
 	}
 
+	/**
+	* Will return the user agent string of the browser.
+	*
+	* @sample
+	*  var useragent = clientutils.getUserAgent();
+	*  var mobile = /iPhone|iPad|iPod|Android/.test(userAgent);
+	*
+	*  @return A String object representing the useragent of the browser.
+	*/
+	@ServoyClientSupport(ng = true, mc = false, wc = false, sc = false)
+	@JSFunction
+	public String getUserAgent()
+	{
+		if (application instanceof INGClientApplication ng)
+		{
+			JSONObject userAgentAndPlatform = ng.getUserAgentAndPlatform();
+			if (userAgentAndPlatform != null)
+			{
+				return userAgentAndPlatform.optString("userAgent"); //$NON-NLS-1$
+			}
+		}
+		return null;
+	}
+
 	public void destroy()
 	{
 		this.application = null;
